@@ -3,6 +3,7 @@ import { MAX_FILE_BYTES, ZOOM_STEP } from '../engine/config.js';
 import type { AudioEngineEvent, EngineSchedule, ScoreStore, SettingsStore } from '../engine/ports.js';
 import { IndexedDbScoreStore } from '../engine/storage/indexeddb-score-store.js';
 import { LocalSettingsStore } from '../engine/storage/local-settings-store.js';
+import '../ui/elements/mx-diagnostics.js';
 import '../ui/elements/mx-drop-zone.js';
 import '../ui/elements/mx-help-notation.js';
 import '../ui/elements/mx-open-button.js';
@@ -161,6 +162,15 @@ export class Session {
     helpButton.textContent = en.help.button;
     helpButton.addEventListener('click', () => helpPanel.toggle());
     document.getElementById('help-controls')?.appendChild(helpButton);
+
+    const diagnosticsPanel = document.createElement('mx-diagnostics');
+    diagnosticsPanel.setEngine(this.audioEngine);
+    document.getElementById('diagnostics-panel')?.appendChild(diagnosticsPanel);
+    const diagnosticsButton = document.createElement('button');
+    diagnosticsButton.type = 'button';
+    diagnosticsButton.textContent = en.diagnostics.button;
+    diagnosticsButton.addEventListener('click', () => diagnosticsPanel.toggle());
+    document.getElementById('diagnostics-controls')?.appendChild(diagnosticsButton);
 
     document.addEventListener('keydown', (event) => this.onKeyDown(event));
 

@@ -34,4 +34,17 @@ export const en = {
     status: 'Status',
     notes: 'Notes',
   },
+  diagnostics: {
+    button: 'Diagnostics',
+    title: 'Audio diagnostics',
+    sampleRate: 'Sample rate',
+    baseLatency: 'Base latency',
+    outputLatency: 'Output latency',
+    dropoutsSincePlay: 'Dropouts since Play',
+    dropoutsTotal: 'Dropouts total',
+    dropoutMethod: 'Dropout detection',
+    reportsPerSecond: 'Reports/second',
+    lastReportAge: 'Last report age',
+    notAvailable: 'n/a',
+  },
 };

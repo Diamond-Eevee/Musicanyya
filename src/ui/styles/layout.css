@@ -66,3 +66,28 @@ mx-app {
   padding: 4px 8px;
   border-bottom: 1px solid var(--border-color);
 }
+
+.mx-diagnostics-panel {
+  width: 280px;
+  border-left: 1px solid var(--border-color);
+  overflow-y: auto;
+  flex-shrink: 0;
+  padding: 12px 16px;
+}
+
+.mx-diagnostics-list {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 12px;
+  row-gap: 4px;
+  margin: 0;
+}
+
+.mx-diagnostics-list dt {
+  color: #666;
+}
+
+.mx-diagnostics-list dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}

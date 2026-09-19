@@ -6,6 +6,7 @@ export class MxApp extends HTMLElement {
       <header class="mx-header">
         <div id="transport-controls"></div>
         <div id="open-controls"></div>
+        <div id="diagnostics-controls"></div>
         <div id="help-controls"></div>
       </header>
       <main class="mx-main">
@@ -16,6 +17,7 @@ export class MxApp extends HTMLElement {
           <div class="mx-empty-state">${en.app.emptyState}</div>
         </section>
         <aside class="mx-help-panel" id="help-panel"></aside>
+        <aside class="mx-diagnostics-panel" id="diagnostics-panel"></aside>
       </main>
       <mx-notice-tray></mx-notice-tray>
     `;

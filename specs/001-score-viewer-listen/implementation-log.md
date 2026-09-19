@@ -390,3 +390,23 @@
 - Handoff: next = T109 (`mx-diagnostics.ts`: dropouts, method, sample rate, latencies, report rate - all backed by
   `AudioEngine.diagnostics()`, already implemented in T104), then T110 (make the T100 e2e test pass). Tree clean at
   this commit.
+
+## 2026-09-19 21:53 - claude-sonnet-5
+- Done: T109 (`mx-diagnostics.ts`, FR-031).
+- No dedicated test task exists for this element (unlike most others in this feature); it's a thin, low-risk
+  display over `AudioEngine.diagnostics()` (already implemented and covered indirectly via T104's WebAudioEngine
+  work), matching the `mx-help-notation.ts` non-modal-panel pattern (`this.hidden = true` by default, a `toggle()`
+  method, a header button in `mx-app.ts`). Refreshes every 1000 ms via `setInterval` while visible (diagnostics
+  don't need per-frame precision, unlike the R-11 cursor); skips re-rendering while hidden.
+  - Added a new `#diagnostics-controls` / `#diagnostics-panel` pair to `mx-app.ts` (mirroring `help-controls` /
+    `help-panel`) rather than reusing the help panel's slot, so diagnostics and help can be open independently
+    (R-14: "Panels ... are non-modal side panels").
+  - `session.ts` calls `diagnosticsPanel.setEngine(this.audioEngine)` once at startup; the engine reference itself
+    doesn't change across the session (only its internal state does), so no re-binding is needed when a new Score
+    loads.
+  - Verified in the browser (`pnpm dev`): the panel shows sensible `n/a`/`0` defaults before any Score is opened
+    or played (no `AudioContext` yet, so `diagnostics()` reads through `null`/`this.context?.` chains cleanly).
+- Problems / open questions: none blocking.
+- Handoff: next = T110 (make `tests/e2e/us2-listen.spec.ts` pass - integration fixes only, per its own task
+  description). Full US2 checkpoint (independent test, full gate, RT reviews recap) once T110 is done. Tree clean
+  at this commit.
