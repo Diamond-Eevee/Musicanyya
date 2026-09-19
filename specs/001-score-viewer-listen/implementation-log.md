@@ -138,3 +138,55 @@
 - Decisions: Worker tests pass parsed.doc instead of parsed (fix). Incomplete tests skipped to pass the gate for the checkpoint.
 - Problems / open questions: none.
 - Handoff: next = T062-T068 (Storage and UI integration); tree clean at this commit.
+
+## 2026-09-19 18:10 - claude-sonnet-5 (relay)
+- Done: T062-T068. US1 checkpoint reached: full quality gate green (`pnpm typecheck`, `pnpm lint`, `pnpm test`,
+  `pnpm build`, `pnpm exec playwright test tests/e2e/us1-open-view.spec.ts`), Independent Test verified manually
+  in a real browser (open, zoom, malformed-file error keeping the previous Score, reload + reopen/remove from
+  recent, Help panel) and by the new e2e test.
+  - T062/T063: `src/engine/storage/{indexeddb-score-store,local-settings-store}.ts`. T045/T046 were skipped stubs
+    (`describe.skip`, per the T058-T061 entry above); wrote real tests first, confirmed them fail (module missing),
+    then implemented.
+  - T064: `src/ui/score/{pages,verovio-client}.ts` + `src/ui/elements/mx-score-view.ts` + `score.css`. Same
+    stub-test situation for T047; wrote a real test with a hand-rolled fake `VerovioClient` covering +-1-screen
+    lazy mounting, SVG sanitising (script/foreignObject/on*), debounced zoom relayout that re-anchors the topmost
+    visible measure via `pageOf`, and click-to-measure.
+  - T065: `mx-open-button`/`mx-drop-zone`/`mx-recent-list` + `scoreState`/`viewState`. Same for T048.
+  - T066: `src/app/session.ts` wires the score/Verovio workers, both stores, and the US1 UI elements together;
+    +/- keyboard zoom (quickstart US1-4) since no dedicated zoom-control task existed in tasks.md.
+  - T067: `mx-help-notation.ts` (SUPPORT_MATRIX by category, non-modal, header toggle).
+  - T068: real Playwright test replacing the T049 stub; passes on chromium and webkit (firefox fails to *launch*
+    locally - `spawn UNKNOWN` - reproducible with or without sandboxing, an environment issue on this machine, not
+    a code or test defect).
+- Decisions:
+  - `pnpm typecheck` (`tsc --noEmit` against the root solution-style tsconfig.json, `files: []` + `references`)
+    checked zero files and has been a silent no-op for the whole project; every prior "full gate green" log entry
+    was never actually type-checked. Owner chose (asked via AskUserQuestion): fix the script now and fix
+    everything it surfaces before continuing, rather than deferring. Switched to `tsc --build tsconfig.json` and
+    fixed ~40 surfaced errors, all pre-existing and unrelated to T062-T068 itself - see the "fix: make pnpm
+    typecheck actually check the project" commit for the full breakdown. Two are worth flagging specifically:
+    `src/workers/score.worker.ts` imported `decodeBytes`/`unpackMxl`, which never existed (real exports are
+    `decodeXml`/`readMxl`) - this broke `pnpm build` outright, so `dist/` may never have been produced
+    successfully before now. And `@rgrove/parse-xml` types its node `.type` discriminant as plain `string`, so
+    every `node.type === 'element'` check in `build.ts` silently failed to narrow; switched to `instanceof`.
+  - `tests/verovio/perf.test.ts` (T061's performance spike) was hanging the full 30s timeout from a message-shape
+    bug (posted `{type:'load', xml}`, checked for a `'loaded'` response the worker never sends). Fixed and ran it
+    for real: 500 measures / 4 parts -> 14 pages laid out in ~230 ms at the app's default page size, far under the
+    6 s budget - recorded in research.md R-9. First-pages-first rendering is not needed.
+  - Found and fixed a real correctness bug while manually verifying T067 in a browser: `scoreState.failed()`
+    guarded on the *current* status being `'loaded'` to decide whether to keep the previous Score, but
+    `startLoading()` (called unconditionally at the start of every open attempt) had already moved the status to
+    `'loading'` by the time a failure was known - so a failed second open silently discarded the first Score
+    from the UI's perspective (the empty-state message reappeared over the still-rendered SVG). Fixed by tracking
+    the last successfully loaded Score independently of the transient status; added a regression test exercising
+    the real `startLoading` -> `failed` sequence (the existing test only called `succeeded` -> `failed` directly
+    and missed it).
+  - No dedicated zoom-control UI element exists in tasks.md's file list; implemented zoom via keyboard shortcuts
+    only (+/-, quickstart US1-4). A visible zoom slider/buttons would be new UI scope not in the task list.
+- Problems / open questions: none blocking. `tests/core/musicxml/fixtures.test.ts` and `malformed.test.ts`
+  (T041) are still `describe.skip` stubs from earlier sessions, unrelated to this checkpoint's scope - worth a
+  follow-up task if not already tracked. Firefox e2e needs a working local Playwright Firefox launch to verify
+  (chromium and webkit both pass; chromium is the project's reference browser).
+- Handoff: next = Phase 4, US2 "Listen to a score" (T069 onward). T011's owner decision (spessasynth_core in our
+  own AudioWorklet) was already approved per earlier log entries, so T090+ is unblocked. Tree clean at this
+  commit once this log entry and the checkpoint commit land.
