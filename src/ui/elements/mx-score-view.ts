@@ -1,4 +1,3 @@
-import type { PlaybackTimeline } from '../../core/timeline/types.js';
 import { FOLLOW_MARGIN, RELAYOUT_DEBOUNCE_MS, ZOOM_DEFAULT, ZOOM_MAX, ZOOM_MIN } from '../../engine/config.js';
 import type { AudioEngine } from '../../engine/ports.js';
 import { drawCursorOverlay } from '../score/cursor-overlay.js';
@@ -16,6 +15,16 @@ import { transportState } from '../state/transportState.js';
 const DEFAULT_PAGE_WIDTH = 1200;
 const DEFAULT_PAGE_HEIGHT = 1600;
 
+/** Compact main-thread form of the timeline (contracts/worker-messages.md `TimelineDto`), as sent by
+ * score.worker.ts's `loaded` message - distinct from core's internal `PlaybackTimeline` (different field names,
+ * fewer fields; the UI only needs enough to highlight and follow-scroll). */
+export interface TimelineDto {
+  ppq: number;
+  endTick: number;
+  passes: { measureIndex: number; startTick: number; endTick: number }[];
+  spans: { noteId: string; startTick: number; endTick: number }[];
+}
+
 export class MxScoreView extends HTMLElement {
   client: VerovioClient | null = null;
 
@@ -32,7 +41,7 @@ export class MxScoreView extends HTMLElement {
 
   // Listen-mode cursor/highlight (T107, R-11): set once by session.ts (T108) after a Score + engine are ready.
   private engine: AudioEngine | null = null;
-  private timeline: PlaybackTimeline | null = null;
+  private timeline: TimelineDto | null = null;
   private soundingNoteIds = new Set<string>();
   private rafHandle: number | null = null;
   private followScrolling = false;
@@ -67,7 +76,7 @@ export class MxScoreView extends HTMLElement {
   }
 
   /** Called once a Score's schedule/timeline and an unlocked AudioEngine are both ready (session.ts, T108). */
-  setPlayback(engine: AudioEngine, timeline: PlaybackTimeline): void {
+  setPlayback(engine: AudioEngine, timeline: TimelineDto): void {
     this.engine = engine;
     this.timeline = timeline;
   }
@@ -196,7 +205,7 @@ export class MxScoreView extends HTMLElement {
     this.soundingNoteIds = soundingNoteIds;
 
     const pass =
-      timeline.passes.find((p) => p.startTick <= tick && tick < p.startTick + p.lengthTicks) ??
+      timeline.passes.find((p) => p.startTick <= tick && tick < p.endTick) ??
       timeline.passes[timeline.passes.length - 1];
     const measureId = pass ? this.measureIds[pass.measureIndex] : undefined;
     const measureEl = measureId !== undefined ? this.stack.querySelector(`#${CSS.escape(measureId)}`) : null;
