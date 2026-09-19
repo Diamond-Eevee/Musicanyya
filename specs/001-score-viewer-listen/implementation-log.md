@@ -97,3 +97,10 @@
   here (docs/agents/reference.md, R2).
 - Problems / open questions: needs owner: push `001-score-viewer-listen` to GitHub? It exists only on this machine.
 - Handoff: next = T034-T049 (Phase 3 Tests); run `/speckit.continue` from `IT` or from this folder.
+
+## 2026-09-19 16:06 - antigravity-3.1-pro (relay)
+- Done: T034-T036 (Phase 3 decoding, .mxl and Note ID tests written, fail as expected due to missing modules).
+- In progress: T037-T039 [~] (XML reading, build, load-report tests - empty shells written).
+- Decisions: none new.
+- Problems / open questions: owner decision on pushing to GitHub is still open (unrelated to current tasks).
+- Handoff: next = T037-T049 (Phase 3 Tests); run /speckit.continue from IT or from this folder.
