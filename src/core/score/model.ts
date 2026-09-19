@@ -33,6 +33,7 @@ export interface Part {
   instruments: Instrument[];
   notes: Note[];
   dynamics: DynamicMark[];
+  soundDynamics: SoundDynamicMark[];
   wedges: Wedge[];
   transpositions: Transposition[];
 }
@@ -129,10 +130,16 @@ export interface DynamicMark {
   onsetInMeasure: Ticks;
   type: string;
 }
+export interface SoundDynamicMark {
+  measureIndex: number;
+  onsetInMeasure: Ticks;
+  percent: number;
+}
 export interface Wedge {
   measureIndex: number;
   onsetInMeasure: Ticks;
   type: 'crescendo' | 'diminuendo' | 'stop';
+  number: number;
 }
 export interface Transposition {
   measureIndex: number;

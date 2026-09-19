@@ -137,8 +137,8 @@ follow the notation; change tempo and volume while playing (spec US2).
 - [x] T072 [P] [US2] Unrolling tests with snapshots of MeasurePass lists (repeats, times, unbalanced, endings incl. combined/discontinue, D.C./D.S./To Coda/Fine, after-jump, time-only, text inference whitelist, loop guard fallback, first-pass seek rule) in `tests/core/timeline/unroll.test.ts`
 - [ ] T073 [P] [US2] Tie resolution tests on the unrolled order (barline, chains, into both voltas, partial chords, broken start/stop, `<tied>`-only, let-ring) in `tests/core/timeline/ties.test.ts`
 - [ ] T074 [P] [US2] Grace timing tests after unrolling (steal from previous, cap ratio, min remaining, steal-time-following, lead-in at start) in `tests/core/timeline/grace.test.ts`
-- [ ] T075 [P] [US2] Tempo map tests (sound tempo vs metronome precedence, dotted beat units, ranges, offset with sound="yes", default 100 qpm, merge across parts, notated-order state at jump targets) in `tests/core/tempo/tempo-map.test.ts`
-- [ ] T076 [P] [US2] Dynamics/velocity tests (mark table, note/sound dynamics precedence, sfz/fp/accent boosts, wedge interpolation, clamping) in `tests/core/timeline/dynamics.test.ts`
+- [x] T075 [P] [US2] Tempo map tests (sound tempo vs metronome precedence, dotted beat units, ranges, offset with sound="yes", default 100 qpm, merge across parts, notated-order state at jump targets) in `tests/core/tempo/tempo-map.test.ts`
+- [x] T076 [P] [US2] Dynamics/velocity tests (mark table, note/sound dynamics precedence, sfz/fp/accent boosts, wedge interpolation, clamping) in `tests/core/timeline/dynamics.test.ts`
 - [ ] T077 [P] [US2] Instrument/channel tests (program 1-based -> 0-based, fallback to piano with notice, percussion via midi-unpitched, channel allocation skipping 9 and 15, sharing by program, transposed sounding keys, octave-shift display only) in `tests/core/timeline/instruments.test.ts`
 - [ ] T078 [P] [US2] Timeline + schedule compile tests (sounding events with tie members, visual spans per notehead and pass, lead-in shift, event ordering noteOff < noteOn, control changes at tick 0, TICK_LIMIT guard) with snapshots in `tests/core/timeline/timeline.test.ts` and `tests/core/schedule/compile.test.ts`
 - [ ] T079 [P] [US2] Transport reducer tests (all transitions in data-model §5, follow flag, seek to first pass) in `tests/core/transport/transport.test.ts`
@@ -148,8 +148,8 @@ follow the notation; change tempo and volume while playing (spec US2).
 ### Implementation - core
 
 - [x] T082 [US2] Implement `src/core/timeline/unroll.ts` to pass T072
-- [ ] T083 [US2] Implement `src/core/tempo/tempo-map.ts` to pass T075
-- [ ] T084 [P] [US2] Implement `src/core/timeline/dynamics.ts` to pass T076
+- [x] T083 [US2] Implement `src/core/tempo/tempo-map.ts` to pass T075
+- [x] T084 [P] [US2] Implement `src/core/timeline/dynamics.ts` to pass T076
 - [ ] T085 [P] [US2] Implement `src/core/timeline/instruments.ts` to pass T077
 - [ ] T086 [US2] Implement `src/core/timeline/timeline.ts` (ties on unrolled order, grace timing, spans, channels, lead-in) to pass T073, T074, T078 (timeline part)
 - [ ] T087 [US2] Implement `src/core/schedule/compile.ts` (ScheduleMessage arrays per contracts/worklet-protocol.md) to pass T078 (schedule part)

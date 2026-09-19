@@ -342,6 +342,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
       instruments: info.instruments,
       notes: [],
       dynamics: [],
+      soundDynamics: [],
       wedges: [],
       transpositions: [],
     };
@@ -688,10 +689,12 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
             }
             const wedge = getChild(dirType, 'wedge');
             if (wedge) {
+              const numAttr = getAttr(wedge, 'number');
               part.wedges.push({
                 measureIndex: currentMeasureIndex,
                 onsetInMeasure,
                 type: getAttr(wedge, 'type') as any,
+                number: numAttr ? parseInt(numAttr, 10) || 1 : 1,
               });
             }
             if (firstPart) {
@@ -706,6 +709,13 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
             }
           }
           if (sound) {
+            const soundDynamicsAttr = getAttr(sound, 'dynamics');
+            if (soundDynamicsAttr) {
+              const percent = parseFloat(soundDynamicsAttr);
+              if (!Number.isNaN(percent)) {
+                part.soundDynamics.push({ measureIndex: currentMeasureIndex, onsetInMeasure, percent });
+              }
+            }
             const timeOnlyAttr = getAttr(sound, 'time-only');
             const timeOnly = timeOnlyAttr
               ? timeOnlyAttr

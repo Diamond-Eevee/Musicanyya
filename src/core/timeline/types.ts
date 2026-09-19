@@ -1,5 +1,7 @@
 import type { NoteId, Ticks } from '../score/model.js';
 
+export type { Ticks };
+
 export interface MeasurePass {
   measureIndex: number;
   passNo: number;
