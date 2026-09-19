@@ -34,12 +34,12 @@
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T012 [P] Unit tests for ticks/rationals (gcd, lcm, reduced fractions, PPQ = lcm(960, divisions) with MAX_PPQ guard) in `tests/core/ticks.test.ts`
-- [ ] T013 [P] Unit tests for pitch (step/alter/octave -> MIDI, unpitched display key, transposition chromatic/octave-change/double) in `tests/core/pitch.test.ts`
-- [ ] T014 [P] Unit + property-style tests for `ticksPerFrame`, tick->frame and frame->tick inverses across tempo segments and tempo percentages (no drift over 10^8 frames) in `tests/core/tempo/rate.test.ts`
-- [ ] T015 [P] Unit tests for the observable store (`subscribe`, `set`, `update`, unsubscribe, no notify on equal value) in `tests/ui/store.test.ts`
-- [ ] T016 [P] Unit tests for the notice model (grouping by code within a merge window, dismiss, severity) in `tests/ui/notice-state.test.ts`
-- [ ] T017 [P] Unit tests for `EnvironmentProbe` capability detection with faked globals (AudioWorklet present/absent, requestMIDIAccess present/absent, insecure context, IndexedDB blocked, DecompressionStream missing, no shell bridge) in `tests/engine/environment/probe.test.ts`
+- [x] T012 [P] Unit tests for ticks/rationals (gcd, lcm, reduced fractions, PPQ = lcm(960, divisions) with MAX_PPQ guard) in `tests/core/ticks.test.ts`
+- [x] T013 [P] Unit tests for pitch (step/alter/octave -> MIDI, unpitched display key, transposition chromatic/octave-change/double) in `tests/core/pitch.test.ts`
+- [x] T014 [P] Unit + property-style tests for `ticksPerFrame`, tick->frame and frame->tick inverses across tempo segments and tempo percentages (no drift over 10^8 frames) in `tests/core/tempo/rate.test.ts`
+- [x] T015 [P] Unit tests for the observable store (`subscribe`, `set`, `update`, unsubscribe, no notify on equal value) in `tests/ui/store.test.ts`
+- [x] T016 [P] Unit tests for the notice model (grouping by code within a merge window, dismiss, severity) in `tests/ui/notice-state.test.ts`
+- [x] T017 [P] Unit tests for `EnvironmentProbe` capability detection with faked globals (AudioWorklet present/absent, requestMIDIAccess present/absent, insecure context, IndexedDB blocked, DecompressionStream missing, no shell bridge) in `tests/engine/environment/probe.test.ts`
 
 ### Implementation
 
