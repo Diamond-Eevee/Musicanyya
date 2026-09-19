@@ -199,9 +199,9 @@ latency readout (spec US3).
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T111 [P] [US3] Web MIDI adapter tests with FakeMidiAccess (availability states notRequested/available/notSupported/denied, request from gesture, all inputs used, note on/off incl. velocity-0 note-off, CC64 sustain, other messages ignored, hot-plug add/remove, deviceLost carries held keys, latency samples median) in `tests/engine/midi/web-midi-input.test.ts`
-- [ ] T112 [P] [US3] Worklet live-input tests with RecordingSynth (live on/off/sustain/allOff applied at the next block on LIVE_CHANNEL; mixing with scheduled playback does not change scheduled dispatch frames) in `tests/engine/score-player.live.test.ts`
-- [ ] T113 [P] [US3] UI tests: MIDI panel (device list, connect button, explanations per reason incl. Safari/Firefox text, latency readout) and 88-key on-screen keyboard (pressed state colour + dot, sustain) with key -> render within 50 ms of the fake event in `tests/ui/midi-panel.test.ts`
+- [~] T111 [P] [US3] Web MIDI adapter tests with FakeMidiAccess (availability states notRequested/available/notSupported/denied, request from gesture, all inputs used, note on/off incl. velocity-0 note-off, CC64 sustain, other messages ignored, hot-plug add/remove, deviceLost carries held keys, latency samples median) in `tests/engine/midi/web-midi-input.test.ts` (claimed: antigravity-3.1-pro 2026-09-19)
+- [~] T112 [P] [US3] Worklet live-input tests with RecordingSynth (live on/off/sustain/allOff applied at the next block on LIVE_CHANNEL; mixing with scheduled playback does not change scheduled dispatch frames) in `tests/engine/score-player.live.test.ts` (claimed: antigravity-3.1-pro 2026-09-19)
+- [~] T113 [P] [US3] UI tests: MIDI panel (device list, connect button, explanations per reason incl. Safari/Firefox text, latency readout) and 88-key on-screen keyboard (pressed state colour + dot, sustain) with key -> render within 50 ms of the fake event in `tests/ui/midi-panel.test.ts` (claimed: antigravity-3.1-pro 2026-09-19)
 
 ### Implementation
 

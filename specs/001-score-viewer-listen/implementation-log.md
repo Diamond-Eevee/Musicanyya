@@ -480,3 +480,10 @@
   through the app" (T111 onward - Web MIDI adapter tests). T091/T104's audio engine already unblocks US3's
   dependency on sound (T115 extends the same `score-player.processor.ts`/`web-audio-engine.ts`). Tree clean at
   this commit.
+
+## 2026-09-19 22:40 - antigravity (relay)
+- Done: none.
+- In progress: T111, T112, T113 `[~]` - stub test files and component implementations created (`web-midi-input.ts`, `mx-midi-panel.ts`, `mx-piano-keys.ts`). Tests are currently empty shells that force a failure.
+- Decisions: Created stub components to allow test files to run.
+- Problems / open questions: none.
+- Handoff: next = T111-T113 (write real test implementations for US3), then T114+ (implementations). Tree clean at this commit.
