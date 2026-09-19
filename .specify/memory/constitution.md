@@ -1,7 +1,23 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: (none) -> 1.0.0 (initial ratification, web-first direction)
+Version change: 1.0.0 -> 1.1.0 (MINOR)
+  Resolves the three deferred stack decisions (Platform & Technology Constraints):
+  - Built-in sound: spessasynth_lib (AudioWorklet SF2/SF3 synth) + GeneralUser GS SF2 (ADR-0002).
+  - Native audio plugin: one Rust companion process for Windows/macOS/Linux (cpal, midir,
+    rustysynth) linked to the app over a localhost WebSocket (ADR-0003).
+  - Electron packaging: electron-builder (ADR-0004).
+  Principle V: new security rule for the Native audio plugin link (loopback only, Origin check,
+  pairing token).
+Templates requiring updates:
+  OK .specify/templates/plan-template.md   (no change needed)
+  OK .specify/templates/spec-template.md   (no change needed)
+  OK .specify/templates/tasks-template.md  (no change needed)
+  OK .claude/agents/rt-audio-reviewer.md   (plugin language = Rust)
+  OK AGENTS.md                             (stack, repo map, toolchain)
+Deferred TODOs: ASIO SDK licence before an ASIO-enabled plugin release (ADR-0003).
+
+Previous: (none) -> 1.0.0 (initial ratification, web-first direction)
   The project was restarted from scratch on 2026-09-19. The previous Rust/Tauri
   constitution and all product documents were discarded; this is a new document.
 Principles added:
@@ -22,10 +38,7 @@ Templates requiring updates:
   OK .claude/commands/speckit.*.md         (gate commands, reviewer names)
   OK .claude/agents/*.md                   (rt-audio-reviewer rewritten for AudioWorklet + plugin)
   OK AGENTS.md, README.md                  (rewritten)
-Deferred TODOs:
-  - Native audio plugin language and IPC (ADR when that feature is planned).
-  - Built-in instrument (SoundFont player) library choice (ADR in the first audio feature).
-  - Electron packaging tool (ADR when the Electron feature is planned).
+Deferred TODOs (all resolved in 1.1.0).
 -->
 
 # Musicanyya Constitution
@@ -149,7 +162,7 @@ fixture-driven tests catch regressions.
   MIDI, Web Workers, IndexedDB). UI frameworks and UI libraries (React,
   Angular, Vue, Svelte, Solid, Lit, jQuery, Tailwind, Bootstrap, ...) MUST NOT
   be used. The only exception is the Native audio plugin, which is native code
-  by necessity (language chosen in an ADR).
+  by necessity (Rust, ADR-0003).
 - Layers, inside out: **core** (pure TS: score model, MusicXML parser,
   timeline, wait-mode logic, grading, advice model; no DOM, no Web APIs, no
   I/O) -> **engine** (ports and adapters: `AudioEngine`, `MidiInput`,
@@ -164,6 +177,10 @@ fixture-driven tests catch regressions.
 - Electron MUST run with `contextIsolation`, `sandbox` and no
   `nodeIntegration` in renderers; the renderer talks to Node/native code only
   through a small, typed, versioned preload bridge.
+- The Native audio plugin's link to the app MUST listen on the loopback
+  interface only, accept only allowed Origins, require a pairing/session
+  token, and treat everything it receives as data (schedules and settings),
+  never as code or file paths to load.
 - The UI MUST NOT compute timing, tempo or grades; it renders what the core
   and engine produce.
 - Device loss (MIDI keyboard unplugged, audio device change, plugin crash)
@@ -224,22 +241,24 @@ accidental complexity must be earned.
 
 ## Platform & Technology Constraints
 
-The authoritative rationale is `docs/adr/0001-technology-stack.md`. Changing
-any row requires a new ADR and a constitution amendment (MINOR).
+The authoritative rationale is `docs/adr/0001-technology-stack.md`, with
+ADR-0002 (built-in sound), ADR-0003 (Native audio plugin) and ADR-0004
+(Electron packaging). Changing any row requires a new ADR and a constitution
+amendment (MINOR).
 
 | Concern | Decision |
 |---|---|
 | Delivery targets | 1. Web app (static files, any static host). 2. Electron desktop app wrapping the same build (Windows first). 3. Native audio plugin (optional, desktop). |
-| Language | TypeScript, `strict` (plus `noUncheckedIndexedAccess`), ES modules, ES2022+. Native audio plugin: native language per ADR |
+| Language | TypeScript, `strict` (plus `noUncheckedIndexedAccess`), ES modules, ES2022+. Native audio plugin: Rust (stable) |
 | UI | HTML5 + CSS3 (custom properties, grid/flex) + DOM APIs + Custom Elements. No UI frameworks or CSS frameworks |
 | Score engraving | Verovio (WASM, LGPL-3.0, in a Web Worker) -> SVG with Note IDs as element ids; SMuFL font (Leipzig or Bravura) |
 | Overlays | Canvas 2D layer above the SVG for cursor, feedback animation and Advice markers; per-note state via SVG classes |
 | Score input | MusicXML 3.0-4.0 (`.musicxml`, `.xml`, `.mxl`), parsed by our own TS code into the canonical model |
-| Audio (browser) | Web Audio API + `AudioWorklet`; built-in SoundFont-based instrument (implementation per ADR); sample-accurate metronome |
-| Audio (low latency) | Native audio plugin behind the `AudioEngine` port: ASIO / WASAPI (shared + exclusive) on Windows; CoreAudio / ALSA / JACK / PipeWire where supported |
+| Audio (browser) | Web Audio API + `AudioWorklet`; built-in sound via `spessasynth_lib` (AudioWorklet SoundFont synth, events scheduled at `AudioContext` time) with the GeneralUser GS SF2 SoundFont; sample-accurate metronome |
+| Audio (low latency) | Native audio plugin behind the `AudioEngine` port: one Rust companion process (`cpal` + `midir` + `rustysynth`, same SF2) for Windows (WASAPI shared, ASIO; WASAPI exclusive later if needed), macOS (CoreAudio) and Linux (ALSA, PipeWire, PulseAudio, JACK), linked to the app over a localhost WebSocket |
 | MIDI | Web MIDI API (browser and Electron); native MIDI inside the plugin when it is active |
 | Storage | IndexedDB (scores, Performance logs, progress, settings); `localStorage` only for tiny UI preferences; files via File System Access API with `<input type=file>` fallback |
-| Desktop shell | Electron (secure defaults per Principle V); packaging tool per ADR |
+| Desktop shell | Electron (secure defaults per Principle V), packaged with electron-builder (NSIS on Windows, dmg on macOS, AppImage/deb on Linux); bundles and starts the Native audio plugin |
 | Build | Vite (dev server and bundler), `tsc --noEmit` for type checking, pnpm |
 | Tests | Vitest (unit, golden snapshots, fakes); Playwright for browser end-to-end tests |
 | Lint/format | Biome |
@@ -321,4 +340,4 @@ Merge gates (every change):
 - Runtime guidance for agents lives in `AGENTS.md` (tool-neutral; `CLAUDE.md`
   and `GEMINI.md` only import it) and MUST stay consistent with this document.
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-09-19
+**Version**: 1.1.0 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-09-19

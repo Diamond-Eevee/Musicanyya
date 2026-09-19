@@ -38,9 +38,11 @@ engraved like a printed music book, and helps a musician practise with a MIDI ke
 Delivery targets, in this order: **browser app** -> **Electron app** (same build) -> optional **Native audio
 plugin** for low-latency audio (ASIO / WASAPI / CoreAudio / ALSA / JACK).
 
-Stack (rationale: `docs/adr/0001-technology-stack.md`): pure TypeScript + HTML5 + CSS3 (no UI frameworks),
-Verovio (WASM) for engraving -> SVG, Canvas 2D overlay, Web Audio (`AudioWorklet`), Web MIDI, IndexedDB, Electron.
-Tooling: Vite, Vitest, Playwright, Biome, pnpm.
+Stack (rationale: `docs/adr/0001`-`0004`): pure TypeScript + HTML5 + CSS3 (no UI frameworks), Verovio (WASM) for
+engraving -> SVG, Canvas 2D overlay, Web Audio (`AudioWorklet`) with `spessasynth_lib` + GeneralUser GS SoundFont,
+Web MIDI, IndexedDB, Electron packaged with electron-builder. Native audio plugin: one Rust companion process
+(`cpal`, `midir`, `rustysynth`) for Windows, macOS and Linux, linked over a localhost WebSocket.
+Tooling: Vite, Vitest, Playwright, Biome, pnpm (plugin: cargo).
 
 ---
 
@@ -82,8 +84,8 @@ src/engine/        ports (AudioEngine, MidiInput, Storage, Clock) + adapters (We
 src/engine/worklets/  AudioWorklet processors (RT code)
 src/ui/            DOM + custom elements: score view (Verovio worker -> SVG, canvas overlay), transport, modes, results
 src/workers/       Web Workers (Verovio, parsing)
-electron/          Electron main process + preload bridge (later feature)
-native/            Native audio plugin (later feature, language per ADR)
+electron/          Electron main process + preload bridge, electron-builder config (later feature)
+native/            Native audio plugin: Rust cargo project `musicanyya-audio` (later feature)
 content/advice/    Advice JSON files + JSON Schema
 tests/fixtures/musicxml/  MusicXML fixtures (origin + licence noted)
 docs/musicxml-support.md  supported MusicXML subset (created with the parser)
@@ -186,7 +188,9 @@ file and perform the review yourself, following its method and output format.
 ## 8. Environment, build and test
 
 **Toolchain**: Node.js LTS + pnpm (`npm install -g pnpm`), a Chromium browser (Chrome/Edge) for manual testing, a
-MIDI keyboard optional (tests never need one). Windows, Linux and macOS all work for the web app.
+MIDI keyboard optional (tests never need one). Windows, Linux and macOS all work for the web app. Only for the Native
+audio plugin: Rust stable via rustup (plus, for ASIO builds, LLVM/clang and the Steinberg ASIO SDK with
+`CPAL_ASIO_DIR`; for Linux builds `libasound2-dev`, `pkg-config`).
 
 Run workflow scripts with Windows PowerShell (or `pwsh` on Linux/macOS):
 `powershell -NoProfile -ExecutionPolicy Bypass -File .specify/scripts/powershell/<script>.ps1 [-Json]`
@@ -271,14 +275,18 @@ Performance log, Metronome, Advice, Audio engine, Audio backend, Latency profile
 <!-- ACTIVE-TECHNOLOGIES:START (updated by the plan step) -->
 ## Active Technologies
 
-- Constitution v1.0.0 stack (no code yet): TypeScript strict, HTML5, CSS3, Verovio (WASM) -> SVG + Canvas 2D
-  overlay, Web Audio (`AudioWorklet`), Web MIDI, IndexedDB; Electron later; Native audio plugin later.
-  Tooling: Vite, Vitest, Playwright, Biome, pnpm.
+- Constitution v1.1.0 stack (no code yet): TypeScript strict, HTML5, CSS3, Verovio 6.x (WASM) -> SVG + Canvas 2D
+  overlay, Web Audio (`AudioWorklet`) + `spessasynth_lib` 4.x + GeneralUser GS SF2, Web MIDI, IndexedDB.
+  Later: Electron + electron-builder 26.x; Native audio plugin in Rust (cpal 0.18, midir 0.11, rustysynth 1.3,
+  tungstenite, rtrb). Tooling: Vite, Vitest, Playwright, Biome, pnpm.
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-19: Constitution v1.1.0: built-in sound = spessasynth_lib + GeneralUser GS (ADR-0002); Native audio
+  plugin = one Rust companion for Windows/macOS/Linux over localhost WebSocket (ADR-0003); Electron packaging =
+  electron-builder (ADR-0004).
 - 2026-09-19: Project restarted from scratch with a web-first direction; constitution v1.0.0; ADR-0001 (web-first
   stack: framework-free TypeScript, Verovio SVG + canvas overlay, Web Audio/MIDI, Electron, Native audio plugin).
 <!-- RECENT-CHANGES:END -->

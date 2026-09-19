@@ -1,6 +1,7 @@
 # ADR-0001: Web-first technology stack
 
-- **Status**: Accepted (2026-09-19, with constitution v1.0.0)
+- **Status**: Accepted (2026-09-19, with constitution v1.0.0). Built-in sound, Native audio plugin and Electron
+  packaging are decided in ADR-0002, ADR-0003 and ADR-0004 (constitution v1.1.0).
 - **Date**: 2026-09-19
 - **Deciders**: project owner
 
@@ -28,10 +29,10 @@ the browser, and professional latency with the plugin.
 | Drawing model | **SVG for the score + Canvas 2D overlay** | See below |
 | Score model | Own TS MusicXML parser -> canonical model with Note IDs | Playback, Practice, grading and Advice need a model we control; Verovio only draws |
 | Browser audio | Web Audio API + `AudioWorklet`, lookahead scheduling on `AudioContext` time | The only way to get sample-accurate timing in a browser |
-| Built-in sound | SoundFont-based instrument (a maintained TS/JS SF2 player or our own worklet, chosen by ADR in the first audio feature) | Realistic piano without external software |
+| Built-in sound | SoundFont-based instrument: `spessasynth_lib` + GeneralUser GS (ADR-0002) | Realistic piano without external software |
 | MIDI | Web MIDI API | Supported in Chromium and Firefox; Electron is Chromium |
 | Desktop | Electron (secure defaults, typed preload bridge) | Same web build; Chromium everywhere gives consistent rendering, Web MIDI and Web Audio; can host native Node-API addons |
-| Low latency | **Native audio plugin** behind the `AudioEngine` port. It does MIDI in -> synth -> audio out natively; the web layer only displays and grades | Browsers cannot reach ASIO or WASAPI exclusive mode, and routing each key press through JS would add latency. Language and IPC decided by a later ADR (strong candidate: Rust with `cpal` + `midir` + `rustysynth`, as a Node-API addon for Electron and/or a localhost companion for the browser) |
+| Low latency | **Native audio plugin** behind the `AudioEngine` port. It does MIDI in -> synth -> audio out natively; the web layer only displays and grades | Browsers cannot reach ASIO or WASAPI exclusive mode, and routing each key press through JS would add latency. One Rust companion process (`cpal` + `midir` + `rustysynth`) for Windows, macOS and Linux, linked over a localhost WebSocket (ADR-0003) |
 | Storage | IndexedDB | Works offline in browser and Electron |
 | Tooling | Vite, `tsc`, Vitest, Playwright, Biome, pnpm | Build and test tools, not runtime frameworks |
 
