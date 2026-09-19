@@ -42,6 +42,13 @@ docs/adr/                         architecture decision records
 specs/NNN-feature-name/           spec, plan, research, data-model, contracts, quickstart, tasks, implementation-log
 ```
 
+**The IT workspace.** On the owner's machine this repository is the `Musicanyya/` folder in the `IT` workspace
+(`niralynx-workspace`, its own git repository; it lists the projects in `projects.txt` and ignores their folders).
+The workspace has its own `/speckit.<step>` commands, workflows and review roles. They are thin pointers to the
+files above, so a session opened on `IT` can run this workflow: read and write paths relative to `Musicanyya/`,
+and run git and pnpm there. The files in this repository stay the single source of truth. Workspace notes
+(`IT/agents/project_status.md`) record only a snapshot and a link, not this workflow's state.
+
 Code layout (created by feature 001; its plan is authoritative):
 
 ```text
@@ -104,7 +111,8 @@ for the Native audio plugin: Rust stable via rustup (ASIO builds: LLVM/clang + S
 `CPAL_ASIO_DIR`; Linux: `libasound2-dev`, `pkg-config`).
 
 Workflow scripts: `powershell -NoProfile -ExecutionPolicy Bypass -File .specify/scripts/powershell/<script>.ps1 [-Json]`
-(or `pwsh -NoProfile -File ...` on Linux/macOS).
+(or `pwsh -NoProfile -File ...` on Linux/macOS). The scripts pin git to this repository, so they also work from
+the IT workspace folder (`-File Musicanyya/.specify/scripts/powershell/<script>.ps1`).
 
 **Commands** (update when the scaffold changes):
 

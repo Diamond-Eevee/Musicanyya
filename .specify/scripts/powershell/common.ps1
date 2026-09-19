@@ -5,8 +5,11 @@
 function Invoke-Git {
     # Run git without PowerShell 5.1 turning its stderr chatter into terminating errors.
     # Returns stdout lines; check $LASTEXITCODE afterwards.
+    # Pinned to this repository (-C), so the scripts work from any working directory, e.g. the
+    # IT workspace folder around it, which is a git repository of its own.
     $ErrorActionPreference = 'Continue'
-    $out = & git @args 2>$null
+    $repo = Join-Path $PSScriptRoot '..\..\..'
+    $out = & git -C $repo @args 2>$null
     return $out
 }
 

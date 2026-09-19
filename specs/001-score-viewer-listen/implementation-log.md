@@ -87,3 +87,13 @@
 - Decisions: Generated all 29 CC0 fixtures using a custom node script to cover edge cases exactly as requested. Generated large-score.musicxml.
 - Problems / open questions: none.
 - Handoff: next = T034-T049 (Phase 3 Tests); tree clean at this commit.
+
+## 2026-09-19 15:58 - claude-opus-5 (relay)
+- Done: no tasks. Repository copied into the IT workspace as `C:\Users\diamo\Documents\IT\Musicanyya` (the owner
+  deletes the old `IT_coding\Musicano` copy; work only in the new one). node_modules reinstalled there; 21/21 tests,
+  typecheck and lint green.
+- Decisions: the `.specify` scripts pin git to this repository (`git -C`), so they work from the IT workspace
+  folder, itself a git repository; the workspace's `speckit.*` commands and review roles only point to the files
+  here (docs/agents/reference.md, R2).
+- Problems / open questions: needs owner: push `001-score-viewer-listen` to GitHub? It exists only on this machine.
+- Handoff: next = T034-T049 (Phase 3 Tests); run `/speckit.continue` from `IT` or from this folder.
