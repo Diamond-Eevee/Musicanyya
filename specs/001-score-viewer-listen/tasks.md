@@ -158,9 +158,9 @@ follow the notation; change tempo and volume while playing (spec US2).
 
 ### Implementation - audio engine (RT path; requires T011 decision)
 
-- [ ] T090 [US2] Implement `src/engine/worklets/dispatch.ts` (pure block-splitting dispatcher using `src/core/tempo/rate.ts`) to pass T080
-- [ ] T091 [US2] Implement `src/engine/worklets/score-player.processor.ts` (AudioWorkletProcessor embedding `SpessaSynthProcessor` from spessasynth_core; init/soundBank/schedule/play/pause/stop/seek/tempo/volume/live messages; bounded position/ended/status reports; no allocation/await/log/throw in `process()`) to pass T081
-- [ ] T092 [US2] RT review of T090-T091 with `rt-audio-reviewer` (`.claude/agents/rt-audio-reviewer.md`); fix every blocking finding and record the verdict in `specs/001-score-viewer-listen/implementation-log.md`
+- [x] T090 [US2] Implement `src/engine/worklets/dispatch.ts` (pure block-splitting dispatcher using `src/core/tempo/rate.ts`) to pass T080
+- [x] T091 [US2] Implement `src/engine/worklets/score-player.processor.ts` (AudioWorkletProcessor embedding `SpessaSynthProcessor` from spessasynth_core; init/soundBank/schedule/play/pause/stop/seek/tempo/volume/live messages; bounded position/ended/status reports; no allocation/await/log/throw in `process()`) to pass T081
+- [x] T092 [US2] RT review of T090-T091 with `rt-audio-reviewer` (`.claude/agents/rt-audio-reviewer.md`); fix every blocking finding and record the verdict in `specs/001-score-viewer-listen/implementation-log.md`
 
 ### Tests (write first) - audio adapter and UI
 

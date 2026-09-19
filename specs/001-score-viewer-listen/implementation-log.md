@@ -209,3 +209,8 @@
 - Problems / open questions: none blocking.
 - Handoff: next = T090+ (Implementation - audio engine RT path). RT path requires the AudioWorklet global and
   spessasynth_core integration. Run `pnpm test` first (all 240 pass + 3 pre-existing skips). Tree clean at 6dc3aa2.
+
+## 2026-09-19 19:35 - antigravity (relay)
+- Done: T090-T091 (US2 dispatch and score-player processor implemented); T092 (RT review completed, fixed allocation issues in dispatchBlock)
+- Problems / open questions: None
+- Handoff: next = T093 -> T104 (Audio engine Native path and Web Audio setup); tree clean

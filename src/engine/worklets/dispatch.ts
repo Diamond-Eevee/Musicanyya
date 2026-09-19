@@ -33,21 +33,28 @@ export interface BlockEvent {
   eventIndex: number; // index into the ScheduleMessage arrays
 }
 
-/** Result of a single dispatchBlock() call. */
-export interface DispatchResult {
+/** Pre-allocated state for dispatchBlock to avoid allocations during RT processing. */
+export class DispatchState {
   /** Events that fall within [blockStart, blockStart + blockSize), sorted by frame then kind. */
   events: BlockEvent[];
   /**
    * Strictly-increasing split frames for the renderer.
    * Always ends with blockStart + blockSize.
-   * Each unique event frame creates a split point, so the caller can render
-   * sub-blocks between events.  Duplicate frames are collapsed.
    */
   splits: number[];
-  /** True if the endTick's dispatch frame falls within this block. */
-  endReached: boolean;
-  /** The dispatch frame of endTick, if endReached is true. */
-  endFrame: number | null;
+  numEvents = 0;
+  numSplits = 0;
+  endReached = false;
+  endFrame = 0;
+  nextEventCursor = 0;
+
+  constructor(maxEvents = 1024) {
+    this.events = new Array(maxEvents);
+    for (let i = 0; i < maxEvents; i++) {
+      this.events[i] = { frame: 0, kind: 0, channel: 0, data1: 0, data2: 0, eventIndex: 0 };
+    }
+    this.splits = new Array(maxEvents + 1).fill(0);
+  }
 }
 
 /**
@@ -131,57 +138,82 @@ export function frameOfTickInSegs(tick: number, segs: TempoSegmentFrame[]): numb
  * @param segs         Pre-computed segment frames (from recomputeSegmentFrames).
  * @param blockStart   The frame number at the start of this render block.
  * @param blockSize    The number of frames in this block (e.g. 128).
- * @param eventCursor  The index into the schedule arrays to start searching from.
- *                     Updated externally by the caller to avoid re-scanning.
+ * @param state        Pre-allocated state to hold the results.
  */
 export function dispatchBlock(
   schedule: ScheduleMessage,
   segs: TempoSegmentFrame[],
   blockStart: number,
   blockSize: number,
-  eventCursor = 0,
-): DispatchResult & { nextEventCursor: number } {
+  eventCursor: number,
+  state: DispatchState,
+): void {
   const blockEnd = blockStart + blockSize;
-  const events: BlockEvent[] = [];
-  const splitSet = new Set<number>();
+  state.numEvents = 0;
+  state.numSplits = 0;
 
-  // Scan events starting from eventCursor
   const n = schedule.eventTick.length;
   let cursor = eventCursor;
-  while (cursor < n) {
+  let maxEv = state.events.length;
+
+  while (cursor < n && state.numEvents < maxEv) {
     const tick = schedule.eventTick[cursor]!;
     const frame = frameOfTickInSegs(tick, segs);
     if (frame >= blockEnd) break; // future event
     if (frame >= blockStart) {
-      events.push({
-        frame,
-        kind: schedule.eventKind[cursor]!,
-        channel: schedule.eventChannel[cursor]!,
-        data1: schedule.eventData1[cursor]!,
-        data2: schedule.eventData2[cursor]!,
-        eventIndex: cursor,
-      });
-      splitSet.add(frame);
+      const ev = state.events[state.numEvents]!;
+      ev.frame = frame;
+      ev.kind = schedule.eventKind[cursor]!;
+      ev.channel = schedule.eventChannel[cursor]!;
+      ev.data1 = schedule.eventData1[cursor]!;
+      ev.data2 = schedule.eventData2[cursor]!;
+      ev.eventIndex = cursor;
+      state.numEvents++;
     }
     cursor++;
   }
 
   // Sort events by frame, then by event order (already sorted by schedule)
-  events.sort((a, b) => (a.frame !== b.frame ? a.frame - b.frame : a.eventIndex - b.eventIndex));
+  // We can't use Array.prototype.sort on the slice because it allocates a new array.
+  // So we use a simple insertion sort since n is very small (usually < 10).
+  for (let i = 1; i < state.numEvents; i++) {
+    const ev = state.events[i]!;
+    // store the values to swap
+    const f = ev.frame; const k = ev.kind; const c = ev.channel;
+    const d1 = ev.data1; const d2 = ev.data2; const ei = ev.eventIndex;
+    let j = i - 1;
+    while (j >= 0) {
+      const prev = state.events[j]!;
+      if (prev.frame > f || (prev.frame === f && prev.eventIndex > ei)) {
+        const next = state.events[j + 1]!;
+        next.frame = prev.frame; next.kind = prev.kind; next.channel = prev.channel;
+        next.data1 = prev.data1; next.data2 = prev.data2; next.eventIndex = prev.eventIndex;
+        j--;
+      } else {
+        break;
+      }
+    }
+    const next = state.events[j + 1]!;
+    next.frame = f; next.kind = k; next.channel = c;
+    next.data1 = d1; next.data2 = d2; next.eventIndex = ei;
+  }
 
   // Build splits array: sorted unique frames + blockEnd
-  splitSet.add(blockEnd);
-  const splits = Array.from(splitSet).sort((a, b) => a - b);
+  let lastSplit = -1;
+  for (let i = 0; i < state.numEvents; i++) {
+    const f = state.events[i]!.frame;
+    if (f !== lastSplit) {
+      state.splits[state.numSplits++] = f;
+      lastSplit = f;
+    }
+  }
+  if (lastSplit !== blockEnd) {
+    state.splits[state.numSplits++] = blockEnd;
+  }
 
   // Check endTick
   const endFrame = frameOfTickInSegs(schedule.endTick, segs);
-  const endReached = endFrame >= blockStart && endFrame < blockEnd;
-
-  return {
-    events,
-    splits,
-    endReached,
-    endFrame: endReached ? endFrame : null,
-    nextEventCursor: cursor,
-  };
+  state.endReached = endFrame >= blockStart && endFrame < blockEnd;
+  state.endFrame = state.endReached ? endFrame : 0;
+  state.nextEventCursor = cursor;
 }

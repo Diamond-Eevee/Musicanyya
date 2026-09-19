@@ -22,7 +22,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   type BlockEvent,
-  type DispatchResult,
+  DispatchState,
   dispatchBlock,
   recomputeSegmentFrames,
 } from '../../../src/engine/worklets/dispatch.js';
@@ -130,17 +130,20 @@ describe('dispatchBlock', () => {
     // noteOn at tick 96 -> frame 4800; block is [0, 128)
     const sched = makeSingleNoteSchedule(96, 9600);
     const segs = recomputeSegmentFrames(sched, 0, 0, 48000, 100);
-    const result = dispatchBlock(sched, segs, 0, 128);
-    expect(result.events).toHaveLength(0);
-    expect(result.splits[result.splits.length - 1]).toBe(128);
+    const state = new DispatchState();
+    dispatchBlock(sched, segs, 0, 128, 0, state);
+    expect(state.numEvents).toBe(0);
+    expect(state.splits[state.numSplits - 1]).toBe(128);
   });
 
   it('dispatches a single noteOn whose frame falls within the block', () => {
     // noteOn at tick 96: frame = ceil(96/0.02) = 4800. Block [4700, 4700+256).
     const sched = makeSingleNoteSchedule(96, 960000);
     const segs = recomputeSegmentFrames(sched, 0, 0, 48000, 100);
-    const result = dispatchBlock(sched, segs, 4700, 256);
-    const noteOns = result.events.filter((e) => e.kind === EVENT_KIND.noteOn);
+    const state = new DispatchState();
+    dispatchBlock(sched, segs, 4700, 256, 0, state);
+    const events = state.events.slice(0, state.numEvents);
+    const noteOns = events.filter((e) => e.kind === EVENT_KIND.noteOn);
     expect(noteOns).toHaveLength(1);
     expect(noteOns[0]).toMatchObject({ frame: 4800, kind: EVENT_KIND.noteOn, data1: 60, data2: 80 });
   });
@@ -153,8 +156,10 @@ describe('dispatchBlock', () => {
       { tick: 96 + 480, kind: EVENT_KIND.noteOff, key: 60, vel: 0 },
     ]);
     const segs = recomputeSegmentFrames(sched, 0, 0, 48000, 100);
-    const result = dispatchBlock(sched, segs, 4700, 256);
-    const noteOns = result.events.filter((e) => e.kind === EVENT_KIND.noteOn);
+    const state = new DispatchState();
+    dispatchBlock(sched, segs, 4700, 256, 0, state);
+    const events = state.events.slice(0, state.numEvents);
+    const noteOns = events.filter((e) => e.kind === EVENT_KIND.noteOn);
     expect(noteOns).toHaveLength(2);
     expect(noteOns.every((e) => e.frame === 4800)).toBe(true);
   });
@@ -163,13 +168,15 @@ describe('dispatchBlock', () => {
     // noteOn at tick 96 -> frame 4800. Block [4700, 4956).
     const sched = makeSingleNoteSchedule(96, 960000);
     const segs = recomputeSegmentFrames(sched, 0, 0, 48000, 100);
-    const result = dispatchBlock(sched, segs, 4700, 256);
+    const state = new DispatchState();
+    dispatchBlock(sched, segs, 4700, 256, 0, state);
+    const splits = state.splits.slice(0, state.numSplits);
     // splits must contain 4800 (the event frame) and end with 4956
-    expect(result.splits).toContain(4800);
-    expect(result.splits[result.splits.length - 1]).toBe(4956);
+    expect(splits).toContain(4800);
+    expect(splits[splits.length - 1]).toBe(4956);
     // splits must be strictly increasing
-    for (let i = 1; i < result.splits.length; i++) {
-      expect(result.splits[i]!).toBeGreaterThan(result.splits[i - 1]!);
+    for (let i = 1; i < splits.length; i++) {
+      expect(splits[i]!).toBeGreaterThan(splits[i - 1]!);
     }
   });
 
@@ -190,8 +197,10 @@ describe('dispatchBlock', () => {
       ],
     });
     const segs = recomputeSegmentFrames(sched, 0, 0, 48000, 100);
-    const result = dispatchBlock(sched, segs, 95900, 200);
-    const noteOns = result.events.filter((e) => e.kind === EVENT_KIND.noteOn);
+    const state = new DispatchState();
+    dispatchBlock(sched, segs, 95900, 200, 0, state);
+    const events = state.events.slice(0, state.numEvents);
+    const noteOns = events.filter((e) => e.kind === EVENT_KIND.noteOn);
     expect(noteOns).toHaveLength(1);
     expect(noteOns[0]!.frame).toBe(96000);
   });
@@ -200,24 +209,27 @@ describe('dispatchBlock', () => {
     // noteOn at tick 9600 -> frame 480000. Block [0, 128).
     const sched = makeSingleNoteSchedule(9600, 192000);
     const segs = recomputeSegmentFrames(sched, 0, 0, 48000, 100);
-    const result = dispatchBlock(sched, segs, 0, 128);
-    expect(result.events).toHaveLength(0);
+    const state = new DispatchState();
+    dispatchBlock(sched, segs, 0, 128, 0, state);
+    expect(state.numEvents).toBe(0);
   });
 
   it('signals endReached when the end tick frame falls within the block', () => {
     // endTick = 48 -> frame ceil(48/0.02) = 2400. Block [2300, 2556).
     const sched = makeSchedule({ ppq: 480, endTick: 48, events: [] });
     const segs = recomputeSegmentFrames(sched, 0, 0, 48000, 100);
-    const result = dispatchBlock(sched, segs, 2300, 256);
-    expect(result.endReached).toBe(true);
-    expect(result.endFrame).toBe(2400);
+    const state = new DispatchState();
+    dispatchBlock(sched, segs, 2300, 256, 0, state);
+    expect(state.endReached).toBe(true);
+    expect(state.endFrame).toBe(2400);
   });
 
   it('does not signal endReached when block ends before the end frame', () => {
     // endTick = 960 -> frame 48000. Block [0, 128).
     const sched = makeSchedule({ ppq: 480, endTick: 960, events: [] });
     const segs = recomputeSegmentFrames(sched, 0, 0, 48000, 100);
-    const result = dispatchBlock(sched, segs, 0, 128);
-    expect(result.endReached).toBe(false);
+    const state = new DispatchState();
+    dispatchBlock(sched, segs, 0, 128, 0, state);
+    expect(state.endReached).toBe(false);
   });
 });

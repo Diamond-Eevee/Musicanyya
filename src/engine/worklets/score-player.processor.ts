@@ -1,3 +1,5 @@
+import { SpessaSynthProcessor, SoundBankLoader } from 'spessasynth_core';
+
 /**
  * Score player processor – offline-testable factory.
  *
@@ -24,6 +26,7 @@ import {
 import {
   type TempoSegmentFrame,
   type BlockEvent,
+  DispatchState,
   recomputeSegmentFrames,
   dispatchBlock,
   frameOfTickInSegs,
@@ -35,6 +38,7 @@ export interface SynthInterface {
   noteOn(channel: number, key: number, velocity: number, frame?: number): void;
   noteOff(channel: number, key: number, frame?: number): void;
   allNotesOff?(channel?: number): void;
+  controllerChange?(channel: number, controller: number, value: number): void;
 }
 
 /** Minimal synth used by RecordingSynth-based tests. */
@@ -58,7 +62,7 @@ export interface ScorePlayerProcessor {
 }
 
 export interface ScorePlayerOptions {
-  synth: SimpleSynth;
+  synth: SynthInterface;
   sampleRate: number;
   tempoPercent?: number;
   volume?: number;
@@ -71,6 +75,7 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   let schedule: ScheduleMessage | null = null;
   let segs: TempoSegmentFrame[] = [];
   let eventCursor = 0;
+  const dispatchState = new DispatchState();
 
   let playing = false;
   let currentFrame = 0;
@@ -120,18 +125,18 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     for (const encoded of heldNotes) {
       const key = encoded & 0x7f;
       const channel = (encoded >> 7) & 0xf;
-      synth.noteOff(key);
+      synth.noteOff(channel, key);
     }
     heldNotes.clear();
   }
 
   function noteOn(channel: number, key: number, velocity: number): void {
-    synth.noteOn(key, velocity);
+    synth.noteOn(channel, key, velocity);
     heldNotes.add((channel << 7) | key);
   }
 
   function noteOff(channel: number, key: number): void {
-    synth.noteOff(key);
+    synth.noteOff(channel, key);
     heldNotes.delete((channel << 7) | key);
   }
 
@@ -217,6 +222,19 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         gainRampRemaining = VOLUME_RAMP_FRAMES;
         break;
       }
+      case 'live': {
+        const LIVE_CHANNEL = 15;
+        if (msg.kind === 'on') {
+          synth.noteOn(LIVE_CHANNEL, msg.key as number, msg.velocity as number);
+        } else if (msg.kind === 'off') {
+          synth.noteOff(LIVE_CHANNEL, msg.key as number);
+        } else if (msg.kind === 'sustain') {
+          synth.controllerChange?.(LIVE_CHANNEL, 64, msg.down ? 127 : 0);
+        } else if (msg.kind === 'allOff') {
+          synth.allNotesOff?.(LIVE_CHANNEL);
+        }
+        break;
+      }
     }
   }
 
@@ -235,20 +253,20 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
       return;
     }
 
-    const result = dispatchBlock(schedule, segs, currentFrame, blockSize, eventCursor);
-    eventCursor = result.nextEventCursor;
+    dispatchBlock(schedule, segs, currentFrame, blockSize, eventCursor, dispatchState);
+    eventCursor = dispatchState.nextEventCursor;
 
-    for (const ev of result.events) {
-      applyEvent(ev);
+    for (let i = 0; i < dispatchState.numEvents; i++) {
+      applyEvent(dispatchState.events[i]!);
     }
 
     currentFrame += blockSize;
     blocksSinceReport++;
 
-    if (result.endReached) {
+    if (dispatchState.endReached) {
       playing = false;
       allNotesOff();
-      post({ type: 'ended', frame: result.endFrame! });
+      post({ type: 'ended', frame: dispatchState.endFrame! });
       sendPositionReport();
       return;
     }
@@ -266,4 +284,83 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   };
 
   return processor;
+}
+
+if (typeof AudioWorkletProcessor !== 'undefined') {
+  class ScorePlayerAudioWorklet extends AudioWorkletProcessor {
+    private inner: ScorePlayerProcessor;
+    private synth: SpessaSynthProcessor;
+    private soundReady = false;
+
+    constructor() {
+      super();
+      // sampleRate is a global in AudioWorkletGlobalScope
+      this.synth = new SpessaSynthProcessor(sampleRate);
+      
+      this.inner = createScorePlayerProcessor({
+        synth: {
+          noteOn: (c, k, v) => this.synth.noteOn(c, k, v),
+          noteOff: (c, k) => this.synth.noteOff(c, k),
+          allNotesOff: (c?: number) => {
+            const channels = c !== undefined ? [c] : [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+            for (const ch of channels) {
+              this.synth.controllerChange(ch, 120, 0); // All Sound Off
+              this.synth.controllerChange(ch, 123, 0); // All Notes Off
+            }
+          },
+          controllerChange: (c, ctrl, v) => this.synth.controllerChange(c, ctrl as any, v)
+        },
+        sampleRate: sampleRate,
+      });
+
+      this.inner.onMessage = (msg) => {
+        this.port.postMessage(msg);
+      };
+
+      this.port.onmessage = (e) => {
+        const msg = e.data;
+        if (msg.type === 'init') {
+          this.port.postMessage({ type: 'status', state: 'initialised' });
+          return;
+        }
+        if (msg.type === 'soundBank') {
+          try {
+            const bank = SoundBankLoader.fromArrayBuffer(msg.bytes);
+            this.synth.soundBankManager.addSoundBank(bank, 'default');
+            this.soundReady = true;
+            this.port.postMessage({ type: 'status', state: 'soundReady' });
+          } catch (err: any) {
+            this.port.postMessage({ type: 'status', state: 'error', detail: err?.message || String(err) });
+          }
+          return;
+        }
+        
+        try {
+          this.inner.receiveMessage(msg);
+        } catch (err: any) {
+          this.port.postMessage({ type: 'status', state: 'error', detail: err?.message || String(err) });
+        }
+      };
+    }
+
+    process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>): boolean {
+      const output = outputs[0];
+      if (!output) return true;
+      const left = output[0];
+      const right = output[1];
+      if (!left || !right) return true;
+
+      const blockSize = left.length;
+
+      if (!this.soundReady) {
+        return true;
+      }
+
+      this.inner.processBlock(blockSize);
+      this.synth.process(left, right, 0, blockSize);
+      return true;
+    }
+  }
+
+  registerProcessor('musicanyya-score-player', ScorePlayerAudioWorklet);
 }

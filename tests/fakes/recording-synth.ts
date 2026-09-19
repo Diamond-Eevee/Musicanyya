@@ -1,9 +1,11 @@
-export class RecordingSynth {
+import type { SynthInterface } from '../../src/engine/worklets/score-player.processor.js';
+
+export class RecordingSynth implements SynthInterface {
   public events: string[] = [];
-  noteOn(key: number, velocity: number) {
+  noteOn(channel: number, key: number, velocity: number) {
     this.events.push(`on:${key}:${velocity}`);
   }
-  noteOff(key: number) {
+  noteOff(channel: number, key: number) {
     this.events.push(`off:${key}`);
   }
 }
