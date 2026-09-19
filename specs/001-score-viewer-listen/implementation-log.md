@@ -326,3 +326,67 @@
 - Handoff: next = T108 (wire Listen mode in `session.ts`: unlock/ensureSoundLoaded, `transportState.connect(...)`,
   `mx-score-view.setPlayback(...)`, schedule load, click-to-seek, end -> return to start, settings persistence);
   tree clean at this commit.
+
+## 2026-09-19 21:50 - claude-sonnet-5
+- Done: T108 (Listen mode wired into `session.ts`), plus a fix to a bug found while starting it (`mx-score-view`'s
+  `setPlayback` was typed against core's `PlaybackTimeline` instead of the worker's compact `TimelineDto` -
+  different field names for `passes` - committed separately before this entry).
+- `Session` now owns a `WebAudioEngine` and:
+  - `transportState.connect({...})`: play/pause/stop/seekTick/setTempoPercent/setVolume map directly to the
+    engine, except `play` which goes through a new `handlePlay()` (unlock -> deliver the schedule if this is the
+    first Play since it was loaded -> reapply any pre-Play click-to-seek via `seekTick` -> `ensureSoundLoaded` ->
+    `play()`). The schedule can only reach the worklet once the engine is unlocked (needs a user gesture), so
+    `loadBytes()` delivers it immediately if already unlocked (a later Score opened after Play was pressed once)
+    and otherwise defers to the first `handlePlay()` (matches "load schedule on open" while respecting the gesture
+    requirement).
+  - `loadBytes()` calls `transportState.newScore()` (added to `transportState.ts`: resets phase/position via the
+    existing reducer's `'newScore'` action, keeps tempo/volume/follow) and delivers the new schedule/timeline as
+    above - this is the "stop before opening a new Score" behaviour; the worklet's own `'schedule'` handler already
+    stops playback and clears held notes (contracts/worklet-protocol.md), so no separate `stop()` call is needed.
+  - `measureclick` on `mx-score-view` -> looks up the measure's first pass in the current `TimelineDto` and calls
+    the new `transportState.seekMeasure(tick)` (click-to-seek to first pass; added `TransportDriver.seekTick` and
+    `transportReducer`'s existing `'seekMeasure'` action).
+  - `audioEngine.on(...)` -> `onAudioEngineEvent`: `'ended'` -> `transportState.ended()` (end -> return to start,
+    via the reducer's existing `'ended'` action); `'state'` with `loadingSound` -> `transportState.setLoadingProgress`;
+    `'state'` with `suspended` -> `transportState.pause()` + an `audioDeviceChanged` notice (only when
+    `reason === 'deviceChanged'`, not for a merely backgrounded tab).
+  - "Instrument fallback and default-tempo notices" needed no new code: `build.ts` already pushes `instrumentFallback`
+    and `defaultTempo` into `LoadReport.entries` (lines 214 and 891), and `scoreState.succeeded()` already turns
+    every report entry into a notice generically - confirmed by the existing `tests/ui/open-and-recent.test.ts`
+    case that asserts a `defaultTempo` notice. This was pre-existing, unrelated to Listen mode.
+  - Settings: `transportState.applySavedSettings(...)` at startup (added to `transportState.ts`) and a
+    `transportState.subscribe(...)` that re-saves tempo/volume/follow on every change (`LocalSettingsStore.save()`
+    already debounces writes, so this is safe to call on every change, same as the existing zoom-persistence code).
+- Added to `web-audio-engine.ts`: an `AudioContext.onstatechange` handler (attached once, at context creation)
+  that emits `{kind:'suspended', reason: document.hidden ? 'hidden' : 'deviceChanged'}` when the context becomes
+  suspended on its own - `pause()` never suspends the context itself (it only messages the worklet), so any
+  spontaneous suspension is the browser reacting to a device change or the tab backgrounding (data-model.md §6).
+  No dedicated test for this (would need to fake `AudioContext.onstatechange`, not currently in T097's test file);
+  covered by manual verification below.
+- Bug found and fixed during manual browser verification (not caught by any test - genuinely UI-only): the new
+  `mx-transport` element defaults to visible (no CSS class) when created, but is meant to stay hidden until a Score
+  is loaded; the visibility-toggling `scoreState.subscribe(...)` callback (mirroring the pre-existing `emptyState`
+  pattern) only runs on *future* state changes, never on the current one at subscribe time - unlike `emptyState`,
+  whose default un-hidden markup happens to already match the initial "no score" status, `mx-transport`'s default
+  didn't. Fixed by calling the visibility update once immediately after subscribing.
+- Manual verification (`pnpm dev`, real browser, real `GeneralUser-GS-2.0.3.sf2` fetch and real AudioWorklet -
+  none of this is covered by unit tests): opened a small synthetic MusicXML fixture (four quarter notes, tempo
+  slowed to 20 BPM to make the cursor motion, Play->Pause label, Stop->cursor-reset-to-start, and eventual
+  auto-return-to-Play-on-`ended` all clearly observable frame-by-frame) via a manually-injected `File`/`DataTransfer`
+  on the open button's input (no OS file picker available to the tool). Confirmed: Play unlocks audio, fetches and
+  caches the SoundFont (`Cache-Control` served correctly from `public/soundfonts/`), the worklet loads via the
+  `?worker&url` import and reports `position` messages, the cursor bar advances and highlights would apply (no
+  visible noteheads at this zoom to color-check, but `applyHighlights`/`.mx-score-page g.note.playing` CSS already
+  unit- and lint-verified separately), Stop resets the position to ~0 ticks and the button label, and the button
+  correctly shows Pause while playing. One false alarm during this process: the cursor initially appeared "stuck"
+  after Stop in a side-by-side screenshot comparison, which turned out to be a misjudged pixel difference at this
+  screenshot's resolution, not a real bug - a temporary debug `console.log` in `updateCursor()` confirmed
+  `audiblePosition()` correctly returns a near-zero tick after Stop and the cursor is redrawn there every frame;
+  the debug logging was removed before committing.
+- Problems / open questions: none blocking. Not covered by any automated test in this session: the
+  `AudioContext.onstatechange` -> `suspended` -> notice path (would need a way to simulate a spontaneous state
+  change on the mocked `AudioContext` in `web-audio-engine.test.ts`); worth a follow-up test task if not already
+  implied by T133's manual performance/robustness pass.
+- Handoff: next = T109 (`mx-diagnostics.ts`: dropouts, method, sample rate, latencies, report rate - all backed by
+  `AudioEngine.diagnostics()`, already implemented in T104), then T110 (make the T100 e2e test pass). Tree clean at
+  this commit.

@@ -1,12 +1,19 @@
-import { initialTransport, type TransportSnapshot, transportReducer } from '../../core/transport/transport.js';
+import {
+  clampTempoPercent,
+  clampVolume,
+  initialTransport,
+  type TransportSnapshot,
+  transportReducer,
+} from '../../core/transport/transport.js';
 import { createStore } from './store.js';
 
-/** The side effects a Play/Pause/Stop/tempo/volume action performs, bound by session.ts (T108) once the
+/** The side effects a Play/Pause/Stop/tempo/volume/seek action performs, bound by session.ts (T108) once the
  * AudioEngine exists. Before it is connected, actions still update the reducer state for the UI to render. */
 export interface TransportDriver {
   play(): void;
   pause(): void;
   stop(): void;
+  seekTick(tick: number): void;
   setTempoPercent(percent: number): void;
   setVolume(volume: number): void;
 }
@@ -52,6 +59,29 @@ class TransportStateStore {
 
   setLoadingProgress(loadedBytes: number, totalBytes: number | null): void {
     this.progressStore.set({ loadedBytes, totalBytes });
+  }
+
+  setSoundFailed(): void {
+    this.store.update((s) => transportReducer(s, { type: 'soundFailed' }));
+    this.progressStore.set(null);
+  }
+
+  /** Resets to a fresh Score's transport, keeping the user's tempo/volume/follow preferences (contracts,
+   * `transportReducer`'s 'newScore' action). */
+  newScore(): void {
+    this.soundReady = false;
+    this.store.update((s) => transportReducer(s, { type: 'newScore' }));
+    this.progressStore.set(null);
+  }
+
+  /** Applies persisted settings at startup, bypassing the driver (there is nothing to notify yet). */
+  applySavedSettings(tempoPercent: number, volume: number, follow: boolean): void {
+    this.store.update((s) => ({
+      ...s,
+      tempoPercent: clampTempoPercent(tempoPercent),
+      volume: clampVolume(volume),
+      follow,
+    }));
   }
 
   togglePlay(): void {
@@ -100,6 +130,13 @@ class TransportStateStore {
   /** A user-initiated scroll while playing turns follow off (R-14); no-op otherwise. */
   manualScroll(): void {
     this.store.update((s) => transportReducer(s, { type: 'manualScroll' }));
+  }
+
+  /** Click-to-seek (to a measure's first pass): keeps the current play/pause state (contracts/worklet-protocol.md
+   * `seek`), and becomes the tick Stop returns to. */
+  seekMeasure(tick: number): void {
+    this.store.update((s) => transportReducer(s, { type: 'seekMeasure', tick }));
+    this.driver?.seekTick(tick);
   }
 }
 

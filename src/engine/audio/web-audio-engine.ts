@@ -83,6 +83,13 @@ export class WebAudioEngine implements AudioEngine {
         this.setState({ kind: 'error', code: 'contextFailed', detail: String(err) });
         throw err;
       }
+      // A running context turning 'suspended' on its own (never something we do - pause() only messages the
+      // worklet) is the browser reacting to a device change or the tab going background (data-model.md §6).
+      this.context.onstatechange = () => {
+        if (this.context?.state === 'suspended') {
+          this.setState({ kind: 'suspended', reason: document.hidden ? 'hidden' : 'deviceChanged' });
+        }
+      };
     }
     if (this.context.state === 'suspended') {
       await this.context.resume();

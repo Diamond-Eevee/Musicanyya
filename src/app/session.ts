@@ -1,5 +1,6 @@
+import { WebAudioEngine } from '../engine/audio/web-audio-engine.js';
 import { MAX_FILE_BYTES, ZOOM_STEP } from '../engine/config.js';
-import type { ScoreStore, SettingsStore } from '../engine/ports.js';
+import type { AudioEngineEvent, EngineSchedule, ScoreStore, SettingsStore } from '../engine/ports.js';
 import { IndexedDbScoreStore } from '../engine/storage/indexeddb-score-store.js';
 import { LocalSettingsStore } from '../engine/storage/local-settings-store.js';
 import '../ui/elements/mx-drop-zone.js';
@@ -7,13 +8,16 @@ import '../ui/elements/mx-help-notation.js';
 import '../ui/elements/mx-open-button.js';
 import '../ui/elements/mx-recent-list.js';
 import '../ui/elements/mx-score-view.js';
+import '../ui/elements/mx-transport.js';
 import type { LoadReport } from '../core/score/load-report.js';
-import type { MxScoreView } from '../ui/elements/mx-score-view.js';
+import type { MxScoreView, TimelineDto } from '../ui/elements/mx-score-view.js';
 import { en } from '../ui/i18n/en.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
+import { initShortcuts } from '../ui/shortcuts.js';
 import { noticeState } from '../ui/state/noticeState.js';
 import type { LoadError, ScoreSummary } from '../ui/state/scoreState.js';
 import { scoreState } from '../ui/state/scoreState.js';
+import { transportState } from '../ui/state/transportState.js';
 import { viewState } from '../ui/state/viewState.js';
 
 interface ScoreWorkerLoaded {
@@ -22,6 +26,8 @@ interface ScoreWorkerLoaded {
   score: ScoreSummary;
   report: LoadReport;
   renderXml: string;
+  timeline: TimelineDto;
+  schedule: EngineSchedule;
   contentHash: string;
 }
 interface ScoreWorkerFailed {
@@ -63,6 +69,14 @@ export class Session {
   private nextRequestId = 1;
   private scoreView: MxScoreView | null = null;
 
+  // Listen mode (US2, T108)
+  private readonly audioEngine = new WebAudioEngine();
+  private engineUnlocked = false;
+  private soundReady = false;
+  private currentSchedule: EngineSchedule | null = null;
+  private currentTimeline: TimelineDto | null = null;
+  private scheduleDelivered = false;
+
   constructor(
     scoreStore: ScoreStore = new IndexedDbScoreStore(),
     settingsStore: SettingsStore = new LocalSettingsStore((code) =>
@@ -76,6 +90,7 @@ export class Session {
   async start(): Promise<void> {
     const settings = this.settingsStore.load();
     viewState.setZoom(settings.zoomPercent);
+    transportState.applySavedSettings(settings.tempoPercent, settings.volume, settings.follow);
 
     this.scoreView = document.createElement('mx-score-view');
     this.scoreView.client = this.verovioClient;
@@ -84,12 +99,43 @@ export class Session {
       viewState.setZoom(zoomPercent);
       this.settingsStore.save({ ...this.settingsStore.load(), zoomPercent });
     });
+    this.scoreView.addEventListener('measureclick', (event) => {
+      const { measureIndex } = (event as CustomEvent<{ measureIndex: number }>).detail;
+      const firstPass = this.currentTimeline?.passes.find((p) => p.measureIndex === measureIndex);
+      if (firstPass) transportState.seekMeasure(firstPass.startTick);
+    });
     document.getElementById('score-area')?.appendChild(this.scoreView);
 
     const emptyState = document.querySelector('.mx-empty-state');
     scoreState.subscribe((status) => {
       emptyState?.classList.toggle('hidden', status.kind === 'loading' || status.kind === 'loaded');
     });
+
+    const transport = document.createElement('mx-transport');
+    document.getElementById('transport-controls')?.appendChild(transport);
+    const updateTransportVisibility = () => {
+      transport.classList.toggle('hidden', scoreState.getStatus().kind !== 'loaded');
+    };
+    scoreState.subscribe(updateTransportVisibility);
+    updateTransportVisibility();
+    transportState.connect({
+      play: () => void this.handlePlay(),
+      pause: () => this.audioEngine.pause(),
+      stop: () => this.audioEngine.stop(),
+      seekTick: (tick) => this.audioEngine.seekTick(tick),
+      setTempoPercent: (percent) => this.audioEngine.setTempoPercent(percent),
+      setVolume: (volume) => this.audioEngine.setVolume(volume),
+    });
+    transportState.subscribe((state) => {
+      this.settingsStore.save({
+        ...this.settingsStore.load(),
+        tempoPercent: state.tempoPercent,
+        volume: state.volume,
+        follow: state.follow,
+      });
+    });
+    this.audioEngine.on((event) => this.onAudioEngineEvent(event));
+    initShortcuts();
 
     const openButton = document.createElement('mx-open-button');
     const dropZone = document.createElement('mx-drop-zone');
@@ -132,6 +178,52 @@ export class Session {
     }
   }
 
+  /** Unlock (user gesture), deliver the schedule if this is the first Play since it was loaded, ensure the
+   * SoundFont is loaded (progress shown via `onAudioEngineEvent`'s 'loadingSound' state), then play. */
+  private async handlePlay(): Promise<void> {
+    await this.audioEngine.unlock();
+    this.engineUnlocked = true;
+
+    if (this.currentSchedule && !this.scheduleDelivered) {
+      this.audioEngine.load(this.currentSchedule);
+      this.scheduleDelivered = true;
+      const seekTick = transportState.get().positionTick;
+      if (seekTick > 0) this.audioEngine.seekTick(seekTick);
+      if (this.scoreView && this.currentTimeline) this.scoreView.setPlayback(this.audioEngine, this.currentTimeline);
+    }
+
+    if (!this.soundReady) {
+      try {
+        await this.audioEngine.ensureSoundLoaded();
+        this.soundReady = true;
+        transportState.setSoundReady(true);
+      } catch {
+        transportState.setSoundFailed();
+        noticeState.addNotice({ code: 'soundFontMissing', severity: 'warning' });
+        return;
+      }
+    }
+
+    this.audioEngine.play();
+  }
+
+  private onAudioEngineEvent(event: AudioEngineEvent): void {
+    if (event.type === 'ended') {
+      transportState.ended();
+    } else if (event.type === 'state') {
+      if (event.state.kind === 'loadingSound') {
+        transportState.setLoadingProgress(event.state.loadedBytes, event.state.totalBytes);
+      } else if (event.state.kind === 'suspended') {
+        transportState.pause();
+        if (event.state.reason === 'deviceChanged') {
+          noticeState.addNotice({ code: 'audioDeviceChanged', severity: 'warning' });
+        }
+      } else if (event.state.kind === 'error' && event.state.code === 'workletLoadFailed') {
+        noticeState.addNotice({ code: 'workletLoadFailed', severity: 'warning' });
+      }
+    }
+  }
+
   async openFile(file: File): Promise<void> {
     if (file.size > MAX_FILE_BYTES) {
       scoreState.failed(file.name, {
@@ -164,6 +256,21 @@ export class Session {
 
     if (this.scoreView) {
       await this.scoreView.load(response.renderXml, response.score.measureIds, viewState.get().zoomPercent);
+    }
+
+    this.currentSchedule = response.schedule;
+    this.currentTimeline = response.timeline;
+    this.soundReady = false;
+    transportState.newScore();
+    if (this.engineUnlocked) {
+      // Already unlocked from an earlier Score in this session: deliver immediately (contracts/worklet-protocol.md
+      // "schedule" stops playback and resets position by itself). Not yet unlocked: handlePlay() delivers it on
+      // the first Play, since creating/loading the worklet needs a user gesture.
+      this.audioEngine.load(this.currentSchedule);
+      this.scheduleDelivered = true;
+      if (this.scoreView) this.scoreView.setPlayback(this.audioEngine, this.currentTimeline);
+    } else {
+      this.scheduleDelivered = false;
     }
 
     const putResult = await this.scoreStore.put({
