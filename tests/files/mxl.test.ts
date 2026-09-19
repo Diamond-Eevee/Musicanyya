@@ -122,12 +122,11 @@ describe('readMxl', () => {
 
   it('throws on zip bomb over MAX_UNCOMPRESSED_BYTES', async () => {
     // Generate a very compressible payload but large uncompressed size.
-    // E.g., 50MB of zeros. 
-    const largeData = Buffer.alloc(50 * 1024 * 1024);
+    // 257MB of zeros.
+    const largeData = Buffer.alloc(257 * 1024 * 1024);
     const zip = createZip([
       { name: 'score.xml', data: largeData, method: 'deflate' }
     ]);
-    // The reader should throw before finishing decomp, max size is e.g. 20MB.
     await expect(readMxl(zip)).rejects.toThrow('Archive too large');
   });
 

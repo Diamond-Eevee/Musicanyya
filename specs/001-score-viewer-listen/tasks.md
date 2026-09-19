@@ -95,10 +95,10 @@ the app keeps working; reload and reopen from the recent list (spec US1).
 
 ### Implementation
 
-- [ ] T050 [P] [US1] Implement `src/engine/files/decode.ts` to pass T034
-- [ ] T051 [P] [US1] Implement `src/engine/files/mxl.ts` (central directory, container.xml, DecompressionStream('deflate-raw'), limits) to pass T035
-- [ ] T052 [P] [US1] Implement `src/engine/files/hash.ts` (SHA-256 hex via crypto.subtle)
-- [ ] T053 [P] [US1] Implement `src/core/score/model.ts` and `src/core/score/load-report.ts` (data-model §1-2)
+- [x] T050 [P] [US1] Implement `src/engine/files/decode.ts` to pass T034
+- [x] T051 [P] [US1] Implement `src/engine/files/mxl.ts` (central directory, container.xml, DecompressionStream('deflate-raw'), limits) to pass T035
+- [x] T052 [P] [US1] Implement `src/engine/files/hash.ts` (SHA-256 hex via crypto.subtle)
+- [x] T053 [P] [US1] Implement `src/core/score/model.ts` and `src/core/score/load-report.ts` (data-model §1-2)
 - [ ] T054 [US1] Implement `src/core/score/note-id.ts` to pass T036
 - [ ] T055 [US1] Implement `src/core/musicxml/read.ts` (parse-xml with offsets, limits, error mapping) to pass T037
 - [ ] T056 [US1] Implement `src/core/musicxml/build.ts` (time model R-8.1, playable notes and ids R-8.2, tie flags, grace metadata, tempo marks, navigation marks, dynamics, instruments/transposition R-8.7, fingering R-8.8) to pass T038, T039
