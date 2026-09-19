@@ -1,8 +1,10 @@
-description = "Resolve open questions in the current spec with the user."
+description = "Spec Kit step: resolve open questions in the current spec with the user."
 prompt = """
-Read AGENTS.md (sections 0, 4, 5 and 6) if you have not already in this session.
-Then open .claude/commands/speckit.clarify.md and follow its instructions exactly,
-ignoring its YAML front matter and treating the text below as $ARGUMENTS.
+This repo's Spec Kit workflow is plain Markdown; nothing needs to be installed.
+1. Read AGENTS.md completely (it is short) and follow its "Session start" section.
+2. Open .claude/commands/speckit.clarify.md, read it completely and follow it exactly,
+   ignoring its YAML front matter and treating the text below as $ARGUMENTS.
+3. Finish with AGENTS.md "Session end and hand-off" (log entry with Handoff, commit).
 
 $ARGUMENTS:
 {{args}}

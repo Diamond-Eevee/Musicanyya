@@ -1,8 +1,7 @@
-description = "Show where the spec-driven workflow stands, the resume point and the next step."
+description = "Spec Kit: show where the workflow stands, the resume point and the next step (read-only)."
 prompt = """
-Follow AGENTS.md section 0 "Session start protocol" steps 1-6 (read-only; change nothing).
-Run: powershell -NoProfile -ExecutionPolicy Bypass -File .specify/scripts/powershell/status.ps1
-(on Linux/macOS: pwsh -NoProfile -File .specify/scripts/powershell/status.ps1)
-Then summarise: branch, NEXT STEP, resume point, claims, open owner decisions, working-tree state and the last
-hand-off, and state the recommended next command according to AGENTS.md sections 0 and 4.
+Do `AGENTS.md` "2. Session start" steps 1-6 only (read-only; change nothing): run the status script
+(`powershell -NoProfile -ExecutionPolicy Bypass -File .specify/scripts/powershell/status.ps1`, or `pwsh` on
+Linux/macOS), then summarise the branch, NEXT STEP, resume point, claims, open owner decisions, working-tree state
+and the last hand-off, and recommend the next command per `AGENTS.md` sections 1 and 3.
 """

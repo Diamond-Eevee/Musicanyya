@@ -11,7 +11,8 @@ $ARGUMENTS
 
 ## Rules
 
-STRICTLY READ-ONLY: do not modify any file. Output a report; offer remediation only if the user asks.
+STRICTLY READ-ONLY for spec, plan, tasks and code: do not modify them. Output a report; offer remediation only if the
+user asks. The only write allowed is step 8 (a short log entry, so the implement step knows analyze has run).
 The constitution is non-negotiable within this command: conflicts with a MUST are always CRITICAL.
 
 ## Steps
@@ -40,3 +41,6 @@ The constitution is non-negotiable within this command: conflicts with a MUST ar
    coverage %, counts per severity).
 7. Next actions: if CRITICAL issues exist, recommend resolving them before `/speckit.implement`, naming the command
    to use (`/speckit.specify`, `/speckit.plan` or manual edit of tasks.md). Ask whether the user wants concrete edits.
+8. Append to `FEATURE_DIR/implementation-log.md` (AGENTS.md section 5 format, short): `- Analyze: <n> findings
+   (CRITICAL <c>, HIGH <h>, MEDIUM <m>, LOW <l>); tasks.md as of <commit>` and the top recommendations. Commit only
+   that file (`docs(log): analyze <feature>`).

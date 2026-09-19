@@ -1,7 +1,10 @@
-description = "Spec Kit: show where the workflow stands, the resume point and the next step (read-only)."
-prompt = """
+---
+description: "Spec Kit: show where the workflow stands, the resume point and the next step (read-only)."
+---
+
+# /speckit.status
+
 Do `AGENTS.md` "2. Session start" steps 1-6 only (read-only; change nothing): run the status script
 (`powershell -NoProfile -ExecutionPolicy Bypass -File .specify/scripts/powershell/status.ps1`, or `pwsh` on
 Linux/macOS), then summarise the branch, NEXT STEP, resume point, claims, open owner decisions, working-tree state
 and the last hand-off, and recommend the next command per `AGENTS.md` sections 1 and 3.
-"""

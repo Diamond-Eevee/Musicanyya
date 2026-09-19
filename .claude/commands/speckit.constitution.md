@@ -33,7 +33,8 @@ Amend `.specify/memory/constitution.md` and keep every dependent artifact consis
    - `.specify/templates/spec-template.md` - vocabulary and success-criteria prompts.
    - `.specify/templates/tasks-template.md` - required task types (e.g. RT review, test-first).
    - `.claude/commands/speckit.*.md` and `.claude/agents/*.md` - no stale principle names/numbers.
-   - `AGENTS.md` - summary of principles and stack (CLAUDE.md and GEMINI.md only import it).
+   - `AGENTS.md` section 8 - summary of principles (keep AGENTS.md under 12,000 characters) and
+     `docs/agents/reference.md` R1 / Active Technologies - stack summary (CLAUDE.md and GEMINI.md only import AGENTS.md).
 6. Validate: no leftover placeholders, dates ISO, version line matches report.
 7. Report: new version, bump rationale, files changed, any follow-ups, and a suggested commit message
    (e.g. `docs: amend constitution to v1.1.0 (add principle VIII ...)`).

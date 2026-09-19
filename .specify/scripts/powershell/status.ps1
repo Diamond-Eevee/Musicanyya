@@ -134,7 +134,7 @@ if ($Json) {
 Write-Output "Branch: $branch"
 if ($git) {
     if ($git.UNCOMMITTED -gt 0) {
-        Write-Output "Working tree: $($git.UNCOMMITTED) uncommitted change(s) - find out whose before working (AGENTS.md section 0, step 4)"
+        Write-Output "Working tree: $($git.UNCOMMITTED) uncommitted change(s) - find out whose before working (AGENTS.md section 2, step 4)"
         foreach ($f in $git.UNCOMMITTED_FILES) { Write-Output "    $f" }
     } else {
         Write-Output 'Working tree: clean'
