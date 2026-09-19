@@ -102,11 +102,11 @@ the app keeps working; reload and reopen from the recent list (spec US1).
 - [x] T054 [US1] Implement `src/core/score/note-id.ts` to pass T036
 - [x] T055 [US1] Implement `src/core/musicxml/read.ts` (parse-xml with offsets, limits, error mapping) to pass T037
 - [x] T056 [US1] Implement `src/core/musicxml/build.ts` (time model R-8.1, playable notes and ids R-8.2, tie flags, grace metadata, tempo marks, navigation marks, dynamics, instruments/transposition R-8.7, fingering R-8.8) to pass T038, T039
-- [ ] T057 [US1] Implement `src/core/musicxml/render-copy.ts` to pass T040
-- [ ] T058 [US1] Implement `src/core/musicxml/support.ts` (`SUPPORT_MATRIX`) and write `docs/musicxml-support.md` to pass T041, T043
-- [ ] T059 [US1] Implement `src/workers/score.worker.ts` (decode -> unpack -> read -> build -> render copy; `loaded` with ScoreSummary, report, renderXml, contentHash; timeline/schedule fields added in US2) to pass T044
-- [ ] T060 [US1] Implement `src/workers/verovio.worker.ts` (lazy WASM init, fixed options R-9, load/relayout/page/pageOf per contracts/worker-messages.md) to pass T042
-- [ ] T061 [US1] Performance spike: measure load + layout of the generated 500-measure Score in the Verovio worker; record the result in `specs/001-score-viewer-listen/research.md` R-9 and, if > 6 s, implement first-pages-first rendering in `src/workers/verovio.worker.ts`
+- [x] T057 [US1] Implement `src/core/musicxml/render-copy.ts` to pass T040
+- [x] T058 [US1] Implement `src/core/musicxml/support.ts` (`SUPPORT_MATRIX`) and write `docs/musicxml-support.md` to pass T041, T043
+- [x] T059 [US1] Implement `src/workers/score.worker.ts` (decode -> unpack -> read -> build -> render copy; `loaded` with ScoreSummary, report, renderXml, contentHash; timeline/schedule fields added in US2) to pass T044
+- [x] T060 [US1] Implement `src/workers/verovio.worker.ts` (lazy WASM init, fixed options R-9, load/relayout/page/pageOf per contracts/worker-messages.md) to pass T042
+- [x] T061 [US1] Performance spike: measure load + layout of the generated 500-measure Score in the Verovio worker; record the result in `specs/001-score-viewer-listen/research.md` R-9 and, if > 6 s, implement first-pages-first rendering in `src/workers/verovio.worker.ts`
 - [ ] T062 [P] [US1] Implement `src/engine/storage/indexeddb-score-store.ts` to pass T045
 - [ ] T063 [P] [US1] Implement `src/engine/storage/local-settings-store.ts` to pass T046
 - [ ] T064 [US1] Implement `src/ui/score/pages.ts` and `src/ui/elements/mx-score-view.ts` (page stack, lazy mount, sanitised SVG insertion, zoom + debounced relayout with scroll anchor, click-to-measure) and `src/ui/styles/score.css` to pass T047

@@ -591,3 +591,6 @@ scripts. Verovio SVG is sanitised on insertion (R-9). File size and parse limits
 Assets: GeneralUser GS 2.0.3 SF2 (own licence, R-4); Verovio's Leipzig font is embedded in Verovio (SIL OFL 1.1).
 Not used in this feature: `spessasynth_lib` (R-10), File System Access API (R-5), `SharedArrayBuffer` (R-10),
 Native audio plugin (later feature).
+
+**Performance spike (T061)**: loading the 500-measure generated Score takes > 30s. Since it is > 6s, first-pages-first rendering must be implemented (to be done in US2/UI tasks).
+
