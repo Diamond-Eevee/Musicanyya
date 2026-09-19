@@ -231,8 +231,9 @@ interface UserSettings { version: 1; volume: Volume; tempoPercent: TempoPercent;
 | `MAX_XML_CHARS` / `MAX_ELEMENT_DEPTH` / `MAX_PARTS` / `MAX_MEASURES` | 64 Mi / 64 / 64 / 10000 | R-7 |
 | `POSITION_REPORT_BLOCKS` | 4 | R-10 (<= 94 Hz) |
 | `VOLUME_RAMP_FRAMES` | 256 | R-10 |
-| `POSITION_HISTORY` | 32 | R-11 |
-| `DROPOUT_CHECK_MS` / `DROPOUT_TOLERANCE_MS` | 500 / 20 | R-10 |
+| `POSITION_HISTORY` | 32 | R-11 (not needed in practice: `PositionSync` extrapolates from the single latest report) |
+| `DROPOUT_DRIFT_THRESHOLD_SECONDS` | 0.05 | R-10; `DropoutDetector` checks drift on every `position` report rather than polling every `DROPOUT_CHECK_MS` |
+| `DIAGNOSTICS_REPORT_WINDOW_MS` | 1000 | trailing window `WebAudioEngine` uses to compute `AudioDiagnostics.reportsPerSecond` |
 | `LATENCY_SAMPLES` | 32 | R-12 |
 | `RELAYOUT_DEBOUNCE_MS` | 150 | R-9 |
 | `SETTINGS_WRITE_DEBOUNCE_MS` | 500 | R-13 |

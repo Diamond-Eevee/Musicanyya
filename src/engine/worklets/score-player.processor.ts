@@ -314,7 +314,19 @@ if (typeof AudioWorkletProcessor !== 'undefined') {
       });
 
       this.inner.onMessage = (msg) => {
-        this.port.postMessage(msg);
+        // `msg.frame` from the factory is a playback-local counter that resets on schedule/stop/seek/play(fromTick)
+        // (needed for its own tick<->frame segment math); the contract's `frame`/`contextTime` must instead be the
+        // real, monotonic AudioWorkletGlobalScope clock (never reset) so the main thread's getOutputTimestamp()
+        // mapping (position-sync.ts, R-10/R-11) stays on one clock (Constitution II). Rewrite at the point of
+        // emission, which happens synchronously within this block's process() call, so these globals still hold
+        // this block's start values.
+        if (msg.type === 'position') {
+          this.port.postMessage({ ...msg, frame: currentFrame, contextTime: currentTime });
+        } else if (msg.type === 'ended') {
+          this.port.postMessage({ ...msg, frame: currentFrame });
+        } else {
+          this.port.postMessage(msg);
+        }
       };
 
       this.port.onmessage = (e) => {

@@ -51,3 +51,7 @@ export const VOLUME_DEFAULT = 80;
 // Audio worklet scheduling (R-10, shared with worklet which cannot import engine/config)
 export const POSITION_REPORT_BLOCKS = 4;
 export const VOLUME_RAMP_FRAMES = 256;
+
+// Dropout detection and diagnostics (R-10 "Dropouts")
+export const DROPOUT_DRIFT_THRESHOLD_SECONDS = 0.05;
+export const DIAGNOSTICS_REPORT_WINDOW_MS = 1000;

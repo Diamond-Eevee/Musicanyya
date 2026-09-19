@@ -1,4 +1,4 @@
-import { TEMPO_PERCENT_DEFAULT, VOLUME_DEFAULT } from '../../core/defaults.js';
+import { DIAGNOSTICS_REPORT_WINDOW_MS, TEMPO_PERCENT_DEFAULT, VOLUME_DEFAULT } from '../../core/defaults.js';
 import type {
   AudioDiagnostics,
   AudioEngine,
@@ -18,7 +18,6 @@ import { loadSoundFont } from './soundfont-cache.js';
 const SOUNDFONT_URL = 'soundfonts/GeneralUser-GS-2.0.3.sf2';
 const WORKLET_NAME = 'musicanyya-score-player';
 const WORKLET_PROTOCOL_VERSION = '1.0.0';
-const REPORT_WINDOW_MS = 1000;
 
 // The score-player worklet's outbound messages (contracts/worklet-protocol.md); defined locally because the
 // worklet module lives outside this file's TS project (tsconfig.worklet.json, AudioWorkletGlobalScope types).
@@ -158,7 +157,7 @@ export class WebAudioEngine implements AudioEngine {
   private recordReport(perfNow: number): void {
     this.lastReportPerfTimeMs = perfNow;
     this.reportTimestamps.push(perfNow);
-    const cutoff = perfNow - REPORT_WINDOW_MS;
+    const cutoff = perfNow - DIAGNOSTICS_REPORT_WINDOW_MS;
     while (this.reportTimestamps.length > 0 && this.reportTimestamps[0]! < cutoff) {
       this.reportTimestamps.shift();
     }

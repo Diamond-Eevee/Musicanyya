@@ -228,3 +228,58 @@
 - Decisions: Rounded audibleTick in position-sync to avoid floating-point assertion failures. Re-ran `pnpm lint --write` fixing formatting and unused variables across the codebase.
 - Problems / open questions: none.
 - Handoff: next = T104 (Implementation - web-audio-engine); tree clean at this commit.
+
+## 2026-09-19 21:15 - claude-sonnet-5
+- Done: T104 (`src/engine/audio/web-audio-engine.ts`), T105 (RT review of T102-T104, findings fixed).
+- T104: `WebAudioEngine` adapter - `AudioContext({ latencyHint: 'interactive' })` created/resumed on `unlock()`;
+  the `score-player` worklet module is bundled via Vite's `?worker&url` import (`tsconfig.engine.json` now includes
+  `vite/client` types for the ambient `*?worker&url` module declaration) and loaded with `audioWorklet.addModule`;
+  `ensureSoundLoaded()` fetches the SoundFont (via `loadSoundFont`) and transfers the bytes to the worklet as a
+  `soundBank` message without waiting for its `soundReady` acknowledgement (the worklet's port processes messages
+  FIFO, so by the time a later `play` command is handled the bank is already built - correctness relies on message
+  ordering, not a round trip); transport commands (`play`/`pause`/`stop`/`seek`/`tempo`/`volume`/`live`) map 1:1 to
+  `contracts/worklet-protocol.md`; `position`/`ended`/`status` messages update `AudioEngineState`/`TransportSnapshot`
+  and feed `PositionSync`/`DropoutDetector`. `ports.ts`'s `EngineSchedule` stub (`any`) is now the real
+  `ScheduleMessage` type from `core/schedule/compile.ts`.
+- Fixes found while implementing T104 (all logged as decisions, not scope creep - each blocked a passing,
+  non-weakened test or a real correctness bug):
+  - `soundfont-cache.ts` assumed `caches` (Cache Storage) always exists; feature-detected instead (`typeof caches
+    !== 'undefined'`), falling back to a plain fetch+reader without caching. Needed because `web-audio-engine.test.ts`
+    runs in the `engine` project's Node environment, which has no `caches` global (and real browsers without a
+    secure context / private-mode Safari can lack it too).
+  - `web-audio-engine.test.ts`'s `AudioContext`/`AudioWorkletNode` mocks were `vi.fn(() => mockX)` (arrow-function
+    implementations). Vitest's `vi.fn()` uses `Reflect.construct` on the implementation when the mock is invoked
+    with `new`, which throws for arrow functions (they have no `[[Construct]]`) - "TypeError: () => mockContext is
+    not a constructor". This was latent since the old `unlock()` stub threw `Not implemented` before ever reaching
+    `new AudioContext(...)`; T104's real implementation exposed it. Fixed by switching the mocks to plain function
+    expressions (real `AudioContext`/`AudioWorkletNode` are constructors too, so this also makes the mock more
+    faithful).
+- T105 (`rt-audio-reviewer` on `position-sync.ts`, `dropouts.ts`, `web-audio-engine.ts`; `score-player.processor.ts`
+  read for context only, already reviewed under T092): **one blocking finding**, fixed:
+  - Clock-domain mismatch (Constitution II, "one clock"). `score-player.processor.ts`'s `sendPositionReport()`
+    reported `contextTime: currentFrame / sampleRate` using the factory's *local* `currentFrame` counter, which
+    resets to 0 on every `schedule`/`stop`/`seek`/`play(fromTick)` (it exists purely for the tick<->frame segment
+    math and is correctly local for that purpose). The contract requires `frame`/`contextTime` to be the *real*,
+    never-reset `currentFrame`/`currentTime` globals of `AudioWorkletGlobalScope`, because `position-sync.ts` and
+    `WebAudioEngine.audiblePosition()` map them onto `AudioContext.currentTime`/`getOutputTimestamp()` on the main
+    thread - two different clocks being treated as one. In real use this would make the reported audible tick
+    wrong by a growing offset after every stop/seek/replay (the unit tests didn't catch it because
+    `position-sync.test.ts` hand-injects `contextTime` values instead of exercising the processor). Fixed in
+    `ScorePlayerAudioWorklet`'s `onMessage` wrapper (`score-player.processor.ts`): outgoing `position`/`ended`
+    messages have their `frame`/`contextTime` rewritten from the real AudioWorkletGlobalScope globals at the point
+    of emission (synchronous within `process()`, so they still hold this block's start values); the factory
+    (`createScorePlayerProcessor`) itself, and `tests/engine/worklets/score-player.timing.test.ts` which exercises
+    it directly and asserts on its local `frame` values, are untouched.
+  - Advisories (non-blocking, addressed): `DRIFT_THRESHOLD_SECONDS` (dropouts.ts) and the report-rate window
+    (web-audio-engine.ts) were local literals instead of named constants in `core/defaults.ts` per AGENTS.md
+    section 6; moved to `DROPOUT_DRIFT_THRESHOLD_SECONDS` / `DIAGNOSTICS_REPORT_WINDOW_MS` and reflected in
+    `data-model.md` section 10 (also corrected two stale rows there: `POSITION_HISTORY` was never implemented -
+    `PositionSync` extrapolates from a single latest report, which is sufficient - and the dropout heuristic checks
+    drift on every `position` report rather than polling every `DROPOUT_CHECK_MS`).
+  - Advisories left as-is (design tradeoffs, not defects): `node?.port.postMessage(...)` silently no-ops if called
+    before the worklet is ready, by design (`AudioEngine`'s contract already says `unlock()`/`ensureSoundLoaded()`
+    must be awaited first; T108 will call them in the right order) - queuing would be premature; `Array.shift()` in
+    `recordReport`'s trim loop is O(n) but bounded to about a report's worth of entries per second, not worth a
+    ring buffer without a profiler pointing at it.
+- Problems / open questions: none blocking.
+- Handoff: next = T106 (`mx-transport.ts` + `transportState.ts`, US2 UI); tree clean at this commit.
