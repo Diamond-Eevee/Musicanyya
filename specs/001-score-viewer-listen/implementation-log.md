@@ -214,3 +214,10 @@
 - Done: T090-T091 (US2 dispatch and score-player processor implemented); T092 (RT review completed, fixed allocation issues in dispatchBlock)
 - Problems / open questions: None
 - Handoff: next = T093 -> T104 (Audio engine Native path and Web Audio setup); tree clean
+
+## 2026-09-19 20:31 - gemini-3.1-pro (relay)
+- Done: T095-T100 (US2 Listen tests: position-sync, dropouts, web-audio-engine adapter, UI transport, UI highlight/cursor, and e2e test). Tests were written first and verified to fail (except e2e which is left for the end of the phase).
+- In progress: none.
+- Decisions: Stubs for implementation files (position-sync, dropouts, web-audio-engine, ui elements and states) were created so tests can fail correctly.
+- Problems / open questions: none.
+- Handoff: next = T101-T110 (Implementation - audio adapter and UI); tree clean at this commit.
