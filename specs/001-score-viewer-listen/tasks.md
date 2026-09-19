@@ -165,8 +165,8 @@ follow the notation; change tempo and volume while playing (spec US2).
 ### Tests (write first) - audio adapter and UI
 
 - [x] T093 [P] [US2] Real-synth onset test: `spessasynth_core` + the SF2 render a scheduled note whose first non-silent frame is within one block of its dispatch frame in `tests/engine/synth-onset.test.ts`
-- [~] T094 [P] [US2] SoundFont cache tests (fetch with progress, Cache Storage hit on second load, old cache names deleted, missing file -> soundFontMissing) in `tests/engine/audio/soundfont-cache.test.ts` (claimed: gemini-3.1-pro 2026-09-19)
-- [ ] T095 [P] [US2] Position sync tests (aged reports + FakeClock + getOutputTimestamp mapping -> audible tick within one animation frame of ideal; fallback without outputLatency) in `tests/engine/audio/position-sync.test.ts`
+- [x] T094 [P] [US2] SoundFont cache tests (fetch with progress, Cache Storage hit on second load, old cache names deleted, missing file -> soundFontMissing) in `tests/engine/audio/soundfont-cache.test.ts`
+- [~] T095 [P] [US2] Position sync tests (aged reports + FakeClock + getOutputTimestamp mapping -> audible tick within one animation frame of ideal; fallback without outputLatency) in `tests/engine/audio/position-sync.test.ts` (claimed: gemini-3.1-pro 2026-09-19)
 - [ ] T096 [P] [US2] Dropout detection tests (browser stats path when present, clock-drift heuristic otherwise, counters since play/total) in `tests/engine/audio/dropouts.test.ts`
 - [ ] T097 [P] [US2] WebAudioEngine adapter tests with a fake AudioContext/AudioWorkletNode port (unlock on gesture, state events incl. loadingSound progress, command messages per worklet protocol, latency info, dispose) in `tests/engine/audio/web-audio-engine.test.ts`
 - [ ] T098 [P] [US2] UI tests: transport controls + shortcuts (Space, Esc), tempo 25-200 step 5, volume, loading progress, follow button in `tests/ui/transport.test.ts`
