@@ -77,12 +77,17 @@ class ScoreState {
   succeeded(loaded: LoadedScore) {
     this.statusStore.set({ kind: 'loaded', score: loaded });
     for (const entry of loaded.report.entries) {
+      const base = {
+        code: entry.code,
+        severity: entry.severity,
+        ...(entry.element !== undefined ? { element: entry.element } : {}),
+      };
       if (entry.measureLabels.length === 0) {
-        noticeState.addNotice({ code: entry.code, severity: entry.severity, element: entry.element });
+        noticeState.addNotice(base);
         continue;
       }
       for (const measureLabel of entry.measureLabels) {
-        noticeState.addNotice({ code: entry.code, severity: entry.severity, element: entry.element, measureLabel });
+        noticeState.addNotice({ ...base, measureLabel });
       }
     }
   }

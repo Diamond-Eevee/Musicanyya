@@ -224,6 +224,7 @@ interface UserSettings { version: 1; volume: Volume; tempoPercent: TempoPercent;
 | `TEMPO_PERCENT_MIN` / `MAX` / `STEP` / `DEFAULT` | 25 / 200 / 5 / 100 | FR-011 |
 | `VOLUME_DEFAULT` | 80 | FR-016 |
 | `ZOOM_MIN` / `ZOOM_MAX` / `ZOOM_DEFAULT` | 50 / 200 / 100 | FR-003 |
+| `ZOOM_STEP` | 10 | FR-003, quickstart US1-4 (+/- keys) |
 | `RECENT_SCORES_MAX` | 10 | FR-007 |
 | `MAX_FILE_BYTES` | 64 MiB | R-5 |
 | `MAX_UNCOMPRESSED_BYTES` / `MAX_ZIP_ENTRIES` | 256 MiB / 1000 | R-6 |

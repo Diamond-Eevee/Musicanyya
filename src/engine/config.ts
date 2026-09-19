@@ -8,6 +8,7 @@ export const VOLUME_DEFAULT = 80;
 export const ZOOM_MIN = 50;
 export const ZOOM_MAX = 200;
 export const ZOOM_DEFAULT = 100;
+export const ZOOM_STEP = 10;
 
 export const RECENT_SCORES_MAX = 10;
 

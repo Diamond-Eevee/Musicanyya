@@ -14,7 +14,7 @@ const DEFAULT_PAGE_HEIGHT = 1600;
 export class MxScoreView extends HTMLElement {
   client: VerovioClient | null = null;
 
-  private scroll!: HTMLElement;
+  private scrollEl!: HTMLElement;
   private stack!: HTMLElement;
   private measureIds: string[] = [];
   private layouts: PageLayout[] = [];
@@ -26,20 +26,23 @@ export class MxScoreView extends HTMLElement {
 
   connectedCallback() {
     this.innerHTML = `<div class="mx-score-scroll"><div class="mx-score-stack"></div></div>`;
-    this.scroll = this.querySelector('.mx-score-scroll') as HTMLElement;
+    this.scrollEl = this.querySelector('.mx-score-scroll') as HTMLElement;
     this.stack = this.querySelector('.mx-score-stack') as HTMLElement;
-    this.scroll.addEventListener('scroll', () => this.mountVisiblePages());
-    this.scroll.addEventListener('click', (event) => this.onClick(event));
+    this.scrollEl.addEventListener('scroll', () => this.mountVisiblePages());
+    this.scrollEl.addEventListener('click', (event) => this.onClick(event));
   }
 
   disconnectedCallback() {
     if (this.relayoutTimer !== null) clearTimeout(this.relayoutTimer);
   }
 
-  async load(renderXml: string, measureIds: readonly string[]): Promise<void> {
+  async load(renderXml: string, measureIds: readonly string[], zoomPercent?: number): Promise<void> {
     if (!this.client) throw new Error('mx-score-view: no VerovioClient attached');
     const token = ++this.loadToken;
     this.measureIds = [...measureIds];
+    if (zoomPercent !== undefined) {
+      this.zoomPercent = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(zoomPercent)));
+    }
     await this.client.init();
     const { pageCount } = await this.client.load(renderXml, this.layoutOptions());
     if (token !== this.loadToken) return; // superseded by a newer load
@@ -51,6 +54,7 @@ export class MxScoreView extends HTMLElement {
     const clamped = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(percent)));
     if (clamped === this.zoomPercent) return;
     this.zoomPercent = clamped;
+    this.dispatchEvent(new CustomEvent('zoomchange', { detail: { zoomPercent: clamped } }));
     if (this.relayoutTimer !== null) clearTimeout(this.relayoutTimer);
     this.relayoutTimer = setTimeout(() => this.relayout(), RELAYOUT_DEBOUNCE_MS);
   }
@@ -74,7 +78,7 @@ export class MxScoreView extends HTMLElement {
   }
 
   private topVisiblePage(): number {
-    const scrollTop = this.scroll.scrollTop;
+    const scrollTop = this.scrollEl.scrollTop;
     const layout = this.layouts.find((l) => l.top + l.height > scrollTop) ?? this.layouts[this.layouts.length - 1];
     return layout ? layout.page : 1;
   }
@@ -97,15 +101,15 @@ export class MxScoreView extends HTMLElement {
       const { page } = await this.client.pageOf(anchorMeasureId);
       if (token !== this.loadToken) return;
       const layout = this.layouts.find((l) => l.page === page);
-      if (layout) this.scroll.scrollTop = layout.top;
+      if (layout) this.scrollEl.scrollTop = layout.top;
     }
     await this.mountVisiblePages();
   }
 
   private async mountVisiblePages(): Promise<void> {
     if (!this.client || this.layouts.length === 0) return;
-    const viewportHeight = this.scroll.clientHeight || DEFAULT_PAGE_HEIGHT;
-    const visible = new Set(mountedPageNumbers(this.layouts, this.scroll.scrollTop, viewportHeight));
+    const viewportHeight = this.scrollEl.clientHeight || DEFAULT_PAGE_HEIGHT;
+    const visible = new Set(mountedPageNumbers(this.layouts, this.scrollEl.scrollTop, viewportHeight));
     const token = this.loadToken;
 
     for (const page of Array.from(this.mountedPages)) {
@@ -138,3 +142,9 @@ export class MxScoreView extends HTMLElement {
   }
 }
 customElements.define('mx-score-view', MxScoreView);
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'mx-score-view': MxScoreView;
+  }
+}
