@@ -170,8 +170,8 @@ follow the notation; change tempo and volume while playing (spec US2).
 - [x] T096 [P] [US2] Dropout detection tests (browser stats path when present, clock-drift heuristic otherwise, counters since play/total) in `tests/engine/audio/dropouts.test.ts`
 - [x] T097 [P] [US2] WebAudioEngine adapter tests with a fake AudioContext/AudioWorkletNode port (unlock on gesture, state events incl. loadingSound progress, command messages per worklet protocol, latency info, dispose) in `tests/engine/audio/web-audio-engine.test.ts`
 - [x] T098 [P] [US2] UI tests: transport controls + shortcuts (Space, Esc), tempo 25-200 step 5, volume, loading progress, follow button in `tests/ui/transport.test.ts`
-- [~] T099 [P] [US2] UI tests: highlight diffs (off before on, classes on existing elements only, re-applied when a page mounts) and cursor overlay drawing (DPR sizing, bar + marker, empty cursorNoteIds -> measure start) in `tests/ui/highlight-cursor.test.ts` (claimed: gemini-3.1-pro 2026-09-19)
-- [ ] T100 [P] [US2] End-to-end test: play `scale-c-major-q100` (sound cached), pause/resume/stop, click-to-seek, tempo change, `volta-1-2` cursor path, time from Play to first playing position <= 150 ms (Chromium) in `tests/e2e/us2-listen.spec.ts`
+- [x] T099 [P] [US2] UI tests: highlight diffs (off before on, classes on existing elements only, re-applied when a page mounts) and cursor overlay drawing (DPR sizing, bar + marker, empty cursorNoteIds -> measure start) in `tests/ui/highlight-cursor.test.ts`
+- [~] T100 [P] [US2] End-to-end test: play `scale-c-major-q100` (sound cached), pause/resume/stop, click-to-seek, tempo change, `volta-1-2` cursor path, time from Play to first playing position <= 150 ms (Chromium) in `tests/e2e/us2-listen.spec.ts` (claimed: gemini-3.1-pro 2026-09-19)
 
 ### Implementation - audio adapter and UI
 
