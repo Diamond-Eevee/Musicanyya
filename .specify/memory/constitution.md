@@ -1,14 +1,8 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.0.0 -> 1.1.0 (MINOR)
-  Resolves the three deferred stack decisions (Platform & Technology Constraints):
-  - Built-in sound: spessasynth_lib (AudioWorklet SF2/SF3 synth) + GeneralUser GS SF2 (ADR-0002).
-  - Native audio plugin: one Rust companion process for Windows/macOS/Linux (cpal, midir,
-    rustysynth) linked to the app over a localhost WebSocket (ADR-0003).
-  - Electron packaging: electron-builder (ADR-0004).
-  Principle V: new security rule for the Native audio plugin link (loopback only, Origin check,
-  pairing token).
+Version change: 1.1.0 -> 1.1.1 (PATCH)
+  Amends ADR-0002 to use spessasynth_core in our own AudioWorklet instead of spessasynth_lib.
 Templates requiring updates:
   OK .specify/templates/plan-template.md   (no change needed)
   OK .specify/templates/spec-template.md   (no change needed)
@@ -254,7 +248,7 @@ amendment (MINOR).
 | Score engraving | Verovio (WASM, LGPL-3.0, in a Web Worker) -> SVG with Note IDs as element ids; SMuFL font (Leipzig or Bravura) |
 | Overlays | Canvas 2D layer above the SVG for cursor, feedback animation and Advice markers; per-note state via SVG classes |
 | Score input | MusicXML 3.0-4.0 (`.musicxml`, `.xml`, `.mxl`), parsed by our own TS code into the canonical model |
-| Audio (browser) | Web Audio API + `AudioWorklet`; built-in sound via `spessasynth_lib` (AudioWorklet SoundFont synth, events scheduled at `AudioContext` time) with the GeneralUser GS SF2 SoundFont; sample-accurate metronome |
+| Audio (browser) | Web Audio API + `AudioWorklet`; built-in sound via `spessasynth_core` (own AudioWorklet wrapper embedding the synth, events scheduled at `AudioContext` time) with the GeneralUser GS SF2 SoundFont; sample-accurate metronome |
 | Audio (low latency) | Native audio plugin behind the `AudioEngine` port: one Rust companion process (`cpal` + `midir` + `rustysynth`, same SF2) for Windows (WASAPI shared, ASIO; WASAPI exclusive later if needed), macOS (CoreAudio) and Linux (ALSA, PipeWire, PulseAudio, JACK), linked to the app over a localhost WebSocket |
 | MIDI | Web MIDI API (browser and Electron); native MIDI inside the plugin when it is active |
 | Storage | IndexedDB (scores, Performance logs, progress, settings); `localStorage` only for tiny UI preferences; files via File System Access API with `<input type=file>` fallback |
@@ -340,4 +334,4 @@ Merge gates (every change):
 - Runtime guidance for agents lives in `AGENTS.md` (tool-neutral; `CLAUDE.md`
   and `GEMINI.md` only import it) and MUST stay consistent with this document.
 
-**Version**: 1.1.0 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-09-19
+**Version**: 1.1.1 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-09-19
