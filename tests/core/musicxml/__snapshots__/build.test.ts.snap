@@ -51,7 +51,7 @@ exports[`buildScore snapshots > builds time-model for backup-forward-two-voices.
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -198,7 +198,7 @@ exports[`buildScore snapshots > builds time-model for chord-basic.musicxml 1`] =
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -376,7 +376,7 @@ exports[`buildScore snapshots > builds time-model for cue-notes-not-played.music
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -559,7 +559,7 @@ exports[`buildScore snapshots > builds time-model for dc-after-jump-repeats.musi
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -806,7 +806,7 @@ exports[`buildScore snapshots > builds time-model for dc-al-fine.musicxml 1`] = 
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -996,7 +996,7 @@ exports[`buildScore snapshots > builds time-model for divisions-change-mid-part.
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -1201,7 +1201,7 @@ exports[`buildScore snapshots > builds time-model for ds-al-coda.musicxml 1`] = 
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -1410,7 +1410,7 @@ exports[`buildScore snapshots > builds time-model for duplicate-notes-disambigua
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -1569,7 +1569,7 @@ exports[`buildScore snapshots > builds time-model for dynamics-marks.musicxml 1`
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -1753,7 +1753,7 @@ exports[`buildScore snapshots > builds time-model for dynamics-sound-override.mu
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -1875,7 +1875,7 @@ exports[`buildScore snapshots > builds time-model for fingering-substitution-alt
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -2006,7 +2006,7 @@ exports[`buildScore snapshots > builds time-model for fractional-duration.musicx
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -2153,7 +2153,7 @@ exports[`buildScore snapshots > builds time-model for grace-acciaccatura.musicxm
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -2318,7 +2318,7 @@ exports[`buildScore snapshots > builds time-model for grace-after-note-end-of-me
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -2502,7 +2502,7 @@ exports[`buildScore snapshots > builds time-model for grace-group-at-start.music
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -2692,7 +2692,7 @@ exports[`buildScore snapshots > builds time-model for grand-staff-two-voices-per
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -2854,6 +2854,14 @@ exports[`buildScore snapshots > builds time-model for instrument-missing-fallbac
 {
   "report": {
     "entries": [
+      {
+        "code": "instrumentFallback",
+        "element": "Piano",
+        "measureLabels": [
+          "0",
+        ],
+        "severity": "warning",
+      },
       {
         "code": "measureLengthMismatch",
         "measureLabels": [
@@ -3219,7 +3227,7 @@ exports[`buildScore snapshots > builds time-model for jump-text-only.musicxml 1`
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -3447,7 +3455,7 @@ exports[`buildScore snapshots > builds time-model for jump-time-only.musicxml 1`
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -3648,7 +3656,7 @@ exports[`buildScore snapshots > builds time-model for measure-numbers-duplicate-
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -3829,7 +3837,7 @@ exports[`buildScore snapshots > builds time-model for measure-overfull.musicxml 
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -3957,7 +3965,7 @@ exports[`buildScore snapshots > builds time-model for measure-repeat.musicxml 1`
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -4107,7 +4115,7 @@ exports[`buildScore snapshots > builds time-model for measure-underfull.musicxml
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -4233,7 +4241,7 @@ exports[`buildScore snapshots > builds time-model for meter-change.musicxml 1`] 
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -4531,7 +4539,7 @@ exports[`buildScore snapshots > builds time-model for minimal-single-note.musicx
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -4671,7 +4679,7 @@ exports[`buildScore snapshots > builds time-model for multi-measure-rest.musicxm
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -4755,7 +4763,7 @@ exports[`buildScore snapshots > builds time-model for non-ascii-Łódź-日本.m
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -4871,7 +4879,7 @@ exports[`buildScore snapshots > builds time-model for octave-shift-8va.musicxml 
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -5049,7 +5057,7 @@ exports[`buildScore snapshots > builds time-model for percussion-unpitched.music
           {
             "bank": null,
             "channelHint": 9,
-            "fallback": true,
+            "fallback": false,
             "name": "Snare Drum",
             "pan": null,
             "percussion": true,
@@ -5172,7 +5180,7 @@ exports[`buildScore snapshots > builds time-model for pickup-implicit.musicxml 1
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -5337,7 +5345,7 @@ exports[`buildScore snapshots > builds time-model for repeat-implicit-start.musi
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -5507,7 +5515,7 @@ exports[`buildScore snapshots > builds time-model for repeat-simple.musicxml 1`]
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -5677,7 +5685,7 @@ exports[`buildScore snapshots > builds time-model for repeat-times-3.musicxml 1`
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -5864,7 +5872,7 @@ exports[`buildScore snapshots > builds time-model for repeat-unbalanced-backward
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -6030,7 +6038,7 @@ exports[`buildScore snapshots > builds time-model for scale-c-major-q100.musicxm
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -6227,7 +6235,7 @@ exports[`buildScore snapshots > builds time-model for tempo-change-mid-measure-o
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -6429,7 +6437,7 @@ exports[`buildScore snapshots > builds time-model for tempo-dotted-beat-unit.mus
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -6541,7 +6549,7 @@ exports[`buildScore snapshots > builds time-model for tempo-none-default.musicxm
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -6743,7 +6751,7 @@ exports[`buildScore snapshots > builds time-model for tempo-sound-vs-metronome.m
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -6871,7 +6879,7 @@ exports[`buildScore snapshots > builds time-model for tie-across-barline.musicxm
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -7030,7 +7038,7 @@ exports[`buildScore snapshots > builds time-model for tie-broken.musicxml 1`] = 
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -7173,7 +7181,7 @@ exports[`buildScore snapshots > builds time-model for tie-chain-three.musicxml 1
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -7363,7 +7371,7 @@ exports[`buildScore snapshots > builds time-model for tie-chord-partial.musicxml
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -7631,7 +7639,7 @@ exports[`buildScore snapshots > builds time-model for tie-into-volta.musicxml 1`
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -7852,7 +7860,7 @@ exports[`buildScore snapshots > builds time-model for tied-without-tie.musicxml 
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -7999,7 +8007,7 @@ exports[`buildScore snapshots > builds time-model for transpose-bb-clarinet.musi
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -8122,7 +8130,7 @@ exports[`buildScore snapshots > builds time-model for tuplet-triplet-eighths.mus
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -8300,7 +8308,7 @@ exports[`buildScore snapshots > builds time-model for unsupported-elements-notic
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -8416,7 +8424,7 @@ exports[`buildScore snapshots > builds time-model for verovio-id-roundtrip.music
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -8608,7 +8616,7 @@ exports[`buildScore snapshots > builds time-model for volta-1-2.musicxml 1`] = `
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -8869,7 +8877,7 @@ exports[`buildScore snapshots > builds time-model for volta-combined-numbers.mus
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -9123,7 +9131,7 @@ exports[`buildScore snapshots > builds time-model for volta-discontinue.musicxml
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -9343,7 +9351,7 @@ exports[`buildScore snapshots > builds time-model for wedge-crescendo.musicxml 1
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,
@@ -9561,7 +9569,7 @@ exports[`buildScore snapshots > builds time-model for whole-measure-rest.musicxm
           {
             "bank": null,
             "channelHint": null,
-            "fallback": true,
+            "fallback": false,
             "name": "",
             "pan": null,
             "percussion": false,

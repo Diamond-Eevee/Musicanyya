@@ -145,11 +145,15 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           const volumeTxt = mi ? getText(getChild(mi, 'volume')) : '';
           const panTxt = mi ? getText(getChild(mi, 'pan')) : '';
 
+          const percussion = (channelTxt ? parseInt(channelTxt, 10) : 0) === 10;
           let program = parseInt(programTxt, 10);
           let fallback = false;
-          if (isNaN(program) || program < 1 || program > 128) {
+          // A pure percussion instrument legitimately has no midi-program (it sounds via midi-unpitched).
+          if (!percussion && (isNaN(program) || program < 1 || program > 128)) {
             program = 1;
             fallback = true;
+          } else if (isNaN(program) || program < 1 || program > 128) {
+            program = 1;
           }
 
           instruments.push({
@@ -158,7 +162,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
             program: program - 1,
             bank: bankTxt ? parseInt(bankTxt, 10) : null,
             channelHint: channelTxt ? parseInt(channelTxt, 10) - 1 : null,
-            percussion: (channelTxt ? parseInt(channelTxt, 10) : 0) === 10,
+            percussion,
             unpitchedKey: unpitchedTxt ? parseInt(unpitchedTxt, 10) - 1 : null,
             volume: volumeTxt ? Math.round(127 * (parseFloat(volumeTxt) / 100)) : null,
             pan: panTxt ? Math.round(64 + (parseFloat(panTxt) / 90) * 63) : null,
@@ -169,26 +173,30 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
         const mi = midiInstruments[0];
         const insId = getAttr(mi, 'id') || '';
         const programTxt = getText(getChild(mi, 'midi-program'));
+        const channelTxt = getText(getChild(mi, 'midi-channel'));
+        const percussion = (channelTxt ? parseInt(channelTxt, 10) : 0) === 10;
         let program = parseInt(programTxt, 10);
         let fallback = false;
-        if (isNaN(program) || program < 1 || program > 128) {
+        if (!percussion && (isNaN(program) || program < 1 || program > 128)) {
           program = 1;
           fallback = true;
+        } else if (isNaN(program) || program < 1 || program > 128) {
+          program = 1;
         }
-        const channelTxt = getText(getChild(mi, 'midi-channel'));
         instruments.push({
           xmlId: insId,
           name: '',
           program: program - 1,
           bank: null,
           channelHint: channelTxt ? parseInt(channelTxt, 10) - 1 : null,
-          percussion: (channelTxt ? parseInt(channelTxt, 10) : 0) === 10,
+          percussion,
           unpitchedKey: null,
           volume: null,
           pan: null,
           fallback,
         });
       } else {
+        // No <score-instrument>/<midi-instrument> at all: an ordinary default, not an error worth a notice.
         instruments.push({
           xmlId: '',
           name: '',
@@ -199,8 +207,11 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           unpitchedKey: null,
           volume: null,
           pan: null,
-          fallback: true,
+          fallback: false,
         });
+      }
+      if (instruments.some((i) => i.fallback)) {
+        report.add('warning', 'instrumentFallback', '0', name || id);
       }
       partInfos.set(id, { name, instruments });
     }
