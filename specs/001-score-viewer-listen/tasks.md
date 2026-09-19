@@ -135,8 +135,8 @@ follow the notation; change tempo and volume while playing (spec US2).
 ### Tests (write first, confirm they fail)
 
 - [x] T072 [P] [US2] Unrolling tests with snapshots of MeasurePass lists (repeats, times, unbalanced, endings incl. combined/discontinue, D.C./D.S./To Coda/Fine, after-jump, time-only, text inference whitelist, loop guard fallback, first-pass seek rule) in `tests/core/timeline/unroll.test.ts`
-- [ ] T073 [P] [US2] Tie resolution tests on the unrolled order (barline, chains, into both voltas, partial chords, broken start/stop, `<tied>`-only, let-ring) in `tests/core/timeline/ties.test.ts`
-- [ ] T074 [P] [US2] Grace timing tests after unrolling (steal from previous, cap ratio, min remaining, steal-time-following, lead-in at start) in `tests/core/timeline/grace.test.ts`
+- [x] T073 [P] [US2] Tie resolution tests on the unrolled order (barline, chains, into both voltas, partial chords, broken start/stop, `<tied>`-only, let-ring) in `tests/core/timeline/ties.test.ts`
+- [x] T074 [P] [US2] Grace timing tests after unrolling (steal from previous, cap ratio, min remaining, steal-time-following, lead-in at start) in `tests/core/timeline/grace.test.ts`
 - [x] T075 [P] [US2] Tempo map tests (sound tempo vs metronome precedence, dotted beat units, ranges, offset with sound="yes", default 100 qpm, merge across parts, notated-order state at jump targets) in `tests/core/tempo/tempo-map.test.ts`
 - [x] T076 [P] [US2] Dynamics/velocity tests (mark table, note/sound dynamics precedence, sfz/fp/accent boosts, wedge interpolation, clamping) in `tests/core/timeline/dynamics.test.ts`
 - [x] T077 [P] [US2] Instrument/channel tests (program 1-based -> 0-based, fallback to piano with notice, percussion via midi-unpitched, channel allocation skipping 9 and 15, sharing by program, transposed sounding keys, octave-shift display only) in `tests/core/timeline/instruments.test.ts`
