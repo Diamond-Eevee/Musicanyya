@@ -107,8 +107,8 @@ the app keeps working; reload and reopen from the recent list (spec US1).
 - [x] T059 [US1] Implement `src/workers/score.worker.ts` (decode -> unpack -> read -> build -> render copy; `loaded` with ScoreSummary, report, renderXml, contentHash; timeline/schedule fields added in US2) to pass T044
 - [x] T060 [US1] Implement `src/workers/verovio.worker.ts` (lazy WASM init, fixed options R-9, load/relayout/page/pageOf per contracts/worker-messages.md) to pass T042
 - [x] T061 [US1] Performance spike: measure load + layout of the generated 500-measure Score in the Verovio worker; record the result in `specs/001-score-viewer-listen/research.md` R-9 and, if > 6 s, implement first-pages-first rendering in `src/workers/verovio.worker.ts`
-- [ ] T062 [P] [US1] Implement `src/engine/storage/indexeddb-score-store.ts` to pass T045
-- [ ] T063 [P] [US1] Implement `src/engine/storage/local-settings-store.ts` to pass T046
+- [x] T062 [P] [US1] Implement `src/engine/storage/indexeddb-score-store.ts` to pass T045
+- [x] T063 [P] [US1] Implement `src/engine/storage/local-settings-store.ts` to pass T046
 - [ ] T064 [US1] Implement `src/ui/score/pages.ts` and `src/ui/elements/mx-score-view.ts` (page stack, lazy mount, sanitised SVG insertion, zoom + debounced relayout with scroll anchor, click-to-measure) and `src/ui/styles/score.css` to pass T047
 - [ ] T065 [US1] Implement `src/ui/elements/mx-open-button.ts`, `src/ui/elements/mx-drop-zone.ts`, `src/ui/elements/mx-recent-list.ts` and `src/ui/state/scoreState.ts`, `src/ui/state/viewState.ts` to pass T048
 - [ ] T066 [US1] Implement the open flow in `src/app/session.ts` (read file <= MAX_FILE_BYTES, score worker, Verovio load, keep previous Score on error, load-report notices, recent put after success, zoom persisted)

@@ -31,7 +31,7 @@ export function createRenderCopy(xml: string, inserts: RenderCopyInserts): strin
     });
   }
 
-  // Find all id attributes in the original document that collide with our usedIds,
+  // Find all id attributes in the original XML that collide with our usedIds,
   // and which are NOT inside one of our replaced tags.
   // This is safe because if it's outside our tags, we can just replace it.
   const allIdsPattern = /\s+id\s*=\s*['"]([^'"]+)['"]/g;
