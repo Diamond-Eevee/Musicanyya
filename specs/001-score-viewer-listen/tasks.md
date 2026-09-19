@@ -140,7 +140,7 @@ follow the notation; change tempo and volume while playing (spec US2).
 - [x] T075 [P] [US2] Tempo map tests (sound tempo vs metronome precedence, dotted beat units, ranges, offset with sound="yes", default 100 qpm, merge across parts, notated-order state at jump targets) in `tests/core/tempo/tempo-map.test.ts`
 - [x] T076 [P] [US2] Dynamics/velocity tests (mark table, note/sound dynamics precedence, sfz/fp/accent boosts, wedge interpolation, clamping) in `tests/core/timeline/dynamics.test.ts`
 - [x] T077 [P] [US2] Instrument/channel tests (program 1-based -> 0-based, fallback to piano with notice, percussion via midi-unpitched, channel allocation skipping 9 and 15, sharing by program, transposed sounding keys, octave-shift display only) in `tests/core/timeline/instruments.test.ts`
-- [ ] T078 [P] [US2] Timeline + schedule compile tests (sounding events with tie members, visual spans per notehead and pass, lead-in shift, event ordering noteOff < noteOn, control changes at tick 0, TICK_LIMIT guard) with snapshots in `tests/core/timeline/timeline.test.ts` and `tests/core/schedule/compile.test.ts`
+- [x] T078 [P] [US2] Timeline + schedule compile tests (sounding events with tie members, visual spans per notehead and pass, lead-in shift, event ordering noteOff < noteOn, control changes at tick 0, TICK_LIMIT guard) with snapshots in `tests/core/timeline/timeline.test.ts` and `tests/core/schedule/compile.test.ts`
 - [ ] T079 [P] [US2] Transport reducer tests (all transitions in data-model §5, follow flag, seek to first pass) in `tests/core/transport/transport.test.ts`
 - [ ] T080 [P] [US2] Block dispatch tests (events dispatched at exact frames by splitting blocks, several events in one frame, tempo segment boundaries inside a block, commands applied at next block) in `tests/engine/worklets/dispatch.test.ts`
 - [ ] T081 [P] [US2] Offline score-player tests with RecordingSynth + worklet shim (schedule -> play: exact onset frames incl. tempo %, repeats and jumps; pause stops advancing and releases notes, nothing sounds while paused; seek; stop returns to start tick; ended; position reports every 4 blocks; volume ramp) in `tests/engine/score-player.timing.test.ts`
@@ -152,7 +152,7 @@ follow the notation; change tempo and volume while playing (spec US2).
 - [x] T084 [P] [US2] Implement `src/core/timeline/dynamics.ts` to pass T076
 - [x] T085 [P] [US2] Implement `src/core/timeline/instruments.ts` to pass T077
 - [x] T086 [US2] Implement `src/core/timeline/timeline.ts` (ties on unrolled order, grace timing, spans, channels, lead-in) to pass T073, T074, T078 (timeline part)
-- [ ] T087 [US2] Implement `src/core/schedule/compile.ts` (ScheduleMessage arrays per contracts/worklet-protocol.md) to pass T078 (schedule part)
+- [x] T087 [US2] Implement `src/core/schedule/compile.ts` (ScheduleMessage arrays per contracts/worklet-protocol.md) to pass T078 (schedule part)
 - [ ] T088 [US2] Implement `src/core/transport/transport.ts` to pass T079
 - [ ] T089 [US2] Extend `src/workers/score.worker.ts` to include `timeline` (TimelineDto) and `schedule` (transferred) in `loaded`; update `tests/engine/score-worker.test.ts`
 
