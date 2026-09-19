@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "./dist-tsc/engine",
     "rootDir": "./src",
-    "lib": ["ES2023", "DOM", "WebWorker"]
+    "lib": ["ES2023", "DOM", "WebWorker"],
+    "types": ["vite/client"]
   },
   "include": ["src/engine/**/*.ts", "src/workers/**/*.ts"],
   "exclude": ["src/engine/worklets/**/*.ts"],

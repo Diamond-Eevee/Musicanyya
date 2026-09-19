@@ -31,11 +31,15 @@ describe('WebAudioEngine', () => {
 
     vi.stubGlobal(
       'AudioContext',
-      vi.fn(() => mockContext),
+      vi.fn(function AudioContext() {
+        return mockContext;
+      }),
     );
     vi.stubGlobal(
       'AudioWorkletNode',
-      vi.fn(() => mockNode),
+      vi.fn(function AudioWorkletNode() {
+        return mockNode;
+      }),
     );
     vi.stubGlobal(
       'fetch',

@@ -178,7 +178,7 @@ follow the notation; change tempo and volume while playing (spec US2).
 - [x] T101 [P] [US2] Implement `src/engine/audio/soundfont-cache.ts` to pass T094
 - [x] T102 [P] [US2] Implement `src/engine/audio/position-sync.ts` to pass T095
 - [x] T103 [P] [US2] Implement `src/engine/audio/dropouts.ts` to pass T096
-- [ ] T104 [US2] Implement `src/engine/audio/web-audio-engine.ts` (AudioContext `latencyHint: 'interactive'`, worklet module via `?worker&url`, SoundFont transfer, commands, reports -> events, latency) to pass T093, T097
+- [x] T104 [US2] Implement `src/engine/audio/web-audio-engine.ts` (AudioContext `latencyHint: 'interactive'`, worklet module via `?worker&url`, SoundFont transfer, commands, reports -> events, latency) to pass T093, T097
 - [ ] T105 [US2] RT review of T102-T104 (report rates, message hops, timing mapping; nothing but the worklet decides when sound plays) with `rt-audio-reviewer`; fix blocking findings; log the verdict
 - [ ] T106 [US2] Implement `src/ui/elements/mx-transport.ts` and `src/ui/state/transportState.ts` (play/pause/stop, tempo, volume, follow, loading progress, shortcuts in `src/ui/shortcuts.ts`) to pass T098
 - [ ] T107 [US2] Implement `src/ui/score/highlight.ts`, `src/ui/score/cursor-overlay.ts` and follow scrolling in `src/ui/elements/mx-score-view.ts` (requestAnimationFrame loop reading `AudioEngine.audiblePosition`) to pass T099

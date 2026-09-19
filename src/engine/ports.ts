@@ -1,3 +1,5 @@
+import type { ScheduleMessage } from '../core/schedule/compile.js';
+
 // ---- shared ----
 export type Unsubscribe = () => void;
 export interface Emitter<E> {
@@ -54,8 +56,8 @@ export type AudioEngineEvent =
   | { type: 'latency'; latency: LatencyInfo }
   | { type: 'dropout'; total: number };
 
-// Stub EngineSchedule (will be defined properly in data-model §4/contracts/worklet-protocol.md)
-export type EngineSchedule = any;
+// The worklet's schedule message (contracts/worklet-protocol.md, src/core/schedule/compile.ts).
+export type EngineSchedule = ScheduleMessage;
 
 export interface AudioEngine extends Emitter<AudioEngineEvent> {
   readonly kind: 'webAudio' | 'nativePlugin';
