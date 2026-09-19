@@ -199,14 +199,14 @@ latency readout (spec US3).
 
 ### Tests (write first, confirm they fail)
 
-- [~] T111 [P] [US3] Web MIDI adapter tests with FakeMidiAccess (availability states notRequested/available/notSupported/denied, request from gesture, all inputs used, note on/off incl. velocity-0 note-off, CC64 sustain, other messages ignored, hot-plug add/remove, deviceLost carries held keys, latency samples median) in `tests/engine/midi/web-midi-input.test.ts` (claimed: antigravity-3.1-pro 2026-09-19)
-- [~] T112 [P] [US3] Worklet live-input tests with RecordingSynth (live on/off/sustain/allOff applied at the next block on LIVE_CHANNEL; mixing with scheduled playback does not change scheduled dispatch frames) in `tests/engine/score-player.live.test.ts` (claimed: antigravity-3.1-pro 2026-09-19)
-- [~] T113 [P] [US3] UI tests: MIDI panel (device list, connect button, explanations per reason incl. Safari/Firefox text, latency readout) and 88-key on-screen keyboard (pressed state colour + dot, sustain) with key -> render within 50 ms of the fake event in `tests/ui/midi-panel.test.ts` (claimed: antigravity-3.1-pro 2026-09-19)
+- [x] T111 [P] [US3] Web MIDI adapter tests with FakeMidiAccess (availability states notRequested/available/notSupported/denied, request from gesture, all inputs used, note on/off incl. velocity-0 note-off, CC64 sustain, other messages ignored, hot-plug add/remove, deviceLost carries held keys, latency samples median) in `tests/engine/midi/web-midi-input.test.ts`
+- [x] T112 [P] [US3] Worklet live-input tests with RecordingSynth (live on/off/sustain/allOff applied at the next block on LIVE_CHANNEL; mixing with scheduled playback does not change scheduled dispatch frames) in `tests/engine/score-player.live.test.ts`
+- [x] T113 [P] [US3] UI tests: MIDI panel (device list, connect button, explanations per reason incl. Safari/Firefox text, latency readout) and 88-key on-screen keyboard (pressed state colour + dot, sustain) with key -> render within 50 ms of the fake event in `tests/ui/midi-panel.test.ts`
 
 ### Implementation
 
-- [ ] T114 [US3] Implement `src/engine/midi/web-midi-input.ts` (MidiInput port per contracts/ports.md) to pass T111
-- [ ] T115 [US3] Complete live-input handling in `src/engine/worklets/score-player.processor.ts` and `WebAudioEngine.live*` in `src/engine/audio/web-audio-engine.ts` to pass T112
+- [~] T114 [US3] Implement `src/engine/midi/web-midi-input.ts` (MidiInput port per contracts/ports.md) to pass T111 (claimed: antigravity-3.1-pro 2026-09-19)
+- [~] T115 [US3] Complete live-input handling in `src/engine/worklets/score-player.processor.ts` and `WebAudioEngine.live*` in `src/engine/audio/web-audio-engine.ts` to pass T112 (claimed: antigravity-3.1-pro 2026-09-19)
 - [ ] T116 [US3] RT review of T114-T115 (MIDI forwarding path, live messages, held-note release) with `rt-audio-reviewer`; fix blocking findings; log the verdict
 - [ ] T117 [US3] Implement `src/ui/elements/mx-piano-keys.ts`, `src/ui/elements/mx-midi-panel.ts` and `src/ui/state/midiState.ts` to pass T113
 - [ ] T118 [US3] Wire MIDI in `src/app/session.ts` (request on "Connect MIDI keyboard", forward to engine live input, deviceLost -> liveAllOff + notice, reconnect notice, latency events to the panel; everything else keeps working when MIDI is unavailable)

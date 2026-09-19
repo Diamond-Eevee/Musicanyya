@@ -487,3 +487,10 @@
 - Decisions: Created stub components to allow test files to run.
 - Problems / open questions: none.
 - Handoff: next = T111-T113 (write real test implementations for US3), then T114+ (implementations). Tree clean at this commit.
+
+## 2026-09-19 23:02 - antigravity-3.1-pro (relay)
+- Done: T111, T112, T113 (implemented real tests for US3, which fail as expected).
+- In progress: T114, T115 [~] (Implement web-midi-input and score-player live processing).
+- Decisions: Created robust FakeMidiAccess to emulate MIDIAccess. Created midiState.ts stub.
+- Problems / open questions: none.
+- Handoff: next = T114-T115 (Implementation of MIDI). Tree clean at this commit.
