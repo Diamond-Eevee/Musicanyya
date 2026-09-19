@@ -4,7 +4,7 @@
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/, quickstart.md
 
 <!--
-  Format: `- [ ] T001 [P] [US1] Description with exact file path`
+  Format: `- [x] T001 [P] [US1] Description with exact file path`
   - [P]   = can run in parallel (different files, no dependency on unfinished tasks)
   - [USn] = user story the task belongs to (omit for Setup/Foundational/Polish)
   - Tests come BEFORE implementation (Constitution IV) and must fail first.
@@ -14,17 +14,17 @@
 
 ## Phase 1: Setup
 
-- [ ] T001 Create `package.json` (name `musicanyya`, `type: module`, scripts `dev`, `build`, `preview`, `lint`, `typecheck`, `test`, `test:e2e`, `electron:dev`, `electron:build`, `gen:large-score`; runtime deps pinned exactly: `verovio@6.3.0`, `spessasynth_core@4.3.22`, `@rgrove/parse-xml@5.0.0`; dev deps: `typescript@7`, `vite@8`, `vitest@5`, `happy-dom@20`, `fake-indexeddb@6`, `@playwright/test@1.63`, `@biomejs/biome@2.5`, `@types/audioworklet`, `electron@44`, `electron-builder@26`) and run `pnpm install` to create `pnpm-lock.yaml`
-- [ ] T002 Create `tsconfig.base.json` (strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`) and layer projects `tsconfig.core.json` (lib ES2023 only), `tsconfig.engine.json` (DOM + WebWorker), `tsconfig.worklet.json` (ES2023 + audioworklet types), `tsconfig.ui.json` (DOM), `tsconfig.electron.json` (Node + Electron), `tsconfig.json` (references) per research R-2
-- [ ] T003 [P] Create `biome.json` with formatter settings and per-folder `noRestrictedImports` (src/core may not import src/engine, src/ui, src/app, electron; nobody imports electron/ from src/; UI frameworks forbidden everywhere) per research R-2
-- [ ] T004 [P] Create `vite.config.ts` (`base: './'`, module workers, `?worker&url` for the worklet, output `dist/`) and `index.html` (CSP meta per research R-16, `<mx-app>` root, `src/app/main.ts` entry)
-- [ ] T005 [P] Create `vitest.config.ts` with projects `core`, `engine`, `files` (node), `ui` (happy-dom), `verovio` (node, real WASM, longer timeout)
-- [ ] T006 [P] Create `playwright.config.ts` with projects `chromium`, `firefox`, `webkit` (against `pnpm preview`) and `electron`
-- [ ] T007 [P] Extend `.gitignore` with `dist-electron/`, `tests/.generated/`, `test-results/`, `playwright-report/`
-- [ ] T008 [P] Add `public/soundfonts/GeneralUser-GS-2.0.3.sf2` (own copy from github.com/mrbumpy409/GeneralUser-GS, v2.0.3) and `public/soundfonts/GeneralUser-GS-LICENSE.txt`; start `THIRD_PARTY_NOTICES.md` (GeneralUser GS licence + sample-origin note, Verovio LGPL-3.0 + Leipzig OFL, spessasynth_core Apache-2.0, parse-xml ISC, Electron MIT)
-- [ ] T009 [P] Create `tests/fixtures/musicxml/README.md` (fixture table: name, behaviour, origin, licence CC0)
-- [ ] T010 Write the architecture test `tests/architecture/layers.test.ts` (no file in src/core references DOM globals or imports engine/ui/app/electron; package.json has no UI framework dependency); run `pnpm lint`, `pnpm typecheck`, `pnpm test` on the empty scaffold and make them green
-- [ ] T011 Owner decision gate (research R-10, plan "Decisions and open items"): record the owner's answer on using `spessasynth_core` inside our own AudioWorklet; if approved, amend `docs/adr/0002-built-in-sound-soundfont.md` and the constitution "Audio (browser)" row (`.specify/memory/constitution.md`, version bump per governance); if rejected, update plan/research/contracts to the fallback design. Blocks T090 onward (US2 audio engine)
+- [x] T001 Create `package.json` (name `musicanyya`, `type: module`, scripts `dev`, `build`, `preview`, `lint`, `typecheck`, `test`, `test:e2e`, `electron:dev`, `electron:build`, `gen:large-score`; runtime deps pinned exactly: `verovio@6.3.0`, `spessasynth_core@4.3.22`, `@rgrove/parse-xml@5.0.0`; dev deps: `typescript@7`, `vite@8`, `vitest@5`, `happy-dom@20`, `fake-indexeddb@6`, `@playwright/test@1.63`, `@biomejs/biome@2.5`, `@types/audioworklet`, `electron@44`, `electron-builder@26`) and run `pnpm install` to create `pnpm-lock.yaml`
+- [x] T002 Create `tsconfig.base.json` (strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`) and layer projects `tsconfig.core.json` (lib ES2023 only), `tsconfig.engine.json` (DOM + WebWorker), `tsconfig.worklet.json` (ES2023 + audioworklet types), `tsconfig.ui.json` (DOM), `tsconfig.electron.json` (Node + Electron), `tsconfig.json` (references) per research R-2
+- [x] T003 [P] Create `biome.json` with formatter settings and per-folder `noRestrictedImports` (src/core may not import src/engine, src/ui, src/app, electron; nobody imports electron/ from src/; UI frameworks forbidden everywhere) per research R-2
+- [x] T004 [P] Create `vite.config.ts` (`base: './'`, module workers, `?worker&url` for the worklet, output `dist/`) and `index.html` (CSP meta per research R-16, `<mx-app>` root, `src/app/main.ts` entry)
+- [x] T005 [P] Create `vitest.config.ts` with projects `core`, `engine`, `files` (node), `ui` (happy-dom), `verovio` (node, real WASM, longer timeout)
+- [x] T006 [P] Create `playwright.config.ts` with projects `chromium`, `firefox`, `webkit` (against `pnpm preview`) and `electron`
+- [x] T007 [P] Extend `.gitignore` with `dist-electron/`, `tests/.generated/`, `test-results/`, `playwright-report/`
+- [x] T008 [P] Add `public/soundfonts/GeneralUser-GS-2.0.3.sf2` (own copy from github.com/mrbumpy409/GeneralUser-GS, v2.0.3) and `public/soundfonts/GeneralUser-GS-LICENSE.txt`; start `THIRD_PARTY_NOTICES.md` (GeneralUser GS licence + sample-origin note, Verovio LGPL-3.0 + Leipzig OFL, spessasynth_core Apache-2.0, parse-xml ISC, Electron MIT)
+- [x] T009 [P] Create `tests/fixtures/musicxml/README.md` (fixture table: name, behaviour, origin, licence CC0)
+- [x] T010 Write the architecture test `tests/architecture/layers.test.ts` (no file in src/core references DOM globals or imports engine/ui/app/electron; package.json has no UI framework dependency); run `pnpm lint`, `pnpm typecheck`, `pnpm test` on the empty scaffold and make them green
+- [x] T011 Owner decision gate (research R-10, plan "Decisions and open items"): record the owner's answer on using `spessasynth_core` inside our own AudioWorklet; if approved, amend `docs/adr/0002-built-in-sound-soundfont.md` and the constitution "Audio (browser)" row (`.specify/memory/constitution.md`, version bump per governance); if rejected, update plan/research/contracts to the fallback design. Blocks T090 onward (US2 audio engine)
 
 **Checkpoint**: scaffold builds, lints, type-checks and runs an (almost empty) test suite on Windows/Linux/macOS.
 
@@ -277,3 +277,5 @@ environment panel and run US1-US3 in both (spec US4).
 - US2: fixtures T069-T071; core tests T072-T081; adapter/UI tests T093-T100; T084-T085; T101-T103.
 - US3/US4 in parallel with late US2 work: T111, T113, T119-T121, T124, T126-T128 touch separate files.
 - Polish: T130-T132 together.
+
+

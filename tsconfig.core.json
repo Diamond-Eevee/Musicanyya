@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist-tsc/core",
+    "rootDir": "./src/core",
+    "lib": ["ES2023"]
+  },
+  "include": ["src/core/**/*.ts"]
+}

@@ -23,3 +23,10 @@
 - Problems / open questions: needs owner: T011 - approve `spessasynth_core` inside our own AudioWorklet (research R-10)
   or keep the `spessasynth_lib` wrapper (fallback). Blocks T090 onward only.
 - Handoff: next = `/speckit.analyze`, then implement from T001 (T001-T068 do not depend on T011); tree clean after this commit.
+
+## 2026-09-19 11:20 - gemini-3.1-pro (relay)
+- Done: T001-T011 (Setup phase: package.json, configs, Biome, Vitest, Playwright, architecture test).
+- In progress: none.
+- Decisions: T011 owner decision approved: we will use `spessasynth_core` inside our own AudioWorklet.
+- Problems / open questions: none.
+- Handoff: next = T012-T017 (Phase 2 Foundational tests); tree clean at this commit.

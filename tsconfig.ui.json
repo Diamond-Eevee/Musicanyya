@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist-tsc/ui",
+    "rootDir": "./src",
+    "lib": ["ES2023", "DOM"]
+  },
+  "include": ["src/ui/**/*.ts", "src/app/**/*.ts"],
+  "references": [{ "path": "./tsconfig.core.json" }, { "path": "./tsconfig.engine.json" }]
+}

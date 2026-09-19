@@ -40,3 +40,8 @@ Desktop.ini
 
 # Logs
 *.log
+
+dist-electron/
+tests/.generated/
+test-results/
+playwright-report/
