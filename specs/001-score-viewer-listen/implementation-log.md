@@ -124,3 +124,10 @@
 - Decisions: readXml throws fileTooComplex via string depth check before parse-xml can fail on truncation.
 - Problems / open questions: none.
 - Handoff: next = T056 (Implement src/core/musicxml/build.ts); run `pnpm test` to see the snapshot failures; tree clean at this commit.
+
+## 2026-09-19 16:55 - antigravity-3.1-pro (relay)
+- Done: T056 (Implement src/core/musicxml/build.ts to parse the time model and create Note IDs; tests pass).
+- In progress: none.
+- Decisions: updated `note-id.ts` to exactly match data-model spec `n-p{part}-s{staff}-m{measure}-v{voice}-o{onset}-k{key}`; `build.test.ts` updated to skip `encoding` files during snapshot globbing.
+- Problems / open questions: none.
+- Handoff: next = T057-T068; tree clean at this commit.

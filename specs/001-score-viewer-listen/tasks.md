@@ -101,7 +101,7 @@ the app keeps working; reload and reopen from the recent list (spec US1).
 - [x] T053 [P] [US1] Implement `src/core/score/model.ts` and `src/core/score/load-report.ts` (data-model §1-2)
 - [x] T054 [US1] Implement `src/core/score/note-id.ts` to pass T036
 - [x] T055 [US1] Implement `src/core/musicxml/read.ts` (parse-xml with offsets, limits, error mapping) to pass T037
-- [~] T056 [US1] Implement `src/core/musicxml/build.ts` (time model R-8.1, playable notes and ids R-8.2, tie flags, grace metadata, tempo marks, navigation marks, dynamics, instruments/transposition R-8.7, fingering R-8.8) to pass T038, T039 (claimed: antigravity-3.1-pro 2026-09-19)
+- [x] T056 [US1] Implement `src/core/musicxml/build.ts` (time model R-8.1, playable notes and ids R-8.2, tie flags, grace metadata, tempo marks, navigation marks, dynamics, instruments/transposition R-8.7, fingering R-8.8) to pass T038, T039
 - [ ] T057 [US1] Implement `src/core/musicxml/render-copy.ts` to pass T040
 - [ ] T058 [US1] Implement `src/core/musicxml/support.ts` (`SUPPORT_MATRIX`) and write `docs/musicxml-support.md` to pass T041, T043
 - [ ] T059 [US1] Implement `src/workers/score.worker.ts` (decode -> unpack -> read -> build -> render copy; `loaded` with ScoreSummary, report, renderXml, contentHash; timeline/schedule fields added in US2) to pass T044

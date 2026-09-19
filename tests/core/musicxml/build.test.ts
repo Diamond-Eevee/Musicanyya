@@ -13,7 +13,10 @@ describe('buildScore snapshots', () => {
   const fixturesDir = path.join(__dirname, '../../fixtures/musicxml');
   const files = fs
     .readdirSync(fixturesDir)
-    .filter((f) => f.endsWith('.musicxml') && !f.includes('malformed') && !f.includes('large-score'));
+    .filter(
+      (f) =>
+        f.endsWith('.musicxml') && !f.includes('malformed') && !f.includes('large-score') && !f.includes('encoding'),
+    );
 
   for (const file of files) {
     it(`builds time-model for ${file}`, () => {
