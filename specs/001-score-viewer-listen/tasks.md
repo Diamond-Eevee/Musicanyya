@@ -43,9 +43,9 @@
 
 ### Implementation
 
-- [ ] T018 [P] Implement `src/core/ticks.ts` (Ticks, gcd/lcm, rational helpers, PPQ computation) to pass T012
-- [ ] T019 [P] Implement `src/core/pitch.ts` to pass T013
-- [ ] T020 [P] Implement `src/core/tempo/rate.ts` (shared with the worklet: `ticksPerFrame`, `tickAtFrame`, `frameOfTick` rounded up) to pass T014
+- [x] T018 [P] Implement `src/core/ticks.ts` (Ticks, gcd/lcm, rational helpers, PPQ computation) to pass T012
+- [x] T019 [P] Implement `src/core/pitch.ts` to pass T013
+- [x] T020 [P] Implement `src/core/tempo/rate.ts` (shared with the worklet: `ticksPerFrame`, `tickAtFrame`, `frameOfTick` rounded up) to pass T014
 - [ ] T021 [P] Create named constants `src/core/defaults.ts` and `src/engine/config.ts` (data-model §10)
 - [ ] T022 [P] Create port types `src/engine/ports.ts` exactly as contracts/ports.md v1.0.0
 - [ ] T023 [P] Create fakes `tests/fakes/fake-clock.ts`, `tests/fakes/fake-midi-access.ts` (inputs, hot-plug, permission states), `tests/fakes/fake-shell-bridge.ts`
