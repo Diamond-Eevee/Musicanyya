@@ -1,0 +1,34 @@
+mx-score-view {
+  display: block;
+  flex: 1;
+  min-height: 0;
+}
+
+.mx-score-scroll {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg-color);
+}
+
+.mx-score-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mx-score-page {
+  width: 100%;
+  max-width: 1200px;
+  box-sizing: border-box;
+}
+
+.mx-score-page svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mx-score-page g.measure {
+  cursor: pointer;
+}
