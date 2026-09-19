@@ -53,8 +53,8 @@
 - [x] T025 [P] Implement `src/ui/state/store.ts` to pass T015
 - [x] T026 Implement `src/ui/state/noticeState.ts` and non-modal `src/ui/elements/mx-notice-tray.ts` to pass T016
 - [x] T027 Implement `src/engine/environment/probe.ts` (shell only via `window.musicanyyaShell`, feature detection, reasons) to pass T017
-- [ ] T028 [P] Create `src/ui/i18n/en.ts` (all user-visible strings) and `src/ui/styles/tokens.css` (Okabe-Ito palette, highlight/cursor shapes), `src/ui/styles/layout.css`
-- [ ] T029 Create app bootstrap `src/app/main.ts` (probe environment, create adapters, mount `mx-app`) and `src/ui/elements/mx-app.ts` (layout: header controls, score area, side panels, empty state)
+- [x] T028 [P] Create `src/ui/i18n/en.ts` (all user-visible strings) and `src/ui/styles/tokens.css` (Okabe-Ito palette, highlight/cursor shapes), `src/ui/styles/layout.css`
+- [x] T029 Create app bootstrap `src/app/main.ts` (probe environment, create adapters, mount `mx-app`) and `src/ui/elements/mx-app.ts` (layout: header controls, score area, side panels, empty state)
 
 **Checkpoint**: foundation ready; core arithmetic, ports, fakes, stores, notices and environment detection are tested.
 

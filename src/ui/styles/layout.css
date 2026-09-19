@@ -1,0 +1,43 @@
+mx-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.mx-header {
+  height: 60px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+
+.mx-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.mx-side-panel {
+  width: 300px;
+  border-right: 1px solid var(--border-color);
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.mx-score-area {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.mx-empty-state {
+  margin: auto;
+  text-align: center;
+  color: #666;
+}

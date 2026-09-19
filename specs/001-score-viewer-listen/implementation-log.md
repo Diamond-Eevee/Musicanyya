@@ -73,3 +73,10 @@
 - Problems / open questions: none.
 - Handoff: next = T028-T029 (Phase 2 Polish); tree clean at this commit.
 
+
+## 2026-09-19 15:40 - antigravity-gemini-3.1-pro (relay)
+- Done: T028-T029 (Phase 2 Polish: i18n, tokens, layout, app bootstrap).
+- In progress: none.
+- Decisions: Created base Web Components architecture and CSS layout.
+- Problems / open questions: none.
+- Handoff: next = T030-T033 (Phase 3 Fixtures); tree clean at this commit.
