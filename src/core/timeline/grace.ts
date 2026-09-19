@@ -58,8 +58,12 @@ function groupByVoiceStream(inputs: GraceInput[]): Map<string, StreamGroup[]> {
  * note in the same voice; <grace steal-time-following> instead keeps the group on the beat and
  * delays the principal. Grace notes with no previous note (start of a voice/piece) become a
  * lead-in before tick 0.
+ *
+ * Returns un-shifted ticks (which may be negative) plus the lead-in this part alone would need;
+ * a multi-part caller (timeline.ts) should take the max lead-in across all parts and shift every
+ * part's `timed` output by that single shared amount, so every part stays on one time axis.
  */
-export function applyGraceTiming(inputs: GraceInput[], ppq: number): { timed: TimedNote[]; leadInTicks: Ticks } {
+export function computeGraceTiming(inputs: GraceInput[], ppq: number): { timed: TimedNote[]; leadInTicks: Ticks } {
   const timedByNoteId = new Map<NoteId, TimedNote>();
   let leadInTicks = 0;
   const graceTickDefault = GRACE_NOTE_TICKS(ppq);
@@ -138,14 +142,16 @@ export function applyGraceTiming(inputs: GraceInput[], ppq: number): { timed: Ti
     }
   }
 
-  // Shift everything forward so nothing sounds before tick 0.
-  const timed = [...timedByNoteId.values()];
-  if (leadInTicks > 0) {
-    for (const t of timed) {
-      t.startTick += leadInTicks;
-      t.endTick += leadInTicks;
-    }
-  }
+  return { timed: [...timedByNoteId.values()], leadInTicks };
+}
 
-  return { timed, leadInTicks };
+export function shiftTimed(timed: TimedNote[], byTicks: Ticks): TimedNote[] {
+  if (byTicks === 0) return timed;
+  return timed.map((t) => ({ ...t, startTick: t.startTick + byTicks, endTick: t.endTick + byTicks }));
+}
+
+/** Convenience for standalone/test use: computes this part's own timing and shifts by its own lead-in. */
+export function applyGraceTiming(inputs: GraceInput[], ppq: number): { timed: TimedNote[]; leadInTicks: Ticks } {
+  const { timed, leadInTicks } = computeGraceTiming(inputs, ppq);
+  return { timed: shiftTimed(timed, leadInTicks), leadInTicks };
 }

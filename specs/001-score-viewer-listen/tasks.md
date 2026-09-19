@@ -151,7 +151,7 @@ follow the notation; change tempo and volume while playing (spec US2).
 - [x] T083 [US2] Implement `src/core/tempo/tempo-map.ts` to pass T075
 - [x] T084 [P] [US2] Implement `src/core/timeline/dynamics.ts` to pass T076
 - [x] T085 [P] [US2] Implement `src/core/timeline/instruments.ts` to pass T077
-- [ ] T086 [US2] Implement `src/core/timeline/timeline.ts` (ties on unrolled order, grace timing, spans, channels, lead-in) to pass T073, T074, T078 (timeline part)
+- [x] T086 [US2] Implement `src/core/timeline/timeline.ts` (ties on unrolled order, grace timing, spans, channels, lead-in) to pass T073, T074, T078 (timeline part)
 - [ ] T087 [US2] Implement `src/core/schedule/compile.ts` (ScheduleMessage arrays per contracts/worklet-protocol.md) to pass T078 (schedule part)
 - [ ] T088 [US2] Implement `src/core/transport/transport.ts` to pass T079
 - [ ] T089 [US2] Extend `src/workers/score.worker.ts` to include `timeline` (TimelineDto) and `schedule` (transferred) in `loaded`; update `tests/engine/score-worker.test.ts`
