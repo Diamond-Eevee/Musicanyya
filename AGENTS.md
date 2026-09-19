@@ -115,9 +115,40 @@ docs/musicxml-support.md  supported MusicXML subset (created with the parser)
 
 ## 4. Workflow: what to do for each request
 
-Features move through a fixed pipeline. Each step has an instruction file. **To perform a step, open its
-instruction file and follow it exactly**, treating the user's extra text as `$ARGUMENTS`. The files live in
-`.claude/commands/` but are plain Markdown usable by any agent; ignore the YAML front matter.
+### 4.1 The Spec Kit flow in one minute
+
+This repo uses **Spec Kit**-style spec-driven development (the `speckit` steps, adapted from GitHub's spec-kit).
+Code is never the starting point; every feature goes through the same documents, in this order, and each document
+is the input of the next:
+
+1. **specify** -> `spec.md`: WHAT the musician needs and WHY (user stories P1, P2, ..., requirements FR-###,
+   success criteria SC-###). No technology.
+2. **clarify** -> answers to open questions, recorded in `spec.md`.
+3. **plan** -> HOW: `plan.md` (approach, Constitution Check, project structure), `research.md` (decisions with
+   rationale), `data-model.md`, `contracts/` (versioned interfaces and formats), `quickstart.md` (how to run and
+   verify).
+4. **tasks** -> `tasks.md`: numbered, test-first tasks grouped by user story, with checkpoints.
+5. **analyze** -> read-only consistency report across spec, plan, tasks and the constitution.
+6. **implement** -> code and tests, task by task; progress lives in `tasks.md` and `implementation-log.md`.
+
+The constitution (`.specify/memory/constitution.md`) sits above all of this; ADRs in `docs/adr/` record stack
+decisions. If a later step shows an earlier document is wrong, fix that document first (and say so in the log);
+never let code and documents drift apart.
+
+### 4.2 Running a step
+
+Each step has an instruction file. **To perform a step, open its instruction file and follow it exactly**, treating
+the user's extra text as `$ARGUMENTS`. The files live in `.claude/commands/` but are plain Markdown usable by any
+agent; ignore the YAML front matter.
+
+| Tool | How the user invokes a step |
+|---|---|
+| Claude Code | `/speckit.<step>` (e.g. `/speckit.implement`) |
+| Gemini CLI | `/speckit.<step>` or `/speckit:<step>` (both are defined in `.gemini/commands/`) |
+| Any other agent (Codex, Copilot, Cursor, ...) | Plain text: "continue", "implement US1", "run the plan step", or the slash form typed as text |
+
+If a user message contains `/speckit.<step>` or `/speckit:<step>` and your tool has no such command, treat it as a
+request for that step: open `.claude/commands/speckit.<step>.md` and follow it.
 
 | Step | Instruction file | Produces |
 |---|---|---|
@@ -238,6 +269,24 @@ below let any agent stop at any point and any other agent continue with "Read AG
 - A quality gate fails and you cannot fix it within the task's scope.
 - Unknown uncommitted changes in the working tree (section 0, step 4) or a conflicting claim.
 - Anything in section 11 ("ask the user first").
+
+### 6.5 Documents every agent keeps current
+
+Updating these is part of the task, not an extra. A task is not done while its documents are stale.
+
+| When | Update | How |
+|---|---|---|
+| You start / finish a task | `specs/NNN-name/tasks.md` | `[~]` + claim when starting, `[x]` when its checks pass (section 6.1) |
+| A checkpoint, and the end of every session | `specs/NNN-name/implementation-log.md` | Entry with Done / In progress / Decisions / Problems / Handoff (section 6.2) |
+| You made a technical decision not already in the plan | `research.md` (Decision / Rationale / Alternatives) and the log | If it changes the design: `plan.md` and the affected `contracts/` first |
+| An interface, message or file format changes | `contracts/*.md` | Bump the contract version (MINOR additive, MAJOR breaking) |
+| An entity, state machine or named constant changes | `data-model.md` | Keep the constants table in sync with `src/core/defaults.ts` / `src/engine/config.ts` |
+| You discover missing work | `tasks.md` | New task with the next free T-number in the right phase (never do it silently) |
+| MusicXML parsing, rendering or playback coverage changes | `docs/musicxml-support.md` (and `SUPPORT_MATRIX`) | The sync test must stay green |
+| Commands, scripts or setup change | section 8 of this file, `quickstart.md`, `README.md` | |
+| A dependency, font, SoundFont or other asset is added | `THIRD_PARTY_NOTICES.md`, plan Complexity Tracking, "Active Technologies" below | New runtime dependencies need the user's OK (section 11) |
+| A user-visible behaviour in `spec.md` would change | nothing yet | Ask the user first (section 11); then update `spec.md` |
+| The constitution or an ADR would change | nothing yet | Ask the user; then use `.claude/commands/speckit.constitution.md` / a new ADR |
 
 ## 7. Review roles
 
