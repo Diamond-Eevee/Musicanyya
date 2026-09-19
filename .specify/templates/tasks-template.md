@@ -5,6 +5,7 @@
 
 <!--
   Format: `- [ ] T001 [P] [US1] Description with exact file path`
+  States: `[ ]` open, `[~]` in progress with ` (claimed: <agent-id> <date>)`, `[x]` done (AGENTS.md section 6.1)
   - [P]   = can run in parallel (different files, no dependency on unfinished tasks)
   - [USn] = user story the task belongs to (omit for Setup/Foundational/Polish)
   - Tests come BEFORE implementation (Constitution IV) and must fail first.
