@@ -1,0 +1,18 @@
+* text=auto eol=lf
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+*.musicxml text eol=lf
+*.mxl binary
+*.sf2 binary
+*.sf3 binary
+*.wav binary
+*.mid binary
+*.png binary
+*.ico binary
+*.wasm binary
+*.woff binary
+*.woff2 binary
+*.otf binary
+*.ttf binary

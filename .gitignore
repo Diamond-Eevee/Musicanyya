@@ -1,0 +1,42 @@
+# Node / build
+node_modules/
+dist/
+coverage/
+.vite/
+*.tsbuildinfo
+
+# Playwright
+playwright-report/
+test-results/
+blob-report/
+
+# Electron (later feature)
+out/
+release/
+
+# Native audio plugin (later feature)
+native/**/target/
+native/**/build/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Local SDKs (never commit the ASIO SDK)
+/vendor/asio-sdk/
+asiosdk*/
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# OS / editors
+Thumbs.db
+Desktop.ini
+.DS_Store
+.vs/
+.idea/
+*.swp
+
+# Logs
+*.log

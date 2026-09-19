@@ -1,0 +1,6 @@
+description = "Show where the spec-driven workflow stands and the next step."
+prompt = """
+Run: powershell -NoProfile -ExecutionPolicy Bypass -File .specify/scripts/powershell/status.ps1
+Then summarise the result together with the last entry of the current feature's implementation-log.md (if any),
+and state the recommended next action according to AGENTS.md section 4.
+"""
