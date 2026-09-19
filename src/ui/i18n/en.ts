@@ -16,4 +16,11 @@ export const en = {
     pause: 'Pause',
     stop: 'Stop',
   },
+  open: {
+    button: 'Open score',
+    dropHint: 'Drop a MusicXML file here',
+    recentEmpty: 'No recent scores.',
+    reopen: 'Open',
+    remove: 'Remove',
+  },
 };
