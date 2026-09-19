@@ -90,6 +90,8 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   // Held note tracking for all-notes-off on pause/stop/seek
   const heldNotes: Set<number> = new Set(); // encoded as (channel << 7) | key
 
+  const liveQueue: any[] = [];
+
   let onMessage: ((msg: ProcessorMessage) => void) | null = null;
 
   function post(msg: ProcessorMessage): void {
@@ -219,22 +221,28 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         break;
       }
       case 'live': {
-        const LIVE_CHANNEL = 15;
-        if (msg.kind === 'on') {
-          synth.noteOn(LIVE_CHANNEL, msg.key as number, msg.velocity as number);
-        } else if (msg.kind === 'off') {
-          synth.noteOff(LIVE_CHANNEL, msg.key as number);
-        } else if (msg.kind === 'sustain') {
-          synth.controllerChange?.(LIVE_CHANNEL, 64, msg.down ? 127 : 0);
-        } else if (msg.kind === 'allOff') {
-          synth.allNotesOff?.(LIVE_CHANNEL);
-        }
+        liveQueue.push(msg);
         break;
       }
     }
   }
 
   function processBlock(blockSize: number): void {
+    // Process live inputs immediately
+    const LIVE_CHANNEL = 15;
+    for (const msg of liveQueue) {
+      if (msg.kind === 'on') {
+        synth.noteOn(LIVE_CHANNEL, msg.key as number, msg.velocity as number);
+      } else if (msg.kind === 'off') {
+        synth.noteOff(LIVE_CHANNEL, msg.key as number);
+      } else if (msg.kind === 'sustain') {
+        synth.controllerChange?.(LIVE_CHANNEL, 64, msg.down ? 127 : 0);
+      } else if (msg.kind === 'allOff') {
+        synth.allNotesOff?.(LIVE_CHANNEL);
+      }
+    }
+    liveQueue.length = 0;
+
     // Volume ramp
     if (gainRampRemaining > 0) {
       const steps = Math.min(gainRampRemaining, blockSize);

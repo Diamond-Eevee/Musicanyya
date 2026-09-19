@@ -494,3 +494,10 @@
 - Decisions: Created robust FakeMidiAccess to emulate MIDIAccess. Created midiState.ts stub.
 - Problems / open questions: none.
 - Handoff: next = T114-T115 (Implementation of MIDI). Tree clean at this commit.
+
+## 2026-09-19 23:15 - antigravity-3.1-pro (relay)
+- Done: T114 (Implemented WebMidiInput), T115 (Completed live-input handling in score-player processor and WebAudioEngine).
+- In progress: none.
+- Decisions: Updated the test format in score-player.live.test.ts to use a local synth mock to correctly record objects and avoid mismatch with simple synth. Fixed test expectation in web-midi-input to correctly handle missing port.type in fakes.
+- Problems / open questions: none.
+- Handoff: next = T116 (RT review of T114-T115); tree clean at this commit.

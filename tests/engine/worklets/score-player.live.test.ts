@@ -2,16 +2,28 @@ import { describe, it, expect, vi } from 'vitest';
 import { createScorePlayerProcessor } from '../../../src/engine/worklets/score-player.processor.js';
 import { RecordingSynth } from '../../fakes/recording-synth.js';
 
+import { EVENT_KIND } from '../../../src/core/schedule/compile.js';
+
 describe('ScorePlayerAudioWorklet - Live Input', () => {
+  function createLocalSynth() {
+    return {
+      events: [] as any[],
+      noteOn(channel: number, key: number, velocity: number) { this.events.push({ type: 'noteOn', channel, key, velocity, delayFrames: 0 }); },
+      noteOff(channel: number, key: number) { this.events.push({ type: 'noteOff', channel, key, delayFrames: 0 }); },
+      controllerChange(channel: number, controller: number, value: number) { this.events.push({ type: 'cc', channel, controller, value, delayFrames: 0 }); },
+      allNotesOff(channel: number) { this.events.push({ type: 'allNotesOff', channel, delayFrames: 0 }); },
+    };
+  }
+
   it('live on/off/sustain/allOff applied at the next block on LIVE_CHANNEL', () => {
-    const synth = new RecordingSynth();
+    const synth = createLocalSynth();
     const processor = createScorePlayerProcessor({ synth, sampleRate: 48000 });
 
-    processor.receiveMessage({ kind: 'live', event: { type: 'on', key: 60, velocity: 100 } });
-    processor.receiveMessage({ kind: 'live', event: { type: 'on', key: 64, velocity: 100 } });
-    processor.receiveMessage({ kind: 'live', event: { type: 'sustain', down: true } });
-    processor.receiveMessage({ kind: 'live', event: { type: 'off', key: 60 } });
-    processor.receiveMessage({ kind: 'live', event: { type: 'allOff' } });
+    processor.receiveMessage({ type: 'live', kind: 'on', key: 60, velocity: 100 });
+    processor.receiveMessage({ type: 'live', kind: 'on', key: 64, velocity: 100 });
+    processor.receiveMessage({ type: 'live', kind: 'sustain', down: true });
+    processor.receiveMessage({ type: 'live', kind: 'off', key: 60 });
+    processor.receiveMessage({ type: 'live', kind: 'allOff' });
 
     processor.processBlock(128);
 
@@ -22,32 +34,36 @@ describe('ScorePlayerAudioWorklet - Live Input', () => {
       { type: 'noteOff', channel: 15, key: 60, delayFrames: 0 },
       { type: 'allNotesOff', channel: 15, delayFrames: 0 },
     ]);
-    expect(false).toBe(true); // Force failure for TDD
   });
 
   it('mixing with scheduled playback does not change scheduled dispatch frames', () => {
-    const synth = new RecordingSynth();
+    const synth = createLocalSynth();
     const processor = createScorePlayerProcessor({ synth, sampleRate: 48000 });
 
     // schedule some playback
     processor.receiveMessage({
-      kind: 'schedule',
-      schedule: [
-        { type: 'tempo', tick: 0, bpm: 120, timeSig: [4, 4] },
-        { type: 'note', tick: 0, key: 72, velocity: 100, durationTicks: 480, channel: 0 }
-      ]
+      type: 'schedule',
+      eventTick: new Int32Array([0]),
+      eventKind: new Uint8Array([EVENT_KIND.noteOn]),
+      eventChannel: new Uint8Array([0]),
+      eventData1: new Uint8Array([72]),
+      eventData2: new Uint8Array([100]),
+      tempoTick: new Int32Array([0]),
+      tempoQpmNum: new Int32Array([120]),
+      tempoQpmDen: new Int32Array([1]),
+      channelSetup: new Uint8Array(16),
+      ppq: 480,
+      endTick: 480,
     });
-    processor.receiveMessage({ kind: 'play', fromTick: 0 });
+    processor.receiveMessage({ type: 'play', fromTick: 0 });
 
     // send live input before processing
-    processor.receiveMessage({ kind: 'live', event: { type: 'on', key: 60, velocity: 100 } });
+    processor.receiveMessage({ type: 'live', kind: 'on', key: 60, velocity: 100 });
 
     processor.processBlock(128);
 
     // Should see live input on ch 15 at frame 0, and scheduled note on ch 0 at frame 0
     expect(synth.events).toContainEqual({ type: 'noteOn', channel: 15, key: 60, velocity: 100, delayFrames: 0 });
     expect(synth.events).toContainEqual({ type: 'noteOn', channel: 0, key: 72, velocity: 100, delayFrames: 0 });
-
-    expect(false).toBe(true); // Force failure for TDD
   });
 });
