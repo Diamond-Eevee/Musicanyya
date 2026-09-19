@@ -1,11 +1,11 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WebAudioEngine } from '../../../src/engine/audio/web-audio-engine.js';
 
 describe('WebAudioEngine', () => {
   let mockContext: any;
   let mockPort: any;
   let mockNode: any;
-  
+
   beforeEach(() => {
     mockPort = {
       postMessage: vi.fn(),
@@ -28,19 +28,28 @@ describe('WebAudioEngine', () => {
       outputLatency: 0.04,
       sampleRate: 48000,
     };
-    
-    vi.stubGlobal('AudioContext', vi.fn(() => mockContext));
-    vi.stubGlobal('AudioWorkletNode', vi.fn(() => mockNode));
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      headers: new Headers(),
-      body: new ReadableStream({
-        start(c) {
-          c.enqueue(new Uint8Array(10));
-          c.close();
-        }
-      })
-    }));
+
+    vi.stubGlobal(
+      'AudioContext',
+      vi.fn(() => mockContext),
+    );
+    vi.stubGlobal(
+      'AudioWorkletNode',
+      vi.fn(() => mockNode),
+    );
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers(),
+        body: new ReadableStream({
+          start(c) {
+            c.enqueue(new Uint8Array(10));
+            c.close();
+          },
+        }),
+      }),
+    );
   });
 
   afterEach(() => {
@@ -52,15 +61,15 @@ describe('WebAudioEngine', () => {
     await engine.unlock();
     expect(mockContext.resume).toHaveBeenCalled();
   });
-  
+
   it('sends command messages to the worklet port', async () => {
     const engine = new WebAudioEngine();
     await engine.unlock();
     await engine.ensureSoundLoaded();
-    
+
     engine.play();
     expect(mockPort.postMessage).toHaveBeenCalledWith({ type: 'play' });
-    
+
     engine.pause();
     expect(mockPort.postMessage).toHaveBeenCalledWith({ type: 'pause' });
   });
@@ -68,7 +77,7 @@ describe('WebAudioEngine', () => {
   it('reports latency info', async () => {
     const engine = new WebAudioEngine();
     await engine.unlock();
-    
+
     const latency = engine.latency();
     expect(latency.outputLatencyMs).toBeGreaterThan(0);
   });

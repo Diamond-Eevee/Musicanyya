@@ -221,3 +221,10 @@
 - Decisions: Stubs for implementation files (position-sync, dropouts, web-audio-engine, ui elements and states) were created so tests can fail correctly.
 - Problems / open questions: none.
 - Handoff: next = T101-T110 (Implementation - audio adapter and UI); tree clean at this commit.
+
+## 2026-09-19 20:41 - gemini-3.1-pro (relay)
+- Done: T101-T103 (US2 Listen implementations: soundfont-cache, position-sync, dropouts).
+- In progress: none.
+- Decisions: Rounded audibleTick in position-sync to avoid floating-point assertion failures. Re-ran `pnpm lint --write` fixing formatting and unused variables across the codebase.
+- Problems / open questions: none.
+- Handoff: next = T104 (Implementation - web-audio-engine); tree clean at this commit.

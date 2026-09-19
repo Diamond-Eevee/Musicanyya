@@ -1,10 +1,10 @@
 import type {
+  AudioDiagnostics,
   AudioEngine,
   AudioEngineEvent,
   EngineSchedule,
   LatencyInfo,
   PositionUpdate,
-  AudioDiagnostics
 } from '../ports.js';
 
 export class WebAudioEngine implements AudioEngine {

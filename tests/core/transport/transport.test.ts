@@ -1,12 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import { TEMPO_PERCENT_MAX, TEMPO_PERCENT_MIN } from '../../../src/core/defaults.js';
-import { clampTempoPercent, clampVolume, initialTransport, transportReducer } from '../../../src/core/transport/transport.js';
 import type { TransportSnapshot } from '../../../src/core/transport/transport.js';
+import {
+  clampTempoPercent,
+  clampVolume,
+  initialTransport,
+  transportReducer,
+} from '../../../src/core/transport/transport.js';
 
 describe('transportReducer', () => {
   it('starts stopped at tick 0, follow on, default tempo/volume', () => {
     const s = initialTransport();
-    expect(s).toMatchObject({ phase: 'stopped', startTick: 0, positionTick: 0, tempoPercent: 100, volume: 80, follow: true });
+    expect(s).toMatchObject({
+      phase: 'stopped',
+      startTick: 0,
+      positionTick: 0,
+      tempoPercent: 100,
+      volume: 80,
+      follow: true,
+    });
   });
 
   it('play goes to loading when sound is not ready, playing when it is', () => {
@@ -37,14 +49,20 @@ describe('transportReducer', () => {
   });
 
   it('stop from playing or paused returns to stopped at startTick', () => {
-    const playing: TransportSnapshot = { ...transportReducer(initialTransport(), { type: 'play', soundReady: true }), startTick: 480 };
+    const playing: TransportSnapshot = {
+      ...transportReducer(initialTransport(), { type: 'play', soundReady: true }),
+      startTick: 480,
+    };
     const positioned = transportReducer(playing, { type: 'positionTick', value: 900 });
     const stopped = transportReducer(positioned, { type: 'stop' });
     expect(stopped).toMatchObject({ phase: 'stopped', positionTick: 480 });
   });
 
   it('ended from playing returns to stopped at startTick', () => {
-    const playing: TransportSnapshot = { ...transportReducer(initialTransport(), { type: 'play', soundReady: true }), startTick: 0 };
+    const playing: TransportSnapshot = {
+      ...transportReducer(initialTransport(), { type: 'play', soundReady: true }),
+      startTick: 0,
+    };
     const ended = transportReducer(transportReducer(playing, { type: 'positionTick', value: 5000 }), { type: 'ended' });
     expect(ended).toMatchObject({ phase: 'stopped', positionTick: 0 });
   });

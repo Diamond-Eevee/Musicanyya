@@ -19,11 +19,40 @@ export interface SyncParams {
 }
 
 export class PositionSync {
+  private lastReport: PositionReport | null = null;
+
   updateReport(report: PositionReport) {
-    throw new Error('Not implemented');
+    this.lastReport = report;
   }
 
   getAudibleTick(params: SyncParams): number {
-    throw new Error('Not implemented');
+    if (!this.lastReport) {
+      return 0;
+    }
+
+    if (!this.lastReport.playing) {
+      return this.lastReport.tick;
+    }
+
+    let audibleContextTime = 0;
+
+    if (
+      params.outputTimestamp &&
+      params.outputTimestamp.contextTime !== undefined &&
+      params.outputTimestamp.performanceTime !== undefined
+    ) {
+      const perfDiff = (params.performanceTime - params.outputTimestamp.performanceTime) / 1000.0;
+      audibleContextTime = params.outputTimestamp.contextTime + perfDiff;
+    } else if (params.currentTime !== undefined && params.outputLatency !== undefined) {
+      audibleContextTime = params.currentTime - params.outputLatency;
+    } else {
+      return this.lastReport.tick;
+    }
+
+    const timeSinceReport = audibleContextTime - this.lastReport.contextTime;
+    const framesSinceReport = timeSinceReport * params.sampleRate;
+    const ticksSinceReport = framesSinceReport * this.lastReport.ticksPerFrame;
+
+    return Math.round(this.lastReport.tick + ticksSinceReport);
   }
 }

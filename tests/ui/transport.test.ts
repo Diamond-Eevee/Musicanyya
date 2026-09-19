@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '../../src/ui/elements/mx-transport.js';
-import { transportState } from '../../src/ui/state/transportState.js';
 import { initShortcuts } from '../../src/ui/shortcuts.js';
+import { transportState } from '../../src/ui/state/transportState.js';
 
 describe('mx-transport & shortcuts', () => {
   let el: HTMLElement;
@@ -34,7 +34,7 @@ describe('mx-transport & shortcuts', () => {
     expect(input.min).toBe('25');
     expect(input.max).toBe('200');
     expect(input.step).toBe('5');
-    
+
     input.value = '150';
     input.dispatchEvent(new Event('change'));
     expect(transportState.setTempo).toHaveBeenCalledWith(150);

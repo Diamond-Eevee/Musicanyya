@@ -1,9 +1,9 @@
-import { describe, expect, it } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
-import { SpessaSynthProcessor, SoundBankLoader } from 'spessasynth_core';
-import { createScorePlayerProcessor } from '../../src/engine/worklets/score-player.processor.js';
+import { SoundBankLoader, SpessaSynthProcessor } from 'spessasynth_core';
+import { describe, expect, it } from 'vitest';
 import { EVENT_KIND } from '../../src/core/schedule/compile.js';
+import { createScorePlayerProcessor } from '../../src/engine/worklets/score-player.processor.js';
 
 describe('Real-synth onset', () => {
   it('renders a scheduled note whose first non-silent frame is within one block of its dispatch frame', () => {
@@ -44,39 +44,39 @@ describe('Real-synth onset', () => {
     };
     scoreProc.receiveMessage(sched as any);
     scoreProc.receiveMessage({ type: 'play' });
-    
+
     // We expect tick 100 -> frame = 100 * (60 * 48000) / (480 * 120) = 100 * 50 = 5000.
     const targetOnsetFrame = 5000;
-    
+
     const blockSize = 128;
     const maxFrames = 10000;
-    
+
     const left = new Float32Array(blockSize);
     const right = new Float32Array(blockSize);
-    
+
     let firstNonSilentFrame = -1;
     let currentFrame = 0;
-    
+
     while (currentFrame < maxFrames) {
       left.fill(0);
       right.fill(0);
-      
+
       scoreProc.processBlock(blockSize);
       synth.process(left, right, 0, blockSize);
-      
+
       for (let i = 0; i < blockSize; i++) {
         if (Math.abs(left[i]!) > 0.0001 || Math.abs(right[i]!) > 0.0001) {
           firstNonSilentFrame = currentFrame + i;
           break;
         }
       }
-      
+
       if (firstNonSilentFrame !== -1) {
         break;
       }
       currentFrame += blockSize;
     }
-    
+
     expect(firstNonSilentFrame).toBeGreaterThanOrEqual(0);
     // The onset should be within one block of the expected target frame
     expect(Math.abs(firstNonSilentFrame - targetOnsetFrame)).toBeLessThanOrEqual(128);

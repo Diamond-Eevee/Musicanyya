@@ -20,14 +20,14 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import type { ScheduleMessage } from '../../../src/core/schedule/compile.js';
+import { EVENT_KIND } from '../../../src/core/schedule/compile.js';
 import {
   type BlockEvent,
   DispatchState,
   dispatchBlock,
   recomputeSegmentFrames,
 } from '../../../src/engine/worklets/dispatch.js';
-import type { ScheduleMessage } from '../../../src/core/schedule/compile.js';
-import { EVENT_KIND } from '../../../src/core/schedule/compile.js';
 
 /** Build a minimal ScheduleMessage for tests */
 function makeSchedule(opts: {

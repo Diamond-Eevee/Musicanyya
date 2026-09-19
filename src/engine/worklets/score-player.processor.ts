@@ -1,4 +1,4 @@
-import { SpessaSynthProcessor, SoundBankLoader } from 'spessasynth_core';
+import { SoundBankLoader, SpessaSynthProcessor } from 'spessasynth_core';
 
 /**
  * Score player processor – offline-testable factory.
@@ -18,21 +18,17 @@ import { SpessaSynthProcessor, SoundBankLoader } from 'spessasynth_core';
  *  - Position reports are bounded to every POSITION_REPORT_BLOCKS blocks.
  */
 
-import {
-  POSITION_REPORT_BLOCKS,
-  VOLUME_RAMP_FRAMES,
-  TEMPO_PERCENT_DEFAULT,
-} from '../../core/defaults.js';
-import {
-  type TempoSegmentFrame,
-  type BlockEvent,
-  DispatchState,
-  recomputeSegmentFrames,
-  dispatchBlock,
-  frameOfTickInSegs,
-} from './dispatch.js';
+import { POSITION_REPORT_BLOCKS, TEMPO_PERCENT_DEFAULT, VOLUME_RAMP_FRAMES } from '../../core/defaults.js';
 import type { ScheduleMessage } from '../../core/schedule/compile.js';
 import { EVENT_KIND } from '../../core/schedule/compile.js';
+import {
+  type BlockEvent,
+  DispatchState,
+  dispatchBlock,
+  frameOfTickInSegs,
+  recomputeSegmentFrames,
+  type TempoSegmentFrame,
+} from './dispatch.js';
 
 export interface SynthInterface {
   noteOn(channel: number, key: number, velocity: number, frame?: number): void;
@@ -279,8 +275,12 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   const processor: ScorePlayerProcessor = {
     processBlock,
     receiveMessage,
-    get onMessage() { return onMessage; },
-    set onMessage(v) { onMessage = v; },
+    get onMessage() {
+      return onMessage;
+    },
+    set onMessage(v) {
+      onMessage = v;
+    },
   };
 
   return processor;
@@ -296,19 +296,19 @@ if (typeof AudioWorkletProcessor !== 'undefined') {
       super();
       // sampleRate is a global in AudioWorkletGlobalScope
       this.synth = new SpessaSynthProcessor(sampleRate);
-      
+
       this.inner = createScorePlayerProcessor({
         synth: {
           noteOn: (c, k, v) => this.synth.noteOn(c, k, v),
           noteOff: (c, k) => this.synth.noteOff(c, k),
           allNotesOff: (c?: number) => {
-            const channels = c !== undefined ? [c] : [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+            const channels = c !== undefined ? [c] : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
             for (const ch of channels) {
               this.synth.controllerChange(ch, 120, 0); // All Sound Off
               this.synth.controllerChange(ch, 123, 0); // All Notes Off
             }
           },
-          controllerChange: (c, ctrl, v) => this.synth.controllerChange(c, ctrl as any, v)
+          controllerChange: (c, ctrl, v) => this.synth.controllerChange(c, ctrl as any, v),
         },
         sampleRate: sampleRate,
       });
@@ -334,7 +334,7 @@ if (typeof AudioWorkletProcessor !== 'undefined') {
           }
           return;
         }
-        
+
         try {
           this.inner.receiveMessage(msg);
         } catch (err: any) {

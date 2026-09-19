@@ -154,7 +154,7 @@ export function dispatchBlock(
 
   const n = schedule.eventTick.length;
   let cursor = eventCursor;
-  let maxEv = state.events.length;
+  const maxEv = state.events.length;
 
   while (cursor < n && state.numEvents < maxEv) {
     const tick = schedule.eventTick[cursor]!;
@@ -179,23 +179,35 @@ export function dispatchBlock(
   for (let i = 1; i < state.numEvents; i++) {
     const ev = state.events[i]!;
     // store the values to swap
-    const f = ev.frame; const k = ev.kind; const c = ev.channel;
-    const d1 = ev.data1; const d2 = ev.data2; const ei = ev.eventIndex;
+    const f = ev.frame;
+    const k = ev.kind;
+    const c = ev.channel;
+    const d1 = ev.data1;
+    const d2 = ev.data2;
+    const ei = ev.eventIndex;
     let j = i - 1;
     while (j >= 0) {
       const prev = state.events[j]!;
       if (prev.frame > f || (prev.frame === f && prev.eventIndex > ei)) {
         const next = state.events[j + 1]!;
-        next.frame = prev.frame; next.kind = prev.kind; next.channel = prev.channel;
-        next.data1 = prev.data1; next.data2 = prev.data2; next.eventIndex = prev.eventIndex;
+        next.frame = prev.frame;
+        next.kind = prev.kind;
+        next.channel = prev.channel;
+        next.data1 = prev.data1;
+        next.data2 = prev.data2;
+        next.eventIndex = prev.eventIndex;
         j--;
       } else {
         break;
       }
     }
     const next = state.events[j + 1]!;
-    next.frame = f; next.kind = k; next.channel = c;
-    next.data1 = d1; next.data2 = d2; next.eventIndex = ei;
+    next.frame = f;
+    next.kind = k;
+    next.channel = c;
+    next.data1 = d1;
+    next.data2 = d2;
+    next.eventIndex = ei;
   }
 
   // Build splits array: sorted unique frames + blockEnd

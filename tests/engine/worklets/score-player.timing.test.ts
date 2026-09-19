@@ -27,14 +27,14 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import type { ScheduleMessage } from '../../../src/core/schedule/compile.js';
+import { EVENT_KIND } from '../../../src/core/schedule/compile.js';
+import { POSITION_REPORT_BLOCKS, VOLUME_RAMP_FRAMES } from '../../../src/engine/config.js';
 import {
   createScorePlayerProcessor,
   type ScorePlayerProcessor,
 } from '../../../src/engine/worklets/score-player.processor.js';
 import { RecordingSynth } from '../../fakes/recording-synth.js';
-import type { ScheduleMessage } from '../../../src/core/schedule/compile.js';
-import { EVENT_KIND } from '../../../src/core/schedule/compile.js';
-import { POSITION_REPORT_BLOCKS, VOLUME_RAMP_FRAMES } from '../../../src/engine/config.js';
 
 // Low sample rate for deterministic, fast tests
 const SAMPLE_RATE = 480; // Hz
@@ -211,7 +211,9 @@ describe('ScorePlayerProcessor', () => {
 
     // Position report after stop should have playing: false
     const posReports: any[] = [];
-    proc.onMessage = (msg: any) => { if (msg.type === 'position') posReports.push(msg); };
+    proc.onMessage = (msg: any) => {
+      if (msg.type === 'position') posReports.push(msg);
+    };
     proc.processBlock(BLOCK_SIZE);
     if (posReports.length > 0) {
       expect(posReports[posReports.length - 1].playing).toBe(false);
@@ -228,7 +230,9 @@ describe('ScorePlayerProcessor', () => {
     proc.receiveMessage({ type: 'play' });
 
     const endedFrames: number[] = [];
-    proc.onMessage = (msg: any) => { if (msg.type === 'ended') endedFrames.push(msg.frame); };
+    proc.onMessage = (msg: any) => {
+      if (msg.type === 'ended') endedFrames.push(msg.frame);
+    };
 
     for (let i = 0; i < 5; i++) proc.processBlock(BLOCK_SIZE);
     expect(endedFrames).toHaveLength(1);
@@ -245,7 +249,9 @@ describe('ScorePlayerProcessor', () => {
     proc.receiveMessage({ type: 'play' });
 
     const posReports: any[] = [];
-    proc.onMessage = (msg: any) => { if (msg.type === 'position') posReports.push(msg); };
+    proc.onMessage = (msg: any) => {
+      if (msg.type === 'position') posReports.push(msg);
+    };
 
     const nBlocks = POSITION_REPORT_BLOCKS * 10;
     for (let i = 0; i < nBlocks; i++) proc.processBlock(BLOCK_SIZE);
