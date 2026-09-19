@@ -101,6 +101,10 @@ describe('Open and recent UI', () => {
     });
     expect(scoreState.getStatus()).toMatchObject({ kind: 'loaded' });
 
+    // The real open flow always calls startLoading before it knows the outcome (session.ts); the "keep the
+    // previous Score" guard must survive that intermediate "loading" status, not just a direct succeeded->failed
+    // call.
+    scoreState.startLoading('bad.musicxml');
     scoreState.failed('bad.musicxml', { code: 'malformedXml', message: 'boom' });
 
     expect(scoreState.getStatus()).toMatchObject({ kind: 'loaded' }); // unchanged

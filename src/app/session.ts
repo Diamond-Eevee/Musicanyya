@@ -3,11 +3,13 @@ import type { ScoreStore, SettingsStore } from '../engine/ports.js';
 import { IndexedDbScoreStore } from '../engine/storage/indexeddb-score-store.js';
 import { LocalSettingsStore } from '../engine/storage/local-settings-store.js';
 import '../ui/elements/mx-drop-zone.js';
+import '../ui/elements/mx-help-notation.js';
 import '../ui/elements/mx-open-button.js';
 import '../ui/elements/mx-recent-list.js';
 import '../ui/elements/mx-score-view.js';
 import type { LoadReport } from '../core/score/load-report.js';
 import type { MxScoreView } from '../ui/elements/mx-score-view.js';
+import { en } from '../ui/i18n/en.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
 import { noticeState } from '../ui/state/noticeState.js';
 import type { LoadError, ScoreSummary } from '../ui/state/scoreState.js';
@@ -105,6 +107,14 @@ export class Session {
       this.removeRecent((event as CustomEvent<{ id: string }>).detail.id),
     );
     document.getElementById('side-panel')?.appendChild(recentList);
+
+    const helpPanel = document.createElement('mx-help-notation');
+    document.getElementById('help-panel')?.appendChild(helpPanel);
+    const helpButton = document.createElement('button');
+    helpButton.type = 'button';
+    helpButton.textContent = en.help.button;
+    helpButton.addEventListener('click', () => helpPanel.toggle());
+    document.getElementById('help-controls')?.appendChild(helpButton);
 
     document.addEventListener('keydown', (event) => this.onKeyDown(event));
 

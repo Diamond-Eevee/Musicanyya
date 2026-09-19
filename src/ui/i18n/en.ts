@@ -23,4 +23,11 @@ export const en = {
     reopen: 'Open',
     remove: 'Remove',
   },
+  help: {
+    button: 'Help',
+    title: 'Supported notation',
+    element: 'Element',
+    status: 'Status',
+    notes: 'Notes',
+  },
 };

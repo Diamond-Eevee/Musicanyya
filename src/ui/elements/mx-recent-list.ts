@@ -1,14 +1,6 @@
 import { en } from '../i18n/en.js';
 import { scoreState } from '../state/scoreState.js';
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
+import { escapeHtml } from '../util/escape-html.js';
 
 export class MxRecentList extends HTMLElement {
   private unsubscribe?: () => void;

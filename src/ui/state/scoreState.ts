@@ -49,6 +49,8 @@ export type ScoreStatus =
 class ScoreState {
   private statusStore = createStore<ScoreStatus>({ kind: 'empty' });
   private recentStore = createStore<readonly RecentScoreSummary[]>([]);
+  /** Survives `startLoading`/`failed` so a later failure can restore it (never cleared by a failed open). */
+  private lastLoaded: LoadedScore | null = null;
 
   getStatus(): ScoreStatus {
     return this.statusStore.get();
@@ -75,6 +77,7 @@ class ScoreState {
   }
 
   succeeded(loaded: LoadedScore) {
+    this.lastLoaded = loaded;
     this.statusStore.set({ kind: 'loaded', score: loaded });
     for (const entry of loaded.report.entries) {
       const base = {
@@ -92,9 +95,15 @@ class ScoreState {
     }
   }
 
-  /** A failed open never clears a previously loaded Score; it only surfaces an error notice. */
+  /**
+   * A failed open never clears a previously loaded Score; it only surfaces an error notice. Checked against
+   * `lastLoaded` (not the current status) because `startLoading` already moved the status to "loading" by the
+   * time a failure is known.
+   */
   failed(fileName: string, error: LoadError) {
-    if (this.statusStore.get().kind !== 'loaded') {
+    if (this.lastLoaded) {
+      this.statusStore.set({ kind: 'loaded', score: this.lastLoaded });
+    } else {
       this.statusStore.set({ kind: 'error', fileName, error });
     }
     noticeState.addNotice({ code: error.code, severity: 'warning' });

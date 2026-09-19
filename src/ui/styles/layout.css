@@ -45,3 +45,24 @@ mx-app {
 .hidden {
   display: none;
 }
+
+.mx-help-panel {
+  width: 360px;
+  border-left: 1px solid var(--border-color);
+  overflow-y: auto;
+  flex-shrink: 0;
+  padding: 12px 16px;
+}
+
+.mx-help-panel table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 12px;
+}
+
+.mx-help-panel th,
+.mx-help-panel td {
+  text-align: left;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border-color);
+}
