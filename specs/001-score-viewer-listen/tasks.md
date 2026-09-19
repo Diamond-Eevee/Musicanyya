@@ -113,7 +113,7 @@ the app keeps working; reload and reopen from the recent list (spec US1).
 - [x] T065 [US1] Implement `src/ui/elements/mx-open-button.ts`, `src/ui/elements/mx-drop-zone.ts`, `src/ui/elements/mx-recent-list.ts` and `src/ui/state/scoreState.ts`, `src/ui/state/viewState.ts` to pass T048
 - [x] T066 [US1] Implement the open flow in `src/app/session.ts` (read file <= MAX_FILE_BYTES, score worker, Verovio load, keep previous Score on error, load-report notices, recent put after success, zoom persisted)
 - [x] T067 [US1] Implement `src/ui/elements/mx-help-notation.ts` (supported notation from `SUPPORT_MATRIX`, non-modal side panel)
-- [ ] T068 [US1] Make the US1 end-to-end test T049 pass (fix integration issues in the files above only)
+- [x] T068 [US1] Make the US1 end-to-end test T049 pass (fix integration issues in the files above only)
 
 **Checkpoint**: US1 independent test passes (quickstart US1-1..11); full gate green; log entry; commit.
 
