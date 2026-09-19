@@ -1,4 +1,8 @@
-import { RELAYOUT_DEBOUNCE_MS, ZOOM_DEFAULT, ZOOM_MAX, ZOOM_MIN } from '../../engine/config.js';
+import type { PlaybackTimeline } from '../../core/timeline/types.js';
+import { FOLLOW_MARGIN, RELAYOUT_DEBOUNCE_MS, ZOOM_DEFAULT, ZOOM_MAX, ZOOM_MIN } from '../../engine/config.js';
+import type { AudioEngine } from '../../engine/ports.js';
+import { drawCursorOverlay } from '../score/cursor-overlay.js';
+import { applyHighlights } from '../score/highlight.js';
 import {
   layoutPages,
   measureIndexFromElementId,
@@ -7,6 +11,7 @@ import {
   sanitiseAndExtractMeasures,
 } from '../score/pages.js';
 import type { VerovioClient } from '../score/verovio-client.js';
+import { transportState } from '../state/transportState.js';
 
 const DEFAULT_PAGE_WIDTH = 1200;
 const DEFAULT_PAGE_HEIGHT = 1600;
@@ -16,6 +21,7 @@ export class MxScoreView extends HTMLElement {
 
   private scrollEl!: HTMLElement;
   private stack!: HTMLElement;
+  private canvasEl!: HTMLCanvasElement;
   private measureIds: string[] = [];
   private layouts: PageLayout[] = [];
   private pageMeasureIds = new Map<number, string[]>();
@@ -24,22 +30,53 @@ export class MxScoreView extends HTMLElement {
   private relayoutTimer: ReturnType<typeof setTimeout> | null = null;
   private loadToken = 0;
 
+  // Listen-mode cursor/highlight (T107, R-11): set once by session.ts (T108) after a Score + engine are ready.
+  private engine: AudioEngine | null = null;
+  private timeline: PlaybackTimeline | null = null;
+  private soundingNoteIds = new Set<string>();
+  private rafHandle: number | null = null;
+  private followScrolling = false;
+  private readonly tick = (): void => {
+    this.updateCursor();
+    this.rafHandle = requestAnimationFrame(this.tick);
+  };
+
   connectedCallback() {
-    this.innerHTML = `<div class="mx-score-scroll"><div class="mx-score-stack"></div></div>`;
+    this.innerHTML = `
+      <div class="mx-score-scroll"><div class="mx-score-stack"></div></div>
+      <canvas class="mx-score-cursor"></canvas>
+    `;
     this.scrollEl = this.querySelector('.mx-score-scroll') as HTMLElement;
     this.stack = this.querySelector('.mx-score-stack') as HTMLElement;
-    this.scrollEl.addEventListener('scroll', () => this.mountVisiblePages());
+    this.canvasEl = this.querySelector('.mx-score-cursor') as HTMLCanvasElement;
+    this.scrollEl.addEventListener('scroll', () => {
+      this.mountVisiblePages();
+      if (this.followScrolling) {
+        this.followScrolling = false;
+        return;
+      }
+      if (transportState.get().phase === 'playing') transportState.manualScroll();
+    });
     this.scrollEl.addEventListener('click', (event) => this.onClick(event));
+    this.rafHandle = requestAnimationFrame(this.tick);
   }
 
   disconnectedCallback() {
     if (this.relayoutTimer !== null) clearTimeout(this.relayoutTimer);
+    if (this.rafHandle !== null) cancelAnimationFrame(this.rafHandle);
+  }
+
+  /** Called once a Score's schedule/timeline and an unlocked AudioEngine are both ready (session.ts, T108). */
+  setPlayback(engine: AudioEngine, timeline: PlaybackTimeline): void {
+    this.engine = engine;
+    this.timeline = timeline;
   }
 
   async load(renderXml: string, measureIds: readonly string[], zoomPercent?: number): Promise<void> {
     if (!this.client) throw new Error('mx-score-view: no VerovioClient attached');
     const token = ++this.loadToken;
     this.measureIds = [...measureIds];
+    this.soundingNoteIds = new Set();
     if (zoomPercent !== undefined) {
       this.zoomPercent = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(zoomPercent)));
     }
@@ -139,6 +176,73 @@ export class MxScoreView extends HTMLElement {
     const measureIndex = measureIndexFromElementId(this.measureIds, measureEl.id || null);
     if (measureIndex === null) return;
     this.dispatchEvent(new CustomEvent('measureclick', { detail: { measureIndex } }));
+  }
+
+  /** Runs every animation frame (R-11): reads the audible position, highlights sounding notes, draws the
+   * cursor, and follow-scrolls. A no-op until `setPlayback` has been called. */
+  private updateCursor(): void {
+    const engine = this.engine;
+    const timeline = this.timeline;
+    if (!engine || !timeline) return;
+
+    const position = engine.audiblePosition(performance.now());
+    if (!position) return;
+    const tick = position.audibleTick;
+
+    const soundingNoteIds = new Set(
+      timeline.spans.filter((span) => span.startTick <= tick && span.endTick > tick).map((span) => span.noteId),
+    );
+    applyHighlights(this.stack, soundingNoteIds, this.soundingNoteIds);
+    this.soundingNoteIds = soundingNoteIds;
+
+    const pass =
+      timeline.passes.find((p) => p.startTick <= tick && tick < p.startTick + p.lengthTicks) ??
+      timeline.passes[timeline.passes.length - 1];
+    const measureId = pass ? this.measureIds[pass.measureIndex] : undefined;
+    const measureEl = measureId !== undefined ? this.stack.querySelector(`#${CSS.escape(measureId)}`) : null;
+    if (!measureEl) return; // the current measure isn't mounted (e.g. a distant seek); skip this frame
+
+    this.drawCursor(measureEl, soundingNoteIds);
+    if (transportState.get().follow) this.followScrollTo(measureEl);
+  }
+
+  private drawCursor(measureEl: Element, soundingNoteIds: ReadonlySet<string>): void {
+    const containerRect = this.scrollEl.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const width = Math.round(containerRect.width) * dpr;
+    const height = Math.round(containerRect.height) * dpr;
+    if (this.canvasEl.width !== width || this.canvasEl.height !== height) {
+      this.canvasEl.width = width;
+      this.canvasEl.height = height;
+    }
+    const ctx = this.canvasEl.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
+    ctx.fillStyle = getComputedStyle(this.canvasEl).getPropertyValue('--highlight-cursor-color').trim() || '#e69f00';
+
+    const noteRects = [...soundingNoteIds]
+      .map((id) => this.stack.querySelector(`#${CSS.escape(id)}`)?.getBoundingClientRect())
+      .filter((rect): rect is DOMRect => rect !== undefined);
+
+    drawCursorOverlay({ ctx, dpr, measureRect: measureEl.getBoundingClientRect(), noteRects, containerRect });
+  }
+
+  /** Scrolls to keep the cursor within the middle band of the viewport (FOLLOW_MARGIN, FR-014); marks the
+   * resulting 'scroll' event as ours so it isn't mistaken for the user manually scrolling. */
+  private followScrollTo(measureEl: Element): void {
+    const containerRect = this.scrollEl.getBoundingClientRect();
+    const targetRect = measureEl.getBoundingClientRect();
+    const marginPx = containerRect.height * FOLLOW_MARGIN;
+    const targetTop = targetRect.top - containerRect.top;
+    const targetBottom = targetRect.bottom - containerRect.top;
+    if (targetTop >= marginPx && targetBottom <= containerRect.height - marginPx) return;
+
+    const delta = (targetTop + targetBottom) / 2 - containerRect.height / 2;
+    const before = this.scrollEl.scrollTop;
+    this.scrollEl.scrollTop = before + delta;
+    if (this.scrollEl.scrollTop !== before) {
+      this.followScrolling = true;
+    }
   }
 }
 customElements.define('mx-score-view', MxScoreView);

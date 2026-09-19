@@ -1,5 +1,6 @@
 mx-score-view {
   display: block;
+  position: relative;
   flex: 1;
   min-height: 0;
 }
@@ -9,6 +10,14 @@ mx-score-view {
   overflow-y: auto;
   overflow-x: hidden;
   background: var(--bg-color);
+}
+
+.mx-score-cursor {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 .mx-score-stack {
@@ -31,4 +40,11 @@ mx-score-view {
 
 .mx-score-page g.measure {
   cursor: pointer;
+}
+
+/* Sounding notes: accent fill and a thicker outline (colour + shape, Constitution VI). */
+.mx-score-page g.note.playing {
+  fill: var(--highlight-note-color);
+  stroke: var(--highlight-note-color);
+  stroke-width: 2;
 }

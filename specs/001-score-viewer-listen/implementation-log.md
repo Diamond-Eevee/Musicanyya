@@ -283,3 +283,46 @@
     ring buffer without a profiler pointing at it.
 - Problems / open questions: none blocking.
 - Handoff: next = T106 (`mx-transport.ts` + `transportState.ts`, US2 UI); tree clean at this commit.
+
+## 2026-09-19 21:30 - claude-sonnet-5
+- Done: T106 (`mx-transport.ts`, `transportState.ts`, `shortcuts.ts`), T107 (`highlight.ts`, `cursor-overlay.ts`,
+  cursor/follow-scroll integration in `mx-score-view.ts`).
+- T106: `transportState` wraps the existing pure `transportReducer` (T088) in a small store, plus a `connect(driver:
+  TransportDriver)` seam and `setSoundReady`/`setLoadingProgress` so T108 can wire the real `AudioEngine` and its
+  `state` events without this task needing an engine instance (session.ts owns constructing `WebAudioEngine`, per
+  layering). `mx-transport` renders play/pause/stop/tempo/volume/follow plus a loading-progress readout, following
+  the existing full-innerHTML-rerender convention (`mx-notice-tray.ts`, `mx-recent-list.ts`). `shortcuts.ts`:
+  Space/Esc per R-14; no input-focus guard, matching the existing +/- zoom shortcut in `session.ts` which has none
+  either.
+  - Added `en.transport.tempo/volume/follow/loadingSound` strings.
+- T107: `applyHighlights`/`drawCursorOverlay` are pure and match T099 exactly (including its two different `ctx`
+  mocks - the empty-`cursorNoteIds` test only stubs `fillRect`, so `drawCursorOverlay` must return before touching
+  `beginPath`/`arc`/`fill` when `noteRects` is empty, drawing only the bar). Note-id lookups use
+  `` `#${CSS.escape(id)}` `` (happy-dom supports `CSS.escape`).
+  - `mx-score-view.ts` now has a `<canvas class="mx-score-cursor">` overlay (absolutely positioned over
+    `.mx-score-scroll`, `mx-score-view` given `position: relative`) and a continuous `requestAnimationFrame` loop
+    (started in `connectedCallback`, cancelled in `disconnectedCallback`) that is a no-op until `setPlayback(engine,
+    timeline)` is called (T108 will call it once a Score's engine + `PlaybackTimeline` are ready). Each frame:
+    reads `engine.audiblePosition()`, finds sounding `VisualSpan`s (`timeline.spans`, linear filter - simpler and
+    less bug-prone than an incremental sorted-cursor given this has no dedicated test, and cheap enough at the
+    project's `MAX_MEASURES`/`MAX_PARTS` scale) and the current `MeasurePass`, applies highlights, draws the
+    cursor, and follow-scrolls (`FOLLOW_MARGIN` band) when `transportState.get().follow` is true.
+  - Added `transportState.manualScroll()` (dispatches the existing `transportReducer` action, T106 had left it out
+    as YAGNI until a caller needed it). The scroll listener now distinguishes our own follow-scroll from a real
+    user scroll via a `followScrolling` guard flag that the *next* `scroll` event consumes (not a timer/microtask -
+    those can race an async-dispatched scroll event; consuming the flag in the handler itself cannot).
+  - Added CSS: `.mx-score-page g.note.playing` (accent fill + thicker outline, `--highlight-note-color`) and
+    `.mx-score-cursor` positioning - the `--highlight-cursor-color`/`--highlight-note-color` tokens already existed
+    in `tokens.css` but nothing consumed them yet.
+  - Known limitation (not covered by any test, no dedicated test exists for this integration at all - T099 only
+    tests the two pure functions): if the current measure isn't currently mounted (only pages within +-1 screen are,
+    per `pages.ts`), the cursor/highlight update is skipped for that frame rather than force-mounting a distant
+    page. In practice this only matters for a seek to a position far outside the visible/recently-visible area,
+    which normal Play-from-start, click-to-seek (always on a visible measure) and Stop-returns-to-start don't hit;
+    flagging for T108/T110 in case e2e testing (T100) surfaces it.
+- Problems / open questions: none blocking; the mx-score-view integration above has no direct unit test by design
+  (matches the T066 precedent for untested-but-in-scope UI wiring) and should be exercised by T108's wiring plus
+  the T100 e2e test.
+- Handoff: next = T108 (wire Listen mode in `session.ts`: unlock/ensureSoundLoaded, `transportState.connect(...)`,
+  `mx-score-view.setPlayback(...)`, schedule load, click-to-seek, end -> return to start, settings persistence);
+  tree clean at this commit.

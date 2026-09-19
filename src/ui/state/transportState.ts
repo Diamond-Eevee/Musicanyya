@@ -96,6 +96,11 @@ class TransportStateStore {
   toggleFollow(): void {
     this.store.update((s) => transportReducer(s, { type: 'follow', value: !s.follow }));
   }
+
+  /** A user-initiated scroll while playing turns follow off (R-14); no-op otherwise. */
+  manualScroll(): void {
+    this.store.update((s) => transportReducer(s, { type: 'manualScroll' }));
+  }
 }
 
 export const transportState = new TransportStateStore();
