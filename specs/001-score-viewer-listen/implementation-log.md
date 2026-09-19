@@ -51,3 +51,10 @@
 - Decisions: none new.
 - Problems / open questions: none.
 - Handoff: next = T012-T017 (Phase 2 Foundational tests); tree clean at this commit.
+
+## 2026-09-19 14:17 - gemini-3.1-pro (relay)
+- Done: T012-T017 (Phase 2 Foundational tests written, they fail as expected).
+- In progress: none.
+- Decisions: none new.
+- Problems / open questions: none.
+- Handoff: next = T018-T027 (Phase 2 Foundational implementations); tree clean at this commit.
