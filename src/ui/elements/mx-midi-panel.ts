@@ -26,7 +26,7 @@ class MxMidiPanel extends HTMLElement {
 
     if (availability === 'notRequested' || availability === 'available') {
       content += `<button id="connect-btn">Connect MIDI keyboard</button>`;
-      
+
       if (devices.length > 0) {
         content += '<ul>';
         for (const device of devices) {
@@ -54,7 +54,7 @@ class MxMidiPanel extends HTMLElement {
       </style>
       ${content}
     `;
-    
+
     const btn = this.shadowRoot.getElementById('connect-btn');
     if (btn) {
       btn.addEventListener('click', () => {

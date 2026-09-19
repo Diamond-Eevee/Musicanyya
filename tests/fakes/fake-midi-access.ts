@@ -4,6 +4,7 @@ export class FakeMidiInput {
   id: string;
   name: string;
   manufacturer: string;
+  type: 'input' | 'output' = 'input';
   state: 'connected' | 'disconnected' = 'connected';
   connection: 'open' | 'closed' | 'pending' = 'open';
   onmidimessage: ((ev: any) => any) | null = null;
@@ -24,14 +25,20 @@ export class FakeMidiInput {
 
 export class FakeMidiInputMap {
   private _inputs = new Map<string, FakeMidiInput>();
-  
-  get(id: string) { return this._inputs.get(id); }
-  has(id: string) { return this._inputs.has(id); }
+
+  get(id: string) {
+    return this._inputs.get(id);
+  }
+  has(id: string) {
+    return this._inputs.has(id);
+  }
   forEach(cb: (val: FakeMidiInput, key: string) => void) {
     this._inputs.forEach(cb);
   }
-  values() { return this._inputs.values(); }
-  
+  values() {
+    return this._inputs.values();
+  }
+
   add(input: FakeMidiInput) {
     this._inputs.set(input.id, input);
   }

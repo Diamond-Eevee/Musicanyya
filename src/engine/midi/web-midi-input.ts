@@ -57,7 +57,7 @@ export class WebMidiInput implements MidiInput {
         id: input.id,
         name: input.name || 'Unknown Device',
         manufacturer: input.manufacturer || 'Unknown Manufacturer',
-        connected: input.state === 'connected'
+        connected: input.state === 'connected',
       });
     }
     return devs;

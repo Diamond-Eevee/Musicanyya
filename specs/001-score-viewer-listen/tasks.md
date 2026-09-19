@@ -224,20 +224,20 @@ environment panel and run US1-US3 in both (spec US4).
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T119 [P] [US4] Electron policy unit tests for pure decision helpers (app-origin check, `app://` path resolution rejects traversal and files outside `dist/`, permission decision allows only `midi` for the app origin, navigation/window-open decisions, https-only external links) in `tests/electron/policy.test.ts`
-- [ ] T120 [P] [US4] Preload bridge test (exposed object matches contracts/electron-bridge.md v1.0.0, frozen, data only, plugin `notYetAvailable`) in `tests/electron/preload.test.ts`
-- [ ] T121 [P] [US4] Environment panel UI tests (browser vs desktop rendering, capability reasons, unknown bridge major version) in `tests/ui/environment-panel.test.ts`
-- [ ] T122 [P] [US4] End-to-end static-host test: build with `base: './'`, serve `dist/` under a sub-path, open a fixture and play (Chromium) in `tests/e2e/static-host.spec.ts`
-- [ ] T123 [P] [US4] Electron smoke test (Playwright `_electron`): window loads from `app://musicanyya/`, environment panel says desktop app, a fixture opens and renders, navigation to another origin is blocked, `window.musicanyyaShell` is frozen in `tests/e2e/electron-smoke.spec.ts`
+- [x] T119 [P] [US4] Electron policy unit tests for pure decision helpers (app-origin check, `app://` path resolution rejects traversal and files outside `dist/`, permission decision allows only `midi` for the app origin, navigation/window-open decisions, https-only external links) in `tests/electron/policy.test.ts`
+- [x] T120 [P] [US4] Preload bridge test (exposed object matches contracts/electron-bridge.md v1.0.0, frozen, data only, plugin `notYetAvailable`) in `tests/electron/preload.test.ts`
+- [x] T121 [P] [US4] Environment panel UI tests (browser vs desktop rendering, capability reasons, unknown bridge major version) in `tests/ui/environment-panel.test.ts`
+- [x] T122 [P] [US4] End-to-end static-host test: build with `base: './'`, serve `dist/` under a sub-path, open a fixture and play (Chromium) in `tests/e2e/static-host.spec.ts`
+- [x] T123 [P] [US4] Electron smoke test (Playwright `_electron`): window loads from `app://musicanyya/`, environment panel says desktop app, a fixture opens and renders, navigation to another origin is blocked, `window.musicanyyaShell` is frozen in `tests/e2e/electron-smoke.spec.ts`
 
 ### Implementation
 
-- [ ] T124 [US4] Implement `electron/policy.ts` (pure decision helpers) to pass T119
-- [ ] T125 [US4] Implement `electron/main.ts` (privileged `app://` scheme with `protocol.handle`, BrowserWindow secure webPreferences, permission handlers, navigation lock, single-instance lock, dev URL via `MUSICANYYA_DEV_URL`, no menu/devtools in production)
-- [ ] T126 [US4] Implement `electron/preload.ts` (contextBridge `musicanyyaShell` per contracts/electron-bridge.md) to pass T120
-- [ ] T127 [US4] Create `vite.electron.config.ts` (main ESM + preload CJS -> `dist-electron/`), `electron-builder.yml` (appId, Windows `dir` + unsigned `nsis`, files `dist/` + `dist-electron/`), and the `electron:dev` / `electron:build` scripts in `package.json`
-- [ ] T128 [US4] Implement `src/ui/elements/mx-environment-panel.ts` and `src/ui/state/environmentState.ts` (Shell, versions, capability list with reasons, plugin not yet available; features needing desktop/plugin hidden or explained) to pass T121
-- [ ] T129 [US4] Make T122 and T123 pass (integration fixes only) and verify `pnpm electron:build` produces `release/win-unpacked/Musicanyya.exe`
+- [x] T124 [US4] Implement `electron/policy.ts` (pure decision helpers) to pass T119
+- [x] T125 [US4] Implement `electron/main.ts` (privileged `app://` scheme with `protocol.handle`, BrowserWindow secure webPreferences, permission handlers, navigation lock, single-instance lock, dev URL via `MUSICANYYA_DEV_URL`, no menu/devtools in production)
+- [x] T126 [US4] Implement `electron/preload.ts` (contextBridge `musicanyyaShell` per contracts/electron-bridge.md) to pass T120
+- [x] T127 [US4] Create `vite.electron.config.ts` (main ESM + preload CJS -> `dist-electron/`), `electron-builder.yml` (appId, Windows `dir` + unsigned `nsis`, files `dist/` + `dist-electron/`), and the `electron:dev` / `electron:build` scripts in `package.json`
+- [x] T128 [US4] Implement `src/ui/elements/mx-environment-panel.ts` and `src/ui/state/environmentState.ts` (Shell, versions, capability list with reasons, plugin not yet available; features needing desktop/plugin hidden or explained) to pass T121
+- [x] T129 [US4] Make T122 and T123 pass (integration fixes only) and verify `pnpm electron:build` produces `release/win-unpacked/Musicanyya.exe`
 
 **Checkpoint**: US4 independent test passes (quickstart US4-1..5); full gate green; log; commit.
 

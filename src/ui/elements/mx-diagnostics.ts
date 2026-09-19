@@ -1,4 +1,3 @@
-import type { AudioDiagnostics, AudioEngine } from '../../engine/ports.js';
 import { en } from '../i18n/en.js';
 
 const REFRESH_MS = 1000;

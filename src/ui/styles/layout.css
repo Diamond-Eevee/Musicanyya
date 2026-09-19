@@ -91,3 +91,11 @@ mx-app {
   margin: 0;
   font-variant-numeric: tabular-nums;
 }
+
+mx-environment-panel {
+  display: block;
+}
+
+mx-environment-panel[hidden] {
+  display: none;
+}

@@ -1,17 +1,24 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { EVENT_KIND } from '../../../src/core/schedule/compile.js';
 import { createScorePlayerProcessor } from '../../../src/engine/worklets/score-player.processor.js';
 import { RecordingSynth } from '../../fakes/recording-synth.js';
-
-import { EVENT_KIND } from '../../../src/core/schedule/compile.js';
 
 describe('ScorePlayerAudioWorklet - Live Input', () => {
   function createLocalSynth() {
     return {
       events: [] as any[],
-      noteOn(channel: number, key: number, velocity: number) { this.events.push({ type: 'noteOn', channel, key, velocity, delayFrames: 0 }); },
-      noteOff(channel: number, key: number) { this.events.push({ type: 'noteOff', channel, key, delayFrames: 0 }); },
-      controllerChange(channel: number, controller: number, value: number) { this.events.push({ type: 'cc', channel, controller, value, delayFrames: 0 }); },
-      allNotesOff(channel: number) { this.events.push({ type: 'allNotesOff', channel, delayFrames: 0 }); },
+      noteOn(channel: number, key: number, velocity: number) {
+        this.events.push({ type: 'noteOn', channel, key, velocity, delayFrames: 0 });
+      },
+      noteOff(channel: number, key: number) {
+        this.events.push({ type: 'noteOff', channel, key, delayFrames: 0 });
+      },
+      controllerChange(channel: number, controller: number, value: number) {
+        this.events.push({ type: 'cc', channel, controller, value, delayFrames: 0 });
+      },
+      allNotesOff(channel: number) {
+        this.events.push({ type: 'allNotesOff', channel, delayFrames: 0 });
+      },
     };
   }
 

@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { WebMidiInput } from '../../../src/engine/midi/web-midi-input.js';
-import { FakeNavigator, FakeMidiInput } from '../../fakes/fake-midi-access.js';
 import type { MidiInputEvent } from '../../../src/engine/ports.js';
+import { FakeMidiInput, FakeNavigator } from '../../fakes/fake-midi-access.js';
 
 describe('WebMidiInput', () => {
   let fakeNav: FakeNavigator;
@@ -12,7 +12,7 @@ describe('WebMidiInput', () => {
     fakeNav = new FakeNavigator();
     events = [];
     midiInput = new WebMidiInput(fakeNav as any);
-    midiInput.on(ev => events.push(ev));
+    midiInput.on((ev) => events.push(ev));
   });
 
   it('reports availability states (notRequested, available, notSupported, denied)', async () => {
@@ -45,8 +45,8 @@ describe('WebMidiInput', () => {
 
     events.length = 0;
     input1.simulateMessage(new Uint8Array([0x90, 60, 100]), 1000); // Note On
-    input1.simulateMessage(new Uint8Array([0x80, 60, 0]), 1010);   // Note Off
-    input1.simulateMessage(new Uint8Array([0x90, 61, 0]), 1020);   // Note On with velocity 0 -> Note Off
+    input1.simulateMessage(new Uint8Array([0x80, 60, 0]), 1010); // Note Off
+    input1.simulateMessage(new Uint8Array([0x90, 61, 0]), 1020); // Note On with velocity 0 -> Note Off
 
     expect(events).toEqual([
       { type: 'noteOn', deviceId: 'i1', key: 60, velocity: 100, timeStampMs: 1000 },
@@ -62,10 +62,10 @@ describe('WebMidiInput', () => {
     await midiInput.request();
 
     events.length = 0;
-    input1.simulateMessage(new Uint8Array([0xB0, 64, 127]), 2000); // CC64 down
-    input1.simulateMessage(new Uint8Array([0xB0, 64, 0]), 2010);   // CC64 up
-    input1.simulateMessage(new Uint8Array([0xB0, 1, 64]), 2020);   // CC1 Mod wheel (ignore)
-    input1.simulateMessage(new Uint8Array([0xE0, 0, 64]), 2030);   // Pitch bend (ignore)
+    input1.simulateMessage(new Uint8Array([0xb0, 64, 127]), 2000); // CC64 down
+    input1.simulateMessage(new Uint8Array([0xb0, 64, 0]), 2010); // CC64 up
+    input1.simulateMessage(new Uint8Array([0xb0, 1, 64]), 2020); // CC1 Mod wheel (ignore)
+    input1.simulateMessage(new Uint8Array([0xe0, 0, 64]), 2030); // Pitch bend (ignore)
 
     expect(events).toEqual([
       { type: 'sustain', deviceId: 'i1', down: true, timeStampMs: 2000 },
@@ -81,12 +81,10 @@ describe('WebMidiInput', () => {
     const input1 = new FakeMidiInput('i1', 'Device 1', 'Mfg 1');
     fakeNav.fakeAccess.simulateDeviceConnect(input1);
 
-    expect(midiInput.devices()).toEqual([
-      { id: 'i1', name: 'Device 1', manufacturer: 'Mfg 1', connected: true }
-    ]);
+    expect(midiInput.devices()).toEqual([{ id: 'i1', name: 'Device 1', manufacturer: 'Mfg 1', connected: true }]);
     expect(events).toContainEqual({
       type: 'devices',
-      devices: [{ id: 'i1', name: 'Device 1', manufacturer: 'Mfg 1', connected: true }]
+      devices: [{ id: 'i1', name: 'Device 1', manufacturer: 'Mfg 1', connected: true }],
     });
 
     fakeNav.fakeAccess.simulateDeviceDisconnect('i1');
@@ -98,7 +96,7 @@ describe('WebMidiInput', () => {
     const input1 = new FakeMidiInput('i1', 'Device 1', 'Mfg 1');
     fakeNav.fakeAccess.inputs.add(input1);
     await midiInput.request();
-    
+
     input1.simulateMessage(new Uint8Array([0x90, 60, 100]));
     input1.simulateMessage(new Uint8Array([0x90, 64, 100]));
     events.length = 0;
@@ -107,7 +105,7 @@ describe('WebMidiInput', () => {
     expect(events).toContainEqual({
       type: 'deviceLost',
       deviceId: 'i1',
-      heldKeys: [60, 64]
+      heldKeys: [60, 64],
     });
   });
 

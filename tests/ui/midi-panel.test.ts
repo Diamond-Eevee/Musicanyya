@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import '../../src/ui/elements/mx-midi-panel.js';
 import '../../src/ui/elements/mx-piano-keys.js';
 import { midiState } from '../../src/ui/state/midiState.js';
@@ -28,7 +28,7 @@ describe('UI: MIDI Panel and Keyboard', () => {
     midiState.emit();
 
     expect(panel.shadowRoot?.textContent).toContain('Safari');
-    
+
     midiState.availability = 'denied';
     midiState.emit();
 

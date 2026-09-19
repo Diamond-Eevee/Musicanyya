@@ -2,6 +2,7 @@
   "name": "musicanyya",
   "version": "1.0.0",
   "type": "module",
+  "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -10,8 +11,8 @@
     "typecheck": "tsc --build tsconfig.json",
     "test": "vitest",
     "test:e2e": "playwright test",
-    "electron:dev": "vite build && electron .",
-    "electron:build": "vite build && electron-builder",
+    "electron:dev": "vite build && vite build -c vite.electron.config.ts && electron .",
+    "electron:build": "vite build && vite build -c vite.electron.config.ts && electron-builder",
     "gen:large-score": "tsx tests/tools/gen-large-score.ts"
   },
   "dependencies": {

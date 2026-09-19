@@ -1,6 +1,6 @@
 import { WebAudioEngine } from '../engine/audio/web-audio-engine.js';
-import { WebMidiInput } from '../engine/midi/web-midi-input.js';
 import { MAX_FILE_BYTES, ZOOM_STEP } from '../engine/config.js';
+import { WebMidiInput } from '../engine/midi/web-midi-input.js';
 import type { AudioEngineEvent, EngineSchedule, ScoreStore, SettingsStore } from '../engine/ports.js';
 import { IndexedDbScoreStore } from '../engine/storage/indexeddb-score-store.js';
 import { LocalSettingsStore } from '../engine/storage/local-settings-store.js';
@@ -18,12 +18,12 @@ import type { MxScoreView, TimelineDto } from '../ui/elements/mx-score-view.js';
 import { en } from '../ui/i18n/en.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
 import { initShortcuts } from '../ui/shortcuts.js';
+import { midiState } from '../ui/state/midiState.js';
 import { noticeState } from '../ui/state/noticeState.js';
 import type { LoadError, ScoreSummary } from '../ui/state/scoreState.js';
 import { scoreState } from '../ui/state/scoreState.js';
 import { transportState } from '../ui/state/transportState.js';
 import { viewState } from '../ui/state/viewState.js';
-import { midiState } from '../ui/state/midiState.js';
 
 interface ScoreWorkerLoaded {
   type: 'loaded';
@@ -200,7 +200,7 @@ export class Session {
         midiState.emit();
       } else if (e.type === 'deviceLost') {
         this.audioEngine.liveAllOff();
-        e.heldKeys.forEach(k => midiState.pressedKeys.delete(k));
+        e.heldKeys.forEach((k) => midiState.pressedKeys.delete(k));
         midiState.emit();
         noticeState.addNotice({ code: 'midiDeviceLost', severity: 'warning' });
       } else if (e.type === 'noteOn') {

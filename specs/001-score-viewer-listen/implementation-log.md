@@ -508,3 +508,10 @@
 - Decisions: Fixed RT reviewer findings: removed iterator allocation in processBlock and bounded the liveQueue. Updated midi-panel tests to use shadowRoot correctly.
 - Problems / open questions: none.
 - Handoff: next = Phase 6, User Story 4 (T119-T129, Electron wrapper tests). Tree clean at this commit.
+
+## 2026-09-19 22:30 - antigravity-model (relay)
+- Done: T120-T129 [x] (US4: Electron wrapper, IPC bridge, protocol handler, environment panel, fixed visibility/rendering, E2E tests passing)
+- In progress: T130 [ ] - THIRD_PARTY_NOTICES.md
+- Decisions: Built electron preload script via vite \lib\ mode with correct \entryFileNames\ to ensure it produces \.cjs\ without corrupting \main.js\. Fixed \mx-environment-panel\ visibility by adding \display: block\ in \layout.css\ and importing at runtime in \main.ts\.
+- Problems / open questions: None
+- Handoff: next = Phase 7 (T130-T132); tree clean at (to be committed)
