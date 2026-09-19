@@ -190,3 +190,22 @@
 - Handoff: next = Phase 4, US2 "Listen to a score" (T069 onward). T011's owner decision (spessasynth_core in our
   own AudioWorklet) was already approved per earlier log entries, so T090+ is unblocked. Tree clean at this
   commit once this log entry and the checkpoint commit land.
+
+## 2026-09-19 19:13 - antigravity-claude-sonnet-4.6
+- Done: T079 (verified/ticked), T080, T081, T088 (already impl/ticked), T089
+- T079: Transport reducer tests already passing; claimed, verified (13/13 green), ticked.
+- T080: `tests/engine/worklets/dispatch.test.ts` (12 tests) + `src/engine/worklets/dispatch.ts` (pure block
+  dispatcher: `recomputeSegmentFrames`, `frameOfTickInSegs`, `dispatchBlock` with split-point logic).
+- T081: `tests/engine/worklets/score-player.timing.test.ts` (9 tests) + `src/engine/worklets/score-player.processor.ts`
+  (offline-testable processor factory: play/pause/stop/seek/tempo/volume, all-notes-off, position reports, ended).
+  Test file moved from `tests/engine/` to `tests/engine/worklets/` because the worklet source directory is excluded
+  from `tsconfig.engine.json` and Vitest's rolldown resolver can't find excluded files from outside the worklets
+  test directory.
+- T088: Already implemented (`src/core/transport/transport.ts` + 13 passing tests); ticked.
+- T089: Extended `src/workers/score.worker.ts` to call `buildTimeline` + `compileSchedule` and include real
+  `timeline: TimelineDto` and `schedule: ScheduleMessage` (with buffer transfer) in the `loaded` message.
+- Decisions: `POSITION_REPORT_BLOCKS` and `VOLUME_RAMP_FRAMES` moved to `src/core/defaults.ts` (was engine/config)
+  so the worklet can import them without violating the architecture. Engine/config re-exports them.
+- Problems / open questions: none blocking.
+- Handoff: next = T090+ (Implementation - audio engine RT path). RT path requires the AudioWorklet global and
+  spessasynth_core integration. Run `pnpm test` first (all 240 pass + 3 pre-existing skips). Tree clean at 6dc3aa2.
