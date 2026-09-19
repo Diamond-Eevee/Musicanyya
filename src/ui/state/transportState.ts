@@ -67,9 +67,9 @@ class TransportStateStore {
   }
 
   /** Resets to a fresh Score's transport, keeping the user's tempo/volume/follow preferences (contracts,
-   * `transportReducer`'s 'newScore' action). */
+   * `transportReducer`'s 'newScore' action). Sound readiness is intentionally untouched: the SoundFont lives in
+   * the engine's sound bank, independent of which Score's schedule is loaded (mirrors session.ts). */
   newScore(): void {
-    this.soundReady = false;
     this.store.update((s) => transportReducer(s, { type: 'newScore' }));
     this.progressStore.set(null);
   }

@@ -184,7 +184,7 @@ follow the notation; change tempo and volume while playing (spec US2).
 - [x] T107 [US2] Implement `src/ui/score/highlight.ts`, `src/ui/score/cursor-overlay.ts` and follow scrolling in `src/ui/elements/mx-score-view.ts` (requestAnimationFrame loop reading `AudioEngine.audiblePosition`) to pass T099
 - [x] T108 [US2] Wire Listen mode in `src/app/session.ts` (unlock on first gesture, ensureSoundLoaded, load schedule on open, stop before opening a new Score, click-to-seek to first pass, end -> return to start, tempo/volume/follow persisted, audio device change -> pause + notice, instrument fallback and default-tempo notices)
 - [x] T109 [US2] Implement `src/ui/elements/mx-diagnostics.ts` (dropouts since play/total, method, sample rate, latencies, report rate; non-modal) (FR-031)
-- [ ] T110 [US2] Make the US2 end-to-end test T100 pass (integration fixes only)
+- [x] T110 [US2] Make the US2 end-to-end test T100 pass (integration fixes only)
 
 **Checkpoint**: US2 independent test passes (quickstart US2-1..14); full gate green; RT reviews recorded; log; commit.
 

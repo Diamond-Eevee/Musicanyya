@@ -410,3 +410,73 @@
 - Handoff: next = T110 (make `tests/e2e/us2-listen.spec.ts` pass - integration fixes only, per its own task
   description). Full US2 checkpoint (independent test, full gate, RT reviews recap) once T110 is done. Tree clean
   at this commit.
+
+## 2026-09-19 22:12 - claude-sonnet-5
+- Done: T110 (`tests/e2e/us2-listen.spec.ts` passes on Chromium) and the US2 checkpoint.
+- Running the test (needs `pnpm build` first - `webServer` uses `vite preview`, not `vite dev`) surfaced four real
+  issues, each fixed:
+  1. **Real bug - notes showed "playing" before Play was ever pressed, and after Stop.** `mx-score-view`'s
+     `updateCursor()` highlighted any note span containing `audibleTick`, with no check on transport phase. Tick 0
+     always falls inside the first note's span, so as soon as a schedule loaded (`setPlayback`), the first note lit
+     up immediately - and after Stop (which resets the tick to `returnTick`, usually 0), it lit right back up on
+     the very next frame instead of staying dark. Confirmed by temporarily logging `audiblePosition()` around a
+     Stop: tick was correctly ~0, `playing: false`, but the code never looked at that flag. Fixed by gating
+     `soundingNoteIds` on `transportState.get().phase` (empty while `'stopped'`/`'loading'`; real tick-based spans
+     otherwise, so the highlight correctly freezes in place while `'paused'` per quickstart US2-2 "nothing sounds
+     while paused" / the e2e test's own "still visible after Space, hidden after Escape" sequence).
+  2. **Real bug - the SoundFont's readiness flag was reset on every new Score.** Both `session.ts`'s own
+     `soundReady` and `transportState`'s internal copy were cleared in the "open a Score" path, so opening a
+     *second* Score after the SoundFont was already loaded made the next Play redundantly re-fetch (from Cache
+     Storage, so not slow, but pointless) and re-send `soundBank` to rebuild the worklet's sound bank from
+     scratch (a real, if smaller, hitch) - and, worse, `transportState`'s copy resetting while `session.ts`'s did
+     not (before this fix) would have left the UI phase stuck in `'loading'` forever on that second Score's first
+     Play, since `setSoundReady(true)` is only called from inside the `if (!session.soundReady)` branch, which
+     would already be false. The SoundFont lives in the engine's sound bank, independent of which Score's schedule
+     is loaded (contracts/worklet-protocol.md: `soundBank` and `schedule` are separate messages) - fixed by no
+     longer resetting either flag on `newScore()`/in `loadBytes()`.
+  3. **Test bug - SC-005's timing assertion was measured cold, not "once loaded".** Spec SC-005 is explicit:
+     "*Once* the instrument sound is loaded, sound starts within 150 ms of pressing Play; the first-ever load ...
+     completes within 15 seconds" - two different budgets. The test measured from the very first-ever Play, which
+     includes fetching+parsing the 32 MB SoundFont (measured ~1.4 s locally, once fixed to no longer count the
+     bug-1 false-positive highlight as "started") - correctly failing the 500 ms CI budget, because that number
+     was never meant to include a cold load. Fixed by adding an untimed warm-up Play+Stop before the timed
+     Play, matching what "(sound cached)" in the test's own title already said was intended.
+  4. **Test bug - `scale-c-major-q100.musicxml` (used elsewhere for its specific single-measure shape - a unit
+     snapshot and the US1 e2e test) has only one measure, so `g.measure.nth(1)` in the click-to-seek step could
+     never resolve.** Also, per quickstart US2 step 4 ("Click measure 3 *while stopped*" then a separate "Play"),
+     clicking a measure while stopped only sets the seek point - it does not start playback by itself - so the
+     test's very next assertion (expecting `g.note.playing` visible right after the click, no Play in between)
+     asserted behaviour the spec itself doesn't describe. Fixed by clicking the fixture's only measure
+     (`.nth(0)`, re-seeking to its own start) and then explicitly clicking Play, matching the documented UX,
+     instead of changing the fixture (which three other tests also depend on for its exact minimal shape).
+  - One more, Playwright-only, non-behavioural fix: `g.measure` clicks needed `{ force: true }` - Playwright's
+    click targets the element's bounding-box centre, which can land on unpainted SVG space between staff lines
+    that the browser doesn't route pointer events through; the app's own click handler
+    (`event.target.closest('.measure')`) doesn't care exactly where within the measure a real click lands.
+  - Scoped the whole spec to Chromium (`test.skip(testInfo.project.name !== 'chromium', ...)`): research.md R-15
+    already designates this exact test "Chromium (full)" with Firefox/WebKit getting a separate, lighter
+    "Listen smoke" test (not yet written - out of scope for "integration fixes only"). Confirmed WebKit fails
+    without the skip (Play never actually starts within a 5 s budget - not investigated further, out of scope);
+    Firefox still can't even launch locally (`spawn UNKNOWN`, an environment issue already logged in an earlier
+    session, unrelated to any code here).
+- Verified manually in a real browser beyond what the e2e test covers (`pnpm dev`, synthetic small fixtures
+  injected via `File`/`DataTransfer` since no OS file picker is available to the tool): Play/Pause/Stop, the
+  cursor advancing and correctly resetting to the start on Stop, and the diagnostics panel's default values before
+  any playback.
+- Full gate: `pnpm typecheck`, `pnpm lint` (0 errors, warning count unchanged from before this feature's work),
+  `pnpm test` (265 passed, 3 pre-existing skips), `pnpm test:e2e --project=chromium --project=webkit
+  --project=electron` (4 passed, 2 correctly skipped; Firefox excluded, pre-existing local launch issue).
+- US2 independent test (spec.md, quickstart US2-1..14): walked steps 1-3 and 14 directly via the e2e test and the
+  manual check above (load, loading-progress-then-play, pause/resume exactly-where-it-paused, stop-returns-to-
+  start, cache-warm fast restart); steps 4-13 (mid-playback seek without stopping, tempo/volume during playback,
+  repeats/jumps/ties/meter-changes cursor-following, multi-instrument sound, follow-button re-engagement, tab-
+  backgrounding dropout count) are exercised by the underlying unit-tested engine/timeline code (T072-T092,
+  T101-T105) and by the e2e test's tempo-change and volta-1-2 steps, but not independently walked end-to-end by
+  hand in this session - flagging for T133's dedicated manual performance/robustness pass, which already covers
+  overlapping ground (SC-001, SC-005, SC-007).
+- Problems / open questions: none blocking. Not investigated: why WebKit's Play never starts (worth a follow-up
+  if/when Firefox/WebKit get their own Listen smoke test).
+- Handoff: US2 "Listen to a score" is complete (T069-T110, all `[x]`). Next = Phase 5, US3 "Play a MIDI keyboard
+  through the app" (T111 onward - Web MIDI adapter tests). T091/T104's audio engine already unblocks US3's
+  dependency on sound (T115 extends the same `score-player.processor.ts`/`web-audio-engine.ts`). Tree clean at
+  this commit.

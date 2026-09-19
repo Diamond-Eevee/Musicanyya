@@ -198,9 +198,16 @@ export class MxScoreView extends HTMLElement {
     if (!position) return;
     const tick = position.audibleTick;
 
-    const soundingNoteIds = new Set(
-      timeline.spans.filter((span) => span.startTick <= tick && span.endTick > tick).map((span) => span.noteId),
-    );
+    // Tick 0 always falls inside the first note's span, so gate on the transport phase (not just the tick) -
+    // otherwise the first note would show as "sounding" as soon as a schedule loads, before Play is ever pressed,
+    // and would stay lit after Stop returns to the start. Paused keeps the highlight frozen where it paused.
+    const phase = transportState.get().phase;
+    const soundingNoteIds =
+      phase === 'stopped' || phase === 'loading'
+        ? new Set<string>()
+        : new Set(
+            timeline.spans.filter((span) => span.startTick <= tick && span.endTick > tick).map((span) => span.noteId),
+          );
     applyHighlights(this.stack, soundingNoteIds, this.soundingNoteIds);
     this.soundingNoteIds = soundingNoteIds;
 

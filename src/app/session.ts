@@ -270,7 +270,9 @@ export class Session {
 
     this.currentSchedule = response.schedule;
     this.currentTimeline = response.timeline;
-    this.soundReady = false;
+    // this.soundReady is intentionally not reset here: the SoundFont is loaded once into the worklet's sound
+    // bank, which is independent of which Score's schedule is currently loaded (contracts/worklet-protocol.md -
+    // "soundBank" and "schedule" are separate messages).
     transportState.newScore();
     if (this.engineUnlocked) {
       // Already unlocked from an earlier Score in this session: deliver immediately (contracts/worklet-protocol.md
