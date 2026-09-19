@@ -401,6 +401,13 @@ Extension `.musicxml` throughout. US3 and US4 need no MusicXML fixtures.
 - Performance spike (first engraving task): measure `loadData` + layout for the generated 500-measure Score in the
   worker. Budget <= 6 s (SC-001: 8 s total). If over budget, render the first pages first and lay out the rest in the
   background.
+  **Result** (`tests/verovio/perf.test.ts`, real WASM, `pageWidth: 1200, pageHeight: 1600, scale: 100` matching
+  `mx-score-view.ts`'s default page layout, reference dev machine): 500 measures / 4 parts -> 14 pages laid out in
+  ~230 ms, far under the 6 s budget. First-pages-first rendering is not needed for T061's scope; the lazy-mount logic
+  in `src/ui/score/pages.ts` already limits DOM/SVG insertion to +-1 screen regardless. (The test previously hung:
+  it posted the wrong message shape - `{type:'load', xml}` instead of `{type:'load', renderXml, options}` - and
+  checked for a `'loaded'` response that the Verovio worker never sends, only `'laidOut'`; fixed alongside the
+  T066 typecheck cleanup.)
 
 **Rationale**: ADR-0001 (book-quality engraving, SVG + canvas); exact Note ID mapping by construction.
 

@@ -1,4 +1,5 @@
-import type { XmlDocument, XmlElement, XmlNode, XmlText } from '@rgrove/parse-xml';
+import type { XmlDocument } from '@rgrove/parse-xml';
+import { XmlElement, XmlText } from '@rgrove/parse-xml';
 import {
   ACCENT_BOOST,
   BASE_PPQ,
@@ -44,7 +45,13 @@ class ReportBuilder {
         existing.measureLabels.push(measureLabel);
       }
     } else {
-      this.entries.push({ code, severity, measureLabels: [measureLabel], element, detail });
+      this.entries.push({
+        code,
+        severity,
+        measureLabels: [measureLabel],
+        ...(element !== undefined ? { element } : {}),
+        ...(detail !== undefined ? { detail } : {}),
+      });
     }
   }
 
@@ -54,14 +61,14 @@ class ReportBuilder {
 }
 
 function getChild(el: XmlElement, name: string): XmlElement | undefined {
-  return el.children.find((c): c is XmlElement => c.type === 'element' && c.name === name);
+  return el.children.find((c): c is XmlElement => c instanceof XmlElement && c.name === name);
 }
 function getChildren(el: XmlElement, name: string): XmlElement[] {
-  return el.children.filter((c): c is XmlElement => c.type === 'element' && c.name === name);
+  return el.children.filter((c): c is XmlElement => c instanceof XmlElement && c.name === name);
 }
 function getText(el: XmlElement | undefined): string {
   if (!el) return '';
-  const txt = el.children.find((c): c is XmlText => c.type === 'text');
+  const txt = el.children.find((c): c is XmlText => c instanceof XmlText);
   return txt ? txt.text.trim() : '';
 }
 function getAttr(el: XmlElement, name: string): string | undefined {
@@ -70,7 +77,7 @@ function getAttr(el: XmlElement, name: string): string | undefined {
 
 export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport } {
   const report = new ReportBuilder();
-  const root = doc.children.find((c): c is XmlElement => c.type === 'element');
+  const root = doc.children.find((c): c is XmlElement => c instanceof XmlElement);
   if (!root || root.name !== 'score-partwise') {
     throw new Error('notMusicXml: Expected score-partwise');
   }
@@ -82,7 +89,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
       if (!isNaN(d) && d > 0) divisions.push(d);
     }
     el.children.forEach((c) => {
-      if (c.type === 'element') gatherDivisions(c);
+      if (c instanceof XmlElement) gatherDivisions(c);
     });
   }
   gatherDivisions(root);
@@ -158,7 +165,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
             fallback,
           });
         }
-      } else if (midiInstruments.length > 0) {
+      } else if (midiInstruments.length > 0 && midiInstruments[0] !== undefined) {
         const mi = midiInstruments[0];
         const insId = getAttr(mi, 'id') || '';
         const programTxt = getText(getChild(mi, 'midi-program'));
@@ -348,6 +355,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
     for (let mi = 0; mi < measureNodes.length; mi++) {
       const measureNode = measureNodes[mi];
       currentMeasureIndex++;
+      if (!measureNode) continue;
       const measureLabel = getAttr(measureNode, 'number') || `${currentMeasureIndex}`;
 
       let measureStartCursor = cursor;
@@ -369,6 +377,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
       }
 
       const mInfo = score.measures[currentMeasureIndex];
+      if (!mInfo) continue;
       if (!firstPart) {
         cursor = mInfo.startTick;
         measureStartCursor = cursor;
@@ -380,7 +389,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
       const measureNotes: any[] = [];
 
       for (const el of measureNode.children) {
-        if (el.type !== 'element') continue;
+        if (!(el instanceof XmlElement)) continue;
         if (!supportedElements.has(el.name)) {
           report.add('info', 'unsupportedElement', measureLabel, el.name);
           report.skippedElementCount++;
@@ -421,8 +430,8 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
               measureIndex: currentMeasureIndex,
               onsetInMeasure: cursor - measureStartCursor,
               chromatic,
-              diatonic,
               octaveChange,
+              ...(diatonic !== undefined ? { diatonic } : {}),
             });
           }
         } else if (el.name === 'note') {
@@ -498,9 +507,9 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
               const dyn = getChild(not, 'dynamics');
               if (dyn) {
                 for (const ch of dyn.children) {
-                  if (ch.type === 'element' && DYNAMIC_VELOCITY[ch.name]) {
-                    velocityOverride = Math.round(0.9 * DYNAMIC_VELOCITY[ch.name]);
-                  }
+                  if (!(ch instanceof XmlElement)) continue;
+                  const velocity = DYNAMIC_VELOCITY[ch.name];
+                  if (velocity) velocityOverride = Math.round(0.9 * velocity);
                 }
               }
               const artic = getChild(not, 'articulations');
@@ -529,17 +538,19 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
             let grace = null;
             if (isGrace) {
               const gEl = getChild(el, 'grace');
-              grace = {
-                index: 0,
-                slash: getAttr(gEl, 'slash') === 'yes',
-                stealPrevious: getAttr(gEl, 'steal-time-previous')
-                  ? parseFloat(getAttr(gEl, 'steal-time-previous')!)
-                  : null,
-                stealFollowing: getAttr(gEl, 'steal-time-following')
-                  ? parseFloat(getAttr(gEl, 'steal-time-following')!)
-                  : null,
-                makeTime: getAttr(gEl, 'make-time') ? parseFloat(getAttr(gEl, 'make-time')!) : null,
-              };
+              if (gEl) {
+                grace = {
+                  index: 0,
+                  slash: getAttr(gEl, 'slash') === 'yes',
+                  stealPrevious: getAttr(gEl, 'steal-time-previous')
+                    ? parseFloat(getAttr(gEl, 'steal-time-previous')!)
+                    : null,
+                  stealFollowing: getAttr(gEl, 'steal-time-following')
+                    ? parseFloat(getAttr(gEl, 'steal-time-following')!)
+                    : null,
+                  makeTime: getAttr(gEl, 'make-time') ? parseFloat(getAttr(gEl, 'make-time')!) : null,
+                };
+              }
             }
 
             const onsetTicks = noteCursor - measureStartCursor;
@@ -654,7 +665,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
             const dynamics = getChild(dirType, 'dynamics');
             if (dynamics) {
               for (const d of dynamics.children) {
-                if (d.type === 'element' && DYNAMIC_VELOCITY[d.name]) {
+                if (d instanceof XmlElement && DYNAMIC_VELOCITY[d.name]) {
                   part.dynamics.push({
                     measureIndex: currentMeasureIndex,
                     onsetInMeasure,
@@ -719,7 +730,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           else beatsNum = parseInt(mInfo.time.beats, 10) || 4;
           nomLength = (beatsNum * ppq) / (mInfo.time.beatType / 4);
         } else if (currentMeasureIndex > 0) {
-          nomLength = score.measures[currentMeasureIndex - 1].nominalTicks;
+          nomLength = score.measures[currentMeasureIndex - 1]?.nominalTicks ?? 0;
         }
         mInfo.nominalTicks = Math.round(nomLength);
         mInfo.lengthTicks = measureMaxCursor - measureStartCursor;
@@ -779,7 +790,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           pitch: mn.note.unpitched ? `u${mn.note.writtenKey}` : mn.note.writtenKey,
           isGrace: mn.note.grace !== null,
           graceIndex: mn.note.grace?.index,
-          duplicateIndex,
+          ...(duplicateIndex !== undefined ? { duplicateIndex } : {}),
         });
 
         part.notes.push(mn.note);

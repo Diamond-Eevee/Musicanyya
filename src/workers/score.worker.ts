@@ -1,9 +1,9 @@
 import { buildScore } from '../core/musicxml/build.js';
 import { readXml } from '../core/musicxml/read.js';
 import { createRenderCopy } from '../core/musicxml/render-copy.js';
-import { decodeBytes } from '../engine/files/decode.js';
+import { decodeXml } from '../engine/files/decode.js';
 import { hashFile } from '../engine/files/hash.js';
-import { unpackMxl } from '../engine/files/mxl.js';
+import { readMxl } from '../engine/files/mxl.js';
 
 export async function handleMessage(event: MessageEvent, postMessageFn: typeof postMessage) {
   const data = event.data;
@@ -16,10 +16,10 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
 
     let fileBytes = new Uint8Array(bytes);
     if (fileName.toLowerCase().endsWith('.mxl')) {
-      fileBytes = await unpackMxl(fileBytes);
+      fileBytes = await readMxl(fileBytes);
     }
 
-    const xmlString = decodeBytes(fileBytes);
+    const xmlString = decodeXml(fileBytes);
     const parsed = readXml(xmlString);
     const scoreAndReport = buildScore(parsed.doc);
     const score = scoreAndReport.score;
@@ -38,9 +38,10 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
     const measuresInserts = [];
     for (let i = 0; i < score.measures.length; i++) {
       const startOffset = parsed.offsets.measures[i];
-      if (startOffset !== undefined) {
+      const measure = score.measures[i];
+      if (startOffset !== undefined && measure !== undefined) {
         const tagLength = xmlString.indexOf('>', startOffset) - startOffset + 1;
-        measuresInserts.push({ startOffset, tagLength, id: score.measures[i].id });
+        measuresInserts.push({ startOffset, tagLength, id: measure.id });
       }
     }
 
@@ -52,16 +53,19 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
     const summary = {
       title: score.title,
       composer: score.composer,
-      parts: score.parts.map((p) => ({
-        id: p.id,
-        name: p.name,
-        instrument: p.instrument,
-        program: p.program,
-        percussion: p.percussion,
-      })),
+      parts: score.parts.map((p) => {
+        const instrument = p.instruments[0];
+        return {
+          id: p.xmlId,
+          name: p.name,
+          instrument: instrument?.name ?? '',
+          program: instrument?.program ?? 0,
+          percussion: instrument?.percussion ?? false,
+        };
+      }),
       measureCount: score.measures.length,
       measureIds: score.measures.map((m) => m.id),
-      defaultTempoUsed: report.defaultTempoUsed,
+      defaultTempoUsed: score.defaultTempoUsed,
     };
 
     postMessageFn({

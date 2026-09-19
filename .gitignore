@@ -4,6 +4,7 @@ dist/
 coverage/
 .vite/
 *.tsbuildinfo
+dist-tsc/
 
 # Playwright
 playwright-report/

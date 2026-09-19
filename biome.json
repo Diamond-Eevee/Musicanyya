@@ -1,5 +1,19 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
+  "files": {
+    "includes": [
+      "**",
+      "!dist/**",
+      "!dist-electron/**",
+      "!dist-tsc/**",
+      "!coverage/**",
+      "!release/**",
+      "!out/**",
+      "!tests/.generated/**",
+      "!playwright-report/**",
+      "!test-results/**"
+    ]
+  },
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
@@ -9,7 +23,7 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "preset": "recommended"
     }
   },
   "javascript": {

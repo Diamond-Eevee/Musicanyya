@@ -36,29 +36,36 @@ export function buildNoteId(p: NoteIdParams): string {
   return id;
 }
 
+function requireSegment(parts: readonly string[], index: number): string {
+  const value = parts[index];
+  if (value === undefined) throw new Error(`Invalid Note/Measure id: missing segment ${index}`);
+  return value;
+}
+
 export function parseNoteId(id: string): NoteIdParams {
   const parts = id.split('-');
-  const part = parseInt(parts[1].substring(1), 10);
-  const staff = parseInt(parts[2].substring(1), 10);
-  const measure = parseInt(parts[3].substring(1), 10);
-  const voice = parts[4].substring(1);
+  const part = parseInt(requireSegment(parts, 1).substring(1), 10);
+  const staff = parseInt(requireSegment(parts, 2).substring(1), 10);
+  const measure = parseInt(requireSegment(parts, 3).substring(1), 10);
+  const voice = requireSegment(parts, 4).substring(1);
 
-  const onsetParts = parts[5].substring(1).split('_');
-  const num = parseInt(onsetParts[0], 10);
-  const den = onsetParts.length > 1 ? parseInt(onsetParts[1], 10) : 1;
+  const onsetParts = requireSegment(parts, 5).substring(1).split('_');
+  const num = parseInt(requireSegment(onsetParts, 0), 10);
+  const den = onsetParts.length > 1 ? parseInt(requireSegment(onsetParts, 1), 10) : 1;
 
-  const pitchStr = parts[6].substring(1);
+  const pitchStr = requireSegment(parts, 6).substring(1);
   const pitch = pitchStr.startsWith('u') ? pitchStr : parseInt(pitchStr, 10);
 
   const params: NoteIdParams = { part, staff, measure, voice, onset: { num, den }, pitch };
 
   if (parts.length > 7) {
     for (let i = 7; i < parts.length; i++) {
-      if (parts[i].startsWith('g')) {
+      const segment = requireSegment(parts, i);
+      if (segment.startsWith('g')) {
         params.isGrace = true;
-        params.graceIndex = parseInt(parts[i].substring(1), 10);
-      } else if (parts[i].startsWith('d')) {
-        params.duplicateIndex = parseInt(parts[i].substring(1), 10);
+        params.graceIndex = parseInt(segment.substring(1), 10);
+      } else if (segment.startsWith('d')) {
+        params.duplicateIndex = parseInt(segment.substring(1), 10);
       }
     }
   }
@@ -76,5 +83,5 @@ export function buildMeasureId(p: MeasureIdParams): string {
 
 export function parseMeasureId(id: string): MeasureIdParams {
   const parts = id.split('-');
-  return { index: parseInt(parts[1], 10) };
+  return { index: parseInt(requireSegment(parts, 1), 10) };
 }

@@ -47,8 +47,9 @@ export async function readMxl(bytes: Uint8Array): Promise<Uint8Array> {
     const containerData = await extractEntry(bytes, dv, containerEntry);
     const containerXml = new TextDecoder('utf-8').decode(containerData);
     const match = containerXml.match(/<rootfile\s+[^>]*full-path=["']([^"']+)["']/i);
-    if (match) {
-      rootFilePath = match[1];
+    const capturedPath = match?.[1];
+    if (capturedPath) {
+      rootFilePath = capturedPath;
     }
   } else {
     const fallback = entries.find((e) => e.name.endsWith('.xml') || e.name.endsWith('.musicxml'));
@@ -86,7 +87,8 @@ async function extractEntry(bytes: Uint8Array, dv: DataView, entry: any): Promis
   } else if (entry.method === 8) {
     const ds = new DecompressionStream('deflate-raw');
     const writer = ds.writable.getWriter();
-    writer.write(data).catch(() => {});
+    // .slice() guarantees a plain ArrayBuffer-backed view, as the stream writer requires.
+    writer.write(data.slice()).catch(() => {});
     writer.close().catch(() => {});
 
     const reader = ds.readable.getReader();

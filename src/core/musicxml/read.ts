@@ -35,7 +35,6 @@ export function readXml(xml: string): ReadXmlResult {
   let doc: XmlDocument;
   try {
     doc = parseXml(xml, {
-      preserveDocumentNode: true,
       includeOffsets: true,
     });
   } catch (err: unknown) {

@@ -34,14 +34,13 @@ class NoticeState {
     const existing = notices.find((n) => n.code === input.code && n.severity === input.severity);
     if (existing) {
       const updated = notices.map((n) => {
-        if (n === existing) {
-          const measureLabels = [...n.measureLabels];
-          if (input.measureLabel && !measureLabels.includes(input.measureLabel)) {
-            measureLabels.push(input.measureLabel);
-          }
-          return { ...n, count: n.count + 1, measureLabels, element: input.element || n.element };
+        if (n !== existing) return n;
+        const measureLabels = [...n.measureLabels];
+        if (input.measureLabel && !measureLabels.includes(input.measureLabel)) {
+          measureLabels.push(input.measureLabel);
         }
-        return n;
+        const element = input.element ?? n.element;
+        return { ...n, count: n.count + 1, measureLabels, ...(element !== undefined ? { element } : {}) };
       });
       this.store.set(updated);
       return existing.id;
@@ -53,7 +52,7 @@ class NoticeState {
         severity: input.severity,
         count: 1,
         measureLabels: input.measureLabel ? [input.measureLabel] : [],
-        element: input.element,
+        ...(input.element !== undefined ? { element: input.element } : {}),
       };
       this.store.set([...notices, notice]);
       return id;

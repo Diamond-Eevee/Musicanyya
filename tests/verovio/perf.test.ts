@@ -1,26 +1,40 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { handleMessage } from '../../src/workers/verovio.worker.js';
 import { it } from 'vitest';
+import { handleMessage } from '../../src/workers/verovio.worker.js';
+
+interface WorkerMessage {
+  requestId: number;
+  type: string;
+  pageCount?: number;
+  message?: string;
+}
+
+function post(messages: WorkerMessage[]) {
+  return (msg: WorkerMessage) => messages.push(msg);
+}
 
 it('measures performance', async () => {
-  const xml = fs.readFileSync(path.join(__dirname, '../fixtures/musicxml/large-score.musicxml'), 'utf8');
-  console.log('XML loaded, sending to verovio worker...');
-  
-  const start = performance.now();
+  const renderXml = fs.readFileSync(path.join(__dirname, '../fixtures/musicxml/large-score.musicxml'), 'utf8');
+  const messages: WorkerMessage[] = [];
 
-  await new Promise<void>(async (resolve) => {
-    await handleMessage({
-      data: { type: 'load', xml }
-    } as any, (msg) => {
-      if (msg.type === 'loaded') {
-        const end = performance.now();
-        console.log(`Loaded and laid out in ${end - start} ms`);
-        resolve();
-      } else if (msg.type === 'failed') {
-        console.error('Failed to load');
-        resolve();
-      }
-    });
-  });
+  await handleMessage({ data: { type: 'init', requestId: 1 } } as any, post(messages));
+
+  const start = performance.now();
+  await handleMessage(
+    {
+      data: {
+        type: 'load',
+        requestId: 2,
+        renderXml,
+        options: { pageWidth: 1200, pageHeight: 1600, scale: 100 }, // matches mx-score-view.ts's default page layout
+      },
+    } as any,
+    post(messages),
+  );
+  const elapsedMs = performance.now() - start;
+
+  const result = messages.find((m) => m.requestId === 2);
+  if (result?.type === 'error') throw new Error(`Verovio load failed: ${result.message}`);
+  console.log(`Loaded and laid out ${result?.pageCount ?? '?'} pages in ${elapsedMs.toFixed(0)} ms`);
 }, 30000);

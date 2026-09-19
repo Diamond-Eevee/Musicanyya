@@ -11,8 +11,9 @@ export function decodeXml(bytes: Uint8Array): string {
 
   let encoding = 'utf-8';
   const match = prefix.match(/<\?xml\s+.*encoding=['"]([^'"]+)['"]/i);
-  if (match) {
-    encoding = match[1];
+  const declared = match?.[1];
+  if (declared) {
+    encoding = declared;
   }
 
   return decodeWith(bytes, encoding);
