@@ -207,9 +207,9 @@ latency readout (spec US3).
 
 - [x] T114 [US3] Implement `src/engine/midi/web-midi-input.ts` (MidiInput port per contracts/ports.md) to pass T111
 - [x] T115 [US3] Complete live-input handling in `src/engine/worklets/score-player.processor.ts` and `WebAudioEngine.live*` in `src/engine/audio/web-audio-engine.ts` to pass T112
-- [ ] T116 [US3] RT review of T114-T115 (MIDI forwarding path, live messages, held-note release) with `rt-audio-reviewer`; fix blocking findings; log the verdict
-- [ ] T117 [US3] Implement `src/ui/elements/mx-piano-keys.ts`, `src/ui/elements/mx-midi-panel.ts` and `src/ui/state/midiState.ts` to pass T113
-- [ ] T118 [US3] Wire MIDI in `src/app/session.ts` (request on "Connect MIDI keyboard", forward to engine live input, deviceLost -> liveAllOff + notice, reconnect notice, latency events to the panel; everything else keeps working when MIDI is unavailable)
+- [x] T116 [US3] RT review of T114-T115 (MIDI forwarding path, live messages, held-note release) with `rt-audio-reviewer`; fix blocking findings; log the verdict
+- [x] T117 [US3] Implement `src/ui/elements/mx-piano-keys.ts`, `src/ui/elements/mx-midi-panel.ts` and `src/ui/state/midiState.ts` to pass T113
+- [x] T118 [US3] Wire MIDI in `src/app/session.ts` (request on "Connect MIDI keyboard", forward to engine live input, deviceLost -> liveAllOff + notice, reconnect notice, latency events to the panel; everything else keeps working when MIDI is unavailable)
 
 **Checkpoint**: US3 independent test passes (quickstart US3-1..6 with a real keyboard); full gate green; log; commit.
 

@@ -221,7 +221,9 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         break;
       }
       case 'live': {
-        liveQueue.push(msg);
+        if (liveQueue.length < 64) {
+          liveQueue.push(msg);
+        }
         break;
       }
     }
@@ -230,7 +232,9 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   function processBlock(blockSize: number): void {
     // Process live inputs immediately
     const LIVE_CHANNEL = 15;
-    for (const msg of liveQueue) {
+    const liveCount = liveQueue.length;
+    for (let i = 0; i < liveCount; i++) {
+      const msg = liveQueue[i];
       if (msg.kind === 'on') {
         synth.noteOn(LIVE_CHANNEL, msg.key as number, msg.velocity as number);
       } else if (msg.kind === 'off') {

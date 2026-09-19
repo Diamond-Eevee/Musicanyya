@@ -501,3 +501,10 @@
 - Decisions: Updated the test format in score-player.live.test.ts to use a local synth mock to correctly record objects and avoid mismatch with simple synth. Fixed test expectation in web-midi-input to correctly handle missing port.type in fakes.
 - Problems / open questions: none.
 - Handoff: next = T116 (RT review of T114-T115); tree clean at this commit.
+
+## 2026-09-19 23:45 - gemini-3.1-pro (relay)
+- Done: T116, T117, T118 (US3 MIDI wiring and UI, RT review).
+- In progress: none.
+- Decisions: Fixed RT reviewer findings: removed iterator allocation in processBlock and bounded the liveQueue. Updated midi-panel tests to use shadowRoot correctly.
+- Problems / open questions: none.
+- Handoff: next = Phase 6, User Story 4 (T119-T129, Electron wrapper tests). Tree clean at this commit.

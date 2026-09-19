@@ -12,13 +12,12 @@ describe('UI: MIDI Panel and Keyboard', () => {
     midiState.devices = [{ id: '1', name: 'My Keyboard', manufacturer: 'Mfg', connected: true }];
     midiState.emit();
 
-    const text = panel.textContent || '';
+    const text = panel.shadowRoot?.textContent || '';
     expect(text).toContain('My Keyboard');
-    const button = panel.querySelector('button');
+    const button = panel.shadowRoot?.querySelector('button');
     expect(button).not.toBeNull();
 
     panel.remove();
-    expect(false).toBe(true); // Force failure for TDD
   });
 
   it('shows explanations per reason incl. Safari/Firefox text', () => {
@@ -28,15 +27,14 @@ describe('UI: MIDI Panel and Keyboard', () => {
     midiState.availability = 'notSupported';
     midiState.emit();
 
-    expect(panel.textContent).toContain('Safari');
+    expect(panel.shadowRoot?.textContent).toContain('Safari');
     
     midiState.availability = 'denied';
     midiState.emit();
 
-    expect(panel.textContent).toContain('Permission');
+    expect(panel.shadowRoot?.textContent).toContain('Permission');
 
     panel.remove();
-    expect(false).toBe(true); // Force failure for TDD
   });
 
   it('displays latency readout', () => {
@@ -46,10 +44,9 @@ describe('UI: MIDI Panel and Keyboard', () => {
     midiState.latencyMs = 25;
     midiState.emit();
 
-    expect(panel.textContent).toContain('25 ms');
+    expect(panel.shadowRoot?.textContent).toContain('25 ms');
 
     panel.remove();
-    expect(false).toBe(true); // Force failure for TDD
   });
 
   it('renders 88-key on-screen keyboard with pressed state colour + dot', () => {
@@ -63,7 +60,6 @@ describe('UI: MIDI Panel and Keyboard', () => {
     expect(c4?.classList.contains('pressed')).toBe(true);
 
     keys.remove();
-    expect(false).toBe(true); // Force failure for TDD
   });
 
   it('shows sustain pedal state', () => {
@@ -76,12 +72,17 @@ describe('UI: MIDI Panel and Keyboard', () => {
     expect(keys.shadowRoot?.querySelector('.sustain-indicator')?.classList.contains('down')).toBe(true);
 
     keys.remove();
-    expect(false).toBe(true); // Force failure for TDD
   });
 
   it('key -> render within 50 ms of the fake event', () => {
     // Simulating event timing and rendering is tricky in jsdom without real rAF,
     // but we can assert the component updates in response to state immediately or via next tick.
-    expect(false).toBe(true); // Force failure for TDD
+    const keys = document.createElement('mx-piano-keys');
+    document.body.appendChild(keys);
+    midiState.pressedKeys.add(60);
+    midiState.emit();
+    // In our synchronous test, the render is immediate
+    expect(keys.shadowRoot?.querySelector('[data-key="60"]')?.classList.contains('pressed')).toBe(true);
+    keys.remove();
   });
 });

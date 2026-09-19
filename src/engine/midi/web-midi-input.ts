@@ -24,15 +24,15 @@ export class WebMidiInput implements MidiInput {
 
       this.midiAccess.onstatechange = (e: MIDIConnectionEvent) => {
         const port = e.port;
-        if (!port.type || port.type === 'input') {
-          this.emit({ type: 'devices', devices: this.devices() });
-          if (port.state === 'disconnected') {
-            const held = this.heldKeys.get(port.id) || new Set();
-            this.heldKeys.delete(port.id);
-            this.emit({ type: 'deviceLost', deviceId: port.id, heldKeys: Array.from(held) });
-          } else if (port.state === 'connected') {
-            (port as MIDIInput).onmidimessage = this.handleMidiMessage.bind(this, port.id);
-          }
+        if (port?.type !== 'input') return;
+
+        this.emit({ type: 'devices', devices: this.devices() });
+        if (port.state === 'disconnected') {
+          const held = this.heldKeys.get(port.id) || new Set();
+          this.heldKeys.delete(port.id);
+          this.emit({ type: 'deviceLost', deviceId: port.id, heldKeys: Array.from(held) });
+        } else if (port.state === 'connected') {
+          (port as MIDIInput).onmidimessage = this.handleMidiMessage.bind(this, port.id);
         }
       };
 
@@ -74,23 +74,29 @@ export class WebMidiInput implements MidiInput {
 
   private handleMidiMessage(deviceId: string, e: MIDIMessageEvent): void {
     const data = e.data;
-    if (!data || data.length < 1) return;
-    const status = data[0]! >> 4;
-    // const channel = data[0]! & 0x0f;
+    if (!data || data.length < 3) return;
+    const status = (data[0] as number) >> 4;
+    // const channel = (data[0] as number) & 0x0f;
 
-    if (status === 0x9 && data[2]! > 0) {
-      const key = data[1]!;
+    const b1 = data[1] as number;
+    const b2 = data[2] as number;
+
+    if (status === 0x9 && b2 > 0) {
+      const key = b1;
       let held = this.heldKeys.get(deviceId);
-      if (!held) { held = new Set(); this.heldKeys.set(deviceId, held); }
+      if (!held) {
+        held = new Set();
+        this.heldKeys.set(deviceId, held);
+      }
       held.add(key);
-      this.emit({ type: 'noteOn', deviceId, key, velocity: data[2]!, timeStampMs: e.timeStamp });
-    } else if (status === 0x8 || (status === 0x9 && data[2] === 0)) {
-      const key = data[1]!;
+      this.emit({ type: 'noteOn', deviceId, key, velocity: b2, timeStampMs: e.timeStamp });
+    } else if (status === 0x8 || (status === 0x9 && b2 === 0)) {
+      const key = b1;
       const held = this.heldKeys.get(deviceId);
       if (held) held.delete(key);
       this.emit({ type: 'noteOff', deviceId, key, timeStampMs: e.timeStamp });
-    } else if (status === 0xB && data[1] === 64) {
-      const down = data[2]! >= 64;
+    } else if (status === 0xb && b1 === 64) {
+      const down = b2 >= 64;
       this.emit({ type: 'sustain', deviceId, down, timeStampMs: e.timeStamp });
     }
   }

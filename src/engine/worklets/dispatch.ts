@@ -89,9 +89,9 @@ export function recomputeSegmentFrames(
   let curTick = startTick;
 
   for (let i = 0; i < nSegs; i++) {
-    const segTick = tempoTick[i]!;
-    const qpmNum = tempoQpmNum[i]!;
-    const qpmDen = tempoQpmDen[i]!;
+    const segTick = tempoTick[i] as number;
+    const qpmNum = tempoQpmNum[i] as number;
+    const qpmDen = tempoQpmDen[i] as number;
     const tpf = ticksPerFrame(qpmNum, qpmDen, schedule.ppq, sampleRate, tempoPercent);
 
     if (segTick <= startTick) {
@@ -104,7 +104,7 @@ export function recomputeSegmentFrames(
     } else {
       // This segment starts after our current position.
       // Compute the frame at which this tempo segment starts.
-      const prevSeg = segs[segs.length - 1]!;
+      const prevSeg = segs[segs.length - 1] as TempoSegmentFrame;
       const ticksToSeg = segTick - prevSeg.startTick;
       const framesToSeg = Math.ceil(ticksToSeg / prevSeg.ticksPerFrame);
       const segFrame = prevSeg.startFrame + framesToSeg;
@@ -120,9 +120,10 @@ export function recomputeSegmentFrames(
  * Finds the last segment that started at or before the tick.
  */
 export function frameOfTickInSegs(tick: number, segs: TempoSegmentFrame[]): number {
-  let seg = segs[0]!;
+  let seg = segs[0] as TempoSegmentFrame;
   for (let i = 1; i < segs.length; i++) {
-    if (segs[i]!.startTick <= tick) seg = segs[i]!;
+    const s = segs[i] as TempoSegmentFrame;
+    if (s.startTick <= tick) seg = s;
     else break;
   }
   const ticksIntoSeg = tick - seg.startTick;

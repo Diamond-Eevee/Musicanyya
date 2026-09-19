@@ -1,4 +1,5 @@
 import { WebAudioEngine } from '../engine/audio/web-audio-engine.js';
+import { WebMidiInput } from '../engine/midi/web-midi-input.js';
 import { MAX_FILE_BYTES, ZOOM_STEP } from '../engine/config.js';
 import type { AudioEngineEvent, EngineSchedule, ScoreStore, SettingsStore } from '../engine/ports.js';
 import { IndexedDbScoreStore } from '../engine/storage/indexeddb-score-store.js';
@@ -10,6 +11,8 @@ import '../ui/elements/mx-open-button.js';
 import '../ui/elements/mx-recent-list.js';
 import '../ui/elements/mx-score-view.js';
 import '../ui/elements/mx-transport.js';
+import '../ui/elements/mx-midi-panel.js';
+import '../ui/elements/mx-piano-keys.js';
 import type { LoadReport } from '../core/score/load-report.js';
 import type { MxScoreView, TimelineDto } from '../ui/elements/mx-score-view.js';
 import { en } from '../ui/i18n/en.js';
@@ -20,6 +23,7 @@ import type { LoadError, ScoreSummary } from '../ui/state/scoreState.js';
 import { scoreState } from '../ui/state/scoreState.js';
 import { transportState } from '../ui/state/transportState.js';
 import { viewState } from '../ui/state/viewState.js';
+import { midiState } from '../ui/state/midiState.js';
 
 interface ScoreWorkerLoaded {
   type: 'loaded';
@@ -77,6 +81,7 @@ export class Session {
   private currentSchedule: EngineSchedule | null = null;
   private currentTimeline: TimelineDto | null = null;
   private scheduleDelivered = false;
+  private readonly midiInput = new WebMidiInput();
 
   constructor(
     scoreStore: ScoreStore = new IndexedDbScoreStore(),
@@ -173,6 +178,55 @@ export class Session {
     document.getElementById('diagnostics-controls')?.appendChild(diagnosticsButton);
 
     document.addEventListener('keydown', (event) => this.onKeyDown(event));
+
+    // MIDI Wire-up
+    const midiPanel = document.createElement('mx-midi-panel');
+    document.getElementById('side-panel')?.prepend(midiPanel);
+
+    const pianoKeys = document.createElement('mx-piano-keys');
+    // Place piano keys at the bottom of the score area
+    document.getElementById('score-area')?.appendChild(pianoKeys);
+
+    midiPanel.addEventListener('request-midi', async () => {
+      await this.midiInput.request();
+    });
+
+    this.midiInput.on((e) => {
+      if (e.type === 'availability') {
+        midiState.availability = e.availability;
+        midiState.emit();
+      } else if (e.type === 'devices') {
+        midiState.devices = [...e.devices];
+        midiState.emit();
+      } else if (e.type === 'deviceLost') {
+        this.audioEngine.liveAllOff();
+        e.heldKeys.forEach(k => midiState.pressedKeys.delete(k));
+        midiState.emit();
+        noticeState.addNotice({ code: 'midiDeviceLost', severity: 'warning' });
+      } else if (e.type === 'noteOn') {
+        midiState.pressedKeys.add(e.key);
+        midiState.emit();
+        this.audioEngine.liveNoteOn(e.key, e.velocity);
+      } else if (e.type === 'noteOff') {
+        midiState.pressedKeys.delete(e.key);
+        midiState.emit();
+        this.audioEngine.liveNoteOff(e.key);
+      } else if (e.type === 'sustain') {
+        midiState.sustainDown = e.down;
+        midiState.emit();
+        this.audioEngine.liveSustain(e.down);
+      }
+    });
+
+    setInterval(() => {
+      if (this.engineUnlocked) {
+        const lat = this.audioEngine.latency();
+        if (lat.outputLatencyMs !== midiState.latencyMs) {
+          midiState.latencyMs = lat.outputLatencyMs !== null ? Math.round(lat.outputLatencyMs) : null;
+          midiState.emit();
+        }
+      }
+    }, 1000);
 
     await this.refreshRecent();
   }

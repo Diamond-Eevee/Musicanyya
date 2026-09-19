@@ -14,7 +14,7 @@ class MidiState {
   }
 
   emit() {
-    this.listeners.forEach(l => l());
+    for (const l of this.listeners) l();
   }
 }
 
