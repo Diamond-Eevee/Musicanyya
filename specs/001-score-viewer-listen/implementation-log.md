@@ -515,3 +515,10 @@
 - Decisions: Built electron preload script via vite \lib\ mode with correct \entryFileNames\ to ensure it produces \.cjs\ without corrupting \main.js\. Fixed \mx-environment-panel\ visibility by adding \display: block\ in \layout.css\ and importing at runtime in \main.ts\.
 - Problems / open questions: None
 - Handoff: next = Phase 7 (T130-T132); tree clean at (to be committed)
+
+## 2026-09-20 00:35 - antigravity-gemini-3.1-pro (relay)
+- Done: T130-T132 (Phase 7 Polish: THIRD_PARTY_NOTICES, docs/musicxml-support.md, README.md, AGENTS.md).
+- In progress: none.
+- Decisions: Re-formatted `src/core/musicxml/support.ts` to pass `pnpm lint`.
+- Problems / open questions: The next tasks (T133-T137) are manual verification/audits or final steps that need a human or a specific agent (`constitution-auditor`).
+- Handoff: next = T133-T137; tree clean at (to be committed).

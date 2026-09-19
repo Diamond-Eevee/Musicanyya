@@ -245,9 +245,9 @@ environment panel and run US1-US3 in both (spec US4).
 
 ## Phase 7: Polish & Cross-Cutting
 
-- [ ] T130 [P] Complete `THIRD_PARTY_NOTICES.md` (exact versions and licence texts) and check the built `dist/` contains the SoundFont licence file
-- [ ] T131 [P] Update `docs/musicxml-support.md` and the help page for everything implemented (repeats, jumps, ties, grace, dynamics, instruments, limitations: rit./accel., fermata, mid-measure jumps, middle-barline repeats)
-- [ ] T132 [P] Update `README.md` (what works, how to run, publish, desktop) and `AGENTS.md` section 8 commands to match the real scripts
+- [x] T130 [P] Complete `THIRD_PARTY_NOTICES.md` (exact versions and licence texts) and check the built `dist/` contains the SoundFont licence file
+- [x] T131 [P] Update `docs/musicxml-support.md` and the help page for everything implemented (repeats, jumps, ties, grace, dynamics, instruments, limitations: rit./accel., fermata, mid-measure jumps, middle-barline repeats)
+- [x] T132 [P] Update `README.md` (what works, how to run, publish, desktop) and `AGENTS.md` section 8 commands to match the real scripts
 - [ ] T133 Performance checks on the reference machine: SC-001 (200/500 measures), SC-005 (Play -> sound, first SoundFont load at 25 Mbit/s), SC-007 (10-minute Score, 0 dropouts while scrolling/zooming), long-task check (no main-thread task > 50 ms during playback); record results in `specs/001-score-viewer-listen/implementation-log.md`
 - [ ] T134 Accessibility and feedback check: colour + shape for sounding notes and cursor with a colour-blindness simulator, keyboard-only use of open/transport/panels, nothing modal during playback
 - [ ] T135 Run `quickstart.md` manual verification end to end (web in Chrome/Edge/Firefox/Safari, desktop app) and fix findings

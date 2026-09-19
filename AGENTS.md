@@ -131,4 +131,4 @@ create; rewriting history; pushing.
 | VIII | Web first; Web APIs before libraries; every runtime dependency justified |
 
 **Full quality gate** (every checkpoint, before merge): `pnpm lint`, `pnpm typecheck`, `pnpm test`, and
-`pnpm test:e2e` once end-to-end tests exist. Tests never need a MIDI keyboard or audio hardware.
+`pnpm test:e2e`. Tests never need a MIDI keyboard or audio hardware.
