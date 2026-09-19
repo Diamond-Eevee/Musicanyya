@@ -80,3 +80,10 @@
 - Decisions: Created base Web Components architecture and CSS layout.
 - Problems / open questions: none.
 - Handoff: next = T030-T033 (Phase 3 Fixtures); tree clean at this commit.
+
+## 2026-09-19 15:43 - antigravity-gemini-3.1-pro (relay)
+- Done: T030-T033 (US1 Fixtures: basic, grace/rests, id/errors, gen script).
+- In progress: none.
+- Decisions: Generated all 29 CC0 fixtures using a custom node script to cover edge cases exactly as requested. Generated large-score.musicxml.
+- Problems / open questions: none.
+- Handoff: next = T034-T049 (Phase 3 Tests); tree clean at this commit.

@@ -69,10 +69,10 @@ the app keeps working; reload and reopen from the recent list (spec US1).
 
 ### Fixtures (music-domain-expert role; hand-written, CC0, one behaviour each, listed in the README)
 
-- [ ] T030 [P] [US1] Basic + time-model fixtures in `tests/fixtures/musicxml/`: `minimal-single-note`, `scale-c-major-q100`, `divisions-change-mid-part`, `backup-forward-two-voices`, `chord-basic`, `grand-staff-two-voices-per-staff`, `tuplet-triplet-eighths`, `fractional-duration` (research R-8.9)
-- [ ] T031 [P] [US1] Grace/cue + rest/measure fixtures: `grace-acciaccatura`, `grace-group-at-start`, `grace-after-note-end-of-measure`, `cue-notes-not-played`, `whole-measure-rest`, `multi-measure-rest`, `measure-repeat`, `pickup-implicit`, `measure-overfull`, `measure-underfull`, `measure-numbers-duplicate-nonnumeric` in `tests/fixtures/musicxml/`
-- [ ] T032 [P] [US1] Id, fingering, notice, text and rejected fixtures: `duplicate-notes-disambiguator`, `verovio-id-roundtrip`, `fingering-substitution-alternate`, `unsupported-elements-notice`, `non-ascii-Łódź-日本`, `malformed-not-xml`, `malformed-truncated`, `malformed-timewise`, `malformed-external-entity`, `encoding-utf16` in `tests/fixtures/musicxml/`
-- [ ] T033 [P] [US1] Large-Score generator `tests/tools/gen-large-score.ts` (N measures, 4 parts, repeats) wired to `pnpm gen:large-score`
+- [x] T030 [P] [US1] Basic + time-model fixtures in `tests/fixtures/musicxml/`: `minimal-single-note`, `scale-c-major-q100`, `divisions-change-mid-part`, `backup-forward-two-voices`, `chord-basic`, `grand-staff-two-voices-per-staff`, `tuplet-triplet-eighths`, `fractional-duration` (research R-8.9)
+- [x] T031 [P] [US1] Grace/cue + rest/measure fixtures: `grace-acciaccatura`, `grace-group-at-start`, `grace-after-note-end-of-measure`, `cue-notes-not-played`, `whole-measure-rest`, `multi-measure-rest`, `measure-repeat`, `pickup-implicit`, `measure-overfull`, `measure-underfull`, `measure-numbers-duplicate-nonnumeric` in `tests/fixtures/musicxml/`
+- [x] T032 [P] [US1] Id, fingering, notice, text and rejected fixtures: `duplicate-notes-disambiguator`, `verovio-id-roundtrip`, `fingering-substitution-alternate`, `unsupported-elements-notice`, `non-ascii-Łódź-日本`, `malformed-not-xml`, `malformed-truncated`, `malformed-timewise`, `malformed-external-entity`, `encoding-utf16` in `tests/fixtures/musicxml/`
+- [x] T033 [P] [US1] Large-Score generator `tests/tools/gen-large-score.ts` (N measures, 4 parts, repeats) wired to `pnpm gen:large-score`
 
 ### Tests (write first, confirm they fail)
 
