@@ -31,3 +31,35 @@
 | malformed-timewise | score-timewise root | Hand-written | CC0 |
 | malformed-external-entity | XXE attempt | Hand-written | CC0 |
 | encoding-utf16 | UTF-16LE encoding | Hand-written | CC0 |
+| tempo-none-default | No tempo anywhere; the default 100 qpm applies | Hand-written | CC0 |
+| tempo-sound-vs-metronome | Both sound tempo and metronome present; sound wins | Hand-written | CC0 |
+| tempo-dotted-beat-unit | Metronome with a dotted beat-unit | Hand-written | CC0 |
+| tempo-change-mid-measure-offset | Tempo direction mid-measure shifted by offset sound="yes" | Hand-written | CC0 |
+| meter-change | Time signature changes mid-piece | Hand-written | CC0 |
+| repeat-simple | One forward+backward repeat pair | Hand-written | CC0 |
+| repeat-implicit-start | Backward repeat with no forward repeat; implicit start at measure 1 | Hand-written | CC0 |
+| repeat-times-3 | times="3" on the backward repeat | Hand-written | CC0 |
+| repeat-unbalanced-backward | Two backward repeats with only one forward repeat | Hand-written | CC0 |
+| volta-1-2 | First and second ending (number="1" then "2") | Hand-written | CC0 |
+| volta-combined-numbers | One ending covering both endings at once (number="1,2") | Hand-written | CC0 |
+| volta-discontinue | Ending with type="discontinue", no closing backward repeat | Hand-written | CC0 |
+| dc-al-fine | D.C. al Fine via sound dacapo/fine and matching words | Hand-written | CC0 |
+| ds-al-coda | D.S. al Coda via sound dalsegno/segno/tocoda/coda targets | Hand-written | CC0 |
+| dc-after-jump-repeats | Repeat retaken after D.C. only when after-jump="yes" | Hand-written | CC0 |
+| jump-text-only | Words-only jump markings with no sound element (text inference) | Hand-written | CC0 |
+| jump-time-only | Jump usable only on a specific pass via time-only | Hand-written | CC0 |
+| jump-loop-malformed | Oversized repeat times and a missing dalsegno target exercise the loop guard | Hand-written | CC0 |
+| tie-across-barline | Note tied over a barline | Hand-written | CC0 |
+| tie-chain-three | Three notes tied in a chain | Hand-written | CC0 |
+| tie-chord-partial | Chord where only some notes are tied, others re-attack | Hand-written | CC0 |
+| tie-into-volta | Tie whose stop is inside a second ending | Hand-written | CC0 |
+| tie-broken | Unmatched tie start with no matching stop | Hand-written | CC0 |
+| tied-without-tie | tied notation present but no tie element (display-only) | Hand-written | CC0 |
+| dynamics-marks | Several dynamics marks (mf, f, pp) on different notes | Hand-written | CC0 |
+| dynamics-sound-override | sound dynamics="%" overriding the dynamics mark | Hand-written | CC0 |
+| wedge-crescendo | wedge crescendo...stop spanning several notes | Hand-written | CC0 |
+| instruments-two-parts | Two parts, each with its own score-instrument/midi-instrument | Hand-written | CC0 |
+| instrument-missing-fallback | Note references an instrument with no matching midi-instrument; falls back to piano | Hand-written | CC0 |
+| percussion-unpitched | Unpitched percussion part using unpitched and midi-unpitched | Hand-written | CC0 |
+| transpose-bb-clarinet | Bb clarinet part with transpose chromatic=-2 | Hand-written | CC0 |
+| octave-shift-8va | octave-shift up 8; display only, does not change sounding pitch | Hand-written | CC0 |

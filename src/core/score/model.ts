@@ -105,6 +105,7 @@ export interface RepeatMark {
   measureIndex: number;
   direction: 'forward' | 'backward';
   times?: number;
+  afterJump?: boolean;
 }
 export interface EndingMark {
   measureIndex: number;
@@ -114,11 +115,14 @@ export interface EndingMark {
 export interface JumpTarget {
   measureIndex: number;
   type: 'segno' | 'coda' | 'fine';
+  name?: string;
 }
 export interface Jump {
   measureIndex: number;
   type: 'da-capo' | 'dal-segno' | 'to-coda';
   al?: 'fine' | 'coda';
+  name?: string;
+  timeOnly?: number[];
 }
 export interface DynamicMark {
   measureIndex: number;

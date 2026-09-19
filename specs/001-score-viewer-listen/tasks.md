@@ -128,13 +128,13 @@ follow the notation; change tempo and volume while playing (spec US2).
 
 ### Fixtures (music-domain-expert role)
 
-- [ ] T069 [P] [US2] Tempo/meter + repeat + ending fixtures: `tempo-none-default`, `tempo-sound-vs-metronome`, `tempo-dotted-beat-unit`, `tempo-change-mid-measure-offset`, `meter-change`, `repeat-simple`, `repeat-implicit-start`, `repeat-times-3`, `repeat-unbalanced-backward`, `volta-1-2`, `volta-combined-numbers`, `volta-discontinue` in `tests/fixtures/musicxml/`
-- [ ] T070 [P] [US2] Jump + tie fixtures: `dc-al-fine`, `ds-al-coda`, `dc-after-jump-repeats`, `jump-text-only`, `jump-time-only`, `jump-loop-malformed`, `tie-across-barline`, `tie-chain-three`, `tie-chord-partial`, `tie-into-volta`, `tie-broken`, `tied-without-tie` in `tests/fixtures/musicxml/`
-- [ ] T071 [P] [US2] Dynamics + instrument fixtures: `dynamics-marks`, `dynamics-sound-override`, `wedge-crescendo`, `instruments-two-parts`, `instrument-missing-fallback`, `percussion-unpitched`, `transpose-bb-clarinet`, `octave-shift-8va` in `tests/fixtures/musicxml/`
+- [x] T069 [P] [US2] Tempo/meter + repeat + ending fixtures: `tempo-none-default`, `tempo-sound-vs-metronome`, `tempo-dotted-beat-unit`, `tempo-change-mid-measure-offset`, `meter-change`, `repeat-simple`, `repeat-implicit-start`, `repeat-times-3`, `repeat-unbalanced-backward`, `volta-1-2`, `volta-combined-numbers`, `volta-discontinue` in `tests/fixtures/musicxml/`
+- [x] T070 [P] [US2] Jump + tie fixtures: `dc-al-fine`, `ds-al-coda`, `dc-after-jump-repeats`, `jump-text-only`, `jump-time-only`, `jump-loop-malformed`, `tie-across-barline`, `tie-chain-three`, `tie-chord-partial`, `tie-into-volta`, `tie-broken`, `tied-without-tie` in `tests/fixtures/musicxml/`
+- [x] T071 [P] [US2] Dynamics + instrument fixtures: `dynamics-marks`, `dynamics-sound-override`, `wedge-crescendo`, `instruments-two-parts`, `instrument-missing-fallback`, `percussion-unpitched`, `transpose-bb-clarinet`, `octave-shift-8va` in `tests/fixtures/musicxml/`
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T072 [P] [US2] Unrolling tests with snapshots of MeasurePass lists (repeats, times, unbalanced, endings incl. combined/discontinue, D.C./D.S./To Coda/Fine, after-jump, time-only, text inference whitelist, loop guard fallback, first-pass seek rule) in `tests/core/timeline/unroll.test.ts`
+- [x] T072 [P] [US2] Unrolling tests with snapshots of MeasurePass lists (repeats, times, unbalanced, endings incl. combined/discontinue, D.C./D.S./To Coda/Fine, after-jump, time-only, text inference whitelist, loop guard fallback, first-pass seek rule) in `tests/core/timeline/unroll.test.ts`
 - [ ] T073 [P] [US2] Tie resolution tests on the unrolled order (barline, chains, into both voltas, partial chords, broken start/stop, `<tied>`-only, let-ring) in `tests/core/timeline/ties.test.ts`
 - [ ] T074 [P] [US2] Grace timing tests after unrolling (steal from previous, cap ratio, min remaining, steal-time-following, lead-in at start) in `tests/core/timeline/grace.test.ts`
 - [ ] T075 [P] [US2] Tempo map tests (sound tempo vs metronome precedence, dotted beat units, ranges, offset with sound="yes", default 100 qpm, merge across parts, notated-order state at jump targets) in `tests/core/tempo/tempo-map.test.ts`
@@ -147,7 +147,7 @@ follow the notation; change tempo and volume while playing (spec US2).
 
 ### Implementation - core
 
-- [ ] T082 [US2] Implement `src/core/timeline/unroll.ts` to pass T072
+- [x] T082 [US2] Implement `src/core/timeline/unroll.ts` to pass T072
 - [ ] T083 [US2] Implement `src/core/tempo/tempo-map.ts` to pass T075
 - [ ] T084 [P] [US2] Implement `src/core/timeline/dynamics.ts` to pass T076
 - [ ] T085 [P] [US2] Implement `src/core/timeline/instruments.ts` to pass T077

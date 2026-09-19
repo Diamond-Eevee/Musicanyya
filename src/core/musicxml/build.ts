@@ -682,20 +682,54 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
                 type: getAttr(wedge, 'type') as any,
               });
             }
+            if (firstPart) {
+              const visualSegno = getChild(dirType, 'segno');
+              if (visualSegno && !(sound && getAttr(sound, 'segno'))) {
+                score.navigation.targets.push({ measureIndex: currentMeasureIndex, type: 'segno' });
+              }
+              const visualCoda = getChild(dirType, 'coda');
+              if (visualCoda && !(sound && getAttr(sound, 'coda'))) {
+                score.navigation.targets.push({ measureIndex: currentMeasureIndex, type: 'coda' });
+              }
+            }
           }
           if (sound) {
+            const timeOnlyAttr = getAttr(sound, 'time-only');
+            const timeOnly = timeOnlyAttr
+              ? timeOnlyAttr
+                  .split(',')
+                  .map((n) => parseInt(n.trim(), 10))
+                  .filter((n) => !isNaN(n))
+              : undefined;
             const dacapo = getAttr(sound, 'dacapo');
-            if (dacapo) score.navigation.jumps.push({ measureIndex: currentMeasureIndex, type: 'da-capo' });
+            if (dacapo)
+              score.navigation.jumps.push({
+                measureIndex: currentMeasureIndex,
+                type: 'da-capo',
+                ...(timeOnly ? { timeOnly } : {}),
+              });
             const dalsegno = getAttr(sound, 'dalsegno');
-            if (dalsegno) score.navigation.jumps.push({ measureIndex: currentMeasureIndex, type: 'dal-segno' });
+            if (dalsegno)
+              score.navigation.jumps.push({
+                measureIndex: currentMeasureIndex,
+                type: 'dal-segno',
+                name: dalsegno,
+                ...(timeOnly ? { timeOnly } : {}),
+              });
             const tocoda = getAttr(sound, 'tocoda');
-            if (tocoda) score.navigation.jumps.push({ measureIndex: currentMeasureIndex, type: 'to-coda' });
+            if (tocoda)
+              score.navigation.jumps.push({
+                measureIndex: currentMeasureIndex,
+                type: 'to-coda',
+                name: tocoda,
+                ...(timeOnly ? { timeOnly } : {}),
+              });
             const fine = getAttr(sound, 'fine');
             if (fine) score.navigation.targets.push({ measureIndex: currentMeasureIndex, type: 'fine' });
             const segno = getAttr(sound, 'segno');
-            if (segno) score.navigation.targets.push({ measureIndex: currentMeasureIndex, type: 'segno' });
+            if (segno) score.navigation.targets.push({ measureIndex: currentMeasureIndex, type: 'segno', name: segno });
             const coda = getAttr(sound, 'coda');
-            if (coda) score.navigation.targets.push({ measureIndex: currentMeasureIndex, type: 'coda' });
+            if (coda) score.navigation.targets.push({ measureIndex: currentMeasureIndex, type: 'coda', name: coda });
           }
         } else if (el.name === 'barline') {
           const repeat = getChild(el, 'repeat');
@@ -704,7 +738,13 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
             let times = 2;
             const timesAttr = getAttr(repeat, 'times');
             if (timesAttr) times = parseInt(timesAttr, 10) || 2;
-            score.navigation.repeats.push({ measureIndex: currentMeasureIndex, direction: dir, times });
+            const afterJump = getAttr(repeat, 'after-jump') === 'yes';
+            score.navigation.repeats.push({
+              measureIndex: currentMeasureIndex,
+              direction: dir,
+              times,
+              ...(afterJump ? { afterJump: true } : {}),
+            });
           }
           const ending = getChild(el, 'ending');
           if (ending) {
