@@ -57,7 +57,7 @@ function Get-FeatureState([string]$dir) {
                 if ($state -eq 'x' -or $state -eq 'X') { $done++; continue }
                 if ($state -eq '~') { $inProgress += $l.Trim() }
                 elseif ($next.Count -lt 3) { $next += $l.Trim() }
-                if ($l -match 'Owner decision gate') { $ownerGates += $id }
+                if ($l -match 'Owner decision gate' -and $l -notmatch 'owner approved|owner rejected') { $ownerGates += $id }
             }
         }
         if ($inProgress.Count -gt 0) { $resume = $inProgress[0] }
