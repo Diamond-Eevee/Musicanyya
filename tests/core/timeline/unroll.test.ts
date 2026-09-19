@@ -248,6 +248,14 @@ describe('unroll', () => {
     expect(result.notices.some((n) => n.code === 'jumpTargetMissing')).toBe(true);
   });
 
+  it('gives each pass a cumulative startTick in the unrolled timeline, not the notated one', () => {
+    const nav = emptyNav();
+    nav.repeats.push({ measureIndex: 0, direction: 'forward' });
+    nav.repeats.push({ measureIndex: 1, direction: 'backward', times: 2 });
+    const result = unroll(measures(3, 960), nav);
+    expect(result.passes.map((p) => p.startTick)).toEqual([0, 960, 1920, 2880, 3840]);
+  });
+
   it('firstPassOf resolves the first pass of a measure for click-to-seek', () => {
     const nav = emptyNav();
     nav.repeats.push({ measureIndex: 0, direction: 'forward' });

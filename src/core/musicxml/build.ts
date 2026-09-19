@@ -265,6 +265,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
     'cue',
     'direction',
     'direction-type',
+    'offset',
     'sound',
     'tempo',
     'metronome',
@@ -611,9 +612,20 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           const onsetInMeasure = cursor - measureStartCursor;
           const dirType = getChild(el, 'direction-type');
           const sound = getChild(el, 'sound');
+          const offsetEl = getChild(el, 'offset');
+          let tempoOnsetInMeasure = onsetInMeasure;
+          if (offsetEl && getAttr(offsetEl, 'sound') === 'yes') {
+            const offsetTxt = getText(offsetEl);
+            if (offsetTxt) {
+              const offsetTicks = Math.round(parseFloat(offsetTxt) * (ppq / currentDivisions));
+              tempoOnsetInMeasure = Math.max(0, onsetInMeasure + offsetTicks);
+              if (onsetInMeasure + offsetTicks < 0) {
+                report.add('warning', 'cursorClamped', measureLabel, 'offset');
+              }
+            }
+          }
 
           if (dirType) {
-            const tempo = getChild(dirType, 'tempo');
             const metronome = getChild(dirType, 'metronome');
             let qpm = 0;
             if (sound && getAttr(sound, 'tempo')) {
@@ -635,7 +647,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
             if (qpm > 0) {
               score.tempoMarks.push({
                 measureIndex: currentMeasureIndex,
-                onsetInMeasure,
+                onsetInMeasure: tempoOnsetInMeasure,
                 qpmNum: Math.round(qpm * 100),
                 qpmDen: 100,
               });

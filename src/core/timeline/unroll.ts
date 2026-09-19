@@ -141,6 +141,7 @@ export function unroll(measures: MeasureInfo[], navigation: NavigationMarks): Un
 
   let pc = 0;
   let guardHit = false;
+  let unrolledCursor = 0;
 
   while (pc < measureCount) {
     if (passes.length >= maxUnrolled) {
@@ -186,7 +187,8 @@ export function unroll(measures: MeasureInfo[], navigation: NavigationMarks): Un
     const passNo = (passCountByTarget.get(target0) ?? 0) + 1;
     const mInfo = measures[pc];
     if (!mInfo) break;
-    passes.push({ measureIndex: pc, passNo, startTick: mInfo.startTick, lengthTicks: mInfo.lengthTicks });
+    passes.push({ measureIndex: pc, passNo, startTick: unrolledCursor, lengthTicks: mInfo.lengthTicks });
+    unrolledCursor += mInfo.lengthTicks;
 
     // The final member of an ending group closes its enclosing repeat cycle immediately: the
     // group's earlier (non-final) members may hold the actual backward-repeat barline, but once

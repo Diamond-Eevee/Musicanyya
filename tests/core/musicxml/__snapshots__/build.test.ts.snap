@@ -6331,7 +6331,7 @@ exports[`buildScore snapshots > builds time-model for tempo-change-mid-measure-o
     "tempoMarks": [
       {
         "measureIndex": 0,
-        "onsetInMeasure": 960,
+        "onsetInMeasure": 2880,
         "qpmDen": 100,
         "qpmNum": 14000,
       },
