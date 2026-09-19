@@ -46,13 +46,13 @@
 - [x] T018 [P] Implement `src/core/ticks.ts` (Ticks, gcd/lcm, rational helpers, PPQ computation) to pass T012
 - [x] T019 [P] Implement `src/core/pitch.ts` to pass T013
 - [x] T020 [P] Implement `src/core/tempo/rate.ts` (shared with the worklet: `ticksPerFrame`, `tickAtFrame`, `frameOfTick` rounded up) to pass T014
-- [ ] T021 [P] Create named constants `src/core/defaults.ts` and `src/engine/config.ts` (data-model §10)
-- [ ] T022 [P] Create port types `src/engine/ports.ts` exactly as contracts/ports.md v1.0.0
-- [ ] T023 [P] Create fakes `tests/fakes/fake-clock.ts`, `tests/fakes/fake-midi-access.ts` (inputs, hot-plug, permission states), `tests/fakes/fake-shell-bridge.ts`
-- [ ] T024 [P] Create fakes `tests/fakes/fake-audio-engine.ts` (implements `AudioEngine`, records commands, emits scripted positions) and offline-rendering helpers `tests/fakes/recording-synth.ts` + `tests/fakes/worklet-shim.ts` (AudioWorkletProcessor/port shim for Node)
-- [ ] T025 [P] Implement `src/ui/state/store.ts` to pass T015
-- [ ] T026 Implement `src/ui/state/noticeState.ts` and non-modal `src/ui/elements/mx-notice-tray.ts` to pass T016
-- [ ] T027 Implement `src/engine/environment/probe.ts` (shell only via `window.musicanyyaShell`, feature detection, reasons) to pass T017
+- [x] T021 [P] Create named constants `src/core/defaults.ts` and `src/engine/config.ts` (data-model §10)
+- [x] T022 [P] Create port types `src/engine/ports.ts` exactly as contracts/ports.md v1.0.0
+- [x] T023 [P] Create fakes `tests/fakes/fake-clock.ts`, `tests/fakes/fake-midi-access.ts` (inputs, hot-plug, permission states), `tests/fakes/fake-shell-bridge.ts`
+- [x] T024 [P] Create fakes `tests/fakes/fake-audio-engine.ts` (implements `AudioEngine`, records commands, emits scripted positions) and offline-rendering helpers `tests/fakes/recording-synth.ts` + `tests/fakes/worklet-shim.ts` (AudioWorkletProcessor/port shim for Node)
+- [x] T025 [P] Implement `src/ui/state/store.ts` to pass T015
+- [x] T026 Implement `src/ui/state/noticeState.ts` and non-modal `src/ui/elements/mx-notice-tray.ts` to pass T016
+- [x] T027 Implement `src/engine/environment/probe.ts` (shell only via `window.musicanyyaShell`, feature detection, reasons) to pass T017
 - [ ] T028 [P] Create `src/ui/i18n/en.ts` (all user-visible strings) and `src/ui/styles/tokens.css` (Okabe-Ito palette, highlight/cursor shapes), `src/ui/styles/layout.css`
 - [ ] T029 Create app bootstrap `src/app/main.ts` (probe environment, create adapters, mount `mx-app`) and `src/ui/elements/mx-app.ts` (layout: header controls, score area, side panels, empty state)
 

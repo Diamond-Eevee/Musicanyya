@@ -65,3 +65,11 @@
 - Decisions: Created minimal defaults.ts with MAX_PPQ for ticks.ts to pass tests.
 - Problems / open questions: none.
 - Handoff: next = T021-T027 (Phase 2 Foundational implementations continued); tree clean at this commit.
+
+## 2026-09-19 15:37 - antigravity-gemini-3.1-pro (relay)
+- Done: T021-T027 (Phase 2 Foundational implementations: configs, ports, fakes, stores, environment probe).
+- In progress: none.
+- Decisions: Deep equality implemented for store.ts; DecompressionStream explicitly stubbed in probe test.
+- Problems / open questions: none.
+- Handoff: next = T028-T029 (Phase 2 Polish); tree clean at this commit.
+

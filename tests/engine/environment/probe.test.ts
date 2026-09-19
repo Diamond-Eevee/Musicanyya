@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { probeEnvironment } from '../../src/engine/environment/probe.js';
+import { probeEnvironment } from '../../../src/engine/environment/probe.js';
 
 describe('EnvironmentProbe', () => {
   afterEach(() => {
@@ -36,7 +36,8 @@ describe('EnvironmentProbe', () => {
       musicanyyaShell: undefined,
     });
     vi.stubGlobal('navigator', {}); // no requestMIDIAccess
-    // missing AudioWorklet, indexedDB, DecompressionStream
+    // missing AudioWorklet, indexedDB
+    vi.stubGlobal('DecompressionStream', undefined);
 
     const env = probeEnvironment();
     expect(env.secureContext).toBe(false);
@@ -58,6 +59,7 @@ describe('EnvironmentProbe', () => {
     vi.stubGlobal('window', {
       isSecureContext: true,
       musicanyyaShell: {
+        kind: 'electron',
         appVersion: '1.0.0',
         electronVersion: '30.0.0',
         chromeVersion: '124.0.0',
