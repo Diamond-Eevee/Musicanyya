@@ -1,9 +1,13 @@
-export const TEMPO_PERCENT_MIN = 25;
-export const TEMPO_PERCENT_MAX = 200;
-export const TEMPO_PERCENT_STEP = 5;
-export const TEMPO_PERCENT_DEFAULT = 100;
-
-export const VOLUME_DEFAULT = 80;
+// Shared with src/core/transport/transport.ts, which cannot import this engine-layer file.
+export {
+  POSITION_REPORT_BLOCKS,
+  TEMPO_PERCENT_DEFAULT,
+  TEMPO_PERCENT_MAX,
+  TEMPO_PERCENT_MIN,
+  TEMPO_PERCENT_STEP,
+  VOLUME_DEFAULT,
+  VOLUME_RAMP_FRAMES,
+} from '../core/defaults.js';
 
 export const ZOOM_MIN = 50;
 export const ZOOM_MAX = 200;
@@ -22,9 +26,7 @@ export const MAX_ELEMENT_DEPTH = 64;
 export const MAX_PARTS = 64;
 export const MAX_MEASURES = 10000;
 
-// Audio engine & sync
-export const POSITION_REPORT_BLOCKS = 4;
-export const VOLUME_RAMP_FRAMES = 256;
+// Audio engine & sync (POSITION_REPORT_BLOCKS, VOLUME_RAMP_FRAMES re-exported from core/defaults.js above)
 export const POSITION_HISTORY = 32;
 
 export const DROPOUT_CHECK_MS = 500;

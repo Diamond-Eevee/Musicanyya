@@ -1,6 +1,8 @@
 import { buildScore } from '../core/musicxml/build.js';
 import { readXml } from '../core/musicxml/read.js';
 import { createRenderCopy } from '../core/musicxml/render-copy.js';
+import { compileSchedule } from '../core/schedule/compile.js';
+import { buildTimeline } from '../core/timeline/timeline.js';
 import { decodeXml } from '../engine/files/decode.js';
 import { hashFile } from '../engine/files/hash.js';
 import { readMxl } from '../engine/files/mxl.js';
@@ -50,6 +52,37 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
       measures: measuresInserts,
     });
 
+    // Build the playback timeline and compile the engine schedule (T089)
+    const { timeline, notices: timelineNotices } = buildTimeline(score);
+    const scheduleMsg = compileSchedule(timeline);
+
+    // Add timeline notices to the load report
+    for (const tn of timelineNotices) {
+      const entry: { code: typeof tn.code; severity: 'warning'; measureLabels: string[]; detail?: string } = {
+        code: tn.code,
+        severity: 'warning',
+        measureLabels: [],
+      };
+      if (tn.detail !== undefined) entry.detail = tn.detail;
+      report.entries.push(entry);
+    }
+
+    // Build the TimelineDto (compact form for the main thread per contracts/worker-messages.md)
+    const timelineDto = {
+      ppq: timeline.ppq,
+      endTick: timeline.endTick,
+      passes: timeline.passes.map((p) => ({
+        measureIndex: p.measureIndex,
+        startTick: p.startTick,
+        endTick: p.startTick + p.lengthTicks,
+      })),
+      spans: timeline.spans.map((s) => ({
+        noteId: s.noteId,
+        startTick: s.startTick,
+        endTick: s.endTick,
+      })),
+    };
+
     const summary = {
       title: score.title,
       composer: score.composer,
@@ -68,16 +101,32 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
       defaultTempoUsed: score.defaultTempoUsed,
     };
 
-    postMessageFn({
-      type: 'loaded',
-      requestId,
-      score: summary,
-      report,
-      renderXml,
-      timeline: { ppq: 1, endTick: 0, passes: [], spans: [] },
-      schedule: [],
-      contentHash,
-    });
+    // Transfer the schedule's typed array buffers to avoid copying
+    const transfers: ArrayBuffer[] = [
+      scheduleMsg.eventTick.buffer as ArrayBuffer,
+      scheduleMsg.eventKind.buffer as ArrayBuffer,
+      scheduleMsg.eventChannel.buffer as ArrayBuffer,
+      scheduleMsg.eventData1.buffer as ArrayBuffer,
+      scheduleMsg.eventData2.buffer as ArrayBuffer,
+      scheduleMsg.tempoTick.buffer as ArrayBuffer,
+      scheduleMsg.tempoQpmNum.buffer as ArrayBuffer,
+      scheduleMsg.tempoQpmDen.buffer as ArrayBuffer,
+      scheduleMsg.channelSetup.buffer as ArrayBuffer,
+    ];
+
+    postMessageFn(
+      {
+        type: 'loaded',
+        requestId,
+        score: summary,
+        report,
+        renderXml,
+        timeline: timelineDto,
+        schedule: scheduleMsg,
+        contentHash,
+      },
+      transfers,
+    );
   } catch (error: any) {
     postMessageFn({
       type: 'failed',

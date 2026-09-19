@@ -41,3 +41,13 @@ export const PERCUSSION_CHANNEL = 9; // 0-based
 export const LIVE_CHANNEL = 15; // 0-based
 
 export const LIVE_VELOCITY_DEFAULT = 80; // or from key velocity
+
+export const TEMPO_PERCENT_MIN = 25;
+export const TEMPO_PERCENT_MAX = 200;
+export const TEMPO_PERCENT_STEP = 5;
+export const TEMPO_PERCENT_DEFAULT = 100;
+export const VOLUME_DEFAULT = 80;
+
+// Audio worklet scheduling (R-10, shared with worklet which cannot import engine/config)
+export const POSITION_REPORT_BLOCKS = 4;
+export const VOLUME_RAMP_FRAMES = 256;
