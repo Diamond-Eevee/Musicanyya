@@ -30,3 +30,16 @@
 - Decisions: T011 owner decision approved: we will use `spessasynth_core` inside our own AudioWorklet.
 - Problems / open questions: none.
 - Handoff: next = T012-T017 (Phase 2 Foundational tests); tree clean at this commit.
+
+## 2026-09-19 11:40 - claude-opus-5 (relay, review)
+- Done: review of gemini-3.1-pro's Phase 1 commit 850a3c1; agent instructions reworked (5e625a3): AGENTS.md is now a
+  < 12,000-character core (Antigravity loads rule files only up to 12,000 characters, so the old file was cut off),
+  details in `docs/agents/reference.md`, Antigravity workflows in `.agents/workflows/`.
+- In progress: none.
+- Decisions: T008 and T011 reopened (`[ ]`), see their notes in tasks.md: T008 committed 0-byte placeholder SoundFont
+  and licence files (not allowed: AGENTS.md section 4 "No placeholders"); T011 recorded the owner's approval but did
+  not amend ADR-0002 / the constitution. Also noted: empty stub files `src/*/index.ts`, `electron/index.ts` (not in the
+  plan; remove or fill when their tasks come); claims were made without the `(claimed: ...)` suffix; analyze was not run.
+- Problems / open questions: none for the owner (T011 is approved; only the document amendment is missing).
+- Handoff: next = T008 (real SoundFont + licence), T011 (ADR-0002 + constitution amendment), then `/speckit.analyze`,
+  then T012-T017; verify `pnpm lint`, `pnpm typecheck`, `pnpm test` are green on the Phase 1 scaffold first.
