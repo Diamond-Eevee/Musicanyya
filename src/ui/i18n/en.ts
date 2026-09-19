@@ -15,6 +15,10 @@ export const en = {
     play: 'Play',
     pause: 'Pause',
     stop: 'Stop',
+    tempo: 'Tempo',
+    volume: 'Volume',
+    follow: 'Follow',
+    loadingSound: 'Loading sound…',
   },
   open: {
     button: 'Open score',
