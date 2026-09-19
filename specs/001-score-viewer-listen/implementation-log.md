@@ -1,0 +1,16 @@
+# Implementation log: 001-score-viewer-listen
+
+## 2026-09-19 - Claude (Opus 5)
+- Done: specify (spec.md, checklist) and plan step: plan.md, research.md (R-1..R-17, R-8 with music-domain-expert),
+  data-model.md, contracts/ (ports, worklet-protocol, worker-messages, render-copy, electron-bridge, storage),
+  quickstart.md; AGENTS.md Active Technologies / Recent Changes.
+- Decisions: Verovio keeps MusicXML `<note id>`/`<measure id>` (verified in iomusxml.cpp) -> Note ID = SVG id.
+  Own AudioWorklet embedding spessasynth_core owns the transport (sample-accurate, cancellable), because the
+  spessasynth_lib wrapper queues timed events that cannot be cancelled and drains them only at block starts.
+  XML via @rgrove/parse-xml in a worker (offsets for the render copy); own ZIP reader on DecompressionStream;
+  no SharedArrayBuffer (no COOP/COEP needed, any static host). Electron detected only via a frozen preload bridge;
+  app:// privileged scheme; MIDI-only permissions.
+- Problems / open questions: owner approval needed to amend ADR-0002 / constitution "Audio (browser)" row
+  (spessasynth_core in own worklet instead of spessasynth_lib). Proposal: add "Note occurrence" to the Domain
+  Vocabulary (constitution PATCH) before grading features.
+- Next: `/speckit.tasks`.

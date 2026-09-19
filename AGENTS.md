@@ -275,15 +275,20 @@ Performance log, Metronome, Advice, Audio engine, Audio backend, Latency profile
 <!-- ACTIVE-TECHNOLOGIES:START (updated by the plan step) -->
 ## Active Technologies
 
-- Constitution v1.1.0 stack (no code yet): TypeScript strict, HTML5, CSS3, Verovio 6.x (WASM) -> SVG + Canvas 2D
-  overlay, Web Audio (`AudioWorklet`) + `spessasynth_lib` 4.x + GeneralUser GS SF2, Web MIDI, IndexedDB.
-  Later: Electron + electron-builder 26.x; Native audio plugin in Rust (cpal 0.18, midir 0.11, rustysynth 1.3,
-  tungstenite, rtrb). Tooling: Vite, Vitest, Playwright, Biome, pnpm.
+- Constitution v1.1.0 stack. Later: Electron + electron-builder packaging polish; Native audio plugin in Rust
+  (cpal 0.18, midir 0.11, rustysynth 1.3, tungstenite, rtrb).
+- Feature 001: TypeScript 7 strict (per-layer TS projects), Vite 8, Vitest 5 + happy-dom 20 + fake-indexeddb 6,
+  Playwright 1.63, Biome 2.5, pnpm 12; verovio 6.3 (WASM in a worker), spessasynth_core 4.3 (inside our own
+  AudioWorklet), @rgrove/parse-xml 5 (score worker), GeneralUser GS 2.0.3 SF2; Electron 44 + electron-builder 26
+  (minimal Windows build); IndexedDB, localStorage, Cache Storage
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-19: Feature 001 planned (plan, research R-1..R-17, data model, contracts, quickstart): Verovio id
+  preservation verified in source; own AudioWorklet embedding spessasynth_core proposed (refines ADR-0002, awaiting
+  owner approval); Electron shell detection via preload bridge.
 - 2026-09-19: Constitution v1.1.0: built-in sound = spessasynth_lib + GeneralUser GS (ADR-0002); Native audio
   plugin = one Rust companion for Windows/macOS/Linux over localhost WebSocket (ADR-0003); Electron packaging =
   electron-builder (ADR-0004).
