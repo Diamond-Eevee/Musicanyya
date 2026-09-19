@@ -76,9 +76,9 @@ MusicXML file and press Listen - the score plays with a moving cursor"]
 - **FR-003**: System MUST [behaviour, e.g. "mark each expected note as correct, wrong pitch, missed, early or late"]
 - **FR-004**: System MUST [...]
 
-*Example of an unclear requirement:*
-
+<!-- Example of an unclear requirement (max 3 such markers per spec):
 - **FR-00X**: System MUST support [NEEDS CLARIFICATION: which instruments - piano only or any MIDI instrument?]
+-->
 
 ### Key Entities *(include if the feature involves data)*
 

@@ -42,7 +42,17 @@ function Get-FeatureState([string]$dir) {
 
     $openClarifications = 0
     if (Test-Path $spec) {
-        $openClarifications = @(Select-String -Path $spec -Pattern '\[NEEDS CLARIFICATION' -ErrorAction SilentlyContinue).Count
+        # Count markers outside HTML comments (templates keep examples inside <!-- -->).
+        $inComment = $false
+        foreach ($sl in (Get-Content -Path $spec -Encoding UTF8)) {
+            $visible = $sl
+            if ($inComment) {
+                if ($sl -match '-->') { $inComment = $false; $visible = $sl.Substring($sl.IndexOf('-->') + 3) } else { continue }
+            }
+            $visible = [regex]::Replace($visible, '<!--.*?-->', '')
+            if ($visible -match '<!--') { $inComment = $true; $visible = $visible.Substring(0, $visible.IndexOf('<!--')) }
+            if ($visible -match '\[NEEDS CLARIFICATION') { $openClarifications++ }
+        }
     }
     # A plan still containing the template's placeholder title has not been filled in.
     $planFilled = (Test-Path $plan) -and -not (Select-String -Path $plan -Pattern '^# Implementation Plan: \[FEATURE\]' -Quiet)
