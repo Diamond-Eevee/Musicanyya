@@ -102,5 +102,5 @@
 - Done: T034-T036 (Phase 3 decoding, .mxl and Note ID tests written, fail as expected due to missing modules).
 - In progress: T037-T039 [~] (XML reading, build, load-report tests - empty shells written).
 - Decisions: none new.
-- Problems / open questions: owner decision on pushing to GitHub is still open (unrelated to current tasks).
+- Problems / open questions: owner approved pushing branch to GitHub; pushed successfully.
 - Handoff: next = T037-T049 (Phase 3 Tests); run /speckit.continue from IT or from this folder.
