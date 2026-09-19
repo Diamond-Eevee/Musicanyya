@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { decodeXml } from '../../src/engine/files/decode.js';
 
 describe('decodeXml', () => {
@@ -11,7 +11,7 @@ describe('decodeXml', () => {
     const text = '<?xml version="1.0"?><score/>';
     const utf8 = new TextEncoder().encode(text);
     const bytes = new Uint8Array(3 + utf8.length);
-    bytes.set([0xEF, 0xBB, 0xBF], 0);
+    bytes.set([0xef, 0xbb, 0xbf], 0);
     bytes.set(utf8, 3);
     expect(decodeXml(bytes)).toBe(text);
   });
@@ -19,11 +19,11 @@ describe('decodeXml', () => {
   it('decodes UTF-16LE with BOM', () => {
     const text = '<?xml version="1.0"?><score/>';
     const bytes = new Uint8Array(2 + text.length * 2);
-    bytes[0] = 0xFF;
-    bytes[1] = 0xFE;
+    bytes[0] = 0xff;
+    bytes[1] = 0xfe;
     for (let i = 0; i < text.length; i++) {
-      bytes[2 + i * 2] = text.charCodeAt(i) & 0xFF;
-      bytes[2 + i * 2 + 1] = (text.charCodeAt(i) >> 8) & 0xFF;
+      bytes[2 + i * 2] = text.charCodeAt(i) & 0xff;
+      bytes[2 + i * 2 + 1] = (text.charCodeAt(i) >> 8) & 0xff;
     }
     expect(decodeXml(bytes)).toBe(text);
   });
@@ -31,11 +31,11 @@ describe('decodeXml', () => {
   it('decodes UTF-16BE with BOM', () => {
     const text = '<?xml version="1.0"?><score/>';
     const bytes = new Uint8Array(2 + text.length * 2);
-    bytes[0] = 0xFE;
-    bytes[1] = 0xFF;
+    bytes[0] = 0xfe;
+    bytes[1] = 0xff;
     for (let i = 0; i < text.length; i++) {
-      bytes[2 + i * 2] = (text.charCodeAt(i) >> 8) & 0xFF;
-      bytes[2 + i * 2 + 1] = text.charCodeAt(i) & 0xFF;
+      bytes[2 + i * 2] = (text.charCodeAt(i) >> 8) & 0xff;
+      bytes[2 + i * 2 + 1] = text.charCodeAt(i) & 0xff;
     }
     expect(decodeXml(bytes)).toBe(text);
   });
@@ -43,8 +43,8 @@ describe('decodeXml', () => {
   it('decodes declared ISO-8859-1', () => {
     const bytes = new Uint8Array([
       ...new TextEncoder().encode('<?xml version="1.0" encoding="ISO-8859-1"?><t>'),
-      0xC4, // Ä in ISO-8859-1
-      ...new TextEncoder().encode('</t>')
+      0xc4, // Ä in ISO-8859-1
+      ...new TextEncoder().encode('</t>'),
     ]);
     expect(decodeXml(bytes)).toContain('Ä');
   });
@@ -53,13 +53,13 @@ describe('decodeXml', () => {
     const bytes = new Uint8Array([
       ...new TextEncoder().encode('<?xml version="1.0" encoding="windows-1252"?><t>'),
       0x80, // € in windows-1252
-      ...new TextEncoder().encode('</t>')
+      ...new TextEncoder().encode('</t>'),
     ]);
     expect(decodeXml(bytes)).toContain('€');
   });
 
   it('throws on invalid bytes in UTF-8', () => {
-    const bytes = new Uint8Array([0xFF, 0xFF, 0xFF]);
+    const bytes = new Uint8Array([0xff, 0xff, 0xff]);
     expect(() => decodeXml(bytes)).toThrow('Invalid bytes'); // exact error format to be defined
   });
 

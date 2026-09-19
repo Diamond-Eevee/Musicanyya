@@ -62,7 +62,13 @@ export interface Note {
   writtenKey: number;
   soundingKey: number;
   unpitched: boolean;
-  grace: null | { index: number; slash: boolean; stealPrevious: number | null; stealFollowing: number | null; makeTime: number | null };
+  grace: null | {
+    index: number;
+    slash: boolean;
+    stealPrevious: number | null;
+    stealFollowing: number | null;
+    makeTime: number | null;
+  };
   tie: { start: boolean; stop: boolean };
   chord: boolean;
   instrument: string | null;
@@ -78,7 +84,7 @@ export interface Fingering {
   finger: 1 | 2 | 3 | 4 | 5 | null;
   substitution: boolean;
   alternate: boolean;
-  placement: "above" | "below" | null;
+  placement: 'above' | 'below' | null;
 }
 
 export interface TempoMark {
@@ -95,10 +101,39 @@ export interface NavigationMarks {
   jumps: Jump[];
 }
 
-export interface RepeatMark { measureIndex: number; direction: 'forward' | 'backward'; times?: number }
-export interface EndingMark { measureIndex: number; type: 'start' | 'stop' | 'discontinue'; numbers: number[] }
-export interface JumpTarget { measureIndex: number; type: 'segno' | 'coda' | 'fine' }
-export interface Jump { measureIndex: number; type: 'da-capo' | 'dal-segno' | 'to-coda'; al?: 'fine' | 'coda' }
-export interface DynamicMark { measureIndex: number; onsetInMeasure: Ticks; type: string }
-export interface Wedge { measureIndex: number; onsetInMeasure: Ticks; type: 'crescendo' | 'diminuendo' | 'stop' }
-export interface Transposition { measureIndex: number; onsetInMeasure: Ticks; chromatic: number; diatonic?: number; octaveChange?: number }
+export interface RepeatMark {
+  measureIndex: number;
+  direction: 'forward' | 'backward';
+  times?: number;
+}
+export interface EndingMark {
+  measureIndex: number;
+  type: 'start' | 'stop' | 'discontinue';
+  numbers: number[];
+}
+export interface JumpTarget {
+  measureIndex: number;
+  type: 'segno' | 'coda' | 'fine';
+}
+export interface Jump {
+  measureIndex: number;
+  type: 'da-capo' | 'dal-segno' | 'to-coda';
+  al?: 'fine' | 'coda';
+}
+export interface DynamicMark {
+  measureIndex: number;
+  onsetInMeasure: Ticks;
+  type: string;
+}
+export interface Wedge {
+  measureIndex: number;
+  onsetInMeasure: Ticks;
+  type: 'crescendo' | 'diminuendo' | 'stop';
+}
+export interface Transposition {
+  measureIndex: number;
+  onsetInMeasure: Ticks;
+  chromatic: number;
+  diatonic?: number;
+  octaveChange?: number;
+}

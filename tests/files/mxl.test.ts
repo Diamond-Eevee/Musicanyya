@@ -1,8 +1,10 @@
-import { describe, it, expect } from 'vitest';
 import * as zlib from 'node:zlib';
+import { describe, expect, it } from 'vitest';
 import { readMxl } from '../../src/engine/files/mxl.js';
 
-function createZip(entries: { name: string, data: Uint8Array, method?: 'store'|'deflate', encrypted?: boolean, zip64?: boolean }[]): Uint8Array {
+function createZip(
+  entries: { name: string; data: Uint8Array; method?: 'store' | 'deflate'; encrypted?: boolean; zip64?: boolean }[],
+): Uint8Array {
   const chunks: Buffer[] = [];
   const cdEntries: Buffer[] = [];
   let offset = 0;
@@ -11,7 +13,7 @@ function createZip(entries: { name: string, data: Uint8Array, method?: 'store'|'
     const nameBuf = Buffer.from(entry.name, 'utf8');
     const isDeflate = entry.method === 'deflate';
     const data = isDeflate ? zlib.deflateRawSync(entry.data) : entry.data;
-    
+
     const lfh = Buffer.alloc(30 + nameBuf.length);
     lfh.writeUInt32LE(0x04034b50, 0);
     lfh.writeUInt16LE(entry.zip64 ? 45 : 20, 4);
@@ -19,12 +21,12 @@ function createZip(entries: { name: string, data: Uint8Array, method?: 'store'|'
     lfh.writeUInt16LE(isDeflate ? 8 : 0, 8);
     lfh.writeUInt32LE(0, 10);
     lfh.writeUInt32LE(0, 14);
-    lfh.writeUInt32LE(entry.zip64 ? 0xFFFFFFFF : data.length, 18);
-    lfh.writeUInt32LE(entry.zip64 ? 0xFFFFFFFF : entry.data.length, 22);
+    lfh.writeUInt32LE(entry.zip64 ? 0xffffffff : data.length, 18);
+    lfh.writeUInt32LE(entry.zip64 ? 0xffffffff : entry.data.length, 22);
     lfh.writeUInt16LE(nameBuf.length, 26);
     lfh.writeUInt16LE(0, 28);
     nameBuf.copy(lfh, 30);
-    
+
     chunks.push(lfh);
     chunks.push(Buffer.from(data));
 
@@ -36,8 +38,8 @@ function createZip(entries: { name: string, data: Uint8Array, method?: 'store'|'
     cdh.writeUInt16LE(isDeflate ? 8 : 0, 10);
     cdh.writeUInt32LE(0, 12);
     cdh.writeUInt32LE(0, 16);
-    cdh.writeUInt32LE(entry.zip64 ? 0xFFFFFFFF : data.length, 20);
-    cdh.writeUInt32LE(entry.zip64 ? 0xFFFFFFFF : entry.data.length, 24);
+    cdh.writeUInt32LE(entry.zip64 ? 0xffffffff : data.length, 20);
+    cdh.writeUInt32LE(entry.zip64 ? 0xffffffff : entry.data.length, 24);
     cdh.writeUInt16LE(nameBuf.length, 28);
     cdh.writeUInt16LE(0, 30);
     cdh.writeUInt16LE(0, 32);
@@ -72,12 +74,12 @@ describe('readMxl', () => {
     const container = enc.encode(`<?xml version="1.0" encoding="UTF-8"?>
 <container><rootfiles><rootfile full-path="score.xml" media-type="application/vnd.recordare.musicxml+xml"/></rootfiles></container>`);
     const score = enc.encode('<score-partwise></score-partwise>');
-    
+
     const zip = createZip([
       { name: 'META-INF/container.xml', data: container, method: 'store' },
-      { name: 'score.xml', data: score, method: 'store' }
+      { name: 'score.xml', data: score, method: 'store' },
     ]);
-    
+
     const result = await readMxl(zip);
     expect(new TextDecoder().decode(result)).toBe('<score-partwise></score-partwise>');
   });
@@ -86,37 +88,31 @@ describe('readMxl', () => {
     const container = enc.encode(`<?xml version="1.0" encoding="UTF-8"?>
 <container><rootfiles><rootfile full-path="score.xml" media-type="application/vnd.recordare.musicxml+xml"/></rootfiles></container>`);
     const score = enc.encode('<score-partwise></score-partwise>');
-    
+
     const zip = createZip([
       { name: 'META-INF/container.xml', data: container, method: 'deflate' },
-      { name: 'score.xml', data: score, method: 'deflate' }
+      { name: 'score.xml', data: score, method: 'deflate' },
     ]);
-    
+
     const result = await readMxl(zip);
     expect(new TextDecoder().decode(result)).toBe('<score-partwise></score-partwise>');
   });
 
   it('no container fallback', async () => {
     const score = enc.encode('<score-partwise></score-partwise>');
-    const zip = createZip([
-      { name: 'score.xml', data: score, method: 'deflate' }
-    ]);
-    
+    const zip = createZip([{ name: 'score.xml', data: score, method: 'deflate' }]);
+
     const result = await readMxl(zip);
     expect(new TextDecoder().decode(result)).toBe('<score-partwise></score-partwise>');
   });
 
   it('throws unsupportedArchive on encrypted', async () => {
-    const zip = createZip([
-      { name: 'score.xml', data: enc.encode('test'), encrypted: true }
-    ]);
+    const zip = createZip([{ name: 'score.xml', data: enc.encode('test'), encrypted: true }]);
     await expect(readMxl(zip)).rejects.toThrow('Unsupported archive');
   });
 
   it('throws unsupportedArchive on ZIP64', async () => {
-    const zip = createZip([
-      { name: 'score.xml', data: enc.encode('test'), zip64: true }
-    ]);
+    const zip = createZip([{ name: 'score.xml', data: enc.encode('test'), zip64: true }]);
     await expect(readMxl(zip)).rejects.toThrow('Unsupported archive');
   });
 
@@ -124,9 +120,7 @@ describe('readMxl', () => {
     // Generate a very compressible payload but large uncompressed size.
     // 257MB of zeros.
     const largeData = Buffer.alloc(257 * 1024 * 1024);
-    const zip = createZip([
-      { name: 'score.xml', data: largeData, method: 'deflate' }
-    ]);
+    const zip = createZip([{ name: 'score.xml', data: largeData, method: 'deflate' }]);
     await expect(readMxl(zip)).rejects.toThrow('Archive too large');
   });
 

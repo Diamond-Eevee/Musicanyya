@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 describe('Settings store', () => {
   it('handles defaults, per-field validation, debounced writes', () => {

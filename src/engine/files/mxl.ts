@@ -16,7 +16,7 @@ export async function readMxl(bytes: Uint8Array): Promise<Uint8Array> {
   const entries: any[] = [];
   for (let i = 0; i < cdCount; i++) {
     if (dv.getUint32(cdOffset, true) !== 0x02014b50) throw new Error('Unsupported archive');
-    
+
     const flags = dv.getUint16(cdOffset + 8, true);
     if ((flags & 1) !== 0) throw new Error('Unsupported archive');
 
@@ -28,7 +28,7 @@ export async function readMxl(bytes: Uint8Array): Promise<Uint8Array> {
     const commentLen = dv.getUint16(cdOffset + 32, true);
     const localHeaderOffset = dv.getUint32(cdOffset + 42, true);
 
-    if (uncompressedSize === 0xFFFFFFFF || compressedSize === 0xFFFFFFFF) {
+    if (uncompressedSize === 0xffffffff || compressedSize === 0xffffffff) {
       throw new Error('Unsupported archive');
     }
 
@@ -40,7 +40,7 @@ export async function readMxl(bytes: Uint8Array): Promise<Uint8Array> {
     cdOffset += 46 + nameLen + extraLen + commentLen;
   }
 
-  let containerEntry = entries.find(e => e.name === 'META-INF/container.xml');
+  const containerEntry = entries.find((e) => e.name === 'META-INF/container.xml');
   let rootFilePath = '';
 
   if (containerEntry) {
@@ -51,13 +51,13 @@ export async function readMxl(bytes: Uint8Array): Promise<Uint8Array> {
       rootFilePath = match[1];
     }
   } else {
-    const fallback = entries.find(e => e.name.endsWith('.xml') || e.name.endsWith('.musicxml'));
+    const fallback = entries.find((e) => e.name.endsWith('.xml') || e.name.endsWith('.musicxml'));
     if (fallback) rootFilePath = fallback.name;
   }
 
   if (!rootFilePath) throw new Error('No rootfile found');
 
-  const rootEntry = entries.find(e => e.name === rootFilePath);
+  const rootEntry = entries.find((e) => e.name === rootFilePath);
   if (!rootEntry) throw new Error('Rootfile not found in archive');
 
   return extractEntry(bytes, dv, rootEntry);
@@ -65,7 +65,7 @@ export async function readMxl(bytes: Uint8Array): Promise<Uint8Array> {
 
 function findEOCD(bytes: Uint8Array): number {
   for (let i = bytes.length - 22; i >= Math.max(0, bytes.length - 65558); i--) {
-    if (bytes[i] === 0x50 && bytes[i+1] === 0x4B && bytes[i+2] === 0x05 && bytes[i+3] === 0x06) {
+    if (bytes[i] === 0x50 && bytes[i + 1] === 0x4b && bytes[i + 2] === 0x05 && bytes[i + 3] === 0x06) {
       return i;
     }
   }
@@ -88,7 +88,7 @@ async function extractEntry(bytes: Uint8Array, dv: DataView, entry: any): Promis
     const writer = ds.writable.getWriter();
     writer.write(data).catch(() => {});
     writer.close().catch(() => {});
-    
+
     const reader = ds.readable.getReader();
     const chunks: Uint8Array[] = [];
     let totalLength = 0;

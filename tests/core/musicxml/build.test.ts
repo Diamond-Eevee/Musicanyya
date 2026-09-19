@@ -1,14 +1,27 @@
-import { describe, it, expect } from 'vitest';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
 import { buildScore } from '../../../src/core/musicxml/build.js';
-import * as fs from 'fs';
-import * as path from 'path';
+import { readXml } from '../../../src/core/musicxml/read.js';
+import { decodeXml } from '../../../src/engine/files/decode.js';
 
-describe('buildScore', () => {
-  it('builds time-model with file snapshots', () => {
-    // We would loop over fixtures here, but since buildScore doesn't exist yet, this will fail.
-    const fakeFixture = `<score-partwise><part id="P1"><measure number="1"><note><pitch><step>C</step><octave>4</octave></pitch><duration>1</duration></note></measure></part></score-partwise>`;
-    const result = buildScore(fakeFixture);
-    expect(result).toBeDefined();
-    expect(result).toMatchSnapshot();
-  });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+describe('buildScore snapshots', () => {
+  const fixturesDir = path.join(__dirname, '../../fixtures/musicxml');
+  const files = fs
+    .readdirSync(fixturesDir)
+    .filter((f) => f.endsWith('.musicxml') && !f.includes('malformed') && !f.includes('large-score'));
+
+  for (const file of files) {
+    it(`builds time-model for ${file}`, () => {
+      const bytes = fs.readFileSync(path.join(fixturesDir, file));
+      const xml = decodeXml(bytes);
+      const { doc } = readXml(xml);
+      const { score, report } = buildScore(doc);
+      expect({ score, report }).toMatchSnapshot();
+    });
+  }
 });
