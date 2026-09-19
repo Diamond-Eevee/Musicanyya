@@ -14,3 +14,12 @@
   (spessasynth_core in own worklet instead of spessasynth_lib). Proposal: add "Note occurrence" to the Domain
   Vocabulary (constitution PATCH) before grading features.
 - Next: `/speckit.tasks`.
+
+## 2026-09-19 - claude-opus-5 (relay)
+- Done: tasks step (tasks.md, 137 tasks); multi-agent protocol (AGENTS.md sections 0 and 6, `/speckit.continue`,
+  claims `[~]`, status script with resume point, owner decisions and hand-off).
+- In progress: none.
+- Decisions: none new.
+- Problems / open questions: needs owner: T011 - approve `spessasynth_core` inside our own AudioWorklet (research R-10)
+  or keep the `spessasynth_lib` wrapper (fallback). Blocks T090 onward only.
+- Handoff: next = `/speckit.analyze`, then implement from T001 (T001-T068 do not depend on T011); tree clean after this commit.

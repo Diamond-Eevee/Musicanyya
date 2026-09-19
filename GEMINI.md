@@ -7,7 +7,10 @@ The canonical guide for all agents is AGENTS.md (imported below). Follow it.
 ## Gemini CLI specifics
 
 - The workflow steps are available as custom commands: `/speckit:specify`, `/speckit:clarify`, `/speckit:plan`,
-  `/speckit:tasks`, `/speckit:analyze`, `/speckit:implement`, `/speckit:checklist`, `/speckit:status`.
+  `/speckit:tasks`, `/speckit:analyze`, `/speckit:implement`, `/speckit:continue`, `/speckit:checklist`,
+  `/speckit:status`.
+- "continue" / `/speckit:continue` resumes where any agent (Claude, Gemini, ...) stopped (AGENTS.md sections 0 and 6).
+  Your agent id is `gemini-<model>` (e.g. `gemini-2.5-pro`).
 - Review roles (`.claude/agents/*.md`) are not native Gemini sub-agents: read the role file and perform the review
   yourself, following its method and output format.
 - Use the PowerShell script invocations exactly as written in AGENTS.md (Windows PowerShell on Windows, `pwsh` on Linux).

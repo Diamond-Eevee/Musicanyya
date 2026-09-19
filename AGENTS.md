@@ -8,20 +8,40 @@ exactly what to do. Follow it over your own defaults.
 
 ## 0. Start here (every session, in this order)
 
-1. Read this file completely.
-2. Read `.specify/memory/constitution.md` - the non-negotiable rules. It wins over everything, including this file.
-3. Find out where the work stands:
+### What the user can say (kick-off phrases)
+
+| User says | You do |
+|---|---|
+| "Read AGENTS.md and continue", "continue", `/speckit.continue` (Claude), `/speckit:continue` (Gemini) | Session start (below), then the **next chunk** of work: the NEXT STEP, or for implement one phase / up to the next Checkpoint. Then session end (section 6.2) and report. |
+| `/speckit.implement`, `/speckit:implement`, "implement" (no scope) | Session start, then implement **all remaining tasks** checkpoint by checkpoint until the feature is done or a stop condition (section 6.4) is hit. Session end. |
+| `/speckit.implement T030-T068`, "implement US1", "phase 3" | The same, limited to that scope. |
+| "status", "where are we", `/speckit:status` | Session start steps 1-6 only, then summarise; change nothing. |
+| "You are lane B: US3 (T111-T118)" | Parallel mode (section 6.3) with that lane. |
+
+### Session start protocol
+
+1. Read this file completely, then `.specify/memory/constitution.md` (the non-negotiable rules; it wins over
+   everything, including this file).
+2. Pick your **agent id** `<tool>-<model>` (e.g. `claude-opus-5`, `gemini-2.5-pro`, `codex-gpt-5`). Use it in task
+   claims, log entries and commit trailers.
+3. Run the status script. It shows the branch, the current feature, the NEXT STEP, the **resume point**, tasks in
+   progress (claims), open owner decisions, the working-tree state and the last hand-off note:
    ```
    powershell -NoProfile -ExecutionPolicy Bypass -File .specify/scripts/powershell/status.ps1   # Windows
    pwsh -NoProfile -File .specify/scripts/powershell/status.ps1                                 # Linux/macOS
    ```
-   It prints the current branch, the current feature (`specs/NNN-name/`), which documents exist, task progress,
-   and the **NEXT STEP**.
-4. Read the current feature's documents that exist: `spec.md`, then `plan.md`, `research.md`, `data-model.md`,
-   `contracts/`, `quickstart.md`, `tasks.md`, and the last entries of `implementation-log.md`.
-5. Map the user's request to an action with the table in section 4, then do it.
-
----
+4. **Working tree**: if it has uncommitted changes, find out whose they are. If the last hand-off note or a claim
+   explains them (an interrupted session), run the tests for those files and adopt the work. Otherwise **stop and
+   ask the user**: another agent may be working in this folder right now.
+5. **Sync**: if the branch has an upstream, `git pull --ff-only`. Never merge, rebase or push without being asked.
+6. Read the current feature's documents that exist (`spec.md`, `plan.md`, `research.md`, `data-model.md`,
+   `contracts/`, `quickstart.md`, `tasks.md`) and the **last two entries** of `implementation-log.md`, especially the
+   `Handoff` line.
+7. **Owner decisions**: if the status lists open owner decisions (unticked "Owner decision gate" tasks, or "needs
+   owner" notes in the log), ask the user about them once, at the start. If there is no answer, skip the tasks they
+   block and do independent work.
+8. Map the request (table above, section 4), do the work (section 5), and always finish with the session end
+   protocol (section 6.2).
 
 ## 1. The project
 
@@ -107,6 +127,7 @@ instruction file and follow it exactly**, treating the user's extra text as `$AR
 | tasks | `.claude/commands/speckit.tasks.md` | `tasks.md` |
 | analyze | `.claude/commands/speckit.analyze.md` | read-only consistency report (no file changes) |
 | implement | `.claude/commands/speckit.implement.md` | code + tests, tasks ticked `[x]` |
+| continue | `.claude/commands/speckit.continue.md` | the next chunk of whatever step is next, plus a hand-off |
 | checklist | `.claude/commands/speckit.checklist.md` | `checklists/<domain>.md` (optional) |
 | constitution | `.claude/commands/speckit.constitution.md` | amended constitution (only when explicitly asked) |
 
@@ -118,7 +139,7 @@ instruction file and follow it exactly**, treating the user's extra text as `$AR
 | "plan", "design it" | Run `status.ps1`; if NEXT STEP is `clarify`, do that first; then **plan**. |
 | "tasks" | **tasks** (requires a filled `plan.md`). |
 | "implement", "build it", "read AGENTS.md and implement" | Run `status.ps1`. Complete every missing step **in order** (clarify -> plan -> tasks -> analyze) and then **implement**. Stop and ask only when: a clarification needs the user's decision, `analyze` reports CRITICAL issues, or a quality gate fails that you cannot fix. |
-| "continue", "next" | Run `status.ps1` and perform **only** the NEXT STEP (for implement: the next task group / phase), then report. |
+| "continue", "next" | Follow `.claude/commands/speckit.continue.md`: session start, then **only** the NEXT STEP (for implement: from the resume point up to the next Checkpoint), session end, report. |
 | "implement US1" / "do T010-T015" / "phase 3" | **implement**, limited to that scope. |
 | "status", "where are we" | Run `status.ps1` and summarise it plus the last `implementation-log.md` entry. |
 | "review" | Apply the relevant review role(s) from section 7 to the current diff. |
@@ -132,14 +153,20 @@ NEXT STEP is not `done`, check out its branch (`git checkout NNN-name`), and say
 
 `tasks.md` is the single source of truth for progress. Tasks look like
 `- [ ] T012 [P] [US1] Description with exact file path` (`[P]` = parallelisable, `[USn]` = user story).
+Task states: `[ ]` open, `[~]` in progress (claimed, section 6.1), `[x]` done.
 
-For each task, in file order, respecting "Dependencies" in `tasks.md`:
+Start at the **resume point** from the status script (the first `[~]` task you are allowed to take over, else the
+first `[ ]` task whose dependencies are done). For each task, in file order, respecting "Dependencies" in `tasks.md`:
 
+0. **Claim** it (and at most the rest of the current task group): `- [ ]` -> `- [~]` with the suffix
+   ` (claimed: <agent-id> <YYYY-MM-DD>)`.
 1. Read the task and the design documents it relies on (contracts, data model, research decisions).
 2. **Test tasks**: write the test, run it, and confirm it **fails for the expected reason**. Do not implement yet.
 3. **Implementation tasks**: write the minimum code to make the related tests pass, then refactor.
 4. Run the checks for what you touched (section 8). Everything must be green.
-5. Tick the task in `tasks.md` immediately: `- [ ]` -> `- [x]`. Never tick a task whose checks fail.
+5. Tick the task in `tasks.md` immediately: `- [~]` -> `- [x]` and remove the claim suffix. Never tick a task whose
+   checks fail. (A **test task** is done when its test exists and fails for the expected reason; say so in the log.)
+   Commit after each completed task group at the latest, so an interrupted session loses little.
 6. At each **Checkpoint** in `tasks.md` (end of a phase or user story): verify the story's Independent Test from
    `spec.md`, run the full gate, append an entry to the log (section 6), and commit (section 9).
 
@@ -155,22 +182,62 @@ Rules while implementing:
 
 ---
 
-## 6. Hand-off log (required, because several agents share this repo)
+## 6. Multi-agent collaboration and hand-off
 
-Append to `specs/NNN-name/implementation-log.md` at every checkpoint and at the end of every session
-(create the file if missing). Newest entry at the bottom:
+Several agents (Claude, Gemini, Codex, Copilot, Cursor, ...) work on this repo, usually **one after another**
+("relay", the default) and sometimes **at the same time** ("parallel", only when the user assigns lanes). The rules
+below let any agent stop at any point and any other agent continue with "Read AGENTS.md and continue".
 
-```markdown
-## 2026-09-19 - <agent name/model>
-- Done: T010-T015 (US1 parsing + fixtures)
-- Decisions: chose X over Y because ... (also recorded in research.md if architectural)
-- Problems / open questions: ...
-- Next: T016 (lookahead scheduler)
-```
+### 6.1 Claims
 
-The next agent reads the last entries before starting. Keep entries short and factual.
+- Claim before you start a task: `- [~] T042 [P] [US1] ... (claimed: gemini-2.5-pro 2026-09-19)`.
+- Claim only what you are about to do (the current task, at most the current task group). Release it by ticking it
+  (`[x]`, suffix removed) or, if you stop before finishing, leave it `[~]` and describe its state in the hand-off.
+- **Relay mode**: a `[~]` task found at session start with a clean working tree belongs to an earlier session.
+  Read that session's hand-off, check the task's files and tests, and continue it (update the claim to your id).
+- **Parallel mode**: never take over another lane's claim; ask the user.
 
----
+### 6.2 Session end protocol (every session, also when your context, time or budget runs low)
+
+1. Bring the current task to a consistent state: finish it, or keep it `[~]` with its partial work compiling,
+   or revert the partial edits. Never leave broken code that is not described.
+2. Run the checks for what you touched (section 8); at a Checkpoint, the full gate.
+3. Tick finished tasks; make sure every remaining `[~]` is yours and explained.
+4. Append a log entry to `specs/NNN-name/implementation-log.md` (create it if missing; newest at the bottom):
+
+   ```markdown
+   ## 2026-09-19 14:30 - claude-opus-5 (relay)
+   - Done: T030-T041 (US1 fixtures + parser tests)
+   - In progress: T042 [~] - verovio mapping test written, fails as expected (worker not implemented yet)
+   - Decisions: chose X over Y because ... (also in research.md if architectural)
+   - Problems / open questions: ... ("needs owner:" prefix for decisions only the user can make)
+   - Handoff: next = T042 -> T050-T053; run `pnpm test -- tests/verovio` first; tree clean at <commit>
+   ```
+
+5. Commit everything (Conventional Commits, section 9; a partial task uses `chore: wip T042 <what>`), so the next
+   agent starts from a clean tree.
+6. Do not push unless the user asked. Tell the user the resume point and anything they must decide.
+
+### 6.3 Parallel mode (only when the user assigns lanes)
+
+- The user names each agent's **lane**: a user story or task range whose tasks touch different files (use the `[P]`
+  markers and the Dependencies section of `tasks.md`), e.g. "Claude: US2 T069-T110; Gemini: US4 T119-T128".
+- Each lane works in its own worktree and branch:
+  `git worktree add ../Musicanyya-<lane> -b NNN-name--<lane> NNN-name`.
+- Claim and tick only tasks in your lane. Do not edit files that another lane's tasks own; for shared files
+  (`package.json`, `src/app/session.ts`, ...) make the smallest possible change and mention it in the hand-off.
+- Log entries carry the lane name: `## <date> <time> - <agent-id> (lane <name>)`.
+- **Integration** (only when the user says "integrate lanes"): merge lane branches into the feature branch one at a
+  time (`git merge --no-ff`), resolve `tasks.md` (keep every `[x]`) and `implementation-log.md` (keep all entries, in
+  time order) conflicts, run the full gate, then remove the worktrees.
+
+### 6.4 Stop conditions (stop, hand off, and ask the user)
+
+- An owner decision blocks the next task and no independent work is left.
+- `/speckit.analyze` reports CRITICAL findings.
+- A quality gate fails and you cannot fix it within the task's scope.
+- Unknown uncommitted changes in the working tree (section 0, step 4) or a conflicting claim.
+- Anything in section 11 ("ask the user first").
 
 ## 7. Review roles
 
@@ -220,7 +287,8 @@ rendering, recorded Performance logs).
 - Work on the feature branch `NNN-name`. Never commit directly to `main`.
 - Commit at every checkpoint (or after a coherent group of tasks), using Conventional Commits:
   `feat(core): parse ties across barlines`, `test(engine): lookahead scheduler timing`, `docs(spec): ...`.
-  Reference task IDs in the body (`Tasks: T010-T013`).
+  Reference task IDs in the body (`Tasks: T010-T013`) and add a trailer `Agent: <agent-id>` (plus your tool's own
+  co-author trailer if it has one).
 - Do not push, merge, rebase shared branches, or open PRs unless the user asks.
 - Never commit: `.env` files, build output (`node_modules/`, `dist/`, `out/`, `release/`), SDKs (ASIO SDK), large
   binaries other than an intended SoundFont or font (which need their licence in `THIRD_PARTY_NOTICES.md`).
