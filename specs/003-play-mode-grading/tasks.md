@@ -56,10 +56,10 @@ than renumbered, so IDs stay stable; **file order is execution order**, not nume
   `StrictnessLevel`, `Window`, `GradeInput`, `Grade`, `GradeSummary`, `MeasureOverview`, `ReliabilityWarning`,
   `PerformanceLog`, `RecordedMessage`, `LatencyProfile`, and `PlayedAlongSpan` / `PlayedAlongPress` of section 4)
   - types only. `timing` is `TimingResult | null`, so the two-axis rule is in the type system
-- [ ] T006 [P] Test helper `tests/core/grade/helpers.ts`: load a fixture by name and return
+- [x] T006 [P] Test helper `tests/core/grade/helpers.ts`: load a fixture by name and return
   `{ score, timeline, expected }`, reusing `tests/core/practice/helpers.ts` so every grading test starts from a
   real Score
-- [ ] T007 [P] Test helper `tests/fakes/performance-log.ts`: build a `PerformanceLog` from a compact notation
+- [x] T007 [P] Test helper `tests/fakes/performance-log.ts`: build a `PerformanceLog` from a compact notation
   (pitch, beat offset, deliberate millisecond error), plus `shuffleSimultaneous` for the arrival-order
   independence assertion of FR-019 and `loadRecordedPerformance` for the JSON fixtures
 - [ ] T008 Test `tests/core/tempo/rate.test.ts` (extend): `tickAtAudioTime` is the exact inverse of the existing
