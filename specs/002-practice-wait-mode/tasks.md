@@ -74,11 +74,11 @@ session reports that the end was reached.
   marked `playedAlong`, never judged and never counted (FR-007, FR-027); every expected note needs a fresh press
   (FR-009); a required key already down puts the event in `blocked` with the held-over mark (FR-009a); releasing a
   long note early never blocks (FR-037); sustain ignored for judging (FR-026)
-- [~] T009 [P] [US1] `tests/core/practice/device-loss.test.ts`: `deviceLost` releases the reported held keys,
-  keeps the event index, and the session returns to `waiting` on the next input without restarting (FR-021) (claimed: antigravity-gemini-3.1-pro 2026-09-20)
-- [ ] T010 [P] [US1] `tests/core/practice/replay.test.ts`: golden snapshots of the marks and the ordered effects
+- [x] T009 [P] [US1] `tests/core/practice/device-loss.test.ts`: `deviceLost` releases the reported held keys,
+  keeps the event index, and the session returns to `waiting` on the next input without restarting (FR-021)
+- [~] T010 [P] [US1] `tests/core/practice/replay.test.ts`: golden snapshots of the marks and the ordered effects
   for recorded input lists over the C major exercise and `chord-basic`; plus the guarantee that stripping every
-  `timeStampMs` changes nothing (FR-028, SC-004, contract guarantee 2)
+  `timeStampMs` changes nothing (FR-028, SC-004, contract guarantee 2) (claimed: antigravity-gemini-3.1-pro 2026-09-20)
 - [ ] T011 [P] [US1] `tests/ui/practice-marks.test.ts`: each of the nine `MarkState`s - `playedAlong` and
   `skipped` included - renders a distinct shape class as well as a colour, the waiting cursor sits on the expected
   event, and no mark covers the notehead it refers to (FR-010, SC-009, R-08)
