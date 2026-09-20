@@ -168,6 +168,8 @@ function baseNote(overrides: Partial<Note> = {}): Note {
     fingerings: [],
     printed: true,
     source: { start: 0, end: 0 },
+    ornament: null,
+    arpeggiate: false,
     ...overrides,
   };
 }

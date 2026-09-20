@@ -19,3 +19,10 @@ This document lists the supported MusicXML elements.
 | Time & Repeats | `<fermata>` | Unsupported | Ignored for playback |
 | Dynamics | `<dynamics>` | Supported | Marks and wedges |
 | Instruments | `<midi-instrument>` | Supported | MIDI programs and unpitched percussion |
+| Notes | `<trill-mark>` | Supported | Play mode: the realisation is played-along, never graded (feature 003) |
+| Notes | `<mordent>` | Supported | Play mode: the realisation is played-along, never graded (feature 003) |
+| Notes | `<turn>` | Supported | Play mode: the realisation is played-along, never graded (feature 003) |
+| Notes | `<tremolo>` | Supported | Play mode: the realisation is played-along, never graded (feature 003) |
+| Notes | `<arpeggiate>` | Supported | Play mode: the wider arpeggio spread applies instead of the chord spread (feature 003) |
+| Notes | `<glissando>` | Unsupported | Reported; ignored for playback |
+| Notes | `<slide>` | Unsupported | Reported; ignored for playback |

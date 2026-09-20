@@ -97,14 +97,14 @@ than renumbered, so IDs stay stable; **file order is execution order**, not nume
 - [x] T095 Reserve `METRONOME_CHANNEL` in `src/core/timeline/instruments.ts` beside `PERCUSSION_CHANNEL` and
   `LIVE_CHANNEL`, and record the reserved channel in the channel table of
   `specs/001-score-viewer-listen/contracts/worklet-protocol.md` (bumped with T036)
-- [ ] T102 [P] Test `tests/core/musicxml/build.test.ts` (extend): `<arpeggiate>` on a chord and `<ornaments>` with
+- [x] T102 [P] Test `tests/core/musicxml/build.test.ts` (extend): `<arpeggiate>` on a chord and `<ornaments>` with
   `<trill-mark>`, `<mordent>`, `<turn>` or `<tremolo>` are parsed onto `Note`; a Score without them is unchanged;
   an unknown ornament child is skipped and reported, never fatal (Constitution III) - write it, see it fail
-- [ ] T085 Parse `<ornaments>`, `<trill-mark>`, `<mordent>`, `<turn>` and `<tremolo>` in
+- [x] T085 Parse `<ornaments>`, `<trill-mark>`, `<mordent>`, `<turn>` and `<tremolo>` in
   `src/core/musicxml/build.ts` and carry them on `Note` (owner decision D-1); add the ornament rows to
   `SUPPORT_MATRIX` in `src/core/musicxml/support.ts` and to `docs/musicxml-support.md`
   (`tests/core/musicxml/support-doc-sync.test.ts` enforces the pair). Add fixture `trill-realisation`
-- [ ] T086 Parse `<arpeggiate>` in `src/core/musicxml/build.ts` and carry it on the chord's notes (owner decision
+- [x] T086 Parse `<arpeggiate>` in `src/core/musicxml/build.ts` and carry it on the chord's notes (owner decision
   D-2); add its row to `SUPPORT_MATRIX` and `docs/musicxml-support.md`. Add fixture `arpeggiate-chord`.
   `<glissando>` and `<slide>` stay unsupported and keep being reported by the load report (research R-17)
 - [x] T104 [P] New MusicXML fixture `eight-measure-melody` in `tests/fixtures/musicxml/`: an 8-measure, 4/4,

@@ -6,9 +6,7 @@
     "selection": {
       "preset": "both",
       "partIndex": 0,
-      "staves": [
-        1
-      ]
+      "staves": [1]
     },
     "strictness": "beginner",
     "countInMeasures": 1,
