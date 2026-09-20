@@ -205,3 +205,41 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
 - Handoff: next = `/speckit.implement` from T001. Setup T001-T003, then Phase 2 (note the new order: T090, T094,
   T095, T102, T085, T086 close it), then US1. Nothing implemented yet; tree clean at the commit below, not
   pushed.
+
+## 2026-09-20 20:15 - claude-sonnet-5 (relay)
+
+- Done: Setup (T001-T003) and all of Foundational (T004-T015, T090, T094, T095, T102, T085, T086, plus T104,
+  a task found missing mid-phase) - 24/104 tasks. Nothing in US1-US4 or Polish started.
+- Built, in order: the Play run and Grade domain types (`src/core/play/types.ts`, `src/core/grade/types.ts`,
+  T004-T005); grading test helpers and fakes (T006-T007); `tickAtAudioTime`/`audioTimeAtTick` in
+  `src/core/tempo/rate.ts`, the single seconds<->ticks conversion site (T008-T009); `MidiClockMap` in
+  `src/engine/midi/clock-map.ts` (T010-T011); an RT review of both timing-path changes (T090, pass with two
+  non-blocking advisories logged below); the `PLAY_STRICTNESS_LEVELS` window record and its clamp-inertness
+  invariant tests (T012-T013); 13 new MusicXML fixtures plus 2 recorded-performance JSON fixtures (T014-T015);
+  `METRONOME_CHANNEL` reserved in `assignChannels` (T094-T095); `<ornaments>`/`<trill-mark>`/`<mordent>`/`<turn>`/
+  `<tremolo>`/`<arpeggiate>` parsing with two more fixtures (T102, T085-T086, owner decisions D-1/D-2).
+- Found missing mid-T015: no existing fixture was both long and simple enough to name specific measures
+  ("mistakes in measures 3 and 7", US2's Independent Test) or a range ("measures 5-8", US3's). Added task T104
+  (`eight-measure-melody.musicxml`, 8 measures/4-4/quarter=100) and used it for both performance-log fixtures.
+- Corrections made along the way (all fixed before their commit, not left as debt):
+  1. T002 had overreached into T013's scope (`PLAY_STRICTNESS_LEVELS` needs `grade/types.ts`'s canonical
+     `Window`/`StrictnessLevel`, which didn't exist yet at T002); reverted to T002's literal scope and redid it
+     properly once T005 landed.
+  2. `tests/architecture/layers.test.ts`'s DOM-global heuristic false-positived on the plain English word
+     "window" inside comments once `grade/types.ts` (legitimately) added an interface named `Window`; it now
+     strips comments before matching, so it checks code, not prose - a real fix, not a weakened check.
+  3. `pnpm lint` (not run in full between T013 and T085-T086) had a Biome formatting error in the T015 JSON
+     fixtures (an array Biome wants inline, not multi-line); reformatted and folded into the T085-T086 commit.
+     Lesson for future sessions: run the full `pnpm lint`, not just `biome check <touched files>`, after adding
+     new non-`.ts` files (JSON, etc.) that Biome also formats.
+- RT review (T090) on `tickAtAudioTime`/`audioTimeAtTick` and `MidiClockMap`: **pass, no blocking findings**.
+  Two non-blocking advisories for a later cleanup task: (a) `MidiClockMap.toAudioTime` duplicates
+  `position-sync.ts`'s `contextTime`/`performanceTime` formula instead of sharing one helper; (b) `rate.ts`'s
+  `ticksPerSecond` has no guard against a zero/malformed-QPM tempo segment reaching grading as `NaN`/`Infinity`.
+- Full gate run at this checkpoint: `pnpm lint`, `pnpm typecheck`, `pnpm test` (565 passed, 2 skipped) and
+  `pnpm test:e2e` (22 passed, 14 skipped, all three browsers plus Electron) - all green.
+- Problems / open questions: none blocking. The two RT-review advisories above are open but non-blocking.
+- Handoff: next = US1 (Phase 3) from T016, `tests/core/grade/expected.test.ts`. Tests-first through T016-T025 +
+  T045/T089/T092/T096/T097/T101 (all `[P]`, independent files - a good place to split work), then the US1
+  implementation block T026-T044/T046, with mandatory `rt-audio-reviewer` passes at T035, T037 and T091. Tree
+  clean at the commit below, not pushed.
