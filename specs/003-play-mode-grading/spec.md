@@ -12,9 +12,10 @@
 The musician opens a Score, switches to **Play mode** and presses Start. A count-in is clicked, then the Metronome
 keeps time and the cursor moves through the Score at the written tempo - it never waits. The musician plays along on
 their MIDI keyboard as well as they can, right to the end. The moment the run is over, the app shows what happened:
-every expected note is marked on the Score as correct, wrong pitch, missed, early or late, extra keys are shown
-where they were played, and a short summary says how the performance went overall. Selecting any marked note says
-in plain words why it was marked that way ("late by 120 ms", "played E instead of F").
+every expected note is marked on the Score as correct, wrong pitch or missed, every note that was played also
+carries whether it was on time, early or late, extra keys are shown where they were played, and a short summary
+says how the performance went overall. Selecting any marked note says
+in plain words why it was marked that way ("late by 120 ms", "one octave too low", "nothing played here").
 
 **Why this priority**: this *is* Play mode. Playing in time without the app waiting, and being told afterwards what
 was right and what was not, is the whole point; everything else in this feature makes that result easier to act on.
@@ -31,9 +32,10 @@ reason.
 2. **Given** a run is under way, **When** the musician plays nothing at all, **Then** the Score and the Metronome
    carry on to the end at the written tempo and every expected note is marked missed.
 3. **Given** a run is under way, **When** the musician plays the right key close enough to the written moment,
-   **Then** that note is marked correct.
+   **Then** that note is marked correct and on time.
 4. **Given** a run is under way, **When** the musician plays the right key noticeably before or after the written
-   moment, **Then** the note is marked early or late and the Grade says by how much.
+   moment, **Then** the note is still marked correct in pitch but its timing is marked early or late, and the
+   Grade says by how much.
 5. **Given** a run is under way, **When** the musician plays a key that no expected note can claim, **Then** it is
    marked extra at the point in the Score where it was played.
 6. **Given** a run is under way, **When** the musician plays the right letter in the wrong octave, **Then** the note
@@ -50,8 +52,9 @@ reason.
     of the chord is graded on its own against the written moment.
 12. **Given** a run is under way, **When** the musician plays a note, **Then** they hear it through the app's
     instrument sound, as they do in Listen and Practice mode.
-13. **Given** a run is under way, **When** a key claims an expected note, **Then** that note is marked correct or
-    wrong pitch straight away, while early, late, missed and extra appear only with the Grade at the end.
+13. **Given** a run is under way, **When** a key claims an expected note, **Then** its pitch result is marked
+    correct or wrong pitch straight away, while its timing result (on time, early or late) and the missed and extra
+    results appear only with the Grade at the end.
 
 ---
 
@@ -71,8 +74,8 @@ worst, and confirm "practise this passage" opens Practice mode looping those mea
 
 1. **Given** a Grade is on screen, **When** the musician asks for the next mistake, **Then** the Score scrolls to
    it, it is highlighted, and its reason is shown - repeatedly, forwards and backwards, through every mistake.
-2. **Given** a Grade is on screen, **Then** an overview per measure shows how many notes were correct, wrong,
-   missed or extra, so the worst passages are visible at a glance.
+2. **Given** a Grade is on screen, **Then** an overview per measure shows how many notes were correct, wrong
+   pitch, missed or extra and how many were early or late, so the worst passages are visible at a glance.
 3. **Given** a Grade is on screen, **When** the musician chooses "practise this passage" on a measure or a selected
    range, **Then** Practice mode opens with a loop over that range and the same part and hand selection.
 4. **Given** a Grade is on screen, **Then** the Latency profile used for it is shown; where that latency was never
@@ -157,12 +160,13 @@ the first one and confirm the notes heard are the ones that were played, then de
 - **Ties and long notes**: a tied or sustained note is expected once, at its onset; releasing it early or holding it
   past its written end changes no result.
 - **Chords**: each note of a chord is graded on its own against the chord's written moment, so a rolled chord can
-  have some notes correct and some late.
+  have some notes on time and some late.
 - **Repeats, endings and jumps**: every occurrence is graded separately, in the order Listen mode plays.
 - **Grace notes and ornaments**: never graded; playing them is neutral, and not playing them costs nothing.
 - **Hidden, playback-only, unpitched and percussion notes**: never graded, as in Practice mode.
-- **Wrong octave, wrong hand, extra notes**: an unclaimed key press is extra; a right letter at the wrong octave is
-  wrong pitch with the direction named.
+- **Wrong octave, wrong hand, extra notes**: a right letter at the wrong octave is wrong pitch, with the direction
+  to move named. Any other key the Score does not write there is extra, and the note it was meant for is missed -
+  the app never guesses which written note a wrong letter was aiming at.
 - **The musician drifts a whole beat or more**: a key press is only ever claimed by an expected note within the
   claim window, so drifting produces missed notes and extra notes rather than a stream of notes matched to the
   wrong neighbours.
@@ -193,6 +197,23 @@ the first one and confirm the notes heard are the ones that were played, then de
 - Q: What does the Grade's summary report? -> A: Two figures - notes correct and timing accuracy - plus the plain
   counts of correct, wrong pitch, missed and extra. No single combined score, no stars, levels or pass marks in
   this feature (FR-028).
+- Q: Is early/late a result in its own right, or a second axis beside pitch? -> A: Two axes. Every expected note
+  carries a pitch result (correct, wrong pitch, missed); every note a key press claimed also carries a timing
+  result (on time, early, late) with its signed difference. The two figures of FR-028 come from the two axes, and
+  the counts stay correct, wrong pitch, missed and extra (FR-018, FR-029, FR-032).
+- Q: When does a key press claim an expected note as wrong pitch rather than counting as extra? -> A: Only on an
+  octave error. Matching runs in two passes over the claim window: same pitch first (correct), then same pitch
+  class (wrong pitch). Anything left over is extra, and the expected note it was meant for is missed; the app never
+  matches a wrong letter to a written note (FR-019, FR-030).
+- Q: What exactly is the timing-accuracy figure of FR-028? -> A: The share of the notes that were played whose
+  timing result is on time, stated as a count out of a total as well as a percentage, with the early and late
+  counts beside it. Millisecond detail stays per note and per measure (FR-028, FR-030, FR-032).
+- Q: Which timing strictness levels exist, and what is the default? -> A: Exactly three - Beginner (default,
+  most forgiving), Standard and Strict - each a complete set of the FR-020 windows with its own fractions of a
+  beat and millisecond bounds (FR-039).
+- Q: What are the count-in default and the number of attempts kept? -> A: The count-in defaults to one full
+  measure of the meter where the run starts, configurable but never less than one measure; the app keeps the 20
+  most recent attempts per Score, oldest dropped first, and states the limit (FR-003, FR-041).
 
 ## Requirements *(mandatory)*
 
@@ -205,8 +226,8 @@ the first one and confirm the notes heard are the ones that were played, then de
 - **FR-002**: In Play mode the Score MUST advance on the audio clock at the selected tempo and MUST NEVER wait for
   the musician's input.
 - **FR-003**: Every run MUST begin with a count-in of whole measures clicked by the Metronome, with the downbeat
-  accented; the count-in length MUST be a named, configurable value, and nothing played during the count-in is
-  graded.
+  accented; the count-in length MUST be a named, configurable value of at least one measure, defaulting to one
+  full measure of the meter in force where the run starts, and nothing played during the count-in is graded.
 - **FR-004**: The Metronome MUST click for the whole run, following the Score's tempo map including tempo and meter
   changes, accenting the downbeat, and MUST stay in step with the notes the app sounds. Muting the Metronome MUST
   change nothing except the click being silent.
@@ -243,11 +264,22 @@ the first one and confirm the notes heard are the ones that were played, then de
 - **FR-017**: The expected notes MUST come from the same Score and the same playback order as Listen mode,
   including repeats, endings and jumps, and MUST exclude grace notes, ornaments, hidden or playback-only notes,
   unpitched and percussion notes, and the notes of parts and hands that are not being graded.
-- **FR-018**: Every expected note MUST end the run with exactly one result: correct, wrong pitch (including wrong
-  octave), missed, early or late. Every recorded key press that no expected note claims MUST be reported as extra.
+- **FR-018**: Every expected note MUST end the run with a result on two independent axes. The **pitch result**
+  is exactly one of correct, wrong pitch (including wrong octave) or missed. A note whose pitch result is correct or
+  wrong pitch - that is, one a key press claimed - MUST additionally carry a **timing result** of exactly one of on
+  time, early or late, together with the signed timing difference; a missed note has no timing result. Every
+  recorded key press that no expected note claims MUST be reported as extra.
 - **FR-019**: A key press MUST be claimed by at most one expected note, and an expected note by at most one key
-  press. Matching MUST prefer the same pitch at the nearest written moment within the claim window, and MUST NOT
-  depend on the order in which simultaneous messages arrive.
+  press. Matching MUST run in two passes over the claim window and MUST NOT depend on the order in which
+  simultaneous messages arrive:
+  1. **Same pitch**: each expected note claims the unclaimed key press of the same pitch nearest to its written
+     moment. These notes get the pitch result correct.
+  2. **Same pitch class**: each still-unclaimed key press claims the nearest still-unclaimed expected note within
+     the claim window whose pitch class it matches - an octave error. These notes get the pitch result wrong pitch.
+
+  A key press left over after both passes is extra, and an expected note left over is missed. A key press whose
+  pitch class matches no expected note in its claim window MUST NEVER claim one: it is extra, and the note the
+  musician meant is missed.
 - **FR-020**: Every timing threshold - the on-time window, the early and late windows, the window beyond which a
   note counts as missed, the claim window in which a key press may be matched, and the allowance for a spread
   chord - MUST be a named, documented, configurable value expressed as a fraction of a beat at the tempo actually
@@ -271,17 +303,23 @@ the first one and confirm the notes heard are the ones that were played, then de
 
 #### The Grade and its explanation
 
-- **FR-028**: The Grade MUST summarise the run as two separate figures - how many of the expected notes were
-  played correctly, and how accurately the notes that were played were timed - together with the plain counts of
-  correct, wrong pitch, missed and extra notes, and the passage, tempo and strictness the run covered. No single
-  combined score, level, star rating or pass mark is produced in this feature.
-- **FR-029**: Every expected note MUST be marked on the Score with its result, distinguishable by shape or marking
-  as well as by colour, and extra notes MUST be shown where they were played.
+- **FR-028**: The Grade MUST summarise the run as two separate figures - the share of the expected notes whose
+  pitch result is correct, and the share of the notes that were played whose timing result is on time - together
+  with the plain counts of correct, wrong pitch, missed and extra notes, the counts of early and late, and the
+  passage, tempo and strictness the run covered. Both figures MUST be stated as a count out of a total as well as
+  a percentage ("38 of 44 notes on time"). No single combined score, level, star rating or pass mark is produced
+  in this feature.
+- **FR-029**: Every expected note MUST be marked on the Score with its pitch result and, where it was played,
+  with its timing result, distinguishable by shape or marking as well as by colour, and extra notes MUST be shown
+  where they were played.
 - **FR-030**: Every mark MUST be explainable in plain words on request, naming what was expected, what was played
-  and by how much the timing was off (for example "late by 120 ms", "played E instead of F", "one octave too low").
+  and by how much the timing was off (for example "late by 120 ms", "F3 played, F4 written - one octave too low",
+  "F4 written, nothing played here", "D4 played, no note written for it here").
 - **FR-031**: The musician MUST be able to step forwards and backwards through the mistakes of a Grade, with the
   Score scrolling to each one.
-- **FR-032**: The Grade MUST include a per-measure overview showing where the run went worst.
+- **FR-032**: The Grade MUST include a per-measure overview showing where the run went worst, counting the pitch
+  results (correct, wrong pitch, missed) and the extra notes of each measure, and how many of its played notes were
+  early or late.
 - **FR-033**: The musician MUST be able to send a measure or a selected range from the Grade straight into Practice
   mode as a loop, keeping the same part and hand selection.
 - **FR-034**: The Grade MUST show the Latency profile it was computed with, and MUST say plainly where that latency
@@ -297,15 +335,19 @@ the first one and confirm the notes heard are the ones that were played, then de
   accompaniment, the cursor and the timing judgement MUST all use the tempo actually played.
 - **FR-038**: The musician MUST be able to choose the graded part and the hand selection, with the same preselection
   and the same hand presets as Practice mode.
-- **FR-039**: The musician MUST be able to choose the timing strictness from named levels; the default MUST be the
-  most forgiving level, suitable for a beginner.
+- **FR-039**: The musician MUST be able to choose the timing strictness from exactly three named levels -
+  **Beginner**, **Standard** and **Strict**. Each level is a complete, documented set of the FR-020 windows
+  (on-time, early, late, missed, claim window, chord spread) with its own fractions of a beat and millisecond
+  bounds, and every level MUST respect the bounds of FR-020. Beginner MUST be the default and the most forgiving;
+  Strict MUST be the tightest.
 - **FR-040**: Run settings (range, tempo, part, hands, count-in, Metronome, strictness, accompaniment) MUST be
   remembered per Score on the device.
 
 #### Keeping performances
 
-- **FR-041**: Finished runs MUST be kept for their Score with their date, settings and summary, up to a stated
-  limit, oldest dropped first.
+- **FR-041**: Finished runs MUST be kept for their Score with their date, settings and summary, up to a named,
+  documented limit of the 20 most recent per Score, oldest dropped first; the limit MUST be stated to the musician
+  where the attempts are listed.
 - **FR-042**: A stored performance MUST be replayable: the recorded notes are heard in their recorded timing against
   the Score, with the cursor moving and the marks visible.
 - **FR-043**: The musician MUST be able to delete a stored performance, which removes its recording from the device.
@@ -328,11 +370,12 @@ the first one and confirm the notes heard are the ones that were played, then de
   settings used - everything needed to reproduce the Grade.
 - **Grade**: the evaluation of one Performance log against one Score: the per-note results, the per-measure
   overview, the summary, and the reliability warnings that apply to it.
-- **Note result**: what happened to one expected note - correct, wrong pitch, missed, early or late - with the key
-  press that claimed it, the timing difference, and the plain-words reason.
+- **Note result**: what happened to one expected note - a pitch result (correct, wrong pitch, missed) and, for a
+  note that was played, a timing result (on time, early, late) - with the key press that claimed it, the signed
+  timing difference, and the plain-words reason.
 - **Extra note**: a recorded key press that no expected note claimed, with where in the Score it was played.
-- **Strictness level**: a named set of timing windows (on-time, early, late, missed, claim window, chord spread)
-  applied to a run.
+- **Strictness level**: one of Beginner (default), Standard or Strict - a named set of timing windows (on-time,
+  early, late, missed, claim window, chord spread) applied to a run.
 - **Run settings**: range, tempo percentage, graded part, hand selection, count-in length, Metronome sound,
   accompaniment and strictness, remembered per Score.
 
@@ -344,8 +387,8 @@ the first one and confirm the notes heard are the ones that were played, then de
   results, including every reason, in 100% of trials.
 - **SC-002**: Every Metronome click sounds within 3 ms of its correct time, with no accumulated drift over a
   10-minute run, including across tempo and meter changes.
-- **SC-003**: A synthetic performance played exactly on time is marked correct for 100% of its notes at every tempo
-  from 40 to 208 beats per minute, and never early or late.
+- **SC-003**: A synthetic performance played exactly on time is marked correct and on time for 100% of its notes
+  at every tempo from 40 to 208 beats per minute, and never early or late.
 - **SC-004**: The timing difference the Grade reports for a synthetic performance is within 5 ms of the offset that
   was injected, once the Latency profile is compensated.
 - **SC-005**: For 100% of the reference fixtures with repeats, endings, jumps, ties, chords and several voices, the

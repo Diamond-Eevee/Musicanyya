@@ -32,3 +32,31 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
 - Handoff: next = `/speckit.plan` (no `[NEEDS CLARIFICATION]` markers remain, so `/speckit.clarify` is optional).
   Feature 001 still has three open tasks on its own branch (T138, T139, T141); they do not block this feature.
   Tree clean at the commit below; not pushed.
+
+## 2026-09-20 - claude-opus-5 (relay)
+
+- Done: `/speckit.clarify` on feature 003 - 5 questions asked and answered (user: "recommended" throughout),
+  all integrated into `spec.md`. Session 2026-09-20 of `## Clarifications` now holds 8 entries.
+- Decisions taken in this session (each applied to the requirements, not only recorded):
+  1. **Two result axes**: every expected note carries a pitch result (correct / wrong pitch / missed); every note
+     a key press claimed also carries a timing result (on time / early / late) with its signed difference -
+     FR-018, FR-029, FR-032, `Note result`, SC-003. Resolves the conflict between FR-018's five-state enum and
+     FR-028/FR-032, which only ever counted four states, and makes the two summary figures computable.
+  2. **Matching is two passes**: same pitch first (correct), then same pitch class within the claim window
+     (wrong pitch = octave error); everything left over is extra plus a missed note - FR-019, FR-030. FR-019
+     previously described same-pitch matching only, under which no note could ever be marked wrong pitch. The
+     app never guesses which written note a wrong letter was aiming at, which keeps FR-025 determinism and
+     FR-030 explanations provable.
+  3. **Timing-accuracy figure** = share of played notes whose timing result is on time, as a count out of a total
+     and a percentage, with early/late counts beside it - FR-028. Millisecond detail stays per note (FR-030) and
+     per measure (FR-032).
+  4. **Strictness levels**: exactly three - Beginner (default, most forgiving), Standard, Strict - each a
+     complete set of the FR-020 windows - FR-039, `Strictness level`.
+  5. **Defaults named**: count-in one full measure of the meter where the run starts, never less than one
+     measure (FR-003); 20 most recent attempts kept per Score, oldest dropped first, limit stated to the
+     musician (FR-041).
+- Problems / open questions: none blocking. Unchanged from the previous entry: the Metronome's sample-accurate
+  click and the storage tier for Performance logs are for `/speckit.plan`. Decisions 1-5 all add named constants
+  the plan must put in `data-model.md` (constants table = `src/core/defaults.ts`, `src/engine/config.ts`).
+- Handoff: next = `/speckit.plan`. No `[NEEDS CLARIFICATION]` markers and no open owner decisions remain; a
+  second `/speckit.clarify` pass is not needed. Tree clean at the commit below; not pushed.
