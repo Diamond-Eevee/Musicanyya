@@ -1,7 +1,14 @@
 import { WebAudioEngine } from '../engine/audio/web-audio-engine.js';
 import { MAX_FILE_BYTES, ZOOM_STEP } from '../engine/config.js';
 import { WebMidiInput } from '../engine/midi/web-midi-input.js';
-import type { AudioEngineEvent, EngineSchedule, PracticeSettings, ScoreStore, SettingsStore } from '../engine/ports.js';
+import type {
+  AudioEngineEvent,
+  EngineSchedule,
+  MidiAvailability,
+  PracticeSettings,
+  ScoreStore,
+  SettingsStore,
+} from '../engine/ports.js';
 import { IndexedDbScoreStore } from '../engine/storage/indexeddb-score-store.js';
 import { LocalSettingsStore } from '../engine/storage/local-settings-store.js';
 import '../ui/elements/mx-diagnostics.js';
@@ -122,17 +129,26 @@ export class Session {
     ),
   ) {
     if (typeof window !== 'undefined') {
+      // e2e-only seam (tests/e2e/*.spec.ts): fakes a granted MIDI device without a real one, and feeds it raw MIDI
+      // bytes. `WebMidiInput`'s fields are private by design (nothing else should touch them); this reaches past
+      // that on purpose for the test harness rather than adding a real testing API to the port (no `any`: the
+      // narrow local type documents exactly what is being poked, nothing more).
+      const midiTestSeam = this.midiInput as unknown as {
+        grantState: MidiAvailability;
+        emit: (event: { type: string; [key: string]: unknown }) => void;
+        handleMidiMessage: (deviceId: string, e: { data: number[]; timeStamp: number }) => void;
+      };
       window.addEventListener('e2e-ready', () => {
-        console.log('TEST: e2e-ready received!');
-        (this.midiInput as any).grantState = 'available';
-        (this.midiInput as any).emit('availability', 'available');
-        (this.midiInput as any).emit('devices', [
-          { id: 'fake-midi-1', name: 'Fake', manufacturer: 'Musicanyya', connected: true },
-        ]);
-        console.log('TEST: emitted availability = available');
+        midiTestSeam.grantState = 'available';
+        midiTestSeam.emit({ type: 'availability', availability: 'available' });
+        midiTestSeam.emit({
+          type: 'devices',
+          devices: [{ id: 'fake-midi-1', name: 'Fake', manufacturer: 'Musicanyya', connected: true }],
+        });
       });
-      window.addEventListener('e2e-midi', (e: any) => {
-        (this.midiInput as any).handleMidiMessage('fake-midi-1', { data: e.detail, timeStamp: performance.now() });
+      window.addEventListener('e2e-midi', (e) => {
+        const detail = (e as CustomEvent<number[]>).detail;
+        midiTestSeam.handleMidiMessage('fake-midi-1', { data: detail, timeStamp: performance.now() });
       });
     }
     this.scoreStore = scoreStore;

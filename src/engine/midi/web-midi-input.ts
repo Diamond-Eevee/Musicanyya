@@ -6,9 +6,7 @@ export class WebMidiInput implements MidiInput {
   private grantState: MidiAvailability = 'notRequested';
   private heldKeys: Map<string, Set<number>> = new Map();
 
-  constructor(
-    private nav: Navigator = (typeof window !== 'undefined' && (window as any).__FAKE_NAVIGATOR__) || navigator,
-  ) {}
+  constructor(private nav: Navigator = navigator) {}
 
   availability(): MidiAvailability {
     return this.grantState;

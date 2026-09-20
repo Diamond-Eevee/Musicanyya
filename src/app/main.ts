@@ -17,7 +17,6 @@ async function bootstrap() {
   // Future: create audio/MIDI adapters based on env capabilities (US2/US3).
   console.log('App bootstrapped in environment:', env);
 
-  console.log('TEST: Before appElement check');
   const appElement = document.querySelector('mx-app');
   if (appElement) {
     const envPanel = appElement.querySelector('mx-environment-panel') as MxEnvironmentPanel;
@@ -26,10 +25,10 @@ async function bootstrap() {
     }
   }
 
-  console.log('TEST: Before new Session()');
   const session = new Session();
-  console.log('TEST: Setting mxSession');
-  (globalThis as any).mxSession = session;
+  // A manual-debugging handle only (constitution merge gate: no `any` without a justifying comment); nothing in
+  // the app or the test suite reads `globalThis.mxSession` programmatically.
+  (globalThis as unknown as { mxSession: Session }).mxSession = session;
   await session.start();
 }
 

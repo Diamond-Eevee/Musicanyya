@@ -3,7 +3,7 @@ import { drawCursorOverlay } from '../../src/ui/score/cursor-overlay.js';
 import { drawLoopMarks, drawPracticeMarks } from '../../src/ui/score/practice-marks.js';
 
 describe('practice marks rendering', () => {
-  it('each of the nine MarkStates renders a distinct shape class as well as a colour, and no mark covers the notehead', () => {
+  it('each of the six markable MarkStates renders a distinct shape class as well as a colour, and no mark covers the notehead', () => {
     // We will test that drawPracticeMarks calls the appropriate canvas context methods
     // with different fillStyles and shapes (rects, arcs, etc.) for each MarkState.
     const ctx = {
@@ -23,14 +23,14 @@ describe('practice marks rendering', () => {
     const getRect = (id: string): DOMRect =>
       ({ left: 10, top: 20, right: 30, bottom: 40, width: 20, height: 20 }) as DOMRect;
 
-    // Call drawPracticeMarks with a variety of states
+    // Call drawPracticeMarks with a variety of states. wrongPitch/wrongOctave/extra are excluded: they have no
+    // notehead of their own to mark (the key pressed is not written at this event at all) and are never produced
+    // as a `markNotes` state by the matcher any more - they reach the on-screen keyboard instead, via the separate
+    // `keyFeedback` effect (T056, R-14), covered by tests/ui/practice-key-feedback.test.ts.
     const marks = [
       { noteId: 'n1', state: 'waiting' as const },
       { noteId: 'n2', state: 'correctSoFar' as const },
       { noteId: 'n3', state: 'correct' as const },
-      { noteId: 'n4', state: 'wrongPitch' as const },
-      { noteId: 'n5', state: 'wrongOctave' as const },
-      { noteId: 'n6', state: 'extra' as const },
       { noteId: 'n7', state: 'heldOver' as const },
       { noteId: 'n8', state: 'playedAlong' as const },
       { noteId: 'n9', state: 'skipped' as const },
@@ -41,9 +41,6 @@ describe('practice marks rendering', () => {
       ['n1', getRect('n1')],
       ['n2', getRect('n2')],
       ['n3', getRect('n3')],
-      ['n4', getRect('n4')],
-      ['n5', getRect('n5')],
-      ['n6', getRect('n6')],
       ['n7', getRect('n7')],
       ['n8', getRect('n8')],
       ['n9', getRect('n9')],

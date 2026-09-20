@@ -285,8 +285,15 @@ on-screen keyboard with its note name and written fingering.
   note-off leaves a stuck note the matcher believes was released, and accompaniment roughly doubles the message
   rate. Count the drops and show them in the diagnostics like the other dropouts (Constitution I: "counted and
   shown"); needs its own `rt-audio-reviewer` pass
-- [ ] T046 Constitution audit of the branch with `constitution-auditor` (`.claude/agents/constitution-auditor.md`);
+- [x] T046 Constitution audit of the branch with `constitution-auditor` (`.claude/agents/constitution-auditor.md`);
   fix CRITICAL and HIGH findings
+- [x] T059 [P] Found by T046 (HIGH: unguarded `any` test-injection hooks in `main.ts`/`session.ts`/`midiState.ts`/
+  `practiceState.ts`, no justifying comment; LOW: `practice-marks.ts`'s dead `wrongPitch`/`wrongOctave`/`extra`
+  switch cases, noted but not fixed by T042's R-08 correction). Fixed both: replaced the `any` casts with narrow
+  local types or removed them (`web-midi-input.ts`'s unused `__FAKE_NAVIGATOR__` hook deleted outright - nothing
+  read it), dropped three stray `console.log('TEST: ...')` lines, and removed the unreachable
+  `wrongPitch`/`wrongOctave`/`extra` cases from `practice-marks.ts` (`tests/ui/practice-marks.test.ts` updated to
+  match - those three states reach the on-screen keyboard via `keyFeedback` instead, per T056/R-14)
 - [ ] T047 Run [quickstart.md](quickstart.md) manual verification end to end (browser and desktop app, real MIDI
   keyboard) and fix findings; confirm SC-006 (start in 2 actions under 10s) and SC-007 (20-minute session no drift)
 - [ ] T048 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; final

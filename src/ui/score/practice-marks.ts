@@ -54,25 +54,10 @@ export function drawPracticeMarks(options: PracticeMarksOptions): void {
         ctx.stroke();
         break;
       case 'wrongPitch':
-        ctx.strokeStyle = '#d55e00'; // vermilion
-        ctx.moveTo(cx - r, cy - r);
-        ctx.lineTo(cx + r, cy + r);
-        ctx.moveTo(cx + r, cy - r);
-        ctx.lineTo(cx - r, cy + r);
-        ctx.stroke();
-        break;
       case 'wrongOctave':
-        ctx.strokeStyle = '#e69f00'; // orange
-        ctx.strokeRect(cx - r, cy - r, r * 2, r * 2);
-        break;
       case 'extra':
-        ctx.strokeStyle = '#cc79a7'; // reddish-purple
-        ctx.moveTo(cx, cy - r);
-        ctx.lineTo(cx + r, cy);
-        ctx.lineTo(cx, cy + r);
-        ctx.lineTo(cx - r, cy);
-        ctx.closePath();
-        ctx.stroke();
+        // No notehead of their own to mark: the key pressed is not written at this event at all, so these three
+        // are shown on the on-screen keyboard instead, via the `keyFeedback` effect (T056, R-14) - never here.
         break;
       case 'heldOver':
         ctx.strokeStyle = '#f0e442'; // yellow

@@ -110,5 +110,8 @@ class PracticeStateStore {
 export const practiceState = new PracticeStateStore();
 
 if (typeof window !== 'undefined') {
+  // e2e/manual-debugging seam only (tests/e2e/*.spec.ts drive Practice mode directly, e.g. `setMode`/`setHelpOverlay`
+  // without a real MIDI device); `any` here is attaching to `Window`, which has no index signature for app-specific
+  // globals.
   (window as any).__PRACTICE_STATE__ = practiceState;
 }
