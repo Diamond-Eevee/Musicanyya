@@ -294,9 +294,9 @@ on-screen keyboard with its note name and written fingering.
   read it), dropped three stray `console.log('TEST: ...')` lines, and removed the unreachable
   `wrongPitch`/`wrongOctave`/`extra` cases from `practice-marks.ts` (`tests/ui/practice-marks.test.ts` updated to
   match - those three states reach the on-screen keyboard via `keyFeedback` instead, per T056/R-14)
-- [ ] T047 Run [quickstart.md](quickstart.md) manual verification end to end (browser and desktop app, real MIDI
+- [x] T047 Run [quickstart.md](quickstart.md) manual verification end to end (browser and desktop app, real MIDI
   keyboard) and fix findings; confirm SC-006 (start in 2 actions under 10s) and SC-007 (20-minute session no drift)
-- [ ] T048 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; final
+- [x] T048 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; final
   `implementation-log.md` entry; commit
 
 ---

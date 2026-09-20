@@ -297,3 +297,93 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
   skipped as before - unchanged by this checkpoint, since US4 added no new e2e spec).
 - Handoff: next = **Polish, T042-T048 and T057** (the only tasks left in `tasks.md`). Tree clean at the commit
   below.
+
+## 2026-09-20 - claude-sonnet-5 (relay)
+
+- Done: **T042-T048, T057, T059** - the Polish phase is complete; all 59 tasks in `tasks.md` are `[x]`. Feature 002
+  is functionally done, pending the full gate below and this entry.
+- **T042** (SC-009, greyscale/shape check): rendered every reachable mark shape (Score: waiting, correctSoFar,
+  correct, heldOver, playedAlong, skipped; on-screen keyboard: wrongPitch, wrongOctave, extra) at notehead size, in
+  colour and under a CSS greyscale filter, and reviewed the screenshots. All eight are still visually distinct in
+  greyscale. This surfaced that **R-08 in research.md was stale**: it described a pre-implementation shape set
+  (a hollow ring, a smaller dot, an arrow, a triangle above the staff...) that was never what got built. Corrected
+  R-08 in place to describe what `practice-marks.ts` and `mx-piano-keys.ts` actually draw, with an "Amended" note
+  explaining why, rather than leaving two contradictory entries.
+- **T043** (SC-002/SC-011 measurement): added `tests/core/practice/perf.test.ts` against `large-score.musicxml`
+  (regenerated via `pnpm gen:large-score`, 500 measures). Measured: SC-011 (`buildExpectedEvents` + `startSession`
+  from the middle of the Score) **~2 ms** against a 1000 ms budget; the matcher's own share of SC-002 (one
+  `applyInput` call) **~0.4 ms** against a 50 ms budget. The MIDI-driver/audio-output share of SC-002 still needs
+  real hardware, as in every prior entry - not measured.
+- **T044** (docs pass): confirmed no MusicXML parser change in this feature. Added a `<fingering>` row to
+  `SUPPORT_MATRIX` (`src/core/musicxml/support.ts` + `docs/musicxml-support.md`, kept in sync by
+  `support-doc-sync.test.ts`): the element was already parsed and engraved by Verovio, but this feature is the
+  first to read it programmatically (the help overlay). Confirmed `quickstart.md`'s US4 table already matches what
+  was built exactly (it was written during planning and needed no changes) and `README.md` has no command changes
+  to reflect.
+- **T045** (contract check): `contracts/practice-session.md` and `contracts/practice-settings.md` cross-checked
+  against the shipped code; one stale doc comment fixed (`PracticeInput.enabled` only mentioned
+  `setAccompaniment`, now also `setHelp`). `specs/001-score-viewer-listen/contracts/ports.md` already carried the
+  `1.1.0` `SettingsStore` bump from T030.
+- **T057** (RT follow-up, `rt-audio-reviewer`: PASS): the worklet's 64-entry live queue
+  (`src/engine/worklets/score-player.processor.ts`) silently dropped a `noteOn`/`noteOff` on overflow. Added a
+  `liveDropped` counter, posted as a new `{ type: "liveDropped", total }` message from `receiveMessage()` (never
+  `process()`/`processBlock()` - same off-hot-path handler `status`/`ended` already use), forwarded through
+  `WebAudioEngine` into `AudioDiagnostics.liveQueueDropped` and shown in `mx-diagnostics` (Constitution I: "counted
+  and shown"). `contracts/worklet-protocol.md` (feature 001) bumped to 1.1.0. Confirmed by the reviewer that
+  realistic message rates (one per discrete note event, not per audio block) never come close to the 64 cap even
+  with Practice's accompaniment roughly doubling the rate.
+- **T046** (`constitution-auditor`): COMPLIANT WITH NOTES - no CRITICAL, one HIGH, one MEDIUM, two LOW. Fixed the
+  HIGH and both LOW findings (recorded as **T059** below, since AGENTS.md wants missing work turned into a task,
+  not just a sentence in research.md); left the MEDIUM (per-Score `PracticeSettings` in `localStorage`, capped at
+  20 entries, reads as a bit more than the constitution's "tiny UI preferences" wording, though it follows feature
+  001's own existing precedent for `UserSettings`) as a recorded, non-blocking observation rather than a schema
+  migration nobody asked for.
+- **T059** (new, found by T046): fixed the HIGH finding - `src/app/main.ts`, `src/app/session.ts`,
+  `src/ui/state/midiState.ts` and `src/ui/state/practiceState.ts` reached into `WebMidiInput`'s private fields and
+  attached debug globals to `window` with bare `any` and no justifying comment (the constitution's merge gate
+  requires one), plus three stray `console.log('TEST: ...')` lines. Replaced every `any` with a narrow local type
+  naming exactly what is poked, except `web-midi-input.ts`'s `__FAKE_NAVIGATOR__` constructor hook, which was
+  simply **deleted** - nothing anywhere read it (the one test that fakes a navigator passes it straight to the
+  constructor). Fixing the fake `e2e-ready` handler's type also surfaced a real latent bug it had been hiding:
+  `(this.midiInput as any).emit('availability', 'available')` called the real `emit(event: MidiInputEvent)` with
+  two loose arguments instead of one object, so `event` was silently the *string* `"availability"` and every
+  `e.type === 'availability'` check downstream was always false - the fake event never actually reached
+  `midiState`. No test caught this because every existing e2e spec sets Practice mode directly via
+  `__PRACTICE_STATE__.setMode('practice')`, bypassing the mode-switch radio button (and therefore `midiState`)
+  entirely. Fixed by calling `emit({ type: 'availability', availability: 'available' })` as the type actually
+  requires; full e2e suite re-run and green afterwards (22/22), including every spec that depends on the fake
+  device, so this was a pre-existing dead branch made correct, not a behaviour change anything relied on. Also
+  fixed the LOW finding: removed `practice-marks.ts`'s `wrongPitch`/`wrongOctave`/`extra` switch cases (dead since
+  T056/R-14 moved those three states to the `keyFeedback` effect - the matcher never emits a `markNotes` effect
+  with them any more) and updated `tests/ui/practice-marks.test.ts` to stop exercising the dead path. Deleted an
+  unreferenced `scratch/debug-matcher.ts` left over from early development (the other LOW finding).
+- **T047** (quickstart.md manual verification): the automated e2e suite already exercises the bulk of the US1-US4
+  tables continuously (it uses the same reference score, `chords/c-major-scale-and-chords.musicxml`, named in
+  quickstart.md §3), including on the `electron` Playwright project, so desktop-app parity (quickstart §4 "Run the
+  same steps in the desktop app") is already covered by every existing spec, not re-verified separately here.
+  What is not covered by any existing automated test was checked manually in the browser pane this session:
+  - **SC-006** (start in 2 actions under 10 s): with a Score already open and MIDI faked available, clicking the
+    Practice radio then Start took **57 ms** of script time before the session reached `waiting`; comfortably
+    inside budget.
+  - **SC-007** (a long session, no stuck notes, no drift): no real 20-minute session was possible without
+    hardware, so a proxy was run instead - `large-score.musicxml` (500 measures) with "right hand only" selected
+    (2 required keys per event, 1000 discrete note messages total), driven end to end via fake MIDI with no pauses.
+    Result: reached `finished` at `index` 500, `heldKeys` and `soundingAccompaniment` both empty, every mark ended
+    `correct` (none left `correctSoFar`/`waiting`/`heldOver`), `wrongAttemptsOnCurrent` 0, no stray `helpOverlay` -
+    no stuck state anywhere after processing every measure.
+  - Not verified, as in every prior entry: a real MIDI keyboard, and Safari (Playwright WebKit has no
+    `AudioContext`, so even the automated suite skips Practice specs there, and this pane cannot drive Safari
+    either).
+- Gate: `pnpm lint` 0 errors (**166** warnings, down from 173 - T059 removed several long-standing `any` usages;
+  none new), `pnpm typecheck` clean, `pnpm test` 529 passed / 2 skipped (523 + 6 new: 2 in `perf.test.ts` for T043,
+  1 in `score-player.live.test.ts` + 1 in `web-audio-engine.test.ts` + 2 in the new `diagnostics.test.ts` for T057;
+  T059 removed three states from one existing `practice-marks.test.ts` case rather than adding or removing a whole
+  test), `pnpm build` clean, `pnpm test:e2e` 22 passed / 14 skipped / 0 failed (Chromium, Firefox, Electron; WebKit
+  practice specs skipped as before), re-run twice more after the T059 MIDI-emit fix specifically to be sure nothing
+  regressed.
+- Handoff: **feature 002 is complete** - all 59 tasks in `tasks.md` are `[x]`, all four user stories pass their
+  Independent Test, and the full gate is green. Not done, by design or by hardware limits recorded throughout this
+  log: real MIDI keyboard verification, Safari (Web MIDI unavailable there; Listen mode unaffected), a literal
+  20-minute wall-clock session (SC-007 was verified by a scripted proxy instead - see T047 above), and the T046
+  MEDIUM finding about `PracticeSettings`' storage tier (recorded, not acted on). Nothing is `[~]`. Tree clean at
+  the commit below; not pushed.
