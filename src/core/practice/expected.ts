@@ -1,95 +1,42 @@
+import { PRACTICE_HAND_ATTRIBUTION } from '../defaults.js';
 import type { Note, Part, Score } from '../score/model.js';
 import type { PlaybackTimeline } from '../timeline/types.js';
+import { homeStavesByVoice } from './hands.js';
 import type { ExpectedEvent, HandSelection, SoundingRef } from './types.js';
 
-export function partOptions(score: Score): {
-  readonly parts: readonly { partIndex: number; name: string; staves: number }[];
-  readonly preselected: number;
-} {
-  const parts: { partIndex: number; name: string; staves: number }[] = [];
-  let firstPitched = -1;
-  let preselected = -1;
+export type HandAttribution = 'voice-home-staff' | 'printed-staff';
 
-  for (const part of score.parts) {
-    let hasPitchedPrinted = false;
-    for (const note of part.notes) {
-      if (!note.unpitched && note.printed !== false) {
-        hasPitchedPrinted = true;
-        break;
-      }
-    }
-    if (hasPitchedPrinted) {
-      parts.push({ partIndex: part.index, name: part.name || `Part ${part.index + 1}`, staves: part.staves });
-      if (firstPitched === -1) firstPitched = part.index;
-      if (preselected === -1 && part.staves >= 2) {
-        preselected = part.index;
-      }
-    }
-  }
-
-  if (preselected === -1) preselected = firstPitched;
-
-  return { parts, preselected };
+interface RequiredAccumulator {
+  key: number;
+  noteIds: string[];
+  staff: number;
 }
 
-export function handOptions(score: Score, partIndex: number): readonly HandSelection[] {
-  const part = score.parts.find((p) => p.index === partIndex);
-  if (!part) return [];
-  const staves = part.staves;
-
-  if (staves === 1) {
-    return [{ preset: 'both', partIndex, staves: [1] }];
-  } else if (staves === 2) {
-    return [
-      { preset: 'both', partIndex, staves: [1, 2] },
-      { preset: 'right', partIndex, staves: [1] },
-      { preset: 'left', partIndex, staves: [2] },
-    ];
-  } else {
-    const allStaves = Array.from({ length: staves }, (_, i) => i + 1);
-    const options: HandSelection[] = [{ preset: 'both', partIndex, staves: allStaves }];
-    for (let i = 1; i <= staves; i++) {
-      options.push({ preset: 'custom', partIndex, staves: [i] });
-    }
-    return options;
-  }
+interface EventGroup {
+  passIndex: number;
+  measureIndex: number;
+  onsetTick: number;
+  required: Map<number, RequiredAccumulator>;
+  accompaniment: SoundingRef[];
 }
 
-function buildHomeStaves(score: Score): Map<number, Map<string, number>> {
-  const map = new Map<number, Map<string, number>>();
-  for (const part of score.parts) {
-    const voiceStaff = new Map<string, number>();
-    const voiceDurations = new Map<string, Map<number, number>>();
-    for (const note of part.notes) {
-      let staves = voiceDurations.get(note.voice);
-      if (!staves) {
-        staves = new Map<number, number>();
-        voiceDurations.set(note.voice, staves);
-      }
-      const dur = staves.get(note.staff) || 0;
-      staves.set(note.staff, dur + note.durationTicks);
-    }
-
-    for (const [voice, staves] of voiceDurations.entries()) {
-      let bestStaff = 1;
-      let maxDur = -1;
-      for (const [staff, dur] of staves.entries()) {
-        if (dur > maxDur || (dur === maxDur && staff < bestStaff)) {
-          maxDur = dur;
-          bestStaff = staff;
-        }
-      }
-      voiceStaff.set(voice, bestStaff);
-    }
-    map.set(part.index, voiceStaff);
-  }
-  return map;
-}
-
+/**
+ * The events a session waits for, in the order Listen plays them (data-model.md section 2).
+ *
+ * `attribution` decides which hand a note belongs to; the default is the named constant, and `'printed-staff'` is
+ * there so a fixture can pin the naive behaviour for comparison (R-05).
+ *
+ * Accompaniment - notes that are heard but not required - is attached to the expected event they pass under: every
+ * accompaniment note written at an onset from this event up to (not including) the next expected event belongs to
+ * this one, and any that comes before the first expected event belongs to the first. This is what makes the other
+ * hand sound when it plays where the practised hand rests (FR-031, FR-036): an onset with nothing required is
+ * passed over, but its notes are not lost.
+ */
 export function buildExpectedEvents(
   score: Score,
   timeline: PlaybackTimeline,
   selection: HandSelection,
+  attribution: HandAttribution = PRACTICE_HAND_ATTRIBUTION,
 ): readonly ExpectedEvent[] {
   const noteMap = new Map<string, { note: Note; part: Part }>();
   for (const part of score.parts) {
@@ -98,17 +45,8 @@ export function buildExpectedEvents(
     }
   }
 
-  const homeStaves = buildHomeStaves(score);
-
-  interface RawEvent {
-    passIndex: number;
-    measureIndex: number;
-    onsetTick: number;
-    required: Map<number, { key: number; noteIds: string[]; staff: number }>;
-    accompaniment: SoundingRef[];
-  }
-
-  const eventGroups = new Map<string, RawEvent>();
+  const homeStaves = homeStavesByVoice(score);
+  const groups = new Map<string, EventGroup>();
 
   for (const ev of timeline.events) {
     const headId = ev.head.noteId;
@@ -120,73 +58,113 @@ export function buildExpectedEvents(
     const pass = timeline.passes[passIndex];
     if (!pass) continue;
 
-    const onsetTick = pass.startTick + note.onsetInMeasure;
+    // Group on the NOTATED onset: grace notes steal time, so grouping on the sounding start would split a chord.
     const groupKey = `${passIndex}:${note.measureIndex}:${note.onsetInMeasure}`;
-
-    let group = eventGroups.get(groupKey);
+    let group = groups.get(groupKey);
     if (!group) {
       group = {
         passIndex,
         measureIndex: note.measureIndex,
-        onsetTick,
+        onsetTick: pass.startTick + note.onsetInMeasure,
         required: new Map(),
         accompaniment: [],
       };
-      eventGroups.set(groupKey, group);
+      groups.set(groupKey, group);
     }
 
-    const homeStaff = homeStaves.get(part.index)?.get(note.voice) ?? note.staff;
-
+    const hand =
+      attribution === 'printed-staff' ? note.staff : (homeStaves.get(part.index)?.get(note.voice) ?? note.staff);
     const isRequired =
       !note.unpitched &&
       note.printed !== false &&
       !note.grace &&
       part.index === selection.partIndex &&
-      selection.staves.includes(homeStaff);
+      selection.staves.includes(hand);
 
     if (isRequired) {
-      const soundingKey = ev.key;
-      const req = group.required.get(soundingKey);
-      if (req) {
-        req.noteIds.push(...ev.members);
+      const existing = group.required.get(ev.key);
+      if (existing) {
+        existing.noteIds.push(...ev.members);
       } else {
-        group.required.set(soundingKey, {
-          key: soundingKey,
-          noteIds: [...ev.members],
-          staff: note.staff,
-        });
+        group.required.set(ev.key, { key: ev.key, noteIds: [...ev.members], staff: note.staff });
       }
     } else {
-      group.accompaniment.push({
-        noteId: headId,
-        key: ev.key,
-        endTick: ev.endTick,
-      });
+      group.accompaniment.push({ noteId: headId, key: ev.key, endTick: ev.endTick, velocity: ev.velocity });
     }
   }
 
-  const expectedEvents: ExpectedEvent[] = [];
-  for (const group of eventGroups.values()) {
-    if (group.required.size === 0) continue;
+  const ordered = Array.from(groups.values()).sort((a, b) => a.onsetTick - b.onsetTick);
 
-    const required = Array.from(group.required.values()).sort((a, b) => a.key - b.key);
+  const built: { group: EventGroup; accompaniment: SoundingRef[] }[] = [];
+  const leading: SoundingRef[] = [];
+  for (const group of ordered) {
+    const last = built[built.length - 1];
+    if (group.required.size > 0) {
+      built.push({ group, accompaniment: [...group.accompaniment] });
+    } else if (last) {
+      last.accompaniment.push(...group.accompaniment);
+    } else {
+      leading.push(...group.accompaniment);
+    }
+  }
+  const first = built[0];
+  if (first) first.accompaniment.unshift(...leading);
 
-    expectedEvents.push({
-      index: 0,
-      passIndex: group.passIndex,
-      measureIndex: group.measureIndex,
-      onsetTick: group.onsetTick,
-      required,
-      accompaniment: group.accompaniment,
-    });
+  return built.map(({ group, accompaniment }, index) => ({
+    index,
+    passIndex: group.passIndex,
+    measureIndex: group.measureIndex,
+    onsetTick: group.onsetTick,
+    required: Array.from(group.required.values()).sort((a, b) => a.key - b.key),
+    accompaniment,
+  }));
+}
+
+/**
+ * The event a session starts at when the musician picks a measure (FR-015, AS-2.3, R-06): the first expected event
+ * of the occurrence of that measure the cursor is in, otherwise of the first occurrence at or after the cursor,
+ * otherwise of the first occurrence in the Score. A measure with no expected event for this selection resolves to
+ * the next measure that has one. Null when nothing at or after that measure can be played.
+ *
+ * `cursorEventIndex` indexes `events`; use `firstEventAtOrAfterTick` to carry a position over from another list.
+ */
+export function resolveStartMeasure(
+  events: readonly ExpectedEvent[],
+  measureIndex: number,
+  cursorEventIndex: number,
+): number | null {
+  if (events.length === 0) return null;
+
+  let target: number | null = null;
+  for (const event of events) {
+    if (event.measureIndex >= measureIndex && (target === null || event.measureIndex < target)) {
+      target = event.measureIndex;
+    }
+  }
+  if (target === null) return null;
+
+  const cursor = Math.min(Math.max(cursorEventIndex, 0), events.length - 1);
+  let pick: number;
+  if (events[cursor]?.measureIndex === target) {
+    pick = cursor;
+  } else {
+    pick = events.findIndex((event, i) => i >= cursor && event.measureIndex === target);
+    if (pick === -1) pick = events.findIndex((event) => event.measureIndex === target);
   }
 
-  expectedEvents.sort((a, b) => a.onsetTick - b.onsetTick);
-
-  for (let i = 0; i < expectedEvents.length; i++) {
-    const ev = expectedEvents[i];
-    if (ev) ev.index = i;
+  // Land on the first expected event of that occurrence, never part-way through it.
+  while (pick > 0) {
+    const before = events[pick - 1];
+    const here = events[pick];
+    if (!before || !here || before.passIndex !== here.passIndex || before.measureIndex !== here.measureIndex) break;
+    pick--;
   }
+  return pick;
+}
 
-  return expectedEvents;
+/** Where a position on the timeline falls in an event list: the first event at or after `tick`, the last event when
+ *  the position is past them all, 0 for an empty list. Used to carry the cursor over when the events are rebuilt. */
+export function firstEventAtOrAfterTick(events: readonly ExpectedEvent[], tick: number): number {
+  const index = events.findIndex((event) => event.onsetTick >= tick);
+  return index === -1 ? Math.max(events.length - 1, 0) : index;
 }

@@ -63,6 +63,7 @@ interface SoundingRef {
   noteId: NoteId;
   key: number;
   endTick: Ticks;            // when the cursor passes this tick, the note is released (R-03)
+  velocity: number;          // the velocity Listen would play it at
 }
 ```
 
@@ -76,7 +77,10 @@ interface SoundingRef {
 3. A note is **required** when all of: pitched, printed, not a grace note, its voice's home staff is in the
    selection, and its part is the practised part. Everything else at that onset becomes `accompaniment`.
 4. Deduplicate required notes by sounding key; keep every Note ID at that key (FR-038).
-5. Drop events whose `required` list is empty - grace-only, accompaniment-only, hidden-only (FR-036).
+5. Drop events whose `required` list is empty - grace-only, accompaniment-only, hidden-only (FR-036) - **but keep
+   what they sound**: the accompaniment of a dropped onset is attached to the expected event before it (the first
+   expected event when there is none before). Every accompaniment note written from an event's onset up to, not
+   including, the next expected event's onset therefore belongs to that event (R-12).
 6. Order by `onsetTick`, which is the order Listen plays (FR-003, SC-005).
 
 Rests need no rule: the timeline holds only sounding events, so passing over them is emergent.
@@ -195,6 +199,7 @@ interface PracticeSession {
   phase: SessionPhase;
   marks: ReadonlyMap<NoteId, MarkState>;
   heldKeys: ReadonlySet<number>;
+  soundingAccompaniment: ReadonlyMap<number, Ticks>; // key -> endTick of the accompaniment notes that ring now
   wrongAttemptsOnCurrent: number; // drives help only; never shown as a count (R-10); played-along keys and
                                  // skipped events never increase it
   loop: ResolvedLoop | null;

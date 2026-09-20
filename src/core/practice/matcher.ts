@@ -1,6 +1,7 @@
 import type { NoteId } from '../score/model.js';
 import type {
   Attempt,
+  ExpectedEvent,
   MarkState,
   PracticeEffect,
   PracticeInput,
@@ -12,12 +13,13 @@ import type {
 export function startSession(options: StartOptions): PracticeSession {
   return {
     scoreId: options.scoreId,
-    selection: { preset: 'both', partIndex: 0, staves: [] }, // mock for now
+    selection: options.selection ?? { preset: 'both', partIndex: 0, staves: [] },
     events: options.events,
     index: options.startEventIndex,
     phase: options.events.length === 0 ? 'finished' : 'waiting',
     marks: new Map(),
     heldKeys: new Set(),
+    soundingAccompaniment: new Map(),
     wrongAttemptsOnCurrent: 0,
     loop: options.loop,
     accompaniment: options.accompaniment,
@@ -27,21 +29,60 @@ export function startSession(options: StartOptions): PracticeSession {
 }
 
 export function applyInput(session: PracticeSession, input: PracticeInput): SessionStep {
-  if (session.phase === 'finished' || session.phase === 'idle') {
-    return { session, effects: [] };
-  }
-
   const marks = new Map(session.marks);
   const heldKeys = new Set(session.heldKeys);
   const log = [...session.log];
+  const sounding = new Map(session.soundingAccompaniment);
 
   const next: PracticeSession = {
     ...session,
     marks,
     heldKeys,
+    soundingAccompaniment: sounding,
     log,
   };
   const effects: PracticeEffect[] = [];
+
+  /** Silences every accompaniment note that rings (R-03). */
+  const releaseAll = () => {
+    for (const key of sounding.keys()) effects.push({ type: 'soundOff', key });
+    sounding.clear();
+  };
+
+  if (input.type === 'setAccompaniment') {
+    next.accompaniment = input.enabled === true;
+    if (!next.accompaniment) releaseAll();
+    return { session: next, effects };
+  }
+
+  if (session.phase === 'finished' || session.phase === 'idle') {
+    // The last accompaniment notes ring until the musician lets go of every key: there is no cursor left to pass
+    // them, and a timer must not decide when a sound stops (Constitution I).
+    if (sounding.size === 0) return { session, effects: [] };
+    if (input.type === 'noteOn' && input.key !== undefined) heldKeys.add(input.key);
+    if (input.type === 'noteOff' && input.key !== undefined) heldKeys.delete(input.key);
+    if (input.type === 'deviceLost') {
+      for (const k of input.heldKeys ?? []) heldKeys.delete(k);
+    }
+    if (heldKeys.size === 0 || input.type === 'deviceLost') releaseAll();
+    return { session: next, effects };
+  }
+
+  /** The cursor passes an event: what has ended is released, then the notes written under it start (FR-031). */
+  const soundAccompanimentOf = (event: ExpectedEvent) => {
+    if (!next.accompaniment) return;
+    for (const [key, endTick] of sounding) {
+      if (endTick <= event.onsetTick) {
+        effects.push({ type: 'soundOff', key });
+        sounding.delete(key);
+      }
+    }
+    for (const ref of event.accompaniment) {
+      if (sounding.has(ref.key)) effects.push({ type: 'soundOff', key: ref.key });
+      effects.push({ type: 'soundOn', key: ref.key, noteIds: [ref.noteId], velocity: ref.velocity });
+      sounding.set(ref.key, ref.endTick);
+    }
+  };
 
   const addMark = (noteIds: readonly NoteId[], state: MarkState) => {
     for (const id of noteIds) {
@@ -60,6 +101,7 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
     for (const k of input.heldKeys ?? []) {
       heldKeys.delete(k);
     }
+    releaseAll();
     next.phase = 'interrupted';
     effects.push({ type: 'notice', code: 'practiceDeviceLost' });
     return { session: next, effects };
@@ -69,6 +111,7 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
     if (currentEvent) {
       const noteIds = currentEvent.required.flatMap((r) => r.noteIds);
       addMark(noteIds, 'skipped');
+      soundAccompanimentOf(currentEvent);
       next.index++;
       next.wrongAttemptsOnCurrent = 0;
       if (next.index >= next.events.length) {
@@ -87,6 +130,7 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
 
   if (input.type === 'skipPrevious') {
     if (next.index > 0) {
+      releaseAll();
       next.index--;
       next.wrongAttemptsOnCurrent = 0;
       const prevEv = next.events[next.index];
@@ -162,6 +206,7 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
         for (const req of currentEvent.required) {
           addMark(req.noteIds, 'correct');
         }
+        soundAccompanimentOf(currentEvent);
 
         next.index++;
         next.wrongAttemptsOnCurrent = 0;

@@ -1,10 +1,12 @@
 # Contract: practice session (core API)
 
-**Version**: `1.0.0` (internal TypeScript contract between `src/core/practice`, `src/app/session.ts` and
+**Version**: `1.1.0` (internal TypeScript contract between `src/core/practice`, `src/app/session.ts` and
 `src/ui`). Signatures are normative in shape; every change is reflected here with a version bump (MINOR for
-additions, MAJOR for breaking changes). Amended on 2026-09-20 by the clarification session (played-along and
-skipped marks, the wrong-versus-extra rule, part selection, skip inputs) before any of it was implemented, so
-`1.0.0` still describes the first shipped shape and no bump applies.
+additions, MAJOR for breaking changes). `1.0.0` was amended on 2026-09-20 by the clarification session (played-along
+and skipped marks, the wrong-versus-extra rule, part selection, skip inputs) before anything was implemented.
+`1.1.0` (US2, 2026-09-20) only adds: `resolveStartMeasure`, `firstEventAtOrAfterTick`, the `setAccompaniment`
+input, `velocity` on `soundOn` and on `SoundingRef`, `StartOptions.selection`, `PracticeSession.soundingAccompaniment`,
+and the optional `attribution` argument of `buildExpectedEvents`.
 
 Constitution IV and V: this module is pure. It imports nothing from `src/engine` or `src/ui`, touches no DOM, no
 Web API, no clock and no randomness, and therefore runs in Node under test. It **returns** effects; it never
@@ -37,7 +39,18 @@ export function buildExpectedEvents(
   score: Score,
   timeline: PlaybackTimeline,
   selection: HandSelection,
+  attribution?: "voice-home-staff" | "printed-staff",     // default PRACTICE_HAND_ATTRIBUTION (R-05)
 ): readonly ExpectedEvent[];
+
+/** The event a session starts at for a picked measure: the first expected event of the occurrence the cursor is in,
+ *  else of the first occurrence at or after it, else of the first occurrence in the Score. A measure with no expected
+ *  event for this selection resolves to the next measure that has one; null when there is none (FR-015, R-06). */
+export function resolveStartMeasure(
+  events: readonly ExpectedEvent[], measureIndex: number, cursorEventIndex: number,
+): number | null;
+
+/** Carries a position across a rebuild: the first event at or after `tick`, else the last, 0 when empty. */
+export function firstEventAtOrAfterTick(events: readonly ExpectedEvent[], tick: Ticks): number;
 ```
 
 ## Session state and input
@@ -46,7 +59,8 @@ export function buildExpectedEvents(
 export type SessionPhase = "idle" | "waiting" | "blocked" | "finished" | "interrupted";
 
 export interface PracticeInput {                 // the MidiInput port's events, plus the musician's own commands
-  type: "noteOn" | "noteOff" | "sustain" | "deviceLost" | "skipNext" | "skipPrevious";
+  type: "noteOn" | "noteOff" | "sustain" | "deviceLost" | "skipNext" | "skipPrevious" | "setAccompaniment";
+  enabled?: boolean;                             // setAccompaniment: silences what rings when turned off
   key?: number;                                  // noteOn / noteOff
   velocity?: number;                             // noteOn, carried through to the log only
   down?: boolean;                                // sustain
@@ -56,6 +70,7 @@ export interface PracticeInput {                 // the MidiInput port's events,
 
 export interface StartOptions {
   scoreId: string | null;
+  selection?: HandSelection;                     // what the events were built for; the view dims the rest (FR-032)
   events: readonly ExpectedEvent[];
   startEventIndex: number;                       // 0, or the first event of a clicked measure - resolved to the
                                                  // occurrence the cursor is in, else the first at or after it,
@@ -84,7 +99,7 @@ The app layer applies these; the core only describes them.
 export type PracticeEffect =
   | { type: "markNotes"; marks: readonly { noteId: NoteId; state: MarkState }[] }
   | { type: "moveCursor"; eventIndex: number; onsetTick: Ticks }
-  | { type: "soundOn"; key: number; noteIds: readonly NoteId[] }   // accompaniment (R-03)
+  | { type: "soundOn"; key: number; noteIds: readonly NoteId[]; velocity: number }   // accompaniment (R-03)
   | { type: "soundOff"; key: number }
   | { type: "showHelp"; eventIndex: number; reason: "stuck" | "requested" | "heldOver" }
   | { type: "hideHelp" }
@@ -98,6 +113,12 @@ export type PracticeNoticeCode =
   | "practiceDeviceLost"
   | "practiceDeviceBack";
 ```
+
+**When accompaniment sounds** (FR-031, R-03, R-12): when the cursor passes an event - the moment it is satisfied, or
+skipped - the notes that have ended (`endTick` at or before that event's `onsetTick`) are released with `soundOff`,
+then the notes written under the event start with `soundOn`, before `moveCursor`. Going back (`skipPrevious`),
+losing the device and turning accompaniment off release everything. After the last event the notes ring until every
+key is let go, then they are released; no timer ever decides. A key struck while it still rings is released first.
 
 `soundOn` / `soundOff` carry a key, not a note, so the app maps them straight onto the existing
 `AudioEngine.liveNoteOn` / `liveNoteOff`. No new port method is needed (ports.md unchanged by this contract; the

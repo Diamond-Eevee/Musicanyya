@@ -38,5 +38,8 @@ export const LATENCY_SAMPLES = 32;
 export const RELAYOUT_DEBOUNCE_MS = 150;
 export const SETTINGS_WRITE_DEBOUNCE_MS = 500;
 
+// Practice settings remembered per Score (contracts/practice-settings.md)
+export const PRACTICE_SETTINGS_MAX = 20;
+
 // UI
 export const FOLLOW_MARGIN = 0.2; // Middle 60% of viewport means 20% margin top/bottom

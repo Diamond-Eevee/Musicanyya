@@ -162,16 +162,16 @@ expected, the left hand is heard as the cursor passes it, and the session starts
 
 ### Implementation
 
-- [ ] T027 [US2] `src/core/practice/hands.ts` - voice-to-home-staff attribution and
+- [x] T027 [US2] `src/core/practice/hands.ts` - voice-to-home-staff attribution and
   `handOptions(score, partIndex)` (depends on T021, T022)
-- [ ] T052 [US2] `partOptions(score)` in `src/core/practice/hands.ts` and the practised-part filter in
+- [x] T052 [US2] `partOptions(score)` in `src/core/practice/hands.ts` and the practised-part filter in
   `expected.ts`; changing the part rebuilds the events and restarts from the current measure, as a hand change
   does (FR-025a-c) (depends on T051)
-- [ ] T028 [US2] Extend `src/core/practice/expected.ts` with the selection filter and the `accompaniment` list, plus `resolveStartMeasure`
+- [x] T028 [US2] Extend `src/core/practice/expected.ts` with the selection filter and the `accompaniment` list, plus `resolveStartMeasure`
   (depends on T023, T026)
-- [ ] T029 [US2] Extend `src/core/practice/matcher.ts` with the `soundOn`/`soundOff` accompaniment effects tied to
+- [x] T029 [US2] Extend `src/core/practice/matcher.ts` with the `soundOn`/`soundOff` accompaniment effects tied to
   cursor movement (depends on T024)
-- [ ] T030 [US2] `SettingsStore.loadPractice` / `savePractice` in `src/engine/ports.ts`, the
+- [x] T030 [US2] `SettingsStore.loadPractice` / `savePractice` in `src/engine/ports.ts`, the
   `musicanyya.practice.v1` key in `src/engine/storage/local-settings-store.ts`, and an in-memory settings store in
   `tests/fakes/`; bump `specs/001-score-viewer-listen/contracts/ports.md` to `1.1.0` (depends on T025)
 - [ ] T031 [US2] `src/ui/elements/mx-practice-panel.ts` (part selection - shown only when the Score has more than

@@ -25,6 +25,7 @@ export interface SoundingRef {
   noteId: NoteId;
   key: number;
   endTick: Ticks;
+  velocity: number;
 }
 
 export type MarkState =
@@ -71,6 +72,8 @@ export interface PracticeSession {
   phase: SessionPhase;
   marks: ReadonlyMap<NoteId, MarkState>;
   heldKeys: ReadonlySet<number>;
+  /** Accompaniment notes currently sounding, by key, with the tick at which the cursor releases them (R-03). */
+  soundingAccompaniment: ReadonlyMap<number, Ticks>;
   wrongAttemptsOnCurrent: number;
   loop: ResolvedLoop | null;
   accompaniment: boolean;
@@ -79,11 +82,12 @@ export interface PracticeSession {
 }
 
 export interface PracticeInput {
-  type: 'noteOn' | 'noteOff' | 'sustain' | 'deviceLost' | 'skipNext' | 'skipPrevious';
+  type: 'noteOn' | 'noteOff' | 'sustain' | 'deviceLost' | 'skipNext' | 'skipPrevious' | 'setAccompaniment';
   key?: number;
   velocity?: number;
   down?: boolean;
   heldKeys?: readonly number[];
+  enabled?: boolean; // setAccompaniment
   timeStampMs: number;
 }
 
@@ -97,7 +101,7 @@ export type PracticeNoticeCode =
 export type PracticeEffect =
   | { type: 'markNotes'; marks: readonly { noteId: NoteId; state: MarkState }[] }
   | { type: 'moveCursor'; eventIndex: number; onsetTick: Ticks }
-  | { type: 'soundOn'; key: number; noteIds: readonly NoteId[] }
+  | { type: 'soundOn'; key: number; noteIds: readonly NoteId[]; velocity: number }
   | { type: 'soundOff'; key: number }
   | { type: 'showHelp'; eventIndex: number; reason: 'stuck' | 'requested' | 'heldOver' }
   | { type: 'hideHelp' }
@@ -106,6 +110,8 @@ export type PracticeEffect =
 
 export interface StartOptions {
   scoreId: string | null;
+  /** The part and staves the events were built for; the view dims the rest (FR-032). */
+  selection?: HandSelection;
   events: readonly ExpectedEvent[];
   startEventIndex: number;
   loop: ResolvedLoop | null;

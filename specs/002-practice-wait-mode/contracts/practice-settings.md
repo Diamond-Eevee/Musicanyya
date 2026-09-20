@@ -81,7 +81,13 @@ Field meanings:
   session still works with `defaults`; nothing is written and no error is shown beyond the existing
   `storageUnavailable` notice.
 - **`defaults`**: the settings last chosen by the musician, applied to a Score that has never been practised. This
-  is what makes "I always practise hands separately" survive opening a new piece.
+  is what makes "I always practise hands separately" survive opening a new piece. A `defaults` record never carries
+  a `loop`: pass indices mean something only inside the Score they were set on, so a loop set on one piece must not
+  appear on another. (Amended when implemented, T030.)
+- **Validation of `selection`**: `preset` in the enum, `partIndex` an integer >= 0, `staves` a non-empty array of
+  integers >= 1 (stored ascending, without duplicates). Anything else reads as "no selection". A selection that
+  no longer fits the Score (part or staff missing) is the session's concern, not the store's: it falls back to the
+  preselected part and both hands.
 - **Cap**: at most `PRACTICE_SETTINGS_MAX = 20` entries in `byScore`; on save, entries beyond that are dropped
   oldest-`updated` first. A dropped entry is not an error - the Score falls back to `defaults`.
 - **Validation**: every field is validated on read and falls back to its default when missing or invalid; a record
@@ -98,7 +104,8 @@ Field meanings:
 
 ```ts
 export interface PracticeSettings {
-  selection: { preset: "both" | "right" | "left" | "custom"; partIndex: number; staves: readonly number[] };
+  /** null = the musician never chose: the preselected part and both hands apply (FR-025a). */
+  selection: { preset: "both" | "right" | "left" | "custom"; partIndex: number; staves: readonly number[] } | null;
   loop: { fromPassIndex: number; toPassIndex: number } | null;
   accompaniment: boolean;
   help: boolean;

@@ -224,3 +224,26 @@ lower" moves their hand.
 common reading mistake and deserves its own text and shape; (b) showing a running count of wrong attempts -
 rejected: it is a score by another name, and the help trigger needs the count only internally.
 
+
+## R-12 - Accompaniment where the practised hand rests, and how the last notes end (US2 implementation, 2026-09-20)
+
+**Decision**: (1) An onset at which nothing is required is still passed over (FR-036), but its accompaniment is not
+dropped with it: it is attached to the expected event before it (to the first expected event when nothing comes
+before), so every accompaniment note written from one expected event's onset up to the next one's sounds when the
+cursor passes that event. (2) A sounding accompaniment note is released when the cursor passes an event whose onset
+is at or after the note's end tick. (3) After the last event there is no cursor left to pass anything, so the notes
+still ringing are released when the musician has let go of every key, and on stop, device loss or a mode switch.
+(4) Turning accompaniment off is an input to the reducer (setAccompaniment), so it is replayable and silences what
+rings at once.
+
+**Rationale**: R-03 and FR-031 tie the other hand to the musician's own progress, but data-model section 2 drops every
+event without a required key, which silently deleted the left-hand notes at every position where the right hand
+rests - a bass line under a held melody note is the commonest case. Attaching them to the preceding event keeps
+R-03's rule (sound comes from the cursor moving) and needs no clock. The alternative, attaching to the following
+event, would start such a note and end it in the same step whenever it ends where that event begins, so it would
+never be heard. Releasing at the last event on key release, rather than immediately, keeps the final chord's other
+hand from being cut off the instant the musician plays the final note, and still involves no timer.
+
+**Alternatives considered**: a timer to end the last notes after their written duration - rejected, a timer must
+not decide when a sound stops (Constitution I); releasing everything at session end - rejected, it clips the last
+chord; a new port method for cue notes - rejected as in R-03.
