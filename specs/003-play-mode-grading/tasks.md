@@ -146,7 +146,7 @@ reason.
   `timing === null` exactly when `pitch === "missed"`; every recorded note-on ends as exactly one of a result's
   `playedKey`, one `PlayedAlongPress` or one `ExtraNote` - never two of them, never twice; pedal and velocity
   change no result (FR-018, FR-023, FR-024)
-- [ ] T020 [P] [US1] `tests/core/grade/golden.test.ts`: grading a recorded performance fixture produces a
+- [x] T020 [P] [US1] `tests/core/grade/golden.test.ts`: grading a recorded performance fixture produces a
   snapshot-identical `Grade` including every reason code, and grading it twice is byte-identical (FR-025, SC-001)
 - [x] T021 [P] [US1] `tests/core/grade/summary.test.ts`: the two figures of FR-028 with counts out of totals, the
   six plain counts, `meanAsynchronyMs`, and `timingNotResolvable` where the claim window collapses to the on-time
