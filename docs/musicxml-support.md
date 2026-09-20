@@ -11,6 +11,7 @@ This document lists the supported MusicXML elements.
 | Notes | `<rest>` | Supported | |
 | Notes | `<tie>` | Supported | |
 | Notes | `<grace>` | Supported | Acciaccatura and appoggiatura |
+| Notes | `<fingering>` | Supported | Engraved by Verovio; also read by Practice mode for its help overlay (feature 002) |
 | Time & Repeats | `<repeat>` | Supported | Backward and forward repeats. Note: middle-barline repeats not supported |
 | Time & Repeats | `<ending>` | Supported | Voltas (1., 2. endings) |
 | Time & Repeats | `<direction>` | Supported | Jumps (D.C., D.S., To Coda, Fine). Note: mid-measure jumps not supported |

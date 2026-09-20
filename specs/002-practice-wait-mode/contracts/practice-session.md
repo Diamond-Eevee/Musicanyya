@@ -71,7 +71,7 @@ export interface PracticeInput {                 // the MidiInput port's events,
   type: "noteOn" | "noteOff" | "sustain" | "deviceLost" | "skipNext" | "skipPrevious" | "setAccompaniment" | "setLoop"
       | "requestHelp"                             // FR-024: same as "stuck" help, on demand; no-op when help is off
       | "setHelp";                                // FR-024: switches help on/off for a running session
-  enabled?: boolean;                             // setAccompaniment: silences what rings when turned off
+  enabled?: boolean;                             // setAccompaniment: silences what rings when turned off; setHelp
   loop?: ResolvedLoop | null;                    // setLoop: null clears it (US3)
   key?: number;                                  // noteOn / noteOff
   velocity?: number;                             // noteOn, carried through to the log only

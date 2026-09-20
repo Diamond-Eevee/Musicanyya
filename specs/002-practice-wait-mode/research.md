@@ -143,14 +143,17 @@ range, which is the most Score-specific thing here.
 
 ## R-08 - Feedback that survives greyscale
 
-**Decision**: all nine note states carry a shape or marking as well as a colour: **waiting** = hollow ring around
-the notehead, **correctSoFar** = smaller filled dot inside the ring, **correct** = filled notehead in the correct colour,
-**wrong pitch** = cross through the played key and a slash marking at the expected note,
-**wrong octave** = arrow indicating direction, **extra** = small open triangle above the staff,
-**heldOver** = dashed ring around the notehead, **playedAlong** = hollow square, **skipped** = dotted circle.
-Colours come from the existing colour-blind-safe palette used by the Listen cursor and highlight
-(`--highlight-*` custom properties). The marks are drawn in the existing overlay layer, never inside the Verovio
-SVG's notehead glyphs, and never cover the notehead they refer to.
+**Decision** (updated 2026-09-20, T042 - the shapes below are what `practice-marks.ts` actually draws; see
+**Amended** for how this differs from the original decision): six states reach the Score as a `markNotes` ring
+around the notehead, each a different shape as well as a different colour so a greyscale screenshot still tells
+them apart: **waiting** = a wide-dashed circle, **correctSoFar** = a tight-dashed circle (same size, a visibly
+different dash rhythm - not a smaller dot), **correct** = a solid circle, **heldOver** = a solid triangle,
+**playedAlong** = a solid hexagon, **skipped** = a dotted square. `wrongPitch`, `wrongOctave` and `extra` have no
+notehead of their own (R-14): their shapes (a cross, a solid square, a diamond) are drawn on the **on-screen
+keyboard** instead, as `mx-piano-keys`'s per-state glyph (`✕`, `▢`, `◆`) plus a distinct border colour - not on the
+Score. Colours are the existing colour-blind-safe palette used by the Listen cursor and highlight
+(`--highlight-*` custom properties). Marks are drawn in the existing overlay layer, never inside the Verovio SVG's
+notehead glyphs, and never cover the notehead they refer to.
 
 **Rationale**: Constitution VI requires shape **and** colour, and SC-009 is verified by a greyscale screenshot, so
 the shapes must differ at notehead size. Reusing the overlay keeps the engraving untouched (Constitution III) and
@@ -159,6 +162,19 @@ lets every layer be switched off.
 **Alternatives considered**: (a) colour-only marks with a legend - rejected by Constitution VI; (b) recolouring
 the SVG glyphs directly - rejected: it edits Verovio's output, breaks when the page re-renders at a new zoom, and
 risks hiding the notehead; (c) text labels next to notes - rejected: they cover neighbouring notes in dense music.
+
+**Amended** (T042, 2026-09-20): this decision originally described a different shape set (a hollow ring, a smaller
+filled dot inside it, a filled notehead, a cross-plus-slash, a direction arrow, an open triangle above the staff, a
+dashed ring, a hollow square, a dotted circle) written before implementation. `practice-marks.ts` (US1) and the
+`keyFeedback`/`mx-piano-keys` split (T056, R-14, US1 checkpoint) implemented a different, self-consistent set
+instead, and this entry was never updated to match - found while running T042's greyscale screenshot check.
+Re-verified now: the six Score-side shapes (waiting/correctSoFar/correct/heldOver/playedAlong/skipped) are visibly
+distinct from each other in greyscale (screenshot reviewed), and the three keyboard-side glyphs
+(wrongPitch/wrongOctave/extra) are visibly distinct from each other too (already covered by
+`tests/ui/practice-key-feedback.test.ts`). `practice-marks.ts` still has a `switch` case for `wrongPitch` /
+`wrongOctave` / `extra` that draws a cross / square / diamond on a notehead - dead code, since the matcher never
+emits a `markNotes` effect with those states any more (T056 replaced that path with `keyFeedback`); flagged
+separately rather than removed here, since it is a production-code change outside a documentation task's scope.
 
 ## R-09 - Determinism and how sessions are replayed
 

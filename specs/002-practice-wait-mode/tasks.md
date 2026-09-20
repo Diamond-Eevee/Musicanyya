@@ -271,14 +271,14 @@ on-screen keyboard with its note name and written fingering.
 
 ## Phase 7: Polish & Cross-Cutting
 
-- [ ] T042 [P] SC-009 check: screenshot every mark state in greyscale and confirm waiting, correct-so-far,
+- [x] T042 [P] SC-009 check: screenshot every mark state in greyscale and confirm waiting, correct-so-far,
   correct, wrong pitch, wrong octave, extra, held-over, played-along and skipped stay distinguishable by shape
-- [ ] T043 [P] Measure SC-002 (key press to mark <= 50 ms) and SC-011 (starting a session anywhere in a
+- [x] T043 [P] Measure SC-002 (key press to mark <= 50 ms) and SC-011 (starting a session anywhere in a
   500-measure Score <= 1 s, using `pnpm gen:large-score`), and record both in the log
-- [ ] T044 [P] Documentation pass: `docs/musicxml-support.md` (no parser change is expected in this feature -
+- [x] T044 [P] Documentation pass: `docs/musicxml-support.md` (no parser change is expected in this feature -
   confirm, and record how grace, hidden and unpitched notes behave in Practice), `README.md` and
   `quickstart.md` if any command changed
-- [ ] T045 [P] Contract check: `contracts/practice-session.md` and `contracts/practice-settings.md` match what was
+- [x] T045 [P] Contract check: `contracts/practice-session.md` and `contracts/practice-settings.md` match what was
   built, and `specs/001-score-viewer-listen/contracts/ports.md` carries the `1.1.0` bump from T030
 - [ ] T057 [P] RT follow-up from the T031 review, not done: the worklet's live-note queue
   (`src/engine/worklets/score-player.processor.ts`, `liveQueue.length < 64`) drops messages silently, so a dropped
