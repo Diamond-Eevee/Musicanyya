@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { TICK_LIMIT } from '../../../src/core/defaults.js';
+import { MusicXmlLoadError } from '../../../src/core/musicxml/load-error.js';
 import { compileSchedule, EVENT_KIND } from '../../../src/core/schedule/compile.js';
 import type { ChannelSetup, PlaybackTimeline, SoundingEvent } from '../../../src/core/timeline/types.js';
 
@@ -131,6 +132,13 @@ describe('compileSchedule', () => {
   });
 
   it('throws fileTooComplex when endTick reaches TICK_LIMIT', () => {
-    expect(() => compileSchedule(timeline({ endTick: TICK_LIMIT }))).toThrow(/fileTooComplex/);
+    let caught: unknown;
+    try {
+      compileSchedule(timeline({ endTick: TICK_LIMIT }));
+    } catch (err) {
+      caught = err;
+    }
+    expect(caught).toBeInstanceOf(MusicXmlLoadError);
+    expect((caught as MusicXmlLoadError).code).toBe('fileTooComplex');
   });
 });

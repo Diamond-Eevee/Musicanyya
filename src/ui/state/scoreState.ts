@@ -12,6 +12,7 @@ export type LoadErrorCode =
   | 'fileTooLarge'
   | 'fileTooComplex'
   | 'malformedXml'
+  | 'externalEntityBlocked'
   | 'noPlayableContent'
   | 'internal';
 

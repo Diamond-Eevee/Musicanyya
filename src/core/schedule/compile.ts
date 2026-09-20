@@ -1,4 +1,5 @@
 import { TICK_LIMIT } from '../defaults.js';
+import { MusicXmlLoadError } from '../musicxml/load-error.js';
 import type { PlaybackTimeline } from '../timeline/types.js';
 
 export const EVENT_KIND = { noteOff: 0, noteOn: 1, programChange: 2, controlChange: 3 } as const;
@@ -50,7 +51,7 @@ function sortRank(kind: number): number {
  */
 export function compileSchedule(timeline: PlaybackTimeline): ScheduleMessage {
   if (timeline.endTick >= TICK_LIMIT) {
-    throw new Error('fileTooComplex: schedule endTick exceeds TICK_LIMIT');
+    throw new MusicXmlLoadError('fileTooComplex', 'The score is too long to schedule.');
   }
 
   const raw: RawEvent[] = [];

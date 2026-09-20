@@ -253,6 +253,7 @@ environment panel and run US1-US3 in both (spec US4).
 - [ ] T135 Run `quickstart.md` manual verification end to end (web in Chrome/Edge/Firefox/Safari, desktop app) and fix findings
 - [ ] T136 Constitution audit of the branch with `constitution-auditor` (`.claude/agents/constitution-auditor.md`); fix CRITICAL/HIGH findings
 - [ ] T137 Full quality gate (`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`), final `implementation-log.md` entry, commit
+- [ ] T138 Mutation fuzz test for MusicXML loading (`tests/core/musicxml/malformed.test.ts`'s skipped "never throws in a mutation fuzz loop" test): bit-flip/truncate/tag-shuffle over the real fixture set, asserting `readXml`/`buildScore` either succeed or throw `MusicXmlLoadError` (never an uncaught exception, never a hang); found unimplemented (test stub, `describe.skip`) during T133's manual pass
 
 ## Dependencies & Execution Order
 

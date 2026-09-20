@@ -31,6 +31,7 @@ import type {
 } from '../score/model.js';
 import { buildMeasureId, buildNoteId } from '../score/note-id.js';
 import { computePPQ, reduceFraction } from '../ticks.js';
+import { MusicXmlLoadError } from './load-error.js';
 
 class ReportBuilder {
   entries: LoadReportEntry[] = [];
@@ -79,7 +80,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
   const report = new ReportBuilder();
   const root = doc.children.find((c): c is XmlElement => c instanceof XmlElement);
   if (!root || root.name !== 'score-partwise') {
-    throw new Error('notMusicXml: Expected score-partwise');
+    throw new MusicXmlLoadError('notMusicXml', 'Expected a score-partwise MusicXML file.');
   }
 
   const divisions: number[] = [];

@@ -1,4 +1,15 @@
-import { noticeState } from '../state/noticeState.js';
+import { en } from '../i18n/en.js';
+import { type Notice, noticeState } from '../state/noticeState.js';
+import { escapeHtml } from '../util/escape-html.js';
+
+function formatNotice(notice: Notice): string {
+  let text = en.notices[notice.code] ?? notice.code;
+  if (notice.element) text += ` (${notice.element})`;
+  if (notice.measureLabels.length > 0)
+    text += ` — measure${notice.measureLabels.length > 1 ? 's' : ''} ${notice.measureLabels.join(', ')}`;
+  if (notice.count > 1) text += ` (x${notice.count})`;
+  return text;
+}
 
 export class MxNoticeTray extends HTMLElement {
   private unsubscribe?: () => void;
@@ -20,7 +31,7 @@ export class MxNoticeTray extends HTMLElement {
       .map(
         (n) => `
       <div class="notice ${n.severity}">
-        ${n.code} x ${n.count}
+        ${escapeHtml(formatNotice(n))}
         <button class="dismiss-btn" data-id="${n.id}">Dismiss</button>
       </div>
     `,
