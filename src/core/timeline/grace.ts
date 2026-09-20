@@ -22,7 +22,7 @@ export interface TimedNote {
 interface StreamGroup {
   nominalTick: Ticks;
   graces: GraceInput[]; // sorted by graceIndex
-  principal: GraceInput | null;
+  principals: GraceInput[]; // every note of the voice at this onset: more than one for a chord
 }
 
 function groupByVoiceStream(inputs: GraceInput[]): Map<string, StreamGroup[]> {
@@ -40,10 +40,10 @@ function groupByVoiceStream(inputs: GraceInput[]): Map<string, StreamGroup[]> {
     for (const inp of list) {
       let group = groups[groups.length - 1];
       if (!group || group.nominalTick !== inp.nominalTick) {
-        group = { nominalTick: inp.nominalTick, graces: [], principal: null };
+        group = { nominalTick: inp.nominalTick, graces: [], principals: [] };
         groups.push(group);
       }
-      if (inp.graceIndex === null) group.principal = inp;
+      if (inp.graceIndex === null) group.principals.push(inp);
       else group.graces.push(inp);
     }
     result.set(key, groups);
@@ -73,11 +73,11 @@ export function computeGraceTiming(inputs: GraceInput[], ppq: number): { timed: 
     for (let i = 0; i < groups.length; i++) {
       const group = groups[i];
       if (!group) continue;
-      if (group.principal) {
-        timedByNoteId.set(group.principal.noteId, {
-          noteId: group.principal.noteId,
+      for (const principal of group.principals) {
+        timedByNoteId.set(principal.noteId, {
+          noteId: principal.noteId,
           startTick: group.nominalTick,
-          endTick: group.nominalTick + group.principal.durationTicks,
+          endTick: group.nominalTick + principal.durationTicks,
         });
       }
       if (group.graces.length === 0) continue;
@@ -93,23 +93,31 @@ export function computeGraceTiming(inputs: GraceInput[], ppq: number): { timed: 
           timedByNoteId.set(g.noteId, { noteId: g.noteId, startTick: t, endTick: t + total / n });
           t += total / n;
         }
-        if (group.principal) {
-          const principalDuration = group.principal.durationTicks;
-          timedByNoteId.set(group.principal.noteId, {
-            noteId: group.principal.noteId,
+        for (const principal of group.principals) {
+          timedByNoteId.set(principal.noteId, {
+            noteId: principal.noteId,
             startTick: group.nominalTick + total,
-            endTick: group.nominalTick + total + principalDuration,
+            endTick: group.nominalTick + total + principal.durationTicks,
           });
         }
         continue;
       }
 
+      // The grace group borrows from the notes just before it: every note of a previous chord, else the last grace.
       const prevGroup = groups[i - 1];
-      const prevTimed = prevGroup ? (prevGroup.principal ?? prevGroup.graces[prevGroup.graces.length - 1]) : undefined;
-      const prevTimedNote = prevTimed ? timedByNoteId.get(prevTimed.noteId) : undefined;
+      const prevInputs = prevGroup
+        ? prevGroup.principals.length > 0
+          ? prevGroup.principals
+          : prevGroup.graces.slice(-1)
+        : [];
+      const prevTimedNotes = prevInputs.flatMap((input) => {
+        const timedNote = timedByNoteId.get(input.noteId);
+        return timedNote ? [timedNote] : [];
+      });
 
-      if (prevTimedNote) {
-        const prevDuration = prevTimedNote.endTick - prevTimedNote.startTick;
+      if (prevTimedNotes.length > 0) {
+        // The shortest previous note sets the limit, so no note of a chord is shortened past what it can spare.
+        const prevDuration = Math.min(...prevTimedNotes.map((t) => t.endTick - t.startTick));
         const stealCap = prevDuration * GRACE_MAX_STEAL_RATIO;
         const maxAllowedBySafety = Math.max(0, prevDuration - minRemaining);
         const requested = previousPercent !== null ? prevDuration * (previousPercent / 100) : graceTickDefault * n;
@@ -124,7 +132,7 @@ export function computeGraceTiming(inputs: GraceInput[], ppq: number): { timed: 
           timedByNoteId.set(grace.noteId, { noteId: grace.noteId, startTick: start, endTick: end });
           end = start;
         }
-        prevTimedNote.endTick -= actualTotal;
+        for (const prevTimedNote of prevTimedNotes) prevTimedNote.endTick -= actualTotal;
       } else {
         // No previous note in this voice: place the group ending at the nominal tick. If that
         // pushes it before tick 0 (grace notes at the very start of the piece), it becomes a lead-in.

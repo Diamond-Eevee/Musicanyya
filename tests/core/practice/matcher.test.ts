@@ -177,4 +177,24 @@ describe('matcher', () => {
     const step2 = playSession(step1.session, ['on:60@100']);
     expect(step2.session.index).toBe(1);
   });
+
+  it('a chord from the C major exercise is complete when all three keys are held, in any order (SC-003)', () => {
+    const { score, timeline } = loadFixture('chords/c-major-scale-and-chords.musicxml');
+    const events = buildExpectedEvents(score, timeline, { preset: 'both', partIndex: 0, staves: [1] });
+    const session = startSession({
+      scoreId: 'test',
+      events,
+      startEventIndex: 4,
+      loop: null,
+      accompaniment: false,
+      help: false,
+    });
+
+    const partial = playSession(session, ['on:67@10', 'on:60@20']);
+    expect(partial.session.index).toBe(4);
+    expect(partial.session.marks.size).toBe(2); // both held keys marked correctSoFar
+
+    const complete = playSession(partial.session, ['on:64@30']);
+    expect(complete.session.index).toBe(5);
+  });
 });

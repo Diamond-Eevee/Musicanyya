@@ -67,4 +67,22 @@ describe('buildExpectedEvents', () => {
     // Empty required lists are dropped, so percussion-only scores should yield 0 events
     expect(events.length).toBe(0);
   });
+
+  it('a written chord is one event holding every key of the chord (c-major-scale-and-chords)', () => {
+    const { score, timeline } = loadFixture('chords/c-major-scale-and-chords.musicxml');
+    const selection: HandSelection = { preset: 'both', partIndex: 0, staves: [1] };
+    const events = buildExpectedEvents(score, timeline, selection);
+
+    const chord = events.find((e) => e.required.length > 1);
+    expect(chord?.required.map((r) => r.key)).toEqual([60, 64, 67]);
+    expect(events).toHaveLength(8); // four single notes, the chord, three single notes
+  });
+
+  it('chord-basic is one event with all its keys', () => {
+    const { score, timeline } = loadFixture('chord-basic.musicxml');
+    const events = buildExpectedEvents(score, timeline, { preset: 'both', partIndex: 0, staves: [1] });
+
+    expect(events).toHaveLength(1);
+    expect(events[0]?.required.length).toBeGreaterThan(1);
+  });
 });

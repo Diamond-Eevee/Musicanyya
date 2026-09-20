@@ -126,6 +126,13 @@ session reports that the end was reached.
   a real user could not enter Practice mode at all (the US1 e2e sets the mode through `__PRACTICE_STATE__`).
   It now has a home in the header (`#mode-controls` in `mx-app.ts`) and is created in `src/app/session.ts`, hidden
   until a Score is loaded. Checked in the browser pane: with MIDI denied it stays disabled and says why (FR-022)
+- [x] T055 [US1] Found by the e2e chord check: `computeGraceTiming` in `src/core/timeline/grace.ts` keeps ONE
+  principal per voice and onset, so in a chord (same voice, same onset) each note replaced the one before and only
+  the last was timed - every other chord note was dropped from `timeline.events` and `timeline.spans`. Listen
+  therefore played only the top note of every chord, and Practice could never ask for one (SC-003). Fix: a group
+  holds all its principals; grace stealing shortens every note of the previous chord. Tests
+  `tests/core/timeline/chords.test.ts` and three cases in `tests/core/timeline/grace.test.ts`, written first
+ 
 
 **Checkpoint**: US1 fully functional and testable on its own - a musician can practise a whole piece hands
 together.
@@ -185,7 +192,7 @@ expected, the left hand is heard as the cursor passes it, and the session starts
 - [x] T031 [US2] `src/ui/elements/mx-practice-panel.ts` (part selection - shown only when the Score has more than
   one pitched part - hand selection, accompaniment switch) and the `src/app/session.ts` wiring for starting at a
   clicked measure and restarting on a selection change (depends on T027, T028, T029, T030, T052)
-- [ ] T032 [US2] Extend `tests/e2e/us1-practice.spec.ts` with a hands-separate run: right hand only, left hand
+- [x] T032 [US2] Extend `tests/e2e/us1-practice.spec.ts` with a hands-separate run: right hand only, left hand
   heard, start from a measure
 
 **Checkpoint**: US1 and US2 both work independently.

@@ -114,4 +114,38 @@ describe('applyGraceTiming', () => {
     expect(byId.g1.endTick).toBe(960);
     expect(byId.nextMeasure.startTick).toBe(960);
   });
+
+  it('times every note of a chord: chord notes share a voice and an onset and none replaces another', () => {
+    const chord = ['c', 'e', 'g'].map((noteId) => principal({ noteId, nominalTick: 960, durationTicks: 960 }));
+    const { timed } = applyGraceTiming(chord, PPQ);
+
+    expect(timed.map((t) => t.noteId).sort()).toEqual(['c', 'e', 'g']);
+    for (const t of timed) {
+      expect(t.startTick).toBe(960);
+      expect(t.endTick).toBe(1920);
+    }
+  });
+
+  it('steals from every note of a previous chord, by the same amount', () => {
+    const before = ['c', 'e', 'g'].map((noteId) => principal({ noteId, nominalTick: 0, durationTicks: 960 }));
+    const g = grace({ noteId: 'g1', nominalTick: 960 });
+    const next = principal({ noteId: 'next', nominalTick: 960 });
+    const { timed } = applyGraceTiming([...before, g, next], PPQ);
+
+    const graceTicks = GRACE_NOTE_TICKS(PPQ);
+    for (const id of ['c', 'e', 'g']) {
+      expect(timed.find((t) => t.noteId === id)?.endTick).toBe(960 - graceTicks);
+    }
+  });
+
+  it('delays every note of a chord together after a steal-time-following grace group', () => {
+    const g = grace({ noteId: 'g1', nominalTick: 960, stealFollowing: 50 });
+    const chord = ['c', 'e'].map((noteId) => principal({ noteId, nominalTick: 960 }));
+    const { timed } = applyGraceTiming([g, ...chord], PPQ);
+
+    const starts = ['c', 'e'].map((id) => timed.find((t) => t.noteId === id)?.startTick);
+    expect(starts[0]).toBeDefined();
+    expect(starts[0]).toBe(starts[1]);
+    expect(starts[0]).toBeGreaterThan(960);
+  });
 });
