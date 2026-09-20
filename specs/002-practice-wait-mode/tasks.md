@@ -133,6 +133,13 @@ session reports that the end was reached.
   holds all its principals; grace stealing shortens every note of the previous chord. Tests
   `tests/core/timeline/chords.test.ts` and three cases in `tests/core/timeline/grace.test.ts`, written first
  
+- [ ] T056 [US1] Found while verifying US2, NOT fixed: feedback for a wrong press does not exist yet. `matcher.ts` only
+  appends `wrongPitch` / `wrongOctave` / `extra` to `session.log`; no effect carries a mark or a message, the R-10
+  ids (`practice.octave.higher` ...) are used nowhere outside `en.ts`, and `session.ts` applies only `moveCursor`,
+  `soundOn`, `soundOff` and `sessionEnded` (so the `notice` effects `practiceDeviceLost` / `practiceDeviceBack` of
+  FR-021 are dropped too). A wrong key has no notehead to mark, so this needs a design decision first - where
+  the mark and the message appear (on-screen keyboard, beside the cursor) - see FR-010, FR-039, US1 AS. Add the
+  effect and the view, then a test; also apply the `notice` effects
 
 **Checkpoint**: US1 fully functional and testable on its own - a musician can practise a whole piece hands
 together.

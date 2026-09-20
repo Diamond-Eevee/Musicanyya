@@ -86,3 +86,51 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
 - Decisions: Fixed issue where Play button in E2E tests never switched to "Start" due to `soundReady` state missing. `startSession` is now correctly invoked in `session.ts`, and MIDI inputs properly feed into `applyPracticeInput`.
 - Problems / open questions: none
 - Handoff: next = T021 (Phase 4: US2). Tree clean at the latest commit.
+
+## 2026-09-20 16:10 - claude-sonnet-5 (relay)
+- Done: **Phase 4 / US2 complete, checkpoint reached**: T021-T032, T051, T052. New tasks found and done on the way:
+  T053 (store dropped Map/Set changes), T054 (mode switch was never mounted), T055 (chords lost in the timeline).
+  Baseline first: 7 lint errors from the previous session (formatting only) fixed in `fba60ca`.
+- US2 Independent Test (right hand only from a measure, only that hand expected, left hand heard) is covered by
+  `tests/e2e/us1-practice.spec.ts` and was also driven by hand in the browser pane with a fake MIDI device.
+- Gate: `pnpm lint` 0 errors (173 warnings, none new that I know of), `pnpm typecheck` clean, `pnpm test` 433 passed /
+  2 skipped, `pnpm test:e2e` 16 passed / 12 skipped / 0 failed (Chromium, Firefox, Electron). Practice e2e is skipped
+  on WebKit: Playwright's WebKit has no `AudioContext`, as the Listen e2e already restricts itself to Chromium.
+- Test-first, honestly: the tests for T022-T024, T026, T051 were written and seen failing (missing module, missing
+  functions, missing effects) before their code. But (a) `partOptions`, `handOptions`, home-staff attribution and the
+  selection filter already existed inside `expected.ts` from the previous session, written ahead of their tests -
+  I moved them to `hands.ts` rather than writing them; (b) the unison / octave-doubling / both-hands cases of T023
+  passed at once against that existing code (only the two accompaniment cases failed); (c) `tests/ui/practice-panel.test.ts`
+  and the e2e additions were written together with their code and never seen failing.
+- Decisions (research.md R-12; contracts `practice-session` 1.1.0, `practice-settings`, ports 1.1.0; data-model 2, 6):
+  1. Accompaniment at an onset where the practised hand rests was being **lost** (data-model 2 dropped the event with
+     its accompaniment). It is now attached to the expected event before it; the spec's FR-031 is unchanged.
+  2. Accompaniment sounds when the cursor passes an event and ends at the first event whose onset is at or after
+     its end tick; after the last event it rings until every key is released. Turning it off is a reducer input
+     (`setAccompaniment`), so it replays. No timer anywhere.
+  3. `PracticeSettings.selection` is nullable (never chosen), and a `defaults` record never carries a loop, so a loop
+     cannot leak to another piece. Both amend `contracts/practice-settings.md`.
+  4. `resolveStartMeasure` falls back to the first occurrence in the Score when none lies at or after the cursor, and
+     to the next measure that has an expected event when the picked one has none.
+  5. In Practice, clicking a measure chooses the start measure; a running session restarts there. Stop ends the
+     session (marks stay) and leaving Practice clears it - before this, keys after Stop still advanced the session.
+- Problems / open questions:
+  - **T056 (open, US1, needs a design decision)**: wrong / wrong-octave / extra presses produce no mark and no message,
+    the R-10 message ids are used nowhere, and the `notice` effects (FR-021) are not applied. A wrong key has no
+    notehead, so where the feedback shows (on-screen keyboard? beside the cursor?) needs choosing.
+  - The previous log entry said `chord-basic` did not expose all keys and "does not block the practice logic". It
+    was the timeline (T055), it did block SC-003, and it made Listen play only the top note of every chord.
+    `matcher.test.ts` / `replay.test.ts` still use the substitute fixtures; chord cases on the real chord fixtures
+    were added (`expected.test.ts`, `matcher.test.ts`, e2e).
+  - Real Web MIDI could not be tried (the browser pane denies MIDI): the mode switch was seen disabled with its reason
+    (FR-022), and everything else went through the same fake device the e2e uses. The `e2e-ready` hook does not update
+    `midiState`, which is why the e2e sets the mode through `__PRACTICE_STATE__`.
+  - Dimming covers the head note of each accompaniment note only, so the continuation of a tied accompaniment note is
+    not dimmed. In Listen and Practice a click on the empty middle of a measure does not register (the SVG root is
+    hit, not the measure group); only clicks on drawn parts do. Both are small and unfixed.
+  - The RT review of the accompaniment path (rt-audio-reviewer) was requested; its report was not back when this
+    entry was written (see the next entry). T020, marked done earlier, was recorded by the previous agent.
+- Handoff: next = **US3, T033 -> T037** (loop; tests first), then US4 T038-T041, then Polish T042-T048. Start with
+  `pnpm test` (433 passing) and `pnpm build` before any e2e (Playwright serves `dist`). Tree clean at the commit below.
+  `PracticeSettings.loop` and the pass-index round trip (T035) are the only persistence work left for US3. Decide
+  T056 with the owner before or during US4, since help and wrong-press feedback share the on-screen keyboard.

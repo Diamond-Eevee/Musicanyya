@@ -9,6 +9,12 @@ function fixturePath(name: string): string {
   return path.join(fixturesDir, name);
 }
 
+// Practice needs Web Audio for the musician's own sound; Playwright's WebKit has no AudioContext (Safari-class
+// browsers are view and Listen only, Constitution browser row), so these run on Chromium, Firefox and Electron.
+test.beforeEach(({ browserName }) => {
+  test.skip(browserName === 'webkit', 'Practice needs AudioContext, which Playwright WebKit does not provide');
+});
+
 test('US1 end-to-end: Practice Mode - wait, wrong note, chord, moving notes, skip, end', async ({ page }) => {
   page.on('console', (msg) => console.log('BROWSER:', msg.text()));
   page.on('pageerror', (err) => console.log('BROWSER ERROR:', err.message));
