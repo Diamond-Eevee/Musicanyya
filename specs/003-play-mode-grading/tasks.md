@@ -62,10 +62,10 @@ than renumbered, so IDs stay stable; **file order is execution order**, not nume
 - [x] T007 [P] Test helper `tests/fakes/performance-log.ts`: build a `PerformanceLog` from a compact notation
   (pitch, beat offset, deliberate millisecond error), plus `shuffleSimultaneous` for the arrival-order
   independence assertion of FR-019 and `loadRecordedPerformance` for the JSON fixtures
-- [ ] T008 Test `tests/core/tempo/rate.test.ts` (extend): `tickAtAudioTime` is the exact inverse of the existing
+- [x] T008 Test `tests/core/tempo/rate.test.ts` (extend): `tickAtAudioTime` is the exact inverse of the existing
   tick-to-time conversion across tempo changes and tempo percentages, on integer boundaries - write it, see it
   fail
-- [ ] T009 Implement `tickAtAudioTime` in `src/core/tempo/rate.ts`: the single place seconds become ticks
+- [x] T009 Implement `tickAtAudioTime` in `src/core/tempo/rate.ts`: the single place seconds become ticks
   (Constitution II, research R-06)
 - [ ] T010 [P] Test `tests/engine/midi/clock-map.test.ts`: `performance.now()` timestamps map onto audio-context
   seconds from a `(contextTime, performanceTime)` pair; a new pair re-anchors without jumping; a missing pair
