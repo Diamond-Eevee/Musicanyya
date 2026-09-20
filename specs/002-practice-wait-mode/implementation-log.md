@@ -43,3 +43,26 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
 - Handoff: next = `/speckit.analyze` (the documents have all moved; a consistency pass before implementation is
   cheap now), then `/speckit.implement` from T001. Tree clean at the commit below. This branch has no upstream and
   is not on GitHub.
+
+## 2026-09-20 - claude-opus-5 (relay)
+
+- Analyze: 26 findings (CRITICAL 0, HIGH 5, MEDIUM 12, LOW 9); tasks.md as of `f2bc7a4`, 0/52 done.
+  Read-only: nothing in `spec.md`, `plan.md`, `tasks.md` or `src/` was changed.
+- Top recommendations, all in documents T003/T008/T013 read on the first implementation day:
+  1. **data-model.md §4 rules 1 and 4** - a required chord key that is released and pressed again is excluded by
+     "not already consumed by this event", so the event can never complete, although FR-005/SC-003 allow any order
+     and any speed. Separate "consumed" from "currently held", or drop the consumed guard.
+  2. **contracts/practice-settings.md** - the practised part is not in `PracticeSettings` or the schema, although
+     FR-025a, data-model §1 and T025 all say it is remembered; and `hands` as an enum cannot store a `custom` or
+     three-staff selection (FR-034).
+  3. **research.md R-08** - shapes are defined for four mark states; FR-010, SC-009, T011 and T042 need nine.
+  4. **Loop persistence** - `fromPassIndex`/`toPassIndex` is a third representation beside `LoopRange` (measures)
+     and `ResolvedLoop` (event indices), with no function producing or consuming it.
+  5. **Coverage** - FR-032's "visibly distinct" unselected-hand notes, SC-006 and SC-007 have no task; FR-015's
+     start-measure resolution has a test (T026) but no implementation task and no named function in the contract.
+- Decisions: none. Remediation was offered, not applied - the report is the output of this step.
+- Problems / open questions: none blocking. No CRITICAL finding, so `/speckit.implement` is not blocked, but the
+  five HIGH findings all sit in documents the first tasks depend on and are cheapest to fix before T003.
+- Handoff: next = fix the HIGH findings in `spec.md`/`data-model.md`/`research.md`/`contracts/` (manual edits, or
+  `/speckit.plan` for the contract shapes), then `/speckit.implement` from T001. Tree clean at the commit below.
+  This branch has no upstream and is not on GitHub.
