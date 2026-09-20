@@ -48,6 +48,7 @@ export const en = {
     dropoutMethod: 'Dropout detection',
     reportsPerSecond: 'Reports/second',
     lastReportAge: 'Last report age',
+    liveQueueDropped: 'Live input queue drops',
     notAvailable: 'n/a',
   },
   /** Human-readable text for every notice `code` (LoadErrorCode, LoadNoticeCode, and the engine/session codes in

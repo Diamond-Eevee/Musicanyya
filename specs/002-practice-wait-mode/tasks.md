@@ -280,7 +280,7 @@ on-screen keyboard with its note name and written fingering.
   `quickstart.md` if any command changed
 - [x] T045 [P] Contract check: `contracts/practice-session.md` and `contracts/practice-settings.md` match what was
   built, and `specs/001-score-viewer-listen/contracts/ports.md` carries the `1.1.0` bump from T030
-- [ ] T057 [P] RT follow-up from the T031 review, not done: the worklet's live-note queue
+- [x] T057 [P] RT follow-up from the T031 review, not done: the worklet's live-note queue
   (`src/engine/worklets/score-player.processor.ts`, `liveQueue.length < 64`) drops messages silently, so a dropped
   note-off leaves a stuck note the matcher believes was released, and accompaniment roughly doubles the message
   rate. Count the drops and show them in the diagnostics like the other dropouts (Constitution I: "counted and

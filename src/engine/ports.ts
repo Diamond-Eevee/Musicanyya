@@ -48,6 +48,8 @@ export interface AudioDiagnostics {
   dropoutMethod: 'browserStats' | 'clockDrift' | 'none';
   reportsPerSecond: number;
   lastReportAgeMs: number | null;
+  /** A `live` (MIDI-in / accompaniment) message dropped because the worklet's 64-entry queue was full (T057). */
+  liveQueueDropped: number;
 }
 
 export type AudioEngineEvent =

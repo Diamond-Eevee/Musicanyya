@@ -388,3 +388,30 @@ the threshold" from "still stuck five presses later", and it says nothing about 
 `pitch` segment is already the MIDI key for a pitched note (`note-id.ts`), not spelling, and guessing a key
 signature to respell a single note is exactly the kind of silent inaccuracy Constitution III warns against; better
 to show the plain chromatic name and say so here than to guess).
+
+## R-16 - Counting the worklet's silently-dropped live messages (T057, Polish, 2026-09-20)
+
+**Decision**: `score-player.processor.ts`'s `liveQueue` (64 entries, holding the musician's own MIDI input and, since
+this feature, the accompaniment's `soundOn`/`soundOff` too - roughly doubling the message rate) already dropped a
+message outright when full; it now also increments a `liveDropped` counter and posts a new
+`{ type: "liveDropped", total }` message, exactly where the existing `status`/`ended` messages are posted: from
+`receiveMessage()` (`port.onmessage`), never from `process()`/`processBlock()`. `WebAudioEngine` stores the latest
+total and exposes it as `AudioDiagnostics.liveQueueDropped`, shown in `mx-diagnostics` next to the existing dropout
+counters. `contracts/worklet-protocol.md` (feature 001) is bumped to 1.1.0 for the new message.
+
+**Rationale**: Constitution I's "counted and shown" rule for anything that silently loses data applies here exactly
+as it does to audio dropouts - a dropped `noteOff` used to leave the matcher believing a key was released that
+never reached the synth, with nothing on screen to explain a stuck note. Posting from the message handler rather
+than batching into the existing bounded `position` report keeps the fix decoupled from playback state entirely: a
+Practice session doesn't set the transport `playing`, so `position` reports are comparatively rare during exactly
+the scenario (live input + accompaniment) this counter is meant to catch.
+
+**RT review (rt-audio-reviewer, 2026-09-20)**: PASS, no findings. Confirmed the new `post()` call and the
+`liveDropped++` counter are both inside `receiveMessage()`, never `process()`/`processBlock()`; confirmed every
+caller of the `'live'` message (the musician's own MIDI input and the matcher's accompaniment effects) is one
+message per discrete note event, not per audio block, so the 64-entry cap is not a hot path and is not, on this
+evidence, in need of revisiting.
+
+**Alternatives considered**: raising the queue size instead of counting drops - rejected, it hides the same failure
+at a higher threshold rather than fixing the "silent" part Constitution I actually objects to; piggybacking the
+count on the existing throttled `position` report - rejected, see Rationale (Practice mode rarely triggers it).
