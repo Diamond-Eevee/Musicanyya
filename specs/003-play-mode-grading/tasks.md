@@ -46,11 +46,11 @@ than renumbered, so IDs stay stable; **file order is execution order**, not nume
 
 ## Phase 2: Foundational (blocks all user stories)
 
-- [ ] T004 Play domain types in `src/core/play/types.ts`, exactly the shapes in
+- [x] T004 Play domain types in `src/core/play/types.ts`, exactly the shapes in
   [contracts/play-run.md](contracts/play-run.md) and [data-model.md](data-model.md) §1, §2, §7 (`PlayRun`,
   `RunPhase`, `PlayAction`, `PlayEffect`, `PlayNoticeCode`, `PlayTickMap`, `PlayScheduleOptions`, `RunSettings`,
   `ReliabilityEvent`) - types only, no logic
-- [ ] T005 [P] Grade domain types in `src/core/grade/types.ts`, exactly the shapes in
+- [x] T005 [P] Grade domain types in `src/core/grade/types.ts`, exactly the shapes in
   [contracts/grading.md](contracts/grading.md) and [data-model.md](data-model.md) §3-§6, §8, §9 (`ExpectedNote`,
   `PitchResult`, `TimingResult`, `NoteResult`, `ExtraNote`, `ResultReason`, `StrictnessLevelName`,
   `StrictnessLevel`, `Window`, `GradeInput`, `Grade`, `GradeSummary`, `MeasureOverview`, `ReliabilityWarning`,

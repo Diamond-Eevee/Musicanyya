@@ -76,7 +76,7 @@ export const METRONOME_KEY_BEAT = 77; // GM Low Wood Block
 export const METRONOME_KEY_DOWNBEAT = 76; // GM High Wood Block, the accent (FR-003)
 export const METRONOME_VELOCITY_BEAT = 88;
 export const METRONOME_VELOCITY_DOWNBEAT = 110;
-export const PLAY_STRICTNESS_DEFAULT: StrictnessLevelName = 'beginner'; // The most forgiving level (FR-039)
+export const PLAY_STRICTNESS_DEFAULT = 'beginner'; // The most forgiving level (FR-039); typed StrictnessLevelName once grade/types.ts exists (T013)
 export const PLAY_BEAT_UNIT_SOURCE = 'metronome-mark-then-time'; // What "a beat" means for the windows; compound meters take the dotted note
 export const PLAY_ARPEGGIO_SPREAD_BEATS = 0.5; // Spread allowed for a chord the Score writes as arpeggiated, in place of the chord spread (D-2, FR-022)
 export const ORNAMENT_NEIGHBOUR_STEPS = 1; // Scale steps each way around an ornamented note whose presses are played-along (D-1, FR-024)
@@ -86,44 +86,3 @@ export const PLAY_RETRIGGER_DEBOUNCE_MS = 15; // A note-off/note-on of one pitch
 export const CALIBRATION_BEATS = 16; // Taps taken by the Latency calibration (R-05)
 export const CALIBRATION_TEMPO_QPM = 80; // Tempo the calibration clicks at
 export const CALIBRATION_MAX_SPREAD_MS = 60; // Wider than this and the calibration is rejected (R-05)
-
-export type StrictnessLevelName = 'beginner' | 'standard' | 'strict';
-
-export interface PlayWindow {
-  beats: number;
-  floorMs: number;
-  capMs: number;
-}
-
-export interface StrictnessLevel {
-  onTimeEarly: PlayWindow;
-  onTimeLate: PlayWindow;
-  claim: PlayWindow;
-  chordSpread: PlayWindow;
-  arpeggioSpread: PlayWindow;
-}
-
-// data-model.md §6 - the three window sets (FR-020, FR-039)
-export const PLAY_STRICTNESS_LEVELS: Record<StrictnessLevelName, StrictnessLevel> = {
-  beginner: {
-    onTimeEarly: { beats: 1 / 6, floorMs: 60, capMs: 180 },
-    onTimeLate: { beats: 1 / 6, floorMs: 60, capMs: 180 },
-    claim: { beats: 1 / 2, floorMs: 150, capMs: 500 },
-    chordSpread: { beats: 1 / 12, floorMs: 30, capMs: 90 },
-    arpeggioSpread: { beats: PLAY_ARPEGGIO_SPREAD_BEATS, floorMs: 180, capMs: 1000 },
-  },
-  standard: {
-    onTimeEarly: { beats: 1 / 8, floorMs: 35, capMs: 130 },
-    onTimeLate: { beats: 1 / 8, floorMs: 35, capMs: 130 },
-    claim: { beats: 1 / 3, floorMs: 110, capMs: 340 },
-    chordSpread: { beats: 1 / 16, floorMs: 20, capMs: 65 },
-    arpeggioSpread: { beats: PLAY_ARPEGGIO_SPREAD_BEATS, floorMs: 180, capMs: 1000 },
-  },
-  strict: {
-    onTimeEarly: { beats: 1 / 16, floorMs: 20, capMs: 70 },
-    onTimeLate: { beats: 1 / 16, floorMs: 20, capMs: 70 },
-    claim: { beats: 1 / 4, floorMs: 80, capMs: 250 },
-    chordSpread: { beats: 1 / 24, floorMs: 15, capMs: 45 },
-    arpeggioSpread: { beats: 1 / 3, floorMs: 120, capMs: 700 },
-  },
-};
