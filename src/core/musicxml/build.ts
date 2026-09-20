@@ -476,11 +476,13 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           }
 
           let writtenKey = 0;
+          let noteStep = '';
           if (pitchEl) {
             const step = getText(getChild(pitchEl, 'step'));
             const alter = parseFloat(getText(getChild(pitchEl, 'alter'))) || 0;
             const octave = parseInt(getText(getChild(pitchEl, 'octave')), 10) || 4;
             writtenKey = getMidiKey(step, Math.round(alter), octave);
+            noteStep = step;
           } else if (isUnpitched) {
             const unpEl = getChild(el, 'unpitched');
             if (unpEl) {
@@ -627,6 +629,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
                 onsetInMeasure: onsetTicks,
                 onsetQuarters,
                 durationTicks,
+                step: noteStep,
                 writtenKey,
                 soundingKey,
                 unpitched: isUnpitched,

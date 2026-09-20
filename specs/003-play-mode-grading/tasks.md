@@ -203,6 +203,15 @@ reason.
   ([contracts/grading.md](contracts/grading.md) §2 rules 6 and 7)
 - [x] T028 [US1] `src/core/grade/match.ts`: the two passes as order-preserving assignments per pitch and per pitch
   class, with the tie-breaks of [contracts/grading.md](contracts/grading.md) §3
+- [x] T105 [US1] Add `step: string` (the written pitch letter, `'C'`-`'B'`) to `Note` in `src/core/score/model.ts`,
+  populated in `src/core/musicxml/build.ts` from the same local already parsed for `writtenKey` (found missing
+  while starting T093 - `buildPlayedAlongSpans`'s diatonic ornament neighbours need the letter name to step by,
+  and `Note` currently keeps only the resolved MIDI key, having already discarded it). Update the two
+  Note-literal test factories (`tests/core/timeline/timeline.test.ts`, `tests/core/timeline/instruments.test.ts`)
+  for the new required field. **Known limitation, not fixed here**: the neighbour's accidental is left natural
+  (no key signature is tracked anywhere in the Score model yet), so a diatonic neighbour is exactly right in C
+  major/A minor and only letter-correct elsewhere - flagged as a follow-up rather than expanding this task's
+  scope into key-signature parsing
 - [ ] T093 [US1] `buildPlayedAlongSpans` in `src/core/grade/expected.ts` and pass 3 in `src/core/grade/match.ts`:
   spans from 002's `ExpectedEvent.accompaniment` (`source: "ungraded"`) and from ornamented notes (their own key
   plus `ORNAMENT_NEIGHBOUR_STEPS` diatonic neighbours over the written duration, `source: "ornament"`); a

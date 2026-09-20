@@ -44,6 +44,7 @@ function note(overrides: Partial<Note> = {}): Note {
     onsetInMeasure: 0,
     onsetQuarters: { num: 0, den: 1 },
     durationTicks: 960,
+    step: 'C',
     writtenKey: 60,
     soundingKey: 60,
     unpitched: false,
