@@ -119,6 +119,9 @@ interface PracticeMark {
 - `extra` never blocks (FR-007); `wrongPitch`/`wrongOctave` never advance (FR-007, SC-001).
 - `playedAlong` is not a judgement: it marks the notehead the key belongs to, is excluded from
   `wrongAttemptsOnCurrent`, and carries no message (FR-007, FR-027).
+- `wrongPitch`, `wrongOctave` and `extra` are pressed on a key the Score does not write at this event at all, so
+  there is no notehead to mark them on: the app shows them on the on-screen keyboard instead (`keyFeedback` effect,
+  R-14, T056). `heldOver` keeps its notehead (the required note is real; it is simply already down).
 
 ## 4. Session state machine
 

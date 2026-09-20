@@ -1,9 +1,23 @@
+import type { WrongKeyState } from '../../core/practice/types.js';
+import { en } from '../i18n/en.js';
 import { midiState } from '../state/midiState.js';
+import { practiceState } from '../state/practiceState.js';
+
+// A colour-blind-safe palette matching src/ui/score/practice-marks.ts, and a distinct glyph per state so a wrong
+// key is never told apart by colour alone (FR-010, R-08). There is no message id for a plain wrong pitch (R-10):
+// the mark alone says "wrong note".
+const WRONG_KEY_STYLE: Record<WrongKeyState, { className: string; colour: string; glyph: string }> = {
+  wrongPitch: { className: 'wrong-pitch', colour: '#d55e00', glyph: '✕' },
+  wrongOctave: { className: 'wrong-octave', colour: '#e69f00', glyph: '▢' },
+  extra: { className: 'extra', colour: '#cc79a7', glyph: '◆' },
+};
 
 class MxPianoKeys extends HTMLElement {
-  private unsubscribe?: () => void;
+  private unsubscribeMidi?: () => void;
+  private unsubscribePractice?: () => void;
   private keysContainer: HTMLElement | null = null;
   private sustainIndicator: HTMLElement | null = null;
+  private messagesContainer: HTMLElement | null = null;
 
   constructor() {
     super();
@@ -12,12 +26,14 @@ class MxPianoKeys extends HTMLElement {
 
   connectedCallback() {
     this.renderInitial();
-    this.unsubscribe = midiState.subscribe(() => this.updateState());
+    this.unsubscribeMidi = midiState.subscribe(() => this.updateState());
+    this.unsubscribePractice = practiceState.subscribe(() => this.updateState());
     this.updateState();
   }
 
   disconnectedCallback() {
-    this.unsubscribe?.();
+    this.unsubscribeMidi?.();
+    this.unsubscribePractice?.();
   }
 
   private renderInitial() {
@@ -33,6 +49,7 @@ class MxPianoKeys extends HTMLElement {
           display: flex;
         }
         .key {
+          position: relative;
           width: 20px;
           height: 80px;
           border: 1px solid #000;
@@ -51,6 +68,33 @@ class MxPianoKeys extends HTMLElement {
           background: red;
           margin: 60px auto 0;
         }
+        .key.wrong-pitch, .key.wrong-octave, .key.extra {
+          border-width: 2px;
+        }
+        .key.wrong-pitch { border-color: ${WRONG_KEY_STYLE.wrongPitch.colour}; }
+        .key.wrong-octave { border-color: ${WRONG_KEY_STYLE.wrongOctave.colour}; }
+        .key.extra { border-color: ${WRONG_KEY_STYLE.extra.colour}; }
+        .key-mark {
+          position: absolute;
+          top: 2px;
+          left: 0;
+          right: 0;
+          text-align: center;
+          font-size: 12px;
+          line-height: 1;
+          pointer-events: none;
+        }
+        .key.wrong-pitch .key-mark { color: ${WRONG_KEY_STYLE.wrongPitch.colour}; }
+        .key.wrong-octave .key-mark { color: ${WRONG_KEY_STYLE.wrongOctave.colour}; }
+        .key.extra .key-mark { color: ${WRONG_KEY_STYLE.extra.colour}; }
+        .key-messages {
+          margin-top: 6px;
+        }
+        .key-message {
+          font-size: 12px;
+        }
+        .key-message.wrong-octave { color: ${WRONG_KEY_STYLE.wrongOctave.colour}; }
+        .key-message.extra { color: ${WRONG_KEY_STYLE.extra.colour}; }
         .sustain-indicator {
           margin-top: 10px;
           padding: 5px;
@@ -63,11 +107,13 @@ class MxPianoKeys extends HTMLElement {
         }
       </style>
       <div class="keyboard" id="keys"></div>
+      <div class="key-messages" id="key-messages"></div>
       <div class="sustain-indicator" id="sustain">Sustain Pedal</div>
     `;
 
     this.keysContainer = this.shadowRoot.getElementById('keys');
     this.sustainIndicator = this.shadowRoot.getElementById('sustain');
+    this.messagesContainer = this.shadowRoot.getElementById('key-messages');
 
     if (this.keysContainer) {
       // Create 88 keys (MIDI 21 to 108)
@@ -81,19 +127,45 @@ class MxPianoKeys extends HTMLElement {
   }
 
   private updateState() {
-    if (!this.keysContainer || !this.sustainIndicator) return;
+    if (!this.keysContainer || !this.sustainIndicator || !this.messagesContainer) return;
 
     const { pressedKeys, sustainDown } = midiState;
+    const { keyFeedback } = practiceState.get();
 
     for (let k = 21; k <= 108; k++) {
       const el = this.keysContainer.querySelector(`[data-key="${k}"]`);
-      if (el) {
-        if (pressedKeys.has(k)) {
-          el.classList.add('pressed');
-        } else {
-          el.classList.remove('pressed');
-        }
+      if (!el) continue;
+
+      el.classList.toggle('pressed', pressedKeys.has(k));
+
+      const feedback = keyFeedback.get(k);
+      for (const state of Object.keys(WRONG_KEY_STYLE) as WrongKeyState[]) {
+        el.classList.toggle(WRONG_KEY_STYLE[state].className, feedback?.state === state);
       }
+      const existingMark = el.querySelector('.key-mark');
+      if (feedback) {
+        const glyph = WRONG_KEY_STYLE[feedback.state].glyph;
+        if (existingMark) existingMark.textContent = glyph;
+        else {
+          const mark = document.createElement('span');
+          mark.className = 'key-mark';
+          mark.textContent = glyph;
+          el.appendChild(mark);
+        }
+      } else {
+        existingMark?.remove();
+      }
+    }
+
+    this.messagesContainer.innerHTML = '';
+    for (const [key, feedback] of keyFeedback) {
+      if (!feedback.messageId) continue;
+      const text = (en.practice.messages as Record<string, string>)[feedback.messageId] ?? feedback.messageId;
+      const line = document.createElement('div');
+      line.className = `key-message ${WRONG_KEY_STYLE[feedback.state].className}`;
+      line.dataset.key = String(key);
+      line.textContent = text;
+      this.messagesContainer.appendChild(line);
     }
 
     if (sustainDown) {

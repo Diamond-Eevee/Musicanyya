@@ -106,6 +106,10 @@ export type PracticeNoticeCode =
   | 'practiceDeviceLost'
   | 'practiceDeviceBack';
 
+/** A wrong / wrong-octave / extra press has no notehead of its own to mark (T056): only these three states reach
+ *  `keyFeedback`; `heldOver` is a required note and is marked on the Score by `markNotes` instead. */
+export type WrongKeyState = Extract<MarkState, 'wrongPitch' | 'wrongOctave' | 'extra'>;
+
 export type PracticeEffect =
   | { type: 'markNotes'; marks: readonly { noteId: NoteId; state: MarkState }[] }
   | { type: 'moveCursor'; eventIndex: number; onsetTick: Ticks }
@@ -114,6 +118,7 @@ export type PracticeEffect =
   | { type: 'showHelp'; eventIndex: number; reason: 'stuck' | 'requested' | 'heldOver' }
   | { type: 'hideHelp' }
   | { type: 'notice'; code: PracticeNoticeCode }
+  | { type: 'keyFeedback'; key: number; state: WrongKeyState; messageId?: string }
   | { type: 'sessionEnded'; reason: 'reachedEnd' | 'stopped' };
 
 export interface StartOptions {

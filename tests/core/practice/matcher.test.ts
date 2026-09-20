@@ -158,6 +158,53 @@ describe('matcher', () => {
     expect(step2.session.log[step2.session.log.length - 1]?.state).toBe('extra');
   });
 
+  it('T056: wrong / wrong-octave / extra presses carry a keyFeedback effect for the on-screen keyboard, since they have no notehead', () => {
+    const { score, timeline } = loadFixture('scale-c-major-q100.musicxml');
+    const events = buildExpectedEvents(score, timeline, selection);
+    const session = startSession({
+      scoreId: 'test',
+      events,
+      startEventIndex: 0,
+      loop: null,
+      accompaniment: false,
+      help: false,
+    });
+
+    // First note is C4 (60). A wrong pitch with no octave relation gets a mark but no message.
+    const wrongPitch = playSession(session, ['on:61@100']);
+    const wrongPitchEffect = wrongPitch.effects.find((e) => e.type === 'keyFeedback');
+    expect(wrongPitchEffect).toEqual({ type: 'keyFeedback', key: 61, state: 'wrongPitch' });
+
+    // Playing the right letter an octave too high says which way to move (R-10).
+    const octaveHigh = playSession(session, ['on:72@100']); // C5, required is C4 (60)
+    expect(octaveHigh.effects).toContainEqual({
+      type: 'keyFeedback',
+      key: 72,
+      state: 'wrongOctave',
+      messageId: 'practice.octave.lower',
+    });
+
+    // ... and an octave too low says the other way.
+    const octaveLow = playSession(session, ['on:48@100']); // C3
+    expect(octaveLow.effects).toContainEqual({
+      type: 'keyFeedback',
+      key: 48,
+      state: 'wrongOctave',
+      messageId: 'practice.octave.higher',
+    });
+
+    // Once every required key is already held, a further key is extra and says to release it, not the octave message.
+    const step1 = playSession(session, ['on:62@50', 'on:60@100']);
+    expect(step1.session.phase).toBe('blocked');
+    const step2 = playSession(step1.session, ['on:64@150']);
+    expect(step2.effects).toContainEqual({
+      type: 'keyFeedback',
+      key: 64,
+      state: 'extra',
+      messageId: 'practice.extra.notInChord',
+    });
+  });
+
   it('sustain ignored for judging', () => {
     const { score, timeline } = loadFixture('scale-c-major-q100.musicxml');
     const events = buildExpectedEvents(score, timeline, selection);

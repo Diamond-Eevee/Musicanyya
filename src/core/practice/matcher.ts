@@ -296,19 +296,24 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
 
       if (allHeld) {
         addLog(key, 'extra');
+        // No notehead to mark: the on-screen keyboard carries the feedback instead (T056, owner decision 2026-09-20).
+        effects.push({ type: 'keyFeedback', key, state: 'extra', messageId: 'practice.extra.notInChord' });
       } else {
         next.wrongAttemptsOnCurrent++;
-        let pitchClassMatch = false;
+        let matchedReqKey: number | undefined;
         for (const req of currentEvent.required) {
           if (Math.abs(req.key - key) % 12 === 0) {
-            pitchClassMatch = true;
+            matchedReqKey = req.key;
             break;
           }
         }
-        if (pitchClassMatch) {
+        if (matchedReqKey !== undefined) {
           addLog(key, 'wrongOctave');
+          const messageId = key > matchedReqKey ? 'practice.octave.lower' : 'practice.octave.higher';
+          effects.push({ type: 'keyFeedback', key, state: 'wrongOctave', messageId });
         } else {
           addLog(key, 'wrongPitch');
+          effects.push({ type: 'keyFeedback', key, state: 'wrongPitch' });
         }
       }
     }

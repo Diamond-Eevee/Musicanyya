@@ -1,6 +1,6 @@
 # Contract: practice session (core API)
 
-**Version**: `1.2.0` (internal TypeScript contract between `src/core/practice`, `src/app/session.ts` and
+**Version**: `1.3.0` (internal TypeScript contract between `src/core/practice`, `src/app/session.ts` and
 `src/ui`). Signatures are normative in shape; every change is reflected here with a version bump (MINOR for
 additions, MAJOR for breaking changes). `1.0.0` was amended on 2026-09-20 by the clarification session (played-along
 and skipped marks, the wrong-versus-extra rule, part selection, skip inputs) before anything was implemented.
@@ -10,6 +10,8 @@ and the optional `attribution` argument of `buildExpectedEvents`.
 `1.2.0` (US3, 2026-09-20): `resolveLoop` takes the timeline's passes, `ResolvedLoop` carries its pass span and an
 `occurrence` instead of the English `passLabel`, the `setLoop` input is added, and `loopRangeToPassIndices` /
 `passIndicesToLoopRange` are added (R-13).
+`1.3.0` (T056, 2026-09-20): the `keyFeedback` effect is added, carrying a wrong / wrong-octave / extra press to the
+on-screen keyboard (R-14) since it has no notehead of its own; `WrongKeyState` is added.
 
 Constitution IV and V: this module is pure. It imports nothing from `src/engine` or `src/ui`, touches no DOM, no
 Web API, no clock and no randomness, and therefore runs in Node under test. It **returns** effects; it never
@@ -108,6 +110,7 @@ export type PracticeEffect =
   | { type: "showHelp"; eventIndex: number; reason: "stuck" | "requested" | "heldOver" }
   | { type: "hideHelp" }
   | { type: "notice"; code: PracticeNoticeCode }
+  | { type: "keyFeedback"; key: number; state: WrongKeyState; messageId?: string }   // T056, R-14
   | { type: "sessionEnded"; reason: "reachedEnd" | "stopped" };
 
 export type PracticeNoticeCode =
@@ -139,12 +142,24 @@ export type MarkState =
   | "wrongPitch" | "wrongOctave" | "extra" | "heldOver"
   | "playedAlong"   // written here but not required: unselected hand, another part, grace note (FR-007, FR-027)
   | "skipped";      // the musician moved past this event themselves (FR-004a)
+
+export type WrongKeyState = Extract<MarkState, "wrongPitch" | "wrongOctave" | "extra">;
 ```
 
 Every state has a distinct shape as well as a colour (R-08), and every message that accompanies one is a message
 id with parameters, never a raw code and never a verdict (R-10): `practice.octave.higher`,
 `practice.octave.lower`, `practice.extra.heldOver`, `practice.extra.notInChord`, `practice.repress`.
 `playedAlong` and `skipped` carry no message at all: neither is a mistake.
+
+`wrongPitch`, `wrongOctave` and `extra` are the only states with no notehead of their own to mark: the key pressed
+is not written at the current event at all. They are shown on the on-screen keyboard instead, via the `keyFeedback`
+effect (R-14, owner decision 2026-09-20): `wrongOctave` carries `practice.octave.higher` / `.lower` depending on
+which way the pressed key is from the required one; `extra` (every required key already held) carries
+`practice.extra.notInChord`; `wrongPitch` carries no message - there is no useful direction to give for a letter
+that is simply wrong, so the mark alone stands until FR-023's help lights the right key. `heldOver` keeps marking
+the required notehead as before (`markNotes`), unchanged by this contract; `practice.extra.heldOver` and
+`practice.repress` are not produced by this contract - T056 left them unassigned; US4 (T038-T041) still needs to
+decide whether either belongs to the held-over/help flow (FR-009a, FR-023).
 
 ## Loops
 

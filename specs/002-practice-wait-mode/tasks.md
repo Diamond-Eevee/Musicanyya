@@ -133,13 +133,17 @@ session reports that the end was reached.
   holds all its principals; grace stealing shortens every note of the previous chord. Tests
   `tests/core/timeline/chords.test.ts` and three cases in `tests/core/timeline/grace.test.ts`, written first
  
-- [ ] T056 [US1] Found while verifying US2, NOT fixed: feedback for a wrong press does not exist yet. `matcher.ts` only
-  appends `wrongPitch` / `wrongOctave` / `extra` to `session.log`; no effect carries a mark or a message, the R-10
-  ids (`practice.octave.higher` ...) are used nowhere outside `en.ts`, and `session.ts` applies only `moveCursor`,
-  `soundOn`, `soundOff` and `sessionEnded` (so the `notice` effects `practiceDeviceLost` / `practiceDeviceBack` of
-  FR-021 are dropped too). A wrong key has no notehead to mark, so this needs a design decision first - where
-  the mark and the message appear (on-screen keyboard, beside the cursor) - see FR-010, FR-039, US1 AS. Add the
-  effect and the view, then a test; also apply the `notice` effects
+- [x] T056 [US1] Found while verifying US2, fixed: feedback for a wrong press did not exist. Owner decision
+  (2026-09-20, R-14): on the on-screen keyboard, since a wrong / wrong-octave / extra key has no notehead. A new
+  `keyFeedback` effect (contract 1.3.0) carries the key, its `WrongKeyState` and an optional R-10 message id;
+  `matcher.ts` emits it from the branch that used to only log the attempt; `practiceState.keyFeedback` holds it as
+  view state (cleared on that key's release, on the next `moveCursor`, and on starting/resetting a session); and
+  `mx-piano-keys` renders a distinct glyph plus colour on the key with the message spelled out beneath. Also applied
+  the `notice` effects (`practiceDeviceLost`/`practiceDeviceBack`, FR-021), previously dropped. Tests first:
+  `tests/core/practice/matcher.test.ts` (new case, failed for the expected reason - no `keyFeedback` effect) and
+  `tests/ui/practice-key-feedback.test.ts` (new file, 4 cases). `replay.test.ts`'s golden snapshot changed
+  (a recorded wrong-pitch press now also carries the effect) - reviewed and updated deliberately.
+  `practice.extra.heldOver` / `practice.repress` (en.ts) are left unassigned for US4 to decide (see R-14)
 
 **Checkpoint**: US1 fully functional and testable on its own - a musician can practise a whole piece hands
 together.

@@ -1,4 +1,4 @@
-import type { HandSelection, LoopRange, PracticeSession } from '../../core/practice/types.js';
+import type { HandSelection, LoopRange, PracticeSession, WrongKeyState } from '../../core/practice/types.js';
 import { createStore } from './store.js';
 
 export type AppMode = 'listen' | 'practice';
@@ -25,6 +25,10 @@ export interface PracticeState {
   setup: PracticeSetup | null;
   /** The measure a session will start at (FR-015); null = the beginning. */
   startMeasureIndex: number | null;
+  /** Wrong / wrong-octave / extra presses, by key: shown on the on-screen keyboard since they have no notehead
+   *  (T056, owner decision 2026-09-20). Not part of `PracticeSession`: it is view state derived from `keyFeedback`
+   *  effects, not something the core needs to replay. */
+  keyFeedback: ReadonlyMap<number, { state: WrongKeyState; messageId?: string }>;
 }
 
 class PracticeStateStore {
@@ -33,6 +37,7 @@ class PracticeStateStore {
     session: null,
     setup: null,
     startMeasureIndex: null,
+    keyFeedback: new Map(),
   });
 
   get(): PracticeState {
@@ -57,6 +62,27 @@ class PracticeStateStore {
 
   setStartMeasure(startMeasureIndex: number | null) {
     this.store.update((state) => ({ ...state, startMeasureIndex }));
+  }
+
+  setKeyFeedback(key: number, feedback: { state: WrongKeyState; messageId?: string }) {
+    this.store.update((state) => {
+      const keyFeedback = new Map(state.keyFeedback);
+      keyFeedback.set(key, feedback);
+      return { ...state, keyFeedback };
+    });
+  }
+
+  clearKeyFeedback(key: number) {
+    this.store.update((state) => {
+      if (!state.keyFeedback.has(key)) return state;
+      const keyFeedback = new Map(state.keyFeedback);
+      keyFeedback.delete(key);
+      return { ...state, keyFeedback };
+    });
+  }
+
+  clearAllKeyFeedback() {
+    this.store.update((state) => (state.keyFeedback.size === 0 ? state : { ...state, keyFeedback: new Map() }));
   }
 }
 

@@ -194,3 +194,47 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
 - Handoff: next = **US4, T038 -> T041** (help; tests first), then Polish T042-T048 and T057. Run `pnpm test` (497) and
   `pnpm build` before any e2e (Playwright serves `dist`). T056 needs the owner's answer before T041. Tree clean at the
   commit below.
+
+## 2026-09-20 17:30 - claude-sonnet-5 (relay)
+- Owner decision applied: **T056** - a wrong / wrong-octave / extra press shows on the **on-screen keyboard**
+  (R-14). Asked once at session start per AGENTS.md; this closed the question that had blocked T056 since US2 and
+  was noted as needed before US4.
+- Done: **T056**, closing the Phase 3 / US1 checkpoint. `matcher.ts` now emits a `keyFeedback` effect (`{ key, state,
+  messageId? }`, contract `practice-session` 1.3.0) from the branch that used to only append to `session.log`;
+  `wrongOctave` carries `practice.octave.higher`/`.lower` by which way the pressed key is from the matched required
+  key, `extra` carries `practice.extra.notInChord`, `wrongPitch` carries no message id (no useful direction to give
+  for a simply wrong letter). `practiceState.keyFeedback` holds it as app-layer view state - not part of
+  `PracticeSession`, since a replay does not need to reproduce it - cleared on that key's `noteOff`, on the next
+  `moveCursor`, and on starting or resetting a session. `mx-piano-keys` renders a distinct glyph and colour per state
+  on the key (matching the score's colour-blind-safe palette) with the message spelled out beneath the keyboard.
+  Also applied the `notice` effects (`practiceDeviceLost` = warning, `practiceDeviceBack` = info, FR-021), which
+  `session.ts` was dropping entirely before this.
+- Test-first: `tests/core/practice/matcher.test.ts` (one new case covering all three states and both octave
+  directions) was seen failing for the right reason (`undefined` where a `keyFeedback` effect was expected) before
+  `matcher.ts` changed. `tests/ui/practice-key-feedback.test.ts` (new, 4 cases) was written and run failing (no
+  `wrong-pitch`/`wrong-octave`/`extra` classes, no message text) before `mx-piano-keys.ts` changed.
+  `replay.test.ts`'s golden snapshot changed (its recorded wrong-pitch press on `scale-c-major-q100` now also
+  carries the new effect) - the diff was reviewed and matched exactly what was intended, then updated with `-u`.
+- Decisions (research.md **R-14**; contracts `practice-session` **1.3.0**; data-model §3):
+  1. `WrongKeyState = Extract<MarkState, 'wrongPitch' | 'wrongOctave' | 'extra'>` - the three states with no
+     notehead of their own. `heldOver` is unaffected: it marks a real required notehead via the existing
+     `markNotes` effect.
+  2. Feedback lives in `practiceState`, not `PracticeSession`: it is derived, ephemeral view state (which key is lit
+     and why), not something `applyInput`'s determinism guarantee needs to cover.
+  3. Clearing is reactive, not timed (Constitution I/V): a raw `noteOff` for that key, or the core's own
+     `moveCursor` effect, both already-decided facts the app layer relays - never a UI-side timer.
+  4. `practice.extra.heldOver` and `practice.repress` (already in `en.ts`) are left unassigned. They read as
+     belonging to the held-over/re-attack case (FR-009a), which already has its own notehead mark and is a
+     different problem from a keyless press; US4 should decide when it wires `showHelp`.
+- Problems / open questions:
+  - Left for **US4 (T038-T041)**: whether `practice.extra.heldOver` / `practice.repress` attach to the held-over
+    flow, and how the help highlight on `mx-piano-keys` coexists with a simultaneous wrong-key highlight (unlikely
+    but not impossible - a musician could ask for help while also holding a wrong key).
+  - Verified in the browser pane via `__PRACTICE_STATE__.setKeyFeedback` (no score needed to mount
+    `mx-piano-keys`): the glyph, colour and message text all appeared and cleared correctly; no console errors.
+    Real Web MIDI still could not be tried (the pane denies it), as in every prior entry.
+- Gate: `pnpm lint` 0 errors (173 warnings, none new in the touched files), `pnpm typecheck` clean, `pnpm test` 502
+  passed / 2 skipped (497 + 5 new), `pnpm build` clean, `pnpm test:e2e` 22 passed / 14 skipped / 0 failed (Chromium,
+  Firefox, Electron; WebKit practice specs skipped as before).
+- Handoff: next = **US4, T038 -> T041** (help; tests first, per R-14's open item above), then Polish T042-T048 and
+  T057. Tree clean at the commit below.

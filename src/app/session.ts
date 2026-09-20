@@ -439,6 +439,7 @@ export class Session {
       help: this.practiceSettings.help,
     });
     practiceState.setSession(session);
+    practiceState.clearAllKeyFeedback();
     const first = events[startEventIndex];
     if (first) transportState.setPositionTick(first.onsetTick);
   }
@@ -477,6 +478,7 @@ export class Session {
     this.releasePracticeSound(practiceState.get().session);
     practiceState.setSession(null);
     practiceState.setStartMeasure(null);
+    practiceState.clearAllKeyFeedback();
   }
 
   /** Picks the part and hands offered for a Score, and the choices remembered for it (R-07). */
@@ -627,17 +629,34 @@ export class Session {
     for (const effect of effects) {
       this.handlePracticeEffect(effect);
     }
+
+    // The wrong key was let go: whatever it was accused of no longer applies (T056). A key that never got
+    // feedback is a harmless no-op clear.
+    if (input.type === 'noteOff' && input.key !== undefined) {
+      practiceState.clearKeyFeedback(input.key);
+    }
   }
 
   private handlePracticeEffect(effect: PracticeEffect) {
     if (effect.type === 'moveCursor') {
       transportState.setPositionTick(effect.onsetTick);
+      // The cursor moved to a different expected event: feedback about the one just left no longer applies.
+      practiceState.clearAllKeyFeedback();
     } else if (effect.type === 'soundOn') {
       // Accompaniment (R-03): triggered by the musician's own progress and applied by the worklet on the audio
       // clock at its next block - no timer decides when it starts or stops (Constitution I).
       this.audioEngine.liveNoteOn(effect.key, effect.velocity);
     } else if (effect.type === 'soundOff') {
       this.audioEngine.liveNoteOff(effect.key);
+    } else if (effect.type === 'keyFeedback') {
+      // No notehead to mark a wrong / wrong-octave / extra press on: shown on the on-screen keyboard instead
+      // (T056, owner decision 2026-09-20).
+      practiceState.setKeyFeedback(effect.key, {
+        state: effect.state,
+        ...(effect.messageId !== undefined ? { messageId: effect.messageId } : {}),
+      });
+    } else if (effect.type === 'notice') {
+      noticeState.addNotice({ code: effect.code, severity: effect.code === 'practiceDeviceLost' ? 'warning' : 'info' });
     } else if (effect.type === 'sessionEnded') {
       this.endingPracticeNaturally = true;
       transportState.stop();

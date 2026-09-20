@@ -290,3 +290,33 @@ first note of the next pass - rejected, it needs a field that says which notes b
 `occurrence: { index, count } | null` plus the pass span, because an English label does not belong in the core, and
 skipping to the next event now runs the same arrival step as playing (a required key already down blocks it,
 FR-009a).
+
+## R-14 - Where a wrong / wrong-octave / extra press shows, since it has no notehead (T056, owner decision, 2026-09-20)
+
+**Decision**: on the on-screen keyboard. `applyInput` marks the pressed key itself with a new `keyFeedback` effect
+(`{ key, state, messageId? }`, contract `practice-session` 1.3.0) instead of only logging the attempt; the app layer
+stores it in `practiceState.keyFeedback` (view state, not part of `PracticeSession` - it is not something a replay
+needs to reproduce) and `mx-piano-keys` renders it as a distinct glyph plus colour on the key, with the R-10 message
+id spelled out beneath the keyboard. `wrongOctave` carries `practice.octave.higher` / `.lower` depending on which
+way the pressed key is from the matched required key; `extra` (every required key already held) carries
+`practice.extra.notInChord`; `wrongPitch` carries no message id - there is no direction to give for a simply wrong
+letter, so only the mark shows, until FR-023's help lights the right key after enough wrong attempts. The feedback
+clears when that key is released (a physical fact, not a computed one) or when the cursor moves to a different
+event, whichever comes first.
+
+**Rationale**: the owner was asked directly because the spec is silent on where a keyless mistake shows (FR-010,
+FR-039 name the note's own state and the message, not a location), and it had been open since US2, blocking US4
+(T041) which also lights a key on the same keyboard. The on-screen keyboard reads naturally for a key that was
+struck but does not belong to the Score at this position - the mistake *is* a key, not a place in the notation - and
+it keeps `keyFeedback` a sibling of the help highlight `mx-piano-keys` will already carry (US4), rather than adding
+a second overlay mechanism next to the cursor.
+
+**Alternatives considered** (from the two prior log entries): beside the cursor - rejected, needs new overlay
+positioning logic near a moving target and nothing to point at (the wrong key isn't near the cursor's note); a
+status line - rejected, it would compete with help, loop and device-loss notices for one line and separates the
+message from the key it is about.
+
+**Left open**: `practice.extra.heldOver` and `practice.repress` (en.ts) are not produced by this decision - they
+were written for the held-over/re-attack case (FR-009a), which already marks its own notehead via `markNotes` and
+is unrelated to the keyless states this decision covers. US4 (T038-T041) should decide whether either belongs to
+the held-over flow when it wires `showHelp`.

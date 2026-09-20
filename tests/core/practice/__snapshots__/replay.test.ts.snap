@@ -128,6 +128,11 @@ exports[`replay (snapshots) > golden snapshot: scale-c-major-q100 1`] = `
       "type": "moveCursor",
     },
     {
+      "key": 61,
+      "state": "wrongPitch",
+      "type": "keyFeedback",
+    },
+    {
       "marks": [
         {
           "noteId": "n-p0-s1-m0-v1-o1-k62",
