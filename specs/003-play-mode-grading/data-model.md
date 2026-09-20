@@ -44,8 +44,12 @@ here is timed):
 `aborted` and `stopped` both produce a Grade; only `aborted` carries an engine-level reliability warning.
 Losing the **MIDI** keyboard never changes the phase (FR-044): it appends a reliability event and keeps running.
 
-Input recorded during `countIn` is kept in the log (it is what the musician did) and is excluded from matching by
-the range filter, because no expected note exists before run tick `countInTicks`.
+Input recorded during `countIn` is kept in the log (it is what the musician did). Almost all of it is excluded
+from matching, because no expected note exists before run tick `countInTicks` - but **not all of it**: the first
+expected note sits exactly at `countInTicks` and its early claim window reaches back into the count-in, so the
+filter is "no press earlier than `firstOnsetTick - claimEarly(first)`", never "no press before `countInTicks`"
+(section 2, FR-003, D-4). Reading it as the latter would make an early first note impossible, which is the defect
+D-4 was raised about.
 
 ## 2. Tick mapping and the run schedule
 
@@ -78,9 +82,11 @@ written meter, with the downbeat accented. A compound meter (6/8, 9/8, 12/8) cli
 with no `time` inherits the previous one. The count-in uses the meter and tempo of the first measure in range.
 
 **How long the count-in is** (research R-16): `PLAY_COUNT_IN_MEASURES = 1` by default and never less than one
-measure (FR-003), but whole measures are **added** until the count-in lasts at least `COUNT_IN_MIN_SECONDS = 2`.
-One bar of 4/4 at 60 bpm is four seconds and plenty; one bar of 2/4 at 160 bpm is 0.75 seconds and establishes no
-pulse at all. The count-in stays whole measures either way, so FR-003 is untouched.
+measure (FR-003), but whole measures are **added** - to the default and to a length the musician chose alike -
+until the count-in lasts at least `COUNT_IN_MIN_SECONDS = 2`. FR-003 says so since the owner decisions of
+2026-09-20, because the extension is user-visible: in 2/4 at 160 bpm the default count-in is three measures, not
+one. One bar of 4/4 at 60 bpm is four seconds and plenty; one bar of 2/4 at 160 bpm is 0.75 seconds and
+establishes no pulse at all. The count-in stays whole measures either way, which is what FR-003 requires.
 
 **Where the count-in ends**: at the **notional downbeat of the run's first measure**, never at the first note.
 Two cases follow from that one rule:
@@ -135,8 +141,27 @@ interface ExpectedNote {
   measureIndex: number;
   passIndex: number;         // the occurrence, so repeats are graded separately (AS-1.9)
   chordSize: number;         // how many expected notes share this onset (1 = not a chord)
+  arpeggiated: boolean;      // the Score writes this chord rolled (<arpeggiate>): the wider spread applies (D-2)
 }
 ```
+
+Keys that may sound at a position without being graded travel beside the expected stream, because FR-024 needs
+them and the matcher cannot invent them:
+
+```ts
+interface PlayedAlongSpan {
+  key: number;               // MIDI key that may be played here without being graded
+  fromTick: Ticks;           // timeline ticks, inclusive
+  toTick: Ticks;             // timeline ticks, exclusive
+  source: "ungraded" | "ornament";  // the unselected hand or another part / the realisation of a written ornament
+}
+```
+
+- `ungraded`: every accompaniment key of 002's `ExpectedEvent.accompaniment`, over the span it sounds - the
+  unselected hand, another part, a grace note (FR-024).
+- `ornament`: for a note carrying `<trill-mark>`, `<mordent>`, `<turn>` or `<tremolo>`, its own key and its
+  diatonic neighbours (`ORNAMENT_NEIGHBOUR_STEPS` scale steps each way in the key in force), over the note's
+  written duration (D-1). The ornamented note itself is still expected once, at its onset.
 
 Built by `buildExpectedNotes(score, timeline, selection, range)`, which flattens 002's `buildExpectedEvents`
 (R-15). Grace notes, ornaments, hidden and playback-only notes, unpitched and percussion notes, other parts and
@@ -168,6 +193,14 @@ interface ExtraNote {
   reason: ResultReason;
 }
 
+interface PlayedAlongPress {     // a press covered by a PlayedAlongSpan: never wrong, never extra (FR-024)
+  key: number;
+  atTick: Ticks;
+  measureIndex: number;
+  passIndex: number;
+  source: PlayedAlongSpan["source"];
+}
+
 interface ResultReason {
   code:
     | "correctOnTime" | "earlyBy" | "lateBy"
@@ -185,16 +218,16 @@ interface ResultReason {
 
 1. Every expected note of the run appears exactly once in `results` (FR-018).
 2. `timing === null` exactly when `pitch === "missed"`.
-3. Each recorded note-on appears either as the `playedKey` of exactly one result or as exactly one `ExtraNote`,
-   never both and never twice (FR-019).
+3. Each recorded note-on appears exactly once in exactly one of three places: the `playedKey` of one result, one
+   `PlayedAlongPress`, or one `ExtraNote` (FR-019, FR-024). Never twice, never in two of them.
 4. Sorting the log by `(audioTimeSec, key)` before matching makes the outcome independent of arrival order.
 
 ## 6. Strictness levels and timing windows
 
-From the domain review of 2026-09-20 (research R-06, R-07, R-16). There are **three** independent windows, not
-the five FR-020 lists: the early/late outer bound, the missed boundary and the claim window are the same number,
-because a note that no press may claim is exactly a missed note. "The missed window" is therefore the *complement*
-of the claim window and is never configured.
+From the domain review of 2026-09-20 (research R-06, R-07, R-16), with the arpeggio window added by owner
+decision D-2. There are **four** configured windows, which is what FR-020 now lists: the early/late outer bound,
+the missed boundary and the claim window are the same number, because a note that no press may claim is exactly a
+missed note. "The missed window" is therefore the *complement* of the claim window and is never configured.
 
 ```ts
 type StrictnessLevelName = "beginner" | "standard" | "strict";
@@ -206,6 +239,7 @@ interface StrictnessLevel {
   onTimeLate: Window;
   claim: Window;         // also the early/late outer bound and the missed boundary
   chordSpread: Window;   // ADDED to the on-time window for a member of a chord
+  arpeggioSpread: Window; // ADDED instead of chordSpread where the Score writes <arpeggiate> (D-2, FR-022)
 }
 ```
 
@@ -214,6 +248,13 @@ interface StrictnessLevel {
 | On time (each side) | 1/6, 60, 180 | 1/8, 35, 130 | 1/16, 20, 70 |
 | Claim / early-late bound / missed boundary | 1/2, 150, 500 | 1/3, 110, 340 | 1/4, 80, 250 |
 | Chord spread (added to on time) | 1/12, 30, 90 | 1/16, 20, 65 | 1/24, 15, 45 |
+| Written arpeggio spread (instead of chord spread) | 1/2, 180, 1000 | 1/2, 180, 1000 | 1/3, 120, 700 |
+
+The arpeggio row is `PLAY_ARPEGGIO_SPREAD_BEATS = 0.5` at Beginner and Standard: a chord the Score asks to be
+rolled may take half a beat to unfold without any of its notes being late (D-2). It is deliberately the same at
+the two easier levels - a written arpeggio is notation, not a tolerance, so tightening it would punish correct
+playing rather than sloppy playing. Strict keeps a third of a beat because an arpeggio that slow is a musical
+choice the strict level may notice.
 
 **Beat unit**: a "beat" is the beat *in force at that note's onset* - the `<beat-unit>` of the governing metronome
 mark, otherwise a documented rule over `<time>` (compound meters take the dotted note, 2/2 the half). Taking the
@@ -261,6 +302,13 @@ The neighbour clamp gives `min(187.5, 0.5 * 93.75) = 46.9 ms` per side - the win
 window, so every claimed note there is on time. That is correct, not a bug - a 40 ms displacement inside a 94 ms
 stream is unevenness, which the spec's Assumptions put out of scope - but where `onTime == claim` across a stretch
 the Grade must say so in plain words instead of silently reporting 100% timing accuracy.
+
+**The absolute floor is a reporting rule, not a window** (`PLAY_WINDOW_ABSOLUTE_FLOOR_MS = 20`). The neighbour
+clamp always wins: raising a window back up to the floor would let it reach a neighbouring onset, which SC-014
+forbids. Where the clamp resolves a claim window below the floor - 32nd notes at 208 bpm are 36 ms apart, so each
+side is 18 ms - the timing of that stretch is below what the measurement chain can distinguish, and the Grade
+marks it `timingNotResolvable` (section 9) instead of reporting a timing result as if it were meaningful. The
+pitch results of such a stretch stay fully valid.
 
 **Boundaries are inclusive**: `|delta| <= window` is on time, so a note played exactly on time can never be early
 or late (SC-003). The comparison is integer ticks against integer bounds; no musical position is compared as a
@@ -316,6 +364,7 @@ interface Grade {
   complete: boolean;              // false after a stop (FR-008)
   results: readonly NoteResult[];
   extras: readonly ExtraNote[];
+  playedAlong: readonly PlayedAlongPress[];   // FR-024: shown as information, counted in nothing
   summary: GradeSummary;
   measures: readonly MeasureOverview[];
   reliability: readonly ReliabilityWarning[];
@@ -366,16 +415,17 @@ storage limits):
 | `COUNT_IN_INCLUDES_ANACRUSIS` | defaults | `true` | A pickup's missing beats are clicked too, so it falls on its own beat (R-16) |
 | `PLAY_BEAT_UNIT_SOURCE` | defaults | `"metronome-mark-then-time"` | What "a beat" means for the windows; compound meters take the dotted note (section 6) |
 | `PLAY_NEIGHBOUR_GAP_FRACTION` | defaults | `0.5` | Claim windows meet at the midpoint between onsets and never reach a neighbour (SC-014) |
-| `PLAY_WINDOW_ABSOLUTE_FLOOR_MS` | defaults | `20` | No window may resolve below this: under it we would be grading our own jitter |
+| `PLAY_WINDOW_ABSOLUTE_FLOOR_MS` | defaults | `20` | Below this a resolved claim window is not a timing judgement any more: the stretch is reported `timingNotResolvable` (section 6). It never raises a window |
 | `PLAY_RETRIGGER_DEBOUNCE_MS` | defaults | `15` | A note-off/note-on of one pitch closer than this is key chatter, not a repeated note (R-07) |
-| `METRONOME_CHANNEL` | defaults | `14` | Dedicated percussion channel for the click (R-02) |
+| `METRONOME_CHANNEL` | defaults | `14` | Dedicated percussion channel for the click (R-02). Reserved in `src/core/timeline/instruments.ts` beside `PERCUSSION_CHANNEL` and `LIVE_CHANNEL`, so no Score part can ever be allocated to it |
 | `METRONOME_KEY_BEAT` | defaults | `77` | GM Low Wood Block |
 | `METRONOME_KEY_DOWNBEAT` | defaults | `76` | GM High Wood Block, the accent (FR-003) |
 | `METRONOME_VELOCITY_BEAT` | defaults | `88` | |
 | `METRONOME_VELOCITY_DOWNBEAT` | defaults | `110` | |
+| `PLAY_ARPEGGIO_SPREAD_BEATS` | defaults | `0.5` | Spread allowed for a chord the Score writes as arpeggiated, in place of the chord spread (D-2, FR-022) |
+| `ORNAMENT_NEIGHBOUR_STEPS` | defaults | `1` | Scale steps each way around an ornamented note whose presses are played-along (D-1, FR-024) |
 | `PLAY_STRICTNESS_DEFAULT` | defaults | `"beginner"` | The most forgiving level (FR-039) |
 | `PLAY_STRICTNESS_LEVELS` | defaults | section 6 | The three window sets (FR-020, FR-039) |
-| `PLAY_GRADE_UNPLAYED_IS_MISSED` | defaults | `true` | An unclaimed expected note is missed, never ignored (FR-018) |
 | `CALIBRATION_BEATS` | defaults | `16` | Taps taken by the Latency calibration (R-05) |
 | `CALIBRATION_TEMPO_QPM` | defaults | `80` | Tempo the calibration clicks at |
 | `CALIBRATION_MAX_SPREAD_MS` | defaults | `60` | Wider than this and the calibration is rejected (R-05) |

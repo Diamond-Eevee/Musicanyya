@@ -170,3 +170,38 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
   - needs owner: **D-1 (T085)**, **D-2 (T086)**, **D-3 (T087)**, **D-4 (T088)** - unchanged, still open.
 - Handoff: next = fix C1 and H1-H5 in `tasks.md` / the design documents (or accept them), then
   `/speckit.implement` from T001. Nothing implemented yet; tree clean at the commit below.
+
+## 2026-09-20 - claude-opus-5 (relay)
+
+- Done: resolved **all four owner decisions** (the owner answered "use the recommendations") and **all 22
+  `/speckit.analyze` findings**. Documents only - no source file was touched, nothing implemented.
+  - T087 [x] D-3 softened: SC-015 is now "at least 95% over the reference fixtures"; FR-011 and AS-1.13 mark only
+    "correct" live; `liveMark` lost its `pitch` field (play-run 1.1.0); T044 stays a cheap same-pitch test.
+  - T088 [x] D-4 accepted: one count-in rule everywhere - matching reaches back by the first note's early claim
+    window and forward by the last note's late claim window (FR-003, AS-1.1, data-model §1 and §2,
+    performance-log rule 4). The four documents had contradicted each other on this (finding H2).
+  - D-1 and D-2 accepted: the MusicXML subset grows by `<ornaments>` (`<trill-mark>`, `<mordent>`, `<turn>`,
+    `<tremolo>`) and `<arpeggiate>`; `<glissando>` and `<slide>` stay unsupported and reported (R-17).
+- Decisions (new, in research.md): **R-18** played-along keys are explicit `PlayedAlongSpan` data in `GradeInput`
+  with a matcher pass 3 that runs after both claiming passes - without it FR-024 was not representable and every
+  accompaniment press would have been reported as extra (finding H3). **R-19** `METRONOME_CHANNEL = 14` is
+  reserved in `src/core/timeline/instruments.ts` (which reserves only 9 and 15 today), so no Score part can land
+  on the click channel; `compilePlaySchedule` asserts rather than drops (finding H5).
+- Contracts: `grading.md` 1.0.0 -> **1.1.0** (`playAlong` input and output, pass 3, arpeggio spread,
+  `timingNotResolvable` under the absolute floor); `play-run.md` 1.0.0 -> **1.1.0** (`liveMark` without `pitch`,
+  the channel-reservation rule). `performance-log.md` unchanged in version, rule 4 corrected.
+- Other findings folded in: `PLAY_WINDOW_ABSOLUTE_FLOOR_MS` became a `timingNotResolvable` reporting rule instead
+  of an unused constant contradicted by the neighbour clamp (M1); `COUNT_IN_MIN_SECONDS` is now in FR-003
+  because it is user-visible (M2); `PLAY_GRADE_UNPLAYED_IS_MISSED` dropped (L7); FR-020, FR-039 and the Key
+  Entities list four configured windows instead of six (M8).
+- tasks.md: 88 -> **103 tasks**, IDs appended not renumbered (file order is execution order). New: T085/T086
+  (ornament and arpeggio parsing, now scheduled in Phase 2) with T102; T089 (SC-003 and SC-004 had **no task at
+  all** - the CRITICAL finding); T090/T091 (RT reviews of the timing path: T009, T011, T030, T032); T092/T093
+  (played-along); T094/T095 (Metronome channel); T096 (grade worker), T097 (controller); T098 (audio loss
+  raising `audioLost`); T099 (nothing modal, no graded on-screen keyboard); T100 (nothing uploaded); T101 (chord
+  spread and arpeggio); T103 (10-minute run accounting). T045 moved into the US1 test block (test-first).
+- Problems / open questions: none. All four owner questions are answered and written into the documents; no
+  decision is waiting on anybody.
+- Handoff: next = `/speckit.implement` from T001. Setup T001-T003, then Phase 2 (note the new order: T090, T094,
+  T095, T102, T085, T086 close it), then US1. Nothing implemented yet; tree clean at the commit below, not
+  pushed.

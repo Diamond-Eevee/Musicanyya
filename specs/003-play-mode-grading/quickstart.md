@@ -56,7 +56,17 @@ README):
 | `anacrusis-count-in` | The pickup falls on its own beat of the click (R-16) |
 | `range-start-mid-measure-rests` | The count-in ends on the barline, not on the first note |
 | `enharmonic-cs-db` and `transposing-part-sounding-pitch` | Matching is on sounding key, not on spelling |
-| `first-note-early-into-count-in`, `last-note-late-past-end` | Recording outruns the run at both ends (R-16) |
+| `first-note-early-into-count-in`, `last-note-late-past-end` | Recording outruns the run at both ends (R-16, D-4) |
+| `chord-spread-rolled` | A chord rolled by hand is judged note by note within the chord spread (FR-022) |
+| `arpeggiate-chord` | A chord the Score writes as rolled uses the wider arpeggio spread and is not late (D-2) |
+| `trill-realisation` | The presses that realise a written ornament are played-along, never extra (D-1) |
+| `played-along-both-hands` | Keys played for the ungraded hand or another part are never wrong or extra (FR-024) |
+| `metronome-channel-collision` | A Score whose parts reach channel 14 still never sounds on the click channel (R-19) |
+
+The **synthetic timing fixtures** for SC-003 and SC-004 are generated, not hand-written: a helper plays every
+expected note exactly on time, or displaced by a known number of milliseconds, at 40, 60, 120, 160 and 208 bpm.
+Exactly on time must give 100% correct and on time with no early or late result; a known displacement must be
+reported within 5 ms of what was injected once the Latency profile is compensated.
 
 A **recorded performance** for the deterministic tests is a JSON `PerformanceLog` beside the fixture it belongs
 to, in `tests/fixtures/performances/`, with its Score id and the settings it was recorded with. Golden Grades are
@@ -78,6 +88,9 @@ Use a MIDI keyboard for all of these. Open a Score, switch to **Play**, and pres
    with late and early timing marks, and the Grade to name the millisecond difference.
 5. Play a wrong key in measure 2 and the right letter one octave down in measure 6. Expect an extra mark plus a
    missed note in measure 2, and a wrong-pitch mark naming the octave in measure 6.
+5a. Play the left hand along while grading the right hand only, roll the arpeggiated chord and play the trill in
+   `trill-realisation`. Expect none of it to appear as extra or late: the Grade shows them as played-along
+   (FR-024, SC-016).
 6. Select any marked note. Expect a plain-words reason.
 7. Stop a run halfway. Expect a Grade marked incomplete covering only the notes up to the stop.
 
@@ -115,5 +128,9 @@ Use a MIDI keyboard for all of these. Open a Score, switch to **Play**, and pres
   tests/engine/worklets` first, then the `rt-audio-reviewer` role.
 - **A repeat is graded once instead of twice**: the expected notes are being built per measure instead of per
   pass; check `buildExpectedNotes` against `timeline.passes`.
+- **The left hand, a trill or a rolled chord shows up as extra notes**: the `PlayedAlongSpan`s are missing or too
+  narrow - check `buildPlayedAlongSpans`, not the matcher (R-18).
+- **The count-in clicks sound like a Score part, or a part goes silent**: a Score part was allocated to
+  `METRONOME_CHANNEL`; `src/core/timeline/instruments.ts` must reserve it (R-19).
 - **The Grade takes too long on a long Score**: check that grading actually went through `grade.worker.ts` - a
   main-thread fallback is a bug (Constitution I).

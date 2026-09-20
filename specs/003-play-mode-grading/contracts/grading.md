@@ -1,6 +1,6 @@
 # Contract: grading (core API and worker)
 
-**Version**: `1.0.0` (internal TypeScript contract between `src/core/grade`, `src/workers/grade.worker.ts` and
+**Version**: `1.1.0` (internal TypeScript contract between `src/core/grade`, `src/workers/grade.worker.ts` and
 `src/app/play-session.ts`). Signatures are normative in shape; every change is reflected here with a version bump.
 
 Constitution IV: `gradePerformance` is a **pure, synchronous** function. Same Score, same log, same settings ->
@@ -16,6 +16,7 @@ interface GradeInput {
   runId: string;
   complete: boolean;                       // false after a stop (FR-008)
   expected: readonly ExpectedNote[];       // written order, already sliced to the run's range
+  playedAlong: readonly PlayedAlongSpan[]; // keys that may sound here without being graded (FR-024, D-1)
   log: PerformanceLog;
   tempo: readonly TempoSegment[];          // the run's tempo map (timeline ticks)
   ppq: number;
@@ -29,8 +30,13 @@ interface GradeInput {
 }
 ```
 
-`Grade`, `NoteResult`, `ExtraNote`, `GradeSummary`, `MeasureOverview` and `ReliabilityWarning` are defined in
-[data-model.md](../data-model.md) sections 5 and 9.
+`Grade`, `NoteResult`, `ExtraNote`, `PlayedAlongPress`, `GradeSummary`, `MeasureOverview` and
+`ReliabilityWarning` are defined in [data-model.md](../data-model.md) sections 5 and 9; `ExpectedNote` and
+`PlayedAlongSpan` in section 4.
+
+**Version 1.1.0 adds** `GradeInput.playedAlong`, `Grade.playedAlong`, the played-along pass 3 below, the
+arpeggio spread of step 2 and the `timingNotResolvable` rule for windows under the absolute floor. All of it is
+additive: a caller that passes an empty `playedAlong` gets the 1.0.0 behaviour.
 
 ## Step 1 - put everything on one axis
 
@@ -56,7 +62,8 @@ For an expected note at `onsetTick`, with `beatTicks` = the beat unit in force a
 
 ```
 raw         = clamp(beats * beatTicks, msToTicks(floorMs, onsetTick), msToTicks(capMs, onsetTick))
-rawOnTime   = raw(onTime) + (chordSize > 1 ? raw(chordSpread) : 0)
+spread      = chordSize > 1 ? raw(arpeggiated ? arpeggioSpread : chordSpread) : 0
+rawOnTime   = raw(onTime) + spread
 rawClaim    = raw(claim)
 claimEarly  = min(rawClaim, PLAY_NEIGHBOUR_GAP_FRACTION * gapBefore)   // the gap wins over the floor
 claimLate   = min(rawClaim, PLAY_NEIGHBOUR_GAP_FRACTION * gapAfter)
@@ -74,6 +81,11 @@ Normative details:
    belongs to the **earlier** onset.
 4. Windows are inclusive: `|delta| <= window` is on time (SC-003).
 5. Every comparison is integer ticks against integer bounds. No musical position is compared as a float.
+6. A chord the Score writes as `<arpeggiate>` (`ExpectedNote.arpeggiated`) takes the wider arpeggio spread in
+   place of the chord spread, so a correctly rolled chord is not late (FR-022, D-2).
+7. The neighbour clamp is final. Where it resolves a claim window below `PLAY_WINDOW_ABSOLUTE_FLOOR_MS`, the
+   window is **not** raised - that would let it reach a neighbouring onset - and the notes of that stretch are
+   flagged for `timingNotResolvable` (data-model section 6). Their pitch results stay fully valid.
 
 ## Step 3 - match, in two passes (FR-019)
 
@@ -94,6 +106,11 @@ pass 2 (same pitch class only), per pitch class:
   still-unclaimed expected notes of that pitch class, within the same per-side windows
   every assigned e: e.pitch = "wrongPitch", octaveDelta = (p.key - e.key) / 12
 
+pass 3 (played-along, no claiming):
+  every still-unclaimed press whose key and timelineTick fall inside a PlayedAlongSpan
+  -> a PlayedAlongPress with that span's source; it is removed from the leftovers and counted in nothing
+     (FR-024). A span never claims, satisfies or excuses an expected note
+
 leftovers:
   every unclaimed expected note e -> e.pitch = "missed", e.timing = null
   every unclaimed press           -> an ExtraNote at its own timelineTick
@@ -104,7 +121,9 @@ earlier onset; two onsets equidistant from one press (possible only at identical
 `(onsetTick, Note ID)`, and Note IDs are stable by Constitution III.
 
 A press whose pitch class matches no expected note inside its claim window never claims one: it is extra, and the
-note it was meant for is missed (clarification of 2026-09-20).
+note it was meant for is missed (clarification of 2026-09-20) - unless a `PlayedAlongSpan` covers it, in which
+case it is neither. Pass 3 runs **after** both matching passes, so a press that could claim a graded note always
+does: the ungraded hand and the ornament spans absorb only what is left over, never a real mistake.
 
 **Why order-preserving rather than greedy** (R-07): with the neighbour clamp at 0.5 the claim windows of two
 same-pitch onsets are disjoint, so the two formulations agree and the assignment is a two-pointer scan - but only
@@ -127,9 +146,11 @@ notes that were played), the six plain counts, and the per-pass overview. A meas
 - The two figures are never readable in isolation: the timing figure's denominator is the notes that were
   *played*, so a run with 12 of 42 notes played, all in time, must read "12 of 12 played notes on time - 30 of 42
   notes missed", never "100% on time".
-- `timingNotResolvable`: true for a stretch where the claim window is at or below the on-time window (dense fast
-  passages, data-model section 6), so the Grade can say that timing could not be distinguished there rather than
-  reporting a perfect result.
+- `timingNotResolvable`: true for a stretch where the claim window is at or below the on-time window, or below
+  `PLAY_WINDOW_ABSOLUTE_FLOOR_MS` (dense fast passages, data-model section 6), so the Grade can say that timing
+  could not be distinguished there rather than reporting a perfect result.
+- `playedAlong` presses appear in no count and no figure. They are information the UI may show ("you also played
+  the left hand"), never a result (FR-024).
 
 ## Worker protocol
 

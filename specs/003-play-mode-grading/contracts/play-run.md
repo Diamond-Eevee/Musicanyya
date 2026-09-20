@@ -1,6 +1,6 @@
 # Contract: play run (core API)
 
-**Version**: `1.0.0` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
+**Version**: `1.1.0` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
 `src/app/play-session.ts` and `src/ui`). Signatures are normative in shape; every change is reflected here with a
 version bump (MINOR for additions, MAJOR for breaking changes).
 
@@ -41,7 +41,7 @@ export function playRunReducer(run: PlayRun, action: PlayAction): PlayStep;
 |---|---|---|
 | `countInBeat` | `{ beat: number; of: number }` | The count-in reached a beat; the UI may show it (never modal) |
 | `runStarted` | `{}` | The count-in is over; the first expected note is now live (FR-003) |
-| `liveMark` | `{ noteIds: readonly NoteId[]; pitch: "correct" \| "wrongPitch" }` | Display-only pitch marking during the run (FR-011); the Grade replaces it (FR-011a) |
+| `liveMark` | `{ noteIds: readonly NoteId[] }` | Display-only "correct" marking during the run (FR-011); the Grade replaces it (FR-011a). Version 1.1.0 dropped `pitch`: the live test is same-pitch only and can never establish a wrong pitch (D-3) |
 | `soundInput` | `{ key: number; velocity: number; on: boolean }` | The musician's own note, through the live channel (FR-006) |
 | `notice` | `{ code: PlayNoticeCode }` | Non-blocking notice; never a dialogue (FR-009) |
 | `runEnded` | `{ reason: "reachedEnd" \| "stopped" \| "audioLost" }` | Grading may begin |
@@ -59,8 +59,11 @@ only ever be early or missed; without the head, the first note could only ever b
 honours the same window at its boundary.
 
 The live marking of `liveMark` is deliberately cheap and approximate: it matches a press against the expected
-notes at or next to the cursor and says nothing about timing. It is display only, and the Grade computed from the
-log replaces it wherever the two disagree (FR-011a, SC-015).
+notes at or next to the cursor **by pitch only**, and says nothing about timing or about wrong pitches. It is
+display only, and the Grade computed from the log replaces it wherever the two disagree (FR-011a). Since the
+owner's D-3 answer, SC-015 measures that agreement as a rate over the reference fixtures instead of demanding
+100%, because the order-preserving matcher can provably overturn a live mark when a later press turns out to be
+that note's match.
 
 ## The run schedule
 
@@ -93,7 +96,12 @@ Normative rules:
 4. The tempo map is shifted the same way, and the segment covering the count-in is the tempo in force at
    `rangeStartTick`.
 5. Metronome events occupy `METRONOME_CHANNEL` alone; `channelSetup` marks it used and percussion. No Score event
-   is ever written to that channel, whatever the Score contains.
+   is ever written to that channel, whatever the Score contains. This is guaranteed **upstream**, not by dropping
+   notes: `src/core/timeline/instruments.ts` reserves `METRONOME_CHANNEL` beside `PERCUSSION_CHANNEL` and
+   `LIVE_CHANNEL`, so neither an explicit `<midi-channel>` hint nor the round-robin allocator can ever put a part
+   there (feature 001 `contracts/worklet-protocol.md` channel table, bumped with the worklet protocol).
+   `compilePlaySchedule` asserts the invariant rather than enforcing it, because silently omitting a part's notes
+   would be a worse failure than a loud one.
 6. The output satisfies the `worklet-protocol` ordering rules (ticks ascending, control changes before note-offs
    before note-ons at equal tick).
 

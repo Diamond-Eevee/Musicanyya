@@ -248,6 +248,15 @@ rejected as the unfairness described above, and flagged to the owner rather than
 
 ## R-17 - Ornaments, arpeggios and glissandi: a real fairness gap this feature cannot close alone
 
+**Status 2026-09-20: the owner answered both questions with the recommendation** (spec `## Clarifications`,
+session "owner decisions after planning"). D-1 (ornaments) and D-2 (written arpeggios) are **accepted**, so the
+MusicXML subset grows by `<ornaments>`, `<trill-mark>`, `<mordent>`, `<turn>`, `<tremolo>` and `<arpeggiate>`,
+and the interim "mark those measures unreliable" fallback below is **not** used. `<glissando>` and `<slide>` stay
+out of scope: they have no agreed realisation to compare against, and the honest interim for them is the load
+report, which already says the element was skipped. The consequences are FR-022, FR-024, SC-016,
+`PLAY_ARPEGGIO_SPREAD_BEATS`, `ORNAMENT_NEIGHBOUR_STEPS`, the `PlayedAlongSpan` of data-model section 4 (R-18)
+and tasks T085, T086, T101, T102.
+
 **Decision**: recorded and **escalated to the owner**, not silently designed around. The domain review found
 three cases where the rules as written punish correct playing:
 
@@ -274,6 +283,46 @@ inside this feature.
 **Alternatives considered**: (a) suppressing every unclaimed press near an ornamented note without parsing the
 ornament - impossible: nothing in the model says a note is ornamented; (b) treating all extras leniently -
 rejected: it would blind the Grade to genuine wrong notes, which is the point of the feature.
+
+## R-18 - Played-along keys are data the matcher is given, not a rule it infers
+
+**Decision**: FR-024's played-along keys travel into `gradePerformance` as an explicit
+`PlayedAlongSpan[]` (`{ key, fromTick, toTick, source }`, data-model section 4) built beside the expected notes
+from 002's `ExpectedEvent.accompaniment` (`source: "ungraded"`) and from the ornament realisation D-1 accepts
+(`source: "ornament"`). A press that no expected note claimed is checked against the spans **after** both
+matching passes; a covered press becomes a `PlayedAlongPress`, counted in nothing, and only what is left over is
+extra.
+
+**Rationale**: without this the matcher cannot satisfy FR-024 at all - `GradeInput` carried only the *graded*
+expected notes, so every accompaniment key the musician played would have been reported as extra, and the
+US1 checkpoint would have shipped a Grade that punishes playing the left hand. Passing spans rather than rules
+keeps the core pure and the decision auditable: what may sound without being graded is data a test can write
+down. Running the check after matching keeps a genuine mistake a mistake - a span never absorbs a press that
+could have claimed a written note.
+
+**Alternatives considered**: (a) inferring "not expected, but written somewhere" inside the matcher - rejected:
+it would need the whole Score in `GradeInput` and would make the rule invisible to tests; (b) marking such
+presses extra with a softer reason - rejected: FR-024 says never wrong, never extra, and Practice mode already
+established played-along as its own state; (c) widening the expected stream to include ungraded notes - rejected:
+they would then be missable, which is exactly what "not graded" must not mean.
+
+## R-19 - `METRONOME_CHANNEL` is reserved by the allocator, not cleaned up afterwards
+
+**Decision**: `src/core/timeline/instruments.ts` reserves `METRONOME_CHANNEL = 14` beside `PERCUSSION_CHANNEL`
+and `LIVE_CHANNEL`, so no Score part can be allocated there - neither by an explicit `<midi-channel>15</...>`
+hint nor by the round-robin fallback. `compilePlaySchedule` *asserts* the invariant instead of enforcing it.
+
+**Rationale**: the contract rule "no Score event is ever written to that channel" was written as an invariant
+with nothing making it true: today the allocator reserves only 9 and 15, so a four-part Score or one explicit
+hint lands a real part on the click channel, where the count-in would play it as wood blocks. The two honest
+fixes are to reserve the channel or to remap the colliding part; reserving costs one line in a function whose
+tests already cover exhaustion, and remapping would silently change a Score's sound. Enforcing it in
+`compilePlaySchedule` by dropping events was rejected explicitly: silently losing a part's accompaniment is a
+worse failure than a loud assertion.
+
+**Alternatives considered**: (a) put the click on `PERCUSSION_CHANNEL` (9) with the Score's own drums - rejected:
+the Metronome must be mutable on its own (`setChannelVolume`, AS-3.6), and a Score's percussion would go silent
+with it; (b) a 17th channel - the synth has 16.
 
 ## R-08 - Grading runs in a Web Worker, around a synchronous pure function
 

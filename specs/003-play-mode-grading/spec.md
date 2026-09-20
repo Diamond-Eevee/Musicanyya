@@ -28,7 +28,8 @@ reason.
 **Acceptance Scenarios**:
 
 1. **Given** a Score is open in Play mode, **When** the musician presses Start, **Then** a count-in of full measures
-   is clicked first, with the downbeat accented, and nothing played during the count-in is graded.
+   is clicked first, with the downbeat accented, and nothing played during the count-in is graded except a first
+   note played inside its early claim window.
 2. **Given** a run is under way, **When** the musician plays nothing at all, **Then** the Score and the Metronome
    carry on to the end at the written tempo and every expected note is marked missed.
 3. **Given** a run is under way, **When** the musician plays the right key close enough to the written moment,
@@ -52,9 +53,12 @@ reason.
     of the chord is graded on its own against the written moment.
 12. **Given** a run is under way, **When** the musician plays a note, **Then** they hear it through the app's
     instrument sound, as they do in Listen and Practice mode.
-13. **Given** a run is under way, **When** a key claims an expected note, **Then** its pitch result is marked
-    correct or wrong pitch straight away, while its timing result (on time, early or late) and the missed and extra
-    results appear only with the Grade at the end.
+13. **Given** a run is under way, **When** a key of the written pitch is played for an expected note, **Then** that
+    note is marked correct straight away, while its timing result (on time, early or late) and the wrong-pitch,
+    missed and extra results appear only with the Grade at the end.
+14. **Given** a chord the Score writes as arpeggiated, or a note carrying a written ornament, **When** they are
+    played as written, **Then** the chord is not marked late for being rolled and the presses that realise the
+    ornament are played-along, never extra.
 
 ---
 
@@ -160,9 +164,12 @@ the first one and confirm the notes heard are the ones that were played, then de
 - **Ties and long notes**: a tied or sustained note is expected once, at its onset; releasing it early or holding it
   past its written end changes no result.
 - **Chords**: each note of a chord is graded on its own against the chord's written moment, so a rolled chord can
-  have some notes on time and some late.
+  have some notes on time and some late - unless the Score writes the chord as arpeggiated, where the wider
+  written-arpeggio allowance applies (FR-022).
 - **Repeats, endings and jumps**: every occurrence is graded separately, in the order Listen mode plays.
-- **Grace notes and ornaments**: never graded; playing them is neutral, and not playing them costs nothing.
+- **Grace notes and ornaments**: never graded; playing them is neutral, and not playing them costs nothing. The
+  presses that realise a written ornament are played-along (FR-024), so a well-played trill produces no extra
+  notes.
 - **Hidden, playback-only, unpitched and percussion notes**: never graded, as in Practice mode.
 - **Wrong octave, wrong hand, extra notes**: a right letter at the wrong octave is wrong pitch, with the direction
   to move named. Any other key the Score does not write there is extra, and the note it was meant for is missed -
@@ -215,6 +222,26 @@ the first one and confirm the notes heard are the ones that were played, then de
   measure of the meter where the run starts, configurable but never less than one measure; the app keeps the 20
   most recent attempts per Score, oldest dropped first, and states the limit (FR-003, FR-041).
 
+### Session 2026-09-20 (owner decisions after planning)
+
+Four questions the plan raised (D-1 to D-4) were put to the owner, and all four were answered with the
+recommendation:
+
+- Q: Should a correctly played **ornament** (trill, mordent, turn, tremolo) cost the musician anything? -> A: No
+  (D-1, accepted). Ornaments stay ungraded, and the presses that realise them are **played-along**: the
+  ornamented note's own pitch and its diatonic neighbours, within its written duration, are never extra. This
+  adds `<ornaments>`, `<trill-mark>`, `<mordent>`, `<turn>` and `<tremolo>` to the supported MusicXML subset
+  (FR-024, SC-016).
+- Q: How is a **written arpeggio** (`<arpeggiate>`) judged, when the Score itself asks for the chord to be
+  rolled? -> A: With a named, wider spread allowance in place of the ordinary chord spread (D-2, accepted). This
+  adds `<arpeggiate>` to the supported MusicXML subset (FR-022, SC-016).
+- Q: Must the marks shown while playing agree with the Grade for **100%** of the notes they cover (SC-015)? -> A:
+  No (D-3, softened). The live marker stays a cheap same-pitch test and may be overturned by the Grade, which
+  always wins (FR-011, FR-011a); SC-015 becomes a measured agreement rate over the reference fixtures.
+- Q: Does "nothing played during the count-in is graded" apply to a first note played slightly **early**? -> A:
+  No (D-4, accepted). The exclusion is the count-in minus the first expected note's early claim window, so the
+  commonest beginner tendency is judged early rather than missed (FR-003).
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
@@ -226,8 +253,12 @@ the first one and confirm the notes heard are the ones that were played, then de
 - **FR-002**: In Play mode the Score MUST advance on the audio clock at the selected tempo and MUST NEVER wait for
   the musician's input.
 - **FR-003**: Every run MUST begin with a count-in of whole measures clicked by the Metronome, with the downbeat
-  accented; the count-in length MUST be a named, configurable value of at least one measure, defaulting to one
-  full measure of the meter in force where the run starts, and nothing played during the count-in is graded.
+  accented. The count-in length MUST be a named, configurable value of at least one measure, defaulting to one
+  full measure of the meter in force where the run starts; whole measures MUST be added to any count-in - the
+  default or a chosen one - that would otherwise be shorter than a named minimum duration, because one fast
+  measure establishes no pulse. Input played during the count-in MUST be recorded but MUST NOT be graded, except
+  within the first expected note's early claim window (FR-020), so that a first note played slightly early is
+  judged early rather than missed.
 - **FR-004**: The Metronome MUST click for the whole run, following the Score's tempo map including tempo and meter
   changes, accenting the downbeat, and MUST stay in step with the notes the app sounds. Muting the Metronome MUST
   change nothing except the click being silent.
@@ -242,8 +273,9 @@ the first one and confirm the notes heard are the ones that were played, then de
 - **FR-010**: Play mode MUST require a MIDI keyboard; the on-screen keyboard and the computer keyboard are display
   and help only and MUST NOT produce graded input.
 - **FR-011**: During the run the app MUST show which keys are being played, within the same time budget as MIDI
-  input outside Play mode, and MUST mark each expected note correct or wrong pitch as soon as a key claims it.
-  Early, late, missed and extra MUST NOT be marked during the run; they appear with the Grade.
+  input outside Play mode, and MUST mark an expected note correct as soon as a key of the same pitch is played
+  for it. Wrong pitch, early, late, missed and extra MUST NOT be marked during the run; they appear with the
+  Grade.
 - **FR-011a**: The marking during the run is display only. The Grade MUST be computed from the Performance log
   after the run, and wherever it disagrees with a live mark, the Grade's result MUST replace it.
 
@@ -268,7 +300,7 @@ the first one and confirm the notes heard are the ones that were played, then de
   is exactly one of correct, wrong pitch (including wrong octave) or missed. A note whose pitch result is correct or
   wrong pitch - that is, one a key press claimed - MUST additionally carry a **timing result** of exactly one of on
   time, early or late, together with the signed timing difference; a missed note has no timing result. Every
-  recorded key press that no expected note claims MUST be reported as extra.
+  recorded key press that no expected note claims MUST be reported as extra, unless FR-024 marks it played-along.
 - **FR-019**: A key press MUST be claimed by at most one expected note, and an expected note by at most one key
   press. Matching MUST run in two passes over the claim window and MUST NOT depend on the order in which
   simultaneous messages arrive:
@@ -277,23 +309,29 @@ the first one and confirm the notes heard are the ones that were played, then de
   2. **Same pitch class**: each still-unclaimed key press claims the nearest still-unclaimed expected note within
      the claim window whose pitch class it matches - an octave error. These notes get the pitch result wrong pitch.
 
-  A key press left over after both passes is extra, and an expected note left over is missed. A key press whose
-  pitch class matches no expected note in its claim window MUST NEVER claim one: it is extra, and the note the
-  musician meant is missed.
-- **FR-020**: Every timing threshold - the on-time window, the early and late windows, the window beyond which a
-  note counts as missed, the claim window in which a key press may be matched, and the allowance for a spread
-  chord - MUST be a named, documented, configurable value expressed as a fraction of a beat at the tempo actually
-  played, bounded by a named minimum and a named maximum in milliseconds, so that slow and fast pieces are judged
-  comparably while no window is ever tighter than human timing precision or wide enough to reach a neighbouring
-  written note.
+  A key press left over after both passes is played-along where FR-024 covers it and extra otherwise, and an
+  expected note left over is missed. A key press whose pitch class matches no expected note in its claim window
+  MUST NEVER claim one: it is extra (or played-along), and the note the musician meant is missed.
+- **FR-020**: Every timing threshold MUST be a named, documented, configurable value expressed as a fraction of a
+  beat at the tempo actually played, bounded by a named minimum and a named maximum in milliseconds, so that slow
+  and fast pieces are judged comparably while no window is ever tighter than human timing precision or wide enough
+  to reach a neighbouring written note. The configured thresholds are the **on-time window** (each side), the
+  **claim window** in which a key press may be matched, the allowance for a **spread chord** and the wider
+  allowance for a **written arpeggio**. The early and late windows and the boundary beyond which a note counts as
+  missed are not configured separately: they are the claim window and its complement, because a press that no note
+  may claim is exactly what makes a note missed.
 - **FR-021**: A note the Score ties or sustains from an earlier onset MUST be graded once, at that onset, and MUST
   NOT be expected again.
 - **FR-022**: Each note of a chord MUST be graded on its own against the chord's written moment, within the chord
-  spread allowance.
+  spread allowance. Where the Score writes the chord as **arpeggiated**, the wider written-arpeggio allowance of
+  FR-020 MUST be used instead, so that rolling a chord the Score asks to be rolled is not marked late.
 - **FR-023**: Note lengths, releases, velocity, dynamics and pedalling MUST NOT affect any result; the app MAY
   report them as information.
 - **FR-024**: Keys the Score writes at a position without grading them - the unselected hand, another part, a grace
-  note - MUST be marked played-along and MUST NEVER count as wrong or extra, exactly as in Practice mode.
+  note - MUST be marked played-along and MUST NEVER count as wrong or extra, exactly as in Practice mode. The
+  presses that realise an **ornament** (trill, mordent, turn, tremolo) MUST be treated the same way: the
+  ornamented note's own pitch and its diatonic neighbours, within its written duration, are played-along, so that
+  playing the ornament well costs nothing and leaving it out costs nothing.
 - **FR-025**: Grading MUST be deterministic: the same Score, Performance log and settings MUST always produce an
   identical Grade, including every per-note reason.
 - **FR-026**: Grading MUST NOT disturb the run: it works on the recorded log, and no part of it may block the screen
@@ -337,7 +375,7 @@ the first one and confirm the notes heard are the ones that were played, then de
   and the same hand presets as Practice mode.
 - **FR-039**: The musician MUST be able to choose the timing strictness from exactly three named levels -
   **Beginner**, **Standard** and **Strict**. Each level is a complete, documented set of the FR-020 windows
-  (on-time, early, late, missed, claim window, chord spread) with its own fractions of a beat and millisecond
+  (on-time, claim window, chord spread, written arpeggio) with its own fractions of a beat and millisecond
   bounds, and every level MUST respect the bounds of FR-020. Beginner MUST be the default and the most forgiving;
   Strict MUST be the tightest.
 - **FR-040**: Run settings (range, tempo, part, hands, count-in, Metronome, strictness, accompaniment) MUST be
@@ -373,9 +411,13 @@ the first one and confirm the notes heard are the ones that were played, then de
 - **Note result**: what happened to one expected note - a pitch result (correct, wrong pitch, missed) and, for a
   note that was played, a timing result (on time, early, late) - with the key press that claimed it, the signed
   timing difference, and the plain-words reason.
-- **Extra note**: a recorded key press that no expected note claimed, with where in the Score it was played.
+- **Extra note**: a recorded key press that no expected note claimed and that is not played-along, with where in
+  the Score it was played.
+- **Played-along press**: a recorded key press the Score accounts for without grading it - the unselected hand,
+  another part, a grace note, or the realisation of a written ornament. It is never wrong, never extra, and
+  counts towards nothing (FR-024).
 - **Strictness level**: one of Beginner (default), Standard or Strict - a named set of timing windows (on-time,
-  early, late, missed, claim window, chord spread) applied to a run.
+  claim window, chord spread, written arpeggio) applied to a run.
 - **Run settings**: range, tempo percentage, graded part, hand selection, count-in length, Metronome sound,
   accompaniment and strictness, remembered per Score.
 
@@ -410,8 +452,11 @@ the first one and confirm the notes heard are the ones that were played, then de
 - **SC-014**: A performance whose notes all deviate by the same fraction of a beat receives the same results at 60
   and at 160 beats per minute; and across the reference fixtures no claim window ever reaches a neighbouring
   written note, at any tempo from 40 to 208 beats per minute.
-- **SC-015**: The pitch marks shown while playing agree with the Grade for 100% of the notes they cover; only
-  timing results and extra notes are added afterwards.
+- **SC-015**: Over the reference fixtures, the pitch marks shown while playing agree with the Grade for at least
+  95% of the notes they cover, and every disagreement is a note the Grade re-assigned to a different key press.
+  The Grade always wins (FR-011a); only timing results, wrong-pitch results and extra notes are added afterwards.
+- **SC-016**: A performance that plays every written ornament and every written arpeggio correctly produces no
+  extra notes and no late results from them, across the ornament and arpeggio fixtures.
 
 ## Assumptions
 
@@ -422,8 +467,10 @@ the first one and confirm the notes heard are the ones that were played, then de
   only and is superseded by the Grade.
 - Timing windows are relative to the beat with a millisecond floor and cap, so the strictness levels of FR-039 are
   sets of those fractions and bounds rather than raw millisecond numbers.
-- Fairness rests on the Latency profile from feature 001: input and output latency are compensated before any
-  timing is judged, and a Grade computed with an assumed rather than a measured latency says so.
+- Fairness rests on the Latency profile: input and output latency are compensated before any timing is judged,
+  and a Grade computed with an assumed rather than a measured latency says so. Feature 001 provides only a
+  reported output latency and an input estimate, so this feature builds the profile itself and the calibration
+  FR-034 offers.
 - The app does not sound the notes being graded. The musician's own playing is what is heard for the graded part;
   other parts and the unselected hand are accompaniment on the same clock as the Metronome.
 - The graded part, the hand presets and hand attribution follow Practice mode exactly (the most keyboard-like part

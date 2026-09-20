@@ -61,8 +61,10 @@ Normative rules:
 2. `audioTimeSec` is produced by `clockMap.toAudioTime(timeStampMs)` at the moment of receipt, never later, so a
    log remains interpretable when the mapping drifts.
 3. Everything received is recorded, including pedal and velocity, although neither is graded (FR-012, FR-023).
-4. Messages received during the count-in are recorded; they are excluded from matching because no expected note
-   exists there.
+4. Messages received during the count-in are recorded. They are excluded from matching **except** where the first
+   expected note's early claim window reaches back into the count-in: the filter is "no press earlier than
+   `firstOnsetTick - claimEarly(first)`" (data-model sections 1 and 2, FR-003, D-4). Symmetrically, recording and
+   matching continue for the last expected note's late claim window past the final onset.
 5. `droppedMessages` counts input the app could not record (FR-015); it appears on the Grade as a reliability
    warning.
 
