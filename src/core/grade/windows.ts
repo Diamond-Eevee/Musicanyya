@@ -1,6 +1,7 @@
 import { PLAY_NEIGHBOUR_GAP_FRACTION, PLAY_STRICTNESS_LEVELS, PLAY_WINDOW_ABSOLUTE_FLOOR_MS } from '../defaults.js';
 import type { MeasureInfo } from '../score/model.js';
 import { effectiveQpm, tempoAtTick } from '../tempo/tempo-map.js';
+import { beatTicksAt } from '../timeline/beat.js';
 import type { TempoSegment } from '../timeline/types.js';
 import type { ExpectedNote, StrictnessLevelName } from './types.js';
 
@@ -11,22 +12,6 @@ export interface ResolvedWindow {
   claimLateTicks: number;
   /** The claim window resolved below PLAY_WINDOW_ABSOLUTE_FLOOR_MS on at least one side (section 6, rule 7). */
   timingNotResolvable: boolean;
-}
-
-/**
- * The beat in force at a measure (data-model.md §6): the `<beat-unit>` of a governing metronome mark is not
- * tracked separately in the Score model today, so this is the documented fallback over `<time>` - a compound
- * meter (6/8, 9/8, 12/8: `beatType` 8, `beats` a multiple of 3 greater than 3) takes the dotted note, everything
- * else (including 2/2) takes one note of the written denominator, which already equals "the half" for 2/2.
- */
-function beatTicksAt(measureIndex: number, measures: readonly MeasureInfo[], ppq: number): number {
-  const time = measures[measureIndex]?.time;
-  if (!time) return ppq;
-  const beats = parseInt(time.beats, 10) || 4;
-  const beatType = time.beatType || 4;
-  const noteTicks = (ppq * 4) / beatType;
-  const isCompound = beatType === 8 && beats % 3 === 0 && beats > 3;
-  return isCompound ? noteTicks * 3 : noteTicks;
 }
 
 function msToTicks(ms: number, qpm: number, ppq: number): number {

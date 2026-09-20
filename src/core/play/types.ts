@@ -33,6 +33,7 @@ export interface PlayScheduleOptions {
   gradedNoteIds: ReadonlySet<NoteId>; // dropped from the schedule (FR-005)
   accompaniment: boolean; // false = everything but the Metronome is silent
   countInMeasures: number; // >= 1 (FR-003)
+  tempoPercent: number; // 25..200 (FR-037): sizes the count-in so it lasts COUNT_IN_MIN_SECONDS as actually played
   metronome: { beatKey: number; downbeatKey: number; beatVelocity: number; downbeatVelocity: number };
 }
 

@@ -151,7 +151,7 @@ reason.
 - [x] T021 [P] [US1] `tests/core/grade/summary.test.ts`: the two figures of FR-028 with counts out of totals, the
   six plain counts, `meanAsynchronyMs`, and `timingNotResolvable` where the claim window collapses to the on-time
   window or falls below `PLAY_WINDOW_ABSOLUTE_FLOOR_MS`; played-along presses appear in no count (FR-028)
-- [ ] T022 [P] [US1] `tests/core/play/play-schedule.test.ts`: graded notes are absent from the schedule and the
+- [x] T022 [P] [US1] `tests/core/play/play-schedule.test.ts`: graded notes are absent from the schedule and the
   accompaniment is present (FR-005); the range slice keeps only its passes; the count-in is whole measures, at
   least one and at least `COUNT_IN_MIN_SECONDS`, in the meter and tempo at the range start, with the downbeat
   accented; a pickup's missing beats are clicked (`anacrusis-count-in`); a range starting on rests still ends its
@@ -225,10 +225,10 @@ reason.
   matching continues for `claimLate(last)` past the final onset (D-4)
 - [ ] T031 [US1] `src/workers/grade.worker.ts` and its message handling in the controller, per
   [contracts/grading.md](contracts/grading.md) §Worker protocol, with the `GRADE_WORKER_TIMEOUT_MS` notice path
-- [ ] T032 [US1] `src/core/schedule/play-schedule.ts`: `compilePlaySchedule` and `PlayTickMap` (research R-03).
+- [x] T032 [US1] `src/core/schedule/play-schedule.ts`: `compilePlaySchedule` and `PlayTickMap` (research R-03).
   It **asserts** that no Score event is on `METRONOME_CHANNEL` (T095 guarantees it upstream) rather than dropping
   events silently
-- [ ] T091 [US1] RT review of T030 and T032 with `rt-audio-reviewer` (mandatory): the latency compensation and the
+- [x] T091 [US1] RT review of T030 and T032 with `rt-audio-reviewer` (mandatory): the latency compensation and the
   run's schedule compiler are timing code in that role's scope - one conversion site, integer ticks throughout,
   the count-in and clicks scheduled as data with no timer anywhere (Constitution I and II)
 - [ ] T033 [US1] `src/core/play/run.ts`: `playRunReducer` and its effects

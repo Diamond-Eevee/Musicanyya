@@ -1,6 +1,6 @@
 # Contract: play run (core API)
 
-**Version**: `1.1.0` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
+**Version**: `1.1.1` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
 `src/app/play-session.ts` and `src/ui`). Signatures are normative in shape; every change is reflected here with a
 version bump (MINOR for additions, MAJOR for breaking changes).
 
@@ -76,6 +76,10 @@ interface PlayScheduleOptions {
   gradedNoteIds: ReadonlySet<NoteId>;
   accompaniment: boolean;
   countInMeasures: number;                 // >= 1
+  tempoPercent: number;                    // 25..200 (FR-037), added in 1.1.1: sizes the count-in against the
+                                            // tempo actually played, found by the T091 RT review - the worklet
+                                            // applies tempoPercent uniformly, so a count-in sized at nominal
+                                            // tempo would not reliably last COUNT_IN_MIN_SECONDS as heard
   metronome: { beatKey: number; downbeatKey: number; beatVelocity: number; downbeatVelocity: number };
 }
 
@@ -85,8 +89,19 @@ interface PlaySchedule {
   expectedFirstRunTick: number;            // = tickMap.countInTicks
 }
 
-export function compilePlaySchedule(timeline: PlaybackTimeline, options: PlayScheduleOptions): PlaySchedule;
+export function compilePlaySchedule(
+  timeline: PlaybackTimeline,
+  measures: readonly MeasureInfo[],
+  options: PlayScheduleOptions,
+): PlaySchedule;
 ```
+
+**1.1.0 → 1.1.1**: added the `measures` parameter. Meter (`<time>`) and pickup (`nominalTicks` /
+`beatOffsetTicks`) live on `Score.measures`, not on `PlaybackTimeline` - the count-in's meter, its dotted-beat
+clicking in compound time and its anacrusis handling cannot be computed from the timeline alone. Found while
+implementing T032; corrected here rather than worked around, per AGENTS.md section 4.
+
+`range.toPassIndex` is **exclusive**, matching `buildExpectedNotes`' use of `LoopPassSpan` (`src/core/grade/expected.ts`) - not `ResolvedLoop`'s inclusive convention in `src/core/practice/loop.ts`. The two must agree because one `RunSettings.range` feeds both.
 
 Normative rules:
 
