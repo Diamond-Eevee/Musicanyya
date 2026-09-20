@@ -103,3 +103,17 @@ export type PracticeEffect =
   | { type: 'hideHelp' }
   | { type: 'notice'; code: PracticeNoticeCode }
   | { type: 'sessionEnded'; reason: 'reachedEnd' | 'stopped' };
+
+export interface StartOptions {
+  scoreId: string | null;
+  events: readonly ExpectedEvent[];
+  startEventIndex: number;
+  loop: ResolvedLoop | null;
+  accompaniment: boolean;
+  help: boolean;
+}
+
+export interface SessionStep {
+  session: PracticeSession;
+  effects: readonly PracticeEffect[];
+}

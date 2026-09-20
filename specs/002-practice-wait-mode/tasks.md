@@ -65,7 +65,7 @@ session reports that the end was reached.
   (`percussion-unpitched`) notes never required, events with no required keys dropped (FR-035, FR-036)
 - [x] T007 [P] [US1] `tests/core/practice/order.test.ts`: the expected-event order equals the order Listen plays
   for `repeat-simple`, `volta-1-2`, `dc-al-fine` and `tie-into-volta` (FR-003, SC-005)
-- [~] T008 [P] [US1] `tests/core/practice/matcher.test.ts`: correct key advances and wrong key never does
+- [x] T008 [P] [US1] `tests/core/practice/matcher.test.ts`: correct key advances and wrong key never does
   (SC-001); chord accepted only when all required keys are held together, in any order and at any speed, with
   `correctSoFar` while partial (FR-005, SC-003); **the wrong-versus-extra rule** - an unexpected key pressed while
   required keys are still unplayed is `wrongPitch`, or `wrongOctave` on a pitch-class match, while a key pressed
@@ -73,9 +73,9 @@ session reports that the end was reached.
   data-model §4 rule 3); **played-along** - a key the event lists in `accompaniment` (grace note, another part) is
   marked `playedAlong`, never judged and never counted (FR-007, FR-027); every expected note needs a fresh press
   (FR-009); a required key already down puts the event in `blocked` with the held-over mark (FR-009a); releasing a
-  long note early never blocks (FR-037); sustain ignored for judging (FR-026) (claimed: antigravity-gemini-3.1-pro 2026-09-20)
-- [ ] T009 [P] [US1] `tests/core/practice/device-loss.test.ts`: `deviceLost` releases the reported held keys,
-  keeps the event index, and the session returns to `waiting` on the next input without restarting (FR-021)
+  long note early never blocks (FR-037); sustain ignored for judging (FR-026)
+- [~] T009 [P] [US1] `tests/core/practice/device-loss.test.ts`: `deviceLost` releases the reported held keys,
+  keeps the event index, and the session returns to `waiting` on the next input without restarting (FR-021) (claimed: antigravity-gemini-3.1-pro 2026-09-20)
 - [ ] T010 [P] [US1] `tests/core/practice/replay.test.ts`: golden snapshots of the marks and the ordered effects
   for recorded input lists over the C major exercise and `chord-basic`; plus the guarantee that stripping every
   `timeStampMs` changes nothing (FR-028, SC-004, contract guarantee 2)
