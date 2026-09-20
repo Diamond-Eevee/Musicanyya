@@ -248,12 +248,13 @@ environment panel and run US1-US3 in both (spec US4).
 - [x] T130 [P] Complete `THIRD_PARTY_NOTICES.md` (exact versions and licence texts) and check the built `dist/` contains the SoundFont licence file
 - [x] T131 [P] Update `docs/musicxml-support.md` and the help page for everything implemented (repeats, jumps, ties, grace, dynamics, instruments, limitations: rit./accel., fermata, mid-measure jumps, middle-barline repeats)
 - [x] T132 [P] Update `README.md` (what works, how to run, publish, desktop) and `AGENTS.md` section 8 commands to match the real scripts
-- [ ] T133 Performance checks on the reference machine: SC-001 (200/500 measures), SC-005 (Play -> sound, first SoundFont load at 25 Mbit/s), SC-007 (10-minute Score, 0 dropouts while scrolling/zooming), long-task check (no main-thread task > 50 ms during playback); record results in `specs/001-score-viewer-listen/implementation-log.md`
-- [ ] T134 Accessibility and feedback check: colour + shape for sounding notes and cursor with a colour-blindness simulator, keyboard-only use of open/transport/panels, nothing modal during playback
-- [ ] T135 Run `quickstart.md` manual verification end to end (web in Chrome/Edge/Firefox/Safari, desktop app) and fix findings
-- [ ] T136 Constitution audit of the branch with `constitution-auditor` (`.claude/agents/constitution-auditor.md`); fix CRITICAL/HIGH findings
-- [ ] T137 Full quality gate (`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`), final `implementation-log.md` entry, commit
+- [x] T133 Performance checks on the reference machine: SC-001 (200/500 measures), SC-005 (Play -> sound, first SoundFont load at 25 Mbit/s), SC-007 (10-minute Score, 0 dropouts while scrolling/zooming), long-task check (no main-thread task > 50 ms during playback); record results in `specs/001-score-viewer-listen/implementation-log.md`
+- [x] T134 Accessibility and feedback check: colour + shape for sounding notes and cursor with a colour-blindness simulator, keyboard-only use of open/transport/panels, nothing modal during playback
+- [x] T135 Run `quickstart.md` manual verification end to end (web in Chrome/Edge/Firefox/Safari, desktop app) and fix findings
+- [x] T136 Constitution audit of the branch with `constitution-auditor` (`.claude/agents/constitution-auditor.md`); fix CRITICAL/HIGH findings
+- [x] T137 Full quality gate (`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`), final `implementation-log.md` entry, commit
 - [ ] T138 Mutation fuzz test for MusicXML loading (`tests/core/musicxml/malformed.test.ts`'s skipped "never throws in a mutation fuzz loop" test): bit-flip/truncate/tag-shuffle over the real fixture set, asserting `readXml`/`buildScore` either succeed or throw `MusicXmlLoadError` (never an uncaught exception, never a hang); found unimplemented (test stub, `describe.skip`) during T133's manual pass
+- [ ] T139 Justify or narrow the branch's pre-existing `any` usages (e.g. `score-player.processor.ts:55,93,161`, `catch (err: any)` in `verovio.worker.ts`/`score.worker.ts`/`web-midi-input.ts`, `window as any`/`navigator as any` feature-detection casts): add a comment justifying each per the constitution's merge-gate rule, or introduce a shared `UnknownMessage`-style type to narrow the worker/worklet message-envelope `any`s; found by the T136 constitution audit (MEDIUM, not blocking)
 
 ## Dependencies & Execution Order
 

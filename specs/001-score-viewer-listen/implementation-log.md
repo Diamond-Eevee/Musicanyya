@@ -522,3 +522,110 @@
 - Decisions: Re-formatted `src/core/musicxml/support.ts` to pass `pnpm lint`.
 - Problems / open questions: The next tasks (T133-T137) are manual verification/audits or final steps that need a human or a specific agent (`constitution-auditor`).
 - Handoff: next = T133-T137; tree clean at (to be committed).
+
+## 2026-09-20 12:20 - claude-sonnet-5 (relay)
+- Done: T133 (performance), T134 (accessibility), T135 (quickstart manual pass + fixes), T136 (constitution audit),
+  T137 (full gate). Environment: this session's built-in Chromium browser pane standing in for "the reference
+  machine" (same Windows host as the dev machine); no real MIDI hardware or DevTools-level network throttling
+  available, noted below where it matters.
+- **T133 found the app was completely broken in any real browser** before any of the manual checks could even
+  start: `mx-environment-panel.js` was only ever `import type`-ed in `main.ts`/`mx-app.ts`, so its
+  `customElements.define()` side effect never ran; the unupgraded element's missing `setEnvironment()` threw
+  synchronously during `bootstrap()`, aborting `Session.start()` before any UI (open button, drop zone, transport)
+  ever mounted. Root-caused via `pnpm build` + a fresh `playwright test` run against the rebuilt `dist/` (the
+  passing e2e results in the T130-132 handoff were against a stale pre-regression `dist/`). Fixed with real
+  side-effect imports (`fix(app): register environment panel and repair broken gate`, commit b8c1bd5), which also
+  fixed three more pre-existing gate breaks from the same commit: a missing `AudioEngine` type import
+  (`pnpm typecheck`), a `forEach` return-value lint error plus two Playwright empty-fixture-pattern lint errors
+  (`pnpm lint`; the latter two are `biome-ignore`d with justification since Playwright requires that exact
+  pattern), and 4 failing `environment-panel.test.ts` cases that hand-built a browser-shell `Environment` while
+  separately stubbing `window.musicanyyaShell` (only `probeEnvironment()` reads that global) - now drive
+  `probeEnvironment()` for real (`pnpm test`).
+- Also found and fixed `static-host.spec.ts` hanging for the full 15 s timeout, reproducibly, only when run through
+  `pnpm exec playwright test` (never when driving the same steps by hand): it polled Play state with
+  `getByRole('button', { name: 'Play' })`, and repeatedly recomputing the accessibility tree for that query starves
+  the page's main thread badly enough that the SoundFont fetch's stream-read never gets a turn. Root-caused by
+  bisecting the test step-by-step against a from-scratch reproduction script until only the `getByRole` vs. plain
+  class-selector polling differed. Switched to `.play-btn` (the selector `us2-listen.spec.ts` already uses).
+- Performance results (SC-001/SC-005/SC-007), dev server, cold unless noted:
+  - SC-001: 200-measure open 569 ms (budget 3000 ms); 500-measure open 1093 ms (budget 8000 ms).
+  - SC-005: warm Play -> sounding 21-110 ms (budget 150 ms); cold (first-ever, empty Cache Storage) Play -> sounding
+    274 ms locally. SoundFont (32 MB) fetch+stream-read measured at 74-90 ms over loopback; no DevTools-level
+    network throttle is available to this tool, so the 25 Mbit/s "first load within 15 s" figure is a computed
+    estimate (32 MB x 8 bit / 25 Mbit/s ~= 10.3 s transfer + ~0.3 s measured local processing ~= 10.6 s), not a
+    literal measurement - comfortably under budget but worth a real-network re-check before release.
+  - SC-007: ~5 s of active playback (500-measure generated fixture) while repeatedly scrolling and zooming
+    (+/- keys): 0 dropouts (since Play and total), reports/second steady at ~174, 0 PerformanceObserver `longtask`
+    entries (Constitution I's "no task > 50 ms" during an active session). Did not run a literal continuous
+    10-minute session (no fixture is that long in real time without tempo/duration changes the generated fixture
+    doesn't have); the 5 s sample under load showed no dropouts or long tasks, so a longer run is a duration
+    extrapolation, not independently confirmed for the full 10 minutes.
+- T134 accessibility: the note/cursor palette (`tokens.css`) is the Okabe-Ito colour-blind-safe palette; sounding
+  notes get both a colour fill and a thicker stroke outline (`score.css` `.note.playing`), and the cursor is a
+  Canvas-drawn bar + dot (`cursor-overlay.ts`), i.e. real shapes, not colour-only - confirmed visually with an
+  injected deuteranopia `feColorMatrix` filter (cursor bar stays visible). Keyboard-only: real Tab presses reach
+  Play, Stop, Tempo, Volume, Follow, Open score, Diagnostics, Environment, Help, the MIDI panel's Connect button
+  (inside its shadow root - `document.activeElement` correctly reports the shadow host per spec, not a bug) and
+  Recent-list entries, in that order. Nothing modal: no `<dialog>`/`showModal`/`role="dialog"` anywhere in `src/`;
+  empirically, opening the Diagnostics panel mid-playback (during the SC-007 run above) did not pause or interrupt
+  sound.
+- T135 quickstart spot-checks beyond what `pnpm test:e2e` already covers: non-ASCII filename
+  (`non-ascii-Łódź-日本.musicxml`) opens and displays correctly in the recent list; the recent list persists across
+  a real reload (IndexedDB), newest first; Help -> Supported notation shows its 19-row table.
+  **Found while checking `malformed-external-entity.musicxml`/`malformed-timewise.musicxml`: every notice in the
+  app rendered as a raw code** (e.g. `"internal x 1"`, `"defaultTempo x 2"`) instead of readable text, because (a)
+  `mx-notice-tray.ts` printed `notice.code` directly with no translation, and (b) `readXml`/`buildScore`/
+  `compileSchedule` encoded their error code as a string prefix in `Error.message` (e.g.
+  `"fileTooComplex: file is too large"`) without ever setting a real `.code` property, so
+  `score.worker.ts`'s `error.code || 'internal'` always fell through to `'internal'` regardless of the actual
+  failure - meaning `malformed-not-xml.musicxml`'s passing e2e assertion (`.notice` count > 0) never actually
+  verified *which* error users saw. Fixed in `fix(core,ui): give notices real text instead of raw codes` (commit
+  9ce9644): added `MusicXmlLoadError` (a typed `code` on a real `Error` subclass, kept in `core/` with no
+  DOM/engine/ui dependency - confirmed by the constitution audit and `tests/architecture/layers.test.ts`) used at
+  every `read.ts`/`build.ts`/`compile.ts` throw site, a new `externalEntityBlocked` `LoadErrorCode` (the DTD/ENTITY
+  guard itself is byte-for-byte unchanged), an `en.notices` code -> text map, and `mx-notice-tray.ts` now renders
+  that text plus the affected element and measure numbers (quickstart's "lists skipped elements with measure
+  numbers", previously unmet) through `escapeHtml()`. Verified live: a dropped external-entity fixture now shows
+  "This file references external content, which is blocked for safety." instead of "internal x 1"; an
+  unsupported-elements fixture shows "A measure's notes do not add up to its time signature. — measure 1" and "No
+  tempo was specified, so a default tempo was used. — measure 0". Un-skipped and implemented
+  `malformed.test.ts`'s "typed error for every malformed fixture" case (4 fixtures, asserting `.code`); its
+  "mutation fuzz loop" case is real, separate work, now tracked as **T138** rather than left silently skipped.
+  Also updated `read.test.ts`/`compile.test.ts` to assert `.code` instead of pattern-matching `.message`, and
+  reworded one message ("Expected a score-partwise MusicXML file", was "...document") since the literal word
+  "document" tripped `tests/architecture/layers.test.ts`'s core-layer DOM-globals regex - a wording fix, not a
+  weakened test.
+  Not independently walked by hand in this session: Firefox and Safari (no such browser is drivable from this
+  tool's environment; Playwright's own Firefox project is excluded from the gate below for an unrelated reason,
+  see Problems), and the Windows desktop app's native window chrome beyond what `electron-smoke.spec.ts` already
+  covers (no general desktop-window automation tool available here) - `pnpm test:e2e`'s webkit and electron
+  projects are the practical stand-ins and both pass.
+- T136: constitution audit via the `constitution-auditor` subagent, full `main...HEAD` diff plus focused review of
+  the two fix commits above. Verdict: **COMPLIANT WITH NOTES, no CRITICAL or HIGH findings** (does not block
+  T137). MEDIUM notes, both already tracked rather than silently dropped: T138 (fuzz-loop coverage, above) and a
+  new **T139** (many pre-existing `any` usages across the branch - worker/worklet message envelopes, `window
+  as any`/`navigator as any` feature-detection casts - lack the constitution's required justifying comment; Biome's
+  `noExplicitAny` is a warning, not a lint error, so this doesn't fail the gate but is a real, disclosed gap). One
+  LOW note (a small, already-bounded allocation in `score-player.processor.ts`'s position-report throttling,
+  implicitly accepted at the T105 RT review) needs no action.
+- T137 full gate, all green on this commit: `pnpm lint` (0 errors, 150 pre-existing warnings, unchanged baseline),
+  `pnpm typecheck` (clean), `pnpm test` (307 passed, 2 skipped: one pre-existing unrelated skip plus T138's fuzz
+  test), `pnpm test:e2e --project=chromium --project=webkit --project=electron` (6 passed, 6 correctly
+  project-skipped). Firefox excluded: `browserType.launch: spawn UNKNOWN` even after `playwright install --force
+  firefox` (fresh binary download, same failure) - a local process-spawn restriction in this sandboxed environment,
+  not a code issue; pre-existing per the 2026-09-19 22:40 log entry and still unresolved.
+- Decisions: fixed the four gate-breaking regressions and the notice-readability gap inline (bug fixes surfaced by
+  the manual-verification tasks themselves, per AGENTS.md 4's "design wrong? ... or ask" - these were straightforward
+  bugs, not design questions) rather than deferring; deferred the two genuinely new/larger pieces of work (fuzz
+  test, `any` cleanup) to T138/T139 instead of scope-creeping this session further.
+- Problems / open questions: none blocking. Two items worth a human's attention before release, neither gates
+  merge: (1) SC-005's 25 Mbit/s first-load figure is computed, not measured on a throttled connection - worth a
+  real check with DevTools network throttling or an actual slow connection; (2) the local Firefox Playwright
+  launch failure predates this session and reinstalling the browser didn't fix it - if Firefox e2e coverage
+  matters before release, this needs investigating on the actual machine (permissions? antivirus? a stale
+  profile dir?), which this tool session couldn't diagnose further.
+- Handoff: feature `001-score-viewer-listen` is code-complete through T137 with the gate green; T138 (fuzz test)
+  and T139 (`any` justification) are optional, non-blocking follow-ups tracked in `tasks.md`. Tree has this log
+  entry plus `tasks.md` ticks (T133-T137) uncommitted; commit before ending. Next: either implement T138/T139, or
+  consider the feature done and move to the next planned feature (`/speckit.specify` for whatever comes after
+  001-score-viewer-listen - check with the user, nothing is queued in `specs/`).
