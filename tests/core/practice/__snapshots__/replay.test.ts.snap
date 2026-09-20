@@ -1,0 +1,197 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`replay (snapshots) > golden snapshot: chord-basic (using grand-staff) 1`] = `
+{
+  "effects": [
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s2-m0-v4-o0-k43",
+          "state": "correctSoFar",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s2-m0-v3-o0-k48",
+          "state": "correctSoFar",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s1-m0-v2-o0-k64",
+          "state": "correctSoFar",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s1-m0-v1-o0-k72",
+          "state": "correctSoFar",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s2-m0-v4-o0-k43",
+          "state": "correct",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s2-m0-v3-o0-k48",
+          "state": "correct",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s1-m0-v2-o0-k64",
+          "state": "correct",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s1-m0-v1-o0-k72",
+          "state": "correct",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "reason": "reachedEnd",
+      "type": "sessionEnded",
+    },
+  ],
+  "marks": [
+    [
+      "n-p0-s1-m0-v1-o0-k72",
+      "correct",
+    ],
+    [
+      "n-p0-s1-m0-v2-o0-k64",
+      "correct",
+    ],
+    [
+      "n-p0-s2-m0-v3-o0-k48",
+      "correct",
+    ],
+    [
+      "n-p0-s2-m0-v4-o0-k43",
+      "correct",
+    ],
+  ],
+}
+`;
+
+exports[`replay (snapshots) > golden snapshot: scale-c-major-q100 1`] = `
+{
+  "effects": [
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s1-m0-v1-o0-k60",
+          "state": "correctSoFar",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s1-m0-v1-o0-k60",
+          "state": "correct",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "eventIndex": 1,
+      "onsetTick": 960,
+      "type": "moveCursor",
+    },
+    {
+      "key": 61,
+      "state": "wrongPitch",
+      "type": "keyFeedback",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s1-m0-v1-o1-k62",
+          "state": "correctSoFar",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s1-m0-v1-o1-k62",
+          "state": "correct",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "eventIndex": 2,
+      "onsetTick": 1920,
+      "type": "moveCursor",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s1-m0-v1-o2-k64",
+          "state": "correctSoFar",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s1-m0-v1-o2-k64",
+          "state": "correct",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "eventIndex": 3,
+      "onsetTick": 2880,
+      "type": "moveCursor",
+    },
+  ],
+  "marks": [
+    [
+      "n-p0-s1-m0-v1-o0-k60",
+      "correct",
+    ],
+    [
+      "n-p0-s1-m0-v1-o1-k62",
+      "correct",
+    ],
+    [
+      "n-p0-s1-m0-v1-o2-k64",
+      "correct",
+    ],
+  ],
+}
+`;

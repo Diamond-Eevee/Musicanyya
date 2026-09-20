@@ -46,7 +46,8 @@ export interface SimpleSynth {
 export type ProcessorMessage =
   | { type: 'status'; state: 'initialised' | 'soundReady' | 'error'; detail?: string }
   | { type: 'position'; frame: number; contextTime: number; tick: number; ticksPerFrame: number; playing: boolean }
-  | { type: 'ended'; frame: number };
+  | { type: 'ended'; frame: number }
+  | { type: 'liveDropped'; total: number };
 
 export interface ScorePlayerProcessor {
   /** Called by the test harness instead of AudioWorkletProcessor.process(). */
@@ -91,6 +92,7 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   const heldNotes: Set<number> = new Set(); // encoded as (channel << 7) | key
 
   const liveQueue: any[] = [];
+  let liveDropped = 0; // T057: counted and shown like the other dropouts (Constitution I)
 
   let onMessage: ((msg: ProcessorMessage) => void) | null = null;
 
@@ -223,6 +225,12 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
       case 'live': {
         if (liveQueue.length < 64) {
           liveQueue.push(msg);
+        } else {
+          // Dropped, not queued: a stuck note or a missed release is worse than briefly not knowing about it, but
+          // it must still be counted and shown (Constitution I, R-16). Posted here, not from process(): this
+          // handler already runs off the per-block hot path, same as the 'status' and 'ended' messages.
+          liveDropped++;
+          post({ type: 'liveDropped', total: liveDropped });
         }
         break;
       }

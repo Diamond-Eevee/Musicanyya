@@ -41,7 +41,7 @@ counts as secure).
 ## 4. Desktop app (Electron Shell)
 
 ```bash
-pnpm electron:dev     # starts Vite + Electron window loading the dev server
+pnpm electron:dev     # builds web + Electron bundles, then opens the window on them (not a watch mode)
 pnpm electron:build   # web build + Electron build + electron-builder (Windows: unpacked app and unsigned installer)
 ```
 

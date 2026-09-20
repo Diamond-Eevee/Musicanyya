@@ -14,6 +14,12 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
   { category: 'Notes', element: '<tie>', status: 'Supported', notes: '' },
   { category: 'Notes', element: '<grace>', status: 'Supported', notes: 'Acciaccatura and appoggiatura' },
   {
+    category: 'Notes',
+    element: '<fingering>',
+    status: 'Supported',
+    notes: 'Engraved by Verovio; also read by Practice mode for its help overlay (feature 002)',
+  },
+  {
     category: 'Time & Repeats',
     element: '<repeat>',
     status: 'Supported',

@@ -1,7 +1,11 @@
 # Contract: `score-player` AudioWorklet protocol
 
-**Version**: `1.0.0`. Messages between `WebAudioEngine` (main thread) and the `ScorePlayerProcessor`
+**Version**: `1.1.0`. Messages between `WebAudioEngine` (main thread) and the `ScorePlayerProcessor`
 (`src/engine/worklets/score-player.processor.ts`, registered as `"musicanyya-score-player"`). Research R-10.
+`1.1.0` (feature 002, T057, 2026-09-20): adds the `liveDropped` message, posted from `port.onmessage`'s `'live'`
+case (not from `process()`) whenever the 64-entry live queue is full - a dropped `noteOn`/`noteOff` would otherwise
+leave the matcher believing a key was released that never actually reached the synth, and Practice mode's
+accompaniment roughly doubles the live message rate (specs/002-practice-wait-mode/research.md R-16).
 
 Constitution I rules for the processor (checked by `rt-audio-reviewer`):
 
@@ -12,7 +16,9 @@ Constitution I rules for the processor (checked by `rt-audio-reviewer`):
   state; the heavy exception is `soundBank` (builds the bank; happens before sound is needed).
 - Messages *from* the processor are bounded: `position` at most every `POSITION_REPORT_BLOCKS = 4` blocks while
   playing (and once after each command), `ended`, `status`. `postMessage` clones the payload (a small allocation in
-  the worklet's GC heap); this bounded rate is the constitution's "bounded, batched messages" allowance.
+  the worklet's GC heap); this bounded rate is the constitution's "bounded, batched messages" allowance. `liveDropped`
+  (1.1.0) is unbounded in principle but fires only when the 64-entry live queue overflows - an exceptional condition,
+  not a per-block event - and is posted from `port.onmessage`, the same off-hot-path handler as `status`/`ended`.
 - A throw inside `process()` is prevented by construction (bounds checks); a caught failure in a message handler
   sends `status: error` and keeps the processor alive, returning `true` from `process()`.
 
@@ -55,6 +61,7 @@ interface ScheduleMessage {
 | `status` | `{ state: "initialised" | "soundReady" | "error", detail?: string }` | After `init` / `soundBank`, on handler failure |
 | `position` | `{ frame: number, contextTime: number, tick: number, ticksPerFrame: number, playing: boolean }` | Every 4 blocks while playing; once after `play`/`pause`/`stop`/`seek`/`tempo`/`schedule` |
 | `ended` | `{ frame: number }` | The end tick was reached; the processor paused itself |
+| `liveDropped` | `{ total: number }` | A `live` message arrived while the 64-entry queue was already full (1.1.0) |
 
 `frame` is the processor's block-start frame counter (`currentFrame` of the AudioWorkletGlobalScope), `contextTime`
 the matching `currentTime`; the main thread maps them to audible time with `getOutputTimestamp()` (R-11).

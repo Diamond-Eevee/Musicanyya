@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="3.1">
+  <part-list>
+    <score-part id="P1"><part-name>Piano</part-name></score-part>
+  </part-list>
+  <part id="P1">
+  <!-- Right hand: E5 F5 (rest) G5. Left hand: C3 as a half note, then D3 while the right hand rests, then E3.
+       Practising the right hand, the left hand is accompaniment: C3 spans two right-hand notes, and D3 has no
+       right-hand note of its own. -->
+  <measure number="1">
+    <attributes><divisions>1</divisions><time><beats>4</beats><beat-type>4</beat-type></time><staves>2</staves></attributes>
+    <note><pitch><step>E</step><octave>5</octave></pitch><duration>1</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>F</step><octave>5</octave></pitch><duration>1</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><rest/><duration>1</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>G</step><octave>5</octave></pitch><duration>1</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <backup><duration>4</duration></backup>
+    <note><pitch><step>C</step><octave>3</octave></pitch><duration>2</duration><voice>5</voice><type>half</type><staff>2</staff></note>
+    <note><pitch><step>D</step><octave>3</octave></pitch><duration>1</duration><voice>5</voice><type>quarter</type><staff>2</staff></note>
+    <note><pitch><step>E</step><octave>3</octave></pitch><duration>1</duration><voice>5</voice><type>quarter</type><staff>2</staff></note>
+  </measure>
+  </part>
+</score-partwise>

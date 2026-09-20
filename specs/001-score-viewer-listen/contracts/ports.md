@@ -1,6 +1,7 @@
 # Contract: ports (engine layer interfaces)
 
-**Version**: `1.0.0` (internal TypeScript contract between `src/engine` adapters and `src/ui`/`src/app`).
+**Version**: `1.1.0` (internal TypeScript contract between `src/engine` adapters and `src/ui`/`src/app`).
+1.1.0 (feature 002, T030): `SettingsStore` gains `loadPractice` and `savePractice`; nothing existing changed.
 Signatures are normative in shape; names may be refined during implementation, but every change must be reflected
 here and the version bumped (MINOR for additions, MAJOR for breaking changes).
 
@@ -101,6 +102,10 @@ export interface ScoreStore {
 export interface SettingsStore {
   load(): UserSettings;                 // defaults on missing/invalid data (contracts/storage.md)
   save(settings: UserSettings): void;   // never throws; storage errors are reported once as a notice
+
+  // 1.1.0, feature 002 (specs/002-practice-wait-mode/contracts/practice-settings.md)
+  loadPractice(scoreId: string | null): PracticeSettings;              // Score's own, else last-used defaults, else built-in
+  savePractice(scoreId: string | null, settings: PracticeSettings): void;   // no-op for a null id
 }
 
 // ---- EnvironmentProbe ----

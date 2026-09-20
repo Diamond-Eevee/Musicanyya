@@ -138,6 +138,10 @@ class TransportStateStore {
     this.store.update((s) => transportReducer(s, { type: 'seekMeasure', tick }));
     this.driver?.seekTick(tick);
   }
+
+  setPositionTick(tick: number): void {
+    this.store.update((s) => transportReducer(s, { type: 'positionTick', value: tick }));
+  }
 }
 
 export const transportState = new TransportStateStore();

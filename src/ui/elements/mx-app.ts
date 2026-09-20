@@ -6,6 +6,7 @@ export class MxApp extends HTMLElement {
   connectedCallback() {
     this.innerHTML = `
       <header class="mx-header">
+        <div id="mode-controls"></div>
         <div id="transport-controls"></div>
         <div id="open-controls"></div>
         <div id="diagnostics-controls"></div>

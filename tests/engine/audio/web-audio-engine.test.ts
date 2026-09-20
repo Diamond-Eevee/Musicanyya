@@ -86,6 +86,19 @@ describe('WebAudioEngine', () => {
     expect(latency.outputLatencyMs).toBeGreaterThan(0);
   });
 
+  it("T057: forwards the worklet's liveDropped count into diagnostics (counted and shown)", async () => {
+    const engine = new WebAudioEngine();
+    await engine.unlock();
+
+    expect(engine.diagnostics().liveQueueDropped).toBe(0);
+
+    mockPort.onmessage({ data: { type: 'liveDropped', total: 2 } });
+    expect(engine.diagnostics().liveQueueDropped).toBe(2);
+
+    mockPort.onmessage({ data: { type: 'liveDropped', total: 5 } });
+    expect(engine.diagnostics().liveQueueDropped).toBe(5);
+  });
+
   it('disposes the context', async () => {
     const engine = new WebAudioEngine();
     await engine.unlock();

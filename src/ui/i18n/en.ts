@@ -14,11 +14,14 @@ export const en = {
   transport: {
     play: 'Play',
     pause: 'Pause',
+    start: 'Start',
     stop: 'Stop',
     tempo: 'Tempo',
     volume: 'Volume',
     follow: 'Follow',
     loadingSound: 'Loading sound…',
+    skipBack: 'Skip Back',
+    skipForward: 'Skip Forward',
   },
   open: {
     button: 'Open score',
@@ -45,6 +48,7 @@ export const en = {
     dropoutMethod: 'Dropout detection',
     reportsPerSecond: 'Reports/second',
     lastReportAge: 'Last report age',
+    liveQueueDropped: 'Live input queue drops',
     notAvailable: 'n/a',
   },
   /** Human-readable text for every notice `code` (LoadErrorCode, LoadNoticeCode, and the engine/session codes in
@@ -83,5 +87,63 @@ export const en = {
     unpitchedWithoutSound: 'An unpitched note had no sound mapping and stayed silent.',
     defaultTempo: 'No tempo was specified, so a default tempo was used.',
     middleBarlineRepeat: 'A repeat starting mid-measure was approximated.',
+    practiceNothingToPlay: 'There are no playable notes in the selected part.',
+    practiceLoopEmpty: 'The looped section has no notes to play.',
+    practiceMultiKeyboard: 'Multiple keyboards detected; only the first one is used.',
+    practiceDeviceLost: 'The MIDI keyboard was disconnected.',
+    practiceDeviceBack: 'The MIDI keyboard was reconnected.',
   } as Record<string, string>,
+  practice: {
+    panel: {
+      heading: 'Practice',
+      part: 'Part',
+      hands: 'Hands',
+      both: 'Both hands',
+      right: 'Right hand',
+      left: 'Left hand',
+      allStaves: 'All staves',
+      staff: 'Staff {n}',
+      accompaniment: 'Hear the notes I am not practising',
+      help: 'Show help when I am stuck',
+      requestHelp: 'What note is next?',
+      nothingToPractise: 'This score has no notes to practise.',
+      startsAtMeasure: 'Starts at measure {n}',
+      loop: 'Loop',
+      loopFrom: 'From measure',
+      loopTo: 'To measure',
+      loopClear: 'Clear loop',
+      loopStatus: 'Looping measures {from}-{to}',
+      loopOccurrence: '{ordinal} time',
+    },
+    marks: {
+      waiting: 'Waiting',
+      correctSoFar: 'Correct so far',
+      correct: 'Correct',
+      wrongPitch: 'Wrong note',
+      wrongOctave: 'Wrong octave',
+      extra: 'Extra note',
+      heldOver: 'Held over',
+      playedAlong: 'Played along',
+      skipped: 'Skipped',
+    },
+    messages: {
+      'practice.octave.higher': 'Play one octave higher.',
+      'practice.octave.lower': 'Play one octave lower.',
+      'practice.extra.heldOver': 'Release the held key.',
+      'practice.extra.notInChord': 'Release the extra key.',
+      'practice.repress': 'Press the key again.',
+    },
+    help: {
+      heading: 'Here is the expected note',
+      fingering: 'Finger {n}',
+    },
+  },
 };
+
+/** 1st, 2nd, 3rd, 4th ... 11th, 12th, 13th, 21st (the label of a loop over a repeated passage). */
+export function ordinal(n: number): string {
+  const lastTwo = n % 100;
+  if (lastTwo >= 11 && lastTwo <= 13) return `${n}th`;
+  const suffixes: Record<number, string> = { 1: 'st', 2: 'nd', 3: 'rd' };
+  return `${n}${suffixes[n % 10] ?? 'th'}`;
+}

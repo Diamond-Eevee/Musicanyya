@@ -1,7 +1,14 @@
 import { WebAudioEngine } from '../engine/audio/web-audio-engine.js';
 import { MAX_FILE_BYTES, ZOOM_STEP } from '../engine/config.js';
 import { WebMidiInput } from '../engine/midi/web-midi-input.js';
-import type { AudioEngineEvent, EngineSchedule, ScoreStore, SettingsStore } from '../engine/ports.js';
+import type {
+  AudioEngineEvent,
+  EngineSchedule,
+  MidiAvailability,
+  PracticeSettings,
+  ScoreStore,
+  SettingsStore,
+} from '../engine/ports.js';
 import { IndexedDbScoreStore } from '../engine/storage/indexeddb-score-store.js';
 import { LocalSettingsStore } from '../engine/storage/local-settings-store.js';
 import '../ui/elements/mx-diagnostics.js';
@@ -12,14 +19,37 @@ import '../ui/elements/mx-recent-list.js';
 import '../ui/elements/mx-score-view.js';
 import '../ui/elements/mx-transport.js';
 import '../ui/elements/mx-midi-panel.js';
+import '../ui/elements/mx-mode-switch.js';
 import '../ui/elements/mx-piano-keys.js';
+import '../ui/elements/mx-practice-help.js';
+import '../ui/elements/mx-practice-panel.js';
+import { buildExpectedEvents, firstEventAtOrAfterTick, resolveStartMeasure } from '../core/practice/expected.js';
+import { handOptions, partOptions } from '../core/practice/hands.js';
+import { loopRangeToPassIndices, passIndicesToLoopRange, resolveLoop } from '../core/practice/loop.js';
+import { applyInput, startSession } from '../core/practice/matcher.js';
+import type {
+  ExpectedEvent,
+  HandSelection,
+  LoopPassSpan,
+  LoopRange,
+  PracticeEffect,
+  PracticeInput,
+  PracticeSession,
+  ResolvedLoop,
+} from '../core/practice/types.js';
 import type { LoadReport } from '../core/score/load-report.js';
+import type { Score } from '../core/score/model.js';
+import type { PlaybackTimeline } from '../core/timeline/types.js';
+import type { PracticeSetupChange } from '../ui/elements/mx-practice-panel.js';
 import type { MxScoreView, TimelineDto } from '../ui/elements/mx-score-view.js';
+import { midiNoteName } from '../ui/format/note-name.js';
 import { en } from '../ui/i18n/en.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
 import { initShortcuts } from '../ui/shortcuts.js';
 import { midiState } from '../ui/state/midiState.js';
 import { noticeState } from '../ui/state/noticeState.js';
+import type { HelpOverlay } from '../ui/state/practiceState.js';
+import { practiceState } from '../ui/state/practiceState.js';
 import type { LoadError, ScoreSummary } from '../ui/state/scoreState.js';
 import { scoreState } from '../ui/state/scoreState.js';
 import { transportState } from '../ui/state/transportState.js';
@@ -28,10 +58,12 @@ import { viewState } from '../ui/state/viewState.js';
 interface ScoreWorkerLoaded {
   type: 'loaded';
   requestId: number;
-  score: ScoreSummary;
+  summary: ScoreSummary;
+  fullScore: Score;
   report: LoadReport;
   renderXml: string;
   timeline: TimelineDto;
+  fullTimeline: PlaybackTimeline;
   schedule: EngineSchedule;
   contentHash: string;
 }
@@ -80,8 +112,15 @@ export class Session {
   private soundReady = false;
   private currentSchedule: EngineSchedule | null = null;
   private currentTimeline: TimelineDto | null = null;
+  private currentPlaybackTimeline: PlaybackTimeline | null = null;
+  private currentScore: Score | null = null;
   private scheduleDelivered = false;
   private readonly midiInput = new WebMidiInput();
+
+  // Practice mode (feature 002): what the musician chose for the open Score, remembered per Score id (R-07).
+  private practiceScoreId: string | null = null;
+  private practiceSettings: PracticeSettings = { selection: null, loop: null, accompaniment: true, help: true };
+  private endingPracticeNaturally = false;
 
   constructor(
     scoreStore: ScoreStore = new IndexedDbScoreStore(),
@@ -89,6 +128,29 @@ export class Session {
       noticeState.addNotice({ code, severity: 'warning' }),
     ),
   ) {
+    if (typeof window !== 'undefined') {
+      // e2e-only seam (tests/e2e/*.spec.ts): fakes a granted MIDI device without a real one, and feeds it raw MIDI
+      // bytes. `WebMidiInput`'s fields are private by design (nothing else should touch them); this reaches past
+      // that on purpose for the test harness rather than adding a real testing API to the port (no `any`: the
+      // narrow local type documents exactly what is being poked, nothing more).
+      const midiTestSeam = this.midiInput as unknown as {
+        grantState: MidiAvailability;
+        emit: (event: { type: string; [key: string]: unknown }) => void;
+        handleMidiMessage: (deviceId: string, e: { data: number[]; timeStamp: number }) => void;
+      };
+      window.addEventListener('e2e-ready', () => {
+        midiTestSeam.grantState = 'available';
+        midiTestSeam.emit({ type: 'availability', availability: 'available' });
+        midiTestSeam.emit({
+          type: 'devices',
+          devices: [{ id: 'fake-midi-1', name: 'Fake', manufacturer: 'Musicanyya', connected: true }],
+        });
+      });
+      window.addEventListener('e2e-midi', (e) => {
+        const detail = (e as CustomEvent<number[]>).detail;
+        midiTestSeam.handleMidiMessage('fake-midi-1', { data: detail, timeStamp: performance.now() });
+      });
+    }
     this.scoreStore = scoreStore;
     this.settingsStore = settingsStore;
   }
@@ -105,8 +167,12 @@ export class Session {
       viewState.setZoom(zoomPercent);
       this.settingsStore.save({ ...this.settingsStore.load(), zoomPercent });
     });
-    this.scoreView.addEventListener('measureclick', (event) => {
+    this.scoreView.addEventListener('measureclick', (event: Event) => {
       const { measureIndex } = (event as CustomEvent<{ measureIndex: number }>).detail;
+      if (practiceState.get().mode === 'practice') {
+        this.onPracticeMeasureClick(measureIndex);
+        return;
+      }
       const firstPass = this.currentTimeline?.passes.find((p) => p.measureIndex === measureIndex);
       if (firstPass) transportState.seekMeasure(firstPass.startTick);
     });
@@ -119,15 +185,22 @@ export class Session {
 
     const transport = document.createElement('mx-transport');
     document.getElementById('transport-controls')?.appendChild(transport);
+    const modeSwitch = document.createElement('mx-mode-switch');
+    document.getElementById('mode-controls')?.appendChild(modeSwitch);
     const updateTransportVisibility = () => {
-      transport.classList.toggle('hidden', scoreState.getStatus().kind !== 'loaded');
+      const loaded = scoreState.getStatus().kind === 'loaded';
+      transport.classList.toggle('hidden', !loaded);
+      modeSwitch.classList.toggle('hidden', !loaded);
     };
     scoreState.subscribe(updateTransportVisibility);
     updateTransportVisibility();
     transportState.connect({
       play: () => void this.handlePlay(),
       pause: () => this.audioEngine.pause(),
-      stop: () => this.audioEngine.stop(),
+      stop: () => {
+        this.audioEngine.stop();
+        this.onTransportStopped();
+      },
       seekTick: (tick) => this.audioEngine.seekTick(tick),
       setTempoPercent: (percent) => this.audioEngine.setTempoPercent(percent),
       setVolume: (volume) => this.audioEngine.setVolume(volume),
@@ -141,6 +214,12 @@ export class Session {
       });
     });
     this.audioEngine.on((event) => this.onAudioEngineEvent(event));
+    let lastMode = practiceState.get().mode;
+    practiceState.subscribe((state) => {
+      if (state.mode === lastMode) return;
+      lastMode = state.mode;
+      if (state.mode === 'listen') this.leavePractice();
+    });
     initShortcuts();
 
     const openButton = document.createElement('mx-open-button');
@@ -183,9 +262,21 @@ export class Session {
     const midiPanel = document.createElement('mx-midi-panel');
     document.getElementById('side-panel')?.prepend(midiPanel);
 
+    const practicePanel = document.createElement('mx-practice-panel');
+    practicePanel.addEventListener('practicesetup', (event) =>
+      this.onPracticeSetupChange((event as CustomEvent<PracticeSetupChange>).detail),
+    );
+    practicePanel.addEventListener('requesthelp', () => {
+      this.applyPracticeInput({ type: 'requestHelp', timeStampMs: performance.now() });
+    });
+    document.getElementById('side-panel')?.prepend(practicePanel);
+
     const pianoKeys = document.createElement('mx-piano-keys');
     // Place piano keys at the bottom of the score area
     document.getElementById('score-area')?.appendChild(pianoKeys);
+
+    const practiceHelp = document.createElement('mx-practice-help');
+    document.getElementById('score-area')?.appendChild(practiceHelp);
 
     midiPanel.addEventListener('request-midi', async () => {
       await this.midiInput.request();
@@ -204,21 +295,36 @@ export class Session {
           midiState.pressedKeys.delete(k);
         });
         midiState.emit();
+        this.applyPracticeInput({ type: 'deviceLost', timeStampMs: performance.now(), heldKeys: e.heldKeys });
         noticeState.addNotice({ code: 'midiDeviceLost', severity: 'warning' });
       } else if (e.type === 'noteOn') {
+        // The musician's own sound goes first: the re-renders that state changes trigger must never delay it.
+        this.audioEngine.liveNoteOn(e.key, e.velocity);
         midiState.pressedKeys.add(e.key);
         midiState.emit();
-        this.audioEngine.liveNoteOn(e.key, e.velocity);
+        this.applyPracticeInput({ type: 'noteOn', key: e.key, velocity: e.velocity, timeStampMs: e.timeStampMs });
       } else if (e.type === 'noteOff') {
+        this.audioEngine.liveNoteOff(e.key);
         midiState.pressedKeys.delete(e.key);
         midiState.emit();
-        this.audioEngine.liveNoteOff(e.key);
+        this.applyPracticeInput({ type: 'noteOff', key: e.key, timeStampMs: e.timeStampMs });
       } else if (e.type === 'sustain') {
+        this.audioEngine.liveSustain(e.down);
         midiState.sustainDown = e.down;
         midiState.emit();
-        this.audioEngine.liveSustain(e.down);
+        this.applyPracticeInput({ type: 'sustain', down: e.down, timeStampMs: e.timeStampMs });
       }
     });
+
+    const transportEl = document.querySelector('mx-transport');
+    if (transportEl) {
+      transportEl.addEventListener('skipforward', () => {
+        this.applyPracticeInput({ type: 'skipNext', timeStampMs: performance.now() });
+      });
+      transportEl.addEventListener('skipback', () => {
+        this.applyPracticeInput({ type: 'skipPrevious', timeStampMs: performance.now() });
+      });
+    }
 
     setInterval(() => {
       if (this.engineUnlocked) {
@@ -250,14 +356,6 @@ export class Session {
     await this.audioEngine.unlock();
     this.engineUnlocked = true;
 
-    if (this.currentSchedule && !this.scheduleDelivered) {
-      this.audioEngine.load(this.currentSchedule);
-      this.scheduleDelivered = true;
-      const seekTick = transportState.get().positionTick;
-      if (seekTick > 0) this.audioEngine.seekTick(seekTick);
-      if (this.scoreView && this.currentTimeline) this.scoreView.setPlayback(this.audioEngine, this.currentTimeline);
-    }
-
     if (!this.soundReady) {
       try {
         await this.audioEngine.ensureSoundLoaded();
@@ -268,6 +366,19 @@ export class Session {
         noticeState.addNotice({ code: 'soundFontMissing', severity: 'warning' });
         return;
       }
+    }
+
+    if (practiceState.get().mode === 'practice') {
+      this.startPractice();
+      return;
+    }
+
+    if (this.currentSchedule && !this.scheduleDelivered) {
+      this.audioEngine.load(this.currentSchedule);
+      this.scheduleDelivered = true;
+      const seekTick = transportState.get().positionTick;
+      if (seekTick > 0) this.audioEngine.seekTick(seekTick);
+      if (this.scoreView && this.currentTimeline) this.scoreView.setPlayback(this.audioEngine, this.currentTimeline);
     }
 
     this.audioEngine.play();
@@ -288,6 +399,341 @@ export class Session {
         noticeState.addNotice({ code: 'workletLoadFailed', severity: 'warning' });
       }
     }
+  }
+
+  /** Starts a session for the current selection, at the measure the musician picked or at the beginning (FR-015). */
+  private startPractice(): void {
+    const { setup, startMeasureIndex } = practiceState.get();
+    const events =
+      this.currentScore && this.currentPlaybackTimeline && setup?.selection
+        ? buildExpectedEvents(this.currentScore, this.currentPlaybackTimeline, setup.selection)
+        : [];
+    if (!setup?.selection || events.length === 0) {
+      noticeState.addNotice({ code: 'practiceNothingToPlay', severity: 'warning' });
+      this.endingPracticeNaturally = true;
+      transportState.stop();
+      this.endingPracticeNaturally = false;
+      return;
+    }
+    if (startMeasureIndex !== null) {
+      const start = resolveStartMeasure(events, startMeasureIndex, 0) ?? 0;
+      this.beginPractice(events, setup.selection, start, this.resolveLoopFor(events, start));
+      return;
+    }
+    // With a loop set and no measure picked the musician means to practise the loop: begin at its first event, in
+    // the occurrence that was stored with it (R-06).
+    const stored = this.practiceSettings.loop;
+    const anchor = stored
+      ? Math.max(
+          events.findIndex((event) => event.passIndex >= stored.fromPassIndex),
+          0,
+        )
+      : 0;
+    const loop = this.resolveLoopFor(events, anchor);
+    this.beginPractice(events, setup.selection, loop ? loop.fromEventIndex : 0, loop);
+  }
+
+  /** The stored loop resolved against `events` for a cursor position, or null with a notice when nothing in it can
+   *  be played by the practised hand (R-06); no stored loop, or one that no longer fits the Score, gives null. */
+  private resolveLoopFor(events: readonly ExpectedEvent[], cursorEventIndex: number): ResolvedLoop | null {
+    const passes = this.currentPlaybackTimeline?.passes ?? [];
+    const stored = this.practiceSettings.loop;
+    const range = stored ? passIndicesToLoopRange(passes, stored) : null;
+    if (!range) return null;
+    const loop = resolveLoop(events, passes, range, cursorEventIndex);
+    if (!loop) noticeState.addNotice({ code: 'practiceLoopEmpty', severity: 'warning' });
+    return loop;
+  }
+
+  /** A fresh session over `events` from `startEventIndex`: the previous marks are cleared (FR-019) and whatever the
+   * previous session left ringing is released. */
+  private beginPractice(
+    events: readonly ExpectedEvent[],
+    selection: HandSelection,
+    startEventIndex: number,
+    loop: ResolvedLoop | null,
+  ): void {
+    this.releasePracticeSound(practiceState.get().session);
+    const session = startSession({
+      scoreId: this.practiceScoreId,
+      selection,
+      events,
+      startEventIndex,
+      loop,
+      accompaniment: practiceState.get().setup?.accompaniment ?? true,
+      help: this.practiceSettings.help,
+    });
+    practiceState.setSession(session);
+    practiceState.clearAllKeyFeedback();
+    practiceState.clearHelpOverlay();
+    const first = events[startEventIndex];
+    if (first) transportState.setPositionTick(first.onsetTick);
+  }
+
+  private isPracticeRunning(session: PracticeSession | null): session is PracticeSession {
+    return (
+      session !== null &&
+      (session.phase === 'waiting' || session.phase === 'blocked' || session.phase === 'interrupted')
+    );
+  }
+
+  /** Silences the accompaniment notes a session left ringing; the musician's own keys are not touched. */
+  private releasePracticeSound(session: PracticeSession | null): void {
+    if (!session) return;
+    for (const key of session.soundingAccompaniment.keys()) this.audioEngine.liveNoteOff(key);
+  }
+
+  /** The Stop button (or anything else that stops the transport) ends the session and leaves its marks on screen
+   * (FR-018); reaching the end on its own is left alone so the last accompaniment notes can ring (R-12). */
+  private onTransportStopped(): void {
+    if (practiceState.get().mode !== 'practice' || this.endingPracticeNaturally) return;
+    const session = practiceState.get().session;
+    if (!session || (session.phase === 'finished' && session.soundingAccompaniment.size === 0)) return;
+    this.releasePracticeSound(session);
+    practiceState.setSession({ ...session, phase: 'finished', soundingAccompaniment: new Map() });
+  }
+
+  /** Switching to Listen ends the session and clears its marks (FR-019). */
+  private leavePractice(): void {
+    this.resetPractice();
+    transportState.stop();
+  }
+
+  /** Drops the session and the picked start measure, releasing whatever the session left ringing. */
+  private resetPractice(): void {
+    this.releasePracticeSound(practiceState.get().session);
+    practiceState.setSession(null);
+    practiceState.setStartMeasure(null);
+    practiceState.clearAllKeyFeedback();
+    practiceState.clearHelpOverlay();
+  }
+
+  /** Picks the part and hands offered for a Score, and the choices remembered for it (R-07). */
+  private setupPractice(score: Score): void {
+    this.resetPractice();
+    const { parts, preselected } = partOptions(score);
+    this.practiceSettings = this.settingsStore.loadPractice(this.practiceScoreId);
+    const selection = this.resolvePracticeSelection(score, parts, preselected, this.practiceSettings.selection);
+    const stored = this.practiceSettings.loop;
+    practiceState.setSetup({
+      parts,
+      hands: selection ? handOptions(score, selection.partIndex) : [],
+      selection,
+      accompaniment: this.practiceSettings.accompaniment,
+      help: this.practiceSettings.help,
+      measureCount: score.measures.length,
+      // A stored loop that no longer fits this Score is not shown; it is not an error (contracts/practice-settings.md).
+      loop: stored ? passIndicesToLoopRange(this.currentPlaybackTimeline?.passes ?? [], stored) : null,
+    });
+  }
+
+  /** A remembered selection is used only if it still fits the Score; otherwise the preselected part, all staves. */
+  private resolvePracticeSelection(
+    score: Score,
+    parts: readonly { partIndex: number; staves: number }[],
+    preselected: number,
+    stored: HandSelection | null,
+  ): HandSelection | null {
+    if (parts.length === 0) return null;
+    const part = stored ? parts.find((p) => p.partIndex === stored.partIndex) : undefined;
+    if (stored && part) {
+      const key = stored.staves.join(',');
+      const offered = handOptions(score, stored.partIndex).find((option) => option.staves.join(',') === key);
+      if (offered) return offered;
+      if (stored.staves.every((staff) => staff <= part.staves)) return { ...stored, preset: 'custom' };
+    }
+    return handOptions(score, preselected)[0] ?? null;
+  }
+
+  private onPracticeSetupChange(change: PracticeSetupChange): void {
+    const setup = practiceState.get().setup;
+    const score = this.currentScore;
+    if (!setup?.selection || !score) return;
+    if (change.loop !== undefined) {
+      this.onLoopChange(change.loop);
+      return;
+    }
+
+    let selection: HandSelection = setup.selection;
+    if (change.partIndex !== undefined && change.partIndex !== selection.partIndex) {
+      selection = handOptions(score, change.partIndex)[0] ?? selection; // a new part starts with all its staves
+    }
+    if (change.selection) selection = change.selection;
+    const accompaniment = change.accompaniment ?? setup.accompaniment;
+    const help = change.help ?? setup.help;
+
+    const selectionChanged =
+      selection.partIndex !== setup.selection.partIndex ||
+      selection.staves.join(',') !== setup.selection.staves.join(',');
+    practiceState.setSetup({
+      ...setup,
+      hands: handOptions(score, selection.partIndex),
+      selection,
+      accompaniment,
+      help,
+    });
+    this.practiceSettings = { ...this.practiceSettings, selection, accompaniment, help };
+    this.settingsStore.savePractice(this.practiceScoreId, this.practiceSettings);
+
+    const session = practiceState.get().session;
+    if (this.isPracticeRunning(session) && selectionChanged) {
+      this.restartPracticeFromCurrentMeasure(session, selection);
+      return;
+    }
+    if (session && !selectionChanged && accompaniment !== setup.accompaniment) {
+      // Also for a finished session: its last accompaniment notes may still be ringing.
+      this.applyPracticeInput({ type: 'setAccompaniment', enabled: accompaniment, timeStampMs: performance.now() });
+    }
+    if (session && !selectionChanged && help !== setup.help) {
+      this.applyPracticeInput({ type: 'setHelp', enabled: help, timeStampMs: performance.now() });
+    }
+  }
+
+  /** Sets or clears the loop (FR-016). The range is resolved to one occurrence on the unrolled timeline, and that
+   *  occurrence is what is stored, so the same loop comes back on the same time through a repeat (R-06). A range the
+   *  practised hand has no notes in is refused with a notice and the previous loop stays (AS-3.4 does the same for a
+   *  reversed range by correcting it). */
+  private onLoopChange(range: LoopRange | null): void {
+    const setup = practiceState.get().setup;
+    if (!setup?.selection) return;
+    const session = practiceState.get().session;
+    const running = this.isPracticeRunning(session) ? session : null;
+
+    if (range === null) {
+      this.storeLoop(null);
+      this.applyPracticeInput({ type: 'setLoop', loop: null, timeStampMs: performance.now() });
+      return;
+    }
+
+    const passes = this.currentPlaybackTimeline?.passes ?? [];
+    const events =
+      running?.events ??
+      (this.currentScore && this.currentPlaybackTimeline
+        ? buildExpectedEvents(this.currentScore, this.currentPlaybackTimeline, setup.selection)
+        : []);
+    const loop = resolveLoop(events, passes, range, running?.index ?? 0);
+    if (!loop) {
+      noticeState.addNotice({ code: 'practiceLoopEmpty', severity: 'warning' });
+      return;
+    }
+    this.storeLoop(loopRangeToPassIndices(loop));
+    this.applyPracticeInput({ type: 'setLoop', loop, timeStampMs: performance.now() });
+  }
+
+  /** Remembers the loop for this Score (as pass indices) and shows it. */
+  private storeLoop(span: LoopPassSpan | null): void {
+    const setup = practiceState.get().setup;
+    if (!setup) return;
+    this.practiceSettings = { ...this.practiceSettings, loop: span };
+    this.settingsStore.savePractice(this.practiceScoreId, this.practiceSettings);
+    practiceState.setSetup({
+      ...setup,
+      loop: span ? passIndicesToLoopRange(this.currentPlaybackTimeline?.passes ?? [], span) : null,
+    });
+  }
+
+  /** A changed hand or part restarts cleanly from the measure the session is in (FR-015, FR-025c, AS-2.4). */
+  private restartPracticeFromCurrentMeasure(session: PracticeSession, selection: HandSelection): void {
+    if (!this.currentScore || !this.currentPlaybackTimeline) return;
+    const events = buildExpectedEvents(this.currentScore, this.currentPlaybackTimeline, selection);
+    if (events.length === 0) {
+      noticeState.addNotice({ code: 'practiceNothingToPlay', severity: 'warning' });
+      this.onTransportStopped();
+      return;
+    }
+    const current = session.events[session.index];
+    const cursor = current ? firstEventAtOrAfterTick(events, current.onsetTick) : 0;
+    const start = current ? (resolveStartMeasure(events, current.measureIndex, cursor) ?? cursor) : 0;
+    this.beginPractice(events, selection, start, this.resolveLoopFor(events, start));
+  }
+
+  /** Clicking a measure in Practice mode chooses where the session starts; a running session restarts there. */
+  private onPracticeMeasureClick(measureIndex: number): void {
+    practiceState.setStartMeasure(measureIndex);
+    const session = practiceState.get().session;
+    if (!this.isPracticeRunning(session)) return;
+    const start = resolveStartMeasure(session.events, measureIndex, session.index);
+    if (start !== null) {
+      this.beginPractice(session.events, session.selection, start, this.resolveLoopFor(session.events, start));
+    }
+  }
+
+  private applyPracticeInput(input: PracticeInput) {
+    if (practiceState.get().mode !== 'practice') return;
+    const session = practiceState.get().session;
+    if (!session) return;
+
+    const { session: nextSession, effects } = applyInput(session, input);
+    practiceState.setSession(nextSession);
+
+    for (const effect of effects) {
+      this.handlePracticeEffect(effect);
+    }
+
+    // The wrong key was let go: whatever it was accused of no longer applies (T056). A key that never got
+    // feedback is a harmless no-op clear.
+    if (input.type === 'noteOff' && input.key !== undefined) {
+      practiceState.clearKeyFeedback(input.key);
+    }
+  }
+
+  private handlePracticeEffect(effect: PracticeEffect) {
+    if (effect.type === 'moveCursor') {
+      transportState.setPositionTick(effect.onsetTick);
+      // The cursor moved to a different expected event: feedback about the one just left no longer applies.
+      practiceState.clearAllKeyFeedback();
+    } else if (effect.type === 'soundOn') {
+      // Accompaniment (R-03): triggered by the musician's own progress and applied by the worklet on the audio
+      // clock at its next block - no timer decides when it starts or stops (Constitution I).
+      this.audioEngine.liveNoteOn(effect.key, effect.velocity);
+    } else if (effect.type === 'soundOff') {
+      this.audioEngine.liveNoteOff(effect.key);
+    } else if (effect.type === 'keyFeedback') {
+      // No notehead to mark a wrong / wrong-octave / extra press on: shown on the on-screen keyboard instead
+      // (T056, owner decision 2026-09-20).
+      practiceState.setKeyFeedback(effect.key, {
+        state: effect.state,
+        ...(effect.messageId !== undefined ? { messageId: effect.messageId } : {}),
+      });
+    } else if (effect.type === 'showHelp') {
+      const overlay = this.resolveHelpOverlay(effect.eventIndex, effect.reason);
+      if (overlay) practiceState.setHelpOverlay(overlay);
+    } else if (effect.type === 'hideHelp') {
+      practiceState.clearHelpOverlay();
+    } else if (effect.type === 'notice') {
+      noticeState.addNotice({ code: effect.code, severity: effect.code === 'practiceDeviceLost' ? 'warning' : 'info' });
+    } else if (effect.type === 'sessionEnded') {
+      this.endingPracticeNaturally = true;
+      transportState.stop();
+      this.endingPracticeNaturally = false;
+    }
+  }
+
+  /** What `showHelp` refers to (FR-023): the note name is spelled from the MIDI key, since `Note` keeps only
+   *  `writtenKey` / `soundingKey`, not the printed spelling (R-15) - the fingering is read from the Score's own
+   *  `Note.fingerings` instead, since that is exactly what is stored. */
+  private resolveHelpOverlay(eventIndex: number, reason: HelpOverlay['reason']): HelpOverlay | null {
+    const event = practiceState.get().session?.events[eventIndex];
+    if (!event) return null;
+    return {
+      reason,
+      keys: event.required.map((req) => ({
+        key: req.key,
+        noteName: midiNoteName(req.key),
+        fingering: this.fingeringFor(req.noteIds),
+      })),
+    };
+  }
+
+  /** The first written fingering among a required key's Note IDs (unison / voice-sharing can carry several). */
+  private fingeringFor(noteIds: readonly string[]): string | null {
+    if (!this.currentScore) return null;
+    for (const part of this.currentScore.parts) {
+      for (const note of part.notes) {
+        if (note.fingerings.length > 0 && noteIds.includes(note.id)) return note.fingerings[0]?.text ?? null;
+      }
+    }
+    return null;
   }
 
   async openFile(file: File): Promise<void> {
@@ -312,20 +758,24 @@ export class Session {
       return;
     }
 
+    this.currentSchedule = response.schedule;
+    this.currentTimeline = response.timeline;
+    this.currentPlaybackTimeline = response.fullTimeline;
+    this.currentScore = response.fullScore;
+    this.resetPractice(); // the old session must not go on against the new Score while it is being stored
+
     scoreState.succeeded({
       fileName,
-      summary: response.score,
+      summary: response.summary,
       report: response.report,
       renderXml: response.renderXml,
       contentHash: response.contentHash,
     });
 
     if (this.scoreView) {
-      await this.scoreView.load(response.renderXml, response.score.measureIds, viewState.get().zoomPercent);
+      await this.scoreView.load(response.renderXml, response.summary.measureIds, viewState.get().zoomPercent);
     }
 
-    this.currentSchedule = response.schedule;
-    this.currentTimeline = response.timeline;
     // this.soundReady is intentionally not reset here: the SoundFont is loaded once into the worklet's sound
     // bank, which is independent of which Score's schedule is currently loaded (contracts/worklet-protocol.md -
     // "soundBank" and "schedule" are separate messages).
@@ -344,10 +794,12 @@ export class Session {
     const putResult = await this.scoreStore.put({
       fileName,
       bytes,
-      title: response.score.title,
-      composer: response.score.composer,
+      title: response.summary.title,
+      composer: response.summary.composer,
     });
     if (!putResult.ok) noticeState.addNotice({ code: 'storageUnavailable', severity: 'warning' });
+    this.practiceScoreId = putResult.ok ? response.contentHash : null;
+    this.setupPractice(response.fullScore);
 
     await this.refreshRecent();
   }

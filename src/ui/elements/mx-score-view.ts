@@ -1,3 +1,4 @@
+import type { ExpectedEvent, LoopRange, PracticeSession } from '../../core/practice/types.js';
 import { FOLLOW_MARGIN, RELAYOUT_DEBOUNCE_MS, ZOOM_DEFAULT, ZOOM_MAX, ZOOM_MIN } from '../../engine/config.js';
 import type { AudioEngine } from '../../engine/ports.js';
 import { drawCursorOverlay } from '../score/cursor-overlay.js';
@@ -9,7 +10,9 @@ import {
   type PageLayout,
   sanitiseAndExtractMeasures,
 } from '../score/pages.js';
+import { drawLoopMarks, drawPracticeMarks, drawStartMarker } from '../score/practice-marks.js';
 import type { VerovioClient } from '../score/verovio-client.js';
+import { practiceState } from '../state/practiceState.js';
 import { transportState } from '../state/transportState.js';
 
 const DEFAULT_PAGE_WIDTH = 1200;
@@ -43,6 +46,19 @@ export class MxScoreView extends HTMLElement {
   private engine: AudioEngine | null = null;
   private timeline: TimelineDto | null = null;
   private soundingNoteIds = new Set<string>();
+  private practiceDrawn = false;
+  private dimmed: {
+    events: readonly ExpectedEvent[];
+    ids: Set<string>;
+    elements: Element[];
+    elementsSig: string;
+    key: string;
+    rects: DOMRect[];
+  } | null = null;
+  private readonly elementCache = new Map<string, Element | null>();
+  private elementCacheSig = '';
+  /** Bumped every time page content is replaced, so cached element lookups can tell they went stale. */
+  private domEpoch = 0;
   private rafHandle: number | null = null;
   private followScrolling = false;
   private readonly tick = (): void => {
@@ -110,6 +126,7 @@ export class MxScoreView extends HTMLElement {
   }
 
   private applyPageCount(pageCount: number) {
+    this.domEpoch++;
     this.layouts = layoutPages(pageCount, DEFAULT_PAGE_HEIGHT);
     this.pageMeasureIds.clear();
     this.mountedPages.clear();
@@ -162,6 +179,7 @@ export class MxScoreView extends HTMLElement {
       if (!visible.has(page)) {
         const pageEl = this.stack.querySelector(`[data-page="${page}"]`);
         if (pageEl) pageEl.innerHTML = '';
+        this.domEpoch++;
         this.mountedPages.delete(page);
       }
     }
@@ -174,6 +192,7 @@ export class MxScoreView extends HTMLElement {
       this.pageMeasureIds.set(page, sanitised.measureIds);
       const pageEl = this.stack.querySelector(`[data-page="${page}"]`);
       if (pageEl) pageEl.innerHTML = sanitised.svg;
+      this.domEpoch++;
       this.mountedPages.add(page);
     }
   }
@@ -190,6 +209,20 @@ export class MxScoreView extends HTMLElement {
   /** Runs every animation frame (R-11): reads the audible position, highlights sounding notes, draws the
    * cursor, and follow-scrolls. A no-op until `setPlayback` has been called. */
   private updateCursor(): void {
+    // Practice draws from the session alone: it needs no audio engine and no Listen timeline, so it must not wait
+    // for `setPlayback` (which only happens once a Listen schedule has been delivered).
+    const pState = practiceState.get();
+    if (pState.mode === 'practice') {
+      this.drawPracticeState(pState.session, pState.startMeasureIndex, pState.setup?.loop ?? null);
+      this.practiceDrawn = true;
+      return;
+    }
+    if (this.practiceDrawn) {
+      // Leaving Practice: nothing else clears the overlay when there is no Listen playback to draw.
+      this.practiceDrawn = false;
+      this.canvasEl.getContext('2d')?.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
+    }
+
     const engine = this.engine;
     const timeline = this.timeline;
     if (!engine || !timeline) return;
@@ -220,6 +253,136 @@ export class MxScoreView extends HTMLElement {
 
     this.drawCursor(measureEl, soundingNoteIds);
     if (transportState.get().follow) this.followScrollTo(measureEl);
+  }
+
+  /** Notes are looked up in the DOM once per change of the page content, never once per frame: `domEpoch` is bumped
+   * wherever page elements are replaced or removed (relayout, mount, unmount), which is when a lookup goes stale. */
+  private syncElementCache(): void {
+    const sig = String(this.domEpoch);
+    if (sig === this.elementCacheSig) return;
+    this.elementCacheSig = sig;
+    this.elementCache.clear();
+  }
+
+  private elementFor(id: string): Element | null {
+    let el = this.elementCache.get(id);
+    if (el === undefined) {
+      el = this.stack.querySelector(`#${CSS.escape(id)}`);
+      this.elementCache.set(id, el);
+    }
+    return el;
+  }
+
+  /** The rectangles of the notes the musician is not practising (FR-032). Only the notes on mounted pages are
+   * measured, and only when the scroll position or the size changes - not on every frame. */
+  private dimmedRects(events: readonly ExpectedEvent[], containerRect: DOMRect): DOMRect[] {
+    if (this.dimmed?.events !== events) {
+      const ids = new Set<string>();
+      for (const event of events) for (const ref of event.accompaniment) ids.add(ref.noteId);
+      this.dimmed = { events, ids, elements: [], elementsSig: '', key: '', rects: [] };
+    }
+    const dimmed = this.dimmed;
+    if (dimmed.elementsSig !== this.elementCacheSig) {
+      dimmed.elementsSig = this.elementCacheSig;
+      dimmed.elements = [];
+      for (const id of dimmed.ids) {
+        const el = this.elementFor(id);
+        if (el) dimmed.elements.push(el);
+      }
+      dimmed.key = ''; // the elements changed: measure again
+    }
+    const key = [
+      this.scrollEl.scrollTop,
+      this.scrollEl.scrollLeft,
+      containerRect.left,
+      containerRect.top,
+      Math.round(containerRect.width),
+      Math.round(containerRect.height),
+    ].join('|');
+    if (dimmed.key !== key) {
+      dimmed.key = key;
+      dimmed.rects = dimmed.elements.map((el) => el.getBoundingClientRect());
+    }
+    return dimmed.rects;
+  }
+
+  /** The mounted measures of a loop range, for the bracket over them (AS-3.2). */
+  private loopMeasures(loop: LoopRange): { rect: DOMRect; first: boolean; last: boolean }[] {
+    const from = Math.min(loop.fromMeasureIndex, loop.toMeasureIndex);
+    const to = Math.max(loop.fromMeasureIndex, loop.toMeasureIndex);
+    const measures: { rect: DOMRect; first: boolean; last: boolean }[] = [];
+    for (let m = from; m <= to; m++) {
+      const id = this.measureIds[m];
+      const el = id === undefined ? null : this.elementFor(id);
+      if (el) measures.push({ rect: el.getBoundingClientRect(), first: m === from, last: m === to });
+    }
+    return measures;
+  }
+
+  private drawPracticeState(
+    session: PracticeSession | null,
+    startMeasureIndex: number | null,
+    loop: LoopRange | null,
+  ): void {
+    this.syncElementCache();
+    const currentEvent = session?.events[session.index];
+
+    // Convert session marks to array
+    const markEntries = session
+      ? Array.from(session.marks.entries()).map(([noteId, state]) => ({ noteId, state }))
+      : [];
+    if (session && currentEvent && session.phase !== 'finished') {
+      for (const req of currentEvent.required) {
+        for (const noteId of req.noteIds) {
+          if (!session.marks.has(noteId)) {
+            markEntries.push({ noteId, state: 'waiting' });
+          }
+        }
+      }
+    }
+
+    const containerRect = this.scrollEl.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const width = Math.round(containerRect.width) * dpr;
+    const height = Math.round(containerRect.height) * dpr;
+    if (this.canvasEl.width !== width || this.canvasEl.height !== height) {
+      this.canvasEl.width = width;
+      this.canvasEl.height = height;
+    }
+    const ctx = this.canvasEl.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
+
+    const noteRects = new Map<string, DOMRect>();
+    for (const mark of markEntries) {
+      const el = this.elementFor(mark.noteId);
+      if (el) noteRects.set(mark.noteId, el.getBoundingClientRect());
+    }
+
+    drawPracticeMarks({
+      ctx,
+      dpr,
+      containerRect,
+      marks: markEntries,
+      noteRects,
+      ...(session ? { dimmedNoteRects: this.dimmedRects(session.events, containerRect) } : {}),
+    });
+
+    if (loop) drawLoopMarks({ ctx, dpr, containerRect, measures: this.loopMeasures(loop) });
+
+    if (startMeasureIndex !== null && (!session || session.phase === 'finished')) {
+      const measureId = this.measureIds[startMeasureIndex];
+      const measureEl = measureId !== undefined ? this.stack.querySelector(`#${CSS.escape(measureId)}`) : null;
+      if (measureEl) drawStartMarker({ ctx, dpr, containerRect, measureRect: measureEl.getBoundingClientRect() });
+    }
+
+    if (currentEvent && session?.phase !== 'finished') {
+      const measureId = this.measureIds[currentEvent.measureIndex];
+      const measureEl = measureId !== undefined ? this.stack.querySelector(`#${CSS.escape(measureId)}`) : null;
+      if (measureEl && transportState.get().follow) {
+        this.followScrollTo(measureEl);
+      }
+    }
   }
 
   private drawCursor(measureEl: Element, soundingNoteIds: ReadonlySet<string>): void {

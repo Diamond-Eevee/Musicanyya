@@ -55,3 +55,14 @@ export const VOLUME_RAMP_FRAMES = 256;
 // Dropout detection and diagnostics (R-10 "Dropouts")
 export const DROPOUT_DRIFT_THRESHOLD_SECONDS = 0.05;
 export const DIAGNOSTICS_REPORT_WINDOW_MS = 1000;
+
+// Practice Mode (Wait for Input) rules
+export const PRACTICE_HAND_ATTRIBUTION = 'voice-home-staff'; // How a note's hand is decided
+export const PRACTICE_CHORD_REQUIRE_SIMULTANEOUS = true; // All required keys must be held together
+export const PRACTICE_REQUIRE_GRACE_NOTES = false; // Grace notes are accepted, never waited for
+export const PRACTICE_EXPECT_INVISIBLE_NOTES = false; // Hidden / playback-only notes are never expected
+export const PRACTICE_EXPECT_UNPITCHED = false; // Percussion and unpitched notes are never expected
+export const PRACTICE_LOOP_OCCURRENCE = 'current-pass'; // Which occurrence a range or start measure resolves to
+export const PRACTICE_PART_PRESELECTION = 'first-keyboard-like'; // Which part is preselected in a multi-part Score
+export const PRACTICE_HELP_AFTER_WRONG_ATTEMPTS = 3; // Wrong attempts before help appears by itself
+export const PRACTICE_RELEASE_OF_SUSTAINED_NOTE_BLOCKS = false; // Letting a long note go early never blocks

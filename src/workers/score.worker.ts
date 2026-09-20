@@ -118,7 +118,9 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
       {
         type: 'loaded',
         requestId,
-        score: summary,
+        summary,
+        fullScore: score,
+        fullTimeline: timeline,
         report,
         renderXml,
         timeline: timelineDto,

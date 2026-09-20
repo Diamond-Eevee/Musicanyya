@@ -63,3 +63,7 @@
 | percussion-unpitched | Unpitched percussion part using unpitched and midi-unpitched | Hand-written | CC0 |
 | transpose-bb-clarinet | Bb clarinet part with transpose chromatic=-2 | Hand-written | CC0 |
 | octave-shift-8va | octave-shift up 8; display only, does not change sounding pitch | Hand-written | CC0 |
+| cross-staff-beaming | Left-hand voice with two notes printed on the treble staff (`<staff>1</staff>`); feature 002 hand attribution | Hand-written | CC0 |
+| unison-across-hands | A unison (one key, both hands) and an octave doubling (two keys); feature 002 | Hand-written | CC0 |
+| hands-accompaniment | Left-hand half note under two right-hand notes, plus a left-hand note where the right hand rests; feature 002 | Hand-written | CC0 |
+| voice-and-piano | Piano-vocal score: part 1 one staff, part 2 two staves; feature 002 part selection | Hand-written | CC0 |

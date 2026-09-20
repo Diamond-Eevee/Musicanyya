@@ -11,6 +11,23 @@ export interface Store<T> {
 function deepEqual(a: any, b: any): boolean {
   if (a === b) return true;
   if (typeof a !== 'object' || typeof b !== 'object' || a == null || b == null) return false;
+  // Object.keys() of a Map or a Set is empty, so without this any two of them compare equal and a change to one
+  // (the practice session's marks and held keys) is silently dropped.
+  if (a instanceof Map || b instanceof Map) {
+    if (!(a instanceof Map && b instanceof Map) || a.size !== b.size) return false;
+    for (const [key, value] of a) {
+      if (!b.has(key) || !deepEqual(value, b.get(key))) return false;
+    }
+    return true;
+  }
+  if (a instanceof Set || b instanceof Set) {
+    if (!(a instanceof Set && b instanceof Set) || a.size !== b.size) return false;
+    for (const value of a) {
+      if (!b.has(value)) return false;
+    }
+    return true;
+  }
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
   const keysA = Object.keys(a);
   const keysB = Object.keys(b);
   if (keysA.length !== keysB.length) return false;

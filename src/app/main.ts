@@ -26,6 +26,9 @@ async function bootstrap() {
   }
 
   const session = new Session();
+  // A manual-debugging handle only (constitution merge gate: no `any` without a justifying comment); nothing in
+  // the app or the test suite reads `globalThis.mxSession` programmatically.
+  (globalThis as unknown as { mxSession: Session }).mxSession = session;
   await session.start();
 }
 

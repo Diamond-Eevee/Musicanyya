@@ -17,14 +17,15 @@ import { loadSoundFont } from './soundfont-cache.js';
 
 const SOUNDFONT_URL = 'soundfonts/GeneralUser-GS-2.0.3.sf2';
 const WORKLET_NAME = 'musicanyya-score-player';
-const WORKLET_PROTOCOL_VERSION = '1.0.0';
+const WORKLET_PROTOCOL_VERSION = '1.1.0';
 
 // The score-player worklet's outbound messages (contracts/worklet-protocol.md); defined locally because the
 // worklet module lives outside this file's TS project (tsconfig.worklet.json, AudioWorkletGlobalScope types).
 type ProcessorMessage =
   | { type: 'status'; state: 'initialised' | 'soundReady' | 'error'; detail?: string }
   | { type: 'position'; frame: number; contextTime: number; tick: number; ticksPerFrame: number; playing: boolean }
-  | { type: 'ended'; frame: number };
+  | { type: 'ended'; frame: number }
+  | { type: 'liveDropped'; total: number };
 
 function initialTransport(): TransportSnapshot {
   return {
@@ -53,6 +54,7 @@ export class WebAudioEngine implements AudioEngine {
   private readonly dropoutDetector = new DropoutDetector();
   private lastReportPerfTimeMs: number | null = null;
   private readonly reportTimestamps: number[] = [];
+  private liveQueueDropped = 0;
 
   private readonly listeners = new Set<(event: AudioEngineEvent) => void>();
 
@@ -156,6 +158,10 @@ export class WebAudioEngine implements AudioEngine {
         this.dropoutDetector.stopPlayback();
         this.setTransport({ phase: 'stopped', positionTick: this.transport.startTick });
         this.emit({ type: 'ended' });
+        break;
+      }
+      case 'liveDropped': {
+        this.liveQueueDropped = msg.total;
         break;
       }
     }
@@ -298,6 +304,7 @@ export class WebAudioEngine implements AudioEngine {
       dropoutMethod: this.lastReportPerfTimeMs !== null ? 'clockDrift' : 'none',
       reportsPerSecond: this.reportTimestamps.length,
       lastReportAgeMs,
+      liveQueueDropped: this.liveQueueDropped,
     };
   }
 

@@ -1,3 +1,4 @@
+import type { HandSelection } from '../core/practice/types.js';
 import type { ScheduleMessage } from '../core/schedule/compile.js';
 
 // ---- shared ----
@@ -47,6 +48,8 @@ export interface AudioDiagnostics {
   dropoutMethod: 'browserStats' | 'clockDrift' | 'none';
   reportsPerSecond: number;
   lastReportAgeMs: number | null;
+  /** A `live` (MIDI-in / accompaniment) message dropped because the worklet's 64-entry queue was full (T057). */
+  liveQueueDropped: number;
 }
 
 export type AudioEngineEvent =
@@ -143,9 +146,24 @@ export interface UserSettings {
 }
 
 // ---- SettingsStore (tiny UI preferences, localStorage) ----
+export interface PracticeSettings {
+  /** The part and staves to practise; null = never chosen, so the preselected part and both hands apply. */
+  selection: HandSelection | null;
+  /** The loop as measure-pass indices on the unrolled timeline; null = no loop. Never carried between Scores. */
+  loop: { fromPassIndex: number; toPassIndex: number } | null;
+  accompaniment: boolean;
+  help: boolean;
+}
+
 export interface SettingsStore {
   load(): UserSettings; // defaults on missing/invalid data (contracts/storage.md)
   save(settings: UserSettings): void; // never throws; storage errors are reported once as a notice
+
+  /** Practice settings for a Score id, falling back to the musician's last-used defaults, then to the built-in
+   *  ones. A null id (Score not stored) returns the defaults and never persists (ports 1.1.0). */
+  loadPractice(scoreId: string | null): PracticeSettings;
+  /** Stores the settings for that Score id and updates the last-used defaults. No-op for a null id. */
+  savePractice(scoreId: string | null, settings: PracticeSettings): void;
 }
 
 // ---- EnvironmentProbe ----

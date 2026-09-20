@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { EVENT_KIND } from '../../../src/core/schedule/compile.js';
-import { createScorePlayerProcessor } from '../../../src/engine/worklets/score-player.processor.js';
+import {
+  createScorePlayerProcessor,
+  type ProcessorMessage,
+} from '../../../src/engine/worklets/score-player.processor.js';
 import { RecordingSynth } from '../../fakes/recording-synth.js';
 
 describe('ScorePlayerAudioWorklet - Live Input', () => {
@@ -41,6 +44,33 @@ describe('ScorePlayerAudioWorklet - Live Input', () => {
       { type: 'noteOff', channel: 15, key: 60, delayFrames: 0 },
       { type: 'allNotesOff', channel: 15, delayFrames: 0 },
     ]);
+  });
+
+  it('T057: drops a live message past the 64-entry queue and reports it, counted and shown (Constitution I)', () => {
+    const synth = createLocalSynth();
+    const processor = createScorePlayerProcessor({ synth, sampleRate: 48000 });
+    const messages: ProcessorMessage[] = [];
+    processor.onMessage = (msg) => messages.push(msg);
+
+    // Fill the queue without draining it (no processBlock call in between).
+    for (let i = 0; i < 64; i++) {
+      processor.receiveMessage({ type: 'live', kind: 'on', key: 60 + (i % 20), velocity: 100 });
+    }
+    expect(messages).toEqual([]); // no drop yet
+
+    processor.receiveMessage({ type: 'live', kind: 'on', key: 90, velocity: 100 });
+    expect(messages).toEqual([{ type: 'liveDropped', total: 1 }]);
+
+    processor.receiveMessage({ type: 'live', kind: 'on', key: 91, velocity: 100 });
+    expect(messages).toEqual([
+      { type: 'liveDropped', total: 1 },
+      { type: 'liveDropped', total: 2 },
+    ]);
+
+    // The 64 that fit are still applied; the two dropped ones never reach the synth.
+    processor.processBlock(128);
+    expect(synth.events.length).toBe(64);
+    expect(synth.events.some((e) => e.key === 90 || e.key === 91)).toBe(false);
   });
 
   it('mixing with scheduled playback does not change scheduled dispatch frames', () => {

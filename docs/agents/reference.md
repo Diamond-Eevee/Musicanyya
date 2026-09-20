@@ -174,17 +174,19 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   Playwright 1.63, Biome 2.5, pnpm 12; verovio 6.3 (WASM in a worker), spessasynth_core 4.3 (inside our own
   AudioWorklet), @rgrove/parse-xml 5 (score worker), GeneralUser GS 2.0.3 SF2; Electron 44 + electron-builder 26
   (minimal Windows build); IndexedDB, localStorage, Cache Storage
+- Feature 002: no new technology. Practice mode is a pure core module (`src/core/practice`) over the existing
+  Score, `PlaybackTimeline`, `MidiInput` port and live-note methods of the `AudioEngine`; per-Score practice
+  settings live in their own `localStorage` key.
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-20: Feature 002 planned (Practice / wait-for-input): pure core matcher, no new dependency, no new
+  real-time code; the unselected hand sounds as the cursor passes it instead of against a clock.
 - 2026-09-19: Agent guide split: `AGENTS.md` core (< 12,000 characters for tools such as Antigravity) + this
   reference; Antigravity workflows added.
 - 2026-09-19: Feature 001 planned (plan, research R-1..R-17, data model, contracts, quickstart): Verovio id
   preservation verified in source; own AudioWorklet embedding spessasynth_core; Electron shell detection via
   preload bridge.
-- 2026-09-19: Constitution v1.1.0: built-in sound = SpessaSynth + GeneralUser GS (ADR-0002); Native audio plugin =
-  one Rust companion for Windows/macOS/Linux over localhost WebSocket (ADR-0003); Electron packaging =
-  electron-builder (ADR-0004).
 <!-- RECENT-CHANGES:END -->
