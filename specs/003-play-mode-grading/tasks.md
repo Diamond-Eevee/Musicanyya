@@ -27,11 +27,11 @@ than renumbered, so IDs stay stable; **file order is execution order**, not nume
 
 ## Phase 1: Setup
 
-- [ ] T001 Verify (do not edit unless something is missing) that the new paths are already covered: `src/core/**`
+- [x] T001 Verify (do not edit unless something is missing) that the new paths are already covered: `src/core/**`
   in `tsconfig.core.json` covers `src/core/play` and `src/core/grade`; `src/workers/**` is in
   `tsconfig.engine.json`; the vitest `core` project already includes `tests/core/**` and `engine` includes
   `tests/engine/**`. No dependency is added in this feature, so `package.json` must stay unchanged
-- [ ] T002 [P] Add the musical constants of [data-model.md](data-model.md) §10 to `src/core/defaults.ts`
+- [x] T002 [P] Add the musical constants of [data-model.md](data-model.md) §10 to `src/core/defaults.ts`
   (`PLAY_COUNT_IN_MEASURES`, `COUNT_IN_MIN_SECONDS`, `COUNT_IN_INCLUDES_ANACRUSIS`, `METRONOME_CHANNEL`,
   `METRONOME_KEY_BEAT`, `METRONOME_KEY_DOWNBEAT`, `METRONOME_VELOCITY_BEAT`, `METRONOME_VELOCITY_DOWNBEAT`,
   `PLAY_STRICTNESS_DEFAULT`, `PLAY_BEAT_UNIT_SOURCE`, `PLAY_ARPEGGIO_SPREAD_BEATS`,
@@ -39,7 +39,7 @@ than renumbered, so IDs stay stable; **file order is execution order**, not nume
   `PLAY_RETRIGGER_DEBOUNCE_MS`,
   `CALIBRATION_BEATS`, `CALIBRATION_TEMPO_QPM`, `CALIBRATION_MAX_SPREAD_MS`), each with a one-line comment naming
   the rule it encodes
-- [ ] T003 [P] Add the platform limits of [data-model.md](data-model.md) §10 to `src/engine/config.ts`
+- [x] T003 [P] Add the platform limits of [data-model.md](data-model.md) §10 to `src/engine/config.ts`
   (`PERFORMANCES_PER_SCORE_MAX`, `PLAY_SETTINGS_MAX`, `GRADE_WORKER_TIMEOUT_MS`)
 
 ---

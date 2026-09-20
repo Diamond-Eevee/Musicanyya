@@ -43,3 +43,8 @@ export const PRACTICE_SETTINGS_MAX = 20;
 
 // UI
 export const FOLLOW_MARGIN = 0.2; // Middle 60% of viewport means 20% margin top/bottom
+
+// Play Mode storage limits and worker timeout (data-model.md §10)
+export const PERFORMANCES_PER_SCORE_MAX = 20; // Attempts kept per Score, oldest dropped (FR-041)
+export const PLAY_SETTINGS_MAX = 20; // Scores whose run settings are remembered (FR-040)
+export const GRADE_WORKER_TIMEOUT_MS = 5000; // A Grade that never arrives becomes a notice, not a hang
