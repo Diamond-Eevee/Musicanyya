@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { drawCursorOverlay } from '../../src/ui/score/cursor-overlay.js';
-import { drawPracticeMarks } from '../../src/ui/score/practice-marks.js';
+import { drawLoopMarks, drawPracticeMarks } from '../../src/ui/score/practice-marks.js';
 
 describe('practice marks rendering', () => {
   it('each of the nine MarkStates renders a distinct shape class as well as a colour, and no mark covers the notehead', () => {
@@ -84,5 +84,87 @@ describe('practice marks rendering', () => {
     // Practice cursor should be visually distinct (e.g., hollow box instead of line)
     // For now we just expect it to draw something around the note
     expect(ctx.strokeRect).toHaveBeenCalled(); // e.g. it draws a strokeRect around the expected event
+  });
+});
+
+describe('loop marks (AS-3.2: the looped measures are clearly marked)', () => {
+  function recordingCtx() {
+    const segments: { x: number; y: number; kind: 'move' | 'line' }[] = [];
+    const ctx = {
+      save: vi.fn(),
+      restore: vi.fn(),
+      beginPath: vi.fn(),
+      stroke: vi.fn(),
+      moveTo: vi.fn((x: number, y: number) => segments.push({ x, y, kind: 'move' })),
+      lineTo: vi.fn((x: number, y: number) => segments.push({ x, y, kind: 'line' })),
+      setLineDash: vi.fn(),
+    } as unknown as CanvasRenderingContext2D;
+    return { ctx, segments };
+  }
+
+  const rect = (left: number, top: number): DOMRect =>
+    ({ left, top, right: left + 100, bottom: top + 60, width: 100, height: 60 }) as DOMRect;
+  const containerRect = { left: 0, top: 0 } as DOMRect;
+
+  it('draws a bracket over the measures, as a line and not only a colour', () => {
+    const { ctx, segments } = recordingCtx();
+
+    drawLoopMarks({
+      ctx,
+      dpr: 1,
+      containerRect,
+      measures: [
+        { rect: rect(100, 50), first: true, last: false },
+        { rect: rect(200, 50), first: false, last: true },
+      ],
+    });
+
+    expect(ctx.stroke).toHaveBeenCalled();
+    expect(segments.length).toBeGreaterThan(0);
+  });
+
+  it('never draws below the top of a measure, so it cannot cover a notehead', () => {
+    const { ctx, segments } = recordingCtx();
+
+    drawLoopMarks({
+      ctx,
+      dpr: 1,
+      containerRect,
+      measures: [{ rect: rect(100, 50), first: true, last: true }],
+    });
+
+    for (const point of segments) expect(point.y).toBeLessThanOrEqual(50);
+  });
+
+  it('closes the bracket with an end stroke only at the first and the last measure of the range', () => {
+    const { ctx, segments } = recordingCtx();
+
+    drawLoopMarks({
+      ctx,
+      dpr: 1,
+      containerRect,
+      measures: [
+        { rect: rect(100, 50), first: true, last: false },
+        { rect: rect(200, 50), first: false, last: false },
+        { rect: rect(300, 50), first: false, last: true },
+      ],
+    });
+
+    // an end stroke is a segment that changes y at a fixed x
+    const verticals = new Set<number>();
+    for (let i = 1; i < segments.length; i++) {
+      const a = segments[i - 1];
+      const b = segments[i];
+      if (a && b && b.kind === 'line' && a.x === b.x && a.y !== b.y) verticals.add(a.x);
+    }
+    expect([...verticals].sort((a, b) => a - b)).toEqual([100, 400]);
+  });
+
+  it('draws nothing for an empty range', () => {
+    const { ctx } = recordingCtx();
+
+    drawLoopMarks({ ctx, dpr: 1, containerRect, measures: [] });
+
+    expect(ctx.stroke).not.toHaveBeenCalled();
   });
 });

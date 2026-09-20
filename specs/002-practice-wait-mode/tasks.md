@@ -214,22 +214,25 @@ expected event of measure 3 each time without stopping the session.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T033 [P] [US3] `tests/core/practice/loop.test.ts`: `resolveLoop` normalises a reversed range (AS-3.4),
+- [x] T033 [P] [US3] `tests/core/practice/loop.test.ts`: `resolveLoop` normalises a reversed range (AS-3.4),
   resolves to the occurrence the cursor is in or the first one after it, keeps a repeat sign that lies inside the
   range, returns null for a range with no required events for the current hand (R-06); and `loopRangeToPassIndices` / `passIndicesToLoopRange` round-trip correctly
-- [ ] T034 [P] [US3] `tests/core/practice/loop-wrap.test.ts`: completing the last event of the slice moves the
+- [x] T034 [P] [US3] `tests/core/practice/loop-wrap.test.ts`: completing the last event of the slice moves the
   cursor to its first event, the session stays `waiting`, and the marks of the finished pass are handled as the
-  spec requires
+  spec requires: not cleared at the wrap, cleared per note when the cursor arrives on it (R-13)
 
 ### Implementation
 
-- [ ] T035 [US3] `src/core/practice/loop.ts` - `resolveLoop` per [data-model.md](data-model.md) §5, plus `loopRangeToPassIndices` and `passIndicesToLoopRange` for persistence
+- [x] T035 [US3] `src/core/practice/loop.ts` - `resolveLoop` per [data-model.md](data-model.md) §5, plus `loopRangeToPassIndices` and `passIndicesToLoopRange` for persistence
   (depends on T033)
-- [ ] T036 [US3] Loop handling in `src/core/practice/matcher.ts`, plus the `practiceLoopEmpty` notice
-  (depends on T034, T035)
-- [ ] T037 [US3] Loop range selection in `src/ui/elements/mx-practice-panel.ts`, the looped measures marked in the
+- [x] T036 [US3] Loop handling in `src/core/practice/matcher.ts` (`setLoop` input, wrap on play and skip, the arrival
+  step); the `practiceLoopEmpty` notice is raised by `src/app/session.ts`, as the contract says (depends on T034, T035)
+- [x] T037 [US3] Loop range selection in `src/ui/elements/mx-practice-panel.ts`, the looped measures marked in the
   Score, the "2nd time" pass label when the range occurs more than once, and the range persisted through
   `savePractice`
+- [x] T058 [US3] `tests/e2e/us1-practice.spec.ts`: the US3 Independent Test in the built app (reversed range corrected,
+  two passes through a loop without the session ending, a wrong key inside it, clearing it), and the loop remembered
+  per Score with a session starting at it (found missing while closing US3; the panel and mark tests are in T037)
 
 **Checkpoint**: US1-US3 all work independently.
 

@@ -17,13 +17,17 @@ import '../ui/elements/mx-piano-keys.js';
 import '../ui/elements/mx-practice-panel.js';
 import { buildExpectedEvents, firstEventAtOrAfterTick, resolveStartMeasure } from '../core/practice/expected.js';
 import { handOptions, partOptions } from '../core/practice/hands.js';
+import { loopRangeToPassIndices, passIndicesToLoopRange, resolveLoop } from '../core/practice/loop.js';
 import { applyInput, startSession } from '../core/practice/matcher.js';
 import type {
   ExpectedEvent,
   HandSelection,
+  LoopPassSpan,
+  LoopRange,
   PracticeEffect,
   PracticeInput,
   PracticeSession,
+  ResolvedLoop,
 } from '../core/practice/types.js';
 import type { LoadReport } from '../core/score/load-report.js';
 import type { Score } from '../core/score/model.js';
@@ -386,20 +390,51 @@ export class Session {
       this.endingPracticeNaturally = false;
       return;
     }
-    const start = startMeasureIndex === null ? 0 : (resolveStartMeasure(events, startMeasureIndex, 0) ?? 0);
-    this.beginPractice(events, setup.selection, start);
+    if (startMeasureIndex !== null) {
+      const start = resolveStartMeasure(events, startMeasureIndex, 0) ?? 0;
+      this.beginPractice(events, setup.selection, start, this.resolveLoopFor(events, start));
+      return;
+    }
+    // With a loop set and no measure picked the musician means to practise the loop: begin at its first event, in
+    // the occurrence that was stored with it (R-06).
+    const stored = this.practiceSettings.loop;
+    const anchor = stored
+      ? Math.max(
+          events.findIndex((event) => event.passIndex >= stored.fromPassIndex),
+          0,
+        )
+      : 0;
+    const loop = this.resolveLoopFor(events, anchor);
+    this.beginPractice(events, setup.selection, loop ? loop.fromEventIndex : 0, loop);
+  }
+
+  /** The stored loop resolved against `events` for a cursor position, or null with a notice when nothing in it can
+   *  be played by the practised hand (R-06); no stored loop, or one that no longer fits the Score, gives null. */
+  private resolveLoopFor(events: readonly ExpectedEvent[], cursorEventIndex: number): ResolvedLoop | null {
+    const passes = this.currentPlaybackTimeline?.passes ?? [];
+    const stored = this.practiceSettings.loop;
+    const range = stored ? passIndicesToLoopRange(passes, stored) : null;
+    if (!range) return null;
+    const loop = resolveLoop(events, passes, range, cursorEventIndex);
+    if (!loop) noticeState.addNotice({ code: 'practiceLoopEmpty', severity: 'warning' });
+    return loop;
   }
 
   /** A fresh session over `events` from `startEventIndex`: the previous marks are cleared (FR-019) and whatever the
    * previous session left ringing is released. */
-  private beginPractice(events: readonly ExpectedEvent[], selection: HandSelection, startEventIndex: number): void {
+  private beginPractice(
+    events: readonly ExpectedEvent[],
+    selection: HandSelection,
+    startEventIndex: number,
+    loop: ResolvedLoop | null,
+  ): void {
     this.releasePracticeSound(practiceState.get().session);
     const session = startSession({
       scoreId: this.practiceScoreId,
       selection,
       events,
       startEventIndex,
-      loop: null,
+      loop,
       accompaniment: practiceState.get().setup?.accompaniment ?? true,
       help: this.practiceSettings.help,
     });
@@ -450,11 +485,15 @@ export class Session {
     const { parts, preselected } = partOptions(score);
     this.practiceSettings = this.settingsStore.loadPractice(this.practiceScoreId);
     const selection = this.resolvePracticeSelection(score, parts, preselected, this.practiceSettings.selection);
+    const stored = this.practiceSettings.loop;
     practiceState.setSetup({
       parts,
       hands: selection ? handOptions(score, selection.partIndex) : [],
       selection,
       accompaniment: this.practiceSettings.accompaniment,
+      measureCount: score.measures.length,
+      // A stored loop that no longer fits this Score is not shown; it is not an error (contracts/practice-settings.md).
+      loop: stored ? passIndicesToLoopRange(this.currentPlaybackTimeline?.passes ?? [], stored) : null,
     });
   }
 
@@ -480,6 +519,10 @@ export class Session {
     const setup = practiceState.get().setup;
     const score = this.currentScore;
     if (!setup?.selection || !score) return;
+    if (change.loop !== undefined) {
+      this.onLoopChange(change.loop);
+      return;
+    }
 
     let selection: HandSelection = setup.selection;
     if (change.partIndex !== undefined && change.partIndex !== selection.partIndex) {
@@ -504,6 +547,49 @@ export class Session {
     }
   }
 
+  /** Sets or clears the loop (FR-016). The range is resolved to one occurrence on the unrolled timeline, and that
+   *  occurrence is what is stored, so the same loop comes back on the same time through a repeat (R-06). A range the
+   *  practised hand has no notes in is refused with a notice and the previous loop stays (AS-3.4 does the same for a
+   *  reversed range by correcting it). */
+  private onLoopChange(range: LoopRange | null): void {
+    const setup = practiceState.get().setup;
+    if (!setup?.selection) return;
+    const session = practiceState.get().session;
+    const running = this.isPracticeRunning(session) ? session : null;
+
+    if (range === null) {
+      this.storeLoop(null);
+      this.applyPracticeInput({ type: 'setLoop', loop: null, timeStampMs: performance.now() });
+      return;
+    }
+
+    const passes = this.currentPlaybackTimeline?.passes ?? [];
+    const events =
+      running?.events ??
+      (this.currentScore && this.currentPlaybackTimeline
+        ? buildExpectedEvents(this.currentScore, this.currentPlaybackTimeline, setup.selection)
+        : []);
+    const loop = resolveLoop(events, passes, range, running?.index ?? 0);
+    if (!loop) {
+      noticeState.addNotice({ code: 'practiceLoopEmpty', severity: 'warning' });
+      return;
+    }
+    this.storeLoop(loopRangeToPassIndices(loop));
+    this.applyPracticeInput({ type: 'setLoop', loop, timeStampMs: performance.now() });
+  }
+
+  /** Remembers the loop for this Score (as pass indices) and shows it. */
+  private storeLoop(span: LoopPassSpan | null): void {
+    const setup = practiceState.get().setup;
+    if (!setup) return;
+    this.practiceSettings = { ...this.practiceSettings, loop: span };
+    this.settingsStore.savePractice(this.practiceScoreId, this.practiceSettings);
+    practiceState.setSetup({
+      ...setup,
+      loop: span ? passIndicesToLoopRange(this.currentPlaybackTimeline?.passes ?? [], span) : null,
+    });
+  }
+
   /** A changed hand or part restarts cleanly from the measure the session is in (FR-015, FR-025c, AS-2.4). */
   private restartPracticeFromCurrentMeasure(session: PracticeSession, selection: HandSelection): void {
     if (!this.currentScore || !this.currentPlaybackTimeline) return;
@@ -516,7 +602,7 @@ export class Session {
     const current = session.events[session.index];
     const cursor = current ? firstEventAtOrAfterTick(events, current.onsetTick) : 0;
     const start = current ? (resolveStartMeasure(events, current.measureIndex, cursor) ?? cursor) : 0;
-    this.beginPractice(events, selection, start);
+    this.beginPractice(events, selection, start, this.resolveLoopFor(events, start));
   }
 
   /** Clicking a measure in Practice mode chooses where the session starts; a running session restarts there. */
@@ -525,7 +611,9 @@ export class Session {
     const session = practiceState.get().session;
     if (!this.isPracticeRunning(session)) return;
     const start = resolveStartMeasure(session.events, measureIndex, session.index);
-    if (start !== null) this.beginPractice(session.events, session.selection, start);
+    if (start !== null) {
+      this.beginPractice(session.events, session.selection, start, this.resolveLoopFor(session.events, start));
+    }
   }
 
   private applyPracticeInput(input: PracticeInput) {

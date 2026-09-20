@@ -1,4 +1,4 @@
-import type { HandSelection, PracticeSession } from '../../core/practice/types.js';
+import type { HandSelection, LoopRange, PracticeSession } from '../../core/practice/types.js';
 import { createStore } from './store.js';
 
 export type AppMode = 'listen' | 'practice';
@@ -13,6 +13,10 @@ export interface PracticeSetup {
   selection: HandSelection | null;
   /** Whether the notes the musician is not practising sound as the cursor passes them (FR-031, FR-032). */
   accompaniment: boolean;
+  /** How many written measures the Score has; the loop fields accept 1 to this (FR-016). */
+  measureCount: number;
+  /** The loop the musician set, as written measures, or null; the Score marks these measures (FR-016, AS-3.2). */
+  loop: LoopRange | null;
 }
 
 export interface PracticeState {

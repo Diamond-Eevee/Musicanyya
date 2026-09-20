@@ -105,6 +105,12 @@ export const en = {
       accompaniment: 'Hear the notes I am not practising',
       nothingToPractise: 'This score has no notes to practise.',
       startsAtMeasure: 'Starts at measure {n}',
+      loop: 'Loop',
+      loopFrom: 'From measure',
+      loopTo: 'To measure',
+      loopClear: 'Clear loop',
+      loopStatus: 'Looping measures {from}-{to}',
+      loopOccurrence: '{ordinal} time',
     },
     marks: {
       waiting: 'Waiting',
@@ -126,3 +132,11 @@ export const en = {
     },
   },
 };
+
+/** 1st, 2nd, 3rd, 4th ... 11th, 12th, 13th, 21st (the label of a loop over a repeated passage). */
+export function ordinal(n: number): string {
+  const lastTwo = n % 100;
+  if (lastTwo >= 11 && lastTwo <= 13) return `${n}th`;
+  const suffixes: Record<number, string> = { 1: 'st', 2: 'nd', 3: 'rd' };
+  return `${n}${suffixes[n % 10] ?? 'th'}`;
+}

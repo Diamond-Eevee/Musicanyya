@@ -212,3 +212,77 @@ test('US1 in the built app: a chord played key by key is kept while it is partly
   await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x90, 67, 100] })));
   expect((await sessionOf(page))?.index).toBe(5);
 });
+
+test('US3 end-to-end: a reversed range is corrected, the loop wraps without ending the session, clearing it goes on', async ({
+  page,
+}) => {
+  await openScoreInPractice(page, 'chords/c-major-scale-and-chords.musicxml');
+  const panel = page.locator('mx-practice-panel');
+  const from = panel.getByLabel('From measure');
+  const to = panel.getByLabel('To measure');
+
+  // A range set backwards (2 to 1) is corrected instead of refused (AS-3.4)
+  await from.fill('2');
+  await from.press('Tab');
+  await to.fill('1');
+  await to.press('Tab');
+  await expect(from).toHaveValue('1');
+  await expect(to).toHaveValue('2');
+  await expect(panel).toContainText('Looping measures 1-2');
+
+  // Narrow it to measure 1 only: four single notes (C D E F)
+  await to.fill('1');
+  await to.press('Tab');
+  await expect(panel).toContainText('Looping measures 1-1');
+
+  await page.locator('mx-transport .play-btn').click();
+  await expect(page.locator('mx-transport .play-btn')).toHaveText('Stop');
+  expect((await sessionOf(page))?.index).toBe(0);
+
+  // Through the loop twice: the cursor comes back to its first note each time, the session keeps going
+  for (let pass = 0; pass < 2; pass++) {
+    for (const key of [60, 62, 64]) await press(page, key);
+    expect((await sessionOf(page))?.index).toBe(3);
+    await press(page, 65);
+    const s = await sessionOf(page);
+    expect([s?.phase, s?.index]).toEqual(['waiting', 0]);
+    await expect(page.locator('mx-transport .play-btn')).toHaveText('Stop');
+  }
+
+  // A wrong key inside the loop still does not advance it
+  await press(page, 61);
+  expect((await sessionOf(page))?.index).toBe(0);
+
+  // Clearing the loop: practice goes on from the current position to the end of the Score (AS-3.3)
+  await panel.getByRole('button', { name: 'Clear loop' }).click();
+  await expect(from).toHaveValue('');
+  for (const key of [60, 62, 64, 65]) await press(page, key);
+  expect((await sessionOf(page))?.index).toBe(4); // the C-E-G chord: not back at the start
+});
+
+test('US3: the loop is remembered for the Score and a session starts at it', async ({ page }) => {
+  await openScoreInPractice(page, 'chords/c-major-scale-and-chords.musicxml');
+  const panel = page.locator('mx-practice-panel');
+
+  await panel.getByLabel('From measure').fill('2');
+  await panel.getByLabel('From measure').press('Tab');
+  await panel.getByLabel('To measure').fill('2');
+  await panel.getByLabel('To measure').press('Tab');
+  await expect(panel).toContainText('Looping measures 2-2');
+  await expect
+    .poll(async () => {
+      const stored = await page.evaluate(() => localStorage.getItem('musicanyya.practice.v1'));
+      const byScore = Object.values(JSON.parse(stored ?? '{}').byScore ?? {}) as { loop?: unknown }[];
+      return byScore[0]?.loop;
+    })
+    .toEqual({ fromPassIndex: 1, toPassIndex: 1 });
+
+  // The same Score opened again in a new page load brings the loop back, and Start begins at it
+  await openScoreInPractice(page, 'chords/c-major-scale-and-chords.musicxml'); // loads the page afresh
+  await expect(panel).toContainText('Looping measures 2-2');
+
+  await page.locator('mx-transport .play-btn').click();
+  await expect(page.locator('mx-transport .play-btn')).toHaveText('Stop');
+  const s = await sessionOf(page);
+  expect(s?.index).toBe(4); // the first expected event of measure 2, not the start of the Score
+});

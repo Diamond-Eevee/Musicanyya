@@ -1,4 +1,4 @@
-import type { ExpectedEvent, PracticeSession } from '../../core/practice/types.js';
+import type { ExpectedEvent, LoopRange, PracticeSession } from '../../core/practice/types.js';
 import { FOLLOW_MARGIN, RELAYOUT_DEBOUNCE_MS, ZOOM_DEFAULT, ZOOM_MAX, ZOOM_MIN } from '../../engine/config.js';
 import type { AudioEngine } from '../../engine/ports.js';
 import { drawCursorOverlay } from '../score/cursor-overlay.js';
@@ -10,7 +10,7 @@ import {
   type PageLayout,
   sanitiseAndExtractMeasures,
 } from '../score/pages.js';
-import { drawPracticeMarks, drawStartMarker } from '../score/practice-marks.js';
+import { drawLoopMarks, drawPracticeMarks, drawStartMarker } from '../score/practice-marks.js';
 import type { VerovioClient } from '../score/verovio-client.js';
 import { practiceState } from '../state/practiceState.js';
 import { transportState } from '../state/transportState.js';
@@ -213,7 +213,7 @@ export class MxScoreView extends HTMLElement {
     // for `setPlayback` (which only happens once a Listen schedule has been delivered).
     const pState = practiceState.get();
     if (pState.mode === 'practice') {
-      this.drawPracticeState(pState.session, pState.startMeasureIndex);
+      this.drawPracticeState(pState.session, pState.startMeasureIndex, pState.setup?.loop ?? null);
       this.practiceDrawn = true;
       return;
     }
@@ -306,7 +306,24 @@ export class MxScoreView extends HTMLElement {
     return dimmed.rects;
   }
 
-  private drawPracticeState(session: PracticeSession | null, startMeasureIndex: number | null): void {
+  /** The mounted measures of a loop range, for the bracket over them (AS-3.2). */
+  private loopMeasures(loop: LoopRange): { rect: DOMRect; first: boolean; last: boolean }[] {
+    const from = Math.min(loop.fromMeasureIndex, loop.toMeasureIndex);
+    const to = Math.max(loop.fromMeasureIndex, loop.toMeasureIndex);
+    const measures: { rect: DOMRect; first: boolean; last: boolean }[] = [];
+    for (let m = from; m <= to; m++) {
+      const id = this.measureIds[m];
+      const el = id === undefined ? null : this.elementFor(id);
+      if (el) measures.push({ rect: el.getBoundingClientRect(), first: m === from, last: m === to });
+    }
+    return measures;
+  }
+
+  private drawPracticeState(
+    session: PracticeSession | null,
+    startMeasureIndex: number | null,
+    loop: LoopRange | null,
+  ): void {
     this.syncElementCache();
     const currentEvent = session?.events[session.index];
 
@@ -350,6 +367,8 @@ export class MxScoreView extends HTMLElement {
       noteRects,
       ...(session ? { dimmedNoteRects: this.dimmedRects(session.events, containerRect) } : {}),
     });
+
+    if (loop) drawLoopMarks({ ctx, dpr, containerRect, measures: this.loopMeasures(loop) });
 
     if (startMeasureIndex !== null && (!session || session.phase === 'finished')) {
       const measureId = this.measureIds[startMeasureIndex];

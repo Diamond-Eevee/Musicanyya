@@ -148,3 +148,49 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
   mount change (a few ms on a very large score); (c) changing selection and accompaniment in one action on a finished
   session applies neither (the UI never does this); (d) T057 (worklet `liveQueue` silent drop).
 - Handoff: unchanged from the entry above - next = US3, T033 -> T037.
+
+## 2026-09-20 17:10 - claude-sonnet-5 (relay)
+- Done: **Phase 5 / US3 complete, checkpoint reached**: T033-T037, plus T058 (new: the US3 e2e). Baseline first: 436 unit
+  tests green. Gate after: `pnpm lint` 0 errors (174 warnings; the one new one, an `any` in my e2e, was removed again, the
+  rest are older), `pnpm typecheck` clean, `pnpm test` 497 passed / 2 skipped, `pnpm test:e2e` 22 passed / 14 skipped /
+  0 failed (Chromium, Firefox, Electron; the practice e2e is skipped on WebKit as before).
+- US3 Independent Test (loop over a range, through it twice, the cursor returns each time without stopping the session)
+  is `tests/e2e/us1-practice.spec.ts` ("US3 end-to-end", "US3: the loop is remembered..."). Also seen in the browser pane
+  with `repeat-simple.musicxml` (fake input only; the pane denies Web MIDI): the loop fields, "Looping measures 1-1 (1st
+  time)" and the wine-coloured bracket over the looped measure, clear of the noteheads.
+- Test-first, honestly: `loop.test.ts` (module missing) and `loop-wrap.test.ts` (19 of 24 failing on behaviour) were
+  seen failing for the right reason before any code. The loop mark tests failed (`drawLoopMarks is not a function`)
+  before the drawing existed. The **panel tests were not seen failing on behaviour**: the file first failed to parse
+  (a stray apostrophe), and I fixed that and wrote the panel before running it again. The e2e tests were written after
+  the code (one needed a wait added).
+- Decisions (research.md **R-13**; contract `practice-session` **1.2.0**; data-model 4 and 5):
+  1. `resolveLoop` takes the timeline's **passes** as an added argument. With events alone it cannot keep a measure
+     the hand rests in inside a range, nor tell two occurrences apart across such a measure. A run of passes inside
+     the range is trimmed to the range's first and last written measure, so a loop over measures 1-2 in front of a
+     first ending does not slide into the second ending; a repeat inside the range stays inside.
+  2. `ResolvedLoop.passLabel: string` became `occurrence: { index, count } | null` plus `fromPassIndex` /
+     `toPassIndex`: no English in the core, and the pass span is what is stored (`PracticeSettings.loop`, unchanged).
+  3. `setLoop` is a reducer input (replays). A cursor outside the new loop jumps to its first event; clearing moves
+     nothing; with a loop set and no measure picked, Start begins at the loop, a picked measure wins.
+  4. **Marks are not cleared at the wrap** (quickstart US3) but when the cursor arrives on a note, in every pass. This
+     also fixes a repeated passage, which reuses the Note IDs and showed the first pass's green marks in the second.
+  5. At the wrap what rings is released and the last event's accompaniment is not started (same reasoning as the skip
+     past the last event: no timer, no extra state). `skipPrevious` at the loop's first event does nothing.
+  6. `skipNext` now shares the arrival step with playing, so a required key already down blocks the next event after a
+     skip (FR-009a); before, a skip left it `waiting`.
+  7. The `practiceLoopEmpty` notice is raised by `session.ts` (the contract always said "the caller raises"), not by
+     the matcher as T036's wording suggested; T036 was reworded.
+- Problems / open questions:
+  - **needs owner: T056** (open since US2): a wrong / wrong-octave / extra press produces no mark and no message, the
+    R-10 message ids are used nowhere, and the `notice` effects (`practiceDeviceLost` / `practiceDeviceBack`, FR-021)
+    are not applied by `session.ts`. A wrong key has no notehead, so where the feedback shows (on-screen keyboard,
+    beside the cursor, a status line) is a design choice. US4's help will share the on-screen keyboard, so decide it
+    before T041.
+  - Not tried: a real MIDI keyboard; the loop bracket on a Score that spans several systems and pages (only a
+    two-measure Score was looked at); a loop over a very large Score (the bracket measures every mounted looped measure
+    each frame, cached by DOM epoch like the notes).
+  - The RT path is untouched (no worklet, scheduler or engine change; the wrap only emits the existing
+    `soundOff` / `moveCursor` effects), so no `rt-audio-reviewer` pass was requested for US3.
+- Handoff: next = **US4, T038 -> T041** (help; tests first), then Polish T042-T048 and T057. Run `pnpm test` (497) and
+  `pnpm build` before any e2e (Playwright serves `dist`). T056 needs the owner's answer before T041. Tree clean at the
+  commit below.

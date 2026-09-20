@@ -1,12 +1,14 @@
-import type { HandSelection } from '../../core/practice/types.js';
-import { en } from '../i18n/en.js';
+import type { HandSelection, LoopRange, ResolvedLoop } from '../../core/practice/types.js';
+import { en, ordinal } from '../i18n/en.js';
 import { type PracticeSetup, practiceState } from '../state/practiceState.js';
 
-/** What the panel reports when the musician chooses something; session.ts applies it (FR-013, FR-025a, FR-032). */
+/** What the panel reports when the musician chooses something; session.ts applies it (FR-013, FR-025a, FR-032).
+ *  `loop` is a range as typed - possibly reversed - and `null` clears the loop (FR-016, AS-3.3, AS-3.4). */
 export interface PracticeSetupChange {
   partIndex?: number;
   selection?: HandSelection;
   accompaniment?: boolean;
+  loop?: LoopRange | null;
 }
 
 function escapeHtml(text: string): string {
@@ -47,7 +49,7 @@ export class MxPracticePanel extends HTMLElement {
   }
 
   private render() {
-    const { mode, setup, startMeasureIndex } = practiceState.get();
+    const { mode, setup, startMeasureIndex, session } = practiceState.get();
     this.hidden = mode !== 'practice' || setup === null;
     if (this.hidden || !setup) {
       this.innerHTML = '';
@@ -56,12 +58,12 @@ export class MxPracticePanel extends HTMLElement {
 
     // Keep keyboard focus on the same control across the re-render that follows a choice.
     const focusedId = (document.activeElement as HTMLElement | null)?.dataset?.id;
-    this.innerHTML = this.template(setup, startMeasureIndex);
+    this.innerHTML = this.template(setup, startMeasureIndex, session?.loop ?? null);
     this.wire(setup);
     if (focusedId) (this.querySelector(`[data-id="${CSS.escape(focusedId)}"]`) as HTMLElement | null)?.focus();
   }
 
-  private template(setup: PracticeSetup, startMeasureIndex: number | null): string {
+  private template(setup: PracticeSetup, startMeasureIndex: number | null, running: ResolvedLoop | null): string {
     const p = en.practice.panel;
     if (setup.selection === null) {
       return `<h2 class="practice-heading">${p.heading}</h2><p class="practice-empty">${p.nothingToPractise}</p>`;
@@ -100,7 +102,32 @@ export class MxPracticePanel extends HTMLElement {
         ? `<p class="practice-start">${p.startsAtMeasure.replace('{n}', String(startMeasureIndex + 1))}</p>`
         : '';
 
-    return `<h2 class="practice-heading">${p.heading}</h2>${parts}${hands}${hearRest}${start}`;
+    return `<h2 class="practice-heading">${p.heading}</h2>${parts}${hands}${hearRest}${this.loopTemplate(setup, running)}${start}`;
+  }
+
+  /** Two measure fields (numbered from 1, as printed) and a clear control; empty fields mean no loop (FR-016). */
+  private loopTemplate(setup: PracticeSetup, running: ResolvedLoop | null): string {
+    const p = en.practice.panel;
+    const { loop, measureCount } = setup;
+    const value = (index: number | undefined) => (index === undefined ? '' : String(index + 1));
+    const field = (id: string, label: string, index: number | undefined) =>
+      `<label>${label} <input type="number" data-id="${id}" min="1" max="${measureCount}" step="1" value="${value(index)}" /></label>`;
+
+    const occurrence = running?.occurrence
+      ? ` (${p.loopOccurrence.replace('{ordinal}', ordinal(running.occurrence.index))})`
+      : '';
+    const status = loop
+      ? `<p class="practice-loop-status">${p.loopStatus
+          .replace('{from}', String(Math.min(loop.fromMeasureIndex, loop.toMeasureIndex) + 1))
+          .replace('{to}', String(Math.max(loop.fromMeasureIndex, loop.toMeasureIndex) + 1))}${occurrence}</p>`
+      : '';
+
+    return `<fieldset class="practice-loop"><legend>${p.loop}</legend>
+        ${field('loop-from', p.loopFrom, loop?.fromMeasureIndex)}
+        ${field('loop-to', p.loopTo, loop?.toMeasureIndex)}
+        <button type="button" data-id="loop-clear" ${loop ? '' : 'disabled'}>${p.loopClear}</button>
+        ${status}
+      </fieldset>`;
   }
 
   private wire(setup: PracticeSetup) {
@@ -116,6 +143,29 @@ export class MxPracticePanel extends HTMLElement {
     this.querySelector<HTMLInputElement>('input[name="accompaniment"]')?.addEventListener('change', (event) => {
       this.emit({ accompaniment: (event.target as HTMLInputElement).checked });
     });
+
+    const from = this.querySelector<HTMLInputElement>('[data-id="loop-from"]');
+    const to = this.querySelector<HTMLInputElement>('[data-id="loop-to"]');
+    const onLoopField = () => {
+      const start = this.measureIndexOf(from, setup.measureCount);
+      const end = this.measureIndexOf(to, setup.measureCount);
+      if (start === null || end === null) return; // one field is not a range yet: wait for the other
+      this.emit({ loop: { fromMeasureIndex: start, toMeasureIndex: end } });
+      // Show what the app made of it: a reversed range corrected, or a loop it declined, replaces what was typed.
+      this.render();
+    };
+    from?.addEventListener('change', onLoopField);
+    to?.addEventListener('change', onLoopField);
+    this.querySelector('[data-id="loop-clear"]')?.addEventListener('click', () => this.emit({ loop: null }));
+  }
+
+  /** The zero-based measure a field holds, kept inside the Score; null when it is empty or not a number. */
+  private measureIndexOf(input: HTMLInputElement | null, measureCount: number): number | null {
+    const text = input?.value.trim() ?? '';
+    if (text === '') return null;
+    const number = Number(text);
+    if (!Number.isFinite(number)) return null;
+    return Math.min(Math.max(Math.round(number), 1), Math.max(measureCount, 1)) - 1;
   }
 }
 customElements.define('mx-practice-panel', MxPracticePanel);

@@ -1,12 +1,15 @@
 # Contract: practice session (core API)
 
-**Version**: `1.1.0` (internal TypeScript contract between `src/core/practice`, `src/app/session.ts` and
+**Version**: `1.2.0` (internal TypeScript contract between `src/core/practice`, `src/app/session.ts` and
 `src/ui`). Signatures are normative in shape; every change is reflected here with a version bump (MINOR for
 additions, MAJOR for breaking changes). `1.0.0` was amended on 2026-09-20 by the clarification session (played-along
 and skipped marks, the wrong-versus-extra rule, part selection, skip inputs) before anything was implemented.
 `1.1.0` (US2, 2026-09-20) only adds: `resolveStartMeasure`, `firstEventAtOrAfterTick`, the `setAccompaniment`
 input, `velocity` on `soundOn` and on `SoundingRef`, `StartOptions.selection`, `PracticeSession.soundingAccompaniment`,
 and the optional `attribution` argument of `buildExpectedEvents`.
+`1.2.0` (US3, 2026-09-20): `resolveLoop` takes the timeline's passes, `ResolvedLoop` carries its pass span and an
+`occurrence` instead of the English `passLabel`, the `setLoop` input is added, and `loopRangeToPassIndices` /
+`passIndicesToLoopRange` are added (R-13).
 
 Constitution IV and V: this module is pure. It imports nothing from `src/engine` or `src/ui`, touches no DOM, no
 Web API, no clock and no randomness, and therefore runs in Node under test. It **returns** effects; it never
@@ -59,8 +62,9 @@ export function firstEventAtOrAfterTick(events: readonly ExpectedEvent[], tick: 
 export type SessionPhase = "idle" | "waiting" | "blocked" | "finished" | "interrupted";
 
 export interface PracticeInput {                 // the MidiInput port's events, plus the musician's own commands
-  type: "noteOn" | "noteOff" | "sustain" | "deviceLost" | "skipNext" | "skipPrevious" | "setAccompaniment";
+  type: "noteOn" | "noteOff" | "sustain" | "deviceLost" | "skipNext" | "skipPrevious" | "setAccompaniment" | "setLoop";
   enabled?: boolean;                             // setAccompaniment: silences what rings when turned off
+  loop?: ResolvedLoop | null;                    // setLoop: null clears it (US3)
   key?: number;                                  // noteOn / noteOff
   velocity?: number;                             // noteOn, carried through to the log only
   down?: boolean;                                // sustain
@@ -145,16 +149,45 @@ id with parameters, never a raw code and never a verdict (R-10): `practice.octav
 ## Loops
 
 ```ts
-export interface LoopRange { fromMeasureIndex: number; toMeasureIndex: number; }
-export interface ResolvedLoop { fromEventIndex: number; toEventIndex: number; passLabel: string | null; }
+export interface LoopRange { fromMeasureIndex: number; toMeasureIndex: number; }   // written measures
+export interface LoopPassSpan { fromPassIndex: number; toPassIndex: number; }     // unrolled passes: the stored form
+export interface ResolvedLoop extends LoopPassSpan {
+  fromEventIndex: number;
+  toEventIndex: number;
+  occurrence: { index: number; count: number } | null;   // 1-based; null unless the range is played more than once
+}
 
-/** Normalises a reversed range and resolves it against the event list and the current position (R-06).
- *  Returns null when the range holds no required events; the caller raises `practiceLoopEmpty`. */
+/** Normalises a reversed range and resolves it to one occurrence on the unrolled passes (R-06, R-13): the one the
+ *  cursor is in, else the first at or after it, else the first. A repeat inside the range stays inside it; the run
+ *  is trimmed to the range's first and last written measure. Returns null when no occurrence holds an expected
+ *  event; the caller raises `practiceLoopEmpty` and keeps the previous loop. */
 export function resolveLoop(
   events: readonly ExpectedEvent[],
+  passes: readonly { measureIndex: number }[],             // PlaybackTimeline.passes
   range: LoopRange,
   currentEventIndex: number,
 ): ResolvedLoop | null;
+
+/** The pass span to store (practice-settings `loop`), and back to the written range it covers: null when the span
+ *  no longer fits the timeline (start outside it, or reversed); an end past it is clamped. */
+export function loopRangeToPassIndices(loop: ResolvedLoop): LoopPassSpan;
+export function passIndicesToLoopRange(
+  passes: readonly { measureIndex: number }[],
+  span: LoopPassSpan,
+): LoopRange | null;
+```
+
+**In the reducer** (`StartOptions.loop`, or the `setLoop` input): passing the last event of the slice - by playing it
+or by `skipNext` - wraps the cursor to the slice's first event and the session stays `waiting`; no `sessionEnded` is
+produced. What rings is released at the wrap and the last event's accompaniment is not started. `skipPrevious` at the
+slice's first event does nothing. `setLoop` with a cursor outside the slice moves it to the slice's first event
+(releasing what rings); with the cursor inside, or with `null`, nothing moves. It is ignored once the session is
+`finished`.
+
+**Arrival** (every forward move of the cursor, including a wrap and `setLoop`): marks on the notes of the event
+arrived at - required and accompaniment - are cleared first (`markNotes` with `waiting`, only when there were any),
+then `moveCursor`, then a required key already down puts the event in `blocked` (FR-009a). Marks are never cleared at
+the wrap itself.
 ```
 
 ## Guarantees

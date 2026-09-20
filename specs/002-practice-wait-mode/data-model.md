@@ -162,6 +162,11 @@ Advancing (`matcher.ts`, one pure step per input event):
    event and clears its marks so it can be played again. A skip never touches `wrongAttemptsOnCurrent` and never
    produces a `correct`; a forward skip past the last event ends the session as `stopped`, not `reachedEnd`.
 7. `deviceLost`: release the reported held keys, go to `interrupted`, keep `index`.
+8. Loop (FR-016, R-13): passing the last event of the loop slice - by playing or by skipping it - moves the cursor to
+   the slice's first event instead of the next one; the phase stays `waiting` (or `blocked` when a required key is
+   still down). `setLoop` sets or clears the loop and moves a cursor that lies outside it to its first event.
+   Whenever the cursor arrives on an event, the marks left on that event's notes by an earlier pass are cleared
+   first; nothing is cleared at the wrap itself.
 
 Advancing emits effects, which the app layer applies: `markNotes`, `moveCursor`, `soundAccompaniment(on|off)`,
 `showHelp`, `endSession`. The core itself calls nothing. A skip emits the same effects as an advance, minus any
@@ -175,15 +180,18 @@ interface LoopRange {           // what the musician set, what the Score shows
   toMeasureIndex: number;       // normalised: from <= to (AS-3.4)
 }
 
-interface ResolvedLoop {        // what the session runs (R-06)
+interface ResolvedLoop {        // what the session runs (R-06, R-13)
   fromEventIndex: number;
   toEventIndex: number;
-  passLabel: string | null;     // e.g. "2nd time", only when the range occurs more than once
-}
+  fromPassIndex: number;        // the occurrence on the unrolled passes: the form that is stored
+  toPassIndex: number;
+  occurrence: { index: number; count: number } | null;  // "2nd time" is formatted by the UI; null unless the
+}                                                       // range is played more than once
 ```
 
 Resolved when the loop is set, when the session starts and when the hand or part selection changes; the occurrence
-used is the one the cursor is in, else the first at or after it. **A start measure resolves the same way**
+used is the one the cursor is in, else the first at or after it, else the first in the Score (resolved on the unrolled passes and trimmed
+to the range's first and last written measure: R-13). **A start measure resolves the same way**
 (FR-015, clarified 2026-09-20): clicking a measure that is played more than once starts at the occurrence the
 cursor is in, else the first at or after it, and the session then follows the unrolled order to the end. A repeat inside the range stays inside it. A range that
 resolves to zero required events raises a non-blocking notice and leaves the previous loop untouched.

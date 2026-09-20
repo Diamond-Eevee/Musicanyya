@@ -141,3 +141,53 @@ export function drawStartMarker(options: StartMarkerOptions): void {
   ctx.fill();
   ctx.restore();
 }
+
+export interface LoopMarksOptions {
+  ctx: CanvasRenderingContext2D;
+  dpr: number;
+  containerRect: DOMRect;
+  /** The mounted measures of the loop range, with whether each is the range's first or last measure. */
+  measures: readonly { rect: DOMRect; first: boolean; last: boolean }[];
+}
+
+/** Marks the looped measures (AS-3.2): a bracket line above each measure, closed by a short downward stroke at the
+ *  range's first and last measure. It is drawn above the measure only, never over the notes, and reads by shape as
+ *  well as by colour. */
+export function drawLoopMarks(options: LoopMarksOptions): void {
+  const { ctx, dpr, containerRect, measures } = options;
+  if (measures.length === 0) return;
+
+  const gap = 4 * dpr;
+  const tick = 8 * dpr;
+
+  ctx.save();
+  ctx.strokeStyle = '#882255'; // wine: distinct from the start marker's blue and every mark colour
+  ctx.setLineDash([]);
+  ctx.lineWidth = 3 * dpr;
+  for (const { rect, first, last } of measures) {
+    const left = (rect.left - containerRect.left) * dpr;
+    const right = (rect.right - containerRect.left) * dpr;
+    const top = (rect.top - containerRect.top) * dpr;
+    const y = top - gap - tick;
+
+    ctx.beginPath();
+    ctx.moveTo(left, y);
+    ctx.lineTo(right, y);
+    ctx.stroke();
+
+    // The end strokes point down at the measure but stop short of it.
+    if (first) {
+      ctx.beginPath();
+      ctx.moveTo(left, y);
+      ctx.lineTo(left, y + tick);
+      ctx.stroke();
+    }
+    if (last) {
+      ctx.beginPath();
+      ctx.moveTo(right, y);
+      ctx.lineTo(right, y + tick);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+}

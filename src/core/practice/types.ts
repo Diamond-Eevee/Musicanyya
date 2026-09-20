@@ -58,10 +58,17 @@ export interface LoopRange {
   toMeasureIndex: number;
 }
 
-export interface ResolvedLoop {
+/** A stretch of the unrolled timeline (`PlaybackTimeline.passes`): the unambiguous form a loop is stored in (R-06). */
+export interface LoopPassSpan {
+  fromPassIndex: number;
+  toPassIndex: number;
+}
+
+export interface ResolvedLoop extends LoopPassSpan {
   fromEventIndex: number;
   toEventIndex: number;
-  passLabel: string | null;
+  /** Which time through the range this is, e.g. 2 of 2 in a repeat; null when the range occurs only once (R-06). */
+  occurrence: { index: number; count: number } | null;
 }
 
 export interface PracticeSession {
@@ -82,12 +89,13 @@ export interface PracticeSession {
 }
 
 export interface PracticeInput {
-  type: 'noteOn' | 'noteOff' | 'sustain' | 'deviceLost' | 'skipNext' | 'skipPrevious' | 'setAccompaniment';
+  type: 'noteOn' | 'noteOff' | 'sustain' | 'deviceLost' | 'skipNext' | 'skipPrevious' | 'setAccompaniment' | 'setLoop';
   key?: number;
   velocity?: number;
   down?: boolean;
   heldKeys?: readonly number[];
   enabled?: boolean; // setAccompaniment
+  loop?: ResolvedLoop | null; // setLoop: null clears the loop
   timeStampMs: number;
 }
 

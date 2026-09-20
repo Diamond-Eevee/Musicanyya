@@ -98,6 +98,44 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
     log.push({ key, eventIndex: next.index, state, timeStampMs: input.timeStampMs });
   };
 
+  /**
+   * Puts the cursor on an event. Marks left on its notes by an earlier pass are cleared first - a repeat or a loop
+   * plays the same Note IDs again, and a note still marked correct would hide that the app waits for it - then the
+   * cursor moves, then a required key that is already down blocks the event (FR-009a).
+   */
+  const arriveAt = (index: number) => {
+    const event = next.events[index];
+    if (!event) return;
+    next.index = index;
+    next.wrongAttemptsOnCurrent = 0;
+
+    const stale: NoteId[] = [];
+    for (const req of event.required) for (const id of req.noteIds) if (marks.delete(id)) stale.push(id);
+    for (const ref of event.accompaniment) if (marks.delete(ref.noteId)) stale.push(ref.noteId);
+    if (stale.length > 0)
+      effects.push({ type: 'markNotes', marks: stale.map((noteId) => ({ noteId, state: 'waiting' })) });
+
+    effects.push({ type: 'moveCursor', eventIndex: index, onsetTick: event.onsetTick });
+    next.phase = 'waiting';
+    let blocked = false;
+    for (const req of event.required) {
+      if (heldKeys.has(req.key)) {
+        blocked = true;
+        addMark(req.noteIds, 'heldOver');
+      }
+    }
+    if (blocked) {
+      next.phase = 'blocked';
+      effects.push({ type: 'showHelp', eventIndex: index, reason: 'heldOver' });
+    }
+  };
+
+  /** Where the cursor goes when the current event is passed inside a loop: back to its first event (FR-016), else
+   *  null. The accompaniment of the loop's last event is not started: the cursor is already back at the start, so
+   *  nothing would release it (R-12: no timer ever decides when a sound stops). */
+  const wrapTarget = (): number | null =>
+    next.loop !== null && next.index === next.loop.toEventIndex ? next.loop.fromEventIndex : null;
+
   const currentEvent = next.events[next.index];
 
   if (input.type === 'deviceLost') {
@@ -110,34 +148,49 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
     return { session: next, effects };
   }
 
+  if (input.type === 'setLoop') {
+    next.loop = input.loop ?? null;
+    const loop = next.loop;
+    if (loop && (next.index < loop.fromEventIndex || next.index > loop.toEventIndex)) {
+      // Setting a loop means "practise this now": a cursor outside it goes to its first event.
+      const interrupted = next.phase === 'interrupted';
+      releaseAll();
+      arriveAt(loop.fromEventIndex);
+      if (interrupted) next.phase = 'interrupted';
+    }
+    return { session: next, effects };
+  }
+
   if (input.type === 'skipNext') {
     if (currentEvent) {
       const noteIds = currentEvent.required.flatMap((r) => r.noteIds);
       addMark(noteIds, 'skipped');
+      const wrapTo = wrapTarget();
       const skippingLast = next.index + 1 >= next.events.length;
-      // Skipping the last event ends the session, so its accompaniment would only ring with no cursor left to
-      // release it: it is not started (RT review).
-      if (!skippingLast) soundAccompanimentOf(currentEvent);
-      next.index++;
-      next.wrongAttemptsOnCurrent = 0;
-      if (next.index >= next.events.length) {
+      if (wrapTo !== null) {
+        releaseAll();
+        arriveAt(wrapTo);
+      } else if (skippingLast) {
+        // Skipping the last event ends the session, so its accompaniment would only ring with no cursor left to
+        // release it: it is not started (RT review).
+        next.index++;
+        next.wrongAttemptsOnCurrent = 0;
         next.phase = 'finished';
         // What still rings goes now unless a key is down, in which case the finished branch releases it at key-up.
         if (heldKeys.size === 0) releaseAll();
         effects.push({ type: 'sessionEnded', reason: 'stopped' });
       } else {
-        const nextEv = next.events[next.index];
-        if (nextEv) {
-          effects.push({ type: 'moveCursor', eventIndex: next.index, onsetTick: nextEv.onsetTick });
-          next.phase = 'waiting';
-        }
+        soundAccompanimentOf(currentEvent);
+        arriveAt(next.index + 1);
       }
     }
     return { session: next, effects };
   }
 
   if (input.type === 'skipPrevious') {
-    if (next.index > 0) {
+    // A loop is not left backwards: at its first event there is nothing before it to go back to.
+    const atLoopStart = next.loop !== null && next.index === next.loop.fromEventIndex;
+    if (next.index > 0 && !atLoopStart) {
       releaseAll();
       next.index--;
       next.wrongAttemptsOnCurrent = 0;
@@ -214,30 +267,19 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
         for (const req of currentEvent.required) {
           addMark(req.noteIds, 'correct');
         }
-        soundAccompanimentOf(currentEvent);
-
-        next.index++;
-        next.wrongAttemptsOnCurrent = 0;
-
-        if (next.index >= next.events.length) {
-          next.phase = 'finished';
-          effects.push({ type: 'sessionEnded', reason: 'reachedEnd' });
+        const wrapTo = wrapTarget();
+        if (wrapTo !== null) {
+          releaseAll();
+          arriveAt(wrapTo);
         } else {
-          const nextEv = next.events[next.index];
-          if (nextEv) {
-            effects.push({ type: 'moveCursor', eventIndex: next.index, onsetTick: nextEv.onsetTick });
-
-            let isBlocked = false;
-            for (const req of nextEv.required) {
-              if (heldKeys.has(req.key)) {
-                isBlocked = true;
-                addMark(req.noteIds, 'heldOver');
-              }
-            }
-            if (isBlocked) {
-              next.phase = 'blocked';
-              effects.push({ type: 'showHelp', eventIndex: next.index, reason: 'heldOver' });
-            }
+          soundAccompanimentOf(currentEvent);
+          if (next.index + 1 >= next.events.length) {
+            next.index++;
+            next.wrongAttemptsOnCurrent = 0;
+            next.phase = 'finished';
+            effects.push({ type: 'sessionEnded', reason: 'reachedEnd' });
+          } else {
+            arriveAt(next.index + 1);
           }
         }
       }

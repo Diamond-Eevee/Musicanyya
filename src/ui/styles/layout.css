@@ -126,3 +126,28 @@ mx-practice-panel[hidden] {
   margin: 6px 0 0;
   color: #0072b2;
 }
+
+.practice-loop {
+  margin: 8px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.practice-loop legend {
+  padding: 0;
+  font-weight: 600;
+}
+
+.practice-loop label {
+  display: block;
+  margin: 4px 0;
+}
+
+.practice-loop input[type="number"] {
+  width: 4.5em;
+}
+
+.practice-loop-status {
+  margin: 6px 0 0;
+  color: #882255;
+}

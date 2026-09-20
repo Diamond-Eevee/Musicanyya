@@ -257,3 +257,36 @@ holds (the synth's live path shares one channel, so two instances of a key swap 
 switch reach a finished session, and the score view looks notes up once per page mount instead of once per frame.
 Not fixed here: the worklet drops live messages silently when its queue holds 64, and accompaniment roughly
 doubles the message rate - counting drops is T057.
+
+## R-13 - How a loop is resolved and how it wraps (US3 implementation, 2026-09-20)
+
+**Decision**: (1) A written range resolves on the **unrolled passes**, not on the expected events: a run is a maximal
+stretch of consecutive passes that stay inside the range, trimmed to begin at the range's first written measure and
+end at its last. A repeat sign inside the range therefore stays inside the loop, and a loop over measures 1-2 in
+front of a first ending does not slide on into the second ending. Passes are needed because a measure the practised
+hand rests in has no expected event, yet still belongs to the range. (2) The occurrence is the one the cursor is in,
+else the first at or after it, else the first in the Score - the rule of `resolveStartMeasure`. (3) The stored form
+is the pass span of that occurrence, so the same loop returns on the same time through a repeat; the label "2nd
+time" is data (`occurrence: { index, count }`, only when the range is played more than once), formatted by the UI.
+(4) Wrapping happens when the last event of the slice is passed, by playing or by skipping; skipping back never
+leaves the loop. (5) Setting a loop in a running session moves a cursor that lies outside it to its first event
+(`setLoop` is a reducer input, so it replays); clearing it moves nothing. With a loop set and no measure picked, a
+session starts at the loop; a picked measure wins. (6) Marks are **not** cleared at the wrap. The marks of a note are
+cleared when the cursor arrives on it, in every pass - this also fixes a repeated passage, whose second pass reuses
+the same Note IDs and used to show the first pass's green marks. (7) At the wrap everything that rings is released
+and the accompaniment of the loop's last event is not started, as with a skip past the last event.
+
+**Rationale**: the plan gave `resolveLoop` only the events; that cannot tell two occurrences apart when the hand
+rests between them, or keep a rest measure inside a range, so the passes are an added argument. Clearing marks on
+arrival rather than at the wrap keeps the finished pass on screen (quickstart US3: "without clearing the marks")
+while never hiding where the app waits. Not starting the last accompaniment is the only release that needs no timer
+and no extra state: the cursor is already back at the start when it would sound.
+
+**Alternatives considered**: resolving on events only - rejected, see above; clearing the marks of the slice at the
+wrap - rejected, the pass's result vanishes the moment it is finished; ringing the last accompaniment until the
+first note of the next pass - rejected, it needs a field that says which notes belong to the previous pass.
+
+**Also changed** (contract `practice-session` 1.2.0): `ResolvedLoop.passLabel: string` became
+`occurrence: { index, count } | null` plus the pass span, because an English label does not belong in the core, and
+skipping to the next event now runs the same arrival step as playing (a required key already down blocks it,
+FR-009a).
