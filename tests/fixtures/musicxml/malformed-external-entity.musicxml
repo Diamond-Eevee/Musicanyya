@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE score-partwise [ <!ENTITY xxe SYSTEM "file:///etc/passwd"> ]>
+<score-partwise version="3.1">
+  <work><work-title>&xxe;</work-title></work>
+  <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+  <part id="P1"><measure number="1"><note><rest/><duration>1</duration></note></measure></part>
+</score-partwise>

@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist-tsc/engine",
+    "rootDir": "./src",
+    "lib": ["ES2023", "DOM", "WebWorker"],
+    "types": ["vite/client"]
+  },
+  "include": ["src/engine/**/*.ts", "src/workers/**/*.ts"],
+  "exclude": ["src/engine/worklets/**/*.ts"],
+  "references": [{ "path": "./tsconfig.core.json" }]
+}

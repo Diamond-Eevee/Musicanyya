@@ -17,7 +17,7 @@ Treat the input as extra technical guidance (it must still comply with the const
    ```
    powershell -NoProfile -ExecutionPolicy Bypass -File .specify/scripts/powershell/setup-plan.ps1 -Json
    ```
-2. Load context: the spec, `.specify/memory/constitution.md`, `docs/adr/*.md`, `AGENTS.md`, and the plan template
+2. Load context: the spec, `.specify/memory/constitution.md`, `docs/adr/*.md`, `AGENTS.md`, `docs/agents/reference.md`, and the plan template
    already copied to `IMPL_PLAN`. If the spec still has `[NEEDS CLARIFICATION]` markers that affect design,
    stop and recommend `/speckit.clarify`.
 3. Fill **Technical Context** (use the constitution's stack; mark genuine unknowns `NEEDS CLARIFICATION`).
@@ -32,7 +32,7 @@ Treat the input as extra technical guidance (it must still comply with the const
    - `contracts/`: port interfaces, worker/worklet messages, Electron bridge / plugin protocol (payload, max rate), persisted formats
      (performance log, settings). Version every contract.
    - `quickstart.md`: build/run steps and a manual verification script per user story.
-   - Update the `Active Technologies` and `Recent Changes` sections of `AGENTS.md` (between the marker comments)
+   - Update the `Active Technologies` and `Recent Changes` sections of `docs/agents/reference.md` (between the marker comments)
      with only NEW technology from this plan; keep manual content intact.
 7. Re-evaluate the Constitution Check after design and update the table.
 8. Fill **Project Structure** with concrete paths this feature touches.

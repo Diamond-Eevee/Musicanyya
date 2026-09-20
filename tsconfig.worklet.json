@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist-tsc/worklets",
+    "rootDir": "./src/engine/worklets",
+    "lib": ["ES2023"],
+    "types": ["audioworklet"]
+  },
+  "include": ["src/engine/worklets/**/*.ts"],
+  "references": [{ "path": "./tsconfig.core.json" }]
+}

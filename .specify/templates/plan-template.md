@@ -55,7 +55,7 @@ specs/[###-feature]/
 
 ### Source Code (repository root)
 
-<!-- Target layout from AGENTS.md section 3. Keep only the parts this feature touches and
+<!-- Target layout from docs/agents/reference.md R2. Keep only the parts this feature touches and
      add concrete file paths. -->
 
 ```text
@@ -93,5 +93,5 @@ MusicXML behaviour is uncertain.
 - `contracts/`: port interfaces (AudioEngine, MidiInput, Storage), worker/worklet message formats, Electron preload
   bridge / plugin protocol, persisted formats (Performance log, settings, Advice JSON Schema) - all versioned.
 - `quickstart.md`: how to run and manually verify each user story.
-- Update the `Active Technologies` section in `AGENTS.md` if new tech was added.
+- Update the `Active Technologies` section in `docs/agents/reference.md` if new tech was added.
 - Re-run the Constitution Check above.

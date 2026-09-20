@@ -1,0 +1,60 @@
+import { TEMPO_PERCENT_MAX, TEMPO_PERCENT_MIN, TEMPO_PERCENT_STEP } from '../../engine/config.js';
+import { en } from '../i18n/en.js';
+import type { LoadingProgress } from '../state/transportState.js';
+import { transportState } from '../state/transportState.js';
+
+export class MxTransport extends HTMLElement {
+  private unsubscribe?: () => void;
+  private unsubscribeProgress?: () => void;
+
+  connectedCallback() {
+    this.unsubscribe = transportState.subscribe(() => this.render());
+    this.unsubscribeProgress = transportState.subscribeLoadingProgress(() => this.render());
+    this.render();
+  }
+
+  disconnectedCallback() {
+    this.unsubscribe?.();
+    this.unsubscribeProgress?.();
+  }
+
+  private render() {
+    const state = transportState.get();
+    const progress = transportState.getLoadingProgress();
+    const playing = state.phase === 'playing';
+
+    this.innerHTML = `
+      <button type="button" class="play-btn" aria-label="${playing ? en.transport.pause : en.transport.play}">${playing ? en.transport.pause : en.transport.play}</button>
+      <button type="button" class="stop-btn" aria-label="${en.transport.stop}">${en.transport.stop}</button>
+      <label class="tempo-label">${en.transport.tempo}
+        <input type="range" class="tempo" min="${TEMPO_PERCENT_MIN}" max="${TEMPO_PERCENT_MAX}" step="${TEMPO_PERCENT_STEP}" value="${state.tempoPercent}" />
+      </label>
+      <label class="volume-label">${en.transport.volume}
+        <input type="range" class="volume" min="0" max="100" step="1" value="${state.volume}" />
+      </label>
+      <button type="button" class="follow-btn" aria-pressed="${state.follow}">${en.transport.follow}</button>
+      <span class="loading-progress" ${progress ? '' : 'hidden'}>${this.progressText(progress)}</span>
+    `;
+
+    (this.querySelector('.play-btn') as HTMLButtonElement).addEventListener('click', () => transportState.togglePlay());
+    (this.querySelector('.stop-btn') as HTMLButtonElement).addEventListener('click', () => transportState.stop());
+    (this.querySelector('input.tempo') as HTMLInputElement).addEventListener('change', (event) => {
+      transportState.setTempo(Number((event.target as HTMLInputElement).value));
+    });
+    (this.querySelector('input.volume') as HTMLInputElement).addEventListener('input', (event) => {
+      transportState.setVolume(Number((event.target as HTMLInputElement).value));
+    });
+    (this.querySelector('.follow-btn') as HTMLButtonElement).addEventListener('click', () =>
+      transportState.toggleFollow(),
+    );
+  }
+
+  private progressText(progress: LoadingProgress | null): string {
+    if (!progress) return '';
+    if (progress.totalBytes) {
+      return `${en.transport.loadingSound} ${Math.round((progress.loadedBytes / progress.totalBytes) * 100)}%`;
+    }
+    return en.transport.loadingSound;
+  }
+}
+customElements.define('mx-transport', MxTransport);

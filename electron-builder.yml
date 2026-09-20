@@ -1,0 +1,12 @@
+appId: "com.musicanyya.app"
+productName: "Musicanyya"
+directories:
+  output: "release"
+win:
+  target: "nsis"
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+files:
+  - "dist/**/*"
+  - "dist-electron/**/*"

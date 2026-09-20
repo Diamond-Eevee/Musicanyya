@@ -13,7 +13,7 @@ involvement in rendering (Principle I). Later, the Native audio plugin (ADR-0003
 
 ## Decision
 
-1. **Synth: `spessasynth_lib`** (npm, Apache-2.0, TypeScript, 4.3.x, released 2026-08; engine in `spessasynth_core`).
+1. **Synth: `spessasynth_core`** (npm, Apache-2.0, TypeScript, 4.3.x, released 2026-08).
    - Renders in an **AudioWorklet** ("runs in a separate thread", keeps playing when the main thread is busy).
    - Reads **SF2, SF3 and DLS**.
    - Every call (`noteOn`, `noteOff`, `sendMessage`, `controllerChange`, ...) takes `eventOptions.time`, **the
@@ -42,8 +42,7 @@ involvement in rendering (Principle I). Later, the Native audio plugin (ADR-0003
 ## Consequences
 
 - One runtime dependency (plus its core); it is justified in the first audio feature's Complexity Tracking table.
-- `spessasynth_lib` declares `spessasynth_core` as `"latest"`. Our `pnpm-lock.yaml` pins the resolved version, and
-  we add an explicit `spessasynth_core` dependency/override with a fixed version so updates are deliberate.
-- The synth's AudioWorklet is third-party RT code: the RT review checks how we call it (scheduling, message rate),
+- `spessasynth_core` provides the engine; we write our own AudioWorklet wrapper to control the transport and queue events sample-accurately, since the wrapper in `spessasynth_lib` does not allow cancelling queued events.
+- The synth core is third-party RT code: the RT review checks how we call it (scheduling, message rate),
   not its internals. Dropouts are still measured by our diagnostics.
 - A 30 MB download on first playback in the browser; progress is shown and it is cached afterwards.
