@@ -10,8 +10,8 @@ function fixturePath(name: string): string {
 }
 
 test('US1 end-to-end: Practice Mode - wait, wrong note, chord, moving notes, skip, end', async ({ page }) => {
-  page.on('console', msg => console.log('BROWSER:', msg.text()));
-  page.on('pageerror', err => console.log('BROWSER ERROR:', err.message));
+  page.on('console', (msg) => console.log('BROWSER:', msg.text()));
+  page.on('pageerror', (err) => console.log('BROWSER ERROR:', err.message));
 
   await page.goto('/');
 

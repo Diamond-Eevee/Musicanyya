@@ -9,10 +9,10 @@ import {
   type PageLayout,
   sanitiseAndExtractMeasures,
 } from '../score/pages.js';
-import type { VerovioClient } from '../score/verovio-client.js';
-import { transportState } from '../state/transportState.js';
-import { practiceState } from '../state/practiceState.js';
 import { drawPracticeMarks } from '../score/practice-marks.js';
+import type { VerovioClient } from '../score/verovio-client.js';
+import { practiceState } from '../state/practiceState.js';
+import { transportState } from '../state/transportState.js';
 
 const DEFAULT_PAGE_WIDTH = 1200;
 const DEFAULT_PAGE_HEIGHT = 1600;
@@ -232,7 +232,7 @@ export class MxScoreView extends HTMLElement {
 
   private drawPracticeState(session: import('../../core/practice/types.js').PracticeSession): void {
     const currentEvent = session.events[session.index];
-    
+
     // Convert session marks to array
     const markEntries = Array.from(session.marks.entries()).map(([noteId, state]) => ({ noteId, state }));
     if (currentEvent && session.phase !== 'finished') {

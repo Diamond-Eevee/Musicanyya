@@ -13,13 +13,13 @@ import '../ui/elements/mx-score-view.js';
 import '../ui/elements/mx-transport.js';
 import '../ui/elements/mx-midi-panel.js';
 import '../ui/elements/mx-piano-keys.js';
-import type { LoadReport } from '../core/score/load-report.js';
-import type { MxScoreView, TimelineDto } from '../ui/elements/mx-score-view.js';
 import { buildExpectedEvents } from '../core/practice/expected.js';
 import { applyInput, startSession } from '../core/practice/matcher.js';
 import type { PracticeEffect } from '../core/practice/types.js';
+import type { LoadReport } from '../core/score/load-report.js';
 import type { Score } from '../core/score/model.js';
 import type { PlaybackTimeline } from '../core/timeline/types.js';
+import type { MxScoreView, TimelineDto } from '../ui/elements/mx-score-view.js';
 import { en } from '../ui/i18n/en.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
 import { initShortcuts } from '../ui/shortcuts.js';
@@ -104,7 +104,9 @@ export class Session {
         console.log('TEST: e2e-ready received!');
         (this.midiInput as any).grantState = 'available';
         (this.midiInput as any).emit('availability', 'available');
-        (this.midiInput as any).emit('devices', [{ id: 'fake-midi-1', name: 'Fake', manufacturer: 'Musicanyya', connected: true }]);
+        (this.midiInput as any).emit('devices', [
+          { id: 'fake-midi-1', name: 'Fake', manufacturer: 'Musicanyya', connected: true },
+        ]);
         console.log('TEST: emitted availability = available');
       });
       window.addEventListener('e2e-midi', (e: any) => {
@@ -324,8 +326,6 @@ export class Session {
       if (seekTick > 0) this.audioEngine.seekTick(seekTick);
       if (this.scoreView && this.currentTimeline) this.scoreView.setPlayback(this.audioEngine, this.currentTimeline);
     }
-
-
 
     this.audioEngine.play();
   }

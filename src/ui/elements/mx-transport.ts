@@ -40,10 +40,14 @@ export class MxTransport extends HTMLElement {
     this.innerHTML = `
       <button type="button" class="play-btn" aria-label="${playBtnLabel}">${playBtnLabel}</button>
       ${!isPractice ? `<button type="button" class="stop-btn" aria-label="${en.transport.stop}">${en.transport.stop}</button>` : ''}
-      ${isPractice ? `
+      ${
+        isPractice
+          ? `
         <button type="button" class="skip-back-btn" aria-label="${en.transport.skipBack}" ${!playing ? 'disabled' : ''}>${en.transport.skipBack}</button>
         <button type="button" class="skip-forward-btn" aria-label="${en.transport.skipForward}" ${!playing ? 'disabled' : ''}>${en.transport.skipForward}</button>
-      ` : ''}
+      `
+          : ''
+      }
       <label class="tempo-label">${en.transport.tempo}
         <input type="range" class="tempo" min="${TEMPO_PERCENT_MIN}" max="${TEMPO_PERCENT_MAX}" step="${TEMPO_PERCENT_STEP}" value="${state.tempoPercent}" />
       </label>
