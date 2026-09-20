@@ -143,9 +143,11 @@ range, which is the most Score-specific thing here.
 
 ## R-08 - Feedback that survives greyscale
 
-**Decision**: the four note states carry a shape or marking as well as a colour: **waiting** = hollow ring around
-the notehead, **correct** = filled notehead in the correct colour, **wrong pitch** = cross through the played key
-and a slash marking at the expected note, **extra** = small open triangle above the staff at the cursor position.
+**Decision**: all nine note states carry a shape or marking as well as a colour: **waiting** = hollow ring around
+the notehead, **correctSoFar** = smaller filled dot inside the ring, **correct** = filled notehead in the correct colour,
+**wrong pitch** = cross through the played key and a slash marking at the expected note,
+**wrong octave** = arrow indicating direction, **extra** = small open triangle above the staff,
+**heldOver** = dashed ring around the notehead, **playedAlong** = hollow square, **skipped** = dotted circle.
 Colours come from the existing colour-blind-safe palette used by the Listen cursor and highlight
 (`--highlight-*` custom properties). The marks are drawn in the existing overlay layer, never inside the Verovio
 SVG's notehead glyphs, and never cover the notehead they refer to.

@@ -29,7 +29,15 @@ All data stays on the musician's device (FR-030).
     "record": {
       "type": "object",
       "properties": {
-        "hands": { "enum": ["both", "right", "left"], "default": "both" },
+        "selection": {
+          "type": "object",
+          "properties": {
+            "preset": { "enum": ["both", "right", "left", "custom"] },
+            "partIndex": { "type": "integer", "minimum": 0 },
+            "staves": { "type": "array", "items": { "type": "integer" } }
+          },
+          "required": ["preset", "partIndex", "staves"]
+        },
         "loop": {
           "oneOf": [
             { "type": "null" },
@@ -57,7 +65,7 @@ All data stays on the musician's device (FR-030).
 
 Field meanings:
 
-- `hands` - which hand(s) are expected (FR-013). `both` is the default.
+- `selection` - the part and staves to practise, plus the preset name (FR-013, FR-025a, FR-034).
 - `loop` - the loop range as **measure-pass indices on the unrolled timeline** (`PlaybackTimeline.passes`), not
   written measure numbers, so a looped passage inside a repeat is unambiguous (R-06). `null` means no loop.
 - `accompaniment` - whether the unselected hand sounds as the cursor passes it (FR-031, FR-032).
@@ -90,7 +98,7 @@ Field meanings:
 
 ```ts
 export interface PracticeSettings {
-  hands: "both" | "right" | "left";
+  selection: { preset: "both" | "right" | "left" | "custom"; partIndex: number; staves: readonly number[] };
   loop: { fromPassIndex: number; toPassIndex: number } | null;
   accompaniment: boolean;
   help: boolean;

@@ -140,7 +140,7 @@ finished --start--> waiting        (marks cleared, FR-019)
 
 Advancing (`matcher.ts`, one pure step per input event):
 
-1. `noteOn` for a key in `required` that is **not** already down, and not already consumed by this event: mark it
+1. `noteOn` for a key in `required` that is **not** already down: mark it
    `correctSoFar`, then if every required key is now held, mark the event `correct` and advance.
 2. `noteOn` for a key the current event lists in `accompaniment` (the unselected hand, another part, a grace
    note): `playedAlong`. Not judged, not counted, never blocking (FR-007, FR-027).

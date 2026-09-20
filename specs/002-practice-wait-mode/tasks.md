@@ -17,10 +17,10 @@ renumbered; the phase order below is what to follow.
 
 ## Phase 1: Setup
 
-- [ ] T001 Confirm the new paths are covered by the build and test projects: `src/core/practice/**` in
+- [x] T001 Confirm the new paths are covered by the build and test projects: `src/core/practice/**` in
   `tsconfig.core.json`, `tests/core/practice/**` in `vitest.config.ts`; no dependency is added in this feature, so
   `package.json` must stay unchanged
-- [ ] T002 [P] Add the nine practice constants from [data-model.md](data-model.md) §7 to `src/core/defaults.ts`
+- [x] T002 [P] Add the nine practice constants from [data-model.md](data-model.md) §7 to `src/core/defaults.ts`
   (`PRACTICE_HAND_ATTRIBUTION`, `PRACTICE_CHORD_REQUIRE_SIMULTANEOUS`, `PRACTICE_REQUIRE_GRACE_NOTES`,
   `PRACTICE_EXPECT_INVISIBLE_NOTES`, `PRACTICE_EXPECT_UNPITCHED`, `PRACTICE_LOOP_OCCURRENCE`,
   `PRACTICE_PART_PRESELECTION`, `PRACTICE_HELP_AFTER_WRONG_ATTEMPTS`,
@@ -96,7 +96,7 @@ session reports that the end was reached.
   `SessionStep { session, effects }`, no I/O and no timestamp reads (depends on T008, T009, T010)
 - [ ] T014 [US1] `src/ui/score/practice-marks.ts` plus the waiting cursor in `src/ui/score/cursor-overlay.ts` and
   the mark styles in `src/ui/styles/` - shape **and** colour, drawn in the overlay layer, never inside the Verovio
-  SVG (depends on T011)
+  SVG; includes dimming the unselected hand's notes (FR-032) (depends on T011)
 - [ ] T015 [P] [US1] Practice strings in `src/ui/i18n/en.ts`: mark names and the message ids from R-10
   (`practice.octave.higher`, `practice.octave.lower`, `practice.extra.heldOver`, `practice.extra.notInChord`,
   `practice.repress`) plus the notice codes - each naming the next physical action, none suggesting a score
@@ -167,8 +167,8 @@ expected, the left hand is heard as the cursor passes it, and the session starts
 - [ ] T052 [US2] `partOptions(score)` in `src/core/practice/hands.ts` and the practised-part filter in
   `expected.ts`; changing the part rebuilds the events and restarts from the current measure, as a hand change
   does (FR-025a-c) (depends on T051)
-- [ ] T028 [US2] Extend `src/core/practice/expected.ts` with the selection filter and the `accompaniment` list
-  (depends on T023)
+- [ ] T028 [US2] Extend `src/core/practice/expected.ts` with the selection filter and the `accompaniment` list, plus `resolveStartMeasure`
+  (depends on T023, T026)
 - [ ] T029 [US2] Extend `src/core/practice/matcher.ts` with the `soundOn`/`soundOff` accompaniment effects tied to
   cursor movement (depends on T024)
 - [ ] T030 [US2] `SettingsStore.loadPractice` / `savePractice` in `src/engine/ports.ts`, the
@@ -194,14 +194,14 @@ expected event of measure 3 each time without stopping the session.
 
 - [ ] T033 [P] [US3] `tests/core/practice/loop.test.ts`: `resolveLoop` normalises a reversed range (AS-3.4),
   resolves to the occurrence the cursor is in or the first one after it, keeps a repeat sign that lies inside the
-  range, and returns null for a range with no required events for the current hand (R-06)
+  range, returns null for a range with no required events for the current hand (R-06); and `loopRangeToPassIndices` / `passIndicesToLoopRange` round-trip correctly
 - [ ] T034 [P] [US3] `tests/core/practice/loop-wrap.test.ts`: completing the last event of the slice moves the
   cursor to its first event, the session stays `waiting`, and the marks of the finished pass are handled as the
   spec requires
 
 ### Implementation
 
-- [ ] T035 [US3] `src/core/practice/loop.ts` - `resolveLoop` per [data-model.md](data-model.md) §5
+- [ ] T035 [US3] `src/core/practice/loop.ts` - `resolveLoop` per [data-model.md](data-model.md) §5, plus `loopRangeToPassIndices` and `passIndicesToLoopRange` for persistence
   (depends on T033)
 - [ ] T036 [US3] Loop handling in `src/core/practice/matcher.ts`, plus the `practiceLoopEmpty` notice
   (depends on T034, T035)
@@ -254,7 +254,7 @@ on-screen keyboard with its note name and written fingering.
 - [ ] T046 Constitution audit of the branch with `constitution-auditor` (`.claude/agents/constitution-auditor.md`);
   fix CRITICAL and HIGH findings
 - [ ] T047 Run [quickstart.md](quickstart.md) manual verification end to end (browser and desktop app, real MIDI
-  keyboard) and fix findings
+  keyboard) and fix findings; confirm SC-006 (start in 2 actions under 10s) and SC-007 (20-minute session no drift)
 - [ ] T048 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; final
   `implementation-log.md` entry; commit
 
