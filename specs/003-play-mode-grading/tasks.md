@@ -107,6 +107,10 @@ than renumbered, so IDs stay stable; **file order is execution order**, not nume
 - [ ] T086 Parse `<arpeggiate>` in `src/core/musicxml/build.ts` and carry it on the chord's notes (owner decision
   D-2); add its row to `SUPPORT_MATRIX` and `docs/musicxml-support.md`. Add fixture `arpeggiate-chord`.
   `<glissando>` and `<slide>` stay unsupported and keep being reported by the load report (research R-17)
+- [x] T104 [P] New MusicXML fixture `eight-measure-melody` in `tests/fixtures/musicxml/`: an 8-measure, 4/4,
+  single-part, single-voice melody at a clear tempo (found missing during T015 - no existing fixture is long
+  enough and simple enough to name specific "mistakes in measures 3 and 7" or a "measures 5-8" range against;
+  US2's and US3's Independent Tests need one). Used by T015's performance-log fixtures and reusable by US2/US3
 
 **Checkpoint**: foundation ready - user stories can proceed (in parallel if staffed).
 
@@ -427,9 +431,10 @@ are real work are scheduled in Phase 2 (T085, T086) with their tests (T102) and 
 
 ## Dependencies & Execution Order
 
-- Setup (T001-T003) -> Foundational (T004-T015, T090, T094, T095, T102, T085, T086) -> US1 (T016-T046, T089,
-  T091, T092, T093, T096, T097, T101) -> US2 (T047-T059, T098) -> US3 (T060-T069) -> US4 (T070-T077) ->
+- Setup (T001-T003) -> Foundational (T004-T015, T090, T094, T095, T102, T085, T086, T104) -> US1 (T016-T046,
+  T089, T091, T092, T093, T096, T097, T101) -> US2 (T047-T059, T098) -> US3 (T060-T069) -> US4 (T070-T077) ->
   Polish (T078-T084, T099, T100, T103). File order is execution order.
+- T104 (found missing during T015): blocks T015, and is a reusable Score for US2's and US3's Independent Tests.
 - Within a story: tests -> core -> engine -> UI -> RT review.
 - Notable cross-task dependencies:
   - T009 (`tickAtAudioTime`) blocks T030, and T011 (clock map) blocks T039: nothing can be graded before input

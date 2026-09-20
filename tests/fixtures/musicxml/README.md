@@ -80,3 +80,4 @@
 | chord-spread-rolled | Unmarked C-E-G whole-note chord; rolled within the ordinary chord spread, not the arpeggio spread | Hand-written | CC0 |
 | played-along-both-hands | Right-hand melody over a left-hand accompaniment; the unselected hand is played-along, never wrong or extra | Hand-written | CC0 |
 | metronome-channel-collision | A part hinted to midi-channel 15 (0-based 14 = METRONOME_CHANNEL); assignChannels must reroute it | Hand-written | CC0 |
+| eight-measure-melody | 8 measures of 4/4 at quarter=100, one note per beat: C-major scale up/down then broken chords | Hand-written | CC0 |
