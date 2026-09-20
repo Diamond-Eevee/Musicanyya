@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="3.1">
+  <part-list>
+    <score-part id="P1"><part-name>Piano</part-name></score-part>
+  </part-list>
+  <part id="P1">
+  <!-- Beat 1: both hands write C4 (a unison, one key). Beat 3: C5 and C4 (an octave doubling, two keys). -->
+  <measure number="1">
+    <attributes><divisions>1</divisions><time><beats>4</beats><beat-type>4</beat-type></time><staves>2</staves></attributes>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>half</type><staff>1</staff></note>
+    <note><pitch><step>C</step><octave>5</octave></pitch><duration>2</duration><voice>1</voice><type>half</type><staff>1</staff></note>
+    <backup><duration>4</duration></backup>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>half</type><staff>2</staff></note>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>half</type><staff>2</staff></note>
+  </measure>
+  </part>
+</score-partwise>

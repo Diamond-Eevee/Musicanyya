@@ -133,29 +133,29 @@ expected, the left hand is heard as the cursor passes it, and the session starts
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T021 [P] [US2] Fixture `tests/fixtures/musicxml/cross-staff-beaming.musicxml`: a left-hand voice with notes
+- [x] T021 [P] [US2] Fixture `tests/fixtures/musicxml/cross-staff-beaming.musicxml`: a left-hand voice with notes
   printed on the treble staff (`<staff>1</staff>` on notes belonging to the lower voice), plus its row in the
   fixture list in `docs/musicxml-support.md` if that file lists fixtures
-- [ ] T022 [P] [US2] `tests/core/practice/hands.test.ts`: a voice's home staff is the staff holding most of its
+- [x] T022 [P] [US2] `tests/core/practice/hands.test.ts`: a voice's home staff is the staff holding most of its
   written duration; the cross-staff fixture assigns those notes to the left hand although they are printed on
   staff 1; `handOptions` gives one unlabelled line for a single-staff Score and exposes a third staff separately
   (FR-034, R-05)
-- [ ] T023 [P] [US2] `tests/core/practice/selection.test.ts`: only the selected staves are required, the rest
+- [x] T023 [P] [US2] `tests/core/practice/selection.test.ts`: only the selected staves are required, the rest
   become `accompaniment`; a unison across hands is one required key marking both noteheads (FR-038); an octave
   doubling stays two required keys
-- [ ] T024 [P] [US2] `tests/core/practice/accompaniment.test.ts`: `soundOn` when the cursor reaches the note's
+- [x] T024 [P] [US2] `tests/core/practice/accompaniment.test.ts`: `soundOn` when the cursor reaches the note's
   onset event and `soundOff` when the cursor passes its `endTick`, nothing emitted when accompaniment is off, and
   no effect is ever produced by a timer (FR-031, FR-032, SC-012, R-03)
-- [ ] T025 [P] [US2] `tests/engine/storage/practice-settings.test.ts`: per-Score load and save, fallback to the
+- [x] T025 [P] [US2] `tests/engine/storage/practice-settings.test.ts`: per-Score load and save, fallback to the
   last-used defaults then the built-in defaults, the 20-entry cap evicting oldest-`updated` first, invalid or
   corrupt data resetting without throwing, and a null Score id never persisting; the practised part is remembered
   with them
   ([contracts/practice-settings.md](contracts/practice-settings.md))
-- [ ] T026 [P] [US2] `tests/core/practice/start-at-measure.test.ts`: starting at a measure picks the first
+- [x] T026 [P] [US2] `tests/core/practice/start-at-measure.test.ts`: starting at a measure picks the first
   expected event of that measure for the current selection; where the measure is played more than once, the
   occurrence used is the one the cursor is in, else the first at or after it - the loop rule of R-06 - and
   changing the selection mid-session restarts from the current measure (FR-015, AS-2.4)
-- [ ] T051 [P] [US2] `tests/core/practice/parts.test.ts`: `partOptions` preselects the first pitched part with two
+- [x] T051 [P] [US2] `tests/core/practice/parts.test.ts`: `partOptions` preselects the first pitched part with two
   or more staves, else the first pitched part, never offers a part without pitched printed notes, and returns
   `preselected: -1` for a Score with nothing to practise; the parts that are not chosen become `accompaniment`
   (FR-025a, FR-025b). Needs a two-part fixture (voice + piano) - add it beside the existing fixtures
