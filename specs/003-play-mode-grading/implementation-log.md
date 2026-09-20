@@ -60,3 +60,56 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
   the plan must put in `data-model.md` (constants table = `src/core/defaults.ts`, `src/engine/config.ts`).
 - Handoff: next = `/speckit.plan`. No `[NEEDS CLARIFICATION]` markers and no open owner decisions remain; a
   second `/speckit.clarify` pass is not needed. Tree clean at the commit below; not pushed.
+
+## 2026-09-20 - claude-opus-5 (relay)
+
+- Done: `/speckit.plan` for feature 003. Written: `plan.md`, `research.md` (R-01..R-17), `data-model.md`,
+  `contracts/play-run.md`, `contracts/grading.md`, `contracts/performance-log.md`, `quickstart.md`; Active
+  Technologies and Recent Changes updated in `docs/agents/reference.md`. Constitution Check passes before and
+  after design, Complexity Tracking has no violations and no new runtime dependency.
+- Decisions (full reasoning in `research.md`):
+  1. **The Metronome is scheduled events, not new real-time code** (R-02): clicks are compiled into the run's
+     `ScheduleMessage` on `METRONOME_CHANNEL = 14`, so they ride the existing dispatch path and follow the tempo
+     map, the tempo percentage and every meter change with no drift (SC-002). Muting is a new `channelVolume`
+     worklet message, so it cannot change the run or the Grade. This is what keeps the feature's RT surface to
+     two small, reviewable changes.
+  2. **One purpose-built schedule per run** (R-03): `compilePlaySchedule` drops the graded notes (FR-005), slices
+     to the measure range (FR-036) and puts the count-in in front (FR-003); `PlayTickMap` is the only place run
+     ticks and timeline ticks convert.
+  3. **Grading is a pure synchronous function run in a new worker** (R-08), and **Performance logs go to a new
+     IndexedDB store**, 20 per Score, without the Grade (R-09) - that last one answers the storage question
+     feature 002's log left open. Not storing the Grade is what makes FR-027 and SC-011 structurally true.
+  4. **Windows are fractions of a beat compared in integer ticks**, with a clamp-inertness invariant and a
+     neighbour clamp at exactly 0.5 of the gap, applied after the millisecond floor (R-06). The values for
+     Beginner / Standard / Strict are in `data-model.md` section 6.
+  5. **The matcher is an order-preserving assignment per pitch, then per pitch class** (R-07), with the visiting
+     order, the tie-breaks and the velocity-0 / debounce / sounding-pitch rules normative in
+     `contracts/grading.md`. Determinism is then a property of the contract, not of the implementation.
+  6. **Expected notes come from feature 002's `buildExpectedEvents`, flattened** (R-15), so Play expects exactly
+     what Practice expects and Listen plays, and ties and chords come out right for free.
+  7. Play wiring lives in a new `src/app/play-session.ts`, not in `session.ts` (832 lines, already two modes).
+- Domain review: the `music-domain-expert` role reviewed the grading semantics on 2026-09-20 and supplied the
+  window values and their derivation, the neighbour-clamp rule, the order-preserving matcher, and the count-in
+  rules (R-16). Five of its nine findings against the spec are folded into the design; four are owner decisions
+  below.
+- Problems / open questions:
+  - **Correction to the spec's Assumptions**: it says fairness "rests on the Latency profile from feature 001".
+    Feature 001 has no Latency profile and no calibration - only a reported output latency and an unused
+    key-to-sound estimate, applied to nothing. Feature 003 therefore builds the profile *and* the tap
+    calibration FR-034 offers (R-05). No owner decision needed (the spec already requires the offer), but it is
+    more work than the spec implied, and the tasks step should keep it off the P1 path.
+  - needs owner: **D-1 ornaments** - a correctly played trill produces presses no expected note can claim, so
+    FR-018 reports them as extra and an excellent trill becomes the worst-scoring thing in the piece, while the
+    spec's own edge case says playing an ornament "is neutral". Closing it needs `<ornaments>` / `<trill-mark>` /
+    `<tremolo>` parsing, which is new MusicXML scope (plan "Open owner decisions", R-17).
+  - needs owner: **D-2 written arpeggios** - `<arpeggiate>` means the chord *should* be rolled, so FR-022 marks a
+    correct performance late. Also new MusicXML scope (R-17).
+  - needs owner: **D-3 SC-015** - it demands the live marks and the Grade agree for 100% of the notes they cover,
+    but FR-011a exists because they can disagree, and with the order-preserving matcher they provably can.
+    Recommendation: soften SC-015 to a measured rate. This one should be settled **before** `/speckit.tasks`,
+    because it decides whether the live marker is a cheap pitch test or must mirror the matcher.
+  - needs owner: **D-4 FR-003** - read literally, "nothing played during the count-in is graded" makes an early
+    first note impossible. The design assumes the recommended fix (the exclusion is the count-in minus the first
+    note's early claim window); if the owner prefers the literal reading it is one constant and one fixture.
+- Handoff: next = `/speckit.tasks` (D-3 answered first if possible; D-1 and D-2 can be answered later, they only
+  add tasks). Nothing implemented yet - no source file was touched. Tree clean at the commit below; not pushed.
