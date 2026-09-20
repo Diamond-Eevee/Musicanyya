@@ -169,7 +169,7 @@ reason.
 - [ ] T025 [P] [US1] `tests/engine/worklets/dispatch.test.ts` (extend) and `score-player.live.test.ts` (extend):
   the `channelVolume` message applies CC7 to the named channel at the next block and is handled in
   `port.onmessage`, not in `process()`
-- [ ] T089 [P] [US1] `tests/core/grade/timing-accuracy.test.ts`: a synthetic performance played exactly on time is
+- [x] T089 [P] [US1] `tests/core/grade/timing-accuracy.test.ts`: a synthetic performance played exactly on time is
   100% correct **and on time**, never early or late, at 40, 60, 120, 160 and 208 bpm (SC-003); a performance
   displaced by a known offset (+-15, +-40, +-200 ms) reports a `deltaMs` within 5 ms of what was injected once the
   Latency profile is compensated, with an assumed and with a measured profile (SC-004, FR-013). These are the only
