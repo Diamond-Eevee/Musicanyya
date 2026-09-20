@@ -1,7 +1,7 @@
 import { WebAudioEngine } from '../engine/audio/web-audio-engine.js';
 import { MAX_FILE_BYTES, ZOOM_STEP } from '../engine/config.js';
 import { WebMidiInput } from '../engine/midi/web-midi-input.js';
-import type { AudioEngineEvent, EngineSchedule, ScoreStore, SettingsStore } from '../engine/ports.js';
+import type { AudioEngineEvent, EngineSchedule, PracticeSettings, ScoreStore, SettingsStore } from '../engine/ports.js';
 import { IndexedDbScoreStore } from '../engine/storage/indexeddb-score-store.js';
 import { LocalSettingsStore } from '../engine/storage/local-settings-store.js';
 import '../ui/elements/mx-diagnostics.js';
@@ -12,13 +12,23 @@ import '../ui/elements/mx-recent-list.js';
 import '../ui/elements/mx-score-view.js';
 import '../ui/elements/mx-transport.js';
 import '../ui/elements/mx-midi-panel.js';
+import '../ui/elements/mx-mode-switch.js';
 import '../ui/elements/mx-piano-keys.js';
-import { buildExpectedEvents } from '../core/practice/expected.js';
+import '../ui/elements/mx-practice-panel.js';
+import { buildExpectedEvents, firstEventAtOrAfterTick, resolveStartMeasure } from '../core/practice/expected.js';
+import { handOptions, partOptions } from '../core/practice/hands.js';
 import { applyInput, startSession } from '../core/practice/matcher.js';
-import type { PracticeEffect } from '../core/practice/types.js';
+import type {
+  ExpectedEvent,
+  HandSelection,
+  PracticeEffect,
+  PracticeInput,
+  PracticeSession,
+} from '../core/practice/types.js';
 import type { LoadReport } from '../core/score/load-report.js';
 import type { Score } from '../core/score/model.js';
 import type { PlaybackTimeline } from '../core/timeline/types.js';
+import type { PracticeSetupChange } from '../ui/elements/mx-practice-panel.js';
 import type { MxScoreView, TimelineDto } from '../ui/elements/mx-score-view.js';
 import { en } from '../ui/i18n/en.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
@@ -93,6 +103,11 @@ export class Session {
   private scheduleDelivered = false;
   private readonly midiInput = new WebMidiInput();
 
+  // Practice mode (feature 002): what the musician chose for the open Score, remembered per Score id (R-07).
+  private practiceScoreId: string | null = null;
+  private practiceSettings: PracticeSettings = { selection: null, loop: null, accompaniment: true, help: true };
+  private endingPracticeNaturally = false;
+
   constructor(
     scoreStore: ScoreStore = new IndexedDbScoreStore(),
     settingsStore: SettingsStore = new LocalSettingsStore((code) =>
@@ -131,6 +146,10 @@ export class Session {
     });
     this.scoreView.addEventListener('measureclick', (event: Event) => {
       const { measureIndex } = (event as CustomEvent<{ measureIndex: number }>).detail;
+      if (practiceState.get().mode === 'practice') {
+        this.onPracticeMeasureClick(measureIndex);
+        return;
+      }
       const firstPass = this.currentTimeline?.passes.find((p) => p.measureIndex === measureIndex);
       if (firstPass) transportState.seekMeasure(firstPass.startTick);
     });
@@ -143,15 +162,22 @@ export class Session {
 
     const transport = document.createElement('mx-transport');
     document.getElementById('transport-controls')?.appendChild(transport);
+    const modeSwitch = document.createElement('mx-mode-switch');
+    document.getElementById('mode-controls')?.appendChild(modeSwitch);
     const updateTransportVisibility = () => {
-      transport.classList.toggle('hidden', scoreState.getStatus().kind !== 'loaded');
+      const loaded = scoreState.getStatus().kind === 'loaded';
+      transport.classList.toggle('hidden', !loaded);
+      modeSwitch.classList.toggle('hidden', !loaded);
     };
     scoreState.subscribe(updateTransportVisibility);
     updateTransportVisibility();
     transportState.connect({
       play: () => void this.handlePlay(),
       pause: () => this.audioEngine.pause(),
-      stop: () => this.audioEngine.stop(),
+      stop: () => {
+        this.audioEngine.stop();
+        this.onTransportStopped();
+      },
       seekTick: (tick) => this.audioEngine.seekTick(tick),
       setTempoPercent: (percent) => this.audioEngine.setTempoPercent(percent),
       setVolume: (volume) => this.audioEngine.setVolume(volume),
@@ -165,6 +191,12 @@ export class Session {
       });
     });
     this.audioEngine.on((event) => this.onAudioEngineEvent(event));
+    let lastMode = practiceState.get().mode;
+    practiceState.subscribe((state) => {
+      if (state.mode === lastMode) return;
+      lastMode = state.mode;
+      if (state.mode === 'listen') this.leavePractice();
+    });
     initShortcuts();
 
     const openButton = document.createElement('mx-open-button');
@@ -206,6 +238,12 @@ export class Session {
     // MIDI Wire-up
     const midiPanel = document.createElement('mx-midi-panel');
     document.getElementById('side-panel')?.prepend(midiPanel);
+
+    const practicePanel = document.createElement('mx-practice-panel');
+    practicePanel.addEventListener('practicesetup', (event) =>
+      this.onPracticeSetupChange((event as CustomEvent<PracticeSetupChange>).detail),
+    );
+    document.getElementById('side-panel')?.prepend(practicePanel);
 
     const pianoKeys = document.createElement('mx-piano-keys');
     // Place piano keys at the bottom of the score area
@@ -301,21 +339,7 @@ export class Session {
     }
 
     if (practiceState.get().mode === 'practice') {
-      if (!this.currentScore || !this.currentPlaybackTimeline) return;
-      const events = buildExpectedEvents(this.currentScore, this.currentPlaybackTimeline, {
-        preset: 'both',
-        partIndex: 0,
-        staves: [1, 2],
-      });
-      const session = startSession({
-        scoreId: this.currentScore.title || 'score',
-        events,
-        startEventIndex: 0,
-        loop: null,
-        accompaniment: false,
-        help: false,
-      });
-      practiceState.setSession(session);
+      this.startPractice();
       return;
     }
 
@@ -347,7 +371,161 @@ export class Session {
     }
   }
 
-  private applyPracticeInput(input: import('../core/practice/types.js').PracticeInput) {
+  /** Starts a session for the current selection, at the measure the musician picked or at the beginning (FR-015). */
+  private startPractice(): void {
+    const { setup, startMeasureIndex } = practiceState.get();
+    const events =
+      this.currentScore && this.currentPlaybackTimeline && setup?.selection
+        ? buildExpectedEvents(this.currentScore, this.currentPlaybackTimeline, setup.selection)
+        : [];
+    if (!setup?.selection || events.length === 0) {
+      noticeState.addNotice({ code: 'practiceNothingToPlay', severity: 'warning' });
+      this.endingPracticeNaturally = true;
+      transportState.stop();
+      this.endingPracticeNaturally = false;
+      return;
+    }
+    const start = startMeasureIndex === null ? 0 : (resolveStartMeasure(events, startMeasureIndex, 0) ?? 0);
+    this.beginPractice(events, setup.selection, start);
+  }
+
+  /** A fresh session over `events` from `startEventIndex`: the previous marks are cleared (FR-019) and whatever the
+   * previous session left ringing is released. */
+  private beginPractice(events: readonly ExpectedEvent[], selection: HandSelection, startEventIndex: number): void {
+    this.releasePracticeSound(practiceState.get().session);
+    const session = startSession({
+      scoreId: this.practiceScoreId,
+      selection,
+      events,
+      startEventIndex,
+      loop: null,
+      accompaniment: practiceState.get().setup?.accompaniment ?? true,
+      help: this.practiceSettings.help,
+    });
+    practiceState.setSession(session);
+    const first = events[startEventIndex];
+    if (first) transportState.setPositionTick(first.onsetTick);
+  }
+
+  private isPracticeRunning(session: PracticeSession | null): session is PracticeSession {
+    return (
+      session !== null &&
+      (session.phase === 'waiting' || session.phase === 'blocked' || session.phase === 'interrupted')
+    );
+  }
+
+  /** Silences the accompaniment notes a session left ringing; the musician's own keys are not touched. */
+  private releasePracticeSound(session: PracticeSession | null): void {
+    if (!session) return;
+    for (const key of session.soundingAccompaniment.keys()) this.audioEngine.liveNoteOff(key);
+  }
+
+  /** The Stop button (or anything else that stops the transport) ends the session and leaves its marks on screen
+   * (FR-018); reaching the end on its own is left alone so the last accompaniment notes can ring (R-12). */
+  private onTransportStopped(): void {
+    if (practiceState.get().mode !== 'practice' || this.endingPracticeNaturally) return;
+    const session = practiceState.get().session;
+    if (!session || session.phase === 'finished') return;
+    this.releasePracticeSound(session);
+    practiceState.setSession({ ...session, phase: 'finished', soundingAccompaniment: new Map() });
+  }
+
+  /** Switching to Listen ends the session and clears its marks (FR-019). */
+  private leavePractice(): void {
+    this.releasePracticeSound(practiceState.get().session);
+    practiceState.setSession(null);
+    practiceState.setStartMeasure(null);
+    transportState.stop();
+  }
+
+  /** Picks the part and hands offered for a Score, and the choices remembered for it (R-07). */
+  private setupPractice(score: Score): void {
+    this.releasePracticeSound(practiceState.get().session);
+    practiceState.setSession(null);
+    practiceState.setStartMeasure(null);
+
+    const { parts, preselected } = partOptions(score);
+    this.practiceSettings = this.settingsStore.loadPractice(this.practiceScoreId);
+    const selection = this.resolvePracticeSelection(score, parts, preselected, this.practiceSettings.selection);
+    practiceState.setSetup({
+      parts,
+      hands: selection ? handOptions(score, selection.partIndex) : [],
+      selection,
+      accompaniment: this.practiceSettings.accompaniment,
+    });
+  }
+
+  /** A remembered selection is used only if it still fits the Score; otherwise the preselected part, all staves. */
+  private resolvePracticeSelection(
+    score: Score,
+    parts: readonly { partIndex: number; staves: number }[],
+    preselected: number,
+    stored: HandSelection | null,
+  ): HandSelection | null {
+    if (parts.length === 0) return null;
+    const part = stored ? parts.find((p) => p.partIndex === stored.partIndex) : undefined;
+    if (stored && part) {
+      const key = stored.staves.join(',');
+      const offered = handOptions(score, stored.partIndex).find((option) => option.staves.join(',') === key);
+      if (offered) return offered;
+      if (stored.staves.every((staff) => staff <= part.staves)) return { ...stored, preset: 'custom' };
+    }
+    return handOptions(score, preselected)[0] ?? null;
+  }
+
+  private onPracticeSetupChange(change: PracticeSetupChange): void {
+    const setup = practiceState.get().setup;
+    const score = this.currentScore;
+    if (!setup?.selection || !score) return;
+
+    let selection: HandSelection = setup.selection;
+    if (change.partIndex !== undefined && change.partIndex !== selection.partIndex) {
+      selection = handOptions(score, change.partIndex)[0] ?? selection; // a new part starts with all its staves
+    }
+    if (change.selection) selection = change.selection;
+    const accompaniment = change.accompaniment ?? setup.accompaniment;
+
+    const selectionChanged =
+      selection.partIndex !== setup.selection.partIndex ||
+      selection.staves.join(',') !== setup.selection.staves.join(',');
+    practiceState.setSetup({ ...setup, hands: handOptions(score, selection.partIndex), selection, accompaniment });
+    this.practiceSettings = { ...this.practiceSettings, selection, accompaniment };
+    this.settingsStore.savePractice(this.practiceScoreId, this.practiceSettings);
+
+    const session = practiceState.get().session;
+    if (!this.isPracticeRunning(session)) return;
+    if (selectionChanged) {
+      this.restartPracticeFromCurrentMeasure(session, selection);
+    } else if (accompaniment !== setup.accompaniment) {
+      this.applyPracticeInput({ type: 'setAccompaniment', enabled: accompaniment, timeStampMs: performance.now() });
+    }
+  }
+
+  /** A changed hand or part restarts cleanly from the measure the session is in (FR-015, FR-025c, AS-2.4). */
+  private restartPracticeFromCurrentMeasure(session: PracticeSession, selection: HandSelection): void {
+    if (!this.currentScore || !this.currentPlaybackTimeline) return;
+    const events = buildExpectedEvents(this.currentScore, this.currentPlaybackTimeline, selection);
+    if (events.length === 0) {
+      noticeState.addNotice({ code: 'practiceNothingToPlay', severity: 'warning' });
+      this.onTransportStopped();
+      return;
+    }
+    const current = session.events[session.index];
+    const cursor = current ? firstEventAtOrAfterTick(events, current.onsetTick) : 0;
+    const start = current ? (resolveStartMeasure(events, current.measureIndex, cursor) ?? cursor) : 0;
+    this.beginPractice(events, selection, start);
+  }
+
+  /** Clicking a measure in Practice mode chooses where the session starts; a running session restarts there. */
+  private onPracticeMeasureClick(measureIndex: number): void {
+    practiceState.setStartMeasure(measureIndex);
+    const session = practiceState.get().session;
+    if (!this.isPracticeRunning(session)) return;
+    const start = resolveStartMeasure(session.events, measureIndex, session.index);
+    if (start !== null) this.beginPractice(session.events, session.selection, start);
+  }
+
+  private applyPracticeInput(input: PracticeInput) {
     if (practiceState.get().mode !== 'practice') return;
     const session = practiceState.get().session;
     if (!session) return;
@@ -364,11 +542,15 @@ export class Session {
     if (effect.type === 'moveCursor') {
       transportState.setPositionTick(effect.onsetTick);
     } else if (effect.type === 'soundOn') {
-      // not yet implemented, for accompaniment
+      // Accompaniment (R-03): triggered by the musician's own progress and applied by the worklet on the audio
+      // clock at its next block - no timer decides when it starts or stops (Constitution I).
+      this.audioEngine.liveNoteOn(effect.key, effect.velocity);
     } else if (effect.type === 'soundOff') {
-      // not yet implemented
+      this.audioEngine.liveNoteOff(effect.key);
     } else if (effect.type === 'sessionEnded') {
+      this.endingPracticeNaturally = true;
       transportState.stop();
+      this.endingPracticeNaturally = false;
     }
   }
 
@@ -433,6 +615,8 @@ export class Session {
       composer: response.summary.composer,
     });
     if (!putResult.ok) noticeState.addNotice({ code: 'storageUnavailable', severity: 'warning' });
+    this.practiceScoreId = putResult.ok ? response.contentHash : null;
+    this.setupPractice(response.fullScore);
 
     await this.refreshRecent();
   }

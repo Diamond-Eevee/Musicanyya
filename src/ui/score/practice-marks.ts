@@ -107,3 +107,37 @@ export function drawPracticeMarks(options: PracticeMarksOptions): void {
     }
   }
 }
+
+export interface StartMarkerOptions {
+  ctx: CanvasRenderingContext2D;
+  dpr: number;
+  containerRect: DOMRect;
+  measureRect: DOMRect;
+}
+
+/** Marks the measure a session will start at (FR-015): a bar down the left edge of the measure with a triangle at
+ *  its top, so it reads by shape as well as colour and never covers a notehead. */
+export function drawStartMarker(options: StartMarkerOptions): void {
+  const { ctx, dpr, containerRect, measureRect } = options;
+  const x = (measureRect.left - containerRect.left) * dpr;
+  const top = (measureRect.top - containerRect.top) * dpr;
+  const height = measureRect.height * dpr;
+  const size = 10 * dpr;
+
+  ctx.save();
+  ctx.strokeStyle = '#0072b2';
+  ctx.fillStyle = '#0072b2';
+  ctx.setLineDash([]);
+  ctx.lineWidth = 3 * dpr;
+  ctx.beginPath();
+  ctx.moveTo(x, top);
+  ctx.lineTo(x, top + height);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x, top - size / 2);
+  ctx.lineTo(x + size, top);
+  ctx.lineTo(x, top + size / 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}

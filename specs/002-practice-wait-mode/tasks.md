@@ -122,6 +122,10 @@ session reports that the end was reached.
   equal, so a session update that changed only `marks` or `heldKeys` (a partly played chord, a mark) never reached
   `practiceState` - the reducer was right, the live app lost the state. `deepEqual` now compares their contents;
   test in `tests/ui/store.test.ts` (failed first: listener called 0 of 2 times)
+- [x] T054 [US1] Found while verifying US2 in the browser: `mx-mode-switch` (T016) was never imported or mounted, so
+  a real user could not enter Practice mode at all (the US1 e2e sets the mode through `__PRACTICE_STATE__`).
+  It now has a home in the header (`#mode-controls` in `mx-app.ts`) and is created in `src/app/session.ts`, hidden
+  until a Score is loaded. Checked in the browser pane: with MIDI denied it stays disabled and says why (FR-022)
 
 **Checkpoint**: US1 fully functional and testable on its own - a musician can practise a whole piece hands
 together.
@@ -178,9 +182,9 @@ expected, the left hand is heard as the cursor passes it, and the session starts
 - [x] T030 [US2] `SettingsStore.loadPractice` / `savePractice` in `src/engine/ports.ts`, the
   `musicanyya.practice.v1` key in `src/engine/storage/local-settings-store.ts`, and an in-memory settings store in
   `tests/fakes/`; bump `specs/001-score-viewer-listen/contracts/ports.md` to `1.1.0` (depends on T025)
-- [~] T031 [US2] `src/ui/elements/mx-practice-panel.ts` (part selection - shown only when the Score has more than
+- [x] T031 [US2] `src/ui/elements/mx-practice-panel.ts` (part selection - shown only when the Score has more than
   one pitched part - hand selection, accompaniment switch) and the `src/app/session.ts` wiring for starting at a
-  clicked measure and restarting on a selection change (depends on T027, T028, T029, T030, T052) (claimed: claude-sonnet-5 2026-09-20)
+  clicked measure and restarting on a selection change (depends on T027, T028, T029, T030, T052)
 - [ ] T032 [US2] Extend `tests/e2e/us1-practice.spec.ts` with a hands-separate run: right hand only, left hand
   heard, start from a measure
 

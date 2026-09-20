@@ -1,3 +1,4 @@
+import type { ExpectedEvent, PracticeSession } from '../../core/practice/types.js';
 import { FOLLOW_MARGIN, RELAYOUT_DEBOUNCE_MS, ZOOM_DEFAULT, ZOOM_MAX, ZOOM_MIN } from '../../engine/config.js';
 import type { AudioEngine } from '../../engine/ports.js';
 import { drawCursorOverlay } from '../score/cursor-overlay.js';
@@ -9,7 +10,7 @@ import {
   type PageLayout,
   sanitiseAndExtractMeasures,
 } from '../score/pages.js';
-import { drawPracticeMarks } from '../score/practice-marks.js';
+import { drawPracticeMarks, drawStartMarker } from '../score/practice-marks.js';
 import type { VerovioClient } from '../score/verovio-client.js';
 import { practiceState } from '../state/practiceState.js';
 import { transportState } from '../state/transportState.js';
@@ -45,6 +46,8 @@ export class MxScoreView extends HTMLElement {
   private engine: AudioEngine | null = null;
   private timeline: TimelineDto | null = null;
   private soundingNoteIds = new Set<string>();
+  private practiceDrawn = false;
+  private dimmed: { events: readonly ExpectedEvent[]; ids: Set<string>; key: string; rects: DOMRect[] } | null = null;
   private rafHandle: number | null = null;
   private followScrolling = false;
   private readonly tick = (): void => {
@@ -192,15 +195,23 @@ export class MxScoreView extends HTMLElement {
   /** Runs every animation frame (R-11): reads the audible position, highlights sounding notes, draws the
    * cursor, and follow-scrolls. A no-op until `setPlayback` has been called. */
   private updateCursor(): void {
+    // Practice draws from the session alone: it needs no audio engine and no Listen timeline, so it must not wait
+    // for `setPlayback` (which only happens once a Listen schedule has been delivered).
+    const pState = practiceState.get();
+    if (pState.mode === 'practice') {
+      this.drawPracticeState(pState.session, pState.startMeasureIndex);
+      this.practiceDrawn = true;
+      return;
+    }
+    if (this.practiceDrawn) {
+      // Leaving Practice: nothing else clears the overlay when there is no Listen playback to draw.
+      this.practiceDrawn = false;
+      this.canvasEl.getContext('2d')?.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
+    }
+
     const engine = this.engine;
     const timeline = this.timeline;
     if (!engine || !timeline) return;
-
-    const pState = practiceState.get();
-    if (pState.mode === 'practice' && pState.session) {
-      this.drawPracticeState(pState.session);
-      return;
-    }
 
     const position = engine.audiblePosition(performance.now());
     if (!position) return;
@@ -230,12 +241,44 @@ export class MxScoreView extends HTMLElement {
     if (transportState.get().follow) this.followScrollTo(measureEl);
   }
 
-  private drawPracticeState(session: import('../../core/practice/types.js').PracticeSession): void {
-    const currentEvent = session.events[session.index];
+  /** The rectangles of the notes the musician is not practising (FR-032), recomputed only when the event list, the
+   * scroll position, the size or the mounted pages change - not on every frame. */
+  private dimmedRects(events: readonly ExpectedEvent[], containerRect: DOMRect): DOMRect[] {
+    if (this.dimmed?.events !== events) {
+      const ids = new Set<string>();
+      for (const event of events) for (const ref of event.accompaniment) ids.add(ref.noteId);
+      this.dimmed = { events, ids, key: '', rects: [] };
+    }
+    const dimmed = this.dimmed;
+    const key = [
+      this.scrollEl.scrollTop,
+      this.scrollEl.scrollLeft,
+      containerRect.left,
+      containerRect.top,
+      Math.round(containerRect.width),
+      Math.round(containerRect.height),
+      this.mountedPages.size,
+      this.zoomPercent,
+    ].join('|');
+    if (dimmed.key !== key) {
+      dimmed.key = key;
+      dimmed.rects = [];
+      for (const id of dimmed.ids) {
+        const el = this.stack.querySelector(`#${CSS.escape(id)}`);
+        if (el) dimmed.rects.push(el.getBoundingClientRect());
+      }
+    }
+    return dimmed.rects;
+  }
+
+  private drawPracticeState(session: PracticeSession | null, startMeasureIndex: number | null): void {
+    const currentEvent = session?.events[session.index];
 
     // Convert session marks to array
-    const markEntries = Array.from(session.marks.entries()).map(([noteId, state]) => ({ noteId, state }));
-    if (currentEvent && session.phase !== 'finished') {
+    const markEntries = session
+      ? Array.from(session.marks.entries()).map(([noteId, state]) => ({ noteId, state }))
+      : [];
+    if (session && currentEvent && session.phase !== 'finished') {
       for (const req of currentEvent.required) {
         for (const noteId of req.noteIds) {
           if (!session.marks.has(noteId)) {
@@ -263,16 +306,22 @@ export class MxScoreView extends HTMLElement {
       if (el) noteRects.set(mark.noteId, el.getBoundingClientRect());
     }
 
-    // TODO: dimmedNoteRects for unselected hands (FR-032)
     drawPracticeMarks({
       ctx,
       dpr,
       containerRect,
       marks: markEntries,
       noteRects,
+      ...(session ? { dimmedNoteRects: this.dimmedRects(session.events, containerRect) } : {}),
     });
 
-    if (currentEvent) {
+    if (startMeasureIndex !== null && (!session || session.phase === 'finished')) {
+      const measureId = this.measureIds[startMeasureIndex];
+      const measureEl = measureId !== undefined ? this.stack.querySelector(`#${CSS.escape(measureId)}`) : null;
+      if (measureEl) drawStartMarker({ ctx, dpr, containerRect, measureRect: measureEl.getBoundingClientRect() });
+    }
+
+    if (currentEvent && session?.phase !== 'finished') {
       const measureId = this.measureIds[currentEvent.measureIndex];
       const measureEl = measureId !== undefined ? this.stack.querySelector(`#${CSS.escape(measureId)}`) : null;
       if (measureEl && transportState.get().follow) {

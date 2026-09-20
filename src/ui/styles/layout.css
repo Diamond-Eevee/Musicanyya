@@ -99,3 +99,30 @@ mx-environment-panel {
 mx-environment-panel[hidden] {
   display: none;
 }
+
+mx-practice-panel {
+  display: block;
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+mx-practice-panel[hidden] {
+  display: none;
+}
+
+.practice-heading {
+  font-size: 1rem;
+  margin: 0 0 8px;
+}
+
+.practice-hands label,
+.practice-part,
+.practice-accompaniment {
+  display: block;
+  margin: 4px 0;
+}
+
+.practice-start {
+  margin: 6px 0 0;
+  color: #0072b2;
+}

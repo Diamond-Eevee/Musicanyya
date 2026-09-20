@@ -93,6 +93,19 @@ export const en = {
     practiceDeviceBack: 'The MIDI keyboard was reconnected.',
   } as Record<string, string>,
   practice: {
+    panel: {
+      heading: 'Practice',
+      part: 'Part',
+      hands: 'Hands',
+      both: 'Both hands',
+      right: 'Right hand',
+      left: 'Left hand',
+      allStaves: 'All staves',
+      staff: 'Staff {n}',
+      accompaniment: 'Hear the notes I am not practising',
+      nothingToPractise: 'This score has no notes to practise.',
+      startsAtMeasure: 'Starts at measure {n}',
+    },
     marks: {
       waiting: 'Waiting',
       correctSoFar: 'Correct so far',
