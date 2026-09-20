@@ -178,7 +178,7 @@ reason.
   presses that realise a written ornament (`trill-realisation`), become `PlayedAlongPress` - never wrong, never
   extra, counted in no figure; a press that *could* claim a graded note still claims it, because pass 3 runs last;
   a press outside every span stays extra (FR-024, SC-016, research R-18)
-- [ ] T101 [P] [US1] `tests/core/grade/chord-spread.test.ts`: a chord rolled by hand within the chord spread is on
+- [x] T101 [P] [US1] `tests/core/grade/chord-spread.test.ts`: a chord rolled by hand within the chord spread is on
   time for every member (`chord-spread-rolled`); the same roll is late without the spread; a chord the Score
   writes `<arpeggiate>` uses `PLAY_ARPEGGIO_SPREAD_BEATS` instead and is not late (`arpeggiate-chord`); a chord
   never shrinks its own members' windows (FR-022, SC-016)
