@@ -89,7 +89,7 @@ function buildHomeStaves(score: Score): Map<number, Map<string, number>> {
 export function buildExpectedEvents(
   score: Score,
   timeline: PlaybackTimeline,
-  selection: HandSelection
+  selection: HandSelection,
 ): readonly ExpectedEvent[] {
   const noteMap = new Map<string, { note: Note; part: Part }>();
   for (const part of score.parts) {
