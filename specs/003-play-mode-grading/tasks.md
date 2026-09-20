@@ -72,10 +72,10 @@ than renumbered, so IDs stay stable; **file order is execution order**, not nume
   falls back to the last known one - write it, see it fail
 - [x] T011 Implement `src/engine/midi/clock-map.ts` per research R-04, storing both the mapped `audioTimeSec` and
   the raw `timeStampMs`
-- [ ] T012 [P] Test `tests/core/grade/windows.test.ts` (invariants part): for every level, `floorMs <= beats*375`
+- [x] T012 [P] Test `tests/core/grade/windows.test.ts` (invariants part): for every level, `floorMs <= beats*375`
   and `capMs >= beats*1000` (clamp inertness, SC-014 first clause) and `onTime <= claim` after every clamp -
   asserted over the whole record, not per level
-- [ ] T013 Add the `PLAY_STRICTNESS_LEVELS` record (Beginner, Standard, Strict) to `src/core/defaults.ts` with
+- [x] T013 Add the `PLAY_STRICTNESS_LEVELS` record (Beginner, Standard, Strict) to `src/core/defaults.ts` with
   the values of [data-model.md](data-model.md) §6, each window as `{ beats, floorMs, capMs }`, including
   `arpeggioSpread` (D-2)
 - [ ] T014 [P] New MusicXML fixtures in `tests/fixtures/musicxml/` with origin and licence in the fixtures
