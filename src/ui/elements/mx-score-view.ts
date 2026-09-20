@@ -47,7 +47,16 @@ export class MxScoreView extends HTMLElement {
   private timeline: TimelineDto | null = null;
   private soundingNoteIds = new Set<string>();
   private practiceDrawn = false;
-  private dimmed: { events: readonly ExpectedEvent[]; ids: Set<string>; key: string; rects: DOMRect[] } | null = null;
+  private dimmed: {
+    events: readonly ExpectedEvent[];
+    ids: Set<string>;
+    elements: Element[];
+    elementsSig: string;
+    key: string;
+    rects: DOMRect[];
+  } | null = null;
+  private readonly elementCache = new Map<string, Element | null>();
+  private elementCacheSig = '';
   private rafHandle: number | null = null;
   private followScrolling = false;
   private readonly tick = (): void => {
@@ -241,15 +250,42 @@ export class MxScoreView extends HTMLElement {
     if (transportState.get().follow) this.followScrollTo(measureEl);
   }
 
-  /** The rectangles of the notes the musician is not practising (FR-032), recomputed only when the event list, the
-   * scroll position, the size or the mounted pages change - not on every frame. */
+  /** Notes are looked up in the DOM once per mounting of the pages, never once per frame: pages mount and unmount
+   * synchronously with `mountedPages`, so its contents (with the zoom and the load) say when a lookup is stale. */
+  private syncElementCache(): void {
+    const sig = `${this.loadToken}|${this.zoomPercent}|${[...this.mountedPages].sort((a, b) => a - b).join(',')}`;
+    if (sig === this.elementCacheSig) return;
+    this.elementCacheSig = sig;
+    this.elementCache.clear();
+  }
+
+  private elementFor(id: string): Element | null {
+    let el = this.elementCache.get(id);
+    if (el === undefined) {
+      el = this.stack.querySelector(`#${CSS.escape(id)}`);
+      this.elementCache.set(id, el);
+    }
+    return el;
+  }
+
+  /** The rectangles of the notes the musician is not practising (FR-032). Only the notes on mounted pages are
+   * measured, and only when the scroll position or the size changes - not on every frame. */
   private dimmedRects(events: readonly ExpectedEvent[], containerRect: DOMRect): DOMRect[] {
     if (this.dimmed?.events !== events) {
       const ids = new Set<string>();
       for (const event of events) for (const ref of event.accompaniment) ids.add(ref.noteId);
-      this.dimmed = { events, ids, key: '', rects: [] };
+      this.dimmed = { events, ids, elements: [], elementsSig: '', key: '', rects: [] };
     }
     const dimmed = this.dimmed;
+    if (dimmed.elementsSig !== this.elementCacheSig) {
+      dimmed.elementsSig = this.elementCacheSig;
+      dimmed.elements = [];
+      for (const id of dimmed.ids) {
+        const el = this.elementFor(id);
+        if (el) dimmed.elements.push(el);
+      }
+      dimmed.key = ''; // the elements changed: measure again
+    }
     const key = [
       this.scrollEl.scrollTop,
       this.scrollEl.scrollLeft,
@@ -257,21 +293,16 @@ export class MxScoreView extends HTMLElement {
       containerRect.top,
       Math.round(containerRect.width),
       Math.round(containerRect.height),
-      this.mountedPages.size,
-      this.zoomPercent,
     ].join('|');
     if (dimmed.key !== key) {
       dimmed.key = key;
-      dimmed.rects = [];
-      for (const id of dimmed.ids) {
-        const el = this.stack.querySelector(`#${CSS.escape(id)}`);
-        if (el) dimmed.rects.push(el.getBoundingClientRect());
-      }
+      dimmed.rects = dimmed.elements.map((el) => el.getBoundingClientRect());
     }
     return dimmed.rects;
   }
 
   private drawPracticeState(session: PracticeSession | null, startMeasureIndex: number | null): void {
+    this.syncElementCache();
     const currentEvent = session?.events[session.index];
 
     // Convert session marks to array
@@ -302,7 +333,7 @@ export class MxScoreView extends HTMLElement {
 
     const noteRects = new Map<string, DOMRect>();
     for (const mark of markEntries) {
-      const el = this.stack.querySelector(`#${CSS.escape(mark.noteId)}`);
+      const el = this.elementFor(mark.noteId);
       if (el) noteRects.set(mark.noteId, el.getBoundingClientRect());
     }
 

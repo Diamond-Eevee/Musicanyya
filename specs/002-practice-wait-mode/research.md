@@ -247,3 +247,13 @@ hand from being cut off the instant the musician plays the final note, and still
 **Alternatives considered**: a timer to end the last notes after their written duration - rejected, a timer must
 not decide when a sound stops (Constitution I); releasing everything at session end - rejected, it clips the last
 chord; a new port method for cue notes - rejected as in R-03.
+
+**RT review (rt-audio-reviewer, 2026-09-20)**: no timer decides any sound, nothing under `src/engine/worklets/`,
+`src/core/schedule/` or `src/engine/audio/` changed, and accompaniment uses only `liveNoteOn` / `liveNoteOff`, so
+"no new real-time paths" holds. It found one HIGH - skipping past the last event finished the session with the
+accompaniment still ringing and nothing to release it - and four MEDIUMs. Fixed: the skip case (test first), the
+musician's own key-on now goes to the engine before any state re-render, a note is not struck on a key the musician
+holds (the synth's live path shares one channel, so two instances of a key swap owners), Stop and the accompaniment
+switch reach a finished session, and the score view looks notes up once per page mount instead of once per frame.
+Not fixed here: the worklet drops live messages silently when its queue holds 64, and accompaniment roughly
+doubles the message rate - counting drops is T057.

@@ -269,20 +269,21 @@ export class Session {
         this.applyPracticeInput({ type: 'deviceLost', timeStampMs: performance.now(), heldKeys: e.heldKeys });
         noticeState.addNotice({ code: 'midiDeviceLost', severity: 'warning' });
       } else if (e.type === 'noteOn') {
+        // The musician's own sound goes first: the re-renders that state changes trigger must never delay it.
+        this.audioEngine.liveNoteOn(e.key, e.velocity);
         midiState.pressedKeys.add(e.key);
         midiState.emit();
         this.applyPracticeInput({ type: 'noteOn', key: e.key, velocity: e.velocity, timeStampMs: e.timeStampMs });
-        this.audioEngine.liveNoteOn(e.key, e.velocity);
       } else if (e.type === 'noteOff') {
+        this.audioEngine.liveNoteOff(e.key);
         midiState.pressedKeys.delete(e.key);
         midiState.emit();
         this.applyPracticeInput({ type: 'noteOff', key: e.key, timeStampMs: e.timeStampMs });
-        this.audioEngine.liveNoteOff(e.key);
       } else if (e.type === 'sustain') {
+        this.audioEngine.liveSustain(e.down);
         midiState.sustainDown = e.down;
         midiState.emit();
         this.applyPracticeInput({ type: 'sustain', down: e.down, timeStampMs: e.timeStampMs });
-        this.audioEngine.liveSustain(e.down);
       }
     });
 
@@ -425,25 +426,27 @@ export class Session {
   private onTransportStopped(): void {
     if (practiceState.get().mode !== 'practice' || this.endingPracticeNaturally) return;
     const session = practiceState.get().session;
-    if (!session || session.phase === 'finished') return;
+    if (!session || (session.phase === 'finished' && session.soundingAccompaniment.size === 0)) return;
     this.releasePracticeSound(session);
     practiceState.setSession({ ...session, phase: 'finished', soundingAccompaniment: new Map() });
   }
 
   /** Switching to Listen ends the session and clears its marks (FR-019). */
   private leavePractice(): void {
+    this.resetPractice();
+    transportState.stop();
+  }
+
+  /** Drops the session and the picked start measure, releasing whatever the session left ringing. */
+  private resetPractice(): void {
     this.releasePracticeSound(practiceState.get().session);
     practiceState.setSession(null);
     practiceState.setStartMeasure(null);
-    transportState.stop();
   }
 
   /** Picks the part and hands offered for a Score, and the choices remembered for it (R-07). */
   private setupPractice(score: Score): void {
-    this.releasePracticeSound(practiceState.get().session);
-    practiceState.setSession(null);
-    practiceState.setStartMeasure(null);
-
+    this.resetPractice();
     const { parts, preselected } = partOptions(score);
     this.practiceSettings = this.settingsStore.loadPractice(this.practiceScoreId);
     const selection = this.resolvePracticeSelection(score, parts, preselected, this.practiceSettings.selection);
@@ -493,10 +496,10 @@ export class Session {
     this.settingsStore.savePractice(this.practiceScoreId, this.practiceSettings);
 
     const session = practiceState.get().session;
-    if (!this.isPracticeRunning(session)) return;
-    if (selectionChanged) {
+    if (this.isPracticeRunning(session) && selectionChanged) {
       this.restartPracticeFromCurrentMeasure(session, selection);
-    } else if (accompaniment !== setup.accompaniment) {
+    } else if (session && !selectionChanged && accompaniment !== setup.accompaniment) {
+      // Also for a finished session: its last accompaniment notes may still be ringing.
       this.applyPracticeInput({ type: 'setAccompaniment', enabled: accompaniment, timeStampMs: performance.now() });
     }
   }
@@ -580,6 +583,7 @@ export class Session {
     this.currentTimeline = response.timeline;
     this.currentPlaybackTimeline = response.fullTimeline;
     this.currentScore = response.fullScore;
+    this.resetPractice(); // the old session must not go on against the new Score while it is being stored
 
     scoreState.succeeded({
       fileName,

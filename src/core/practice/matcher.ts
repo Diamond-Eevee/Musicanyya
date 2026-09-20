@@ -78,6 +78,9 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
       }
     }
     for (const ref of event.accompaniment) {
+      // The musician already holds this key, so the pitch is sounding: a second instance of one key on the
+      // synth would swap which of the two a later note-off releases, cutting the musician's own note.
+      if (heldKeys.has(ref.key)) continue;
       if (sounding.has(ref.key)) effects.push({ type: 'soundOff', key: ref.key });
       effects.push({ type: 'soundOn', key: ref.key, noteIds: [ref.noteId], velocity: ref.velocity });
       sounding.set(ref.key, ref.endTick);
@@ -111,11 +114,16 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
     if (currentEvent) {
       const noteIds = currentEvent.required.flatMap((r) => r.noteIds);
       addMark(noteIds, 'skipped');
-      soundAccompanimentOf(currentEvent);
+      const skippingLast = next.index + 1 >= next.events.length;
+      // Skipping the last event ends the session, so its accompaniment would only ring with no cursor left to
+      // release it: it is not started (RT review).
+      if (!skippingLast) soundAccompanimentOf(currentEvent);
       next.index++;
       next.wrongAttemptsOnCurrent = 0;
       if (next.index >= next.events.length) {
         next.phase = 'finished';
+        // What still rings goes now unless a key is down, in which case the finished branch releases it at key-up.
+        if (heldKeys.size === 0) releaseAll();
         effects.push({ type: 'sessionEnded', reason: 'stopped' });
       } else {
         const nextEv = next.events[next.index];

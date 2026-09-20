@@ -154,6 +154,37 @@ describe('accompaniment follows the cursor, never a clock (FR-031, R-03)', () =>
     const b = steps(begin(events, true), stripped).perStep.map(sounds);
     expect(b).toEqual(a);
   });
+
+  it('skipping past the last event leaves nothing ringing and does not start its accompaniment (RT review)', () => {
+    const { perStep, session } = steps(
+      begin(events, true),
+      buildSequence(['on:76@10', 'off:76@20', 'on:77@30', 'off:77@40', 'skipNext@50']),
+    );
+
+    expect(sounds(perStep[4] ?? [])).toEqual(['soundOff:48', 'soundOff:50']); // released, and E3 never starts
+    expect(session.soundingAccompaniment.size).toBe(0);
+    expect(session.phase).toBe('finished');
+    expect(perStep[4]?.some((e) => e.type === 'sessionEnded' && e.reason === 'stopped')).toBe(true);
+  });
+
+  it('skipping past the last event with a key still held lets the notes go when it is released', () => {
+    const { perStep, session } = steps(
+      begin(events, true),
+      buildSequence(['on:76@10', 'off:76@20', 'on:77@30', 'off:77@40', 'on:61@45', 'skipNext@50', 'off:61@60']),
+    );
+
+    expect(sounds(perStep[5] ?? [])).toEqual([]); // 61 is still down
+    expect(sounds(perStep[6] ?? [])).toEqual(['soundOff:48', 'soundOff:50']);
+    expect(session.soundingAccompaniment.size).toBe(0);
+  });
+
+  it('does not strike a note on a key the musician is holding: two instances of one key would swap owners (RT review)', () => {
+    const { perStep, session } = steps(begin(events, true), buildSequence(['on:48@5', 'on:76@10']));
+
+    expect(sounds(perStep[1] ?? [])).toEqual([]); // C3 is already sounding: the musician's own
+    expect(session.soundingAccompaniment.size).toBe(0); // and it is not tracked, so it is never cut later
+    expect(session.index).toBe(1);
+  });
 });
 
 describe('a note struck again while it still rings is released first', () => {

@@ -119,6 +119,9 @@ skipped - the notes that have ended (`endTick` at or before that event's `onsetT
 then the notes written under the event start with `soundOn`, before `moveCursor`. Going back (`skipPrevious`),
 losing the device and turning accompaniment off release everything. After the last event the notes ring until every
 key is let go, then they are released; no timer ever decides. A key struck while it still rings is released first.
+A note is never struck on a key the musician is holding at that moment (two instances of one key would swap which
+one a later note-off releases). Skipping past the last event does not start that event's accompaniment, and releases
+what rings unless a key is down (RT review, 2026-09-20).
 
 `soundOn` / `soundOff` carry a key, not a note, so the app maps them straight onto the existing
 `AudioEngine.liveNoteOn` / `liveNoteOff`. No new port method is needed (ports.md unchanged by this contract; the
