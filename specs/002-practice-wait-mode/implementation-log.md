@@ -134,3 +134,17 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
   `pnpm test` (433 passing) and `pnpm build` before any e2e (Playwright serves `dist`). Tree clean at the commit below.
   `PracticeSettings.loop` and the pass-index round trip (T035) are the only persistence work left for US3. Decide
   T056 with the owner before or during US4, since help and wrong-press feedback share the on-screen keyboard.
+
+## 2026-09-20 16:40 - claude-sonnet-5 (relay)
+- Done: RT review of the accompaniment path closed. rt-audio-reviewer first returned BLOCKED (one HIGH: `skipNext` past the
+  last event left notes ringing; four MEDIUM, three LOW); all were fixed in `f87066d` except T057, then it re-checked:
+  PASS WITH ADVISORIES. Its re-check found one real hole in my fix - the score view's element-cache signature could miss
+  a replaced DOM (relayout clear and re-add inside one frame, zoom changing before the relayout) - fixed with a
+  `domEpoch` counter bumped wherever page content is replaced.
+- Gate after the fix: lint 0 errors, typecheck clean, 436 unit tests, e2e 16 passed / 12 skipped / 0 failed.
+- Still open from the review (advisories, unfixed): (a) if accompaniment is already ringing on a key and the musician then
+  plays that same key, the two instances swap owners at key-up (cannot stick; counts balance) - fix would be to skip
+  `liveNoteOn` for a key that is in `sounding`; (b) `elementFor` runs one `querySelector` per dimmed id on each page
+  mount change (a few ms on a very large score); (c) changing selection and accompaniment in one action on a finished
+  session applies neither (the UI never does this); (d) T057 (worklet `liveQueue` silent drop).
+- Handoff: unchanged from the entry above - next = US3, T033 -> T037.

@@ -57,6 +57,8 @@ export class MxScoreView extends HTMLElement {
   } | null = null;
   private readonly elementCache = new Map<string, Element | null>();
   private elementCacheSig = '';
+  /** Bumped every time page content is replaced, so cached element lookups can tell they went stale. */
+  private domEpoch = 0;
   private rafHandle: number | null = null;
   private followScrolling = false;
   private readonly tick = (): void => {
@@ -124,6 +126,7 @@ export class MxScoreView extends HTMLElement {
   }
 
   private applyPageCount(pageCount: number) {
+    this.domEpoch++;
     this.layouts = layoutPages(pageCount, DEFAULT_PAGE_HEIGHT);
     this.pageMeasureIds.clear();
     this.mountedPages.clear();
@@ -176,6 +179,7 @@ export class MxScoreView extends HTMLElement {
       if (!visible.has(page)) {
         const pageEl = this.stack.querySelector(`[data-page="${page}"]`);
         if (pageEl) pageEl.innerHTML = '';
+        this.domEpoch++;
         this.mountedPages.delete(page);
       }
     }
@@ -188,6 +192,7 @@ export class MxScoreView extends HTMLElement {
       this.pageMeasureIds.set(page, sanitised.measureIds);
       const pageEl = this.stack.querySelector(`[data-page="${page}"]`);
       if (pageEl) pageEl.innerHTML = sanitised.svg;
+      this.domEpoch++;
       this.mountedPages.add(page);
     }
   }
@@ -250,10 +255,10 @@ export class MxScoreView extends HTMLElement {
     if (transportState.get().follow) this.followScrollTo(measureEl);
   }
 
-  /** Notes are looked up in the DOM once per mounting of the pages, never once per frame: pages mount and unmount
-   * synchronously with `mountedPages`, so its contents (with the zoom and the load) say when a lookup is stale. */
+  /** Notes are looked up in the DOM once per change of the page content, never once per frame: `domEpoch` is bumped
+   * wherever page elements are replaced or removed (relayout, mount, unmount), which is when a lookup goes stale. */
   private syncElementCache(): void {
-    const sig = `${this.loadToken}|${this.zoomPercent}|${[...this.mountedPages].sort((a, b) => a - b).join(',')}`;
+    const sig = String(this.domEpoch);
     if (sig === this.elementCacheSig) return;
     this.elementCacheSig = sig;
     this.elementCache.clear();
