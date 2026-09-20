@@ -113,3 +113,33 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
     note's early claim window); if the owner prefers the literal reading it is one constant and one fixture.
 - Handoff: next = `/speckit.tasks` (D-3 answered first if possible; D-1 and D-2 can be answered later, they only
   add tasks). Nothing implemented yet - no source file was touched. Tree clean at the commit below; not pushed.
+
+## 2026-09-20 - claude-opus-5 (relay)
+
+- Done: `/speckit.tasks` for feature 003. Written: `tasks.md` - 88 tasks (T001-T088), nothing implemented.
+  Setup 3, Foundational 12, US1 31, US2 13, US3 10, US4 8, Polish 7, plus 4 parked on owner decisions.
+- Structure: tests precede implementation in every story (Constitution IV); the two AudioWorklet tasks (T034
+  sub-block rendering, T036 `channelVolume`) are each followed by a mandatory `rt-audio-reviewer` task (T035,
+  T037) and are deliberately **not** parallel with each other, being the same file. The three contract bumps have
+  their own tasks (T036 worklet-protocol 1.2.0, T038 ports 1.2.0, T077 storage schema 2), as feature 002 did in
+  its T030.
+- Decisions taken while ordering the work:
+  1. **US1 carries the whole grading pipeline** (T016-T046). It is large because the spec's MVP is "play a piece
+     and be told what happened", which needs expected notes, windows, matcher, summary, worker, run schedule, run
+     reducer and both worklet changes. Splitting it would produce a checkpoint that cannot be tested on its own.
+  2. **The assumed Latency profile is US1 (T038); the measured one and its calibration are US2 (T056-T058)**, per
+     the plan's scope note. US1 grades honestly with an assumed profile that the Grade labels as assumed.
+  3. **The ten US1 test files are independent** and marked `[P]`; they are the largest parallel opportunity in
+     the feature.
+  4. The new MusicXML fixtures (T014) and the recorded performance fixtures (T015) are Foundational, because
+     three stories need them. They must be real files - AGENTS.md section 4 forbids placeholder assets.
+- Problems / open questions: the four owner decisions from the plan are unchanged and now parked as T085-T088 so
+  they cannot be lost. This list **assumes** the recommended answers to D-3 (T087) and D-4 (T088); D-1 and D-2
+  add tasks if accepted and change nothing if not.
+  - needs owner: **D-3 (T087)** should be answered before Phase 3 starts - it decides whether T044's live marker
+    is a cheap pitch test (recommended) or has to mirror the matcher, which is a different set of tasks.
+  - needs owner: **D-1 (T085) ornaments**, **D-2 (T086) arpeggios**, **D-4 (T088) count-in reach-back** - as
+    recorded in the previous entry.
+- Handoff: next = `/speckit.analyze` (read-only consistency check across spec, plan and tasks), then
+  `/speckit.implement` starting at T001. Nothing implemented yet - no source file has been touched in this
+  feature. Tree clean at the commit below; not pushed.
