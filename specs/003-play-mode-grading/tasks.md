@@ -127,11 +127,11 @@ reason.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T016 [P] [US1] `tests/core/grade/expected.test.ts`: `buildExpectedNotes` flattens 002's expected events one
+- [x] T016 [P] [US1] `tests/core/grade/expected.test.ts`: `buildExpectedNotes` flattens 002's expected events one
   per required key; grace notes, ornaments, hidden, playback-only, unpitched and percussion notes and the
   unselected hand/part are never expected; a tie chain appears once at its onset; each repeat occurrence appears
   separately in Listen order (FR-017, FR-021, SC-005)
-- [ ] T017 [P] [US1] `tests/core/grade/windows.test.ts` (resolution part): fraction of a beat resolves in ticks;
+- [x] T017 [P] [US1] `tests/core/grade/windows.test.ts` (resolution part): fraction of a beat resolves in ticks;
   the beat is the dotted quarter in 6/8 (`window-beat-unit-6-8`); floor and cap bite only outside 60-160 bpm; the
   neighbour clamp is applied **after** the floor and gives ±46.9 ms for sixteenths at 160 bpm
   (`neighbour-clamp-sixteenths-160`); adjacent claim windows meet at the midpoint with no gap and no overlap at
@@ -194,9 +194,9 @@ reason.
 
 ### Implementation
 
-- [ ] T026 [US1] `src/core/grade/expected.ts`: `buildExpectedNotes(score, timeline, selection, range)` calling
+- [x] T026 [US1] `src/core/grade/expected.ts`: `buildExpectedNotes(score, timeline, selection, range)` calling
   002's `buildExpectedEvents` and flattening it, carrying `arpeggiated` from the chord (research R-15, D-2)
-- [ ] T027 [US1] `src/core/grade/windows.ts`: window resolution with the floor/cap clamp, the chord-spread
+- [x] T027 [US1] `src/core/grade/windows.ts`: window resolution with the floor/cap clamp, the chord-spread
   addition (or `arpeggioSpread` where the chord is written `<arpeggiate>`) and the per-side neighbour clamp, all
   in integer ticks with inclusive boundaries. The neighbour clamp is final: a window under
   `PLAY_WINDOW_ABSOLUTE_FLOOR_MS` is **not** raised, it is flagged for `timingNotResolvable`
