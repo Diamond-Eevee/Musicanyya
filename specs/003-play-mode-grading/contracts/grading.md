@@ -1,6 +1,6 @@
 # Contract: grading (core API and worker)
 
-**Version**: `1.1.0` (internal TypeScript contract between `src/core/grade`, `src/workers/grade.worker.ts` and
+**Version**: `1.1.1` (internal TypeScript contract between `src/core/grade`, `src/workers/grade.worker.ts` and
 `src/app/play-session.ts`). Signatures are normative in shape; every change is reflected here with a version bump.
 
 Constitution IV: `gradePerformance` is a **pure, synchronous** function. Same Score, same log, same settings ->
@@ -20,23 +20,33 @@ interface GradeInput {
   log: PerformanceLog;
   tempo: readonly TempoSegment[];          // the run's tempo map (timeline ticks)
   ppq: number;
-  tempoPercent: number;                    // the tempo actually played (FR-037)
   tickMap: PlayTickMap;
   startAudioTimeSec: number;               // audio time of run tick 0
-  strictness: StrictnessLevelName;
+  settings: RunSettings;                   // carried straight onto Grade.settings; tempoPercent and strictness
+                                            // used for grading come from here (settings.tempoPercent/.strictness)
   latency: LatencyProfile;
   reliability: readonly ReliabilityEvent[];
   passes: readonly MeasurePass[];          // for the per-measure overview
+  measures: readonly MeasureInfo[];        // for the window beat-unit lookup (data-model.md section 6)
 }
 ```
 
 `Grade`, `NoteResult`, `ExtraNote`, `PlayedAlongPress`, `GradeSummary`, `MeasureOverview` and
 `ReliabilityWarning` are defined in [data-model.md](../data-model.md) sections 5 and 9; `ExpectedNote` and
-`PlayedAlongSpan` in section 4.
+`PlayedAlongSpan` in section 4; `RunSettings` in section 7.
 
 **Version 1.1.0 adds** `GradeInput.playedAlong`, `Grade.playedAlong`, the played-along pass 3 below, the
 arpeggio spread of step 2 and the `timingNotResolvable` rule for windows under the absolute floor. All of it is
 additive: a caller that passes an empty `playedAlong` gets the 1.0.0 behaviour.
+
+**Version 1.1.1** (found while implementing T030, two related gaps in the same pass): (a) `Grade.settings:
+RunSettings` (data-model.md section 9) had no corresponding input - `gradePerformance` is pure, so it cannot
+produce a `RunSettings` it was never given. Replaces the standalone `tempoPercent`/`strictness` fields with
+`settings: RunSettings`, whose own `tempoPercent`/`strictness` fields are what grading now reads;
+`Grade.settings` is that same object, unchanged. (b) Adds `measures: readonly MeasureInfo[]`: `windows.ts`'s
+beat-unit lookup (data-model.md section 6 - the dotted quarter in 6/8, etc.) needs the governing time signature
+per measure, which nothing in `GradeInput` provided. Neither was implemented anywhere before this fix, so no
+caller is affected.
 
 ## Step 1 - put everything on one axis
 

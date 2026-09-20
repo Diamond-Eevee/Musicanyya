@@ -1,5 +1,5 @@
 import type { PlayTickMap, ReliabilityEvent, RunSettings } from '../play/types.js';
-import type { NoteId, Ticks } from '../score/model.js';
+import type { MeasureInfo, NoteId, Ticks } from '../score/model.js';
 import type { MeasurePass, TempoSegment } from '../timeline/types.js';
 
 // data-model.md §3 - Performance log
@@ -120,13 +120,15 @@ export interface GradeInput {
   log: PerformanceLog;
   tempo: readonly TempoSegment[]; // the run's tempo map (timeline ticks)
   ppq: number;
-  tempoPercent: number; // the tempo actually played (FR-037)
   tickMap: PlayTickMap;
   startAudioTimeSec: number; // audio time of run tick 0
-  strictness: StrictnessLevelName;
+  // Carried straight onto Grade.settings; grading reads tempoPercent (FR-037) and strictness from here too
+  // (contracts/grading.md 1.1.1 - gradePerformance is pure, so Grade.settings must come from somewhere).
+  settings: RunSettings;
   latency: LatencyProfile;
   reliability: readonly ReliabilityEvent[];
   passes: readonly MeasurePass[]; // for the per-measure overview
+  measures: readonly MeasureInfo[]; // for the window beat-unit lookup (data-model.md section 6)
 }
 
 // data-model.md §9 - Stored performance and the Grade
