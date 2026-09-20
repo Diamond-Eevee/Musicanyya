@@ -16,6 +16,7 @@ function setup(over: Partial<PracticeSetup> = {}): PracticeSetup {
     hands: TWO_STAVES,
     selection: TWO_STAVES[0] ?? null,
     accompaniment: true,
+    help: true,
     measureCount: 8,
     loop: null,
     ...over,
@@ -61,7 +62,15 @@ describe('mx-practice-panel', () => {
 
   it('says so, and offers no choices, when the Score has nothing to practise', () => {
     const panel = mount();
-    practiceState.setSetup({ parts: [], hands: [], selection: null, accompaniment: true, measureCount: 0, loop: null });
+    practiceState.setSetup({
+      parts: [],
+      hands: [],
+      selection: null,
+      accompaniment: true,
+      help: true,
+      measureCount: 0,
+      loop: null,
+    });
 
     expect(panel.textContent).toContain('no notes to practise');
     expect(panel.querySelector('input, select')).toBeNull();
@@ -150,6 +159,40 @@ describe('mx-practice-panel', () => {
     (panel.querySelector('input[name="accompaniment"]') as HTMLInputElement).click();
 
     expect(events).toEqual([{ selection: TWO_STAVES[1] }, { partIndex: 0 }, { accompaniment: false }]);
+  });
+
+  describe('help (FR-023, FR-024)', () => {
+    it('reports the help switch as an event, checked by default', () => {
+      const panel = mount();
+      practiceState.setSetup(setup());
+      const events = listen(panel);
+
+      const checkbox = panel.querySelector<HTMLInputElement>('input[name="help"]');
+      expect(checkbox?.checked).toBe(true);
+      checkbox?.click();
+
+      expect(events).toEqual([{ help: false }]);
+    });
+
+    it('asking for help dispatches a plain request, not a setup change', () => {
+      const panel = mount();
+      practiceState.setSetup(setup());
+      const setupEvents = listen(panel);
+      const requests: unknown[] = [];
+      panel.addEventListener('requesthelp', () => requests.push(true));
+
+      panel.querySelector<HTMLButtonElement>('[data-id="request-help"]')?.click();
+
+      expect(requests.length).toBe(1);
+      expect(setupEvents).toEqual([]);
+    });
+
+    it('disables asking for help once the switch is off', () => {
+      const panel = mount();
+      practiceState.setSetup(setup({ help: false }));
+
+      expect(panel.querySelector<HTMLButtonElement>('[data-id="request-help"]')?.disabled).toBe(true);
+    });
   });
 
   it('only shows the state it is given: rendering alone never emits an event', () => {
@@ -321,6 +364,7 @@ describe('mx-practice-panel', () => {
         hands: [],
         selection: null,
         accompaniment: true,
+        help: true,
         measureCount: 0,
         loop: null,
       });

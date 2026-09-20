@@ -238,3 +238,62 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
   Firefox, Electron; WebKit practice specs skipped as before).
 - Handoff: next = **US4, T038 -> T041** (help; tests first, per R-14's open item above), then Polish T042-T048 and
   T057. Tree clean at the commit below.
+
+## 2026-09-20 - claude-sonnet-5 (relay)
+
+- Done: **T038-T041**, closing the Phase 6 / US4 checkpoint - all four user stories now work independently.
+- Test-first: `tests/core/practice/help.test.ts` (new) was seen failing for the right reason (3 of 9 cases; the
+  other 6 already held under existing heldOver/grace-note behaviour) before `matcher.ts` changed: no `showHelp` on
+  the wrong-attempt threshold, no `requestHelp` input, no `hideHelp` on satisfying a requested event.
+  `tests/ui/practice-help.test.ts` (new) failed at import time (`mx-practice-help.ts` did not exist,
+  `practiceState.setHelpOverlay` did not exist) before the UI files were written; its `mx-piano-keys` highlight
+  cases were added and seen failing (no `expected-help` class) before that file changed.
+  `tests/ui/practice-panel.test.ts` gained three new cases for the help checkbox and request button, and its
+  existing `PracticeSetup` literals were widened with `help` (a new required field) so they kept describing a real
+  setup.
+- Decisions (research.md **R-15**; contract `practice-session` **1.4.0** then **1.5.0**; data-model §4 and §6):
+  1. One switch (`help`) gates both "stuck" (after `PRACTICE_HELP_AFTER_WRONG_ATTEMPTS`) and "requested" help;
+     "heldOver" (FR-009a) stays unconditional - it is a correctness guarantee, not the pedagogy the switch is for.
+  2. `practice.extra.heldOver` / `practice.repress` - left unassigned since T056 - are exactly the release-then-
+     repress wording FR-009a asks for, so the help overlay shows both for reason `heldOver`.
+  3. `PracticeSession.helpShown` (internal, like `wrongAttemptsOnCurrent`) makes `hideHelp` fire exactly once per
+     `showHelp`, at the point the cursor next moves, however it moves (arrival, skip, wrap, or reaching the end).
+  4. Note names are spelled from the MIDI key (sharps only), since `Note` keeps only `writtenKey`/`soundingKey`,
+     not the printed step/alter/octave (data-model.md derives and discards them). This is a known, written-down
+     simplification (R-15 point 4), not a silent one: a written D-flat currently shows as "C#". Fingering is not
+     approximated the same way - `Note.fingerings` is read directly, since that is exactly what MusicXML stored.
+  5. The help overlay is docked at a fixed screen position rather than measuring the note's SVG bounding box, so
+     "never covers the note" (FR-024) holds structurally with no geometry tracking.
+  6. Added a `setHelp` input (mirroring `setAccompaniment`) so the practice panel's new help checkbox can flip a
+     *running* session's `help` without restarting it; switching off also hides help that is currently shown.
+  7. The practice panel gained a "Show help when I am stuck" checkbox and a "What note is next?" button
+     (`requesthelp` event, separate from `practicesetup` since it is an action, not a setting) - not explicitly
+     named by any task, but necessary for FR-024's "available on request" / "switchable off" to be reachable by a
+     musician at all; both are wired the same way the existing accompaniment checkbox is.
+- Bug found and fixed while verifying in the browser: `mx-practice-help`'s constructor set `this.style.position`
+  etc. directly, which mutates the `style` attribute - not allowed inside a custom element constructor (the DOM
+  spec throws `NotSupportedError: ... The result must not have attributes` the moment such an element is
+  created). Moved the docking styles into `connectedCallback`.
+- Verified in the browser pane end to end, not just via `practiceState` injection this time: opened a small
+  hand-built two-note fixture (one note carrying a `fingering`) through the real `mx-open-button` file input (a
+  `DataTransfer`-backed `File`, since no OS file picker is available here), faked MIDI availability
+  (`e2e-ready`) and used `e2e-midi` to press keys, and started a real Practice session via the transport's Start
+  button. Confirmed: three wrong presses light the expected key on `mx-piano-keys` (`expected-help` class, "?"
+  glyph) and show "Here is the expected note / C4 / Finger 2" docked bottom-right, without touching the score
+  area; playing the right key hides it and advances; the panel's "What note is next?" button shows the same
+  overlay on demand for the next note (D4, no fingering - the label correctly omits it); unchecking "Show help
+  when I am stuck" disables the button and makes both the automatic and the on-request path no-ops on the running
+  session. A screenshot of the last state was reviewed. Real Web MIDI still could not be tried (the pane denies
+  it), as in every prior entry.
+- Also noticed, unrelated to this feature: a cold `pnpm run dev` start (fresh Vite pre-bundle, first navigation)
+  throws one uncaught `NotSupportedError` from a *different* custom element's constructor doing the same kind of
+  attribute-setting `mx-practice-help` had - reproduces on `HEAD~1` too (checked with `git stash`), so it predates
+  this checkpoint. The app still fully bootstraps despite it. Flagged as a separate background task rather than
+  chased down here (out of scope: no task in `tasks.md` names it, and the candidates - `mx-piano-keys.ts`,
+  `mx-midi-panel.ts` - are US1/US2 files this checkpoint did not otherwise touch).
+- Gate: `pnpm lint` 0 errors (173 warnings, none new), `pnpm typecheck` clean, `pnpm test` 523 passed / 2 skipped
+  (502 + 21 new: 9 in `help.test.ts`, 9 in `practice-help.test.ts`, 3 in `practice-panel.test.ts`), `pnpm build`
+  clean, `pnpm test:e2e` 22 passed / 14 skipped / 0 failed (Chromium, Firefox, Electron; WebKit practice specs
+  skipped as before - unchanged by this checkpoint, since US4 added no new e2e spec).
+- Handoff: next = **Polish, T042-T048 and T057** (the only tasks left in `tasks.md`). Tree clean at the commit
+  below.

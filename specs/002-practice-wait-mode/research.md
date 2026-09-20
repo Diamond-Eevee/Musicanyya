@@ -331,7 +331,10 @@ the held-over flow when it wires `showHelp`.
    sentence about "the help", not two independent features. With `help: false`, `requestHelp` is a no-op. `reason:
    "heldOver"` (FR-009a) is **not** gated: it is a correctness requirement (the session must never wait in silence
    for a key that cannot arrive), not the pedagogical help this switch turns off, and it already fired
-   unconditionally before this feature (T056/R-13 wiring of `arriveAt`).
+   unconditionally before this feature (T056/R-13 wiring of `arriveAt`). A new `setHelp` input mirrors
+   `setAccompaniment`: it flips `help` on a running session without restarting it, and switching it off also hides
+   help that is currently shown - "off" is immediate, not just for the next trigger - which is how the practice
+   panel's help checkbox reaches a session already in progress.
 2. **`heldOver`'s wording is what was left open in R-14**: `practice.extra.heldOver` ("Release the held key.") and
    `practice.repress` ("Press the key again.") are exactly the release-then-repress instruction FR-009a describes,
    so the help overlay shows both sentences for that reason instead of inventing new copy.

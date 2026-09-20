@@ -14,6 +14,7 @@ import '../ui/elements/mx-transport.js';
 import '../ui/elements/mx-midi-panel.js';
 import '../ui/elements/mx-mode-switch.js';
 import '../ui/elements/mx-piano-keys.js';
+import '../ui/elements/mx-practice-help.js';
 import '../ui/elements/mx-practice-panel.js';
 import { buildExpectedEvents, firstEventAtOrAfterTick, resolveStartMeasure } from '../core/practice/expected.js';
 import { handOptions, partOptions } from '../core/practice/hands.js';
@@ -34,11 +35,13 @@ import type { Score } from '../core/score/model.js';
 import type { PlaybackTimeline } from '../core/timeline/types.js';
 import type { PracticeSetupChange } from '../ui/elements/mx-practice-panel.js';
 import type { MxScoreView, TimelineDto } from '../ui/elements/mx-score-view.js';
+import { midiNoteName } from '../ui/format/note-name.js';
 import { en } from '../ui/i18n/en.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
 import { initShortcuts } from '../ui/shortcuts.js';
 import { midiState } from '../ui/state/midiState.js';
 import { noticeState } from '../ui/state/noticeState.js';
+import type { HelpOverlay } from '../ui/state/practiceState.js';
 import { practiceState } from '../ui/state/practiceState.js';
 import type { LoadError, ScoreSummary } from '../ui/state/scoreState.js';
 import { scoreState } from '../ui/state/scoreState.js';
@@ -247,11 +250,17 @@ export class Session {
     practicePanel.addEventListener('practicesetup', (event) =>
       this.onPracticeSetupChange((event as CustomEvent<PracticeSetupChange>).detail),
     );
+    practicePanel.addEventListener('requesthelp', () => {
+      this.applyPracticeInput({ type: 'requestHelp', timeStampMs: performance.now() });
+    });
     document.getElementById('side-panel')?.prepend(practicePanel);
 
     const pianoKeys = document.createElement('mx-piano-keys');
     // Place piano keys at the bottom of the score area
     document.getElementById('score-area')?.appendChild(pianoKeys);
+
+    const practiceHelp = document.createElement('mx-practice-help');
+    document.getElementById('score-area')?.appendChild(practiceHelp);
 
     midiPanel.addEventListener('request-midi', async () => {
       await this.midiInput.request();
@@ -440,6 +449,7 @@ export class Session {
     });
     practiceState.setSession(session);
     practiceState.clearAllKeyFeedback();
+    practiceState.clearHelpOverlay();
     const first = events[startEventIndex];
     if (first) transportState.setPositionTick(first.onsetTick);
   }
@@ -479,6 +489,7 @@ export class Session {
     practiceState.setSession(null);
     practiceState.setStartMeasure(null);
     practiceState.clearAllKeyFeedback();
+    practiceState.clearHelpOverlay();
   }
 
   /** Picks the part and hands offered for a Score, and the choices remembered for it (R-07). */
@@ -493,6 +504,7 @@ export class Session {
       hands: selection ? handOptions(score, selection.partIndex) : [],
       selection,
       accompaniment: this.practiceSettings.accompaniment,
+      help: this.practiceSettings.help,
       measureCount: score.measures.length,
       // A stored loop that no longer fits this Score is not shown; it is not an error (contracts/practice-settings.md).
       loop: stored ? passIndicesToLoopRange(this.currentPlaybackTimeline?.passes ?? [], stored) : null,
@@ -532,20 +544,32 @@ export class Session {
     }
     if (change.selection) selection = change.selection;
     const accompaniment = change.accompaniment ?? setup.accompaniment;
+    const help = change.help ?? setup.help;
 
     const selectionChanged =
       selection.partIndex !== setup.selection.partIndex ||
       selection.staves.join(',') !== setup.selection.staves.join(',');
-    practiceState.setSetup({ ...setup, hands: handOptions(score, selection.partIndex), selection, accompaniment });
-    this.practiceSettings = { ...this.practiceSettings, selection, accompaniment };
+    practiceState.setSetup({
+      ...setup,
+      hands: handOptions(score, selection.partIndex),
+      selection,
+      accompaniment,
+      help,
+    });
+    this.practiceSettings = { ...this.practiceSettings, selection, accompaniment, help };
     this.settingsStore.savePractice(this.practiceScoreId, this.practiceSettings);
 
     const session = practiceState.get().session;
     if (this.isPracticeRunning(session) && selectionChanged) {
       this.restartPracticeFromCurrentMeasure(session, selection);
-    } else if (session && !selectionChanged && accompaniment !== setup.accompaniment) {
+      return;
+    }
+    if (session && !selectionChanged && accompaniment !== setup.accompaniment) {
       // Also for a finished session: its last accompaniment notes may still be ringing.
       this.applyPracticeInput({ type: 'setAccompaniment', enabled: accompaniment, timeStampMs: performance.now() });
+    }
+    if (session && !selectionChanged && help !== setup.help) {
+      this.applyPracticeInput({ type: 'setHelp', enabled: help, timeStampMs: performance.now() });
     }
   }
 
@@ -655,6 +679,11 @@ export class Session {
         state: effect.state,
         ...(effect.messageId !== undefined ? { messageId: effect.messageId } : {}),
       });
+    } else if (effect.type === 'showHelp') {
+      const overlay = this.resolveHelpOverlay(effect.eventIndex, effect.reason);
+      if (overlay) practiceState.setHelpOverlay(overlay);
+    } else if (effect.type === 'hideHelp') {
+      practiceState.clearHelpOverlay();
     } else if (effect.type === 'notice') {
       noticeState.addNotice({ code: effect.code, severity: effect.code === 'practiceDeviceLost' ? 'warning' : 'info' });
     } else if (effect.type === 'sessionEnded') {
@@ -662,6 +691,33 @@ export class Session {
       transportState.stop();
       this.endingPracticeNaturally = false;
     }
+  }
+
+  /** What `showHelp` refers to (FR-023): the note name is spelled from the MIDI key, since `Note` keeps only
+   *  `writtenKey` / `soundingKey`, not the printed spelling (R-15) - the fingering is read from the Score's own
+   *  `Note.fingerings` instead, since that is exactly what is stored. */
+  private resolveHelpOverlay(eventIndex: number, reason: HelpOverlay['reason']): HelpOverlay | null {
+    const event = practiceState.get().session?.events[eventIndex];
+    if (!event) return null;
+    return {
+      reason,
+      keys: event.required.map((req) => ({
+        key: req.key,
+        noteName: midiNoteName(req.key),
+        fingering: this.fingeringFor(req.noteIds),
+      })),
+    };
+  }
+
+  /** The first written fingering among a required key's Note IDs (unison / voice-sharing can carry several). */
+  private fingeringFor(noteIds: readonly string[]): string | null {
+    if (!this.currentScore) return null;
+    for (const part of this.currentScore.parts) {
+      for (const note of part.notes) {
+        if (note.fingerings.length > 0 && noteIds.includes(note.id)) return note.fingerings[0]?.text ?? null;
+      }
+    }
+    return null;
   }
 
   async openFile(file: File): Promise<void> {

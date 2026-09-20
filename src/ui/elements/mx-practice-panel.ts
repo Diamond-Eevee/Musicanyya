@@ -8,6 +8,7 @@ export interface PracticeSetupChange {
   partIndex?: number;
   selection?: HandSelection;
   accompaniment?: boolean;
+  help?: boolean;
   loop?: LoopRange | null;
 }
 
@@ -97,12 +98,17 @@ export class MxPracticePanel extends HTMLElement {
         ? `<label class="practice-accompaniment"><input type="checkbox" name="accompaniment" data-id="accompaniment" ${setup.accompaniment ? 'checked' : ''} /> ${p.accompaniment}</label>`
         : '';
 
+    const help = `<p class="practice-help">
+        <label><input type="checkbox" name="help" data-id="help" ${setup.help ? 'checked' : ''} /> ${p.help}</label>
+        <button type="button" data-id="request-help" ${setup.help ? '' : 'disabled'}>${p.requestHelp}</button>
+      </p>`;
+
     const start =
       startMeasureIndex !== null
         ? `<p class="practice-start">${p.startsAtMeasure.replace('{n}', String(startMeasureIndex + 1))}</p>`
         : '';
 
-    return `<h2 class="practice-heading">${p.heading}</h2>${parts}${hands}${hearRest}${this.loopTemplate(setup, running)}${start}`;
+    return `<h2 class="practice-heading">${p.heading}</h2>${parts}${hands}${hearRest}${help}${this.loopTemplate(setup, running)}${start}`;
   }
 
   /** Two measure fields (numbered from 1, as printed) and a clear control; empty fields mean no loop (FR-016). */
@@ -142,6 +148,12 @@ export class MxPracticePanel extends HTMLElement {
     }
     this.querySelector<HTMLInputElement>('input[name="accompaniment"]')?.addEventListener('change', (event) => {
       this.emit({ accompaniment: (event.target as HTMLInputElement).checked });
+    });
+    this.querySelector<HTMLInputElement>('input[name="help"]')?.addEventListener('change', (event) => {
+      this.emit({ help: (event.target as HTMLInputElement).checked });
+    });
+    this.querySelector('[data-id="request-help"]')?.addEventListener('click', () => {
+      this.dispatchEvent(new CustomEvent('requesthelp', { bubbles: true }));
     });
 
     const from = this.querySelector<HTMLInputElement>('[data-id="loop-from"]');

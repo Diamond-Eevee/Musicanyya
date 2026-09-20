@@ -100,12 +100,13 @@ export interface PracticeInput {
     | 'skipPrevious'
     | 'setAccompaniment'
     | 'setLoop'
-    | 'requestHelp';
+    | 'requestHelp'
+    | 'setHelp';
   key?: number;
   velocity?: number;
   down?: boolean;
   heldKeys?: readonly number[];
-  enabled?: boolean; // setAccompaniment
+  enabled?: boolean; // setAccompaniment, setHelp
   loop?: ResolvedLoop | null; // setLoop: null clears the loop
   timeStampMs: number;
 }

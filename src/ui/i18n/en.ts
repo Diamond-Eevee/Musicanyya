@@ -103,6 +103,8 @@ export const en = {
       allStaves: 'All staves',
       staff: 'Staff {n}',
       accompaniment: 'Hear the notes I am not practising',
+      help: 'Show help when I am stuck',
+      requestHelp: 'What note is next?',
       nothingToPractise: 'This score has no notes to practise.',
       startsAtMeasure: 'Starts at measure {n}',
       loop: 'Loop',
@@ -129,6 +131,10 @@ export const en = {
       'practice.extra.heldOver': 'Release the held key.',
       'practice.extra.notInChord': 'Release the extra key.',
       'practice.repress': 'Press the key again.',
+    },
+    help: {
+      heading: 'Here is the expected note',
+      fingering: 'Finger {n}',
     },
   },
 };

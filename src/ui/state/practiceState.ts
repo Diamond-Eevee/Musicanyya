@@ -13,10 +13,19 @@ export interface PracticeSetup {
   selection: HandSelection | null;
   /** Whether the notes the musician is not practising sound as the cursor passes them (FR-031, FR-032). */
   accompaniment: boolean;
+  /** Whether help may appear at all this session - by itself when stuck, or on request (FR-023, FR-024, R-15). */
+  help: boolean;
   /** How many written measures the Score has; the loop fields accept 1 to this (FR-016). */
   measureCount: number;
   /** The loop the musician set, as written measures, or null; the Score marks these measures (FR-016, AS-3.2). */
   loop: LoopRange | null;
+}
+
+/** What the help overlay shows (FR-023, FR-024): the app layer resolves the current help event's required keys
+ *  against the Score into a name and a written fingering, so `mx-practice-help` stays a pure view (R-15). */
+export interface HelpOverlay {
+  reason: 'stuck' | 'requested' | 'heldOver';
+  keys: readonly { key: number; noteName: string; fingering: string | null }[];
 }
 
 export interface PracticeState {
@@ -29,6 +38,9 @@ export interface PracticeState {
    *  (T056, owner decision 2026-09-20). Not part of `PracticeSession`: it is view state derived from `keyFeedback`
    *  effects, not something the core needs to replay. */
   keyFeedback: ReadonlyMap<number, { state: WrongKeyState; messageId?: string }>;
+  /** The help overlay currently shown, or null (FR-023, FR-024). Not part of `PracticeSession`: derived view state,
+   *  cleared by the app layer on `hideHelp` and on a session switch, same treatment as `keyFeedback` (R-15). */
+  helpOverlay: HelpOverlay | null;
 }
 
 class PracticeStateStore {
@@ -38,6 +50,7 @@ class PracticeStateStore {
     setup: null,
     startMeasureIndex: null,
     keyFeedback: new Map(),
+    helpOverlay: null,
   });
 
   get(): PracticeState {
@@ -83,6 +96,14 @@ class PracticeStateStore {
 
   clearAllKeyFeedback() {
     this.store.update((state) => (state.keyFeedback.size === 0 ? state : { ...state, keyFeedback: new Map() }));
+  }
+
+  setHelpOverlay(helpOverlay: HelpOverlay) {
+    this.store.update((state) => ({ ...state, helpOverlay }));
+  }
+
+  clearHelpOverlay() {
+    this.store.update((state) => (state.helpOverlay === null ? state : { ...state, helpOverlay: null }));
   }
 }
 

@@ -12,6 +12,11 @@ const WRONG_KEY_STYLE: Record<WrongKeyState, { className: string; colour: string
   extra: { className: 'extra', colour: '#cc79a7', glyph: '◆' },
 };
 
+// Distinct from every WRONG_KEY_STYLE colour and from the Score's own 'correct' green (practice-marks.ts), so help
+// is never confused with a judgement (FR-010, R-08).
+const HELP_COLOUR = '#0072b2';
+const HELP_GLYPH = '?';
+
 class MxPianoKeys extends HTMLElement {
   private unsubscribeMidi?: () => void;
   private unsubscribePractice?: () => void;
@@ -74,6 +79,12 @@ class MxPianoKeys extends HTMLElement {
         .key.wrong-pitch { border-color: ${WRONG_KEY_STYLE.wrongPitch.colour}; }
         .key.wrong-octave { border-color: ${WRONG_KEY_STYLE.wrongOctave.colour}; }
         .key.extra { border-color: ${WRONG_KEY_STYLE.extra.colour}; }
+        .key.expected-help {
+          border-width: 2px;
+          border-color: ${HELP_COLOUR};
+          box-shadow: 0 0 4px 1px ${HELP_COLOUR};
+        }
+        .key.expected-help .key-mark { color: ${HELP_COLOUR}; }
         .key-mark {
           position: absolute;
           top: 2px;
@@ -130,21 +141,24 @@ class MxPianoKeys extends HTMLElement {
     if (!this.keysContainer || !this.sustainIndicator || !this.messagesContainer) return;
 
     const { pressedKeys, sustainDown } = midiState;
-    const { keyFeedback } = practiceState.get();
+    const { keyFeedback, helpOverlay } = practiceState.get();
+    const helpKeys = new Set(helpOverlay?.keys.map((k) => k.key) ?? []);
 
     for (let k = 21; k <= 108; k++) {
       const el = this.keysContainer.querySelector(`[data-key="${k}"]`);
       if (!el) continue;
 
       el.classList.toggle('pressed', pressedKeys.has(k));
+      el.classList.toggle('expected-help', helpKeys.has(k));
 
       const feedback = keyFeedback.get(k);
       for (const state of Object.keys(WRONG_KEY_STYLE) as WrongKeyState[]) {
         el.classList.toggle(WRONG_KEY_STYLE[state].className, feedback?.state === state);
       }
       const existingMark = el.querySelector('.key-mark');
-      if (feedback) {
-        const glyph = WRONG_KEY_STYLE[feedback.state].glyph;
+      // A wrong-key press takes precedence over the help glyph: it reflects what is happening right now (R-14).
+      const glyph = feedback ? WRONG_KEY_STYLE[feedback.state].glyph : helpKeys.has(k) ? HELP_GLYPH : null;
+      if (glyph !== null) {
         if (existingMark) existingMark.textContent = glyph;
         else {
           const mark = document.createElement('span');

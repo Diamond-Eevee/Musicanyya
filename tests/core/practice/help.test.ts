@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { PRACTICE_HELP_AFTER_WRONG_ATTEMPTS } from '../../../src/core/defaults.js';
 import { buildExpectedEvents } from '../../../src/core/practice/expected.js';
 import { applyInput, startSession } from '../../../src/core/practice/matcher.js';
-import type { ExpectedEvent, HandSelection, PracticeEffect, PracticeSession } from '../../../src/core/practice/types.js';
+import type {
+  ExpectedEvent,
+  HandSelection,
+  PracticeEffect,
+  PracticeSession,
+} from '../../../src/core/practice/types.js';
 import { loadFixture } from './helpers.js';
 
 /** One required key per event; mirrors the minimal fixture style of tests/core/practice/loop-wrap.test.ts. */
@@ -87,6 +92,28 @@ describe('T038: help effects (FR-023, FR-024, FR-009a, R-10, R-14/R-15)', () => 
     const satisfied = on(session, 60);
     expect(satisfied.effects).toContainEqual({ type: 'hideHelp' });
     expect(satisfied.session.index).toBe(1);
+  });
+
+  it('setHelp(false) turns the whole feature off: hides help that was shown and mutes both future reasons', () => {
+    let session = start([ev(0, 60), ev(1, 62)], true);
+    const requested = applyInput(session, { type: 'requestHelp', timeStampMs: clock++ });
+    session = requested.session;
+    expect(session.helpShown).toBe(true);
+
+    const off = applyInput(session, { type: 'setHelp', enabled: false, timeStampMs: clock++ });
+    expect(off.effects).toContainEqual({ type: 'hideHelp' });
+    expect(off.session.help).toBe(false);
+    session = off.session;
+
+    const stillNoHelp = applyInput(session, { type: 'requestHelp', timeStampMs: clock++ });
+    expect(stillNoHelp.effects.some((e) => e.type === 'showHelp')).toBe(false);
+  });
+
+  it('setHelp(true) turns it back on for a later request', () => {
+    let session = start([ev(0, 60)], false);
+    session = applyInput(session, { type: 'setHelp', enabled: true, timeStampMs: clock++ }).session;
+    const step = applyInput(session, { type: 'requestHelp', timeStampMs: clock++ });
+    expect(step.effects).toContainEqual({ type: 'showHelp', eventIndex: 0, reason: 'requested' });
   });
 
   it('grace notes never count towards the help trigger (FR-027): playing one is playedAlong, not an attempt', () => {

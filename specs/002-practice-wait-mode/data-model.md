@@ -179,6 +179,8 @@ Advancing (`matcher.ts`, one pure step per input event):
     case, a skip, a wrap, or `setLoop` moving the cursor - emits `hideHelp` and clears it before deciding whether
     the newly arrived event needs `showHelp` itself (`heldOver`). The two places the cursor advances without going
     through `arriveAt` (`skipPrevious`, and reaching the end via a play or a forward skip) do the same.
+11. `setHelp` (FR-024, R-15): sets `help`, exactly as `setAccompaniment` sets `accompaniment`, without touching the
+    cursor or `soundingAccompaniment`; turning it off also runs the same `hideHelp` step as above.
 
 Advancing emits effects, which the app layer applies: `markNotes`, `moveCursor`, `soundAccompaniment(on|off)`,
 `showHelp`, `hideHelp`, `endSession`. The core itself calls nothing. A skip emits the same effects as an advance,

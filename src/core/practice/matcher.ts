@@ -149,6 +149,12 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
 
   const currentEvent = next.events[next.index];
 
+  if (input.type === 'setHelp') {
+    next.help = input.enabled === true;
+    if (!next.help) hideHelpIfShown();
+    return { session: next, effects };
+  }
+
   if (input.type === 'requestHelp') {
     // One switch for both ways help can appear (R-15): off means off, whether it is asked for or not.
     if (next.help && currentEvent) {

@@ -1,6 +1,6 @@
 # Contract: practice session (core API)
 
-**Version**: `1.4.0` (internal TypeScript contract between `src/core/practice`, `src/app/session.ts` and
+**Version**: `1.5.0` (internal TypeScript contract between `src/core/practice`, `src/app/session.ts` and
 `src/ui`). Signatures are normative in shape; every change is reflected here with a version bump (MINOR for
 additions, MAJOR for breaking changes). `1.0.0` was amended on 2026-09-20 by the clarification session (played-along
 and skipped marks, the wrong-versus-extra rule, part selection, skip inputs) before anything was implemented.
@@ -14,6 +14,8 @@ and the optional `attribution` argument of `buildExpectedEvents`.
 on-screen keyboard (R-14) since it has no notehead of its own; `WrongKeyState` is added.
 `1.4.0` (US4, 2026-09-20): the `requestHelp` input is added; `PracticeSession.helpShown` is added (internal, drives
 `hideHelp`); `practice.extra.heldOver` / `practice.repress` are assigned to the `heldOver` help text (R-15).
+`1.5.0` (US4, 2026-09-20): the `setHelp` input is added, mirroring `setAccompaniment` - it updates `help` on a
+running session (switching it off also hides help that is currently shown) without restarting the session.
 
 Constitution IV and V: this module is pure. It imports nothing from `src/engine` or `src/ui`, touches no DOM, no
 Web API, no clock and no randomness, and therefore runs in Node under test. It **returns** effects; it never
@@ -67,7 +69,8 @@ export type SessionPhase = "idle" | "waiting" | "blocked" | "finished" | "interr
 
 export interface PracticeInput {                 // the MidiInput port's events, plus the musician's own commands
   type: "noteOn" | "noteOff" | "sustain" | "deviceLost" | "skipNext" | "skipPrevious" | "setAccompaniment" | "setLoop"
-      | "requestHelp";                            // FR-024: same as "stuck" help, on demand; no-op when help is off
+      | "requestHelp"                             // FR-024: same as "stuck" help, on demand; no-op when help is off
+      | "setHelp";                                // FR-024: switches help on/off for a running session
   enabled?: boolean;                             // setAccompaniment: silences what rings when turned off
   loop?: ResolvedLoop | null;                    // setLoop: null clears it (US3)
   key?: number;                                  // noteOn / noteOff
@@ -178,6 +181,10 @@ held key.") and `practice.repress` ("Press the key again.") are shown together b
 is `true` from any `showHelp` until the matching `hideHelp`, so `hideHelp` is emitted exactly once per `showHelp`:
 at the start of every `arriveAt` (a correct advance, a skip, a wrap, or `setLoop` moving the cursor) and at the two
 places the cursor advances without calling it (`skipPrevious`; reaching the end via a play or a forward skip).
+
+`setHelp` sets `help` on a running session, the same way `setAccompaniment` sets `accompaniment` - no restart, no
+other state touched - except that switching it off also hides help that is currently shown (`hideHelp`), since off
+means off immediately, not just for the next trigger.
 
 ## Loops
 
