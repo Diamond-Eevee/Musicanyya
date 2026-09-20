@@ -88,7 +88,7 @@ than renumbered, so IDs stay stable; **file order is execution order**, not nume
 - [ ] T015 [P] Recorded performance fixtures in `tests/fixtures/performances/`: the JSON `PerformanceLog` format
   of [contracts/performance-log.md](contracts/performance-log.md), one accurate take and one with known mistakes
   in measures 3 and 7 (the spec's US2 Independent Test), each naming its Score and settings
-- [ ] T090 RT review of T009 and T011 with `rt-audio-reviewer` (mandatory): the tick <-> audio-time conversion and
+- [x] T090 RT review of T009 and T011 with `rt-audio-reviewer` (mandatory): the tick <-> audio-time conversion and
   the MIDI timestamp mapping are timing code in that role's scope (Constitution II, and this file's own rule).
   It must confirm one conversion site, no `performance.now()` at receipt, no float accumulation of musical time
 - [ ] T094 [P] Test `tests/core/timeline/instruments.test.ts` (extend): no Score part is ever allocated to
