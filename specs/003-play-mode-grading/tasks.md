@@ -174,7 +174,7 @@ reason.
   displaced by a known offset (+-15, +-40, +-200 ms) reports a `deltaMs` within 5 ms of what was injected once the
   Latency profile is compensated, with an assumed and with a measured profile (SC-004, FR-013). These are the only
   checks that latency compensation has the right sign and size
-- [ ] T092 [P] [US1] `tests/core/grade/played-along.test.ts`: keys of the ungraded hand or another part, and the
+- [x] T092 [P] [US1] `tests/core/grade/played-along.test.ts`: keys of the ungraded hand or another part, and the
   presses that realise a written ornament (`trill-realisation`), become `PlayedAlongPress` - never wrong, never
   extra, counted in no figure; a press that *could* claim a graded note still claims it, because pass 3 runs last;
   a press outside every span stays extra (FR-024, SC-016, research R-18)
@@ -212,7 +212,7 @@ reason.
   (no key signature is tracked anywhere in the Score model yet), so a diatonic neighbour is exactly right in C
   major/A minor and only letter-correct elsewhere - flagged as a follow-up rather than expanding this task's
   scope into key-signature parsing
-- [ ] T093 [US1] `buildPlayedAlongSpans` in `src/core/grade/expected.ts` and pass 3 in `src/core/grade/match.ts`:
+- [x] T093 [US1] `buildPlayedAlongSpans` in `src/core/grade/expected.ts` and pass 3 in `src/core/grade/match.ts`:
   spans from 002's `ExpectedEvent.accompaniment` (`source: "ungraded"`) and from ornamented notes (their own key
   plus `ORNAMENT_NEIGHBOUR_STEPS` diatonic neighbours over the written duration, `source: "ornament"`); a
   leftover press inside a span becomes a `PlayedAlongPress` instead of an `ExtraNote`. Add `playedAlong` to

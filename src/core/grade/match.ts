@@ -1,5 +1,5 @@
 import { PLAY_RETRIGGER_DEBOUNCE_MS } from '../defaults.js';
-import type { ExpectedNote } from './types.js';
+import type { ExpectedNote, PlayedAlongSpan } from './types.js';
 import type { ResolvedWindow } from './windows.js';
 
 export interface TickedMessage {
@@ -18,10 +18,16 @@ export interface Claim {
   pass: ClaimPass;
 }
 
+export interface PlayedAlongClaim {
+  messageIndex: number;
+  source: PlayedAlongSpan['source'];
+}
+
 export interface MatchOutcome {
   claims: readonly Claim[];
   missedIndices: readonly number[]; // ExpectedNote.index values with no claim
-  extraMessageIndices: readonly number[]; // message indices of note-ons that claimed nothing
+  playedAlong: readonly PlayedAlongClaim[];
+  extraMessageIndices: readonly number[]; // message indices of note-ons that claimed and played-along nothing
 }
 
 interface CandidatePress {
@@ -106,16 +112,19 @@ function runPass(
 }
 
 /**
- * Matches a run's recorded input against its expected notes, in two passes (contracts/grading.md §3): pass 1
- * claims the same pitch, pass 2 (only for what pass 1 left unclaimed) the same pitch class - an octave error.
- * Pass 1 completes for every expected note before pass 2 considers any of them. Leftover expected notes are
- * missed; leftover candidate presses are extra. This function does not know about played-along spans (T093
- * adds a third pass on top of it) or timing results - it only decides which press claims which note.
+ * Matches a run's recorded input against its expected notes, in three passes (contracts/grading.md §3, research
+ * R-18): pass 1 claims the same pitch, pass 2 (only for what pass 1 left unclaimed) the same pitch class - an
+ * octave error - and pass 3 (only for what is still unclaimed) checks the leftover presses against
+ * `playedAlongSpans`, turning a press inside one into a `PlayedAlongClaim` instead of an extra note. Each pass
+ * completes for every candidate before the next begins, so a press that could satisfy a real match always does:
+ * the played-along spans only ever absorb what is genuinely left over. Leftover expected notes are missed;
+ * leftover presses that no span covers either are extra.
  */
 export function matchPerformance(
   expected: readonly ExpectedNote[],
   windows: readonly ResolvedWindow[],
   messages: readonly TickedMessage[],
+  playedAlongSpans: readonly PlayedAlongSpan[] = [],
 ): MatchOutcome {
   const presses = candidatePresses(messages);
   const claimedExpected = new Set<number>();
@@ -125,8 +134,18 @@ export function matchPerformance(
   runPass((key) => key, 'exact', expected, windows, presses, claimedExpected, claimedPress, claims);
   runPass((key) => key % 12, 'octave', expected, windows, presses, claimedExpected, claimedPress, claims);
 
-  const missedIndices = expected.filter((_, i) => !claimedExpected.has(i)).map((n) => n.index);
-  const extraMessageIndices = presses.filter((_, i) => !claimedPress.has(i)).map((p) => p.messageIndex);
+  const playedAlong: PlayedAlongClaim[] = [];
+  const extraMessageIndices: number[] = [];
+  for (let pi = 0; pi < presses.length; pi++) {
+    if (claimedPress.has(pi)) continue;
+    const press = presses[pi];
+    if (!press) continue;
+    const span = playedAlongSpans.find((s) => s.key === press.key && press.tick >= s.fromTick && press.tick < s.toTick);
+    if (span) playedAlong.push({ messageIndex: press.messageIndex, source: span.source });
+    else extraMessageIndices.push(press.messageIndex);
+  }
 
-  return { claims, missedIndices, extraMessageIndices };
+  const missedIndices = expected.filter((_, i) => !claimedExpected.has(i)).map((n) => n.index);
+
+  return { claims, missedIndices, playedAlong, extraMessageIndices };
 }
