@@ -85,7 +85,7 @@ than renumbered, so IDs stay stable; **file order is execution order**, not nume
   `chord-spread-rolled`, `played-along-both-hands`, `metronome-channel-collision` (a Score whose parts reach
   channel 14) - see quickstart §3. `arpeggiate-chord` and `trill-realisation` come with T085/T086. Real files
   with real notation - no placeholders (AGENTS.md section 4)
-- [ ] T015 [P] Recorded performance fixtures in `tests/fixtures/performances/`: the JSON `PerformanceLog` format
+- [x] T015 [P] Recorded performance fixtures in `tests/fixtures/performances/`: the JSON `PerformanceLog` format
   of [contracts/performance-log.md](contracts/performance-log.md), one accurate take and one with known mistakes
   in measures 3 and 7 (the spec's US2 Independent Test), each naming its Score and settings
 - [x] T090 RT review of T009 and T011 with `rt-audio-reviewer` (mandatory): the tick <-> audio-time conversion and
