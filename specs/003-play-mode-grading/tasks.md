@@ -136,7 +136,7 @@ reason.
   neighbour clamp is applied **after** the floor and gives ±46.9 ms for sixteenths at 160 bpm
   (`neighbour-clamp-sixteenths-160`); adjacent claim windows meet at the midpoint with no gap and no overlap at
   40, 60, 120, 160 and 208 bpm (SC-014)
-- [ ] T018 [P] [US1] `tests/core/grade/match.test.ts`: pass 1 claims same pitch, pass 2 only the same pitch class
+- [x] T018 [P] [US1] `tests/core/grade/match.test.ts`: pass 1 claims same pitch, pass 2 only the same pitch class
   (octave error); a wrong letter is extra plus a missed note; two presses of one pitch claim the two written
   notes in order (`repeated-pitch-two-presses`); two same-pitch onsets milliseconds apart never cross-match
   (`unison-two-voices`); a note-on with velocity 0 never claims; chatter under `PLAY_RETRIGGER_DEBOUNCE_MS` is
@@ -201,7 +201,7 @@ reason.
   in integer ticks with inclusive boundaries. The neighbour clamp is final: a window under
   `PLAY_WINDOW_ABSOLUTE_FLOOR_MS` is **not** raised, it is flagged for `timingNotResolvable`
   ([contracts/grading.md](contracts/grading.md) §2 rules 6 and 7)
-- [ ] T028 [US1] `src/core/grade/match.ts`: the two passes as order-preserving assignments per pitch and per pitch
+- [x] T028 [US1] `src/core/grade/match.ts`: the two passes as order-preserving assignments per pitch and per pitch
   class, with the tie-breaks of [contracts/grading.md](contracts/grading.md) §3
 - [ ] T093 [US1] `buildPlayedAlongSpans` in `src/core/grade/expected.ts` and pass 3 in `src/core/grade/match.ts`:
   spans from 002's `ExpectedEvent.accompaniment` (`source: "ungraded"`) and from ornamented notes (their own key
