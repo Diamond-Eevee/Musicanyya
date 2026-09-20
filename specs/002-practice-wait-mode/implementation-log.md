@@ -66,3 +66,10 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
 - Handoff: next = fix the HIGH findings in `spec.md`/`data-model.md`/`research.md`/`contracts/` (manual edits, or
   `/speckit.plan` for the contract shapes), then `/speckit.implement` from T001. Tree clean at the commit below.
   This branch has no upstream and is not on GitHub.
+
+## 2026-09-20 14:15 - antigravity-gemini-3.1-pro (relay)
+- Done: T001-T005 (Phase 1 & 2: Setup and Foundational types/helpers)
+- In progress: none
+- Decisions: Fixed the 5 HIGH findings from the analyze report directly via multi_replace_file_content before starting T001. Added custom compact midi notation parser in tests/fakes/midi-sequence.ts.
+- Problems / open questions: none
+- Handoff: next = T006 (US1 tests); tree clean at the latest commit.

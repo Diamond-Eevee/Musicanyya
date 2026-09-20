@@ -31,16 +31,16 @@ renumbered; the phase order below is what to follow.
 
 ## Phase 2: Foundational (blocks all user stories)
 
-- [ ] T003 Practice domain types in `src/core/practice/types.ts`, exactly the shapes in
+- [x] T003 Practice domain types in `src/core/practice/types.ts`, exactly the shapes in
   [contracts/practice-session.md](contracts/practice-session.md) and [data-model.md](data-model.md) §1-§6
   (`HandSelection`, `RequiredKey`, `ExpectedEvent`, `SoundingRef`, `Attempt`, `MarkState`, `PracticeMark`,
   `SessionPhase`, `PracticeSession`, `PracticeInput` (including the `skipNext` / `skipPrevious` commands),
   `PracticeEffect`, `PracticeNoticeCode`, `LoopRange`, `ResolvedLoop`) - types only, no logic. `MarkState` has all
   nine states, `playedAlong` and `skipped` included (clarifications of 2026-09-20)
-- [ ] T004 [P] Test helper `tests/core/practice/helpers.ts`: load a fixture by name and return
+- [x] T004 [P] Test helper `tests/core/practice/helpers.ts`: load a fixture by name and return
   `{ score, timeline }` through the existing `readXml` / `buildScore` / timeline builder, so every practice test
   starts from a real Score
-- [ ] T005 [P] Test helper `tests/fakes/midi-sequence.ts`: build ordered `PracticeInput[]` (note on/off, sustain,
+- [x] T005 [P] Test helper `tests/fakes/midi-sequence.ts`: build ordered `PracticeInput[]` (note on/off, sustain,
   device loss) from a compact notation, plus a `stripTimestamps` helper for the timestamp-independence assertion
 
 **Checkpoint**: foundation ready - user stories can proceed (in parallel if staffed).
