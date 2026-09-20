@@ -143,3 +143,30 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
 - Handoff: next = `/speckit.analyze` (read-only consistency check across spec, plan and tasks), then
   `/speckit.implement` starting at T001. Nothing implemented yet - no source file has been touched in this
   feature. Tree clean at the commit below; not pushed.
+
+## 2026-09-20 - claude-opus-5 (relay)
+
+- Done: `/speckit.analyze` (read-only). Nothing in `spec.md`, `plan.md`, `tasks.md` or any source file was changed.
+- Analyze: 22 findings (CRITICAL 1, HIGH 5, MEDIUM 8, LOW 8); tasks.md as of edb12bf. FR coverage 45/48, SC
+  coverage 11/15, no unmapped tasks, no duplicate requirements.
+- Top recommendations (all need `tasks.md` or a design document, not code):
+  1. **C1 (CRITICAL)**: SC-003 (a perfectly timed performance is on time at 40-208 bpm) and SC-004 (the reported
+     difference is within 5 ms of an injected offset) have no task at all. They are US1 criteria and the only
+     checks that latency compensation is applied correctly - add one synthetic-offset test task to Phase 3.
+  2. **H1**: T009, T011, T030 and T032 are timing-path work (tick<->audio-time conversion, MIDI clock mapping,
+     latency compensation, the schedule compiler) with no `rt-audio-reviewer` task, although `tasks.md`'s own
+     rule and the reviewer's scope require one. Only T034/T036 have reviews (T035/T037).
+  3. **H2**: the count-in reach-back contradicts itself - data-model section 1 and `contracts/performance-log.md`
+     rule 4 say count-in input is excluded from matching, section 2 and `contracts/play-run.md` say the first
+     note's early claim window reaches back into it (D-4).
+  4. **H3**: FR-024 (played-along keys are never wrong or extra) has no representation in `contracts/grading.md`
+     or `GradeInput`; step 3 turns every unclaimed press into an `ExtraNote`, so T062 cannot pass as written.
+  5. **H4**: D-3 (SC-015 vs FR-011a, T087) is still open and the plan says it must be settled before Phase 3.
+  6. **H5**: `METRONOME_CHANNEL = 14` is not reserved by `src/core/timeline/instruments.ts` (which reserves only
+     9 and 15), so a Score can be allocated to it; `contracts/play-run.md` rule 5 and T022 have no implementing
+     task.
+- Problems / open questions: no remediation was applied (analyze is read-only); the user decides whether to fix
+  the findings before `/speckit.implement`.
+  - needs owner: **D-1 (T085)**, **D-2 (T086)**, **D-3 (T087)**, **D-4 (T088)** - unchanged, still open.
+- Handoff: next = fix C1 and H1-H5 in `tasks.md` / the design documents (or accept them), then
+  `/speckit.implement` from T001. Nothing implemented yet; tree clean at the commit below.
