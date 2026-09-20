@@ -4,6 +4,7 @@ export interface CursorOptions {
   measureRect: DOMRect;
   noteRects: DOMRect[];
   containerRect: DOMRect;
+  isPracticeWaiting?: boolean;
 }
 
 const BAR_WIDTH_PX = 3;

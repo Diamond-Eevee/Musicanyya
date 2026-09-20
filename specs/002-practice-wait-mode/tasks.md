@@ -79,10 +79,10 @@ session reports that the end was reached.
 - [x] T010 [P] [US1] `tests/core/practice/replay.test.ts`: golden snapshots of the marks and the ordered effects
   for recorded input lists over the C major exercise and `chord-basic`; plus the guarantee that stripping every
   `timeStampMs` changes nothing (FR-028, SC-004, contract guarantee 2)
-- [ ] T011 [P] [US1] `tests/ui/practice-marks.test.ts`: each of the nine `MarkState`s - `playedAlong` and
+- [x] T011 [P] [US1] `tests/ui/practice-marks.test.ts`: each of the nine `MarkState`s - `playedAlong` and
   `skipped` included - renders a distinct shape class as well as a colour, the waiting cursor sits on the expected
   event, and no mark covers the notehead it refers to (FR-010, SC-009, R-08)
-- [ ] T049 [P] [US1] `tests/core/practice/skip.test.ts` (write before T050): `skipNext` marks the event's
+- [x] T049 [P] [US1] `tests/core/practice/skip.test.ts` (write before T050): `skipNext` marks the event's
   required notes `skipped` and moves the cursor on without a `correct`; `skipPrevious` returns to the previous
   event and clears its marks; neither touches `wrongAttemptsOnCurrent`; a forward skip past the last event ends
   the session as `stopped`, not `reachedEnd` (FR-004a, data-model §4 rule 6)
