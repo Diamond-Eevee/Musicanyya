@@ -251,16 +251,16 @@ on-screen keyboard with its note name and written fingering.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T038 [P] [US4] `tests/core/practice/help.test.ts`: `showHelp` after `PRACTICE_HELP_AFTER_WRONG_ATTEMPTS`
+- [x] T038 [P] [US4] `tests/core/practice/help.test.ts`: `showHelp` after `PRACTICE_HELP_AFTER_WRONG_ATTEMPTS`
   wrong attempts on the same event, immediately on request, immediately with reason `heldOver`, hidden as soon as
   the event is satisfied, and grace notes never counting towards it (FR-023, R-10)
-- [ ] T039 [P] [US4] `tests/ui/practice-help.test.ts`: the expected key is lit on the on-screen keyboard with its
+- [~] T039 [P] [US4] `tests/ui/practice-help.test.ts`: the expected key is lit on the on-screen keyboard with its
   note name and the fingering written in the Score, the overlay never covers the note it refers to, and the
-  session switch turns it off (FR-024)
+  session switch turns it off (FR-024) (claimed: claude-sonnet-5 2026-09-20)
 
 ### Implementation
 
-- [ ] T040 [US4] Help effects and the `wrongAttemptsOnCurrent` counter in `src/core/practice/matcher.ts` - counted
+- [x] T040 [US4] Help effects and the `wrongAttemptsOnCurrent` counter in `src/core/practice/matcher.ts` - counted
   internally, never shown as a tally (depends on T038)
 - [ ] T041 [US4] `src/ui/elements/mx-practice-help.ts`, the expected-key highlight in
   `src/ui/elements/mx-piano-keys.ts`, and the wiring in `src/app/session.ts` (depends on T039, T040)

@@ -9,6 +9,7 @@ import type { PracticeInput } from '../../src/core/practice/types.js';
 // "lost:@300" -> deviceLost with no held keys at 300ms
 // "skipNext@350" -> skipNext at 350ms
 // "skipPrev@400" -> skipPrevious at 400ms
+// "reqHelp@450" -> requestHelp at 450ms
 
 export function buildSequence(compactStr: string[]): PracticeInput[] {
   return compactStr.map((str) => {
@@ -35,6 +36,8 @@ export function buildSequence(compactStr: string[]): PracticeInput[] {
         return { type: 'skipNext', timeStampMs };
       case 'skipPrev':
         return { type: 'skipPrevious', timeStampMs };
+      case 'reqHelp':
+        return { type: 'requestHelp', timeStampMs };
       default:
         throw new Error(`Unknown command in compact input: ${str}`);
     }

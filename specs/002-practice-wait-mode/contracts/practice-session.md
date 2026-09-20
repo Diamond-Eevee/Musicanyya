@@ -1,6 +1,6 @@
 # Contract: practice session (core API)
 
-**Version**: `1.3.0` (internal TypeScript contract between `src/core/practice`, `src/app/session.ts` and
+**Version**: `1.4.0` (internal TypeScript contract between `src/core/practice`, `src/app/session.ts` and
 `src/ui`). Signatures are normative in shape; every change is reflected here with a version bump (MINOR for
 additions, MAJOR for breaking changes). `1.0.0` was amended on 2026-09-20 by the clarification session (played-along
 and skipped marks, the wrong-versus-extra rule, part selection, skip inputs) before anything was implemented.
@@ -12,6 +12,8 @@ and the optional `attribution` argument of `buildExpectedEvents`.
 `passIndicesToLoopRange` are added (R-13).
 `1.3.0` (T056, 2026-09-20): the `keyFeedback` effect is added, carrying a wrong / wrong-octave / extra press to the
 on-screen keyboard (R-14) since it has no notehead of its own; `WrongKeyState` is added.
+`1.4.0` (US4, 2026-09-20): the `requestHelp` input is added; `PracticeSession.helpShown` is added (internal, drives
+`hideHelp`); `practice.extra.heldOver` / `practice.repress` are assigned to the `heldOver` help text (R-15).
 
 Constitution IV and V: this module is pure. It imports nothing from `src/engine` or `src/ui`, touches no DOM, no
 Web API, no clock and no randomness, and therefore runs in Node under test. It **returns** effects; it never
@@ -64,7 +66,8 @@ export function firstEventAtOrAfterTick(events: readonly ExpectedEvent[], tick: 
 export type SessionPhase = "idle" | "waiting" | "blocked" | "finished" | "interrupted";
 
 export interface PracticeInput {                 // the MidiInput port's events, plus the musician's own commands
-  type: "noteOn" | "noteOff" | "sustain" | "deviceLost" | "skipNext" | "skipPrevious" | "setAccompaniment" | "setLoop";
+  type: "noteOn" | "noteOff" | "sustain" | "deviceLost" | "skipNext" | "skipPrevious" | "setAccompaniment" | "setLoop"
+      | "requestHelp";                            // FR-024: same as "stuck" help, on demand; no-op when help is off
   enabled?: boolean;                             // setAccompaniment: silences what rings when turned off
   loop?: ResolvedLoop | null;                    // setLoop: null clears it (US3)
   key?: number;                                  // noteOn / noteOff
@@ -157,9 +160,24 @@ effect (R-14, owner decision 2026-09-20): `wrongOctave` carries `practice.octave
 which way the pressed key is from the required one; `extra` (every required key already held) carries
 `practice.extra.notInChord`; `wrongPitch` carries no message - there is no useful direction to give for a letter
 that is simply wrong, so the mark alone stands until FR-023's help lights the right key. `heldOver` keeps marking
-the required notehead as before (`markNotes`), unchanged by this contract; `practice.extra.heldOver` and
-`practice.repress` are not produced by this contract - T056 left them unassigned; US4 (T038-T041) still needs to
-decide whether either belongs to the held-over/help flow (FR-009a, FR-023).
+the required notehead as before (`markNotes`), unchanged by this contract; `practice.extra.heldOver` ("Release the
+held key.") and `practice.repress` ("Press the key again.") are shown together by the help overlay for `reason:
+"heldOver"` (R-15) - the release-then-repress instruction FR-009a asks for.
+
+## Help (FR-023, FR-024, FR-009a, R-15)
+
+`help` (`PracticeSession`, `StartOptions`) is the one switch for both ways `showHelp` can fire by choice:
+- `reason: "stuck"` - the `PRACTICE_HELP_AFTER_WRONG_ATTEMPTS`th wrong attempt (`wrongPitch` or `wrongOctave`; never
+  `extra`, `playedAlong` or `skipped`) on the same event, only while `help` is `true`.
+- `reason: "requested"` - the `requestHelp` input, at any time there is a current event; a no-op while `help` is
+  `false` or the session is `finished`/`idle`.
+- `reason: "heldOver"` - unconditional (FR-009a is a correctness guarantee, not the pedagogy `help` switches off):
+  fires whenever `arriveAt` finds a required key already down, exactly as before this contract version.
+
+`PracticeSession.helpShown` (internal, not persisted, never displayed as anything - like `wrongAttemptsOnCurrent`)
+is `true` from any `showHelp` until the matching `hideHelp`, so `hideHelp` is emitted exactly once per `showHelp`:
+at the start of every `arriveAt` (a correct advance, a skip, a wrap, or `setLoop` moving the cursor) and at the two
+places the cursor advances without calling it (`skipPrevious`; reaching the end via a play or a forward skip).
 
 ## Loops
 

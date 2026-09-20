@@ -85,11 +85,22 @@ export interface PracticeSession {
   loop: ResolvedLoop | null;
   accompaniment: boolean;
   help: boolean;
+  /** Whether help is currently displayed, so `hideHelp` fires exactly once per `showHelp` (R-15). */
+  helpShown: boolean;
   log: readonly Attempt[];
 }
 
 export interface PracticeInput {
-  type: 'noteOn' | 'noteOff' | 'sustain' | 'deviceLost' | 'skipNext' | 'skipPrevious' | 'setAccompaniment' | 'setLoop';
+  type:
+    | 'noteOn'
+    | 'noteOff'
+    | 'sustain'
+    | 'deviceLost'
+    | 'skipNext'
+    | 'skipPrevious'
+    | 'setAccompaniment'
+    | 'setLoop'
+    | 'requestHelp';
   key?: number;
   velocity?: number;
   down?: boolean;

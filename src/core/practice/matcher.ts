@@ -1,3 +1,4 @@
+import { PRACTICE_HELP_AFTER_WRONG_ATTEMPTS } from '../defaults.js';
 import type { NoteId } from '../score/model.js';
 import type {
   Attempt,
@@ -24,6 +25,7 @@ export function startSession(options: StartOptions): PracticeSession {
     loop: options.loop,
     accompaniment: options.accompaniment,
     help: options.help,
+    helpShown: false,
     log: [],
   };
 }
@@ -98,6 +100,13 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
     log.push({ key, eventIndex: next.index, state, timeStampMs: input.timeStampMs });
   };
 
+  /** Help shown for the event being left no longer applies (R-15): fires `hideHelp` at most once per `showHelp`. */
+  const hideHelpIfShown = () => {
+    if (!next.helpShown) return;
+    next.helpShown = false;
+    effects.push({ type: 'hideHelp' });
+  };
+
   /**
    * Puts the cursor on an event. Marks left on its notes by an earlier pass are cleared first - a repeat or a loop
    * plays the same Note IDs again, and a note still marked correct would hide that the app waits for it - then the
@@ -106,6 +115,7 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
   const arriveAt = (index: number) => {
     const event = next.events[index];
     if (!event) return;
+    hideHelpIfShown();
     next.index = index;
     next.wrongAttemptsOnCurrent = 0;
 
@@ -127,6 +137,7 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
     if (blocked) {
       next.phase = 'blocked';
       effects.push({ type: 'showHelp', eventIndex: index, reason: 'heldOver' });
+      next.helpShown = true;
     }
   };
 
@@ -137,6 +148,15 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
     next.loop !== null && next.index === next.loop.toEventIndex ? next.loop.fromEventIndex : null;
 
   const currentEvent = next.events[next.index];
+
+  if (input.type === 'requestHelp') {
+    // One switch for both ways help can appear (R-15): off means off, whether it is asked for or not.
+    if (next.help && currentEvent) {
+      effects.push({ type: 'showHelp', eventIndex: next.index, reason: 'requested' });
+      next.helpShown = true;
+    }
+    return { session: next, effects };
+  }
 
   if (input.type === 'deviceLost') {
     for (const k of input.heldKeys ?? []) {
@@ -173,6 +193,7 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
       } else if (skippingLast) {
         // Skipping the last event ends the session, so its accompaniment would only ring with no cursor left to
         // release it: it is not started (RT review).
+        hideHelpIfShown();
         next.index++;
         next.wrongAttemptsOnCurrent = 0;
         next.phase = 'finished';
@@ -191,6 +212,7 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
     // A loop is not left backwards: at its first event there is nothing before it to go back to.
     const atLoopStart = next.loop !== null && next.index === next.loop.fromEventIndex;
     if (next.index > 0 && !atLoopStart) {
+      hideHelpIfShown();
       releaseAll();
       next.index--;
       next.wrongAttemptsOnCurrent = 0;
@@ -274,6 +296,7 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
         } else {
           soundAccompanimentOf(currentEvent);
           if (next.index + 1 >= next.events.length) {
+            hideHelpIfShown();
             next.index++;
             next.wrongAttemptsOnCurrent = 0;
             next.phase = 'finished';
@@ -314,6 +337,12 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
         } else {
           addLog(key, 'wrongPitch');
           effects.push({ type: 'keyFeedback', key, state: 'wrongPitch' });
+        }
+        // FR-023: help appears by itself once the wrong attempts on this event reach the threshold, unless it is
+        // already shown (R-15) or the musician switched it off.
+        if (next.help && !next.helpShown && next.wrongAttemptsOnCurrent >= PRACTICE_HELP_AFTER_WRONG_ATTEMPTS) {
+          effects.push({ type: 'showHelp', eventIndex: next.index, reason: 'stuck' });
+          next.helpShown = true;
         }
       }
     }

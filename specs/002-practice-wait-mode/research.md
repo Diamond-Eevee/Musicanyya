@@ -320,3 +320,52 @@ message from the key it is about.
 were written for the held-over/re-attack case (FR-009a), which already marks its own notehead via `markNotes` and
 is unrelated to the keyless states this decision covers. US4 (T038-T041) should decide whether either belongs to
 the held-over flow when it wires `showHelp`.
+
+## R-15 - Help: what gates it, what hides it, and how the note is named (US4 implementation, 2026-09-20)
+
+**Decision**:
+1. **One switch, the whole feature.** `PracticeSession.help` (already in the contract, `StartOptions.help`,
+   `PracticeSettings.help`) gates both ways help can appear - by itself after
+   `PRACTICE_HELP_AFTER_WRONG_ATTEMPTS` wrong attempts (`reason: "stuck"`) and on request (`reason: "requested"`,
+   new `requestHelp` input) - because FR-024 states availability-on-request, never-covers and switchable-off as one
+   sentence about "the help", not two independent features. With `help: false`, `requestHelp` is a no-op. `reason:
+   "heldOver"` (FR-009a) is **not** gated: it is a correctness requirement (the session must never wait in silence
+   for a key that cannot arrive), not the pedagogical help this switch turns off, and it already fired
+   unconditionally before this feature (T056/R-13 wiring of `arriveAt`).
+2. **`heldOver`'s wording is what was left open in R-14**: `practice.extra.heldOver` ("Release the held key.") and
+   `practice.repress` ("Press the key again.") are exactly the release-then-repress instruction FR-009a describes,
+   so the help overlay shows both sentences for that reason instead of inventing new copy.
+3. **Visibility is tracked, not inferred, so `hideHelp` fires exactly once.** `PracticeSession` gains
+   `helpShown: boolean` (internal, not persisted, not shown as anything - like `wrongAttemptsOnCurrent`): `true`
+   after any `showHelp`, cleared (with a `hideHelp` effect) at the start of every `arriveAt` and at the two places
+   the cursor advances without going through it (`skipPrevious`, and the two direct-to-`finished` transitions on
+   the last event). This also means an event without help shown emits no spurious `hideHelp` - existing golden
+   replay snapshots elsewhere in the branch are unaffected.
+4. **Note naming falls back to the MIDI key, sharps-only**, because `Note` keeps only `writtenKey`/`soundingKey`
+   (data-model.md derives them and discards `step`/`alter`), not the written letter and accidental - Verovio's SVG
+   is the one place the exact spelling still lives (Constitution III), and this feature does not touch the parser
+   or model to recover it. `mx-practice-help` therefore names a key "C4", "C#4" etc. by chromatic position
+   (`key % 12`, octave `floor(key/12) - 1`), which can read enharmonically different from the printed accidental
+   (a written D♭4 shows as "C#4"). This is a known simplification, not a silent one: it is written here so a later
+   feature that carries pitch spelling through the model can fix it without re-deciding where the name comes from.
+   The fingering is not approximated the same way - it is read from the actual `Note.fingerings` of the required
+   key's Note IDs (first one that has any), since that is exactly what is stored, unlike the spelling.
+5. **The overlay is placed by a fixed dock, not by measuring the note.** "Never covers the notes it refers to"
+   (FR-024) is met by `position: fixed` in a screen corner, clear of both the Score view and the on-screen keyboard,
+   rather than by measuring the note's SVG bounding box and steering around it. A collision-avoiding overlay would
+   need to track Verovio's rendered geometry on every resize and scroll; fixed placement needs none of that and
+   cannot ever overlap a note, at the cost of being farther from the note than a smarter placement could be.
+
+**Rationale**: keeping one gate (point 1) matches the spec's own sentence structure and avoids a second, undocumented
+switch nobody asked for. Tracking visibility explicitly (point 3) keeps `hideHelp` meaningful (an app layer that
+receives it can trust something was actually shown) instead of turning it into noise emitted on every arrival.
+
+**Alternatives considered**: gating `requestHelp` only by phase, not by `help` (rejected - "switchable off"
+would then only mean "the automatic pop-up", leaving no way to actually turn help off, which reads against FR-024's
+plain wording); deriving "is help visible" from `wrongAttemptsOnCurrent >= threshold` instead of a stored flag
+(rejected - that expression stays true after help is shown until the event changes, so it cannot tell "just crossed
+the threshold" from "still stuck five presses later", and it says nothing about `requested`); parsing `step`/
+`alter` back out of `NoteId` or re-deriving it from `writtenKey` with a key-signature guess (rejected - `NoteId`'s
+`pitch` segment is already the MIDI key for a pitched note (`note-id.ts`), not spelling, and guessing a key
+signature to respell a single note is exactly the kind of silent inaccuracy Constitution III warns against; better
+to show the plain chromatic name and say so here than to guess).

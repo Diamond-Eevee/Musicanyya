@@ -153,7 +153,9 @@ Advancing (`matcher.ts`, one pure step per input event):
    note): `playedAlong`. Not judged, not counted, never blocking (FR-007, FR-027).
 3. `noteOn` for any other key - one the Score does not write at this event at all (clarified 2026-09-20):
    - while the event still has unplayed required keys, the press is an **attempt** at it: `wrongOctave` when
-     `key % 12` matches a required key's pitch class, otherwise `wrongPitch`;
+     `key % 12` matches a required key's pitch class, otherwise `wrongPitch`; once this raises
+     `wrongAttemptsOnCurrent` to `PRACTICE_HELP_AFTER_WRONG_ATTEMPTS` and `help` is on, `showHelp` fires with
+     `reason: "stuck"` (FR-023, R-15);
    - once every required key is already held, or the key was left over from earlier playing: `extra`.
 
    There is no distance threshold and no constant: a near miss and a far one are the same mistake.
@@ -170,10 +172,17 @@ Advancing (`matcher.ts`, one pure step per input event):
    still down). `setLoop` sets or clears the loop and moves a cursor that lies outside it to its first event.
    Whenever the cursor arrives on an event, the marks left on that event's notes by an earlier pass are cleared
    first; nothing is cleared at the wrap itself.
+9. `requestHelp` (FR-024, R-15): while there is a current event, shows it immediately with `reason: "requested"`,
+   the same as the "stuck" reason but without needing the wrong-attempt count; a no-op when `help` is off (one
+   switch for both, R-15) or the session is `finished`/`idle`.
+10. Help visibility (R-15): `showHelp` (any reason) sets `helpShown`; the first `arriveAt` after that - the normal
+    case, a skip, a wrap, or `setLoop` moving the cursor - emits `hideHelp` and clears it before deciding whether
+    the newly arrived event needs `showHelp` itself (`heldOver`). The two places the cursor advances without going
+    through `arriveAt` (`skipPrevious`, and reaching the end via a play or a forward skip) do the same.
 
 Advancing emits effects, which the app layer applies: `markNotes`, `moveCursor`, `soundAccompaniment(on|off)`,
-`showHelp`, `endSession`. The core itself calls nothing. A skip emits the same effects as an advance, minus any
-`correct` mark.
+`showHelp`, `hideHelp`, `endSession`. The core itself calls nothing. A skip emits the same effects as an advance,
+minus any `correct` mark.
 
 ## 5. Loop range
 
@@ -215,7 +224,10 @@ interface PracticeSession {
                                  // skipped events never increase it
   loop: ResolvedLoop | null;
   accompaniment: boolean;
-  help: boolean;
+  help: boolean;                 // gates both ways help can appear - "stuck" and "requested" (R-15); "heldOver" is
+                                 // unconditional (FR-009a)
+  helpShown: boolean;            // internal, like wrongAttemptsOnCurrent: whether help is currently displayed, so
+                                 // hideHelp fires exactly once (R-15)
   log: readonly Attempt[];       // ordered, replayable (FR-028, SC-004)
 }
 ```
