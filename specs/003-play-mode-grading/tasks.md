@@ -142,7 +142,7 @@ reason.
   (`unison-two-voices`); a note-on with velocity 0 never claims; chatter under `PLAY_RETRIGGER_DEBOUNCE_MS` is
   coalesced; matching is on sounding key (`enharmonic-cs-db`, `transposing-part-sounding-pitch`); pass 1
   completes before pass 2; shuffling simultaneous messages changes nothing (FR-019)
-- [ ] T019 [P] [US1] `tests/core/grade/grade.test.ts` (invariants): every expected note appears exactly once;
+- [x] T019 [P] [US1] `tests/core/grade/grade.test.ts` (invariants): every expected note appears exactly once;
   `timing === null` exactly when `pitch === "missed"`; every recorded note-on ends as exactly one of a result's
   `playedKey`, one `PlayedAlongPress` or one `ExtraNote` - never two of them, never twice; pedal and velocity
   change no result (FR-018, FR-023, FR-024)
@@ -219,7 +219,7 @@ reason.
   `GradeInput` and to `Grade` (grading contract 1.0.0 -> 1.1.0, research R-18, FR-024)
 - [x] T029 [US1] `src/core/grade/summary.ts`: the two figures, the counts, `meanAsynchronyMs`, the per-pass
   overview and the reliability warnings; `playedAlong` presses are counted in nothing
-- [ ] T030 [US1] `src/core/grade/grade.ts`: `gradePerformance` - latency compensation, audio time to ticks, sort,
+- [x] T030 [US1] `src/core/grade/grade.ts`: `gradePerformance` - latency compensation, audio time to ticks, sort,
   match (passes 1, 2 and the played-along pass 3), timing, reasons, summary including `timingNotResolvable` -
   synchronous and pure. The count-in filter is "no press earlier than `firstOnsetTick - claimEarly(first)`", and
   matching continues for `claimLate(last)` past the final onset (D-4)
