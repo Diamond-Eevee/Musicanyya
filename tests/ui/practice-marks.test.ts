@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { drawPracticeMarks } from '../../src/ui/score/practice-marks.js';
 import { drawCursorOverlay } from '../../src/ui/score/cursor-overlay.js';
+import { drawPracticeMarks } from '../../src/ui/score/practice-marks.js';
 
 describe('practice marks rendering', () => {
   it('each of the nine MarkStates renders a distinct shape class as well as a colour, and no mark covers the notehead', () => {
@@ -15,10 +15,13 @@ describe('practice marks rendering', () => {
       stroke: vi.fn(),
       moveTo: vi.fn(),
       lineTo: vi.fn(),
+      setLineDash: vi.fn(),
+      closePath: vi.fn(),
     } as unknown as CanvasRenderingContext2D;
-    
+
     // We can define dummy note rects
-    const getRect = (id: string): DOMRect => ({ left: 10, top: 20, right: 30, bottom: 40, width: 20, height: 20 } as DOMRect);
+    const getRect = (id: string): DOMRect =>
+      ({ left: 10, top: 20, right: 30, bottom: 40, width: 20, height: 20 }) as DOMRect;
 
     // Call drawPracticeMarks with a variety of states
     const marks = [
@@ -32,7 +35,7 @@ describe('practice marks rendering', () => {
       { noteId: 'n8', state: 'playedAlong' as const },
       { noteId: 'n9', state: 'skipped' as const },
     ];
-    
+
     // Pass noteRects for each
     const noteRects = new Map([
       ['n1', getRect('n1')],
@@ -51,11 +54,12 @@ describe('practice marks rendering', () => {
       dpr: 1,
       containerRect: { left: 0, top: 0 } as DOMRect,
       marks,
-      noteRects
+      noteRects,
     });
-    
-    // The test must fail initially because drawPracticeMarks doesn't exist or isn't fully implemented.
-    expect(ctx.fillRect).toHaveBeenCalled();
+
+    // The test asserts that drawPracticeMarks uses stroke methods to avoid covering noteheads
+    expect(ctx.stroke).toHaveBeenCalled();
+    expect(ctx.strokeRect).toHaveBeenCalled();
   });
 
   it('waiting cursor sits on the expected event (using drawCursorOverlay with mode)', () => {
@@ -65,6 +69,7 @@ describe('practice marks rendering', () => {
       arc: vi.fn(),
       fill: vi.fn(),
       stroke: vi.fn(),
+      strokeRect: vi.fn(),
     } as unknown as CanvasRenderingContext2D;
 
     drawCursorOverlay({
@@ -73,7 +78,7 @@ describe('practice marks rendering', () => {
       measureRect: { left: 5, top: 10, bottom: 50, right: 50 } as DOMRect,
       noteRects: [{ left: 20, top: 20, bottom: 30, right: 30 } as DOMRect],
       containerRect: { left: 0, top: 0 } as DOMRect,
-      isPracticeWaiting: true // Some new flag we will add to drawCursorOverlay
+      isPracticeWaiting: true, // Some new flag we will add to drawCursorOverlay
     });
 
     // Practice cursor should be visually distinct (e.g., hollow box instead of line)

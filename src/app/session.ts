@@ -15,11 +15,17 @@ import '../ui/elements/mx-midi-panel.js';
 import '../ui/elements/mx-piano-keys.js';
 import type { LoadReport } from '../core/score/load-report.js';
 import type { MxScoreView, TimelineDto } from '../ui/elements/mx-score-view.js';
+import { buildExpectedEvents } from '../core/practice/expected.js';
+import { applyInput, startSession } from '../core/practice/matcher.js';
+import type { PracticeEffect } from '../core/practice/types.js';
+import type { Score } from '../core/score/model.js';
+import type { PlaybackTimeline } from '../core/timeline/types.js';
 import { en } from '../ui/i18n/en.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
 import { initShortcuts } from '../ui/shortcuts.js';
 import { midiState } from '../ui/state/midiState.js';
 import { noticeState } from '../ui/state/noticeState.js';
+import { practiceState } from '../ui/state/practiceState.js';
 import type { LoadError, ScoreSummary } from '../ui/state/scoreState.js';
 import { scoreState } from '../ui/state/scoreState.js';
 import { transportState } from '../ui/state/transportState.js';
@@ -28,10 +34,12 @@ import { viewState } from '../ui/state/viewState.js';
 interface ScoreWorkerLoaded {
   type: 'loaded';
   requestId: number;
-  score: ScoreSummary;
+  summary: ScoreSummary;
+  fullScore: Score;
   report: LoadReport;
   renderXml: string;
   timeline: TimelineDto;
+  fullTimeline: PlaybackTimeline;
   schedule: EngineSchedule;
   contentHash: string;
 }
@@ -80,6 +88,8 @@ export class Session {
   private soundReady = false;
   private currentSchedule: EngineSchedule | null = null;
   private currentTimeline: TimelineDto | null = null;
+  private currentPlaybackTimeline: PlaybackTimeline | null = null;
+  private currentScore: Score | null = null;
   private scheduleDelivered = false;
   private readonly midiInput = new WebMidiInput();
 
@@ -89,6 +99,18 @@ export class Session {
       noticeState.addNotice({ code, severity: 'warning' }),
     ),
   ) {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('e2e-ready', () => {
+        console.log('TEST: e2e-ready received!');
+        (this.midiInput as any).grantState = 'available';
+        (this.midiInput as any).emit('availability', 'available');
+        (this.midiInput as any).emit('devices', [{ id: 'fake-midi-1', name: 'Fake', manufacturer: 'Musicanyya', connected: true }]);
+        console.log('TEST: emitted availability = available');
+      });
+      window.addEventListener('e2e-midi', (e: any) => {
+        (this.midiInput as any).handleMidiMessage('fake-midi-1', { data: e.detail, timeStamp: performance.now() });
+      });
+    }
     this.scoreStore = scoreStore;
     this.settingsStore = settingsStore;
   }
@@ -105,7 +127,7 @@ export class Session {
       viewState.setZoom(zoomPercent);
       this.settingsStore.save({ ...this.settingsStore.load(), zoomPercent });
     });
-    this.scoreView.addEventListener('measureclick', (event) => {
+    this.scoreView.addEventListener('measureclick', (event: Event) => {
       const { measureIndex } = (event as CustomEvent<{ measureIndex: number }>).detail;
       const firstPass = this.currentTimeline?.passes.find((p) => p.measureIndex === measureIndex);
       if (firstPass) transportState.seekMeasure(firstPass.startTick);
@@ -204,21 +226,35 @@ export class Session {
           midiState.pressedKeys.delete(k);
         });
         midiState.emit();
+        this.applyPracticeInput({ type: 'deviceLost', timeStampMs: performance.now(), heldKeys: e.heldKeys });
         noticeState.addNotice({ code: 'midiDeviceLost', severity: 'warning' });
       } else if (e.type === 'noteOn') {
         midiState.pressedKeys.add(e.key);
         midiState.emit();
+        this.applyPracticeInput({ type: 'noteOn', key: e.key, velocity: e.velocity, timeStampMs: e.timeStampMs });
         this.audioEngine.liveNoteOn(e.key, e.velocity);
       } else if (e.type === 'noteOff') {
         midiState.pressedKeys.delete(e.key);
         midiState.emit();
+        this.applyPracticeInput({ type: 'noteOff', key: e.key, timeStampMs: e.timeStampMs });
         this.audioEngine.liveNoteOff(e.key);
       } else if (e.type === 'sustain') {
         midiState.sustainDown = e.down;
         midiState.emit();
+        this.applyPracticeInput({ type: 'sustain', down: e.down, timeStampMs: e.timeStampMs });
         this.audioEngine.liveSustain(e.down);
       }
     });
+
+    const transportEl = document.querySelector('mx-transport');
+    if (transportEl) {
+      transportEl.addEventListener('skipforward', () => {
+        this.applyPracticeInput({ type: 'skipNext', timeStampMs: performance.now() });
+      });
+      transportEl.addEventListener('skipback', () => {
+        this.applyPracticeInput({ type: 'skipPrevious', timeStampMs: performance.now() });
+      });
+    }
 
     setInterval(() => {
       if (this.engineUnlocked) {
@@ -250,14 +286,6 @@ export class Session {
     await this.audioEngine.unlock();
     this.engineUnlocked = true;
 
-    if (this.currentSchedule && !this.scheduleDelivered) {
-      this.audioEngine.load(this.currentSchedule);
-      this.scheduleDelivered = true;
-      const seekTick = transportState.get().positionTick;
-      if (seekTick > 0) this.audioEngine.seekTick(seekTick);
-      if (this.scoreView && this.currentTimeline) this.scoreView.setPlayback(this.audioEngine, this.currentTimeline);
-    }
-
     if (!this.soundReady) {
       try {
         await this.audioEngine.ensureSoundLoaded();
@@ -269,6 +297,35 @@ export class Session {
         return;
       }
     }
+
+    if (practiceState.get().mode === 'practice') {
+      if (!this.currentScore || !this.currentPlaybackTimeline) return;
+      const events = buildExpectedEvents(this.currentScore, this.currentPlaybackTimeline, {
+        preset: 'both',
+        partIndex: 0,
+        staves: [1, 2],
+      });
+      const session = startSession({
+        scoreId: this.currentScore.title || 'score',
+        events,
+        startEventIndex: 0,
+        loop: null,
+        accompaniment: false,
+        help: false,
+      });
+      practiceState.setSession(session);
+      return;
+    }
+
+    if (this.currentSchedule && !this.scheduleDelivered) {
+      this.audioEngine.load(this.currentSchedule);
+      this.scheduleDelivered = true;
+      const seekTick = transportState.get().positionTick;
+      if (seekTick > 0) this.audioEngine.seekTick(seekTick);
+      if (this.scoreView && this.currentTimeline) this.scoreView.setPlayback(this.audioEngine, this.currentTimeline);
+    }
+
+
 
     this.audioEngine.play();
   }
@@ -287,6 +344,31 @@ export class Session {
       } else if (event.state.kind === 'error' && event.state.code === 'workletLoadFailed') {
         noticeState.addNotice({ code: 'workletLoadFailed', severity: 'warning' });
       }
+    }
+  }
+
+  private applyPracticeInput(input: import('../core/practice/types.js').PracticeInput) {
+    if (practiceState.get().mode !== 'practice') return;
+    const session = practiceState.get().session;
+    if (!session) return;
+
+    const { session: nextSession, effects } = applyInput(session, input);
+    practiceState.setSession(nextSession);
+
+    for (const effect of effects) {
+      this.handlePracticeEffect(effect);
+    }
+  }
+
+  private handlePracticeEffect(effect: PracticeEffect) {
+    if (effect.type === 'moveCursor') {
+      transportState.setPositionTick(effect.onsetTick);
+    } else if (effect.type === 'soundOn') {
+      // not yet implemented, for accompaniment
+    } else if (effect.type === 'soundOff') {
+      // not yet implemented
+    } else if (effect.type === 'sessionEnded') {
+      transportState.stop();
     }
   }
 
@@ -312,20 +394,23 @@ export class Session {
       return;
     }
 
+    this.currentSchedule = response.schedule;
+    this.currentTimeline = response.timeline;
+    this.currentPlaybackTimeline = response.fullTimeline;
+    this.currentScore = response.fullScore;
+
     scoreState.succeeded({
       fileName,
-      summary: response.score,
+      summary: response.summary,
       report: response.report,
       renderXml: response.renderXml,
       contentHash: response.contentHash,
     });
 
     if (this.scoreView) {
-      await this.scoreView.load(response.renderXml, response.score.measureIds, viewState.get().zoomPercent);
+      await this.scoreView.load(response.renderXml, response.summary.measureIds, viewState.get().zoomPercent);
     }
 
-    this.currentSchedule = response.schedule;
-    this.currentTimeline = response.timeline;
     // this.soundReady is intentionally not reset here: the SoundFont is loaded once into the worklet's sound
     // bank, which is independent of which Score's schedule is currently loaded (contracts/worklet-protocol.md -
     // "soundBank" and "schedule" are separate messages).
@@ -344,8 +429,8 @@ export class Session {
     const putResult = await this.scoreStore.put({
       fileName,
       bytes,
-      title: response.score.title,
-      composer: response.score.composer,
+      title: response.summary.title,
+      composer: response.summary.composer,
     });
     if (!putResult.ok) noticeState.addNotice({ code: 'storageUnavailable', severity: 'warning' });
 

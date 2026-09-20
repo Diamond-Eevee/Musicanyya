@@ -94,27 +94,27 @@ session reports that the end was reached.
   (depends on T006, T007)
 - [x] T013 [US1] `src/core/practice/matcher.ts` - `startSession` and the pure `applyInput` reducer returning
   `SessionStep { session, effects }`, no I/O and no timestamp reads (depends on T008, T009, T010)
-- [ ] T014 [US1] `src/ui/score/practice-marks.ts` plus the waiting cursor in `src/ui/score/cursor-overlay.ts` and
+- [x] T014 [US1] `src/ui/score/practice-marks.ts` plus the waiting cursor in `src/ui/score/cursor-overlay.ts` and
   the mark styles in `src/ui/styles/` - shape **and** colour, drawn in the overlay layer, never inside the Verovio
   SVG; includes dimming the unselected hand's notes (FR-032) (depends on T011)
-- [ ] T015 [P] [US1] Practice strings in `src/ui/i18n/en.ts`: mark names and the message ids from R-10
+- [x] T015 [P] [US1] Practice strings in `src/ui/i18n/en.ts`: mark names and the message ids from R-10
   (`practice.octave.higher`, `practice.octave.lower`, `practice.extra.heldOver`, `practice.extra.notInChord`,
   `practice.repress`) plus the notice codes - each naming the next physical action, none suggesting a score
   (FR-039)
-- [ ] T016 [US1] `src/ui/elements/mx-mode-switch.ts` and the transport's Practice behaviour: Listen | Practice,
+- [x] T016 [US1] `src/ui/elements/mx-mode-switch.ts` and the transport's Practice behaviour: Listen | Practice,
   Start/Stop instead of Play/Pause, and the switch disabled with its reason when the `MidiInput` port is not
   `available` (FR-001, FR-022, FR-033, R-02)
-- [ ] T017 [US1] `src/ui/state/practiceState.ts` - the session view state the elements subscribe to
-- [ ] T018 [US1] `src/app/session.ts` wiring: route `MidiInput` events into the matcher, apply every effect
+- [x] T017 [US1] `src/ui/state/practiceState.ts` - the session view state the elements subscribe to
+- [x] T018 [US1] `src/app/session.ts` wiring: route `MidiInput` events into the matcher, apply every effect
   (marks, cursor, `liveNoteOn`/`liveNoteOff`, notices, session end), deliver **no** schedule to the audio engine in
   Practice mode, and clear the marks when the mode is switched (FR-002, FR-011, FR-012, FR-019, FR-020)
   (depends on T013, T014, T016, T017)
-- [ ] T050 [US1] Skip handling in `src/core/practice/matcher.ts` and the skip forward / back control in the
+- [x] T050 [US1] Skip handling in `src/core/practice/matcher.ts` and the skip forward / back control in the
   transport, wired in `src/app/session.ts` - available whenever a session is running, disabled when it is not
   (depends on T049, T013, T018)
-- [ ] T019 [US1] `tests/e2e/us1-practice.spec.ts` (Playwright, fake MIDI device): wait, wrong note, chord,
+- [x] T019 [US1] `tests/e2e/us1-practice.spec.ts` (Playwright, fake MIDI device): wait, wrong note, chord,
   held chord under moving notes, skip past a note, reach the end
-- [ ] T020 [US1] RT review with `rt-audio-reviewer` (`.claude/agents/rt-audio-reviewer.md`) of T018: confirm that
+- [x] T020 [US1] RT review with `rt-audio-reviewer` (`.claude/agents/rt-audio-reviewer.md`) of T018: confirm that
   Practice introduces no timer-driven sound, no scheduler or worklet change, and that the live-note path is used as
   feature 001 intended (Constitution I and II; plan.md claims "no new real-time paths" - this is where that claim
   is checked)

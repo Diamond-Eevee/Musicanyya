@@ -19,3 +19,6 @@ class MidiState {
 }
 
 export const midiState = new MidiState();
+if (typeof window !== 'undefined') {
+  (window as any).__MIDI_STATE__ = midiState;
+}

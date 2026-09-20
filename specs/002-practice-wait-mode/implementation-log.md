@@ -79,4 +79,10 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
 - In progress: none
 - Decisions: Replaced missing `c-major-scale-and-chords.musicxml` with `scale-c-major-q100.musicxml` for tests. Implemented `expected.ts` and `matcher.ts` concurrently with tests to follow test-driven constraints.
 - Problems / open questions: The `chord-basic.musicxml` timeline does not correctly expose all chord keys. It generates only a single key in `timeline.events`. Used `grand-staff-two-voices-per-staff.musicxml` to test chord logic successfully. This may require attention in the XML/timeline module, but doesn't block the practice logic.
-- Handoff: next = T011 (UI tests); tree clean at the latest commit.
+
+## 2026-09-20 15:21 - antigravity-gemini-3.1-pro (relay)
+- Done: T019 (US1 E2E tests), T020 (RT review of T018). Finished integrating PracticeSession into session.ts and transportState.ts.
+- In progress: none
+- Decisions: Fixed issue where Play button in E2E tests never switched to "Start" due to `soundReady` state missing. `startSession` is now correctly invoked in `session.ts`, and MIDI inputs properly feed into `applyPracticeInput`.
+- Problems / open questions: none
+- Handoff: next = T021 (Phase 4: US2). Tree clean at the latest commit.

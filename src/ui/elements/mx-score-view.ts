@@ -11,6 +11,8 @@ import {
 } from '../score/pages.js';
 import type { VerovioClient } from '../score/verovio-client.js';
 import { transportState } from '../state/transportState.js';
+import { practiceState } from '../state/practiceState.js';
+import { drawPracticeMarks } from '../score/practice-marks.js';
 
 const DEFAULT_PAGE_WIDTH = 1200;
 const DEFAULT_PAGE_HEIGHT = 1600;
@@ -194,6 +196,12 @@ export class MxScoreView extends HTMLElement {
     const timeline = this.timeline;
     if (!engine || !timeline) return;
 
+    const pState = practiceState.get();
+    if (pState.mode === 'practice' && pState.session) {
+      this.drawPracticeState(pState.session);
+      return;
+    }
+
     const position = engine.audiblePosition(performance.now());
     if (!position) return;
     const tick = position.audibleTick;
@@ -220,6 +228,57 @@ export class MxScoreView extends HTMLElement {
 
     this.drawCursor(measureEl, soundingNoteIds);
     if (transportState.get().follow) this.followScrollTo(measureEl);
+  }
+
+  private drawPracticeState(session: import('../../core/practice/types.js').PracticeSession): void {
+    const currentEvent = session.events[session.index];
+    
+    // Convert session marks to array
+    const markEntries = Array.from(session.marks.entries()).map(([noteId, state]) => ({ noteId, state }));
+    if (currentEvent && session.phase !== 'finished') {
+      for (const req of currentEvent.required) {
+        for (const noteId of req.noteIds) {
+          if (!session.marks.has(noteId)) {
+            markEntries.push({ noteId, state: 'waiting' });
+          }
+        }
+      }
+    }
+
+    const containerRect = this.scrollEl.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const width = Math.round(containerRect.width) * dpr;
+    const height = Math.round(containerRect.height) * dpr;
+    if (this.canvasEl.width !== width || this.canvasEl.height !== height) {
+      this.canvasEl.width = width;
+      this.canvasEl.height = height;
+    }
+    const ctx = this.canvasEl.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
+
+    const noteRects = new Map<string, DOMRect>();
+    for (const mark of markEntries) {
+      const el = this.stack.querySelector(`#${CSS.escape(mark.noteId)}`);
+      if (el) noteRects.set(mark.noteId, el.getBoundingClientRect());
+    }
+
+    // TODO: dimmedNoteRects for unselected hands (FR-032)
+    drawPracticeMarks({
+      ctx,
+      dpr,
+      containerRect,
+      marks: markEntries,
+      noteRects,
+    });
+
+    if (currentEvent) {
+      const measureId = this.measureIds[currentEvent.measureIndex];
+      const measureEl = measureId !== undefined ? this.stack.querySelector(`#${CSS.escape(measureId)}`) : null;
+      if (measureEl && transportState.get().follow) {
+        this.followScrollTo(measureEl);
+      }
+    }
   }
 
   private drawCursor(measureEl: Element, soundingNoteIds: ReadonlySet<string>): void {

@@ -1,4 +1,13 @@
-import type { PracticeSession, PracticeInput, PracticeEffect, StartOptions, SessionStep, MarkState, Attempt, NoteId } from './types.js';
+import type { NoteId } from '../score/model.js';
+import type {
+  Attempt,
+  MarkState,
+  PracticeEffect,
+  PracticeInput,
+  PracticeSession,
+  SessionStep,
+  StartOptions,
+} from './types.js';
 
 export function startSession(options: StartOptions): PracticeSession {
   return {
@@ -22,33 +31,75 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
     return { session, effects: [] };
   }
 
+  const marks = new Map(session.marks);
+  const heldKeys = new Set(session.heldKeys);
+  const log = [...session.log];
+
   const next: PracticeSession = {
     ...session,
-    marks: new Map(session.marks),
-    heldKeys: new Set(session.heldKeys),
-    log: [...session.log],
+    marks,
+    heldKeys,
+    log,
   };
   const effects: PracticeEffect[] = [];
 
   const addMark = (noteIds: readonly NoteId[], state: MarkState) => {
     for (const id of noteIds) {
-      next.marks.set(id, state);
+      marks.set(id, state);
     }
     effects.push({ type: 'markNotes', marks: noteIds.map((id) => ({ noteId: id, state })) });
   };
 
   const addLog = (key: number, state: Attempt['state']) => {
-    next.log.push({ key, eventIndex: next.index, state, timeStampMs: input.timeStampMs });
+    log.push({ key, eventIndex: next.index, state, timeStampMs: input.timeStampMs });
   };
 
   const currentEvent = next.events[next.index];
 
   if (input.type === 'deviceLost') {
     for (const k of input.heldKeys ?? []) {
-      next.heldKeys.delete(k);
+      heldKeys.delete(k);
     }
     next.phase = 'interrupted';
     effects.push({ type: 'notice', code: 'practiceDeviceLost' });
+    return { session: next, effects };
+  }
+
+  if (input.type === 'skipNext') {
+    if (currentEvent) {
+      const noteIds = currentEvent.required.flatMap((r) => r.noteIds);
+      addMark(noteIds, 'skipped');
+      next.index++;
+      next.wrongAttemptsOnCurrent = 0;
+      if (next.index >= next.events.length) {
+        next.phase = 'finished';
+        effects.push({ type: 'sessionEnded', reason: 'stopped' });
+      } else {
+        const nextEv = next.events[next.index];
+        if (nextEv) {
+          effects.push({ type: 'moveCursor', eventIndex: next.index, onsetTick: nextEv.onsetTick });
+          next.phase = 'waiting';
+        }
+      }
+    }
+    return { session: next, effects };
+  }
+
+  if (input.type === 'skipPrevious') {
+    if (next.index > 0) {
+      next.index--;
+      next.wrongAttemptsOnCurrent = 0;
+      const prevEv = next.events[next.index];
+      if (prevEv) {
+        const noteIds = prevEv.required.flatMap((r) => r.noteIds);
+        for (const id of noteIds) {
+          marks.delete(id);
+        }
+        effects.push({ type: 'markNotes', marks: noteIds.map((id) => ({ noteId: id, state: 'waiting' })) });
+        effects.push({ type: 'moveCursor', eventIndex: next.index, onsetTick: prevEv.onsetTick });
+        next.phase = 'waiting';
+      }
+    }
     return { session: next, effects };
   }
 
@@ -58,12 +109,12 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
 
   if (input.type === 'noteOff') {
     if (input.key !== undefined) {
-      next.heldKeys.delete(input.key);
-      
+      heldKeys.delete(input.key);
+
       if (next.phase === 'blocked' && currentEvent) {
         let stillBlocked = false;
         for (const req of currentEvent.required) {
-          if (next.heldKeys.has(req.key)) {
+          if (heldKeys.has(req.key)) {
             stillBlocked = true;
             break;
           }
@@ -84,10 +135,10 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
     }
 
     const key = input.key;
-    if (next.heldKeys.has(key)) {
+    if (heldKeys.has(key)) {
       return { session: next, effects };
     }
-    next.heldKeys.add(key);
+    heldKeys.add(key);
 
     if (!currentEvent) {
       return { session: next, effects };
@@ -98,10 +149,10 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
 
     if (isRequired) {
       addMark(isRequired.noteIds, 'correctSoFar');
-      
+
       let allHeld = true;
       for (const req of currentEvent.required) {
-        if (!next.heldKeys.has(req.key)) {
+        if (!heldKeys.has(req.key)) {
           allHeld = false;
           break;
         }
@@ -111,10 +162,10 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
         for (const req of currentEvent.required) {
           addMark(req.noteIds, 'correct');
         }
-        
+
         next.index++;
         next.wrongAttemptsOnCurrent = 0;
-        
+
         if (next.index >= next.events.length) {
           next.phase = 'finished';
           effects.push({ type: 'sessionEnded', reason: 'reachedEnd' });
@@ -122,10 +173,10 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
           const nextEv = next.events[next.index];
           if (nextEv) {
             effects.push({ type: 'moveCursor', eventIndex: next.index, onsetTick: nextEv.onsetTick });
-            
+
             let isBlocked = false;
             for (const req of nextEv.required) {
-              if (next.heldKeys.has(req.key)) {
+              if (heldKeys.has(req.key)) {
                 isBlocked = true;
                 addMark(req.noteIds, 'heldOver');
               }
@@ -142,12 +193,12 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
     } else {
       let allHeld = true;
       for (const req of currentEvent.required) {
-        if (!next.heldKeys.has(req.key)) {
+        if (!heldKeys.has(req.key)) {
           allHeld = false;
           break;
         }
       }
-      
+
       if (allHeld) {
         addLog(key, 'extra');
       } else {

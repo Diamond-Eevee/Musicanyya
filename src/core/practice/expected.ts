@@ -184,7 +184,8 @@ export function buildExpectedEvents(
   expectedEvents.sort((a, b) => a.onsetTick - b.onsetTick);
 
   for (let i = 0; i < expectedEvents.length; i++) {
-    expectedEvents[i].index = i;
+    const ev = expectedEvents[i];
+    if (ev) ev.index = i;
   }
 
   return expectedEvents;
