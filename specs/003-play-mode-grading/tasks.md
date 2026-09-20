@@ -67,10 +67,10 @@ than renumbered, so IDs stay stable; **file order is execution order**, not nume
   fail
 - [x] T009 Implement `tickAtAudioTime` in `src/core/tempo/rate.ts`: the single place seconds become ticks
   (Constitution II, research R-06)
-- [ ] T010 [P] Test `tests/engine/midi/clock-map.test.ts`: `performance.now()` timestamps map onto audio-context
+- [x] T010 [P] Test `tests/engine/midi/clock-map.test.ts`: `performance.now()` timestamps map onto audio-context
   seconds from a `(contextTime, performanceTime)` pair; a new pair re-anchors without jumping; a missing pair
   falls back to the last known one - write it, see it fail
-- [ ] T011 Implement `src/engine/midi/clock-map.ts` per research R-04, storing both the mapped `audioTimeSec` and
+- [x] T011 Implement `src/engine/midi/clock-map.ts` per research R-04, storing both the mapped `audioTimeSec` and
   the raw `timeStampMs`
 - [ ] T012 [P] Test `tests/core/grade/windows.test.ts` (invariants part): for every level, `floorMs <= beats*375`
   and `capMs >= beats*1000` (clamp inertness, SC-014 first clause) and `onTime <= claim` after every clamp -
