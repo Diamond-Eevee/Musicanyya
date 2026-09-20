@@ -200,7 +200,9 @@ export class Session {
         midiState.emit();
       } else if (e.type === 'deviceLost') {
         this.audioEngine.liveAllOff();
-        e.heldKeys.forEach((k) => midiState.pressedKeys.delete(k));
+        e.heldKeys.forEach((k) => {
+          midiState.pressedKeys.delete(k);
+        });
         midiState.emit();
         noticeState.addNotice({ code: 'midiDeviceLost', severity: 'warning' });
       } else if (e.type === 'noteOn') {

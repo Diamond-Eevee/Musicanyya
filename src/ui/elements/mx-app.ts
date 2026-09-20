@@ -1,4 +1,5 @@
 import { en } from '../i18n/en.js';
+import './mx-environment-panel.js';
 import type { MxEnvironmentPanel } from './mx-environment-panel.js';
 
 export class MxApp extends HTMLElement {

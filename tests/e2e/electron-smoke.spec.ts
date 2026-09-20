@@ -7,6 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 test.describe('Electron smoke test', () => {
   let electronApp: ElectronApplication;
 
+  // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
   test.beforeAll(async ({}, testInfo) => {
     if (testInfo.project.name !== 'electron') return;
 
@@ -17,11 +18,13 @@ test.describe('Electron smoke test', () => {
     electronApp.process().stderr?.on('data', (d) => console.log('STDERR:', d.toString()));
   });
 
+  // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
   test.afterAll(async ({}, testInfo) => {
     if (testInfo.project.name !== 'electron') return;
     await electronApp.close();
   });
 
+  // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
   test('window loads, panel says desktop app, opens fixture', async ({}, testInfo) => {
     test.skip(testInfo.project.name !== 'electron', 'Run electron smoke test on electron project only');
 

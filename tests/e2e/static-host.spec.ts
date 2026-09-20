@@ -80,8 +80,10 @@ test.describe('Static host with sub-path', () => {
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
     await expect(page.locator('.mx-empty-state')).toBeHidden();
 
-    // Play
-    const playBtn = page.getByRole('button', { name: 'Play' });
+    // Play. Uses the class selector rather than getByRole('button', { name: 'Play' }): repeatedly polling a
+    // role+accessible-name locator forces Chromium to recompute the accessibility tree on every retry, which
+    // starves the page's main thread and can stall the SoundFont fetch that Play depends on indefinitely.
+    const playBtn = page.locator('.play-btn');
     await playBtn.click();
 
     // Let it load the soundfont and play

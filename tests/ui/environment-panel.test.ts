@@ -1,6 +1,23 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { probeEnvironment } from '../../src/engine/environment/probe.js';
 import { createEnvironmentState, type EnvironmentState } from '../../src/ui/state/environmentState.js';
 import '../../src/ui/elements/mx-environment-panel.js';
+
+/** window.musicanyyaShell drives shell detection in probeEnvironment(), not in createEnvironmentState() itself
+ * (Principle V: probing is the engine's job). Tests that simulate Electron must go through probeEnvironment()
+ * for shell.kind to actually become 'electron'; forcing other capabilities keeps assertions independent of the
+ * real (happy-dom) test environment's AudioWorklet/MIDI/IndexedDB support. */
+function probedEnvWithForcedCapabilities() {
+  return {
+    ...probeEnvironment(),
+    builtInSound: { available: true },
+    midiInput: { available: true },
+    audioPlugin: { available: true },
+    recentScores: { available: true },
+    compressedFiles: { available: true },
+    secureContext: true,
+  } as any;
+}
 
 describe('Environment Panel', () => {
   let envState: EnvironmentState;
@@ -33,16 +50,7 @@ describe('Environment Panel', () => {
       platform: 'win32',
       audioPlugin: { available: false, reason: 'notYetAvailable' },
     };
-    const env = {
-      shell: { kind: 'browser', browser: null },
-      builtInSound: { available: true },
-      midiInput: { available: true },
-      audioPlugin: { available: true },
-      recentScores: { available: true },
-      compressedFiles: { available: true },
-      secureContext: true,
-    } as any;
-    envState = createEnvironmentState(env);
+    envState = createEnvironmentState(probedEnvWithForcedCapabilities());
     expect(envState.get().shell.kind).toBe('electron');
     if (envState.get().shell.kind === 'electron') {
       expect((envState.get().shell as any).bridgeVersion).toBe('1.0.0');
@@ -54,16 +62,7 @@ describe('Environment Panel', () => {
       kind: 'electron',
       bridgeVersion: '2.0.0', // unknown major
     };
-    const env = {
-      shell: { kind: 'browser', browser: null },
-      builtInSound: { available: true },
-      midiInput: { available: true },
-      audioPlugin: { available: true },
-      recentScores: { available: true },
-      compressedFiles: { available: true },
-      secureContext: true,
-    } as any;
-    envState = createEnvironmentState(env);
+    envState = createEnvironmentState(probedEnvWithForcedCapabilities());
     expect(envState.get().shell.kind).toBe('electron');
     expect(envState.get().isUnknownBridgeMajor).toBe(true);
   });
@@ -107,16 +106,7 @@ describe('Environment Panel', () => {
         platform: 'win32',
         audioPlugin: { available: false, reason: 'notYetAvailable' },
       };
-      const env = {
-        shell: { kind: 'browser', browser: null },
-        builtInSound: { available: true },
-        midiInput: { available: true },
-        audioPlugin: { available: true },
-        recentScores: { available: true },
-        compressedFiles: { available: true },
-        secureContext: true,
-      } as any;
-      envState = createEnvironmentState(env);
+      envState = createEnvironmentState(probedEnvWithForcedCapabilities());
       panel.setEnvironment(envState);
       panel.toggle();
       const html = panel.innerHTML;
@@ -153,16 +143,7 @@ describe('Environment Panel', () => {
         kind: 'electron',
         bridgeVersion: '2.0.0',
       };
-      const env = {
-        shell: { kind: 'browser', browser: null },
-        builtInSound: { available: true },
-        midiInput: { available: true },
-        audioPlugin: { available: true },
-        recentScores: { available: true },
-        compressedFiles: { available: true },
-        secureContext: true,
-      } as any;
-      envState = createEnvironmentState(env);
+      envState = createEnvironmentState(probedEnvWithForcedCapabilities());
       panel.setEnvironment(envState);
       panel.toggle();
       const html = panel.innerHTML;
