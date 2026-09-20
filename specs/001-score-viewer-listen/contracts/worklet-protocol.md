@@ -45,7 +45,7 @@ interface ScheduleMessage {
   // events sorted by (tick, kind: noteOff before noteOn, then program changes first at equal tick)
   eventTick: Int32Array;                    // length n
   eventKind: Uint8Array;                    // 0 = noteOff, 1 = noteOn, 2 = programChange, 3 = controlChange
-  eventChannel: Uint8Array;                 // 0..15 (9 = percussion, 15 reserved for live input)
+  eventChannel: Uint8Array;                 // 0..15 (9 = percussion, 14 reserved for the Play mode Metronome, 15 reserved for live input)
   eventData1: Uint8Array;                   // key / program / controller
   eventData2: Uint8Array;                   // velocity / value
   // tempo segments sorted by tick, first at tick 0; exact tempo = qpmNum / qpmDen quarter notes per minute

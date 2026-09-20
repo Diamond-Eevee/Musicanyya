@@ -91,10 +91,10 @@ than renumbered, so IDs stay stable; **file order is execution order**, not nume
 - [x] T090 RT review of T009 and T011 with `rt-audio-reviewer` (mandatory): the tick <-> audio-time conversion and
   the MIDI timestamp mapping are timing code in that role's scope (Constitution II, and this file's own rule).
   It must confirm one conversion site, no `performance.now()` at receipt, no float accumulation of musical time
-- [ ] T094 [P] Test `tests/core/timeline/instruments.test.ts` (extend): no Score part is ever allocated to
+- [x] T094 [P] Test `tests/core/timeline/instruments.test.ts` (extend): no Score part is ever allocated to
   `METRONOME_CHANNEL`, neither by an explicit `<midi-channel>` hint (`metronome-channel-collision`) nor by the
   round-robin fallback when channels run out - write it, see it fail (research R-19)
-- [ ] T095 Reserve `METRONOME_CHANNEL` in `src/core/timeline/instruments.ts` beside `PERCUSSION_CHANNEL` and
+- [x] T095 Reserve `METRONOME_CHANNEL` in `src/core/timeline/instruments.ts` beside `PERCUSSION_CHANNEL` and
   `LIVE_CHANNEL`, and record the reserved channel in the channel table of
   `specs/001-score-viewer-listen/contracts/worklet-protocol.md` (bumped with T036)
 - [ ] T102 [P] Test `tests/core/musicxml/build.test.ts` (extend): `<arpeggiate>` on a chord and `<ornaments>` with
