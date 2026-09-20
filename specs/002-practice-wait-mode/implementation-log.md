@@ -73,3 +73,10 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
 - Decisions: Fixed the 5 HIGH findings from the analyze report directly via multi_replace_file_content before starting T001. Added custom compact midi notation parser in tests/fakes/midi-sequence.ts.
 - Problems / open questions: none
 - Handoff: next = T006 (US1 tests); tree clean at the latest commit.
+
+## 2026-09-20 14:27 - antigravity-gemini-3.1-pro (relay)
+- Done: T006-T010 (US1 tests) and T012-T013 (US1 core implementations)
+- In progress: none
+- Decisions: Replaced missing `c-major-scale-and-chords.musicxml` with `scale-c-major-q100.musicxml` for tests. Implemented `expected.ts` and `matcher.ts` concurrently with tests to follow test-driven constraints.
+- Problems / open questions: The `chord-basic.musicxml` timeline does not correctly expose all chord keys. It generates only a single key in `timeline.events`. Used `grand-staff-two-voices-per-staff.musicxml` to test chord logic successfully. This may require attention in the XML/timeline module, but doesn't block the practice logic.
+- Handoff: next = T011 (UI tests); tree clean at the latest commit.
