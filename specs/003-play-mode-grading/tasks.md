@@ -148,7 +148,7 @@ reason.
   change no result (FR-018, FR-023, FR-024)
 - [ ] T020 [P] [US1] `tests/core/grade/golden.test.ts`: grading a recorded performance fixture produces a
   snapshot-identical `Grade` including every reason code, and grading it twice is byte-identical (FR-025, SC-001)
-- [ ] T021 [P] [US1] `tests/core/grade/summary.test.ts`: the two figures of FR-028 with counts out of totals, the
+- [x] T021 [P] [US1] `tests/core/grade/summary.test.ts`: the two figures of FR-028 with counts out of totals, the
   six plain counts, `meanAsynchronyMs`, and `timingNotResolvable` where the claim window collapses to the on-time
   window or falls below `PLAY_WINDOW_ABSOLUTE_FLOOR_MS`; played-along presses appear in no count (FR-028)
 - [ ] T022 [P] [US1] `tests/core/play/play-schedule.test.ts`: graded notes are absent from the schedule and the
@@ -217,7 +217,7 @@ reason.
   plus `ORNAMENT_NEIGHBOUR_STEPS` diatonic neighbours over the written duration, `source: "ornament"`); a
   leftover press inside a span becomes a `PlayedAlongPress` instead of an `ExtraNote`. Add `playedAlong` to
   `GradeInput` and to `Grade` (grading contract 1.0.0 -> 1.1.0, research R-18, FR-024)
-- [ ] T029 [US1] `src/core/grade/summary.ts`: the two figures, the counts, `meanAsynchronyMs`, the per-pass
+- [x] T029 [US1] `src/core/grade/summary.ts`: the two figures, the counts, `meanAsynchronyMs`, the per-pass
   overview and the reliability warnings; `playedAlong` presses are counted in nothing
 - [ ] T030 [US1] `src/core/grade/grade.ts`: `gradePerformance` - latency compensation, audio time to ticks, sort,
   match (passes 1, 2 and the played-along pass 3), timing, reasons, summary including `timingNotResolvable` -
