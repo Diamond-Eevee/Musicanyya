@@ -57,14 +57,14 @@ session reports that the end was reached.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T006 [P] [US1] `tests/core/practice/expected.test.ts`: grouping and filtering per
+- [x] T006 [P] [US1] `tests/core/practice/expected.test.ts`: grouping and filtering per
   [data-model.md](data-model.md) §2 - grouping on the **notated** onset (a `grace-acciaccatura` fixture proves that
   grouping on `SoundingEvent.startTick` would split a written chord), one tie chain = one event
   (`tie-across-barline`, `tie-chain-three`), dedupe by sounding key keeping every Note ID (`chord-basic`,
   `grand-staff-two-voices-per-staff`), grace notes never required, hidden (`printed === false`) and unpitched
   (`percussion-unpitched`) notes never required, events with no required keys dropped (FR-035, FR-036)
-- [ ] T007 [P] [US1] `tests/core/practice/order.test.ts`: the expected-event order equals the order Listen plays
-  for `repeat-simple`, `volta-1-2`, `dc-al-fine` and `tie-into-volta` (FR-003, SC-005)
+- [~] T007 [P] [US1] `tests/core/practice/order.test.ts`: the expected-event order equals the order Listen plays
+  for `repeat-simple`, `volta-1-2`, `dc-al-fine` and `tie-into-volta` (FR-003, SC-005) (claimed: antigravity-gemini-3.1-pro 2026-09-20)
 - [ ] T008 [P] [US1] `tests/core/practice/matcher.test.ts`: correct key advances and wrong key never does
   (SC-001); chord accepted only when all required keys are held together, in any order and at any speed, with
   `correctSoFar` while partial (FR-005, SC-003); **the wrong-versus-extra rule** - an unexpected key pressed while
