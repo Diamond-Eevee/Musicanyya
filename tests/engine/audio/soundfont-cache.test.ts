@@ -97,4 +97,62 @@ describe('SoundFont cache', () => {
 
     await expect(loadSoundFont('test.sf2')).rejects.toThrow('soundFontMissing');
   });
+
+  /** Chromium refuses Cache.put for non-http(s) requests, which is every request under the Electron shell's
+   * app:// origin. Caching is an optimisation, so a rejected put must not fail the load. */
+  it('still returns the sound when Cache.put rejects for the app:// scheme', async () => {
+    mockCache.match.mockResolvedValue(undefined);
+    mockCache.put.mockRejectedValue(
+      new TypeError("Failed to execute 'put' on 'Cache': Request scheme 'app' is unsupported"),
+    );
+
+    let controller: ReadableStreamDefaultController<Uint8Array>;
+    const stream = new ReadableStream<Uint8Array>({
+      start(c) {
+        controller = c;
+      },
+    });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      headers: new Headers({ 'content-length': '100' }),
+      body: stream,
+    });
+
+    const promise = loadSoundFont('soundfonts/test.sf2', () => {});
+    controller!.enqueue(new Uint8Array(100));
+    controller!.close();
+
+    const buf = await promise;
+    expect(buf.byteLength).toBe(100);
+  });
+
+  it('still returns the sound when Cache.put rejects and no progress callback is given', async () => {
+    mockCache.match.mockResolvedValue(undefined);
+    mockCache.put.mockRejectedValue(new TypeError('Request scheme "app" is unsupported'));
+    mockFetch.mockResolvedValue({
+      ok: true,
+      headers: new Headers({ 'content-length': '20' }),
+      body: null,
+      clone: () => ({}),
+      arrayBuffer: async () => new ArrayBuffer(20),
+    });
+
+    const buf = await loadSoundFont('soundfonts/test.sf2');
+    expect(buf.byteLength).toBe(20);
+  });
+
+  it('still returns the sound when Cache Storage itself is unavailable', async () => {
+    mockCaches.open.mockRejectedValue(new Error('CacheStorage is blocked'));
+    mockFetch.mockResolvedValue({
+      ok: true,
+      headers: new Headers({ 'content-length': '30' }),
+      body: null,
+      clone: () => ({}),
+      arrayBuffer: async () => new ArrayBuffer(30),
+    });
+
+    const buf = await loadSoundFont('soundfonts/test.sf2');
+    expect(buf.byteLength).toBe(30);
+    expect(mockFetch).toHaveBeenCalledWith('soundfonts/test.sf2');
+  });
 });

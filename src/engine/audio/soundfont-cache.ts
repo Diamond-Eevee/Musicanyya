@@ -1,5 +1,17 @@
 export const SOUNDFONT_CACHE_NAME = 'musicanyya-sf2-v2';
 
+/** Caching is an optimisation: the sound must still load when Cache Storage refuses the request. Chromium
+ * rejects Cache reads and writes for non-http(s) requests, which is every request under the desktop shell's
+ * app:// origin, and blocked site data can make Cache Storage unavailable in the browser too. */
+async function cacheWrite(cache: Cache | undefined, url: string, response: Response): Promise<void> {
+  if (!cache) return;
+  try {
+    await cache.put(url, response);
+  } catch {
+    // Not cacheable here; the caller already has the bytes.
+  }
+}
+
 export async function loadSoundFont(
   url: string,
   onProgress?: (loaded: number, total: number) => void,
@@ -7,27 +19,33 @@ export async function loadSoundFont(
   // Cache Storage needs a secure context; feature-detect rather than assume it exists (Constitution VIII).
   const hasCacheStorage = typeof caches !== 'undefined';
   let cache: Cache | undefined;
+  let cachedResponse: Response | undefined;
 
   if (hasCacheStorage) {
-    const cacheNames = await caches.keys();
-    for (const name of cacheNames) {
-      if (name.startsWith('musicanyya-sf2') && name !== SOUNDFONT_CACHE_NAME) {
-        await caches.delete(name);
+    try {
+      const cacheNames = await caches.keys();
+      for (const name of cacheNames) {
+        if (name.startsWith('musicanyya-sf2') && name !== SOUNDFONT_CACHE_NAME) {
+          await caches.delete(name);
+        }
       }
-    }
 
-    cache = await caches.open(SOUNDFONT_CACHE_NAME);
-    const cachedResponse = await cache.match(url);
-
-    if (cachedResponse) {
-      const contentLength = cachedResponse.headers.get('content-length');
-      const total = contentLength ? parseInt(contentLength, 10) : 0;
-      const buffer = await cachedResponse.arrayBuffer();
-      if (onProgress && total > 0) {
-        onProgress(total, total);
-      }
-      return buffer;
+      cache = await caches.open(SOUNDFONT_CACHE_NAME);
+      cachedResponse = await cache.match(url);
+    } catch {
+      cache = undefined;
+      cachedResponse = undefined;
     }
+  }
+
+  if (cachedResponse) {
+    const contentLength = cachedResponse.headers.get('content-length');
+    const total = contentLength ? parseInt(contentLength, 10) : 0;
+    const buffer = await cachedResponse.arrayBuffer();
+    if (onProgress && total > 0) {
+      onProgress(total, total);
+    }
+    return buffer;
   }
 
   const response = await fetch(url);
@@ -60,22 +78,20 @@ export async function loadSoundFont(
       offset += chunk.length;
     }
 
-    if (cache) {
-      const responseToCache = new Response(fullBuffer, {
+    await cacheWrite(
+      cache,
+      url,
+      new Response(fullBuffer, {
         status: response.status,
         statusText: response.statusText,
         headers: response.headers,
-      });
-      await cache.put(url, responseToCache);
-    }
+      }),
+    );
 
     return fullBuffer.buffer;
   }
 
-  const clone = response.clone();
-  if (cache) {
-    await cache.put(url, clone);
-  }
+  await cacheWrite(cache, url, response.clone());
   const buffer = await response.arrayBuffer();
   if (onProgress && total > 0) {
     onProgress(total, total);

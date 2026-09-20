@@ -629,3 +629,33 @@
   entry plus `tasks.md` ticks (T133-T137) uncommitted; commit before ending. Next: either implement T138/T139, or
   consider the feature done and move to the next planned feature (`/speckit.specify` for whatever comes after
   001-score-viewer-listen - check with the user, nothing is queued in `specs/`).
+
+## 2026-09-20 12:45 - claude-opus-5 (relay)
+- Done: T140 - desktop playback fix. User reported Play doing nothing in the Electron app, with the notice "The
+  built-in sound could not be loaded. (x5)". Root cause is not a missing file: Chromium rejects `Cache.put` for
+  non-http(s) requests, and the shell serves the app from `app://musicanyya`, so `loadSoundFont` fetched all
+  32,319,396 bytes of `GeneralUser-GS-2.0.3.sf2` and then threw `TypeError: Failed to execute 'put' on 'Cache':
+  Request scheme 'app' is unsupported`. `session.ts` catches any failure from `ensureSoundLoaded()` as
+  `soundFontMissing`, so the cache write took the sound down with it. Reproduced directly in an Electron harness
+  against the real `app://` origin before fixing.
+- Fix: `src/engine/audio/soundfont-cache.ts` now treats Cache Storage as the optimisation it is - the open/keys/
+  match block and both writes (`cacheWrite`) are wrapped, so a refused cache never fails the load. Tests first:
+  three new cases in `tests/engine/audio/soundfont-cache.test.ts` (put rejects with/without a progress callback,
+  Cache Storage unavailable) failed for the expected reason, then passed.
+- Also added: `musicxml/` - a user-facing folder for practice scores (kept separate from the parser fixtures in
+  `tests/fixtures/`), with `chords/c-major-scale-and-chords.musicxml`: C major, 4/4, quarter = 72, grand staff,
+  9 measures, right hand scale over left-hand chords and then the hands swapped, fingerings throughout. Authored
+  here, no third-party material, so no `THIRD_PARTY_NOTICES.md` entry. `buildScore` reports no notices and no
+  skipped elements; Verovio engraves it to one page.
+- Verified: `pnpm test` 310 passed / 2 skipped; `pnpm typecheck` clean; `pnpm lint` 0 errors (warning baseline
+  unchanged); `pnpm test:e2e --project=chromium --project=electron` 5 passed, 3 skipped. End-to-end in an Electron
+  window on the rebuilt bundle: score opens, Play flips to Pause, no notice, and the sounding-note highlight walks
+  the score in order across both staves (m1 -> m2, treble and bass) - i.e. the audio clock is running.
+- Problems / open questions: this regression was invisible to the gate, so T141 is now open - `us2-listen.spec.ts`
+  is Chromium-only and the Electron project only smoke-tests opening a file, so no test plays a note under
+  `app://`. Worth doing before release. Separately, `session.ts`'s `handlePlay` reports every `ensureSoundLoaded()`
+  failure as `soundFontMissing`, which is what made this misleading to diagnose (a worklet failure would read the
+  same); narrowing that notice is a small, separate change.
+- Handoff: next = T141 (Electron playback e2e), then the still-open T138/T139. Tree has the fix, its tests, this
+  log entry and the T140/T141 task lines; commit before ending. Note the desktop app takes a single-instance lock,
+  so a running window blocks `pnpm electron:dev` from starting another.
