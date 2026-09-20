@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="3.1">
+  <part-list>
+    <score-part id="P1"><part-name>Piano</part-name></score-part>
+  </part-list>
+  <part id="P1">
+  <!-- Right hand (staff 1): a four-note melody. Left hand (staff 2): a steady quarter-note accompaniment
+       under it. Grading the right hand alone, every left-hand key becomes a PlayedAlongPress, source
+       "ungraded" - never wrong, never extra (FR-024, T092/T093). -->
+  <measure number="1">
+    <attributes><divisions>1</divisions><time><beats>4</beats><beat-type>4</beat-type></time><staves>2</staves></attributes>
+    <direction><direction-type><metronome><beat-unit>quarter</beat-unit><per-minute>100</per-minute></metronome></direction-type><sound tempo="100"/></direction>
+    <note><pitch><step>E</step><octave>5</octave></pitch><duration>1</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>F</step><octave>5</octave></pitch><duration>1</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>G</step><octave>5</octave></pitch><duration>1</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>A</step><octave>5</octave></pitch><duration>1</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <backup><duration>4</duration></backup>
+    <note><pitch><step>C</step><octave>3</octave></pitch><duration>1</duration><voice>5</voice><type>quarter</type><staff>2</staff></note>
+    <note><pitch><step>C</step><octave>3</octave></pitch><duration>1</duration><voice>5</voice><type>quarter</type><staff>2</staff></note>
+    <note><pitch><step>G</step><octave>2</octave></pitch><duration>1</duration><voice>5</voice><type>quarter</type><staff>2</staff></note>
+    <note><pitch><step>G</step><octave>2</octave></pitch><duration>1</duration><voice>5</voice><type>quarter</type><staff>2</staff></note>
+  </measure>
+  </part>
+</score-partwise>

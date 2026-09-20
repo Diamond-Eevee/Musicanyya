@@ -78,7 +78,7 @@ than renumbered, so IDs stay stable; **file order is execution order**, not nume
 - [x] T013 Add the `PLAY_STRICTNESS_LEVELS` record (Beginner, Standard, Strict) to `src/core/defaults.ts` with
   the values of [data-model.md](data-model.md) §6, each window as `{ beats, floorMs, capMs }`, including
   `arpeggioSpread` (D-2)
-- [ ] T014 [P] New MusicXML fixtures in `tests/fixtures/musicxml/` with origin and licence in the fixtures
+- [x] T014 [P] New MusicXML fixtures in `tests/fixtures/musicxml/` with origin and licence in the fixtures
   README: `window-beat-unit-6-8`, `neighbour-clamp-sixteenths-160`, `repeated-pitch-two-presses`,
   `unison-two-voices`, `anacrusis-count-in`, `range-start-mid-measure-rests`, `enharmonic-cs-db`,
   `transposing-part-sounding-pitch`, `first-note-early-into-count-in`, `last-note-late-past-end`,

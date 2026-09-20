@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="3.1">
+  <part-list>
+    <score-part id="P1"><part-name>Clarinet in Bb</part-name></score-part>
+  </part-list>
+  <part id="P1">
+  <!-- Bb clarinet, chromatic=-2: written C5 sounds Bb4 (key 70). Matching must claim a press at the
+       sounding key, never the written one (contracts/grading.md step 3, "transposing-part-sounding-pitch"). -->
+  <measure number="1">
+    <attributes>
+      <divisions>1</divisions>
+      <time><beats>4</beats><beat-type>4</beat-type></time>
+      <transpose><chromatic>-2</chromatic></transpose>
+    </attributes>
+    <direction><direction-type><metronome><beat-unit>quarter</beat-unit><per-minute>100</per-minute></metronome></direction-type><sound tempo="100"/></direction>
+    <note><pitch><step>C</step><octave>5</octave></pitch><duration>1</duration><type>quarter</type></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>1</duration><type>quarter</type></note>
+    <note><pitch><step>E</step><octave>5</octave></pitch><duration>1</duration><type>quarter</type></note>
+    <note><rest/><duration>1</duration><type>quarter</type></note>
+  </measure>
+  </part>
+</score-partwise>
