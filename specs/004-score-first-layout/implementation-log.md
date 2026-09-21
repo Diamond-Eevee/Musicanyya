@@ -24,3 +24,31 @@ Feature `004-score-first-layout`. Newest entry at the bottom.
 - Problems / open questions: none. No owner decision is blocking.
 - Handoff: next = `/speckit.analyze`, then `/speckit.implement` starting at T001
   (`tests/verovio/page-units.test.ts`); tree clean after this commit.
+
+## 2026-09-21 - claude-opus-5 (/speckit.analyze)
+
+- Analyze: 16 findings (CRITICAL 0, HIGH 4, MEDIUM 7, LOW 5); tasks.md as of 1a31af2. Read-only run;
+  nothing in spec/plan/tasks/code was changed.
+- Done: cross-artifact consistency and constitution check of spec.md, plan.md, tasks.md against
+  constitution v1.1.1. Requirement coverage 100% nominal (22 FR + 10 SC, all mapped), 2 partial.
+  No constitution principle violated; implementation is not blocked.
+- Top recommendations (all four HIGH share one root cause - the `zoomPercent` -> `scale` rename reaches
+  further into the existing suite than tasks.md accounts for; cheapest to fix before T014):
+  - A1 HIGH: the existing zoom shortcut is bare `+`/`=`/`-`/`_` (`src/app/session.ts` `onKeyDown`), which
+    `ui-shell.md` section 4 and T032/T024 replace with `Ctrl/Cmd` only. Spec Assumptions promise existing
+    shortcuts keep working, and `tests/e2e/us1-open-view.spec.ts:32` presses bare `+`. Keep both forms.
+  - A2 HIGH: `tests/e2e/us1-open-view.spec.ts:35` asserts `zoomPercent === 110` in localStorage; T037
+    governs that file but says "selectors only, assertions unchanged", so it cannot fix the field rename.
+    Split the rename into its own task worded as a correction.
+  - A3 HIGH: `tests/fakes/memory-settings-store.ts` declares `UserSettings` v1 with `zoomPercent`; T014
+    breaks typecheck and no task touches the fake.
+  - A4 HIGH: `tests/engine/storage/local-settings-store.test.ts` (8 `zoomPercent` refs) fails after T015;
+    T036 lists only three `tests/ui/` files.
+  - A7 MEDIUM: `MIN_PAGE_UNITS` / `MAX_PAGE_UNITS` are referenced by `score-layout.md` section 2 with no
+    value anywhere (Constitution II: no magic numbers).
+  - A5/A9/A10/A11 MEDIUM: 175% scaling untested (FR-013 vs SC-006); no Electron-shell layout assertion;
+    SC-007's 50 ms-during-run clause uncovered for panel open/close; malformed-MusicXML edge case has no task.
+- Problems / open questions: none blocking. The owner has not yet said whether the recommended edits to
+  tasks.md, `contracts/ui-shell.md`, `contracts/score-layout.md` and the spec's Assumptions should be applied.
+- Handoff: next = apply the A1-A4 edits (manual, ~4 task edits plus two contract amendments), then
+  `/speckit.implement` from T001; tree clean at 1a31af2 plus this log entry.
