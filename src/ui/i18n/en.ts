@@ -179,6 +179,17 @@ export const en = {
       extraNoNoteWritten: '{played} played, no note written for it here.',
     } as Record<string, string>,
   },
+  latency: {
+    panel: {
+      heading: 'Latency',
+      assumed: 'Assumed latency (not measured)',
+      measured: 'Measured latency',
+      inputLatency: 'Input offset',
+      calibrate: 'Calibrate',
+      calibratingHeading: 'Calibrating...',
+      calibratingInstructions: 'Tap the spacebar to the beat of the metronome.',
+    },
+  },
 };
 
 /** 1st, 2nd, 3rd, 4th ... 11th, 12th, 13th, 21st (the label of a loop over a repeated passage). */

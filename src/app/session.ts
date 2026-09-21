@@ -15,6 +15,7 @@ import { passIndicesToLoopRange } from '../core/practice/loop.js';
 import '../ui/elements/mx-diagnostics.js';
 import '../ui/elements/mx-drop-zone.js';
 import '../ui/elements/mx-grade-panel.js';
+import '../ui/elements/mx-latency-panel.js';
 import '../ui/elements/mx-help-notation.js';
 import '../ui/elements/mx-open-button.js';
 import '../ui/elements/mx-recent-list.js';
@@ -318,6 +319,13 @@ export class Session {
       practiceState.setMode('practice');
     });
     document.getElementById('side-panel')?.prepend(gradePanel);
+
+    const latencyPanel = document.createElement('mx-latency-panel');
+    latencyPanel.addEventListener('latencycalibrated', (event) => {
+      const profile = (event as CustomEvent).detail.profile;
+      this.settingsStore.saveLatencyProfile(profile);
+    });
+    document.getElementById('side-panel')?.prepend(latencyPanel);
 
     const pianoKeys = document.createElement('mx-piano-keys');
     // Place piano keys at the bottom of the score area

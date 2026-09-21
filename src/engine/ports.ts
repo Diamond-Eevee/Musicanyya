@@ -174,6 +174,9 @@ export interface SettingsStore {
   loadPractice(scoreId: string | null): PracticeSettings;
   /** Stores the settings for that Score id and updates the last-used defaults. No-op for a null id. */
   savePractice(scoreId: string | null, settings: PracticeSettings): void;
+
+  loadLatencyProfile(): LatencyProfile;
+  saveLatencyProfile(profile: LatencyProfile): void;
 }
 
 // ---- EnvironmentProbe ----

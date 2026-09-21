@@ -337,12 +337,12 @@ worst, and confirm "practise this passage" opens Practice mode looping those mea
   (FR-031, FR-032)
 - [x] T055 [US2] "Practise this passage" in `src/app/play-session.ts` and the panel: convert the selected passes
   with 002's `passIndicesToLoopRange` and open Practice mode with the same `HandSelection` (FR-033)
-- [ ] T056 [US2] `src/core/play/calibration.ts`: the pure median-offset calculation and its rejection rule
-- [ ] T057 [US2] `src/ui/elements/mx-latency-panel.ts`: show the profile the Grade used, say plainly when it was
+- [x] T056 [US2] `src/core/play/calibration.ts`: the pure median-offset calculation and its rejection rule
+- [x] T057 [US2] `src/ui/elements/mx-latency-panel.ts`: show the profile the Grade used, say plainly when it was
   assumed, and run the tap calibration on request (FR-034, AS-2.4)
-- [ ] T058 [US2] `SettingsStore.loadLatencyProfile` / `saveLatencyProfile` in `src/engine/ports.ts` and
+- [x] T058 [US2] `SettingsStore.loadLatencyProfile` / `saveLatencyProfile` in `src/engine/ports.ts` and
   `src/engine/storage/local-settings-store.ts`, with the `musicanyya.latency.v1` key
-- [ ] T059 [US2] Result layer switch and clearing on a new run or mode change in `src/ui/elements/mx-score-view.ts`
+- [x] T059 [US2] Result layer switch and clearing on a new run or mode change in `src/ui/elements/mx-score-view.ts`
   (FR-035, AS-2.6, AS-2.7)
 
 **Checkpoint**: US1 and US2 both work independently - a Grade can be acted on, and the musician knows how much to
