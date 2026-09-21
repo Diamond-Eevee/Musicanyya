@@ -235,11 +235,11 @@ reason.
 - [x] T034 [US1] `src/engine/worklets/score-player.processor.ts`: render each block in the sub-blocks
   `DispatchState.splits` already contains, applying each event at its own frame via
   `synth.process(left, right, startIndex, sampleCount)`. No allocation, no new state (Constitution I)
-- [ ] T035 [US1] RT review of T034 with `rt-audio-reviewer` (mandatory, Constitution I)
+- [x] T035 [US1] RT review of T034 with `rt-audio-reviewer` (mandatory, Constitution I)
 - [x] T036 [US1] `channelVolume` message in `src/engine/worklets/score-player.processor.ts` and
   `AudioEngine.setChannelVolume` in `src/engine/audio/web-audio-engine.ts`; bump
   `specs/001-score-viewer-listen/contracts/worklet-protocol.md` to 1.2.0
-- [ ] T037 [US1] RT review of T036 with `rt-audio-reviewer` (mandatory, Constitution I)
+- [x] T037 [US1] RT review of T036 with `rt-audio-reviewer` (mandatory, Constitution I)
 - [x] T038 [US1] `AudioEngine.latencyProfile()` in `src/engine/audio/web-audio-engine.ts` returning the
   **assumed** profile (reported output latency + the 001 R-12 input estimate), and the port additions in
   `src/engine/ports.ts`; bump `specs/001-score-viewer-listen/contracts/ports.md` to 1.2.0
