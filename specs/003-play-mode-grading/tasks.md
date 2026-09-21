@@ -327,9 +327,9 @@ worst, and confirm "practise this passage" opens Practice mode looping those mea
 
 - [x] T052 [US2] Per-pass overview and reliability warnings in `src/core/grade/summary.ts`, with the pass label
   Practice already uses for repeats (research R-12, R-14)
-- [ ] T053 [US2] Reliability capture in `src/app/play-session.ts`: stamp audio dropouts, `liveQueueDropped` and
+- [x] T053 [US2] Reliability capture in `src/app/play-session.ts`: stamp audio dropouts, `liveQueueDropped` and
   MIDI device loss/return with their audio time during the run
-- [ ] T098 [US2] Audio loss detection (FR-046): map the engine's `suspended{reason:'deviceChanged'}` and a
+- [x] T098 [US2] Audio loss detection (FR-046): map the engine's `suspended{reason:'deviceChanged'}` and a
   changed `AudioContext.sampleRate` to the reducer's `audioLost` action in `src/app/play-session.ts`, with the
   test first in `tests/engine/play-session.test.ts` - the run stops, the partial Grade is produced and the whole
   Grade is marked unreliable. Nothing else raises `audioLost`, which is why T023 alone did not cover it
