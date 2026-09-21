@@ -157,7 +157,7 @@ reason.
   accented; a pickup's missing beats are clicked (`anacrusis-count-in`); a range starting on rests still ends its
   count-in on the barline (`range-start-mid-measure-rests`); compound meters click in dotted beats; the tempo map
   is shifted with the events; no Score event ever lands on `METRONOME_CHANNEL` (FR-003, FR-004)
-- [ ] T023 [P] [US1] `tests/core/play/run.test.ts`: the reducer moves `countIn -> running` on a tick comparison,
+- [x] T023 [P] [US1] `tests/core/play/run.test.ts`: the reducer moves `countIn -> running` on a tick comparison,
   never a timer; input during the count-in is recorded but the run only grades from the first expected note's
   early claim window (D-4); recording continues for the last note's late claim window past the final onset; a stop
   yields exactly the expected notes up to the stop, marked incomplete (SC-010); losing the MIDI keyboard appends
@@ -231,7 +231,7 @@ reason.
 - [x] T091 [US1] RT review of T030 and T032 with `rt-audio-reviewer` (mandatory): the latency compensation and the
   run's schedule compiler are timing code in that role's scope - one conversion site, integer ticks throughout,
   the count-in and clicks scheduled as data with no timer anywhere (Constitution I and II)
-- [ ] T033 [US1] `src/core/play/run.ts`: `playRunReducer` and its effects
+- [x] T033 [US1] `src/core/play/run.ts`: `playRunReducer` and its effects
 - [ ] T034 [US1] `src/engine/worklets/score-player.processor.ts`: render each block in the sub-blocks
   `DispatchState.splits` already contains, applying each event at its own frame via
   `synth.process(left, right, startIndex, sampleCount)`. No allocation, no new state (Constitution I)
