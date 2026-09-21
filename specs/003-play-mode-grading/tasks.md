@@ -309,18 +309,18 @@ worst, and confirm "practise this passage" opens Practice mode looping those mea
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T047 [P] [US2] `tests/core/grade/overview.test.ts`: the per-measure overview is keyed by measure **pass**,
+- [x] T047 [P] [US2] `tests/core/grade/overview.test.ts`: the per-measure overview is keyed by measure **pass**,
   so each occurrence of a repeated measure is counted separately, and the known-mistake fixture puts measures 3
   and 7 worst (FR-032, AS-1.9)
-- [ ] T048 [P] [US2] `tests/core/grade/reliability.test.ts`: an audio dropout, a dropped live message and a MIDI
+- [x] T048 [P] [US2] `tests/core/grade/reliability.test.ts`: an audio dropout, a dropped live message and a MIDI
   device loss each mark the measure passes they overlap as unreliable, with the reason, and leave the rest of the
   Grade usable (FR-015, AS-2.5)
-- [ ] T049 [P] [US2] `tests/engine/storage/latency-profile.test.ts`: a measured profile round-trips through
+- [x] T049 [P] [US2] `tests/engine/storage/latency-profile.test.ts`: a measured profile round-trips through
   `musicanyya.latency.v1`; a missing or invalid key yields an assumed profile; a calibration whose spread exceeds
   `CALIBRATION_MAX_SPREAD_MS` is rejected with a reason (research R-05)
-- [ ] T050 [P] [US2] `tests/core/play/calibration.test.ts`: the tap calibration takes the median signed offset
+- [x] T050 [P] [US2] `tests/core/play/calibration.test.ts`: the tap calibration takes the median signed offset
   over `CALIBRATION_BEATS`, discards offsets beyond half a beat, and is a pure function of the taps (R-05)
-- [ ] T051 [P] [US2] `tests/ui/mistake-stepper.test.ts`: stepping forwards and backwards visits every mistake
+- [x] T051 [P] [US2] `tests/ui/mistake-stepper.test.ts`: stepping forwards and backwards visits every mistake
   repeatedly, in Score order, scrolling to each (FR-031)
 
 ### Implementation

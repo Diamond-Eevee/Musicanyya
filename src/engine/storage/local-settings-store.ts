@@ -15,6 +15,7 @@ import type { PracticeSettings, SettingsStore, UserSettings } from '../ports.js'
 
 export const SETTINGS_STORAGE_KEY = 'musicanyya.settings.v1';
 export const PRACTICE_STORAGE_KEY = 'musicanyya.practice.v1';
+export const LATENCY_STORAGE_KEY = 'musicanyya.latency.v1';
 
 const SCORE_ID_PATTERN = /^[0-9a-f]{64}$/;
 const HAND_PRESETS: readonly string[] = ['both', 'right', 'left', 'custom'];
@@ -128,6 +129,30 @@ export class LocalSettingsStore implements SettingsStore {
     this.raw = { ...this.raw, ...this.pending };
     this.pending = null;
     this.write(SETTINGS_STORAGE_KEY, this.raw);
+  }
+
+  loadLatencyProfile(): import('../../core/grade/types.js').LatencyProfile {
+    try {
+      const item = localStorage.getItem(LATENCY_STORAGE_KEY);
+      if (item) {
+        const parsed = JSON.parse(item);
+        if (isObject(parsed) && typeof parsed.inputLatencyMs === 'number') {
+          return {
+            outputLatencyMs: typeof parsed.outputLatencyMs === 'number' ? parsed.outputLatencyMs : 0,
+            inputLatencyMs: parsed.inputLatencyMs,
+            source: 'measured',
+            measuredAt: typeof parsed.measuredAt === 'string' ? parsed.measuredAt : null,
+          };
+        }
+      }
+    } catch {
+      // fallback below
+    }
+    return { outputLatencyMs: 0, inputLatencyMs: 0, source: 'assumed', measuredAt: null };
+  }
+
+  saveLatencyProfile(profile: import('../../core/grade/types.js').LatencyProfile): void {
+    this.write(LATENCY_STORAGE_KEY, profile);
   }
 
   loadPractice(scoreId: string | null): PracticeSettings {
