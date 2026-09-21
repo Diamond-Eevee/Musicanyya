@@ -131,6 +131,20 @@ export interface GradeInput {
   measures: readonly MeasureInfo[]; // for the window beat-unit lookup (data-model.md section 6)
 }
 
+// data-model.md §9, contracts/performance-log.md - a finished run, kept on the device (FR-041)
+export interface StoredPerformance {
+  runId: string;
+  scoreId: string;
+  finishedAt: string; // ISO 8601
+  settings: RunSettings;
+  latency: LatencyProfile;
+  appVersion: string; // from the build, so an old log is recognisable (FR-014)
+  // Run-relative (0 = this run's own tick 0), unlike a live PlayRun.log: research R-20.
+  log: PerformanceLog;
+  summary: GradeSummary; // denormalised so the attempt list needs no re-grading
+  schema: 1;
+}
+
 // data-model.md §9 - Stored performance and the Grade
 export interface Grade {
   runId: string;

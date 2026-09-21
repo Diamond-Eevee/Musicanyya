@@ -1,4 +1,4 @@
-import type { LatencyProfile } from '../core/grade/types.js';
+import type { LatencyProfile, StoredPerformance } from '../core/grade/types.js';
 import type { RunSettings } from '../core/play/types.js';
 import type { HandSelection } from '../core/practice/types.js';
 import type { ScheduleMessage } from '../core/schedule/compile.js';
@@ -146,6 +146,20 @@ export interface ScoreStore {
   }): Promise<StoreResult<RecentScoreSummary>>; // upsert by content hash, trims to 10
   get(id: string): Promise<StoreResult<{ summary: RecentScoreSummary; bytes: ArrayBuffer }>>;
   remove(id: string): Promise<StoreResult<void>>;
+}
+
+// ---- PerformanceStore (stored attempts, IndexedDB) ----
+/** `StoredPerformance` without its `log` - what the attempts list needs (contracts/performance-log.md). */
+export type StoredPerformanceSummary = Omit<StoredPerformance, 'log'>;
+
+export interface PerformanceStore {
+  /** Upsert by `runId`; trims that Score's performances to `PERFORMANCES_PER_SCORE_MAX`, oldest first (FR-041). */
+  put(performance: StoredPerformance): Promise<StoreResult<void>>;
+  /** Newest first (`byScoreFinished`), summaries only - no recording bytes for a list view. */
+  listByScore(scoreId: string): Promise<StoreResult<readonly StoredPerformanceSummary[]>>;
+  get(runId: string): Promise<StoreResult<StoredPerformance>>;
+  /** Removes the record and therefore its recording (FR-043). */
+  remove(runId: string): Promise<StoreResult<void>>;
 }
 
 export interface UserSettings {

@@ -67,6 +67,12 @@ Normative rules:
    matching continue for the last expected note's late claim window past the final onset.
 5. `droppedMessages` counts input the app could not record (FR-015); it appears on the Grade as a reliability
    warning.
+6. **Once stored, `audioTimeSec` is run-relative** (0 = the run's own tick 0, i.e. `PlayRun.startAudioTimeSec`
+   already subtracted, research R-20) - the live in-memory log a running `PlayRun` accumulates is on the
+   `AudioContext` clock, exactly as `GradeInput.startAudioTimeSec` expects, but that clock does not survive the
+   run, so `src/app/play-session.ts` rebases the copy that reaches `PerformanceStore.put`. Regrading and replay
+   both pass `startAudioTimeSec: 0` (`GradeInput`/`ReplayOptions`) to a stored log; only a *live* `GradeInput` (a
+   run just finished, not yet stored) uses `PlayRun.startAudioTimeSec` itself.
 
 ## Play settings (`localStorage`)
 

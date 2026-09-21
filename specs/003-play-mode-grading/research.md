@@ -448,4 +448,28 @@ chord is several `RequiredKey`s sharing one onset.
 **Alternatives considered**: (a) building expected notes from the `PlaybackTimeline` directly - rejected: it would
 lose the hand attribution and the printed/grace/unpitched filters; (b) generalising `buildExpectedEvents` into a
 shared "expectations" module - rejected as churn without a second caller that needs a different shape
+
+## R-20 - A stored performance's log is rebased to run-relative time, so `startAudioTimeSec` need not be stored
+
+**Decision**: `GradeInput.startAudioTimeSec` and `PerformanceLog.messages[].audioTimeSec` are both on the live
+run's own `AudioContext` clock (`PlayRun.startAudioTimeSec` is that clock's reading at run tick 0). That clock no
+longer exists once the run ends, so `src/app/play-session.ts` rebases every message before it reaches storage -
+`audioTimeSec -= run.startAudioTimeSec` - making the **stored** `PerformanceLog` (and only the stored one; the
+live, in-memory `PlayRun.log` is never touched) relative to run start. Regrading and replay then always pass
+`startAudioTimeSec: 0`. This is exactly what data-model.md section 3 already asserts ("the stored record adds the
+Score id, the run settings, the Latency profile and the app version, which is everything `gradePerformance`
+needs. Nothing else influences a Grade") - that sentence is only true if the log itself no longer depends on an
+`AudioContext` instance that outlives the run.
+
+**Rationale**: `StoredPerformanceRecord` (contracts/performance-log.md) has no `startAudioTimeSec` field, and
+none should be added: it would be a meaningless number the moment the app restarts or the audio device changes
+sample rate, and every consumer (regrade, replay) already needs `expected`/`playedAlong`/`tempo`/`passes`/
+`measures` recomputed fresh from the Score and the stored `settings` anyway (the same way `startPlay` builds them
+for a live run) - `startAudioTimeSec` is the one `GradeInput` field with no Score-derived equivalent, so it is
+normalised away instead.
+
+**Alternatives considered**: (a) store `startAudioTimeSec` alongside the log - rejected: it is dead the instant
+the `AudioContext` that produced it is gone, so every reader would need to special-case "is this number still
+meaningful"; (b) rebase at read time instead of write time - rejected: every reader (regrade, replay, a future
+export) would have to repeat the same subtraction, whereas the write path does it once.
 (Constitution VIII).

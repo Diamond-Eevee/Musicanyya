@@ -399,24 +399,30 @@ replay the first one and confirm the notes heard are the ones that were played, 
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T070 [P] [US4] `tests/engine/storage/performance-store.test.ts`: the `performances` store is created by the
+- [x] T070 [P] [US4] `tests/engine/storage/performance-store.test.ts`: the `performances` store is created by the
   version 1 -> 2 upgrade without touching `recentScores`; records round-trip; `byScoreFinished` lists newest
   first; writing beyond `PERFORMANCES_PER_SCORE_MAX` drops the oldest; deleting removes the recording;
   `unavailable` and `quotaExceeded` are reported, never thrown (FR-041, FR-043)
-- [ ] T071 [P] [US4] `tests/core/play/replay.test.ts`: a stored log compiles to a schedule whose note events land
+- [x] T071 [P] [US4] `tests/core/play/replay.test.ts`: a stored log compiles to a schedule whose note events land
   at the recorded times against the Score, with the accompaniment the run used and no timer anywhere (FR-042,
   research R-10)
-- [ ] T072 [P] [US4] `tests/core/grade/regrade.test.ts`: re-grading a stored performance at a different
-  strictness yields a different Grade and a byte-identical stored log (FR-027, SC-011)
+- [x] T072 [P] [US4] `tests/core/grade/regrade.test.ts`: re-grading a stored performance at a different
+  strictness yields a different Grade and a byte-identical stored log (FR-027, SC-011). Passed immediately - a
+  purity/contract test of the already-correct `gradePerformance` and `resolveWindows`, not paired with new
+  production code (no separate regrade function exists; the app re-derives `GradeInput` from a stored
+  performance the same way a live run's `start()` does, per contracts/grading.md's worker protocol note).
 
 ### Implementation
 
-- [ ] T073 [US4] `src/engine/storage/indexeddb-performance-store.ts`: the store, the version 2 upgrade, the
-  retention rule and the `StoreResult` failure behaviour
+- [x] T073 [US4] `src/engine/storage/indexeddb-performance-store.ts`: the store, the version 2 upgrade, the
+  retention rule and the `StoreResult` failure behaviour. Shares the `musicanyya` DB open/upgrade path with
+  `IndexedDbScoreStore` via new `src/engine/storage/db.ts` (DB_VERSION bumped 1 -> 2 there), so the version 2
+  upgrade adds `performances` without ever touching `recentScores` regardless of which store opens the DB first.
 - [ ] T074 [US4] Store the finished run in `src/app/play-session.ts` with its settings, Latency profile, app
   version and summary (FR-014, FR-041)
-- [ ] T075 [US4] `src/core/play/replay.ts`: compile a stored log into a `ScheduleMessage` on the live channel's
-  instrument, merged with the run's accompaniment
+- [x] T075 [US4] `src/core/play/replay.ts`: compile a stored log into a `ScheduleMessage` on the live channel's
+  instrument, merged with the run's accompaniment. New `mergeSchedules` in `src/core/schedule/compile.ts` unions
+  two compiled schedules on disjoint channels (reused as-is, not re-derived, by both replay and any future caller).
 - [ ] T076 [US4] `src/ui/elements/mx-attempts-list.ts`: the recent attempts with date, settings and summary, and
   the replay, re-grade and delete actions, stating how many attempts are kept (FR-041 to FR-043, AS-4.6)
 - [ ] T077 [US4] Bump `specs/001-score-viewer-listen/contracts/storage.md` to IndexedDB schema 2 and record the
