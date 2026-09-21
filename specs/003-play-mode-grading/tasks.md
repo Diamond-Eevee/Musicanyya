@@ -384,7 +384,7 @@ Metronome use the reduced tempo, only measures 5-8 are graded, and only right-ha
   recompiling the schedule (research R-02)
 - [x] T068 [US3] `SettingsStore.loadPlay` / `savePlay` in `src/engine/ports.ts` and
   `src/engine/storage/local-settings-store.ts`, with the `musicanyya.play.v1` key and the per-Score cap
-- [ ] T069 [US3] `tests/e2e/us3-play-setup.spec.ts`: a range at a reduced tempo with one hand, settings surviving
+- [x] T069 [US3] `tests/e2e/us3-play-setup.spec.ts`: a range at a reduced tempo with one hand, settings surviving
   a reload
 
 **Checkpoint**: US1, US2 and US3 all work independently - a real practice session is possible.

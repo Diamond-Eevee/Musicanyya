@@ -13,16 +13,13 @@ describe('Play mode range (FR-036, AS-3.1)', () => {
     const measureRange = { fromMeasureIndex: 4, toMeasureIndex: 7 };
     
     const events = buildExpectedEvents(score, timeline, { partIndex: 0, staves: [1, 2] });
-    console.log('Events length:', events.length);
-    console.log('Passes:', timeline.passes);
     const loop = resolveLoop(events, timeline.passes, measureRange, 0);
     expect(loop).not.toBeNull();
-    
+
+    // `loopRangeToPassIndices` returns `ResolvedLoop`'s inclusive `toPassIndex` (src/core/practice/loop.ts);
+    // `buildExpectedNotes` and `compilePlaySchedule` both require the exclusive form (contracts/play-run.md
+    // "range.toPassIndex is exclusive") - the same conversion `session.ts::startPlay` applies (T069).
     const loopPassSpan = loopRangeToPassIndices(loop!);
-    // Play's `LoopPassSpan` is exclusive on `toPassIndex` (noted in contracts/play-run.md 1.1.1).
-    // Wait! loopRangeToPassIndices returns an inclusive toPassIndex. The test says 
-    // "a written measure range resolves to passes with 002's loopRangeToPassIndices". 
-    // The schedule compiler expects exclusive `toPassIndex`.
     const range = { fromPassIndex: loopPassSpan.fromPassIndex, toPassIndex: loopPassSpan.toPassIndex + 1 };
     
     // 1. Grade expects exactly those notes

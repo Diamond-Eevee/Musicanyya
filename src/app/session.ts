@@ -604,7 +604,14 @@ export class Session {
       // Build events to find occurrences, then resolve the loop.
       const events = buildExpectedEvents(this.currentScore, timeline, settings.selection);
       const loop = resolveLoop(events, timeline.passes, settings.range, 0);
-      if (loop) range = loopRangeToPassIndices(loop);
+      // `loopRangeToPassIndices` returns `ResolvedLoop`'s inclusive `toPassIndex` (src/core/practice/loop.ts);
+      // `buildExpectedNotes` and `compilePlaySchedule` both require the exclusive form (contracts/play-run.md
+      // "range.toPassIndex is exclusive"). Found while testing T069: a single-measure range (fromPassIndex ===
+      // toPassIndex) silently graded nothing at all without this conversion.
+      if (loop) {
+        const inclusive = loopRangeToPassIndices(loop);
+        range = { fromPassIndex: inclusive.fromPassIndex, toPassIndex: inclusive.toPassIndex + 1 };
+      }
     }
 
     const expected = buildExpectedNotes(this.currentScore, this.currentPlaybackTimeline, settings.selection, range);

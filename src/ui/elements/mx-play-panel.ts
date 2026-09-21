@@ -38,14 +38,19 @@ function sameStaves(a: HandSelection | null, b: HandSelection): boolean {
  *  given and reports choices as `playsetup` events; it decides nothing (Constitution V). */
 export class MxPlayPanel extends HTMLElement {
   private unsubscribe?: () => void;
+  private unsubscribeMode?: () => void;
 
   connectedCallback() {
     this.unsubscribe = playState.subscribe(() => this.render());
+    // Visibility depends on practiceState.mode (line ~58), not just playState - without this the panel stayed
+    // hidden after switching to Play mode on an already-loaded Score, since that switch touches no PlayState.
+    this.unsubscribeMode = practiceState.subscribe(() => this.render());
     this.render();
   }
 
   disconnectedCallback() {
     this.unsubscribe?.();
+    this.unsubscribeMode?.();
   }
 
   private emit(change: PlaySetupChange) {
