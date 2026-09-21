@@ -1,11 +1,15 @@
 # Contract: ports (engine layer interfaces)
 
-**Version**: `1.2.0` (internal TypeScript contract between `src/engine` adapters and `src/ui`/`src/app`).
+**Version**: `1.3.0` (internal TypeScript contract between `src/engine` adapters and `src/ui`/`src/app`).
 1.1.0 (feature 002, T030): `SettingsStore` gains `loadPractice` and `savePractice`; nothing existing changed.
 1.2.0 (feature 003, T036): `AudioEngine` gains `setChannelVolume` (mutes the Play mode Metronome without
-recompiling the schedule, research R-02 in specs/003-play-mode-grading/research.md); `latencyProfile` and
-`SettingsStore.loadLatencyProfile`/`saveLatencyProfile` (T038) land in this same 1.2.0, since both are additive
+recompiling the schedule, research R-02 in specs/003-play-mode-grading/research.md); `latencyProfile` (T038,
+corrected below - this file's own interface snippet omitted it) and `SettingsStore.loadLatencyProfile`/
+`saveLatencyProfile` (T038, not yet implemented; lands with T058) are in this same 1.2.0, since all are additive
 and land in the same feature.
+1.3.0 (feature 003, T039): `AudioEngine` gains `clockPair()`, the `(contextTime, performanceTime)` pairing
+`MidiClockMap` needs to map a MIDI message's `timeStampMs` onto the audio clock (research R-04 in
+specs/003-play-mode-grading/research.md).
 Signatures are normative in shape; names may be refined during implementation, but every change must be reflected
 here and the version bumped (MINOR for additions, MAJOR for breaking changes).
 
@@ -67,7 +71,12 @@ export interface AudioEngine extends Emitter<AudioEngineEvent> {
   liveAllOff(): void;
   /** Called every animation frame by the UI; returns the audible position (R-11). */
   audiblePosition(nowMs: number): PositionUpdate | null;
+  /** The `(contextTime, performanceTime)` pairing `AudioContext.getOutputTimestamp()` gives, the same one the
+   *  cursor uses; null before the context exists. (1.3.0) */
+  clockPair(): ClockPair | null;
   latency(): LatencyInfo;
+  /** The profile grading compensates with; `assumed` until a calibration is stored. (1.2.0) */
+  latencyProfile(): LatencyProfile;
   diagnostics(): AudioDiagnostics;                   // data-model §6
   dispose(): Promise<void>;
 }

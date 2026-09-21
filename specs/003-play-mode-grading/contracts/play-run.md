@@ -1,8 +1,12 @@
 # Contract: play run (core API)
 
-**Version**: `1.1.1` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
+**Version**: `1.1.2` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
 `src/app/play-session.ts` and `src/ui`). Signatures are normative in shape; every change is reflected here with a
 version bump (MINOR for additions, MAJOR for breaking changes).
+
+**1.1.1 -> 1.1.2** (T039): `AudioEngine` gains `clockPair()` (below) - research R-04 names the
+`(contextTime, performanceTime)` pairing but the port had no way to read it; found missing while wiring
+`MidiClockMap` into the controller.
 
 Constitution IV and V: `src/core/play` is pure. It imports nothing from `src/engine` or `src/ui`, touches no DOM,
 no Web API, no clock and no randomness, and therefore runs in Node under test. It **returns** effects; it never
@@ -122,7 +126,7 @@ Normative rules:
 
 ## Engine additions this feature needs
 
-`ports` 1.1.0 -> **1.2.0** (additive only):
+`ports` 1.1.0 -> 1.2.0 -> **1.3.0** (additive only):
 
 ```ts
 interface AudioEngine {
@@ -130,6 +134,9 @@ interface AudioEngine {
   setChannelVolume(channel: number, volume: number): void;      // 0..100
   /** The profile grading compensates with; `assumed` until a calibration is stored. */
   latencyProfile(): LatencyProfile;
+  /** The `(contextTime, performanceTime)` pairing `AudioContext.getOutputTimestamp()` gives (R-04), the same one
+   *  the cursor uses; null before the context exists. Feeds `MidiClockMap` (1.3.0, T039). */
+  clockPair(): ClockPair | null;
 }
 
 interface SettingsStore {

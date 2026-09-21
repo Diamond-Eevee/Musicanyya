@@ -1,7 +1,23 @@
 # Contract: grading (core API and worker)
 
-**Version**: `1.1.1` (internal TypeScript contract between `src/core/grade`, `src/workers/grade.worker.ts` and
+**Version**: `1.1.2` (internal TypeScript contract between `src/core/grade`, `src/workers/grade.worker.ts` and
 `src/app/play-session.ts`). Signatures are normative in shape; every change is reflected here with a version bump.
+
+**1.1.1 -> 1.1.2** (found implementing T039, no shape change): clarified what space `GradeInput.tempo` must be
+in. Step 1 below computes `runTick = tickAtAudioTime(elapsedSec, tempo, ...)`, then converts it to a timeline tick
+via `tickMap`'s additive shift - for that shift to recover the correct timeline tick, `tempo`'s own segment
+boundaries must already be shifted the same way, i.e. **run-tick space** (0 = count-in start): the compiled run
+schedule's own tempo map (`ScheduleMessage.tempoTick`/`tempoQpmNum`/`tempoQpmDen`), not `PlaybackTimeline.tempo`.
+`src/app/play-session.ts` passes the former. Every existing test passes either tempo map, because every existing
+`tickMap` has `countInTicks - rangeStartTick === 0`, which makes the two identical - see T106 below for the one
+place this still matters.
+
+**Known gap, not fixed here (T106)**: Step 2's `resolveWindows` and `passAtTick` key their own tempo lookups by
+`ExpectedNote.onsetTick` / `message.tick`, which are **timeline**-tick space (matching `PlaybackTimeline.tempo`) -
+the opposite of what Step 1 needs. With one `GradeInput.tempo` field feeding both, a run with a non-zero
+`countInTicks - rangeStartTick` shift **and** a tempo change inside the graded range sizes its windows from the
+wrong tempo segment. The primary matching axis (ticks) is unaffected; only window sizing (and reliability-event
+pass attribution) is. T106 tracks giving Step 2 the timeline-space tempo map instead.
 
 Constitution IV: `gradePerformance` is a **pure, synchronous** function. Same Score, same log, same settings ->
 byte-identical Grade, including every reason (FR-025, SC-001). It contains no clock, no randomness, no English

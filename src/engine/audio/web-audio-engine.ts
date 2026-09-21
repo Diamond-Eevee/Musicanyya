@@ -1,5 +1,6 @@
 import { DIAGNOSTICS_REPORT_WINDOW_MS, TEMPO_PERCENT_DEFAULT, VOLUME_DEFAULT } from '../../core/defaults.js';
 import type { LatencyProfile } from '../../core/grade/types.js';
+import type { ClockPair } from '../midi/clock-map.js';
 import type {
   AudioDiagnostics,
   AudioEngine,
@@ -282,6 +283,13 @@ export class WebAudioEngine implements AudioEngine {
       sampleRate: this.context.sampleRate,
     });
     return { audibleTick, playing: this.transport.phase === 'playing' };
+  }
+
+  clockPair(): ClockPair | null {
+    if (!this.context) return null;
+    const ts = this.context.getOutputTimestamp?.();
+    if (!ts || ts.contextTime === undefined || ts.performanceTime === undefined) return null;
+    return { contextTime: ts.contextTime, performanceTime: ts.performanceTime };
   }
 
   latency(): LatencyInfo {

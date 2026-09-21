@@ -1,3 +1,5 @@
+import type { LatencyProfile } from '../../src/core/grade/types.js';
+import type { ClockPair } from '../../src/engine/midi/clock-map.js';
 import type {
   AudioDiagnostics,
   AudioEngine,
@@ -61,8 +63,22 @@ export class FakeAudioEngine implements AudioEngine {
     return this.currentPosition;
   }
 
+  public currentClockPair: ClockPair | null = null;
+  clockPair(): ClockPair | null {
+    return this.currentClockPair;
+  }
+
   latency(): LatencyInfo {
     return { outputLatencyMs: null, keyToSoundMs: null, method: 'reported' };
+  }
+  public currentLatencyProfile: LatencyProfile = {
+    outputLatencyMs: 0,
+    inputLatencyMs: 0,
+    source: 'assumed',
+    measuredAt: null,
+  };
+  latencyProfile(): LatencyProfile {
+    return this.currentLatencyProfile;
   }
   diagnostics(): AudioDiagnostics {
     return {
@@ -84,5 +100,10 @@ export class FakeAudioEngine implements AudioEngine {
   on(listener: (event: AudioEngineEvent) => void): Unsubscribe {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
+  }
+
+  /** Test-only: fires an event to every subscriber, e.g. to simulate the worklet reaching its own end. */
+  fireEvent(event: AudioEngineEvent): void {
+    for (const listener of this.listeners) listener(event);
   }
 }

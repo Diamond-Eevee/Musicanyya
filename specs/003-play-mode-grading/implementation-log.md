@@ -386,3 +386,70 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
   (`tests/ui/grade-marks.test.ts`) and T097 (`tests/engine/play-session.test.ts`) are independent `[P]` tests that
   can be written any time before the Checkpoint - T097 in particular should now be straightforward since
   `requestGrade`'s shape is settled. Tree clean at the commit below, not pushed.
+
+## 2026-09-21 - claude-sonnet-5 (relay)
+
+- Done: T097, T039 - 56/105 tasks now done. `tasks.md`'s own Dependencies section says "T097 blocks T039"
+  (test-first, Constitution IV), so T097 was written and confirmed to fail (`Cannot find module`) before T039's
+  implementation, even though the previous hand-off suggested T039 first - the log's suggestion was looser than
+  the file's own recorded dependency, and the dependency wins. Full gate (`pnpm lint`, `pnpm typecheck`,
+  `pnpm vitest run`: 662 tests) green throughout.
+- **T039 - `PlaySessionController` design**: research R-01 names the file but not its shape; this session designed
+  it against the existing contracts. `start(options)` builds `expected`/`playedAlong` (`src/core/grade/expected.ts`),
+  compiles the run schedule (`compilePlaySchedule`), loads and plays it, and dispatches `start` to
+  `playRunReducer`. `reportPosition(nowMs)` is the one place position reports enter - called every animation frame
+  by whichever caller owns the rAF loop (T040, mirroring how `mx-score-view` already drives its own cursor tick;
+  kept out of this controller so `tests/engine/play-session.test.ts` can run under vitest's `node` environment,
+  which has no `requestAnimationFrame`). MIDI input is recorded through `MidiClockMap` on every `noteOn`/`noteOff`/
+  `sustain` event. Grading goes through `requestGrade` (T031) when the reducer's `runEnded` effect appears, never
+  `gradePerformance` called inline - this file does not import `src/core/grade/grade.js` at all.
+- **R-16's recording tail, without a timer**: the run must keep recording past the worklet's own `ended` event
+  until the last expected note's late claim window has passed. Rather than a `setTimeout` (unnecessary here, since
+  `src/app` is not the RT path - Constitution I only forbids timers in `AudioWorklet.process()`), the controller
+  tracks `audioEndedAtMs` (the `nowMs` of the last `reportPosition` call when the engine's `'ended'` event arrived)
+  and keeps comparing later `reportPosition(nowMs)` calls against it, dispatching `ended` to the reducer once
+  `nowMs - audioEndedAtMs >= tailMs`. This keeps the whole run genuinely "driven by position reports" (T097's own
+  phrase) with no second clock, and makes the tail trivially testable: the test just calls `reportPosition` with a
+  later `nowMs`, no `vi.useFakeTimers()` needed. `tailMs` is computed once at `start()` from the last expected
+  note's `claimLateTicks` (`resolveWindows`), converted to ms at the local tempo.
+- **`AudioEngine.clockPair()` - found missing (play-run.md 1.1.1 -> 1.1.2, ports.md 1.2.0 -> 1.3.0)**: `MidiClockMap`
+  (T011) needs a fresh `(contextTime, performanceTime)` pair to convert a MIDI message's `timeStampMs`; research
+  R-04 names `AudioContext.getOutputTimestamp()` as the source (the same pairing `position-sync.ts` already uses
+  for the cursor) but nothing in `AudioEngine` exposed it. Added `clockPair(): ClockPair | null` to the port,
+  `WebAudioEngine` (wraps `getOutputTimestamp()` directly) and `FakeAudioEngine`. Used both for MIDI timestamp
+  mapping and, at `start()`, to anchor `startAudioTimeSec` ("audio time of run tick 0") to the real audio clock
+  rather than guessing.
+- **Tempo-space finding in `gradePerformance` (grading.md 1.1.1 -> 1.1.2, new task T106, not fixed here)**: working
+  out what `GradeInput.tempo` the controller should pass surfaced a real mismatch already living in `grade.ts`
+  (T030, RT-reviewed at T091, never caught because every existing test's `tickMap` has
+  `countInTicks - rangeStartTick == 0`). Step 1's `tickAtAudioTime` call needs `tempo` in **run-tick space** (0 =
+  count-in start) for the tickMap's additive shift to recover the right timeline tick - verified by hand: the
+  compiled schedule's count-in duration is sized against the tempo *at rangeStart*, which only lines up with
+  `tickAtAudioTime`'s first segment when `tempo`'s segment 0 also starts at run tick 0 with that same tempo (true
+  for the shifted/run-tick tempo map, false in general for the raw timeline one). But `resolveWindows` and
+  `passAtTick`, fed the same `tempo` value, key their lookups by `ExpectedNote.onsetTick`/`message.tick`, which are
+  **timeline**-tick space - the opposite space. `src/app/play-session.ts` now passes the schedule's own shifted
+  tempo (reconstructed from `ScheduleMessage.tempoTick`/`tempoQpmNum`/`tempoQpmDen`, `Constitution II` - reused,
+  not recomputed) for `GradeInput.tempo`, which makes the primary matching axis correct in general; the
+  controller's own tail-window computation (above) uses `timeline.tempo` directly instead, since it only needs
+  the timeline-tick-space lookup. The latent bug inside `gradePerformance` itself - narrow (window sizing and
+  reliability-pass attribution only, when a run has both a count-in/range shift and a mid-range tempo change) - is
+  logged as T106 rather than fixed here, since it touches already-reviewed code outside this task's file.
+- **T097** (`tests/engine/play-session.test.ts`, 6 tests) drives the controller with `FakeAudioEngine` (extended
+  this session with `clockPair`/`latencyProfile`, both missing before - `latencyProfile`'s absence was silent
+  because `tests/` is outside `tsc --build`'s project graph and nothing had called it yet), a new
+  `tests/fakes/fake-midi-input.ts`, and a `FakeGradeWorker` mirroring T096's own double. Covers: `countIn` never
+  advances except on a `position` report; `position` at the count-in boundary produces `runStarted`; a MIDI message
+  round-trips through the clock map with both `audioTimeSec` and `timeStampMs`; the worklet's `ended` event alone
+  is not enough to grade (still within the tail) and a later, later-`nowMs` `reportPosition` call is; grading goes
+  through `FakeGradeWorker.posted`, compared against `gradePerformance(input)` run directly in the test for
+  reference (never inside the controller); further frames after `finished` never post a second grade request;
+  `stop()` produces `complete: false`; a worker that never replies resolves `onGradeFailed('timeout')` via
+  `requestGrade`'s own timeout, not a hang.
+- Handoff: next = T040 (`src/ui/elements/mx-mode-switch.ts` - add Play, the unavailable reason, the
+  `playNothingToGrade` notice for a Score with nothing gradable, and `src/ui/state/playState.ts`). T040 is also
+  where a `PlaySessionController` gets wired into `session.ts` for real (an rAF loop calling `reportPosition`,
+  mirroring `mx-score-view`'s own `tick`) - nothing does that yet, so T039's controller is exercised only by
+  T097's fakes so far. T041-T044, T046 continue the US1 implementation block after that; T045
+  (`tests/ui/grade-marks.test.ts`) is still open and independent `[P]`, can be written any time before the
+  Checkpoint. Tree clean at the commit below, not pushed.

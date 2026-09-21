@@ -185,7 +185,7 @@ reason.
 - [x] T096 [P] [US1] `tests/engine/workers/grade-worker.test.ts`: the `grade` / `graded` / `error` messages of
   [contracts/grading.md](contracts/grading.md) round-trip as structured-cloneable data, `requestId` pairs
   request and reply, and a worker that never answers becomes a notice after `GRADE_WORKER_TIMEOUT_MS`, not a hang
-- [ ] T097 [P] [US1] `tests/engine/play-session.test.ts`: the controller against the fakes - every MIDI message is
+- [x] T097 [P] [US1] `tests/engine/play-session.test.ts`: the controller against the fakes - every MIDI message is
   recorded through the clock map with both times, grading goes **through the worker** and never inline, the run
   reducer is driven by position reports only, and a finished run produces exactly one Grade (FR-012, FR-026)
 - [ ] T045 [P] [US1] `tests/ui/grade-marks.test.ts`: every result state is distinguishable by shape in greyscale
@@ -243,7 +243,7 @@ reason.
 - [x] T038 [US1] `AudioEngine.latencyProfile()` in `src/engine/audio/web-audio-engine.ts` returning the
   **assumed** profile (reported output latency + the 001 R-12 input estimate), and the port additions in
   `src/engine/ports.ts`; bump `specs/001-score-viewer-listen/contracts/ports.md` to 1.2.0
-- [ ] T039 [US1] `src/app/play-session.ts`: the controller - compile the run schedule, drive the reducer from
+- [x] T039 [US1] `src/app/play-session.ts`: the controller - compile the run schedule, drive the reducer from
   position reports, record every MIDI message through the clock map, grade through the worker when the run ends
   (research R-01)
 - [ ] T040 [US1] `src/ui/elements/mx-mode-switch.ts`: add Play, with the unavailable reason where Web MIDI is
@@ -413,6 +413,15 @@ replay the first one and confirm the notes heard are the ones that were played, 
 - [ ] T103 [P] `tests/core/play/long-run.test.ts`: a simulated 10-minute run at 208 bpm accounts for every
   recorded message - each note-on ends as exactly one result's `playedKey`, one `PlayedAlongPress` or one
   `ExtraNote`, with `droppedMessages` zero and no dropout (SC-007)
+- [ ] T106 [P] Fix the tempo-space mismatch `gradePerformance` (`src/core/grade/grade.ts`) has between its two
+  uses of `GradeInput.tempo`: Step 1's `tickAtAudioTime` call needs run-tick space (0 = count-in start), but
+  `resolveWindows` and `passAtTick` key their lookups by `ExpectedNote.onsetTick`/`message.tick`, which are
+  timeline-tick space - the opposite (contracts/grading.md 1.1.2, found implementing T039). Give `GradeInput` a
+  second tempo field (or derive timeline-space internally from `tickMap`) so window sizing and reliability-event
+  pass attribution use the correct segment whenever a run's `countInTicks - rangeStartTick` shift is non-zero
+  **and** a tempo change falls inside the graded range. Test first: a fixture with a mid-range tempo change,
+  played through a range that does not start at tick 0, asserting the resolved window matches the tempo
+  actually in force at that onset
 - [ ] T081 [P] Update `docs/agents/reference.md` if anything in the toolchain or the commands changed, and
   `quickstart.md` if a command changed
 - [ ] T082 Run the `quickstart.md` manual verification script for all four user stories on a real MIDI keyboard

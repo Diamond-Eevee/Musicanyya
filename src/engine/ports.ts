@@ -1,6 +1,7 @@
 import type { LatencyProfile } from '../core/grade/types.js';
 import type { HandSelection } from '../core/practice/types.js';
 import type { ScheduleMessage } from '../core/schedule/compile.js';
+import type { ClockPair } from './midi/clock-map.js';
 
 // ---- shared ----
 export type Unsubscribe = () => void;
@@ -86,6 +87,10 @@ export interface AudioEngine extends Emitter<AudioEngineEvent> {
   liveAllOff(): void;
   /** Called every animation frame by the UI; returns the audible position (R-11). */
   audiblePosition(nowMs: number): PositionUpdate | null;
+  /** The `(contextTime, performanceTime)` pairing `AudioContext.getOutputTimestamp()` gives, the same one the
+   *  cursor uses (R-04); null before the context exists. Feeds `MidiClockMap` so a recorded MIDI message's
+   *  `timeStampMs` can be mapped onto the audio clock (play-run.md 1.1.1 -> 1.2.0). */
+  clockPair(): ClockPair | null;
   latency(): LatencyInfo;
   /** The profile grading compensates with; `assumed` until a calibration is stored (data-model §8). */
   latencyProfile(): LatencyProfile;
