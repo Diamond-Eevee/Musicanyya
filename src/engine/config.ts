@@ -14,10 +14,24 @@ export {
   VOLUME_RAMP_FRAMES,
 } from '../core/defaults.js';
 
-export const ZOOM_MIN = 50;
-export const ZOOM_MAX = 200;
-export const ZOOM_DEFAULT = 100;
-export const ZOOM_STEP = 10;
+// Score size in percent; 100 = fitted to the Score viewport (specs/004-score-first-layout/contracts/score-layout.md)
+export const SCORE_SCALE_MIN = 50;
+export const SCORE_SCALE_MAX = 200;
+export const SCORE_SCALE_DEFAULT = 100;
+export const SCORE_SCALE_STEP = 10;
+
+// Bounds of the Verovio page requested from a viewport, in Verovio page units (1 unit = 1 CSS px at scale 100)
+export const MIN_PAGE_UNITS = 400;
+export const MAX_PAGE_UNITS = 10000;
+
+/** @deprecated Use SCORE_SCALE_*; these aliases are removed in T107 of feature 004. */
+export const ZOOM_MIN = SCORE_SCALE_MIN;
+/** @deprecated Use SCORE_SCALE_MAX. */
+export const ZOOM_MAX = SCORE_SCALE_MAX;
+/** @deprecated Use SCORE_SCALE_DEFAULT. */
+export const ZOOM_DEFAULT = SCORE_SCALE_DEFAULT;
+/** @deprecated Use SCORE_SCALE_STEP. */
+export const ZOOM_STEP = SCORE_SCALE_STEP;
 
 export const RECENT_SCORES_MAX = 10;
 

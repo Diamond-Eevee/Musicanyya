@@ -1,6 +1,7 @@
 # Contract: Score layout (fit-to-width and Score size)
 
-**Version**: `1.1.0` - additive change to
+**Version**: `1.1.1` (1.1.1: T002 added the measured Verovio unit relation to section 2; no rule
+changed) - `1.1.0` was an additive change to
 [`001/contracts/worker-messages.md` `1.0.0`](../../001-score-viewer-listen/contracts/worker-messages.md)
 (the `LayoutOptions` payload keeps its shape; only how the main thread computes it changes, plus one
 new Verovio option). No message is removed or renamed, so the Verovio worker stays backward
@@ -23,8 +24,8 @@ One integer, `scale`, replaces `zoomPercent` everywhere in the UI (same range, s
 | `MIN_PAGE_UNITS` | 400 | smallest `pageWidth` / `pageHeight` ever requested; a 1280 px viewport at 200% gives 640, so real windows never reach it |
 | `MAX_PAGE_UNITS` | 10000 | largest page ever requested; a 2560 px viewport at 50% gives 5120, so real windows stay under half of it |
 
-Both page-unit bounds sit well inside Verovio's accepted range and are **provisional until T001
-pins the unit relation** (section 2, rule 5); they are named constants, not magic numbers
+Both page-unit bounds sit inside Verovio's accepted range - T001 renders exactly 400 x 400 and
+10000 x 10000 and gets those sizes back verbatim - and they are named constants, not magic numbers
 (Constitution II).
 
 `ZOOM_MIN` / `ZOOM_MAX` / `ZOOM_DEFAULT` / `ZOOM_STEP` are re-exported as deprecated aliases for one
@@ -53,8 +54,34 @@ Rules:
 3. A viewport of 0 x 0 (element not yet laid out, or hidden) yields **no** request at all; the last
    good layout stays on screen.
 4. `adjustPageHeight` is set to `0` for this mode: the height is dictated, not derived.
-5. The exact unit relation is pinned by a spike test against `verovio 6.3.0` before implementation
-   (research R-2); if the measured relation differs from rule 1, this contract is corrected **first**.
+5. The unit relation below is pinned by `tests/verovio/page-units.test.ts` (T001, `verovio 6.3.0`);
+   a Verovio upgrade that changes it fails that test, and this contract is corrected first.
+
+### Pinned unit relation (measured, T001)
+
+With `svgViewBox: 1` (what the worker sets):
+
+| Quantity | Value |
+|---|---|
+| outer `<svg viewBox>` width | `pageWidth * scale / 100` |
+| outer `<svg viewBox>` height | `pageHeight * scale / 100` when `adjustPageHeight` is `0`; content-derived, and smaller, when `1` |
+| inner `svg.definition-scale` viewBox width | `10 * pageWidth`, whatever the `scale` |
+| staff interline, inner units | `180`, whatever `pageWidth`, `pageHeight` or `scale` |
+| measures per system, page breaks | a function of `pageWidth` and `pageHeight` only |
+
+Consequences that the rules above rely on:
+
+- **Verovio's own `scale` never changes the engraving density**; it only sets the nominal outer size.
+  The user's Score size therefore has to be expressed through `pageWidth` - which is exactly what rule 1
+  does: a smaller `pageWidth` means fewer interlines across the page, so each is drawn larger.
+- With rule 1 the outer viewBox is `viewportWidthPx` by `viewportHeightPx`, so **one outer unit is one
+  CSS pixel** and one Verovio page is exactly one screenful. The on-screen interline is
+  `18 * scale / 100` CSS px (9 at 50 %, 18 at 100 %, 36 at 200 %).
+- `pageWidth` is rounded to an integer, so the outer size is within `scale / 200` px (at most 1 px) of
+  the viewport; this is intended and not an error.
+- Rule 4 is **required**, not a preference: with `adjustPageHeight: 1` the height is derived from the
+  content (929 instead of 1000 in the measured case), so the page would not be one screenful.
+- The worker keeps forwarding `scale` unchanged (harmless, and it keeps the outer viewBox in CSS px).
 
 ---
 

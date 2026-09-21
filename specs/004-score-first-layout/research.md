@@ -35,8 +35,11 @@ not narrow); a resizable splitter (adds state and still steals space by default)
 `width: 100%; height: auto` with `svgViewBox: 1`. Consequences:
 
 1. The Score is capped at 1200 px however wide the window is.
-2. Because CSS already stretches the SVG to the container, `scale` today changes **engraving density**
-   (measures per system), not pixel size - the visible effect of "zoom" is indirect.
+2. Because CSS already stretches the SVG to the container, `scale` today has **no visible effect at
+   all**. *(Corrected 2026-09-21 by T001: the first draft of this finding said `scale` changed engraving
+   density. Measured with `verovio 6.3.0` and `svgViewBox: 1`, `scale` only sets the nominal outer size
+   of the SVG; measures per system depend on `pageWidth` alone. The existing zoom keys therefore change
+   a stored number and nothing on screen - a defect in feature 001 that this feature fixes.)*
 3. `adjustPageHeight: 1` makes the real page height content-dependent, but `applyPageCount()` sets
    every page element to a hard `1600 px`. Page mounting and follow-scroll therefore work against a
    height that is usually wrong. This is an existing defect that fit-to-width makes obvious.
@@ -60,11 +63,12 @@ overflowing sideways, so horizontal scrolling is never needed. FR-014a was amend
 scaling, keeps the page a whole number of screenfuls for paging and follow-scroll, and needs no new
 maths in the UI beyond one division.
 
-**Verification required before implementing** (spike task): confirm empirically, with
-`verovio 6.3.0`, the exact relation between `pageWidth`/`pageHeight`, `scale` and the rendered SVG's
-`viewBox`, and whether `adjustPageHeight: 1` must be turned **off** for a fixed-height page (it very
-likely must, since we now dictate the height). The spike is a Vitest test over the real worker output,
-kept as a regression test.
+**Verified (spike T001, 2026-09-21, `tests/verovio/page-units.test.ts`, kept as a regression test)**:
+with `svgViewBox: 1` the outer viewBox is `pageWidth * scale / 100` by `pageHeight * scale / 100` (height
+only with `adjustPageHeight: 0`), the inner viewBox is `10 * pageWidth` wide with a constant interline of
+180 inner units, so the derivation above holds and the on-screen interline is `18 * scale / 100` CSS px.
+`adjustPageHeight` **must** be `0` for a dictated height (with `1` the page came out 929 tall instead of
+1000). The full table is in `contracts/score-layout.md` section 2.
 
 **Alternatives considered**: CSS `transform: scale()` on a fixed-size SVG (blurs nothing but breaks
 the canvas overlay's coordinate maths and gives horizontal overflow); leaving `pageWidth` fixed and

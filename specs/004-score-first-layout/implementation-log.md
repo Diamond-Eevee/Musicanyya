@@ -75,3 +75,27 @@ Feature `004-score-first-layout`. Newest entry at the bottom.
   A6, A8 and A12-A16 (MEDIUM/LOW) were not written down and are therefore not applied. Re-run
   `/speckit.analyze` to regenerate them if they matter.
 - Handoff: next = T001 (`tests/verovio/page-units.test.ts`); tree clean at this commit.
+
+## 2026-09-21 - claude-sonnet-5 (/speckit.implement, Phase 1 Setup)
+
+- Done: T001-T004.
+  - T001: `tests/verovio/page-units.test.ts` (18 tests, green). Measured with `verovio 6.3.0`, `svgViewBox: 1`:
+    outer viewBox = `pageWidth * scale / 100` (height likewise, only with `adjustPageHeight: 0`); inner viewBox
+    = `10 * pageWidth`; interline = 180 inner units always. The assumed rule 1 and rule 4 are confirmed.
+  - T002 (a correction, not a rule change): research R-2 finding 2 was wrong. Verovio's `scale` never changes
+    engraving density under `svgViewBox: 1`, so today's zoom keys change a stored number and nothing on
+    screen (feature 001 defect that this feature fixes). `contracts/score-layout.md` -> 1.1.1 with the pinned
+    relation table; `research.md` R-2 corrected and its spike marked verified.
+  - T003: `SCORE_SCALE_*`, `MIN_PAGE_UNITS` (400), `MAX_PAGE_UNITS` (10000; both accepted verbatim by Verovio,
+    checked in T001) in `src/engine/config.ts`; `ZOOM_*` kept as deprecated aliases until T107.
+  - T004: none of the five inherited tasks is invalidated (verdict table in `tasks.md`); 003 T082 should run
+    after this feature merges.
+- In progress: none.
+- Decisions: the T001 test drives the Verovio toolkit directly for the `adjustPageHeight` 0/1 comparison and
+  the worker's `handleMessage` for the width relation, because the worker hard-codes `adjustPageHeight: 1`
+  until T030. T030 now says to add the failing worker-path height test first, so the tree stays green until
+  then. T021 named a fixture path that does not exist (the same-named file under `tests/fixtures/musicxml/chords/`
+  has 2 measures); it now uses `large-score.musicxml`.
+- Problems / open questions: none.
+- Handoff: next = Phase 2 tests T005-T010, then T011-T019; run `pnpm test -- tests/ui tests/engine` first;
+  tree clean at this commit.
