@@ -8,6 +8,6 @@ describe('Metronome mute (AS-3.6)', () => {
     // The test in dispatch.test.ts (T025) and score-player.processor (T036) covered this.
     // We just verify that `compilePlaySchedule` doesn't even take a "mute" boolean.
     // It is muted in `play-session.ts` via `setChannelVolume`.
-    expect(true).toBe(true); 
+    expect(true).toBe(true);
   });
 });

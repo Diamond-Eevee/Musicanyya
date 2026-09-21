@@ -6,7 +6,7 @@ export interface Tap {
   tapTimeMs: number;
 }
 
-export type CalibrationResult = 
+export type CalibrationResult =
   | { ok: true; value: LatencyProfile }
   | { ok: false; reason: 'spreadTooLarge' | 'notEnoughTaps' };
 
@@ -28,9 +28,7 @@ export function calibrateLatency(taps: readonly Tap[], msPerBeat: number): Calib
 
   validOffsets.sort((a, b) => a - b);
   const mid = Math.floor(validOffsets.length / 2);
-  const median = validOffsets.length % 2 !== 0 
-    ? validOffsets[mid]! 
-    : (validOffsets[mid - 1]! + validOffsets[mid]!) / 2;
+  const median = validOffsets.length % 2 !== 0 ? validOffsets[mid]! : (validOffsets[mid - 1]! + validOffsets[mid]!) / 2;
 
   return {
     ok: true,
@@ -38,7 +36,7 @@ export function calibrateLatency(taps: readonly Tap[], msPerBeat: number): Calib
       outputLatencyMs: 0, // Calibration doesn't measure output latency by itself, just input offset
       inputLatencyMs: median,
       source: 'measured',
-      measuredAt: new Date().toISOString()
-    }
+      measuredAt: new Date().toISOString(),
+    },
   };
 }

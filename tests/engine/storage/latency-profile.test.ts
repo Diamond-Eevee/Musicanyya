@@ -1,15 +1,27 @@
-import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
-import { LocalSettingsStore } from '../../../src/engine/storage/local-settings-store.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { LatencyProfile } from '../../../src/core/grade/types.js';
+import { LocalSettingsStore } from '../../../src/engine/storage/local-settings-store.js';
 
 class FakeStorage implements Storage {
   private map = new Map<string, string>();
-  get length() { return this.map.size; }
-  clear(): void { this.map.clear(); }
-  getItem(key: string): string | null { return this.map.has(key) ? (this.map.get(key) as string) : null; }
-  key(index: number): string | null { return Array.from(this.map.keys())[index] ?? null; }
-  removeItem(key: string): void { this.map.delete(key); }
-  setItem(key: string, value: string): void { this.map.set(key, value); }
+  get length() {
+    return this.map.size;
+  }
+  clear(): void {
+    this.map.clear();
+  }
+  getItem(key: string): string | null {
+    return this.map.has(key) ? (this.map.get(key) as string) : null;
+  }
+  key(index: number): string | null {
+    return Array.from(this.map.keys())[index] ?? null;
+  }
+  removeItem(key: string): void {
+    this.map.delete(key);
+  }
+  setItem(key: string, value: string): void {
+    this.map.set(key, value);
+  }
 }
 
 describe('Latency profile (R-05)', () => {

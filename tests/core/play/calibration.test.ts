@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { calibrateLatency } from '../../../src/core/play/calibration.js';
 import { CALIBRATION_BEATS, CALIBRATION_MAX_SPREAD_MS } from '../../../src/core/defaults.js';
+import { calibrateLatency } from '../../../src/core/play/calibration.js';
 
 describe('Tap calibration (R-05)', () => {
   it('takes the median signed offset over CALIBRATION_BEATS, discards offsets beyond half a beat, and is a pure function of the taps', () => {
