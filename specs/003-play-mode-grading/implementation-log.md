@@ -243,3 +243,68 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
   T045/T089/T092/T096/T097/T101 (all `[P]`, independent files - a good place to split work), then the US1
   implementation block T026-T044/T046, with mandatory `rt-audio-reviewer` passes at T035, T037 and T091. Tree
   clean at the commit below, not pushed.
+
+## 2026-09-20/21 - claude-sonnet-5 (relay)
+
+- Done: T022, T032, T091 (the run schedule compiler) and T023, T033 (the run reducer) - 44/105 tasks now done.
+  Two commits, both with the RT/quality gate green (`pnpm typecheck`, `pnpm lint` on touched files, full
+  `pnpm vitest run`: 81 files / 643 tests passing).
+- Built:
+  - `src/core/schedule/play-schedule.ts` (`compilePlaySchedule`): the count-in (whole measures, extended to
+    `COUNT_IN_MIN_SECONDS`, anacrusis beats clicked after it), Metronome clicks on `METRONOME_CHANNEL`, the
+    graded-notes-dropped/range-sliced/shifted event list, reusing `compileSchedule` (`src/core/schedule/
+    compile.ts`) for the actual `ScheduleMessage` encoding. Asserts (never silently drops) if a Score event ever
+    lands on `METRONOME_CHANNEL` (R-19).
+  - `src/core/timeline/beat.ts`: extracted `beatTicksAt` (and added `beatsPerMeasure`) out of
+    `src/core/grade/windows.ts` so the grading windows and the Metronome's click spacing share one definition of
+    "a beat" - they must never disagree about what a beat is, and this feature is the first caller that needed it
+    in two places at once.
+  - `src/core/play/run.ts` (`playRunReducer`, `createIdleRun`): the pure `idle -> countIn -> running ->
+    finished/stopped/aborted` state machine, driven only by `position`/`ended`/`stop`/`audioLost`/`reliability`
+    actions the controller passes in - never a timer. Emits `soundInput` from `input` actions so the musician's
+    own key always sounds (FR-006); records every `input` regardless of phase (the count-in exclusion from
+    grading is `gradePerformance`'s own window filter, D-4, not the reducer's job).
+- Design corrections made along the way (documents fixed first, per AGENTS.md section 4, not worked around):
+  - `contracts/play-run.md` 1.1.0 -> 1.1.1: `compilePlaySchedule` needs `Score.measures` as a parameter (meter,
+    `nominalTicks`, `beatOffsetTicks` live there, not on `PlaybackTimeline`) - the signature in the contract was
+    incomplete. Also documented that `PlayScheduleOptions.range.toPassIndex` is **exclusive**, matching
+    `src/core/grade/expected.ts`'s use of `LoopPassSpan` (not `src/core/practice/loop.ts`'s inclusive
+    `ResolvedLoop` convention) - the two range semantics disagree across the codebase and Play's two range
+    consumers (the schedule and the expected notes) must use the same one.
+  - `PlayScheduleOptions` gained `tempoPercent` (contract same bump): found by the mandatory T091
+    `rt-audio-reviewer` pass - the count-in was being sized against nominal tempo while the worklet applies
+    `RunSettings.tempoPercent` uniformly to the whole schedule including the count-in, so `COUNT_IN_MIN_SECONDS`
+    would not actually hold at any tempo percentage other than 100. Fixed before commit, with a regression test
+    (`tests/core/play/play-schedule.test.ts`, the 200%-tempo case) and reusing `src/core/tempo/rate.ts`'s
+    `audioTimeAtTick` instead of a second tick-to-seconds formula (the reviewer's second, non-blocking finding).
+- RT review (T091) on `src/core/grade/grade.ts` (latency compensation) and `src/core/schedule/play-schedule.ts`
+  (schedule compiler): **pass**, one should-fix finding (the `tempoPercent` gap above, applied) and one advisory
+  (the duplicate tick-to-seconds formula, also applied). A third finding was logged as informational only - a
+  pre-existing, out-of-branch-scope allocation in `score-player.processor.ts`'s position-report path
+  (`{ ...msg, ... }` inside the `onMessage` callback reached from `process()`) - flagged for a future RT ticket
+  against features 001/002's worklet code, not fixed here (out of this task's scope).
+- Not started this session, found while reading ahead: T024/T034 (sub-block rendering in
+  `score-player.processor.ts`) needs more than the file it touches suggests. Checked `spessasynth_core`'s type
+  declarations directly (`node_modules/.pnpm/spessasynth_core@4.3.22/.../dist/index.d.ts`): `SpessaSynthProcessor
+  .noteOn`/`.noteOff` take no frame argument - only `.process(left, right, startIndex?, sampleCount?)` supports a
+  partial-buffer offset. So "render each block in the sub-blocks `DispatchState.splits` already contains"
+  (research R-02) means `processBlock` itself must call `synth.process(...)` between applying each sub-block's
+  events, split by split - which means `SynthInterface` needs a `process` method added, `processBlock`'s
+  signature must change to take the audio buffers, and **every existing call site** in
+  `tests/engine/worklets/score-player.timing.test.ts` and `score-player.live.test.ts` (currently
+  `proc.processBlock(BLOCK_SIZE)`, no buffers) needs updating, plus `tests/fakes/recording-synth.ts` needs a
+  `process()` implementation that logs render calls so a test can assert an event landed between the right two
+  render calls (there is no other way to observe "sample-accurate" from Node without real audio). This is real
+  scope, not a one-line change, and it is the actual RT hot path (`AudioWorkletProcessor.process()`), so it
+  deserves a session with room to write the test, implement, verify every pre-existing worklet test still passes,
+  and run the mandatory `rt-audio-reviewer` pass (T035) without rushing - stopped here rather than starting it
+  with too little runway left.
+- Problems / open questions: none blocking. The out-of-scope worklet allocation noted above is a candidate for a
+  separate task if the user wants it tracked; not added to `tasks.md` since it belongs to 001/002, not this
+  feature.
+- Handoff: next = T024 `tests/engine/worklets/score-player.timing.test.ts` (extend) for sub-block rendering, per
+  the design note above - write the test first, confirm it fails, then T034 (`score-player.processor.ts`) and its
+  mandatory RT review T035. After that: T025 (`channelVolume` message, `dispatch.test.ts`/`score-player.live
+  .test.ts` extend) + T036 + its review T037, then the rest of the US1 implementation block (T038-T044, T046) and
+  the two remaining US1 test files T096/T097/T045 (independent, `[P]`, could be done any time before the
+  Checkpoint). Tree clean at the commit below, not pushed.
