@@ -182,7 +182,7 @@ reason.
   time for every member (`chord-spread-rolled`); the same roll is late without the spread; a chord the Score
   writes `<arpeggiate>` uses `PLAY_ARPEGGIO_SPREAD_BEATS` instead and is not late (`arpeggiate-chord`); a chord
   never shrinks its own members' windows (FR-022, SC-016)
-- [ ] T096 [P] [US1] `tests/engine/workers/grade-worker.test.ts`: the `grade` / `graded` / `error` messages of
+- [x] T096 [P] [US1] `tests/engine/workers/grade-worker.test.ts`: the `grade` / `graded` / `error` messages of
   [contracts/grading.md](contracts/grading.md) round-trip as structured-cloneable data, `requestId` pairs
   request and reply, and a worker that never answers becomes a notice after `GRADE_WORKER_TIMEOUT_MS`, not a hang
 - [ ] T097 [P] [US1] `tests/engine/play-session.test.ts`: the controller against the fakes - every MIDI message is
@@ -223,7 +223,7 @@ reason.
   match (passes 1, 2 and the played-along pass 3), timing, reasons, summary including `timingNotResolvable` -
   synchronous and pure. The count-in filter is "no press earlier than `firstOnsetTick - claimEarly(first)`", and
   matching continues for `claimLate(last)` past the final onset (D-4)
-- [ ] T031 [US1] `src/workers/grade.worker.ts` and its message handling in the controller, per
+- [x] T031 [US1] `src/workers/grade.worker.ts` and its message handling in the controller, per
   [contracts/grading.md](contracts/grading.md) §Worker protocol, with the `GRADE_WORKER_TIMEOUT_MS` notice path
 - [x] T032 [US1] `src/core/schedule/play-schedule.ts`: `compilePlaySchedule` and `PlayTickMap` (research R-03).
   It **asserts** that no Score event is on `METRONOME_CHANNEL` (T095 guarantees it upstream) rather than dropping

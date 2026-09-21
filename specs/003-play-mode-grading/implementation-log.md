@@ -364,14 +364,25 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
   to match.
 - Problems / open questions: none blocking. The unused volume-ramp state (T035's advisory) and the two T037
   advisories above are open but non-blocking, deferred to the tasks noted.
+- **T096/T031 - the grade worker**: resolved the design question flagged above. `src/workers/grade.worker.ts`
+  exports two things: `handleMessage` (the worker side, `grade` -> `graded`/`error`, identical pattern to
+  `score.worker.ts`) and `requestGrade(worker, input, requestId, timeoutMs)` (the main-thread client "and its
+  message handling in the controller" from T031's own task line) - a small `Promise`-based helper against a
+  minimal `GradeWorkerLike` surface (`postMessage`/`addEventListener`/`removeEventListener`), matching replies by
+  `requestId` (a stale reply after a timeout, or for an earlier request, is ignored) and resolving
+  `{ ok: false, reason: 'timeout' }` after `timeoutMs` instead of hanging. Kept both in one file rather than
+  inventing a new one, since `plan.md`'s file tree has no separate client module and this stays decoupled from
+  `PlayNoticeCode`/`app/play-session.ts` - T039 is the only caller and turns a non-`ok` result into whatever
+  notice fits the run. T096 (`tests/engine/workers/grade-worker.test.ts`, 8 tests) covers the round-trip
+  (including a structured-clone check via `JSON.parse(JSON.stringify(...))`), a malformed input producing `error`
+  not a throw, stale-`requestId` replies being ignored, and the timeout path with `vi.useFakeTimers()` (real
+  5-second waits would make the suite slow for no benefit). Confirmed T096 failed first the honest way: wrote the
+  implementation, then moved it aside, ran the test (`Cannot find module`), then restored it and reran (8/8 pass) -
+  written together because the worker/client split was itself the open design question, but verified test-first
+  rather than skipping the check now that the design was settled.
 - Handoff: next = T039 (`src/app/play-session.ts` controller - compile the run schedule, drive the reducer from
-  position reports, record MIDI through the clock map, grade through the worker when the run ends), which needs
-  T031 (`src/workers/grade.worker.ts`) first - not yet started; T096 (`tests/engine/workers/grade-worker.test.ts`)
-  is T031's test and was looked at this session but deliberately not started: its "worker that never answers
-  becomes a notice after `GRADE_WORKER_TIMEOUT_MS`" clause needs a small reusable request/timeout helper whose
-  home isn't fully pinned down by plan.md (`app/play-session.ts` is documented as "the only place engine, worker,
-  store and run meet", but T096's own test file is worker-scoped and narrower than the full controller T097
-  tests) - worth 30 seconds of thought at the start of the next session rather than a rushed call here. Otherwise:
-  T040-T044, T046 continue the US1 implementation block in file order; T045 (`tests/ui/grade-marks.test.ts`) and
-  T097 (`tests/engine/play-session.test.ts`) are independent `[P]` tests that can be written any time before the
-  Checkpoint. Tree clean at the commit below, not pushed.
+  position reports, record MIDI through the clock map, grade through the worker via `requestGrade` when the run
+  ends). T040-T044, T046 continue the US1 implementation block in file order after that; T045
+  (`tests/ui/grade-marks.test.ts`) and T097 (`tests/engine/play-session.test.ts`) are independent `[P]` tests that
+  can be written any time before the Checkpoint - T097 in particular should now be straightforward since
+  `requestGrade`'s shape is settled. Tree clean at the commit below, not pushed.
