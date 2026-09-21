@@ -154,9 +154,13 @@ an open popup.
 - **FR-005**: Every popup MUST be dismissible with Escape, with an explicit close control, and by
   clicking outside it, and MUST return keyboard focus to the control that opened it.
 - **FR-006**: No popup, panel or message may be modal during an active Listen, Practice or Play
-  session; starting a session MUST close any open popup.
+  session; starting a session MUST close any open popup, and no popup can be opened until the run has
+  ended (every menu entry is disabled while a run can be stopped or is starting; owner decision
+  2026-09-21). Audio diagnostics are therefore not readable during playback.
 - **FR-007**: Practice and Play setup MUST be presented in a popup before the run and MUST NOT be
-  displayed while the run is active.
+  displayed while the run is active. Changing the setup (hand, accompaniment, loop, ...) therefore
+  means stopping the run first; the session's live-change support stays in the engine and is covered
+  by an e2e test, but the UI does not reach it (owner decision 2026-09-21).
 - **FR-008**: While a run is active the app MUST always show, in the slim bar, the current mode, the
   current measure, and a Stop control that ends the run in one activation.
 - **FR-009**: The Play-mode Grade MUST be presented over the Score in a dismissible panel, and
@@ -243,6 +247,8 @@ an open popup.
   stops a run (research R-4). In particular the bare `+` / `-` Score-size keys stay, and `Ctrl/Cmd +`,
   `Ctrl/Cmd -` and `Ctrl/Cmd 0` are added beside them.
 - No new information is added to the UI: every panel that exists today survives, just relocated.
+- During a run the slim bar is the only chrome: no popup can be opened (FR-006). A small in-run
+  diagnostics readout is a possible later feature, not part of this one.
 - The notice area sits in a corner of the Score area (bottom-right), bounded to a few stacked notices.
 - The feature applies to the browser and Electron Shells identically; the Native audio plugin has no UI
   of its own here.

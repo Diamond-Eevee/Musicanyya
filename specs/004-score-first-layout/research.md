@@ -203,3 +203,18 @@ note, so they are re-checked against the new layout rather than silently lost.
 
 **Decision**: **none.** Everything above is DOM, CSS and the Popover API, plus code that already
 exists. `Complexity Tracking` in `plan.md` is therefore empty.
+
+---
+
+## R-10: No popup and no setup change during a run (FR-006, FR-007; owner decision 2026-09-21)
+
+**Decision**: while a Listen, Practice or Play run can be stopped, every menu entry is disabled, so no popup can be
+opened; changing Practice/Play setup (hand, accompaniment, loop) means stopping first. The Practice session's
+live-change code and its e2e test stay, unreachable from the UI.
+
+**Rationale**: SC-004 wants nothing but the Score, the bar and notices on screen during a run, and a short score is
+one page, so a popup could never scroll clear of the music.
+
+**Alternatives considered**: (a) keep Diagnostics reachable through a small in-run readout - not needed for this
+feature, a possible later one; (b) delete the live-change path as dead code - rejected: it is small, tested, and
+feature 002's spec asked for it.
