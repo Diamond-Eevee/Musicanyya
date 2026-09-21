@@ -456,7 +456,7 @@ replay the first one and confirm the notes heard are the ones that were played, 
   produces a recorded or graded message in Play mode (FR-010)
 - [x] T100 [P] `tests/architecture/no-upload.test.ts`: nothing in the Play path calls `fetch`,
   `XMLHttpRequest`, `navigator.sendBeacon` or a WebSocket - Performance logs stay on the device (FR-016)
-- [ ] T103 [P] `tests/core/play/long-run.test.ts`: a simulated 10-minute run at 208 bpm accounts for every
+- [x] T103 [P] `tests/core/play/long-run.test.ts`: a simulated 10-minute run at 208 bpm accounts for every
   recorded message - each note-on ends as exactly one result's `playedKey`, one `PlayedAlongPress` or one
   `ExtraNote`, with `droppedMessages` zero and no dropout (SC-007)
 - [x] T106 [P] Fix the tempo-space mismatch `gradePerformance` (`src/core/grade/grade.ts`) has between its two
