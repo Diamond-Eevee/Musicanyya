@@ -35,6 +35,12 @@ export interface SynthInterface {
   noteOff(channel: number, key: number, frame?: number): void;
   allNotesOff?(channel?: number): void;
   controllerChange?(channel: number, controller: number, value: number): void;
+  /**
+   * Render `sampleCount` frames starting at `startIndex` of `left`/`right` (T034, research R-02).
+   * `processBlock` calls this once per sub-block, split at each event's own dispatch frame, so
+   * every note-on/off and Metronome click lands at its exact sample rather than the block edge.
+   */
+  process?(left: Float32Array, right: Float32Array, startIndex: number, sampleCount: number): void;
 }
 
 /** Minimal synth used by RecordingSynth-based tests. */
@@ -50,8 +56,8 @@ export type ProcessorMessage =
   | { type: 'liveDropped'; total: number };
 
 export interface ScorePlayerProcessor {
-  /** Called by the test harness instead of AudioWorkletProcessor.process(). */
-  processBlock(blockSize: number): void;
+  /** Called by the test harness instead of AudioWorkletProcessor.process(); blockSize = left.length. */
+  processBlock(left: Float32Array, right: Float32Array): void;
   /** Deliver an inbound message (plays the role of port.onmessage). */
   receiveMessage(msg: any): void;
   /** Outbound message callback (plays the role of port.postMessage). */
@@ -216,10 +222,21 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         break;
       }
       case 'volume': {
-        const gain = msg.gain as number;
-        targetGain = Math.max(0, Math.min(1, gain));
+        const raw = msg.gain as number;
+        targetGain = Number.isFinite(raw) ? Math.max(0, Math.min(1, raw)) : 0;
         gainStep = (targetGain - currentGain) / VOLUME_RAMP_FRAMES;
         gainRampRemaining = VOLUME_RAMP_FRAMES;
+        break;
+      }
+      case 'channelVolume': {
+        // CC7 on one channel, applied here (off the hot path) rather than queued, so it takes
+        // effect at the very next block per contracts/worklet-protocol.md 1.2.0 - used to mute the
+        // Metronome without touching the schedule (research R-02). `gain` is 0..1 linear, the same
+        // convention as the `volume` message above.
+        const channel = msg.channel as number;
+        const rawGain = msg.gain as number;
+        const gain = Number.isFinite(rawGain) ? Math.max(0, Math.min(1, rawGain)) : 0;
+        synth.controllerChange?.(channel, 7, Math.round(gain * 127));
         break;
       }
       case 'live': {
@@ -237,7 +254,13 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     }
   }
 
-  function processBlock(blockSize: number): void {
+  function renderSegment(left: Float32Array, right: Float32Array, startIndex: number, sampleCount: number): void {
+    if (sampleCount > 0) synth.process?.(left, right, startIndex, sampleCount);
+  }
+
+  function processBlock(left: Float32Array, right: Float32Array): void {
+    const blockSize = left.length;
+
     // Process live inputs immediately
     const LIVE_CHANNEL = 15;
     const liveCount = liveQueue.length;
@@ -264,6 +287,7 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     }
 
     if (!playing || !schedule) {
+      renderSegment(left, right, 0, blockSize);
       currentFrame += blockSize;
       if (pendingReport) sendPositionReport();
       return;
@@ -272,8 +296,19 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     dispatchBlock(schedule, segs, currentFrame, blockSize, eventCursor, dispatchState);
     eventCursor = dispatchState.nextEventCursor;
 
-    for (let i = 0; i < dispatchState.numEvents; i++) {
-      applyEvent(dispatchState.events[i]!);
+    // Render each sub-block bounded by dispatchState.splits, applying every event at its own
+    // frame before rendering past it - not all at once at the block boundary (T034, research R-02).
+    let renderStart = 0; // block-relative
+    let evIdx = 0;
+    for (let i = 0; i < dispatchState.numSplits; i++) {
+      const splitFrame = dispatchState.splits[i]!; // absolute frame
+      const splitOffset = splitFrame - currentFrame; // block-relative
+      renderSegment(left, right, renderStart, splitOffset - renderStart);
+      renderStart = splitOffset;
+      while (evIdx < dispatchState.numEvents && dispatchState.events[evIdx]!.frame === splitFrame) {
+        applyEvent(dispatchState.events[evIdx]!);
+        evIdx++;
+      }
     }
 
     currentFrame += blockSize;
@@ -329,6 +364,7 @@ if (typeof AudioWorkletProcessor !== 'undefined') {
             }
           },
           controllerChange: (c, ctrl, v) => this.synth.controllerChange(c, ctrl as any, v),
+          process: (left, right, startIndex, sampleCount) => this.synth.process(left, right, startIndex, sampleCount),
         },
         sampleRate: sampleRate,
       });
@@ -382,14 +418,11 @@ if (typeof AudioWorkletProcessor !== 'undefined') {
       const right = output[1];
       if (!left || !right) return true;
 
-      const blockSize = left.length;
-
       if (!this.soundReady) {
         return true;
       }
 
-      this.inner.processBlock(blockSize);
-      this.synth.process(left, right, 0, blockSize);
+      this.inner.processBlock(left, right);
       return true;
     }
   }

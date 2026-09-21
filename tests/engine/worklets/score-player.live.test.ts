@@ -35,7 +35,7 @@ describe('ScorePlayerAudioWorklet - Live Input', () => {
     processor.receiveMessage({ type: 'live', kind: 'off', key: 60 });
     processor.receiveMessage({ type: 'live', kind: 'allOff' });
 
-    processor.processBlock(128);
+    processor.processBlock(new Float32Array(128), new Float32Array(128));
 
     expect(synth.events).toEqual([
       { type: 'noteOn', channel: 15, key: 60, velocity: 100, delayFrames: 0 },
@@ -68,7 +68,7 @@ describe('ScorePlayerAudioWorklet - Live Input', () => {
     ]);
 
     // The 64 that fit are still applied; the two dropped ones never reach the synth.
-    processor.processBlock(128);
+    processor.processBlock(new Float32Array(128), new Float32Array(128));
     expect(synth.events.length).toBe(64);
     expect(synth.events.some((e) => e.key === 90 || e.key === 91)).toBe(false);
   });
@@ -97,10 +97,26 @@ describe('ScorePlayerAudioWorklet - Live Input', () => {
     // send live input before processing
     processor.receiveMessage({ type: 'live', kind: 'on', key: 60, velocity: 100 });
 
-    processor.processBlock(128);
+    processor.processBlock(new Float32Array(128), new Float32Array(128));
 
     // Should see live input on ch 15 at frame 0, and scheduled note on ch 0 at frame 0
     expect(synth.events).toContainEqual({ type: 'noteOn', channel: 15, key: 60, velocity: 100, delayFrames: 0 });
     expect(synth.events).toContainEqual({ type: 'noteOn', channel: 0, key: 72, velocity: 100, delayFrames: 0 });
+  });
+
+  it('T025: channelVolume sets CC7 on the named channel in port.onmessage, not process()', () => {
+    const synth = createLocalSynth();
+    const processor = createScorePlayerProcessor({ synth, sampleRate: 48000 });
+
+    // Applied synchronously by receiveMessage (the port.onmessage handler) - no processBlock call
+    // needed for it to reach the synth, per contracts/worklet-protocol.md's "next block" rule and
+    // Constitution I (messages are handled between blocks, never inside process()). `gain` is 0..1
+    // linear, matching the existing `volume` message (contracts/play-run.md); 0.5 * 127 rounds to 64.
+    processor.receiveMessage({ type: 'channelVolume', channel: 3, gain: 0.5 });
+    expect(synth.events).toEqual([{ type: 'cc', channel: 3, controller: 7, value: 64, delayFrames: 0 }]);
+
+    // A later block must not re-apply it a second time.
+    processor.processBlock(new Float32Array(128), new Float32Array(128));
+    expect(synth.events).toEqual([{ type: 'cc', channel: 3, controller: 7, value: 64, delayFrames: 0 }]);
   });
 });

@@ -21,6 +21,7 @@ describe('Real-synth onset', () => {
       synth: {
         noteOn: (c, k, v) => synth.noteOn(c, k, v),
         noteOff: (c, k) => synth.noteOff(c, k),
+        process: (left, right, startIndex, sampleCount) => synth.process(left, right, startIndex, sampleCount),
       },
       sampleRate,
     });
@@ -61,8 +62,7 @@ describe('Real-synth onset', () => {
       left.fill(0);
       right.fill(0);
 
-      scoreProc.processBlock(blockSize);
-      synth.process(left, right, 0, blockSize);
+      scoreProc.processBlock(left, right);
 
       for (let i = 0; i < blockSize; i++) {
         if (Math.abs(left[i]!) > 0.0001 || Math.abs(right[i]!) > 0.0001) {
