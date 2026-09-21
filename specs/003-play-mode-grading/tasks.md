@@ -449,7 +449,7 @@ replay the first one and confirm the notes heard are the ones that were played, 
   controller never blocks the main thread for more than 50 ms while it does (grading must go through the worker)
 - [ ] T079 [P] `tests/e2e/us2-grade.spec.ts`: the same acceptance scenarios pass in the browser and in the
   Electron project from one build (FR-047, SC-012)
-- [ ] T080 [P] MIDI hot-plug during a run: unplug and replug within one run, recording resumes within 3 seconds,
+- [x] T080 [P] MIDI hot-plug during a run: unplug and replug within one run, recording resumes within 3 seconds,
   the run never stops and the gap is on the Grade (SC-013) - `tests/core/play/device-loss.test.ts`
 - [x] T099 [P] `tests/ui/play-notices.test.ts`: no notice raised during a run is modal - none traps focus, blocks
   the Score or stops the clock (FR-009) - and neither the on-screen keyboard nor the computer keyboard ever
