@@ -418,8 +418,12 @@ replay the first one and confirm the notes heard are the ones that were played, 
   retention rule and the `StoreResult` failure behaviour. Shares the `musicanyya` DB open/upgrade path with
   `IndexedDbScoreStore` via new `src/engine/storage/db.ts` (DB_VERSION bumped 1 -> 2 there), so the version 2
   upgrade adds `performances` without ever touching `recentScores` regardless of which store opens the DB first.
-- [ ] T074 [US4] Store the finished run in `src/app/play-session.ts` with its settings, Latency profile, app
-  version and summary (FR-014, FR-041)
+- [x] T074 [US4] Store the finished run in `src/app/play-session.ts` with its settings, Latency profile, app
+  version and summary (FR-014, FR-041). `PlaySessionController` gains a `PerformanceStore` dependency
+  (contracts/play-run.md bumped to 1.1.3); `APP_VERSION` (new, `src/engine/config.ts`, from `package.json`) and
+  the log rebasing of research R-20 live in `storePerformance`/`rebaseToRunStart`. A `scoreId === null` run (Score
+  never stored) has nothing to key an attempt by, so nothing is written; a `PerformanceStore.put` failure still
+  shows the Grade, with a new `playAttemptNotStored` notice (`PlayNoticeCode`, additive).
 - [x] T075 [US4] `src/core/play/replay.ts`: compile a stored log into a `ScheduleMessage` on the live channel's
   instrument, merged with the run's accompaniment. New `mergeSchedules` in `src/core/schedule/compile.ts` unions
   two compiled schedules on disjoint channels (reused as-is, not re-derived, by both replay and any future caller).

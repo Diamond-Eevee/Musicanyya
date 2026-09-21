@@ -9,6 +9,7 @@ import type {
   ScoreStore,
   SettingsStore,
 } from '../engine/ports.js';
+import { IndexedDbPerformanceStore } from '../engine/storage/indexeddb-performance-store.js';
 import { IndexedDbScoreStore } from '../engine/storage/indexeddb-score-store.js';
 import { LocalSettingsStore } from '../engine/storage/local-settings-store.js';
 
@@ -145,11 +146,19 @@ export class Session {
   private readonly gradeWorker = new Worker(new URL('../workers/grade.worker.ts', import.meta.url), {
     type: 'module',
   });
-  private readonly playController = new PlaySessionController(this.audioEngine, this.midiInput, this.gradeWorker, {
-    onEffect: (effect) => this.onPlayEffect(effect),
-    onGraded: (grade) => this.onPlayGraded(grade),
-    onGradeFailed: (reason, message) => this.onPlayGradeFailed(reason, message),
-  });
+  // T074: kept attempts (FR-041) - shares the `musicanyya` IndexedDB database with `scoreStore` above.
+  private readonly performanceStore = new IndexedDbPerformanceStore();
+  private readonly playController = new PlaySessionController(
+    this.audioEngine,
+    this.midiInput,
+    this.gradeWorker,
+    this.performanceStore,
+    {
+      onEffect: (effect) => this.onPlayEffect(effect),
+      onGraded: (grade) => this.onPlayGraded(grade),
+      onGradeFailed: (reason, message) => this.onPlayGradeFailed(reason, message),
+    },
+  );
 
   constructor(
     scoreStore: ScoreStore = new IndexedDbScoreStore(),

@@ -11,8 +11,10 @@ import type {
   Grade,
   GradeInput,
   LatencyProfile,
+  PerformanceLog,
   PlayedAlongSpan,
   RecordedMessage,
+  StoredPerformance,
 } from '../core/grade/types.js';
 import { resolveWindows } from '../core/grade/windows.js';
 import { createIdleRun, playRunReducer } from '../core/play/run.js';
@@ -22,9 +24,16 @@ import { compilePlaySchedule } from '../core/schedule/play-schedule.js';
 import type { MeasureInfo, Score } from '../core/score/model.js';
 import { effectiveQpm, tempoAtTick } from '../core/tempo/tempo-map.js';
 import type { MeasurePass, PlaybackTimeline, TempoSegment } from '../core/timeline/types.js';
-import { GRADE_WORKER_TIMEOUT_MS } from '../engine/config.js';
+import { APP_VERSION, GRADE_WORKER_TIMEOUT_MS } from '../engine/config.js';
 import { MidiClockMap } from '../engine/midi/clock-map.js';
-import type { AudioEngine, AudioEngineEvent, MidiInput, MidiInputEvent, Unsubscribe } from '../engine/ports.js';
+import type {
+  AudioEngine,
+  AudioEngineEvent,
+  MidiInput,
+  MidiInputEvent,
+  PerformanceStore,
+  Unsubscribe,
+} from '../engine/ports.js';
 import { type GradeWorkerLike, requestGrade } from '../workers/grade.worker.js';
 
 export interface StartPlayOptions {
@@ -95,6 +104,7 @@ export class PlaySessionController {
     private readonly audioEngine: AudioEngine,
     private readonly midiInput: MidiInput,
     private readonly gradeWorker: GradeWorkerLike,
+    private readonly performanceStore: PerformanceStore,
     private readonly callbacks: PlaySessionCallbacks,
     private readonly gradeTimeoutMs: number = GRADE_WORKER_TIMEOUT_MS,
     private readonly now: () => number = () => performance.now(),
@@ -374,7 +384,44 @@ export class PlaySessionController {
     };
 
     const result = await requestGrade(this.gradeWorker, input, this.nextGradeRequestId++, this.gradeTimeoutMs);
-    if (result.ok) this.callbacks.onGraded(result.grade);
-    else this.callbacks.onGradeFailed(result.reason, result.message);
+    if (!result.ok) {
+      this.callbacks.onGradeFailed(result.reason, result.message);
+      return;
+    }
+    this.callbacks.onGraded(result.grade);
+    await this.storePerformance(run, result.grade);
   }
+
+  /** FR-014, FR-041: kept for the Score with its date, settings and summary - never the Grade itself (R-09), which
+   *  is always recomputed from the stored log on demand. A Score never stored (`scoreId === null`, feature 001)
+   *  has nowhere to keep an attempt, so nothing is written; a storage failure still leaves the Grade shown, only
+   *  the attempt is not kept (contracts/performance-log.md "Failure behaviour"). */
+  private async storePerformance(run: PlayRun, grade: Grade): Promise<void> {
+    if (run.scoreId === null) return;
+
+    const stored: StoredPerformance = {
+      runId: run.runId,
+      scoreId: run.scoreId,
+      finishedAt: this.nowISO(),
+      settings: run.settings,
+      latency: this.latency,
+      appVersion: APP_VERSION,
+      log: rebaseToRunStart(run.log, run.startAudioTimeSec),
+      summary: grade.summary,
+      schema: 1,
+    };
+    const result = await this.performanceStore.put(stored);
+    if (!result.ok) this.callbacks.onEffect({ type: 'notice', code: 'playAttemptNotStored' });
+  }
+}
+
+/** research R-20: a live `PlayRun.log`'s `audioTimeSec` is on the run's own (soon to be gone) `AudioContext`
+ *  clock; the stored copy is shifted to be run-relative (0 = this run's own tick 0) so a later regrade or replay
+ *  never needs that clock again, only `startAudioTimeSec: 0`. */
+function rebaseToRunStart(log: PerformanceLog, startAudioTimeSec: number): PerformanceLog {
+  return {
+    version: log.version,
+    messages: log.messages.map((m) => ({ ...m, audioTimeSec: m.audioTimeSec - startAudioTimeSec })),
+    droppedMessages: log.droppedMessages,
+  };
 }

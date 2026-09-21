@@ -1,3 +1,8 @@
+import packageJson from '../../package.json';
+
+// From the build, so an old stored performance is recognisable (FR-014, contracts/performance-log.md).
+export const APP_VERSION: string = packageJson.version;
+
 // Shared with src/core/transport/transport.ts, which cannot import this engine-layer file.
 export {
   POSITION_REPORT_BLOCKS,

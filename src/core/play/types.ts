@@ -53,7 +53,8 @@ export type PlayNoticeCode =
   | 'playMidiBack'
   | 'playAudioLost'
   | 'playNothingToGrade'
-  | 'playLatencyAssumed';
+  | 'playLatencyAssumed'
+  | 'playAttemptNotStored';
 
 export type PlayEffect =
   | { type: 'countInBeat'; beat: number; of: number } // the count-in reached a beat; the UI may show it (never modal)

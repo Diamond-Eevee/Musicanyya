@@ -100,6 +100,7 @@ export const en = {
     playLatencyAssumed: 'This Grade used an assumed Latency profile, not a measured one.',
     playGradeTimeout: 'Grading took too long and was cancelled. Nothing was lost - try Play again.',
     playGradeError: 'Something went wrong while grading this run.',
+    playAttemptNotStored: 'This attempt could not be saved on this device, but the Grade above is unaffected.',
   } as Record<string, string>,
   practice: {
     panel: {

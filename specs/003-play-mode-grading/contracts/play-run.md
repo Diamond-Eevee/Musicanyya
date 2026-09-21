@@ -1,8 +1,14 @@
 # Contract: play run (core API)
 
-**Version**: `1.1.2` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
+**Version**: `1.1.3` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
 `src/app/play-session.ts` and `src/ui`). Signatures are normative in shape; every change is reflected here with a
 version bump (MINOR for additions, MAJOR for breaking changes).
+
+**1.1.2 -> 1.1.3** (T074): `PlayNoticeCode` gains `playAttemptNotStored` - a finished run's Grade is shown even
+when `PerformanceStore.put` fails (contracts/performance-log.md "Failure behaviour"), and the musician is told the
+attempt specifically, not the generic `storageUnavailable` notice feature 001 uses for a Score. `PlaySessionController`'s
+constructor also gains a `PerformanceStore` parameter (`src/engine/ports.js`), between `gradeWorker` and
+`callbacks`; storing (T074), not just grading, is now something the controller does after a run ends.
 
 **1.1.1 -> 1.1.2** (T039): `AudioEngine` gains `clockPair()` (below) - research R-04 names the
 `(contextTime, performanceTime)` pairing but the port had no way to read it; found missing while wiring
@@ -53,7 +59,8 @@ export function playRunReducer(run: PlayRun, action: PlayAction): PlayStep;
 ```ts
 type PlayNoticeCode =
   | "playNoMidi" | "playMidiLost" | "playMidiBack"
-  | "playAudioLost" | "playNothingToGrade" | "playLatencyAssumed";
+  | "playAudioLost" | "playNothingToGrade" | "playLatencyAssumed"
+  | "playAttemptNotStored";
 ```
 
 **Recording outruns the run at both ends** (data-model section 2, R-16): the run keeps recording input from the

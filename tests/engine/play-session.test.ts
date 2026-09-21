@@ -18,6 +18,7 @@ import type { HandSelection } from '../../src/core/practice/types.js';
 import { loadFixture } from '../core/practice/helpers.js';
 import { FakeAudioEngine } from '../fakes/fake-audio-engine.js';
 import { FakeMidiInput } from '../fakes/fake-midi-input.js';
+import { FakePerformanceStore } from '../fakes/fake-performance-store.js';
 
 const BOTH: HandSelection = { preset: 'both', partIndex: 0, staves: [1] };
 
@@ -60,6 +61,7 @@ function setup(gradeTimeoutMs = 5000) {
   const audioEngine = new FakeAudioEngine();
   const midiInput = new FakeMidiInput();
   const gradeWorker = new FakeGradeWorker();
+  const performanceStore = new FakePerformanceStore();
   const effects: PlayEffect[] = [];
   const grades: Grade[] = [];
   const gradeFailures: { reason: 'timeout' | 'error'; message?: string }[] = [];
@@ -76,6 +78,7 @@ function setup(gradeTimeoutMs = 5000) {
     audioEngine,
     midiInput,
     gradeWorker,
+    performanceStore,
     callbacks,
     gradeTimeoutMs,
     () => nowRef.value,
@@ -83,7 +86,19 @@ function setup(gradeTimeoutMs = 5000) {
     () => '2026-01-01T00:00:00.000Z',
   );
 
-  return { score, timeline, audioEngine, midiInput, gradeWorker, effects, grades, gradeFailures, nowRef, controller };
+  return {
+    score,
+    timeline,
+    audioEngine,
+    midiInput,
+    gradeWorker,
+    performanceStore,
+    effects,
+    grades,
+    gradeFailures,
+    nowRef,
+    controller,
+  };
 }
 
 describe('PlaySessionController (T039/T097)', () => {
@@ -293,9 +308,91 @@ describe('PlaySessionController (T039/T097)', () => {
     controller.reportPosition(2000);
 
     midiInput.fire({ type: 'deviceLost', deviceId: 'kb-1', heldKeys: [] });
-    
+
     const run = controller.getRun();
     const losses = run?.reliability.filter(r => r.kind === 'midiDeviceLost') ?? [];
     expect(losses).toHaveLength(1);
+  });
+
+  it('T074: a finished run for a stored Score is kept, with the log rebased to run-relative time (research R-20)', async () => {
+    const { score, timeline, audioEngine, midiInput, gradeWorker, performanceStore, controller } = setup();
+    controller.start({
+      scoreId: 'score-hash-1',
+      score,
+      timeline,
+      measures: score.measures,
+      range: null,
+      settings: settings(),
+    });
+    const countInTicks = controller.getRun()!.tickMap.countInTicks;
+    audioEngine.currentPosition = { audibleTick: countInTicks, playing: true };
+    controller.reportPosition(2000);
+
+    audioEngine.currentClockPair = { contextTime: 5, performanceTime: 2000 };
+    midiInput.fire({ type: 'noteOn', deviceId: 'kb-1', key: 60, velocity: 70, timeStampMs: 2500 });
+
+    audioEngine.fireEvent({ type: 'ended' });
+    controller.reportPosition(60000);
+    const { requestId, input } = gradeWorker.posted[0];
+    const grade = gradePerformance(input);
+    gradeWorker.reply({ type: 'graded', requestId, grade });
+    await controller.waitForGrade();
+
+    expect(performanceStore.records.size).toBe(1);
+    const stored = [...performanceStore.records.values()][0]!;
+    expect(stored.runId).toBe(controller.getRun()!.runId);
+    expect(stored.scoreId).toBe('score-hash-1');
+    expect(stored.settings).toEqual(settings());
+    expect(stored.summary).toEqual(grade.summary);
+    expect(stored.schema).toBe(1);
+    expect(stored.appVersion.length).toBeGreaterThan(0);
+
+    const startAudioTimeSec = controller.getRun()!.startAudioTimeSec;
+    expect(stored.log.messages).toHaveLength(input.log.messages.length);
+    stored.log.messages.forEach((message, i) => {
+      expect(message.audioTimeSec).toBeCloseTo(input.log.messages[i]!.audioTimeSec - startAudioTimeSec, 9);
+    });
+  });
+
+  it('T074: a Score that was never stored (scoreId null) keeps no attempt and raises no notice', async () => {
+    const { score, timeline, audioEngine, gradeWorker, performanceStore, effects, controller } = setup();
+    controller.start({ scoreId: null, score, timeline, measures: score.measures, range: null, settings: settings() });
+    const countInTicks = controller.getRun()!.tickMap.countInTicks;
+    audioEngine.currentPosition = { audibleTick: countInTicks, playing: true };
+    controller.reportPosition(2000);
+    audioEngine.fireEvent({ type: 'ended' });
+    controller.reportPosition(60000);
+    const { requestId, input } = gradeWorker.posted[0];
+    gradeWorker.reply({ type: 'graded', requestId, grade: gradePerformance(input) });
+    await controller.waitForGrade();
+
+    expect(performanceStore.records.size).toBe(0);
+    expect(effects.some((e) => e.type === 'notice' && e.code === 'playAttemptNotStored')).toBe(false);
+  });
+
+  it('T074: a storage failure still shows the Grade, with a non-blocking notice that the attempt was not kept', async () => {
+    const { score, timeline, audioEngine, gradeWorker, performanceStore, grades, effects, controller } = setup();
+    performanceStore.failNextPut = true;
+    controller.start({
+      scoreId: 'score-hash-1',
+      score,
+      timeline,
+      measures: score.measures,
+      range: null,
+      settings: settings(),
+    });
+    const countInTicks = controller.getRun()!.tickMap.countInTicks;
+    audioEngine.currentPosition = { audibleTick: countInTicks, playing: true };
+    controller.reportPosition(2000);
+    audioEngine.fireEvent({ type: 'ended' });
+    controller.reportPosition(60000);
+    const { requestId, input } = gradeWorker.posted[0];
+    const grade = gradePerformance(input);
+    gradeWorker.reply({ type: 'graded', requestId, grade });
+    await controller.waitForGrade();
+
+    expect(grades).toEqual([grade]);
+    expect(performanceStore.records.size).toBe(0);
+    expect(effects).toContainEqual({ type: 'notice', code: 'playAttemptNotStored' });
   });
 });
