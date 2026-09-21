@@ -184,11 +184,26 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   MIDI timestamps are mapped onto it (`src/engine/midi/clock-map.ts`) and compensated with a Latency profile that
   this feature also has to build. The Metronome is compiled into the run's schedule rather than written as
   real-time code.
+- Feature 004: no new technology and no new dependency. The score-first window uses Web Platform
+  features only: the **Popover API** (`popover="auto"` for every secondary panel - non-modal, light
+  dismiss, top layer; note that `happy-dom@20` does not implement it, so `viewState.openPanel` is the
+  source of truth and Playwright covers the native behaviour), `ResizeObserver` for fit-to-width
+  relayout, and CSS custom properties for overlay insets. Settings format `musicanyya.settings.v1`
+  moves to version 2 (`zoomPercent` -> `scale`, plus `overlays`). CSS Anchor Positioning is
+  deliberately avoided; popups are positioned with a pure `getBoundingClientRect()` helper.
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-21: Feature 004 planned (score-first application window): the three fixed asides (300 + 360 +
+  280 px) leave the layout entirely, so only a <= 48 px bar reserves space; every secondary panel
+  becomes a native popover with `viewState.openPanel` as the single source of truth, cleared by
+  `closeForRun()` whenever a run starts (Principle VI in one testable branch). The Score view derives
+  its Verovio page from the live viewport instead of a fixed 1200x1600, which also fixes an existing
+  mismatch where page elements were hard-coded to 1600 px while `adjustPageHeight` made the real
+  height content-dependent. Escape now closes an open panel before it stops the transport. Spec
+  FR-014a was corrected during planning: enlarging re-flows the music, it never scrolls horizontally.
 - 2026-09-20: Feature 003 planned (Play mode and grading): the Metronome is scheduled events on a dedicated
   percussion channel, not new real-time code; grading is a pure function run in a worker; timing windows are
   fractions of a beat compared in integer ticks, clamped so a claim window can never reach a neighbouring note.
@@ -197,6 +212,4 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   decision.
 - 2026-09-20: Feature 002 planned (Practice / wait-for-input): pure core matcher, no new dependency, no new
   real-time code; the unselected hand sounds as the cursor passes it instead of against a clock.
-- 2026-09-19: Agent guide split: `AGENTS.md` core (< 12,000 characters for tools such as Antigravity) + this
-  reference; Antigravity workflows added.
 <!-- RECENT-CHANGES:END -->

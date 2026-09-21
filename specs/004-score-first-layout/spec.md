@@ -171,11 +171,14 @@ an open popup.
   1280x720 up to 2560x1440 and for OS display scaling from 100% to 175%.
 - **FR-014**: The Score MUST be scaled by default so that the page width fills the available Score
   width, and MUST re-fit whenever the window is resized.
-- **FR-014a**: The user MUST be able to enlarge or reduce the Score from that fitted size in visible,
-  always-reachable steps (a "larger" and a "smaller" control in the slim bar, plus keyboard
-  equivalents), with a control to return to the fitted size. Enlarging beyond the window width MUST
-  keep the Score readable by allowing horizontal scrolling of the Score view only - never of the window.
-- **FR-014b**: The enlargement range MUST cover at least 50% to 200% of the fitted size, in steps no
+- **FR-014a**: The user MUST be able to enlarge or reduce the Score in visible, always-reachable steps
+  (a "larger" and a "smaller" control in the slim bar, plus keyboard equivalents), with a control to
+  return to the default size. Enlarging MUST re-flow the music - fewer measures per system, larger
+  staves - so the page always stays within the window width; horizontal scrolling MUST never be needed.
+  *(Amended 2026-09-21 during planning: the first wording allowed horizontal scrolling when enlarged.
+  The engraving engine re-flows instead, which is both better for reading and simpler; see
+  research.md R-2.)*
+- **FR-014b**: The enlargement range MUST cover at least 50% to 200% of the default size, in steps no
   coarser than 10%, so a musician with reduced sight can make staves substantially bigger.
 - **FR-015**: The on-screen piano keys MUST be hidden by default and shown only when the user switches
   them on from the menu; the choice is remembered (FR-019).
