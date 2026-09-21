@@ -77,9 +77,7 @@ test('US2 end-to-end: step through mistakes, see the worst measures, and send on
 
   const playBtn = page.locator('mx-transport .play-btn');
   await playBtn.click();
-  await expect
-    .poll(async () => (await playSnapshot(page)).phase, { timeout: 15_000 })
-    .toMatch(/^(countIn|running)$/);
+  await expect.poll(async () => (await playSnapshot(page)).phase, { timeout: 15_000 }).toMatch(/^(countIn|running)$/);
   await page.locator('mx-transport .stop-btn').click();
 
   await expect.poll(async () => (await playSnapshot(page)).gradeComplete, { timeout: 15_000 }).toBe(false);

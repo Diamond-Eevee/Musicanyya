@@ -468,13 +468,25 @@ replay the first one and confirm the notes heard are the ones that were played, 
   **and** a tempo change falls inside the graded range. Test first: a fixture with a mid-range tempo change,
   played through a range that does not start at tick 0, asserting the resolved window matches the tempo
   actually in force at that onset
-- [ ] T081 [P] Update `docs/agents/reference.md` if anything in the toolchain or the commands changed, and
+- [x] T081 [P] Update `docs/agents/reference.md` if anything in the toolchain or the commands changed, and
   `quickstart.md` if a command changed
 - [ ] T082 Run the `quickstart.md` manual verification script for all four user stories on a real MIDI keyboard
-- [ ] T083 Constitution audit of the finished feature with `constitution-auditor`, in particular Principle I over
+- [x] T083 Constitution audit of the finished feature with `constitution-auditor`, in particular Principle I over
   T034 and T036, Principle II over the one-clock and latency-compensation path, and Principle III over the
-  MusicXML subset the owner's D-1 and D-2 added
-- [ ] T084 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` - all green
+  MusicXML subset the owner's D-1 and D-2 added. **Verdict: compliant with notes** - one MEDIUM finding (T110)
+  and two already-tracked LOW advisories from T035/T037 (worklet `currentGain` dead code, unramped/unvalidated
+  `channelVolume`), neither blocking
+- [x] T084 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` - all green
+- [ ] T110 Constitution II, MEDIUM (found by the T083 audit): `contracts/grading.md` §2 rule 5 and research R-06
+  say ticks are integers and every comparison is integer-vs-integer, but `tickAtAudioTime`
+  (`src/core/tempo/rate.ts`) returns a float that Step 1 (`src/core/grade/grade.ts`) never rounds, and
+  `resolveWindows`'s `clampToTicks`/`msToTicks` (`src/core/grade/windows.ts`) return floats never rounded either
+  - so `deltaTicks`, the match/window bound comparisons and extras' `atTick` are real-valued throughout, not the
+  documented integer arithmetic. Functionally harmless today (golden tests are deterministic on one JS engine),
+  but the contract and the code disagree. Either round to integer ticks at the one conversion site and the
+  window bound computations (carries an `rt-audio-reviewer` review, same scope as T090/T091), or correct
+  `contracts/grading.md` and `research.md` to describe the real-valued arithmetic actually used - owner/agent
+  judgement call, not decided here
 
 ---
 

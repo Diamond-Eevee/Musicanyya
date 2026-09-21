@@ -142,7 +142,12 @@ describe('a MIDI hot-plug mid-run never stops the run, and the gap lands on the 
       settings,
       latency: ZERO_LATENCY,
       reliability: run.reliability,
-      passes: measures.map((m, i) => ({ measureIndex: i, passNo: 1, startTick: m.startTick, lengthTicks: m.lengthTicks })),
+      passes: measures.map((m, i) => ({
+        measureIndex: i,
+        passNo: 1,
+        startTick: m.startTick,
+        lengthTicks: m.lengthTicks,
+      })),
       measures,
     };
 

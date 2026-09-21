@@ -228,7 +228,11 @@ export class PlaySessionController {
     this.dispatch({ type: 'position', runTick: position.audibleTick, audioTimeSec });
 
     const diagnostics = this.audioEngine.diagnostics();
-    if (this.initialSampleRate !== null && diagnostics.sampleRate !== null && diagnostics.sampleRate !== this.initialSampleRate) {
+    if (
+      this.initialSampleRate !== null &&
+      diagnostics.sampleRate !== null &&
+      diagnostics.sampleRate !== this.initialSampleRate
+    ) {
       this.dispatch({ type: 'audioLost' });
       return;
     }

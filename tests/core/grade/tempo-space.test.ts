@@ -37,7 +37,16 @@ function tempoSpaceGradeInput(): GradeInput {
     },
   ];
   const expected: ExpectedNote[] = [
-    { index: 0, noteIds: ['n0'], key: 60, onsetTick: 2400, measureIndex: 0, passIndex: 0, chordSize: 1, arpeggiated: false },
+    {
+      index: 0,
+      noteIds: ['n0'],
+      key: 60,
+      onsetTick: 2400,
+      measureIndex: 0,
+      passIndex: 0,
+      chordSize: 1,
+      arpeggiated: false,
+    },
   ];
 
   // Step 1 must still use the run-space `tempo` (constant 50 qpm) to place the press: run tick 3070 at 50 qpm is

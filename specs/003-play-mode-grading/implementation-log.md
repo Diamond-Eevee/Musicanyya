@@ -816,3 +816,70 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
 - Handoff: next = Phase 7 Polish, starting wherever the next agent chooses among the `[P]` tasks (T078, T079, T080,
   T099, T100, T103 are independent files; T106 is also independent; T081-T084 depend on the feature otherwise
   being finished). No open owner decisions. Tree clean at the commit below, not pushed.
+
+## 2026-09-21 17:55 - claude-sonnet-5 (relay)
+
+- Done: T106, T100, T099, T103, T078, T080, T079, T081, T083, T084 - Phase 7 Polish, in full except T082 and the
+  new T110 (below).
+- **T106** (`src/core/grade/grade.ts`, `types.ts`): the fix `contracts/grading.md` 1.1.2 named - `GradeInput`
+  gained `timelineTempo` (timeline-tick space), used for `resolveWindows` and the `deltaMs` qpm lookup, while
+  `tempo` stays run-tick space for Step 1's `tickAtAudioTime` calls only. Both `src/app/play-session.ts` and
+  `session.ts::prepareStoredRun` now pass both fields (bumped grading contract to 1.2.0). Test first
+  (`tests/core/grade/tempo-space.test.ts`): a synthetic run with a non-zero count-in/range shift and a tempo
+  change inside the range, asserting the note grades `onTime` only when the *timeline*-space tempo is used for
+  window sizing - failed as `late` before the fix, passes after.
+- **T100, T099, T103, T078, T080**: five polish tests, each a regression guard for an invariant already true by
+  construction (matching the precedent T072 set) - no production code needed:
+  - `tests/architecture/no-upload.test.ts`: static scan of every Play-path file for `fetch`/`XMLHttpRequest`/
+    `sendBeacon`/`WebSocket` (FR-016).
+  - `tests/ui/play-notices.test.ts`: `mx-notice-tray` renders no `<dialog>`/`aria-modal`/backdrop and never moves
+    focus or touches `transportState` (FR-009); `mx-piano-keys` has no click handler and the only `keydown`
+    listeners never touch `midiState` (FR-010).
+  - `tests/core/play/long-run.test.ts`: 2080 notes (~10 minutes at 208 bpm) through the real `playRunReducer`
+    then `gradePerformance` - `droppedMessages` stays 0 and the accounting invariant holds at scale (SC-007).
+  - `tests/core/grade/perf.test.ts`: `gradePerformance` over the existing 500-measure fixture (2000 expected
+    notes) - 25.7 ms observed against the 1 s budget (SC-006), logged not hard-asserted (this repo's perf-test
+    convention, `tests/core/practice/perf.test.ts`); a second check confirms `play-session.ts`/`session.ts` never
+    import `gradePerformance` directly, only `requestGrade` (the worker client).
+  - `tests/core/play/device-loss.test.ts`: a `midiDeviceLost`/`midiDeviceBack` gap mid-run through
+    `playRunReducer` - only the final `ended` action produces `runEnded` (SC-013: the run never stops), and the
+    graded gap becomes `midiDeviceLost`/`midiDeviceBack` reliability warnings with the affected measures marked
+    `unreliable`.
+- **T079** (`tests/e2e/us2-grade.spec.ts`): writing this surfaced a real bug, not a test-only gap -
+  `mistakeStepper.setGrade()` (FR-031's mistake stepper) was never called anywhere in `src/app/session.ts`, only
+  in `mistake-stepper.test.ts`'s own isolated unit test, so `mx-grade-panel`'s stepper never had any mistakes to
+  step through in the running app - `<div class="grade-stepper">` never rendered. Fixed by wiring
+  `mistakeStepper.setGrade(grade)`/`setGrade(null)` alongside every `playState.setGrade`/`clear()` call (a live
+  run's Grade, regrade, replay, and the three places a Grade is cleared). The e2e test itself stops a run right
+  after it starts rather than timing live presses against the audio clock - `expected` stays the full configured
+  range even for a stopped run (FR-008), so all 12 notes in a 3-measure range grade `missed` deterministically,
+  enough to exercise the stepper, the measure overview and "practise this passage" -> Practice mode without any
+  live-timing race (early attempts at live-timed multi-note presses, both wall-clock- and position-tick-anchored,
+  were flaky under this machine's CPU load - the same class of flakiness already logged against
+  `us1-play.spec.ts`). Stable over 5+ runs on chromium/firefox/electron (FR-047, SC-012); webkit skipped as
+  every other Play spec is. Needed a `pnpm build` before the fix was visible to Playwright's `vite preview`
+  server (`reuseExistingServer: true` was serving a stale `dist/`) - worth remembering for the next agent too.
+- **T081**: checked `docs/agents/reference.md` and `quickstart.md` - no toolchain, command or dependency changed
+  this session, nothing to update.
+- **T083**: ran the `constitution-auditor` role. Verdict **compliant with notes**: the T106 fix, the RT surface
+  (T034 sub-block rendering, T036 `channelVolume`) and the MusicXML/Note-ID fidelity of D-1/D-2 all check out.
+  One new MEDIUM finding, logged as **T110** (below) rather than fixed inline, since a real fix touches the
+  RT-reviewed timing path and deserves its own review cycle. Two LOW findings were already-tracked advisories
+  from T035/T037 (worklet `currentGain` dead code, unramped/unvalidated `channelVolume`) - restated, not new.
+- **T084**: full gate green - `pnpm typecheck` clean; `pnpm test` 757 passed, 2 skipped; `pnpm lint` 27 errors /
+  266 warnings, all pre-existing project-wide debt except two `noExplicitAny` warnings in the new e2e file,
+  matching the exact pattern `us1-play.spec.ts`/`us3-play-setup.spec.ts` already use for the same
+  `window.__PLAY_STATE__` seam (net error count is *lower* than this session's start, 27 vs 28 - unrelated
+  drift, not mine to explain); `pnpm test:e2e` (all four projects, 60 tests) - 40 passed, 20 skipped (the
+  established webkit skip), 0 failed on this run. `us1-play.spec.ts`'s live-mark test did fail once under full
+  16-way parallel load during this session (on electron, then again on firefox) and passed both times re-run
+  alone - the same pre-existing CPU-contention flakiness a prior session's log already documented, not a
+  regression from this session's work.
+- Problems / open questions: **T110** (new, MEDIUM, not blocking) - `contracts/grading.md` and `research.md`
+  document tick arithmetic as integer-only, but `tickAtAudioTime` and `resolveWindows`'s bound computations
+  return floats never rounded; functionally harmless today but the contract and the code disagree - needs an
+  owner/agent call on whether to round (RT review) or correct the documents. **T082** (manual MIDI-hardware
+  verification) is still open - needs a person with a keyboard, not an agent.
+- Handoff: next = T082 (manual, needs hardware) and T110 (decide round-vs-document, then implement). Every other
+  task in `specs/003-play-mode-grading/tasks.md` is `[x]` - **feature 003 is functionally complete**. Tree clean
+  at the commit below, not pushed.
