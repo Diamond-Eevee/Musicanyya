@@ -35,18 +35,24 @@ class MistakeStepperStore {
       return;
     }
 
-    const mistakes: { tick: number; key: number; id: string }[] = [];
+    // Build a tick lookup from expected notes so we can sort mistakes in Score order (FR-031).
+    const tickOf = new Map<string, number>();
+    for (const exp of grade.expected ?? []) {
+      for (const id of exp.noteIds) tickOf.set(id, exp.onsetTick);
+    }
+
+    const mistakes: { id: string; tick: number }[] = [];
     for (const res of grade.results) {
       if (res.pitch === 'wrongPitch' || res.pitch === 'missed') {
-        const expected = grade.expected[res.expectedIndex];
-        if (expected && res.noteIds.length > 0) {
-          mistakes.push({ tick: expected.onsetTick, key: expected.key, id: res.noteIds[0]! });
+        if (res.noteIds.length > 0) {
+          const id = res.noteIds[0]!;
+          mistakes.push({ id, tick: tickOf.get(id) ?? 0 });
         }
       }
     }
-    mistakes.sort((a, b) => (a.tick !== b.tick ? a.tick - b.tick : b.key - a.key));
-    
-    this.mistakes = mistakes.map(m => m.id);
+
+    mistakes.sort((a, b) => a.tick - b.tick);
+    this.mistakes = mistakes.map((m) => m.id);
     // Removing extras for now because they don't have noteIds yet (T042 scoping note).
     this.index = this.mistakes.length > 0 ? 0 : -1;
     this.notify();

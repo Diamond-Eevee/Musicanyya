@@ -21,7 +21,15 @@ const SCORE_ID_PATTERN = /^[0-9a-f]{64}$/;
 const HAND_PRESETS: readonly string[] = ['both', 'right', 'left', 'custom'];
 
 const BUILT_IN_PRACTICE: PracticeSettings = { selection: null, loop: null, accompaniment: true, help: true };
-
+const BUILT_IN_PLAY: import('../../core/play/types.js').RunSettings = {
+  range: null,
+  tempoPercent: 100,
+  selection: { preset: 'both', partIndex: 0, staves: [1, 2] },
+  strictness: 'beginner', // PLAY_STRICTNESS_DEFAULT
+  countInMeasures: 1,     // PLAY_COUNT_IN_MEASURES
+  metronomeMuted: false,
+  accompaniment: true,
+};
 type JsonObject = Record<string, unknown>;
 
 function isObject(value: unknown): value is JsonObject {
@@ -79,6 +87,25 @@ function validPractice(raw: JsonObject): PracticeSettings {
   };
 }
 
+function validRange(raw: unknown): import('../../core/practice/types.js').LoopRange | null {
+  if (!isObject(raw)) return null;
+  const { fromMeasureIndex, toMeasureIndex } = raw;
+  return isIndex(fromMeasureIndex, 0) && isIndex(toMeasureIndex, 0) ? { fromMeasureIndex, toMeasureIndex } : null;
+}
+
+function validPlay(raw: JsonObject): import('../../core/play/types.js').RunSettings {
+  const strictnessLevels = ['beginner', 'standard', 'strict'];
+  return {
+    range: validRange(raw.range),
+    tempoPercent: isInt(raw.tempoPercent, 25, 200, 5) ? raw.tempoPercent : BUILT_IN_PLAY.tempoPercent,
+    selection: validSelection(raw.selection) ?? BUILT_IN_PLAY.selection,
+    strictness: strictnessLevels.includes(raw.strictness as string) ? (raw.strictness as import('../../core/grade/types.js').StrictnessLevelName) : BUILT_IN_PLAY.strictness,
+    countInMeasures: isIndex(raw.countInMeasures, 1) ? raw.countInMeasures : BUILT_IN_PLAY.countInMeasures,
+    metronomeMuted: typeof raw.metronomeMuted === 'boolean' ? raw.metronomeMuted : BUILT_IN_PLAY.metronomeMuted,
+    accompaniment: typeof raw.accompaniment === 'boolean' ? raw.accompaniment : BUILT_IN_PLAY.accompaniment,
+  };
+}
+
 /** The fields a record stores; "selection" is left out when there is none, because the schema wants an object. */
 function practiceFields(settings: PracticeSettings): JsonObject {
   const fields: JsonObject = { loop: settings.loop, accompaniment: settings.accompaniment, help: settings.help };
@@ -92,6 +119,22 @@ function practiceFields(settings: PracticeSettings): JsonObject {
   return fields;
 }
 
+function playFields(settings: import('../../core/play/types.js').RunSettings): JsonObject {
+  return {
+    range: settings.range,
+    tempoPercent: settings.tempoPercent,
+    selection: {
+      preset: settings.selection.preset,
+      partIndex: settings.selection.partIndex,
+      staves: [...settings.selection.staves],
+    },
+    strictness: settings.strictness,
+    countInMeasures: settings.countInMeasures,
+    metronomeMuted: settings.metronomeMuted,
+    accompaniment: settings.accompaniment,
+  };
+}
+
 export class LocalSettingsStore implements SettingsStore {
   private raw: Record<string, unknown> = {};
   private writeTimer: ReturnType<typeof setTimeout> | null = null;
@@ -101,6 +144,9 @@ export class LocalSettingsStore implements SettingsStore {
    *  full storage still lets the settings work in memory. Null until the first save. */
   private practiceFile: JsonObject | null = null;
   private practiceTimer: ReturnType<typeof setTimeout> | null = null;
+  
+  private playFile: JsonObject | null = null;
+  private playTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(private readonly onError?: (message: string) => void) {}
 
@@ -186,17 +232,54 @@ export class LocalSettingsStore implements SettingsStore {
       ...file,
       version: 1,
       defaults: { ...defaultsKept, ...defaultFields, updated },
-      byScore: this.evictOldest(byScore, scoreId),
+      byScore: this.evictOldest(byScore, scoreId, PRACTICE_SETTINGS_MAX),
     };
 
     if (this.practiceTimer !== null) clearTimeout(this.practiceTimer);
     this.practiceTimer = setTimeout(() => this.flushPractice(), SETTINGS_WRITE_DEBOUNCE_MS);
   }
 
-  /** At most PRACTICE_SETTINGS_MAX Scores stay; the oldest-updated go first, and the Score just saved never does. */
-  private evictOldest(byScore: JsonObject, keep: string): JsonObject {
+  loadPlay(scoreId: string | null): import('../../core/play/types.js').RunSettings {
+    const file = this.readPlayFile();
+    const byScore = isObject(file.byScore) ? file.byScore : {};
+    const own = scoreId !== null && SCORE_ID_PATTERN.test(scoreId) ? byScore[scoreId] : undefined;
+    if (isObject(own)) return validPlay(own);
+
+    const defaults = isObject(file.defaults) ? validPlay(file.defaults) : BUILT_IN_PLAY;
+    return { ...defaults, range: null };
+  }
+
+  savePlay(scoreId: string | null, settings: import('../../core/play/types.js').RunSettings): void {
+    if (scoreId === null || !SCORE_ID_PATTERN.test(scoreId)) return;
+
+    const file = this.readPlayFile();
+    const updated = new Date().toISOString();
+    const byScore: JsonObject = isObject(file.byScore) ? { ...file.byScore } : {};
+
+    const previous = isObject(byScore[scoreId]) ? (byScore[scoreId] as JsonObject) : {};
+    const { selection: _selection, ...previousKept } = previous;
+    byScore[scoreId] = { ...previousKept, ...playFields(settings), updated };
+
+    const previousDefaults = isObject(file.defaults) ? file.defaults : {};
+    const { selection: _defaultSelection, range: _defaultRange, ...defaultsKept } = previousDefaults;
+    const { range: _noRange, ...defaultFields } = playFields(settings);
+
+    this.playFile = {
+      ...file,
+      version: 1,
+      defaults: { ...defaultsKept, ...defaultFields, updated },
+      // T068 says "with the per-Score cap". Wait, the PLAY_SETTINGS_MAX is 20, same as PRACTICE_SETTINGS_MAX.
+      byScore: this.evictOldest(byScore, scoreId, 20), // We will update evictOldest to take max
+    };
+
+    if (this.playTimer !== null) clearTimeout(this.playTimer);
+    this.playTimer = setTimeout(() => this.flushPlay(), SETTINGS_WRITE_DEBOUNCE_MS);
+  }
+
+  /** At most `max` Scores stay; the oldest-updated go first, and the Score just saved never does. */
+  private evictOldest(byScore: JsonObject, keep: string, max: number): JsonObject {
     const ids = Object.keys(byScore);
-    if (ids.length <= PRACTICE_SETTINGS_MAX) return byScore;
+    if (ids.length <= max) return byScore;
 
     const updatedOf = (id: string): string => {
       const entry = byScore[id];
@@ -204,7 +287,7 @@ export class LocalSettingsStore implements SettingsStore {
     };
     const oldestFirst = ids.filter((id) => id !== keep).sort((a, b) => updatedOf(a).localeCompare(updatedOf(b)));
     const result = { ...byScore };
-    for (const id of oldestFirst.slice(0, ids.length - PRACTICE_SETTINGS_MAX)) delete result[id];
+    for (const id of oldestFirst.slice(0, ids.length - max)) delete result[id];
     return result;
   }
 
@@ -213,11 +296,30 @@ export class LocalSettingsStore implements SettingsStore {
     if (this.practiceFile) this.write(PRACTICE_STORAGE_KEY, this.practiceFile);
   }
 
+  private flushPlay(): void {
+    this.playTimer = null;
+    if (this.playFile) this.write('musicanyya.play.v1', this.playFile);
+  }
+
   /** The practice file as saved this session, else as stored; anything unusable reads as an empty file. */
   private readPracticeFile(): JsonObject {
     if (this.practiceFile) return this.practiceFile;
     try {
       const item = localStorage.getItem(PRACTICE_STORAGE_KEY);
+      if (item) {
+        const parsed: unknown = JSON.parse(item);
+        if (isObject(parsed) && parsed.version === 1) return parsed;
+      }
+    } catch {
+      // unreadable or corrupt: start again from an empty file
+    }
+    return { version: 1 };
+  }
+  
+  private readPlayFile(): JsonObject {
+    if (this.playFile) return this.playFile;
+    try {
+      const item = localStorage.getItem('musicanyya.play.v1');
       if (item) {
         const parsed: unknown = JSON.parse(item);
         if (isObject(parsed) && parsed.version === 1) return parsed;

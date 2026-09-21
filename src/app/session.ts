@@ -11,13 +11,14 @@ import type {
 } from '../engine/ports.js';
 import { IndexedDbScoreStore } from '../engine/storage/indexeddb-score-store.js';
 import { LocalSettingsStore } from '../engine/storage/local-settings-store.js';
-import { passIndicesToLoopRange } from '../core/practice/loop.js';
+
 import '../ui/elements/mx-diagnostics.js';
 import '../ui/elements/mx-drop-zone.js';
 import '../ui/elements/mx-grade-panel.js';
 import '../ui/elements/mx-latency-panel.js';
 import '../ui/elements/mx-help-notation.js';
 import '../ui/elements/mx-open-button.js';
+import '../ui/elements/mx-play-panel.js';
 import '../ui/elements/mx-recent-list.js';
 import '../ui/elements/mx-score-view.js';
 import '../ui/elements/mx-transport.js';
@@ -26,7 +27,11 @@ import '../ui/elements/mx-mode-switch.js';
 import '../ui/elements/mx-piano-keys.js';
 import '../ui/elements/mx-practice-help.js';
 import '../ui/elements/mx-practice-panel.js';
-import { PLAY_COUNT_IN_MEASURES, PLAY_STRICTNESS_DEFAULT } from '../core/defaults.js';
+import {
+  METRONOME_CHANNEL,
+  PLAY_COUNT_IN_MEASURES,
+  PLAY_STRICTNESS_DEFAULT,
+} from '../core/defaults.js';
 import { buildExpectedNotes } from '../core/grade/expected.js';
 import type { Grade } from '../core/grade/types.js';
 import type { PlayEffect, RunSettings } from '../core/play/types.js';
@@ -48,6 +53,7 @@ import type { LoadReport } from '../core/score/load-report.js';
 import type { Score } from '../core/score/model.js';
 import type { PlaybackTimeline } from '../core/timeline/types.js';
 import type { PracticeSetupChange } from '../ui/elements/mx-practice-panel.js';
+import type { PlaySetupChange } from '../ui/elements/mx-play-panel.js';
 import type { MxScoreView, TimelineDto } from '../ui/elements/mx-score-view.js';
 import { midiNoteName } from '../ui/format/note-name.js';
 import { en } from '../ui/i18n/en.js';
@@ -130,6 +136,9 @@ export class Session {
   private practiceScoreId: string | null = null;
   private practiceSettings: PracticeSettings = { selection: null, loop: null, accompaniment: true, help: true };
   private endingPracticeNaturally = false;
+
+  // Play mode settings (US3, T065-T068): stored and loaded per Score.
+  private playScoreId: string | null = null;
 
   // Play mode (003, T107): the only place engine, worker, store and run meet (R-01) - built once, alongside the
   // ports it needs, which are already fields above.
@@ -301,11 +310,17 @@ export class Session {
     });
     document.getElementById('side-panel')?.prepend(practicePanel);
 
+    const playPanel = document.createElement('mx-play-panel');
+    playPanel.addEventListener('playsetup', (event) =>
+      this.onPlaySetupChange((event as CustomEvent<PlaySetupChange>).detail),
+    );
+    document.getElementById('side-panel')?.prepend(playPanel);
+
     const gradePanel = document.createElement('mx-grade-panel');
     gradePanel.addEventListener('practisepass', (event) => {
       const passIndex = (event as CustomEvent<{ passIndex: number }>).detail.passIndex;
       if (!this.currentTimeline) return;
-      const loop = passIndicesToLoopRange(this.currentTimeline, [passIndex]);
+      const loop = passIndicesToLoopRange(this.currentTimeline.passes, { fromPassIndex: passIndex, toPassIndex: passIndex });
       if (!loop) return;
       
       const grade = playState.get().grade;
@@ -571,49 +586,45 @@ export class Session {
     practiceState.clearHelpOverlay();
   }
 
-  /** T107: compiles a default run - the whole Score, the preselected pitched part, the most forgiving strictness
-   *  (FR-039) - and starts it. US3 (T065/T066) is what lets the musician change any of this; until then this is
-   *  every Play run's settings. Mirrors `startPractice`'s own `practiceNothingToPlay` check (FR-045 edge case). */
+  /** Compiles a run from the stored settings (or defaults) and starts it (T065/T066, FR-036 to FR-039). */
   private startPlay(): void {
     if (!this.currentScore || !this.currentPlaybackTimeline) return;
     const phase = this.playController.getRun()?.phase;
-    if (phase === 'countIn' || phase === 'running') return; // already running: the clock never waits (FR-002)
+    if (phase === 'countIn' || phase === 'running') return;
 
-    const { preselected } = partOptions(this.currentScore);
-    const selection = preselected !== -1 ? handOptions(this.currentScore, preselected)[0] : undefined;
-    const expected = selection
-      ? buildExpectedNotes(this.currentScore, this.currentPlaybackTimeline, selection, null)
-      : [];
-    if (!selection || expected.length === 0) {
+    const setup = playState.get().setup;
+    if (!setup) return;
+
+    const settings = setup.settings;
+
+    // Resolve the written measure range to a pass span, using the first occurrence that has expected notes.
+    let range: LoopPassSpan | null = null;
+    if (settings.range) {
+      const timeline = this.currentPlaybackTimeline;
+      // Build events to find occurrences, then resolve the loop.
+      const events = buildExpectedEvents(this.currentScore, timeline, settings.selection);
+      const loop = resolveLoop(events, timeline.passes, settings.range, 0);
+      if (loop) range = loopRangeToPassIndices(loop);
+    }
+
+    const expected = buildExpectedNotes(this.currentScore, this.currentPlaybackTimeline, settings.selection, range);
+    if (expected.length === 0) {
       noticeState.addNotice({ code: 'playNothingToGrade', severity: 'warning' });
-      transportState.stop(); // onTransportStopped's own mode gate (practice-only) leaves this alone
+      transportState.stop();
       return;
     }
 
-    const settings: RunSettings = {
-      range: null,
-      tempoPercent: transportState.get().tempoPercent,
-      selection,
-      strictness: PLAY_STRICTNESS_DEFAULT,
-      countInMeasures: PLAY_COUNT_IN_MEASURES,
-      metronomeMuted: false,
-      accompaniment: true,
-    };
-
     playState.clear();
     this.playController.start({
-      scoreId: this.practiceScoreId,
+      scoreId: this.playScoreId,
       score: this.currentScore,
       timeline: this.currentPlaybackTimeline,
       measures: this.currentScore.measures,
-      range: null,
+      range,
       settings,
     });
     playState.setRun(this.playController.getRun());
     this.scoreView?.setPlaySession(this.playController);
-    // T109: the run's own follow-scroll (FR-007) needs a timeline to map its ticks against - unlike Listen, Play
-    // never otherwise calls setPlayback, so a Score opened straight into Play (never having used Listen) would
-    // leave mx-score-view without one. Idempotent (it only stores references), so calling it again here is safe.
     if (this.scoreView && this.currentTimeline) this.scoreView.setPlayback(this.audioEngine, this.currentTimeline);
   }
 
@@ -632,6 +643,37 @@ export class Session {
       playState.addLiveMark(effect.noteIds);
     } else if (effect.type === 'notice') {
       noticeState.addNotice({ code: effect.code, severity: 'warning' });
+    }
+  }
+
+  /** Handles a change from `mx-play-panel`: updates state, saves settings, and adjusts a live run if needed. */
+  private onPlaySetupChange(change: PlaySetupChange): void {
+    const setup = playState.get().setup;
+    const score = this.currentScore;
+    if (!setup || !score) return;
+
+    let { settings } = setup;
+    if (change.partIndex !== undefined && change.partIndex !== settings.selection.partIndex) {
+      const newHands = handOptions(score, change.partIndex);
+      settings = { ...settings, selection: newHands[0] ?? settings.selection };
+      playState.setSetup({ ...setup, hands: newHands, settings });
+    } else {
+      if (change.selection) settings = { ...settings, selection: change.selection };
+      if (change.range !== undefined) settings = { ...settings, range: change.range };
+      if (change.tempoPercent !== undefined) settings = { ...settings, tempoPercent: change.tempoPercent };
+      if (change.strictness !== undefined) settings = { ...settings, strictness: change.strictness };
+      if (change.countInMeasures !== undefined) settings = { ...settings, countInMeasures: change.countInMeasures };
+      if (change.metronomeMuted !== undefined) settings = { ...settings, metronomeMuted: change.metronomeMuted };
+      if (change.accompaniment !== undefined) settings = { ...settings, accompaniment: change.accompaniment };
+      playState.setSetup({ ...setup, settings });
+    }
+
+    this.settingsStore.savePlay(this.playScoreId, settings);
+
+    // Metronome mute can be applied live (T067): never by recompiling the schedule (R-02).
+    const run = this.playController.getRun();
+    if (change.metronomeMuted !== undefined && run && (run.phase === 'countIn' || run.phase === 'running')) {
+      this.audioEngine.setChannelVolume(METRONOME_CHANNEL, change.metronomeMuted ? 0 : 1);
     }
   }
 
@@ -678,6 +720,48 @@ export class Session {
       if (stored.staves.every((staff) => staff <= part.staves)) return { ...stored, preset: 'custom' };
     }
     return handOptions(score, preselected)[0] ?? null;
+  }
+
+  /** Loads stored play settings for the Score and sets up the PlaySetup state (T065/T066/T068). */
+  private setupPlay(score: Score): void {
+    playState.clear();
+    const { parts, preselected } = partOptions(score);
+    const storedSettings = this.settingsStore.loadPlay(this.playScoreId);
+    // Validate the stored selection still fits the Score.
+    const validatedSettings = this.resolvePlaySettings(score, parts, preselected, storedSettings);
+    const hands = validatedSettings.selection
+      ? handOptions(score, validatedSettings.selection.partIndex)
+      : [];
+    playState.setSetup({
+      parts,
+      hands,
+      measureCount: score.measures.length,
+      settings: validatedSettings,
+    });
+  }
+
+  /** Validates and corrects stored play settings against the current Score (same logic as practice). */
+  private resolvePlaySettings(
+    score: Score,
+    parts: readonly { partIndex: number; staves: number }[],
+    preselected: number,
+    stored: RunSettings,
+  ): RunSettings {
+    const storedSel = stored.selection;
+    let selection = stored.selection;
+    if (parts.length > 0) {
+      const part = storedSel ? parts.find((p) => p.partIndex === storedSel.partIndex) : undefined;
+      if (storedSel && part) {
+        const key = storedSel.staves.join(',');
+        const offered = handOptions(score, storedSel.partIndex).find((option) => option.staves.join(',') === key);
+        if (offered) selection = offered;
+        else if (storedSel.staves.every((staff) => staff <= part.staves)) selection = { ...storedSel, preset: 'custom' };
+        else selection = handOptions(score, preselected)[0] ?? selection;
+      } else {
+        selection = handOptions(score, preselected)[0] ?? selection;
+      }
+    }
+    return { ...stored, selection };
   }
 
   private onPracticeSetupChange(change: PracticeSetupChange): void {
@@ -935,6 +1019,8 @@ export class Session {
     if (!putResult.ok) noticeState.addNotice({ code: 'storageUnavailable', severity: 'warning' });
     this.practiceScoreId = putResult.ok ? response.contentHash : null;
     this.setupPractice(response.fullScore);
+    this.playScoreId = this.practiceScoreId;
+    this.setupPlay(response.fullScore);
 
     await this.refreshRecent();
   }

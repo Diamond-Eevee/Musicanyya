@@ -358,31 +358,31 @@ Metronome use the reduced tempo, only measures 5-8 are graded, and only right-ha
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T060 [P] [US3] `tests/core/play/range.test.ts`: a written measure range resolves to passes with 002's
+- [x] T060 [P] [US3] `tests/core/play/range.test.ts`: a written measure range resolves to passes with 002's
   `loopRangeToPassIndices`, the run starts and ends there, and the Grade covers exactly those notes (FR-036,
-  AS-3.1)
-- [ ] T061 [P] [US3] `tests/core/grade/tempo-percent.test.ts`: at 70% and at 140% the Metronome, the
+  AS-3.1) (claimed: antigravity-3.1-pro 2026-09-21)
+- [x] T061 [P] [US3] `tests/core/grade/tempo-percent.test.ts`: at 70% and at 140% the Metronome, the
   accompaniment and every window use the tempo actually played, and a performance deviating by a constant
-  fraction of a beat gets identical results at 60 and 160 bpm (FR-037, SC-014 first clause)
-- [ ] T062 [P] [US3] `tests/core/grade/hands.test.ts`: with one hand selected only its notes are expected, and
+  fraction of a beat gets identical results at 60 and 160 bpm (FR-037, SC-014 first clause) (claimed: antigravity-3.1-pro 2026-09-21)
+- [x] T062 [P] [US3] `tests/core/grade/hands.test.ts`: with one hand selected only its notes are expected, and
   keys played for the other hand or another part are played-along, never wrong or extra - the hand-selection view
-  of the played-along path T092/T093 built for US1 (FR-024, FR-038, AS-3.3)
-- [ ] T063 [P] [US3] `tests/engine/storage/play-settings.test.ts`: run settings round-trip per Score through
+  of the played-along path T092/T093 built for US1 (FR-024, FR-038, AS-3.3) (claimed: antigravity-3.1-pro 2026-09-21)
+- [x] T063 [P] [US3] `tests/engine/storage/play-settings.test.ts`: run settings round-trip per Score through
   `musicanyya.play.v1`, fall back to the last-used settings then to the defaults, and evict beyond
   `PLAY_SETTINGS_MAX` (FR-040)
-- [ ] T064 [P] [US3] `tests/core/play/metronome-mute.test.ts`: muting changes only the click - the schedule, the
+- [x] T064 [P] [US3] `tests/core/play/metronome-mute.test.ts`: muting changes only the click - the schedule, the
   tick map and the Grade are identical with and without it (AS-3.6)
 
 ### Implementation
 
-- [ ] T065 [US3] Range, tempo percentage and hand selection plumbed through `compilePlaySchedule` and
+- [x] T065 [US3] Range, tempo percentage and hand selection plumbed through `compilePlaySchedule` and
   `buildExpectedNotes` in `src/app/play-session.ts`
-- [ ] T066 [US3] `src/ui/elements/mx-play-panel.ts`: range, tempo percentage, part and hand selection (the same
+- [x] T066 [US3] `src/ui/elements/mx-play-panel.ts`: range, tempo percentage, part and hand selection (the same
   presets and preselection as Practice), strictness, count-in length, Metronome mute and accompaniment switches
   (FR-036 to FR-039)
-- [ ] T067 [US3] Metronome mute through `AudioEngine.setChannelVolume` in `src/app/play-session.ts` - never by
+- [x] T067 [US3] Metronome mute through `AudioEngine.setChannelVolume` in `src/app/play-session.ts` - never by
   recompiling the schedule (research R-02)
-- [ ] T068 [US3] `SettingsStore.loadPlay` / `savePlay` in `src/engine/ports.ts` and
+- [x] T068 [US3] `SettingsStore.loadPlay` / `savePlay` in `src/engine/ports.ts` and
   `src/engine/storage/local-settings-store.ts`, with the `musicanyya.play.v1` key and the per-Score cap
 - [ ] T069 [US3] `tests/e2e/us3-play-setup.spec.ts`: a range at a reduced tempo with one hand, settings surviving
   a reload

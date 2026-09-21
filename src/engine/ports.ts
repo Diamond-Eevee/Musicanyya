@@ -1,4 +1,5 @@
 import type { LatencyProfile } from '../core/grade/types.js';
+import type { RunSettings } from '../core/play/types.js';
 import type { HandSelection } from '../core/practice/types.js';
 import type { ScheduleMessage } from '../core/schedule/compile.js';
 import type { ClockPair } from './midi/clock-map.js';
@@ -174,6 +175,11 @@ export interface SettingsStore {
   loadPractice(scoreId: string | null): PracticeSettings;
   /** Stores the settings for that Score id and updates the last-used defaults. No-op for a null id. */
   savePractice(scoreId: string | null, settings: PracticeSettings): void;
+
+  /** Play settings for a Score id, falling back to the musician's last-used defaults, then to the built-in ones. */
+  loadPlay(scoreId: string | null): RunSettings;
+  /** Stores the settings for that Score id and updates the last-used defaults. No-op for a null id. */
+  savePlay(scoreId: string | null, settings: RunSettings): void;
 
   loadLatencyProfile(): LatencyProfile;
   saveLatencyProfile(profile: LatencyProfile): void;

@@ -1,6 +1,6 @@
 import type { Grade, NoteResult } from '../../core/grade/types.js';
 import { reasonText } from '../format/reason-text.js';
-import { en } from '../i18n/en.js';
+import { en, ordinal } from '../i18n/en.js';
 import { playState } from '../state/playState.js';
 import { practiceState } from '../state/practiceState.js';
 import { mistakeStepper } from '../state/mistake-stepper.js';

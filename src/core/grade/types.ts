@@ -143,6 +143,9 @@ export interface Grade {
   reliability: readonly ReliabilityWarning[];
   settings: RunSettings;
   latency: LatencyProfile;
+  /** The expected notes that were graded, in the order `results` references them by `expectedIndex`. Used by
+   *  the mistake stepper (FR-031) to sort results by onset tick and by the grade panel to explain them (FR-030). */
+  expected: readonly ExpectedNote[];
 }
 
 // FR-028, two figures plus plain counts

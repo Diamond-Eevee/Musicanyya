@@ -188,5 +188,6 @@ export function gradePerformance(input: GradeInput): Grade {
     reliability: reliabilityWarnings,
     settings,
     latency,
+    expected,
   };
 }
