@@ -68,6 +68,7 @@ import { en } from '../ui/i18n/en.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
 import { initShortcuts } from '../ui/shortcuts.js';
 import { midiState } from '../ui/state/midiState.js';
+import { mistakeStepper } from '../ui/state/mistake-stepper.js';
 import { noticeState } from '../ui/state/noticeState.js';
 import { playState } from '../ui/state/playState.js';
 import type { HelpOverlay } from '../ui/state/practiceState.js';
@@ -662,6 +663,7 @@ export class Session {
     }
 
     playState.clear();
+    mistakeStepper.setGrade(null);
     this.playController.start({
       scoreId: this.playScoreId,
       score: this.currentScore,
@@ -682,6 +684,7 @@ export class Session {
     const phase = this.playController.getRun()?.phase;
     if (phase === 'countIn' || phase === 'running') this.playController.stop();
     playState.clear();
+    mistakeStepper.setGrade(null);
     this.scoreView?.setPlaySession(null);
   }
 
@@ -726,6 +729,7 @@ export class Session {
 
   private onPlayGraded(grade: Grade): void {
     playState.setGrade(grade);
+    mistakeStepper.setGrade(grade);
   }
 
   private onPlayGradeFailed(reason: 'timeout' | 'error', _message?: string): void {
@@ -772,6 +776,7 @@ export class Session {
   /** Loads stored play settings for the Score and sets up the PlaySetup state (T065/T066/T068). */
   private setupPlay(score: Score): void {
     playState.clear();
+    mistakeStepper.setGrade(null);
     const { parts, preselected } = partOptions(score);
     const storedSettings = this.settingsStore.loadPlay(this.playScoreId);
     // Validate the stored selection still fits the Score.
@@ -877,8 +882,10 @@ export class Session {
     };
 
     const result = await requestGrade(this.gradeWorker, input, this.nextRegradeRequestId--, GRADE_WORKER_TIMEOUT_MS);
-    if (result.ok) playState.setGrade(result.grade);
-    else
+    if (result.ok) {
+      playState.setGrade(result.grade);
+      mistakeStepper.setGrade(result.grade);
+    } else
       noticeState.addNotice({
         code: result.reason === 'timeout' ? 'playGradeTimeout' : 'playGradeError',
         severity: 'warning',
@@ -907,8 +914,10 @@ export class Session {
       this.nextRegradeRequestId--,
       GRADE_WORKER_TIMEOUT_MS,
     );
-    if (graded.ok) playState.setGrade(graded.grade);
-    else
+    if (graded.ok) {
+      playState.setGrade(graded.grade);
+      mistakeStepper.setGrade(graded.grade);
+    } else
       noticeState.addNotice({
         code: graded.reason === 'timeout' ? 'playGradeTimeout' : 'playGradeError',
         severity: 'warning',
