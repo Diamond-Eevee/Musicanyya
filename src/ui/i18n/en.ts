@@ -98,6 +98,8 @@ export const en = {
     playMidiBack: 'The MIDI keyboard was reconnected.',
     playAudioLost: 'The run was stopped because the audio device was lost.',
     playLatencyAssumed: 'This Grade used an assumed Latency profile, not a measured one.',
+    playGradeTimeout: 'Grading took too long and was cancelled. Nothing was lost - try Play again.',
+    playGradeError: 'Something went wrong while grading this run.',
   } as Record<string, string>,
   practice: {
     panel: {

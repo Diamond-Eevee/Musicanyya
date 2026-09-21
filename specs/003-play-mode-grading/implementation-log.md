@@ -575,3 +575,62 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
   selection - the largest remaining piece of US1), then T046 (e2e, blocked on T107) and the US1 Checkpoint (full
   gate, `quickstart.md`'s manual verification is Polish-phase T082, not required for the Checkpoint itself). Tree
   clean at the commit below, not pushed.
+
+## 2026-09-21 - claude-sonnet-5 (relay)
+
+- Done: T107 - 63/108 tasks now done. Full gate (`pnpm typecheck`, `pnpm vitest run`: 680 tests) green; `pnpm lint`
+  unchanged (same one pre-existing verovio-worker error). No RT review: `session.ts`/`mx-score-view.ts` are app/ui
+  layer, same reasoning T039/T044 already recorded - the new rAF work (`reportPosition`) runs on the main thread
+  via `requestAnimationFrame`, not the audio thread.
+- **`Session` gets a `PlaySessionController` field, built once** alongside a real `Worker`-backed `GradeWorkerLike`
+  (`new Worker(new URL('../workers/grade.worker.ts', ...))`, same pattern as `scoreWorker`/`verovioWorker`).
+  `startPlay()` mirrors `startPractice()` exactly: `partOptions`/`handOptions` pick the preselected pitched part,
+  `buildExpectedNotes(...).length === 0` (not a lighter percussion-only check) is the authoritative
+  `playNothingToGrade` gate per T107's own task text, and a default `RunSettings` (whole Score,
+  `PLAY_STRICTNESS_DEFAULT` = `'beginner'`, `PLAY_COUNT_IN_MEASURES`) stands in until US3 (T065/T066) gives the
+  musician a panel. `handlePlay()`, the transport's `stop` callback and the mode-change subscription
+  (`leavePlay()`, symmetric to `leavePractice()`) all branch on `practiceState.get().mode === 'play'`.
+  `mx-grade-panel` (T042, never appended anywhere until now) is created and prepended to `#side-panel`.
+- **Double-sounding bug avoided, not just fixed**: `Session`'s own `midiInput.on(...)` handler already calls
+  `audioEngine.liveNoteOn/liveNoteOff/liveSustain` unconditionally for FR-006's "own notes sound through the
+  app's instrument" - but `PlaySessionController.applyEffects` does the exact same thing itself via the reducer's
+  `soundInput` effect once a run is live. Traced this before writing any Play code (not found by testing) and
+  gated all three calls on `mode !== 'play'`; `deviceLost`'s `liveAllOff()` stays unconditional since it is a
+  safety action, not a per-message duplicate.
+- **`mx-score-view.ts` keeps one rAF loop, not two**: T039's own doc comment already said `reportPosition` should
+  be driven "exactly like `mx-score-view` drives the cursor" - added a `PlayPositionReporter` structural interface
+  (`{ reportPosition(nowMs): void }`) defined locally in `mx-score-view.ts` rather than importing
+  `PlaySessionController` from `src/app/` (Constitution V layering: `ui` must not depend on `app`); `setPlaySession()`
+  stores it, `tick()` calls it every frame before `updateCursor()`. `updateCursor()` gained a `mode === 'play'`
+  branch (`drawPlayState`, `playDrawn` flag) mirroring the existing Practice branch exactly, including clearing the
+  canvas on the way out. `drawPlayState` draws `grade.results` through `drawGradeMarks` once a Grade exists,
+  otherwise `playState.liveMarkedNoteIds` through `drawLiveMarks` - never both (matches FR-011a, `setGrade` already
+  clears `liveMarkedNoteIds`). **Extras are not drawn on the Score yet** (no lane-rect geometry exists for a note
+  that was never written) - still counted correctly in `mx-grade-panel`, just invisible on the canvas; logged as a
+  known gap rather than a new task, since nothing in tasks.md through the Checkpoint needs it drawn.
+- **Note selection**: `onClick` now checks, in Play mode only, whether the clicked element's id is one of
+  `grade.results`' own `noteIds` (`isGradedNoteId`) before falling through to the existing `.measure` handling -
+  authoritative against the actual Grade rather than guessing at a CSS class. A measure click during a Play run is
+  now a deliberate no-op (`FR-002`: the clock never waits, and seeking would desync the controller's own tracked
+  position from the audio engine it shares with the Listen transport).
+- **Found and fixed by manual browser testing, not by any unit test**: loaded `eight-measure-melody.musicxml` in
+  the real dev server (`pnpm dev` via `preview_start`), switched to Play, pressed Play, and watched a full
+  count-in -> running -> graded run happen live, `mx-grade-panel` rendering the real two figures and six counts,
+  and clicking a missed notehead correctly showing "C4 written, nothing played here." in both the panel and (via
+  `drawGradeMarks`) the Score's own overlay - zero console errors the whole way. Then switched back to Listen and
+  found the Grade panel and marks were still showing: `leavePlay()`'s first draft (written from the FR-035 text
+  without re-reading it closely enough) only stopped an in-progress run and reasoned "`playState.clear()` at the
+  next `startPlay()` is what actually discards it" - true for the *next run* half of FR-035, false for the *mode
+  changes* half, which is the case that was actually on screen. Added the missing `playState.clear()` call to
+  `leavePlay()`, confirmed live that switching to Listen now clears the panel and the canvas layer immediately,
+  and confirmed MIDI input during a run (`e2e-midi` window event, the same seam `tests/e2e/*.spec.ts` uses) is
+  recorded and reflected in the Grade without any console error - this is exactly the class of bug the unit test
+  suite (fakes on both sides) could not have caught, since every existing test constructs a fresh `PlayState`, and
+  it would only have shown up once T046's e2e test happened to switch modes after a Grade, which had not been
+  written yet.
+- Handoff: next = T046 (`tests/e2e/us1-play.spec.ts`), the last task before the US1 Checkpoint. Read
+  `tests/e2e/us1-open-view.spec.ts` and the `e2e-ready`/`e2e-midi` window seams (`src/app/session.ts`'s
+  constructor) for the pattern - this session's manual verification above already exercised every scenario T046
+  needs to automate (count-in, a MIDI-driven run, a Grade with marks and a clickable reason, mode-change clearing)
+  and found the one bug in doing so, so T046 should mostly be a matter of writing it down as Playwright, not
+  further discovery. Tree clean at the commit below, not pushed.

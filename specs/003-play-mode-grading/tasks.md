@@ -260,7 +260,7 @@ reason.
   same-pitch test against the notes at the cursor marking **correct only**, display only, replaced by the Grade
   (FR-011, FR-011a; `liveMark` carries no `pitch` since play-run 1.1.0). D-3 is decided: the marker never
   establishes a wrong pitch, and SC-015 measures the agreement rate over the reference fixtures
-- [ ] T107 [US1] Wire `PlaySessionController` (T039) into `src/app/session.ts` for real: construct it once alongside
+- [x] T107 [US1] Wire `PlaySessionController` (T039) into `src/app/session.ts` for real: construct it once alongside
   the existing `audioEngine`/`midiInput`/a real `GradeWorkerLike`; branch `handlePlay`/`pause`/`stop` and the
   `measureclick` handler for `mode === 'play'` the same way they already branch for `'practice'`; drive
   `reportPosition(nowMs)` from the same rAF loop that already ticks the cursor in `mx-score-view` (T039's own

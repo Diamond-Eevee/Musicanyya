@@ -13,6 +13,7 @@ import { IndexedDbScoreStore } from '../engine/storage/indexeddb-score-store.js'
 import { LocalSettingsStore } from '../engine/storage/local-settings-store.js';
 import '../ui/elements/mx-diagnostics.js';
 import '../ui/elements/mx-drop-zone.js';
+import '../ui/elements/mx-grade-panel.js';
 import '../ui/elements/mx-help-notation.js';
 import '../ui/elements/mx-open-button.js';
 import '../ui/elements/mx-recent-list.js';
@@ -23,6 +24,10 @@ import '../ui/elements/mx-mode-switch.js';
 import '../ui/elements/mx-piano-keys.js';
 import '../ui/elements/mx-practice-help.js';
 import '../ui/elements/mx-practice-panel.js';
+import { PLAY_COUNT_IN_MEASURES, PLAY_STRICTNESS_DEFAULT } from '../core/defaults.js';
+import { buildExpectedNotes } from '../core/grade/expected.js';
+import type { Grade } from '../core/grade/types.js';
+import type { PlayEffect, RunSettings } from '../core/play/types.js';
 import { buildExpectedEvents, firstEventAtOrAfterTick, resolveStartMeasure } from '../core/practice/expected.js';
 import { handOptions, partOptions } from '../core/practice/hands.js';
 import { loopRangeToPassIndices, passIndicesToLoopRange, resolveLoop } from '../core/practice/loop.js';
@@ -48,12 +53,14 @@ import { createVerovioClient } from '../ui/score/verovio-client.js';
 import { initShortcuts } from '../ui/shortcuts.js';
 import { midiState } from '../ui/state/midiState.js';
 import { noticeState } from '../ui/state/noticeState.js';
+import { playState } from '../ui/state/playState.js';
 import type { HelpOverlay } from '../ui/state/practiceState.js';
 import { practiceState } from '../ui/state/practiceState.js';
 import type { LoadError, ScoreSummary } from '../ui/state/scoreState.js';
 import { scoreState } from '../ui/state/scoreState.js';
 import { transportState } from '../ui/state/transportState.js';
 import { viewState } from '../ui/state/viewState.js';
+import { PlaySessionController } from './play-session.js';
 
 interface ScoreWorkerLoaded {
   type: 'loaded';
@@ -122,6 +129,17 @@ export class Session {
   private practiceSettings: PracticeSettings = { selection: null, loop: null, accompaniment: true, help: true };
   private endingPracticeNaturally = false;
 
+  // Play mode (003, T107): the only place engine, worker, store and run meet (R-01) - built once, alongside the
+  // ports it needs, which are already fields above.
+  private readonly gradeWorker = new Worker(new URL('../workers/grade.worker.ts', import.meta.url), {
+    type: 'module',
+  });
+  private readonly playController = new PlaySessionController(this.audioEngine, this.midiInput, this.gradeWorker, {
+    onEffect: (effect) => this.onPlayEffect(effect),
+    onGraded: (grade) => this.onPlayGraded(grade),
+    onGradeFailed: (reason, message) => this.onPlayGradeFailed(reason, message),
+  });
+
   constructor(
     scoreStore: ScoreStore = new IndexedDbScoreStore(),
     settingsStore: SettingsStore = new LocalSettingsStore((code) =>
@@ -173,6 +191,10 @@ export class Session {
         this.onPracticeMeasureClick(measureIndex);
         return;
       }
+      // FR-002: the Play clock never waits for input, and seeking would desync PlaySessionController's own
+      // tracked position from the audio engine it shares with the Listen transport - so a measure click is a
+      // no-op mid-run, same treatment Practice mode already gets above.
+      if (practiceState.get().mode === 'play') return;
       const firstPass = this.currentTimeline?.passes.find((p) => p.measureIndex === measureIndex);
       if (firstPass) transportState.seekMeasure(firstPass.startTick);
     });
@@ -198,6 +220,10 @@ export class Session {
       play: () => void this.handlePlay(),
       pause: () => this.audioEngine.pause(),
       stop: () => {
+        if (practiceState.get().mode === 'play') {
+          this.playController.stop(); // stops the audio engine itself (FR-008): a partial Grade, not a second stop
+          return;
+        }
         this.audioEngine.stop();
         this.onTransportStopped();
       },
@@ -217,8 +243,10 @@ export class Session {
     let lastMode = practiceState.get().mode;
     practiceState.subscribe((state) => {
       if (state.mode === lastMode) return;
+      const previousMode = lastMode;
       lastMode = state.mode;
       if (state.mode === 'listen') this.leavePractice();
+      if (previousMode === 'play' && state.mode !== 'play') this.leavePlay();
     });
     initShortcuts();
 
@@ -271,6 +299,9 @@ export class Session {
     });
     document.getElementById('side-panel')?.prepend(practicePanel);
 
+    const gradePanel = document.createElement('mx-grade-panel');
+    document.getElementById('side-panel')?.prepend(gradePanel);
+
     const pianoKeys = document.createElement('mx-piano-keys');
     // Place piano keys at the bottom of the score area
     document.getElementById('score-area')?.appendChild(pianoKeys);
@@ -299,17 +330,19 @@ export class Session {
         noticeState.addNotice({ code: 'midiDeviceLost', severity: 'warning' });
       } else if (e.type === 'noteOn') {
         // The musician's own sound goes first: the re-renders that state changes trigger must never delay it.
-        this.audioEngine.liveNoteOn(e.key, e.velocity);
+        // In Play mode PlaySessionController's own `soundInput` effect already sounds it (FR-006) - sounding it
+        // here too would trigger the same key twice.
+        if (practiceState.get().mode !== 'play') this.audioEngine.liveNoteOn(e.key, e.velocity);
         midiState.pressedKeys.add(e.key);
         midiState.emit();
         this.applyPracticeInput({ type: 'noteOn', key: e.key, velocity: e.velocity, timeStampMs: e.timeStampMs });
       } else if (e.type === 'noteOff') {
-        this.audioEngine.liveNoteOff(e.key);
+        if (practiceState.get().mode !== 'play') this.audioEngine.liveNoteOff(e.key);
         midiState.pressedKeys.delete(e.key);
         midiState.emit();
         this.applyPracticeInput({ type: 'noteOff', key: e.key, timeStampMs: e.timeStampMs });
       } else if (e.type === 'sustain') {
-        this.audioEngine.liveSustain(e.down);
+        if (practiceState.get().mode !== 'play') this.audioEngine.liveSustain(e.down);
         midiState.sustainDown = e.down;
         midiState.emit();
         this.applyPracticeInput({ type: 'sustain', down: e.down, timeStampMs: e.timeStampMs });
@@ -370,6 +403,11 @@ export class Session {
 
     if (practiceState.get().mode === 'practice') {
       this.startPractice();
+      return;
+    }
+
+    if (practiceState.get().mode === 'play') {
+      this.startPlay();
       return;
     }
 
@@ -506,6 +544,74 @@ export class Session {
     practiceState.setStartMeasure(null);
     practiceState.clearAllKeyFeedback();
     practiceState.clearHelpOverlay();
+  }
+
+  /** T107: compiles a default run - the whole Score, the preselected pitched part, the most forgiving strictness
+   *  (FR-039) - and starts it. US3 (T065/T066) is what lets the musician change any of this; until then this is
+   *  every Play run's settings. Mirrors `startPractice`'s own `practiceNothingToPlay` check (FR-045 edge case). */
+  private startPlay(): void {
+    if (!this.currentScore || !this.currentPlaybackTimeline) return;
+    const phase = this.playController.getRun()?.phase;
+    if (phase === 'countIn' || phase === 'running') return; // already running: the clock never waits (FR-002)
+
+    const { preselected } = partOptions(this.currentScore);
+    const selection = preselected !== -1 ? handOptions(this.currentScore, preselected)[0] : undefined;
+    const expected = selection
+      ? buildExpectedNotes(this.currentScore, this.currentPlaybackTimeline, selection, null)
+      : [];
+    if (!selection || expected.length === 0) {
+      noticeState.addNotice({ code: 'playNothingToGrade', severity: 'warning' });
+      transportState.stop(); // onTransportStopped's own mode gate (practice-only) leaves this alone
+      return;
+    }
+
+    const settings: RunSettings = {
+      range: null,
+      tempoPercent: transportState.get().tempoPercent,
+      selection,
+      strictness: PLAY_STRICTNESS_DEFAULT,
+      countInMeasures: PLAY_COUNT_IN_MEASURES,
+      metronomeMuted: false,
+      accompaniment: true,
+    };
+
+    playState.clear();
+    this.playController.start({
+      scoreId: this.practiceScoreId,
+      score: this.currentScore,
+      timeline: this.currentPlaybackTimeline,
+      measures: this.currentScore.measures,
+      range: null,
+      settings,
+    });
+    playState.setRun(this.playController.getRun());
+    this.scoreView?.setPlaySession(this.playController);
+  }
+
+  /** Switching away from Play stops a run still in progress and clears its marks (FR-035: "cleared when a new run
+   *  starts OR the mode changes" - found by manual testing that this file's own earlier draft only handled the
+   *  first half and left a finished Grade on screen after switching to Listen). */
+  private leavePlay(): void {
+    const phase = this.playController.getRun()?.phase;
+    if (phase === 'countIn' || phase === 'running') this.playController.stop();
+    playState.clear();
+    this.scoreView?.setPlaySession(null);
+  }
+
+  private onPlayEffect(effect: PlayEffect): void {
+    if (effect.type === 'liveMark') {
+      playState.addLiveMark(effect.noteIds);
+    } else if (effect.type === 'notice') {
+      noticeState.addNotice({ code: effect.code, severity: 'warning' });
+    }
+  }
+
+  private onPlayGraded(grade: Grade): void {
+    playState.setGrade(grade);
+  }
+
+  private onPlayGradeFailed(reason: 'timeout' | 'error', _message?: string): void {
+    noticeState.addNotice({ code: reason === 'timeout' ? 'playGradeTimeout' : 'playGradeError', severity: 'warning' });
   }
 
   /** Picks the part and hands offered for a Score, and the choices remembered for it (R-07). */
