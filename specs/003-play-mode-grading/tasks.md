@@ -445,7 +445,7 @@ replay the first one and confirm the notes heard are the ones that were played, 
 
 ## Phase 7: Polish & Cross-Cutting
 
-- [ ] T078 [P] `tests/core/grade/perf.test.ts`: a 500-measure run grades within the SC-006 budget, and the
+- [x] T078 [P] `tests/core/grade/perf.test.ts`: a 500-measure run grades within the SC-006 budget, and the
   controller never blocks the main thread for more than 50 ms while it does (grading must go through the worker)
 - [ ] T079 [P] `tests/e2e/us2-grade.spec.ts`: the same acceptance scenarios pass in the browser and in the
   Electron project from one build (FR-047, SC-012)
