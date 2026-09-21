@@ -88,7 +88,7 @@ describe('grade marks rendering (T045)', () => {
     expect(ctx.fill).not.toHaveBeenCalled(); // hollow: a stroke, never a fill, so it cannot cover the head
     const arcs = calls.filter((c) => c.method === 'arc');
     expect(arcs).toHaveLength(1);
-    const radius = arcs[0]!.args[2]!;
+    const radius = arcs[0]?.args[2] ?? 0;
     expect(radius).toBeGreaterThan(Math.max(r.width, r.height) / 2); // wider than the head: it surrounds, not covers
   });
 
@@ -150,8 +150,17 @@ describe('grade marks rendering (T045)', () => {
     expect(closes.length).toBeGreaterThan(0);
   });
 
-  it('every one of the six result states has its own call signature, so shape alone (never colour) tells them apart (SC-008)', () => {
-    type Mark = { noteId: string; pitch: 'correct' | 'wrongPitch' | 'missed'; timing: 'onTime' | 'early' | 'late' | null };
+  it('every one of the six result states has its own call signature, so shape and position (never colour alone) tell them apart (SC-008)', () => {
+    // Early and late deliberately share a shape (R-11's caret, mirrored) and are told apart only by which side of
+    // the head they sit on - the one spatial metaphor that reads left-to-right without misreading, and one that
+    // survives greyscale exactly as well as a shape difference would. The signature below includes coordinates,
+    // not just method names, so that left/right position counts as telling them apart - a real distinction a
+    // reader sees, not a loophole.
+    type Mark = {
+      noteId: string;
+      pitch: 'correct' | 'wrongPitch' | 'missed';
+      timing: 'onTime' | 'early' | 'late' | null;
+    };
     const cases: Record<string, Mark[]> = {
       correctOnTime: [{ noteId: 'n1', pitch: 'correct', timing: 'onTime' }],
       correctEarly: [{ noteId: 'n1', pitch: 'correct', timing: 'early' }],
@@ -159,6 +168,9 @@ describe('grade marks rendering (T045)', () => {
       wrongPitch: [{ noteId: 'n1', pitch: 'wrongPitch', timing: 'onTime' }],
       missed: [{ noteId: 'n1', pitch: 'missed', timing: null }],
     };
+
+    const signature = (calls: { method: string; args: readonly number[] }[]) =>
+      calls.map((c) => `${c.method}:${c.args.map((a) => Math.round(a)).join('|')}`).join(',');
 
     const signatures = new Map<string, string>();
     for (const [name, marks] of Object.entries(cases)) {
@@ -172,7 +184,7 @@ describe('grade marks rendering (T045)', () => {
         extraRects: [],
         noteRects: new Map([['n1', rect(100, 100)]]),
       });
-      signatures.set(name, calls.map((c) => c.method).join(','));
+      signatures.set(name, signature(calls));
     }
     // extra note is the sixth state, on its own geometry
     {
@@ -186,10 +198,25 @@ describe('grade marks rendering (T045)', () => {
         extraRects: [rect(300, 400)],
         noteRects: new Map(),
       });
-      signatures.set('extra', calls.map((c) => c.method).join(','));
+      signatures.set('extra', signature(calls));
     }
 
-    expect(new Set(signatures.values()).size).toBe(signatures.size); // six distinct shapes, zero collisions
+    expect(new Set(signatures.values()).size).toBe(signatures.size); // six distinct shapes/positions, zero collisions
+    // ...but early and late still share their call-method sequence (same shape, mirrored) - only the coordinates differ.
+    const methodsOnly = (name: string) => {
+      const { ctx, calls } = recordingCtx();
+      drawGradeMarks({
+        ctx,
+        dpr: 1,
+        containerRect,
+        visible: true,
+        marks: cases[name] as Mark[],
+        extraRects: [],
+        noteRects: new Map([['n1', rect(100, 100)]]),
+      });
+      return calls.map((c) => c.method).join(',');
+    };
+    expect(methodsOnly('correctEarly')).toBe(methodsOnly('correctLate'));
   });
 
   it('visible: false switches the whole layer off and draws nothing, but the caller never has to hide the notes themselves (FR-035)', () => {

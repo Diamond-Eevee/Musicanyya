@@ -188,7 +188,7 @@ reason.
 - [x] T097 [P] [US1] `tests/engine/play-session.test.ts`: the controller against the fakes - every MIDI message is
   recorded through the clock map with both times, grading goes **through the worker** and never inline, the run
   reducer is driven by position reports only, and a finished run produces exactly one Grade (FR-012, FR-026)
-- [~] T045 [P] [US1] `tests/ui/grade-marks.test.ts`: every result state is distinguishable by shape in greyscale (claimed: claude-sonnet-5 2026-09-21)
+- [x] T045 [P] [US1] `tests/ui/grade-marks.test.ts`: every result state is distinguishable by shape in greyscale
   and survives a colour-blind-safe check; the layer switches off and clears on a new run or mode change (SC-008,
   FR-035). *(Out of numeric order on purpose: it is a test and belongs before T041-T044, Constitution IV.)*
 
@@ -249,7 +249,7 @@ reason.
 - [x] T040 [US1] `src/ui/elements/mx-mode-switch.ts`: add Play, with the unavailable reason where Web MIDI is
   missing (FR-001, FR-045) and the `playNothingToGrade` notice for a Score with nothing gradable (spec edge
   case), and `src/ui/state/playState.ts` for run and Grade state
-- [ ] T041 [US1] `src/ui/score/grade-marks.ts` and the mark shapes in `src/ui/styles/score.css`: pitch as
+- [x] T041 [US1] `src/ui/score/grade-marks.ts` and the mark shapes in `src/ui/styles/score.css`: pitch as
   colour + shape, timing as a left/right caret, extras in a lane below the staff; the layer never covers a
   notehead and switches off (research R-11, FR-029, FR-035)
 - [ ] T042 [US1] `src/ui/elements/mx-grade-panel.ts`: the two figures with counts out of totals, the six counts,

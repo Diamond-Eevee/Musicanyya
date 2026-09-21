@@ -17,6 +17,14 @@
   --highlight-note-color: var(--color-sky-blue);
   --highlight-cursor-color: var(--color-orange);
 
+  /* Grade result marks (T041, R-11): shape/position carries every distinction; colour is decoration only, never
+     the sole differentiator (SC-008). Drawn on `.mx-score-cursor`'s own canvas - see grade-marks.ts. */
+  --grade-wrong-pitch-color: var(--color-vermilion);
+  --grade-missed-color: var(--color-reddish-purple);
+  --grade-early-color: var(--color-blue);
+  --grade-late-color: var(--color-orange);
+  --grade-extra-color: var(--color-yellow);
+
   --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 

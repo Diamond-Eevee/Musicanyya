@@ -453,3 +453,53 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
   T097's fakes so far. T041-T044, T046 continue the US1 implementation block after that; T045
   (`tests/ui/grade-marks.test.ts`) is still open and independent `[P]`, can be written any time before the
   Checkpoint. Tree clean at the commit below, not pushed.
+
+## 2026-09-21 - claude-sonnet-5 (relay)
+
+- Done: T040, T045, T041 - 59/107 tasks now done (T107 added below). Full gate (`pnpm typecheck`, `pnpm vitest
+  run`: 670 tests) green throughout; `pnpm lint` has one pre-existing error (verovio worker, string concat) and
+  220 pre-existing warnings unrelated to this session's files, confirmed by stashing and re-running before
+  touching anything.
+- **T045 written and confirmed to fail first the honest way**: `tests/ui/grade-marks.test.ts` imports
+  `drawGradeMarks` from a module that did not exist yet (`Cannot find module`), then T041 made it pass.
+- **T040 scope, decided narrower than the previous hand-off's guess**: the hand-off above suggested T040 also
+  wires `PlaySessionController` into `session.ts` for real. `tasks.md`'s own T040 line names only
+  `mx-mode-switch.ts` and `playState.ts` - same precedent as the 2026-09-21 T097/T039 entry ("the log's suggestion
+  was looser than the file's own recorded dependency, and the dependency wins"). Implemented exactly that: `AppMode`
+  in `practiceState.ts` gained `'play'`; `mx-mode-switch.ts` adds a Play radio gated by Web MIDI availability only
+  (FR-045, same treatment as Practice's own radio - score content never disables a mode radio in this codebase);
+  switching to Play with a score that has no pitched part (`ScoreSummary.parts.every(p => p.percussion)`) raises
+  `playNothingToGrade` via `noticeState` rather than blocking the switch (the spec's edge case says the app
+  "reports" nothing to grade, and `startPractice`'s identical `practiceNothingToPlay` case only reports too,
+  on starting a session, never disables the Practice radio for an empty score); added its English wording to
+  `en.ts` (one line, not the rest of T043's table) since `mx-notice-tray` otherwise shows the raw code.
+  `playState.ts` is new, mirroring `practiceState.ts`'s store shape (`get`/`subscribe`/mutators/`__PLAY_STATE__`
+  e2e seam) with `run: PlayRun | null` and `grade: Grade | null`, plus a `clear()` for FR-035 that nothing calls
+  yet (T107 will).
+- **Found missing while implementing T040 - new task T107**: no task from T040 to T046 names `src/app/session.ts`,
+  but T046's e2e test ("starting a run from an open Score") and the US1 Checkpoint both need a working "switch to
+  Play, press Play, get a Grade" path, which only wiring `PlaySessionController` into `session.ts` provides. Logged
+  as T107 (`tasks.md`, before T046) rather than folded into T040, per AGENTS.md section 4 ("missing work becomes a
+  new task") - it is a distinct, multi-file piece of work (constructing the controller and a real
+  `GradeWorkerLike`, branching `handlePlay`/`pause`/`stop`/`measureclick` for `'play'`, an rAF loop, a default
+  `RunSettings` before US3's panel exists, the `playNothingToGrade` check on actually starting a run). Not started
+  this session.
+- **T041 design decision - canvas, not DOM classes**: `plan.md`'s repo map calls `grade-marks.ts` "`NoteResult` ->
+  mark classes", which read as CSS classList manipulation (`highlight.ts`'s pattern). Rejected: Verovio's rendered
+  SVG note groups have no `getBBox()` support in the jsdom test environment, and `practice-marks.ts` already
+  solved exactly this problem (a shape overlay on Score notes) with a canvas function taking caller-resolved
+  `DOMRect`s - proven, already wired into `mx-score-view`'s render loop, and trivially testable with a recording
+  `ctx` fake. `drawGradeMarks` follows that precedent instead: `wrongPitch` draws a cross strictly above the
+  notehead, `missed` a hollow ring strictly outside it, `early`/`late` a caret strictly to the note's left/right
+  (the one shape, mirrored - told apart by position, not a different primitive sequence, exactly R-11's own
+  point), and an extra note a diamond at a caller-supplied lane rect. `visible: false` draws nothing at all
+  (FR-035's "switchable off"). Colours are the Okabe-Ito palette, added as `--grade-*` tokens in `tokens.css` (not
+  `score.css`, despite the task line naming that file - `tokens.css` is this codebase's one `:root` owner, and
+  score.css gained a comment cross-referencing them plus documenting that the Grade layer shares `mx-score-cursor`'s
+  canvas with the cursor and practice marks) and hardcoded as matching hex literals in `grade-marks.ts` itself
+  (same treatment `practice-marks.ts` and `mx-piano-keys.ts` already give the same palette, for a pure,
+  easily-tested draw function with no DOM/`getComputedStyle` dependency).
+- Handoff: next = T042 (`mx-grade-panel.ts`), T043 (`en.ts` reason wording), T044 (live pitch marking in
+  `play-session.ts`/`grade-marks.ts`), T046 (e2e test) - and **T107 must land before T046 can pass**, since T046
+  drives a real run through the UI. `grade-marks.ts` is ready for T042/T044 to consume (`GradeMarksOptions`,
+  `GradeMark`). Tree clean at the commit below, not pushed.
