@@ -451,7 +451,7 @@ replay the first one and confirm the notes heard are the ones that were played, 
   Electron project from one build (FR-047, SC-012)
 - [ ] T080 [P] MIDI hot-plug during a run: unplug and replug within one run, recording resumes within 3 seconds,
   the run never stops and the gap is on the Grade (SC-013) - `tests/core/play/device-loss.test.ts`
-- [ ] T099 [P] `tests/ui/play-notices.test.ts`: no notice raised during a run is modal - none traps focus, blocks
+- [x] T099 [P] `tests/ui/play-notices.test.ts`: no notice raised during a run is modal - none traps focus, blocks
   the Score or stops the clock (FR-009) - and neither the on-screen keyboard nor the computer keyboard ever
   produces a recorded or graded message in Play mode (FR-010)
 - [x] T100 [P] `tests/architecture/no-upload.test.ts`: nothing in the Play path calls `fetch`,
