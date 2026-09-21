@@ -234,3 +234,51 @@ Feature `004-score-first-layout`. Newest entry at the bottom.
   with `rt-audio-reviewer`; T105 `constitution-auditor`), T107 (remove the `ZOOM_*` aliases), T108, T109, T110, T111
   (Electron layout assertion). Run `pnpm test` and `npx playwright test --project=chromium` (after `npx vite build`)
   first; tree clean at this commit.
+
+## 2026-09-21 - claude-sonnet-5 (/speckit.implement, Polish and reviews - session end)
+
+- Done: T102-T107 and T111. 79 tasks became 82 (T038, T039, T111 added by the analyze pass); 80 are done.
+  - T102/T103: every core, timing, Practice and grading suite passes unchanged (`tests/core/grade/golden.test.ts` and
+    the other goldens included, so a stored attempt grades identically); `git diff main -- src/core` is empty;
+    `tests/architecture/layers.test.ts` is green.
+  - T104 (RT review of G-4, `rt-audio-reviewer`): **no blocking findings**; no AudioWorklet, scheduler, metronome or
+    MIDI-timing file is in the diff. Applied its advisories: `mx-run-status` writes its live region only when the text
+    changes; `subscribeRunActive` fires only when "a run is active" flips (it used to fire every frame of a Play run);
+    `runPositionState.set` returns early when unchanged; a relayout that a newer one has overtaken drops its result
+    (`relayoutEpoch`); starting an attempt replay closes the popups (FR-006). The e2e timing test is in
+    `us1-layout.spec.ts` (resize mid-run: zero worklet posts, zero long tasks, run continues; a pause at the end proves
+    the probe is live).
+  - T105 (constitution audit, `constitution-auditor`): **no CRITICAL findings**, compliant with notes. Fixed: F1 the run
+    guard now also covers a run that is still loading its sound (`isRunActive` counts transport `loading`;
+    `guardPanelsDuringRuns()` closes any popup on the flip to active and whenever one is opened while active); F3 the
+    Grade popup no longer opens over a run that started since grading began; F4 switching the notices layer off hides
+    notes about a score but never a failure (a file that would not open, sound/engine/storage/grade failures); F9 an
+    open menu list closes when a run starts; F8 the `!` fields carry a comment. Not fixed (see below): F5, F6, F7, F10.
+  - T107: the `ZOOM_*` aliases are gone. T106: quickstart, `ui-shell.md`, `data-model.md`, `score-layout.md` brought in line
+    (compact bar, no popup during a run, the run status's inputs, the fixtures).
+  - T111: the Electron smoke test asserts the same layout (window-wide Score view, bar <= 48 px, no aside).
+- Gate: vitest 995 passed / 2 skipped; `tsc --build` clean; Biome clean on every file this feature touches; e2e:
+  chromium 54 passed / 1 skipped, firefox and webkit pass the new specs, Electron smoke passes. A full four-browser
+  parallel run had 16 failures that all passed when the files were rerun serially, except two firefox ones, both fixed or
+  explained: a keyboard-menu test that assumed the menu the bar shows (Firefox makes the bar compact at 1280 where
+  Chromium does not; the test now walks to the entry) and `us1-play.spec.ts:46`, a live-mark check 3 s after the run
+  starts that is timing-sensitive under load and fails on and off, unrelated to layout.
+- Problems / open questions:
+  - needs owner: **no popup can be opened during a run** (every menu entry is disabled while Listen/Practice/Play can be
+    stopped or is starting). FR-006 only says popups close when a run starts; SC-004 (nothing on screen but the Score, the
+    bar and notices during a run) and FR-007 (no setup during a run) point the same way, and a debug run showed a
+    100-measure score is one page, so nothing could scroll clear of a popup. The cost: the audio diagnostics can no longer
+    be read during playback (feature 001 R-14). If the owner wants Diagnostics kept reachable, it needs a design (a
+    small corner readout, say), not a popup. The spec's Assumptions/FR-006 should be amended to say which it is.
+  - needs owner: **live setup changes during a Practice session are no longer reachable from the UI** (FR-007): switching
+    hand, accompaniment or the loop mid-piece now means stopping first. The session's live-change code and the e2e that
+    proves it (driven through the DOM, documented in `us1-practice.spec.ts`) remain; keep or delete is the owner's call.
+  - `pnpm lint` fails on 25 errors in feature 003's files (format and import order, including `src/core/play/run.ts` and
+    `calibration.ts`); a separate clean-up task was flagged. T109 cannot be ticked until it lands.
+  - T108 (the manual quickstart script on the physical 1080p laptop) is left open: everything in it that a browser can
+    check is covered by the e2e tests above, and screenshots at 1920x1080 and 1280x720 were inspected, but the owner's
+    screen and sight requirement are theirs to confirm.
+  - Audit F10 (three stacked notices vs. the follow band at 1280x720) is untested; F7 (tests and implementation land in
+    one commit per phase, so red-first is only visible in the log); the Diagnostics popup still shows its title twice.
+- Handoff: next = the owner decisions above, then the lint clean-up, then T108/T109/T110's commit. Run `pnpm test` and
+  `npx vite build && npx playwright test --project=chromium` first; tree clean at this commit.

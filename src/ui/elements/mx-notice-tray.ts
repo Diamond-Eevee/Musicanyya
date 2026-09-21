@@ -4,6 +4,25 @@ import { type Notice, noticeState } from '../state/noticeState.js';
 import { viewState } from '../state/viewState.js';
 import { escapeHtml } from '../util/escape-html.js';
 
+const FAILURE_NOTICES: ReadonlySet<string> = new Set([
+  'notMusicXml',
+  'timewiseUnsupported',
+  'unsupportedEncoding',
+  'unsupportedArchive',
+  'archiveNoScore',
+  'fileTooLarge',
+  'fileTooComplex',
+  'malformedXml',
+  'externalEntityBlocked',
+  'noPlayableContent',
+  'internal',
+  'soundFontMissing',
+  'workletLoadFailed',
+  'storageUnavailable',
+  'playGradeTimeout',
+  'playGradeError',
+]);
+
 function formatNotice(notice: Notice): string {
   let text = en.notices[notice.code] ?? notice.code;
   if (notice.element) text += ` (${notice.element})`;
@@ -34,7 +53,10 @@ export class MxNoticeTray extends HTMLElement {
   }
 
   private render() {
-    const all = viewState.get().overlays.notices ? noticeState.getNotices() : [];
+    // Switching the layer off hides the notes about a score, never a failure: a file that would not open, a sound or
+    // engine that would not start, storage that would not save, a grade that failed (FR-012 vs. silent failure).
+    const layerOn = viewState.get().overlays.notices;
+    const all = noticeState.getNotices().filter((notice) => layerOn || FAILURE_NOTICES.has(notice.code));
     const shown = all.slice(-NOTICE_TRAY_MAX);
     const waiting = all.length - shown.length;
 

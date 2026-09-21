@@ -77,6 +77,8 @@ export class MxScoreView extends HTMLElement {
   /** Height over width of a page, read from its rendered `viewBox` (contracts/score-layout.md section 4). */
   private pageAspect: number | null = null;
   private loadToken = 0;
+  /** Bumped by every relayout, so one that a newer relayout has overtaken drops its result. */
+  private relayoutEpoch = 0;
 
   // Listen-mode cursor/highlight (T107, R-11): set once by session.ts (T108) after a Score + engine are ready.
   private engine: AudioEngine | null = null;
@@ -285,11 +287,12 @@ export class MxScoreView extends HTMLElement {
       this.fittedLayout() ?? (forced ? { ...(this.requested ?? this.defaultLayout()), scale: this.scale } : null);
     if (!layout) return;
     const token = this.loadToken;
+    const epoch = ++this.relayoutEpoch;
     const anchorMeasureId = this.currentAnchorMeasureId();
     this.requested = layout;
     this.pageAspect = null;
     const { pageCount } = await this.client.relayout(layout);
-    if (token !== this.loadToken) return;
+    if (token !== this.loadToken || epoch !== this.relayoutEpoch) return;
     this.applyPageCount(pageCount);
 
     if (anchorMeasureId) {

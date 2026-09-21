@@ -378,20 +378,20 @@ the current system is never under the bar, a notice or an open popup.
       1280x720, 1366x768, 1600x900, 1920x1080 and 2560x1440 at 100%, 150% **and** 175% device scale
       factor (SC-006 names 100% and 150%; FR-013 promises the whole 100-175% range, so both are
       asserted).
-- [ ] T102 Behaviour neutrality (SC-009, FR-018): run the full `pnpm test` and confirm every core,
+- [x] T102 Behaviour neutrality (SC-009, FR-018): run the full `pnpm test` and confirm every core,
       timing, Practice and grading suite passes **unchanged**; grade a stored attempt from
       `tests/fixtures/performances/` before and after and confirm the Grade is identical.
-- [ ] T103 [P] Confirm no layer violation was introduced: `tests/architecture/layers.test.ts` green, and
+- [x] T103 [P] Confirm no layer violation was introduced: `tests/architecture/layers.test.ts` green, and
       `git diff --stat main -- src/core` empty (plan: `src/core` is not touched).
-- [ ] T104 RT review of contract guarantee **G-4** with `.claude/agents/rt-audio-reviewer.md`: a relayout
+- [x] T104 RT review of contract guarantee **G-4** with `.claude/agents/rt-audio-reviewer.md`: a relayout
       while a run is active does no audio-thread work and posts no worklet message, and no main-thread
       task exceeds 50 ms during a run with a relayout (Constitution I; add the e2e timing assertion to
       `tests/e2e/us1-layout.spec.ts` if it is not already covered).
-- [ ] T105 [P] Constitution audit of the branch with `.claude/agents/constitution-auditor.md`; CRITICAL
+- [x] T105 [P] Constitution audit of the branch with `.claude/agents/constitution-auditor.md`; CRITICAL
       findings become tasks here before merge.
-- [ ] T106 [P] Update `specs/004-score-first-layout/quickstart.md` and `README.md` only if a command or
+- [x] T106 [P] Update `specs/004-score-first-layout/quickstart.md` and `README.md` only if a command or
       the manual script changed; `docs/agents/reference.md` was already updated in the plan phase.
-- [ ] T107 Remove the deprecated `ZOOM_MIN` / `ZOOM_MAX` / `ZOOM_DEFAULT` / `ZOOM_STEP` aliases from
+- [x] T107 Remove the deprecated `ZOOM_MIN` / `ZOOM_MAX` / `ZOOM_DEFAULT` / `ZOOM_STEP` aliases from
       `src/engine/config.ts` and every remaining reference, so one value never has two names
       (`score-layout.md` section 1; depends on T034, T045).
 - [ ] T108 Run the `quickstart.md` manual verification script for all four user stories plus the Score
@@ -399,7 +399,7 @@ the current system is never under the bar, a notice or an open popup.
 - [ ] T109 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` - all green.
 - [ ] T110 Append the checkpoint entry to `specs/004-score-first-layout/implementation-log.md` and
       commit.
-- [ ] T111 [P] `tests/e2e/electron-smoke.spec.ts`: in the Electron shell the layout is the same as in the
+- [x] T111 [P] `tests/e2e/electron-smoke.spec.ts`: in the Electron shell the layout is the same as in the
       browser - the Score view spans the window width, `#mx-bar` is at most 48 px tall, and no aside
       reserves space (spec edge case "Electron and browser Shells"; FR-001). Run it before T109.
 

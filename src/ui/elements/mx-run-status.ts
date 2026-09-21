@@ -15,14 +15,16 @@ import { transportState } from '../state/transportState.js';
  * measure number ticks over.
  */
 export class MxRunStatus extends HTMLElement {
-  private text!: HTMLElement;
+  private text!: HTMLElement; // assigned in connectedCallback, before the first render
   private stopButton: HTMLButtonElement | null = null;
+  private lastText = '';
   private unsubscribes: Array<() => void> = [];
 
   connectedCallback(): void {
     this.setAttribute('role', 'status');
     this.setAttribute('aria-live', 'polite');
     this.textContent = '';
+    this.lastText = ''; // the span below is new, so nothing has been written to it yet
     this.text = document.createElement('span');
     this.text.className = 'run-text';
     this.append(this.text);
@@ -54,14 +56,19 @@ export class MxRunStatus extends HTMLElement {
       measureIndex: runPositionState.get(),
     });
 
-    if (status.phase === 'idle') {
-      this.text.textContent = '';
-    } else {
+    let next = '';
+    if (status.phase !== 'idle') {
       const parts: string[] = [en.run.mode[status.mode]];
       if (status.phase !== 'running') parts.push(en.run.phase[status.phase]);
       if (status.measureLabel !== null) parts.push(en.run.measure.replace('{n}', status.measureLabel));
       if (status.deviceState !== 'ok') parts.push(en.run.device[status.deviceState]);
-      this.text.textContent = parts.join(' · ');
+      next = parts.join(' · ');
+    }
+    // This runs on every frame of a Play run (its position is in a store); only a real change may touch the DOM, or a
+    // screen reader would re-announce the live region 60 times a second.
+    if (next !== this.lastText) {
+      this.lastText = next;
+      this.text.textContent = next;
     }
 
     if (status.canStop && !this.stopButton) {

@@ -68,8 +68,9 @@ Validation: an unknown string read from anywhere is treated as `null` (no panel 
 
 ## 3. `RunStatus` (derived, not stored)
 
-What the slim bar shows while a run is active (FR-008). Derived every frame from the existing
-`transportState`, `practiceState` and `playState`; it introduces no new source of truth.
+What the slim bar shows while a run is active (FR-008). Derived (`src/ui/state/runStatus.ts`, a pure function) from the existing `transportState`, `practiceState`, `playState`,
+`midiState` and the notices on screen. The one input that is new is the measure under the cursor, which `mx-score-view`
+already works out each frame and publishes to `runPositionState`; the status never derives musical position itself.
 
 | Field | Type | Source |
 |---|---|---|
@@ -77,7 +78,7 @@ What the slim bar shows while a run is active (FR-008). Derived every frame from
 | `phase` | `'idle' \| 'countIn' \| 'running' \| 'paused' \| 'finished'` | `transportState.phase` / `playState.run.phase` |
 | `measureLabel` | `string \| null` | current measure of the active timeline |
 | `deviceState` | `'ok' \| 'noMidi' \| 'midiLost' \| 'audioLost'` | `midiState` + engine events |
-| `canStop` | boolean | `phase !== 'idle'` |
+| `canStop` | boolean | `phase` is `countIn`, `running` or `paused` (a `finished` run has nothing left to stop) |
 
 ---
 

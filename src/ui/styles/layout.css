@@ -244,3 +244,7 @@ mx-practice-panel[hidden] {
   margin: 6px 0 0;
   color: #882255;
 }
+
+mx-run-status .run-stop {
+  margin-inline-start: 8px;
+}

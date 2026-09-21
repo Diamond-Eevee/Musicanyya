@@ -17,6 +17,8 @@ class RunPositionState {
   }
 
   set(measureIndex: number | null): void {
+    // Called every frame during a run: most calls change nothing, so they must cost nothing.
+    if (this.store.get().measureIndex === measureIndex) return;
     this.store.set({ measureIndex });
   }
 }

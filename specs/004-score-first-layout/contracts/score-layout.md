@@ -28,8 +28,8 @@ Both page-unit bounds sit inside Verovio's accepted range - T001 renders exactly
 10000 x 10000 and gets those sizes back verbatim - and they are named constants, not magic numbers
 (Constitution II).
 
-`ZOOM_MIN` / `ZOOM_MAX` / `ZOOM_DEFAULT` / `ZOOM_STEP` are re-exported as deprecated aliases for one
-feature, then removed, so nothing silently keeps two names for one value.
+`ZOOM_MIN` / `ZOOM_MAX` / `ZOOM_DEFAULT` / `ZOOM_STEP` were kept as deprecated aliases while the rename landed and
+are removed (T107), so one value has one name.
 
 ---
 

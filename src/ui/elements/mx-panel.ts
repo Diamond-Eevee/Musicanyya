@@ -15,6 +15,7 @@ export class MxPanel extends HTMLElement {
   static readonly observedAttributes = ['heading'];
 
   private unsubscribe?: () => void;
+  // Both are assigned in the constructor, right after the shadow root is built.
   private closeButton!: HTMLButtonElement;
   private headingEl!: HTMLElement;
   /** Null until the first sync, so connecting an already-closed panel does not call `hidePopover()` needlessly. */

@@ -126,7 +126,7 @@ describe('the piano keys and the notices honour their switch', () => {
   it('the notice tray shows notices while its layer is on and nothing when it is off', () => {
     const tray = document.createElement('mx-notice-tray');
     document.body.appendChild(tray);
-    noticeState.addNotice({ code: 'midiDeviceLost', severity: 'warning' });
+    noticeState.addNotice({ code: 'unsupportedElement', severity: 'info' });
     expect(tray.querySelectorAll('.notice')).toHaveLength(1);
 
     viewState.setOverlay('notices', false);

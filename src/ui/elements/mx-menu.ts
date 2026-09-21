@@ -14,6 +14,7 @@ export class MxMenu extends HTMLElement {
   static readonly observedAttributes = ['menu'];
 
   private group: MenuGroup | undefined;
+  // Both are assigned by render(), which connectedCallback runs before anything can use them.
   private trigger!: HTMLButtonElement;
   private list!: HTMLElement;
   private open = false;
@@ -94,6 +95,8 @@ export class MxMenu extends HTMLElement {
   private updateDisabled(): void {
     const loaded = scoreState.getStatus().kind === 'loaded';
     const running = isRunActive();
+    // A list that is open when a run starts would sit over the music with every entry greyed out.
+    if (running && this.open) this.close(false);
     for (const item of this.items()) {
       const disabled = (item.dataset.needsScore === 'true' && !loaded) || (item.dataset.idleOnly === 'true' && running);
       item.disabled = disabled;

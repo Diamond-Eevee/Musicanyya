@@ -79,6 +79,8 @@ import { noticeState } from '../ui/state/noticeState.js';
 import { playState } from '../ui/state/playState.js';
 import type { HelpOverlay } from '../ui/state/practiceState.js';
 import { practiceState } from '../ui/state/practiceState.js';
+import { isRunActive } from '../ui/state/runActive.js';
+import { guardPanelsDuringRuns } from '../ui/state/runGuard.js';
 import type { LoadError, ScoreSummary } from '../ui/state/scoreState.js';
 import { scoreState } from '../ui/state/scoreState.js';
 import { transportState } from '../ui/state/transportState.js';
@@ -137,7 +139,7 @@ export class Session {
   private readonly settingsStore: SettingsStore;
   private nextRequestId = 1;
   private scoreView: MxScoreView | null = null;
-  private userSettings!: UserSettings;
+  private userSettings!: UserSettings; // assigned at the top of start(), before anything reads it
 
   // Listen mode (US2, T108)
   private readonly audioEngine = new WebAudioEngine();
@@ -297,6 +299,7 @@ export class Session {
       if (previousMode === 'play' && state.mode !== 'play') this.leavePlay();
     });
     initShortcuts();
+    guardPanelsDuringRuns();
 
     const openButton = document.createElement('mx-open-button');
     const dropZone = document.createElement('mx-drop-zone');
@@ -744,8 +747,9 @@ export class Session {
   private onPlayGraded(grade: Grade): void {
     playState.setGrade(grade);
     mistakeStepper.setGrade(grade);
-    // The Grade arrives over the Score in a dismissible popup; dismissing it leaves the marks on the notes (FR-009).
-    viewState.openPanel('grade');
+    // The Grade arrives over the Score in a dismissible popup; dismissing it leaves the marks on the notes (FR-009). It
+    // can arrive late (grading has its own timeout): never over a run that has started since.
+    if (!isRunActive()) viewState.openPanel('grade');
   }
 
   private onPlayGradeFailed(reason: 'timeout' | 'error', _message?: string): void {
@@ -912,6 +916,8 @@ export class Session {
    *  timing, against the Score's own accompaniment - and shows the marks by re-grading it with its own stored
    *  settings (unchanged), exactly like `onGraded` does for a live run. */
   private async onAttemptReplay(runId: string): Promise<void> {
+    // A replay is a run too (FR-006): the Attempts popup it was started from must not stay open over the music.
+    viewState.closeForRun();
     const stored = await this.performanceStore.get(runId);
     if (!stored.ok) {
       noticeState.addNotice({

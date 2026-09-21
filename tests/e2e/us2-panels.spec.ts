@@ -101,10 +101,15 @@ test.describe('US2: secondary tools live in menus and popups', () => {
 
   test('a menu is usable with the keyboard alone (FR-005, Acceptance 2.5)', async ({ page }) => {
     await openScore(page);
+    await barFitted(page);
     await trigger(page, 'diagnostics').focus();
-    await page.keyboard.press('ArrowDown');
-    await expect(entry(page, 'help')).toBeFocused();
-    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown'); // opens the menu on its first entry
+    // Walk down to the entry with the arrow keys. Which entry is first depends on the menu the bar is showing (its own,
+    // or "More" when compact - Firefox's font metrics make the bar compact at 1280 while Chromium's do not).
+    const focused = () =>
+      entry(page, 'diagnostics').evaluate((el) => (el.getRootNode() as ShadowRoot).activeElement === el);
+    for (let presses = 0; presses < 10 && !(await focused()); presses++) await page.keyboard.press('ArrowDown');
+    await expect(entry(page, 'diagnostics')).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(panel(page, 'diagnostics')).toBeVisible();
     await expect(panel(page, 'diagnostics').getByRole('button', { name: 'Close' })).toBeFocused();

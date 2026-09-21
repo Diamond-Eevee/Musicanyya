@@ -50,10 +50,14 @@ Fixed order, left to right:
 | `#transport-controls` | `mx-transport` | a Score is loaded |
 | `#size-controls` | `mx-size-controls` (new) | a Score is loaded |
 | `#open-controls` | `mx-open-button` | always |
-| `#menu-controls` | `mx-menu` x4 (Score, Setup, View, Help) | always |
+| `#menu-controls` | `mx-menu` x4 (Score, Setup, View, Help), plus a fifth `more` menu holding all their entries | always (`more` only in compact mode) |
 | `#run-status` | `mx-run-status` (new) | always (empty when idle) |
 
 Nothing else may be added to the bar without amending this contract.
+
+**One row, always.** The bar never wraps. When its contents would overflow its width, `mx-app` puts it in *compact
+mode* on the next animation frame: the four menus are replaced by `more` and the transport sliders shorten. Nothing
+is hidden, and nothing is clipped at any window size from 1280x720 up (`SC-006`).
 
 ---
 
@@ -76,6 +80,12 @@ State machine (source of truth: `viewState.openPanel`, see `data-model.md` secti
 | close button / Escape / click outside | `closePanel()`; focus returns to the invoker |
 | a run starts (Listen, Practice or Play) | `closeForRun()` -> `openPanel = null` |
 | a notice arrives | nothing; notices never change `openPanel` and never take focus |
+| a Play run is graded | `openPanel('grade')` - the Grade arrives over the Score and takes no focus |
+
+**No popup during a run.** While a Listen, Practice or Play run can be stopped (count-in, running, paused) every
+menu entry is disabled. A popup would cover music - a short score is one page, so nothing could scroll clear of it -
+and `SC-004` says nothing but the Score, the bar and notices is on screen during a run. Starting a run closes any
+open popup (`closeForRun`) and the entries come back when it ends.
 
 `mx-panel` applies the state to the DOM as:
 

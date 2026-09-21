@@ -245,3 +245,59 @@ for (const deviceScaleFactor of [1, 1.5, 1.75]) {
     }
   });
 }
+
+/** Contract `score-layout.md` G-4 and Constitution I: a relayout during a run never touches the audio thread. */
+test.describe('US1: relayout during a run (G-4, Principle I)', () => {
+  test('resizing the window mid-run posts nothing to the audio worklet, makes no long task, and the run carries on', async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(browserName === 'webkit', 'a run needs AudioContext, which Playwright WebKit does not provide');
+    test.setTimeout(60_000);
+
+    await page.addInitScript(() => {
+      // Everything the main thread posts over a MessagePort - an AudioWorkletNode's port is one - is counted.
+      const w = window as unknown as { __portPosts: number; __longTasks: number[] };
+      w.__portPosts = 0;
+      w.__longTasks = [];
+      const original = MessagePort.prototype.postMessage;
+      MessagePort.prototype.postMessage = function (this: MessagePort, ...args: [unknown, ...unknown[]]) {
+        w.__portPosts++;
+        return (original as (...a: unknown[]) => void).apply(this, args);
+      } as typeof MessagePort.prototype.postMessage;
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) w.__longTasks.push(entry.duration);
+      }).observe({ entryTypes: ['longtask'] });
+    });
+
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await openScore(page, 'large-score-100-measures-fast.musicxml');
+    await expect(page.locator('mx-transport .play-btn')).not.toBeDisabled();
+    await page.locator('mx-transport .play-btn').click();
+    await expect(page.locator('mx-run-status')).toContainText(/Measure ([5-9]|\d\d)/, { timeout: 20_000 });
+
+    const counters = () =>
+      page.evaluate(() => {
+        const w = window as unknown as { __portPosts: number; __longTasks: number[] };
+        return { posts: w.__portPosts, longTasks: w.__longTasks.length };
+      });
+    const before = await counters();
+    for (const size of [
+      { width: 1600, height: 900 },
+      { width: 1280, height: 720 },
+    ]) {
+      await page.setViewportSize(size);
+      await page.waitForTimeout(500); // the debounced relayout (150 ms) and the re-render
+    }
+
+    const after = await counters();
+    expect(after.posts, 'no message reached the audio worklet during the relayouts').toBe(before.posts);
+    expect(after.longTasks, 'no main-thread task over 50 ms').toBe(before.longTasks);
+    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause'); // still running
+    await expect(page.locator('mx-run-status').getByRole('button', { name: 'Stop' })).toBeVisible();
+
+    // The counter works: pausing does talk to the worklet, so the zero above is a real zero, not a dead probe.
+    await page.locator('mx-transport .play-btn').click();
+    await expect.poll(async () => (await counters()).posts).toBeGreaterThan(after.posts);
+  });
+});

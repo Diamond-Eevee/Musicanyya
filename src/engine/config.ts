@@ -33,15 +33,6 @@ export const OVERLAYS_DEFAULT = {
 export const MIN_PAGE_UNITS = 200;
 export const MAX_PAGE_UNITS = 10000;
 
-/** @deprecated Use SCORE_SCALE_*; these aliases are removed in T107 of feature 004. */
-export const ZOOM_MIN = SCORE_SCALE_MIN;
-/** @deprecated Use SCORE_SCALE_MAX. */
-export const ZOOM_MAX = SCORE_SCALE_MAX;
-/** @deprecated Use SCORE_SCALE_DEFAULT. */
-export const ZOOM_DEFAULT = SCORE_SCALE_DEFAULT;
-/** @deprecated Use SCORE_SCALE_STEP. */
-export const ZOOM_STEP = SCORE_SCALE_STEP;
-
 export const RECENT_SCORES_MAX = 10;
 
 // File constraints

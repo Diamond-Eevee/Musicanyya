@@ -14,8 +14,9 @@ pnpm dev            # Vite dev server; open in Chrome or Edge
 pnpm electron:dev   # the same UI in the Electron shell
 ```
 
-Load `tests/fixtures/musicxml/c-major-scale-and-chords.musicxml` (or any MusicXML file) by dropping it
-on the window or through **Open score**.
+Load `tests/fixtures/musicxml/large-score.musicxml` (500 measures, two staves; or any MusicXML file) by dropping it
+on the window or through **Open score**. `tests/fixtures/musicxml/large-score-100-measures-fast.musicxml` plays through in
+about 15 seconds, which suits the US4 check.
 
 ## Quality gate
 
@@ -45,15 +46,19 @@ Do this in a **maximised window on the 1080p laptop screen**, which is the refer
 
 ### US2 - secondary tools live in menus and popups (P2)
 
-1. Open each menu in turn (Score, Setup, View, Help) and each entry inside it.
+1. Open each menu in turn (Score, Setup, View, Help) and each entry inside it. (In a window narrower than the bar's
+   contents - about 1300 px while a run's status is showing - the four menus fold into one **More** menu with the
+   same entries.)
 2. Confirm each opens over the music as a popup, and the music underneath does not move or re-render.
 3. With one open, open another: the first closes.
 4. Press Escape: the popup closes and the keyboard focus is back on the menu button.
 5. Tab through an open popup: every control is reachable; Escape still closes it.
 6. With a popup open, press Play: the popup closes by itself and the run starts - no dialog, no
    confirmation.
+7. During the run, open any menu: every entry is greyed out (a popup would cover music). Stop the run and
+   they come back.
 
-**Passes when**: steps 2-6 all hold. (`SC-003`, `SC-007`)
+**Passes when**: steps 2-7 all hold. (`SC-003`, `SC-007`)
 
 ### US3 - setup before the run, minimal chrome during it (P2)
 
@@ -69,7 +74,7 @@ Do this in a **maximised window on the 1080p laptop screen**, which is the refer
 
 ### US4 - overlays never hide the music (P3)
 
-1. Start Listen mode on a score of 30+ measures and watch a full pass.
+1. Start Listen mode on a score of 30+ measures (the 100-measure fast fixture is ideal) and watch a full pass.
 2. Confirm the system holding the cursor is never underneath the bar, a notice or the piano strip.
 3. Turn the piano keys on in the **View** panel: the music keeps clear of the strip. Turn it off again.
 4. Switch each overlay layer off and on in the **View** panel and confirm each takes effect
@@ -82,7 +87,7 @@ Do this in a **maximised window on the 1080p laptop screen**, which is the refer
 1. Press the **larger** control repeatedly: the staves grow, the music re-flows into fewer measures per
    system, and no horizontal scrollbar ever appears.
 2. Confirm the staves can be made at least twice as tall as the default. (`SC-008a`)
-3. `Ctrl/Cmd 0` returns to the default size.
+3. `Ctrl/Cmd +`, `Ctrl/Cmd -` and the bare `+` / `-` keys step the size too, and `Ctrl/Cmd 0` returns to the default size.
 4. Reload the page: the chosen size and the overlay switches are exactly as they were left. (`SC-008`)
 
 ### Behaviour neutrality
