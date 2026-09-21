@@ -24,6 +24,7 @@
   --grade-early-color: var(--color-blue);
   --grade-late-color: var(--color-orange);
   --grade-extra-color: var(--color-yellow);
+  --grade-live-correct-color: var(--color-sky-blue);
 
   --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }

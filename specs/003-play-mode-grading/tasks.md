@@ -256,7 +256,7 @@ reason.
   and the plain-words reason for a selected mark (FR-028, FR-030)
 - [x] T043 [US1] `src/ui/i18n/en.ts`: one string per `ResultReason` code, naming what was expected, what was
   played, the octave distance (not only the direction) and the millisecond difference; plus the Play notices
-- [ ] T044 [US1] Live pitch marking during the run in `src/app/play-session.ts` and `grade-marks.ts`: a cheap
+- [x] T044 [US1] Live pitch marking during the run in `src/app/play-session.ts` and `grade-marks.ts`: a cheap
   same-pitch test against the notes at the cursor marking **correct only**, display only, replaced by the Grade
   (FR-011, FR-011a; `liveMark` carries no `pitch` since play-run 1.1.0). D-3 is decided: the marker never
   establishes a wrong pitch, and SC-015 measures the agreement rate over the reference fixtures

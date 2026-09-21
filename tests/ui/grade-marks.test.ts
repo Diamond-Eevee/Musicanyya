@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { drawGradeMarks } from '../../src/ui/score/grade-marks.js';
+import { drawGradeMarks, drawLiveMarks } from '../../src/ui/score/grade-marks.js';
 
 // T045 (US1): every NoteResult state is distinguishable by shape in greyscale and survives a colour-blind-safe
 // check (SC-008, FR-029), no mark ever covers the notehead it refers to, and the whole layer is switchable off
@@ -18,7 +18,7 @@ function recordingCtx() {
     stroke: vi.fn(() => calls.push({ method: 'stroke', args: [] })),
     fill: vi.fn(() => calls.push({ method: 'fill', args: [] })),
     closePath: vi.fn(() => calls.push({ method: 'closePath', args: [] })),
-    setLineDash: vi.fn(() => calls.push({ method: 'setLineDash', args: [] })),
+    setLineDash: vi.fn((segments: number[]) => calls.push({ method: 'setLineDash', args: segments })),
     moveTo: vi.fn((x: number, y: number) => calls.push({ method: 'moveTo', args: [x, y] })),
     lineTo: vi.fn((x: number, y: number) => calls.push({ method: 'lineTo', args: [x, y] })),
     arc: vi.fn((x: number, y: number, r: number) => calls.push({ method: 'arc', args: [x, y, r] })),
@@ -237,6 +237,44 @@ describe('grade marks rendering (T045)', () => {
       ],
       extraRects: [rect(300, 400)],
       noteRects,
+    });
+
+    expect(calls).toEqual([]);
+  });
+});
+
+describe('live marks during a run (T044, FR-011)', () => {
+  it('draws a dashed ring around a matched notehead, never a cross - the live test can never say "wrong" (D-3)', () => {
+    const { ctx, calls } = recordingCtx();
+    const r = rect(100, 100);
+
+    drawLiveMarks({
+      ctx,
+      dpr: 1,
+      containerRect,
+      visible: true,
+      noteIds: ['n1'],
+      noteRects: new Map([['n1', r]]),
+    });
+
+    expect(ctx.stroke).toHaveBeenCalled();
+    expect(ctx.fill).not.toHaveBeenCalled();
+    const arcs = calls.filter((c) => c.method === 'arc');
+    expect(arcs).toHaveLength(1);
+    const dashCalls = calls.filter((c) => c.method === 'setLineDash' && c.args.length > 0);
+    expect(dashCalls.length).toBeGreaterThan(0); // dashed: distinguishable by shape from the Grade's own solid ring
+  });
+
+  it('visible: false draws nothing', () => {
+    const { ctx, calls } = recordingCtx();
+
+    drawLiveMarks({
+      ctx,
+      dpr: 1,
+      containerRect,
+      visible: false,
+      noteIds: ['n1'],
+      noteRects: new Map([['n1', rect(100, 100)]]),
     });
 
     expect(calls).toEqual([]);

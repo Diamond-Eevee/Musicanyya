@@ -217,4 +217,44 @@ describe('PlaySessionController (T039/T097)', () => {
 
     expect(gradeFailures).toEqual([{ reason: 'timeout', message: undefined }]);
   });
+
+  it('T044: a press matching the note at the cursor emits a display-only liveMark, by pitch only (FR-011)', () => {
+    const { score, timeline, audioEngine, midiInput, effects, controller } = setup();
+    controller.start({ scoreId: null, score, timeline, measures: score.measures, range: null, settings: settings() });
+    const countInTicks = controller.getRun()!.tickMap.countInTicks;
+    audioEngine.currentPosition = { audibleTick: countInTicks, playing: true };
+    controller.reportPosition(2500); // the cursor is now exactly at the first written note (C4, key 60)
+
+    midiInput.fire({ type: 'noteOn', deviceId: 'kb-1', key: 60, velocity: 70, timeStampMs: 2500 });
+
+    const liveMarks = effects.filter((e): e is PlayEffect & { type: 'liveMark' } => e.type === 'liveMark');
+    expect(liveMarks).toHaveLength(1);
+    expect(liveMarks[0]?.noteIds.length).toBeGreaterThan(0);
+  });
+
+  it("T044: a wrong pitch is never marked - D-3's marker can only ever say 'correct', never 'wrong'", () => {
+    const { score, timeline, audioEngine, midiInput, effects, controller } = setup();
+    controller.start({ scoreId: null, score, timeline, measures: score.measures, range: null, settings: settings() });
+    const countInTicks = controller.getRun()!.tickMap.countInTicks;
+    audioEngine.currentPosition = { audibleTick: countInTicks, playing: true };
+    controller.reportPosition(2500);
+
+    midiInput.fire({ type: 'noteOn', deviceId: 'kb-1', key: 61, velocity: 70, timeStampMs: 2500 }); // C#4, not written
+
+    expect(effects.filter((e) => e.type === 'liveMark')).toHaveLength(0);
+  });
+
+  it('T044: a held or repeated key at the same onset emits at most one liveMark for it, not one per press', () => {
+    const { score, timeline, audioEngine, midiInput, effects, controller } = setup();
+    controller.start({ scoreId: null, score, timeline, measures: score.measures, range: null, settings: settings() });
+    const countInTicks = controller.getRun()!.tickMap.countInTicks;
+    audioEngine.currentPosition = { audibleTick: countInTicks, playing: true };
+    controller.reportPosition(2500);
+
+    midiInput.fire({ type: 'noteOn', deviceId: 'kb-1', key: 60, velocity: 70, timeStampMs: 2500 });
+    midiInput.fire({ type: 'noteOff', deviceId: 'kb-1', key: 60, timeStampMs: 2550 });
+    midiInput.fire({ type: 'noteOn', deviceId: 'kb-1', key: 60, velocity: 70, timeStampMs: 2600 });
+
+    expect(effects.filter((e) => e.type === 'liveMark')).toHaveLength(1);
+  });
 });

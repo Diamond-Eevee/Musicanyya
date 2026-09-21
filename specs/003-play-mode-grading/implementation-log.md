@@ -542,3 +542,36 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
   during the run, distinct from T107's post-run display wiring), then T107 (now the largest remaining piece of
   US1: `session.ts` construction/branching/rAF plus `mx-score-view.ts`'s Grade layer and note-click selection),
   then T046 (e2e, blocked on T107) and the US1 Checkpoint. Tree clean at the commit below, not pushed.
+
+## 2026-09-21 - claude-sonnet-5 (relay)
+
+- Done: T044 - 62/108 tasks now done. Full gate (`pnpm typecheck`, `pnpm vitest run`: 680 tests) green; `pnpm
+  lint` unchanged (same one pre-existing verovio-worker error; the new test file's `controller.getRun()!` pattern
+  only adds warnings, matching every other test already in that file, not a new class of issue).
+- **`checkLiveMark` design**: no code anywhere produced `PlayEffect`'s `liveMark` variant yet - `playRunReducer`
+  (T033) never touched it, confirming R-11's contract text ("cheap and approximate... says nothing about timing")
+  describes controller-side logic, not the pure reducer's. `PlaySessionController.handleMidiEvent` now calls a new
+  `checkLiveMark(key)` after dispatching every `noteOn` (never `noteOff`/`sustain`): it converts
+  `run.positionRunTick` to timeline-tick space with the same `runTick - countInTicks + rangeStartTick` formula
+  `PlayTickMap`'s own comment documents, finds the nearest same-key `ExpectedNote` within one quarter note
+  (`this.ppq` ticks - generous and simple, not the real per-strictness claim window that `resolveWindows` computes
+  for actual grading), and - once per onset (`liveMarkedOnsets`, cleared in `start()`) - calls
+  `this.callbacks.onEffect({ type: 'liveMark', noteIds })` directly, bypassing `dispatch()`/`applyEffects()`
+  entirely since this is deliberately outside the reducer's own state (FR-011a: only the Grade, never this marker,
+  can be "wrong"). A press that matches nothing is silently ignored - D-3 again: the marker can only ever say
+  "correct," never "wrong."
+- **`drawLiveMarks` (`grade-marks.ts`)**: a dashed sky-blue ring, deliberately both a different shape (dashed vs
+  solid) and colour from the Grade's own `missed` ring, so a musician who has both layers in view during the
+  run->Grade transition never reads one as the other. No cross variant exists for this function at all - by
+  construction, a live mark cannot represent a wrong pitch.
+- Extended existing test files rather than opening new ones (neither T044 nor its two host files have their own
+  test task): three cases in `tests/engine/play-session.test.ts` (match emits exactly one `liveMark`; a wrong
+  pitch emits none; a held/repeated key at the same onset emits at most one, not one per press) and two in
+  `tests/ui/grade-marks.test.ts` (`drawLiveMarks` draws a dashed ring and nothing else; `visible: false` draws
+  nothing). Improved the test file's `recordingCtx` fake to capture `setLineDash`'s actual segments argument
+  (previously hardcoded to `[]` regardless of what was passed) so "dashed" could be asserted for real rather than
+  merely "`setLineDash` was called," which every existing shape already does.
+- Handoff: next = T107 (`session.ts` construction/branching/rAF, `mx-score-view.ts`'s Grade layer and note-click
+  selection - the largest remaining piece of US1), then T046 (e2e, blocked on T107) and the US1 Checkpoint (full
+  gate, `quickstart.md`'s manual verification is Polish-phase T082, not required for the Checkpoint itself). Tree
+  clean at the commit below, not pushed.
