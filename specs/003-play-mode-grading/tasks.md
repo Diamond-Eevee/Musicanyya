@@ -325,7 +325,7 @@ worst, and confirm "practise this passage" opens Practice mode looping those mea
 
 ### Implementation
 
-- [ ] T052 [US2] Per-pass overview and reliability warnings in `src/core/grade/summary.ts`, with the pass label
+- [x] T052 [US2] Per-pass overview and reliability warnings in `src/core/grade/summary.ts`, with the pass label
   Practice already uses for repeats (research R-12, R-14)
 - [ ] T053 [US2] Reliability capture in `src/app/play-session.ts`: stamp audio dropouts, `liveQueueDropped` and
   MIDI device loss/return with their audio time during the run
@@ -333,9 +333,9 @@ worst, and confirm "practise this passage" opens Practice mode looping those mea
   changed `AudioContext.sampleRate` to the reducer's `audioLost` action in `src/app/play-session.ts`, with the
   test first in `tests/engine/play-session.test.ts` - the run stops, the partial Grade is produced and the whole
   Grade is marked unreliable. Nothing else raises `audioLost`, which is why T023 alone did not cover it
-- [ ] T054 [US2] `src/ui/elements/mx-grade-panel.ts` (extend): the per-measure overview and the mistake stepper
+- [x] T054 [US2] `src/ui/elements/mx-grade-panel.ts` (extend): the per-measure overview and the mistake stepper
   (FR-031, FR-032)
-- [ ] T055 [US2] "Practise this passage" in `src/app/play-session.ts` and the panel: convert the selected passes
+- [x] T055 [US2] "Practise this passage" in `src/app/play-session.ts` and the panel: convert the selected passes
   with 002's `passIndicesToLoopRange` and open Practice mode with the same `HandSelection` (FR-033)
 - [ ] T056 [US2] `src/core/play/calibration.ts`: the pure median-offset calculation and its rejection rule
 - [ ] T057 [US2] `src/ui/elements/mx-latency-panel.ts`: show the profile the Grade used, say plainly when it was

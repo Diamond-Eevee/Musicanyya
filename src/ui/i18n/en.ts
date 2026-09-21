@@ -159,6 +159,12 @@ export const en = {
       extra: 'Extra',
       early: 'Early',
       late: 'Late',
+      mistakes: 'Mistakes',
+      previous: 'Previous',
+      next: 'Next',
+      measureOverview: 'Measures by mistakes',
+      measurePass: 'Measure {measure} ({ordinal} time)',
+      practisePassage: 'Practise this passage',
     },
     // FR-030: what was expected, what was played, the octave distance (not only its direction) and the
     // millisecond difference. R-13: the core stays free of English; `reasonText()` (src/ui/format/reason-text.ts)

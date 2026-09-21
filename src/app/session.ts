@@ -11,6 +11,7 @@ import type {
 } from '../engine/ports.js';
 import { IndexedDbScoreStore } from '../engine/storage/indexeddb-score-store.js';
 import { LocalSettingsStore } from '../engine/storage/local-settings-store.js';
+import { passIndicesToLoopRange } from '../core/practice/loop.js';
 import '../ui/elements/mx-diagnostics.js';
 import '../ui/elements/mx-drop-zone.js';
 import '../ui/elements/mx-grade-panel.js';
@@ -300,6 +301,22 @@ export class Session {
     document.getElementById('side-panel')?.prepend(practicePanel);
 
     const gradePanel = document.createElement('mx-grade-panel');
+    gradePanel.addEventListener('practisepass', (event) => {
+      const passIndex = (event as CustomEvent<{ passIndex: number }>).detail.passIndex;
+      if (!this.currentTimeline) return;
+      const loop = passIndicesToLoopRange(this.currentTimeline, [passIndex]);
+      if (!loop) return;
+      
+      const grade = playState.get().grade;
+      if (grade) {
+        this.onPracticeSetupChange({
+          loop,
+          selection: grade.settings.selection,
+          accompaniment: grade.settings.accompaniment,
+        });
+      }
+      practiceState.setMode('practice');
+    });
     document.getElementById('side-panel')?.prepend(gradePanel);
 
     const pianoKeys = document.createElement('mx-piano-keys');

@@ -3,6 +3,7 @@ import { reasonText } from '../format/reason-text.js';
 import { en } from '../i18n/en.js';
 import { playState } from '../state/playState.js';
 import { practiceState } from '../state/practiceState.js';
+import { mistakeStepper } from '../state/mistake-stepper.js';
 
 function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
@@ -34,16 +35,19 @@ function findResult(grade: Grade, noteId: string): NoteResult | null {
 export class MxGradePanel extends HTMLElement {
   private unsubscribePlay?: () => void;
   private unsubscribePractice?: () => void;
+  private unsubscribeStepper?: () => void;
 
   connectedCallback() {
     this.unsubscribePlay = playState.subscribe(() => this.render());
     this.unsubscribePractice = practiceState.subscribe(() => this.render());
+    this.unsubscribeStepper = mistakeStepper.subscribe(() => this.render());
     this.render();
   }
 
   disconnectedCallback() {
     this.unsubscribePlay?.();
     this.unsubscribePractice?.();
+    this.unsubscribeStepper?.();
   }
 
   private render() {
@@ -61,6 +65,31 @@ export class MxGradePanel extends HTMLElement {
     const selected = selectedNoteId ? findResult(grade, selectedNoteId) : null;
     const reason = selected ? `<p class="grade-reason">${escapeHtml(reasonText(selected.reason))}</p>` : '';
 
+    const stepperState = mistakeStepper.get();
+    const stepper = stepperState.total > 0 ? `
+      <div class="grade-stepper">
+        <h3>${p.mistakes} (${stepperState.total})</h3>
+        <button type="button" data-id="stepper-previous">${p.previous}</button>
+        <button type="button" data-id="stepper-next">${p.next}</button>
+      </div>` : '';
+
+    const worstPasses = [...grade.measures]
+      .filter(m => m.counts.wrongPitch > 0 || m.counts.missed > 0 || m.counts.extra > 0 || m.counts.early > 0 || m.counts.late > 0)
+      .sort((a, b) => (b.counts.wrongPitch + b.counts.missed) - (a.counts.wrongPitch + a.counts.missed));
+
+    const overview = worstPasses.length > 0 ? `
+      <div class="grade-overview">
+        <h3>${p.measureOverview}</h3>
+        <ul>
+          ${worstPasses.map(m => `
+            <li>
+              ${escapeHtml(p.measurePass.replace('{measure}', String(m.measureIndex + 1)).replace('{ordinal}', ordinal(m.passIndex + 1)))}
+              <button type="button" data-id="practise-pass" data-pass="${m.passIndex}">${p.practisePassage}</button>
+            </li>
+          `).join('')}
+        </ul>
+      </div>` : '';
+
     this.innerHTML = `
       <h2 class="grade-heading">${p.heading}</h2>
       ${incomplete}
@@ -75,7 +104,30 @@ export class MxGradePanel extends HTMLElement {
         <li class="grade-count-late">${p.late}: ${summary.counts.late}</li>
       </ul>
       ${reason}
+      ${stepper}
+      ${overview}
     `;
+
+    this.wire();
+  }
+
+  private wire() {
+    this.querySelector('[data-id="stepper-previous"]')?.addEventListener('click', () => {
+      mistakeStepper.previous();
+      const id = mistakeStepper.get().currentId;
+      if (id) playState.selectNote(id);
+    });
+    this.querySelector('[data-id="stepper-next"]')?.addEventListener('click', () => {
+      mistakeStepper.next();
+      const id = mistakeStepper.get().currentId;
+      if (id) playState.selectNote(id);
+    });
+    for (const btn of this.querySelectorAll<HTMLButtonElement>('[data-id="practise-pass"]')) {
+      btn.addEventListener('click', () => {
+        const pass = Number(btn.dataset.pass);
+        this.dispatchEvent(new CustomEvent('practisepass', { detail: { passIndex: pass }, bubbles: true }));
+      });
+    }
   }
 }
 customElements.define('mx-grade-panel', MxGradePanel);
