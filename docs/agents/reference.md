@@ -177,16 +177,26 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
 - Feature 002: no new technology. Practice mode is a pure core module (`src/core/practice`) over the existing
   Score, `PlaybackTimeline`, `MidiInput` port and live-note methods of the `AudioEngine`; per-Score practice
   settings live in their own `localStorage` key.
+- Feature 003: no new technology and no new dependency. Play mode adds two pure core modules (`src/core/play`,
+  `src/core/grade`), a third Web Worker (`src/workers/grade.worker.ts`, a thin wrapper around the pure grading
+  function), a second IndexedDB object store (`performances`, database version 1 -> 2), two `localStorage` keys
+  (`musicanyya.play.v1`, `musicanyya.latency.v1`), and the first real use of the audio clock for **input**: Web
+  MIDI timestamps are mapped onto it (`src/engine/midi/clock-map.ts`) and compensated with a Latency profile that
+  this feature also has to build. The Metronome is compiled into the run's schedule rather than written as
+  real-time code.
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-20: Feature 003 planned (Play mode and grading): the Metronome is scheduled events on a dedicated
+  percussion channel, not new real-time code; grading is a pure function run in a worker; timing windows are
+  fractions of a beat compared in integer ticks, clamped so a claim window can never reach a neighbouring note.
+  Two corrections came out of planning: feature 001 has no Latency profile (003 builds it and its calibration),
+  and ornaments/arpeggios are unparsed, which makes a correctly played trill score as extras - an open owner
+  decision.
 - 2026-09-20: Feature 002 planned (Practice / wait-for-input): pure core matcher, no new dependency, no new
   real-time code; the unselected hand sounds as the cursor passes it instead of against a clock.
 - 2026-09-19: Agent guide split: `AGENTS.md` core (< 12,000 characters for tools such as Antigravity) + this
   reference; Antigravity workflows added.
-- 2026-09-19: Feature 001 planned (plan, research R-1..R-17, data model, contracts, quickstart): Verovio id
-  preservation verified in source; own AudioWorklet embedding spessasynth_core; Electron shell detection via
-  preload bridge.
 <!-- RECENT-CHANGES:END -->

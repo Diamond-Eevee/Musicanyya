@@ -1,0 +1,544 @@
+{
+  "scoreFixture": "eight-measure-melody.musicxml",
+  "settings": {
+    "range": null,
+    "tempoPercent": 100,
+    "selection": {
+      "preset": "both",
+      "partIndex": 0,
+      "staves": [1]
+    },
+    "strictness": "beginner",
+    "countInMeasures": 1,
+    "metronomeMuted": false,
+    "accompaniment": true
+  },
+  "log": {
+    "version": 1,
+    "messages": [
+      {
+        "kind": "noteOn",
+        "key": 60,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 0,
+        "timeStampMs": 0,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 60,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 0.3,
+        "timeStampMs": 300,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 62,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 0.6,
+        "timeStampMs": 600,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 62,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 0.8999999999999999,
+        "timeStampMs": 899.9999999999999,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 64,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 1.2,
+        "timeStampMs": 1200,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 64,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 1.5,
+        "timeStampMs": 1500,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 65,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 1.7999999999999998,
+        "timeStampMs": 1799.9999999999998,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 65,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 2.0999999999999996,
+        "timeStampMs": 2099.9999999999995,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 67,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 2.4,
+        "timeStampMs": 2400,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 67,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 2.6999999999999997,
+        "timeStampMs": 2699.9999999999995,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 69,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 3,
+        "timeStampMs": 3000,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 69,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 3.3,
+        "timeStampMs": 3300,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 71,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 3.5999999999999996,
+        "timeStampMs": 3599.9999999999995,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 71,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 3.8999999999999995,
+        "timeStampMs": 3899.9999999999995,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 72,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 4.2,
+        "timeStampMs": 4200,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 72,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 4.5,
+        "timeStampMs": 4500,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 74,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 4.8,
+        "timeStampMs": 4800,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 74,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 5.1,
+        "timeStampMs": 5100,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 72,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 5.3999999999999995,
+        "timeStampMs": 5399.999999999999,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 72,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 5.699999999999999,
+        "timeStampMs": 5699.999999999999,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 71,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 6,
+        "timeStampMs": 6000,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 71,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 6.3,
+        "timeStampMs": 6300,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 69,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 6.6,
+        "timeStampMs": 6600,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 69,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 6.8999999999999995,
+        "timeStampMs": 6899.999999999999,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 67,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 7.199999999999999,
+        "timeStampMs": 7199.999999999999,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 67,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 7.499999999999999,
+        "timeStampMs": 7499.999999999999,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 65,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 7.8,
+        "timeStampMs": 7800,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 65,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 8.1,
+        "timeStampMs": 8100,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 64,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 8.4,
+        "timeStampMs": 8400,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 64,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 8.700000000000001,
+        "timeStampMs": 8700.000000000002,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 62,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 9,
+        "timeStampMs": 9000,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 62,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 9.3,
+        "timeStampMs": 9300,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 60,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 9.6,
+        "timeStampMs": 9600,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 60,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 9.9,
+        "timeStampMs": 9900,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 64,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 10.2,
+        "timeStampMs": 10200,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 64,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 10.5,
+        "timeStampMs": 10500,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 67,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 10.799999999999999,
+        "timeStampMs": 10799.999999999998,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 67,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 11.1,
+        "timeStampMs": 11100,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 72,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 11.4,
+        "timeStampMs": 11400,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 72,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 11.700000000000001,
+        "timeStampMs": 11700.000000000002,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 72,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 12,
+        "timeStampMs": 12000,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 72,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 12.3,
+        "timeStampMs": 12300,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 67,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 12.6,
+        "timeStampMs": 12600,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 67,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 12.9,
+        "timeStampMs": 12900,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 64,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 13.2,
+        "timeStampMs": 13200,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 64,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 13.5,
+        "timeStampMs": 13500,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 60,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 13.799999999999999,
+        "timeStampMs": 13799.999999999998,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 60,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 14.1,
+        "timeStampMs": 14100,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 62,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 14.399999999999999,
+        "timeStampMs": 14399.999999999998,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 62,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 14.7,
+        "timeStampMs": 14700,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 65,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 15,
+        "timeStampMs": 15000,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 65,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 15.3,
+        "timeStampMs": 15300,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 69,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 15.6,
+        "timeStampMs": 15600,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 69,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 15.9,
+        "timeStampMs": 15900,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 74,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 16.2,
+        "timeStampMs": 16200,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 74,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 16.5,
+        "timeStampMs": 16500,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOn",
+        "key": 60,
+        "velocity": 80,
+        "down": false,
+        "audioTimeSec": 16.8,
+        "timeStampMs": 16800,
+        "deviceId": "fake-keyboard"
+      },
+      {
+        "kind": "noteOff",
+        "key": 60,
+        "velocity": 0,
+        "down": false,
+        "audioTimeSec": 17.1,
+        "timeStampMs": 17100,
+        "deviceId": "fake-keyboard"
+      }
+    ],
+    "droppedMessages": 0
+  }
+}

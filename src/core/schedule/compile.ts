@@ -123,3 +123,70 @@ export function compileSchedule(timeline: PlaybackTimeline): ScheduleMessage {
     channelSetup,
   };
 }
+
+/**
+ * Merges two schedules that share `ppq` and occupy disjoint channels - the replay path (research R-10,
+ * `src/core/play/replay.ts`), never the real-time path. Not a generic union: where a channel is used in `a`, `a`'s
+ * setup for it wins over `b`'s (they are never both used for the same channel in practice, since the two callers
+ * always partition channels between them).
+ */
+export function mergeSchedules(a: ScheduleMessage, b: ScheduleMessage): ScheduleMessage {
+  if (a.ppq !== b.ppq) throw new Error('mergeSchedules: schedules must share ppq');
+
+  const raw: RawEvent[] = [];
+  for (let i = 0; i < a.eventTick.length; i++) {
+    raw.push({
+      tick: a.eventTick[i] as number,
+      kind: a.eventKind[i] as number,
+      channel: a.eventChannel[i] as number,
+      data1: a.eventData1[i] as number,
+      data2: a.eventData2[i] as number,
+    });
+  }
+  for (let i = 0; i < b.eventTick.length; i++) {
+    raw.push({
+      tick: b.eventTick[i] as number,
+      kind: b.eventKind[i] as number,
+      channel: b.eventChannel[i] as number,
+      data1: b.eventData1[i] as number,
+      data2: b.eventData2[i] as number,
+    });
+  }
+  raw.sort((x, y) => (x.tick !== y.tick ? x.tick - y.tick : sortRank(x.kind) - sortRank(y.kind)));
+
+  const n = raw.length;
+  const eventTick = new Int32Array(n);
+  const eventKind = new Uint8Array(n);
+  const eventChannel = new Uint8Array(n);
+  const eventData1 = new Uint8Array(n);
+  const eventData2 = new Uint8Array(n);
+  raw.forEach((e, i) => {
+    eventTick[i] = e.tick;
+    eventKind[i] = e.kind;
+    eventChannel[i] = e.channel;
+    eventData1[i] = e.data1;
+    eventData2[i] = e.data2;
+  });
+
+  const channelSetup = new Uint8Array(64);
+  for (let c = 0; c < 16; c++) {
+    const aUsed = a.channelSetup[c * 4] !== 0;
+    const source = aUsed ? a.channelSetup : b.channelSetup;
+    for (let k = 0; k < 4; k++) channelSetup[c * 4 + k] = source[c * 4 + k] as number;
+  }
+
+  return {
+    type: 'schedule',
+    ppq: a.ppq,
+    endTick: Math.max(a.endTick, b.endTick),
+    eventTick,
+    eventKind,
+    eventChannel,
+    eventData1,
+    eventData2,
+    tempoTick: a.tempoTick,
+    tempoQpmNum: a.tempoQpmNum,
+    tempoQpmDen: a.tempoQpmDen,
+    channelSetup,
+  };
+}

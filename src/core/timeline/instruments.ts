@@ -1,4 +1,4 @@
-import { LIVE_CHANNEL, PERCUSSION_CHANNEL } from '../defaults.js';
+import { LIVE_CHANNEL, METRONOME_CHANNEL, PERCUSSION_CHANNEL } from '../defaults.js';
 import type { Instrument, Note, Part } from '../score/model.js';
 import type { ChannelSetup } from './types.js';
 
@@ -19,12 +19,14 @@ function emptyChannelSetup(): ChannelSetup {
  * Assigns each part's instruments to a MIDI channel (R-8.7). Percussion instruments all share
  * PERCUSSION_CHANNEL; melodic instruments honour an explicit, non-colliding channel hint, else
  * share a channel already carrying the same program, else take the next free channel (never the
- * percussion or live-input channels). Parts beyond 14 distinct melodic programs share the last one.
+ * percussion, live-input or Metronome channels - research R-19). Parts beyond 13 distinct melodic
+ * programs share the last one assigned.
  */
 export function assignChannels(parts: Part[]): InstrumentAssignment {
   const channelSetup: ChannelSetup[] = Array.from({ length: 16 }, emptyChannelSetup);
   const channelByKey = new Map<string, number>();
   const programToChannel = new Map<number, number>();
+  let lastMelodicChannel = 0;
 
   for (const part of parts) {
     for (const instrument of part.instruments) {
@@ -46,7 +48,14 @@ export function assignChannels(parts: Part[]): InstrumentAssignment {
       if (instrument.percussion) continue;
       const hint = instrument.channelHint;
       let channel: number | undefined;
-      if (hint !== null && hint >= 0 && hint <= 15 && hint !== PERCUSSION_CHANNEL && hint !== LIVE_CHANNEL) {
+      if (
+        hint !== null &&
+        hint >= 0 &&
+        hint <= 15 &&
+        hint !== PERCUSSION_CHANNEL &&
+        hint !== LIVE_CHANNEL &&
+        hint !== METRONOME_CHANNEL
+      ) {
         const occupant = channelSetup[hint];
         if (occupant && (!occupant.used || occupant.program === instrument.program)) {
           channel = hint;
@@ -57,15 +66,16 @@ export function assignChannels(parts: Part[]): InstrumentAssignment {
       }
       if (channel === undefined) {
         for (let c = 0; c < 16; c++) {
-          if (c === PERCUSSION_CHANNEL || c === LIVE_CHANNEL) continue;
+          if (c === PERCUSSION_CHANNEL || c === LIVE_CHANNEL || c === METRONOME_CHANNEL) continue;
           if (!channelSetup[c]?.used) {
             channel = c;
             break;
           }
         }
       }
-      if (channel === undefined) channel = 14; // exhausted: share the last melodic channel
+      if (channel === undefined) channel = lastMelodicChannel; // exhausted: share the last melodic channel
 
+      lastMelodicChannel = channel;
       channelByKey.set(instrumentKey(part.index, instrument), channel);
       programToChannel.set(instrument.program, channel);
       channelSetup[channel] = {

@@ -12,6 +12,10 @@ mx-score-view {
   background: var(--bg-color);
 }
 
+/* Shared by the cursor, the practice marks and the Grade result marks (T041, `grade-marks.ts`): one canvas
+   overlay, switched between layers by mode and cleared on a mode change (FR-035). Mark colours are the
+   `--grade-*` tokens in tokens.css (Okabe-Ito, colour-blind-safe); shape or position, never colour alone, is
+   what tells a result state apart (R-11, SC-008). */
 .mx-score-cursor {
   position: absolute;
   inset: 0;

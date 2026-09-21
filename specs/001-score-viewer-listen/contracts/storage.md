@@ -1,11 +1,19 @@
 # Contract: persisted data (IndexedDB + localStorage)
 
-**Version**: IndexedDB schema `1`, settings format `1`. Research R-13. All data stays on the user's device
-(FR-030).
+**Version**: IndexedDB schema `1` -> **`2`** (feature 003, T077), settings format `1`. Research R-13. All data
+stays on the user's device (FR-030). This file is the index of every store and key; a feature that adds one
+documents its own shape in its own contracts and is cross-referenced here rather than duplicated.
 
-## IndexedDB database `musicanyya` (version 1)
+## IndexedDB database `musicanyya` (version 2)
 
-Object store `recentScores`, keyPath `id`, index `byLastOpened` on `lastOpened`.
+Object store `recentScores`, keyPath `id`, index `byLastOpened` on `lastOpened` - unchanged since version 1.
+
+**Version 2** (feature 003) adds the object store `performances` (kept attempts, FR-041) without ever touching
+`recentScores` - full shape, retention rule and failure behaviour in
+[specs/003-play-mode-grading/contracts/performance-log.md](../../003-play-mode-grading/contracts/performance-log.md).
+`onupgradeneeded` creates only the store that is missing, so a version-1 database upgrades in place; the two
+stores' own `IndexedDbScoreStore` and `IndexedDbPerformanceStore` classes share one open/upgrade path
+(`src/engine/storage/db.ts`) so this is true regardless of which one opens the database first.
 
 ```ts
 interface RecentScoreRecord {
@@ -53,6 +61,18 @@ Rules:
 
 Rules: read once at start; each field is validated separately and falls back to its default when missing or
 invalid; unknown fields are preserved on write; writes are debounced (`SETTINGS_WRITE_DEBOUNCE_MS = 500`).
+
+## Other `localStorage` keys (added by later features, documented in their own contracts)
+
+| Key | Feature | Holds | Contract |
+|---|---|---|---|
+| `musicanyya.practice.v1` | 002 | Practice settings remembered per Score, `PRACTICE_SETTINGS_MAX = 20` | [002 practice-settings.md](../../002-practice-wait-mode/contracts/practice-settings.md) |
+| `musicanyya.play.v1` | 003 | Play run settings remembered per Score, `PLAY_SETTINGS_MAX = 20` | [003 performance-log.md](../../003-play-mode-grading/contracts/performance-log.md) |
+| `musicanyya.latency.v1` | 003 | The device's one measured Latency profile | [003 performance-log.md](../../003-play-mode-grading/contracts/performance-log.md) |
+
+All three follow this file's own rule for `musicanyya.settings.v1`: invalid or unparsable content falls back to
+built-in defaults and is overwritten on the next write; a storage failure is reported once (`storageUnavailable`)
+and never throws.
 
 ## Cache Storage `musicanyya-soundfont-v1`
 

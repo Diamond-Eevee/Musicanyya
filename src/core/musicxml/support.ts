@@ -46,6 +46,38 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
     status: 'Supported',
     notes: 'MIDI programs and unpitched percussion',
   },
+  {
+    category: 'Notes',
+    element: '<trill-mark>',
+    status: 'Supported',
+    notes: 'Play mode: the realisation is played-along, never graded (feature 003)',
+  },
+  {
+    category: 'Notes',
+    element: '<mordent>',
+    status: 'Supported',
+    notes: 'Play mode: the realisation is played-along, never graded (feature 003)',
+  },
+  {
+    category: 'Notes',
+    element: '<turn>',
+    status: 'Supported',
+    notes: 'Play mode: the realisation is played-along, never graded (feature 003)',
+  },
+  {
+    category: 'Notes',
+    element: '<tremolo>',
+    status: 'Supported',
+    notes: 'Play mode: the realisation is played-along, never graded (feature 003)',
+  },
+  {
+    category: 'Notes',
+    element: '<arpeggiate>',
+    status: 'Supported',
+    notes: 'Play mode: the wider arpeggio spread applies instead of the chord spread (feature 003)',
+  },
+  { category: 'Notes', element: '<glissando>', status: 'Unsupported', notes: 'Reported; ignored for playback' },
+  { category: 'Notes', element: '<slide>', status: 'Unsupported', notes: 'Reported; ignored for playback' },
 ];
 
 export function generateSupportMatrixMarkdown(): string {

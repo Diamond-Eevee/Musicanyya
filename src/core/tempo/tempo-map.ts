@@ -50,7 +50,7 @@ export function effectiveQpm(segment: TempoSegment, tempoPercent: number): numbe
   return ((segment.qpmNum / segment.qpmDen) * tempoPercent) / 100;
 }
 
-export function tempoAtTick(segments: TempoSegment[], tick: number): TempoSegment {
+export function tempoAtTick(segments: readonly TempoSegment[], tick: number): TempoSegment {
   let current = segments[0];
   for (const s of segments) {
     if (s.startTick > tick) break;

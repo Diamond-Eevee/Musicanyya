@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="3.1">
+  <part-list>
+    <score-part id="P1"><part-name>Piano</part-name></score-part>
+  </part-list>
+  <part id="P1">
+  <!-- C#4 (step C, alter 1) then Db4 (step D, alter -1) written a beat apart: both sound MIDI key 61, so
+       matching (which is on sounding key, never step/alter) must treat them the same regardless of spelling. -->
+  <measure number="1">
+    <attributes><divisions>1</divisions><time><beats>4</beats><beat-type>4</beat-type></time></attributes>
+    <direction><direction-type><metronome><beat-unit>quarter</beat-unit><per-minute>100</per-minute></metronome></direction-type><sound tempo="100"/></direction>
+    <note><pitch><step>C</step><alter>1</alter><octave>4</octave></pitch><duration>1</duration><type>quarter</type><accidental>sharp</accidental></note>
+    <note><pitch><step>D</step><alter>-1</alter><octave>4</octave></pitch><duration>1</duration><type>quarter</type><accidental>flat</accidental></note>
+    <note><rest/><duration>2</duration><type>half</type></note>
+  </measure>
+  </part>
+</score-partwise>

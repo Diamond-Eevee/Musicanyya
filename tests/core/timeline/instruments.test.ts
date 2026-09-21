@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LIVE_CHANNEL, PERCUSSION_CHANNEL } from '../../../src/core/defaults.js';
+import { LIVE_CHANNEL, METRONOME_CHANNEL, PERCUSSION_CHANNEL } from '../../../src/core/defaults.js';
 import type { Instrument, Note, Part } from '../../../src/core/score/model.js';
 import {
   assignChannels,
@@ -86,6 +86,26 @@ describe('assignChannels', () => {
       expect(value).not.toBe(LIVE_CHANNEL);
     }
   });
+
+  it('never allocates the Metronome channel to score content via an explicit channel hint (metronome-channel-collision, research R-19)', () => {
+    const piano = instrument({ xmlId: 'P1-I1', program: 0, channelHint: METRONOME_CHANNEL });
+    const parts = [part(0, [piano])];
+    const { channelByKey, channelSetup } = assignChannels(parts);
+    expect(channelByKey.get('0#P1-I1')).not.toBe(METRONOME_CHANNEL);
+    expect(channelSetup[METRONOME_CHANNEL]?.used).toBe(false);
+  });
+
+  it('never allocates the Metronome channel to score content when melodic channels run out (research R-19)', () => {
+    // 16 distinct programs: more than the 13 melodic channels now free (16 minus percussion, live and Metronome).
+    const many = Array.from({ length: 16 }, (_, i) => instrument({ xmlId: `I${i}`, program: i, channelHint: null }));
+    const parts = [part(0, many)];
+    const { channelByKey, channelSetup } = assignChannels(parts);
+    for (const value of channelByKey.values()) {
+      expect(value).not.toBe(METRONOME_CHANNEL);
+      expect(value).not.toBe(LIVE_CHANNEL);
+    }
+    expect(channelSetup[METRONOME_CHANNEL]?.used).toBe(false);
+  });
 });
 
 describe('instrumentForNote / channelForNote / soundingKeyForNote', () => {
@@ -136,6 +156,7 @@ function baseNote(overrides: Partial<Note> = {}): Note {
     onsetInMeasure: 0,
     onsetQuarters: { num: 0, den: 1 },
     durationTicks: 960,
+    step: 'C',
     writtenKey: 60,
     soundingKey: 60,
     unpitched: false,
@@ -148,6 +169,8 @@ function baseNote(overrides: Partial<Note> = {}): Note {
     fingerings: [],
     printed: true,
     source: { start: 0, end: 0 },
+    ornament: null,
+    arpeggiate: false,
     ...overrides,
   };
 }

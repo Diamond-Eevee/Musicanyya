@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="3.1">
+  <part-list>
+    <score-part id="P1">
+      <part-name>Piano</part-name>
+      <score-instrument id="P1-I1"><instrument-name>Acoustic Grand Piano</instrument-name></score-instrument>
+      <midi-instrument id="P1-I1"><midi-channel>15</midi-channel><midi-program>1</midi-program></midi-instrument>
+    </score-part>
+  </part-list>
+  <part id="P1">
+  <!-- midi-channel 15 (1-based) = channel 14 (0-based) = METRONOME_CHANNEL. assignChannels() must reroute
+       this part elsewhere, never leaving it on the Play mode Metronome's dedicated channel (research R-19). -->
+  <measure number="1">
+    <attributes><divisions>1</divisions><time><beats>4</beats><beat-type>4</beat-type></time></attributes>
+    <direction><direction-type><metronome><beat-unit>quarter</beat-unit><per-minute>100</per-minute></metronome></direction-type><sound tempo="100"/></direction>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>4</duration><instrument id="P1-I1"/></note>
+  </measure>
+  </part>
+</score-partwise>

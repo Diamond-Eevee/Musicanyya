@@ -1,7 +1,9 @@
+import type { PlayRun } from '../../core/play/types.js';
 import type { ExpectedEvent, LoopRange, PracticeSession } from '../../core/practice/types.js';
 import { FOLLOW_MARGIN, RELAYOUT_DEBOUNCE_MS, ZOOM_DEFAULT, ZOOM_MAX, ZOOM_MIN } from '../../engine/config.js';
 import type { AudioEngine } from '../../engine/ports.js';
 import { drawCursorOverlay } from '../score/cursor-overlay.js';
+import { drawGradeMarks, drawLiveMarks } from '../score/grade-marks.js';
 import { applyHighlights } from '../score/highlight.js';
 import {
   layoutPages,
@@ -12,6 +14,7 @@ import {
 } from '../score/pages.js';
 import { drawLoopMarks, drawPracticeMarks, drawStartMarker } from '../score/practice-marks.js';
 import type { VerovioClient } from '../score/verovio-client.js';
+import { playState } from '../state/playState.js';
 import { practiceState } from '../state/practiceState.js';
 import { transportState } from '../state/transportState.js';
 
@@ -26,6 +29,19 @@ export interface TimelineDto {
   endTick: number;
   passes: { measureIndex: number; startTick: number; endTick: number }[];
   spans: { noteId: string; startTick: number; endTick: number }[];
+}
+
+/** Structural, not imported from `src/app/play-session.js`: `PlaySessionController` satisfies this without a `ui`
+ *  element depending on `app` (Constitution V layering). T039's own doc comment on `reportPosition` already names
+ *  this exact call site ("the caller... drives this exactly like `mx-score-view` drives the cursor"). */
+export interface PlayPositionReporter {
+  reportPosition(nowMs: number): void;
+  /** T109 (found writing T046's e2e test): `playState.run` is `session.ts`'s own snapshot, refreshed only when it
+   *  happens to call `playState.setRun` - `startPlay()`'s one call left it frozen at `phase: 'countIn'` forever,
+   *  since nothing else ever ran again after that. This is the one per-frame driver (T039's own design), so it is
+   *  also the one place that can keep the snapshot live - `followPlayCursor` below needs `positionRunTick` fresh
+   *  every frame, not just at the rare instants `onEffect` fires. */
+  getRun(): PlayRun | null;
 }
 
 export class MxScoreView extends HTMLElement {
@@ -47,6 +63,9 @@ export class MxScoreView extends HTMLElement {
   private timeline: TimelineDto | null = null;
   private soundingNoteIds = new Set<string>();
   private practiceDrawn = false;
+  // Play mode (003 T107): set once by session.ts once a PlaySessionController exists.
+  private playSession: PlayPositionReporter | null = null;
+  private playDrawn = false;
   private dimmed: {
     events: readonly ExpectedEvent[];
     ids: Set<string>;
@@ -62,6 +81,15 @@ export class MxScoreView extends HTMLElement {
   private rafHandle: number | null = null;
   private followScrolling = false;
   private readonly tick = (): void => {
+    // T039's own design: "the caller... drives this exactly like mx-score-view drives the cursor" - one rAF loop,
+    // not a second one in session.ts.
+    if (this.playSession) {
+      this.playSession.reportPosition(performance.now());
+      // T109: keeps playState.run live every frame (see PlayPositionReporter.getRun's own doc comment) - cheap
+      // even at 60fps, since the store's deepEqual set() only notifies mx-grade-panel's one subscriber when
+      // something in the run actually changed.
+      playState.setRun(this.playSession.getRun());
+    }
     this.updateCursor();
     this.rafHandle = requestAnimationFrame(this.tick);
   };
@@ -95,6 +123,12 @@ export class MxScoreView extends HTMLElement {
   setPlayback(engine: AudioEngine, timeline: TimelineDto): void {
     this.engine = engine;
     this.timeline = timeline;
+  }
+
+  /** Called once by session.ts (T107) so this element's own rAF loop can drive the controller, mirroring how it
+   *  already drives the Listen cursor - never a second loop, and never a timer (Constitution I/II). */
+  setPlaySession(controller: PlayPositionReporter | null): void {
+    this.playSession = controller;
   }
 
   async load(renderXml: string, measureIds: readonly string[], zoomPercent?: number): Promise<void> {
@@ -199,11 +233,27 @@ export class MxScoreView extends HTMLElement {
 
   private onClick(event: Event): void {
     const target = event.target as Element | null;
+
+    if (practiceState.get().mode === 'play') {
+      const id = target?.closest('[id]')?.id;
+      if (id && this.isGradedNoteId(id)) {
+        playState.selectNote(id);
+        return;
+      }
+    }
+
     const measureEl = target?.closest('.measure');
     if (!measureEl) return;
     const measureIndex = measureIndexFromElementId(this.measureIds, measureEl.id || null);
     if (measureIndex === null) return;
     this.dispatchEvent(new CustomEvent('measureclick', { detail: { measureIndex } }));
+  }
+
+  /** T042/T107, FR-030: only a note the Grade actually marked can be selected for its plain-words reason -
+   *  everything else (measures, other ids) falls through to the ordinary measure-click handling below. */
+  private isGradedNoteId(id: string): boolean {
+    const grade = playState.get().grade;
+    return grade !== null && grade.results.some((result) => result.noteIds.includes(id));
   }
 
   /** Runs every animation frame (R-11): reads the audible position, highlights sounding notes, draws the
@@ -220,6 +270,18 @@ export class MxScoreView extends HTMLElement {
     if (this.practiceDrawn) {
       // Leaving Practice: nothing else clears the overlay when there is no Listen playback to draw.
       this.practiceDrawn = false;
+      this.canvasEl.getContext('2d')?.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
+    }
+
+    if (pState.mode === 'play') {
+      this.drawPlayState();
+      this.followPlayCursor();
+      this.playDrawn = true;
+      return;
+    }
+    if (this.playDrawn) {
+      // Leaving Play: FR-035's "cleared ... when the mode changes", the same treatment Practice gets above.
+      this.playDrawn = false;
       this.canvasEl.getContext('2d')?.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
     }
 
@@ -382,6 +444,73 @@ export class MxScoreView extends HTMLElement {
       if (measureEl && transportState.get().follow) {
         this.followScrollTo(measureEl);
       }
+    }
+  }
+
+  /** T109 (found writing T046's e2e test): FR-007 needs the Play run to follow-scroll exactly like Listen and
+   *  Practice already do, but nothing called it - `drawPlayState` only ever drew marks. Mirrors
+   *  `drawPracticeState`'s own current-measure follow call: no cursor rectangle (Play's canvas is the marks layer,
+   *  same treatment Practice already gives it), just keeping the run's current measure in the middle band. Needs
+   *  `this.timeline` (session.ts's `setPlayback`, now also called from `startPlay`) to convert the run's own
+   *  tick space back to timeline-tick space via `PlayTickMap` (contracts/play-run.md's own tick formula). */
+  private followPlayCursor(): void {
+    const { run } = playState.get();
+    if (
+      !run ||
+      (run.phase !== 'countIn' && run.phase !== 'running') ||
+      !this.timeline ||
+      !transportState.get().follow
+    ) {
+      return;
+    }
+    const { countInTicks, rangeStartTick } = run.tickMap;
+    const timelineTick = Math.max(rangeStartTick, run.positionRunTick - countInTicks + rangeStartTick);
+    const pass =
+      this.timeline.passes.find((p) => p.startTick <= timelineTick && timelineTick < p.endTick) ??
+      this.timeline.passes[this.timeline.passes.length - 1];
+    const measureId = pass ? this.measureIds[pass.measureIndex] : undefined;
+    const measureEl = measureId !== undefined ? this.stack.querySelector(`#${CSS.escape(measureId)}`) : null;
+    if (measureEl) this.followScrollTo(measureEl);
+  }
+
+  /** The Grade's own marks once a run has been graded, or the cheap live "correct" marks while one is still
+   *  running (T041/T044, FR-011a: the Grade replaces the live marks - `playState` never holds both at once). */
+  private drawPlayState(): void {
+    this.syncElementCache();
+    const { grade, liveMarkedNoteIds } = playState.get();
+
+    const containerRect = this.scrollEl.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const width = Math.round(containerRect.width) * dpr;
+    const height = Math.round(containerRect.height) * dpr;
+    if (this.canvasEl.width !== width || this.canvasEl.height !== height) {
+      this.canvasEl.width = width;
+      this.canvasEl.height = height;
+    }
+    const ctx = this.canvasEl.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
+
+    if (grade) {
+      const marks = grade.results.flatMap((result) =>
+        result.noteIds.map((noteId) => ({ noteId, pitch: result.pitch, timing: result.timing })),
+      );
+      const noteRects = new Map<string, DOMRect>();
+      for (const mark of marks) {
+        const el = this.elementFor(mark.noteId);
+        if (el) noteRects.set(mark.noteId, el.getBoundingClientRect());
+      }
+      // Extra notes have no notehead of their own to anchor a lane rect to yet (T042's own scoping note) - they
+      // still show up in mx-grade-panel's counts, just not drawn on the Score here.
+      drawGradeMarks({ ctx, dpr, containerRect, visible: true, marks, extraRects: [], noteRects });
+    } else if (liveMarkedNoteIds.size > 0) {
+      const noteIds = [...liveMarkedNoteIds];
+      const noteRects = new Map<string, DOMRect>();
+      for (const noteId of noteIds) {
+        const el = this.elementFor(noteId);
+        if (el) noteRects.set(noteId, el.getBoundingClientRect());
+      }
+      drawLiveMarks({ ctx, dpr, containerRect, visible: true, noteIds, noteRects });
     }
   }
 

@@ -476,11 +476,13 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           }
 
           let writtenKey = 0;
+          let noteStep = '';
           if (pitchEl) {
             const step = getText(getChild(pitchEl, 'step'));
             const alter = parseFloat(getText(getChild(pitchEl, 'alter'))) || 0;
             const octave = parseInt(getText(getChild(pitchEl, 'octave')), 10) || 4;
             writtenKey = getMidiKey(step, Math.round(alter), octave);
+            noteStep = step;
           } else if (isUnpitched) {
             const unpEl = getChild(el, 'unpitched');
             if (unpEl) {
@@ -515,6 +517,8 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
 
             let velocityOverride = null;
             let accent = false;
+            let ornament: Note['ornament'] = null;
+            let arpeggiate = false;
             const notations = getChildren(el, 'notations');
             const fingerings: Fingering[] = [];
             for (const not of notations) {
@@ -546,6 +550,36 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
                     placement: placement || null,
                   });
                 }
+              }
+
+              // Owner decision D-1: only these four ornaments are realised as played-along spans; anything
+              // else is skipped and reported, never fatal (Constitution III).
+              const orn = getChild(not, 'ornaments');
+              if (orn) {
+                for (const child of orn.children) {
+                  if (!(child instanceof XmlElement)) continue;
+                  if (child.name === 'trill-mark') ornament = 'trill';
+                  else if (child.name === 'mordent') ornament = 'mordent';
+                  else if (child.name === 'turn') ornament = 'turn';
+                  else if (child.name === 'tremolo') ornament = 'tremolo';
+                  else {
+                    report.add('info', 'unsupportedElement', measureLabel, child.name);
+                    report.skippedElementCount++;
+                  }
+                }
+              }
+
+              // Owner decision D-2: a chord member the Score writes rolled takes the wider arpeggio spread.
+              if (getChild(not, 'arpeggiate')) arpeggiate = true;
+
+              // Research R-17: deliberately unsupported, but reported rather than silently ignored.
+              if (getChild(not, 'glissando')) {
+                report.add('info', 'unsupportedElement', measureLabel, 'glissando');
+                report.skippedElementCount++;
+              }
+              if (getChild(not, 'slide')) {
+                report.add('info', 'unsupportedElement', measureLabel, 'slide');
+                report.skippedElementCount++;
               }
             }
 
@@ -595,6 +629,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
                 onsetInMeasure: onsetTicks,
                 onsetQuarters,
                 durationTicks,
+                step: noteStep,
                 writtenKey,
                 soundingKey,
                 unpitched: isUnpitched,
@@ -607,6 +642,8 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
                 fingerings,
                 printed: getAttr(el, 'print-object') !== 'no',
                 source: { start: (el as any).start || 0, end: (el as any).end || 0 },
+                ornament,
+                arpeggiate,
               },
             });
           }

@@ -67,3 +67,19 @@
 | unison-across-hands | A unison (one key, both hands) and an octave doubling (two keys); feature 002 | Hand-written | CC0 |
 | hands-accompaniment | Left-hand half note under two right-hand notes, plus a left-hand note where the right hand rests; feature 002 | Hand-written | CC0 |
 | voice-and-piano | Piano-vocal score: part 1 one staff, part 2 two staves; feature 002 part selection | Hand-written | CC0 |
+| window-beat-unit-6-8 | 6/8 at dotted-quarter=60, six eighth notes; the Play window "beat" is the dotted quarter | Hand-written | CC0 |
+| neighbour-clamp-sixteenths-160 | Eight consecutive 16ths at quarter=160 (93.75ms apart); exercises the neighbour clamp | Hand-written | CC0 |
+| repeated-pitch-two-presses | Two written C4 quarter notes in a row; order-preserving pass-1 matching | Hand-written | CC0 |
+| unison-two-voices | Two voices write C4 a 48th of a quarter apart; same-pitch onsets must never cross-match | Hand-written | CC0 |
+| anacrusis-count-in | 4/4 pickup measure with 2 of 4 beats; the count-in clicks the pickup's missing beats too | Hand-written | CC0 |
+| range-start-mid-measure-rests | Measure 2 opens with two beats of rest before its first note; count-in still ends on the barline | Hand-written | CC0 |
+| enharmonic-cs-db | C#4 then Db4, both sounding key 61; matching is on sounding key, never spelling | Hand-written | CC0 |
+| transposing-part-sounding-pitch | Bb clarinet (chromatic=-2), three notes; matching claims the sounding key | Hand-written | CC0 |
+| first-note-early-into-count-in | Plain melody whose first note's early claim window reaches into the count-in (D-4) | Hand-written | CC0 |
+| last-note-late-past-end | Plain melody whose last note's late claim window must be recorded past the final onset | Hand-written | CC0 |
+| chord-spread-rolled | Unmarked C-E-G whole-note chord; rolled within the ordinary chord spread, not the arpeggio spread | Hand-written | CC0 |
+| played-along-both-hands | Right-hand melody over a left-hand accompaniment; the unselected hand is played-along, never wrong or extra | Hand-written | CC0 |
+| metronome-channel-collision | A part hinted to midi-channel 15 (0-based 14 = METRONOME_CHANNEL); assignChannels must reroute it | Hand-written | CC0 |
+| eight-measure-melody | 8 measures of 4/4 at quarter=100, one note per beat: C-major scale up/down then broken chords | Hand-written | CC0 |
+| trill-realisation | One note each with trill-mark, mordent, turn, tremolo, plus an unsupported inverted-mordent | Hand-written | CC0 |
+| arpeggiate-chord | A C-E-G chord marked `<arpeggiate>` (wider arpeggio spread applies), then an unmarked F-A chord for contrast | Hand-written | CC0 |

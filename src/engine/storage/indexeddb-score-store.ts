@@ -1,11 +1,14 @@
 import { RECENT_SCORES_MAX } from '../config.js';
 import { hashFile } from '../files/hash.js';
 import type { RecentScoreSummary, ScoreStore, StoreResult } from '../ports.js';
-
-const DB_NAME = 'musicanyya';
-const DB_VERSION = 1;
-const STORE_NAME = 'recentScores';
-const INDEX_BY_LAST_OPENED = 'byLastOpened';
+import {
+  classifyDbError,
+  RECENT_SCORES_INDEX_BY_LAST_OPENED as INDEX_BY_LAST_OPENED,
+  openMusicanyyaDb,
+  requestToPromise,
+  RECENT_SCORES_STORE as STORE_NAME,
+  transactionDone,
+} from './db.js';
 
 interface RecentScoreRecord {
   id: string;
@@ -29,48 +32,11 @@ function toSummary(record: RecentScoreRecord): RecentScoreSummary {
   };
 }
 
-function requestToPromise<T>(request: IDBRequest<T>): Promise<T> {
-  return new Promise((resolve, reject) => {
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-}
-
-function transactionDone(tx: IDBTransaction): Promise<void> {
-  return new Promise((resolve, reject) => {
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error);
-    tx.onabort = () => reject(tx.error);
-  });
-}
-
-function classifyError(error: unknown): 'unavailable' | 'quotaExceeded' {
-  if (error instanceof DOMException && error.name === 'QuotaExceededError') return 'quotaExceeded';
-  return 'unavailable';
-}
-
 export class IndexedDbScoreStore implements ScoreStore {
   private dbPromise: Promise<IDBDatabase> | null = null;
 
   private openDb(): Promise<IDBDatabase> {
-    if (typeof indexedDB === 'undefined') {
-      return Promise.reject(new Error('indexedDB unavailable'));
-    }
-    if (!this.dbPromise) {
-      this.dbPromise = new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-        request.onupgradeneeded = () => {
-          const db = request.result;
-          if (!db.objectStoreNames.contains(STORE_NAME)) {
-            const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-            store.createIndex(INDEX_BY_LAST_OPENED, 'lastOpened');
-          }
-        };
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-        request.onblocked = () => reject(new Error('indexedDB blocked'));
-      });
-    }
+    if (!this.dbPromise) this.dbPromise = openMusicanyyaDb();
     return this.dbPromise;
   }
 
@@ -86,7 +52,7 @@ export class IndexedDbScoreStore implements ScoreStore {
         .slice(0, RECENT_SCORES_MAX);
       return { ok: true, value: summaries };
     } catch (error) {
-      return { ok: false, error: classifyError(error) };
+      return { ok: false, error: classifyDbError(error) };
     }
   }
 
@@ -140,7 +106,7 @@ export class IndexedDbScoreStore implements ScoreStore {
       await transactionDone(tx);
       return { ok: true, value: toSummary(record) };
     } catch (error) {
-      return { ok: false, error: classifyError(error) };
+      return { ok: false, error: classifyDbError(error) };
     }
   }
 
@@ -153,7 +119,7 @@ export class IndexedDbScoreStore implements ScoreStore {
       if (!record) return { ok: false, error: 'notFound' };
       return { ok: true, value: { summary: toSummary(record), bytes: record.bytes } };
     } catch (error) {
-      return { ok: false, error: classifyError(error) };
+      return { ok: false, error: classifyDbError(error) };
     }
   }
 
@@ -165,7 +131,7 @@ export class IndexedDbScoreStore implements ScoreStore {
       await transactionDone(tx);
       return { ok: true, value: undefined };
     } catch (error) {
-      return { ok: false, error: classifyError(error) };
+      return { ok: false, error: classifyDbError(error) };
     }
   }
 }

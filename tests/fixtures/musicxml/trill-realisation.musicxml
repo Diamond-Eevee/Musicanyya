@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="3.1">
+  <part-list>
+    <score-part id="P1"><part-name>Piano</part-name></score-part>
+  </part-list>
+  <part id="P1">
+  <!-- One note each with <trill-mark>, <mordent>, <turn> and <tremolo> (owner decision D-1), plus a fifth
+       note with <inverted-mordent> - a real MusicXML ornament outside our supported four - to exercise the
+       "unknown ornament child is skipped and reported, never fatal" rule (Constitution III). -->
+  <measure number="1">
+    <attributes><divisions>1</divisions><time><beats>5</beats><beat-type>4</beat-type></time></attributes>
+    <direction><direction-type><metronome><beat-unit>quarter</beat-unit><per-minute>100</per-minute></metronome></direction-type><sound tempo="100"/></direction>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type>
+      <notations><ornaments><trill-mark/></ornaments></notations>
+    </note>
+    <note><pitch><step>D</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type>
+      <notations><ornaments><mordent/></ornaments></notations>
+    </note>
+    <note><pitch><step>E</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type>
+      <notations><ornaments><turn/></ornaments></notations>
+    </note>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type>
+      <notations><ornaments><tremolo type="single">3</tremolo></ornaments></notations>
+    </note>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type>
+      <notations><ornaments><inverted-mordent/></ornaments></notations>
+    </note>
+  </measure>
+  </part>
+</score-partwise>

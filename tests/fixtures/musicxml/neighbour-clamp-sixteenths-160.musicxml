@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="3.1">
+  <part-list>
+    <score-part id="P1"><part-name>Piano</part-name></score-part>
+  </part-list>
+  <part id="P1">
+  <!-- Quarter=160: eight consecutive sixteenth notes, 93.75ms apart, exercising the neighbour clamp
+       (adjacent claim windows must meet at the midpoint, 46.9ms per side at Beginner, data-model section 6). -->
+  <measure number="1">
+    <attributes><divisions>4</divisions><time><beats>4</beats><beat-type>4</beat-type></time></attributes>
+    <direction><direction-type><metronome><beat-unit>quarter</beat-unit><per-minute>160</per-minute></metronome></direction-type><sound tempo="160"/></direction>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>1</duration><type>16th</type></note>
+    <note><pitch><step>D</step><octave>4</octave></pitch><duration>1</duration><type>16th</type></note>
+    <note><pitch><step>E</step><octave>4</octave></pitch><duration>1</duration><type>16th</type></note>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>1</duration><type>16th</type></note>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>1</duration><type>16th</type></note>
+    <note><pitch><step>A</step><octave>4</octave></pitch><duration>1</duration><type>16th</type></note>
+    <note><pitch><step>B</step><octave>4</octave></pitch><duration>1</duration><type>16th</type></note>
+    <note><pitch><step>C</step><octave>5</octave></pitch><duration>1</duration><type>16th</type></note>
+  </measure>
+  </part>
+</score-partwise>

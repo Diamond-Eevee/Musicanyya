@@ -1,4 +1,6 @@
 import { DIAGNOSTICS_REPORT_WINDOW_MS, TEMPO_PERCENT_DEFAULT, VOLUME_DEFAULT } from '../../core/defaults.js';
+import type { LatencyProfile } from '../../core/grade/types.js';
+import type { ClockPair } from '../midi/clock-map.js';
 import type {
   AudioDiagnostics,
   AudioEngine,
@@ -17,7 +19,7 @@ import { loadSoundFont } from './soundfont-cache.js';
 
 const SOUNDFONT_URL = 'soundfonts/GeneralUser-GS-2.0.3.sf2';
 const WORKLET_NAME = 'musicanyya-score-player';
-const WORKLET_PROTOCOL_VERSION = '1.1.0';
+const WORKLET_PROTOCOL_VERSION = '1.2.0';
 
 // The score-player worklet's outbound messages (contracts/worklet-protocol.md); defined locally because the
 // worklet module lives outside this file's TS project (tsconfig.worklet.json, AudioWorkletGlobalScope types).
@@ -250,6 +252,10 @@ export class WebAudioEngine implements AudioEngine {
     this.setTransport({ volume });
   }
 
+  setChannelVolume(channel: number, volume: number): void {
+    this.node?.port.postMessage({ type: 'channelVolume', channel, gain: volume / 100 });
+  }
+
   liveNoteOn(key: number, velocity: number): void {
     this.node?.port.postMessage({ type: 'live', kind: 'on', key, velocity });
   }
@@ -279,6 +285,13 @@ export class WebAudioEngine implements AudioEngine {
     return { audibleTick, playing: this.transport.phase === 'playing' };
   }
 
+  clockPair(): ClockPair | null {
+    if (!this.context) return null;
+    const ts = this.context.getOutputTimestamp?.();
+    if (!ts || ts.contextTime === undefined || ts.performanceTime === undefined) return null;
+    return { contextTime: ts.contextTime, performanceTime: ts.performanceTime };
+  }
+
   latency(): LatencyInfo {
     if (!this.context) {
       return { outputLatencyMs: null, keyToSoundMs: null, method: 'estimated' };
@@ -290,6 +303,18 @@ export class WebAudioEngine implements AudioEngine {
       outputLatencyMs,
       keyToSoundMs: null,
       method: outputLatency !== undefined ? 'reported' : 'estimated',
+    };
+  }
+
+  latencyProfile(): LatencyProfile {
+    const l = this.latency();
+    return {
+      outputLatencyMs: l.outputLatencyMs ?? 0,
+      // R-12's dispatch-delay estimate isn't tracked anywhere yet (data-model §8's documented "0
+      // where nothing is known" fallback); T056-T058's calibration produces the measured profile.
+      inputLatencyMs: 0,
+      source: 'assumed',
+      measuredAt: null,
     };
   }
 

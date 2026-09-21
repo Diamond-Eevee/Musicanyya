@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="3.1">
+  <part-list>
+    <score-part id="P1"><part-name>Piano</part-name></score-part>
+  </part-list>
+  <part id="P1">
+  <!-- Two voices write the same pitch (C4) a few milliseconds apart: voice 1 on the beat, voice 2 one
+       48th of a quarter later. Two distinct same-pitch onsets this close must never cross-match
+       (contracts/grading.md step 3, "two same-pitch onsets milliseconds apart never cross-match"). -->
+  <measure number="1">
+    <attributes><divisions>48</divisions><time><beats>4</beats><beat-type>4</beat-type></time></attributes>
+    <direction><direction-type><metronome><beat-unit>quarter</beat-unit><per-minute>100</per-minute></metronome></direction-type><sound tempo="100"/></direction>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>48</duration><voice>1</voice><type>quarter</type></note>
+    <backup><duration>48</duration></backup>
+    <note><rest/><duration>1</duration><voice>2</voice></note>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>47</duration><voice>2</voice></note>
+    <note><rest/><duration>144</duration><voice>2</voice></note>
+    <backup><duration>144</duration></backup>
+    <note><rest/><duration>144</duration><voice>1</voice></note>
+  </measure>
+  </part>
+</score-partwise>

@@ -1,7 +1,7 @@
 import type { HandSelection, LoopRange, PracticeSession, WrongKeyState } from '../../core/practice/types.js';
 import { createStore } from './store.js';
 
-export type AppMode = 'listen' | 'practice';
+export type AppMode = 'listen' | 'practice' | 'play';
 
 /** What the musician can choose before and during a session, for the Score that is open (FR-013, FR-025a, FR-034). */
 export interface PracticeSetup {

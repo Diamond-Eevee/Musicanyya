@@ -60,6 +60,9 @@ export interface Note {
   onsetInMeasure: Ticks;
   onsetQuarters: { num: number; den: number };
   durationTicks: Ticks;
+  /** The written pitch letter ('C'-'B'), before alter/octave; '' for an unpitched note. Ornament neighbours
+   *  (data-model.md §4) step by this letter, not by the resolved MIDI key, which has already lost it. */
+  step: string;
   writtenKey: number;
   soundingKey: number;
   unpitched: boolean;
@@ -78,6 +81,10 @@ export interface Note {
   fingerings: Fingering[];
   printed: boolean;
   source: { start: number; end: number };
+  /** A written <trill-mark>, <mordent>, <turn> or <tremolo> (owner decision D-1); its realisation is played-along. */
+  ornament: 'trill' | 'mordent' | 'turn' | 'tremolo' | null;
+  /** The Score writes this chord member <arpeggiate> (owner decision D-2): the wider arpeggio spread applies. */
+  arpeggiate: boolean;
 }
 
 export interface Fingering {

@@ -1,5 +1,8 @@
+import type { LatencyProfile, StoredPerformance } from '../core/grade/types.js';
+import type { RunSettings } from '../core/play/types.js';
 import type { HandSelection } from '../core/practice/types.js';
 import type { ScheduleMessage } from '../core/schedule/compile.js';
+import type { ClockPair } from './midi/clock-map.js';
 
 // ---- shared ----
 export type Unsubscribe = () => void;
@@ -76,6 +79,8 @@ export interface AudioEngine extends Emitter<AudioEngineEvent> {
   seekTick(tick: number): void;
   setTempoPercent(percent: number): void; // 25..200, multiple of 5
   setVolume(volume: number): void; // 0..100
+  /** CC7 on one channel, applied at the next block. Used to mute the Metronome without touching the schedule. */
+  setChannelVolume(channel: number, volume: number): void; // 0..100
   /** Live input (US3), applied as soon as possible. */
   liveNoteOn(key: number, velocity: number): void;
   liveNoteOff(key: number): void;
@@ -83,7 +88,13 @@ export interface AudioEngine extends Emitter<AudioEngineEvent> {
   liveAllOff(): void;
   /** Called every animation frame by the UI; returns the audible position (R-11). */
   audiblePosition(nowMs: number): PositionUpdate | null;
+  /** The `(contextTime, performanceTime)` pairing `AudioContext.getOutputTimestamp()` gives, the same one the
+   *  cursor uses (R-04); null before the context exists. Feeds `MidiClockMap` so a recorded MIDI message's
+   *  `timeStampMs` can be mapped onto the audio clock (play-run.md 1.1.1 -> 1.2.0). */
+  clockPair(): ClockPair | null;
   latency(): LatencyInfo;
+  /** The profile grading compensates with; `assumed` until a calibration is stored (data-model §8). */
+  latencyProfile(): LatencyProfile;
   diagnostics(): AudioDiagnostics; // data-model §6
   dispose(): Promise<void>;
 }
@@ -137,6 +148,20 @@ export interface ScoreStore {
   remove(id: string): Promise<StoreResult<void>>;
 }
 
+// ---- PerformanceStore (stored attempts, IndexedDB) ----
+/** `StoredPerformance` without its `log` - what the attempts list needs (contracts/performance-log.md). */
+export type StoredPerformanceSummary = Omit<StoredPerformance, 'log'>;
+
+export interface PerformanceStore {
+  /** Upsert by `runId`; trims that Score's performances to `PERFORMANCES_PER_SCORE_MAX`, oldest first (FR-041). */
+  put(performance: StoredPerformance): Promise<StoreResult<void>>;
+  /** Newest first (`byScoreFinished`), summaries only - no recording bytes for a list view. */
+  listByScore(scoreId: string): Promise<StoreResult<readonly StoredPerformanceSummary[]>>;
+  get(runId: string): Promise<StoreResult<StoredPerformance>>;
+  /** Removes the record and therefore its recording (FR-043). */
+  remove(runId: string): Promise<StoreResult<void>>;
+}
+
 export interface UserSettings {
   version: 1;
   volume: number;
@@ -164,6 +189,14 @@ export interface SettingsStore {
   loadPractice(scoreId: string | null): PracticeSettings;
   /** Stores the settings for that Score id and updates the last-used defaults. No-op for a null id. */
   savePractice(scoreId: string | null, settings: PracticeSettings): void;
+
+  /** Play settings for a Score id, falling back to the musician's last-used defaults, then to the built-in ones. */
+  loadPlay(scoreId: string | null): RunSettings;
+  /** Stores the settings for that Score id and updates the last-used defaults. No-op for a null id. */
+  savePlay(scoreId: string | null, settings: RunSettings): void;
+
+  loadLatencyProfile(): LatencyProfile;
+  saveLatencyProfile(profile: LatencyProfile): void;
 }
 
 // ---- EnvironmentProbe ----

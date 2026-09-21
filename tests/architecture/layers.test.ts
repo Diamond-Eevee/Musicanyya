@@ -46,9 +46,13 @@ describe('Architecture Rules', () => {
     for (const file of files) {
       if (!file.endsWith('.ts')) continue;
       const content = fs.readFileSync(file, 'utf-8');
+      // Comments may legitimately use these as plain English words ("window" as in a timing window) or name a
+      // local type after one (e.g. `interface Window`, distinct from the DOM global because it is capitalised
+      // and tsconfig.core.json has no DOM lib) - strip comments so the heuristic checks code, not prose.
+      const code = content.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
 
       // A simple heuristic, though tsc will catch actual violations via tsconfig.core.json
-      expect(content).not.toMatch(/\b(window|document|HTMLElement|EventTarget)\b/);
+      expect(code).not.toMatch(/\b(window|document|HTMLElement|EventTarget)\b/);
     }
   });
 });
