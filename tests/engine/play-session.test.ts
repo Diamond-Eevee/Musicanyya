@@ -257,4 +257,45 @@ describe('PlaySessionController (T039/T097)', () => {
 
     expect(effects.filter((e) => e.type === 'liveMark')).toHaveLength(1);
   });
+
+  it('T098: engine suspended with deviceChanged raises audioLost, stops the run, and marks Grade unreliable', async () => {
+    const { score, timeline, audioEngine, controller, gradeWorker } = setup();
+    controller.start({ scoreId: null, score, timeline, measures: score.measures, range: null, settings: settings() });
+    controller.reportPosition(2000);
+
+    audioEngine.fireEvent({ type: 'state', state: { kind: 'suspended', reason: 'deviceChanged' } });
+    
+    const run = controller.getRun();
+    expect(run?.phase).toBe('aborted');
+
+    const requestId = gradeWorker.posted[0]!.requestId;
+    const input = gradeWorker.posted[0]!.input;
+    expect(input.complete).toBe(false);
+    expect(input.reliability.filter(r => r.kind === 'audioLost')).toHaveLength(1);
+    gradeWorker.reply({ type: 'graded', requestId, grade: gradePerformance(input) });
+    await controller.waitForGrade();
+  });
+
+  it('T053: engine dropout stamps an audio dropout with the current audio time', () => {
+    const { score, timeline, audioEngine, controller } = setup();
+    controller.start({ scoreId: null, score, timeline, measures: score.measures, range: null, settings: settings() });
+    controller.reportPosition(2000);
+
+    audioEngine.fireEvent({ type: 'dropout', total: 1 });
+
+    const run = controller.getRun();
+    expect(run?.reliability.filter(r => r.kind === 'audioDropout')).toHaveLength(1);
+  });
+
+  it('T053: deviceLost and availability changes stamp device loss/return with the current audio time', () => {
+    const { score, timeline, midiInput, controller } = setup();
+    controller.start({ scoreId: null, score, timeline, measures: score.measures, range: null, settings: settings() });
+    controller.reportPosition(2000);
+
+    midiInput.fire({ type: 'deviceLost', deviceId: 'kb-1', heldKeys: [] });
+    
+    const run = controller.getRun();
+    const losses = run?.reliability.filter(r => r.kind === 'midiDeviceLost') ?? [];
+    expect(losses).toHaveLength(1);
+  });
 });

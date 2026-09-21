@@ -79,6 +79,8 @@ export class PlaySessionController {
   private lastNowMs = 0;
   private awaitingTail = false;
   private audioEndedAtMs = 0;
+  private initialSampleRate: number | null = null;
+  private lastLiveQueueDropped = 0;
 
   /** T044/FR-011: onset ticks already given a live mark this run, so a held or repeated key does not re-emit one. */
   private readonly liveMarkedOnsets = new Set<number>();
@@ -155,6 +157,8 @@ export class PlaySessionController {
     const nowMs = this.now();
     this.lastNowMs = nowMs;
     const startAudioTimeSec = this.clockMap.toAudioTime(nowMs) ?? 0;
+    this.initialSampleRate = this.audioEngine.diagnostics().sampleRate;
+    this.lastLiveQueueDropped = this.audioEngine.diagnostics().liveQueueDropped;
 
     this.run = createIdleRun(scoreId, settings, tickMap);
     this.dispatch({ type: 'start', runId: this.randomUUID(), startAudioTimeSec, startedAt: this.nowISO() });
@@ -209,6 +213,19 @@ export class PlaySessionController {
     const audioTimeSec = this.clockMap.toAudioTime(nowMs);
     if (audioTimeSec === null) return;
     this.dispatch({ type: 'position', runTick: position.audibleTick, audioTimeSec });
+
+    const diagnostics = this.audioEngine.diagnostics();
+    if (this.initialSampleRate !== null && diagnostics.sampleRate !== null && diagnostics.sampleRate !== this.initialSampleRate) {
+      this.dispatch({ type: 'audioLost' });
+      return;
+    }
+    if (diagnostics.liveQueueDropped > this.lastLiveQueueDropped) {
+      const count = diagnostics.liveQueueDropped - this.lastLiveQueueDropped;
+      this.lastLiveQueueDropped = diagnostics.liveQueueDropped;
+      for (let i = 0; i < count; i++) {
+        this.dispatch({ type: 'reliability', event: { kind: 'midiDropped', audioTimeSec, detail: null } });
+      }
+    }
   }
 
   /** Resolves once the most recently finished run's Grade (or grading failure) has reached the callbacks -
@@ -227,14 +244,36 @@ export class PlaySessionController {
   }
 
   private handleEngineEvent(event: AudioEngineEvent): void {
-    if (event.type !== 'ended') return;
     if (!this.run || (this.run.phase !== 'countIn' && this.run.phase !== 'running')) return;
-    this.audioEndedAtMs = this.lastNowMs;
-    this.awaitingTail = true;
+
+    if (event.type === 'state' && event.state.kind === 'suspended' && event.state.reason === 'deviceChanged') {
+      this.dispatch({ type: 'audioLost' });
+    } else if (event.type === 'dropout') {
+      this.syncClock();
+      const audioTimeSec = this.clockMap.toAudioTime(this.lastNowMs) ?? 0;
+      for (let i = 0; i < event.total; i++) {
+        this.dispatch({ type: 'reliability', event: { kind: 'audioDropout', audioTimeSec, detail: null } });
+      }
+    } else if (event.type === 'ended') {
+      this.audioEndedAtMs = this.lastNowMs;
+      this.awaitingTail = true;
+    }
   }
 
   private handleMidiEvent(event: MidiInputEvent): void {
     if (!this.run || (this.run.phase !== 'countIn' && this.run.phase !== 'running')) return;
+
+    if (event.type === 'deviceLost' || event.type === 'availability') {
+      this.syncClock();
+      const audioTimeSec = this.clockMap.toAudioTime(this.lastNowMs) ?? 0;
+      if (event.type === 'deviceLost') {
+        this.dispatch({ type: 'reliability', event: { kind: 'midiDeviceLost', audioTimeSec, detail: null } });
+      } else {
+        this.dispatch({ type: 'reliability', event: { kind: 'midiDeviceBack', audioTimeSec, detail: null } });
+      }
+      return;
+    }
+
     if (event.type !== 'noteOn' && event.type !== 'noteOff' && event.type !== 'sustain') return;
 
     this.syncClock();
@@ -305,7 +344,7 @@ export class PlaySessionController {
         if (effect.on) this.audioEngine.liveNoteOn(effect.key, effect.velocity);
         else this.audioEngine.liveNoteOff(effect.key);
       } else if (effect.type === 'runEnded') {
-        this.pendingGrade = this.finishRun(effect.reason !== 'stopped');
+        this.pendingGrade = this.finishRun(effect.reason === 'reachedEnd');
       }
       this.callbacks.onEffect(effect);
     }
