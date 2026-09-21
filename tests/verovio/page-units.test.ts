@@ -238,5 +238,25 @@ describe('Verovio page-unit relation (score-layout.md section 2)', () => {
       const { outerWidth } = geometryOf(svg);
       expect(Math.abs(outerWidth - 1920)).toBeLessThanOrEqual(1);
     });
+
+    /** T030: the worker must ask for a dictated height (`adjustPageHeight: 0`), on both messages that lay out. */
+    it.each(['load', 'relayout'] as const)(
+      'a %s gives every page exactly the requested screenful height',
+      async (kind) => {
+        const messages: Array<Record<string, unknown>> = [];
+        const post = (message: Record<string, unknown>) => messages.push(message);
+        const send = (data: Record<string, unknown>) =>
+          handleMessage({ data } as MessageEvent, post as typeof postMessage);
+        await send({ type: 'init', requestId: 1 });
+        await send({ type: 'load', requestId: 2, renderXml: LARGE, options: fittedLayout(1600, 800, 100) });
+        if (kind === 'relayout') await send({ type: 'relayout', requestId: 3, options: fittedLayout(1920, 1000, 100) });
+        await send({ type: 'page', requestId: 4, page: 2 });
+
+        const svg = messages.filter((message) => message.type === 'svg').at(-1)?.svg;
+        if (typeof svg !== 'string') throw new Error(`no svg message: ${JSON.stringify(messages)}`);
+        const wanted = kind === 'load' ? 800 : 1000;
+        expect(geometryOf(svg).outerHeight).toBeCloseTo(wanted, 0);
+      },
+    );
   });
 });

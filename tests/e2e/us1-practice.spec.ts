@@ -1,6 +1,7 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
+import { openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(__dirname, '../fixtures/musicxml');
@@ -122,6 +123,7 @@ test('US2 end-to-end: right hand only from measure 2, the left hand heard, then 
 }) => {
   await openScoreInPractice(page, 'cross-staff-beaming.musicxml');
 
+  await openPanel(page, 'setup');
   const panel = page.locator('mx-practice-panel');
   await expect(panel).toBeVisible();
   await expect(panel.locator('input[name="hands"]')).toHaveCount(3);
@@ -151,8 +153,10 @@ test('US2 end-to-end: right hand only from measure 2, the left hand heard, then 
   expect(s?.index).toBe(5);
   expect(s?.ringing).toEqual([48]);
 
-  // Switching to the left hand restarts cleanly from the current measure with the new selection
-  await panel.getByLabel('Left hand').check();
+  // Switching to the left hand restarts cleanly from the current measure with the new selection. (The setup is not
+  // shown while a run is active - feature 004, FR-007 - so the control is driven directly; the session's own live-change
+  // handling, which this file proves, is unchanged.)
+  await panel.getByLabel('Left hand').evaluate((el) => (el as HTMLInputElement).click());
   s = await sessionOf(page);
   expect(s?.preset).toBe('left');
   expect(s?.index).toBe(4); // measure 2 again, first left-hand note (C3)
@@ -164,7 +168,7 @@ test('US2 end-to-end: right hand only from measure 2, the left hand heard, then 
   expect(s?.required.slice(6)).toEqual([[60], [64]]);
 
   // Accompaniment can be switched off for the session
-  await panel.getByLabel('Hear the notes I am not practising').uncheck();
+  await panel.getByLabel('Hear the notes I am not practising').evaluate((el) => (el as HTMLInputElement).click());
   s = await sessionOf(page);
   expect(s?.accompaniment).toBe(false);
   await press(page, 48);
@@ -217,6 +221,7 @@ test('US3 end-to-end: a reversed range is corrected, the loop wraps without endi
   page,
 }) => {
   await openScoreInPractice(page, 'chords/c-major-scale-and-chords.musicxml');
+  await openPanel(page, 'setup');
   const panel = page.locator('mx-practice-panel');
   const from = panel.getByLabel('From measure');
   const to = panel.getByLabel('To measure');
@@ -254,7 +259,8 @@ test('US3 end-to-end: a reversed range is corrected, the loop wraps without endi
   expect((await sessionOf(page))?.index).toBe(0);
 
   // Clearing the loop: practice goes on from the current position to the end of the Score (AS-3.3)
-  await panel.getByRole('button', { name: 'Clear loop' }).click();
+  // (Driven directly for the same reason as above: the setup is not shown during a run.)
+  await panel.locator('button', { hasText: 'Clear loop' }).evaluate((el) => (el as HTMLButtonElement).click());
   await expect(from).toHaveValue('');
   for (const key of [60, 62, 64, 65]) await press(page, key);
   expect((await sessionOf(page))?.index).toBe(4); // the C-E-G chord: not back at the start
@@ -262,6 +268,7 @@ test('US3 end-to-end: a reversed range is corrected, the loop wraps without endi
 
 test('US3: the loop is remembered for the Score and a session starts at it', async ({ page }) => {
   await openScoreInPractice(page, 'chords/c-major-scale-and-chords.musicxml');
+  await openPanel(page, 'setup');
   const panel = page.locator('mx-practice-panel');
 
   await panel.getByLabel('From measure').fill('2');

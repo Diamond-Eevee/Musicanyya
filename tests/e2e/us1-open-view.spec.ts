@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
+import { openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(__dirname, '../fixtures/musicxml');
@@ -32,7 +33,7 @@ test('US1 end-to-end: open fixtures, zoom, errors, recent, help page', async ({ 
   await page.keyboard.press('+');
   await page.waitForTimeout(700); // relayout debounce (150ms) + settings write debounce (500ms)
   const settingsAfterZoomIn = await page.evaluate(() => localStorage.getItem('musicanyya.settings.v1'));
-  expect(JSON.parse(settingsAfterZoomIn ?? '{}').zoomPercent).toBe(110);
+  expect(JSON.parse(settingsAfterZoomIn ?? '{}').scale).toBe(110);
 
   // Open a second file via drag-and-drop (only the dropped file is used).
   const dropXml = fs.readFileSync(fixturePath('scale-c-major-q100.musicxml'), 'utf8');
@@ -58,11 +59,12 @@ test('US1 end-to-end: open fixtures, zoom, errors, recent, help page', async ({ 
   await expect(page.locator('.mx-empty-state')).toBeVisible();
   const recentButtons = page.locator('.mx-recent-list button.mx-recent-open');
   await expect(recentButtons).toHaveCount(2);
+  await openPanel(page, 'scores'); // the recent list is a popup now
   await recentButtons.first().click();
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
 
   // Help page: shows the supported notation table.
-  await page.getByRole('button', { name: 'Help' }).click();
+  await openPanel(page, 'help');
   await expect(page.locator('mx-help-notation')).toBeVisible();
   await expect(page.locator('mx-help-notation')).toContainText('Supported notation');
 

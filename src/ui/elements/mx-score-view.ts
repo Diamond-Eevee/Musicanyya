@@ -8,6 +8,7 @@ import {
   SCORE_SCALE_MIN,
 } from '../../engine/config.js';
 import type { AudioEngine } from '../../engine/ports.js';
+import { fitLayout } from '../layout/fit.js';
 import { drawCursorOverlay } from '../score/cursor-overlay.js';
 import { drawGradeMarks, drawLiveMarks } from '../score/grade-marks.js';
 import { applyHighlights } from '../score/highlight.js';
@@ -19,11 +20,13 @@ import {
   sanitiseAndExtractMeasures,
 } from '../score/pages.js';
 import { drawLoopMarks, drawPracticeMarks, drawStartMarker } from '../score/practice-marks.js';
-import type { VerovioClient } from '../score/verovio-client.js';
+import type { LayoutOptions, VerovioClient } from '../score/verovio-client.js';
 import { playState } from '../state/playState.js';
 import { practiceState } from '../state/practiceState.js';
 import { transportState } from '../state/transportState.js';
 
+/** Used only when the viewport has no size to fit to (an element that is not laid out yet, or a test): the page the
+ *  view asked for before feature 004. A real window always gets `fitLayout()` instead. */
 const DEFAULT_PAGE_WIDTH = 1200;
 const DEFAULT_PAGE_HEIGHT = 1600;
 
@@ -62,6 +65,13 @@ export class MxScoreView extends HTMLElement {
   private mountedPages = new Set<number>();
   private scale = SCORE_SCALE_DEFAULT;
   private relayoutTimer: ReturnType<typeof setTimeout> | null = null;
+  /** A scale change (unlike a resize) relays out even when the viewport cannot be measured. */
+  private relayoutForced = false;
+  private resizeObserver: ResizeObserver | null = null;
+  /** The layout last sent to Verovio; a resize that would ask for the same one is ignored. */
+  private requested: LayoutOptions | null = null;
+  /** Height over width of a page, read from its rendered `viewBox` (contracts/score-layout.md section 4). */
+  private pageAspect: number | null = null;
   private loadToken = 0;
 
   // Listen-mode cursor/highlight (T107, R-11): set once by session.ts (T108) after a Score + engine are ready.
@@ -117,12 +127,20 @@ export class MxScoreView extends HTMLElement {
       if (transportState.get().phase === 'playing') transportState.manualScroll();
     });
     this.scrollEl.addEventListener('click', (event) => this.onClick(event));
+    // Re-fit when the window (or anything that changes the Score viewport) is resized. Panels are overlays, so
+    // opening one changes no size here and never triggers a relayout (FR-020).
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(() => this.onResize());
+      this.resizeObserver.observe(this.scrollEl);
+    }
     this.rafHandle = requestAnimationFrame(this.tick);
   }
 
   disconnectedCallback() {
     if (this.relayoutTimer !== null) clearTimeout(this.relayoutTimer);
     if (this.rafHandle !== null) cancelAnimationFrame(this.rafHandle);
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
   }
 
   /** Called once a Score's schedule/timeline and an unlocked AudioEngine are both ready (session.ts, T108). */
@@ -146,7 +164,10 @@ export class MxScoreView extends HTMLElement {
       this.scale = Math.min(SCORE_SCALE_MAX, Math.max(SCORE_SCALE_MIN, Math.round(scale)));
     }
     await this.client.init();
-    const { pageCount } = await this.client.load(renderXml, this.layoutOptions());
+    const layout = this.fittedLayout() ?? this.requested ?? this.defaultLayout();
+    this.requested = layout;
+    this.pageAspect = null;
+    const { pageCount } = await this.client.load(renderXml, layout);
     if (token !== this.loadToken) return; // superseded by a newer load
     this.applyPageCount(pageCount);
     await this.mountVisiblePages();
@@ -157,17 +178,54 @@ export class MxScoreView extends HTMLElement {
     if (clamped === this.scale) return;
     this.scale = clamped;
     this.dispatchEvent(new CustomEvent('zoomchange', { detail: { scale: clamped } }));
+    this.scheduleRelayout(true);
+  }
+
+  /** The Verovio page that makes one page one screenful of the current viewport at the current size; null while the
+   *  viewport has no size (score-layout.md section 2, rule 3). */
+  private fittedLayout(): LayoutOptions | null {
+    return fitLayout(this.scrollEl.clientWidth, this.scrollEl.clientHeight, this.scale);
+  }
+
+  private defaultLayout(): LayoutOptions {
+    return { pageWidth: DEFAULT_PAGE_WIDTH, pageHeight: DEFAULT_PAGE_HEIGHT, scale: this.scale };
+  }
+
+  private onResize(): void {
+    const fitted = this.fittedLayout();
+    const current = this.requested;
+    if (!fitted || !current) return; // nothing to fit to yet, or nothing loaded
+    if (
+      fitted.pageWidth === current.pageWidth &&
+      fitted.pageHeight === current.pageHeight &&
+      fitted.scale === current.scale
+    ) {
+      return;
+    }
+    this.scheduleRelayout(false);
+  }
+
+  private scheduleRelayout(forced: boolean): void {
+    this.relayoutForced = this.relayoutForced || forced;
     if (this.relayoutTimer !== null) clearTimeout(this.relayoutTimer);
     this.relayoutTimer = setTimeout(() => this.relayout(), RELAYOUT_DEBOUNCE_MS);
   }
 
-  private layoutOptions() {
-    return { pageWidth: DEFAULT_PAGE_WIDTH, pageHeight: DEFAULT_PAGE_HEIGHT, scale: this.scale };
+  /** The height of one page element, in CSS px: the page width times the rendered page's own aspect ratio. Until a
+   *  page has been rendered it comes from the layout that was asked for, and with no viewport at all from a fixed
+   *  fallback, so page mounting and follow-scroll always work against a height that is close to the real one. */
+  private pageHeightPx(): number {
+    const width = this.scrollEl.clientWidth;
+    if (width > 0) {
+      const aspect = this.pageAspect ?? (this.requested ? this.requested.pageHeight / this.requested.pageWidth : null);
+      if (aspect !== null) return Math.round(width * aspect * 100) / 100;
+    }
+    return DEFAULT_PAGE_HEIGHT;
   }
 
   private applyPageCount(pageCount: number) {
     this.domEpoch++;
-    this.layouts = layoutPages(pageCount, DEFAULT_PAGE_HEIGHT);
+    this.layouts = layoutPages(pageCount, this.pageHeightPx());
     this.pageMeasureIds.clear();
     this.mountedPages.clear();
     this.stack.innerHTML = '';
@@ -177,6 +235,19 @@ export class MxScoreView extends HTMLElement {
       pageEl.setAttribute('data-page', String(layout.page));
       pageEl.style.height = `${layout.height}px`;
       this.stack.appendChild(pageEl);
+    }
+  }
+
+  /** The first rendered page tells the real page shape; re-measure the placeholders once if it differs. */
+  private adoptRenderedAspect(aspect: number | null): void {
+    if (aspect === null || aspect === this.pageAspect) return;
+    this.pageAspect = aspect;
+    const height = this.pageHeightPx();
+    if (this.layouts.length === 0 || this.layouts[0]?.height === height) return;
+    this.layouts = layoutPages(this.layouts.length, height);
+    for (const layout of this.layouts) {
+      const pageEl = this.stack.querySelector<HTMLElement>(`[data-page="${layout.page}"]`);
+      if (pageEl) pageEl.style.height = `${layout.height}px`;
     }
   }
 
@@ -193,10 +264,18 @@ export class MxScoreView extends HTMLElement {
 
   private async relayout(): Promise<void> {
     this.relayoutTimer = null;
-    if (!this.client) return;
+    const forced = this.relayoutForced;
+    this.relayoutForced = false;
+    if (!this.client || !this.requested) return; // no Score has been laid out yet: the next load uses the new size
+    // A resize with an unmeasurable viewport keeps the last good layout; a size change still applies its scale.
+    const layout =
+      this.fittedLayout() ?? (forced ? { ...(this.requested ?? this.defaultLayout()), scale: this.scale } : null);
+    if (!layout) return;
     const token = this.loadToken;
     const anchorMeasureId = this.currentAnchorMeasureId();
-    const { pageCount } = await this.client.relayout(this.layoutOptions());
+    this.requested = layout;
+    this.pageAspect = null;
+    const { pageCount } = await this.client.relayout(layout);
     if (token !== this.loadToken) return;
     this.applyPageCount(pageCount);
 
@@ -229,6 +308,7 @@ export class MxScoreView extends HTMLElement {
       const { svg } = await this.client.page(page);
       if (token !== this.loadToken) return;
       const sanitised = sanitiseAndExtractMeasures(svg);
+      this.adoptRenderedAspect(sanitised.aspect);
       this.pageMeasureIds.set(page, sanitised.measureIds);
       const pageEl = this.stack.querySelector(`[data-page="${page}"]`);
       if (pageEl) pageEl.innerHTML = sanitised.svg;

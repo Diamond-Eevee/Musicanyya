@@ -1,6 +1,7 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type ElectronApplication, _electron as electron, expect, test } from '@playwright/test';
+import { openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -38,7 +39,7 @@ test.describe('Electron smoke test', () => {
     await expect(window.locator('.mx-empty-state')).toBeVisible();
 
     // Environment panel
-    await window.getByRole('button', { name: 'Environment' }).click();
+    await openPanel(window, 'environment');
     await expect(window.locator('mx-environment-panel')).toBeVisible();
     await expect(window.locator('mx-environment-panel')).toContainText('Desktop App');
 

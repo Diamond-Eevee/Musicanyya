@@ -3,6 +3,11 @@ import { en } from '../i18n/en.js';
 export const SCORE_FILE_ACCEPT = '.musicxml,.xml,.mxl';
 
 export class MxOpenButton extends HTMLElement {
+  /** Opens the file chooser, for callers (the empty-state invitation) that ask the app to open a Score. */
+  open(): void {
+    this.querySelector<HTMLInputElement>('.mx-open-input')?.click();
+  }
+
   connectedCallback() {
     this.innerHTML = `
       <button type="button" class="mx-open-button">${en.open.button}</button>

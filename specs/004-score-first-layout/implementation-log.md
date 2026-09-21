@@ -136,3 +136,60 @@ Feature `004-score-first-layout`. Newest entry at the bottom.
   `.mx-diagnostics-list`, `mx-practice-panel`, ...) that must survive the rewrite.
 - Handoff: next = Phase 3 (US1) tests T020-T025 (`tests/e2e/us1-layout.spec.ts` first, then the unit tests),
   then T026-T039; start with `pnpm test -- tests/ui` (all green) and `pnpm typecheck`; tree clean at this commit.
+
+## 2026-09-21 - claude-sonnet-5 (/speckit.implement, Phases 3-4 US1 + US2 - checkpoint)
+
+- Done: T020-T050 (US1 and US2 were implemented together; see Decisions). Independent tests verified:
+  - US1: at 1280x720 ... 2560x1440 the Score view is the full window width and (window - bar) tall, the bar is
+    at most 48 px, nothing else reserves flow space, no horizontal scrollbar (`us1-layout.spec.ts`, chromium,
+    firefox, webkit); at 1920x1080 at least two systems of the two-staff fixture are fully visible (SC-002).
+  - US2: every one of the nine hand-opened tools opens over the Score in two activations, one at a time, with
+    the Score's SVG element and scroll position untouched (an in-page tag survives), and closes with Escape, the
+    close button and a click outside, returning focus to its menu button; open/close under 100 ms; starting
+    Listen, Practice or Play closes an open popup with no dialog; no long task while a popup opens/closes during a
+    run (`us2-panels.spec.ts`).
+  - Gate so far: vitest 933 passed / 2 skipped; `tsc --build` clean; Biome clean on every feature file; all
+    chromium e2e green (32 tests; 1 skipped on webkit for audio); the new specs also pass on firefox and webkit.
+- Decisions:
+  - US1 and US2 landed together: removing the three asides (T026) forces the tools to be re-parented into
+    `#panel-host` (T045), otherwise the existing e2e suites cannot reach Help, MIDI, the Practice/Play setup or
+    the Grade. Each task was still ticked only against its own test.
+  - `session.ts` cannot be unit-tested (it creates Workers), so T043 tests `mountPanels()`
+    (`src/ui/layout/panel-host.ts`), the one function session calls; T043 reworded.
+  - `mx-help-notation`, `mx-diagnostics` and `mx-environment-panel` used to hide themselves until a toggle
+    button was pressed; they now show exactly while their popup is the open one (driven by `viewState`), and keep
+    `toggle()` so their own tests are unchanged.
+  - Settings persist from the store: `session.ts` keeps `UserSettings` in memory (`persistUserSettings`) instead of
+    re-reading storage, which also fixes an old race where a volume change inside the 500 ms write debounce
+    overwrote a pending zoom. Only a change to `scale` or `overlays` writes settings, not opening a popup.
+  - The empty-state invitation is `mx-drop-zone` itself (an overlay that listens on its parent, so a drop anywhere
+    over the Score area is accepted); its Open button asks the bar's single `mx-open-button` to open the chooser
+    (`openrequest`), so there is never a second file input.
+  - `mx-score-view`: page = `fitLayout()` of the scroll container, `ResizeObserver` + the existing 150 ms
+    debounce, page height from the first rendered SVG `viewBox` (falls back to the requested shape, then to 1600
+    px only with no viewport at all, so the 8 existing score-view tests pass unchanged). A scale change relays out
+    even when the viewport cannot be measured; a resize does not (rule 3). `scrollbar-gutter: stable` keeps the
+    fitted width independent of how many pages there are.
+  - Piano keys are hidden unless `overlays.pianoKeys` (FR-015; the switch UI is US4). The Grade popup opens when a
+    Play run is graded (`onPlayGraded`); T064's own test comes with US3.
+  - Existing e2e specs (T037/T038) only gained "open the popup first" steps (`tests/e2e/helpers/panels.ts`), with
+    three deliberate exceptions, each with a comment in the spec:
+    - `us1-play` follow-scroll test: a page is now exactly one screenful, so the two-measure fixture has nothing
+      to scroll; it uses `large-score.musicxml` and a 1000 px offset (a page within one screen of the viewport
+      stays mounted; measure 1 is not mounted from far away, an old limitation).
+    - `us1-practice`: switching hands / accompaniment / clearing the loop *during* a session used to be done in
+      the always-visible panel; FR-007 hides setup during a run, so those three controls are clicked directly in
+      the DOM. The session's live-change handling they prove is unchanged (and now unreachable from the UI - see
+      Problems).
+- Problems / open questions:
+  - `us1-play.spec.ts:46` (a timing-sensitive live-mark check 3 s after the run starts) failed once in three full
+    parallel runs and passes 3/3 alone; it is not layout related and was not weakened.
+  - Live setup changes during a Practice session are no longer reachable from the UI (FR-007). If the owner wants
+    them back (e.g. switching hand mid-piece), that is a spec change, not a bug here.
+  - Cosmetic: the Diagnostics popup shows its title twice (the panel heading and the element's own `<h2>`).
+    Elements are "unchanged" by design; left as is.
+  - `pnpm lint` still fails on 26 pre-existing errors in feature 003's files (see the previous entry).
+- Handoff: next = Phase 5 (US3): tests T060-T064 (`mx-run-status`, `us3-run-chrome.spec.ts`, `setup-panel`),
+  then T065-T069; T068's Grade popup is already opened by `onPlayGraded`, so its test (T064) should pass on
+  first run after `mx-run-status` exists; run `pnpm test` and `npx playwright test --project=chromium` first
+  (needs `npx vite build`); tree clean at this commit.

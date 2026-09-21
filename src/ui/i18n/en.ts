@@ -1,6 +1,14 @@
 export const en = {
   app: {
     emptyState: 'No score loaded. Open a MusicXML file to start.',
+    toolbar: 'Musicanyya controls',
+  },
+  /** The Score size controls of the slim bar (feature 004, FR-014a). */
+  size: {
+    group: 'Score size',
+    smaller: 'Smaller',
+    larger: 'Larger',
+    reset: 'Reset size',
   },
   /** The four menus of the slim bar (feature 004, data-model.md section 5). */
   menus: {
@@ -57,6 +65,20 @@ export const en = {
     element: 'Element',
     status: 'Status',
     notes: 'Notes',
+    shortcuts: {
+      title: 'Keyboard shortcuts',
+      keys: 'Keys',
+      action: 'What it does',
+      rows: [
+        ['Space', 'Play or pause'],
+        ['Esc', 'Close the open popup; with no popup open, stop'],
+        ['+ or =', 'Make the Score larger'],
+        ['- or _', 'Make the Score smaller'],
+        ['Ctrl/Cmd + +', 'Make the Score larger'],
+        ['Ctrl/Cmd + -', 'Make the Score smaller'],
+        ['Ctrl/Cmd + 0', 'Back to the fitted Score size'],
+      ] as readonly (readonly [string, string])[],
+    },
   },
   diagnostics: {
     button: 'Diagnostics',

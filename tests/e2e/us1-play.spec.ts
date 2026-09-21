@@ -95,16 +95,21 @@ test("US1 end-to-end: Play Mode - a stopped run yields a partial Grade, and the 
 }) => {
   test.setTimeout(30_000);
 
-  await openInPlayMode(page, 'chords/c-major-scale-and-chords.musicxml');
+  // Feature 004: a page is exactly one screenful, so the two-measure fixture used here before no longer has
+  // anything to scroll (its one page fits the window). The 500-measure fixture does, and the intent is unchanged.
+  await openInPlayMode(page, 'large-score.musicxml');
 
   // Scrolled away from the top first (as if the musician had been browsing the Score in Listen mode) - the
-  // fixture's own two measures sit at the very top of the printed page, so this is the only way to make a Play
+  // run starts at measure 1, at the very top of the printed page, so this is the only way to make a Play
   // run's follow-scroll produce an observable change: from the top, "keep the current measure centred" would
   // already want to scroll *up*, which a scrollTop of 0 can't show (browsers clamp it), a false pass if FR-007
   // were entirely unwired.
   await page.evaluate(() => {
-    (document.querySelector('.mx-score-scroll') as HTMLElement).scrollTop = 300;
+    (document.querySelector('.mx-score-scroll') as HTMLElement).scrollTop = 1000;
   });
+  await expect
+    .poll(() => page.evaluate(() => (document.querySelector('.mx-score-scroll') as HTMLElement).scrollTop))
+    .toBeGreaterThan(500);
 
   await page.locator('mx-mode-switch input[value=play]').check();
   const playBtn = page.locator('mx-transport .play-btn');
@@ -114,7 +119,7 @@ test("US1 end-to-end: Play Mode - a stopped run yields a partial Grade, and the 
   // (FOLLOW_MARGIN) - the count-in already targets the range's first measure, so the view is pulled back towards
   // it immediately, without waiting for the count-in to finish.
   const scrollTop = () => page.evaluate(() => document.querySelector('.mx-score-scroll')?.scrollTop ?? -1);
-  await expect.poll(scrollTop, { timeout: 10_000 }).toBeLessThan(300);
+  await expect.poll(scrollTop, { timeout: 10_000 }).toBeLessThan(1000);
 
   // FR-008: stopping mid-run yields a Grade covering only what was reached, clearly marked incomplete.
   await page.locator('mx-transport .stop-btn').click();
