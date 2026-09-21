@@ -308,3 +308,70 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
   .test.ts` extend) + T036 + its review T037, then the rest of the US1 implementation block (T038-T044, T046) and
   the two remaining US1 test files T096/T097/T045 (independent, `[P]`, could be done any time before the
   Checkpoint). Tree clean at the commit below, not pushed.
+
+## 2026-09-21 - claude-sonnet-5 (relay)
+
+- Done: T024, T034, T035, T025, T036, T037, T038 - 51/105 tasks now done. Both mandatory RT reviews (T035, T037)
+  passed. Full gate (`pnpm lint`, `pnpm typecheck`, `pnpm vitest run`: 648 tests) green throughout.
+- **T024/T034/T035 - sub-block rendering (research R-02, SC-002)**: `dispatch.ts`'s `DispatchState.splits` was
+  already correct and tested but nothing consumed it - `processBlock` applied a whole block's events up front and
+  rendered the block in one `synth.process()` call, so every event landed at the block boundary (up to ~2.7 ms
+  error at 128 frames/48 kHz). `processBlock`'s signature changed from `(blockSize: number)` to `(left, right)`
+  (buffers), and it now renders each sub-block in the pieces `splits` marks out, applying every event exactly at
+  its own frame between two partial `synth.process()` calls. `SynthInterface` gained an optional `process()`
+  method; the real `AudioWorkletProcessor.process()` no longer renders separately after `processBlock()` - it's
+  the same call now. All three call sites of the old signature (`score-player.timing.test.ts`,
+  `score-player.live.test.ts`, `synth-onset.test.ts`) updated. `tests/fakes/recording-synth.ts` gained a
+  `process()` that logs `render:<framesSoFar>:<count>` and appends the cumulative frame count onto every
+  `on:`/`off:` entry, which is the only way to observe sample-accurate sub-block placement from Node without real
+  audio - used by the new T024 tests: one confirming a mid-block event fires at its exact frame (not frame 0 or
+  the block edge), and a 10-minute simulated run (48 kHz, 128-frame blocks, four tempo/click-spacing segments
+  standing in for tempo and meter changes) confirming every click lands within SC-002's 3 ms of an independently
+  recomputed expected frame, with no growing error over the run. Confirming the new tests failed first surfaced a
+  real trap: driving the *new* `processBlock(left, right)` call against the *old* `(blockSize: number)` signature
+  doesn't fail cleanly - `blockSize` silently binds to the `Float32Array`, and `currentFrame += blockSize`
+  string-coerces `currentFrame` into a string that concatenates on every call, producing quadratic blowup that
+  hangs a 225 000-block loop. Confirmed the single-block test failed correctly instead (a clean assertion
+  mismatch) rather than forcing the 10-minute test through the broken interface. T035 (`rt-audio-reviewer`):
+  **pass**, no blocking findings; one advisory noted the pre-existing (not from this change) unused volume-ramp
+  state (`currentGain` is computed every block but never multiplied into the rendered samples anywhere) - logged
+  below, not fixed here, out of this task's scope.
+- **T025/T036/T037 - `channelVolume` message (research R-02, mute without touching the schedule)**: added to
+  `receiveMessage`'s switch, handled entirely off the hot path exactly like `volume`; `gain` is 0..1 linear (same
+  convention as `volume`) converted to CC7 via `round(gain * 127)`. `AudioEngine.setChannelVolume(channel,
+  volume)` (0..100, matching `setVolume`) added to `web-audio-engine.ts` and to the `AudioEngine` port interface.
+  `dispatch.test.ts` needed no change for this task despite being named in T025's line - `channelVolume` is a port
+  message the pure dispatch/event layer never sees (R-02: "the events stay in the schedule, so muting cannot
+  change a single tick of the run"); the test instead extends `score-player.live.test.ts`, where the file's other
+  message-handling tests already live. T037 (`rt-audio-reviewer`): **pass**, three advisories, one applied before
+  commit (both `volume` and `channelVolume` now guard non-finite `gain` with `Number.isFinite` before the clamp,
+  since `Math.min(1, NaN)` survives the old clamp as `NaN`); the other two (validate `channel` once a real caller
+  exists at T067; CC7 is an unramped step, unlike master volume - flag only if audible in manual/E2E testing) are
+  logged here, not blocking, deferred to those later tasks.
+- **T038 - the assumed Latency profile**: `AudioEngine.latencyProfile()` returns `{ outputLatencyMs: <from the
+  existing latency() computation>, inputLatencyMs: 0, source: 'assumed', measuredAt: null }`. Checked first
+  whether feature 001's R-12 dispatch-delay estimate (`LatencyInfo.keyToSoundMs`) had anything to reuse - it does
+  not: `keyToSoundMs` is hard-coded `null` everywhere in the tree today (the `LATENCY_SAMPLES` constant exists,
+  nothing populates it), which is not a feature-003 regression and is not on feature 001's own remaining task list
+  (T138/T139/T141) either. `inputLatencyMs: 0` is data-model §8's own documented fallback for exactly this case
+  ("0 where nothing is known"), and the dependency notes are explicit that T038's assumed profile, not the real
+  R-12 estimate, is what US1 needs - T056-T058 (US2's tap calibration) produce the *measured* profile instead. No
+  new task added; noted here so a future session does not mistake the always-0 `inputLatencyMs` for a bug.
+- Contract bumps: `specs/001-score-viewer-listen/contracts/worklet-protocol.md` 1.1.0 -> 1.2.0 (sub-block
+  rendering behaviour note, `channelVolume` row) and `specs/001-score-viewer-listen/contracts/ports.md` 1.1.0 ->
+  1.2.0 (`AudioEngine.setChannelVolume`, and a note that T038's `latencyProfile` lands in the same 1.2.0 since
+  both are additive and land in this feature); `WebAudioEngine`'s own `WORKLET_PROTOCOL_VERSION` constant bumped
+  to match.
+- Problems / open questions: none blocking. The unused volume-ramp state (T035's advisory) and the two T037
+  advisories above are open but non-blocking, deferred to the tasks noted.
+- Handoff: next = T039 (`src/app/play-session.ts` controller - compile the run schedule, drive the reducer from
+  position reports, record MIDI through the clock map, grade through the worker when the run ends), which needs
+  T031 (`src/workers/grade.worker.ts`) first - not yet started; T096 (`tests/engine/workers/grade-worker.test.ts`)
+  is T031's test and was looked at this session but deliberately not started: its "worker that never answers
+  becomes a notice after `GRADE_WORKER_TIMEOUT_MS`" clause needs a small reusable request/timeout helper whose
+  home isn't fully pinned down by plan.md (`app/play-session.ts` is documented as "the only place engine, worker,
+  store and run meet", but T096's own test file is worker-scoped and narrower than the full controller T097
+  tests) - worth 30 seconds of thought at the start of the next session rather than a rushed call here. Otherwise:
+  T040-T044, T046 continue the US1 implementation block in file order; T045 (`tests/ui/grade-marks.test.ts`) and
+  T097 (`tests/engine/play-session.test.ts`) are independent `[P]` tests that can be written any time before the
+  Checkpoint. Tree clean at the commit below, not pushed.

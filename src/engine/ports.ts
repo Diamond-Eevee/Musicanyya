@@ -1,3 +1,4 @@
+import type { LatencyProfile } from '../core/grade/types.js';
 import type { HandSelection } from '../core/practice/types.js';
 import type { ScheduleMessage } from '../core/schedule/compile.js';
 
@@ -76,6 +77,8 @@ export interface AudioEngine extends Emitter<AudioEngineEvent> {
   seekTick(tick: number): void;
   setTempoPercent(percent: number): void; // 25..200, multiple of 5
   setVolume(volume: number): void; // 0..100
+  /** CC7 on one channel, applied at the next block. Used to mute the Metronome without touching the schedule. */
+  setChannelVolume(channel: number, volume: number): void; // 0..100
   /** Live input (US3), applied as soon as possible. */
   liveNoteOn(key: number, velocity: number): void;
   liveNoteOff(key: number): void;
@@ -84,6 +87,8 @@ export interface AudioEngine extends Emitter<AudioEngineEvent> {
   /** Called every animation frame by the UI; returns the audible position (R-11). */
   audiblePosition(nowMs: number): PositionUpdate | null;
   latency(): LatencyInfo;
+  /** The profile grading compensates with; `assumed` until a calibration is stored (data-model §8). */
+  latencyProfile(): LatencyProfile;
   diagnostics(): AudioDiagnostics; // data-model §6
   dispose(): Promise<void>;
 }

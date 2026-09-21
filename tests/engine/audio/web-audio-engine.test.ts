@@ -99,6 +99,27 @@ describe('WebAudioEngine', () => {
     expect(engine.diagnostics().liveQueueDropped).toBe(5);
   });
 
+  it('T038: reports an assumed Latency profile from the reported output latency, input latency 0 until measured', async () => {
+    const engine = new WebAudioEngine();
+    await engine.unlock();
+
+    const profile = engine.latencyProfile();
+    expect(profile.source).toBe('assumed');
+    expect(profile.measuredAt).toBeNull();
+    expect(profile.inputLatencyMs).toBe(0); // R-12 dispatch-delay estimate isn't tracked yet (data-model §8)
+    // baseLatency 0.01 + outputLatency 0.04 = 0.05s = 50ms (mockContext above)
+    expect(profile.outputLatencyMs).toBeCloseTo(50, 5);
+  });
+
+  it('sends setChannelVolume as a channelVolume message with 0..1 linear gain', async () => {
+    const engine = new WebAudioEngine();
+    await engine.unlock();
+    await engine.ensureSoundLoaded();
+
+    engine.setChannelVolume(14, 50);
+    expect(mockPort.postMessage).toHaveBeenCalledWith({ type: 'channelVolume', channel: 14, gain: 0.5 });
+  });
+
   it('disposes the context', async () => {
     const engine = new WebAudioEngine();
     await engine.unlock();

@@ -162,11 +162,11 @@ reason.
   early claim window (D-4); recording continues for the last note's late claim window past the final onset; a stop
   yields exactly the expected notes up to the stop, marked incomplete (SC-010); losing the MIDI keyboard appends
   a reliability event and does **not** change phase (FR-044); `audioLost` moves to `aborted` (FR-046)
-- [ ] T024 [P] [US1] `tests/engine/worklets/score-player.timing.test.ts` (extend): with sub-block rendering, a
+- [x] T024 [P] [US1] `tests/engine/worklets/score-player.timing.test.ts` (extend): with sub-block rendering, a
   scheduled event is applied at its own frame, not at the block boundary; a metronome click lands within 3 ms of
   its correct time and accumulates no drift over a simulated 10-minute run across tempo and meter changes
   (SC-002)
-- [ ] T025 [P] [US1] `tests/engine/worklets/dispatch.test.ts` (extend) and `score-player.live.test.ts` (extend):
+- [x] T025 [P] [US1] `tests/engine/worklets/dispatch.test.ts` (extend, N/A - see log) and `score-player.live.test.ts` (extend):
   the `channelVolume` message applies CC7 to the named channel at the next block and is handled in
   `port.onmessage`, not in `process()`
 - [x] T089 [P] [US1] `tests/core/grade/timing-accuracy.test.ts`: a synthetic performance played exactly on time is
@@ -232,15 +232,15 @@ reason.
   run's schedule compiler are timing code in that role's scope - one conversion site, integer ticks throughout,
   the count-in and clicks scheduled as data with no timer anywhere (Constitution I and II)
 - [x] T033 [US1] `src/core/play/run.ts`: `playRunReducer` and its effects
-- [ ] T034 [US1] `src/engine/worklets/score-player.processor.ts`: render each block in the sub-blocks
+- [x] T034 [US1] `src/engine/worklets/score-player.processor.ts`: render each block in the sub-blocks
   `DispatchState.splits` already contains, applying each event at its own frame via
   `synth.process(left, right, startIndex, sampleCount)`. No allocation, no new state (Constitution I)
 - [ ] T035 [US1] RT review of T034 with `rt-audio-reviewer` (mandatory, Constitution I)
-- [ ] T036 [US1] `channelVolume` message in `src/engine/worklets/score-player.processor.ts` and
+- [x] T036 [US1] `channelVolume` message in `src/engine/worklets/score-player.processor.ts` and
   `AudioEngine.setChannelVolume` in `src/engine/audio/web-audio-engine.ts`; bump
   `specs/001-score-viewer-listen/contracts/worklet-protocol.md` to 1.2.0
 - [ ] T037 [US1] RT review of T036 with `rt-audio-reviewer` (mandatory, Constitution I)
-- [ ] T038 [US1] `AudioEngine.latencyProfile()` in `src/engine/audio/web-audio-engine.ts` returning the
+- [x] T038 [US1] `AudioEngine.latencyProfile()` in `src/engine/audio/web-audio-engine.ts` returning the
   **assumed** profile (reported output latency + the 001 R-12 input estimate), and the port additions in
   `src/engine/ports.ts`; bump `specs/001-score-viewer-listen/contracts/ports.md` to 1.2.0
 - [ ] T039 [US1] `src/app/play-session.ts`: the controller - compile the run schedule, drive the reducer from

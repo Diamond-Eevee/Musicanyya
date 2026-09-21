@@ -40,6 +40,9 @@ export class FakeAudioEngine implements AudioEngine {
   setVolume(volume: number) {
     this.commands.push(`setVolume:${volume}`);
   }
+  setChannelVolume(channel: number, volume: number) {
+    this.commands.push(`setChannelVolume:${channel},${volume}`);
+  }
   liveNoteOn(key: number, velocity: number) {
     this.commands.push(`liveNoteOn:${key},${velocity}`);
   }

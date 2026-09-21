@@ -1,7 +1,11 @@
 # Contract: ports (engine layer interfaces)
 
-**Version**: `1.1.0` (internal TypeScript contract between `src/engine` adapters and `src/ui`/`src/app`).
+**Version**: `1.2.0` (internal TypeScript contract between `src/engine` adapters and `src/ui`/`src/app`).
 1.1.0 (feature 002, T030): `SettingsStore` gains `loadPractice` and `savePractice`; nothing existing changed.
+1.2.0 (feature 003, T036): `AudioEngine` gains `setChannelVolume` (mutes the Play mode Metronome without
+recompiling the schedule, research R-02 in specs/003-play-mode-grading/research.md); `latencyProfile` and
+`SettingsStore.loadLatencyProfile`/`saveLatencyProfile` (T038) land in this same 1.2.0, since both are additive
+and land in the same feature.
 Signatures are normative in shape; names may be refined during implementation, but every change must be reflected
 here and the version bumped (MINOR for additions, MAJOR for breaking changes).
 
@@ -54,6 +58,8 @@ export interface AudioEngine extends Emitter<AudioEngineEvent> {
   seekTick(tick: number): void;
   setTempoPercent(percent: TempoPercent): void;      // 25..200, multiple of 5
   setVolume(volume: Volume): void;                   // 0..100
+  /** CC7 on one channel, applied at the next block. Used to mute the Metronome without touching the schedule. (1.2.0) */
+  setChannelVolume(channel: number, volume: number): void;  // 0..100
   /** Live input (US3), applied as soon as possible. */
   liveNoteOn(key: number, velocity: number): void;
   liveNoteOff(key: number): void;
