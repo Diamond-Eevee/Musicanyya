@@ -503,3 +503,42 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
   `play-session.ts`/`grade-marks.ts`), T046 (e2e test) - and **T107 must land before T046 can pass**, since T046
   drives a real run through the UI. `grade-marks.ts` is ready for T042/T044 to consume (`GradeMarksOptions`,
   `GradeMark`). Tree clean at the commit below, not pushed.
+
+## 2026-09-21 - claude-sonnet-5 (relay)
+
+- Done: T043, T042 - 61/108 tasks now done. Full gate (`pnpm typecheck`, `pnpm vitest run`: 675 tests) green
+  throughout; the one `pnpm lint` error remains the same pre-existing verovio-worker one, confirmed unrelated
+  again.
+- **T043**: added `en.notices`' five remaining `PlayNoticeCode` strings and a new `en.play` section
+  (`panel` labels, `reasons` templates keyed by `ResultReason['code']`). Followed the codebase's existing
+  convention exactly (`mx-practice-panel.ts`'s `{n}`/`{from}`/`{to}` templates, filled by `.replace()` at the call
+  site) rather than putting formatting logic in `en.ts` itself, even though R-13's own wording ("`en.ts` turns
+  each into the plain words") reads as if `en.ts` should own the function - `en.ts` has no imports anywhere else
+  in the tree and every other parameterised string is interpolated by its caller, so a new
+  `src/ui/format/reason-text.ts` (beside the existing `note-name.ts`) does the interpolation, calling
+  `midiNoteName()` for `expectedKey`/`playedKey` and writing the octave *count* ("one octave" / "two octaves"),
+  not only its direction, into `{octaves}`. Checked all four FR-030 examples against the templates by hand; they
+  match verbatim ("F3 played, F4 written - one octave too low.", etc).
+- **T042**: `mx-grade-panel.ts`, a pure view of `playState`/`practiceState` (same treatment `mx-practice-panel.ts`
+  documents - "it renders what it is given and decides nothing"). The two figures use `GradeSummary.notesCorrect`/
+  `notesOnTime` through `en.play.panel.figure`'s template; the six counts are `GradeSummary.counts`' own fields;
+  the reason line resolves `playState.selectedNoteId` against `grade.results` and calls `reasonText`. Added
+  `selectedNoteId: NoteId | null` and a `selectNote()` mutator to `playState.ts` (T040's file) for this to read -
+  `clear()` now resets it too. Wrote `tests/ui/grade-panel.test.ts` even though T042 has no assigned test task
+  (unlike `mx-mode-switch.ts`/T040, this file has real logic - percent rounding, template filling, the reason
+  lookup - and `tests/ui/practice-panel.test.ts` is this codebase's own precedent for testing a panel like this).
+- **Extras have no reason shown here, on purpose**: an extra note has no notehead of its own (R-11, the same
+  limitation `practice-marks.ts` already documents for wrong-pitch/wrong-octave/extra), so nothing on the Score
+  can be clicked to select one under this task's "selected mark" wording. FR-031's mistake stepper (US2, T051) is
+  the general way to step through every mistake including extras; not narrowing T042 further than that.
+- **T107's scope grew by one more integration gap, found while writing T042**: `mx-grade-panel.ts` reads
+  `playState.selectedNoteId`, but nothing sets it yet - that needs `mx-score-view.ts`'s `onClick` to resolve a
+  `g.note` click to a `NoteId` in Play mode (today it only resolves `.measure` clicks) and its render loop to
+  actually call `drawGradeMarks` when `mode === 'play'` (today only `drawPracticeState` is wired in that loop, T041
+  built the pure function but nothing calls it). Folded both into T107's own description rather than opening a
+  third integration task - it is the same "wire the finished pieces into the running app" work T107 already
+  covers, just one more file (`mx-score-view.ts`) alongside `session.ts`.
+- Handoff: next = T044 (live pitch marking in `play-session.ts`/`grade-marks.ts` - the cheap same-pitch test
+  during the run, distinct from T107's post-run display wiring), then T107 (now the largest remaining piece of
+  US1: `session.ts` construction/branching/rAF plus `mx-score-view.ts`'s Grade layer and note-click selection),
+  then T046 (e2e, blocked on T107) and the US1 Checkpoint. Tree clean at the commit below, not pushed.

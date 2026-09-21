@@ -93,6 +93,11 @@ export const en = {
     practiceDeviceLost: 'The MIDI keyboard was disconnected.',
     practiceDeviceBack: 'The MIDI keyboard was reconnected.',
     playNothingToGrade: 'This score has nothing to grade: it has no pitched notes.',
+    playNoMidi: 'No MIDI keyboard is available for Play mode.',
+    playMidiLost: 'The MIDI keyboard was disconnected. Recording continues; reconnect to keep playing.',
+    playMidiBack: 'The MIDI keyboard was reconnected.',
+    playAudioLost: 'The run was stopped because the audio device was lost.',
+    playLatencyAssumed: 'This Grade used an assumed Latency profile, not a measured one.',
   } as Record<string, string>,
   practice: {
     panel: {
@@ -138,6 +143,33 @@ export const en = {
       heading: 'Here is the expected note',
       fingering: 'Finger {n}',
     },
+  },
+  play: {
+    panel: {
+      heading: 'Grade',
+      incomplete: 'Stopped early - partial Grade',
+      notesCorrect: 'Notes correct',
+      notesOnTime: 'Notes on time',
+      figure: '{count} of {total} ({percent}%)',
+      correct: 'Correct',
+      wrongPitch: 'Wrong pitch',
+      missed: 'Missed',
+      extra: 'Extra',
+      early: 'Early',
+      late: 'Late',
+    },
+    // FR-030: what was expected, what was played, the octave distance (not only its direction) and the
+    // millisecond difference. R-13: the core stays free of English; `reasonText()` (src/ui/format/reason-text.ts)
+    // is the only place a ResultReason code becomes a sentence, filling in these templates.
+    reasons: {
+      correctOnTime: 'Correct, on time.',
+      earlyBy: 'Early by {ms} ms.',
+      lateBy: 'Late by {ms} ms.',
+      wrongOctaveHigh: '{played} played, {expected} written - {octaves} too high.',
+      wrongOctaveLow: '{played} played, {expected} written - {octaves} too low.',
+      missedNothingPlayed: '{expected} written, nothing played here.',
+      extraNoNoteWritten: '{played} played, no note written for it here.',
+    } as Record<string, string>,
   },
 };
 

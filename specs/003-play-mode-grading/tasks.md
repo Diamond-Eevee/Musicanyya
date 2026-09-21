@@ -252,9 +252,9 @@ reason.
 - [x] T041 [US1] `src/ui/score/grade-marks.ts` and the mark shapes in `src/ui/styles/score.css`: pitch as
   colour + shape, timing as a left/right caret, extras in a lane below the staff; the layer never covers a
   notehead and switches off (research R-11, FR-029, FR-035)
-- [ ] T042 [US1] `src/ui/elements/mx-grade-panel.ts`: the two figures with counts out of totals, the six counts,
+- [x] T042 [US1] `src/ui/elements/mx-grade-panel.ts`: the two figures with counts out of totals, the six counts,
   and the plain-words reason for a selected mark (FR-028, FR-030)
-- [ ] T043 [US1] `src/ui/i18n/en.ts`: one string per `ResultReason` code, naming what was expected, what was
+- [x] T043 [US1] `src/ui/i18n/en.ts`: one string per `ResultReason` code, naming what was expected, what was
   played, the octave distance (not only the direction) and the millisecond difference; plus the Play notices
 - [ ] T044 [US1] Live pitch marking during the run in `src/app/play-session.ts` and `grade-marks.ts`: a cheap
   same-pitch test against the notes at the cursor marking **correct only**, display only, replaced by the Grade
@@ -269,7 +269,11 @@ reason.
   keyboard-like pitched part, `PLAY_STRICTNESS_LEVELS`'s most forgiving level per FR-039) until US3 (T065/T066)
   lets the musician change it; raise `playNothingToGrade` (`buildExpectedNotes(...).length === 0`, mirroring
   `startPractice`'s own `practiceNothingToPlay` check) instead of starting a run with nothing to grade; wire the
-  controller's callbacks to `playState.setRun`/`setGrade` and `noticeState`. **Found missing while implementing
+  controller's callbacks to `playState.setRun`/`setGrade` and `noticeState`. Also wire `mx-score-view.ts`'s render
+  loop to call `drawGradeMarks` when `mode === 'play'` (switched off and cleared the same way `drawPracticeState`
+  already is, FR-035) and its `onClick` to call `playState.selectNote(id)` on a `g.note` click in Play mode, the
+  way it already resolves a `.measure` click - `mx-grade-panel.ts` (T042) already reads `playState.selectedNoteId`
+  and has nothing to select yet. **Found missing while implementing
   T040** (2026-09-21): no task in this phase names `src/app/session.ts`, but T046's e2e test and the US1
   Checkpoint both need a working "switch to Play, press Play, get a Grade" path, which only this wiring provides
 - [ ] T046 [US1] `tests/e2e/us1-play.spec.ts`: count-in, a run driven by fake MIDI, a Grade with marks and
