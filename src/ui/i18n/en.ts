@@ -92,6 +92,7 @@ export const en = {
     practiceMultiKeyboard: 'Multiple keyboards detected; only the first one is used.',
     practiceDeviceLost: 'The MIDI keyboard was disconnected.',
     practiceDeviceBack: 'The MIDI keyboard was reconnected.',
+    playNothingToGrade: 'This score has nothing to grade: it has no pitched notes.',
   } as Record<string, string>,
   practice: {
     panel: {

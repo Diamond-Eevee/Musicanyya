@@ -188,7 +188,7 @@ reason.
 - [x] T097 [P] [US1] `tests/engine/play-session.test.ts`: the controller against the fakes - every MIDI message is
   recorded through the clock map with both times, grading goes **through the worker** and never inline, the run
   reducer is driven by position reports only, and a finished run produces exactly one Grade (FR-012, FR-026)
-- [ ] T045 [P] [US1] `tests/ui/grade-marks.test.ts`: every result state is distinguishable by shape in greyscale
+- [~] T045 [P] [US1] `tests/ui/grade-marks.test.ts`: every result state is distinguishable by shape in greyscale (claimed: claude-sonnet-5 2026-09-21)
   and survives a colour-blind-safe check; the layer switches off and clears on a new run or mode change (SC-008,
   FR-035). *(Out of numeric order on purpose: it is a test and belongs before T041-T044, Constitution IV.)*
 
@@ -246,7 +246,7 @@ reason.
 - [x] T039 [US1] `src/app/play-session.ts`: the controller - compile the run schedule, drive the reducer from
   position reports, record every MIDI message through the clock map, grade through the worker when the run ends
   (research R-01)
-- [ ] T040 [US1] `src/ui/elements/mx-mode-switch.ts`: add Play, with the unavailable reason where Web MIDI is
+- [x] T040 [US1] `src/ui/elements/mx-mode-switch.ts`: add Play, with the unavailable reason where Web MIDI is
   missing (FR-001, FR-045) and the `playNothingToGrade` notice for a Score with nothing gradable (spec edge
   case), and `src/ui/state/playState.ts` for run and Grade state
 - [ ] T041 [US1] `src/ui/score/grade-marks.ts` and the mark shapes in `src/ui/styles/score.css`: pitch as
@@ -260,6 +260,18 @@ reason.
   same-pitch test against the notes at the cursor marking **correct only**, display only, replaced by the Grade
   (FR-011, FR-011a; `liveMark` carries no `pitch` since play-run 1.1.0). D-3 is decided: the marker never
   establishes a wrong pitch, and SC-015 measures the agreement rate over the reference fixtures
+- [ ] T107 [US1] Wire `PlaySessionController` (T039) into `src/app/session.ts` for real: construct it once alongside
+  the existing `audioEngine`/`midiInput`/a real `GradeWorkerLike`; branch `handlePlay`/`pause`/`stop` and the
+  `measureclick` handler for `mode === 'play'` the same way they already branch for `'practice'`; drive
+  `reportPosition(nowMs)` from the same rAF loop that already ticks the cursor in `mx-score-view` (T039's own
+  design note - nothing calls it yet, `PlaySessionController` is exercised only by `tests/engine/play-session.test.ts`'s
+  fakes so far); build a default `RunSettings` from `partOptions`/`handOptions` (whole Score, the first
+  keyboard-like pitched part, `PLAY_STRICTNESS_LEVELS`'s most forgiving level per FR-039) until US3 (T065/T066)
+  lets the musician change it; raise `playNothingToGrade` (`buildExpectedNotes(...).length === 0`, mirroring
+  `startPractice`'s own `practiceNothingToPlay` check) instead of starting a run with nothing to grade; wire the
+  controller's callbacks to `playState.setRun`/`setGrade` and `noticeState`. **Found missing while implementing
+  T040** (2026-09-21): no task in this phase names `src/app/session.ts`, but T046's e2e test and the US1
+  Checkpoint both need a working "switch to Play, press Play, get a Grade" path, which only this wiring provides
 - [ ] T046 [US1] `tests/e2e/us1-play.spec.ts`: count-in, a run driven by fake MIDI, a Grade with marks and
   reasons, and a stopped run yielding a partial Grade; plus the three things only an end-to-end run shows - the
   musician's own notes sound through the app's instrument (FR-006), the cursor follows and stops following under
@@ -472,6 +484,8 @@ are real work are scheduled in Phase 2 (T085, T086) with their tests (T102) and 
   - T093 blocks T030's played-along pass and T062's hand view of it; T089 depends on T030 and on T038's assumed
     profile, and is the gate for believing any timing number this feature produces.
   - T096 blocks T031, T097 blocks T039, T098 depends on T033's `audioLost` transition.
+  - T107 depends on T039 (the controller) and T040 (Play mode, `playState.ts`); T046's e2e run and the US1
+    Checkpoint both depend on T107.
 
 ## Parallel Opportunities
 
