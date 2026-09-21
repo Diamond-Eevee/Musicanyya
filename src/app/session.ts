@@ -1,5 +1,5 @@
 import { WebAudioEngine } from '../engine/audio/web-audio-engine.js';
-import { MAX_FILE_BYTES, ZOOM_STEP } from '../engine/config.js';
+import { GRADE_WORKER_TIMEOUT_MS, MAX_FILE_BYTES, ZOOM_STEP } from '../engine/config.js';
 import { WebMidiInput } from '../engine/midi/web-midi-input.js';
 import type {
   AudioEngineEvent,
@@ -13,6 +13,7 @@ import { IndexedDbPerformanceStore } from '../engine/storage/indexeddb-performan
 import { IndexedDbScoreStore } from '../engine/storage/indexeddb-score-store.js';
 import { LocalSettingsStore } from '../engine/storage/local-settings-store.js';
 
+import '../ui/elements/mx-attempts-list.js';
 import '../ui/elements/mx-diagnostics.js';
 import '../ui/elements/mx-drop-zone.js';
 import '../ui/elements/mx-grade-panel.js';
@@ -30,11 +31,16 @@ import '../ui/elements/mx-practice-help.js';
 import '../ui/elements/mx-practice-panel.js';
 import {
   METRONOME_CHANNEL,
+  METRONOME_KEY_BEAT,
+  METRONOME_KEY_DOWNBEAT,
+  METRONOME_VELOCITY_BEAT,
+  METRONOME_VELOCITY_DOWNBEAT,
   PLAY_COUNT_IN_MEASURES,
   PLAY_STRICTNESS_DEFAULT,
 } from '../core/defaults.js';
-import { buildExpectedNotes } from '../core/grade/expected.js';
-import type { Grade } from '../core/grade/types.js';
+import { buildExpectedNotes, buildPlayedAlongSpans } from '../core/grade/expected.js';
+import type { Grade, GradeInput, StoredPerformance } from '../core/grade/types.js';
+import { compileReplay } from '../core/play/replay.js';
 import type { PlayEffect, RunSettings } from '../core/play/types.js';
 import { buildExpectedEvents, firstEventAtOrAfterTick, resolveStartMeasure } from '../core/practice/expected.js';
 import { handOptions, partOptions } from '../core/practice/hands.js';
@@ -50,11 +56,12 @@ import type {
   PracticeSession,
   ResolvedLoop,
 } from '../core/practice/types.js';
+import { compilePlaySchedule } from '../core/schedule/play-schedule.js';
 import type { LoadReport } from '../core/score/load-report.js';
 import type { Score } from '../core/score/model.js';
-import type { PlaybackTimeline } from '../core/timeline/types.js';
-import type { PracticeSetupChange } from '../ui/elements/mx-practice-panel.js';
+import type { PlaybackTimeline, TempoSegment } from '../core/timeline/types.js';
 import type { PlaySetupChange } from '../ui/elements/mx-play-panel.js';
+import type { PracticeSetupChange } from '../ui/elements/mx-practice-panel.js';
 import type { MxScoreView, TimelineDto } from '../ui/elements/mx-score-view.js';
 import { midiNoteName } from '../ui/format/note-name.js';
 import { en } from '../ui/i18n/en.js';
@@ -69,7 +76,9 @@ import type { LoadError, ScoreSummary } from '../ui/state/scoreState.js';
 import { scoreState } from '../ui/state/scoreState.js';
 import { transportState } from '../ui/state/transportState.js';
 import { viewState } from '../ui/state/viewState.js';
+import { requestGrade } from '../workers/grade.worker.js';
 import { PlaySessionController } from './play-session.js';
+import { ReplaySessionController } from './replay-session.js';
 
 interface ScoreWorkerLoaded {
   type: 'loaded';
@@ -157,8 +166,15 @@ export class Session {
       onEffect: (effect) => this.onPlayEffect(effect),
       onGraded: (grade) => this.onPlayGraded(grade),
       onGradeFailed: (reason, message) => this.onPlayGradeFailed(reason, message),
+      onStored: () => void this.refreshAttempts(),
     },
   );
+  // T076: a replayed stored attempt (never concurrent with a live `playController` run - starting one stops the
+  // other via mode/measure-click handling already in place). Negative, decrementing request ids so a regrade's
+  // or a replay's own grading never collides with `playController`'s own (always positive, incrementing) ids on
+  // the one shared `gradeWorker`.
+  private replayController: ReplaySessionController | null = null;
+  private nextRegradeRequestId = -1;
 
   constructor(
     scoreStore: ScoreStore = new IndexedDbScoreStore(),
@@ -329,9 +345,12 @@ export class Session {
     gradePanel.addEventListener('practisepass', (event) => {
       const passIndex = (event as CustomEvent<{ passIndex: number }>).detail.passIndex;
       if (!this.currentTimeline) return;
-      const loop = passIndicesToLoopRange(this.currentTimeline.passes, { fromPassIndex: passIndex, toPassIndex: passIndex });
+      const loop = passIndicesToLoopRange(this.currentTimeline.passes, {
+        fromPassIndex: passIndex,
+        toPassIndex: passIndex,
+      });
       if (!loop) return;
-      
+
       const grade = playState.get().grade;
       if (grade) {
         this.onPracticeSetupChange({
@@ -343,6 +362,18 @@ export class Session {
       practiceState.setMode('practice');
     });
     document.getElementById('side-panel')?.prepend(gradePanel);
+
+    const attemptsList = document.createElement('mx-attempts-list');
+    attemptsList.addEventListener('attemptreplay', (event) =>
+      this.onAttemptReplay((event as CustomEvent<{ runId: string }>).detail.runId),
+    );
+    attemptsList.addEventListener('attemptregrade', (event) =>
+      this.onAttemptRegrade((event as CustomEvent<{ runId: string }>).detail.runId),
+    );
+    attemptsList.addEventListener('attemptdelete', (event) =>
+      this.onAttemptDelete((event as CustomEvent<{ runId: string }>).detail.runId),
+    );
+    document.getElementById('side-panel')?.prepend(attemptsList);
 
     const latencyPanel = document.createElement('mx-latency-panel');
     latencyPanel.addEventListener('latencycalibrated', (event) => {
@@ -595,6 +626,22 @@ export class Session {
     practiceState.clearHelpOverlay();
   }
 
+  /** Resolves a written measure range to a pass span, using the first occurrence that has expected notes - shared
+   *  by a live run (`startPlay`) and a stored one (`buildStoredRunContext`, T076), since one `RunSettings.range`
+   *  feeds both. */
+  private resolveRunRange(score: Score, timeline: PlaybackTimeline, settings: RunSettings): LoopPassSpan | null {
+    if (!settings.range) return null;
+    const events = buildExpectedEvents(score, timeline, settings.selection);
+    const loop = resolveLoop(events, timeline.passes, settings.range, 0);
+    if (!loop) return null;
+    // `loopRangeToPassIndices` returns `ResolvedLoop`'s inclusive `toPassIndex` (src/core/practice/loop.ts);
+    // `buildExpectedNotes` and `compilePlaySchedule` both require the exclusive form (contracts/play-run.md
+    // "range.toPassIndex is exclusive"). Found while testing T069: a single-measure range (fromPassIndex ===
+    // toPassIndex) silently graded nothing at all without this conversion.
+    const inclusive = loopRangeToPassIndices(loop);
+    return { fromPassIndex: inclusive.fromPassIndex, toPassIndex: inclusive.toPassIndex + 1 };
+  }
+
   /** Compiles a run from the stored settings (or defaults) and starts it (T065/T066, FR-036 to FR-039). */
   private startPlay(): void {
     if (!this.currentScore || !this.currentPlaybackTimeline) return;
@@ -605,23 +652,7 @@ export class Session {
     if (!setup) return;
 
     const settings = setup.settings;
-
-    // Resolve the written measure range to a pass span, using the first occurrence that has expected notes.
-    let range: LoopPassSpan | null = null;
-    if (settings.range) {
-      const timeline = this.currentPlaybackTimeline;
-      // Build events to find occurrences, then resolve the loop.
-      const events = buildExpectedEvents(this.currentScore, timeline, settings.selection);
-      const loop = resolveLoop(events, timeline.passes, settings.range, 0);
-      // `loopRangeToPassIndices` returns `ResolvedLoop`'s inclusive `toPassIndex` (src/core/practice/loop.ts);
-      // `buildExpectedNotes` and `compilePlaySchedule` both require the exclusive form (contracts/play-run.md
-      // "range.toPassIndex is exclusive"). Found while testing T069: a single-measure range (fromPassIndex ===
-      // toPassIndex) silently graded nothing at all without this conversion.
-      if (loop) {
-        const inclusive = loopRangeToPassIndices(loop);
-        range = { fromPassIndex: inclusive.fromPassIndex, toPassIndex: inclusive.toPassIndex + 1 };
-      }
-    }
+    const range = this.resolveRunRange(this.currentScore, this.currentPlaybackTimeline, settings);
 
     const expected = buildExpectedNotes(this.currentScore, this.currentPlaybackTimeline, settings.selection, range);
     if (expected.length === 0) {
@@ -745,15 +776,167 @@ export class Session {
     const storedSettings = this.settingsStore.loadPlay(this.playScoreId);
     // Validate the stored selection still fits the Score.
     const validatedSettings = this.resolvePlaySettings(score, parts, preselected, storedSettings);
-    const hands = validatedSettings.selection
-      ? handOptions(score, validatedSettings.selection.partIndex)
-      : [];
+    const hands = validatedSettings.selection ? handOptions(score, validatedSettings.selection.partIndex) : [];
     playState.setSetup({
       parts,
       hands,
       measureCount: score.measures.length,
       settings: validatedSettings,
     });
+    void this.refreshAttempts();
+  }
+
+  /** US4, T076: the kept attempts for the open Score, newest first - empty (and no store call) for a Score that
+   *  was never itself stored (`playScoreId === null`, feature 001), since there is nothing to key an attempt by. */
+  private async refreshAttempts(): Promise<void> {
+    const scoreId = this.playScoreId;
+    if (scoreId === null) {
+      playState.setAttempts([]);
+      return;
+    }
+    const result = await this.performanceStore.listByScore(scoreId);
+    playState.setAttempts(result.ok ? result.value : []);
+  }
+
+  /** Everything a stored performance's own settings determine about the current Score, recomputed fresh rather
+   *  than stored (research R-20 covers why `startAudioTimeSec` alone is normalised away; `expected`,
+   *  `playedAlong`, the accompaniment schedule and the tick map are the same story: nothing here outlives the
+   *  Score they were computed from). Shared by regrade and replay (T076), since both need it identically. */
+  private prepareStoredRun(
+    perf: StoredPerformance,
+  ): { context: GradeInput; accompaniment: ReturnType<typeof compilePlaySchedule>['schedule'] } | null {
+    const score = this.currentScore;
+    const timeline = this.currentPlaybackTimeline;
+    if (!score || !timeline) return null;
+
+    const range = this.resolveRunRange(score, timeline, perf.settings);
+    const expected = buildExpectedNotes(score, timeline, perf.settings.selection, range);
+    const playedAlong = buildPlayedAlongSpans(score, timeline, perf.settings.selection, range);
+    const gradedNoteIds = new Set(expected.flatMap((note) => note.noteIds));
+    const { schedule: accompaniment, tickMap } = compilePlaySchedule(timeline, score.measures, {
+      range,
+      gradedNoteIds,
+      accompaniment: perf.settings.accompaniment,
+      countInMeasures: perf.settings.countInMeasures,
+      tempoPercent: perf.settings.tempoPercent,
+      metronome: {
+        beatKey: METRONOME_KEY_BEAT,
+        downbeatKey: METRONOME_KEY_DOWNBEAT,
+        beatVelocity: METRONOME_VELOCITY_BEAT,
+        downbeatVelocity: METRONOME_VELOCITY_DOWNBEAT,
+      },
+    });
+    // The run's own tempo map, in run-tick space (0 = count-in start) - contracts/grading.md step 1, the same
+    // reconstruction `PlaySessionController.start` does for a live run.
+    const runTempo: TempoSegment[] = Array.from(accompaniment.tempoTick, (_, i) => ({
+      startTick: accompaniment.tempoTick[i] as number,
+      qpmNum: accompaniment.tempoQpmNum[i] as number,
+      qpmDen: accompaniment.tempoQpmDen[i] as number,
+    }));
+
+    const context: GradeInput = {
+      runId: perf.runId,
+      complete: true,
+      expected,
+      playedAlong,
+      log: perf.log,
+      tempo: runTempo,
+      ppq: timeline.ppq,
+      tickMap,
+      startAudioTimeSec: 0, // research R-20: a stored log is already run-relative
+      settings: perf.settings,
+      latency: perf.latency,
+      reliability: [],
+      passes: timeline.passes,
+      measures: score.measures,
+    };
+    return { context, accompaniment };
+  }
+
+  /** FR-027, AS-4.4: re-grades a stored attempt at the timing strictness currently chosen in the Play settings
+   *  panel - every other stored setting (range, tempo, hands, ...) is kept exactly as the attempt was run, since
+   *  changing them would change which notes were expected, not just how they are judged. Never writes back to
+   *  the store (SC-011). */
+  private async onAttemptRegrade(runId: string): Promise<void> {
+    const stored = await this.performanceStore.get(runId);
+    if (!stored.ok) {
+      noticeState.addNotice({
+        code: stored.error === 'notFound' ? 'storageEntryMissing' : 'storageUnavailable',
+        severity: 'warning',
+      });
+      return;
+    }
+    const prepared = this.prepareStoredRun(stored.value);
+    if (!prepared) return;
+
+    const strictness = playState.get().setup?.settings.strictness ?? stored.value.settings.strictness;
+    const input: GradeInput = {
+      ...prepared.context,
+      settings: { ...prepared.context.settings, strictness },
+    };
+
+    const result = await requestGrade(this.gradeWorker, input, this.nextRegradeRequestId--, GRADE_WORKER_TIMEOUT_MS);
+    if (result.ok) playState.setGrade(result.grade);
+    else
+      noticeState.addNotice({
+        code: result.reason === 'timeout' ? 'playGradeTimeout' : 'playGradeError',
+        severity: 'warning',
+      });
+  }
+
+  /** FR-042, AS-4.2, research R-10: hears a stored attempt back - the notes actually played, in their recorded
+   *  timing, against the Score's own accompaniment - and shows the marks by re-grading it with its own stored
+   *  settings (unchanged), exactly like `onGraded` does for a live run. */
+  private async onAttemptReplay(runId: string): Promise<void> {
+    const stored = await this.performanceStore.get(runId);
+    if (!stored.ok) {
+      noticeState.addNotice({
+        code: stored.error === 'notFound' ? 'storageEntryMissing' : 'storageUnavailable',
+        severity: 'warning',
+      });
+      return;
+    }
+    const perf = stored.value;
+    const prepared = this.prepareStoredRun(perf);
+    if (!prepared) return;
+
+    const graded = await requestGrade(
+      this.gradeWorker,
+      prepared.context,
+      this.nextRegradeRequestId--,
+      GRADE_WORKER_TIMEOUT_MS,
+    );
+    if (graded.ok) playState.setGrade(graded.grade);
+    else
+      noticeState.addNotice({
+        code: graded.reason === 'timeout' ? 'playGradeTimeout' : 'playGradeError',
+        severity: 'warning',
+      });
+
+    const schedule = compileReplay({
+      log: perf.log,
+      tempo: prepared.context.tempo,
+      ppq: prepared.context.ppq,
+      tempoPercent: perf.settings.tempoPercent,
+      startAudioTimeSec: 0,
+      accompaniment: prepared.accompaniment,
+    });
+
+    this.replayController?.dispose();
+    this.replayController = new ReplaySessionController(this.audioEngine, {
+      onEnded: () => {
+        if (this.scoreView) this.scoreView.setPlaySession(this.playController);
+      },
+    });
+    this.replayController.start(this.playScoreId, perf.settings, prepared.context.tickMap, schedule);
+    this.scoreView?.setPlaySession(this.replayController);
+  }
+
+  /** FR-043: deletes a stored attempt, which removes its recording from the device. */
+  private async onAttemptDelete(runId: string): Promise<void> {
+    const result = await this.performanceStore.remove(runId);
+    if (!result.ok) noticeState.addNotice({ code: 'storageUnavailable', severity: 'warning' });
+    await this.refreshAttempts();
   }
 
   /** Validates and corrects stored play settings against the current Score (same logic as practice). */
@@ -771,7 +954,8 @@ export class Session {
         const key = storedSel.staves.join(',');
         const offered = handOptions(score, storedSel.partIndex).find((option) => option.staves.join(',') === key);
         if (offered) selection = offered;
-        else if (storedSel.staves.every((staff) => staff <= part.staves)) selection = { ...storedSel, preset: 'custom' };
+        else if (storedSel.staves.every((staff) => staff <= part.staves))
+          selection = { ...storedSel, preset: 'custom' };
         else selection = handOptions(score, preselected)[0] ?? selection;
       } else {
         selection = handOptions(score, preselected)[0] ?? selection;

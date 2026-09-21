@@ -65,10 +65,12 @@ function setup(gradeTimeoutMs = 5000) {
   const effects: PlayEffect[] = [];
   const grades: Grade[] = [];
   const gradeFailures: { reason: 'timeout' | 'error'; message?: string }[] = [];
+  let storedCount = 0;
   const callbacks: PlaySessionCallbacks = {
     onEffect: (e) => effects.push(e),
     onGraded: (g) => grades.push(g),
     onGradeFailed: (reason, message) => gradeFailures.push({ reason, message }),
+    onStored: () => storedCount++,
   };
 
   const nowRef = { value: 1000 };

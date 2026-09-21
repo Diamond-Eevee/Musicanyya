@@ -194,6 +194,17 @@ export const en = {
       measurePass: 'Measure {measure} ({ordinal} time)',
       practisePassage: 'Practise this passage',
     },
+    attempts: {
+      heading: 'Recent attempts',
+      empty: 'No attempts yet - play the piece to keep one here.',
+      kept: 'The most recent {n} attempts are kept for this score.',
+      notesCorrect: '{count} of {total} notes correct',
+      notesOnTime: '{count} of {total} played notes on time',
+      replay: 'Replay',
+      regrade: 'Re-grade',
+      delete: 'Delete',
+      deleteConfirm: 'Delete this attempt? This cannot be undone.',
+    },
     // FR-030: what was expected, what was played, the octave distance (not only its direction) and the
     // millisecond difference. R-13: the core stays free of English; `reasonText()` (src/ui/format/reason-text.ts)
     // is the only place a ResultReason code becomes a sentence, filling in these templates.

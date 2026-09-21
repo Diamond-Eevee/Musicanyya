@@ -2,6 +2,7 @@ import type { Grade } from '../../core/grade/types.js';
 import type { PlayRun, RunSettings } from '../../core/play/types.js';
 import type { HandSelection } from '../../core/practice/types.js';
 import type { NoteId } from '../../core/score/model.js';
+import type { StoredPerformanceSummary } from '../../engine/ports.js';
 import { createStore } from './store.js';
 
 /** What the musician can configure before starting a Play run (US3, T066). */
@@ -27,6 +28,8 @@ export interface PlayState {
   /** Every notehead the run's cheap live pitch test has matched so far (T044, FR-011); replaced by `grade`'s own
    *  marks once the run is graded (FR-011a). */
   liveMarkedNoteIds: ReadonlySet<NoteId>;
+  /** Kept attempts for the open Score, newest first (US4, T076); empty before a Score is loaded or stored. */
+  attempts: readonly StoredPerformanceSummary[];
 }
 
 const EMPTY: ReadonlySet<NoteId> = new Set();
@@ -38,6 +41,7 @@ class PlayStateStore {
     setup: null,
     selectedNoteId: null,
     liveMarkedNoteIds: EMPTY,
+    attempts: [],
   });
 
   get(): PlayState {
@@ -54,6 +58,10 @@ class PlayStateStore {
 
   setSetup(setup: PlaySetup | null) {
     this.store.update((state) => ({ ...state, setup }));
+  }
+
+  setAttempts(attempts: readonly StoredPerformanceSummary[]) {
+    this.store.update((state) => ({ ...state, attempts }));
   }
 
   updateSettings(settings: Partial<RunSettings>) {

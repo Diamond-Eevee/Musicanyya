@@ -53,6 +53,9 @@ export interface PlaySessionCallbacks {
   onEffect(effect: PlayEffect): void;
   onGraded(grade: Grade): void;
   onGradeFailed(reason: 'timeout' | 'error', message?: string): void;
+  /** T074: fired once a finished run's `storePerformance` attempt has settled - whether or not anything was
+   *  written (a null `scoreId` writes nothing) - so the UI refreshes its attempts list after storage, not before. */
+  onStored(): void;
 }
 
 function ticksToMs(ticks: number, qpm: number, ppq: number): number {
@@ -390,6 +393,7 @@ export class PlaySessionController {
     }
     this.callbacks.onGraded(result.grade);
     await this.storePerformance(run, result.grade);
+    this.callbacks.onStored();
   }
 
   /** FR-014, FR-041: kept for the Score with its date, settings and summary - never the Grade itself (R-09), which

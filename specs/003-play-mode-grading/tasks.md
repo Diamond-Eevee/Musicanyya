@@ -427,10 +427,17 @@ replay the first one and confirm the notes heard are the ones that were played, 
 - [x] T075 [US4] `src/core/play/replay.ts`: compile a stored log into a `ScheduleMessage` on the live channel's
   instrument, merged with the run's accompaniment. New `mergeSchedules` in `src/core/schedule/compile.ts` unions
   two compiled schedules on disjoint channels (reused as-is, not re-derived, by both replay and any future caller).
-- [ ] T076 [US4] `src/ui/elements/mx-attempts-list.ts`: the recent attempts with date, settings and summary, and
-  the replay, re-grade and delete actions, stating how many attempts are kept (FR-041 to FR-043, AS-4.6)
-- [ ] T077 [US4] Bump `specs/001-score-viewer-listen/contracts/storage.md` to IndexedDB schema 2 and record the
-  new `localStorage` keys
+- [x] T076 [US4] `src/ui/elements/mx-attempts-list.ts`: the recent attempts with date, settings and summary, and
+  the replay, re-grade and delete actions, stating how many attempts are kept (FR-041 to FR-043, AS-4.6). New
+  `src/app/replay-session.ts` (`ReplaySessionController`) drives `mx-score-view`'s existing Play-mode cursor-follow
+  seam (`PlayPositionReporter`) for a replay, exactly as `PlaySessionController` does for a live run - no second
+  cursor mechanism. Re-grade uses the stored run's own settings with only `strictness` swapped for whatever the
+  Play settings panel currently shows (AS-4.4); replay also re-grades (unchanged settings) so the marks are
+  visible (FR-042) alongside the replayed audio. `tests/e2e/us4-attempts.spec.ts` covers the full Independent
+  Test in a real browser: two attempts kept and listed, replayed, re-graded at a different strictness, deleted.
+- [x] T077 [US4] Bump `specs/001-score-viewer-listen/contracts/storage.md` to IndexedDB schema 2 and record the
+  new `localStorage` keys (`musicanyya.practice.v1`, `musicanyya.play.v1`, `musicanyya.latency.v1`), cross-
+  referencing each feature's own contract rather than duplicating its shape.
 
 **Checkpoint**: all four stories work independently.
 
