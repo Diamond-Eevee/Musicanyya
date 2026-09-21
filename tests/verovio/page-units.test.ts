@@ -208,9 +208,9 @@ describe('Verovio page-unit relation (score-layout.md section 2)', () => {
     });
   });
 
-  describe('page-unit bounds (provisional MIN_PAGE_UNITS = 400, MAX_PAGE_UNITS = 10000)', () => {
+  describe('page-unit bounds (MIN_PAGE_UNITS = 200, MAX_PAGE_UNITS = 10000)', () => {
     it.each([
-      [400, 400],
+      [200, 200],
       [10000, 10000],
     ])('Verovio accepts %i x %i verbatim', async (pageWidth, pageHeight) => {
       const { pages } = await render(SMALL, { pageWidth, pageHeight, scale: 100, adjustPageHeight: 0 }, [1]);

@@ -1,6 +1,12 @@
 import type { PlayRun } from '../../core/play/types.js';
 import type { ExpectedEvent, LoopRange, PracticeSession } from '../../core/practice/types.js';
-import { FOLLOW_MARGIN, RELAYOUT_DEBOUNCE_MS, ZOOM_DEFAULT, ZOOM_MAX, ZOOM_MIN } from '../../engine/config.js';
+import {
+  FOLLOW_MARGIN,
+  RELAYOUT_DEBOUNCE_MS,
+  SCORE_SCALE_DEFAULT,
+  SCORE_SCALE_MAX,
+  SCORE_SCALE_MIN,
+} from '../../engine/config.js';
 import type { AudioEngine } from '../../engine/ports.js';
 import { drawCursorOverlay } from '../score/cursor-overlay.js';
 import { drawGradeMarks, drawLiveMarks } from '../score/grade-marks.js';
@@ -54,7 +60,7 @@ export class MxScoreView extends HTMLElement {
   private layouts: PageLayout[] = [];
   private pageMeasureIds = new Map<number, string[]>();
   private mountedPages = new Set<number>();
-  private zoomPercent = ZOOM_DEFAULT;
+  private scale = SCORE_SCALE_DEFAULT;
   private relayoutTimer: ReturnType<typeof setTimeout> | null = null;
   private loadToken = 0;
 
@@ -131,13 +137,13 @@ export class MxScoreView extends HTMLElement {
     this.playSession = controller;
   }
 
-  async load(renderXml: string, measureIds: readonly string[], zoomPercent?: number): Promise<void> {
+  async load(renderXml: string, measureIds: readonly string[], scale?: number): Promise<void> {
     if (!this.client) throw new Error('mx-score-view: no VerovioClient attached');
     const token = ++this.loadToken;
     this.measureIds = [...measureIds];
     this.soundingNoteIds = new Set();
-    if (zoomPercent !== undefined) {
-      this.zoomPercent = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(zoomPercent)));
+    if (scale !== undefined) {
+      this.scale = Math.min(SCORE_SCALE_MAX, Math.max(SCORE_SCALE_MIN, Math.round(scale)));
     }
     await this.client.init();
     const { pageCount } = await this.client.load(renderXml, this.layoutOptions());
@@ -147,16 +153,16 @@ export class MxScoreView extends HTMLElement {
   }
 
   setZoom(percent: number): void {
-    const clamped = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(percent)));
-    if (clamped === this.zoomPercent) return;
-    this.zoomPercent = clamped;
-    this.dispatchEvent(new CustomEvent('zoomchange', { detail: { zoomPercent: clamped } }));
+    const clamped = Math.min(SCORE_SCALE_MAX, Math.max(SCORE_SCALE_MIN, Math.round(percent)));
+    if (clamped === this.scale) return;
+    this.scale = clamped;
+    this.dispatchEvent(new CustomEvent('zoomchange', { detail: { scale: clamped } }));
     if (this.relayoutTimer !== null) clearTimeout(this.relayoutTimer);
     this.relayoutTimer = setTimeout(() => this.relayout(), RELAYOUT_DEBOUNCE_MS);
   }
 
   private layoutOptions() {
-    return { pageWidth: DEFAULT_PAGE_WIDTH, pageHeight: DEFAULT_PAGE_HEIGHT, scale: this.zoomPercent };
+    return { pageWidth: DEFAULT_PAGE_WIDTH, pageHeight: DEFAULT_PAGE_HEIGHT, scale: this.scale };
   }
 
   private applyPageCount(pageCount: number) {

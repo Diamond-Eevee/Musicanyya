@@ -99,3 +99,40 @@ Feature `004-score-first-layout`. Newest entry at the bottom.
 - Problems / open questions: none.
 - Handoff: next = Phase 2 tests T005-T010, then T011-T019; run `pnpm test -- tests/ui tests/engine` first;
   tree clean at this commit.
+
+## 2026-09-21 - claude-sonnet-5 (/speckit.implement, Phase 2 Foundational - checkpoint)
+
+- Done: T005-T019. Checkpoint verified: the panel state machine, the fit arithmetic and settings v2 are green
+  in Node. Gate so far: `pnpm test` (vitest) 870 passed / 2 skipped, `tsc --build` clean; Biome is clean on every
+  file this feature touches (see Problems for the baseline).
+  - Tests written first and seen to fail for the right reason (missing modules/exports; the v1 store returning
+    the old shape): T005 `view-state`, T006 `fit`, T007 `anchor`, T008 `settings-v2`, T009 `panel`, T010 `menu`.
+    The Escape case in T010 was mutation-checked (removing `stopPropagation` makes it fail).
+  - Implementation: `src/ui/layout/{fit,anchor,menu-model,invoker}.ts`, `viewState` (scale, openPanel, overlays,
+    `createViewStateStore()` for tests), `UserSettings` v2 + `OverlayFlags` (`ports.ts`), `OVERLAYS_DEFAULT`
+    (`config.ts`), v1 -> v2 migration in `local-settings-store.ts` (also drops `zoomPercent` on the next save and
+    now rejects an array as a settings file), `mx-panel`, `mx-menu`, `panels.css`, menu/panel labels in `en.ts`.
+- Decisions:
+  - `MIN_PAGE_UNITS` 400 -> **200**: writing T006 showed a 1280x720 window (about 670 px of Score) at 200 % asks for
+    a page 335 units tall, which 400 would have clamped, contradicting the contract's own "real windows never
+    reach it". Verovio still returns 200 x 200 verbatim (T001 test updated). Contract, T003 and config updated.
+  - `fitLayout()` returns `{ pageWidth, pageHeight, scale }` only. `adjustPageHeight: 0` is a worker constant
+    (T030), so the message shape stays unchanged; contract rule 4 and T022 reworded.
+  - The rename `zoomPercent` -> `scale` reached `session.ts` and `mx-score-view.ts` in this phase (mechanical:
+    field, event payload `zoomchange`, `SCORE_SCALE_*`), because T013/T014 would otherwise leave the tree not
+    compiling until T028/T034. Behaviour is unchanged; the bare `+`/`-` handler still lives in `session.ts` until
+    T032/T034.
+  - Focus return (FR-005) needs a DOM node, which the store must not hold: `src/ui/layout/invoker.ts` (contract
+    `ui-shell.md` sections 5 and 6 amended). Panels take focus only when a control opened them, so the Grade panel
+    a run finishes with never steals Space from play/pause.
+  - `mx-panel` is named by `aria-label` copied from its `heading` attribute (an `aria-labelledby` cannot reach an
+    `<h2>` in the shadow root); `ui-shell.md` section 3 amended. `view-settings.md` volume default corrected to 80
+    (`VOLUME_DEFAULT`; the contract said 100).
+- Problems / open questions: `pnpm lint` already fails on this branch before any 004 change - 26 Biome errors
+  (import order, formatting) in feature 003's files, including `src/core/play/run.ts` and `calibration.ts`.
+  T103 requires `src/core` to stay untouched by this feature, so they are not fixed here; a separate clean-up task
+  was flagged. The T109 gate cannot pass `pnpm lint` until that lands or the owner says otherwise.
+  Note for T027: `layout.css` also carries content rules for the asides (`.mx-help-panel table`,
+  `.mx-diagnostics-list`, `mx-practice-panel`, ...) that must survive the rewrite.
+- Handoff: next = Phase 3 (US1) tests T020-T025 (`tests/e2e/us1-layout.spec.ts` first, then the unit tests),
+  then T026-T039; start with `pnpm test -- tests/ui` (all green) and `pnpm typecheck`; tree clean at this commit.

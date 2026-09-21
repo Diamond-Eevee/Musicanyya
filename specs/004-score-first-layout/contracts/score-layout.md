@@ -21,10 +21,10 @@ One integer, `scale`, replaces `zoomPercent` everywhere in the UI (same range, s
 | `SCORE_SCALE_MAX` | 200 | largest Score size |
 | `SCORE_SCALE_DEFAULT` | 100 | fitted size; the reset target |
 | `SCORE_SCALE_STEP` | 10 | one press of larger / smaller (FR-014b) |
-| `MIN_PAGE_UNITS` | 400 | smallest `pageWidth` / `pageHeight` ever requested; a 1280 px viewport at 200% gives 640, so real windows never reach it |
+| `MIN_PAGE_UNITS` | 200 | smallest `pageWidth` / `pageHeight` ever requested; the smallest supported window (1280x720, about 670 px of Score at 200%) asks for 640 x 335, so real windows never reach it |
 | `MAX_PAGE_UNITS` | 10000 | largest page ever requested; a 2560 px viewport at 50% gives 5120, so real windows stay under half of it |
 
-Both page-unit bounds sit inside Verovio's accepted range - T001 renders exactly 400 x 400 and
+Both page-unit bounds sit inside Verovio's accepted range - T001 renders exactly 200 x 200 and
 10000 x 10000 and gets those sizes back verbatim - and they are named constants, not magic numbers
 (Constitution II).
 
@@ -43,7 +43,7 @@ interface LayoutOptions {
 }
 
 /** Pure, unit-tested in Node - src/ui/layout/fit.ts */
-function fitLayout(viewportWidthPx: number, viewportHeightPx: number, scale: number): LayoutOptions;
+function fitLayout(viewportWidthPx: number, viewportHeightPx: number, scale: number): LayoutOptions | null;
 ```
 
 Rules:
@@ -53,7 +53,8 @@ Rules:
    ask Verovio for a degenerate page.
 3. A viewport of 0 x 0 (element not yet laid out, or hidden) yields **no** request at all; the last
    good layout stays on screen.
-4. `adjustPageHeight` is set to `0` for this mode: the height is dictated, not derived.
+4. `adjustPageHeight` is `0`: the height is dictated, not derived. It is a constant of the Verovio worker
+   (T030), not a field of `LayoutOptions`, so the message shape is unchanged.
 5. The unit relation below is pinned by `tests/verovio/page-units.test.ts` (T001, `verovio 6.3.0`);
    a Verovio upgrade that changes it fails that test, and this contract is corrected first.
 

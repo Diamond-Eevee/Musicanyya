@@ -1,17 +1,19 @@
 import type { HandSelection } from '../../core/practice/types.js';
 import {
+  OVERLAYS_DEFAULT,
   PRACTICE_SETTINGS_MAX,
+  SCORE_SCALE_DEFAULT,
+  SCORE_SCALE_MAX,
+  SCORE_SCALE_MIN,
+  SCORE_SCALE_STEP,
   SETTINGS_WRITE_DEBOUNCE_MS,
   TEMPO_PERCENT_DEFAULT,
   TEMPO_PERCENT_MAX,
   TEMPO_PERCENT_MIN,
   TEMPO_PERCENT_STEP,
   VOLUME_DEFAULT,
-  ZOOM_DEFAULT,
-  ZOOM_MAX,
-  ZOOM_MIN,
 } from '../config.js';
-import type { PracticeSettings, SettingsStore, UserSettings } from '../ports.js';
+import type { OverlayFlags, PracticeSettings, SettingsStore, UserSettings } from '../ports.js';
 
 export const SETTINGS_STORAGE_KEY = 'musicanyya.settings.v1';
 export const PRACTICE_STORAGE_KEY = 'musicanyya.practice.v1';
@@ -26,7 +28,7 @@ const BUILT_IN_PLAY: import('../../core/play/types.js').RunSettings = {
   tempoPercent: 100,
   selection: { preset: 'both', partIndex: 0, staves: [1, 2] },
   strictness: 'beginner', // PLAY_STRICTNESS_DEFAULT
-  countInMeasures: 1,     // PLAY_COUNT_IN_MEASURES
+  countInMeasures: 1, // PLAY_COUNT_IN_MEASURES
   metronomeMuted: false,
   accompaniment: true,
 };
@@ -46,15 +48,37 @@ function isIndex(value: unknown, min: number): value is number {
   return typeof value === 'number' && Number.isInteger(value) && value >= min;
 }
 
-function validate(raw: Record<string, unknown>): UserSettings {
+/** Every overlay switch is validated on its own; a missing or invalid one takes its default (view-settings.md). */
+function validOverlays(raw: unknown): OverlayFlags {
+  const source = isObject(raw) ? raw : {};
+  const flag = (name: keyof OverlayFlags): boolean => {
+    const value = source[name];
+    return typeof value === 'boolean' ? value : OVERLAYS_DEFAULT[name];
+  };
   return {
-    version: 1,
+    cursor: flag('cursor'),
+    marks: flag('marks'),
+    advice: flag('advice'),
+    pianoKeys: flag('pianoKeys'),
+    notices: flag('notices'),
+  };
+}
+
+/**
+ * Reads format version 2, and version 1 silently (contracts/view-settings.md section 3): a v1 file has no `scale`,
+ * but its `zoomPercent` means the same thing, so a returning user keeps their size.
+ */
+function validate(raw: Record<string, unknown>): UserSettings {
+  const storedScale = 'scale' in raw ? raw.scale : raw.zoomPercent;
+  return {
+    version: 2,
     volume: isInt(raw.volume, 0, 100) ? raw.volume : VOLUME_DEFAULT,
     tempoPercent: isInt(raw.tempoPercent, TEMPO_PERCENT_MIN, TEMPO_PERCENT_MAX, TEMPO_PERCENT_STEP)
       ? raw.tempoPercent
       : TEMPO_PERCENT_DEFAULT,
-    zoomPercent: isInt(raw.zoomPercent, ZOOM_MIN, ZOOM_MAX) ? raw.zoomPercent : ZOOM_DEFAULT,
+    scale: isInt(storedScale, SCORE_SCALE_MIN, SCORE_SCALE_MAX, SCORE_SCALE_STEP) ? storedScale : SCORE_SCALE_DEFAULT,
     follow: typeof raw.follow === 'boolean' ? raw.follow : true,
+    overlays: validOverlays(raw.overlays),
   };
 }
 
@@ -99,7 +123,9 @@ function validPlay(raw: JsonObject): import('../../core/play/types.js').RunSetti
     range: validRange(raw.range),
     tempoPercent: isInt(raw.tempoPercent, 25, 200, 5) ? raw.tempoPercent : BUILT_IN_PLAY.tempoPercent,
     selection: validSelection(raw.selection) ?? BUILT_IN_PLAY.selection,
-    strictness: strictnessLevels.includes(raw.strictness as string) ? (raw.strictness as import('../../core/grade/types.js').StrictnessLevelName) : BUILT_IN_PLAY.strictness,
+    strictness: strictnessLevels.includes(raw.strictness as string)
+      ? (raw.strictness as import('../../core/grade/types.js').StrictnessLevelName)
+      : BUILT_IN_PLAY.strictness,
     countInMeasures: isIndex(raw.countInMeasures, 1) ? raw.countInMeasures : BUILT_IN_PLAY.countInMeasures,
     metronomeMuted: typeof raw.metronomeMuted === 'boolean' ? raw.metronomeMuted : BUILT_IN_PLAY.metronomeMuted,
     accompaniment: typeof raw.accompaniment === 'boolean' ? raw.accompaniment : BUILT_IN_PLAY.accompaniment,
@@ -144,7 +170,7 @@ export class LocalSettingsStore implements SettingsStore {
    *  full storage still lets the settings work in memory. Null until the first save. */
   private practiceFile: JsonObject | null = null;
   private practiceTimer: ReturnType<typeof setTimeout> | null = null;
-  
+
   private playFile: JsonObject | null = null;
   private playTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -155,7 +181,7 @@ export class LocalSettingsStore implements SettingsStore {
       const item = localStorage.getItem(SETTINGS_STORAGE_KEY);
       if (item) {
         const parsed: unknown = JSON.parse(item);
-        if (parsed && typeof parsed === 'object') this.raw = parsed as Record<string, unknown>;
+        if (isObject(parsed)) this.raw = parsed;
       }
     } catch {
       this.raw = {};
@@ -172,7 +198,10 @@ export class LocalSettingsStore implements SettingsStore {
   private flush(): void {
     this.writeTimer = null;
     if (!this.pending) return;
-    this.raw = { ...this.raw, ...this.pending };
+    // Unknown fields are kept; v1's `zoomPercent` is dropped now that its value lives in `scale`.
+    const combined: Record<string, unknown> = { ...this.raw, ...this.pending };
+    const { zoomPercent: _superseded, ...merged } = combined;
+    this.raw = merged;
     this.pending = null;
     this.write(SETTINGS_STORAGE_KEY, this.raw);
   }
@@ -315,7 +344,7 @@ export class LocalSettingsStore implements SettingsStore {
     }
     return { version: 1 };
   }
-  
+
   private readPlayFile(): JsonObject {
     if (this.playFile) return this.playFile;
     try {

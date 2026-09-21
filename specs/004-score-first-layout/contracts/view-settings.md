@@ -19,7 +19,7 @@ is unchanged, so no user loses their settings.
   "required": ["version"],
   "properties": {
     "version":      { "const": 2 },
-    "volume":       { "type": "integer", "minimum": 0,  "maximum": 100, "default": 100 },
+    "volume":       { "type": "integer", "minimum": 0,  "maximum": 100, "default": 80 },
     "tempoPercent": { "type": "integer", "minimum": 25, "maximum": 200, "multipleOf": 5, "default": 100 },
     "scale":        { "type": "integer", "minimum": 50, "maximum": 200, "multipleOf": 10, "default": 100 },
     "follow":       { "type": "boolean", "default": true },

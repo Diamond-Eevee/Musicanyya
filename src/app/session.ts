@@ -1,5 +1,5 @@
 import { WebAudioEngine } from '../engine/audio/web-audio-engine.js';
-import { GRADE_WORKER_TIMEOUT_MS, MAX_FILE_BYTES, ZOOM_STEP } from '../engine/config.js';
+import { GRADE_WORKER_TIMEOUT_MS, MAX_FILE_BYTES, SCORE_SCALE_STEP } from '../engine/config.js';
 import { WebMidiInput } from '../engine/midi/web-midi-input.js';
 import type {
   AudioEngineEvent,
@@ -212,15 +212,15 @@ export class Session {
 
   async start(): Promise<void> {
     const settings = this.settingsStore.load();
-    viewState.setZoom(settings.zoomPercent);
+    viewState.setScale(settings.scale);
     transportState.applySavedSettings(settings.tempoPercent, settings.volume, settings.follow);
 
     this.scoreView = document.createElement('mx-score-view');
     this.scoreView.client = this.verovioClient;
     this.scoreView.addEventListener('zoomchange', (event) => {
-      const { zoomPercent } = (event as CustomEvent<{ zoomPercent: number }>).detail;
-      viewState.setZoom(zoomPercent);
-      this.settingsStore.save({ ...this.settingsStore.load(), zoomPercent });
+      const { scale } = (event as CustomEvent<{ scale: number }>).detail;
+      viewState.setScale(scale);
+      this.settingsStore.save({ ...this.settingsStore.load(), scale });
     });
     this.scoreView.addEventListener('measureclick', (event: Event) => {
       const { measureIndex } = (event as CustomEvent<{ measureIndex: number }>).detail;
@@ -457,10 +457,10 @@ export class Session {
     if (!this.scoreView) return;
     if (event.key === '+' || event.key === '=') {
       event.preventDefault();
-      this.scoreView.setZoom(viewState.get().zoomPercent + ZOOM_STEP);
+      this.scoreView.setZoom(viewState.get().scale + SCORE_SCALE_STEP);
     } else if (event.key === '-' || event.key === '_') {
       event.preventDefault();
-      this.scoreView.setZoom(viewState.get().zoomPercent - ZOOM_STEP);
+      this.scoreView.setZoom(viewState.get().scale - SCORE_SCALE_STEP);
     }
   }
 
@@ -1202,7 +1202,7 @@ export class Session {
     });
 
     if (this.scoreView) {
-      await this.scoreView.load(response.renderXml, response.summary.measureIds, viewState.get().zoomPercent);
+      await this.scoreView.load(response.renderXml, response.summary.measureIds, viewState.get().scale);
     }
 
     // this.soundReady is intentionally not reset here: the SoundFont is loaded once into the worklet's sound

@@ -1,12 +1,18 @@
-import { TEMPO_PERCENT_DEFAULT, VOLUME_DEFAULT, ZOOM_DEFAULT } from '../../src/engine/config.js';
+import {
+  OVERLAYS_DEFAULT,
+  SCORE_SCALE_DEFAULT,
+  TEMPO_PERCENT_DEFAULT,
+  VOLUME_DEFAULT,
+} from '../../src/engine/config.js';
 import type { PracticeSettings, SettingsStore, UserSettings } from '../../src/engine/ports.js';
 
 const BUILT_IN_USER: UserSettings = {
-  version: 1,
+  version: 2,
   volume: VOLUME_DEFAULT,
   tempoPercent: TEMPO_PERCENT_DEFAULT,
-  zoomPercent: ZOOM_DEFAULT,
+  scale: SCORE_SCALE_DEFAULT,
   follow: true,
+  overlays: { ...OVERLAYS_DEFAULT },
 };
 const BUILT_IN_PRACTICE: PracticeSettings = { selection: null, loop: null, accompaniment: true, help: true };
 

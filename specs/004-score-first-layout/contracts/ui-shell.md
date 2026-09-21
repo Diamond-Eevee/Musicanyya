@@ -62,8 +62,8 @@ Nothing else may be added to the bar without amending this contract.
 Every secondary tool is wrapped in `mx-panel`:
 
 ```html
-<mx-panel data-panel="diagnostics" popover="auto" aria-labelledby="...">
-  <header>title + close button</header>
+<mx-panel data-panel="diagnostics" heading="Audio diagnostics">   <!-- sets popover="auto", role="dialog" -->
+  <header>title + close button</header>                          <!-- in its shadow root -->
   <slot>the existing element, unchanged</slot>
 </mx-panel>
 ```
@@ -111,7 +111,8 @@ closes on Escape without touching the transport.
 
 ## 5. Events
 
-`mx-panel` and `mx-menu` communicate only through `viewState`. No new custom events cross layers; the
+`mx-panel` and `mx-menu` communicate only through `viewState`, plus the focus-return handoff in
+`src/ui/layout/invoker.ts` (a DOM node cannot live in the store). No new custom events cross layers; the
 existing per-element events (`zoomchange`, `measureclick`, setup-change events) keep their current
 names and payloads, except:
 
@@ -125,7 +126,10 @@ names and payloads, except:
 
 - The bar is a `<header>` with `role="toolbar"`; each menu button has `aria-haspopup="menu"` and
   `aria-expanded`.
-- Each `mx-panel` has an accessible name from its heading and is `role="dialog"` **without**
-  `aria-modal` (it is non-modal by design, Principle VI).
+- Each `mx-panel` is `role="dialog"` **without** `aria-modal` (it is non-modal by design, Principle VI) and is
+  named by its `heading` attribute, which it copies to `aria-label` on the host (an `aria-labelledby` cannot reach
+  the `<h2>` inside its shadow root).
+- Opening a panel from a control moves focus to the panel's close button; closing the last open panel returns
+  focus to that control (`src/ui/layout/invoker.ts`). A panel the app opens itself (the Grade) takes no focus.
 - The run status is an `aria-live="polite"` region so mode and device changes are announced without
   stealing focus.

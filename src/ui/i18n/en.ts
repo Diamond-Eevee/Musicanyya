@@ -2,6 +2,27 @@ export const en = {
   app: {
     emptyState: 'No score loaded. Open a MusicXML file to start.',
   },
+  /** The four menus of the slim bar (feature 004, data-model.md section 5). */
+  menus: {
+    score: 'Score',
+    setup: 'Setup',
+    view: 'View',
+    help: 'Help',
+  },
+  /** Titles of the secondary tools that open as popups; also the label of the menu entry that opens each. */
+  panels: {
+    close: 'Close',
+    scores: 'Recent scores',
+    attempts: 'Recent attempts',
+    setup: 'Practice and Play setup',
+    midi: 'MIDI keyboard',
+    latency: 'Latency',
+    view: 'View',
+    help: 'Supported notation',
+    diagnostics: 'Audio diagnostics',
+    environment: 'Environment',
+    grade: 'Grade',
+  },
   environment: {
     notSupported: 'Not supported in this environment.',
     permissionDenied: 'Permission denied.',

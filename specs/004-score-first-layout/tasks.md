@@ -47,7 +47,7 @@ on their own features:
       **first**, and note the correction in `specs/004-score-first-layout/implementation-log.md`
       (depends on T001).
 - [x] T003 [P] Add `SCORE_SCALE_MIN` (50), `SCORE_SCALE_MAX` (200), `SCORE_SCALE_DEFAULT` (100),
-      `SCORE_SCALE_STEP` (10), `MIN_PAGE_UNITS` (400) and `MAX_PAGE_UNITS` (10000) to
+      `SCORE_SCALE_STEP` (10), `MIN_PAGE_UNITS` (200) and `MAX_PAGE_UNITS` (10000) to
       `src/engine/config.ts`, and re-export `ZOOM_MIN` / `ZOOM_MAX` / `ZOOM_DEFAULT` / `ZOOM_STEP` as
       deprecated aliases (removed in T107); update the constants table in
       `specs/004-score-first-layout/contracts/score-layout.md` section 1 if T001 changed any value
@@ -65,28 +65,28 @@ story depends on it.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T005 [P] `tests/ui/view-state.test.ts`: `setScale` clamps to 50-200 and rounds to the nearest
+- [x] T005 [P] `tests/ui/view-state.test.ts`: `setScale` clamps to 50-200 and rounds to the nearest
       `SCORE_SCALE_STEP`; `resetScale()` gives 100; `openPanel(id)` replaces any open panel (FR-004);
       `closePanel()` gives `null`; `closeForRun()` gives `null` (FR-006); an unknown `PanelId` string
       reads as `null`; `setOverlay` toggles one layer with `pianoKeys` defaulting to `false`
       (`data-model.md` section 2).
-- [ ] T006 [P] `tests/ui/fit.test.ts`: `fitLayout(viewportW, viewportH, scale)` returns
+- [x] T006 [P] `tests/ui/fit.test.ts`: `fitLayout(viewportW, viewportH, scale)` returns
       `pageWidth = round(w * 100 / scale)` and `pageHeight = round(h * 100 / scale)` (or the relation
       T001 measured), clamps both to `[MIN_PAGE_UNITS, MAX_PAGE_UNITS]`, and returns `null` for a
       0 x 0 viewport so the last good layout stays (`score-layout.md` section 2 rules 1-3).
-- [ ] T007 [P] `tests/ui/anchor.test.ts`: `anchorRect(invokerRect, popupSize, viewportSize, placement)`
+- [x] T007 [P] `tests/ui/anchor.test.ts`: `anchorRect(invokerRect, popupSize, viewportSize, placement)`
       places the popup under its invoker, flips or shifts it when it would leave the viewport, and
       never returns a negative offset (research R-3, positioning).
-- [ ] T008 [P] `tests/engine/storage/settings-v2.test.ts`: the `view-settings.md` section 3 migration
+- [x] T008 [P] `tests/engine/storage/settings-v2.test.ts`: the `view-settings.md` section 3 migration
       table - `version: 1` plus a valid `zoomPercent` gives `scale` unchanged and `version: 2`;
       `version: 1` without `zoomPercent` gives `scale: 100`; no file gives all defaults; every field is
       validated on its own with fall-back to its default; unknown fields survive a save; the next
       `save()` writes `version: 2` and drops `zoomPercent`.
-- [ ] T009 [P] `tests/ui/panel.test.ts`: `mx-panel` reflects `viewState.openPanel` onto
+- [x] T009 [P] `tests/ui/panel.test.ts`: `mx-panel` reflects `viewState.openPanel` onto
       `hidden` / `aria-hidden`, calls `showPopover?.()` / `hidePopover?.()` only when present (happy-dom
       has neither), carries `role="dialog"` **without** `aria-modal`, takes its accessible name from
       its heading, and closes via its close button (`ui-shell.md` sections 3 and 6).
-- [ ] T010 [P] `tests/ui/menu.test.ts`: `mx-menu` renders the entries of one menu group from
+- [x] T010 [P] `tests/ui/menu.test.ts`: `mx-menu` renders the entries of one menu group from
       `menu-model.ts`, sets `aria-haspopup="menu"` and `aria-expanded`, activates an entry by calling
       `viewState.openPanel(id)`, supports Arrow/Home/End within the open list, closes on Escape
       **without** touching the transport, and renders inapplicable entries as disabled rather than
@@ -94,31 +94,31 @@ story depends on it.
 
 ### Implementation
 
-- [ ] T011 `src/ui/layout/fit.ts` - the pure `fitLayout()` of `score-layout.md` section 2 (makes T006
+- [x] T011 `src/ui/layout/fit.ts` - the pure `fitLayout()` of `score-layout.md` section 2 (makes T006
       pass; depends on T003).
-- [ ] T012 [P] `src/ui/layout/anchor.ts` - the pure anchoring helper (makes T007 pass).
-- [ ] T013 `src/ui/state/viewState.ts` - replace `zoomPercent` with `scale`, add `openPanel`,
+- [x] T012 [P] `src/ui/layout/anchor.ts` - the pure anchoring helper (makes T007 pass).
+- [x] T013 `src/ui/state/viewState.ts` - replace `zoomPercent` with `scale`, add `openPanel`,
       `overlays` and the `setScale` / `resetScale` / `openPanel` / `closePanel` / `closeForRun` /
       `setOverlay` transitions of `data-model.md` section 2 (makes T005 pass; depends on T003).
-- [ ] T014 `src/engine/ports.ts` - `UserSettings` version 2: `version: 2`, `scale`, `overlays`;
+- [x] T014 `src/engine/ports.ts` - `UserSettings` version 2: `version: 2`, `scale`, `overlays`;
       `zoomPercent` removed from the interface (`view-settings.md` section 1). In the same commit,
       update `tests/fakes/memory-settings-store.ts` (its `BUILT_IN_USER` declares the v1 shape and would
       break typecheck) to `version: 2`, `scale: SCORE_SCALE_DEFAULT` and the default `overlays`.
-- [ ] T015 `src/engine/storage/local-settings-store.ts` - validate `scale` and each `overlays` field on
+- [x] T015 `src/engine/storage/local-settings-store.ts` - validate `scale` and each `overlays` field on
       its own, and migrate v1 to v2 silently (makes T008 pass; depends on T014). In the same commit,
       restate the eight `zoomPercent` / `version: 1` assertions of
       `tests/engine/storage/local-settings-store.test.ts` in v2 terms (`scale`, `version: 2`) - a
       correction forced by the rename, each assertion keeping its strictness; the v1 -> v2 behaviours
       themselves are T008's.
-- [ ] T016 [P] `src/ui/layout/menu-model.ts` with the four menus (Score, Setup, View, Help) and their
+- [x] T016 [P] `src/ui/layout/menu-model.ts` with the four menus (Score, Setup, View, Help) and their
       `PanelId` entries, plus their labels, panel titles, size-control labels and overlay-switch labels
       in `src/ui/i18n/en.ts` (`data-model.md` section 5).
-- [ ] T017 `src/ui/elements/mx-panel.ts` - the generic popover wrapper (header with title and close
+- [x] T017 `src/ui/elements/mx-panel.ts` - the generic popover wrapper (header with title and close
       button, slot for the existing element) driven by `viewState.openPanel` (makes T009 pass; depends
       on T013).
-- [ ] T018 `src/ui/elements/mx-menu.ts` - menu button plus keyboard-navigable list (makes T010 pass;
+- [x] T018 `src/ui/elements/mx-menu.ts` - menu button plus keyboard-navigable list (makes T010 pass;
       depends on T013, T016).
-- [ ] T019 [P] `src/ui/styles/panels.css` - appearance and top-layer styling for `mx-panel` and
+- [x] T019 [P] `src/ui/styles/panels.css` - appearance and top-layer styling for `mx-panel` and
       `mx-menu`; no element here may reserve flow space (`ui-shell.md` section 1 rule 2).
 
 **Checkpoint**: the panel state machine, the fit arithmetic and settings v2 are green in Node; the user
@@ -149,7 +149,7 @@ without scrolling, and no side or bottom panel reserves any space.
       `.../chords/c-major-scale-and-chords.musicxml`, has only 2 measures and one system.
 - [ ] T022 [P] [US1] `tests/ui/score-view-fit.test.ts`: `mx-score-view` derives its `LayoutOptions` from
       the observed viewport through `fitLayout()`, debounces relayout by `RELAYOUT_DEBOUNCE_MS`, sends
-      no request for a 0 x 0 viewport, sets `adjustPageHeight` per T001, and computes each page
+      no request for a 0 x 0 viewport, and computes each page
       element's height from the rendered SVG `viewBox` aspect ratio instead of a constant
       (`score-layout.md` section 4).
 - [ ] T023 [P] [US1] `tests/ui/size-controls.test.ts`: `mx-size-controls` renders larger / smaller /

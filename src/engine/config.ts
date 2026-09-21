@@ -20,8 +20,17 @@ export const SCORE_SCALE_MAX = 200;
 export const SCORE_SCALE_DEFAULT = 100;
 export const SCORE_SCALE_STEP = 10;
 
+// Which optional overlay layers are drawn until the user chooses otherwise (FR-012; piano keys off by FR-015)
+export const OVERLAYS_DEFAULT = {
+  cursor: true,
+  marks: true,
+  advice: true,
+  pianoKeys: false,
+  notices: true,
+} as const;
+
 // Bounds of the Verovio page requested from a viewport, in Verovio page units (1 unit = 1 CSS px at scale 100)
-export const MIN_PAGE_UNITS = 400;
+export const MIN_PAGE_UNITS = 200;
 export const MAX_PAGE_UNITS = 10000;
 
 /** @deprecated Use SCORE_SCALE_*; these aliases are removed in T107 of feature 004. */

@@ -1,0 +1,30 @@
+/*
+ * Popup panels (mx-panel) - feature 004, contracts/ui-shell.md section 3.
+ * A panel lives in the top layer (position: fixed), so it never reserves space in the window: only the slim bar
+ * and the Score view may do that (section 1, rule 1). `--mx-bar-height` is declared in layout.css.
+ * mx-menu draws its own list inside its shadow root.
+ */
+mx-panel {
+  position: fixed;
+  inset: auto;
+  top: var(--mx-bar-height, 48px);
+  right: 8px;
+  margin: 0;
+  padding: 0;
+  width: min(28rem, calc(100vw - 16px));
+  max-height: calc(100vh - var(--mx-bar-height, 48px) - 16px);
+  overflow: hidden;
+  color: var(--text-color);
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+mx-panel[hidden] {
+  display: none;
+}
+
+mx-menu {
+  display: inline-block;
+}
