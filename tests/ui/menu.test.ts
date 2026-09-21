@@ -223,3 +223,27 @@ describe('mx-menu', () => {
     });
   });
 });
+
+describe('the overflow menu (the bar folds the four menus into one when it runs out of width)', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    viewState.closePanel();
+  });
+
+  it('holds every entry of the four menus exactly once, in order', () => {
+    const fromMenus = MENU_GROUPS.flatMap((group) => group.entries.map((entry) => entry.panel));
+    expect(menuGroup('more').entries.map((entry) => entry.panel)).toEqual(fromMenus);
+    expect(new Set(fromMenus).size).toBe(fromMenus.length);
+  });
+
+  it('renders as a menu of its own and opens the same panels', () => {
+    const menu = makeMenu('more');
+    expect(trigger(menu).textContent?.trim()).toBe(menuGroup('more').label);
+    expect(items(menu)).toHaveLength(menuGroup('more').entries.length);
+    trigger(menu).click();
+    items(menu)
+      .find((item) => item.dataset.panel === 'midi')
+      ?.click();
+    expect(viewState.get().openPanel).toBe('midi');
+  });
+});

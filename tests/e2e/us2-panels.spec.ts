@@ -1,26 +1,27 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
+import { barFitted, type ManualPanel, menuButton, menuEntry } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixture = (name: string) => path.join(__dirname, '../fixtures/musicxml', name);
 
 /** Every tool a person opens by hand, as (menu, panel) - `grade` is opened by a finished run. */
 const ENTRIES = [
-  ['score', 'scores'],
-  ['score', 'attempts'],
-  ['setup', 'setup'],
-  ['setup', 'midi'],
-  ['setup', 'latency'],
-  ['view', 'view'],
-  ['help', 'help'],
-  ['help', 'diagnostics'],
-  ['help', 'environment'],
+  'scores',
+  'attempts',
+  'setup',
+  'midi',
+  'latency',
+  'view',
+  'help',
+  'diagnostics',
+  'environment',
 ] as const;
 
-const trigger = (page: Page, menu: string) => page.locator(`mx-menu[menu="${menu}"] button[aria-haspopup="menu"]`);
-const entry = (page: Page, menu: string, panel: string) =>
-  page.locator(`mx-menu[menu="${menu}"] [role="menuitem"][data-panel="${panel}"]`);
+// The menu that holds a tool: its own, or "More" when the bar has folded the four into one (compact mode).
+const trigger = menuButton;
+const entry = menuEntry;
 const panel = (page: Page, id: string) => page.locator(`mx-panel[data-panel="${id}"]`);
 
 async function openScore(page: Page): Promise<void> {
@@ -29,9 +30,10 @@ async function openScore(page: Page): Promise<void> {
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
 }
 
-async function openViaMenu(page: Page, menu: string, id: string): Promise<void> {
-  await trigger(page, menu).click(); // activation 1
-  await entry(page, menu, id).click(); // activation 2
+async function openViaMenu(page: Page, id: ManualPanel): Promise<void> {
+  await barFitted(page);
+  await trigger(page, id).click(); // activation 1
+  await entry(page, id).click(); // activation 2
 }
 
 test.describe('US2: secondary tools live in menus and popups', () => {
@@ -52,8 +54,8 @@ test.describe('US2: secondary tools live in menus and popups', () => {
       }));
     const before = await scoreState();
 
-    for (const [menu, id] of ENTRIES) {
-      await openViaMenu(page, menu, id);
+    for (const id of ENTRIES) {
+      await openViaMenu(page, id);
       await expect(panel(page, id), `${id} opens`).toBeVisible();
       await expect(page.locator('mx-panel:visible'), 'at most one popup is open').toHaveCount(1);
       // It overlaps the Score: it lies inside the Score area and reserves no space.
@@ -69,9 +71,9 @@ test.describe('US2: secondary tools live in menus and popups', () => {
 
   test('opening a second tool closes the first', async ({ page }) => {
     await openScore(page);
-    await openViaMenu(page, 'help', 'help');
+    await openViaMenu(page, 'help');
     await expect(panel(page, 'help')).toBeVisible();
-    await openViaMenu(page, 'help', 'diagnostics');
+    await openViaMenu(page, 'diagnostics');
     await expect(panel(page, 'diagnostics')).toBeVisible();
     await expect(panel(page, 'help')).toBeHidden();
   });
@@ -81,44 +83,45 @@ test.describe('US2: secondary tools live in menus and popups', () => {
   }) => {
     await openScore(page);
 
-    await openViaMenu(page, 'help', 'diagnostics');
+    await openViaMenu(page, 'diagnostics');
     await page.keyboard.press('Escape');
     await expect(panel(page, 'diagnostics')).toBeHidden();
-    await expect(trigger(page, 'help')).toBeFocused();
+    await expect(trigger(page, 'diagnostics')).toBeFocused();
 
-    await openViaMenu(page, 'help', 'diagnostics');
+    await openViaMenu(page, 'diagnostics');
     await panel(page, 'diagnostics').getByRole('button', { name: 'Close' }).click();
     await expect(panel(page, 'diagnostics')).toBeHidden();
-    await expect(trigger(page, 'help')).toBeFocused();
+    await expect(trigger(page, 'diagnostics')).toBeFocused();
 
-    await openViaMenu(page, 'help', 'diagnostics');
+    await openViaMenu(page, 'diagnostics');
     await page.mouse.click(40, 500); // on the Score, well away from the popup
     await expect(panel(page, 'diagnostics')).toBeHidden();
-    await expect(trigger(page, 'help')).toBeFocused();
+    await expect(trigger(page, 'diagnostics')).toBeFocused();
   });
 
   test('a menu is usable with the keyboard alone (FR-005, Acceptance 2.5)', async ({ page }) => {
     await openScore(page);
-    await trigger(page, 'help').focus();
+    await trigger(page, 'diagnostics').focus();
     await page.keyboard.press('ArrowDown');
-    await expect(entry(page, 'help', 'help')).toBeFocused();
+    await expect(entry(page, 'help')).toBeFocused();
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('Enter');
     await expect(panel(page, 'diagnostics')).toBeVisible();
     await expect(panel(page, 'diagnostics').getByRole('button', { name: 'Close' })).toBeFocused();
     await page.keyboard.press('Escape');
     await expect(panel(page, 'diagnostics')).toBeHidden();
-    await expect(trigger(page, 'help')).toBeFocused();
+    await expect(trigger(page, 'diagnostics')).toBeFocused();
   });
 
   test('opening and closing a popup each take well under 100 ms (SC-007)', async ({ page }) => {
     await openScore(page);
-    await trigger(page, 'help').click();
+    await trigger(page, 'diagnostics').click();
     const timings = await page.evaluate(async () => {
       const frame = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      const item = document
-        .querySelector('mx-menu[menu="help"]')
-        ?.shadowRoot?.querySelector('[data-panel="diagnostics"]') as HTMLElement;
+      const item = Array.from(document.querySelectorAll('#menu-controls mx-menu'))
+        .filter((menu) => menu.checkVisibility())
+        .map((menu) => menu.shadowRoot?.querySelector('[data-panel="diagnostics"]'))
+        .find((element) => element) as HTMLElement;
       const panelEl = document.querySelector('mx-panel[data-panel="diagnostics"]') as HTMLElement;
 
       const openStart = performance.now();
@@ -148,7 +151,7 @@ test.describe('US2: starting a run closes any popup, and popups never disturb a 
   test('starting Listen closes the open popup and starts with no dialog', async ({ page }) => {
     await openScore(page);
     await expect(page.locator('mx-transport .play-btn')).not.toBeDisabled();
-    await openViaMenu(page, 'help', 'help');
+    await openViaMenu(page, 'help');
     await expect(panel(page, 'help')).toBeVisible();
 
     await page.locator('mx-transport .play-btn').click();
@@ -162,7 +165,7 @@ test.describe('US2: starting a run closes any popup, and popups never disturb a 
     await expect(page.locator('mx-transport .play-btn')).not.toBeDisabled();
     await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
     await page.locator('mx-mode-switch input[value=practice]').check();
-    await openViaMenu(page, 'help', 'help');
+    await openViaMenu(page, 'help');
     await expect(panel(page, 'help')).toBeVisible();
 
     await page.locator('mx-transport .play-btn').click();
@@ -175,7 +178,7 @@ test.describe('US2: starting a run closes any popup, and popups never disturb a 
     await expect(page.locator('mx-transport .play-btn')).not.toBeDisabled();
     await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
     await page.locator('mx-mode-switch input[value=play]').check();
-    await openViaMenu(page, 'help', 'help');
+    await openViaMenu(page, 'help');
     await expect(panel(page, 'help')).toBeVisible();
 
     await page.locator('mx-transport .play-btn').click();
@@ -183,7 +186,9 @@ test.describe('US2: starting a run closes any popup, and popups never disturb a 
     await expect(page.locator('dialog[open], [role="alertdialog"]')).toHaveCount(0);
   });
 
-  test('opening then closing a popup during a run makes no long task and does not stop the run', async ({ page }) => {
+  test('no popup can be opened during a run, and working the menus makes no long task and does not stop it', async ({
+    page,
+  }) => {
     await page.addInitScript(() => {
       const longTasks: number[] = [];
       (window as unknown as { __longTasks: number[] }).__longTasks = longTasks;
@@ -198,12 +203,17 @@ test.describe('US2: starting a run closes any popup, and popups never disturb a 
 
     const longTasks = () => page.evaluate(() => (window as unknown as { __longTasks: number[] }).__longTasks.length);
     const before = await longTasks();
-    await openViaMenu(page, 'help', 'diagnostics');
-    await expect(panel(page, 'diagnostics')).toBeVisible();
-    await page.keyboard.press('Escape');
-    await expect(panel(page, 'diagnostics')).toBeHidden();
+    // SC-004: nothing but the Score, the bar and notices is on screen during a run, so every entry is disabled -
+    // a popup would cover music (a short piece is one page, so nothing could scroll clear of it).
+    for (const id of ENTRIES) {
+      await barFitted(page);
+      await trigger(page, id).click();
+      await expect(entry(page, id), `${id} is disabled during a run`).toBeDisabled();
+      await page.keyboard.press('Escape'); // closes the menu list, not the run
+    }
+    await expect(page.locator('mx-panel:visible')).toHaveCount(0);
 
     expect(await longTasks(), 'no main-thread task over 50 ms').toBe(before);
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause'); // Escape closed the popup, not the run
+    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause');
   });
 });

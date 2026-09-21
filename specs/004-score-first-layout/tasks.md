@@ -288,34 +288,34 @@ is gone, the Score is at full size, and the bar shows mode, measure and a workin
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T060 [P] [US3] `tests/ui/run-status.test.ts`: `mx-run-status` derives `mode`, `phase`,
+- [x] T060 [P] [US3] `tests/ui/run-status.test.ts`: `mx-run-status` derives `mode`, `phase`,
       `measureLabel`, `deviceState` and `canStop` from `transportState`, `practiceState`, `playState`
       and `midiState` without holding state of its own, is `aria-live="polite"`, and is empty when idle
       (`data-model.md` section 3, `ui-shell.md` section 6).
-- [ ] T061 [P] [US3] `tests/e2e/us3-run-chrome.spec.ts`: while a run is active no setup control is
+- [x] T061 [P] [US3] `tests/e2e/us3-run-chrome.spec.ts`: while a run is active no setup control is
       visible, mode plus current measure plus Stop are visible in the bar at all times (FR-008), and the
       number of on-screen elements other than the Score, the bar and transient notices is zero (SC-004).
-- [ ] T062 [P] [US3] `tests/e2e/us3-run-chrome.spec.ts` (same file): Stop ends the run in one activation;
+- [x] T062 [P] [US3] `tests/e2e/us3-run-chrome.spec.ts` (same file): Stop ends the run in one activation;
       a device-lost notice during a run appears in the notice tray with no dialog and no layout jump
       (Acceptance 3.3, edge cases).
-- [ ] T063 [P] [US3] `tests/ui/setup-panel.test.ts`: the `setup` panel shows `mx-practice-panel` in
+- [x] T063 [P] [US3] `tests/ui/setup-panel.test.ts`: the `setup` panel shows `mx-practice-panel` in
       Practice mode and `mx-play-panel` in Play mode, with the same settings and the same change events
       as before (FR-007, FR-018).
-- [ ] T064 [P] [US3] `tests/e2e/us3-run-chrome.spec.ts` (same file): when a Play run finishes the Grade
+- [x] T064 [P] [US3] `tests/e2e/us3-run-chrome.spec.ts` (same file): when a Play run finishes the Grade
       appears over the Score as a dismissible panel, and dismissing it leaves the per-note Grade marks
       on the notes (FR-009).
 
 ### Implementation
 
-- [ ] T065 [P] [US3] `src/ui/elements/mx-run-status.ts` - mode, measure, device state and Stop (makes
+- [x] T065 [P] [US3] `src/ui/elements/mx-run-status.ts` - mode, measure, device state and Stop (makes
       T060 pass; depends on T013).
-- [ ] T066 [US3] Mount `mx-run-status` in the bar's `#run-status` slot and hide the setup panels while a
+- [x] T066 [US3] Mount `mx-run-status` in the bar's `#run-status` slot and hide the setup panels while a
       run is active in `src/app/session.ts` (makes T061 pass; depends on T026, T065).
-- [ ] T067 [US3] Route `mx-practice-panel` and `mx-play-panel` into the single `setup` panel chosen by
+- [x] T067 [US3] Route `mx-practice-panel` and `mx-play-panel` into the single `setup` panel chosen by
       the current mode, content and events unchanged (makes T063 pass; depends on T045).
-- [ ] T068 [US3] Present `mx-grade-panel` as the `grade` panel over the Score, opened when a Play run
+- [x] T068 [US3] Present `mx-grade-panel` as the `grade` panel over the Score, opened when a Play run
       finishes and dismissible without clearing `grade-marks` (makes T064 pass; depends on T017, T045).
-- [ ] T069 [US3] Confirm no message path during a run is modal: `src/ui/elements/mx-notice-tray.ts` and
+- [x] T069 [US3] Confirm no message path during a run is modal: `src/ui/elements/mx-notice-tray.ts` and
       `src/ui/elements/mx-practice-help.ts` stay non-focus-stealing overlays (FR-011; makes T062 pass).
 
 **Checkpoint**: US1 to US3 work independently; the window during a run is the Score plus one slim bar.
@@ -332,36 +332,36 @@ the current system is never under the bar, a notice or an open popup.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T080 [P] [US4] `tests/e2e/us4-overlays.spec.ts`: over a full Listen run of a 100-measure score,
+- [x] T080 [P] [US4] `tests/e2e/us4-overlays.spec.ts`: over a full Listen run of a 100-measure score,
       sampled at 10 Hz, the bounding box of the system containing the cursor never intersects the bar,
       the notice tray, the piano strip or an open panel (SC-005, FR-010).
-- [ ] T081 [P] [US4] `tests/ui/view-panel.test.ts`: `mx-view-panel` renders a switch per overlay layer
+- [x] T081 [P] [US4] `tests/ui/view-panel.test.ts`: `mx-view-panel` renders a switch per overlay layer
       (cursor, marks, advice, piano keys, notices) plus the Score size controls, and each switch writes
       `viewState.setOverlay` immediately (FR-012).
-- [ ] T082 [P] [US4] `tests/ui/overlay-layers.test.ts`: switching a layer off stops it being drawn and
+- [x] T082 [P] [US4] `tests/ui/overlay-layers.test.ts`: switching a layer off stops it being drawn and
       does not stop or alter the run - `src/ui/score/cursor-overlay.ts`, `src/ui/score/grade-marks.ts`,
       `src/ui/score/practice-marks.ts`, `src/ui/elements/mx-piano-keys.ts` and
       `src/ui/elements/mx-notice-tray.ts` each honour their switch (FR-012, FR-015, `data-model.md`
       section 2).
-- [ ] T083 [P] [US4] `tests/ui/insets.test.ts`: showing `mx-piano-keys` sets `--mx-inset-bottom` and the
+- [x] T083 [P] [US4] `tests/ui/insets.test.ts`: showing `mx-piano-keys` sets `--mx-inset-bottom` and the
       Score scroll container's `padding-bottom` to the strip's height; hiding it clears both
       (`ui-shell.md` section 1, Insets).
-- [ ] T084 [P] [US4] `tests/ui/notice-bounds.test.ts`: the notice tray stacks at most 3 notices, never
+- [x] T084 [P] [US4] `tests/ui/notice-bounds.test.ts`: the notice tray stacks at most 3 notices, never
       grows beyond its bounded area, and never takes keyboard focus (FR-011, Acceptance 4.2).
 
 ### Implementation
 
-- [ ] T085 [P] [US4] `src/ui/elements/mx-view-panel.ts` - the View panel: overlay switches plus the size
+- [x] T085 [P] [US4] `src/ui/elements/mx-view-panel.ts` - the View panel: overlay switches plus the size
       controls (makes T081 pass; depends on T013, T031).
-- [ ] T086 [US4] Honour `viewState.overlays` in `src/ui/score/cursor-overlay.ts`,
+- [x] T086 [US4] Honour `viewState.overlays` in `src/ui/score/cursor-overlay.ts`,
       `src/ui/score/grade-marks.ts`, `src/ui/score/practice-marks.ts`, `src/ui/elements/mx-piano-keys.ts`
       and `src/ui/elements/mx-notice-tray.ts`; piano keys default to off (makes T082 pass, FR-015).
-- [ ] T087 [US4] Declare and consume `--mx-inset-bottom` for the piano strip in
+- [x] T087 [US4] Declare and consume `--mx-inset-bottom` for the piano strip in
       `src/ui/styles/layout.css` and `src/ui/elements/mx-score-view.ts` so the follow band stays clear
       (makes T083 pass; depends on T027).
-- [ ] T088 [US4] Bound the notice tray to 3 stacked notices in the bottom-right corner in
+- [x] T088 [US4] Bound the notice tray to 3 stacked notices in the bottom-right corner in
       `src/ui/elements/mx-notice-tray.ts` and `src/ui/styles/layout.css` (makes T084 pass).
-- [ ] T089 [US4] Collapse the bar's secondary controls into an overflow menu below the design-minimum
+- [x] T089 [US4] Collapse the bar's secondary controls into an overflow menu below the design-minimum
       width instead of wrapping into a second row, in `src/ui/elements/mx-menu.ts` and
       `src/ui/styles/layout.css` (spec edge case "window too small for the slim bar's controls").
 
@@ -371,10 +371,10 @@ the current system is never under the bar, a notice or an open popup.
 
 ## Phase 7: Polish & Cross-Cutting
 
-- [ ] T100 [P] `tests/e2e/us1-layout.spec.ts`: persistence - the chosen `scale` and the overlay switches
+- [x] T100 [P] `tests/e2e/us1-layout.spec.ts`: persistence - the chosen `scale` and the overlay switches
       are restored after a reload (SC-008), and from the fitted size the staves can be made at least
       twice as tall using only bar controls in at most 10 activations (SC-008a).
-- [ ] T101 [P] `tests/e2e/us1-layout.spec.ts`: no clipped control and no horizontal page scrollbar at
+- [x] T101 [P] `tests/e2e/us1-layout.spec.ts`: no clipped control and no horizontal page scrollbar at
       1280x720, 1366x768, 1600x900, 1920x1080 and 2560x1440 at 100%, 150% **and** 175% device scale
       factor (SC-006 names 100% and 150%; FR-013 promises the whole 100-175% range, so both are
       asserted).

@@ -21,9 +21,12 @@ import {
 } from '../score/pages.js';
 import { drawLoopMarks, drawPracticeMarks, drawStartMarker } from '../score/practice-marks.js';
 import type { LayoutOptions, VerovioClient } from '../score/verovio-client.js';
+import { insetState } from '../state/insetState.js';
 import { playState } from '../state/playState.js';
 import { practiceState } from '../state/practiceState.js';
+import { runPositionState } from '../state/runPositionState.js';
 import { transportState } from '../state/transportState.js';
+import { viewState } from '../state/viewState.js';
 
 /** Used only when the viewport has no size to fit to (an element that is not laid out yet, or a test): the page the
  *  view asked for before feature 004. A real window always gets `fitLayout()` instead. */
@@ -68,6 +71,7 @@ export class MxScoreView extends HTMLElement {
   /** A scale change (unlike a resize) relays out even when the viewport cannot be measured. */
   private relayoutForced = false;
   private resizeObserver: ResizeObserver | null = null;
+  private unsubscribeInset?: () => void;
   /** The layout last sent to Verovio; a resize that would ask for the same one is ignored. */
   private requested: LayoutOptions | null = null;
   /** Height over width of a page, read from its rendered `viewBox` (contracts/score-layout.md section 4). */
@@ -133,10 +137,19 @@ export class MxScoreView extends HTMLElement {
       this.resizeObserver = new ResizeObserver(() => this.onResize());
       this.resizeObserver.observe(this.scrollEl);
     }
+    // Overlays that cover the bottom of the viewport (the piano strip) declare it, so the last page can scroll clear of
+    // them and the follow band ignores the covered part (ui-shell.md, Insets).
+    this.unsubscribeInset = insetState.subscribe((inset) => this.applyInset(inset.bottom));
+    this.applyInset(insetState.get().bottom);
     this.rafHandle = requestAnimationFrame(this.tick);
   }
 
+  private applyInset(bottom: number): void {
+    this.scrollEl.style.paddingBottom = `${bottom}px`;
+  }
+
   disconnectedCallback() {
+    this.unsubscribeInset?.();
     if (this.relayoutTimer !== null) clearTimeout(this.relayoutTimer);
     if (this.rafHandle !== null) cancelAnimationFrame(this.rafHandle);
     this.resizeObserver?.disconnect();
@@ -395,6 +408,7 @@ export class MxScoreView extends HTMLElement {
     const pass =
       timeline.passes.find((p) => p.startTick <= tick && tick < p.endTick) ??
       timeline.passes[timeline.passes.length - 1];
+    runPositionState.set(pass ? pass.measureIndex : null);
     const measureId = pass ? this.measureIds[pass.measureIndex] : undefined;
     const measureEl = measureId !== undefined ? this.stack.querySelector(`#${CSS.escape(measureId)}`) : null;
     if (!measureEl) return; // the current measure isn't mounted (e.g. a distant seek); skip this frame
@@ -474,6 +488,8 @@ export class MxScoreView extends HTMLElement {
   ): void {
     this.syncElementCache();
     const currentEvent = session?.events[session.index];
+    // The slim bar's run status reads the measure from here (it never derives musical position itself).
+    runPositionState.set(currentEvent && session?.phase !== 'finished' ? currentEvent.measureIndex : null);
 
     // Convert session marks to array
     const markEntries = session
@@ -489,6 +505,7 @@ export class MxScoreView extends HTMLElement {
       }
     }
 
+    const marksVisible = viewState.get().overlays.marks;
     const containerRect = this.scrollEl.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     const width = Math.round(containerRect.width) * dpr;
@@ -513,15 +530,24 @@ export class MxScoreView extends HTMLElement {
       containerRect,
       marks: markEntries,
       noteRects,
+      visible: marksVisible,
       ...(session ? { dimmedNoteRects: this.dimmedRects(session.events, containerRect) } : {}),
     });
 
-    if (loop) drawLoopMarks({ ctx, dpr, containerRect, measures: this.loopMeasures(loop) });
+    if (loop) drawLoopMarks({ ctx, dpr, containerRect, measures: this.loopMeasures(loop), visible: marksVisible });
 
     if (startMeasureIndex !== null && (!session || session.phase === 'finished')) {
       const measureId = this.measureIds[startMeasureIndex];
       const measureEl = measureId !== undefined ? this.stack.querySelector(`#${CSS.escape(measureId)}`) : null;
-      if (measureEl) drawStartMarker({ ctx, dpr, containerRect, measureRect: measureEl.getBoundingClientRect() });
+      if (measureEl) {
+        drawStartMarker({
+          ctx,
+          dpr,
+          containerRect,
+          measureRect: measureEl.getBoundingClientRect(),
+          visible: marksVisible,
+        });
+      }
     }
 
     if (currentEvent && session?.phase !== 'finished') {
@@ -541,19 +567,15 @@ export class MxScoreView extends HTMLElement {
    *  tick space back to timeline-tick space via `PlayTickMap` (contracts/play-run.md's own tick formula). */
   private followPlayCursor(): void {
     const { run } = playState.get();
-    if (
-      !run ||
-      (run.phase !== 'countIn' && run.phase !== 'running') ||
-      !this.timeline ||
-      !transportState.get().follow
-    ) {
-      return;
-    }
+    if (!run || (run.phase !== 'countIn' && run.phase !== 'running') || !this.timeline) return;
     const { countInTicks, rangeStartTick } = run.tickMap;
     const timelineTick = Math.max(rangeStartTick, run.positionRunTick - countInTicks + rangeStartTick);
     const pass =
       this.timeline.passes.find((p) => p.startTick <= timelineTick && timelineTick < p.endTick) ??
       this.timeline.passes[this.timeline.passes.length - 1];
+    // The slim bar shows the measure whether or not the view is following it.
+    runPositionState.set(pass ? pass.measureIndex : null);
+    if (!transportState.get().follow) return;
     const measureId = pass ? this.measureIds[pass.measureIndex] : undefined;
     const measureEl = measureId !== undefined ? this.stack.querySelector(`#${CSS.escape(measureId)}`) : null;
     if (measureEl) this.followScrollTo(measureEl);
@@ -588,7 +610,15 @@ export class MxScoreView extends HTMLElement {
       }
       // Extra notes have no notehead of their own to anchor a lane rect to yet (T042's own scoping note) - they
       // still show up in mx-grade-panel's counts, just not drawn on the Score here.
-      drawGradeMarks({ ctx, dpr, containerRect, visible: true, marks, extraRects: [], noteRects });
+      drawGradeMarks({
+        ctx,
+        dpr,
+        containerRect,
+        visible: viewState.get().overlays.marks,
+        marks,
+        extraRects: [],
+        noteRects,
+      });
     } else if (liveMarkedNoteIds.size > 0) {
       const noteIds = [...liveMarkedNoteIds];
       const noteRects = new Map<string, DOMRect>();
@@ -596,7 +626,7 @@ export class MxScoreView extends HTMLElement {
         const el = this.elementFor(noteId);
         if (el) noteRects.set(noteId, el.getBoundingClientRect());
       }
-      drawLiveMarks({ ctx, dpr, containerRect, visible: true, noteIds, noteRects });
+      drawLiveMarks({ ctx, dpr, containerRect, visible: viewState.get().overlays.marks, noteIds, noteRects });
     }
   }
 
@@ -618,7 +648,14 @@ export class MxScoreView extends HTMLElement {
       .map((id) => this.stack.querySelector(`#${CSS.escape(id)}`)?.getBoundingClientRect())
       .filter((rect): rect is DOMRect => rect !== undefined);
 
-    drawCursorOverlay({ ctx, dpr, measureRect: measureEl.getBoundingClientRect(), noteRects, containerRect });
+    drawCursorOverlay({
+      ctx,
+      dpr,
+      measureRect: measureEl.getBoundingClientRect(),
+      noteRects,
+      containerRect,
+      visible: viewState.get().overlays.cursor,
+    });
   }
 
   /** Scrolls to keep the cursor within the middle band of the viewport (FOLLOW_MARGIN, FR-014); marks the
@@ -626,12 +663,14 @@ export class MxScoreView extends HTMLElement {
   private followScrollTo(measureEl: Element): void {
     const containerRect = this.scrollEl.getBoundingClientRect();
     const targetRect = measureEl.getBoundingClientRect();
-    const marginPx = containerRect.height * FOLLOW_MARGIN;
+    // The part of the viewport an overlay covers (the piano strip) is not usable band: keep the cursor above it.
+    const usableHeight = Math.max(0, containerRect.height - insetState.get().bottom);
+    const marginPx = usableHeight * FOLLOW_MARGIN;
     const targetTop = targetRect.top - containerRect.top;
     const targetBottom = targetRect.bottom - containerRect.top;
-    if (targetTop >= marginPx && targetBottom <= containerRect.height - marginPx) return;
+    if (targetTop >= marginPx && targetBottom <= usableHeight - marginPx) return;
 
-    const delta = (targetTop + targetBottom) / 2 - containerRect.height / 2;
+    const delta = (targetTop + targetBottom) / 2 - usableHeight / 2;
     const before = this.scrollEl.scrollTop;
     this.scrollEl.scrollTop = before + delta;
     if (this.scrollEl.scrollTop !== before) {

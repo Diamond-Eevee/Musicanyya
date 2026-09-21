@@ -76,3 +76,6 @@ export const FOLLOW_MARGIN = 0.2; // Middle 60% of viewport means 20% margin top
 export const PERFORMANCES_PER_SCORE_MAX = 20; // Attempts kept per Score, oldest dropped (FR-041)
 export const PLAY_SETTINGS_MAX = 20; // Scores whose run settings are remembered (FR-040)
 export const GRADE_WORKER_TIMEOUT_MS = 5000; // A Grade that never arrives becomes a notice, not a hang
+
+// Notices: how many stack in the corner of the Score at once (feature 004, FR-011); older ones wait behind them.
+export const NOTICE_TRAY_MAX = 3;

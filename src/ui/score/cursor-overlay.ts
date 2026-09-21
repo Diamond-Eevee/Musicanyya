@@ -5,6 +5,8 @@ export interface CursorOptions {
   noteRects: DOMRect[];
   containerRect: DOMRect;
   isPracticeWaiting?: boolean;
+  /** False when the user has switched the cursor layer off (FR-012): nothing is drawn, the run is unaffected. */
+  visible?: boolean;
 }
 
 const BAR_WIDTH_PX = 3;
@@ -17,7 +19,8 @@ const MARKER_RADIUS_PX = 5;
  * device-pixel-scaled by `dpr`.
  */
 export function drawCursorOverlay(options: CursorOptions): void {
-  const { ctx, dpr, measureRect, noteRects, containerRect, isPracticeWaiting } = options;
+  const { ctx, dpr, measureRect, noteRects, containerRect, isPracticeWaiting, visible = true } = options;
+  if (!visible) return;
 
   const x = ((noteRects[0]?.left ?? measureRect.left) - containerRect.left) * dpr;
   const top = (measureRect.top - containerRect.top) * dpr;

@@ -29,10 +29,33 @@ mx-app {
   background: var(--bg-color);
 }
 
+.mx-bar {
+  white-space: nowrap; /* one row, never wrapped into a second that would steal height */
+}
+
 .mx-bar-slot {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Compact mode (mx-app switches it on when the bar's contents would overflow): the four menus fold into "More" and
+   the transport sliders shorten. Nothing is hidden, nothing wraps. */
+mx-menu[menu="more"] {
+  display: none;
+}
+
+.mx-bar-compact #menu-controls mx-menu:not([menu="more"]) {
+  display: none;
+}
+
+.mx-bar-compact #menu-controls mx-menu[menu="more"] {
+  display: inline-block;
+}
+
+.mx-bar-compact mx-transport input[type="range"] {
+  width: 64px;
 }
 
 #run-status {

@@ -193,3 +193,44 @@ Feature `004-score-first-layout`. Newest entry at the bottom.
   then T065-T069; T068's Grade popup is already opened by `onPlayGraded`, so its test (T064) should pass on
   first run after `mx-run-status` exists; run `pnpm test` and `npx playwright test --project=chromium` first
   (needs `npx vite build`); tree clean at this commit.
+
+## 2026-09-21 - claude-sonnet-5 (/speckit.implement, Phases 5-6 US3 + US4 + T100/T101 - checkpoint)
+
+- Done: T060-T069 (US3), T080-T089 (US4), T100, T101. Independent tests verified in the browser:
+  - US3: while a run is active the bar shows mode, measure and a working Stop (`mx-run-status`, a polite live
+    region), no setup control is visible or reachable, and nothing but the Score, the bar and notices is on screen;
+    a lost keyboard is a notice plus a status with no dialog and no layout jump; a finished Play run opens the Grade
+    as a dismissible popup and dismissing it leaves the marks on the notes (`us3-run-chrome.spec.ts`).
+  - US4: over a full Listen run of a 100-measure score (new fixture, 15 s), sampled 10 times a second at 1920x1080 and
+    1280x720 with the piano strip on and a notice shown, the system holding the cursor is never under the bar, the
+    strip or a notice (`us4-overlays.spec.ts`).
+  - T100/T101: the size and overlay switches survive a reload; 10 presses of "larger" double the staff height; no
+    control is clipped and there is no horizontal scrollbar at 1280x720 ... 2560x1440 at 100/150/175 % display
+    scaling, idle and during a Play run (25 tests in `us1-layout.spec.ts`).
+  - Gate so far: vitest 983 passed / 2 skipped; `tsc --build` clean; Biome clean on every feature file; chromium e2e
+    all green (55 tests, 1 skipped for audio on webkit).
+- Decisions:
+  - **Every menu entry is disabled during a run** (not just Setup). The debug run showed why: a 100-measure score at
+    1920x1080 is one page, so nothing can scroll clear of a popup and a popup would cover the cursor's system. SC-004
+    already says the on-screen count during a run is zero, and FR-007 hides the setup. A first version with popup-aware
+    follow-scroll (a top inset) was written and backed out as speculative; only the piano strip declares an inset.
+    FR-031's "diagnostics while playing" (feature 001 R-14) is therefore only available before starting - starting
+    already closed it (FR-006) - and is a candidate for a later "keep diagnostics open" decision by the owner.
+  - The bar is one row (`white-space: nowrap`). When its contents would overflow, `mx-app` switches on a compact mode
+    in the next animation frame: the four menus fold into one "More" menu (`OVERFLOW_MENU`, every entry once) and the
+    transport sliders shorten. At 1280 px this is what fits a Play run's status in. The e2e helpers wait for the bar to
+    settle (`barFitted`) and pick whichever menu is visible.
+  - `mx-run-status` derives everything from the existing stores; the only new state is `runPositionState`, published by
+    `mx-score-view` (it already works out the measure under the cursor each frame), and `insetState` (piano strip).
+    The Stop button is created/removed, never rebuilt, so keyboard focus survives measure updates.
+  - The 100-measure fixture is named `large-score-100-measures-fast.musicxml` so the core golden snapshot test skips it
+    (it skips `large-score*`); the first name auto-wrote 8,000 snapshot lines, which were reverted.
+  - The cursor system is measured from the measure's `g.staff` children: the `g.system` / `g.measure` boxes include the
+    tempo mark that sticks out above the page and is clipped there, not covered.
+- Problems / open questions:
+  - `pnpm lint` still has the 26 pre-existing errors in feature 003's files (previous entries).
+  - The Diagnostics popup still shows its title twice (panel heading + the element's own `<h2>`); cosmetic.
+- Handoff: next = Polish: T102-T106 (behaviour neutrality is covered by the unchanged core suites; T104 RT review of G-4
+  with `rt-audio-reviewer`; T105 `constitution-auditor`), T107 (remove the `ZOOM_*` aliases), T108, T109, T110, T111
+  (Electron layout assertion). Run `pnpm test` and `npx playwright test --project=chromium` (after `npx vite build`)
+  first; tree clean at this commit.

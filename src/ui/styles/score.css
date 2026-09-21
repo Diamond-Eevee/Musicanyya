@@ -7,6 +7,8 @@ mx-score-view {
 
 .mx-score-scroll {
   height: 100%;
+  /* The bottom padding (an overlay's inset) is inside the box, so the scroll container is never taller than its host. */
+  box-sizing: border-box;
   overflow-y: auto;
   overflow-x: hidden;
   /* The gutter is reserved whether or not a scrollbar shows, so the page width the layout is fitted to (the

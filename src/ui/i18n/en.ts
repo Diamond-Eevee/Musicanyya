@@ -10,12 +10,41 @@ export const en = {
     larger: 'Larger',
     reset: 'Reset size',
   },
+  /** The View popup: which optional overlay layers are drawn (feature 004, FR-012). */
+  view: {
+    layersHeading: 'Show on the Score',
+    layers: {
+      cursor: 'Playback cursor',
+      marks: 'Note marks',
+      advice: 'Advice markers',
+      pianoKeys: 'On-screen piano keys',
+      notices: 'Notices',
+    },
+  },
+  /** The notice corner: how the notices waiting behind the visible ones are counted. */
+  tray: {
+    more: '+{n} more',
+  },
+  /** The status area of the slim bar while a run is active (feature 004, FR-008). */
+  run: {
+    mode: { listen: 'Listen', practice: 'Practice', play: 'Play' },
+    phase: { idle: '', countIn: 'Count-in', running: 'Running', paused: 'Paused', finished: 'Finished' },
+    measure: 'Measure {n}',
+    stop: 'Stop',
+    device: {
+      ok: '',
+      noMidi: 'No MIDI keyboard',
+      midiLost: 'MIDI keyboard disconnected',
+      audioLost: 'Audio device lost',
+    },
+  },
   /** The four menus of the slim bar (feature 004, data-model.md section 5). */
   menus: {
     score: 'Score',
     setup: 'Setup',
     view: 'View',
     help: 'Help',
+    more: 'More',
   },
   /** Titles of the secondary tools that open as popups; also the label of the menu entry that opens each. */
   panels: {

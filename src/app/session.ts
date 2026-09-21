@@ -27,11 +27,13 @@ import '../ui/elements/mx-recent-list.js';
 import '../ui/elements/mx-score-view.js';
 import '../ui/elements/mx-size-controls.js';
 import '../ui/elements/mx-transport.js';
+import '../ui/elements/mx-view-panel.js';
 import '../ui/elements/mx-midi-panel.js';
 import '../ui/elements/mx-mode-switch.js';
 import '../ui/elements/mx-piano-keys.js';
 import '../ui/elements/mx-practice-help.js';
 import '../ui/elements/mx-practice-panel.js';
+import '../ui/elements/mx-run-status.js';
 import {
   METRONOME_CHANNEL,
   METRONOME_KEY_BEAT,
@@ -258,6 +260,7 @@ export class Session {
     document.getElementById('mode-controls')?.appendChild(modeSwitch);
     const sizeControls = document.createElement('mx-size-controls');
     document.getElementById('size-controls')?.appendChild(sizeControls);
+    document.getElementById('run-status')?.appendChild(document.createElement('mx-run-status'));
     const updateTransportVisibility = () => {
       const loaded = scoreState.getStatus().kind === 'loaded';
       transport.classList.toggle('hidden', !loaded);
@@ -307,7 +310,8 @@ export class Session {
     main.appendChild(dropZone);
 
     const menuControls = document.getElementById('menu-controls');
-    for (const menu of ['score', 'setup', 'view', 'help']) {
+    // 'more' is the four folded into one; the bar shows it instead of them when it runs out of width (mx-app)
+    for (const menu of ['score', 'setup', 'view', 'help', 'more']) {
       const element = document.createElement('mx-menu');
       element.setAttribute('menu', menu);
       menuControls?.appendChild(element);
@@ -388,7 +392,7 @@ export class Session {
       setup: [practicePanel, playPanel],
       midi: [midiPanel],
       latency: [latencyPanel],
-      view: [],
+      view: [document.createElement('mx-view-panel')],
       help: [helpPanel],
       diagnostics: [diagnosticsPanel],
       environment: [environmentPanel],
@@ -396,14 +400,8 @@ export class Session {
     };
     mountPanels(document.getElementById('panel-host') as HTMLElement, tools);
 
-    // On-screen piano keys are off until the user switches them on (FR-015).
-    const pianoKeys = document.createElement('mx-piano-keys');
-    const showPianoKeys = () => {
-      pianoKeys.hidden = !viewState.get().overlays.pianoKeys;
-    };
-    viewState.subscribe(showPianoKeys);
-    showPianoKeys();
-    main.appendChild(pianoKeys);
+    // The on-screen piano keys are off until the user switches them on (FR-015); the element follows its layer itself.
+    main.appendChild(document.createElement('mx-piano-keys'));
 
     const practiceHelp = document.createElement('mx-practice-help');
     main.appendChild(practiceHelp);

@@ -1,6 +1,7 @@
 import { anchorRect } from '../layout/anchor.js';
 import { rememberInvoker } from '../layout/invoker.js';
-import { MENU_GROUPS, type MenuGroup } from '../layout/menu-model.js';
+import { MENU_GROUPS, type MenuGroup, OVERFLOW_MENU } from '../layout/menu-model.js';
+import { isRunActive, subscribeRunActive } from '../state/runActive.js';
 import { scoreState } from '../state/scoreState.js';
 import { viewState } from '../state/viewState.js';
 
@@ -17,6 +18,7 @@ export class MxMenu extends HTMLElement {
   private list!: HTMLElement;
   private open = false;
   private unsubscribeScore?: () => void;
+  private unsubscribeRun?: () => void;
 
   constructor() {
     super();
@@ -26,11 +28,13 @@ export class MxMenu extends HTMLElement {
   connectedCallback(): void {
     this.render();
     this.unsubscribeScore = scoreState.subscribe(() => this.updateDisabled());
+    this.unsubscribeRun = subscribeRunActive(() => this.updateDisabled());
     document.addEventListener('click', this.onDocumentClick);
   }
 
   disconnectedCallback(): void {
     this.unsubscribeScore?.();
+    this.unsubscribeRun?.();
     document.removeEventListener('click', this.onDocumentClick);
   }
 
@@ -42,7 +46,7 @@ export class MxMenu extends HTMLElement {
     const root = this.shadowRoot;
     if (!root) return;
     const id = this.getAttribute('menu');
-    this.group = MENU_GROUPS.find((candidate) => candidate.id === id);
+    this.group = [...MENU_GROUPS, OVERFLOW_MENU].find((candidate) => candidate.id === id);
     this.open = false;
     const group = this.group;
     if (!group) {
@@ -53,7 +57,7 @@ export class MxMenu extends HTMLElement {
     const entries = group.entries
       .map(
         (entry) =>
-          `<li role="none"><button type="button" role="menuitem" tabindex="-1" data-panel="${entry.panel}" data-needs-score="${entry.needsScore}">${entry.label}</button></li>`,
+          `<li role="none"><button type="button" role="menuitem" tabindex="-1" data-panel="${entry.panel}" data-needs-score="${entry.needsScore}" data-idle-only="${entry.idleOnly}">${entry.label}</button></li>`,
       )
       .join('');
     root.innerHTML = `
@@ -89,8 +93,9 @@ export class MxMenu extends HTMLElement {
 
   private updateDisabled(): void {
     const loaded = scoreState.getStatus().kind === 'loaded';
+    const running = isRunActive();
     for (const item of this.items()) {
-      const disabled = item.dataset.needsScore === 'true' && !loaded;
+      const disabled = (item.dataset.needsScore === 'true' && !loaded) || (item.dataset.idleOnly === 'true' && running);
       item.disabled = disabled;
       if (disabled) item.setAttribute('aria-disabled', 'true');
       else item.removeAttribute('aria-disabled');

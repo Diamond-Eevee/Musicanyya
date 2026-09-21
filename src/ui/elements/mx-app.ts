@@ -8,6 +8,9 @@ import './mx-environment-panel.js';
  * live in `#panel-host` as popups.
  */
 export class MxApp extends HTMLElement {
+  private resizeObserver: ResizeObserver | null = null;
+  private fitFrame: number | null = null;
+
   connectedCallback() {
     this.innerHTML = `
       <header id="mx-bar" class="mx-bar" role="toolbar" aria-label="${en.app.toolbar}">
@@ -23,6 +26,36 @@ export class MxApp extends HTMLElement {
         <mx-notice-tray></mx-notice-tray>
       </main>
     `;
+
+    // Compact mode: fold the menus and shorten the sliders when the bar's contents would overflow its width.
+    if (typeof ResizeObserver !== 'undefined') {
+      const bar = this.querySelector('#mx-bar') as HTMLElement;
+      this.resizeObserver = new ResizeObserver(() => this.scheduleFit());
+      this.resizeObserver.observe(bar);
+      for (const slot of Array.from(bar.children)) this.resizeObserver.observe(slot);
+    }
+  }
+
+  disconnectedCallback() {
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
+    if (this.fitFrame !== null) cancelAnimationFrame(this.fitFrame);
+  }
+
+  private scheduleFit(): void {
+    if (this.fitFrame !== null) return;
+    this.fitFrame = requestAnimationFrame(() => {
+      this.fitFrame = null;
+      this.fitBar();
+    });
+  }
+
+  /** Measures the bar in its roomy form and switches to the compact form only if that does not fit. */
+  private fitBar(): void {
+    const bar = this.querySelector('#mx-bar') as HTMLElement | null;
+    if (!bar) return;
+    bar.classList.remove('mx-bar-compact');
+    if (bar.scrollWidth > bar.clientWidth) bar.classList.add('mx-bar-compact');
   }
 }
 customElements.define('mx-app', MxApp);
