@@ -282,3 +282,32 @@ Feature `004-score-first-layout`. Newest entry at the bottom.
     one commit per phase, so red-first is only visible in the log); the Diagnostics popup still shows its title twice.
 - Handoff: next = the owner decisions above, then the lint clean-up, then T108/T109/T110's commit. Run `pnpm test` and
   `npx vite build && npx playwright test --project=chromium` first; tree clean at this commit.
+
+## 2026-09-21 23:20 - claude-sonnet-5 (/speckit.continue)
+
+- Done: owner decisions applied, T109 (full gate green), T112 (new).
+  - Owner decisions (2026-09-21, "keep, amend spec" for both): no popup can be opened during a run and Diagnostics is
+    not readable during playback (FR-006, Assumptions, `research.md` R-10; a small in-run readout is a possible later
+    feature); the Practice session's live-change code and its e2e stay, but the UI reaches it only after stopping
+    (FR-007 amended). `contracts/ui-shell.md` already said this.
+  - Lint: the 25 errors were Biome format and import order in feature 003's files (16 files, `style:` commit, no logic
+    touched). `pnpm lint` 0 errors.
+  - T112: the full `pnpm test:e2e` failed 15 tests at Playwright's default 16 workers (real-time tests starved) and one
+    Firefox test failed every time even alone: `us1-play.spec.ts` "Play Mode - two actions to start", which pressed
+    its first note after an `expect.poll` saw `running`; the poll's backoff put the press at cursor tick 5338, past the
+    live marker's one-quarter-note window (Chromium: 4534). The same failure happens on `003-play-mode-grading`'s tip
+    and on this branch before my commits, so it is not from feature 004. Fix: wait for `running` and press in one
+    `page.evaluate`; `playwright.config.ts` now sets `workers: 4`. The test passed 4x in each of Firefox, Chromium and
+    Electron.
+- Gate: `pnpm lint` 0 errors (269 warnings, 11 infos, pre-existing kinds); `pnpm typecheck` clean; `pnpm test` 995
+  passed / 2 skipped; `pnpm test:e2e` 193 passed / 31 skipped / 0 failed (chromium, firefox, webkit, electron).
+- Problems / open questions:
+  - T108 (the manual quickstart script on the physical 1080p laptop) stays open: it is the owner's own screen and sight
+    check; everything a browser can check is covered by the e2e tests.
+  - Incident: a temporary `git worktree` with a `node_modules` junction, removed with `git worktree remove --force`,
+    deleted part of this repo's `node_modules` through the junction. Restored with `pnpm install --frozen-lockfile`
+    (lockfile unchanged, tools re-checked); nothing in the tree was lost.
+  - Still untested: audit F10 (three stacked notices vs. the follow band at 1280x720); the Diagnostics popup shows its
+    title twice.
+- Handoff: next = T108 by the owner, then merge review of `004-score-first-layout` (`/speckit.continue` reports
+  "done" once T108 is ticked); tree clean at the commit after this entry.

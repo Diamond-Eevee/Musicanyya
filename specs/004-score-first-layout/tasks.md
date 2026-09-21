@@ -396,12 +396,15 @@ the current system is never under the bar, a notice or an open popup.
       (`score-layout.md` section 1; depends on T034, T045).
 - [ ] T108 Run the `quickstart.md` manual verification script for all four user stories plus the Score
       size section, in a maximised window on the 1080p laptop screen.
-- [ ] T109 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` - all green.
+- [x] T109 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` - all green.
 - [x] T110 Append the checkpoint entry to `specs/004-score-first-layout/implementation-log.md` and
       commit.
 - [x] T111 [P] `tests/e2e/electron-smoke.spec.ts`: in the Electron shell the layout is the same as in the
       browser - the Score view spans the window width, `#mx-bar` is at most 48 px tall, and no aside
       reserves space (spec edge case "Electron and browser Shells"; FR-001). Run it before T109.
+- [x] T112 Make the e2e gate reliable: `us1-play.spec.ts` presses its first note inside one page call (a Playwright
+      poll backs off past the live marker's window in Firefox) and `playwright.config.ts` runs 4 workers (the default 16
+      starves the audio-clock tests).
 
 ---
 
@@ -451,8 +454,8 @@ the current system is never under the bar, a notice or an open popup.
 | US2 (P2) | T040-T050 | 11 |
 | US3 (P2) | T060-T069 | 10 |
 | US4 (P3) | T080-T089 | 10 |
-| Polish | T100-T111 | 12 |
-| **Total** | | **82** |
+| Polish | T100-T112 | 13 |
+| **Total** | | **83** |
 
 **Suggested MVP**: Setup + Foundational + **US1 only** (39 tasks). US1 alone delivers the whole point of
 the feature - the Score owning the window at a readable size - and is independently testable. US2 is

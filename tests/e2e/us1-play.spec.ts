@@ -63,13 +63,25 @@ test('US1 end-to-end: Play Mode - two actions to start, count-in, a graded run w
   await expect(playBtn).toHaveText('Pause');
 
   // The Score moves on without waiting: the run reaches 'running' on its own, with no input at all (FR-002).
-  await expect.poll(async () => (await playSnapshot(page)).phase, { timeout: 10_000 }).toBe('running');
-
+  //
   // FR-006: the musician's own note sounds through the app's instrument the instant it is played - proven here by
   // the cheap live-pitch marker (T044) reacting to it, the one DOM-visible effect of a press that also plays sound
-  // (the mark itself is drawn on Canvas, not the DOM, R-11). Pressed the written first note (C4) right as the run
-  // starts, so it lands inside the live marker's own window.
-  await press(page, 60);
+  // (the mark itself is drawn on Canvas, not the DOM, R-11). The written first note (C4) is pressed right as the run
+  // starts so it lands inside the live marker's window (one quarter note either side of the cursor). The wait and
+  // the press happen in one page call: a Playwright poll backs off up to a second between reads, which is longer
+  // than that window at this tempo, so pressing after `expect.poll` saw 'running' missed it in Firefox.
+  const phaseAtPress = await page.evaluate(async (key) => {
+    const state = (window as any).__PLAY_STATE__;
+    const deadline = performance.now() + 10_000;
+    while (state.get().run?.phase !== 'running' && performance.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    }
+    const phase = state.get().run?.phase as string | undefined;
+    window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x90, key, 100] }));
+    window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x80, key, 0] }));
+    return phase;
+  }, 60);
+  expect(phaseAtPress).toBe('running');
   await expect.poll(async () => (await playSnapshot(page)).liveMarks, { timeout: 3_000 }).toBeGreaterThan(0);
 
   // The run ends on its own and is graded - every expected note gets a result, not just the one that was played.
