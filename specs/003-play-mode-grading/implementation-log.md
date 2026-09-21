@@ -762,3 +762,57 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
   or `PlaySessionController.start` is ever refactored.
 - Handoff: next = the US4 Checkpoint's first task, T070 (`tests/engine/storage/performance-store.test.ts`).
   No open owner decisions block it. Tree clean at the commit below, not pushed.
+
+## 2026-09-21 - claude-sonnet-5 (relay)
+
+- Done: T070-T077. US4 Checkpoint reached - all four user stories of feature 003 now work independently.
+- **T070-T073 (storage)**: `StoredPerformance` (`src/core/grade/types.ts`) and a `PerformanceStore` port
+  (`src/engine/ports.ts`). New `src/engine/storage/db.ts` centralises the `musicanyya` IndexedDB open/upgrade path
+  (bumped 1 -> 2) so `IndexedDbScoreStore` (refactored to use it) and the new `IndexedDbPerformanceStore` share one
+  upgrade regardless of which opens the database first - the version 2 `performances` store is added without ever
+  touching `recentScores`.
+- **T075 (replay)**: `src/core/play/replay.ts` (`compileReplay`) turns a stored log into a `ScheduleMessage` on
+  the live channel, merged with the run's own accompaniment via a new `mergeSchedules` (`src/core/schedule/
+  compile.ts`) that unions two schedules on disjoint channels.
+- **Research R-20 (new decision, `research.md`)**: a stored performance's log is rebased to run-relative time
+  (`audioTimeSec -= run.startAudioTimeSec`) at store time, in `src/app/play-session.ts`'s `storePerformance`/
+  `rebaseToRunStart` - `PlayRun.startAudioTimeSec` is an `AudioContext` reading that does not outlive the run, and
+  `StoredPerformanceRecord` (contracts/performance-log.md) was never given a field for it. Regrade and replay
+  both always pass `startAudioTimeSec: 0` to a stored log. Documented in `contracts/performance-log.md` rule 6.
+- **T074 (store on finish)**: `PlaySessionController` gains a `PerformanceStore` dependency and a `storePerformance`
+  step after `onGraded`; a new `onStored()` callback fires once storage settles, so the UI refreshes its list after
+  storage rather than racing it. A `scoreId === null` run (Score never itself stored) writes nothing; a storage
+  failure still shows the Grade, with a new `playAttemptNotStored` `PlayNoticeCode` (contracts/play-run.md bumped
+  to 1.1.3). `APP_VERSION` (new, `src/engine/config.ts`, from `package.json`) feeds `StoredPerformance.appVersion`.
+- **T076 (attempts list)**: `src/ui/elements/mx-attempts-list.ts`, a pure view of a new `playState.attempts` field,
+  with replay/re-grade/delete actions (`attemptreplay`/`attemptregrade`/`attemptdelete` events, wired in
+  `session.ts`). New `src/app/replay-session.ts` (`ReplaySessionController`) drives `mx-score-view`'s existing
+  `PlayPositionReporter` cursor-follow seam for a replay - discovered that `drawPlayState()` (marks) is already
+  independent of any live run, keyed only on `playState.grade`, so replay only needed its own *position* source,
+  not a second marks mechanism. Re-grade keeps every stored setting except `strictness`, taken from whatever the
+  Play settings panel currently shows (AS-4.4); replay also re-grades with the stored settings unchanged, so marks
+  are visible alongside the replayed audio (FR-042). A shared `session.ts::prepareStoredRun` recomputes
+  `expected`/`playedAlong`/the accompaniment schedule/the tick map fresh from the current Score for both actions,
+  the same way `startPlay` does for a live run - extracted `resolveRunRange` out of `startPlay` so both share it.
+- **T077 (docs)**: bumped `specs/001-score-viewer-listen/contracts/storage.md` to IndexedDB schema 2 and indexed
+  the `localStorage` keys features 002/003 added (`musicanyya.practice.v1`, `.play.v1`, `.latency.v1`),
+  cross-referencing each feature's own contract rather than duplicating its shape.
+- **Tests**: `tests/engine/storage/performance-store.test.ts`, `tests/core/play/replay.test.ts`,
+  `tests/core/grade/regrade.test.ts` (T072 passed immediately - a purity/contract test of already-correct
+  `gradePerformance`/`resolveWindows`, not paired with new production code), `tests/engine/replay-session.test.ts`,
+  `tests/ui/attempts-list.test.ts`, and `tests/e2e/us4-attempts.spec.ts` (the Independent Test end to end: two
+  attempts kept and listed with settings/summary, replayed with the cursor state transitioning correctly,
+  re-graded at a different strictness without changing the stored count, deleted).
+- **Gate**: `pnpm typecheck` clean; `pnpm test` 723 passed, 2 skipped; `pnpm lint` has pre-existing errors/warnings
+  project-wide (28 errors, 264 warnings) but **none** on any file touched this session (checked explicitly file by
+  file); `pnpm test:e2e` (all four projects, 56 tests) - 36 passed, 19 skipped (webkit has no Web MIDI/AudioContext,
+  the established skip), 1 failed: `[firefox] us1-play.spec.ts`'s live-mark test (a real-time, 3-second-window
+  assertion, untouched by this session) failed only under the full 16-way parallel run. Re-ran it alone (passed),
+  then built and ran it against the session-start commit (2bc4d36) in a separate `git worktree` (also passed) -
+  confirms CPU-contention flakiness under this machine's parallel load, not a regression from this session's work.
+- Problems / open questions: none blocking. T106 (tracked, not this session's work) is the one place the
+  `countInTicks - rangeStartTick` shift and a tempo change inside the graded range could still interact wrongly;
+  still unaddressed. Phase 7 Polish (T078-T084, T099, T100, T103) is what remains for the whole feature.
+- Handoff: next = Phase 7 Polish, starting wherever the next agent chooses among the `[P]` tasks (T078, T079, T080,
+  T099, T100, T103 are independent files; T106 is also independent; T081-T084 depend on the feature otherwise
+  being finished). No open owner decisions. Tree clean at the commit below, not pushed.
