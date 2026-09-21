@@ -52,3 +52,26 @@ Feature `004-score-first-layout`. Newest entry at the bottom.
   tasks.md, `contracts/ui-shell.md`, `contracts/score-layout.md` and the spec's Assumptions should be applied.
 - Handoff: next = apply the A1-A4 edits (manual, ~4 task edits plus two contract amendments), then
   `/speckit.implement` from T001; tree clean at 1a31af2 plus this log entry.
+
+## 2026-09-21 - claude-sonnet-5 (/speckit.implement, analyze edits applied)
+
+- Done: the owner approved "apply all recommendations" for the analyze findings; applied as an edit pass
+  before any code. `tasks.md` 79 -> 82 tasks; no task renumbered.
+  - A1: bare `+`/`=`/`-`/`_` Score-size keys are kept and `Ctrl/Cmd +/-/0` added beside them; all size keys
+    now live in `src/ui/shortcuts.ts` (T024, T032, T034; `contracts/ui-shell.md` section 4; spec Assumptions).
+    The contract's "Space: ignored while focus is in a form control" contradicted "unchanged" and was not
+    tested, so it was dropped; the form-control guard applies to the bare `+`/`-` keys only.
+  - A2: new T038 - the `zoomPercent` assertion in `us1-open-view.spec.ts` is corrected to `scale`
+    (value unchanged); T037 now excludes it.
+  - A3/A4: T014 also updates `tests/fakes/memory-settings-store.ts`, T015 also restates
+    `tests/engine/storage/local-settings-store.test.ts` in v2 terms, so the tree typechecks after each task.
+  - A7: `MIN_PAGE_UNITS` = 400 and `MAX_PAGE_UNITS` = 10000 (provisional until T001), in T003 and
+    `contracts/score-layout.md` section 1. T003 pointed at a constants table in `data-model.md` that does
+    not exist; it now points at the contract's table.
+  - A5: T101 also asserts 175% scaling (FR-013). A9: new T111 (Electron layout assertion). A10: T041 also
+    asserts no main-thread task over 50 ms while a panel opens and closes during a run. A11: new T039
+    (malformed MusicXML keeps the layout score-first).
+- Problems / open questions: the earlier analyze log recorded only findings A1-A5, A7, A9-A11 by name;
+  A6, A8 and A12-A16 (MEDIUM/LOW) were not written down and are therefore not applied. Re-run
+  `/speckit.analyze` to regenerate them if they matter.
+- Handoff: next = T001 (`tests/verovio/page-units.test.ts`); tree clean at this commit.

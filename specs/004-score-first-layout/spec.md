@@ -239,7 +239,9 @@ an open popup.
 - Accessibility for reduced sight is served by the Score size controls (FR-014a/b) rather than by a
   separate large-print mode; the slim bar's own text scales with the OS/browser text size.
 - Existing keyboard shortcuts keep working; this feature may add shortcuts for menus and popups but
-  changes none.
+  changes none, with one deliberate exception: Escape now closes an open popup first and only otherwise
+  stops a run (research R-4). In particular the bare `+` / `-` Score-size keys stay, and `Ctrl/Cmd +`,
+  `Ctrl/Cmd -` and `Ctrl/Cmd 0` are added beside them.
 - No new information is added to the UI: every panel that exists today survives, just relocated.
 - The notice area sits in a corner of the Score area (bottom-right), bounded to a few stacked notices.
 - The feature applies to the browser and Electron Shells identically; the Native audio plugin has no UI

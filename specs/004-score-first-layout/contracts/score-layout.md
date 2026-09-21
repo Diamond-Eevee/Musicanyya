@@ -20,6 +20,12 @@ One integer, `scale`, replaces `zoomPercent` everywhere in the UI (same range, s
 | `SCORE_SCALE_MAX` | 200 | largest Score size |
 | `SCORE_SCALE_DEFAULT` | 100 | fitted size; the reset target |
 | `SCORE_SCALE_STEP` | 10 | one press of larger / smaller (FR-014b) |
+| `MIN_PAGE_UNITS` | 400 | smallest `pageWidth` / `pageHeight` ever requested; a 1280 px viewport at 200% gives 640, so real windows never reach it |
+| `MAX_PAGE_UNITS` | 10000 | largest page ever requested; a 2560 px viewport at 50% gives 5120, so real windows stay under half of it |
+
+Both page-unit bounds sit well inside Verovio's accepted range and are **provisional until T001
+pins the unit relation** (section 2, rule 5); they are named constants, not magic numbers
+(Constitution II).
 
 `ZOOM_MIN` / `ZOOM_MAX` / `ZOOM_DEFAULT` / `ZOOM_STEP` are re-exported as deprecated aliases for one
 feature, then removed, so nothing silently keeps two names for one value.

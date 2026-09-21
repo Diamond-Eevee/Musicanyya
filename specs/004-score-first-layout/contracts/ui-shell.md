@@ -95,9 +95,14 @@ assert the store and the attributes, and Playwright asserts the native behaviour
 | Key | Behaviour | Precedence |
 |---|---|---|
 | `Escape` | closes the open panel if there is one; **otherwise** stops the transport | panel first (research R-4) |
-| `Space` | play / pause | unchanged; ignored while focus is inside a panel's form control |
-| `Ctrl/Cmd +` , `Ctrl/Cmd -` | Score larger / smaller | new |
+| `Space` | play / pause | unchanged |
+| `+` / `=` , `-` / `_` (bare) | Score larger / smaller by `SCORE_SCALE_STEP` | **existing, kept** (spec Assumptions); ignored while focus is in a text-entry control, so a panel's number field can take `-` |
+| `Ctrl/Cmd +` , `Ctrl/Cmd -` | Score larger / smaller by `SCORE_SCALE_STEP` | new; same effect as the bare keys |
 | `Ctrl/Cmd 0` | Score back to the default size | new |
+
+All Score-size keys live in `src/ui/shortcuts.ts` and write `viewState.setScale` / `resetScale`; the
+bare-key handler that used to sit in `src/app/session.ts` is removed, so there is one place that binds
+keys to size changes.
 
 Every menu and panel is reachable by Tab; `mx-menu` supports Arrow/Home/End within an open menu and
 closes on Escape without touching the transport.

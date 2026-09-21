@@ -36,10 +36,11 @@ verdict, so they are not silently lost.
       **first**, and note the correction in `specs/004-score-first-layout/implementation-log.md`
       (depends on T001).
 - [ ] T003 [P] Add `SCORE_SCALE_MIN` (50), `SCORE_SCALE_MAX` (200), `SCORE_SCALE_DEFAULT` (100),
-      `SCORE_SCALE_STEP` (10), `MIN_PAGE_UNITS` and `MAX_PAGE_UNITS` to `src/engine/config.ts`, and
-      re-export `ZOOM_MIN` / `ZOOM_MAX` / `ZOOM_DEFAULT` / `ZOOM_STEP` as deprecated aliases (removed
-      in T107); update the constants table in `specs/004-score-first-layout/data-model.md` if T001
-      changed any value.
+      `SCORE_SCALE_STEP` (10), `MIN_PAGE_UNITS` (400) and `MAX_PAGE_UNITS` (10000) to
+      `src/engine/config.ts`, and re-export `ZOOM_MIN` / `ZOOM_MAX` / `ZOOM_DEFAULT` / `ZOOM_STEP` as
+      deprecated aliases (removed in T107); update the constants table in
+      `specs/004-score-first-layout/contracts/score-layout.md` section 1 if T001 changed any value
+      (the two page-unit bounds are provisional until T001 pins the unit relation).
 - [ ] T004 [P] Re-check the five inherited open tasks (001 T138/T139/T141, 003 T082/T110) against the
       new layout and record the verdict - still valid, invalidated, or superseded - in the
       "Inherited open tasks" note above and in `implementation-log.md`.
@@ -89,9 +90,15 @@ story depends on it.
       `overlays` and the `setScale` / `resetScale` / `openPanel` / `closePanel` / `closeForRun` /
       `setOverlay` transitions of `data-model.md` section 2 (makes T005 pass; depends on T003).
 - [ ] T014 `src/engine/ports.ts` - `UserSettings` version 2: `version: 2`, `scale`, `overlays`;
-      `zoomPercent` removed from the interface (`view-settings.md` section 1).
+      `zoomPercent` removed from the interface (`view-settings.md` section 1). In the same commit,
+      update `tests/fakes/memory-settings-store.ts` (its `BUILT_IN_USER` declares the v1 shape and would
+      break typecheck) to `version: 2`, `scale: SCORE_SCALE_DEFAULT` and the default `overlays`.
 - [ ] T015 `src/engine/storage/local-settings-store.ts` - validate `scale` and each `overlays` field on
-      its own, and migrate v1 to v2 silently (makes T008 pass; depends on T014).
+      its own, and migrate v1 to v2 silently (makes T008 pass; depends on T014). In the same commit,
+      restate the eight `zoomPercent` / `version: 1` assertions of
+      `tests/engine/storage/local-settings-store.test.ts` in v2 terms (`scale`, `version: 2`) - a
+      correction forced by the rename, each assertion keeping its strictness; the v1 -> v2 behaviours
+      themselves are T008's.
 - [ ] T016 [P] `src/ui/layout/menu-model.ts` with the four menus (Score, Setup, View, Help) and their
       `PanelId` entries, plus their labels, panel titles, size-control labels and overlay-switch labels
       in `src/ui/i18n/en.ts` (`data-model.md` section 5).
@@ -135,8 +142,10 @@ without scrolling, and no side or bottom panel reserves any space.
 - [ ] T023 [P] [US1] `tests/ui/size-controls.test.ts`: `mx-size-controls` renders larger / smaller /
       reset, steps `viewState.scale` by `SCORE_SCALE_STEP`, disables larger at 200 and smaller at 50,
       reset returns to 100, and each control has an accessible name.
-- [ ] T024 [P] [US1] `tests/ui/shortcuts.test.ts`: `Ctrl/Cmd +`, `Ctrl/Cmd -` and `Ctrl/Cmd 0` change
-      and reset `viewState.scale` (`ui-shell.md` section 4); `Space` still toggles play.
+- [ ] T024 [P] [US1] `tests/ui/shortcuts.test.ts`: the existing bare `+` / `=` and `-` / `_` keys **and**
+      the new `Ctrl/Cmd +`, `Ctrl/Cmd -` change `viewState.scale` by `SCORE_SCALE_STEP`, `Ctrl/Cmd 0`
+      resets it to 100 (`ui-shell.md` section 4); bare `+` / `-` are ignored while focus is in a
+      text-entry control; `Space` still toggles play.
 - [ ] T025 [P] [US1] `tests/ui/empty-state.test.ts`: with no Score loaded the Score area shows one
       invitation with an open action reachable in one activation, and a MusicXML file dropped anywhere
       in the Score area is accepted (FR-016).
@@ -163,13 +172,18 @@ without scrolling, and no side or bottom panel reserves any space.
       compatible).
 - [ ] T031 [P] [US1] `src/ui/elements/mx-size-controls.ts` - larger / smaller / reset bound to
       `viewState` (makes T023 pass; depends on T013).
-- [ ] T032 [US1] `src/ui/shortcuts.ts`: add `Ctrl/Cmd +`, `Ctrl/Cmd -`, `Ctrl/Cmd 0` (makes T024 pass;
-      Escape precedence is T046).
+- [ ] T032 [US1] `src/ui/shortcuts.ts`: move the bare `+` / `=` / `-` / `_` Score-size keys here from
+      `src/app/session.ts` `onKeyDown` (kept, per spec Assumptions) and add `Ctrl/Cmd +`, `Ctrl/Cmd -`,
+      `Ctrl/Cmd 0`, all writing `viewState.setScale` / `resetScale` (makes T024 pass; Escape precedence
+      is T046; the `session.ts` branch is deleted in T034).
 - [ ] T033 [US1] `src/ui/elements/mx-drop-zone.ts` plus the empty state in `mx-app`: the invitation fills
       the Score area and accepts a drop anywhere in it (makes T025 pass).
 - [ ] T034 [US1] `src/app/session.ts`: mount the Score view, mode switch, transport, open button, size
       controls and menus into the new bar and main regions; load `scale` from settings, persist it on
-      `zoomchange`, and drop every `zoomPercent` reference (depends on T014, T026, T031).
+      `zoomchange`, drop every `zoomPercent` reference and the bare-key zoom branch of `onKeyDown`
+      (now T032), and bridge `viewState.scale` -> the Score view in one direction only, so a size change
+      from a control, a shortcut or a stored setting takes the same path (depends on T014, T026, T031,
+      T032).
 - [ ] T035 [US1] `src/ui/styles/score.css`: page sizing without the 1200 px cap, insets consumed from
       `--mx-inset-*`, no horizontal overflow at any `scale` (G-1).
 - [ ] T036 [US1] Update the existing unit tests whose DOM assumptions moved -
@@ -178,7 +192,16 @@ without scrolling, and no side or bottom panel reserves any space.
 - [ ] T037 [US1] Update the existing e2e specs' selectors for the new regions -
       `tests/e2e/us1-open-view.spec.ts`, `us1-play.spec.ts`, `us1-practice.spec.ts`,
       `us2-listen.spec.ts`, `us2-grade.spec.ts`, `us3-play-setup.spec.ts`, `us4-attempts.spec.ts`,
-      `electron-smoke.spec.ts`, `static-host.spec.ts` - selectors only, assertions unchanged.
+      `electron-smoke.spec.ts`, `static-host.spec.ts` - selectors only, assertions unchanged (the one
+      `zoomPercent` assertion in `us1-open-view.spec.ts` is T038, not this task).
+- [ ] T038 [US1] `tests/e2e/us1-open-view.spec.ts:35`: the persisted-zoom assertion reads
+      `.zoomPercent` from localStorage; T015 renames the field, so read `.scale` instead. A correction
+      forced by the rename, not a weakening: the expected value (110 after one `+` press) and the
+      bare-`+` key press above it stay exactly as they are (depends on T015, T032, T034).
+- [ ] T039 [US1] `tests/e2e/us1-layout.spec.ts` (same file as T020/T021): a malformed MusicXML file
+      opened or dropped on the empty Score area shows its failure message in that area, and with a Score
+      already open shows it as a notice - in both cases the window keeps one slim bar and no layout jump
+      (spec edge case "Malformed or unsupported MusicXML"; write it with T020-T025 so it fails first).
 
 **Checkpoint**: US1 verifiable on its own - the Score owns the window at every supported size, the size
 controls work, and every existing suite is green (SC-001, SC-002, SC-006, part of SC-008a).
@@ -202,7 +225,9 @@ underneath.
       are unchanged before and after (FR-020); each tool is reachable in at most 2 activations and
       closed in 1 (SC-003); open and close each complete within 100 ms (SC-007).
 - [ ] T041 [P] [US2] `tests/e2e/us2-panels.spec.ts` (same file): with a panel open, starting Listen,
-      Practice or Play closes the panel automatically and the run starts with no dialog (FR-006).
+      Practice or Play closes the panel automatically and the run starts with no dialog (FR-006); and
+      opening then closing a panel while a run is active produces no main-thread task longer than
+      50 ms (long-task observer) and does not stop or move the run (SC-007's second clause).
 - [ ] T042 [P] [US2] `tests/ui/escape-precedence.test.ts`: with a panel open Escape closes the panel and
       does **not** stop the transport; with no panel open Escape stops it (research R-4, `ui-shell.md`
       section 4).
@@ -334,8 +359,9 @@ the current system is never under the bar, a notice or an open popup.
       are restored after a reload (SC-008), and from the fitted size the staves can be made at least
       twice as tall using only bar controls in at most 10 activations (SC-008a).
 - [ ] T101 [P] `tests/e2e/us1-layout.spec.ts`: no clipped control and no horizontal page scrollbar at
-      1280x720, 1366x768, 1600x900, 1920x1080 and 2560x1440 at 100% **and** 150% device scale factor
-      (SC-006, FR-013).
+      1280x720, 1366x768, 1600x900, 1920x1080 and 2560x1440 at 100%, 150% **and** 175% device scale
+      factor (SC-006 names 100% and 150%; FR-013 promises the whole 100-175% range, so both are
+      asserted).
 - [ ] T102 Behaviour neutrality (SC-009, FR-018): run the full `pnpm test` and confirm every core,
       timing, Practice and grading suite passes **unchanged**; grade a stored attempt from
       `tests/fixtures/performances/` before and after and confirm the Grade is identical.
@@ -357,13 +383,20 @@ the current system is never under the bar, a notice or an open popup.
 - [ ] T109 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` - all green.
 - [ ] T110 Append the checkpoint entry to `specs/004-score-first-layout/implementation-log.md` and
       commit.
+- [ ] T111 [P] `tests/e2e/electron-smoke.spec.ts`: in the Electron shell the layout is the same as in the
+      browser - the Score view spans the window width, `#mx-bar` is at most 48 px tall, and no aside
+      reserves space (spec edge case "Electron and browser Shells"; FR-001). Run it before T109.
 
 ---
 
 ## Dependencies & Execution Order
 
-- **Phase order**: Setup (T001-T004) -> Foundational (T005-T019) -> US1 (T020-T037) -> US2 (T040-T050)
-  -> US3 (T060-T069) -> US4 (T080-T089) -> Polish (T100-T110).
+- **Phase order**: Setup (T001-T004) -> Foundational (T005-T019) -> US1 (T020-T039) -> US2 (T040-T050)
+  -> US3 (T060-T069) -> US4 (T080-T089) -> Polish (T100-T111).
+- **The settings rename lands as one unit**: T014 and T015 each fix the test files their change breaks
+  (`tests/fakes/memory-settings-store.ts`, `tests/engine/storage/local-settings-store.test.ts`), so the
+  tree typechecks and passes after every task; T034 then removes the last `zoomPercent` in `src/`, and
+  T038 the last one in `tests/`.
 - **T001 gates the whole Score-layout path**: the measured Verovio unit relation can correct
   `score-layout.md` (T002), which T011 and T028-T030 then implement. Do not start T011 before T001/T002.
 - **T003 before T011 and T013**; **T014 before T015**; **T013 before T017, T018, T031, T032, T046, T048,
@@ -389,7 +422,8 @@ the current system is never under the bar, a notice or an open popup.
 - **US3 tests**: T060 and T063 are unit files independent of T061/T062/T064, which share one e2e file
   and therefore run one at a time.
 - **US4 tests**: T080-T084 together. **US4 implementation**: T085 is independent of T086-T088.
-- **Polish**: T100, T101, T103, T105, T106 in parallel; T102, T104, T107-T110 are sequential.
+- **Polish**: T100, T101, T103, T105, T106, T111 in parallel; T102, T104, T107-T110 are sequential
+  (T111 must be green before T109).
 
 ## Summary
 
@@ -397,15 +431,15 @@ the current system is never under the bar, a notice or an open popup.
 |---|---|---|
 | Setup | T001-T004 | 4 |
 | Foundational | T005-T019 | 15 |
-| US1 (P1) | T020-T037 | 18 |
+| US1 (P1) | T020-T039 | 20 |
 | US2 (P2) | T040-T050 | 11 |
 | US3 (P2) | T060-T069 | 10 |
 | US4 (P3) | T080-T089 | 10 |
-| Polish | T100-T110 | 11 |
-| **Total** | | **79** |
+| Polish | T100-T111 | 12 |
+| **Total** | | **82** |
 
-**Suggested MVP**: Setup + Foundational + **US1 only** (37 tasks). US1 alone delivers the whole point of
+**Suggested MVP**: Setup + Foundational + **US1 only** (39 tasks). US1 alone delivers the whole point of
 the feature - the Score owning the window at a readable size - and is independently testable. US2 is
 what keeps it that way over time, so it is the natural second increment.
 
-**Next step**: `/speckit.analyze`, then `/speckit.implement`.
+**Next step**: `/speckit.implement` from T001 (analyze done 2026-09-21; its edits applied the same day).
