@@ -397,7 +397,7 @@ the current system is never under the bar, a notice or an open popup.
 - [ ] T108 Run the `quickstart.md` manual verification script for all four user stories plus the Score
       size section, in a maximised window on the 1080p laptop screen.
 - [ ] T109 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` - all green.
-- [ ] T110 Append the checkpoint entry to `specs/004-score-first-layout/implementation-log.md` and
+- [x] T110 Append the checkpoint entry to `specs/004-score-first-layout/implementation-log.md` and
       commit.
 - [x] T111 [P] `tests/e2e/electron-smoke.spec.ts`: in the Electron shell the layout is the same as in the
       browser - the Score view spans the window width, `#mx-bar` is at most 48 px tall, and no aside
