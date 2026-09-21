@@ -118,7 +118,8 @@ export interface GradeInput {
   expected: readonly ExpectedNote[]; // written order, already sliced to the run's range
   playedAlong: readonly PlayedAlongSpan[]; // keys that may sound here without being graded (FR-024, D-1)
   log: PerformanceLog;
-  tempo: readonly TempoSegment[]; // the run's tempo map (timeline ticks)
+  tempo: readonly TempoSegment[]; // the run's own tempo map, run-tick space (0 = count-in start) - Step 1 only
+  timelineTempo: readonly TempoSegment[]; // the Score's tempo map, timeline-tick space - Step 2 and the deltaMs qpm (1.2.0)
   ppq: number;
   tickMap: PlayTickMap;
   startAudioTimeSec: number; // audio time of run tick 0

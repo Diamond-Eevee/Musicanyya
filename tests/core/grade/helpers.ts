@@ -50,6 +50,7 @@ export function buildGradeInput(
     playedAlong,
     log,
     tempo: timeline.tempo,
+    timelineTempo: timeline.tempo,
     ppq: timeline.ppq,
     tickMap: { countInTicks: 0, rangeStartTick: 0, rangeEndTick: timeline.endTick, ppq: timeline.ppq },
     startAudioTimeSec: 0,

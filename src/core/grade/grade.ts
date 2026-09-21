@@ -58,6 +58,7 @@ export function gradePerformance(input: GradeInput): Grade {
     playedAlong,
     log,
     tempo,
+    timelineTempo,
     ppq,
     tickMap,
     startAudioTimeSec,
@@ -81,7 +82,7 @@ export function gradePerformance(input: GradeInput): Grade {
   // Step 2: resolve windows, then the count-in filter (D-4): "no press earlier than
   // firstOnsetTick - claimEarly(first)". The upper bound (claimLate(last) past the final onset) is the run's
   // own recording boundary, already reflected in what `log` contains by the time grading runs.
-  const windows = resolveWindows(expected, measures, tempo, ppq, settings.tempoPercent, settings.strictness);
+  const windows = resolveWindows(expected, measures, timelineTempo, ppq, settings.tempoPercent, settings.strictness);
   const first = expected[0];
   const firstWindow = windows[0];
   const lowerBoundTick = first && firstWindow ? first.onsetTick - firstWindow.claimEarlyTicks : -Infinity;
@@ -119,7 +120,7 @@ export function gradePerformance(input: GradeInput): Grade {
     const onTimeLate = bounds?.onTimeLateTicks ?? 0;
     const timing =
       deltaTicks < 0 ? (-deltaTicks <= onTimeEarly ? 'onTime' : 'early') : deltaTicks <= onTimeLate ? 'onTime' : 'late';
-    const qpm = effectiveQpm(tempoAtTick(tempo, note.onsetTick), settings.tempoPercent);
+    const qpm = effectiveQpm(tempoAtTick(timelineTempo, note.onsetTick), settings.tempoPercent);
     const deltaMs = ticksToMs(deltaTicks, qpm, ppq);
     const pitch = claim.pass === 'exact' ? 'correct' : 'wrongPitch';
 

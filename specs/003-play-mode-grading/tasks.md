@@ -459,7 +459,7 @@ replay the first one and confirm the notes heard are the ones that were played, 
 - [ ] T103 [P] `tests/core/play/long-run.test.ts`: a simulated 10-minute run at 208 bpm accounts for every
   recorded message - each note-on ends as exactly one result's `playedKey`, one `PlayedAlongPress` or one
   `ExtraNote`, with `droppedMessages` zero and no dropout (SC-007)
-- [ ] T106 [P] Fix the tempo-space mismatch `gradePerformance` (`src/core/grade/grade.ts`) has between its two
+- [x] T106 [P] Fix the tempo-space mismatch `gradePerformance` (`src/core/grade/grade.ts`) has between its two
   uses of `GradeInput.tempo`: Step 1's `tickAtAudioTime` call needs run-tick space (0 = count-in start), but
   `resolveWindows` and `passAtTick` key their lookups by `ExpectedNote.onsetTick`/`message.tick`, which are
   timeline-tick space - the opposite (contracts/grading.md 1.1.2, found implementing T039). Give `GradeInput` a

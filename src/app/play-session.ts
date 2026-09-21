@@ -376,6 +376,7 @@ export class PlaySessionController {
       playedAlong: this.playedAlong,
       log: run.log,
       tempo: this.runTempo,
+      timelineTempo: this.timelineTempo,
       ppq: this.ppq,
       tickMap: run.tickMap,
       startAudioTimeSec: run.startAudioTimeSec,

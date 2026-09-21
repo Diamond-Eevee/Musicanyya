@@ -57,6 +57,7 @@ function storedGradeInput(strictness: StrictnessLevelName, log: PerformanceLog):
     playedAlong: [],
     log,
     tempo,
+    timelineTempo: tempo,
     ppq: PPQ,
     tickMap: { countInTicks: 0, rangeStartTick: 0, rangeEndTick: PPQ * 4, ppq: PPQ },
     startAudioTimeSec: 0,

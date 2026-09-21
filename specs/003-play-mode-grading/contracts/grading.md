@@ -1,6 +1,6 @@
 # Contract: grading (core API and worker)
 
-**Version**: `1.1.2` (internal TypeScript contract between `src/core/grade`, `src/workers/grade.worker.ts` and
+**Version**: `1.2.0` (internal TypeScript contract between `src/core/grade`, `src/workers/grade.worker.ts` and
 `src/app/play-session.ts`). Signatures are normative in shape; every change is reflected here with a version bump.
 
 **1.1.1 -> 1.1.2** (found implementing T039, no shape change): clarified what space `GradeInput.tempo` must be
@@ -9,15 +9,18 @@ via `tickMap`'s additive shift - for that shift to recover the correct timeline 
 boundaries must already be shifted the same way, i.e. **run-tick space** (0 = count-in start): the compiled run
 schedule's own tempo map (`ScheduleMessage.tempoTick`/`tempoQpmNum`/`tempoQpmDen`), not `PlaybackTimeline.tempo`.
 `src/app/play-session.ts` passes the former. Every existing test passes either tempo map, because every existing
-`tickMap` has `countInTicks - rangeStartTick === 0`, which makes the two identical - see T106 below for the one
-place this still matters.
+`tickMap` has `countInTicks - rangeStartTick === 0`, which makes the two identical.
 
-**Known gap, not fixed here (T106)**: Step 2's `resolveWindows` and `passAtTick` key their own tempo lookups by
-`ExpectedNote.onsetTick` / `message.tick`, which are **timeline**-tick space (matching `PlaybackTimeline.tempo`) -
-the opposite of what Step 1 needs. With one `GradeInput.tempo` field feeding both, a run with a non-zero
-`countInTicks - rangeStartTick` shift **and** a tempo change inside the graded range sizes its windows from the
-wrong tempo segment. The primary matching axis (ticks) is unaffected; only window sizing (and reliability-event
-pass attribution) is. T106 tracks giving Step 2 the timeline-space tempo map instead.
+**1.1.2 -> 1.2.0** (T106, additive): the gap 1.1.2 named is fixed by splitting the one `tempo` field in two.
+`GradeInput.tempo` stays **run-tick space** (0 = count-in start) and now feeds only Step 1's
+`tickAtAudioTime` calls (the recorded log and the reliability events). The new `GradeInput.timelineTempo` is
+**timeline-tick space** (matching `PlaybackTimeline.tempo`) and feeds Step 2's `resolveWindows` and the `qpm`
+lookup Step 4 uses for `deltaMs` - both keyed by `ExpectedNote.onsetTick`, which is always timeline-tick space.
+Every caller passes `PlaybackTimeline.tempo` here (`src/app/play-session.ts`'s `timelineTempo` field,
+`src/app/session.ts::prepareStoredRun`'s `timeline.tempo`) - the two fields are only ever unequal when the run's
+own schedule reslices or offsets the timeline's tempo map, which is exactly the case this fixes. A run whose
+`countInTicks - rangeStartTick` shift is zero still has `tempo === timelineTempo` by construction, so nothing
+about existing Grades changes there.
 
 Constitution IV: `gradePerformance` is a **pure, synchronous** function. Same Score, same log, same settings ->
 byte-identical Grade, including every reason (FR-025, SC-001). It contains no clock, no randomness, no English
@@ -34,7 +37,8 @@ interface GradeInput {
   expected: readonly ExpectedNote[];       // written order, already sliced to the run's range
   playedAlong: readonly PlayedAlongSpan[]; // keys that may sound here without being graded (FR-024, D-1)
   log: PerformanceLog;
-  tempo: readonly TempoSegment[];          // the run's tempo map (timeline ticks)
+  tempo: readonly TempoSegment[];          // the run's own tempo map, run-tick space (0 = count-in start) - Step 1 only
+  timelineTempo: readonly TempoSegment[];  // the Score's tempo map, timeline-tick space - Step 2 and Step 4's qpm (1.2.0)
   ppq: number;
   tickMap: PlayTickMap;
   startAudioTimeSec: number;               // audio time of run tick 0
@@ -84,7 +88,8 @@ simultaneous messages (FR-019, invariant 4).
 ## Step 2 - resolve the windows at each onset
 
 For an expected note at `onsetTick`, with `beatTicks` = the beat unit in force at that onset (data-model section
-6 - a dotted quarter in 6/8, not the time-signature denominator):
+6 - a dotted quarter in 6/8, not the time-signature denominator) and every `msToTicks` conversion at the qpm
+`GradeInput.timelineTempo` gives at that same `onsetTick` (1.2.0, T106):
 
 ```
 raw         = clamp(beats * beatTicks, msToTicks(floorMs, onsetTick), msToTicks(capMs, onsetTick))

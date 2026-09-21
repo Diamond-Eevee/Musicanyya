@@ -841,6 +841,7 @@ export class Session {
       playedAlong,
       log: perf.log,
       tempo: runTempo,
+      timelineTempo: timeline.tempo,
       ppq: timeline.ppq,
       tickMap,
       startAudioTimeSec: 0, // research R-20: a stored log is already run-relative

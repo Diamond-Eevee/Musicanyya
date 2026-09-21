@@ -86,6 +86,7 @@ function syntheticGradeInput(params: {
     playedAlong: [],
     log: { version: 1, messages, droppedMessages: 0 },
     tempo,
+    timelineTempo: tempo,
     ppq: PPQ,
     tickMap: { countInTicks: 0, rangeStartTick: 0, rangeEndTick: noteCount * BEAT_TICKS, ppq: PPQ },
     startAudioTimeSec: 0,
