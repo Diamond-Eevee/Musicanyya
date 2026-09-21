@@ -276,10 +276,23 @@ reason.
   and has nothing to select yet. **Found missing while implementing
   T040** (2026-09-21): no task in this phase names `src/app/session.ts`, but T046's e2e test and the US1
   Checkpoint both need a working "switch to Play, press Play, get a Grade" path, which only this wiring provides
-- [ ] T046 [US1] `tests/e2e/us1-play.spec.ts`: count-in, a run driven by fake MIDI, a Grade with marks and
+- [x] T046 [US1] `tests/e2e/us1-play.spec.ts`: count-in, a run driven by fake MIDI, a Grade with marks and
   reasons, and a stopped run yielding a partial Grade; plus the three things only an end-to-end run shows - the
   musician's own notes sound through the app's instrument (FR-006), the cursor follows and stops following under
   Listen mode's Follow rules (FR-007), and starting a run from an open Score takes at most two actions (SC-009)
+- [x] T109 [US1] Two gaps found and fixed while writing T046 (both needed for it to pass against the real app, not
+  just the fakes `tests/engine/play-session.test.ts` already covered): (1) `playState.run` (`src/ui/state/playState.ts`)
+  was set once by `startPlay()` and never refreshed, so `run.phase` stayed frozen at `'countIn'` forever even
+  though `PlaySessionController`'s own internal run kept advancing correctly - `PlayPositionReporter`
+  (`src/ui/elements/mx-score-view.ts`) gained a `getRun()` method, and the one per-frame driver (`tick()`, T039's
+  own design) now calls `playState.setRun(...)` every frame alongside `reportPosition`, cheap even at 60fps since
+  `createStore`'s `deepEqual` only notifies `mx-grade-panel`'s one subscriber when something actually changed. (2)
+  FR-007 (cursor follow) was entirely unwired: `drawPlayState()` only ever drew marks, and `startPlay()` never
+  called `setPlayback()`, so `mx-score-view` had no timeline to follow-scroll against. Added `followPlayCursor()`
+  (mirrors `drawPracticeState`'s own follow call - no cursor rectangle, Play's canvas is the marks layer), which
+  converts `run.positionRunTick` back to timeline-tick space via `run.tickMap` (contracts/play-run.md's own tick
+  formula) and calls the existing `followScrollTo`; `startPlay()` now also calls `setPlayback()` so a Score opened
+  straight into Play (never having used Listen first) still has a timeline to follow against
 
 **Checkpoint**: US1 fully functional and testable on its own - the MVP. A musician can play a piece to the
 Metronome and be told, note by note, what happened.

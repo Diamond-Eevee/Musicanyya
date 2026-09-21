@@ -634,3 +634,62 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
   needs to automate (count-in, a MIDI-driven run, a Grade with marks and a clickable reason, mode-change clearing)
   and found the one bug in doing so, so T046 should mostly be a matter of writing it down as Playwright, not
   further discovery. Tree clean at the commit below, not pushed.
+
+## 2026-09-21 - claude-sonnet-5 (relay)
+
+- Done: T046 (`tests/e2e/us1-play.spec.ts`, two tests) and T109 (found writing it) - **107/108 tasks now done,
+  the US1 Checkpoint reached**. Full gate green: `pnpm typecheck`, `pnpm lint` (`biome check .`, exit 0, same
+  pre-existing warnings as every prior session), `pnpm test` (680 Vitest tests), `pnpm test:e2e` (28 passed, 16
+  skipped for WebKit's missing AudioContext/Web MIDI, one Chromium Listen-mode timing test flaked once under
+  4-worker parallel load and passed clean in isolation and in a full clean re-run - not a regression, a `us2-listen.spec.ts`
+  strict-timing assertion already noted as CI-sensitive).
+- **`npm run preview` (Playwright's `webServer`) serves `dist/`, not live source** - the very first run of T046's
+  new test failed with no "Play" radio in the DOM at all, because `dist/` was a stale build from 2026-09-20,
+  predating this session's source changes entirely (T107's own Play-mode UI wasn't in it either, by luck that
+  session never needed to rebuild). `pnpm build` before `pnpm test:e2e` from now on; not itself a code change, so
+  no task for it, but worth the note since it cost real time to diagnose.
+- **T109, gap 1 - `playState.run` was frozen from the moment a run started**: `startPlay()`
+  (`src/app/session.ts`) calls `playState.setRun(this.playController.getRun())` exactly once, right after
+  `start()`. Nothing else ever called it again as the run actually progressed - `PlaySessionController`'s own
+  internal `run` field kept advancing correctly on every `reportPosition` (proven by `tests/engine/play-session.test.ts`'s
+  fakes, which read the controller directly, never through `playState`), but the UI-facing snapshot stayed on
+  `phase: 'countIn'`, `positionRunTick: 0` forever. Invisible to every existing consumer (`mx-grade-panel` only
+  reads `grade`, not `run`), so nothing caught it until T046's own e2e test polled `run.phase` and saw a live
+  grade panel (`grade.complete`, real `missed` counts) contradicting a `run` stuck at count-in - the run objects
+  are simply two different snapshots once this is understood, but from outside it looked like the whole run had
+  silently reset. Fixed by giving `PlayPositionReporter` (`src/ui/elements/mx-score-view.ts`) a `getRun()` method
+  and having the one per-frame driver (`tick()`, T039's own "one rAF loop" design) call `playState.setRun(...)`
+  right alongside `reportPosition` every frame - cheap even at 60 fps, since `createStore`'s `deepEqual` only
+  notifies `mx-grade-panel`'s one subscriber when something in the run actually changed, and the panel's own
+  `render()` is a one-line no-op while `grade` is still null.
+- **T109, gap 2 - FR-007 (cursor follow) was never wired for Play mode at all**: `drawPlayState()` (T107) only
+  ever drew marks; nothing called `followScrollTo` for a live run, and `startPlay()` never called `setPlayback()`,
+  so `mx-score-view` had no `timeline` to convert ticks against even if it had tried. Added `followPlayCursor()`,
+  called from `updateCursor()`'s Play branch: converts `run.positionRunTick` back to timeline-tick space via
+  `run.tickMap` (contracts/play-run.md's own `timelineTick = runTick - countInTicks + rangeStartTick` formula,
+  clamped to `rangeStartTick` during the count-in so it targets the range's first measure from the start rather
+  than a meaningless negative tick), finds the covering pass the same way Listen's own cursor code already does,
+  and calls the existing `followScrollTo` - no drawn cursor rectangle, mirroring `drawPracticeState`'s own
+  follow-only treatment (Play's canvas is the marks layer). **Verified with a real scroll, not just "no error"**:
+  drove the built app directly with Playwright (`chords/c-major-scale-and-chords.musicxml`'s own two measures sit
+  at the very top of the printed page, so a naive "did scrollTop become nonzero" assertion would falsely pass or
+  fail depending on unrelated layout - confirmed this by manually loading `eight-measure-melody.musicxml` and
+  watching `scrollTop` stay 0 for the whole run even with follow-scroll correctly wired, because centering the
+  current measure would have meant scrolling *up* from an already-0 position, which a browser clamps). The test
+  instead pre-scrolls the container to 300px before starting the run, then asserts `scrollTop` moves back down
+  towards 0 once the run starts - the only way to make the assertion fail if FR-007 were unwired again, using the
+  Independent Test's own two-measure fixture rather than a new long one.
+- **The two actual T046 tests**: `tests/e2e/us1-play.spec.ts`'s first test covers SC-009 (mode switch + Play
+  click, nothing more, before a Grade exists), FR-003/FR-002 (count-in then running, both reached without any
+  MIDI input), FR-006 (a well-timed press live-marks the note - the mark itself is Canvas, not DOM, so the live
+  marker's appearance is the one DOM-visible proxy available for "the note sounded"), a completed Grade with a
+  mix of results (the one played note plus several `missed`), and FR-030 (clicking a marked notehead's element id
+  directly, via `getElementById` + a dispatched bubbling click rather than a CSS-escaped locator, since Note IDs
+  are not guaranteed CSS-selector-safe) shows a non-empty plain-words reason. The second covers FR-007 (above) and
+  FR-008 (`.stop-btn` mid-run yields `grade.complete === false` with a nonzero, genuinely partial `results` count).
+  Both read `window.__PLAY_STATE__` (the same e2e/debugging seam `us1-practice.spec.ts` already reads through
+  `__PRACTICE_STATE__`) rather than re-deriving state from pixels, since the actual marks are drawn on Canvas
+  (R-11) and are not otherwise DOM-observable.
+- Handoff: next = the US2 Checkpoint's first task, T047 (`tests/core/grade/overview.test.ts`). No open owner
+  decisions block it. Tree clean at the commit below, not pushed. Remember to `pnpm build` before any future
+  `pnpm test:e2e` run - the stale-`dist/` trap above will recur otherwise.

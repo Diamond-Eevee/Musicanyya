@@ -586,6 +586,10 @@ export class Session {
     });
     playState.setRun(this.playController.getRun());
     this.scoreView?.setPlaySession(this.playController);
+    // T109: the run's own follow-scroll (FR-007) needs a timeline to map its ticks against - unlike Listen, Play
+    // never otherwise calls setPlayback, so a Score opened straight into Play (never having used Listen) would
+    // leave mx-score-view without one. Idempotent (it only stores references), so calling it again here is safe.
+    if (this.scoreView && this.currentTimeline) this.scoreView.setPlayback(this.audioEngine, this.currentTimeline);
   }
 
   /** Switching away from Play stops a run still in progress and clears its marks (FR-035: "cleared when a new run
