@@ -191,11 +191,35 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   relayout, and CSS custom properties for overlay insets. Settings format `musicanyya.settings.v1`
   moves to version 2 (`zoomPercent` -> `scale`, plus `overlays`). CSS Anchor Positioning is
   deliberately avoided; popups are positioned with a pure `getBoundingClientRect()` helper.
+- Feature 005: no new technology and no new dependency. The score library is **static content**
+  under `public/library/` (served by Vite in dev, from `dist/` in the browser build, and through the
+  Electron `app://` handler - the SoundFont route), described by a generated `index.json`
+  (contract v1.0.0). New: one pure core module (`src/core/library`: index model, filters, level
+  criteria, fact derivation), a minimal MusicXML **writer** (`src/core/musicxml/write.ts`, used only
+  by the dev-time exercise generator), a `LibraryCatalog` port with a `fetch` + Cache Storage adapter
+  (cache `musicanyya-library-v1`), one `localStorage` key (`musicanyya.library.v1`) for the last
+  filter, and two dev scripts under `tools/library/` (`pnpm library:exercises`, `pnpm library:index`).
+  Two verified parser facts constrain authored content: `<harmony>`/`<figured-bass>` are not in
+  `supportedElements`, so chord labels use `<direction><words>`; `<octave-shift>` is correctly ignored
+  by the time model, because MusicXML `<pitch>` is the sounding pitch.
+
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-22: Feature 005 planned (practice score library): Phase 0 found that **no fetchable corpus
+  of CC0 solo piano repertoire exists** - OpenScore (the one verifiable CC0 source, already used here)
+  has Lieder and string quartets only, and every general "public domain MusicXML" collection either
+  asserts a licence it cannot support or mixes in copyrighted arrangements. So the shelf is content
+  this project authors: exercise families generated from one definition per family (which is what
+  makes "same drill in 24 keys" true by construction), short public-domain pieces engraved here, and
+  OpenScore where it fits. Content lives under `public/library/` with a generated, test-verified
+  `index.json`; the app gains a pure `core/library`, a `LibraryCatalog` port and one element in the
+  existing Scores panel, and opening an item reuses `session.loadBytes`, so a library item and a
+  dragged-in file are the same thing. Two spec corrections came out of planning: there is no service
+  worker, so "offline" can only mean already-fetched content (D-2), and FR-008's 15 pieces are a
+  target for the finished feature rather than for P1 (D-1).
 - 2026-09-21: Feature 004 planned (score-first application window): the three fixed asides (300 + 360 +
   280 px) leave the layout entirely, so only a <= 48 px bar reserves space; every secondary panel
   becomes a native popover with `viewState.openPanel` as the single source of truth, cleared by
@@ -210,6 +234,4 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   Two corrections came out of planning: feature 001 has no Latency profile (003 builds it and its calibration),
   and ornaments/arpeggios are unparsed, which makes a correctly played trill score as extras - an open owner
   decision.
-- 2026-09-20: Feature 002 planned (Practice / wait-for-input): pure core matcher, no new dependency, no new
-  real-time code; the unselected hand sounds as the cursor passes it instead of against a clock.
 <!-- RECENT-CHANGES:END -->
