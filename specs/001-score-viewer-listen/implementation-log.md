@@ -776,3 +776,30 @@
 - Handoff: next = T155 once the owner answers, else T141 -> T138 -> T139. Run `pnpm test` (13 s now)
   and `pnpm test:e2e` first. Branch `001-real-score-fixtures`, pushed to origin; tree clean at the
   commit below.
+
+## 2026-09-22 11:55 - claude-opus-5 (relay)
+
+- Done: T141. `tests/e2e/electron-playback.spec.ts` launches the real desktop shell and plays, closing
+  the gap that let T140 through: `us2-listen.spec.ts` is Chromium-only by design (strict SC-005
+  timing, research.md R-15), the other projects share the browser bundle over `http://localhost`, and
+  `electron-smoke.spec.ts` opened a score without ever pressing Play - so nothing exercised audio
+  under `app://`. Two cases: a cold start that loads the sound, plays, checks the audio clock actually
+  advances and the cursor moves on, then stops; and a reload that re-loads against a possibly warm
+  cache, because T140's failure was in the Cache Storage *write*, which runs once per SoundFont.
+  No SC-005 timing assertion - that belongs to the Chromium test.
+- Decisions: the test was verified by **reintroducing T140** (dropping the try/catch around
+  `cache.put` in `src/engine/audio/soundfont-cache.ts`), rebuilding, and confirming both cases go red
+  - Play never flips to Pause and no note ever highlights - then restoring the fix and confirming they
+  go green. A test for a fixed bug is worth only as much as its demonstrated failure.
+  The first full-gate run after adding it failed `electron-smoke.spec.ts` with
+  "electron.launch: Target page, context or browser has been closed": `electron/main.ts` takes a
+  single-instance lock keyed on the user-data directory, so with four workers the two
+  Electron-launching specs raced and the second instance exited at once. The playback spec now
+  launches with its own `--user-data-dir` under the OS temp directory, removed in `afterAll`. That
+  also starts it against an empty Cache Storage, which is the cold SoundFont path T140 broke.
+- Problems / open questions: T155 still **needs owner** (see the previous entry). T138 and T139 remain.
+  Anything else that launches Electron must pass its own `--user-data-dir` for the same reason.
+- Handoff: next = T155 once the owner answers, else T138 (mutation fuzz for MusicXML loading) then
+  T139 (`any` usages). Note that `pnpm test:e2e` for the electron project needs `dist-electron/` built:
+  `pnpm exec vite build && pnpm exec vite build -c vite.electron.config.ts`. Branch
+  `001-real-score-fixtures`; tree clean at the commit below.

@@ -282,7 +282,7 @@ environment panel and run US1-US3 in both (spec US4).
 
 
 - [x] T140 Fix desktop playback: `loadSoundFont` must treat Cache Storage as best-effort (`src/engine/audio/soundfont-cache.ts`) - Chromium rejects `Cache.put` for non-http(s) requests, so under the shell's `app://` origin the SoundFont downloaded but the cache write threw, surfacing as "The built-in sound could not be loaded" and no audio; found by the user while playing `musicxml/chords/c-major-scale-and-chords.musicxml` in the Electron app
-- [ ] T141 Close the desktop playback coverage gap that hid T140: `tests/e2e/us2-listen.spec.ts` skips every project but Chromium (`test.skip(testInfo.project.name !== 'chromium', ...)`) and the Electron project only runs `electron-smoke.spec.ts` (open, no playback), so nothing exercises Play under the shell's `app://` origin. Add an Electron e2e that loads the sound and plays a few notes (no strict SC-005 timing assertion), so an `app://`-only audio regression fails the gate
+- [x] T141 Close the desktop playback coverage gap that hid T140: `tests/e2e/us2-listen.spec.ts` skips every project but Chromium (`test.skip(testInfo.project.name !== 'chromium', ...)`) and the Electron project only runs `electron-smoke.spec.ts` (open, no playback), so nothing exercises Play under the shell's `app://` origin. Add an Electron e2e that loads the sound and plays a few notes (no strict SC-005 timing assertion), so an `app://`-only audio regression fails the gate
 
 ## Real-score and community-corpus coverage (2026-09-22, branch `001-real-score-fixtures`)
 
