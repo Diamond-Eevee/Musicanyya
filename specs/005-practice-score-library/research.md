@@ -249,3 +249,30 @@ the same thing, and one more entry in an overflow menu that feature 004 worked t
 full-screen library view (modal by nature - forbidden during a session, and it would fight the
 score-first layout); a start screen before any Score is loaded (the app is deliberately score-first
 and must keep working when a file is dropped on it).
+
+---
+
+## R-11. `facts.ts` reads the parsed XML document, not only the `Score` model (found during T009)
+
+**Decision**: `src/core/library/facts.ts` takes the parsed `XmlDocument` (from `readXml`) alongside the
+built `Score`, and reads `<key>`, `<time-modification>`, `<octave-shift>` and `<pedal>` from it
+directly, in one document walk.
+
+**Rationale**: the `Score` model (`src/core/score/model.ts`) has no key-signature field at all -
+`build.ts` recognises `<key>` only to avoid an `unsupportedElement` notice and then discards it,
+because key signature affects nothing about playback timing (Principle II: only the tempo map and
+ticks matter there). The same is true for tuplets (no ratio is kept once ticks are computed), written
+`<octave-shift>` (Correction B: the sounding pitch is already correct, so nothing needs the marking)
+and `<pedal>` (not scheduled). Level criteria 9-11, 21 and 25-26 and the `keys`/`accidentals` facts
+need exactly this information, so `facts.ts` reads it from the document the loader already parsed,
+rather than widening `Score` - a type every other feature (grading, timeline, transport) also
+constructs and relies on - for one consumer. `XmlDocument` from `@rgrove/parse-xml` is a data
+structure, not a browser DOM, so this stays inside Principle V ("no DOM, no `fetch`, Node-testable");
+`src/core/musicxml/build.ts` already parses the same structure in core.
+
+**Alternatives considered**: adding `keySignatures: KeySignatureMark[]` (and similar) to `Score`,
+mirroring `TempoMark` - rejected for now as a wider, riskier change touching a type four already-shipped
+features depend on, for facts that only the library reads; revisit if a future feature also needs key
+signature (e.g. Advice) and the duplication becomes real. Re-parsing the file a second time in
+`tools/library/build-index.ts` instead of threading the doc through `facts.ts` - rejected, since the
+generator already has the parsed document from `readXml` and passing it is free.

@@ -42,27 +42,33 @@ partial file (AGENTS.md section 4: no placeholders).
 
 ## Phase 2: Foundational (blocks all user stories)
 
-- [ ] T005 [P] Test first: `tests/core/library/index-model.test.ts` - a valid index parses; a
+- [x] T005 [P] Test first: `tests/core/library/index-model.test.ts` - a valid index parses; a
   `version` other than 1 rejects the whole index with one notice; an item failing validation is
   skipped and reported while the rest still list; unknown fields are ignored; an item over
   `MAX_FILE_BYTES` is skipped (contract `library-index.md` SS3). Confirm it fails
-- [ ] T006 [P] `src/core/library/types.ts` - `LibraryIndex`, `LibrarySection`, `LibraryItem`,
+- [x] T006 [P] `src/core/library/types.ts` - `LibraryIndex`, `LibrarySection`, `LibraryItem`,
   `ItemMetadata`, `Provenance`, `ItemFacts`, `LevelCheck`, `SkillTag`, `Level`, `LibraryFilter`
   (types only, straight from the contracts)
-- [ ] T007 `src/core/library/index-model.ts` - parse and validate the index, making T005 pass. Pure:
+- [x] T007 `src/core/library/index-model.ts` - parse and validate the index, making T005 pass. Pure:
   no DOM, no `fetch`, runs in Node
-- [ ] T008 [P] Test first: `tests/core/library/facts.test.ts` - derive `ItemFacts` from existing
+- [x] T008 [P] Test first: `tests/core/library/facts.test.ts` - derive `ItemFacts` from existing
   fixtures (`scale-c-major-q100`, `grand-staff-two-voices-per-staff`, `tuplet-triplet-eighths`,
   `tie-chain-three`, `meter-change`): span, absolute bounds, hand independence, voices per staff,
   shortest division, note densities, accidentals, notation flags, fingering coverage. Confirm it fails
-- [ ] T009 `src/core/library/facts.ts` - derive `ItemFacts` from a parsed Score plus its load report,
+- [x] T009 `src/core/library/facts.ts` - derive `ItemFacts` from a parsed Score plus its load report,
   making T008 pass. Facts are display/filter data only, never a second source of musical truth
-  (data-model SS3)
-- [ ] T010 [P] `src/engine/ports.ts` - add `LibraryCatalog`, `CatalogResult`, `CatalogError`
+  (data-model SS3). **Design addendum**: the `Score` model carries no key signature (only tempo/time
+  are needed for playback, Principle II), so `facts.ts` also takes the parsed `XmlDocument` and reads
+  `<key>`/`<time-modification>`/`<octave-shift>`/`<pedal>` directly - the one place `core/library`
+  touches XML instead of the `Score` model. Recorded in `research.md`. Two facts fields beyond the
+  v1.0.0 contract's required set were added (`voicesPerStaff`, `handIndependenceFraction`) - the
+  contract's `facts` schema has no `additionalProperties: false`, so this is the MINOR addition its
+  versioning section allows.
+- [x] T010 [P] `src/engine/ports.ts` - add `LibraryCatalog`, `CatalogResult`, `CatalogError`
   (contract `library-port.md` SS1), mirroring the existing `StoreResult` shape
-- [ ] T011 [P] `tests/fakes/fake-library-catalog.ts` - in-memory index and items, able to fail with
+- [x] T011 [P] `tests/fakes/fake-library-catalog.ts` - in-memory index and items, able to fail with
   any `CatalogError`, so every UI and session test runs in Node
-- [ ] T012 [P] `src/ui/i18n/en.ts` - library strings: section and level names, filter labels, empty
+- [x] T012 [P] `src/ui/i18n/en.ts` - library strings: section and level names, filter labels, empty
   and error states, Retry, "where this score came from", licence and credit labels
 
 **Checkpoint**: the pure model, the port and the fakes exist; user stories can proceed.

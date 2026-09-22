@@ -4,6 +4,9 @@ export const BASE_PPQ = 960;
 export const MAX_PPQ = 16777216; // 2^24
 export const TICK_LIMIT = 2147483648; // 2^31
 
+// Shared with src/core/library/index-model.ts, which cannot import engine/config.ts
+export const MAX_FILE_BYTES = 64 * 1024 * 1024; // 64 MiB
+
 export const DEFAULT_TEMPO_QPM = 100;
 
 // Grace note timing

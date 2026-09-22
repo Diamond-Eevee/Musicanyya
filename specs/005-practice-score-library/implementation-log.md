@@ -144,3 +144,29 @@ Feature `005-practice-score-library`. Newest entry at the bottom.
   US4 and US5 exist to prevent.
 - Handoff: next = `/speckit.implement` (MVP = US1: T001-T004, T083, T005-T031, T084). Tree clean on
   `005-practice-score-library`.
+
+## 2026-09-22 - claude-opus-5 (/speckit.implement: Setup + Foundational)
+
+- Done: T001-T004, T083 (Setup: scripts, shelf skeleton, README, section table, the `library` vitest
+  project) and T005-T012 (Foundational: `src/core/library/types.ts` and `index-model.ts` with its
+  test, `src/core/library/facts.ts` and its test against five real fixtures, the `LibraryCatalog` port
+  in `src/engine/ports.ts`, `tests/fakes/fake-library-catalog.ts`, library strings in `src/ui/i18n/en.ts`).
+- In progress: none. Full suite green (134 files, 1112 tests), `pnpm typecheck` and `pnpm lint` clean.
+- Decisions:
+  - **R-11 (research.md)**: `src/core/score/model.ts` carries no key signature - `build.ts` reads
+    `<key>` only to avoid an `unsupportedElement` notice and discards it, since key signature does not
+    affect playback timing (Principle II). `facts.ts` therefore also takes the parsed `XmlDocument`
+    and reads `<key>`, `<time-modification>`, `<octave-shift>` and `<pedal>` directly - the one place
+    `core/library` touches XML instead of the `Score` model - rather than widening `Score` for a type
+    four already-shipped features depend on. `XmlDocument` (`@rgrove/parse-xml`) is a data structure,
+    not a browser DOM, so this stays inside Principle V.
+  - Added two facts fields beyond the v1.0.0 contract's required set (`voicesPerStaff`,
+    `handIndependenceFraction`, criteria 3-4 of data-model SS4) - allowed as a MINOR addition since the
+    contract's `facts` schema has no `additionalProperties: false`.
+  - `MAX_FILE_BYTES` moved from `src/engine/config.ts` to `src/core/defaults.ts` (re-exported from
+    `config.ts` unchanged for existing callers), following the project's established pattern for a
+    constant both a core module and an engine module need (see `POSITION_REPORT_BLOCKS` in the same
+    file) - `src/core/library/index-model.ts` needed it and core cannot import engine.
+- Problems / open questions: none open.
+- Handoff: next = US1 (Phase 3, T013 onward) toward the MVP checkpoint (T001-T004, T083, T005-T031,
+  T084). Tree clean on `005-practice-score-library` after this commit.
