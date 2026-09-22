@@ -803,3 +803,36 @@
   T139 (`any` usages). Note that `pnpm test:e2e` for the electron project needs `dist-electron/` built:
   `pnpm exec vite build && pnpm exec vite build -c vite.electron.config.ts`. Branch
   `001-real-score-fixtures`; tree clean at the commit below.
+
+## 2026-09-22 12:05 - claude-opus-5 (relay)
+
+- Done: T138, and T157/T158 for the two bugs it found on its first run.
+  - **T138** `tests/core/musicxml/fuzz.test.ts` replaces the `it.skip` stub in `malformed.test.ts`.
+    560 mutants (14 base fixtures x 40) from a committed seed, six mutation kinds - bit-flip,
+    truncation, tag-shuffle, chunk delete, chunk duplicate and XML-metacharacter splicing - each run
+    through the real pipeline (`decodeXml` -> `readXml` -> `buildScore`). Every mutant must either
+    load or be refused with a `MusicXmlLoadError`; a mutant that loads must also produce a coherent
+    Score (positive ppq, no negative or non-finite measure start or length). A per-mutant time budget
+    catches a pathological refusal. Deterministic: a fixed seed, a mulberry32 stream per fixture so
+    adding a base does not reshuffle the others, and a failure message carrying the seed, the base
+    and the exact mutation, so it reproduces by re-running the file. Two further tests assert the
+    determinism and that every mutation kind is actually exercised at the configured budget.
+  - **T157** `decodeXml` threw a plain `Error` for "Invalid bytes" and "Unsupported encoding", which
+    reached the worker as code `internal` - the app blaming itself for a corrupted file. Both now
+    throw `MusicXmlLoadError` with `malformedXml` / `unsupportedEncoding`, codes the notice tray and
+    `en.ts` already carried. 542 of the 560 mutants hit this.
+  - **T158** An unreadable `<duration>` poisoned the entire timeline with NaN: `parseFloat('/')` is
+    NaN, `cursor += NaN` is NaN, and from there every measure start, measure length and scheduled tick
+    is NaN with no recovery. One stray byte from a truncated download is enough. `<note>`, `<backup>`
+    and `<forward>` now share a `durationToTicks` guard reading a non-finite or negative duration as 0
+    and reporting `timingRounded`. Regression fixture `duration-unreadable.musicxml`.
+- Decisions:
+  - The fuzzer is committed with a fixed seed rather than randomised per run. A fuzzer that finds a
+    new bug every few CI runs and cannot reproduce it is worse than no fuzzer; the seed is a knob to
+    turn deliberately when someone wants to explore further.
+  - `timingRounded` reused for the unreadable duration rather than adding a notice code - a new code
+    is a contract change (AGENTS.md 6) and "the timing had to be adjusted" is accurate here.
+- Problems / open questions: T155 still **needs owner** (the `work-title` / `movement-title`
+  question). T139 remains.
+- Handoff: next = T155 once the owner answers, else T139 (`any` usages), the last open task on the
+  feature. Branch `001-real-score-fixtures`; tree clean at the commit below.

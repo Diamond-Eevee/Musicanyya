@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A corrupted download: one <duration> holds a stray character, another is empty, and a third is
+     negative. Before the guard in buildScore's durationToTicks, the first NaN poisoned the cursor and
+     every measure start, length and scheduled tick after it became NaN. Each is now read as 0 and
+     reported as timingRounded, and the rest of the file still loads. Found by the mutation fuzzer
+     (tests/core/musicxml/fuzz.test.ts); see tasks.md T138. -->
+<score-partwise version="3.1">
+  <part-list>
+    <score-part id="P1"><part-name>Piano</part-name></score-part>
+  </part-list>
+  <part id="P1">
+    <measure number="1">
+      <attributes>
+        <divisions>1</divisions>
+        <time><beats>4</beats><beat-type>4</beat-type></time>
+      </attributes>
+      <note><pitch><step>C</step><octave>4</octave></pitch><duration>/</duration><voice>1</voice></note>
+      <note><pitch><step>D</step><octave>4</octave></pitch><duration></duration><voice>1</voice></note>
+      <note><pitch><step>E</step><octave>4</octave></pitch><duration>-2</duration><voice>1</voice></note>
+      <note><pitch><step>F</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice></note>
+    </measure>
+  </part>
+</score-partwise>

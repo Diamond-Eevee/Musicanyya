@@ -2846,6 +2846,241 @@ exports[`buildScore snapshots > builds time-model for duplicate-notes-disambigua
 }
 `;
 
+exports[`buildScore snapshots > builds time-model for duration-unreadable.musicxml 1`] = `
+{
+  "report": {
+    "entries": [
+      {
+        "code": "timingRounded",
+        "detail": "unreadable duration "/" treated as 0",
+        "element": "note",
+        "measureLabels": [
+          "1",
+        ],
+        "severity": "warning",
+      },
+      {
+        "code": "timingRounded",
+        "detail": "unreadable duration "-2" treated as 0",
+        "element": "note",
+        "measureLabels": [
+          "1",
+        ],
+        "severity": "warning",
+      },
+      {
+        "code": "defaultTempo",
+        "measureLabels": [
+          "0",
+        ],
+        "severity": "info",
+      },
+    ],
+    "skippedElementCount": 0,
+  },
+  "score": {
+    "composer": null,
+    "defaultTempoUsed": true,
+    "measures": [
+      {
+        "beatOffsetTicks": 0,
+        "id": "ms-0",
+        "implicit": false,
+        "index": 0,
+        "label": "1",
+        "lengthTicks": 3840,
+        "nominalTicks": 3840,
+        "startTick": 0,
+        "time": {
+          "beatType": 4,
+          "beats": "4",
+        },
+      },
+    ],
+    "navigation": {
+      "endings": [],
+      "jumps": [],
+      "repeats": [],
+      "targets": [],
+    },
+    "parts": [
+      {
+        "dynamics": [],
+        "index": 0,
+        "instruments": [
+          {
+            "bank": null,
+            "channelHint": null,
+            "fallback": false,
+            "name": "",
+            "pan": null,
+            "percussion": false,
+            "program": 0,
+            "unpitchedKey": null,
+            "volume": null,
+            "xmlId": "",
+          },
+        ],
+        "name": "Piano",
+        "notes": [
+          {
+            "accent": false,
+            "arpeggiate": false,
+            "chord": false,
+            "durationTicks": 0,
+            "fingerings": [],
+            "grace": null,
+            "id": "n-p0-s1-m0-v1-o0-k60",
+            "instrument": null,
+            "measureIndex": 0,
+            "onsetInMeasure": 0,
+            "onsetQuarters": {
+              "den": 1,
+              "num": 0,
+            },
+            "ornament": null,
+            "part": 0,
+            "printed": true,
+            "soundingKey": 60,
+            "source": {
+              "end": 910,
+              "start": 812,
+            },
+            "staff": 1,
+            "step": "C",
+            "tie": {
+              "start": false,
+              "stop": false,
+            },
+            "unpitched": false,
+            "velocityOverride": null,
+            "voice": "1",
+            "writtenKey": 60,
+          },
+          {
+            "accent": false,
+            "arpeggiate": false,
+            "chord": false,
+            "durationTicks": 0,
+            "fingerings": [],
+            "grace": null,
+            "id": "n-p0-s1-m0-v1-o0-k62",
+            "instrument": null,
+            "measureIndex": 0,
+            "onsetInMeasure": 0,
+            "onsetQuarters": {
+              "den": 1,
+              "num": 0,
+            },
+            "ornament": null,
+            "part": 0,
+            "printed": true,
+            "soundingKey": 62,
+            "source": {
+              "end": 1014,
+              "start": 917,
+            },
+            "staff": 1,
+            "step": "D",
+            "tie": {
+              "start": false,
+              "stop": false,
+            },
+            "unpitched": false,
+            "velocityOverride": null,
+            "voice": "1",
+            "writtenKey": 62,
+          },
+          {
+            "accent": false,
+            "arpeggiate": false,
+            "chord": false,
+            "durationTicks": 0,
+            "fingerings": [],
+            "grace": null,
+            "id": "n-p0-s1-m0-v1-o0-k64",
+            "instrument": null,
+            "measureIndex": 0,
+            "onsetInMeasure": 0,
+            "onsetQuarters": {
+              "den": 1,
+              "num": 0,
+            },
+            "ornament": null,
+            "part": 0,
+            "printed": true,
+            "soundingKey": 64,
+            "source": {
+              "end": 1120,
+              "start": 1021,
+            },
+            "staff": 1,
+            "step": "E",
+            "tie": {
+              "start": false,
+              "stop": false,
+            },
+            "unpitched": false,
+            "velocityOverride": null,
+            "voice": "1",
+            "writtenKey": 64,
+          },
+          {
+            "accent": false,
+            "arpeggiate": false,
+            "chord": false,
+            "durationTicks": 3840,
+            "fingerings": [],
+            "grace": null,
+            "id": "n-p0-s1-m0-v1-o0-k65",
+            "instrument": null,
+            "measureIndex": 0,
+            "onsetInMeasure": 0,
+            "onsetQuarters": {
+              "den": 1,
+              "num": 0,
+            },
+            "ornament": null,
+            "part": 0,
+            "printed": true,
+            "soundingKey": 65,
+            "source": {
+              "end": 1225,
+              "start": 1127,
+            },
+            "staff": 1,
+            "step": "F",
+            "tie": {
+              "start": false,
+              "stop": false,
+            },
+            "unpitched": false,
+            "velocityOverride": null,
+            "voice": "1",
+            "writtenKey": 65,
+          },
+        ],
+        "soundDynamics": [],
+        "staves": 1,
+        "transpositions": [],
+        "wedges": [],
+        "xmlId": "P1",
+      },
+    ],
+    "ppq": 960,
+    "tempoMarks": [
+      {
+        "measureIndex": 0,
+        "onsetInMeasure": 0,
+        "qpmDen": 100,
+        "qpmNum": 10000,
+      },
+    ],
+    "title": null,
+  },
+}
+`;
+
 exports[`buildScore snapshots > builds time-model for dynamics-marks.musicxml 1`] = `
 {
   "report": {

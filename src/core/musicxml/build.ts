@@ -76,6 +76,40 @@ function getAttr(el: XmlElement, name: string): string | undefined {
   return el.attributes[name];
 }
 
+/**
+ * A `<duration>` in ticks, never NaN and never negative.
+ *
+ * `parseFloat` returns NaN for anything unparseable - an empty element, a stray character from a
+ * corrupted download - and a single NaN added to the cursor poisons every tick after it: measure
+ * starts, measure lengths, the schedule and the cursor all become NaN, and nothing downstream can
+ * recover. A negative duration would walk the cursor backwards for the same reason. Both are treated
+ * as zero and reported, so the rest of the file still loads (Constitution II and III). Found by the
+ * mutation fuzzer, `tests/core/musicxml/fuzz.test.ts`.
+ */
+function durationToTicks(
+  durTxt: string,
+  ppq: number,
+  divisions: number,
+  report: {
+    add: (
+      severity: 'info' | 'warning',
+      code: LoadNoticeCode,
+      measure: string,
+      element?: string,
+      detail?: string,
+    ) => void;
+  },
+  measureLabel: string,
+  element: string,
+): number {
+  const ticks = Math.round(parseFloat(durTxt) * (ppq / divisions));
+  if (!Number.isFinite(ticks) || ticks < 0) {
+    report.add('warning', 'timingRounded', measureLabel, element, `unreadable duration "${durTxt}" treated as 0`);
+    return 0;
+  }
+  return ticks;
+}
+
 export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport } {
   const report = new ReportBuilder();
   const root = doc.children.find((c): c is XmlElement => c instanceof XmlElement);
@@ -452,11 +486,9 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           const isCue = getChild(el, 'cue') !== undefined;
           const chord = getChild(el, 'chord') !== undefined;
           const durTxt = getText(getChild(el, 'duration'));
-          let durationTicks = 0;
-          if (durTxt) {
-            const dec = parseFloat(durTxt);
-            durationTicks = Math.round(dec * (ppq / currentDivisions));
-          }
+          const durationTicks = durTxt
+            ? durationToTicks(durTxt, ppq, currentDivisions, report, measureLabel, 'note')
+            : 0;
 
           let noteCursor = cursor;
           if (chord) {
@@ -654,7 +686,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
             // larger than what has been written so far would otherwise push this measure - and every
             // measure after it - to a negative tick (community fixture
             // `11b-TimeSignatures-NoTime.musicxml` backs up 384 quarters inside a 4-quarter measure).
-            const backed = cursor - Math.round(parseFloat(durTxt) * (ppq / currentDivisions));
+            const backed = cursor - durationToTicks(durTxt, ppq, currentDivisions, report, measureLabel, 'backup');
             if (backed < measureStartCursor) {
               cursor = measureStartCursor;
               report.add('warning', 'cursorClamped', measureLabel, 'backup');
@@ -665,7 +697,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
         } else if (el.name === 'forward') {
           const durTxt = getText(getChild(el, 'duration'));
           if (durTxt) {
-            cursor += Math.round(parseFloat(durTxt) * (ppq / currentDivisions));
+            cursor += durationToTicks(durTxt, ppq, currentDivisions, report, measureLabel, 'forward');
             measureMaxCursor = Math.max(measureMaxCursor, cursor);
           }
         } else if (el.name === 'direction') {
