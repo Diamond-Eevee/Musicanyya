@@ -101,6 +101,14 @@ export const en = {
       intermediate: 'Intermediate',
       advanced: 'Advanced',
     },
+    /** Plain-language level criteria (FR-009, US3 scenario 1) - data-model.md §4's thresholds in
+     *  words, not numbers, so a musician can judge fit without reading the constants table. */
+    levelDescriptions: {
+      beginner:
+        'One hand at a time for the most part, simple rhythms, a small range, and a key with few sharps or flats.',
+      intermediate: 'Both hands can move independently, faster notes, a wider range, and up to a few sharps or flats.',
+      advanced: 'Full technical range: fast passages, wide leaps, complex rhythms, and any key signature.',
+    },
     filters: {
       level: 'Level',
       key: 'Key',

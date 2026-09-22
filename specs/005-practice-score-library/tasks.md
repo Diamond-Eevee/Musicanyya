@@ -270,7 +270,7 @@ all pass; a mis-levelled item fails the check.
 - [x] T046 [P] [US3] `tests/core/library/filter.test.ts` - filtering by section, level, key, tag and
   text; accent- and case-insensitive text ("zyczenie" finds "Życzenie"); a synthetic 200-item index
   filters inside the SC-007 budget
-- [ ] T047 [P] [US3] `tests/ui/mx-library-filters.test.ts` - filter chips and text box drive the
+- [x] T047 [P] [US3] `tests/ui/mx-library-filters.test.ts` - filter chips and text box drive the
   list; the item detail shows composer, key, metre, tempo, measures, duration, hands and tags
   (FR-010, FR-012)
 
@@ -286,9 +286,9 @@ all pass; a mis-levelled item fails the check.
   in so the core stays Web-API-free
 - [x] T050 [US3] `tools/library/build-index.ts` - add `levelCheck` per item and fail generation when
   an item's assigned level is wrong without a recorded `raisedBecause`
-- [ ] T051 [US3] `src/ui/elements/mx-library.ts` - filter chips, text box, item detail, and the level
+- [x] T051 [US3] `src/ui/elements/mx-library.ts` - filter chips, text box, item detail, and the level
   descriptions in plain language (FR-009, US3 scenario 1)
-- [ ] T052 [US3] `src/ui/state/libraryState.ts` - persist the filter in `musicanyya.library.v1`
+- [x] T052 [US3] `src/ui/state/libraryState.ts` - persist the filter in `musicanyya.library.v1`
   (contract `library-port.md` SS3); invalid or missing data falls back to "no filter"
 
 ### Content build-out (FR-008: >= 6 / >= 5 / >= 4 pieces)

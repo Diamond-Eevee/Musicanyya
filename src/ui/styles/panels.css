@@ -109,6 +109,60 @@ mx-library {
   opacity: 0.75;
 }
 
+.library-item-detail {
+  font-size: 0.78em;
+  opacity: 0.65;
+}
+
+.library-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.library-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.8em;
+  opacity: 0.85;
+}
+
+.library-filter select,
+.library-filter input[type="text"] {
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+  color: var(--text-color);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font: inherit;
+}
+
+.library-filter-clear {
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+  color: var(--text-color);
+  border-radius: 4px;
+  padding: 3px 10px;
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+.library-level-description {
+  margin: 0 0 10px;
+  font-size: 0.85em;
+  opacity: 0.75;
+}
+
+.library-no-results {
+  color: var(--text-color);
+  opacity: 0.7;
+}
+
 mx-score-source {
   display: block;
   font-size: 0.85em;

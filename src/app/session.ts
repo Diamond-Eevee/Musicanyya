@@ -350,10 +350,16 @@ export class Session {
     const scoreSource = document.createElement('mx-score-source');
     // The index is fetched once, lazily, the first time the shelf is opened (contracts/library-port.md
     // §5: one fetch per session) - never at startup, so opening a dragged-in file costs nothing extra.
+    let previousPanel = viewState.get().openPanel;
     viewState.subscribe((state) => {
       if (state.openPanel === 'scores' && libraryState.getStatus().kind === 'idle') {
         this.loadLibraryIndex();
       }
+      // data-model.md §6: the filter survives panel close, but its text box does not.
+      if (previousPanel === 'scores' && state.openPanel !== 'scores') {
+        libraryState.clearFilterText();
+      }
+      previousPanel = state.openPanel;
     });
 
     const helpPanel = document.createElement('mx-help-notation');

@@ -332,3 +332,36 @@ Feature `005-practice-score-library`. Newest entry at the bottom.
   `pnpm test:e2e` not re-run this chunk (no UI/session code changed yet - T051/T052 next).
 - Handoff: next = T051-T052 (filter UI + persistence), then the US3 content build-out (T053-066).
   Tree clean on `005-practice-score-library` after this commit.
+
+## 2026-09-22 - claude-sonnet-5 (/speckit.implement: US3 filter UI + persistence)
+
+- Done: T047, T051, T052 - filter chips (level/key/tag), a text search box, a per-item detail line
+  (key/metre/tempo/measures/duration/hands/tags, FR-010) and a plain-language level description
+  (FR-009) in `src/ui/elements/mx-library.ts`; the filter persisted in `libraryState`
+  (`src/ui/state/libraryState.ts`, `musicanyya.library.v1`) with every field validated independently
+  and invalid/missing data falling back to "no filter", matching `local-settings-store.ts`'s pattern.
+- In progress: none.
+- Decisions:
+  - **The text box never persists, by construction**: `persistFilter` always writes `text: ''`
+    regardless of the current value (data-model.md §6: "the section selection survives; the text box
+    does not"), and `libraryState.clearFilterText()` resets the in-memory value too. `session.ts`
+    calls it on every `scores` -> not-`scores` transition of `viewState`'s `openPanel` (tracked with a
+    `previousPanel` closure variable, since `viewState` has no dedicated "just closed" event) - so
+    reopening the panel later shows an empty search box while the level/key/tag choices are still
+    applied.
+  - **No section filter chip**: `LibraryFilter.sectionId` exists in the type and the port contract,
+    but T021 (US1) deliberately made the section tree "headings rather than a click-to-filter control
+    so opening an item never costs more than one click" (SC-001). Adding a section chip would relitigate
+    that call, so `mx-library` never sets `sectionId` - it stays `null` from this UI, and level/key/
+    tag/text narrow the (still fully expanded, per-section) list instead.
+  - **Full-`innerHTML` re-render on every keystroke would otherwise steal focus** from the search box
+    (contracts/library-port.md §5's "one `innerHTML` assignment per change" rule). Fixed by saving
+    `document.activeElement`/`selectionStart` before the render and restoring them after, scoped to
+    just the text input - the only field a musician types into.
+- Problems / open questions: none open.
+- Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test` (150 files, 1288 tests) all green;
+  `tests/e2e/library.spec.ts` on chromium still green (no regression from the `session.ts`/
+  `mx-library.ts` changes).
+- Handoff: next = the US3 content build-out (T053-066): the repertoire shortlist (data-model.md §5.3,
+  FR-008's >= 6/5/4 pieces per level), each batch reviewed by `music-domain-expert` before its sidecar
+  records `reviewedBy`/`reviewedOn`. Tree clean on `005-practice-score-library` after this commit.
