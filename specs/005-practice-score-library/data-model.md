@@ -15,7 +15,7 @@ behind them - entities, validation, the shelf's shape, the level criteria and th
 | **ItemMetadata** | what a human decided about an item | `title`, `composer`, `arranger`, `kind`, `level`, `tags[]`, `trains`, `hands`, `arrangement`, `provenance`, `expected` | authored `<name>.json` |
 | **Provenance** | where the item came from | `authored`: author, created, basedOn / `downloaded`: source, obtained, licence, credit, unmodified | inside ItemMetadata |
 | **ItemFacts** | what the parsed Score actually is | measures, notes, duration, keys, metres, tempo, range, span, staves, shortest division, notes per beat, accidentals, notation flags, fingering coverage, notices | derived by the generator |
-| **LevelCriteria** | what a level demands | one threshold per criterion id (SS4) | `src/core/library/levels.ts` (code, not content) |
+| **LevelCriteria** | what a level demands | one threshold per criterion id (SS4) | values in `src/core/defaults.ts` (the project's constants table); `checkLevel` in `src/core/library/levels.ts` |
 | **LevelCheck** | whether an item meets its level | `level`, `pass`, `failed[]` | index, recomputed by the test |
 | **SkillTag** | what an item trains | closed enum (contract SS1) | ItemMetadata |
 | **ExerciseDefinition** | one drill, defined once for many keys | metre, tempo, keys[], steps[], meta template | `content/library/exercises/*.json` |
@@ -61,6 +61,8 @@ items is not emitted, so the shelf never shows an empty shelf-board.
 | Every note of an exercise carries a fingering (`fingeringCoverage == 1` when `kind == "exercise"`) | library check **fails** (FR-006) |
 | `index.version != 1` | whole index rejected, one notice, app otherwise normal |
 | Item bytes > `MAX_FILE_BYTES` | item skipped + notice (the same limit a dragged-in file faces) |
+| A Score with no sounding note ("silent", FR-021) | library check **fails** - a file that parses is not yet a piece of music |
+| Total bytes of `public/library/` over the SC-008 budget | library check **fails**, so a heavy item is caught at commit time rather than at Polish |
 
 **Derived facts are display-only.** `facts.tempoBpm`, `facts.durationSeconds` and the rest exist for
 the list, the filters and the level check. Playback, Practice and grading always use the tempo map
@@ -69,8 +71,10 @@ built from the file (Principle II: one clock, one source of truth).
 ## 4. Level criteria
 
 From the `music-domain-expert` review (2026-09-22), with two corrections marked below. The criteria
-live in code (`src/core/library/levels.ts`), not in content, so they are versioned with the checker
-that applies them.
+live in code, not in content, so they are versioned with the checker that applies them. The
+**threshold values** go in `src/core/defaults.ts` as named constants (`LEVEL_*`), because that file
+is this project's constants table (AGENTS.md SS6, Principle II: every tolerance named, documented and
+configurable); `src/core/library/levels.ts` holds only the criterion definitions and `checkLevel`.
 
 **Model: nested caps.** Beginner ⊂ Intermediate ⊂ Advanced. `checkLevel` computes each metric from
 `ItemFacts`, derives the **lowest level whose caps the item satisfies**, and compares it with the

@@ -54,3 +54,16 @@
 - Both clarifications were answered by the owner in the same session and folded into the spec, so
   no `[NEEDS CLARIFICATION]` marker remains.
 - **Status: PASS**, ready for `/speckit.plan`.
+
+## Re-validation after `/speckit.analyze` (2026-09-22)
+
+`/speckit.analyze` raised 16 findings; the spec absorbed three of them, and this checklist was
+re-run over the amended text:
+
+- **SC-005** now carries owner decision D-1's caveat (RC-09: it no longer reads as failed at MVP,
+  which is what the amendment to FR-008 had left inconsistent).
+- **FR-021** defines "silent" measurably - a Score whose parts contain no sounding note (RC-02).
+- **FR-025** references the rules it enforces instead of restating them, so a change to one of them
+  has a single home (the duplication noted against RC-02's neighbours).
+
+No new `[NEEDS CLARIFICATION]` marker was introduced. **Status: still PASS.**

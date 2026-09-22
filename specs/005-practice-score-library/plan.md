@@ -126,7 +126,7 @@ src/core/library/
 |-- types.ts        # LibraryIndex, LibraryItem, ItemMetadata, Provenance, Level, SkillTag
 |-- index-model.ts  # parse + validate index.json; skip and report invalid entries
 |-- filter.ts       # section / level / key / tag filtering + sorting (pure)
-|-- levels.ts       # LEVEL_CRITERIA + checkLevel(facts) -> pass/fail per criterion
+|-- levels.ts       # criterion definitions + checkLevel(); the thresholds live in src/core/defaults.ts
 `-- facts.ts        # derive ItemFacts (range, span, hands, shortest value, density...) from a Score
 
 src/core/musicxml/write.ts                # minimal MusicXML writer used by the generator (core, pure)
@@ -144,6 +144,8 @@ src/app/session.ts                        # wire openlibraryitem -> existing loa
 tools/library/build-index.ts              # generate public/library/index.json (pnpm library:index)
 tools/library/build-exercises.ts          # generate the exercise scores (pnpm library:exercises)
 
+src/core/defaults.ts                      # + the LEVEL_* thresholds (the project's constants table)
+vitest.config.ts                          # + a "library" project for tests/library/**
 tests/core/library/*.test.ts              # index model, filters, levels, facts, generator goldens
 tests/library/sweep.test.ts               # every item: loads, engraves, matches its recorded row
 tests/library/licence.test.ts             # every item: metadata + provenance complete, licence allowed

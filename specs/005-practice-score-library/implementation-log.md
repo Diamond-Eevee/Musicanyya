@@ -116,3 +116,31 @@ Feature `005-practice-score-library`. Newest entry at the bottom.
 - Nothing was changed: analyze is read-only apart from this entry.
 - Handoff: next = apply the findings (owner's call), then `/speckit.implement` (MVP = US1,
   T001-T031). Tree clean on `005-practice-score-library`.
+
+## 2026-09-22 - claude-opus-5 (analyze remediation)
+
+- Done: applied **all 16** analyze findings in one pass (the owner answered "recommended").
+  - `tasks.md`: four new tasks, keeping new numbers rather than renumbering - **T083** a `library`
+    project in `vitest.config.ts` (A1, the HIGH one), **T084** the FR-016 extensibility test,
+    **T085** the FR-005 family-invariant test across all 24 keys, **T086** an architecture guard so
+    no app/ui/engine/worker file imports the dev-only generation code. T016 moved from
+    `tests/app/` to `tests/engine/`, beside the session tests that already live there. T003, T031,
+    T044, T048, T066, T067, T078 and T082 absorbed the smaller findings (rejected-items home,
+    SC-001 timing and the offline reopen in e2e, exercise counts, `LEVEL_*` constants in
+    `src/core/defaults.ts`, composer/key spread, arrangement label + silent-file + size-budget
+    assertions, and SC-006's blind re-levelling sample). 82 -> **86 tasks**.
+  - `spec.md`: SC-005 gained decision D-1's caveat (it read as failed at MVP); FR-021 defines
+    "silent" measurably; FR-025 now references the rules it enforces instead of restating them.
+  - `data-model.md`: the `LEVEL_*` thresholds move to `src/core/defaults.ts` (AGENTS.md SS6 names it
+    as the constants table); two validation rows added (silent item, shelf size budget).
+  - `contracts/library-index.md` SS4: the extra assertions written down - counts, shelf size, not
+    silent, labelled arrangements, content-only extensibility - plus the note that `tests/library/`
+    needs its own vitest project.
+  - `plan.md`, `quickstart.md`, `checklists/requirements.md` updated to match.
+- In progress: none. No task is claimed; nothing under `src/` was touched.
+- Decisions: the HIGH finding was real - `vitest.config.ts` filters by explicit include globs, so
+  `tests/library/**` and `tests/app/**` matched no project. Four suites carrying FR-017, FR-020,
+  FR-022, FR-023 and FR-025 would have "passed" by never running, which is exactly the failure mode
+  US4 and US5 exist to prevent.
+- Handoff: next = `/speckit.implement` (MVP = US1: T001-T004, T083, T005-T031, T084). Tree clean on
+  `005-practice-score-library`.

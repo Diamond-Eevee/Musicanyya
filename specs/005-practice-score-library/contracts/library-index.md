@@ -229,6 +229,18 @@ Everything a human decides. Never generated, never rewritten by a tool.
   carries `raisedBecause`.
 - `tests/library/sweep.test.ts` loads every item and asserts `facts.notices` equals
   `meta.expected.notices` (FR-023) and that the load produced no error (FR-022).
+- The same suites also assert, so that FR-025 has teeth beyond the obvious cases:
+  - **counts**: at least 24 chord exercises and 12 chord-change drills (SC-004), and the repertoire
+    spread of FR-008 including more than one composer and more than one key signature per level;
+  - **shelf size**: the total bytes of `public/library/` stay inside the SC-008 budget (FR-026);
+  - **not silent**: every item has at least one sounding note (FR-021);
+  - **labelled arrangements**: `arrangement: true` requires the word in `title` or `subtitle`
+    (FR-007);
+  - **content-only extensibility**: a temporary item written into a copy of the tree appears in a
+    regenerated index with no source change (FR-016).
+- These suites live under `tests/library/`, which needs its own project in `vitest.config.ts` - the
+  config filters by explicit include globs, so a new folder is invisible to `pnpm test` until it is
+  registered.
 
 ## 5. Versioning
 

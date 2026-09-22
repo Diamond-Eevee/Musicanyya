@@ -236,8 +236,9 @@ timeline; any load notice is one that is recorded as expected for that item.
   credit MUST be given to a source that asks for it even where its licence does not require it.
 - **FR-020**: Every downloaded item MUST be recorded in the project's third-party notices with its
   source, date obtained and licence.
-- **FR-021**: No item may be a placeholder: empty, truncated, silent or dummy files MUST NOT be
-  included, and the library MUST NOT claim material it does not contain.
+- **FR-021**: No item may be a placeholder: an item MUST NOT be empty, truncated, or **silent**
+  (a Score whose parts contain no sounding note), and the library MUST NOT claim material it does
+  not contain.
 
 **Quality**
 
@@ -247,8 +248,10 @@ timeline; any load notice is one that is recorded as expected for that item.
   as expected for that item; a new, unrecorded notice MUST be treated as a regression.
 - **FR-024**: An item whose notation the app cannot represent faithfully MUST NOT ship, even if it
   loads without an error.
-- **FR-025**: The library MUST be verifiable automatically: a check MUST fail when an item is
-  missing, unlisted, unlicensed, without required metadata, or no longer loads.
+- **FR-025**: The library MUST be verifiable automatically: every rule above that can be checked
+  by a machine (FR-005, FR-006, FR-008, FR-009, FR-010, FR-017, FR-020, FR-021, FR-022, FR-023,
+  FR-026) MUST be enforced by a check that **fails**, not warns, and a missing or unlisted item MUST
+  fail it too. This requirement adds no rule of its own; it makes the others enforceable.
 - **FR-026**: The bundled library MUST stay within a size budget that keeps the app's first load
   fast; items beyond that budget MUST be left out rather than shipped.
 
@@ -281,8 +284,9 @@ timeline; any load notice is one that is recorded as expected for that item.
   check fails if any item does not.
 - **SC-004**: The library contains at least 24 chord exercises (12 major, 12 minor keys) and at
   least 12 chord-change drills, all following one structure per exercise family.
-- **SC-005**: *Repertoire* contains at least 15 pieces spread over the three levels (>= 6 / >= 5 /
-  >= 4) and includes *Fur Elise*.
+- **SC-005**: By the time the feature is finished, *Repertoire* contains at least 15 pieces spread
+  over the three levels (>= 6 / >= 5 / >= 4) and includes *Fur Elise*. P1 ships browsing plus at
+  least one piece per level, since every piece is engraved for this project (FR-008).
 - **SC-006**: 100% of items satisfy the published criteria of the level they are assigned to, and a
   musician reviewing the library independently agrees with at least 90% of the level assignments.
 - **SC-007**: The library list appears within 1 second for a library of 200 items, and filtering it

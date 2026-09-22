@@ -19,6 +19,10 @@ are idempotent - running them on unchanged input must produce a byte-identical r
 index's `generated` timestamp), and `tests/library/index.test.ts` fails if a regeneration was
 forgotten.
 
+`tests/library/` only runs because `vitest.config.ts` declares a `library` project for it: the config
+filters by explicit include globs, so a new test folder is invisible to `pnpm test` until it is
+registered there.
+
 ## Adding an item by hand
 
 1. Put `<name>.musicxml` (authored) or `<name>.mxl` (obtained unmodified) in the right folder under
@@ -29,7 +33,8 @@ forgotten.
 3. `pnpm library:index`, then `pnpm test -- tests/library`. The suites tell you what is missing: a
    wrong level, an unrecorded load notice, a missing licence, a file that does not load.
 
-There is no code to change - that is FR-016, and the test proves it.
+There is no code to change - that is FR-016, and `tests/library/extensibility.test.ts` proves it by
+adding an item to a copy of the tree and checking that nothing under `src/` had to move.
 
 ## Story verification
 

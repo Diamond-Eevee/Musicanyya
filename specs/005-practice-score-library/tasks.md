@@ -27,10 +27,16 @@ partial file (AGENTS.md section 4: no placeholders).
   `public/library/learning/chords/changes/`,
   `public/library/repertoire/{beginner,intermediate,advanced}/`
 - [ ] T003 [P] Write `public/library/README.md`: the licence rule (CC0 / clear public domain / our
-  own work), the sidecar requirement, and the "regenerate the index" workflow
+  own work), the sidecar requirement, the "regenerate the index" workflow, and a **Rejected items**
+  section - the home FR-018 needs for "the reason MUST be recorded" when a candidate is turned away
+  (analyze A13)
 - [ ] T004 [P] Add `tools/library/sections.ts` - the section table (id, title, description, parent,
   order) from data-model SS2 - and exclude the generated `public/library/index.json` from Biome
   formatting so the generator's output stays authoritative
+- [ ] T083 Add a `library` project to `vitest.config.ts` (node environment,
+  `include: ['tests/library/**/*.test.ts']`). The config filters by explicit include globs, so
+  `tests/library/` is invisible to `pnpm test` until it is registered - without this, T017, T067 and
+  T071 would pass by never running (analyze A1)
 
 ---
 
@@ -79,13 +85,17 @@ Für Elise* -> Listen plays it, with its source and licence visible.
   and Open usable
 - [ ] T015 [P] [US1] `tests/ui/mx-library.test.ts` - renders sections and items with title, composer
   and level; emits `openlibraryitem`; shows one error row with Retry when the index fails
-- [ ] T016 [P] [US1] `tests/app/session-library.test.ts` - `openlibraryitem` fetches the bytes and
-  goes through the **existing** `loadBytes`, so the Score, its Note IDs and the load report are
+- [ ] T016 [P] [US1] `tests/engine/session-library.test.ts` (beside `play-session.test.ts` and
+  `replay-session.test.ts`, so the `engine` project picks it up) - `openlibraryitem` fetches the
+  bytes and goes through the **existing** `loadBytes`, so the Score, its Note IDs and the report are
   identical to a dragged-in file (FR-013); a fetch failure raises a notice and leaves the current
   Score untouched; opening a user file clears `openedLibraryItemId`
 - [ ] T017 [P] [US1] `tests/library/index.test.ts` - regenerating the index in memory equals the
   committed `index.json` apart from `generated`; every score file has a sidecar; no item is unlisted
   (FR-025)
+- [ ] T084 [P] [US1] `tests/library/extensibility.test.ts` - writing a new score plus sidecar into a
+  copy of the tree and regenerating makes it appear in the index, with **no change to any file under
+  `src/`** (FR-016, analyze A8). Confirm it fails
 
 ### Implementation
 
@@ -122,7 +132,9 @@ Für Elise* -> Listen plays it, with its source and licence visible.
   each sidecar; fix and re-review anything it flags
 - [ ] T030 [US1] `pnpm library:index`, commit `public/library/index.json`, and confirm T017 passes
 - [ ] T031 [US1] `tests/e2e/library.spec.ts` - browse -> open Für Elise -> Listen, run in the browser
-  projects and under the Electron `app://` origin
+  projects and under the Electron `app://` origin; assert SC-001 (at most 3 interactions from a fresh
+  profile to hearing the Score, under 15 s) and SC-010's offline half (an item opened once opens
+  again with the network blocked) - analyze A5, A15
 
 **Checkpoint**: US1 is independently testable - a fresh profile can find and play a Score, in both
 Shells, with its provenance on screen.
@@ -150,6 +162,11 @@ measures, positions, rhythm and fingering - and Practice mode waits chord by cho
   [57, 68]; a pitch outside the 88-key range fails generation
 - [ ] T035 [P] [US2] `tests/core/library/exercise/goldens.test.ts` - golden snapshots for C major,
   F# major, E♭ minor and A minor, plus determinism: regenerating unchanged input is byte-identical
+- [ ] T085 [P] [US2] `tests/core/library/exercise/family-invariants.test.ts` - across **all 24**
+  generated keys, assert identical measure count, chord onset ticks, durations and fingering
+  sequence; only pitches and the key signature may differ. This is the direct test of FR-005, which
+  the goldens of T035 only sample (analyze A2). Written first, it fails for the right reason - the
+  keys do not exist yet - and turns green at T040
 
 ### Implementation
 
@@ -171,8 +188,13 @@ measures, positions, rhythm and fingering - and Practice mode waits chord by cho
 - [ ] T042 [US2] Generate the drills and review the diff
 - [ ] T043 [US2] `music-domain-expert` review of the generated set: spelling in all 24 keys, the
   fingering rule, the G# minor note, and that each drill trains what it claims
-- [ ] T044 [US2] `pnpm library:index`; confirm `fingeringCoverage == 1` for every exercise (FR-006)
-  and that all 40 items load with no notices
+- [ ] T086 [US2] Extend `tests/architecture/layers.test.ts`: no file under `src/app`, `src/ui`,
+  `src/engine` or `src/workers` may import `src/core/musicxml/write.ts` or
+  `src/core/library/exercise/` - they are dev-only generation code that the plan justified inside
+  the core, and nothing else stops the app pulling them into the bundle (analyze A14)
+- [ ] T044 [US2] `pnpm library:index`; confirm `fingeringCoverage == 1` for every exercise (FR-006),
+  that all 40 items load with no notices, and assert the counts in the library suite - at least 24
+  chord exercises and 12 drills (SC-004, analyze A11)
 
 **Checkpoint**: US1 and US2 both work independently; the Chords shelf is complete.
 
@@ -199,8 +221,9 @@ all pass; a mis-levelled item fails the check.
 
 ### Implementation
 
-- [ ] T048 [US3] `src/core/library/levels.ts` - `LEVEL_CRITERIA` (every threshold a named constant,
-  Principle II: no magic numbers) and `checkLevel`
+- [ ] T048 [US3] Level criteria: the **threshold values** as named `LEVEL_*` constants in
+  `src/core/defaults.ts` (this project's constants table, AGENTS.md SS6 - analyze A3), and the
+  criterion definitions plus `checkLevel` in `src/core/library/levels.ts`
 - [ ] T049 [US3] `src/core/library/filter.ts` - pure filtering and sorting, with the collator passed
   in so the core stays Web-API-free
 - [ ] T050 [US3] `tools/library/build-index.ts` - add `levelCheck` per item and fail generation when
@@ -236,7 +259,8 @@ all pass; a mis-levelled item fails the check.
   record the reason in `research.md`
 - [ ] T065 [US3] `music-domain-expert` review of T061-T064; record the review fields
 - [ ] T066 [US3] `pnpm library:index`; confirm every item's `levelCheck.pass` and that the counts meet
-  FR-008 (or, if the owner descoped, record the actual counts in `implementation-log.md`)
+  FR-008, **including more than one composer and more than one key signature per level** (analyze
+  A10); if the owner descoped, record the actual counts in `implementation-log.md`
 
 **Checkpoint**: the shelf is navigable by level, key and skill, and every level assignment is checked.
 
@@ -253,7 +277,10 @@ and fails on a missing, wrong or unrecorded one.
 - [ ] T067 [P] [US4] `tests/library/licence.test.ts` - every score file has a sidecar that validates;
   `licence` is `CC0-1.0` or `public-domain` and anything else **fails** (FR-017); a `downloaded` item
   has `source` + `obtained` **and** a `THIRD_PARTY_NOTICES.md` entry (FR-020); no file is 0 bytes
-  (FR-021); every item has `reviewedBy` / `reviewedOn`, and a raised level has `raisedBecause`
+  **and no item is silent - every item has at least one sounding note** (FR-021, analyze A12); an
+  item with `arrangement: true` says so in its `title` or `subtitle` (FR-007, analyze A9); the total
+  bytes of `public/library/` stay inside the SC-008 budget (FR-026, analyze A7); every item has
+  `reviewedBy` / `reviewedOn`, and a raised level has `raisedBecause`
 
 ### Implementation
 
@@ -303,14 +330,15 @@ notice is a failure, not a surprise.
   support; otherwise record "no change" in the log
 - [ ] T077 [P] `README.md`, `quickstart.md` and `docs/agents/reference.md` R7 - add `pnpm
   library:exercises` and `pnpm library:index` to the command lists
-- [ ] T078 [P] Size budget: `du -sh public/library` after a full build must stay well under the 10 MB
-  of SC-008; record the actual number
+- [ ] T078 [P] Size budget: record the actual `du -sh public/library` figure in the log; the budget
+  itself is now asserted by the library suite (T067), so this is a report, not the gate (analyze A7)
 - [ ] T079 [P] Performance: confirm SC-007 (list <= 1 s for 200 items, filter <= 200 ms) against the
   real index and the synthetic 200-item one, and that no task exceeds 50 ms while browsing
 - [ ] T080 `constitution-auditor` review of the whole branch
 - [ ] T081 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` - all green
-- [ ] T082 Walk `quickstart.md` end to end (all five stories), then write the closing
-  `implementation-log.md` entry
+- [ ] T082 Walk `quickstart.md` end to end (all five stories); have `music-domain-expert` re-level a
+  random sample of the finished shelf blind and record the agreement rate against SC-006's 90%
+  (analyze A6); then write the closing `implementation-log.md` entry
 
 ---
 
@@ -319,12 +347,15 @@ notice is a failure, not a surprise.
 - **Phases**: Setup -> Foundational -> US1 -> US2 -> US3 -> US4 -> US5 -> Polish.
 - **Within a story**: tests -> core -> engine -> UI -> content -> review -> reindex.
 - **Hard dependencies**:
+  - **T083 comes before any suite under `tests/library/`** (T017, T067, T071, T084), or they will
+    appear to pass while never running.
   - T007 needs T005 + T006; T009 needs T008.
   - Everything in US1 needs T006-T012.
   - T018 (index generator) needs T009 (facts); T019-T024 need T010-T012.
   - T030 (commit the index) needs T018 and all of T025-T029.
   - T031 (e2e) needs T023 and at least one shipped item.
-  - US2's generator (T037-T042) needs T036 (the writer), which needs T032.
+  - US2's generator (T037-T042) needs T036 (the writer), which needs T032; T085 needs the generated
+    set for all 24 keys (T040); T086 is independent once T036-T037 exist.
   - T050 (levelCheck in the generator) needs T048; T051-T052 need T049.
   - Every content task in US3 depends on US1's machinery only for *verification*, not for authoring -
     the files can be written before the filters exist.
@@ -335,11 +366,11 @@ notice is a failure, not a surprise.
 
 ## Parallel Opportunities
 
-- **Setup**: T002, T003, T004 together (after T001).
+- **Setup**: T002, T003, T004 together (after T001); T083 is independent of all of them.
 - **Foundational**: T005 + T006 + T008 + T010 + T011 + T012 - six different files, no shared state.
-- **US1 tests**: T013-T017 together, before any implementation.
+- **US1 tests**: T013-T017 and T084 together, before any implementation.
 - **US1 content**: T027 and T028 in parallel with T026 (different files); T022 alongside T020-T021.
-- **US2 tests**: T032-T035 together.
+- **US2 tests**: T032-T035 together; T085 after T040, since it reads the generated set.
 - **US3 tests**: T045-T047 together; content batches T053-T055, T057-T059 and T061-T063 are each
   internally parallel (one file per piece) - but their reviews (T056, T060, T065) are not.
 - **Polish**: T076-T079 together.
@@ -349,8 +380,10 @@ notice is a failure, not a surprise.
 
 ## Suggested MVP scope
 
-**US1 only** (T001-T031): a musician with no file of their own can open the app, browse the shelf and
+**US1 only** (T001-T004, T083, T005-T031, T084): a musician with no file of their own can open the app, browse the shelf and
 play Für Elise, in the browser and under the desktop shell, with the item's provenance on screen.
 Everything after that widens the shelf or hardens the checks.
 
-**Totals**: 82 tasks - Setup 4, Foundational 8, US1 19, US2 13, US3 22, US4 4, US5 5, Polish 7.
+**Totals**: 86 tasks - Setup 5, Foundational 8, US1 20, US2 15, US3 22, US4 4, US5 5, Polish 7.
+T083-T086 were added after `/speckit.analyze` (findings A1, A2, A8, A14) and keep new numbers rather
+than renumbering the rest.
