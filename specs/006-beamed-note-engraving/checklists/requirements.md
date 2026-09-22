@@ -18,14 +18,14 @@
 
 | # | Item | Result |
 |---|---|---|
-| RC-01 | At most 3 `[NEEDS CLARIFICATION]` markers, only for decisions with real impact | PASS - 1 decision (opened scores without beams/accidentals: User Story 3 and FR-010, same question). Open until the owner answers. |
+| RC-01 | At most 3 `[NEEDS CLARIFICATION]` markers, only for decisions with real impact | PASS - 0 markers remain. The one open decision (opened scores, FR-010) and three further points (title placement, courtesy accidentals, 4/4 grouping) were answered by the owner on 2026-09-23 and recorded under Clarifications. |
 | RC-02 | Requirements testable and unambiguous | PASS - each FR names an observable rule; grouping rules are fixed in Assumptions. |
 | RC-03 | Success criteria measurable | PASS - counts with today's baseline (SC-001, SC-002), identity checks (SC-003, SC-006), a time budget (SC-005). |
 | RC-04 | Success criteria technology-agnostic | PASS |
 | RC-05 | Acceptance scenarios are Given/When/Then and verifiable | PASS |
 | RC-06 | Edge cases identified (malformed input, chords, ties, repeats, voices, long scores) | PASS - 12 cases; device loss and wrong/extra input do not apply (no timing or input change) and FR-005/SC-003 guard grading. |
 | RC-07 | Scope bounded; out-of-scope explicit | PASS |
-| RC-08 | Assumptions listed | PASS - 6, incl. beat-grouping rules and courtesy-accidental style. |
+| RC-08 | Assumptions listed | PASS - 5, incl. the beat-grouping rules (4/4 rule owner-confirmed). |
 
 ## Story Quality
 

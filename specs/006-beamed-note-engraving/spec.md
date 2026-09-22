@@ -19,6 +19,20 @@ book. A check of the whole bundled practice library (feature 005) on 2026-09-23 
 Both faults come from the bundled files, not from scores the user opens: an imported score that already
 says where its beams and accidentals go is shown correctly today.
 
+## Clarifications
+
+### Session 2026-09-23
+
+- Q: Should the app complete missing beams and accidentals for scores the user opens? -> A: Yes,
+  automatically, only where the file gives no information; never alter what the file encodes; list the
+  additions in the load report (User Story 3, FR-010, FR-011).
+- Q: Where should title and composer appear (missing from the owner's app screenshot)? -> A: On the page,
+  above the first system, like a printed edition, with the arranger when named (FR-017, SC-008).
+- Q: How should reminder (courtesy) accidentals look? -> A: Printed plainly, without brackets, only in
+  the bar right after the change; accidentals a file already prints are kept as they are (FR-008).
+- Q: How are eighths grouped in 4/4? -> A: In half-bar groups of four (beats 1-2, 3-4), never across the
+  middle of the bar; sixteenths per beat (Assumptions, beat grouping).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Beamed rhythms in the practice library (Priority: P1)
@@ -78,17 +92,16 @@ app plays.
 3. **Given** a note tied over a barline, **When** shown, **Then** the tied continuation does not repeat
    the accidental, and the next untied note of that pitch in the new bar does get one if needed.
 4. **Given** a new bar after an altered note, **When** the same letter name returns unaltered in the
-   next bar, **Then** a courtesy natural is printed (in brackets or plain, see Assumptions) so a learner
-   is not left guessing.
+   next bar, **Then** a plain courtesy accidental (no brackets) is printed on its first occurrence in that
+   bar, so a learner is not left guessing; the bar after that gets no reminder.
 
 ---
 
 ### User Story 3 - Scores the user opens that lack beam or accidental information (Priority: P2)
 
 A user opens a MusicXML file of their own, exported by a tool that leaves out beam groups or printed
-accidentals. [NEEDS CLARIFICATION: Should the app complete missing beams and missing accidentals for
-display when a file the user opens has none - (a) yes, automatically, only where the file gives no
-information, (b) only for the bundled library, or (c) yes, but only after the user agrees in a notice?]
+accidentals. The app completes what is missing automatically, for display only, and only where the file
+gives no information; nothing the file encodes is changed, and the load report lists what was added.
 
 **Why this priority**: Most notation editors write this information, so the fault is rarer outside the
 library; but a user who hits it sees the same wrong pitches as in User Story 2.
@@ -103,8 +116,13 @@ version; a file that does encode beams and accidentals is shown exactly as encod
    unchanged, even where it differs from the app's default grouping (the editor's choice wins).
 2. **Given** a file that encodes some beams in a voice and leaves other notes unbeamed, **When** opened,
    **Then** the app does not add beams to that voice (a partly beamed voice is a deliberate choice).
-3. **Given** a file with no beam information at all, **When** opened, **Then** behaviour follows the
-   answer to the clarification above, and the load report says what was completed.
+3. **Given** a file with no beam information in a voice, **When** opened, **Then** that voice is beamed
+   by the grouping rules in Assumptions, and the load report says how many beam groups were added.
+4. **Given** a file where a note's printed pitch would differ from its played pitch (no accidental where
+   one is needed), **When** opened, **Then** the missing accidental is shown and counted in the load
+   report; accidentals the file does print are kept as they are, including courtesy ones.
+5. **Given** a file completed this way, **When** the user plays it in any mode, **Then** Note IDs,
+   playback and grading are exactly as they would be without the completion.
 
 ---
 
@@ -173,6 +191,8 @@ piece, and each "missing" row points to a fix in this feature or to a new, named
   cancels earlier accidentals.
 - **Malformed or contradictory beam data in an opened file** (a beam that starts but never ends): the
   Score still opens (Constitution III); the faulty group is shown unbeamed and the load report says so.
+- **Very long titles or several composer/arranger credits**: they wrap above the first system and never
+  overlap the music.
 - **Very long, very fast scores** (the complete *Für Elise*, Bach Prelude): opening time must not grow
   noticeably (SC-005).
 
@@ -198,16 +218,20 @@ piece, and each "missing" row points to a fix in this feature or to a new, named
   the same bar and staff, ties) MUST equal the pitch the app plays and grades.
 - **FR-007**: Accidentals MUST follow common practice: they last to the end of the bar in the same staff
   and octave; they are not repeated on tied continuations; redundant accidentals are not printed.
-- **FR-008**: A courtesy (reminder) accidental MUST be printed on the first note of a letter name in the
-  bar that follows one where that letter name was altered, within the same staff.
+- **FR-008**: Where the app adds accidentals (library items, and opened Scores under FR-010), a courtesy
+  (reminder) accidental MUST be printed plainly, without brackets, on the first note of a letter name
+  (any octave) in the bar immediately after one where that letter name carried a different alteration,
+  within the same staff. Reminders are never carried further than that one bar, and never printed on a
+  tied continuation.
 - **FR-009**: A Score that encodes its own printed accidentals MUST be shown with those accidentals
   (including any courtesy accidentals the file adds).
 
 **Opened scores**
 
-- **FR-010**: For a Score the user opens that has no beam information or no printed accidentals, the app
-  MUST [NEEDS CLARIFICATION: see User Story 3 - complete them automatically / leave them as encoded /
-  complete after the user agrees].
+- **FR-010**: For a Score the user opens, the app MUST automatically, without asking, (a) beam every voice
+  that carries no beam information, by the grouping rules in Assumptions, and (b) show every accidental
+  needed for the printed pitch to equal the played pitch (FR-006, FR-007) where the file prints none. This
+  completion is for display only and applies in every Shell.
 - **FR-011**: Whatever the app completes for an opened Score MUST be listed in the load report (count of
   beam groups and accidentals added), and MUST never alter what the file does encode.
 
@@ -230,6 +254,13 @@ piece, and each "missing" row points to a fix in this feature or to a new, named
   agreement.
 - **FR-016**: The MusicXML support documentation MUST state how beams and printed accidentals are handled
   (shown as encoded, completed when absent, or both).
+
+**Title and composer**
+
+- **FR-017**: Every Score MUST show its title and composer (and arranger, when the file names one)
+  above the first system of the first page, as a printed edition does (feature 001 FR-002), in every
+  mode and every Shell. A Score without a title shows its file name there; missing composer or arranger
+  lines are simply left out.
 
 The feature applies to every Shell (browser and Electron); it has no audio or MIDI timing component.
 
@@ -261,15 +292,18 @@ The feature applies to every Shell (browser and Electron); it has no audio or MI
   them unchanged.
 - **SC-007**: The engraving checklist covers 100% of repertoire pieces and all elements in FR-014; every
   "missing" row has a fix or a named follow-up.
+- **SC-008**: 100% of library items, and an opened test file with title, composer and arranger, show
+  those names above the first system in Listen, Practice and Play mode.
 
 ## Assumptions
 
-- **Beat grouping (informed guess, standard engraving practice)**: simple metres beam by the beat
-  (2/4, 3/4, 4/4 by quarter; eighths in 4/4 may join in half-bar groups of four); compound metres
+- **Beat grouping (standard engraving practice; the 4/4 rule confirmed by the owner 2026-09-23)**:
+  simple metres beam by the beat (2/4, 3/4, 4/4 by the quarter); in 4/4, eighths are beamed in half-bar
+  groups of four (beats 1-2 and 3-4), never across the middle of the bar, while sixteenths and shorter
+  are beamed one beat at a time; in 3/4, a bar of six uninterrupted eighths is beamed as one group; compound metres
   (6/8, 9/8, 12/8) beam by the dotted quarter; 3/8 and other short x/8 metres beam the whole bar as one
   group, as the reference *Für Elise* does; 2/2 beams by the half note. Unusual metres fall back to one
   group per beat.
-- **Courtesy accidentals** are printed plainly (no brackets), as most piano editions for learners do.
 - The fix for the library is made in the bundled files and the exercise generator (so the files are
   correct for any other MusicXML viewer too), not only in how the app draws them.
 - Pitches, rhythms, fingering and every other musical content of the library are already correct and
