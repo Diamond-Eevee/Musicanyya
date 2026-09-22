@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "title": "Jingle Bells (opening refrain, arranged for beginners)",
+  "subtitle": "\"Jingle bells, jingle bells, jingle all the way\" - simple two-hand setting",
+  "composer": "James Lord Pierpont",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "tags": ["hands-together", "sight-reading"],
+  "trains": "A very well-known, mostly repeated-note and stepwise melody in quarter/half notes over a single sustained bass note per bar, at a brisk tempo.",
+  "hands": "both",
+  "arrangement": true,
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "Musicanyya practice material",
+    "created": "2026-09-22",
+    "basedOn": "James Lord Pierpont's song, copyrighted September 16, 1857 as \"The One Horse Open Sleigh\" and reissued in 1859 as \"Jingle Bells\" (public domain in the United States as a pre-1928 publication). Verified via Boston University's \"History of Jingle Bells\" article and the song's Wikipedia entry, both confirming the 1857 copyright, Pierpont's authorship and the original title.",
+    "note": "Only the familiar opening refrain (\"Jingle bells, jingle bells, jingle all the way / Oh what fun it is to ride in a one-horse open sleigh\") is arranged here, 8 bars, key of C major, quarter=96 - not the full song with its verses. The original's faster note groupings on \"ride in a one-horse\" are simplified to plain quarter notes so the shortest value stays inside the Beginner cap; the melodic contour otherwise follows the well-known tune. The left-hand single bass note per bar is our own simple setting; arrangement is reflected in the title per FR-007."
+  },
+  "reviewedBy": "music-domain-expert",
+  "reviewedOn": "2026-09-22"
+}

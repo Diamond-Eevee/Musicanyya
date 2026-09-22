@@ -13,7 +13,9 @@
     "test:e2e": "playwright test",
     "electron:dev": "vite build && vite build -c vite.electron.config.ts && electron .",
     "electron:build": "vite build && vite build -c vite.electron.config.ts && electron-builder",
-    "gen:large-score": "tsx tests/tools/gen-large-score.ts"
+    "gen:large-score": "tsx tests/tools/gen-large-score.ts",
+    "library:exercises": "tsx tools/library/build-exercises.ts",
+    "library:index": "tsx tools/library/build-index.ts"
   },
   "dependencies": {
     "@rgrove/parse-xml": "5.0.0",

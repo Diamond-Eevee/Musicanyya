@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "title": "Twinkle, Twinkle, Little Star (arranged for beginners)",
+  "subtitle": "Traditional French melody, simple two-hand setting in 4/4",
+  "composer": "Traditional (French, 18th century)",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "tags": ["hands-together", "sight-reading", "phrasing"],
+  "trains": "A very well-known stepwise-and-small-leap melody in quarter and half notes, over a single sustained bass note per bar - an easy first tune for reading two staves together.",
+  "hands": "both",
+  "arrangement": true,
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "Musicanyya practice material",
+    "created": "2026-09-22",
+    "basedOn": "The tune \"Twinkle, Twinkle, Little Star\" is the French folk melody \"Ah! vous dirai-je, Maman\", first published c. 1761 from an earlier c. 1740 tune (public domain); the English nursery-rhyme text is Jane Taylor's 1806 poem, also public domain. The melody is the same one Mozart used, decades later, as the theme for his Twelve Variations K. 265 - the tune itself long predates and is independent of that set. Verified via the tune's Wikipedia history entry and the Wikipedia entry for Mozart's K. 265 variations.",
+    "note": "Standard 12-bar AABA beginner form (three 4-bar phrases, the first repeated), key of C major, quarter=92. The left-hand bass root per bar (I-V-IV-I harmonisation) is our own simple setting; the published original has no piano accompaniment of its own."
+  },
+  "reviewedBy": "music-domain-expert",
+  "reviewedOn": "2026-09-22"
+}

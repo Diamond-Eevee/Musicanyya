@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "title": "Innocence (25 Etudes faciles, Op. 100, No. 5 - opening strain, arranged)",
+  "subtitle": "Unschuld - opening strain, our own closing",
+  "composer": "Johann Friedrich Franz Burgmuller",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "intermediate",
+  "tags": ["hands-together", "phrasing", "dynamics"],
+  "trains": "A graceful right-hand melody mixing 16th-note turns with dotted-quarter/eighth figures over a sustained left-hand triad in each bar, in 3/4 at a moderate tempo - light articulation and phrase shading more than raw technique.",
+  "hands": "both",
+  "arrangement": true,
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "Musicanyya practice material",
+    "created": "2026-09-22",
+    "basedOn": "Burgmuller, 25 Etudes faciles et progressives, Op. 100, No. 5 \"Innocence\" (public domain, published 1852). Measures 1-11 (both hands, right-hand 16th-note and 8th-note pitches and rhythm, left-hand dotted-half triads) were checked note-by-note against the Mutopia Project's public-domain LilyPond edition (piece-info id 214, 25EF-05, typeset by Bas Wassink, key F major, Moderato).",
+    "note": "This is our own re-engraving, not a copy of the Mutopia file, and it is an arrangement of the opening strain only (11 of the source's measures): the source's own second strain closes with a more virtuosic ottava-displaced descending/ascending run and a forte chord that we judged too advanced for this shelf slot, so measures 12-16 here are our own closing - a restatement of the opening's 16th-note turn figure (same as measures 1, matching the source's own written repeat structure) followed by a simple three-chord plagal-flavoured cadence, built from the piece's own motifs rather than transcribed from the source's actual ending."
+  },
+  "reviewedBy": "music-domain-expert",
+  "reviewedOn": "2026-09-22"
+}

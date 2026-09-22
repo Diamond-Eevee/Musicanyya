@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "title": "C major - scale and chords for both hands",
+  "kind": "exercise",
+  "level": "intermediate",
+  "tags": ["scales", "chords", "hands-separate"],
+  "trains": "One hand plays the scale while the other holds the chords, then the hands swap.",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-opus-5",
+    "created": "2026-09-20",
+    "note": "Moved here from musicxml/chords/ (owner decision D-3 in specs/005-practice-score-library/plan.md); also the reference Score for feature 002's Practice mode quickstart."
+  },
+  "reviewedBy": "claude-opus-5",
+  "reviewedOn": "2026-09-22"
+}

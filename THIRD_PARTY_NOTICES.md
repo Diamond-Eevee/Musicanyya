@@ -26,6 +26,18 @@ This application includes open source software. We are grateful to the authors f
   Licence: MIT License
   https://github.com/electron/electron
 
+## Bundled practice library (`public/library/`)
+
+Every score and exercise under `public/library/` is the project's own work, dedicated to the public
+domain under **Creative Commons CC0 1.0 Universal**. Where a piece is based on a public-domain
+composition (composer died before 1946, or the edition is otherwise clearly public domain), the
+MusicXML is Musicanyya's own transcription or arrangement, not a copy of any particular edition;
+`provenance.basedOn` in each item's sidecar (`<item>.json`) names the work it is based on. No item in
+the current library was downloaded from a third party (`provenance.origin` is `authored` for all of
+them, checked by `tests/library/licence.test.ts`, FR-017); should a `downloaded` item ever be added,
+its source, the date it was obtained and its licence go here as a dated entry (FR-020), matching the
+"Test fixtures" pattern below.
+
 ## Test fixtures (not shipped with the application)
 
 - **OpenScore Lieder Corpus** and **OpenScore String Quartets** (downloaded 2026-09-22)

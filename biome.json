@@ -11,7 +11,8 @@
       "!out",
       "!tests/.generated",
       "!playwright-report",
-      "!test-results"
+      "!test-results",
+      "!public/library/index.json"
     ]
   },
   "formatter": {

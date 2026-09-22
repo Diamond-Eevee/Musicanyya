@@ -5,6 +5,7 @@ export const APP_VERSION: string = packageJson.version;
 
 // Shared with src/core/transport/transport.ts, which cannot import this engine-layer file.
 export {
+  MAX_FILE_BYTES,
   POSITION_REPORT_BLOCKS,
   TEMPO_PERCENT_DEFAULT,
   TEMPO_PERCENT_MAX,
@@ -35,8 +36,7 @@ export const MAX_PAGE_UNITS = 10000;
 
 export const RECENT_SCORES_MAX = 10;
 
-// File constraints
-export const MAX_FILE_BYTES = 64 * 1024 * 1024; // 64 MiB
+// File constraints (MAX_FILE_BYTES re-exported from core/defaults.js above)
 export const MAX_UNCOMPRESSED_BYTES = 256 * 1024 * 1024; // 256 MiB
 export const MAX_ZIP_ENTRIES = 1000;
 

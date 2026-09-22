@@ -1,4 +1,5 @@
 import type { LatencyProfile, StoredPerformance } from '../core/grade/types.js';
+import type { LibraryIndex } from '../core/library/types.js';
 import type { RunSettings } from '../core/play/types.js';
 import type { HandSelection } from '../core/practice/types.js';
 import type { ScheduleMessage } from '../core/schedule/compile.js';
@@ -242,3 +243,14 @@ export type CapabilityReason =
 export interface EnvironmentProbe {
   detect(): Promise<Environment>;
 } // data-model §7
+
+// ---- LibraryCatalog (bundled practice score shelf; fetch + Cache Storage) ----
+export type CatalogError = 'unavailable' | 'notFound' | 'malformedIndex' | 'tooLarge';
+export type CatalogResult<T> = { ok: true; value: T } | { ok: false; error: CatalogError };
+
+export interface LibraryCatalog {
+  /** The parsed, validated index. Cached in memory for the session after the first success. */
+  index(): Promise<CatalogResult<LibraryIndex>>;
+  /** One item's raw bytes, by its `file` path from the index. Never larger than MAX_FILE_BYTES. */
+  item(file: string): Promise<CatalogResult<ArrayBuffer>>;
+} // contracts/library-port.md §1
