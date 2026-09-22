@@ -28,3 +28,98 @@ mx-panel[hidden] {
 mx-menu {
   display: inline-block;
 }
+
+/*
+ * The practice score library shelf (mx-library, contracts/library-port.md section 4) and "where this
+ * Score came from" (mx-score-source, FR-019) - both live inside the existing "scores" panel.
+ */
+mx-library {
+  display: block;
+  padding: 8px 12px;
+  overflow-y: auto;
+  max-height: calc(100vh - var(--mx-bar-height, 48px) - 64px);
+}
+
+.library-loading,
+.library-empty {
+  color: var(--text-color);
+  opacity: 0.7;
+}
+
+.library-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.library-retry {
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+  color: var(--text-color);
+  border-radius: 4px;
+  padding: 2px 10px;
+  cursor: pointer;
+}
+
+.library-section + .library-section {
+  margin-top: 12px;
+}
+
+.library-section-title {
+  margin: 0 0 4px;
+  font-size: 0.95em;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 2px;
+}
+
+.library-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.library-item-open {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  width: 100%;
+  border: none;
+  background: none;
+  color: var(--text-color);
+  text-align: left;
+  padding: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.library-item-open:hover,
+.library-item-open:focus-visible {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.library-item-title {
+  font-weight: 500;
+}
+
+.library-item-composer,
+.library-item-level {
+  font-size: 0.85em;
+  opacity: 0.75;
+}
+
+mx-score-source {
+  display: block;
+  font-size: 0.85em;
+  opacity: 0.85;
+}
+
+.score-source-heading {
+  margin: 0 0 2px;
+  font-weight: 600;
+}
+
+.score-source-line {
+  margin: 0;
+}

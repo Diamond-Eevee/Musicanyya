@@ -1,4 +1,4 @@
-import type { LibraryIndex } from '../../core/library/types.js';
+import type { LibraryIndex, LibraryItem } from '../../core/library/types.js';
 import type { CatalogError } from '../../engine/ports.js';
 import { createStore } from './store.js';
 
@@ -16,6 +16,9 @@ export class LibraryStateStore {
   private readonly statusStore = createStore<LibraryStatus>({ kind: 'idle' });
   /** The selected section, if any; survives a filter/section change (data-model.md §6). */
   private readonly sectionStore = createStore<string | null>(null);
+  /** The currently open Score's library item, for `mx-score-source` (FR-019) - null for a user's own
+   *  file. Set by `session.ts` alongside `Session.loadBytes`, never derived here. */
+  private readonly openedItemStore = createStore<LibraryItem | null>(null);
 
   getStatus(): LibraryStatus {
     return this.statusStore.get();
@@ -76,10 +79,23 @@ export class LibraryStateStore {
     this.statusStore.set({ kind: 'ready', index: status.index });
   }
 
+  getOpenedItem(): LibraryItem | null {
+    return this.openedItemStore.get();
+  }
+
+  subscribeOpenedItem(listener: (item: LibraryItem | null) => void) {
+    return this.openedItemStore.subscribe(listener);
+  }
+
+  setOpenedItem(item: LibraryItem | null): void {
+    this.openedItemStore.set(item);
+  }
+
   /** Back to `idle` with no section selected - test cleanup and a fresh session. */
   reset(): void {
     this.statusStore.set({ kind: 'idle' });
     this.sectionStore.set(null);
+    this.openedItemStore.set(null);
   }
 }
 

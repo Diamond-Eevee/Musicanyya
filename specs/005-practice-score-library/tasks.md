@@ -124,12 +124,17 @@ Für Elise* -> Listen plays it, with its source and licence visible.
   loading and error rows (US1 scope: every non-empty section expanded, no filter chips yet - those are
   US3/T051; the section tree renders as headings rather than a click-to-filter control so opening an
   item never costs more than one click, SC-001)
-- [ ] T022 [P] [US1] `src/ui/styles/panels.css` - library rows, section headings and the source line,
+- [x] T022 [P] [US1] `src/ui/styles/panels.css` - library rows, section headings and the source line,
   using the existing tokens (no new colour outside `tokens.css`)
-- [ ] T023 [US1] `src/app/session.ts` - construct the element, register it in `PanelTools` as
-  `scores: [library, recentList]`, handle `openlibraryitem`, remember `openedLibraryItemId`
-- [ ] T024 [US1] `src/ui/elements/mx-score-source.ts` - "where this Score came from": source, licence,
-  credit, limitations for the open item; nothing for a user's own file (FR-019)
+- [x] T023 [US1] `src/app/session.ts` - construct the element, register it in `PanelTools` as
+  `scores: [scoreSource, library, recentList]`, handle `openlibraryitem`, remember
+  `openedLibraryItemId`. The index is fetched lazily the first time the *Scores* panel opens
+  (`viewState.subscribe`, `libraryState` still `idle`), never at startup (contracts/library-port.md
+  §5: one fetch per session). `openFile`/`reopenRecent` clear the opened library item.
+- [x] T024 [US1] `src/ui/elements/mx-score-source.ts` - "where this Score came from": source, licence,
+  credit, limitations for the open item; nothing for a user's own file (FR-019). Mounted inside the
+  existing *Scores* panel (not a new panel, research R-10) - the panel never covers the Score
+  (feature 004), so this is visible without leaving the score view.
 
 ### Content seed (the shelf must not be empty for the story to exist)
 
