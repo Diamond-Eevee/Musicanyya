@@ -261,11 +261,11 @@ describe('real repertoire (CC0 OpenScore fixtures)', () => {
         expect(score.defaultTempoUsed).toBe(false);
       });
 
-      // The 60 s budget is not a target: createRenderCopy is quadratic in the number of inserts (it
-      // rebuilds the whole XML string per replacement), so the two ~4.7 MB quartets take ~20 s here.
-      // The elapsed time is logged below so a fix shows up; see implementation-log.md 2026-09-22.
+      // Since T154 made createRenderCopy linear, the largest quartet needs ~50 ms rather than ~26 s,
+      // so this allowance is headroom rather than a budget. The elapsed time is still logged, so a
+      // regression to quadratic behaviour shows up in the run output.
       it('gives every note a unique Note ID that survives into the render copy (Constitution III)', {
-        timeout: 60_000,
+        timeout: 20_000,
       }, async () => {
         const { xml, parsed, score } = await load(expected.file);
 

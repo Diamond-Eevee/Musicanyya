@@ -26,3 +26,7 @@ This document lists the supported MusicXML elements.
 | Notes | `<arpeggiate>` | Supported | Play mode: the wider arpeggio spread applies instead of the chord spread (feature 003) |
 | Notes | `<glissando>` | Unsupported | Reported; ignored for playback |
 | Notes | `<slide>` | Unsupported | Reported; ignored for playback |
+| Notes | `<wavy-line>` | Ignored | The trill extension line: engraved by Verovio, ignored by the time model. Common in real scores |
+| Notes | `<accidental-mark>` | Ignored | The accidental printed over an ornament: engraved by Verovio, ignored by the time model |
+| Harmony | `<harmony>` | Ignored | Chord symbols above the staff: engraved by Verovio, not played and not graded |
+| Harmony | `<figured-bass>` | Ignored | Figured-bass numerals: engraved by Verovio, not played and not graded |

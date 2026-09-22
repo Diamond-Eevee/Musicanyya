@@ -733,3 +733,46 @@
   before. Run `pnpm test -- tests/core/musicxml` and `pnpm test:e2e -- tests/e2e/real-scores.spec.ts`
   first. Branch `001-real-score-fixtures` (specs dir resolves by the `001-` prefix); tree clean at the
   commit below.
+
+## 2026-09-22 11:45 - claude-opus-5 (relay)
+
+- Done: T154, T156.
+  - **T154** `createRenderCopy` (`src/core/musicxml/render-copy.ts`) is now linear. It used to apply
+    each replacement with `result = result.substring(0, start) + replacement + result.substring(end)`,
+    allocating a fresh copy of the whole file per insert - about 50 GB of string copying for a 4.7 MB
+    quartet with ~11 000 inserts. The copy is now cut into slices at the replacement boundaries and
+    joined once, and the id-collision check finds its enclosing tag by binary search over the
+    start-sorted tags instead of scanning every replacement. Dead `escapeRegExp` helper removed.
+
+    | fixture | inserts | before | after |
+    |---|---:|---:|---:|
+    | `chopin-zyczenie` | 327 | 33 ms | 1 ms |
+    | `schubert-erlkoenig-d328` | 3 041 | 2 068 ms | 10 ms |
+    | `mozart-quartet-k387` | 11 099 | 21 956 ms | 28 ms |
+    | `beethoven-grosse-fuge-op133` | 10 688 | 25 806 ms | 33 ms |
+    | `dvorak-quartet-12-american` | 14 463 | (48.8 s end to end) | 48 ms |
+
+    Verified equivalent, not just faster: the old implementation was checked out beside the new one
+    and both were run over **all 285 fixtures** (community probes, real repertoire, spec examples and
+    the hand-written set) - every render copy matches byte for byte.
+
+    Knock-on: `pnpm test` went from 177 s to 13.6 s; the e2e open timeout came back down from 180 s to
+    60 s and `real-scores.test.ts`'s allowance from 60 s to 20 s. Both still log the elapsed time, so
+    a regression to quadratic behaviour is visible in the run output.
+  - **T156** `<wavy-line>`, `<accidental-mark>`, `<harmony>` and `<figured-bass>` added to
+    `SUPPORT_MATRIX` with status `Ignored` and a note that Verovio still engraves them from the render
+    copy; `docs/musicxml-support.md` regenerated from the matrix so the two cannot drift.
+- Decisions: `Ignored` rather than `Unsupported` for the four new rows - the printed page is complete,
+  only the time model skips them, and `Unsupported` in this table means "reported; ignored for
+  playback" for things that would otherwise sound (glissando, slide).
+- Problems / open questions:
+  - T155 still **needs owner**: what should `Score.title` be when a file carries both `<work-title>`
+    and `<movement-title>` (Chopin: "Op.74" and "Zyczenie")? Combined into one string, or two fields
+    on `Score`, which would change `data-model.md`. Nothing else blocks on it; it is latent today
+    because Verovio engraves the title block from the file's own credits and the recent list shows
+    file names.
+  - Still open from before this work: T138 (mutation fuzz test for MusicXML loading), T139 (`any`
+    usages), T141 (Electron playback e2e coverage).
+- Handoff: next = T155 once the owner answers, else T141 -> T138 -> T139. Run `pnpm test` (13 s now)
+  and `pnpm test:e2e` first. Branch `001-real-score-fixtures`, pushed to origin; tree clean at the
+  commit below.

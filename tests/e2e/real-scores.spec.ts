@@ -178,10 +178,10 @@ async function firstPage(page: Page) {
   });
 }
 
-// Generous, because `createRenderCopy` is quadratic in the number of inserts (tasks.md T154): a
-// 4.7 MB quartet needs 25-50 s to reach its first engraved page on an idle machine, and longer when
-// the rest of the suite is competing for the CPU. Bring this down once T154 lands.
-const OPEN_TIMEOUT_MS = 180_000;
+// Generous so that a loaded CI machine does not fail the heaviest fixtures. Before T154 made
+// `createRenderCopy` linear a 4.7 MB quartet needed 25-50 s to reach its first engraved page; it is
+// now a few seconds, and this is headroom rather than a real budget.
+const OPEN_TIMEOUT_MS = 60_000;
 
 async function openReal(page: Page, file: string): Promise<void> {
   await page.goto('/');
@@ -266,7 +266,7 @@ async function countOverPages(page: Page, selector: string, pages: number): Prom
 }
 
 test.describe('real repertoire engraves like a printed music book (FR-002)', () => {
-  test.describe.configure({ timeout: 300_000 });
+  test.describe.configure({ timeout: 120_000 });
   engravingTests(LIEDER);
 
   test.describe('whole multi-movement works', () => {
