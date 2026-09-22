@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "title": "Greensleeves (arranged for beginners)",
+  "subtitle": "Traditional English melody, simple two-hand setting in 3/4",
+  "composer": "Traditional (English, 16th century)",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "tags": ["hands-together", "phrasing", "sight-reading"],
+  "trains": "A well-known, mostly stepwise melody over a single sustained bass note per bar - reading two staves together at a gentle tempo.",
+  "hands": "both",
+  "arrangement": true,
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "Musicanyya practice material",
+    "created": "2026-09-22",
+    "basedOn": "Traditional English ballad melody \"Greensleeves\" (16th century; public domain, author unknown). The tune's traditional metre is 6/8; we re-set it in 3/4 here as a beginner simplification, following the same practice used by several published easy-piano editions of this tune (e.g. 8notes.com's \"Greensleeves (beginners)\", music-for-music-teachers.com's 3/4 arrangement, lasolsheet.com's beginner edition). The melody's overall shape and the block left-hand bass roots (one sustained note per bar, natural A-minor throughout, no raised leading tone) are our own simple two-hand setting, not a transcription of any specific published edition.",
+    "note": "16-bar folk-song form (four 4-bar phrases) with a one-beat pickup, ending on the A-minor tonic. Left hand plays exactly one sustained bass note per measure, so the hands are never independently active in the same bar (hand-independence fraction 0)."
+  },
+  "reviewedBy": "music-domain-expert",
+  "reviewedOn": "2026-09-22"
+}

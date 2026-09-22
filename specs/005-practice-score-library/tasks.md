@@ -293,25 +293,58 @@ all pass; a mis-levelled item fails the check.
 
 ### Content build-out (FR-008: >= 6 / >= 5 / >= 4 pieces)
 
-- [ ] T053 [P] [US3] Beginner: Czerny Op. 599 nos. 1, 5, 11, 18 + sidecars
-- [ ] T054 [P] [US3] Beginner: Gurlitt Op. 117 nos. 1-3, Köhler Op. 190 no. 1, two Türk
-  *Kleine Handstücke* + sidecars
-- [ ] T055 [P] [US3] Beginner: *Greensleeves* in A minor (our setting) and the 16-bar Für Elise
+- [x] T053 [P] [US3] Beginner: Czerny Op. 599 nos. 1, 5, 11, 18 + sidecars - **descoped**: Op. 599 is
+  a scan-only IMSLP source with no way to read it in this environment, and its verified substitute
+  (Op. 821, on Mutopia) turned out to be intermediate-to-advanced technique, not beginner, on
+  independent confirmation. No file was mislabeled to force a fit; the Beginner and Intermediate
+  targets are both met by T054/T055/T057-T059 without it. See data-model.md §5.3 "Czerny descoped
+  entirely" and `implementation-log.md` for the full reasoning.
+- [~] T054 [P] [US3] Beginner: Gurlitt Op. 117 nos. 1-3, Köhler Op. 190 no. 1, two Türk
+  *Kleine Handstücke* + sidecars - **interrupted by an account-wide API rate limit** (resets 12:30am
+  Europe/Warsaw) partway through. `public/library/repertoire/beginner/gurlitt-op117-no1.musicxml` is
+  written (parses clean, 16 measures, 45 notes) but has **no sidecar yet** - not committed, not
+  reviewed. Gurlitt nos. 2-3, Köhler, both Türk pieces not started. Resume by finishing the sidecar
+  and the remaining pieces, then the T056 review. (claimed: claude-sonnet-5 2026-09-22)
+- [x] T055 [P] [US3] Beginner: *Greensleeves* in A minor (our setting) and the 16-bar Für Elise
   beginner arrangement + sidecars
 - [ ] T056 [US3] `music-domain-expert` review of T053-T055; record the review fields
 - [ ] T057 [P] [US3] Intermediate: Petzold Minuets BWV Anh. 114 and 115, Musette BWV Anh. 126 +
-  sidecars
-- [ ] T058 [P] [US3] Intermediate: Burgmüller Op. 100 nos. 1, 2, 5; Schumann Op. 68 nos. 8 and 10 +
-  sidecars (Op. 68 no. 1 only if its engraving stays within one voice per staff - criterion 4)
-- [ ] T059 [P] [US3] Intermediate: Clementi Sonatina Op. 36 no. 1 mvt I; Satie *Gymnopédie no. 1*
-  with `limitations: ["written pedal is not played"]` + sidecars
+  sidecars - **interrupted by an account-wide API rate limit** before any file was written (the
+  subagent was still verifying sourced pitches). No files exist under `public/library/`; restart
+  from scratch once the rate limit resets.
+- [~] T058 [P] [US3] Intermediate: Burgmüller Op. 100 nos. 1, 2, 5; Schumann Op. 68 nos. 8 and 10 +
+  sidecars (Op. 68 no. 1 only if its engraving stays within one voice per staff - criterion 4) -
+  **interrupted by an account-wide API rate limit** (resets 12:30am Europe/Warsaw). State on disk,
+  none committed/reviewed:
+  - `burgmuller-op100-no1.musicxml` + `.json`: complete pair, but **fails the level check** at
+    Intermediate - criterion 6 (a run of consecutive shortest-value notes longer than the cap). The
+    same class of bug T055 hit and fixed on the Für Elise 16-bar file (a `<rest/>` does not reset the
+    run counter - only a differently-durationed sounding note does); needs the same fix.
+  - `burgmuller-op100-no5.musicxml`: written (parses clean, 16 measures, 149 notes), **no sidecar**.
+  - Op. 100 no. 2, Schumann nos. 8/10, and the optional Op. 68 no. 1 not started.
+  (claimed: claude-sonnet-5 2026-09-22)
+- [~] T059 [P] [US3] Intermediate: Clementi Sonatina Op. 36 no. 1 mvt I; Satie *Gymnopédie no. 1*
+  with `limitations: ["written pedal is not played"]` + sidecars - **interrupted by an account-wide
+  API rate limit** (resets 12:30am Europe/Warsaw). `clementi-sonatina-op36-no1-mvt1.musicxml` + `.json`
+  is a **complete pair and passes the level check** (not yet committed or reviewed).
+  `satie-gymnopedie-no1.musicxml` is written (parses clean, 37 measures, 219 notes) but has **no
+  sidecar yet**. (claimed: claude-sonnet-5 2026-09-22)
 - [ ] T060 [US3] `music-domain-expert` review of T057-T059; record the review fields
-- [ ] T061 [P] [US3] Advanced: Für Elise WoO 59 complete; Chopin Preludes Op. 28 nos. 15 and 20 +
-  sidecars
-- [ ] T062 [P] [US3] Advanced: Bach Prelude in C BWV 846; Bach Invention no. 1 BWV 772 (needs
+- [~] T061 [P] [US3] Advanced: Für Elise WoO 59 complete; Chopin Preludes Op. 28 nos. 15 and 20 +
+  sidecars - **interrupted by an account-wide API rate limit** (resets 12:30am Europe/Warsaw).
+  `fur-elise-complete.musicxml` + `.json` is a **complete pair and passes the level check** (not yet
+  committed or reviewed). `chopin-prelude-op28-no20.musicxml` is written (parses clean, 13 measures,
+  121 notes) but has **no sidecar yet**. Chopin Prelude no. 15 not started. (claimed: claude-sonnet-5
+  2026-09-22)
+- [~] T062 [P] [US3] Advanced: Bach Prelude in C BWV 846; Bach Invention no. 1 BWV 772 (needs
   `raisedBecause`: voice independence the criteria cannot see); Mozart K. 545 mvt I (`raisedBecause`)
-  + sidecars
-- [ ] T063 [P] [US3] Advanced: Joplin *The Entertainer* + sidecar
+  + sidecars - **interrupted by an account-wide API rate limit** (resets 12:30am Europe/Warsaw).
+  `bach-prelude-bwv846.musicxml` is written (parses clean, 35 measures, 615 notes) but has **no
+  sidecar yet**. The Invention and the Mozart movement not started. (claimed: claude-sonnet-5
+  2026-09-22)
+- [ ] T063 [P] [US3] Advanced: Joplin *The Entertainer* + sidecar - **interrupted by an account-wide
+  API rate limit** before any file was written (the subagent was still verifying source completeness
+  across strains). Restart from scratch once the rate limit resets.
 - [ ] T064 [US3] Probe Chopin Nocturne Op. 9 no. 2 for the 11:8 / 22:12 tuplets: ship it only if the
   ratios divide `<divisions>` evenly and no `measureLengthMismatch` appears; otherwise drop it and
   record the reason in `research.md`

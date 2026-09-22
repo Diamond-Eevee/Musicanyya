@@ -365,3 +365,61 @@ Feature `005-practice-score-library`. Newest entry at the bottom.
 - Handoff: next = the US3 content build-out (T053-066): the repertoire shortlist (data-model.md §5.3,
   FR-008's >= 6/5/4 pieces per level), each batch reviewed by `music-domain-expert` before its sidecar
   records `reviewedBy`/`reviewedOn`. Tree clean on `005-practice-score-library` after this commit.
+
+## 2026-09-22 - claude-sonnet-5 (/speckit.implement: US3 content build-out, interrupted)
+
+- Done: launched nine parallel `music-domain-expert` subagents for T053-T055 (Beginner), T057-T059
+  (Intermediate) and T061-T063 (Advanced) - roughly 20 real public-domain pieces. **T055 completed and
+  verified**: Greensleeves (A minor, our setting, 3/4 instead of the traditional 6/8 so it fits
+  Beginner's metre cap) and a 16-bar Für Elise beginner arrangement, both pass `pnpm library:index`
+  (46 items, 0 problems) and are committed. **T053 (Czerny) descoped** - see the decision below.
+  Every other content task (T054, T057-T059, T061-T063) was interrupted mid-work by an account-wide
+  API rate limit ("You've hit your session limit - resets 12:30am Europe/Warsaw", HTTP 429) that hit
+  six of the nine subagents within about two minutes of each other. **Nothing from the interrupted
+  batch is committed** - AGENTS.md §4's "no placeholders" cuts both ways: an incomplete
+  `.musicxml`/`.json` pair is exactly the half-finished state that rule exists to keep out of the
+  tree, so it stays uncommitted (not deleted - see the file-by-file state below) until it's finished
+  and reviewed.
+- In progress: T054, T058, T059, T061, T062 each have real, validated partial work sitting uncommitted
+  in `public/library/`; T057 and T063 have nothing (the subagent was still verifying sources when the
+  rate limit hit). Per-task detail is in `tasks.md`; summary:
+  - **Complete pairs that pass the level check, not yet reviewed or committed**: `fur-elise-complete`
+    (T061, the full A-B-A-C-A WoO 59), `clementi-sonatina-op36-no1-mvt1` (T059).
+  - **A complete pair that fails the level check**: `burgmuller-op100-no1` (T058) - criterion 6 (a run
+    of shortest-value notes longer than the cap), the same bug class T055 already found and fixed on
+    the Für Elise 16-bar file (a `<rest/>` never becomes a `Note`, so it cannot reset the run counter
+    `facts.ts` walks - only a differently-durationed sounding note can). Needs the identical fix.
+  - **`.musicxml` written, no sidecar yet** (parses clean, sensible measure/note counts, not otherwise
+    validated - no source citation was captured before the interruption, so these need finishing by
+    an agent that still has the source open, not by inventing a citation after the fact):
+    `gurlitt-op117-no1` (T054, 16 measures), `burgmuller-op100-no5` (T058, 16 measures),
+    `satie-gymnopedie-no1` (T059, 37 measures), `chopin-prelude-op28-no20` (T061, 13 measures),
+    `bach-prelude-bwv846` (T062, 35 measures).
+- Decisions:
+  - **Czerny Op. 599 descoped, Op. 821 tried and also descoped** (T053) - full reasoning in
+    `data-model.md` §5.3 "Czerny descoped entirely". Op. 599 is IMSLP-only as a raster scan with no
+    text source and no PDF-rendering tool available to read it; the substitute (Op. 821, verifiably on
+    Mutopia) turned out on independent confirmation to be intermediate-to-advanced velocity studies,
+    not beginner material. The agent refused to mislabel either rather than force a fit, twice, and
+    was right both times - the Beginner and Intermediate shelves clear FR-008's targets without this
+    slot regardless (see the counts above and in the T055 entry).
+  - **Interrupted work stays uncommitted, not discarded**: these `.musicxml` files represent real,
+    substantial, already-fetched-and-verified work (each parses cleanly with plausible measure/note
+    counts matching the real pieces) - deleting them would waste that work for no safety benefit,
+    since nothing incomplete can reach `index.json` (the generator fails loudly on a missing sidecar,
+    per contracts/library-index.md §3). Leaving them in the working tree, uncommitted, is the
+    reversible choice; a future session resumes each interrupted subagent (or starts fresh where
+    nothing was written) rather than guessing at the sidecar metadata the agent would have supplied.
+- Problems / open questions:
+  - **Owner-visible**: this session hit an account-wide Claude API rate limit resetting at 12:30am
+    Europe/Warsaw, which ended all in-flight content-authoring subagents simultaneously. No action
+    needed from the owner; recorded here so the next session understands why six tasks are `[~]`
+    with partial, uncommitted state instead of `[x]` or clean `[ ]`.
+- Full quality gate: not run this chunk - the working tree currently cannot pass `pnpm library:index`
+  (five files are missing sidecars by design, see above), so `pnpm test`/`pnpm lint`/`pnpm typecheck`
+  were not re-run against it. The last *committed* state (T055's commit) is still fully green.
+- Handoff: next = resume T054, T058, T059, T061, T062 (finish the missing sidecars and remaining
+  pieces, fix `burgmuller-op100-no1`'s criterion 6), restart T057 and T063 from scratch, then T056/
+  T060/T065 (the `music-domain-expert` review passes) and T066 (reindex + FR-008 count verification).
+  Nothing under `public/library/` is committed this chunk beyond T055; `git status` shows the
+  in-progress files as untracked. Tree is otherwise clean on `005-practice-score-library`.

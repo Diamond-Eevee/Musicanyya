@@ -290,7 +290,8 @@ confirmed per file by the index generator before an item ships.
 | A–B–A theme, simplified (our arrangement) | Intermediate | 5 - shortest value a 16th; span ≤ 48. **This is the item User Story 1 opens** |
 | Theme, 16 bars, melody + single bass (our arrangement) | Beginner (optional) | 5 - eighths; hand independence ≈ 0 |
 
-*Beginner (target 6, planned 10):* Czerny Op. 599 nos. 1, 5, 11, 18 (criteria 5, 1/16, 5, 3);
+*Beginner (target 6, planned 10):* Czerny Op. 821 (substituted for Op. 599 - see the note below) nos.
+1, 5, 11, 18 or nearest verifiable equivalents (criteria 5, 1/16, 5, 3);
 Gurlitt Op. 117 nos. 1–3 (14: 8–16 bars); Köhler Op. 190 no. 1 (1); Türk, two or three
 *Kleine Handstücke* (9); Beethoven, *Ode to Joy* theme in our own two-hand setting (5); traditional
 *Greensleeves* in A minor, our setting (12); *Für Elise* theme simplified (5). Schumann Op. 68 no. 1
@@ -315,6 +316,25 @@ independence the criteria cannot see); Debussy, *Clair de lune* (9+4+16); Joplin
 above are the expert's estimates, not measurements. Each is measured with the index generator (or
 `pnpm tsx tests/tools/probe-real-scores.ts`) when the file exists, and the level is confirmed then -
 never frozen from this table.
+
+**Czerny descoped entirely (found at implement time, T053).** Op. 599 is not on the Mutopia Project
+(its Czerny holdings are Op. 821 and Op. 840 only), and IMSLP's Op. 599 is a raster scan with no
+text/vector source - no way to read the actual notes off it in this environment (no PDF-rendering
+tool available, and OCR of 19th-century engraved music is unreliable for pitch content). Op. 821,
+"160 Eight-Measure Exercises", was tried as a substitute since it is genuinely on Mutopia with literal
+LilyPond source text - but sampling 11 of its 19 digitized numbers found every one uses continuous
+16ths/32nds, tuplets or grace notes at Allegro-or-faster tempi (confirmed by an independent source,
+practisingthepiano.com, describing the opus as bridging *intermediate to advanced* technique, not
+beginner). Forcing any of them to `level: "beginner"` would fail the level check outright (data-model
+§3: assigned below computed fails, and there is no `raisedBecause` escape hatch in that direction).
+**Decision: skip this shelf slot rather than mislabel content.** The Beginner and Intermediate shelves
+both clear their FR-008 targets without it (Gurlitt/Köhler/Türk plus the existing items for Beginner;
+Petzold/Burgmüller/Schumann/Clementi/Satie plus the existing item for Intermediate - see the counts in
+`implementation-log.md`). The 11 verified Op. 821 numbers (Mutopia piece-info ids 2060-2085, typeset
+by Manuel Castejon Limas from the Peters 1888 plate) are kept here as a reference for a future session
+that wants more Intermediate velocity studies: most would need per-piece facts checked against the
+Intermediate caps rather than the Beginner ones, since preliminary reading suggests several (e.g.
+nos. 8, 11) may fit Intermediate on the numbers.
 
 ## 6. Library panel state
 

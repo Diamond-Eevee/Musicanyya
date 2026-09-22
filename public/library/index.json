@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-22T17:55:45.246Z",
+  "generated": "2026-09-22T18:21:57.502Z",
   "sections": [
     {
       "id": "learning/chords",
@@ -3280,6 +3280,172 @@
       },
       "levelCheck": {
         "level": "advanced",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "repertoire/beginner/fur-elise-theme-16-bar",
+      "section": "repertoire/beginner",
+      "file": "repertoire/beginner/fur-elise-theme-16-bar.musicxml",
+      "bytes": 16013,
+      "hash": "4d56cc48c68a433cca3fbf00f56029c6985c2d530e623235e57308463540eeb2",
+      "meta": {
+        "version": 1,
+        "title": "Fur Elise (opening motif, arranged for absolute beginners)",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "hands-together",
+          "phrasing",
+          "sight-reading"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "Beethoven, Fur Elise, WoO 59 (public domain, composed c. 1810), opening motif only. The pickup and bar 1 pitches were checked against the Mutopia Project's public-domain LilyPond engraving (piece-info id 931, fur_Elise_WoO59.ly, typeset by Stelios Samelis) and against this library's existing intermediate arrangement (public/library/repertoire/intermediate/fur-elise-theme.musicxml).",
+          "note": "A different, much simpler arrangement from the intermediate Fur Elise item, not a shortened copy of it: note values are doubled (16ths -> 8ths) and the metre is renotated from 3/8 to 3/4 (both changes needed to bring the shortest value and metre inside the Beginner caps), the left hand is reduced to a single sustained bass note per bar and rests entirely under the fast opening figure (mirroring Beethoven's own texture there), and the famous chromatic E-D#-E-D# hook is stated only once, in the pickup and bar 1, so the piece's accidental rate stays inside the Beginner cap (at most 2 per 16 measures). In bar 1 the middle E5 of the motif is written as a quarter note rather than an eighth (Beethoven's own rhythm there is a straight run of eighths); this is a deliberate rhythmic simplification, not just a pitch quote, so the run of same-value notes stays inside the Beginner cap of 4 (a rest cannot break such a run for this library's level checker, since a rest never becomes a sounding onset - only a longer note does). Bars 2-16 are our own simple, fully diatonic (natural A minor, no accidentals) continuation built from the theme's tonic/dominant outline, and bars 9-16 repeat bars 5-8 to reach the specified 16-bar length - not a transcription of Beethoven's actual bars 9-16, which are harmonically and rhythmically too demanding for this level. 17 written measures (a one-beat pickup plus 16 bars) at quarter = 60."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-22",
+        "subtitle": "16-bar beginner arrangement: melody with a single bass note per bar",
+        "composer": "Ludwig van Beethoven",
+        "arranger": "Musicanyya practice material",
+        "trains": "The famous opening motif read at a gentle tempo with eighth notes at most, over a single left-hand bass note per bar - the hands barely need to coordinate.",
+        "hands": "both",
+        "arrangement": true
+      },
+      "facts": {
+        "measures": 17,
+        "notes": 73,
+        "durationSeconds": 49,
+        "keys": [
+          "A minor"
+        ],
+        "metres": [
+          "3/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 40,
+        "highestMidi": 76,
+        "maxSpanSemitones": 0,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "shortestDivision": 8,
+        "notesPerBeat": 1.489795918367347,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 12,
+        "longestRunAtShortestValue": 4,
+        "attackCount": 73,
+        "peakNotesPerSecond": 2.5,
+        "accidentalMarkCount": 2,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "repertoire/beginner/greensleeves",
+      "section": "repertoire/beginner",
+      "file": "repertoire/beginner/greensleeves.musicxml",
+      "bytes": 11331,
+      "hash": "ea68fbba08f588161ac8ea7b9c227a56926a89b1d31e28246771aca40beec48c",
+      "meta": {
+        "version": 1,
+        "title": "Greensleeves (arranged for beginners)",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "hands-together",
+          "phrasing",
+          "sight-reading"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "Traditional English ballad melody \"Greensleeves\" (16th century; public domain, author unknown). The tune's traditional metre is 6/8; we re-set it in 3/4 here as a beginner simplification, following the same practice used by several published easy-piano editions of this tune (e.g. 8notes.com's \"Greensleeves (beginners)\", music-for-music-teachers.com's 3/4 arrangement, lasolsheet.com's beginner edition). The melody's overall shape and the block left-hand bass roots (one sustained note per bar, natural A-minor throughout, no raised leading tone) are our own simple two-hand setting, not a transcription of any specific published edition.",
+          "note": "16-bar folk-song form (four 4-bar phrases) with a one-beat pickup, ending on the A-minor tonic. Left hand plays exactly one sustained bass note per measure, so the hands are never independently active in the same bar (hand-independence fraction 0)."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-22",
+        "subtitle": "Traditional English melody, simple two-hand setting in 3/4",
+        "composer": "Traditional (English, 16th century)",
+        "arranger": "Musicanyya practice material",
+        "trains": "A well-known, mostly stepwise melody over a single sustained bass note per bar - reading two staves together at a gentle tempo.",
+        "hands": "both",
+        "arrangement": true
+      },
+      "facts": {
+        "measures": 17,
+        "notes": 57,
+        "durationSeconds": 38.68421052631579,
+        "keys": [
+          "A minor"
+        ],
+        "metres": [
+          "3/4"
+        ],
+        "tempoBpm": 76,
+        "tempoDefaulted": false,
+        "lowestMidi": 48,
+        "highestMidi": 79,
+        "maxSpanSemitones": 0,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "shortestDivision": 4,
+        "notesPerBeat": 1.163265306122449,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 9,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 57,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
         "pass": true,
         "failed": []
       }
