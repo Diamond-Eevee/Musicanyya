@@ -34,6 +34,12 @@ and Web MIDI.
 Run the full quality gate before pushing:
 `pnpm lint && pnpm typecheck && pnpm test && pnpm test:e2e`
 
+### Practice Score Library
+
+Regenerate the bundled library after editing its content:
+`pnpm library:exercises` (chord exercises and drills from `content/library/exercises/*.json`), then
+`pnpm library:index` (rebuilds `public/library/index.json` from the files on disk).
+
 ### Building & Publishing
 
 - **Web Static Build**: `pnpm build` (Outputs to `dist/`, which can be served by any static host)

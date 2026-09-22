@@ -126,6 +126,8 @@ pnpm test:e2e         # Playwright (web + Electron smoke)
 pnpm build            # static site in dist/
 pnpm electron:dev     # desktop shell against the dev server
 pnpm electron:build   # desktop build (electron-builder)
+pnpm library:exercises # regenerate the exercise families from content/library/exercises/*.json
+pnpm library:index    # regenerate public/library/index.json from the files on disk
 ```
 
 Tests use fakes (fake clock, fake MIDI input, offline rendering, recorded Performance logs), never real devices.

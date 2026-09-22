@@ -81,7 +81,7 @@ adding an item to a copy of the tree and checking that nothing under `src/` had 
 2. Filter by *Beginner*. **Expect**: only Beginner items; each shows composer, key, metre, tempo,
    measures, duration, hands and skill tags.
 3. Filter by key, then by skill tag, then type in the text box. **Expect**: the list narrows, and
-   "zyczenie" finds "Życzenie" (accent-insensitive).
+   "frederic" finds both Chopin Preludes ("Frédéric", accent-insensitive).
 4. Change one item's `level` to `beginner` in its sidecar, run `pnpm library:index` and
    `pnpm test -- tests/library`. **Expect**: a failure naming the criteria it breaks. Revert.
    *(This is the real check behind FR-009; do it once when the criteria change.)*

@@ -448,17 +448,17 @@ notice is a failure, not a surprise.
 
 ## Phase 8: Polish & Cross-Cutting
 
-- [ ] T076 [P] `docs/musicxml-support.md` - update only if authored content changed what we claim to
+- [x] T076 [P] `docs/musicxml-support.md` - update only if authored content changed what we claim to
   support; otherwise record "no change" in the log
-- [ ] T077 [P] `README.md`, `quickstart.md` and `docs/agents/reference.md` R7 - add `pnpm
+- [x] T077 [P] `README.md`, `quickstart.md` and `docs/agents/reference.md` R7 - add `pnpm
   library:exercises` and `pnpm library:index` to the command lists
-- [ ] T078 [P] Size budget: record the actual `du -sh public/library` figure in the log; the budget
+- [x] T078 [P] Size budget: record the actual `du -sh public/library` figure in the log; the budget
   itself is now asserted by the library suite (T067), so this is a report, not the gate (analyze A7)
-- [ ] T079 [P] Performance: confirm SC-007 (list <= 1 s for 200 items, filter <= 200 ms) against the
+- [x] T079 [P] Performance: confirm SC-007 (list <= 1 s for 200 items, filter <= 200 ms) against the
   real index and the synthetic 200-item one, and that no task exceeds 50 ms while browsing
-- [ ] T080 `constitution-auditor` review of the whole branch
-- [ ] T081 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` - all green
-- [ ] T082 Walk `quickstart.md` end to end (all five stories); have `music-domain-expert` re-level a
+- [x] T080 `constitution-auditor` review of the whole branch
+- [x] T081 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` - all green
+- [x] T082 Walk `quickstart.md` end to end (all five stories); have `music-domain-expert` re-level a
   random sample of the finished shelf blind and record the agreement rate against SC-006's 90%
   (analyze A6); then write the closing `implementation-log.md` entry
 

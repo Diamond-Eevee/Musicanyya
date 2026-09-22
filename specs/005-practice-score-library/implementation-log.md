@@ -637,3 +637,85 @@ Feature `005-practice-score-library`. Newest entry at the bottom.
   session end. Tree has this session's `tests/library/sweep.test.ts`, `tests/ui/library-degradation.
   test.ts`, `tools/library/probe.ts`, `tests/e2e/library.spec.ts` and `specs/005-practice-score-library/
   {tasks.md,implementation-log.md,quickstart.md}` changes staged for commit next.
+
+## 2026-09-23 00:20 - claude-sonnet-5 (/speckit.continue: T076-T082, Phase 8 complete - feature done)
+
+- Done: the whole of Phase 8 (Polish & Cross-Cutting), T076-T082 - the feature's last phase.
+  `T057`/`T063`/`T064` (Petzold, Joplin, Chopin Nocturne) stay `[ ]`, unchanged from the last session:
+  they were already flagged as optional future enrichment once FR-008's minimums cleared without them,
+  and nothing in Polish needed them.
+  - **T076**: checked every element the authored/generated content actually uses
+    (`grep -rl "<tag" public/library/` for `tremolo`/`arpeggiate`/`glissando`/`turn`/`mordent`/
+    `trill-mark`/`wavy-line`/`harmony`/`figured-bass`/`fermata`/`accidental-mark`/`slide`) against
+    `docs/musicxml-support.md`'s table: only `<turn>` (1 file) and `<fermata>` (3 files) appear, both
+    already listed (Supported / Unsupported respectively). No change needed.
+  - **T077**: `pnpm library:exercises`/`pnpm library:index` were already in `quickstart.md`'s command
+    block but missing from the two places analyze A-list's own successor would expect them -
+    `docs/agents/reference.md` R7's main **Commands** block (only mentioned in passing, in the Polish
+    section's own future-tense note) and `README.md` (no library section at all). Added both: two lines
+    in R7's command list, a new "Practice Score Library" subsection in `README.md`.
+  - **T078**: `du -sh public/library` = **1.9 MiB** across 118 files - well under the 10 MiB
+    `LIBRARY_BUDGET_BYTES` budget T067 already gates the build on. Report only, no gate change.
+  - **T079**: SC-007 has two halves. The filter half (<= 200 ms, synthetic 200-item index) was already
+    covered by `tests/core/library/filter.test.ts`. The list-render half (<= 1 s for 200 items) had no
+    automated coverage - added `tests/ui/mx-library.test.ts` "SC-007: a synthetic 200-item index renders
+    within the 1 s budget" (200 fake items, one `document.body.appendChild`, asserts `< 1000` ms and
+    that all 200 `.library-item` rows exist). Both green. The "no task exceeds 50 ms" clause: `mx-library`
+    renders via one synchronous `innerHTML` assignment with no per-item async work
+    (contracts/library-port.md SS5), so there is no task to exceed the budget by construction - confirmed
+    by inspection, not a new perf harness.
+  - **T080**: `constitution-auditor` reviewed the whole branch (`git diff main...005-practice-score-
+    library` plus the design docs) against all eight principles. **Verdict: COMPLIANT, no violations.**
+    Confirmed: `tests/architecture/layers.test.ts` actually guards the dev-only generator/writer against
+    import from `src/app`/`ui`/`engine`/`workers` (3/3 green); no RT-path file appears in the diff; core
+    library logic has real unit coverage beyond the integration-level sweep/licence suites; `LEVEL_*` and
+    `LIBRARY_BUDGET_BYTES` live in `src/core/defaults.ts` as named constants; no new runtime dependency.
+    One LOW housekeeping note (in-flight T077 changes at audit time) resolved by this same session; one
+    LOW note (`session.ts` unused-import lint warnings) confirmed pre-existing on `main`, not from this
+    branch.
+  - **T081**: full quality gate, all green - `pnpm lint` (exit 0, 238 warnings, same baseline as every
+    prior session in this feature, 0 errors), `pnpm typecheck` (clean), `pnpm test` (153 files / 1306
+    tests, +1 over last session for T079's new test), `pnpm test:e2e` (282 passed, 57 skipped, 1 failed
+    on the full parallel run - `library.spec.ts`'s Electron `app://` test, "Target page, context or
+    browser has been closed" - re-ran `npx playwright test tests/e2e/library.spec.ts --project=electron`
+    in isolation and it passed cleanly; this is the identical flake the previous two sessions' log
+    entries already documented for this same test under parallel-worker resource contention, not a
+    regression from this session's doc/test-only changes).
+  - **T082**: walked `quickstart.md` end to end by hand in a fresh dev-server profile (browser pane):
+    opened *Scores*, confirmed all four sections and 58 items list with title/composer/level and full
+    detail lines (key/metre/tempo/measures/duration/hands/skill tags); selecting a Level filter showed
+    the plain-language criteria description ("One hand at a time for the most part, simple rhythms, a
+    small range, and a key with few sharps or flats" for Beginner); the accent-insensitive text search
+    was verified for real (typing "frederic" found both "Frédéric Chopin" preludes, typing "fur elise"
+    found all three Für Elise arrangements across levels); opened *Für Elise (theme)*, the panel closed,
+    the score engraved correctly, Listen played with a moving cursor and no notices, and reopening
+    *Scores* showed "Where this score came from -> Written for Musicanyya" plus the item now listed
+    under Recent scores. US4/US5's steps were already covered by the automated suites re-run in T081
+    (`licence.test.ts`, `sweep.test.ts`) rather than repeated by hand. **One real doc bug found by the
+    walkthrough**: `quickstart.md`'s US3 step 3 example ("'zyczenie' finds 'Życzenie'") pointed at a
+    piece that no longer exists in the shelf (swapped out during a content rebuild several sessions
+    back) - fixed to the real, just-verified "frederic" / "Frédéric" example.
+  - **T082's SC-006 blind re-level**: spawned an independent `music-domain-expert` pass with **only the
+    17 repertoire `.musicxml` files** (no sidecars, no `index.json` - the assigned level was withheld)
+    plus `data-model.md` SS4's 28-criterion rubric, asked to judge Beginner/Intermediate/Advanced from
+    the numbers in each file. **Result: 17/17 agreement (100%)**, clearing SC-006's 90% bar with room to
+    spare - including the five edge cases data-model.md SS4.1 already named as interesting borderline
+    cases (Burgmuller no. 2's range, the two Für Elise arrangements' accidental/rhythm density right at
+    their caps, and Satie's "numerically simple but 37 measures of continuous pedal-and-touch judgment
+    a checker can't see" case, which the independent reviewer still placed Advanced on musical grounds
+    alone, matching the shelf).
+- In progress: none. Nothing is `[~]`.
+- Decisions: none new - this phase was verification and documentation, not design.
+- Problems / open questions: none blocking. `T057`/`T063`/`T064` remain open by design (optional
+  enrichment, FR-008 already cleared); a future session can pick them up independently at any time,
+  in any order, with no dependency on anything in this phase.
+- Full quality gate: **green** (see T081 above); this is also the feature's **final** gate run.
+- Handoff: **feature `005-practice-score-library` is done.** All required tasks (T001-T082 minus the
+  three explicitly-optional T057/T063/T064) are `[x]`; both automated review roles (`music-domain-
+  expert` for content, `constitution-auditor` for the branch) came back clean; SC-001 through SC-010
+  are all satisfied (SC-005's D-1 caveat and SC-010's "content already fetched" narrowing were already
+  recorded in `spec.md` by the analyze-remediation session). Nothing to resume; a future session either
+  merges this branch, picks up T057/T063/T064 as optional enrichment, or starts the next feature. Tree
+  has this session's `README.md`, `docs/agents/reference.md`, `tests/ui/mx-library.test.ts`,
+  `specs/005-practice-score-library/{tasks.md,implementation-log.md,quickstart.md}` changes staged for
+  commit next.

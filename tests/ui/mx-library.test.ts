@@ -86,6 +86,23 @@ describe('mx-library', () => {
     return detail.then((d) => expect(d.id).toBe('repertoire/beginner/ode-to-joy'));
   });
 
+  it('SC-007: a synthetic 200-item index renders within the 1 s budget', () => {
+    const bigItems = Array.from({ length: 200 }, (_, i) =>
+      item(`repertoire/${i % 2 === 0 ? 'beginner' : 'intermediate'}/piece-${i}`, {
+        section: i % 2 === 0 ? 'repertoire/beginner' : 'repertoire/intermediate',
+      }),
+    );
+    libraryState.indexLoaded(index(bigItems));
+    const el = document.createElement('mx-library');
+
+    const start = performance.now();
+    document.body.appendChild(el);
+    const elapsedMs = performance.now() - start;
+
+    expect(el.querySelectorAll('.library-item').length).toBe(200);
+    expect(elapsedMs).toBeLessThan(1000);
+  });
+
   it('shows one error row with Retry when the index fails', () => {
     libraryState.startLoadingIndex();
     libraryState.indexFailed('unavailable');
