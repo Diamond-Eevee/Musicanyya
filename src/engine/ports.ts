@@ -162,12 +162,23 @@ export interface PerformanceStore {
   remove(runId: string): Promise<StoreResult<void>>;
 }
 
+/** Which optional overlay layers are drawn (contracts/view-settings.md). */
+export interface OverlayFlags {
+  cursor: boolean;
+  marks: boolean;
+  advice: boolean;
+  pianoKeys: boolean;
+  notices: boolean;
+}
+
 export interface UserSettings {
-  version: 1;
+  version: 2;
   volume: number;
   tempoPercent: number;
-  zoomPercent: number;
+  /** Score size in percent, 50-200 in steps of 10; 100 = fitted to the viewport (v1 called this `zoomPercent`). */
+  scale: number;
   follow: boolean;
+  overlays: OverlayFlags;
 }
 
 // ---- SettingsStore (tiny UI preferences, localStorage) ----

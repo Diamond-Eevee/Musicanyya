@@ -1,6 +1,7 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
+import { openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(__dirname, '../fixtures/musicxml');
@@ -53,6 +54,7 @@ test('US3 end-to-end: a range at a reduced tempo with one hand grades only that 
   test.setTimeout(30_000);
   await openInPlayMode(page, 'cross-staff-beaming.musicxml');
 
+  await openPanel(page, 'setup');
   const panel = page.locator('mx-play-panel');
   await expect(panel).toBeVisible();
   await expect(panel.locator('input[name="play-hands"]')).toHaveCount(3);
@@ -96,6 +98,7 @@ test('US3 end-to-end: a range at a reduced tempo with one hand grades only that 
 
 test('US3: play settings are remembered for the Score and restored when it is opened again', async ({ page }) => {
   await openInPlayMode(page, 'cross-staff-beaming.musicxml');
+  await openPanel(page, 'setup');
   const panel = page.locator('mx-play-panel');
 
   await panel.getByLabel('Right hand').check();
@@ -112,6 +115,7 @@ test('US3: play settings are remembered for the Score and restored when it is op
 
   // The same Score opened again in a new page load brings the setup back (T068, FR-040).
   await openInPlayMode(page, 'cross-staff-beaming.musicxml'); // loads the page afresh
+  await openPanel(page, 'setup');
   await expect(panel).toContainText('Measures 2-2');
   await expect(panel.getByLabel('Right hand')).toBeChecked();
   await expect(panel.getByLabel('Tempo')).toHaveValue('70');

@@ -84,7 +84,11 @@ export function playRunReducer(run: PlayRun, action: PlayAction): PlayStep {
       // will mark it unreliable via the reliability warnings this event feeds.
       if (run.phase !== 'countIn' && run.phase !== 'running') return { run, effects: [] };
       return {
-        run: { ...run, phase: 'aborted', reliability: [...run.reliability, { kind: 'audioLost', audioTimeSec: 0, detail: null }] },
+        run: {
+          ...run,
+          phase: 'aborted',
+          reliability: [...run.reliability, { kind: 'audioLost', audioTimeSec: 0, detail: null }],
+        },
         effects: [
           { type: 'runEnded', reason: 'audioLost' },
           { type: 'notice', code: 'playAudioLost' },

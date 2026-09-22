@@ -1,6 +1,7 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
+import { openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(__dirname, '../fixtures/musicxml');
@@ -68,6 +69,7 @@ test('US2 end-to-end: step through mistakes, see the worst measures, and send on
   // is what this file is proving: the Grade UI's wiring, not gradePerformance's correctness (exhaustively
   // unit-tested already, e.g. tests/core/grade/grade.test.ts, windows.test.ts, overview.test.ts).
   await openInPlayMode(page, 'eight-measure-melody.musicxml');
+  await openPanel(page, 'setup');
   const playPanel = page.locator('mx-play-panel');
   await playPanel.getByLabel('From measure').fill('1');
   await playPanel.getByLabel('From measure').press('Tab');

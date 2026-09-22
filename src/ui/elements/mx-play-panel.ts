@@ -1,6 +1,5 @@
-import type { LoopRange } from '../../core/practice/types.js';
 import type { RunSettings } from '../../core/play/types.js';
-import type { HandSelection } from '../../core/practice/types.js';
+import type { HandSelection, LoopRange } from '../../core/practice/types.js';
 import { en } from '../i18n/en.js';
 import { type PlaySetup, playState } from '../state/playState.js';
 import { practiceState } from '../state/practiceState.js';

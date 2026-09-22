@@ -1,7 +1,9 @@
 import type { WrongKeyState } from '../../core/practice/types.js';
 import { en } from '../i18n/en.js';
+import { insetState } from '../state/insetState.js';
 import { midiState } from '../state/midiState.js';
 import { practiceState } from '../state/practiceState.js';
+import { viewState } from '../state/viewState.js';
 
 // A colour-blind-safe palette matching src/ui/score/practice-marks.ts, and a distinct glyph per state so a wrong
 // key is never told apart by colour alone (FR-010, R-08). There is no message id for a plain wrong pitch (R-10):
@@ -18,8 +20,12 @@ const HELP_COLOUR = '#0072b2';
 const HELP_GLYPH = '?';
 
 class MxPianoKeys extends HTMLElement {
+  static readonly observedAttributes = ['hidden'];
+
   private unsubscribeMidi?: () => void;
   private unsubscribePractice?: () => void;
+  private unsubscribeView?: () => void;
+  private resizeObserver: ResizeObserver | null = null;
   private keysContainer: HTMLElement | null = null;
   private sustainIndicator: HTMLElement | null = null;
   private messagesContainer: HTMLElement | null = null;
@@ -34,11 +40,40 @@ class MxPianoKeys extends HTMLElement {
     this.unsubscribeMidi = midiState.subscribe(() => this.updateState());
     this.unsubscribePractice = practiceState.subscribe(() => this.updateState());
     this.updateState();
+
+    // Off until the user switches the layer on (FR-015, FR-012); the strip's height is declared as a bottom inset
+    // for as long as it is shown, so the Score keeps its follow band clear of it (FR-010, ui-shell.md Insets).
+    this.hidden = !viewState.get().overlays.pianoKeys;
+    this.unsubscribeView = viewState.subscribe((state) => {
+      this.hidden = !state.overlays.pianoKeys;
+    });
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(() => this.updateInset());
+      this.resizeObserver.observe(this);
+    }
+    this.updateInset();
   }
 
   disconnectedCallback() {
     this.unsubscribeMidi?.();
     this.unsubscribePractice?.();
+    this.unsubscribeView?.();
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
+    this.declareInset(0);
+  }
+
+  attributeChangedCallback() {
+    if (this.isConnected) this.updateInset();
+  }
+
+  private updateInset() {
+    this.declareInset(this.hidden ? 0 : this.getBoundingClientRect().height);
+  }
+
+  private declareInset(height: number) {
+    insetState.setBottom(height);
+    document.documentElement.style.setProperty('--mx-inset-bottom', `${insetState.get().bottom}px`);
   }
 
   private renderInitial() {

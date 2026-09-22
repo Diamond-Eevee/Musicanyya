@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { OVERLAYS_DEFAULT } from '../../../src/engine/config.js';
 import { LocalSettingsStore, SETTINGS_STORAGE_KEY } from '../../../src/engine/storage/local-settings-store.js';
 
 class FakeStorage implements Storage {
@@ -40,19 +41,26 @@ describe('Settings store', () => {
   it('returns defaults when nothing is stored', () => {
     const store = new LocalSettingsStore();
     const settings = store.load();
-    expect(settings).toEqual({ version: 1, volume: 80, tempoPercent: 100, zoomPercent: 100, follow: true });
+    expect(settings).toEqual({
+      version: 2,
+      volume: 80,
+      tempoPercent: 100,
+      scale: 100,
+      follow: true,
+      overlays: OVERLAYS_DEFAULT,
+    });
   });
 
   it('validates each field independently, falling back to defaults', () => {
     storage.setItem(
       SETTINGS_STORAGE_KEY,
-      JSON.stringify({ version: 1, volume: 999, tempoPercent: 103, zoomPercent: 'huge', follow: 'yes' }),
+      JSON.stringify({ version: 2, volume: 999, tempoPercent: 103, scale: 'huge', follow: 'yes' }),
     );
     const store = new LocalSettingsStore();
     const settings = store.load();
     expect(settings.volume).toBe(80); // out of range -> default
     expect(settings.tempoPercent).toBe(100); // not a multiple of 5 -> default
-    expect(settings.zoomPercent).toBe(100); // wrong type -> default
+    expect(settings.scale).toBe(100); // wrong type -> default
     expect(settings.follow).toBe(true); // wrong type -> default
   });
 
@@ -60,7 +68,7 @@ describe('Settings store', () => {
     storage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify({ version: 1, futureField: 'keep-me' }));
     const store = new LocalSettingsStore();
     store.load();
-    store.save({ version: 1, volume: 50, tempoPercent: 100, zoomPercent: 100, follow: true });
+    store.save({ ...store.load(), volume: 50 });
     vi.advanceTimersByTime(1000);
 
     const raw = JSON.parse(storage.getItem(SETTINGS_STORAGE_KEY) as string);
@@ -70,9 +78,9 @@ describe('Settings store', () => {
 
   it('debounces writes', () => {
     const store = new LocalSettingsStore();
-    store.save({ version: 1, volume: 10, tempoPercent: 100, zoomPercent: 100, follow: true });
-    store.save({ version: 1, volume: 20, tempoPercent: 100, zoomPercent: 100, follow: true });
-    store.save({ version: 1, volume: 30, tempoPercent: 100, zoomPercent: 100, follow: true });
+    store.save({ ...store.load(), volume: 10 });
+    store.save({ ...store.load(), volume: 20 });
+    store.save({ ...store.load(), volume: 30 });
 
     expect(storage.getItem(SETTINGS_STORAGE_KEY)).toBeNull();
 
@@ -93,9 +101,9 @@ describe('Settings store', () => {
     const store = new LocalSettingsStore(onError);
 
     expect(() => {
-      store.save({ version: 1, volume: 1, tempoPercent: 100, zoomPercent: 100, follow: true });
+      store.save({ ...store.load(), volume: 1 });
       vi.advanceTimersByTime(500);
-      store.save({ version: 1, volume: 2, tempoPercent: 100, zoomPercent: 100, follow: true });
+      store.save({ ...store.load(), volume: 2 });
       vi.advanceTimersByTime(500);
     }).not.toThrow();
 

@@ -1,5 +1,5 @@
 import { WebAudioEngine } from '../engine/audio/web-audio-engine.js';
-import { GRADE_WORKER_TIMEOUT_MS, MAX_FILE_BYTES, ZOOM_STEP } from '../engine/config.js';
+import { GRADE_WORKER_TIMEOUT_MS, MAX_FILE_BYTES } from '../engine/config.js';
 import { WebMidiInput } from '../engine/midi/web-midi-input.js';
 import type {
   AudioEngineEvent,
@@ -8,6 +8,7 @@ import type {
   PracticeSettings,
   ScoreStore,
   SettingsStore,
+  UserSettings,
 } from '../engine/ports.js';
 import { IndexedDbPerformanceStore } from '../engine/storage/indexeddb-performance-store.js';
 import { IndexedDbScoreStore } from '../engine/storage/indexeddb-score-store.js';
@@ -19,16 +20,20 @@ import '../ui/elements/mx-drop-zone.js';
 import '../ui/elements/mx-grade-panel.js';
 import '../ui/elements/mx-latency-panel.js';
 import '../ui/elements/mx-help-notation.js';
+import '../ui/elements/mx-menu.js';
 import '../ui/elements/mx-open-button.js';
 import '../ui/elements/mx-play-panel.js';
 import '../ui/elements/mx-recent-list.js';
 import '../ui/elements/mx-score-view.js';
+import '../ui/elements/mx-size-controls.js';
 import '../ui/elements/mx-transport.js';
+import '../ui/elements/mx-view-panel.js';
 import '../ui/elements/mx-midi-panel.js';
 import '../ui/elements/mx-mode-switch.js';
 import '../ui/elements/mx-piano-keys.js';
 import '../ui/elements/mx-practice-help.js';
 import '../ui/elements/mx-practice-panel.js';
+import '../ui/elements/mx-run-status.js';
 import {
   METRONOME_CHANNEL,
   METRONOME_KEY_BEAT,
@@ -60,11 +65,12 @@ import { compilePlaySchedule } from '../core/schedule/play-schedule.js';
 import type { LoadReport } from '../core/score/load-report.js';
 import type { Score } from '../core/score/model.js';
 import type { PlaybackTimeline, TempoSegment } from '../core/timeline/types.js';
+import type { MxOpenButton } from '../ui/elements/mx-open-button.js';
 import type { PlaySetupChange } from '../ui/elements/mx-play-panel.js';
 import type { PracticeSetupChange } from '../ui/elements/mx-practice-panel.js';
 import type { MxScoreView, TimelineDto } from '../ui/elements/mx-score-view.js';
 import { midiNoteName } from '../ui/format/note-name.js';
-import { en } from '../ui/i18n/en.js';
+import { mountPanels, type PanelTools } from '../ui/layout/panel-host.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
 import { initShortcuts } from '../ui/shortcuts.js';
 import { midiState } from '../ui/state/midiState.js';
@@ -73,10 +79,12 @@ import { noticeState } from '../ui/state/noticeState.js';
 import { playState } from '../ui/state/playState.js';
 import type { HelpOverlay } from '../ui/state/practiceState.js';
 import { practiceState } from '../ui/state/practiceState.js';
+import { isRunActive } from '../ui/state/runActive.js';
+import { guardPanelsDuringRuns } from '../ui/state/runGuard.js';
 import type { LoadError, ScoreSummary } from '../ui/state/scoreState.js';
 import { scoreState } from '../ui/state/scoreState.js';
 import { transportState } from '../ui/state/transportState.js';
-import { viewState } from '../ui/state/viewState.js';
+import { type OverlayLayer, viewState } from '../ui/state/viewState.js';
 import { requestGrade } from '../workers/grade.worker.js';
 import { PlaySessionController } from './play-session.js';
 import { ReplaySessionController } from './replay-session.js';
@@ -131,6 +139,7 @@ export class Session {
   private readonly settingsStore: SettingsStore;
   private nextRequestId = 1;
   private scoreView: MxScoreView | null = null;
+  private userSettings!: UserSettings; // assigned at the top of start(), before anything reads it
 
   // Listen mode (US2, T108)
   private readonly audioEngine = new WebAudioEngine();
@@ -211,17 +220,26 @@ export class Session {
   }
 
   async start(): Promise<void> {
-    const settings = this.settingsStore.load();
-    viewState.setZoom(settings.zoomPercent);
+    this.userSettings = this.settingsStore.load();
+    const settings = this.userSettings;
+    viewState.setScale(settings.scale);
+    for (const [layer, on] of Object.entries(settings.overlays)) viewState.setOverlay(layer as OverlayLayer, on);
     transportState.applySavedSettings(settings.tempoPercent, settings.volume, settings.follow);
 
     this.scoreView = document.createElement('mx-score-view');
     this.scoreView.client = this.verovioClient;
-    this.scoreView.addEventListener('zoomchange', (event) => {
-      const { zoomPercent } = (event as CustomEvent<{ zoomPercent: number }>).detail;
-      viewState.setZoom(zoomPercent);
-      this.settingsStore.save({ ...this.settingsStore.load(), zoomPercent });
+    // One direction only: the store is the source of the Score size (a control, a shortcut or the stored value all
+    // write it), the view follows it, and the store is what gets persisted.
+    const scoreView = this.scoreView;
+    let persisted = viewState.get();
+    viewState.subscribe((state) => {
+      scoreView.setZoom(state.scale);
+      // Opening a panel changes the store too; only a change to what is persisted writes settings.
+      if (state.scale === persisted.scale && state.overlays === persisted.overlays) return;
+      persisted = state;
+      this.persistUserSettings({ scale: state.scale, overlays: { ...state.overlays } });
     });
+    scoreView.setZoom(viewState.get().scale);
     this.scoreView.addEventListener('measureclick', (event: Event) => {
       const { measureIndex } = (event as CustomEvent<{ measureIndex: number }>).detail;
       if (practiceState.get().mode === 'practice') {
@@ -235,21 +253,21 @@ export class Session {
       const firstPass = this.currentTimeline?.passes.find((p) => p.measureIndex === measureIndex);
       if (firstPass) transportState.seekMeasure(firstPass.startTick);
     });
-    document.getElementById('score-area')?.appendChild(this.scoreView);
-
-    const emptyState = document.querySelector('.mx-empty-state');
-    scoreState.subscribe((status) => {
-      emptyState?.classList.toggle('hidden', status.kind === 'loading' || status.kind === 'loaded');
-    });
+    const main = document.getElementById('mx-main') as HTMLElement;
+    main.prepend(this.scoreView);
 
     const transport = document.createElement('mx-transport');
     document.getElementById('transport-controls')?.appendChild(transport);
     const modeSwitch = document.createElement('mx-mode-switch');
     document.getElementById('mode-controls')?.appendChild(modeSwitch);
+    const sizeControls = document.createElement('mx-size-controls');
+    document.getElementById('size-controls')?.appendChild(sizeControls);
+    document.getElementById('run-status')?.appendChild(document.createElement('mx-run-status'));
     const updateTransportVisibility = () => {
       const loaded = scoreState.getStatus().kind === 'loaded';
       transport.classList.toggle('hidden', !loaded);
       modeSwitch.classList.toggle('hidden', !loaded);
+      sizeControls.classList.toggle('hidden', !loaded);
     };
     scoreState.subscribe(updateTransportVisibility);
     updateTransportVisibility();
@@ -269,12 +287,7 @@ export class Session {
       setVolume: (volume) => this.audioEngine.setVolume(volume),
     });
     transportState.subscribe((state) => {
-      this.settingsStore.save({
-        ...this.settingsStore.load(),
-        tempoPercent: state.tempoPercent,
-        volume: state.volume,
-        follow: state.follow,
-      });
+      this.persistUserSettings({ tempoPercent: state.tempoPercent, volume: state.volume, follow: state.follow });
     });
     this.audioEngine.on((event) => this.onAudioEngineEvent(event));
     let lastMode = practiceState.get().mode;
@@ -286,6 +299,7 @@ export class Session {
       if (previousMode === 'play' && state.mode !== 'play') this.leavePlay();
     });
     initShortcuts();
+    guardPanelsDuringRuns();
 
     const openButton = document.createElement('mx-open-button');
     const dropZone = document.createElement('mx-drop-zone');
@@ -293,7 +307,18 @@ export class Session {
       this.openFile((event as CustomEvent<{ file: File }>).detail.file),
     );
     dropZone.addEventListener('fileopen', (event) => this.openFile((event as CustomEvent<{ file: File }>).detail.file));
-    document.getElementById('open-controls')?.append(openButton, dropZone);
+    // The invitation in the empty Score area asks for the one file chooser the bar's open button owns.
+    dropZone.addEventListener('openrequest', () => (openButton as MxOpenButton).open());
+    document.getElementById('open-controls')?.appendChild(openButton);
+    main.appendChild(dropZone);
+
+    const menuControls = document.getElementById('menu-controls');
+    // 'more' is the four folded into one; the bar shows it instead of them when it runs out of width (mx-app)
+    for (const menu of ['score', 'setup', 'view', 'help', 'more']) {
+      const element = document.createElement('mx-menu');
+      element.setAttribute('menu', menu);
+      menuControls?.appendChild(element);
+    }
 
     const recentList = document.createElement('mx-recent-list');
     recentList.addEventListener('reopenrecent', (event) =>
@@ -302,30 +327,14 @@ export class Session {
     recentList.addEventListener('removerecent', (event) =>
       this.removeRecent((event as CustomEvent<{ id: string }>).detail.id),
     );
-    document.getElementById('side-panel')?.appendChild(recentList);
 
     const helpPanel = document.createElement('mx-help-notation');
-    document.getElementById('help-panel')?.appendChild(helpPanel);
-    const helpButton = document.createElement('button');
-    helpButton.type = 'button';
-    helpButton.textContent = en.help.button;
-    helpButton.addEventListener('click', () => helpPanel.toggle());
-    document.getElementById('help-controls')?.appendChild(helpButton);
 
     const diagnosticsPanel = document.createElement('mx-diagnostics');
     diagnosticsPanel.setEngine(this.audioEngine);
-    document.getElementById('diagnostics-panel')?.appendChild(diagnosticsPanel);
-    const diagnosticsButton = document.createElement('button');
-    diagnosticsButton.type = 'button';
-    diagnosticsButton.textContent = en.diagnostics.button;
-    diagnosticsButton.addEventListener('click', () => diagnosticsPanel.toggle());
-    document.getElementById('diagnostics-controls')?.appendChild(diagnosticsButton);
-
-    document.addEventListener('keydown', (event) => this.onKeyDown(event));
 
     // MIDI Wire-up
     const midiPanel = document.createElement('mx-midi-panel');
-    document.getElementById('side-panel')?.prepend(midiPanel);
 
     const practicePanel = document.createElement('mx-practice-panel');
     practicePanel.addEventListener('practicesetup', (event) =>
@@ -334,13 +343,11 @@ export class Session {
     practicePanel.addEventListener('requesthelp', () => {
       this.applyPracticeInput({ type: 'requestHelp', timeStampMs: performance.now() });
     });
-    document.getElementById('side-panel')?.prepend(practicePanel);
 
     const playPanel = document.createElement('mx-play-panel');
     playPanel.addEventListener('playsetup', (event) =>
       this.onPlaySetupChange((event as CustomEvent<PlaySetupChange>).detail),
     );
-    document.getElementById('side-panel')?.prepend(playPanel);
 
     const gradePanel = document.createElement('mx-grade-panel');
     gradePanel.addEventListener('practisepass', (event) => {
@@ -362,7 +369,6 @@ export class Session {
       }
       practiceState.setMode('practice');
     });
-    document.getElementById('side-panel')?.prepend(gradePanel);
 
     const attemptsList = document.createElement('mx-attempts-list');
     attemptsList.addEventListener('attemptreplay', (event) =>
@@ -374,21 +380,34 @@ export class Session {
     attemptsList.addEventListener('attemptdelete', (event) =>
       this.onAttemptDelete((event as CustomEvent<{ runId: string }>).detail.runId),
     );
-    document.getElementById('side-panel')?.prepend(attemptsList);
 
     const latencyPanel = document.createElement('mx-latency-panel');
     latencyPanel.addEventListener('latencycalibrated', (event) => {
       const profile = (event as CustomEvent).detail.profile;
       this.settingsStore.saveLatencyProfile(profile);
     });
-    document.getElementById('side-panel')?.prepend(latencyPanel);
 
-    const pianoKeys = document.createElement('mx-piano-keys');
-    // Place piano keys at the bottom of the score area
-    document.getElementById('score-area')?.appendChild(pianoKeys);
+    // Every secondary tool is a popup over the Score, opened from a menu (contracts/ui-shell.md section 3).
+    const environmentPanel = document.querySelector('mx-environment-panel') as HTMLElement;
+    const tools: PanelTools = {
+      scores: [recentList],
+      attempts: [attemptsList],
+      setup: [practicePanel, playPanel],
+      midi: [midiPanel],
+      latency: [latencyPanel],
+      view: [document.createElement('mx-view-panel')],
+      help: [helpPanel],
+      diagnostics: [diagnosticsPanel],
+      environment: [environmentPanel],
+      grade: [gradePanel],
+    };
+    mountPanels(document.getElementById('panel-host') as HTMLElement, tools);
+
+    // The on-screen piano keys are off until the user switches them on (FR-015); the element follows its layer itself.
+    main.appendChild(document.createElement('mx-piano-keys'));
 
     const practiceHelp = document.createElement('mx-practice-help');
-    document.getElementById('score-area')?.appendChild(practiceHelp);
+    main.appendChild(practiceHelp);
 
     midiPanel.addEventListener('request-midi', async () => {
       await this.midiInput.request();
@@ -453,20 +472,18 @@ export class Session {
     await this.refreshRecent();
   }
 
-  private onKeyDown(event: KeyboardEvent): void {
-    if (!this.scoreView) return;
-    if (event.key === '+' || event.key === '=') {
-      event.preventDefault();
-      this.scoreView.setZoom(viewState.get().zoomPercent + ZOOM_STEP);
-    } else if (event.key === '-' || event.key === '_') {
-      event.preventDefault();
-      this.scoreView.setZoom(viewState.get().zoomPercent - ZOOM_STEP);
-    }
+  /** The user's settings live in memory here, so two changes inside the store's write debounce cannot overwrite each
+   *  other (reading them back from storage would return the value from before the first change). */
+  private persistUserSettings(patch: Partial<UserSettings>): void {
+    this.userSettings = { ...this.userSettings, ...patch };
+    this.settingsStore.save(this.userSettings);
   }
 
   /** Unlock (user gesture), deliver the schedule if this is the first Play since it was loaded, ensure the
    * SoundFont is loaded (progress shown via `onAudioEngineEvent`'s 'loadingSound' state), then play. */
   private async handlePlay(): Promise<void> {
+    // The one place a Listen, Practice or Play run starts: nothing may be open over the Score during one (FR-006).
+    viewState.closeForRun();
     await this.audioEngine.unlock();
     this.engineUnlocked = true;
 
@@ -730,6 +747,9 @@ export class Session {
   private onPlayGraded(grade: Grade): void {
     playState.setGrade(grade);
     mistakeStepper.setGrade(grade);
+    // The Grade arrives over the Score in a dismissible popup; dismissing it leaves the marks on the notes (FR-009). It
+    // can arrive late (grading has its own timeout): never over a run that has started since.
+    if (!isRunActive()) viewState.openPanel('grade');
   }
 
   private onPlayGradeFailed(reason: 'timeout' | 'error', _message?: string): void {
@@ -896,6 +916,8 @@ export class Session {
    *  timing, against the Score's own accompaniment - and shows the marks by re-grading it with its own stored
    *  settings (unchanged), exactly like `onGraded` does for a live run. */
   private async onAttemptReplay(runId: string): Promise<void> {
+    // A replay is a run too (FR-006): the Attempts popup it was started from must not stay open over the music.
+    viewState.closeForRun();
     const stored = await this.performanceStore.get(runId);
     if (!stored.ok) {
       noticeState.addNotice({
@@ -1202,7 +1224,7 @@ export class Session {
     });
 
     if (this.scoreView) {
-      await this.scoreView.load(response.renderXml, response.summary.measureIds, viewState.get().zoomPercent);
+      await this.scoreView.load(response.renderXml, response.summary.measureIds, viewState.get().scale);
     }
 
     // this.soundReady is intentionally not reset here: the SoundFont is loaded once into the worklet's sound

@@ -1,9 +1,9 @@
 import type { Grade, NoteResult } from '../../core/grade/types.js';
 import { reasonText } from '../format/reason-text.js';
 import { en, ordinal } from '../i18n/en.js';
+import { mistakeStepper } from '../state/mistake-stepper.js';
 import { playState } from '../state/playState.js';
 import { practiceState } from '../state/practiceState.js';
-import { mistakeStepper } from '../state/mistake-stepper.js';
 
 function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
@@ -66,29 +66,46 @@ export class MxGradePanel extends HTMLElement {
     const reason = selected ? `<p class="grade-reason">${escapeHtml(reasonText(selected.reason))}</p>` : '';
 
     const stepperState = mistakeStepper.get();
-    const stepper = stepperState.total > 0 ? `
+    const stepper =
+      stepperState.total > 0
+        ? `
       <div class="grade-stepper">
         <h3>${p.mistakes} (${stepperState.total})</h3>
         <button type="button" data-id="stepper-previous">${p.previous}</button>
         <button type="button" data-id="stepper-next">${p.next}</button>
-      </div>` : '';
+      </div>`
+        : '';
 
     const worstPasses = [...grade.measures]
-      .filter(m => m.counts.wrongPitch > 0 || m.counts.missed > 0 || m.counts.extra > 0 || m.counts.early > 0 || m.counts.late > 0)
-      .sort((a, b) => (b.counts.wrongPitch + b.counts.missed) - (a.counts.wrongPitch + a.counts.missed));
+      .filter(
+        (m) =>
+          m.counts.wrongPitch > 0 ||
+          m.counts.missed > 0 ||
+          m.counts.extra > 0 ||
+          m.counts.early > 0 ||
+          m.counts.late > 0,
+      )
+      .sort((a, b) => b.counts.wrongPitch + b.counts.missed - (a.counts.wrongPitch + a.counts.missed));
 
-    const overview = worstPasses.length > 0 ? `
+    const overview =
+      worstPasses.length > 0
+        ? `
       <div class="grade-overview">
         <h3>${p.measureOverview}</h3>
         <ul>
-          ${worstPasses.map(m => `
+          ${worstPasses
+            .map(
+              (m) => `
             <li>
               ${escapeHtml(p.measurePass.replace('{measure}', String(m.measureIndex + 1)).replace('{ordinal}', ordinal(m.passIndex + 1)))}
               <button type="button" data-id="practise-pass" data-pass="${m.passIndex}">${p.practisePassage}</button>
             </li>
-          `).join('')}
+          `,
+            )
+            .join('')}
         </ul>
-      </div>` : '';
+      </div>`
+        : '';
 
     this.innerHTML = `
       <h2 class="grade-heading">${p.heading}</h2>

@@ -1,7 +1,7 @@
-import { playState } from '../state/playState.js';
-import { en } from '../i18n/en.js';
-import { calibrateLatency, type Tap } from '../../core/play/calibration.js';
 import { CALIBRATION_BEATS, CALIBRATION_TEMPO_QPM } from '../../core/defaults.js';
+import { calibrateLatency, type Tap } from '../../core/play/calibration.js';
+import { en } from '../i18n/en.js';
+import { playState } from '../state/playState.js';
 
 export class MxLatencyPanel extends HTMLElement {
   private unsubscribe?: () => void;
@@ -71,7 +71,7 @@ export class MxLatencyPanel extends HTMLElement {
     // Start metronome for calibration (synthesized for now)
     const msPerBeat = 60000 / CALIBRATION_TEMPO_QPM;
     this.startTimeMs = performance.now() + 500;
-    
+
     for (let i = 0; i < CALIBRATION_BEATS; i++) {
       this.expectedTimesMs.push(this.startTimeMs + i * msPerBeat);
     }

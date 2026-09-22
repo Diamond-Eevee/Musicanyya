@@ -8,10 +8,13 @@ export interface PracticeMarksOptions {
   marks: readonly { noteId: NoteId; state: MarkState }[];
   noteRects: ReadonlyMap<NoteId, DOMRect>;
   dimmedNoteRects?: readonly DOMRect[];
+  /** False when the user has switched the marks layer off (FR-012): nothing is drawn, the session is unaffected. */
+  visible?: boolean;
 }
 
 export function drawPracticeMarks(options: PracticeMarksOptions): void {
-  const { ctx, dpr, containerRect, marks, noteRects, dimmedNoteRects } = options;
+  const { ctx, dpr, containerRect, marks, noteRects, dimmedNoteRects, visible = true } = options;
+  if (!visible) return;
 
   // Dim unselected notes
   if (dimmedNoteRects) {
@@ -98,12 +101,14 @@ export interface StartMarkerOptions {
   dpr: number;
   containerRect: DOMRect;
   measureRect: DOMRect;
+  visible?: boolean;
 }
 
 /** Marks the measure a session will start at (FR-015): a bar down the left edge of the measure with a triangle at
  *  its top, so it reads by shape as well as colour and never covers a notehead. */
 export function drawStartMarker(options: StartMarkerOptions): void {
-  const { ctx, dpr, containerRect, measureRect } = options;
+  const { ctx, dpr, containerRect, measureRect, visible = true } = options;
+  if (!visible) return;
   const x = (measureRect.left - containerRect.left) * dpr;
   const top = (measureRect.top - containerRect.top) * dpr;
   const height = measureRect.height * dpr;
@@ -133,14 +138,15 @@ export interface LoopMarksOptions {
   containerRect: DOMRect;
   /** The mounted measures of the loop range, with whether each is the range's first or last measure. */
   measures: readonly { rect: DOMRect; first: boolean; last: boolean }[];
+  visible?: boolean;
 }
 
 /** Marks the looped measures (AS-3.2): a bracket line above each measure, closed by a short downward stroke at the
  *  range's first and last measure. It is drawn above the measure only, never over the notes, and reads by shape as
  *  well as by colour. */
 export function drawLoopMarks(options: LoopMarksOptions): void {
-  const { ctx, dpr, containerRect, measures } = options;
-  if (measures.length === 0) return;
+  const { ctx, dpr, containerRect, measures, visible = true } = options;
+  if (!visible || measures.length === 0) return;
 
   const gap = 4 * dpr;
   const tick = 8 * dpr;

@@ -1,16 +1,27 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { PLAY_SETTINGS_MAX } from '../../../src/engine/config.js';
-import { SETTINGS_WRITE_DEBOUNCE_MS } from '../../../src/engine/config.js';
+import { PLAY_SETTINGS_MAX, SETTINGS_WRITE_DEBOUNCE_MS } from '../../../src/engine/config.js';
 import { LocalSettingsStore } from '../../../src/engine/storage/local-settings-store.js';
 
 class FakeStorage implements Storage {
   private map = new Map<string, string>();
-  get length() { return this.map.size; }
-  clear() { this.map.clear(); }
-  getItem(key: string) { return this.map.get(key) ?? null; }
-  key(index: number) { return Array.from(this.map.keys())[index] ?? null; }
-  removeItem(key: string) { this.map.delete(key); }
-  setItem(key: string, value: string) { this.map.set(key, value); }
+  get length() {
+    return this.map.size;
+  }
+  clear() {
+    this.map.clear();
+  }
+  getItem(key: string) {
+    return this.map.get(key) ?? null;
+  }
+  key(index: number) {
+    return Array.from(this.map.keys())[index] ?? null;
+  }
+  removeItem(key: string) {
+    this.map.delete(key);
+  }
+  setItem(key: string, value: string) {
+    this.map.set(key, value);
+  }
 }
 
 const id = (n: number) => n.toString(16).padStart(64, '0');

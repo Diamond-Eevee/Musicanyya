@@ -12,6 +12,10 @@ export interface ReadXmlResult {
 const MAX_DEPTH = 50;
 const MAX_FILE_SIZE = 50_000_000;
 
+// Groups: 1 = "/" on a closing tag, 2 = the attribute tail, "/" on a self-closing one. Both are
+// undefined for a comment, CDATA section, processing instruction or doctype, which carry no depth.
+const TAG_SCAN = /<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<[?!][^>]*>|<(\/)?[^\s/>]+((?:"[^"]*"|'[^']*'|[^>"'])*)>/g;
+
 export function readXml(xml: string): ReadXmlResult {
   if (xml.length > MAX_FILE_SIZE) {
     throw new MusicXmlLoadError('fileTooComplex', 'The file is too large to open.');
@@ -25,10 +29,12 @@ export function readXml(xml: string): ReadXmlResult {
   }
 
   let currentDepth = 0;
-  for (const match of xml.matchAll(/<\/?([^\s>]+)/g)) {
-    if (match[0].startsWith('</')) {
+  for (const match of xml.matchAll(TAG_SCAN)) {
+    const attributes = match[2];
+    if (attributes === undefined) continue; // comment, CDATA, processing instruction or doctype
+    if (match[1] === '/') {
       currentDepth--;
-    } else if (!match[0].startsWith('<?') && !match[0].startsWith('<!')) {
+    } else if (!attributes.trimEnd().endsWith('/')) {
       currentDepth++;
       if (currentDepth > MAX_DEPTH) {
         throw new MusicXmlLoadError('fileTooComplex', 'The file is nested too deeply to open.');

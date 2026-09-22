@@ -35,6 +35,8 @@ export function measureIndexFromElementId(measureIds: readonly string[], element
 export interface SanitisedPage {
   svg: string;
   measureIds: string[];
+  /** Height over width of the page's outer `viewBox`, or null when it has none (contracts/score-layout.md section 4). */
+  aspect: number | null;
 }
 
 /**
@@ -44,7 +46,7 @@ export interface SanitisedPage {
 export function sanitiseAndExtractMeasures(svg: string): SanitisedPage {
   const doc = new DOMParser().parseFromString(svg, 'image/svg+xml');
   const root = doc.documentElement;
-  if (!root || root.nodeName === 'parsererror') return { svg: '', measureIds: [] };
+  if (!root || root.nodeName === 'parsererror') return { svg: '', measureIds: [], aspect: null };
 
   for (const tag of ['script', 'foreignObject']) {
     for (const el of Array.from(root.getElementsByTagName(tag))) el.remove();
@@ -62,5 +64,18 @@ export function sanitiseAndExtractMeasures(svg: string): SanitisedPage {
     .map((el) => el.id)
     .filter((id) => id.length > 0);
 
-  return { svg: new XMLSerializer().serializeToString(root), measureIds };
+  return { svg: new XMLSerializer().serializeToString(root), measureIds, aspect: viewBoxAspect(root) };
+}
+
+/** Height over width of an SVG element's `viewBox`; null if it has none or it is degenerate. */
+export function viewBoxAspect(svg: Element): number | null {
+  const parts = svg
+    .getAttribute('viewBox')
+    ?.trim()
+    .split(/[\s,]+/)
+    .map(Number);
+  const width = parts?.[2];
+  const height = parts?.[3];
+  if (width === undefined || height === undefined || !Number.isFinite(width) || !Number.isFinite(height)) return null;
+  return width > 0 && height > 0 ? height / width : null;
 }

@@ -32,7 +32,10 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
         if (!toolkit) throw new Error('Verovio not initialized');
         toolkit.setOptions({
           breaks: 'auto',
-          adjustPageHeight: 1, // verovio boolean options are 1/0
+          // 0: the page height is dictated by the requested layout (one screenful), not derived from the content
+          // (contracts/score-layout.md section 2, rule 4, measured by tests/verovio/page-units.test.ts). Verovio
+          // boolean options are 1/0.
+          adjustPageHeight: 0,
           header: 'encoded',
           footer: 'none',
           font: 'Leipzig',
@@ -50,7 +53,7 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
         if (!toolkit) throw new Error('Verovio not initialized');
         toolkit.setOptions({
           breaks: 'auto',
-          adjustPageHeight: 1,
+          adjustPageHeight: 0,
           header: 'encoded',
           footer: 'none',
           font: 'Leipzig',

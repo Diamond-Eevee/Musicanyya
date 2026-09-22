@@ -1,6 +1,7 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
+import { openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(__dirname, '../fixtures/musicxml');
@@ -62,16 +63,19 @@ test('US4 end-to-end: two attempts are kept, listed with settings and summary, r
   await playOneRun(page);
   await expect.poll(async () => (await playSnapshot(page)).attemptsCount, { timeout: 10_000 }).toBe(1);
 
+  await openPanel(page, 'attempts');
   const list = page.locator('mx-attempts-list');
   await expect(list).toContainText('100%'); // the default tempo, shown as the attempt's own setting
 
   // Playing it again keeps both (AS-4.1's "play a piece twice").
   await playOneRun(page);
+  await openPanel(page, 'attempts'); // starting the run closed it
   await expect.poll(async () => (await playSnapshot(page)).attemptsCount, { timeout: 10_000 }).toBe(2);
   await expect(list.locator('.attempts-item')).toHaveCount(2);
 
   // AS-4.2: replaying an attempt hears it back against the Score, with the cursor moving (the same `run` state a
   // live run populates, R-11 - the marks themselves are Canvas, not DOM).
+  await openPanel(page, 'attempts');
   await list.locator('.attempts-replay').first().click();
   await expect.poll(async () => (await playSnapshot(page)).runPhase, { timeout: 10_000 }).toBe('running');
   // Ends on its own (the engine's own "ended" event, never a timer): `mx-score-view` hands the cursor seam back
@@ -81,12 +85,14 @@ test('US4 end-to-end: two attempts are kept, listed with settings and summary, r
   // AS-4.3/AS-4.4: re-grading at a different strictness changes the Grade, without touching what is stored
   // (SC-011) - the attempts list itself must not change count from a regrade.
   const beforeRegrade = await playSnapshot(page);
+  await openPanel(page, 'setup');
   const panel = page.locator('mx-play-panel');
   await panel.getByLabel('Timing strictness').selectOption('strict');
+  await openPanel(page, 'attempts');
   await list.locator('.attempts-regrade').first().click();
-  await expect.poll(async () => (await playSnapshot(page)).notesCorrect?.total, { timeout: 10_000 }).toBe(
-    beforeRegrade.notesCorrect?.total,
-  );
+  await expect
+    .poll(async () => (await playSnapshot(page)).notesCorrect?.total, { timeout: 10_000 })
+    .toBe(beforeRegrade.notesCorrect?.total);
   expect((await playSnapshot(page)).attemptsCount).toBe(2);
 
   // AS-4.5: deleting an attempt removes it from the list.

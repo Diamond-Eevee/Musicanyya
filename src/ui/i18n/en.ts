@@ -1,6 +1,64 @@
 export const en = {
   app: {
     emptyState: 'No score loaded. Open a MusicXML file to start.',
+    toolbar: 'Musicanyya controls',
+  },
+  /** The Score size controls of the slim bar (feature 004, FR-014a). */
+  size: {
+    group: 'Score size',
+    smaller: 'Smaller',
+    larger: 'Larger',
+    reset: 'Reset size',
+  },
+  /** The View popup: which optional overlay layers are drawn (feature 004, FR-012). */
+  view: {
+    layersHeading: 'Show on the Score',
+    layers: {
+      cursor: 'Playback cursor',
+      marks: 'Note marks',
+      advice: 'Advice markers',
+      pianoKeys: 'On-screen piano keys',
+      notices: 'Notices',
+    },
+  },
+  /** The notice corner: how the notices waiting behind the visible ones are counted. */
+  tray: {
+    more: '+{n} more',
+  },
+  /** The status area of the slim bar while a run is active (feature 004, FR-008). */
+  run: {
+    mode: { listen: 'Listen', practice: 'Practice', play: 'Play' },
+    phase: { idle: '', countIn: 'Count-in', running: 'Running', paused: 'Paused', finished: 'Finished' },
+    measure: 'Measure {n}',
+    stop: 'Stop',
+    device: {
+      ok: '',
+      noMidi: 'No MIDI keyboard',
+      midiLost: 'MIDI keyboard disconnected',
+      audioLost: 'Audio device lost',
+    },
+  },
+  /** The four menus of the slim bar (feature 004, data-model.md section 5). */
+  menus: {
+    score: 'Score',
+    setup: 'Setup',
+    view: 'View',
+    help: 'Help',
+    more: 'More',
+  },
+  /** Titles of the secondary tools that open as popups; also the label of the menu entry that opens each. */
+  panels: {
+    close: 'Close',
+    scores: 'Recent scores',
+    attempts: 'Recent attempts',
+    setup: 'Practice and Play setup',
+    midi: 'MIDI keyboard',
+    latency: 'Latency',
+    view: 'View',
+    help: 'Supported notation',
+    diagnostics: 'Audio diagnostics',
+    environment: 'Environment',
+    grade: 'Grade',
   },
   environment: {
     notSupported: 'Not supported in this environment.',
@@ -36,6 +94,20 @@ export const en = {
     element: 'Element',
     status: 'Status',
     notes: 'Notes',
+    shortcuts: {
+      title: 'Keyboard shortcuts',
+      keys: 'Keys',
+      action: 'What it does',
+      rows: [
+        ['Space', 'Play or pause'],
+        ['Esc', 'Close the open popup; with no popup open, stop'],
+        ['+ or =', 'Make the Score larger'],
+        ['- or _', 'Make the Score smaller'],
+        ['Ctrl/Cmd + +', 'Make the Score larger'],
+        ['Ctrl/Cmd + -', 'Make the Score smaller'],
+        ['Ctrl/Cmd + 0', 'Back to the fitted Score size'],
+      ] as readonly (readonly [string, string])[],
+    },
   },
   diagnostics: {
     button: 'Diagnostics',

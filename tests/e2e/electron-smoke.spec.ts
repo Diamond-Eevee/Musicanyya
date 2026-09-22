@@ -1,6 +1,7 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type ElectronApplication, _electron as electron, expect, test } from '@playwright/test';
+import { openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -38,7 +39,7 @@ test.describe('Electron smoke test', () => {
     await expect(window.locator('.mx-empty-state')).toBeVisible();
 
     // Environment panel
-    await window.getByRole('button', { name: 'Environment' }).click();
+    await openPanel(window, 'environment');
     await expect(window.locator('mx-environment-panel')).toBeVisible();
     await expect(window.locator('mx-environment-panel')).toContainText('Desktop App');
 
@@ -53,6 +54,29 @@ test.describe('Electron smoke test', () => {
 
     await expect(window.locator('.mx-score-page svg').first()).toBeVisible();
     await expect(window.locator('.mx-empty-state')).toBeHidden();
+
+    // Feature 004, FR-001: the layout is the browser's, unchanged - the Score view spans the window width, the slim bar
+    // is one row of at most 48 px, and no aside reserves space.
+    const layout = await window.evaluate(() => {
+      const box = (selector: string) => document.querySelector(selector)?.getBoundingClientRect();
+      const flow = Array.from(document.querySelector('#mx-main')?.children ?? []).filter(
+        (child) =>
+          child.tagName !== 'MX-SCORE-VIEW' && !['absolute', 'fixed'].includes(getComputedStyle(child).position),
+      );
+      return {
+        windowWidth: window.innerWidth,
+        windowHeight: window.innerHeight,
+        bar: box('#mx-bar')?.height ?? 0,
+        view: box('mx-score-view') ?? null,
+        reservers: flow.map((child) => child.tagName),
+        asides: document.querySelectorAll('aside').length,
+      };
+    });
+    expect(layout.view?.width).toBeGreaterThanOrEqual(layout.windowWidth - 1);
+    expect(layout.bar).toBeLessThanOrEqual(48.5); // sub-pixel rounding at fractional display scaling
+    expect((layout.view?.height ?? 0) + layout.bar).toBeCloseTo(layout.windowHeight, 0);
+    expect(layout.reservers).toEqual([]);
+    expect(layout.asides).toBe(0);
 
     // Check that navigation to another origin is blocked by trying to change window.location
     await window.evaluate(() => {

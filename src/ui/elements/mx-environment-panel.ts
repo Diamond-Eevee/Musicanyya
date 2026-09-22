@@ -1,20 +1,33 @@
 import type { Capability } from '../../engine/ports.js';
 import type { EnvironmentState } from '../state/environmentState.js';
+import { viewState } from '../state/viewState.js';
 
 export class MxEnvironmentPanel extends HTMLElement {
   private envState: EnvironmentState | null = null;
   private unsubscribe: (() => void) | null = null;
   private isOpen = false;
+  private unsubscribeView: (() => void) | null = null;
 
   connectedCallback() {
-    this.hidden = !this.isOpen;
+    // Open exactly while its popup is the open one (feature 004); `toggle()` is kept for direct use.
+    this.setOpen(viewState.get().openPanel === 'environment');
+    this.unsubscribeView = viewState.subscribe((state) => this.setOpen(state.openPanel === 'environment'));
   }
 
   disconnectedCallback() {
+    this.unsubscribeView?.();
+    this.unsubscribeView = null;
     if (this.unsubscribe) {
       this.unsubscribe();
       this.unsubscribe = null;
     }
+  }
+
+  private setOpen(open: boolean) {
+    if (open === this.isOpen && this.hidden === !open) return;
+    this.isOpen = open;
+    this.hidden = !open;
+    if (open) this.render();
   }
 
   toggle() {

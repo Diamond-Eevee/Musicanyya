@@ -1,3 +1,14 @@
+/*
+ * The window (feature 004, contracts/ui-shell.md section 1): one slim bar that reserves its height, and a main
+ * region that is the Score view plus overlays. No element other than the bar and the Score view may take space in
+ * the flow, so every overlay below is positioned absolutely (or lives in the top layer).
+ */
+:root {
+  --mx-bar-height: 48px;
+  /* Overlays that must keep the Score's follow band clear declare an inset here (ui-shell.md, Insets). */
+  --mx-inset-bottom: 0px;
+}
+
 mx-app {
   display: flex;
   flex-direction: column;
@@ -6,73 +17,155 @@ mx-app {
   overflow: hidden;
 }
 
-.mx-header {
-  height: 60px;
+.mx-bar {
+  height: var(--mx-bar-height);
+  box-sizing: border-box;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
-  padding: 0 16px;
+  gap: 12px;
+  padding: 0 12px;
   flex-shrink: 0;
+  background: var(--bg-color);
+}
+
+.mx-bar {
+  white-space: nowrap; /* one row, never wrapped into a second that would steal height */
+}
+
+.mx-bar-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Compact mode (mx-app switches it on when the bar's contents would overflow): the four menus fold into "More" and
+   the transport sliders shorten. Nothing is hidden, nothing wraps. */
+mx-menu[menu="more"] {
+  display: none;
+}
+
+.mx-bar-compact #menu-controls mx-menu:not([menu="more"]) {
+  display: none;
+}
+
+.mx-bar-compact #menu-controls mx-menu[menu="more"] {
+  display: inline-block;
+}
+
+.mx-bar-compact mx-transport input[type="range"] {
+  width: 64px;
+}
+
+#run-status {
+  margin-inline-start: auto;
 }
 
 .mx-main {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-.mx-side-panel {
-  width: 300px;
-  border-right: 1px solid var(--border-color);
-  overflow-y: auto;
-  flex-shrink: 0;
-}
-
-.mx-score-area {
-  flex: 1;
-  overflow: auto;
   position: relative;
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.mx-empty-state {
+/* Overlays: absolutely positioned inside the main region, so they never reserve space. */
+#panel-host {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+#panel-host > mx-panel {
+  pointer-events: auto;
+}
+
+mx-drop-zone {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  pointer-events: none;
+}
+
+mx-drop-zone .mx-empty-state {
+  pointer-events: auto;
   margin: auto;
   text-align: center;
   color: #666;
+}
+
+mx-drop-zone .mx-empty-state[hidden] {
+  display: none;
+}
+
+mx-drop-zone .mx-drop-hint {
+  margin: 4px 0 12px;
+  font-size: 0.9em;
+}
+
+mx-drop-zone.drag-active {
+  outline: 3px dashed var(--color-blue);
+  outline-offset: -6px;
+  background: rgba(0, 114, 178, 0.06);
+}
+
+mx-notice-tray {
+  position: absolute;
+  inset-inline-end: 12px;
+  inset-block-end: 12px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: min(28rem, calc(100% - 24px));
+  pointer-events: none;
+}
+
+mx-notice-tray .notice {
+  pointer-events: auto;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+mx-notice-tray .notice.warning {
+  border-color: var(--color-vermilion);
+}
+
+mx-piano-keys {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: 4;
+  background: var(--bg-color);
+  border-top: 1px solid var(--border-color);
+  overflow-x: auto;
+}
+
+mx-piano-keys[hidden] {
+  display: none;
 }
 
 .hidden {
   display: none;
 }
 
-.mx-help-panel {
-  width: 360px;
-  border-left: 1px solid var(--border-color);
-  overflow-y: auto;
-  flex-shrink: 0;
-  padding: 12px 16px;
-}
-
-.mx-help-panel table {
+/* Content of the popups (moved here from the old asides; the elements themselves are unchanged). */
+mx-help-notation table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 12px;
 }
 
-.mx-help-panel th,
-.mx-help-panel td {
+mx-help-notation th,
+mx-help-notation td {
   text-align: left;
   padding: 4px 8px;
   border-bottom: 1px solid var(--border-color);
-}
-
-.mx-diagnostics-panel {
-  width: 280px;
-  border-left: 1px solid var(--border-color);
-  overflow-y: auto;
-  flex-shrink: 0;
-  padding: 12px 16px;
 }
 
 .mx-diagnostics-list {
@@ -150,4 +243,8 @@ mx-practice-panel[hidden] {
 .practice-loop-status {
   margin: 6px 0 0;
   color: #882255;
+}
+
+mx-run-status .run-stop {
+  margin-inline-start: 8px;
 }

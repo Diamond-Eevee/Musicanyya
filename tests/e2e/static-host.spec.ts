@@ -3,6 +3,7 @@ import * as http from 'node:http';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
+import { openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.join(__dirname, '../../dist');
@@ -70,7 +71,7 @@ test.describe('Static host with sub-path', () => {
     await expect(page.locator('mx-environment-panel')).toBeHidden();
 
     // Check environment panel shows Browser
-    await page.getByRole('button', { name: 'Environment' }).click();
+    await openPanel(page, 'environment');
     await expect(page.locator('mx-environment-panel')).toBeVisible();
     await expect(page.locator('mx-environment-panel')).toContainText('Browser');
 

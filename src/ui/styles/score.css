@@ -7,8 +7,13 @@ mx-score-view {
 
 .mx-score-scroll {
   height: 100%;
+  /* The bottom padding (an overlay's inset) is inside the box, so the scroll container is never taller than its host. */
+  box-sizing: border-box;
   overflow-y: auto;
   overflow-x: hidden;
+  /* The gutter is reserved whether or not a scrollbar shows, so the page width the layout is fitted to (the
+     scroll container's client width) never changes when the number of pages does (score-layout.md, G-1). */
+  scrollbar-gutter: stable;
   background: var(--bg-color);
 }
 
@@ -31,8 +36,9 @@ mx-score-view {
 }
 
 .mx-score-page {
+  /* The page is exactly as wide as the viewport: fitLayout() asks Verovio for a page that fills it, so there is
+     no cap and never a horizontal scrollbar (score-layout.md, G-1). */
   width: 100%;
-  max-width: 1200px;
   box-sizing: border-box;
 }
 
