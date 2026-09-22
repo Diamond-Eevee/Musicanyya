@@ -49,7 +49,7 @@ function sectionIdForFile(relFile: string): string | null {
  *  `buildScore` (never a second, looser parser) and derives its facts, then produces the index the
  *  app reads (contracts/library-index.md §2, §4). Importable so `tests/library/*.test.ts` can call it
  *  directly, and runnable as `pnpm library:index` (the block at the bottom of this file). */
-export async function buildLibraryIndex(libraryRoot: string): Promise<BuildLibraryIndexResult> {
+export async function buildLibraryIndex(libraryRoot: string, thirdPartyNotices = ''): Promise<BuildLibraryIndexResult> {
   const problems: string[] = [];
   const items: LibraryItem[] = [];
 
@@ -71,6 +71,11 @@ export async function buildLibraryIndex(libraryRoot: string): Promise<BuildLibra
     const meta = validMetadata(rawMeta);
     if (!meta) {
       problems.push(`${sidecarRelPath}: fails the item-metadata schema (contracts/library-index.md §1)`);
+      continue;
+    }
+
+    if (meta.provenance.origin === 'downloaded' && !thirdPartyNotices.includes(meta.provenance.source)) {
+      problems.push(`${relFile}: downloaded item's source is not recorded in THIRD_PARTY_NOTICES.md (FR-020)`);
       continue;
     }
 
@@ -159,7 +164,9 @@ export async function buildLibraryIndex(libraryRoot: string): Promise<BuildLibra
 
 async function main() {
   const libraryRoot = fileURLToPath(new URL('../../public/library/', import.meta.url));
-  const { index, problems } = await buildLibraryIndex(libraryRoot);
+  const noticesPath = fileURLToPath(new URL('../../THIRD_PARTY_NOTICES.md', import.meta.url));
+  const thirdPartyNotices = fs.readFileSync(noticesPath, 'utf-8');
+  const { index, problems } = await buildLibraryIndex(libraryRoot, thirdPartyNotices);
 
   if (problems.length > 0) {
     console.error(`Library index generation failed (${problems.length} problem(s)):`);

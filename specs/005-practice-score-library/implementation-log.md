@@ -504,3 +504,53 @@ Feature `005-practice-score-library`. Newest entry at the bottom.
   more tasks after T066; check `tasks.md` for what follows US3, or move to US4 if US3 is complete.
   Nothing is `[~]` at session end. Tree has all of this session's `public/library/` and `specs/
   005-practice-score-library/{tasks.md,implementation-log.md}` changes staged for commit next.
+
+## 2026-09-22 23:15 - claude-sonnet-5 (/speckit.continue: T067-T070, US4 checkpoint reached)
+
+- Done: US4 (Phase 6, "everything on the shelf is legally clear"), T067-T070.
+  - **T067**: `tests/library/licence.test.ts` written first. Ran once before any implementation
+    change: 9 of 10 cases already passed, because `validMetadata`/`build-index.ts` already enforced
+    the licence enum, empty-file, silent-item, arrangement-title and raisedBecause rules from earlier
+    tasks (T007, T018, T048-T050) - only "a downloaded item's source must be recorded in
+    `THIRD_PARTY_NOTICES.md`" (FR-020) failed, for the expected reason (no such check existed).
+  - **Implementation**: added that one missing check to `buildLibraryIndex` (`tools/library/
+    build-index.ts`) - it now takes the notices file's text as a second, optional parameter and
+    fails any `downloaded` item whose `provenance.source` string is not found in it; `main()` reads
+    the real `THIRD_PARTY_NOTICES.md` and passes it through. Added the named `LIBRARY_BUDGET_BYTES`
+    constant (10 MiB, SC-008) to `src/core/defaults.ts` per Constitution II (no magic numbers); the
+    test asserts the real `public/library/` tree against it directly, matching T078's later note
+    that this is the gate, not a report.
+  - **T068**: added a "Bundled practice library" section to `THIRD_PARTY_NOTICES.md` stating the
+    whole shelf is the project's own CC0 work and that no `downloaded` item currently exists (all 58
+    items are `origin: authored`, per `practice-material-sourcing` policy) - with a note on what a
+    future `downloaded` item's entry must include (FR-020).
+  - **T069**: found already fully delivered by T024 in US1 - `mx-score-source.ts` already shows
+    `credit` and `limitations` and says "Written for Musicanyya" for authored items, and
+    `tests/ui/mx-score-source.test.ts` already covers both provenance branches. No code change;
+    ticked with a note pointing at T024.
+  - **T070**: ran the three `quickstart.md` §US4 negative paths **by hand** against real files (not
+    just the T067 fixtures) - backed up `repertoire/beginner/ode-to-joy.{json,musicxml}` first, then
+    in turn: (a) changed its licence to `CC-BY-4.0` -> `pnpm library:index` failed on the schema
+    check; (b) changed its provenance to `downloaded` with a source not in `THIRD_PARTY_NOTICES.md`
+    -> failed on the new FR-020 check; (c) truncated the `.musicxml` to 0 bytes -> failed on "the
+    file is empty". Each reverted and diffed byte-for-byte against the backup before moving on;
+    `index.json`'s regenerated `generated` timestamp was reverted with `git checkout` since no real
+    content changed. Working tree confirmed clean for those paths afterward.
+- Decisions: `buildLibraryIndex`'s new `thirdPartyNotices` parameter defaults to `''` rather than
+  reading the file itself, so the pure generator function stays testable with an in-memory string
+  and `main()` (the only real caller besides tests) does the one `fs.readFileSync`.
+- Problems / open questions: none. A full e2e run flagged one Electron test
+  (`library.spec.ts:84 electron: identical behaviour under the app:// origin`) as failing with
+  "Target page, context or browser has been closed" - reproduced once more on a second full run, then
+  passed cleanly (`npx playwright test tests/e2e/library.spec.ts --project=electron`, 1 passed) in
+  true isolation. Confirmed as parallel-worker resource contention (the same class of flake the
+  previous entry recorded for a different, chromium timing test), not a regression - this session
+  touched no UI, Electron or timing code.
+- Full quality gate: **green**. `pnpm lint` (0 errors, 238 pre-existing warnings, same baseline as
+  clean HEAD - verified by stashing this session's changes and re-running), `pnpm typecheck` (clean),
+  `pnpm test` (151 files / 1298 tests, +10 over last session for the new licence test), `pnpm
+  test:e2e` (279 passed; the one Electron failure above is the flake, not a real failure - see above).
+- Handoff: next = Phase 7, US5 ("the library keeps the app honest"), starting at T071. US4's
+  Checkpoint is reached: the library check now genuinely fails a licence it does not admit, an
+  unrecorded downloaded item, and any placeholder file, and the open item's source/credit/limitations
+  are already visible in the UI. Tree clean at the commit this entry belongs to.

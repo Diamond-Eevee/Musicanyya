@@ -392,7 +392,7 @@ and fails on a missing, wrong or unrecorded one.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T067 [P] [US4] `tests/library/licence.test.ts` - every score file has a sidecar that validates;
+- [x] T067 [P] [US4] `tests/library/licence.test.ts` - every score file has a sidecar that validates;
   `licence` is `CC0-1.0` or `public-domain` and anything else **fails** (FR-017); a `downloaded` item
   has `source` + `obtained` **and** a `THIRD_PARTY_NOTICES.md` entry (FR-020); no file is 0 bytes
   **and no item is silent - every item has at least one sounding note** (FR-021, analyze A12); an
@@ -402,11 +402,15 @@ and fails on a missing, wrong or unrecorded one.
 
 ### Implementation
 
-- [ ] T068 [US4] `THIRD_PARTY_NOTICES.md` - an entry for every `downloaded` item, plus one statement
+- [x] T068 [US4] `THIRD_PARTY_NOTICES.md` - an entry for every `downloaded` item, plus one statement
   that the authored library is our own work under CC0
-- [ ] T069 [US4] `src/ui/elements/mx-score-source.ts` - show `credit` and `limitations`, and say
-  "written for Musicanyya" for authored items (FR-019, US4 scenario 3)
-- [ ] T070 [US4] Run the negative paths of `quickstart.md` SS"US4" by hand - a CC-BY sidecar, a
+- [x] T069 [US4] `src/ui/elements/mx-score-source.ts` - show `credit` and `limitations`, and say
+  "written for Musicanyya" for authored items (FR-019, US4 scenario 3) - **already delivered by T024**
+  (US1): that task built this exact component (credit, licence, limitations, the "Written for
+  Musicanyya" authored-item line) and `tests/ui/mx-score-source.test.ts` already covers both
+  provenance branches plus the limitations line. Verified against FR-019 scenario 3 this session;
+  no code change needed.
+- [x] T070 [US4] Run the negative paths of `quickstart.md` SS"US4" by hand - a CC-BY sidecar, a
   missing notices entry, a 0-byte file - and confirm each **fails** the suite; revert each
 
 **Checkpoint**: the library cannot ship an item whose licence is unknown or unrecorded.
