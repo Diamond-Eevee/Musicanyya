@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "title": "l'Arabesque (25 Etudes faciles, Op. 100, No. 2)",
+  "subtitle": "Arabeske",
+  "composer": "Johann Friedrich Franz Burgmuller",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "intermediate",
+  "tags": ["hands-together", "sight-reading", "dynamics", "phrasing"],
+  "trains": "Quick 16th-note turn figures answered by a light eighth-note tag, alternating with a lyrical dotted-quarter melody, over a steady broken-chord left hand in A minor - finger agility and voicing a short melodic cell cleanly at a scherzando tempo.",
+  "hands": "both",
+  "arrangement": false,
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "Musicanyya practice material",
+    "created": "2026-09-22",
+    "basedOn": "Burgmuller, 25 Etudes faciles et progressives, Op. 100, No. 2 \"l'Arabesque\" (public domain, published 1852). Every note and rhythm in both hands was checked against the exact pitch/duration/timing data in the Mutopia Project's public-domain MIDI rendering of its LilyPond edition (piece-info id 203, 25EF-02, typeset by Bas Wassink; source files 25EF-02.ly and 25EF-02.mid), read programmatically to avoid manual octave-placement error, then cross-checked measure-by-measure against the LilyPond source text itself (key A minor, 2/4, Allegro scherzando, quarter = 152, with a first-section repeat mm.3-11 and a second-section repeat mm.12-28, both with first/second endings, exactly as engraved here).",
+    "note": "One deliberate change from the source: its closing flourish (written here at measure 31, 'risoluto') drops from the phrase's highest note straight down nearly two and a half octaves before the final four-note descent; we brought that landing up by one octave (to the E3-A2 register used here, mirroring the register of the piece's earlier phrases) so the largest one-hand leap stays inside this shelf's Intermediate cap, while keeping the same dramatic upward-then-down gesture and the same final cadence shape. Everything else is engraved exactly as the source has it, including the double repeat structure."
+  },
+  "reviewedBy": "music-domain-expert",
+  "reviewedOn": "2026-09-22"
+}

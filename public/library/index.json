@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-22T18:21:57.502Z",
+  "generated": "2026-09-22T20:22:09.306Z",
   "sections": [
     {
       "id": "learning/chords",
@@ -3200,6 +3200,176 @@
       }
     },
     {
+      "id": "repertoire/advanced/bach-prelude-bwv846",
+      "section": "repertoire/advanced",
+      "file": "repertoire/advanced/bach-prelude-bwv846.musicxml",
+      "bytes": 114719,
+      "hash": "c5668cb93e3532c491f3c748d4a87ae50685ad742ce494d5069deb5c0f4edac5",
+      "meta": {
+        "version": 1,
+        "title": "Prelude No. 1 in C major, BWV 846",
+        "kind": "piece",
+        "level": "advanced",
+        "tags": [
+          "arpeggios",
+          "ties",
+          "hands-together",
+          "phrasing"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "Johann Sebastian Bach, Prelude No. 1 in C major, BWV 846, from The Well-Tempered Clavier, Book I (compiled by 1722, public domain; Bach died 1750). 35 measures, consisting almost entirely of a one-bar broken-chord figure (an eighth rest plus six 16th notes, played twice per bar) over a sustained bass note and a tied inner voice, with a written-out flourish replacing the repeat in the final three bars.",
+          "note": "Verified two ways before shipping. (1) Harmonic content: this file's measure-by-measure chord analysis (in-file comments) was checked against the independent chord-symbol transcription at classtab.org (guitar tab of the same prelude, which explicitly notes 'ALL MEASURES ARE REPEATED (PLAYED TWICE) EXCEPT FOR MEASURES 33-35' - matching this file's structure) for all 35 measures; the chord roots and qualities agree throughout, including the diminished-7th passing chords (mm.12, 14, 22, 28) and the closing tonic pedal (mm.32-35). (2) Exact pitches: measure 1's right-hand pattern was checked pixel-by-pixel against the CC0-licensed 'Open Well-Tempered Clavier' engraving (Kimiko Ishizaka / MuseScore, 2015; score rendered at musescore.com/classicman/scores/210606) by cropping and calibrating the staff-line pixel positions of that rendered score image - the rhythm (eighth rest + six 16ths, twice per bar) and pitches (G4 C5 E5 G4 C5 E5) match this file exactly, confirming both that the rest pattern is correct (not an error) and that the pitch content is accurate. Tempo (quarter = 66, 'Andantino') is an editorial choice for this engraving; Bach's autograph carries no tempo marking."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-22",
+        "subtitle": "from The Well-Tempered Clavier, Book I",
+        "composer": "Johann Sebastian Bach",
+        "trains": "Continuous right-hand arpeggiation over a sustained left-hand bass and an inner tied suspension voice; harmonic listening bar-to-bar (each measure is one implied chord); evenness of tone as the hand shifts position across 35 measures without a rest longer than an eighth note.",
+        "hands": "both"
+      },
+      "facts": {
+        "measures": 35,
+        "notes": 615,
+        "durationSeconds": 127.27272727272727,
+        "keys": [
+          "C major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 66,
+        "tempoDefaulted": false,
+        "lowestMidi": 36,
+        "highestMidi": 81,
+        "maxSpanSemitones": 12,
+        "staves": 2,
+        "voicesPerStaff": 2,
+        "handIndependenceFraction": 0.9714285714285714,
+        "shortestDivision": 16,
+        "notesPerBeat": 4.392857142857143,
+        "accidentals": 0,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 17,
+        "longestRunAtShortestValue": 412,
+        "attackCount": 612,
+        "peakNotesPerSecond": 5.5,
+        "accidentalMarkCount": 12,
+        "maxTieChainNotes": 2,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "advanced",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "repertoire/advanced/chopin-prelude-op28-no20",
+      "section": "repertoire/advanced",
+      "file": "repertoire/advanced/chopin-prelude-op28-no20.musicxml",
+      "bytes": 51598,
+      "hash": "6a6c0c1dc3ea4bf08fd833930a70ee482551d05b9e78d6c5e4e63812055aa37b",
+      "meta": {
+        "version": 1,
+        "title": "Prelude in C minor, Op. 28 No. 20",
+        "kind": "piece",
+        "level": "advanced",
+        "tags": [
+          "chords",
+          "dynamics",
+          "phrasing",
+          "sight-reading",
+          "pedal"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "Frédéric Chopin, Prelude in C minor, Op. 28 No. 20 (composed 1838/39, public domain). Transcribed from the Mutopia Project's public-domain LilyPond source (piece-info id 472, Chop-28-20.ly, typeset by Magnus Lewis-Smith from the Edition Peters plate).",
+          "note": "Every pitch in this file was derived mechanically, not by ear or by eye: the raw Chop-28-20.ly source was downloaded and its \\relative-octave note tokens were decoded with a small verification script implementing LilyPond's own documented relative-pitch algorithm (including the 'a chord's first note is relative to the first note of the preceding chord' rule, confirmed against the current LilyPond Notation Reference before use), then cross-checked bar-by-bar against the Mutopia PDF engraving and against two independent published harmonic-analysis summaries of the piece (Wikipedia's article on this Prelude; a bar-by-bar analysis site) for macro-level sanity (chord roots, the C-minor-to-A-flat-major opening move, the return to the tonic). One transcription slip was caught this way: the left hand's measure 9 was first copied verbatim from measure 5's identical-looking text, but measure 9's first chord actually carries an extra explicit octave mark in the source (<c' c'> vs measure 5's <c c'>) that resets the register for the reprise - missing it produced a left hand that drifted down below the piano's range by measure 12. Fixed by re-diffing every 'repeated' measure against its source text character-by-character rather than assuming a repeat. Tempo (Largo, quarter = 42), dynamics (ff/p/pp, two crescendi, one riten., 'a tempo'), and the clef changes between the two staves are also taken from the source. The source's near-continuous, retaken-every-chord sustain pedal is simplified in this file to a single pedal-down at the first note and pedal-up at the final chord, rather than encoding dozens of individual retakes (see limitations)."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-22",
+        "subtitle": "\"Funeral March\"",
+        "composer": "Frédéric Chopin",
+        "trains": "Dense, widely-spread four- and five-note block chords in both hands (up to a minor 10th), a full ff-to-pp dynamic range with two written crescendi, and a two-layer right-hand texture (a sustained chord against a decorative turn figure) that asks for careful voicing and pedalling rather than finger speed.",
+        "hands": "both",
+        "limitations": [
+          "Written pedal is not played by the engine (facts.hasPedal is informational only).",
+          "The source's pedal is retaken on nearly every chord throughout; this file encodes only a single sustained pedal-down/pedal-up pair spanning the whole piece rather than every individual retake, for encoding simplicity.",
+          "Slurs and the exact hairpin start/stop beat positions from the source engraving are approximated, not reproduced to the exact beat; they do not change the sounding pitches, rhythm or overall dynamic shape."
+        ]
+      },
+      "facts": {
+        "measures": 13,
+        "notes": 286,
+        "durationSeconds": 74.28571428571429,
+        "keys": [
+          "C minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 42,
+        "tempoDefaulted": false,
+        "lowestMidi": 24,
+        "highestMidi": 75,
+        "maxSpanSemitones": 14,
+        "staves": 2,
+        "voicesPerStaff": 2,
+        "handIndependenceFraction": 0.9230769230769231,
+        "shortestDivision": 16,
+        "notesPerBeat": 5.5,
+        "accidentals": 3,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": true,
+        "fingeringCoverage": 0,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 19,
+        "longestRunAtShortestValue": 1,
+        "attackCount": 110,
+        "peakNotesPerSecond": 2.5,
+        "accidentalMarkCount": 56,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "advanced",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
       "id": "repertoire/advanced/chopin-prelude-op28-no4",
       "section": "repertoire/advanced",
       "file": "repertoire/advanced/chopin-prelude-op28-no4.musicxml",
@@ -3280,6 +3450,266 @@
       },
       "levelCheck": {
         "level": "advanced",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "repertoire/advanced/fur-elise-complete",
+      "section": "repertoire/advanced",
+      "file": "repertoire/advanced/fur-elise-complete.musicxml",
+      "bytes": 74808,
+      "hash": "4356097a8a4e8c1d85f781e4034d43a4a671daf20d9eda2df91dcd99260ee3fe",
+      "meta": {
+        "version": 1,
+        "title": "Für Elise, WoO 59 (arranged, full A-B-A-C-A form)",
+        "kind": "piece",
+        "level": "advanced",
+        "tags": [
+          "octave-shift",
+          "phrasing",
+          "dynamics",
+          "sight-reading"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "Beethoven, Für Elise, WoO 59 (public domain, c. 1810). Cross-checked against Mutopia Project piece-info id 931, fur_Elise_WoO59.ly (typeset by Stelios Samelis). A theme reuses fur-elise-theme.musicxml's already-reviewed pitches.",
+          "note": "See limitations for a full, itemised disclosure of which passages were independently source-checked (form, key/metre, the A theme, and the famous run's exact shape) versus reconstructed from general knowledge (bridges, B section, the C-section bass-octave opening). Re-checked 2026-09-22 (later session): downloaded and visually inspected the Mutopia Project's complete published PDF engraving directly (fur_Elise_WoO59-let.pdf, piece-info id 931/2059, typeset by Stelios Samelis, 102 written measures) rather than relying on the earlier excerpt-only fetch. Confirmed the overall form (A-B-A-C-A with 1st/2nd-ending bridges), 3/8 metre, A minor with no key signature, Poco moto tempo marking, the pp opening dynamic, and the ottava-marked 32nd-note run in the C section all match this file. No machine-readable LilyPond source is published for this piece (unlike the Chopin Op. 28 items in this same wave, which were verified pitch-by-pitch against literal LilyPond source text), so a full mechanical note-by-note cross-check of the still-flagged passages (bridges, B-section melody, C-section bass-octave opening) was not performed this session; those items remain honest reconstructions, not verified transcriptions, exactly as disclosed below."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-22",
+        "subtitle": "Each section written out once - our own abridged arrangement, not a full published edition's length",
+        "composer": "Ludwig van Beethoven",
+        "arranger": "Musicanyya practice material",
+        "trains": "The rondo's full shape in miniature: the A theme, a lyrical F-major episode, an agitated C section with wide leaps, and the fast 32nd-note broken-chord run that puts this arrangement past Intermediate's reach.",
+        "hands": "both",
+        "arrangement": true,
+        "limitations": [
+          "Independently checked against Mutopia's fur_Elise_WoO59.ly (piece-info id 931): A minor with no key signature throughout, including the F-major episode (written with accidentals, not a key change, matching that source) - 3/8 metre; the A theme's own internal repeat-like structure (bars 1-4 restated as 5-8, reused from fur-elise-theme.musicxml); and the exact note sequence of the famous fast run (ascending broken-chord arpeggios through three registers ending in a chromatic descending cascade in 32nds, mm 41-45), checked against a verbatim excerpt of that source.",
+          "NOT independently verified note-by-note against the primary source (the available tools could fetch-and-summarize short excerpts only, not download/OCR the full score): the connective bridges (mm 9-10, 19-20, 29-30, 46-47), the B-section melody (mm 11-18), and the C-section's alternating-bass-octave opening (mm 31-40). These were composed by the author from strong general knowledge of this very well-known work, kept diatonically and harmonically conservative, but are a good-faith reconstruction, not a verified transcription. Recommend checking against an IMSLP facsimile or the Mutopia PDF bar-by-bar before this item is treated as fully verified.",
+          "Shorter than a full published edition (59 written measures + pickup vs. roughly 120-140 in print): each formal section (A-B-A-C-A) is written out once, complete, rather than padded with additional unverified repetition/figuration some editions include."
+        ]
+      },
+      "facts": {
+        "measures": 60,
+        "notes": 371,
+        "durationSeconds": 74.16666666666667,
+        "keys": [
+          "A minor"
+        ],
+        "metres": [
+          "3/8"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 28,
+        "highestMidi": 88,
+        "maxSpanSemitones": 12,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0.48333333333333334,
+        "shortestDivision": 32,
+        "notesPerBeat": 4.168539325842697,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 31,
+        "longestRunAtShortestValue": 24,
+        "attackCount": 346,
+        "peakNotesPerSecond": 11,
+        "accidentalMarkCount": 54,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "advanced",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "repertoire/advanced/satie-gymnopedie-no1",
+      "section": "repertoire/advanced",
+      "file": "repertoire/advanced/satie-gymnopedie-no1.musicxml",
+      "bytes": 40404,
+      "hash": "8c346609b4de78cd35875a84019a4b470996ec9efff02e4272b285ef8690472d",
+      "meta": {
+        "version": 1,
+        "title": "Gymnopedie No. 1",
+        "kind": "piece",
+        "level": "advanced",
+        "tags": [
+          "hands-together",
+          "ties",
+          "pedal",
+          "dynamics",
+          "phrasing"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "Satie, Trois Gymnopedies, No. 1 (public domain, composed 1888). Key (B minor, 2 sharps), tempo marking (Lent et douloureux, quarter = 50), metre (3/4), the alternating low-bass/high-chord left-hand accompaniment pattern and the right-hand melody's entrance in measure 5 were checked against the Mutopia Project's public-domain LilyPond edition (piece-info id 37, gymnopedie_1, typeset by Evin Robertson from the Dover Edition).",
+          "note": "This is our own re-engraving, not a copy of the Mutopia file: measures 1-32 follow the verified source's pitches and rhythm closely; measures 33-37 are our own single-pass close (the real piece continues with further reprises/da capo markings this shelf slot does not need). The left-hand voicing - a low bass note answered by a chord roughly two octaves higher - is authentic to the source, not a simplification; it is why this piece computes to Advanced (criteria 16 and 17) rather than the Intermediate shelf it was first drafted for."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-22",
+        "subtitle": "our own engraving, cross-checked against the Mutopia Project edition",
+        "composer": "Erik Satie",
+        "arranger": "Musicanyya practice material",
+        "trains": "A wide-spanning left hand alternating a low bass note with a chord high above it (up to a two-and-a-half-octave leap), sustained pedal colour, ties held across barlines and soft, patient dynamic shading (pp/p/mp/f) at a slow tempo.",
+        "hands": "both",
+        "arrangement": false,
+        "limitations": [
+          "written pedal is not played"
+        ]
+      },
+      "facts": {
+        "measures": 37,
+        "notes": 219,
+        "durationSeconds": 133.2,
+        "keys": [
+          "B minor"
+        ],
+        "metres": [
+          "3/4"
+        ],
+        "tempoBpm": 50,
+        "tempoDefaulted": false,
+        "lowestMidi": 35,
+        "highestMidi": 81,
+        "maxSpanSemitones": 14,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0.43243243243243246,
+        "shortestDivision": 4,
+        "notesPerBeat": 1.972972972972973,
+        "accidentals": 2,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": true,
+        "fingeringCoverage": 0,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 32,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 133,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 16,
+        "maxTieChainNotes": 4,
+        "maxTieBarlinesCrossed": 3,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "advanced",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "repertoire/beginner/amazing-grace",
+      "section": "repertoire/beginner",
+      "file": "repertoire/beginner/amazing-grace.musicxml",
+      "bytes": 8899,
+      "hash": "b8bece4c98b4c0acda88f34b7f8e270d7bb76d647641ccc9ca8a183b8b66ee8a",
+      "meta": {
+        "version": 1,
+        "title": "Amazing Grace (arranged for beginners)",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "hands-together",
+          "phrasing",
+          "dynamics"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "The tune \"New Britain\" is a pentatonic American folk/shape-note melody of unknown authorship, first published in Columbian Harmony (1829) and paired with John Newton's 1779 text \"Amazing Grace\" in William Walker's The Southern Harmony (1835) - both public domain. Verified via Wikipedia's \"New Britain (tune)\" entry and hymnary.org's tune record, which both confirm the pentatonic character (built from the scale degrees 1, 2, 3, 5, 6 only) and the 1829/1835 publication history.",
+          "note": "Four 4-bar phrases (16 bars) plus a one-beat pickup, key of G major, quarter=72. The source tune's characteristic long-short (dotted-quarter/eighth) hymn rhythm is smoothed here to plain quarter and half/dotted-half notes so the shortest value and tempo stay inside the Beginner caps; the melodic contour and pentatonic pitch content follow the verified tune closely. The left-hand single bass note per bar (I-IV-V harmonisation) is our own simple setting."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-22",
+        "subtitle": "Hymn tune \"New Britain\", simple two-hand setting in 3/4",
+        "composer": "Traditional (American hymn tune \"New Britain\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "A well-known pentatonic melody with a one-beat pickup, mostly half and dotted-half notes, over a single sustained bass note per bar - gentle two-hand reading at a slow tempo.",
+        "hands": "both",
+        "arrangement": true
+      },
+      "facts": {
+        "measures": 17,
+        "notes": 41,
+        "durationSeconds": 40.833333333333336,
+        "keys": [
+          "G major"
+        ],
+        "metres": [
+          "3/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 48,
+        "highestMidi": 74,
+        "maxSpanSemitones": 0,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "shortestDivision": 4,
+        "notesPerBeat": 0.8367346938775511,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 41,
+        "peakNotesPerSecond": 1.5,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
         "pass": true,
         "failed": []
       }
@@ -3451,6 +3881,171 @@
       }
     },
     {
+      "id": "repertoire/beginner/jingle-bells",
+      "section": "repertoire/beginner",
+      "file": "repertoire/beginner/jingle-bells.musicxml",
+      "bytes": 6768,
+      "hash": "e6f9b26b963f7437d780b94cb6b81b50b2aca85546bb63eafbb52013e9daecda",
+      "meta": {
+        "version": 1,
+        "title": "Jingle Bells (opening refrain, arranged for beginners)",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "hands-together",
+          "sight-reading"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "James Lord Pierpont's song, copyrighted September 16, 1857 as \"The One Horse Open Sleigh\" and reissued in 1859 as \"Jingle Bells\" (public domain in the United States as a pre-1928 publication). Verified via Boston University's \"History of Jingle Bells\" article and the song's Wikipedia entry, both confirming the 1857 copyright, Pierpont's authorship and the original title.",
+          "note": "Only the familiar opening refrain (\"Jingle bells, jingle bells, jingle all the way / Oh what fun it is to ride in a one-horse open sleigh\") is arranged here, 8 bars, key of C major, quarter=96 - not the full song with its verses. The original's faster note groupings on \"ride in a one-horse\" are simplified to plain quarter notes so the shortest value stays inside the Beginner cap; the melodic contour otherwise follows the well-known tune. The left-hand single bass note per bar is our own simple setting; arrangement is reflected in the title per FR-007."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-22",
+        "subtitle": "\"Jingle bells, jingle bells, jingle all the way\" - simple two-hand setting",
+        "composer": "James Lord Pierpont",
+        "arranger": "Musicanyya practice material",
+        "trains": "A very well-known, mostly repeated-note and stepwise melody in quarter/half notes over a single sustained bass note per bar, at a brisk tempo.",
+        "hands": "both",
+        "arrangement": true
+      },
+      "facts": {
+        "measures": 8,
+        "notes": 32,
+        "durationSeconds": 20,
+        "keys": [
+          "C major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 96,
+        "tempoDefaulted": false,
+        "lowestMidi": 48,
+        "highestMidi": 67,
+        "maxSpanSemitones": 0,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "shortestDivision": 4,
+        "notesPerBeat": 1,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 32,
+        "peakNotesPerSecond": 2.5,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "repertoire/beginner/mary-had-a-little-lamb",
+      "section": "repertoire/beginner",
+      "file": "repertoire/beginner/mary-had-a-little-lamb.musicxml",
+      "bytes": 6996,
+      "hash": "375548bcdeed8b28b179f96d7b2ad40f8e642ab6dac196cdbb77b57fafe8f711",
+      "meta": {
+        "version": 1,
+        "title": "Mary Had a Little Lamb (arranged for beginners)",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "five-finger",
+          "hands-together",
+          "sight-reading"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "Sarah Josepha Hale's poem \"Mary's Lamb\" was published in Boston in 1830 (public domain). The now-familiar melody is generally traced to the mid-19th-century minstrel tune \"Goodnight, Ladies\" rather than to any 1830 setting, and is of traditional/uncertain authorship - both the poem and the tune are long in the public domain. Verified via the Classical Music (classical-music.com) history article and Wikipedia's Sarah Josepha Hale entry, which agree on the 1830 poem date and the tune's later, separate, traditional origin.",
+          "note": "8-bar beginner form transposed to F major so the melody sits in a single five-finger hand position (F-G-A-Bb-C), quarter=96. The left-hand single bass note per bar (I-V) is our own simple setting; the published original has no piano accompaniment of its own."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-22",
+        "subtitle": "Traditional American melody, five-finger setting in F major",
+        "composer": "Traditional (American, 19th century)",
+        "arranger": "Musicanyya practice material",
+        "trains": "A very well-known three/four-note melody that never leaves a five-finger hand position, over a single sustained bass note per bar - an easy first piece for a fixed hand position.",
+        "hands": "both",
+        "arrangement": true
+      },
+      "facts": {
+        "measures": 8,
+        "notes": 34,
+        "durationSeconds": 20,
+        "keys": [
+          "F major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 96,
+        "tempoDefaulted": false,
+        "lowestMidi": 48,
+        "highestMidi": 72,
+        "maxSpanSemitones": 0,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "shortestDivision": 4,
+        "notesPerBeat": 1.0625,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 5,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 34,
+        "peakNotesPerSecond": 2.5,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
       "id": "repertoire/beginner/ode-to-joy",
       "section": "repertoire/beginner",
       "file": "repertoire/beginner/ode-to-joy.musicxml",
@@ -3534,6 +4129,339 @@
       }
     },
     {
+      "id": "repertoire/beginner/twinkle-twinkle-little-star",
+      "section": "repertoire/beginner",
+      "file": "repertoire/beginner/twinkle-twinkle-little-star.musicxml",
+      "bytes": 10090,
+      "hash": "3750965a96257bd4cb637a4285ef355d061c6cf32aa1cb9cd5c6bc9577d70d8b",
+      "meta": {
+        "version": 1,
+        "title": "Twinkle, Twinkle, Little Star (arranged for beginners)",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "hands-together",
+          "sight-reading",
+          "phrasing"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "The tune \"Twinkle, Twinkle, Little Star\" is the French folk melody \"Ah! vous dirai-je, Maman\", first published c. 1761 from an earlier c. 1740 tune (public domain); the English nursery-rhyme text is Jane Taylor's 1806 poem, also public domain. The melody is the same one Mozart used, decades later, as the theme for his Twelve Variations K. 265 - the tune itself long predates and is independent of that set. Verified via the tune's Wikipedia history entry and the Wikipedia entry for Mozart's K. 265 variations.",
+          "note": "Standard 12-bar AABA beginner form (three 4-bar phrases, the first repeated), key of C major, quarter=92. The left-hand bass root per bar (I-V-IV-I harmonisation) is our own simple setting; the published original has no piano accompaniment of its own."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-22",
+        "subtitle": "Traditional French melody, simple two-hand setting in 4/4",
+        "composer": "Traditional (French, 18th century)",
+        "arranger": "Musicanyya practice material",
+        "trains": "A very well-known stepwise-and-small-leap melody in quarter and half notes, over a single sustained bass note per bar - an easy first tune for reading two staves together.",
+        "hands": "both",
+        "arrangement": true
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 54,
+        "durationSeconds": 31.304347826086957,
+        "keys": [
+          "C major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 92,
+        "tempoDefaulted": false,
+        "lowestMidi": 48,
+        "highestMidi": 69,
+        "maxSpanSemitones": 0,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "shortestDivision": 4,
+        "notesPerBeat": 1.125,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 54,
+        "peakNotesPerSecond": 2.5,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "repertoire/intermediate/burgmuller-op100-no2",
+      "section": "repertoire/intermediate",
+      "file": "repertoire/intermediate/burgmuller-op100-no2.musicxml",
+      "bytes": 49826,
+      "hash": "f490eead5219d5081e0df8b3505b3e2b8c807dfe9465f8a922d2761183b0246f",
+      "meta": {
+        "version": 1,
+        "title": "l'Arabesque (25 Etudes faciles, Op. 100, No. 2)",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "hands-together",
+          "sight-reading",
+          "dynamics",
+          "phrasing"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "Burgmuller, 25 Etudes faciles et progressives, Op. 100, No. 2 \"l'Arabesque\" (public domain, published 1852). Every note and rhythm in both hands was checked against the exact pitch/duration/timing data in the Mutopia Project's public-domain MIDI rendering of its LilyPond edition (piece-info id 203, 25EF-02, typeset by Bas Wassink; source files 25EF-02.ly and 25EF-02.mid), read programmatically to avoid manual octave-placement error, then cross-checked measure-by-measure against the LilyPond source text itself (key A minor, 2/4, Allegro scherzando, quarter = 152, with a first-section repeat mm.3-11 and a second-section repeat mm.12-28, both with first/second endings, exactly as engraved here).",
+          "note": "One deliberate change from the source: its closing flourish (written here at measure 31, 'risoluto') drops from the phrase's highest note straight down nearly two and a half octaves before the final four-note descent; we brought that landing up by one octave (to the E3-A2 register used here, mirroring the register of the piece's earlier phrases) so the largest one-hand leap stays inside this shelf's Intermediate cap, while keeping the same dramatic upward-then-down gesture and the same final cadence shape. Everything else is engraved exactly as the source has it, including the double repeat structure."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-22",
+        "subtitle": "Arabeske",
+        "composer": "Johann Friedrich Franz Burgmuller",
+        "arranger": "Musicanyya practice material",
+        "trains": "Quick 16th-note turn figures answered by a light eighth-note tag, alternating with a lyrical dotted-quarter melody, over a steady broken-chord left hand in A minor - finger agility and voicing a short melodic cell cleanly at a scherzando tempo.",
+        "hands": "both",
+        "arrangement": false
+      },
+      "facts": {
+        "measures": 33,
+        "notes": 285,
+        "durationSeconds": 43.421052631578945,
+        "keys": [
+          "C major"
+        ],
+        "metres": [
+          "2/4"
+        ],
+        "tempoBpm": 152,
+        "tempoDefaulted": false,
+        "lowestMidi": 45,
+        "highestMidi": 93,
+        "maxSpanSemitones": 10,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0.696969696969697,
+        "shortestDivision": 16,
+        "notesPerBeat": 2.590909090909091,
+        "accidentals": 0,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": true,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 19,
+        "longestRunAtShortestValue": 4,
+        "attackCount": 197,
+        "peakNotesPerSecond": 12,
+        "accidentalMarkCount": 8,
+        "maxTieChainNotes": 2,
+        "maxTieBarlinesCrossed": 1,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "voltas",
+        "backwardRepeatCount": 2
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "repertoire/intermediate/burgmuller-op100-no5",
+      "section": "repertoire/intermediate",
+      "file": "repertoire/intermediate/burgmuller-op100-no5.musicxml",
+      "bytes": 25270,
+      "hash": "0a54d5ab06e91ae209cb6dae7f6814c96511d47e14afb2dad1f7b16bdaf7f682",
+      "meta": {
+        "version": 1,
+        "title": "Innocence (25 Etudes faciles, Op. 100, No. 5 - opening strain, arranged)",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "hands-together",
+          "phrasing",
+          "dynamics"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "Burgmuller, 25 Etudes faciles et progressives, Op. 100, No. 5 \"Innocence\" (public domain, published 1852). Measures 1-11 (both hands, right-hand 16th-note and 8th-note pitches and rhythm, left-hand dotted-half triads) were checked note-by-note against the Mutopia Project's public-domain LilyPond edition (piece-info id 214, 25EF-05, typeset by Bas Wassink, key F major, Moderato).",
+          "note": "This is our own re-engraving, not a copy of the Mutopia file, and it is an arrangement of the opening strain only (11 of the source's measures): the source's own second strain closes with a more virtuosic ottava-displaced descending/ascending run and a forte chord that we judged too advanced for this shelf slot, so measures 12-16 here are our own closing - a restatement of the opening's 16th-note turn figure (same as measures 1, matching the source's own written repeat structure) followed by a simple three-chord plagal-flavoured cadence, built from the piece's own motifs rather than transcribed from the source's actual ending."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-22",
+        "subtitle": "Unschuld - opening strain, our own closing",
+        "composer": "Johann Friedrich Franz Burgmuller",
+        "arranger": "Musicanyya practice material",
+        "trains": "A graceful right-hand melody mixing 16th-note turns with dotted-quarter/eighth figures over a sustained left-hand triad in each bar, in 3/4 at a moderate tempo - light articulation and phrase shading more than raw technique.",
+        "hands": "both",
+        "arrangement": true
+      },
+      "facts": {
+        "measures": 16,
+        "notes": 149,
+        "durationSeconds": 27.692307692307693,
+        "keys": [
+          "F major"
+        ],
+        "metres": [
+          "3/4"
+        ],
+        "tempoBpm": 104,
+        "tempoDefaulted": false,
+        "lowestMidi": 41,
+        "highestMidi": 72,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "shortestDivision": 16,
+        "notesPerBeat": 3.1041666666666665,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 16,
+        "longestRunAtShortestValue": 12,
+        "attackCount": 118,
+        "peakNotesPerSecond": 7.5,
+        "accidentalMarkCount": 2,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "repertoire/intermediate/clementi-sonatina-op36-no1-mvt1",
+      "section": "repertoire/intermediate",
+      "file": "repertoire/intermediate/clementi-sonatina-op36-no1-mvt1.musicxml",
+      "bytes": 24443,
+      "hash": "6838c8d707faa1e642498dfd6d71bccdebecd00d7a77ae56d10bd1edfa2d4586",
+      "meta": {
+        "version": 1,
+        "title": "Sonatina in C major, Op. 36 No. 1 (1st movement, exposition, arranged for this app)",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "scales",
+          "hands-together",
+          "sight-reading",
+          "phrasing"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "Muzio Clementi, Sonatina in C major, Op. 36 No. 1 (published 1797, public domain; Clementi died 1832), 1st movement (Spiritoso). Pitches and rhythm for measures 1-15 (both hands) were transcribed and checked note-by-note against the Mutopia Project's public-domain LilyPond engraving (piece-info id 804, sonatina-1.ly, after the G. Schirmer 1893 Sonatina Album edition), including cross-checking the relative-octave arithmetic against the piece's well-known melodic contour and against the internal harmonic/voice-leading consistency of the reconstructed left hand.",
+          "note": "Exposition only (the source's own measures 1-15, up to its written repeat sign), played once; the notated repeat back to measure 1, and the movement's development/recapitulation (measures 16-38 of the source), are not included. The source's suggested tempo (quarter = 156) was lowered to 144 for this file so the stated tempo sits inside this level's tempo cap while keeping the 'Spiritoso' character; 144 is well within the range performers use for this piece."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-22",
+        "subtitle": "Spiritoso - exposition only, repeat not taken",
+        "composer": "Muzio Clementi",
+        "trains": "A brisk single-line melody in the right hand (scale runs, octave leaps, a brief secondary-dominant tonicization) over a light, mostly on-the-beat left hand - reading fluency and a fast, even tempo more than technical difficulty.",
+        "hands": "both",
+        "arrangement": true
+      },
+      "facts": {
+        "measures": 15,
+        "notes": 135,
+        "durationSeconds": 25,
+        "keys": [
+          "C major"
+        ],
+        "metres": [
+          "2/2"
+        ],
+        "tempoBpm": 144,
+        "tempoDefaulted": false,
+        "lowestMidi": 38,
+        "highestMidi": 86,
+        "maxSpanSemitones": 0,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0.5333333333333333,
+        "shortestDivision": 8,
+        "notesPerBeat": 2.25,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 12,
+        "longestRunAtShortestValue": 24,
+        "attackCount": 135,
+        "peakNotesPerSecond": 7.5,
+        "accidentalMarkCount": 6,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
       "id": "repertoire/intermediate/fur-elise-theme",
       "section": "repertoire/intermediate",
       "file": "repertoire/intermediate/fur-elise-theme.musicxml",
@@ -3602,6 +4530,91 @@
         "attackCount": 53,
         "peakNotesPerSecond": 6,
         "accidentalMarkCount": 7,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "repertoire/intermediate/schumann-op68-no10",
+      "section": "repertoire/intermediate",
+      "file": "repertoire/intermediate/schumann-op68-no10.musicxml",
+      "bytes": 60767,
+      "hash": "8f3dfedeac0974f290ac057b3f7f58c82582e6fa92acddb6cb0c7a6e0d45e590",
+      "meta": {
+        "version": 1,
+        "title": "Fröhlicher Landmann (The Happy Farmer), Op. 68 No. 10",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "hands-together",
+          "steady-eighths",
+          "dynamics",
+          "phrasing",
+          "sight-reading"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "Robert Schumann, Album für die Jugend Op. 68 No. 10 \"Fröhlicher Landmann\" (1848, public domain). Complete piece, from the Mutopia Project edition schumann-op68-10-gai-laboureur. Pitches/rhythms extracted programmatically from Mutopia's rendered MIDI, cross-checked against the .ly source.",
+          "note": "Marking is \"Frisch und munter\" (fresh and lively) - confirmed independently, not \"Nicht schnell\" (that is Op. 68 No. 13). Source MIDI tempo (quarter=100) used unchanged, within this level's cap. Pitch class 10 spelled as diatonic B-flat (F major, no accidental); the source's two B-natural accidentals kept. Meets Intermediate caps: span 31 semitones, longest eighth-note run 9 (cap 32), density ~4.6/~6.5 notes/s (caps 6/12), 2 voices in the right hand (cap 2)."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-22",
+        "subtitle": "from Album für die Jugend (Album for the Young) - complete, Frisch und munter",
+        "composer": "Robert Schumann",
+        "arranger": "Musicanyya practice material",
+        "trains": "A famous bouncy tune shared between the hands - the opening melody sits in the left hand under offbeat right-hand chords, then the hands trade roles for a running middle section with brief two-voice moments in the right hand - independent eighth-note coordination at a lively tempo.",
+        "hands": "both",
+        "arrangement": false
+      },
+      "facts": {
+        "measures": 21,
+        "notes": 352,
+        "durationSeconds": 48.3,
+        "keys": [
+          "F major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 100,
+        "tempoDefaulted": false,
+        "lowestMidi": 46,
+        "highestMidi": 77,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 2,
+        "handIndependenceFraction": 0.9523809523809523,
+        "shortestDivision": 8,
+        "notesPerBeat": 4.372670807453416,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 12,
+        "longestRunAtShortestValue": 9,
+        "attackCount": 222,
+        "peakNotesPerSecond": 6.5,
+        "accidentalMarkCount": 4,
         "maxTieChainNotes": 0,
         "maxTieBarlinesCrossed": 0,
         "hasNonSimpleTuplet": false,

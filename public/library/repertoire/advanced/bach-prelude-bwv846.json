@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "title": "Prelude No. 1 in C major, BWV 846",
+  "subtitle": "from The Well-Tempered Clavier, Book I",
+  "composer": "Johann Sebastian Bach",
+  "kind": "piece",
+  "level": "advanced",
+  "tags": ["arpeggios", "ties", "hands-together", "phrasing"],
+  "trains": "Continuous right-hand arpeggiation over a sustained left-hand bass and an inner tied suspension voice; harmonic listening bar-to-bar (each measure is one implied chord); evenness of tone as the hand shifts position across 35 measures without a rest longer than an eighth note.",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "Musicanyya practice material",
+    "created": "2026-09-22",
+    "basedOn": "Johann Sebastian Bach, Prelude No. 1 in C major, BWV 846, from The Well-Tempered Clavier, Book I (compiled by 1722, public domain; Bach died 1750). 35 measures, consisting almost entirely of a one-bar broken-chord figure (an eighth rest plus six 16th notes, played twice per bar) over a sustained bass note and a tied inner voice, with a written-out flourish replacing the repeat in the final three bars.",
+    "note": "Verified two ways before shipping. (1) Harmonic content: this file's measure-by-measure chord analysis (in-file comments) was checked against the independent chord-symbol transcription at classtab.org (guitar tab of the same prelude, which explicitly notes 'ALL MEASURES ARE REPEATED (PLAYED TWICE) EXCEPT FOR MEASURES 33-35' - matching this file's structure) for all 35 measures; the chord roots and qualities agree throughout, including the diminished-7th passing chords (mm.12, 14, 22, 28) and the closing tonic pedal (mm.32-35). (2) Exact pitches: measure 1's right-hand pattern was checked pixel-by-pixel against the CC0-licensed 'Open Well-Tempered Clavier' engraving (Kimiko Ishizaka / MuseScore, 2015; score rendered at musescore.com/classicman/scores/210606) by cropping and calibrating the staff-line pixel positions of that rendered score image - the rhythm (eighth rest + six 16ths, twice per bar) and pitches (G4 C5 E5 G4 C5 E5) match this file exactly, confirming both that the rest pattern is correct (not an error) and that the pitch content is accurate. Tempo (quarter = 66, 'Andantino') is an editorial choice for this engraving; Bach's autograph carries no tempo marking."
+  },
+  "reviewedBy": "music-domain-expert",
+  "reviewedOn": "2026-09-22"
+}

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "title": "Amazing Grace (arranged for beginners)",
+  "subtitle": "Hymn tune \"New Britain\", simple two-hand setting in 3/4",
+  "composer": "Traditional (American hymn tune \"New Britain\")",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "tags": ["hands-together", "phrasing", "dynamics"],
+  "trains": "A well-known pentatonic melody with a one-beat pickup, mostly half and dotted-half notes, over a single sustained bass note per bar - gentle two-hand reading at a slow tempo.",
+  "hands": "both",
+  "arrangement": true,
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "Musicanyya practice material",
+    "created": "2026-09-22",
+    "basedOn": "The tune \"New Britain\" is a pentatonic American folk/shape-note melody of unknown authorship, first published in Columbian Harmony (1829) and paired with John Newton's 1779 text \"Amazing Grace\" in William Walker's The Southern Harmony (1835) - both public domain. Verified via Wikipedia's \"New Britain (tune)\" entry and hymnary.org's tune record, which both confirm the pentatonic character (built from the scale degrees 1, 2, 3, 5, 6 only) and the 1829/1835 publication history.",
+    "note": "Four 4-bar phrases (16 bars) plus a one-beat pickup, key of G major, quarter=72. The source tune's characteristic long-short (dotted-quarter/eighth) hymn rhythm is smoothed here to plain quarter and half/dotted-half notes so the shortest value and tempo stay inside the Beginner caps; the melodic contour and pentatonic pitch content follow the verified tune closely. The left-hand single bass note per bar (I-IV-V harmonisation) is our own simple setting."
+  },
+  "reviewedBy": "music-domain-expert",
+  "reviewedOn": "2026-09-22"
+}

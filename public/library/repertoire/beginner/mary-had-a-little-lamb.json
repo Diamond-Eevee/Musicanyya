@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "title": "Mary Had a Little Lamb (arranged for beginners)",
+  "subtitle": "Traditional American melody, five-finger setting in F major",
+  "composer": "Traditional (American, 19th century)",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "tags": ["five-finger", "hands-together", "sight-reading"],
+  "trains": "A very well-known three/four-note melody that never leaves a five-finger hand position, over a single sustained bass note per bar - an easy first piece for a fixed hand position.",
+  "hands": "both",
+  "arrangement": true,
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "Musicanyya practice material",
+    "created": "2026-09-22",
+    "basedOn": "Sarah Josepha Hale's poem \"Mary's Lamb\" was published in Boston in 1830 (public domain). The now-familiar melody is generally traced to the mid-19th-century minstrel tune \"Goodnight, Ladies\" rather than to any 1830 setting, and is of traditional/uncertain authorship - both the poem and the tune are long in the public domain. Verified via the Classical Music (classical-music.com) history article and Wikipedia's Sarah Josepha Hale entry, which agree on the 1830 poem date and the tune's later, separate, traditional origin.",
+    "note": "8-bar beginner form transposed to F major so the melody sits in a single five-finger hand position (F-G-A-Bb-C), quarter=96. The left-hand single bass note per bar (I-V) is our own simple setting; the published original has no piano accompaniment of its own."
+  },
+  "reviewedBy": "music-domain-expert",
+  "reviewedOn": "2026-09-22"
+}

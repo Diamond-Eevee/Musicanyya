@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "title": "Sonatina in C major, Op. 36 No. 1 (1st movement, exposition, arranged for this app)",
+  "subtitle": "Spiritoso - exposition only, repeat not taken",
+  "composer": "Muzio Clementi",
+  "kind": "piece",
+  "level": "intermediate",
+  "tags": ["scales", "hands-together", "sight-reading", "phrasing"],
+  "trains": "A brisk single-line melody in the right hand (scale runs, octave leaps, a brief secondary-dominant tonicization) over a light, mostly on-the-beat left hand - reading fluency and a fast, even tempo more than technical difficulty.",
+  "hands": "both",
+  "arrangement": true,
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "Musicanyya practice material",
+    "created": "2026-09-22",
+    "basedOn": "Muzio Clementi, Sonatina in C major, Op. 36 No. 1 (published 1797, public domain; Clementi died 1832), 1st movement (Spiritoso). Pitches and rhythm for measures 1-15 (both hands) were transcribed and checked note-by-note against the Mutopia Project's public-domain LilyPond engraving (piece-info id 804, sonatina-1.ly, after the G. Schirmer 1893 Sonatina Album edition), including cross-checking the relative-octave arithmetic against the piece's well-known melodic contour and against the internal harmonic/voice-leading consistency of the reconstructed left hand.",
+    "note": "Exposition only (the source's own measures 1-15, up to its written repeat sign), played once; the notated repeat back to measure 1, and the movement's development/recapitulation (measures 16-38 of the source), are not included. The source's suggested tempo (quarter = 156) was lowered to 144 for this file so the stated tempo sits inside this level's tempo cap while keeping the 'Spiritoso' character; 144 is well within the range performers use for this piece."
+  },
+  "reviewedBy": "music-domain-expert",
+  "reviewedOn": "2026-09-22"
+}
