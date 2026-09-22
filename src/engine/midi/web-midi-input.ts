@@ -1,3 +1,4 @@
+import { errorMessage } from '../../core/errors.js';
 import type { MidiAvailability, MidiDevice, MidiInput, MidiInputEvent, Unsubscribe } from '../ports.js';
 
 export class WebMidiInput implements MidiInput {
@@ -42,8 +43,8 @@ export class WebMidiInput implements MidiInput {
 
       this.emit({ type: 'availability', availability: this.grantState });
       return this.grantState;
-    } catch (err: any) {
-      this.grantState = err?.message?.includes('not available') ? 'notSupported' : 'denied';
+    } catch (err) {
+      this.grantState = errorMessage(err).includes('not available') ? 'notSupported' : 'denied';
       this.emit({ type: 'availability', availability: this.grantState });
       return this.grantState;
     }

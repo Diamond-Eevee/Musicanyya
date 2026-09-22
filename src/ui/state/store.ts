@@ -8,7 +8,7 @@ export interface Store<T> {
   subscribe(listener: Listener<T>): Unsubscribe;
 }
 
-function deepEqual(a: any, b: any): boolean {
+function deepEqual(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (typeof a !== 'object' || typeof b !== 'object' || a == null || b == null) return false;
   // Object.keys() of a Map or a Set is empty, so without this any two of them compare equal and a change to one
@@ -28,11 +28,15 @@ function deepEqual(a: any, b: any): boolean {
     return true;
   }
   if (Array.isArray(a) !== Array.isArray(b)) return false;
-  const keysA = Object.keys(a);
-  const keysB = Object.keys(b);
+  // Both are non-null objects by now, so indexing them by their own keys is safe; the record type is
+  // what lets us say that without reaching for `any` (tasks.md T139).
+  const objectA = a as Record<string, unknown>;
+  const objectB = b as Record<string, unknown>;
+  const keysA = Object.keys(objectA);
+  const keysB = Object.keys(objectB);
   if (keysA.length !== keysB.length) return false;
   for (const key of keysA) {
-    if (!deepEqual(a[key], b[key])) return false;
+    if (!deepEqual(objectA[key], objectB[key])) return false;
   }
   return true;
 }

@@ -10,6 +10,8 @@ export class MxLatencyPanel extends HTMLElement {
   private expectedTimesMs: number[] = [];
   private startTimeMs = 0;
   private intervalId: number | null = null;
+  /** Held so `stopCalibration` can actually remove it; see the note there (tasks.md T139). */
+  private keydownHandler: ((event: KeyboardEvent) => void) | null = null;
 
   connectedCallback() {
     this.unsubscribe = playState.subscribe(() => this.render());
@@ -63,6 +65,7 @@ export class MxLatencyPanel extends HTMLElement {
   }
 
   private startCalibration() {
+    this.stopCalibration(); // restarting must not leave the previous run's timer or listener behind
     this.calibrating = true;
     this.taps = [];
     this.expectedTimesMs = [];
@@ -81,14 +84,13 @@ export class MxLatencyPanel extends HTMLElement {
       // For this UI component, we'll listen to keydown instead.
     }, msPerBeat);
 
-    const keydownHandler = (e: KeyboardEvent) => {
+    this.keydownHandler = (e: KeyboardEvent) => {
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
         this.recordTap();
       }
     };
-    window.addEventListener('keydown', keydownHandler);
-    this.dataset.handler = keydownHandler as any;
+    window.addEventListener('keydown', this.keydownHandler);
   }
 
   private recordTap() {
@@ -123,9 +125,14 @@ export class MxLatencyPanel extends HTMLElement {
       window.clearInterval(this.intervalId);
       this.intervalId = null;
     }
-    if (this.dataset.handler) {
-      window.removeEventListener('keydown', this.dataset.handler as any);
-      delete this.dataset.handler;
+    // The handler used to be stashed in `this.dataset.handler`, which is a DOMStringMap: assigning a
+    // function there stores its *source text*, so `removeEventListener` was handed a string and never
+    // matched the registered listener. Calibration leaked a live keydown handler onto `window` every
+    // time it ran. Holding the function in a field is what makes the removal work - and what makes it
+    // typable without `as any` (tasks.md T139).
+    if (this.keydownHandler) {
+      window.removeEventListener('keydown', this.keydownHandler);
+      this.keydownHandler = null;
     }
     this.calibrating = false;
   }

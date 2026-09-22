@@ -103,5 +103,5 @@ export const playState = new PlayStateStore();
 
 if (typeof window !== 'undefined') {
   // e2e/manual-debugging seam only, same treatment as `practiceState`'s own `__PRACTICE_STATE__`.
-  (window as any).__PLAY_STATE__ = playState;
+  (window as Window & { __PLAY_STATE__?: typeof playState }).__PLAY_STATE__ = playState;
 }

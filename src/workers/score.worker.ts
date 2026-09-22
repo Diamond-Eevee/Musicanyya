@@ -1,3 +1,4 @@
+import { errorCode, errorMessage } from '../core/errors.js';
 import { buildScore } from '../core/musicxml/build.js';
 import { readXml } from '../core/musicxml/read.js';
 import { createRenderCopy } from '../core/musicxml/render-copy.js';
@@ -129,16 +130,19 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
       },
       transfers,
     );
-  } catch (error: any) {
+  } catch (error) {
+    // A MusicXmlLoadError carries a code (and sometimes a position) the notice tray knows how to
+    // show; anything else is genuinely ours and falls back to `internal`.
+    const located = error as { line?: number; column?: number; detail?: string };
     postMessageFn({
       type: 'failed',
       requestId,
       error: {
-        code: error.code || 'internal',
-        message: error.message,
-        line: error.line,
-        column: error.column,
-        detail: error.detail,
+        code: errorCode(error) ?? 'internal',
+        message: errorMessage(error),
+        line: located.line,
+        column: located.column,
+        detail: located.detail,
       },
     });
   }

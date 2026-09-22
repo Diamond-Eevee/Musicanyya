@@ -1,5 +1,13 @@
 import { MAX_UNCOMPRESSED_BYTES, MAX_ZIP_ENTRIES } from '../config.js';
 
+/** One central-directory record of the .mxl archive, as read by `readMxl` (tasks.md T139). */
+interface ZipEntry {
+  name: string;
+  method: number;
+  compressedSize: number;
+  uncompressedSize: number;
+  localHeaderOffset: number;
+}
 export async function readMxl(bytes: Uint8Array): Promise<Uint8Array> {
   const eocdIndex = findEOCD(bytes);
   if (eocdIndex < 0) {
@@ -13,7 +21,7 @@ export async function readMxl(bytes: Uint8Array): Promise<Uint8Array> {
   }
   let cdOffset = dv.getUint32(eocdIndex + 16, true);
 
-  const entries: any[] = [];
+  const entries: ZipEntry[] = [];
   for (let i = 0; i < cdCount; i++) {
     if (dv.getUint32(cdOffset, true) !== 0x02014b50) throw new Error('Unsupported archive');
 
@@ -73,7 +81,7 @@ function findEOCD(bytes: Uint8Array): number {
   return -1;
 }
 
-async function extractEntry(bytes: Uint8Array, dv: DataView, entry: any): Promise<Uint8Array> {
+async function extractEntry(bytes: Uint8Array, dv: DataView, entry: ZipEntry): Promise<Uint8Array> {
   const lfhOffset = entry.localHeaderOffset;
   if (dv.getUint32(lfhOffset, true) !== 0x04034b50) throw new Error('Unsupported archive');
   const nameLen = dv.getUint16(lfhOffset + 26, true);

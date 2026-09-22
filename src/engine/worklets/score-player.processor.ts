@@ -1,4 +1,4 @@
-import { SoundBankLoader, SpessaSynthProcessor } from 'spessasynth_core';
+import { type MIDIController, SoundBankLoader, SpessaSynthProcessor } from 'spessasynth_core';
 
 /**
  * Score player processor – offline-testable factory.
@@ -55,11 +55,29 @@ export type ProcessorMessage =
   | { type: 'ended'; frame: number }
   | { type: 'liveDropped'; total: number };
 
+/**
+ * A live MIDI event forwarded from the main thread while a session runs.
+ *
+ * Typed rather than `any` so the queue drain in `processBlock` cannot silently read a field that was
+ * never sent - the drain is on the real-time path, where a wrong read is a stuck note (tasks.md T139).
+ */
+export type LiveMessage =
+  | { type: 'live'; kind: 'on'; key: number; velocity: number }
+  | { type: 'live'; kind: 'off'; key: number }
+  | { type: 'live'; kind: 'sustain'; down: boolean }
+  | { type: 'live'; kind: 'allOff' };
+
+/**
+ * Anything the main thread may post in. The processor switches on `type`, so the envelope is what
+ * matters here; each branch narrows to the concrete message it needs (`ScheduleMessage` and friends).
+ */
+export type InboundMessage = { type: string; [field: string]: unknown };
+
 export interface ScorePlayerProcessor {
   /** Called by the test harness instead of AudioWorkletProcessor.process(); blockSize = left.length. */
   processBlock(left: Float32Array, right: Float32Array): void;
   /** Deliver an inbound message (plays the role of port.onmessage). */
-  receiveMessage(msg: any): void;
+  receiveMessage(msg: InboundMessage): void;
   /** Outbound message callback (plays the role of port.postMessage). */
   onMessage: ((msg: ProcessorMessage) => void) | null;
 }
@@ -97,7 +115,7 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   // Held note tracking for all-notes-off on pause/stop/seek
   const heldNotes: Set<number> = new Set(); // encoded as (channel << 7) | key
 
-  const liveQueue: any[] = [];
+  const liveQueue: LiveMessage[] = [];
   let liveDropped = 0; // T057: counted and shown like the other dropouts (Constitution I)
 
   let onMessage: ((msg: ProcessorMessage) => void) | null = null;
@@ -108,8 +126,18 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
 
   function computeCurrentTick(): number {
     if (!schedule || segs.length === 0) return returnTick;
-    // Compute tick from the current frame position
-    const seg = [...segs].reverse().find((s) => s.startFrame <= currentFrame) ?? segs[0]!;
+    // Walked backwards by index, not `[...segs].reverse().find(...)`: that copied the array, reversed
+    // the copy and allocated a closure on every call, and this is called from inside the render
+    // quantum via sendPositionReport() - roughly 94 allocations a second at
+    // POSITION_REPORT_BLOCKS = 4. Constitution I forbids allocating in process().
+    let seg = segs[0]!;
+    for (let i = segs.length - 1; i >= 0; i--) {
+      const candidate = segs[i]!;
+      if (candidate.startFrame <= currentFrame) {
+        seg = candidate;
+        break;
+      }
+    }
     return seg.startTick + (currentFrame - seg.startFrame) * seg.ticksPerFrame;
   }
 
@@ -166,10 +194,10 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     }
   }
 
-  function receiveMessage(msg: any): void {
+  function receiveMessage(msg: InboundMessage): void {
     switch (msg.type) {
       case 'schedule': {
-        const sched = msg as ScheduleMessage;
+        const sched = msg as unknown as ScheduleMessage;
         schedule = sched;
         playing = false;
         allNotesOff();
@@ -241,7 +269,7 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
       }
       case 'live': {
         if (liveQueue.length < 64) {
-          liveQueue.push(msg);
+          liveQueue.push(msg as LiveMessage);
         } else {
           // Dropped, not queued: a stuck note or a missed release is worse than briefly not knowing about it, but
           // it must still be counted and shown (Constitution I, R-16). Posted here, not from process(): this
@@ -266,10 +294,11 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     const liveCount = liveQueue.length;
     for (let i = 0; i < liveCount; i++) {
       const msg = liveQueue[i];
+      if (msg === undefined) continue;
       if (msg.kind === 'on') {
-        synth.noteOn(LIVE_CHANNEL, msg.key as number, msg.velocity as number);
+        synth.noteOn(LIVE_CHANNEL, msg.key, msg.velocity);
       } else if (msg.kind === 'off') {
-        synth.noteOff(LIVE_CHANNEL, msg.key as number);
+        synth.noteOff(LIVE_CHANNEL, msg.key);
       } else if (msg.kind === 'sustain') {
         synth.controllerChange?.(LIVE_CHANNEL, 64, msg.down ? 127 : 0);
       } else if (msg.kind === 'allOff') {
@@ -363,7 +392,9 @@ if (typeof AudioWorkletProcessor !== 'undefined') {
               this.synth.controllerChange(ch, 123, 0); // All Notes Off
             }
           },
-          controllerChange: (c, ctrl, v) => this.synth.controllerChange(c, ctrl as any, v),
+          // Our port takes a plain CC number; spessasynth types its parameter as the MIDIController
+          // union of the controllers it knows. The cast is the narrow one, not `any` (tasks.md T139).
+          controllerChange: (c, ctrl, v) => this.synth.controllerChange(c, ctrl as MIDIController, v),
           process: (left, right, startIndex, sampleCount) => this.synth.process(left, right, startIndex, sampleCount),
         },
         sampleRate: sampleRate,
@@ -397,16 +428,18 @@ if (typeof AudioWorkletProcessor !== 'undefined') {
             this.synth.soundBankManager.addSoundBank(bank, 'default');
             this.soundReady = true;
             this.port.postMessage({ type: 'status', state: 'soundReady' });
-          } catch (err: any) {
-            this.port.postMessage({ type: 'status', state: 'error', detail: err?.message || String(err) });
+          } catch (err) {
+            const detail = err instanceof Error && err.message ? err.message : String(err);
+            this.port.postMessage({ type: 'status', state: 'error', detail });
           }
           return;
         }
 
         try {
           this.inner.receiveMessage(msg);
-        } catch (err: any) {
-          this.port.postMessage({ type: 'status', state: 'error', detail: err?.message || String(err) });
+        } catch (err) {
+          const detail = err instanceof Error && err.message ? err.message : String(err);
+          this.port.postMessage({ type: 'status', state: 'error', detail });
         }
       };
     }

@@ -1,7 +1,29 @@
-import verovio from 'verovio';
+import verovio, { type VerovioToolkit } from 'verovio';
+import { errorMessage } from '../core/errors.js';
 
-let toolkit: any = null;
-let initPromise: Promise<void> | null = null;
+let toolkit: VerovioToolkit | null = null;
+let initPromise: Promise<VerovioToolkit> | null = null;
+
+/**
+ * The toolkit, constructing it on the first call and sharing one in-flight construction between
+ * concurrent callers. Resolving the promise *with* the toolkit rather than assigning a
+ * module-level `null`-able from inside the executor is what lets this be typed at all - the
+ * previous `let toolkit: any` hid a real "possibly null" hazard (tasks.md T139).
+ */
+async function ensureToolkit(): Promise<VerovioToolkit> {
+  if (toolkit) return toolkit;
+  if (!initPromise) {
+    initPromise = new Promise<VerovioToolkit>((resolve) => {
+      if (verovio.module._vrvToolkit_constructor) {
+        resolve(new verovio.toolkit());
+      } else {
+        verovio.module.onRuntimeInitialized = () => resolve(new verovio.toolkit());
+      }
+    });
+  }
+  toolkit = await initPromise;
+  return toolkit;
+}
 
 export async function handleMessage(event: MessageEvent, postMessageFn: typeof postMessage) {
   const data = event.data;
@@ -9,23 +31,8 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
   try {
     switch (data.type) {
       case 'init': {
-        if (!toolkit) {
-          if (!initPromise) {
-            initPromise = new Promise<void>((resolve) => {
-              if (verovio.module._vrvToolkit_constructor) {
-                toolkit = new verovio.toolkit();
-                resolve();
-              } else {
-                verovio.module.onRuntimeInitialized = () => {
-                  toolkit = new verovio.toolkit();
-                  resolve();
-                };
-              }
-            });
-          }
-          await initPromise;
-        }
-        postMessageFn({ type: 'ready', requestId: data.requestId, version: toolkit.getVersion() });
+        const ready = await ensureToolkit();
+        postMessageFn({ type: 'ready', requestId: data.requestId, version: ready.getVersion() });
         break;
       }
       case 'load': {
@@ -80,8 +87,8 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
         break;
       }
     }
-  } catch (err: any) {
-    postMessageFn({ type: 'error', requestId: data.requestId, message: err.message || String(err) });
+  } catch (err) {
+    postMessageFn({ type: 'error', requestId: data.requestId, message: errorMessage(err) });
   }
 }
 

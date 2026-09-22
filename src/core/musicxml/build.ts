@@ -86,6 +86,12 @@ function getAttr(el: XmlElement, name: string): string | undefined {
  * as zero and reported, so the rest of the file still loads (Constitution II and III). Found by the
  * mutation fuzzer, `tests/core/musicxml/fuzz.test.ts`.
  */
+/** A note as it is accumulated inside a measure, before its Note ID is assigned (tasks.md T139). */
+interface PendingNote {
+  startCursor: number;
+  note: Note;
+}
+
 function durationToTicks(
   durTxt: string,
   ppq: number,
@@ -434,7 +440,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
         mInfo.startTick = measureStartCursor;
       }
 
-      const measureNotes: any[] = [];
+      const measureNotes: PendingNote[] = [];
 
       for (const el of measureNode.children) {
         if (!(el instanceof XmlElement)) continue;
@@ -492,7 +498,8 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
 
           let noteCursor = cursor;
           if (chord) {
-            noteCursor = measureNotes.length > 0 ? measureNotes[measureNotes.length - 1].startCursor : cursor;
+            // A `<chord>` note sounds with the one before it, so it reuses that note's start.
+            noteCursor = measureNotes[measureNotes.length - 1]?.startCursor ?? cursor;
           }
 
           const voice = getText(getChild(el, 'voice')) || '1';
@@ -673,7 +680,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
                 accent,
                 fingerings,
                 printed: getAttr(el, 'print-object') !== 'no',
-                source: { start: (el as any).start || 0, end: (el as any).end || 0 },
+                source: { start: el.start || 0, end: el.end || 0 },
                 ornament,
                 arpeggiate,
               },
@@ -784,7 +791,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
               part.wedges.push({
                 measureIndex: currentMeasureIndex,
                 onsetInMeasure,
-                type: getAttr(wedge, 'type') as any,
+                type: getAttr(wedge, 'type') as Wedge['type'],
                 number: numAttr ? parseInt(numAttr, 10) || 1 : 1,
               });
             }
@@ -932,7 +939,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           onset: mn.note.onsetQuarters,
           pitch: mn.note.unpitched ? `u${mn.note.writtenKey}` : mn.note.writtenKey,
           isGrace: mn.note.grace !== null,
-          graceIndex: mn.note.grace?.index,
+          ...(mn.note.grace?.index !== undefined ? { graceIndex: mn.note.grace.index } : {}),
         });
 
         const dupCount = (noteCounters.get(baseId) || 0) + 1;
@@ -947,7 +954,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           onset: mn.note.onsetQuarters,
           pitch: mn.note.unpitched ? `u${mn.note.writtenKey}` : mn.note.writtenKey,
           isGrace: mn.note.grace !== null,
-          graceIndex: mn.note.grace?.index,
+          ...(mn.note.grace?.index !== undefined ? { graceIndex: mn.note.grace.index } : {}),
           ...(duplicateIndex !== undefined ? { duplicateIndex } : {}),
         });
 

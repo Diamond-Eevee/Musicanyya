@@ -836,3 +836,49 @@
   question). T139 remains.
 - Handoff: next = T155 once the owner answers, else T139 (`any` usages), the last open task on the
   feature. Branch `001-real-score-fixtures`; tree clean at the commit below.
+
+## 2026-09-22 14:30 - claude-opus-5 (relay)
+
+- Done: T139, plus T159 and T160 that its RT review surfaced. **Zero `any` left in `src/`** (was 29);
+  lint warnings 264 -> 234.
+  - Narrowed rather than commented, wherever the type was recoverable: a shared `errorMessage` /
+    `errorCode` in `src/core/errors.ts` for the four `catch (err: any)` in the workers and the MIDI
+    adapter; `VerovioToolkit` (already declared in `verovio.d.ts`, just not used) for the toolkit
+    handle; `XmlNode` for `read.ts`'s `traverse`; a `ZipEntry` interface in `mxl.ts`; `PendingNote` for
+    `build.ts`'s in-measure accumulator; `Wedge['type']` for the wedge cast; `LiveMessage` and
+    `InboundMessage` for the worklet's message envelopes; `MIDIController` for the spessasynth
+    controller cast; `Window & { __X_STATE__?: ... }` for the three e2e debugging seams.
+  - The `any`s were hiding four real defects, which is the argument for narrowing over commenting:
+    1. `mx-latency-panel.ts` stashed its keydown handler in `this.dataset.handler`, a `DOMStringMap`:
+       assigning a function there stores its *source text*, so `removeEventListener` was handed a
+       string and never matched. Calibration leaked a live `keydown` listener onto `window` every run.
+       Now held in a field, and `startCalibration` stops any previous run first.
+    2. `probe.ts` assigned `userAgentData.brands[0]` straight into `Environment.shell.browser`, but
+       Client Hints calls it `brand` and our type calls it `name` - so `browser.name` was always
+       undefined and the Environment panel showed "Browser (Unknown ...)" on every Chromium build.
+    3. Typing `measureNotes` surfaced an unguarded index and two `exactOptionalPropertyTypes`
+       violations on `graceIndex` in `buildNoteId`.
+    4. The Electron bridge fields were `string | undefined` flowing into `string`.
+  - **T159** is a regression I introduced in this pass and then fixed: narrowing
+    `err?.message || String(err)` to `err instanceof Error ? err.message : String(err)` returns `''`
+    for an `Error` with an empty message, and the consumer's `?? 'unknown'` does not catch `''`, so a
+    SoundFont failure could show a blank reason. Caught by the RT review, verified in a REPL, fixed in
+    both worklet catches and in `errorMessage()`.
+  - **T160** `computeCurrentTick()` did `[...segs].reverse().find(...)` **inside the render quantum**
+    (reached from `sendPositionReport()`, ~94 times a second): an array copy, a reverse and a closure
+    per call. Direct Constitution I violation, pre-existing rather than from T139, fixed here anyway
+    because Principle I is non-negotiable. Now a downward index loop.
+- Decisions:
+  - The worklet catches narrow inline instead of importing `errorMessage`, to keep the worklet bundle
+    free of a new import on a file that runs on the audio thread.
+  - The remaining RT findings (T161-T168) are recorded rather than fixed: they are pre-existing, each
+    needs its own `rt-audio-reviewer` pass, and T161 in particular needs an owner decision on what the
+    UI shows when the processor faults mid-session. Fixing them inside a typing task would have made
+    the change unreviewable.
+- Problems / open questions:
+  - **T161 is High and worth doing next**: `process()` does not guard `processBlock`, so one throw
+    permanently silences the session with no diagnostic.
+  - T155 still **needs owner**: the `work-title` / `movement-title` question.
+- Handoff: next = T161, then T162-T168, and T155 once the owner answers. Every one of T161-T168 is on
+  the RT path and needs an `rt-audio-reviewer` pass before merge. Branch `001-real-score-fixtures`;
+  tree clean at the commit below.
