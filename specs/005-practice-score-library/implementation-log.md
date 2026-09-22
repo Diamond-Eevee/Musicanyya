@@ -63,8 +63,10 @@ Feature `005-practice-score-library`. Newest entry at the bottom.
     corrections A and B in `data-model.md` SS4 rather than silently dropped.
   - Measuring chord-change gaps (the expert's proposed new Practice constants) is **out of scope**
     for this feature; noted as a follow-up.
-- Problems / open questions: three decisions for the owner, all with a recommendation, listed at the
-  end of `plan.md` (authored repertoire vs supplied files and what that means for FR-008's counts;
-  narrowing FR-014/SC-010 because the project has no service worker; moving
-  `musicxml/chords/c-major-scale-and-chords.musicxml` into the library).
-- Handoff: next = answer D-1..D-3, then `/speckit.tasks`. Tree clean on `005-practice-score-library`.
+- Problems / open questions: none open. D-1..D-3 were put to the owner in the same session and all
+  answered as recommended: the repertoire is engraved for this project with owner-verified CC0 files
+  welcome on top (FR-008's counts are the finished-feature target, not P1); FR-014/SC-010 narrowed to
+  content already fetched, since there is no service worker; and
+  `musicxml/chords/c-major-scale-and-chords.musicxml` moves into the library with a pointer left
+  behind. `spec.md` carries all three.
+- Handoff: next = `/speckit.tasks`. Tree clean on `005-practice-score-library`.
