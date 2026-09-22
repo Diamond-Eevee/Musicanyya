@@ -425,21 +425,21 @@ notice is a failure, not a surprise.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T071 [P] [US5] `tests/library/sweep.test.ts` - every item loads without error, produces a
+- [x] T071 [P] [US5] `tests/library/sweep.test.ts` - every item loads without error, produces a
   playable timeline, and its derived facts and notices equal the committed ones; an item with an
   unrecorded notice fails (FR-022, FR-023)
-- [ ] T072 [P] [US5] `tests/ui/library-degradation.test.ts` - a missing sidecar, a missing item file
+- [x] T072 [P] [US5] `tests/ui/library-degradation.test.ts` - a missing sidecar, a missing item file
   and a missing `index.json` each degrade to a notice with the rest of the app usable
   (data-model SS3, SS6)
 
 ### Implementation
 
-- [ ] T073 [US5] Record `meta.expected.notices` for every item that produces one, with a one-line
+- [x] T073 [US5] Record `meta.expected.notices` for every item that produces one, with a one-line
   reason in the sidecar's `note`
-- [ ] T074 [US5] `tools/library/probe.ts` - sweep a folder and print the numbers a new item's row
+- [x] T074 [US5] `tools/library/probe.ts` - sweep a folder and print the numbers a new item's row
   needs plus its first page as SVG (the `tests/tools/probe-real-scores.ts` pattern), and document it
   in `quickstart.md`
-- [ ] T075 [US5] Extend `tests/e2e/library.spec.ts` with a Verovio engraving check over a sample of
+- [x] T075 [US5] Extend `tests/e2e/library.spec.ts` with a Verovio engraving check over a sample of
   items (page counts recorded), so an engraving regression on real content is caught
 
 **Checkpoint**: all five stories work; the shelf defends the parser as well as the musician.

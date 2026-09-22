@@ -27,10 +27,15 @@ registered there.
 
 1. Put `<name>.musicxml` (authored) or `<name>.mxl` (obtained unmodified) in the right folder under
    `public/library/`.
-2. Write `<name>.json` beside it (contract `library-index.md` SS1): title, composer, kind, level,
+2. `pnpm tsx tools/library/probe.ts <dir>` (e.g. the folder holding the new file) prints, per file,
+   the numbers data-model.md SS4's level criteria read (measures, tempo, key, span, shortest
+   division, notes/beat, accidentals, fingering coverage), any load notices (what `expected.notices`
+   must list, FR-023) and a suggested level - plus the first engraved page as `<name>-page1.svg`
+   beside `probe-results.json`, so the piece can be checked by eye before it has a sidecar at all.
+3. Write `<name>.json` beside it (contract `library-index.md` SS1): title, composer, kind, level,
    tags, `reviewedBy`/`reviewedOn`, and a provenance block. A downloaded item also needs its
    `THIRD_PARTY_NOTICES.md` entry.
-3. `pnpm library:index`, then `pnpm test -- tests/library`. The suites tell you what is missing: a
+4. `pnpm library:index`, then `pnpm test -- tests/library`. The suites tell you what is missing: a
    wrong level, an unrecorded load notice, a missing licence, a file that does not load.
 
 There is no code to change - that is FR-016, and `tests/library/extensibility.test.ts` proves it by

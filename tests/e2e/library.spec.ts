@@ -7,6 +7,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const FUR_ELISE_SELECTOR = '.library-item-open[data-id="repertoire/intermediate/fur-elise-theme"]';
 
+/** One item per section (data-model.md §2), so an engraving regression on real content - not just the
+ *  Fur Elise item the test above already exercises - is caught (T075). */
+const ENGRAVING_SAMPLE = [
+  'learning/chords/c-major-scale-and-chords',
+  'learning/chords/changes/changes-cadence-c-major',
+  'repertoire/beginner/amazing-grace',
+  'repertoire/intermediate/burgmuller-op100-no2',
+  'repertoire/advanced/bach-prelude-bwv846',
+];
+
 /**
  * US1 (feature 005): browse -> open Fur Elise -> Listen, with the item's provenance on screen, in
  * both Shells (quickstart.md "US1", steps 2-9). SC-001 (at most 3 interactions from a fresh profile
@@ -106,5 +116,34 @@ test.describe('Practice score library: browse, open, Listen', () => {
     } finally {
       await electronApp.close();
     }
+  });
+
+  test('a sample of items across sections each engrave at least one page, with page counts recorded (US5, T075)', async ({
+    page,
+  }, testInfo) => {
+    test.skip(
+      testInfo.project.name === 'electron',
+      'the engraving pipeline is identical under app://; the Electron test above already proves that origin',
+    );
+
+    await page.goto('/');
+    const pageCounts: Record<string, number> = {};
+
+    for (const id of ENGRAVING_SAMPLE) {
+      await openPanel(page, 'scores');
+      const itemLocator = page.locator(`.library-item-open[data-id="${id}"]`);
+      await expect(itemLocator).toBeVisible();
+      await itemLocator.click();
+      await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
+      await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+      await expect(page.locator('.notice')).toHaveCount(0);
+      pageCounts[id] = await page.locator('.mx-score-page').count();
+      expect(pageCounts[id], `${id}: screenfuls`).toBeGreaterThan(0);
+    }
+
+    await testInfo.attach('library-sample-page-counts.json', {
+      body: JSON.stringify(pageCounts, null, 2),
+      contentType: 'application/json',
+    });
   });
 });

@@ -554,3 +554,86 @@ Feature `005-practice-score-library`. Newest entry at the bottom.
   Checkpoint is reached: the library check now genuinely fails a licence it does not admit, an
   unrecorded downloaded item, and any placeholder file, and the open item's source/credit/limitations
   are already visible in the UI. Tree clean at the commit this entry belongs to.
+
+## 2026-09-22 23:42 - claude-sonnet-5 (/speckit.continue: T071-T075, US5 checkpoint reached)
+
+- Done: Phase 7, US5 ("the library keeps the app honest"), T071-T075 - the feature's last
+  code/content phase; only Polish (Phase 8) remains.
+  - **T071**: `tests/library/sweep.test.ts`, written first. All 4 cases **passed on the first run**
+    (same pattern as T069/most of T067): `buildLibraryIndex`'s existing `checkLevel` criterion 28
+    (`levels.ts`) already fails the build on any unrecorded load notice, so this task's job was to
+    prove that machinery with a dedicated, contract-traceable suite rather than add new code. Added
+    three assertions over the real shelf (58 items): zero build problems (FR-022), `facts.notices`
+    exactly equals `meta.expected.notices` per item, sorted (FR-023 - a true symmetric equality,
+    stronger than criterion 28's one-directional "no unexpected extras" check), and every file
+    produces a genuinely playable timeline (`buildTimeline` + `compileSchedule`, `endTick > 0` and at
+    least one scheduled event - not just "has notes"). Plus one negative-path fixture matching
+    quickstart.md's own US5 scenario 2 verbatim: a `<harmony>` element (unsupported, `build.ts`)
+    produces an undeclared `unsupportedElement` notice and the build fails on it.
+  - **T072**: `tests/ui/library-degradation.test.ts`, also passing on the first run - existing
+    machinery (`parseLibraryIndex`'s per-item skip, `LibrarySessionController`'s notice callbacks,
+    `libraryState`'s state machine) already implements data-model.md SS3/SS6, but nothing exercised
+    all three failure modes together through the real DOM element. Three tests: (a) a missing
+    `index.json` (`FakeLibraryCatalog.failNextIndex`) through the same `startLoadingIndex` ->
+    `catalog.index()` -> `indexLoaded`/`indexFailed` wiring `session.ts` uses (replicated inline
+    rather than instantiating the full `Session`, which needs real Workers) - one error row with
+    Retry, then a successful retry recovers to `ready`; (b) a raw index with one item missing `meta`
+    entirely (the runtime shape a missing/invalid sidecar takes, since sidecars aren't fetched at
+    runtime - only their content baked into `index.json`) - `parseLibraryIndex` skips it with an
+    `invalidItem` notice and `mx-library` renders only the surviving item; (c) a missing item file
+    (`failNextItem: 'notFound'`) through the real `LibrarySessionController.openItem` - `notices`
+    receives `libraryItemMissing`, and `mx-library` still lists and can open both items afterward
+    (`ready` state, panel usable, per data-model.md SS6 "ready + notice, panel stays open").
+  - **T073**: recorded nothing - swept the real `index.json` (`node -e` one-off, not committed) and
+    confirmed all 58 items currently produce zero load notices and none has `meta.expected` set, so
+    there is nothing to record. Ticked as complete, not skipped: the task's condition ("every item
+    that produces one") is currently the empty set; T071's sweep test is what would catch it the day
+    that stops being true.
+  - **T074**: `tools/library/probe.ts`, modelled on `tests/tools/probe-real-scores.ts` per the task,
+    trimmed to what authoring a sidecar needs: the data-model.md SS4 criteria inputs (tempo, keys,
+    span, shortest division, notes/beat, accidentals, fingering coverage), load notices (what
+    `expected.notices` must list), a `computeLevel` suggestion, and the first engraved page as SVG.
+    Smoke-tested against `public/library/repertoire/beginner/` (7 real files, all clean). **Design
+    note**: `tools/**/*.ts` type-checks under `tsconfig.tools.json`'s `lib: ["ES2023"]` (no DOM/
+    WebWorker), so `probe-real-scores.ts`'s own `as MessageEvent` / `as typeof postMessage` casts
+    don't typecheck there (`postMessage` isn't a resolvable name without DOM lib, confirmed by
+    `pnpm typecheck` failing until fixed) - resolved with `Parameters<typeof handleMessage>[0]`/`[1]`
+    type aliases instead, which reuse the already-compiled type from `verovio.worker.ts`'s own
+    (DOM-lib) project without needing the global names in scope here. Documented the command in
+    `quickstart.md`'s "Adding an item by hand" as a new step 2, before the sidecar is written.
+  - **T075**: extended `tests/e2e/library.spec.ts` (rather than a new file - the task names that file)
+    with one test opening five items, one per section (`learning/chords`, `.../changes`,
+    `repertoire/{beginner,intermediate,advanced}`), through the real library panel, asserting each
+    engraves at least one page with zero notices and recording page counts as a Playwright attachment.
+    Skipped on the `electron` project (the Fur Elise test above this one already proves the `app://`
+    origin engraves identically) to keep the addition cheap. Passed on the first run.
+- Decisions:
+  - **US5's Independent Test** (spec.md: "sweep every library item - each one loads, engraves and
+    produces a playable timeline") is split across two layers by tasks.md's own design, not something
+    this session changed: T071 checks *load + notices + playable timeline* over all 58 items in Node
+    (cheap, no browser); T075 checks *engraves* over a 5-item sample in a real browser (Verovio/SVG
+    e2e is comparatively expensive). Running Verovio over all 58 items through Playwright was not
+    attempted - it would duplicate what T071 already proves for load/notices and what T075 proves for
+    the rendering pipeline itself, at e2e cost.
+  - T072's "missing sidecar" scenario is tested at the `index.json`-shape level (an item missing
+    `meta`), not by deleting an actual `.json` file on disk: sidecars are a build-time-only concept
+    (`contracts/library-index.md` SS1) - the browser never fetches them, only `HttpLibraryCatalog`'s
+    fetched `index.json`. The build-time half of "delete a sidecar" (quickstart.md US5 scenario 3,
+    "the licence suite fails") is already covered by `tests/library/index.test.ts`'s "missing sidecar"
+    case from T005/T007.
+- Problems / open questions: none blocking. Noticed `HttpLibraryCatalog.index()` computes
+  `parseLibraryIndex`'s per-item `notices` but only acts on `unsupportedVersion`, silently discarding
+  `invalidItem`/`itemTooLarge`/`invalidSection` notices rather than surfacing them anywhere (not even
+  a console warning) - contracts/library-port.md's UI events table never defines an event for this, so
+  it is in scope as designed, not a bug this session introduced or found reason to change. Flagged
+  here in case a future session wants the skipped-item case to raise a visible notice too.
+- Full quality gate: **green**. `pnpm lint` (0 errors, 238 pre-existing warnings, same baseline as
+  every prior session), `pnpm typecheck` (clean), `pnpm test` (153 files / 1305 tests, +7 over last
+  session), `pnpm test:e2e` (283 passed, 57 skipped, 0 failed - no flake this run, unlike the last two
+  sessions' isolated single-test flakes).
+- Handoff: next = Phase 8 (Polish & Cross-Cutting), starting at T076. All of US1-US5's Checkpoints are
+  now reached; nothing left is user-facing behaviour, only documentation, size/performance reports, a
+  constitution audit and the final full-gate + quickstart walkthrough (T076-T082). Nothing is `[~]` at
+  session end. Tree has this session's `tests/library/sweep.test.ts`, `tests/ui/library-degradation.
+  test.ts`, `tools/library/probe.ts`, `tests/e2e/library.spec.ts` and `specs/005-practice-score-library/
+  {tasks.md,implementation-log.md,quickstart.md}` changes staged for commit next.
