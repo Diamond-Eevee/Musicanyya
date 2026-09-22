@@ -32,6 +32,21 @@ describe('readXml', () => {
     expect(codeOf(() => readXml(xml))).toBe('fileTooComplex');
   });
 
+  it('does not count self-closing tags or comments towards nesting depth', () => {
+    let notes = '';
+    for (let i = 0; i < 60; i++) {
+      notes +=
+        `<note><chord/><rest/><pitch><step>C</step><octave>4</octave></pitch><dot/>` +
+        `<notations><articulations><staccato/></articulations></notations></note>`;
+    }
+    const xml =
+      `<score-partwise><!-- <part><part><part> --><part><measure>` +
+      `<direction><direction-type><dynamics><mf/></dynamics></direction-type></direction>` +
+      `${notes}</measure></part></score-partwise>`;
+    const result = readXml(xml);
+    expect(result.offsets.notes).toHaveLength(60);
+  });
+
   it('throws timewiseUnsupported on timewise roots', () => {
     const xml = `<score-timewise></score-timewise>`;
     expect(codeOf(() => readXml(xml))).toBe('timewiseUnsupported');

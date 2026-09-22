@@ -311,3 +311,38 @@ Feature `004-score-first-layout`. Newest entry at the bottom.
     title twice.
 - Handoff: next = T108 by the owner, then merge review of `004-score-first-layout` (`/speckit.continue` reports
   "done" once T108 is ticked); tree clean at the commit after this entry.
+
+## 2026-09-22 09:45 - claude-opus-5 (bug fix found during T108)
+
+- Done: T113, T114 - real MusicXML files were rejected with `fileTooComplex`.
+- Cause: the pre-parse nesting scan in `src/core/musicxml/read.ts` counted every `<tag` as one level
+  deeper and only `</tag>` as one level back, so a self-closing `<chord/>`, `<rest/>`, `<dot/>`,
+  `<staccato/>` or `<mf/>` raised the depth permanently and nothing ever lowered it. The counter
+  therefore measured "number of self-closing tags", not nesting, and any file with more than
+  `MAX_DEPTH` (50) of them was refused. Tag-like text inside an XML comment counted too. The owner's
+  `Fur_Elise_Easy_Piano.mxl` has 69 self-closing tags at a true nesting depth of 9, hence the
+  "This file is too complex to open." notice with no way to open it.
+- Fix: one `TAG_SCAN` regex that matches a whole tag - comments, CDATA, processing instructions and
+  the doctype are skipped, a closing tag lowers the depth, a self-closing tag leaves it unchanged,
+  and only a real opening tag raises it. `MAX_DEPTH` stays 50; it now bounds real nesting, which
+  MusicXML keeps near 10, so the pathological-nesting guard still fires (the 1000-`<part>` test).
+- Verified: `Fur_Elise_Easy_Piano.mxl` loads end to end through `score.worker.ts` - 22 measures, 104
+  spans, `endTick` 63360, one `defaultTempo` info notice - and renders in the browser preview with no
+  console error.
+- Decisions: fixed as a bug on this branch rather than through a new `/speckit.specify` cycle;
+  `001-score-viewer-listen` `research.md` ("Parse limits") already asks for a depth guard, only the
+  implementation miscounted. The `.mxl` itself was **not** added to the repo (an arrangement of
+  unclear licence; owner decision).
+- Problems / open questions:
+  - **needs owner:** every fixture in `tests/fixtures/` is hand-written and minimal, which is why a
+    bug that rejected *all* real-world exports went unnoticed. Worth a task to test against real
+    MuseScore / Sibelius / Finale exports - it needs files we are allowed to redistribute, so the
+    owner has to pick the source.
+  - Noticed while reading the design: `001` `research.md` names `MAX_XML_CHARS = 64 Mi`,
+    `MAX_ELEMENT_DEPTH = 64` "checked during the walk", `MAX_PARTS = 64` and `MAX_MEASURES = 10000`,
+    but `read.ts` implements 50 MB / depth 50 and has a second, pre-parse depth scan the design never
+    mentions. Only the miscount was in scope here; the numbers and the extra scan should be
+    reconciled with the design on `001`.
+  - T108 (manual quickstart on the physical 1080p screen) is still open and unchanged.
+- Handoff: next = T108 by the owner, then merge review of `004-score-first-layout`; tree clean at the
+  commit after this entry.

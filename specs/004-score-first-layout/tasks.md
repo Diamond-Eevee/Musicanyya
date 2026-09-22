@@ -405,6 +405,13 @@ the current system is never under the bar, a notice or an open popup.
 - [x] T112 Make the e2e gate reliable: `us1-play.spec.ts` presses its first note inside one page call (a Playwright
       poll backs off past the live marker's window in Firefox) and `playwright.config.ts` runs 4 workers (the default 16
       starves the audio-clock tests).
+- [x] T113 `tests/core/musicxml/read.test.ts`: a shallow score whose self-closing elements
+      (`<chord/>`, `<rest/>`, `<dot/>`, `<staccato/>`, dynamics) outnumber `MAX_DEPTH` opens without
+      `fileTooComplex`, and a comment holding tag-like text does not count towards depth. Found during
+      T108: real files (Fur Elise, 69 self-closing tags, true depth 9) were rejected.
+- [x] T114 Count nesting depth correctly in `src/core/musicxml/read.ts`: the pre-parse scan must leave
+      depth unchanged for self-closing tags and skip comments/CDATA, so only real nesting counts
+      (depends on T113).
 
 ---
 
@@ -454,8 +461,8 @@ the current system is never under the bar, a notice or an open popup.
 | US2 (P2) | T040-T050 | 11 |
 | US3 (P2) | T060-T069 | 10 |
 | US4 (P3) | T080-T089 | 10 |
-| Polish | T100-T112 | 13 |
-| **Total** | | **83** |
+| Polish | T100-T114 | 15 |
+| **Total** | | **85** |
 
 **Suggested MVP**: Setup + Foundational + **US1 only** (39 tasks). US1 alone delivers the whole point of
 the feature - the Score owning the window at a readable size - and is independently testable. US2 is
