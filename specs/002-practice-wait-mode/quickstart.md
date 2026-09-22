@@ -34,7 +34,9 @@ is not a watch mode, so run it again after each change.
 
 ## 3. Test score
 
-`musicxml/chords/c-major-scale-and-chords.musicxml` is the reference score for this feature, because it exercises
+`public/library/learning/chords/c-major-scale-and-chords.musicxml` (moved from `musicxml/chords/` in feature 005;
+open it from the app's practice score library rather than dragging it in) is the reference score for this
+feature, because it exercises
 the two cases that matter most:
 
 - **Section A** (measures 1-4): a whole-note or half-note left-hand chord *under* four moving right-hand quarters -

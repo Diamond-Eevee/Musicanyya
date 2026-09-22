@@ -138,20 +138,40 @@ Für Elise* -> Listen plays it, with its source and licence visible.
 
 ### Content seed (the shelf must not be empty for the story to exist)
 
-- [ ] T025 [P] [US1] Move `musicxml/chords/c-major-scale-and-chords.musicxml` to
+- [x] T025 [P] [US1] Move `musicxml/chords/c-major-scale-and-chords.musicxml` to
   `public/library/learning/chords/`, write its sidecar (authored, CC0, from `musicxml/README.md`),
   leave a pointer in `musicxml/README.md`, and update the path in
   `specs/002-practice-wait-mode/quickstart.md` (owner decision D-3)
-- [ ] T026 [US1] Author `public/library/repertoire/intermediate/fur-elise-theme.musicxml` + sidecar:
-  Für Elise A–B–A, simplified, 16ths as the shortest value, labelled an arrangement (data-model SS5.3)
-- [ ] T027 [P] [US1] Author `public/library/repertoire/beginner/ode-to-joy.musicxml` + sidecar - our
+- [x] T026 [US1] Author `public/library/repertoire/intermediate/fur-elise-theme.musicxml` + sidecar:
+  Für Elise A–B–A theme, simplified, 16ths as the shortest value, labelled an arrangement (data-model
+  SS5.3). Authored with the `music-domain-expert` agent, which fetched the Mutopia Project's
+  public-domain LilyPond engraving (piece-info id 931) and hand-decoded it rather than working from
+  memory alone.
+- [x] T027 [P] [US1] Author `public/library/repertoire/beginner/ode-to-joy.musicxml` + sidecar - our
   own two-hand setting of the public-domain melody
-- [ ] T028 [P] [US1] Author `public/library/repertoire/advanced/chopin-prelude-op28-no4.musicxml` +
-  sidecar - 25 bars, binding criterion 11 (chromatic accidental density)
-- [ ] T029 [US1] `music-domain-expert` review of T026-T028 against the published texts: pitches,
+- [x] T028 [P] [US1] Author `public/library/repertoire/advanced/chopin-prelude-op28-no4.musicxml` +
+  sidecar - 25 bars, binding criterion 11 (chromatic accidental density). Authored with the
+  `music-domain-expert` agent from the Mutopia Project's public-domain LilyPond engraving (piece-info
+  id 468, 562 notes hand-decoded); the agent caught and fixed a self-introduced left-hand duration bug
+  during its own verification re-read before this was reviewed.
+- [x] T029 [US1] `music-domain-expert` review of T026-T028 against the published texts: pitches,
   rhythms, key and metre, repeats, and the fingering we added. Record `reviewedBy` / `reviewedOn` in
-  each sidecar; fix and re-review anything it flags
-- [ ] T030 [US1] `pnpm library:index`, commit `public/library/index.json`, and confirm T017 passes
+  each sidecar; fix and re-review anything it flags. **A second, independent `music-domain-expert`
+  agent instance** (not the one that authored the files) reviewed all three against the same Mutopia
+  sources plus general knowledge: all three **PASS**. Two non-blocking notes recorded in the Chopin
+  sidecar's `provenance.note` (a disclosed low-confidence octave detail on one inner-voice bass note
+  in bar 24) - no pitch-class errors, no mislabelling. No fingering was added (pieces, not exercises -
+  not required by FR-006). Two real bugs were found and fixed during this pass, outside the sidecars
+  themselves: both pickup measures were numbered `1` instead of `0 implicit="yes"` (raising a
+  `measureLengthMismatch` info notice that an authored item must have none of, data-model SS4
+  criterion 28) - renumbered; and `facts.ts`'s `shortestDivision` silently misread the Chopin file
+  because grace notes carry `durationTicks: 0`, masking the real shortest notated value behind a
+  same-looking fallback - fixed in `src/core/library/facts.ts` with a regression test
+  (`tests/core/library/facts.test.ts`). Für Elise's `<key>` was missing `<mode>minor</mode>` (A minor
+  and C major share a 0-sharp/flat signature), which made `facts.keys` read "C major" for a piece that
+  is famously in A minor - fixed.
+- [x] T030 [US1] `pnpm library:index`, commit `public/library/index.json`, and confirm T017 passes.
+  4 items, 4 sections, zero problems. Full suite green (141 files, 1144 tests).
 - [ ] T031 [US1] `tests/e2e/library.spec.ts` - browse -> open Für Elise -> Listen, run in the browser
   projects and under the Electron `app://` origin; assert SC-001 (at most 3 interactions from a fresh
   profile to hearing the Score, under 15 s) and SC-010's offline half (an item opened once opens

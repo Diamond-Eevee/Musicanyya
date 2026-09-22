@@ -148,7 +148,11 @@ export function deriveFacts(input: FactsInput): ItemFacts {
     handIndependenceFraction = measures > 0 ? independentMeasures / measures : 0;
   }
 
-  const minDurationTicks = allNotes.length > 0 ? Math.min(...allNotes.map((n) => n.durationTicks)) : timeline.ppq;
+  // Grace notes carry durationTicks 0 (their timing "steals" from a neighbour rather than occupying the
+  // timeline themselves) and would otherwise make every graced piece look like it has no rhythm at all;
+  // the shortest *notated* value is what data-model.md §4 criterion 5 means, so they are excluded here.
+  const notatedDurations = allNotes.filter((n) => n.grace === null).map((n) => n.durationTicks);
+  const minDurationTicks = notatedDurations.length > 0 ? Math.min(...notatedDurations) : timeline.ppq;
   const shortestDivision = minDurationTicks > 0 ? Math.round((timeline.ppq * 4) / minDurationTicks) : 1;
 
   const totalBeats = timeline.ppq > 0 ? timeline.endTick / timeline.ppq : 0;

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "title": "Ode to Joy (theme, arranged for beginners)",
+  "subtitle": "Theme from Symphony No. 9, simple two-hand arrangement",
+  "composer": "Ludwig van Beethoven",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "tags": ["chords", "hands-together", "sight-reading"],
+  "trains": "A simple stepwise melody with steady quarter notes over static left-hand chords - an easy introduction to playing both hands together.",
+  "hands": "both",
+  "arrangement": true,
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "Musicanyya practice material",
+    "created": "2026-09-22",
+    "basedOn": "Beethoven, \"Ode to Joy\" theme (Symphony No. 9, 4th movement; public domain, traditional beginner melody). The left-hand I-IV-V-I block-chord accompaniment is our own simple setting.",
+    "note": "The first two 4-bar phrases only, ending on the tonic; not the complete symphonic theme."
+  },
+  "reviewedBy": "music-domain-expert",
+  "reviewedOn": "2026-09-22"
+}

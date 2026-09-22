@@ -1,0 +1,290 @@
+{
+  "version": 1,
+  "generated": "2026-09-22T15:48:21.754Z",
+  "sections": [
+    {
+      "id": "learning/chords",
+      "title": "Chords",
+      "description": "One exercise per key - the same drill in all of them.",
+      "path": "learning/chords",
+      "parent": "learning",
+      "order": 1
+    },
+    {
+      "id": "repertoire/beginner",
+      "title": "Beginner",
+      "path": "repertoire/beginner",
+      "parent": "repertoire",
+      "order": 1
+    },
+    {
+      "id": "repertoire/intermediate",
+      "title": "Intermediate",
+      "path": "repertoire/intermediate",
+      "parent": "repertoire",
+      "order": 2
+    },
+    {
+      "id": "repertoire/advanced",
+      "title": "Advanced",
+      "path": "repertoire/advanced",
+      "parent": "repertoire",
+      "order": 3
+    }
+  ],
+  "items": [
+    {
+      "id": "learning/chords/c-major-scale-and-chords",
+      "section": "learning/chords",
+      "file": "learning/chords/c-major-scale-and-chords.musicxml",
+      "bytes": 19839,
+      "hash": "eccf4f8eba740173ff3de1f528cba00733b51e8bc91cf9ce16d243fbc833be19",
+      "meta": {
+        "version": 1,
+        "title": "C major - scale and chords for both hands",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "scales",
+          "chords",
+          "hands-separate"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5",
+          "created": "2026-09-20",
+          "note": "Moved here from musicxml/chords/ (owner decision D-3 in specs/005-practice-score-library/plan.md); also the reference Score for feature 002's Practice mode quickstart."
+        },
+        "reviewedBy": "claude-opus-5",
+        "reviewedOn": "2026-09-22",
+        "trains": "One hand plays the scale while the other holds the chords, then the hands swap.",
+        "hands": "both"
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 82,
+        "durationSeconds": 30,
+        "keys": [
+          "C major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 36,
+        "highestMidi": 74,
+        "maxSpanSemitones": 12,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0.8888888888888888,
+        "shortestDivision": 4,
+        "notesPerBeat": 2.2777777777777777,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": []
+      }
+    },
+    {
+      "id": "repertoire/advanced/chopin-prelude-op28-no4",
+      "section": "repertoire/advanced",
+      "file": "repertoire/advanced/chopin-prelude-op28-no4.musicxml",
+      "bytes": 92782,
+      "hash": "520cd5438276c3c39834e950f47afa61b26b84f4e26569211cbdb9975f06fe2a",
+      "meta": {
+        "version": 1,
+        "title": "Prelude in E minor, Op. 28 No. 4 (\"Largo\")",
+        "kind": "piece",
+        "level": "advanced",
+        "tags": [
+          "ties",
+          "triplets",
+          "dynamics",
+          "phrasing",
+          "chords"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "Frédéric Chopin, Prelude in E minor, Op. 28 No. 4 (composed 1839, public domain; Chopin died 1849). Pitches and rhythm were checked measure-by-measure against the Mutopia Project's public-domain LilyPond engraving (piece-info id 468) before this original engraving was made.",
+          "note": "Complete piece: the 1-eighth-note pickup plus all 25 bars, ending on the closing perfect cadence in E minor. Slurs, pedal markings, hairpins and the closing fermatas of the source engraving are omitted from this file; they do not change the sounding pitches or rhythm. Independent review (2026-09-22) confirmed every pitch bar by bar against the Mutopia source, with one disclosed low-confidence detail: the left-hand chord's bass note in measure 24 (of this file's 0-indexed pickup-as-0 numbering; Chopin's own bar 23) is written B2 - the reviewer's two independent derivations of that one note (from a cross-staff voice in the source engraving) did not fully agree on its octave, though both agree on the pitch class (B, the dominant), so this is a possible octave nuance in one inner voice, not a wrong note."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-22",
+        "composer": "Frédéric Chopin",
+        "trains": "Chromatic voice leading, sustained dissonance, a wide dynamic range, and rhythmic independence between a slow-moving right-hand line and pulsing left-hand chords.",
+        "hands": "both",
+        "limitations": [
+          "Pedal is not written or played; performers commonly sustain this prelude with continuous pedal, which this file does not encode."
+        ]
+      },
+      "facts": {
+        "measures": 26,
+        "notes": 562,
+        "durationSeconds": 116.53846153846153,
+        "keys": [
+          "E minor"
+        ],
+        "metres": [
+          "2/2"
+        ],
+        "tempoBpm": 52,
+        "tempoDefaulted": false,
+        "lowestMidi": 35,
+        "highestMidi": 84,
+        "maxSpanSemitones": 23,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0.8461538461538461,
+        "shortestDivision": 16,
+        "notesPerBeat": 5.564356435643564,
+        "accidentals": 1,
+        "hasTies": true,
+        "hasTuplets": true,
+        "hasGraceNotes": true,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": []
+      }
+    },
+    {
+      "id": "repertoire/beginner/ode-to-joy",
+      "section": "repertoire/beginner",
+      "file": "repertoire/beginner/ode-to-joy.musicxml",
+      "bytes": 10892,
+      "hash": "33982b1d4653ffffde73c186b0a1dd04dd94de8b487dddf384c2037736ce279f",
+      "meta": {
+        "version": 1,
+        "title": "Ode to Joy (theme, arranged for beginners)",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "chords",
+          "hands-together",
+          "sight-reading"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "Beethoven, \"Ode to Joy\" theme (Symphony No. 9, 4th movement; public domain, traditional beginner melody). The left-hand I-IV-V-I block-chord accompaniment is our own simple setting.",
+          "note": "The first two 4-bar phrases only, ending on the tonic; not the complete symphonic theme."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-22",
+        "subtitle": "Theme from Symphony No. 9, simple two-hand arrangement",
+        "composer": "Ludwig van Beethoven",
+        "arranger": "Musicanyya practice material",
+        "trains": "A simple stepwise melody with steady quarter notes over static left-hand chords - an easy introduction to playing both hands together.",
+        "hands": "both",
+        "arrangement": true
+      },
+      "facts": {
+        "measures": 8,
+        "notes": 58,
+        "durationSeconds": 19.2,
+        "keys": [
+          "C major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 100,
+        "tempoDefaulted": false,
+        "lowestMidi": 41,
+        "highestMidi": 67,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 1,
+        "shortestDivision": 4,
+        "notesPerBeat": 1.8125,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": []
+      }
+    },
+    {
+      "id": "repertoire/intermediate/fur-elise-theme",
+      "section": "repertoire/intermediate",
+      "file": "repertoire/intermediate/fur-elise-theme.musicxml",
+      "bytes": 12906,
+      "hash": "f4d635cb1418673109ac7449923e3771e50f34a84d186b75f2047fa79eaa07c4",
+      "meta": {
+        "version": 1,
+        "title": "Für Elise (theme, arranged for this app)",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "arpeggios",
+          "phrasing",
+          "sight-reading"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "Beethoven, Für Elise, WoO 59 (public domain, composed c. 1810). A-section pitches and rhythm were checked against the Mutopia Project's public-domain LilyPond engraving (piece-info id 931) before this simplified transcription.",
+          "note": "Theme only: the pickup and bars 1-8 of WoO 59, through the theme's first cadence on the A-minor tonic. The B and C sections of the complete piece are not included, and the ending is simplified to a single-pass cadence instead of the repeat back to bar 1."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-22",
+        "subtitle": "A-section theme only, simplified arrangement",
+        "composer": "Ludwig van Beethoven",
+        "arranger": "Musicanyya practice material",
+        "trains": "Melodic phrasing over a broken-chord left-hand accompaniment, with a chromatic passing-tone motif.",
+        "hands": "both",
+        "arrangement": true
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 53,
+        "durationSeconds": 10.416666666666666,
+        "keys": [
+          "A minor"
+        ],
+        "metres": [
+          "3/8"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 40,
+        "highestMidi": 76,
+        "maxSpanSemitones": 0,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 1,
+        "shortestDivision": 16,
+        "notesPerBeat": 4.24,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": []
+      }
+    }
+  ]
+}

@@ -81,4 +81,26 @@ describe('deriveFacts', () => {
     expect(facts.measures).toBe(2);
     expect(facts.notes).toBe(7);
   });
+
+  it('a grace note (duration 0) never makes shortestDivision look like a whole note', () => {
+    // A grace note's durationTicks is 0 (build.ts: its timing steals from a neighbour rather than
+    // occupying the timeline); the shortest *notated* value here is the real quarter note that follows.
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="3.1">
+  <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+  <part id="P1">
+  <measure number="1">
+    <attributes><divisions>1</divisions></attributes>
+    <note><grace/><pitch><step>B</step><octave>3</octave></pitch></note>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type></note>
+  </measure>
+  </part>
+</score-partwise>`;
+    const { doc } = readXml(xml);
+    const { score, report } = buildScore(doc);
+    const { timeline, notices } = buildTimeline(score);
+    const facts = deriveFacts({ doc, score, timeline, report, timelineNotices: notices });
+    expect(facts.hasGraceNotes).toBe(true);
+    expect(facts.shortestDivision).toBe(4); // quarter, not the grace note's 0-duration artifact
+  });
 });
