@@ -12,7 +12,7 @@
     "licence": "CC0-1.0",
     "author": "Musicanyya practice material",
     "created": "2026-09-22",
-    "basedOn": "Frédéric Chopin, Prelude in E minor, Op. 28 No. 4 (composed 1839, public domain; Chopin died 1849). Pitches and rhythm were checked measure-by-measure against the Mutopia Project's public-domain LilyPond engraving (piece-info id 468) before this original engraving was made.",
+    "basedOn": "Frédéric Chopin, Prelude in E minor, Op. 28 No. 4 (composed 1839, public domain; Chopin died 1849). Pitches and rhythm were checked measure-by-measure against the Mutopia Project's public-domain LilyPond engraving (piece-info id 468, Chop-28-4.ly, typeset by Magnus Lewis-Smith) before this original engraving was made.",
     "note": "Complete piece: the 1-eighth-note pickup plus all 25 bars, ending on the closing perfect cadence in E minor. Slurs, pedal markings, hairpins and the closing fermatas of the source engraving are omitted from this file; they do not change the sounding pitches or rhythm. Independent review (2026-09-22) confirmed every pitch bar by bar against the Mutopia source, with one disclosed low-confidence detail: the left-hand chord's bass note in measure 24 (of this file's 0-indexed pickup-as-0 numbering; Chopin's own bar 23) is written B2 - the reviewer's two independent derivations of that one note (from a cross-staff voice in the source engraving) did not fully agree on its octave, though both agree on the pitch class (B, the dominant), so this is a possible octave nuance in one inner voice, not a wrong note."
   },
   "limitations": [

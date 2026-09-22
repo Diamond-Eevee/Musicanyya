@@ -172,10 +172,18 @@ Für Elise* -> Listen plays it, with its source and licence visible.
   is famously in A minor - fixed.
 - [x] T030 [US1] `pnpm library:index`, commit `public/library/index.json`, and confirm T017 passes.
   4 items, 4 sections, zero problems. Full suite green (141 files, 1144 tests).
-- [ ] T031 [US1] `tests/e2e/library.spec.ts` - browse -> open Für Elise -> Listen, run in the browser
+- [x] T031 [US1] `tests/e2e/library.spec.ts` - browse -> open Für Elise -> Listen, run in the browser
   projects and under the Electron `app://` origin; assert SC-001 (at most 3 interactions from a fresh
   profile to hearing the Score, under 15 s) and SC-010's offline half (an item opened once opens
-  again with the network blocked) - analyze A5, A15
+  again with the network blocked) - analyze A5, A15. WebKit smoke-checks the transport instead of
+  asserting a run starts (Playwright's WebKit has no AudioContext at all - the same limitation every
+  other run-needing spec in this suite already skips it for). **Two real bugs found and fixed while
+  making this pass**: `session.ts` never closed the Scores panel on a successful `openlibraryitem`
+  (data-model SS6 requires it); and all three authored MusicXML files had a leading `<!-- -->` comment
+  between the XML declaration and `<score-partwise>`, which Verovio's format-sniffing cannot parse
+  past ("unknown XML data") even though the app's own reader tolerates it fine - removed (the
+  provenance those comments held was already duplicated in each sidecar's `provenance.note`/`basedOn`,
+  with the typesetter credits folded in before the comments were deleted).
 
 **Checkpoint**: US1 is independently testable - a fresh profile can find and play a Score, in both
 Shells, with its provenance on screen.

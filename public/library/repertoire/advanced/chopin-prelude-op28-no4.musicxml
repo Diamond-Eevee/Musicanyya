@@ -1,17 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Musicanyya practice library - original engraving, CC0-1.0 (public domain dedication).
-  Music: Frederic Chopin, Prelude in E minor, Op. 28 No. 4 ("Largo"), complete (public domain,
-  composer died 1849). Pitches, rhythm and structure were checked measure-by-measure against the
-  Mutopia Project's public-domain LilyPond engraving (typeset by Magnus Lewis-Smith,
-  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=468, Chop-28-4.ly) before transcription
-  into this MusicXML file; this is our own engraving of Chopin's public-domain notes, not a copy of
-  any particular published edition's typesetting. Measure 1 of this file is the work's one-eighth
-  pickup (anacrusis); the following measures 2-26 correspond to the work's bars 1-25. Slurs, pedal
-  markings, hairpins and the closing fermatas of the source are omitted from this engraving (this
-  app's parser does not render them and they do not change the sounding pitches or rhythm); a small
-  set of dynamics is kept for musicality.
--->
 <score-partwise version="4.0">
   <work><work-title>Prelude in E minor, Op. 28 No. 4 ("Largo")</work-title></work>
   <identification>

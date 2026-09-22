@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-22T15:48:21.754Z",
+  "generated": "2026-09-22T16:01:45.026Z",
   "sections": [
     {
       "id": "learning/chords",
@@ -96,8 +96,8 @@
       "id": "repertoire/advanced/chopin-prelude-op28-no4",
       "section": "repertoire/advanced",
       "file": "repertoire/advanced/chopin-prelude-op28-no4.musicxml",
-      "bytes": 92782,
-      "hash": "520cd5438276c3c39834e950f47afa61b26b84f4e26569211cbdb9975f06fe2a",
+      "bytes": 91773,
+      "hash": "a56222c42c920093859db2d9adba6a3ee0dbc07599897c748cb41d5d44fc7470",
       "meta": {
         "version": 1,
         "title": "Prelude in E minor, Op. 28 No. 4 (\"Largo\")",
@@ -115,7 +115,7 @@
           "licence": "CC0-1.0",
           "author": "Musicanyya practice material",
           "created": "2026-09-22",
-          "basedOn": "Frédéric Chopin, Prelude in E minor, Op. 28 No. 4 (composed 1839, public domain; Chopin died 1849). Pitches and rhythm were checked measure-by-measure against the Mutopia Project's public-domain LilyPond engraving (piece-info id 468) before this original engraving was made.",
+          "basedOn": "Frédéric Chopin, Prelude in E minor, Op. 28 No. 4 (composed 1839, public domain; Chopin died 1849). Pitches and rhythm were checked measure-by-measure against the Mutopia Project's public-domain LilyPond engraving (piece-info id 468, Chop-28-4.ly, typeset by Magnus Lewis-Smith) before this original engraving was made.",
           "note": "Complete piece: the 1-eighth-note pickup plus all 25 bars, ending on the closing perfect cadence in E minor. Slurs, pedal markings, hairpins and the closing fermatas of the source engraving are omitted from this file; they do not change the sounding pitches or rhythm. Independent review (2026-09-22) confirmed every pitch bar by bar against the Mutopia source, with one disclosed low-confidence detail: the left-hand chord's bass note in measure 24 (of this file's 0-indexed pickup-as-0 numbering; Chopin's own bar 23) is written B2 - the reviewer's two independent derivations of that one note (from a cross-staff voice in the source engraving) did not fully agree on its octave, though both agree on the pitch class (B, the dominant), so this is a possible octave nuance in one inner voice, not a wrong note."
         },
         "reviewedBy": "music-domain-expert",
@@ -162,8 +162,8 @@
       "id": "repertoire/beginner/ode-to-joy",
       "section": "repertoire/beginner",
       "file": "repertoire/beginner/ode-to-joy.musicxml",
-      "bytes": 10892,
-      "hash": "33982b1d4653ffffde73c186b0a1dd04dd94de8b487dddf384c2037736ce279f",
+      "bytes": 10388,
+      "hash": "2ef34ad5e89d21a66e538f65943371956568aef03b651056b933dbda15c28d5d",
       "meta": {
         "version": 1,
         "title": "Ode to Joy (theme, arranged for beginners)",
@@ -226,8 +226,8 @@
       "id": "repertoire/intermediate/fur-elise-theme",
       "section": "repertoire/intermediate",
       "file": "repertoire/intermediate/fur-elise-theme.musicxml",
-      "bytes": 12906,
-      "hash": "f4d635cb1418673109ac7449923e3771e50f34a84d186b75f2047fa79eaa07c4",
+      "bytes": 12167,
+      "hash": "eee8a27deafee62a1892dcf57e531fbf9747b3c0ed86e1aea76ad6880c7a63d1",
       "meta": {
         "version": 1,
         "title": "Für Elise (theme, arranged for this app)",
@@ -243,7 +243,7 @@
           "licence": "CC0-1.0",
           "author": "Musicanyya practice material",
           "created": "2026-09-22",
-          "basedOn": "Beethoven, Für Elise, WoO 59 (public domain, composed c. 1810). A-section pitches and rhythm were checked against the Mutopia Project's public-domain LilyPond engraving (piece-info id 931) before this simplified transcription.",
+          "basedOn": "Beethoven, Für Elise, WoO 59 (public domain, composed c. 1810). A-section pitches and rhythm were checked against the Mutopia Project's public-domain LilyPond engraving (piece-info id 931, fur_Elise_WoO59.ly, typeset by Stelios Samelis) before this simplified transcription.",
           "note": "Theme only: the pickup and bars 1-8 of WoO 59, through the theme's first cadence on the A-minor tonic. The B and C sections of the complete piece are not included, and the ending is simplified to a single-pass cadence instead of the repeat back to bar 1."
         },
         "reviewedBy": "music-domain-expert",

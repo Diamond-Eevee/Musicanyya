@@ -170,3 +170,46 @@ Feature `005-practice-score-library`. Newest entry at the bottom.
 - Problems / open questions: none open.
 - Handoff: next = US1 (Phase 3, T013 onward) toward the MVP checkpoint (T001-T004, T083, T005-T031,
   T084). Tree clean on `005-practice-score-library` after this commit.
+
+## 2026-09-22 - claude-opus-5 (/speckit.implement: US1 checkpoint - MVP)
+
+- Done: T013-T024, T025-T030 (content seed), T031, T084 - the whole US1 scope
+  (T001-T004, T083, T005-T031, T084, 25 tasks). **US1 checkpoint reached**: a fresh profile can browse
+  *Score > Scores*, open *Repertoire > Intermediate > Für Elise* and hear it via Listen, in both
+  Shells, with its provenance on screen. Independent Test passed via `tests/e2e/library.spec.ts`.
+- In progress: none.
+- Content: moved the existing chords exercise into the library (owner decision D-3) and authored three
+  repertoire pieces with the `music-domain-expert` agent (Für Elise theme, Ode to Joy, Chopin Prelude
+  Op. 28 No. 4 complete), each independently reviewed by a second `music-domain-expert` pass - see the
+  prior log entry's sibling commit for the detailed bug list that review surfaced (measure-numbering,
+  `facts.ts` grace-note bug, a missing `<mode>minor</mode>`).
+- Decisions / bugs found while making the e2e test pass (Constitution IV: an e2e test earns its keep
+  by finding real bugs, not just confirming what unit tests already showed):
+  - **`session.ts` never closed the *Scores* panel on a successful `openlibraryitem`** - data-model.md
+    SS6 requires it (`openingItem` is the only state that can end with the panel closing, and only on
+    success). Fixed with one `viewState.closePanel()` call in `Session.openLibraryItem`.
+  - **All three authored MusicXML files had a leading `<!-- -->` comment** between `<?xml ...?>` and
+    `<score-partwise>`. The app's own `readXml`/`buildScore` tolerate it (it round-trips through
+    `@rgrove/parse-xml` fine), but Verovio's separate format-sniffing does not ("Trying to load unknown
+    XML data which cannot be identified") - a gap no unit test could have caught, since nothing in the
+    Vitest suite renders through the real Verovio worker end-to-end the way this e2e test does. Removed
+    the leading comments (the provenance they held was already duplicated in each sidecar's
+    `provenance.note`/`basedOn`; the two Mutopia typesetters' names were folded into the sidecars
+    first, so nothing was lost) - regenerated `index.json` afterward.
+  - The e2e test itself needed one real stabilisation fix, not a hack: reopening the *Scores* panel
+    immediately after pressing Escape to stop a Listen run raced the stop transition (the menu button
+    flickered visible/not-visible under Playwright's retry loop); waiting for `g.note.playing` to
+    actually disappear before the next menu click fixed it cleanly.
+  - WebKit (Playwright's build, not real Safari) has no AudioContext at all, same limitation every
+    other run-needing e2e spec in this suite already documents and skips around - `library.spec.ts`
+    smoke-checks the transport is enabled there instead of asserting a run starts.
+- Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test` (141 files, 1144 tests) all green;
+  `pnpm test:e2e` - `tests/e2e/library.spec.ts` green on all four projects (chromium, firefox, webkit,
+  electron), and the full e2e suite green on chromium (80 passed, 4 skipped by design) as a broader
+  regression check on the shared `session.ts` changes. Firefox/webkit/electron were not re-run for the
+  *entire* suite (time budget for this session); nothing outside `library.spec.ts` and `session.ts`
+  changed, so this is judged sufficient, but a full four-project run is worth doing before the feature
+  branch merges.
+- Problems / open questions: none open.
+- Handoff: next = US2 (Phase 4, T032 onward) - the 24-key chord exercises and chord-change drills.
+  Tree clean on `005-practice-score-library` after this commit.

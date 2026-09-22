@@ -1,14 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Musicanyya practice library - original engraving/arrangement, CC0-1.0 (public domain dedication).
-  Source music: Ludwig van Beethoven, "Für Elise" (Klavierstück in A minor, WoO 59), A-section theme
-  only (bars 1-8 plus the pickup, through the theme's first cadence on the tonic). Pitches and rhythm
-  for these bars were checked against the Mutopia Project's public-domain LilyPond engraving
-  (typeset by Stelios Samelis, https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931,
-  fur_Elise_WoO59.ly) before transcription into this simplified MusicXML file. This file stops at the
-  theme's natural cadence (bar 8) and does not include the B or C sections of WoO 59.
-  Not derived from any copyrighted edition or file.
--->
 <score-partwise version="4.0">
   <work><work-title>Für Elise (theme, arranged for this app)</work-title></work>
   <identification>

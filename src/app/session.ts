@@ -1254,6 +1254,9 @@ export class Session {
     if (ok) {
       libraryState.setOpenedItem(index.items.find((item) => item.id === itemId) ?? null);
       libraryState.itemOpened();
+      // data-model.md §6: `openingItem` is the only state that can end with the panel closing, and
+      // only on success - the musician asked for a Score and got one.
+      viewState.closePanel();
     } else {
       libraryState.itemOpenFailed();
     }

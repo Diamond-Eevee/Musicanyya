@@ -1,11 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Musicanyya practice library - original two-hand arrangement, CC0-1.0 (public domain dedication).
-  Melody: the "Ode to Joy" theme (Beethoven, Symphony No. 9, 4th movement), traditional / public
-  domain and reproduced here from memory of the widely-taught beginner melody (not copied from any
-  particular published edition). The left-hand block-chord accompaniment (I-V-I-V / I-IV-V-I) is our
-  own simple beginner setting, written for this app. Not derived from any copyrighted arrangement.
--->
 <score-partwise version="4.0">
   <work><work-title>Ode to Joy (theme, arranged for beginners)</work-title></work>
   <identification>

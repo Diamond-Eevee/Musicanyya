@@ -15,7 +15,7 @@
     "licence": "CC0-1.0",
     "author": "Musicanyya practice material",
     "created": "2026-09-22",
-    "basedOn": "Beethoven, Für Elise, WoO 59 (public domain, composed c. 1810). A-section pitches and rhythm were checked against the Mutopia Project's public-domain LilyPond engraving (piece-info id 931) before this simplified transcription.",
+    "basedOn": "Beethoven, Für Elise, WoO 59 (public domain, composed c. 1810). A-section pitches and rhythm were checked against the Mutopia Project's public-domain LilyPond engraving (piece-info id 931, fur_Elise_WoO59.ly, typeset by Stelios Samelis) before this simplified transcription.",
     "note": "Theme only: the pickup and bars 1-8 of WoO 59, through the theme's first cadence on the A-minor tonic. The B and C sections of the complete piece are not included, and the ending is simplified to a single-pass cadence instead of the repeat back to bar 1."
   },
   "reviewedBy": "music-domain-expert",
