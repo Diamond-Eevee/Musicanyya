@@ -110,7 +110,12 @@ function durationToTicks(
 ): number {
   const ticks = Math.round(parseFloat(durTxt) * (ppq / divisions));
   if (!Number.isFinite(ticks) || ticks < 0) {
-    report.add('warning', 'timingRounded', measureLabel, element, `unreadable duration "${durTxt}" treated as 0`);
+    // The detail is a fixed string, deliberately: `ReportBuilder.add` de-dupes entries by
+    // (code, severity, element, detail) with a linear scan, so interpolating the offending text here
+    // made a corrupt file produce one entry per distinct bad value - quadratic, and a 50 MB file
+    // could spin the score worker for minutes and then post a six-figure notice list to the UI.
+    // `measureLabels` already records where the trouble is.
+    report.add('warning', 'timingRounded', measureLabel, element, 'unreadable duration treated as 0');
     return 0;
   }
   return ticks;
@@ -414,6 +419,10 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
 
       let measureStartCursor = cursor;
       let measureMaxCursor = cursor;
+      // `<senza-misura>` is explicitly unmeasured, which is not the same as "no time signature seen
+      // yet": without this the measure inherits the previous one's nominal length and is reported as
+      // a length mismatch for not matching a metre it does not have.
+      let senzaMisuraHere = false;
 
       if (firstPart) {
         const implicit = getAttr(measureNode, 'implicit') === 'yes';
@@ -462,6 +471,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
             const senzaMisura = getChild(timeEl, 'senza-misura');
             if (senzaMisura) {
               mInfo.time = null;
+              senzaMisuraHere = true;
             } else {
               const beats = getText(getChild(timeEl, 'beats')) || '4';
               const beatType = parseInt(getText(getChild(timeEl, 'beat-type')), 10) || 4;
@@ -889,7 +899,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           if (split.length > 0) beatsNum = split.reduce((acc, v) => acc + (parseInt(v, 10) || 0), 0);
           else beatsNum = parseInt(mInfo.time.beats, 10) || 4;
           nomLength = (beatsNum * ppq) / (mInfo.time.beatType / 4);
-        } else if (currentMeasureIndex > 0) {
+        } else if (!senzaMisuraHere && currentMeasureIndex > 0) {
           nomLength = score.measures[currentMeasureIndex - 1]?.nominalTicks ?? 0;
         }
         mInfo.nominalTicks = Math.round(nomLength);

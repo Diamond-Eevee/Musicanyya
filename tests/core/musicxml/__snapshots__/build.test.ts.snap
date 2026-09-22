@@ -2852,16 +2852,7 @@ exports[`buildScore snapshots > builds time-model for duration-unreadable.musicx
     "entries": [
       {
         "code": "timingRounded",
-        "detail": "unreadable duration "/" treated as 0",
-        "element": "note",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "warning",
-      },
-      {
-        "code": "timingRounded",
-        "detail": "unreadable duration "-2" treated as 0",
+        "detail": "unreadable duration treated as 0",
         "element": "note",
         "measureLabels": [
           "1",

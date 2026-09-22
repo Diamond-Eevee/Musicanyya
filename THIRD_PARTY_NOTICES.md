@@ -30,7 +30,7 @@ This application includes open source software. We are grateful to the authors f
 
 - **OpenScore Lieder Corpus** and **OpenScore String Quartets** (downloaded 2026-09-22)
   Licence: Creative Commons CC0 1.0 Universal (public-domain dedication; no attribution required).
-  Ten scores are used unmodified as test fixtures in `tests/fixtures/musicxml/real/`, which lists each
+  Eighteen scores are used unmodified as test fixtures in `tests/fixtures/musicxml/real/`, which lists each
   file and where it came from. They are transcriptions of public-domain works and are not part of any
   build output.
   https://github.com/OpenScore/Lieder

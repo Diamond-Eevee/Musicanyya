@@ -12,7 +12,7 @@ that stay open across systems, cross-staff beaming, pickup measures that the enc
 
 ## Provenance and licence
 
-All ten come from the **OpenScore** corpora, which are transcriptions of public-domain works released
+All eighteen come from the **OpenScore** corpora, which are transcriptions of public-domain works released
 under **CC0 1.0** (public-domain dedication - no attribution required, no conditions). Each file also
 carries `<rights>OpenScore (CC0)</rights>` and a link to the IMSLP source it was transcribed from in
 its own `<identification>` block. Downloaded 2026-09-22 from `main`, unmodified byte for byte.

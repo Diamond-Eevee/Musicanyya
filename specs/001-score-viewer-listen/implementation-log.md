@@ -882,3 +882,37 @@
 - Handoff: next = T161, then T162-T168, and T155 once the owner answers. Every one of T161-T168 is on
   the RT path and needs an `rt-audio-reviewer` pass before merge. Branch `001-real-score-fixtures`;
   tree clean at the commit below.
+
+## 2026-09-22 14:45 - claude-opus-5 (relay)
+
+- Done: the pre-merge `constitution-auditor` pass, and the two findings it raised that were mine.
+  Verdict: **compliant, safe to merge**; no CRITICAL, and no new Principle I/II/III/V/VIII violation.
+  - **T170** (MEDIUM, introduced by T158 in this branch): `durationToTicks` interpolated the offending
+    text into the notice detail, and `ReportBuilder.add` de-dupes by (code, severity, element, detail)
+    with a linear scan - so a corrupt file produced one notice entry per distinct bad value. Measured
+    before the fix: 1 000 bad durations -> 22 ms / 1 001 entries, 8 000 -> 406 ms / 8 001 entries,
+    i.e. quadratic and unbounded; with `MAX_FILE_SIZE` at 50 MB that could spin the score worker for
+    minutes and then structured-clone a six-figure notice list to the UI. The detail is now a fixed
+    string and `measureLabels` carries the location: **2 entries and 74 ms** for 8 000 bad durations.
+    Re-measured, not assumed.
+  - **T171** (LOW): `<senza-misura>` set `mInfo.time = null`, which is indistinguishable from "no time
+    signature seen yet", so an unmeasured measure following a metered one inherited the previous
+    nominal length and was reported as a length mismatch for not matching a metre it does not have.
+    Now tracked with an explicit per-measure flag.
+  - Also from the audit: corrected "Ten scores" to "Eighteen" in `THIRD_PARTY_NOTICES.md` and
+    `tests/fixtures/musicxml/real/README.md` (T146 added eight more and the count went stale), and
+    deleted `tests/core/musicxml/fixtures.test.ts`, a `describe.skip` stub asserting `expect(false)`
+    that T142-T149 now do for real.
+  - **T169** recorded rather than fixed: `tutorial-percussion.musicxml` has 36 notes in the Score
+    model but Verovio draws 32 `g.note` elements - the only fixture where the two disagree, and
+    Principle III wants Note ID = SVG id for every playable note. It was living in a fixture README
+    with no T-number.
+- Decisions: the audit's HIGH findings (T161, T163, T164 - allocation inside the render quantum, and
+  the unguarded `processBlock`) are **pre-existing and byte-identical to `main`**, so they do not
+  block this merge; the auditor agreed. They must be closed before any release that claims Principle I
+  compliance. Worth being precise: this branch removed one of the three allocation sites
+  (`computeCurrentTick`), not all of them.
+- Problems / open questions: T155 still **needs owner** (the `work-title` / `movement-title`
+  question). T161 needs an owner decision on what the UI shows when the processor faults mid-session.
+- Handoff: branch merged to `main` after this entry. Next = T161, then T162-T169; every one is on the
+  RT path and needs an `rt-audio-reviewer` pass. Tree clean at the commit below.
