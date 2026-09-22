@@ -70,3 +70,28 @@ Feature `005-practice-score-library`. Newest entry at the bottom.
   `musicxml/chords/c-major-scale-and-chords.musicxml` moves into the library with a pointer left
   behind. `spec.md` carries all three.
 - Handoff: next = `/speckit.tasks`. Tree clean on `005-practice-score-library`.
+
+## 2026-09-22 - claude-opus-5 (/speckit.tasks)
+
+- Done: generated `tasks.md` - 82 tasks in 8 phases (Setup 4, Foundational 8, US1 19, US2 13,
+  US3 22, US4 4, US5 5, Polish 7) from `plan.md`, `spec.md`, `data-model.md` and the three contracts.
+- In progress: none.
+- Decisions:
+  - **No RT review task anywhere**, stated explicitly at the top of `tasks.md`: this feature edits no
+    AudioWorklet, scheduler, metronome or MIDI-timing code (plan "Real-time Paths Touched: none"),
+    with an instruction to stop and add one if that turns out to be wrong.
+  - **US1 carries a content seed** (T025-T029: the moved chords exercise plus one piece per
+    repertoire level, including the Für Elise arrangement). Browsing machinery with an empty shelf
+    would not satisfy the story's own Independent Test, and a section with no items is not emitted.
+  - **Every authored score is followed by a `music-domain-expert` review task** (T029, T043, T056,
+    T060, T065) before its sidecar records `reviewedBy`/`reviewedOn` - the level check is arithmetic
+    and cannot hear a wrong note (data-model SS4.1).
+  - The repertoire build-out (FR-008) sits in **US3**, not in a content phase of its own: the level
+    criteria are what place a piece, so the pieces arrive with the checker that files them.
+  - T064 keeps Chopin Op. 9 no. 2 conditional: it ships only if its 11:8 / 22:12 tuplets divide
+    `<divisions>` evenly, otherwise it is dropped with the reason recorded.
+  - Suggested lanes if the owner ever parallelises: *machinery* (US1 + US3 code) against *content*
+    (US2 definitions + US3 repertoire) - disjoint files except `index.json`.
+- Problems / open questions: none open.
+- Handoff: next = `/speckit.analyze`, then `/speckit.implement` (MVP = US1, T001-T031). Tree clean on
+  `005-practice-score-library`.
