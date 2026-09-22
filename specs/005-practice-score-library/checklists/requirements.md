@@ -18,7 +18,7 @@
 
 | # | Item | Result |
 |---|---|---|
-| RC-01 | At most 3 `[NEEDS CLARIFICATION]` markers, only for decisions with real impact | PASS - 2 markers: FR-017 (which licences may ship - owner decision per AGENTS.md section 7) and FR-011 (does the first release include an in-app browser, or folders only). |
+| RC-01 | At most 3 `[NEEDS CLARIFICATION]` markers, only for decisions with real impact | PASS - 0 markers remain. Both were owner decisions and were answered on 2026-09-22: FR-017 = CC0 / public domain / own work only; FR-011 = the in-app browser is in the first release. Both answers are written into the spec. |
 | RC-02 | Requirements are testable and unambiguous | PASS - counts in FR-003/FR-008, level criteria in FR-009, a size budget in FR-026 with its number in SC-008. |
 | RC-03 | Success criteria measurable | PASS - counts, percentages, times and size budget in SC-001..SC-010. |
 | RC-04 | Success criteria technology-agnostic | PASS - no format, library or storage named; SC-002 talks about loading and playing, not about a parser. |
@@ -44,12 +44,13 @@
 | CA-02 | IV Test-first: fixtures carry origin and licence | PASS - FR-010, FR-020, FR-025. |
 | CA-03 | VIII Web-first, browser usable alone | PASS - FR-011, FR-014, SC-010. |
 | CA-04 | AGENTS.md section 4: no placeholder or dummy files | PASS - FR-021. |
-| CA-05 | AGENTS.md section 7: licensing is an owner decision, not an agent's | PASS - raised as the FR-017 marker rather than decided in the spec. |
+| CA-05 | AGENTS.md section 7: licensing is an owner decision, not an agent's | PASS - raised as a question, decided by the owner on 2026-09-22 (CC0 / public domain / own work only), then recorded in FR-017 and Out of Scope. |
 
 ## Result
 
 - Iterations: 1 validation pass over the draft, one fix applied - the scope question behind
   "put them in folders for now" was an unstated decision, so FR-011 gained a
   `[NEEDS CLARIFICATION]` marker instead of silently assuming an in-app browser.
-- **Status: PASS**, with 2 open clarifications (FR-011, FR-017) to be answered before
-  `/speckit.plan`.
+- Both clarifications were answered by the owner in the same session and folded into the spec, so
+  no `[NEEDS CLARIFICATION]` marker remains.
+- **Status: PASS**, ready for `/speckit.plan`.

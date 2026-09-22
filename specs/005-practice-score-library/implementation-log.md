@@ -22,9 +22,12 @@ Feature `005-practice-score-library`. Newest entry at the bottom.
     `Fur_Elise_Easy_Piano.mxl` exposing the depth-guard bug.
   - Licence sources were researched but **not chosen**: AGENTS.md section 7 makes that the owner's
     call, so the accepted-source list is an Assumption and the licence set is the FR-017 marker.
-- Problems / open questions: two clarifications, both put to the owner at the end of the session -
-  FR-017 (which licences may ship: CC0/PD/own work only, or also attribution-required material) and
-  FR-011 (does the first release include an in-app library browser, or only the folder structure
-  plus the existing Open dialog).
-- Handoff: next = answer the two clarifications, then `/speckit.plan`. Tree clean on
-  `005-practice-score-library`; nothing outside `specs/005-practice-score-library/` was touched.
+- Owner decisions (asked and answered in this session, 2026-09-22):
+  - Licences: **CC0, clear public domain, or written for this project only**. CC BY, share-alike
+    and non-commercial material is excluded from the bundled library - FR-017 and Out of Scope.
+  - First-release scope: **the in-app library browser is included** (a folder-only drop would be
+    invisible in the browser Shell, which is the primary track) - FR-011.
+- Problems / open questions: none open. Both markers were folded into the spec; no
+  `[NEEDS CLARIFICATION]` remains.
+- Handoff: next = `/speckit.plan`. Tree clean on `005-practice-score-library`; nothing outside
+  `specs/005-practice-score-library/` was touched.

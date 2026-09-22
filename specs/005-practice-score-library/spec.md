@@ -99,15 +99,17 @@ against them - all pass; a piece that breaks one criterion is either re-levelled
 ### User Story 4 - Everything on the shelf is legally clear (Priority: P2)
 
 The owner must be able to publish the app - online and, later, packaged - without a licensing
-question on any bundled Score. Every item is either public domain / CC0, under a licence that
-permits redistribution and commercial use, or written for this project; every downloaded item
-records where it came from, when, and under which licence; nothing ships without that record.
+question on any bundled Score. Every item is either CC0, a clear public-domain engraving, or
+written for this project; every downloaded item records where it came from, when, and under which
+licence; nothing ships without that record.
 
 **Why this priority**: an item with an unclear licence cannot be published at all, so this gates the
 release of the whole library, but it does not block building and testing the library first.
+Only CC0, clear public domain and the project's own work are admitted - attribution-required,
+share-alike and non-commercial material stays out, however freely it may otherwise be used.
 
-**Independent Test**: run the library check - it lists every item with its licence and attribution,
-and fails if any item lacks provenance, carries a non-permitted licence, or is missing its file.
+**Independent Test**: run the library check - it lists every item with its source and licence, and
+fails if any item lacks provenance, carries a non-permitted licence, or is missing its file.
 
 **Acceptance Scenarios**:
 
@@ -115,8 +117,8 @@ and fails if any item lacks provenance, carries a non-permitted licence, or is m
    licence and required attribution are recorded with it and in the project's third-party notices.
 2. **Given** an item whose licence cannot be established, **When** the library is assembled,
    **Then** the item is not included and the reason is recorded.
-3. **Given** an item that requires attribution, **When** it is shown or opened, **Then** its
-   attribution text is visible to the user.
+3. **Given** an item whose source asks to be credited, **When** it is shown or opened, **Then** its
+   credit line is visible to the user.
 4. **Given** the library, **When** the check runs, **Then** a missing, empty or placeholder file
    fails it.
 
@@ -204,9 +206,9 @@ timeline; any load notice is one that is recorded as expected for that item.
   skill tags, and provenance (source, date obtained, licence, required attribution - or "written
   for Musicanyya").
 - **FR-011**: Users MUST be able to browse the library in the app, grouped by its folder structure,
-  in every Shell (browser and Electron). [NEEDS CLARIFICATION: does the first release include an
-  in-app library browser, or only the folder structure plus the existing Open dialog ("put them in
-  folders for now")?]
+  in every Shell (browser and Electron). The browser Shell cannot reach a folder on disk, so the
+  in-app list is what makes the library exist for a web user - it is part of the first release
+  (owner decision, 2026-09-22).
 - **FR-012**: Users MUST be able to narrow the list by section, difficulty level, key and skill
   tag.
 - **FR-013**: Opening a library item MUST give exactly the same behaviour as opening a user's own
@@ -219,13 +221,14 @@ timeline; any load notice is one that is recorded as expected for that item.
 
 **Licensing and provenance**
 
-- **FR-017**: Every library item MUST be public domain / CC0, under a licence that permits
-  redistribution and commercial use without a share-alike obligation, or written for this project.
-  [NEEDS CLARIFICATION: is attribution-required (CC BY) material acceptable in the bundled library,
-  or CC0 / public domain / own work only?]
+- **FR-017**: Every library item MUST be CC0, a clearly public-domain engraving, or written for
+  this project. Attribution-required (CC BY), share-alike (CC BY-SA, GPL-style) and non-commercial
+  (NC) or no-derivatives (ND) material MUST NOT be bundled (owner decision, 2026-09-22), however
+  freely it may otherwise be used.
 - **FR-018**: An item whose licence cannot be established MUST NOT ship, and the reason MUST be
   recorded.
-- **FR-019**: Users MUST be able to see an open item's licence and attribution from the score view.
+- **FR-019**: Users MUST be able to see an open item's source and licence from the score view, and
+  credit MUST be given to a source that asks for it even where its licence does not require it.
 - **FR-020**: Every downloaded item MUST be recorded in the project's third-party notices with its
   source, date obtained and licence.
 - **FR-021**: No item may be a placeholder: empty, truncated, silent or dummy files MUST NOT be
@@ -301,6 +304,8 @@ timeline; any load notice is one that is recorded as expected for that item.
   behave like every other library item.
 - "Compatible formats" means what the app already reads: MusicXML (`.musicxml`, `.xml`) and
   compressed MusicXML (`.mxl`). Nothing in the library requires a new input format.
+- Owner decisions taken on 2026-09-22, before planning: bundled items are CC0 / public domain /
+  own work only (FR-017), and the in-app library browser is part of the first release (FR-011).
 - Sources considered licence-clean for downloads, subject to FR-017: OpenScore (CC0 transcriptions
   of public-domain works, already used for this project's fixtures), the MusicXML specification's
   own example files (W3C licence), public-domain engravings the project converts itself, and
@@ -334,6 +339,8 @@ Beyond chords and graded repertoire, the material that earns its place fastest:
 ## Out of Scope
 
 - Copyrighted or licence-unclear repertoire, including modern popular music.
+- Attribution-required (CC BY), share-alike and non-commercial material, even where redistribution
+  is otherwise permitted - excluded by the owner decision behind FR-017.
 - User-managed libraries: importing a folder, organising personal collections, cloud sync.
 - Score editing, transposition on demand, or arranging inside the app.
 - Automatic difficulty estimation of arbitrary Scores.
