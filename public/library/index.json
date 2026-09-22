@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-22T16:45:15.139Z",
+  "generated": "2026-09-22T17:55:45.246Z",
   "sections": [
     {
       "id": "learning/chords",
@@ -86,7 +86,7 @@
         "maxSpanSemitones": 12,
         "staves": 2,
         "voicesPerStaff": 1,
-        "handIndependenceFraction": 0.8888888888888888,
+        "handIndependenceFraction": 0.6666666666666666,
         "shortestDivision": 4,
         "notesPerBeat": 2.2777777777777777,
         "accidentals": 0,
@@ -97,7 +97,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 49,
+        "peakNotesPerSecond": 3,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -155,7 +174,26 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 0,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 4,
+        "maxTieBarlinesCrossed": 3,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 1
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -213,7 +251,26 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 2,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 2,
+        "maxTieBarlinesCrossed": 1,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 1
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -271,7 +328,26 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 2,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 2,
+        "maxTieBarlinesCrossed": 1,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 1
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -329,7 +405,26 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 2,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 2,
+        "maxTieBarlinesCrossed": 1,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 1
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -387,7 +482,26 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 12,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 34,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 1
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -445,7 +559,26 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 2,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 4,
+        "maxTieBarlinesCrossed": 3,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 1
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -503,7 +636,26 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 0,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 4,
+        "maxTieBarlinesCrossed": 3,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 1
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -561,7 +713,26 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 2,
+        "maxTieBarlinesCrossed": 1,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 1
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -619,7 +790,26 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 5,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 1
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -677,7 +867,26 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 12,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 2,
+        "maxTieBarlinesCrossed": 1,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 1
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -735,7 +944,26 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 1,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 2,
+        "maxTieBarlinesCrossed": 1,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 1
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -793,7 +1021,26 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 1,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 2,
+        "maxTieBarlinesCrossed": 1,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 1
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -851,7 +1098,26 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 2,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 1
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -909,7 +1175,26 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 0,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 4,
+        "maxTieBarlinesCrossed": 3,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 1
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -967,7 +1252,26 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 12,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 1
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -1025,7 +1329,26 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 2,
+        "maxTieBarlinesCrossed": 1,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 1
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -1083,7 +1406,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -1141,7 +1483,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -1199,7 +1560,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -1257,7 +1637,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -1315,7 +1714,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -1373,7 +1791,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -1431,7 +1868,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -1489,7 +1945,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -1547,7 +2022,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -1605,7 +2099,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -1663,7 +2176,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -1721,7 +2253,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -1779,7 +2330,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -1837,7 +2407,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -1895,7 +2484,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -1953,7 +2561,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -2011,7 +2638,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -2069,7 +2715,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -2127,7 +2792,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -2185,7 +2869,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -2243,7 +2946,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -2301,7 +3023,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -2359,7 +3100,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -2417,7 +3177,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 1,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 30,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -2425,7 +3204,7 @@
       "section": "repertoire/advanced",
       "file": "repertoire/advanced/chopin-prelude-op28-no4.musicxml",
       "bytes": 91773,
-      "hash": "a56222c42c920093859db2d9adba6a3ee0dbc07599897c748cb41d5d44fc7470",
+      "hash": "6e589b6649fca5c4bc97fb9278850da32a150c115f18fcdb57e5de9eceb536de",
       "meta": {
         "version": 1,
         "title": "Prelude in E minor, Op. 28 No. 4 (\"Largo\")",
@@ -2444,7 +3223,7 @@
           "author": "Musicanyya practice material",
           "created": "2026-09-22",
           "basedOn": "Frédéric Chopin, Prelude in E minor, Op. 28 No. 4 (composed 1839, public domain; Chopin died 1849). Pitches and rhythm were checked measure-by-measure against the Mutopia Project's public-domain LilyPond engraving (piece-info id 468, Chop-28-4.ly, typeset by Magnus Lewis-Smith) before this original engraving was made.",
-          "note": "Complete piece: the 1-eighth-note pickup plus all 25 bars, ending on the closing perfect cadence in E minor. Slurs, pedal markings, hairpins and the closing fermatas of the source engraving are omitted from this file; they do not change the sounding pitches or rhythm. Independent review (2026-09-22) confirmed every pitch bar by bar against the Mutopia source, with one disclosed low-confidence detail: the left-hand chord's bass note in measure 24 (of this file's 0-indexed pickup-as-0 numbering; Chopin's own bar 23) is written B2 - the reviewer's two independent derivations of that one note (from a cross-staff voice in the source engraving) did not fully agree on its octave, though both agree on the pitch class (B, the dominant), so this is a possible octave nuance in one inner voice, not a wrong note."
+          "note": "Complete piece: the 1-eighth-note pickup plus all 25 bars, ending on the closing perfect cadence in E minor. Slurs, pedal markings, hairpins and the closing fermatas of the source engraving are omitted from this file; they do not change the sounding pitches or rhythm. Independent review (2026-09-22) confirmed every pitch bar by bar against the Mutopia source, with one disclosed low-confidence detail: the left-hand chord's bass note in measure 24 (of this file's 0-indexed pickup-as-0 numbering; Chopin's own bar 23) is written B2 - the reviewer's two independent derivations of that one note (from a cross-staff voice in the source engraving) did not fully agree on its octave, though both agree on the pitch class (B, the dominant), so this is a possible octave nuance in one inner voice, not a wrong note. A second fix (2026-09-22, found by the level checker's criterion-16 hand-span cap, data-model.md §4): bar 9's left-hand suspended B was written B4 instead of B3 (a 23-semitone, two-octave span against the same chord's C3/E3 - not playable, and an outlier against every neighbouring bar's compact 9-12-semitone voicing). Corrected to B3 - a stepwise 7-6 suspension resolving to the A3 that the chord's remaining six eighths already use, consistent with the piece's own published harmonic analysis at this bar. High confidence from internal pattern-consistency and third-party harmonic analysis, not a re-check against the LilyPond source itself."
         },
         "reviewedBy": "music-domain-expert",
         "reviewedOn": "2026-09-22",
@@ -2469,10 +3248,10 @@
         "tempoDefaulted": false,
         "lowestMidi": 35,
         "highestMidi": 84,
-        "maxSpanSemitones": 23,
+        "maxSpanSemitones": 12,
         "staves": 2,
         "voicesPerStaff": 1,
-        "handIndependenceFraction": 0.8461538461538461,
+        "handIndependenceFraction": 0.7692307692307693,
         "shortestDivision": 16,
         "notesPerBeat": 5.564356435643564,
         "accidentals": 1,
@@ -2483,7 +3262,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 0,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 22,
+        "longestRunAtShortestValue": 1,
+        "attackCount": 241,
+        "peakNotesPerSecond": 4.5,
+        "accidentalMarkCount": 47,
+        "maxTieChainNotes": 2,
+        "maxTieBarlinesCrossed": 1,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 2,
+        "ornamentCount": 1,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "advanced",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -2536,7 +3334,7 @@
         "maxSpanSemitones": 7,
         "staves": 2,
         "voicesPerStaff": 1,
-        "handIndependenceFraction": 1,
+        "handIndependenceFraction": 0.25,
         "shortestDivision": 4,
         "notesPerBeat": 1.8125,
         "accidentals": 0,
@@ -2547,7 +3345,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 0,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 5,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 38,
+        "peakNotesPerSecond": 2.5,
+        "accidentalMarkCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
       }
     },
     {
@@ -2600,7 +3417,7 @@
         "maxSpanSemitones": 0,
         "staves": 2,
         "voicesPerStaff": 1,
-        "handIndependenceFraction": 1,
+        "handIndependenceFraction": 0.5555555555555556,
         "shortestDivision": 16,
         "notesPerBeat": 4.24,
         "accidentals": 0,
@@ -2611,7 +3428,26 @@
         "hasRepeats": false,
         "hasPedal": false,
         "fingeringCoverage": 0,
-        "notices": []
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 17,
+        "longestRunAtShortestValue": 18,
+        "attackCount": 53,
+        "peakNotesPerSecond": 6,
+        "accidentalMarkCount": 7,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
       }
     }
   ]

@@ -281,3 +281,54 @@ Feature `005-practice-score-library`. Newest entry at the bottom.
 - Problems / open questions: none open.
 - Handoff: next = US3 (Phase 5, T045 onward) - level criteria, filters, and the repertoire build-out
   (FR-008: >= 6/5/4 pieces per level). Tree clean on `005-practice-score-library` after this commit.
+
+## 2026-09-22 - claude-sonnet-5 (/speckit.implement: US3 level criteria + filters)
+
+- Done: T045-T046, T048-T050 - `checkLevel`/`computeLevel` (`src/core/library/levels.ts`), the
+  `LEVEL_*` constants (`src/core/defaults.ts`), `filterItems` (`src/core/library/filter.ts`), and
+  `levelCheck` wired into `tools/library/build-index.ts` (generation now fails when an item's
+  assigned level does not match what the criteria compute, without a recorded `raisedBecause`).
+- In progress: none.
+- Decisions:
+  - **`ItemFacts` grew twelve fields** (`src/core/library/types.ts`) so `checkLevel` has real inputs
+    for the criteria data-model.md §4 lists but the v1.0.0 contract's required set never needed:
+    `parts`, `tempoChanges`, `maxLeapSemitones`, `longestRunAtShortestValue`, `attackCount`,
+    `peakNotesPerSecond`, `accidentalMarkCount`, `maxTieChainNotes`, `maxTieBarlinesCrossed`,
+    `hasNonSimpleTuplet`, `graceNoteCount`, `ornamentCount`, `repeatKind`, `backwardRepeatCount` -
+    allowed as a MINOR addition (the contract's `facts` schema has no `additionalProperties: false`,
+    same reasoning T009 used for `voicesPerStaff`). `src/core/library/facts.ts` derives all of them,
+    mostly from the existing `Score.parts[].notes` and `Score.navigation` the app already builds -
+    ornament/repeat-jump detection in particular reused fields (`Note.ornament`,
+    `NavigationMarks.jumps/endings`) that already existed for playback and needed no new XML scanning.
+  - **data-model.md §4 "Correction C"**: running the checker against real, already-shipped, already
+    `music-domain-expert`-reviewed US1/US2 content (not synthetic test fixtures) immediately surfaced
+    four calibration bugs the checker's literal reading of the criteria table produced - the kind of
+    bug Constitution IV expects an implementation to find. All four are documented in data-model.md
+    with the reasoning; summary: (1) hand independence only counts a measure where *both* staves have
+    2+ onsets
+    (a melody over one held chord is not a coordination challenge); (2) a "run of shortest-value
+    notes" only matters when that value is faster than a quarter note (a piece written entirely in
+    half notes is not "one long run"); (3) density criteria count note *attacks*, not raw `Note`
+    objects (a 3-note chord is one attack); (4)/(5)/(6) three criteria (9 key-signature accidentals,
+    14's minimum length, 20 tie chains) do not apply to `kind: "exercise"` items, and 14's minimum
+    also exempts `arrangement: true` pieces - a shape drill and a deliberately short excerpt are not
+    a piece failing to be substantial. None of these change a threshold in the criteria table; all are
+    the checker's formulas being fixed to match what the table's criteria are actually meant to catch.
+  - **A real transcription bug**, found by criterion 16 (max simultaneous interval) against
+    `chopin-prelude-op28-no4.musicxml`: bar 9's left-hand suspended tone was written B4 instead of B3
+    (a 23-semitone, near-two-octave chord with C3/E3 - unplayable, and an outlier against every
+    neighbouring bar's compact 9-12-semitone voicing). Diagnosed by a second, independent
+    `music-domain-expert` pass (not the one that authored or first reviewed the file): high confidence
+    from internal voicing-pattern consistency plus published harmonic analysis identifying this bar as
+    a 7-6 suspension resolving to the A3 the chord's other six eighths already use - not a re-check
+    against the Mutopia LilyPond source itself, so recorded as high-but-not-certain confidence in the
+    sidecar's `provenance.note`. Fixed to B3; `index.json` regenerated (44 items, 0 problems).
+  - `tests/library/extensibility.test.ts`'s (T084) minimal synthetic fixture predated `levelCheck` and
+    was single-staff, single-measure - now that generation enforces the level check it failed
+    criteria 14 and 27. Rebuilt as an 8-measure, 2-staff, correctly-tempoed fixture that satisfies
+    Beginner by construction; the test's actual assertions (FR-016) are unchanged.
+- Problems / open questions: none open.
+- Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test` (149 files, 1274 tests) all green.
+  `pnpm test:e2e` not re-run this chunk (no UI/session code changed yet - T051/T052 next).
+- Handoff: next = T051-T052 (filter UI + persistence), then the US3 content build-out (T053-066).
+  Tree clean on `005-practice-score-library` after this commit.

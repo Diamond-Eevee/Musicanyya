@@ -160,6 +160,27 @@ function validFacts(raw: unknown): ItemFacts | null {
     if (typeof raw[flag] === 'boolean') facts[flag] = raw[flag] as boolean;
   }
   if (isFiniteNumber(raw.fingeringCoverage)) facts.fingeringCoverage = raw.fingeringCoverage;
+
+  // The `checkLevel` inputs (data-model.md §4) - a MINOR addition, same reasoning as the flags above.
+  for (const numeric of [
+    'parts',
+    'tempoChanges',
+    'maxLeapSemitones',
+    'longestRunAtShortestValue',
+    'peakNotesPerSecond',
+    'accidentalMarkCount',
+    'maxTieChainNotes',
+    'maxTieBarlinesCrossed',
+    'graceNoteCount',
+    'ornamentCount',
+    'backwardRepeatCount',
+  ] as const) {
+    if (isFiniteNumber(raw[numeric])) facts[numeric] = raw[numeric] as number;
+  }
+  if (typeof raw.hasNonSimpleTuplet === 'boolean') facts.hasNonSimpleTuplet = raw.hasNonSimpleTuplet;
+  if (['none', 'simple', 'voltas', 'jumps'].includes(raw.repeatKind as string)) {
+    facts.repeatKind = raw.repeatKind as 'none' | 'simple' | 'voltas' | 'jumps';
+  }
   return facts;
 }
 

@@ -131,6 +131,40 @@ of printing difficulty" - so ignoring it in the time model is exactly right, and
 Verovio's business. `tests/fixtures/musicxml/octave-shift-8va.musicxml` writes the sounding pitches
 (C5 D5 under an `up` shift), consistent with that reading. No defect, no task.
 
+**Correction C (four measurement refinements, found implementing `checkLevel` against real US1/US2
+content - T045/T048)**: the literal criteria as tabled above produced obviously wrong verdicts on
+already-shipped, already-reviewed content, so the *checker*'s formulas were refined; the table's
+thresholds are unchanged.
+
+1. **Criterion 3 (hand independence)** originally counted a measure as independent whenever the two
+   staves' onset sets merely differed. A melody over one held whole-note chord differs on *every*
+   measure by that reading (four onsets vs. one) yet needs no ongoing two-hand coordination - it is
+   the easiest possible two-hand texture, not the hardest (found on `ode-to-joy.musicxml`). Fixed: a
+   measure only counts when **both** staves have two or more onsets and those onset sets differ.
+2. **Criterion 6 (longest run of shortest-value notes)** fired on every chord exercise, because a
+   piece written entirely in half notes has *every* onset "at the shortest value" by definition - 14
+   consecutive half-note chords is not a technical run. Fixed: the criterion only evaluates when the
+   shortest notated value is faster than a quarter note.
+3. **Criteria 18/19 (density)** counted every `Note`, so a three-note chord counted as three attacks
+   instead of one physical action. Fixed: both criteria count note *attacks* (one per onset, chords
+   collapsed), the same unit `peakNotesPerSecond` already used.
+4. **Criterion 9 (key-signature accidentals)** does not apply to `kind: "exercise"` items. FR-005
+   requires the 24-key chord family to be equally playable in every key by design, and every exercise
+   family spells its accidentals explicitly (never relies on the signature for a raised leading tone,
+   §5.1) - the sight-reading burden a key signature implies for a *piece* does not apply to a shape
+   drilled in every key alike.
+5. **Criterion 14's minimum** (a level's shortest allowed length) does not apply to `kind: "exercise"`
+   items or to `arrangement: true` pieces - a technique drill and a deliberately excerpted arrangement
+   (the Für Elise theme US1 opens, §5.3) are short by design, not because they are unfinished. The
+   *maximum* still applies to both, and both bounds still apply in full to a non-arrangement piece.
+6. **Criterion 20 (tie chains)** does not apply to `kind: "exercise"` items. A chord-change drill's
+   tied common tone (§5.2) means "do not lift the finger that did not move" - trivial when both hands
+   already play the same shape together - not a piece's held-note-against-a-moving-line coordination
+   challenge, which is what the cap exists to gate.
+
+None of these change a threshold in the table above, and none apply to a non-arrangement repertoire
+piece, which every criterion above still gates normally.
+
 ### 4.1 What the check deliberately cannot see
 
 Recorded so nobody mistakes a passing check for a musical verdict:

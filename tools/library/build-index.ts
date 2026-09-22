@@ -4,6 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { MAX_FILE_BYTES } from '../../src/core/defaults.js';
 import { deriveFacts } from '../../src/core/library/facts.js';
 import { validMetadata } from '../../src/core/library/index-model.js';
+import { checkLevel } from '../../src/core/library/levels.js';
 import type { LibraryIndex, LibraryItem, LibrarySection } from '../../src/core/library/types.js';
 import { buildScore } from '../../src/core/musicxml/build.js';
 import { readXml } from '../../src/core/musicxml/read.js';
@@ -127,9 +128,21 @@ export async function buildLibraryIndex(libraryRoot: string): Promise<BuildLibra
       }
     }
 
+    const levelCheck = checkLevel(facts, meta.level, {
+      ...(meta.raisedBecause !== undefined ? { raisedBecause: meta.raisedBecause } : {}),
+      expectedNotices: meta.expected?.notices ?? [],
+      kind: meta.kind,
+      ...(meta.arrangement !== undefined ? { arrangement: meta.arrangement } : {}),
+    });
+    if (!levelCheck.pass) {
+      problems.push(
+        `${relFile}: level check failed for "${meta.level}" - failed criteria [${levelCheck.failed.join(', ')}] (data-model.md §4)`,
+      );
+    }
+
     const hash = await hashFile(rawBytes.slice(0));
     const id = relFile.replace(/\.(musicxml|mxl)$/i, '');
-    items.push({ id, section: sectionId, file: relFile, bytes: fileBuffer.byteLength, hash, meta, facts });
+    items.push({ id, section: sectionId, file: relFile, bytes: fileBuffer.byteLength, hash, meta, facts, levelCheck });
   }
 
   const usedSectionIds = new Set(items.map((i) => i.section));

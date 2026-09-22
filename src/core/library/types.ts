@@ -119,6 +119,38 @@ export interface ItemFacts {
   hasPedal?: boolean;
   fingeringCoverage?: number;
   notices: readonly string[];
+
+  // The remaining fields feed `checkLevel` (data-model.md §4, criteria 6-27 not covered above). Not
+  // part of the v1.0.0 contract's required set - a MINOR addition, same as `voicesPerStaff` and
+  // `handIndependenceFraction` (T009).
+  /** Number of parts in the Score (criterion 27: this library expects exactly 1). */
+  parts?: number;
+  /** Distinct tempo-value changes after the first mark (criterion 8). */
+  tempoChanges?: number;
+  /** Largest interval between consecutive onsets' top note, within one staff (criterion 17). */
+  maxLeapSemitones?: number;
+  /** Longest run of consecutive onsets at the shortest notated value, within one staff (criterion 6). */
+  longestRunAtShortestValue?: number;
+  /** Total note-attack count across both staves - one per onset, a chord counts once (criterion 18). */
+  attackCount?: number;
+  /** Highest note-attack count found in any 2-second window (criterion 19). */
+  peakNotesPerSecond?: number;
+  /** Explicit `<accidental>` markup count - accidentals outside the key signature (criterion 11). */
+  accidentalMarkCount?: number;
+  /** Longest chain of tied notes sharing a pitch, within one staff/voice (criterion 20). */
+  maxTieChainNotes?: number;
+  /** Most barlines a single tie chain crosses (criterion 20). */
+  maxTieBarlinesCrossed?: number;
+  /** A tuplet ratio other than 3:2 is used anywhere (criterion 21). */
+  hasNonSimpleTuplet?: boolean;
+  /** Grace note count (criterion 22). */
+  graceNoteCount?: number;
+  /** Ornament count: trill/mordent/turn/tremolo (criterion 23). */
+  ornamentCount?: number;
+  /** The repeat structure actually used (criterion 24). */
+  repeatKind?: 'none' | 'simple' | 'voltas' | 'jumps';
+  /** How many backward repeats the score has (criterion 24's "one backward repeat" cap). */
+  backwardRepeatCount?: number;
 }
 
 export interface LevelCheck {

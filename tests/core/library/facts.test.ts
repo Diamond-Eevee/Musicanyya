@@ -103,4 +103,53 @@ describe('deriveFacts', () => {
     expect(facts.hasGraceNotes).toBe(true);
     expect(facts.shortestDivision).toBe(4); // quarter, not the grace note's 0-duration artifact
   });
+
+  it('a melody over one held chord is not "hand independent" - one hand is not rhythmically active (data-model.md §4 correction C)', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="3.1">
+  <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+  <part id="P1">
+  <measure number="1">
+    <attributes><divisions>1</divisions><staves>2</staves></attributes>
+    <note><pitch><step>E</step><octave>4</octave></pitch><duration>1</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>1</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>1</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>A</step><octave>4</octave></pitch><duration>1</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <backup><duration>4</duration></backup>
+    <note><pitch><step>C</step><octave>3</octave></pitch><duration>4</duration><voice>5</voice><type>whole</type><staff>2</staff></note>
+  </measure>
+  </part>
+</score-partwise>`;
+    const { doc } = readXml(xml);
+    const { score, report } = buildScore(doc);
+    const { timeline, notices } = buildTimeline(score);
+    const facts = deriveFacts({ doc, score, timeline, report, timelineNotices: notices });
+    expect(facts.handIndependenceFraction).toBe(0);
+  });
+
+  it('a run of consecutive half notes is not a "run" - only a shortest value faster than a quarter counts (correction C)', () => {
+    const facts = load('grand-staff-two-voices-per-staff.musicxml'); // whole notes throughout
+    expect(facts.longestRunAtShortestValue).toBe(0);
+  });
+
+  it('a three-note chord is one attack, not three (correction C: density counts attacks)', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="3.1">
+  <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+  <part id="P1">
+  <measure number="1">
+    <attributes><divisions>1</divisions></attributes>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>4</duration><type>whole</type></note>
+    <note><chord/><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><type>whole</type></note>
+    <note><chord/><pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><type>whole</type></note>
+  </measure>
+  </part>
+</score-partwise>`;
+    const { doc } = readXml(xml);
+    const { score, report } = buildScore(doc);
+    const { timeline, notices } = buildTimeline(score);
+    const facts = deriveFacts({ doc, score, timeline, report, timelineNotices: notices });
+    expect(facts.notes).toBe(3);
+    expect(facts.attackCount).toBe(1);
+  });
 });

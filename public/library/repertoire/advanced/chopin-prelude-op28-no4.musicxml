@@ -265,7 +265,7 @@
     <note><chord/><pitch><step>B</step><octave>3</octave></pitch><duration>12</duration><voice>5</voice><type>eighth</type><staff>2</staff></note>
   </measure>
 
-  <!-- measure 10 = bar 9: (C3 E3 B4) x2, (C3 E3 A3) x6 -->
+  <!-- measure 10 = bar 9: (C3 E3 B3) x2, (C3 E3 A3) x6 -->
   <measure number="9">
     <note><pitch><step>G</step><alter>1</alter><octave>4</octave></pitch><duration>24</duration><tie type="stop"/><voice>1</voice><type>quarter</type><accidental>sharp</accidental><staff>1</staff><notations><tied type="stop"/></notations></note>
     <note><pitch><step>A</step><octave>4</octave></pitch><duration>12</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
@@ -277,10 +277,10 @@
     <backup><duration>96</duration></backup>
     <note><pitch><step>C</step><octave>3</octave></pitch><duration>12</duration><voice>5</voice><type>eighth</type><staff>2</staff></note>
     <note><chord/><pitch><step>E</step><octave>3</octave></pitch><duration>12</duration><voice>5</voice><type>eighth</type><staff>2</staff></note>
-    <note><chord/><pitch><step>B</step><octave>4</octave></pitch><duration>12</duration><voice>5</voice><type>eighth</type><staff>2</staff></note>
+    <note><chord/><pitch><step>B</step><octave>3</octave></pitch><duration>12</duration><voice>5</voice><type>eighth</type><staff>2</staff></note>
     <note><pitch><step>C</step><octave>3</octave></pitch><duration>12</duration><voice>5</voice><type>eighth</type><staff>2</staff></note>
     <note><chord/><pitch><step>E</step><octave>3</octave></pitch><duration>12</duration><voice>5</voice><type>eighth</type><staff>2</staff></note>
-    <note><chord/><pitch><step>B</step><octave>4</octave></pitch><duration>12</duration><voice>5</voice><type>eighth</type><staff>2</staff></note>
+    <note><chord/><pitch><step>B</step><octave>3</octave></pitch><duration>12</duration><voice>5</voice><type>eighth</type><staff>2</staff></note>
     <note><pitch><step>C</step><octave>3</octave></pitch><duration>12</duration><voice>5</voice><type>eighth</type><staff>2</staff></note>
     <note><chord/><pitch><step>E</step><octave>3</octave></pitch><duration>12</duration><voice>5</voice><type>eighth</type><staff>2</staff></note>
     <note><chord/><pitch><step>A</step><octave>3</octave></pitch><duration>12</duration><voice>5</voice><type>eighth</type><staff>2</staff></note>

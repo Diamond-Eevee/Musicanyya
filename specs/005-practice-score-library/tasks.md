@@ -263,11 +263,11 @@ all pass; a mis-levelled item fails the check.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T045 [P] [US3] `tests/core/library/levels.test.ts` - the 28 criteria of data-model SS4 as
+- [x] T045 [P] [US3] `tests/core/library/levels.test.ts` - the 28 criteria of data-model SS4 as
   nested caps; `checkLevel` computes the lowest level an item satisfies; assigned **below** computed
   fails; assigned **above** computed passes only with `raisedBecause`; a missing tempo fails rather
   than assuming one (SS4.1 item 4)
-- [ ] T046 [P] [US3] `tests/core/library/filter.test.ts` - filtering by section, level, key, tag and
+- [x] T046 [P] [US3] `tests/core/library/filter.test.ts` - filtering by section, level, key, tag and
   text; accent- and case-insensitive text ("zyczenie" finds "Życzenie"); a synthetic 200-item index
   filters inside the SC-007 budget
 - [ ] T047 [P] [US3] `tests/ui/mx-library-filters.test.ts` - filter chips and text box drive the
@@ -276,12 +276,15 @@ all pass; a mis-levelled item fails the check.
 
 ### Implementation
 
-- [ ] T048 [US3] Level criteria: the **threshold values** as named `LEVEL_*` constants in
+- [x] T048 [US3] Level criteria: the **threshold values** as named `LEVEL_*` constants in
   `src/core/defaults.ts` (this project's constants table, AGENTS.md SS6 - analyze A3), and the
-  criterion definitions plus `checkLevel` in `src/core/library/levels.ts`
-- [ ] T049 [US3] `src/core/library/filter.ts` - pure filtering and sorting, with the collator passed
+  criterion definitions plus `checkLevel` in `src/core/library/levels.ts`. Also implements T050
+  (`levelCheck` wired into `tools/library/build-index.ts`) ahead of schedule, since running the
+  checker against real US1/US2 content immediately surfaced calibration bugs (data-model.md §4
+  "Correction C") that needed fixing before either task could be called done.
+- [x] T049 [US3] `src/core/library/filter.ts` - pure filtering and sorting, with the collator passed
   in so the core stays Web-API-free
-- [ ] T050 [US3] `tools/library/build-index.ts` - add `levelCheck` per item and fail generation when
+- [x] T050 [US3] `tools/library/build-index.ts` - add `levelCheck` per item and fail generation when
   an item's assigned level is wrong without a recorded `raisedBecause`
 - [ ] T051 [US3] `src/ui/elements/mx-library.ts` - filter chips, text box, item detail, and the level
   descriptions in plain language (FR-009, US3 scenario 1)
