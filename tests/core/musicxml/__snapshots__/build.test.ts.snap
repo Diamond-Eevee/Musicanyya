@@ -536,13 +536,6 @@ exports[`buildScore snapshots > builds time-model for backup-forward-two-voices.
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -688,13 +681,6 @@ exports[`buildScore snapshots > builds time-model for chord-basic.musicxml 1`] =
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -1687,13 +1673,6 @@ exports[`buildScore snapshots > builds time-model for cue-notes-not-played.music
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -1805,16 +1784,6 @@ exports[`buildScore snapshots > builds time-model for dc-after-jump-repeats.musi
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-          "3",
-          "4",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -2094,15 +2063,6 @@ exports[`buildScore snapshots > builds time-model for dc-al-fine.musicxml 1`] = 
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-          "3",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -2319,14 +2279,6 @@ exports[`buildScore snapshots > builds time-model for divisions-change-mid-part.
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -2483,16 +2435,6 @@ exports[`buildScore snapshots > builds time-model for ds-al-coda.musicxml 1`] = 
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-          "3",
-          "4",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -2762,13 +2704,6 @@ exports[`buildScore snapshots > builds time-model for duplicate-notes-disambigua
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -3114,13 +3049,6 @@ exports[`buildScore snapshots > builds time-model for dynamics-sound-override.mu
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -4523,13 +4451,6 @@ exports[`buildScore snapshots > builds time-model for fingering-substitution-alt
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -4911,13 +4832,6 @@ exports[`buildScore snapshots > builds time-model for fractional-duration.musicx
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -5063,13 +4977,6 @@ exports[`buildScore snapshots > builds time-model for grace-acciaccatura.musicxm
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -5222,14 +5129,6 @@ exports[`buildScore snapshots > builds time-model for grace-after-note-end-of-me
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -5428,13 +5327,6 @@ exports[`buildScore snapshots > builds time-model for grace-group-at-start.music
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -5626,13 +5518,6 @@ exports[`buildScore snapshots > builds time-model for grand-staff-two-voices-per
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -6141,13 +6026,6 @@ exports[`buildScore snapshots > builds time-model for instrument-missing-fallbac
         "severity": "warning",
       },
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -6259,13 +6137,6 @@ exports[`buildScore snapshots > builds time-model for instruments-two-parts.musi
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -6438,15 +6309,6 @@ exports[`buildScore snapshots > builds time-model for jump-text-only.musicxml 1`
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-          "3",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -6654,15 +6516,6 @@ exports[`buildScore snapshots > builds time-model for jump-time-only.musicxml 1`
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-          "3",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -7248,14 +7101,6 @@ exports[`buildScore snapshots > builds time-model for measure-numbers-duplicate-
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1a",
-          "X",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -7579,14 +7424,6 @@ exports[`buildScore snapshots > builds time-model for measure-repeat.musicxml 1`
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -8422,15 +8259,6 @@ exports[`buildScore snapshots > builds time-model for multi-measure-rest.musicxm
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-          "3",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -8883,13 +8711,6 @@ exports[`buildScore snapshots > builds time-model for non-ascii-Łódź-日本.m
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -9001,13 +8822,6 @@ exports[`buildScore snapshots > builds time-model for octave-shift-8va.musicxml 
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -9188,13 +9002,6 @@ exports[`buildScore snapshots > builds time-model for percussion-unpitched.music
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -10180,14 +9987,6 @@ exports[`buildScore snapshots > builds time-model for repeat-implicit-start.musi
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -10350,14 +10149,6 @@ exports[`buildScore snapshots > builds time-model for repeat-simple.musicxml 1`]
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -10527,14 +10318,6 @@ exports[`buildScore snapshots > builds time-model for repeat-times-3.musicxml 1`
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -10702,15 +10485,6 @@ exports[`buildScore snapshots > builds time-model for repeat-unbalanced-backward
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-          "3",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -11487,15 +11261,7 @@ exports[`buildScore snapshots > builds time-model for tempo-change-mid-measure-o
 exports[`buildScore snapshots > builds time-model for tempo-dotted-beat-unit.musicxml 1`] = `
 {
   "report": {
-    "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
-    ],
+    "entries": [],
     "skippedElementCount": 0,
   },
   "score": {
@@ -11816,15 +11582,7 @@ exports[`buildScore snapshots > builds time-model for tempo-none-default.musicxm
 exports[`buildScore snapshots > builds time-model for tempo-sound-vs-metronome.musicxml 1`] = `
 {
   "report": {
-    "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
-    ],
+    "entries": [],
     "skippedElementCount": 0,
   },
   "score": {
@@ -11929,14 +11687,6 @@ exports[`buildScore snapshots > builds time-model for tie-across-barline.musicxm
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -12094,14 +11844,6 @@ exports[`buildScore snapshots > builds time-model for tie-broken.musicxml 1`] = 
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -12443,14 +12185,6 @@ exports[`buildScore snapshots > builds time-model for tie-chord-partial.musicxml
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -12675,15 +12409,6 @@ exports[`buildScore snapshots > builds time-model for tie-into-volta.musicxml 1`
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-          "3",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -12956,14 +12681,6 @@ exports[`buildScore snapshots > builds time-model for tied-without-tie.musicxml 
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -13120,13 +12837,6 @@ exports[`buildScore snapshots > builds time-model for transpose-bb-clarinet.musi
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -13681,13 +13391,6 @@ exports[`buildScore snapshots > builds time-model for tuplet-triplet-eighths.mus
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -14226,13 +13929,6 @@ exports[`buildScore snapshots > builds time-model for unsupported-elements-notic
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -14344,13 +14040,6 @@ exports[`buildScore snapshots > builds time-model for verovio-id-roundtrip.music
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -14741,16 +14430,6 @@ exports[`buildScore snapshots > builds time-model for volta-1-2.musicxml 1`] = `
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-          "3",
-          "4",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -15038,15 +14717,6 @@ exports[`buildScore snapshots > builds time-model for volta-combined-numbers.mus
   "report": {
     "entries": [
       {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-          "3",
-        ],
-        "severity": "info",
-      },
-      {
         "code": "defaultTempo",
         "measureLabels": [
           "0",
@@ -15276,16 +14946,6 @@ exports[`buildScore snapshots > builds time-model for volta-discontinue.musicxml
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-          "2",
-          "3",
-          "4",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [
@@ -15573,13 +15233,6 @@ exports[`buildScore snapshots > builds time-model for wedge-crescendo.musicxml 1
 {
   "report": {
     "entries": [
-      {
-        "code": "measureLengthMismatch",
-        "measureLabels": [
-          "1",
-        ],
-        "severity": "info",
-      },
       {
         "code": "defaultTempo",
         "measureLabels": [

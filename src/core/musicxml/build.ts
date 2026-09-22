@@ -650,7 +650,17 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
         } else if (el.name === 'backup') {
           const durTxt = getText(getChild(el, 'duration'));
           if (durTxt) {
-            cursor -= Math.round(parseFloat(durTxt) * (ppq / currentDivisions));
+            // `<backup>` never moves the cursor before the start of its own measure: a duration
+            // larger than what has been written so far would otherwise push this measure - and every
+            // measure after it - to a negative tick (community fixture
+            // `11b-TimeSignatures-NoTime.musicxml` backs up 384 quarters inside a 4-quarter measure).
+            const backed = cursor - Math.round(parseFloat(durTxt) * (ppq / currentDivisions));
+            if (backed < measureStartCursor) {
+              cursor = measureStartCursor;
+              report.add('warning', 'cursorClamped', measureLabel, 'backup');
+            } else {
+              cursor = backed;
+            }
           }
         } else if (el.name === 'forward') {
           const durTxt = getText(getChild(el, 'duration'));
@@ -849,7 +859,12 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
         if (mInfo.implicit) {
           mInfo.beatOffsetTicks = mInfo.nominalTicks - mInfo.lengthTicks;
         } else {
-          if (mInfo.lengthTicks !== mInfo.nominalTicks) {
+          // A nominal length of 0 means no time signature is in force - MusicXML allows a part with
+          // no `<time>` at all, and senza misura is unmeasured by definition. There is nothing for
+          // the measure to mismatch, so warning about it is noise in the notice tray: half the
+          // warnings the community corpus raised came from files like `11h-TimeSignatures-SenzaMisura`
+          // and `71e-TabStaves`.
+          if (mInfo.nominalTicks > 0 && mInfo.lengthTicks !== mInfo.nominalTicks) {
             report.add('info', 'measureLengthMismatch', measureLabel);
           }
         }
@@ -906,6 +921,12 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
 
         part.notes.push(mn.note);
       }
+
+      // The next measure starts where this one ends - the end of its longest voice, not wherever the
+      // last voice happened to stop. Leaving `cursor` on the last voice makes every following measure
+      // start early and overlap this one (community fixture
+      // `46e-PickupMeasure-SecondVoiceStartsLater.musicxml`, whose second voice ends a beat short).
+      cursor = measureMaxCursor;
     }
     part.staves = currentStaves;
     score.parts.push(part);

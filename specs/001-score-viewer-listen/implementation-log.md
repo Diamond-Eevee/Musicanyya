@@ -659,3 +659,77 @@
 - Handoff: next = T141 (Electron playback e2e), then the still-open T138/T139. Tree has the fix, its tests, this
   log entry and the T140/T141 task lines; commit before ending. Note the desktop app takes a single-instance lock,
   so a running window blocks `pnpm electron:dev` from starting another.
+
+## 2026-09-22 11:30 - claude-opus-5 (relay)
+
+- Done: T142-T153 - the reference fixture set of US1's Independent Test now includes real music and
+  the corpus the notation-software community tests against, and three parser bugs it found are fixed.
+  - `tests/fixtures/musicxml/real/` - 18 whole pieces from the CC0 OpenScore Lieder and String
+    Quartets corpora (Erlkoenig, Dichterliebe, Wolf, Faure, Berlioz, Chopin, Mendelssohn, Debussy,
+    Satie, Stanford, Holmes, Bridge; Mozart K.387, Grosse Fuge, Janacek, Dvorak, Mayer quartets - up
+    to 993 measures and 13 610 notes). Kept `.mxl`, which also exercises `readMxl` on real files.
+  - `tests/fixtures/musicxml/community/` - the 183-file MusicXML Test Suite (MIT; LilyPond ->
+    M. S. A. Cuthbert -> W3C Music Notation Community Group), including its 3 deliberately invalid
+    files.
+  - `tests/fixtures/musicxml/spec-examples/` - 5 worked examples from the MusicXML specification:
+    guitar tablature, drum-kit percussion, chord symbols, Faure, Chopin.
+  - Tests: `tests/core/musicxml/real-scores.test.ts` (91), `tests/core/musicxml/community-suite.test.ts`
+    (7, incl. a snapshot of every notice code the corpus raises),
+    `tests/verovio/community-suite.test.ts` (2, all 183 files engrave),
+    `tests/e2e/real-scores.spec.ts` (engraving in a real browser, plus tablature/percussion/chord
+    symbols). Tool: `tests/tools/probe-real-scores.ts`.
+- Decisions:
+  - Corpora chosen for licence clarity, which is an owner decision (AGENTS.md 7): CC0 (OpenScore) and
+    MIT (test suite) need no permission. The 5 spec examples rest on the W3C Software and Document
+    License because that repository carries no per-file licence; flagged in their README so they can
+    be dropped if the owner wants file-level licences everywhere.
+  - Arbitrary musescore.com community scores were **not** used: the site returns 403 to this
+    environment and every score there carries its own licence. The OpenScore corpora are the
+    MuseScore community's own CC0 transcription projects and are the licence-clean, fetchable subset.
+  - Fixtures are `.mxl` rather than unpacked XML: 3.0 MB on disk instead of ~40 MB, and it keeps the
+    compressed path under test with real files.
+  - The three downloaded folders are subfolders so the golden snapshot test in
+    `tests/core/musicxml/build.test.ts`, which globs only `*.musicxml` in the fixtures root, ignores
+    them.
+- Bugs found and fixed (all three in `src/core/musicxml/build.ts`, all found by the community corpus,
+  none of which the 18 whole pieces exposed - real encoders pad their voices with rests):
+  - T150 `<backup>` with a duration larger than the measure drove the cursor to a **negative tick**
+    and took every later measure with it (`11b-TimeSignatures-NoTime.musicxml` backs up 384 quarters
+    inside a 4-quarter measure; measure 2 landed at -360960). `<backup>` is now clamped to the start
+    of its own measure and reports `cursorClamped` - a notice code that already existed but was only
+    raised for `<direction>` offsets.
+  - T151 When a measure's last voice ended before its longest voice, the measure cursor was left on
+    the last voice, so the next measure started early and **overlapped** it, silently misplacing the
+    rest of the piece in absolute time (Constitution II). `46e-PickupMeasure-SecondVoiceStartsLater`
+    put measure 2 at 2880 instead of 4800. The cursor now advances to `measureMaxCursor`.
+  - A third, smaller one: `measureLengthMismatch` was reported for measures with **no time signature
+    at all** (nominal length 0), where there is nothing to mismatch - 25 of the 49 warnings the corpus
+    raised, including `11h-TimeSignatures-SenzaMisura` and `71e-TabStaves`. Now only reported when a
+    nominal length is known. `measure-overfull`/`measure-underfull` still warn, as they should; 45
+    golden snapshots updated, and every changed line was a removed spurious notice - no tick, length
+    or id moved.
+  - T145 (test infrastructure) `playwright.config.ts`'s `webServer` ran `vite preview` without
+    building, so the whole e2e suite could pass against a stale `dist/`. Found when every real fixture
+    was refused as "too complex" by a `dist/` that predated the depth-guard fix in 5bcb932. The
+    command now builds first.
+- Problems / open questions:
+  - T154 `createRenderCopy` is quadratic: it rebuilds the whole XML string once per insert, so
+    opening a large score costs 22-26 s of pure string copying (Mozart K.387 21 956 ms, Grosse Fuge
+    25 806 ms, Erlkoenig 2 068 ms). This is now the slowest thing in the test suite as well
+    (`real-scores.test.ts` takes 163 s, nearly all of it here). Fix is contained: build the output
+    from a slice array joined once.
+  - T155 **needs owner**: `<movement-title>` is never read, so both Schubert files give
+    `Score.title === null` and Chopin gives "Op.74" instead of "Zyczenie". What should the title be
+    when both `work-title` and `movement-title` are present - combined, or separate fields on `Score`
+    (which would change `data-model.md`)?
+  - T156 `<wavy-line>`, `<accidental-mark>`, `<harmony>` and `<figured-bass>` all raise
+    `unsupportedElement` on ordinary files but are missing from `SUPPORT_MATRIX`, so the Help page
+    says nothing about them. All four are engraving-only; Verovio draws them from the render copy.
+  - `tutorial-percussion.musicxml` has 36 notes in the Score model but Verovio draws 32 `g.note`
+    elements. The only fixture anywhere where the two counts disagree; noted in that folder's README
+    and not asserted. Worth running down if percussion becomes a supported use case.
+- Handoff: next = T154 (make `createRenderCopy` linear - biggest user-visible win, and the new tests
+  already measure it), then T156, then T155 once the owner answers. T138/T139/T141 are still open from
+  before. Run `pnpm test -- tests/core/musicxml` and `pnpm test:e2e -- tests/e2e/real-scores.spec.ts`
+  first. Branch `001-real-score-fixtures` (specs dir resolves by the `001-` prefix); tree clean at the
+  commit below.
