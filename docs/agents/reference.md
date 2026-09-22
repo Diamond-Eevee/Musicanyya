@@ -210,6 +210,13 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-23: Feature 006 planned (beamed notes and complete engraving): Verovio 6.3.0 draws exactly what
+  MusicXML encodes - no automatic beams, and a pitch given only by `<alter>` becomes an invisible gestural
+  accidental - so the whole library showed flags and 117 notes printed a different pitch from the one graded.
+  One pure core module (`src/core/musicxml/engraving/`) plans `<beam>`/`<accidental>` inserts on the parse
+  tree; it completes opened scores in the render copy only (Score and Note IDs untouched), completes the library
+  files on disk (`pnpm library:engrave` + the exercise generator) and backs a zero-insert guard test. Verovio
+  draws no composer/arranger with any header option, so the title moves to an HTML title block above page 1.
 - 2026-09-22: Feature 005 planned (practice score library): Phase 0 found that **no fetchable corpus
   of CC0 solo piano repertoire exists** - OpenScore (the one verifiable CC0 source, already used here)
   has Lieder and string quartets only, and every general "public domain MusicXML" collection either
@@ -230,10 +237,4 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   mismatch where page elements were hard-coded to 1600 px while `adjustPageHeight` made the real
   height content-dependent. Escape now closes an open panel before it stops the transport. Spec
   FR-014a was corrected during planning: enlarging re-flows the music, it never scrolls horizontally.
-- 2026-09-20: Feature 003 planned (Play mode and grading): the Metronome is scheduled events on a dedicated
-  percussion channel, not new real-time code; grading is a pure function run in a worker; timing windows are
-  fractions of a beat compared in integer ticks, clamped so a claim window can never reach a neighbouring note.
-  Two corrections came out of planning: feature 001 has no Latency profile (003 builds it and its calibration),
-  and ornaments/arpeggios are unparsed, which makes a correctly played trill score as extras - an open owner
-  decision.
 <!-- RECENT-CHANGES:END -->
