@@ -3,67 +3,99 @@ export interface RenderCopyInserts {
   measures: Array<{ startOffset: number; tagLength: number; id: string }>;
 }
 
-function escapeRegExp(string: string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+interface Replacement {
+  start: number;
+  end: number;
+  replacement: string;
 }
 
+/** Index of the last tag replacement starting at or before `offset`, or -1. Binary search. */
+function lastTagAtOrBefore(tags: Replacement[], offset: number): number {
+  let lo = 0;
+  let hi = tags.length - 1;
+  let found = -1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    const tag = tags[mid];
+    if (tag !== undefined && tag.start <= offset) {
+      found = mid;
+      lo = mid + 1;
+    } else {
+      hi = mid - 1;
+    }
+  }
+  return found;
+}
+
+/**
+ * Copies the source MusicXML with our own Note IDs and Measure IDs written onto the `<note>` and
+ * `<measure>` tags Verovio will engrave, so that every element in the SVG carries the id the rest of
+ * the app addresses it by (Constitution III).
+ *
+ * The copy is assembled in a single pass: the source is cut into slices at the replacement
+ * boundaries and joined once. Rebuilding the whole string per replacement, as this used to, is
+ * quadratic - a 4.7 MB quartet with ~11 000 inserts spent 22-26 s here, which was the bulk of the
+ * time to open a large score (tasks.md T150-T154).
+ */
 export function createRenderCopy(xml: string, inserts: RenderCopyInserts): string {
-  const replacements: Array<{ start: number; end: number; replacement: string }> = [];
+  // The tags we rewrite. Note and measure tags never overlap - a `<measure ...>` start tag ends
+  // before the first `<note>` inside it - so sorting by start is enough to walk them in order.
+  const tags: Replacement[] = [];
   const usedIds = new Set<string>();
 
   for (const note of inserts.notes) {
     usedIds.add(note.id);
-    const tag = xml.substring(note.startOffset, note.startOffset + note.tagLength);
-    replacements.push({
+    const end = note.startOffset + note.tagLength;
+    tags.push({
       start: note.startOffset,
-      end: note.startOffset + note.tagLength,
-      replacement: replaceIdInTag(tag, note.id),
+      end,
+      replacement: replaceIdInTag(xml.substring(note.startOffset, end), note.id),
     });
   }
 
   for (const measure of inserts.measures) {
     usedIds.add(measure.id);
-    const tag = xml.substring(measure.startOffset, measure.startOffset + measure.tagLength);
-    replacements.push({
+    const end = measure.startOffset + measure.tagLength;
+    tags.push({
       start: measure.startOffset,
-      end: measure.startOffset + measure.tagLength,
-      replacement: replaceIdInTag(tag, measure.id),
+      end,
+      replacement: replaceIdInTag(xml.substring(measure.startOffset, end), measure.id),
     });
   }
 
-  // Find all id attributes in the original XML that collide with our usedIds,
-  // and which are NOT inside one of our replaced tags.
-  // This is safe because if it's outside our tags, we can just replace it.
+  tags.sort((a, b) => a.start - b.start);
+
+  // An id already in the source that collides with one of ours would make the SVG ambiguous. Drop
+  // it, unless it sits inside a tag we are rewriting anyway - `replaceIdInTag` has already dealt
+  // with that one. The enclosing tag is found by binary search rather than by scanning every
+  // replacement, which was the other quadratic term here.
+  const collisions: Replacement[] = [];
   const allIdsPattern = /\s+id\s*=\s*['"]([^'"]+)['"]/g;
-  while (true) {
-    const match = allIdsPattern.exec(xml);
-    if (match === null) break;
+  for (const match of xml.matchAll(allIdsPattern)) {
     const idVal = match[1];
-    if (usedIds.has(idVal!)) {
-      const matchStart = match.index;
-      const matchEnd = match.index + match[0].length;
+    if (idVal === undefined || !usedIds.has(idVal)) continue;
 
-      // Is it inside any of our tag replacements?
-      let inside = false;
-      for (const rep of replacements) {
-        if (matchStart >= rep.start && matchEnd <= rep.end) {
-          inside = true;
-          break;
-        }
-      }
-
-      if (!inside) {
-        replacements.push({ start: matchStart, end: matchEnd, replacement: '' });
-      }
-    }
+    const matchStart = match.index;
+    const matchEnd = matchStart + match[0].length;
+    const candidate = tags[lastTagAtOrBefore(tags, matchStart)];
+    const inside = candidate !== undefined && matchEnd <= candidate.end;
+    if (!inside) collisions.push({ start: matchStart, end: matchEnd, replacement: '' });
   }
 
-  replacements.sort((a, b) => b.start - a.start);
+  // `collisions` is already in ascending order (matchAll walks the string forwards) and none of them
+  // lies inside a tag, so merging the two sorted lists keeps the whole set ordered and disjoint.
+  const replacements = collisions.length === 0 ? tags : merge(tags, collisions);
 
-  let result = xml;
+  const pieces: string[] = [];
+  let cursor = 0;
   for (const { start, end, replacement } of replacements) {
-    result = result.substring(0, start) + replacement + result.substring(end);
+    if (start < cursor) continue; // defensive: an overlap would corrupt the copy, so skip it
+    pieces.push(xml.slice(cursor, start), replacement);
+    cursor = end;
   }
+  pieces.push(xml.slice(cursor));
+
+  let result = pieces.join('');
 
   // Rewrite the XML declaration
   if (result.startsWith('<?xml')) {
@@ -73,10 +105,40 @@ export function createRenderCopy(xml: string, inserts: RenderCopyInserts): strin
   return result;
 }
 
+/** Merges two ascending, non-overlapping lists of replacements into one ascending list. */
+function merge(a: Replacement[], b: Replacement[]): Replacement[] {
+  const out: Replacement[] = [];
+  let i = 0;
+  let j = 0;
+  while (i < a.length && j < b.length) {
+    const left = a[i];
+    const right = b[j];
+    if (left === undefined) break;
+    if (right === undefined) break;
+    if (left.start <= right.start) {
+      out.push(left);
+      i++;
+    } else {
+      out.push(right);
+      j++;
+    }
+  }
+  while (i < a.length) {
+    const left = a[i];
+    if (left !== undefined) out.push(left);
+    i++;
+  }
+  while (j < b.length) {
+    const right = b[j];
+    if (right !== undefined) out.push(right);
+    j++;
+  }
+  return out;
+}
+
 function replaceIdInTag(tag: string, newId: string): string {
   if (/\s+id\s*=\s*['"][^'"]*['"]/.test(tag)) {
     return tag.replace(/\s+id\s*=\s*['"][^'"]*['"]/, ` id="${newId}"`);
-  } else {
-    return tag.replace(/^<([^\s>]+)/, `<$1 id="${newId}"`);
   }
+  return tag.replace(/^<([^\s>]+)/, `<$1 id="${newId}"`);
 }

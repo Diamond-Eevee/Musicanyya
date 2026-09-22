@@ -1,4 +1,4 @@
-import { parseXml, type XmlDocument, type XmlElement } from '@rgrove/parse-xml';
+import { parseXml, type XmlDocument, XmlElement, type XmlNode } from '@rgrove/parse-xml';
 import { MusicXmlLoadError } from './load-error.js';
 
 export interface ReadXmlResult {
@@ -75,20 +75,16 @@ export function readXml(xml: string): ReadXmlResult {
     measures: [] as number[],
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function traverse(node: any, depth: number) {
+  function traverse(node: XmlNode, depth: number) {
     if (depth > MAX_DEPTH) {
       throw new MusicXmlLoadError('fileTooComplex', 'The file is nested too deeply to open.');
     }
-    if (node.type === 'element') {
-      if (node.name === 'note' && node.start !== undefined) {
-        offsets.notes.push(node.start);
-      } else if (node.name === 'measure' && node.start !== undefined) {
-        offsets.measures.push(node.start);
-      }
-      for (const child of node.children || []) {
-        traverse(child, depth + 1);
-      }
+    if (!(node instanceof XmlElement)) return;
+    if ((node.name === 'note' || node.name === 'measure') && node.start !== undefined) {
+      (node.name === 'note' ? offsets.notes : offsets.measures).push(node.start);
+    }
+    for (const child of node.children) {
+      traverse(child, depth + 1);
     }
   }
 

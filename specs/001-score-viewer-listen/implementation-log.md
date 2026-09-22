@@ -659,3 +659,260 @@
 - Handoff: next = T141 (Electron playback e2e), then the still-open T138/T139. Tree has the fix, its tests, this
   log entry and the T140/T141 task lines; commit before ending. Note the desktop app takes a single-instance lock,
   so a running window blocks `pnpm electron:dev` from starting another.
+
+## 2026-09-22 11:30 - claude-opus-5 (relay)
+
+- Done: T142-T153 - the reference fixture set of US1's Independent Test now includes real music and
+  the corpus the notation-software community tests against, and three parser bugs it found are fixed.
+  - `tests/fixtures/musicxml/real/` - 18 whole pieces from the CC0 OpenScore Lieder and String
+    Quartets corpora (Erlkoenig, Dichterliebe, Wolf, Faure, Berlioz, Chopin, Mendelssohn, Debussy,
+    Satie, Stanford, Holmes, Bridge; Mozart K.387, Grosse Fuge, Janacek, Dvorak, Mayer quartets - up
+    to 993 measures and 13 610 notes). Kept `.mxl`, which also exercises `readMxl` on real files.
+  - `tests/fixtures/musicxml/community/` - the 183-file MusicXML Test Suite (MIT; LilyPond ->
+    M. S. A. Cuthbert -> W3C Music Notation Community Group), including its 3 deliberately invalid
+    files.
+  - `tests/fixtures/musicxml/spec-examples/` - 5 worked examples from the MusicXML specification:
+    guitar tablature, drum-kit percussion, chord symbols, Faure, Chopin.
+  - Tests: `tests/core/musicxml/real-scores.test.ts` (91), `tests/core/musicxml/community-suite.test.ts`
+    (7, incl. a snapshot of every notice code the corpus raises),
+    `tests/verovio/community-suite.test.ts` (2, all 183 files engrave),
+    `tests/e2e/real-scores.spec.ts` (engraving in a real browser, plus tablature/percussion/chord
+    symbols). Tool: `tests/tools/probe-real-scores.ts`.
+- Decisions:
+  - Corpora chosen for licence clarity, which is an owner decision (AGENTS.md 7): CC0 (OpenScore) and
+    MIT (test suite) need no permission. The 5 spec examples rest on the W3C Software and Document
+    License because that repository carries no per-file licence; flagged in their README so they can
+    be dropped if the owner wants file-level licences everywhere.
+  - Arbitrary musescore.com community scores were **not** used: the site returns 403 to this
+    environment and every score there carries its own licence. The OpenScore corpora are the
+    MuseScore community's own CC0 transcription projects and are the licence-clean, fetchable subset.
+  - Fixtures are `.mxl` rather than unpacked XML: 3.0 MB on disk instead of ~40 MB, and it keeps the
+    compressed path under test with real files.
+  - The three downloaded folders are subfolders so the golden snapshot test in
+    `tests/core/musicxml/build.test.ts`, which globs only `*.musicxml` in the fixtures root, ignores
+    them.
+- Bugs found and fixed (all three in `src/core/musicxml/build.ts`, all found by the community corpus,
+  none of which the 18 whole pieces exposed - real encoders pad their voices with rests):
+  - T150 `<backup>` with a duration larger than the measure drove the cursor to a **negative tick**
+    and took every later measure with it (`11b-TimeSignatures-NoTime.musicxml` backs up 384 quarters
+    inside a 4-quarter measure; measure 2 landed at -360960). `<backup>` is now clamped to the start
+    of its own measure and reports `cursorClamped` - a notice code that already existed but was only
+    raised for `<direction>` offsets.
+  - T151 When a measure's last voice ended before its longest voice, the measure cursor was left on
+    the last voice, so the next measure started early and **overlapped** it, silently misplacing the
+    rest of the piece in absolute time (Constitution II). `46e-PickupMeasure-SecondVoiceStartsLater`
+    put measure 2 at 2880 instead of 4800. The cursor now advances to `measureMaxCursor`.
+  - A third, smaller one: `measureLengthMismatch` was reported for measures with **no time signature
+    at all** (nominal length 0), where there is nothing to mismatch - 25 of the 49 warnings the corpus
+    raised, including `11h-TimeSignatures-SenzaMisura` and `71e-TabStaves`. Now only reported when a
+    nominal length is known. `measure-overfull`/`measure-underfull` still warn, as they should; 45
+    golden snapshots updated, and every changed line was a removed spurious notice - no tick, length
+    or id moved.
+  - T145 (test infrastructure) `playwright.config.ts`'s `webServer` ran `vite preview` without
+    building, so the whole e2e suite could pass against a stale `dist/`. Found when every real fixture
+    was refused as "too complex" by a `dist/` that predated the depth-guard fix in 5bcb932. The
+    command now builds first.
+- Problems / open questions:
+  - T154 `createRenderCopy` is quadratic: it rebuilds the whole XML string once per insert, so
+    opening a large score costs 22-26 s of pure string copying (Mozart K.387 21 956 ms, Grosse Fuge
+    25 806 ms, Erlkoenig 2 068 ms). This is now the slowest thing in the test suite as well
+    (`real-scores.test.ts` takes 163 s, nearly all of it here). Fix is contained: build the output
+    from a slice array joined once.
+  - T155 **needs owner**: `<movement-title>` is never read, so both Schubert files give
+    `Score.title === null` and Chopin gives "Op.74" instead of "Zyczenie". What should the title be
+    when both `work-title` and `movement-title` are present - combined, or separate fields on `Score`
+    (which would change `data-model.md`)?
+  - T156 `<wavy-line>`, `<accidental-mark>`, `<harmony>` and `<figured-bass>` all raise
+    `unsupportedElement` on ordinary files but are missing from `SUPPORT_MATRIX`, so the Help page
+    says nothing about them. All four are engraving-only; Verovio draws them from the render copy.
+  - `tutorial-percussion.musicxml` has 36 notes in the Score model but Verovio draws 32 `g.note`
+    elements. The only fixture anywhere where the two counts disagree; noted in that folder's README
+    and not asserted. Worth running down if percussion becomes a supported use case.
+- Handoff: next = T154 (make `createRenderCopy` linear - biggest user-visible win, and the new tests
+  already measure it), then T156, then T155 once the owner answers. T138/T139/T141 are still open from
+  before. Run `pnpm test -- tests/core/musicxml` and `pnpm test:e2e -- tests/e2e/real-scores.spec.ts`
+  first. Branch `001-real-score-fixtures` (specs dir resolves by the `001-` prefix); tree clean at the
+  commit below.
+
+## 2026-09-22 11:45 - claude-opus-5 (relay)
+
+- Done: T154, T156.
+  - **T154** `createRenderCopy` (`src/core/musicxml/render-copy.ts`) is now linear. It used to apply
+    each replacement with `result = result.substring(0, start) + replacement + result.substring(end)`,
+    allocating a fresh copy of the whole file per insert - about 50 GB of string copying for a 4.7 MB
+    quartet with ~11 000 inserts. The copy is now cut into slices at the replacement boundaries and
+    joined once, and the id-collision check finds its enclosing tag by binary search over the
+    start-sorted tags instead of scanning every replacement. Dead `escapeRegExp` helper removed.
+
+    | fixture | inserts | before | after |
+    |---|---:|---:|---:|
+    | `chopin-zyczenie` | 327 | 33 ms | 1 ms |
+    | `schubert-erlkoenig-d328` | 3 041 | 2 068 ms | 10 ms |
+    | `mozart-quartet-k387` | 11 099 | 21 956 ms | 28 ms |
+    | `beethoven-grosse-fuge-op133` | 10 688 | 25 806 ms | 33 ms |
+    | `dvorak-quartet-12-american` | 14 463 | (48.8 s end to end) | 48 ms |
+
+    Verified equivalent, not just faster: the old implementation was checked out beside the new one
+    and both were run over **all 285 fixtures** (community probes, real repertoire, spec examples and
+    the hand-written set) - every render copy matches byte for byte.
+
+    Knock-on: `pnpm test` went from 177 s to 13.6 s; the e2e open timeout came back down from 180 s to
+    60 s and `real-scores.test.ts`'s allowance from 60 s to 20 s. Both still log the elapsed time, so
+    a regression to quadratic behaviour is visible in the run output.
+  - **T156** `<wavy-line>`, `<accidental-mark>`, `<harmony>` and `<figured-bass>` added to
+    `SUPPORT_MATRIX` with status `Ignored` and a note that Verovio still engraves them from the render
+    copy; `docs/musicxml-support.md` regenerated from the matrix so the two cannot drift.
+- Decisions: `Ignored` rather than `Unsupported` for the four new rows - the printed page is complete,
+  only the time model skips them, and `Unsupported` in this table means "reported; ignored for
+  playback" for things that would otherwise sound (glissando, slide).
+- Problems / open questions:
+  - T155 still **needs owner**: what should `Score.title` be when a file carries both `<work-title>`
+    and `<movement-title>` (Chopin: "Op.74" and "Zyczenie")? Combined into one string, or two fields
+    on `Score`, which would change `data-model.md`. Nothing else blocks on it; it is latent today
+    because Verovio engraves the title block from the file's own credits and the recent list shows
+    file names.
+  - Still open from before this work: T138 (mutation fuzz test for MusicXML loading), T139 (`any`
+    usages), T141 (Electron playback e2e coverage).
+- Handoff: next = T155 once the owner answers, else T141 -> T138 -> T139. Run `pnpm test` (13 s now)
+  and `pnpm test:e2e` first. Branch `001-real-score-fixtures`, pushed to origin; tree clean at the
+  commit below.
+
+## 2026-09-22 11:55 - claude-opus-5 (relay)
+
+- Done: T141. `tests/e2e/electron-playback.spec.ts` launches the real desktop shell and plays, closing
+  the gap that let T140 through: `us2-listen.spec.ts` is Chromium-only by design (strict SC-005
+  timing, research.md R-15), the other projects share the browser bundle over `http://localhost`, and
+  `electron-smoke.spec.ts` opened a score without ever pressing Play - so nothing exercised audio
+  under `app://`. Two cases: a cold start that loads the sound, plays, checks the audio clock actually
+  advances and the cursor moves on, then stops; and a reload that re-loads against a possibly warm
+  cache, because T140's failure was in the Cache Storage *write*, which runs once per SoundFont.
+  No SC-005 timing assertion - that belongs to the Chromium test.
+- Decisions: the test was verified by **reintroducing T140** (dropping the try/catch around
+  `cache.put` in `src/engine/audio/soundfont-cache.ts`), rebuilding, and confirming both cases go red
+  - Play never flips to Pause and no note ever highlights - then restoring the fix and confirming they
+  go green. A test for a fixed bug is worth only as much as its demonstrated failure.
+  The first full-gate run after adding it failed `electron-smoke.spec.ts` with
+  "electron.launch: Target page, context or browser has been closed": `electron/main.ts` takes a
+  single-instance lock keyed on the user-data directory, so with four workers the two
+  Electron-launching specs raced and the second instance exited at once. The playback spec now
+  launches with its own `--user-data-dir` under the OS temp directory, removed in `afterAll`. That
+  also starts it against an empty Cache Storage, which is the cold SoundFont path T140 broke.
+- Problems / open questions: T155 still **needs owner** (see the previous entry). T138 and T139 remain.
+  Anything else that launches Electron must pass its own `--user-data-dir` for the same reason.
+- Handoff: next = T155 once the owner answers, else T138 (mutation fuzz for MusicXML loading) then
+  T139 (`any` usages). Note that `pnpm test:e2e` for the electron project needs `dist-electron/` built:
+  `pnpm exec vite build && pnpm exec vite build -c vite.electron.config.ts`. Branch
+  `001-real-score-fixtures`; tree clean at the commit below.
+
+## 2026-09-22 12:05 - claude-opus-5 (relay)
+
+- Done: T138, and T157/T158 for the two bugs it found on its first run.
+  - **T138** `tests/core/musicxml/fuzz.test.ts` replaces the `it.skip` stub in `malformed.test.ts`.
+    560 mutants (14 base fixtures x 40) from a committed seed, six mutation kinds - bit-flip,
+    truncation, tag-shuffle, chunk delete, chunk duplicate and XML-metacharacter splicing - each run
+    through the real pipeline (`decodeXml` -> `readXml` -> `buildScore`). Every mutant must either
+    load or be refused with a `MusicXmlLoadError`; a mutant that loads must also produce a coherent
+    Score (positive ppq, no negative or non-finite measure start or length). A per-mutant time budget
+    catches a pathological refusal. Deterministic: a fixed seed, a mulberry32 stream per fixture so
+    adding a base does not reshuffle the others, and a failure message carrying the seed, the base
+    and the exact mutation, so it reproduces by re-running the file. Two further tests assert the
+    determinism and that every mutation kind is actually exercised at the configured budget.
+  - **T157** `decodeXml` threw a plain `Error` for "Invalid bytes" and "Unsupported encoding", which
+    reached the worker as code `internal` - the app blaming itself for a corrupted file. Both now
+    throw `MusicXmlLoadError` with `malformedXml` / `unsupportedEncoding`, codes the notice tray and
+    `en.ts` already carried. 542 of the 560 mutants hit this.
+  - **T158** An unreadable `<duration>` poisoned the entire timeline with NaN: `parseFloat('/')` is
+    NaN, `cursor += NaN` is NaN, and from there every measure start, measure length and scheduled tick
+    is NaN with no recovery. One stray byte from a truncated download is enough. `<note>`, `<backup>`
+    and `<forward>` now share a `durationToTicks` guard reading a non-finite or negative duration as 0
+    and reporting `timingRounded`. Regression fixture `duration-unreadable.musicxml`.
+- Decisions:
+  - The fuzzer is committed with a fixed seed rather than randomised per run. A fuzzer that finds a
+    new bug every few CI runs and cannot reproduce it is worse than no fuzzer; the seed is a knob to
+    turn deliberately when someone wants to explore further.
+  - `timingRounded` reused for the unreadable duration rather than adding a notice code - a new code
+    is a contract change (AGENTS.md 6) and "the timing had to be adjusted" is accurate here.
+- Problems / open questions: T155 still **needs owner** (the `work-title` / `movement-title`
+  question). T139 remains.
+- Handoff: next = T155 once the owner answers, else T139 (`any` usages), the last open task on the
+  feature. Branch `001-real-score-fixtures`; tree clean at the commit below.
+
+## 2026-09-22 14:30 - claude-opus-5 (relay)
+
+- Done: T139, plus T159 and T160 that its RT review surfaced. **Zero `any` left in `src/`** (was 29);
+  lint warnings 264 -> 234.
+  - Narrowed rather than commented, wherever the type was recoverable: a shared `errorMessage` /
+    `errorCode` in `src/core/errors.ts` for the four `catch (err: any)` in the workers and the MIDI
+    adapter; `VerovioToolkit` (already declared in `verovio.d.ts`, just not used) for the toolkit
+    handle; `XmlNode` for `read.ts`'s `traverse`; a `ZipEntry` interface in `mxl.ts`; `PendingNote` for
+    `build.ts`'s in-measure accumulator; `Wedge['type']` for the wedge cast; `LiveMessage` and
+    `InboundMessage` for the worklet's message envelopes; `MIDIController` for the spessasynth
+    controller cast; `Window & { __X_STATE__?: ... }` for the three e2e debugging seams.
+  - The `any`s were hiding four real defects, which is the argument for narrowing over commenting:
+    1. `mx-latency-panel.ts` stashed its keydown handler in `this.dataset.handler`, a `DOMStringMap`:
+       assigning a function there stores its *source text*, so `removeEventListener` was handed a
+       string and never matched. Calibration leaked a live `keydown` listener onto `window` every run.
+       Now held in a field, and `startCalibration` stops any previous run first.
+    2. `probe.ts` assigned `userAgentData.brands[0]` straight into `Environment.shell.browser`, but
+       Client Hints calls it `brand` and our type calls it `name` - so `browser.name` was always
+       undefined and the Environment panel showed "Browser (Unknown ...)" on every Chromium build.
+    3. Typing `measureNotes` surfaced an unguarded index and two `exactOptionalPropertyTypes`
+       violations on `graceIndex` in `buildNoteId`.
+    4. The Electron bridge fields were `string | undefined` flowing into `string`.
+  - **T159** is a regression I introduced in this pass and then fixed: narrowing
+    `err?.message || String(err)` to `err instanceof Error ? err.message : String(err)` returns `''`
+    for an `Error` with an empty message, and the consumer's `?? 'unknown'` does not catch `''`, so a
+    SoundFont failure could show a blank reason. Caught by the RT review, verified in a REPL, fixed in
+    both worklet catches and in `errorMessage()`.
+  - **T160** `computeCurrentTick()` did `[...segs].reverse().find(...)` **inside the render quantum**
+    (reached from `sendPositionReport()`, ~94 times a second): an array copy, a reverse and a closure
+    per call. Direct Constitution I violation, pre-existing rather than from T139, fixed here anyway
+    because Principle I is non-negotiable. Now a downward index loop.
+- Decisions:
+  - The worklet catches narrow inline instead of importing `errorMessage`, to keep the worklet bundle
+    free of a new import on a file that runs on the audio thread.
+  - The remaining RT findings (T161-T168) are recorded rather than fixed: they are pre-existing, each
+    needs its own `rt-audio-reviewer` pass, and T161 in particular needs an owner decision on what the
+    UI shows when the processor faults mid-session. Fixing them inside a typing task would have made
+    the change unreviewable.
+- Problems / open questions:
+  - **T161 is High and worth doing next**: `process()` does not guard `processBlock`, so one throw
+    permanently silences the session with no diagnostic.
+  - T155 still **needs owner**: the `work-title` / `movement-title` question.
+- Handoff: next = T161, then T162-T168, and T155 once the owner answers. Every one of T161-T168 is on
+  the RT path and needs an `rt-audio-reviewer` pass before merge. Branch `001-real-score-fixtures`;
+  tree clean at the commit below.
+
+## 2026-09-22 14:45 - claude-opus-5 (relay)
+
+- Done: the pre-merge `constitution-auditor` pass, and the two findings it raised that were mine.
+  Verdict: **compliant, safe to merge**; no CRITICAL, and no new Principle I/II/III/V/VIII violation.
+  - **T170** (MEDIUM, introduced by T158 in this branch): `durationToTicks` interpolated the offending
+    text into the notice detail, and `ReportBuilder.add` de-dupes by (code, severity, element, detail)
+    with a linear scan - so a corrupt file produced one notice entry per distinct bad value. Measured
+    before the fix: 1 000 bad durations -> 22 ms / 1 001 entries, 8 000 -> 406 ms / 8 001 entries,
+    i.e. quadratic and unbounded; with `MAX_FILE_SIZE` at 50 MB that could spin the score worker for
+    minutes and then structured-clone a six-figure notice list to the UI. The detail is now a fixed
+    string and `measureLabels` carries the location: **2 entries and 74 ms** for 8 000 bad durations.
+    Re-measured, not assumed.
+  - **T171** (LOW): `<senza-misura>` set `mInfo.time = null`, which is indistinguishable from "no time
+    signature seen yet", so an unmeasured measure following a metered one inherited the previous
+    nominal length and was reported as a length mismatch for not matching a metre it does not have.
+    Now tracked with an explicit per-measure flag.
+  - Also from the audit: corrected "Ten scores" to "Eighteen" in `THIRD_PARTY_NOTICES.md` and
+    `tests/fixtures/musicxml/real/README.md` (T146 added eight more and the count went stale), and
+    deleted `tests/core/musicxml/fixtures.test.ts`, a `describe.skip` stub asserting `expect(false)`
+    that T142-T149 now do for real.
+  - **T169** recorded rather than fixed: `tutorial-percussion.musicxml` has 36 notes in the Score
+    model but Verovio draws 32 `g.note` elements - the only fixture where the two disagree, and
+    Principle III wants Note ID = SVG id for every playable note. It was living in a fixture README
+    with no T-number.
+- Decisions: the audit's HIGH findings (T161, T163, T164 - allocation inside the render quantum, and
+  the unguarded `processBlock`) are **pre-existing and byte-identical to `main`**, so they do not
+  block this merge; the auditor agreed. They must be closed before any release that claims Principle I
+  compliance. Worth being precise: this branch removed one of the three allocation sites
+  (`computeCurrentTick`), not all of them.
+- Problems / open questions: T155 still **needs owner** (the `work-title` / `movement-title`
+  question). T161 needs an owner decision on what the UI shows when the processor faults mid-session.
+- Handoff: branch merged to `main` after this entry. Next = T161, then T162-T169; every one is on the
+  RT path and needs an `rt-audio-reviewer` pass. Tree clean at the commit below.

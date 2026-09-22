@@ -1,3 +1,4 @@
+import { errorMessage } from '../core/errors.js';
 import { gradePerformance } from '../core/grade/grade.js';
 import type { Grade, GradeInput } from '../core/grade/types.js';
 
@@ -15,8 +16,8 @@ export function handleMessage(event: MessageEvent, postMessageFn: typeof postMes
   try {
     const grade = gradePerformance(input);
     postMessageFn({ type: 'graded', requestId, grade });
-  } catch (error: any) {
-    postMessageFn({ type: 'error', requestId, message: error?.message ?? String(error) });
+  } catch (error) {
+    postMessageFn({ type: 'error', requestId, message: errorMessage(error) });
   }
 }
 

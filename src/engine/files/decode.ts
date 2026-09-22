@@ -1,3 +1,5 @@
+import { MusicXmlLoadError } from '../../core/musicxml/load-error.js';
+
 export function decodeXml(bytes: Uint8Array): string {
   if (bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe) {
     return decodeWith(bytes, 'utf-16le');
@@ -19,12 +21,16 @@ export function decodeXml(bytes: Uint8Array): string {
   return decodeWith(bytes, encoding);
 }
 
+// Both failures here are the file's fault, not ours, so they carry a `MusicXmlLoadError` code the
+// notice tray already knows how to show. A plain `Error` reached the worker as code `internal`, which
+// told a musician with a truncated download that the app had broken rather than the file (found by
+// the mutation fuzzer, tests/core/musicxml/fuzz.test.ts).
 function decodeWith(bytes: Uint8Array, encoding: string): string {
   let decoder: TextDecoder;
   try {
     decoder = new TextDecoder(encoding, { fatal: true });
-  } catch (e: any) {
-    throw new Error(`Unsupported encoding: ${encoding}`);
+  } catch {
+    throw new MusicXmlLoadError('unsupportedEncoding', `Unsupported encoding: ${encoding}`);
   }
 
   try {
@@ -34,7 +40,7 @@ function decodeWith(bytes: Uint8Array, encoding: string): string {
       return text.slice(1);
     }
     return text;
-  } catch (e) {
-    throw new Error('Invalid bytes');
+  } catch {
+    throw new MusicXmlLoadError('malformedXml', `Invalid bytes for encoding: ${encoding}`);
   }
 }

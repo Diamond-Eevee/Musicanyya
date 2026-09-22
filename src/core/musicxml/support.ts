@@ -78,6 +78,30 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
   },
   { category: 'Notes', element: '<glissando>', status: 'Unsupported', notes: 'Reported; ignored for playback' },
   { category: 'Notes', element: '<slide>', status: 'Unsupported', notes: 'Reported; ignored for playback' },
+  {
+    category: 'Notes',
+    element: '<wavy-line>',
+    status: 'Ignored',
+    notes: 'The trill extension line: engraved by Verovio, ignored by the time model. Common in real scores',
+  },
+  {
+    category: 'Notes',
+    element: '<accidental-mark>',
+    status: 'Ignored',
+    notes: 'The accidental printed over an ornament: engraved by Verovio, ignored by the time model',
+  },
+  {
+    category: 'Harmony',
+    element: '<harmony>',
+    status: 'Ignored',
+    notes: 'Chord symbols above the staff: engraved by Verovio, not played and not graded',
+  },
+  {
+    category: 'Harmony',
+    element: '<figured-bass>',
+    status: 'Ignored',
+    notes: 'Figured-bass numerals: engraved by Verovio, not played and not graded',
+  },
 ];
 
 export function generateSupportMatrixMarkdown(): string {

@@ -76,6 +76,51 @@ function getAttr(el: XmlElement, name: string): string | undefined {
   return el.attributes[name];
 }
 
+/**
+ * A `<duration>` in ticks, never NaN and never negative.
+ *
+ * `parseFloat` returns NaN for anything unparseable - an empty element, a stray character from a
+ * corrupted download - and a single NaN added to the cursor poisons every tick after it: measure
+ * starts, measure lengths, the schedule and the cursor all become NaN, and nothing downstream can
+ * recover. A negative duration would walk the cursor backwards for the same reason. Both are treated
+ * as zero and reported, so the rest of the file still loads (Constitution II and III). Found by the
+ * mutation fuzzer, `tests/core/musicxml/fuzz.test.ts`.
+ */
+/** A note as it is accumulated inside a measure, before its Note ID is assigned (tasks.md T139). */
+interface PendingNote {
+  startCursor: number;
+  note: Note;
+}
+
+function durationToTicks(
+  durTxt: string,
+  ppq: number,
+  divisions: number,
+  report: {
+    add: (
+      severity: 'info' | 'warning',
+      code: LoadNoticeCode,
+      measure: string,
+      element?: string,
+      detail?: string,
+    ) => void;
+  },
+  measureLabel: string,
+  element: string,
+): number {
+  const ticks = Math.round(parseFloat(durTxt) * (ppq / divisions));
+  if (!Number.isFinite(ticks) || ticks < 0) {
+    // The detail is a fixed string, deliberately: `ReportBuilder.add` de-dupes entries by
+    // (code, severity, element, detail) with a linear scan, so interpolating the offending text here
+    // made a corrupt file produce one entry per distinct bad value - quadratic, and a 50 MB file
+    // could spin the score worker for minutes and then post a six-figure notice list to the UI.
+    // `measureLabels` already records where the trouble is.
+    report.add('warning', 'timingRounded', measureLabel, element, 'unreadable duration treated as 0');
+    return 0;
+  }
+  return ticks;
+}
+
 export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport } {
   const report = new ReportBuilder();
   const root = doc.children.find((c): c is XmlElement => c instanceof XmlElement);
@@ -374,6 +419,10 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
 
       let measureStartCursor = cursor;
       let measureMaxCursor = cursor;
+      // `<senza-misura>` is explicitly unmeasured, which is not the same as "no time signature seen
+      // yet": without this the measure inherits the previous one's nominal length and is reported as
+      // a length mismatch for not matching a metre it does not have.
+      let senzaMisuraHere = false;
 
       if (firstPart) {
         const implicit = getAttr(measureNode, 'implicit') === 'yes';
@@ -400,7 +449,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
         mInfo.startTick = measureStartCursor;
       }
 
-      const measureNotes: any[] = [];
+      const measureNotes: PendingNote[] = [];
 
       for (const el of measureNode.children) {
         if (!(el instanceof XmlElement)) continue;
@@ -422,6 +471,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
             const senzaMisura = getChild(timeEl, 'senza-misura');
             if (senzaMisura) {
               mInfo.time = null;
+              senzaMisuraHere = true;
             } else {
               const beats = getText(getChild(timeEl, 'beats')) || '4';
               const beatType = parseInt(getText(getChild(timeEl, 'beat-type')), 10) || 4;
@@ -452,15 +502,14 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           const isCue = getChild(el, 'cue') !== undefined;
           const chord = getChild(el, 'chord') !== undefined;
           const durTxt = getText(getChild(el, 'duration'));
-          let durationTicks = 0;
-          if (durTxt) {
-            const dec = parseFloat(durTxt);
-            durationTicks = Math.round(dec * (ppq / currentDivisions));
-          }
+          const durationTicks = durTxt
+            ? durationToTicks(durTxt, ppq, currentDivisions, report, measureLabel, 'note')
+            : 0;
 
           let noteCursor = cursor;
           if (chord) {
-            noteCursor = measureNotes.length > 0 ? measureNotes[measureNotes.length - 1].startCursor : cursor;
+            // A `<chord>` note sounds with the one before it, so it reuses that note's start.
+            noteCursor = measureNotes[measureNotes.length - 1]?.startCursor ?? cursor;
           }
 
           const voice = getText(getChild(el, 'voice')) || '1';
@@ -641,7 +690,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
                 accent,
                 fingerings,
                 printed: getAttr(el, 'print-object') !== 'no',
-                source: { start: (el as any).start || 0, end: (el as any).end || 0 },
+                source: { start: el.start || 0, end: el.end || 0 },
                 ornament,
                 arpeggiate,
               },
@@ -650,12 +699,22 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
         } else if (el.name === 'backup') {
           const durTxt = getText(getChild(el, 'duration'));
           if (durTxt) {
-            cursor -= Math.round(parseFloat(durTxt) * (ppq / currentDivisions));
+            // `<backup>` never moves the cursor before the start of its own measure: a duration
+            // larger than what has been written so far would otherwise push this measure - and every
+            // measure after it - to a negative tick (community fixture
+            // `11b-TimeSignatures-NoTime.musicxml` backs up 384 quarters inside a 4-quarter measure).
+            const backed = cursor - durationToTicks(durTxt, ppq, currentDivisions, report, measureLabel, 'backup');
+            if (backed < measureStartCursor) {
+              cursor = measureStartCursor;
+              report.add('warning', 'cursorClamped', measureLabel, 'backup');
+            } else {
+              cursor = backed;
+            }
           }
         } else if (el.name === 'forward') {
           const durTxt = getText(getChild(el, 'duration'));
           if (durTxt) {
-            cursor += Math.round(parseFloat(durTxt) * (ppq / currentDivisions));
+            cursor += durationToTicks(durTxt, ppq, currentDivisions, report, measureLabel, 'forward');
             measureMaxCursor = Math.max(measureMaxCursor, cursor);
           }
         } else if (el.name === 'direction') {
@@ -742,7 +801,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
               part.wedges.push({
                 measureIndex: currentMeasureIndex,
                 onsetInMeasure,
-                type: getAttr(wedge, 'type') as any,
+                type: getAttr(wedge, 'type') as Wedge['type'],
                 number: numAttr ? parseInt(numAttr, 10) || 1 : 1,
               });
             }
@@ -840,7 +899,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           if (split.length > 0) beatsNum = split.reduce((acc, v) => acc + (parseInt(v, 10) || 0), 0);
           else beatsNum = parseInt(mInfo.time.beats, 10) || 4;
           nomLength = (beatsNum * ppq) / (mInfo.time.beatType / 4);
-        } else if (currentMeasureIndex > 0) {
+        } else if (!senzaMisuraHere && currentMeasureIndex > 0) {
           nomLength = score.measures[currentMeasureIndex - 1]?.nominalTicks ?? 0;
         }
         mInfo.nominalTicks = Math.round(nomLength);
@@ -849,7 +908,12 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
         if (mInfo.implicit) {
           mInfo.beatOffsetTicks = mInfo.nominalTicks - mInfo.lengthTicks;
         } else {
-          if (mInfo.lengthTicks !== mInfo.nominalTicks) {
+          // A nominal length of 0 means no time signature is in force - MusicXML allows a part with
+          // no `<time>` at all, and senza misura is unmeasured by definition. There is nothing for
+          // the measure to mismatch, so warning about it is noise in the notice tray: half the
+          // warnings the community corpus raised came from files like `11h-TimeSignatures-SenzaMisura`
+          // and `71e-TabStaves`.
+          if (mInfo.nominalTicks > 0 && mInfo.lengthTicks !== mInfo.nominalTicks) {
             report.add('info', 'measureLengthMismatch', measureLabel);
           }
         }
@@ -885,7 +949,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           onset: mn.note.onsetQuarters,
           pitch: mn.note.unpitched ? `u${mn.note.writtenKey}` : mn.note.writtenKey,
           isGrace: mn.note.grace !== null,
-          graceIndex: mn.note.grace?.index,
+          ...(mn.note.grace?.index !== undefined ? { graceIndex: mn.note.grace.index } : {}),
         });
 
         const dupCount = (noteCounters.get(baseId) || 0) + 1;
@@ -900,12 +964,18 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           onset: mn.note.onsetQuarters,
           pitch: mn.note.unpitched ? `u${mn.note.writtenKey}` : mn.note.writtenKey,
           isGrace: mn.note.grace !== null,
-          graceIndex: mn.note.grace?.index,
+          ...(mn.note.grace?.index !== undefined ? { graceIndex: mn.note.grace.index } : {}),
           ...(duplicateIndex !== undefined ? { duplicateIndex } : {}),
         });
 
         part.notes.push(mn.note);
       }
+
+      // The next measure starts where this one ends - the end of its longest voice, not wherever the
+      // last voice happened to stop. Leaving `cursor` on the last voice makes every following measure
+      // start early and overlap this one (community fixture
+      // `46e-PickupMeasure-SecondVoiceStartsLater.musicxml`, whose second voice ends a beat short).
+      cursor = measureMaxCursor;
     }
     part.staves = currentStaves;
     score.parts.push(part);

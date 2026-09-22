@@ -1,0 +1,26 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`MusicXML Test Suite (community corpus) > reports what it skips instead of dropping it silently 1`] = `
+{
+  "cursorClamped": 1,
+  "defaultTempo": 180,
+  "instrumentFallback": 20,
+  "measureLengthMismatch": 24,
+  "unsupportedElement:accidental-mark": 3,
+  "unsupportedElement:delayed-inverted-turn": 1,
+  "unsupportedElement:delayed-turn": 1,
+  "unsupportedElement:figured-bass": 4,
+  "unsupportedElement:glissando": 4,
+  "unsupportedElement:grouping": 1,
+  "unsupportedElement:harmony": 8,
+  "unsupportedElement:haydn": 1,
+  "unsupportedElement:inverted-mordent": 1,
+  "unsupportedElement:inverted-turn": 1,
+  "unsupportedElement:inverted-vertical-turn": 1,
+  "unsupportedElement:schleifer": 1,
+  "unsupportedElement:shake": 1,
+  "unsupportedElement:slide": 3,
+  "unsupportedElement:vertical-turn": 1,
+  "unsupportedElement:wavy-line": 7,
+}
+`;

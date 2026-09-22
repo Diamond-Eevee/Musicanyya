@@ -12,7 +12,10 @@ export default defineConfig({
     { name: 'electron' },
   ],
   webServer: {
-    command: 'npm run preview',
+    // Build first: `vite preview` only serves whatever is already in dist/, so without this the whole
+    // suite can pass against a bundle built before the change under test. Found on 2026-09-22, when
+    // every real-repertoire fixture was rejected by a dist/ that predated the depth-guard fix (5bcb932).
+    command: 'npm run build && npm run preview',
     port: 4173,
     reuseExistingServer: true,
   },
