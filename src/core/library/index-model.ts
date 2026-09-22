@@ -79,7 +79,9 @@ function validProvenance(raw: unknown): Provenance | null {
   return null;
 }
 
-function validMetadata(raw: unknown): ItemMetadata | null {
+/** Exported so `tools/library/build-index.ts` validates a sidecar against exactly the same rules the
+ *  runtime index reader uses - one schema, never two that can drift apart. */
+export function validMetadata(raw: unknown): ItemMetadata | null {
   if (!isObject(raw)) return null;
   if (raw.version !== 1) return null;
   if (!isNonEmptyString(raw.title)) return null;

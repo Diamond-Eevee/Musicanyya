@@ -83,37 +83,47 @@ Für Elise* -> Listen plays it, with its source and licence visible.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T013 [P] [US1] `tests/engine/library/http-catalog.test.ts` - index fetched and parsed; 404 ->
+- [x] T013 [P] [US1] `tests/engine/library/http-catalog.test.ts` - index fetched and parsed; 404 ->
   `notFound`; malformed JSON -> `malformedIndex`; oversize -> `tooLarge`; Cache Storage missing or
   throwing still returns the bytes; a second call is served without a network hit (FR-014)
-- [ ] T014 [P] [US1] `tests/ui/library-state.test.ts` - the state machine of data-model SS6
+- [x] T014 [P] [US1] `tests/ui/library-state.test.ts` - the state machine of data-model SS6
   (`idle -> loadingIndex -> ready | indexError -> openingItem`), and that `indexError` leaves recents
   and Open usable
-- [ ] T015 [P] [US1] `tests/ui/mx-library.test.ts` - renders sections and items with title, composer
+- [x] T015 [P] [US1] `tests/ui/mx-library.test.ts` - renders sections and items with title, composer
   and level; emits `openlibraryitem`; shows one error row with Retry when the index fails
-- [ ] T016 [P] [US1] `tests/engine/session-library.test.ts` (beside `play-session.test.ts` and
+- [x] T016 [P] [US1] `tests/engine/session-library.test.ts` (beside `play-session.test.ts` and
   `replay-session.test.ts`, so the `engine` project picks it up) - `openlibraryitem` fetches the
   bytes and goes through the **existing** `loadBytes`, so the Score, its Note IDs and the report are
   identical to a dragged-in file (FR-013); a fetch failure raises a notice and leaves the current
-  Score untouched; opening a user file clears `openedLibraryItemId`
-- [ ] T017 [P] [US1] `tests/library/index.test.ts` - regenerating the index in memory equals the
+  Score untouched; opening a user file clears `openedLibraryItemId`. **Design addendum**: this logic
+  is factored into `src/app/library-session.ts` (`LibrarySessionController`), mirroring how
+  `PlaySessionController` is factored out of `Session` - the giant `Session` class constructs real
+  Workers in its constructor and cannot be unit-tested directly (no other test does), so the same
+  extraction pattern makes T016 possible at all.
+- [x] T017 [P] [US1] `tests/library/index.test.ts` - regenerating the index in memory equals the
   committed `index.json` apart from `generated`; every score file has a sidecar; no item is unlisted
-  (FR-025)
-- [ ] T084 [P] [US1] `tests/library/extensibility.test.ts` - writing a new score plus sidecar into a
+  (FR-025). **Currently red on purpose**: its "matches the committed index.json" assertion needs
+  `public/library/index.json`, which does not exist until T030. The other two assertions
+  (no-problems, nothing unlisted) already pass against the empty tree. Re-confirmed at T030.
+- [x] T084 [P] [US1] `tests/library/extensibility.test.ts` - writing a new score plus sidecar into a
   copy of the tree and regenerating makes it appear in the index, with **no change to any file under
   `src/`** (FR-016, analyze A8). Confirm it fails
 
 ### Implementation
 
-- [ ] T018 [US1] `tools/library/build-index.ts` - walk `public/library/`, read each sidecar, load each
+- [x] T018 [US1] `tools/library/build-index.ts` - walk `public/library/`, read each sidecar, load each
   score through `readXml` + `buildScore`, derive facts with T009, write `index.json`
-  (contract `library-index.md` SS2, SS4)
-- [ ] T019 [US1] `src/engine/library/http-catalog.ts` - the `fetch` + Cache Storage adapter
+  (contract `library-index.md` SS2, SS4). Exports `validMetadata` from `index-model.ts` so the
+  generator validates a sidecar against exactly the schema the runtime reader uses. `tsconfig.tools.json`
+  needed a reference to `tsconfig.engine.json` added (it imports `src/engine/files/*`).
+- [x] T019 [US1] `src/engine/library/http-catalog.ts` - the `fetch` + Cache Storage adapter
   (`musicanyya-library-v1`), resolving paths against `import.meta.env.BASE_URL` so the dev server,
   `dist/` and the Electron `app://` origin all work unchanged
-- [ ] T020 [US1] `src/ui/state/libraryState.ts` - list, section selection, load status, selected item
-- [ ] T021 [US1] `src/ui/elements/mx-library.ts` - the shelf: section tree, item list, open action,
-  loading and error rows
+- [x] T020 [US1] `src/ui/state/libraryState.ts` - list, section selection, load status, selected item
+- [x] T021 [US1] `src/ui/elements/mx-library.ts` - the shelf: section tree, item list, open action,
+  loading and error rows (US1 scope: every non-empty section expanded, no filter chips yet - those are
+  US3/T051; the section tree renders as headings rather than a click-to-filter control so opening an
+  item never costs more than one click, SC-001)
 - [ ] T022 [P] [US1] `src/ui/styles/panels.css` - library rows, section headings and the source line,
   using the existing tokens (no new colour outside `tokens.css`)
 - [ ] T023 [US1] `src/app/session.ts` - construct the element, register it in `PanelTools` as
