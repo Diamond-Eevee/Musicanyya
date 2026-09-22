@@ -183,10 +183,10 @@ Complete: `data-model.md`, three contracts under `contracts/`, and `quickstart.m
 verification script per user story. `docs/agents/reference.md` updated (Active Technologies, Recent
 Changes).
 
-## Owner decisions raised by planning
+## Owner decisions raised by planning (all answered 2026-09-22)
 
-| # | Decision | Recommendation |
+| # | Decision | Answer |
 |---|---|---|
-| D-1 | With no fetchable CC0 piano corpus (R-1), the repertoire must be **engraved by us** from public-domain works - which caps how fast FR-008's 15 pieces arrive. Accept authored repertoire as the route, or supply licence-checked files yourself? | **Both**: we author the shelf from short public-domain works so the feature can finish on its own, and anything you verify as CC0 in your own browser is dropped in as an extra item. Keep FR-008's counts as the target for the finished feature, not for P1. |
+| D-1 | With no fetchable CC0 piano corpus (R-1), the repertoire must be **engraved by us** from public-domain works - which caps how fast FR-008's 15 pieces arrive. Accept authored repertoire as the route, or supply licence-checked files yourself? | **Answered: as recommended.** We author the shelf from short public-domain works so the feature can finish on its own, and anything you verify as CC0 in your own browser is dropped in as an extra item. Keep FR-008's counts as the target for the finished feature, not for P1. |
 | D-2 | FR-014 / SC-010 promise the library "offline once the app has been loaded". Without a service worker the app shell is not offline-capable at all (R-4). | Narrow both to "an item that has been opened stays available without the network" (Cache Storage + the existing recents), and record a full offline/PWA shell as a separate feature. |
-| D-3 | `musicxml/chords/c-major-scale-and-chords.musicxml` (hand-written for feature 002, and its reference Score) moves into `public/library/learning/chords/`. | Move it, keep its filename, and leave a pointer in `musicxml/README.md`; feature 002's quickstart is updated to the new path in the same task. |
+| D-3 | `musicxml/chords/c-major-scale-and-chords.musicxml` (hand-written for feature 002, and its reference Score) moves into `public/library/learning/chords/`. | **Answered: as recommended.** Move it, keep its filename, and leave a pointer in `musicxml/README.md`; feature 002's quickstart is updated to the new path in the same task. |

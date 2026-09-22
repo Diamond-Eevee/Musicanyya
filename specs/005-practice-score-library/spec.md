@@ -31,8 +31,8 @@ Listen - the Score engraves and plays, exactly as a dragged-in file would.
    in the score view and Listen, Practice and Play modes all work on it.
 3. **Given** a library item is open, **When** the musician looks for its origin, **Then** the item's
    source and licence (or "written for Musicanyya") are visible without leaving the score view.
-4. **Given** the app has been loaded once, **When** the musician goes offline and reopens the app,
-   **Then** the library still lists and opens its items.
+4. **Given** an item has been opened once, **When** the musician loses the network and opens it
+   again, **Then** it still opens (FR-014 - the app itself still needs the network to start).
 5. **Given** any library item, **When** it is opened, **Then** no load error is shown and the Score
    engraves on the first page within the same time budget as any other Score of that size.
 
@@ -194,7 +194,9 @@ timeline; any load notice is one that is recorded as expected for that item.
   level's criteria, the arrangement MUST be labelled as such.
 - **FR-008**: *Repertoire* MUST contain at least 15 pieces - at least 6 *Beginner*, at least 5
   *Intermediate* and at least 4 *Advanced* - covering more than one composer and more than one key
-  signature per level.
+  signature per level. These counts are the target for the **finished feature**: because no CC0
+  piano repertoire can be downloaded, every piece is engraved for this project, so P1 ships the
+  browsing and whatever repertoire exists at that point (owner decision, 2026-09-22).
 - **FR-009**: Each difficulty level MUST have written, objective criteria (pitch range, hands
   together or separate, shortest note value, tempo range, number of key-signature accidentals,
   length), and every item in a level MUST satisfy that level's criteria.
@@ -213,7 +215,10 @@ timeline; any load notice is one that is recorded as expected for that item.
   tag.
 - **FR-013**: Opening a library item MUST give exactly the same behaviour as opening a user's own
   file: the same engraving, the same stable Note IDs, and Listen, Practice and Play all available.
-- **FR-014**: The library MUST remain listable and openable offline once the app has been loaded.
+- **FR-014**: An item the musician has already opened MUST remain openable **without a network
+  connection**, and the index and fetched items MUST be cached so a repeat visit does not depend on
+  the network. A fully offline application shell is **not** promised: this project has no service
+  worker, so the app itself still needs the network to start (owner decision, 2026-09-22).
 - **FR-015**: Library items MUST be read-only: opening, practising or grading one MUST never modify
   it, and user-opened files MUST stay distinguishable from library items.
 - **FR-016**: The library MUST be extensible by content alone - adding an item means adding its
@@ -286,8 +291,8 @@ timeline; any load notice is one that is recorded as expected for that item.
   opening it never blocks the main thread for more than 50 ms at a time.
 - **SC-009**: Every downloaded item is traceable: for each one, a reader of the notices file can
   find the original source and confirm its licence.
-- **SC-010**: The library works identically in the browser and Electron Shells, including offline
-  after the first load.
+- **SC-010**: The library works identically in the browser and Electron Shells, and an item that has
+  been opened once opens again with the network switched off.
 
 ## Assumptions
 
@@ -306,6 +311,9 @@ timeline; any load notice is one that is recorded as expected for that item.
   compressed MusicXML (`.mxl`). Nothing in the library requires a new input format.
 - Owner decisions taken on 2026-09-22, before planning: bundled items are CC0 / public domain /
   own work only (FR-017), and the in-app library browser is part of the first release (FR-011).
+- Owner decisions taken on 2026-09-22, after planning found no fetchable CC0 piano corpus: the
+  repertoire is **engraved for this project** (with anything the owner verifies as CC0 added on top),
+  and the offline promise is narrowed to content already fetched (FR-008, FR-014, SC-010).
 - Sources considered licence-clean for downloads, subject to FR-017: OpenScore (CC0 transcriptions
   of public-domain works, already used for this project's fixtures), the MusicXML specification's
   own example files (W3C licence), public-domain engravings the project converts itself, and
@@ -347,4 +355,6 @@ Beyond chords and graded repertoire, the material that earns its place fastest:
 - Progress tracking, streaks, curriculum sequencing and recommendations (the "suggested path" above
   is listed as a candidate, not committed here).
 - A server-hosted or downloadable extension library.
+- A fully offline or installable (PWA) application shell - it needs a service worker and belongs to
+  its own feature.
 - New input formats (MIDI files, ABC, PDF scans, audio).
