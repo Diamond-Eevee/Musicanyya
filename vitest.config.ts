@@ -40,6 +40,13 @@ export default defineConfig({
       },
       {
         test: {
+          name: 'library',
+          include: ['tests/library/**/*.test.ts'],
+          environment: 'node',
+        },
+      },
+      {
+        test: {
           name: 'verovio',
           include: ['tests/verovio/**/*.test.ts'],
           environment: 'node',

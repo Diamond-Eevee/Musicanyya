@@ -21,19 +21,19 @@ partial file (AGENTS.md section 4: no placeholders).
 
 ## Phase 1: Setup
 
-- [ ] T001 Add `library:exercises` and `library:index` scripts to `package.json`, and include
+- [x] T001 Add `library:exercises` and `library:index` scripts to `package.json`, and include
   `tools/` in the type-check and lint scope (`tsconfig.json` project references, `biome.json`)
-- [ ] T002 [P] Create the shelf skeleton: `public/library/learning/chords/`,
+- [x] T002 [P] Create the shelf skeleton: `public/library/learning/chords/`,
   `public/library/learning/chords/changes/`,
   `public/library/repertoire/{beginner,intermediate,advanced}/`
-- [ ] T003 [P] Write `public/library/README.md`: the licence rule (CC0 / clear public domain / our
+- [x] T003 [P] Write `public/library/README.md`: the licence rule (CC0 / clear public domain / our
   own work), the sidecar requirement, the "regenerate the index" workflow, and a **Rejected items**
   section - the home FR-018 needs for "the reason MUST be recorded" when a candidate is turned away
   (analyze A13)
-- [ ] T004 [P] Add `tools/library/sections.ts` - the section table (id, title, description, parent,
+- [x] T004 [P] Add `tools/library/sections.ts` - the section table (id, title, description, parent,
   order) from data-model SS2 - and exclude the generated `public/library/index.json` from Biome
   formatting so the generator's output stays authoritative
-- [ ] T083 Add a `library` project to `vitest.config.ts` (node environment,
+- [x] T083 Add a `library` project to `vitest.config.ts` (node environment,
   `include: ['tests/library/**/*.test.ts']`). The config filters by explicit include globs, so
   `tests/library/` is invisible to `pnpm test` until it is registered - without this, T017, T067 and
   T071 would pass by never running (analyze A1)

@@ -5,6 +5,7 @@
     { "path": "./tsconfig.engine.json" },
     { "path": "./tsconfig.worklet.json" },
     { "path": "./tsconfig.ui.json" },
-    { "path": "./tsconfig.electron.json" }
+    { "path": "./tsconfig.electron.json" },
+    { "path": "./tsconfig.tools.json" }
   ]
 }
