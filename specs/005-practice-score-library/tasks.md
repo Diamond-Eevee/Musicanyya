@@ -199,19 +199,19 @@ measures, positions, rhythm and fingering - and Practice mode waits chord by cho
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T032 [P] [US2] `tests/core/musicxml/write.test.ts` - the minimal writer round-trips: write ->
+- [x] T032 [P] [US2] `tests/core/musicxml/write.test.ts` - the minimal writer round-trips: write ->
   `readXml` -> `buildScore` yields the intended pitches, durations, two staves with `<backup>`, and
   fingering on every note
-- [ ] T033 [P] [US2] `tests/core/library/exercise/degrees.test.ts` - degree to pitch under a key
+- [x] T033 [P] [US2] `tests/core/library/exercise/degrees.test.ts` - degree to pitch under a key
   signature; inversions; the harmonic-minor major V written with an explicit `<alter>` +
   `<accidental>`; G# minor's V spelled D#–F##–A#; no key in the chosen set produces a double flat
   (data-model SS5.1)
-- [ ] T034 [P] [US2] `tests/core/library/exercise/guards.test.ts` - a fingering whose length does not
+- [x] T034 [P] [US2] `tests/core/library/exercise/guards.test.ts` - a fingering whose length does not
   match its voicing is an error, not a silent mismatch; the register rule places the tonic in
   [57, 68]; a pitch outside the 88-key range fails generation
-- [ ] T035 [P] [US2] `tests/core/library/exercise/goldens.test.ts` - golden snapshots for C major,
+- [x] T035 [P] [US2] `tests/core/library/exercise/goldens.test.ts` - golden snapshots for C major,
   F# major, E♭ minor and A minor, plus determinism: regenerating unchanged input is byte-identical
-- [ ] T085 [P] [US2] `tests/core/library/exercise/family-invariants.test.ts` - across **all 24**
+- [x] T085 [P] [US2] `tests/core/library/exercise/family-invariants.test.ts` - across **all 24**
   generated keys, assert identical measure count, chord onset ticks, durations and fingering
   sequence; only pitches and the key signature may differ. This is the direct test of FR-005, which
   the goldens of T035 only sample (analyze A2). Written first, it fails for the right reason - the
@@ -219,29 +219,35 @@ measures, positions, rhythm and fingering - and Practice mode waits chord by cho
 
 ### Implementation
 
-- [ ] T036 [US2] `src/core/musicxml/write.ts` - the minimal writer (score-partwise, parts, attributes,
+- [x] T036 [US2] `src/core/musicxml/write.ts` - the minimal writer (score-partwise, parts, attributes,
   notes and chords, `<backup>`, directions with `<words>`, fingering). **Never `<harmony>`**: it is
   not in `supportedElements`, so it would emit an `unsupportedElement` notice on every item
   (data-model SS4, correction A)
-- [ ] T037 [US2] `src/core/library/exercise/` - definition model, transposition, voicing, the
+- [x] T037 [US2] `src/core/library/exercise/` - definition model, transposition, voicing, the
   fingering rule (root 1-3-5/5-3-1, first inversion 1-2-5/5-3-1, second inversion 1-3-5/5-2-1) and
   the range guard, making T033-T035 pass
-- [ ] T038 [US2] `content/library/exercises/triads.json` - the 24-key definition: 4/4, quarter = 66,
-  8 measures, the chord order of data-model SS5.1, both hands an octave apart
-- [ ] T039 [US2] `tools/library/build-exercises.ts` - generate the score and sidecar pairs, refusing
+- [x] T038 [US2] `content/library/exercises/triads-major.json` + `triads-minor.json` - the 24-key
+  definition (split by mode, not the single `triads.json` originally sketched - research.md R-12
+  decision 1): 4/4, quarter = 66, the chord order of data-model SS5.1, both hands an octave apart
+- [x] T039 [US2] `tools/library/build-exercises.ts` - generate the score and sidecar pairs, refusing
   to touch any item whose provenance is `downloaded`
-- [ ] T040 [US2] Generate the 24 key exercises (`pnpm library:exercises`) and review the diff
-- [ ] T041 [US2] `content/library/exercises/changes-*.json` - the 16 chord-change drills of
-  data-model SS5.2: dotted half + quarter rest in section A, joined halves in section B, ties on
-  common tones, chord names and Roman numerals above the staff, backward repeats
-- [ ] T042 [US2] Generate the drills and review the diff
-- [ ] T043 [US2] `music-domain-expert` review of the generated set: spelling in all 24 keys, the
-  fingering rule, the G# minor note, and that each drill trains what it claims
-- [ ] T086 [US2] Extend `tests/architecture/layers.test.ts`: no file under `src/app`, `src/ui`,
+- [x] T040 [US2] Generate the 24 key exercises (`pnpm library:exercises`) and review the diff
+- [x] T041 [US2] `content/library/exercises/changes-*.json` - 13 files, the 16 chord-change drills of
+  data-model SS5.2: dotted half + quarter rest in section A, one joined whole note per chord in
+  section B, ties on common tones, chord names and Roman numerals above the staff, backward repeats
+  (research.md R-12 decision 2 records where the written-measure count deviates from SS5.2's
+  illustrative "13")
+- [x] T042 [US2] Generate the drills and review the diff
+- [x] T043 [US2] `music-domain-expert` review of the generated set: spelling in all 24 keys, the
+  fingering rule, the G# minor note, and that each drill trains what it claims. **PASS** on both
+  families; one non-blocking finding (drill 14's fixed-anchor voicing produced a backward octave leap
+  in the middle of the "diatonic ladder") fixed by chaining each cycle chord's voicing to the
+  previous one - research.md R-12, regenerated and re-verified
+- [x] T086 [US2] Extend `tests/architecture/layers.test.ts`: no file under `src/app`, `src/ui`,
   `src/engine` or `src/workers` may import `src/core/musicxml/write.ts` or
   `src/core/library/exercise/` - they are dev-only generation code that the plan justified inside
   the core, and nothing else stops the app pulling them into the bundle (analyze A14)
-- [ ] T044 [US2] `pnpm library:index`; confirm `fingeringCoverage == 1` for every exercise (FR-006),
+- [x] T044 [US2] `pnpm library:index`; confirm `fingeringCoverage == 1` for every exercise (FR-006),
   that all 40 items load with no notices, and assert the counts in the library suite - at least 24
   chord exercises and 12 drills (SC-004, analyze A11)
 

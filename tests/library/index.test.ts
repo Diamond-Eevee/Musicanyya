@@ -43,3 +43,24 @@ describe('library index generation (contracts/library-index.md §4, FR-025)', ()
     expect(freshRest).toEqual(committedRest);
   });
 });
+
+describe('US2 chord shelf (data-model.md §5.1-5.2, FR-005, FR-006, SC-004, analyze A11)', () => {
+  it('every exercise has full fingering coverage and no load notices', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    const exercises = index.items.filter((item) => item.meta.kind === 'exercise');
+    for (const item of exercises) {
+      expect(item.facts.fingeringCoverage, `${item.id} fingeringCoverage`).toBe(1);
+      expect(item.facts.notices, `${item.id} notices`).toEqual([]);
+    }
+  });
+
+  it('has at least 24 chord exercises and 12 chord-change drills', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    const chordExercises = index.items.filter(
+      (item) => item.section === 'learning/chords' && item.id.startsWith('learning/chords/triads-'),
+    );
+    const changeDrills = index.items.filter((item) => item.section === 'learning/chords/changes');
+    expect(chordExercises.length).toBeGreaterThanOrEqual(24);
+    expect(changeDrills.length).toBeGreaterThanOrEqual(12);
+  });
+});

@@ -276,3 +276,51 @@ features depend on, for facts that only the library reads; revisit if a future f
 signature (e.g. Advice) and the duplication becomes real. Re-parsing the file a second time in
 `tools/library/build-index.ts` instead of threading the doc through `facts.ts` - rejected, since the
 generator already has the parsed document from `readXml` and passing it is free.
+
+---
+
+## R-12. US2 generation: two deviations from the illustrative counts in data-model.md §5.1-5.2 (T038-T042)
+
+**Decision 1 - `triads.json` is two files, `triads-major.json` and `triads-minor.json`.** Both share
+`family: "triads"` (so file stems collide correctly into one 24-item shelf,
+`triads-<key-slug>.musicxml`), but the 15-step progression differs by exactly the roman-numeral case
+of the tonic and subdominant degrees (`"I"/"IV"` vs `"i"/"iv"`; `chordTones()`'s upper-case-is-major
+convention, `src/core/library/exercise/degrees.ts`). A single `keys[]` array mixing major and minor
+entries against one shared `steps[]` would silently build a *major* tonic triad in a minor key (or
+vice versa) for any key whose mode does not match the hard-coded degree case - the sort of bug 24
+files would hide identically in every one of them. Splitting by mode is one `if` avoided at the cost
+of one extra content file.
+
+**Decision 2 - the chord-change drills (`content/library/exercises/changes-*.json`) do not tile each
+cycle out to a fixed 8-measure section A before repeating.** data-model.md §5.2 describes "13 written
+measures" and "a 2- or 4-chord cycle fills the eight slots exactly" - illustrative arithmetic that
+assumed every cycle was padded to 8 measures first. The generator (`generateChangeFamily` in
+`src/core/library/exercise/generate.ts`) instead writes `steps` exactly as authored (2 to 8 chords,
+matching data-model.md §5.2's own "Cycle" column verbatim, including drill 14's 8-chord diatonic
+ladder) as section A, closes it with one `<barline><repeat direction="backward"/></barline>`, repeats
+the same cycle as section B (joined whole notes, common tones tied to whichever neighbour shares
+them), and appends one closing tonic measure. Written-measure count is therefore `2 x cycle length +
+1` (5, 9 or 17), not a fixed 13, and playback expansion comes from the repeat barline the app's own
+timeline/navigation code already understands - not from tiling logic in the generator.
+
+**Found during `music-domain-expert` review (T043)**: voicing every cycle chord independently nearest
+a single fixed per-key register anchor (rather than nearest the previous chord) is fine for a short
+I-IV-V-I phrase, but produced a jarring backward octave leap in the middle of drill 14's 8-chord
+diatonic ladder - undercutting the one thing that drill claims to train. Fixed by chaining: chord 2
+onward in a cycle voices nearest the *previous* chord's bass, chord 1 still anchors on the exercise's
+fixed register (data-model.md §5.1's `[57, 68]` rule). Deliberately scoped to `generateChangeFamily`
+only, not `generateTriadFamily` - the reviewer judged the triads family's short, fixed-anchor voicing
+correct as designed, and re-voicing all 24 already-reviewed triad files was unnecessary risk.
+
+**Rationale**: both changes keep FR-004 (the perfect cadence exists), FR-005 (cross-key consistency,
+which only applies to the triads family), FR-006 (100% fingering coverage) and SC-004 (>= 12 drills)
+true, verified by `tests/core/library/exercise/changes.test.ts` and the US2 block of
+`tests/library/index.test.ts`; the specific illustrative numbers in data-model.md §5.2 were not the
+part of the spec under test.
+
+**Alternatives considered**: writing a tiling function that pads every cycle to a fixed 8-measure
+section A to match the "13 written measures" description literally - rejected as unjustified
+complexity (Principle VIII, YAGNI) for content that only needs to be a correct, playable, well-fingered
+drill; full voice-leading (nearest inversion, not just nearest bass) for section A - rejected for now
+as more machinery than 16 short drills need, with `raisedBecause`-style follow-up left to a future
+pass if a reviewer flags a specific voicing as wrong rather than merely stylistic.

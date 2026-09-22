@@ -41,6 +41,26 @@ describe('Architecture Rules', () => {
     }
   });
 
+  it('no app/ui/engine/worker file imports the dev-only exercise generation code (tasks.md T086)', () => {
+    // src/core/musicxml/write.ts and src/core/library/exercise/ exist to generate content at
+    // author time (tools/library/build-exercises.ts) - nothing else stops them being pulled into
+    // the shipped bundle, since they otherwise look like ordinary core modules (analyze A14).
+    const restrictedRoots = ['../../src/app', '../../src/ui', '../../src/engine', '../../src/workers'].map((p) =>
+      path.resolve(__dirname, p),
+    );
+    const forbiddenImportPatterns = [/musicxml\/write(\.js)?['"]/, /library\/exercise\//];
+
+    for (const root of restrictedRoots) {
+      for (const file of getFiles(root)) {
+        if (!file.endsWith('.ts')) continue;
+        const content = fs.readFileSync(file, 'utf-8');
+        for (const pattern of forbiddenImportPatterns) {
+          expect(pattern.test(content), `${file} imports dev-only exercise generation code`).toBe(false);
+        }
+      }
+    }
+  });
+
   it('src/core must not reference DOM globals', () => {
     const files = getFiles(coreDir);
     for (const file of files) {

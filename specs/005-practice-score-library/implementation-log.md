@@ -213,3 +213,71 @@ Feature `005-practice-score-library`. Newest entry at the bottom.
 - Problems / open questions: none open.
 - Handoff: next = US2 (Phase 4, T032 onward) - the 24-key chord exercises and chord-change drills.
   Tree clean on `005-practice-score-library` after this commit.
+
+## 2026-09-22 - claude-sonnet-5 (/speckit.continue: US2 checkpoint)
+
+- Done: T032-T044, T085, T086 - the whole US2 scope (15 tasks). **US2 checkpoint reached**: the
+  Chords shelf now has 24 per-key triad exercises and 16 chord-change drills (13 definition files),
+  all generated code, all reviewed. Index grew from 4 to 44 items.
+  - `src/core/musicxml/write.ts` (T036): the minimal MusicXML writer, contracts/exercise-definition.md
+    §2 - never `<harmony>`, deterministic, no comment before the root element (avoids T031's Verovio
+    bug by construction).
+  - `src/core/library/exercise/` (T037): `degrees.ts` (roman-numeral degree -> spelled chord tones
+    under a key signature, by letter-stacking + shortest-signed-distance accidentals, not a lookup
+    table - correctly produces G# minor's V as D#-F##-A# and never a double flat across the whole key
+    set), `voicing.ts` (the `[57, 68]` register-anchor rule, close-position ascending placement, and
+    the MusicXML octave-vs-sounding-pitch fix below), `fingering.ts` (the fixed 1-3-5/5-3-1 /
+    1-2-5/5-3-1 / 1-3-5/5-2-1 table), `range-guard.ts` (88-key bound), `generate.ts`
+    (`generateTriadFamily`, `generateChangeFamily`).
+  - `content/library/exercises/`: `triads-major.json` + `triads-minor.json` (T038, split by mode -
+    research.md R-12 decision 1) and 13 `changes-*.json` files covering all 16 drills (T041 - research
+    R-12 decision 2 records the written-measure-count deviation from data-model.md §5.2's illustrative
+    numbers).
+  - `tools/library/build-exercises.ts` (T039): reads every definition, writes the `.musicxml`/`.json`
+    pairs, refuses to touch a `downloaded` item.
+  - `tests/architecture/layers.test.ts` (T086): no `src/app`/`ui`/`engine`/`workers` file may import
+    the dev-only writer or exercise generator.
+  - `tests/library/index.test.ts` gained the US2 block (T044): every exercise has
+    `fingeringCoverage == 1` and no notices; >= 24 chord exercises and >= 12 drills.
+- In progress: none.
+- Bugs found and fixed while making the generator round-trip and read correctly (Constitution IV):
+  - **MusicXML octave vs. sounding pitch** (`voicing.ts`): a spelled tone's `<octave>` is the natural
+    letter's octave, not the sounding one - `getMidiKey` in `src/core/pitch.ts` computes
+    `(octave + 1) * 12 + step + alter` *without* wrapping, so B# needs `octave` one lower than its
+    wrapped pitch class would suggest, or it sounds a semitone too high. Silently wrote B#4 where B#3
+    sounds the same C as the rest of the chord - found by
+    `tests/core/library/exercise/family-invariants.test.ts` failing only on C# minor and Eb minor
+    (the two keys in the 24-key set whose harmonic-minor V third lands on a letter the alteration
+    pushes out of its natural 0-11 range). Fixed with `rawOffset()` (the unwrapped natural-pc-plus-
+    alter value) driving the octave arithmetic, while the wrapped pitch class still drives which MIDI
+    candidate to search for.
+  - **A `<forward>` element for a written rest** (`generate.ts`, chord-change drills): the drill's
+    written quarter rest needs to render, so it has to be an explicit `<note><rest/></note>`, not a
+    `<forward>` (which hides the time advance rather than notating it).
+  - **A broken tie** (`generate.ts`, chord-change drills' section B): tying a common tone into the
+    next chord across a barline needs the tie-start on the *last* note before the boundary; writing
+    the joined chord as two tied half notes put tie-start on the first half instead, leaving nothing
+    to close it. Fixed by writing section B as one whole note per chord (the two halves were always
+    identical pitches anyway), so there is only ever one "last note" per measure. Found by
+    `facts.ts`'s `brokenTie` notice on the first `pnpm library:index` run over the generated set.
+  - **A fixed-anchor octave leap** (found by `music-domain-expert` review, T043): voicing every
+    chord-change cycle chord independently nearest the exercise's fixed register anchor produced a
+    backward octave leap in the middle of drill 14's 8-chord diatonic ladder, undercutting the one
+    thing that drill claims to train. Fixed by chaining: chord 2 onward in a `changes` cycle voices
+    nearest the *previous* chord's bass (research.md R-12); the triads family's fixed-anchor voicing
+    was left as designed (reviewer judged it correct for a short I-IV-V-I phrase).
+- Decisions: research.md R-12 records both deviations from data-model.md's illustrative content-plan
+  numbers (two `triads-*.json` files instead of one; the `changes` family's actual written-measure
+  count) and why neither affects any FR/SC.
+- `music-domain-expert` review (T043): **PASS** on both families (spelling across the full circle of
+  fifths including G# minor and Eb minor, the fixed fingering table, LH-an-octave-below-RH); one
+  non-blocking finding (above), fixed and re-verified.
+- Full quality gate: `pnpm lint` (0 errors - the generated `.json` sidecars needed one
+  `biome check --write public/library/ content/library/` pass after generation, since only
+  `index.json` itself is excluded from formatting), `pnpm typecheck`, `pnpm test` (147 files, 1221
+  tests) all green; `pnpm test:e2e` - `tests/e2e/library.spec.ts` green (44-item index, no
+  regression), full chromium suite green (80 passed, 4 skipped by design, matching the prior
+  checkpoint's baseline).
+- Problems / open questions: none open.
+- Handoff: next = US3 (Phase 5, T045 onward) - level criteria, filters, and the repertoire build-out
+  (FR-008: >= 6/5/4 pieces per level). Tree clean on `005-practice-score-library` after this commit.
