@@ -95,3 +95,24 @@ Feature `005-practice-score-library`. Newest entry at the bottom.
 - Problems / open questions: none open.
 - Handoff: next = `/speckit.analyze`, then `/speckit.implement` (MVP = US1, T001-T031). Tree clean on
   `005-practice-score-library`.
+
+## 2026-09-22 - claude-opus-5 (/speckit.analyze)
+
+- Analyze: 16 findings (CRITICAL 0, HIGH 1, MEDIUM 6, LOW 9); `tasks.md` as of f43c10a. Coverage
+  34/36 requirements (94%); no unmapped tasks; no constitution MUST violated.
+- Top recommendations, in order:
+  1. **A1 (HIGH)**: `vitest.config.ts` uses explicit per-project include globs and has no project for
+     `tests/library/**` or `tests/app/**`, so T016, T017, T067 and T071 - the suites carrying
+     FR-017/020/022/023/025 - would never run. Add a `library` project (node) in Phase 1 and move
+     T016 to `tests/engine/`, where the session tests already live.
+  2. **A2 (MEDIUM)**: nothing asserts FR-005's family invariant across all 24 keys; T035 only
+     snapshots four and checks determinism.
+  3. **A4 (MEDIUM)**: SC-005 was not amended with owner decision D-1 while FR-008 was, so SC-005
+     reads as failed at MVP.
+  4. **A7 (MEDIUM)**: the FR-026/SC-008 size budget is only a manual Polish check; assert the byte
+     total in the library suite.
+  5. **A3 (MEDIUM)**: the 28 level thresholds sit in `src/core/library/levels.ts`, while the project
+     records its constants table as `src/core/defaults.ts` / `src/engine/config.ts`.
+- Nothing was changed: analyze is read-only apart from this entry.
+- Handoff: next = apply the findings (owner's call), then `/speckit.implement` (MVP = US1,
+  T001-T031). Tree clean on `005-practice-score-library`.
