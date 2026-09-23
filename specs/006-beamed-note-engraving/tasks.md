@@ -13,10 +13,10 @@ quickstart.md
 
 ## Phase 1: Setup
 
-- [ ] T001 Create `src/core/musicxml/engraving/index.ts` exporting the contract types (`EngravingMode`,
+- [x] T001 Create `src/core/musicxml/engraving/index.ts` exporting the contract types (`EngravingMode`,
   `ElementInsert`, `EngravingPlan`, `EngravingFinding`) from contracts/engraving-completion.md section 1, and
   `tests/core/musicxml/engraving/` (empty suite dir). Confirm the `core` Vitest project picks the folder up.
-- [ ] T002 [P] Add `"library:engrave": "tsx tools/library/engrave.ts"` to `package.json` (the script body comes in
+- [x] T002 [P] Add `"library:engrave": "tsx tools/library/engrave.ts"` to `package.json` (the script body comes in
   T019) and the command to `quickstart.md` / `docs/agents/reference.md` R7 / `README.md`.
 
 ---

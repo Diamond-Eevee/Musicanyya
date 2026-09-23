@@ -38,6 +38,7 @@ Run the full quality gate before pushing:
 
 Regenerate the bundled library after editing its content:
 `pnpm library:exercises` (chord exercises and drills from `content/library/exercises/*.json`), then
+`pnpm library:engrave` (completes hand-written repertoire files with beams and accidentals in place), then
 `pnpm library:index` (rebuilds `public/library/index.json` from the files on disk).
 
 ### Building & Publishing
