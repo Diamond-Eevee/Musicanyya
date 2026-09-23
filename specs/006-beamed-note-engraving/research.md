@@ -188,12 +188,14 @@ computes stems).
 single-pass render-copy build. Measured in a test on the largest fixture (the 4.7 MB quartet) and the complete
 *Für Elise*: completion time <= 10% of the current open time (SC-005).
 
-**Measured (2026-09-23, perf.test.ts, Windows/Node)**: 
-- Mozart K.387 (4.4 MB): open 222 ms, engraving 88 ms, ratio ~40%. 
-- Für Elise bare (12 KB): open 1.2 ms, engraving 0.7 ms, ratio ~55%.
-- Bach Prelude BWV 846 (largest library piece, ~138 KB): open 6.5 ms, engraving 2.1 ms, ratio ~32%.
-
-The ratio for the largest library piece (Bach Prelude) exceeds the 10% target from R-9. The code for `walkScore` was optimized to do a single shallow pass over XML elements, but the V8 object traversal overhead still costs around 30-40% of the parse time. The original AST is fully reused (`doc`), but `walkScore` still needs to traverse it to discover the exact character offsets for inserts, which the `Score` model does not retain. No change to the spec; this is an accepted deviation recorded here, and the hard limit in tests is kept at 50% to catch O(n²) regressions.
+**Measured (2026-09-23, `tests/core/musicxml/engraving/perf.test.ts`, Windows/Node, fastest of several runs)**:
+- **SC-005 as written** (owner decision 2026-09-23, R-11): opening the largest library piece (*Bach BWV 846*,
+  139 KB) - score worker load plus Verovio layout and page 1 - takes 70 ms, of which completion is 0.8 ms: +1.1% over
+  opening without it (limit +10%). The test asserts the 10%.
+- Linearity fences (T033): completion vs `readXml`+`buildScore` is 23% on Mozart K.387 (4.4 MB: 38 ms vs 166 ms)
+  and about 33% on the bare *Für Elise* (0.1 ms vs 0.3 ms); the tests fail above 50%, which catches a quadratic
+  regression. The earlier note that recorded ~32-40% as an "accepted deviation" from SC-005 compared completion with
+  parsing only, not with opening; it is withdrawn.
 
 ## R-10. `walk.ts` implementation notes (filled in during T009)
 
@@ -246,3 +248,19 @@ calls both in sequence per (part, voice, measure).
 for every caller, even ones that only need the baseline); compute nominal length from `measureLength` alone by
 requiring the caller to pass it only for full bars (rejected - `beamSpans` already needs to run for the same
 metre on both full and short bars, so it needs one number, `ppq`, it can always rely on).
+
+## R-11. Owner decisions at the pre-merge review (2026-09-23)
+
+The pre-merge review (implementation log, 2026-09-23 18:30) raised four decisions only the owner can make. The owner
+chose the reviewer's recommendation each time:
+
+1. **SC-005 (open time)**: measured as written - the largest library piece, full open, with vs without completion -
+   and not relaxed. Result in R-9: +1.1%.
+2. **Title block vs 004 SC-002**: a compact title block (title, then composer and arranger on one line), counted in the
+   page positions; feature 004's "two systems visible without scrolling" stays unchanged and its test unmodified.
+3. **Purely visual audit gaps** (slurs, articulations, fingering, ...): named follow-ups for a future
+   "library enrichment" feature, listed in `engraving-audit.md`; any gap that affects playback or grading is fixed
+   in 006.
+4. **Licence wording**: a factual note - the engraving tool adds only `<beam>` and `<accidental>` elements, nothing
+   else changes, and each file keeps the licence recorded for it in `public/library/index.json`. No claim about
+   copyright status.

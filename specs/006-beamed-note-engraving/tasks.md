@@ -279,14 +279,14 @@ compact and 004 SC-002 stays; purely visual audit gaps are named follow-ups; the
 
 ### Tests that can fail
 
-- [ ] T055 SC-005 as written in `tests/core/musicxml/engraving/perf.test.ts`: full open of the largest library
+- [x] T055 SC-005 as written in `tests/core/musicxml/engraving/perf.test.ts`: full open of the largest library
   piece (worker load + Verovio render of page 1) with and without completion, <= 10% longer; results in research
   R-9 (replacing the "accepted deviation" note).
-- [ ] T056 Rewrite the T028 tests in `tests/engine/score-worker-engraving.test.ts` so each can fail: Note IDs in the
+- [x] T056 Rewrite the T028 tests in `tests/engine/score-worker-engraving.test.ts` so each can fail: Note IDs in the
   render copy equal `fullScore` IDs and equal a load without completion; skipped voices get zero inserts and keep
   their encoded beams byte for byte; `beamDataInvalid` / `accidentalContradicts` are `warning`; the printed sign is
   kept; no `any`.
-- [ ] T057 `src/workers/score.worker.ts`: if `planEngraving` throws, open the Score without completion and add an
+- [x] T057 `src/workers/score.worker.ts`: if `planEngraving` throws, open the Score without completion and add an
   `engravingSkipped` warning (load-report code, `en.ts`, 001 data-model and worker-messages 1.1.0); test in T056's
   file.
 

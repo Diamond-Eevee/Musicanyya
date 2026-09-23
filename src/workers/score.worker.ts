@@ -1,5 +1,6 @@
 import { errorCode, errorMessage } from '../core/errors.js';
 import { buildScore } from '../core/musicxml/build.js';
+import type { EngravingPlan } from '../core/musicxml/engraving/index.js';
 import { planEngraving } from '../core/musicxml/engraving/plan.js';
 import { readXml } from '../core/musicxml/read.js';
 import { createRenderCopy } from '../core/musicxml/render-copy.js';
@@ -50,8 +51,27 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
     }
 
     // Run engraving completion (FR-010, FR-011): beam voices that have no encoded beams and
-    // add any missing accidentals. Never modifies what the file encodes.
-    const engravingPlan = planEngraving(parsed.doc, 'opened');
+    // add any missing accidentals. Never modifies what the file encodes. Completion is for display only, so if it
+    // fails the Score still opens, as encoded, with a warning (Constitution III: bad MusicXML never crashes).
+    let engravingPlan: EngravingPlan;
+    try {
+      engravingPlan = planEngraving(parsed.doc, 'opened');
+    } catch (err) {
+      engravingPlan = {
+        inserts: [],
+        beamGroupsAdded: 0,
+        accidentalsAdded: { required: 0, courtesy: 0 },
+        findings: [],
+        invalidBeams: [],
+        contradictions: [],
+      };
+      report.entries.push({
+        code: 'engravingSkipped',
+        severity: 'warning',
+        measureLabels: [],
+        detail: errorMessage(err),
+      });
+    }
 
     const renderXml = createRenderCopy(xmlString, {
       notes: notesInserts,

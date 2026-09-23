@@ -93,6 +93,7 @@ ticks and keys as the one built from the original.
 | `engravingCompleted` | info | an opened Score needed any insert | `"<g> beam groups, <n> accidentals added for display"` |
 | `beamDataInvalid` | warning | encoded beams inconsistent (left as encoded, voice not completed) | measure labels listed |
 | `accidentalContradicts` | warning | a printed `<accidental>` contradicts `<alter>` (kept, FR-006 exception) | measure labels + pitch |
+| `engravingSkipped` | warning | `planEngraving` threw (T057); the Score opens as encoded, without completion | error message |
 
 Library items are complete on disk, so they never raise `engravingCompleted` (the 005 test "no notice on open"
 keeps passing).

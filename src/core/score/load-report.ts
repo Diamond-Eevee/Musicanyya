@@ -21,7 +21,8 @@ export type LoadNoticeCode =
   // US3 (006-beamed-note-engraving): engraving completion notices
   | 'engravingCompleted'
   | 'beamDataInvalid'
-  | 'accidentalContradicts';
+  | 'accidentalContradicts'
+  | 'engravingSkipped';
 
 export interface LoadReportEntry {
   code: LoadNoticeCode;

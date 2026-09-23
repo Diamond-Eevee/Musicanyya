@@ -89,7 +89,10 @@ describe('T052 accidentals: a printed sign on a tied-over note sets the bar stat
   it('a tied-over note printing no sign still leaves the bar state alone (R-3 A3): the later note needs one', () => {
     const xml = score([
       ATTRS(0) + note('F', 4, { alter: 1, type: 'whole', extra: '<accidental>sharp</accidental><tie type="start"/>' }),
-      note('F', 4, { alter: 1, extra: '<tie type="stop"/>' }) + note('G', 4) + note('F', 4, { alter: 1 }) + note('G', 4),
+      note('F', 4, { alter: 1, extra: '<tie type="stop"/>' }) +
+        note('G', 4) +
+        note('F', 4, { alter: 1 }) +
+        note('G', 4),
     ]);
     expect(plan(xml).accidentalsAdded.required).toBe(1);
   });
@@ -197,7 +200,9 @@ describe('T052 refinements from the music-domain-expert review', () => {
       '<key><fifths>0</fifths></key>',
       '<key><key-step>F</key-step><key-alter>1</key-alter><key-step>B</key-step><key-alter>-1</key-alter></key>',
     );
-    const xml = score([attrs + note('F', 4, { alter: 1 }) + note('B', 4, { alter: -1 }) + note('C', 5, { type: 'half' })]);
+    const xml = score([
+      attrs + note('F', 4, { alter: 1 }) + note('B', 4, { alter: -1 }) + note('C', 5, { type: 'half' }),
+    ]);
     expect(plan(xml).accidentalsAdded.required).toBe(0);
   });
 
@@ -231,17 +236,34 @@ describe('T052 refinements from the music-domain-expert review', () => {
 
 describe('T052 beams: a sung line without beams keeps its flags (R-2 B13)', () => {
   const sung = (step: string, syllable: string) =>
-    note(step, 4, { type: 'eighth', extra: `<lyric number="1"><syllabic>single</syllabic><text>${syllable}</text></lyric>` });
+    note(step, 4, {
+      type: 'eighth',
+      extra: `<lyric number="1"><syllabic>single</syllabic><text>${syllable}</text></lyric>`,
+    });
 
   it('Stanford Soprano / Chopin song: eighths with lyrics and no <beam> anywhere get no beams added', () => {
-    const xml = score([ATTRS(0) + sung('C', 'Sail') + sung('D', 'ing') + sung('E', 'at') + sung('F', 'dawn') + note('G', 4, { type: 'half' })]);
+    const xml = score([
+      ATTRS(0) +
+        sung('C', 'Sail') +
+        sung('D', 'ing') +
+        sung('E', 'at') +
+        sung('F', 'dawn') +
+        note('G', 4, { type: 'half' }),
+    ]);
     const result = plan(xml);
     expect(result.beamGroupsAdded).toBe(0);
     expect(result.inserts).toEqual([]);
   });
 
   it('the same eighths without lyrics are still beamed', () => {
-    const xml = score([ATTRS(0) + note('C', 4, { type: 'eighth' }) + note('D', 4, { type: 'eighth' }) + note('E', 4, { type: 'eighth' }) + note('F', 4, { type: 'eighth' }) + note('G', 4, { type: 'half' })]);
+    const xml = score([
+      ATTRS(0) +
+        note('C', 4, { type: 'eighth' }) +
+        note('D', 4, { type: 'eighth' }) +
+        note('E', 4, { type: 'eighth' }) +
+        note('F', 4, { type: 'eighth' }) +
+        note('G', 4, { type: 'half' }),
+    ]);
     expect(plan(xml).beamGroupsAdded).toBe(1);
   });
 });

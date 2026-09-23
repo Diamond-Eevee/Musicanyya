@@ -236,6 +236,8 @@ export const en = {
     engravingCompleted: 'Missing beams and accidentals were filled in automatically for display.',
     beamDataInvalid: 'A voice has inconsistent beam data and was left as encoded; no beams were added to it.',
     accidentalContradicts: "A printed accidental sign contradicts the note's pitch and was kept as encoded.",
+    engravingSkipped:
+      'Missing beams and accidentals could not be filled in; the score is shown as the file encodes it.',
     practiceNothingToPlay: 'There are no playable notes in the selected part.',
     practiceLoopEmpty: 'The looped section has no notes to play.',
     practiceMultiKeyboard: 'Multiple keyboards detected; only the first one is used.',

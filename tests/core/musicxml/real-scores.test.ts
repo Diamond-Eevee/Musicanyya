@@ -367,7 +367,9 @@ describe('real repertoire (CC0 OpenScore fixtures)', () => {
         expect(plan.contradictions, 'accidentalContradicts').toEqual([]);
         expect(plan.beamGroupsAdded, 'beam groups added').toBe(0);
         expect(
-          plan.findings.map((f) => `part ${f.part} bar ${f.measureLabel} staff ${f.staff} ${'pitch' in f ? f.pitch : ''}`),
+          plan.findings.map(
+            (f) => `part ${f.part} bar ${f.measureLabel} staff ${f.staff} ${'pitch' in f ? f.pitch : ''}`,
+          ),
           'accidentals added',
         ).toEqual(expectedAdditions.map((a) => a.where));
         expect(plan.accidentalsAdded).toEqual({ required: expectedAdditions.length, courtesy: 0 });

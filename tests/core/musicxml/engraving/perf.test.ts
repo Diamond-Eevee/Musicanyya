@@ -1,131 +1,133 @@
 /**
- * T033 [US3] Performance test for planEngraving (R-9).
+ * Engraving completion performance.
  *
- * Verifies that `planEngraving('opened')` on the largest real-score fixture (Mozart K.387, ~4.5 MB
- * of XML) and on the complete Für Elise each cost ≤ 10% of the combined `readXml`+`buildScore`
- * time for the same file (SC-005).
+ * T055 - SC-005 as written: "Opening the largest library piece takes no more than 10% longer than before the
+ * change." Opening is the whole path a person waits for: the score worker's load (parse, Score, timeline,
+ * schedule, render copy - which now includes completion) and Verovio laying out the render copy and drawing page 1.
+ * "Before the change" is that path without completion, i.e. minus `planEngraving` (a library piece plans zero
+ * inserts, so the render copy is the same either way).
  *
- * This test does NOT assert hard absolute budgets, because those depend on hardware.
- * It asserts a relative ratio so that a regression to O(n²) would be caught even on fast CI machines.
+ * T033 - linearity fences (research R-9): on the largest real score and on the bare Für Elise, completion stays a
+ * modest fraction of `readXml`+`buildScore`, so a quadratic regression fails even on fast hardware.
+ *
+ * Every time is the fastest of several runs: the minimum is what the code costs, while a slower run only measures
+ * how busy the machine was (running beside other test files made single timings fail at random).
  */
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { describe, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { buildScore } from '../../../../src/core/musicxml/build.js';
 import { planEngraving } from '../../../../src/core/musicxml/engraving/plan.js';
 import { readXml } from '../../../../src/core/musicxml/read.js';
 import { decodeXml } from '../../../../src/engine/files/decode.js';
 import { readMxl } from '../../../../src/engine/files/mxl.js';
+import { handleMessage as scoreWorker } from '../../../../src/workers/score.worker.js';
+import { handleMessage as verovioWorker } from '../../../../src/workers/verovio.worker.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const realDir = path.join(__dirname, '../../../fixtures/musicxml/real');
 const engravingDir = path.join(__dirname, '../../../fixtures/musicxml/engraving');
+const libraryRoot = path.join(__dirname, '../../../../public/library');
 
-/** Reads an MXL file and returns the decoded XML string. */
-async function readMxlFile(file: string): Promise<string> {
-  const bytes = new Uint8Array(fs.readFileSync(path.join(realDir, file)));
-  return decodeXml(await readMxl(bytes));
+/** SC-005's limit: completion may add at most this share to opening the largest library piece. */
+const SC005_MAX_INCREASE = 0.1;
+/** R-9 fence: completion stays under this share of `readXml`+`buildScore` on any file. */
+const LINEARITY_FENCE = 0.5;
+
+async function fastest(runs: number, fn: () => unknown): Promise<number> {
+  let best = Number.POSITIVE_INFINITY;
+  for (let i = 0; i < runs; i++) {
+    const start = performance.now();
+    await fn();
+    best = Math.min(best, performance.now() - start);
+  }
+  return best;
 }
 
-/** Reads a plain MusicXML file and returns the XML string. */
-function readXmlFile(dir: string, file: string): string {
-  const buf = fs.readFileSync(path.join(dir, file));
-  return decodeXml(new Uint8Array(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength)));
+function largestLibraryPiece(): string {
+  const files: string[] = [];
+  const walk = (dir: string) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name.endsWith('.musicxml')) files.push(full);
+    }
+  };
+  walk(libraryRoot);
+  const largest = files.sort((a, b) => fs.statSync(b).size - fs.statSync(a).size)[0];
+  if (!largest) throw new Error('no library pieces found');
+  return largest;
 }
 
-describe('T033: planEngraving performance (R-9 budget: ≤ 10% of readXml+buildScore)', () => {
-  it('Mozart K.387 (~4.5 MB of XML): engraving ≤ 10% of open cost', {
-    timeout: 120_000,
-  }, async () => {
-    const xml = await readMxlFile('mozart-quartet-k387.mxl');
+type Message = { type: string; [key: string]: unknown };
 
-    // Baseline: how long does the parser + score builder take?
-    const openStart = performance.now();
-    const parsed = readXml(xml);
-    buildScore(parsed.doc);
-    const openMs = performance.now() - openStart;
+let requestId = 0;
+async function post(worker: typeof scoreWorker, data: Record<string, unknown>): Promise<Message> {
+  let reply: Message | undefined;
+  await worker(
+    { data: { requestId: ++requestId, ...data } } as MessageEvent,
+    ((msg: Message) => {
+      reply = msg;
+    }) as typeof postMessage,
+  );
+  if (!reply || reply.type === 'error') throw new Error(`worker error: ${JSON.stringify(reply)}`);
+  return reply;
+}
 
-    // Engraving completion cost:
-    const engravingStart = performance.now();
-    planEngraving(parsed.doc, 'opened');
-    const engravingMs = performance.now() - engravingStart;
+describe('T055 SC-005: opening the largest library piece takes at most 10% longer with completion', () => {
+  it('score worker load + Verovio layout + page 1, with vs without planEngraving', { timeout: 120_000 }, async () => {
+    const file = largestLibraryPiece();
+    const buf = fs.readFileSync(file);
+    const bytes = () => buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+    await post(verovioWorker, { type: 'init' }); // once per session in the app, not part of an open
 
-    const ratio = engravingMs / openMs;
+    const open = async () => {
+      const loaded = await post(scoreWorker, { type: 'load', fileName: path.basename(file), bytes: bytes() });
+      await post(verovioWorker, {
+        type: 'load',
+        renderXml: loaded['renderXml'],
+        options: { pageWidth: 2100, pageHeight: 2970, scale: 40 },
+      });
+      await post(verovioWorker, { type: 'page', page: 1 });
+    };
+    const doc = readXml(decodeXml(new Uint8Array(bytes()))).doc;
+
+    await open(); // warm-up: JIT and Verovio font caches
+    const openMs = await fastest(5, open);
+    const completionMs = await fastest(9, () => planEngraving(doc, 'opened'));
+    const increase = completionMs / (openMs - completionMs);
+
     console.log(
-      `Mozart K.387 (${(xml.length / 1024 / 1024).toFixed(1)} MB): ` +
-        `open ${openMs.toFixed(0)} ms, engraving ${engravingMs.toFixed(0)} ms, ratio ${(ratio * 100).toFixed(1)}%`,
+      `SC-005 ${path.basename(file)}: open ${openMs.toFixed(1)} ms, of which completion ${completionMs.toFixed(2)} ms ` +
+        `(+${(increase * 100).toFixed(1)}% over opening without it)`,
     );
+    expect(increase).toBeLessThanOrEqual(SC005_MAX_INCREASE);
+  });
+});
 
-    // Soft assertion: ratio ≤ 10% (R-9). If this fails on CI, re-check planEngraving is O(n).
-    if (ratio > 0.1) {
-      console.warn(
-        `WARNING: engraving took more than 10% of open time (${(ratio * 100).toFixed(1)}%). ` +
-          `This may indicate a performance regression. Check that planEngraving is linear.`,
-      );
-    }
-    // Hard assertion at 50% (catches O(n²) regression even on slow hardware).
-    if (ratio > 0.5) {
-      throw new Error(
-        `engraving cost ${(ratio * 100).toFixed(1)}% of open time (budget 10%, hard limit 50%). ` +
-          `planEngraving is not linear - investigate immediately.`,
-      );
-    }
+describe('T033 linearity fences (research R-9)', () => {
+  const fence = async (label: string, xml: string, runs: number) => {
+    const openMs = await fastest(runs, () => buildScore(readXml(xml).doc));
+    const doc = readXml(xml).doc;
+    const completionMs = await fastest(runs, () => planEngraving(doc, 'opened'));
+    const ratio = completionMs / openMs;
+    console.log(`${label}: readXml+buildScore ${openMs.toFixed(1)} ms, completion ${completionMs.toFixed(1)} ms`);
+    expect(ratio, `${label}: completion vs readXml+buildScore`).toBeLessThanOrEqual(LINEARITY_FENCE);
+  };
+
+  it('Mozart K.387 (~4.5 MB of XML, the largest real score)', { timeout: 120_000 }, async () => {
+    const xml = decodeXml(
+      await readMxl(new Uint8Array(fs.readFileSync(path.join(realDir, 'mozart-quartet-k387.mxl')))),
+    );
+    await fence('Mozart K.387', xml, 5);
   });
 
-  it('Für Elise bare (~12 KB): engraving ≤ 10% of open cost', () => {
-    const xml = readXmlFile(engravingDir, 'fur-elise-bare.musicxml');
-
-    const openStart = performance.now();
-    const parsed = readXml(xml);
-    buildScore(parsed.doc);
-    const openMs = performance.now() - openStart;
-
-    const engravingStart = performance.now();
-    planEngraving(parsed.doc, 'opened');
-    const engravingMs = performance.now() - engravingStart;
-
-    const ratio = engravingMs / openMs;
-    console.log(
-      `Für Elise bare (${(xml.length / 1024).toFixed(0)} KB): ` +
-        `open ${openMs.toFixed(1)} ms, engraving ${engravingMs.toFixed(1)} ms, ratio ${(ratio * 100).toFixed(1)}%`,
-    );
-
-    // Same ratio criterion. Für Elise is tiny so absolute times vary; hard limit at 100% (2x).
-    if (ratio > 1.0) {
-      throw new Error(
-        `Für Elise engraving took ${engravingMs.toFixed(1)} ms vs open ${openMs.toFixed(1)} ms (${(ratio * 100).toFixed(1)}%). ` +
-          `This is unexpected for a small file.`,
-      );
-    }
-  });
-
-  it('Bach Prelude BWV 846 (largest library piece, ~138 KB): engraving ≤ 10% of open cost (SC-005)', () => {
-    const xml = readXmlFile(
-      path.join(__dirname, '../../../../public/library/repertoire/advanced'),
-      'bach-prelude-bwv846.musicxml',
-    );
-
-    const openStart = performance.now();
-    const parsed = readXml(xml);
-    buildScore(parsed.doc);
-    const openMs = performance.now() - openStart;
-
-    const engravingStart = performance.now();
-    planEngraving(parsed.doc, 'opened');
-    const engravingMs = performance.now() - engravingStart;
-
-    const ratio = engravingMs / openMs;
-    console.log(
-      `Bach Prelude (${(xml.length / 1024).toFixed(0)} KB): ` +
-        `open ${openMs.toFixed(1)} ms, engraving ${engravingMs.toFixed(1)} ms, ratio ${(ratio * 100).toFixed(1)}%`,
-    );
-
-    if (ratio > 0.5) {
-      throw new Error(
-        `Bach Prelude engraving took ${engravingMs.toFixed(1)} ms vs open ${openMs.toFixed(1)} ms (${(ratio * 100).toFixed(1)}%). ` +
-          `This exceeds the 50% hard limit (SC-005 target was 10%).`,
-      );
-    }
+  it('Für Elise bare (~12 KB, everything completed)', async () => {
+    await fence(
+      'Für Elise bare',
+      decodeXml(new Uint8Array(fs.readFileSync(path.join(engravingDir, 'fur-elise-bare.musicxml')))),
+      50,
+    ); // sub-millisecond: many runs
   });
 });

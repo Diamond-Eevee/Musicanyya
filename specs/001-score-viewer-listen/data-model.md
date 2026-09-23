@@ -84,7 +84,8 @@ type LoadNoticeCode =
   // 006-beamed-note-engraving US3 (FR-011): engraving completion notices
   | "engravingCompleted"      // info: beam groups / accidentals added for display
   | "beamDataInvalid"         // warning: a voice has inconsistent <beam> data; left as encoded
-  | "accidentalContradicts";  // warning: a printed <accidental> contradicts <alter>; kept as encoded
+  | "accidentalContradicts"    // warning: a printed <accidental> contradicts <alter>; kept as encoded
+  | "engravingSkipped";        // warning: completion failed; the Score opens as encoded
 ```
 
 Entries with the same code are grouped for the notice ("Skipped: 3 x `<harmony>` in m. 4, 7, 9").

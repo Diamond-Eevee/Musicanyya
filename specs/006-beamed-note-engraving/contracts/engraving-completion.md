@@ -59,7 +59,8 @@ schema sequence. Nothing else is inserted, removed or reformatted.
   same single pass as the id inserts. Id inserts touch start tags only; element inserts sit strictly inside note
   bodies, so they never overlap.
 - `worker-messages.md` 1.1.0 (feature 001): load notice codes `engravingCompleted`, `beamDataInvalid`,
-  `accidentalContradicts` (info); `summary.arranger`.
+  `accidentalContradicts` (warning), `engravingSkipped` (warning: completion threw, the Score opens without it);
+  `summary.arranger`.
 
 ## 6. Versioning
 
