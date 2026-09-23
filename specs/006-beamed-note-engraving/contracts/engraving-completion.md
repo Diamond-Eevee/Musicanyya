@@ -15,6 +15,7 @@ export interface EngravingPlan {
   accidentalsAdded: { required: number; courtesy: number };
   findings: EngravingFinding[];
   invalidBeams: Array<{ part: number; measureLabel: string; voice: string }>;
+  contradictions: Array<{ part: number; measureLabel: string; staff: number; pitch: string }>;
 }
 
 export function planEngraving(doc: XmlDocument, mode: EngravingMode): EngravingPlan;
@@ -57,7 +58,8 @@ schema sequence. Nothing else is inserted, removed or reformatted.
 - `render-copy.md` 1.1.0 (feature 001): `createRenderCopy` also takes `elements: ElementInsert[]`, spliced in the
   same single pass as the id inserts. Id inserts touch start tags only; element inserts sit strictly inside note
   bodies, so they never overlap.
-- `worker-messages.md` 1.1.0 (feature 001): load notice codes `engravingCompleted`, `beamDataInvalid` (info).
+- `worker-messages.md` 1.1.0 (feature 001): load notice codes `engravingCompleted`, `beamDataInvalid`,
+  `accidentalContradicts` (info); `summary.arranger`.
 
 ## 6. Versioning
 

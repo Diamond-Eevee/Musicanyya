@@ -41,7 +41,7 @@ Playwright (one e2e check: beams + title visible for *Für Elise*)
 it is O(notes) over the already-parsed tree in the score worker
 **Real-time Paths Touched**: none
 **Constraints**: core stays DOM-free; completion never alters encoded beams/accidentals (FR-004, FR-009, FR-011);
-never throws on malformed input (bad beam data -> group left unbeamed + report entry)
+never throws on malformed input (bad beam data -> left as encoded + report entry)
 **Scale/Scope**: 58 library files (17 repertoire, 41 generated); scores up to ~11 000 notes (the 4.7 MB quartet
 used by the 001 load-time tests)
 
@@ -53,7 +53,7 @@ used by the 001 load-time tests)
 |---|---|---|---|
 | I | Real-Time Safety | No AudioWorklet, scheduler or MIDI code changes. The completion pass runs in the score worker, off the main thread. | PASS |
 | II | One Clock | No timing changes. Beaming reads onsets in divisions only to group notes; ticks/schedule untouched. | PASS |
-| III | Score Fidelity | Seen = played = graded is the *goal* (FR-006). Opened files: only the render copy changes, the Score model and Note IDs are built from the untouched source. Library files: before/after identity golden (SC-003). Verovio stays the engraver. Bad beam data degrades to unbeamed + notice. | PASS |
+| III | Score Fidelity | Seen = played = graded is the *goal* (FR-006). Opened files: only the render copy changes, the Score model and Note IDs are built from the untouched source. Library files: before/after identity golden (SC-003). Verovio stays the engraver. Bad beam data is left as encoded + notice. | PASS |
 | IV | Test-First | Rule tables tested pure in Node first; golden identity for all 58 library items; guard test; real-Verovio SVG assertions. Deterministic (no randomness, stable order). | PASS |
 | V | Layers | Module in `src/core` (no DOM, no Web APIs; works on the parse tree). Worker in `src/workers`, tool in `tools/library`. Browser works alone. | PASS |
 | VI | Musician-First Feedback | Load report entry is an info notice, non-modal (existing notice tray). | PASS |
@@ -96,7 +96,7 @@ src/core/musicxml/engraving/
 |-- plan.ts              # NEW  planEngraving(doc, mode) -> EngravingPlan; applyInserts(xml, inserts)
 `-- index.ts             # NEW  public exports
 src/core/musicxml/render-copy.ts   # CHANGE accepts element inserts (contract 1.1.0)
-src/core/score/load-report.ts      # CHANGE new code 'engravingCompleted' (info) + 'beamDataInvalid' (info)
+src/core/score/load-report.ts      # CHANGE new info codes engravingCompleted, beamDataInvalid, accidentalContradicts
 src/core/library/exercise/generate.ts  # CHANGE pipe written XML through planEngraving('library') + applyInserts
 src/workers/score.worker.ts        # CHANGE plan('opened') -> render copy inserts + report entries
 src/workers/verovio.worker.ts      # CHANGE header 'none' (R-4)
@@ -104,8 +104,10 @@ src/core/musicxml/build.ts         # CHANGE title fallback to <movement-title>; 
 src/core/score/model.ts            # CHANGE Score.arranger: string | null
 src/ui/elements/mx-score-view.ts   # CHANGE title block above page 1 (scrolls with the music, wraps long titles)
 src/ui/styles/                     # CHANGE title block style (serif, centred title, composer/arranger right)
-src/ui/i18n/en.ts                  # CHANGE notice texts for the two new codes
+src/ui/i18n/en.ts                  # CHANGE notice texts for the three new codes
 tools/library/engrave.ts           # NEW  `pnpm library:engrave`: completes hand-written repertoire files in place
+tools/library/identity.ts          # NEW  captures the SC-003 identity golden (run once, before any library change)
+tools/library/audit.ts             # NEW  US5 element counts per repertoire piece (file + rendered SVG)
 package.json                       # CHANGE script library:engrave
 public/library/**/*.musicxml       # REGENERATED/COMPLETED (content: beams + accidentals only)
 public/library/index.json          # REGENERATED (bytes/hash)
@@ -116,6 +118,8 @@ tests/library/identity.test.ts            # NEW  SC-003 golden: note ids/ticks/k
 tests/fixtures/library-identity.json      # NEW  golden captured from the files BEFORE completion
 tests/verovio/engraving.test.ts           # NEW  real Verovio: beams drawn, accid visible
 tests/ui/title-block.test.ts              # NEW  title/composer/arranger/fallback rendering
+tests/ui/load-notices.test.ts             # NEW  every load notice code has an English text
+tests/tools/engrave.test.ts               # NEW  the library tool: completes, idempotent, skips generated items
 tests/e2e/library.spec.ts                 # CHANGE Für Elise shows beams and title block (all modes)
 ```
 
@@ -129,6 +133,7 @@ No constitution violations, no new dependency, no new layer.
 
 | Addition | Why Needed | Simpler Alternative Rejected Because |
 |---|---|---|
+| Title block drawn in HTML, not by Verovio (Principle III names Verovio for engraving) | Verovio 6.3.0 draws no composer/arranger with any header option (R-4); title text is not notation | `header: 'auto'` shows the title only; MEI pgHead injection doubles load time |
 | Changing 58 shipped library files (their hashes change) | FR-001/FR-006 want files correct for any viewer; guard test needs files to be the truth | Completing only at display time would leave the files wrong outside the app and make the guard test meaningless (R-6) |
 
 ## Phase 0: Research

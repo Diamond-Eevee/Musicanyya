@@ -32,6 +32,9 @@ says where its beams and accidentals go is shown correctly today.
   the bar right after the change; accidentals a file already prints are kept as they are (FR-008).
 - Q: How are eighths grouped in 4/4? -> A: In half-bar groups of four (beats 1-2, 3-4), never across the
   middle of the bar; sixteenths per beat (Assumptions, beat grouping).
+- Q: (analyze F1, F2, F5, F6 - owner accepted the recommendations) -> A: courtesy signs in opened Scores only
+  for parts that print no accidentals at all; malformed beam data is left as encoded; a printed accidental that
+  contradicts the pitch is kept and reported; the practice-history reset for library pieces is accepted.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -173,8 +176,7 @@ piece, and each "missing" row points to a fix in this feature or to a new, named
 
 ### Edge Cases
 
-- **Rests inside a beat**: beams break at rests unless standard practice beams over them; a lone note
-  left by the break keeps its flag.
+- **Rests inside a beat**: beams never cross rests; a lone note left by the break keeps its flag.
 - **Chords**: a chord is beamed as one unit with its neighbours; all its notes keep their Note IDs.
 - **Two voices on one staff**: each voice is beamed separately; beams never join notes of different
   voices.
@@ -190,7 +192,8 @@ piece, and each "missing" row points to a fix in this feature or to a new, named
 - **Key change mid-piece**: accidentals are judged against the key signature in force; a change of key
   cancels earlier accidentals.
 - **Malformed or contradictory beam data in an opened file** (a beam that starts but never ends): the
-  Score still opens (Constitution III); the faulty group is shown unbeamed and the load report says so.
+  Score still opens (Constitution III); the faulty beams are left as encoded (the engraver shows what it
+  can), the voice gets no added beams, and the load report says so.
 - **Very long titles or several composer/arranger credits**: they wrap above the first system and never
   overlap the music.
 - **Very long, very fast scores** (the complete *Für Elise*, Bach Prelude): opening time must not grow
@@ -215,10 +218,13 @@ piece, and each "missing" row points to a fix in this feature or to a new, named
 **Accidentals**
 
 - **FR-006**: For every note shown, the printed pitch (clef, key signature, accidentals printed earlier in
-  the same bar and staff, ties) MUST equal the pitch the app plays and grades.
+  the same bar and staff, ties) MUST equal the pitch the app plays and grades. The one exception is an
+  opened file that itself prints an accidental contradicting the note's pitch: that sign is kept (FR-009)
+  and the load report names the bar and note.
 - **FR-007**: Accidentals MUST follow common practice: they last to the end of the bar in the same staff
   and octave; they are not repeated on tied continuations; redundant accidentals are not printed.
-- **FR-008**: Where the app adds accidentals (library items, and opened Scores under FR-010), a courtesy
+- **FR-008**: In library items, and in parts of opened Scores that print no accidentals at all (a part that
+  prints accidentals has made its own reminder choices), a courtesy
   (reminder) accidental MUST be printed plainly, without brackets, on the first note of a letter name
   (any octave) in the bar immediately after one where that letter name carried a different alteration,
   within the same staff. Reminders are never carried further than that one bar, and never printed on a
@@ -308,6 +314,8 @@ The feature applies to every Shell (browser and Electron); it has no audio or MI
   correct for any other MusicXML viewer too), not only in how the app draws them.
 - Pitches, rhythms, fingering and every other musical content of the library are already correct and
   are not changed; only beams and printed accidentals are added.
+- Completing the library files changes their content, so Practice and attempt history saved for a library
+  piece before this feature no longer shows for it (history is keyed by file content; no release has shipped).
 - The *Für Elise* reference comparison uses the owner's screenshot and the library item's cited source
   (Mutopia Project, piece-info id 931).
 - Stem direction, rest placement, ties, dynamics and fingering already appear correct in the owner's

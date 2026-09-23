@@ -28,7 +28,9 @@ insert splice, and the render-copy extension.
 
 - [ ] T003 Write `tools/library/identity.ts` (dev-only) that, for every `public/library/**/*.musicxml`, builds the
   Score and records per item a stable list of `{ id, measureIndex, onsetInMeasure, durationTicks, soundingKey }`
-  plus the compiled schedule digest; write the result to `tests/fixtures/library-identity.json`. Run it on the
+  plus the compiled schedule digest, and grades one recorded Performance log of *Für Elise (theme)* (saved to
+  `tests/fixtures/performance-logs/fur-elise-theme.json`) into a golden Grade; write the result to
+  `tests/fixtures/library-identity.json`. Run it on the
   **unchanged** library and commit the golden (SC-003, FR-005).
 - [ ] T004 Write `tests/library/identity.test.ts`: rebuilds the same list for every library file and deep-equals
   the golden from T003 (passes now; it is the guard for every later file change).
@@ -42,7 +44,7 @@ insert splice, and the render-copy extension.
   `accidentals.musicxml` (key signatures with sharps and flats, altered/natural sequences in one bar, same pitch
   other octave, ties across a barline, key change mid-bar, F and F♯ in one chord, double sharp -> sharp, grace
   note accidental, volta ending 2), `prints-accidentals.musicxml` (a part that prints some accidentals but lacks
-  one required sign).
+  one required sign, and one note printing a sharp sign with `<alter>` 0).
 - [ ] T006 [P] Test `tests/core/musicxml/engraving/walk.test.ts`: onsets across `<backup>`/`<forward>` and a
   `<divisions>` change; per-staff keys (`<key number>`), mid-bar key/time change; chords folded into heads; grace,
   tuplet, tie flags; end-aligned pickup (research B2); insert offsets per R-8 for notes with/without `type`, `dot`,
@@ -85,6 +87,11 @@ bar 2 bass A-E-A beamed, treble A keeps its flag; no flag where a beam group app
 - [ ] T015 [P] [US1] Test `tests/library/engraving-guard.test.ts` (beam part): for every library file,
   `planEngraving(doc, 'library')` yields no beam inserts; the failure message names item, bar, staff, voice.
   Fails now (2 078 flagged notes).
+- [ ] T027 [P] [US1] Idempotence tests, written before the tool and the library runs: in
+  `tests/core/musicxml/engraving/plan.test.ts`, for every T005 fixture, planning the completed text yields zero
+  inserts, a second apply is byte-identical, two runs are equal; in `tests/tools/engrave.test.ts`, the exported
+  `engraveFile` of `tools/library/engrave.ts` completes a temp copy, a second run changes nothing, and generated
+  family files are skipped. Extended with accidentals in US2 (T022). Must fail (tool missing).
 
 ### Implementation
 
@@ -96,8 +103,8 @@ bar 2 bass A-E-A beamed, treble A keeps its flag; no flag where a beam group app
   section 2 (generated output is completed) and extend `tests/core/library/exercise/*.test.ts` with an
   idempotence check (a generated file plans zero inserts).
 - [ ] T019 [US1] Implement `tools/library/engrave.ts`: for each hand-written repertoire file (not generated
-  families), read -> plan (`'library'`) -> apply -> write back; prints per file the counts; a second run changes
-  nothing.
+  families), read -> plan (`'library'`) -> apply -> write back; prints per file the counts; export
+  `engraveFile`; until T027 passes.
 - [ ] T020 [US1] Run `pnpm library:exercises`, `pnpm library:engrave`, `pnpm library:index`; confirm T004 identity
   still passes and T014/T015 pass; commit the regenerated `public/library/**` and `index.json`.
 - [ ] T021 [US1] Extend `tests/e2e/library.spec.ts`: opening *Für Elise (theme)* shows `g.beam` elements in the
@@ -133,10 +140,10 @@ library check reports 0 wrong-reading notes (today 117 in 21 items).
 - [ ] T025 [US2] Implement `src/core/musicxml/engraving/accidentals.ts` and the accidental half of `planEngraving`
   until T022 passes.
 - [ ] T026 [US2] Re-run `pnpm library:exercises`, `pnpm library:engrave`, `pnpm library:index`; T004 identity,
-  T023 and T024 pass; commit the library.
-- [ ] T027 [US2] Idempotence test in `tests/core/musicxml/engraving/plan.test.ts`: for every T005 fixture and
-  every library file, planning the completed text yields zero inserts and byte-identical output on a second apply;
-  determinism (two runs equal).
+  T023, T024 and T027 pass; commit the library.
+- [ ] T050 [US2] SC-003 grade identity in `tests/library/identity.test.ts`: grade the recorded Performance log
+  `tests/fixtures/performance-logs/fur-elise-theme.json` (captured in T003) against the completed file; the Grade
+  equals the golden Grade exactly.
 
 **Checkpoint**: US2 independent test passes in the browser; SC-002 = 0; identity golden unchanged.
 
@@ -154,22 +161,24 @@ one info notice; a MuseScore export with its own beams shows no notice and uncha
 - [ ] T028 [P] [US3] Test `tests/engine/score-worker-engraving.test.ts` (score worker `handleMessage` in Node):
   `fur-elise-bare` -> render copy contains inserts, `report` has one `engravingCompleted` info entry with the
   counts; `fullScore` Note IDs identical to loading the same file without completion; `partly-beamed` -> no beam
-  inserts for that voice; `broken-beam` -> `beamDataInvalid` entry, still loads.
+  inserts for that voice; `broken-beam` -> `beamDataInvalid` entry, its encoded beams unchanged and no beams added to that
+  voice, still loads; a note printing a sharp sign with `<alter>` 0 -> `accidentalContradicts` entry, sign kept.
 - [ ] T029 [P] [US3] Test in `tests/core/musicxml/real-scores.test.ts`: every real-score fixture (OpenScore,
   MusicXML test suite) that encodes beams gets zero beam inserts and keeps all its `<accidental>` elements (SC-006).
-- [ ] T030 [P] [US3] Test `tests/ui/load-notices.test.ts`: every `LoadNoticeCode` (incl. the two new ones) has
+- [ ] T030 [P] [US3] Test `tests/ui/load-notices.test.ts`: every `LoadNoticeCode` (incl. the three new ones) has
   an English text in `src/ui/i18n/en.ts`.
 
 ### Implementation
 
-- [ ] T031 [US3] Add `engravingCompleted` and `beamDataInvalid` to `src/core/score/load-report.ts` and their texts
+- [ ] T031 [US3] Add `engravingCompleted`, `beamDataInvalid` and `accidentalContradicts` to `src/core/score/load-report.ts` and their texts
   to `src/ui/i18n/en.ts`; bump `specs/001-score-viewer-listen/contracts/worker-messages.md` to 1.1.0 and add the
   codes to `specs/001-score-viewer-listen/data-model.md` notice table.
 - [ ] T032 [US3] Wire `planEngraving(parsed.doc, 'opened')` into `src/workers/score.worker.ts`: pass inserts to
   `createRenderCopy`, add report entries; until T028/T029/T030 pass.
 - [ ] T033 [US3] Performance test in `tests/core/musicxml/engraving/perf.test.ts`: completion on the largest
-  fixture (4.7 MB quartet) and complete *Für Elise* costs <= 10% of their `readXml`+`buildScore` time (SC-005,
-  research R-9).
+  fixture (4.7 MB quartet) and complete *Für Elise* costs <= 10% of their `readXml`+`buildScore` time (research
+  R-9); plus an end-to-end check in `tests/e2e/real-scores.spec.ts` (drop -> first page drawn) against the
+  pre-feature baseline recorded in the log before T032 (SC-005).
 - [ ] T034 [US3] e2e in `tests/e2e/real-scores.spec.ts`: dropping `fur-elise-bare.musicxml` shows `g.beam` and one
   info notice.
 
@@ -222,14 +231,14 @@ fix or a named follow-up; every Score shows title/composer/arranger above page 1
 
 ### Engraving audit
 
-- [ ] T043 [US5] Write `tools/library/probe.ts` extension (or a new `tools/library/audit.ts`) that counts, per
+- [ ] T043 [US5] Write `tools/library/audit.ts` that counts, per
   repertoire piece, the FR-014 elements present in the file and in the rendered SVG (beams, accid, stems, rests,
   ties, slurs, dynamics/hairpins, tempo/expression, articulations, fingering, pedal, ornaments,
   repeats/voltas/jumps, title block, system-start bar numbers).
 - [ ] T044 [US5] Review each piece against its cited source with the `music-domain-expert` role; write
   `specs/006-beamed-note-engraving/engraving-audit.md` (piece x element: present / missing (bars) / not used).
 - [ ] T045 [US5] For each gap that contradicts playback or grading: fix it in this feature (new task numbers from
-  T050) ; for purely visual gaps: list as named follow-ups and ask the owner (FR-015, AGENTS.md section 7).
+  T052); for purely visual gaps: list as named follow-ups and ask the owner (FR-015, AGENTS.md section 7).
 
 **Checkpoint**: audit complete, every row resolved; title block visible in every mode.
 
@@ -262,6 +271,7 @@ fix or a named follow-up; every Score shows title/composer/arranger above page 1
 
 ## Parallel Opportunities
 
+- T027 is filed under US1 (before T019) although numbered later; T050 closes US2.
 - Foundational tests T005, T006, T007, T008 together; then T010 alongside T009.
 - US1 tests T012-T015 together. US2 tests T022-T024 together. US3 tests T028-T030 together.
 - Title block (T038-T042) in a separate lane in parallel with US1-US3 (touches `build.ts`, `model.ts`, UI and the
@@ -270,4 +280,4 @@ fix or a named follow-up; every Score shows title/composer/arranger above page 1
 
 ## Suggested MVP
 
-US1 + US2 (both P1): the library shows beams and correct accidentals (tasks T001-T027).
+US1 + US2 (both P1): the library shows beams and correct accidentals (tasks T001-T027, T050).

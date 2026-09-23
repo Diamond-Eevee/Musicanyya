@@ -89,7 +89,7 @@ rule). Could become a named option later.
 - **A3 Ties**: a `<tie type="stop">` continuation of the same step/octave/alter gets no sign and does not change the
   bar state; across a barline its alteration is remembered for R-3 C1 only.
 - **A4 Required**: a note that prints an `<accidental>` keeps it untouched and sets the bar state (a sign that
-  contradicts `<alter>` is left as is). Otherwise, if alter differs from expected: add sharp / flat / natural /
+  contradicts `<alter>` is left as is and reported as `accidentalContradicts`, the FR-006 exception). Otherwise, if alter differs from expected: add sharp / flat / natural /
   double-sharp / flat-flat; double sharp -> sharp prints a plain sharp. Non-integer alter (microtones): skipped.
 - **A5**: same pos, same step and octave, different alter (two voices, or F and F♯ in one chord): both get signs.
 - **A6 Octave**: state is per octave (FR-007).
