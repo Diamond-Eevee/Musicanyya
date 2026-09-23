@@ -1,4 +1,5 @@
 import type { XmlDocument } from '@rgrove/parse-xml';
+import { planAccidentalsForPart } from './accidentals.js';
 import { planBeamsForVoice } from './beams.js';
 import type { ElementInsert, EngravingFinding, EngravingMode, EngravingPlan } from './index.js';
 import { walkScore } from './walk.js';
@@ -30,12 +31,15 @@ export function applyInserts(xml: string, inserts: readonly ElementInsert[]): st
  * US2 on) `<accidental>` wherever the printed pitch would otherwise read wrong (R-3). Never throws for
  * MusicXML `buildScore` accepts.
  */
-export function planEngraving(doc: XmlDocument, _mode: EngravingMode): EngravingPlan {
+export function planEngraving(doc: XmlDocument, mode: EngravingMode): EngravingPlan {
   const walked = walkScore(doc);
   const inserts: ElementInsert[] = [];
   const findings: EngravingFinding[] = [];
   const invalidBeams: EngravingPlan['invalidBeams'] = [];
+  const contradictions: EngravingPlan['contradictions'] = [];
   let beamGroupsAdded = 0;
+  let accidentalsRequired = 0;
+  let accidentalsCourtesy = 0;
 
   for (const part of walked.parts) {
     const voices = Array.from(new Set(part.events.map((e) => e.voice))).sort();
@@ -65,6 +69,28 @@ export function planEngraving(doc: XmlDocument, _mode: EngravingMode): Engraving
         }
       }
     }
+
+    const accidentalResult = planAccidentalsForPart(part, mode);
+    accidentalsRequired += accidentalResult.requiredCount;
+    accidentalsCourtesy += accidentalResult.courtesyCount;
+    for (const entry of accidentalResult.entries) {
+      const pitch = entry.event.pitches[entry.pitchIndex];
+      if (!pitch) continue;
+      const offset = entry.event.insertAt.accidental[entry.pitchIndex];
+      if (offset === undefined) continue;
+      inserts.push({ offset, text: `<accidental>${entry.sign}</accidental>`, order: 0 });
+      findings.push({
+        kind: entry.courtesy ? 'missingCourtesy' : 'missingAccidental',
+        part: part.index,
+        measureLabel: entry.event.measureLabel,
+        staff: entry.event.staff,
+        voice: entry.event.voice,
+        pitch: `${pitch.step}${pitch.octave}`,
+      });
+    }
+    for (const c of accidentalResult.contradictions) {
+      contradictions.push({ part: part.index, measureLabel: c.measureLabel, staff: c.staff, pitch: c.pitch });
+    }
   }
 
   inserts.sort((a, b) => (a.offset !== b.offset ? a.offset - b.offset : a.order - b.order));
@@ -72,9 +98,9 @@ export function planEngraving(doc: XmlDocument, _mode: EngravingMode): Engraving
   return {
     inserts,
     beamGroupsAdded,
-    accidentalsAdded: { required: 0, courtesy: 0 },
+    accidentalsAdded: { required: accidentalsRequired, courtesy: accidentalsCourtesy },
     findings,
     invalidBeams,
-    contradictions: [],
+    contradictions,
   };
 }

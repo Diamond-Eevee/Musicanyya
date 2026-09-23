@@ -137,7 +137,7 @@ library check reports 0 wrong-reading notes (today 117 in 21 items).
 
 ### Implementation
 
-- [ ] T025 [US2] Implement `src/core/musicxml/engraving/accidentals.ts` and the accidental half of `planEngraving`
+- [x] T025 [US2] Implement `src/core/musicxml/engraving/accidentals.ts` and the accidental half of `planEngraving`
   until T022 passes.
 - [ ] T026 [US2] Re-run `pnpm library:exercises`, `pnpm library:engrave`, `pnpm library:index`; T004 identity,
   T023, T024 and T027 pass; commit the library.
