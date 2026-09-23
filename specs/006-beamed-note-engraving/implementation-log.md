@@ -66,3 +66,32 @@ Newest entry at the bottom (AGENTS.md section 5).
   first/second-ending courtesy-memory special case, which needs walk.ts extended with `<barline>`/`<ending>`
   markers (not yet captured - a new gap found while reviewing the accidentals.musicxml fixture, to fill in
   T025). Tree clean at commit 9eb29a8.
+
+## 2026-09-23 17:40 - claude-sonnet-5
+- Done: T022-T026, T050 - US2 (accidentals) complete. MVP (US1+US2, T001-T027, T050) done in full: Setup,
+  Foundational, US1 (beams) and US2 (accidentals) all checkpointed green. `accidentals.ts` (R-3 A1-A7,
+  C1-C4), wired into `planEngraving`; library regenerated a second time (exercises + repertoire) now that
+  accidentals are live; both halves of the guard pass; real-Verovio accidental rendering confirmed; SC-003
+  grade identity holds exactly after completion (T050).
+- Checkpoint verified: `pnpm test` 1438/1438 green; `pnpm typecheck` clean; `pnpm lint` 1 error (same
+  pre-existing, unrelated `dispatch.ts` issue noted at the US1 checkpoint - still not touched by this
+  feature).
+- Decisions: courtesy memory is of the previous bar specifically, not the last bar a letter appeared in
+  (research.md R-10 - caught by `accidentals.musicxml` measure 9, see commit `c4141cb`).
+- **Owner-review flag (not a blocking question, but worth a look)**: completing accidentals correctly
+  raised the true accidental density of four generated exercise definitions past what their declared
+  `level` allowed (`checkLevel`'s automated gate caught this, criterion 11 - it does not pass silently).
+  Raised: `content/library/exercises/triads-minor.json` beginner -> intermediate (11 of its 12 keys;
+  natural-minor A is the only one that stays under the beginner threshold - the harmonic-minor V chord's
+  raised leading tone needs a fresh sign in nearly every measure it appears in); `changes-minor-cadence.json`
+  beginner -> intermediate (same reason); `changes-a-minor-major.json` and `changes-same-tonic.json`
+  intermediate -> advanced (their hands-together, identical-shape-in-both-staves voicing doubles the
+  accidental count per A2's per-staff state, well past intermediate's cap). All four still pass every other
+  level criterion. This changes the difficulty label a learner sees for these four items; worth a deliberate
+  look rather than treating it as settled just because the gate now passes. Commit `e9aec89` has the full
+  reasoning.
+- Problems / open questions: none blocking.
+- Handoff: next = Phase 5 US3 (T028-T034, scores the user opens - wires `planEngraving('opened')` into
+  `score.worker.ts` + the three new load-report codes) or Phase 6 US4 (T035-T037, library-guard negative
+  cases + `build-index.ts` refusal) - both P2, independent of each other, either can start next. Tree clean
+  at commit 3b8c181.
