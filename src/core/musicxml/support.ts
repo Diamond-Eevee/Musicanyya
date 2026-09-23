@@ -16,7 +16,7 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
     category: 'Notes',
     element: '<beam>',
     status: 'Supported',
-    notes: 'Shown as encoded; completed automatically when a voice has none',
+    notes: 'Shown as encoded; completed automatically when a voice has none (not for sung lines with lyrics)',
   },
   {
     category: 'Notes',

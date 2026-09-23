@@ -1,6 +1,6 @@
 // Opens real repertoire in a real browser and checks the page looks like a page of a printed music
 // book (FR-002, Constitution III): staves with clefs, key and time signatures, noteheads with stems
-// and beams or flags, measures closed by barlines, the engraved title block, and lyrics under the
+// and beams or flags, measures closed by barlines, the title block above page 1, and lyrics under the
 // vocal line - each note and measure carrying the Note ID the rest of the app addresses it by.
 //
 // The fixtures are CC0 scores from the OpenScore corpora; see tests/fixtures/musicxml/real/README.md.
@@ -32,8 +32,8 @@ interface RealScore {
   /** Screenfuls the whole work takes. */
   minPages: number;
   /**
-   * Text of the title block Verovio engraves from the file's own credits, or null for the two files
-   * whose credits it does not print (they carry no <credit> element - the work still opens).
+   * Text the title block above page 1 must show (006 R-4: movement title, else work title, plus the composer), or
+   * null where the test only checks that a block is there.
    */
   heading: string | null;
 }
@@ -378,7 +378,7 @@ test.describe('real repertoire engraves like a printed music book (FR-002)', () 
     // A single info notice must be visible (engravingCompleted, FR-011).
     // The notice tray is non-modal (Constitution VI + FR-009).
     const infoNotice = page.locator('.notice.info');
-    await expect(infoNotice).not.toHaveCount(0);
+    await expect(infoNotice).toHaveCount(1);
     await expect(infoNotice.first()).toBeVisible();
   });
 });

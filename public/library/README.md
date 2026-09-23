@@ -35,8 +35,8 @@ levelled - the reason is recorded here rather than just discarded, so the decisi
 
 ## Engraving: beams and accidentals (feature 006, FR-012)
 
-Library files must be fully engraved on disk: the app completes beams and accidentals only for scores a person
-opens, never for library items. `pnpm library:index` checks every file with `planEngraving` in library mode and
+Library files must be fully engraved on disk: the app completes beams and accidentals on every open, and for a
+library item that must add nothing. `pnpm library:index` checks every file with `planEngraving` in library mode and
 refuses to write the index when a file has:
 
 1. **Missing or inconsistent beams**: an eighth note or shorter that belongs in a beam group without a `<beam>`, or

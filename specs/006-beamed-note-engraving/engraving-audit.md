@@ -66,10 +66,10 @@ Bn system-start bar numbers.
 | arab | P | P | P | P | P | M | P* | P | M | M | n/u | n/u | P | P* | P |
 | innoc | P | P | P | P | n/u | M | M | P | M | M | n/u | n/u | M | P* | P |
 | clem | P | P | P | P | n/u | n/u | P | P | n/u | n/u | n/u | n/u | D | P* | P |
-| schum | M | P | P | P | n/u | M | P* | P | M | n/u | n/u | n/u | n/u | P | P |
+| schum | P | P | P | P | n/u | M | P* | P | M | n/u | n/u | n/u | n/u | P | P |
 | bach | P | P | ? | P | P | n/u | n/u | P | P | n/u | n/u | M | n/u | P | P |
 | ch20 | P | P | P | P | n/u | M | P* | P* | M | n/u | P* | n/u | n/u | P | P |
-| ch4 | M | P* | P | P | P | M | P* | M | M | n/u | M | P | n/u | P | P |
+| ch4 | P | P* | P | P | P | M | P* | M | M | n/u | M | P | n/u | P | P |
 | fecomp | P | P | P | P | n/u | M | P* | P* | n/u | n/u | M | M | D | P* | P |
 | satie | n/u | P | P | P | P | M | P* | P | n/u | n/u | P* | n/u | M | P* | P |
 
@@ -131,7 +131,7 @@ no slurs, articulations, fingering or dynamics in bars 1-15 (the file's `f` is e
 for this app" but there is no arranger line -> LE-08.
 
 **schum** - the LH (melody) of all 21 bars matches Mutopia 659 including the two-voice bars 14 and 20; the source
-has no repeat signs, so the file is complete. RH chords not re-checked (unverified). Bm `M`: RH voice 1 eighth
+has no repeat signs, so the file is complete. RH chords not re-checked (unverified). Bm `P` (B-01: flags per the owner's 4/4 rule): RH voice 1 eighth
 chords without beams, bars 1, 2, 5, 6 (beats 1.5-2 and 3.5-4) and bars 14, 20 (beat 3.5) -> B-01. Sl `M`: LH
 phrasing slurs bars 0-20 -> LE-01. Ar `M`: LH accents bars 9, 10, 15, 16; LH staccato bars 10, 16; RH accents
 around bars 9-10 (approx.) -> LE-02. Dy `P*`: the source has `f` four times, the file once (bar 0); positions of
@@ -151,7 +151,7 @@ second "riten." (bar 11) is missing -> LE-05. Ar `M`: accent on the final chord 
 Pe `P*`: one pedal line bars 1-13; the source changes pedal (12 marks, bars 1-13); disclosed -> LE-06.
 
 **ch4** - pickup (`b8. b'16`), the turn on G##5 (bar 16), both acciaccaturas (bars 11, 19) and RH bars 21-23
-match `Chop-28-4.ly`; the LH bass of bars 24-25 is missing -> G-08. Bm `M`: pickup bar 0 (B3 dotted eighth +
+match `Chop-28-4.ly`; the LH bass of bars 24-25 is missing -> G-08. Bm `P` (fixed in 006, T062/T063; was unbeamed): pickup bar 0 (B3 dotted eighth +
 B4 sixteenth) not beamed -> B-01. Ac `P*`: redundant sharp on the tied continuation G#4, bar 9 (FR-007; kept
 per FR-009) -> LE-09. Sl `M`: phrasing slurs throughout bars 0-25 -> LE-01. Dy `P*`: bar 0 has `pp`, source
 `p`; source hairpins around bars 9, 12, 16-17, 19, 21 and a closing `pp` around bar 24 are missing (source bar

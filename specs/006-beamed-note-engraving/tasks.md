@@ -255,7 +255,7 @@ fix or a named follow-up; every Score shows title/composer/arranger above page 1
   engraving tool (no licence change).
 - [x] T048 Run quickstart.md manual verification for US1-US5 in Chrome; screenshot *Für Elise (theme)* next to
   the owner's reference for SC-004.
-- [ ] T049 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; constitution review with
+- [x] T049 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; constitution review with
   `constitution-auditor` before merge; implementation-log entry.
 
 ## Phase 9: Pre-merge review fixes
@@ -275,7 +275,8 @@ compact and 004 SC-002 stays; purely visual audit gaps are named follow-ups; the
   severity `warning`).
 - [x] T054 `tests/core/musicxml/real-scores.test.ts` (T029 as written): every real-score fixture gets zero beam
   inserts for voices that encode beams, zero `beamDataInvalid`, zero required accidentals except those listed with a
-  musical reason, and every original `<beam>`/`<accidental>` element is kept byte for byte in the render copy.
+  musical reason, and every original `<beam>`/`<accidental>` element is kept byte for byte in the render copy. (The
+  OpenScore files; pinning the MusicXML Test Suite files too is a follow-up, see the log.)
 
 ### Tests that can fail
 

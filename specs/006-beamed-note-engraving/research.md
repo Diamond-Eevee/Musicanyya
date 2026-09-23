@@ -274,7 +274,12 @@ chose the reviewer's recommendation each time:
    in 006.
 4. **Licence wording**: a factual note - the engraving tool adds only `<beam>` and `<accidental>` elements, nothing
    else changes, and each file keeps the licence recorded for it in `public/library/index.json`. No claim about
-   copyright status.5. **Playback gaps found by the audit** (G-01..G-10 in `engraving-audit.md`: wrong melodies, invented or missing bars in
+   copyright status.
+5. **Playback gaps found by the audit** (G-01..G-10 in `engraving-audit.md`: wrong melodies, invented or missing bars in
    nine library pieces, plus G-10 found at the T048 check, all from feature 005): not fixed in 006. 006 merges; the corrections are a new feature,
    "library content corrections", with the audit as its worklist. This replaces decision 3's "any gap that affects
    playback or grading is fixed in 006", which was made before the audit showed what the gaps are.
+6. **Sung lines (R-2 B13)**: approved. A voice with lyrics and no `<beam>` keeps its flags (traditional
+   one-flag-per-syllable notation); FR-010(a), `SUPPORT_MATRIX` and `docs/musicxml-support.md` carry the exception.
+7. **SC-004**: the owner compared the *Für Elise (theme)* screenshot (`pnpm screenshot`) with their reference and
+   confirmed it matches.

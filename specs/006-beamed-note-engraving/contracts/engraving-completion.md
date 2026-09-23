@@ -1,6 +1,7 @@
 # Contract: engraving completion
 
-**Version**: `1.0.0`. Module `src/core/musicxml/engraving/` (pure core, Node-testable). Research R-2, R-3, R-5, R-8.
+**Version**: `2.0.0` (MAJOR, 2026-09-23: library mode completes the unbeamed groups of a partly beamed voice, which
+changed a shipped file; sung lines are not beamed; see research R-2 B11-B13, R-11). Module `src/core/musicxml/engraving/` (pure core, Node-testable). Research R-2, R-3, R-5, R-8.
 
 ## 1. API
 
@@ -38,7 +39,10 @@ schema sequence. Nothing else is inserted, removed or reformatted.
 
 ## 3. Rules
 
-- Beams: only for a (part, voice) with **no** `<beam>` anywhere in the Score; grouping per research R-2.
+- Beams: in mode `'opened'` only for a (part, voice) with **no** `<beam>` anywhere in the Score; in mode `'library'`
+  also the groups of a partly beamed voice whose notes carry no `<beam>` (a library file must be fully beamed); never
+  for a voice with lyrics and no `<beam>` (R-2 B13); a voice with inconsistent encoded beams (R-2 B12) is left as
+  encoded; grouping per research R-2.
 - Accidentals: every written pitch whose line would otherwise read wrong (key signature + earlier accidentals in
   the bar, same staff and octave, ties) gets a required accidental; courtesy accidentals per R-3.6, in mode
   `'library'` always and in mode `'opened'` only for parts that print no `<accidental>` at all.

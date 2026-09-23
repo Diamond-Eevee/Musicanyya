@@ -23,6 +23,7 @@ interface LoadError { code: LoadErrorCode; message: string; line?: number; colum
 
 interface ScoreSummary {                       // what the UI needs; the full Score stays in the worker
   title: string | null; composer: string | null;
+    arranger: string | null; // 1.1.0 (feature 006): <creator type="arranger">
   parts: { id: string; name: string; instrument: string; program: number; percussion: boolean }[];
   measureCount: number;                        // measures in notation order
   measureIds: string[];                        // MeasureId per notation-order index (render-copy.md)

@@ -286,7 +286,8 @@ export class MxScoreView extends HTMLElement {
       if (summary.arranger) {
         const arranger = document.createElement('span');
         arranger.className = 'mx-title-arranger';
-        arranger.textContent = en.score.arranger.replace('{name}', summary.arranger);
+        const name = summary.arranger;
+        arranger.textContent = en.score.arranger.replace('{name}', () => name); // a `$` in a name stays literal
         credits.appendChild(arranger);
       }
       block.appendChild(credits);

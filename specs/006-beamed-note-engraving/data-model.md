@@ -7,7 +7,7 @@ All types live in `src/core/musicxml/engraving/` (pure TypeScript, no DOM). Dura
 
 | Value | Used by | Beams | Required accidentals | Courtesy accidentals |
 |---|---|---|---|---|
-| `'library'` | exercise generator, `pnpm library:engrave`, library guard | every voice with no `<beam>` | where missing | yes (FR-008) |
+| `'library'` | exercise generator, `pnpm library:engrave`, library guard | every group with no `<beam>` (also in a partly beamed voice) | where missing | yes (FR-008) |
 | `'opened'` | score worker (render copy only) | every voice with no `<beam>` | where missing | only in parts that print **no** `<accidental>` at all (R-3.7) |
 
 ## 2. Walked events (`walk.ts`)
@@ -30,7 +30,8 @@ All types live in `src/core/musicxml/engraving/` (pure TypeScript, no DOM). Dura
 | `insertAt` | `{ accidental: number[]; beam: number }` | source offsets (R-8); one accidental offset per pitch |
 
 `WrittenPitch`: `{ step: 'A'..'G'; alter: number /* -2..2, fractional -> ignored (R-3.9) */; octave: number;
-hasAccidental: boolean; tieStop: boolean; noteRef: NoteRef }`.
+printedOctave: number /* octave of the printed line, after <octave-shift> (R-3 A6) */; staff: number /* this note's own
+staff */; hidden: boolean /* print-object="no" */; hasAccidental: boolean; tieStop: boolean; noteRef: NoteRef }`.
 
 `MeasureContext`: `{ divisions; time: { beats: number[]; beatType: number } | null; implicit: boolean;
 lengthDivisions; keyByStaff: Map<number, number /* fifths */> }` - key per staff (`<key number="n">` applies to one
@@ -46,10 +47,11 @@ last part of the bar's span.
 ## 4. Beam values (`beams.ts`)
 
 `BeamValue = 'begin' | 'continue' | 'end' | 'forward hook' | 'backward hook'` (MusicXML spelling).
-Output per beamable event: `Array<{ number: 1..6; value: BeamValue }>`, emitted as
+Output per beamable event: `Array<{ number: 1..8; value: BeamValue }>` (R-2 B9: eighth .. 1024th), emitted as
 `<beam number="n">value</beam>` in ascending `number`.
 
-Validation: a voice that already has any `<beam>` is skipped entirely (FR-004, US3 scenario 2). A voice whose
+Validation: in an opened Score a voice that already has any `<beam>` is skipped entirely (FR-004, US3 scenario 2);
+in library mode only its groups that carry no `<beam>` are completed (R-2 B11, FR-001). A voice whose
 encoded beams are inconsistent (research R-2 B12: runs are followed across barlines; e.g. a `begin` that is never
 closed) is reported as `beamDataInvalid` and left as encoded (Verovio shows what it can); no beams are added to it. A
 voice with lyrics and no `<beam>` is left as encoded too (R-2 B13).
@@ -100,8 +102,8 @@ keeps passing).
 
 ## 8. Title block (FR-017, research R-4)
 
-`Score` gains `arranger: string | null` (`<creator type="arranger">`); `title` falls back to `<movement-title>` when
-there is no `<work-title>`. The worker summary carries `title`, `composer`, `arranger`.
+`Score` gains `arranger: string | null` (`<creator type="arranger">`); `title` is `<movement-title>`, else
+`<work-title>` (research R-4: the piece, not its collection). The worker summary carries `title`, `composer`, `arranger`.
 
 `TitleBlock` (UI, derived, not stored): `{ title: string /* else file name */; composer: string | null;
 arranger: string | null }`. Rendered once above page 1 in every mode; empty lines are omitted.

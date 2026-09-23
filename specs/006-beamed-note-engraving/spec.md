@@ -235,7 +235,8 @@ piece, and each "missing" row points to a fix in this feature or to a new, named
 **Opened scores**
 
 - **FR-010**: For a Score the user opens, the app MUST automatically, without asking, (a) beam every voice
-  that carries no beam information, by the grouping rules in Assumptions, and (b) show every accidental
+  that carries no beam information, by the grouping rules in Assumptions - except a sung line (a voice with
+  lyrics), whose unbeamed notes are the traditional one-flag-per-syllable notation (owner, 2026-09-23), and (b) show every accidental
   needed for the printed pitch to equal the played pitch (FR-006, FR-007) where the file prints none. This
   completion is for display only and applies in every Shell.
 - **FR-011**: Whatever the app completes for an opened Score MUST be listed in the load report (count of

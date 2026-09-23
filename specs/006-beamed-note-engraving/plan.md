@@ -24,7 +24,7 @@ FR-008). The same plan is used three ways:
    it would add anything.
 
 The title (FR-017) becomes a **title block** in the score view: an HTML element directly above page 1's first
-system, set in the engraving's serif, showing title (work title, else movement title, else file name), composer
+system, set in the engraving's serif, showing title (movement title, else work title, else file name), composer
 and arranger from the Score; Verovio is set to `header: 'none'` so nothing is drawn twice (R-4). US5 is a written
 engraving checklist.
 
@@ -56,7 +56,7 @@ used by the 001 load-time tests)
 | III | Score Fidelity | Seen = played = graded is the *goal* (FR-006). Opened files: only the render copy changes, the Score model and Note IDs are built from the untouched source. Library files: before/after identity golden (SC-003). Verovio stays the engraver. Bad beam data is left as encoded + notice. | PASS |
 | IV | Test-First | Rule tables tested pure in Node first; golden identity for all 58 library items; guard test; real-Verovio SVG assertions. Deterministic (no randomness, stable order). | PASS |
 | V | Layers | Module in `src/core` (no DOM, no Web APIs; works on the parse tree). Worker in `src/workers`, tool in `tools/library`. Browser works alone. | PASS |
-| VI | Musician-First Feedback | Load report entry is an info notice, non-modal (existing notice tray). | PASS |
+| VI | Musician-First Feedback | Load report entries are notices (one info, three warnings), non-modal (existing notice tray). | PASS |
 | VII | Pedagogy as Data | Not affected. | PASS |
 | VIII | Simplicity | No dependency; one module reused by worker, tool, generator and guard. P1 (US1+US2) is the library fix alone. | PASS |
 
@@ -100,11 +100,11 @@ src/core/score/load-report.ts      # CHANGE new info codes engravingCompleted, b
 src/core/library/exercise/generate.ts  # CHANGE pipe written XML through planEngraving('library') + applyInserts
 src/workers/score.worker.ts        # CHANGE plan('opened') -> render copy inserts + report entries
 src/workers/verovio.worker.ts      # CHANGE header 'none' (R-4)
-src/core/musicxml/build.ts         # CHANGE title fallback to <movement-title>; read <creator type="arranger">
+src/core/musicxml/build.ts         # CHANGE title from <movement-title>, else <work-title>; read <creator type="arranger">
 src/core/score/model.ts            # CHANGE Score.arranger: string | null
 src/ui/elements/mx-score-view.ts   # CHANGE title block above page 1 (scrolls with the music, wraps long titles)
 src/ui/styles/                     # CHANGE title block style (serif, centred title, composer/arranger right)
-src/ui/i18n/en.ts                  # CHANGE notice texts for the three new codes
+src/ui/i18n/en.ts                  # CHANGE notice texts for the four new codes
 tools/library/engrave.ts           # NEW  `pnpm library:engrave`: completes hand-written repertoire files in place
 tools/library/identity.ts          # NEW  captures the SC-003 identity golden (run once, before any library change)
 tools/library/audit.ts             # NEW  US5 element counts per repertoire piece (file + rendered SVG)

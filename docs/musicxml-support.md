@@ -10,7 +10,7 @@ This document lists the supported MusicXML elements.
 | Notes | `<pitch>` | Supported | |
 | Notes | `<rest>` | Supported | |
 | Notes | `<tie>` | Supported | |
-| Notes | `<beam>` | Supported | Shown as encoded; completed automatically when a voice has none |
+| Notes | `<beam>` | Supported | Shown as encoded; completed automatically when a voice has none (not for sung lines with lyrics) |
 | Notes | `<accidental>` | Supported | Shown as encoded; required and courtesy signs completed when missing |
 | Notes | `<grace>` | Supported | Acciaccatura and appoggiatura |
 | Notes | `<fingering>` | Supported | Engraved by Verovio; also read by Practice mode for its help overlay (feature 002) |

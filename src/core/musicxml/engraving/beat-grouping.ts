@@ -135,16 +135,13 @@ export function applyEighthExtensions(
   if (time?.beats.length !== 1) return [...groups];
   const [n] = time.beats;
 
-  if (time.beatType === 4 && n === 4 && groups.length === 4) {
-    const halves: Span[] = [
-      mergeIfQualifies(groups[0]!, groups[1]!, notes),
-      mergeIfQualifies(groups[2]!, groups[3]!, notes),
-    ].flat();
-    return halves;
+  const [g0, g1, g2, g3] = groups;
+  if (time.beatType === 4 && n === 4 && groups.length === 4 && g0 && g1 && g2 && g3) {
+    return [mergeIfQualifies(g0, g1, notes), mergeIfQualifies(g2, g3, notes)].flat();
   }
 
-  if (time.beatType === 4 && n === 3 && groups.length === 3) {
-    const whole = { start: groups[0]!.start, end: groups[2]!.end };
+  if (time.beatType === 4 && n === 3 && groups.length === 3 && g0 && g2) {
+    const whole = { start: g0.start, end: g2.end };
     const inWhole = notes.filter((nt) => nt.onset >= whole.start && nt.onset < whole.end);
     if (inWhole.length === 6 && inWhole.every(isPlainEighth)) return [whole];
     return [...groups];

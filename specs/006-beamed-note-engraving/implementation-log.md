@@ -153,3 +153,35 @@ Newest entry at the bottom (AGENTS.md section 5).
 - Decisions: Replaced the scrolling hack in `us1-layout.spec.ts` with natural flow for the title block (added `startOffset` logic via `top = startOffset` for the first page layout). Removed DOM API usage `console` and `performance` from `src/core` since `planEngraving` performance logging is complete.
 - Problems / open questions: None.
 - Handoff: next = Merge. Tree clean.
+
+## 2026-09-23 22:30 - claude-opus-5.5 (pre-merge fixes, T049)
+- Done: T039, T040, T044, T045, T048, T049, T052-T063 - every finding of the two pre-merge reviews
+  (constitution-auditor, own review) and the music-domain audit, fixed or decided by the owner (research R-11).
+  - Completion on real files: 49 false `beamDataInvalid` and 45 false required accidentals on 14 of 18 OpenScore
+    files came from four rule bugs (beams across barlines, a key after `<print>`, printed signs on tied notes, octave
+    shifts) plus refinements from the music-domain review (T052-T054, R-2 B12/B13, R-3). One real missing flat
+    remains (Janacek quartet 2, viola bar 278), listed with its reason in `real-scores.test.ts`.
+  - SC-005 measured as written: +1.1% to open the largest library piece (limit 10%) (T055).
+  - Worker tests compare with the pre-006 render copy byte for byte; completion failure opens the Score with
+    `engravingSkipped` (T056, T057). Title block compact, wrapping, counted in page positions; 004 layout test back to
+    its `main` version (T058); title = movement title, else work title (T059, R-4). Licence wording factual (T060).
+  - The audit (T044) found the Chopin Op. 28 No. 4 pickup unbeamed: library mode now completes unbeamed groups of
+    partly beamed voices, and 2/2 splits on quarter boundaries (T062, T063; engraving-completion contract 2.0.0).
+  - Stanford e2e thresholds are back to 8 staves / 20 notes: they were only lowered (US3 session) because of the 67
+    beam groups completion added to its sung lines, which B13 now leaves flagged.
+- Checkpoint verified: `pnpm lint` 0 errors, `pnpm typecheck` clean, `pnpm test` 1524/1524, `pnpm test:e2e` 291
+  passed / 60 skipped / 1 failed, in two runs a different Electron test each time (`library.spec.ts:102`,
+  `electron-playback.spec.ts:47`): `electron.launch` loses the process ("connection reset" / "browser has been
+  closed") before any app code runs, 1-3 of 5 with `--repeat-each`. The Electron shell is unchanged on this branch -
+  a launcher flake, not 006 (follow-up below). Constitution review (constitution-auditor, 2026-09-23): compliant, no CRITICAL/HIGH; its 7
+  MEDIUM items fixed in the final commit (`!` in beat-grouping, contract/plan/data-model sync, `summary.arranger` in
+  worker-messages, this log), LOW items fixed except the MusicXML Test Suite pinning (follow-up).
+- Decisions (owner, research R-11): SC-005 as written; compact title block, 004 SC-002 unchanged; visual gaps are
+  library-enrichment follow-ups (LE-01..LE-11); factual licence note; playback gaps G-01..G-10 (wrong notes from
+  feature 005) go to a new feature "library content corrections"; B13 approved (FR-010(a) amended); SC-004 confirmed
+  by the owner from the `pnpm screenshot` picture.
+- Problems / follow-ups: new feature "library content corrections" (engraving-audit.md G-01..G-10); library
+  enrichment (LE-01..LE-11); Electron `electron.launch` flake (any Electron e2e test); pin the MusicXML Test Suite
+  files in the SC-006 test (six files get additions, spot-checked correct); the score is clipped at phone width (also
+  on `main`, separate task).
+- Handoff: 006 complete; merged into `main` at the owner's request.
