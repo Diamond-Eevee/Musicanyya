@@ -1,4 +1,5 @@
 import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -45,8 +46,7 @@ describe('library index generation (contracts/library-index.md §4, FR-025)', ()
 
   it('T036: refuses an item with engraving findings', async () => {
     // Create a temporary library folder with one file missing a beam/accidental
-    const tmpLibrary = path.join(__dirname, 'tmp-library-guard');
-    fs.mkdirSync(tmpLibrary, { recursive: true });
+    const tmpLibrary = fs.mkdtempSync(path.join(os.tmpdir(), 'musicanyya-library-guard-'));
     try {
       const sectionDir = path.join(tmpLibrary, 'repertoire/beginner');
       fs.mkdirSync(sectionDir, { recursive: true });

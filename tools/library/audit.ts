@@ -8,48 +8,38 @@ import { handleMessage } from '../../src/workers/verovio.worker.js';
 
 let requestCounter = 0;
 
+type VerovioReply = { type: string; message?: string; pageCount?: number; svg?: string };
+/** The worker handler's own parameter types (tools/ compiles without the DOM lib, so no MessageEvent here). */
+type WorkerEvent = Parameters<typeof handleMessage>[0];
+type WorkerPost = Parameters<typeof handleMessage>[1];
+
+/** Sends one request to the Verovio worker's handler (run in-process) and returns its reply. */
+async function verovio(data: Record<string, unknown>): Promise<VerovioReply> {
+  let reply: VerovioReply | undefined;
+  const collect = (msg: VerovioReply) => {
+    reply = msg;
+  };
+  await handleMessage(
+    { data: { requestId: ++requestCounter, ...data } } as WorkerEvent,
+    collect as unknown as WorkerPost,
+  );
+  if (!reply || reply.type === 'error') throw new Error(`Verovio error: ${reply?.message ?? 'no reply'}`);
+  return reply;
+}
+
 async function initVerovio(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    handleMessage({ data: { type: 'init', requestId: ++requestCounter } } as any, (msg: any) => {
-      if (msg.type === 'ready') resolve();
-      else if (msg.type === 'error') reject(new Error(`Verovio error: ${msg.message}`));
-    });
-  });
+  await verovio({ type: 'init' });
 }
 
 async function renderSvg(renderXml: string): Promise<string> {
-  let laidOut = false;
-  let pageCount = 0;
-  await new Promise<void>((resolve, reject) => {
-    handleMessage(
-      {
-        data: {
-          type: 'load',
-          requestId: ++requestCounter,
-          renderXml,
-          options: { pageWidth: 2000, pageHeight: 2000, scale: 100, header: 'none' },
-        },
-      } as any,
-      (msg: any) => {
-        if (msg.type === 'laidOut') {
-          laidOut = true;
-          pageCount = msg.pageCount;
-          resolve();
-        } else if (msg.type === 'error') {
-          reject(new Error(msg.message));
-        }
-      },
-    );
+  const { pageCount = 0 } = await verovio({
+    type: 'load',
+    renderXml,
+    options: { pageWidth: 2000, pageHeight: 2000, scale: 100, header: 'none' },
   });
-
   let fullSvg = '';
-  for (let i = 1; i <= pageCount; i++) {
-    await new Promise<void>((resolve) => {
-      handleMessage({ data: { type: 'page', requestId: ++requestCounter, page: i } } as any, (msg: any) => {
-        if (msg.type === 'svg') fullSvg += msg.svg;
-        resolve();
-      });
-    });
+  for (let page = 1; page <= pageCount; page++) {
+    fullSvg += (await verovio({ type: 'page', page })).svg ?? '';
   }
   return fullSvg;
 }
@@ -72,12 +62,10 @@ function countXmlTags(node: XmlElement, tagNames: string[]): Record<string, numb
   const counts: Record<string, number> = {};
   for (const t of tagNames) counts[t] = 0;
 
-  function traverse(n: any) {
-    if (n instanceof XmlElement) {
-      // @ts-expect-error
-      if (counts[n.name] !== undefined) counts[n.name]++;
-      for (const child of n.children) traverse(child);
-    }
+  function traverse(n: XmlElement) {
+    const count = counts[n.name];
+    if (count !== undefined) counts[n.name] = count + 1;
+    for (const child of n.children) if (child instanceof XmlElement) traverse(child);
   }
   traverse(node);
   return counts;

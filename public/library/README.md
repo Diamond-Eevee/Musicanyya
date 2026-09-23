@@ -30,21 +30,29 @@ When a candidate score is turned away - wrong licence, fails to load, silent, ov
 levelled - the reason is recorded here rather than just discarded, so the decision is not repeated
 (FR-018).
 
-## Engraving Quality (FR-012)
+| Item | Reason |
+|---|---|
 
-The library demands fully engraved music that does not rely on the app's real-time layout fixes. Before writing the index, `planEngraving` checks every file. The file is rejected if it has:
-1. **Missing or inconsistent beams**: any 8th note (or shorter) that is part of a beamable rhythm must have valid `<beam>` tags.
-2. **Missing accidentals**: any altered pitch that needs a required or courtesy accidental must have an `<accidental>` tag.
+## Engraving: beams and accidentals (feature 006, FR-012)
 
-If an item fails, `pnpm library:index` reports the exact measure, staff, voice, and pitch that requires fixing. To fix it, you do not need to hand-edit the XML; instead, run the engraving tool to complete the missing beams and accidentals automatically:
+Library files must be fully engraved on disk: the app completes beams and accidentals only for scores a person
+opens, never for library items. `pnpm library:index` checks every file with `planEngraving` in library mode and
+refuses to write the index when a file has:
+
+1. **Missing or inconsistent beams**: an eighth note or shorter that belongs in a beam group without a `<beam>`, or
+   encoded beam data that does not open and close consistently.
+2. **Missing accidentals**: a pitch that needs a required or courtesy sign without an `<accidental>`.
+
+It names the file, bar, staff, voice and pitch to fix. `tests/library/engraving-guard.test.ts` holds the same line.
+Hand-edits are not needed: the engraving tool completes the files in place, adding only the missing `<beam>` and
+`<accidental>` elements and changing nothing else. Then regenerate the index:
 
 ```bash
 pnpm library:engrave
+pnpm library:index
 ```
-This tool edits the files in place, adding only the missing `beam` and `accidental` elements (this automated completion does not change the file's licence or copyright status). After engraving, run `pnpm library:index` again.
 
-| Item | Reason |
-|---|---|
+Generated exercises (`pnpm library:exercises`) come out completed already.
 
 ## Regenerating the index
 

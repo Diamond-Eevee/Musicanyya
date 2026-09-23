@@ -300,9 +300,9 @@ compact and 004 SC-002 stays; purely visual audit gaps are named follow-ups; the
 
 ### Documents
 
-- [ ] T060 THIRD_PARTY_NOTICES.md and `public/library/README.md`: the factual licence note (owner wording); move
+- [x] T060 THIRD_PARTY_NOTICES.md and `public/library/README.md`: the factual licence note (owner wording); move
   "Engraving Quality" after the rejected-candidates table.
-- [ ] T061 Clean up: remove `scratch.md`; fix the broken encoding and escapes in `implementation-log.md`; record the
+- [x] T061 Clean up: remove `scratch.md`; fix the broken encoding and escapes in `implementation-log.md`; record the
   Stanford threshold change (T034) with its reason; `tools/library/audit.ts` and `tests/library/index.test.ts`
   without `any`/`@ts-expect-error` and with temp files in the OS temp folder.
 
