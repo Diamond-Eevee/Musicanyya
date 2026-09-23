@@ -9,8 +9,11 @@ stems, rests and system bar numbers, and did not compare against the cited sourc
 - **Purely visual gaps** (a marking is missing or misprinted, but the notes, rhythm, ties and repeats that are
   played and graded are right) are **named follow-ups** (`LE-xx` below) for a future "library enrichment"
   feature. They are **not fixed in 006**.
-- **Every playback/grading gap** (wrong or missing pitch, rhythm, tie, repeat/volta/jump compared with the cited
-  source, `G-xx` below) **is fixed in 006** (FR-015), as new tasks numbered from T052.
+- **Playback/grading gaps** (wrong or missing pitch, rhythm, tie, repeat/volta/jump compared with the cited source,
+  `G-xx` below) were first to be fixed in 006. Once the audit showed they are content errors from feature 005 that need
+  re-transcription from the sources - not engraving gaps - the owner decided (2026-09-23): **006 merges; G-01..G-10
+  become a new feature, "library content corrections"**, with this audit as its worklist and each fix checked against
+  its source (FR-015: every row has a fix or a named follow-up).
 
 ## Summary
 
@@ -173,7 +176,7 @@ G-09 (the whole-piece repeat with two endings is left out, loosely disclosed as 
 "Gymnopedie" -> "Gymnopédie"; the title says "(arranged for this app)" but the sidecar says
 `"arrangement": false` -> LE-08.
 
-## Playback/grading gaps (fix in 006, new tasks from T052)
+## Playback/grading gaps (a new feature: library content corrections)
 
 Each of these makes the app play and grade notes that differ from the piece it names. Page and playback agree
 with each other (both come from the same MusicXML), so the fix is always in the library file, plus its sidecar
@@ -190,6 +193,7 @@ where the provenance text is wrong.
 | G-07 | innoc | 1-16 | LH differs from the source in bars 2-10 (source: F-G-D quarters bar 2, E-Bb-C bar 3, F-A-C / F-A-C# quarters bar 4, broken eighths Bb-C / A-C bars 9-10; file: plain triads); RH bar 11 is a descending 16th scale, source repeats bar 9's figure an octave higher (8va); RH bar 7 Ab-G-A-G sits an octave above the source line; the repeat of bars 1-8 with first/second endings is missing (the file plays the first-ending bar 8 and runs on); the whole piece may be an octave low (source `\relative c'''` for RH, `\relative c` for LH) | `25EF-05.ly`. Re-transcribe bars 1-11 and the repeat (voltas), check octaves against the Mutopia PDF, keep or redo the own close (bars 12-16); fix the sidecar claim "measures 1-11 checked note-by-note" |
 | G-08 | ch4 | 24-25 | The LH bass voice is missing: B1+B2 (beats 1-2) and B1+F#2+B2 (beats 3-4) in bar 24, E1+E2 (whole, fermata) in bar 25; only the RH cross-staff chords are encoded | `Chop-28-4.ly`: `\relative b,, { <b! b'!>2 <b b' fs> \| <e, e'>1 }`. Add the voice; also correct the sidecar ("1-eighth-note pickup" - the source pickup is a quarter, `b8. b'16`, as the file already has) |
 | G-09 | satie | 35-37 | The close skips two source bars: after C#5-D5-E5 (bar 35) the source repeats C#5-D5-E5 and holds F#4 (dotted half) before the two closing chords; the file goes straight to the chords | Mutopia 37, first ending: `g2. \| fis2. \| b,4 a b \| cis d e \| cis d e \| fis,2. \| <c' a e c>2. \| <d a fis d>2.`. Add the two bars and fix the sidecar ("33-37 our own close" - it is the source's first ending) |
+| G-10 | ch4 | 1-2 (at least) | The left hand has seven eighth chords per bar (2/2) instead of eight: the last one (beat 4.5) is missing, so the voice is an eighth short in every bar checked | Found at the T048 manual check (`pnpm screenshot`; the walk lists LH onsets 0..2880 only). Check every bar against `Chop-28-4.ly` and add the missing chords |
 
 Not gaps (disclosed arrangement choices, no action): `clem` repeat not taken; `feth` single-pass ending; `fecomp`
 sections written once; `arab` bar 31 landing raised an octave; `innoc` bars 12-16 own close; `fe16` bars 2-16 own

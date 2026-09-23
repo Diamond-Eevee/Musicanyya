@@ -238,7 +238,7 @@ fix or a named follow-up; every Score shows title/composer/arranger above page 1
   repeats/voltas/jumps, title block, system-start bar numbers).
 - [x] T044 [US5] Review each piece against its cited source with the `music-domain-expert` role; write
   `specs/006-beamed-note-engraving/engraving-audit.md` (piece x element: present / missing (bars) / not used).
-- [ ] T045 [US5] For each gap that contradicts playback or grading: fix it in this feature (new task numbers from
+- [x] T045 [US5] For each gap that contradicts playback or grading: fix it in this feature (new task numbers from
   T052); for purely visual gaps: list as named follow-ups and ask the owner (FR-015, AGENTS.md section 7).
 
 **Checkpoint**: audit complete, every row resolved; title block visible in every mode.
@@ -253,7 +253,7 @@ fix or a named follow-up; every Score shows title/composer/arranger above page 1
   (FR-016); keep `tests/core/musicxml/support-doc-sync.test.ts` green.
 - [x] T047 [P] `THIRD_PARTY_NOTICES.md` / `public/library/README.md`: note that library files were completed by the
   engraving tool (no licence change).
-- [ ] T048 Run quickstart.md manual verification for US1-US5 in Chrome; screenshot *Für Elise (theme)* next to
+- [x] T048 Run quickstart.md manual verification for US1-US5 in Chrome; screenshot *Für Elise (theme)* next to
   the owner's reference for SC-004.
 - [ ] T049 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; constitution review with
   `constitution-auditor` before merge; implementation-log entry.
