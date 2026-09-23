@@ -266,7 +266,12 @@ type Check =
   | { method: 'theory'; ruleSet: 'exercise-theory-v1'; expectedDifferences: 0 }
   | { method: 'visual'; source: string; bars: string /* "1-16" */; result: string; differences: string[] };
 
-interface Alignment { itemBars: string; sourceBars: string; staff?: number; voice?: string }
+interface Alignment {
+  itemBars: string; sourceBars: string;           // "1-8" or "all"
+  staff?: number; voice?: string;                 // item side
+  sourceStaff?: number; sourceVoice?: string;     // source side (e.g. the soprano of an SATB hymn)
+  transpose?: string;                             // melody checks: "-M2" = source D major -> item C major
+}
 ```
 
 **Rules**

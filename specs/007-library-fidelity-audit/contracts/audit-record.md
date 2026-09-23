@@ -56,7 +56,9 @@ folders, e.g. `content/library/audit/repertoire/advanced/chopin-prelude-op28-no4
                 "staff": { "type": "integer", "minimum": 1 },
                 "voice": { "type": "string" },
                 "sourceStaff": { "type": "integer", "minimum": 1 },
-                "sourceVoice": { "type": "string" }
+                "sourceVoice": { "type": "string" },
+                "transpose": { "type": "string", "pattern": "^[+-](P1|m2|M2|m3|M3|P4|A4|d5|P5|m6|M6|m7|M7|P8)$",
+                               "description": "melody checks only: the declared transposition from source to item, e.g. \"-M2\" for D major -> C major; applied to letters and alterations, so spelling is transposed too" }
               }
             },
             "expectedDifferences": { "type": "integer", "minimum": 0 },
