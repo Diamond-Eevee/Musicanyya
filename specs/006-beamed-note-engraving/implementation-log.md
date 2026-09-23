@@ -46,3 +46,23 @@ Newest entry at the bottom (AGENTS.md section 5).
   no action needed unless it doesn't clear by then.
 - Handoff: next = T012 (beat-grouping.test.ts, self-contained - no T005 fixture dependency) while T005 finishes in
   the background; then T013/T027 once T005 lands. Tree clean at commit 64ceed7.
+
+## 2026-09-23 16:20 - claude-sonnet-5
+- Done: T005 (all 9 engraving fixtures, delegated to music-domain-expert then verified/fixed one illegal
+  `--` in an XML comment), T012-T021, T027 (US1 checkpoint - Phase 3 complete). `beat-grouping.ts`
+  (R-2 B2/B3/B4), `beams.ts` (B5-B11), `plan.ts`'s beam half, `tools/library/engrave.ts`, generator
+  piped through completion, library regenerated and re-indexed, e2e extended.
+- Checkpoint verified: `pnpm test` 1424/1424 green (incl. `tests/library/identity.test.ts` SC-003 golden
+  unchanged, `tests/library/engraving-guard.test.ts` beam half now passing, `tests/verovio/engraving.test.ts`
+  real-Verovio beams+grace check); `pnpm typecheck` clean; `pnpm test:e2e -- tests/e2e/library.spec.ts
+  --project=chromium` passes (g.beam visible for Für Elise). `pnpm lint`: 1 error, pre-existing and
+  unrelated (`src/engine/worklets/dispatch.ts` unused `curTick`, present before this session).
+- Decisions: `beamSpans`/`applyEighthExtensions` split (research.md R-10) - B3/B2 stay pure, B4 needs note
+  content so it's a separate function. Beam completion findings are one per beam GROUP (anchored on the
+  level-1 `begin`), not one per note, so the library guard's failure message stays readable.
+- Problems / open questions: none blocking. Confirmed via real Verovio that B8 (a lone grace note between
+  two main notes does not break their beam group) holds - no rule flip needed.
+- Handoff: next = Phase 4 US2 (T022-T026, T050): accidentals.ts (R-3 A1-A7, C1-C4), including the
+  first/second-ending courtesy-memory special case, which needs walk.ts extended with `<barline>`/`<ending>`
+  markers (not yet captured - a new gap found while reviewing the accidentals.musicxml fixture, to fill in
+  T025). Tree clean at commit 9eb29a8.
