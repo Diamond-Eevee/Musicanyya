@@ -138,14 +138,20 @@ bracketed courtesy (owner chose plain).
 (`persName role="composer"/"arranger"`) but are not drawn.
 
 **Decision**: a **title block** in the score view (UI layer), directly above page 1's first system, scrolling with
-the music: title centred (work title, else movement title, else file name), composer right-aligned, arranger
-("arr. ...") below it, in the engraving's serif; long titles wrap. Verovio `header: 'none'`.
+the music: title centred (movement title, else work title, else file name), then composer and arranger ("arr. ...")
+on one right-aligned line, in the engraving's serif; long titles and the credits line wrap. Compact (owner, R-11):
+about 70 px for one title line. Verovio `header: 'none'`. **Title source (amended 2026-09-23)**: in all 18 OpenScore
+fixtures that name both, `<movement-title>` is the piece ("Sailing at Dawn", "Aus alten Märchen") and `<work-title>`
+the collection ("Songs of the Fleet, Op.117", "Dichterliebe, Op.48"), so the movement title comes first, as a printed
+song is headed; the first rule (work title first) would have titled a song by its collection.
 **Rationale**: the only way to show composer and arranger with the pinned Verovio; independent of Verovio
 versions; supports the file-name fallback; no dependency.
 **Alternatives**: `header: 'auto'` (title only - fails FR-017); injecting an MEI `<pgHead>` via `getMEI` + reload
 (doubles load time for large scores); upgrading Verovio (not shown to fix it; stack change needs the owner).
 **Consequence**: the block adds height before page 1; the feature 004 fit rule sizes pages, not the block, so the
-first screenful shows the block plus the top of page 1. Covered by the 004 layout e2e tests (re-run).
+first screenful shows the block plus the top of page 1. Every page position starts below the block's drawn height
+(`layoutPages` `startOffset`, measured after the block is drawn, T058), so scrolling, page mounting and the
+scroll-back after a relayout stay exact. Covered by the 004 layout e2e tests, unchanged (re-run).
 
 ## R-5. Where completion runs
 

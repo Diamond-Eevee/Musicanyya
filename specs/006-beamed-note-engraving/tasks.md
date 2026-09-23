@@ -216,10 +216,10 @@ fix or a named follow-up; every Score shows title/composer/arranger above page 1
 
 - [x] T038 [P] [US5] Test `tests/core/musicxml/build.test.ts`: `Score.arranger` from `<creator type="arranger">`;
   title falls back to `<movement-title>`; both null-safe.
-- [ ] T039 [P] [US5] Test `tests/ui/title-block.test.ts` (happy-dom): the score view renders a title block before
+- [x] T039 [P] [US5] Test `tests/ui/title-block.test.ts` (happy-dom): the score view renders a title block before
   page 1 with title, composer, "arr. <name>"; file-name fallback without a title; missing lines omitted; a long
   title wraps (no horizontal overflow).
-- [ ] T040 [P] [US5] Extend `tests/e2e/library.spec.ts`: *Für Elise (theme)* shows the title block text in Listen,
+- [x] T040 [P] [US5] Extend `tests/e2e/library.spec.ts`: *Für Elise (theme)* shows the title block text in Listen,
   Practice and Play; `tests/e2e/us1-layout.spec.ts` (feature 004) still passes with the block (SC-008).
 
 ### Title block - implementation
@@ -292,11 +292,11 @@ compact and 004 SC-002 stays; purely visual audit gaps are named follow-ups; the
 
 ### Title block (FR-017, owner decision: compact, 004 SC-002 unchanged)
 
-- [ ] T058 `mx-score-view.ts` / `score.css`: compact block (title, then composer and "arr." on one line), long titles
+- [x] T058 `mx-score-view.ts` / `score.css`: compact block (title, then composer and "arr." on one line), long titles
   wrap, narrow screens stack; the page offset is the block's measured height (no hard-coded 80 px); unit test for
   `layoutPages(..., startOffset)`; then T039 and T040.
-- [ ] T059 `build.ts`: title = `<work-title>`, else `<movement-title>` (R-4 as designed; no "movement - work"
-  joining); test in `tests/core/musicxml/build.test.ts`.
+- [x] T059 `build.ts`: title = `<movement-title>`, else `<work-title>` (R-4 amended: the piece, not its collection;
+  no "movement - work" joining); test in `tests/core/musicxml/build.test.ts`.
 
 ### Documents
 

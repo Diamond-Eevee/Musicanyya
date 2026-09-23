@@ -66,6 +66,8 @@ export class MxScoreView extends HTMLElement {
   private canvasEl!: HTMLCanvasElement;
   private measureIds: string[] = [];
   private layouts: PageLayout[] = [];
+  /** Drawn height of the title block above page 1, in CSS px; every page position starts below it. */
+  private titleBlockHeight = 0;
   private pageMeasureIds = new Map<number, string[]>();
   private mountedPages = new Set<number>();
   private scale = SCORE_SCALE_DEFAULT;
@@ -242,40 +244,15 @@ export class MxScoreView extends HTMLElement {
 
   private applyPageCount(pageCount: number) {
     this.domEpoch++;
-    const state = scoreState.getStatus();
-    const summary = state.kind === 'loaded' ? state.score.summary : null;
-    const titleBlockHeight = summary ? 80 : 0;
-    this.layouts = layoutPages(pageCount, this.pageHeightPx(), 0, titleBlockHeight);
     this.pageMeasureIds.clear();
     this.mountedPages.clear();
     this.stack.innerHTML = '';
 
-    const fileName = state.kind === 'loaded' ? state.score.fileName : null;
-    if (summary) {
-      const block = document.createElement('div');
-      block.className = 'mx-title-block';
-      const title = document.createElement('h1');
-      title.textContent = summary.title ?? fileName ?? en.score.unknown;
-      block.appendChild(title);
-      if (summary.composer || summary.arranger) {
-        const credits = document.createElement('div');
-        credits.className = 'mx-title-credits';
-        if (summary.composer) {
-          const comp = document.createElement('div');
-          comp.className = 'mx-title-composer';
-          comp.textContent = summary.composer;
-          credits.appendChild(comp);
-        }
-        if (summary.arranger) {
-          const arr = document.createElement('div');
-          arr.className = 'mx-title-arranger';
-          arr.textContent = en.score.arranger.replace('{name}', summary.arranger);
-          credits.appendChild(arr);
-        }
-        block.appendChild(credits);
-      }
-      this.stack.appendChild(block);
-    }
+    const block = this.createTitleBlock();
+    if (block) this.stack.appendChild(block);
+    // Page 1 starts below the title block, at its drawn height: a long title wraps onto more lines (FR-017).
+    this.titleBlockHeight = block?.offsetHeight ?? 0;
+    this.layouts = layoutPages(pageCount, this.pageHeightPx(), 0, this.titleBlockHeight);
 
     for (const layout of this.layouts) {
       const pageEl = document.createElement('div');
@@ -286,14 +263,44 @@ export class MxScoreView extends HTMLElement {
     }
   }
 
+  /** The title block above page 1 (FR-017, research R-4): the title centred, then composer and "arr. ..." on one
+   *  right-aligned line; missing lines are left out, a Score without a title shows its file name. */
+  private createTitleBlock(): HTMLElement | null {
+    const state = scoreState.getStatus();
+    if (state.kind !== 'loaded') return null;
+    const { summary, fileName } = state.score;
+    const block = document.createElement('div');
+    block.className = 'mx-title-block';
+    const title = document.createElement('h1');
+    title.textContent = summary.title ?? fileName ?? en.score.unknown;
+    block.appendChild(title);
+    if (summary.composer || summary.arranger) {
+      const credits = document.createElement('div');
+      credits.className = 'mx-title-credits';
+      if (summary.composer) {
+        const composer = document.createElement('span');
+        composer.className = 'mx-title-composer';
+        composer.textContent = summary.composer;
+        credits.appendChild(composer);
+      }
+      if (summary.arranger) {
+        const arranger = document.createElement('span');
+        arranger.className = 'mx-title-arranger';
+        arranger.textContent = en.score.arranger.replace('{name}', summary.arranger);
+        credits.appendChild(arranger);
+      }
+      block.appendChild(credits);
+    }
+    return block;
+  }
+
   /** The first rendered page tells the real page shape; re-measure the placeholders once if it differs. */
   private adoptRenderedAspect(aspect: number | null): void {
     if (aspect === null || aspect === this.pageAspect) return;
     this.pageAspect = aspect;
     const height = this.pageHeightPx();
     if (this.layouts.length === 0 || this.layouts[0]?.height === height) return;
-    const titleBlockHeight = this.stack.querySelector('.mx-title-block') ? 80 : 0;
-    this.layouts = layoutPages(this.layouts.length, height, 0, titleBlockHeight);
+    this.layouts = layoutPages(this.layouts.length, height, 0, this.titleBlockHeight);
     for (const layout of this.layouts) {
       const pageEl = this.stack.querySelector<HTMLElement>(`[data-page="${layout.page}"]`);
       if (pageEl) pageEl.style.height = `${layout.height}px`;

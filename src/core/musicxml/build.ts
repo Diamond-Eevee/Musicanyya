@@ -136,16 +136,13 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
     defaultTempoUsed: false,
   };
 
+  // The title names the piece: <movement-title> (a song or movement), else <work-title> (a single-work file, or the
+  // collection when no movement is named). Research R-4.
   const movementTitle = getChild(root, 'movement-title');
-  const mt = movementTitle ? getText(movementTitle) : '';
   const work = getChild(root, 'work');
-  const wt = work ? getText(getChild(work, 'work-title')) : '';
-
-  if (mt && wt && mt !== wt) {
-    score.title = `${mt} - ${wt}`;
-  } else {
-    score.title = mt || wt || null;
-  }
+  const mt = movementTitle ? getText(movementTitle).trim() : '';
+  const wt = work ? getText(getChild(work, 'work-title')).trim() : '';
+  score.title = mt || wt || null;
 
   const identification = getChild(root, 'identification');
   if (identification) {

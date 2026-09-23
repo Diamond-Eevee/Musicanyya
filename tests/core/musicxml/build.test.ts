@@ -120,6 +120,29 @@ describe('title block metadata (US5)', () => {
     expect(score.arranger).toBe(null);
   });
 
+  it('T059: with both, the title is the <movement-title> - the piece, not its collection (research R-4)', () => {
+    // As in every OpenScore song and movement: work = "Songs of the Fleet, Op.117", movement = "Sailing at Dawn".
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+      <score-partwise version="3.1">
+        <work><work-title>Kinderszenen, Op.15</work-title></work>
+        <movement-title>Träumerei</movement-title>
+        <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+        <part id="P1"><measure number="1"><note><rest/><duration>1</duration></note></measure></part>
+      </score-partwise>`;
+    expect(buildScore(readXml(xml).doc).score.title).toBe('Träumerei');
+  });
+
+  it('T059: an empty <movement-title> falls back to <work-title>', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+      <score-partwise version="3.1">
+        <work><work-title>Für Elise, WoO 59</work-title></work>
+        <movement-title>  </movement-title>
+        <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+        <part id="P1"><measure number="1"><note><rest/><duration>1</duration></note></measure></part>
+      </score-partwise>`;
+    expect(buildScore(readXml(xml).doc).score.title).toBe('Für Elise, WoO 59');
+  });
+
   it('tolerates missing everything (null-safe)', () => {
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
       <score-partwise version="3.1">

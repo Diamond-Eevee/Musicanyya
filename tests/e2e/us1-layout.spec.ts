@@ -82,7 +82,6 @@ test.describe('US1: enough music at once (SC-002)', () => {
   test('at 1920x1080 at least two systems of a two-staff score are fully inside the viewport', async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     await openScore(page, 'large-score.musicxml');
-    // US5: Title block is now counted in layoutPages and takes ~80px, systems fit naturally.
 
     await expect
       .poll(

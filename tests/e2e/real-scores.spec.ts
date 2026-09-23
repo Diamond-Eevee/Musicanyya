@@ -55,7 +55,7 @@ const LIEDER: RealScore[] = [
     minNotes: 20,
     minBeamsOrFlags: 1,
     minPages: 20,
-    heading: 'Mörike-Lieder',
+    heading: 'Auf einer Wanderung', // the song (movement-title), not its collection Mörike-Lieder (006 R-4)
   },
   {
     file: 'faure-les-roses-dispahan.mxl',
