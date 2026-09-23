@@ -123,7 +123,7 @@ library check reports 0 wrong-reading notes (today 117 in 21 items).
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T022 [P] [US2] Test `tests/core/musicxml/engraving/accidentals.test.ts` over `accidentals.musicxml`: R-3
+- [x] T022 [P] [US2] Test `tests/core/musicxml/engraving/accidentals.test.ts` over `accidentals.musicxml`: R-3
   A1-A7 (cross-voice staff state, per-octave, ties across barline, key change mid-bar resets, chord F/F♯ both
   signed, double sharp -> sharp, grace accidental lasts the bar), C1-C4 (courtesy only first occurrence in the
   next bar, any octave, not on tied continuations, ending 2 considers the bar before ending 1), modes: `'library'`

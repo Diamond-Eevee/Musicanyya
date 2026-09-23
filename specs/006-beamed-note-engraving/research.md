@@ -189,6 +189,20 @@ beat-grouping or accidentals).
 change takes effect at, which R-3 A2 needs); per-onset event stream merged with notes (more general but not
 needed by any rule in R-2/R-3, added complexity deferred until a rule actually needs it).
 
+**Decision** (`accidentals.ts`, T025): C1's courtesy memory is *the previous bar specifically* - a letter absent
+from the immediately preceding bar has no defined memory for C2 to compare against, even if that letter appeared
+several bars earlier. Implemented by replacing the whole memory map at each bar boundary (not merging the new
+bar's letters into the old map), so an absent letter's old value is forgotten rather than carried forward
+indefinitely.
+**Rationale**: caught by a fixture case the first implementation got wrong: `accidentals.musicxml` measure 9's C5
+(sharp, matching the key) sits several bars after the last bar that wrote a *different* alteration of C (a
+required natural, measure 3) but with measures 4-8 never touching the letter C in between - a "carry forward
+until next use" memory wrongly added a courtesy sharp there; only "previous bar strictly" agrees with the
+fixture's own intended reading and with R-3's literal wording ("the previous bar used a different alteration").
+**Alternatives**: accumulate/merge across bars, letting a letter's last-seen value persist indefinitely
+(rejected - wrong per the fixture case above, and would make courtesy signs appear arbitrarily far from the
+change they are supposed to remind the reader about).
+
 **Decision**: `beat-grouping.ts` exports two functions, not one. `beamSpans(time, measureLength, implicit, ppq)`
 stays pure (no note content) and returns only the R-2 B3 baseline groups (with B2 pickup end-alignment applied).
 A second function, `applyEighthExtensions(time, groups, notes)`, takes the baseline groups plus the measure's

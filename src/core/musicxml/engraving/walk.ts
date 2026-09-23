@@ -91,6 +91,9 @@ export interface MeasureContext {
   keyByStaff: Map<number, number>;
   /** Further key/time changes after measure start, in onset order (R-3 A2 mid-bar key reset). */
   midBarChanges: MidBarChange[];
+  /** Numbered endings (`<ending type="start">`) that begin at this measure's barline (R-3 C1's
+   *  first/second-ending courtesy-memory special case), e.g. `[1]` or `[2, 3]`. */
+  endingStarts: number[];
 }
 
 export interface PartWalk {
@@ -245,6 +248,7 @@ export function walkScore(doc: XmlDocument): WalkResult {
       let timeAtStart = currentTime;
       let startSnapshotTaken = false;
       const midBarChanges: MidBarChange[] = [];
+      const endingStarts: number[] = [];
 
       for (const el of measureNode.children) {
         if (!(el instanceof XmlElement)) continue;
@@ -301,6 +305,15 @@ export function walkScore(doc: XmlDocument): WalkResult {
               ...(keyChanged ? { keyByStaff: new Map(keyByStaff) } : {}),
               ...(timeChanged ? { time: currentTime } : {}),
             });
+          }
+        } else if (el.name === 'barline') {
+          for (const endingEl of getChildren(el, 'ending')) {
+            if (getAttr(endingEl, 'type') !== 'start') continue;
+            const numbers = (getAttr(endingEl, 'number') || '')
+              .split(/[,.-]/)
+              .map((n) => parseInt(n, 10))
+              .filter((n) => !Number.isNaN(n));
+            endingStarts.push(...numbers);
           }
         } else if (el.name === 'backup') {
           const durTxt = getText(getChild(el, 'duration'));
@@ -419,6 +432,7 @@ export function walkScore(doc: XmlDocument): WalkResult {
         lengthDivisions: measureMaxCursor - measureStartCursor,
         keyByStaff: keyByStaffAtStart,
         midBarChanges,
+        endingStarts,
       });
 
       cursor = measureMaxCursor;
