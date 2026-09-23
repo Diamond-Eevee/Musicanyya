@@ -129,9 +129,41 @@ pnpm electron:build   # desktop build (electron-builder)
 pnpm library:exercises # regenerate the exercise families from content/library/exercises/*.json
 pnpm library:engrave  # complete hand-written repertoire files in place (beams + accidentals)
 pnpm library:index    # regenerate public/library/index.json from the files on disk
+pnpm screenshot       # open the app headless and save a PNG (see "Running and seeing the app" below)
 ```
 
 Tests use fakes (fake clock, fake MIDI input, offline rendering, recorded Performance logs), never real devices.
+
+### Running and seeing the app (manual verification)
+
+Every quickstart has a "Manual verification" section. An agent does it by looking at the app, not by assuming the
+e2e tests cover it. Use the first option that works for you:
+
+1. **`pnpm screenshot`** (any agent with a shell, no browser tool needed). `tools/dev/screenshot.ts` starts its own
+   Vite dev server, opens the app in the Chromium that Playwright installed for `pnpm test:e2e`, and writes a PNG
+   under `test-results/screenshots/` (git-ignored). It also prints the load notices and any browser console errors.
+
+   ```text
+   pnpm screenshot -- --item repertoire/intermediate/fur-elise-theme      # a library item (its id in index.json)
+   pnpm screenshot -- --file tests/fixtures/musicxml/engraving/fur-elise-bare.musicxml   # drop a local file
+   pnpm screenshot -- --item <id> --width 1280 --height 720 --full --out test-results/screenshots/x.png
+   ```
+
+   Then open the PNG with your image-reading tool and describe what you see against the quickstart step.
+   Library ids are the `id` fields in `public/library/index.json`. If Chromium is missing, run
+   `pnpm exec playwright install chromium` once; it is the same browser the e2e suite uses.
+2. **Your tool's own browser** (the Claude desktop built-in browser, Antigravity's browser, etc.). Start the server
+   the way your tool starts servers (Claude: `preview_start` with `musicanyya-dev` from `.claude/launch.json`;
+   elsewhere `pnpm dev` as a background process) and open http://localhost:5173. If the browser cannot launch
+   (for example Antigravity's browser subagent failing to download its driver with a 404), do not stop: fall back
+   to option 1.
+3. **Ask the owner** only for what a picture cannot show: sound, a real MIDI keyboard, or the owner's own
+   reference image (for example SC-004 compares with a picture only the owner has). Say exactly which step you
+   need, and attach your screenshot.
+
+Interactions the script does not cover (switching mode, pressing Play, looping) can be scripted the same way
+Playwright e2e tests do it; reuse the selectors in `tests/e2e/helpers/`. A throwaway script belongs in your
+scratch space, not the repository.
 
 ## R8. Git conventions
 

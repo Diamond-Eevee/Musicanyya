@@ -131,3 +131,19 @@ Newest entry at the bottom (AGENTS.md section 5).
 - Decisions: None.
 - Problems / open questions: Browser subagent couldn't launch Chrome (404 for driver). Needs manual browser check.
 - Handoff: next = manual verification (T048) by owner, followed by merging if approved. Tree clean.
+
+## 2026-09-23 18:30 - claude-opus-5.5 (review)
+- Done: pre-merge review of T028-T049 (constitution-auditor + own review); new `pnpm screenshot`
+  (`tools/dev/screenshot.ts`) so any agent can do quickstart manual checks without a browser tool (AGENTS.md,
+  reference R7, README, quickstart). First look at T048: *Für Elise (theme)* and `fur-elise-bare` both render
+  beamed with correct accidentals; the bare file shows one info notice.
+- Problems / open questions: **not ready to merge.** The full gate is green, but: title block is not counted in
+  page positions (`pages.ts` tops start at 0) and `us1-layout.spec.ts` was changed to scroll past it (004 SC-002);
+  T028 tests cannot fail (Note ID comparison missing; broken/partly-beamed checks pass on pre-feature code);
+  completion warns `beamDataInvalid` on OpenScore quartets (Grosse Fuge 25, Mayer 15, Mozart 6, Janacek 3) and adds
+  required accidentals to 14 of 18 real files (SC-006) - needs `music-domain-expert`; T033/T036/T039/T040 ticked with
+  parts missing; hard-coded 'Unknown' / 'arr.' strings; mojibake in this log's earlier entries.
+- needs owner: SC-005 (open time +37% vs 10% allowed); T045 visual gaps as follow-ups; licence wording in
+  THIRD_PARTY_NOTICES/library README; compact title block vs amending 004 SC-002; SC-004 reference comparison.
+- Handoff: next = fix the findings above (un-tick T033, T036, T039, T040, T049 when starting), then T048, then gate
+  and merge. Do not merge before that.

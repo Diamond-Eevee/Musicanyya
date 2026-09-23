@@ -17,7 +17,10 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm test:e2e   # full gate
 
 ## Manual verification
 
-Start `pnpm dev`, open Chrome at http://localhost:5173.
+Start `pnpm dev`, open Chrome at http://localhost:5173. Agents without a working browser tool:
+`pnpm screenshot -- --item repertoire/intermediate/fur-elise-theme` and
+`pnpm screenshot -- --file tests/fixtures/musicxml/engraving/fur-elise-bare.musicxml`, then look at the PNGs
+(`docs/agents/reference.md` R7, "Running and seeing the app").
 
 ### US1 - beams
 

@@ -28,6 +28,8 @@ and Web MIDI.
 1. Install dependencies: `pnpm install`
 2. Run web app locally: `pnpm dev`
 3. Run desktop app locally: `pnpm electron:dev`
+4. Take a screenshot without opening a browser: `pnpm screenshot -- --item repertoire/intermediate/fur-elise-theme`
+   (or `-- --file <score.musicxml>`); the PNG lands in `test-results/screenshots/`
 
 ### Testing and Quality Gates
 
