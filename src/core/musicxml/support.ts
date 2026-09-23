@@ -12,6 +12,18 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
   { category: 'Notes', element: '<pitch>', status: 'Supported', notes: '' },
   { category: 'Notes', element: '<rest>', status: 'Supported', notes: '' },
   { category: 'Notes', element: '<tie>', status: 'Supported', notes: '' },
+  {
+    category: 'Notes',
+    element: '<beam>',
+    status: 'Supported',
+    notes: 'Shown as encoded; completed automatically when a voice has none',
+  },
+  {
+    category: 'Notes',
+    element: '<accidental>',
+    status: 'Supported',
+    notes: 'Shown as encoded; required and courtesy signs completed when missing',
+  },
   { category: 'Notes', element: '<grace>', status: 'Supported', notes: 'Acciaccatura and appoggiatura' },
   {
     category: 'Notes',
@@ -101,6 +113,24 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
     element: '<figured-bass>',
     status: 'Ignored',
     notes: 'Figured-bass numerals: engraved by Verovio, not played and not graded',
+  },
+  {
+    category: 'Credits',
+    element: '<creator type="arranger">',
+    status: 'Supported',
+    notes: 'Not drawn by the engraver; shown in the UI title block instead',
+  },
+  {
+    category: 'Credits',
+    element: '<movement-title>',
+    status: 'Supported',
+    notes: 'Not drawn by the engraver; shown in the UI title block instead',
+  },
+  {
+    category: 'Credits',
+    element: '<credit>',
+    status: 'Ignored',
+    notes: 'Not drawn by the engraver; UI title block used instead',
   },
 ];
 

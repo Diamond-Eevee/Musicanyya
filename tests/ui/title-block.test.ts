@@ -18,12 +18,7 @@ describe('title block (US5)', () => {
     vi.restoreAllMocks();
   });
 
-  function setSummary(
-    title: string | null,
-    composer: string | null,
-    arranger: string | null,
-    fileName = 'test.xml',
-  ) {
+  function setSummary(title: string | null, composer: string | null, arranger: string | null, fileName = 'test.xml') {
     scoreState.succeeded({
       fileName,
       summary: {

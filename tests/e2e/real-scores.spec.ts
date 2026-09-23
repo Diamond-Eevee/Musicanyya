@@ -168,8 +168,8 @@ async function firstPage(page: Page) {
       measures: measures.length,
       barLines: count('g.barLine'),
       staffLines: count('g.staff path'),
-      titleBlocks: count('g.pgHead'),
-      headText: (svg.querySelector('g.pgHead')?.textContent ?? '').replace(/\s+/g, ' ').trim(),
+      titleBlocks: document.querySelectorAll('.mx-title-block').length,
+      headText: (document.querySelector('.mx-title-block')?.textContent ?? '').replace(/\s+/g, ' ').trim(),
       // Constitution III: Note ID = SVG id, so the schedule, the cursor and a Grade all address the
       // same element. An engraved note still carrying the encoder's own id would break that.
       notesWithOurId: notes.filter((n) => /^n-p\d+-/.test(n.id)).length,
@@ -228,11 +228,9 @@ function engravingTests(scores: RealScore[]) {
       expect(first.measures, 'measures').toBeGreaterThan(0);
       expect(first.barLines, 'barlines').toBeGreaterThanOrEqual(first.measures);
 
-      // The title block Verovio engraves from the file's own credits (FR-002).
-      if (score.heading === null) {
-        expect(first.titleBlocks, 'this file carries no credits to engrave').toBe(0);
-      } else {
-        expect(first.titleBlocks, 'title block').toBe(1);
+      // US5 Title block: the UI always renders a title block (falling back to filename if missing).
+      expect(first.titleBlocks, 'title block').toBe(1);
+      if (score.heading !== null) {
         expect(first.headText).toContain(score.heading);
       }
 

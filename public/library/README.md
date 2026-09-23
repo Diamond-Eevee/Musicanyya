@@ -36,7 +36,12 @@ The library demands fully engraved music that does not rely on the app's real-ti
 1. **Missing or inconsistent beams**: any 8th note (or shorter) that is part of a beamable rhythm must have valid `<beam>` tags.
 2. **Missing accidentals**: any altered pitch that needs a required or courtesy accidental must have an `<accidental>` tag.
 
-If an item fails, `pnpm library:index` reports the exact measure, staff, voice, and pitch that requires fixing. Fix the MusicXML source file and run it again.
+If an item fails, `pnpm library:index` reports the exact measure, staff, voice, and pitch that requires fixing. To fix it, you do not need to hand-edit the XML; instead, run the engraving tool to complete the missing beams and accidentals automatically:
+
+```bash
+pnpm library:engrave
+```
+This tool edits the files in place, adding only the missing `beam` and `accidental` elements (this automated completion does not change the file's licence or copyright status). After engraving, run `pnpm library:index` again.
 
 | Item | Reason |
 |---|---|

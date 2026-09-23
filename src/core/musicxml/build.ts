@@ -1,34 +1,9 @@
 import type { XmlDocument } from '@rgrove/parse-xml';
 import { XmlElement, XmlText } from '@rgrove/parse-xml';
-import {
-  ACCENT_BOOST,
-  BASE_PPQ,
-  DEFAULT_TEMPO_QPM,
-  DEFAULT_VELOCITY,
-  DYNAMIC_VELOCITY,
-  GRACE_MAX_STEAL_RATIO,
-  INFER_JUMPS_FROM_TEXT,
-  SFORZANDO_BOOST,
-} from '../defaults.js';
+import { BASE_PPQ, DEFAULT_TEMPO_QPM, DYNAMIC_VELOCITY, INFER_JUMPS_FROM_TEXT } from '../defaults.js';
 import { applyTransposition, getMidiKey, getUnpitchedDisplayKey } from '../pitch.js';
 import type { LoadNoticeCode, LoadReport, LoadReportEntry, Severity } from '../score/load-report.js';
-import type {
-  DynamicMark,
-  EndingMark,
-  Fingering,
-  Instrument,
-  Jump,
-  JumpTarget,
-  MeasureInfo,
-  NavigationMarks,
-  Note,
-  Part,
-  RepeatMark,
-  Score,
-  TempoMark,
-  Transposition,
-  Wedge,
-} from '../score/model.js';
+import type { Fingering, Instrument, Note, Part, Score, Transposition, Wedge } from '../score/model.js';
 import { buildMeasureId, buildNoteId } from '../score/note-id.js';
 import { computePPQ, reduceFraction } from '../ticks.js';
 import { MusicXmlLoadError } from './load-error.js';
@@ -124,7 +99,7 @@ function durationToTicks(
 export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport } {
   const report = new ReportBuilder();
   const root = doc.children.find((c): c is XmlElement => c instanceof XmlElement);
-  if (!root || root.name !== 'score-partwise') {
+  if (root?.name !== 'score-partwise') {
     throw new MusicXmlLoadError('notMusicXml', 'Expected a score-partwise MusicXML file.');
   }
 
@@ -132,7 +107,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
   function gatherDivisions(el: XmlElement) {
     if (el.name === 'divisions') {
       const d = parseInt(getText(el), 10);
-      if (!isNaN(d) && d > 0) divisions.push(d);
+      if (!Number.isNaN(d) && d > 0) divisions.push(d);
     }
     el.children.forEach((c) => {
       if (c instanceof XmlElement) gatherDivisions(c);
@@ -145,7 +120,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
     if (divisions.length > 0) {
       ppq = computePPQ(divisions);
     }
-  } catch (e) {
+  } catch (_e) {
     report.add('warning', 'timingRounded', '0', undefined, 'PPQ exceeded MAX_PPQ');
   }
 
@@ -161,11 +136,15 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
     defaultTempoUsed: false,
   };
 
+  const movementTitle = getChild(root, 'movement-title');
+  const mt = movementTitle ? getText(movementTitle) : '';
   const work = getChild(root, 'work');
-  if (work) score.title = getText(getChild(work, 'work-title')) || null;
-  if (!score.title) {
-    const movementTitle = getChild(root, 'movement-title');
-    if (movementTitle) score.title = getText(movementTitle) || null;
+  const wt = work ? getText(getChild(work, 'work-title')) : '';
+
+  if (mt && wt && mt !== wt) {
+    score.title = `${mt} - ${wt}`;
+  } else {
+    score.title = mt || wt || null;
   }
 
   const identification = getChild(root, 'identification');
@@ -203,10 +182,10 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           let program = parseInt(programTxt, 10);
           let fallback = false;
           // A pure percussion instrument legitimately has no midi-program (it sounds via midi-unpitched).
-          if (!percussion && (isNaN(program) || program < 1 || program > 128)) {
+          if (!percussion && (Number.isNaN(program) || program < 1 || program > 128)) {
             program = 1;
             fallback = true;
-          } else if (isNaN(program) || program < 1 || program > 128) {
+          } else if (Number.isNaN(program) || program < 1 || program > 128) {
             program = 1;
           }
 
@@ -231,10 +210,10 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
         const percussion = (channelTxt ? parseInt(channelTxt, 10) : 0) === 10;
         let program = parseInt(programTxt, 10);
         let fallback = false;
-        if (!percussion && (isNaN(program) || program < 1 || program > 128)) {
+        if (!percussion && (Number.isNaN(program) || program < 1 || program > 128)) {
           program = 1;
           fallback = true;
-        } else if (isNaN(program) || program < 1 || program > 128) {
+        } else if (Number.isNaN(program) || program < 1 || program > 128) {
           program = 1;
         }
         instruments.push({
@@ -837,7 +816,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
               ? timeOnlyAttr
                   .split(',')
                   .map((n) => parseInt(n.trim(), 10))
-                  .filter((n) => !isNaN(n))
+                  .filter((n) => !Number.isNaN(n))
               : undefined;
             const dacapo = getAttr(sound, 'dacapo');
             if (dacapo)
@@ -892,7 +871,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
               ? numAttr
                   .split(/[,.-]/)
                   .map((n) => parseInt(n, 10))
-                  .filter((n) => !isNaN(n))
+                  .filter((n) => !Number.isNaN(n))
               : [];
             score.navigation.endings.push({ measureIndex: currentMeasureIndex, type, numbers });
           }

@@ -47,8 +47,8 @@
 No gaps were found that contradict playback or grading (pitches, rests, ties, and repeats are present).
 
 The following purely visual/pedagogical gaps were found across the library and are recorded as named follow-ups:
-1. **Slurs & Phrase Marks**: Missing from the MusicXML. Should they be added to the `.musicxml` files to match printed editions?
-2. **Articulations** (staccato, accents, etc.): Missing. Should they be added?
-3. **Fingering**: Missing. (Is this deferred to the future Advice files feature as per Constitution VII?)
+1. **Slurs & Phrase Marks**: Missing from the MusicXML.
+2. **Articulations** (staccato, accents, etc.): Missing.
+3. **Fingering**: Missing.
 
-**Owner Decision Needed**: Are we okay to leave these visual gaps as follow-ups for a future library-enrichment task, or must they be addressed in this feature?
+**Decision (T045)**: The owner requested to try to fix visual gaps if possible. However, because this data is completely absent from the source MusicXML files and cannot be algorithmically deduced without a pedagogical model, it is not possible to fix programmatically in this feature. These gaps require manual data entry and remain recorded as follow-ups for a future library enrichment task.

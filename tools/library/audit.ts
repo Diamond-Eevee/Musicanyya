@@ -88,16 +88,33 @@ async function auditLibrary(libraryRoot: string) {
   const files = findMusicXmlFiles(path.join(libraryRoot, 'repertoire'), libraryRoot);
 
   const tagsToCount = [
-    'beam', 'accidental', 'stem', 'rest', 'tie', 'slur', 'dynamics', 'wedge',
-    'words', 'metronome', 'articulations', 'fingering', 'pedal', 'ornaments',
-    'repeat', 'ending', 'movement-title', 'work-title', 'creator', 'print'
+    'beam',
+    'accidental',
+    'stem',
+    'rest',
+    'tie',
+    'slur',
+    'dynamics',
+    'wedge',
+    'words',
+    'metronome',
+    'articulations',
+    'fingering',
+    'pedal',
+    'ornaments',
+    'repeat',
+    'ending',
+    'movement-title',
+    'work-title',
+    'creator',
+    'print',
   ];
 
   for (const relFile of files) {
     const filePath = path.join(libraryRoot, relFile);
     const xml = decodeXml(fs.readFileSync(filePath));
     const { doc } = readXml(xml);
-    const root = doc.children.find(c => c instanceof XmlElement) as XmlElement;
+    const root = doc.children.find((c) => c instanceof XmlElement) as XmlElement;
     const xmlCounts = countXmlTags(root, tagsToCount);
 
     const svg = await renderSvg(xml);
@@ -119,12 +136,24 @@ async function auditLibrary(libraryRoot: string) {
       ornam: (svg.match(/class="ornam"/g) || []).length,
       repeat: (svg.match(/class="repeat"/g) || []).length,
       ending: (svg.match(/class="ending"/g) || []).length,
-      measureText: (svg.match(/class="measure"[^>]*>[\s\S]*?<text/g) || []).length
+      measureText: (svg.match(/class="measure"[^>]*>[\s\S]*?<text/g) || []).length,
     };
 
     console.log(`\n=== ${relFile} ===`);
-    console.log(`XML tags: ` + Object.entries(xmlCounts).filter(([_, c]) => c > 0).map(([k, c]) => `${k}:${c}`).join(', '));
-    console.log(`SVG clss: ` + Object.entries(svgCounts).filter(([_, c]) => c > 0).map(([k, c]) => `${k}:${c}`).join(', '));
+    console.log(
+      `XML tags: ` +
+        Object.entries(xmlCounts)
+          .filter(([_, c]) => c > 0)
+          .map(([k, c]) => `${k}:${c}`)
+          .join(', '),
+    );
+    console.log(
+      `SVG clss: ` +
+        Object.entries(svgCounts)
+          .filter(([_, c]) => c > 0)
+          .map(([k, c]) => `${k}:${c}`)
+          .join(', '),
+    );
   }
 }
 

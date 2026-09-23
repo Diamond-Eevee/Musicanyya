@@ -10,6 +10,8 @@ This document lists the supported MusicXML elements.
 | Notes | `<pitch>` | Supported | |
 | Notes | `<rest>` | Supported | |
 | Notes | `<tie>` | Supported | |
+| Notes | `<beam>` | Supported | Shown as encoded; completed automatically when a voice has none |
+| Notes | `<accidental>` | Supported | Shown as encoded; required and courtesy signs completed when missing |
 | Notes | `<grace>` | Supported | Acciaccatura and appoggiatura |
 | Notes | `<fingering>` | Supported | Engraved by Verovio; also read by Practice mode for its help overlay (feature 002) |
 | Time & Repeats | `<repeat>` | Supported | Backward and forward repeats. Note: middle-barline repeats not supported |
@@ -30,3 +32,6 @@ This document lists the supported MusicXML elements.
 | Notes | `<accidental-mark>` | Ignored | The accidental printed over an ornament: engraved by Verovio, ignored by the time model |
 | Harmony | `<harmony>` | Ignored | Chord symbols above the staff: engraved by Verovio, not played and not graded |
 | Harmony | `<figured-bass>` | Ignored | Figured-bass numerals: engraved by Verovio, not played and not graded |
+| Credits | `<creator type="arranger">` | Supported | Not drawn by the engraver; shown in the UI title block instead |
+| Credits | `<movement-title>` | Supported | Not drawn by the engraver; shown in the UI title block instead |
+| Credits | `<credit>` | Ignored | Not drawn by the engraver; UI title block used instead |

@@ -130,7 +130,7 @@ export function applyEighthExtensions(
   groups: readonly Span[],
   notes: readonly GroupableNote[],
 ): Span[] {
-  if (!time || time.beats.length !== 1) return [...groups];
+  if (time?.beats.length !== 1) return [...groups];
   const [n] = time.beats;
 
   if (time.beatType === 4 && n === 4 && groups.length === 4) {

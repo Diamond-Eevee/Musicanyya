@@ -201,7 +201,7 @@ function parseKeyElement(keyEl: XmlElement): number {
 
 export function walkScore(doc: XmlDocument): WalkResult {
   const root = doc.children.find((c): c is XmlElement => c instanceof XmlElement);
-  if (!root || root.name !== 'score-partwise') {
+  if (root?.name !== 'score-partwise') {
     return { ppq: 960, parts: [] };
   }
 
