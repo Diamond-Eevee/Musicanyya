@@ -31,7 +31,15 @@ export interface WrittenPitch {
   /** Rounded to the nearest integer; fractional (microtonal) alter is flagged via `fractionalAlter`. */
   alter: number;
   fractionalAlter: boolean;
+  /** The sounding octave, as `<pitch>` encodes it. */
   octave: number;
+  /** The octave of the staff line the note is printed on: `octave` minus any `<octave-shift>` in force (an 8va
+   *  passage encodes sounding pitch one octave above the printed line). Accidentals follow this (R-3 A1, A6). */
+  printedOctave: number;
+  /** This note's own printed staff; a chord member may sit on another staff than its head. */
+  staff: number;
+  /** `print-object="no"`: a playback-only note the reader never sees - it needs no sign and sets no state. */
+  hidden: boolean;
   hasAccidental: boolean;
   tieStop: boolean;
   noteRef: NoteRef;
@@ -63,6 +71,8 @@ export interface VoiceEvent {
   dots: number;
   rest: boolean;
   grace: boolean;
+  /** A cue-sized note (`<cue/>`): not played, and beamed as its own stream. */
+  cue: boolean;
   /** True if this event has at least one chord member beyond the head. */
   chord: boolean;
   tuplet: TupletInfo | null;
@@ -153,15 +163,75 @@ function durationToTicks(durTxt: string, ppq: number, divisions: number): number
   return Number.isFinite(ticks) && ticks >= 0 ? ticks : 0;
 }
 
+/** A key whose alterations are not modelled: completion adds no required signs on a staff while it is in force. */
+export const NON_TRADITIONAL_KEY = Number.NaN;
+
 function parseKeyElement(keyEl: XmlElement): number {
   const fifthsEl = getChild(keyEl, 'fifths');
   if (fifthsEl) {
     const fifths = parseInt(getText(fifthsEl), 10);
     return Number.isFinite(fifths) ? fifths : 0;
   }
-  // Non-traditional keys (<key-step>/<key-alter> pairs, no <fifths>): not modelled - treated as
-  // no alteration. Rare in practice (research R-3 scope is common-practice key signatures).
-  return 0;
+  // Non-traditional keys (<key-step>/<key-alter> pairs, no <fifths>): reading them as C major would add a false sign
+  // to every note the key alters, so they are marked unknown instead (research R-3 A2).
+  return getChild(keyEl, 'key-step') ? NON_TRADITIONAL_KEY : 0;
+}
+
+/** An `<octave-shift>` start or stop on one staff, at a position in the part (R-3 A6). */
+interface OctaveShiftChange {
+  staff: number;
+  /** The shift's `number` attribute: overlapping shifts on one staff are told apart by it. */
+  number: string;
+  measureIndex: number;
+  onset: number;
+  /** Document offset of the `<direction>`: at the same position, it applies to the notes written after it. */
+  docOffset: number;
+  /** Octaves the printed line lies above (+) or below (-) the sounding pitch while this shift is in force. */
+  printedMinusSounding: number;
+}
+
+/** `<octave-shift type="down" size="8">` is 8va: notes print an octave below their sounding pitch. Size 15 is two
+ *  octaves, 22 three; `stop` (and `continue`) end or keep the shift. */
+function octaveShiftDelta(el: XmlElement): number | null {
+  const type = getAttr(el, 'type');
+  if (type === 'stop') return 0;
+  if (type !== 'up' && type !== 'down') return null; // `continue` keeps the shift already in force
+  const size = parseInt(getAttr(el, 'size') ?? '8', 10) || 8;
+  const octaves = Math.max(1, Math.round((size - 1) / 7));
+  return type === 'down' ? -octaves : octaves;
+}
+
+/** The printed octave of every pitch: the shifts on its own staff in force at its position (a start applies from its
+ *  position, a stop from its position on; at an equal position, document order decides). */
+function applyOctaveShifts(events: VoiceEvent[], changes: OctaveShiftChange[]): void {
+  if (changes.length === 0) return;
+  const byStaff = new Map<number, OctaveShiftChange[]>();
+  for (const change of changes) {
+    const list = byStaff.get(change.staff) ?? [];
+    list.push(change);
+    byStaff.set(change.staff, list);
+  }
+  for (const list of byStaff.values()) {
+    list.sort((a, b) => a.measureIndex - b.measureIndex || a.onset - b.onset || a.docOffset - b.docOffset);
+  }
+  for (const event of events) {
+    for (const pitch of event.pitches) {
+      const list = byStaff.get(pitch.staff);
+      if (!list) continue;
+      const active = new Map<string, number>();
+      for (const change of list) {
+        const before =
+          change.measureIndex < event.measureIndex ||
+          (change.measureIndex === event.measureIndex &&
+            (change.onset < event.onset || (change.onset === event.onset && change.docOffset < pitch.noteRef.start)));
+        if (!before) break;
+        active.set(change.number, change.printedMinusSounding);
+      }
+      let delta = 0;
+      for (const d of active.values()) delta += d;
+      pitch.printedOctave = pitch.octave + delta;
+    }
+  }
 }
 
 export function walkScore(doc: XmlDocument): WalkResult {
@@ -203,6 +273,7 @@ export function walkScore(doc: XmlDocument): WalkResult {
   partNodes.forEach((partNode, partIndex) => {
     const measures: MeasureContext[] = [];
     const events: VoiceEvent[] = [];
+    const octaveShifts: OctaveShiftChange[] = [];
 
     let currentDivisions = 1;
     let cursor = 0;
@@ -229,9 +300,10 @@ export function walkScore(doc: XmlDocument): WalkResult {
       for (const el of measureNode.children) {
         if (!(el instanceof XmlElement)) continue;
 
-        // Every leading `<attributes>` block (still at onset 0, before any note/backup/forward) belongs
-        // to "the start of the measure"; only a later one is truly mid-bar (R-3 A2).
-        if (!startSnapshotTaken && el.name !== 'attributes') {
+        // Everything before the first note/backup/forward belongs to "the start of the measure" - including an
+        // `<attributes>` that follows `<print>`, `<barline location="left">` or a `<direction>`, as MuseScore
+        // writes a key change at a system break; only a later one is truly mid-bar (R-3 A2).
+        if (!startSnapshotTaken && (el.name === 'note' || el.name === 'backup' || el.name === 'forward')) {
           keyByStaffAtStart = new Map(keyByStaff);
           timeAtStart = currentTime;
           startSnapshotTaken = true;
@@ -281,6 +353,29 @@ export function walkScore(doc: XmlDocument): WalkResult {
               ...(keyChanged ? { keyByStaff: new Map(keyByStaff) } : {}),
               ...(timeChanged ? { time: currentTime } : {}),
             });
+          } else if (startSnapshotTaken && (keyChanged || timeChanged)) {
+            // Back at onset 0 after a <backup> (another voice's stream): still the start of the bar.
+            if (keyChanged) keyByStaffAtStart = new Map(keyByStaff);
+            if (timeChanged) timeAtStart = currentTime;
+          }
+        } else if (el.name === 'direction') {
+          const staff = parseInt(getText(getChild(el, 'staff')), 10) || 1;
+          const offsetTxt = getText(getChild(el, 'offset'));
+          const offset = offsetTxt ? Math.round(parseFloat(offsetTxt) * (ppq / currentDivisions)) : 0;
+          const onset = Math.max(0, cursor - measureStartCursor + (Number.isFinite(offset) ? offset : 0));
+          for (const typeEl of getChildren(el, 'direction-type')) {
+            for (const shiftEl of getChildren(typeEl, 'octave-shift')) {
+              const delta = octaveShiftDelta(shiftEl);
+              if (delta === null) continue;
+              octaveShifts.push({
+                staff,
+                number: getAttr(shiftEl, 'number') ?? '1',
+                measureIndex,
+                onset,
+                docOffset: el.start,
+                printedMinusSounding: delta,
+              });
+            }
           }
         } else if (el.name === 'barline') {
           for (const endingEl of getChildren(el, 'ending')) {
@@ -393,6 +488,13 @@ export function walkScore(doc: XmlDocument): WalkResult {
                 case 'tie':
                   if (getAttr(c, 'type') === 'stop') tieStop = true;
                   break;
+                case 'notations':
+                  // Some exporters write the tie only as notation (`<tied>`), without a `<tie>`.
+                  for (const tied of getChildren(c, 'tied')) {
+                    const tiedType = getAttr(tied, 'type');
+                    if (tiedType === 'stop' || tiedType === 'continue') tieStop = true;
+                  }
+                  break;
               }
             }
           }
@@ -447,6 +549,9 @@ export function walkScore(doc: XmlDocument): WalkResult {
               alter: Math.round(alterRaw),
               fractionalAlter: Number.isFinite(alterRaw) && alterRaw !== Math.round(alterRaw),
               octave,
+              printedOctave: octave,
+              staff,
+              hidden: getAttr(el, 'print-object') === 'no',
               hasAccidental,
               tieStop,
               noteRef,
@@ -484,6 +589,7 @@ export function walkScore(doc: XmlDocument): WalkResult {
               dots,
               rest: isRest,
               grace: isGrace,
+              cue: isCue,
               chord: false,
               tuplet,
               pitches: pitch ? [pitch] : [],
@@ -517,6 +623,7 @@ export function walkScore(doc: XmlDocument): WalkResult {
       cursor = measureMaxCursor;
     }
 
+    applyOctaveShifts(events, octaveShifts);
     parts.push({ index: partIndex, measures, events });
   });
 

@@ -149,18 +149,26 @@ export function planAccidentalsForPart(part: PartWalk, mode: EngravingMode): Acc
     let midBarChangeIndex = 0;
 
     for (const { event, pitchIndex } of pitchEntries) {
-      // R-3 A2: a mid-bar key change resets the bar's required-accidental state.
+      // R-3 A2: a mid-bar key change resets the bar's required-accidental state of the staves whose key changed.
       while (midBarChangeIndex < measure.midBarChanges.length) {
         const change = measure.midBarChanges[midBarChangeIndex];
         if (!change || change.onset > event.onset) break;
-        if (change.keyByStaff) barState.clear();
+        if (change.keyByStaff) {
+          for (const stateKey of Array.from(barState.keys())) {
+            const stateStaff = Number(stateKey.split('|')[0]);
+            const before = keyForStaffAt(measure, stateStaff, change.onset - 1);
+            const after = keyForStaffAt(measure, stateStaff, change.onset);
+            if (!Object.is(before, after)) barState.delete(stateKey);
+          }
+        }
         midBarChangeIndex++;
       }
 
       const pitch = event.pitches[pitchIndex];
-      if (!pitch) continue;
-      const staff = event.staff;
-      const stateKey = `${staff}|${pitch.step}|${pitch.octave}`;
+      if (!pitch || pitch.hidden) continue; // a playback-only note: nothing printed, nothing remembered
+      const staff = pitch.staff;
+      // Per printed staff line (A1, A6): under an 8va the sounding octave is not the line the sign sits on.
+      const stateKey = `${staff}|${pitch.step}|${pitch.printedOctave}`;
       const letterKey = `${staff}|${pitch.step}`;
       const isFirstOfLetterThisBar = !seenLetterThisBar.has(letterKey);
       seenLetterThisBar.add(letterKey);
@@ -177,7 +185,9 @@ export function planAccidentalsForPart(part: PartWalk, mode: EngravingMode): Acc
             pitch: `${pitch.step}${pitch.octave}`,
           });
         }
-        if (!pitch.tieStop) barState.set(stateKey, pitch.alter);
+        // A4: a printed sign sets the bar state, also on a tied-over note - the reader sees it (A3 covers only the
+        // tie continuation that prints nothing).
+        barState.set(stateKey, pitch.alter);
         letterMemoryThisBar.set(letterKey, pitch.alter);
         continue;
       }
@@ -191,7 +201,14 @@ export function planAccidentalsForPart(part: PartWalk, mode: EngravingMode): Acc
 
       if (pitch.fractionalAlter) continue; // microtones: not representable, skip (A4)
 
-      const keyAlter = fifthsToAlter(keyForStaffAt(measure, staff, event.onset), pitch.step);
+      const fifths = keyForStaffAt(measure, staff, event.onset);
+      if (Number.isNaN(fifths)) {
+        // A2: under a non-traditional key the expected alteration is unknown - add nothing, but remember the pitch.
+        barState.set(stateKey, pitch.alter);
+        letterMemoryThisBar.set(letterKey, pitch.alter);
+        continue;
+      }
+      const keyAlter = fifthsToAlter(fifths, pitch.step);
       const expected = barState.has(stateKey) ? (barState.get(stateKey) as number) : keyAlter;
 
       if (pitch.alter !== expected) {

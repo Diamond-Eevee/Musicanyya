@@ -217,6 +217,18 @@ const SCORES: Expected[] = [
   },
 ];
 
+/** T054: the only signs completion may add to these files, each with the reason it is right (SC-006, FR-006). */
+const REAL_SCORE_ADDITIONS: Record<string, { where: string; why: string }[]> = {
+  'janacek-quartet-2-intimate-letters.mxl': [
+    {
+      where: 'part 2 bar 278 staff 1 B3',
+      why:
+        'The viola plays B-flat3 on beat 2 with no sign, in a bar without key signature. The file relies on a hidden ' +
+        '(print-object="no") B-flat3 at beat 1 carrying the flat, so a reader sees B natural: the flat is needed.',
+    },
+  ],
+};
+
 async function load(file: string) {
   const bytes = new Uint8Array(fs.readFileSync(path.join(realDir, file)));
   const xml = decodeXml(await readMxl(bytes));
@@ -339,24 +351,29 @@ describe('real repertoire (CC0 OpenScore fixtures)', () => {
         }
       });
 
-      // T029 [P] [US3] SC-006: real scores that encode their own beams get zero beam inserts;
-      // all their <accidental> elements survive into the render copy unchanged.
-      //
-      // Implementation note: planEngraving skips any voice that has ANY encoded <beam> element.
-      // An OpenScore file may have some voices with beams and some without — the ones without
-      // legitimately receive beam groups, the ones with do not (SC-006).
-      // We verify SC-006 by counting existing beam/accidental elements in the XML and checking
-      // they all appear (>=) in the render copy, not that beamGroupsAdded == 0.
-      it('SC-006: planEngraving preserves all pre-existing beams and accidentals in the render copy', {
+      // T029 / T054 [US3] SC-006: a professionally engraved file that encodes its own beams and accidentals is
+      // shown with all of them unchanged, and completion adds nothing to it and warns about nothing (R-2 B12/B13,
+      // R-3 A2-A6) - except a sign listed in REAL_SCORE_ADDITIONS with its musical reason. Every file here is a
+      // MuseScore export; before T053 these produced 49 beamDataInvalid warnings and 45 added "required"
+      // accidentals, all false.
+      it('SC-006: completion adds only the listed signs, reports nothing, and keeps every <beam> and <accidental>', {
         timeout: 20_000,
       }, async () => {
         const { xml, parsed, score } = await load(expected.file);
 
         const plan = planEngraving(parsed.doc, 'opened');
+        const expectedAdditions = REAL_SCORE_ADDITIONS[expected.file] ?? [];
+        expect(plan.invalidBeams, 'beamDataInvalid').toEqual([]);
+        expect(plan.contradictions, 'accidentalContradicts').toEqual([]);
+        expect(plan.beamGroupsAdded, 'beam groups added').toBe(0);
+        expect(
+          plan.findings.map((f) => `part ${f.part} bar ${f.measureLabel} staff ${f.staff} ${'pitch' in f ? f.pitch : ''}`),
+          'accidentals added',
+        ).toEqual(expectedAdditions.map((a) => a.where));
+        expect(plan.accidentalsAdded).toEqual({ required: expectedAdditions.length, courtesy: 0 });
 
-        // Count <accidental> and <beam> elements in the original XML.
-        const originalAccidentalCount = (xml.match(/<accidental[\s>]/g) ?? []).length;
-        const originalBeamCount = (xml.match(/<beam[\s>]/g) ?? []).length;
+        const encodedElements = (text: string) =>
+          text.match(/<beam\b[^>]*>[^<]*<\/beam>|<accidental\b[^>]*>[^<]*<\/accidental>/g) ?? [];
 
         // Build the render copy through the same path the worker will use after T032.
         const notesInserts = score.parts.flatMap((part) =>
@@ -382,19 +399,14 @@ describe('real repertoire (CC0 OpenScore fixtures)', () => {
           elements: plan.inserts,
         });
 
-        // <accidental> count in the render copy must be at least what the original had.
-        const renderAccidentalCount = (renderXml.match(/<accidental[\s>]/g) ?? []).length;
-        expect(
-          renderAccidentalCount,
-          `${expected.file}: render copy lost accidentals (original ${originalAccidentalCount}, copy ${renderAccidentalCount})`,
-        ).toBeGreaterThanOrEqual(originalAccidentalCount);
-
-        // <beam> count in the render copy must be at least what the original had (can only grow).
-        const renderBeamCount = (renderXml.match(/<beam[\s>]/g) ?? []).length;
-        expect(
-          renderBeamCount,
-          `${expected.file}: render copy lost beam elements (original ${originalBeamCount}, copy ${renderBeamCount})`,
-        ).toBeGreaterThanOrEqual(originalBeamCount);
+        // Byte for byte, in order: every encoded element is still there; the render copy adds only ids to
+        // <note>/<measure> start tags and the listed signs.
+        const original = encodedElements(xml);
+        const rendered = encodedElements(renderXml);
+        expect(rendered.length).toBe(original.length + expectedAdditions.length);
+        let next = 0;
+        for (const element of rendered) if (element === original[next]) next++;
+        expect(next, 'every original <beam>/<accidental> appears, unchanged and in order').toBe(original.length);
       });
     });
   }

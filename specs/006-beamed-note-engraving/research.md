@@ -68,6 +68,16 @@ reference (`<beam>`, `<note>` element pages).
 - **B11**: a (part, voice) is beamed only if none of its notes anywhere carries `<beam>` (FR-004, US3 sc. 2).
 - **Chords**: beams are written on the chord head (the note without `<chord/>`); a `<beam>` on any chord member
   counts as encoded.
+- **B12 Validity of encoded beams** (amended 2026-09-23, pre-merge review): a beam may cross a barline, so runs are
+  followed through the whole voice in document order, per `number`: `continue`/`end` with no open run, `begin` while
+  one is open, a non-rest note without a level-1 beam inside an open level-1 run (rests may sit under a beam), a
+  secondary level still open when level 1 ends, or a run open at the end of the voice make the voice's beam data
+  inconsistent (`beamDataInvalid`, reported at the measure where the bad run began). Main, grace and cue notes are
+  separate streams; a chord's beams may be written on any member. The first rule ("closes within its own measure")
+  flagged 49 warnings on four professionally encoded OpenScore quartets.
+- **B13 Sung lines**: a voice that carries lyrics and no `<beam>` anywhere is left as encoded - traditional vocal
+  notation flags one note per syllable on purpose and beams only melismas (OpenScore Lieder: Stanford's Soprano and
+  Alto, the Chopin song's melody).
 
 **Rationale**: standard engraving practice (Gould, *Behind Bars*) plus the owner's clarifications; every rule is a
 pure function of written data, so it is deterministic and golden-testable.
@@ -84,15 +94,25 @@ rule). Could become a named option later.
 - **A1 Scope**: per (part, *printed* staff, bar), all voices together, ordered by (pos, grace before main, document
   order). Accidentals belong to the staff where the note is printed.
 - **A2 State**: key alteration from the `<key>` in force (a `<key number="n">` for staff n, a key without `number` for
-  all staves; `fifths` and non-traditional `<key-step>/<key-alter>`); bar alteration per (staff, step, **octave**),
-  empty at each barline and reset at a mid-bar key change. Expected = bar alteration, else key alteration.
-- **A3 Ties**: a `<tie type="stop">` continuation of the same step/octave/alter gets no sign and does not change the
-  bar state; across a barline its alteration is remembered for R-3 C1 only.
-- **A4 Required**: a note that prints an `<accidental>` keeps it untouched and sets the bar state (a sign that
+  all staves; `fifths`); bar alteration per (staff, step, **octave**), empty at each barline and reset at a mid-bar
+  key change for the staves whose key changed. Expected = bar alteration, else key alteration. Everything before a
+  bar's first `<note>`/`<backup>`/`<forward>` - also an `<attributes>` after `<print>` or `<barline
+  location="left">`, as MuseScore writes a key change at a system break - and anything back at onset 0 is the bar's
+  start; only a later `<attributes>` is mid-bar. A non-traditional key (`<key-step>/<key-alter>`, no `<fifths>`) is
+  not modelled: no required sign is added on a staff while it is in force (amended 2026-09-23; reading it as C major
+  would mark every note it alters).
+- **A3 Ties**: a tie continuation (`<tie type="stop">`, or only `<tied type="stop|continue">`) that prints no sign
+  gets none and does not change the bar state; across a barline its alteration is remembered for R-3 C1 only.
+- **A4 Required**: a note that prints an `<accidental>` keeps it untouched and sets the bar state - also when it is
+  a tie continuation, since the reader sees the sign (amended 2026-09-23) - (a sign that
   contradicts `<alter>` is left as is and reported as `accidentalContradicts`, the FR-006 exception). Otherwise, if alter differs from expected: add sharp / flat / natural /
   double-sharp / flat-flat; double sharp -> sharp prints a plain sharp. Non-integer alter (microtones): skipped.
 - **A5**: same pos, same step and octave, different alter (two voices, or F and F♯ in one chord): both get signs.
-- **A6 Octave**: state is per octave (FR-007).
+- **A6 Octave**: state is per octave (FR-007) of the **printed** line: under `<octave-shift>` MusicXML encodes the
+  sounding pitch, so the printed octave is the encoded octave minus (size-1)/7 for `type="down"` (8va) and plus it
+  for `type="up"` (8vb), per staff and shift `number`, from the start direction to the stop direction (amended
+  2026-09-23). Each chord note counts on its own `<staff>`. A `print-object="no"` note is invisible: no sign, no
+  state.
 - **A7 Grace notes**: ordinary events before their main note; their accidental lasts to the end of the bar.
 - **C1 Courtesy memory**: the alterations of each letter (any octave) in the previous bar in document order,
   including tied notes carried over. The first bar of ending 2+ also considers the bar before ending 1.

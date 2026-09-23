@@ -50,8 +50,9 @@ Output per beamable event: `Array<{ number: 1..6; value: BeamValue }>`, emitted 
 `<beam number="n">value</beam>` in ascending `number`.
 
 Validation: a voice that already has any `<beam>` is skipped entirely (FR-004, US3 scenario 2). A voice whose
-encoded beams are inconsistent (a `begin` without `end` in the measure) is reported as `beamDataInvalid` and left as
-encoded (Verovio shows what it can); no beams are added to it.
+encoded beams are inconsistent (research R-2 B12: runs are followed across barlines; e.g. a `begin` that is never
+closed) is reported as `beamDataInvalid` and left as encoded (Verovio shows what it can); no beams are added to it. A
+voice with lyrics and no `<beam>` is left as encoded too (R-2 B13).
 
 ## 5. Accidentals (`accidentals.ts`)
 
@@ -90,8 +91,8 @@ ticks and keys as the one built from the original.
 | Code | Severity | When | Detail |
 |---|---|---|---|
 | `engravingCompleted` | info | an opened Score needed any insert | `"<g> beam groups, <n> accidentals added for display"` |
-| `beamDataInvalid` | info | encoded beams inconsistent (left as encoded, voice not completed) | measure labels listed |
-| `accidentalContradicts` | info | a printed `<accidental>` contradicts `<alter>` (kept, FR-006 exception) | measure labels + pitch |
+| `beamDataInvalid` | warning | encoded beams inconsistent (left as encoded, voice not completed) | measure labels listed |
+| `accidentalContradicts` | warning | a printed `<accidental>` contradicts `<alter>` (kept, FR-006 exception) | measure labels + pitch |
 
 Library items are complete on disk, so they never raise `engravingCompleted` (the 005 test "no notice on open"
 keeps passing).

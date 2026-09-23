@@ -16,8 +16,8 @@ export interface VoiceBeamResult {
   groupsAdded: number;
   /** True when this voice already carries a `<beam>` somewhere (B11) - nothing above was completed. */
   skipped: boolean;
-  /** Measures where the *existing* encoded beam data does not close within its own measure. Only
-   *  populated when `skipped` (beamDataInvalid). */
+  /** Measures where a run of the *existing* encoded beam data is inconsistent (R-2 B12), labelled by the measure
+   *  where the run began. Only populated when `skipped` (beamDataInvalid). */
   invalidMeasureLabels: string[];
 }
 
@@ -60,42 +60,64 @@ function encodedBeams(el: XmlElement): Array<{ number: number; value: string }> 
 }
 
 /**
- * B11 validity check for a voice that already carries at least one `<beam>` somewhere (so it is
- * skipped by completion): does every `begin`/`continue` at a given `number` close with an `end` in
- * the same measure? Hooks are standalone and never open/close a run.
+ * B12 validity check for a voice that already carries at least one `<beam>` somewhere (so it is skipped by
+ * completion). Runs are followed through the whole voice, because a beam may cross a barline: per `number`, a
+ * `continue`/`end` needs an open run, a `begin` needs none, a pitched note without a level-1 beam may not sit inside
+ * an open level-1 run (rests may - beams can span them), and no run may stay open at the end. Grace notes form their
+ * own stream. Hooks are standalone and never open or close a run. Returns the labels of the measures where the bad
+ * runs began, in order, without repeats.
  */
 function findInvalidMeasures(events: readonly VoiceEvent[]): string[] {
-  const byMeasure = new Map<number, VoiceEvent[]>();
-  for (const e of events) {
-    let list = byMeasure.get(e.measureIndex);
-    if (!list) {
-      list = [];
-      byMeasure.set(e.measureIndex, list);
-    }
-    list.push(e);
-  }
-
   const invalid: string[] = [];
-  for (const measureEvents of byMeasure.values()) {
-    const open = new Set<number>();
-    let bad = false;
-    let label = measureEvents[0]?.measureLabel ?? '';
-    for (const e of measureEvents) {
-      for (const b of encodedBeams(e.noteRef.element)) {
-        label = e.measureLabel;
+  const flag = (label: string) => {
+    if (!invalid.includes(label)) invalid.push(label);
+  };
+  const stream = (e: VoiceEvent) => (e.grace ? 'grace' : e.cue ? 'cue' : 'main');
+
+  for (const which of ['main', 'grace', 'cue']) {
+    const open = new Map<number, string>(); // beam number -> label of the measure where its run began
+    for (const e of events) {
+      if (stream(e) !== which) continue;
+      const beams = eventBeams(e);
+      if (!beams.some((b) => b.number === 1) && !e.rest && open.has(1)) {
+        flag(open.get(1) ?? e.measureLabel);
+        open.clear();
+      }
+      for (const b of beams) {
+        const began = open.get(b.number);
         if (b.value === 'begin') {
-          open.add(b.number);
+          if (began !== undefined) flag(began);
+          open.set(b.number, e.measureLabel);
         } else if (b.value === 'continue') {
-          if (!open.has(b.number)) bad = true;
+          if (began === undefined) flag(e.measureLabel);
         } else if (b.value === 'end') {
-          if (!open.has(b.number)) bad = true;
+          if (began === undefined) flag(e.measureLabel);
           open.delete(b.number);
         }
       }
+      // Nesting: once the primary beam ends, no secondary beam may still be open.
+      if (!open.has(1)) {
+        for (const [number, began] of open) {
+          flag(began);
+          open.delete(number);
+        }
+      }
     }
-    if (bad || open.size > 0) invalid.push(label);
+    for (const label of open.values()) flag(label);
   }
   return invalid;
+}
+
+/** The encoded beams of an event: the head's, else the first chord member's that has any (B6 - an exporter may write
+ *  them on another chord note). */
+function eventBeams(e: VoiceEvent): Array<{ number: number; value: string }> {
+  const head = encodedBeams(e.noteRef.element);
+  if (head.length > 0) return head;
+  for (const pitch of e.pitches) {
+    const member = encodedBeams(pitch.noteRef.element);
+    if (member.length > 0) return member;
+  }
+  return head;
 }
 
 /** B9/B10: beam values for one already-formed group (2+ beamable events, document order). */

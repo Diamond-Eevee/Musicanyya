@@ -1,8 +1,8 @@
-import type { XmlDocument } from '@rgrove/parse-xml';
+import { type XmlDocument, XmlElement } from '@rgrove/parse-xml';
 import { planAccidentalsForPart } from './accidentals.js';
 import { planBeamsForVoice } from './beams.js';
 import type { ElementInsert, EngravingFinding, EngravingMode, EngravingPlan } from './index.js';
-import { walkScore } from './walk.js';
+import { type VoiceEvent, walkScore } from './walk.js';
 
 /**
  * Splices every insert into `xml` in a single pass (the same slice-and-join technique
@@ -26,6 +26,10 @@ export function applyInserts(xml: string, inserts: readonly ElementInsert[]): st
   return pieces.join('');
 }
 
+function hasLyric(e: VoiceEvent): boolean {
+  return e.noteRef.element.children.some((c) => c instanceof XmlElement && c.name === 'lyric');
+}
+
 /**
  * Plans MusicXML engraving completion: `<beam>` for every voice that encodes none (R-2), plus (from
  * US2 on) `<accidental>` wherever the printed pitch would otherwise read wrong (R-3). Never throws for
@@ -46,6 +50,9 @@ export function planEngraving(doc: XmlDocument, mode: EngravingMode): EngravingP
     const voices = Array.from(new Set(part.events.map((e) => e.voice))).sort();
     for (const voice of voices) {
       const voiceEvents = part.events.filter((e) => e.voice === voice);
+      // B13: a sung line that encodes no beams at all is flagged per syllable on purpose (traditional vocal
+      // notation) - leave it as encoded.
+      if (!voiceEvents.some((e) => e.hasBeam) && voiceEvents.some(hasLyric)) continue;
       const result = planBeamsForVoice(voiceEvents, part.measures, walked.ppq);
 
       if (result.skipped) {
@@ -85,7 +92,7 @@ export function planEngraving(doc: XmlDocument, mode: EngravingMode): EngravingP
         kind: entry.courtesy ? 'missingCourtesy' : 'missingAccidental',
         part: part.index,
         measureLabel: entry.event.measureLabel,
-        staff: entry.event.staff,
+        staff: pitch.staff,
         voice: entry.event.voice,
         pitch: `${pitch.step}${pitch.octave}`,
       });

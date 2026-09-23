@@ -88,8 +88,8 @@ const LIEDER: RealScore[] = [
   { file: 'holmes-lor.mxl', minStaves: 6, minNotes: 12, minBeamsOrFlags: 1, minPages: 50, heading: null },
   {
     file: 'stanford-sailing-at-dawn.mxl',
-    minStaves: 7,
-    minNotes: 15,
+    minStaves: 8,
+    minNotes: 20,
     minBeamsOrFlags: 1,
     minPages: 20,
     heading: 'Sailing at Dawn',

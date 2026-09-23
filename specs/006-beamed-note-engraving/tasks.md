@@ -175,9 +175,11 @@ one info notice; a MuseScore export with its own beams shows no notice and uncha
   codes to `specs/001-score-viewer-listen/data-model.md` notice table.
 - [x] T032 [US3] Wire `planEngraving(parsed.doc, 'opened')` into `src/workers/score.worker.ts`: pass inserts to
   `createRenderCopy`, add report entries; until T028/T029/T030 pass.
-- [x] T033 **(Performance)** `walkScore` parses the whole tree again. It shouldn't double the `readXml` cost. (Target: SC-005, engraving time ≤ 10% of total load on the largest library piece (4.7 MB quartet) and complete *Für Elise* costs <= 10% of their `readXml`+`buildScore` time (research
+- [x] T033 [US3] Performance test in `tests/core/musicxml/engraving/perf.test.ts`: completion on the largest
+  fixture (4.7 MB quartet) and complete *Für Elise* costs <= 10% of their `readXml`+`buildScore` time (research
   R-9); plus an end-to-end check in `tests/e2e/real-scores.spec.ts` (drop -> first page drawn) against the
-  pre-feature baseline recorded in the log before T032 (SC-005). (claimed: gemini-3.1-pro 2026-09-23)
+  pre-feature baseline recorded in the log before T032 (SC-005). Superseded for SC-005 by T055 (owner decision
+  2026-09-23: measure SC-005 as written).
 - [x] T034 [US3] e2e in `tests/e2e/real-scores.spec.ts`: dropping `fur-elise-bare.musicxml` shows `g.beam` and one
   info notice.
 
@@ -214,10 +216,10 @@ fix or a named follow-up; every Score shows title/composer/arranger above page 1
 
 - [x] T038 [P] [US5] Test `tests/core/musicxml/build.test.ts`: `Score.arranger` from `<creator type="arranger">`;
   title falls back to `<movement-title>`; both null-safe.
-- [x] T039 [US5] Test `tests/ui/title-block.test.ts` (happy-dom): the score view renders a title block before page 1
-  with title, composer, "arr. <name>"; file-name fallback without a title; missing lines omitted; a long title
-  wraps (no horizontal overflow).
-- [x] T040 [US5] Extend `tests/e2e/library.spec.ts`: _Für Elise (theme)_ shows the title block text in Listen,
+- [ ] T039 [P] [US5] Test `tests/ui/title-block.test.ts` (happy-dom): the score view renders a title block before
+  page 1 with title, composer, "arr. <name>"; file-name fallback without a title; missing lines omitted; a long
+  title wraps (no horizontal overflow).
+- [ ] T040 [P] [US5] Extend `tests/e2e/library.spec.ts`: *Für Elise (theme)* shows the title block text in Listen,
   Practice and Play; `tests/e2e/us1-layout.spec.ts` (feature 004) still passes with the block (SC-008).
 
 ### Title block - implementation
@@ -234,9 +236,9 @@ fix or a named follow-up; every Score shows title/composer/arranger above page 1
   repertoire piece, the FR-014 elements present in the file and in the rendered SVG (beams, accid, stems, rests,
   ties, slurs, dynamics/hairpins, tempo/expression, articulations, fingering, pedal, ornaments,
   repeats/voltas/jumps, title block, system-start bar numbers).
-- [x] T044 [US5] Review each piece against its cited source with the `music-domain-expert` role; write
+- [ ] T044 [US5] Review each piece against its cited source with the `music-domain-expert` role; write
   `specs/006-beamed-note-engraving/engraving-audit.md` (piece x element: present / missing (bars) / not used).
-- [x] T045 [US5] For each gap that contradicts playback or grading: fix it in this feature (new task numbers from
+- [ ] T045 [US5] For each gap that contradicts playback or grading: fix it in this feature (new task numbers from
   T052); for purely visual gaps: list as named follow-ups and ask the owner (FR-015, AGENTS.md section 7).
 
 **Checkpoint**: audit complete, every row resolved; title block visible in every mode.
@@ -251,10 +253,58 @@ fix or a named follow-up; every Score shows title/composer/arranger above page 1
   (FR-016); keep `tests/core/musicxml/support-doc-sync.test.ts` green.
 - [x] T047 [P] `THIRD_PARTY_NOTICES.md` / `public/library/README.md`: note that library files were completed by the
   engraving tool (no licence change).
-- [x] T048 Run quickstart.md manual verification for US1-US5 in Chrome; screenshot *Für Elise (theme)* next to
+- [ ] T048 Run quickstart.md manual verification for US1-US5 in Chrome; screenshot *Für Elise (theme)* next to
   the owner's reference for SC-004.
-- [x] T049 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; constitution review with
+- [ ] T049 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; constitution review with
   `constitution-auditor` before merge; implementation-log entry.
+
+## Phase 9: Pre-merge review fixes
+
+Found by the pre-merge review and the `constitution-auditor` (implementation log, 2026-09-23 18:30). Owner
+decisions of 2026-09-23 (research.md R-11): SC-005 is measured as written and not relaxed; the title block is
+compact and 004 SC-002 stays; purely visual audit gaps are named follow-ups; the licence note states facts only.
+
+### Completion on real scores (SC-006, FR-010, FR-011)
+
+- [x] T052 [P] Tests in `tests/core/musicxml/engraving/`: a beam that crosses a barline is valid; a printed
+  accidental on a tied-over note sets the bar state (R-3 A4); under an 8va the bar state is keyed by the printed
+  octave; a `<key>` after `<print>` / `<barline location="left">` is the bar's start key, not a mid-bar change.
+- [x] T053 Fix `walk.ts` (bar-start snapshot at the first `<note>`/`<backup>`/`<forward>`; printed octave under
+  `<octave-shift>`), `beams.ts` (validity checked across the whole voice, R-2 B12) and `accidentals.ts` (A4 for
+  tie-stops) until T052 passes; amend research.md R-2/R-3 and data-model.md (`beamDataInvalid` definition and
+  severity `warning`).
+- [x] T054 `tests/core/musicxml/real-scores.test.ts` (T029 as written): every real-score fixture gets zero beam
+  inserts for voices that encode beams, zero `beamDataInvalid`, zero required accidentals except those listed with a
+  musical reason, and every original `<beam>`/`<accidental>` element is kept byte for byte in the render copy.
+
+### Tests that can fail
+
+- [ ] T055 SC-005 as written in `tests/core/musicxml/engraving/perf.test.ts`: full open of the largest library
+  piece (worker load + Verovio render of page 1) with and without completion, <= 10% longer; results in research
+  R-9 (replacing the "accepted deviation" note).
+- [ ] T056 Rewrite the T028 tests in `tests/engine/score-worker-engraving.test.ts` so each can fail: Note IDs in the
+  render copy equal `fullScore` IDs and equal a load without completion; skipped voices get zero inserts and keep
+  their encoded beams byte for byte; `beamDataInvalid` / `accidentalContradicts` are `warning`; the printed sign is
+  kept; no `any`.
+- [ ] T057 `src/workers/score.worker.ts`: if `planEngraving` throws, open the Score without completion and add an
+  `engravingSkipped` warning (load-report code, `en.ts`, 001 data-model and worker-messages 1.1.0); test in T056's
+  file.
+
+### Title block (FR-017, owner decision: compact, 004 SC-002 unchanged)
+
+- [ ] T058 `mx-score-view.ts` / `score.css`: compact block (title, then composer and "arr." on one line), long titles
+  wrap, narrow screens stack; the page offset is the block's measured height (no hard-coded 80 px); unit test for
+  `layoutPages(..., startOffset)`; then T039 and T040.
+- [ ] T059 `build.ts`: title = `<work-title>`, else `<movement-title>` (R-4 as designed; no "movement - work"
+  joining); test in `tests/core/musicxml/build.test.ts`.
+
+### Documents
+
+- [ ] T060 THIRD_PARTY_NOTICES.md and `public/library/README.md`: the factual licence note (owner wording); move
+  "Engraving Quality" after the rejected-candidates table.
+- [ ] T061 Clean up: remove `scratch.md`; fix the broken encoding and escapes in `implementation-log.md`; record the
+  Stanford threshold change (T034) with its reason; `tools/library/audit.ts` and `tests/library/index.test.ts`
+  without `any`/`@ts-expect-error` and with temp files in the OS temp folder.
 
 ## Dependencies & Execution Order
 
