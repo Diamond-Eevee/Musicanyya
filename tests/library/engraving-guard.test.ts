@@ -46,3 +46,25 @@ describe('library engraving guard (FR-012, beam half)', () => {
     expect(messages, `${messages.length} beam finding(s):\n${messages.join('\n')}`).toEqual([]);
   });
 });
+
+describe('library engraving guard (FR-012, accidental half)', () => {
+  it('every library item reads correctly as written: planEngraving(doc, "library") yields no accidental inserts', () => {
+    const messages: string[] = [];
+
+    for (const relFile of findMusicXmlFiles(libraryRoot)) {
+      const xml = decodeXml(fs.readFileSync(path.join(libraryRoot, relFile)));
+      const { doc } = readXml(xml);
+      const plan = planEngraving(doc, 'library');
+
+      for (const finding of plan.findings) {
+        if (finding.kind !== 'missingAccidental' && finding.kind !== 'missingCourtesy') continue;
+        const label = finding.kind === 'missingAccidental' ? 'required' : 'courtesy';
+        messages.push(
+          `${relFile}: bar ${finding.measureLabel}, staff ${finding.staff} - ${finding.pitch} needs a ${label} accidental`,
+        );
+      }
+    }
+
+    expect(messages, `${messages.length} accidental finding(s):\n${messages.join('\n')}`).toEqual([]);
+  });
+});

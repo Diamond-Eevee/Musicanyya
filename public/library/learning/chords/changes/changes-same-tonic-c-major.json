@@ -2,7 +2,7 @@
   "version": 1,
   "title": "C major - major and minor",
   "kind": "exercise",
-  "level": "beginner",
+  "level": "advanced",
   "tags": ["chords", "chord-changes"],
   "trains": "Same-tonic quality change: only the third moves, major to minor and back.",
   "hands": "both",

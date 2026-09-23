@@ -45,7 +45,7 @@
     <note><pitch><step>D</step><alter>1</alter><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><accidental>sharp</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>E</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>B</step><octave>4</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
-    <note><pitch><step>D</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><accidental>natural</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>C</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">end</beam><beam number="2">end</beam></note>
     <backup><duration>36</duration></backup>
     <note><rest/><duration>36</duration><voice>5</voice><type>quarter</type><dot/><staff>2</staff></note>
@@ -99,7 +99,7 @@
     <note><pitch><step>D</step><alter>1</alter><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><accidental>sharp</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>E</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>B</step><octave>4</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
-    <note><pitch><step>D</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><accidental>natural</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>C</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">end</beam><beam number="2">end</beam></note>
     <backup><duration>36</duration></backup>
     <note><rest/><duration>36</duration><voice>5</voice><type>quarter</type><dot/><staff>2</staff></note>
@@ -295,7 +295,7 @@
     <note><pitch><step>D</step><alter>1</alter><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><accidental>sharp</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>E</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>B</step><octave>4</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
-    <note><pitch><step>D</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><accidental>natural</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>C</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">end</beam><beam number="2">end</beam></note>
     <backup><duration>36</duration></backup>
     <note><rest/><duration>36</duration><voice>5</voice><type>quarter</type><dot/><staff>2</staff></note>
@@ -348,7 +348,7 @@
     <note><pitch><step>D</step><alter>1</alter><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><accidental>sharp</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>E</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>B</step><octave>4</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
-    <note><pitch><step>D</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><accidental>natural</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>C</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">end</beam><beam number="2">end</beam></note>
     <backup><duration>36</duration></backup>
     <note><rest/><duration>36</duration><voice>5</voice><type>quarter</type><dot/><staff>2</staff></note>
@@ -477,7 +477,7 @@
     <note><chord/><pitch><step>D</step><octave>5</octave></pitch><duration>12</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
     <note><rest/><duration>12</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
     <backup><duration>36</duration></backup>
-    <note><pitch><step>G</step><octave>1</octave></pitch><duration>12</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">begin</beam></note>
+    <note><pitch><step>G</step><octave>1</octave></pitch><duration>12</duration><voice>5</voice><type>eighth</type><accidental>natural</accidental><staff>2</staff><beam number="1">begin</beam></note>
     <note><pitch><step>G</step><octave>3</octave></pitch><duration>12</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
     <note><chord/><pitch><step>B</step><octave>3</octave></pitch><duration>12</duration><voice>5</voice><type>eighth</type><staff>2</staff></note>
     <note><chord/><pitch><step>D</step><octave>4</octave></pitch><duration>12</duration><voice>5</voice><type>eighth</type><staff>2</staff></note>
@@ -588,14 +588,14 @@
     <note><pitch><step>B</step><alter>-1</alter><octave>5</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>flat</accidental><staff>1</staff><beam number="1">begin</beam><beam number="2">begin</beam><beam number="3">begin</beam></note>
     <note><pitch><step>A</step><octave>5</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
     <note><pitch><step>G</step><alter>1</alter><octave>5</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>sharp</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
-    <note><pitch><step>G</step><octave>5</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
+    <note><pitch><step>G</step><octave>5</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>natural</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
     <note><pitch><step>F</step><alter>1</alter><octave>5</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>sharp</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
-    <note><pitch><step>F</step><octave>5</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
+    <note><pitch><step>F</step><octave>5</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>natural</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
     <note><pitch><step>E</step><octave>5</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
     <note><pitch><step>D</step><alter>1</alter><octave>5</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>sharp</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
-    <note><pitch><step>D</step><octave>5</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>natural</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
     <note><pitch><step>C</step><alter>1</alter><octave>5</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>sharp</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
-    <note><pitch><step>C</step><octave>5</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
+    <note><pitch><step>C</step><octave>5</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>natural</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
     <note><pitch><step>B</step><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><staff>1</staff><beam number="1">end</beam><beam number="2">end</beam><beam number="3">end</beam></note>
     <backup><duration>36</duration></backup>
     <note><pitch><step>E</step><octave>2</octave></pitch><duration>36</duration><voice>5</voice><type>quarter</type><dot/><staff>2</staff></note>
@@ -605,14 +605,14 @@
     <note><pitch><step>B</step><alter>-1</alter><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>flat</accidental><staff>1</staff><beam number="1">begin</beam><beam number="2">begin</beam><beam number="3">begin</beam></note>
     <note><pitch><step>A</step><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
     <note><pitch><step>G</step><alter>1</alter><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>sharp</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
-    <note><pitch><step>G</step><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>natural</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
     <note><pitch><step>F</step><alter>1</alter><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>sharp</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
-    <note><pitch><step>F</step><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>natural</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
     <note><pitch><step>E</step><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
     <note><pitch><step>D</step><alter>1</alter><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>sharp</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
-    <note><pitch><step>D</step><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
+    <note><pitch><step>D</step><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>natural</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
     <note><pitch><step>C</step><alter>1</alter><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>sharp</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
-    <note><pitch><step>C</step><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><accidental>natural</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam><beam number="3">continue</beam></note>
     <note><pitch><step>B</step><octave>3</octave></pitch><duration>3</duration><voice>1</voice><type>32nd</type><staff>1</staff><beam number="1">end</beam><beam number="2">end</beam><beam number="3">end</beam></note>
     <backup><duration>36</duration></backup>
     <note><pitch><step>E</step><octave>2</octave></pitch><duration>36</duration><voice>5</voice><type>quarter</type><dot/><staff>2</staff></note>
@@ -648,7 +648,7 @@
     <note><pitch><step>D</step><alter>1</alter><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><accidental>sharp</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>E</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>B</step><octave>4</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
-    <note><pitch><step>D</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><accidental>natural</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>C</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">end</beam><beam number="2">end</beam></note>
     <backup><duration>36</duration></backup>
     <note><rest/><duration>36</duration><voice>5</voice><type>quarter</type><dot/><staff>2</staff></note>
@@ -701,7 +701,7 @@
     <note><pitch><step>D</step><alter>1</alter><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><accidental>sharp</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>E</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>B</step><octave>4</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
-    <note><pitch><step>D</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><accidental>natural</accidental><staff>1</staff><beam number="1">continue</beam><beam number="2">continue</beam></note>
     <note><pitch><step>C</step><octave>5</octave></pitch><duration>6</duration><voice>1</voice><type>16th</type><staff>1</staff><beam number="1">end</beam><beam number="2">end</beam></note>
     <backup><duration>36</duration></backup>
     <note><rest/><duration>36</duration><voice>5</voice><type>quarter</type><dot/><staff>2</staff></note>

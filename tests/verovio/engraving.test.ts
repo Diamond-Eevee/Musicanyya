@@ -8,6 +8,7 @@ import { handleMessage } from '../../src/workers/verovio.worker.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.resolve(__dirname, '../fixtures/musicxml/engraving');
+const libraryRoot = path.resolve(__dirname, '../../public/library');
 
 let requestCounter = 0;
 
@@ -106,5 +107,39 @@ describe('Verovio renders a grace note between beamed main notes (research B8 ch
     // itself, alone, keeps its own flag (a lone grace keeps its flag, per B8's other clause).
     const beamCount = (svg.match(/class="beam"/g) ?? []).length;
     expect(beamCount).toBeGreaterThanOrEqual(1);
+  }, 20000);
+});
+
+describe('Verovio renders visible accidentals, not only gestural ones (research R-1, R-3 C4)', () => {
+  it('Für Elise (theme) bare: D-natural (bar 1, after the D-sharp) renders as a visible accid, not just accid.ges', async () => {
+    await initVerovio();
+    const xml = fs.readFileSync(path.join(fixturesDir, 'fur-elise-bare.musicxml'), 'utf8');
+    const svg = await renderCompleted(xml);
+
+    // R-1 (verified before this feature): the same file with no <accidental> renders 0 visible accid -
+    // alter alone only ever produced a gestural (inaudible-to-the-eye) accidental.
+    expect((svg.match(/class="accid"/g) ?? []).length).toBeGreaterThan(0);
+  }, 20000);
+
+  it("Triads in A minor (shipped library item): the V chord's G# renders as a visible accid in both staves", async () => {
+    await initVerovio();
+    const xml = fs.readFileSync(path.join(libraryRoot, 'learning/chords/triads-a-minor.musicxml'), 'utf8');
+    const svg = await renderSvg(xml); // already completed on disk (T026) - render as-is, no re-planning
+
+    expect((svg.match(/class="accid"/g) ?? []).length).toBeGreaterThan(0);
+  }, 20000);
+
+  it('a plain courtesy natural renders without parentheses (research C4)', async () => {
+    await initVerovio();
+    // Bar 1: D#4, required sharp. Bar 2: D4, same letter, no sign otherwise required (matches the key) -
+    // but the previous bar used a different alteration of D, so C2 adds a plain courtesy natural.
+    const xml = `<?xml version="1.0" encoding="UTF-8"?><score-partwise version="4.0"><part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list><part id="P1"><measure number="1"><attributes><divisions>4</divisions><time><beats>4</beats><beat-type>4</beat-type></time></attributes><note><pitch><step>D</step><alter>1</alter><octave>4</octave></pitch><duration>16</duration><voice>1</voice><type>whole</type></note></measure><measure number="2"><note><pitch><step>D</step><octave>4</octave></pitch><duration>16</duration><voice>1</voice><type>whole</type></note></measure></part></score-partwise>`;
+    const svg = await renderCompleted(xml);
+
+    expect((svg.match(/class="accid"/g) ?? []).length).toBe(2); // the required sharp and the courtesy natural
+    // SMuFL parenthesis glyphs (accidentalParensLeft/Right, E26A/E26B) would appear here if Verovio drew
+    // a bracketed cautionary accidental; our courtesy sign is plain (no `parentheses`/`cautionary` attribute).
+    expect(svg).not.toContain('E26A');
+    expect(svg).not.toContain('E26B');
   }, 20000);
 });

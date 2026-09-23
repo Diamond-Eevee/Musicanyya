@@ -129,17 +129,17 @@ library check reports 0 wrong-reading notes (today 117 in 21 items).
   next bar, any octave, not on tied continuations, ending 2 considers the bar before ending 1), modes: `'library'`
   adds courtesy always, `'opened'` only in parts with no `<accidental>` (`prints-accidentals.musicxml` gets its
   required sign but no courtesy); existing `<accidental>` never changed.
-- [ ] T023 [P] [US2] Extend `tests/verovio/engraving.test.ts`: completed `triads-a-minor` and `fur-elise-bare`
+- [x] T023 [P] [US2] Extend `tests/verovio/engraving.test.ts`: completed `triads-a-minor` and `fur-elise-bare`
   render visible accidentals (MEI `accid`, not only `accid.ges`) on G♯ / D natural; a plain courtesy natural
   renders without parentheses (research C4 check).
-- [ ] T024 [P] [US2] Extend `tests/library/engraving-guard.test.ts` with accidentals: zero `missingAccidental` /
+- [x] T024 [P] [US2] Extend `tests/library/engraving-guard.test.ts` with accidentals: zero `missingAccidental` /
   `missingCourtesy` findings per library file, message names item, bar, staff, pitch (e.g. `D5`). Fails now.
 
 ### Implementation
 
 - [x] T025 [US2] Implement `src/core/musicxml/engraving/accidentals.ts` and the accidental half of `planEngraving`
   until T022 passes.
-- [ ] T026 [US2] Re-run `pnpm library:exercises`, `pnpm library:engrave`, `pnpm library:index`; T004 identity,
+- [x] T026 [US2] Re-run `pnpm library:exercises`, `pnpm library:engrave`, `pnpm library:index`; T004 identity,
   T023, T024 and T027 pass; commit the library.
 - [ ] T050 [US2] SC-003 grade identity in `tests/library/identity.test.ts`: grade the recorded Performance log
   `tests/fixtures/performance-logs/fur-elise-theme.json` (captured in T003) against the completed file; the Grade
