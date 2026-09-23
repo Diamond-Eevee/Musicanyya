@@ -41,7 +41,7 @@ task turns out to edit an AudioWorklet, the scheduler, the metronome or MIDI tim
 
 ## Phase 1: Setup
 
-- [ ] T001 Ask the owner D-1 to D-4 in one message (plan.md "Owner decisions"): approve the 12 Mutopia sources in
+- [x] T001 Ask the owner D-1 to D-4 in one message (plan.md "Owner decisions"): approve the 12 Mutopia sources in
   research R11 table A; Schumann Op. 68 No. 10 (recommendation: remove); accept that level shortfalls are reported,
   not filled; `departures` display is a later UI feature. Record the answers in `plan.md` (Owner decisions,
   "Answer" column) and in `implementation-log.md`. Tasks that depend on an unanswered decision stay open. Their

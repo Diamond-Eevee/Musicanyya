@@ -184,6 +184,15 @@ Changes entries in `docs/agents/reference.md`. The Constitution Check was re-run
 | D-3 | Level minimums after the audit (FR-022) | Removal (D-2) or a faithful replacement that computes to a different level (Burgmüller No. 2's written leap, R10) can leave Intermediate below 5 | Accept that the gap is **reported** in the audit report and in the hand-off, and filled by a later feature | The spec already requires this; the owner only confirms that a temporary shortfall is acceptable on `main` |
 | D-4 | Show `departures` in the app (follow-up, not this feature) | The field is shipped in `index.json` but not displayed; UI changes are out of scope | Record it as a follow-up for the next UI feature | No effect on this feature |
 
+**Answers** (owner, 2026-09-23: "yes to D-1 to D-4"; each recommendation accepted):
+
+- **D-1**: all 12 Mutopia sources in research R11 table A are approved. Each manifest gets
+  `approvedByOwner: "2026-09-23"`.
+- **D-2**: Schumann Op. 68 No. 10 is **removed**. It gets a row in the rejected-items table, and its audit record
+  has outcome `removed` (T045).
+- **D-3**: level shortfalls are reported in the audit report and in the hand-off, and are not filled.
+- **D-4**: showing `departures` in the app is a follow-up for a later UI feature.
+
 ## Open questions (not blocking)
 
 - **Recents keep the old copy** (analyze A2, spec Clarifications). `IndexedDbScoreStore` stores the bytes a

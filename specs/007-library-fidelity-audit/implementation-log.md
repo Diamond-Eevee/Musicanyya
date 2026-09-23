@@ -68,3 +68,12 @@
 - Problems / open questions: owner decisions D-1 to D-4 are still open (T001). Recents keeping the old copy is a
   follow-up feature, not part of 007.
 - Handoff: next = `/speckit.implement` from T001. tasks.md now has 94 tasks.
+
+## 2026-09-23 - claude-opus-5.5 (owner decisions)
+- Done: T001. The owner answered "yes to D-1 to D-4". All four recommendations are accepted and recorded in
+  `plan.md` under "Owner decisions -> Answers":
+  - D-1: the 12 Mutopia sources are approved (`approvedByOwner` 2026-09-23);
+  - D-2: Schumann Op. 68 No. 10 is removed;
+  - D-3: level gaps are reported, not filled;
+  - D-4: showing `departures` in the app is a follow-up.
+- Handoff: next = T002 (package.json scripts), then the Phase 2 tests. No open owner decisions remain.
