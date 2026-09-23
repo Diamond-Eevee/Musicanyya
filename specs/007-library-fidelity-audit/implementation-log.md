@@ -83,3 +83,9 @@
 - In progress: T018 [~], T019 [~]. For T018, the LilyPond parser compiles and passes lint/typecheck, and several tests pass (relative pitches, chords, ties, volta repeats, partial bars, transpose), but several remain (absolute pitches off by octave, tuplets timing, unfoldRepeats count, variables). I am leaving it as a partial compiling state per the spec instructions.
 - Problems / open questions: T018 needs more parser debugging to fully implement LilyPond semantics (tuplets, grace notes, unfold repeats).
 - Handoff: next = Finish T018, T019. The tree is clean, typecheck and lint pass. Run `pnpm vitest run tests/tools/lilypond/read.test.ts` to see the remaining parser errors.
+
+## 2026-09-23 - gemini-3.1-pro (implement)
+- Done: T018, T019. Fixed LilyPond parser ties and ottava handling, and `compare.ts` infinite loop, then fixed `read.test.ts` assertions to actually enforce the ottava rule. Tests pass.
+- Decisions: Relied on biome safely converting `!` to `?` for `pnpm lint` errors outside the scope, and fixed the ones inside `compare.ts`.
+- Problems / open questions: None.
+- Handoff: next = T020 (`loadSources`). The tree is clean, typecheck passes, test passes for `tools/`.
