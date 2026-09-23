@@ -266,6 +266,26 @@ describe('applyEighthExtensions: R-2 B4', () => {
     ]);
   });
 
+  it('T063 2/2 pickup: a quarter-long first span with a dotted eighth + sixteenth stays one quarter group', () => {
+    // Chopin Op. 28 No. 4: the pickup is one quarter (B2 end-aligned); cutting it at its midpoint split the beat.
+    const pickup: Span[] = [{ start: 0, end: 960 }];
+    const notes = [note(0, { dots: 1 }), note(720, { type: '16th' })];
+    expect(applyEighthExtensions(time([2], 2), pickup, notes, 960)).toEqual(pickup);
+  });
+
+  it('T063 2/2 pickup of three quarters: the quarters are counted back from the barline', () => {
+    const pickup: Span[] = [
+      { start: 0, end: 960 },
+      { start: 960, end: 2880 },
+    ];
+    const notes = [note(960, { type: '16th' }), note(1200, { type: '16th' })];
+    expect(applyEighthExtensions(time([2], 2), pickup, notes, 960)).toEqual([
+      { start: 0, end: 960 },
+      { start: 960, end: 1920 },
+      { start: 1920, end: 2880 },
+    ]);
+  });
+
   it('2/2: a half with only eighths or longer stays as one group', () => {
     const halfGroups2_2: Span[] = [
       { start: 0, end: 1920 },

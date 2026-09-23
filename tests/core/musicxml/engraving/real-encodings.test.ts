@@ -267,3 +267,23 @@ describe('T052 beams: a sung line without beams keeps its flags (R-2 B13)', () =
     expect(plan(xml).beamGroupsAdded).toBe(1);
   });
 });
+
+describe('T062 beams: in library mode a partly beamed voice gets its missing groups (R-2 B11, FR-001)', () => {
+  const eighth = (step: string, beam?: string) =>
+    note(step, 4, { type: 'eighth', extra: beam ? `<beam number="1">${beam}</beam>` : '' });
+  // Schumann Op. 68 No. 10, right hand: one beat beamed, the next two eighths loose.
+  const xml = score([
+    ATTRS(0) + eighth('C', 'begin') + eighth('D', 'end') + eighth('E') + eighth('F') + note('G', 4, { type: 'half' }),
+  ]);
+
+  it('library: the loose pair is beamed, the encoded pair is left as it is', () => {
+    const result = planEngraving(readXml(xml).doc, 'library');
+    expect(result.beamGroupsAdded).toBe(1);
+    expect(result.inserts.map((i) => i.text)).toEqual(['<beam number="1">begin</beam>', '<beam number="1">end</beam>']);
+    expect(result.findings.filter((f) => f.kind === 'missingBeam')).toHaveLength(1);
+  });
+
+  it("opened: a voice that beams anywhere is the encoder's choice and is left alone (B11)", () => {
+    expect(plan(xml).beamGroupsAdded).toBe(0);
+  });
+});

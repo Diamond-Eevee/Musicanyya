@@ -47,7 +47,9 @@ reference (`<beam>`, `<note>` element pages).
 
 - **B4 Eighth extensions (owner, 2026-09-23)**: 4/4 - each half bar is one group only if it holds exactly four
   non-rest eighths with no tuplet and no dotted note; otherwise per quarter; never across the middle. 2/2 - a half
-  splits into quarters when it contains anything shorter than an eighth. 3/4 - the whole bar is one group only for
+  splits into quarters when it contains anything shorter than an eighth - on the metre's quarter boundaries (a short
+  first bar counted back from the barline, B2), so a quarter-note pickup stays one group (fixed 2026-09-23: it was
+  cut at its midpoint, which split the *Chopin Op. 28 No. 4* pickup's dotted eighth from its sixteenth). 3/4 - the whole bar is one group only for
   exactly six non-rest, non-tuplet eighths.
 - **B5 Beamable**: not a rest, not a grace note, type eighth or shorter (type derived from duration and
   time-modification when `<type>` is missing; underivable -> not beamable), wholly inside one group. A chord is one
@@ -65,7 +67,10 @@ reference (`<beam>`, `<note>` element pages).
   level L-1 grid else `backward hook`. (Dotted eighth + sixteenth: sixteenth L2 `backward hook`.)
 - **B10**: secondary beams are never broken inside a primary group beyond B9 (six sixteenths in 3/8 keep one
   unbroken secondary beam, as in the reference *Für Elise*).
-- **B11**: a (part, voice) is beamed only if none of its notes anywhere carries `<beam>` (FR-004, US3 sc. 2).
+- **B11**: a (part, voice) is beamed only if none of its notes anywhere carries `<beam>` (FR-004, US3 sc. 2) - for
+  opened files. A library file must be fully beamed (FR-001), so in library mode a partly beamed voice gets the groups
+  whose notes carry no `<beam>`; a note that has one breaks the group like a rest (amended 2026-09-23: the audit
+  found the *Chopin Op. 28 No. 4* pickup unbeamed in an otherwise beamed voice).
 - **Chords**: beams are written on the chord head (the note without `<chord/>`); a `<beam>` on any chord member
   counts as encoded.
 - **B12 Validity of encoded beams** (amended 2026-09-23, pre-merge review): a beam may cross a barline, so runs are

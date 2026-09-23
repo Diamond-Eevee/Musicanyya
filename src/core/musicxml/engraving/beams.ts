@@ -186,9 +186,16 @@ export function planBeamsForVoice(
   events: readonly VoiceEvent[],
   measures: readonly MeasureContext[],
   ppq: number,
+  /** B11 in library mode: complete the groups of a partly beamed voice whose notes carry no `<beam>` (FR-001 - a
+   *  library file must be fully beamed); an opened file's partly beamed voice is the encoder's choice. */
+  completePartlyBeamed = false,
 ): VoiceBeamResult {
-  if (events.some((e) => e.hasBeam)) {
-    return { assignments: new Map(), groupsAdded: 0, skipped: true, invalidMeasureLabels: findInvalidMeasures(events) };
+  const partlyBeamed = events.some((e) => e.hasBeam);
+  if (partlyBeamed) {
+    const invalidMeasureLabels = findInvalidMeasures(events);
+    if (!completePartlyBeamed || invalidMeasureLabels.length > 0) {
+      return { assignments: new Map(), groupsAdded: 0, skipped: true, invalidMeasureLabels };
+    }
   }
 
   const assignments = new Map<VoiceEvent, BeamAssignment[]>();
@@ -209,7 +216,7 @@ export function planBeamsForVoice(
     if (!measure) continue;
 
     for (const group of collectGraceGroups(measureEvents)) {
-      if (group.length >= 2) {
+      if (group.length >= 2 && !group.some((e) => e.hasBeam)) {
         groupsAdded++;
         assignBeamValues(group, assignments, ppq);
       }
@@ -224,7 +231,7 @@ export function planBeamsForVoice(
       tuplet: e.tuplet,
     }));
     const baseline = beamSpans(measure.time, measure.lengthDivisions, measure.implicit, ppq);
-    const spans = applyEighthExtensions(measure.time, baseline, groupable);
+    const spans = applyEighthExtensions(measure.time, baseline, groupable, ppq);
 
     for (const span of spans) {
       const inSpan = mainEvents.filter((e) => e.onset >= span.start && e.onset < span.end);
@@ -233,7 +240,8 @@ export function planBeamsForVoice(
       let tupletCountInRun = 0;
 
       const flush = () => {
-        if (current.length >= 2) {
+        // A group that already carries any encoded beam is left exactly as encoded (partly beamed voices, B11).
+        if (current.length >= 2 && !current.some((e) => e.hasBeam)) {
           groupsAdded++;
           assignBeamValues(current, assignments, ppq);
         }
@@ -243,8 +251,10 @@ export function planBeamsForVoice(
       };
 
       for (const e of inSpan) {
-        if (!isBeamable(e)) {
-          flush(); // B6: a rest (or any non-beamable note) breaks the group
+        if (!isBeamable(e) || e.hasBeam) {
+          // B6: a rest (or any non-beamable note) breaks the group; in a partly beamed voice (library mode, B11) so
+          // does a note that already carries its own beam - only the loose runs around it are completed.
+          flush();
           continue;
         }
 

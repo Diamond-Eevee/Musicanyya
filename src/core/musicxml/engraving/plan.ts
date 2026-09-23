@@ -53,7 +53,7 @@ export function planEngraving(doc: XmlDocument, mode: EngravingMode): EngravingP
       // B13: a sung line that encodes no beams at all is flagged per syllable on purpose (traditional vocal
       // notation) - leave it as encoded.
       if (!voiceEvents.some((e) => e.hasBeam) && voiceEvents.some(hasLyric)) continue;
-      const result = planBeamsForVoice(voiceEvents, part.measures, walked.ppq);
+      const result = planBeamsForVoice(voiceEvents, part.measures, walked.ppq, mode === 'library');
 
       if (result.skipped) {
         for (const measureLabel of result.invalidMeasureLabels) {

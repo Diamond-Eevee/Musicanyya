@@ -298,6 +298,13 @@ compact and 004 SC-002 stays; purely visual audit gaps are named follow-ups; the
 - [x] T059 `build.ts`: title = `<movement-title>`, else `<work-title>` (R-4 amended: the piece, not its collection;
   no "movement - work" joining); test in `tests/core/musicxml/build.test.ts`.
 
+### Found by the audit (T044)
+
+- [x] T062 Library mode completes the beam groups of a partly beamed voice whose notes carry no `<beam>` (R-2 B11,
+  FR-001); test in `tests/core/musicxml/engraving/real-encodings.test.ts`; `pnpm library:engrave` + `library:index`.
+- [x] T063 2/2: split a half into quarters on the metre's quarter boundaries, not at the span's midpoint, so a
+  quarter-note pickup stays one group (R-2 B4); tests in `beat-grouping.test.ts`; *Chopin Op. 28 No. 4* pickup beamed.
+
 ### Documents
 
 - [x] T060 THIRD_PARTY_NOTICES.md and `public/library/README.md`: the factual licence note (owner wording); move

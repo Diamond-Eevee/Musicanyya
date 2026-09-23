@@ -81,8 +81,8 @@ Notes that apply to every row:
 - **System-start bar numbers**: shown by Verovio's default (numbers at the start of every system after the
   first, from `<measure number>`); pickups are numbered 0, so the first full bar is 1 as in printed editions.
   Not re-rendered for this audit.
-- **Title block**: taken from `<work-title>` and `<creator type="composer|arranger">` in the MusicXML (FR-017),
-  not from the sidecar.
+- **Title block**: taken from `<movement-title>`, else `<work-title>`, and `<creator type="composer|arranger">` in the
+  MusicXML (FR-017, research R-4), not from the sidecar. Library files name only a `<work-title>`.
 
 ## Details per piece (every cell that is not `P` or `n/u`)
 
@@ -114,8 +114,8 @@ Rp `D`: the source repeats bars 0-7 with first/second endings; the file ends on 
 and 27/28) match. Sl `M`: every 16th-note figure and its eighth-note tag is slurred in the source (RH bars 3-9,
 20-23, 28-32; LH bars 12-17) -> LE-01. Ar `M`: staccato on the LH chords (bars 1-11, 20-33) and on the RH eighth
 tags (bars 3-11, 20-32); accent on D5 bar 8 -> LE-02. Fi `M`: the source fingers the figures throughout (bars
-3-33) -> LE-03. Dy `P*`: `sf` in bar 10 is encoded as `<dynamics>` directly inside `<note>` (not valid
-MusicXML), so it is not drawn -> LE-09. Tb `P*`: "Burgmuller" -> "Burgmüller" (LE-08).
+3-33) -> LE-03. Dy `P*`: the source's `sf` in bar 10 is encoded as `<dynamics>` directly inside `<note>`, which is
+not valid MusicXML there and is probably ignored on import -> LE-09. Tb `P*`: "Burgmuller" -> "Burgmüller" (LE-08).
 
 **innoc** - bars 1-11 do not match `25EF-05.ly` as the sidecar claims -> G-07. Sl `M` bars 1-11 (every
 16th-note group and bars 9-11 slurred) -> LE-01. Dy `M`: source hairpins bars 2, 3, 4, 7 and "cresc." bar 5
@@ -134,11 +134,12 @@ phrasing slurs bars 0-20 -> LE-01. Ar `M`: LH accents bars 9, 10, 15, 16; LH sta
 around bars 9-10 (approx.) -> LE-02. Dy `P*`: the source has `f` four times, the file once (bar 0); positions of
 the other three unverified -> LE-04.
 
-**bach** - bars 1, 33, 34 and 35 match Mutopia 5 exactly (upper staff under `\transpose c c'`); the harmony of
-every bar matches the standard Urtext (35 bars, no Schwencke bar). The source has no dynamics, slurs, fingering
-or pedal. St `?`: in staff 2 the bass (voice 5) precedes the tenor (voice 6); check in a screenshot that the
-bass gets stems down and the tenor stems up, as in editions -> LE-11. Or `M`: arpeggio (spread-chord) sign on
-the final chord, bar 35 (`\arpeggio` in the source) -> LE-07. Fermata bar 35 present.
+**bach** - bars 1, 33, 34 and 35 match Mutopia 5 exactly (upper staff under `\transpose c c'`); bars 2, 21-24 and
+32 were read note by note and match the standard Urtext; the remaining bars were checked through the file's
+per-bar chord comments (35 bars, no Schwencke bar). The source has no dynamics, slurs, fingering or pedal. St `?`:
+in staff 2 the bass (voice 5) precedes the tenor (voice 6); check in a screenshot that the bass gets stems down
+and the tenor stems up, as in editions -> LE-11. Or `M`: arpeggio (spread-chord) sign on the final chord, bar 35
+(`\arpeggio` in the source) -> LE-07. Fermata bar 35 present.
 
 **ch20** - spot-checked bars 3 and 13 against `Chop-28-20.ly`: match (the sidecar reports a mechanical decode of
 every pitch). Sl `M`: phrasing slurs bars 1-4, 5-8, 9-12 -> LE-01. Dy `P*`: the crescendo wedges in bars 3 and 11
@@ -160,16 +161,17 @@ the source's F-major and D-minor episodes carry slurs, pedal and grace notes (e.
 start of the F-major episode); they come back with the re-transcription in G-06, not as separate follow-ups.
 Dy `P*`: `p` at bar 0, source `pp` -> LE-04. Tx `P*`: "Tempo I" at bar 48 with no earlier tempo change ->
 LE-05. Rp `D`: each section written out once (disclosed); the source uses repeats with voltas. Tb `P*`: the
-file's title says "(complete)", the sidecar says "arranged ... abridged" -> LE-08. The source prints the fast
-run under an ottava; the file has none -> LE-10.
+file's title says "(complete)", the sidecar says "arranged ... abridged" -> LE-08. The source uses `\ottava`
+(exact bars not quoted); the file has no `<octave-shift>` -> LE-10.
 
-**satie** - bars 1-34 match the source's melody and ostinato (Mutopia quotes for bars 17-21 and 32-35); the close
-is truncated -> G-09. Sl `M`: source slurs bars 5-7, 13-15, 25-26 and the later phrases -> LE-01. Dy `P*`: `f`
-bar 9 and `mp` bar 29 are not in the source; the source's `p` is at bar 22 (file 21); the source hairpins (bars
-5-9, 13, 17-19, 25-29, 30-32, 33-38) are missing -> LE-04. Pe `P*`: all pedal marks (bars 1-37) are editorial,
-the source has none, and the sidecar does not say so -> LE-06. Rp `M`: see G-09 (the whole-piece repeat with two
-endings is left out, loosely disclosed as "further reprises"). Tb `P*`: "Gymnopedie" -> "Gymnopédie"; the title
-says "(arranged for this app)" but the sidecar says `"arrangement": false` -> LE-08.
+**satie** - bars 17-21 and 32-35 match Mutopia quotes; bars 1-16 and 22-31 match the well-known melody and
+ostinato (not quoted bar by bar); the close is truncated -> G-09. Sl `M`: source slurs bars 5-7, 13-15, 25-26 and
+the later phrases -> LE-01. Dy `P*`: `f` bar 9 and `mp` bar 29 are not in the source; the source's `p` is at bar
+22 (file 21); the source hairpins (bars 5-9, 13, 17-19, 25-29, 30-32, 33-38) are missing -> LE-04. Pe `P*`: all
+pedal marks (bars 1-37) are editorial, the source has none, and the sidecar does not say so -> LE-06. Rp `M`: see
+G-09 (the whole-piece repeat with two endings is left out, loosely disclosed as "further reprises"). Tb `P*`:
+"Gymnopedie" -> "Gymnopédie"; the title says "(arranged for this app)" but the sidecar says
+`"arrangement": false` -> LE-08.
 
 ## Playback/grading gaps (fix in 006, new tasks from T052)
 
@@ -203,9 +205,16 @@ diatonic continuation; beginner rhythm simplifications named in the sidecars.
   (half-bar grouping rule from the Assumptions).
 - `ch4` staff 1 voice 1: pickup bar 0 (dotted eighth + sixteenth).
 
-This is visual, but it is 006's own requirement, not a library-enrichment item. Recommendation: fix in 006 by
-adding the beams to the two files (FR-004 then keeps them) and making the guard check per voice and bar;
-otherwise record it as a known limitation of FR-001. Decision for the lead agent / owner.
+This is visual, but it is 006's own requirement, not a library-enrichment item.
+
+**Resolution (2026-09-23, lead agent):**
+
+- `ch4`: fixed in 006. Two rule bugs kept the pickup unbeamed: library mode skipped any partly beamed voice (now
+  it completes the groups that carry no `<beam>`, T062, R-2 B11) and the 2/2 split cut a quarter-note pickup at its
+  midpoint (T063, R-2 B4). `pnpm library:engrave` added the beam; the guard now checks per group.
+- `schum`: no change. Each flagged pair is an off-beat eighth at beat 1.5 (or 3.5) and one on beat 2 (or 4) - two
+  different quarter groups under the owner's 4/4 rule (R-2 B4: half-bar groups only for four plain eighths), so the
+  flags are what the rule prints. Beaming off-beat pairs across a beat would need the owner to change B4.
 
 ## Named follow-ups (library enrichment, not in 006)
 
@@ -220,7 +229,7 @@ otherwise record it as a known limitation of FR-001. Decision for the lead agent
 | LE-07 | Ornaments | bach arpeggio sign on the final chord, bar 35 |
 | LE-08 | Title block text | composer lines for twinkle, mary, grace, green ("Traditional ..."); "Für" in fe16 (file and sidecar); "Burgmüller" in arab and innoc; "Gymnopédie" in satie; satie "(arranged for this app)" vs `"arrangement": false`; clem arranger line (title says arranged); fecomp "(complete)" (also part of G-06) |
 | LE-09 | Encoding hygiene | arab bar 10 `sf` inside `<note>` -> `<direction>`; satie bar 36 `<accidental>` after `<staff>` (schema order); ch4 bar 9 accidental on the tied continuation |
-| LE-10 | Ottava | fecomp fast run (bars 43-45, if kept after G-06); innoc bar 11 8va (after G-07) |
+| LE-10 | Ottava | fecomp: follow the source's `\ottava` once G-06 is done; innoc bar 11 8va (after G-07) |
 | LE-11 | Verify stem directions in a two-voice LH | bach staff 2, bars 1-34 (bass should be stems down, tenor stems up); screenshot with `pnpm screenshot` |
 
 ## Method

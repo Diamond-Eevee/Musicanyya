@@ -129,6 +129,8 @@ export function applyEighthExtensions(
   time: MeasureTime | null,
   groups: readonly Span[],
   notes: readonly GroupableNote[],
+  /** Ticks per quarter note (the walk's `ppq`); without it a 2/2 half splits at its midpoint. */
+  quarter?: number,
 ): Span[] {
   if (time?.beats.length !== 1) return [...groups];
   const [n] = time.beats;
@@ -150,16 +152,33 @@ export function applyEighthExtensions(
 
   if (time.beatType === 2 && groups.length >= 1) {
     const result: Span[] = [];
-    for (const half of groups) {
+    groups.forEach((half, index) => {
       const inHalf = notes.filter((nt) => nt.onset >= half.start && nt.onset < half.end);
-      const hasShort = inHalf.some((nt) => shorterThanEighth(nt.type));
-      if (hasShort) {
-        const mid = (half.start + half.end) / 2;
-        result.push({ start: half.start, end: mid }, { start: mid, end: half.end });
-      } else {
+      if (!inHalf.some((nt) => shorterThanEighth(nt.type))) {
         result.push(half);
+        return;
       }
-    }
+      // Split into quarters on the metre's quarter boundaries. A short first span is the end of a half (B2: the
+      // first bar is end-aligned), so its quarters are counted back from its end; any other span from its start.
+      // A span no longer than a quarter (a quarter-note pickup) is already one quarter and stays whole.
+      const q = quarter ?? (half.end - half.start) / 2;
+      const length = half.end - half.start;
+      if (length <= q) {
+        result.push(half);
+        return;
+      }
+      const cuts: number[] = [];
+      if (index === 0 && length < 2 * q) {
+        for (let at = half.end - q; at > half.start; at -= q) cuts.unshift(at);
+      } else {
+        for (let at = half.start + q; at < half.end; at += q) cuts.push(at);
+      }
+      let start = half.start;
+      for (const cut of [...cuts, half.end]) {
+        result.push({ start, end: cut });
+        start = cut;
+      }
+    });
     return result;
   }
 
