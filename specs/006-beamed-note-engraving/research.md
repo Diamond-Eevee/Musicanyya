@@ -167,3 +167,24 @@ computes stems).
 **Decision**: one linear pass over notes per part plus a sort per (staff, bar); inserts spliced in the existing
 single-pass render-copy build. Measured in a test on the largest fixture (the 4.7 MB quartet) and the complete
 *Für Elise*: completion time <= 10% of the current open time (SC-005).
+
+## R-10. `walk.ts` implementation notes (filled in during T009)
+
+**Decision**: `walkScore` normalizes every onset/duration/measure-length to one document-wide common tick unit
+(`WalkResult.ppq`), computed with the same `computePPQ` helper `buildScore` already uses for the Score's own
+ticks. This is what makes B1 ("a `<divisions>` change mid-piece is harmless") hold: every position is directly
+comparable regardless of where or how often `<divisions>` changes, without needing a separate rational/fraction
+type.
+**Rationale**: reuses an already-tested technique instead of inventing a second one; data-model.md's "durations
+are in the measure's `<divisions>` units" is satisfied in spirit (one consistent tick unit per walk), not literally
+(the raw MusicXML `<divisions>` integer is not itself the unit).
+
+**Decision**: `MeasureContext.keyByStaff` and `.time` hold the state in force at the *start* of the measure
+(after any `<attributes>` at onset 0, before the first note/backup/forward); a later `<attributes>` change is
+recorded separately in `MeasureContext.midBarChanges: { onset, keyByStaff?, time? }[]` (R-3 A2's mid-bar key
+reset). `divisions` stays "last value seen by measure end" (informational only - every note's own duration is
+already converted using whatever `<divisions>` was active when it was read, so the field is not load-bearing for
+beat-grouping or accidentals).
+**Alternatives**: a single flat state per measure with no mid-bar change record (rejected - loses the position a
+change takes effect at, which R-3 A2 needs); per-onset event stream merged with notes (more general but not
+needed by any rule in R-2/R-3, added complexity deferred until a rule actually needs it).

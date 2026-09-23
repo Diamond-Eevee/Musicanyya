@@ -34,7 +34,8 @@ insert splice, and the render-copy extension.
   **unchanged** library and commit the golden (SC-003, FR-005).
 - [x] T004 Write `tests/library/identity.test.ts`: rebuilds the same list for every library file and deep-equals
   the golden from T003 (passes now; it is the guard for every later file change).
-- [ ] T005 [P] Fixtures in `tests/fixtures/musicxml/engraving/` (origin + licence noted in the folder README, own
+- [~] T005 [P] Fixtures in `tests/fixtures/musicxml/engraving/` (claimed: claude-sonnet-5 2026-09-23; fur-elise-bare.musicxml
+  done, other 8 delegated to music-domain-expert agent, running) (origin + licence noted in the folder README, own
   work, CC0): `fur-elise-bare.musicxml` (the theme's pitches/durations, no `<beam>`, no `<accidental>`),
   `metres.musicxml` (one bar each of 2/4, 3/4, 4/4, 2/2, 3/8, 6/8, 9/8, 12/8, 5/8, 7/8, `3+2/8`, with eighth and
   sixteenth patterns), `rests-and-hooks.musicxml` (rests inside beats, dotted-eighth+sixteenth, sixteenth+dotted
@@ -45,7 +46,7 @@ insert splice, and the render-copy extension.
   other octave, ties across a barline, key change mid-bar, F and F♯ in one chord, double sharp -> sharp, grace
   note accidental, volta ending 2), `prints-accidentals.musicxml` (a part that prints some accidentals but lacks
   one required sign, and one note printing a sharp sign with `<alter>` 0).
-- [ ] T006 [P] Test `tests/core/musicxml/engraving/walk.test.ts`: onsets across `<backup>`/`<forward>` and a
+- [x] T006 [P] Test `tests/core/musicxml/engraving/walk.test.ts`: onsets across `<backup>`/`<forward>` and a
   `<divisions>` change; per-staff keys (`<key number>`), mid-bar key/time change; chords folded into heads; grace,
   tuplet, tie flags; end-aligned pickup (research B2); insert offsets per R-8 for notes with/without `type`, `dot`,
   `staff`, `notations`. Must fail (module missing).
@@ -55,7 +56,7 @@ insert splice, and the render-copy extension.
 - [ ] T008 [P] Test in `tests/core/musicxml/render-copy.test.ts`: `createRenderCopy` with `elements` inserts inside
   note bodies alongside id rewrites; the render copy re-parses to the same Score (render-copy contract guarantee
   3). Must fail.
-- [ ] T009 Implement `src/core/musicxml/engraving/walk.ts` (data-model section 2) until T006 passes.
+- [x] T009 Implement `src/core/musicxml/engraving/walk.ts` (data-model section 2) until T006 passes.
 - [ ] T010 [P] Implement `applyInserts` in `src/core/musicxml/engraving/plan.ts` until T007 passes.
 - [ ] T011 Extend `src/core/musicxml/render-copy.ts` with `elements: ElementInsert[]` until T008 passes; bump
   `specs/001-score-viewer-listen/contracts/render-copy.md` to 1.1.0 (additive).
