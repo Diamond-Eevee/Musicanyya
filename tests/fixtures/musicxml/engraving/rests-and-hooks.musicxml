@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="4.0">
+  <work><work-title>Engraving fixture: rests inside a beat, and beam hooks (R-2 B6/B9)</work-title></work>
+  <identification>
+    <creator type="arranger">Musicanyya test fixture</creator>
+    <rights>CC0-1.0 (test fixture, original work)</rights>
+    <encoding><software>Musicanyya</software><encoding-date>2026-09-23</encoding-date></encoding>
+  </identification>
+  <part-list>
+    <score-part id="P1"><part-name>Piano</part-name></score-part>
+  </part-list>
+  <part id="P1">
+  <!--
+  Feature 006 fixture: 4/4 throughout (divisions=4, so eighth=2, sixteenth=1 division units; one beat =
+  one quarter = 4 division units = the group span, B3). Each measure isolates ONE case in beat 1; beats
+  2-4 of every measure are filled with plain quarter notes (not beam-eligible, B5) purely to keep the bar
+  length exact - they never need a beam or flag decision and are not part of what the measure is testing.
+  No <beam> element is present anywhere in this file.
+
+  M1 - rest in the middle of an otherwise-beamable beat-group (B6: "a group ends at ... a rest").
+    Beat 1 = sixteenth C4, sixteenth rest, sixteenth D4, sixteenth E4 (four sixteenths, one is a rest,
+    filling the beat exactly: 1+1+1+1=4 division units). The rest splits what would have been one 4-note
+    beam into two pieces: C4 is alone before the rest -> it keeps its flag (no beam, B6 "a lone eligible
+    note with nothing to join keeps its flag"). D4-E4 are alone together after the rest -> a 2-note beam,
+    level 1 (eighth) D4=begin, E4=end; level 2 (sixteenth) D4=begin, E4=end (both have each other as a
+    same-level neighbour, so no hook is needed for this pair).
+
+  M2 - dotted eighth followed by a sixteenth (B9 hook direction, the exact case named in R-2: "dotted
+    eighth + sixteenth: sixteenth L2 backward hook"). Beat 1 = dotted eighth C4 (3 division units) then
+    sixteenth D4 (1 division unit) = 4 division units, one beat.
+    Level 1 (eighth): C4=begin, D4=end (2-note primary beam).
+    Level 2 (sixteenth): only D4 is eligible (C4 is an eighth, not a sixteenth, so it never carries a
+    level-2 beam element at all). D4 is the LAST note of the primary group with no sixteenth-level
+    neighbour on either side -> D4 gets a backward hook (its stub points back, left, toward C4).
+
+  M3 - the mirror case: a sixteenth followed by a dotted eighth. Beat 1 = sixteenth C4 (1 division unit)
+    then dotted eighth D4 (3 division units) = 4 division units, one beat.
+    Level 1 (eighth): C4=begin, D4=end (2-note primary beam).
+    Level 2 (sixteenth): only C4 is eligible. C4 is the FIRST note of the primary group with no
+    sixteenth-level neighbour on either side -> C4 gets a forward hook (its stub points forward, right,
+    toward D4) - the mirror image of M2.
+
+  M4 - an eighth followed by two sixteenths: a 3-note group with one primary-level-only note and a
+    secondary-level pair. Beat 1 = eighth C4 (2 division units), sixteenth D4 (1), sixteenth E4 (1) = 4
+    division units, one beat.
+    Level 1 (eighth): C4=begin, D4=continue, E4=end (3-note primary beam).
+    Level 2 (sixteenth): C4 carries no level-2 beam (it is only an eighth). D4 and E4 are both sixteenths
+    and adjacent to each other, so this is an ordinary two-note secondary beam, NOT a hook: D4 has a
+    same-level neighbour to its right (E4) but not to its left (C4 is not sixteenth-level) -> D4=begin;
+    E4 has a same-level neighbour to its left (D4) but not to its right -> E4=end.
+  -->
+  <measure number="1">
+    <attributes>
+      <divisions>4</divisions>
+      <key><fifths>0</fifths></key>
+      <time><beats>4</beats><beat-type>4</beat-type></time>
+      <clef><sign>G</sign><line>2</line></clef>
+    </attributes>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>1</duration><voice>1</voice><type>16th</type></note>
+    <note><rest/><duration>1</duration><voice>1</voice><type>16th</type></note>
+    <note><pitch><step>D</step><octave>4</octave></pitch><duration>1</duration><voice>1</voice><type>16th</type></note>
+    <note><pitch><step>E</step><octave>4</octave></pitch><duration>1</duration><voice>1</voice><type>16th</type></note>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>A</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  <measure number="2">
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>eighth</type><dot/></note>
+    <note><pitch><step>D</step><octave>4</octave></pitch><duration>1</duration><voice>1</voice><type>16th</type></note>
+    <note><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  <measure number="3">
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>1</duration><voice>1</voice><type>16th</type></note>
+    <note><pitch><step>D</step><octave>4</octave></pitch><duration>3</duration><voice>1</voice><type>eighth</type><dot/></note>
+    <note><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  <measure number="4">
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type></note>
+    <note><pitch><step>D</step><octave>4</octave></pitch><duration>1</duration><voice>1</voice><type>16th</type></note>
+    <note><pitch><step>E</step><octave>4</octave></pitch><duration>1</duration><voice>1</voice><type>16th</type></note>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>A</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  </part>
+</score-partwise>

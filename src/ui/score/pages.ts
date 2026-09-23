@@ -4,9 +4,9 @@ export interface PageLayout {
   height: number;
 }
 
-export function layoutPages(pageCount: number, pageHeight: number, gap = 0): PageLayout[] {
+export function layoutPages(pageCount: number, pageHeight: number, gap = 0, startOffset = 0): PageLayout[] {
   const layouts: PageLayout[] = [];
-  let top = 0;
+  let top = startOffset;
   for (let page = 1; page <= pageCount; page++) {
     layouts.push({ page, top, height: pageHeight });
     top += pageHeight + gap;

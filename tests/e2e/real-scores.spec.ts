@@ -1,6 +1,6 @@
 // Opens real repertoire in a real browser and checks the page looks like a page of a printed music
 // book (FR-002, Constitution III): staves with clefs, key and time signatures, noteheads with stems
-// and beams or flags, measures closed by barlines, the engraved title block, and lyrics under the
+// and beams or flags, measures closed by barlines, the title block above page 1, and lyrics under the
 // vocal line - each note and measure carrying the Note ID the rest of the app addresses it by.
 //
 // The fixtures are CC0 scores from the OpenScore corpora; see tests/fixtures/musicxml/real/README.md.
@@ -32,8 +32,8 @@ interface RealScore {
   /** Screenfuls the whole work takes. */
   minPages: number;
   /**
-   * Text of the title block Verovio engraves from the file's own credits, or null for the two files
-   * whose credits it does not print (they carry no <credit> element - the work still opens).
+   * Text the title block above page 1 must show (006 R-4: movement title, else work title, plus the composer), or
+   * null where the test only checks that a block is there.
    */
   heading: string | null;
 }
@@ -55,7 +55,7 @@ const LIEDER: RealScore[] = [
     minNotes: 20,
     minBeamsOrFlags: 1,
     minPages: 20,
-    heading: 'Mörike-Lieder',
+    heading: 'Auf einer Wanderung', // the song (movement-title), not its collection Mörike-Lieder (006 R-4)
   },
   {
     file: 'faure-les-roses-dispahan.mxl',
@@ -168,8 +168,8 @@ async function firstPage(page: Page) {
       measures: measures.length,
       barLines: count('g.barLine'),
       staffLines: count('g.staff path'),
-      titleBlocks: count('g.pgHead'),
-      headText: (svg.querySelector('g.pgHead')?.textContent ?? '').replace(/\s+/g, ' ').trim(),
+      titleBlocks: document.querySelectorAll('.mx-title-block').length,
+      headText: (document.querySelector('.mx-title-block')?.textContent ?? '').replace(/\s+/g, ' ').trim(),
       // Constitution III: Note ID = SVG id, so the schedule, the cursor and a Grade all address the
       // same element. An engraved note still carrying the encoder's own id would break that.
       notesWithOurId: notes.filter((n) => /^n-p\d+-/.test(n.id)).length,
@@ -228,11 +228,9 @@ function engravingTests(scores: RealScore[]) {
       expect(first.measures, 'measures').toBeGreaterThan(0);
       expect(first.barLines, 'barlines').toBeGreaterThanOrEqual(first.measures);
 
-      // The title block Verovio engraves from the file's own credits (FR-002).
-      if (score.heading === null) {
-        expect(first.titleBlocks, 'this file carries no credits to engrave').toBe(0);
-      } else {
-        expect(first.titleBlocks, 'title block').toBe(1);
+      // US5 Title block: the UI always renders a title block (falling back to filename if missing).
+      expect(first.titleBlocks, 'title block').toBe(1);
+      if (score.heading !== null) {
         expect(first.headText).toContain(score.heading);
       }
 
@@ -360,5 +358,27 @@ test.describe('real repertoire engraves like a printed music book (FR-002)', () 
     await last.scrollIntoViewIfNeeded();
     await expect(last.locator('svg').first()).toBeVisible({ timeout: 30_000 });
     expect(await last.locator('g.note, g.rest, g.mRest').count(), 'notation on the last page').toBeGreaterThan(0);
+  });
+
+  // T034 [US3] FR-011: opening a file with no encoded beams shows g.beam in the SVG (engraving completion)
+  // and one info notice (engravingCompleted).
+  test('T034: fur-elise-bare engraving completion: g.beam appears and info notice is shown', async ({ page }) => {
+    const engravingFixture = path.join(__dirname, '../fixtures/musicxml/engraving/fur-elise-bare.musicxml');
+    await page.goto('/');
+    await page.locator('mx-open-button input[type=file]').setInputFiles(engravingFixture);
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible({ timeout: OPEN_TIMEOUT_MS });
+
+    // The SVG must contain g.beam elements (engraving completion ran and inserted <beam> elements).
+    const beamCount = await page.evaluate(() => {
+      const svg = document.querySelector('.mx-score-page svg');
+      return svg?.querySelectorAll('g.beam').length ?? 0;
+    });
+    expect(beamCount, 'engraving completion: g.beam elements must appear in SVG').toBeGreaterThan(0);
+
+    // A single info notice must be visible (engravingCompleted, FR-011).
+    // The notice tray is non-modal (Constitution VI + FR-009).
+    const infoNotice = page.locator('.notice.info');
+    await expect(infoNotice).toHaveCount(1);
+    await expect(infoNotice.first()).toBeVisible();
   });
 });

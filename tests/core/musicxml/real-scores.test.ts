@@ -10,6 +10,7 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { buildScore } from '../../../src/core/musicxml/build.js';
+import { planEngraving } from '../../../src/core/musicxml/engraving/plan.js';
 import { readXml } from '../../../src/core/musicxml/read.js';
 import { createRenderCopy } from '../../../src/core/musicxml/render-copy.js';
 import { compileSchedule } from '../../../src/core/schedule/compile.js';
@@ -216,6 +217,18 @@ const SCORES: Expected[] = [
   },
 ];
 
+/** T054: the only signs completion may add to these files, each with the reason it is right (SC-006, FR-006). */
+const REAL_SCORE_ADDITIONS: Record<string, { where: string; why: string }[]> = {
+  'janacek-quartet-2-intimate-letters.mxl': [
+    {
+      where: 'part 2 bar 278 staff 1 B3',
+      why:
+        'The viola plays B-flat3 on beat 2 with no sign, in a bar without key signature. The file relies on a hidden ' +
+        '(print-object="no") B-flat3 at beat 1 carrying the flat, so a reader sees B natural: the flat is needed.',
+    },
+  ],
+};
+
 async function load(file: string) {
   const bytes = new Uint8Array(fs.readFileSync(path.join(realDir, file)));
   const xml = decodeXml(await readMxl(bytes));
@@ -336,6 +349,66 @@ describe('real repertoire (CC0 OpenScore fixtures)', () => {
           expect(measure.label.length).toBeGreaterThan(0);
           cursor = measure.startTick + measure.lengthTicks;
         }
+      });
+
+      // T029 / T054 [US3] SC-006: a professionally engraved file that encodes its own beams and accidentals is
+      // shown with all of them unchanged, and completion adds nothing to it and warns about nothing (R-2 B12/B13,
+      // R-3 A2-A6) - except a sign listed in REAL_SCORE_ADDITIONS with its musical reason. Every file here is a
+      // MuseScore export; before T053 these produced 49 beamDataInvalid warnings and 45 added "required"
+      // accidentals, all false.
+      it('SC-006: completion adds only the listed signs, reports nothing, and keeps every <beam> and <accidental>', {
+        timeout: 20_000,
+      }, async () => {
+        const { xml, parsed, score } = await load(expected.file);
+
+        const plan = planEngraving(parsed.doc, 'opened');
+        const expectedAdditions = REAL_SCORE_ADDITIONS[expected.file] ?? [];
+        expect(plan.invalidBeams, 'beamDataInvalid').toEqual([]);
+        expect(plan.contradictions, 'accidentalContradicts').toEqual([]);
+        expect(plan.beamGroupsAdded, 'beam groups added').toBe(0);
+        expect(
+          plan.findings.map(
+            (f) => `part ${f.part} bar ${f.measureLabel} staff ${f.staff} ${'pitch' in f ? f.pitch : ''}`,
+          ),
+          'accidentals added',
+        ).toEqual(expectedAdditions.map((a) => a.where));
+        expect(plan.accidentalsAdded).toEqual({ required: expectedAdditions.length, courtesy: 0 });
+
+        const encodedElements = (text: string) =>
+          text.match(/<beam\b[^>]*>[^<]*<\/beam>|<accidental\b[^>]*>[^<]*<\/accidental>/g) ?? [];
+
+        // Build the render copy through the same path the worker will use after T032.
+        const notesInserts = score.parts.flatMap((part) =>
+          part.notes
+            .filter((note) => note.source.start > 0)
+            .map((note) => ({
+              startOffset: note.source.start,
+              tagLength: xml.indexOf('>', note.source.start) - note.source.start + 1,
+              id: note.id,
+            })),
+        );
+        const measureInserts = score.measures
+          .map((m, i) => {
+            const startOffset = parsed.offsets.measures[i];
+            if (startOffset === undefined) return null;
+            return { startOffset, tagLength: xml.indexOf('>', startOffset) - startOffset + 1, id: m.id };
+          })
+          .filter((x): x is NonNullable<typeof x> => x !== null);
+
+        const renderXml = createRenderCopy(xml, {
+          notes: notesInserts,
+          measures: measureInserts,
+          elements: plan.inserts,
+        });
+
+        // Byte for byte, in order: every encoded element is still there; the render copy adds only ids to
+        // <note>/<measure> start tags and the listed signs.
+        const original = encodedElements(xml);
+        const rendered = encodedElements(renderXml);
+        expect(rendered.length).toBe(original.length + expectedAdditions.length);
+        let next = 0;
+        for (const element of rendered) if (element === original[next]) next++;
+        expect(next, 'every original <beam>/<accidental> appears, unchanged and in order').toBe(original.length);
       });
     });
   }

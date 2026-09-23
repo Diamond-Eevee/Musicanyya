@@ -47,6 +47,14 @@ test.describe('Practice score library: browse, open, Listen', () => {
     await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
     await expect(page.locator('.notice')).toHaveCount(0);
+    const titleBlock = page.locator('.mx-title-block');
+    await expect(titleBlock).toBeVisible();
+    await expect(titleBlock).toContainText('Elise (theme');
+    await expect(titleBlock).toContainText('Beethoven');
+    // Feature 006: the library file ships beam-completed, so the pickup and bar 1 render as beam
+    // groups, not individually flagged sixteenths (no engravingCompleted notice - library files are
+    // already correct on disk).
+    await expect(page.locator('g.beam').first()).toBeVisible();
 
     // FR-019: source/licence visible without leaving the score view - reopen the (non-modal) panel to check it.
     await openPanel(page, 'scores');
@@ -145,5 +153,77 @@ test.describe('Practice score library: browse, open, Listen', () => {
       body: JSON.stringify(pageCounts, null, 2),
       contentType: 'application/json',
     });
+  });
+});
+
+/**
+ * 006 T040 / FR-017 / SC-008: the title block sits above page 1 in every mode, and a long title wraps instead of
+ * overflowing or being cut off, down to a phone-sized window (T058, owner decision R-11: compact block).
+ */
+test.describe('Title block (006 FR-017)', () => {
+  test('Für Elise (theme) shows its title and composer above page 1 in Listen, Practice and Play', async ({
+    page,
+    browserName,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === 'electron', 'the browser build covers the score view; Electron shares it');
+    test.skip(browserName === 'webkit', 'Practice and Play need Web MIDI, which Playwright WebKit does not provide');
+    await page.goto('/');
+    await openPanel(page, 'scores');
+    await page.locator(FUR_ELISE_SELECTOR).click();
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    // The fake MIDI keyboard (the `e2e-midi` seam of us1-play.spec.ts) enables Practice and Play.
+    await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
+
+    for (const mode of ['listen', 'practice', 'play']) {
+      await page.locator(`mx-mode-switch input[value=${mode}]`).check();
+      const titleBlock = page.locator('.mx-title-block');
+      await expect(titleBlock, mode).toBeVisible();
+      await expect(titleBlock.locator('h1'), mode).toContainText('Elise (theme');
+      await expect(titleBlock.locator('.mx-title-composer'), mode).toHaveText('Ludwig van Beethoven');
+      // Directly above page 1: the block is the page stack's first child and page 1 follows it.
+      expect(await titleBlock.evaluate((el) => el.nextElementSibling?.getAttribute('data-page') ?? null), mode).toBe(
+        '1',
+      );
+    }
+  });
+
+  test('a long title wraps onto more lines at phone width; nothing overflows and page 1 follows the block', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === 'electron', 'the browser build covers the score view; Electron shares it');
+    const title = 'Variations on a Very Long Title That Certainly Does Not Fit on One Line of a Phone Screen';
+    const xml =
+      '<?xml version="1.0" encoding="UTF-8"?><score-partwise version="4.0">' +
+      `<movement-title>${title}</movement-title>` +
+      '<identification><creator type="composer">A Composer</creator><creator type="arranger">An Arranger</creator>' +
+      '</identification><part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>' +
+      '<part id="P1"><measure number="1"><attributes><divisions>1</divisions><time><beats>4</beats>' +
+      '<beat-type>4</beat-type></time><clef><sign>G</sign><line>2</line></clef></attributes>' +
+      '<note><pitch><step>C</step><octave>4</octave></pitch><duration>4</duration><type>whole</type></note>' +
+      '</measure></part></score-partwise>';
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await page
+      .locator('mx-open-button input[type=file]')
+      .setInputFiles({ name: 'long-title.musicxml', mimeType: 'application/xml', buffer: Buffer.from(xml) });
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+
+    const box = await page.locator('.mx-title-block').evaluate((el) => {
+      const h1 = el.querySelector('h1') as HTMLElement;
+      const page1 = el.nextElementSibling as HTMLElement;
+      return {
+        h1Text: h1.textContent,
+        h1Lines: Math.round(h1.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(h1).lineHeight)),
+        overflow: el.scrollWidth - el.clientWidth,
+        blockBottom: el.getBoundingClientRect().bottom,
+        page1Top: page1.getBoundingClientRect().top,
+      };
+    });
+    expect(box.h1Text).toBe(title);
+    expect(box.h1Lines, 'the long title wraps').toBeGreaterThan(1);
+    expect(box.overflow, 'no horizontal overflow').toBeLessThanOrEqual(0);
+    expect(Math.abs(box.page1Top - box.blockBottom), 'page 1 starts right below the block').toBeLessThanOrEqual(1);
+    await expect(page.locator('.mx-title-arranger')).toBeVisible();
   });
 });

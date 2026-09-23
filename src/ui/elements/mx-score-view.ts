@@ -8,6 +8,7 @@ import {
   SCORE_SCALE_MIN,
 } from '../../engine/config.js';
 import type { AudioEngine } from '../../engine/ports.js';
+import { en } from '../i18n/en.js';
 import { fitLayout } from '../layout/fit.js';
 import { drawCursorOverlay } from '../score/cursor-overlay.js';
 import { drawGradeMarks, drawLiveMarks } from '../score/grade-marks.js';
@@ -25,6 +26,7 @@ import { insetState } from '../state/insetState.js';
 import { playState } from '../state/playState.js';
 import { practiceState } from '../state/practiceState.js';
 import { runPositionState } from '../state/runPositionState.js';
+import { scoreState } from '../state/scoreState.js';
 import { transportState } from '../state/transportState.js';
 import { viewState } from '../state/viewState.js';
 
@@ -64,6 +66,8 @@ export class MxScoreView extends HTMLElement {
   private canvasEl!: HTMLCanvasElement;
   private measureIds: string[] = [];
   private layouts: PageLayout[] = [];
+  /** Drawn height of the title block above page 1, in CSS px; every page position starts below it. */
+  private titleBlockHeight = 0;
   private pageMeasureIds = new Map<number, string[]>();
   private mountedPages = new Set<number>();
   private scale = SCORE_SCALE_DEFAULT;
@@ -240,10 +244,16 @@ export class MxScoreView extends HTMLElement {
 
   private applyPageCount(pageCount: number) {
     this.domEpoch++;
-    this.layouts = layoutPages(pageCount, this.pageHeightPx());
     this.pageMeasureIds.clear();
     this.mountedPages.clear();
     this.stack.innerHTML = '';
+
+    const block = this.createTitleBlock();
+    if (block) this.stack.appendChild(block);
+    // Page 1 starts below the title block, at its drawn height: a long title wraps onto more lines (FR-017).
+    this.titleBlockHeight = block?.offsetHeight ?? 0;
+    this.layouts = layoutPages(pageCount, this.pageHeightPx(), 0, this.titleBlockHeight);
+
     for (const layout of this.layouts) {
       const pageEl = document.createElement('div');
       pageEl.className = 'mx-score-page';
@@ -253,13 +263,45 @@ export class MxScoreView extends HTMLElement {
     }
   }
 
+  /** The title block above page 1 (FR-017, research R-4): the title centred, then composer and "arr. ..." on one
+   *  right-aligned line; missing lines are left out, a Score without a title shows its file name. */
+  private createTitleBlock(): HTMLElement | null {
+    const state = scoreState.getStatus();
+    if (state.kind !== 'loaded') return null;
+    const { summary, fileName } = state.score;
+    const block = document.createElement('div');
+    block.className = 'mx-title-block';
+    const title = document.createElement('h1');
+    title.textContent = summary.title ?? fileName ?? en.score.unknown;
+    block.appendChild(title);
+    if (summary.composer || summary.arranger) {
+      const credits = document.createElement('div');
+      credits.className = 'mx-title-credits';
+      if (summary.composer) {
+        const composer = document.createElement('span');
+        composer.className = 'mx-title-composer';
+        composer.textContent = summary.composer;
+        credits.appendChild(composer);
+      }
+      if (summary.arranger) {
+        const arranger = document.createElement('span');
+        arranger.className = 'mx-title-arranger';
+        const name = summary.arranger;
+        arranger.textContent = en.score.arranger.replace('{name}', () => name); // a `$` in a name stays literal
+        credits.appendChild(arranger);
+      }
+      block.appendChild(credits);
+    }
+    return block;
+  }
+
   /** The first rendered page tells the real page shape; re-measure the placeholders once if it differs. */
   private adoptRenderedAspect(aspect: number | null): void {
     if (aspect === null || aspect === this.pageAspect) return;
     this.pageAspect = aspect;
     const height = this.pageHeightPx();
     if (this.layouts.length === 0 || this.layouts[0]?.height === height) return;
-    this.layouts = layoutPages(this.layouts.length, height);
+    this.layouts = layoutPages(this.layouts.length, height, 0, this.titleBlockHeight);
     for (const layout of this.layouts) {
       const pageEl = this.stack.querySelector<HTMLElement>(`[data-page="${layout.page}"]`);
       if (pageEl) pageEl.style.height = `${layout.height}px`;

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="4.0">
+  <work><work-title>Engraving fixture: a file that already prints its own accidentals (R-3 C3, A4 contradiction)</work-title></work>
+  <identification>
+    <creator type="arranger">Musicanyya test fixture</creator>
+    <rights>CC0-1.0 (test fixture, original work)</rights>
+    <encoding><software>Musicanyya</software><encoding-date>2026-09-23</encoding-date></encoding>
+  </identification>
+  <part-list>
+    <score-part id="P1"><part-name>Piano</part-name></score-part>
+  </part-list>
+  <part id="P1">
+  <!--
+  Feature 006 fixture: models a real-world export (e.g. from a notation program) that already prints its
+  own <accidental> element for most of its altered notes - the pattern that, per C3, means mode 'opened'
+  must add NO courtesy accidentals anywhere in this part (only in 'library' mode would courtesy signs
+  ever be considered for a part like this one). One part, one staff, 4/4 throughout, divisions=4 (every
+  note is a plain quarter; no <beam> element anywhere - this file is only about R-3 accidentals). Key:
+  D major (<fifths>2</fifths>: F and C sharp by the key, every other letter natural by the key).
+
+  This part already carries THREE correctly-printed accidentals, establishing the "prints its own
+  accidentals" pattern C3 looks for:
+    - M1 note 1, G4, <alter>1</alter>, <accidental>sharp</accidental> - correct and complete, left alone.
+    - M1 note 3, E4, <alter>-1</alter>, <accidental>flat</accidental> - correct and complete, left alone.
+    - M2 note 2, B4, <alter>-1</alter>, <accidental>flat</accidental> - correct and complete, left alone.
+  None of these three should be touched, and because they exist, mode 'opened' must not add a courtesy
+  accidental anywhere else in this part either (C3), even where a bar-to-bar alteration change would
+  otherwise have qualified one under C2 in a file that prints no accidentals at all.
+
+  Exactly ONE required accidental is missing from this file, and it is the only insertion 'opened' mode
+  should make: M1 note 4, F4, <alter>0</alter>, has NO <accidental> element. F is sharp by the key
+  (expected +1); this note's alter (0) differs from that -> a REQUIRED natural is missing and must be
+  added (A4/A2) - this is a genuine gap, not a courtesy case, so it applies in both 'library' and
+  'opened' modes.
+
+  Exactly ONE note deliberately CONTRADICTS its own <alter>: M2 note 1, A4, <pitch> has NO <alter>
+  element at all (so alter defaults to 0, i.e. A-natural), but it carries <accidental>sharp</accidental>
+  printed anyway. Per A4, an existing <accidental> is left completely untouched no matter what it says -
+  this is the deliberately-contradicting-accidental scenario, and it must be reported as
+  `accidentalContradicts` (measure 2, pitch A4), never "fixed" or removed.
+
+  M1 note 2 (C5, <alter>1</alter>, no accidental - matches the key exactly, so A4 does not require
+  anything) and M2 notes 3-4 (C5 matching the key, D4 natural by the key) are unrelated filler with no
+  accidental needed at all.
+  -->
+  <measure number="1">
+    <attributes>
+      <divisions>4</divisions>
+      <key><fifths>2</fifths></key>
+      <time><beats>4</beats><beat-type>4</beat-type></time>
+      <clef><sign>G</sign><line>2</line></clef>
+    </attributes>
+    <note><pitch><step>G</step><alter>1</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><accidental>sharp</accidental></note>
+    <note><pitch><step>C</step><alter>1</alter><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>E</step><alter>-1</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><accidental>flat</accidental></note>
+    <note><pitch><step>F</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  <measure number="2">
+    <note><pitch><step>A</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><accidental>sharp</accidental></note>
+    <note><pitch><step>B</step><alter>-1</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><accidental>flat</accidental></note>
+    <note><pitch><step>C</step><alter>1</alter><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>D</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  </part>
+</score-partwise>

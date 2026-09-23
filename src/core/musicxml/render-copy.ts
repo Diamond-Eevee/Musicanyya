@@ -1,6 +1,11 @@
+import type { ElementInsert } from './engraving/index.js';
+
 export interface RenderCopyInserts {
   notes: Array<{ startOffset: number; tagLength: number; id: string }>;
   measures: Array<{ startOffset: number; tagLength: number; id: string }>;
+  /** Engraving-completion inserts (accidentals, beams) spliced strictly inside note bodies - they never
+   *  overlap a note/measure open tag, so no collision handling is needed against `notes`/`measures`. */
+  elements?: ElementInsert[];
 }
 
 interface Replacement {
@@ -84,7 +89,21 @@ export function createRenderCopy(xml: string, inserts: RenderCopyInserts): strin
 
   // `collisions` is already in ascending order (matchAll walks the string forwards) and none of them
   // lies inside a tag, so merging the two sorted lists keeps the whole set ordered and disjoint.
-  const replacements = collisions.length === 0 ? tags : merge(tags, collisions);
+  const tagsAndCollisions = collisions.length === 0 ? tags : merge(tags, collisions);
+
+  // Element inserts are zero-width (start === end): they never overlap a tag or a collision removal,
+  // they only interleave with them. Sorted by (offset, order) first, so two inserts at the same offset
+  // (accidental before beam, contract order 0 before 1) come out in that order after the merge below.
+  const elementInserts = [...(inserts.elements ?? [])].sort((a, b) =>
+    a.offset !== b.offset ? a.offset - b.offset : a.order - b.order,
+  );
+  const elementReplacements: Replacement[] = elementInserts.map((e) => ({
+    start: e.offset,
+    end: e.offset,
+    replacement: e.text,
+  }));
+  const replacements =
+    elementReplacements.length === 0 ? tagsAndCollisions : merge(tagsAndCollisions, elementReplacements);
 
   const pieces: string[] = [];
   let cursor = 0;

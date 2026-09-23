@@ -22,7 +22,7 @@ export function applyTransposition(
   midiKey: number,
   chromatic: number,
   octaveChange: number,
-  isDoubleTransposition: boolean,
+  _isDoubleTransposition: boolean,
 ): number {
   return midiKey + chromatic + octaveChange * 12;
 }

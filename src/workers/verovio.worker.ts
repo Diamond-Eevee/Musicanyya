@@ -43,7 +43,7 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
           // (contracts/score-layout.md section 2, rule 4, measured by tests/verovio/page-units.test.ts). Verovio
           // boolean options are 1/0.
           adjustPageHeight: 0,
-          header: 'encoded',
+          header: 'none',
           footer: 'none',
           font: 'Leipzig',
           svgViewBox: 1,
@@ -61,7 +61,7 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
         toolkit.setOptions({
           breaks: 'auto',
           adjustPageHeight: 0,
-          header: 'encoded',
+          header: 'none',
           footer: 'none',
           font: 'Leipzig',
           svgViewBox: 1,

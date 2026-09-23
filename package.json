@@ -15,7 +15,9 @@
     "electron:build": "vite build && vite build -c vite.electron.config.ts && electron-builder",
     "gen:large-score": "tsx tests/tools/gen-large-score.ts",
     "library:exercises": "tsx tools/library/build-exercises.ts",
-    "library:index": "tsx tools/library/build-index.ts"
+    "library:engrave": "tsx tools/library/engrave.ts",
+    "library:index": "tsx tools/library/build-index.ts",
+    "screenshot": "tsx tools/dev/screenshot.ts"
   },
   "dependencies": {
     "@rgrove/parse-xml": "5.0.0",

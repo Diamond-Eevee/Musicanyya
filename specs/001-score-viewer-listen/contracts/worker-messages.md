@@ -1,8 +1,9 @@
 # Contract: Web Worker messages
 
-**Version**: `1.0.0`. Two dedicated module workers keep heavy work off the main thread (Constitution I). Every
-request carries a `requestId`; every response echoes it. A newer request of the same kind supersedes older ones (the
-main thread ignores stale responses).
+**Version**: `1.1.0` (MINOR: additive — four new `LoadNoticeCode` values: `engravingCompleted`, `beamDataInvalid`,
+`accidentalContradicts`, `engravingSkipped`; feature 006-beamed-note-engraving US3). Two dedicated module workers keep heavy work off
+the main thread (Constitution I). Every request carries a `requestId`; every response echoes it. A newer request of
+the same kind supersedes older ones (the main thread ignores stale responses).
 
 ## Score worker (`src/workers/score.worker.ts`)
 
@@ -22,6 +23,7 @@ interface LoadError { code: LoadErrorCode; message: string; line?: number; colum
 
 interface ScoreSummary {                       // what the UI needs; the full Score stays in the worker
   title: string | null; composer: string | null;
+    arranger: string | null; // 1.1.0 (feature 006): <creator type="arranger">
   parts: { id: string; name: string; instrument: string; program: number; percussion: boolean }[];
   measureCount: number;                        // measures in notation order
   measureIds: string[];                        // MeasureId per notation-order index (render-copy.md)

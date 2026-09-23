@@ -26,7 +26,7 @@ const LARGE = fs.readFileSync(path.join(FIXTURES, 'large-score.musicxml'), 'utf8
 /** The option set `src/workers/verovio.worker.ts` uses, minus the three layout numbers and `adjustPageHeight`. */
 const WORKER_OPTIONS = {
   breaks: 'auto',
-  header: 'encoded',
+  header: 'none',
   footer: 'none',
   font: 'Leipzig',
   svgViewBox: 1,

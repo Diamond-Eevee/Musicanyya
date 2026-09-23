@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="4.0">
+  <work><work-title>Engraving fixture: independent voices, cross-staff voices, and chords (R-2 B5/B6)</work-title></work>
+  <identification>
+    <creator type="arranger">Musicanyya test fixture</creator>
+    <rights>CC0-1.0 (test fixture, original work)</rights>
+    <encoding><software>Musicanyya</software><encoding-date>2026-09-23</encoding-date></encoding>
+  </identification>
+  <part-list>
+    <score-part id="P1"><part-name>Piano</part-name></score-part>
+  </part-list>
+  <part id="P1">
+  <!--
+  Feature 006 fixture: two-staff piano part (<staves>2</staves>), divisions=4 (eighth=2, sixteenth=1
+  division units). No <beam> element is present anywhere in this file.
+
+  M1 (4/4) - two voices sharing the SAME staff (both <staff>1</staff>), each filling the bar completely
+  and independently (voice 1 plain eighths, voice 2 plain sixteenths), to show that beat-grouping is
+  computed per (part, voice) - B6 - not per staff.
+    Voice 1 = eighths C4 D4 E4 F4 (half 1) G4 A4 B4 C5 (half 2), all plain/non-tuplet. B4 4/4 exception:
+    each half-bar has exactly four plain eighths -> each half is its own ONE group. Expected: a 4-note
+    beam over C4-D4-E4-F4, and a SEPARATE 4-note beam over G4-A4-B4-C5 (grouping never crosses the
+    bar's middle).
+    Voice 2 = sixteenths C5 D5 E5 F5 | G5 F5 E5 D5 | C5 D5 E5 F5 | G5 F5 E5 D5, one group of four per
+    quarter (B4's half-bar exception only applies to EIGHTH notes, not sixteenths, so the default
+    per-quarter rule, B3, applies here). Expected: FOUR separate 4-note beams, each with a continuous
+    level-1 (eighth) beam AND a continuous level-2 (sixteenth) beam (begin-continue-continue-end at both
+    levels - every note in each group of four has a same-level neighbour, so no hooks anywhere in this
+    voice). Voice 1's two beams and voice 2's four beams are entirely independent of each other even
+    though they occupy the identical staff and the identical bar.
+
+  M2 (4/4) - a SINGLE voice (voice 1 throughout) whose notes are split across <staff>1</staff> and
+  <staff>2</staff> within that one voice - a cross-staff run, common in piano writing for a beamed
+  passage that dips onto the other staff. Eight plain eighths: half 1 = C5(staff1) D5(staff1) G3(staff2)
+  A3(staff2); half 2 = B3(staff2) C4(staff2) F5(staff1) G5(staff1). Each half-bar holds exactly four
+  plain, non-tuplet eighths -> B4's 4/4 exception makes each half ONE group, regardless of the staff
+  each note is printed on (B6: "staff is ignored for grouping purposes"). Expected: a 4-note beam over
+  C5-D5-G3-A3 that spans staff 1 into staff 2 mid-beam, and a SEPARATE 4-note beam over B3-C4-F5-G5 that
+  spans staff 2 into staff 1 mid-beam - both are single beams of ONE voice, not two per-staff beams.
+
+  M3 (2/4) - a beam-eligible chord. Beat 1 = a three-note eighth chord (C4 base note + E4 + G4, the
+  latter two carrying <chord/>) followed by a plain eighth D4 - two beat-1 events (the chord counts as
+  ONE event per B5), filling the quarter exactly. Beat 2 = a plain filler quarter F4 (not beam-eligible).
+  Expected: a 2-note primary beam over [chord, D4]. Per the spec ("beams are written on the chord head,
+  the note without <chord/>"), the beam is placed on C4 (begin) and D4 (end); E4 and G4 - the <chord/>
+  members - carry no beam element of their own.
+  -->
+  <measure number="1">
+    <attributes>
+      <divisions>4</divisions>
+      <key><fifths>0</fifths></key>
+      <time><beats>4</beats><beat-type>4</beat-type></time>
+      <staves>2</staves>
+      <clef number="1"><sign>G</sign><line>2</line></clef>
+      <clef number="2"><sign>F</sign><line>4</line></clef>
+    </attributes>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
+    <note><pitch><step>D</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
+    <note><pitch><step>E</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
+    <note><pitch><step>A</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
+    <note><pitch><step>B</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
+    <note><pitch><step>C</step><octave>5</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
+    <backup><duration>16</duration></backup>
+    <note><pitch><step>C</step><octave>5</octave></pitch><duration>1</duration><voice>2</voice><type>16th</type><staff>1</staff></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>1</duration><voice>2</voice><type>16th</type><staff>1</staff></note>
+    <note><pitch><step>E</step><octave>5</octave></pitch><duration>1</duration><voice>2</voice><type>16th</type><staff>1</staff></note>
+    <note><pitch><step>F</step><octave>5</octave></pitch><duration>1</duration><voice>2</voice><type>16th</type><staff>1</staff></note>
+    <note><pitch><step>G</step><octave>5</octave></pitch><duration>1</duration><voice>2</voice><type>16th</type><staff>1</staff></note>
+    <note><pitch><step>F</step><octave>5</octave></pitch><duration>1</duration><voice>2</voice><type>16th</type><staff>1</staff></note>
+    <note><pitch><step>E</step><octave>5</octave></pitch><duration>1</duration><voice>2</voice><type>16th</type><staff>1</staff></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>1</duration><voice>2</voice><type>16th</type><staff>1</staff></note>
+    <note><pitch><step>C</step><octave>5</octave></pitch><duration>1</duration><voice>2</voice><type>16th</type><staff>1</staff></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>1</duration><voice>2</voice><type>16th</type><staff>1</staff></note>
+    <note><pitch><step>E</step><octave>5</octave></pitch><duration>1</duration><voice>2</voice><type>16th</type><staff>1</staff></note>
+    <note><pitch><step>F</step><octave>5</octave></pitch><duration>1</duration><voice>2</voice><type>16th</type><staff>1</staff></note>
+    <note><pitch><step>G</step><octave>5</octave></pitch><duration>1</duration><voice>2</voice><type>16th</type><staff>1</staff></note>
+    <note><pitch><step>F</step><octave>5</octave></pitch><duration>1</duration><voice>2</voice><type>16th</type><staff>1</staff></note>
+    <note><pitch><step>E</step><octave>5</octave></pitch><duration>1</duration><voice>2</voice><type>16th</type><staff>1</staff></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>1</duration><voice>2</voice><type>16th</type><staff>1</staff></note>
+  </measure>
+  <measure number="2">
+    <attributes><time><beats>4</beats><beat-type>4</beat-type></time></attributes>
+    <note><pitch><step>C</step><octave>5</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
+    <note><pitch><step>G</step><octave>3</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>2</staff></note>
+    <note><pitch><step>A</step><octave>3</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>2</staff></note>
+    <note><pitch><step>B</step><octave>3</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>2</staff></note>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>2</staff></note>
+    <note><pitch><step>F</step><octave>5</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
+    <note><pitch><step>G</step><octave>5</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
+  </measure>
+  <measure number="3">
+    <attributes><time><beats>2</beats><beat-type>4</beat-type></time></attributes>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
+    <note><chord/><pitch><step>E</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
+    <note><chord/><pitch><step>G</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
+    <note><pitch><step>D</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff></note>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+  </measure>
+  </part>
+</score-partwise>

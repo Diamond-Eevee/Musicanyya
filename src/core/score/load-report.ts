@@ -17,7 +17,12 @@ export type LoadNoticeCode =
   | 'instrumentFallback'
   | 'unpitchedWithoutSound'
   | 'defaultTempo'
-  | 'middleBarlineRepeat';
+  | 'middleBarlineRepeat'
+  // US3 (006-beamed-note-engraving): engraving completion notices
+  | 'engravingCompleted'
+  | 'beamDataInvalid'
+  | 'accidentalContradicts'
+  | 'engravingSkipped';
 
 export interface LoadReportEntry {
   code: LoadNoticeCode;

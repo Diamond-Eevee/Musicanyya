@@ -119,6 +119,11 @@ across keys) true by construction rather than by discipline.
    produces byte-identical files, which is what lets the golden snapshots mean something.
 6. **The generator never writes outside its family's folder**, and never touches a file whose sidecar
    says `provenance.origin` is `downloaded`.
+7. **Generated output is completed** (feature 006): before it is returned, every generated file is piped
+   through `planEngraving(doc, 'library')` + `applyInserts` (`specs/006-beamed-note-engraving/contracts/
+   engraving-completion.md`) - `<beam>` for eighths and shorter, `<accidental>` wherever the printed
+   pitch would otherwise read wrong. `planEngraving` on an already-generated file must plan zero
+   inserts (determinism, rule 5, still holds - completion is deterministic too).
 
 ## 3. Verification
 
@@ -130,7 +135,10 @@ across keys) true by construction rather than by discipline.
   the resulting notes are compared with the degrees the definition asked for. This is what stops a
   writer bug from producing plausible-looking but wrong music.
 - The generated files then face the ordinary library gates (sweep, licence, level check) like any
-  other item.
+  other item, plus the engraving guard (`tests/library/engraving-guard.test.ts`, feature 006 FR-012):
+  `planEngraving(doc, 'library')` must yield no inserts.
+- `tests/core/library/exercise/engraving.test.ts` (feature 006): every generated item, for every
+  definition, plans zero engraving inserts on its own.
 
 ## 4. Versioning
 

@@ -38,6 +38,10 @@ them, checked by `tests/library/licence.test.ts`, FR-017); should a `downloaded`
 its source, the date it was obtained and its licence go here as a dated entry (FR-020), matching the
 "Test fixtures" pattern below.
 
+The library's `.musicxml` files were completed by the project's engraving tool (`pnpm library:engrave`), which adds
+missing `<beam>` and `<accidental>` elements for display. Nothing else in the files is changed, and each file keeps
+the licence recorded for it in `public/library/index.json`.
+
 ## Test fixtures (not shipped with the application)
 
 - **OpenScore Lieder Corpus** and **OpenScore String Quartets** (downloaded 2026-09-22)

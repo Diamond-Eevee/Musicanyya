@@ -7,6 +7,7 @@ import { validMetadata } from '../../src/core/library/index-model.js';
 import { checkLevel } from '../../src/core/library/levels.js';
 import type { LibraryIndex, LibraryItem, LibrarySection } from '../../src/core/library/types.js';
 import { buildScore } from '../../src/core/musicxml/build.js';
+import { planEngraving } from '../../src/core/musicxml/engraving/plan.js';
 import { readXml } from '../../src/core/musicxml/read.js';
 import { buildTimeline } from '../../src/core/timeline/timeline.js';
 import { decodeXml } from '../../src/engine/files/decode.js';
@@ -112,6 +113,28 @@ export async function buildLibraryIndex(libraryRoot: string, thirdPartyNotices =
       const { score, report } = buildScore(doc);
       const { timeline, notices: timelineNotices } = buildTimeline(score);
       facts = deriveFacts({ doc, score, timeline, report, timelineNotices });
+
+      const plan = planEngraving(doc, 'library');
+      if (plan.findings.length > 0 || plan.invalidBeams.length > 0) {
+        for (const finding of plan.findings) {
+          if (finding.kind === 'missingAccidental' || finding.kind === 'missingCourtesy') {
+            const label = finding.kind === 'missingAccidental' ? 'required' : 'courtesy';
+            problems.push(
+              `${relFile}: bar ${finding.measureLabel}, staff ${finding.staff} - ${finding.pitch} needs a ${label} accidental`,
+            );
+          } else if (finding.kind === 'missingBeam') {
+            problems.push(
+              `${relFile}: bar ${finding.measureLabel}, staff ${finding.staff}, voice ${finding.voice} is missing beams`,
+            );
+          }
+        }
+        for (const invalid of plan.invalidBeams) {
+          problems.push(
+            `${relFile}: bar ${invalid.measureLabel}, voice ${invalid.voice} has inconsistent encoded beam data`,
+          );
+        }
+        continue;
+      }
     } catch (err) {
       problems.push(`${relFile}: failed to load (${String(err)})`);
       continue;

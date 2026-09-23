@@ -2,6 +2,8 @@
  *  generated MusicXML file and its sidecar. Pure: no filesystem, no Date.now() (the generation date
  *  is a parameter) - `tools/library/build-exercises.ts` is the only thing that writes to disk. */
 
+import { applyInserts, planEngraving } from '../../musicxml/engraving/plan.js';
+import { readXml } from '../../musicxml/read.js';
 import type {
   WriteDuration,
   WriteEvent,
@@ -21,6 +23,14 @@ export interface GeneratedExerciseItem {
   fileStem: string;
   xml: string;
   meta: ItemMetadata;
+}
+
+/** Every generated file ships fully engraved (beams + accidentals), same as the hand-written
+ *  repertoire (`tools/library/engrave.ts`) - so the library guard (FR-012) has one truth for both. */
+function completeXml(xml: string): string {
+  const { doc } = readXml(xml);
+  const plan = planEngraving(doc, 'library');
+  return plan.inserts.length > 0 ? applyInserts(xml, plan.inserts) : xml;
 }
 
 /** Divisions per quarter note. Every duration this family uses (whole, half, dotted-half, quarter)
@@ -247,11 +257,13 @@ function generateTriadItem(
   if (lastMeasure) lastMeasure.events.push({ kind: 'barline', location: 'right', barStyle: 'light-heavy' });
 
   const title = definition.titleTemplate.replace('{key}', displayKeyName(key));
-  const xml = writeScoreXml({
-    title,
-    composer: 'Musicanyya practice material',
-    parts: [{ id: 'P1', name: 'Piano', measures }],
-  });
+  const xml = completeXml(
+    writeScoreXml({
+      title,
+      composer: 'Musicanyya practice material',
+      parts: [{ id: 'P1', name: 'Piano', measures }],
+    }),
+  );
 
   return { fileStem: `${definition.family}-${keySlug(key)}`, xml, meta: buildMeta(definition, title, generatedOn) };
 }
@@ -463,11 +475,13 @@ function generateChangeItem(
   });
 
   const title = definition.titleTemplate.replace('{key}', displayKeyName(key));
-  const xml = writeScoreXml({
-    title,
-    composer: 'Musicanyya practice material',
-    parts: [{ id: 'P1', name: 'Piano', measures }],
-  });
+  const xml = completeXml(
+    writeScoreXml({
+      title,
+      composer: 'Musicanyya practice material',
+      parts: [{ id: 'P1', name: 'Piano', measures }],
+    }),
+  );
 
   return { fileStem: `${definition.family}-${keySlug(key)}`, xml, meta: buildMeta(definition, title, generatedOn) };
 }

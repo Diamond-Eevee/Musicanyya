@@ -1,5 +1,7 @@
 import { errorCode, errorMessage } from '../core/errors.js';
 import { buildScore } from '../core/musicxml/build.js';
+import type { EngravingPlan } from '../core/musicxml/engraving/index.js';
+import { planEngraving } from '../core/musicxml/engraving/plan.js';
 import { readXml } from '../core/musicxml/read.js';
 import { createRenderCopy } from '../core/musicxml/render-copy.js';
 import { compileSchedule } from '../core/schedule/compile.js';
@@ -48,14 +50,76 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
       }
     }
 
+    // Run engraving completion (FR-010, FR-011): beam voices that have no encoded beams and
+    // add any missing accidentals. Never modifies what the file encodes. Completion is for display only, so if it
+    // fails the Score still opens, as encoded, with a warning (Constitution III: bad MusicXML never crashes).
+    let engravingPlan: EngravingPlan;
+    try {
+      engravingPlan = planEngraving(parsed.doc, 'opened');
+    } catch (err) {
+      engravingPlan = {
+        inserts: [],
+        beamGroupsAdded: 0,
+        accidentalsAdded: { required: 0, courtesy: 0 },
+        findings: [],
+        invalidBeams: [],
+        contradictions: [],
+      };
+      report.entries.push({
+        code: 'engravingSkipped',
+        severity: 'warning',
+        measureLabels: [],
+        detail: errorMessage(err),
+      });
+    }
+
     const renderXml = createRenderCopy(xmlString, {
       notes: notesInserts,
       measures: measuresInserts,
+      elements: engravingPlan.inserts,
     });
 
     // Build the playback timeline and compile the engine schedule (T089)
     const { timeline, notices: timelineNotices } = buildTimeline(score);
     const scheduleMsg = compileSchedule(timeline);
+
+    // Add engraving completion notices to the load report (FR-011).
+    // engravingCompleted: one info entry summarising what was added (only when something changed).
+    const totalBeamGroups = engravingPlan.beamGroupsAdded;
+    const totalAccRequired = engravingPlan.accidentalsAdded.required;
+    const totalAccCourtesy = engravingPlan.accidentalsAdded.courtesy;
+    if (totalBeamGroups > 0 || totalAccRequired > 0 || totalAccCourtesy > 0) {
+      const parts: string[] = [];
+      if (totalBeamGroups > 0) parts.push(`${totalBeamGroups} beam group${totalBeamGroups !== 1 ? 's' : ''} added`);
+      if (totalAccRequired > 0)
+        parts.push(`${totalAccRequired} required accidental${totalAccRequired !== 1 ? 's' : ''} added`);
+      if (totalAccCourtesy > 0)
+        parts.push(`${totalAccCourtesy} courtesy accidental${totalAccCourtesy !== 1 ? 's' : ''} added`);
+      report.entries.push({
+        code: 'engravingCompleted',
+        severity: 'info',
+        measureLabels: [],
+        detail: parts.join(', '),
+      });
+    }
+    // beamDataInvalid: one warning per voice whose beam data is inconsistent.
+    for (const inv of engravingPlan.invalidBeams) {
+      report.entries.push({
+        code: 'beamDataInvalid',
+        severity: 'warning',
+        measureLabels: [inv.measureLabel],
+        detail: `part ${inv.part + 1}, voice ${inv.voice}`,
+      });
+    }
+    // accidentalContradicts: one warning per note that prints a sign contradicting its pitch.
+    for (const c of engravingPlan.contradictions) {
+      report.entries.push({
+        code: 'accidentalContradicts',
+        severity: 'warning',
+        measureLabels: [c.measureLabel],
+        detail: `part ${c.part + 1}, staff ${c.staff}, ${c.pitch}`,
+      });
+    }
 
     // Add timeline notices to the load report
     for (const tn of timelineNotices) {
@@ -87,6 +151,7 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
     const summary = {
       title: score.title,
       composer: score.composer,
+      arranger: score.arranger,
       parts: score.parts.map((p) => {
         const instrument = p.instruments[0];
         return {

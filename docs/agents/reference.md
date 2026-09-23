@@ -127,10 +127,43 @@ pnpm build            # static site in dist/
 pnpm electron:dev     # desktop shell against the dev server
 pnpm electron:build   # desktop build (electron-builder)
 pnpm library:exercises # regenerate the exercise families from content/library/exercises/*.json
+pnpm library:engrave  # complete hand-written repertoire files in place (beams + accidentals)
 pnpm library:index    # regenerate public/library/index.json from the files on disk
+pnpm screenshot       # open the app headless and save a PNG (see "Running and seeing the app" below)
 ```
 
 Tests use fakes (fake clock, fake MIDI input, offline rendering, recorded Performance logs), never real devices.
+
+### Running and seeing the app (manual verification)
+
+Every quickstart has a "Manual verification" section. An agent does it by looking at the app, not by assuming the
+e2e tests cover it. Use the first option that works for you:
+
+1. **`pnpm screenshot`** (any agent with a shell, no browser tool needed). `tools/dev/screenshot.ts` starts its own
+   Vite dev server, opens the app in the Chromium that Playwright installed for `pnpm test:e2e`, and writes a PNG
+   under `test-results/screenshots/` (git-ignored). It also prints the load notices and any browser console errors.
+
+   ```text
+   pnpm screenshot -- --item repertoire/intermediate/fur-elise-theme      # a library item (its id in index.json)
+   pnpm screenshot -- --file tests/fixtures/musicxml/engraving/fur-elise-bare.musicxml   # drop a local file
+   pnpm screenshot -- --item <id> --width 1280 --height 720 --full --out test-results/screenshots/x.png
+   ```
+
+   Then open the PNG with your image-reading tool and describe what you see against the quickstart step.
+   Library ids are the `id` fields in `public/library/index.json`. If Chromium is missing, run
+   `pnpm exec playwright install chromium` once; it is the same browser the e2e suite uses.
+2. **Your tool's own browser** (the Claude desktop built-in browser, Antigravity's browser, etc.). Start the server
+   the way your tool starts servers (Claude: `preview_start` with `musicanyya-dev` from `.claude/launch.json`;
+   elsewhere `pnpm dev` as a background process) and open http://localhost:5173. If the browser cannot launch
+   (for example Antigravity's browser subagent failing to download its driver with a 404), do not stop: fall back
+   to option 1.
+3. **Ask the owner** only for what a picture cannot show: sound, a real MIDI keyboard, or the owner's own
+   reference image (for example SC-004 compares with a picture only the owner has). Say exactly which step you
+   need, and attach your screenshot.
+
+Interactions the script does not cover (switching mode, pressing Play, looping) can be scripted the same way
+Playwright e2e tests do it; reuse the selectors in `tests/e2e/helpers/`. A throwaway script belongs in your
+scratch space, not the repository.
 
 ## R8. Git conventions
 
@@ -210,6 +243,13 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-23: Feature 006 planned (beamed notes and complete engraving): Verovio 6.3.0 draws exactly what
+  MusicXML encodes - no automatic beams, and a pitch given only by `<alter>` becomes an invisible gestural
+  accidental - so the whole library showed flags and 117 notes printed a different pitch from the one graded.
+  One pure core module (`src/core/musicxml/engraving/`) plans `<beam>`/`<accidental>` inserts on the parse
+  tree; it completes opened scores in the render copy only (Score and Note IDs untouched), completes the library
+  files on disk (`pnpm library:engrave` + the exercise generator) and backs a zero-insert guard test. Verovio
+  draws no composer/arranger with any header option, so the title moves to an HTML title block above page 1.
 - 2026-09-22: Feature 005 planned (practice score library): Phase 0 found that **no fetchable corpus
   of CC0 solo piano repertoire exists** - OpenScore (the one verifiable CC0 source, already used here)
   has Lieder and string quartets only, and every general "public domain MusicXML" collection either
@@ -230,10 +270,4 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   mismatch where page elements were hard-coded to 1600 px while `adjustPageHeight` made the real
   height content-dependent. Escape now closes an open panel before it stops the transport. Spec
   FR-014a was corrected during planning: enlarging re-flows the music, it never scrolls horizontally.
-- 2026-09-20: Feature 003 planned (Play mode and grading): the Metronome is scheduled events on a dedicated
-  percussion channel, not new real-time code; grading is a pure function run in a worker; timing windows are
-  fractions of a beat compared in integer ticks, clamped so a claim window can never reach a neighbouring note.
-  Two corrections came out of planning: feature 001 has no Latency profile (003 builds it and its calibration),
-  and ornaments/arpeggios are unparsed, which makes a correctly played trill score as extras - an open owner
-  decision.
 <!-- RECENT-CHANGES:END -->

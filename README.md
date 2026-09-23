@@ -28,6 +28,8 @@ and Web MIDI.
 1. Install dependencies: `pnpm install`
 2. Run web app locally: `pnpm dev`
 3. Run desktop app locally: `pnpm electron:dev`
+4. Take a screenshot without opening a browser: `pnpm screenshot -- --item repertoire/intermediate/fur-elise-theme`
+   (or `-- --file <score.musicxml>`); the PNG lands in `test-results/screenshots/`
 
 ### Testing and Quality Gates
 
@@ -38,6 +40,7 @@ Run the full quality gate before pushing:
 
 Regenerate the bundled library after editing its content:
 `pnpm library:exercises` (chord exercises and drills from `content/library/exercises/*.json`), then
+`pnpm library:engrave` (completes hand-written repertoire files with beams and accidentals in place), then
 `pnpm library:index` (rebuilds `public/library/index.json` from the files on disk).
 
 ### Building & Publishing

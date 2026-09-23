@@ -89,3 +89,70 @@ describe('ornaments and arpeggios (owner decisions D-1, D-2)', () => {
     }
   });
 });
+
+describe('title block metadata (US5)', () => {
+  it('reads arranger from <creator type="arranger">', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+      <score-partwise version="3.1">
+        <identification>
+          <creator type="composer">Beethoven</creator>
+          <creator type="arranger">Czerny</creator>
+        </identification>
+        <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+        <part id="P1"><measure number="1"><note><rest/><duration>1</duration></note></measure></part>
+      </score-partwise>`;
+    const { doc } = readXml(xml);
+    const { score } = buildScore(doc);
+    expect(score.composer).toBe('Beethoven');
+    expect(score.arranger).toBe('Czerny');
+  });
+
+  it('falls back to <movement-title> for the title if <work-title> is missing', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+      <score-partwise version="3.1">
+        <movement-title>Sonata No. 1</movement-title>
+        <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+        <part id="P1"><measure number="1"><note><rest/><duration>1</duration></note></measure></part>
+      </score-partwise>`;
+    const { doc } = readXml(xml);
+    const { score } = buildScore(doc);
+    expect(score.title).toBe('Sonata No. 1');
+    expect(score.arranger).toBe(null);
+  });
+
+  it('T059: with both, the title is the <movement-title> - the piece, not its collection (research R-4)', () => {
+    // As in every OpenScore song and movement: work = "Songs of the Fleet, Op.117", movement = "Sailing at Dawn".
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+      <score-partwise version="3.1">
+        <work><work-title>Kinderszenen, Op.15</work-title></work>
+        <movement-title>Träumerei</movement-title>
+        <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+        <part id="P1"><measure number="1"><note><rest/><duration>1</duration></note></measure></part>
+      </score-partwise>`;
+    expect(buildScore(readXml(xml).doc).score.title).toBe('Träumerei');
+  });
+
+  it('T059: an empty <movement-title> falls back to <work-title>', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+      <score-partwise version="3.1">
+        <work><work-title>Für Elise, WoO 59</work-title></work>
+        <movement-title>  </movement-title>
+        <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+        <part id="P1"><measure number="1"><note><rest/><duration>1</duration></note></measure></part>
+      </score-partwise>`;
+    expect(buildScore(readXml(xml).doc).score.title).toBe('Für Elise, WoO 59');
+  });
+
+  it('tolerates missing everything (null-safe)', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+      <score-partwise version="3.1">
+        <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+        <part id="P1"><measure number="1"><note><rest/><duration>1</duration></note></measure></part>
+      </score-partwise>`;
+    const { doc } = readXml(xml);
+    const { score } = buildScore(doc);
+    expect(score.title).toBe(null);
+    expect(score.composer).toBe(null);
+    expect(score.arranger).toBe(null);
+  });
+});

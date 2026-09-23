@@ -60,6 +60,13 @@ export default defineConfig({
           environment: 'node',
         },
       },
+      {
+        test: {
+          name: 'tools',
+          include: ['tests/tools/**/*.test.ts'],
+          environment: 'node',
+        },
+      },
     ],
   },
 });
