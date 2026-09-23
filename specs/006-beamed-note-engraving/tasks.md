@@ -141,7 +141,7 @@ library check reports 0 wrong-reading notes (today 117 in 21 items).
   until T022 passes.
 - [x] T026 [US2] Re-run `pnpm library:exercises`, `pnpm library:engrave`, `pnpm library:index`; T004 identity,
   T023, T024 and T027 pass; commit the library.
-- [ ] T050 [US2] SC-003 grade identity in `tests/library/identity.test.ts`: grade the recorded Performance log
+- [x] T050 [US2] SC-003 grade identity in `tests/library/identity.test.ts`: grade the recorded Performance log
   `tests/fixtures/performance-logs/fur-elise-theme.json` (captured in T003) against the completed file; the Grade
   equals the golden Grade exactly.
 

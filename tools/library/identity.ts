@@ -119,6 +119,42 @@ function buildAccuratePerformanceLog(
   return { version: 1, messages, droppedMessages: 0 };
 }
 
+/**
+ * Grades the *saved* recorded-performance fixture (as written by `buildLibraryIdentity`/T003, not a
+ * freshly regenerated one) against `libraryRoot`'s current copy of the file it names - used by T050 to
+ * prove that engraving completion (US1/US2) never changes what a real recorded performance grades to.
+ */
+export async function gradeSavedPerformanceLog(libraryRoot: string, performanceLogPath: string): Promise<Grade> {
+  const fixture = JSON.parse(fs.readFileSync(performanceLogPath, 'utf-8')) as {
+    scoreFixture: string;
+    settings: RunSettings;
+    log: PerformanceLog;
+  };
+
+  const { score, timeline } = loadScore(path.join(libraryRoot, fixture.scoreFixture));
+  const expected = buildExpectedNotes(score, timeline, fixture.settings.selection, null);
+  const playedAlong = buildPlayedAlongSpans(score, timeline, fixture.settings.selection, null);
+
+  const input: GradeInput = {
+    runId: 'library-identity-fur-elise-theme',
+    complete: true,
+    expected,
+    playedAlong,
+    log: fixture.log,
+    tempo: timeline.tempo,
+    timelineTempo: timeline.tempo,
+    ppq: timeline.ppq,
+    tickMap: { countInTicks: 0, rangeStartTick: 0, rangeEndTick: timeline.endTick, ppq: timeline.ppq },
+    startAudioTimeSec: 0,
+    settings: fixture.settings,
+    latency: ZERO_LATENCY,
+    reliability: [],
+    passes: timeline.passes,
+    measures: score.measures,
+  };
+  return gradePerformance(input);
+}
+
 export async function buildLibraryIdentity(
   libraryRoot: string,
 ): Promise<{ golden: LibraryIdentityGolden; performanceLogFixture: unknown }> {
