@@ -1,28 +1,30 @@
 {
   "version": 1,
-  "title": "Für Elise, WoO 59 (arranged, full A-B-A-C-A form)",
-  "subtitle": "Each section written out once - our own abridged arrangement, not a full published edition's length",
+  "title": "Für Elise, WoO 59",
+  "subtitle": "Complete piece, from the Breitkopf & Härtel edition (1888) via the Mutopia Project",
   "composer": "Ludwig van Beethoven",
-  "arranger": "Musicanyya practice material",
+  "arranger": null,
   "kind": "piece",
   "level": "advanced",
-  "tags": ["octave-shift", "phrasing", "dynamics", "sight-reading"],
-  "trains": "The rondo's full shape in miniature: the A theme, a lyrical F-major episode, an agitated C section with wide leaps, and the fast 32nd-note broken-chord run that puts this arrangement past Intermediate's reach.",
+  "tags": ["repeats", "pedal", "octave-shift", "triplets", "ornaments", "arpeggios", "dynamics", "phrasing"],
+  "trains": "The whole rondo as Beethoven wrote it: the A theme over broken-chord bass, the F-major episode with its grace notes and 32nd-note figures, the agitated C section over a repeated bass pedal, and the triplet arpeggio run up under an 8va and back down chromatically.",
   "hands": "both",
-  "arrangement": true,
+  "arrangement": false,
   "provenance": {
-    "origin": "authored",
-    "licence": "CC0-1.0",
-    "author": "Musicanyya practice material",
-    "created": "2026-09-22",
-    "basedOn": "Beethoven, Für Elise, WoO 59 (public domain, c. 1810). Cross-checked against Mutopia Project piece-info id 931, fur_Elise_WoO59.ly (typeset by Stelios Samelis). A theme reuses fur-elise-theme.musicxml's already-reviewed pitches.",
-    "note": "See limitations for a full, itemised disclosure of which passages were independently source-checked (form, key/metre, the A theme, and the famous run's exact shape) versus reconstructed from general knowledge (bridges, B section, the C-section bass-octave opening). Re-checked 2026-09-22 (later session): downloaded and visually inspected the Mutopia Project's complete published PDF engraving directly (fur_Elise_WoO59-let.pdf, piece-info id 931/2059, typeset by Stelios Samelis, 102 written measures) rather than relying on the earlier excerpt-only fetch. Confirmed the overall form (A-B-A-C-A with 1st/2nd-ending bridges), 3/8 metre, A minor with no key signature, Poco moto tempo marking, the pp opening dynamic, and the ottava-marked 32nd-note run in the C section all match this file. No machine-readable LilyPond source is published for this piece (unlike the Chopin Op. 28 items in this same wave, which were verified pitch-by-pitch against literal LilyPond source text), so a full mechanical note-by-note cross-check of the still-flagged passages (bridges, B-section melody, C-section bass-octave opening) was not performed this session; those items remain honest reconstructions, not verified transcriptions, exactly as disclosed below."
+    "origin": "downloaded",
+    "licence": "public-domain",
+    "source": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931",
+    "sourcePath": "BeethovenLv/WoO59/fur_Elise_WoO59/fur_Elise_WoO59.ly",
+    "obtained": "2026-09-23",
+    "credit": "Typeset by Stelios Samelis for the Mutopia Project (Mutopia-2015/08/18-931) from the Breitkopf & Härtel edition of 1888, and placed in the public domain by the typesetter.",
+    "unmodified": false,
+    "note": "Converted from Mutopia's LilyPond source to MusicXML (notes, rests, repeats and voltas, grace notes, triplets, 8va, clefs, slurs, dynamics, pedal); beams and accidentals then completed by pnpm library:engrave. Checked mechanically: all 902 non-grace notes match Mutopia's own MIDI file in pitch and written onset, and the three grace notes are the only notes the MIDI has in addition. 106 measures, as in Mutopia's engraving."
   },
+  "expected": { "notices": ["measureLengthMismatch"] },
   "limitations": [
-    "Independently checked against Mutopia's fur_Elise_WoO59.ly (piece-info id 931): A minor with no key signature throughout, including the F-major episode (written with accidentals, not a key change, matching that source) - 3/8 metre; the A theme's own internal repeat-like structure (bars 1-4 restated as 5-8, reused from fur-elise-theme.musicxml); and the exact note sequence of the famous fast run (ascending broken-chord arpeggios through three registers ending in a chromatic descending cascade in 32nds, mm 41-45), checked against a verbatim excerpt of that source.",
-    "NOT independently verified note-by-note against the primary source (the available tools could fetch-and-summarize short excerpts only, not download/OCR the full score): the connective bridges (mm 9-10, 19-20, 29-30, 46-47), the B-section melody (mm 11-18), and the C-section's alternating-bass-octave opening (mm 31-40). These were composed by the author from strong general knowledge of this very well-known work, kept diatonically and harmonically conservative, but are a good-faith reconstruction, not a verified transcription. Recommend checking against an IMSLP facsimile or the Mutopia PDF bar-by-bar before this item is treated as fully verified.",
-    "Shorter than a full published edition (59 written measures + pickup vs. roughly 120-140 in print): each formal section (A-B-A-C-A) is written out once, complete, rather than padded with additional unverified repetition/figuration some editions include."
+    "written pedal is not played",
+    "The first-ending bar and the final bar are two eighths long (together with the pickup they make a full bar, as printed), so opening the piece shows an information notice about measure length."
   ],
-  "reviewedBy": "music-domain-expert",
-  "reviewedOn": "2026-09-22"
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-09-23"
 }

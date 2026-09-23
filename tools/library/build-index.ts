@@ -41,6 +41,11 @@ function walkScoreFiles(dir: string, base: string = dir): string[] {
   return out.sort();
 }
 
+/** The repository's own THIRD_PARTY_NOTICES.md: where every `downloaded` item's source must be recorded (FR-020). */
+function readThirdPartyNotices(): string {
+  return fs.readFileSync(fileURLToPath(new URL('../../THIRD_PARTY_NOTICES.md', import.meta.url)), 'utf-8');
+}
+
 function sectionIdForFile(relFile: string): string | null {
   const dir = relFile.split('/').slice(0, -1).join('/');
   return LIBRARY_SECTIONS.find((s) => s.path === dir)?.id ?? null;
@@ -49,8 +54,12 @@ function sectionIdForFile(relFile: string): string | null {
 /** Walks `libraryRoot`, validates every sidecar, loads every score through the app's own `readXml` +
  *  `buildScore` (never a second, looser parser) and derives its facts, then produces the index the
  *  app reads (contracts/library-index.md §2, §4). Importable so `tests/library/*.test.ts` can call it
- *  directly, and runnable as `pnpm library:index` (the block at the bottom of this file). */
-export async function buildLibraryIndex(libraryRoot: string, thirdPartyNotices = ''): Promise<BuildLibraryIndexResult> {
+ *  directly, and runnable as `pnpm library:index` (the block at the bottom of this file). `thirdPartyNotices`
+ *  defaults to the repository's own file, so the real shelf is always checked against it. */
+export async function buildLibraryIndex(
+  libraryRoot: string,
+  thirdPartyNotices = readThirdPartyNotices(),
+): Promise<BuildLibraryIndexResult> {
   const problems: string[] = [];
   const items: LibraryItem[] = [];
 
@@ -187,9 +196,7 @@ export async function buildLibraryIndex(libraryRoot: string, thirdPartyNotices =
 
 async function main() {
   const libraryRoot = fileURLToPath(new URL('../../public/library/', import.meta.url));
-  const noticesPath = fileURLToPath(new URL('../../THIRD_PARTY_NOTICES.md', import.meta.url));
-  const thirdPartyNotices = fs.readFileSync(noticesPath, 'utf-8');
-  const { index, problems } = await buildLibraryIndex(libraryRoot, thirdPartyNotices);
+  const { index, problems } = await buildLibraryIndex(libraryRoot);
 
   if (problems.length > 0) {
     console.error(`Library index generation failed (${problems.length} problem(s)):`);

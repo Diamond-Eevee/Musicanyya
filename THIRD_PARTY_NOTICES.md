@@ -28,15 +28,22 @@ This application includes open source software. We are grateful to the authors f
 
 ## Bundled practice library (`public/library/`)
 
-Every score and exercise under `public/library/` is the project's own work, dedicated to the public
-domain under **Creative Commons CC0 1.0 Universal**. Where a piece is based on a public-domain
-composition (composer died before 1946, or the edition is otherwise clearly public domain), the
-MusicXML is Musicanyya's own transcription or arrangement, not a copy of any particular edition;
-`provenance.basedOn` in each item's sidecar (`<item>.json`) names the work it is based on. No item in
-the current library was downloaded from a third party (`provenance.origin` is `authored` for all of
-them, checked by `tests/library/licence.test.ts`, FR-017); should a `downloaded` item ever be added,
-its source, the date it was obtained and its licence go here as a dated entry (FR-020), matching the
-"Test fixtures" pattern below.
+Every score and exercise under `public/library/` is either the project's own work, dedicated to the
+public domain under **Creative Commons CC0 1.0 Universal**, or a public-domain edition listed below.
+Where an `authored` piece is based on a public-domain composition (composer died before 1946, or the
+edition is otherwise clearly public domain), the MusicXML is Musicanyya's own transcription or
+arrangement, not a copy of any particular edition; `provenance.basedOn` in each item's sidecar
+(`<item>.json`) names the work it is based on. Items taken from a third party have
+`provenance.origin` `downloaded` and a dated entry here with their source, the date they were obtained
+and their licence (FR-020); `tests/library/licence.test.ts` checks both (FR-017).
+
+- **Für Elise, WoO 59** - `repertoire/advanced/fur-elise-complete.musicxml` (obtained 2026-09-23)
+  Licence: public domain. Typeset in LilyPond by Stelios Samelis for the Mutopia Project
+  (Mutopia-2015/08/18-931) from the Breitkopf & Härtel edition of 1888, and placed in the public domain
+  by the typesetter ("free to distribute, modify, and perform"). Converted by Musicanyya from the
+  LilyPond source `fur_Elise_WoO59.ly` to MusicXML; the notes were checked against Mutopia's own MIDI
+  file of the same source.
+  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931
 
 The library's `.musicxml` files were completed by the project's engraving tool (`pnpm library:engrave`), which adds
 missing `<beam>` and `<accidental>` elements for display. Nothing else in the files is changed, and each file keeps

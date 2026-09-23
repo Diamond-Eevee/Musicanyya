@@ -719,3 +719,48 @@ Feature `005-practice-score-library`. Newest entry at the bottom.
   has this session's `README.md`, `docs/agents/reference.md`, `tests/ui/mx-library.test.ts`,
   `specs/005-practice-score-library/{tasks.md,implementation-log.md,quickstart.md}` changes staged for
   commit next.
+
+## 2026-09-23 18:45 - claude-opus-5.5 (follow-up on `fix/fur-elise-mutopia`)
+- Done: T087, T088. The owner found the Advanced Für Elise "a little weird" and suggested
+  `musetrainer.github.io/library/scores/Fur_Elise.mxl`. **Not used**: that file is a MuseScore.com
+  upload (`musescore.com/user/19710/scores/33816`) whose page states **"All rights reserved"**, and the
+  musetrainer repository has no licence file, so it fails the CC0 / public-domain rule. The other
+  musetrainer Für Elise files are no better: one carries `<rights>` of a Dutch piano-lessons site, the
+  other two are simplified arrangements with no licence statement.
+  Used instead: the **Mutopia Project** edition (piece-info id 931, `fur_Elise_WoO59.ly`, typeset by
+  Stelios Samelis from Breitkopf & Härtel 1888, "Placed in the public domain by the typesetter"). The
+  old item's own note said "No machine-readable LilyPond source is published"; that was wrong, since
+  the `.ly`, `.mid` and PDFs are all linked from the piece page.
+  Converted the LilyPond source (absolute pitches, 203 lines) with a one-off script kept outside the
+  repository: notes/chords/rests, `\repeat volta` + `\alternative` -> repeat barlines and 1./2.
+  endings, `\grace`/`\appoggiatura`, `\tuplet 3/2`, `\ottava` -> `<octave-shift type="down">`, clef
+  changes, slurs (number 1 = right hand, 2 = left hand, since both hands have slurs at once in
+  mm. 51-52 and 96-97), `\pp`, "Poco moto." with `<sound tempo="72"/>`, and the separate pedal
+  context -> `<pedal>`. Beams and accidentals were then completed by `pnpm library:engrave`.
+  **Evidence**: all 902 non-grace notes match Mutopia's own MIDI in pitch and written onset; the only
+  notes the MIDI has in addition are the 3 grace notes. 106 measures, as in Mutopia. Probe: level
+  advanced (computed = assigned), 156.3 s with repeats (MuseScore's recording runs 2:37). All three
+  Verovio pages were checked by eye, and the app was checked with `pnpm screenshot --item`.
+  `measureLengthMismatch` is expected: the first-ending bar and the final bar are two eighths long
+  (with the pickup they make a full bar, as printed). It is recorded in `expected.notices` and
+  disclosed in `limitations`.
+  T088: the real-shelf tests called `buildLibraryIndex(libraryRoot)` with the notices text defaulting
+  to `''`, so the first `downloaded` item failed FR-020 in `index`/`licence`/`sweep` tests while
+  `pnpm library:index` (which passed the file) accepted it. The default is now the repository's file.
+  The identity golden was captured from the converter output **before** `library:engrave`, then the
+  engraved file was compared against it (SC-003); only this item's entry changed.
+- In progress: none.
+- Decisions: `origin: downloaded` / `licence: public-domain` (the path contracts/library-index.md
+  already defines) rather than `authored`, because the notes come from Mutopia's edition, not our own
+  transcription. The item id `repertoire/advanced/fur-elise-complete` is unchanged. The Beginner and
+  Intermediate Für Elise arrangements are not touched.
+- Problems / open questions: `reviewedBy` is this agent (mechanical MIDI check and a visual check of
+  the pages), not a `music-domain-expert` run. The first `pnpm test:e2e` run had one failure: Electron
+  exited at launch in `library.spec.ts` "electron: identical behaviour under the app:// origin". It
+  passed on rerun, so that launch is flaky.
+  `pnpm screenshot -- --item ...` (as AGENTS.md writes it) fails with this pnpm
+  (`ERR_PARSE_ARGS_UNEXPECTED_POSITIONAL`); `pnpm screenshot --item ...` works.
+- Gate: `pnpm lint` (no errors; 284 warnings as before), `pnpm typecheck`, `pnpm test` 1525/1525,
+  `pnpm test:e2e` 292 passed + the flaky Electron test passed on rerun.
+- Handoff: branch `fix/fur-elise-mutopia`, not merged, not pushed. Owner: accept the Mutopia edition,
+  then merge.
