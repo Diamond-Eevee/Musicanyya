@@ -75,4 +75,25 @@ describe('Architecture Rules', () => {
       expect(code).not.toMatch(/\b(window|document|HTMLElement|EventTarget)\b/);
     }
   });
+
+  it('no file under src/ imports tools/library/fidelity or tools/library/lilypond', () => {
+    const srcDir = path.resolve(__dirname, '../../src');
+    const forbiddenPatterns = [/tools\/library\/fidelity\//, /tools\/library\/lilypond\//];
+    for (const file of getFiles(srcDir)) {
+      if (!file.endsWith('.ts')) continue;
+      const content = fs.readFileSync(file, 'utf-8');
+      for (const pattern of forbiddenPatterns) {
+        expect(pattern.test(content), `${file} imports fidelity or lilypond tooling`).toBe(false);
+      }
+    }
+  });
+
+  it('tools/library/fidelity/theory.ts must be independent of the exercise generator', () => {
+    const theoryPath = path.resolve(__dirname, '../../tools/library/fidelity/theory.ts');
+    expect(fs.existsSync(theoryPath), 'theory.ts does not exist').toBe(true);
+
+    const content = fs.readFileSync(theoryPath, 'utf-8');
+    expect(content).not.toMatch(/src\/core\/library\/exercise/);
+    expect(content).not.toMatch(/content\/library\/exercises/);
+  });
 });
