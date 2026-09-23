@@ -1,4 +1,5 @@
-import { QuarterTime, fromTicks } from './time';
+import { fromTicks } from './time';
+import type { QuarterTime } from './time';
 
 export interface MidiEvent {
   ticks: number;
@@ -31,13 +32,13 @@ export function readMidi(buffer: Uint8Array): MidiFile {
   }
   function readUint16() {
     if (offset + 2 > buffer.length) throw new Error('Unexpected end of file');
-    const val = (buffer[offset] << 8) | buffer[offset + 1];
+    const val = (buffer[offset]! << 8) | buffer[offset + 1]!;
     offset += 2;
     return val;
   }
   function readUint32() {
     if (offset + 4 > buffer.length) throw new Error('Unexpected end of file');
-    const val = (buffer[offset] << 24) | (buffer[offset + 1] << 16) | (buffer[offset + 2] << 8) | buffer[offset + 3];
+    const val = (buffer[offset]! << 24) | (buffer[offset + 1]! << 16) | (buffer[offset + 2]! << 8) | buffer[offset + 3]!;
     offset += 4;
     return val >>> 0;
   }
@@ -45,7 +46,7 @@ export function readMidi(buffer: Uint8Array): MidiFile {
     let val = 0;
     while (true) {
       if (offset >= buffer.length) throw new Error('Unexpected end of file');
-      const b = buffer[offset++];
+      const b = buffer[offset++]!;
       val = (val << 7) | (b & 0x7f);
       if (!(b & 0x80)) break;
     }
@@ -85,7 +86,7 @@ export function readMidi(buffer: Uint8Array): MidiFile {
       const delta = readVarInt();
       ticks += delta;
       if (offset >= buffer.length) throw new Error('Unexpected end of file');
-      let status = buffer[offset];
+      let status = buffer[offset]!!;
       if (status < 0x80) {
         if (!runningStatus) throw new Error(`No running status at byte ${offset}`);
         status = runningStatus;
@@ -99,22 +100,22 @@ export function readMidi(buffer: Uint8Array): MidiFile {
 
       if (eventType === 0x8 || eventType === 0x9) {
         if (offset + 2 > buffer.length) throw new Error('Unexpected end of file');
-        const pitch = buffer[offset++];
-        const velocity = buffer[offset++];
+        const pitch = buffer[offset++]!;
+        const velocity = buffer[offset++]!;
         if (eventType === 0x9 && velocity > 0) {
-          events.push({ ticks, type: 'noteOn', channel, pitch, velocity });
+          events.push({ ticks, type: 'noteOn', channel, ...(pitch !== undefined ? { pitch } : {}), ...(velocity !== undefined ? { velocity } : {}) });
         } else {
-          events.push({ ticks, type: 'noteOff', channel, pitch, velocity: 0 });
+          events.push({ ticks, type: 'noteOff', channel, ...(pitch !== undefined ? { pitch } : {}), velocity: 0 });
         }
       } else if (eventType === 0xf) {
         // System or Meta
         if (status === 0xff) {
           if (offset + 1 > buffer.length) throw new Error('Unexpected end of file');
-          const metaType = buffer[offset++];
+          const metaType = buffer[offset++]!;
           const metaLen = readVarInt();
           if (metaType === 0x58 && metaLen === 4) { // Time signature
-            const num = buffer[offset];
-            const den = Math.pow(2, buffer[offset + 1]);
+            const num = buffer[offset]!!;
+            const den = Math.pow(2, buffer[offset + 1]!!);
             timeSignatures.push({ num, den, ticks });
           }
           offset += metaLen;
@@ -138,9 +139,34 @@ export function readMidi(buffer: Uint8Array): MidiFile {
 
 export interface ReferenceScore {
   origin: 'musicxml' | 'midi' | 'lilypond';
-  bars: any[];
-  notes: any[];
-  graceNotes: any[];
+  bars: ReferenceBar[];
+  notes: ReferenceNote[];
+  graceNotes: ReferenceGraceNote[];
+}
+export interface ReferenceBar {
+  index: number;
+  number: string;
+  start: QuarterTime;
+  length: QuarterTime;
+  repeatStart: boolean;
+  repeatEnd: boolean;
+  repeatTimes?: number;
+  endings: number[];
+}
+export interface ReferenceNote {
+  bar: number;
+  onset: QuarterTime;
+  duration: QuarterTime;
+  midi: number;
+  spelling?: { step: 'A'|'B'|'C'|'D'|'E'|'F'|'G'; alter: -2|-1|0|1|2; octave: number };
+  staff?: number;
+  voice?: string;
+}
+export interface ReferenceGraceNote {
+  bar: number;
+  before: QuarterTime;
+  midi: number;
+  spelling?: ReferenceNote['spelling'];
 }
 
 export function fromMidi(buffer: Uint8Array, sourceFile: { midiNoteTracks?: number[] }): ReferenceScore {

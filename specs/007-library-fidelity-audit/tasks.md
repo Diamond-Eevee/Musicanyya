@@ -148,9 +148,9 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
 
 ### Implementation
 
-- [~] T015 [P] `tools/library/fidelity/time.ts` (makes T007 pass). (claimed: gemini-3.1-pro 2026-09-23)
-- [~] T016 `tools/library/fidelity/midi.ts`: `readMidi` + `fromMidi` (makes T008 pass). (Depends on T015.) (claimed: gemini-3.1-pro 2026-09-23)
-- [~] T017 `tools/library/fidelity/from-musicxml.ts`, through `src/core/musicxml/read.ts` + `build.ts` (makes T009
+- [x] T015 [P] `tools/library/fidelity/time.ts` (makes T007 pass). (claimed: gemini-3.1-pro 2026-09-23)
+- [x] T016 `tools/library/fidelity/midi.ts`: `readMidi` + `fromMidi` (makes T008 pass). (Depends on T015.) (claimed: gemini-3.1-pro 2026-09-23)
+- [x] T017 `tools/library/fidelity/from-musicxml.ts`, through `src/core/musicxml/read.ts` + `build.ts` (makes T009
   pass). The played order always comes from `buildTimeline`, so the check proves what the app actually plays. If
   the Score model lacks something the written-bar reading needs (for example repeat barlines per bar or spelling),
   read it from the parse tree in this file. Do not change `src/core`. (Depends on T015.) (claimed: gemini-3.1-pro 2026-09-23)

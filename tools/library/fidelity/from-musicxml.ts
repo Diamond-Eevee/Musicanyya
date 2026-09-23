@@ -1,8 +1,9 @@
-import { Score } from '../../../src/core/score/model';
+import type { Score } from '../../../src/core/score/model';
 import { readXml } from '../../../src/core/musicxml/read';
 import { buildScore } from '../../../src/core/musicxml/build';
-import { ReferenceScore, ReferenceBar, ReferenceNote, ReferenceGraceNote } from './midi';
-import { QuarterTime, q } from './time';
+import type { ReferenceScore, ReferenceBar, ReferenceNote, ReferenceGraceNote } from './midi';
+import { q } from './time';
+import type { QuarterTime } from './time';
 import { XmlElement } from '@rgrove/parse-xml';
 
 export async function fromMusicXml(xmlText: string): Promise<ReferenceScore> {
@@ -53,7 +54,7 @@ export async function fromMusicXml(xmlText: string): Promise<ReferenceScore> {
       length: q(m.lengthTicks, score.ppq),
       repeatStart: repeatsStart.has(m.index),
       repeatEnd: repeatsEnd.has(m.index),
-      repeatTimes: repeatsEnd.get(m.index),
+      ...(repeatsEnd.has(m.index) ? { repeatTimes: repeatsEnd.get(m.index)! } : {}),
       endings: endings || []
     });
   }
@@ -130,7 +131,7 @@ export async function fromMusicXml(xmlText: string): Promise<ReferenceScore> {
       if (n.grace) {
         graceNotes.push({
           bar: n.measureIndex,
-          before: q(n.onsetInMeasure + score.measures[n.measureIndex].startTick, score.ppq),
+          before: q(n.onsetInMeasure + score.measures[n.measureIndex]!.startTick, score.ppq),
           midi: n.soundingKey,
           spelling: { step, alter, octave }
         });
@@ -153,7 +154,7 @@ export async function fromMusicXml(xmlText: string): Promise<ReferenceScore> {
 
       const refNote: ReferenceNote = {
         bar: n.measureIndex,
-        onset: q(n.onsetInMeasure + score.measures[n.measureIndex].startTick, score.ppq),
+        onset: q(n.onsetInMeasure + score.measures[n.measureIndex]!.startTick, score.ppq),
         duration,
         midi: n.soundingKey,
         spelling: { step, alter, octave },
