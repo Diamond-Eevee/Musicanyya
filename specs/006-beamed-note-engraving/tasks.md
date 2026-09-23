@@ -84,10 +84,10 @@ bar 2 bass A-E-A beamed, treble A keeps its flag; no flag where a beam group app
   `fur-elise-bare.musicxml` renders `g.beam` groups and no `g.flag` on notes inside a beam group; a grace note
   between beamed main notes renders (research B8 check - on failure, switch B8 to "grace breaks the group" and log
   it in research.md).
-- [ ] T015 [P] [US1] Test `tests/library/engraving-guard.test.ts` (beam part): for every library file,
+- [x] T015 [P] [US1] Test `tests/library/engraving-guard.test.ts` (beam part): for every library file,
   `planEngraving(doc, 'library')` yields no beam inserts; the failure message names item, bar, staff, voice.
-  Fails now (2 078 flagged notes).
-- [ ] T027 [P] [US1] Idempotence tests, written before the tool and the library runs: in
+  Fails now (427 beam-group findings, 0 measures with invalid encoded beam data).
+- [x] T027 [P] [US1] Idempotence tests, written before the tool and the library runs: in
   `tests/core/musicxml/engraving/plan.test.ts`, for every T005 fixture, planning the completed text yields zero
   inserts, a second apply is byte-identical, two runs are equal; in `tests/tools/engrave.test.ts`, the exported
   `engraveFile` of `tools/library/engrave.ts` completes a temp copy, a second run changes nothing, and generated
@@ -102,7 +102,7 @@ bar 2 bass A-E-A beamed, treble A keeps its flag; no flag where a beam group app
   `src/core/library/exercise/generate.ts`; update `specs/005-practice-score-library/contracts/exercise-definition.md`
   section 2 (generated output is completed) and extend `tests/core/library/exercise/*.test.ts` with an
   idempotence check (a generated file plans zero inserts).
-- [ ] T019 [US1] Implement `tools/library/engrave.ts`: for each hand-written repertoire file (not generated
+- [x] T019 [US1] Implement `tools/library/engrave.ts`: for each hand-written repertoire file (not generated
   families), read -> plan (`'library'`) -> apply -> write back; prints per file the counts; export
   `engraveFile`; until T027 passes.
 - [ ] T020 [US1] Run `pnpm library:exercises`, `pnpm library:engrave`, `pnpm library:index`; confirm T004 identity
