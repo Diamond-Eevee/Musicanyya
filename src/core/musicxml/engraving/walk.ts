@@ -373,6 +373,7 @@ export function walkScore(doc: XmlDocument): WalkResult {
             const prev = events[events.length - 1];
             if (prev) {
               prev.chord = true;
+              prev.hasBeam = prev.hasBeam || hasBeam; // B6: a <beam> on any chord member counts as encoded
               if (pitch) {
                 prev.pitches.push(pitch);
                 prev.insertAt.accidental.push(accidentalOffset);
