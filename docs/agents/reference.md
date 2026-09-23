@@ -237,12 +237,25 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   Two verified parser facts constrain authored content: `<harmony>`/`<figured-bass>` are not in
   `supportedElements`, so chord labels use `<direction><words>`; `<octave-shift>` is correctly ignored
   by the time model, because MusicXML `<pitch>` is the sounding pitch.
+- Feature 007: no new runtime technology and no new dependency. Dev-time only: a fidelity tool
+  (`tools/library/fidelity/`: exact-rational note model, own Standard MIDI File reader, comparator, independent
+  exercise theory check, audit records and a generated `docs/library-audit.md`) and an own LilyPond-subset reader
+  and converter (`tools/library/lilypond/`) that writes through the dev-only `src/core/musicxml/write.ts` (extended
+  additively). Public-domain sources are committed unchanged and hash-pinned under `content/library/sources/`;
+  audit records live in `content/library/audit/`. Commands `pnpm library:fidelity` and `pnpm library:convert-ly`.
+  Sidecar contract 1.1.0 adds the optional `departures` list (required for arrangements).
 
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-23: Feature 007 planned (library fidelity audit): every library item is compared against a committed
+  public-domain source that is read two independent ways (LilyPond's own MIDI, and our reader of the `.ly`), with
+  exact rational onsets and no tolerances. Differing items are replaced by a conversion, not hand-fixed. Phase 0
+  found that Mutopia's only Schumann Op. 68 No. 10 is CC BY-SA 2.5 and the shipped item was derived from it. It also
+  found that Satie and Burgmüller No. 2 carry undisclosed invented or changed bars, and that LilyPond's MIDI shortens
+  the note before a grace group, so the comparator accepts a shorter MIDI note only where the notation shows why.
 - 2026-09-23: Feature 006 planned (beamed notes and complete engraving): Verovio 6.3.0 draws exactly what
   MusicXML encodes - no automatic beams, and a pitch given only by `<alter>` becomes an invisible gestural
   accidental - so the whole library showed flags and 117 notes printed a different pitch from the one graded.
@@ -262,12 +275,4 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   dragged-in file are the same thing. Two spec corrections came out of planning: there is no service
   worker, so "offline" can only mean already-fetched content (D-2), and FR-008's 15 pieces are a
   target for the finished feature rather than for P1 (D-1).
-- 2026-09-21: Feature 004 planned (score-first application window): the three fixed asides (300 + 360 +
-  280 px) leave the layout entirely, so only a <= 48 px bar reserves space; every secondary panel
-  becomes a native popover with `viewState.openPanel` as the single source of truth, cleared by
-  `closeForRun()` whenever a run starts (Principle VI in one testable branch). The Score view derives
-  its Verovio page from the live viewport instead of a fixed 1200x1600, which also fixes an existing
-  mismatch where page elements were hard-coded to 1600 px while `adjustPageHeight` made the real
-  height content-dependent. Escape now closes an open panel before it stops the transport. Spec
-  FR-014a was corrected during planning: enlarging re-flows the music, it never scrolls horizontally.
 <!-- RECENT-CHANGES:END -->

@@ -1,0 +1,144 @@
+# Contract: fidelity tools (readers, comparator, theory check, converter, commands)
+
+**Version**: `1.0.0` - new. Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
+worker, and `tests/architecture/layers.test.ts` asserts it (as it already does for the exercise generator).
+
+**Location**: `tools/library/fidelity/` (pure TypeScript, Node, no DOM; compiled by `tsconfig.tools.json`) and
+`tools/library/lilypond/`. Tests: `tests/tools/fidelity/`, `tests/tools/lilypond/`, `tests/library/fidelity.test.ts`.
+
+## 1. Commands (`package.json`)
+
+| Command | Does | Exit code |
+|---|---|---|
+| `pnpm library:fidelity` | Validates every source and record, re-runs every check, prints a one-line result per item, rewrites `docs/library-audit.md`. | 0 when every check reproduces its recorded result; 1 otherwise (names item, check, and the first differences). The report is **not** written on failure. |
+| `pnpm library:fidelity --item <id>` | Same for one item, prints every difference in full. Does not write the report. | as above |
+| `pnpm library:fidelity --item <id> --file <path>` | Runs that item's checks against another MusicXML file (a mutated copy in scratch space) instead of the shelf file. Used for manual planted-error checks. Writes nothing. | 0 / 1 |
+| `pnpm library:fidelity --inspect-midi <path>` | Prints a MIDI file's tracks (note counts, channels, first/last tick) and whether repeats look unfolded, to fill `midiOrder`/`midiNoteTracks` once. | 0 |
+| `pnpm library:fidelity --check` | As the first row, but only compares the report with a fresh render (CI mode, writes nothing). | 1 when stale |
+| `pnpm library:convert-ly <source-id> <item-id>` | Converts the source's `.ly` into the item's `.musicxml` (overwrites it), then prints the MIDI cross-check (§3.4). Refuses when the source is not approved, when the target sidecar says `origin: "authored"` and `--replace` is not given, or when the cross-check finds differences. | 0 / 1 |
+
+`pnpm library:engrave`, `pnpm library:index` and the existing library tests run after a conversion exactly as
+for any edited file.
+
+## 2. Module interfaces
+
+```ts
+// tools/library/fidelity/time.ts
+export function q(num: number, den?: number): QuarterTime;                    // reduces
+export function add(a: QuarterTime, b: QuarterTime): QuarterTime;
+export function cmp(a: QuarterTime, b: QuarterTime): -1 | 0 | 1;
+export function fromTicks(ticks: number, ppq: number): QuarterTime;
+export function show(t: QuarterTime): string;                                 // "3 1/3"
+
+// tools/library/fidelity/midi.ts - Standard MIDI File reader (research R3)
+export interface MidiNote { track: number; channel: number; midi: number; onTick: number; offTick: number }
+export interface MidiFile { format: 0 | 1; ppq: number; notes: MidiNote[]; timeSignatures: { tick: number; num: number; den: number }[] }
+export function readMidi(bytes: Uint8Array): MidiFile;                        // throws MidiFormatError with byte offset
+export function fromMidi(file: MidiFile, tracks: number[]): ReferenceScore;
+
+// tools/library/fidelity/from-musicxml.ts - via the app's own readXml + buildScore
+export function fromMusicXml(xml: string): ReferenceScore;
+
+// tools/library/lilypond/read.ts - the LilyPond subset (section 3)
+export function readLilyPond(source: string): LyScore;                        // throws LyUnsupportedError(line, col, construct)
+export function fromLilyPond(score: LyScore): ReferenceScore;
+
+// tools/library/fidelity/compare.ts
+export function compare(item: ReferenceScore, source: ReferenceScore, aspects: Aspect[], alignment: Alignment): Difference[];
+export function compareMelody(item: ReferenceScore, source: ReferenceScore, alignment: Alignment,
+                              allowRhythm: boolean): Difference[];
+
+// tools/library/fidelity/theory.ts - independent exercise check (research R8)
+export function checkExercise(xml: string, claim: ExerciseClaim): TheoryDifference[];
+
+// tools/library/fidelity/records.ts
+export function loadSources(root: string): Map<string, SourceManifest>;       // validates + re-hashes
+export function loadRecords(root: string): AuditRecord[];                     // validates
+export function runRecord(record: AuditRecord, ctx: RunContext): CheckResult[];
+export interface CheckResult { check: Check; differences: Difference[] | TheoryDifference[]; reproduced: boolean }
+
+// tools/library/fidelity/report.ts
+export function renderReport(records: AuditRecord[], results: Map<string, CheckResult[]>, index: LibraryIndex): string;
+```
+
+Every function is deterministic: the same inputs give byte-identical output (FR-016).
+
+## 3. LilyPond reader (`tools/library/lilypond/`)
+
+### 3.1 Scope
+
+The reader implements the constructs the audited Mutopia sources actually use, each with its own test, and fails
+loudly on anything else: `LyUnsupportedError` names the line, column and construct. It never skips a construct
+silently - a skipped `\repeat` would produce a plausible but wrong score, which is the failure this feature exists
+to stop.
+
+| Construct | Behaviour |
+|---|---|
+| `\version`, `\header { ... }`, `\paper`, `\layout`, `\midi` blocks | header fields read (title, composer, opus, source, copyright, `mutopia*`); other blocks skipped as a unit |
+| variable definitions `name = { ... }` / `name = \relative ... { ... }` and references `\name` | expanded |
+| `\relative c' { ... }` and absolute mode | LilyPond's relative-octave rule, including "a chord's first note is relative to the previous chord's first note" |
+| notes, rests (`r`, `R` full-bar rests, `s` spacers), chords `< >`, durations with dots, durations carried over | as LilyPond defines them |
+| `~` ties | merged into one sounding note (spec edge case) |
+| `\tuplet n/m { }` and the older `\times m/n { }` | exact rational durations |
+| `\grace`, `\acciaccatura`, `\appoggiatura`, `\slashedGrace` | grace notes (no written time), kept apart |
+| `\repeat volta n { }` + `\alternative { { } { } }` | bar repeat marks and ending numbers |
+| `\repeat unfold n { }` | expanded n times (it is written out in the printed score) |
+| `\partial d` | pickup bar of length d |
+| `\time`, `\key`, `\clef` | metre, key signature (for spelling output), clef changes |
+| `\ottava #n` | sounding pitch shifted by n octaves; written pitch kept for the writer's `<octave-shift>` |
+| `<< { } \\ { } >>`, `\new Voice`, `\new Staff`, `\new PianoStaff`, `\context`, `\change Staff` | voices and staves |
+| `\bar "..."` | final/double bars; repeat bars via the repeat construct only |
+| articulations, dynamics, slurs, phrasing slurs, fingerings, `\markup`, text scripts, `\tempo`, `\sustainOn/Off` | read as notation marks for the converter; ignored by the comparator |
+| `\include` of anything other than `"english.ly"`/`"deutsch.ly"`-style language files, Scheme expressions beyond `#n` / `##t` literals, `\transpose`, `\set`/`\override` affecting pitch or time | **unsupported** -> error |
+
+### 3.2 Bars
+
+Bars are derived from `\time`, `\partial` and accumulated durations, and cross-checked against the source's bar
+checks (`|`): a bar check that does not fall on a bar line is an error, as it is in LilyPond itself.
+
+### 3.3 Converter (`tools/library/lilypond/to-musicxml.ts`)
+
+Writes MusicXML through `src/core/musicxml/write.ts`, extended additively (research R13) with: repeat barlines and
+`<ending>`, grace notes, `<time-modification>` for tuplets, `<octave-shift>`, clef/key/time changes mid-piece,
+`16th`/`32nd` types, slurs, dynamics, `<pedal>`, tempo `<words>` + `<sound tempo>`. Exercise output stays
+byte-identical (the existing exercise goldens are the guard). Titles, composer and credit come from the item's
+sidecar, not from the `.ly` header.
+
+### 3.4 Cross-check on conversion
+
+`library:convert-ly` compares its own reading (`fromLilyPond`) with the source's MIDI (`fromMidi`) on pitch, onset
+and duration before writing anything. Two independent readings of the same source must agree - that is what shows
+the reader read the source right. A difference stops the conversion and prints it. Known, explained exceptions
+(for example how LilyPond's MIDI places grace notes, research R5) are handled by the comparison rules, not by
+per-source exceptions.
+
+## 4. Theory check (`tools/library/fidelity/theory.ts`)
+
+- Imports only `tools/library/fidelity/*`, the app's `readXml` (to read the file) and Node built-ins. It must not
+  import `src/core/library/exercise/**` or read `content/library/exercises/**`; an architecture test asserts both
+  (FR-013).
+- Rules: `data-model.md` §5. Output: one `TheoryDifference` per wrong or wrongly spelled chord tone, naming the chord
+  index, bar, hand, expected and found (FR-014).
+
+## 5. Self-tests (FR-017, SC-004)
+
+`tests/tools/fidelity/planted.test.ts` takes a verified item and its source, applies one mutation at a time to a
+copy of the item's MusicXML, and asserts the comparison reports exactly that difference with the right bar:
+
+| Mutation | Expected |
+|---|---|
+| one pitch +1 semitone | one `pitch` difference in that bar |
+| one duration halved (rest fills the gap) | one `duration` difference in that bar |
+| one bar deleted | `barCount` difference, plus `missing` notes in that bar only |
+| one repeat barline removed | `repeat` difference at that bar, and a `playedOrder` difference |
+| one note respelled enharmonically | one `spelling` difference |
+| one grace note removed | one `grace` difference |
+| one melody note changed in an arrangement quote | one `melody` difference naming the bar |
+| (theory) one chord tone respelled, per family | one `TheoryDifference` naming the chord |
+| (theory) one chord tone moved a semitone, per family | one `TheoryDifference` naming the chord |
+
+A comparison method whose planted error is not caught may not be used for any "no differences" result.
+
+## 6. Versioning
+
+MINOR for new constructs, aspects or commands; MAJOR for a changed command meaning or output format.
