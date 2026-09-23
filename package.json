@@ -17,6 +17,8 @@
     "library:exercises": "tsx tools/library/build-exercises.ts",
     "library:engrave": "tsx tools/library/engrave.ts",
     "library:index": "tsx tools/library/build-index.ts",
+    "library:fidelity": "tsx tools/library/fidelity/cli.ts",
+    "library:convert-ly": "tsx tools/library/lilypond/cli.ts",
     "screenshot": "tsx tools/dev/screenshot.ts"
   },
   "dependencies": {

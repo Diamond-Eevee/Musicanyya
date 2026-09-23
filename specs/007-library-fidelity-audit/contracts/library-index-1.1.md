@@ -1,7 +1,7 @@
 # Contract change: library item metadata 1.0.0 -> 1.1.0
 
 **Changes**: `specs/005-practice-score-library/contracts/library-index.md` (the canonical contract; this file is
-the change request, folded into it by the first implementation task and then kept here as history).
+the change request, folded into it by the first implementation task and then kept here as history). Applied on 2026-09-23.
 
 **Kind**: MINOR (additive). An index written by 1.0.0 tools still validates; `index.json` `version` stays `1`.
 

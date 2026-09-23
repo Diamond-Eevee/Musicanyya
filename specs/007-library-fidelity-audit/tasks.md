@@ -46,10 +46,10 @@ task turns out to edit an AudioWorklet, the scheduler, the metronome or MIDI tim
   not filled; `departures` display is a later UI feature. Record the answers in `plan.md` (Owner decisions,
   "Answer" column) and in `implementation-log.md`. Tasks that depend on an unanswered decision stay open. Their
   dependencies are listed at the end of this file.
-- [ ] T002 Add the scripts `library:fidelity` (`tsx tools/library/fidelity/cli.ts`) and `library:convert-ly`
+- [x] T002 Add the scripts `library:fidelity` (`tsx tools/library/fidelity/cli.ts`) and `library:convert-ly`
   (`tsx tools/library/lilypond/cli.ts`) to `package.json`. Check that `tsconfig.tools.json` and `biome.json` already
   cover `tools/library/fidelity/**` and `tools/library/lilypond/**`, and add them if they do not.
-- [ ] T003 [P] Write `content/library/sources/README.md`. It covers:
+- [x] T003 [P] Write `content/library/sources/README.md`. It covers:
   - what may be committed there: public domain or CC0 only, files unchanged, `source.json` per contract
     `source-manifest.md`;
   - how to add a source (the quickstart steps);
@@ -57,9 +57,9 @@ task turns out to edit an AudioWorklet, the scheduler, the metronome or MIDI tim
     - Mutopia 659 (Schumann Op. 68 No. 10), rejected because it is CC BY-SA 2.5;
     - `github.com/musetrainer/library`: no licence file, MuseScore.com uploads, one marked "All rights reserved",
       and copyrighted works (spec Clarifications 2026-09-23).
-- [ ] T004 [P] Write `content/library/audit/README.md`: one record per shelf item, what each outcome means, a
+- [x] T004 [P] Write `content/library/audit/README.md`: one record per shelf item, what each outcome means, a
   pointer to contract `audit-record.md`, and "records are authored; `docs/library-audit.md` is generated".
-- [ ] T005 [P] Fold the sidecar change into the canonical contract
+- [x] T005 [P] Fold the sidecar change into the canonical contract
   `specs/005-practice-score-library/contracts/library-index.md` (version 1.0.0 -> 1.1.0):
   - add the optional `departures` field and its rules;
   - update the `reviewedBy` meaning;
