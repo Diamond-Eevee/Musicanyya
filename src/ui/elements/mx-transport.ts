@@ -54,7 +54,9 @@ export class MxTransport extends HTMLElement {
       <label class="volume-label">${en.transport.volume}
         <input type="range" class="volume" min="0" max="100" step="1" value="${state.volume}" />
       </label>
-      <button type="button" class="follow-btn" aria-pressed="${state.follow}">${en.transport.follow}</button>
+      <label class="follow-label" title="${en.transport.followHint}">
+        <input type="checkbox" class="follow" ${state.follow ? 'checked' : ''} />${en.transport.follow}
+      </label>
       <span class="loading-progress" ${progress ? '' : 'hidden'}>${this.progressText(progress)}</span>
     `;
 
@@ -91,7 +93,7 @@ export class MxTransport extends HTMLElement {
     (this.querySelector('input.volume') as HTMLInputElement).addEventListener('input', (event) => {
       transportState.setVolume(Number((event.target as HTMLInputElement).value));
     });
-    (this.querySelector('.follow-btn') as HTMLButtonElement).addEventListener('click', () =>
+    (this.querySelector('input.follow') as HTMLInputElement).addEventListener('change', () =>
       transportState.toggleFollow(),
     );
   }

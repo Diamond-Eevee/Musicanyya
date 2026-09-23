@@ -77,3 +77,71 @@ test('US2 end-to-end: play scale-c-major-q100 (sound cached), pause/resume/stop,
   await page.locator('.play-btn').click();
   await expect(page.locator('g.note.playing').first()).toBeVisible();
 });
+
+test('Follow (FR-014): after Stop the Score scrolls freely; scrolling during playback unticks Follow; Play ticks it again', async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium', 'Listen playback e2e is Chromium-only (R-15), like the test above');
+  test.setTimeout(30_000);
+
+  await page.goto('/');
+  // A page is one screenful (feature 004), so it takes the 500-measure fixture to have anything to scroll.
+  await page.locator('mx-open-button input[type=file]').setInputFiles(fixturePath('large-score.musicxml'));
+  await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+
+  const scroller = page.locator('.mx-score-scroll');
+  const scrollTop = () => scroller.evaluate((el) => el.scrollTop);
+  /** Lets the score view's rAF loop run: the bug pulled the view back on the very next frame. */
+  const frames = (count: number) =>
+    page.evaluate(
+      (n) =>
+        new Promise<void>((resolve) => {
+          let left = n;
+          const step = () => (--left > 0 ? requestAnimationFrame(step) : resolve());
+          requestAnimationFrame(step);
+        }),
+      count,
+    );
+
+  // Play, then Stop: the cursor returns to measure 1, at the top of the Score.
+  await page.locator('.play-btn').click();
+  await expect(page.locator('g.note.playing').first()).toBeVisible();
+  await page.locator('.stop-btn').click();
+  await expect(page.locator('g.note.playing')).toHaveCount(0);
+
+  // The reported bug: scrolling down while stopped was pulled straight back to the stopped cursor. A short scroll,
+  // so page 1 (and the cursor's measure) stays mounted - as it always does in a one- or two-page piece.
+  await scroller.hover();
+  await page.mouse.wheel(0, 400);
+  await expect.poll(scrollTop).toBeGreaterThan(300);
+  await frames(30);
+  expect(await scrollTop()).toBeGreaterThan(300);
+
+  // Scrolling while stopped is browsing, not a choice about following: the preference is unchanged.
+  const follow = page.locator('mx-transport input.follow');
+  await expect(follow).toBeChecked();
+
+  // Play follows again (the cursor is back at measure 1, so the view returns to the top) ...
+  await page.locator('.play-btn').click();
+  await expect.poll(scrollTop).toBeLessThan(300);
+  // ... until the musician scrolls away: Follow unticks and the view stays where they put it. Far enough that the
+  // playing measure's page is no longer mounted.
+  await scroller.hover(); // clicking Play moved the mouse onto the bar
+  await page.mouse.wheel(0, 3000);
+  await expect(follow).not.toBeChecked();
+  await expect.poll(scrollTop).toBeGreaterThan(2000);
+  const parked = await scrollTop();
+  await frames(30);
+  expect(await scrollTop()).toBe(parked);
+
+  // Ticking Follow brings the playing measure back into view, even from pages away.
+  await follow.check();
+  await expect.poll(scrollTop).toBeLessThan(1000);
+
+  // A new Play from Stop ticks it again (data-model section 5).
+  await page.locator('.stop-btn').click();
+  await follow.uncheck();
+  await expect(follow).not.toBeChecked();
+  await page.locator('.play-btn').click();
+  await expect(follow).toBeChecked();
+});
