@@ -192,14 +192,14 @@ one info notice; a MuseScore export with its own beams shows no notice and uncha
 **Independent Test**: removing the natural in *Für Elise* bar 1 in a scratch copy fails the guard with item, bar 1,
 staff 1, `D5`; removing a beam group fails the same way; regenerating exercises passes with no hand edits.
 
-- [~] T035 [P] [US4] Test `tests/library/engraving-guard.test.ts`: a negative case that mutates an in-memory copy
+- [x] T035 [P] [US4] Test `tests/library/engraving-guard.test.ts`: a negative case that mutates an in-memory copy
   of *Für Elise (theme)* (drop one `<accidental>`, then one `<beam>` group) and asserts the exact failure
-  messages; a positive case that regenerates every exercise family in memory and plans zero inserts. (claimed: gemini-3.1-pro 2026-09-23)
-- [~] T036 [US4] Make `tools/library/build-index.ts` (the library publishing check used by `pnpm library:index`)
+  messages; a positive case that regenerates every exercise family in memory and plans zero inserts.
+- [x] T036 [US4] Make `tools/library/build-index.ts` (the library publishing check used by `pnpm library:index`)
   refuse to write the index when any item has engraving findings, printing the guard message; test in
-  `tests/library/index.test.ts` (where the existing build-index tests live). (claimed: gemini-3.1-pro 2026-09-23)
-- [~] T037 [US4] Document the rule in `public/library/README.md` (how to add a piece: run `pnpm library:engrave`
-  then `pnpm library:index`). (claimed: gemini-3.1-pro 2026-09-23)
+  `tests/library/index.test.ts` (where the existing build-index tests live).
+- [x] T037 [US4] Document the rule in `public/library/README.md` (how to add a piece: run `pnpm library:engrave`
+  then `pnpm library:index`).
 
 **Checkpoint**: guard fails on the scratch mutations and passes on the real library.
 

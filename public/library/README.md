@@ -30,6 +30,14 @@ When a candidate score is turned away - wrong licence, fails to load, silent, ov
 levelled - the reason is recorded here rather than just discarded, so the decision is not repeated
 (FR-018).
 
+## Engraving Quality (FR-012)
+
+The library demands fully engraved music that does not rely on the app's real-time layout fixes. Before writing the index, `planEngraving` checks every file. The file is rejected if it has:
+1. **Missing or inconsistent beams**: any 8th note (or shorter) that is part of a beamable rhythm must have valid `<beam>` tags.
+2. **Missing accidentals**: any altered pitch that needs a required or courtesy accidental must have an `<accidental>` tag.
+
+If an item fails, `pnpm library:index` reports the exact measure, staff, voice, and pitch that requires fixing. Fix the MusicXML source file and run it again.
+
 | Item | Reason |
 |---|---|
 
