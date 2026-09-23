@@ -74,7 +74,7 @@ function countXmlTags(node: XmlElement, tagNames: string[]): Record<string, numb
 
   function traverse(n: any) {
     if (n instanceof XmlElement) {
-      // @ts-ignore
+      // @ts-expect-error
       if (counts[n.name] !== undefined) counts[n.name]++;
       for (const child of n.children) traverse(child);
     }

@@ -69,6 +69,10 @@ export const en = {
     desktopOnly: 'Desktop app only.',
     storageBlocked: 'Storage blocked by browser settings.',
   },
+  score: {
+    unknown: 'Unknown',
+    arranger: 'arr. {name}',
+  },
   transport: {
     play: 'Play',
     pause: 'Pause',

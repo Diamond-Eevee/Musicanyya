@@ -42,6 +42,37 @@ describe('library index generation (contracts/library-index.md §4, FR-025)', ()
     const { generated: _freshGenerated, ...freshRest } = index;
     expect(freshRest).toEqual(committedRest);
   });
+
+  it('T036: refuses an item with engraving findings', async () => {
+    // Create a temporary library folder with one file missing a beam/accidental
+    const tmpLibrary = path.join(__dirname, 'tmp-library-guard');
+    fs.mkdirSync(tmpLibrary, { recursive: true });
+    try {
+      const sectionDir = path.join(tmpLibrary, 'repertoire/beginner');
+      fs.mkdirSync(sectionDir, { recursive: true });
+
+      const xml = fs.readFileSync(
+        path.join(libraryRoot, 'repertoire/beginner/fur-elise-theme-16-bar.musicxml'),
+        'utf-8',
+      );
+      // mutate: drop a natural
+      const mutatedXml = xml.replace('<accidental>natural</accidental>', '');
+      fs.writeFileSync(path.join(sectionDir, 'bad-score.musicxml'), mutatedXml);
+
+      // copy sidecar
+      const sidecar = fs.readFileSync(
+        path.join(libraryRoot, 'repertoire/beginner/fur-elise-theme-16-bar.json'),
+        'utf-8',
+      );
+      fs.writeFileSync(path.join(sectionDir, 'bad-score.json'), sidecar);
+
+      const { problems } = await buildLibraryIndex(tmpLibrary, 'OpenScore');
+      expect(problems.length).toBeGreaterThan(0);
+      expect(problems.some((p) => p.includes('needs a required accidental'))).toBe(true);
+    } finally {
+      fs.rmSync(tmpLibrary, { recursive: true, force: true });
+    }
+  });
 });
 
 describe('US2 chord shelf (data-model.md §5.1-5.2, FR-005, FR-006, SC-004, analyze A11)', () => {

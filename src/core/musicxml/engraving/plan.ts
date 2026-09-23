@@ -33,6 +33,7 @@ export function applyInserts(xml: string, inserts: readonly ElementInsert[]): st
  */
 export function planEngraving(doc: XmlDocument, mode: EngravingMode): EngravingPlan {
   const walked = walkScore(doc);
+
   const inserts: ElementInsert[] = [];
   const findings: EngravingFinding[] = [];
   const invalidBeams: EngravingPlan['invalidBeams'] = [];
@@ -71,6 +72,7 @@ export function planEngraving(doc: XmlDocument, mode: EngravingMode): EngravingP
     }
 
     const accidentalResult = planAccidentalsForPart(part, mode);
+
     accidentalsRequired += accidentalResult.requiredCount;
     accidentalsCourtesy += accidentalResult.courtesyCount;
     for (const entry of accidentalResult.entries) {

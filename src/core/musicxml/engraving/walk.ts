@@ -111,21 +111,6 @@ export interface WalkResult {
   parts: PartWalk[];
 }
 
-const BEAM_BEFORE = ['notations', 'lyric', 'play', 'listen'];
-const ACCIDENTAL_AFTER = ['type', 'dot'];
-const ACCIDENTAL_BEFORE = [
-  'time-modification',
-  'stem',
-  'notehead',
-  'notehead-text',
-  'staff',
-  'beam',
-  'notations',
-  'lyric',
-  'play',
-  'listen',
-];
-
 function getChild(el: XmlElement, name: string): XmlElement | undefined {
   return el.children.find((c): c is XmlElement => c instanceof XmlElement && c.name === name);
 }
@@ -139,26 +124,6 @@ function getText(el: XmlElement | undefined): string {
 }
 function getAttr(el: XmlElement, name: string): string | undefined {
   return el.attributes[name];
-}
-
-/** R-8: the offset to splice new markup into a `<note>` element, given what already exists inside it. */
-function insertOffset(note: XmlElement, opts: { after?: string[]; before: string[] }): number {
-  if (opts.after) {
-    let last: XmlElement | undefined;
-    for (const child of note.children) {
-      if (child instanceof XmlElement && opts.after.includes(child.name)) last = child;
-    }
-    if (last && last.end >= 0) return last.end;
-  }
-  for (const child of note.children) {
-    if (child instanceof XmlElement && opts.before.includes(child.name) && child.start >= 0) return child.start;
-  }
-  // No anchor found: splice right after the last child (equivalent to "before `</note>`" - the
-  // gap between the last child and the closing tag is whitespace only, so either position is valid XML).
-  const children = note.children;
-  const lastChild = children[children.length - 1];
-  if (lastChild && lastChild.end >= 0) return lastChild.end;
-  return note.end;
 }
 
 const NOTE_TYPES: readonly string[] = [
@@ -206,13 +171,24 @@ export function walkScore(doc: XmlDocument): WalkResult {
   }
 
   const divisionsSeen: number[] = [];
-  (function gather(el: XmlElement) {
-    if (el.name === 'divisions') {
-      const d = parseInt(getText(el), 10);
-      if (!Number.isNaN(d) && d > 0) divisionsSeen.push(d);
+  for (const part of root.children) {
+    if (part instanceof XmlElement && part.name === 'part') {
+      for (const measure of part.children) {
+        if (measure instanceof XmlElement && measure.name === 'measure') {
+          for (const el of measure.children) {
+            if (el instanceof XmlElement && el.name === 'attributes') {
+              for (const attr of el.children) {
+                if (attr instanceof XmlElement && attr.name === 'divisions') {
+                  const d = parseInt(getText(attr), 10);
+                  if (!Number.isNaN(d) && d > 0) divisionsSeen.push(d);
+                }
+              }
+            }
+          }
+        }
+      }
     }
-    for (const c of el.children) if (c instanceof XmlElement) gather(c);
-  })(root);
+  }
 
   let ppq = 960;
   try {
@@ -328,41 +304,144 @@ export function walkScore(doc: XmlDocument): WalkResult {
             measureMaxCursor = Math.max(measureMaxCursor, cursor);
           }
         } else if (el.name === 'note') {
-          const isChord = getChild(el, 'chord') !== undefined;
-          const isGrace = getChild(el, 'grace') !== undefined;
-          const isRest = getChild(el, 'rest') !== undefined;
-          const isCue = getChild(el, 'cue') !== undefined;
-          const durTxt = getText(getChild(el, 'duration'));
+          let isChord = false;
+          let isGrace = false;
+          let isRest = false;
+          let isCue = false;
+          let durTxt = '';
+          let voice = '1';
+          let staffTxt = '';
+          let typeTxt = '';
+          let dots = 0;
+          let timeModEl: XmlElement | undefined;
+          let hasBeam = false;
+          let pitchEl: XmlElement | undefined;
+          let hasAccidental = false;
+          let tieStop = false;
+
+          let beamOffset = -1;
+          let accidentalOffsetBefore = -1;
+          let accidentalOffsetAfter = -1;
+
+          for (const c of el.children) {
+            if (c instanceof XmlElement) {
+              if (
+                beamOffset === -1 &&
+                (c.name === 'notations' || c.name === 'lyric' || c.name === 'play' || c.name === 'listen')
+              ) {
+                if (c.start >= 0) beamOffset = c.start;
+              }
+              if (
+                accidentalOffsetBefore === -1 &&
+                (c.name === 'time-modification' ||
+                  c.name === 'stem' ||
+                  c.name === 'notehead' ||
+                  c.name === 'notehead-text' ||
+                  c.name === 'staff' ||
+                  c.name === 'beam' ||
+                  c.name === 'notations' ||
+                  c.name === 'lyric' ||
+                  c.name === 'play' ||
+                  c.name === 'listen')
+              ) {
+                if (c.start >= 0) accidentalOffsetBefore = c.start;
+              }
+              if (c.name === 'type' || c.name === 'dot') {
+                if (c.end >= 0) accidentalOffsetAfter = c.end;
+              }
+
+              switch (c.name) {
+                case 'chord':
+                  isChord = true;
+                  break;
+                case 'grace':
+                  isGrace = true;
+                  break;
+                case 'rest':
+                  isRest = true;
+                  break;
+                case 'cue':
+                  isCue = true;
+                  break;
+                case 'duration':
+                  durTxt = getText(c);
+                  break;
+                case 'voice':
+                  voice = getText(c) || '1';
+                  break;
+                case 'staff':
+                  staffTxt = getText(c);
+                  break;
+                case 'type':
+                  typeTxt = getText(c);
+                  break;
+                case 'dot':
+                  dots++;
+                  break;
+                case 'time-modification':
+                  timeModEl = c;
+                  break;
+                case 'beam':
+                  hasBeam = true;
+                  break;
+                case 'pitch':
+                  pitchEl = c;
+                  break;
+                case 'accidental':
+                  hasAccidental = true;
+                  break;
+                case 'tie':
+                  if (getAttr(c, 'type') === 'stop') tieStop = true;
+                  break;
+              }
+            }
+          }
+
+          const staff = parseInt(staffTxt, 10) || 1;
           const ticks = durTxt ? durationToTicks(durTxt, ppq, currentDivisions) : 0;
-          const voice = getText(getChild(el, 'voice')) || '1';
-          const staff = parseInt(getText(getChild(el, 'staff')), 10) || 1;
-          const typeTxt = getText(getChild(el, 'type'));
-          const dots = getChildren(el, 'dot').length;
-          const timeModEl = getChild(el, 'time-modification');
           const tuplet = timeModEl
             ? {
                 actual: parseInt(getText(getChild(timeModEl, 'actual-notes')), 10) || 1,
                 normal: parseInt(getText(getChild(timeModEl, 'normal-notes')), 10) || 1,
               }
             : null;
-          const hasBeam = getChildren(el, 'beam').length > 0;
 
           const noteRef: NoteRef = { start: el.start, end: el.end, element: el };
-          const beamOffset = insertOffset(el, { before: BEAM_BEFORE });
-          const accidentalOffset = insertOffset(el, { after: ACCIDENTAL_AFTER, before: ACCIDENTAL_BEFORE });
 
-          const pitchEl = getChild(el, 'pitch');
+          if (beamOffset === -1) {
+            const lastC = el.children[el.children.length - 1];
+            beamOffset = lastC && lastC.end >= 0 ? lastC.end : el.end;
+          }
+          let accidentalOffset = -1;
+          if (accidentalOffsetAfter !== -1) accidentalOffset = accidentalOffsetAfter;
+          else if (accidentalOffsetBefore !== -1) accidentalOffset = accidentalOffsetBefore;
+          else {
+            const lastC = el.children[el.children.length - 1];
+            accidentalOffset = lastC && lastC.end >= 0 ? lastC.end : el.end;
+          }
+
           let pitch: WrittenPitch | null = null;
           if (pitchEl && !isRest && !isCue) {
-            const step = getText(getChild(pitchEl, 'step'));
-            const alterTxt = getText(getChild(pitchEl, 'alter'));
-            const alterRaw = alterTxt ? parseFloat(alterTxt) : 0;
-            const octave = parseInt(getText(getChild(pitchEl, 'octave')), 10) || 4;
-            const hasAccidental = getChild(el, 'accidental') !== undefined;
-            let tieStop = false;
-            for (const t of getChildren(el, 'tie')) {
-              if (getAttr(t, 'type') === 'stop') tieStop = true;
+            let step = '';
+            let alterTxt = '';
+            let octaveTxt = '';
+            for (const c of pitchEl.children) {
+              if (c instanceof XmlElement) {
+                switch (c.name) {
+                  case 'step':
+                    step = getText(c);
+                    break;
+                  case 'alter':
+                    alterTxt = getText(c);
+                    break;
+                  case 'octave':
+                    octaveTxt = getText(c);
+                    break;
+                }
+              }
             }
+            const alterRaw = alterTxt ? parseFloat(alterTxt) : 0;
+            const octave = parseInt(octaveTxt, 10) || 4;
             pitch = {
               step,
               alter: Math.round(alterRaw),

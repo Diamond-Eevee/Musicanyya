@@ -8,6 +8,7 @@ import {
   SCORE_SCALE_MIN,
 } from '../../engine/config.js';
 import type { AudioEngine } from '../../engine/ports.js';
+import { en } from '../i18n/en.js';
 import { fitLayout } from '../layout/fit.js';
 import { drawCursorOverlay } from '../score/cursor-overlay.js';
 import { drawGradeMarks, drawLiveMarks } from '../score/grade-marks.js';
@@ -241,19 +242,20 @@ export class MxScoreView extends HTMLElement {
 
   private applyPageCount(pageCount: number) {
     this.domEpoch++;
-    this.layouts = layoutPages(pageCount, this.pageHeightPx());
+    const state = scoreState.getStatus();
+    const summary = state.kind === 'loaded' ? state.score.summary : null;
+    const titleBlockHeight = summary ? 80 : 0;
+    this.layouts = layoutPages(pageCount, this.pageHeightPx(), 0, titleBlockHeight);
     this.pageMeasureIds.clear();
     this.mountedPages.clear();
     this.stack.innerHTML = '';
 
-    const state = scoreState.getStatus();
-    const summary = state.kind === 'loaded' ? state.score.summary : null;
     const fileName = state.kind === 'loaded' ? state.score.fileName : null;
     if (summary) {
       const block = document.createElement('div');
       block.className = 'mx-title-block';
       const title = document.createElement('h1');
-      title.textContent = summary.title ?? fileName ?? 'Unknown';
+      title.textContent = summary.title ?? fileName ?? en.score.unknown;
       block.appendChild(title);
       if (summary.composer || summary.arranger) {
         const credits = document.createElement('div');
@@ -267,7 +269,7 @@ export class MxScoreView extends HTMLElement {
         if (summary.arranger) {
           const arr = document.createElement('div');
           arr.className = 'mx-title-arranger';
-          arr.textContent = `arr. ${summary.arranger}`;
+          arr.textContent = en.score.arranger.replace('{name}', summary.arranger);
           credits.appendChild(arr);
         }
         block.appendChild(credits);
@@ -290,7 +292,8 @@ export class MxScoreView extends HTMLElement {
     this.pageAspect = aspect;
     const height = this.pageHeightPx();
     if (this.layouts.length === 0 || this.layouts[0]?.height === height) return;
-    this.layouts = layoutPages(this.layouts.length, height);
+    const titleBlockHeight = this.stack.querySelector('.mx-title-block') ? 80 : 0;
+    this.layouts = layoutPages(this.layouts.length, height, 0, titleBlockHeight);
     for (const layout of this.layouts) {
       const pageEl = this.stack.querySelector<HTMLElement>(`[data-page="${layout.page}"]`);
       if (pageEl) pageEl.style.height = `${layout.height}px`;

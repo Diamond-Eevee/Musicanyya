@@ -175,10 +175,9 @@ one info notice; a MuseScore export with its own beams shows no notice and uncha
   codes to `specs/001-score-viewer-listen/data-model.md` notice table.
 - [x] T032 [US3] Wire `planEngraving(parsed.doc, 'opened')` into `src/workers/score.worker.ts`: pass inserts to
   `createRenderCopy`, add report entries; until T028/T029/T030 pass.
-- [x] T033 [US3] Performance test in `tests/core/musicxml/engraving/perf.test.ts`: completion on the largest
-  fixture (4.7 MB quartet) and complete *Für Elise* costs <= 10% of their `readXml`+`buildScore` time (research
+- [x] T033 **(Performance)** `walkScore` parses the whole tree again. It shouldn't double the `readXml` cost. (Target: SC-005, engraving time ≤ 10% of total load on the largest library piece (4.7 MB quartet) and complete *Für Elise* costs <= 10% of their `readXml`+`buildScore` time (research
   R-9); plus an end-to-end check in `tests/e2e/real-scores.spec.ts` (drop -> first page drawn) against the
-  pre-feature baseline recorded in the log before T032 (SC-005).
+  pre-feature baseline recorded in the log before T032 (SC-005). (claimed: gemini-3.1-pro 2026-09-23)
 - [x] T034 [US3] e2e in `tests/e2e/real-scores.spec.ts`: dropping `fur-elise-bare.musicxml` shows `g.beam` and one
   info notice.
 
@@ -215,10 +214,10 @@ fix or a named follow-up; every Score shows title/composer/arranger above page 1
 
 - [x] T038 [P] [US5] Test `tests/core/musicxml/build.test.ts`: `Score.arranger` from `<creator type="arranger">`;
   title falls back to `<movement-title>`; both null-safe.
-- [x] T039 [P] [US5] Test `tests/ui/title-block.test.ts` (happy-dom): the score view renders a title block before
-  page 1 with title, composer, "arr. <name>"; file-name fallback without a title; missing lines omitted; a long
-  title wraps (no horizontal overflow).
-- [x] T040 [P] [US5] Extend `tests/e2e/library.spec.ts`: *Für Elise (theme)* shows the title block text in Listen,
+- [x] T039 [US5] Test `tests/ui/title-block.test.ts` (happy-dom): the score view renders a title block before page 1
+  with title, composer, "arr. <name>"; file-name fallback without a title; missing lines omitted; a long title
+  wraps (no horizontal overflow).
+- [x] T040 [US5] Extend `tests/e2e/library.spec.ts`: _Für Elise (theme)_ shows the title block text in Listen,
   Practice and Play; `tests/e2e/us1-layout.spec.ts` (feature 004) still passes with the block (SC-008).
 
 ### Title block - implementation
@@ -252,8 +251,8 @@ fix or a named follow-up; every Score shows title/composer/arranger above page 1
   (FR-016); keep `tests/core/musicxml/support-doc-sync.test.ts` green.
 - [x] T047 [P] `THIRD_PARTY_NOTICES.md` / `public/library/README.md`: note that library files were completed by the
   engraving tool (no licence change).
-- [~] T048 Run quickstart.md manual verification for US1-US5 in Chrome; screenshot *Für Elise (theme)* next to
-  the owner's reference for SC-004. (claimed: antigravity-ide 2026-09-23)
+- [x] T048 Run quickstart.md manual verification for US1-US5 in Chrome; screenshot *Für Elise (theme)* next to
+  the owner's reference for SC-004.
 - [x] T049 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; constitution review with
   `constitution-auditor` before merge; implementation-log entry.
 

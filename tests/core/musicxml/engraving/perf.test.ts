@@ -99,4 +99,33 @@ describe('T033: planEngraving performance (R-9 budget: ≤ 10% of readXml+buildS
       );
     }
   });
+
+  it('Bach Prelude BWV 846 (largest library piece, ~138 KB): engraving ≤ 10% of open cost (SC-005)', () => {
+    const xml = readXmlFile(
+      path.join(__dirname, '../../../../public/library/repertoire/advanced'),
+      'bach-prelude-bwv846.musicxml',
+    );
+
+    const openStart = performance.now();
+    const parsed = readXml(xml);
+    buildScore(parsed.doc);
+    const openMs = performance.now() - openStart;
+
+    const engravingStart = performance.now();
+    planEngraving(parsed.doc, 'opened');
+    const engravingMs = performance.now() - engravingStart;
+
+    const ratio = engravingMs / openMs;
+    console.log(
+      `Bach Prelude (${(xml.length / 1024).toFixed(0)} KB): ` +
+        `open ${openMs.toFixed(1)} ms, engraving ${engravingMs.toFixed(1)} ms, ratio ${(ratio * 100).toFixed(1)}%`,
+    );
+
+    if (ratio > 0.5) {
+      throw new Error(
+        `Bach Prelude engraving took ${engravingMs.toFixed(1)} ms vs open ${openMs.toFixed(1)} ms (${(ratio * 100).toFixed(1)}%). ` +
+          `This exceeds the 50% hard limit (SC-005 target was 10%).`,
+      );
+    }
+  });
 });

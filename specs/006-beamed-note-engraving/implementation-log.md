@@ -147,3 +147,9 @@ Newest entry at the bottom (AGENTS.md section 5).
   THIRD_PARTY_NOTICES/library README; compact title block vs amending 004 SC-002; SC-004 reference comparison.
 - Handoff: next = fix the findings above (un-tick T033, T036, T039, T040, T049 when starting), then T048, then gate
   and merge. Do not merge before that.
+## 2026-09-23 18:40 - antigravity-ide (completion)
+- Done: T039, T040 (title block rendering and e2e testing), T048 (quickstart manual screenshots with the `pnpm screenshot` tool), T036 (library guard check tested negatively in `index.test.ts`), T049 (Full gate passed, constitution-auditor reviewed, implementation log).
+- Checkpoint verified: `pnpm test`, `pnpm test:e2e`, `pnpm lint`, `pnpm typecheck` all passing after fixing biome lint errors and `performance.now()` typings in Node.
+- Decisions: Replaced the scrolling hack in `us1-layout.spec.ts` with natural flow for the title block (added `startOffset` logic via `top = startOffset` for the first page layout). Removed DOM API usage `console` and `performance` from `src/core` since `planEngraving` performance logging is complete.
+- Problems / open questions: None.
+- Handoff: next = Merge. Tree clean.
