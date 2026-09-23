@@ -76,14 +76,14 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T006 [P] `tests/architecture/layers.test.ts`: add assertions that no file under `src/` imports
+- [x] T006 [P] `tests/architecture/layers.test.ts`: add assertions that no file under `src/` imports
   `tools/library/fidelity/**` or `tools/library/lilypond/**`. Also assert that `tools/library/fidelity/theory.ts`
   exists and neither imports `src/core/library/exercise/**` nor reads `content/library/exercises` (research R8).
   Confirm the independence assertion fails, because `theory.ts` does not exist yet.
-- [ ] T007 [P] `tests/tools/fidelity/time.test.ts`: `q()` reduces; `add`/`cmp` work by cross-multiplication;
+- [x] T007 [P] `tests/tools/fidelity/time.test.ts`: `q()` reduces; `add`/`cmp` work by cross-multiplication;
   `fromTicks(128, 384)` equals `fromTicks(1, 3)` (a triplet eighth at two resolutions); `show()` formats mixed
   numbers (`data-model.md` §1). Confirm it fails.
-- [ ] T008 [P] `tests/tools/fidelity/midi.test.ts`, built from hand-made byte arrays:
+- [x] T008 [P] `tests/tools/fidelity/midi.test.ts`, built from hand-made byte arrays:
   - format 0 and format 1;
   - running status;
   - note-on with velocity 0 read as note-off;
@@ -93,7 +93,7 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
   - `fromMidi` keeps only `midiNoteTracks` and converts to `QuarterTime`.
 
   Confirm it fails.
-- [ ] T009 [P] `tests/tools/fidelity/from-musicxml.test.ts`, on existing fixtures under
+- [x] T009 [P] `tests/tools/fidelity/from-musicxml.test.ts`, on existing fixtures under
   `tests/fixtures/musicxml/`:
   - `tie-chain-three`: tied notes merged into one;
   - a grace-note fixture: grace notes kept apart;
@@ -106,15 +106,15 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
     (`src/core/timeline/timeline.ts`), not from a second unfolding written for the tool (research R6).
 
   Confirm it fails.
-- [ ] T010 [P] Own-work LilyPond fixtures in `tests/fixtures/lilypond/`, one construct per file and each a few bars
+- [x] T010 [P] Own-work LilyPond fixtures in `tests/fixtures/lilypond/`, one construct per file and each a few bars
   long: `relative.ly`, `absolute.ly`, `chords.ly`, `ties.ly`, `tuplets.ly` (`\tuplet` and `\times`), `grace.ly`
   (all four grace commands), `volta.ly`, `unfold.ly`, `partial.ly`, `time-key-clef.ly`, `ottava.ly`,
   `voices.ly` (`<< \\ >>`, `\new Voice`, `\change Staff`), `variables.ly`, `pianostaff.ly`, `bar-check-wrong.ly`,
   `unsupported-transpose.ly`. Also write a `README.md` giving their origin as own work, CC0.
-- [ ] T011 `tests/tools/lilypond/read.test.ts`: one test per construct in contract `fidelity-tools.md` §3.1, over the
+- [x] T011 `tests/tools/lilypond/read.test.ts`: one test per construct in contract `fidelity-tools.md` §3.1, over the
   T010 fixtures. The expected `ReferenceScore` is written by hand in each test. A misplaced bar check and
   `\transpose` throw `LyUnsupportedError` with line and column. Confirm it fails. (Depends on T010.)
-- [ ] T012 [P] `tests/tools/fidelity/compare.test.ts`:
+- [x] T012 [P] `tests/tools/fidelity/compare.test.ts`:
   - each aspect of `data-model.md` §4.1 on small synthetic `ReferenceScore`s;
   - a same-onset wrong pitch reported once as `pitch`, not as missing + extra;
   - a declared alignment applied, never searched;
@@ -126,7 +126,7 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
     that durations were checked against the notation only.
 
   Confirm it fails.
-- [ ] T013 [P] `tests/tools/fidelity/sources.test.ts`: a valid manifest loads. The test also checks these failures:
+- [x] T013 [P] `tests/tools/fidelity/sources.test.ts`: a valid manifest loads. The test also checks these failures:
   - a CC BY-SA licence fails;
   - a changed file fails its hash check;
   - `role: sound` without `midiOrder`/`midiNoteTracks`/`midiArticulate` fails;
@@ -134,7 +134,7 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
   - a folder name that is not the `id` fails.
 
   Confirm it fails.
-- [ ] T014 [P] `tests/tools/fidelity/records.test.ts`: schema validation of contract `audit-record.md` §1, plus
+- [x] T014 [P] `tests/tools/fidelity/records.test.ts`: schema validation of contract `audit-record.md` §1, plus
   rules 2.2 to 2.7 on synthetic records and a temporary copy of a tiny library tree:
   - re-run count must equal `expectedDifferences`;
   - `differenceNotes` count must match;
@@ -148,16 +148,16 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
 
 ### Implementation
 
-- [ ] T015 [P] `tools/library/fidelity/time.ts` (makes T007 pass).
-- [ ] T016 `tools/library/fidelity/midi.ts`: `readMidi` + `fromMidi` (makes T008 pass). (Depends on T015.)
-- [ ] T017 `tools/library/fidelity/from-musicxml.ts`, through `src/core/musicxml/read.ts` + `build.ts` (makes T009
+- [~] T015 [P] `tools/library/fidelity/time.ts` (makes T007 pass). (claimed: gemini-3.1-pro 2026-09-23)
+- [~] T016 `tools/library/fidelity/midi.ts`: `readMidi` + `fromMidi` (makes T008 pass). (Depends on T015.) (claimed: gemini-3.1-pro 2026-09-23)
+- [~] T017 `tools/library/fidelity/from-musicxml.ts`, through `src/core/musicxml/read.ts` + `build.ts` (makes T009
   pass). The played order always comes from `buildTimeline`, so the check proves what the app actually plays. If
   the Score model lacks something the written-bar reading needs (for example repeat barlines per bar or spelling),
-  read it from the parse tree in this file. Do not change `src/core`. (Depends on T015.)
-- [ ] T018 `tools/library/lilypond/lex.ts`, `parse.ts`, `read.ts`: `readLilyPond` + `fromLilyPond`, covering exactly
-  contract §3.1 and throwing `LyUnsupportedError` on anything else (makes T011 pass). (Depends on T015.)
-- [ ] T019 `tools/library/fidelity/compare.ts`: `compare()` with every aspect, declared alignment, and the two-step
-  chain of `data-model.md` §4.1a (makes T012 pass). (Depends on T015.)
+  read it from the parse tree in this file. Do not change `src/core`. (Depends on T015.) (claimed: gemini-3.1-pro 2026-09-23)
+- [~] T018 `tools/library/lilypond/lex.ts`, `parse.ts`, `read.ts`: `readLilyPond` + `fromLilyPond`, covering exactly
+  contract §3.1 and throwing `LyUnsupportedError` on anything else (makes T011 pass). (Depends on T015.) (claimed: gemini-3.1-pro 2026-09-23)
+- [~] T019 `tools/library/fidelity/compare.ts`: `compare()` with every aspect, declared alignment, and the two-step
+  chain of `data-model.md` §4.1a (makes T012 pass). (Depends on T015.) (claimed: gemini-3.1-pro 2026-09-23)
 - [ ] T020 [P] `tools/library/fidelity/sources.ts`: `loadSources` validates and re-hashes (makes T013 pass).
 - [ ] T021 `tools/library/fidelity/records.ts`: `loadRecords` + `runRecord` (makes T014 pass). (Depends on T016-T020.)
 - [ ] T022 `tools/library/fidelity/cli.ts`: `pnpm library:fidelity` with no arguments, `--item <id>`,
