@@ -47,6 +47,10 @@ test.describe('Practice score library: browse, open, Listen', () => {
     await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
     await expect(page.locator('.notice')).toHaveCount(0);
+    // Feature 006: the library file ships beam-completed, so the pickup and bar 1 render as beam
+    // groups, not individually flagged sixteenths (no engravingCompleted notice - library files are
+    // already correct on disk).
+    await expect(page.locator('g.beam').first()).toBeVisible();
 
     // FR-019: source/licence visible without leaving the score view - reopen the (non-modal) panel to check it.
     await openPanel(page, 'scores');

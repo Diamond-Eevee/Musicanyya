@@ -3,10 +3,7 @@
   "title": "C major - I-vi-ii-V",
   "kind": "exercise",
   "level": "beginner",
-  "tags": [
-    "chords",
-    "chord-changes"
-  ],
+  "tags": ["chords", "chord-changes"],
   "trains": "The turnaround: minimal hand travel, one common tone per change.",
   "hands": "both",
   "provenance": {

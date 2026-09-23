@@ -3,10 +3,7 @@
   "title": "C major - diatonic ladder",
   "kind": "exercise",
   "level": "intermediate",
-  "tags": [
-    "chords",
-    "chord-changes"
-  ],
+  "tags": ["chords", "chord-changes"],
   "trains": "Every diatonic triad of the key in order, major, minor and diminished by shape.",
   "hands": "both",
   "provenance": {

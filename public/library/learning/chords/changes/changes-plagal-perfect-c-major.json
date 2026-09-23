@@ -3,10 +3,7 @@
   "title": "C major - plagal then perfect",
   "kind": "exercise",
   "level": "beginner",
-  "tags": [
-    "chords",
-    "chord-changes"
-  ],
+  "tags": ["chords", "chord-changes"],
   "trains": "The plagal \"amen\" cadence set against the perfect cadence.",
   "hands": "both",
   "provenance": {

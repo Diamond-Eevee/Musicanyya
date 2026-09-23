@@ -3,10 +3,7 @@
   "title": "C minor triads",
   "kind": "exercise",
   "level": "beginner",
-  "tags": [
-    "chords",
-    "hands-together"
-  ],
+  "tags": ["chords", "hands-together"],
   "trains": "Primary triads (i, iv, the harmonic-minor major V) and the three shapes of the tonic, both hands the same shape an octave apart.",
   "hands": "both",
   "provenance": {

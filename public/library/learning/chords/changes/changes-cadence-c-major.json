@@ -3,10 +3,7 @@
   "title": "C major - I-IV-V-I",
   "kind": "exercise",
   "level": "beginner",
-  "tags": [
-    "chords",
-    "chord-changes"
-  ],
+  "tags": ["chords", "chord-changes"],
   "trains": "The full perfect cadence (FR-004), in C, G and F.",
   "hands": "both",
   "provenance": {

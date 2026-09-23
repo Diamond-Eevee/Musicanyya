@@ -3,10 +3,7 @@
   "title": "C major - ii-V-I",
   "kind": "exercise",
   "level": "beginner",
-  "tags": [
-    "chords",
-    "chord-changes"
-  ],
+  "tags": ["chords", "chord-changes"],
   "trains": "Root motion by fourths - the ii-V-I jazz cadence skeleton.",
   "hands": "both",
   "provenance": {

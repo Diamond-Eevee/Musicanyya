@@ -3,10 +3,7 @@
   "title": "C major - I-V-I",
   "kind": "exercise",
   "level": "beginner",
-  "tags": [
-    "chords",
-    "chord-changes"
-  ],
+  "tags": ["chords", "chord-changes"],
   "trains": "The smallest change: two notes move by step from I to V and back.",
   "hands": "both",
   "provenance": {

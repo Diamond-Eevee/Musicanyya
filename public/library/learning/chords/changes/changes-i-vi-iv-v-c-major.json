@@ -3,10 +3,7 @@
   "title": "C major - I-vi-IV-V",
   "kind": "exercise",
   "level": "beginner",
-  "tags": [
-    "chords",
-    "chord-changes"
-  ],
+  "tags": ["chords", "chord-changes"],
   "trains": "The relative-minor loop: two common tones between I and vi.",
   "hands": "both",
   "provenance": {

@@ -3,10 +3,7 @@
   "title": "A minor - minor and major",
   "kind": "exercise",
   "level": "beginner",
-  "tags": [
-    "chords",
-    "chord-changes"
-  ],
+  "tags": ["chords", "chord-changes"],
   "trains": "The same same-tonic quality change moving the other way, minor to major.",
   "hands": "both",
   "provenance": {
