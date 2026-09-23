@@ -462,6 +462,17 @@ notice is a failure, not a surprise.
   random sample of the finished shelf blind and record the agreement rate against SC-006's 90%
   (analyze A6); then write the closing `implementation-log.md` entry
 
+## Follow-up: complete Für Elise from a public-domain edition (branch `fix/fur-elise-mutopia`)
+
+- [x] T087 Replace `repertoire/advanced/fur-elise-complete` (an abridged reconstruction with unverified
+  passages) with the complete piece converted from the Mutopia Project's public-domain LilyPond source
+  (id 931); check every note against Mutopia's MIDI; sidecar `origin: downloaded`,
+  `licence: public-domain`, `expected.notices` for the short first-ending and final bars;
+  `THIRD_PARTY_NOTICES.md` entry (FR-020); identity golden captured before completion (SC-003)
+- [x] T088 `tools/library/build-index.ts`: `buildLibraryIndex` defaults `thirdPartyNotices` to the
+  repository's `THIRD_PARTY_NOTICES.md`, so the real-shelf tests check FR-020 instead of rejecting
+  every `downloaded` item
+
 ---
 
 ## Dependencies & Execution Order
@@ -509,3 +520,4 @@ Everything after that widens the shelf or hardens the checks.
 **Totals**: 86 tasks - Setup 5, Foundational 8, US1 20, US2 15, US3 22, US4 4, US5 5, Polish 7.
 T083-T086 were added after `/speckit.analyze` (findings A1, A2, A8, A14) and keep new numbers rather
 than renumbering the rest.
+T087-T088 are a later follow-up (the complete Für Elise); they are not counted above.
