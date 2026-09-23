@@ -175,12 +175,12 @@ one info notice; a MuseScore export with its own beams shows no notice and uncha
   codes to `specs/001-score-viewer-listen/data-model.md` notice table.
 - [x] T032 [US3] Wire `planEngraving(parsed.doc, 'opened')` into `src/workers/score.worker.ts`: pass inserts to
   `createRenderCopy`, add report entries; until T028/T029/T030 pass.
-- [~] T033 [US3] Performance test in `tests/core/musicxml/engraving/perf.test.ts`: completion on the largest
+- [x] T033 [US3] Performance test in `tests/core/musicxml/engraving/perf.test.ts`: completion on the largest
   fixture (4.7 MB quartet) and complete *Für Elise* costs <= 10% of their `readXml`+`buildScore` time (research
   R-9); plus an end-to-end check in `tests/e2e/real-scores.spec.ts` (drop -> first page drawn) against the
-  pre-feature baseline recorded in the log before T032 (SC-005). (claimed: antigravity-claude-sonnet-4.6 2026-09-23)
-- [~] T034 [US3] e2e in `tests/e2e/real-scores.spec.ts`: dropping `fur-elise-bare.musicxml` shows `g.beam` and one
-  info notice. (claimed: antigravity-claude-sonnet-4.6 2026-09-23)
+  pre-feature baseline recorded in the log before T032 (SC-005).
+- [x] T034 [US3] e2e in `tests/e2e/real-scores.spec.ts`: dropping `fur-elise-bare.musicxml` shows `g.beam` and one
+  info notice.
 
 **Checkpoint**: US3 independent test passes; opened scores that encode beams/accidentals are unchanged.
 
