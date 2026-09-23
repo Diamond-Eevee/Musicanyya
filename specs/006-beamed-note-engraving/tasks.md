@@ -80,7 +80,7 @@ bar 2 bass A-E-A beamed, treble A keeps its flag; no flag where a beam group app
   (Für Elise bar 2), lone note keeps flag, levels and hooks (B9 examples), unbroken secondary beams in 3/8 (B10),
   tuplet groups, grace groups, per-voice grouping with cross-staff notes, chords beamed on the head, voices with
   any encoded `<beam>` skipped (B11), `beamGroupsAdded` counts.
-- [ ] T014 [P] [US1] Test `tests/verovio/engraving.test.ts` (real Verovio WASM): the completed
+- [x] T014 [P] [US1] Test `tests/verovio/engraving.test.ts` (real Verovio WASM): the completed
   `fur-elise-bare.musicxml` renders `g.beam` groups and no `g.flag` on notes inside a beam group; a grace note
   between beamed main notes renders (research B8 check - on failure, switch B8 to "grace breaks the group" and log
   it in research.md).
