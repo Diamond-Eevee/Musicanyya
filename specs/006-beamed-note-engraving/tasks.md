@@ -50,15 +50,15 @@ insert splice, and the render-copy extension.
   `<divisions>` change; per-staff keys (`<key number>`), mid-bar key/time change; chords folded into heads; grace,
   tuplet, tie flags; end-aligned pickup (research B2); insert offsets per R-8 for notes with/without `type`, `dot`,
   `staff`, `notations`. Must fail (module missing).
-- [ ] T007 [P] Test `tests/core/musicxml/engraving/apply.test.ts`: `applyInserts` splices in one pass, orders
+- [x] T007 [P] Test `tests/core/musicxml/engraving/apply.test.ts`: `applyInserts` splices in one pass, orders
   accidental (0) before beam (1) at the same offset, leaves every other byte unchanged; empty insert list returns
   the input. Must fail.
-- [ ] T008 [P] Test in `tests/core/musicxml/render-copy.test.ts`: `createRenderCopy` with `elements` inserts inside
+- [x] T008 [P] Test in `tests/core/musicxml/render-copy.test.ts`: `createRenderCopy` with `elements` inserts inside
   note bodies alongside id rewrites; the render copy re-parses to the same Score (render-copy contract guarantee
   3). Must fail.
 - [x] T009 Implement `src/core/musicxml/engraving/walk.ts` (data-model section 2) until T006 passes.
-- [ ] T010 [P] Implement `applyInserts` in `src/core/musicxml/engraving/plan.ts` until T007 passes.
-- [ ] T011 Extend `src/core/musicxml/render-copy.ts` with `elements: ElementInsert[]` until T008 passes; bump
+- [x] T010 [P] Implement `applyInserts` in `src/core/musicxml/engraving/plan.ts` until T007 passes.
+- [x] T011 Extend `src/core/musicxml/render-copy.ts` with `elements: ElementInsert[]` until T008 passes; bump
   `specs/001-score-viewer-listen/contracts/render-copy.md` to 1.1.0 (additive).
 
 **Checkpoint**: identity golden committed; walk, splice and render-copy extension green (`pnpm test --
