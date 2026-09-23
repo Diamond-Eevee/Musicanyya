@@ -131,6 +131,7 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
     const summary = {
       title: score.title,
       composer: score.composer,
+      arranger: score.arranger,
       parts: score.parts.map((p) => {
         const instrument = p.instruments[0];
         return {

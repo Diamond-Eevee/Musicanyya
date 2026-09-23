@@ -58,3 +58,35 @@ mx-score-view {
   stroke: var(--highlight-note-color);
   stroke-width: 2;
 }
+/* Title block (US5) */
+.mx-title-block {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4rem 2rem 2rem;
+  text-align: center;
+  color: var(--text-main);
+  font-family: serif;
+}
+
+.mx-title-block h1 {
+  margin: 0 0 1.5rem 0;
+  font-size: 2.5rem;
+  font-weight: 600;
+  word-wrap: break-word;
+}
+
+.mx-title-credits {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 1.1rem;
+  gap: 0.25rem;
+}
+
+.mx-title-composer {
+  font-weight: 600;
+}
+
+.mx-title-arranger {
+  font-style: italic;
+}

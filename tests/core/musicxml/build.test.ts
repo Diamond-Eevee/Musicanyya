@@ -89,3 +89,47 @@ describe('ornaments and arpeggios (owner decisions D-1, D-2)', () => {
     }
   });
 });
+
+describe('title block metadata (US5)', () => {
+  it('reads arranger from <creator type="arranger">', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+      <score-partwise version="3.1">
+        <identification>
+          <creator type="composer">Beethoven</creator>
+          <creator type="arranger">Czerny</creator>
+        </identification>
+        <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+        <part id="P1"><measure number="1"><note><rest/><duration>1</duration></note></measure></part>
+      </score-partwise>`;
+    const { doc } = readXml(xml);
+    const { score } = buildScore(doc);
+    expect(score.composer).toBe('Beethoven');
+    expect(score.arranger).toBe('Czerny');
+  });
+
+  it('falls back to <movement-title> for the title if <work-title> is missing', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+      <score-partwise version="3.1">
+        <movement-title>Sonata No. 1</movement-title>
+        <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+        <part id="P1"><measure number="1"><note><rest/><duration>1</duration></note></measure></part>
+      </score-partwise>`;
+    const { doc } = readXml(xml);
+    const { score } = buildScore(doc);
+    expect(score.title).toBe('Sonata No. 1');
+    expect(score.arranger).toBe(null);
+  });
+
+  it('tolerates missing everything (null-safe)', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+      <score-partwise version="3.1">
+        <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+        <part id="P1"><measure number="1"><note><rest/><duration>1</duration></note></measure></part>
+      </score-partwise>`;
+    const { doc } = readXml(xml);
+    const { score } = buildScore(doc);
+    expect(score.title).toBe(null);
+    expect(score.composer).toBe(null);
+    expect(score.arranger).toBe(null);
+  });
+});

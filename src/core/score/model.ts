@@ -5,6 +5,7 @@ export type MeasureId = string;
 export interface Score {
   title: string | null;
   composer: string | null;
+  arranger: string | null;
   ppq: number;
   parts: Part[];
   measures: MeasureInfo[];

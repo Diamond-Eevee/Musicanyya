@@ -213,19 +213,19 @@ fix or a named follow-up; every Score shows title/composer/arranger above page 1
 
 ### Title block - tests first
 
-- [ ] T038 [P] [US5] Test `tests/core/musicxml/build.test.ts`: `Score.arranger` from `<creator type="arranger">`;
+- [x] T038 [P] [US5] Test `tests/core/musicxml/build.test.ts`: `Score.arranger` from `<creator type="arranger">`;
   title falls back to `<movement-title>`; both null-safe.
-- [ ] T039 [P] [US5] Test `tests/ui/title-block.test.ts` (happy-dom): the score view renders a title block before
+- [x] T039 [P] [US5] Test `tests/ui/title-block.test.ts` (happy-dom): the score view renders a title block before
   page 1 with title, composer, "arr. <name>"; file-name fallback without a title; missing lines omitted; a long
   title wraps (no horizontal overflow).
-- [ ] T040 [P] [US5] Extend `tests/e2e/library.spec.ts`: *Für Elise (theme)* shows the title block text in Listen,
+- [x] T040 [P] [US5] Extend `tests/e2e/library.spec.ts`: *Für Elise (theme)* shows the title block text in Listen,
   Practice and Play; `tests/e2e/us1-layout.spec.ts` (feature 004) still passes with the block (SC-008).
 
 ### Title block - implementation
 
-- [ ] T041 [US5] `src/core/score/model.ts` + `src/core/musicxml/build.ts`: `arranger`, movement-title fallback;
+- [x] T041 [US5] `src/core/score/model.ts` + `src/core/musicxml/build.ts`: `arranger`, movement-title fallback;
   `summary.arranger` in `src/workers/score.worker.ts` (worker-messages 1.1.0, same bump as T031) until T038 passes.
-- [ ] T042 [US5] `src/ui/elements/mx-score-view.ts` + `src/ui/styles/`: title block above page 1 (serif, centred
+- [x] T042 [US5] `src/ui/elements/mx-score-view.ts` + `src/ui/styles/`: title block above page 1 (serif, centred
   title, composer right, arranger below); `src/workers/verovio.worker.ts` and `tests/verovio/page-units.test.ts`:
   `header: 'none'`; until T039/T040 pass.
 

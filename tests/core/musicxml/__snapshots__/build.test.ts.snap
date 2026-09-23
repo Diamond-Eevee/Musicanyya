@@ -7,6 +7,7 @@ exports[`buildScore snapshots > builds time-model for anacrusis-count-in.musicxm
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -295,6 +296,7 @@ exports[`buildScore snapshots > builds time-model for arpeggiate-chord.musicxml 
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -546,6 +548,7 @@ exports[`buildScore snapshots > builds time-model for backup-forward-two-voices.
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -692,6 +695,7 @@ exports[`buildScore snapshots > builds time-model for chord-basic.musicxml 1`] =
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -864,6 +868,7 @@ exports[`buildScore snapshots > builds time-model for chord-spread-rolled.musicx
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -1047,6 +1052,7 @@ exports[`buildScore snapshots > builds time-model for cross-staff-beaming.musicx
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -1683,6 +1689,7 @@ exports[`buildScore snapshots > builds time-model for cue-notes-not-played.music
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -1795,6 +1802,7 @@ exports[`buildScore snapshots > builds time-model for dc-after-jump-repeats.musi
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -2073,6 +2081,7 @@ exports[`buildScore snapshots > builds time-model for dc-al-fine.musicxml 1`] = 
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -2289,6 +2298,7 @@ exports[`buildScore snapshots > builds time-model for divisions-change-mid-part.
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -2446,6 +2456,7 @@ exports[`buildScore snapshots > builds time-model for ds-al-coda.musicxml 1`] = 
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -2715,6 +2726,7 @@ exports[`buildScore snapshots > builds time-model for duplicate-notes-disambigua
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -2870,6 +2882,7 @@ exports[`buildScore snapshots > builds time-model for duration-unreadable.musicx
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -3087,6 +3100,7 @@ exports[`buildScore snapshots > builds time-model for dynamics-marks.musicxml 1`
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -3286,6 +3300,7 @@ exports[`buildScore snapshots > builds time-model for dynamics-sound-override.mu
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -3402,6 +3417,7 @@ exports[`buildScore snapshots > builds time-model for eight-measure-melody.music
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -4538,6 +4554,7 @@ exports[`buildScore snapshots > builds time-model for enharmonic-cs-db.musicxml 
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -4687,6 +4704,7 @@ exports[`buildScore snapshots > builds time-model for fingering-substitution-alt
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -4806,6 +4824,7 @@ exports[`buildScore snapshots > builds time-model for first-note-early-into-coun
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -5068,6 +5087,7 @@ exports[`buildScore snapshots > builds time-model for fractional-duration.musicx
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -5214,6 +5234,7 @@ exports[`buildScore snapshots > builds time-model for grace-acciaccatura.musicxm
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -5366,6 +5387,7 @@ exports[`buildScore snapshots > builds time-model for grace-after-note-end-of-me
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -5563,6 +5585,7 @@ exports[`buildScore snapshots > builds time-model for grace-group-at-start.music
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -5755,6 +5778,7 @@ exports[`buildScore snapshots > builds time-model for grand-staff-two-voices-per
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -5969,6 +5993,7 @@ exports[`buildScore snapshots > builds time-model for hands-accompaniment.musicx
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -6262,6 +6287,7 @@ exports[`buildScore snapshots > builds time-model for instrument-missing-fallbac
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -6374,6 +6400,7 @@ exports[`buildScore snapshots > builds time-model for instruments-two-parts.musi
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -6546,6 +6573,7 @@ exports[`buildScore snapshots > builds time-model for jump-text-only.musicxml 1`
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -6753,6 +6781,7 @@ exports[`buildScore snapshots > builds time-model for jump-time-only.musicxml 1`
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -6973,6 +7002,7 @@ exports[`buildScore snapshots > builds time-model for last-note-late-past-end.mu
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -7337,6 +7367,7 @@ exports[`buildScore snapshots > builds time-model for measure-numbers-duplicate-
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -7546,6 +7577,7 @@ exports[`buildScore snapshots > builds time-model for measure-overfull.musicxml 
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -7661,6 +7693,7 @@ exports[`buildScore snapshots > builds time-model for measure-repeat.musicxml 1`
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -7825,6 +7858,7 @@ exports[`buildScore snapshots > builds time-model for measure-underfull.musicxml
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -7940,6 +7974,7 @@ exports[`buildScore snapshots > builds time-model for meter-change.musicxml 1`] 
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -8265,6 +8300,7 @@ exports[`buildScore snapshots > builds time-model for metronome-channel-collisio
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -8380,6 +8416,7 @@ exports[`buildScore snapshots > builds time-model for minimal-single-note.musicx
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -8495,6 +8532,7 @@ exports[`buildScore snapshots > builds time-model for multi-measure-rest.musicxm
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -8594,6 +8632,7 @@ exports[`buildScore snapshots > builds time-model for neighbour-clamp-sixteenths
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -8947,6 +8986,7 @@ exports[`buildScore snapshots > builds time-model for non-ascii-Łódź-日本.m
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -9059,6 +9099,7 @@ exports[`buildScore snapshots > builds time-model for octave-shift-8va.musicxml 
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -9239,6 +9280,7 @@ exports[`buildScore snapshots > builds time-model for percussion-unpitched.music
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -9351,6 +9393,7 @@ exports[`buildScore snapshots > builds time-model for pickup-implicit.musicxml 1
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -9503,6 +9546,7 @@ exports[`buildScore snapshots > builds time-model for played-along-both-hands.mu
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -9848,6 +9892,7 @@ exports[`buildScore snapshots > builds time-model for range-start-mid-measure-re
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -10223,6 +10268,7 @@ exports[`buildScore snapshots > builds time-model for repeat-implicit-start.musi
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -10386,6 +10432,7 @@ exports[`buildScore snapshots > builds time-model for repeat-simple.musicxml 1`]
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -10554,6 +10601,7 @@ exports[`buildScore snapshots > builds time-model for repeat-times-3.musicxml 1`
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -10722,6 +10770,7 @@ exports[`buildScore snapshots > builds time-model for repeat-unbalanced-backward
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -10932,6 +10981,7 @@ exports[`buildScore snapshots > builds time-model for repeated-pitch-two-presses
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -11073,6 +11123,7 @@ exports[`buildScore snapshots > builds time-model for scale-c-major-q100.musicxm
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -11282,6 +11333,7 @@ exports[`buildScore snapshots > builds time-model for tempo-change-mid-measure-o
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -11491,6 +11543,7 @@ exports[`buildScore snapshots > builds time-model for tempo-dotted-beat-unit.mus
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -11603,6 +11656,7 @@ exports[`buildScore snapshots > builds time-model for tempo-none-default.musicxm
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -11812,6 +11866,7 @@ exports[`buildScore snapshots > builds time-model for tempo-sound-vs-metronome.m
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -11924,6 +11979,7 @@ exports[`buildScore snapshots > builds time-model for tie-across-barline.musicxm
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -12081,6 +12137,7 @@ exports[`buildScore snapshots > builds time-model for tie-broken.musicxml 1`] = 
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -12238,6 +12295,7 @@ exports[`buildScore snapshots > builds time-model for tie-chain-three.musicxml 1
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -12421,6 +12479,7 @@ exports[`buildScore snapshots > builds time-model for tie-chord-partial.musicxml
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -12646,6 +12705,7 @@ exports[`buildScore snapshots > builds time-model for tie-into-volta.musicxml 1`
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -12917,6 +12977,7 @@ exports[`buildScore snapshots > builds time-model for tied-without-tie.musicxml 
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -13074,6 +13135,7 @@ exports[`buildScore snapshots > builds time-model for transpose-bb-clarinet.musi
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -13185,6 +13247,7 @@ exports[`buildScore snapshots > builds time-model for transposing-part-sounding-
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -13376,6 +13439,7 @@ exports[`buildScore snapshots > builds time-model for trill-realisation.musicxml
     "skippedElementCount": 1,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -13627,6 +13691,7 @@ exports[`buildScore snapshots > builds time-model for tuplet-triplet-eighths.mus
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -13807,6 +13872,7 @@ exports[`buildScore snapshots > builds time-model for unison-across-hands.musicx
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -14016,6 +14082,7 @@ exports[`buildScore snapshots > builds time-model for unison-two-voices.musicxml
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [
@@ -14165,6 +14232,7 @@ exports[`buildScore snapshots > builds time-model for unsupported-elements-notic
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -14277,6 +14345,7 @@ exports[`buildScore snapshots > builds time-model for verovio-id-roundtrip.music
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -14389,6 +14458,7 @@ exports[`buildScore snapshots > builds time-model for voice-and-piano.musicxml 1
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -14666,6 +14736,7 @@ exports[`buildScore snapshots > builds time-model for volta-1-2.musicxml 1`] = `
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -14953,6 +15024,7 @@ exports[`buildScore snapshots > builds time-model for volta-combined-numbers.mus
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -15183,6 +15255,7 @@ exports[`buildScore snapshots > builds time-model for volta-discontinue.musicxml
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -15470,6 +15543,7 @@ exports[`buildScore snapshots > builds time-model for wedge-crescendo.musicxml 1
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -15708,6 +15782,7 @@ exports[`buildScore snapshots > builds time-model for whole-measure-rest.musicxm
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": true,
     "measures": [
@@ -15780,6 +15855,7 @@ exports[`buildScore snapshots > builds time-model for window-beat-unit-6-8.music
     "skippedElementCount": 0,
   },
   "score": {
+    "arranger": null,
     "composer": null,
     "defaultTempoUsed": false,
     "measures": [

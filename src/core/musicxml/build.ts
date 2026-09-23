@@ -152,6 +152,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
   const score: Score = {
     title: null,
     composer: null,
+    arranger: null,
     ppq,
     parts: [],
     measures: [],
@@ -162,11 +163,18 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
 
   const work = getChild(root, 'work');
   if (work) score.title = getText(getChild(work, 'work-title')) || null;
+  if (!score.title) {
+    const movementTitle = getChild(root, 'movement-title');
+    if (movementTitle) score.title = getText(movementTitle) || null;
+  }
+
   const identification = getChild(root, 'identification');
   if (identification) {
     const creators = getChildren(identification, 'creator');
     const composer = creators.find((c) => getAttr(c, 'type') === 'composer');
-    if (composer) score.composer = getText(composer);
+    if (composer) score.composer = getText(composer) || null;
+    const arranger = creators.find((c) => getAttr(c, 'type') === 'arranger');
+    if (arranger) score.arranger = getText(arranger) || null;
   }
 
   const partList = getChild(root, 'part-list');

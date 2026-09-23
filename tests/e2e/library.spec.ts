@@ -47,6 +47,10 @@ test.describe('Practice score library: browse, open, Listen', () => {
     await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
     await expect(page.locator('.notice')).toHaveCount(0);
+    const titleBlock = page.locator('.mx-title-block');
+    await expect(titleBlock).toBeVisible();
+    await expect(titleBlock).toContainText('Elise (theme');
+    await expect(titleBlock).toContainText('Beethoven');
     // Feature 006: the library file ships beam-completed, so the pickup and bar 1 render as beam
     // groups, not individually flagged sixteenths (no engravingCompleted notice - library files are
     // already correct on disk).

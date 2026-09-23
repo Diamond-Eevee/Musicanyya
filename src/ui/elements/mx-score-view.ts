@@ -25,6 +25,7 @@ import { insetState } from '../state/insetState.js';
 import { playState } from '../state/playState.js';
 import { practiceState } from '../state/practiceState.js';
 import { runPositionState } from '../state/runPositionState.js';
+import { scoreState } from '../state/scoreState.js';
 import { transportState } from '../state/transportState.js';
 import { viewState } from '../state/viewState.js';
 
@@ -244,6 +245,36 @@ export class MxScoreView extends HTMLElement {
     this.pageMeasureIds.clear();
     this.mountedPages.clear();
     this.stack.innerHTML = '';
+
+    const state = scoreState.getStatus();
+    const summary = state.kind === 'loaded' ? state.score.summary : null;
+    const fileName = state.kind === 'loaded' ? state.score.fileName : null;
+    if (summary) {
+      const block = document.createElement('div');
+      block.className = 'mx-title-block';
+      const title = document.createElement('h1');
+      title.textContent = summary.title ?? fileName ?? 'Unknown';
+      block.appendChild(title);
+      if (summary.composer || summary.arranger) {
+        const credits = document.createElement('div');
+        credits.className = 'mx-title-credits';
+        if (summary.composer) {
+          const comp = document.createElement('div');
+          comp.className = 'mx-title-composer';
+          comp.textContent = summary.composer;
+          credits.appendChild(comp);
+        }
+        if (summary.arranger) {
+          const arr = document.createElement('div');
+          arr.className = 'mx-title-arranger';
+          arr.textContent = `arr. ${summary.arranger}`;
+          credits.appendChild(arr);
+        }
+        block.appendChild(credits);
+      }
+      this.stack.appendChild(block);
+    }
+
     for (const layout of this.layouts) {
       const pageEl = document.createElement('div');
       pageEl.className = 'mx-score-page';
