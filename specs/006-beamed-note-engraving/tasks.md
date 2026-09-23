@@ -98,7 +98,7 @@ bar 2 bass A-E-A beamed, treble A keeps its flag; no flag where a beam group app
 - [x] T016 [US1] Implement `src/core/musicxml/engraving/beat-grouping.ts` until T012 passes.
 - [x] T017 [US1] Implement `src/core/musicxml/engraving/beams.ts` and the beam half of `planEngraving` in
   `plan.ts` (findings `missingBeam`, `invalidBeams` for `broken-beam.musicxml`) until T013 passes.
-- [ ] T018 [US1] Pipe generator output through `planEngraving(..., 'library')` + `applyInserts` in
+- [x] T018 [US1] Pipe generator output through `planEngraving(..., 'library')` + `applyInserts` in
   `src/core/library/exercise/generate.ts`; update `specs/005-practice-score-library/contracts/exercise-definition.md`
   section 2 (generated output is completed) and extend `tests/core/library/exercise/*.test.ts` with an
   idempotence check (a generated file plans zero inserts).
