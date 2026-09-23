@@ -149,6 +149,10 @@ loading --soundFailed--> stopped + notice
 ```
 
 `follow` becomes false on manual scroll during `playing` and true on "Follow" or a new `play` from `stopped`.
+It is acted on only while the cursor moves (Listen `playing`, a running Practice session or Play run): stopped or
+paused, the Score scrolls freely and `follow` is left as it is. A scroll position the Score view did not set itself is
+the user's, whether its `scroll` event or the next animation frame sees it first (T172). The control is a checkbox,
+so its state is visible.
 
 ## 6. Audio engine state and diagnostics (`src/engine/audio/`)
 

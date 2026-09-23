@@ -105,8 +105,15 @@ export class MxScoreView extends HTMLElement {
   /** Bumped every time page content is replaced, so cached element lookups can tell they went stale. */
   private domEpoch = 0;
   private rafHandle: number | null = null;
-  private followScrolling = false;
+  /** The scrollTop this element last set or saw. Any other value is a scroll the user made (`noticeUserScroll`). */
+  private knownScrollTop = 0;
+  /** Measure ID -> page for measures whose page has not been mounted yet (asked of Verovio once each). */
+  private readonly measurePages = new Map<string, number>();
+  private pageLookup: string | null = null;
   private readonly tick = (): void => {
+    // Before anything follows: a wheel scroll can land before its 'scroll' event, and following first would
+    // overwrite it - the musician's scroll lost, and Follow never switched off.
+    this.noticeUserScroll();
     // T039's own design: "the caller... drives this exactly like mx-score-view drives the cursor" - one rAF loop,
     // not a second one in session.ts.
     if (this.playSession) {
@@ -130,11 +137,7 @@ export class MxScoreView extends HTMLElement {
     this.canvasEl = this.querySelector('.mx-score-cursor') as HTMLCanvasElement;
     this.scrollEl.addEventListener('scroll', () => {
       this.mountVisiblePages();
-      if (this.followScrolling) {
-        this.followScrolling = false;
-        return;
-      }
-      if (transportState.get().phase === 'playing') transportState.manualScroll();
+      this.noticeUserScroll();
     });
     this.scrollEl.addEventListener('click', (event) => this.onClick(event));
     // Re-fit when the window (or anything that changes the Score viewport) is resized. Panels are overlays, so
@@ -245,6 +248,8 @@ export class MxScoreView extends HTMLElement {
   private applyPageCount(pageCount: number) {
     this.domEpoch++;
     this.pageMeasureIds.clear();
+    this.measurePages.clear();
+    this.pageLookup = null;
     this.mountedPages.clear();
     this.stack.innerHTML = '';
 
@@ -341,7 +346,7 @@ export class MxScoreView extends HTMLElement {
       const { page } = await this.client.pageOf(anchorMeasureId);
       if (token !== this.loadToken) return;
       const layout = this.layouts.find((l) => l.page === page);
-      if (layout) this.scrollEl.scrollTop = layout.top;
+      if (layout) this.scrollOwn(layout.top);
     }
     await this.mountVisiblePages();
   }
@@ -456,10 +461,17 @@ export class MxScoreView extends HTMLElement {
     runPositionState.set(pass ? pass.measureIndex : null);
     const measureId = pass ? this.measureIds[pass.measureIndex] : undefined;
     const measureEl = measureId !== undefined ? this.stack.querySelector(`#${CSS.escape(measureId)}`) : null;
-    if (!measureEl) return; // the current measure isn't mounted (e.g. a distant seek); skip this frame
+    // FR-014: the view follows *during playback* only. Stopped or paused, the cursor stands still and the Score is
+    // the musician's to browse; following on every frame then pulled any scroll straight back to the cursor.
+    const following = phase === 'playing' && transportState.get().follow;
+    if (!measureEl) {
+      // The current measure's page isn't mounted (a distant seek, a jump back, Follow ticked from far away).
+      if (following && measureId !== undefined) this.scrollToPageOf(measureId);
+      return;
+    }
 
     this.drawCursor(measureEl, soundingNoteIds);
-    if (transportState.get().follow) this.followScrollTo(measureEl);
+    if (following) this.followScrollTo(measureEl);
   }
 
   /** Notes are looked up in the DOM once per change of the page content, never once per frame: `domEpoch` is bumped
@@ -595,12 +607,8 @@ export class MxScoreView extends HTMLElement {
       }
     }
 
-    if (currentEvent && session?.phase !== 'finished') {
-      const measureId = this.measureIds[currentEvent.measureIndex];
-      const measureEl = measureId !== undefined ? this.stack.querySelector(`#${CSS.escape(measureId)}`) : null;
-      if (measureEl && transportState.get().follow) {
-        this.followScrollTo(measureEl);
-      }
+    if (currentEvent && session?.phase !== 'finished' && transportState.get().follow) {
+      this.followMeasure(this.measureIds[currentEvent.measureIndex]);
     }
   }
 
@@ -621,9 +629,7 @@ export class MxScoreView extends HTMLElement {
     // The slim bar shows the measure whether or not the view is following it.
     runPositionState.set(pass ? pass.measureIndex : null);
     if (!transportState.get().follow) return;
-    const measureId = pass ? this.measureIds[pass.measureIndex] : undefined;
-    const measureEl = measureId !== undefined ? this.stack.querySelector(`#${CSS.escape(measureId)}`) : null;
-    if (measureEl) this.followScrollTo(measureEl);
+    this.followMeasure(pass ? this.measureIds[pass.measureIndex] : undefined);
   }
 
   /** The Grade's own marks once a run has been graded, or the cheap live "correct" marks while one is still
@@ -703,6 +709,60 @@ export class MxScoreView extends HTMLElement {
     });
   }
 
+  /** Follows a measure whether or not its page is mounted. */
+  private followMeasure(measureId: string | undefined): void {
+    if (measureId === undefined) return;
+    const measureEl = this.stack.querySelector(`#${CSS.escape(measureId)}`);
+    if (measureEl) this.followScrollTo(measureEl);
+    else this.scrollToPageOf(measureId);
+  }
+
+  /** Brings an unmounted measure's page into view, so it mounts and the next frame can centre the measure itself.
+   *  Pages mounted before already told us their measures; otherwise Verovio is asked once (never per frame). */
+  private scrollToPageOf(measureId: string): void {
+    let page = this.measurePages.get(measureId);
+    if (page === undefined) {
+      for (const [p, ids] of this.pageMeasureIds) {
+        if (ids.includes(measureId)) {
+          page = p;
+          break;
+        }
+      }
+    }
+    if (page !== undefined) {
+      const layout = this.layouts.find((l) => l.page === page);
+      if (layout) this.scrollOwn(layout.top);
+      return;
+    }
+    if (!this.client || this.pageLookup !== null) return;
+    this.pageLookup = measureId;
+    const token = this.loadToken;
+    this.client.pageOf(measureId).then(
+      ({ page: found }) => {
+        if (token !== this.loadToken || this.pageLookup !== measureId) return;
+        this.pageLookup = null;
+        this.measurePages.set(measureId, found); // the next frame scrolls there, if it is still following
+      },
+      () => {
+        if (this.pageLookup === measureId) this.pageLookup = null;
+      },
+    );
+  }
+
+  /** Sets the scroll position as ours, so the 'scroll' event it causes is not taken for the user's. */
+  private scrollOwn(top: number): void {
+    this.scrollEl.scrollTop = top;
+    this.knownScrollTop = this.scrollEl.scrollTop;
+  }
+
+  /** A scroll position this element did not set is the user's: during playback it turns Follow off (FR-014). */
+  private noticeUserScroll(): void {
+    const top = this.scrollEl.scrollTop;
+    if (Math.abs(top - this.knownScrollTop) < 1) return;
+    this.knownScrollTop = top;
+    if (transportState.get().phase === 'playing') transportState.manualScroll();
+  }
+
   /** Scrolls to keep the cursor within the middle band of the viewport (FOLLOW_MARGIN, FR-014); marks the
    * resulting 'scroll' event as ours so it isn't mistaken for the user manually scrolling. */
   private followScrollTo(measureEl: Element): void {
@@ -716,11 +776,7 @@ export class MxScoreView extends HTMLElement {
     if (targetTop >= marginPx && targetBottom <= usableHeight - marginPx) return;
 
     const delta = (targetTop + targetBottom) / 2 - usableHeight / 2;
-    const before = this.scrollEl.scrollTop;
-    this.scrollEl.scrollTop = before + delta;
-    if (this.scrollEl.scrollTop !== before) {
-      this.followScrolling = true;
-    }
+    this.scrollOwn(this.scrollEl.scrollTop + delta);
   }
 }
 customElements.define('mx-score-view', MxScoreView);

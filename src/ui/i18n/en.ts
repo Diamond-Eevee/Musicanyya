@@ -81,6 +81,7 @@ export const en = {
     tempo: 'Tempo',
     volume: 'Volume',
     follow: 'Follow',
+    followHint: 'Keep the playing position in view. Scrolling during playback turns this off.',
     loadingSound: 'Loading sound…',
     skipBack: 'Skip Back',
     skipForward: 'Skip Forward',

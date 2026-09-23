@@ -26,7 +26,7 @@ describe('mx-transport & shortcuts', () => {
     expect(el.querySelector('.stop-btn')).not.toBeNull();
     expect(el.querySelector('input.tempo')).not.toBeNull();
     expect(el.querySelector('input.volume')).not.toBeNull();
-    expect(el.querySelector('.follow-btn')).not.toBeNull();
+    expect(el.querySelector('input.follow')).not.toBeNull();
   });
 
   it('tempo input enforces 25-200 step 5', () => {
@@ -47,10 +47,21 @@ describe('mx-transport & shortcuts', () => {
     expect(transportState.setVolume).toHaveBeenCalledWith(80);
   });
 
-  it('follow button toggles follow', () => {
-    const btn = el.querySelector('.follow-btn') as HTMLButtonElement;
-    btn.click();
+  it('follow is a checkbox that shows whether the view follows, and toggles it', () => {
+    const box = el.querySelector('input.follow') as HTMLInputElement;
+    expect(box.type).toBe('checkbox');
+    expect(box.checked).toBe(transportState.get().follow);
+    box.click();
     expect(transportState.toggleFollow).toHaveBeenCalled();
+  });
+
+  it('the follow checkbox tracks the store (a manual scroll during playback unticks it)', () => {
+    vi.mocked(transportState.toggleFollow).mockRestore();
+    const before = transportState.get().follow;
+    transportState.toggleFollow();
+    expect((el.querySelector('input.follow') as HTMLInputElement).checked).toBe(!before);
+    transportState.toggleFollow();
+    expect((el.querySelector('input.follow') as HTMLInputElement).checked).toBe(before);
   });
 
   describe('shortcuts', () => {
