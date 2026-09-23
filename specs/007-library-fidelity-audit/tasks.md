@@ -28,6 +28,14 @@ task turns out to edit an AudioWorklet, the scheduler, the metronome or MIDI tim
 - **Planted errors**: a method may not produce a "0 differences" record before its planted-error test passes
   (FR-017).
 - **When an item cannot be checked**: no placeholder files. Stop and ask the owner (AGENTS.md section 7).
+- **When the source itself looks wrong** (spec edge case; for example a typo in the engraving):
+  - record the difference;
+  - check that passage against a second independent public-domain source (a first-edition or other PD scan), and
+    record its URL and the bars compared;
+  - the item follows the majority;
+  - the decision goes in the record's `differenceNotes`, counted in `expectedDifferences`.
+
+  A single source is never overruled by judgement alone.
 
 ---
 
@@ -93,7 +101,9 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
   - `tuplet-triplet-eighths`: exact thirds;
   - a repeat/volta fixture: `repeatStart`/`repeatEnd`/`endings` per bar;
   - a pickup fixture: bar 0 with its short length and printed number "0";
-  - spelling kept.
+  - spelling kept;
+  - the played order of a repeat/volta fixture comes from the app's own `buildTimeline`
+    (`src/core/timeline/timeline.ts`), not from a second unfolding written for the tool (research R6).
 
   Confirm it fails.
 - [ ] T010 [P] Own-work LilyPond fixtures in `tests/fixtures/lilypond/`, one construct per file and each a few bars
@@ -111,13 +121,15 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
   - differences sorted by bar, then onset, so two runs give identical output;
   - the MIDI-step rules of research R5: a shorter note before a grace group is accepted only when the notation
     shows the grace group; the same for an articulated note; a unison merge only where the notation shows the
-    unison; any other shortening is a `duration` difference.
+    unison; any other shortening is a `duration` difference;
+  - for a source with `midiArticulate: true`, the MIDI step compares `pitch` and `onset` only, and the result says
+    that durations were checked against the notation only.
 
   Confirm it fails.
 - [ ] T013 [P] `tests/tools/fidelity/sources.test.ts`: a valid manifest loads. The test also checks these failures:
   - a CC BY-SA licence fails;
   - a changed file fails its hash check;
-  - `role: sound` without `midiOrder`/`midiNoteTracks` fails;
+  - `role: sound` without `midiOrder`/`midiNoteTracks`/`midiArticulate` fails;
   - a missing `approvedByOwner` fails;
   - a folder name that is not the `id` fails.
 
@@ -139,7 +151,8 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
 - [ ] T015 [P] `tools/library/fidelity/time.ts` (makes T007 pass).
 - [ ] T016 `tools/library/fidelity/midi.ts`: `readMidi` + `fromMidi` (makes T008 pass). (Depends on T015.)
 - [ ] T017 `tools/library/fidelity/from-musicxml.ts`, through `src/core/musicxml/read.ts` + `build.ts` (makes T009
-  pass). If the Score model lacks something the reader needs (for example repeat barlines per bar or spelling),
+  pass). The played order always comes from `buildTimeline`, so the check proves what the app actually plays. If
+  the Score model lacks something the written-bar reading needs (for example repeat barlines per bar or spelling),
   read it from the parse tree in this file. Do not change `src/core`. (Depends on T015.)
 - [ ] T018 `tools/library/lilypond/lex.ts`, `parse.ts`, `read.ts`: `readLilyPond` + `fromLilyPond`, covering exactly
   contract §3.1 and throwing `LyUnsupportedError` on anything else (makes T011 pass). (Depends on T015.)
@@ -152,8 +165,8 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
   on any unreproduced result. Report writing and `--check` come in US4 (T080). (Depends on T021.)
 - [ ] T023 Commit the first source, `content/library/sources/mutopia-931-beethoven-woo59/`:
   - `fur_Elise_WoO59.ly` and `.mid`, byte-for-byte from the Mutopia piece page;
-  - `source.json` with SHA-256 per file, `midiOrder` and `midiNoteTracks` (found with `--inspect-midi` and a grep
-    for `unfoldRepeats`/`articulate`), and `approvedByOwner` (D-1; the owner accepted this edition in the merge of
+  - `source.json` with SHA-256 per file, `midiOrder`, `midiNoteTracks` and `midiArticulate` (found with
+    `--inspect-midi` and a grep for `unfoldRepeats`/`articulate`), and `approvedByOwner` (D-1; the owner accepted this edition in the merge of
     `fix/fur-elise-mutopia`, but confirm it under D-1).
 
   Its `THIRD_PARTY_NOTICES.md` entry already exists; add the sentence that the source files are kept in
@@ -180,7 +193,9 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
   - an `outcomeNote` carrying the 2026-09-23 evidence (902 notes) (FR-001).
 
   Set the sidecar's `reviewedOn` to the record date. If the re-run is not 0, stop: the earlier one-off result was
-  wrong, so log it and treat the item as a US1 item. (Depends on T022, T024.)
+  wrong, so log it and treat the item as a US1 item. The spec's assumption says this item "needs no new
+  comparison". Re-running it anyway is deliberately stricter, because it turns a one-off result into a repeatable
+  one; say so in the log (analyze A10). (Depends on T022, T024.)
 - [ ] T026 `tests/library/fidelity.test.ts`, first part:
   - every source under `content/library/sources/` validates and its hashes match;
   - every record validates and re-runs to its recorded result;
@@ -188,8 +203,53 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
 
   The coverage and report rules are added in US4 (T078). (Depends on T025.)
 
+### Sidecar `departures` support (moved here from US2; US1's fallback paths in T042/T043 need it, analyze A4)
+
+- [ ] T050 [P] `tests/core/library/index-model.test.ts`: `departures` is accepted and copied into `meta`. A
+  non-array, an empty array, more than 8 entries, or an entry over 200 characters makes the item be skipped with a
+  notice (contract 1.1.0). Confirm it fails. (Depends on T005.)
+- [ ] T055 `departures?: string[]` in `src/core/library/types.ts` and its validation in
+  `src/core/library/index-model.ts` (makes T050 pass). `tools/library/build-index.ts` copies it verbatim. Run
+  `pnpm library:index`; no item carries the field yet, so `index.json` must be unchanged. (Depends on T050.)
+
+### Delivering corrected items to browsers that cached the old ones (FR-024, SC-010, analyze A1)
+
+These tasks do not depend on the fidelity tooling and can run as their own lane. They must be finished before any
+replaced item is merged.
+
+- [ ] T089 [P] Fold contract `contracts/library-port-1.1.md` into the canonical
+  `specs/005-practice-score-library/contracts/library-port.md` (version 1.0.0 -> 1.1.0: the `item(file,
+  expectedHash?)` signature, caching rules 1-5, the new tests, the performance note), and mark
+  `library-port-1.1.md` "applied on <date>".
+- [ ] T090 [P] Extend `tests/engine/library/http-catalog.test.ts` (contract `library-port-1.1.md` §3), with stubbed
+  `fetch` and `caches`:
+  - a cached `index.json` is ignored when the network answers;
+  - the cached index is used when the network fails;
+  - a cached item with a matching hash is served without a fetch;
+  - a cached item with a different hash is deleted, then fetched and returned;
+  - a fetched body with a mismatched hash is returned but not cached;
+  - no `expectedHash` gives the old behaviour.
+
+  Confirm the new cases fail.
+- [ ] T091 [P] Extend `tests/engine/session-library.test.ts`: opening a library item passes the index entry's
+  `hash` to `catalog.item()`, as recorded by `tests/fakes/fake-library-catalog.ts`. Confirm it fails.
+- [ ] T092 `src/engine/ports.ts` (`item(file, expectedHash?)`), `src/engine/library/http-catalog.ts` (network-first
+  index; hash-checked item cache with `hashFile` from `src/engine/files/hash.ts`; cache only matching bodies; every
+  cache call still in `try`/`catch`), and `tests/fakes/fake-library-catalog.ts` (accepts and records the hash).
+  Makes T090 pass. (Depends on T089, T090.)
+- [ ] T093 `src/app/session.ts`: pass the opened index entry's `hash` to `catalog.item()` (makes T091 pass).
+  (Depends on T091, T092.)
+- [ ] T094 Extend `tests/e2e/library.spec.ts` (browser only; the `app://` shell has no Cache Storage):
+  - seed the `musicanyya-library-v1` cache with an altered copy of one item file and a stale `index.json`;
+  - reload, open the item, and assert that the loaded Score has the current file's note count (from `index.json`
+    `facts.notes`), not the altered one;
+  - then take the page offline and assert that the item still opens from the cache (FR-024, SC-010).
+
+  (Depends on T093.)
+
 **Checkpoint**: `pnpm library:fidelity --item repertoire/advanced/fur-elise-complete` reports 0 differences on every
 aspect. `planted.test.ts` catches every repertoire mutation. `pnpm test -- tests/tools tests/library` is green.
+`departures` is accepted by the index model (T050/T055). The cache tests T090, T091 and T094 pass.
 
 ---
 
@@ -244,8 +304,11 @@ copy makes `pnpm library:fidelity --item <id> --file <copy>` fail and name that 
 Each source task does the same steps:
 
 - download the `.ly` and `.mid` from the Mutopia piece page into `content/library/sources/<id>/` unchanged;
-- write `source.json` with the edition as Mutopia states it, SHA-256 per file, `midiOrder` and `midiNoteTracks`
-  (from `--inspect-midi` and a grep for `unfoldRepeats`/`articulate`), and `approvedByOwner`;
+- write `source.json` with the edition as Mutopia states it, SHA-256 per file, `midiOrder`, `midiNoteTracks` and
+  `midiArticulate` (from `--inspect-midi` and a grep for `unfoldRepeats`/`articulate`), and `approvedByOwner`;
+- if the source is the first one with `midiArticulate: true`, add a planted duration error against it to
+  `planted.test.ts`. The item-vs-notation step must catch it, even though the MIDI step does not compare durations
+  (analyze A6);
 - add a `THIRD_PARTY_NOTICES.md` entry: under "Reference sources" if the source is used only for comparison,
   otherwise in the library list when an item is converted from it (FR-023).
 
@@ -315,6 +378,8 @@ Each source task does the same steps:
   - **Labels**: `arrangement: false`. The title/subtitle names "exposition". The metronome change (source mark
     editorial, file 144) goes in `limitations` and the provenance note, and says that "Spiritoso" is Clementi's
     marking and the metronome mark is the Schirmer editor's (research R15).
+  - **Level**: `checkLevel` takes the `arrangement` flag into account, so re-run `pnpm tsx tools/library/probe.ts`
+    and `pnpm library:index` **after** changing the flag. The level follows research R10 (analyze A7).
   - **Record**: `content/library/audit/repertoire/intermediate/clementi-sonatina-op36-no1-mvt1.json`.
 
   (Depends on T030, T037.)
@@ -366,9 +431,7 @@ were compared against, and the result. The sidecar's `departures` names every de
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T050 [P] [US2] `tests/core/library/index-model.test.ts`: `departures` is accepted and copied into `meta`. A
-  non-array, an empty array, more than 8 entries, or an entry over 200 characters makes the item be skipped with a
-  notice (contract 1.1.0). Confirm it fails.
+- T050 moved to Phase 2, "Sidecar `departures` support" (analyze A4).
 - [ ] T051 [P] [US2] `tests/library/licence.test.ts`: `arrangement: true` requires a non-empty `departures`, and
   `arrangement: false` forbids it. Confirm it fails on the current shelf; no arrangement has `departures` yet.
 - [ ] T052 [P] [US2] Extend `tests/tools/fidelity/compare.test.ts` with `compareMelody` (research R7):
@@ -388,9 +451,7 @@ were compared against, and the result. The sidecar's `departures` names every de
 
 - [ ] T054 [US2] `compareMelody` in `tools/library/fidelity/compare.ts`, plus the `transpose`, `sourceStaff` and
   `sourceVoice` alignment fields in `records.ts` (makes T052 and T053 pass).
-- [ ] T055 [US2] `departures?: string[]` in `src/core/library/types.ts` and its validation in
-  `src/core/library/index-model.ts` (makes T050 pass). `tools/library/build-index.ts` copies it verbatim. Run
-  `pnpm library:index`.
+- T055 moved to Phase 2, "Sidecar `departures` support" (analyze A4).
 
 ### Implementation - sources (after D-1; [P])
 
@@ -546,7 +607,8 @@ row names a source and a method whose re-run reproduces its result.
   - "verified (visual)" for a visual-only record;
   - a Removed section;
   - level counts with a "short by N - reported to the owner" row;
-  - a Notes section for `differenceNotes` and edition decisions;
+  - a Notes section for `differenceNotes` and edition decisions, plus, for each replaced item, the Recents note
+    (spec FR-020, contract §3);
   - byte-identical output on two runs.
 
   Confirm it fails.
@@ -580,8 +642,9 @@ reviewer rule and freshness. Run the full gate, write a log entry, and commit.
 
 - [ ] T082 [P] Document `pnpm library:fidelity` and `pnpm library:convert-ly`:
   - `README.md`;
-  - `docs/agents/reference.md` R7 (commands, and the `pnpm screenshot --item` form without `--`, per the 005
-    log);
+  - `docs/agents/reference.md` R7 and `AGENTS.md` "Seeing the app" (commands, and the `pnpm screenshot --item`
+    form without `--`, which is the one that works with this pnpm, per the 005 log). Keep `AGENTS.md` under
+    12,000 characters (analyze A12);
   - `public/library/README.md`: an "Audit" section pointing to `content/library/audit/` and
     `docs/library-audit.md`, plus the rule "a replaced item is converted, never hand-fixed".
 - [ ] T083 [P] Check `THIRD_PARTY_NOTICES.md` against `content/library/sources/`. Every committed source is listed
@@ -597,7 +660,8 @@ reviewer rule and freshness. Run the full gate, write a log entry, and commit.
 - [ ] T086 Review with `constitution-auditor` of the branch diff. Summarise the findings in the log; CRITICAL/HIGH
   findings block the merge.
 - [ ] T087 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`. Also confirm
-  `pnpm library:fidelity --check` exits 0.
+  `pnpm library:fidelity --check` exits 0, time a full `pnpm library:fidelity` run, and log the time against the
+  plan's goal of under 30 s (analyze A8).
 - [ ] T088 Final `implementation-log.md` entry: outcomes per item (a count per outcome), level counts, owner-facing
   gaps (FR-022), the resume point "ready to merge when the owner agrees", and a commit.
 
@@ -608,19 +672,22 @@ reviewer rule and freshness. Run the full gate, write a log entry, and commit.
 - **Setup (T001-T005)** comes first.
   - T001, the owner decisions, gates every source download (T023, T031-T037, T056-T059) and T045.
   - T002-T005 do not depend on T001.
-- **Foundational (T006-T026)** blocks every story:
+- **Foundational (T006-T026, T050, T055, T089-T094)** blocks every story:
   - tests T006-T014 first;
   - then T015 -> T016-T020 -> T021 -> T022;
   - T023 needs T001 + T020;
   - T024 needs T023 and is written before T025;
-  - T026 needs T025.
+  - T026 needs T025;
+  - T050 -> T055 needs T005 (`departures`, analyze A4);
+  - the FR-024 cache lane: T089-T091 -> T092 -> T093 -> T094. It does not block the stories, but it must be done
+    before any replaced item is merged (analyze A1).
 - **US1 (T027-T049)**:
   - T029 needs T027; T030 needs T018 + T021 + T029;
   - item tasks T038-T044 each need T030 and their source task;
   - T045 needs only T001;
   - T046 needs T038-T045; T047-T049 need T046.
 - **US2 (T050-T068)**: can start after Foundational, in parallel with US1 on different files.
-  - T055 is needed by US1's fallback paths in T042/T043, so do T055 early if US1 takes those paths.
+  - T050/T055 now sit in Foundational, so US1's fallback paths in T042/T043 have `departures` support.
   - T060 shares `tests/fixtures/library-identity.json` with T046: run them one after the other, never in parallel.
 - **US3 (T069-T076)**: independent of US1/US2 (different files) once Foundational is done.
   - T075 may change exercise goldens; nothing else touches them.
@@ -637,7 +704,8 @@ reviewer rule and freshness. Run the full gate, write a log entry, and commit.
 - **Sources**: T031-T037 and T056-T059 are all `[P]`: different folders, one notices entry each (append in turn).
 - **US1 and US3**: they can run in parallel lanes (repertoire files vs exercise files) after Foundational. US2 can
   run as a third lane if it avoids `library-identity.json` at the same time as US1 (see above).
-- **Story tests**: T027 + T028, T050 + T051 + T052, and T069 + T077 can be written together.
+- **Story tests**: T027 + T028, T051 + T052, and T069 + T077 can be written together.
+- **FR-024 cache lane**: T089, T090 and T091 can be written together, in parallel with the fidelity tooling.
 - **Polish**: T082, T083 and T084 can go in parallel.
 
 ## Suggested MVP

@@ -118,8 +118,11 @@ about 150 lines. `@tonejs/midi` also converts ticks to seconds and floats, which
 5. **Articulations and ornaments**:
    - Without `\articulate`, trills, turns and mordents sound as the main note, and staccato may shorten a note.
    - A MIDI note shorter than written is accepted only where the `.ly` reading shows an articulation or a following
-     grace group, and if the source uses `\articulate`, for every note.
+     grace group.
    - Anything else is a difference.
+   - If a source's `\midi` score uses `\articulate`, every note may sound shorter, so the MIDI step would lose its
+     power over durations. For such a source, the MIDI step compares `pitch` and `onset` only. Its record says
+     "durations checked against the notation only", and its manifest notes `\articulate` (analyze A6).
 6. **Ottava**: pitches in the `.ly` are already at sounding pitch under `\ottava`, so the MIDI sounds right. An
    "8va" written only as text markup is not transposed. The reader reports it, and the record names it as a source
    defect.
@@ -410,3 +413,34 @@ guards every unchanged item.
   - Rhythm: the theme's bars 4 and 8 are dotted quarter, eighth, half. The item's plain rhythm is a departure.
   - Key: the transposition from D to C is a departure.
   - Hymn forms drop the bar 12-13 anticipation, which the item (8 bars) does not reach.
+
+## R16. Delivering corrected items to browsers that already have the old ones (analyze A1, FR-024)
+
+**Decision**:
+
+- **Index**: `HttpLibraryCatalog.index()` becomes **network-first**, falling back to the cached index when offline.
+- **Items**: `item(file, expectedHash)` uses a cached file only when its SHA-256 (`hashFile`, the same function
+  that writes `index.json`'s `hash`) equals the index entry's `hash`. Otherwise it drops the entry and fetches.
+- **What gets cached**: only bodies that match.
+- **Cache name**: unchanged.
+- **Contract**: `contracts/library-port-1.1.md`.
+
+**Rationale**:
+
+- Before this change, the adapter was cache-first for both the index and the items, and never checked anything
+  (`src/engine/library/http-catalog.ts`, verified 2026-09-23). A musician who opened the library once would keep
+  practising the invented Satie ending, or the old Für Elise, forever.
+- The index already carries a content hash per item, so the check costs one digest per opened item and no new
+  data.
+- Network-first for a ~160 KB index is one request per session.
+
+**Alternatives considered**:
+
+- **Bumping the cache name** (`-v2`) on every library change: this relies on people remembering, and it throws away
+  offline copies that are still valid. It is also exactly the step nobody remembered for Für Elise.
+- **Content-hash URLs** (`item.musicxml?h=<hash>`): the same effect, but it leaves dead cache entries behind and
+  changes the fetched URL in the desktop shell's `app://` handler.
+- **A service worker**: the project has none (feature 005, D-2), and adding one is a larger change.
+
+**Not changed**: Recents (`IndexedDbScoreStore`) keep the bytes the musician opened. Updating Recents is a separate
+follow-up (spec Clarifications, analyze A2).

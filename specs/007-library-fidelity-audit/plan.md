@@ -40,8 +40,10 @@ arithmetic are written here (research R3, R4)
 **Testing**: Vitest (the `tools` and `library` projects already registered in `vitest.config.ts`), including
 planted-error tests and an architecture test for the theory check's independence; Playwright unchanged (the
 existing library e2e must stay green)
-**Shells / Delivery Targets**: none changed. Only content under `public/library/` changes, and it ships to browser
-and Electron as before
+**Shells / Delivery Targets**: browser and Electron, unchanged except for one engine adapter.
+`HttpLibraryCatalog` becomes network-first for the index and checks a cached item's hash against the index before
+using it (FR-024, research R16, contract `library-port-1.1.md`), so corrected items reach browsers that already
+cached the old ones. The desktop shell's `app://` origin has no Cache Storage and already fetches every time
 **Target Browsers**: unchanged
 **Performance Goals**: `pnpm library:fidelity` runs all 58 items in under 30 s on the reference machine. The
 `tests/library/fidelity.test.ts` re-run stays inside the existing `library` project's budget
@@ -64,7 +66,7 @@ violations.
 | II | One Clock, Measured Latency | Integer ticks in core? Tolerances named? | [x] Pass. The core is unchanged. The comparator uses exact rationals from integer ticks (`data-model.md` §1) and has **no tolerances**, so there are no magic numbers. Per-source facts (`midiOrder`, `midiNoteTracks`) are recorded data, not constants |
 | III | Score Fidelity, Engraving & Note Identity | One Score model? Verovio? Graceful degradation? | [x] Pass, and this feature is Principle III applied to content: "a practice app that shows the wrong note ... is worse than none". Items are read through the app's own `readXml` + `buildScore`. Replaced items keep their ids; their Note IDs change legitimately because their notes change, so the identity golden is re-captured **before** engraving completion and the engraved file compared against it (the T087 procedure). Converted files pass `pnpm library:engrave` and the engraving guard |
 | IV | Test-First, Deterministic Grading | Tests first? Node? Golden tests? | [x] Pass. Every reader, the comparator and the theory check are test-first (tests in `tests/tools/`). Planted-error tests prove each method (FR-017). The fidelity test re-runs every record deterministically. The one grading golden that depends on library content (`furEliseThemeGrade`, `tests/fixtures/library-identity.json`) is re-captured only if that item's notes change, with the reason logged (research R14) |
-| V | Layered, Framework-Free | core free of DOM? No frameworks? | [x] Pass. New code lives in `tools/` (Node, no DOM). The only `src/` changes are the additive `write.ts` extension (dev-only, already guarded out of the bundle by `tests/architecture/layers.test.ts`) and one optional validated field in `src/core/library/index-model.ts`. A new architecture assertion keeps `tools/library/fidelity/theory.ts` independent of `src/core/library/exercise/` |
+| V | Layered, Framework-Free | core free of DOM? No frameworks? | [x] Pass. The FR-024 cache fix stays in the engine adapter behind the existing `LibraryCatalog` port (an optional `expectedHash` argument; the fake is updated), and `session.ts` only passes the index hash. New code lives in `tools/` (Node, no DOM). The only `src/` changes are the additive `write.ts` extension (dev-only, already guarded out of the bundle by `tests/architecture/layers.test.ts`) and one optional validated field in `src/core/library/index-model.ts`. A new architecture assertion keeps `tools/library/fidelity/theory.ts` independent of `src/core/library/exercise/` |
 | VI | Musician-First Feedback | - | [x] N/A. No UI change. Titles, subtitles and `limitations` (already shown) carry the honest labels |
 | VII | Pedagogy as Data | - | [x] Pass. Audit records and source manifests are schema-validated JSON (contracts). Invalid ones fail the tool loudly: this is dev data, not runtime Advice, so failing is right here |
 | VIII | Simplicity, Web-First | Web APIs before libraries? New deps justified? | [x] Pass. No new dependency (research R3, R4 reject `@tonejs/midi`, `midi-file` and python-ly). P1 (US1) delivers value alone: the originals are verified or replaced. The LilyPond reader is scoped to the constructs the audited sources use, and fails loudly on anything else |
@@ -84,7 +86,8 @@ specs/007-library-fidelity-audit/
 |   |-- source-manifest.md      # content/library/sources/<id>/source.json v1.0.0
 |   |-- audit-record.md         # content/library/audit/<item-id>.json v1.0.0 + report format
 |   |-- fidelity-tools.md       # commands, module interfaces, LilyPond subset, self-tests v1.0.0
-|   `-- library-index-1.1.md    # sidecar change 1.0.0 -> 1.1.0 (departures, reviewedBy meaning)
+|   |-- library-index-1.1.md    # sidecar change 1.0.0 -> 1.1.0 (departures, reviewedBy meaning)
+|   `-- library-port-1.1.md     # LibraryCatalog 1.0.0 -> 1.1.0 (network-first index, hash-checked item cache)
 `-- tasks.md             # /speckit.tasks
 ```
 
@@ -110,6 +113,11 @@ src/core/musicxml/write.ts       # EXTENDED additively: repeats/endings, grace, 
                                  #   clef/key/time, 16th/32nd, slurs, dynamics, pedal, tempo (dev-only, guarded)
 src/core/library/index-model.ts  # accepts + validates optional `departures` (contract 1.1.0)
 src/core/library/types.ts        # `departures?: string[]` on item meta
+src/engine/ports.ts              # LibraryCatalog.item(file, expectedHash?) (contract library-port-1.1.md)
+src/engine/library/http-catalog.ts  # network-first index; cached item used only when its hash matches (FR-024)
+src/app/session.ts               # passes the index entry's hash when opening a library item
+tests/fakes/fake-library-catalog.ts # accepts and records expectedHash
+tests/engine/library/http-catalog.test.ts, tests/engine/session-library.test.ts  # EXTENDED (FR-024, SC-010)
 content/library/sources/         # NEW: README.md + one folder per approved source (.ly, .mid, source.json)
 content/library/audit/           # NEW: one record per item (58, mirrors public/library ids)
 public/library/**                # replaced / relabelled items and sidecars; README rejected-items rows
@@ -160,6 +168,7 @@ Done. It covers:
 - R13 the writer extension
 - R14 goldens that depend on library content
 - R15 folk/traditional tune versions and edition decisions (with the music-domain-expert's findings)
+- R16 delivering corrected items to browsers that cached the old ones (added after analyze A1)
 
 ## Phase 1: Design
 
@@ -176,6 +185,11 @@ Changes entries in `docs/agents/reference.md`. The Constitution Check was re-run
 | D-4 | Show `departures` in the app (follow-up, not this feature) | The field is shipped in `index.json` but not displayed; UI changes are out of scope | Record it as a follow-up for the next UI feature | No effect on this feature |
 
 ## Open questions (not blocking)
+
+- **Recents keep the old copy** (analyze A2, spec Clarifications). `IndexedDbScoreStore` stores the bytes a
+  musician opened, keyed by content hash. Reopening a replaced item from Recents shows the old version, and progress
+  saved against it does not carry over. Updating Recents is a follow-up feature; the audit report notes it for each
+  replaced item.
 
 - Mary Had a Little Lamb and Jingle Bells (modern refrain) have no machine-readable PD source on Mutopia. R15
   names the PD printings to compare against visually. If the implementer cannot locate a named PD printing of the

@@ -43,3 +43,28 @@
   - **A4 (MEDIUM)**: move T055 (`departures` support) into Foundational, because US1's fallbacks in T042/T043 depend
     on it.
 - Handoff: fix A1 (and optionally A2-A4) with the owner's OK, then `/speckit.implement` starting at T001.
+
+## 2026-09-23 - claude-opus-5.5 (analyze remediation)
+- Done: the owner said "resolve with recommended". All analyze findings are applied except A9 and A11, which were
+  judged acceptable as they stand.
+  - **A1**:
+    - spec: FR-024, SC-010, an edge case and a Clarifications entry;
+    - design: research R16, contract `library-port-1.1.md`, and the plan (Technical Context, Constitution V,
+      structure);
+    - tasks: T089-T094, the cache lane in Phase 2.
+  - **A2**: FR-020 reworded; a Clarifications entry; a Recents follow-up in the plan's Open questions; a Recents note
+    per replaced item in the report (contract `audit-record.md` §3, T077).
+  - **A3**: a "source itself looks wrong" rule in the tasks' content rules.
+  - **A4**: T050/T055 moved into Foundational.
+  - **A5**: `buildTimeline` for played order in T009/T017.
+  - **A6**: a `midiArticulate` manifest field; research R5 rule 5; T012/T013 cases; a planted duration error for the
+    first articulated source.
+  - **A7**: T044 re-probes after the flag change.
+  - **A8**: T087 times the run.
+  - **A10**: T025 log note.
+  - **A12**: T082 also fixes the `AGENTS.md` screenshot form.
+- Decisions: FR-024 uses network-first for the index and a hash-checked item cache, not a cache-name bump
+  (research R16). The cache name stays, so valid offline copies survive.
+- Problems / open questions: owner decisions D-1 to D-4 are still open (T001). Recents keeping the old copy is a
+  follow-up feature, not part of 007.
+- Handoff: next = `/speckit.implement` from T001. tasks.md now has 94 tasks.

@@ -54,7 +54,8 @@ Files are committed **unchanged** (hash-checked). A scan (PDF) is **not** commit
           "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
           "format": { "enum": ["lilypond", "midi", "musicxml", "pdf"] },
           "midiOrder": { "enum": ["written", "played"] },
-          "midiNoteTracks": { "type": "array", "items": { "type": "integer", "minimum": 0 } }
+          "midiNoteTracks": { "type": "array", "items": { "type": "integer", "minimum": 0 } },
+          "midiArticulate": { "type": "boolean", "description": "true when the source's midi score block uses articulate: the MIDI step then compares pitch and onset only (research R5)" }
         }
       }
     }
@@ -68,7 +69,7 @@ Files are committed **unchanged** (hash-checked). A scan (PDF) is **not** commit
   Mutopia's `Creative Commons Attribution-ShareAlike`) is never added, not even for reference; it is recorded in
   `content/library/sources/README.md` under "Rejected sources" with the reason.
 - A file with `path` must have `sha256`; the fidelity test re-hashes it and fails on any change (FR-016).
-- `role: "sound"` requires `midiOrder` and `midiNoteTracks`, both established by inspecting the file once and
+- `role: "sound"` requires `midiOrder`, `midiNoteTracks` and `midiArticulate`, all established by inspecting the file once and
   recorded, not guessed at every run.
 - `approvedByOwner` is the date the owner approved this source (spec assumption; AGENTS.md section 6). A source
   without it may be downloaded to the agent's scratch space for inspection, but may not be committed or cited.

@@ -142,6 +142,8 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 ## Notes
 <- per item with differenceNotes, departures or an edition decision: the full text
+<- per replaced item: "Recent scores that opened the old version keep that copy; progress saved against it
+   does not carry over" (spec FR-020)
 ```
 
 SC-009 (find any item in under a minute): rows are in shelf order, one row per item, with the item title as it

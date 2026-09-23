@@ -49,6 +49,14 @@ This feature applies that standard to everything else on the shelf.
     "Mariage d'Amour" (1978), which the collection also labels as Chopin's "Spring Waltz".
 
   The collection is therefore never used, not even for reference (FR-006, Assumptions).
+- Q: (analyze A1) Must a musician who already opened the library receive the corrected items? -> A: Yes.
+  Today the library files are served cache-first under a fixed cache name, with no hash check, so a
+  returning musician would keep practising the old, invented music. FR-024 and SC-010 now require that the
+  corrected files reach them. This is engine behaviour, not a UI change.
+- Q: (analyze A2) What does keeping the library ID preserve? -> A: The item's place on the shelf and every
+  id-based reference to it. Recent scores hold a copy of the file as it was opened and keep reopening that
+  copy. Saved progress is keyed by file content, so it starts fresh on the corrected version. FR-020 is
+  reworded to match. Recents picking up the corrected version is a follow-up, not part of this feature.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -188,6 +196,8 @@ names a source and a comparison that someone else can repeat and get the same re
   description and level follow the replacement. Its library ID stays.
 - **A source's licence turns out to be unclear**: the source is not used, and the item is handled as if
   no source existed.
+- **A musician's browser still holds the old file** (the library was opened before the audit): the old
+  copy is not used once the library says the file changed (FR-024).
 
 ## Requirements *(mandatory)*
 
@@ -259,8 +269,14 @@ names a source and a comparison that someone else can repeat and get the same re
 
 **Stability and shelf rules**
 
-- **FR-020**: An item that keeps the same piece MUST keep its library ID, so saved progress and recent
-  scores keep working.
+- **FR-020**: An item that keeps the same piece MUST keep its library ID. The item then keeps its place
+  on the shelf, and id-based references to it (for example future Advice anchors) keep pointing at it.
+  Recent scores keep reopening the copy that was opened, and progress saved against the old file does not
+  carry over to the corrected file (see Clarifications). The audit report says this for each replaced item.
+- **FR-024**: After a library item is corrected, replaced or removed, the app MUST serve the current
+  file to every musician, including one whose browser already holds the old file. A stored copy is used
+  only when it is identical to the file the current library index describes. Without a network connection,
+  previously fetched files may still be used.
 - **FR-021**: Every changed or replaced item MUST still pass the library's existing checks: licence,
   level, loading, engraving and Note ID stability across engraving completion.
 - **FR-022**: If fixes, replacements or removals leave a level below its minimum piece count (feature
@@ -300,6 +316,8 @@ names a source and a comparison that someone else can repeat and get the same re
 - **SC-008**: Every level either still meets its minimum piece count after the audit, or the shortfall
   is reported to the owner with the reason.
 - **SC-009**: The owner can find any item's source, method and result in the report in under one minute.
+- **SC-010**: A browser that fetched the library before the audit gets 100% of the replaced or corrected
+  files on its next open while online, and never gets a stale copy of a changed item.
 
 ## Assumptions
 

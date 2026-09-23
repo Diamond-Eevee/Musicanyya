@@ -94,6 +94,7 @@ interface SourceFile {
   format: 'lilypond' | 'midi' | 'musicxml' | 'pdf';
   midiOrder?: 'written' | 'played';     // for role "sound": did the source unfold repeats? (research R5)
   midiNoteTracks?: number[];            // for role "sound": the tracks that carry the music (others ignored)
+  midiArticulate?: boolean;             // for role "sound": the source's MIDI score uses articulate, so the MIDI step skips duration (research R5)
 }
 ```
 
