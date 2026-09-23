@@ -105,7 +105,7 @@ bar 2 bass A-E-A beamed, treble A keeps its flag; no flag where a beam group app
 - [x] T019 [US1] Implement `tools/library/engrave.ts`: for each hand-written repertoire file (not generated
   families), read -> plan (`'library'`) -> apply -> write back; prints per file the counts; export
   `engraveFile`; until T027 passes.
-- [ ] T020 [US1] Run `pnpm library:exercises`, `pnpm library:engrave`, `pnpm library:index`; confirm T004 identity
+- [x] T020 [US1] Run `pnpm library:exercises`, `pnpm library:engrave`, `pnpm library:index`; confirm T004 identity
   still passes and T014/T015 pass; commit the regenerated `public/library/**` and `index.json`.
 - [ ] T021 [US1] Extend `tests/e2e/library.spec.ts`: opening *Für Elise (theme)* shows `g.beam` elements in the
   score SVG and no load notice.
