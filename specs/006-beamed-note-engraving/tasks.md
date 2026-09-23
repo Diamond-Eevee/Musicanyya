@@ -231,14 +231,14 @@ fix or a named follow-up; every Score shows title/composer/arranger above page 1
 
 ### Engraving audit
 
-- [ ] T043 [US5] Write `tools/library/audit.ts` that counts, per
+- [x] T043 [US5] Write `tools/library/audit.ts` that counts, per
   repertoire piece, the FR-014 elements present in the file and in the rendered SVG (beams, accid, stems, rests,
   ties, slurs, dynamics/hairpins, tempo/expression, articulations, fingering, pedal, ornaments,
   repeats/voltas/jumps, title block, system-start bar numbers).
-- [ ] T044 [US5] Review each piece against its cited source with the `music-domain-expert` role; write
+- [x] T044 [US5] Review each piece against its cited source with the `music-domain-expert` role; write
   `specs/006-beamed-note-engraving/engraving-audit.md` (piece x element: present / missing (bars) / not used).
-- [ ] T045 [US5] For each gap that contradicts playback or grading: fix it in this feature (new task numbers from
-  T052); for purely visual gaps: list as named follow-ups and ask the owner (FR-015, AGENTS.md section 7).
+- [~] T045 [US5] For each gap that contradicts playback or grading: fix it in this feature (new task numbers from
+  T052); for purely visual gaps: list as named follow-ups and ask the owner (FR-015, AGENTS.md section 7). (claimed: gemini-3.1-pro 2026-09-23)
 
 **Checkpoint**: audit complete, every row resolved; title block visible in every mode.
 
