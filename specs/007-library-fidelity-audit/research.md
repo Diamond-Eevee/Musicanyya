@@ -287,7 +287,11 @@ keeps saved progress (SC-007).
   "Landmann", "jeunesse", "Jugend", "Op. 68"). The shipped item says its notes were "extracted programmatically
   from Mutopia's rendered MIDI", so the item itself is derived from a non-compliant source. This is owner decision
   D-2.
-- **musetrainer / MuseScore.com uploads**: "All rights reserved" (already rejected in feature 005, T087).
+- **`github.com/musetrainer/library`** (all files): the repository calls itself "Public domain MusicXML files" but
+  has no licence file (GitHub `license: null`, checked 2026-09-23). Every sampled file's `<source>` is a
+  musescore.com user upload; the Für Elise upload says "All rights reserved" (feature 005, T087). The collection
+  also includes copyrighted works (Paul de Senneville's "Mariage d'Amour", 1978, which it also lists as Chopin's
+  "Spring Waltz"). It is rejected for all items, including as a reference (spec Clarifications 2026-09-23).
 
 ### Table B - public-domain printings for visual checks (URLs to be recorded at implement; **to verify**)
 

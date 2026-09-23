@@ -35,6 +35,21 @@ The only fix that proved anything was a mechanical comparison against a publishe
 
 This feature applies that standard to everything else on the shelf.
 
+## Clarifications
+
+### Session 2026-09-23
+
+- Q: Is `github.com/musetrainer/library` ("Public domain MusicXML files") a public-domain source? -> A: No.
+  The description is a label, not a licence:
+  - The repository has no licence file (GitHub reports `license: null`).
+  - Its files are MuseScore.com user uploads. Each file's `<source>` names a musescore.com score, for example
+    `musescore.com/user/19710/scores/65474` for the Chopin E minor Prelude. The Für Elise upload from the same user
+    states "All rights reserved" (feature 005, T087).
+  - The collection also contains works that are not public domain at all, for example Paul de Senneville's
+    "Mariage d'Amour" (1978), which the collection also labels as Chopin's "Spring Waltz".
+
+  The collection is therefore never used, not even for reference (FR-006, Assumptions).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Every piece that claims to be the original is the original (Priority: P1)
@@ -292,7 +307,9 @@ names a source and a comparison that someone else can repeat and get the same re
   (Mutopia Project LilyPond with its MIDI, OpenScore CC0 MusicXML), then a public-domain printed edition
   or first-edition scan (for example IMSLP public-domain scans) for visual comparison. Commercial or
   "all rights reserved" editions, including community uploads with such a notice, are never used, even
-  for reference.
+  for reference. The same applies to any collection that calls itself "public domain" without a licence
+  covering its files, such as `musetrainer/library` (MuseScore.com uploads; see Clarifications). The
+  composition being public domain does not make someone's engraving or arrangement of it public domain.
 - **Folk and traditional tunes** (Amazing Grace, Greensleeves, Jingle Bells, Mary Had a Little Lamb,
   Twinkle Twinkle) are checked against a named public-domain printing of the melody. Where versions
   differ, the best-known public-domain version is acceptable if the record names it.
