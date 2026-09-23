@@ -188,3 +188,20 @@ beat-grouping or accidentals).
 **Alternatives**: a single flat state per measure with no mid-bar change record (rejected - loses the position a
 change takes effect at, which R-3 A2 needs); per-onset event stream merged with notes (more general but not
 needed by any rule in R-2/R-3, added complexity deferred until a rule actually needs it).
+
+**Decision**: `beat-grouping.ts` exports two functions, not one. `beamSpans(time, measureLength, implicit, ppq)`
+stays pure (no note content) and returns only the R-2 B3 baseline groups (with B2 pickup end-alignment applied).
+A second function, `applyEighthExtensions(time, groups, notes)`, takes the baseline groups plus the measure's
+actual notes and applies B4 (4/4 half-bar merge to four plain eighths; 3/4 whole-bar merge to six; 2/2 half split
+on anything shorter than an eighth) - B4 is content-dependent (it must inspect what is actually written in a
+candidate span), so it cannot live inside a function of `time`/`measureLength` alone. `beamSpans` also takes an
+explicit `ppq` (ticks per quarter) rather than relying on `measureLength` alone to infer the metre's nominal
+length, because an implicit (pickup) bar's `measureLength` is *short by definition* - there is no way to recover
+what a full bar of the metre would be from it without a separate tick reference.
+**Rationale**: keeps the pure geometric table (B3/B2) independent of note content, testable as a simple metre-in
+tick-out function, while B4's content check gets its own small, separately testable function; `beams.ts` (T017)
+calls both in sequence per (part, voice, measure).
+**Alternatives**: fold B4 into `beamSpans` by also passing notes (rejected - couples the pure table to content
+for every caller, even ones that only need the baseline); compute nominal length from `measureLength` alone by
+requiring the caller to pass it only for full bars (rejected - `beamSpans` already needs to run for the same
+metre on both full and short bars, so it needs one number, `ppq`, it can always rely on).

@@ -74,7 +74,7 @@ bar 2 bass A-E-A beamed, treble A keeps its flag; no flag where a beam group app
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T012 [P] [US1] Test `tests/core/musicxml/engraving/beat-grouping.test.ts`: the R-2 B3 table for every metre
+- [x] T012 [P] [US1] Test `tests/core/musicxml/engraving/beat-grouping.test.ts`: the R-2 B3 table for every metre
   row, B4 (4/4 half-bar fours only for four plain eighths; falls back per quarter with a sixteenth, dot, rest or
   tuplet; never across the middle; 2/2 split; 3/4 six eighths), pickup end-alignment.
 - [ ] T013 [P] [US1] Test `tests/core/musicxml/engraving/beams.test.ts` over T005 fixtures: B5-B11 - rests break
@@ -96,7 +96,7 @@ bar 2 bass A-E-A beamed, treble A keeps its flag; no flag where a beam group app
 
 ### Implementation
 
-- [ ] T016 [US1] Implement `src/core/musicxml/engraving/beat-grouping.ts` until T012 passes.
+- [x] T016 [US1] Implement `src/core/musicxml/engraving/beat-grouping.ts` until T012 passes.
 - [ ] T017 [US1] Implement `src/core/musicxml/engraving/beams.ts` and the beam half of `planEngraving` in
   `plan.ts` (findings `missingBeam`, `invalidBeams` for `broken-beam.musicxml`) until T013 passes.
 - [ ] T018 [US1] Pipe generator output through `planEngraving(..., 'library')` + `applyInserts` in
