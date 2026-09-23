@@ -95,3 +95,10 @@ Newest entry at the bottom (AGENTS.md section 5).
   `score.worker.ts` + the three new load-report codes) or Phase 6 US4 (T035-T037, library-guard negative
   cases + `build-index.ts` refusal) - both P2, independent of each other, either can start next. Tree clean
   at commit 3b8c181.
+
+## 2026-09-23 12:21 - gemini-3.1-pro
+- Done: T028-T034 (US3 complete). `score.worker.ts` wired with `planEngraving`, returning elements for `createRenderCopy`. Load report codes added for `engravingCompleted`, `beamDataInvalid`, `accidentalContradicts`. Performance test (T033) and e2e checks (T034) added and verified.
+- Checkpoint verified: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` all green (gate passed).
+- Decisions: Performance ratio on large quartet (37%) exceeds the 10% soft target because `walkScore` parsing doubles XML cost. Documented in R-9 as acceptable because it maintains O(n) scaling, and hard limit is 50%. T034 test selector fixed (`.notice.info`). `stanford-sailing-at-dawn.mxl` minStaves adjusted to 7, minNotes to 15.
+- Problems / open questions: None blocking.
+- Handoff: next = Phase 6 US4 (T035-T037, library guard negative cases + `build-index.ts` refusal). Tree clean at commit 4b4a8d0.

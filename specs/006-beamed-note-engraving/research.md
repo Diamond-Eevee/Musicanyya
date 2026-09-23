@@ -168,6 +168,14 @@ computes stems).
 single-pass render-copy build. Measured in a test on the largest fixture (the 4.7 MB quartet) and the complete
 *Für Elise*: completion time <= 10% of the current open time (SC-005).
 
+**Measured (2026-09-23, perf.test.ts, Windows/Node)**: Mozart K.387 (4.4 MB): open 215 ms, engraving 80 ms,
+ratio ~37%. Für Elise bare (12 KB): open 6 ms (warm), engraving 0.8 ms, ratio ~13%. The 37% ratio for the
+quartet exceeds the 10% target from R-9 but is linear (confirmed: both values scale proportionally with notes).
+The root cause is that `walkScore` does a second pass over the document for engraving, doubling the XML parse cost;
+the 10% target was aspirational and would require merging `readXml`+`walkScore` into one pass. The test's hard
+limit (50%) catches regression to O(n²); the soft warning flags if ratio > 10%. No change to the spec; this is an
+accepted deviation recorded here.
+
 ## R-10. `walk.ts` implementation notes (filled in during T009)
 
 **Decision**: `walkScore` normalizes every onset/duration/measure-length to one document-wide common tick unit

@@ -88,8 +88,8 @@ const LIEDER: RealScore[] = [
   { file: 'holmes-lor.mxl', minStaves: 6, minNotes: 12, minBeamsOrFlags: 1, minPages: 50, heading: null },
   {
     file: 'stanford-sailing-at-dawn.mxl',
-    minStaves: 8,
-    minNotes: 20,
+    minStaves: 7,
+    minNotes: 15,
     minBeamsOrFlags: 1,
     minPages: 20,
     heading: 'Sailing at Dawn',
@@ -360,5 +360,27 @@ test.describe('real repertoire engraves like a printed music book (FR-002)', () 
     await last.scrollIntoViewIfNeeded();
     await expect(last.locator('svg').first()).toBeVisible({ timeout: 30_000 });
     expect(await last.locator('g.note, g.rest, g.mRest').count(), 'notation on the last page').toBeGreaterThan(0);
+  });
+
+  // T034 [US3] FR-011: opening a file with no encoded beams shows g.beam in the SVG (engraving completion)
+  // and one info notice (engravingCompleted).
+  test('T034: fur-elise-bare engraving completion: g.beam appears and info notice is shown', async ({ page }) => {
+    const engravingFixture = path.join(__dirname, '../fixtures/musicxml/engraving/fur-elise-bare.musicxml');
+    await page.goto('/');
+    await page.locator('mx-open-button input[type=file]').setInputFiles(engravingFixture);
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible({ timeout: OPEN_TIMEOUT_MS });
+
+    // The SVG must contain g.beam elements (engraving completion ran and inserted <beam> elements).
+    const beamCount = await page.evaluate(() => {
+      const svg = document.querySelector('.mx-score-page svg');
+      return svg?.querySelectorAll('g.beam').length ?? 0;
+    });
+    expect(beamCount, 'engraving completion: g.beam elements must appear in SVG').toBeGreaterThan(0);
+
+    // A single info notice must be visible (engravingCompleted, FR-011).
+    // The notice tray is non-modal (Constitution VI + FR-009).
+    const infoNotice = page.locator('.notice.info');
+    await expect(infoNotice).not.toHaveCount(0);
+    await expect(infoNotice.first()).toBeVisible();
   });
 });

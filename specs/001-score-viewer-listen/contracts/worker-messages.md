@@ -1,8 +1,9 @@
 # Contract: Web Worker messages
 
-**Version**: `1.0.0`. Two dedicated module workers keep heavy work off the main thread (Constitution I). Every
-request carries a `requestId`; every response echoes it. A newer request of the same kind supersedes older ones (the
-main thread ignores stale responses).
+**Version**: `1.1.0` (MINOR: additive — three new `LoadNoticeCode` values: `engravingCompleted`, `beamDataInvalid`,
+`accidentalContradicts`; feature 006-beamed-note-engraving US3). Two dedicated module workers keep heavy work off
+the main thread (Constitution I). Every request carries a `requestId`; every response echoes it. A newer request of
+the same kind supersedes older ones (the main thread ignores stale responses).
 
 ## Score worker (`src/workers/score.worker.ts`)
 

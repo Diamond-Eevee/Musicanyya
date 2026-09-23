@@ -158,29 +158,29 @@ one info notice; a MuseScore export with its own beams shows no notice and uncha
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T028 [P] [US3] Test `tests/engine/score-worker-engraving.test.ts` (score worker `handleMessage` in Node):
+- [x] T028 [P] [US3] Test `tests/engine/score-worker-engraving.test.ts` (score worker `handleMessage` in Node):
   `fur-elise-bare` -> render copy contains inserts, `report` has one `engravingCompleted` info entry with the
   counts; `fullScore` Note IDs identical to loading the same file without completion; `partly-beamed` -> no beam
   inserts for that voice; `broken-beam` -> `beamDataInvalid` entry, its encoded beams unchanged and no beams added to that
   voice, still loads; a note printing a sharp sign with `<alter>` 0 -> `accidentalContradicts` entry, sign kept.
-- [ ] T029 [P] [US3] Test in `tests/core/musicxml/real-scores.test.ts`: every real-score fixture (OpenScore,
+- [x] T029 [P] [US3] Test in `tests/core/musicxml/real-scores.test.ts`: every real-score fixture (OpenScore,
   MusicXML test suite) that encodes beams gets zero beam inserts and keeps all its `<accidental>` elements (SC-006).
-- [ ] T030 [P] [US3] Test `tests/ui/load-notices.test.ts`: every `LoadNoticeCode` (incl. the three new ones) has
+- [x] T030 [P] [US3] Test `tests/ui/load-notices.test.ts`: every `LoadNoticeCode` (incl. the three new ones) has
   an English text in `src/ui/i18n/en.ts`.
 
 ### Implementation
 
-- [ ] T031 [US3] Add `engravingCompleted`, `beamDataInvalid` and `accidentalContradicts` to `src/core/score/load-report.ts` and their texts
+- [x] T031 [US3] Add `engravingCompleted`, `beamDataInvalid` and `accidentalContradicts` to `src/core/score/load-report.ts` and their texts
   to `src/ui/i18n/en.ts`; bump `specs/001-score-viewer-listen/contracts/worker-messages.md` to 1.1.0 and add the
   codes to `specs/001-score-viewer-listen/data-model.md` notice table.
-- [ ] T032 [US3] Wire `planEngraving(parsed.doc, 'opened')` into `src/workers/score.worker.ts`: pass inserts to
+- [x] T032 [US3] Wire `planEngraving(parsed.doc, 'opened')` into `src/workers/score.worker.ts`: pass inserts to
   `createRenderCopy`, add report entries; until T028/T029/T030 pass.
-- [ ] T033 [US3] Performance test in `tests/core/musicxml/engraving/perf.test.ts`: completion on the largest
+- [~] T033 [US3] Performance test in `tests/core/musicxml/engraving/perf.test.ts`: completion on the largest
   fixture (4.7 MB quartet) and complete *Für Elise* costs <= 10% of their `readXml`+`buildScore` time (research
   R-9); plus an end-to-end check in `tests/e2e/real-scores.spec.ts` (drop -> first page drawn) against the
-  pre-feature baseline recorded in the log before T032 (SC-005).
-- [ ] T034 [US3] e2e in `tests/e2e/real-scores.spec.ts`: dropping `fur-elise-bare.musicxml` shows `g.beam` and one
-  info notice.
+  pre-feature baseline recorded in the log before T032 (SC-005). (claimed: antigravity-claude-sonnet-4.6 2026-09-23)
+- [~] T034 [US3] e2e in `tests/e2e/real-scores.spec.ts`: dropping `fur-elise-bare.musicxml` shows `g.beam` and one
+  info notice. (claimed: antigravity-claude-sonnet-4.6 2026-09-23)
 
 **Checkpoint**: US3 independent test passes; opened scores that encode beams/accidentals are unchanged.
 

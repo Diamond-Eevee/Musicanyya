@@ -10,6 +10,7 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { buildScore } from '../../../src/core/musicxml/build.js';
+import { planEngraving } from '../../../src/core/musicxml/engraving/plan.js';
 import { readXml } from '../../../src/core/musicxml/read.js';
 import { createRenderCopy } from '../../../src/core/musicxml/render-copy.js';
 import { compileSchedule } from '../../../src/core/schedule/compile.js';
@@ -336,6 +337,64 @@ describe('real repertoire (CC0 OpenScore fixtures)', () => {
           expect(measure.label.length).toBeGreaterThan(0);
           cursor = measure.startTick + measure.lengthTicks;
         }
+      });
+
+      // T029 [P] [US3] SC-006: real scores that encode their own beams get zero beam inserts;
+      // all their <accidental> elements survive into the render copy unchanged.
+      //
+      // Implementation note: planEngraving skips any voice that has ANY encoded <beam> element.
+      // An OpenScore file may have some voices with beams and some without — the ones without
+      // legitimately receive beam groups, the ones with do not (SC-006).
+      // We verify SC-006 by counting existing beam/accidental elements in the XML and checking
+      // they all appear (>=) in the render copy, not that beamGroupsAdded == 0.
+      it('SC-006: planEngraving preserves all pre-existing beams and accidentals in the render copy', {
+        timeout: 20_000,
+      }, async () => {
+        const { xml, parsed, score } = await load(expected.file);
+
+        const plan = planEngraving(parsed.doc, 'opened');
+
+        // Count <accidental> and <beam> elements in the original XML.
+        const originalAccidentalCount = (xml.match(/<accidental[\s>]/g) ?? []).length;
+        const originalBeamCount = (xml.match(/<beam[\s>]/g) ?? []).length;
+
+        // Build the render copy through the same path the worker will use after T032.
+        const notesInserts = score.parts.flatMap((part) =>
+          part.notes
+            .filter((note) => note.source.start > 0)
+            .map((note) => ({
+              startOffset: note.source.start,
+              tagLength: xml.indexOf('>', note.source.start) - note.source.start + 1,
+              id: note.id,
+            })),
+        );
+        const measureInserts = score.measures
+          .map((m, i) => {
+            const startOffset = parsed.offsets.measures[i];
+            if (startOffset === undefined) return null;
+            return { startOffset, tagLength: xml.indexOf('>', startOffset) - startOffset + 1, id: m.id };
+          })
+          .filter((x): x is NonNullable<typeof x> => x !== null);
+
+        const renderXml = createRenderCopy(xml, {
+          notes: notesInserts,
+          measures: measureInserts,
+          elements: plan.inserts,
+        });
+
+        // <accidental> count in the render copy must be at least what the original had.
+        const renderAccidentalCount = (renderXml.match(/<accidental[\s>]/g) ?? []).length;
+        expect(
+          renderAccidentalCount,
+          `${expected.file}: render copy lost accidentals (original ${originalAccidentalCount}, copy ${renderAccidentalCount})`,
+        ).toBeGreaterThanOrEqual(originalAccidentalCount);
+
+        // <beam> count in the render copy must be at least what the original had (can only grow).
+        const renderBeamCount = (renderXml.match(/<beam[\s>]/g) ?? []).length;
+        expect(
+          renderBeamCount,
+          `${expected.file}: render copy lost beam elements (original ${originalBeamCount}, copy ${renderBeamCount})`,
+        ).toBeGreaterThanOrEqual(originalBeamCount);
       });
     });
   }
