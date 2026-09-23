@@ -68,14 +68,20 @@ in progress, `- [x] T012 ...` done. Start at the resume point; follow file order
 4. **Implementation tasks**: minimum code to pass the related tests, then refactor.
 5. Run checks for what you touched (`pnpm test -- <path>`, `pnpm typecheck`, `pnpm lint`). All green.
 6. **Tick**: `[~]` -> `[x]`, remove the suffix. Never tick failing work (a test task is done when its test fails as
-   expected; log it). Commit after each task group at the latest.
+   expected; log it). A tick needs **evidence**: every part the task names exists, and the log names the test or
+   command that proves it; do only part and leave `[~]` or split off a new task. Commit after each task group.
 7. **Checkpoint** (end of phase/story): verify the story's Independent Test (`spec.md`), full gate, log entry, commit.
 
 Rules: stay in scope; missing work becomes a new task (next free T-number). Design wrong? Update
 `plan.md`/`contracts/` first, or ask. RT tasks (AudioWorklet, scheduler, MIDI timing, plugin callbacks) are followed
 by an RT review with `.claude/agents/rt-audio-reviewer.md`. **No placeholders**: never create empty, dummy or fake
 files, assets or data to finish a task (e.g. a 0-byte SoundFont); if something cannot be obtained, stop and ask.
-Never weaken, delete or skip tests to go green.
+Never weaken, delete or skip tests to go green - no workaround inside a test (e.g. scrolling past what it checks),
+no looser threshold or either-or assertion, no test that would also pass on the old code. If behaviour really changed
+an expected value, say why in the log. Check behaviour changes on real files too (`tests/fixtures/musicxml/real`, the
+library), not only on hand-made fixtures. Reviews: a role review counts only with its findings summarised in the log;
+without sub-agents, say you performed the role yourself - never claim a review that did not run. Write files as UTF-8
+without BOM (Windows PowerShell 5.1 does not by default) and leave no scratch files in the repository.
 
 ## 5. Session end and hand-off (always; also when context/time runs low)
 
@@ -114,8 +120,11 @@ Never weaken, delete or skip tests to go green.
 Stop, hand off (5), and ask when: an owner decision blocks the next task and no independent work is left; analyze
 reports CRITICAL; a gate fails and you cannot fix it in scope; unknown uncommitted changes or a conflicting claim.
 **Never decide alone**: constitution, stack or ADR changes; new runtime dependencies; user-visible behaviour in
-`spec.md` or scope; licensing (SoundFonts, fonts, Verovio, ASIO SDK, copied code); deleting files you did not
-create; rewriting history; pushing.
+`spec.md` or scope; missing a success criterion (never record it as an "accepted deviation"); licensing and legal
+wording (SoundFonts, fonts, Verovio, ASIO SDK, copied code); deleting files you did not create; rewriting history;
+pushing; merging. When you ask, state the facts exactly (what was measured, against what), give a recommendation and
+what each answer leads to. A green gate is not "done": a feature is ready to merge only when every task is ticked with
+evidence and the constitution review passed - and it is merged only when the user asks.
 
 ## 8. Non-negotiables (constitution summary) and gate
 
