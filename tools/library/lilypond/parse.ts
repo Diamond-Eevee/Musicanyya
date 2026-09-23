@@ -1,22 +1,18 @@
-import { lexLilyPond } from './lex';
 import type { LyToken } from './lex';
+import { lexLilyPond } from './lex';
 
 export class LyUnsupportedError extends Error {
-  constructor(public line: number, public column: number, public construct: string) {
+  constructor(
+    public line: number,
+    public column: number,
+    public construct: string,
+  ) {
     super(`Unsupported LilyPond construct at ${line}:${column}: ${construct}`);
     this.name = 'LyUnsupportedError';
   }
 }
 
-export type LyNode = 
-  | LyCommand
-  | LyBlock
-  | LyNote
-  | LyChord
-  | LyRest
-  | LyAssignment
-  | LyMusicList
-  | LySymbol;
+export type LyNode = LyCommand | LyBlock | LyNote | LyChord | LyRest | LyAssignment | LyMusicList | LySymbol;
 
 export interface LyCommand {
   type: 'command';
@@ -125,20 +121,25 @@ export function parseLilyPond(source: string): LyScore {
       if (peek().type === 'word') {
         const key = advance().value;
         if (match('symbol', '=')) {
-          if (peek().type === 'string' || peek().type === 'number' || peek().type === 'word' || peek().type === 'command') {
+          if (
+            peek().type === 'string' ||
+            peek().type === 'number' ||
+            peek().type === 'word' ||
+            peek().type === 'command'
+          ) {
             let val = advance().value;
             // sometimes there's a markup block, we just skip it or record it as string
             if (val === '\\markup') {
-               expect('symbol', '{');
-               while(peek().type !== 'eof' && !(peek().type === 'symbol' && peek().value === '}')) {
-                 advance();
-               }
-               expect('symbol', '}');
-               val = 'markup';
+              expect('symbol', '{');
+              while (peek().type !== 'eof' && !(peek().type === 'symbol' && peek().value === '}')) {
+                advance();
+              }
+              expect('symbol', '}');
+              val = 'markup';
             }
             header[key] = val;
           } else {
-             advance(); // ignore whatever is there
+            advance(); // ignore whatever is there
           }
         }
       } else {
@@ -161,11 +162,11 @@ export function parseLilyPond(source: string): LyScore {
 
   function parseMusic(): LyNode {
     const t = peek();
-    
+
     if (t.type === 'symbol' && t.value === '{') {
       return parseMusicList();
     }
-    
+
     if (t.type === 'symbol' && t.value === '<<') {
       advance();
       const elements: LyNode[] = [];
@@ -208,57 +209,111 @@ export function parseLilyPond(source: string): LyScore {
     if (t.type === 'command') {
       advance();
       const name = t.value;
-      if (name === '\\relative' || name === '\\repeat' || name === '\\alternative' || name === '\\tuplet' || name === '\\times' || name === '\\new' || name === '\\context' || name === '\\grace' || name === '\\acciaccatura' || name === '\\appoggiatura' || name === '\\slashedGrace') {
+      if (name === '\\afterGrace') {
+        const mainMusic = parseMusic();
+        const graceMusic = parseMusic();
+        return { type: 'block', name, args: [], body: [mainMusic, graceMusic], line: t.line, column: t.column };
+      }
+      if (
+        name === '\\relative' ||
+        name === '\\repeat' ||
+        name === '\\unfoldRepeats' ||
+        name === '\\alternative' ||
+        name === '\\tuplet' ||
+        name === '\\times' ||
+        name === '\\new' ||
+        name === '\\context' ||
+        name === '\\grace' ||
+        name === '\\acciaccatura' ||
+        name === '\\appoggiatura' ||
+        name === '\\slashedGrace'
+      ) {
         const args: any[] = [];
         let body: LyNode[] = [];
-        
+
         // consume args before block
         while (peek().type !== 'eof' && peek().type !== 'symbol' && peek().value !== '{') {
           if (peek().type === 'command' && (name === '\\repeat' || name === '\\alternative' || name === '\\new')) {
-             if (peek().value === '\\alternative') break; // alternative is a separate block, handled in reader
+            if (peek().value === '\\alternative') break; // alternative is a separate block, handled in reader
           }
           if (peek().value === '<' || peek().value === '<<') break; // block start
-          if (name === '\\grace' || name === '\\acciaccatura' || name === '\\appoggiatura' || name === '\\slashedGrace') break;
-          args.push(advance().value);
+          if (name === '\\grace' || name === '\\acciaccatura' || name === '\\appoggiatura' || name === '\\slashedGrace')
+            break;
+          if (peek().type === 'number') {
+            let val = advance().value;
+            if (peek().type === 'symbol' && peek().value === '/') {
+              val += advance().value;
+              if (peek().type === 'number') val += advance().value;
+            }
+            args.push(val);
+          } else {
+            args.push(advance().value);
+          }
         }
-        
+
         if (peek().type === 'symbol' && peek().value === '{') {
           body = [parseMusicList()];
         } else if (peek().type === 'symbol' && peek().value === '<<') {
-           body = [parseMusic()]; // Parses the << ... >>
+          body = [parseMusic()]; // Parses the << ... >>
         } else {
-           body = [parseMusic()];
+          body = [parseMusic()];
         }
         return { type: 'block', name, args, body, line: t.line, column: t.column };
       }
-      
+
       // non-block commands
       const args: any[] = [];
-      if (name === '\\time' || name === '\\key' || name === '\\clef' || name === '\\ottava' || name === '\\partial' || name === '\\bar' || name === '\\change' || name === '\\set' || name === '\\override' || name === '\\markup' || name === '\\tempo') {
+      if (
+        name === '\\time' ||
+        name === '\\key' ||
+        name === '\\clef' ||
+        name === '\\ottava' ||
+        name === '\\partial' ||
+        name === '\\bar' ||
+        name === '\\change' ||
+        name === '\\set' ||
+        name === '\\override' ||
+        name === '\\markup' ||
+        name === '\\tempo'
+      ) {
         if (name === '\\time') {
-           args.push(expect('number').value);
+          if (peek().type === 'number') {
+            let val = advance().value;
+            if (peek().type === 'symbol' && peek().value === '/') {
+              val += advance().value;
+              if (peek().type === 'number') val += advance().value;
+            }
+            args.push(val);
+          } else {
+            args.push(expect('number').value);
+          }
         } else if (name === '\\key') {
-           args.push(expect('word').value);
-           if (peek().type === 'command') args.push(advance().value); // \major \minor
+          args.push(expect('word').value);
+          if (peek().type === 'command') args.push(advance().value); // \major \minor
         } else if (name === '\\clef') {
-           args.push(expect('string').value);
+          if (peek().type === 'string' || peek().type === 'word') {
+            args.push(advance().value);
+          } else {
+            throw new LyUnsupportedError(t.line, t.column, `Expected string/word, got ${peek().type}`);
+          }
         } else if (name === '\\ottava') {
-           // could be number or symbol # and number
-           if (peek().type === 'symbol' && peek().value === '#') advance();
-           args.push(expect('number').value); 
+          // could be number or symbol # and number
+          if (peek().type === 'symbol' && peek().value === '#') advance();
+          args.push(expect('number').value);
         } else if (name === '\\partial') {
-           args.push(expect('number').value); // actually duration
-           while (peek().type === 'symbol' && peek().value === '.') {
-             args[0] += '.'; advance();
-           }
+          args.push(expect('number').value); // actually duration
+          while (peek().type === 'symbol' && peek().value === '.') {
+            args[0] += '.';
+            advance();
+          }
         } else if (name === '\\bar') {
-           args.push(expect('string').value);
+          args.push(expect('string').value);
         } else {
-           // just read one arg
-           if (peek().type !== 'eof' && peek().type !== 'symbol') args.push(advance().value);
+          // just read one arg
+          if (peek().type !== 'eof' && peek().type !== 'symbol') args.push(advance().value);
         }
       } else if (name === '\\include' || name === '\\transpose') {
-         throw new LyUnsupportedError(t.line, t.column, name);
+        throw new LyUnsupportedError(t.line, t.column, name);
       }
       return { type: 'command', name, args, line: t.line, column: t.column };
     }
@@ -276,7 +331,7 @@ export function parseLilyPond(source: string): LyScore {
         }
         return { type: 'rest', kind: val, ...(duration ? { duration } : {}), line: t.line, column: t.column };
       }
-      
+
       // It's a note or variable
       if (match('symbol', '=')) {
         const valNode = parseMusic();
@@ -290,8 +345,8 @@ export function parseLilyPond(source: string): LyScore {
       let pitch = val;
       const durMatch = val.match(/^([a-z]+[',]*)([0-9]+\.*)$/);
       if (durMatch) {
-         pitch = durMatch[1]!;
-         duration = durMatch[2];
+        pitch = durMatch[1]!;
+        duration = durMatch[2];
       } else if (peek().type === 'number') {
         duration = advance().value;
         while (peek().type === 'symbol' && peek().value === '.') {
@@ -299,7 +354,7 @@ export function parseLilyPond(source: string): LyScore {
           advance();
         }
       }
-      
+
       let ties = false;
       if (peek().type === 'symbol' && peek().value === '~') {
         ties = true;
@@ -310,24 +365,24 @@ export function parseLilyPond(source: string): LyScore {
 
     if (t.type === 'symbol') {
       if (t.value === '|') {
-         advance();
-         return { type: 'symbol', value: '|', line: t.line, column: t.column };
+        advance();
+        return { type: 'symbol', value: '|', line: t.line, column: t.column };
       }
       if (t.value === '-') {
-         advance();
-         if (peek().type === 'symbol' || peek().type === 'word' || peek().type === 'number') {
-            advance(); // articulation like -. or -^
-         }
-         return { type: 'symbol', value: '-', line: t.line, column: t.column };
+        advance();
+        if (peek().type === 'symbol' || peek().type === 'word' || peek().type === 'number') {
+          advance(); // articulation like -. or -^
+        }
+        return { type: 'symbol', value: '-', line: t.line, column: t.column };
       }
       if (t.value === '(' || t.value === ')' || t.value === '[' || t.value === ']') {
-         advance();
-         return { type: 'symbol', value: t.value, line: t.line, column: t.column };
+        advance();
+        return { type: 'symbol', value: t.value, line: t.line, column: t.column };
       }
       if (t.value === '#') {
-         advance();
-         advance(); // skip scheme literal
-         return { type: 'symbol', value: '#', line: t.line, column: t.column };
+        advance();
+        advance(); // skip scheme literal
+        return { type: 'symbol', value: '#', line: t.line, column: t.column };
       }
     }
 
@@ -343,19 +398,22 @@ export function parseLilyPond(source: string): LyScore {
     if (t.type === 'command' && t.value === '\\header') {
       advance();
       score.header = parseHeader();
-    } else if (t.type === 'command' && (t.value === '\\version' || t.value === '\\paper' || t.value === '\\layout' || t.value === '\\midi')) {
+    } else if (
+      t.type === 'command' &&
+      (t.value === '\\version' || t.value === '\\paper' || t.value === '\\layout' || t.value === '\\midi')
+    ) {
       advance();
       if (peek().type === 'symbol' && peek().value === '{') {
-         // skip block
-         expect('symbol', '{');
-         let open = 1;
-         while (peek().type !== 'eof' && open > 0) {
-           if (peek().type === 'symbol' && peek().value === '{') open++;
-           if (peek().type === 'symbol' && peek().value === '}') open--;
-           advance();
-         }
+        // skip block
+        expect('symbol', '{');
+        let open = 1;
+        while (peek().type !== 'eof' && open > 0) {
+          if (peek().type === 'symbol' && peek().value === '{') open++;
+          if (peek().type === 'symbol' && peek().value === '}') open--;
+          advance();
+        }
       } else {
-         if (peek().type === 'string') advance();
+        if (peek().type === 'string') advance();
       }
     } else {
       score.blocks.push(parseMusic());

@@ -81,7 +81,7 @@ describe('readLilyPond', () => {
     const fs = require('fs');
     const source = fs.readFileSync('tests/fixtures/lilypond/ottava.ly', 'utf8');
     const score = fromLilyPond(readLilyPond(source));
-    expect(score.notes[0].midi).toBe(72); // c'' + ottava 1 -> 84?
+    expect(score.notes[0].midi).toBe(84); // c'' + ottava 1 -> 84
   });
   it('reads multiple voices', () => {
     const fs = require('fs');

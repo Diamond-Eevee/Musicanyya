@@ -154,10 +154,10 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
   pass). The played order always comes from `buildTimeline`, so the check proves what the app actually plays. If
   the Score model lacks something the written-bar reading needs (for example repeat barlines per bar or spelling),
   read it from the parse tree in this file. Do not change `src/core`. (Depends on T015.) (claimed: gemini-3.1-pro 2026-09-23)
-- [~] T018 `tools/library/lilypond/lex.ts`, `parse.ts`, `read.ts`: `readLilyPond` + `fromLilyPond`, covering exactly
-  contract §3.1 and throwing `LyUnsupportedError` on anything else (makes T011 pass). (Depends on T015.) (claimed: gemini-3.1-pro 2026-09-23)
-- [~] T019 `tools/library/fidelity/compare.ts`: `compare()` with every aspect, declared alignment, and the two-step
-  chain of `data-model.md` §4.1a (makes T012 pass). (Depends on T015.) (claimed: gemini-3.1-pro 2026-09-23)
+- [x] T018 `tools/library/lilypond/lex.ts`, `parse.ts`, `read.ts`: `readLilyPond` + `fromLilyPond`, covering exactly
+  contract §3.1 and throwing `LyUnsupportedError` on anything else (makes T011 pass). (Depends on T015.)
+- [x] T019 `tools/library/fidelity/compare.ts`: `compare()` with every aspect, declared alignment, and the two-step
+  chain of `data-model.md` §4.1a (makes T012 pass). (Depends on T015.)
 - [ ] T020 [P] `tools/library/fidelity/sources.ts`: `loadSources` validates and re-hashes (makes T013 pass).
 - [ ] T021 `tools/library/fidelity/records.ts`: `loadRecords` + `runRecord` (makes T014 pass). (Depends on T016-T020.)
 - [ ] T022 `tools/library/fidelity/cli.ts`: `pnpm library:fidelity` with no arguments, `--item <id>`,
