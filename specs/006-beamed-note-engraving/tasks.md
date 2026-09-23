@@ -26,13 +26,13 @@ quickstart.md
 **Purpose**: the identity golden (must be captured before any library file changes), the parse-tree walk, the
 insert splice, and the render-copy extension.
 
-- [ ] T003 Write `tools/library/identity.ts` (dev-only) that, for every `public/library/**/*.musicxml`, builds the
+- [x] T003 Write `tools/library/identity.ts` (dev-only) that, for every `public/library/**/*.musicxml`, builds the
   Score and records per item a stable list of `{ id, measureIndex, onsetInMeasure, durationTicks, soundingKey }`
   plus the compiled schedule digest, and grades one recorded Performance log of *Für Elise (theme)* (saved to
   `tests/fixtures/performance-logs/fur-elise-theme.json`) into a golden Grade; write the result to
   `tests/fixtures/library-identity.json`. Run it on the
   **unchanged** library and commit the golden (SC-003, FR-005).
-- [ ] T004 Write `tests/library/identity.test.ts`: rebuilds the same list for every library file and deep-equals
+- [x] T004 Write `tests/library/identity.test.ts`: rebuilds the same list for every library file and deep-equals
   the golden from T003 (passes now; it is the guard for every later file change).
 - [ ] T005 [P] Fixtures in `tests/fixtures/musicxml/engraving/` (origin + licence noted in the folder README, own
   work, CC0): `fur-elise-bare.musicxml` (the theme's pitches/durations, no `<beam>`, no `<accidental>`),
