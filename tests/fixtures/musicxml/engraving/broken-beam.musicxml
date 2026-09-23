@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="4.0">
+  <work><work-title>Engraving fixture: an inconsistent encoded beam (unmatched begin/continue)</work-title></work>
+  <identification>
+    <creator type="arranger">Musicanyya test fixture</creator>
+    <rights>CC0-1.0 (test fixture, original work)</rights>
+    <encoding><software>Musicanyya</software><encoding-date>2026-09-23</encoding-date></encoding>
+  </identification>
+  <part-list>
+    <score-part id="P1"><part-name>Piano</part-name></score-part>
+  </part-list>
+  <part id="P1">
+  <!--
+  Feature 006 fixture: one part, one voice, one 4/4 measure (divisions=4, eighth=2, quarter=4 division
+  units). The file is well-formed XML and loads cleanly, but its <beam> data is musically inconsistent:
+  C4 opens a level-1 beam (<beam number="1">begin</beam>) and D4 continues it
+  (<beam number="1">continue</beam>), but NO note anywhere in this measure (or file) closes it with
+  <beam number="1">end</beam>. E4, F4, G4 are plain filler quarter notes (not beam-eligible) completing
+  the bar; they carry no beam data at all.
+
+  Expected engraving-completion output: voice 1 already carries at least one <beam> element (several, in
+  fact), so per B11 it is left ENTIRELY as encoded - completion never touches it. Separately, because the
+  encoded beam data for this voice is inconsistent (a begin/continue with no matching end anywhere in the
+  measure), this is exactly the case the contract calls `beamDataInvalid`: reported as an `info` finding
+  (measure 1, voice 1), the existing <beam> elements are left untouched, and no beams are added or
+  removed anywhere in this voice.
+  -->
+  <measure number="1">
+    <attributes>
+      <divisions>4</divisions>
+      <key><fifths>0</fifths></key>
+      <time><beats>4</beats><beat-type>4</beat-type></time>
+      <clef><sign>G</sign><line>2</line></clef>
+    </attributes>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><beam number="1">begin</beam></note>
+    <note><pitch><step>D</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><beam number="1">continue</beam></note>
+    <note><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  </part>
+</score-partwise>

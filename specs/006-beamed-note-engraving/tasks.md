@@ -34,8 +34,7 @@ insert splice, and the render-copy extension.
   **unchanged** library and commit the golden (SC-003, FR-005).
 - [x] T004 Write `tests/library/identity.test.ts`: rebuilds the same list for every library file and deep-equals
   the golden from T003 (passes now; it is the guard for every later file change).
-- [~] T005 [P] Fixtures in `tests/fixtures/musicxml/engraving/` (claimed: claude-sonnet-5 2026-09-23; fur-elise-bare.musicxml
-  done, other 8 delegated to music-domain-expert agent, running) (origin + licence noted in the folder README, own
+- [x] T005 [P] Fixtures in `tests/fixtures/musicxml/engraving/` (origin + licence noted in the folder README, own
   work, CC0): `fur-elise-bare.musicxml` (the theme's pitches/durations, no `<beam>`, no `<accidental>`),
   `metres.musicxml` (one bar each of 2/4, 3/4, 4/4, 2/2, 3/8, 6/8, 9/8, 12/8, 5/8, 7/8, `3+2/8`, with eighth and
   sixteenth patterns), `rests-and-hooks.musicxml` (rests inside beats, dotted-eighth+sixteenth, sixteenth+dotted

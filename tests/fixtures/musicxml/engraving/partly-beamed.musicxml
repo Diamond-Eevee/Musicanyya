@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="4.0">
+  <work><work-title>Engraving fixture: a voice with SOME encoded beams is skipped entirely (R-2 B11)</work-title></work>
+  <identification>
+    <creator type="arranger">Musicanyya test fixture</creator>
+    <rights>CC0-1.0 (test fixture, original work)</rights>
+    <encoding><software>Musicanyya</software><encoding-date>2026-09-23</encoding-date></encoding>
+  </identification>
+  <part-list>
+    <score-part id="P1"><part-name>Piano</part-name></score-part>
+  </part-list>
+  <part id="P1">
+  <!--
+  Feature 006 fixture: 4/4 throughout, divisions=4 (eighth=2, quarter=4 division units). Two voices, two
+  measures, to contrast B11 ("a (part, voice) is beamed only if none of its notes anywhere carries
+  <beam>") with the ordinary completed case.
+
+  Voice 1 carries ONE real, correctly-matched beam pair in measure 1 (<beam number="1">begin</beam> on
+  C4, <beam number="1">end</beam> on D4). Because voice 1 has at least one existing <beam> element
+  ANYWHERE in the piece, B11 says beam-completion must skip voice 1 COMPLETELY - including its measure-2
+  eighth run A4-B4, which has NO <beam> element at all and would otherwise be a perfectly ordinary
+  beamable pair. Expected: ZERO beam inserts for voice 1 in this whole file, in either measure; A4 and B4
+  in measure 2 are left exactly as encoded (flags only), even though nothing about that specific pair is
+  malformed - beam-completion is all-or-nothing per (part, voice), never a selective gap-fill.
+
+  Voice 2 has NO <beam> element anywhere in the piece (measure 1's G3-A3 eighth pair and measure 2's
+  F3-G3 eighth pair are both encoded as plain, unbeamed eighths). Expected: voice 2 IS completed
+  normally - a 2-note beam is inserted over G3-A3 in measure 1 (level 1: G3=begin, A3=end) and another
+  2-note beam over F3-G3 in measure 2 (level 1: F3=begin, G3=end). This is the contrast case: same file,
+  same metre, only the presence of one pre-existing <beam> anywhere in a voice makes the difference.
+
+  Filler quarter notes (not beam-eligible, B5) complete beats 2-4 of every measure/voice so each bar is
+  exactly 4/4; they carry no beams and are not part of what this fixture tests.
+  -->
+  <measure number="1">
+    <attributes>
+      <divisions>4</divisions>
+      <key><fifths>0</fifths></key>
+      <time><beats>4</beats><beat-type>4</beat-type></time>
+      <clef><sign>G</sign><line>2</line></clef>
+    </attributes>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><beam number="1">begin</beam></note>
+    <note><pitch><step>D</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><beam number="1">end</beam></note>
+    <note><pitch><step>E</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <backup><duration>16</duration></backup>
+    <note><pitch><step>G</step><octave>3</octave></pitch><duration>2</duration><voice>2</voice><type>eighth</type></note>
+    <note><pitch><step>A</step><octave>3</octave></pitch><duration>2</duration><voice>2</voice><type>eighth</type></note>
+    <note><pitch><step>B</step><octave>3</octave></pitch><duration>4</duration><voice>2</voice><type>quarter</type></note>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>4</duration><voice>2</voice><type>quarter</type></note>
+    <note><pitch><step>D</step><octave>4</octave></pitch><duration>4</duration><voice>2</voice><type>quarter</type></note>
+  </measure>
+  <measure number="2">
+    <attributes><time><beats>4</beats><beat-type>4</beat-type></time></attributes>
+    <note><pitch><step>A</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type></note>
+    <note><pitch><step>B</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type></note>
+    <note><pitch><step>C</step><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>E</step><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <backup><duration>16</duration></backup>
+    <note><pitch><step>F</step><octave>3</octave></pitch><duration>2</duration><voice>2</voice><type>eighth</type></note>
+    <note><pitch><step>G</step><octave>3</octave></pitch><duration>2</duration><voice>2</voice><type>eighth</type></note>
+    <note><pitch><step>A</step><octave>3</octave></pitch><duration>4</duration><voice>2</voice><type>quarter</type></note>
+    <note><pitch><step>B</step><octave>3</octave></pitch><duration>4</duration><voice>2</voice><type>quarter</type></note>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>4</duration><voice>2</voice><type>quarter</type></note>
+  </measure>
+  </part>
+</score-partwise>

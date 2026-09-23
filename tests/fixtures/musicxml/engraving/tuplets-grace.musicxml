@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="4.0">
+  <work><work-title>Engraving fixture: tuplets and grace notes (R-2 B7/B8)</work-title></work>
+  <identification>
+    <creator type="arranger">Musicanyya test fixture</creator>
+    <rights>CC0-1.0 (test fixture, original work)</rights>
+    <encoding><software>Musicanyya</software><encoding-date>2026-09-23</encoding-date></encoding>
+  </identification>
+  <part-list>
+    <score-part id="P1"><part-name>Piano</part-name></score-part>
+  </part-list>
+  <part id="P1">
+  <!--
+  Feature 006 fixture: divisions=12 (quarter=12, eighth=6, sixteenth=3 division units), chosen so a
+  3-in-the-time-of-2 eighth triplet has an exact integer duration (4 division units per triplet note).
+  No <beam> element is present anywhere in this file.
+
+  M1 (2/4) - an eighth-note triplet filling beat 1 (C4-D4-E4, time-modification 3/2, tuplet start on C4 /
+    stop on E4, each duration=4 division units = 12 total = one quarter), followed by two plain eighths
+    F4-G4 filling beat 2 (6+6=12 division units). B7: a tuplet span is always its own separate beam
+    group. Expected: ONE 3-note beam over C4-D4-E4 (level 1 only - these are eighths, not sixteenths),
+    and a SEPARATE 2-note beam over F4-G4. The two beams are never joined to each other (they are also in
+    different quarter-groups under the plain x/4 rule, B3, which reinforces the same outcome here).
+
+  M2 (4/4) - an eighth-note triplet filling beat 1 (C4-D4-E4, tuplet, each duration=4) and two plain
+    eighths filling beat 2 (F4-G4, 6+6=12), then two plain filler quarters A4, B4 (not beam-eligible,
+    duration=12 each) filling beats 3-4. This is the case the fixture spec calls out explicitly: a
+    triplet and plain eighths sharing what WOULD be the same beat-group span under the B4 4/4 half-bar
+    exception (which merges a half-bar into one group when it holds exactly four PLAIN, non-tuplet
+    eighths). Because beat 1 is a tuplet, B4's "non-tuplet" condition fails, so the half-bar (beats 1-2)
+    falls back to per-quarter grouping - and B7 independently guarantees the tuplet could never join the
+    surrounding notes even if it did qualify. Expected: ONE 3-note beam over C4-D4-E4 (the tuplet, its
+    own separate group per B7), a SEPARATE 2-note beam over F4-G4, and A4/B4 stay flagged (quarters are
+    not beam-eligible, B5).
+
+  M3 (2/4) - a grace group of two consecutive 16th-note grace notes (G5, A5, no <duration>, B8) before a
+    main quarter note C4, then a plain filler quarter D4 to complete the bar. B8: two or more consecutive
+    grace notes form their own beam group. Expected: ONE 2-note beam over the graces G5-A5: level 1
+    (eighth) G5=begin, A5=end; level 2 (sixteenth) G5=begin, A5=end (each has the other as a same-level
+    neighbour, so no hook is needed). The main note C4 and filler D4 are plain quarters, not
+    beam-eligible, and the grace pair's beam does not extend to or otherwise affect them.
+
+  M4 (2/4) - a single, lone 16th-note grace note (B4, no <duration>) before a main quarter note C4, then
+    a plain filler quarter D4. B8: "a lone [grace note] keeps its flag." Expected: the grace note B4 gets
+    NO beam at all (it keeps its flag) because it has no other grace note adjacent to join.
+  -->
+  <measure number="1">
+    <attributes>
+      <divisions>12</divisions>
+      <key><fifths>0</fifths></key>
+      <time><beats>2</beats><beat-type>4</beat-type></time>
+      <clef><sign>G</sign><line>2</line></clef>
+    </attributes>
+    <note>
+      <pitch><step>C</step><octave>4</octave></pitch>
+      <duration>4</duration><voice>1</voice><type>eighth</type>
+      <time-modification><actual-notes>3</actual-notes><normal-notes>2</normal-notes></time-modification>
+      <notations><tuplet type="start" number="1"/></notations>
+    </note>
+    <note>
+      <pitch><step>D</step><octave>4</octave></pitch>
+      <duration>4</duration><voice>1</voice><type>eighth</type>
+      <time-modification><actual-notes>3</actual-notes><normal-notes>2</normal-notes></time-modification>
+    </note>
+    <note>
+      <pitch><step>E</step><octave>4</octave></pitch>
+      <duration>4</duration><voice>1</voice><type>eighth</type>
+      <time-modification><actual-notes>3</actual-notes><normal-notes>2</normal-notes></time-modification>
+      <notations><tuplet type="stop" number="1"/></notations>
+    </note>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>6</duration><voice>1</voice><type>eighth</type></note>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>6</duration><voice>1</voice><type>eighth</type></note>
+  </measure>
+  <measure number="2">
+    <attributes><time><beats>4</beats><beat-type>4</beat-type></time></attributes>
+    <note>
+      <pitch><step>C</step><octave>4</octave></pitch>
+      <duration>4</duration><voice>1</voice><type>eighth</type>
+      <time-modification><actual-notes>3</actual-notes><normal-notes>2</normal-notes></time-modification>
+      <notations><tuplet type="start" number="1"/></notations>
+    </note>
+    <note>
+      <pitch><step>D</step><octave>4</octave></pitch>
+      <duration>4</duration><voice>1</voice><type>eighth</type>
+      <time-modification><actual-notes>3</actual-notes><normal-notes>2</normal-notes></time-modification>
+    </note>
+    <note>
+      <pitch><step>E</step><octave>4</octave></pitch>
+      <duration>4</duration><voice>1</voice><type>eighth</type>
+      <time-modification><actual-notes>3</actual-notes><normal-notes>2</normal-notes></time-modification>
+      <notations><tuplet type="stop" number="1"/></notations>
+    </note>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>6</duration><voice>1</voice><type>eighth</type></note>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>6</duration><voice>1</voice><type>eighth</type></note>
+    <note><pitch><step>A</step><octave>4</octave></pitch><duration>12</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>B</step><octave>4</octave></pitch><duration>12</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  <measure number="3">
+    <attributes><time><beats>2</beats><beat-type>4</beat-type></time></attributes>
+    <note>
+      <grace/>
+      <pitch><step>G</step><octave>5</octave></pitch>
+      <voice>1</voice><type>16th</type>
+    </note>
+    <note>
+      <grace/>
+      <pitch><step>A</step><octave>5</octave></pitch>
+      <voice>1</voice><type>16th</type>
+    </note>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>12</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>D</step><octave>4</octave></pitch><duration>12</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  <measure number="4">
+    <attributes><time><beats>2</beats><beat-type>4</beat-type></time></attributes>
+    <note>
+      <grace/>
+      <pitch><step>B</step><octave>4</octave></pitch>
+      <voice>1</voice><type>16th</type>
+    </note>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>12</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>D</step><octave>4</octave></pitch><duration>12</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  </part>
+</score-partwise>

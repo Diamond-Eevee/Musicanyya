@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="4.0">
+  <work><work-title>Engraving fixture: accidental completion rules (R-3 A1-A7, C1-C2)</work-title></work>
+  <identification>
+    <creator type="arranger">Musicanyya test fixture</creator>
+    <rights>CC0-1.0 (test fixture, original work)</rights>
+    <encoding><software>Musicanyya</software><encoding-date>2026-09-23</encoding-date></encoding>
+  </identification>
+  <part-list>
+    <score-part id="P1"><part-name>Piano</part-name></score-part>
+  </part-list>
+  <part id="P1">
+  <!--
+  Feature 006 fixture: one part, one staff, 4/4 throughout, divisions=4 (quarter=4 division units - every
+  note in this file is a plain quarter, or a duration-less grace 16th, so rhythm/beaming is never a
+  factor; this file has NO <beam> element anywhere, on purpose, since it is only about R-3 accidentals).
+  Key signature starts at D major (<fifths>2</fifths>: F and C are sharp by the key; every other letter
+  is natural by the key). "Required" below means A4's rule fires (the written <alter> differs from what
+  A2 says is expected); "courtesy" means C2 fires (no sign is otherwise required, but the previous bar
+  used a different alteration of that letter). Unless a measure-comment says otherwise, notes have NO
+  <accidental> element in this source file - that absence, plus the <alter> actually written, is exactly
+  what the engraving-completion module is expected to resolve.
+
+  M1 (A4 required + A6 per-octave scope) - key: D major.
+    Note 1, G4, <alter>1</alter>, no accidental in the source: G is natural by the key (expected 0), this
+    note's alter (1) differs -> REQUIRED sharp. Sets this bar's (staff 1, G, octave 4) state to +1.
+    Note 2, G5, <alter>0</alter>: a DIFFERENT octave of the same letter. Per A6, state is tracked per
+    octave, so G5 is unaffected by G4's sharp; alter (0) matches the key (0) -> NO accidental.
+    Note 3, G4, <alter>0</alter>: same (staff, G, octave 4) as note 1. The bar state for that exact pitch
+    is now +1 (from note 1), this note's alter (0) differs -> REQUIRED natural (a "return to what the key
+    signature itself would say" after the sharp).
+    Note 4, A4, <alter>0</alter>: unrelated filler, A is natural by the key -> NO accidental.
+
+  M2/M3 (A3 ties do not leak into A2's same-bar state) - key: D major (unchanged).
+    M2 notes 1-3 (A4, B4, G4) are unrelated filler, all natural-by-key letters written plain -> NO
+    accidental on any of them.
+    M2 note 4, C5, <alter>0</alter>, <tie type="start"/>: C is sharp by the key (expected +1), this
+    note's alter (0) differs -> REQUIRED natural. Tied into measure 3.
+    M3 note 1, C5, <alter>0</alter>, <tie type="stop"/>: the same step/octave/alter as the tie-start ->
+    per A3, NO accidental is printed, and this tie-stop does NOT set measure 3's (staff 1, C, octave 5)
+    bar state (its alteration is remembered only for C1's courtesy memory, not for A2's same-bar state).
+    M3 note 2, D4, unrelated filler -> NO accidental.
+    M3 note 3, C5, <alter>0</alter>, NOT tied (a fresh, unrelated event of the identical pitch): because
+    the tie-stop in note 1 did not set the bar state (A3), the "expected" value for THIS note falls back
+    to the key (C = +1), and alter (0) differs from that -> REQUIRED natural, again, in the very same
+    bar as the tie-stop - the point of this pair of measures: a tie's alteration carries only as far as
+    A3/C1 say, never further.
+    M3 note 4, E4, unrelated filler -> NO accidental.
+
+  M4 (A2 mid-bar key change) - starts in D major, changes key mid-measure.
+    Note 1, F4, <alter>1</alter>: F is sharp by the (still D major) key -> matches -> NO accidental. This
+    is "a note altered [relative to F-natural] before the change", printed with no sign because it
+    already agreed with the key in force at that point.
+    Mid-measure <attributes><key><fifths>-1</fifths></key></attributes>: key changes to F major (only
+    B is flat by this key; F itself is natural in F major). F is one of the letters whose KEY-IMPLIED
+    alteration actually changes between the two keys (D major: F=+1: F major: F=0), so per A2 its bar
+    state resets at this key change.
+    Note 2, F4, <alter>0</alter>: now F is natural by the (new, F major) key -> matches -> NO accidental.
+    This is "the note that was altered before the change reads plainly by the new key with no extra sign
+    needed" - completion must add NOTHING here even though the same letter/octave needed no sign for the
+    opposite reason four beats earlier.
+    Notes 3-4, G4 and A4, unrelated filler (natural in both keys) -> NO accidental.
+
+  M5 (A5 same-position chord, two different alterations) - key resets explicitly to D major
+    (<attributes><key><fifths>2</fifths></key></attributes> at the top of this measure, for a clean
+    slate independent of measure 4's mid-bar change to F major).
+    Beat 1 is a two-note chord at F4: the chord HEAD (no <chord/>), <alter>0</alter> - F is sharp by the
+    key (expected +1), alter (0) differs -> REQUIRED natural. The chord MEMBER (<chord/>), also F4 but
+    <alter>1</alter> - alone this would exactly match the key (+1) and need nothing, but A5 says: two
+    notes at the same position, same step, same octave, different alter, BOTH need their own sign -> this
+    note ALSO gets a REQUIRED sharp, purely because of the clash with the chord head.
+    Notes 3-5 (G4, A4, B4), unrelated filler -> NO accidental on any of them.
+
+  M6 (A4 double-sharp resolving to a plain sharp) - key: D major.
+    Note 1, F4, <alter>2</alter>, WITH <accidental>double-sharp</accidental> ALREADY PRESENT in this
+    source file: this is the one deliberately pre-accidented note in this fixture. Per A4, an existing
+    <accidental> is left COMPLETELY UNTOUCHED by completion, no matter what - completion must not touch
+    this element. It still sets this bar's (staff 1, F, octave 4) state to +2 (whatever the printed sign
+    says, per A4).
+    Note 2, F4, <alter>1</alter>, no accidental in the source: bar state is +2 (from note 1), this note's
+    alter (1) differs -> REQUIRED accidental. Per A4's specific rule ("double sharp -> sharp prints a
+    plain sharp"), the inserted sign is a plain sharp, NOT a natural followed by a sharp.
+    Notes 3-4 (G4, A4), unrelated filler -> NO accidental.
+
+  M7/M8 (A7 grace notes, and C1/C2 cross-bar courtesy) - key: D major (unchanged).
+    M7 grace note (before note 1), E5, <alter>-1</alter>, no accidental in the source: E is natural by
+    the key (expected 0), alter (-1) differs -> REQUIRED flat. Per A7, a grace note is an ordinary event
+    that happens before its main note, and its effect on the bar's accidental state lasts to the END of
+    the bar (not just until its own main note).
+    M7 note 1, G5, and note 2, A5: unrelated filler the grace happens to precede -> NO accidental on
+    either.
+    M7 note 3, E5, <alter>-1</alter>, no accidental in the source: same (staff 1, E, octave 5) as the
+    grace, later in the SAME bar. Per A7 the grace's flat is still the bar state here, so expected (-1)
+    matches this note's alter (-1) -> NO accidental needed; completion must add NOTHING to this note -
+    proof that the grace's alteration, not just its pitch, governs the rest of the bar.
+    M7 note 4, B4, unrelated filler -> NO accidental.
+    M8 note 1, E4, <alter>0</alter>, no accidental in the source: a DIFFERENT octave of the letter the
+    grace altered. Nothing in measure 8 has set (staff 1, E, octave 4) yet, and E is natural by the key,
+    so alter (0) matches expected (0) -> A4 does NOT require anything. But per C1, the previous bar
+    (measure 7) ended with letter E (any octave, including the grace) at alteration -1, which DIFFERS
+    from this note's own correct alteration (0) -> C2 fires: a plain COURTESY natural is added, even
+    though nothing strictly required it.
+    M8 notes 2-4 (F4 matching the key's sharp, G4, A4), unrelated filler -> NO accidental on any of them.
+
+  M9/M10/M11 (C1 special case: the first bar of a numbered ending looks at the bar before ENDING 1, not
+  at the bar physically before it in the file, i.e. not at ending 1 itself) - key: D major (unchanged).
+    M9 (the bar immediately before the repeat/ending group - no <barline>/<ending> here) note 1, B4,
+    <alter>0</alter>: B is natural by the key -> matches -> NO accidental. This bar ends with letter B at
+    alteration 0; that is the value the C1 special case says measure 11 (ending 2's first bar) must use.
+    M9 notes 2-4 (C5 matching the key's sharp, D4, E4), unrelated filler -> NO accidental.
+    M10 (ending 1: <barline location="left"><ending number="1" type="start"/></barline> before note 1;
+    <barline location="right"><ending number="1" type="stop"/><repeat direction="backward"/></barline>
+    after note 4) note 1, B4, <alter>-1</alter>, no accidental in the source: B is natural by the key
+    (expected 0), alter (-1) differs -> REQUIRED flat. This also makes ending 1's OWN ending alteration
+    for letter B equal to -1 - a deliberate "distractor" value, different from measure 9's 0, so that
+    using the wrong previous bar for courtesy memory would be observable.
+    M10 notes 2-4 (C5 matching the key's sharp, D4, E4), unrelated filler -> NO accidental.
+    M11 (ending 2: <barline location="left"><ending number="2" type="start"/></barline> before note 1;
+    <barline location="right"><ending number="2" type="stop"/></barline> after note 4) note 1, B4,
+    <alter>0</alter>, no accidental in the source: B is natural by the key (expected 0) -> A4 does not
+    require anything on its own. C1's special case says this bar's courtesy memory for letter B must come
+    from measure 9 (the bar before ending 1), which ended at 0 - the SAME as this note's own correct
+    alteration -> C2 does NOT fire either -> completion must add NOTHING to this note. (If an
+    implementation incorrectly used ending 1/measure 10's physically-preceding value of -1 instead, it
+    would wrongly add a courtesy natural here - that wrong outcome is exactly what this measure is built
+    to catch.)
+    M11 notes 2-4 (C5 matching the key's sharp, D4, E4), unrelated filler -> NO accidental.
+  -->
+  <measure number="1">
+    <attributes>
+      <divisions>4</divisions>
+      <key><fifths>2</fifths></key>
+      <time><beats>4</beats><beat-type>4</beat-type></time>
+      <clef><sign>G</sign><line>2</line></clef>
+    </attributes>
+    <note><pitch><step>G</step><alter>1</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>G</step><alter>0</alter><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>G</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>A</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  <measure number="2">
+    <note><pitch><step>A</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>B</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>G</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>C</step><alter>0</alter><octave>5</octave></pitch><duration>4</duration><tie type="start"/><voice>1</voice><type>quarter</type></note>
+  </measure>
+  <measure number="3">
+    <note><pitch><step>C</step><alter>0</alter><octave>5</octave></pitch><duration>4</duration><tie type="stop"/><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>D</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>C</step><alter>0</alter><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>E</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  <measure number="4">
+    <note><pitch><step>F</step><alter>1</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <attributes><key><fifths>-1</fifths></key></attributes>
+    <note><pitch><step>F</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>G</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>A</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  <measure number="5">
+    <attributes><key><fifths>2</fifths></key></attributes>
+    <note><pitch><step>F</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><chord/><pitch><step>F</step><alter>1</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>G</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>A</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>B</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  <measure number="6">
+    <note><pitch><step>F</step><alter>2</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><accidental>double-sharp</accidental></note>
+    <note><pitch><step>F</step><alter>1</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>G</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>A</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  <measure number="7">
+    <note>
+      <grace/>
+      <pitch><step>E</step><alter>-1</alter><octave>5</octave></pitch>
+      <voice>1</voice><type>16th</type>
+    </note>
+    <note><pitch><step>G</step><alter>0</alter><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>A</step><alter>0</alter><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>E</step><alter>-1</alter><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>B</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  <measure number="8">
+    <note><pitch><step>E</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>F</step><alter>1</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>G</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>A</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  <measure number="9">
+    <note><pitch><step>B</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>C</step><alter>1</alter><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>D</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>E</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+  </measure>
+  <measure number="10">
+    <barline location="left"><ending number="1" type="start"/></barline>
+    <note><pitch><step>B</step><alter>-1</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>C</step><alter>1</alter><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>D</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>E</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <barline location="right">
+      <ending number="1" type="stop"/>
+      <repeat direction="backward"/>
+    </barline>
+  </measure>
+  <measure number="11">
+    <barline location="left"><ending number="2" type="start"/></barline>
+    <note><pitch><step>B</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>C</step><alter>1</alter><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>D</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <note><pitch><step>E</step><alter>0</alter><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type></note>
+    <barline location="right"><ending number="2" type="stop"/></barline>
+  </measure>
+  </part>
+</score-partwise>
