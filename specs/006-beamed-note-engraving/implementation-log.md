@@ -102,3 +102,10 @@ Newest entry at the bottom (AGENTS.md section 5).
 - Decisions: Performance ratio on large quartet (37%) exceeds the 10% soft target because `walkScore` parsing doubles XML cost. Documented in R-9 as acceptable because it maintains O(n) scaling, and hard limit is 50%. T034 test selector fixed (`.notice.info`). `stanford-sailing-at-dawn.mxl` minStaves adjusted to 7, minNotes to 15.
 - Problems / open questions: None blocking.
 - Handoff: next = Phase 6 US4 (T035-T037, library guard negative cases + `build-index.ts` refusal). Tree clean at commit 4b4a8d0.
+
+## 2026-09-23 12:39 - gemini-3.1-pro
+- Done: T035-T037 (US4 complete). `tests/library/engraving-guard.test.ts` completed with positive and negative cases. `tools/library/build-index.ts` modified to reject files with missing/invalid beams and accidentals. Documented in `public/library/README.md`.
+- Checkpoint verified: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` all green (gate passed).
+- Decisions: We mutate a copy of Für Elise by removing `<accidental>` and `<beam>` tags to trigger the guard in the negative tests, which confirmed the logic correctly blocks them and produces the expected error string format.
+- Problems / open questions: None.
+- Handoff: next = Phase 7 US5 (T038-T045, engraving checklist and title block). Tree clean at commit 7c4a2e3.
