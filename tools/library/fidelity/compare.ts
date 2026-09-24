@@ -465,6 +465,145 @@ export function compareSound(notation: ReferenceScore, sound: ReferenceScore, op
   return { differences: sorted(out), durations: options.articulate ? 'notation only' : 'compared' };
 }
 
+function transposeSpelling(spelling: { step: string; alter: number; octave: number }, interval: string) {
+  const m = /^([+-]?)(P|M|m|A|d)(\d+)$/.exec(interval);
+  if (!m) throw new Error(`Invalid transpose ${interval}`);
+  const sign = m[1] === '-' ? -1 : 1;
+  const quality = m[2];
+  const degree = Number(m[3]);
+  const letterSteps = degree - 1;
+
+  let semitones = 0;
+  if (degree === 1 || degree === 4 || degree === 5 || degree === 8) {
+    if (quality === 'P') semitones = degree === 1 ? 0 : degree === 4 ? 5 : degree === 5 ? 7 : 12;
+    else if (quality === 'A') semitones = (degree === 1 ? 0 : degree === 4 ? 5 : degree === 5 ? 7 : 12) + 1;
+    else if (quality === 'd') semitones = (degree === 1 ? 0 : degree === 4 ? 5 : degree === 5 ? 7 : 12) - 1;
+  } else {
+    const maj = degree === 2 ? 2 : degree === 3 ? 4 : degree === 6 ? 9 : 11;
+    if (quality === 'M') semitones = maj;
+    else if (quality === 'm') semitones = maj - 1;
+    else if (quality === 'A') semitones = maj + 1;
+    else if (quality === 'd') semitones = maj - 2;
+  }
+
+  const LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+  const STEP_SEMITONES = [0, 2, 4, 5, 7, 9, 11];
+
+  const startIndex = LETTERS.indexOf(spelling.step);
+  const targetIndex = (startIndex + sign * letterSteps) % 7;
+  const step = LETTERS[(targetIndex + 7) % 7]! as 'C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B';
+  const octaves = Math.floor((startIndex + sign * letterSteps) / 7);
+
+  const startTotalSemitones = spelling.octave * 12 + STEP_SEMITONES[startIndex]! + spelling.alter;
+  const targetTotalSemitones = startTotalSemitones + sign * semitones;
+
+  const targetOctave = spelling.octave + octaves;
+  const targetBaseSemitones = targetOctave * 12 + STEP_SEMITONES[(targetIndex + 7) % 7]!;
+  const alter = (targetTotalSemitones - targetBaseSemitones) as any;
+
+  return { step, alter, octave: targetOctave };
+}
+
+function applyTranspose(note: ReferenceNote, interval: string | undefined): ReferenceNote {
+  if (!interval) return note;
+  const m = /^([+-]?)(P|M|m|A|d)(\d+)$/.exec(interval);
+  if (!m) return note;
+  const sign = m[1] === '-' ? -1 : 1;
+  const degree = Number(m[3]);
+  const quality = m[2];
+
+  let semitones = 0;
+  if (degree === 1 || degree === 4 || degree === 5 || degree === 8) {
+    if (quality === 'P') semitones = degree === 1 ? 0 : degree === 4 ? 5 : degree === 5 ? 7 : 12;
+    else if (quality === 'A') semitones = (degree === 1 ? 0 : degree === 4 ? 5 : degree === 5 ? 7 : 12) + 1;
+    else if (quality === 'd') semitones = (degree === 1 ? 0 : degree === 4 ? 5 : degree === 5 ? 7 : 12) - 1;
+  } else {
+    const maj = degree === 2 ? 2 : degree === 3 ? 4 : degree === 6 ? 9 : 11;
+    if (quality === 'M') semitones = maj;
+    else if (quality === 'm') semitones = maj - 1;
+    else if (quality === 'A') semitones = maj + 1;
+    else if (quality === 'd') semitones = maj - 2;
+  }
+
+  const transposed: ReferenceNote = { ...note, midi: note.midi + sign * semitones };
+  if (note.spelling) {
+    transposed.spelling = transposeSpelling(note.spelling, interval);
+  }
+  return transposed;
+}
+
+export function compareMelody(
+  item: ReferenceScore,
+  source: ReferenceScore,
+  alignment: Alignment
+): Difference[] {
+  const itemRange = parseRange(alignment.itemBars);
+  const sourceRange = parseRange(alignment.sourceBars);
+
+  const getMelody = (s: ReferenceScore, range: [number, number] | 'all', staff: number | undefined, voice: string | undefined) => {
+    const inRange = (b: ReferenceBar) => range === 'all' || (Number(b.number) >= range[0] && Number(b.number) <= range[1]);
+    const filtered = s.notes.filter(n => {
+      if (staff !== undefined && n.staff !== staff) return false;
+      if (voice !== undefined && n.voice !== voice) return false;
+      const b = s.bars[n.bar];
+      if (!b || !inRange(b)) return false;
+      return true;
+    });
+    const onsets = new Map<string, ReferenceNote>();
+    for (const n of filtered) {
+      const key = show(n.onset);
+      const existing = onsets.get(key);
+      if (!existing || n.midi > existing.midi) onsets.set(key, n);
+    }
+    return [...onsets.values()].sort((a, b) => cmp(a.onset, b.onset)).map(note => {
+      const b = s.bars[note.bar]!;
+      return {
+        bar: b.number,
+        at: sub(note.onset, b.start),
+        note
+      };
+    });
+  };
+
+  const itemMelody = getMelody(item, itemRange, alignment.staff ?? 1, alignment.voice);
+  const sourceMelody = getMelody(source, sourceRange, alignment.sourceStaff, alignment.sourceVoice);
+
+  const out: Difference[] = [];
+  const max = Math.max(itemMelody.length, sourceMelody.length);
+  for (let i = 0; i < max; i++) {
+    const it = itemMelody[i];
+    const src = sourceMelody[i];
+    if (it && !src) {
+      out.push({ kind: 'melody', bar: it.bar, index: i, item: noteName(it.note), source: 'missing' });
+    } else if (!it && src) {
+      const transposedSrc = applyTranspose(src.note, alignment.transpose);
+      const pBar = i > 0 && itemMelody[i - 1] ? itemMelody[i - 1]!.bar : 'start';
+      out.push({ kind: 'melody', bar: pBar, index: i, item: 'missing', source: noteName(transposedSrc) });
+    } else if (it && src) {
+      const transposedSrc = applyTranspose(src.note, alignment.transpose);
+      const itemPitch = noteName(it.note);
+      const srcPitch = noteName(transposedSrc);
+
+      const diffAt = cmp(it.at, src.at) !== 0;
+      const formatRhythm = (n: ReferenceNote, at: QuarterTime) =>
+        !diffAt ? `${noteName(n)} (${show(n.duration)})` : `${noteName(n)} (${show(n.duration)} at ${show(at)})`;
+
+      if (itemPitch !== srcPitch) {
+        out.push({ kind: 'melody', bar: it.bar, index: i, item: itemPitch, source: srcPitch });
+      } else if (cmp(it.note.duration, src.note.duration) !== 0 || diffAt) {
+        out.push({
+          kind: 'melody',
+          bar: it.bar,
+          index: i,
+          item: formatRhythm(it.note, it.at),
+          source: formatRhythm(transposedSrc, src.at)
+        });
+      }
+    }
+  }
+  return out;
+}
+
 // ---- wording -------------------------------------------------------------------------------------------------------
 
 const midiName = (midi: number) => noteName({ midi });

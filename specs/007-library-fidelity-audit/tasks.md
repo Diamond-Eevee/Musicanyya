@@ -453,11 +453,10 @@ named public-domain version of the tune in pitch and order.
 were compared against, and the result. The sidecar's `departures` names every deliberate departure.
 
 ### Tests (write first, confirm they fail)
-
 - T050 moved to Phase 2, "Sidecar `departures` support" (analyze A4).
-- [ ] T051 [P] [US2] `tests/library/licence.test.ts`: `arrangement: true` requires a non-empty `departures`, and
+- [x] T051 [P] [US2] `tests/library/licence.test.ts`: `arrangement: true` requires a non-empty `departures`, and
   `arrangement: false` forbids it. Confirm it fails on the current shelf; no arrangement has `departures` yet.
-- [ ] T052 [P] [US2] Extend `tests/tools/fidelity/compare.test.ts` with `compareMelody` (research R7):
+- [x] T052 [P] [US2] Extend `tests/tools/fidelity/compare.test.ts` with `compareMelody` (research R7):
   - highest note per onset of the named staff, ties merged;
   - pitch order must match;
   - rhythm differences count unless the record allows them, and are listed as allowed when it does;
@@ -466,13 +465,13 @@ were compared against, and the result. The sidecar's `departures` names every de
   - source staff and voice are selected by `sourceStaff`/`sourceVoice`.
 
   Confirm it fails.
-- [ ] T053 [US2] Extend `tests/tools/fidelity/planted.test.ts`: one melody note changed in a copy of
+- [x] T053 [US2] Extend `tests/tools/fidelity/planted.test.ts`: one melody note changed in a copy of
   `repertoire/beginner/fur-elise-theme-16-bar` gives exactly one `melody` difference naming the bar. Confirm it
   fails. (Depends on T052.)
 
 ### Implementation - tooling
 
-- [ ] T054 [US2] `compareMelody` in `tools/library/fidelity/compare.ts`, plus the `transpose`, `sourceStaff` and
+- [x] T054 [US2] `compareMelody` in `tools/library/fidelity/compare.ts`, plus the `transpose`, `sourceStaff` and
   `sourceVoice` alignment fields in `records.ts` (makes T052 and T053 pass).
 - T055 moved to Phase 2, "Sidecar `departures` support" (analyze A4).
 

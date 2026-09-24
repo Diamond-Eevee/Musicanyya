@@ -87,6 +87,11 @@ describe('the real shelf (FR-017, FR-018, FR-025, US4)', () => {
       expect(['CC0-1.0', 'public-domain']).toContain(item.meta.provenance.licence);
       expect(item.meta.reviewedBy.length).toBeGreaterThan(0);
       expect(item.meta.reviewedOn.length).toBeGreaterThan(0);
+      if (item.meta.arrangement) {
+        expect(item.meta.departures?.length).toBeGreaterThan(0);
+      } else {
+        expect(item.meta.departures).toBeUndefined();
+      }
     }
   });
 
@@ -153,6 +158,18 @@ describe('arrangement labelling (FR-007)', () => {
     const tempRoot = makeFixture({ ...baseSidecar(), arrangement: true, title: 'A Fixture Item' });
     const { problems } = await buildLibraryIndex(tempRoot);
     expect(problems.some((p) => p.includes('arrangement'))).toBe(true);
+  });
+
+  it('rejects arrangement: true without a non-empty departures array', async () => {
+    const tempRoot = makeFixture({ ...baseSidecar(), arrangement: true, title: 'Arranged Fixture', departures: [] });
+    const { problems } = await buildLibraryIndex(tempRoot);
+    expect(problems.some((p) => p.includes('item-metadata schema'))).toBe(true);
+  });
+
+  it('rejects arrangement: false with a departures array', async () => {
+    const tempRoot = makeFixture({ ...baseSidecar(), arrangement: false, departures: ['A departure'] });
+    const { problems } = await buildLibraryIndex(tempRoot);
+    expect(problems.some((p) => p.includes('item-metadata schema'))).toBe(true);
   });
 });
 

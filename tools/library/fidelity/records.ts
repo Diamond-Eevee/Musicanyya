@@ -4,7 +4,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fromLilyPond, readLilyPond } from '../lilypond/read';
-import { type Alignment, type Aspect, compare, compareSound, type Difference } from './compare';
+import { type Alignment, type Aspect, compare, compareMelody, compareSound, type Difference } from './compare';
 import { fromMusicXml } from './from-musicxml';
 import { fromMidi, readMidi } from './midi';
 import type { ReferenceScore } from './reference';
@@ -208,19 +208,21 @@ export function runRecord(record: AuditRecord, ctx: RunContext): CheckResult[] {
 function runMechanical(record: AuditRecord, check: MechanicalCheck, ctx: RunContext): CheckResult {
   const manifest = ctx.sources.get(check.source);
   if (!manifest) throw new Error(`${record.itemId}: source "${check.source}" is not under content/library/sources`);
-  if (check.aspects.includes('melody'))
-    throw new Error(
-      `${record.itemId}: the melody aspect is compared by compareMelody (task T054), which does not exist yet`,
-    );
   if (!check.sourceFiles.includes('notation'))
     throw new Error(
       `${record.itemId}: a check against the sound file alone needs bars from the record (data-model.md §4.2), which the record schema does not carry`,
     );
   const item = fromMusicXml(readFileSync(ctx.itemFile ?? join(ctx.libraryRoot, `${record.itemId}.musicxml`), 'utf8'));
   const notation = readNotation(manifest, ctx);
-  const first = compare(item, notation, check.aspects, check.alignment);
-  let differences = first;
-  let detail = `item vs notation: ${first.length} differences`;
+  
+  let differences: Difference[] = [];
+  if (check.aspects.includes('melody')) {
+    differences = compareMelody(item, notation, check.alignment);
+  } else {
+    differences = compare(item, notation, check.aspects, check.alignment);
+  }
+  
+  let detail = `item vs notation: ${differences.length} differences`;
   if (check.sourceFiles.includes('sound')) {
     const sound = sourceFile(ctx.sourcesRoot, manifest, 'sound');
     if (!sound) throw new Error(`${record.itemId}: source ${manifest.id} has no sound file`);
@@ -229,7 +231,7 @@ function runMechanical(record: AuditRecord, check: MechanicalCheck, ctx: RunCont
       order: sound.file.midiOrder ?? 'written',
       articulate: sound.file.midiArticulate ?? false,
     });
-    differences = [...first, ...second.differences];
+    differences = [...differences, ...second.differences];
     detail += `; notation vs sound: ${second.differences.length} differences`;
     if (second.durations === 'notation only') detail += ' (durations checked against the notation only)';
   }

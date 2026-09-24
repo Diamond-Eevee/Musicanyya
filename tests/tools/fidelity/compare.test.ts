@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { type Alignment, compare, compareSound } from '../../../tools/library/fidelity/compare';
+import { type Alignment, compare, compareSound, compareMelody } from '../../../tools/library/fidelity/compare';
 import type {
   ReferenceBar,
   ReferenceGraceNote,
@@ -478,5 +478,49 @@ describe('compareSound: notation reading vs LilyPond MIDI (data-model.md §4.1a,
         written,
       ).differences,
     ).toEqual([{ kind: 'missing', bar: '1', note: { at: q(1), midi: 61, name: 'C#4' } }]);
+  });
+});
+
+describe('compareMelody (research R7, US2)', () => {
+  const item = score(
+    [1],
+    [
+      [1, 0, 60, 1],
+      [1, 1, 64, 1],
+      [1, 2, 67, 2]
+    ]
+  );
+
+  const src = score(
+    [1],
+    [
+      [1, 0, 60, 1],
+      [1, 1, 64, 1],
+      [1, 2, 67, 2]
+    ]
+  );
+
+  it('identical melodies give no differences', () => {
+    expect(compareMelody(item, src, { itemBars: 'all', sourceBars: 'all' })).toEqual([]);
+  });
+
+  it('pitch differences are reported', () => {
+    const badPitch = score([1], [[1, 0, 60, 1], [1, 1, 65, 1], [1, 2, 67, 2]]);
+    expect(compareMelody(badPitch, src, { itemBars: 'all', sourceBars: 'all' })).toEqual([
+      { kind: 'melody', bar: '1', index: 1, item: 'F4', source: 'E4' }
+    ]);
+  });
+
+  it('rhythm differences are reported', () => {
+    const badRhythm = score([1], [[1, 0, 60, 2], [1, 2, 64, 1], [1, 3, 67, 1]]);
+    expect(compareMelody(badRhythm, src, { itemBars: 'all', sourceBars: 'all' })).toEqual([
+      { kind: 'melody', bar: '1', index: 0, item: 'C4 (2)', source: 'C4 (1)' },
+      { kind: 'melody', bar: '1', index: 1, item: 'E4 (1 at 2)', source: 'E4 (1 at 1)' },
+      { kind: 'melody', bar: '1', index: 2, item: 'G4 (1 at 3)', source: 'G4 (2 at 2)' }
+    ]);
+  });
+
+  it('highest note per onset, ties merged, source staff/voice selection, transposition', () => {
+    // just dummy test since I will implement it
   });
 });

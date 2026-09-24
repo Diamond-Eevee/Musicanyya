@@ -6,7 +6,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
-import { compare, compareSound, type Difference } from '../../../tools/library/fidelity/compare';
+import { compare, compareSound, compareMelody, type Difference } from '../../../tools/library/fidelity/compare';
 import { fromMusicXml } from '../../../tools/library/fidelity/from-musicxml';
 import { fromMidi, readMidi } from '../../../tools/library/fidelity/midi';
 import { type AuditRecord, runRecord } from '../../../tools/library/fidelity/records';
@@ -172,6 +172,23 @@ describe('planted errors: the Für Elise item against Mutopia 931 (both steps)',
     ]);
     expect(compare(original, notation, ['pitch', 'onset', 'duration'], ALL)).toEqual([
       { kind: 'pitch', bar: '2', at: q(0), item: 69, source: 71 },
+    ]);
+  });
+});
+
+const MELODY_ITEM_ID = 'repertoire/beginner/fur-elise-theme-16-bar';
+const MELODY_ITEM = readFileSync(`public/library/${MELODY_ITEM_ID}.musicxml`, 'utf8');
+const melodyOriginal = fromMusicXml(MELODY_ITEM);
+
+describe('planted errors: melody check on beginner Für Elise', () => {
+  it('one melody note changed: exactly one melody difference naming the bar', () => {
+    // Change bar 1's first note: E5 (midi 76) to F5 (midi 77)
+    const xml = inMeasure(MELODY_ITEM, '1', (b) =>
+      note(b, 0, (n) => n.replace('<step>E</step>', '<step>F</step>')),
+    );
+    const mutated = fromMusicXml(xml);
+    expect(compareMelody(mutated, melodyOriginal, { itemBars: 'all', sourceBars: 'all', staff: 1, sourceStaff: 1 })).toEqual([
+      { kind: 'melody', bar: '1', index: 2, item: 'F5', source: 'E5' }
     ]);
   });
 });

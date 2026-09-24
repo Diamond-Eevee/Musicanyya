@@ -283,3 +283,10 @@
 - Done: T049 [x] - Ran `pnpm library:index`. Counts: Beginner 7, Intermediate 2, Advanced 7. 
 - Problems / open questions: needs owner: level gap (Intermediate has 2, expects 5; shortfall of 3).
 - Next: Phase 3 Checkpoint -> T050. Clean tree at this step.
+
+## 2026-09-24 16:30 - antigravity (continue: Phase 4 tooling)
+- Done: T051-T054. Implemented compareMelody and tests.
+- In progress: none
+- Decisions: compareMelody isolates rhythm and pitch differences and reports 'missing'. Re-used original item as source in planted.test.ts to isolate single mutations.
+- Problems / open questions: pnpm lint has json/svg formatting warnings, but typecheck passes.
+- Handoff: next = T056 (Amazing Grace source). Run git commit to save the work.
