@@ -730,12 +730,12 @@ reviewer rule and freshness. Run the full gate, write a log entry, and commit.
   claim `original`, `arrangement: false`, no departures, 0 differences; sidecar, record and notices say so.
 - [x] T085 Run `quickstart.md` Manual verification US1-US4 and "App still works". Describe every screenshot looked
   at in the log.
-- [ ] T086 Review with `constitution-auditor` of the branch diff. Summarise the findings in the log; CRITICAL/HIGH
+- [x] T086 Review with `constitution-auditor` of the branch diff. Summarise the findings in the log; CRITICAL/HIGH
   findings block the merge.
-- [ ] T087 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`. Also confirm
+- [x] T087 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`. Also confirm
   `pnpm library:fidelity --check` exits 0, time a full `pnpm library:fidelity` run, and log the time against the
   plan's goal of under 30 s (analyze A8).
-- [ ] T088 Final `implementation-log.md` entry: outcomes per item (a count per outcome), level counts, owner-facing
+- [x] T088 Final `implementation-log.md` entry: outcomes per item (a count per outcome), level counts, owner-facing
   gaps (FR-022), the resume point "ready to merge when the owner agrees", and a commit.
 
 ---
