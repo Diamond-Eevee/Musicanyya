@@ -1,6 +1,6 @@
 # Contract: fidelity tools (readers, comparator, theory check, converter, commands)
 
-**Version**: `1.8.0` (1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands; 1.2.0, 2026-09-24: written bars follow the printed page (§3.2), `measurePosition`, `\tupletSpan`; 1.3.0, 2026-09-24: the converter's marks, §3.3; 1.4.0, 2026-09-24: the constructs of the US1 sources, §3.1, `readLilyPond(source, { score })`; 1.5.0, 2026-09-24: markup text, named voices per staff, moved hairpin ends, the MIDI's playback tempo, T096; 1.6.0, 2026-09-24: `compareMelody` takes `MelodyOptions` and returns `MelodyResult`, `melodyRhythm` differences, `CheckResult.allowed`, T054; 1.7.0, 2026-09-24: `\partcombine` and `#(set-accidental-style ...)` in music, T098; 1.8.0, 2026-09-24: `claimForItem` and `ClaimError`, `TheoryDifference` joins the comparator's `Difference` union as `kind: 'theory'`, the theory check runs from `runRecord`, T073-T074). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
+**Version**: `1.9.0` (1.9.0, 2026-09-24: `renderReport` takes the source manifests, `LEVEL_MINIMUMS`, the CLI's `--check`, T077-T080; 1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands; 1.2.0, 2026-09-24: written bars follow the printed page (§3.2), `measurePosition`, `\tupletSpan`; 1.3.0, 2026-09-24: the converter's marks, §3.3; 1.4.0, 2026-09-24: the constructs of the US1 sources, §3.1, `readLilyPond(source, { score })`; 1.5.0, 2026-09-24: markup text, named voices per staff, moved hairpin ends, the MIDI's playback tempo, T096; 1.6.0, 2026-09-24: `compareMelody` takes `MelodyOptions` and returns `MelodyResult`, `melodyRhythm` differences, `CheckResult.allowed`, T054; 1.7.0, 2026-09-24: `\partcombine` and `#(set-accidental-style ...)` in music, T098; 1.8.0, 2026-09-24: `claimForItem` and `ClaimError`, `TheoryDifference` joins the comparator's `Difference` union as `kind: 'theory'`, the theory check runs from `runRecord`, T073-T074). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
 worker, and `tests/architecture/layers.test.ts` asserts it (as it already does for the exercise generator).
 
 **Location**: `tools/library/fidelity/` (pure TypeScript, Node, no DOM; compiled by `tsconfig.tools.json`) and
@@ -88,7 +88,12 @@ export function outcomeLabel(record: AuditRecord): string;   // "verified (visua
 export function main(args: string[], io: { root: string; out: (line: string) => void }): number;  // §1, exit code
 
 // tools/library/fidelity/report.ts
-export function renderReport(records: AuditRecord[], results: Map<string, CheckResult[]>, index: LibraryIndex): string;
+/** audit-record.md §3. `sources` gives each mechanical check's edition and link. Throws when a record is neither on
+ *  the shelf nor removed, or a shelf item has no record (coverage is also a test, rule 2.1). */
+export function renderReport(records: AuditRecord[], results: Map<string, CheckResult[]>, index: LibraryIndex,
+                             sources: Map<string, SourceManifest>): string;
+/** FR-022 / feature 005 FR-008: the minimum piece count per level the report compares against. */
+export const LEVEL_MINIMUMS: Readonly<Record<Level, number>>;   // beginner 7, intermediate 5, advanced 5
 ```
 
 Every function is deterministic: the same inputs give byte-identical output (FR-016).

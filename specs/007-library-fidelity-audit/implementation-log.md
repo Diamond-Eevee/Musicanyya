@@ -462,3 +462,30 @@
   - **The e2e gate was therefore green only on the re-run of that one spec; the full run itself did not exit 0.** Nothing else failed.
 - Manual check: looked at the full-page screenshots of the scale item (section B, bars 5-9) and of the diatonic ladder ("B° · vii°"); both render as intended.
 - Handoff: next = Phase 6 (US4, the report: T077 + T079 can be written first, T078 needs every record; the US1-US3 records are all in). Run `pnpm test` and `pnpm lint` first. Tree clean after this commit.
+
+## 2026-09-24 23:00 - claude-opus-5.5 (continue: US4 report, T077-T081 + T101; US4 checkpoint)
+- Session start: `pnpm test` `Tests 2092 passed (2092)`, `pnpm lint` 0 errors, as the last entry says.
+- Done: T077, T078, T101 (new), T079, T080, T081.
+  - T077 `tests/tools/fidelity/report.test.ts` (14 tests, synthetic records): shelf order, "verified (visual)", Removed, level counts with "short by N - reported to the owner", Notes (difference notes, departures, outcome notes, the Recents note on replaced items only), pipe escaping, throws on missing/stray records, byte-identical output. Failed as expected first (`report.ts` did not exist; the file could not load).
+  - T079 `tools/library/fidelity/report.ts`: `renderReport` + `LEVEL_MINIMUMS` (7/5/5). The first run caught one real bug (the Removed reason was not pipe-escaped); fixed; 14 passed.
+  - T078 `tests/library/fidelity.test.ts`: coverage (record ids = shelf + removed), claims against the index (`exercise` <-> kind, `arrangement` <-> `arrangement: true`), reviewer from the shelf's side (SC-006), report freshness. The re-run results are shared between the per-record tests and the freshness test, so each record runs once. Failed as expected: only the freshness test (`docs/library-audit.md exists: expected false to be true`); coverage, claim and reviewer passed on the real shelf (63 passed).
+  - T101 (added: T080 changes the CLI output and needs the index, which no test covered): `cli.test.ts` gains 5 tests (writes the report equal to `renderReport`; not on failure; never with `--item`; `--check` fresh/stale/missing; `--check` fails when a check fails). `tiny-library.ts` gains an `index.json`. Two expected values changed because behaviour changed: the no-argument run now ends with `wrote docs/library-audit.md`, and the "unknown option" test uses `--bogus` because `--check` is now an option. 4 failed as expected before T080. The two "never writes" guards passed on the old code too, since it never wrote anything; they guard the new code.
+  - T080 `cli.ts`: a full run writes the report only when every check reproduces; `--check` re-runs everything, compares (CRLF-normalised) and writes nothing. `docs/library-audit.md` generated (273 lines): `58 records, 0 failed`; `--check`: `docs/library-audit.md is up to date`, exit 0.
+  - T081 SC-009: text search for one row of each kind in the report (original "Prelude in C minor, Op. 28 No. 20", line 31; arrangement "Greensleeves (arranged", line 38; exercise "C major - I-IV-V-I", line 51, in the Learning table): each found in about 60 ms by `grep`. Every row carries the app title plus the id. This is a text search by an agent, not a person's timing. Re-run with `--item`: Chopin No. 20 `0 differences (expected 0)` = report 0; Greensleeves checks 1+3+4+3+0 = 11 differences, 9+3+8+3 = 23 allowed = report "11 (23 allowed by departures)".
+- Contract `fidelity-tools.md` 1.9.0: `renderReport` takes the source manifests (the report prints edition + link; the 1.8.0 signature had no way to get them), `LEVEL_MINIMUMS`.
+- Decisions: the level counts count `kind: piece` only (exercises have a level but are not repertoire pieces; feature 005 FR-008 counts pieces). Notes print the outcome note for every item that is not a plain mechanically verified one, plus every visual check's result.
+- Report content the owner should see:
+  - Summary: verified 36, verified (visual) 3, fixed 11, replaced 4, relabelled 3, removed 1; total 58.
+  - **Intermediate: 2 pieces, minimum 5, short by 3** (FR-022, D-3: reported, not filled). Beginner 7/7, Advanced 7/5.
+  - The Bach BWV 846 source manifest's `edition` is "Unknown", so its row says `[Unknown](...)`.
+- Problems / open questions:
+  - `quickstart.md` US1 step 4 expects the Chopin (Op. 28 No. 4) row to show 0 differences; the record (added by antigravity-gemini-3.1-pro) is an `arrangement`, `replaced`, with 3 recorded hand-span differences. Rules pass; T085 must reconcile the quickstart text with it.
+  - needs owner (still open): the feature-005 spec (FR-004, data-model) still says "perfect cadence"; only the shelf was changed.
+  - The musicxml zip-bomb test failed once in a full `pnpm test` under load (one run early in the session); it passed alone (`Tests 372 passed`) and in the gate run below. Looks like a timing flake; not investigated.
+- Gate (US4 checkpoint):
+  - `pnpm lint`: 0 errors (`Found 284 warnings`, `Found 13 infos`) - after `biome format` fixed one formatting error in `fidelity.test.ts`;
+  - `pnpm typecheck`: exit 0;
+  - `pnpm test`: `Test Files 184 passed (184)`, `Tests 2115 passed (2115)`;
+  - `pnpm library:fidelity --check`: exit 0;
+  - `pnpm test:e2e`, full run: exit 1: `1 failed` (`[electron] library.spec.ts:175:3`, the known-flaky Electron launch, reference R7), `65 skipped`, `294 passed (3.8m)`; the spec alone: `1 passed (3.5s)`, exit 0. **As at the last two checkpoints, e2e was green only on the re-run of that one spec.**
+- Handoff: next = Phase 7 (Polish: T082, T083, T084 in parallel, then T085-T088). Run `pnpm test` and `pnpm lint` first. Tree clean after this commit.

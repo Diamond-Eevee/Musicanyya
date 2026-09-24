@@ -1,14 +1,18 @@
 // pnpm library:fidelity (contract fidelity-tools.md §1): validates every source and audit record and re-runs every
-// check from the committed files. The report (docs/library-audit.md) and --check come with task T080.
+// check from the committed files; a full run that reproduces rewrites the report (docs/library-audit.md).
 //
-//   pnpm library:fidelity                                   every record, one line each; exit 1 if any does not reproduce
+//   pnpm library:fidelity                                   every record, one line each; exit 1 if any does not reproduce;
+//                                                           writes docs/library-audit.md only when all reproduce
+//   pnpm library:fidelity --check                           the same, but compares the report with a fresh render and
+//                                                           writes nothing (exit 1 when missing or stale)
 //   pnpm library:fidelity --item <id>                       one record, every difference in full
 //   pnpm library:fidelity --item <id> --file <path>         that record's checks against another MusicXML file
 //   pnpm library:fidelity --inspect-midi <path> [--ly <p>] [--score <n>]  a MIDI file's tracks, to fill midiOrder/
 //                                                           midiNoteTracks once (--score: which \score of the .ly)
-import { existsSync, readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import type { LibraryIndex } from '../../../src/core/library/types';
 import { fromLilyPond, readLilyPond } from '../lilypond/read';
 import { describeDifference } from './compare';
 import { readMidi } from './midi';
@@ -21,6 +25,7 @@ import {
   type RunContext,
   runRecord,
 } from './records';
+import { renderReport } from './report';
 import { loadSources } from './sources';
 
 export interface CliIo {
@@ -30,11 +35,14 @@ export interface CliIo {
 }
 
 const USAGE =
-  'usage: pnpm library:fidelity [--item <id> [--file <path>]] | --inspect-midi <path> [--ly <path>] [--score <n>]';
+  'usage: pnpm library:fidelity [--check | --item <id> [--file <path>]] | --inspect-midi <path> [--ly <path>] [--score <n>]';
+/** The generated report, relative to the repository root (contract audit-record.md §3). */
+const REPORT = 'docs/library-audit.md';
 /** How many differences a one-line-per-item run shows before "... and N more". */
 const SUMMARY_DIFFERENCES = 5;
 
 export function main(args: string[], io: CliIo): number {
+  if (args.length === 1 && args[0] === '--check') return guarded(() => runAudit(undefined, undefined, 'check', io), io);
   const options = new Map<string, string>();
   for (let i = 0; i < args.length; i += 2) {
     const key = args[i] as string;
@@ -45,7 +53,7 @@ export function main(args: string[], io: CliIo): number {
     }
     options.set(key, value);
   }
-  try {
+  return guarded(() => {
     const midi = options.get('--inspect-midi');
     if (midi !== undefined) {
       const score = options.get('--score');
@@ -60,14 +68,21 @@ export function main(args: string[], io: CliIo): number {
       io.out('--file needs --item <id>');
       return 2;
     }
-    return runAudit(options.get('--item'), options.get('--file'), io);
+    return runAudit(options.get('--item'), options.get('--file'), 'write', io);
+  }, io);
+}
+
+function guarded(run: () => number, io: CliIo): number {
+  try {
+    return run();
   } catch (e) {
     io.out(`error: ${(e as Error).message}`);
     return 1;
   }
 }
 
-function runAudit(itemId: string | undefined, file: string | undefined, io: CliIo): number {
+/** `report`: what a full run does with docs/library-audit.md - rewrite it, or only compare it (--check). */
+function runAudit(itemId: string | undefined, file: string | undefined, report: 'write' | 'check', io: CliIo): number {
   const sourcesRoot = join(io.root, 'content/library/sources');
   const ctx: RunContext = {
     sources: loadSources(sourcesRoot),
@@ -82,8 +97,10 @@ function runAudit(itemId: string | undefined, file: string | undefined, io: CliI
     return 1;
   }
   let failed = 0;
+  const allResults = new Map<string, CheckResult[]>();
   for (const record of records) {
     const results = runRecord(record, ctx);
+    allResults.set(record.itemId, results);
     // With --file the item is a scratch copy: only its differences matter, not the shelf's sidecar rules.
     const problems = file === undefined ? checkRecord(record, results, ctx) : [];
     const ok = results.every((r) => r.reproduced) && problems.length === 0;
@@ -93,6 +110,24 @@ function runAudit(itemId: string | undefined, file: string | undefined, io: CliI
     for (const p of problems) io.out(`       rule: ${p}`);
   }
   io.out(`${records.length} records, ${failed} failed`);
+  if (failed > 0 || itemId !== undefined) return failed === 0 ? 0 : 1;
+
+  // A full run where every check reproduces: render the report (never on failure, contract fidelity-tools.md §1).
+  const index = JSON.parse(readFileSync(join(ctx.libraryRoot, 'index.json'), 'utf8')) as LibraryIndex;
+  const fresh = renderReport(all, allResults, index, ctx.sources);
+  const path = join(io.root, REPORT);
+  if (report === 'check') {
+    const current = existsSync(path) ? readFileSync(path, 'utf8').replace(/\r\n/g, '\n') : undefined;
+    if (current !== fresh) {
+      io.out(`${REPORT} is missing or stale: run pnpm library:fidelity`);
+      return 1;
+    }
+    io.out(`${REPORT} is up to date`);
+    return 0;
+  }
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, fresh);
+  io.out(`wrote ${REPORT}`);
   return failed === 0 ? 0 : 1;
 }
 

@@ -645,7 +645,7 @@ row names a source and a method whose re-run reproduces its result.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T077 [P] [US4] `tests/tools/fidelity/report.test.ts`: `renderReport` on synthetic records gives the layout of
+- [x] T077 [P] [US4] `tests/tools/fidelity/report.test.ts`: `renderReport` on synthetic records gives the layout of
   contract `audit-record.md` §3:
   - rows in shelf order, one per item;
   - "verified (visual)" for a visual-only record;
@@ -656,7 +656,7 @@ row names a source and a method whose re-run reproduces its result.
   - byte-identical output on two runs.
 
   Confirm it fails.
-- [ ] T078 [US4] Extend `tests/library/fidelity.test.ts`:
+- [x] T078 [US4] Extend `tests/library/fidelity.test.ts`:
   - coverage: the record ids equal the shelf ids plus the removed ids, with nothing missing and nothing extra
     (FR-001, SC-001);
   - outcome/claim consistency: rules 2.3 and 2.4;
@@ -664,16 +664,25 @@ row names a source and a method whose re-run reproduces its result.
   - `docs/library-audit.md` equals a fresh render (report freshness).
 
   Confirm it fails.
+- [x] T101 [US4] (added 2026-09-24: T080 changes the CLI's output and needs the library index, which no test
+  covered) `tests/tools/fidelity/cli.test.ts` and `tests/tools/fidelity/tiny-library.ts` (the tiny tree gains an
+  `index.json`):
+  - with no arguments the CLI writes `docs/library-audit.md`, equal to `renderReport`, and says so;
+  - a check that does not reproduce leaves the report unwritten;
+  - `--item` never writes the report;
+  - `--check` exits 0 on a fresh report, 1 on a stale or missing one, and writes nothing.
+
+  Confirm it fails.
 
 ### Implementation
 
-- [ ] T079 [US4] `tools/library/fidelity/report.ts`: `renderReport` (makes T077 pass).
-- [ ] T080 [US4] `tools/library/fidelity/cli.ts`:
+- [x] T079 [US4] `tools/library/fidelity/report.ts`: `renderReport` (makes T077 pass).
+- [x] T080 [US4] `tools/library/fidelity/cli.ts`:
   - with no arguments, write `docs/library-audit.md` only when every check reproduces;
   - `--check` compares the report with a fresh render and writes nothing.
 
   Then generate `docs/library-audit.md` (makes T078 pass).
-- [ ] T081 [US4] SC-009 check: time finding three items in the report, one of each kind (an original, an
+- [x] T081 [US4] SC-009 check: time finding three items in the report, one of each kind (an original, an
   arrangement, an exercise); each takes under one minute. Re-run one "verified" row with `--item` and compare its
   difference count with the report. Log both.
 

@@ -105,4 +105,19 @@ export function writeTree(root: string, sources: string, library: string): void 
   writeFile(root, `${library}/${ITEM_ID}.musicxml`, ITEM_XML);
   writeFile(root, `${library}/${ITEM_ID}.json`, JSON.stringify(SIDECAR));
   writeFile(root, `${library}/README.md`, '## Rejected items\n\n| Item | Reason |\n|---|---|\n');
+  writeFile(root, `${library}/index.json`, JSON.stringify(INDEX));
 }
+
+/** The library index of the tiny tree: the one item, with the fields the report reads. */
+export const INDEX = {
+  version: 1,
+  generated: '2026-09-24T00:00:00.000Z',
+  sections: [],
+  items: [
+    {
+      id: ITEM_ID,
+      section: 'repertoire/test',
+      meta: { ...SIDECAR, version: 1, kind: 'piece', level: 'beginner', tags: [] },
+    },
+  ],
+};
