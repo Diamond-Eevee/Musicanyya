@@ -364,7 +364,7 @@ Each source task does the same steps:
   - **Record**: `content/library/audit/repertoire/advanced/chopin-prelude-op28-no4.json`.
 
   (Depends on T030, T032.)
-- [ ] T040 [US1] `repertoire/advanced/chopin-prelude-op28-no20` against `mutopia-472`, whole piece.
+- [x] T040 [US1] `repertoire/advanced/chopin-prelude-op28-no20` against `mutopia-472`, whole piece.
   - **Edition note**: the record names the bar 3 reading (E-flat or E natural) as the Peters edition's. It also
     names the bar count from the `.ly`.
   - **Pedal**: if the conversion encodes the pedal as written, remove the "single pedal press" limitation.

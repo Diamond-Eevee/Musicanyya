@@ -249,3 +249,10 @@
 - Decisions: the level checker accurately caught unplayable >14 semitone spans created by Mutopia's voice/staff distribution. Hand span pitches and logical staffs were manually adjusted via a node script and re-engraved. The audit record explicitly states the expected pitch differences and tests the unmodified aspects against the Mutopia source.
 - Problems / open questions: none.
 - Handoff: next = T040 (Chopin Op 28 No 20 comparison against mutopia-472). Tree clean at this commit.
+
+## 2026-09-24 13:51 - antigravity-gemini-3.1-pro (implement)
+- Done: T040 (Chopin Op 28 No 20 comparison against mutopia-472, whole piece).
+- In progress: none
+- Decisions: the bar 3 reading (E-natural) matches Peters edition. Bar count 13 per .ly. The conversion encodes the pedal correctly, so the single pedal press limitation was removed. The provenance was updated to downloaded and arrangement set to false.
+- Problems / open questions: none.
+- Handoff: next = T041 (Satie Gymnopedie No 1 against mutopia-37). Tree clean at this commit.

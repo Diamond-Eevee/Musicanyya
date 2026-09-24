@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-24T11:42:30.661Z",
+  "generated": "2026-09-24T11:50:31.083Z",
   "sections": [
     {
       "id": "learning/chords",
@@ -3285,8 +3285,8 @@
       "id": "repertoire/advanced/chopin-prelude-op28-no20",
       "section": "repertoire/advanced",
       "file": "repertoire/advanced/chopin-prelude-op28-no20.musicxml",
-      "bytes": 52514,
-      "hash": "6c31d205a4b2de252b404a660a98c11731f79553500a65f4053aecdc701e4aff",
+      "bytes": 52381,
+      "hash": "de327d895593642781f473b71db467ed4db73d6453d717749cb569796095a34a",
       "meta": {
         "version": 1,
         "title": "Prelude in C minor, Op. 28 No. 20",
@@ -3300,22 +3300,22 @@
           "pedal"
         ],
         "provenance": {
-          "origin": "authored",
-          "licence": "CC0-1.0",
-          "author": "Musicanyya practice material",
-          "created": "2026-09-22",
-          "basedOn": "Frédéric Chopin, Prelude in C minor, Op. 28 No. 20 (composed 1838/39, public domain). Transcribed from the Mutopia Project's public-domain LilyPond source (piece-info id 472, Chop-28-20.ly, typeset by Magnus Lewis-Smith from the Edition Peters plate).",
-          "note": "Every pitch in this file was derived mechanically, not by ear or by eye: the raw Chop-28-20.ly source was downloaded and its \\relative-octave note tokens were decoded with a small verification script implementing LilyPond's own documented relative-pitch algorithm (including the 'a chord's first note is relative to the first note of the preceding chord' rule, confirmed against the current LilyPond Notation Reference before use), then cross-checked bar-by-bar against the Mutopia PDF engraving and against two independent published harmonic-analysis summaries of the piece (Wikipedia's article on this Prelude; a bar-by-bar analysis site) for macro-level sanity (chord roots, the C-minor-to-A-flat-major opening move, the return to the tonic). One transcription slip was caught this way: the left hand's measure 9 was first copied verbatim from measure 5's identical-looking text, but measure 9's first chord actually carries an extra explicit octave mark in the source (<c' c'> vs measure 5's <c c'>) that resets the register for the reprise - missing it produced a left hand that drifted down below the piano's range by measure 12. Fixed by re-diffing every 'repeated' measure against its source text character-by-character rather than assuming a repeat. Tempo (Largo, quarter = 42), dynamics (ff/p/pp, two crescendi, one riten., 'a tempo'), and the clef changes between the two staves are also taken from the source. The source's near-continuous, retaken-every-chord sustain pedal is simplified in this file to a single pedal-down at the first note and pedal-up at the final chord, rather than encoding dozens of individual retakes (see limitations)."
+          "origin": "downloaded",
+          "licence": "public-domain",
+          "source": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=472",
+          "obtained": "2026-09-24",
+          "sourcePath": "mutopia-472-chopin-op28-no20/Chop-28-20.ly",
+          "unmodified": true
         },
-        "reviewedBy": "music-domain-expert",
-        "reviewedOn": "2026-09-22",
+        "reviewedBy": "antigravity-gemini-3.1-pro",
+        "reviewedOn": "2026-09-24",
         "subtitle": "\"Funeral March\"",
         "composer": "Frédéric Chopin",
         "trains": "Dense, widely-spread four- and five-note block chords in both hands (up to a minor 10th), a full ff-to-pp dynamic range with two written crescendi, and a two-layer right-hand texture (a sustained chord against a decorative turn figure) that asks for careful voicing and pedalling rather than finger speed.",
         "hands": "both",
+        "arrangement": false,
         "limitations": [
           "Written pedal is not played by the engine (facts.hasPedal is informational only).",
-          "The source's pedal is retaken on nearly every chord throughout; this file encodes only a single sustained pedal-down/pedal-up pair spanning the whole piece rather than every individual retake, for encoding simplicity.",
           "Slurs and the exact hairpin start/stop beat positions from the source engraving are approximated, not reproduced to the exact beat; they do not change the sounding pitches, rhythm or overall dynamic shape."
         ]
       },
@@ -3335,7 +3335,7 @@
         "highestMidi": 75,
         "maxSpanSemitones": 14,
         "staves": 2,
-        "voicesPerStaff": 2,
+        "voicesPerStaff": 3,
         "handIndependenceFraction": 0.9230769230769231,
         "shortestDivision": 16,
         "notesPerBeat": 5.5,

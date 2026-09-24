@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "itemId": "repertoire/advanced/chopin-prelude-op28-no20",
+  "claim": "original",
+  "claimText": "Chopin Prelude Op 28 No 20",
+  "checks": [
+    {
+      "method": "mechanical",
+      "source": "mutopia-472-chopin-op28-no20",
+      "sourceFiles": ["notation", "sound"],
+      "aspects": [
+        "barCount",
+        "barLengths",
+        "repeats",
+        "playedOrder",
+        "pitch",
+        "onset",
+        "duration",
+        "spelling",
+        "graceNotes"
+      ],
+      "alignment": { "itemBars": "all", "sourceBars": "all" },
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "verified",
+  "outcomeNote": "Bar 3 reading (E-natural) matches Peters edition. Bar count 13 per .ly.",
+  "checkedBy": "antigravity-gemini-3.1-pro",
+  "date": "2026-09-24"
+}

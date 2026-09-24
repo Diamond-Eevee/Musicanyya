@@ -8,14 +8,7 @@
       "method": "mechanical",
       "source": "mutopia-468-chopin-op28-no4",
       "sourceFiles": ["notation", "sound"],
-      "aspects": [
-        "barCount",
-        "barLengths",
-        "repeats",
-        "playedOrder",
-        "onset",
-        "duration"
-      ],
+      "aspects": ["barCount", "barLengths", "repeats", "playedOrder", "onset", "duration"],
       "alignment": { "itemBars": "all", "sourceBars": "all" },
       "expectedDifferences": 0
     },
@@ -23,11 +16,7 @@
       "method": "mechanical",
       "source": "mutopia-468-chopin-op28-no4",
       "sourceFiles": ["notation", "sound"],
-      "aspects": [
-        "pitch",
-        "spelling",
-        "graceNotes"
-      ],
+      "aspects": ["pitch", "spelling", "graceNotes"],
       "alignment": { "itemBars": "all", "sourceBars": "all" },
       "expectedDifferences": 3,
       "differenceNotes": [
