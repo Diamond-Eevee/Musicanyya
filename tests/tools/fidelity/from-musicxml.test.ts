@@ -1,77 +1,85 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { fromMusicXml } from '../../../tools/library/fidelity/from-musicxml';
+import type { ReferenceBar } from '../../../tools/library/fidelity/reference';
+import { q } from '../../../tools/library/fidelity/time';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const fixture = (name: string) => fs.readFileSync(path.resolve(__dirname, `../../fixtures/musicxml/${name}.musicxml`), 'utf-8');
+const read = (name: string) =>
+  fromMusicXml(readFileSync(resolve('tests/fixtures/musicxml', `${name}.musicxml`), 'utf8'));
+const bar = (index: number, number: string, start: number, length: number, extra: Partial<ReferenceBar> = {}) => ({
+  index,
+  number,
+  start: q(start),
+  length: q(length),
+  repeatStart: false,
+  repeatEnd: false,
+  endings: [],
+  ...extra,
+});
 
 describe('fromMusicXml', () => {
-  it('merges tied notes into one', async () => {
-    const xml = fixture('tie-chain-three');
-    const score = await fromMusicXml(xml);
-    // 3 quarters tied
-    expect(score.notes.length).toBe(1);
-    expect(score.notes[0].duration).toEqual({ num: 3, den: 1 });
+  it('merges a chain of three tied notes into one note', () => {
+    expect(read('tie-chain-three').notes).toEqual([
+      {
+        bar: 0,
+        onset: q(0),
+        duration: q(3),
+        midi: 60,
+        spelling: { step: 'C', alter: 0, octave: 4 },
+        staff: 1,
+        voice: '1',
+      },
+    ]);
   });
 
-  it('keeps grace notes apart', async () => {
-    const xml = fixture('grace-acciaccatura');
-    const score = await fromMusicXml(xml);
-    // main notes
-    expect(score.notes.length).toBeGreaterThan(0);
-    expect(score.graceNotes.length).toBeGreaterThan(0);
+  it('keeps grace notes apart from the notes, anchored to their principal note', () => {
+    const score = read('grace-acciaccatura');
+    expect(score.notes.map((n) => [n.midi, n.onset, n.duration])).toEqual([[60, q(0), q(4)]]);
+    expect(score.graceNotes).toEqual([
+      { bar: 0, before: q(0), midi: 59, spelling: { step: 'B', alter: 0, octave: 3 } },
+    ]);
   });
 
-  it('uses sounding pitch for octave shifts', async () => {
-    const xml = fixture('octave-shift-8va');
-    const score = await fromMusicXml(xml);
-    expect(score.notes[0].midi).toBeGreaterThan(70);
+  it('reads the pitch data under an octave-shift as the sounding pitch (the shift is display only)', () => {
+    expect(read('octave-shift-8va').notes.map((n) => n.midi)).toEqual([72, 74, 76]);
   });
 
-  it('handles tuplet triplet eighths as exact thirds', async () => {
-    const xml = fixture('tuplet-triplet-eighths');
-    const score = await fromMusicXml(xml);
-    console.log(score.notes[0].duration);
-    expect(score.notes[0].duration).toEqual({ num: 1, den: 3 });
+  it('gives triplet eighths exact thirds of a quarter', () => {
+    expect(read('tuplet-triplet-exact').notes.map((n) => [n.onset, n.duration])).toEqual([
+      [q(0), q(1, 3)],
+      [q(1, 3), q(1, 3)],
+      [q(2, 3), q(1, 3)],
+      [q(1), q(3)],
+    ]);
   });
 
-  it('handles repeatStart, repeatEnd, and endings per bar', async () => {
-    const xml = fixture('volta-1-2');
-    const score = await fromMusicXml(xml);
-    const bars = score.bars;
-    // We expect bars with endings
-    const withEndings = bars.filter(b => b.endings && b.endings.length > 0);
-    expect(withEndings.length).toBeGreaterThan(0);
-    expect(withEndings[0].endings).toContain(1);
+  it('marks repeat barlines and ending numbers per written bar', () => {
+    expect(read('volta-1-2').bars).toEqual([
+      bar(0, '1', 0, 4, { repeatStart: true }),
+      bar(1, '2', 4, 4, { repeatEnd: true, endings: [1] }),
+      bar(2, '3', 8, 4, { endings: [2] }),
+      bar(3, '4', 12, 4),
+    ]);
   });
 
-  it('handles pickup bars with short length and printed number 0', async () => {
-    const xml = fixture('pickup-implicit');
-    const score = await fromMusicXml(xml);
-    expect(score.bars[0].number).toBe("0");
-    expect(score.bars[0].index).toBe(0);
-    expect(score.bars[0].length.num).toBeLessThan(score.bars[1].length.num);
+  it('records a repeat played more than twice with its times', () => {
+    expect(read('repeat-times-3').bars[1]).toEqual(bar(1, '2', 4, 4, { repeatEnd: true, repeatTimes: 3 }));
   });
 
-  it('keeps spelling', async () => {
-    const xml = fixture('minimal-single-note');
-    const score = await fromMusicXml(xml);
-    expect(score.notes[0].spelling).toEqual({ step: 'C', alter: 0, octave: 4 });
+  it('keeps a pickup as bar 0 with its short length and printed number "0"', () => {
+    expect(read('pickup-implicit').bars).toEqual([bar(0, '0', 0, 1), bar(1, '1', 1, 4)]);
   });
 
-  it('gets played order from buildTimeline', async () => {
-    const xml = fixture('repeat-simple');
-    const score = await fromMusicXml(xml);
-    // playedOrder implies unfold, but ReferenceScore bars are written order.
-    // Wait, the spec says "the played order comes from buildTimeline... not from a second unfolding".
-    // We will verify the logic when we use it in compare.ts, or maybe it returns played order?
-    // "ReferenceScore: bars: written bars in written order. notes: every sounding note in written order"
-    // So fromMusicXml does NOT unfold repeats! It returns written order.
-    // Oh, but the played order of repeats is used by compare() later.
-    // Let's just check that fromMusicXml returns repeats correctly.
-    const hasRepeats = score.bars.some(b => b.repeatStart || b.repeatEnd);
-    expect(hasRepeats).toBe(true);
+  it('keeps the written spelling of enharmonic notes', () => {
+    expect(read('enharmonic-cs-db').notes.map((n) => [n.midi, n.spelling])).toEqual([
+      [61, { step: 'C', alter: 1, octave: 4 }],
+      [61, { step: 'D', alter: -1, octave: 4 }],
+    ]);
+  });
+
+  it("takes the played order from the app's own buildTimeline", () => {
+    expect(read('volta-1-2').playedOrder).toEqual([0, 1, 0, 2, 3]);
+    expect(read('repeat-times-3').playedOrder).toEqual([0, 1, 0, 1, 0, 1]);
   });
 });

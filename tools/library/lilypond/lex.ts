@@ -1,150 +1,192 @@
+// Tokeniser for the LilyPond subset (contract fidelity-tools.md §3.1). Every character is either consumed into a
+// token or rejected with its line and column: nothing is skipped silently except whitespace and comments.
+import { LyUnsupportedError } from './errors';
+
+export type LyTokenType = 'command' | 'string' | 'number' | 'word' | 'scheme' | 'symbol' | 'eof';
+
 export interface LyToken {
-  type: 'command' | 'string' | 'number' | 'word' | 'symbol' | 'eof';
+  type: LyTokenType;
   value: string;
   line: number;
   column: number;
+  /** True when whitespace or a comment separates this token from the previous one. */
+  spaced: boolean;
 }
+
+const SYMBOLS2 = ['<<', '>>'];
+const SYMBOLS1 = "{}<>|~()[]-^_.=',!?*/:";
 
 export function lexLilyPond(source: string): LyToken[] {
   const tokens: LyToken[] = [];
   let i = 0;
   let line = 1;
   let column = 1;
+  let spaced = true;
 
-  function advance(n = 1) {
-    for (let j = 0; j < n; j++) {
-      if (source[i]! === '\n') {
+  const advance = (n = 1): void => {
+    for (let k = 0; k < n; k++) {
+      if (source[i] === '\n') {
         line++;
         column = 1;
-      } else {
-        column++;
-      }
+      } else column++;
       i++;
     }
-  }
+  };
+  const push = (type: LyTokenType, value: string, l: number, c: number): void => {
+    tokens.push({ type, value, line: l, column: c, spaced });
+    spaced = false;
+  };
 
   while (i < source.length) {
-    const char = source[i]!;
-
-    // Whitespace
-    if (/\s/.test(char!)) {
+    const ch = source[i] as string;
+    const l = line;
+    const c = column;
+    if (/\s/.test(ch) || ch === '﻿') {
       advance();
+      spaced = true;
       continue;
     }
-
-    // Block comment
-    if (char! === '%' && source[i + 1] === '{') {
-      advance(2);
-      while (i < source.length && !(source[i]! === '%' && source[i + 1] === '}')) {
-        advance();
+    if (ch === '%') {
+      if (source[i + 1] === '{') {
+        const end = source.indexOf('%}', i + 2);
+        if (end < 0) throw new LyUnsupportedError(l, c, 'unterminated block comment');
+        advance(end + 2 - i);
+      } else {
+        while (i < source.length && source[i] !== '\n') advance();
       }
-      if (i < source.length) advance(2);
+      spaced = true;
       continue;
     }
-
-    // Line comment
-    if (char! === '%') {
-      while (i < source.length && source[i]! !== '\n') {
+    if (ch === '\\') {
+      const next = source[i + 1] ?? '';
+      if (/[A-Za-z]/.test(next)) {
+        let name = '\\';
         advance();
+        // LilyPond identifiers may contain single '-' or '_' between letters (e.g. \override-lyrics is not one,
+        // but \voiceOne and \RemoveEmptyStaves are); keep letters only, which covers the supported commands.
+        while (i < source.length && /[A-Za-z]/.test(source[i] as string)) {
+          name += source[i];
+          advance();
+        }
+        push('command', name, l, c);
+      } else if ('\\()<>![]'.includes(next) && next !== '') {
+        advance(2);
+        push('command', `\\${next}`, l, c);
+      } else {
+        throw new LyUnsupportedError(l, c, `backslash followed by '${next}'`);
       }
       continue;
     }
-
-    // Command
-    if (char! === '\\') {
-      const startLine = line;
-      const startCol = column;
+    if (ch === '"') {
+      let value = '';
       advance();
-      
-      // Special single-char commands
-      if (source[i]! === '\\' || source[i]! === '!' || source[i]! === '>' || source[i]! === '<') {
-        tokens.push({ type: 'command', value: '\\' + source[i]!, line: startLine, column: startCol });
-        advance();
-        continue;
-      }
-
-      let cmd = '\\';
-      while (i < source.length && /[a-zA-Z]/.test(source[i]!)) {
-        cmd += source[i]!;
-        advance();
-      }
-      tokens.push({ type: 'command', value: cmd, line: startLine, column: startCol });
-      continue;
-    }
-
-    // String
-    if (char! === '"') {
-      const startLine = line;
-      const startCol = column;
-      advance();
-      let str = '';
-      while (i < source.length && source[i]! !== '"') {
-        if (source[i]! === '\\' && source[i + 1] === '"') {
-          str += '"';
+      while (i < source.length && source[i] !== '"') {
+        if (source[i] === '\\' && i + 1 < source.length) {
+          value += source[i + 1];
           advance(2);
         } else {
-          str += source[i]!;
+          value += source[i];
           advance();
         }
       }
-      if (i < source.length) advance(); // consume closing quote
-      tokens.push({ type: 'string', value: str, line: startLine, column: startCol });
+      if (i >= source.length) throw new LyUnsupportedError(l, c, 'unterminated string');
+      advance();
+      push('string', value, l, c);
       continue;
     }
-
-    // Numbers (can be fractions like 3/2 for tuplets, or integers)
-    // Actually, it's easier to lex words and let the parser decide, or lex digits.
-    if (/[0-9]/.test(char!)) {
-      const startLine = line;
-      const startCol = column;
-      let num = '';
-      while (i < source.length && /[0-9]/.test(source[i]!)) {
-        num += source[i]!;
+    if (ch === '#') {
+      push('scheme', readScheme(), l, c);
+      continue;
+    }
+    if (ch === '$') throw new LyUnsupportedError(l, c, 'Scheme expression ($)');
+    if (/[0-9]/.test(ch)) {
+      let value = '';
+      while (i < source.length && /[0-9]/.test(source[i] as string)) {
+        value += source[i];
         advance();
       }
-      tokens.push({ type: 'number', value: num, line: startLine, column: startCol });
+      push('number', value, l, c);
       continue;
     }
-
-    // Multi-char symbols
-    if (char! === '<' && source[i + 1] === '<') {
-      tokens.push({ type: 'symbol', value: '<<', line, column });
+    if (/[A-Za-z]/.test(ch)) {
+      let value = '';
+      while (i < source.length && /[A-Za-z]/.test(source[i] as string)) {
+        value += source[i];
+        advance();
+      }
+      push('word', value, l, c);
+      continue;
+    }
+    const two = source.slice(i, i + 2);
+    if (SYMBOLS2.includes(two)) {
       advance(2);
+      push('symbol', two, l, c);
       continue;
     }
-    if (char! === '>' && source[i + 1] === '>') {
-      tokens.push({ type: 'symbol', value: '>>', line, column });
-      advance(2);
+    if (SYMBOLS1.includes(ch)) {
+      advance();
+      push('symbol', ch, l, c);
       continue;
     }
-
-    // Single-char symbols
-    if ('{}<>[|]=~^-_/#.'.includes(char!)) {
-      tokens.push({ type: 'symbol', value: char, line, column });
-      advance();
-      continue;
-    }
-
-    // Words (notes, variables, markup)
-    // A word can have letters, numbers, ', ,, .
-    // Wait, numbers at the end of a note are durations! e.g. c4.
-    // So a word might be cisis'4.
-    // But it's easier to lex words as contiguous non-space non-symbol chars.
-    const startLine = line;
-    const startCol = column;
-    let word = '';
-    while (i < source.length && !/\s/.test(source[i]!) && !'{}<>[|]=~^-_/#%".\\'.includes(source[i]!)) {
-      word += source[i]!;
-      advance();
-    }
-    if (word.length > 0) {
-      tokens.push({ type: 'word', value: word, line: startLine, column: startCol });
-    } else {
-      // Fallback
-      advance();
-    }
+    throw new LyUnsupportedError(l, c, `character '${ch}'`);
   }
-
-  tokens.push({ type: 'eof', value: '', line, column });
+  tokens.push({ type: 'eof', value: '', line, column, spaced: true });
   return tokens;
+
+  /** One Scheme datum after '#', as source text (without the '#'): a number, string, boolean, symbol or list. */
+  function readScheme(): string {
+    const l = line;
+    const c = column;
+    advance(); // '#'
+    let text = '';
+    while (source[i] === "'" || source[i] === '`') {
+      text += source[i];
+      advance();
+    }
+    const ch = source[i] ?? '';
+    if (ch === '(') {
+      let depth = 0;
+      do {
+        const x = source[i];
+        if (x === undefined) throw new LyUnsupportedError(l, c, 'unterminated Scheme list');
+        if (x === '"') {
+          text += x;
+          advance();
+          while (i < source.length && source[i] !== '"') {
+            if (source[i] === '\\') {
+              text += source[i];
+              advance();
+            }
+            text += source[i];
+            advance();
+          }
+        } else if (x === '(') depth++;
+        else if (x === ')') depth--;
+        text += source[i];
+        advance();
+      } while (depth > 0);
+      return text;
+    }
+    if (ch === '"') {
+      text += ch;
+      advance();
+      while (i < source.length && source[i] !== '"') {
+        if (source[i] === '\\') {
+          text += source[i];
+          advance();
+        }
+        text += source[i];
+        advance();
+      }
+      text += '"';
+      advance();
+      return text;
+    }
+    while (i < source.length && !/[\s{}()"]/.test(source[i] as string)) {
+      text += source[i];
+      advance();
+    }
+    if (text === '' || text === "'") throw new LyUnsupportedError(l, c, 'empty Scheme expression');
+    return text;
+  }
 }

@@ -1,6 +1,6 @@
 # Contract: fidelity tools (readers, comparator, theory check, converter, commands)
 
-**Version**: `1.0.0` - new. Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
+**Version**: `1.1.0` (1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
 worker, and `tests/architecture/layers.test.ts` asserts it (as it already does for the exercise generator).
 
 **Location**: `tools/library/fidelity/` (pure TypeScript, Node, no DOM; compiled by `tsconfig.tools.json`) and
@@ -46,16 +46,29 @@ export function fromLilyPond(score: LyScore): ReferenceScore;
 // tools/library/fidelity/compare.ts
 export function compare(item: ReferenceScore, source: ReferenceScore, aspects: Aspect[], alignment: Alignment): Difference[];
 export function compareMelody(item: ReferenceScore, source: ReferenceScore, alignment: Alignment,
-                              allowRhythm: boolean): Difference[];
+                              allowRhythm: boolean): Difference[];                      // US2, task T054
+/** Step 2 of data-model.md §4.1a: notation reading vs the MIDI made from it, with research R5's rules. */
+export function compareSound(notation: ReferenceScore, sound: ReferenceScore,
+                             options: { order: 'written' | 'played'; articulate: boolean }):
+  { differences: Difference[]; durations: 'compared' | 'notation only' };
+export function describeDifference(d: Difference): string;   // "bar 12, beat 1 1/2: pitch F4, source E4"
 
 // tools/library/fidelity/theory.ts - independent exercise check (research R8)
 export function checkExercise(xml: string, claim: ExerciseClaim): TheoryDifference[];
 
-// tools/library/fidelity/records.ts
+// tools/library/fidelity/sources.ts
 export function loadSources(root: string): Map<string, SourceManifest>;       // validates + re-hashes
+
+// tools/library/fidelity/records.ts
 export function loadRecords(root: string): AuditRecord[];                     // validates
-export function runRecord(record: AuditRecord, ctx: RunContext): CheckResult[];
-export interface CheckResult { check: Check; differences: Difference[] | TheoryDifference[]; reproduced: boolean }
+export function runRecord(record: AuditRecord, ctx: RunContext): CheckResult[];  // the two-step chain for notation + sound
+export interface CheckResult { check: Check; differences: Difference[] | TheoryDifference[]; reproduced: boolean;
+                               detail: string /* "item vs notation: 0 differences; notation vs sound: 0 differences" */ }
+export function checkRecord(record: AuditRecord, results: CheckResult[], ctx: RunContext): string[]; // audit-record.md §2
+export function outcomeLabel(record: AuditRecord): string;   // "verified (visual)" for a visual-only record (FR-019)
+
+// tools/library/fidelity/cli.ts
+export function main(args: string[], io: { root: string; out: (line: string) => void }): number;  // §1, exit code
 
 // tools/library/fidelity/report.ts
 export function renderReport(records: AuditRecord[], results: Map<string, CheckResult[]>, index: LibraryIndex): string;
@@ -85,11 +98,13 @@ to stop.
 | `\repeat unfold n { }` | expanded n times (it is written out in the printed score) |
 | `\partial d` | pickup bar of length d |
 | `\time`, `\key`, `\clef` | metre, key signature (for spelling output), clef changes |
-| `\ottava #n` | sounding pitch shifted by n octaves; written pitch kept for the writer's `<octave-shift>` |
+| `\ottava #n` | the entered pitch **is** the sounding pitch (LilyPond's `\ottava` only sets `middleCPosition`, i.e. the staff position; research R5 rule 6); the written pitch is the entered pitch minus n octaves, kept for the writer's `<octave-shift>` |
 | `<< { } \\ { } >>`, `\new Voice`, `\new Staff`, `\new PianoStaff`, `\context`, `\change Staff` | voices and staves |
 | `\bar "..."` | final/double bars; repeat bars via the repeat construct only |
 | articulations, dynamics, slurs, phrasing slurs, fingerings, `\markup`, text scripts, `\tempo`, `\sustainOn/Off` | read as notation marks for the converter; ignored by the comparator |
-| `\include` of anything other than `"english.ly"`/`"deutsch.ly"`-style language files, Scheme expressions beyond `#n` / `##t` literals, `\transpose`, `\set`/`\override` affecting pitch or time | **unsupported** -> error |
+| `\set`, `\override`, `\revert`, `\once`, `\omit`, `\hide`, `\accidentalStyle` of layout properties | skipped as a unit, including their Scheme value (`#'(...)`, `##f`, `#red`); a property that moves notes in pitch or time (`Timing.*`, `measurePosition`, `middleCPosition`, `currentBarNumber`, ...) is an error |
+| `\language "english"` / `\include "english.ly"` | English note names (Dutch is the default) |
+| `\include` of anything other than `"english.ly"`/`"nederlands.ly"`, any other Scheme expression (in music, or at top level other than `set-global-staff-size`/`set-default-paper-size`), `\transpose`, `\relative` without a start pitch, `\afterGrace`, chord repetition `q`, tremolo `:`, `\repeat percent`/`tremolo`, `\repeat volta` with more than two passes and alternatives, a repeat or alternative boundary inside a bar | **unsupported** -> error |
 
 ### 3.2 Bars
 

@@ -444,3 +444,33 @@ guards every unchanged item.
 
 **Not changed**: Recents (`IndexedDbScoreStore`) keep the bytes the musician opened. Updating Recents is a separate
 follow-up (spec Clarifications, analyze A2).
+
+## R17. How the readers and the comparator meet the rules above (implementation, 2026-09-24)
+
+**Decision**:
+
+- **Bar pairing**: the comparator pairs bars by their **printed bar number** through the declared alignment
+  (`itemBars` N-M maps onto `sourceBars` by a fixed offset). A deleted bar therefore gives one `barCount`
+  difference plus the notes of that bar, never a cascade (contract `fidelity-tools.md` §5). A number printed twice
+  (a split bar) is paired by its occurrence.
+- **Positions**: a difference names the bar and the position in it (quarter notes after the bar line), so pickups,
+  excerpts and MIDI files that start at 0 all compare the same way.
+- **LilyPond octaves**: resolved in a pass after variables are expanded, in source order, as `\relative` itself
+  works (a `\repeat unfold` body keeps its octaves on every pass; a chord's first note is the next reference).
+  Durations are carried over in the parser, as LilyPond's parser does. `\ottava` changes nothing in pitch
+  (research R5 rule 6; LilyPond 2.24 Notation Reference, "Ottava brackets": it sets `middleCPosition`).
+- **Layout commands**: `\override`/`\set` of layout properties are skipped together with their Scheme value, since
+  real Mutopia files are full of them. Properties that move notes in time or pitch fail, as do Scheme expressions
+  anywhere else.
+- **MIDI step** (R5 rules 4, 5, 8): grace notes are set aside in the MIDI by pitch, taking the latest MIDI note of
+  that pitch before the principal note. The note before a grace group may end exactly where the group starts. An
+  articulated note may be shorter. A unison may be merged (one MIDI note to the end of the later note) or cut (the
+  first note ends where the second starts), and only where the notation shows two overlapping notes of one pitch.
+- **Played order**: the LilyPond reading's bars go through the app's own `unroll()`; the MusicXML reading takes
+  `buildTimeline(score).timeline.passes`. Both use one repeat rule (R6).
+
+**Rationale**: every rule is tied to something visible in the notation reading or declared in the record; nothing
+is searched for and no tolerance is added (R5, data-model.md §9).
+
+**Alternatives considered**: pairing bars by position would report every later bar after a deleted one; resolving
+octaves while parsing would get variables used inside `\relative` wrong.

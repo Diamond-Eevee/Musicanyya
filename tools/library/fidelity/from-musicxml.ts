@@ -1,179 +1,126 @@
-import type { Score } from '../../../src/core/score/model';
-import { readXml } from '../../../src/core/musicxml/read';
+// Reads a library item through the app's own pipeline (readXml + buildScore + buildTimeline), so the check proves
+// what the app actually shows and plays (data-model.md §2, research R6). The Score model keeps the pitch letter
+// but not the alteration or octave, so the written spelling is read from the parse tree by the note's offset.
+import { XmlElement, type XmlNode } from '@rgrove/parse-xml';
 import { buildScore } from '../../../src/core/musicxml/build';
-import type { ReferenceScore, ReferenceBar, ReferenceNote, ReferenceGraceNote } from './midi';
-import { q } from './time';
-import type { QuarterTime } from './time';
-import { XmlElement } from '@rgrove/parse-xml';
+import { readXml } from '../../../src/core/musicxml/read';
+import type { Score } from '../../../src/core/score/model';
+import { buildTimeline } from '../../../src/core/timeline/timeline';
+import {
+  type Alter,
+  compareGraceNotes,
+  compareNotes,
+  type ReferenceBar,
+  type ReferenceGraceNote,
+  type ReferenceNote,
+  type ReferenceScore,
+  type Spelling,
+  type Step,
+  validateReference,
+} from './reference';
+import { add, cmp, q } from './time';
 
-export async function fromMusicXml(xmlText: string): Promise<ReferenceScore> {
-  const parseResult = readXml(xmlText);
-  const { score } = buildScore(parseResult.doc);
+export function fromMusicXml(xml: string): ReferenceScore {
+  const { doc } = readXml(xml);
+  const { score } = buildScore(doc);
+  const spellings = readSpellings(doc.children);
 
-  const bars: ReferenceBar[] = [];
-  
-  // Navigation
-  const repeatsStart = new Set<number>();
-  const repeatsEnd = new Map<number, number>();
-  for (const r of score.navigation.repeats) {
-    if (r.direction === 'forward') repeatsStart.add(r.measureIndex);
-    if (r.direction === 'backward') repeatsEnd.set(r.measureIndex, r.times || 2);
-  }
-
-  const endingsByMeasure = new Map<number, number[]>();
-  let currentEndings: number[] = [];
-  for (const mark of score.navigation.endings) {
-    if (mark.type === 'start') {
-      currentEndings = mark.numbers;
-      endingsByMeasure.set(mark.measureIndex, [...currentEndings]);
-    } else if (mark.type === 'stop') {
-      // In musicxml, stop is usually at the end of the measure, so the measure had the ending.
-      // But if it's start in the same measure, we already set it.
-      if (!endingsByMeasure.has(mark.measureIndex)) {
-        endingsByMeasure.set(mark.measureIndex, [...currentEndings]);
+  const notes: ReferenceNote[] = [];
+  const graceNotes: ReferenceGraceNote[] = [];
+  let staffBase = 0;
+  for (const part of score.parts) {
+    const openTies = new Map<number, ReferenceNote[]>(); // sounding key -> notes whose tie continues
+    for (const n of part.notes) {
+      if (n.unpitched) throw new Error(`fromMusicXml: unpitched note ${n.id} cannot be compared`);
+      const measure = score.measures[n.measureIndex];
+      if (!measure) throw new Error(`fromMusicXml: note ${n.id} names measure ${n.measureIndex}`);
+      const spelling = spellings.get(n.source.start);
+      if (!spelling) throw new Error(`fromMusicXml: no <pitch> found for note ${n.id}`);
+      const onset = q(measure.startTick + n.onsetInMeasure, score.ppq);
+      if (n.grace) {
+        graceNotes.push({ bar: n.measureIndex, before: onset, midi: n.soundingKey, spelling });
+        continue;
       }
-      currentEndings = [];
-    } else if (mark.type === 'discontinue') {
-      if (!endingsByMeasure.has(mark.measureIndex)) {
-        endingsByMeasure.set(mark.measureIndex, [...currentEndings]);
+      const duration = q(n.durationTicks, score.ppq);
+      const pending = openTies.get(n.soundingKey) ?? [];
+      const tiedFrom = n.tie.stop ? pending.find((p) => cmp(add(p.onset, p.duration), onset) === 0) : undefined;
+      if (tiedFrom) {
+        tiedFrom.duration = add(tiedFrom.duration, duration);
+        if (!n.tie.start) pending.splice(pending.indexOf(tiedFrom), 1);
+        continue;
       }
-      currentEndings = [];
+      const note: ReferenceNote = {
+        bar: n.measureIndex,
+        onset,
+        duration,
+        midi: n.soundingKey,
+        spelling,
+        staff: staffBase + n.staff,
+        voice: n.voice,
+      };
+      notes.push(note);
+      if (n.tie.start) openTies.set(n.soundingKey, [...pending, note]);
     }
+    staffBase += part.staves;
   }
+  notes.sort(compareNotes);
+  graceNotes.sort(compareGraceNotes);
 
-  for (const m of score.measures) {
-    let endings = endingsByMeasure.get(m.index);
-    if (!endings && currentEndings.length > 0) {
-      endings = [...currentEndings];
-    }
-    
-    bars.push({
+  return validateReference({
+    origin: 'musicxml',
+    bars: readBars(score),
+    notes,
+    graceNotes,
+    playedOrder: buildTimeline(score).timeline.passes.map((p) => p.measureIndex),
+  });
+}
+
+function readBars(score: Score): ReferenceBar[] {
+  const { repeats, endings } = score.navigation;
+  const endingNumbers = new Map<number, number[]>();
+  const marks = [...endings].sort((a, b) => a.measureIndex - b.measureIndex);
+  marks.forEach((mark, i) => {
+    if (mark.type !== 'start') return;
+    const close = marks.slice(i + 1).find((m) => m.type !== 'start') ?? mark;
+    for (let m = mark.measureIndex; m <= Math.max(mark.measureIndex, close.measureIndex); m++)
+      endingNumbers.set(m, [...mark.numbers]);
+  });
+  return score.measures.map((m) => {
+    const end = repeats.find((r) => r.measureIndex === m.index && r.direction === 'backward');
+    return {
       index: m.index,
       number: m.label,
       start: q(m.startTick, score.ppq),
       length: q(m.lengthTicks, score.ppq),
-      repeatStart: repeatsStart.has(m.index),
-      repeatEnd: repeatsEnd.has(m.index),
-      ...(repeatsEnd.has(m.index) ? { repeatTimes: repeatsEnd.get(m.index)! } : {}),
-      endings: endings || []
-    });
-  }
-
-  const notes: ReferenceNote[] = [];
-  const graceNotes: ReferenceGraceNote[] = [];
-
-  // Parse spelling directly from XML doc since Score doesn't store alter/octave
-  // Also parse time-modification since buildScore ignores it
-  const spellings = new Map<number, { step: string, alter: number, octave: number }>();
-  const timeMods = new Map<number, { actual: number, normal: number }>();
-  
-  function traverse(node: any) {
-    if (node instanceof XmlElement && node.name === 'note') {
-      const offset = node.start;
-      if (offset !== undefined) {
-        const pitch = node.children.find((c: any) => c instanceof XmlElement && c.name === 'pitch') as XmlElement | undefined;
-        if (pitch) {
-          const stepEl = pitch.children.find((c: any) => c instanceof XmlElement && c.name === 'step') as XmlElement | undefined;
-          const alterEl = pitch.children.find((c: any) => c instanceof XmlElement && c.name === 'alter') as XmlElement | undefined;
-          const octaveEl = pitch.children.find((c: any) => c instanceof XmlElement && c.name === 'octave') as XmlElement | undefined;
-          
-          if (stepEl && octaveEl) {
-            const step = stepEl.text.trim();
-            const alter = alterEl ? parseInt(alterEl.text.trim(), 10) : 0;
-            const octave = parseInt(octaveEl.text.trim(), 10);
-            spellings.set(offset, { step, alter, octave });
-          }
-        }
-        const tm = node.children.find((c: any) => c instanceof XmlElement && c.name === 'time-modification') as XmlElement | undefined;
-        if (tm) {
-          const actualEl = tm.children.find((c: any) => c instanceof XmlElement && c.name === 'actual-notes') as XmlElement | undefined;
-          const normalEl = tm.children.find((c: any) => c instanceof XmlElement && c.name === 'normal-notes') as XmlElement | undefined;
-          if (actualEl && normalEl) {
-            timeMods.set(offset, {
-              actual: parseInt(actualEl.text.trim(), 10),
-              normal: parseInt(normalEl.text.trim(), 10)
-            });
-          }
-        }
-      }
-    }
-    if (node.children) {
-      for (const child of node.children) {
-        traverse(child);
-      }
-    }
-  }
-  traverse(parseResult.doc);
-
-  // Group tied notes
-  const activeTies = new Map<number, ReferenceNote>(); // soundingKey -> note
-
-  for (const part of score.parts) {
-    for (const n of part.notes) {
-      if (n.unpitched) continue; // Fidelity check ignores unpitched? Or maybe compares? "non-grace note" in model.
-
-      const spelling = spellings.get(n.source.start);
-      let alter: any = 0;
-      let octave = 4;
-      let step = n.step as any;
-      if (spelling) {
-        alter = spelling.alter;
-        octave = spelling.octave;
-        step = spelling.step;
-      }
-
-      const timeMod = timeMods.get(n.source.start);
-      let duration = q(n.durationTicks, score.ppq);
-      if (timeMod && timeMod.actual > 0) {
-        duration = q(duration.num * timeMod.normal, duration.den * timeMod.actual);
-      }
-
-      if (n.grace) {
-        graceNotes.push({
-          bar: n.measureIndex,
-          before: q(n.onsetInMeasure + score.measures[n.measureIndex]!.startTick, score.ppq),
-          midi: n.soundingKey,
-          spelling: { step, alter, octave }
-        });
-        continue;
-      }
-
-      if (n.tie.stop) {
-        const active = activeTies.get(n.soundingKey);
-        if (active) {
-          active.duration = q(
-            active.duration.num * duration.den + active.duration.den * duration.num,
-            active.duration.den * duration.den
-          );
-          if (!n.tie.start) {
-            activeTies.delete(n.soundingKey);
-          }
-          continue;
-        }
-      }
-
-      const refNote: ReferenceNote = {
-        bar: n.measureIndex,
-        onset: q(n.onsetInMeasure + score.measures[n.measureIndex]!.startTick, score.ppq),
-        duration,
-        midi: n.soundingKey,
-        spelling: { step, alter, octave },
-        staff: n.staff,
-        voice: n.voice
-      };
-
-      if (n.tie.start) {
-        activeTies.set(n.soundingKey, refNote);
-      }
-      
-      notes.push(refNote);
-    }
-  }
-
-  return {
-    origin: 'musicxml',
-    bars,
-    notes,
-    graceNotes
-  };
+      repeatStart: repeats.some((r) => r.measureIndex === m.index && r.direction === 'forward'),
+      repeatEnd: end !== undefined,
+      ...(end?.times !== undefined && end.times !== 2 ? { repeatTimes: end.times } : {}),
+      endings: endingNumbers.get(m.index) ?? [],
+    };
+  });
 }
+
+/** Written spelling of every pitched <note>, keyed by the element's offset (Note.source.start). */
+function readSpellings(nodes: readonly XmlNode[], out = new Map<number, Spelling>()): Map<number, Spelling> {
+  for (const node of nodes) {
+    if (!(node instanceof XmlElement)) continue;
+    if (node.name === 'note') {
+      const pitch = child(node, 'pitch');
+      if (pitch) {
+        const step = text(child(pitch, 'step'));
+        const alter = Number(text(child(pitch, 'alter')) || '0');
+        const octave = Number(text(child(pitch, 'octave')));
+        if (!/^[A-G]$/.test(step) || ![-2, -1, 0, 1, 2].includes(alter) || !Number.isInteger(octave))
+          throw new Error(`fromMusicXml: unreadable <pitch> at offset ${node.start}`);
+        out.set(node.start, { step: step as Step, alter: alter as Alter, octave });
+      }
+      continue;
+    }
+    readSpellings(node.children, out);
+  }
+  return out;
+}
+
+const child = (el: XmlElement, name: string): XmlElement | undefined =>
+  el.children.find((c): c is XmlElement => c instanceof XmlElement && c.name === name);
+const text = (el: XmlElement | undefined): string => el?.text.trim() ?? '';

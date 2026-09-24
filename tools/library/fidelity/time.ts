@@ -42,9 +42,14 @@ export function sub(a: QuarterTime, b: QuarterTime): QuarterTime {
   return q(a.num * b.den - b.num * a.den, a.den * b.den);
 }
 
-export function cmp(a: QuarterTime, b: QuarterTime): number {
-  // Since denominator is always positive
-  return a.num * b.den - b.num * a.den;
+/** Cross-multiplication; denominators are always positive. */
+export function cmp(a: QuarterTime, b: QuarterTime): -1 | 0 | 1 {
+  const d = a.num * b.den - b.num * a.den;
+  return d < 0 ? -1 : d > 0 ? 1 : 0;
+}
+
+export function mul(a: QuarterTime, num: number, den = 1): QuarterTime {
+  return q(a.num * num, a.den * den);
 }
 
 export function fromTicks(ticks: number, ppq: number): QuarterTime {

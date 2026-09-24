@@ -1,432 +1,419 @@
-import type { ReferenceBar, ReferenceGraceNote, ReferenceNote, ReferenceScore } from '../fidelity/midi';
-import type { QuarterTime } from '../fidelity/time';
-import { add, cmp, q, sub } from '../fidelity/time';
-import type { LyNode, LyScore } from './parse';
-import { LyUnsupportedError, parseLilyPond } from './parse';
+// The LilyPond reading (data-model.md §2, contract fidelity-tools.md §3): variables are expanded where they are
+// used, octaves resolved as \relative defines them, then the music is laid out in time. Bars come from \time,
+// \partial and the accumulated durations, and every bar check must fall on a bar line (§3.2).
+import { playedOrder } from '../fidelity/played-order';
+import {
+  type Alter,
+  compareGraceNotes,
+  compareNotes,
+  type ReferenceBar,
+  type ReferenceGraceNote,
+  type ReferenceNote,
+  type ReferenceScore,
+  type Step,
+  spellingMidi,
+  validateReference,
+} from '../fidelity/reference';
+import { add, cmp, mul, type QuarterTime, q, show, sub } from '../fidelity/time';
+import { LyUnsupportedError } from './errors';
+import type { LyMusic, LyPitch, LyScore, Pos } from './parse';
+import { parseLilyPond } from './parse';
+
+export type { LyScore } from './parse';
+
+const STEPS: Step[] = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 
 export function readLilyPond(source: string): LyScore {
   return parseLilyPond(source);
 }
 
 export function fromLilyPond(score: LyScore): ReferenceScore {
-  const bars: ReferenceBar[] = [];
-  const notes: ReferenceNote[] = [];
-  const graceNotes: ReferenceGraceNote[] = [];
+  const music = expand(score.music, score.variables, []);
+  resolveOctaves(music);
+  const layout = layOut(music, numberStaves(music));
+  const bars = buildBars(layout);
+  markRepeats(bars, layout.repeats);
 
-  const variables = new Map<string, LyNode>();
-  const activeTies = new Map<number, ReferenceNote>();
-
-  const _currentStaff = 1;
-  const _currentVoice = 1;
-
-  // Find variables first
-  for (const block of score.blocks) {
-    if (block.type === 'assignment') {
-      variables.set(block.name, block.value);
-    }
-  }
-
-  interface State {
-    cursor: QuarterTime;
-    staff: number;
-    voice: number;
-    lastDuration: string;
-    lastPitchDiatonic: number;
-    relative: boolean;
-    tupletScale: { num: number; den: number };
-    time: { num: number; den: number };
-    grace: boolean;
-    ottava: number;
-    unfoldRepeats: boolean;
-    barOffset: QuarterTime;
-  }
-
-  const state: State = {
-    cursor: q(0, 1),
-    staff: 1,
-    voice: 1,
-    lastDuration: '4', // default
-    lastPitchDiatonic: 3 * 7, // middle C is C4 = 3 * 7 = 21 ? let's define C0 = 0. C4 = 28.
-    relative: false,
-    tupletScale: { num: 1, den: 1 },
-    time: { num: 4, den: 4 },
-    grace: false,
-    ottava: 0,
-    unfoldRepeats: false,
-    barOffset: q(0, 1),
+  const barAt = (t: QuarterTime, pos: Pos): number => {
+    for (let i = bars.length - 1; i >= 0; i--) if (cmp((bars[i] as ReferenceBar).start, t) <= 0) return i;
+    return fail(pos, `time ${show(t)} is before the first bar`);
   };
-
-  const stepToDiatonic: Record<string, number> = { c: 0, d: 1, e: 2, f: 3, g: 4, a: 5, b: 6 };
-  const stepToMidi: Record<string, number> = { c: 0, d: 2, e: 4, f: 5, g: 7, a: 9, b: 11 };
-
-  function parsePitch(pitchStr: string): {
-    step: string;
-    alter: number;
-    octave: number;
-    diatonic: number;
-    midi: number;
-  } {
-    const match = pitchStr.match(/^([a-g])(is|es|isis|eses)*([',]*)$/);
-    if (!match) throw new Error(`Invalid pitch: ${pitchStr}`);
-    const step = match[1]!;
-    const acc = match[2] || '';
-    const oct = match[3] || '';
-
-    let alter = 0;
-    if (acc === 'is') alter = 1;
-    if (acc === 'isis') alter = 2;
-    if (acc === 'es') alter = -1;
-    if (acc === 'eses') alter = -2;
-
-    let octaveShift = 0;
-    for (const char of oct) {
-      if (char === "'") octaveShift++;
-      if (char === ',') octaveShift--;
-    }
-
-    const stepDiatonic = stepToDiatonic[step as keyof typeof stepToDiatonic] || 0;
-
-    let octave = 3; // LilyPond absolute pitches default to octave 3 (c is C3)
-
-    if (state.relative) {
-      const prevDiatonic = state.lastPitchDiatonic;
-      const prevStep = prevDiatonic % 7;
-      let prevOctave = Math.floor(prevDiatonic / 7);
-
-      const diff = stepDiatonic - prevStep;
-      if (diff > 3) prevOctave--;
-      else if (diff < -3) prevOctave++;
-
-      octave = prevOctave + octaveShift;
-    } else {
-      octave = 3 + octaveShift;
-    }
-
-    const diatonic = octave * 7 + stepDiatonic;
-    const midi = (octave + 1) * 12 + (stepToMidi[step as keyof typeof stepToMidi] || 0) + alter; // C3 is midi 48 (octave 3 + 1 = 4 -> 4*12=48)
-    // Wait, LilyPond absolute "c" is C3 (MIDI 48).
-    // So octave 3. Midi for C3 = 48 = (3 + 1) * 12. Correct.
-
-    return { step, alter, octave, diatonic, midi };
+  for (const n of layout.notes) n.note.bar = barAt(n.note.onset, n.pos);
+  for (const g of layout.graces) {
+    if (cmp(g.grace.before, layout.end) >= 0) fail(g.pos, 'grace note after the last note');
+    g.grace.bar = barAt(g.grace.before, g.pos);
   }
+  const notes = layout.notes.map((n) => n.note).sort(compareNotes);
+  const graceNotes = layout.graces.map((g) => g.grace).sort(compareGraceNotes);
+  return validateReference({ origin: 'lilypond', bars, notes, graceNotes, playedOrder: playedOrder(bars) });
+}
 
-  function parseDuration(durStr?: string): QuarterTime {
-    if (!durStr) durStr = state.lastDuration;
-    else state.lastDuration = durStr;
+function fail(pos: Pos, construct: string): never {
+  throw new LyUnsupportedError(pos.line, pos.column, construct);
+}
 
-    let dots = 0;
-    let base = durStr;
-    while (base.endsWith('.')) {
-      dots++;
-      base = base.slice(0, -1);
-    }
+// ---- 1. variables ------------------------------------------------------------------------------------------------
 
-    let val: QuarterTime;
-    if (base === '\\breve') val = q(8, 1);
-    else if (base === '1') val = q(4, 1);
-    else if (base === '2') val = q(2, 1);
-    else if (base === '4') val = q(1, 1);
-    else if (base === '8') val = q(1, 2);
-    else if (base === '16') val = q(1, 4);
-    else if (base === '32') val = q(1, 8);
-    else if (base === '64') val = q(1, 16);
-    else val = q(1, 1);
-
-    let multiplier = 1;
-    let dotVal = 0.5;
-    for (let i = 0; i < dots; i++) {
-      multiplier += dotVal;
-      dotVal /= 2;
-    }
-
-    const num = val.num * multiplier * state.tupletScale.num;
-    const den = val.den * state.tupletScale.den;
-    return q(num, den);
+function expand(m: LyMusic, variables: Map<string, LyMusic>, stack: string[]): LyMusic {
+  if (m.kind === 'variable') {
+    const value = variables.get(m.name);
+    if (!value) return fail(m.pos, `\\${m.name} (undefined variable)`);
+    if (stack.includes(m.name)) return fail(m.pos, `\\${m.name} refers to itself`);
+    return expand(value, variables, [...stack, m.name]);
   }
+  const copy = structuredClone(m);
+  if (copy.kind === 'seq') copy.items = copy.items.map((x) => expand(x, variables, stack));
+  else if (copy.kind === 'sim') copy.branches = copy.branches.map((x) => expand(x, variables, stack));
+  else if (copy.kind === 'repeat') {
+    copy.body = expand(copy.body, variables, stack);
+    copy.alternatives = copy.alternatives.map((x) => expand(x, variables, stack));
+  } else if ('body' in copy) copy.body = expand(copy.body, variables, stack);
+  return copy;
+}
 
-  let maxCursor = q(0, 1);
+// ---- 2. octaves --------------------------------------------------------------------------------------------------
 
-  function evaluate(node: LyNode) {
-    if (node.type === 'assignment') return;
+/** Resolves every pitch's absolute octave in source order, as LilyPond's \relative does. */
+function resolveOctaves(root: LyMusic): void {
+  let relative = false;
+  let ref = { letter: 0, octave: 4 };
+  const absolute = (p: LyPitch): number => 3 + p.marks; // LilyPond's c is C3
+  const resolve = (p: LyPitch): void => {
+    if (p.check !== undefined) p.octave = 3 + p.check;
+    else if (!relative) p.octave = absolute(p);
+    else {
+      const from = ref.octave * 7 + ref.letter;
+      let d = ref.octave * 7 + p.letter;
+      while (d - from > 3) d -= 7;
+      while (from - d > 3) d += 7;
+      p.octave = Math.floor((d + 7 * p.marks) / 7);
+    }
+    ref = { letter: p.letter, octave: p.octave };
+  };
+  const walk = (m: LyMusic): void => {
+    switch (m.kind) {
+      case 'note':
+        resolve(m.pitch);
+        return;
+      case 'chord': {
+        for (const n of m.notes) resolve(n.pitch);
+        const first = (m.notes[0] as { pitch: LyPitch }).pitch;
+        ref = { letter: first.letter, octave: first.octave as number };
+        return;
+      }
+      case 'relative': {
+        const saved = { relative, ref };
+        relative = true;
+        ref = { letter: m.ref.letter, octave: absolute(m.ref) };
+        walk(m.body);
+        ({ relative, ref } = saved);
+        return;
+      }
+      case 'seq':
+        m.items.forEach(walk);
+        return;
+      case 'sim':
+        m.branches.forEach(walk);
+        return;
+      case 'repeat':
+        walk(m.body);
+        m.alternatives.forEach(walk);
+        return;
+      default:
+        if ('body' in m) walk(m.body);
+    }
+  };
+  walk(root);
+}
 
-    if (node.type === 'command' && node.name.startsWith('\\') && variables.has(node.name.slice(1))) {
-      evaluate(variables.get(node.name.slice(1))!);
+// ---- 3. staves ---------------------------------------------------------------------------------------------------
+
+interface Staves {
+  byNode: Map<LyMusic, number>;
+  byName: Map<string, number>;
+}
+
+/** Staff numbers in source order (1 = the first staff, the upper staff of a piano score). */
+function numberStaves(root: LyMusic): Staves {
+  const staves: Staves = { byNode: new Map(), byName: new Map() };
+  let count = 0;
+  const walk = (m: LyMusic): void => {
+    if (m.kind === 'context' && m.type === 'Staff') {
+      const known = m.name !== undefined ? staves.byName.get(m.name) : undefined;
+      const n = known ?? ++count;
+      staves.byNode.set(m, n);
+      if (m.name !== undefined) staves.byName.set(m.name, n);
+    }
+    if (m.kind === 'seq') m.items.forEach(walk);
+    else if (m.kind === 'sim') m.branches.forEach(walk);
+    else if (m.kind === 'repeat') {
+      walk(m.body);
+      m.alternatives.forEach(walk);
+    } else if ('body' in m) walk(m.body);
+  };
+  walk(root);
+  return staves;
+}
+
+// ---- 4. time -----------------------------------------------------------------------------------------------------
+
+interface Repeat {
+  start: QuarterTime;
+  bodyEnd: QuarterTime;
+  alternatives: { start: QuarterTime; end: QuarterTime }[];
+  times: number;
+  pos: Pos;
+}
+
+interface Layout {
+  notes: { note: ReferenceNote; pos: Pos }[];
+  graces: { grace: ReferenceGraceNote; pos: Pos }[];
+  barChecks: { t: QuarterTime; pos: Pos }[];
+  times: { t: QuarterTime; num: number; den: number; pos: Pos }[];
+  partial?: QuarterTime;
+  repeats: Repeat[];
+  end: QuarterTime;
+}
+
+function layOut(root: LyMusic, staves: Staves): Layout {
+  const out: Layout = { notes: [], graces: [], barChecks: [], times: [], repeats: [], end: q(0) };
+  let cursor = q(0);
+  let staff = 1;
+  let voice = 'v';
+  let factor = q(1);
+  let grace = false;
+  let unfold = false;
+  let inDynamics = false;
+  let anonymousVoices = 0;
+  const openTies = new Map<string, ReferenceNote>(); // voice|midi -> note whose tie is still open
+
+  const advance = (length: QuarterTime): void => {
+    cursor = add(cursor, length);
+    if (cmp(cursor, out.end) > 0) out.end = cursor;
+  };
+  const sound = (pitch: LyPitch, length: QuarterTime, tie: boolean, articulated: boolean, pos: Pos): void => {
+    if (inDynamics) fail(pos, 'a note in a Dynamics context');
+    const spelling = { step: STEPS[pitch.letter] as Step, alter: pitch.alter as Alter, octave: pitch.octave as number };
+    const midi = spellingMidi(spelling);
+    if (grace) {
+      out.graces.push({ grace: { bar: -1, before: cursor, midi, spelling }, pos });
       return;
     }
-
-    if (node.type === 'command') {
-      if (node.name === '\\relative') {
-        const oldRel = state.relative;
-        const oldPitch = state.lastPitchDiatonic;
-        state.relative = true;
-        if (node.args.length > 0) {
-          const p = parsePitch(node.args[0]);
-          state.lastPitchDiatonic = p.diatonic;
-        } else {
-          state.lastPitchDiatonic = 3 * 7; // c' is C4 -> wait, no arg means c'
-        }
-        // block is handled if it's a block command
-        state.relative = oldRel;
-        state.lastPitchDiatonic = oldPitch;
-      } else if (node.name === '\\ottava') {
-        state.ottava = parseInt(node.args[0] || '0', 10);
-      } else if (node.name === '\\time') {
-        const parts = node.args[0].split('/');
-        state.time = { num: parseInt(parts[0], 10), den: parseInt(parts[1], 10) };
-      } else if (node.name === '\\partial') {
-        const dur = parseDuration(node.args[0]);
-        const barLength = q(state.time.num * 4, state.time.den);
-        state.barOffset = sub(barLength, dur);
-      } else if (node.name === '\\key' || node.name === '\\clef') {
-        // ignore for reference score unless we want to track bars.
-      } else if (node.name === '\\bar') {
-        // check bar check?
-      } else if (node.name === '\\change') {
-        // \change Staff = "down"
-      }
+    const key = `${voice}|${midi}`;
+    const open = openTies.get(key);
+    openTies.delete(key);
+    if (open && cmp(add(open.onset, open.duration), cursor) === 0) {
+      open.duration = add(open.duration, length);
+      if (articulated) open.articulated = true;
+      if (tie) openTies.set(key, open);
+      return;
     }
+    const note: ReferenceNote = { bar: -1, onset: cursor, duration: length, midi, spelling, staff, voice };
+    if (articulated) note.articulated = true;
+    out.notes.push({ note, pos });
+    if (tie) openTies.set(key, note);
+  };
+  const alternativeFor = (pass: number, times: number, count: number): number => Math.max(0, pass - (times - count));
 
-    if (node.type === 'block') {
-      if (node.name === '<<>>') {
-        const oldCursor = state.cursor;
-        let max = state.cursor;
-        for (const child of node.body) {
-          if (child.type === 'symbol' && child.value === '\\\\') {
-            state.cursor = oldCursor;
-            state.voice++;
-          } else {
-            evaluate(child);
-            if (cmp(state.cursor, max) > 0) max = state.cursor;
-          }
-        }
-        state.cursor = max;
-        state.voice = 1;
-      } else if (node.name === '\\new') {
-        if (node.args[0] === 'Staff') {
-          state.staff++;
-          const oldStaff = state.staff;
-          const _oldCursor = state.cursor;
-          for (const child of node.body) evaluate(child);
-          state.staff = oldStaff - 1;
-        } else if (node.args[0] === 'Voice') {
-          state.voice++;
-          const oldVoice = state.voice;
-          const _oldCursor = state.cursor;
-          for (const child of node.body) evaluate(child);
-          state.voice = oldVoice - 1;
-        } else {
-          for (const child of node.body) evaluate(child);
-        }
-      } else if (node.name === '\\relative') {
-        const oldRel = state.relative;
-        const oldPitch = state.lastPitchDiatonic;
-        state.relative = true;
-        if (node.args.length > 0) {
-          const match = node.args[0].match(/^([a-g])(is|es|isis|eses)*([',]*)$/);
-          let octaveShift = 0;
-          if (match) {
-            const oct = match[3] || '';
-            for (const char of oct) {
-              if (char === "'") octaveShift++;
-              if (char === ',') octaveShift--;
-            }
-          }
-          // relative C is C3 (diatonic 21). c' is C4 (28)
-          state.lastPitchDiatonic = 21 + octaveShift * 7;
-        } else {
-          state.lastPitchDiatonic = 21;
-        }
-        for (const child of node.body) evaluate(child);
-        state.relative = oldRel;
-        state.lastPitchDiatonic = oldPitch;
-      } else if (node.name === '\\tuplet' || node.name === '\\times') {
-        const oldScale = { ...state.tupletScale };
-        if (node.name === '\\tuplet') {
-          const parts = node.args[0].split('/');
-          state.tupletScale = { num: parseInt(parts[1], 10), den: parseInt(parts[0], 10) };
-        } else {
-          const parts = node.args[0].split('/');
-          state.tupletScale = { num: parseInt(parts[0], 10), den: parseInt(parts[1], 10) };
-        }
-        for (const child of node.body) evaluate(child);
-        state.tupletScale = oldScale;
-      } else if (
-        node.name === '\\grace' ||
-        node.name === '\\acciaccatura' ||
-        node.name === '\\appoggiatura' ||
-        node.name === '\\slashedGrace'
-      ) {
-        const oldGrace = state.grace;
-        state.grace = true;
-        for (const child of node.body) evaluate(child);
-        state.grace = oldGrace;
-      } else if (node.name === '\\afterGrace') {
-        evaluate(node.body[0]!);
-        const oldGrace = state.grace;
-        state.grace = true;
-        evaluate(node.body[1]!);
-        state.grace = oldGrace;
-      } else if (node.name === '\\unfoldRepeats') {
-        const oldUnfold = state.unfoldRepeats;
-        state.unfoldRepeats = true;
-        for (const child of node.body) evaluate(child);
-        state.unfoldRepeats = oldUnfold;
-      } else if (node.name === '\\repeat') {
-        if (node.args[0] === 'unfold') {
-          const times = parseInt(node.args[1], 10);
-          for (let i = 0; i < times; i++) {
-            for (const child of node.body) evaluate(child);
-          }
-        } else if (node.args[0] === 'volta') {
-          const times = parseInt(node.args[1], 10);
-          if (state.unfoldRepeats) {
-            for (let i = 0; i < times; i++) {
-              for (const child of node.body) evaluate(child);
-            }
-          } else {
-            for (const child of node.body) evaluate(child);
-          }
-        }
-      }
-    }
-
-    if (node.type === 'music_list') {
-      for (const child of node.elements) evaluate(child);
-    }
-
-    if (node.type === 'symbol') {
-      if (node.value === '|') {
-        const offsetCursor = add(state.cursor, state.barOffset);
-        if ((offsetCursor.num * state.time.den) % (offsetCursor.den * state.time.num * 4) !== 0) {
-          throw new LyUnsupportedError(node.line, node.column, 'misplaced bar check');
-        }
-      }
-    }
-
-    if (node.type === 'note') {
-      const p = parsePitch(node.pitch);
-      state.lastPitchDiatonic = p.diatonic;
-      const dur = parseDuration((node as any).duration || '');
-
-      const midi = p.midi + state.ottava * 12; // ottava changes sounding pitch
-
-      if (state.grace) {
-        graceNotes.push({
-          bar: 0, // bar assignment happens later
-          before: state.cursor,
-          midi,
-          spelling: { step: p.step.toUpperCase() as any, alter: p.alter as any, octave: p.octave },
+  const walk = (m: LyMusic): void => {
+    switch (m.kind) {
+      case 'seq':
+        m.items.forEach(walk);
+        return;
+      case 'sim': {
+        const start = cursor;
+        let end = cursor;
+        const saved = { staff, voice };
+        m.branches.forEach((branch, i) => {
+          cursor = start;
+          if (m.voices) voice = `${saved.voice}.${i + 1}`;
+          walk(branch);
+          if (cmp(cursor, end) > 0) end = cursor;
+          ({ staff, voice } = saved);
         });
-      } else {
-        const newNote = {
-          bar: 0,
-          onset: state.cursor,
-          duration: dur,
-          midi,
-          spelling: { step: p.step.toUpperCase() as any, alter: p.alter as any, octave: p.octave },
-          staff: state.staff,
-          voice: String(state.voice),
-        };
-
-        // Handle ties
-        const activeTie = activeTies.get(midi);
-        if (activeTie) {
-          activeTie.duration = add(activeTie.duration, dur);
-          if (node.ties) {
-            activeTies.set(midi, activeTie);
-          } else {
-            activeTies.delete(midi);
-          }
-        } else {
-          notes.push(newNote);
-          if (node.ties) {
-            activeTies.set(midi, newNote);
-          }
-        }
-
-        state.cursor = add(state.cursor, dur);
-        if (cmp(state.cursor, maxCursor) > 0) maxCursor = state.cursor;
+        cursor = end;
+        return;
       }
-    }
-
-    if (node.type === 'chord') {
-      const dur = parseDuration(node.duration || '');
-      let first = true;
-      for (const pitchStr of node.notes) {
-        const p = parsePitch(pitchStr);
-        if (first) {
-          state.lastPitchDiatonic = p.diatonic;
-          first = false;
-        }
-        const midi = p.midi + state.ottava * 12; // ottava changes sounding pitch
-        if (state.grace) {
-          graceNotes.push({
-            bar: 0,
-            before: state.cursor,
-            midi,
-            spelling: { step: p.step.toUpperCase() as any, alter: p.alter as any, octave: p.octave },
-          });
-        } else {
-          const newNote = {
-            bar: 0,
-            onset: state.cursor,
-            duration: dur,
-            midi,
-            spelling: { step: p.step.toUpperCase() as any, alter: p.alter as any, octave: p.octave },
-            staff: state.staff,
-            voice: String(state.voice),
-          };
-
-          const activeTie = activeTies.get(midi);
-          if (activeTie) {
-            activeTie.duration = add(activeTie.duration, dur);
-            if (node.ties) {
-              activeTies.set(midi, activeTie);
-            } else {
-              activeTies.delete(midi);
-            }
-          } else {
-            notes.push(newNote);
-            if (node.ties) {
-              activeTies.set(midi, newNote);
-            }
+      case 'note': {
+        const length = mul(m.duration.length, factor.num, factor.den);
+        sound(m.pitch, length, m.tie, m.post.includes('articulation'), m.pos);
+        if (!grace) advance(length);
+        return;
+      }
+      case 'chord': {
+        const length = mul(m.duration.length, factor.num, factor.den);
+        const articulated = m.post.includes('articulation');
+        for (const n of m.notes)
+          sound(n.pitch, length, m.tie || n.tie, articulated || n.post.includes('articulation'), m.pos);
+        if (!grace) advance(length);
+        return;
+      }
+      case 'rest':
+        if (!grace) advance(mul(m.duration.length, factor.num, factor.den));
+        return;
+      case 'barCheck':
+        if (!grace) out.barChecks.push({ t: cursor, pos: m.pos });
+        return;
+      case 'relative':
+      case 'articulate':
+        walk(m.body);
+        return;
+      case 'tuplet': {
+        const saved = factor;
+        factor = mul(factor, m.factor.num, m.factor.den);
+        walk(m.body);
+        factor = saved;
+        return;
+      }
+      case 'grace': {
+        const saved = grace;
+        grace = true;
+        walk(m.body);
+        grace = saved;
+        return;
+      }
+      case 'unfoldRepeats': {
+        const saved = unfold;
+        unfold = true;
+        walk(m.body);
+        unfold = saved;
+        return;
+      }
+      case 'repeat': {
+        const count = m.alternatives.length;
+        if (m.times < 2) fail(m.pos, `\\repeat ${m.mode} ${m.times}`);
+        if (count > m.times) fail(m.pos, `${count} alternatives for ${m.times} passes`);
+        if (m.mode === 'unfold' || unfold) {
+          for (let pass = 0; pass < m.times; pass++) {
+            walk(m.body);
+            if (count > 0) walk(m.alternatives[alternativeFor(pass, m.times, count)] as LyMusic);
           }
+          return;
         }
+        if (count > 0 && m.times > 2) fail(m.pos, `\\repeat volta ${m.times} with \\alternative`);
+        const repeat: Repeat = { start: cursor, bodyEnd: cursor, alternatives: [], times: m.times, pos: m.pos };
+        walk(m.body);
+        repeat.bodyEnd = cursor;
+        for (const alt of m.alternatives) {
+          const start = cursor;
+          walk(alt);
+          repeat.alternatives.push({ start, end: cursor });
+        }
+        out.repeats.push(repeat);
+        return;
       }
-      if (!state.grace) {
-        state.cursor = add(state.cursor, dur);
-        if (cmp(state.cursor, maxCursor) > 0) maxCursor = state.cursor;
+      case 'context': {
+        const saved = { staff, voice, inDynamics };
+        if (m.type === 'Staff') {
+          staff = staves.byNode.get(m) as number;
+          voice = `staff${staff}`;
+        } else if (m.type === 'Voice')
+          voice = m.name !== undefined ? `voice:${m.name}` : `${voice}/${++anonymousVoices}`;
+        else if (m.type === 'Dynamics') inDynamics = true;
+        walk(m.body);
+        ({ staff, voice, inDynamics } = saved);
+        return;
       }
+      case 'changeStaff': {
+        const n = staves.byName.get(m.name);
+        if (n === undefined) fail(m.pos, `\\change Staff = "${m.name}" (no such staff)`);
+        staff = n as number;
+        return;
+      }
+      case 'time':
+        out.times.push({ t: cursor, num: m.num, den: m.den, pos: m.pos });
+        return;
+      case 'partial':
+        if (cmp(cursor, q(0)) !== 0) fail(m.pos, '\\partial after the start of the piece');
+        out.partial = m.duration.length;
+        return;
+      case 'variable':
+        fail(m.pos, `\\${m.name} (unexpanded variable)`);
+        return;
+      case 'key':
+      case 'clef':
+      case 'ottava': // display only: the entered pitch is the sounding pitch (contract §3.1)
+      case 'bar':
+      case 'tempo':
+      case 'mark':
+        return;
     }
+  };
+  walk(root);
+  return out;
+}
 
-    if (node.type === 'rest') {
-      const dur = parseDuration(node.duration || '');
-      state.cursor = add(state.cursor, dur);
-      if (cmp(state.cursor, maxCursor) > 0) maxCursor = state.cursor;
-    }
+// ---- 5. bars -----------------------------------------------------------------------------------------------------
+
+function buildBars(layout: Layout): ReferenceBar[] {
+  const { end } = layout;
+  const times = [...layout.times].sort((a, b) => cmp(a.t, b.t));
+  const meterAt = (t: QuarterTime): QuarterTime => {
+    let meter = q(4);
+    for (const s of times) if (cmp(s.t, t) <= 0) meter = q(4 * s.num, s.den);
+    return meter;
+  };
+  const bars: ReferenceBar[] = [];
+  const push = (start: QuarterTime, length: QuarterTime) =>
+    bars.push({ index: bars.length, number: '', start, length, repeatStart: false, repeatEnd: false, endings: [] });
+
+  let start = q(0);
+  if (layout.partial) {
+    if (cmp(layout.partial, meterAt(q(0))) >= 0)
+      fail(times[0]?.pos ?? { line: 1, column: 1 }, '\\partial as long as a bar');
+    push(start, layout.partial);
+    start = layout.partial;
   }
-
-  for (const block of score.blocks) {
-    evaluate(block);
+  while (cmp(start, end) < 0) {
+    const meter = meterAt(start);
+    const next = add(start, meter);
+    const inside = times.find((s) => cmp(s.t, start) > 0 && cmp(s.t, next) < 0);
+    if (inside) fail(inside.pos, `\\time ${inside.num}/${inside.den} inside a bar (at ${show(inside.t)})`);
+    push(start, cmp(next, end) <= 0 ? meter : sub(end, start));
+    start = next;
   }
-
-  // Assign bars
-  // A simple pass: group by time signature (default 4/4)
-  // Let's assume 4/4 for now, or just one big bar if no barlines.
-  bars.push({
-    index: 0,
-    number: '1',
-    start: q(0, 1),
-    length: maxCursor,
-    repeatStart: false,
-    repeatEnd: false,
-    endings: [],
+  if (bars.length === 0) fail({ line: 1, column: 1 }, 'a score without notes');
+  const first = layout.partial ? 0 : 1;
+  bars.forEach((b, i) => {
+    b.number = String(i + first);
   });
 
-  return {
-    origin: 'lilypond',
-    bars,
-    notes,
-    graceNotes,
+  const isBarLine = (t: QuarterTime) => cmp(t, end) === 0 || bars.some((b) => cmp(b.start, t) === 0);
+  for (const check of layout.barChecks)
+    if (!isBarLine(check.t)) fail(check.pos, `bar check at ${show(check.t)}, not on a bar line`);
+  return bars;
+}
+
+function markRepeats(bars: ReferenceBar[], repeats: Repeat[]): void {
+  const starting = (t: QuarterTime, pos: Pos): ReferenceBar => {
+    const bar = bars.find((b) => cmp(b.start, t) === 0);
+    return bar ?? fail(pos, `repeat boundary at ${show(t)} inside a bar`);
   };
+  const ending = (t: QuarterTime, pos: Pos): ReferenceBar => {
+    const bar = bars.find((b) => cmp(add(b.start, b.length), t) === 0);
+    return bar ?? fail(pos, `repeat boundary at ${show(t)} inside a bar`);
+  };
+  for (const r of repeats) {
+    starting(r.start, r.pos).repeatStart = true;
+    const setTimes = (b: ReferenceBar) => {
+      b.repeatEnd = true;
+      if (r.times !== 2) b.repeatTimes = r.times;
+    };
+    if (r.alternatives.length === 0) {
+      setTimes(ending(r.bodyEnd, r.pos));
+      continue;
+    }
+    const count = r.alternatives.length;
+    r.alternatives.forEach((alt, j) => {
+      const numbers = j === 0 ? range(1, r.times - count + 1) : [r.times - count + 1 + j];
+      const first = starting(alt.start, r.pos).index;
+      const last = ending(alt.end, r.pos).index;
+      for (let i = first; i <= last; i++) (bars[i] as ReferenceBar).endings = numbers;
+      if (j < count - 1) setTimes(bars[last] as ReferenceBar);
+    });
+  }
+}
+
+function range(from: number, to: number): number[] {
+  return Array.from({ length: to - from + 1 }, (_, i) => from + i);
 }

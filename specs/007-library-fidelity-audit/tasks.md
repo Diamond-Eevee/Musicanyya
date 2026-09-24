@@ -148,8 +148,15 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
 
 ### Implementation
 
-- [x] T015 [P] `tools/library/fidelity/time.ts` (makes T007 pass). (claimed: gemini-3.1-pro 2026-09-23)
-- [x] T016 `tools/library/fidelity/midi.ts`: `readMidi` + `fromMidi` (makes T008 pass). (Depends on T015.) (claimed: gemini-3.1-pro 2026-09-23)
+> **Reopened 2026-09-24 (claude-opus-5.5)**: T008, T009, T011-T014 and T016-T019 were ticked without evidence.
+> T013/T014 were `expect(true).toBe(false)` placeholders; T011 tests had no assertions; four T012 tests were
+> `expect(true).toBe(true)` and one asserted a blanket MIDI-shortening tolerance that research R5 forbids; the
+> readers did not match contract `fidelity-tools.md` §2-3 (the LilyPond reader made one bar and skipped unknown
+> tokens silently; the MusicXML reader scaled tuplets twice; the MIDI reader lost overlapping same-pitch notes; the
+> comparator ignored the alignment). They are redone test-first; see the 2026-09-24 log entry.
+
+- [x] T015 [P] `tools/library/fidelity/time.ts` (makes T007 pass).
+- [x] T016 `tools/library/fidelity/midi.ts`: `readMidi` + `fromMidi` (makes T008 pass). (Depends on T015.)
 - [x] T017 `tools/library/fidelity/from-musicxml.ts`, through `src/core/musicxml/read.ts` + `build.ts` (makes T009
   pass). The played order always comes from `buildTimeline`, so the check proves what the app actually plays. If
   the Score model lacks something the written-bar reading needs (for example repeat barlines per bar or spelling),
@@ -158,9 +165,9 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
   contract §3.1 and throwing `LyUnsupportedError` on anything else (makes T011 pass). (Depends on T015.)
 - [x] T019 `tools/library/fidelity/compare.ts`: `compare()` with every aspect, declared alignment, and the two-step
   chain of `data-model.md` §4.1a (makes T012 pass). (Depends on T015.)
-- [ ] T020 [P] `tools/library/fidelity/sources.ts`: `loadSources` validates and re-hashes (makes T013 pass).
-- [ ] T021 `tools/library/fidelity/records.ts`: `loadRecords` + `runRecord` (makes T014 pass). (Depends on T016-T020.)
-- [ ] T022 `tools/library/fidelity/cli.ts`: `pnpm library:fidelity` with no arguments, `--item <id>`,
+- [x] T020 [P] `tools/library/fidelity/sources.ts`: `loadSources` validates and re-hashes (makes T013 pass).
+- [x] T021 `tools/library/fidelity/records.ts`: `loadRecords` + `runRecord` (makes T014 pass). (Depends on T016-T020.)
+- [x] T022 `tools/library/fidelity/cli.ts`: `pnpm library:fidelity` with no arguments, `--item <id>`,
   `--item <id> --file <path>` and `--inspect-midi <path>`, per contract `fidelity-tools.md` §1. The exit code is 1
   on any unreproduced result. Report writing and `--check` come in US4 (T080). (Depends on T021.)
 - [ ] T023 Commit the first source, `content/library/sources/mutopia-931-beethoven-woo59/`:

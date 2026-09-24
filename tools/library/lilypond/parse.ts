@@ -1,424 +1,780 @@
-import type { LyToken } from './lex';
-import { lexLilyPond } from './lex';
+// Parser for the LilyPond subset (contract fidelity-tools.md §3.1). It builds a music tree and resolves what
+// LilyPond itself resolves while parsing: durations carried over from the previous note, in source order. Octaves
+// under \relative are resolved later (read.ts), after variables are expanded, as LilyPond does. Every construct
+// outside the subset throws LyUnsupportedError with its line and column.
+import { type QuarterTime, q } from '../fidelity/time';
+import { LyUnsupportedError } from './errors';
+import { type LyToken, lexLilyPond } from './lex';
 
-export class LyUnsupportedError extends Error {
-  constructor(
-    public line: number,
-    public column: number,
-    public construct: string,
-  ) {
-    super(`Unsupported LilyPond construct at ${line}:${column}: ${construct}`);
-    this.name = 'LyUnsupportedError';
-  }
-}
+export { LyUnsupportedError } from './errors';
 
-export type LyNode = LyCommand | LyBlock | LyNote | LyChord | LyRest | LyAssignment | LyMusicList | LySymbol;
-
-export interface LyCommand {
-  type: 'command';
-  name: string;
-  args: any[];
+export interface Pos {
   line: number;
   column: number;
 }
 
-export interface LyBlock {
-  type: 'block';
-  name: string;
-  args: any[];
-  body: LyNode[];
-  line: number;
-  column: number;
+/** A pitch as written: letter 0-6 from C, alteration, octave marks (' = +1, , = -1), and an optional octave check. */
+export interface LyPitch {
+  letter: number;
+  alter: -2 | -1 | 0 | 1 | 2;
+  marks: number;
+  check?: number;
+  /** The absolute octave (C4 = middle C), filled in by read.ts after \relative is resolved. */
+  octave?: number;
 }
 
-export interface LyNote {
-  type: 'note';
-  pitch: string;
-  duration?: string;
-  ties: boolean;
-  line: number;
-  column: number;
+export interface LyDuration {
+  /** 1, 2, 4 ... 128 for whole, half, quarter ...; 0.5 for \breve. */
+  base: number;
+  dots: number;
+  factor: QuarterTime;
+  /** The resolved length in quarter notes. */
+  length: QuarterTime;
 }
 
-export interface LyChord {
-  type: 'chord';
-  notes: string[];
-  duration?: string;
-  ties: boolean;
-  line: number;
-  column: number;
+export type LyPost =
+  | 'tie'
+  | 'articulation'
+  | 'ornament'
+  | 'dynamic'
+  | 'slur'
+  | 'phrasingSlur'
+  | 'beam'
+  | 'fingering'
+  | 'text'
+  | 'pedal'
+  | 'other';
+
+export interface LyChordNote {
+  pitch: LyPitch;
+  tie: boolean;
+  post: LyPost[];
 }
 
-export interface LyRest {
-  type: 'rest';
-  kind: 'r' | 's' | 'R';
-  duration?: string;
-  line: number;
-  column: number;
-}
+export type LyMusic =
+  | { kind: 'seq'; items: LyMusic[]; pos: Pos }
+  | { kind: 'sim'; branches: LyMusic[]; voices: boolean; pos: Pos }
+  | { kind: 'note'; pitch: LyPitch; duration: LyDuration; tie: boolean; post: LyPost[]; pos: Pos }
+  | { kind: 'chord'; notes: LyChordNote[]; duration: LyDuration; tie: boolean; post: LyPost[]; pos: Pos }
+  | { kind: 'rest'; rest: 'r' | 'R' | 's'; duration: LyDuration; pos: Pos }
+  | { kind: 'barCheck'; pos: Pos }
+  | { kind: 'relative'; ref: LyPitch; body: LyMusic; pos: Pos }
+  | { kind: 'tuplet'; factor: QuarterTime; body: LyMusic; pos: Pos }
+  | { kind: 'grace'; command: string; body: LyMusic; pos: Pos }
+  | { kind: 'repeat'; mode: 'volta' | 'unfold'; times: number; body: LyMusic; alternatives: LyMusic[]; pos: Pos }
+  | { kind: 'unfoldRepeats'; body: LyMusic; pos: Pos }
+  | { kind: 'articulate'; body: LyMusic; pos: Pos }
+  | { kind: 'context'; type: string; name?: string; body: LyMusic; pos: Pos }
+  | { kind: 'changeStaff'; name: string; pos: Pos }
+  | { kind: 'time'; num: number; den: number; pos: Pos }
+  | { kind: 'partial'; duration: LyDuration; pos: Pos }
+  | { kind: 'key'; tonic: LyPitch; mode: string; pos: Pos }
+  | { kind: 'clef'; name: string; pos: Pos }
+  | { kind: 'ottava'; octaves: number; pos: Pos }
+  | { kind: 'bar'; style: string; pos: Pos }
+  | { kind: 'tempo'; text?: string; beat?: LyDuration; bpm?: number; pos: Pos }
+  | { kind: 'mark'; post: LyPost; name: string; pos: Pos }
+  | { kind: 'variable'; name: string; pos: Pos };
 
-export interface LyAssignment {
-  type: 'assignment';
-  name: string;
-  value: LyNode;
-  line: number;
-  column: number;
-}
-
-export interface LyMusicList {
-  type: 'music_list';
-  elements: LyNode[];
-  line: number;
-  column: number;
-}
-
-export interface LySymbol {
-  type: 'symbol';
-  value: string;
-  line: number;
-  column: number;
+export interface LyScoreBlock {
+  music: LyMusic;
+  layout: boolean;
+  midi: boolean;
 }
 
 export interface LyScore {
   header: Record<string, string>;
-  blocks: LyNode[];
+  variables: Map<string, LyMusic>;
+  /** The notation score: the \score with a \layout, or the only one without \midi. */
+  music: LyMusic;
+  /** What the MIDI score does (research R5): does it unfold repeats, does it use \articulate? */
+  midi: { unfoldRepeats: boolean; articulate: boolean };
 }
+
+const CONTEXT_TYPES = new Set(['Staff', 'Voice', 'PianoStaff', 'GrandStaff', 'StaffGroup', 'ChoirStaff', 'Dynamics']);
+
+/** Post-event commands after a note (ignored by the comparator; the articulations mark a note that may sound shorter). */
+const POST_COMMANDS: Record<string, LyPost> = {};
+for (const d of 'p pp ppp pppp ppppp f ff fff ffff fffff mp mf fp sf sff sp spp sfz rfz fz sfp n cresc decresc dim cr decr'.split(
+  ' ',
+))
+  POST_COMMANDS[`\\${d}`] = 'dynamic';
+for (const a of 'staccato staccatissimo tenuto accent marcato portato espressivo'.split(' '))
+  POST_COMMANDS[`\\${a}`] = 'articulation';
+for (const o of 'trill prall mordent turn reverseturn prallprall prallmordent upprall downprall upmordent downmordent pralldown prallup lineprall fermata fermataMarkup shortfermata longfermata verylongfermata segno coda varcoda upbow downbow open stopped flageolet thumb halfopen snappizzicato arpeggio glissando laissezVibrer repeatTie startTrillSpan stopTrillSpan startTextSpan stopTextSpan'.split(
+  ' ',
+))
+  POST_COMMANDS[`\\${o}`] = 'ornament';
+for (const s of 'sustainOn sustainOff sostenutoOn sostenutoOff unaCorda treCorde'.split(' '))
+  POST_COMMANDS[`\\${s}`] = 'pedal';
+Object.assign(POST_COMMANDS, {
+  '\\<': 'dynamic',
+  '\\>': 'dynamic',
+  '\\!': 'dynamic',
+  '\\(': 'phrasingSlur',
+  '\\)': 'phrasingSlur',
+});
+
+/** Articulation shorthands after '-', '^' or '_' (LilyPond's script abbreviations). */
+const SHORTHAND: Record<string, LyPost> = {
+  '.': 'articulation',
+  '-': 'articulation',
+  '>': 'articulation',
+  '^': 'articulation',
+  '+': 'articulation',
+  '!': 'articulation',
+  _: 'articulation',
+};
+
+/** Commands that only change the look of the score; they take no argument. */
+const LAYOUT_COMMANDS = new Set(
+  `stemUp stemDown stemNeutral voiceOne voiceTwo voiceThree voiceFour oneVoice slurUp slurDown slurNeutral slurDashed
+  slurDotted slurSolid tieUp tieDown tieNeutral tieDashed tieDotted tieSolid dynamicUp dynamicDown dynamicNeutral
+  phrasingSlurUp phrasingSlurDown phrasingSlurNeutral tupletUp tupletDown tupletNeutral autoBeamOn autoBeamOff shiftOn
+  shiftOnn shiftOnnn shiftOff mergeDifferentlyHeadedOn mergeDifferentlyHeadedOff mergeDifferentlyDottedOn
+  mergeDifferentlyDottedOff break noBreak pageBreak noPageBreak pageTurn numericTimeSignature defaultTimeSignature
+  hideNotes unHideNotes small normalsize tiny teeny large huge breathe arpeggioArrowUp arpeggioArrowDown
+  arpeggioNormal arpeggioBracket textLengthOn textLengthOff hideStaffSwitch showStaffSwitch compressFullBarRests
+  expandFullBarRests compressEmptyMeasures expandEmptyMeasures newSpacingSection easyHeadsOn easyHeadsOff
+  showStaffSwitch pointAndClickOff pointAndClickOn`
+    .split(/\s+/)
+    .map((c) => `\\${c}`),
+);
+
+/** Properties whose change would move notes in pitch or time (contract §3.1: unsupported). */
+const TIME_OR_PITCH_PROPERTY =
+  /(^|\.)(Timing|measureLength|measurePosition|currentBarNumber|timeSignatureFraction|middleCPosition|middleCClefPosition|middleCOffset|transposition|instrumentTransposition|tempoWholesPerMinute|baseMoment|beatStructure)(\.|$)/;
+
+const DUTCH: Record<string, [number, LyPitch['alter']]> = {};
+const ENGLISH: Record<string, [number, LyPitch['alter']]> = {};
+'cdefgab'.split('').forEach((l, letter) => {
+  const add = (table: typeof DUTCH, suffixes: [string, LyPitch['alter']][]) => {
+    for (const [s, alter] of suffixes) table[l + s] = [letter, alter];
+  };
+  add(DUTCH, [
+    ['', 0],
+    ['is', 1],
+    ['isis', 2],
+    ['es', -1],
+    ['eses', -2],
+  ]);
+  add(ENGLISH, [
+    ['', 0],
+    ['s', 1],
+    ['sharp', 1],
+    ['ss', 2],
+    ['x', 2],
+    ['sharpsharp', 2],
+    ['f', -1],
+    ['flat', -1],
+    ['ff', -2],
+    ['flatflat', -2],
+  ]);
+});
+// Dutch contracted forms: es = e-flat, as = a-flat.
+Object.assign(DUTCH, { es: [2, -1], eses: [2, -2], as: [5, -1], ases: [5, -2] });
 
 export function parseLilyPond(source: string): LyScore {
   const tokens = lexLilyPond(source);
   let pos = 0;
+  let pitchNames = DUTCH;
+  let lastDuration: LyDuration = duration(4, 0, q(1));
+  const variables = new Map<string, LyMusic>();
+  const header: Record<string, string> = {};
+  const scores: LyScoreBlock[] = [];
 
-  function peek(): LyToken {
-    return tokens[pos]!;
-  }
-
-  function advance(): LyToken {
-    if (pos < tokens.length - 1) pos++;
-    return tokens[pos - 1]!;
-  }
-
-  function match(type: string, value?: string): boolean {
+  const peek = (k = 0): LyToken => tokens[Math.min(pos + k, tokens.length - 1)] as LyToken;
+  const next = (): LyToken => {
     const t = peek();
-    if (t.type === type && (value === undefined || t.value === value)) {
-      advance();
-      return true;
+    if (t.type !== 'eof') pos++;
+    return t;
+  };
+  const at = (t: LyToken): Pos => ({ line: t.line, column: t.column });
+  const unsupported = (t: LyToken, construct: string): never => {
+    throw new LyUnsupportedError(t.line, t.column, construct);
+  };
+  const is = (type: LyToken['type'], value?: string, k = 0): boolean => {
+    const t = peek(k);
+    return t.type === type && (value === undefined || t.value === value);
+  };
+  const expect = (type: LyToken['type'], value?: string): LyToken => {
+    const t = peek();
+    if (!is(type, value)) unsupported(t, `expected ${value ?? type}, found '${t.value || t.type}'`);
+    return next();
+  };
+  const skipBlock = (): void => {
+    expect('symbol', '{');
+    let depth = 1;
+    while (depth > 0) {
+      const t = next();
+      if (t.type === 'eof') unsupported(t, 'unterminated block');
+      if (t.type === 'symbol' && t.value === '{') depth++;
+      if (t.type === 'symbol' && t.value === '}') depth--;
     }
+  };
+
+  // ---- top level ------------------------------------------------------------------------------------------------
+  while (!is('eof')) {
+    const t = peek();
+    if (t.type === 'command') {
+      switch (t.value) {
+        case '\\version':
+          next();
+          expect('string');
+          continue;
+        case '\\header':
+          next();
+          parseHeader(header);
+          continue;
+        case '\\paper':
+        case '\\layout':
+        case '\\midi':
+          next();
+          skipBlock();
+          continue;
+        case '\\language':
+          next();
+          setLanguage(expect('string'));
+          continue;
+        case '\\include': {
+          next();
+          const file = expect('string');
+          if (file.value === 'english.ly') pitchNames = ENGLISH;
+          else if (file.value === 'nederlands.ly') pitchNames = DUTCH;
+          else unsupported(file, `\\include "${file.value}"`);
+          continue;
+        }
+        case '\\score':
+          next();
+          scores.push(parseScoreBlock());
+          continue;
+        case '\\pointAndClickOff':
+        case '\\pointAndClickOn':
+          next();
+          continue;
+      }
+    }
+    if (t.type === 'scheme') {
+      if (/^\(set-(global-staff-size|default-paper-size)\b/.test(t.value)) {
+        next();
+        continue;
+      }
+      unsupported(t, 'Scheme expression at top level');
+    }
+    if (t.type === 'word' && is('symbol', '=', 1)) {
+      next();
+      next();
+      parseAssignment(t.value);
+      continue;
+    }
+    scores.push({ music: parseMusic(), layout: false, midi: false });
+  }
+
+  const notation = scores.filter((s) => s.layout || !s.midi);
+  if (notation.length !== 1)
+    throw new LyUnsupportedError(
+      1,
+      1,
+      `${notation.length} notation scores (exactly one \\score without \\midi is supported)`,
+    );
+  const midiScores = scores.filter((s) => s.midi);
+  return {
+    header,
+    variables,
+    music: (notation[0] as LyScoreBlock).music,
+    midi: {
+      unfoldRepeats: midiScores.some((s) => contains(s.music, 'unfoldRepeats')),
+      articulate: midiScores.some((s) => contains(s.music, 'articulate')),
+    },
+  };
+
+  function contains(m: LyMusic, kind: LyMusic['kind']): boolean {
+    if (m.kind === kind) return true;
+    if (m.kind === 'variable') {
+      const v = variables.get(m.name);
+      return v !== undefined && contains(v, kind);
+    }
+    if (m.kind === 'seq') return m.items.some((x) => contains(x, kind));
+    if (m.kind === 'sim') return m.branches.some((x) => contains(x, kind));
+    if (m.kind === 'repeat') return contains(m.body, kind) || m.alternatives.some((x) => contains(x, kind));
+    if ('body' in m) return contains(m.body, kind);
     return false;
   }
 
-  function expect(type: string, value?: string): LyToken {
-    const t = peek();
-    if (t.type === type && (value === undefined || t.value === value)) {
-      return advance();
-    }
-    throw new LyUnsupportedError(t.line, t.column, `Expected ${type} ${value || ''}, got ${t.type} ${t.value}`);
+  function setLanguage(t: LyToken): void {
+    if (t.value === 'english') pitchNames = ENGLISH;
+    else if (t.value === 'nederlands') pitchNames = DUTCH;
+    else unsupported(t, `\\language "${t.value}"`);
   }
 
-  function parseHeader(): Record<string, string> {
-    const header: Record<string, string> = {};
+  function parseHeader(into: Record<string, string>): void {
     expect('symbol', '{');
-    while (peek().type !== 'eof' && !(peek().type === 'symbol' && peek().value === '}')) {
-      if (peek().type === 'word') {
-        const key = advance().value;
-        if (match('symbol', '=')) {
-          if (
-            peek().type === 'string' ||
-            peek().type === 'number' ||
-            peek().type === 'word' ||
-            peek().type === 'command'
-          ) {
-            let val = advance().value;
-            // sometimes there's a markup block, we just skip it or record it as string
-            if (val === '\\markup') {
-              expect('symbol', '{');
-              while (peek().type !== 'eof' && !(peek().type === 'symbol' && peek().value === '}')) {
-                advance();
-              }
-              expect('symbol', '}');
-              val = 'markup';
-            }
-            header[key] = val;
-          } else {
-            advance(); // ignore whatever is there
-          }
-        }
-      } else {
-        advance();
-      }
+    while (!is('symbol', '}')) {
+      const key = expect('word');
+      expect('symbol', '=');
+      const v = peek();
+      if (v.type === 'string') into[key.value] = next().value;
+      else if (v.type === 'command' && v.value === '\\markup') {
+        next();
+        skipMarkup();
+      } else if (v.type === 'word' || v.type === 'number' || v.type === 'scheme') next();
+      else unsupported(v, `header value for ${key.value}`);
     }
     expect('symbol', '}');
-    return header;
   }
 
-  function parseMusicList(): LyMusicList {
-    const t = expect('symbol', '{');
-    const elements: LyNode[] = [];
-    while (peek().type !== 'eof' && !(peek().type === 'symbol' && peek().value === '}')) {
-      elements.push(parseMusic());
-    }
-    expect('symbol', '}');
-    return { type: 'music_list', elements, line: t.line, column: t.column };
-  }
-
-  function parseMusic(): LyNode {
+  function parseAssignment(name: string): void {
     const t = peek();
-
-    if (t.type === 'symbol' && t.value === '{') {
-      return parseMusicList();
+    if (t.type === 'string' || t.type === 'number' || t.type === 'scheme') {
+      next();
+      return;
     }
-
-    if (t.type === 'symbol' && t.value === '<<') {
-      advance();
-      const elements: LyNode[] = [];
-      while (peek().type !== 'eof' && !(peek().type === 'symbol' && peek().value === '>>')) {
-        if (peek().type === 'symbol' && peek().value === '\\\\') {
-          elements.push({ type: 'symbol', value: '\\\\', line: peek().line, column: peek().column });
-          advance();
-        } else {
-          elements.push(parseMusic());
-        }
-      }
-      expect('symbol', '>>');
-      return { type: 'block', name: '<<>>', args: [], body: elements, line: t.line, column: t.column };
+    if (t.type === 'command' && t.value === '\\markup') {
+      next();
+      skipMarkup();
+      return;
     }
+    variables.set(name, parseMusic());
+  }
 
-    if (t.type === 'symbol' && t.value === '<') {
-      advance();
-      const notes: string[] = [];
-      while (peek().type !== 'eof' && !(peek().type === 'symbol' && peek().value === '>')) {
-        if (peek().type === 'word') notes.push(advance().value);
-        else advance();
+  function parseScoreBlock(): LyScoreBlock {
+    expect('symbol', '{');
+    let music: LyMusic | undefined;
+    let layout = false;
+    let midi = false;
+    while (!is('symbol', '}')) {
+      const t = peek();
+      if (t.type === 'command' && (t.value === '\\layout' || t.value === '\\midi')) {
+        next();
+        skipBlock();
+        if (t.value === '\\layout') layout = true;
+        else midi = true;
+      } else if (t.type === 'command' && t.value === '\\header') {
+        next();
+        parseHeader({});
+      } else {
+        if (music) unsupported(t, 'a second music expression in one \\score');
+        music = parseMusic();
       }
-      expect('symbol', '>');
-      let duration: string | undefined;
-      let ties = false;
-      if (peek().type === 'number') {
-        duration = advance().value;
-        while (peek().type === 'symbol' && peek().value === '.') {
-          duration += '.';
-          advance();
-        }
-      }
-      if (peek().type === 'symbol' && peek().value === '~') {
-        ties = true;
-        advance();
-      }
-      return { type: 'chord', notes, ...(duration ? { duration } : {}), ties, line: t.line, column: t.column };
     }
+    const close = expect('symbol', '}');
+    if (!music) unsupported(close, '\\score without music');
+    return { music: music as LyMusic, layout, midi };
+  }
 
-    if (t.type === 'command') {
-      advance();
-      const name = t.value;
-      if (name === '\\afterGrace') {
-        const mainMusic = parseMusic();
-        const graceMusic = parseMusic();
-        return { type: 'block', name, args: [], body: [mainMusic, graceMusic], line: t.line, column: t.column };
-      }
-      if (
-        name === '\\relative' ||
-        name === '\\repeat' ||
-        name === '\\unfoldRepeats' ||
-        name === '\\alternative' ||
-        name === '\\tuplet' ||
-        name === '\\times' ||
-        name === '\\new' ||
-        name === '\\context' ||
-        name === '\\grace' ||
-        name === '\\acciaccatura' ||
-        name === '\\appoggiatura' ||
-        name === '\\slashedGrace'
-      ) {
-        const args: any[] = [];
-        let body: LyNode[] = [];
-
-        // consume args before block
-        while (peek().type !== 'eof' && peek().type !== 'symbol' && peek().value !== '{') {
-          if (peek().type === 'command' && (name === '\\repeat' || name === '\\alternative' || name === '\\new')) {
-            if (peek().value === '\\alternative') break; // alternative is a separate block, handled in reader
-          }
-          if (peek().value === '<' || peek().value === '<<') break; // block start
-          if (name === '\\grace' || name === '\\acciaccatura' || name === '\\appoggiatura' || name === '\\slashedGrace')
-            break;
-          if (peek().type === 'number') {
-            let val = advance().value;
-            if (peek().type === 'symbol' && peek().value === '/') {
-              val += advance().value;
-              if (peek().type === 'number') val += advance().value;
-            }
-            args.push(val);
-          } else {
-            args.push(advance().value);
-          }
-        }
-
-        if (peek().type === 'symbol' && peek().value === '{') {
-          body = [parseMusicList()];
-        } else if (peek().type === 'symbol' && peek().value === '<<') {
-          body = [parseMusic()]; // Parses the << ... >>
-        } else {
-          body = [parseMusic()];
-        }
-        return { type: 'block', name, args, body, line: t.line, column: t.column };
-      }
-
-      // non-block commands
-      const args: any[] = [];
-      if (
-        name === '\\time' ||
-        name === '\\key' ||
-        name === '\\clef' ||
-        name === '\\ottava' ||
-        name === '\\partial' ||
-        name === '\\bar' ||
-        name === '\\change' ||
-        name === '\\set' ||
-        name === '\\override' ||
-        name === '\\markup' ||
-        name === '\\tempo'
-      ) {
-        if (name === '\\time') {
-          if (peek().type === 'number') {
-            let val = advance().value;
-            if (peek().type === 'symbol' && peek().value === '/') {
-              val += advance().value;
-              if (peek().type === 'number') val += advance().value;
-            }
-            args.push(val);
-          } else {
-            args.push(expect('number').value);
-          }
-        } else if (name === '\\key') {
-          args.push(expect('word').value);
-          if (peek().type === 'command') args.push(advance().value); // \major \minor
-        } else if (name === '\\clef') {
-          if (peek().type === 'string' || peek().type === 'word') {
-            args.push(advance().value);
-          } else {
-            throw new LyUnsupportedError(t.line, t.column, `Expected string/word, got ${peek().type}`);
-          }
-        } else if (name === '\\ottava') {
-          // could be number or symbol # and number
-          if (peek().type === 'symbol' && peek().value === '#') advance();
-          args.push(expect('number').value);
-        } else if (name === '\\partial') {
-          args.push(expect('number').value); // actually duration
-          while (peek().type === 'symbol' && peek().value === '.') {
-            args[0] += '.';
-            advance();
-          }
-        } else if (name === '\\bar') {
-          args.push(expect('string').value);
-        } else {
-          // just read one arg
-          if (peek().type !== 'eof' && peek().type !== 'symbol') args.push(advance().value);
-        }
-      } else if (name === '\\include' || name === '\\transpose') {
-        throw new LyUnsupportedError(t.line, t.column, name);
-      }
-      return { type: 'command', name, args, line: t.line, column: t.column };
-    }
-
-    if (t.type === 'word') {
-      const val = advance().value;
-      if (val === 'r' || val === 'R' || val === 's') {
-        let duration: string | undefined;
-        if (peek().type === 'number') {
-          duration = advance().value;
-          while (peek().type === 'symbol' && peek().value === '.') {
-            duration += '.';
-            advance();
-          }
-        }
-        return { type: 'rest', kind: val, ...(duration ? { duration } : {}), line: t.line, column: t.column };
-      }
-
-      // It's a note or variable
-      if (match('symbol', '=')) {
-        const valNode = parseMusic();
-        return { type: 'assignment', name: val, value: valNode, line: t.line, column: t.column };
-      }
-
-      // It's a note
-      let duration: string | undefined;
-      // Duration might be part of the word if lexer grabbed it, e.g. "c4."
-      // Let's split pitch and duration.
-      let pitch = val;
-      const durMatch = val.match(/^([a-z]+[',]*)([0-9]+\.*)$/);
-      if (durMatch) {
-        pitch = durMatch[1]!;
-        duration = durMatch[2];
-      } else if (peek().type === 'number') {
-        duration = advance().value;
-        while (peek().type === 'symbol' && peek().value === '.') {
-          duration += '.';
-          advance();
-        }
-      }
-
-      let ties = false;
-      if (peek().type === 'symbol' && peek().value === '~') {
-        ties = true;
-        advance();
-      }
-      return { type: 'note', pitch, ...(duration ? { duration } : {}), ties, line: t.line, column: t.column };
-    }
-
+  // ---- music ----------------------------------------------------------------------------------------------------
+  function parseMusic(): LyMusic {
+    const t = peek();
+    const p = at(t);
     if (t.type === 'symbol') {
-      if (t.value === '|') {
-        advance();
-        return { type: 'symbol', value: '|', line: t.line, column: t.column };
-      }
-      if (t.value === '-') {
-        advance();
-        if (peek().type === 'symbol' || peek().type === 'word' || peek().type === 'number') {
-          advance(); // articulation like -. or -^
+      switch (t.value) {
+        case '{': {
+          next();
+          const items: LyMusic[] = [];
+          while (!is('symbol', '}')) {
+            if (is('eof')) unsupported(peek(), 'unterminated { }');
+            items.push(parseMusic());
+          }
+          next();
+          return { kind: 'seq', items, pos: p };
         }
-        return { type: 'symbol', value: '-', line: t.line, column: t.column };
+        case '<<':
+          return parseSimultaneous();
+        case '<':
+          return parseChord();
+        case '|':
+          next();
+          return { kind: 'barCheck', pos: p };
       }
-      if (t.value === '(' || t.value === ')' || t.value === '[' || t.value === ']') {
-        advance();
-        return { type: 'symbol', value: t.value, line: t.line, column: t.column };
-      }
-      if (t.value === '#') {
-        advance();
-        advance(); // skip scheme literal
-        return { type: 'symbol', value: '#', line: t.line, column: t.column };
-      }
+      unsupported(t, `'${t.value}'`);
     }
-
-    // Skip unhandled tokens for now to be robust against markings
-    const skipped = advance();
-    return { type: 'symbol', value: skipped.value, line: t.line, column: t.column };
+    if (t.type === 'word') {
+      if (t.value === 'r' || t.value === 'R' || t.value === 's') {
+        next();
+        const d = parseDurationOrLast();
+        parsePostEvents(); // e.g. a fermata over a rest, or a dynamic on a spacer
+        return { kind: 'rest', rest: t.value, duration: d, pos: p };
+      }
+      if (t.value in pitchNames) {
+        const pitch = parsePitch();
+        const d = parseDurationOrLast();
+        const post = parsePostEvents();
+        return { kind: 'note', pitch, duration: d, tie: post.includes('tie'), post, pos: p };
+      }
+      unsupported(t, `'${t.value}' (not a note, rest or variable)`);
+    }
+    if (t.type === 'scheme') unsupported(t, 'Scheme expression in music');
+    if (t.type !== 'command') unsupported(t, `'${t.value || t.type}'`);
+    return parseCommand();
   }
 
-  const score: LyScore = { header: {}, blocks: [] };
+  function parseSimultaneous(): LyMusic {
+    const open = next();
+    const branches: LyMusic[] = [];
+    let current: LyMusic[] = [];
+    let voices = false;
+    while (!is('symbol', '>>')) {
+      if (is('eof')) unsupported(open, 'unterminated << >>');
+      if (is('command', '\\\\')) {
+        next();
+        voices = true;
+        branches.push({ kind: 'seq', items: current, pos: at(open) });
+        current = [];
+        continue;
+      }
+      current.push(parseMusic());
+    }
+    next();
+    if (voices) branches.push({ kind: 'seq', items: current, pos: at(open) });
+    else branches.push(...current);
+    return { kind: 'sim', branches, voices, pos: at(open) };
+  }
 
-  while (peek().type !== 'eof') {
+  function parseChord(): LyMusic {
+    const open = next();
+    const notes: LyChordNote[] = [];
+    while (!is('symbol', '>')) {
+      const t = peek();
+      if (t.type !== 'word' || !(t.value in pitchNames)) unsupported(t, `'${t.value || t.type}' in a chord`);
+      const pitch = parsePitch();
+      const post = parsePostEvents();
+      notes.push({ pitch, tie: post.includes('tie'), post });
+    }
+    next();
+    if (notes.length === 0) unsupported(open, 'empty chord');
+    const d = parseDurationOrLast();
+    const post = parsePostEvents();
+    return { kind: 'chord', notes, duration: d, tie: post.includes('tie'), post, pos: at(open) };
+  }
+
+  function parsePitch(): LyPitch {
+    const t = next();
+    const [letter, alter] = pitchNames[t.value] as [number, LyPitch['alter']];
+    const pitch: LyPitch = { letter, alter, marks: 0 };
+    if (is('symbol', '!') || is('symbol', '?')) next(); // forced / cautionary accidental: display only
+    pitch.marks = parseOctaveMarks();
+    if (is('symbol', '=') && !peek().spaced) {
+      next();
+      pitch.check = parseOctaveMarks();
+    }
+    return pitch;
+  }
+
+  function parseOctaveMarks(): number {
+    let marks = 0;
+    while ((is('symbol', "'") || is('symbol', ',')) && !peek().spaced) marks += next().value === "'" ? 1 : -1;
+    return marks;
+  }
+
+  function parseDurationOrLast(): LyDuration {
+    const d = parseDuration();
+    if (d) lastDuration = d;
+    return lastDuration;
+  }
+
+  /** A written duration: 4, 8., \breve, R1*3, s2*3/4. Returns undefined when none is written. */
+  function parseDuration(): LyDuration | undefined {
     const t = peek();
-    if (t.type === 'command' && t.value === '\\header') {
-      advance();
-      score.header = parseHeader();
-    } else if (
-      t.type === 'command' &&
-      (t.value === '\\version' || t.value === '\\paper' || t.value === '\\layout' || t.value === '\\midi')
-    ) {
-      advance();
-      if (peek().type === 'symbol' && peek().value === '{') {
-        // skip block
-        expect('symbol', '{');
-        let open = 1;
-        while (peek().type !== 'eof' && open > 0) {
-          if (peek().type === 'symbol' && peek().value === '{') open++;
-          if (peek().type === 'symbol' && peek().value === '}') open--;
-          advance();
-        }
-      } else {
-        if (peek().type === 'string') advance();
+    let base: number;
+    if (t.type === 'number') {
+      base = Number(t.value);
+      if (![1, 2, 4, 8, 16, 32, 64, 128].includes(base)) unsupported(t, `duration ${t.value}`);
+    } else if (t.type === 'command' && t.value === '\\breve') base = 0.5;
+    else return undefined;
+    next();
+    let dots = 0;
+    while (is('symbol', '.') && !peek().spaced) {
+      next();
+      dots++;
+    }
+    let factor = q(1);
+    if (is('symbol', '*')) {
+      next();
+      const num = Number(expect('number').value);
+      let den = 1;
+      if (is('symbol', '/')) {
+        next();
+        den = Number(expect('number').value);
       }
-    } else {
-      score.blocks.push(parseMusic());
+      factor = q(num, den);
+    }
+    return duration(base, dots, factor);
+  }
+
+  function parsePostEvents(): LyPost[] {
+    const post: LyPost[] = [];
+    for (;;) {
+      const t = peek();
+      if (t.type === 'symbol') {
+        if (t.value === '~') post.push('tie');
+        else if (t.value === '(' || t.value === ')') post.push('slur');
+        else if (t.value === '[' || t.value === ']') post.push('beam');
+        else if (t.value === ':') unsupported(t, 'tremolo (:)');
+        else if (t.value === '-' || t.value === '^' || t.value === '_') {
+          next();
+          post.push(parseDirectedPost());
+          continue;
+        } else return post;
+        next();
+        continue;
+      }
+      if (t.type === 'command' && t.value in POST_COMMANDS) {
+        next();
+        post.push(POST_COMMANDS[t.value] as LyPost);
+        continue;
+      }
+      return post;
     }
   }
 
-  return score;
+  /** What follows '-', '^' or '_' on a note. */
+  function parseDirectedPost(): LyPost {
+    const t = next();
+    if (t.type === 'symbol' && t.value in SHORTHAND) return SHORTHAND[t.value] as LyPost;
+    if (t.type === 'symbol' && (t.value === '(' || t.value === ')')) return 'slur';
+    if (t.type === 'symbol' && (t.value === '[' || t.value === ']')) return 'beam';
+    if (t.type === 'symbol' && t.value === '~') return 'tie';
+    if (t.type === 'number') return 'fingering';
+    if (t.type === 'string') return 'text';
+    if (t.type === 'command' && t.value === '\\markup') {
+      skipMarkup();
+      return 'text';
+    }
+    if (t.type === 'command' && t.value in POST_COMMANDS) return POST_COMMANDS[t.value] as LyPost;
+    return unsupported(t, `'${t.value}' after a direction mark`);
+  }
+
+  function parseCommand(): LyMusic {
+    const t = next();
+    const p = at(t);
+    const name = t.value;
+    if (name in POST_COMMANDS) return { kind: 'mark', post: POST_COMMANDS[name] as LyPost, name, pos: p };
+    if (LAYOUT_COMMANDS.has(name)) return { kind: 'seq', items: [], pos: p };
+    switch (name) {
+      case '\\relative': {
+        if (!(peek().type === 'word' && peek().value in pitchNames)) unsupported(t, '\\relative without a start pitch');
+        const ref = parsePitch();
+        return { kind: 'relative', ref, body: parseMusic(), pos: p };
+      }
+      case '\\tuplet':
+      case '\\times': {
+        const a = Number(expect('number').value);
+        expect('symbol', '/');
+        const b = Number(expect('number').value);
+        if (name === '\\tuplet') parseDuration(); // optional tuplet span: grouping only, no timing effect
+        // \tuplet 3/2 plays 3 in the time of 2 (factor 2/3); \times 2/3 states the factor itself.
+        const factor = name === '\\tuplet' ? q(b, a) : q(a, b);
+        return { kind: 'tuplet', factor, body: parseMusic(), pos: p };
+      }
+      case '\\grace':
+      case '\\acciaccatura':
+      case '\\appoggiatura':
+      case '\\slashedGrace':
+        return { kind: 'grace', command: name, body: parseMusic(), pos: p };
+      case '\\repeat': {
+        const mode = expect('word');
+        if (mode.value !== 'volta' && mode.value !== 'unfold') unsupported(mode, `\\repeat ${mode.value}`);
+        const times = Number(expect('number').value);
+        const body = parseMusic();
+        const alternatives: LyMusic[] = [];
+        if (is('command', '\\alternative')) {
+          next();
+          expect('symbol', '{');
+          while (!is('symbol', '}')) alternatives.push(parseMusic());
+          next();
+        }
+        return { kind: 'repeat', mode: mode.value as 'volta' | 'unfold', times, body, alternatives, pos: p };
+      }
+      case '\\unfoldRepeats':
+        return { kind: 'unfoldRepeats', body: parseMusic(), pos: p };
+      case '\\articulate':
+        return { kind: 'articulate', body: parseMusic(), pos: p };
+      case '\\new':
+      case '\\context': {
+        const type = expect('word');
+        if (!CONTEXT_TYPES.has(type.value)) unsupported(type, `${name} ${type.value}`);
+        let contextName: string | undefined;
+        if (is('symbol', '=')) {
+          next();
+          const v = next();
+          if (v.type !== 'string' && v.type !== 'word') unsupported(v, 'context name');
+          contextName = v.value;
+        }
+        if (is('command', '\\with')) {
+          next();
+          skipBlock();
+        }
+        const body = parseMusic();
+        return {
+          kind: 'context',
+          type: type.value,
+          ...(contextName !== undefined ? { name: contextName } : {}),
+          body,
+          pos: p,
+        };
+      }
+      case '\\change': {
+        const what = expect('word');
+        if (what.value !== 'Staff') unsupported(what, `\\change ${what.value}`);
+        expect('symbol', '=');
+        const v = next();
+        if (v.type !== 'string' && v.type !== 'word') unsupported(v, 'staff name');
+        return { kind: 'changeStaff', name: v.value, pos: p };
+      }
+      case '\\time': {
+        const num = Number(expect('number').value);
+        expect('symbol', '/');
+        const den = Number(expect('number').value);
+        return { kind: 'time', num, den, pos: p };
+      }
+      case '\\partial': {
+        const d = parseDuration();
+        if (!d) unsupported(peek(), '\\partial without a duration');
+        return { kind: 'partial', duration: d as LyDuration, pos: p };
+      }
+      case '\\key': {
+        const tonic = peek();
+        if (tonic.type !== 'word' || !(tonic.value in pitchNames)) unsupported(tonic, '\\key tonic');
+        const pitch = parsePitch();
+        const mode = expect('command');
+        return { kind: 'key', tonic: pitch, mode: mode.value.slice(1), pos: p };
+      }
+      case '\\clef': {
+        const v = next();
+        if (v.type !== 'string' && v.type !== 'word') unsupported(v, 'clef name');
+        return { kind: 'clef', name: v.value, pos: p };
+      }
+      case '\\ottava': {
+        let v = next();
+        let sign = 1;
+        if (v.type === 'symbol' && v.value === '-') {
+          sign = -1;
+          v = next();
+        }
+        const text = v.type === 'scheme' ? v.value : v.type === 'number' ? v.value : '';
+        if (!/^-?\d+$/.test(text)) unsupported(v, '\\ottava value');
+        return { kind: 'ottava', octaves: sign * Number(text), pos: p };
+      }
+      case '\\bar': {
+        const style = expect('string');
+        if (style.value.includes(':')) unsupported(style, `\\bar "${style.value}" (repeats are written with \\repeat)`);
+        return { kind: 'bar', style: style.value, pos: p };
+      }
+      case '\\tempo':
+        return parseTempo(p);
+      case '\\mark': {
+        const v = next();
+        if (v.type === 'command' && v.value === '\\markup') skipMarkup();
+        else if (
+          !(
+            v.type === 'string' ||
+            v.type === 'number' ||
+            v.type === 'scheme' ||
+            (v.type === 'command' && v.value === '\\default')
+          )
+        )
+          unsupported(v, '\\mark value');
+        return { kind: 'mark', post: 'text', name, pos: p };
+      }
+      case '\\skip': {
+        const d = parseDuration();
+        if (!d) unsupported(peek(), '\\skip without a duration');
+        return { kind: 'rest', rest: 's', duration: d as LyDuration, pos: p };
+      }
+      case '\\once':
+        return parseCommand();
+      case '\\set':
+      case '\\override': {
+        parsePropertyPath(t);
+        expect('symbol', '=');
+        parseValue();
+        return { kind: 'seq', items: [], pos: p };
+      }
+      case '\\unset':
+      case '\\revert':
+      case '\\omit':
+      case '\\hide':
+      case '\\accidentalStyle':
+        parsePropertyPath(t);
+        return { kind: 'seq', items: [], pos: p };
+    }
+    const variable = name.slice(1);
+    if (variables.has(variable)) return { kind: 'variable', name: variable, pos: p };
+    return unsupported(t, name);
+  }
+
+  function parseTempo(p: Pos): LyMusic {
+    const tempo: Extract<LyMusic, { kind: 'tempo' }> = { kind: 'tempo', pos: p };
+    if (is('string')) tempo.text = next().value;
+    else if (is('command', '\\markup')) {
+      next();
+      skipMarkup();
+    }
+    if (is('number')) {
+      const beat = parseDuration();
+      expect('symbol', '=');
+      tempo.bpm = Number(expect('number').value);
+      if (beat) tempo.beat = beat;
+      if (is('symbol', '-')) {
+        next();
+        expect('number');
+      }
+    }
+    return tempo;
+  }
+
+  /** Context.property or Grob.property / Grob #'property; a property that moves notes in time or pitch fails. */
+  function parsePropertyPath(command: LyToken): string {
+    let path = '';
+    for (;;) {
+      const t = peek();
+      if (t.type === 'word' && (path === '' || path.endsWith('.') || path.endsWith('-'))) path += next().value;
+      else if (t.type === 'symbol' && (t.value === '.' || t.value === '-') && !t.spaced && path !== '')
+        path += next().value;
+      else if (t.type === 'scheme' && t.value.startsWith("'")) path += `.${next().value.slice(1)}`;
+      else break;
+    }
+    if (path === '') unsupported(peek(), `${command.value} without a property`);
+    if (command.value === '\\set' || command.value === '\\unset' || command.value === '\\override') {
+      if (TIME_OR_PITCH_PROPERTY.test(path)) unsupported(command, `${command.value} ${path}`);
+    }
+    return path;
+  }
+
+  function parseValue(): void {
+    const t = next();
+    if (t.type === 'scheme' || t.type === 'string' || t.type === 'number' || t.type === 'word') return;
+    if (t.type === 'command' && t.value === '\\markup') {
+      skipMarkup();
+      return;
+    }
+    unsupported(t, `value '${t.value}'`);
+  }
+
+  /** A markup argument: { ... }, a string, a word, or markup commands applied to one. Text only, never music. */
+  function skipMarkup(): void {
+    const t = peek();
+    if (t.type === 'symbol' && t.value === '{') {
+      skipBlock();
+      return;
+    }
+    if (t.type === 'string' || t.type === 'word' || t.type === 'scheme') {
+      next();
+      return;
+    }
+    if (t.type === 'command') {
+      next();
+      while (is('scheme')) next();
+      if (is('symbol', '{') || is('string') || is('command')) skipMarkup();
+      return;
+    }
+    unsupported(t, 'markup');
+  }
+}
+
+function duration(base: number, dots: number, factor: QuarterTime): LyDuration {
+  // base 4 = one quarter; each dot adds half of the previous value: length = (4/base) * (2 - 1/2^dots). Numerator
+  // and denominator are doubled so that a breve (base 0.5) stays an integer fraction.
+  const plain = q(8 * (2 ** (dots + 1) - 1), 2 * base * 2 ** dots);
+  return { base, dots, factor, length: q(plain.num * factor.num, plain.den * factor.den) };
 }

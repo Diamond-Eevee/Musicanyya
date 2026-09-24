@@ -33,6 +33,9 @@ interface ReferenceScore {
   notes: ReferenceNote[];
   /** Grace notes, kept apart: they take no written time (spec edge case "grace notes"). */
   graceNotes: ReferenceGraceNote[];
+  /** Written bar indices in played order (research R6): fromMusicXml takes it from buildTimeline, fromLilyPond from
+   *  the app's own unroll() over its bars. Absent for a MIDI reading. */
+  playedOrder?: number[];
 }
 
 interface ReferenceBar {
@@ -54,6 +57,7 @@ interface ReferenceNote {
   spelling?: { step: 'A'|'B'|'C'|'D'|'E'|'F'|'G'; alter: -2|-1|0|1|2; octave: number }; // absent for MIDI
   staff?: number;           // 1 = upper, 2 = lower; absent for MIDI
   voice?: string;
+  articulated?: boolean;    // LilyPond reading only: an articulation, so LilyPond's MIDI may sound it shorter (R5 rule 5)
 }
 
 interface ReferenceGraceNote {
@@ -173,6 +177,9 @@ type Difference =
 
 interface NoteRef { at: QuarterTime; midi: number; name: string }   // name = "E5", "D#5"
 ```
+
+`at` is the position **in the bar**: quarter notes after the bar line (0 = the downbeat), so a difference reads
+"bar 12, beat 1 1/2". `bar` is the printed bar number in the item's numbering.
 
 Matching rule: within one bar, notes are matched on `(onset, midi)` exactly. An unmatched pair at the same onset in
 the same staff with different pitch is reported once as `pitch` (not as a `missing` + `extra` pair), so one planted

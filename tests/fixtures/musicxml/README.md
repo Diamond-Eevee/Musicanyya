@@ -9,6 +9,7 @@
 | chord-basic | Basic 3-note chord | Hand-written | CC0 |
 | grand-staff-two-voices-per-staff | 2 staves, 4 voices | Hand-written | CC0 |
 | tuplet-triplet-eighths | 3:2 eighth-note triplet | Hand-written | CC0 |
+| tuplet-triplet-exact | 3:2 eighth-note triplet with exact `<duration>` (divisions 3), then a dotted half; `tuplet-triplet-eighths` gives each note 1/2 quarter | Hand-written (feature 007) | CC0 |
 | fractional-duration | Durations that don't land on beats easily | Hand-written | CC0 |
 | grace-acciaccatura | Grace note with slash | Hand-written | CC0 |
 | grace-group-at-start | Multiple grace notes at start | Hand-written | CC0 |
