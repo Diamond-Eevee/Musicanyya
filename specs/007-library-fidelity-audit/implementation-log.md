@@ -89,3 +89,100 @@
 - Decisions: Relied on biome safely converting `!` to `?` for `pnpm lint` errors outside the scope, and fixed the ones inside `compare.ts`.
 - Problems / open questions: None.
 - Handoff: next = T020 (`loadSources`). The tree is clean, typecheck passes, test passes for `tools/`.
+
+## 2026-09-24 11:30 - claude-opus-5.5 (continue: Phase 2 audit and checkpoint)
+- Session start: the untracked `tools/library/fidelity/compare.ts` was T019's implementation, which the previous
+  session had not committed (explained by its hand-off). Reviewing it showed that ten Phase 2 tasks had been ticked
+  without evidence:
+  - T013 and T014 were `expect(true).toBe(false)` placeholders;
+  - most T011 tests had no assertions;
+  - four T012 tests were `expect(true).toBe(true)`, and one asserted a blanket MIDI-shortening tolerance that
+    research R5 forbids;
+  - T011's ottava test had been "fixed" to the wrong value (84; LilyPond's `\ottava` only moves the staff
+    position, so `c''` sounds as 72);
+  - the readers did not match contract `fidelity-tools.md`: the LilyPond reader made one bar, ignored
+    `\alternative` and `\change Staff`, and skipped unknown tokens silently; the MusicXML reader scaled tuplets
+    twice; the MIDI reader lost overlapping same-pitch notes; the comparator ignored the alignment.
+
+  T008, T009, T011-T014 and T016-T019 were reopened (a note in tasks.md) and redone test-first. Every test was run
+  and seen to fail for the expected reason before the code.
+- Done:
+  - **T008/T016** MIDI reader per contract: `MidiFormatError` with byte offset, FIFO pairing (17 tests).
+  - **T009/T017** MusicXML reading through `readXml`/`buildScore`/`buildTimeline` (9 tests). It runs over all 58
+    library files and every hand-made fixture; the only rejections are loud ones: microtones, unpitched percussion,
+    a zero-length bar.
+  - **T011/T018** LilyPond subset reader, rewritten (31 tests over 20 fixtures). Fixtures added: `rests`,
+    `score-blocks`, `marks`, `endings-mid-bar`. `grace.ly` now uses the fourth contract command (`\slashedGrace`);
+    `unfold.ly` tests `\repeat unfold`; `voices.ly` is a well-formed piano score.
+  - **T012/T019** comparator (21 tests). Bars are paired by printed number through the declared alignment;
+    `compareSound` is the MIDI step with R5's rules.
+  - **T013/T020** `sources.ts` (11 tests). **T014/T021** `records.ts`: schema plus rules 2.2-2.6 (27 tests).
+  - **T022** `cli.ts` (7 tests, written together with the CLI, since T022 has no test task).
+  - **T050/T055** `departures` in the index model (8 new tests); `pnpm library:index` changed nothing but the
+    generated time.
+  - **T089-T094** FR-024 cache lane:
+    - contract library-port.md 1.1.0; rule 2 now fetches before deleting, so rule 4's offline copy survives;
+    - unit tests: 3 new cases failed first, 4 guard kept behaviour; session hash test;
+    - the call site is `src/app/library-session.ts`, not `session.ts` as the task text says;
+    - e2e: 53 engraved notes = `facts.notes` with the new adapter; the pre-fix adapter gave 49 (the stale copy).
+  - **T023** Mutopia 931 committed with the owner's OK in this session: `.ly` 8,800 bytes, `.mid` 7,590 bytes,
+    piece page re-checked ("Copyright: Public Domain"). `--inspect-midi`: 905 notes and grace notes written = 905
+    MIDI notes, so `midiOrder` is `written`, `midiNoteTracks` [1, 2], `midiArticulate` false.
+  - **T024** planted errors (9 tests): each mutation gives exactly its difference in its bar.
+  - **T025** first record, verified: `pnpm library:fidelity --item repertoire/advanced/fur-elise-complete` gives
+    item vs notation 0 and notation vs sound 0 (106 bars, 902 notes, 3 grace notes). Re-running the 2026-09-23
+    one-off check is deliberately stricter than the spec's assumption: it makes the result repeatable (analyze A10).
+  - **T026** `tests/library/fidelity.test.ts`. It first failed on the sidecar's old `reviewedOn`, as it should.
+- Decisions:
+  - Contract `fidelity-tools.md` went 1.0.0 -> 1.2.0:
+    - the `\ottava` row is corrected (the entered pitch is the sounding pitch, R5 rule 6);
+    - `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail` and `main` added;
+    - layout `\override`/`\set` are skipped with their Scheme value; time/pitch properties still fail;
+    - `\set Timing.measurePosition` and `\tupletSpan` are supported;
+    - written bars follow the printed page (§3.2).
+  - data-model §2/§4.3: `playedOrder`, `articulated`; `at` is the position in the bar. Research R17.
+  - The real source changed two earlier expectations, each explained in the test:
+    - `volta.ly`/`score-blocks.ly` no longer have a start repeat on bar 1, because LilyPond prints none at the
+      beginning of a piece (Notation Reference 2.24, "Long repeats");
+    - the "fails loudly" case moved from `measurePosition` (now supported) to `measureLength`.
+  - Planted errors:
+    - removing bar 10's forward repeat does not change the played order (a backward repeat returns to the bar
+      after the previous section anyway), so the "repeat + played order" case removes the end repeat of the first
+      ending (bar 8);
+    - the bar 10 case is kept as its own assertion (repeat difference only);
+    - a deleted bar gives barCount + one playedOrder difference + that bar's notes, all naming bar 30.
+  - The e2e stale-cache test is skipped on Playwright WebKit, which drops Cache Storage entries on reload
+    (probed: 1 entry before, 0 after; Chromium and Firefox keep them), so it could not fail there.
+  - `tuplet-triplet-eighths.musicxml` has `<duration>1</duration>` at divisions 2 with a 3:2 time-modification,
+    i.e. plain eighths; the new exact fixture `tuplet-triplet-exact.musicxml` is used instead. Its buildScore
+    golden was added.
+- Owner answers this session: download Mutopia 931, yes; delete `scratch/fix25.ts`, yes (done); lint on main, "fix
+  here".
+  - Correction: those `src/` findings (non-null assertions in `src/engine/worklets/dispatch.ts`,
+    `src/core/play/calibration.ts`, `src/ui/elements/mx-latency-panel.ts`, `src/engine/audio/web-audio-engine.ts`)
+    are Biome **warnings**, not errors, and `pnpm lint` exits 0 now. The only errors were the scratch file and an
+    import order in `time.test.ts` (fixed).
+  - The real-time files were therefore not changed on a wrong premise.
+  - needs owner: whether to clear those warnings, with an `rt-audio-reviewer` review of `dispatch.ts`.
+- Problems / open questions:
+  - `tests/tools/fidelity/theory.test.ts` holds four `expect(true).toBe(false)` placeholders from an earlier
+    session (db6295b). They fail `pnpm test -- tests/tools`, which the Phase 2 checkpoint wants green. T070 will
+    write the real test.
+  - needs owner: may I delete the placeholder file now? I did not create it.
+  - The T006 architecture assertion fails by design until `theory.ts` exists (T074).
+  - A record check against a sound file alone (no notation) needs bar data that the record schema lacks. It fails
+    loudly; every audited source has a `.ly`.
+- Gate:
+  - `pnpm lint`: 0 errors (warnings only, all already on main);
+  - `pnpm typecheck`: clean;
+  - `pnpm test`: 1677 passed, 5 failed; the 5 are the four theory placeholders and T006's intended failure. An
+    earlier run, made while the e2e suite ran alongside, also timed out the `tests/files/mxl.test.ts` zip-bomb
+    test; on a quiet machine it passes;
+  - `pnpm test:e2e`: 294 passed, 65 skipped, 1 failed. The failure is Electron's library test: `electron.launch`
+    closed the process before the app started. It passes when re-run alone (1 passed, 5 skipped). This is a launch
+    flake under 4 workers, not the library code.
+- Checkpoint (Phase 2): `pnpm library:fidelity --item repertoire/advanced/fur-elise-complete` gives 0 differences on
+  every aspect; `planted.test.ts` catches every repertoire mutation; `departures` is accepted; T090, T091 and T094
+  pass. Not green: `pnpm test -- tests/tools` because of the theory placeholders (owner question above).
+- Handoff: next = Phase 3 (US1) from T027/T028, with T031-T037 (sources, approved under D-1; downloads need the
+  owner's OK in the session), plus the owner answers above. Tree clean after this entry's commit.
