@@ -191,7 +191,7 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
 
   Write it before T025 and confirm it fails until T019 and T021 are complete. Then it must pass (FR-017, SC-004).
   (Depends on T023.)
-- [ ] T025 First record: `content/library/audit/repertoire/advanced/fur-elise-complete.json`:
+- [x] T025 First record: `content/library/audit/repertoire/advanced/fur-elise-complete.json`:
   - claim `original`;
   - one mechanical check against `mutopia-931` with `sourceFiles` notation + sound and aspects `barCount`,
     `barLengths`, `repeats`, `playedOrder`, `pitch`, `onset`, `duration`, `spelling`, `graceNotes`;
@@ -203,7 +203,7 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
   wrong, so log it and treat the item as a US1 item. The spec's assumption says this item "needs no new
   comparison". Re-running it anyway is deliberately stricter, because it turns a one-off result into a repeatable
   one; say so in the log (analyze A10). (Depends on T022, T024.)
-- [ ] T026 `tests/library/fidelity.test.ts`, first part:
+- [x] T026 `tests/library/fidelity.test.ts`, first part:
   - every source under `content/library/sources/` validates and its hashes match;
   - every record validates and re-runs to its recorded result;
   - each record's sidecar `reviewedBy`/`reviewedOn` equals the record.
