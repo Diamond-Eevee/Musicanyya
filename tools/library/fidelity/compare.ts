@@ -2,6 +2,7 @@
 // paired by printed bar number through the alignment the record declares, never searched for, so a missing bar is
 // reported once. Differences name the bar and the position in it (quarter notes after the bar line), sorted by bar,
 // then position, so a re-run gives identical output.
+
 import {
   type Alter,
   noteName,
@@ -14,6 +15,7 @@ import {
   spellingMidi,
   spellingName,
 } from './reference';
+import type { TheoryDifference } from './theory';
 import { add, cmp, type QuarterTime, q, show, sub } from './time';
 
 export interface NoteRef {
@@ -34,7 +36,8 @@ export type Difference =
   | { kind: 'playedOrder'; position: number; item: string; source: string }
   | { kind: 'grace'; bar: string; detail: string }
   | { kind: 'melody'; bar: string; index: number; item: string; source: string }
-  | { kind: 'melodyRhythm'; bar: string; index: number; note: string; item: string; source: string };
+  | { kind: 'melodyRhythm'; bar: string; index: number; note: string; item: string; source: string }
+  | TheoryDifference;
 
 export type Aspect =
   | 'barCount'
@@ -660,5 +663,15 @@ export function describeDifference(d: Difference): string {
       return `${at(d.bar)}: melody note ${d.index + 1} is ${d.item}, source ${d.source}`;
     case 'melodyRhythm':
       return `${at(d.bar)}: melody note ${d.index + 1} (${d.note}): ${d.item}, source ${d.source}`;
+    case 'theory': {
+      const where =
+        d.chordIndex >= 0
+          ? `chord ${d.chordIndex + 1}`
+          : d.scaleNote !== undefined
+            ? `scale note ${d.scaleNote + 1}`
+            : 'the file';
+      const hand = d.hand === 'both' ? '' : `${d.hand} hand, `;
+      return `${at(d.bar)}: ${hand}${where}: expected ${d.expected}, found ${d.found} (${d.rule})`;
+    }
   }
 }

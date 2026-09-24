@@ -5,10 +5,12 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fromLilyPond, readLilyPond } from '../lilypond/read';
 import { type Alignment, type Aspect, compare, compareMelody, compareSound, type Difference } from './compare';
+import { ClaimError, claimForItem } from './exercise-claims';
 import { fromMusicXml } from './from-musicxml';
 import { fromMidi, readMidi } from './midi';
 import type { ReferenceScore } from './reference';
 import { date, type SourceManifest, sourceFile } from './sources';
+import { checkExercise } from './theory';
 
 export type Claim = 'original' | 'excerpt' | 'arrangement' | 'exercise';
 export type Outcome = 'verified' | 'fixed' | 'replaced' | 'relabelled' | 'removed';
@@ -220,12 +222,30 @@ export function runRecord(record: AuditRecord, ctx: RunContext): CheckResult[] {
         reproduced: true,
         detail: `visual check of bars ${check.bars} against ${check.source}`,
       };
-    if (check.method === 'theory')
-      throw new Error(
-        `${record.itemId}: theory checks run through tools/library/fidelity/theory.ts (task T074), which does not exist yet`,
-      );
+    if (check.method === 'theory') return runTheory(record, check, ctx);
     return runMechanical(record, check, ctx);
   });
+}
+
+/** The independent exercise check (research R8): the claim comes from the item's title and description on the shelf. */
+function runTheory(record: AuditRecord, check: TheoryCheck, ctx: RunContext): CheckResult {
+  const sidecar = JSON.parse(readFileSync(join(ctx.libraryRoot, `${record.itemId}.json`), 'utf8')) as Sidecar;
+  let claim: ReturnType<typeof claimForItem>;
+  try {
+    claim = claimForItem({ itemId: record.itemId, title: sidecar.title ?? '', trains: sidecar.trains ?? '' });
+  } catch (e) {
+    if (!(e instanceof ClaimError)) throw e;
+    return { check, differences: [], allowed: [], reproduced: false, detail: e.message };
+  }
+  const xml = readFileSync(ctx.itemFile ?? join(ctx.libraryRoot, `${record.itemId}.musicxml`), 'utf8');
+  const differences = checkExercise(xml, claim);
+  return {
+    check,
+    differences,
+    allowed: [],
+    reproduced: differences.length === check.expectedDifferences,
+    detail: `${claim.chords.length} chords checked against "${sidecar.title}": ${differences.length} differences`,
+  };
 }
 
 function runMechanical(record: AuditRecord, check: MechanicalCheck, ctx: RunContext): CheckResult {
@@ -280,6 +300,7 @@ function readNotation(manifest: SourceManifest, ctx: RunContext): ReferenceScore
 interface Sidecar {
   title?: string;
   subtitle?: string;
+  trains?: string;
   arrangement?: boolean;
   departures?: string[];
   reviewedBy?: string;
@@ -355,6 +376,8 @@ export function checkRecord(record: AuditRecord, results: CheckResult[], ctx: Ru
       );
     }
   }
+  if (record.claim === 'exercise' && !record.checks.some((c) => c.method === 'theory'))
+    problems.push('claim exercise needs a theory check');
   if (record.claim === 'arrangement') {
     if (sidecar.arrangement !== true) problems.push('claim arrangement, but the sidecar says arrangement: false');
     if (departures.length === 0) problems.push('claim arrangement, but the sidecar has no departures');

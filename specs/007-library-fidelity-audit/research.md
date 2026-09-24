@@ -214,6 +214,7 @@ score and needs a threshold. Rejected for the same reason as tolerances (R5).
   - B-flat minor iv = E-flat, G-flat, B-flat;
   - F-sharp major V = C-sharp, E-sharp, G-sharp.
 - **Probe of the shipped G-sharp minor triads file**: its V chord is spelled D#, F##, A# (the file's bar 2).
+- **Review of the claim table (T073, `music-domain-expert`, 2026-09-24)**: sequences, inversions, harmonic-minor V and vii° on the raised seventh agreed. Found: the same-tonic drills' labels have the wrong Roman-numeral case ("Cm · I", "A · i"); the ladder's "vii" lacks the degree sign; the turnaround description says "one common tone per change" (I to vi shares two); the scale item's section B has two hands on C4 in bars 6-7. All fixed at their origin; the check gained the Voicing, Octave and Overlap rules and the degree sign (data-model.md §5). Owner decision 2026-09-24: the shelf no longer calls the close-position V⁶-I cadence "perfect" (title "plagal then V-I", description "I-IV-V-I cadence in close position"); the claim table refuses the word for an inverted V.
 
 **Rationale**: FR-013 says the check must not reuse the generator's logic. The generator spells from the key
 signature's `fifths` and degree tables. The check uses a different method (letter steps plus semitone counts), so

@@ -7,10 +7,12 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import { compare, compareSound, type Difference } from '../../../tools/library/fidelity/compare';
+import { claimForItem } from '../../../tools/library/fidelity/exercise-claims';
 import { fromMusicXml } from '../../../tools/library/fidelity/from-musicxml';
 import { fromMidi, readMidi } from '../../../tools/library/fidelity/midi';
 import { type AuditRecord, runRecord } from '../../../tools/library/fidelity/records';
 import { loadSources } from '../../../tools/library/fidelity/sources';
+import { checkExercise } from '../../../tools/library/fidelity/theory';
 import { q, show, sub } from '../../../tools/library/fidelity/time';
 import { fromLilyPond, readLilyPond } from '../../../tools/library/lilypond/read';
 
@@ -226,6 +228,149 @@ describe('planted errors: the melody quote of the beginner Für Elise against Mu
     expect(melodyDifferences(xml)).toEqual([
       { kind: 'melody', bar: '1', index: 5, item: 'C5', source: 'B4' },
       ...unchanged,
+    ]);
+  });
+});
+
+// The theory mutations (US3, T072): for every exercise on the shelf (the 41 items cover each family: triads major and
+// minor, each chord-change drill shape, and the scale-and-chords item), one change at a time to a copy of the item's
+// MusicXML gives exactly one TheoryDifference, naming the chord, the bar and the hand (FR-014, SC-005). A theory check
+// that misses one of these may not be used for any "0 differences" result.
+interface Tone {
+  step: string;
+  alter: number;
+  octave: number;
+}
+interface ChordNote extends Tone {
+  start: number;
+  end: number;
+}
+const LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+const NATURAL = [0, 2, 4, 5, 7, 9, 11];
+const midiOf = (t: Tone) => (t.octave + 1) * 12 + (NATURAL[LETTERS.indexOf(t.step)] as number) + t.alter;
+const name = (t: Tone, octave: boolean) =>
+  `${t.step}${{ '-2': 'bb', '-1': 'b', '0': '', '1': '#', '2': '##' }[String(t.alter)]}${octave ? t.octave : ''}`;
+
+/** The chords of one staff in file order: runs of pitched <note> elements that begin at a note without <chord/>.
+ *  Runs of one note (the scale of the hand-written item) are not chords. */
+function chordsOf(xml: string, staff: 1 | 2): ChordNote[][] {
+  const groups: ChordNote[][] = [];
+  for (const m of xml.matchAll(/<note>([\s\S]*?)<\/note>/g)) {
+    const body = m[1] as string;
+    const pitch = /<pitch><step>(\w)<\/step>(?:<alter>(-?\d)<\/alter>)?<octave>(\d)<\/octave><\/pitch>/.exec(body);
+    if (!pitch || !new RegExp(`<staff>${staff}</staff>`).test(body)) continue;
+    const start = m.index as number;
+    const note = {
+      step: pitch[1] as string,
+      alter: Number(pitch[2] ?? 0),
+      octave: Number(pitch[3]),
+      start,
+      end: start + m[0].length,
+    };
+    if (/^<chord\/>/.test(body)) groups[groups.length - 1]?.push(note);
+    else groups.push([note]);
+  }
+  return groups.filter((g) => g.length >= 2);
+}
+const barAt = (xml: string, offset: number): string => {
+  let bar = '';
+  for (const m of xml.matchAll(/<measure number="([^"]+)"/g)) if ((m.index as number) < offset) bar = m[1] as string;
+  return bar;
+};
+/** Rewrites the pitch of one note element. */
+function withPitch(xml: string, note: ChordNote, to: Tone): string {
+  const text = xml.slice(note.start, note.end);
+  const rewritten = text.replace(
+    /<pitch>[\s\S]*?<\/pitch>/,
+    `<pitch><step>${to.step}</step>${to.alter !== 0 ? `<alter>${to.alter}</alter>` : ''}<octave>${to.octave}</octave></pitch>`,
+  );
+  return xml.slice(0, note.start) + rewritten + xml.slice(note.end);
+}
+/** The same sounding pitch under the next letter up (F## -> G, B -> C-flat, E -> F-flat). */
+function respelled(t: Tone): Tone {
+  const next = (LETTERS.indexOf(t.step) + 1) % 7;
+  const octave = t.octave + (next === 0 ? 1 : 0);
+  const step = LETTERS[next] as string;
+  return { step, alter: midiOf(t) - midiOf({ step, alter: 0, octave }), octave };
+}
+
+const exercises = (
+  JSON.parse(readFileSync('public/library/index.json', 'utf8')) as {
+    items: { id: string; file: string; meta: { kind: string; title: string; trains?: string } }[];
+  }
+).items.filter((i) => i.meta.kind === 'exercise');
+
+describe('planted errors: the theory check on every exercise of the shelf', () => {
+  for (const item of exercises) {
+    const xml = readFileSync(`public/library/${item.file}`, 'utf8');
+    const claim = claimForItem({ itemId: item.id, title: item.meta.title, trains: item.meta.trains ?? '' });
+    const right = chordsOf(xml, 1);
+    // The hand-written item plays its first eight chords in the left hand; the others play both hands at every chord.
+    const chordIndex = (right: number) => right + (item.id.endsWith('c-major-scale-and-chords') ? 8 : 0);
+    const at = Math.min(2, right.length - 1);
+    const chord = right[at] as ChordNote[];
+    const where = {
+      kind: 'theory',
+      chordIndex: chordIndex(at),
+      bar: barAt(xml, (chord[0] as ChordNote).start),
+      hand: 'right',
+    };
+
+    describe(item.id, () => {
+      it('the unchanged item gives no difference, so each result below comes from its one mutation', () => {
+        expect(checkExercise(xml, claim)).toEqual([]);
+      });
+
+      it('one tone respelled to another letter with the same MIDI number: one spelling difference', () => {
+        const tone = chord[1] as ChordNote;
+        const to = respelled(tone);
+        expect(midiOf(to)).toBe(midiOf(tone));
+        expect(checkExercise(withPitch(xml, tone, to), claim)).toEqual([
+          { ...where, rule: 'spelling', expected: name(tone, false), found: name(to, true) },
+        ]);
+      });
+
+      it('one tone moved a semitone: one pitch difference', () => {
+        const tone = chord[1] as ChordNote;
+        const to = { ...tone, alter: tone.alter > 0 ? tone.alter - 1 : tone.alter + 1 };
+        expect(checkExercise(withPitch(xml, tone, to), claim)).toEqual([
+          { ...where, rule: 'pitch', expected: name(tone, false), found: name(to, true) },
+        ]);
+      });
+
+      it('one inversion swapped (the lowest note of one hand raised an octave): one inversion difference', () => {
+        const bass = chord[0] as ChordNote;
+        const next = chord[1] as ChordNote;
+        expect(checkExercise(withPitch(xml, bass, { ...bass, octave: bass.octave + 1 }), claim)).toEqual([
+          { ...where, rule: 'inversion', expected: `${name(bass, false)} in the bass`, found: name(next, true) },
+        ]);
+      });
+    });
+  }
+});
+
+// Found by the audit's review, not planted: until this feature the scale item's section B had its right-hand I chords of
+// bars 6 and 7 on C4-E4-G4 while the left-hand scale struck C4 - one key, two hands. The check names it (rule overlap).
+describe('planted errors: two hands on one key in the scale item', () => {
+  const item = exercises.find((i) => i.id.endsWith('c-major-scale-and-chords'));
+  if (!item) throw new Error('the scale item is on the shelf');
+  const xml = readFileSync(`public/library/${item.file}`, 'utf8');
+  const claim = claimForItem({ itemId: item.id, title: item.meta.title, trains: item.meta.trains ?? '' });
+
+  it('the right-hand I chord of bar 7 moved back down to C4-E4-G4: one overlap, in bar 7', () => {
+    const [chord] = chordsOf(xml, 1).filter((g) => barAt(xml, (g[0] as ChordNote).start) === '7');
+    let mutated = xml;
+    for (const n of chord as ChordNote[]) mutated = withPitch(mutated, n, { ...n, octave: n.octave - 1 });
+    expect(checkExercise(mutated, claim)).toEqual([
+      {
+        kind: 'theory',
+        chordIndex: -1,
+        bar: '7',
+        hand: 'both',
+        rule: 'overlap',
+        expected: 'each key played by one hand at a time',
+        found: 'C4',
+      },
     ]);
   });
 });

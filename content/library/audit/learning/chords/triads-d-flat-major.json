@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "itemId": "learning/chords/triads-d-flat-major",
+  "claim": "exercise",
+  "claimText": "D♭ major triads",
+  "checks": [
+    {
+      "method": "theory",
+      "ruleSet": "exercise-theory-v1",
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "verified",
+  "outcomeNote": "The independent theory check derives every chord from the title and description and finds 0 differences (letters, spellings, inversions, key signature, labels, hands).",
+  "checkedBy": "claude-sonnet-5",
+  "date": "2026-09-24"
+}

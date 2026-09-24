@@ -368,25 +368,25 @@
           "soundingKey": 57
         },
         {
-          "id": "n-p0-s1-m5-v1-o2-k60",
+          "id": "n-p0-s1-m5-v1-o2-k72",
           "measureIndex": 5,
           "onsetInMeasure": 1920,
           "durationTicks": 1920,
-          "soundingKey": 60
+          "soundingKey": 72
         },
         {
-          "id": "n-p0-s1-m5-v1-o2-k64",
+          "id": "n-p0-s1-m5-v1-o2-k76",
           "measureIndex": 5,
           "onsetInMeasure": 1920,
           "durationTicks": 1920,
-          "soundingKey": 64
+          "soundingKey": 76
         },
         {
-          "id": "n-p0-s1-m5-v1-o2-k67",
+          "id": "n-p0-s1-m5-v1-o2-k79",
           "measureIndex": 5,
           "onsetInMeasure": 1920,
           "durationTicks": 1920,
-          "soundingKey": 67
+          "soundingKey": 79
         },
         {
           "id": "n-p0-s2-m5-v5-o2-k59",
@@ -403,25 +403,25 @@
           "soundingKey": 60
         },
         {
-          "id": "n-p0-s1-m6-v1-o0-k60",
+          "id": "n-p0-s1-m6-v1-o0-k72",
           "measureIndex": 6,
           "onsetInMeasure": 0,
           "durationTicks": 1920,
-          "soundingKey": 60
+          "soundingKey": 72
         },
         {
-          "id": "n-p0-s1-m6-v1-o0-k64",
+          "id": "n-p0-s1-m6-v1-o0-k76",
           "measureIndex": 6,
           "onsetInMeasure": 0,
           "durationTicks": 1920,
-          "soundingKey": 64
+          "soundingKey": 76
         },
         {
-          "id": "n-p0-s1-m6-v1-o0-k67",
+          "id": "n-p0-s1-m6-v1-o0-k79",
           "measureIndex": 6,
           "onsetInMeasure": 0,
           "durationTicks": 1920,
-          "soundingKey": 67
+          "soundingKey": 79
         },
         {
           "id": "n-p0-s2-m6-v5-o0-k60",
@@ -578,7 +578,7 @@
           "soundingKey": 48
         }
       ],
-      "scheduleDigest": "3446e4f6d512eae5dabedeec4250aee547a754ee6f3e628e37dfd26d0bbd4b1e"
+      "scheduleDigest": "7c120d9bc6df411ad3df496efb76ffadc2bbe772bcefe332914ad8fc1d151fe1"
     },
     {
       "file": "learning/chords/changes/changes-a-minor-major-a-minor.musicxml",

@@ -16,7 +16,7 @@ import type { ItemMetadata } from '../types.js';
 import { chordTones, invertOrder, tonicPitchClass } from './degrees.js';
 import { assertFingeringLength, triadFingering } from './fingering.js';
 import { assertWithin88Keys } from './range-guard.js';
-import type { ExerciseDefinition, ExerciseKey, ExerciseStep, Inversion, StepDuration } from './types.js';
+import type { ExerciseDefinition, ExerciseKey, ExerciseStep, Inversion, Quality, StepDuration } from './types.js';
 import { placeAscending, registerAnchorMidi, transposeOctaves, type VoicedNote } from './voicing.js';
 
 export interface GeneratedExerciseItem {
@@ -72,11 +72,12 @@ function superscript(n: number): string {
 }
 
 /** "I", "I⁶" (first inversion), "I⁶⁴" (second inversion) - the figured-bass shorthand this family's
- *  content plan (data-model.md §5.1) writes above the staff. */
-export function romanFigure(degree: string, inversion: Inversion): string {
-  if (inversion === 0) return degree;
-  if (inversion === 1) return `${degree}${superscript(6)}`;
-  return `${degree}${superscript(6)}${superscript(4)}`;
+ *  content plan (data-model.md §5.1) writes above the staff. A diminished triad carries the degree sign ("vii°"). */
+export function romanFigure(degree: string, inversion: Inversion, quality?: Quality): string {
+  const numeral = quality === 'diminished' ? `${degree}°` : degree;
+  if (inversion === 0) return numeral;
+  if (inversion === 1) return `${numeral}${superscript(6)}`;
+  return `${numeral}${superscript(6)}${superscript(4)}`;
 }
 
 function displayKeyName(key: ExerciseKey): string {
@@ -236,7 +237,7 @@ function generateTriadItem(
     }
     rightEvents.push({
       kind: 'direction',
-      words: step.label ?? romanFigure(step.degree, inversion),
+      words: step.label ?? romanFigure(step.degree, inversion, step.quality),
       staff: 1,
       placement: 'above',
     });
@@ -331,8 +332,8 @@ function generateChangeItem(
     rightEvents.push({
       kind: 'direction',
       words: step.label
-        ? `${step.label} · ${romanFigure(step.degree, inversion)}`
-        : romanFigure(step.degree, inversion),
+        ? `${step.label} · ${romanFigure(step.degree, inversion, step.quality)}`
+        : romanFigure(step.degree, inversion, step.quality),
       staff: 1,
       placement: 'above',
     });

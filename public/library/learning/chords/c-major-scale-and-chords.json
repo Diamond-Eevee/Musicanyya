@@ -13,6 +13,6 @@
     "created": "2026-09-20",
     "note": "Moved here from musicxml/chords/ (owner decision D-3 in specs/005-practice-score-library/plan.md); also the reference Score for feature 002's Practice mode quickstart."
   },
-  "reviewedBy": "claude-opus-5",
-  "reviewedOn": "2026-09-22"
+  "reviewedBy": "claude-sonnet-5",
+  "reviewedOn": "2026-09-24"
 }

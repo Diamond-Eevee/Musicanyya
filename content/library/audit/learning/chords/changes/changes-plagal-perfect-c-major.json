@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "itemId": "learning/chords/changes/changes-plagal-perfect-c-major",
+  "claim": "exercise",
+  "claimText": "C major - plagal then V-I",
+  "checks": [
+    {
+      "method": "theory",
+      "ruleSet": "exercise-theory-v1",
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "relabelled",
+  "outcomeNote": "Title and description corrected (owner decision 2026-09-24): \"plagal then perfect\" became \"plagal then V-I\", because its V6-I is not a perfect authentic cadence. The item id and the notes are unchanged.",
+  "checkedBy": "claude-sonnet-5",
+  "date": "2026-09-24",
+  "previous": {
+    "title": "C major - plagal then perfect",
+    "level": "beginner",
+    "bars": 9,
+    "notes": 54
+  }
+}

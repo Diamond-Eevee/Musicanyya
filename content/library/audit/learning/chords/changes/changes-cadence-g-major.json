@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "itemId": "learning/chords/changes/changes-cadence-g-major",
+  "claim": "exercise",
+  "claimText": "G major - I-IV-V-I",
+  "checks": [
+    {
+      "method": "theory",
+      "ruleSet": "exercise-theory-v1",
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "fixed",
+  "outcomeNote": "Description corrected (owner decision 2026-09-24): \"full perfect cadence\" became \"full I-IV-V-I cadence in close position\", because its V6-I is not a perfect authentic cadence. No note changed.",
+  "checkedBy": "claude-sonnet-5",
+  "date": "2026-09-24",
+  "previous": {
+    "title": "G major - I-IV-V-I",
+    "level": "beginner",
+    "bars": 9,
+    "notes": 54
+  }
+}

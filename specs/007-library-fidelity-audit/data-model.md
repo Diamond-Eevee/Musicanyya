@@ -216,14 +216,18 @@ generator's degree tables.
 interface ExerciseClaim {           // read from the title, the key signature/mode and the claim table (below)
   itemId: string;
   key: { tonicLetter: Letter; tonicAlter: -1|0|1; mode: 'major'|'minor' };
-  chords: ChordClaim[];             // in order, one per sounded chord event
+  chords: ChordClaim[];             // in order, one per chord event (a moment at which some hand plays two or more notes)
+  scales?: ScaleClaim[];            // runs of single notes in one hand (the hand-written scale item only)
 }
 interface ChordClaim {
-  roman: string;                    // "I", "ii", "V", "i", "iv", "V" (major V in minor), "vi" ...
+  roman: string;                    // "I", "ii", "V", "i", "iv", "V" (major V in minor), "vii" ...; the case says the quality
   quality: 'major'|'minor'|'diminished'|'augmented';
   inversion: 0|1|2;
-  hands: ('left'|'right')[];
+  hands: ('left'|'right')[];        // the hands that play the whole triad
+  handInversions?: { left?: 0|1|2; right?: 0|1|2 };   // where the hands play different shapes
+  rootOnly?: ('left'|'right')[];    // hands that play the root alone, in one or more octaves (the scale item's last bar)
 }
+interface ScaleClaim { hand: 'left'|'right'; tonicOctave: number; degrees: number[] }   // 1 = the tonic, 8 = an octave up
 ```
 
 **Claim table** (`tools/library/fidelity/exercise-claims.ts`): for each exercise family, the Roman-numeral sequence
@@ -245,10 +249,27 @@ descriptions, and is reviewed against them (the review is recorded). It does not
 | Octave | Written octave is compared with the letter: C-flat 4 sounds as MIDI 59, B-sharp 3 as MIDI 60. A tone respelled to another letter with the same MIDI number (G for F-double-sharp) is a spelling error. |
 | Completeness | Each hand's chord holds exactly the claimed tones (a triad voicing: all three; other voicings as the claim table states). |
 | Key signature | The file's `<key><fifths>` equals the signature of the named key (derived from the letter/alteration of the tonic by the circle of fifths), and `<mode>` equals the named mode. |
-| Labels | Where a chord carries a `<words>` label, it names the same root and quality ("Am", "F#", "Bb", "G#m"). |
+| Labels | Where a chord carries a `<words>` label, it names the same root and quality ("Am", "F#", "Bb", "G#m", "B°"), and its Roman numeral (with the figure for an inversion, "V⁶", "IV⁶⁴") has the case that says the quality and the degree sign for a diminished chord ("vii°"). Text that is neither a chord name nor a Roman numeral is not judged. *(Added by the music-domain review, T073: the parallel minor of a major tonic is "i", the parallel major of a minor tonic "I".)* |
+| Voicing | Each hand's triad is in close position: bass and top note less than an octave apart. *(Review, T073.)* |
+| Octave | Where both hands are claimed to play the same shape, the left hand is exactly an octave below the right. Both voicing rules are applied only when every tone of the chord is right, so a wrong tone is reported once. *(Review, T073.)* |
+| Overlap | A key is never struck by one hand while the other still holds it (two note-ons on one key). Checked over the whole file, with each note's duration. *(Review, T073; found in the scale item.)* |
 
-**Result**: `TheoryDifference = { chordIndex; bar; hand; expected: string; found: string; rule }` - the chord and
-the rule are named (FR-014).
+**Not checked by this rule set** (stated so that "0 differences" is not read as more than it is): rhythm, ties and rests (the drills' "common tone is tied" and "dotted half plus rest"), fingering, and tempo. The 12 + 12 key set of the triads is asserted by `tests/tools/fidelity/exercise-claims.test.ts`.
+
+**Owner decision, 2026-09-24** (from the same review): the shelf's cadences are close-position I-IV⁶⁴-V⁶-I, whose V⁶-I is not a perfect authentic cadence (that needs both chords in root position, as the row above says). The shelf therefore never calls them "perfect": the drill is described as "the full I-IV-V-I cadence in close position" and the plagal drill is titled "plagal then V-I". The notes are unchanged; `claimForItem` refuses any title or description that says "perfect" for a progression with an inverted V.
+
+**Chord events and pairing** (as built): a chord event is a moment at which some hand plays two or more notes written at
+the same onset (tied notes count: a tie-stop note is still a written note). The i-th event is compared with
+`claim.chords[i]`; single notes of a hand are the scale run. Within one hand the written notes are paired with the
+expected tones: an exact spelling first, then the same letter with another alteration (rule `pitch`), then the same
+sounding pitch class under another letter (rule `spelling`), then - only when as many tones as notes are left - the rest,
+lowest first (rule `pitch`). What remains is `completeness` (a tone missing, or an extra note). The inversion is the role
+of the lowest sounding note, by MIDI number. So one wrong tone gives one difference.
+
+**Result**: `TheoryDifference = { kind: 'theory'; chordIndex; scaleNote?; bar; hand: 'left'|'right'|'both'; expected: string;
+found: string; rule }`; `rule` is one of `key`, `mode`, `chordCount`, `hands`, `spelling`, `pitch`, `completeness`,
+`inversion`, `label`, `scale`. The chord (0-based `chordIndex`, -1 for the key or a scale note), the printed bar, the
+hand and the rule are named (FR-014). `kind: 'theory'` makes it one member of the comparator's `Difference` union.
 
 ## 6. Library item metadata (sidecar) - one additive change
 

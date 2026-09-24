@@ -579,14 +579,14 @@ the chord.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T069 [P] [US3] Own-work MusicXML fixtures in `tests/fixtures/musicxml/theory/`:
+- [x] T069 [P] [US3] Own-work MusicXML fixtures in `tests/fixtures/musicxml/theory/`:
   - a correct G-sharp minor i-iv-V (V = D#, F##, A#);
   - E-flat minor iv (A-flat, C-flat, E-flat);
   - a first- and a second-inversion tonic;
   - a C major ii-V-I.
 
   Also write a `README.md` giving their origin (own work, CC0).
-- [ ] T070 [US3] `tests/tools/fidelity/theory.test.ts`. The rules of `data-model.md` §5 on the T069 fixtures:
+- [x] T070 [US3] `tests/tools/fidelity/theory.test.ts`. The rules of `data-model.md` §5 on the T069 fixtures:
   - scale, root, third and fifth by letter arithmetic, quality by semitones;
   - spelling by `(step, alter)`, never MIDI number alone (C-flat 4 = MIDI 59, B-sharp 3 = MIDI 60);
   - inversion by lowest note per hand;
@@ -595,14 +595,14 @@ the chord.
   - `<words>` labels.
 
   The keys that need care (research R8) are asserted explicitly. Confirm it fails. (Depends on T069.)
-- [ ] T071 [US3] `tests/tools/fidelity/exercise-claims.test.ts`:
+- [x] T071 [US3] `tests/tools/fidelity/exercise-claims.test.ts`:
   - every exercise family on the shelf has a claim;
   - every generated title parses to its claim's key;
   - an ambiguous progression name (for example "turnaround") takes its sequence from the item's own description
     and fails if the description does not state it.
 
   Confirm it fails.
-- [ ] T072 [US3] Extend `tests/tools/fidelity/planted.test.ts`. For each exercise family (triads, each chord-change
+- [x] T072 [US3] Extend `tests/tools/fidelity/planted.test.ts`. For each exercise family (triads, each chord-change
   drill shape, the scale-and-chords item), take a temporary copy and apply three mutations, one at a time:
   - one tone respelled to another letter with the same MIDI number (F## -> G);
   - one tone moved a semitone;
@@ -612,18 +612,18 @@ the chord.
 
 ### Implementation
 
-- [ ] T073 [US3] `tools/library/fidelity/exercise-claims.ts`: the Roman-numeral sequence per family, written by
+- [x] T073 [US3] `tools/library/fidelity/exercise-claims.ts`: the Roman-numeral sequence per family, written by
   hand from each family's **title** and `trains` text. Never read `content/library/exercises/`. It includes the
   scale claim for `learning/chords/c-major-scale-and-chords` (makes T071 pass). Review the table with
   `music-domain-expert` against the titles and descriptions, and log the summary.
-- [ ] T074 [US3] `tools/library/fidelity/theory.ts`: `checkExercise()` per `data-model.md` §5, using only its own
+- [x] T074 [US3] `tools/library/fidelity/theory.ts`: `checkExercise()` per `data-model.md` §5, using only its own
   tables and `readXml` (makes T070 and T072 pass, and T006's independence assertion).
-- [ ] T075 [US3] Run the theory check over all 41 exercises. Fix every error at its origin (FR-015), in
+- [x] T075 [US3] Run the theory check over all 41 exercises. Fix every error at its origin (FR-015), in
   `content/library/exercises/*.json` or `src/core/library/exercise/**`, then run `pnpm library:exercises`,
   `pnpm library:engrave` (a no-op for generated files) and `pnpm library:index`. Review any exercise golden diff
   deliberately and explain it in the log. If there are no errors, log "0 differences in 41 exercises" with the
   command output.
-- [ ] T076 [US3] Write 41 records under `content/library/audit/learning/chords/**`: claim `exercise`, one `theory`
+- [x] T076 [US3] Write 41 records under `content/library/audit/learning/chords/**`: claim `exercise`, one `theory`
   check, outcome `verified` or `fixed`. Set `reviewedBy`/`reviewedOn`:
   - for generated exercises, in each definition's `meta` in `content/library/exercises/*.json`, then regenerate;
   - for the hand-written item, in `public/library/learning/chords/c-major-scale-and-chords.json`.

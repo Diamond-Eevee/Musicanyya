@@ -434,3 +434,31 @@
   - `pnpm test`: 181 files, 1825 passed, 0 failed;
   - `pnpm test:e2e`: 294 passed, 65 skipped, 1 failed - the known-flaky `library.spec.ts:175` (Electron launch under load, reference R7); re-run alone: 1 passed.
 - Handoff: next = Phase 5 (US3, exercises: T069+). No owner decision open. Tree clean after this commit.
+
+## 2026-09-24 22:45 - claude-sonnet-5 (continue: US3 exercises, T069-T076; US3 checkpoint)
+- Done: T069-T076.
+  - T069-T072 (tests first): fixtures in `tests/fixtures/musicxml/theory/` (G-sharp minor i-iv-V-i, E-flat minor iv, tonic inversions, C major ii-V-I, README with origin CC0), `theory.test.ts`, `exercise-claims.test.ts`, and the theory mutations in `planted.test.ts` (per item of the shelf: one tone respelled to another letter with the same MIDI number, one tone moved a semitone, one bass raised an octave = one inversion swapped; each gives exactly one `TheoryDifference` naming chord, bar and hand). They failed as expected before the code existed (`theory.ts` was a 0-byte file; 34 failed in `theory.test.ts`, the other two files could not load).
+  - T073 `tools/library/fidelity/exercise-claims.ts`: the claim table, written by hand from titles, descriptions and the feature-005 content plan (never from the generator or its definitions; a test asserts it). A name that does not spell its chords is claimed only if the description states them.
+  - T074 `tools/library/fidelity/theory.ts`: the independent check (letter arithmetic, its own scale tables, reads the file with `readXml`); wired into `runRecord` (a `theory` check), the comparator's `Difference` union (`kind: 'theory'`) and the CLI. `checkRecord` also requires a `theory` check for `claim: exercise`. Contract `fidelity-tools.md` 1.8.0; `data-model.md` §5 updated to the built shapes and rules.
+  - T075: first run: 39 of 41 exercises clean, 2 with label differences. After the review below and its fixes: **0 differences in 41 exercises (528 chords)**.
+  - T076: 41 records in `content/library/audit/learning/chords/**`: 32 `verified`, 8 `fixed`, 1 `relabelled`. `reviewedBy`/`reviewedOn` set to `claude-sonnet-5` / 2026-09-24 in the 15 definitions' `meta` and in the scale item's sidecar; generated files rebuilt with the original `created` date (2026-09-23) so nothing else moved.
+- Review (T073, `music-domain-expert` subagent, ran): sequences, inversions, harmonic-minor V and vii° on the raised seventh agreed. Findings and what was done:
+  - Must fix, done: the same-tonic drills' Roman numerals had the wrong case for their quality ("Cm · I", "A · i"; now "Cm · i", "A · I"); the scale item's section B had both hands on C4 in bars 6-7 (the right-hand I chords now C5-E5-G5; only that item's notes changed, 6 notes, identity golden re-captured for that item alone, checked with `git diff`).
+  - Should fix, done: "B° · vii" now "vii°" (generator `romanFigure` takes the quality); the turnaround description said "one common tone per change" (I to vi shares two): now "one or two"; `states` words for I-V-I and I-IV-I; the check gained the degree sign in labels and three rules, Voicing (close position), Octave (left hand an octave below the right, applied only when every tone is right) and Overlap (a key struck by both hands while held; `planted.test.ts` reproduces the scale item's old collision); the 12 + 12 key set of the triads is asserted.
+  - Not checked (written into data-model §5): rhythm, ties and rests, fingering, tempo.
+- Owner decision (2026-09-24, "go with your recommendation"): the shelf no longer calls the close-position I-IV⁶⁴-V⁶-I cadence "perfect" (V⁶-I is not a perfect authentic cadence). The cadence description is "The full I-IV-V-I cadence in close position (FR-004), in C, G and F."; the plagal drill is titled "{key} - plagal then V-I" (item id unchanged, SC-007); notes untouched (its file differs only in `<work-title>`). `claimForItem` refuses any title or description that says "perfect" for a progression with an inverted V, and `exercise-claims.test.ts` asserts it for the whole shelf. Records: the plagal item is `relabelled` (previous title kept), the three cadence items `fixed`.
+- Items changed: `changes-same-tonic-c-major`, `changes-a-minor-major-a-minor` (labels), `changes-diatonic-ladder-c-major` (label), `changes-turnaround-c-major` and the three `changes-cadence-*` (descriptions), `changes-plagal-perfect-c-major` (title, description), `c-major-scale-and-chords` (2 chords, notes). Anyone who practised the scale item has new Note IDs for those 6 notes; item ids are unchanged.
+- Decisions: overlap, voicing and octave rules added from the review (data-model §5, research R8); `created` dates kept on regeneration.
+- Problems / open questions:
+  - needs owner: the feature-005 spec (`specs/005-practice-score-library/spec.md`, FR-004, and its data-model) still says "perfect cadence"; only the shelf was changed. Say if that spec text should follow.
+  - `pnpm lint` reports 284 warnings and 13 infos as before; 0 errors.
+- Gate (US3 checkpoint):
+  - `pnpm lint`: 0 errors (`Found 284 warnings`, `Found 13 infos`);
+  - `pnpm typecheck`: green;
+  - `pnpm test`: `Test Files 183 passed (183)`, `Tests 2092 passed (2092)`;
+  - `pnpm library:fidelity`: `58 records, 0 failed`;
+  - `pnpm test:e2e`, full run: exit code 1: `1 failed` (`[electron] library.spec.ts:175:3`, the known-flaky Electron launch, reference R7), `65 skipped`, `294 passed (3.7m)`;
+  - `pnpm exec playwright test tests/e2e/library.spec.ts:175` alone: `1 passed (3.5s)`, exit 0.
+  - **The e2e gate was therefore green only on the re-run of that one spec; the full run itself did not exit 0.** Nothing else failed.
+- Manual check: looked at the full-page screenshots of the scale item (section B, bars 5-9) and of the diatonic ladder ("B° · vii°"); both render as intended.
+- Handoff: next = Phase 6 (US4, the report: T077 + T079 can be written first, T078 needs every record; the US1-US3 records are all in). Run `pnpm test` and `pnpm lint` first. Tree clean after this commit.

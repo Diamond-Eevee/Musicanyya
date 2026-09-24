@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "itemId": "learning/chords/c-major-scale-and-chords",
+  "claim": "exercise",
+  "claimText": "C major - scale and chords for both hands",
+  "checks": [
+    {
+      "method": "theory",
+      "ruleSet": "exercise-theory-v1",
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "fixed",
+  "outcomeNote": "Found by the music-domain review, then by the check's new overlap rule: in section B the right-hand I chords of bars 6 and 7 sat on C4-E4-G4 while the left-hand scale struck C4, one key for two hands. Both chords moved up an octave (C5-E5-G5); nothing else changed.",
+  "checkedBy": "claude-sonnet-5",
+  "date": "2026-09-24",
+  "previous": {
+    "title": "C major - scale and chords for both hands",
+    "level": "intermediate",
+    "bars": 9,
+    "notes": 82
+  }
+}
