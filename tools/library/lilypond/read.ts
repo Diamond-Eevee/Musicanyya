@@ -170,13 +170,26 @@ interface Layout {
   graces: { grace: ReferenceGraceNote; pos: Pos }[];
   barChecks: { t: QuarterTime; pos: Pos }[];
   times: { t: QuarterTime; num: number; den: number; pos: Pos }[];
+  /** \set Timing.measurePosition, in quarter notes (negative = that long before the next bar line). */
+  resets: { t: QuarterTime; position: QuarterTime; pos: Pos }[];
+  /** \bar "..." events; "" hides the bar line at that point. */
+  barLines: { t: QuarterTime; style: string }[];
   partial?: QuarterTime;
   repeats: Repeat[];
   end: QuarterTime;
 }
 
 function layOut(root: LyMusic, staves: Staves): Layout {
-  const out: Layout = { notes: [], graces: [], barChecks: [], times: [], repeats: [], end: q(0) };
+  const out: Layout = {
+    notes: [],
+    graces: [],
+    barChecks: [],
+    times: [],
+    resets: [],
+    barLines: [],
+    repeats: [],
+    end: q(0),
+  };
   let cursor = q(0);
   let staff = 1;
   let voice = 'v';
@@ -330,10 +343,15 @@ function layOut(root: LyMusic, staves: Staves): Layout {
       case 'variable':
         fail(m.pos, `\\${m.name} (unexpanded variable)`);
         return;
+      case 'measurePosition':
+        if (!grace) out.resets.push({ t: cursor, position: m.position, pos: m.pos });
+        return;
+      case 'bar':
+        if (!grace) out.barLines.push({ t: cursor, style: m.style });
+        return;
       case 'key':
       case 'clef':
       case 'ottava': // display only: the entered pitch is the sounding pitch (contract §3.1)
-      case 'bar':
       case 'tempo':
       case 'mark':
         return;
@@ -345,6 +363,15 @@ function layOut(root: LyMusic, staves: Staves): Layout {
 
 // ---- 5. bars -----------------------------------------------------------------------------------------------------
 
+/**
+ * Written bars follow the printed page (research R17):
+ * - LilyPond's own measures come from \partial, \time and \set Timing.measurePosition; bar checks must fall on them
+ *   (§3.2), exactly as LilyPond checks them;
+ * - a bar line hidden with \bar "" is not a bar line of the written music, and a visible \bar adds one;
+ * - repeat and volta boundaries are always bar lines: a repeat sign is printed as one even inside a measure
+ *   (LilyPond Notation Reference, "Long repeats"), so a first ending that completes a pickup bar is its own bar.
+ * Bars are numbered in order, from 0 when the piece starts with a \partial pickup.
+ */
 function buildBars(layout: Layout): ReferenceBar[] {
   const { end } = layout;
   const times = [...layout.times].sort((a, b) => cmp(a.t, b.t));
@@ -353,48 +380,77 @@ function buildBars(layout: Layout): ReferenceBar[] {
     for (const s of times) if (cmp(s.t, t) <= 0) meter = q(4 * s.num, s.den);
     return meter;
   };
-  const bars: ReferenceBar[] = [];
-  const push = (start: QuarterTime, length: QuarterTime) =>
-    bars.push({ index: bars.length, number: '', start, length, repeatStart: false, repeatEnd: false, endings: [] });
+  const origin = { line: 1, column: 1 };
+  if (cmp(end, q(0)) === 0) fail(origin, 'a score without notes');
 
+  // LilyPond's measures.
+  const timing: QuarterTime[] = [q(0)];
+  const pending = [...layout.resets].sort((a, b) => cmp(a.t, b.t));
   let start = q(0);
-  if (layout.partial) {
-    if (cmp(layout.partial, meterAt(q(0))) >= 0)
-      fail(times[0]?.pos ?? { line: 1, column: 1 }, '\\partial as long as a bar');
-    push(start, layout.partial);
-    start = layout.partial;
-  }
-  while (cmp(start, end) < 0) {
-    const meter = meterAt(start);
-    const next = add(start, meter);
+  let next = layout.partial ?? meterAt(q(0));
+  if (layout.partial && cmp(layout.partial, meterAt(q(0))) >= 0)
+    fail(times[0]?.pos ?? origin, '\\partial as long as a bar');
+  for (;;) {
+    const reset = pending.find((r) => cmp(r.t, start) >= 0 && cmp(r.t, next) < 0);
+    if (reset) {
+      pending.splice(pending.indexOf(reset), 1);
+      // Negative: the next bar line is that far ahead. Otherwise the bar began `position` ago.
+      next =
+        cmp(reset.position, q(0)) < 0
+          ? sub(reset.t, reset.position)
+          : add(sub(reset.t, reset.position), meterAt(reset.t));
+      if (cmp(next, start) <= 0) fail(reset.pos, 'measurePosition before the start of the bar');
+      continue;
+    }
     const inside = times.find((s) => cmp(s.t, start) > 0 && cmp(s.t, next) < 0);
     if (inside) fail(inside.pos, `\\time ${inside.num}/${inside.den} inside a bar (at ${show(inside.t)})`);
-    push(start, cmp(next, end) <= 0 ? meter : sub(end, start));
+    if (cmp(next, end) >= 0) break;
+    timing.push(next);
     start = next;
+    next = add(start, meterAt(start));
   }
-  if (bars.length === 0) fail({ line: 1, column: 1 }, 'a score without notes');
-  const first = layout.partial ? 0 : 1;
-  bars.forEach((b, i) => {
-    b.number = String(i + first);
-  });
-
-  const isBarLine = (t: QuarterTime) => cmp(t, end) === 0 || bars.some((b) => cmp(b.start, t) === 0);
+  const onTiming = (t: QuarterTime) => cmp(t, end) === 0 || timing.some((x) => cmp(x, t) === 0);
   for (const check of layout.barChecks)
-    if (!isBarLine(check.t)) fail(check.pos, `bar check at ${show(check.t)}, not on a bar line`);
-  return bars;
+    if (!onTiming(check.t)) fail(check.pos, `bar check at ${show(check.t)}, not on a bar line`);
+
+  // The written bar lines.
+  const boundaries = layout.repeats.flatMap((r) => [
+    r.start,
+    r.bodyEnd,
+    ...r.alternatives.flatMap((a) => [a.start, a.end]),
+  ]);
+  const hidden = layout.barLines.filter((b) => b.style === '').map((b) => b.t);
+  const visible = layout.barLines.filter((b) => b.style !== '').map((b) => b.t);
+  const has = (list: QuarterTime[], t: QuarterTime) => list.some((x) => cmp(x, t) === 0);
+  const lines = [...timing.filter((t) => !has(hidden, t) || has(boundaries, t)), ...visible, ...boundaries]
+    .filter((t) => cmp(t, q(0)) >= 0 && cmp(t, end) < 0)
+    .sort(cmp)
+    .filter((t, i, all) => i === 0 || cmp(t, all[i - 1] as QuarterTime) !== 0);
+  const first = layout.partial ? 0 : 1;
+  return lines.map((t, i) => ({
+    index: i,
+    number: String(i + first),
+    start: t,
+    length: sub(lines[i + 1] ?? end, t),
+    repeatStart: false,
+    repeatEnd: false,
+    endings: [],
+  }));
 }
 
 function markRepeats(bars: ReferenceBar[], repeats: Repeat[]): void {
-  const starting = (t: QuarterTime, pos: Pos): ReferenceBar => {
-    const bar = bars.find((b) => cmp(b.start, t) === 0);
-    return bar ?? fail(pos, `repeat boundary at ${show(t)} inside a bar`);
-  };
-  const ending = (t: QuarterTime, pos: Pos): ReferenceBar => {
-    const bar = bars.find((b) => cmp(add(b.start, b.length), t) === 0);
-    return bar ?? fail(pos, `repeat boundary at ${show(t)} inside a bar`);
-  };
+  const starting = (t: QuarterTime, pos: Pos): ReferenceBar =>
+    bars.find((b) => cmp(b.start, t) === 0) ?? fail(pos, `no bar starts at ${show(t)}`);
+  const ending = (t: QuarterTime, pos: Pos): ReferenceBar =>
+    bars.find((b) => cmp(add(b.start, b.length), t) === 0) ?? fail(pos, `no bar ends at ${show(t)}`);
+  const seen = new Set<string>();
   for (const r of repeats) {
-    starting(r.start, r.pos).repeatStart = true;
+    // Every staff (and a Dynamics line) repeats the same structure; mark it once.
+    const key = [r.start, r.bodyEnd, ...r.alternatives.flatMap((a) => [a.start, a.end])].map(show).join('|');
+    if (seen.has(key)) continue;
+    seen.add(key);
+    // LilyPond prints no start-repeat bar line at the beginning of a piece ("Long repeats").
+    if (cmp(r.start, q(0)) > 0) starting(r.start, r.pos).repeatStart = true;
     const setTimes = (b: ReferenceBar) => {
       b.repeatEnd = true;
       if (r.times !== 2) b.repeatTimes = r.times;

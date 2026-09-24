@@ -466,6 +466,13 @@ follow-up (spec Clarifications, analyze A2).
   that pitch before the principal note. The note before a grace group may end exactly where the group starts. An
   articulated note may be shorter. A unison may be merged (one MIDI note to the end of the later note) or cut (the
   first note ends where the second starts), and only where the notation shows two overlapping notes of one pitch.
+- **Written bars** (added after reading the real Mutopia 931 file): the reading's bars follow the printed page, not
+  LilyPond's timing measures. A `\bar ""` hides a bar line, repeat and volta boundaries are bar lines, and
+  `\set Timing.measurePosition` re-anchors the measures. That is how the 2.18 file writes its second ending
+  (`a'8 \bar "" r16 b' \set Timing.measurePosition = #(ly:make-moment -1/8) c''16 d''`: one printed bar), and how
+  the MusicXML item, converted from it, has it. A repeat starting at the beginning of the piece has no start-repeat
+  bar line, as LilyPond prints none there (Notation Reference 2.24, "Long repeats"). Bar checks are still checked
+  against LilyPond's own measures.
 - **Played order**: the LilyPond reading's bars go through the app's own `unroll()`; the MusicXML reading takes
   `buildTimeline(score).timeline.passes`. Both use one repeat rule (R6).
 

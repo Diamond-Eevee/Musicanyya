@@ -12,6 +12,7 @@ long; `tests/tools/lilypond/read.test.ts` states the expected reading of each by
 | `tuplets.ly` | `\tuplet` and `\times` |
 | `grace.ly` | `\grace`, `\appoggiatura`, `\acciaccatura`, `\slashedGrace` |
 | `volta.ly`, `unfold.ly` | `\repeat volta` + `\alternative`; `\repeat unfold` |
+| `endings-mid-bar.ly` | a pickup inside the repeat, a first ending that completes it, and a second ending ended early with `\bar ""` and `\set Timing.measurePosition` (the form of Mutopia 931) |
 | `partial.ly` | `\partial` pickup bar |
 | `time-key-clef.ly` | `\time`, `\key`, `\clef`, including changes mid-piece |
 | `ottava.ly` | `\ottava` (display only: the entered pitch sounds) |

@@ -111,7 +111,9 @@ describe('readLilyPond / fromLilyPond (contract fidelity-tools.md §3.1)', () =>
       n(2, [8], [4], 'C4'),
     ]);
     expect(r.bars).toEqual([
-      bar(0, '1', 0, 4, { repeatStart: true }),
+      // LilyPond prints no start-repeat bar line at the beginning of a piece (Notation Reference, "Long
+      // repeats"), so the written score has none.
+      bar(0, '1', 0, 4),
       bar(1, '2', 4, 4, { repeatEnd: true, endings: [1] }),
       bar(2, '3', 8, 4, { endings: [2] }),
     ]);
@@ -197,7 +199,7 @@ describe('readLilyPond / fromLilyPond (contract fidelity-tools.md §3.1)', () =>
     expect(score.midi).toEqual({ unfoldRepeats: true, articulate: false });
     const r = fromLilyPond(score);
     expect(noVoice(r.notes)).toEqual(['C5', 'D5', 'E5', 'F5'].map((p, i) => n(0, [i], [1], p)));
-    expect(r.bars).toEqual([bar(0, '1', 0, 4, { repeatStart: true, repeatEnd: true })]);
+    expect(r.bars).toEqual([bar(0, '1', 0, 4, { repeatEnd: true })]);
     expect(r.playedOrder).toEqual([0, 0]);
   });
 
@@ -223,6 +225,60 @@ describe('readLilyPond / fromLilyPond (contract fidelity-tools.md §3.1)', () =>
       [68, sp('Ab4')],
       [58, sp('Cbb4')],
       [60, sp('B#3')],
+    ]);
+  });
+
+  it('endings that end or start inside a bar: written bars follow the printed page', () => {
+    const r = reading('endings-mid-bar.ly');
+    const b = (
+      index: number,
+      number: string,
+      start: [number, number?],
+      length: [number, number?],
+      extra: Partial<ReferenceBar> = {},
+    ) => ({
+      index,
+      number,
+      start: q(...start),
+      length: q(...length),
+      repeatStart: false,
+      repeatEnd: false,
+      endings: [],
+      ...extra,
+    });
+    expect(r.bars).toEqual([
+      b(0, '0', [0], [1, 2]),
+      b(1, '1', [1, 2], [3, 2]),
+      b(2, '2', [2], [1], { repeatEnd: true, endings: [1] }), // first ending: completes the pickup bar
+      b(3, '3', [3], [3, 2], { endings: [2] }), // second ending: \bar "" hides the timing bar line after a8
+      b(4, '4', [9, 2], [3, 2]), // measurePosition -1/8 put this bar line after c16 d
+      b(5, '5', [6], [1]),
+    ]);
+    expect(r.playedOrder).toEqual([0, 1, 2, 0, 1, 3, 4, 5]);
+    expect(noVoice(r.notes)).toEqual([
+      n(0, [0], [1, 4], 'E5'),
+      n(0, [1, 4], [1, 4], 'D5'),
+      n(1, [1, 2], [1, 2], 'E5'),
+      n(1, [1], [1, 2], 'C5'),
+      n(1, [3, 2], [1, 2], 'A4'),
+      n(2, [2], [1], 'A4'),
+      n(3, [3], [1, 2], 'A4'),
+      n(3, [15, 4], [1, 4], 'B4'),
+      n(3, [4], [1, 4], 'C5'),
+      n(3, [17, 4], [1, 4], 'D5'),
+      n(4, [9, 2], [1, 2], 'E5'),
+      n(4, [5], [1, 2], 'C5'),
+      n(4, [11, 2], [1, 2], 'B4'),
+      n(5, [6], [1, 2], 'A4'),
+    ]);
+  });
+
+  it("reads octave marks before a forced or cautionary accidental, and an octave check (c''! b,? c='')", () => {
+    const r = fromLilyPond(readLilyPond("{ cis''!4 b,? \\tupletSpan 8 c=''2 | }"));
+    expect(r.notes.map((x) => [x.midi, x.spelling])).toEqual([
+      [73, sp('C#5')],
+      [47, sp('B2')],
+      [72, sp('C5')],
     ]);
   });
 
@@ -256,7 +312,14 @@ describe('readLilyPond / fromLilyPond (contract fidelity-tools.md §3.1)', () =>
     it('a Scheme expression in the music', () => fails('{ c4 #(ly:make-moment 1 4) d }', 1, 6, /Scheme/));
     it('a word that is not a note, rest or variable', () => fails('{ c4 hello }', 1, 6, /hello/));
     it('a \\set that changes the timing', () =>
-      fails('{ \\set Timing.measurePosition = #0 c4 }', 1, 3, /Timing\.measurePosition/));
+      fails('{ \\set Timing.measureLength = #(ly:make-moment 5/8) c4 }', 1, 3, /Timing\.measureLength/));
+    it('a bar check on a repeat bar line inside a measure (not a measure boundary in LilyPond)', () =>
+      fails(
+        "\\relative c'' { \\time 3/8 \\repeat volta 2 { \\partial 8 e16 d | e8 c a | } \\alternative { { a4 | } { a4 } } }",
+        1,
+        95,
+        /bar check/,
+      ));
     it('a repeat type other than volta and unfold', () => fails('{ \\repeat tremolo 4 { c16 d } }', 1, 11, /tremolo/));
   });
 });

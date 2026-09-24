@@ -74,7 +74,9 @@ export type LyMusic =
   | { kind: 'bar'; style: string; pos: Pos }
   | { kind: 'tempo'; text?: string; beat?: LyDuration; bpm?: number; pos: Pos }
   | { kind: 'mark'; post: LyPost; name: string; pos: Pos }
-  | { kind: 'variable'; name: string; pos: Pos };
+  | { kind: 'variable'; name: string; pos: Pos }
+  /** \set Timing.measurePosition: the position in the current bar, in quarter notes; negative = before a bar line. */
+  | { kind: 'measurePosition'; position: QuarterTime; pos: Pos };
 
 export interface LyScoreBlock {
   music: LyMusic;
@@ -450,9 +452,8 @@ export function parseLilyPond(source: string): LyScore {
   function parsePitch(): LyPitch {
     const t = next();
     const [letter, alter] = pitchNames[t.value] as [number, LyPitch['alter']];
-    const pitch: LyPitch = { letter, alter, marks: 0 };
-    if (is('symbol', '!') || is('symbol', '?')) next(); // forced / cautionary accidental: display only
-    pitch.marks = parseOctaveMarks();
+    const pitch: LyPitch = { letter, alter, marks: parseOctaveMarks() };
+    if ((is('symbol', '!') || is('symbol', '?')) && !peek().spaced) next(); // forced / cautionary accidental: display only
     if (is('symbol', '=') && !peek().spaced) {
       next();
       pitch.check = parseOctaveMarks();
@@ -683,13 +684,28 @@ export function parseLilyPond(source: string): LyScore {
       }
       case '\\once':
         return parseCommand();
-      case '\\set':
+      case '\\set': {
+        if (is('word', 'Timing') && is('symbol', '.', 1) && is('word', 'measurePosition', 2)) {
+          pos += 3;
+          expect('symbol', '=');
+          return { kind: 'measurePosition', position: parseMoment(), pos: p };
+        }
+        parsePropertyPath(t);
+        expect('symbol', '=');
+        parseValue();
+        return { kind: 'seq', items: [], pos: p };
+      }
       case '\\override': {
         parsePropertyPath(t);
         expect('symbol', '=');
         parseValue();
         return { kind: 'seq', items: [], pos: p };
       }
+      case '\\tupletSpan':
+        // Groups tuplet brackets only; no effect on timing.
+        if (is('command', '\\default')) next();
+        else if (!parseDuration()) unsupported(peek(), '\\tupletSpan without a duration');
+        return { kind: 'seq', items: [], pos: p };
       case '\\unset':
       case '\\revert':
       case '\\omit':
@@ -739,6 +755,14 @@ export function parseLilyPond(source: string): LyScore {
       if (TIME_OR_PITCH_PROPERTY.test(path)) unsupported(command, `${command.value} ${path}`);
     }
     return path;
+  }
+
+  /** #(ly:make-moment -1/8) or #(ly:make-moment -1 8): a moment in whole notes, returned in quarter notes. */
+  function parseMoment(): QuarterTime {
+    const t = expect('scheme');
+    const m = /^\(ly:make-moment\s+(-?\d+)(?:\/(\d+)|\s+(\d+))?\s*\)$/.exec(t.value);
+    if (!m) return unsupported(t, `measurePosition value ${t.value}`);
+    return q(4 * Number(m[1]), Number(m[2] ?? m[3] ?? 1));
   }
 
   function parseValue(): void {

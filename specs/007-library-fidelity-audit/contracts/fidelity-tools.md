@@ -1,6 +1,6 @@
 # Contract: fidelity tools (readers, comparator, theory check, converter, commands)
 
-**Version**: `1.1.0` (1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
+**Version**: `1.1.0` (1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands; 1.2.0, 2026-09-24: written bars follow the printed page (§3.2), `measurePosition`, `	upletSpan`). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
 worker, and `tests/architecture/layers.test.ts` asserts it (as it already does for the exercise generator).
 
 **Location**: `tools/library/fidelity/` (pure TypeScript, Node, no DOM; compiled by `tsconfig.tools.json`) and
@@ -97,19 +97,28 @@ to stop.
 | `\repeat volta n { }` + `\alternative { { } { } }` | bar repeat marks and ending numbers |
 | `\repeat unfold n { }` | expanded n times (it is written out in the printed score) |
 | `\partial d` | pickup bar of length d |
+| `\set Timing.measurePosition = #(ly:make-moment -n/d)` | re-anchors LilyPond's bar lines (a negative position ends the bar that far ahead), as 2.18 sources use it to end a second ending early |
+| `\tupletSpan d` | tuplet bracket grouping only; no timing effect |
 | `\time`, `\key`, `\clef` | metre, key signature (for spelling output), clef changes |
 | `\ottava #n` | the entered pitch **is** the sounding pitch (LilyPond's `\ottava` only sets `middleCPosition`, i.e. the staff position; research R5 rule 6); the written pitch is the entered pitch minus n octaves, kept for the writer's `<octave-shift>` |
 | `<< { } \\ { } >>`, `\new Voice`, `\new Staff`, `\new PianoStaff`, `\context`, `\change Staff` | voices and staves |
-| `\bar "..."` | final/double bars; repeat bars via the repeat construct only |
+| `\bar "..."` | a visible style adds a written bar line; `\bar ""` hides the bar line at that point (it is then not a bar line of the written music); repeat bars via the repeat construct only |
 | articulations, dynamics, slurs, phrasing slurs, fingerings, `\markup`, text scripts, `\tempo`, `\sustainOn/Off` | read as notation marks for the converter; ignored by the comparator |
 | `\set`, `\override`, `\revert`, `\once`, `\omit`, `\hide`, `\accidentalStyle` of layout properties | skipped as a unit, including their Scheme value (`#'(...)`, `##f`, `#red`); a property that moves notes in pitch or time (`Timing.*`, `measurePosition`, `middleCPosition`, `currentBarNumber`, ...) is an error |
 | `\language "english"` / `\include "english.ly"` | English note names (Dutch is the default) |
-| `\include` of anything other than `"english.ly"`/`"nederlands.ly"`, any other Scheme expression (in music, or at top level other than `set-global-staff-size`/`set-default-paper-size`), `\transpose`, `\relative` without a start pitch, `\afterGrace`, chord repetition `q`, tremolo `:`, `\repeat percent`/`tremolo`, `\repeat volta` with more than two passes and alternatives, a repeat or alternative boundary inside a bar | **unsupported** -> error |
+| `\include` of anything other than `"english.ly"`/`"nederlands.ly"`, any other Scheme expression (in music, or at top level other than `set-global-staff-size`/`set-default-paper-size`), `\transpose`, `\relative` without a start pitch, `\afterGrace`, chord repetition `q`, tremolo `:`, `\repeat percent`/`tremolo`, `\repeat volta` with more than two passes and alternatives, any other `Timing` property | **unsupported** -> error |
 
 ### 3.2 Bars
 
-Bars are derived from `\time`, `\partial` and accumulated durations, and cross-checked against the source's bar
-checks (`|`): a bar check that does not fall on a bar line is an error, as it is in LilyPond itself.
+LilyPond's own measures are derived from `\time`, `\partial`, `\set Timing.measurePosition` and accumulated
+durations, and cross-checked against the source's bar checks (`|`): a bar check that does not fall on one of those
+bar lines is an error, as it is in LilyPond itself.
+
+The **written bars** of the reading follow the printed page: LilyPond's bar lines, minus those hidden with `\bar ""`,
+plus visible `\bar` lines and every repeat and volta boundary (a repeat sign is printed as a bar line even inside a
+measure). So a first ending that completes a pickup bar is a short bar of its own, as it is in the MusicXML item.
+A repeat that starts at the very beginning has no start-repeat bar line (LilyPond prints none there). Bars are
+numbered in order, from 0 when the piece starts with `\partial`.
 
 ### 3.3 Converter (`tools/library/lilypond/to-musicxml.ts`)
 
