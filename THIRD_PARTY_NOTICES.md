@@ -47,6 +47,16 @@ and their licence (FR-020); `tests/library/licence.test.ts` checks both (FR-017)
   them.
   https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931
 
+- **Chopin, Prelude in E minor, Op. 28 No. 4** - `repertoire/advanced/chopin-prelude-op28-no4.musicxml` (obtained 2026-09-24)
+  Licence: public domain. Typeset in LilyPond by Magnus Lewis-Smith for the Mutopia Project
+  (Mutopia-2016/10/28-468) from the Peters edition of 1879, and placed in the public domain
+  by the typesetter. Converted by Musicanyya from the
+  LilyPond source `Chop-28-4.ly` to MusicXML; the notes were checked against Mutopia's own MIDI
+  file of the same source. Both source files are kept unchanged in
+  `content/library/sources/mutopia-468-chopin-op28-no4/`, where `pnpm library:fidelity` re-checks the item against
+  them.
+  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=468
+
 The library's `.musicxml` files were completed by the project's engraving tool (`pnpm library:engrave`), which adds
 missing `<beam>` and `<accidental>` elements for display. Nothing else in the files is changed, and each file keeps
 the licence recorded for it in `public/library/index.json`.

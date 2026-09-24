@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-24T11:27:54.535Z",
+  "generated": "2026-09-24T11:42:30.661Z",
   "sections": [
     {
       "id": "learning/chords",
@@ -3373,8 +3373,8 @@
       "id": "repertoire/advanced/chopin-prelude-op28-no4",
       "section": "repertoire/advanced",
       "file": "repertoire/advanced/chopin-prelude-op28-no4.musicxml",
-      "bytes": 97940,
-      "hash": "eef4a0615a4e7f11c345c94633560d237af85245d6ecb2c87e9b70adcd5887a4",
+      "bytes": 109022,
+      "hash": "4c8af29414eab7345ad2467a6fb598bf136cc809cb5a8563358ca22f7f986cda",
       "meta": {
         "version": 1,
         "title": "Prelude in E minor, Op. 28 No. 4 (\"Largo\")",
@@ -3388,58 +3388,64 @@
           "chords"
         ],
         "provenance": {
-          "origin": "authored",
-          "licence": "CC0-1.0",
-          "author": "Musicanyya practice material",
-          "created": "2026-09-22",
-          "basedOn": "Frédéric Chopin, Prelude in E minor, Op. 28 No. 4 (composed 1839, public domain; Chopin died 1849). Pitches and rhythm were checked measure-by-measure against the Mutopia Project's public-domain LilyPond engraving (piece-info id 468, Chop-28-4.ly, typeset by Magnus Lewis-Smith) before this original engraving was made.",
-          "note": "Complete piece: the 1-eighth-note pickup plus all 25 bars, ending on the closing perfect cadence in E minor. Slurs, pedal markings, hairpins and the closing fermatas of the source engraving are omitted from this file; they do not change the sounding pitches or rhythm. Independent review (2026-09-22) confirmed every pitch bar by bar against the Mutopia source, with one disclosed low-confidence detail: the left-hand chord's bass note in measure 24 (of this file's 0-indexed pickup-as-0 numbering; Chopin's own bar 23) is written B2 - the reviewer's two independent derivations of that one note (from a cross-staff voice in the source engraving) did not fully agree on its octave, though both agree on the pitch class (B, the dominant), so this is a possible octave nuance in one inner voice, not a wrong note. A second fix (2026-09-22, found by the level checker's criterion-16 hand-span cap, data-model.md §4): bar 9's left-hand suspended B was written B4 instead of B3 (a 23-semitone, two-octave span against the same chord's C3/E3 - not playable, and an outlier against every neighbouring bar's compact 9-12-semitone voicing). Corrected to B3 - a stepwise 7-6 suspension resolving to the A3 that the chord's remaining six eighths already use, consistent with the piece's own published harmonic analysis at this bar. High confidence from internal pattern-consistency and third-party harmonic analysis, not a re-check against the LilyPond source itself."
+          "origin": "downloaded",
+          "licence": "public-domain",
+          "source": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=468",
+          "obtained": "2026-09-24",
+          "sourcePath": "mutopia-468-chopin-op28-no4/Chop-28-4.ly",
+          "unmodified": false
         },
-        "reviewedBy": "music-domain-expert",
-        "reviewedOn": "2026-09-22",
+        "reviewedBy": "antigravity-gemini-3.1-pro",
+        "reviewedOn": "2026-09-24",
+        "subtitle": "Arrangement (playable hand-span fixes)",
         "composer": "Frédéric Chopin",
         "trains": "Chromatic voice leading, sustained dissonance, a wide dynamic range, and rhythmic independence between a slow-moving right-hand line and pulsing left-hand chords.",
         "hands": "both",
+        "arrangement": true,
         "limitations": [
           "Pedal is not written or played; performers commonly sustain this prelude with continuous pedal, which this file does not encode."
+        ],
+        "departures": [
+          "Measure 10 (bar 9): changed left-hand suspended B4 to B3 to fit hand-span cap.",
+          "Measure 24 (bar 23): changed left-hand bass octave B1 to B2 to fit hand-span cap."
         ]
       },
       "facts": {
         "measures": 26,
-        "notes": 562,
-        "durationSeconds": 116.53846153846153,
+        "notes": 602,
+        "durationSeconds": 108.21428571428571,
         "keys": [
           "E minor"
         ],
         "metres": [
           "2/2"
         ],
-        "tempoBpm": 52,
+        "tempoBpm": 56,
         "tempoDefaulted": false,
-        "lowestMidi": 35,
+        "lowestMidi": 28,
         "highestMidi": 84,
         "maxSpanSemitones": 12,
         "staves": 2,
-        "voicesPerStaff": 1,
+        "voicesPerStaff": 3,
         "handIndependenceFraction": 0.7692307692307693,
         "shortestDivision": 16,
-        "notesPerBeat": 5.564356435643564,
+        "notesPerBeat": 5.96039603960396,
         "accidentals": 1,
         "hasTies": true,
         "hasTuplets": true,
         "hasGraceNotes": true,
         "hasOctaveShift": false,
         "hasRepeats": false,
-        "hasPedal": false,
+        "hasPedal": true,
         "fingeringCoverage": 0,
         "notices": [],
         "parts": 1,
         "tempoChanges": 0,
         "maxLeapSemitones": 22,
         "longestRunAtShortestValue": 1,
-        "attackCount": 241,
+        "attackCount": 252,
         "peakNotesPerSecond": 4.5,
-        "accidentalMarkCount": 53,
+        "accidentalMarkCount": 46,
         "maxTieChainNotes": 2,
         "maxTieBarlinesCrossed": 1,
         "hasNonSimpleTuplet": false,

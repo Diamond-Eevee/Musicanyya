@@ -1,0 +1,149 @@
+[
+  {
+    "file": "bach-prelude-bwv846.musicxml",
+    "title": "Prelude in C major, BWV 846 (from The Well-Tempered Clavier, Book I)",
+    "composer": "Johann Sebastian Bach",
+    "measures": 35,
+    "notes": 615,
+    "durationSeconds": 127.3,
+    "keys": [
+      "C major"
+    ],
+    "metres": [
+      "4/4"
+    ],
+    "tempoBpm": 66,
+    "tempoDefaulted": false,
+    "lowestMidi": 36,
+    "highestMidi": 81,
+    "maxSpanSemitones": 12,
+    "staves": 2,
+    "shortestDivision": 16,
+    "notesPerBeat": 4.39,
+    "accidentals": 0,
+    "fingeringCoverage": 0,
+    "notices": [],
+    "computedLevel": "advanced",
+    "verovioMs": 131,
+    "pages": 2,
+    "verovioError": null
+  },
+  {
+    "file": "chopin-prelude-op28-no20.musicxml",
+    "title": "Prelude in C minor, Op. 28 No. 20",
+    "composer": "Frédéric Chopin",
+    "measures": 13,
+    "notes": 286,
+    "durationSeconds": 74.3,
+    "keys": [
+      "C minor"
+    ],
+    "metres": [
+      "4/4"
+    ],
+    "tempoBpm": 42,
+    "tempoDefaulted": false,
+    "lowestMidi": 24,
+    "highestMidi": 75,
+    "maxSpanSemitones": 14,
+    "staves": 2,
+    "shortestDivision": 16,
+    "notesPerBeat": 5.5,
+    "accidentals": 3,
+    "fingeringCoverage": 0,
+    "notices": [],
+    "computedLevel": "advanced",
+    "verovioMs": 31,
+    "pages": 1,
+    "verovioError": null
+  },
+  {
+    "file": "chopin-prelude-op28-no4.musicxml",
+    "title": "Prelude in E minor, Op. 28 No. 4 (\"Largo\")",
+    "composer": "Frédéric Chopin",
+    "measures": 26,
+    "notes": 602,
+    "durationSeconds": 108.2,
+    "keys": [
+      "E minor"
+    ],
+    "metres": [
+      "2/2"
+    ],
+    "tempoBpm": 56,
+    "tempoDefaulted": false,
+    "lowestMidi": 28,
+    "highestMidi": 84,
+    "maxSpanSemitones": 31,
+    "staves": 2,
+    "shortestDivision": 16,
+    "notesPerBeat": 5.96,
+    "accidentals": 1,
+    "fingeringCoverage": 0,
+    "notices": [],
+    "computedLevel": "advanced",
+    "verovioMs": 48,
+    "pages": 1,
+    "verovioError": null
+  },
+  {
+    "file": "fur-elise-complete.musicxml",
+    "title": "Für Elise, WoO 59",
+    "composer": "Ludwig van Beethoven",
+    "measures": 106,
+    "notes": 905,
+    "durationSeconds": 156.3,
+    "keys": [
+      "A minor"
+    ],
+    "metres": [
+      "3/8"
+    ],
+    "tempoBpm": 72,
+    "tempoDefaulted": false,
+    "lowestMidi": 33,
+    "highestMidi": 100,
+    "maxSpanSemitones": 12,
+    "staves": 2,
+    "shortestDivision": 32,
+    "notesPerBeat": 4.83,
+    "accidentals": 0,
+    "fingeringCoverage": 0,
+    "notices": [
+      "measureLengthMismatch"
+    ],
+    "computedLevel": "advanced",
+    "verovioMs": 79,
+    "pages": 3,
+    "verovioError": null
+  },
+  {
+    "file": "satie-gymnopedie-no1.musicxml",
+    "title": "Gymnopedie No. 1 (arranged for this app)",
+    "composer": "Erik Satie",
+    "measures": 37,
+    "notes": 219,
+    "durationSeconds": 133.2,
+    "keys": [
+      "B minor"
+    ],
+    "metres": [
+      "3/4"
+    ],
+    "tempoBpm": 50,
+    "tempoDefaulted": false,
+    "lowestMidi": 35,
+    "highestMidi": 81,
+    "maxSpanSemitones": 14,
+    "staves": 2,
+    "shortestDivision": 4,
+    "notesPerBeat": 1.97,
+    "accidentals": 2,
+    "fingeringCoverage": 0,
+    "notices": [],
+    "computedLevel": "advanced",
+    "verovioMs": 23,
+    "pages": 1,
+    "verovioError": null
+  }
+]

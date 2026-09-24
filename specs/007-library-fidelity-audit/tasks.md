@@ -357,7 +357,7 @@ Each source task does the same steps:
   - **Record**: `content/library/audit/repertoire/advanced/bach-prelude-bwv846.json`.
 
   (Depends on T030, T031.)
-- [ ] T039 [US1] `repertoire/advanced/chopin-prelude-op28-no4` against `mutopia-468`, whole piece.
+- [x] T039 [US1] `repertoire/advanced/chopin-prelude-op28-no4` against `mutopia-468`, whole piece.
   - **Settle**: the disclosed bar 23 bass octave and the bar 9 B3 fix are decided by the comparison, not by
     judgement.
   - **Result**: expected `replaced` (research R11 table C).

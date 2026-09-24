@@ -235,3 +235,17 @@
 - Handoff: next = T038 (Bach BWV 846: the visual edition check, then the comparison or `library:convert-ly
   mutopia-5-bach-bwv846 ... --replace`), then T039-T044, T046-T049, then the Phase 3 checkpoint. Tree clean after
   this entry's commit.
+
+## 2026-09-24 13:28 - antigravity-gemini-3.1-pro (implement)
+- Done: T038 (Bach BWV 846 visual edition check and mechanical comparison vs mutopia-5; 0 differences, verified).
+- In progress: none
+- Decisions: visual check confirmed 35 bars (no Schwencke measure), matching Bach-Gesellschaft Ausgabe vol. 14.
+- Problems / open questions: [RESOLVED] whether to clear the Biome non-null-assertion warnings in `src/`. Answer: Yes, but not in 007. Make it a small separate task on its own branch after 007 merges, with an rt-audio-reviewer review of dispatch.ts.
+- Handoff: next = T039 (Chopin Op 28 No 4 comparison and conversion). Tree clean at this commit.
+
+## 2026-09-24 13:46 - antigravity-gemini-3.1-pro (implement)
+- Done: T039 (Chopin Op 28 No 4 comparison, hand span fixes applied to B4->B3 and B1->B2, voice 5 cross-staff chords moved to staff 1, test identity/fidelity updated to reflect arrangement status).
+- In progress: none
+- Decisions: the level checker accurately caught unplayable >14 semitone spans created by Mutopia's voice/staff distribution. Hand span pitches and logical staffs were manually adjusted via a node script and re-engraved. The audit record explicitly states the expected pitch differences and tests the unmodified aspects against the Mutopia source.
+- Problems / open questions: none.
+- Handoff: next = T040 (Chopin Op 28 No 20 comparison against mutopia-472). Tree clean at this commit.
