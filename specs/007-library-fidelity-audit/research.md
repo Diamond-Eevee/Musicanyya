@@ -475,6 +475,11 @@ follow-up (spec Clarifications, analyze A2).
   that pitch before the principal note. The note before a grace group may end exactly where the group starts. An
   articulated note may be shorter. A unison may be merged (one MIDI note to the end of the later note) or cut (the
   first note ends where the second starts), and only where the notation shows two overlapping notes of one pitch.
+  **Widened 2026-09-24 (T095, Satie Mutopia 37 bars 9-12)**: one MIDI channel has one state per key, so under a held
+  note that another voice strikes again and again, each MIDI note ends where the next note on that key starts. The
+  accepted ends are therefore the starts and ends of every note in the chain of overlapping notes on that key, not
+  only of the notes that overlap this one. Without such a chain in the notation, the same MIDI is still a `duration`
+  difference (compare.test.ts).
 - **Written bars** (added after reading the real Mutopia 931 file): the reading's bars follow the printed page, not
   LilyPond's timing measures. A `\bar ""` hides a bar line, repeat and volta boundaries are bar lines, and
   `\set Timing.measurePosition` re-anchors the measures. That is how the 2.18 file writes its second ending

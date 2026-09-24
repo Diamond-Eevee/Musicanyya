@@ -1,6 +1,6 @@
 # Contract: authoritative source manifest (`content/library/sources/<source-id>/source.json`)
 
-**Version**: `1.0.0` - new.
+**Version**: `1.1.0` (1.0.0 new; 1.1.0, 2026-09-24: optional `score` and `archive` on a file, task T095).
 
 **Owner**: `tools/library/fidelity/sources.ts` (reads and validates). **Written by**: a person or agent when a
 source is added, after the owner approved it. **Read by**: the fidelity tool and `tests/library/fidelity.test.ts`.
@@ -55,7 +55,13 @@ Files are committed **unchanged** (hash-checked). A scan (PDF) is **not** commit
           "format": { "enum": ["lilypond", "midi", "musicxml", "pdf"] },
           "midiOrder": { "enum": ["written", "played"] },
           "midiNoteTracks": { "type": "array", "items": { "type": "integer", "minimum": 0 } },
-          "midiArticulate": { "type": "boolean", "description": "true when the source's midi score block uses articulate: the MIDI step then compares pitch and onset only (research R5)" }
+          "midiArticulate": { "type": "boolean", "description": "true when the source's midi score block uses articulate: the MIDI step then compares pitch and onset only (research R5)" },
+          "score":  { "type": "integer", "minimum": 1, "description": "LilyPond notation only: which \\score (1-based) of a file with one \\score per movement, e.g. a \\book" },
+          "archive": {
+            "type": "object", "required": ["sha256", "member"], "additionalProperties": false,
+            "description": "the file was extracted from the archive at url (Mutopia publishes some MIDI zipped)",
+            "properties": { "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }, "member": { "type": "string" } }
+          }
         }
       }
     }
@@ -71,6 +77,9 @@ Files are committed **unchanged** (hash-checked). A scan (PDF) is **not** commit
 - A file with `path` must have `sha256`; the fidelity test re-hashes it and fails on any change (FR-016).
 - `role: "sound"` requires `midiOrder`, `midiNoteTracks` and `midiArticulate`, all established by inspecting the file once and
   recorded, not guessed at every run.
+- A file taken out of a published archive has `url` = the archive's URL, `archive.sha256` = the archive's hash, and
+  `archive.member` = the file's name inside it; `sha256` is the extracted file's own hash. Only that member is committed.
+- `score` names the `\score` (1-based) the source is, when the `.ly` holds one per movement; the readers pass it on.
 - `approvedByOwner` is the date the owner approved this source (spec assumption; AGENTS.md section 6). A source
   without it may be downloaded to the agent's scratch space for inspection, but may not be committed or cited.
 - Every source that an item's MusicXML was **converted from** also appears in `THIRD_PARTY_NOTICES.md` (FR-023).

@@ -81,9 +81,19 @@ export type LyMusic =
       marks: LyMark[];
       pos: Pos;
     }
-  | { kind: 'rest'; rest: 'r' | 'R' | 's'; duration: LyDuration; marks: LyMark[]; pos: Pos }
+  | {
+      kind: 'rest';
+      rest: 'r' | 'R' | 's';
+      duration: LyDuration;
+      marks: LyMark[];
+      /** A rest placed at a pitch (e4\rest): the pitch sets the staff position and counts for \relative. */
+      pitch?: LyPitch;
+      pos: Pos;
+    }
   | { kind: 'barCheck'; pos: Pos }
   | { kind: 'relative'; ref: LyPitch; body: LyMusic; pos: Pos }
+  /** \transpose from to { ... }: every pitch inside moves by the interval from -> to (read.ts). */
+  | { kind: 'transpose'; from: LyPitch; to: LyPitch; body: LyMusic; pos: Pos }
   | { kind: 'tuplet'; factor: QuarterTime; body: LyMusic; pos: Pos }
   | { kind: 'grace'; command: string; body: LyMusic; pos: Pos }
   | { kind: 'repeat'; mode: 'volta' | 'unfold'; times: number; body: LyMusic; alternatives: LyMusic[]; pos: Pos }
@@ -100,6 +110,10 @@ export type LyMusic =
   | { kind: 'tempo'; text?: string; beat?: LyDuration; bpm?: number; pos: Pos }
   | { kind: 'mark'; post: LyPost; name: string; pos: Pos }
   | { kind: 'variable'; name: string; pos: Pos }
+  /** \barNumberCheck #n: LilyPond's own measure number must be n here (read.ts checks it). */
+  | { kind: 'barNumberCheck'; n: number; pos: Pos }
+  /** A construct that fails only where the music uses it, not where a variable merely defines it. */
+  | { kind: 'unsupported'; construct: string; pos: Pos }
   /** \set Timing.measurePosition: the position in the current bar, in quarter notes; negative = before a bar line. */
   | { kind: 'measurePosition'; position: QuarterTime; pos: Pos };
 
@@ -163,7 +177,8 @@ const LAYOUT_COMMANDS = new Set(
   hideNotes unHideNotes small normalsize tiny teeny large huge breathe arpeggioArrowUp arpeggioArrowDown
   arpeggioNormal arpeggioBracket textLengthOn textLengthOff hideStaffSwitch showStaffSwitch compressFullBarRests
   expandFullBarRests compressEmptyMeasures expandEmptyMeasures newSpacingSection easyHeadsOn easyHeadsOff
-  showStaffSwitch pointAndClickOff pointAndClickOn`
+  showStaffSwitch pointAndClickOff pointAndClickOn crescHairpin crescTextCresc dimHairpin dimTextDecr dimTextDecresc
+  dimTextDim`
     .split(/\s+/)
     .map((c) => `\\${c}`),
 );
@@ -171,6 +186,9 @@ const LAYOUT_COMMANDS = new Set(
 /** Properties whose change would move notes in pitch or time (contract §3.1: unsupported). */
 const TIME_OR_PITCH_PROPERTY =
   /(^|\.)(Timing|measureLength|measurePosition|currentBarNumber|timeSignatureFraction|middleCPosition|middleCClefPosition|middleCOffset|transposition|instrumentTransposition|tempoWholesPerMinute|baseMoment|beatStructure)(\.|$)/;
+
+/** Properties that leave notes out of the printed page. */
+const HIDING_PROPERTY = /(^|\.)skipTypesetting$/;
 
 const DUTCH: Record<string, [number, LyPitch['alter']]> = {};
 const ENGLISH: Record<string, [number, LyPitch['alter']]> = {};
@@ -201,7 +219,15 @@ const ENGLISH: Record<string, [number, LyPitch['alter']]> = {};
 // Dutch contracted forms: es = e-flat, as = a-flat.
 Object.assign(DUTCH, { es: [2, -1], eses: [2, -2], as: [5, -1], ases: [5, -2] });
 
-export function parseLilyPond(source: string): LyScore {
+/** Printed start-repeat bar lines; allowed only where a \repeat volta starts (read.ts checks). */
+export const START_REPEAT_BARS = new Set(['.|:', '|:', '[|:']);
+
+export interface LyReadOptions {
+  /** 1-based number of the notation \score to read, for a file with one \score per movement (source manifest). */
+  score?: number;
+}
+
+export function parseLilyPond(source: string, options: LyReadOptions = {}): LyScore {
   const tokens = lexLilyPond(source);
   let pos = 0;
   let pitchNames = DUTCH;
@@ -209,6 +235,11 @@ export function parseLilyPond(source: string): LyScore {
   const variables = new Map<string, LyMusic>();
   const header: Record<string, string> = {};
   const scores: LyScoreBlock[] = [];
+  /** Variables holding \markup: text only, used as a script (^\crescendo). */
+  const markupVariables = new Set<string>();
+  /** Variables holding a post-event (hidePP = \tweak #'stencil ##f \pp), used after a direction mark. */
+  const postVariables = new Map<string, { post: LyPost; marks: LyMark[] }>();
+  let bookDepth = 0;
 
   const peek = (k = 0): LyToken => tokens[Math.min(pos + k, tokens.length - 1)] as LyToken;
   const next = (): LyToken => {
@@ -243,8 +274,19 @@ export function parseLilyPond(source: string): LyScore {
   // ---- top level ------------------------------------------------------------------------------------------------
   while (!is('eof')) {
     const t = peek();
+    if (bookDepth > 0 && is('symbol', '}')) {
+      next();
+      bookDepth--;
+      continue;
+    }
     if (t.type === 'command') {
       switch (t.value) {
+        case '\\book':
+          // A \book only groups its \header, \paper and \score blocks.
+          next();
+          expect('symbol', '{');
+          bookDepth++;
+          continue;
         case '\\version':
           next();
           expect('string');
@@ -297,18 +339,27 @@ export function parseLilyPond(source: string): LyScore {
     scores.push({ music: parseMusic(), layout: false, midi: false });
   }
 
+  if (bookDepth > 0) unsupported(peek(), 'unterminated \\book');
   const notation = scores.filter((s) => s.layout || !s.midi);
-  if (notation.length !== 1)
+  let chosen: LyScoreBlock;
+  if (options.score !== undefined) {
+    const found = notation[options.score - 1];
+    if (!found)
+      throw new LyUnsupportedError(1, 1, `score ${options.score} (the file has ${notation.length} notation scores)`);
+    chosen = found;
+  } else if (notation.length === 1) chosen = notation[0] as LyScoreBlock;
+  else
     throw new LyUnsupportedError(
       1,
       1,
-      `${notation.length} notation scores (exactly one \\score without \\midi is supported)`,
+      `${notation.length} notation scores (choose one with the source manifest's "score" field)`,
     );
-  const midiScores = scores.filter((s) => s.midi);
+  // The chosen score's own \midi block if it has one, otherwise the file's separate MIDI scores.
+  const midiScores = chosen.midi ? [chosen] : scores.filter((s) => s.midi);
   return {
     header,
     variables,
-    music: (notation[0] as LyScoreBlock).music,
+    music: chosen.music,
     midi: {
       unfoldRepeats: midiScores.some((s) => contains(s.music, 'unfoldRepeats')),
       articulate: midiScores.some((s) => contains(s.music, 'articulate')),
@@ -359,6 +410,14 @@ export function parseLilyPond(source: string): LyScore {
     if (t.type === 'command' && t.value === '\\markup') {
       next();
       skipMarkup();
+      markupVariables.add(name);
+      return;
+    }
+    if (t.type === 'command' && t.value === '\\tweak') {
+      const marks: LyMark[] = [];
+      next();
+      const post = parseTweak(marks, undefined);
+      postVariables.set(name, { post, marks });
       return;
     }
     variables.set(name, parseMusic());
@@ -427,6 +486,11 @@ export function parseLilyPond(source: string): LyScore {
         const pitch = parsePitch();
         const d = parseDurationOrLast();
         const marks: LyMark[] = [];
+        if (is('command', '\\rest')) {
+          next();
+          parsePostEvents(marks);
+          return { kind: 'rest', rest: 'r', duration: d, marks, pitch, pos: p };
+        }
         const post = parsePostEvents(marks);
         return { kind: 'note', pitch, duration: d, tie: post.includes('tie'), post, marks, pos: p };
       }
@@ -595,7 +659,25 @@ export function parseLilyPond(source: string): LyScore {
       push(commandMark(kind, t.value));
       return kind;
     }
+    if (t.type === 'command' && t.value === '\\tweak') return parseTweak(marks, placement);
+    if (t.type === 'command' && markupVariables.has(t.value.slice(1))) {
+      push({ type: 'text' });
+      return 'text';
+    }
+    const stored = t.type === 'command' ? postVariables.get(t.value.slice(1)) : undefined;
+    if (stored) {
+      for (const m of stored.marks) push(m);
+      return stored.post;
+    }
     return unsupported(t, `'${t.value}' after a direction mark`);
+  }
+
+  /** \tweak property value event: a layout change of one event; the event itself is read as usual. */
+  function parseTweak(marks: LyMark[], placement: 'above' | 'below' | undefined): LyPost {
+    const t = tokens[pos - 1] as LyToken;
+    parsePropertyPath(t);
+    parseValue();
+    return parseDirectedPost(marks, placement);
   }
 
   function parseCommand(): LyMusic {
@@ -605,6 +687,15 @@ export function parseLilyPond(source: string): LyScore {
     if (name in POST_COMMANDS) return { kind: 'mark', post: POST_COMMANDS[name] as LyPost, name, pos: p };
     if (LAYOUT_COMMANDS.has(name)) return { kind: 'seq', items: [], pos: p };
     switch (name) {
+      case '\\transpose': {
+        const from = peek();
+        if (!(from.type === 'word' && from.value in pitchNames)) unsupported(from, '\\transpose pitch');
+        const fromPitch = parsePitch();
+        const to = peek();
+        if (!(to.type === 'word' && to.value in pitchNames)) unsupported(to, '\\transpose pitch');
+        const toPitch = parsePitch();
+        return { kind: 'transpose', from: fromPitch, to: toPitch, body: parseMusic(), pos: p };
+      }
       case '\\relative': {
         if (!(peek().type === 'word' && peek().value in pitchNames)) unsupported(t, '\\relative without a start pitch');
         const ref = parsePitch();
@@ -711,7 +802,8 @@ export function parseLilyPond(source: string): LyScore {
       }
       case '\\bar': {
         const style = expect('string');
-        if (style.value.includes(':')) unsupported(style, `\\bar "${style.value}" (repeats are written with \\repeat)`);
+        if (style.value.includes(':') && !START_REPEAT_BARS.has(style.value))
+          unsupported(style, `\\bar "${style.value}" (repeats are written with \\repeat)`);
         return { kind: 'bar', style: style.value, pos: p };
       }
       case '\\tempo':
@@ -743,16 +835,29 @@ export function parseLilyPond(source: string): LyScore {
           expect('symbol', '=');
           return { kind: 'measurePosition', position: parseMoment(), pos: p };
         }
-        parsePropertyPath(t);
+        const path = parsePropertyPath(t);
         expect('symbol', '=');
         parseValue();
-        return { kind: 'seq', items: [], pos: p };
+        return layoutOnly(t, path, p);
       }
       case '\\override': {
-        parsePropertyPath(t);
+        const path = parsePropertyPath(t);
         expect('symbol', '=');
         parseValue();
+        return layoutOnly(t, path, p);
+      }
+      case '\\crossStaff':
+        // Joins the stems of chords across the two staves (Span_stem_engraver); the notes are as written.
+        return parseMusic();
+      case '\\shape':
+        // \shape #'(offsets) Grob: moves a slur's control points; layout only.
+        expect('scheme');
+        parsePropertyPath(t);
         return { kind: 'seq', items: [], pos: p };
+      case '\\barNumberCheck': {
+        const v = expect('scheme');
+        if (!/^\d+$/.test(v.value)) unsupported(v, `\\barNumberCheck ${v.value}`);
+        return { kind: 'barNumberCheck', n: Number(v.value), pos: p };
       }
       case '\\tupletSpan':
         // Groups tuplet brackets only; no effect on timing.
@@ -760,6 +865,7 @@ export function parseLilyPond(source: string): LyScore {
         else if (!parseDuration()) unsupported(peek(), '\\tupletSpan without a duration');
         return { kind: 'seq', items: [], pos: p };
       case '\\unset':
+        return layoutOnly(t, parsePropertyPath(t), p);
       case '\\revert':
       case '\\omit':
       case '\\hide':
@@ -792,7 +898,18 @@ export function parseLilyPond(source: string): LyScore {
     return tempo;
   }
 
-  /** Context.property or Grob.property / Grob #'property; a property that moves notes in time or pitch fails. */
+  /**
+   * A \set, \unset or \override: nothing when it only changes the look; an `unsupported` node when the property moves
+   * notes in time or pitch, or hides printed music. The node fails where the music uses it, so a variable that
+   * defines such a change but is never used (Chopin 468's paperOFF) does not stop the reading.
+   */
+  function layoutOnly(command: LyToken, path: string, p: Pos): LyMusic {
+    if (TIME_OR_PITCH_PROPERTY.test(path) || HIDING_PROPERTY.test(path))
+      return { kind: 'unsupported', construct: `${command.value} ${path}`, pos: p };
+    return { kind: 'seq', items: [], pos: p };
+  }
+
+  /** Context.property or Grob.property / Grob #'property. */
   function parsePropertyPath(command: LyToken): string {
     let path = '';
     for (;;) {
@@ -804,9 +921,6 @@ export function parseLilyPond(source: string): LyScore {
       else break;
     }
     if (path === '') unsupported(peek(), `${command.value} without a property`);
-    if (command.value === '\\set' || command.value === '\\unset' || command.value === '\\override') {
-      if (TIME_OR_PITCH_PROPERTY.test(path)) unsupported(command, `${command.value} ${path}`);
-    }
     return path;
   }
 

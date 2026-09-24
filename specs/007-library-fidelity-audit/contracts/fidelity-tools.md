@@ -1,6 +1,6 @@
 # Contract: fidelity tools (readers, comparator, theory check, converter, commands)
 
-**Version**: `1.3.0` (1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands; 1.2.0, 2026-09-24: written bars follow the printed page (§3.2), `measurePosition`, `\tupletSpan`; 1.3.0, 2026-09-24: the converter's marks, §3.3). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
+**Version**: `1.4.0` (1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands; 1.2.0, 2026-09-24: written bars follow the printed page (§3.2), `measurePosition`, `\tupletSpan`; 1.3.0, 2026-09-24: the converter's marks, §3.3; 1.4.0, 2026-09-24: the constructs of the US1 sources, §3.1, `readLilyPond(source, { score })`). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
 worker, and `tests/architecture/layers.test.ts` asserts it (as it already does for the exercise generator).
 
 **Location**: `tools/library/fidelity/` (pure TypeScript, Node, no DOM; compiled by `tsconfig.tools.json`) and
@@ -40,7 +40,8 @@ export function fromMidi(file: MidiFile, tracks: number[]): ReferenceScore;
 export function fromMusicXml(xml: string): ReferenceScore;
 
 // tools/library/lilypond/read.ts - the LilyPond subset (section 3)
-export function readLilyPond(source: string): LyScore;                        // throws LyUnsupportedError(line, col, construct)
+// options.score: which \score of a file with one per movement (source manifest 1.1.0)
+export function readLilyPond(source: string, options?: { score?: number }): LyScore;  // throws LyUnsupportedError(line, col, construct)
 export function fromLilyPond(score: LyScore): ReferenceScore;
 /** The same reading plus the written events (notes, rests, clefs, marks ... in source order), for the converter. */
 export function readWritten(score: LyScore): { reading: ReferenceScore; events: LyEvent[]; staves: number };
@@ -113,9 +114,19 @@ to stop.
 | `<< { } \\ { } >>`, `\new Voice`, `\new Staff`, `\new PianoStaff`, `\context`, `\change Staff` | voices and staves |
 | `\bar "..."` | a visible style adds a written bar line; `\bar ""` hides the bar line at that point (it is then not a bar line of the written music); repeat bars via the repeat construct only |
 | articulations, dynamics, slurs, phrasing slurs, fingerings, `\markup`, text scripts, `\tempo`, `\sustainOn/Off` | read as notation marks for the converter; ignored by the comparator |
-| `\set`, `\override`, `\revert`, `\once`, `\omit`, `\hide`, `\accidentalStyle` of layout properties | skipped as a unit, including their Scheme value (`#'(...)`, `##f`, `#red`); a property that moves notes in pitch or time (`Timing.*`, `measurePosition`, `middleCPosition`, `currentBarNumber`, ...) is an error |
+| `\set`, `\override`, `\revert`, `\once`, `\omit`, `\hide`, `\accidentalStyle` of layout properties | skipped as a unit, including their Scheme value (`#'(...)`, `##f`, `#red`); a property that moves notes in pitch or time (`Timing.*`, `measurePosition`, `middleCPosition`, `currentBarNumber`, ...) or hides printed music (`skipTypesetting`) is an error where the music uses it (a variable that only defines it, as Chopin 468's `paperOFF`, is not) |
 | `\language "english"` / `\include "english.ly"` | English note names (Dutch is the default) |
-| `\include` of anything other than `"english.ly"`/`"nederlands.ly"`, any other Scheme expression (in music, or at top level other than `set-global-staff-size`/`set-default-paper-size`), `\transpose`, `\relative` without a start pitch, `\afterGrace`, chord repetition `q`, tremolo `:`, `\repeat percent`/`tremolo`, `\repeat volta` with more than two passes and alternatives, any other `Timing` property | **unsupported** -> error |
+| *Added in 1.4.0 for the US1 sources (T095):* | |
+| non-ASCII characters (markup text: "Gymnopédie", the "•" of Mutopia taglines) | words; in music such a word is not a note, so an error |
+| a `\markup` variable used as a script (`^\crescendo`) | a text script whose content is not read |
+| `\tweak property value event`, also stored in a variable and used after `-`/`^`/`_` (`-\hidePP`) | the event; the tweak is layout only |
+| `\shape #'(...) Grob`, `\crossStaff { }`, `\crescTextCresc`, `\crescHairpin`, `\dimTextDim`, `\dimTextDecresc`, `\dimTextDecr`, `\dimHairpin` | layout only; the music inside `\crossStaff` is read as written |
+| `\transpose from to { }` outside `\relative` | every pitch and key tonic inside moves by the interval, spelled by letter (`\transpose c d`: F#4 -> G#4); inside `\relative`, or needing a triple accidental, an error |
+| `\bar ".\|:"`, `"\|:"`, `"[\|:"` | a printed start repeat, allowed only where a `\repeat volta` starts; that bar then has a start repeat even at the beginning of the piece |
+| `\book { }` with one `\score` per movement | the source manifest's `score` field (1.1.0) names the `\score` to read; without it, several notation scores are an error |
+| `\barNumberCheck #n` | LilyPond's own measure number must be n there (from 1, or from 0 after `\partial`) |
+| `e4\rest` (a rest at a pitch) | a rest; its pitch counts for `\relative` |
+| `\include` of anything other than `"english.ly"`/`"nederlands.ly"`, any other Scheme expression (in music, or at top level other than `set-global-staff-size`/`set-default-paper-size`), `\relative` without a start pitch, `\afterGrace`, chord repetition `q`, tremolo `:`, `\repeat percent`/`tremolo`, `\repeat volta` with more than two passes and alternatives, any other `Timing` property, an end-repeat `\bar` | **unsupported** -> error |
 
 ### 3.2 Bars
 

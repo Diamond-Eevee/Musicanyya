@@ -321,5 +321,132 @@ describe('readLilyPond / fromLilyPond (contract fidelity-tools.md §3.1)', () =>
         /bar check/,
       ));
     it('a repeat type other than volta and unfold', () => fails('{ \\repeat tremolo 4 { c16 d } }', 1, 11, /tremolo/));
+    it('non-ASCII letters in the music (they are never note names)', () => fails("{ c'4 dé }", 1, 7, /dé/));
+  });
+
+  // T095: constructs the audited Mutopia sources use (found by reading them), each on own-work input.
+  describe('constructs of the audited sources (T095)', () => {
+    const notes = (text: string) => fromLilyPond(readLilyPond(text)).notes.map((x) => [x.midi, x.onset, x.duration]);
+
+    it('non-ASCII text in \\header markup and tagline (Satie 37: "Gymnopédie"; Mutopia taglines: "•")', () => {
+      const r = readLilyPond(
+        "\\header { title = \\markup { {\\small 1.} Gymnopédie } tagline = \\markup { Sheet music • free } }\n{ c'4 d' e' f' | }",
+      );
+      expect(fromLilyPond(r).notes.map((x) => x.midi)).toEqual([60, 62, 64, 65]);
+    });
+
+    it('a markup variable after a direction mark (Burgmüller 203: crescendo = \\markup {...}, then ^\\crescendo)', () => {
+      const r = readLilyPond("crescendo = \\markup { \\italic \"cresc.\" }\n{ <c' e'>4^\\crescendo d'2. | }");
+      const reading = fromLilyPond(r);
+      expect(reading.notes.map((x) => [x.midi, x.onset])).toEqual([
+        [60, q(0)],
+        [64, q(0)],
+        [62, q(1)],
+      ]);
+    });
+
+    it('\\tweak on a post-event, stored in a variable and used after a direction mark (Chopin 468: hidePP)', () => {
+      const text = "hidePP = \\tweak #'stencil ##f \\pp\n{ e'2^\\(-\\hidePP d'2\\) | }";
+      const r = readLilyPond(text);
+      expect(fromLilyPond(r).notes.map((x) => [x.midi, x.duration])).toEqual([
+        [64, q(2)],
+        [62, q(2)],
+      ]);
+      const first = (r.music as { items: { marks: unknown[] }[] }).items[0];
+      expect(first?.marks).toEqual([
+        { type: 'slur', start: true, phrasing: true, placement: 'above' },
+        { type: 'dynamic', name: 'pp' },
+      ]);
+    });
+
+    it('hairpin style commands take no argument and change no notes (Chopin 472: \\crescTextCresc)', () => {
+      expect(notes("{ \\crescTextCresc c'2\\< d'\\! \\crescHairpin \\dimTextDim e'1 | }")).toEqual([
+        [60, q(0), q(2)],
+        [62, q(2), q(2)],
+        [64, q(4), q(4)],
+      ]);
+    });
+
+    it("\\transpose outside \\relative moves every pitch by the interval, keeping the spelling (Bach 5: c to c')", () => {
+      expect(notes("{ \\transpose c c' { g16 c' e' g c' e' r8 | } }").map(([m]) => m)).toEqual([
+        67, 72, 76, 67, 72, 76,
+      ]);
+      const r = fromLilyPond(readLilyPond("{ \\transpose c d { fis'4 bes' c'' e''8 e'' | } }"));
+      expect(r.notes.map((x) => x.spelling)).toEqual([sp('G#4'), sp('C5'), sp('D5'), sp('F#5'), sp('F#5')]);
+    });
+
+    it('a printed start-repeat bar where a \\repeat volta starts, even at the beginning (Satie 37: \\bar ".|:")', () => {
+      const r = fromLilyPond(readLilyPond("{ \\time 2/4 \\bar \".|:\" \\repeat volta 2 { c'2 | d'2 | } e'2 | }"));
+      expect(r.bars).toEqual([
+        bar(0, '1', 0, 2, { repeatStart: true }),
+        bar(1, '2', 2, 2, { repeatEnd: true }),
+        bar(2, '3', 4, 2),
+      ]);
+      expect(r.playedOrder).toEqual([0, 1, 0, 1, 2]);
+    });
+
+    it('\\book with one \\score per movement: the manifest chooses which one (Clementi 804)', () => {
+      const text =
+        "\\book {\n  \\score { { c'1 | } \\midi { } \\layout { } }\n  \\score { { \\time 3/4 d'2. | e'2. | } \\midi { } \\layout { } }\n}";
+      expect(fromLilyPond(readLilyPond(text, { score: 2 })).notes.map((x) => x.midi)).toEqual([62, 64]);
+      expect(fromLilyPond(readLilyPond(text, { score: 1 })).notes.map((x) => x.midi)).toEqual([60]);
+      expect(() => readLilyPond(text)).toThrow(/2 notation scores.*score/);
+    });
+  });
+
+  describe('checks and layout-only music functions (T095)', () => {
+    it("\\barNumberCheck is checked against LilyPond's own measure number (Satie 37)", () => {
+      const text = (n: number) => `{ \\time 2/4 c'2 | d'2 | \\barNumberCheck #${n} e'2 | }`;
+      expect(fromLilyPond(readLilyPond(text(3))).notes.map((x) => x.midi)).toEqual([60, 62, 64]);
+      expect(() => fromLilyPond(readLilyPond(text(2)))).toThrow(/bar number check #2.*measure 3/);
+      // after a pickup the first full measure is 1
+      expect(() => fromLilyPond(readLilyPond("{ \\partial 4 c'4 | \\barNumberCheck #1 d'1 | }"))).not.toThrow();
+    });
+
+    it('\\shape in a variable, used before a note, changes nothing (Chopin 468: shpSlurA)', () => {
+      const text =
+        "shp = \\shape #'( ((0 . -0.3) (8 . 0.5)) ((0 . 0) (0 . 0)) ) PhrasingSlur\n{ \\shp c'4\\( d'2.\\) | }";
+      expect(fromLilyPond(readLilyPond(text)).notes.map((x) => [x.midi, x.duration])).toEqual([
+        [60, q(1)],
+        [62, q(3)],
+      ]);
+    });
+
+    it('a rest placed at a pitch (e4\\rest) is a rest, and its pitch still counts for \\relative (Satie 37)', () => {
+      const r = fromLilyPond(readLilyPond("\\relative c'' { \\time 3/4 e4\\rest d2 | c,4\\rest e2 | }"));
+      expect(noVoice(r.notes)).toEqual([n(0, [1], [2], 'D5'), n(1, [4], [2], 'E4')]);
+    });
+
+    it('\\crossStaff only joins stems across the staves (Chopin 468)', () => {
+      const r = fromLilyPond(readLilyPond("{ \\crossStaff { <c' e'>2 d'2 } | }"));
+      expect(r.notes.map((x) => [x.midi, x.onset, x.duration])).toEqual([
+        [60, q(0), q(2)],
+        [64, q(0), q(2)],
+        [62, q(2), q(2)],
+      ]);
+    });
+
+    it('Score.skipTypesetting hides printed music: it fails where used, not where only defined (Chopin 468)', () => {
+      const defined = "paperOFF = { \\set Score.skipTypesetting = ##t }\n{ c'1 | }";
+      expect(fromLilyPond(readLilyPond(defined)).notes).toHaveLength(1);
+      expect(() => fromLilyPond(readLilyPond("{ \\set Score.skipTypesetting = ##t c'1 | }"))).toThrow(
+        /skipTypesetting/,
+      );
+    });
+  });
+
+  describe('still fails loudly (T095)', () => {
+    const fails = (text: string, construct: RegExp) => {
+      expect(() => fromLilyPond(readLilyPond(text))).toThrow(LyUnsupportedError);
+      expect(() => fromLilyPond(readLilyPond(text))).toThrow(construct);
+    };
+    it('\\transpose inside \\relative', () => fails("\\relative c' { \\transpose c d { c4 d } }", /\\transpose/));
+    it('a transposition that needs a triple accidental', () =>
+      fails("{ \\transpose c cis { bisis'4 } }", /accidental/));
+    it('a start-repeat bar line where no \\repeat volta starts', () =>
+      fails('{ c\'2 \\bar ".|:" d\'2 | }', /repeat bar line/));
+    it('an end-repeat bar line written by hand', () => fails('{ c\'2 \\bar ":|." d\'2 | }', /:\|\./));
+    it('a \\score number the file does not have', () =>
+      expect(() => readLilyPond("\\score { { c'1 } \\layout { } }", { score: 2 })).toThrow(/score 2/));
   });
 });

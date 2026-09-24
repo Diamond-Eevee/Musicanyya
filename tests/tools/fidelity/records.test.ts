@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -13,7 +14,7 @@ import {
 } from '../../../tools/library/fidelity/records';
 import { loadSources } from '../../../tools/library/fidelity/sources';
 import { q } from '../../../tools/library/fidelity/time';
-import { ITEM_XML, record, SIDECAR, writeFile, writeTree } from './tiny-library';
+import { ITEM_XML, LY, record, SIDECAR, SOURCE, writeFile, writeTree } from './tiny-library';
 
 let root: string;
 let ctx: RunContext;
@@ -189,5 +190,19 @@ describe('runRecord + checkRecord (contract audit-record.md §2)', () => {
 
   it('rule 2.6: an unknown source fails', () => {
     expect(() => runRecord(record({}, { source: 'nope' }), ctx)).toThrow(/source "nope"/);
+  });
+
+  it('reads the \\score the manifest names in a file with one \\score per movement (source-manifest 1.1.0)', () => {
+    const book = `\\book {\n  \\score { { g'1 | } \\layout { } }\n  \\score { ${LY} \\layout { } }\n}\n`;
+    const withScore = (score: number) => {
+      const files = SOURCE.files.map((f) =>
+        f.role === 'notation' ? { ...f, sha256: createHash('sha256').update(book).digest('hex'), score } : f,
+      );
+      write('sources/test-1/scale.ly', book);
+      write('sources/test-1/source.json', JSON.stringify({ ...SOURCE, files }));
+      return { ...ctx, sources: loadSources(join(root, 'sources')) };
+    };
+    expect(runRecord(record(), withScore(2))[0]?.differences).toEqual([]);
+    expect(runRecord(record(), withScore(1))[0]?.differences.length).toBeGreaterThan(0);
   });
 });

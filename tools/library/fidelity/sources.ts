@@ -13,6 +13,10 @@ export interface SourceFile {
   midiOrder?: 'written' | 'played';
   midiNoteTracks?: number[];
   midiArticulate?: boolean;
+  /** LilyPond notation with one \score per movement: which \score (1-based) the source is (contract 1.1.0). */
+  score?: number;
+  /** The file was extracted from the archive at `url`: the archive's hash and the member's name (contract 1.1.0). */
+  archive?: { sha256: string; member: string };
 }
 
 export interface SourceManifest {
@@ -51,7 +55,18 @@ const MANIFEST_FIELDS = [
   'files',
   'approvedByOwner',
 ];
-const FILE_FIELDS = ['role', 'path', 'url', 'sha256', 'format', 'midiOrder', 'midiNoteTracks', 'midiArticulate'];
+const FILE_FIELDS = [
+  'role',
+  'path',
+  'url',
+  'sha256',
+  'format',
+  'midiOrder',
+  'midiNoteTracks',
+  'midiArticulate',
+  'score',
+  'archive',
+];
 const LICENCES = ['public-domain', 'CC0-1.0'];
 
 export function loadSources(root: string): Map<string, SourceManifest> {
@@ -126,6 +141,19 @@ function validateFile(json: unknown, index: number, fail: (detail: string) => ne
   } else {
     for (const key of ['midiOrder', 'midiNoteTracks', 'midiArticulate'])
       if (f[key] !== undefined) fail(`files[${index}]: ${key} belongs to a sound file only`);
+  }
+  if (f.score !== undefined) {
+    if (role !== 'notation' || format !== 'lilypond')
+      fail(`files[${index}]: score belongs to a LilyPond notation file`);
+    if (!Number.isInteger(f.score) || (f.score as number) < 1) fail(`${name}: score must be a positive integer`);
+  }
+  if (f.archive !== undefined) {
+    const a = object(f.archive, `${name}: archive`, fail);
+    for (const key of Object.keys(a))
+      if (key !== 'sha256' && key !== 'member') fail(`${name}: archive has an unknown field "${key}"`);
+    if (typeof a.sha256 !== 'string' || !/^[0-9a-f]{64}$/.test(a.sha256))
+      fail(`${name}: archive needs the sha256 of the archive`);
+    if (typeof a.member !== 'string' || a.member.trim() === '') fail(`${name}: archive needs the member file name`);
   }
 }
 

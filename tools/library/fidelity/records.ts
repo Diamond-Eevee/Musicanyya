@@ -240,7 +240,9 @@ function readNotation(manifest: SourceManifest, ctx: RunContext): ReferenceScore
   const notation = sourceFile(ctx.sourcesRoot, manifest, 'notation');
   if (!notation) throw new Error(`source ${manifest.id} has no notation file`);
   const text = new TextDecoder().decode(notation.bytes);
-  return notation.file.format === 'lilypond' ? fromLilyPond(readLilyPond(text)) : fromMusicXml(text);
+  return notation.file.format === 'lilypond'
+    ? fromLilyPond(readLilyPond(text, notation.file.score !== undefined ? { score: notation.file.score } : {}))
+    : fromMusicXml(text);
 }
 
 // ---- rules ---------------------------------------------------------------------------------------------------------

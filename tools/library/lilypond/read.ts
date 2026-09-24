@@ -17,15 +17,15 @@ import {
 } from '../fidelity/reference';
 import { add, cmp, mul, type QuarterTime, q, show, sub } from '../fidelity/time';
 import { LyUnsupportedError } from './errors';
-import type { LyDuration, LyMark, LyMusic, LyPitch, LyScore, Pos } from './parse';
-import { parseLilyPond } from './parse';
+import type { LyDuration, LyMark, LyMusic, LyPitch, LyReadOptions, LyScore, Pos } from './parse';
+import { parseLilyPond, START_REPEAT_BARS } from './parse';
 
-export type { LyMark, LyScore } from './parse';
+export type { LyMark, LyReadOptions, LyScore } from './parse';
 
 const STEPS: Step[] = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 
-export function readLilyPond(source: string): LyScore {
-  return parseLilyPond(source);
+export function readLilyPond(source: string, options: LyReadOptions = {}): LyScore {
+  return parseLilyPond(source, options);
 }
 
 export function fromLilyPond(score: LyScore): ReferenceScore {
@@ -90,7 +90,7 @@ function analyse(score: LyScore): { reading: ReferenceScore; layout: Layout; sta
   const staves = numberStaves(music);
   const layout = layOut(music, staves);
   const bars = buildBars(layout);
-  markRepeats(bars, layout.repeats);
+  markRepeats(bars, layout.repeats, layout.repeatBars);
 
   const barAt = (t: QuarterTime, pos: Pos): number => {
     for (let i = bars.length - 1; i >= 0; i--) if (cmp((bars[i] as ReferenceBar).start, t) <= 0) return i;
@@ -158,6 +158,9 @@ function resolveOctaves(root: LyMusic): void {
       case 'note':
         resolve(m.pitch);
         return;
+      case 'rest':
+        if (m.pitch) resolve(m.pitch);
+        return;
       case 'chord': {
         for (const n of m.notes) resolve(n.pitch);
         const first = (m.notes[0] as { pitch: LyPitch }).pitch;
@@ -170,6 +173,16 @@ function resolveOctaves(root: LyMusic): void {
         ref = { letter: m.ref.letter, octave: absolute(m.ref) };
         walk(m.body);
         ({ relative, ref } = saved);
+        return;
+      }
+      case 'transpose': {
+        // \relative does not look inside \transpose (Notation Reference, "Relative octave entry"): supported only
+        // outside \relative, where the body is read as written and then moved.
+        if (relative) fail(m.pos, '\\transpose inside \\relative');
+        m.from.octave = absolute(m.from);
+        m.to.octave = absolute(m.to);
+        walk(m.body);
+        transposeAll(m.body, m.from, m.to, m.pos);
         return;
       }
       case 'seq':
@@ -187,6 +200,43 @@ function resolveOctaves(root: LyMusic): void {
     }
   };
   walk(root);
+}
+
+const STEP_SEMITONES = [0, 2, 4, 5, 7, 9, 11];
+const pitchMidi = (p: { letter: number; alter: number; octave: number }) =>
+  (p.octave + 1) * 12 + (STEP_SEMITONES[p.letter] as number) + p.alter;
+
+/** Moves every pitch (and key tonic) in `body` by the interval from -> to, keeping the spelling a musician would write. */
+function transposeAll(body: LyMusic, from: LyPitch, to: LyPitch, pos: Pos): void {
+  const f = { letter: from.letter, alter: from.alter, octave: from.octave as number };
+  const t = { letter: to.letter, alter: to.alter, octave: to.octave as number };
+  const steps = t.octave * 7 + t.letter - (f.octave * 7 + f.letter);
+  const semitones = pitchMidi(t) - pitchMidi(f);
+  const move = (p: LyPitch, octave: number): void => {
+    const index = octave * 7 + p.letter + steps;
+    const letter = ((index % 7) + 7) % 7;
+    const newOctave = Math.floor(index / 7);
+    const alter =
+      pitchMidi({ letter: p.letter, alter: p.alter, octave }) +
+      semitones -
+      pitchMidi({ letter, alter: 0, octave: newOctave });
+    if (alter < -2 || alter > 2) fail(pos, 'a transposition that needs a triple accidental');
+    p.letter = letter;
+    p.alter = alter as LyPitch['alter'];
+    p.octave = newOctave;
+  };
+  const walk = (m: LyMusic): void => {
+    if (m.kind === 'note') move(m.pitch, m.pitch.octave as number);
+    else if (m.kind === 'chord') for (const n of m.notes) move(n.pitch, n.pitch.octave as number);
+    else if (m.kind === 'key') move(m.tonic, 4);
+    else if (m.kind === 'seq') m.items.forEach(walk);
+    else if (m.kind === 'sim') m.branches.forEach(walk);
+    else if (m.kind === 'repeat') {
+      walk(m.body);
+      m.alternatives.forEach(walk);
+    } else if ('body' in m) walk(m.body);
+  };
+  walk(body);
 }
 
 // ---- 3. staves ---------------------------------------------------------------------------------------------------
@@ -234,11 +284,14 @@ interface Layout {
   notes: { note: ReferenceNote; pos: Pos }[];
   graces: { grace: ReferenceGraceNote; pos: Pos }[];
   barChecks: { t: QuarterTime; pos: Pos }[];
+  barNumberChecks: { t: QuarterTime; n: number; pos: Pos }[];
   times: { t: QuarterTime; num: number; den: number; pos: Pos }[];
   /** \set Timing.measurePosition, in quarter notes (negative = that long before the next bar line). */
   resets: { t: QuarterTime; position: QuarterTime; pos: Pos }[];
   /** \bar "..." events; "" hides the bar line at that point. */
   barLines: { t: QuarterTime; style: string }[];
+  /** Printed start-repeat bar lines (\bar ".|:"); each must be where a \repeat volta starts. */
+  repeatBars: { t: QuarterTime; pos: Pos }[];
   partial?: QuarterTime;
   repeats: Repeat[];
   end: QuarterTime;
@@ -251,9 +304,11 @@ function layOut(root: LyMusic, staves: Staves): Layout {
     notes: [],
     graces: [],
     barChecks: [],
+    barNumberChecks: [],
     times: [],
     resets: [],
     barLines: [],
+    repeatBars: [],
     repeats: [],
     end: q(0),
     events: [],
@@ -368,7 +423,13 @@ function layOut(root: LyMusic, staves: Staves): Layout {
       case 'barCheck':
         if (!grace) out.barChecks.push({ t: cursor, pos: m.pos });
         return;
+      case 'barNumberCheck':
+        if (!grace) out.barNumberChecks.push({ t: cursor, n: m.n, pos: m.pos });
+        return;
+      case 'unsupported':
+        throw new LyUnsupportedError(m.pos.line, m.pos.column, m.construct);
       case 'relative':
+      case 'transpose':
       case 'articulate':
         walk(m.body);
         return;
@@ -453,7 +514,8 @@ function layOut(root: LyMusic, staves: Staves): Layout {
         return;
       case 'bar':
         if (grace) return;
-        out.barLines.push({ t: cursor, style: m.style });
+        if (START_REPEAT_BARS.has(m.style)) out.repeatBars.push({ t: cursor, pos: m.pos });
+        else out.barLines.push({ t: cursor, style: m.style });
         out.events.push({ kind: 'bar', t: cursor, style: m.style, pos: m.pos });
         return;
       // Display only for the reading; the converter prints them. \ottava only moves the staff position: the entered
@@ -540,6 +602,16 @@ function buildBars(layout: Layout): ReferenceBar[] {
   const onTiming = (t: QuarterTime) => cmp(t, end) === 0 || timing.some((x) => cmp(x, t) === 0);
   for (const check of layout.barChecks)
     if (!onTiming(check.t)) fail(check.pos, `bar check at ${show(check.t)}, not on a bar line`);
+  // LilyPond counts its own measures from 1; after a \partial pickup, the first full measure is 1.
+  for (const check of layout.barNumberChecks) {
+    let index = 0;
+    timing.forEach((x, i) => {
+      if (cmp(x, check.t) <= 0) index = i;
+    });
+    const measure = index + (layout.partial ? 0 : 1);
+    if (measure !== check.n)
+      fail(check.pos, `bar number check #${check.n} at ${show(check.t)}: LilyPond measure ${measure}`);
+  }
 
   // The written bar lines.
   const boundaries = layout.repeats.flatMap((r) => [
@@ -566,7 +638,7 @@ function buildBars(layout: Layout): ReferenceBar[] {
   }));
 }
 
-function markRepeats(bars: ReferenceBar[], repeats: Repeat[]): void {
+function markRepeats(bars: ReferenceBar[], repeats: Repeat[], repeatBars: { t: QuarterTime; pos: Pos }[]): void {
   const starting = (t: QuarterTime, pos: Pos): ReferenceBar =>
     bars.find((b) => cmp(b.start, t) === 0) ?? fail(pos, `no bar starts at ${show(t)}`);
   const ending = (t: QuarterTime, pos: Pos): ReferenceBar =>
@@ -595,6 +667,13 @@ function markRepeats(bars: ReferenceBar[], repeats: Repeat[]): void {
       for (let i = first; i <= last; i++) (bars[i] as ReferenceBar).endings = numbers;
       if (j < count - 1) setTimes(bars[last] as ReferenceBar);
     });
+  }
+  // A start-repeat bar line printed by hand (\bar ".|:"), for example at the very beginning where LilyPond prints
+  // none by itself: it must stand where a \repeat volta starts, and the page then shows the repeat sign there.
+  for (const b of repeatBars) {
+    if (!repeats.some((r) => cmp(r.start, b.t) === 0))
+      fail(b.pos, 'a start-repeat bar line where no \\repeat volta starts');
+    starting(b.t, b.pos).repeatStart = true;
   }
 }
 

@@ -123,6 +123,33 @@ describe('loadSources (contract source-manifest.md)', () => {
     failsWith(/test-1.*\.\.\/piece\.ly.*inside the source folder/);
   });
 
+  it('accepts the number of the \\score to read in a LilyPond file with one \\score per movement (1.1.0)', () => {
+    source('test-1', manifest('test-1', {}, [{ score: 2 }, {}]));
+    expect(load().get('test-1')?.files[0]?.score).toBe(2);
+  });
+
+  it('fails a score number on a non-LilyPond file, or one that is not a positive integer', () => {
+    source('test-1', manifest('test-1', {}, [{}, { score: 1 }]));
+    failsWith(/test-1.*score.*LilyPond notation file/);
+    rmSync(join(root, 'test-1'), { recursive: true });
+    source('test-1', manifest('test-1', {}, [{ score: 0 }, {}]));
+    failsWith(/test-1.*score.*positive integer/);
+  });
+
+  it('accepts a file extracted from a published archive: the archive hash and member name are recorded (1.1.0)', () => {
+    const archive = { sha256: 'a'.repeat(64), member: 'piece-1.mid' };
+    source('test-1', manifest('test-1', {}, [{}, { url: 'https://example.org/piece-mids.zip', archive }]));
+    expect(load().get('test-1')?.files[1]?.archive).toEqual(archive);
+  });
+
+  it('fails an archive record without its hash or member name', () => {
+    source('test-1', manifest('test-1', {}, [{}, { archive: { member: 'piece-1.mid' } }]));
+    failsWith(/test-1.*archive.*sha256/);
+    rmSync(join(root, 'test-1'), { recursive: true });
+    source('test-1', manifest('test-1', {}, [{}, { archive: { sha256: 'a'.repeat(64) } }]));
+    failsWith(/test-1.*archive.*member/);
+  });
+
   it('fails a folder without source.json', () => {
     mkdirSync(join(root, 'test-1'));
     failsWith(/test-1.*source\.json/);

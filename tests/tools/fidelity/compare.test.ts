@@ -384,6 +384,40 @@ describe('compareSound: notation reading vs LilyPond MIDI (data-model.md §4.1a,
     ]);
   });
 
+  it('accepts a MIDI note that ends where the next note of a unison chain on its key starts (Satie 37, bars 9-12)', () => {
+    // Voice 1 holds F#4 over two bars; voice 2 strikes F#4 on beat 1 of each bar for 2 beats. One MIDI channel has
+    // one state per key, so LilyPond's MIDI ends each F#4 where the next one on that key starts.
+    const chain = score(
+      [1, 2],
+      [
+        [1, 0, 66, 8],
+        [1, 1, 66, 2, { voice: '2' }],
+        [2, 1, 66, 2, { voice: '2' }],
+      ],
+      { origin: 'lilypond' },
+    );
+    const sound = midi([
+      [0, 1, 66],
+      [1, 4, 66],
+      [5, 2, 66],
+    ]);
+    expect(compareSound(chain, sound, written).differences).toEqual([]);
+
+    // The same MIDI without the held note in the notation: the second F#4 lasting to the third is a difference.
+    const noChain = score(
+      [1, 2],
+      [
+        [1, 0, 66, 1],
+        [1, 1, 66, 2, { voice: '2' }],
+        [2, 1, 66, 2, { voice: '2' }],
+      ],
+      { origin: 'lilypond' },
+    );
+    expect(compareSound(noChain, sound, written).differences).toEqual([
+      { kind: 'duration', bar: '1', at: q(1), midi: 66, item: q(2), source: q(4) },
+    ]);
+  });
+
   it('with midiArticulate, compares pitch and onset only and says durations were checked against the notation only', () => {
     const notation = score(
       [1],

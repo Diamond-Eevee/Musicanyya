@@ -15,6 +15,7 @@ export interface LyToken {
 
 const SYMBOLS2 = ['<<', '>>'];
 const SYMBOLS1 = "{}<>|~()[]-^_.=',!?*/:";
+const WORD = /[A-Za-z\u0080-￿]/;
 
 export function lexLilyPond(source: string): LyToken[] {
   const tokens: LyToken[] = [];
@@ -108,9 +109,11 @@ export function lexLilyPond(source: string): LyToken[] {
       push('number', value, l, c);
       continue;
     }
-    if (/[A-Za-z]/.test(ch)) {
+    // Words are ASCII letters, plus any non-ASCII character: those only occur in markup text ("Gymnopédie", the "•"
+    // of Mutopia taglines), and in music such a word is rejected by the parser as not a note.
+    if (WORD.test(ch)) {
       let value = '';
-      while (i < source.length && /[A-Za-z]/.test(source[i] as string)) {
+      while (i < source.length && WORD.test(source[i] as string)) {
         value += source[i];
         advance();
       }

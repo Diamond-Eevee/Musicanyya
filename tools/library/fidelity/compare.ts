@@ -402,6 +402,19 @@ export function compareSound(notation: ReferenceScore, sound: ReferenceScore, op
     notationNotes.filter(
       (o) => o !== n && o.note.midi === n.note.midi && cmp(o.played, endOf(n)) < 0 && cmp(n.played, endOf(o)) < 0,
     );
+  /** Every note linked to `n` through overlapping notes on the same key (a held note under repeated strikes). */
+  const unisonChain = (n: (typeof notationNotes)[0]) => {
+    const chain = new Set([n]);
+    const queue = [n];
+    for (let x = queue.shift(); x; x = queue.shift())
+      for (const o of unisonWith(x))
+        if (!chain.has(o)) {
+          chain.add(o);
+          queue.push(o);
+        }
+    chain.delete(n);
+    return [...chain];
+  };
 
   passes.forEach((pass, p) => {
     const items = notationNotes.filter((n) => n.pass === pass);
@@ -417,9 +430,10 @@ export function compareSound(notation: ReferenceScore, sound: ReferenceScore, op
         if (start && cmp(add(played(s), s.note.duration), start) === 0) return true;
       }
       const self = items.find((x) => x.note === it.note);
-      const unison = self ? unisonWith(self) : [];
+      const unison = self ? unisonChain(self) : [];
       if (unison.length === 0) return false;
-      // Merged (sounds to the end of the last overlapping note) or cut (ends where the other voice starts).
+      // One MIDI channel has one state per key: merged (sounds to the end of an overlapping note) or cut (ends where
+      // the next note on that key starts), anywhere along the chain of overlapping notes on that key.
       const ends = [endOf(self as (typeof items)[0]), ...unison.map(endOf), ...unison.map((u) => u.played)];
       const soundEnd = add(played(s), s.note.duration);
       return ends.some((e) => cmp(e, soundEnd) === 0);

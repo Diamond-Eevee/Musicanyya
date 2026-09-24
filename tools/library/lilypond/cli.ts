@@ -81,7 +81,8 @@ function convert(sourceId: string, itemId: string, replace: boolean, io: CliIo):
     io.out(`source ${sourceId} has no LilyPond notation file`);
     return 1;
   }
-  const score = readLilyPond(new TextDecoder().decode(notation.bytes));
+  const { score: number } = notation.file;
+  const score = readLilyPond(new TextDecoder().decode(notation.bytes), number !== undefined ? { score: number } : {});
   const reading = fromLilyPond(score);
 
   // Check 1: the source's MIDI, made by LilyPond from the same .ly, against our reading of the .ly.

@@ -4,7 +4,8 @@
 //   pnpm library:fidelity                                   every record, one line each; exit 1 if any does not reproduce
 //   pnpm library:fidelity --item <id>                       one record, every difference in full
 //   pnpm library:fidelity --item <id> --file <path>         that record's checks against another MusicXML file
-//   pnpm library:fidelity --inspect-midi <path> [--ly <p>]  a MIDI file's tracks, to fill midiOrder/midiNoteTracks once
+//   pnpm library:fidelity --inspect-midi <path> [--ly <p>] [--score <n>]  a MIDI file's tracks, to fill midiOrder/
+//                                                           midiNoteTracks once (--score: which \score of the .ly)
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -28,7 +29,8 @@ export interface CliIo {
   out: (line: string) => void;
 }
 
-const USAGE = 'usage: pnpm library:fidelity [--item <id> [--file <path>]] | --inspect-midi <path> [--ly <path>]';
+const USAGE =
+  'usage: pnpm library:fidelity [--item <id> [--file <path>]] | --inspect-midi <path> [--ly <path>] [--score <n>]';
 /** How many differences a one-line-per-item run shows before "... and N more". */
 const SUMMARY_DIFFERENCES = 5;
 
@@ -37,7 +39,7 @@ export function main(args: string[], io: CliIo): number {
   for (let i = 0; i < args.length; i += 2) {
     const key = args[i] as string;
     const value = args[i + 1];
-    if (!['--item', '--file', '--inspect-midi', '--ly'].includes(key) || value === undefined) {
+    if (!['--item', '--file', '--inspect-midi', '--ly', '--score'].includes(key) || value === undefined) {
       io.out(USAGE);
       return 2;
     }
@@ -45,7 +47,15 @@ export function main(args: string[], io: CliIo): number {
   }
   try {
     const midi = options.get('--inspect-midi');
-    if (midi !== undefined) return inspectMidi(resolve(io.root, midi), options.get('--ly'), io);
+    if (midi !== undefined) {
+      const score = options.get('--score');
+      return inspectMidi(
+        resolve(io.root, midi),
+        options.get('--ly'),
+        score !== undefined ? Number(score) : undefined,
+        io,
+      );
+    }
     if (options.has('--file') && !options.has('--item')) {
       io.out('--file needs --item <id>');
       return 2;
@@ -101,7 +111,7 @@ function printResults(record: AuditRecord, results: CheckResult[], full: boolean
   });
 }
 
-function inspectMidi(path: string, lyOption: string | undefined, io: CliIo): number {
+function inspectMidi(path: string, lyOption: string | undefined, scoreNumber: number | undefined, io: CliIo): number {
   const file = readMidi(new Uint8Array(readFileSync(path)));
   io.out(`${path}: format ${file.format}, ${file.ppq} ticks per quarter`);
   const tracks = [...new Set(file.notes.map((n) => n.track))].sort((a, b) => a - b);
@@ -117,7 +127,7 @@ function inspectMidi(path: string, lyOption: string | undefined, io: CliIo): num
     io.out('  no .ly beside it: compare the note counts with the notation by hand');
     return 0;
   }
-  const score = readLilyPond(readFileSync(ly, 'utf8'));
+  const score = readLilyPond(readFileSync(ly, 'utf8'), scoreNumber !== undefined ? { score: scoreNumber } : {});
   const reading = fromLilyPond(score);
   const written = reading.notes.length + reading.graceNotes.length;
   const played = (reading.playedOrder ?? []).reduce(
