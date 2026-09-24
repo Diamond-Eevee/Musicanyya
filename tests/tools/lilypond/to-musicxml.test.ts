@@ -99,12 +99,44 @@ describe('toMusicXml: what the printed page shows', () => {
     expect(xml).toContain('<pedal type="start" line="no"/>');
     expect(xml).toContain('<pedal type="stop" line="no"/>');
     expect(xml).toContain('<technical><fingering>1</fingering></technical>');
-    expect(xml).toContain('<direction placement="above"><direction-type><words font-style="italic">dolce</words>');
+    // A text script prints in LilyPond's upright text font; \markup \italic prints in italics (T096: markup text is
+    // now read, so nothing is dropped).
+    expect(xml).toContain('<direction placement="above"><direction-type><words>dolce</words>');
+    expect(xml).toContain('<direction placement="below"><direction-type><words font-style="italic">x</words>');
     expect(xml).toContain('<wedge type="crescendo"/>');
     expect(xml).toContain('<wedge type="stop"/>');
     expect(xml).toContain('<tie type="start"/>');
-    // \markup is not parsed, so its text cannot be written: it is listed, not silently lost.
-    expect(dropped).toEqual([expect.stringMatching(/^bar 2, beat 3: \\markup text/)]);
+    expect(dropped).toEqual([]);
+  });
+
+  it('a hairpin end that no note starts or ends at moves to the next note, and is listed (T096, Chopin 468 bar 9)', () => {
+    const { xml, dropped } = toMusicXml(readLilyPond("{ << { c'2 d'2 } \\\\ { s4\\< s8 s8\\! s2 } >> | }"));
+    expect(xml).toMatch(
+      /<wedge type="stop"\/><\/direction-type><staff>1<\/staff><\/direction><note><pitch><step>D<\/step>/,
+    );
+    expect(dropped).toEqual(['bar 1, beat 1 1/2: hairpin end moved to beat 2 (no note starts or ends there)']);
+  });
+
+  it('a named Voice in each staff converts as two voices (T096, Burgmüller 203)', () => {
+    const score = readLilyPond(
+      '\\new PianoStaff <<\n  \\new Staff = "up" \\context Voice = "V" { c\'\'2 d\'\' | }\n  \\new Staff = "down" \\context Voice = "V" { \\clef bass c2 d | }\n>>',
+    );
+    const { xml } = toMusicXml(score);
+    expect(compare(fromMusicXml(xml), fromLilyPond(score), ALL, { itemBars: 'all', sourceBars: 'all' })).toEqual([]);
+    expect(xml).toMatch(/<voice>1<\/voice>.*<backup>.*<voice>5<\/voice>/);
+  });
+
+  it('plays at the source MIDI tempo when the notation has no metronome mark, printing none (T096)', () => {
+    const { xml } = toMusicXml(read('relative.ly'), { playbackTempo: 96 });
+    expect(xml).not.toContain('<metronome>');
+    // <direction-type> needs a child; empty words print nothing.
+    expect(xml).toContain('<direction><direction-type><words/></direction-type><sound tempo="96"/><staff>1</staff>');
+    const { score } = buildScore(readXml(xml).doc);
+    expect(score.defaultTempoUsed).toBe(false);
+    expect(score.tempoMarks).toEqual([{ measureIndex: 0, onsetInMeasure: 0, qpmNum: 9600, qpmDen: 100 }]);
+    // The notation's own metronome mark wins (marks.ly: 4 = 120).
+    const marks = buildScore(readXml(toMusicXml(read('marks.ly'), { playbackTempo: 96 }).xml).doc).score;
+    expect(marks.tempoMarks).toEqual([{ measureIndex: 0, onsetInMeasure: 0, qpmNum: 12000, qpmDen: 100 }]);
   });
 
   it('grace.ly: \\acciaccatura and \\slashedGrace are slashed, \\grace and \\appoggiatura are not', () => {
@@ -254,6 +286,14 @@ describe('library:convert-ly', () => {
     expect(run('test-1', 'repertoire/test/scale')).toBe(1);
     expect(lines.join('\n')).toMatch(/bar 1, beat 2: pitch E4, source D#4/);
     expect(readFileSync(itemPath(), 'utf8')).toBe('old');
+  });
+
+  it("plays the conversion at the MIDI's tempo when the notation has no metronome mark (T096)", () => {
+    writeSource(midiOf([60, 62, 64, 65], 600000)); // 100 quarters per minute
+    writeSidecar('downloaded');
+    expect(run('test-1', 'repertoire/test/scale')).toBe(0);
+    expect(readFileSync(itemPath(), 'utf8')).toContain('<sound tempo="100"/>');
+    expect(lines.join('\n')).toContain('playback tempo 100 from the source MIDI');
   });
 
   it('refuses an unknown source or item', () => {

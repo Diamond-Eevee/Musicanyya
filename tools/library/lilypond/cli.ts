@@ -91,7 +91,8 @@ function convert(sourceId: string, itemId: string, replace: boolean, io: CliIo):
     io.out(`source ${sourceId} has no sound file: the conversion cannot be cross-checked (contract §3.4)`);
     return 1;
   }
-  const cross = compareSound(reading, fromMidi(readMidi(sound.bytes), sound.file.midiNoteTracks ?? []), {
+  const midi = readMidi(sound.bytes);
+  const cross = compareSound(reading, fromMidi(midi, sound.file.midiNoteTracks ?? []), {
     order: sound.file.midiOrder ?? 'written',
     articulate: sound.file.midiArticulate ?? false,
   });
@@ -104,11 +105,14 @@ function convert(sourceId: string, itemId: string, replace: boolean, io: CliIo):
   }
 
   // Check 2: what we write reads back as the same music.
-  const { xml, dropped } = toMusicXml(score, {
+  // The source's own playback tempo, used only when the notation has no metronome mark (T096).
+  const midiTempo = midi.tempos.filter((t) => t.tick === 0).at(-1)?.qpm;
+  const { xml, dropped, playbackTempoUsed } = toMusicXml(score, {
     ...(sidecar.title !== undefined ? { title: sidecar.title } : {}),
     ...(sidecar.composer !== undefined ? { composer: sidecar.composer } : {}),
     rights: rights(manifest),
     source: manifest.url,
+    ...(midiTempo !== undefined ? { playbackTempo: midiTempo } : {}),
   });
   const back = compare(fromMusicXml(xml), reading, ALL, { itemBars: 'all', sourceBars: 'all' });
   io.out(`conversion vs notation: ${back.length} differences`);
@@ -124,6 +128,11 @@ function convert(sourceId: string, itemId: string, replace: boolean, io: CliIo):
       `${reading.graceNotes.length} grace notes`,
   );
   for (const d of dropped) io.out(`  dropped: ${d}`);
+  if (playbackTempoUsed) {
+    io.out(`  playback tempo ${midiTempo} from the source MIDI (no metronome mark in the notation; none printed)`);
+    const later = midi.tempos.filter((t) => t.tick > 0 && t.qpm !== midiTempo);
+    if (later.length > 0) io.out(`  the MIDI changes tempo ${later.length} times later; those changes are not written`);
+  }
   const { score: loaded, report } = buildScore(readXml(xml).doc);
   const notices = [...new Set(report.entries.map((e) => e.code))].filter((c) => c !== 'defaultTempo');
   if (notices.length > 0) io.out(`  the app reports: ${notices.join(', ')}`);

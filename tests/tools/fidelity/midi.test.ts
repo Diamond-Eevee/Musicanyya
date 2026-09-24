@@ -124,6 +124,20 @@ describe('readMidi', () => {
     expect(midi.notes).toHaveLength(1);
   });
 
+  it('reads set-tempo meta events as quarter notes per minute (T096: the playback tempo of a conversion)', () => {
+    // 500000 us per quarter = 120; 384615 us = 156.0001..., kept to two decimals.
+    const midi = readMidi(
+      file(
+        header(0, 1, 384),
+        track([0x00, 0xff, 0x51, 0x03, 0x07, 0xa1, 0x20, 0x83, 0x00, 0xff, 0x51, 0x03, 0x05, 0xde, 0x67, ...END]),
+      ),
+    );
+    expect(midi.tempos).toEqual([
+      { tick: 0, qpm: 120 },
+      { tick: 384, qpm: 156 },
+    ]);
+  });
+
   it('rejects an SMPTE division, naming the byte offset of the division field', () => {
     const bytes = file([...ascii('MThd'), ...be(6, 4), ...be(0, 2), ...be(1, 2), 0xe7, 0x28], track(END));
     expect(() => readMidi(bytes)).toThrow(MidiFormatError);

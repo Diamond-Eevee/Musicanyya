@@ -186,3 +186,52 @@
   pass. Not green: `pnpm test -- tests/tools` because of the theory placeholders (owner question above).
 - Handoff: next = Phase 3 (US1) from T027/T028, with T031-T037 (sources, approved under D-1; downloads need the
   owner's OK in the session), plus the owner answers above. Tree clean after this entry's commit.
+
+## 2026-09-24 13:40 - claude-opus-5.5 (continue: T096)
+- Log gap: T027-T030, T095, T031-T037 and T045 were committed after the 11:30 entry without their own log entry.
+  Their evidence is in the commit bodies (1e8812c, ce7de67, 4963e74, c3df327, 9a22388). The owner answers recorded
+  there: D-1 downloads approved; D-2 Schumann removed. `tests/tools/fidelity/theory.test.ts` (the placeholders)
+  was deleted in 1e8812c, so that owner question is closed.
+- Done: T096, reader and converter fixes found by converting the T031-T037 sources. The tests were written first
+  (read.test.ts "found by converting the sources (T096)", to-musicxml.test.ts T096 cases, midi.test.ts set-tempo).
+  - A named `\context Voice = "x"` belongs to its staff (`staff<n>:voice:<name>`). Burgmüller 203 converts as two
+    voices.
+  - `\markup` text is read: words and strings, `\italic`/`\bold` style, `\dynamic` inside. Look-only commands are
+    passed over.
+  - A file's own variable now shadows LilyPond's identifier of the same name (the test's `cr = \markup ...`).
+  - The converter writes the style. Text with a neutral `-` goes below, because LilyPond's TextScript direction is
+    DOWN; marks.ly's `c-\markup { \italic x }` expected this.
+  - A hairpin end at a spacer time with no note moves to the next note in the bar and is listed.
+  - `readMidi` returns `tempos`. `library:convert-ly` writes the MIDI's tick-0 tempo as `<sound tempo>` only when
+    the notation has no metronome mark, and prints it.
+  - `src/core/musicxml/write.ts`: a direction with only `<sound>` writes `<words/>`, because `<direction-type>`
+    needs a child and `build.ts` reads `<sound tempo>` only inside one. Exercise goldens are unchanged
+    (tests/core/library green).
+- Evidence on the real sources: every source was converted in memory with the current code (scratch script, nothing
+  written):
+  - all seven US1 sources give conversion-vs-notation 0 differences and no app notices;
+  - playback tempo from the MIDI: 203 at 152, 214 at 112, 37 at 60, 468 at 56, 804 at 156;
+  - 472 and 5 have their own metronome marks;
+  - words now written include "Lent et douloureux", "Spiritoso", "risoluto", "leggieremente", "Largo" and
+    "espressivo";
+  - Chopin 468: hairpin ends moved in bar 9 (beat 1 7/8 -> 2) and bar 16 (beat 1 1/4 -> 2), listed.
+- Decisions: contract `fidelity-tools.md` 1.4.0 -> 1.5.0 (§3.1 rows, §3.3 addendum).
+  - A test expectation was corrected: the markup test listed a sixth, empty marks entry for an input with only
+    five events (R1, c', d', e', f'). The reader is right. The list still pins every mark exactly.
+  - marks.ly's dolce/italic expectations changed with the feature (a plain text script prints upright); the reason
+    is in the test comment.
+- Problems / open questions:
+  - Mutopia 931 (Für Elise) still does not convert: `\sustainOff` on a 32nd spacer (line 134). This also fails on
+    the committed code (checked with the change stashed), so it is not a T096 regression. Für Elise is verified,
+    not converted, so nothing in 007 needs it.
+  - needs owner: whether to clear the Biome non-null-assertion warnings in `src/` (with an `rt-audio-reviewer`
+    review of `dispatch.ts`). Recommendation: a small separate task after 007. Not blocking.
+- Gate (touched areas): `pnpm test -- tests/tools tests/core/musicxml tests/core/library tests/library`: 1775
+  passed, 2 failed. Both failures are known and intended:
+  - T006: `theory.ts` does not exist until T074;
+  - identity golden: it still lists the removed Schumann item until T046.
+
+  `pnpm typecheck` clean; `pnpm lint` exits 0.
+- Handoff: next = T038 (Bach BWV 846: the visual edition check, then the comparison or `library:convert-ly
+  mutopia-5-bach-bwv846 ... --replace`), then T039-T044, T046-T049, then the Phase 3 checkpoint. Tree clean after
+  this entry's commit.

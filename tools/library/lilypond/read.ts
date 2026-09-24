@@ -486,7 +486,9 @@ function layOut(root: LyMusic, staves: Staves): Layout {
           staff = staves.byNode.get(m) as number;
           voice = `staff${staff}`;
         } else if (m.type === 'Voice')
-          voice = m.name !== undefined ? `voice:${m.name}` : `${voice}/${++anonymousVoices}`;
+          // A named context is found only among the children of the current one, so the same name in another
+          // staff is another voice (Burgmüller 203 names both hands VoiceI).
+          voice = m.name !== undefined ? `staff${staff}:voice:${m.name}` : `${voice}/${++anonymousVoices}`;
         else if (m.type === 'Dynamics') inDynamics = true;
         walk(m.body);
         ({ staff, voice, inDynamics } = saved);

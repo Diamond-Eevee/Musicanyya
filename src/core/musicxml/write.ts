@@ -198,6 +198,8 @@ function writeDirectionXml(d: WriteDirection): string {
   if (d.wedge !== undefined) typeParts.push(`<wedge type="${d.wedge}"/>`);
   if (d.pedal !== undefined) typeParts.push(`<pedal type="${d.pedal}" line="no"/>`);
   if (d.octaveShift) typeParts.push(`<octave-shift type="${d.octaveShift.type}" size="${d.octaveShift.size}"/>`);
+  // A playback tempo with no printed mark: <direction-type> needs a child, and empty words print nothing.
+  if (typeParts.length === 0) typeParts.push('<words/>');
   const sound = d.tempo !== undefined ? `<sound tempo="${d.tempo}"/>` : '';
   const staff = d.staff !== undefined ? `<staff>${d.staff}</staff>` : '';
   return `<direction${attrs}><direction-type>${typeParts.join('')}</direction-type>${sound}${staff}</direction>`;

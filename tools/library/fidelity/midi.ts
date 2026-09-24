@@ -19,6 +19,8 @@ export interface MidiFile {
   /** Sorted by track, then onset tick, then pitch. */
   notes: MidiNote[];
   timeSignatures: { tick: number; num: number; den: number }[];
+  /** Set-tempo meta events, in quarter notes per minute (two decimals), in file order. */
+  tempos: { tick: number; qpm: number }[];
 }
 
 export class MidiFormatError extends Error {
@@ -80,6 +82,7 @@ export function readMidi(bytes: Uint8Array): MidiFile {
 
   const notes: MidiNote[] = [];
   const timeSignatures: MidiFile['timeSignatures'] = [];
+  const tempos: MidiFile['tempos'] = [];
   let track = 0;
   while (track < trackCount) {
     const chunkStart = pos;
@@ -120,6 +123,11 @@ export function readMidi(bytes: Uint8Array): MidiFile {
         if (metaType === 0x58) {
           if (len < 2) throw new MidiFormatError('time signature shorter than 2 bytes', pos);
           timeSignatures.push({ tick, num: bytes[pos] as number, den: 2 ** (bytes[pos + 1] as number) });
+        } else if (metaType === 0x51) {
+          if (len !== 3) throw new MidiFormatError('set-tempo event not 3 bytes long', pos);
+          const us = ((bytes[pos] as number) << 16) | ((bytes[pos + 1] as number) << 8) | (bytes[pos + 2] as number);
+          if (us === 0) throw new MidiFormatError('set-tempo of 0 microseconds', pos);
+          tempos.push({ tick, qpm: Math.round(6e9 / us) / 100 });
         }
         pos += len;
         if (metaType === 0x2f) break;
@@ -164,7 +172,7 @@ export function readMidi(bytes: Uint8Array): MidiFile {
     notes.push(...trackNotes);
   }
 
-  return { format, ppq, notes, timeSignatures };
+  return { format, ppq, notes, timeSignatures, tempos };
 }
 
 /** The sounding notes of the named tracks as exact quarter time; bars are assigned later by alignment. */

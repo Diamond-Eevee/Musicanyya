@@ -29,12 +29,22 @@ export interface ConvertMeta {
   composer?: string;
   rights?: string;
   source?: string;
+  /**
+   * Quarter notes per minute from the source's own MIDI (T096). Written as `<sound tempo>` with no printed mark at
+   * the start, only when the notation has no metronome mark of its own.
+   */
+  playbackTempo?: number;
 }
 
 export interface Conversion {
   xml: string;
-  /** Display-only marks that could not be written, one line each: "bar 2, beat 3: \markup text (not converted)". */
+  /**
+   * Display-only marks that could not be written, one line each: "bar 2, beat 3: \markup text (not converted)", and
+   * marks that were moved: "bar 9, beat 1 1/2: hairpin end moved to beat 2 (no note starts or ends there)".
+   */
   dropped: string[];
+  /** `meta.playbackTempo` was written (the notation has no metronome mark). */
+  playbackTempoUsed: boolean;
 }
 
 type Written = Extract<LyEvent, { kind: 'note' | 'rest' }>;
@@ -126,6 +136,8 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
     return `bar ${bar.number}, beat ${show(sub(t, bar.start))}`;
   };
   const drop = (t: QuarterTime, what: string) => dropped.push(`${where(t)}: ${what} (not converted)`);
+  const playbackTempoUsed =
+    meta.playbackTempo !== undefined && !events.some((e) => e.kind === 'tempo' && e.bpm !== undefined);
 
   // ---- divisions: one per piece, fine enough for every onset and value -------------------------------------------
   let divisions = 1;
@@ -231,8 +243,16 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
 
     for (const m of marks) {
       if (m.type === 'text') {
+        // A text script prints upright; \markup \italic or \bold prints in that style. With a neutral '-' it goes
+        // below the staff (LilyPond's TextScript direction is DOWN).
         if (m.text === undefined) drop(t, '\\markup text');
-        else out.push({ words: m.text, italic: true, placement: m.placement ?? 'above', staff });
+        else
+          out.push({
+            words: m.text,
+            ...(m.style === 'italic' ? { italic: true } : m.style === 'bold' ? { bold: true } : {}),
+            placement: m.placement ?? 'below',
+            staff,
+          });
         continue;
       }
       if (m.type !== 'dynamic') continue;
@@ -434,7 +454,18 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
         }
         before.set(first, [...(before.get(first) ?? []), ...what]);
       } else if (stop) after.set(stop, [...(after.get(stop) ?? []), ...what]);
-      else fail(pos, `a mark at ${where(t)} that no note starts or ends at`);
+      else if (what.every((w) => w.kind === 'direction' && w.wedge === 'stop')) {
+        // A hairpin end between notes (a spacer, Chopin 468 bar 9) goes to the next note in the bar; it is listed.
+        const later = candidates.filter((e) => cmp(e.t, t) > 0);
+        const first = (list: Written[]) =>
+          list.reduce<Written | undefined>((a, e) => (!a || cmp(e.t, a.t) < 0 ? e : a), undefined);
+        const target = first(later.filter(onStaff)) ?? first(later);
+        if (!target) fail(pos, `a hairpin end at ${where(t)} with no later note in the bar`);
+        dropped.push(
+          `${where(t)}: hairpin end moved to beat ${show(sub(target.t, bar.start))} (no note starts or ends there)`,
+        );
+        place(target.t, target.staff, what, pos);
+      } else fail(pos, `a mark at ${where(t)} that no note starts or ends at`);
     };
     const direction = (d: WriteDirection): WriteEvent => ({ kind: 'direction', ...d });
 
@@ -467,6 +498,9 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
       )
         place(o.t, o.staff, [d], o.pos, o.type === 'stop');
     }
+
+    if (index === 0 && playbackTempoUsed)
+      place(bar.start, 1, [direction({ tempo: meta.playbackTempo as number, staff: 1 })], { line: 0, column: 0 });
 
     for (const e of free) {
       const t = e.t;
@@ -596,7 +630,7 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
     ...(meta.source !== undefined ? { source: meta.source } : {}),
     parts: [{ id: 'P1', name: 'Piano', measures }],
   });
-  return { xml, dropped };
+  return { xml, dropped, playbackTempoUsed };
 }
 
 // ---- helpers ---------------------------------------------------------------------------------------------------------

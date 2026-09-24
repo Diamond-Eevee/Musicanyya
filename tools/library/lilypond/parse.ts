@@ -57,8 +57,8 @@ export type LyMark = (
   | { type: 'articulation'; name: string }
   | { type: 'ornament'; name: string }
   | { type: 'fingering'; finger: number }
-  /** A string script ("dolce"); `text` is absent for \markup, whose content is not read. */
-  | { type: 'text'; text?: string }
+  /** A string script ("dolce") or the text of a \markup; `style` is \italic or \bold in the markup. */
+  | { type: 'text'; text?: string; style?: 'italic' | 'bold' }
 ) & { placement?: 'above' | 'below' };
 
 export interface LyChordNote {
@@ -236,7 +236,7 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
   const header: Record<string, string> = {};
   const scores: LyScoreBlock[] = [];
   /** Variables holding \markup: text only, used as a script (^\crescendo). */
-  const markupVariables = new Set<string>();
+  const markupVariables = new Map<string, LyMark[]>();
   /** Variables holding a post-event (hidePP = \tweak #'stencil ##f \pp), used after a direction mark. */
   const postVariables = new Map<string, { post: LyPost; marks: LyMark[] }>();
   let bookDepth = 0;
@@ -409,8 +409,7 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
     }
     if (t.type === 'command' && t.value === '\\markup') {
       next();
-      skipMarkup();
-      markupVariables.add(name);
+      markupVariables.set(name, readMarkup());
       return;
     }
     if (t.type === 'command' && t.value === '\\tweak') {
@@ -650,18 +649,13 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
       return 'text';
     }
     if (t.type === 'command' && t.value === '\\markup') {
-      skipMarkup();
-      push({ type: 'text' });
+      for (const m of readMarkup()) push(m);
       return 'text';
     }
-    if (t.type === 'command' && t.value in POST_COMMANDS) {
-      const kind = POST_COMMANDS[t.value] as LyPost;
-      push(commandMark(kind, t.value));
-      return kind;
-    }
-    if (t.type === 'command' && t.value === '\\tweak') return parseTweak(marks, placement);
-    if (t.type === 'command' && markupVariables.has(t.value.slice(1))) {
-      push({ type: 'text' });
+    // A variable the file defines shadows LilyPond's own identifier of that name (cr = \markup ... replaces \cr).
+    const markup = t.type === 'command' ? markupVariables.get(t.value.slice(1)) : undefined;
+    if (markup) {
+      for (const m of markup) push(m);
       return 'text';
     }
     const stored = t.type === 'command' ? postVariables.get(t.value.slice(1)) : undefined;
@@ -669,6 +663,12 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
       for (const m of stored.marks) push(m);
       return stored.post;
     }
+    if (t.type === 'command' && t.value in POST_COMMANDS) {
+      const kind = POST_COMMANDS[t.value] as LyPost;
+      push(commandMark(kind, t.value));
+      return kind;
+    }
+    if (t.type === 'command' && t.value === '\\tweak') return parseTweak(marks, placement);
     return unsupported(t, `'${t.value}' after a direction mark`);
   }
 
@@ -883,7 +883,8 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
     if (is('string')) tempo.text = next().value;
     else if (is('command', '\\markup')) {
       next();
-      skipMarkup();
+      const text = readMarkup().find((m) => m.type === 'text');
+      if (text?.type === 'text' && text.text !== undefined) tempo.text = text.text;
     }
     if (is('number')) {
       const beat = parseDuration();
@@ -961,7 +962,76 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
     }
     unsupported(t, 'markup');
   }
+
+  /**
+   * A markup argument read for its printed text (T096): strings and words joined by spaces, \italic or \bold as the
+   * style, and the text of \dynamic as dynamic marks. Other commands only change the look and are passed over with
+   * their Scheme arguments. It consumes exactly the tokens skipMarkup consumes, so nothing in the music moves.
+   */
+  function readMarkup(): LyMark[] {
+    const acc = { words: [] as string[], italic: false, bold: false, dynamics: [] as string[] };
+    markupArgument(acc);
+    const marks: LyMark[] = acc.dynamics.map((name) => ({ type: 'dynamic', name }));
+    const text = acc.words.join(' ').replace(/\s+/g, ' ').trim();
+    if (text !== '') {
+      const style = acc.italic ? 'italic' : acc.bold ? 'bold' : undefined;
+      marks.push({ type: 'text', text, ...(style ? { style } : {}) });
+    }
+    return marks;
+  }
+
+  function markupArgument(acc: { words: string[]; italic: boolean; bold: boolean; dynamics: string[] }): void {
+    const t = peek();
+    if (t.type === 'symbol' && t.value === '{') {
+      next();
+      while (!is('symbol', '}')) {
+        if (is('eof')) unsupported(t, 'unterminated markup');
+        if (is('symbol')) next();
+        else markupArgument(acc);
+      }
+      next();
+      return;
+    }
+    if (t.type === 'string' || t.type === 'word' || t.type === 'number') {
+      acc.words.push(next().value);
+      return;
+    }
+    if (t.type === 'scheme') {
+      next();
+      return;
+    }
+    if (t.type === 'command') {
+      next();
+      let name = t.value;
+      // \abs-fontsize, \with-url: the lexer splits a hyphenated command name.
+      while (is('symbol', '-') && !peek().spaced && is('word', undefined, 1) && !peek(1).spaced) {
+        next();
+        name += `-${next().value}`;
+      }
+      while (is('scheme')) next();
+      if (MARKUP_WITHOUT_ARGUMENT.has(name)) return;
+      if (name === '\\dynamic') {
+        const inner = { words: [] as string[], italic: false, bold: false, dynamics: [] as string[] };
+        markupArgument(inner);
+        acc.dynamics.push(
+          ...inner.words
+            .join(' ')
+            .split(/\s+/)
+            .filter((w) => w !== ''),
+        );
+        return;
+      }
+      if (name === '\\italic') acc.italic = true;
+      if (name === '\\bold') acc.bold = true;
+      if (is('symbol', '{') || is('string') || is('command') || is('word')) markupArgument(acc);
+      return;
+    }
+    unsupported(t, 'markup');
+  }
 }
+
+/** Markup commands that take only Scheme arguments (a number, a character code), never a markup. */
+const MARKUP_WITHOUT_ARGUMENT = new Set(['\\hspace', '\\vspace', '\\char', '\\null', '\\strut', '\\draw-line']);
 
 /** The detailed mark of a post-event command such as \p, \staccato or \sustainOn. */
 function commandMark(kind: LyPost, command: string): LyMark {

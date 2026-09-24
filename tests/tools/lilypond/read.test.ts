@@ -435,6 +435,44 @@ describe('readLilyPond / fromLilyPond (contract fidelity-tools.md §3.1)', () =>
     });
   });
 
+  describe('found by converting the sources (T096)', () => {
+    it('a named Voice belongs to the staff it is created in (Burgmüller 203: VoiceI in both staves)', () => {
+      const r = fromLilyPond(
+        readLilyPond(
+          '\\new PianoStaff <<\n  \\new Staff = "up" \\context Voice = "V" { c\'\'2 d\'\' | }\n  \\new Staff = "down" \\context Voice = "V" { \\clef bass c2 d | }\n>>',
+        ),
+      );
+      const voiceOf = (midi: number) => r.notes.find((x) => x.midi === midi)?.voice;
+      expect(voiceOf(72)).toBe(voiceOf(74));
+      expect(voiceOf(48)).toBe(voiceOf(50));
+      expect(voiceOf(72)).not.toBe(voiceOf(48));
+    });
+
+    it('reads markup text: strings and words, the \\italic or \\bold style, and a \\dynamic inside', () => {
+      const r = readLilyPond(
+        'cr = \\markup { \\italic "cresc." }\n{ R1^\\markup { \\hspace #10 "Lent et douloureux" } | c\'4^\\markup { Spiritoso } d\'_\\markup { \\dynamic p \\italic "leggieremente" } e\'^\\cr f\'^\\markup { \\bold \\large Largo } | }',
+      );
+      // `cr` is also LilyPond's own \cr (a hairpin); the file's variable shadows it.
+      const items = (r.music as { items: { marks?: unknown[] }[] }).items.filter((m) => m.marks !== undefined);
+      // Five events (R1, c', d', e', f'): the markups consume no music tokens.
+      expect(items.map((m) => m.marks)).toEqual([
+        [{ type: 'text', text: 'Lent et douloureux', placement: 'above' }],
+        [{ type: 'text', text: 'Spiritoso', placement: 'above' }],
+        [
+          { type: 'dynamic', name: 'p', placement: 'below' },
+          { type: 'text', text: 'leggieremente', style: 'italic', placement: 'below' },
+        ],
+        [{ type: 'text', text: 'cresc.', style: 'italic', placement: 'above' }],
+        [{ type: 'text', text: 'Largo', style: 'bold', placement: 'above' }],
+      ]);
+    });
+
+    it('a markup that prints nothing gives no mark (Bach 5: \\markup { \\teeny " " })', () => {
+      const r = readLilyPond('{ c\'1_\\markup { \\teeny " " } | }');
+      expect((r.music as { items: { marks: unknown[] }[] }).items[0]?.marks).toEqual([]);
+    });
+  });
+
   describe('still fails loudly (T095)', () => {
     const fails = (text: string, construct: RegExp) => {
       expect(() => fromLilyPond(readLilyPond(text))).toThrow(LyUnsupportedError);

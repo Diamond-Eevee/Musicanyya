@@ -313,6 +313,15 @@ copy makes `pnpm library:fidelity --item <id> --file <copy>` fail and name that 
   Anything that would move notes in time or pitch still fails loudly. (Depends on T018; blocks T031-T037's MIDI
   fields and T038-T044.)
 
+- [x] T096 [US1] Reader and converter fixes found by converting the T031-T037 sources (test first for each):
+  - a `\context Voice = "name"` belongs to the staff it is created in (Burgmüller 203 names both hands `VoiceI`);
+  - `\markup` text is read (strings and words; `\italic`/`\bold` kept as the style), so tempo and expression words
+    such as "Lent et douloureux", "Spiritoso" and "risoluto" are written, not dropped;
+  - a hairpin end that no note starts or ends at (Chopin 468 bar 9) moves to the next note and is listed;
+  - the playback tempo comes from the source's own MIDI (set-tempo meta event) when the notation has no metronome
+    mark, written as `<sound tempo>` without a printed mark.
+  (Depends on T030, T095; blocks T039-T044.)
+
 ### Implementation - sources (each after D-1; [P] across sources)
 
 Each source task does the same steps:

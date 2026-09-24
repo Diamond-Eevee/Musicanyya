@@ -1,6 +1,6 @@
 # Contract: fidelity tools (readers, comparator, theory check, converter, commands)
 
-**Version**: `1.4.0` (1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands; 1.2.0, 2026-09-24: written bars follow the printed page (§3.2), `measurePosition`, `\tupletSpan`; 1.3.0, 2026-09-24: the converter's marks, §3.3; 1.4.0, 2026-09-24: the constructs of the US1 sources, §3.1, `readLilyPond(source, { score })`). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
+**Version**: `1.5.0` (1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands; 1.2.0, 2026-09-24: written bars follow the printed page (§3.2), `measurePosition`, `\tupletSpan`; 1.3.0, 2026-09-24: the converter's marks, §3.3; 1.4.0, 2026-09-24: the constructs of the US1 sources, §3.1, `readLilyPond(source, { score })`; 1.5.0, 2026-09-24: markup text, named voices per staff, moved hairpin ends, the MIDI's playback tempo, T096). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
 worker, and `tests/architecture/layers.test.ts` asserts it (as it already does for the exercise generator).
 
 **Location**: `tools/library/fidelity/` (pure TypeScript, Node, no DOM; compiled by `tsconfig.tools.json`) and
@@ -111,14 +111,15 @@ to stop.
 | `\tupletSpan d` | tuplet bracket grouping only; no timing effect |
 | `\time`, `\key`, `\clef` | metre, key signature (for spelling output), clef changes |
 | `\ottava #n` | the entered pitch **is** the sounding pitch (LilyPond's `\ottava` only sets `middleCPosition`, i.e. the staff position; research R5 rule 6); the written pitch is the entered pitch minus n octaves, kept for the writer's `<octave-shift>` |
-| `<< { } \\ { } >>`, `\new Voice`, `\new Staff`, `\new PianoStaff`, `\context`, `\change Staff` | voices and staves |
+| `<< { } \\ { } >>`, `\new Voice`, `\new Staff`, `\new PianoStaff`, `\context`, `\change Staff` | voices and staves; a named `\context Voice = "x"` belongs to the staff it is created in, so the same name in two staves is two voices (1.5.0; Burgmüller 203) |
 | `\bar "..."` | a visible style adds a written bar line; `\bar ""` hides the bar line at that point (it is then not a bar line of the written music); repeat bars via the repeat construct only |
 | articulations, dynamics, slurs, phrasing slurs, fingerings, `\markup`, text scripts, `\tempo`, `\sustainOn/Off` | read as notation marks for the converter; ignored by the comparator |
 | `\set`, `\override`, `\revert`, `\once`, `\omit`, `\hide`, `\accidentalStyle` of layout properties | skipped as a unit, including their Scheme value (`#'(...)`, `##f`, `#red`); a property that moves notes in pitch or time (`Timing.*`, `measurePosition`, `middleCPosition`, `currentBarNumber`, ...) or hides printed music (`skipTypesetting`) is an error where the music uses it (a variable that only defines it, as Chopin 468's `paperOFF`, is not) |
 | `\language "english"` / `\include "english.ly"` | English note names (Dutch is the default) |
 | *Added in 1.4.0 for the US1 sources (T095):* | |
 | non-ASCII characters (markup text: "Gymnopédie", the "•" of Mutopia taglines) | words; in music such a word is not a note, so an error |
-| a `\markup` variable used as a script (`^\crescendo`) | a text script whose content is not read |
+| a `\markup` variable used as a script (`^\crescendo`) | a text script; since 1.5.0 its text is read as below. A variable the file defines shadows LilyPond's own identifier of that name (`cr = \markup ...` is not the `\cr` hairpin) |
+| *Added in 1.5.0 (T096):* `\markup` text | strings and words joined by spaces; `\italic`/`\bold` give the style; `\dynamic p` inside gives a dynamic mark; commands that only change the look (`\large`, `\teeny`, `\hspace #n`, ...) are passed over with their Scheme arguments; a markup that prints only spaces gives no mark |
 | `\tweak property value event`, also stored in a variable and used after `-`/`^`/`_` (`-\hidePP`) | the event; the tweak is layout only |
 | `\shape #'(...) Grob`, `\crossStaff { }`, `\crescTextCresc`, `\crescHairpin`, `\dimTextDim`, `\dimTextDecresc`, `\dimTextDecr`, `\dimHairpin` | layout only; the music inside `\crossStaff` is read as written |
 | `\transpose from to { }` outside `\relative` | every pitch and key tonic inside moves by the interval, spelled by letter (`\transpose c d`: F#4 -> G#4); inside `\relative`, or needing a triple accidental, an error |
@@ -147,7 +148,20 @@ Writes MusicXML through `src/core/musicxml/write.ts`, extended additively (resea
 `16th`/`32nd` types, slurs, dynamics, `<pedal>`, tempo `<words>` + `<sound tempo>`; since 1.3.0 also
 articulations, ornaments, fermatas, arpeggios, hairpins, whole-bar rests, italic words, `<rights>`/`<source>`
 (research R13 addendum). A mark that changes playback or grading and cannot be written fails the conversion;
-display-only marks that cannot be written are dropped and listed. Exercise output stays
+display-only marks that cannot be written are dropped and listed.
+
+Since 1.5.0 (T096):
+
+- Text scripts and markup words are written as `<words>`: upright unless the markup says `\italic` or `\bold`;
+  above with `^`, otherwise below (LilyPond's TextScript direction is down).
+- A hairpin end on a spacer where no note starts or ends moves to the next note in the bar and is listed
+  ("hairpin end moved to beat ..."); any other mark there still fails.
+- `readMidi` returns `tempos` (quarter notes per minute). `library:convert-ly` passes the set-tempo at tick 0 as
+  `playbackTempo`. When the notation has no metronome mark, the first bar gets `<sound tempo>` in a direction with
+  empty `<words/>` (nothing printed), and the command prints "playback tempo N from the source MIDI"; later MIDI
+  tempo changes are reported, not written.
+
+Exercise output stays
 byte-identical (the existing exercise goldens are the guard). Titles, composer and credit come from the item's
 sidecar, not from the `.ly` header.
 
