@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { q, add, cmp, fromTicks, show } from '../../../tools/library/fidelity/time';
+import { add, cmp, fromTicks, q, show } from '../../../tools/library/fidelity/time';
 
 describe('QuarterTime', () => {
   it('q() reduces fractions', () => {
