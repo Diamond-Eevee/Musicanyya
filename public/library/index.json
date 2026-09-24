@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-24T19:31:22.405Z",
+  "generated": "2026-09-24T19:40:28.422Z",
   "sections": [
     {
       "id": "learning/chords",
@@ -3853,7 +3853,7 @@
         "hands": "both",
         "arrangement": true,
         "departures": [
-          "Left hand: our own single held bass note per bar, taken from the bass of E. O. Excell's harmonization, instead of his four-part harmony."
+          "Left hand: our own setting, one held note per bar from E. O. Excell's bass, not his four-part harmony; where his bass moves, the longer note is kept (bars 9, 11, 12), C in bar 10, D in bar 14."
         ]
       },
       "facts": {
@@ -3928,7 +3928,7 @@
           "author": "Musicanyya practice material",
           "created": "2026-09-22",
           "basedOn": "Beethoven, Fur Elise, WoO 59 (public domain, composed c. 1810), opening only. The quoted bars were checked against the Mutopia Project's public-domain LilyPond engraving (piece-info id 931, fur_Elise_WoO59.ly, typeset by Stelios Samelis from the Breitkopf & Härtel edition of 1888); the audit record content/library/audit/repertoire/beginner/fur-elise-theme-16-bar.json re-runs that check.",
-          "note": "A different, much simpler arrangement from the intermediate Fur Elise item. The pickup and bars 1-4 follow Beethoven's melody with every value doubled (3/8 written as 3/4), with the changes listed in departures; bars 5-16 are our own. The left hand is a single sustained bass note per bar and rests under the opening figure, as in Beethoven's own texture there. 17 written measures (a one-beat pickup plus 16 bars) at quarter = 60."
+          "note": "A different, much simpler arrangement from the intermediate Fur Elise item. The pickup and bars 1-8 follow Beethoven's melody with every value doubled (3/8 written as 3/4), with the changes listed in departures; bars 9-16 repeat bars 5-8. The left hand is a single sustained bass note per bar and rests under the opening figure, as in Beethoven's own texture there. 17 written measures (a one-beat pickup plus 16 bars) at quarter = 60."
         },
         "reviewedBy": "claude-opus-5-5",
         "reviewedOn": "2026-09-24",
@@ -3940,9 +3940,10 @@
         "arrangement": true,
         "departures": [
           "Metre and values: Beethoven's 3/8 is written as 3/4 with every note value doubled (sixteenths become eighths).",
-          "Bar 1: the third E is a quarter note and the C that leads to bar 2's A is left out (Beethoven: E-D#-E-B-D-C in even notes), so no more than four equal notes follow each other.",
+          "Bar 1: E, D-sharp (eighths), E (quarter), B, D (eighths); Beethoven has six even notes E-D#-E-B-D-C, so the C before bar 2's A is left out and no more than four equal notes follow each other.",
           "Bars 3-4: no accidentals after bar 1 - G instead of G-sharp in bar 3, D instead of D-sharp at the end of bar 4.",
-          "Bars 5-16 are our own continuation in A minor, not Beethoven's; bars 9-12 and 13-16 repeat bars 5-8.",
+          "Bars 5-8 are our own shortened version of Beethoven's bars 5-8: bar 5 is E, D, C, B (Beethoven: E, D-sharp, E, B, D, C), bar 7 repeats bar 3 (Beethoven: B, E, C, B), and bar 8 ends on A.",
+          "Bars 9-12 and 13-16 repeat bars 5-8.",
           "Left hand: our own single bass note per bar (A or E) instead of Beethoven's broken chords."
         ]
       },
@@ -4001,7 +4002,7 @@
       "section": "repertoire/beginner",
       "file": "repertoire/beginner/greensleeves.musicxml",
       "bytes": 16272,
-      "hash": "907b9283d717945ff8d27dcbf995c0f7e5b970e5c18b491c516e4f43a2fb3823",
+      "hash": "6cbd7250214c83dcd4c4699f668de586016068490833b59a543a491ea805a934",
       "meta": {
         "version": 1,
         "title": "Greensleeves (arranged for beginners)",
@@ -4030,10 +4031,10 @@
         "arrangement": true,
         "departures": [
           "Metre and rhythm: the tune's 6/8 is written as 3/4 (the same bar length), and every dotted-eighth-and-sixteenth pair is played as two even eighths.",
-          "No raised notes: D instead of D-sharp (bars 3, 7, 11, 12 and 15) and C instead of C-sharp (bar 9), so the piece stays within the Beginner limit on accidentals.",
-          "Bars 7 and 15: the turn D-sharp-C-sharp-D-sharp is played as one D, and the bar is G (quarter), F-sharp and E (eighths), D (quarter), so no more than four equal notes follow each other.",
+          "No raised 6th or 7th: D instead of D-sharp (bars 3, 7, 11, 12, 15), C instead of C-sharp (bar 9), so the piece stays within the Beginner limit on accidentals.",
+          "Bars 7 and 15: the neighbour-note figure D#-C#-D# is played as one D, and the bar is G (quarter), F-sharp and E (eighths), D (quarter), so no more than four equal notes follow each other.",
           "Bar 12: the last note is B4, an octave above the source's B3, so the jump to bar 13 stays within an octave.",
-          "Left hand: our own single held bass note per bar, taken from the source's bass line, instead of its four-part harmony."
+          "Left hand: our own single held bass note per bar, taken from the source's bass line (G in bars 9 and 13, where its bass moves to G under the melody's C), instead of its four-part harmony."
         ]
       },
       "facts": {
@@ -4067,7 +4068,7 @@
         "notices": [],
         "parts": 1,
         "tempoChanges": 0,
-        "maxLeapSemitones": 12,
+        "maxLeapSemitones": 10,
         "longestRunAtShortestValue": 4,
         "attackCount": 83,
         "peakNotesPerSecond": 3,
@@ -4106,8 +4107,8 @@
           "licence": "CC0-1.0",
           "author": "Musicanyya practice material",
           "created": "2026-09-22",
-          "basedOn": "James Lord Pierpont's song, copyrighted September 16, 1857 as \"The One Horse Open Sleigh\" and reissued in 1859 as \"Jingle Bells\" (public domain in the United States as a pre-1928 publication). Verified via Boston University's \"History of Jingle Bells\" article and the song's Wikipedia entry, both confirming the 1857 copyright, Pierpont's authorship and the original title.",
-          "note": "Only the familiar opening refrain (\"Jingle bells, jingle bells, jingle all the way / Oh what fun it is to ride in a one-horse open sleigh\") is arranged here, 8 bars, key of C major, quarter=96 - not the full song with its verses. The original's faster note groupings on \"ride in a one-horse\" are simplified to plain quarter notes so the shortest value stays inside the Beginner cap; the melodic contour otherwise follows the well-known tune. The left-hand single bass note per bar is our own simple setting; arrangement is reflected in the title per FR-007."
+          "basedOn": "James Lord Pierpont's song, copyrighted September 16, 1857 as \"The One Horse Open Sleigh\" and reissued in 1859 as \"Jingle Bells\" (public domain). The chorus here is the modern one, checked against \"Jingle, Bells\" arr. George Rosey (copyright 1908) in The most popular home songs (New York, 1913), pp. 54-55. Pierpont's 1857 chorus has a different tune.",
+          "note": "Only the familiar refrain (\"Jingle bells, jingle bells, jingle all the way / Oh what fun it is to ride in a one-horse open sleigh\") is arranged here, 8 bars, key of C major, quarter=96 - not the full song with its verses. The changes are listed in departures. The left-hand bass note per bar is our own."
         },
         "reviewedBy": "claude-opus-5-5",
         "reviewedOn": "2026-09-24",
@@ -4120,7 +4121,7 @@
         "departures": [
           "Only the chorus, once, with its final ending (\"...one-horse open sleigh!\"); the verses are left out.",
           "Key and values: C major (the 1908 printing is in G), with every note value doubled (eighths become quarters).",
-          "Rhythm made plain: the dotted figure on \"Jingle all\" and the dotted and sixteenth notes of \"Oh! what fun it is\" are even quarters, and the last notes are held longer.",
+          "Bars 3 and 5: the dotted figure on \"all the\" and the dotted-and-sixteenth notes of \"Oh! what fun it is\" are even quarters; bars 4 and 8: the last note is held for the whole bar.",
           "Bars 5-6: \"in a\" is sung on one note E (the printing has two sixteenths).",
           "Left hand: our own single bass note per bar; the printing has its own piano part."
         ]
@@ -4196,8 +4197,8 @@
           "licence": "CC0-1.0",
           "author": "Musicanyya practice material",
           "created": "2026-09-22",
-          "basedOn": "Sarah Josepha Hale's poem \"Mary's Lamb\" was published in Boston in 1830 (public domain). The now-familiar melody is generally traced to the mid-19th-century minstrel tune \"Goodnight, Ladies\" rather than to any 1830 setting, and is of traditional/uncertain authorship - both the poem and the tune are long in the public domain. Verified via the Classical Music (classical-music.com) history article and Wikipedia's Sarah Josepha Hale entry, which agree on the 1830 poem date and the tune's later, separate, traditional origin.",
-          "note": "8-bar beginner form transposed to F major so the melody sits in a single five-finger hand position (F-G-A-Bb-C), quarter=96. The left-hand single bass note per bar (I-V) is our own simple setting; the published original has no piano accompaniment of its own."
+          "basedOn": "Sarah Josepha Hale's poem \"Mary's Lamb\" (Boston, 1830). The tune is the traditional one also sung as \"Merrily We Roll Along\"; it was checked against The child's own music book (ed. A. E. Wier, New York, 1918), p. 49, where it is printed in F major. Both are public domain.",
+          "note": "8-bar beginner form in F major (the key of the 1918 printing), so the melody sits in a single five-finger hand position (F-G-A-Bb-C), quarter=96. The left-hand single bass note per bar (I-V) is our own simple setting."
         },
         "reviewedBy": "claude-opus-5-5",
         "reviewedOn": "2026-09-24",
@@ -4209,7 +4210,7 @@
         "arrangement": true,
         "departures": [
           "Values doubled: each bar is one 2/4 bar of the familiar tune written in 4/4 (eighths become quarters).",
-          "Rhythm made plain: the dotted \"Ma-ry\" in bars 1 and 5 is two even notes, and the last F is held for the whole bar.",
+          "Rhythm made plain: the dotted \"Ma-ry\" in bars 1 and 5 is two even notes, and the last F in bar 8 is held for the whole bar.",
           "Left hand: our own single bass note per bar; the printing has its own piano part."
         ]
       },
@@ -4284,7 +4285,7 @@
           "licence": "CC0-1.0",
           "author": "Musicanyya practice material",
           "created": "2026-09-22",
-          "basedOn": "Beethoven, \"Ode to Joy\" theme (Symphony No. 9, 4th movement; public domain). The melody was checked note by note against the Soprano of the Mutopia Project's public-domain hymn setting (piece-info id 528, ode.ly, typeset by Peter Chubb), transposed from G to C major; the audit record content/library/audit/repertoire/beginner/ode-to-joy.json re-runs that check.",
+          "basedOn": "Beethoven, \"Ode to Joy\" theme (Symphony No. 9, 4th movement; public domain). The melody was checked note by note against the Soprano of the Mutopia Project's public-domain hymn setting (piece-info id 528, ode.ly, typeset by Peter Chubb), transposed from G to C major; the audit record content/library/audit/repertoire/beginner/ode-to-joy.json re-runs that check. Rhythm checked by eye against the first edition (Schott, 1826).",
           "note": "The first two 4-bar phrases only, ending on the tonic; not the complete theme. Bars 4 and 8 keep Beethoven's dotted figure (dotted quarter, eighth, half)."
         },
         "reviewedBy": "claude-opus-5-5",
@@ -4296,9 +4297,9 @@
         "hands": "both",
         "arrangement": true,
         "departures": [
-          "Only the first two phrases (8 bars) of the theme; the middle phrase and the return are left out.",
+          "Bars 1-8 only (the first two phrases); the theme's middle phrase and return (its bars 9-16) are left out.",
           "Key: C major (Beethoven's theme is in D major; the hymn setting it was checked against is in G major).",
-          "Left hand: our own block chords, one or two per bar (I, V, IV), instead of Beethoven's orchestra."
+          "Left hand: our own block chords, one per bar (C, G, F in bar 7) and two in bar 8 (G, then C)."
         ]
       },
       "facts": {
@@ -4372,7 +4373,7 @@
           "licence": "CC0-1.0",
           "author": "Musicanyya practice material",
           "created": "2026-09-22",
-          "basedOn": "The tune \"Twinkle, Twinkle, Little Star\" is the French folk melody \"Ah! vous dirai-je, Maman\", first published c. 1761 from an earlier c. 1740 tune (public domain); the English nursery-rhyme text is Jane Taylor's 1806 poem, also public domain. The melody is the same one Mozart used, decades later, as the theme for his Twelve Variations K. 265 - the tune itself long predates and is independent of that set. Verified via the tune's Wikipedia history entry and the Wikipedia entry for Mozart's K. 265 variations.",
+          "basedOn": "The tune \"Twinkle, Twinkle, Little Star\" is the French melody \"Ah! vous dirai-je, Maman\", first printed c. 1761 (public domain); the English text is Jane Taylor's 1806 poem, also public domain. The melody was checked against The child's own music book (ed. A. E. Wier, New York, 1918), p. 116, and compared with the theme of Mozart's variations K. 265 (Paris: Porro, c. 1801).",
           "note": "A-B-A form in 12 bars of 4/4 (three 4-bar phrases; the last repeats the first), key of C major, quarter=92. The melody was checked against a 1918 printing of the song (see the audit record). The left-hand bass note per bar is our own simple setting."
         },
         "reviewedBy": "claude-opus-5-5",
@@ -4385,7 +4386,8 @@
         "arrangement": true,
         "departures": [
           "Key: C major (the 1918 printing it was checked against is in F).",
-          "The plain nursery-song form, not the ornaments of Mozart's K. 265 theme (bars 4, 6, 8 and 12).",
+          "Metre: two 2/4 bars of the 1918 printing make one 4/4 bar (note values unchanged).",
+          "The plain nursery form: Mozart's K. 265 theme has D, D-E, C in bars 4 and 12, E, E, D, D in bar 6 and a trilled E-F in bar 8.",
           "Left hand: our own single bass note per bar; the printing has its own piano part."
         ]
       },
@@ -4546,15 +4548,15 @@
           "licence": "CC0-1.0",
           "author": "Musicanyya practice material",
           "created": "2026-09-22",
-          "basedOn": "Beethoven, Für Elise, WoO 59 (public domain, composed c. 1810). A-section pitches and rhythm were checked against the Mutopia Project's public-domain LilyPond engraving (piece-info id 931, fur_Elise_WoO59.ly, typeset by Stelios Samelis) before this simplified transcription.",
+          "basedOn": "Beethoven, Für Elise, WoO 59 (public domain, composed c. 1810). A-section pitches and rhythm were checked against the Mutopia Project's public-domain LilyPond engraving (piece-info id 931, fur_Elise_WoO59.ly, typeset by Stelios Samelis) before this transcription.",
           "note": "Theme only: the pickup and bars 1-8 of WoO 59, through the theme's first cadence on the A-minor tonic. The B and C sections of the complete piece are not included, and the ending is simplified to a single-pass cadence instead of the repeat back to bar 1."
         },
         "reviewedBy": "claude-opus-5-5",
         "reviewedOn": "2026-09-24",
-        "subtitle": "A-section theme only, simplified arrangement",
+        "subtitle": "Pickup and bars 1-8 of WoO 59, with a single-pass ending",
         "composer": "Ludwig van Beethoven",
         "arranger": "Musicanyya practice material",
-        "trains": "Melodic phrasing over a broken-chord left-hand accompaniment, with a chromatic passing-tone motif.",
+        "trains": "Melodic phrasing over a broken-chord left-hand accompaniment, with a chromatic neighbour-note motif.",
         "hands": "both",
         "arrangement": true,
         "departures": [

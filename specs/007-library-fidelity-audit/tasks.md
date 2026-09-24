@@ -559,7 +559,7 @@ Each item task:
   Makes the two T097 tests in `tests/library/licence.test.ts` pass (written 2026-09-24, failing as expected). Run
   `pnpm library:index`; `index.json` changes only by the `departures` the item tasks added. (Depends on T060-T067:
   enforcing earlier drops every arrangement from the shelf.)
-- [ ] T068 [US2] Review with `music-domain-expert`: every arrangement's `departures` wording (musician's words, bars
+- [x] T068 [US2] Review with `music-domain-expert`: every arrangement's `departures` wording (musician's words, bars
   named, nothing added presented as the composer's) and the chosen tune versions. Summarise the findings in the log.
   (Depends on T060-T067.)
 

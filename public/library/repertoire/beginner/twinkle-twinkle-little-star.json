@@ -15,12 +15,13 @@
     "licence": "CC0-1.0",
     "author": "Musicanyya practice material",
     "created": "2026-09-22",
-    "basedOn": "The tune \"Twinkle, Twinkle, Little Star\" is the French folk melody \"Ah! vous dirai-je, Maman\", first published c. 1761 from an earlier c. 1740 tune (public domain); the English nursery-rhyme text is Jane Taylor's 1806 poem, also public domain. The melody is the same one Mozart used, decades later, as the theme for his Twelve Variations K. 265 - the tune itself long predates and is independent of that set. Verified via the tune's Wikipedia history entry and the Wikipedia entry for Mozart's K. 265 variations.",
+    "basedOn": "The tune \"Twinkle, Twinkle, Little Star\" is the French melody \"Ah! vous dirai-je, Maman\", first printed c. 1761 (public domain); the English text is Jane Taylor's 1806 poem, also public domain. The melody was checked against The child's own music book (ed. A. E. Wier, New York, 1918), p. 116, and compared with the theme of Mozart's variations K. 265 (Paris: Porro, c. 1801).",
     "note": "A-B-A form in 12 bars of 4/4 (three 4-bar phrases; the last repeats the first), key of C major, quarter=92. The melody was checked against a 1918 printing of the song (see the audit record). The left-hand bass note per bar is our own simple setting."
   },
   "departures": [
     "Key: C major (the 1918 printing it was checked against is in F).",
-    "The plain nursery-song form, not the ornaments of Mozart's K. 265 theme (bars 4, 6, 8 and 12).",
+    "Metre: two 2/4 bars of the 1918 printing make one 4/4 bar (note values unchanged).",
+    "The plain nursery form: Mozart's K. 265 theme has D, D-E, C in bars 4 and 12, E, E, D, D in bar 6 and a trilled E-F in bar 8.",
     "Left hand: our own single bass note per bar; the printing has its own piano part."
   ],
   "reviewedBy": "claude-opus-5-5",

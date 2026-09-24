@@ -46763,11 +46763,11 @@
           "soundingKey": 74
         },
         {
-          "id": "n-p0-s2-m9-v5-o0-k59",
+          "id": "n-p0-s2-m9-v5-o0-k55",
           "measureIndex": 9,
           "onsetInMeasure": 0,
           "durationTicks": 2880,
-          "soundingKey": 59
+          "soundingKey": 55
         },
         {
           "id": "n-p0-s1-m9-v1-o3_2-k74",
@@ -46910,11 +46910,11 @@
           "soundingKey": 74
         },
         {
-          "id": "n-p0-s2-m13-v5-o0-k59",
+          "id": "n-p0-s2-m13-v5-o0-k55",
           "measureIndex": 13,
           "onsetInMeasure": 0,
           "durationTicks": 2880,
-          "soundingKey": 59
+          "soundingKey": 55
         },
         {
           "id": "n-p0-s1-m13-v1-o3_2-k74",
@@ -47036,7 +47036,7 @@
           "soundingKey": 64
         }
       ],
-      "scheduleDigest": "2616ebc96925a5c70bf22c05be884b57a2a3398e1ad13f0b199ba4e47208453e"
+      "scheduleDigest": "28e5035d237c65496945295cb8393a82db7738be9901f9f136a64342eacb1487"
     },
     {
       "file": "repertoire/beginner/jingle-bells.musicxml",

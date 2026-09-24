@@ -388,3 +388,49 @@
   - library e2e: 14 passed, 10 skipped;
   - full `pnpm test:e2e`: 295 passed, 65 skipped, 0 failed (the flaky Electron tests passed this run).
 - Handoff: next = owner answer on the scans, then T065-T067, T100, T097, T068. Tree clean after this commit.
+
+## 2026-09-24 22:00 - claude-opus-5-5 (continue: US2 visual checks, T097, T068; US2 checkpoint)
+- Owner: "answer recommended, commit, push". The previous commits were pushed first (`94f12a8..c6244cd`).
+- Done:
+  - Scans:
+    - IMSLP and the Library of Congress now answer scripts with a CAPTCHA / bot challenge; the agent did not try to
+      get past it.
+    - Public-domain printings were taken from the Internet Archive instead, viewed as page images in the
+      scratchpad (nothing committed). Research R11 has a "Found" table.
+  - T100 Ode to Joy: Symphony No. 9 first edition (Schott 1826, plate 2322). Cello/bass statement bars 92-99
+    (p. 101): dotted figure in bars 4 and 8 as in the item. Baritone (p. 113): repeated quarters as in the item.
+    Visual check added.
+  - T065 Twinkle, verified (visual): *The child's own music book* (1918) p. 116 matches every pitch and value,
+    transposed from F. Mozart K. 265 (Porro, c. 1801) ornaments bars 4, 6, 8 and 12; R15's "identical pitches"
+    claim was wrong and is corrected.
+  - T066 Jingle Bells, verified (visual): "Jingle, Bells" arr. Rosey, copyright 1908, in *The most popular home
+    songs* (1913) pp. 54-55, modern chorus. Pitches and order match (G -> C, values doubled), except that "in a" is
+    one note.
+  - T067 Mary, verified (visual): the 1918 book p. 49, same key (F), pitches and order match; rhythm made plain.
+  - T097: `validMetadata` enforces FR-010. The title-rule test's fixture got `departures`, because it is an
+    arrangement and the new rule would otherwise reject it before the title rule it tests. Checked: on the old model
+    only the two T097 tests fail; on the new, all 13 pass.
+  - T068: `music-domain-expert` subagent review (ran; 13 findings):
+    - Must-fix, applied: Mary provenance contradicted its departures and claimed an unverified "Goodnight, Ladies"
+      origin; Jingle Bells provenance named only the 1857 edition (different chorus) and had a stale note.
+    - Should-fix, applied:
+      - beginner Für Elise bars 5-8 are Beethoven's bars 5-8 shortened, not "our own". Two melody checks were added
+        to its record: bar 5 has 4 named differences, bars 6-8 have 1.
+      - Greensleeves bars 9 and 13: held B3 under C5 made a minor ninth. The left hand is now G3, the source bass
+        there. The golden was re-captured for this item only, before engraving; 2 notes changed.
+      - Bars named in the departures of Jingle Bells, Mary and Ode; Amazing Grace says which bass note was kept.
+      - Twinkle departures gain the metre line.
+      - The intermediate Für Elise subtitle no longer says "simplified" (its bars 0-7 are exact).
+    - Notes, not applied: the "Fur Elise" spelling in the beginner title (a user-visible title change).
+  - Two departures exceeded the 200-character limit (`pnpm library:index` failed); one was shortened, one split.
+- Checkpoint US2:
+  - `licence.test.ts` passes: every arrangement has departures, and the model enforces it.
+  - Every arrangement has a record with a melody, mechanical or visual check over its quoted bars;
+    `pnpm library:fidelity`: 17 records, 0 failed.
+  - `planted.test.ts` catches the melody mutation.
+- Gate:
+  - `pnpm lint`: 0 errors;
+  - `pnpm typecheck`: green;
+  - `pnpm test`: 181 files, 1825 passed, 0 failed;
+  - `pnpm test:e2e`: 294 passed, 65 skipped, 1 failed - the known-flaky `library.spec.ts:175` (Electron launch under load, reference R7); re-run alone: 1 passed.
+- Handoff: next = Phase 5 (US3, exercises: T069+). No owner decision open. Tree clean after this commit.

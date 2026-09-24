@@ -20,10 +20,10 @@
   },
   "departures": [
     "Metre and rhythm: the tune's 6/8 is written as 3/4 (the same bar length), and every dotted-eighth-and-sixteenth pair is played as two even eighths.",
-    "No raised notes: D instead of D-sharp (bars 3, 7, 11, 12 and 15) and C instead of C-sharp (bar 9), so the piece stays within the Beginner limit on accidentals.",
-    "Bars 7 and 15: the turn D-sharp-C-sharp-D-sharp is played as one D, and the bar is G (quarter), F-sharp and E (eighths), D (quarter), so no more than four equal notes follow each other.",
+    "No raised 6th or 7th: D instead of D-sharp (bars 3, 7, 11, 12, 15), C instead of C-sharp (bar 9), so the piece stays within the Beginner limit on accidentals.",
+    "Bars 7 and 15: the neighbour-note figure D#-C#-D# is played as one D, and the bar is G (quarter), F-sharp and E (eighths), D (quarter), so no more than four equal notes follow each other.",
     "Bar 12: the last note is B4, an octave above the source's B3, so the jump to bar 13 stays within an octave.",
-    "Left hand: our own single held bass note per bar, taken from the source's bass line, instead of its four-part harmony."
+    "Left hand: our own single held bass note per bar, taken from the source's bass line (G in bars 9 and 13, where its bass moves to G under the melody's C), instead of its four-part harmony."
   ],
   "reviewedBy": "claude-opus-5-5",
   "reviewedOn": "2026-09-24"

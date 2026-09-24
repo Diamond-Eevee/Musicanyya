@@ -15,13 +15,13 @@
     "licence": "CC0-1.0",
     "author": "Musicanyya practice material",
     "created": "2026-09-22",
-    "basedOn": "Beethoven, \"Ode to Joy\" theme (Symphony No. 9, 4th movement; public domain). The melody was checked note by note against the Soprano of the Mutopia Project's public-domain hymn setting (piece-info id 528, ode.ly, typeset by Peter Chubb), transposed from G to C major; the audit record content/library/audit/repertoire/beginner/ode-to-joy.json re-runs that check.",
+    "basedOn": "Beethoven, \"Ode to Joy\" theme (Symphony No. 9, 4th movement; public domain). The melody was checked note by note against the Soprano of the Mutopia Project's public-domain hymn setting (piece-info id 528, ode.ly, typeset by Peter Chubb), transposed from G to C major; the audit record content/library/audit/repertoire/beginner/ode-to-joy.json re-runs that check. Rhythm checked by eye against the first edition (Schott, 1826).",
     "note": "The first two 4-bar phrases only, ending on the tonic; not the complete theme. Bars 4 and 8 keep Beethoven's dotted figure (dotted quarter, eighth, half)."
   },
   "departures": [
-    "Only the first two phrases (8 bars) of the theme; the middle phrase and the return are left out.",
+    "Bars 1-8 only (the first two phrases); the theme's middle phrase and return (its bars 9-16) are left out.",
     "Key: C major (Beethoven's theme is in D major; the hymn setting it was checked against is in G major).",
-    "Left hand: our own block chords, one or two per bar (I, V, IV), instead of Beethoven's orchestra."
+    "Left hand: our own block chords, one per bar (C, G, F in bar 7) and two in bar 8 (G, then C)."
   ],
   "reviewedBy": "claude-opus-5-5",
   "reviewedOn": "2026-09-24"
