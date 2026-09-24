@@ -29,7 +29,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 | Prelude No. 1 in C major, BWV 846<br>`repertoire/advanced/bach-prelude-bwv846` | original | Bach-Gesellschaft Ausgabe vol. 14 scan (IMSLP) and Open Well-Tempered Clavier CC0<br>[Unknown](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=5) | visual (bars all)<br>mechanical (bars all) | visual comparison<br>barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | verified | 2026-09-24 |
 | l'Arabesque (25 Etudes faciles, Op. 100, No. 2)<br>`repertoire/advanced/burgmuller-op100-no2` | original | [Collection Litolff, 19th Century](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=203) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | replaced | 2026-09-24 |
 | Prelude in C minor, Op. 28 No. 20<br>`repertoire/advanced/chopin-prelude-op28-no20` | original | [Edition Peters](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=472) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | verified | 2026-09-24 |
-| Prelude in E minor, Op. 28 No. 4 ("Largo")<br>`repertoire/advanced/chopin-prelude-op28-no4` | arrangement | [Peters, 1879](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=468) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, onset, duration<br>pitch, spelling, graceNotes | 3 | replaced | 2026-09-24 |
+| Prelude in E minor, Op. 28 No. 4 ("Largo")<br>`repertoire/advanced/chopin-prelude-op28-no4` | original | [Peters, 1879](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=468) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | replaced | 2026-09-24 |
 | Sonatina in C major, Op. 36 No. 1 (1st movement)<br>`repertoire/advanced/clementi-sonatina-op36-no1-mvt1` | original | [Sonatina Album, G. Schirmer, 1893](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=804) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | replaced | 2026-09-24 |
 | Für Elise, WoO 59<br>`repertoire/advanced/fur-elise-complete` | original | [Breitkopf & Härtel, 1888](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | verified | 2026-09-24 |
 | Gymnopedie No. 1<br>`repertoire/advanced/satie-gymnopedie-no1` | original | [Dover Edition](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=37) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | replaced | 2026-09-24 |
@@ -145,12 +145,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 ### Prelude in E minor, Op. 28 No. 4 ("Largo") (`repertoire/advanced/chopin-prelude-op28-no4`)
 
-- Outcome (replaced): Level checker playable hand span fixes applied.
-- Difference: Adjusted B4 to B3 in measure 10 (bar 9) for hand span.
-- Difference: Adjusted B1 to B2 in measure 24 (bar 23) for hand span.
-- Difference: Moved cross-staff voice 5 chords in measure 24 and 25 to staff 1.
-- Departure: Measure 10 (bar 9): changed left-hand suspended B4 to B3 to fit hand-span cap.
-- Departure: Measure 24 (bar 23): changed left-hand bass octave B1 to B2 to fit hand-span cap.
+- Outcome (replaced): Replaced by the conversion from mutopia-468 (0 differences on every aspect). One change the aspects do not cover: the right hand's closing chords in bars 24-25, written across onto the lower staff in the source, are printed on the upper staff so the level check's per-staff span does not add them to the left hand (owner decision 2026-09-24, T105). The previous file, labelled an arrangement with 'hand-span fixes', had raised the left-hand B1 of the octaves in bars 17 and 24 to B2 (unisons on one key), which no level criterion needed, and its difference notes named edits it did not contain.
 - Recent scores that opened the old version keep that copy; progress saved against it does not carry over.
 
 ### Sonatina in C major, Op. 36 No. 1 (1st movement) (`repertoire/advanced/clementi-sonatina-op36-no1-mvt1`)
@@ -160,7 +155,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 ### Gymnopedie No. 1 (`repertoire/advanced/satie-gymnopedie-no1`)
 
-- Outcome (replaced): Replaced by the complete conversion from mutopia-37 (0 differences on every aspect). One change the aspects do not cover: the accompaniment chords, which the source (like Satie's original print) puts mostly on the upper staff (bars 19-31 are already on the lower staff), are on the lower staff throughout in the item so Practice and Play treat them as left hand (owner decision 2026-09-24). This had been done by editing the committed .ly; the source is restored to its downloaded bytes (T102), so the item is no longer the converter's plain output.
+- Outcome (replaced): Replaced by the complete conversion from mutopia-37 (0 differences on every aspect). One change the aspects do not cover: the accompaniment chords, which the source (like Satie's original print) puts mostly on the upper staff (bars 19-31 are already on the lower staff), are on the lower staff in the item (all but the last accompaniment bar of each ending) so Practice and Play treat them as left hand (owner decision 2026-09-24). This had been done by editing the committed .ly; the source is restored to its downloaded bytes (T102), so the item is no longer the converter's plain output.
 - Recent scores that opened the old version keep that copy; progress saved against it does not carry over.
 
 ### Amazing Grace (arranged for beginners) (`repertoire/beginner/amazing-grace`)

@@ -32,22 +32,26 @@ pnpm test -- tests/tools/fidelity tests/tools/lilypond tests/library
 
 ### US1 - originals are the original
 
-1. `pnpm library:fidelity --item repertoire/advanced/chopin-prelude-op28-no4` prints the source edition, the
-   aspects compared and `0 differences`.
+1. `pnpm library:fidelity --item repertoire/advanced/chopin-prelude-op28-no4` prints the source
+   (`mutopia-468-chopin-op28-no4`) and `0 differences (expected 0)`, with 0 for item vs notation and for notation
+   vs sound. The edition and the aspects compared are in the report row (step 4).
 2. Planted error: copy the item's `.musicxml` to your scratch space, raise one pitch by a semitone, and run
    `pnpm library:fidelity --item repertoire/advanced/chopin-prelude-op28-no4 --file <copy>`.
-   Expected: exactly one `pitch` difference naming that bar. Do not edit the real file.
+   Expected: exactly one `pitch` difference naming that bar and beat (e.g. `bar 0, beat 0: pitch C4, source B3`
+   for the pickup's B3), and the record fails. Do not edit the real file.
 3. `pnpm screenshot --item repertoire/advanced/satie-gymnopedie-no1` (a replaced item): open the PNG and check
    that the title and subtitle no longer mention "our own close", and that the first system shows the familiar
-   alternating low-bass/high-chord pattern with two sharps in the key signature. Check the end of the piece with
-   `--full` and compare the final bars with the Mutopia PDF (the piece page links it).
+   alternating low-bass/high-chord pattern with two sharps in the key signature (the chords on the lower staff).
+   The app shows one system at a time; the end of the piece is covered by the mechanical check (bar count, played
+   order, every pitch and onset against the source and its MIDI).
 4. Open `docs/library-audit.md`: the Chopin row names "Peters, 1879", Mutopia 468, method mechanical, 0 differences.
 
 ### US2 - arrangements say so, quotes are right
 
-1. `pnpm library:fidelity --item repertoire/beginner/fur-elise-theme-16-bar` prints a `melody` check over the
-   quoted bars (pickup and bar 1) against Mutopia 931 with 0 counted differences, and lists the declared rhythmic
-   departure as allowed.
+1. `pnpm library:fidelity --item repertoire/beginner/fur-elise-theme-16-bar` prints its `melody` checks against
+   Mutopia 931. Each check's counted differences equal its `expectedDifferences` (the named departures: the left-out
+   C in bar 1, G for G# and D for D#, the shortened bar 5), and the rhythm differences are listed as allowed by
+   departures (the doubled values).
 2. `public/library/index.json`: the item's `meta.departures` lists each departure in words, naming the bars.
 3. `pnpm screenshot --item repertoire/beginner/ode-to-joy`: the title says it is arranged.
 
@@ -55,8 +59,8 @@ pnpm test -- tests/tools/fidelity tests/tools/lilypond tests/library
 
 1. `pnpm library:fidelity --item learning/chords/triads-b-flat-minor` prints `theory: 0 differences`.
 2. Planted error: copy `triads-g-sharp-minor.musicxml`, change one `F##` (step F, alter 2) to `G` (step G, alter 0),
-   run the one-file check on the copy. Expected: one difference naming chord V, its bar and hand, "expected F##4,
-   found G4".
+   run the one-file check on the copy. Expected: one difference naming its bar, hand and chord, e.g.
+   `bar 2: right hand, chord 3: expected F##, found G4 (spelling)`.
 
 ### US4 - one report
 
@@ -67,7 +71,7 @@ pnpm test -- tests/tools/fidelity tests/tools/lilypond tests/library
 
 ### App still works (FR-021)
 
-1. `pnpm screenshot --item repertoire/intermediate/clementi-sonatina-op36-no1-mvt1` and
-   `--item repertoire/intermediate/burgmuller-op100-no2`: open each PNG; beams are drawn, the title block matches
-   the new sidecar, no load error is printed.
+1. `pnpm screenshot --item repertoire/advanced/clementi-sonatina-op36-no1-mvt1` and
+   `--item repertoire/advanced/burgmuller-op100-no2` (both moved to Advanced by the audit): open each PNG; beams are
+   drawn, the title block matches the new sidecar, no load error is printed.
 2. Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`.

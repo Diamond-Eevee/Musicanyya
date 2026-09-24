@@ -722,7 +722,13 @@ reviewer rule and freshness. Run the full gate, write a log entry, and commit.
   note say "exposition only, bars 1-15"; and its tempo was hand-edited to 144 after conversion. Owner decision
   2026-09-24: keep the file exactly as `library:convert-ly` + `library:engrave` produce it (tempo 156 from the source
   MIDI), relabel it as the 1st movement, claim `original`, drop the exposition subtitle and the tempo limitation.
-- [ ] T085 Run `quickstart.md` Manual verification US1-US4 and "App still works". Describe every screenshot looked
+- [x] T105 (found by T085) Chopin Op. 28 No. 4: the committed "arrangement
+  (playable hand-span fixes)" raised the left-hand B1 of the octaves in bars 17 and 24 to B2 (unisons), which no
+  level criterion needed, and its `differenceNotes`/`departures` named edits the file did not contain. The plain
+  conversion fails only criterion 16 in bars 24-25 (cross-staff right-hand chords counted with the left hand by the
+  per-staff span). Owner decision 2026-09-24: plain conversion with only those 9 notes printed on the upper staff,
+  claim `original`, `arrangement: false`, no departures, 0 differences; sidecar, record and notices say so.
+- [x] T085 Run `quickstart.md` Manual verification US1-US4 and "App still works". Describe every screenshot looked
   at in the log.
 - [ ] T086 Review with `constitution-auditor` of the branch diff. Summarise the findings in the log; CRITICAL/HIGH
   findings block the merge.

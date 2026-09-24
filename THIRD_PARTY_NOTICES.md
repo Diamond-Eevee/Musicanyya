@@ -51,7 +51,8 @@ and their licence (FR-020); `tests/library/licence.test.ts` checks both (FR-017)
   Licence: public domain. Typeset in LilyPond by Magnus Lewis-Smith for the Mutopia Project
   (Mutopia-2016/10/28-468) from the Peters edition of 1879, and placed in the public domain
   by the typesetter. Converted by Musicanyya from the
-  LilyPond source `Chop-28-4.ly` to MusicXML; the notes were checked against Mutopia's own MIDI
+  LilyPond source `Chop-28-4.ly` to MusicXML, with the right hand's closing chords in bars 24-25 printed on the
+  upper staff instead of across on the lower one; the notes were checked against Mutopia's own MIDI
   file of the same source. Both source files are kept unchanged in
   `content/library/sources/mutopia-468-chopin-op28-no4/`, where `pnpm library:fidelity` re-checks the item against
   them.
@@ -78,8 +79,8 @@ and their licence (FR-020); `tests/library/licence.test.ts` checks both (FR-017)
   Licence: public domain. Typeset in LilyPond by Evin Robertson for the Mutopia Project (Mutopia-2014/12/14-37)
   from the Dover edition (a reprint of the original), and placed in the public domain by the typesetter. Converted
   by Musicanyya from the LilyPond source `gymnopedie_1.ly` to MusicXML, with the accompaniment chords moved to
-  the lower staff throughout; the notes were checked against Mutopia's own MIDI file of the same source. Both
-  source files are kept unchanged in `content/library/sources/mutopia-37-satie-gymnopedie1/`, where
+  the lower staff (all but the last accompaniment bar of each ending); the notes were checked against Mutopia's
+  own MIDI file of the same source. Both source files are kept unchanged in `content/library/sources/mutopia-37-satie-gymnopedie1/`, where
   `pnpm library:fidelity` re-checks the item against them.
   https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=37
 
@@ -102,8 +103,8 @@ the licence recorded for it in `public/library/index.json`.
 
 Public-domain editions kept unchanged so that `pnpm library:fidelity` can re-check library items against them
 (feature 007). Each folder's `source.json` records the edition, the file hashes and the owner's approval. A source
-an item is converted from is listed above, with that item, and not repeated here. All were typeset for the Mutopia Project and placed
-in the public domain by their typesetters; each piece page states "Copyright: Public Domain" (checked 2026-09-24).
+an item is converted from is listed above, with that item, and not repeated here. All were typeset for the Mutopia
+Project and placed in the public domain by their typesetters; each piece page states "Copyright: Public Domain" (checked 2026-09-24).
 LilyPond source and the MIDI file LilyPond made from it, obtained 2026-09-24:
 
 - **Bach, Prelude No. 1 in C major, BWV 846** - Mutopia-2011/09/12-5, typeset by Tobias Erbsland; edition

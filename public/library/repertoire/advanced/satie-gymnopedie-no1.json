@@ -18,7 +18,7 @@
     "obtained": "2026-09-24",
     "credit": "Typeset by Evin Robertson for the Mutopia Project (Mutopia-2014/12/14-37) from the Dover edition (a reprint of the original), and placed in the public domain by the typesetter.",
     "unmodified": false,
-    "note": "Converted from Mutopia's LilyPond source to MusicXML; beams and accidentals then completed by pnpm library:engrave. One change: the accompaniment chords, which the source (like Satie's original print) puts mostly on the upper staff (bars 19-31 are already on the lower staff), are on the lower staff throughout here, so Practice and Play treat them as left hand. Notes, rhythm, repeats and spelling are the source's; pnpm library:fidelity re-checks them against the source and its MIDI (0 differences)."
+    "note": "Converted from Mutopia's LilyPond source to MusicXML; beams and accidentals then completed by pnpm library:engrave. One change: the accompaniment chords, which the source (like Satie's original print) puts mostly on the upper staff (bars 19-31 are already on the lower staff), are on the lower staff here (all but the last accompaniment bar of each ending, which stays on the upper staff), so Practice and Play treat them as left hand. Notes, rhythm, repeats and spelling are the source's; pnpm library:fidelity re-checks them against the source and its MIDI (0 differences)."
   },
   "reviewedBy": "music-domain-expert",
   "reviewedOn": "2026-09-24"

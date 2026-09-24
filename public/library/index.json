@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-24T21:32:17.479Z",
+  "generated": "2026-09-24T21:40:30.680Z",
   "sections": [
     {
       "id": "learning/chords",
@@ -3458,8 +3458,8 @@
       "id": "repertoire/advanced/chopin-prelude-op28-no4",
       "section": "repertoire/advanced",
       "file": "repertoire/advanced/chopin-prelude-op28-no4.musicxml",
-      "bytes": 109022,
-      "hash": "4c8af29414eab7345ad2467a6fb598bf136cc809cb5a8563358ca22f7f986cda",
+      "bytes": 109054,
+      "hash": "d87d6fe4fdf3b0685b0d5786fe99f83a96d6bfab7053d986497a3ecc61e79ea1",
       "meta": {
         "version": 1,
         "title": "Prelude in E minor, Op. 28 No. 4 (\"Largo\")",
@@ -3468,6 +3468,7 @@
         "tags": [
           "ties",
           "triplets",
+          "pedal",
           "dynamics",
           "phrasing",
           "chords"
@@ -3478,21 +3479,20 @@
           "source": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=468",
           "obtained": "2026-09-24",
           "sourcePath": "mutopia-468-chopin-op28-no4/Chop-28-4.ly",
-          "unmodified": false
+          "credit": "Typeset by Magnus Lewis-Smith for the Mutopia Project (Mutopia-2016/10/28-468) from the Peters edition of 1879, and placed in the public domain by the typesetter.",
+          "unmodified": false,
+          "note": "Converted from Mutopia's LilyPond source to MusicXML; beams and accidentals then completed by pnpm library:engrave. One change: in bars 24-25 the right hand's closing chords, which the source writes across onto the lower staff, are printed on the upper staff, so the level check (which measures chord spans per printed staff) does not count them with the left hand's octaves. Notes, rhythm, spelling and pedal marks are the source's; pnpm library:fidelity re-checks them against the source and its MIDI (0 differences)."
         },
-        "reviewedBy": "antigravity-gemini-3.1-pro",
+        "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-09-24",
-        "subtitle": "Arrangement (playable hand-span fixes)",
+        "subtitle": "Complete piece, from the Peters edition (1879) via the Mutopia Project",
         "composer": "Frédéric Chopin",
+        "arranger": null,
         "trains": "Chromatic voice leading, sustained dissonance, a wide dynamic range, and rhythmic independence between a slow-moving right-hand line and pulsing left-hand chords.",
         "hands": "both",
-        "arrangement": true,
+        "arrangement": false,
         "limitations": [
-          "Pedal is not written or played; performers commonly sustain this prelude with continuous pedal, which this file does not encode."
-        ],
-        "departures": [
-          "Measure 10 (bar 9): changed left-hand suspended B4 to B3 to fit hand-span cap.",
-          "Measure 24 (bar 23): changed left-hand bass octave B1 to B2 to fit hand-span cap."
+          "written pedal is not played"
         ]
       },
       "facts": {
@@ -3530,7 +3530,7 @@
         "longestRunAtShortestValue": 1,
         "attackCount": 252,
         "peakNotesPerSecond": 4.5,
-        "accidentalMarkCount": 46,
+        "accidentalMarkCount": 47,
         "maxTieChainNotes": 2,
         "maxTieBarlinesCrossed": 1,
         "hasNonSimpleTuplet": false,
@@ -3757,7 +3757,7 @@
           "sourcePath": "mutopia-37-satie-gymnopedie1/gymnopedie_1.ly",
           "credit": "Typeset by Evin Robertson for the Mutopia Project (Mutopia-2014/12/14-37) from the Dover edition (a reprint of the original), and placed in the public domain by the typesetter.",
           "unmodified": false,
-          "note": "Converted from Mutopia's LilyPond source to MusicXML; beams and accidentals then completed by pnpm library:engrave. One change: the accompaniment chords, which the source (like Satie's original print) puts mostly on the upper staff (bars 19-31 are already on the lower staff), are on the lower staff throughout here, so Practice and Play treat them as left hand. Notes, rhythm, repeats and spelling are the source's; pnpm library:fidelity re-checks them against the source and its MIDI (0 differences)."
+          "note": "Converted from Mutopia's LilyPond source to MusicXML; beams and accidentals then completed by pnpm library:engrave. One change: the accompaniment chords, which the source (like Satie's original print) puts mostly on the upper staff (bars 19-31 are already on the lower staff), are on the lower staff here (all but the last accompaniment bar of each ending, which stays on the upper staff), so Practice and Play treat them as left hand. Notes, rhythm, repeats and spelling are the source's; pnpm library:fidelity re-checks them against the source and its MIDI (0 differences)."
         },
         "reviewedBy": "music-domain-expert",
         "reviewedOn": "2026-09-24",

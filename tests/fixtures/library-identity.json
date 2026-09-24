@@ -33560,14 +33560,14 @@
           "soundingKey": 76
         },
         {
-          "id": "n-p0-s2-m17-v6-o0-k47",
+          "id": "n-p0-s2-m17-v6-o0-k35",
           "measureIndex": 17,
           "onsetInMeasure": 0,
           "durationTicks": 480,
-          "soundingKey": 47
+          "soundingKey": 35
         },
         {
-          "id": "n-p0-s2-m17-v6-o0-k47-d2",
+          "id": "n-p0-s2-m17-v6-o0-k47",
           "measureIndex": 17,
           "onsetInMeasure": 0,
           "durationTicks": 480,
@@ -34757,14 +34757,14 @@
           "soundingKey": 59
         },
         {
-          "id": "n-p0-s2-m24-v6-o0-k47",
+          "id": "n-p0-s2-m24-v6-o0-k35",
           "measureIndex": 24,
           "onsetInMeasure": 0,
           "durationTicks": 1920,
-          "soundingKey": 47
+          "soundingKey": 35
         },
         {
-          "id": "n-p0-s2-m24-v6-o0-k47-d2",
+          "id": "n-p0-s2-m24-v6-o0-k47",
           "measureIndex": 24,
           "onsetInMeasure": 0,
           "durationTicks": 1920,
@@ -34799,6 +34799,13 @@
           "soundingKey": 59
         },
         {
+          "id": "n-p0-s2-m24-v6-o2-k35",
+          "measureIndex": 24,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 35
+        },
+        {
           "id": "n-p0-s2-m24-v6-o2-k42",
           "measureIndex": 24,
           "onsetInMeasure": 1920,
@@ -34807,13 +34814,6 @@
         },
         {
           "id": "n-p0-s2-m24-v6-o2-k47",
-          "measureIndex": 24,
-          "onsetInMeasure": 1920,
-          "durationTicks": 1920,
-          "soundingKey": 47
-        },
-        {
-          "id": "n-p0-s2-m24-v6-o2-k47-d2",
           "measureIndex": 24,
           "onsetInMeasure": 1920,
           "durationTicks": 1920,
@@ -34862,7 +34862,7 @@
           "soundingKey": 40
         }
       ],
-      "scheduleDigest": "b9cac000a63796a3948a5ffc6644e341f3b45d48eabf6f08e06698376c4567f4"
+      "scheduleDigest": "69f6423143d4a5a4794c419f6cb48e1a50623298d011c373810d13059fd14738"
     },
     {
       "file": "repertoire/advanced/clementi-sonatina-op36-no1-mvt1.musicxml",

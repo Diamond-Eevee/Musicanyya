@@ -2,15 +2,12 @@
   "version": 1,
   "title": "Prelude in E minor, Op. 28 No. 4 (\"Largo\")",
   "composer": "Frédéric Chopin",
-  "subtitle": "Arrangement (playable hand-span fixes)",
+  "subtitle": "Complete piece, from the Peters edition (1879) via the Mutopia Project",
+  "arranger": null,
   "kind": "piece",
   "level": "advanced",
-  "arrangement": true,
-  "departures": [
-    "Measure 10 (bar 9): changed left-hand suspended B4 to B3 to fit hand-span cap.",
-    "Measure 24 (bar 23): changed left-hand bass octave B1 to B2 to fit hand-span cap."
-  ],
-  "tags": ["ties", "triplets", "dynamics", "phrasing", "chords"],
+  "arrangement": false,
+  "tags": ["ties", "triplets", "pedal", "dynamics", "phrasing", "chords"],
   "trains": "Chromatic voice leading, sustained dissonance, a wide dynamic range, and rhythmic independence between a slow-moving right-hand line and pulsing left-hand chords.",
   "hands": "both",
   "provenance": {
@@ -19,11 +16,11 @@
     "source": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=468",
     "sourcePath": "mutopia-468-chopin-op28-no4/Chop-28-4.ly",
     "obtained": "2026-09-24",
-    "unmodified": false
+    "credit": "Typeset by Magnus Lewis-Smith for the Mutopia Project (Mutopia-2016/10/28-468) from the Peters edition of 1879, and placed in the public domain by the typesetter.",
+    "unmodified": false,
+    "note": "Converted from Mutopia's LilyPond source to MusicXML; beams and accidentals then completed by pnpm library:engrave. One change: in bars 24-25 the right hand's closing chords, which the source writes across onto the lower staff, are printed on the upper staff, so the level check (which measures chord spans per printed staff) does not count them with the left hand's octaves. Notes, rhythm, spelling and pedal marks are the source's; pnpm library:fidelity re-checks them against the source and its MIDI (0 differences)."
   },
-  "limitations": [
-    "Pedal is not written or played; performers commonly sustain this prelude with continuous pedal, which this file does not encode."
-  ],
-  "reviewedBy": "antigravity-gemini-3.1-pro",
+  "limitations": ["written pedal is not played"],
+  "reviewedBy": "claude-opus-5.5",
   "reviewedOn": "2026-09-24"
 }
