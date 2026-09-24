@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "itemId": "repertoire/beginner/fur-elise-theme-16-bar",
+  "claim": "arrangement",
+  "claimText": "Für Elise, beginner arrangement: bars 0-4 quote the opening of WoO 59 (values doubled, 3/8 as 3/4) with named changes; bars 5-16 are our own",
+  "checks": [
+    {
+      "method": "mechanical",
+      "source": "mutopia-931-beethoven-woo59",
+      "sourceFiles": ["notation", "sound"],
+      "aspects": ["melody", "spelling"],
+      "alignment": { "itemBars": "0-1", "sourceBars": "0-1" },
+      "melodyRhythm": "allowedByDeparture",
+      "expectedDifferences": 1,
+      "differenceNotes": [
+        "bar 1: the C5 before bar 2's A is left out, and the third E is a quarter note to keep the bar full - declared departure (keeps the run of equal notes within the Beginner limit)"
+      ]
+    },
+    {
+      "method": "mechanical",
+      "source": "mutopia-931-beethoven-woo59",
+      "sourceFiles": ["notation"],
+      "aspects": ["melody", "spelling"],
+      "alignment": { "itemBars": "2-4", "sourceBars": "2-4" },
+      "melodyRhythm": "allowedByDeparture",
+      "expectedDifferences": 2,
+      "differenceNotes": [
+        "bar 3: G4 instead of G#4 - declared departure (no accidentals after bar 1)",
+        "bar 4: D5 instead of D#5 - declared departure (no accidentals after bar 1)"
+      ]
+    }
+  ],
+  "outcome": "relabelled",
+  "outcomeNote": "Checked 2026-09-24 against Mutopia 931. The pickup and bars 1-4 quote Beethoven's melody with values doubled; the melody check found three changes the old description hid or misstated (the C5 left out in bar 1, G for G# in bar 3, D for D# in bar 4). Keeping them keeps the item at Beginner (restoring the C makes a run of 8 equal notes, over the cap of 4, and Beginner is at its minimum of 7 items), so they are named as departures (research R10 rule 6). Bars 5-16 are our own and are not compared. No note changed.",
+  "checkedBy": "claude-opus-5-5",
+  "date": "2026-09-24",
+  "previous": {
+    "title": "Fur Elise (opening motif, arranged for absolute beginners)",
+    "level": "beginner",
+    "bars": 17,
+    "notes": 73
+  }
+}

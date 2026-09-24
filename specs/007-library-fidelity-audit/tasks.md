@@ -509,7 +509,7 @@ Each item task:
   `departures`: the single-pass ending instead of the repeat, and anything else the comparison shows. If any note
   changes, re-capture `furEliseThemeGrade` in `tests/fixtures/library-identity.json` and log which notes changed
   and why (research R14). (Depends on T054, T055.)
-- [ ] T061 [US2] `repertoire/beginner/fur-elise-theme-16-bar` against `mutopia-931`. Melody check over the pickup and
+- [x] T061 [US2] `repertoire/beginner/fur-elise-theme-16-bar` against `mutopia-931`. Melody check over the pickup and
   bar 1, with the declared rhythmic departure (`melodyRhythm: "allowedByDeparture"`). Known finding (2026-09-24,
   `planted.test.ts`): the item's bar 1 leaves out the source's last note, C5; fix it from the source or name it as
   a departure, then update the `unchanged` baseline in `planted.test.ts`. `departures` names:

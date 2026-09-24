@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-24T15:11:15.468Z",
+  "generated": "2026-09-24T15:13:32.352Z",
   "sections": [
     {
       "id": "learning/chords",
@@ -3924,17 +3924,24 @@
           "licence": "CC0-1.0",
           "author": "Musicanyya practice material",
           "created": "2026-09-22",
-          "basedOn": "Beethoven, Fur Elise, WoO 59 (public domain, composed c. 1810), opening motif only. The pickup and bar 1 pitches were checked against the Mutopia Project's public-domain LilyPond engraving (piece-info id 931, fur_Elise_WoO59.ly, typeset by Stelios Samelis) and against this library's existing intermediate arrangement (public/library/repertoire/intermediate/fur-elise-theme.musicxml).",
-          "note": "A different, much simpler arrangement from the intermediate Fur Elise item, not a shortened copy of it: note values are doubled (16ths -> 8ths) and the metre is renotated from 3/8 to 3/4 (both changes needed to bring the shortest value and metre inside the Beginner caps), the left hand is reduced to a single sustained bass note per bar and rests entirely under the fast opening figure (mirroring Beethoven's own texture there), and the famous chromatic E-D#-E-D# hook is stated only once, in the pickup and bar 1, so the piece's accidental rate stays inside the Beginner cap (at most 2 per 16 measures). In bar 1 the middle E5 of the motif is written as a quarter note rather than an eighth (Beethoven's own rhythm there is a straight run of eighths); this is a deliberate rhythmic simplification, not just a pitch quote, so the run of same-value notes stays inside the Beginner cap of 4 (a rest cannot break such a run for this library's level checker, since a rest never becomes a sounding onset - only a longer note does). Bars 2-16 are our own simple, fully diatonic (natural A minor, no accidentals) continuation built from the theme's tonic/dominant outline, and bars 9-16 repeat bars 5-8 to reach the specified 16-bar length - not a transcription of Beethoven's actual bars 9-16, which are harmonically and rhythmically too demanding for this level. 17 written measures (a one-beat pickup plus 16 bars) at quarter = 60."
+          "basedOn": "Beethoven, Fur Elise, WoO 59 (public domain, composed c. 1810), opening only. The quoted bars were checked against the Mutopia Project's public-domain LilyPond engraving (piece-info id 931, fur_Elise_WoO59.ly, typeset by Stelios Samelis from the Breitkopf & Härtel edition of 1888); the audit record content/library/audit/repertoire/beginner/fur-elise-theme-16-bar.json re-runs that check.",
+          "note": "A different, much simpler arrangement from the intermediate Fur Elise item. The pickup and bars 1-4 follow Beethoven's melody with every value doubled (3/8 written as 3/4), with the changes listed in departures; bars 5-16 are our own. The left hand is a single sustained bass note per bar and rests under the opening figure, as in Beethoven's own texture there. 17 written measures (a one-beat pickup plus 16 bars) at quarter = 60."
         },
-        "reviewedBy": "music-domain-expert",
-        "reviewedOn": "2026-09-22",
+        "reviewedBy": "claude-opus-5-5",
+        "reviewedOn": "2026-09-24",
         "subtitle": "16-bar beginner arrangement: melody with a single bass note per bar",
         "composer": "Ludwig van Beethoven",
         "arranger": "Musicanyya practice material",
         "trains": "The famous opening motif read at a gentle tempo with eighth notes at most, over a single left-hand bass note per bar - the hands barely need to coordinate.",
         "hands": "both",
-        "arrangement": true
+        "arrangement": true,
+        "departures": [
+          "Metre and values: Beethoven's 3/8 is written as 3/4 with every note value doubled (sixteenths become eighths).",
+          "Bar 1: the third E is a quarter note and the C that leads to bar 2's A is left out (Beethoven: E-D#-E-B-D-C in even notes), so no more than four equal notes follow each other.",
+          "Bars 3-4: no accidentals after bar 1 - G instead of G-sharp in bar 3, D instead of D-sharp at the end of bar 4.",
+          "Bars 5-16 are our own continuation in A minor, not Beethoven's; bars 9-12 and 13-16 repeat bars 5-8.",
+          "Left hand: our own single bass note per bar (A or E) instead of Beethoven's broken chords."
+        ]
       },
       "facts": {
         "measures": 17,

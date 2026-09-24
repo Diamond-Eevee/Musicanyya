@@ -212,10 +212,10 @@ function melodyDifferences(xml: string): Difference[] {
 }
 
 describe('planted errors: the melody quote of the beginner Für Elise against Mutopia 931', () => {
-  // Found by this check, not planted: the item's bar 1 leaves out the source's last note, C5 (T061 settles it).
+  // Found by this check, not planted: the item's bar 1 leaves out the source's C5, now a declared departure (T061).
   const unchanged = [{ kind: 'melody', bar: '1', index: 7, item: 'missing', source: 'C5' }];
 
-  it('the unchanged item gives only the difference T061 settles', () => {
+  it('the unchanged item gives only its declared departure', () => {
     expect(melodyDifferences(MELODY_ITEM)).toEqual(unchanged);
   });
 
