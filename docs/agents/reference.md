@@ -130,7 +130,17 @@ pnpm library:exercises # regenerate the exercise families from content/library/e
 pnpm library:engrave  # complete hand-written repertoire files in place (beams + accidentals)
 pnpm library:index    # regenerate public/library/index.json from the files on disk
 pnpm screenshot       # open the app headless and save a PNG (see "Running and seeing the app" below)
+pnpm library:fidelity # re-run the audit records (feature 007); --item <id> for one item
+pnpm tsx tools/library/probe.ts <dir> [outDir]  # level numbers + page-1 SVGs; outDir defaults to tests/.generated/probe
 ```
+
+Tool output (probe SVGs, `probe-results.json`, screenshots) is never committed: it goes to `tests/.generated/` or the
+system temp folder, never under `public/` (it would ship with the app) or the repository root.
+
+**Known flaky**: the two Electron e2e tests `electron-playback.spec.ts:47` and `library.spec.ts:175` sometimes fail
+under load on Windows ("Target page ... has been closed", "audio clock advances"); both pass when run alone
+(`pnpm exec playwright test --project=electron <file>`). Re-run them alone and log both results; do not call the gate
+green without that.
 
 Tests use fakes (fake clock, fake MIDI input, offline rendering, recorded Performance logs), never real devices.
 
