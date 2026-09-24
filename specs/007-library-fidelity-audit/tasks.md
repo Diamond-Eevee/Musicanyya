@@ -178,7 +178,7 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
 
   Its `THIRD_PARTY_NOTICES.md` entry already exists; add the sentence that the source files are kept in
   `content/library/sources/`. (Depends on T001, T020.)
-- [ ] T024 `tests/tools/fidelity/planted.test.ts`, repertoire part (contract `fidelity-tools.md` §5). It works on a
+- [x] T024 `tests/tools/fidelity/planted.test.ts`, repertoire part (contract `fidelity-tools.md` §5). It works on a
   temporary copy of `repertoire/advanced/fur-elise-complete.musicxml` against `mutopia-931` and asserts exactly one
   expected difference, in the right bar, for each mutation:
   - one pitch +1 semitone;
