@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-24T13:19:45.006Z",
+  "generated": "2026-09-24T15:11:15.468Z",
   "sections": [
     {
       "id": "learning/chords",
@@ -4510,14 +4510,18 @@
           "basedOn": "Beethoven, Für Elise, WoO 59 (public domain, composed c. 1810). A-section pitches and rhythm were checked against the Mutopia Project's public-domain LilyPond engraving (piece-info id 931, fur_Elise_WoO59.ly, typeset by Stelios Samelis) before this simplified transcription.",
           "note": "Theme only: the pickup and bars 1-8 of WoO 59, through the theme's first cadence on the A-minor tonic. The B and C sections of the complete piece are not included, and the ending is simplified to a single-pass cadence instead of the repeat back to bar 1."
         },
-        "reviewedBy": "music-domain-expert",
-        "reviewedOn": "2026-09-22",
+        "reviewedBy": "claude-opus-5-5",
+        "reviewedOn": "2026-09-24",
         "subtitle": "A-section theme only, simplified arrangement",
         "composer": "Ludwig van Beethoven",
         "arranger": "Musicanyya practice material",
         "trains": "Melodic phrasing over a broken-chord left-hand accompaniment, with a chromatic passing-tone motif.",
         "hands": "both",
-        "arrangement": true
+        "arrangement": true,
+        "departures": [
+          "Theme only: the pickup and bars 1-8 of WoO 59; the rest of the piece is left out.",
+          "Bar 8 ends the piece: the final A is held as a dotted quarter to fill the bar, instead of the first ending's quarter note and the repeat back to the start."
+        ]
       },
       "facts": {
         "measures": 9,

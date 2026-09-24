@@ -504,7 +504,7 @@ Each item task:
 - writes the record under `content/library/audit/repertoire/...`;
 - sets `reviewedBy`/`reviewedOn` from the record.
 
-- [ ] T060 [US2] `repertoire/intermediate/fur-elise-theme` against `mutopia-931`, pickup and bars 1-8. Compare
+- [x] T060 [US2] `repertoire/intermediate/fur-elise-theme` against `mutopia-931`, pickup and bars 1-8. Compare
   mechanically on all note aspects where the item claims Beethoven's notes. The simplifications become
   `departures`: the single-pass ending instead of the repeat, and anything else the comparison shows. If any note
   changes, re-capture `furEliseThemeGrade` in `tests/fixtures/library-identity.json` and log which notes changed
