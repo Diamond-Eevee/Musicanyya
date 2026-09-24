@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "id": "mutopia-804-clementi-op36-no1",
+  "work": "Clementi, Sonatina in C major, Op. 36 No. 1, first movement (the file holds all three)",
+  "edition": "Sonatina Album, G. Schirmer, 1893",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=804",
+  "identifier": "Mutopia-2016/11/30-804",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond 2.18.2 by Brian D. Rude for the Mutopia Project from the Sonatina Album (G. Schirmer, 1893), and placed in the public domain by the typesetter. The piece page states \"Copyright: Public Domain\" (checked 2026-09-24).",
+  "obtained": "2026-09-24",
+  "approvedByOwner": "2026-09-23",
+  "files": [
+    {
+      "role": "notation",
+      "path": "sonatina-1.ly",
+      "url": "https://www.mutopiaproject.org/ftp/ClementiM/O36/sonatina-1/sonatina-1.ly",
+      "sha256": "788160d26cfc5d637bd531124607d3136df105004ece2c2b1154629226751e04",
+      "format": "lilypond",
+      "score": 1
+    },
+    {
+      "role": "sound",
+      "path": "sonatina-1.mid",
+      "url": "https://www.mutopiaproject.org/ftp/ClementiM/O36/sonatina-1/sonatina-1-mids.zip",
+      "sha256": "365dc51f22f89c005d71343df592d9b08fdc314042027989557f1eebcd8bc107",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false,
+      "archive": {
+        "sha256": "d13263b200c89478ac167a97b617fd31747b292df9a8ddbe947c8c8d07d066ae",
+        "member": "sonatina-1.mid"
+      }
+    }
+  ]
+}

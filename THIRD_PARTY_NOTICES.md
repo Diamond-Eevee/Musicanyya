@@ -51,6 +51,37 @@ The library's `.musicxml` files were completed by the project's engraving tool (
 missing `<beam>` and `<accidental>` elements for display. Nothing else in the files is changed, and each file keeps
 the licence recorded for it in `public/library/index.json`.
 
+## Reference sources (not shipped; `content/library/sources/`)
+
+Public-domain editions kept unchanged so that `pnpm library:fidelity` can re-check library items against them
+(feature 007). Each folder's `source.json` records the edition, the file hashes and the owner's approval. A source
+an item is converted from is also listed above, with that item. All were typeset for the Mutopia Project and placed
+in the public domain by their typesetters; each piece page states "Copyright: Public Domain" (checked 2026-09-24).
+LilyPond source and the MIDI file LilyPond made from it, obtained 2026-09-24:
+
+- **Bach, Prelude No. 1 in C major, BWV 846** - Mutopia-2011/09/12-5, typeset by Tobias Erbsland; edition
+  "Unknown" (as Mutopia states it). `mutopia-5-bach-bwv846/`.
+  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=5
+- **Chopin, Prelude in E minor, Op. 28 No. 4** - Mutopia-2016/10/28-468, typeset by Magnus Lewis-Smith from the
+  Peters edition of 1879. `mutopia-468-chopin-op28-no4/`.
+  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=468
+- **Chopin, Prelude in C minor, Op. 28 No. 20** - Mutopia-2011/06/19-472, typeset by Magnus Lewis-Smith from
+  Edition Peters. `mutopia-472-chopin-op28-no20/`.
+  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=472
+- **Satie, Gymnopédie No. 1** - Mutopia-2014/12/14-37, typeset by Evin Robertson from the Dover edition (a reprint
+  of the original; Dover's added translations are not in the file). `mutopia-37-satie-gymnopedie1/`.
+  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=37
+- **Burgmüller, Op. 100 No. 2, L'Arabesque** - Mutopia-2013/01/12-203, typeset by Bas Wassink from the Collection
+  Litolff. `mutopia-203-burgmuller-op100-no2/`.
+  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=203
+- **Burgmüller, Op. 100 No. 5, Innocence** - Mutopia-2013/01/12-214, typeset by Bas Wassink from the Collection
+  Litolff. `mutopia-214-burgmuller-op100-no5/`.
+  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=214
+- **Clementi, Sonatina in C major, Op. 36 No. 1** - Mutopia-2016/11/30-804, typeset by Brian D. Rude from the
+  Sonatina Album (G. Schirmer, 1893). The MIDI is published zipped (`sonatina-1-mids.zip`); only the first
+  movement's file, `sonatina-1.mid`, is kept, extracted unchanged. `mutopia-804-clementi-op36-no1/`.
+  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=804
+
 ## Test fixtures (not shipped with the application)
 
 - **OpenScore Lieder Corpus** and **OpenScore String Quartets** (downloaded 2026-09-22)

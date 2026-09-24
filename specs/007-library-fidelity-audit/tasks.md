@@ -306,6 +306,13 @@ copy makes `pnpm library:fidelity --item <id> --file <copy>` fail and name that 
   (`pnpm library:convert-ly <source-id> <item-id> [--replace]`, contract §1 and §3.3-3.4). Titles, composer and
   credit come from the sidecar, not from the `.ly` header (makes T028 pass). (Depends on T018, T021, T029.)
 
+- [x] T095 [US1] Extend the LilyPond reader (`tools/library/lilypond/lex.ts`, `parse.ts`, `read.ts`) to the
+  constructs the T031-T037 sources actually use (contract §3.1: "the constructs the audited Mutopia sources actually
+  use, each with its own test"). Found by running `--inspect-midi` on each downloaded source. For each construct:
+  a failing test in `tests/tools/lilypond/read.test.ts` first, then the reader change, then a row in contract §3.1.
+  Anything that would move notes in time or pitch still fails loudly. (Depends on T018; blocks T031-T037's MIDI
+  fields and T038-T044.)
+
 ### Implementation - sources (each after D-1; [P] across sources)
 
 Each source task does the same steps:
@@ -319,13 +326,13 @@ Each source task does the same steps:
 - add a `THIRD_PARTY_NOTICES.md` entry: under "Reference sources" if the source is used only for comparison,
   otherwise in the library list when an item is converted from it (FR-023).
 
-- [ ] T031 [P] [US1] `content/library/sources/mutopia-5-bach-bwv846/` (piece 5, edition "Unknown").
-- [ ] T032 [P] [US1] `content/library/sources/mutopia-468-chopin-op28-no4/` (Peters, 1879).
-- [ ] T033 [P] [US1] `content/library/sources/mutopia-472-chopin-op28-no20/` (Edition Peters).
-- [ ] T034 [P] [US1] `content/library/sources/mutopia-37-satie-gymnopedie1/` (Dover Edition).
-- [ ] T035 [P] [US1] `content/library/sources/mutopia-203-burgmuller-op100-no2/` (Collection Litolff).
-- [ ] T036 [P] [US1] `content/library/sources/mutopia-214-burgmuller-op100-no5/` (Collection Litolff).
-- [ ] T037 [P] [US1] `content/library/sources/mutopia-804-clementi-op36-no1/` (Schirmer, 1893). The MIDI is
+- [x] T031 [P] [US1] `content/library/sources/mutopia-5-bach-bwv846/` (piece 5, edition "Unknown").
+- [x] T032 [P] [US1] `content/library/sources/mutopia-468-chopin-op28-no4/` (Peters, 1879).
+- [x] T033 [P] [US1] `content/library/sources/mutopia-472-chopin-op28-no20/` (Edition Peters).
+- [x] T034 [P] [US1] `content/library/sources/mutopia-37-satie-gymnopedie1/` (Dover Edition).
+- [x] T035 [P] [US1] `content/library/sources/mutopia-203-burgmuller-op100-no2/` (Collection Litolff).
+- [x] T036 [P] [US1] `content/library/sources/mutopia-214-burgmuller-op100-no5/` (Collection Litolff).
+- [x] T037 [P] [US1] `content/library/sources/mutopia-804-clementi-op36-no1/` (Schirmer, 1893). The MIDI is
   published zipped: record the zip's URL and hash, and commit only the movement-1 `.mid` with its own hash, noting
   the extraction in `source.json`.
 

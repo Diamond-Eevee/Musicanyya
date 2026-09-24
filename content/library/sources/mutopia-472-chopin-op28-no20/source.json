@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "id": "mutopia-472-chopin-op28-no20",
+  "work": "Chopin, Prelude in C minor, Op. 28 No. 20",
+  "edition": "Edition Peters",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=472",
+  "identifier": "Mutopia-2011/06/19-472",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond 2.14.1 by Magnus Lewis-Smith for the Mutopia Project from Edition Peters, and placed in the public domain by the typesetter. The piece page states \"Copyright: Public Domain\" (checked 2026-09-24).",
+  "obtained": "2026-09-24",
+  "approvedByOwner": "2026-09-23",
+  "files": [
+    {
+      "role": "notation",
+      "path": "Chop-28-20.ly",
+      "url": "https://www.mutopiaproject.org/ftp/ChopinFF/O28/Chop-28-20/Chop-28-20.ly",
+      "sha256": "fd6e30e421d4b34197cfa2b6d9d420e0c941edbaa2b61d5e1883e79d815bef5d",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "Chop-28-20.mid",
+      "url": "https://www.mutopiaproject.org/ftp/ChopinFF/O28/Chop-28-20/Chop-28-20.mid",
+      "sha256": "9cc6c417d4bb261644f6bd3d00033025e675a25694fd172be2f98e93efc1fcfe",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}
