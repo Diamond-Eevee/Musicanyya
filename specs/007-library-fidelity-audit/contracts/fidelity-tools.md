@@ -1,6 +1,6 @@
 # Contract: fidelity tools (readers, comparator, theory check, converter, commands)
 
-**Version**: `1.1.0` (1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands; 1.2.0, 2026-09-24: written bars follow the printed page (§3.2), `measurePosition`, `\tupletSpan`). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
+**Version**: `1.3.0` (1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands; 1.2.0, 2026-09-24: written bars follow the printed page (§3.2), `measurePosition`, `\tupletSpan`; 1.3.0, 2026-09-24: the converter's marks, §3.3). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
 worker, and `tests/architecture/layers.test.ts` asserts it (as it already does for the exercise generator).
 
 **Location**: `tools/library/fidelity/` (pure TypeScript, Node, no DOM; compiled by `tsconfig.tools.json`) and
@@ -124,7 +124,10 @@ numbered in order, from 0 when the piece starts with `\partial`.
 
 Writes MusicXML through `src/core/musicxml/write.ts`, extended additively (research R13) with: repeat barlines and
 `<ending>`, grace notes, `<time-modification>` for tuplets, `<octave-shift>`, clef/key/time changes mid-piece,
-`16th`/`32nd` types, slurs, dynamics, `<pedal>`, tempo `<words>` + `<sound tempo>`. Exercise output stays
+`16th`/`32nd` types, slurs, dynamics, `<pedal>`, tempo `<words>` + `<sound tempo>`; since 1.3.0 also
+articulations, ornaments, fermatas, arpeggios, hairpins, whole-bar rests, italic words, `<rights>`/`<source>`
+(research R13 addendum). A mark that changes playback or grading and cannot be written fails the conversion;
+display-only marks that cannot be written are dropped and listed. Exercise output stays
 byte-identical (the existing exercise goldens are the guard). Titles, composer and credit come from the item's
 sidecar, not from the `.ly` header.
 

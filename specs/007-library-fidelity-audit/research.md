@@ -358,6 +358,15 @@ planted error per kind is the cheapest proof that it works.
 
 The converter writes through it.
 
+**Addendum (2026-09-24, T027/T029)**: writing the converter showed more marks that a printed edition carries and
+the app already reads, so they were added the same way (optional, exercise output unchanged): `<articulations>`
+(staccato, accent, tenuto), `<ornaments>` (trill, mordent, inverted mordent, turn), `<fermata>`, `<arpeggiate>`,
+hairpins (`<wedge>`), whole-bar rests (`<rest measure="yes"/>`), any number of dots, bold tempo words and italic
+expression words, `<key><mode>`, and `<rights>`/`<source>` in the identification (as in the Für Elise item). Marks
+that change what the app plays or grades (dynamics, ornaments, arpeggios) are never dropped by the converter: an
+unsupported one fails the conversion. Display-only marks the writer cannot express are dropped and listed by
+`library:convert-ly`.
+
 **Rationale**:
 
 - One writer for both generated exercises and converted pieces.
