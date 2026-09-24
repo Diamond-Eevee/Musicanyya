@@ -24,8 +24,37 @@
     "fingeringCoverage": 0,
     "notices": [],
     "computedLevel": "advanced",
-    "verovioMs": 136,
+    "verovioMs": 134,
     "pages": 2,
+    "verovioError": null
+  },
+  {
+    "file": "burgmuller-op100-no2.musicxml",
+    "title": "l'Arabesque (25 Etudes faciles, Op. 100, No. 2)",
+    "composer": "Johann Friedrich Franz Burgmuller",
+    "measures": 33,
+    "notes": 285,
+    "durationSeconds": 43.4,
+    "keys": [
+      "A minor"
+    ],
+    "metres": [
+      "2/4"
+    ],
+    "tempoBpm": 152,
+    "tempoDefaulted": false,
+    "lowestMidi": 45,
+    "highestMidi": 93,
+    "maxSpanSemitones": 10,
+    "staves": 2,
+    "shortestDivision": 16,
+    "notesPerBeat": 2.59,
+    "accidentals": 0,
+    "fingeringCoverage": 0.0912280701754386,
+    "notices": [],
+    "computedLevel": "advanced",
+    "verovioMs": 34,
+    "pages": 1,
     "verovioError": null
   },
   {
@@ -53,7 +82,7 @@
     "fingeringCoverage": 0,
     "notices": [],
     "computedLevel": "advanced",
-    "verovioMs": 39,
+    "verovioMs": 31,
     "pages": 1,
     "verovioError": null
   },
@@ -82,7 +111,7 @@
     "fingeringCoverage": 0,
     "notices": [],
     "computedLevel": "advanced",
-    "verovioMs": 47,
+    "verovioMs": 40,
     "pages": 1,
     "verovioError": null
   },
@@ -113,7 +142,7 @@
       "measureLengthMismatch"
     ],
     "computedLevel": "advanced",
-    "verovioMs": 78,
+    "verovioMs": 75,
     "pages": 3,
     "verovioError": null
   },
@@ -142,7 +171,7 @@
     "fingeringCoverage": 0,
     "notices": [],
     "computedLevel": "advanced",
-    "verovioMs": 30,
+    "verovioMs": 28,
     "pages": 2,
     "verovioError": null
   }

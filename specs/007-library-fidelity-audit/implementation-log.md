@@ -264,3 +264,11 @@
 - Problems / open questions: none.
 - Handoff: next = T042 (Burgmuller Op 100 No 2 against mutopia-203). Tree clean at this commit.
 
+
+## 2026-09-24 14:32 - antigravity-gemini-2.5-pro (continue)
+- Done: T042 (Burgmuller Op 100 No 2 against mutopia-203).
+- In progress: none
+- Decisions: Replaced Burgmuller entirely with the Mutopia conversion. Because the conversion includes the original bar 31 register, the piece computes to Advanced (maxSpanSemitones=10 is safe, but maxLeapSemitones is larger than the intermediate cap). Following D-3 (level gaps are reported, not filled), it was moved to Advanced rather than relabelled as an arrangement. Updated the sidecar and generated the audit record under its original intermediate path.
+- Problems / open questions: none.
+- Handoff: next = T043 (Burgmuller Op 100 No 5 against mutopia-214). Tree clean at this commit.
+

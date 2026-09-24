@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "title": "l'Arabesque (25 Etudes faciles, Op. 100, No. 2)",
+  "subtitle": "Arabeske",
+  "composer": "Johann Friedrich Franz Burgmuller",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "advanced",
+  "tags": ["hands-together", "sight-reading", "dynamics", "phrasing"],
+  "trains": "Quick 16th-note turn figures answered by a light eighth-note tag, alternating with a lyrical dotted-quarter melody, over a steady broken-chord left hand in A minor - finger agility and voicing a short melodic cell cleanly at a scherzando tempo.",
+  "hands": "both",
+  "arrangement": false,
+  "provenance": {
+    "origin": "downloaded",
+    "licence": "public-domain",
+    "source": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=203",
+    "sourcePath": "mutopia-203-burgmuller-op100-no2/25EF-02.ly",
+    "obtained": "2026-09-24",
+    "unmodified": true,
+    "credit": "Typeset by Bas Wassink for the Mutopia Project"
+  },
+  "reviewedBy": "music-domain-expert",
+  "reviewedOn": "2026-09-24"
+}

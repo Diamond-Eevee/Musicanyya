@@ -379,7 +379,7 @@ Each source task does the same steps:
   - **Record**: `content/library/audit/repertoire/advanced/satie-gymnopedie-no1.json`, with `previous`.
 
   (Depends on T030, T034.)
-- [ ] T042 [US1] `repertoire/intermediate/burgmuller-op100-no2` against `mutopia-203`, whole piece: `replaced`
+- [x] T042 [US1] `repertoire/intermediate/burgmuller-op100-no2` against `mutopia-203`, whole piece: `replaced`
   faithfully, including bar 31's written register.
   - **Level**: follow research R10. If the probe computes Advanced, the item moves to Advanced. Keep it at
     Intermediate as a labelled arrangement (bar 31 an octave higher, with `departures`) **only** if the move would
