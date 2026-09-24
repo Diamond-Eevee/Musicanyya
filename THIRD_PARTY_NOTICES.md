@@ -91,6 +91,19 @@ LilyPond source and the MIDI file LilyPond made from it, obtained 2026-09-24:
   Sonatina Album (G. Schirmer, 1893). The MIDI is published zipped (`sonatina-1-mids.zip`); only the first
   movement's file, `sonatina-1.mid`, is kept, extracted unchanged. `mutopia-804-clementi-op36-no1/`.
   https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=804
+- **New Britain ("Amazing Grace" hymn tune)** - Mutopia-2008/02/19-1283, typeset by Steve Dunlop from
+  www.cyberhymnal.org (tune: Virginia Harmony, 1831; harmonization: E. O. Excell, 1900).
+  `mutopia-1283-new-britain/`. https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1283
+- **Greensleeves (hymn tune)** - Mutopia-2014/03/30-1247, typeset by Steve Dunlop from www.cyberhymnal.org.
+  `mutopia-1247-greensleeves-hymntune/`. https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1247
+- **Beethoven, "Ode to Joy" (hymn setting)** - Mutopia-2009/08/05-528, typeset by Peter Chubb from "Various"
+  sources (as Mutopia states it). `mutopia-528-ode-to-joy/`.
+  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=528
+- **Mozart, 12 Variations on "Ah vous dirai-je, Maman", K. 265, for two guitars** - Mutopia-2018/12/07-2236,
+  typeset and arranged by Jeffrey Olson (Ed.: J. J. Olson) from the Porro edition (Paris, plate 79). The LilyPond
+  files are published zipped (`guitar-duo-complete-lys.zip`); only `guitar-duo-complete.ly` is kept, extracted
+  unchanged. `mutopia-2236-mozart-ah-vous-dirai-je/`.
+  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2236
 
 ## Test fixtures (not shipped with the application)
 

@@ -294,10 +294,10 @@ keeps saved progress (SC-007).
 | `mutopia-203-burgmuller-op100-no2` | 203 | Burgmüller, Op. 100 No. 2 | Collection Litolff | .ly, .mid | intermediate/burgmuller-op100-no2 |
 | `mutopia-214-burgmuller-op100-no5` | 214 | Burgmüller, Op. 100 No. 5 | Collection Litolff | .ly, .mid | intermediate/burgmuller-op100-no5 |
 | `mutopia-804-clementi-op36-no1` | 804 | Clementi, Sonatina Op. 36 No. 1 | Sonatina Album, G. Schirmer, 1893 | .ly, MIDI **zipped** (the zip's URL and hash, and the extracted movement-1 file's hash, are both recorded) | intermediate/clementi-sonatina-op36-no1-mvt1 |
-| `mutopia-1283-new-britain` | 1283 | "New Britain" hymn tune, SATB | cyberhymnal (1831) | .ly, .mid | beginner/amazing-grace (melody) - **to verify** which voice carries the tune and whether it is the Excell form (R15) |
-| `mutopia-1247-greensleeves-hymntune` | 1247 | "Greensleeves" hymn tune, SATB | cyberhymnal | .ly, .mid | beginner/greensleeves (melody) |
+| `mutopia-1283-new-britain` | 1283 | "New Britain" hymn tune, SATB | cyberhymnal (1831) | .ly, .mid | beginner/amazing-grace (melody) - verified 2026-09-24: the tune is the Soprano; the file's ABC notes name Excell's 1900 harmonization, and the tune is the familiar modern form (R15) |
+| `mutopia-1247-greensleeves-hymntune` | 1247 | "Greensleeves" hymn tune, SATB | cyberhymnal | .ly, .mid | beginner/greensleeves (melody) - checked 2026-09-24: E minor, tune in the Soprano, with D-sharp (raised 7th) and both C-sharp and C (6th) |
 | `mutopia-528-ode-to-joy` | 528 | Beethoven, "Ode to Joy", SATB hymn | "Various" | .ly, .mid | beginner/ode-to-joy: pitch order only; the symphony's rhythm by scan (table B) |
-| `mutopia-2236-mozart-ah-vous-dirai-je` | 2236 | Mozart, "Ah vous dirai-je, Maman" theme, 2 guitars | Paris: Porro, plate 79 | .ly (zipped), .mid | beginner/twinkle-twinkle-little-star (melody) |
+| `mutopia-2236-mozart-ah-vous-dirai-je` | 2236 | Mozart, "Ah vous dirai-je, Maman" theme, 2 guitars | Paris: Porro, plate 79 | .ly (zipped), .mid | beginner/twinkle-twinkle-little-star (melody) - 2026-09-24: the theme is `\score` 9 of 13 ("Allegro (Thema)"), tune in guitar 1 (`themaA`), C major 2/4; the MIDI holds all 13 pieces (theme = tracks 17-18) |
 
 **Rejected sources**:
 
