@@ -47,7 +47,8 @@ export class LibrarySessionController {
       return false;
     }
 
-    const result = await this.catalog.item(item.file);
+    // The index entry's hash lets the catalog skip a cached copy of an item that has since been corrected (FR-024).
+    const result = await this.catalog.item(item.file, item.hash);
     if (!result.ok) {
       this.callbacks.onNotice(ITEM_ERROR_NOTICE[result.error]);
       return false;

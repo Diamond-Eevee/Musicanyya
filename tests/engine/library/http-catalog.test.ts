@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { hashFile } from '../../../src/engine/files/hash.js';
 import { HttpLibraryCatalog } from '../../../src/engine/library/http-catalog.js';
 
 function validIndexPayload() {
@@ -148,5 +149,118 @@ describe('HttpLibraryCatalog', () => {
     await catalog.index();
     await catalog.index();
     expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('HttpLibraryCatalog caching (contract library-port.md 1.1.0 §1.1, feature 007 FR-024)', () => {
+  const INDEX_URL = '/library/index.json';
+  const FILE = 'repertoire/advanced/fur-elise-complete.musicxml';
+  const ITEM_URL = `/library/${FILE}`;
+  const encode = (text: string) => new TextEncoder().encode(text);
+  const text = (buffer: ArrayBuffer) => new TextDecoder().decode(buffer);
+
+  /** Cache Storage in memory, holding real Response objects. */
+  class MemoryCache {
+    readonly store = new Map<string, Response>();
+    async match(url: string) {
+      return this.store.get(url)?.clone();
+    }
+    async put(url: string, response: Response) {
+      this.store.set(url, response);
+    }
+    async delete(url: string) {
+      return this.store.delete(url);
+    }
+    async body(url: string) {
+      const r = this.store.get(url);
+      return r ? r.clone().text() : undefined;
+    }
+  }
+
+  let cache: MemoryCache;
+  let network: Map<string, Uint8Array>;
+  let online: boolean;
+  let fetches: string[];
+
+  beforeEach(() => {
+    cache = new MemoryCache();
+    network = new Map();
+    online = true;
+    fetches = [];
+    vi.stubGlobal('caches', {
+      open: async () => cache,
+      keys: async () => ['musicanyya-library-v1'],
+      delete: async () => true,
+    });
+    vi.stubGlobal('fetch', async (url: string) => {
+      fetches.push(url);
+      if (!online) throw new TypeError('Failed to fetch');
+      const body = network.get(url);
+      return body ? new Response(body.slice()) : new Response('not found', { status: 404 });
+    });
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  const indexWithTitle = (title: string) =>
+    JSON.stringify({ ...validIndexPayload(), sections: [{ ...validIndexPayload().sections[0], title }] });
+
+  it('ignores a cached index.json when the network answers, and caches the new one', async () => {
+    await cache.put(INDEX_URL, new Response(indexWithTitle('Old')));
+    network.set(INDEX_URL, encode(indexWithTitle('New')));
+    const result = await new HttpLibraryCatalog().index();
+    expect(result.ok && result.value.sections[0]?.title).toBe('New');
+    expect(await cache.body(INDEX_URL)).toBe(indexWithTitle('New'));
+  });
+
+  it('uses the cached index when the network fails', async () => {
+    await cache.put(INDEX_URL, new Response(indexWithTitle('Offline copy')));
+    online = false;
+    const result = await new HttpLibraryCatalog().index();
+    expect(result.ok && result.value.sections[0]?.title).toBe('Offline copy');
+  });
+
+  it('returns a cached item whose hash matches without fetching it', async () => {
+    await cache.put(ITEM_URL, new Response('current'));
+    const result = await new HttpLibraryCatalog().item(FILE, await hashFile(encode('current')));
+    expect(result.ok && text(result.value)).toBe('current');
+    expect(fetches).toEqual([]);
+  });
+
+  it('replaces a cached item whose hash differs with the fetched current file', async () => {
+    await cache.put(ITEM_URL, new Response('old notes'));
+    network.set(ITEM_URL, encode('corrected notes'));
+    const result = await new HttpLibraryCatalog().item(FILE, await hashFile(encode('corrected notes')));
+    expect(result.ok && text(result.value)).toBe('corrected notes');
+    expect(fetches).toEqual([ITEM_URL]);
+    expect(await cache.body(ITEM_URL)).toBe('corrected notes');
+  });
+
+  it('returns a fetched body whose hash does not match, but does not cache it', async () => {
+    await cache.put(ITEM_URL, new Response('old notes'));
+    network.set(ITEM_URL, encode('newer than the index'));
+    const result = await new HttpLibraryCatalog().item(FILE, await hashFile(encode('what the index says')));
+    expect(result.ok && text(result.value)).toBe('newer than the index');
+    expect(cache.store.has(ITEM_URL)).toBe(false);
+  });
+
+  it('without an expected hash, keeps the cache-first behaviour of 1.0.0', async () => {
+    await cache.put(ITEM_URL, new Response('cached'));
+    const cached = await new HttpLibraryCatalog().item(FILE);
+    expect(cached.ok && text(cached.value)).toBe('cached');
+    expect(fetches).toEqual([]);
+
+    cache.store.clear();
+    network.set(ITEM_URL, encode('fetched'));
+    const fetched = await new HttpLibraryCatalog().item(FILE);
+    expect(fetched.ok && text(fetched.value)).toBe('fetched');
+    expect(await cache.body(ITEM_URL)).toBe('fetched');
+  });
+
+  it('offline, still returns a cached item whose hash differs, and keeps it (rule 4)', async () => {
+    await cache.put(ITEM_URL, new Response('previously fetched'));
+    online = false;
+    const result = await new HttpLibraryCatalog().item(FILE, await hashFile(encode('something newer')));
+    expect(result.ok && text(result.value)).toBe('previously fetched');
+    expect(await cache.body(ITEM_URL)).toBe('previously fetched');
   });
 });

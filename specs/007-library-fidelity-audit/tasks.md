@@ -224,11 +224,11 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
 These tasks do not depend on the fidelity tooling and can run as their own lane. They must be finished before any
 replaced item is merged.
 
-- [ ] T089 [P] Fold contract `contracts/library-port-1.1.md` into the canonical
+- [x] T089 [P] Fold contract `contracts/library-port-1.1.md` into the canonical
   `specs/005-practice-score-library/contracts/library-port.md` (version 1.0.0 -> 1.1.0: the `item(file,
   expectedHash?)` signature, caching rules 1-5, the new tests, the performance note), and mark
   `library-port-1.1.md` "applied on <date>".
-- [ ] T090 [P] Extend `tests/engine/library/http-catalog.test.ts` (contract `library-port-1.1.md` §3), with stubbed
+- [x] T090 [P] Extend `tests/engine/library/http-catalog.test.ts` (contract `library-port-1.1.md` §3), with stubbed
   `fetch` and `caches`:
   - a cached `index.json` is ignored when the network answers;
   - the cached index is used when the network fails;
@@ -238,13 +238,13 @@ replaced item is merged.
   - no `expectedHash` gives the old behaviour.
 
   Confirm the new cases fail.
-- [ ] T091 [P] Extend `tests/engine/session-library.test.ts`: opening a library item passes the index entry's
+- [x] T091 [P] Extend `tests/engine/session-library.test.ts`: opening a library item passes the index entry's
   `hash` to `catalog.item()`, as recorded by `tests/fakes/fake-library-catalog.ts`. Confirm it fails.
-- [ ] T092 `src/engine/ports.ts` (`item(file, expectedHash?)`), `src/engine/library/http-catalog.ts` (network-first
+- [x] T092 `src/engine/ports.ts` (`item(file, expectedHash?)`), `src/engine/library/http-catalog.ts` (network-first
   index; hash-checked item cache with `hashFile` from `src/engine/files/hash.ts`; cache only matching bodies; every
   cache call still in `try`/`catch`), and `tests/fakes/fake-library-catalog.ts` (accepts and records the hash).
   Makes T090 pass. (Depends on T089, T090.)
-- [ ] T093 `src/app/session.ts`: pass the opened index entry's `hash` to `catalog.item()` (makes T091 pass).
+- [x] T093 `src/app/session.ts`: pass the opened index entry's `hash` to `catalog.item()` (makes T091 pass).
   (Depends on T091, T092.)
 - [ ] T094 Extend `tests/e2e/library.spec.ts` (browser only; the `app://` shell has no Cache Storage):
   - seed the `musicanyya-library-v1` cache with an altered copy of one item file and a stale `index.json`;

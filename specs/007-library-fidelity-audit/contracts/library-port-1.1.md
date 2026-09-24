@@ -2,7 +2,7 @@
 
 **Changes**: `specs/005-practice-score-library/contracts/library-port.md`, which is the canonical contract. This file
 is the change request. The first implementation task that touches the adapter folds it into that contract, and this
-file then stays here as history.
+file then stays here as history. Applied on 2026-09-24 (task T089).
 
 **Kind**: MINOR. The port gains an optional argument, and the adapter's caching rule changes. Callers that do not
 pass the argument keep today's behaviour, except that the index is no longer read from the cache first.
