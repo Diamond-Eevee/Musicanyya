@@ -297,9 +297,18 @@ keeps saved progress (SC-007).
 | `mutopia-1283-new-britain` | 1283 | "New Britain" hymn tune, SATB | cyberhymnal (1831) | .ly, .mid | beginner/amazing-grace (melody) - verified 2026-09-24: the tune is the Soprano; the file's ABC notes name Excell's 1900 harmonization, and the tune is the familiar modern form (R15) |
 | `mutopia-1247-greensleeves-hymntune` | 1247 | "Greensleeves" hymn tune, SATB | cyberhymnal | .ly, .mid | beginner/greensleeves (melody) - checked 2026-09-24: E minor, tune in the Soprano, with D-sharp (raised 7th) and both C-sharp and C (6th) |
 | `mutopia-528-ode-to-joy` | 528 | Beethoven, "Ode to Joy", SATB hymn | "Various" | .ly, .mid | beginner/ode-to-joy: pitch order only; the symphony's rhythm by scan (table B) |
-| `mutopia-2236-mozart-ah-vous-dirai-je` | 2236 | Mozart, "Ah vous dirai-je, Maman" theme, 2 guitars | Paris: Porro, plate 79 | .ly (zipped), .mid | beginner/twinkle-twinkle-little-star (melody) - 2026-09-24: the theme is `\score` 9 of 13 ("Allegro (Thema)"), tune in guitar 1 (`themaA`), C major 2/4; the MIDI holds all 13 pieces (theme = tracks 17-18) |
 
 **Rejected sources**:
+
+- **Mutopia 2236** (Mozart K. 265, two guitars; addendum 2026-09-24, T099): downloaded for T059, then dropped.
+  - The file builds its staves with Scheme music functions (`#(define-music-function ... #{ ... #})`), `\include`s
+    an uncommitted `text-macros.ily` and ends in pages of prose markup. Reading it needs lazy parsing of
+    definitions and music-function expansion: a reader redesign for one 24-bar tune.
+  - It is also an arrangement with editorial changes (bar 16 "was an octave lower"), and it sounds an octave below
+    the written pitch (`\transposition c`), so it is a weaker witness to Mozart's tune than a printing of K. 265.
+  - Decision: T065 is a visual check against a public-domain printing of K. 265 (reported as "verified (visual)",
+    FR-019). Alternatives: extend the reader (rejected: cost, and the witness problem); keep the files unused
+    (rejected: nothing would re-run them).
 
 - **Mutopia 659**: Schumann Op. 68 No. 10 "Le gai laboureur" (Peters). The page says **"Creative Commons
   Attribution-ShareAlike 2.5"**. It fails FR-006. It was the only Op. 68 No. 10 on Mutopia (searched "laboureur",
@@ -342,7 +351,7 @@ keeps saved progress (SC-007).
 | beginner/jingle-bells | arrangement, refrain | modern-tune source not yet found | visual vs table B printing |
 | beginner/mary-had-a-little-lamb | arrangement | tune source not yet found | visual vs table B printing |
 | beginner/ode-to-joy | arrangement, first two phrases | bars 4 and 8 dotted rhythm flattened; transposition to C undeclared | melody vs Mutopia 528 + symphony scan; `departures` list |
-| beginner/twinkle-twinkle-little-star | arrangement | - | melody vs Mutopia 2236 theme |
+| beginner/twinkle-twinkle-little-star | arrangement | - | visual melody check vs a public-domain printing of K. 265 (Mutopia 2236 dropped, see "Rejected sources") |
 
 **Exercises** (41): 24 triads (12 major + 12 minor), 16 chord-change drills, and the hand-written C major scale and
 chords item. All get the theory check (R8). The one hand-written item (`c-major-scale-and-chords`) is also checked

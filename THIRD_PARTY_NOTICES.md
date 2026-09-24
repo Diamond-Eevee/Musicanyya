@@ -99,11 +99,6 @@ LilyPond source and the MIDI file LilyPond made from it, obtained 2026-09-24:
 - **Beethoven, "Ode to Joy" (hymn setting)** - Mutopia-2009/08/05-528, typeset by Peter Chubb from "Various"
   sources (as Mutopia states it). `mutopia-528-ode-to-joy/`.
   https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=528
-- **Mozart, 12 Variations on "Ah vous dirai-je, Maman", K. 265, for two guitars** - Mutopia-2018/12/07-2236,
-  typeset and arranged by Jeffrey Olson (Ed.: J. J. Olson) from the Porro edition (Paris, plate 79). The LilyPond
-  files are published zipped (`guitar-duo-complete-lys.zip`); only `guitar-duo-complete.ly` is kept, extracted
-  unchanged. `mutopia-2236-mozart-ah-vous-dirai-je/`.
-  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2236
 
 ## Test fixtures (not shipped with the application)
 

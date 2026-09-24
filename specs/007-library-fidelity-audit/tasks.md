@@ -483,20 +483,14 @@ were compared against, and the result. The sidecar's `departures` names every de
   as a visual check (T062).
 - [x] T057 [P] [US2] `content/library/sources/mutopia-1247-greensleeves-hymntune/`.
 - [x] T058 [P] [US2] `content/library/sources/mutopia-528-ode-to-joy/`.
-- [x] T059 [P] [US2] `content/library/sources/mutopia-2236-mozart-ah-vous-dirai-je/` (the `.ly` files are published
-  zipped: record the zip's hash, commit the extracted `.ly` files with their own hashes, and record the theme's
-  voice).
+- T059 dropped 2026-09-24 (research R11 addendum): Mutopia 2236 is a two-guitar edition built with Scheme music
+  functions that the reader cannot read (was T099); Twinkle gets a visual check instead (T065).
 - [x] T098 [US2] The LilyPond reader reads `\partcombine A B` as two voices on one staff (LilyPond: "combines two
   parts on one staff"), so `mutopia-1283` and `mutopia-1247` can be read (both fail today with
   `LilyPond 31:9: \partcombine` / `37:7`). Test first in `tests/tools/lilypond/`: a two-voice fixture gives both
   voices' notes with their own `voice`, and the Soprano can be picked by `sourceVoice`. Update
   contract fidelity-tools.md §3.1. (Blocks T062, T063 and `--inspect-midi` for those two sources.)
-- [ ] T099 [US2] The LilyPond reader reads score 9 ("Allegro (Thema)") of `mutopia-2236` (fails today with
-  `LilyPond 39:20: character '+'`, in the file's Scheme/markup preamble). Test first; list every construct added in
-  contract fidelity-tools.md §3.1. The theme is guitar music: check that the reading gives the pitch the item
-  should quote (guitar sounds an octave below written) and record the choice in research.md. The theme's MIDI
-  (tracks 17-18) starts at tick 141312 of one file for all 13 pieces, so T065 compares notation only unless the
-  sound step learns an offset. (Blocks T065.)
+- T099 dropped with T059 (research R11 addendum).
 
 ### Implementation - items
 
@@ -541,8 +535,10 @@ Each item task:
 
   `departures` names the dotted rhythm of bars 4 and 8 made plain, the transposition to C and the own
   accompaniment. (Depends on T054, T055, T058.) T058: `ode.ly` reads as it is (16 bars, tune in `sop`).
-- [ ] T065 [US2] `repertoire/beginner/twinkle-twinkle-little-star` against `mutopia-2236` (the theme voice), melody.
-  `departures` names the key, the 12-bar form and the own bass. (Depends on T054, T055, T059, T099.)
+- [ ] T065 [US2] `repertoire/beginner/twinkle-twinkle-little-star`: a visual melody check of the theme of Mozart's
+  12 Variations on "Ah vous dirai-je, Maman", K. 265, against a named public-domain printing (IMSLP; record the URL,
+  edition and bars compared). `departures` names the key, the 12-bar form and the own bass. If no public-domain
+  printing can be found, stop and ask the owner, as in T066. (Depends on T055.)
 - [ ] T066 [US2] `repertoire/beginner/jingle-bells`: a visual melody check against a named pre-1928 public-domain
   printing of the **modern** refrain, not the 1857 chorus (research R11 table B). Find the printing, record its URL
   and the bars compared, and list `departures`. If no public-domain printing of the modern refrain can be found,
@@ -728,7 +724,7 @@ reviewer rule and freshness. Run the full gate, write a log entry, and commit.
   - item tasks T038-T044 each need T030 and their source task;
   - T045 needs only T001;
   - T046 needs T038-T045; T047-T049 need T046.
-- **US2 (T050-T068, T097-T099)**: can start after Foundational, in parallel with US1 on different files. T097 comes after T060-T067; T098 before T062-T063; T099 before T065.
+- **US2 (T050-T068, T097-T098)**: can start after Foundational, in parallel with US1 on different files. T097 comes after T060-T067; T098 before T062-T063.
   - T050/T055 now sit in Foundational, so US1's fallback paths in T042/T043 have `departures` support.
   - T060 shares `tests/fixtures/library-identity.json` with T046: run them one after the other, never in parallel.
 - **US3 (T069-T076)**: independent of US1/US2 (different files) once Foundational is done.
