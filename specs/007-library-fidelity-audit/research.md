@@ -331,6 +331,18 @@ keeps saved progress (SC-007).
 | mary-had-a-little-lamb: the familiar tune | a 19th-century printing of the "Goodnight, Ladies" / "Merrily We Roll Along" tune (the expert believes E. P. Christy, 1847; **to verify**). Lowell Mason's 1830s setting is a different tune | no machine-readable PD source found |
 | amazing-grace: Excell form | E. O. Excell's arrangement (c. 1900-1910) in a PD hymnal scan, if Mutopia 1283 turns out not to be the modern form | the modern tune follows Excell, not Walker's 1835 shape-note setting |
 
+**Found 2026-09-24 (T065-T067, T100)**. All on the Internet Archive: IMSLP and the Library of Congress now show a
+human-verification (CAPTCHA) page to scripts, and the agent did not try to get past it.
+
+| Item | Printing used | Public domain |
+|---|---|---|
+| ode-to-joy | Symphony No. 9, first edition (Mainz: Schott, 1826, plate 2322), `VaultM1001B415Op1251826`: cello/bass statement pp. 101 (bars 92-99), baritone p. 113 | 1826; Public Domain Mark |
+| twinkle-twinkle-little-star | *The child's own music book* (ed. A. E. Wier, New York: Mumil, 1918), `childsownmusicbo00wier`, p. 116; second witness Mozart K. 265 (Paris: Porro, c. 1801), `b25645894` | US 1918; Wier d. 1945; IA "not in copyright" / Public Domain Mark |
+| mary-had-a-little-lamb | the same 1918 book, p. 49 (the "Merrily We Roll Along" tune with Hale's text) | as above |
+| jingle-bells | *The most popular home songs* (New York: Hinds, Hayden & Eldredge, 1913), "Jingle, Bells" arr. George Rosey, copyright 1908, pp. 54-55, `mostpopularhomes00nobl` (modern chorus) | US 1908/1913; Rosey d. 1936 |
+
+The Breitkopf Gesamtausgabe for Ode to Joy (IMSLP) was replaced by the 1826 first edition for the reason above.
+
 ### Table C - what each repertoire item claims, and the expected path (confirmed or overturned by the comparison)
 
 | Item | Claims | Known issue before comparison | Expected path (R10) |
@@ -442,7 +454,9 @@ guards every unchanged item.
 - **Jingle Bells**: the modern chorus differs from the 1857 print (see table B).
 - **Mary Had a Little Lamb**: the familiar tune is "Goodnight, Ladies" / "Merrily We Roll Along", not Lowell Mason's
   setting.
-- **Twinkle**: the French tune was first printed in 1761. Mozart's K. 265 theme has identical pitches.
+- **Twinkle**: the French tune was first printed in 1761. Correction 2026-09-24 (the Porro print, table B): Mozart's
+  K. 265 theme is **not** identical. It ornaments bars 4, 6, 8 and 12 (D D-E C; E E D D; E E-F E D). The item
+  follows the plain nursery form, witnessed by a 1918 printing, and names Mozart's ornaments as a known difference.
 - **Ode to Joy**:
   - Rhythm: the theme's bars 4 and 8 are dotted quarter, eighth, half. The item's plain rhythm is a departure.
   - Key: the transposition from D to C is a departure.

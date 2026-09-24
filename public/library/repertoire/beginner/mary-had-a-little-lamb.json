@@ -18,6 +18,11 @@
     "basedOn": "Sarah Josepha Hale's poem \"Mary's Lamb\" was published in Boston in 1830 (public domain). The now-familiar melody is generally traced to the mid-19th-century minstrel tune \"Goodnight, Ladies\" rather than to any 1830 setting, and is of traditional/uncertain authorship - both the poem and the tune are long in the public domain. Verified via the Classical Music (classical-music.com) history article and Wikipedia's Sarah Josepha Hale entry, which agree on the 1830 poem date and the tune's later, separate, traditional origin.",
     "note": "8-bar beginner form transposed to F major so the melody sits in a single five-finger hand position (F-G-A-Bb-C), quarter=96. The left-hand single bass note per bar (I-V) is our own simple setting; the published original has no piano accompaniment of its own."
   },
-  "reviewedBy": "music-domain-expert",
-  "reviewedOn": "2026-09-22"
+  "departures": [
+    "Values doubled: each bar is one 2/4 bar of the familiar tune written in 4/4 (eighths become quarters).",
+    "Rhythm made plain: the dotted \"Ma-ry\" in bars 1 and 5 is two even notes, and the last F is held for the whole bar.",
+    "Left hand: our own single bass note per bar; the printing has its own piano part."
+  ],
+  "reviewedBy": "claude-opus-5-5",
+  "reviewedOn": "2026-09-24"
 }

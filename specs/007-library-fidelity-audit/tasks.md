@@ -537,24 +537,24 @@ Each item task:
   accompaniment. (Depends on T054, T055, T058.) T058: `ode.ly` reads as it is (16 bars, tune in `sop`).
   Done 2026-09-24 except the visual check, split off as T100: the melody check against `mutopia-528`
   (`transpose: "-P5"`) found bars 4 and 8 flattened; they were `fixed` to the dotted figure, 0 differences.
-- [ ] T100 [US2] The visual check of T064: compare the rhythm of `ode-to-joy` bars 1-8 with the theme in a public-
+- [x] T100 [US2] The visual check of T064: compare the rhythm of `ode-to-joy` bars 1-8 with the theme in a public-
   domain printing of the Symphony No. 9 finale (Breitkopf Gesamtausgabe on IMSLP; research R11 table B), and add a
   `visual` check to `content/library/audit/repertoire/beginner/ode-to-joy.json` naming the URL and the bars.
   Opening the IMSLP scan means downloading a PDF behind its disclaimer: ask the owner first. (Depends on T064.)
-- [ ] T065 [US2] `repertoire/beginner/twinkle-twinkle-little-star`: a visual melody check of the theme of Mozart's
+- [x] T065 [US2] `repertoire/beginner/twinkle-twinkle-little-star`: a visual melody check of the theme of Mozart's
   12 Variations on "Ah vous dirai-je, Maman", K. 265, against a named public-domain printing (IMSLP; record the URL,
   edition and bars compared). `departures` names the key, the 12-bar form and the own bass. If no public-domain
   printing can be found, stop and ask the owner, as in T066. (Depends on T055.)
-- [ ] T066 [US2] `repertoire/beginner/jingle-bells`: a visual melody check against a named pre-1928 public-domain
+- [x] T066 [US2] `repertoire/beginner/jingle-bells`: a visual melody check against a named pre-1928 public-domain
   printing of the **modern** refrain, not the 1857 chorus (research R11 table B). Find the printing, record its URL
   and the bars compared, and list `departures`. If no public-domain printing of the modern refrain can be found,
   stop and ask the owner. Do not remove the item or leave it unverified without the owner's answer (FR-009,
   FR-011).
-- [ ] T067 [US2] `repertoire/beginner/mary-had-a-little-lamb`: a visual melody check against a named 19th-century
+- [x] T067 [US2] `repertoire/beginner/mary-had-a-little-lamb`: a visual melody check against a named 19th-century
   public-domain printing of the "Goodnight, Ladies" / "Merrily We Roll Along" tune (research R15; the E. P. Christy
   1847 attribution is to be verified). `departures` names the key (F major), the 8-bar form and the own bass. If no
   printing is found, stop and ask the owner, as in T066.
-- [ ] T097 [US2] Enforce FR-010 in the index model: `validMetadata` in `src/core/library/index-model.ts` rejects
+- [x] T097 [US2] Enforce FR-010 in the index model: `validMetadata` in `src/core/library/index-model.ts` rejects
   `arrangement: true` without `departures` and `arrangement: false` with them (contract library-index-1.1.md §1).
   Makes the two T097 tests in `tests/library/licence.test.ts` pass (written 2026-09-24, failing as expected). Run
   `pnpm library:index`; `index.json` changes only by the `departures` the item tasks added. (Depends on T060-T067:

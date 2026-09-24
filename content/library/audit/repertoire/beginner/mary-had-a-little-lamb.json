@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "itemId": "repertoire/beginner/mary-had-a-little-lamb",
+  "claim": "arrangement",
+  "claimText": "Mary Had a Little Lamb (arranged for beginners): the familiar tune in F major, values doubled, with our own bass",
+  "checks": [
+    {
+      "method": "visual",
+      "source": "https://archive.org/details/childsownmusicbo00wier (The child's own music book, ed. A. E. Wier, New York: Mumil, 1918, p. 49)",
+      "bars": "1-8",
+      "result": "The printed melody (F major, 2/4, 8 bars) has the same pitches in the same order as the item; each item bar is one printed bar with the values doubled.",
+      "differences": [
+        "bars 1 and 5: the printing's dotted \"Ma-ry\" (A dotted, G) is two even quarters",
+        "bar 8: the last F is held for the whole bar (the printing: a dotted quarter and a rest)"
+      ]
+    }
+  ],
+  "outcome": "verified",
+  "outcomeNote": "Checked by eye 2026-09-24 against a 1918 public-domain printing of the familiar tune: pitches and order match in the same key; only the rhythm is made plain, as named in departures. No note changed.",
+  "checkedBy": "claude-opus-5-5",
+  "date": "2026-09-24"
+}

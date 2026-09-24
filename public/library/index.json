@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-24T15:26:40.678Z",
+  "generated": "2026-09-24T19:31:22.405Z",
   "sections": [
     {
       "id": "learning/chords",
@@ -4109,14 +4109,21 @@
           "basedOn": "James Lord Pierpont's song, copyrighted September 16, 1857 as \"The One Horse Open Sleigh\" and reissued in 1859 as \"Jingle Bells\" (public domain in the United States as a pre-1928 publication). Verified via Boston University's \"History of Jingle Bells\" article and the song's Wikipedia entry, both confirming the 1857 copyright, Pierpont's authorship and the original title.",
           "note": "Only the familiar opening refrain (\"Jingle bells, jingle bells, jingle all the way / Oh what fun it is to ride in a one-horse open sleigh\") is arranged here, 8 bars, key of C major, quarter=96 - not the full song with its verses. The original's faster note groupings on \"ride in a one-horse\" are simplified to plain quarter notes so the shortest value stays inside the Beginner cap; the melodic contour otherwise follows the well-known tune. The left-hand single bass note per bar is our own simple setting; arrangement is reflected in the title per FR-007."
         },
-        "reviewedBy": "music-domain-expert",
-        "reviewedOn": "2026-09-22",
+        "reviewedBy": "claude-opus-5-5",
+        "reviewedOn": "2026-09-24",
         "subtitle": "\"Jingle bells, jingle bells, jingle all the way\" - simple two-hand setting",
         "composer": "James Lord Pierpont",
         "arranger": "Musicanyya practice material",
         "trains": "A very well-known, mostly repeated-note and stepwise melody in quarter/half notes over a single sustained bass note per bar, at a brisk tempo.",
         "hands": "both",
-        "arrangement": true
+        "arrangement": true,
+        "departures": [
+          "Only the chorus, once, with its final ending (\"...one-horse open sleigh!\"); the verses are left out.",
+          "Key and values: C major (the 1908 printing is in G), with every note value doubled (eighths become quarters).",
+          "Rhythm made plain: the dotted figure on \"Jingle all\" and the dotted and sixteenth notes of \"Oh! what fun it is\" are even quarters, and the last notes are held longer.",
+          "Bars 5-6: \"in a\" is sung on one note E (the printing has two sixteenths).",
+          "Left hand: our own single bass note per bar; the printing has its own piano part."
+        ]
       },
       "facts": {
         "measures": 8,
@@ -4192,14 +4199,19 @@
           "basedOn": "Sarah Josepha Hale's poem \"Mary's Lamb\" was published in Boston in 1830 (public domain). The now-familiar melody is generally traced to the mid-19th-century minstrel tune \"Goodnight, Ladies\" rather than to any 1830 setting, and is of traditional/uncertain authorship - both the poem and the tune are long in the public domain. Verified via the Classical Music (classical-music.com) history article and Wikipedia's Sarah Josepha Hale entry, which agree on the 1830 poem date and the tune's later, separate, traditional origin.",
           "note": "8-bar beginner form transposed to F major so the melody sits in a single five-finger hand position (F-G-A-Bb-C), quarter=96. The left-hand single bass note per bar (I-V) is our own simple setting; the published original has no piano accompaniment of its own."
         },
-        "reviewedBy": "music-domain-expert",
-        "reviewedOn": "2026-09-22",
+        "reviewedBy": "claude-opus-5-5",
+        "reviewedOn": "2026-09-24",
         "subtitle": "Traditional American melody, five-finger setting in F major",
         "composer": "Traditional (American, 19th century)",
         "arranger": "Musicanyya practice material",
         "trains": "A very well-known three/four-note melody that never leaves a five-finger hand position, over a single sustained bass note per bar - an easy first piece for a fixed hand position.",
         "hands": "both",
-        "arrangement": true
+        "arrangement": true,
+        "departures": [
+          "Values doubled: each bar is one 2/4 bar of the familiar tune written in 4/4 (eighths become quarters).",
+          "Rhythm made plain: the dotted \"Ma-ry\" in bars 1 and 5 is two even notes, and the last F is held for the whole bar.",
+          "Left hand: our own single bass note per bar; the printing has its own piano part."
+        ]
       },
       "facts": {
         "measures": 8,
@@ -4361,16 +4373,21 @@
           "author": "Musicanyya practice material",
           "created": "2026-09-22",
           "basedOn": "The tune \"Twinkle, Twinkle, Little Star\" is the French folk melody \"Ah! vous dirai-je, Maman\", first published c. 1761 from an earlier c. 1740 tune (public domain); the English nursery-rhyme text is Jane Taylor's 1806 poem, also public domain. The melody is the same one Mozart used, decades later, as the theme for his Twelve Variations K. 265 - the tune itself long predates and is independent of that set. Verified via the tune's Wikipedia history entry and the Wikipedia entry for Mozart's K. 265 variations.",
-          "note": "Standard 12-bar AABA beginner form (three 4-bar phrases, the first repeated), key of C major, quarter=92. The left-hand bass root per bar (I-V-IV-I harmonisation) is our own simple setting; the published original has no piano accompaniment of its own."
+          "note": "A-B-A form in 12 bars of 4/4 (three 4-bar phrases; the last repeats the first), key of C major, quarter=92. The melody was checked against a 1918 printing of the song (see the audit record). The left-hand bass note per bar is our own simple setting."
         },
-        "reviewedBy": "music-domain-expert",
-        "reviewedOn": "2026-09-22",
+        "reviewedBy": "claude-opus-5-5",
+        "reviewedOn": "2026-09-24",
         "subtitle": "Traditional French melody, simple two-hand setting in 4/4",
         "composer": "Traditional (French, 18th century)",
         "arranger": "Musicanyya practice material",
         "trains": "A very well-known stepwise-and-small-leap melody in quarter and half notes, over a single sustained bass note per bar - an easy first tune for reading two staves together.",
         "hands": "both",
-        "arrangement": true
+        "arrangement": true,
+        "departures": [
+          "Key: C major (the 1918 printing it was checked against is in F).",
+          "The plain nursery-song form, not the ornaments of Mozart's K. 265 theme (bars 4, 6, 8 and 12).",
+          "Left hand: our own single bass note per bar; the printing has its own piano part."
+        ]
       },
       "facts": {
         "measures": 12,

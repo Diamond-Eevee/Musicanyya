@@ -159,7 +159,13 @@ describe('placeholder rejection (FR-021)', () => {
 
 describe('arrangement labelling (FR-007)', () => {
   it('rejects arrangement: true when the title does not say so', async () => {
-    const tempRoot = makeFixture({ ...baseSidecar(), arrangement: true, title: 'A Fixture Item' });
+    // Departures present (FR-010, T097), so only the title rule can reject it.
+    const tempRoot = makeFixture({
+      ...baseSidecar(),
+      arrangement: true,
+      title: 'A Fixture Item',
+      departures: ['Bar 1: a named departure.'],
+    });
     const { problems } = await buildLibraryIndex(tempRoot);
     expect(problems.some((p) => p.includes('arrangement'))).toBe(true);
   });
