@@ -528,13 +528,19 @@ Each item task:
   degrees; the current claim is "natural A-minor throughout". Any wrong melody note is `fixed` from the source.
   `departures` names the 6/8 -> 3/4 renotation and the own bass line. Correct the provenance text where it is wrong.
   (Depends on T054, T055, T057, T098.)
-- [ ] T064 [US2] `repertoire/beginner/ode-to-joy`:
+- [x] T064 [US2] `repertoire/beginner/ode-to-joy`:
   - melody pitch order against `mutopia-528`, with `transpose` from the source key to C;
   - a visual check of the theme's rhythm against the Symphony No. 9 finale scan (Breitkopf Gesamtausgabe, IMSLP,
     public domain; research R11 table B).
 
   `departures` names the dotted rhythm of bars 4 and 8 made plain, the transposition to C and the own
   accompaniment. (Depends on T054, T055, T058.) T058: `ode.ly` reads as it is (16 bars, tune in `sop`).
+  Done 2026-09-24 except the visual check, split off as T100: the melody check against `mutopia-528`
+  (`transpose: "-P5"`) found bars 4 and 8 flattened; they were `fixed` to the dotted figure, 0 differences.
+- [ ] T100 [US2] The visual check of T064: compare the rhythm of `ode-to-joy` bars 1-8 with the theme in a public-
+  domain printing of the Symphony No. 9 finale (Breitkopf Gesamtausgabe on IMSLP; research R11 table B), and add a
+  `visual` check to `content/library/audit/repertoire/beginner/ode-to-joy.json` naming the URL and the bars.
+  Opening the IMSLP scan means downloading a PDF behind its disclaimer: ask the owner first. (Depends on T064.)
 - [ ] T065 [US2] `repertoire/beginner/twinkle-twinkle-little-star`: a visual melody check of the theme of Mozart's
   12 Variations on "Ah vous dirai-je, Maman", K. 265, against a named public-domain printing (IMSLP; record the URL,
   edition and bars compared). `departures` names the key, the 12-bar form and the own bass. If no public-domain
@@ -724,7 +730,7 @@ reviewer rule and freshness. Run the full gate, write a log entry, and commit.
   - item tasks T038-T044 each need T030 and their source task;
   - T045 needs only T001;
   - T046 needs T038-T045; T047-T049 need T046.
-- **US2 (T050-T068, T097-T098)**: can start after Foundational, in parallel with US1 on different files. T097 comes after T060-T067; T098 before T062-T063.
+- **US2 (T050-T068, T097-T098, T100)**: can start after Foundational, in parallel with US1 on different files. T097 comes after T060-T067; T098 before T062-T063.
   - T050/T055 now sit in Foundational, so US1's fallback paths in T042/T043 have `departures` support.
   - T060 shares `tests/fixtures/library-identity.json` with T046: run them one after the other, never in parallel.
 - **US3 (T069-T076)**: independent of US1/US2 (different files) once Foundational is done.

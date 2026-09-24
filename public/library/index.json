@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-24T15:23:59.511Z",
+  "generated": "2026-09-24T15:26:40.678Z",
   "sections": [
     {
       "id": "learning/chords",
@@ -4255,8 +4255,8 @@
       "id": "repertoire/beginner/ode-to-joy",
       "section": "repertoire/beginner",
       "file": "repertoire/beginner/ode-to-joy.musicxml",
-      "bytes": 10388,
-      "hash": "2ef34ad5e89d21a66e538f65943371956568aef03b651056b933dbda15c28d5d",
+      "bytes": 10243,
+      "hash": "6176a4b9e04c87237a57ea020d0778a89d6a509bd435286598583cc675f90af5",
       "meta": {
         "version": 1,
         "title": "Ode to Joy (theme, arranged for beginners)",
@@ -4272,21 +4272,26 @@
           "licence": "CC0-1.0",
           "author": "Musicanyya practice material",
           "created": "2026-09-22",
-          "basedOn": "Beethoven, \"Ode to Joy\" theme (Symphony No. 9, 4th movement; public domain, traditional beginner melody). The left-hand I-IV-V-I block-chord accompaniment is our own simple setting.",
-          "note": "The first two 4-bar phrases only, ending on the tonic; not the complete symphonic theme."
+          "basedOn": "Beethoven, \"Ode to Joy\" theme (Symphony No. 9, 4th movement; public domain). The melody was checked note by note against the Soprano of the Mutopia Project's public-domain hymn setting (piece-info id 528, ode.ly, typeset by Peter Chubb), transposed from G to C major; the audit record content/library/audit/repertoire/beginner/ode-to-joy.json re-runs that check.",
+          "note": "The first two 4-bar phrases only, ending on the tonic; not the complete theme. Bars 4 and 8 keep Beethoven's dotted figure (dotted quarter, eighth, half)."
         },
-        "reviewedBy": "music-domain-expert",
-        "reviewedOn": "2026-09-22",
+        "reviewedBy": "claude-opus-5-5",
+        "reviewedOn": "2026-09-24",
         "subtitle": "Theme from Symphony No. 9, simple two-hand arrangement",
         "composer": "Ludwig van Beethoven",
         "arranger": "Musicanyya practice material",
         "trains": "A simple stepwise melody with steady quarter notes over static left-hand chords - an easy introduction to playing both hands together.",
         "hands": "both",
-        "arrangement": true
+        "arrangement": true,
+        "departures": [
+          "Only the first two phrases (8 bars) of the theme; the middle phrase and the return are left out.",
+          "Key: C major (Beethoven's theme is in D major; the hymn setting it was checked against is in G major).",
+          "Left hand: our own block chords, one or two per bar (I, V, IV), instead of Beethoven's orchestra."
+        ]
       },
       "facts": {
         "measures": 8,
-        "notes": 58,
+        "notes": 57,
         "durationSeconds": 19.2,
         "keys": [
           "C major"
@@ -4301,9 +4306,9 @@
         "maxSpanSemitones": 7,
         "staves": 2,
         "voicesPerStaff": 1,
-        "handIndependenceFraction": 0.25,
-        "shortestDivision": 4,
-        "notesPerBeat": 1.8125,
+        "handIndependenceFraction": 0.125,
+        "shortestDivision": 8,
+        "notesPerBeat": 1.78125,
         "accidentals": 0,
         "hasTies": false,
         "hasTuplets": false,
@@ -4316,9 +4321,9 @@
         "parts": 1,
         "tempoChanges": 0,
         "maxLeapSemitones": 5,
-        "longestRunAtShortestValue": 0,
-        "attackCount": 38,
-        "peakNotesPerSecond": 2.5,
+        "longestRunAtShortestValue": 1,
+        "attackCount": 39,
+        "peakNotesPerSecond": 3,
         "accidentalMarkCount": 0,
         "maxTieChainNotes": 0,
         "maxTieBarlinesCrossed": 0,

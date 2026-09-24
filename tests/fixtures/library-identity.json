@@ -47666,56 +47666,42 @@
           "id": "n-p0-s1-m3-v1-o0-k64",
           "measureIndex": 3,
           "onsetInMeasure": 0,
-          "durationTicks": 2880,
+          "durationTicks": 1440,
           "soundingKey": 64
         },
         {
           "id": "n-p0-s2-m3-v5-o0-k43",
           "measureIndex": 3,
           "onsetInMeasure": 0,
-          "durationTicks": 1920,
+          "durationTicks": 3840,
           "soundingKey": 43
         },
         {
           "id": "n-p0-s2-m3-v5-o0-k47",
           "measureIndex": 3,
           "onsetInMeasure": 0,
-          "durationTicks": 1920,
+          "durationTicks": 3840,
           "soundingKey": 47
         },
         {
           "id": "n-p0-s2-m3-v5-o0-k50",
           "measureIndex": 3,
           "onsetInMeasure": 0,
-          "durationTicks": 1920,
+          "durationTicks": 3840,
           "soundingKey": 50
         },
         {
-          "id": "n-p0-s2-m3-v5-o2-k48",
+          "id": "n-p0-s1-m3-v1-o3_2-k62",
+          "measureIndex": 3,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o2-k62",
           "measureIndex": 3,
           "onsetInMeasure": 1920,
           "durationTicks": 1920,
-          "soundingKey": 48
-        },
-        {
-          "id": "n-p0-s2-m3-v5-o2-k52",
-          "measureIndex": 3,
-          "onsetInMeasure": 1920,
-          "durationTicks": 1920,
-          "soundingKey": 52
-        },
-        {
-          "id": "n-p0-s2-m3-v5-o2-k55",
-          "measureIndex": 3,
-          "onsetInMeasure": 1920,
-          "durationTicks": 1920,
-          "soundingKey": 55
-        },
-        {
-          "id": "n-p0-s1-m3-v1-o3-k62",
-          "measureIndex": 3,
-          "onsetInMeasure": 2880,
-          "durationTicks": 960,
           "soundingKey": 62
         },
         {
@@ -47869,7 +47855,7 @@
           "id": "n-p0-s1-m7-v1-o0-k62",
           "measureIndex": 7,
           "onsetInMeasure": 0,
-          "durationTicks": 2880,
+          "durationTicks": 1440,
           "soundingKey": 62
         },
         {
@@ -47894,6 +47880,20 @@
           "soundingKey": 50
         },
         {
+          "id": "n-p0-s1-m7-v1-o3_2-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o2-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
           "id": "n-p0-s2-m7-v5-o2-k48",
           "measureIndex": 7,
           "onsetInMeasure": 1920,
@@ -47913,16 +47913,9 @@
           "onsetInMeasure": 1920,
           "durationTicks": 1920,
           "soundingKey": 55
-        },
-        {
-          "id": "n-p0-s1-m7-v1-o3-k60",
-          "measureIndex": 7,
-          "onsetInMeasure": 2880,
-          "durationTicks": 960,
-          "soundingKey": 60
         }
       ],
-      "scheduleDigest": "939891db66fb4677d7d35114cc00890a864a3a226ea99fd279cb972156aa15c3"
+      "scheduleDigest": "ce077bb009c25d90ffe8a266d7c709358428f2311c6ec84137634ac27af3a512"
     },
     {
       "file": "repertoire/beginner/twinkle-twinkle-little-star.musicxml",
