@@ -35,3 +35,9 @@ This document lists the supported MusicXML elements.
 | Credits | `<creator type="arranger">` | Supported | Not drawn by the engraver; shown in the UI title block instead |
 | Credits | `<movement-title>` | Supported | Not drawn by the engraver; shown in the UI title block instead |
 | Credits | `<credit>` | Ignored | Not drawn by the engraver; UI title block used instead |
+| Notes | `<slur>` | Ignored | Engraved by Verovio; not used by playback or grading |
+| Notes | `<tuplet>` | Supported | The bracket and number are engraved by Verovio; the timing comes from `<time-modification>` |
+| Directions | `<octave-shift>` | Supported | 8va/8vb lines engraved by Verovio and used when completing accidentals; `<pitch>` is the sounding pitch, so playback and grading are unaffected |
+| Directions | `<pedal>` | Ignored | Engraved by Verovio; the sustain is not played (library items say so in their limitations) |
+| Credits | `<rights>` | Ignored | Kept in the file for attribution; not shown |
+| Credits | `<source>` | Ignored | Kept in the file for attribution; not shown |

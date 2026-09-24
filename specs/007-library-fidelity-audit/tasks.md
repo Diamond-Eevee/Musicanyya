@@ -693,21 +693,30 @@ reviewer rule and freshness. Run the full gate, write a log entry, and commit.
 
 ## Phase 7: Polish & Cross-Cutting
 
-- [ ] T082 [P] Document `pnpm library:fidelity` and `pnpm library:convert-ly`:
+- [x] T082 [P] Document `pnpm library:fidelity` and `pnpm library:convert-ly`:
   - `README.md`;
   - `docs/agents/reference.md` R7 and `AGENTS.md` "Seeing the app" (commands, and the `pnpm screenshot --item`
     form without `--`, which is the one that works with this pnpm, per the 005 log). Keep `AGENTS.md` under
     12,000 characters (analyze A12);
   - `public/library/README.md`: an "Audit" section pointing to `content/library/audit/` and
     `docs/library-audit.md`, plus the rule "a replaced item is converted, never hand-fixed".
-- [ ] T083 [P] Check `THIRD_PARTY_NOTICES.md` against `content/library/sources/`. Every committed source is listed
+- [~] T083 [P] Check `THIRD_PARTY_NOTICES.md` against `content/library/sources/` (claimed: claude-opus-5.5 2026-09-24). Every committed source is listed
   once: under the library list if converted from, or under "Reference sources" if only compared against (contract
   `source-manifest.md` §3, FR-023).
-- [ ] T084 [P] Check with `pnpm test -- tests/library/sweep.test.ts` and `tests/core/musicxml/support-doc-sync.test.ts`
+- [x] T084 [P] Check with `pnpm test -- tests/library/sweep.test.ts` and `tests/core/musicxml/support-doc-sync.test.ts`
   that converted files raise only the notices listed in `expected.notices`. If a converted file uses an element the
   parser does not list as supported, record it in `docs/musicxml-support.md` + `SUPPORT_MATRIX`, or leave the
   element out of the conversion. Never add an unexpected notice to `expected` without explaining it in
   `limitations`.
+- [ ] T102 (found by T083) Restore `content/library/sources/mutopia-37-satie-gymnopedie1/gymnopedie_1.ly` to the bytes
+  downloaded in c3df327 (sha256 `420a5224...`) and its `source.json` hash: de2d579 (T041) edited the source (moved
+  the `middle` voice from the treble to the bass staff) and re-pinned the hash, against contract `source-manifest.md`
+  §1 and FR-016. Re-run the Satie record against the restored source. Record the item's staff placement of the
+  accompaniment chords (lower staff; the source prints them on the upper staff) as the owner decides.
+- [ ] T103 (found by T083) Provenance of the items converted from a committed source: Satie and Clementi sidecars
+  still say `authored`/CC0 with the pre-conversion `basedOn` text; Burgmüller Op. 100 No. 2, Chopin Op. 28 No. 20,
+  Satie and Clementi have no entry in the `THIRD_PARTY_NOTICES.md` library list although the "Reference sources"
+  preamble says every converted-from source is listed there (FR-023). Needs owner OK (licensing wording).
 - [ ] T085 Run `quickstart.md` Manual verification US1-US4 and "App still works". Describe every screenshot looked
   at in the log.
 - [ ] T086 Review with `constitution-auditor` of the branch diff. Summarise the findings in the log; CRITICAL/HIGH

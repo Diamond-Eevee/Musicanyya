@@ -130,7 +130,10 @@ pnpm library:exercises # regenerate the exercise families from content/library/e
 pnpm library:engrave  # complete hand-written repertoire files in place (beams + accidentals)
 pnpm library:index    # regenerate public/library/index.json from the files on disk
 pnpm screenshot       # open the app headless and save a PNG (see "Running and seeing the app" below)
-pnpm library:fidelity # re-run the audit records (feature 007); --item <id> for one item
+pnpm library:fidelity # re-run every audit record (feature 007) and rewrite docs/library-audit.md when all reproduce
+pnpm library:fidelity --check      # the same, but only confirm docs/library-audit.md is fresh (writes nothing)
+pnpm library:fidelity --item <id>  # one record, every difference in full (add --file <path> to test another file)
+pnpm library:convert-ly <source-id> <item-id> [--replace]  # convert an approved LilyPond source into an item
 pnpm tsx tools/library/probe.ts <dir> [outDir]  # level numbers + page-1 SVGs; outDir defaults to tests/.generated/probe
 ```
 
@@ -154,10 +157,14 @@ e2e tests cover it. Use the first option that works for you:
    under `test-results/screenshots/` (git-ignored). It also prints the load notices and any browser console errors.
 
    ```text
-   pnpm screenshot -- --item repertoire/intermediate/fur-elise-theme      # a library item (its id in index.json)
-   pnpm screenshot -- --file tests/fixtures/musicxml/engraving/fur-elise-bare.musicxml   # drop a local file
-   pnpm screenshot -- --item <id> --width 1280 --height 720 --full --out test-results/screenshots/x.png
+   pnpm screenshot --item repertoire/intermediate/fur-elise-theme      # a library item (its id in index.json)
+   pnpm screenshot --file tests/fixtures/musicxml/engraving/fur-elise-bare.musicxml   # drop a local file
+   pnpm screenshot --item <id> --width 1280 --height 720 --full --out test-results/screenshots/x.png
    ```
+
+   Write the options straight after `pnpm screenshot`. The older `pnpm screenshot -- --item ...` form failed with
+   some pnpm versions (`ERR_PARSE_ARGS_UNEXPECTED_POSITIONAL`, feature 005 log); the script now drops a leading
+   `--`, but the plain form works everywhere.
 
    Then open the PNG with your image-reading tool and describe what you see against the quickstart step.
    Library ids are the `id` fields in `public/library/index.json`. If Chromium is missing, run

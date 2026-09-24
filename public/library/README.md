@@ -34,6 +34,22 @@ levelled - the reason is recorded here rather than just discarded, so the decisi
 |---|---|
 | repertoire/intermediate/schumann-op68-no10 (Schumann, Fröhlicher Landmann, Op. 68 No. 10) | Removed 2026-09-24 (feature 007, owner decision D-2): the only machine-readable source, Mutopia 659, is CC BY-SA 2.5, and the notes were derived from it; searched 2026-09-23. |
 
+## Audit (feature 007)
+
+Every item on the shelf has an audit record in `content/library/audit/` (same path as the item, `.json`), saying
+what the item claims to be (the original, an arrangement, or an exercise), what it was checked against, and the
+outcome. `pnpm library:fidelity` re-runs every record from the committed files and writes the readable report
+`docs/library-audit.md`; `pnpm library:fidelity --check` fails when the report is stale, and
+`tests/library/fidelity.test.ts` fails when an item has no record or a record no longer reproduces. The sources the
+items are checked against or converted from live in `content/library/sources/`.
+
+**A replaced item is converted, never hand-fixed.** When an item does not match its source, its MusicXML is
+regenerated from the approved source with `pnpm library:convert-ly <source-id> <item-id>` (add `--replace` when the
+current file was typed in by hand; the tool refuses to write unless the source's MIDI and the written file agree
+with its reading of the source), then completed with `pnpm library:engrave` and `pnpm library:index` as below, and
+its sidecar and audit record are updated. Editing the notes of a replaced item by hand breaks its
+audit record.
+
 ## Engraving: beams and accidentals (feature 006, FR-012)
 
 Library files must be fully engraved on disk: the app completes beams and accidentals on every open, and for a

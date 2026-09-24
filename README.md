@@ -28,8 +28,8 @@ and Web MIDI.
 1. Install dependencies: `pnpm install`
 2. Run web app locally: `pnpm dev`
 3. Run desktop app locally: `pnpm electron:dev`
-4. Take a screenshot without opening a browser: `pnpm screenshot -- --item repertoire/intermediate/fur-elise-theme`
-   (or `-- --file <score.musicxml>`); the PNG lands in `test-results/screenshots/`
+4. Take a screenshot without opening a browser: `pnpm screenshot --item repertoire/intermediate/fur-elise-theme`
+   (or `--file <score.musicxml>`); the PNG lands in `test-results/screenshots/`
 
 ### Testing and Quality Gates
 
@@ -42,6 +42,12 @@ Regenerate the bundled library after editing its content:
 `pnpm library:exercises` (chord exercises and drills from `content/library/exercises/*.json`), then
 `pnpm library:engrave` (completes hand-written repertoire files with beams and accidentals in place), then
 `pnpm library:index` (rebuilds `public/library/index.json` from the files on disk).
+
+Check that every item still matches what it claims to be (the library audit, `content/library/audit/`):
+`pnpm library:fidelity` re-runs every audit record and rewrites the report `docs/library-audit.md` when all of them
+reproduce; `pnpm library:fidelity --check` only confirms the report is up to date; `pnpm library:fidelity --item <id>`
+shows one item's differences in full. A piece is replaced by converting an approved public-domain LilyPond source,
+never by hand: `pnpm library:convert-ly <source-id> <item-id> [--replace]`.
 
 ### Building & Publishing
 

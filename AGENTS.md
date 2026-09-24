@@ -147,7 +147,8 @@ evidence and the constitution review passed - and it is merged only when the use
 **Full quality gate** (every checkpoint, before merge): `pnpm lint`, `pnpm typecheck`, `pnpm test`, and
 `pnpm test:e2e`. Tests never need a MIDI keyboard or audio hardware.
 
-**Seeing the app** (quickstart "Manual verification"): run `pnpm screenshot -- --item <library id>` or
-`-- --file <path>`, then open the PNG it prints. It starts its own server and uses Playwright's Chromium, so it
+**Seeing the app** (quickstart "Manual verification"): run `pnpm screenshot --item <library id>` or
+`--file <path>`, then open the PNG it prints. It starts its own server and uses Playwright's Chromium, so it
 works when your own browser tool does not. Never report a manual check as done without looking at the picture. See
-reference R7.
+reference R7. Library audit: `pnpm library:fidelity` (`--check`, `--item <id>`); replace an item only with
+`pnpm library:convert-ly <source-id> <item-id>`, never by hand.
