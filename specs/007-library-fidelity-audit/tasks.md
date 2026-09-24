@@ -347,7 +347,7 @@ Each source task does the same steps:
 
 ### Implementation - items (one task per item; run the comparison first, then follow research R10)
 
-- [ ] T038 [US1] `repertoire/advanced/bach-prelude-bwv846` against `mutopia-5`, whole piece.
+- [x] T038 [US1] `repertoire/advanced/bach-prelude-bwv846` against `mutopia-5`, whole piece.
   - **Edition**: establish it by a visual check of the bar count against the Bach-Gesellschaft Ausgabe vol. 14 scan
     (IMSLP, public domain). Is the Schwencke bar present or absent, 35 or 36 bars? Record it as a `visual` check with
     the URL; the CC0 Open Well-Tempered Clavier PDF is a second witness (research R11 table B, R15).
