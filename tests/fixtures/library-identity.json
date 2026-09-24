@@ -46455,340 +46455,494 @@
       "file": "repertoire/beginner/greensleeves.musicxml",
       "notes": [
         {
-          "id": "n-p0-s1-m0-v1-o0-k76",
+          "id": "n-p0-s1-m0-v1-o0-k64",
           "measureIndex": 0,
           "onsetInMeasure": 0,
-          "durationTicks": 960,
-          "soundingKey": 76
+          "durationTicks": 480,
+          "soundingKey": 64
         },
         {
-          "id": "n-p0-s1-m1-v1-o0-k69",
+          "id": "n-p0-s1-m1-v1-o0-k67",
           "measureIndex": 1,
           "onsetInMeasure": 0,
-          "durationTicks": 960,
-          "soundingKey": 69
-        },
-        {
-          "id": "n-p0-s2-m1-v5-o0-k57",
-          "measureIndex": 1,
-          "onsetInMeasure": 0,
-          "durationTicks": 2880,
-          "soundingKey": 57
-        },
-        {
-          "id": "n-p0-s1-m1-v1-o1-k72",
-          "measureIndex": 1,
-          "onsetInMeasure": 960,
-          "durationTicks": 960,
-          "soundingKey": 72
-        },
-        {
-          "id": "n-p0-s1-m1-v1-o2-k76",
-          "measureIndex": 1,
-          "onsetInMeasure": 1920,
-          "durationTicks": 960,
-          "soundingKey": 76
-        },
-        {
-          "id": "n-p0-s1-m2-v1-o0-k74",
-          "measureIndex": 2,
-          "onsetInMeasure": 0,
-          "durationTicks": 960,
-          "soundingKey": 74
-        },
-        {
-          "id": "n-p0-s2-m2-v5-o0-k48",
-          "measureIndex": 2,
-          "onsetInMeasure": 0,
-          "durationTicks": 2880,
-          "soundingKey": 48
-        },
-        {
-          "id": "n-p0-s1-m2-v1-o1-k72",
-          "measureIndex": 2,
-          "onsetInMeasure": 960,
-          "durationTicks": 960,
-          "soundingKey": 72
-        },
-        {
-          "id": "n-p0-s1-m2-v1-o2-k71",
-          "measureIndex": 2,
-          "onsetInMeasure": 1920,
-          "durationTicks": 960,
-          "soundingKey": 71
-        },
-        {
-          "id": "n-p0-s1-m3-v1-o0-k71",
-          "measureIndex": 3,
-          "onsetInMeasure": 0,
-          "durationTicks": 960,
-          "soundingKey": 71
-        },
-        {
-          "id": "n-p0-s2-m3-v5-o0-k55",
-          "measureIndex": 3,
-          "onsetInMeasure": 0,
-          "durationTicks": 2880,
-          "soundingKey": 55
-        },
-        {
-          "id": "n-p0-s1-m3-v1-o1-k69",
-          "measureIndex": 3,
-          "onsetInMeasure": 960,
-          "durationTicks": 960,
-          "soundingKey": 69
-        },
-        {
-          "id": "n-p0-s1-m3-v1-o2-k67",
-          "measureIndex": 3,
-          "onsetInMeasure": 1920,
           "durationTicks": 960,
           "soundingKey": 67
         },
         {
-          "id": "n-p0-s1-m4-v1-o0-k69",
-          "measureIndex": 4,
+          "id": "n-p0-s2-m1-v5-o0-k52",
+          "measureIndex": 1,
           "onsetInMeasure": 0,
           "durationTicks": 2880,
+          "soundingKey": 52
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o1-k69",
+          "measureIndex": 1,
+          "onsetInMeasure": 960,
+          "durationTicks": 480,
           "soundingKey": 69
         },
         {
-          "id": "n-p0-s2-m4-v5-o0-k57",
+          "id": "n-p0-s1-m1-v1-o3_2-k71",
+          "measureIndex": 1,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 71
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k72",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 480,
+          "soundingKey": 72
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o5_2-k71",
+          "measureIndex": 1,
+          "onsetInMeasure": 2400,
+          "durationTicks": 480,
+          "soundingKey": 71
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k69",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 69
+        },
+        {
+          "id": "n-p0-s2-m2-v5-o0-k50",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 50
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k66",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 480,
+          "soundingKey": 66
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o3_2-k62",
+          "measureIndex": 2,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k64",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 480,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o5_2-k66",
+          "measureIndex": 2,
+          "onsetInMeasure": 2400,
+          "durationTicks": 480,
+          "soundingKey": 66
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k67",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s2-m3-v5-o0-k52",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 52
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o1-k64",
+          "measureIndex": 3,
+          "onsetInMeasure": 960,
+          "durationTicks": 480,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o3_2-k64",
+          "measureIndex": 3,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o2-k62",
+          "measureIndex": 3,
+          "onsetInMeasure": 1920,
+          "durationTicks": 480,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o5_2-k64",
+          "measureIndex": 3,
+          "onsetInMeasure": 2400,
+          "durationTicks": 480,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k66",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 66
+        },
+        {
+          "id": "n-p0-s2-m4-v5-o0-k47",
           "measureIndex": 4,
           "onsetInMeasure": 0,
           "durationTicks": 2880,
-          "soundingKey": 57
+          "soundingKey": 47
         },
         {
-          "id": "n-p0-s1-m5-v1-o0-k76",
+          "id": "n-p0-s1-m4-v1-o3_2-k59",
+          "measureIndex": 4,
+          "onsetInMeasure": 1440,
+          "durationTicks": 960,
+          "soundingKey": 59
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o5_2-k64",
+          "measureIndex": 4,
+          "onsetInMeasure": 2400,
+          "durationTicks": 480,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k67",
           "measureIndex": 5,
           "onsetInMeasure": 0,
           "durationTicks": 960,
-          "soundingKey": 76
+          "soundingKey": 67
         },
         {
-          "id": "n-p0-s2-m5-v5-o0-k57",
+          "id": "n-p0-s2-m5-v5-o0-k52",
           "measureIndex": 5,
           "onsetInMeasure": 0,
           "durationTicks": 2880,
-          "soundingKey": 57
+          "soundingKey": 52
         },
         {
-          "id": "n-p0-s1-m5-v1-o1-k74",
+          "id": "n-p0-s1-m5-v1-o1-k69",
           "measureIndex": 5,
           "onsetInMeasure": 960,
-          "durationTicks": 960,
-          "soundingKey": 74
+          "durationTicks": 480,
+          "soundingKey": 69
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o3_2-k71",
+          "measureIndex": 5,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 71
         },
         {
           "id": "n-p0-s1-m5-v1-o2-k72",
           "measureIndex": 5,
           "onsetInMeasure": 1920,
-          "durationTicks": 960,
+          "durationTicks": 480,
           "soundingKey": 72
         },
         {
-          "id": "n-p0-s1-m6-v1-o0-k71",
-          "measureIndex": 6,
-          "onsetInMeasure": 0,
-          "durationTicks": 960,
+          "id": "n-p0-s1-m5-v1-o5_2-k71",
+          "measureIndex": 5,
+          "onsetInMeasure": 2400,
+          "durationTicks": 480,
           "soundingKey": 71
         },
         {
-          "id": "n-p0-s2-m6-v5-o0-k52",
+          "id": "n-p0-s1-m6-v1-o0-k69",
           "measureIndex": 6,
-          "onsetInMeasure": 0,
-          "durationTicks": 2880,
-          "soundingKey": 52
-        },
-        {
-          "id": "n-p0-s1-m6-v1-o1-k72",
-          "measureIndex": 6,
-          "onsetInMeasure": 960,
-          "durationTicks": 960,
-          "soundingKey": 72
-        },
-        {
-          "id": "n-p0-s1-m6-v1-o2-k71",
-          "measureIndex": 6,
-          "onsetInMeasure": 1920,
-          "durationTicks": 960,
-          "soundingKey": 71
-        },
-        {
-          "id": "n-p0-s1-m7-v1-o0-k69",
-          "measureIndex": 7,
           "onsetInMeasure": 0,
           "durationTicks": 960,
           "soundingKey": 69
         },
         {
-          "id": "n-p0-s2-m7-v5-o0-k57",
-          "measureIndex": 7,
+          "id": "n-p0-s2-m6-v5-o0-k50",
+          "measureIndex": 6,
           "onsetInMeasure": 0,
           "durationTicks": 2880,
-          "soundingKey": 57
+          "soundingKey": 50
         },
         {
-          "id": "n-p0-s1-m7-v1-o1-k72",
-          "measureIndex": 7,
+          "id": "n-p0-s1-m6-v1-o1-k66",
+          "measureIndex": 6,
           "onsetInMeasure": 960,
-          "durationTicks": 960,
-          "soundingKey": 72
+          "durationTicks": 480,
+          "soundingKey": 66
         },
         {
-          "id": "n-p0-s1-m7-v1-o2-k69",
-          "measureIndex": 7,
+          "id": "n-p0-s1-m6-v1-o3_2-k62",
+          "measureIndex": 6,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k64",
+          "measureIndex": 6,
           "onsetInMeasure": 1920,
-          "durationTicks": 960,
-          "soundingKey": 69
-        },
-        {
-          "id": "n-p0-s1-m8-v1-o0-k67",
-          "measureIndex": 8,
-          "onsetInMeasure": 0,
-          "durationTicks": 2880,
-          "soundingKey": 67
-        },
-        {
-          "id": "n-p0-s2-m8-v5-o0-k55",
-          "measureIndex": 8,
-          "onsetInMeasure": 0,
-          "durationTicks": 2880,
-          "soundingKey": 55
-        },
-        {
-          "id": "n-p0-s1-m9-v1-o0-k72",
-          "measureIndex": 9,
-          "onsetInMeasure": 0,
-          "durationTicks": 960,
-          "soundingKey": 72
-        },
-        {
-          "id": "n-p0-s2-m9-v5-o0-k48",
-          "measureIndex": 9,
-          "onsetInMeasure": 0,
-          "durationTicks": 2880,
-          "soundingKey": 48
-        },
-        {
-          "id": "n-p0-s1-m9-v1-o1-k76",
-          "measureIndex": 9,
-          "onsetInMeasure": 960,
-          "durationTicks": 960,
-          "soundingKey": 76
-        },
-        {
-          "id": "n-p0-s1-m9-v1-o2-k79",
-          "measureIndex": 9,
-          "onsetInMeasure": 1920,
-          "durationTicks": 960,
-          "soundingKey": 79
-        },
-        {
-          "id": "n-p0-s1-m10-v1-o0-k77",
-          "measureIndex": 10,
-          "onsetInMeasure": 0,
-          "durationTicks": 960,
-          "soundingKey": 77
-        },
-        {
-          "id": "n-p0-s2-m10-v5-o0-k55",
-          "measureIndex": 10,
-          "onsetInMeasure": 0,
-          "durationTicks": 2880,
-          "soundingKey": 55
-        },
-        {
-          "id": "n-p0-s1-m10-v1-o1-k76",
-          "measureIndex": 10,
-          "onsetInMeasure": 960,
-          "durationTicks": 960,
-          "soundingKey": 76
-        },
-        {
-          "id": "n-p0-s1-m10-v1-o2-k74",
-          "measureIndex": 10,
-          "onsetInMeasure": 1920,
-          "durationTicks": 960,
-          "soundingKey": 74
-        },
-        {
-          "id": "n-p0-s1-m11-v1-o0-k72",
-          "measureIndex": 11,
-          "onsetInMeasure": 0,
-          "durationTicks": 960,
-          "soundingKey": 72
-        },
-        {
-          "id": "n-p0-s2-m11-v5-o0-k57",
-          "measureIndex": 11,
-          "onsetInMeasure": 0,
-          "durationTicks": 2880,
-          "soundingKey": 57
-        },
-        {
-          "id": "n-p0-s1-m11-v1-o1-k71",
-          "measureIndex": 11,
-          "onsetInMeasure": 960,
-          "durationTicks": 960,
-          "soundingKey": 71
-        },
-        {
-          "id": "n-p0-s1-m11-v1-o2-k69",
-          "measureIndex": 11,
-          "onsetInMeasure": 1920,
-          "durationTicks": 960,
-          "soundingKey": 69
-        },
-        {
-          "id": "n-p0-s1-m12-v1-o0-k64",
-          "measureIndex": 12,
-          "onsetInMeasure": 0,
-          "durationTicks": 2880,
+          "durationTicks": 480,
           "soundingKey": 64
         },
         {
-          "id": "n-p0-s2-m12-v5-o0-k52",
-          "measureIndex": 12,
+          "id": "n-p0-s1-m6-v1-o5_2-k66",
+          "measureIndex": 6,
+          "onsetInMeasure": 2400,
+          "durationTicks": 480,
+          "soundingKey": 66
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k67",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s2-m7-v5-o0-k47",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 47
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o1-k66",
+          "measureIndex": 7,
+          "onsetInMeasure": 960,
+          "durationTicks": 480,
+          "soundingKey": 66
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o3_2-k64",
+          "measureIndex": 7,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o2-k62",
+          "measureIndex": 7,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m8-v1-o0-k64",
+          "measureIndex": 8,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s2-m8-v5-o0-k52",
+          "measureIndex": 8,
           "onsetInMeasure": 0,
           "durationTicks": 2880,
           "soundingKey": 52
         },
         {
-          "id": "n-p0-s1-m13-v1-o0-k69",
-          "measureIndex": 13,
+          "id": "n-p0-s1-m8-v1-o3_2-k64",
+          "measureIndex": 8,
+          "onsetInMeasure": 1440,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m9-v1-o0-k74",
+          "measureIndex": 9,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 74
+        },
+        {
+          "id": "n-p0-s2-m9-v5-o0-k59",
+          "measureIndex": 9,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 59
+        },
+        {
+          "id": "n-p0-s1-m9-v1-o3_2-k74",
+          "measureIndex": 9,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 74
+        },
+        {
+          "id": "n-p0-s1-m9-v1-o2-k72",
+          "measureIndex": 9,
+          "onsetInMeasure": 1920,
+          "durationTicks": 480,
+          "soundingKey": 72
+        },
+        {
+          "id": "n-p0-s1-m9-v1-o5_2-k71",
+          "measureIndex": 9,
+          "onsetInMeasure": 2400,
+          "durationTicks": 480,
+          "soundingKey": 71
+        },
+        {
+          "id": "n-p0-s1-m10-v1-o0-k69",
+          "measureIndex": 10,
           "onsetInMeasure": 0,
           "durationTicks": 960,
           "soundingKey": 69
         },
         {
-          "id": "n-p0-s2-m13-v5-o0-k57",
-          "measureIndex": 13,
+          "id": "n-p0-s2-m10-v5-o0-k50",
+          "measureIndex": 10,
           "onsetInMeasure": 0,
           "durationTicks": 2880,
-          "soundingKey": 57
+          "soundingKey": 50
         },
         {
-          "id": "n-p0-s1-m13-v1-o1-k72",
-          "measureIndex": 13,
+          "id": "n-p0-s1-m10-v1-o1-k66",
+          "measureIndex": 10,
           "onsetInMeasure": 960,
-          "durationTicks": 960,
-          "soundingKey": 72
+          "durationTicks": 480,
+          "soundingKey": 66
         },
         {
-          "id": "n-p0-s1-m13-v1-o2-k74",
-          "measureIndex": 13,
+          "id": "n-p0-s1-m10-v1-o3_2-k62",
+          "measureIndex": 10,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m10-v1-o2-k64",
+          "measureIndex": 10,
           "onsetInMeasure": 1920,
+          "durationTicks": 480,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m10-v1-o5_2-k66",
+          "measureIndex": 10,
+          "onsetInMeasure": 2400,
+          "durationTicks": 480,
+          "soundingKey": 66
+        },
+        {
+          "id": "n-p0-s1-m11-v1-o0-k67",
+          "measureIndex": 11,
+          "onsetInMeasure": 0,
           "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s2-m11-v5-o0-k52",
+          "measureIndex": 11,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 52
+        },
+        {
+          "id": "n-p0-s1-m11-v1-o1-k64",
+          "measureIndex": 11,
+          "onsetInMeasure": 960,
+          "durationTicks": 480,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m11-v1-o3_2-k64",
+          "measureIndex": 11,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m11-v1-o2-k62",
+          "measureIndex": 11,
+          "onsetInMeasure": 1920,
+          "durationTicks": 480,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m11-v1-o5_2-k64",
+          "measureIndex": 11,
+          "onsetInMeasure": 2400,
+          "durationTicks": 480,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m12-v1-o0-k66",
+          "measureIndex": 12,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 66
+        },
+        {
+          "id": "n-p0-s2-m12-v5-o0-k47",
+          "measureIndex": 12,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 47
+        },
+        {
+          "id": "n-p0-s1-m12-v1-o1-k62",
+          "measureIndex": 12,
+          "onsetInMeasure": 960,
+          "durationTicks": 480,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m12-v1-o3_2-k71",
+          "measureIndex": 12,
+          "onsetInMeasure": 1440,
+          "durationTicks": 960,
+          "soundingKey": 71
+        },
+        {
+          "id": "n-p0-s1-m13-v1-o0-k74",
+          "measureIndex": 13,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
           "soundingKey": 74
         },
         {
-          "id": "n-p0-s1-m14-v1-o0-k76",
+          "id": "n-p0-s2-m13-v5-o0-k59",
+          "measureIndex": 13,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 59
+        },
+        {
+          "id": "n-p0-s1-m13-v1-o3_2-k74",
+          "measureIndex": 13,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 74
+        },
+        {
+          "id": "n-p0-s1-m13-v1-o2-k72",
+          "measureIndex": 13,
+          "onsetInMeasure": 1920,
+          "durationTicks": 480,
+          "soundingKey": 72
+        },
+        {
+          "id": "n-p0-s1-m13-v1-o5_2-k71",
+          "measureIndex": 13,
+          "onsetInMeasure": 2400,
+          "durationTicks": 480,
+          "soundingKey": 71
+        },
+        {
+          "id": "n-p0-s1-m14-v1-o0-k69",
           "measureIndex": 14,
           "onsetInMeasure": 0,
           "durationTicks": 960,
-          "soundingKey": 76
+          "soundingKey": 69
         },
         {
           "id": "n-p0-s2-m14-v5-o0-k50",
@@ -46798,63 +46952,91 @@
           "soundingKey": 50
         },
         {
-          "id": "n-p0-s1-m14-v1-o1-k74",
+          "id": "n-p0-s1-m14-v1-o1-k66",
           "measureIndex": 14,
           "onsetInMeasure": 960,
-          "durationTicks": 960,
-          "soundingKey": 74
+          "durationTicks": 480,
+          "soundingKey": 66
         },
         {
-          "id": "n-p0-s1-m14-v1-o2-k72",
+          "id": "n-p0-s1-m14-v1-o3_2-k62",
+          "measureIndex": 14,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m14-v1-o2-k64",
           "measureIndex": 14,
           "onsetInMeasure": 1920,
-          "durationTicks": 960,
-          "soundingKey": 72
+          "durationTicks": 480,
+          "soundingKey": 64
         },
         {
-          "id": "n-p0-s1-m15-v1-o0-k71",
+          "id": "n-p0-s1-m14-v1-o5_2-k66",
+          "measureIndex": 14,
+          "onsetInMeasure": 2400,
+          "durationTicks": 480,
+          "soundingKey": 66
+        },
+        {
+          "id": "n-p0-s1-m15-v1-o0-k67",
           "measureIndex": 15,
           "onsetInMeasure": 0,
           "durationTicks": 960,
-          "soundingKey": 71
+          "soundingKey": 67
         },
         {
-          "id": "n-p0-s2-m15-v5-o0-k52",
+          "id": "n-p0-s2-m15-v5-o0-k47",
           "measureIndex": 15,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 47
+        },
+        {
+          "id": "n-p0-s1-m15-v1-o1-k66",
+          "measureIndex": 15,
+          "onsetInMeasure": 960,
+          "durationTicks": 480,
+          "soundingKey": 66
+        },
+        {
+          "id": "n-p0-s1-m15-v1-o3_2-k64",
+          "measureIndex": 15,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m15-v1-o2-k62",
+          "measureIndex": 15,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m16-v1-o0-k64",
+          "measureIndex": 16,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s2-m16-v5-o0-k52",
+          "measureIndex": 16,
           "onsetInMeasure": 0,
           "durationTicks": 2880,
           "soundingKey": 52
         },
         {
-          "id": "n-p0-s1-m15-v1-o1-k69",
-          "measureIndex": 15,
-          "onsetInMeasure": 960,
-          "durationTicks": 960,
-          "soundingKey": 69
-        },
-        {
-          "id": "n-p0-s1-m15-v1-o2-k67",
-          "measureIndex": 15,
-          "onsetInMeasure": 1920,
-          "durationTicks": 960,
-          "soundingKey": 67
-        },
-        {
-          "id": "n-p0-s1-m16-v1-o0-k69",
+          "id": "n-p0-s1-m16-v1-o3_2-k64",
           "measureIndex": 16,
-          "onsetInMeasure": 0,
-          "durationTicks": 2880,
-          "soundingKey": 69
-        },
-        {
-          "id": "n-p0-s2-m16-v5-o0-k57",
-          "measureIndex": 16,
-          "onsetInMeasure": 0,
-          "durationTicks": 2880,
-          "soundingKey": 57
+          "onsetInMeasure": 1440,
+          "durationTicks": 960,
+          "soundingKey": 64
         }
       ],
-      "scheduleDigest": "5a5931915502d4b03548f5cc78f89a6827edb4783da8bd692f8da590720db5a9"
+      "scheduleDigest": "2616ebc96925a5c70bf22c05be884b57a2a3398e1ad13f0b199ba4e47208453e"
     },
     {
       "file": "repertoire/beginner/jingle-bells.musicxml",

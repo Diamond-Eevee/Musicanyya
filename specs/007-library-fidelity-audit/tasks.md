@@ -524,7 +524,7 @@ Each item task:
   smoothing and the key if transposed. If 1283 is not the Excell form, add a visual check against a named
   public-domain Excell-form hymnal scan (research R11 table B). (Depends on T054-T056, T098.) T056 found:
   the tune is the Soprano and the file names Excell's 1900 harmonization, so no Excell scan is needed.
-- [ ] T063 [US2] `repertoire/beginner/greensleeves` against `mutopia-1247`, melody. Check the raised 6th and 7th
+- [x] T063 [US2] `repertoire/beginner/greensleeves` against `mutopia-1247`, melody. Check the raised 6th and 7th
   degrees; the current claim is "natural A-minor throughout". Any wrong melody note is `fixed` from the source.
   `departures` names the 6/8 -> 3/4 renotation and the own bass line. Correct the provenance text where it is wrong.
   (Depends on T054, T055, T057, T098.)

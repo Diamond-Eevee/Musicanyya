@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "itemId": "repertoire/beginner/greensleeves",
+  "claim": "arrangement",
+  "claimText": "Greensleeves (arranged for beginners): the tune as the hymn tune \"Greensleeves\" gives it, in 3/4 with plain rhythms and without raised notes",
+  "checks": [
+    {
+      "method": "mechanical",
+      "source": "mutopia-1247-greensleeves-hymntune",
+      "sourceFiles": ["notation", "sound"],
+      "aspects": ["melody", "spelling"],
+      "alignment": { "itemBars": "0-6", "sourceBars": "0-6", "sourceStaff": 1, "sourceVoice": "staff1.1" },
+      "melodyRhythm": "allowedByDeparture",
+      "expectedDifferences": 1,
+      "differenceNotes": ["bar 3: D4 instead of D#4 - declared departure (no raised notes)"]
+    },
+    {
+      "method": "mechanical",
+      "source": "mutopia-1247-greensleeves-hymntune",
+      "sourceFiles": ["notation"],
+      "aspects": ["melody", "spelling"],
+      "alignment": { "itemBars": "7-7", "sourceBars": "7-7", "sourceStaff": 1, "sourceVoice": "staff1.1" },
+      "melodyRhythm": "allowedByDeparture",
+      "expectedDifferences": 3,
+      "differenceNotes": [
+        "bar 7: D4 instead of D#4 - declared departure (no raised notes)",
+        "bar 7: the C#4 of the turn is left out - declared departure (the turn D#-C#-D# becomes one D)",
+        "bar 7: the last D#4 of the turn is left out - declared departure (the turn D#-C#-D# becomes one D)"
+      ]
+    },
+    {
+      "method": "mechanical",
+      "source": "mutopia-1247-greensleeves-hymntune",
+      "sourceFiles": ["notation"],
+      "aspects": ["melody", "spelling"],
+      "alignment": { "itemBars": "8-14", "sourceBars": "8-14", "sourceStaff": 1, "sourceVoice": "staff1.1" },
+      "melodyRhythm": "allowedByDeparture",
+      "expectedDifferences": 4,
+      "differenceNotes": [
+        "bar 9: C5 instead of C#5 - declared departure (no raised notes)",
+        "bar 11: D4 instead of D#4 - declared departure (no raised notes)",
+        "bar 12: D4 instead of D#4 - declared departure (no raised notes)",
+        "bar 12: B4 instead of B3 - declared departure (an octave higher, so the jump to bar 13 stays within an octave)"
+      ]
+    },
+    {
+      "method": "mechanical",
+      "source": "mutopia-1247-greensleeves-hymntune",
+      "sourceFiles": ["notation"],
+      "aspects": ["melody", "spelling"],
+      "alignment": { "itemBars": "15-15", "sourceBars": "15-15", "sourceStaff": 1, "sourceVoice": "staff1.1" },
+      "melodyRhythm": "allowedByDeparture",
+      "expectedDifferences": 3,
+      "differenceNotes": [
+        "bar 15: D4 instead of D#4 - declared departure (no raised notes)",
+        "bar 15: the C#4 of the turn is left out - declared departure (the turn D#-C#-D# becomes one D)",
+        "bar 15: the last D#4 of the turn is left out - declared departure (the turn D#-C#-D# becomes one D)"
+      ]
+    },
+    {
+      "method": "mechanical",
+      "source": "mutopia-1247-greensleeves-hymntune",
+      "sourceFiles": ["notation"],
+      "aspects": ["melody", "spelling"],
+      "alignment": { "itemBars": "16-16", "sourceBars": "16-16", "sourceStaff": 1, "sourceVoice": "staff1.1" },
+      "melodyRhythm": "compared",
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "fixed",
+  "outcomeNote": "Checked 2026-09-24 against the Soprano of Mutopia 1247. The old item was not Greensleeves: its melody (E | A C E | D C B ...) had none of the tune's notes in order. The melody was rewritten from the source in its key (E minor), note for note, with the changes the Beginner caps need, each named in departures: 3/4 for 6/8 with plain rhythms, no raised 6th or 7th, the two turns shortened, one B an octave higher. Still Beginner (index level check passes). The left hand holds one note per bar from the source's bass.",
+  "checkedBy": "claude-opus-5-5",
+  "date": "2026-09-24",
+  "previous": { "title": "Greensleeves (arranged for beginners)", "level": "beginner", "bars": 17, "notes": 57 }
+}

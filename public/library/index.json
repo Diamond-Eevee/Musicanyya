@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-24T15:17:16.026Z",
+  "generated": "2026-09-24T15:23:59.511Z",
   "sections": [
     {
       "id": "learning/chords",
@@ -4000,8 +4000,8 @@
       "id": "repertoire/beginner/greensleeves",
       "section": "repertoire/beginner",
       "file": "repertoire/beginner/greensleeves.musicxml",
-      "bytes": 11331,
-      "hash": "ea68fbba08f588161ac8ea7b9c227a56926a89b1d31e28246771aca40beec48c",
+      "bytes": 16272,
+      "hash": "907b9283d717945ff8d27dcbf995c0f7e5b970e5c18b491c516e4f43a2fb3823",
       "meta": {
         "version": 1,
         "title": "Greensleeves (arranged for beginners)",
@@ -4017,39 +4017,46 @@
           "licence": "CC0-1.0",
           "author": "Musicanyya practice material",
           "created": "2026-09-22",
-          "basedOn": "Traditional English ballad melody \"Greensleeves\" (16th century; public domain, author unknown). The tune's traditional metre is 6/8; we re-set it in 3/4 here as a beginner simplification, following the same practice used by several published easy-piano editions of this tune (e.g. 8notes.com's \"Greensleeves (beginners)\", music-for-music-teachers.com's 3/4 arrangement, lasolsheet.com's beginner edition). The melody's overall shape and the block left-hand bass roots (one sustained note per bar, natural A-minor throughout, no raised leading tone) are our own simple two-hand setting, not a transcription of any specific published edition.",
-          "note": "16-bar folk-song form (four 4-bar phrases) with a one-beat pickup, ending on the A-minor tonic. Left hand plays exactly one sustained bass note per measure, so the hands are never independently active in the same bar (hand-independence fraction 0)."
+          "basedOn": "Traditional English melody \"Greensleeves\" (public domain), in the form of the hymn tune \"Greensleeves\" as typeset by the Mutopia Project (piece-info id 1247, greensleeves.ly, by Steve Dunlop from www.cyberhymnal.org, public domain). The melody is the Soprano of that file; the audit record content/library/audit/repertoire/beginner/greensleeves.json re-checks it note by note.",
+          "note": "An eighth-note pickup and 16 bars in E minor at quarter = 76. The right hand follows the source's melody note for note, with the changes listed in departures; the left hand holds one bass note per bar."
         },
-        "reviewedBy": "music-domain-expert",
-        "reviewedOn": "2026-09-22",
+        "reviewedBy": "claude-opus-5-5",
+        "reviewedOn": "2026-09-24",
         "subtitle": "Traditional English melody, simple two-hand setting in 3/4",
         "composer": "Traditional (English, 16th century)",
         "arranger": "Musicanyya practice material",
-        "trains": "A well-known, mostly stepwise melody over a single sustained bass note per bar - reading two staves together at a gentle tempo.",
+        "trains": "A well-known minor-key melody in quarters and eighths over a single sustained bass note per bar - reading two staves together at a gentle tempo.",
         "hands": "both",
-        "arrangement": true
+        "arrangement": true,
+        "departures": [
+          "Metre and rhythm: the tune's 6/8 is written as 3/4 (the same bar length), and every dotted-eighth-and-sixteenth pair is played as two even eighths.",
+          "No raised notes: D instead of D-sharp (bars 3, 7, 11, 12 and 15) and C instead of C-sharp (bar 9), so the piece stays within the Beginner limit on accidentals.",
+          "Bars 7 and 15: the turn D-sharp-C-sharp-D-sharp is played as one D, and the bar is G (quarter), F-sharp and E (eighths), D (quarter), so no more than four equal notes follow each other.",
+          "Bar 12: the last note is B4, an octave above the source's B3, so the jump to bar 13 stays within an octave.",
+          "Left hand: our own single held bass note per bar, taken from the source's bass line, instead of its four-part harmony."
+        ]
       },
       "facts": {
         "measures": 17,
-        "notes": 57,
-        "durationSeconds": 38.68421052631579,
+        "notes": 83,
+        "durationSeconds": 38.28947368421053,
         "keys": [
-          "A minor"
+          "E minor"
         ],
         "metres": [
           "3/4"
         ],
         "tempoBpm": 76,
         "tempoDefaulted": false,
-        "lowestMidi": 48,
-        "highestMidi": 79,
+        "lowestMidi": 47,
+        "highestMidi": 74,
         "maxSpanSemitones": 0,
         "staves": 2,
         "voicesPerStaff": 1,
         "handIndependenceFraction": 0,
-        "shortestDivision": 4,
-        "notesPerBeat": 1.163265306122449,
-        "accidentals": 0,
+        "shortestDivision": 8,
+        "notesPerBeat": 1.711340206185567,
+        "accidentals": 1,
         "hasTies": false,
         "hasTuplets": false,
         "hasGraceNotes": false,
@@ -4060,10 +4067,10 @@
         "notices": [],
         "parts": 1,
         "tempoChanges": 0,
-        "maxLeapSemitones": 9,
-        "longestRunAtShortestValue": 0,
-        "attackCount": 57,
-        "peakNotesPerSecond": 2,
+        "maxLeapSemitones": 12,
+        "longestRunAtShortestValue": 4,
+        "attackCount": 83,
+        "peakNotesPerSecond": 3,
         "accidentalMarkCount": 0,
         "maxTieChainNotes": 0,
         "maxTieBarlinesCrossed": 0,
