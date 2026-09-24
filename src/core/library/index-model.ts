@@ -28,6 +28,9 @@ export interface ParsedLibraryIndex {
 const LEVELS: readonly Level[] = ['beginner', 'intermediate', 'advanced'];
 const KINDS = ['exercise', 'piece'] as const;
 const HANDS = ['right', 'left', 'both'] as const;
+/** contracts/library-index.md 1.1.0 `departures`: 1 to 8 entries, each 1 to 200 characters. */
+const DEPARTURES_MAX_ENTRIES = 8;
+const DEPARTURE_MAX_CHARS = 200;
 
 type JsonObject = Record<string, unknown>;
 
@@ -91,6 +94,7 @@ export function validMetadata(raw: unknown): ItemMetadata | null {
   const provenance = validProvenance(raw.provenance);
   if (!provenance) return null;
   if (!isNonEmptyString(raw.reviewedBy) || !isNonEmptyString(raw.reviewedOn)) return null;
+  if (raw.departures !== undefined && !validDepartures(raw.departures)) return null;
 
   const meta: ItemMetadata = {
     version: 1,
@@ -113,7 +117,17 @@ export function validMetadata(raw: unknown): ItemMetadata | null {
   }
   if (isNonEmptyString(raw.raisedBecause)) meta.raisedBecause = raw.raisedBecause;
   if (isStringArray(raw.limitations)) meta.limitations = raw.limitations;
+  if (validDepartures(raw.departures)) meta.departures = raw.departures;
   return meta;
+}
+
+function validDepartures(value: unknown): value is string[] {
+  return (
+    isStringArray(value) &&
+    value.length >= 1 &&
+    value.length <= DEPARTURES_MAX_ENTRIES &&
+    value.every((d) => d.length >= 1 && d.length <= DEPARTURE_MAX_CHARS)
+  );
 }
 
 function validFacts(raw: unknown): ItemFacts | null {

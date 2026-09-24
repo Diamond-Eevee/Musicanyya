@@ -212,10 +212,10 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
 
 ### Sidecar `departures` support (moved here from US2; US1's fallback paths in T042/T043 need it, analyze A4)
 
-- [ ] T050 [P] `tests/core/library/index-model.test.ts`: `departures` is accepted and copied into `meta`. A
+- [x] T050 [P] `tests/core/library/index-model.test.ts`: `departures` is accepted and copied into `meta`. A
   non-array, an empty array, more than 8 entries, or an entry over 200 characters makes the item be skipped with a
   notice (contract 1.1.0). Confirm it fails. (Depends on T005.)
-- [ ] T055 `departures?: string[]` in `src/core/library/types.ts` and its validation in
+- [x] T055 `departures?: string[]` in `src/core/library/types.ts` and its validation in
   `src/core/library/index-model.ts` (makes T050 pass). `tools/library/build-index.ts` copies it verbatim. Run
   `pnpm library:index`; no item carries the field yet, so `index.json` must be unchanged. (Depends on T050.)
 
