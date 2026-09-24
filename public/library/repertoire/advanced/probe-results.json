@@ -6,8 +6,12 @@
     "measures": 35,
     "notes": 615,
     "durationSeconds": 127.3,
-    "keys": ["C major"],
-    "metres": ["4/4"],
+    "keys": [
+      "C major"
+    ],
+    "metres": [
+      "4/4"
+    ],
     "tempoBpm": 66,
     "tempoDefaulted": false,
     "lowestMidi": 36,
@@ -20,7 +24,7 @@
     "fingeringCoverage": 0,
     "notices": [],
     "computedLevel": "advanced",
-    "verovioMs": 131,
+    "verovioMs": 136,
     "pages": 2,
     "verovioError": null
   },
@@ -31,8 +35,12 @@
     "measures": 13,
     "notes": 286,
     "durationSeconds": 74.3,
-    "keys": ["C minor"],
-    "metres": ["4/4"],
+    "keys": [
+      "C minor"
+    ],
+    "metres": [
+      "4/4"
+    ],
     "tempoBpm": 42,
     "tempoDefaulted": false,
     "lowestMidi": 24,
@@ -45,7 +53,7 @@
     "fingeringCoverage": 0,
     "notices": [],
     "computedLevel": "advanced",
-    "verovioMs": 31,
+    "verovioMs": 39,
     "pages": 1,
     "verovioError": null
   },
@@ -56,13 +64,17 @@
     "measures": 26,
     "notes": 602,
     "durationSeconds": 108.2,
-    "keys": ["E minor"],
-    "metres": ["2/2"],
+    "keys": [
+      "E minor"
+    ],
+    "metres": [
+      "2/2"
+    ],
     "tempoBpm": 56,
     "tempoDefaulted": false,
     "lowestMidi": 28,
     "highestMidi": 84,
-    "maxSpanSemitones": 31,
+    "maxSpanSemitones": 12,
     "staves": 2,
     "shortestDivision": 16,
     "notesPerBeat": 5.96,
@@ -70,7 +82,7 @@
     "fingeringCoverage": 0,
     "notices": [],
     "computedLevel": "advanced",
-    "verovioMs": 48,
+    "verovioMs": 47,
     "pages": 1,
     "verovioError": null
   },
@@ -81,8 +93,12 @@
     "measures": 106,
     "notes": 905,
     "durationSeconds": 156.3,
-    "keys": ["A minor"],
-    "metres": ["3/8"],
+    "keys": [
+      "A minor"
+    ],
+    "metres": [
+      "3/8"
+    ],
     "tempoBpm": 72,
     "tempoDefaulted": false,
     "lowestMidi": 33,
@@ -93,35 +109,41 @@
     "notesPerBeat": 4.83,
     "accidentals": 0,
     "fingeringCoverage": 0,
-    "notices": ["measureLengthMismatch"],
+    "notices": [
+      "measureLengthMismatch"
+    ],
     "computedLevel": "advanced",
-    "verovioMs": 79,
+    "verovioMs": 78,
     "pages": 3,
     "verovioError": null
   },
   {
     "file": "satie-gymnopedie-no1.musicxml",
-    "title": "Gymnopedie No. 1 (arranged for this app)",
+    "title": "Gymnopedie No. 1",
     "composer": "Erik Satie",
-    "measures": 37,
-    "notes": 219,
-    "durationSeconds": 133.2,
-    "keys": ["B minor"],
-    "metres": ["3/4"],
-    "tempoBpm": 50,
+    "measures": 47,
+    "notes": 289,
+    "durationSeconds": 234,
+    "keys": [
+      "B minor"
+    ],
+    "metres": [
+      "3/4"
+    ],
+    "tempoBpm": 60,
     "tempoDefaulted": false,
-    "lowestMidi": 35,
+    "lowestMidi": 33,
     "highestMidi": 81,
     "maxSpanSemitones": 14,
     "staves": 2,
     "shortestDivision": 4,
-    "notesPerBeat": 1.97,
+    "notesPerBeat": 1.24,
     "accidentals": 2,
     "fingeringCoverage": 0,
     "notices": [],
     "computedLevel": "advanced",
-    "verovioMs": 23,
-    "pages": 1,
+    "verovioMs": 30,
+    "pages": 2,
     "verovioError": null
   }
 ]

@@ -256,3 +256,11 @@
 - Decisions: the bar 3 reading (E-natural) matches Peters edition. Bar count 13 per .ly. The conversion encodes the pedal correctly, so the single pedal press limitation was removed. The provenance was updated to downloaded and arrangement set to false.
 - Problems / open questions: none.
 - Handoff: next = T041 (Satie Gymnopedie No 1 against mutopia-37). Tree clean at this commit.
+
+## 2026-09-24 14:28 - antigravity-gemini-2.5-pro (continue)
+- Done: T041 (Satie Gymnopedie No 1 against mutopia-37).
+- In progress: none
+- Decisions: Replaced Satie entirely with the complete Mutopia conversion. Removed 'our own close' from subtitle and provenance. Updated the audit record checks to expect 0 differences since the conversion is perfect. Fixed the architecture test missing theory.ts. Captured the new identity golden.
+- Problems / open questions: none.
+- Handoff: next = T042 (Burgmuller Op 100 No 2 against mutopia-203). Tree clean at this commit.
+

@@ -371,7 +371,7 @@ Each source task does the same steps:
   - **Record**: `content/library/audit/repertoire/advanced/chopin-prelude-op28-no20.json`.
 
   (Depends on T030, T033.)
-- [ ] T041 [US1] `repertoire/advanced/satie-gymnopedie-no1` against `mutopia-37`: `replaced` by the complete
+- [x] T041 [US1] `repertoire/advanced/satie-gymnopedie-no1` against `mutopia-37`: `replaced` by the complete
   conversion.
   - **Remove** "our own close" from the subtitle and the provenance.
   - **Key**: the description names the key signature (two sharps), not "B minor".

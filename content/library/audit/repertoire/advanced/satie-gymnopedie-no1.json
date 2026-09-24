@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "itemId": "repertoire/advanced/satie-gymnopedie-no1",
+  "claim": "original",
+  "claimText": "Gymnopedie No. 1",
+  "checks": [
+    {
+      "method": "mechanical",
+      "source": "mutopia-37-satie-gymnopedie1",
+      "sourceFiles": ["notation", "sound"],
+      "aspects": ["barCount", "barLengths", "repeats", "playedOrder", "pitch", "onset", "duration", "spelling", "graceNotes"],
+      "alignment": {
+        "itemBars": "all",
+        "sourceBars": "all"
+      },
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "replaced",
+  "outcomeNote": "replaced by the complete conversion from mutopia-37",
+  "checkedBy": "music-domain-expert",
+  "date": "2026-09-24",
+  "previous": {
+    "title": "Gymnopedie No. 1 (arranged for this app)",
+    "level": "advanced",
+    "bars": 37,
+    "notes": 219
+  }
+}

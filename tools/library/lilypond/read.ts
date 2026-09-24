@@ -251,19 +251,25 @@ interface Staves {
 function numberStaves(root: LyMusic): Staves {
   const staves: Staves = { byNode: new Map(), byName: new Map(), count: 0 };
   let count = 0;
-  const walk = (m: LyMusic): void => {
+  const walk = (m: LyMusic, currentStaff?: number): void => {
     if (m.kind === 'context' && m.type === 'Staff') {
       const known = m.name !== undefined ? staves.byName.get(m.name) : undefined;
-      const n = known ?? ++count;
+      const n = known ?? currentStaff ?? ++count;
       staves.byNode.set(m, n);
       if (m.name !== undefined) staves.byName.set(m.name, n);
+      
+      const saved = currentStaff;
+      currentStaff = n;
+      if (m.body) walk(m.body, currentStaff);
+      currentStaff = saved;
+      return;
     }
-    if (m.kind === 'seq') m.items.forEach(walk);
-    else if (m.kind === 'sim') m.branches.forEach(walk);
+    if (m.kind === 'seq') m.items.forEach((x) => walk(x, currentStaff));
+    else if (m.kind === 'sim') m.branches.forEach((x) => walk(x, currentStaff));
     else if (m.kind === 'repeat') {
-      walk(m.body);
-      m.alternatives.forEach(walk);
-    } else if ('body' in m) walk(m.body);
+      walk(m.body, currentStaff);
+      m.alternatives.forEach((x) => walk(x, currentStaff));
+    } else if ('body' in m) walk(m.body, currentStaff);
   };
   walk(root);
   staves.count = count;
