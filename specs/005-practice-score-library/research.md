@@ -312,7 +312,7 @@ fixed register (data-model.md §5.1's `[57, 68]` rule). Deliberately scoped to `
 only, not `generateTriadFamily` - the reviewer judged the triads family's short, fixed-anchor voicing
 correct as designed, and re-voicing all 24 already-reviewed triad files was unnecessary risk.
 
-**Rationale**: both changes keep FR-004 (the perfect cadence exists), FR-005 (cross-key consistency,
+**Rationale**: both changes keep FR-004 (the I-IV-V-I cadence exists), FR-005 (cross-key consistency,
 which only applies to the triads family), FR-006 (100% fingering coverage) and SC-004 (>= 12 drills)
 true, verified by `tests/core/library/exercise/changes.test.ts` and the US2 block of
 `tests/library/index.test.ts`; the specific illustrative numbers in data-model.md §5.2 were not the

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-24T20:31:20.341Z",
+  "generated": "2026-09-24T21:32:17.479Z",
   "sections": [
     {
       "id": "learning/chords",
@@ -3311,7 +3311,7 @@
         "reviewedOn": "2026-09-24",
         "subtitle": "Arabeske",
         "composer": "Johann Friedrich Franz Burgmuller",
-        "arranger": "Musicanyya practice material",
+        "arranger": null,
         "trains": "Quick 16th-note turn figures answered by a light eighth-note tag, alternating with a lyrical dotted-quarter melody, over a steady broken-chord left hand in A minor - finger agility and voicing a short melodic cell cleanly at a scherzando tempo.",
         "hands": "both",
         "arrangement": false
@@ -3549,11 +3549,11 @@
       "id": "repertoire/advanced/clementi-sonatina-op36-no1-mvt1",
       "section": "repertoire/advanced",
       "file": "repertoire/advanced/clementi-sonatina-op36-no1-mvt1.musicxml",
-      "bytes": 61069,
-      "hash": "3091058a41b8c6829e02557be7258b7ad3b4102a9ba0307578609617a2a5ed12",
+      "bytes": 61057,
+      "hash": "cc9fa01ae12a871dd4347705dbb7bf083994cd1a9f142f45b1492253b91cbbca",
       "meta": {
         "version": 1,
-        "title": "Sonatina in C major, Op. 36 No. 1 (1st movement, exposition)",
+        "title": "Sonatina in C major, Op. 36 No. 1 (1st movement)",
         "kind": "piece",
         "level": "advanced",
         "tags": [
@@ -3563,35 +3563,35 @@
           "phrasing"
         ],
         "provenance": {
-          "origin": "authored",
-          "licence": "CC0-1.0",
-          "author": "Musicanyya practice material",
-          "created": "2026-09-22",
-          "basedOn": "Muzio Clementi, Sonatina in C major, Op. 36 No. 1 (published 1797, public domain; Clementi died 1832), 1st movement (Spiritoso). Pitches and rhythm for measures 1-15 (both hands) were transcribed and checked note-by-note against the Mutopia Project's public-domain LilyPond engraving (piece-info id 804, sonatina-1.ly, after the G. Schirmer 1893 Sonatina Album edition), including cross-checking the relative-octave arithmetic against the piece's well-known melodic contour and against the internal harmonic/voice-leading consistency of the reconstructed left hand.",
-          "note": "Exposition only (the source's own measures 1-15, up to its written repeat sign), played once; the notated repeat back to measure 1, and the movement's development/recapitulation (measures 16-38 of the source), are not included. The 'Spiritoso' marking is Clementi's, but the metronome mark is the Schirmer editor's; it was lowered from 156 to 144 for this file so it sits inside this level's tempo cap while keeping the 'Spiritoso' character."
+          "origin": "downloaded",
+          "licence": "public-domain",
+          "source": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=804",
+          "obtained": "2026-09-24",
+          "sourcePath": "mutopia-804-clementi-op36-no1/sonatina-1.ly",
+          "credit": "Typeset by Brian D. Rude for the Mutopia Project (Mutopia-2016/11/30-804) from the Sonatina Album (G. Schirmer, 1893), and placed in the public domain by the typesetter.",
+          "unmodified": true,
+          "note": "The first movement of the source file (which holds all three), converted from Mutopia's LilyPond source to MusicXML; beams and accidentals then completed by pnpm library:engrave. Complete, with both written repeats: 38 bars. The playback tempo, half note = 78 (quarter = 156), is the source MIDI's; the notation prints no metronome mark. pnpm library:fidelity re-checks the notes against the source and its MIDI (0 differences)."
         },
         "reviewedBy": "music-domain-expert",
         "reviewedOn": "2026-09-24",
-        "subtitle": "Spiritoso - exposition only, repeat not taken",
+        "subtitle": "Spiritoso",
         "composer": "Muzio Clementi",
-        "trains": "A brisk single-line melody in the right hand (scale runs, octave leaps, a brief secondary-dominant tonicization) over a light, mostly on-the-beat left hand - reading fluency and a fast, even tempo more than technical difficulty.",
+        "arranger": null,
+        "trains": "A brisk single-line melody in the right hand (scale runs, octave leaps, broken octaves) over a light left hand of mostly quarter, half and whole notes, with broken-chord eighths in bars 9, 11, 32 and 34: an exposition that moves to G major, a short development that turns to C minor (bars 16-23), and the return in C - reading fluency and a fast, even tempo more than technical difficulty.",
         "hands": "both",
-        "arrangement": false,
-        "limitations": [
-          "tempo lowered to 144 to fit level (source's 156 is editorial)"
-        ]
+        "arrangement": false
       },
       "facts": {
         "measures": 38,
         "notes": 333,
-        "durationSeconds": 126.66666666666667,
+        "durationSeconds": 116.92307692307692,
         "keys": [
           "C major"
         ],
         "metres": [
           "2/2"
         ],
-        "tempoBpm": 144,
+        "tempoBpm": 156,
         "tempoDefaulted": false,
         "lowestMidi": 36,
         "highestMidi": 86,
@@ -3615,7 +3615,7 @@
         "maxLeapSemitones": 22,
         "longestRunAtShortestValue": 24,
         "attackCount": 328,
-        "peakNotesPerSecond": 7.5,
+        "peakNotesPerSecond": 8.5,
         "accidentalMarkCount": 11,
         "maxTieChainNotes": 0,
         "maxTieBarlinesCrossed": 0,
@@ -3746,29 +3746,27 @@
         "tags": [
           "hands-together",
           "ties",
-          "pedal",
           "dynamics",
           "phrasing"
         ],
         "provenance": {
-          "origin": "authored",
-          "licence": "CC0-1.0",
-          "author": "Musicanyya practice material",
-          "created": "2026-09-22",
-          "basedOn": "Satie, Trois Gymnopedies, No. 1 (public domain, composed 1888). Key (2 sharps), tempo marking (Lent et douloureux, quarter = 50), metre (3/4), the alternating low-bass/high-chord left-hand accompaniment pattern and the right-hand melody's entrance in measure 5 were checked against the Mutopia Project's public-domain LilyPond edition (piece-info id 37, gymnopedie_1, typeset by Evin Robertson from the Dover Edition).",
-          "note": "The left-hand voicing - a low bass note answered by a chord roughly two octaves higher - is authentic to the source, not a simplification; it is why this piece computes to Advanced (criteria 16 and 17) rather than the Intermediate shelf it was first drafted for."
+          "origin": "downloaded",
+          "licence": "public-domain",
+          "source": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=37",
+          "obtained": "2026-09-24",
+          "sourcePath": "mutopia-37-satie-gymnopedie1/gymnopedie_1.ly",
+          "credit": "Typeset by Evin Robertson for the Mutopia Project (Mutopia-2014/12/14-37) from the Dover edition (a reprint of the original), and placed in the public domain by the typesetter.",
+          "unmodified": false,
+          "note": "Converted from Mutopia's LilyPond source to MusicXML; beams and accidentals then completed by pnpm library:engrave. One change: the accompaniment chords, which the source (like Satie's original print) puts mostly on the upper staff (bars 19-31 are already on the lower staff), are on the lower staff throughout here, so Practice and Play treat them as left hand. Notes, rhythm, repeats and spelling are the source's; pnpm library:fidelity re-checks them against the source and its MIDI (0 differences)."
         },
         "reviewedBy": "music-domain-expert",
         "reviewedOn": "2026-09-24",
-        "subtitle": "cross-checked against the Mutopia Project edition",
+        "subtitle": "Complete piece, from the Dover edition via the Mutopia Project",
         "composer": "Erik Satie",
-        "arranger": "Musicanyya practice material",
-        "trains": "A wide-spanning left hand alternating a low bass note with a chord high above it (up to a two-and-a-half-octave leap), sustained pedal colour, ties held across barlines and soft, patient dynamic shading (pp/p/mp/f) at a slow tempo.",
+        "arranger": null,
+        "trains": "A wide-spanning left hand alternating a low bass note with a chord high above it (up to a two-and-a-half-octave leap), unmarked, player-chosen pedalling, ties held across barlines and soft, patient dynamic shading (pp/p/f) at a slow tempo.",
         "hands": "both",
-        "arrangement": false,
-        "limitations": [
-          "written pedal is not played"
-        ]
+        "arrangement": false
       },
       "facts": {
         "measures": 47,

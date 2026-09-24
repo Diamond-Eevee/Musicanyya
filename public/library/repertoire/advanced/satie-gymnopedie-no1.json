@@ -1,24 +1,25 @@
 {
   "version": 1,
   "title": "Gymnopedie No. 1",
-  "subtitle": "cross-checked against the Mutopia Project edition",
+  "subtitle": "Complete piece, from the Dover edition via the Mutopia Project",
   "composer": "Erik Satie",
-  "arranger": "Musicanyya practice material",
+  "arranger": null,
   "kind": "piece",
   "level": "advanced",
-  "tags": ["hands-together", "ties", "pedal", "dynamics", "phrasing"],
-  "trains": "A wide-spanning left hand alternating a low bass note with a chord high above it (up to a two-and-a-half-octave leap), sustained pedal colour, ties held across barlines and soft, patient dynamic shading (pp/p/mp/f) at a slow tempo.",
+  "tags": ["hands-together", "ties", "dynamics", "phrasing"],
+  "trains": "A wide-spanning left hand alternating a low bass note with a chord high above it (up to a two-and-a-half-octave leap), unmarked, player-chosen pedalling, ties held across barlines and soft, patient dynamic shading (pp/p/f) at a slow tempo.",
   "hands": "both",
   "arrangement": false,
   "provenance": {
-    "origin": "authored",
-    "licence": "CC0-1.0",
-    "author": "Musicanyya practice material",
-    "created": "2026-09-22",
-    "basedOn": "Satie, Trois Gymnopedies, No. 1 (public domain, composed 1888). Key (2 sharps), tempo marking (Lent et douloureux, quarter = 50), metre (3/4), the alternating low-bass/high-chord left-hand accompaniment pattern and the right-hand melody's entrance in measure 5 were checked against the Mutopia Project's public-domain LilyPond edition (piece-info id 37, gymnopedie_1, typeset by Evin Robertson from the Dover Edition).",
-    "note": "The left-hand voicing - a low bass note answered by a chord roughly two octaves higher - is authentic to the source, not a simplification; it is why this piece computes to Advanced (criteria 16 and 17) rather than the Intermediate shelf it was first drafted for."
+    "origin": "downloaded",
+    "licence": "public-domain",
+    "source": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=37",
+    "sourcePath": "mutopia-37-satie-gymnopedie1/gymnopedie_1.ly",
+    "obtained": "2026-09-24",
+    "credit": "Typeset by Evin Robertson for the Mutopia Project (Mutopia-2014/12/14-37) from the Dover edition (a reprint of the original), and placed in the public domain by the typesetter.",
+    "unmodified": false,
+    "note": "Converted from Mutopia's LilyPond source to MusicXML; beams and accidentals then completed by pnpm library:engrave. One change: the accompaniment chords, which the source (like Satie's original print) puts mostly on the upper staff (bars 19-31 are already on the lower staff), are on the lower staff throughout here, so Practice and Play treat them as left hand. Notes, rhythm, repeats and spelling are the source's; pnpm library:fidelity re-checks them against the source and its MIDI (0 differences)."
   },
-  "limitations": ["written pedal is not played"],
   "reviewedBy": "music-domain-expert",
   "reviewedOn": "2026-09-24"
 }

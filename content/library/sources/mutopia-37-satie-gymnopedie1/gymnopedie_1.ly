@@ -145,26 +145,24 @@ middle = \context Voice = "accomp" \relative c' {
   }
   \alternative {
     {
-      \change Staff=bass
+      \change Staff=treble
       \stemUp
       e4\rest <g e b>2 |
       e4\rest <fis cis a>2 |
       d4\rest <fis d b>2 |
       d4\rest <a' e cis>2 |
       d,4\rest <a' fis cis a>2 |
-      \change Staff=treble
       a,4\rest <d a>4 <g d b> |
       s2. |
       s2. |
     } {
-      \change Staff=bass
+      \change Staff=treble
       \stemUp
       e4\rest <g e b>2 |
       e4\rest <a f d a>2 |
       d,4\rest <f c a>2 |
       d4\rest <a' e c>2 |
       d,4\rest <a' f c a>2 |
-      \change Staff=treble
       a,4\rest <d a>4 <g d b> |
       s2. |
       s2. |
@@ -244,11 +242,11 @@ bottom = \context Staff \relative c {
       \global
       \clef treble
       \top
+      \middle
     >>
     \context Staff = "bass" <<
       \global
       \clef bass
-      \middle
       \bottom
     >>
   >>

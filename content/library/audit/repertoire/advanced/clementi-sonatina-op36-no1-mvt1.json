@@ -1,8 +1,8 @@
 {
   "version": 1,
   "itemId": "repertoire/advanced/clementi-sonatina-op36-no1-mvt1",
-  "claim": "excerpt",
-  "claimText": "1st movement, exposition",
+  "claim": "original",
+  "claimText": "Sonatina in C major, Op. 36 No. 1, 1st movement",
   "checks": [
     {
       "method": "mechanical",
@@ -35,5 +35,5 @@
   "outcome": "replaced",
   "checkedBy": "music-domain-expert",
   "date": "2026-09-24",
-  "outcomeNote": "Verified against Mutopia 804. Extracted the exposition (bars 1-15) as a faithful replacement. Tempo lowered to 144 to fit level (156 is editorial)."
+  "outcomeNote": "Replaced by the conversion of the whole first movement from mutopia-804 (38 bars, both repeats; 0 differences on every aspect). Until 2026-09-24 the shelf called it the exposition only (bars 1-15) and a hand edit had lowered the tempo to 144; it is now exactly the converter and engraving tool output, tempo 156 from the source MIDI (owner decision, T104)."
 }

@@ -30,7 +30,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 | l'Arabesque (25 Etudes faciles, Op. 100, No. 2)<br>`repertoire/advanced/burgmuller-op100-no2` | original | [Collection Litolff, 19th Century](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=203) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | replaced | 2026-09-24 |
 | Prelude in C minor, Op. 28 No. 20<br>`repertoire/advanced/chopin-prelude-op28-no20` | original | [Edition Peters](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=472) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | verified | 2026-09-24 |
 | Prelude in E minor, Op. 28 No. 4 ("Largo")<br>`repertoire/advanced/chopin-prelude-op28-no4` | arrangement | [Peters, 1879](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=468) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, onset, duration<br>pitch, spelling, graceNotes | 3 | replaced | 2026-09-24 |
-| Sonatina in C major, Op. 36 No. 1 (1st movement, exposition)<br>`repertoire/advanced/clementi-sonatina-op36-no1-mvt1` | excerpt | [Sonatina Album, G. Schirmer, 1893](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=804) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | replaced | 2026-09-24 |
+| Sonatina in C major, Op. 36 No. 1 (1st movement)<br>`repertoire/advanced/clementi-sonatina-op36-no1-mvt1` | original | [Sonatina Album, G. Schirmer, 1893](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=804) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | replaced | 2026-09-24 |
 | Für Elise, WoO 59<br>`repertoire/advanced/fur-elise-complete` | original | [Breitkopf & Härtel, 1888](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | verified | 2026-09-24 |
 | Gymnopedie No. 1<br>`repertoire/advanced/satie-gymnopedie-no1` | original | [Dover Edition](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=37) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | replaced | 2026-09-24 |
 | Amazing Grace (arranged for beginners)<br>`repertoire/beginner/amazing-grace` | arrangement | [www.cyberhymnal.org (tune: Virginia Harmony, 1831; harmonization: E. O. Excell, 1900)](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1283) | mechanical (bars all) | melody, spelling | 0 | fixed | 2026-09-24 |
@@ -153,14 +153,14 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 - Departure: Measure 24 (bar 23): changed left-hand bass octave B1 to B2 to fit hand-span cap.
 - Recent scores that opened the old version keep that copy; progress saved against it does not carry over.
 
-### Sonatina in C major, Op. 36 No. 1 (1st movement, exposition) (`repertoire/advanced/clementi-sonatina-op36-no1-mvt1`)
+### Sonatina in C major, Op. 36 No. 1 (1st movement) (`repertoire/advanced/clementi-sonatina-op36-no1-mvt1`)
 
-- Outcome (replaced): Verified against Mutopia 804. Extracted the exposition (bars 1-15) as a faithful replacement. Tempo lowered to 144 to fit level (156 is editorial).
+- Outcome (replaced): Replaced by the conversion of the whole first movement from mutopia-804 (38 bars, both repeats; 0 differences on every aspect). Until 2026-09-24 the shelf called it the exposition only (bars 1-15) and a hand edit had lowered the tempo to 144; it is now exactly the converter and engraving tool output, tempo 156 from the source MIDI (owner decision, T104).
 - Recent scores that opened the old version keep that copy; progress saved against it does not carry over.
 
 ### Gymnopedie No. 1 (`repertoire/advanced/satie-gymnopedie-no1`)
 
-- Outcome (replaced): replaced by the complete conversion from mutopia-37
+- Outcome (replaced): Replaced by the complete conversion from mutopia-37 (0 differences on every aspect). One change the aspects do not cover: the accompaniment chords, which the source (like Satie's original print) puts mostly on the upper staff (bars 19-31 are already on the lower staff), are on the lower staff throughout in the item so Practice and Play treat them as left hand (owner decision 2026-09-24). This had been done by editing the committed .ly; the source is restored to its downloaded bytes (T102), so the item is no longer the converter's plain output.
 - Recent scores that opened the old version keep that copy; progress saved against it does not carry over.
 
 ### Amazing Grace (arranged for beginners) (`repertoire/beginner/amazing-grace`)

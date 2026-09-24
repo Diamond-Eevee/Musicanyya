@@ -700,7 +700,7 @@ reviewer rule and freshness. Run the full gate, write a log entry, and commit.
     12,000 characters (analyze A12);
   - `public/library/README.md`: an "Audit" section pointing to `content/library/audit/` and
     `docs/library-audit.md`, plus the rule "a replaced item is converted, never hand-fixed".
-- [~] T083 [P] Check `THIRD_PARTY_NOTICES.md` against `content/library/sources/` (claimed: claude-opus-5.5 2026-09-24). Every committed source is listed
+- [x] T083 [P] Check `THIRD_PARTY_NOTICES.md` against `content/library/sources/`. Every committed source is listed
   once: under the library list if converted from, or under "Reference sources" if only compared against (contract
   `source-manifest.md` §3, FR-023).
 - [x] T084 [P] Check with `pnpm test -- tests/library/sweep.test.ts` and `tests/core/musicxml/support-doc-sync.test.ts`
@@ -708,15 +708,20 @@ reviewer rule and freshness. Run the full gate, write a log entry, and commit.
   parser does not list as supported, record it in `docs/musicxml-support.md` + `SUPPORT_MATRIX`, or leave the
   element out of the conversion. Never add an unexpected notice to `expected` without explaining it in
   `limitations`.
-- [ ] T102 (found by T083) Restore `content/library/sources/mutopia-37-satie-gymnopedie1/gymnopedie_1.ly` to the bytes
+- [x] T102 (found by T083) Restore `content/library/sources/mutopia-37-satie-gymnopedie1/gymnopedie_1.ly` to the bytes
   downloaded in c3df327 (sha256 `420a5224...`) and its `source.json` hash: de2d579 (T041) edited the source (moved
   the `middle` voice from the treble to the bass staff) and re-pinned the hash, against contract `source-manifest.md`
   §1 and FR-016. Re-run the Satie record against the restored source. Record the item's staff placement of the
   accompaniment chords (lower staff; the source prints them on the upper staff) as the owner decides.
-- [ ] T103 (found by T083) Provenance of the items converted from a committed source: Satie and Clementi sidecars
+- [x] T103 (found by T083) Provenance of the items converted from a committed source: Satie and Clementi sidecars
   still say `authored`/CC0 with the pre-conversion `basedOn` text; Burgmüller Op. 100 No. 2, Chopin Op. 28 No. 20,
   Satie and Clementi have no entry in the `THIRD_PARTY_NOTICES.md` library list although the "Reference sources"
   preamble says every converted-from source is listed there (FR-023). Needs owner OK (licensing wording).
+- [x] T104 (found by T083) Clementi Op. 36 No. 1: the item holds the complete
+  first movement (38 bars, repeats) but its title, subtitle, claim (`excerpt`, "exposition"), sidecar note and audit
+  note say "exposition only, bars 1-15"; and its tempo was hand-edited to 144 after conversion. Owner decision
+  2026-09-24: keep the file exactly as `library:convert-ly` + `library:engrave` produce it (tempo 156 from the source
+  MIDI), relabel it as the 1st movement, claim `original`, drop the exposition subtitle and the tempo limitation.
 - [ ] T085 Run `quickstart.md` Manual verification US1-US4 and "App still works". Describe every screenshot looked
   at in the log.
 - [ ] T086 Review with `constitution-auditor` of the branch diff. Summarise the findings in the log; CRITICAL/HIGH
