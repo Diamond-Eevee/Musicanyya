@@ -341,3 +341,50 @@
   - `pnpm test:e2e`: 293 passed; 2 Electron tests failed (`electron-playback.spec.ts:47`, `library.spec.ts:175`: launch closed / audio clock). This is pre-existing flakiness: unmodified 13faf5e also fails `library.spec.ts:175` in `--project=electron`, and both pass run alone on this tree. Not caused by this change, but not fixed either; it needs its own look.
 - Handoff: next = T056 (Amazing Grace source), then T057-T059. T061 must settle the missing C5. T097 comes after
   T067. Tree clean after this commit.
+
+## 2026-09-24 19:00 - claude-opus-5-5 (continue: US2 sources and items)
+- Done:
+  - Agent notes: AGENTS.md session start re-runs test+lint before trusting a log; tick evidence = summary lines;
+    scope, contract signatures, no empty tests, tool output location. Reference R7: fidelity/probe commands, the
+    known-flaky Electron e2e tests. `pnpm screenshot -- --item` failed on this pnpm (the documented form passed
+    `--` to the script): the tool now drops a leading `--`.
+  - T056-T058: sources Mutopia 1283, 1247, 528 with manifests and notices. New Britain is the Excell form, tune in
+    the Soprano. T059/T099 dropped: Mutopia 2236 (K. 265 for two guitars) needs Scheme music functions and an
+    uncommitted include; T065 becomes a visual check (research R11 "Rejected sources").
+  - T098: the LilyPond reader reads `\partcombine` as `<< A \\ B >>` and `#(set-accidental-style ...)` as layout
+    (contract fidelity-tools 1.7.0). 1283, 1247 and 528 each give 0 differences against their own MIDI.
+  - T060 intermediate Für Elise: verified. Bars 0-7 have 0 differences on every aspect; bar 8 has 4 declared
+    (single-pass ending).
+  - T061 beginner Für Elise: relabelled. The old note hid three changes: C5 left out (bar 1), G for G# (bar 3),
+    D for D# (bar 4). Restoring the C makes a run of 8 eighths (cap 4), and Beginner is at its minimum, so all
+    three are declared departures (R10 rule 6). Bars 0-1 give 1 named difference, bars 2-4 give 2.
+  - T062 Amazing Grace: fixed. The old melody was not the tune ("grace" never appeared). It is now the Soprano
+    exactly, 0 differences with rhythm compared; the left hand is Excell's bass, one note per bar.
+  - T063 Greensleeves: fixed. The old melody was an invented tune. It is now the source Soprano in E minor, with
+    the Beginner-cap changes declared: 3/4 with even eighths, no raised 6th/7th, turns shortened (run cap), one B
+    up an octave (leap cap). 11 named differences over 5 ranges.
+  - T064 Ode to Joy: fixed. Bars 4 and 8 had the dotted figure flattened (a melody note dropped each). They now
+    have it, and bar 4's left hand holds the dominant. 0 differences with rhythm compared. The Symphony No. 9 visual
+    check is split off as T100.
+  - For each changed item, the identity golden was re-captured before engraving (R14). Only that item's entry
+    changed each time (checked by diffing the golden per item); `furEliseThemeGrade` is unchanged. Each item was
+    probed at Beginner and checked in a screenshot.
+- Decisions: melody checks are split into ranges where a note is left out, because pairing is positional
+  (R7), so one omission would shift every later pair. Left hands are taken from the source's bass (one held note
+  per bar) instead of invented chords where the item had one bass note per bar.
+- Problems / open questions:
+  - needs owner: T065 (Twinkle vs a K. 265 printing), T066 (Jingle Bells, modern refrain), T067 (Mary Had a Little
+    Lamb) and T100 (Ode to Joy vs the Symphony No. 9 finale) are visual checks against public-domain scans
+    (IMSLP etc.). Opening them means downloading PDFs behind a disclaimer; the agent did not do that without the
+    owner's permission.
+  - T097 (enforce departures in the index model) and T068 (music-domain-expert review) wait for T065-T067.
+  - Items changed: amazing-grace, greensleeves, ode-to-joy. Anyone who practised them has new Note IDs; the item
+    ids are unchanged (SC-007).
+- Gate:
+  - `pnpm lint`: 0 errors;
+  - `pnpm typecheck`: green;
+  - `pnpm test`: 1819 passed, 3 failed (the expected T051/T097 tests: Twinkle, Jingle Bells and Mary still have no
+    departures);
+  - library e2e: 14 passed, 10 skipped;
+  - full `pnpm test:e2e`: 295 passed, 65 skipped, 0 failed (the flaky Electron tests passed this run).
+- Handoff: next = owner answer on the scans, then T065-T067, T100, T097, T068. Tree clean after this commit.
