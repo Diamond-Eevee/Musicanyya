@@ -257,18 +257,18 @@ function numberStaves(root: LyMusic): Staves {
       const n = known ?? currentStaff ?? ++count;
       staves.byNode.set(m, n);
       if (m.name !== undefined) staves.byName.set(m.name, n);
-      
+
       const saved = currentStaff;
       currentStaff = n;
       if (m.body) walk(m.body, currentStaff);
       currentStaff = saved;
       return;
     }
-    if (m.kind === 'seq') m.items.forEach((x) => walk(x, currentStaff));
-    else if (m.kind === 'sim') m.branches.forEach((x) => walk(x, currentStaff));
+    if (m.kind === 'seq') for (const x of m.items) walk(x, currentStaff);
+    else if (m.kind === 'sim') for (const x of m.branches) walk(x, currentStaff);
     else if (m.kind === 'repeat') {
       walk(m.body, currentStaff);
-      m.alternatives.forEach((x) => walk(x, currentStaff));
+      for (const x of m.alternatives) walk(x, currentStaff);
     } else if ('body' in m) walk(m.body, currentStaff);
   };
   walk(root);

@@ -8,7 +8,17 @@
       "method": "mechanical",
       "source": "mutopia-214-burgmuller-op100-no5",
       "sourceFiles": ["notation", "sound"],
-      "aspects": ["barCount", "barLengths", "repeats", "playedOrder", "pitch", "onset", "duration", "spelling", "graceNotes"],
+      "aspects": [
+        "barCount",
+        "barLengths",
+        "repeats",
+        "playedOrder",
+        "pitch",
+        "onset",
+        "duration",
+        "spelling",
+        "graceNotes"
+      ],
       "alignment": { "itemBars": "1-11", "sourceBars": "1-11" },
       "expectedDifferences": 0
     }

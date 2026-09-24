@@ -4,7 +4,7 @@
 // (contracts/library-index.md §1-2, data-model.md §4) - so a piece can be authored and leveled without
 // guessing, before it has a sidecar at all. Also writes each file's first page as SVG for a quick look.
 //
-//   pnpm tsx tools/library/probe.ts <dir> [outDir]
+//   pnpm tsx tools/library/probe.ts <dir> [outDir]   (outDir defaults to tests/.generated/probe, which git ignores)
 //
 // Modelled on tests/tools/probe-real-scores.ts, trimmed to what authoring a library item needs.
 import * as fs from 'node:fs';
@@ -26,7 +26,7 @@ type PostMessageFn = Parameters<typeof verovio>[1];
 async function main(): Promise<void> {
   const dir = process.argv[2];
   if (!dir) throw new Error('usage: pnpm tsx tools/library/probe.ts <dir> [outDir]');
-  const outDir = process.argv[3] ?? dir;
+  const outDir = process.argv[3] ?? path.join('tests', '.generated', 'probe');
   fs.mkdirSync(outDir, { recursive: true });
 
   let ready = false;

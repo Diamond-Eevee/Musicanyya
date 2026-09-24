@@ -1,6 +1,6 @@
 # Contract: audit records and the audit report
 
-**Version**: `1.0.0` - new.
+**Version**: `1.1.0` (1.0.0 new; 1.1.0, 2026-09-24: `melodyRhythm`, and a melody check may add only `spelling`, T054).
 
 **Owner**: `tools/library/fidelity/records.ts` (reads, validates, re-runs), `tools/library/fidelity/report.ts`
 (writes the report). **Location**: records at `content/library/audit/<item-id>.json` (the item id's slashes are
@@ -62,7 +62,9 @@ folders, e.g. `content/library/audit/repertoire/advanced/chopin-prelude-op28-no4
               }
             },
             "expectedDifferences": { "type": "integer", "minimum": 0 },
-            "differenceNotes": { "type": "array", "items": { "type": "string", "maxLength": 300 } }
+            "differenceNotes": { "type": "array", "items": { "type": "string", "maxLength": 300 } },
+            "melodyRhythm": { "enum": ["compared", "allowedByDeparture"],
+                              "description": "melody checks only (default compared): allowedByDeparture lists rhythm differences as allowed and does not count them; the item's departures must name the rhythmic change (research R7)" }
           }
         },
         {
@@ -105,7 +107,8 @@ folders, e.g. `content/library/audit/repertoire/advanced/chopin-prelude-op28-no4
    differ from `previous` in title/subtitle or `departures`. `removed` requires a row naming the item in
    `public/library/README.md` "Rejected items" (FR-009).
 4. **Claims** (FR-008, FR-010): `claim: "excerpt"` requires the item's title or subtitle to name the part it holds;
-   `claim: "arrangement"` requires `arrangement: true` and a non-empty `departures` in the sidecar; `claim:
+   `claim: "arrangement"` requires `arrangement: true` and a non-empty `departures` in the sidecar; a check with
+   `melodyRhythm: "allowedByDeparture"` requires the same; `claim:
    "original"` requires `arrangement: false` and a mechanical check with aspects covering at least `barCount`,
    `repeats`, `pitch`, `onset` and `duration` when the source has a notation file (FR-005).
 5. **Reviewer** (FR-018, SC-006): the sidecar's `reviewedBy` equals `checkedBy` and `reviewedOn` equals `date`.

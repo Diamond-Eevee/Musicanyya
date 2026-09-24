@@ -1,6 +1,6 @@
 # Contract: fidelity tools (readers, comparator, theory check, converter, commands)
 
-**Version**: `1.5.0` (1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands; 1.2.0, 2026-09-24: written bars follow the printed page (§3.2), `measurePosition`, `\tupletSpan`; 1.3.0, 2026-09-24: the converter's marks, §3.3; 1.4.0, 2026-09-24: the constructs of the US1 sources, §3.1, `readLilyPond(source, { score })`; 1.5.0, 2026-09-24: markup text, named voices per staff, moved hairpin ends, the MIDI's playback tempo, T096). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
+**Version**: `1.5.0` (1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands; 1.2.0, 2026-09-24: written bars follow the printed page (§3.2), `measurePosition`, `\tupletSpan`; 1.3.0, 2026-09-24: the converter's marks, §3.3; 1.4.0, 2026-09-24: the constructs of the US1 sources, §3.1, `readLilyPond(source, { score })`; 1.5.0, 2026-09-24: markup text, named voices per staff, moved hairpin ends, the MIDI's playback tempo, T096; 1.6.0, 2026-09-24: `compareMelody` takes `MelodyOptions` and returns `MelodyResult`, `melodyRhythm` differences, `CheckResult.allowed`, T054). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
 worker, and `tests/architecture/layers.test.ts` asserts it (as it already does for the exercise generator).
 
 **Location**: `tools/library/fidelity/` (pure TypeScript, Node, no DOM; compiled by `tsconfig.tools.json`) and
@@ -55,8 +55,11 @@ export function main(args: string[], io: { root: string; out: (line: string) => 
 
 // tools/library/fidelity/compare.ts
 export function compare(item: ReferenceScore, source: ReferenceScore, aspects: Aspect[], alignment: Alignment): Difference[];
+/** research R7, data-model.md §4.4: `differences` are counted; `allowed` holds the rhythm differences a declared
+ *  rhythmic departure allows (listed in the report, never counted). Throws on a transpose it cannot read. */
 export function compareMelody(item: ReferenceScore, source: ReferenceScore, alignment: Alignment,
-                              allowRhythm: boolean): Difference[];                      // US2, task T054
+                              options: { allowRhythm: boolean; spelling: boolean }):
+  { differences: Difference[]; allowed: Difference[] };                                // US2, task T054
 /** Step 2 of data-model.md §4.1a: notation reading vs the MIDI made from it, with research R5's rules. */
 export function compareSound(notation: ReferenceScore, sound: ReferenceScore,
                              options: { order: 'written' | 'played'; articulate: boolean }):
@@ -72,7 +75,8 @@ export function loadSources(root: string): Map<string, SourceManifest>;       //
 // tools/library/fidelity/records.ts
 export function loadRecords(root: string): AuditRecord[];                     // validates
 export function runRecord(record: AuditRecord, ctx: RunContext): CheckResult[];  // the two-step chain for notation + sound
-export interface CheckResult { check: Check; differences: Difference[] | TheoryDifference[]; reproduced: boolean;
+export interface CheckResult { check: Check; differences: Difference[] | TheoryDifference[];
+                               allowed: Difference[] /* melody checks: rhythm allowed by departures */; reproduced: boolean;
                                detail: string /* "item vs notation: 0 differences; notation vs sound: 0 differences" */ }
 export function checkRecord(record: AuditRecord, results: CheckResult[], ctx: RunContext): string[]; // audit-record.md §2
 export function outcomeLabel(record: AuditRecord): string;   // "verified (visual)" for a visual-only record (FR-019)

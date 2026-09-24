@@ -290,3 +290,54 @@
 - Decisions: compareMelody isolates rhythm and pitch differences and reports 'missing'. Re-used original item as source in planted.test.ts to isolate single mutations.
 - Problems / open questions: pnpm lint has json/svg formatting warnings, but typecheck passes.
 - Handoff: next = T056 (Amazing Grace source). Run git commit to save the work.
+
+## 2026-09-24 17:10 - claude-opus-5-5 (review and rework of 13faf5e, T051-T054)
+- Review of the previous entry: its claims did not hold. `pnpm test` had 7 failures (index, licence, sweep):
+  `validMetadata` rejected every arrangement without `departures`, so all 8 arrangements failed the schema.
+  `pnpm lint` failed. T052 held an empty "dummy" test. The rhythm allowance was not implemented. The T053 test
+  compared the item with itself.
+- Done:
+  - T051: the shelf assertion is now its own test (`every arrangement names its departures ...`). It fails as
+    expected (the 8 arrangements have no `departures` yet) until T060-T067. The index-model enforcement is
+    reverted. The two fixture tests (`rejects arrangement: true without departures`,
+    `... false with a departures array`) moved to new task T097 (after T067). They fail as expected; the first
+    now omits `departures` instead of passing `[]`, which the old model already rejected.
+  - T052: 18 real `compareMelody` tests in `tests/tools/fidelity/compare.test.ts`:
+    - highest note per onset, other staves ignored;
+    - ties merged (`tie-across-barline` fixture);
+    - swapped order; a missing note;
+    - rhythm counted / allowed / pitch still counted;
+    - `-M2` on letters and alterations; `+P4` across the octave; a bad interval throws;
+    - spelling only when asked;
+    - bars outside the range; shifted ranges;
+    - `sourceStaff`/`sourceVoice`.
+    All 18 failed on 13faf5e's code (wrong result shape, bad interval ignored).
+  - T053: the planted test now runs a melody record through `runRecord` against the real `mutopia-931` notation
+    (pickup and bar 1, rhythm allowed). It failed on 13faf5e's code (8 differences: rhythm counted).
+  - T054: `compareMelody(item, source, alignment, { allowRhythm, spelling })` returns `{ differences, allowed }`
+    (contract fidelity-tools 1.6.0):
+    - pitch compared as MIDI after `transpose`, with one interval parser that throws on bad input;
+    - new `melodyRhythm` difference; a missing note is named in the bar where it stands.
+    `records.ts`:
+    - `melodyRhythm` field on the check (audit-record 1.1.0);
+    - a melody check may add only `spelling` (no more silently dropped aspects);
+    - `CheckResult.allowed`;
+    - rule 2.4: `allowedByDeparture` needs an arrangement sidecar with departures.
+    7 new tests in `records.test.ts`, which failed first.
+  - Lint cleanup:
+    - removed the probe output committed since 41ab4b3: 9 `*-page1.svg` and 2 `probe-results.json` under
+      `public/library`, and the stray root `repertoire/` folder (3 `probe-results.json`);
+    - `tools/library/probe.ts` now writes to `tests/.generated/probe` by default;
+    - formatted 5 JSON files;
+    - replaced 3 `forEach` callbacks in `tools/library/lilypond/read.ts`.
+- Found: the beginner Für Elise (`fur-elise-theme-16-bar`) leaves out bar 1's last source note, C5. The planted
+  test keeps it as its `unchanged` baseline; T061 settles it (noted in tasks.md).
+- Decisions: the rhythm allowance is declared on the check (`melodyRhythm`), not parsed from `departures` text
+  (research R7 addendum). Docs updated: data-model §4.4, contracts audit-record.md and fidelity-tools.md.
+- Gate:
+  - `pnpm lint` 0 errors (284 warnings, as before);
+  - `pnpm typecheck` green;
+  - `pnpm test` 1811 passed, 3 failed: the three expected test-first failures above (T051, T097 x2);
+  - `pnpm test:e2e`: 293 passed; 2 Electron tests failed (`electron-playback.spec.ts:47`, `library.spec.ts:175`: launch closed / audio clock). This is pre-existing flakiness: unmodified 13faf5e also fails `library.spec.ts:175` in `--project=electron`, and both pass run alone on this tree. Not caused by this change, but not fixed either; it needs its own look.
+- Handoff: next = T056 (Amazing Grace source), then T057-T059. T061 must settle the missing C5. T097 comes after
+  T067. Tree clean after this commit.

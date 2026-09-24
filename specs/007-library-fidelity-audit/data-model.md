@@ -173,7 +173,8 @@ type Difference =
   | { kind: 'repeat'; bar: string; item: string; source: string }  // e.g. "repeat end" vs "none"
   | { kind: 'playedOrder'; position: number; item: string; source: string }
   | { kind: 'grace'; bar: string; detail: string }
-  | { kind: 'melody'; bar: string; index: number; item: string; source: string };
+  | { kind: 'melody'; bar: string; index: number; item: string; source: string }       // pitch, or 'missing'
+  | { kind: 'melodyRhythm'; bar: string; index: number; note: string; item: string; source: string };
 
 interface NoteRef { at: QuarterTime; midi: number; name: string }   // name = "E5", "D#5"
 ```
@@ -193,6 +194,17 @@ merged, over a declared bar range. The quote check compares the ordered list of 
 and order"). It compares onsets and durations too, unless the item's `departures` (§6) names a rhythmic departure
 for that range, in which case rhythm differences are reported as `allowedByDeparture` and do not count. The source
 melody comes from a named voice/staff of the source (e.g. the soprano of an SATB hymn).
+
+- The record declares the allowance: `melodyRhythm: "allowedByDeparture"` on the check (contract audit-record.md
+  1.1.0). The sidecar must then be an arrangement with `departures`; the words of the departure are for musicians
+  and are not parsed.
+- Notes are paired by position in the line (research R7: no fuzzy alignment). A different sounding pitch after
+  `transpose` is one `melody` difference; a note on one side only is a `melody` difference with `missing` on the
+  other side, named in the bar where it stands (source bars in item numbering).
+- Rhythm = onset measured from the start of the declared range, plus duration. A difference is one `melodyRhythm`
+  difference per note, so a renotation (e.g. 3/8 as 3/4 with doubled values) is listed note by note.
+- Spelling of same-sounding notes is compared only when the check lists `spelling`, as a `spelling` difference.
+  A melody check lists no other aspect; the rest of the item is checked by a check of its own.
 
 ## 5. Theory rule set (exercises, US3)
 
@@ -270,7 +282,8 @@ interface AuditRecord {                  // content/library/audit/<item-id>.json
 
 type Check =
   | { method: 'mechanical'; source: string /* SourceManifest.id */; sourceFiles: ('notation'|'sound')[];
-      aspects: Aspect[]; alignment: Alignment; expectedDifferences: number; differenceNotes?: string[] }
+      aspects: Aspect[]; alignment: Alignment; expectedDifferences: number; differenceNotes?: string[];
+      melodyRhythm?: 'compared' | 'allowedByDeparture' /* melody checks only, §4.4 */ }
   | { method: 'theory'; ruleSet: 'exercise-theory-v1'; expectedDifferences: 0 }
   | { method: 'visual'; source: string; bars: string /* "1-16" */; result: string; differences: string[] };
 

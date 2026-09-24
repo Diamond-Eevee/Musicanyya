@@ -8,7 +8,17 @@
       "method": "mechanical",
       "source": "mutopia-37-satie-gymnopedie1",
       "sourceFiles": ["notation", "sound"],
-      "aspects": ["barCount", "barLengths", "repeats", "playedOrder", "pitch", "onset", "duration", "spelling", "graceNotes"],
+      "aspects": [
+        "barCount",
+        "barLengths",
+        "repeats",
+        "playedOrder",
+        "pitch",
+        "onset",
+        "duration",
+        "spelling",
+        "graceNotes"
+      ],
       "alignment": {
         "itemBars": "all",
         "sourceBars": "all"

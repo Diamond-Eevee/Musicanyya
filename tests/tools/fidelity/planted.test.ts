@@ -1,12 +1,12 @@
 // Planted errors (contract fidelity-tools.md §5, FR-017, SC-004): a comparison method may give a "0 differences"
 // result only if it catches each of these mutations, exactly once and in the right bar. Repertoire part: the
-// verified Für Elise item against its source, Mutopia 931. The melody mutation (US2) and the theory mutations (US3)
-// are added by tasks T053 and T072.
+// verified Für Elise item against its source, Mutopia 931, and the melody quote of the beginner Für Elise (US2, T053).
+// The theory mutations (US3) are added by task T072.
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
-import { compare, compareSound, compareMelody, type Difference } from '../../../tools/library/fidelity/compare';
+import { compare, compareSound, type Difference } from '../../../tools/library/fidelity/compare';
 import { fromMusicXml } from '../../../tools/library/fidelity/from-musicxml';
 import { fromMidi, readMidi } from '../../../tools/library/fidelity/midi';
 import { type AuditRecord, runRecord } from '../../../tools/library/fidelity/records';
@@ -176,19 +176,56 @@ describe('planted errors: the Für Elise item against Mutopia 931 (both steps)',
   });
 });
 
-const MELODY_ITEM_ID = 'repertoire/beginner/fur-elise-theme-16-bar';
-const MELODY_ITEM = readFileSync(`public/library/${MELODY_ITEM_ID}.musicxml`, 'utf8');
-const melodyOriginal = fromMusicXml(MELODY_ITEM);
+// The melody mutation (US2, T053): the beginner Für Elise quotes the pickup and bar 1 of Mutopia 931 (research R7).
+// Its 3/4 renotation doubles every value, so rhythm is allowed; pitch and order are counted.
+const MELODY_ID = 'repertoire/beginner/fur-elise-theme-16-bar';
+const MELODY_ITEM = readFileSync(`public/library/${MELODY_ID}.musicxml`, 'utf8');
+const MELODY_RECORD: AuditRecord = {
+  ...RECORD,
+  itemId: MELODY_ID,
+  claim: 'arrangement',
+  claimText: 'Für Elise, beginner arrangement - quotes the opening',
+  checks: [
+    {
+      method: 'mechanical',
+      source: 'mutopia-931-beethoven-woo59',
+      sourceFiles: ['notation'],
+      aspects: ['melody', 'spelling'],
+      alignment: { itemBars: '0-1', sourceBars: '0-1' },
+      melodyRhythm: 'allowedByDeparture',
+      expectedDifferences: 0,
+    },
+  ],
+};
 
-describe('planted errors: melody check on beginner Für Elise', () => {
-  it('one melody note changed: exactly one melody difference naming the bar', () => {
-    // Change bar 1's first note: E5 (midi 76) to F5 (midi 77)
+function melodyDifferences(xml: string): Difference[] {
+  const file = join(scratch, `melody-${++copies}.musicxml`);
+  writeFileSync(file, xml);
+  const [result] = runRecord(MELODY_RECORD, {
+    sources,
+    sourcesRoot: 'content/library/sources',
+    libraryRoot: 'public/library',
+    itemFile: file,
+  });
+  if (!result) throw new Error('no result');
+  return result.differences;
+}
+
+describe('planted errors: the melody quote of the beginner Für Elise against Mutopia 931', () => {
+  // Found by this check, not planted: the item's bar 1 leaves out the source's last note, C5 (T061 settles it).
+  const unchanged = [{ kind: 'melody', bar: '1', index: 7, item: 'missing', source: 'C5' }];
+
+  it('the unchanged item gives only the difference T061 settles', () => {
+    expect(melodyDifferences(MELODY_ITEM)).toEqual(unchanged);
+  });
+
+  it('one melody note changed (bar 1, B4 -> C5): exactly one more melody difference, naming the bar', () => {
     const xml = inMeasure(MELODY_ITEM, '1', (b) =>
-      note(b, 0, (n) => n.replace('<step>E</step>', '<step>F</step>')),
+      note(b, 3, (n) => n.replace('<step>B</step><octave>4</octave>', '<step>C</step><octave>5</octave>')),
     );
-    const mutated = fromMusicXml(xml);
-    expect(compareMelody(mutated, melodyOriginal, { itemBars: 'all', sourceBars: 'all', staff: 1, sourceStaff: 1 })).toEqual([
-      { kind: 'melody', bar: '1', index: 2, item: 'F5', source: 'E5' }
+    expect(melodyDifferences(xml)).toEqual([
+      { kind: 'melody', bar: '1', index: 5, item: 'C5', source: 'B4' },
+      ...unchanged,
     ]);
   });
 });

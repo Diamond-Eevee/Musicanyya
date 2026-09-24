@@ -9,9 +9,7 @@
   "trains": "A brisk single-line melody in the right hand (scale runs, octave leaps, a brief secondary-dominant tonicization) over a light, mostly on-the-beat left hand - reading fluency and a fast, even tempo more than technical difficulty.",
   "hands": "both",
   "arrangement": false,
-  "limitations": [
-    "tempo lowered to 144 to fit level (source's 156 is editorial)"
-  ],
+  "limitations": ["tempo lowered to 144 to fit level (source's 156 is editorial)"],
   "provenance": {
     "origin": "authored",
     "licence": "CC0-1.0",

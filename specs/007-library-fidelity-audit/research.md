@@ -181,6 +181,22 @@ requires added material to be named, not verified against anything.
 **Alternatives considered**: fuzzy sequence alignment (edit distance) would "match" a wrong melody with a small
 score and needs a threshold. Rejected for the same reason as tolerances (R5).
 
+**Addendum (2026-09-24, T054)**: how the record says that rhythm is free.
+
+- **Decision**: the check carries `melodyRhythm: "allowedByDeparture"`, and `checkRecord` requires the sidecar to be
+  an arrangement with `departures`. Allowed rhythm differences are returned apart (`MelodyResult.allowed`) and
+  printed, never counted.
+- **Rationale**: `departures` are free text for musicians. Parsing them for "rhythm" would be brittle and would
+  change meaning with wording.
+- **Alternatives**:
+  - reading the allowance from the aspects (melody without `onset`/`duration`): overloads aspects that mean
+    whole-item note checks elsewhere;
+  - a keyword in `departures`: brittle, as above.
+- **Pitch**: compared as sounding pitch (MIDI) after `transpose`. Enharmonic spelling is a separate `spelling`
+  difference, only when the check lists `spelling`, so E-flat for D-sharp is never a "wrong note".
+- **Rhythm**: onset from the start of the declared range, plus duration, so the ranges may differ in length (a
+  renotated quote).
+
 ## R8. Theory check independence (US3)
 
 **Decision**:

@@ -21,6 +21,8 @@ export interface MechanicalCheck {
   alignment: Alignment;
   expectedDifferences: number;
   differenceNotes?: string[];
+  /** Melody checks only: "allowedByDeparture" when the item's departures name a rhythmic change (research R7). */
+  melodyRhythm?: 'compared' | 'allowedByDeparture';
 }
 export interface TheoryCheck {
   method: 'theory';
@@ -62,6 +64,8 @@ export interface RunContext {
 export interface CheckResult {
   check: Check;
   differences: Difference[];
+  /** Melody checks: rhythm differences the record allows (listed in the report, not counted). */
+  allowed: Difference[];
   reproduced: boolean;
   /** What was compared, e.g. "item vs notation: 0 differences; notation vs sound: 0 differences". */
   detail: string;
@@ -80,6 +84,8 @@ const ASPECTS: Aspect[] = [
   'melody',
 ];
 const ORIGINAL_ASPECTS: Aspect[] = ['barCount', 'repeats', 'pitch', 'onset', 'duration'];
+/** A melody check compares one line; only its spelling may be added (the other aspects need a check of their own). */
+const MELODY_ASPECTS: Aspect[] = ['melody', 'spelling'];
 
 // ---- schema --------------------------------------------------------------------------------------------------------
 
@@ -120,7 +126,16 @@ function validateCheck(json: unknown, at: string, fail: (d: string) => never): v
   if (c.method === 'mechanical') {
     only(
       c,
-      ['method', 'source', 'sourceFiles', 'aspects', 'alignment', 'expectedDifferences', 'differenceNotes'],
+      [
+        'method',
+        'source',
+        'sourceFiles',
+        'aspects',
+        'alignment',
+        'expectedDifferences',
+        'differenceNotes',
+        'melodyRhythm',
+      ],
       at,
       fail,
     );
@@ -130,6 +145,13 @@ function validateCheck(json: unknown, at: string, fail: (d: string) => never): v
     for (const f of c.sourceFiles as unknown[]) oneOf(f, ['notation', 'sound'], `${at}.sourceFiles`, fail);
     if (!Array.isArray(c.aspects) || c.aspects.length === 0) fail(`${at}.aspects must list at least one aspect`);
     for (const a of c.aspects as unknown[]) oneOf(a, ASPECTS, `${at} aspect`, fail);
+    const melody = (c.aspects as Aspect[]).includes('melody');
+    if (melody && !(c.aspects as Aspect[]).every((a) => MELODY_ASPECTS.includes(a)))
+      fail(`${at}: a melody check may add only spelling; put the other aspects in a check of their own`);
+    if (c.melodyRhythm !== undefined) {
+      if (!melody) fail(`${at}.melodyRhythm needs the melody aspect`);
+      oneOf(c.melodyRhythm, ['compared', 'allowedByDeparture'], `${at}.melodyRhythm`, fail);
+    }
     const al = object(c.alignment, `${at}.alignment`, fail);
     only(
       al,
@@ -194,6 +216,7 @@ export function runRecord(record: AuditRecord, ctx: RunContext): CheckResult[] {
       return {
         check,
         differences: [],
+        allowed: [],
         reproduced: true,
         detail: `visual check of bars ${check.bars} against ${check.source}`,
       };
@@ -214,15 +237,20 @@ function runMechanical(record: AuditRecord, check: MechanicalCheck, ctx: RunCont
     );
   const item = fromMusicXml(readFileSync(ctx.itemFile ?? join(ctx.libraryRoot, `${record.itemId}.musicxml`), 'utf8'));
   const notation = readNotation(manifest, ctx);
-  
-  let differences: Difference[] = [];
+  let differences: Difference[];
+  let allowed: Difference[] = [];
+  let detail: string;
   if (check.aspects.includes('melody')) {
-    differences = compareMelody(item, notation, check.alignment);
+    ({ differences, allowed } = compareMelody(item, notation, check.alignment, {
+      allowRhythm: check.melodyRhythm === 'allowedByDeparture',
+      spelling: check.aspects.includes('spelling'),
+    }));
+    detail = `item vs notation (melody): ${differences.length} differences`;
+    if (allowed.length > 0) detail += `, ${allowed.length} rhythm differences allowed by departures`;
   } else {
     differences = compare(item, notation, check.aspects, check.alignment);
+    detail = `item vs notation: ${differences.length} differences`;
   }
-  
-  let detail = `item vs notation: ${differences.length} differences`;
   if (check.sourceFiles.includes('sound')) {
     const sound = sourceFile(ctx.sourcesRoot, manifest, 'sound');
     if (!sound) throw new Error(`${record.itemId}: source ${manifest.id} has no sound file`);
@@ -235,7 +263,7 @@ function runMechanical(record: AuditRecord, check: MechanicalCheck, ctx: RunCont
     detail += `; notation vs sound: ${second.differences.length} differences`;
     if (second.durations === 'notation only') detail += ' (durations checked against the notation only)';
   }
-  return { check, differences, reproduced: differences.length === check.expectedDifferences, detail };
+  return { check, differences, allowed, reproduced: differences.length === check.expectedDifferences, detail };
 }
 
 function readNotation(manifest: SourceManifest, ctx: RunContext): ReferenceScore {
@@ -331,6 +359,11 @@ export function checkRecord(record: AuditRecord, results: CheckResult[], ctx: Ru
     if (sidecar.arrangement !== true) problems.push('claim arrangement, but the sidecar says arrangement: false');
     if (departures.length === 0) problems.push('claim arrangement, but the sidecar has no departures');
   }
+  if (
+    record.checks.some((c) => c.method === 'mechanical' && c.melodyRhythm === 'allowedByDeparture') &&
+    (sidecar.arrangement !== true || departures.length === 0)
+  )
+    problems.push('rhythm is allowed by departures, but the sidecar is not an arrangement with departures');
 
   // 2.5 reviewer
   if (sidecar.reviewedBy !== record.checkedBy)

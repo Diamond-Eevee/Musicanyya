@@ -206,3 +206,57 @@ describe('runRecord + checkRecord (contract audit-record.md §2)', () => {
     expect(runRecord(record(), withScore(1))[0]?.differences.length).toBeGreaterThan(0);
   });
 });
+
+describe('melody checks in records (research R7, T054)', () => {
+  const melody = (check: Record<string, unknown> = {}) => record({}, { aspects: ['melody'], ...check });
+
+  it.each([
+    [
+      'a melody check that also lists note aspects',
+      { aspects: ['melody', 'pitch'] },
+      /melody check may add only spelling/,
+    ],
+    ['melodyRhythm without the melody aspect', { melodyRhythm: 'compared' }, /melodyRhythm needs the melody aspect/],
+    ['an unknown melodyRhythm', { aspects: ['melody'], melodyRhythm: 'free' }, /melodyRhythm "free"/],
+  ])('rejects %s', (_what, patch, pattern) => {
+    expect(() => validateRecord(JSON.parse(JSON.stringify(record({}, patch))), 'x.json')).toThrow(pattern);
+  });
+
+  it('accepts a melody check with spelling and a declared rhythm allowance', () => {
+    const r = melody({ aspects: ['melody', 'spelling'], melodyRhythm: 'allowedByDeparture' });
+    expect(validateRecord(JSON.parse(JSON.stringify(r)), 'x.json')).toEqual(r);
+  });
+
+  it('runs compareMelody, then the sound step, and names the melody in the detail', () => {
+    const [result] = runRecord(melody(), ctx);
+    expect(result).toMatchObject({ differences: [], allowed: [], reproduced: true });
+    expect(result?.detail).toBe('item vs notation (melody): 0 differences; notation vs sound: 0 differences');
+    write('copy.musicxml', ITEM_XML.replace('<step>E</step>', '<step>F</step>'));
+    const [planted] = runRecord(melody(), { ...ctx, itemFile: join(root, 'copy.musicxml') });
+    expect(planted?.differences).toEqual([{ kind: 'melody', bar: '1', index: 2, item: 'F4', source: 'E4' }]);
+  });
+
+  it('counts rhythm differences, or lists them as allowed when the record says so', () => {
+    // Every note an eighth instead of a quarter.
+    write('copy.musicxml', ITEM_XML.replace('<divisions>1</divisions>', '<divisions>2</divisions>'));
+    const copy = { ...ctx, itemFile: join(root, 'copy.musicxml') };
+    const [counted] = runRecord(melody(), copy);
+    expect(counted?.differences.map((d) => d.kind)).toEqual(Array(4).fill('melodyRhythm'));
+    expect(counted?.allowed).toEqual([]);
+    const [allowed] = runRecord(melody({ melodyRhythm: 'allowedByDeparture' }), copy);
+    expect(allowed?.differences).toEqual([]);
+    expect(allowed?.allowed).toEqual(counted?.differences);
+    expect(allowed?.detail).toBe(
+      'item vs notation (melody): 0 differences, 4 rhythm differences allowed by departures; notation vs sound: 0 differences',
+    );
+  });
+
+  it('rule 2.4: rhythm allowed by departures needs an arrangement sidecar with departures', () => {
+    const r = melody({ melodyRhythm: 'allowedByDeparture' });
+    expect(problems(r)).toContain(
+      'rhythm is allowed by departures, but the sidecar is not an arrangement with departures',
+    );
+    sidecar({ title: 'Scale (arrangement)', arrangement: true, departures: ['bar 1: eighths for quarters'] });
+    expect(problems({ ...r, claim: 'arrangement' })).toEqual([]);
+  });
+});

@@ -453,6 +453,7 @@ named public-domain version of the tune in pitch and order.
 were compared against, and the result. The sidecar's `departures` names every deliberate departure.
 
 ### Tests (write first, confirm they fail)
+
 - T050 moved to Phase 2, "Sidecar `departures` support" (analyze A4).
 - [x] T051 [P] [US2] `tests/library/licence.test.ts`: `arrangement: true` requires a non-empty `departures`, and
   `arrangement: false` forbids it. Confirm it fails on the current shelf; no arrangement has `departures` yet.
@@ -504,7 +505,9 @@ Each item task:
   changes, re-capture `furEliseThemeGrade` in `tests/fixtures/library-identity.json` and log which notes changed
   and why (research R14). (Depends on T054, T055.)
 - [ ] T061 [US2] `repertoire/beginner/fur-elise-theme-16-bar` against `mutopia-931`. Melody check over the pickup and
-  bar 1, with the declared rhythmic departure. `departures` names:
+  bar 1, with the declared rhythmic departure (`melodyRhythm: "allowedByDeparture"`). Known finding (2026-09-24,
+  `planted.test.ts`): the item's bar 1 leaves out the source's last note, C5; fix it from the source or name it as
+  a departure, then update the `unchanged` baseline in `planted.test.ts`. `departures` names:
   - the renotation from 3/8 to 3/4 with doubled values;
   - the quarter-note E5 in bar 1;
   - bars 2-16 as our own continuation;
@@ -537,11 +540,16 @@ Each item task:
   public-domain printing of the "Goodnight, Ladies" / "Merrily We Roll Along" tune (research R15; the E. P. Christy
   1847 attribution is to be verified). `departures` names the key (F major), the 8-bar form and the own bass. If no
   printing is found, stop and ask the owner, as in T066.
+- [ ] T097 [US2] Enforce FR-010 in the index model: `validMetadata` in `src/core/library/index-model.ts` rejects
+  `arrangement: true` without `departures` and `arrangement: false` with them (contract library-index-1.1.md §1).
+  Makes the two T097 tests in `tests/library/licence.test.ts` pass (written 2026-09-24, failing as expected). Run
+  `pnpm library:index`; `index.json` changes only by the `departures` the item tasks added. (Depends on T060-T067:
+  enforcing earlier drops every arrangement from the shelf.)
 - [ ] T068 [US2] Review with `music-domain-expert`: every arrangement's `departures` wording (musician's words, bars
   named, nothing added presented as the composer's) and the chosen tune versions. Summarise the findings in the log.
   (Depends on T060-T067.)
 
-**Checkpoint**: `licence.test.ts` passes: every arrangement has `departures`. Every arrangement has a record with a
+**Checkpoint**: `licence.test.ts` passes: every arrangement has `departures` (T051), and the model enforces it (T097). Every arrangement has a record with a
 melody or mechanical check over its quoted bars. `planted.test.ts` catches the melody mutation. Run the full gate,
 write a log entry, and commit.
 
@@ -708,7 +716,7 @@ reviewer rule and freshness. Run the full gate, write a log entry, and commit.
   - item tasks T038-T044 each need T030 and their source task;
   - T045 needs only T001;
   - T046 needs T038-T045; T047-T049 need T046.
-- **US2 (T050-T068)**: can start after Foundational, in parallel with US1 on different files.
+- **US2 (T050-T068, T097)**: can start after Foundational, in parallel with US1 on different files. T097 comes after T060-T067.
   - T050/T055 now sit in Foundational, so US1's fallback paths in T042/T043 have `departures` support.
   - T060 shares `tests/fixtures/library-identity.json` with T046: run them one after the other, never in parallel.
 - **US3 (T069-T076)**: independent of US1/US2 (different files) once Foundational is done.

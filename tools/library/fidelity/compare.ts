@@ -3,11 +3,15 @@
 // reported once. Differences name the bar and the position in it (quarter notes after the bar line), sorted by bar,
 // then position, so a re-run gives identical output.
 import {
+  type Alter,
   noteName,
   type ReferenceBar,
   type ReferenceGraceNote,
   type ReferenceNote,
   type ReferenceScore,
+  type Spelling,
+  type Step,
+  spellingMidi,
   spellingName,
 } from './reference';
 import { add, cmp, type QuarterTime, q, show, sub } from './time';
@@ -29,7 +33,8 @@ export type Difference =
   | { kind: 'repeat'; bar: string; item: string; source: string }
   | { kind: 'playedOrder'; position: number; item: string; source: string }
   | { kind: 'grace'; bar: string; detail: string }
-  | { kind: 'melody'; bar: string; index: number; item: string; source: string };
+  | { kind: 'melody'; bar: string; index: number; item: string; source: string }
+  | { kind: 'melodyRhythm'; bar: string; index: number; note: string; item: string; source: string };
 
 export type Aspect =
   | 'barCount'
@@ -465,143 +470,162 @@ export function compareSound(notation: ReferenceScore, sound: ReferenceScore, op
   return { differences: sorted(out), durations: options.articulate ? 'notation only' : 'compared' };
 }
 
-function transposeSpelling(spelling: { step: string; alter: number; octave: number }, interval: string) {
-  const m = /^([+-]?)(P|M|m|A|d)(\d+)$/.exec(interval);
-  if (!m) throw new Error(`Invalid transpose ${interval}`);
-  const sign = m[1] === '-' ? -1 : 1;
-  const quality = m[2];
-  const degree = Number(m[3]);
-  const letterSteps = degree - 1;
+// ---- the melody quote (data-model.md §4.4, research R7) -----------------------------------------------------------
 
-  let semitones = 0;
-  if (degree === 1 || degree === 4 || degree === 5 || degree === 8) {
-    if (quality === 'P') semitones = degree === 1 ? 0 : degree === 4 ? 5 : degree === 5 ? 7 : 12;
-    else if (quality === 'A') semitones = (degree === 1 ? 0 : degree === 4 ? 5 : degree === 5 ? 7 : 12) + 1;
-    else if (quality === 'd') semitones = (degree === 1 ? 0 : degree === 4 ? 5 : degree === 5 ? 7 : 12) - 1;
-  } else {
-    const maj = degree === 2 ? 2 : degree === 3 ? 4 : degree === 6 ? 9 : 11;
-    if (quality === 'M') semitones = maj;
-    else if (quality === 'm') semitones = maj - 1;
-    else if (quality === 'A') semitones = maj + 1;
-    else if (quality === 'd') semitones = maj - 2;
-  }
-
-  const LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-  const STEP_SEMITONES = [0, 2, 4, 5, 7, 9, 11];
-
-  const startIndex = LETTERS.indexOf(spelling.step);
-  const targetIndex = (startIndex + sign * letterSteps) % 7;
-  const step = LETTERS[(targetIndex + 7) % 7]! as 'C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B';
-  const octaves = Math.floor((startIndex + sign * letterSteps) / 7);
-
-  const startTotalSemitones = spelling.octave * 12 + STEP_SEMITONES[startIndex]! + spelling.alter;
-  const targetTotalSemitones = startTotalSemitones + sign * semitones;
-
-  const targetOctave = spelling.octave + octaves;
-  const targetBaseSemitones = targetOctave * 12 + STEP_SEMITONES[(targetIndex + 7) % 7]!;
-  const alter = (targetTotalSemitones - targetBaseSemitones) as any;
-
-  return { step, alter, octave: targetOctave };
+export interface MelodyOptions {
+  /** The item's `departures` name a rhythmic change over these bars: rhythm differences are listed, not counted. */
+  allowRhythm: boolean;
+  /** Compare the spelling of same-sounding notes too (the record lists the `spelling` aspect). */
+  spelling: boolean;
 }
 
-function applyTranspose(note: ReferenceNote, interval: string | undefined): ReferenceNote {
+export interface MelodyResult {
+  /** Counted differences. */
+  differences: Difference[];
+  /** Rhythm differences the record allows (`allowRhythm`); listed in the report, never counted. */
+  allowed: Difference[];
+}
+
+const LETTERS: Step[] = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+const PERFECT: Record<number, number> = { 1: 0, 4: 5, 5: 7, 8: 12 };
+const MAJOR: Record<number, number> = { 2: 2, 3: 4, 6: 9, 7: 11 };
+
+interface Interval {
+  letters: number;
+  semitones: number;
+}
+
+/** "-M2", "+P4" ... (contract audit-record.md) as signed letter steps and semitones. */
+function parseInterval(text: string): Interval {
+  const m = /^([+-])([PMmAd])([1-8])$/.exec(text);
+  const degree = Number(m?.[3]);
+  const perfect = PERFECT[degree];
+  const major = MAJOR[degree];
+  const quality = m?.[2];
+  let semitones: number | undefined;
+  if (perfect !== undefined)
+    semitones = quality === 'P' ? perfect : quality === 'A' ? perfect + 1 : quality === 'd' ? perfect - 1 : undefined;
+  else if (major !== undefined)
+    semitones =
+      quality === 'M'
+        ? major
+        : quality === 'm'
+          ? major - 1
+          : quality === 'A'
+            ? major + 1
+            : quality === 'd'
+              ? major - 2
+              : undefined;
+  if (!m || semitones === undefined) throw new Error(`alignment transpose "${text}" is not an interval like "-M2"`);
+  const sign = m[1] === '-' ? -1 : 1;
+  return { letters: sign * (degree - 1), semitones: sign * semitones };
+}
+
+/** Letter arithmetic: move the letter, then take the alteration from the semitone distance. */
+function transposeSpelling(s: Spelling, interval: Interval): Spelling {
+  const from = LETTERS.indexOf(s.step) + 7 * s.octave;
+  const to = from + interval.letters;
+  const step = LETTERS[((to % 7) + 7) % 7] as Step;
+  const octave = Math.floor(to / 7);
+  const alter = spellingMidi(s) + interval.semitones - spellingMidi({ step, alter: 0, octave });
+  if (alter < -2 || alter > 2) throw new Error(`transposing ${spellingName(s)} needs more than a double accidental`);
+  return { step, alter: alter as Alter, octave };
+}
+
+function transposeNote(note: ReferenceNote, interval: Interval | undefined): ReferenceNote {
   if (!interval) return note;
-  const m = /^([+-]?)(P|M|m|A|d)(\d+)$/.exec(interval);
-  if (!m) return note;
-  const sign = m[1] === '-' ? -1 : 1;
-  const degree = Number(m[3]);
-  const quality = m[2];
-
-  let semitones = 0;
-  if (degree === 1 || degree === 4 || degree === 5 || degree === 8) {
-    if (quality === 'P') semitones = degree === 1 ? 0 : degree === 4 ? 5 : degree === 5 ? 7 : 12;
-    else if (quality === 'A') semitones = (degree === 1 ? 0 : degree === 4 ? 5 : degree === 5 ? 7 : 12) + 1;
-    else if (quality === 'd') semitones = (degree === 1 ? 0 : degree === 4 ? 5 : degree === 5 ? 7 : 12) - 1;
-  } else {
-    const maj = degree === 2 ? 2 : degree === 3 ? 4 : degree === 6 ? 9 : 11;
-    if (quality === 'M') semitones = maj;
-    else if (quality === 'm') semitones = maj - 1;
-    else if (quality === 'A') semitones = maj + 1;
-    else if (quality === 'd') semitones = maj - 2;
-  }
-
-  const transposed: ReferenceNote = { ...note, midi: note.midi + sign * semitones };
-  if (note.spelling) {
-    transposed.spelling = transposeSpelling(note.spelling, interval);
-  }
-  return transposed;
+  const moved: ReferenceNote = { ...note, midi: note.midi + interval.semitones };
+  if (note.spelling) moved.spelling = transposeSpelling(note.spelling, interval);
+  return moved;
 }
 
+interface MelodyNote {
+  note: ReferenceNote;
+  bar: ReferenceBar;
+  /** Quarter notes after the start of the declared range. */
+  offset: QuarterTime;
+}
+
+/** The highest note at each onset of one staff (and voice, if named) over a bar range; ties are merged by the readers. */
+function melodyLine(s: ReferenceScore, range: string, staff: number, voice: string | undefined): MelodyNote[] {
+  const r = parseRange(range);
+  const bars = s.bars.filter((b) => r === 'all' || (Number(b.number) >= r[0] && Number(b.number) <= r[1]));
+  const first = bars[0];
+  if (!first) throw new Error(`alignment range "${range}" holds no bar`);
+  const inRange = new Set(bars.map((b) => b.index));
+  const top = new Map<string, ReferenceNote>();
+  for (const n of s.notes) {
+    if (!inRange.has(n.bar) || (n.staff ?? 1) !== staff || (voice !== undefined && n.voice !== voice)) continue;
+    const key = show(n.onset);
+    const held = top.get(key);
+    if (!held || n.midi > held.midi) top.set(key, n);
+  }
+  return [...top.values()]
+    .sort((a, b) => cmp(a.onset, b.onset))
+    .map((note) => ({ note, bar: s.bars[note.bar] as ReferenceBar, offset: sub(note.onset, first.start) }));
+}
+
+/**
+ * The melody quote check: the item's melody line against the source's, note by note in order. A different sounding
+ * pitch (after `transpose`) is a `melody` difference; a different onset or duration is a `melodyRhythm` difference,
+ * counted unless `allowRhythm`. Order must match exactly (research R7 rejects fuzzy alignment), so a note left out
+ * shifts every later pair.
+ */
 export function compareMelody(
   item: ReferenceScore,
   source: ReferenceScore,
-  alignment: Alignment
-): Difference[] {
+  alignment: Alignment,
+  options: MelodyOptions,
+): MelodyResult {
+  const interval = alignment.transpose === undefined ? undefined : parseInterval(alignment.transpose);
+  const items = melodyLine(item, alignment.itemBars, alignment.staff ?? 1, alignment.voice);
+  const sources = melodyLine(source, alignment.sourceBars, alignment.sourceStaff ?? 1, alignment.sourceVoice);
   const itemRange = parseRange(alignment.itemBars);
   const sourceRange = parseRange(alignment.sourceBars);
-
-  const getMelody = (s: ReferenceScore, range: [number, number] | 'all', staff: number | undefined, voice: string | undefined) => {
-    const inRange = (b: ReferenceBar) => range === 'all' || (Number(b.number) >= range[0] && Number(b.number) <= range[1]);
-    const filtered = s.notes.filter(n => {
-      if (staff !== undefined && n.staff !== staff) return false;
-      if (voice !== undefined && n.voice !== voice) return false;
-      const b = s.bars[n.bar];
-      if (!b || !inRange(b)) return false;
-      return true;
-    });
-    const onsets = new Map<string, ReferenceNote>();
-    for (const n of filtered) {
-      const key = show(n.onset);
-      const existing = onsets.get(key);
-      if (!existing || n.midi > existing.midi) onsets.set(key, n);
+  const shift = itemRange === 'all' || sourceRange === 'all' ? 0 : itemRange[0] - sourceRange[0];
+  /** A source bar in item numbering, for a note the item lacks. */
+  const itemBar = (b: ReferenceBar) => (shift === 0 ? b.number : String(Number(b.number) + shift));
+  const differences: Difference[] = [];
+  const allowed: Difference[] = [];
+  const rhythm = (m: MelodyNote) =>
+    `${show(m.note.duration)} at bar ${m.bar.number} beat ${show(sub(m.note.onset, m.bar.start))}`;
+  for (let index = 0; index < Math.max(items.length, sources.length); index++) {
+    const it = items[index];
+    const src = sources[index];
+    const moved = src && transposeNote(src.note, interval);
+    if (!it || !moved) {
+      const bar = it?.bar.number ?? (src ? itemBar(src.bar) : '');
+      differences.push({
+        kind: 'melody',
+        bar,
+        index,
+        item: it ? noteName(it.note) : 'missing',
+        source: moved ? noteName(moved) : 'missing',
+      });
+      continue;
     }
-    return [...onsets.values()].sort((a, b) => cmp(a.onset, b.onset)).map(note => {
-      const b = s.bars[note.bar]!;
-      return {
-        bar: b.number,
-        at: sub(note.onset, b.start),
-        note
-      };
-    });
-  };
-
-  const itemMelody = getMelody(item, itemRange, alignment.staff ?? 1, alignment.voice);
-  const sourceMelody = getMelody(source, sourceRange, alignment.sourceStaff, alignment.sourceVoice);
-
-  const out: Difference[] = [];
-  const max = Math.max(itemMelody.length, sourceMelody.length);
-  for (let i = 0; i < max; i++) {
-    const it = itemMelody[i];
-    const src = sourceMelody[i];
-    if (it && !src) {
-      out.push({ kind: 'melody', bar: it.bar, index: i, item: noteName(it.note), source: 'missing' });
-    } else if (!it && src) {
-      const transposedSrc = applyTranspose(src.note, alignment.transpose);
-      const pBar = i > 0 && itemMelody[i - 1] ? itemMelody[i - 1]!.bar : 'start';
-      out.push({ kind: 'melody', bar: pBar, index: i, item: 'missing', source: noteName(transposedSrc) });
-    } else if (it && src) {
-      const transposedSrc = applyTranspose(src.note, alignment.transpose);
-      const itemPitch = noteName(it.note);
-      const srcPitch = noteName(transposedSrc);
-
-      const diffAt = cmp(it.at, src.at) !== 0;
-      const formatRhythm = (n: ReferenceNote, at: QuarterTime) =>
-        !diffAt ? `${noteName(n)} (${show(n.duration)})` : `${noteName(n)} (${show(n.duration)} at ${show(at)})`;
-
-      if (itemPitch !== srcPitch) {
-        out.push({ kind: 'melody', bar: it.bar, index: i, item: itemPitch, source: srcPitch });
-      } else if (cmp(it.note.duration, src.note.duration) !== 0 || diffAt) {
-        out.push({
-          kind: 'melody',
-          bar: it.bar,
-          index: i,
-          item: formatRhythm(it.note, it.at),
-          source: formatRhythm(transposedSrc, src.at)
-        });
-      }
+    const bar = it.bar.number;
+    if (it.note.midi !== moved.midi) {
+      differences.push({ kind: 'melody', bar, index, item: noteName(it.note), source: noteName(moved) });
+      continue;
     }
+    if (options.spelling && it.note.spelling && moved.spelling) {
+      const a = spellingName(it.note.spelling);
+      const b = spellingName(moved.spelling);
+      const at = sub(it.note.onset, it.bar.start);
+      if (a !== b) differences.push({ kind: 'spelling', bar, at, item: a, source: b });
+    }
+    if (cmp(it.offset, src.offset) !== 0 || cmp(it.note.duration, src.note.duration) !== 0)
+      (options.allowRhythm ? allowed : differences).push({
+        kind: 'melodyRhythm',
+        bar,
+        index,
+        note: noteName(it.note),
+        item: rhythm(it),
+        source: rhythm(src),
+      });
   }
-  return out;
+  return { differences, allowed };
 }
 
 // ---- wording -------------------------------------------------------------------------------------------------------
@@ -634,5 +658,7 @@ export function describeDifference(d: Difference): string {
       return `${at(d.bar)}: ${d.detail}`;
     case 'melody':
       return `${at(d.bar)}: melody note ${d.index + 1} is ${d.item}, source ${d.source}`;
+    case 'melodyRhythm':
+      return `${at(d.bar)}: melody note ${d.index + 1} (${d.note}): ${d.item}, source ${d.source}`;
   }
 }

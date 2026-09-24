@@ -94,12 +94,7 @@ export function validMetadata(raw: unknown): ItemMetadata | null {
   const provenance = validProvenance(raw.provenance);
   if (!provenance) return null;
   if (!isNonEmptyString(raw.reviewedBy) || !isNonEmptyString(raw.reviewedOn)) return null;
-  const isArrangement = raw.arrangement === true;
-  if (isArrangement) {
-    if (!validDepartures(raw.departures)) return null;
-  } else {
-    if (raw.departures !== undefined) return null;
-  }
+  if (raw.departures !== undefined && !validDepartures(raw.departures)) return null;
 
   const meta: ItemMetadata = {
     version: 1,

@@ -1,5 +1,7 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { type Alignment, compare, compareSound, compareMelody } from '../../../tools/library/fidelity/compare';
+import { type Alignment, compare, compareMelody, compareSound } from '../../../tools/library/fidelity/compare';
+import { fromMusicXml } from '../../../tools/library/fidelity/from-musicxml';
 import type {
   ReferenceBar,
   ReferenceGraceNote,
@@ -481,46 +483,234 @@ describe('compareSound: notation reading vs LilyPond MIDI (data-model.md §4.1a,
   });
 });
 
-describe('compareMelody (research R7, US2)', () => {
-  const item = score(
-    [1],
+describe('compareMelody: melody quotes in arrangements (research R7, data-model.md §4.4)', () => {
+  const COUNT = { allowRhythm: false, spelling: false };
+  const ALLOW = { allowRhythm: true, spelling: false };
+  const tune = score(
+    [1, 2],
     [
-      [1, 0, 60, 1],
-      [1, 1, 64, 1],
-      [1, 2, 67, 2]
-    ]
-  );
-
-  const src = score(
-    [1],
-    [
-      [1, 0, 60, 1],
-      [1, 1, 64, 1],
-      [1, 2, 67, 2]
-    ]
+      [1, 0, 60],
+      [1, 1, 64],
+      [1, 2, 67, 2],
+      [2, 0, 65, 4],
+    ],
   );
 
   it('identical melodies give no differences', () => {
-    expect(compareMelody(item, src, { itemBars: 'all', sourceBars: 'all' })).toEqual([]);
+    expect(compareMelody(tune, tune, ALL, COUNT)).toEqual({ differences: [], allowed: [] });
   });
 
-  it('pitch differences are reported', () => {
-    const badPitch = score([1], [[1, 0, 60, 1], [1, 1, 65, 1], [1, 2, 67, 2]]);
-    expect(compareMelody(badPitch, src, { itemBars: 'all', sourceBars: 'all' })).toEqual([
-      { kind: 'melody', bar: '1', index: 1, item: 'F4', source: 'E4' }
+  it('takes the highest note per onset of the named staff (default staff 1), ignoring other staves', () => {
+    const chords = score(
+      [1, 2],
+      [
+        [1, 0, 48, 1, { staff: 2 }],
+        [1, 0, 55],
+        [1, 0, 60],
+        [1, 1, 57],
+        [1, 1, 64],
+        [1, 2, 67, 2],
+        [1, 2, 79, 2, { staff: 2 }],
+        [2, 0, 65, 4],
+      ],
+    );
+    expect(compareMelody(chords, tune, ALL, COUNT).differences).toEqual([]);
+  });
+
+  it('merges tied notes into one melody note (reader: tie across the bar line)', () => {
+    const tied = fromMusicXml(readFileSync('tests/fixtures/musicxml/tie-across-barline.musicxml', 'utf8'));
+    const held = score([1, 2], [[1, 0, 60, 8]]);
+    expect(compareMelody(tied, held, ALL, COUNT).differences).toEqual([]);
+  });
+
+  it('pitch order must match: two swapped notes are two differences, in order', () => {
+    const swapped = score(
+      [1, 2],
+      [
+        [1, 0, 64],
+        [1, 1, 60],
+        [1, 2, 67, 2],
+        [2, 0, 65, 4],
+      ],
+    );
+    expect(compareMelody(swapped, tune, ALL, COUNT).differences).toEqual([
+      { kind: 'melody', bar: '1', index: 0, item: 'E4', source: 'C4' },
+      { kind: 'melody', bar: '1', index: 1, item: 'C4', source: 'E4' },
     ]);
   });
 
-  it('rhythm differences are reported', () => {
-    const badRhythm = score([1], [[1, 0, 60, 2], [1, 2, 64, 1], [1, 3, 67, 1]]);
-    expect(compareMelody(badRhythm, src, { itemBars: 'all', sourceBars: 'all' })).toEqual([
-      { kind: 'melody', bar: '1', index: 0, item: 'C4 (2)', source: 'C4 (1)' },
-      { kind: 'melody', bar: '1', index: 1, item: 'E4 (1 at 2)', source: 'E4 (1 at 1)' },
-      { kind: 'melody', bar: '1', index: 2, item: 'G4 (1 at 3)', source: 'G4 (2 at 2)' }
+  it('a note the item lacks is one difference naming the source note and its bar', () => {
+    const short = score(
+      [1, 2],
+      [
+        [1, 0, 60],
+        [1, 1, 64],
+        [1, 2, 67, 2],
+      ],
+    );
+    expect(compareMelody(short, tune, ALL, COUNT).differences).toEqual([
+      { kind: 'melody', bar: '2', index: 3, item: 'missing', source: 'F4' },
     ]);
   });
 
-  it('highest note per onset, ties merged, source staff/voice selection, transposition', () => {
-    // just dummy test since I will implement it
+  describe('rhythm', () => {
+    const moved = score(
+      [1, 2],
+      [
+        [1, 0, 60, 2],
+        [1, 2, 64],
+        [1, 3, 67],
+        [2, 0, 65, 4],
+      ],
+    );
+    const rhythm = [
+      { kind: 'melodyRhythm', bar: '1', index: 0, note: 'C4', item: '2 at bar 1 beat 0', source: '1 at bar 1 beat 0' },
+      { kind: 'melodyRhythm', bar: '1', index: 1, note: 'E4', item: '1 at bar 1 beat 2', source: '1 at bar 1 beat 1' },
+      { kind: 'melodyRhythm', bar: '1', index: 2, note: 'G4', item: '1 at bar 1 beat 3', source: '2 at bar 1 beat 2' },
+    ];
+
+    it('counts rhythm differences unless the record allows them', () => {
+      expect(compareMelody(moved, tune, ALL, COUNT)).toEqual({ differences: rhythm, allowed: [] });
+    });
+
+    it('lists them as allowed, and does not count them, when the record allows them', () => {
+      expect(compareMelody(moved, tune, ALL, ALLOW)).toEqual({ differences: [], allowed: rhythm });
+    });
+
+    it('a wrong pitch still counts when rhythm is allowed', () => {
+      const wrong = score(
+        [1, 2],
+        [
+          [1, 0, 60, 2],
+          [1, 2, 65],
+          [1, 3, 67],
+          [2, 0, 65, 4],
+        ],
+      );
+      expect(compareMelody(wrong, tune, ALL, ALLOW).differences).toEqual([
+        { kind: 'melody', bar: '1', index: 1, item: 'F4', source: 'E4' },
+      ]);
+    });
+  });
+
+  describe('transpose', () => {
+    const sp = (step: 'C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B', alter: -1 | 0 | 1, octave: number) => ({
+      spelling: { step, alter, octave },
+    });
+    // D major source: D4 F#4 A4 C#5; the item in C major: C4 E4 G4 B4.
+    const dMajor = score(
+      [1],
+      [
+        [1, 0, 62, 1, sp('D', 0, 4)],
+        [1, 1, 66, 1, sp('F', 1, 4)],
+        [1, 2, 69, 1, sp('A', 0, 4)],
+        [1, 3, 73, 1, sp('C', 1, 5)],
+      ],
+    );
+    const cMajor = score(
+      [1],
+      [
+        [1, 0, 60, 1, sp('C', 0, 4)],
+        [1, 1, 64, 1, sp('E', 0, 4)],
+        [1, 2, 67, 1, sp('G', 0, 4)],
+        [1, 3, 71, 1, sp('B', 0, 4)],
+      ],
+    );
+    const down = { ...ALL, transpose: '-M2' };
+
+    it('"-M2" applies to letters and alterations: D major F#, C# become E, B', () => {
+      expect(compareMelody(cMajor, dMajor, down, { allowRhythm: false, spelling: true })).toEqual({
+        differences: [],
+        allowed: [],
+      });
+    });
+
+    it('without the transposition every note differs', () => {
+      expect(compareMelody(cMajor, dMajor, ALL, COUNT).differences).toHaveLength(4);
+    });
+
+    it('a same-sounding note spelled otherwise is a spelling difference, only when spelling is compared', () => {
+      const cFlat = score(
+        [1],
+        [
+          [1, 0, 60, 1, sp('C', 0, 4)],
+          [1, 1, 64, 1, sp('E', 0, 4)],
+          [1, 2, 67, 1, sp('G', 0, 4)],
+          [1, 3, 71, 1, sp('C', -1, 5)],
+        ],
+      );
+      expect(compareMelody(cFlat, dMajor, down, { allowRhythm: false, spelling: true }).differences).toEqual([
+        { kind: 'spelling', bar: '1', at: q(3), item: 'Cb5', source: 'B4' },
+      ]);
+      expect(compareMelody(cFlat, dMajor, down, COUNT).differences).toEqual([]);
+    });
+
+    it('"+P4" crosses the octave: B4 becomes E5', () => {
+      const b4 = score([1], [[1, 0, 71, 1, sp('B', 0, 4)]]);
+      const e5 = score([1], [[1, 0, 76, 1, sp('E', 0, 5)]]);
+      expect(
+        compareMelody(e5, b4, { ...ALL, transpose: '+P4' }, { allowRhythm: false, spelling: true }).differences,
+      ).toEqual([]);
+    });
+
+    it('refuses an interval it cannot read', () => {
+      expect(() => compareMelody(cMajor, dMajor, { ...ALL, transpose: 'M2' }, COUNT)).toThrow(/transpose/);
+    });
+  });
+
+  it('bars outside the declared ranges are not compared', () => {
+    const ownBar2 = score(
+      [1, 2],
+      [
+        [1, 0, 60],
+        [1, 1, 64],
+        [1, 2, 67, 2],
+        [2, 0, 72, 4],
+      ],
+    );
+    const bar1 = { itemBars: '1-1', sourceBars: '1-1' };
+    expect(compareMelody(ownBar2, tune, bar1, COUNT).differences).toEqual([]);
+    expect(compareMelody(ownBar2, tune, ALL, COUNT).differences).toHaveLength(1);
+  });
+
+  it('pairs the ranges: item bar 1 quotes source bar 2', () => {
+    const quote = score([1], [[1, 0, 65, 4]]);
+    expect(compareMelody(quote, tune, { itemBars: '1-1', sourceBars: '2-2' }, COUNT).differences).toEqual([]);
+  });
+
+  describe('source staff and voice (e.g. the soprano of a hymn)', () => {
+    // Staff 1 holds soprano (voice 1) and alto (voice 2); the alto crosses above the soprano on beat 1.
+    const hymn = score(
+      [1],
+      [
+        [1, 0, 67, 1, { voice: '1' }],
+        [1, 0, 64, 1, { voice: '2' }],
+        [1, 1, 65, 1, { voice: '1' }],
+        [1, 1, 69, 1, { voice: '2' }],
+        [1, 0, 72, 2, { staff: 2, voice: '3' }],
+      ],
+    );
+    const soprano = score(
+      [1],
+      [
+        [1, 0, 67],
+        [1, 1, 65],
+      ],
+    );
+
+    it('sourceVoice selects the soprano even where the alto is higher', () => {
+      expect(compareMelody(soprano, hymn, { ...ALL, sourceStaff: 1, sourceVoice: '1' }, COUNT).differences).toEqual([]);
+    });
+
+    it('without sourceVoice the top note of the staff is taken', () => {
+      expect(compareMelody(soprano, hymn, { ...ALL, sourceStaff: 1 }, COUNT).differences).toEqual([
+        { kind: 'melody', bar: '1', index: 1, item: 'F4', source: 'A4' },
+      ]);
+    });
+
+    it('sourceStaff 2 selects the lower staff', () => {
+      const bass = score([1], [[1, 0, 72, 2]]);
+      expect(compareMelody(bass, hymn, { ...ALL, sourceStaff: 2 }, COUNT).differences).toEqual([]);
+    });
   });
 });
