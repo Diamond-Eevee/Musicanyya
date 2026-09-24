@@ -397,7 +397,7 @@ Each source task does the same steps:
   - **Record**: `content/library/audit/repertoire/intermediate/clementi-sonatina-op36-no1-mvt1.json`.
 
   (Depends on T030, T037.)
-- [ ] T045 [US1] `repertoire/intermediate/schumann-op68-no10` per owner decision D-2.
+- [x] T045 [US1] `repertoire/intermediate/schumann-op68-no10` per owner decision D-2.
   - **Remove** (the recommendation):
     - delete the `.musicxml` and `.json`, and regenerate the index;
     - add a Rejected items row to `public/library/README.md`: "only machine-readable source Mutopia 659 is CC

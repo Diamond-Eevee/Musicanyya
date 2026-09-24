@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-24T09:17:14.130Z",
+  "generated": "2026-09-24T10:21:14.183Z",
   "sections": [
     {
       "id": "learning/chords",
@@ -4542,91 +4542,6 @@
         "attackCount": 53,
         "peakNotesPerSecond": 6,
         "accidentalMarkCount": 9,
-        "maxTieChainNotes": 0,
-        "maxTieBarlinesCrossed": 0,
-        "hasNonSimpleTuplet": false,
-        "graceNoteCount": 0,
-        "ornamentCount": 0,
-        "repeatKind": "none",
-        "backwardRepeatCount": 0
-      },
-      "levelCheck": {
-        "level": "intermediate",
-        "pass": true,
-        "failed": []
-      }
-    },
-    {
-      "id": "repertoire/intermediate/schumann-op68-no10",
-      "section": "repertoire/intermediate",
-      "file": "repertoire/intermediate/schumann-op68-no10.musicxml",
-      "bytes": 63180,
-      "hash": "79b545944e157e2a8bf5cc0abd754a2f51ff38848006a678b370a471f14ce77d",
-      "meta": {
-        "version": 1,
-        "title": "Fröhlicher Landmann (The Happy Farmer), Op. 68 No. 10",
-        "kind": "piece",
-        "level": "intermediate",
-        "tags": [
-          "hands-together",
-          "steady-eighths",
-          "dynamics",
-          "phrasing",
-          "sight-reading"
-        ],
-        "provenance": {
-          "origin": "authored",
-          "licence": "CC0-1.0",
-          "author": "Musicanyya practice material",
-          "created": "2026-09-22",
-          "basedOn": "Robert Schumann, Album für die Jugend Op. 68 No. 10 \"Fröhlicher Landmann\" (1848, public domain). Complete piece, from the Mutopia Project edition schumann-op68-10-gai-laboureur. Pitches/rhythms extracted programmatically from Mutopia's rendered MIDI, cross-checked against the .ly source.",
-          "note": "Marking is \"Frisch und munter\" (fresh and lively) - confirmed independently, not \"Nicht schnell\" (that is Op. 68 No. 13). Source MIDI tempo (quarter=100) used unchanged, within this level's cap. Pitch class 10 spelled as diatonic B-flat (F major, no accidental); the source's two B-natural accidentals kept. Meets Intermediate caps: span 31 semitones, longest eighth-note run 9 (cap 32), density ~4.6/~6.5 notes/s (caps 6/12), 2 voices in the right hand (cap 2)."
-        },
-        "reviewedBy": "music-domain-expert",
-        "reviewedOn": "2026-09-22",
-        "subtitle": "from Album für die Jugend (Album for the Young) - complete, Frisch und munter",
-        "composer": "Robert Schumann",
-        "arranger": "Musicanyya practice material",
-        "trains": "A famous bouncy tune shared between the hands - the opening melody sits in the left hand under offbeat right-hand chords, then the hands trade roles for a running middle section with brief two-voice moments in the right hand - independent eighth-note coordination at a lively tempo.",
-        "hands": "both",
-        "arrangement": false
-      },
-      "facts": {
-        "measures": 21,
-        "notes": 352,
-        "durationSeconds": 48.3,
-        "keys": [
-          "F major"
-        ],
-        "metres": [
-          "4/4"
-        ],
-        "tempoBpm": 100,
-        "tempoDefaulted": false,
-        "lowestMidi": 46,
-        "highestMidi": 77,
-        "maxSpanSemitones": 9,
-        "staves": 2,
-        "voicesPerStaff": 2,
-        "handIndependenceFraction": 0.9523809523809523,
-        "shortestDivision": 8,
-        "notesPerBeat": 4.372670807453416,
-        "accidentals": 1,
-        "hasTies": false,
-        "hasTuplets": false,
-        "hasGraceNotes": false,
-        "hasOctaveShift": false,
-        "hasRepeats": false,
-        "hasPedal": false,
-        "fingeringCoverage": 0,
-        "notices": [],
-        "parts": 1,
-        "tempoChanges": 0,
-        "maxLeapSemitones": 12,
-        "longestRunAtShortestValue": 9,
-        "attackCount": 222,
-        "peakNotesPerSecond": 6.5,
-        "accidentalMarkCount": 5,
         "maxTieChainNotes": 0,
         "maxTieBarlinesCrossed": 0,
         "hasNonSimpleTuplet": false,

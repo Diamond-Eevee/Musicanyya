@@ -32,6 +32,7 @@ levelled - the reason is recorded here rather than just discarded, so the decisi
 
 | Item | Reason |
 |---|---|
+| repertoire/intermediate/schumann-op68-no10 (Schumann, Fröhlicher Landmann, Op. 68 No. 10) | Removed 2026-09-24 (feature 007, owner decision D-2): the only machine-readable source, Mutopia 659, is CC BY-SA 2.5, and the notes were derived from it; searched 2026-09-23. |
 
 ## Engraving: beams and accidentals (feature 006, FR-012)
 
