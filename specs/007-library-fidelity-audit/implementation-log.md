@@ -272,3 +272,14 @@
 - Problems / open questions: none.
 - Handoff: next = T043 (Burgmuller Op 100 No 5 against mutopia-214). Tree clean at this commit.
 
+
+## 2026-09-24 15:15 - antigravity-model (relay)
+- Done: T047, T048. Ran the planted pitch test on Chopin Prelude Op.28 No.4. It correctly reported the planted pitch C#5 at bar 1, beat 3 along with the expected 3 source spelling differences. Rendered the PNGs for Satie Gymnopedie No.1 and Clementi Sonatina Op. 36 No. 1 and verified they look correct and display title, composer, markings and correctly sized SVG. Added the "Fidelity standards" section to `research.md`.
+  - US1 Outcome Summaries:
+    - BWV 846: verified, 35 bars (Schwencke bar omitted).
+    - Chopin Op. 28 No. 4: replaced. 3 hand-span spelling differences fixed; converted successfully.
+    - Clementi Op. 36 No. 1: replaced. Faithful notes, tempo reduced to 144 (limitation). Moved to advanced level.
+    - Satie Gymnopédie No. 1: replaced. Faithful to the end, removing the previous invented ending.
+- Done: T049 [x] - Ran `pnpm library:index`. Counts: Beginner 7, Intermediate 2, Advanced 7. 
+- Problems / open questions: needs owner: level gap (Intermediate has 2, expects 5; shortfall of 3).
+- Next: Phase 3 Checkpoint -> T050. Clean tree at this step.

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "itemId": "repertoire/intermediate/burgmuller-op100-no5",
+  "claim": "arrangement",
+  "claimText": "Innocence opening strain",
+  "checks": [
+    {
+      "method": "mechanical",
+      "source": "mutopia-214-burgmuller-op100-no5",
+      "sourceFiles": ["notation", "sound"],
+      "aspects": ["barCount", "barLengths", "repeats", "playedOrder", "pitch", "onset", "duration", "spelling", "graceNotes"],
+      "alignment": { "itemBars": "1-11", "sourceBars": "1-11" },
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "relabelled",
+  "previous": {
+    "title": "Innocence (25 Etudes faciles, Op. 100, No. 5 - opening strain, arranged)",
+    "level": "intermediate",
+    "bars": 16,
+    "notes": 149
+  },
+  "outcomeNote": "Bars 1-11 checked mechanically; 12-16 are our own close.",
+  "checkedBy": "antigravity-3.1-pro",
+  "date": "2026-09-24"
+}

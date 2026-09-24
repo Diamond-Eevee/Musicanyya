@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-24T12:31:23.709Z",
+  "generated": "2026-09-24T13:19:45.006Z",
   "sections": [
     {
       "id": "learning/chords",
@@ -3546,6 +3546,92 @@
       }
     },
     {
+      "id": "repertoire/advanced/clementi-sonatina-op36-no1-mvt1",
+      "section": "repertoire/advanced",
+      "file": "repertoire/advanced/clementi-sonatina-op36-no1-mvt1.musicxml",
+      "bytes": 61069,
+      "hash": "3091058a41b8c6829e02557be7258b7ad3b4102a9ba0307578609617a2a5ed12",
+      "meta": {
+        "version": 1,
+        "title": "Sonatina in C major, Op. 36 No. 1 (1st movement, exposition)",
+        "kind": "piece",
+        "level": "advanced",
+        "tags": [
+          "scales",
+          "hands-together",
+          "sight-reading",
+          "phrasing"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-09-22",
+          "basedOn": "Muzio Clementi, Sonatina in C major, Op. 36 No. 1 (published 1797, public domain; Clementi died 1832), 1st movement (Spiritoso). Pitches and rhythm for measures 1-15 (both hands) were transcribed and checked note-by-note against the Mutopia Project's public-domain LilyPond engraving (piece-info id 804, sonatina-1.ly, after the G. Schirmer 1893 Sonatina Album edition), including cross-checking the relative-octave arithmetic against the piece's well-known melodic contour and against the internal harmonic/voice-leading consistency of the reconstructed left hand.",
+          "note": "Exposition only (the source's own measures 1-15, up to its written repeat sign), played once; the notated repeat back to measure 1, and the movement's development/recapitulation (measures 16-38 of the source), are not included. The 'Spiritoso' marking is Clementi's, but the metronome mark is the Schirmer editor's; it was lowered from 156 to 144 for this file so it sits inside this level's tempo cap while keeping the 'Spiritoso' character."
+        },
+        "reviewedBy": "music-domain-expert",
+        "reviewedOn": "2026-09-24",
+        "subtitle": "Spiritoso - exposition only, repeat not taken",
+        "composer": "Muzio Clementi",
+        "trains": "A brisk single-line melody in the right hand (scale runs, octave leaps, a brief secondary-dominant tonicization) over a light, mostly on-the-beat left hand - reading fluency and a fast, even tempo more than technical difficulty.",
+        "hands": "both",
+        "arrangement": false,
+        "limitations": [
+          "tempo lowered to 144 to fit level (source's 156 is editorial)"
+        ]
+      },
+      "facts": {
+        "measures": 38,
+        "notes": 333,
+        "durationSeconds": 126.66666666666667,
+        "keys": [
+          "C major"
+        ],
+        "metres": [
+          "2/2"
+        ],
+        "tempoBpm": 144,
+        "tempoDefaulted": false,
+        "lowestMidi": 36,
+        "highestMidi": 86,
+        "maxSpanSemitones": 8,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0.5,
+        "shortestDivision": 8,
+        "notesPerBeat": 1.0953947368421053,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": true,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 22,
+        "longestRunAtShortestValue": 24,
+        "attackCount": 328,
+        "peakNotesPerSecond": 7.5,
+        "accidentalMarkCount": 11,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 2
+      },
+      "levelCheck": {
+        "level": "advanced",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
       "id": "repertoire/advanced/fur-elise-complete",
       "section": "repertoire/advanced",
       "file": "repertoire/advanced/fur-elise-complete.musicxml",
@@ -4318,8 +4404,8 @@
       "id": "repertoire/intermediate/burgmuller-op100-no5",
       "section": "repertoire/intermediate",
       "file": "repertoire/intermediate/burgmuller-op100-no5.musicxml",
-      "bytes": 30374,
-      "hash": "64af4616293ce41b85549785fbe098047275eb2fa9af6be92baf488ecf3dc198",
+      "bytes": 40179,
+      "hash": "17afe5356867658641463dbf298ca6206772481ac85ba39ef2f6ddaa8f093680",
       "meta": {
         "version": 1,
         "title": "Innocence (25 Etudes faciles, Op. 100, No. 5 - opening strain, arranged)",
@@ -4338,141 +4424,61 @@
           "basedOn": "Burgmuller, 25 Etudes faciles et progressives, Op. 100, No. 5 \"Innocence\" (public domain, published 1852). Measures 1-11 (both hands, right-hand 16th-note and 8th-note pitches and rhythm, left-hand dotted-half triads) were checked note-by-note against the Mutopia Project's public-domain LilyPond edition (piece-info id 214, 25EF-05, typeset by Bas Wassink, key F major, Moderato).",
           "note": "This is our own re-engraving, not a copy of the Mutopia file, and it is an arrangement of the opening strain only (11 of the source's measures): the source's own second strain closes with a more virtuosic ottava-displaced descending/ascending run and a forte chord that we judged too advanced for this shelf slot, so measures 12-16 here are our own closing - a restatement of the opening's 16th-note turn figure (same as measures 1, matching the source's own written repeat structure) followed by a simple three-chord plagal-flavoured cadence, built from the piece's own motifs rather than transcribed from the source's actual ending."
         },
-        "reviewedBy": "music-domain-expert",
-        "reviewedOn": "2026-09-22",
+        "reviewedBy": "antigravity-3.1-pro",
+        "reviewedOn": "2026-09-24",
         "subtitle": "Unschuld - opening strain, our own closing",
         "composer": "Johann Friedrich Franz Burgmuller",
         "arranger": "Musicanyya practice material",
         "trains": "A graceful right-hand melody mixing 16th-note turns with dotted-quarter/eighth figures over a sustained left-hand triad in each bar, in 3/4 at a moderate tempo - light articulation and phrase shading more than raw technique.",
         "hands": "both",
-        "arrangement": true
+        "arrangement": true,
+        "departures": [
+          "Bars 12-16 are our own close."
+        ]
       },
       "facts": {
         "measures": 16,
-        "notes": 149,
-        "durationSeconds": 27.692307692307693,
+        "notes": 177,
+        "durationSeconds": 48.214285714285715,
         "keys": [
           "F major"
         ],
         "metres": [
           "3/4"
         ],
-        "tempoBpm": 104,
+        "tempoBpm": 112,
         "tempoDefaulted": false,
-        "lowestMidi": 41,
-        "highestMidi": 72,
-        "maxSpanSemitones": 7,
+        "lowestMidi": 52,
+        "highestMidi": 84,
+        "maxSpanSemitones": 10,
         "staves": 2,
         "voicesPerStaff": 1,
-        "handIndependenceFraction": 0,
+        "handIndependenceFraction": 0.4375,
         "shortestDivision": 16,
-        "notesPerBeat": 3.1041666666666665,
+        "notesPerBeat": 1.9666666666666666,
         "accidentals": 1,
         "hasTies": false,
         "hasTuplets": false,
         "hasGraceNotes": false,
         "hasOctaveShift": false,
-        "hasRepeats": false,
+        "hasRepeats": true,
         "hasPedal": false,
-        "fingeringCoverage": 0,
-        "notices": [],
-        "parts": 1,
-        "tempoChanges": 0,
-        "maxLeapSemitones": 16,
-        "longestRunAtShortestValue": 12,
-        "attackCount": 118,
-        "peakNotesPerSecond": 7.5,
-        "accidentalMarkCount": 5,
-        "maxTieChainNotes": 0,
-        "maxTieBarlinesCrossed": 0,
-        "hasNonSimpleTuplet": false,
-        "graceNoteCount": 0,
-        "ornamentCount": 0,
-        "repeatKind": "none",
-        "backwardRepeatCount": 0
-      },
-      "levelCheck": {
-        "level": "intermediate",
-        "pass": true,
-        "failed": []
-      }
-    },
-    {
-      "id": "repertoire/intermediate/clementi-sonatina-op36-no1-mvt1",
-      "section": "repertoire/intermediate",
-      "file": "repertoire/intermediate/clementi-sonatina-op36-no1-mvt1.musicxml",
-      "bytes": 27243,
-      "hash": "ef7de207d938bcad3f3ef2d23d3cf34bda229d0ef6b483f051e34509dfe8071c",
-      "meta": {
-        "version": 1,
-        "title": "Sonatina in C major, Op. 36 No. 1 (1st movement, exposition, arranged for this app)",
-        "kind": "piece",
-        "level": "intermediate",
-        "tags": [
-          "scales",
-          "hands-together",
-          "sight-reading",
-          "phrasing"
-        ],
-        "provenance": {
-          "origin": "authored",
-          "licence": "CC0-1.0",
-          "author": "Musicanyya practice material",
-          "created": "2026-09-22",
-          "basedOn": "Muzio Clementi, Sonatina in C major, Op. 36 No. 1 (published 1797, public domain; Clementi died 1832), 1st movement (Spiritoso). Pitches and rhythm for measures 1-15 (both hands) were transcribed and checked note-by-note against the Mutopia Project's public-domain LilyPond engraving (piece-info id 804, sonatina-1.ly, after the G. Schirmer 1893 Sonatina Album edition), including cross-checking the relative-octave arithmetic against the piece's well-known melodic contour and against the internal harmonic/voice-leading consistency of the reconstructed left hand.",
-          "note": "Exposition only (the source's own measures 1-15, up to its written repeat sign), played once; the notated repeat back to measure 1, and the movement's development/recapitulation (measures 16-38 of the source), are not included. The source's suggested tempo (quarter = 156) was lowered to 144 for this file so the stated tempo sits inside this level's tempo cap while keeping the 'Spiritoso' character; 144 is well within the range performers use for this piece."
-        },
-        "reviewedBy": "music-domain-expert",
-        "reviewedOn": "2026-09-22",
-        "subtitle": "Spiritoso - exposition only, repeat not taken",
-        "composer": "Muzio Clementi",
-        "trains": "A brisk single-line melody in the right hand (scale runs, octave leaps, a brief secondary-dominant tonicization) over a light, mostly on-the-beat left hand - reading fluency and a fast, even tempo more than technical difficulty.",
-        "hands": "both",
-        "arrangement": true
-      },
-      "facts": {
-        "measures": 15,
-        "notes": 135,
-        "durationSeconds": 25,
-        "keys": [
-          "C major"
-        ],
-        "metres": [
-          "2/2"
-        ],
-        "tempoBpm": 144,
-        "tempoDefaulted": false,
-        "lowestMidi": 38,
-        "highestMidi": 86,
-        "maxSpanSemitones": 0,
-        "staves": 2,
-        "voicesPerStaff": 1,
-        "handIndependenceFraction": 0.5333333333333333,
-        "shortestDivision": 8,
-        "notesPerBeat": 2.25,
-        "accidentals": 0,
-        "hasTies": false,
-        "hasTuplets": false,
-        "hasGraceNotes": false,
-        "hasOctaveShift": false,
-        "hasRepeats": false,
-        "hasPedal": false,
-        "fingeringCoverage": 0,
+        "fingeringCoverage": 0.1977401129943503,
         "notices": [],
         "parts": 1,
         "tempoChanges": 0,
         "maxLeapSemitones": 12,
-        "longestRunAtShortestValue": 24,
+        "longestRunAtShortestValue": 12,
         "attackCount": 135,
-        "peakNotesPerSecond": 7.5,
-        "accidentalMarkCount": 6,
+        "peakNotesPerSecond": 9,
+        "accidentalMarkCount": 10,
         "maxTieChainNotes": 0,
         "maxTieBarlinesCrossed": 0,
         "hasNonSimpleTuplet": false,
         "graceNoteCount": 0,
         "ornamentCount": 0,
-        "repeatKind": "none",
-        "backwardRepeatCount": 0
+        "repeatKind": "voltas",
+        "backwardRepeatCount": 2
       },
       "levelCheck": {
         "level": "intermediate",

@@ -13,7 +13,7 @@ const ENGRAVING_SAMPLE = [
   'learning/chords/c-major-scale-and-chords',
   'learning/chords/changes/changes-cadence-c-major',
   'repertoire/beginner/amazing-grace',
-  'repertoire/intermediate/burgmuller-op100-no2',
+  'repertoire/advanced/burgmuller-op100-no2',
   'repertoire/advanced/bach-prelude-bwv846',
 ];
 

@@ -387,7 +387,7 @@ Each source task does the same steps:
   - **Record**: `content/library/audit/repertoire/intermediate/burgmuller-op100-no2.json`.
 
   (Depends on T030, T035.)
-- [ ] T043 [US1] `repertoire/intermediate/burgmuller-op100-no5` against `mutopia-214`.
+- [x] T043 [US1] `repertoire/intermediate/burgmuller-op100-no5` against `mutopia-214`.
   - **Convert** the complete piece. If the probe keeps it at Intermediate, it is `replaced`: `arrangement: false`,
     title without "arranged".
   - **Otherwise** it is `relabelled`: the current arrangement stays, bars 1-11 are compared mechanically (they must
@@ -396,8 +396,8 @@ Each source task does the same steps:
   - **Record**: `content/library/audit/repertoire/intermediate/burgmuller-op100-no5.json`.
 
   (Depends on T030, T036.)
-- [ ] T044 [US1] `repertoire/intermediate/clementi-sonatina-op36-no1-mvt1` against `mutopia-804`: convert the
-  exposition (source bars 1-15) -> `replaced`, claim `excerpt`.
+- [x] T044 [US1] `repertoire/intermediate/clementi-sonatina-op36-no1-mvt1` against `mutopia-804`: convert the
+  exposition (source bars 1-15) -> `replaced`, claim `excerpt`. (claimed: antigravity 2026-09-24)
   - **Labels**: `arrangement: false`. The title/subtitle names "exposition". The metronome change (source mark
     editorial, file 144) goes in `limitations` and the provenance note, and says that "Spiritoso" is Clementi's
     marking and the metronome mark is the Schirmer editor's (research R15).
@@ -416,7 +416,7 @@ Each source task does the same steps:
     `research.md`.
 
   (Depends on T001.)
-- [ ] T046 [US1] Re-capture the identity golden for the replaced/removed items only:
+- [x] T046 [US1] Re-capture the identity golden for the replaced/removed items only:
   - run `pnpm tsx tools/library/identity.ts` on the pre-engraving converter outputs (the T087 procedure of feature
     005), then on the engraved files;
   - check with `git diff` that no unchanged item's entry moved;
@@ -424,17 +424,17 @@ Each source task does the same steps:
   - name every changed item in the log, with its reason.
 
   (Depends on T038-T045.)
-- [ ] T047 [US1] Planted pitch check on a replaced item (the spec US1 Independent Test): run
+- [x] T047 [US1] Planted pitch check on a replaced item (the spec US1 Independent Test): run
   `pnpm library:fidelity --item repertoire/advanced/chopin-prelude-op28-no4 --file <scratch copy with one pitch
   +1>`. It must report exactly one `pitch` difference naming the bar. Log the output. Also look at
   `pnpm screenshot --item repertoire/advanced/satie-gymnopedie-no1 --full` and
   `--item repertoire/intermediate/clementi-sonatina-op36-no1-mvt1`, and describe the PNGs in the log (quickstart
   US1). (Depends on T046.)
-- [ ] T048 [US1] Review with `music-domain-expert`: the US1 records' edition decisions (BWV 846 bar count,
+- [x] T048 [US1] Review with `music-domain-expert`: the US1 records' edition decisions (BWV 846 bar count,
   Op. 28 No. 20 bar 3, Clementi tempo wording), their `differenceNotes`, and the new titles and subtitles.
   Summarise the findings in the log. It judges wording and edition choices only; it never replaces a comparison.
   (Depends on T047.)
-- [ ] T049 [US1] Level counts after US1: run `pnpm library:index` and count pieces per level. Put any shortfall
+- [x] T049 [US1] Level counts after US1: run `pnpm library:index` and count pieces per level. Put any shortfall
   against Beginner 7 / Intermediate 5 / Advanced 5 in the log as "needs owner: level gap" (FR-022, D-3); it is not
   filled. (Depends on T046.)
 

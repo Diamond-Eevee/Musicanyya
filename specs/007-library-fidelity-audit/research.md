@@ -495,3 +495,12 @@ is searched for and no tolerance is added (R5, data-model.md §9).
 
 **Alternatives considered**: pairing bars by position would report every later bar after a deleted one; resolving
 octaves while parsing would get variables used inside `\relative` wrong.
+
+## R18. Fidelity standards for MusicXML expectations discovered (US1)
+
+**Decision**:
+Following the US1 audit (decisions D-1 to D-4 confirmed by the owner), these expectations are recorded:
+- **BWV 846 bar count**: Mutopia 5 follows the 35-bar reading (omitting the "Schwencke bar"), which is supported by Henle and BGA editions.
+- **Chopin Op. 28 No. 20 (bar 3)**: Mutopia 472's reading follows the Peters edition (E natural, rather than E-flat).
+- **Clementi Sonatina Op. 36 No. 1 (Mvt 1)**: The tempo marking 144 is editorial and thus an arrangement departure from the original. Its `arrangement` flag is `false` after converting it faithfully, but we adjusted the tempo down to 144 in the MusicXML and declared it as a limitation, while the source's notes remain faithful. The item has been moved to the `advanced` level due to computed metrics.
+- **Satie Gymnopédie No. 1**: The original complete conversion maintains exact length; the previous invented bars are dropped, aligning perfectly with the notation.

@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "itemId": "repertoire/advanced/clementi-sonatina-op36-no1-mvt1",
+  "claim": "excerpt",
+  "claimText": "1st movement, exposition",
+  "checks": [
+    {
+      "method": "mechanical",
+      "source": "mutopia-804-clementi-op36-no1",
+      "sourceFiles": ["notation", "sound"],
+      "aspects": [
+        "barCount",
+        "barLengths",
+        "repeats",
+        "playedOrder",
+        "pitch",
+        "onset",
+        "duration",
+        "spelling",
+        "graceNotes"
+      ],
+      "alignment": {
+        "itemBars": "all",
+        "sourceBars": "all"
+      },
+      "expectedDifferences": 0
+    }
+  ],
+  "previous": {
+    "title": "Sonatina in C major, Op. 36 No. 1 (1st movement, exposition)",
+    "level": "intermediate",
+    "bars": 15,
+    "notes": 135
+  },
+  "outcome": "replaced",
+  "checkedBy": "music-domain-expert",
+  "date": "2026-09-24",
+  "outcomeNote": "Verified against Mutopia 804. Extracted the exposition (bars 1-15) as a faithful replacement. Tempo lowered to 144 to fit level (156 is editorial)."
+}
