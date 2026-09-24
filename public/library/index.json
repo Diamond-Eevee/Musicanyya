@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-24T15:13:32.352Z",
+  "generated": "2026-09-24T15:17:16.026Z",
   "sections": [
     {
       "id": "learning/chords",
@@ -3824,8 +3824,8 @@
       "id": "repertoire/beginner/amazing-grace",
       "section": "repertoire/beginner",
       "file": "repertoire/beginner/amazing-grace.musicxml",
-      "bytes": 8899,
-      "hash": "b8bece4c98b4c0acda88f34b7f8e270d7bb76d647641ccc9ca8a183b8b66ee8a",
+      "bytes": 10643,
+      "hash": "183c62a6235a9d1f79b95e1893c1abb795595286f331c79a984a216a015b01e6",
       "meta": {
         "version": 1,
         "title": "Amazing Grace (arranged for beginners)",
@@ -3841,22 +3841,25 @@
           "licence": "CC0-1.0",
           "author": "Musicanyya practice material",
           "created": "2026-09-22",
-          "basedOn": "The tune \"New Britain\" is a pentatonic American folk/shape-note melody of unknown authorship, first published in Columbian Harmony (1829) and paired with John Newton's 1779 text \"Amazing Grace\" in William Walker's The Southern Harmony (1835) - both public domain. Verified via Wikipedia's \"New Britain (tune)\" entry and hymnary.org's tune record, which both confirm the pentatonic character (built from the scale degrees 1, 2, 3, 5, 6 only) and the 1829/1835 publication history.",
-          "note": "Four 4-bar phrases (16 bars) plus a one-beat pickup, key of G major, quarter=72. The source tune's characteristic long-short (dotted-quarter/eighth) hymn rhythm is smoothed here to plain quarter and half/dotted-half notes so the shortest value and tempo stay inside the Beginner caps; the melodic contour and pentatonic pitch content follow the verified tune closely. The left-hand single bass note per bar (I-IV-V harmonisation) is our own simple setting."
+          "basedOn": "The hymn tune \"New Britain\" (the \"Amazing Grace\" tune; Virginia Harmony, 1831) in the form harmonized by E. O. Excell (1900), both public domain. The melody is the Soprano of the Mutopia Project's public-domain LilyPond engraving (piece-info id 1283, new_britain.ly, typeset by Steve Dunlop from www.cyberhymnal.org); the audit record content/library/audit/repertoire/beginner/amazing-grace.json re-checks it note by note.",
+          "note": "A one-beat pickup and 15 bars in G major at quarter = 72. The right hand plays the tune exactly as the source gives it, rhythm included; the left hand holds one bass note per bar."
         },
-        "reviewedBy": "music-domain-expert",
-        "reviewedOn": "2026-09-22",
+        "reviewedBy": "claude-opus-5-5",
+        "reviewedOn": "2026-09-24",
         "subtitle": "Hymn tune \"New Britain\", simple two-hand setting in 3/4",
         "composer": "Traditional (American hymn tune \"New Britain\")",
         "arranger": "Musicanyya practice material",
-        "trains": "A well-known pentatonic melody with a one-beat pickup, mostly half and dotted-half notes, over a single sustained bass note per bar - gentle two-hand reading at a slow tempo.",
+        "trains": "A well-known pentatonic melody with a one-beat pickup, in half, quarter and a few eighth notes, over a single sustained bass note per bar - gentle two-hand reading at a slow tempo.",
         "hands": "both",
-        "arrangement": true
+        "arrangement": true,
+        "departures": [
+          "Left hand: our own single held bass note per bar, taken from the bass of E. O. Excell's harmonization, instead of his four-part harmony."
+        ]
       },
       "facts": {
-        "measures": 17,
-        "notes": 41,
-        "durationSeconds": 40.833333333333336,
+        "measures": 16,
+        "notes": 51,
+        "durationSeconds": 38.333333333333336,
         "keys": [
           "G major"
         ],
@@ -3865,14 +3868,14 @@
         ],
         "tempoBpm": 72,
         "tempoDefaulted": false,
-        "lowestMidi": 48,
+        "lowestMidi": 43,
         "highestMidi": 74,
         "maxSpanSemitones": 0,
         "staves": 2,
         "voicesPerStaff": 1,
         "handIndependenceFraction": 0,
-        "shortestDivision": 4,
-        "notesPerBeat": 0.8367346938775511,
+        "shortestDivision": 8,
+        "notesPerBeat": 1.108695652173913,
         "accidentals": 1,
         "hasTies": false,
         "hasTuplets": false,
@@ -3884,10 +3887,10 @@
         "notices": [],
         "parts": 1,
         "tempoChanges": 0,
-        "maxLeapSemitones": 7,
-        "longestRunAtShortestValue": 0,
-        "attackCount": 41,
-        "peakNotesPerSecond": 1.5,
+        "maxLeapSemitones": 9,
+        "longestRunAtShortestValue": 3,
+        "attackCount": 51,
+        "peakNotesPerSecond": 2.5,
         "accidentalMarkCount": 0,
         "maxTieChainNotes": 0,
         "maxTieBarlinesCrossed": 0,

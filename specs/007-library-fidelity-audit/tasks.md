@@ -520,7 +520,7 @@ Each item task:
   - the single-bass-note left hand.
 
   (Depends on T054, T055.)
-- [ ] T062 [US2] `repertoire/beginner/amazing-grace` against `mutopia-1283`, melody, with the declared rhythm
+- [x] T062 [US2] `repertoire/beginner/amazing-grace` against `mutopia-1283`, melody, with the declared rhythm
   smoothing and the key if transposed. If 1283 is not the Excell form, add a visual check against a named
   public-domain Excell-form hymnal scan (research R11 table B). (Depends on T054-T056, T098.) T056 found:
   the tune is the Soprano and the file names Excell's 1900 harmonization, so no Excell scan is needed.

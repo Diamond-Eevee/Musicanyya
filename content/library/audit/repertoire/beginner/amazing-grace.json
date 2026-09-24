@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "itemId": "repertoire/beginner/amazing-grace",
+  "claim": "arrangement",
+  "claimText": "Amazing Grace (arranged for beginners): the hymn tune \"New Britain\" as harmonized by E. O. Excell (1900), melody unchanged, with our own one-note left hand",
+  "checks": [
+    {
+      "method": "mechanical",
+      "source": "mutopia-1283-new-britain",
+      "sourceFiles": ["notation", "sound"],
+      "aspects": ["melody", "spelling"],
+      "alignment": { "itemBars": "all", "sourceBars": "all", "sourceStaff": 1, "sourceVoice": "staff1.1" },
+      "melodyRhythm": "compared",
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "fixed",
+  "outcomeNote": "Checked 2026-09-24 against the Soprano of Mutopia 1283. The old item was not the tune with smoothed rhythm, as it claimed: whole melody notes were missing or replaced (bars 1-4 read G B | G | E D | D instead of G B G | B A | G E | D D). The melody was rewritten from the Soprano, rhythm included: 0 differences in pitch, order, onset and duration, and the source matches its own MIDI. The left hand is one held note per bar taken from Excell's bass. Still Beginner (probe: computed level beginner).",
+  "checkedBy": "claude-opus-5-5",
+  "date": "2026-09-24",
+  "previous": { "title": "Amazing Grace (arranged for beginners)", "level": "beginner", "bars": 17, "notes": 41 }
+}
