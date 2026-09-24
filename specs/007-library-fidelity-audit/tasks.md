@@ -246,7 +246,7 @@ replaced item is merged.
   Makes T090 pass. (Depends on T089, T090.)
 - [x] T093 `src/app/session.ts`: pass the opened index entry's `hash` to `catalog.item()` (makes T091 pass).
   (Depends on T091, T092.)
-- [ ] T094 Extend `tests/e2e/library.spec.ts` (browser only; the `app://` shell has no Cache Storage):
+- [x] T094 Extend `tests/e2e/library.spec.ts` (browser only; the `app://` shell has no Cache Storage):
   - seed the `musicanyya-library-v1` cache with an altered copy of one item file and a stale `index.json`;
   - reload, open the item, and assert that the loaded Score has the current file's note count (from `index.json`
     `facts.notes`), not the altered one;
