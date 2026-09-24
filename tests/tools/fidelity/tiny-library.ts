@@ -6,18 +6,20 @@ import { dirname, join, resolve } from 'node:path';
 import type { AuditRecord } from '../../../tools/library/fidelity/records';
 
 export const LY = "\\relative c' { c4 d e f | }\n";
-/** Format 1, 384 ppq: an empty track 0, then C4 D4 E4 F4 as quarters on track 1. */
-export const MID = (() => {
+/** Format 1, 384 ppq: an empty track 0, then the given keys as quarters on track 1. */
+export function midiOf(keys: number[]): Uint8Array {
   const be = (n: number, len: number) => Array.from({ length: len }, (_, i) => (n >> ((len - 1 - i) * 8)) & 0xff);
   const ascii = (s: string) => Array.from(s, (c) => c.charCodeAt(0));
   const trk = (ev: number[]) => [...ascii('MTrk'), ...be(ev.length, 4), ...ev];
-  const notes = [60, 62, 64, 65].flatMap((k) => [0x00, 0x90, k, 64, 0x83, 0x00, 0x80, k, 0]);
+  const notes = keys.flatMap((k) => [0x00, 0x90, k, 64, 0x83, 0x00, 0x80, k, 0]);
   return new Uint8Array([
     ...[...ascii('MThd'), ...be(6, 4), ...be(1, 2), ...be(2, 2), ...be(384, 2)],
     ...trk([0x00, 0xff, 0x2f, 0x00]),
     ...trk([...notes, 0x00, 0xff, 0x2f, 0x00]),
   ]);
-})();
+}
+/** C4 D4 E4 F4, matching `LY`. */
+export const MID = midiOf([60, 62, 64, 65]);
 export const ITEM_XML = readFileSync(resolve('tests/fixtures/musicxml/scale-c-major-q100.musicxml'), 'utf8');
 const sha = (d: string | Uint8Array) => createHash('sha256').update(d).digest('hex');
 

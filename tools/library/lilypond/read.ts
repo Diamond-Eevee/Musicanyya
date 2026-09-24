@@ -10,16 +10,17 @@ import {
   type ReferenceGraceNote,
   type ReferenceNote,
   type ReferenceScore,
+  type Spelling,
   type Step,
   spellingMidi,
   validateReference,
 } from '../fidelity/reference';
 import { add, cmp, mul, type QuarterTime, q, show, sub } from '../fidelity/time';
 import { LyUnsupportedError } from './errors';
-import type { LyMusic, LyPitch, LyScore, Pos } from './parse';
+import type { LyDuration, LyMark, LyMusic, LyPitch, LyScore, Pos } from './parse';
 import { parseLilyPond } from './parse';
 
-export type { LyScore } from './parse';
+export type { LyMark, LyScore } from './parse';
 
 const STEPS: Step[] = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 
@@ -28,9 +29,66 @@ export function readLilyPond(source: string): LyScore {
 }
 
 export function fromLilyPond(score: LyScore): ReferenceScore {
+  return analyse(score).reading;
+}
+
+/** A note, chord or rest as the page prints it, before ties are merged (`sound` merges them for the reading). */
+interface WrittenBase {
+  /** Onset in quarter notes from the start of the piece; a grace note's is its principal note's. */
+  t: QuarterTime;
+  staff: number;
+  voice: string;
+  /** Written value: 1, 2, 4 ... for whole, half, quarter ...; 0.5 for \breve. */
+  base: number;
+  dots: number;
+  /** Sounding length in quarter notes (tuplets and `*n/m` applied); 0 for a grace note. */
+  length: QuarterTime;
+  /** The `*n/m` factor written after the value (R1*3, s2*3/4). */
+  factor: QuarterTime;
+  /** The enclosing \tuplet, if any: its number in source order, and its time modification. */
+  tuplet?: { group: number; actual: number; normal: number; nested: boolean };
+  marks: LyMark[];
+  pos: Pos;
+}
+
+/** What the printed page shows, in source order, for the converter (contract §3.3). */
+export type LyEvent =
+  | (WrittenBase & {
+      kind: 'note';
+      /** One entry per note of a chord. `tie` = tied to the next note of the same pitch in this voice. */
+      pitches: { spelling: Spelling; tie: boolean; marks: LyMark[] }[];
+      chord: boolean;
+      /** The grace command (\grace, \acciaccatura, ...) for a grace note. */
+      grace?: string;
+    })
+  | (WrittenBase & { kind: 'rest'; rest: 'r' | 'R' | 's'; inDynamics: boolean })
+  | { kind: 'clef'; t: QuarterTime; staff: number; name: string; pos: Pos }
+  | { kind: 'key'; t: QuarterTime; staff: number; tonic: LyPitch; mode: string; pos: Pos }
+  | { kind: 'time'; t: QuarterTime; num: number; den: number; pos: Pos }
+  | { kind: 'ottava'; t: QuarterTime; staff: number; octaves: number; pos: Pos }
+  | { kind: 'tempo'; t: QuarterTime; staff: number; text?: string; beat?: LyDuration; bpm?: number; pos: Pos }
+  | { kind: 'mark'; t: QuarterTime; staff: number; voice: string; name: string; inDynamics: boolean; pos: Pos }
+  | { kind: 'bar'; t: QuarterTime; style: string; pos: Pos };
+
+export interface LyWritten {
+  /** The same reading `fromLilyPond` gives: its bars are the converter's measures. */
+  reading: ReferenceScore;
+  events: LyEvent[];
+  /** Number of staves (1 when the music names none). */
+  staves: number;
+}
+
+/** The reading together with the written events, from one walk through the music. */
+export function readWritten(score: LyScore): LyWritten {
+  const { reading, layout, staves } = analyse(score);
+  return { reading, events: layout.events, staves: Math.max(1, staves.count) };
+}
+
+function analyse(score: LyScore): { reading: ReferenceScore; layout: Layout; staves: Staves } {
   const music = expand(score.music, score.variables, []);
   resolveOctaves(music);
-  const layout = layOut(music, numberStaves(music));
+  const staves = numberStaves(music);
+  const layout = layOut(music, staves);
   const bars = buildBars(layout);
   markRepeats(bars, layout.repeats);
 
@@ -45,7 +103,12 @@ export function fromLilyPond(score: LyScore): ReferenceScore {
   }
   const notes = layout.notes.map((n) => n.note).sort(compareNotes);
   const graceNotes = layout.graces.map((g) => g.grace).sort(compareGraceNotes);
-  return validateReference({ origin: 'lilypond', bars, notes, graceNotes, playedOrder: playedOrder(bars) });
+  const reading = validateReference({ origin: 'lilypond', bars, notes, graceNotes, playedOrder: playedOrder(bars) });
+  return { reading, layout, staves };
+}
+
+function spell(pitch: LyPitch): Spelling {
+  return { step: STEPS[pitch.letter] as Step, alter: pitch.alter as Alter, octave: pitch.octave as number };
 }
 
 function fail(pos: Pos, construct: string): never {
@@ -131,11 +194,12 @@ function resolveOctaves(root: LyMusic): void {
 interface Staves {
   byNode: Map<LyMusic, number>;
   byName: Map<string, number>;
+  count: number;
 }
 
 /** Staff numbers in source order (1 = the first staff, the upper staff of a piano score). */
 function numberStaves(root: LyMusic): Staves {
-  const staves: Staves = { byNode: new Map(), byName: new Map() };
+  const staves: Staves = { byNode: new Map(), byName: new Map(), count: 0 };
   let count = 0;
   const walk = (m: LyMusic): void => {
     if (m.kind === 'context' && m.type === 'Staff') {
@@ -152,6 +216,7 @@ function numberStaves(root: LyMusic): Staves {
     } else if ('body' in m) walk(m.body);
   };
   walk(root);
+  staves.count = count;
   return staves;
 }
 
@@ -177,6 +242,8 @@ interface Layout {
   partial?: QuarterTime;
   repeats: Repeat[];
   end: QuarterTime;
+  /** The written events for the converter. */
+  events: LyEvent[];
 }
 
 function layOut(root: LyMusic, staves: Staves): Layout {
@@ -189,6 +256,7 @@ function layOut(root: LyMusic, staves: Staves): Layout {
     barLines: [],
     repeats: [],
     end: q(0),
+    events: [],
   };
   let cursor = q(0);
   let staff = 1;
@@ -198,6 +266,21 @@ function layOut(root: LyMusic, staves: Staves): Layout {
   let unfold = false;
   let inDynamics = false;
   let anonymousVoices = 0;
+  let graceCommand = '';
+  let tuplet: WrittenBase['tuplet'];
+  let tupletGroups = 0;
+  const written = (value: LyDuration, length: QuarterTime, marks: LyMark[], pos: Pos) => ({
+    t: cursor,
+    staff,
+    voice,
+    base: value.base,
+    dots: value.dots,
+    length,
+    factor: value.factor,
+    ...(tuplet ? { tuplet } : {}),
+    marks,
+    pos,
+  });
   const openTies = new Map<string, ReferenceNote>(); // voice|midi -> note whose tie is still open
 
   const advance = (length: QuarterTime): void => {
@@ -206,7 +289,7 @@ function layOut(root: LyMusic, staves: Staves): Layout {
   };
   const sound = (pitch: LyPitch, length: QuarterTime, tie: boolean, articulated: boolean, pos: Pos): void => {
     if (inDynamics) fail(pos, 'a note in a Dynamics context');
-    const spelling = { step: STEPS[pitch.letter] as Step, alter: pitch.alter as Alter, octave: pitch.octave as number };
+    const spelling = spell(pitch);
     const midi = spellingMidi(spelling);
     if (grace) {
       out.graces.push({ grace: { bar: -1, before: cursor, midi, spelling }, pos });
@@ -249,21 +332,39 @@ function layOut(root: LyMusic, staves: Staves): Layout {
       }
       case 'note': {
         const length = mul(m.duration.length, factor.num, factor.den);
+        out.events.push({
+          kind: 'note',
+          ...written(m.duration, grace ? q(0) : length, m.marks, m.pos),
+          pitches: [{ spelling: spell(m.pitch), tie: m.tie, marks: [] }],
+          chord: false,
+          ...(grace ? { grace: graceCommand } : {}),
+        });
         sound(m.pitch, length, m.tie, m.post.includes('articulation'), m.pos);
         if (!grace) advance(length);
         return;
       }
       case 'chord': {
         const length = mul(m.duration.length, factor.num, factor.den);
+        out.events.push({
+          kind: 'note',
+          ...written(m.duration, grace ? q(0) : length, m.marks, m.pos),
+          pitches: m.notes.map((n) => ({ spelling: spell(n.pitch), tie: m.tie || n.tie, marks: n.marks })),
+          chord: true,
+          ...(grace ? { grace: graceCommand } : {}),
+        });
         const articulated = m.post.includes('articulation');
         for (const n of m.notes)
           sound(n.pitch, length, m.tie || n.tie, articulated || n.post.includes('articulation'), m.pos);
         if (!grace) advance(length);
         return;
       }
-      case 'rest':
-        if (!grace) advance(mul(m.duration.length, factor.num, factor.den));
+      case 'rest': {
+        if (grace) return;
+        const length = mul(m.duration.length, factor.num, factor.den);
+        out.events.push({ kind: 'rest', ...written(m.duration, length, m.marks, m.pos), rest: m.rest, inDynamics });
+        advance(length);
         return;
+      }
       case 'barCheck':
         if (!grace) out.barChecks.push({ t: cursor, pos: m.pos });
         return;
@@ -272,17 +373,20 @@ function layOut(root: LyMusic, staves: Staves): Layout {
         walk(m.body);
         return;
       case 'tuplet': {
-        const saved = factor;
+        const saved = { factor, tuplet };
         factor = mul(factor, m.factor.num, m.factor.den);
+        // \tuplet 3/2 has factor 2/3: three notes (actual) in the time of two (normal).
+        tuplet = { group: ++tupletGroups, actual: m.factor.den, normal: m.factor.num, nested: tuplet !== undefined };
         walk(m.body);
-        factor = saved;
+        ({ factor, tuplet } = saved);
         return;
       }
       case 'grace': {
-        const saved = grace;
+        const saved = { grace, graceCommand };
         grace = true;
+        graceCommand = m.command;
         walk(m.body);
-        grace = saved;
+        ({ grace, graceCommand } = saved);
         return;
       }
       case 'unfoldRepeats': {
@@ -335,6 +439,7 @@ function layOut(root: LyMusic, staves: Staves): Layout {
       }
       case 'time':
         out.times.push({ t: cursor, num: m.num, den: m.den, pos: m.pos });
+        out.events.push({ kind: 'time', t: cursor, num: m.num, den: m.den, pos: m.pos });
         return;
       case 'partial':
         if (cmp(cursor, q(0)) !== 0) fail(m.pos, '\\partial after the start of the piece');
@@ -347,13 +452,36 @@ function layOut(root: LyMusic, staves: Staves): Layout {
         if (!grace) out.resets.push({ t: cursor, position: m.position, pos: m.pos });
         return;
       case 'bar':
-        if (!grace) out.barLines.push({ t: cursor, style: m.style });
+        if (grace) return;
+        out.barLines.push({ t: cursor, style: m.style });
+        out.events.push({ kind: 'bar', t: cursor, style: m.style, pos: m.pos });
         return;
+      // Display only for the reading; the converter prints them. \ottava only moves the staff position: the entered
+      // pitch is the sounding pitch (contract §3.1).
       case 'key':
+        out.events.push({ kind: 'key', t: cursor, staff, tonic: m.tonic, mode: m.mode, pos: m.pos });
+        return;
       case 'clef':
-      case 'ottava': // display only: the entered pitch is the sounding pitch (contract §3.1)
-      case 'tempo':
+        out.events.push({ kind: 'clef', t: cursor, staff, name: m.name, pos: m.pos });
+        return;
+      case 'ottava':
+        out.events.push({ kind: 'ottava', t: cursor, staff, octaves: m.octaves, pos: m.pos });
+        return;
+      case 'tempo': {
+        const { text, beat, bpm } = m;
+        out.events.push({
+          kind: 'tempo',
+          t: cursor,
+          staff,
+          ...(text !== undefined ? { text } : {}),
+          ...(beat !== undefined ? { beat } : {}),
+          ...(bpm !== undefined ? { bpm } : {}),
+          pos: m.pos,
+        });
+        return;
+      }
       case 'mark':
+        out.events.push({ kind: 'mark', t: cursor, staff, voice, name: m.name, inDynamics, pos: m.pos });
         return;
     }
   };

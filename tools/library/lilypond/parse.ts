@@ -45,18 +45,43 @@ export type LyPost =
   | 'pedal'
   | 'other';
 
+/**
+ * A post-event in detail, for the converter (contract §3.3): which slur end, which dynamic, which finger. `name` is
+ * the command without its backslash, or the shorthand after '-', '^' or '_' ("." for staccato). `placement` is set
+ * when the source forces it with '^' (above) or '_' (below).
+ */
+export type LyMark = (
+  | { type: 'slur'; start: boolean; phrasing: boolean }
+  | { type: 'dynamic'; name: string }
+  | { type: 'pedal'; name: string }
+  | { type: 'articulation'; name: string }
+  | { type: 'ornament'; name: string }
+  | { type: 'fingering'; finger: number }
+  /** A string script ("dolce"); `text` is absent for \markup, whose content is not read. */
+  | { type: 'text'; text?: string }
+) & { placement?: 'above' | 'below' };
+
 export interface LyChordNote {
   pitch: LyPitch;
   tie: boolean;
   post: LyPost[];
+  marks: LyMark[];
 }
 
 export type LyMusic =
   | { kind: 'seq'; items: LyMusic[]; pos: Pos }
   | { kind: 'sim'; branches: LyMusic[]; voices: boolean; pos: Pos }
-  | { kind: 'note'; pitch: LyPitch; duration: LyDuration; tie: boolean; post: LyPost[]; pos: Pos }
-  | { kind: 'chord'; notes: LyChordNote[]; duration: LyDuration; tie: boolean; post: LyPost[]; pos: Pos }
-  | { kind: 'rest'; rest: 'r' | 'R' | 's'; duration: LyDuration; pos: Pos }
+  | { kind: 'note'; pitch: LyPitch; duration: LyDuration; tie: boolean; post: LyPost[]; marks: LyMark[]; pos: Pos }
+  | {
+      kind: 'chord';
+      notes: LyChordNote[];
+      duration: LyDuration;
+      tie: boolean;
+      post: LyPost[];
+      marks: LyMark[];
+      pos: Pos;
+    }
+  | { kind: 'rest'; rest: 'r' | 'R' | 's'; duration: LyDuration; marks: LyMark[]; pos: Pos }
   | { kind: 'barCheck'; pos: Pos }
   | { kind: 'relative'; ref: LyPitch; body: LyMusic; pos: Pos }
   | { kind: 'tuplet'; factor: QuarterTime; body: LyMusic; pos: Pos }
@@ -394,14 +419,16 @@ export function parseLilyPond(source: string): LyScore {
       if (t.value === 'r' || t.value === 'R' || t.value === 's') {
         next();
         const d = parseDurationOrLast();
-        parsePostEvents(); // e.g. a fermata over a rest, or a dynamic on a spacer
-        return { kind: 'rest', rest: t.value, duration: d, pos: p };
+        const marks: LyMark[] = [];
+        parsePostEvents(marks); // e.g. a fermata over a rest, or a dynamic on a spacer
+        return { kind: 'rest', rest: t.value, duration: d, marks, pos: p };
       }
       if (t.value in pitchNames) {
         const pitch = parsePitch();
         const d = parseDurationOrLast();
-        const post = parsePostEvents();
-        return { kind: 'note', pitch, duration: d, tie: post.includes('tie'), post, pos: p };
+        const marks: LyMark[] = [];
+        const post = parsePostEvents(marks);
+        return { kind: 'note', pitch, duration: d, tie: post.includes('tie'), post, marks, pos: p };
       }
       unsupported(t, `'${t.value}' (not a note, rest or variable)`);
     }
@@ -439,14 +466,16 @@ export function parseLilyPond(source: string): LyScore {
       const t = peek();
       if (t.type !== 'word' || !(t.value in pitchNames)) unsupported(t, `'${t.value || t.type}' in a chord`);
       const pitch = parsePitch();
-      const post = parsePostEvents();
-      notes.push({ pitch, tie: post.includes('tie'), post });
+      const noteMarks: LyMark[] = [];
+      const post = parsePostEvents(noteMarks);
+      notes.push({ pitch, tie: post.includes('tie'), post, marks: noteMarks });
     }
     next();
     if (notes.length === 0) unsupported(open, 'empty chord');
     const d = parseDurationOrLast();
-    const post = parsePostEvents();
-    return { kind: 'chord', notes, duration: d, tie: post.includes('tie'), post, pos: at(open) };
+    const marks: LyMark[] = [];
+    const post = parsePostEvents(marks);
+    return { kind: 'chord', notes, duration: d, tie: post.includes('tie'), post, marks, pos: at(open) };
   }
 
   function parsePitch(): LyPitch {
@@ -502,18 +531,22 @@ export function parseLilyPond(source: string): LyScore {
     return duration(base, dots, factor);
   }
 
-  function parsePostEvents(): LyPost[] {
+  /** Post-events after a note, chord or rest; their detail goes into `marks` for the converter. */
+  function parsePostEvents(marks: LyMark[] = []): LyPost[] {
     const post: LyPost[] = [];
     for (;;) {
       const t = peek();
       if (t.type === 'symbol') {
         if (t.value === '~') post.push('tie');
-        else if (t.value === '(' || t.value === ')') post.push('slur');
-        else if (t.value === '[' || t.value === ']') post.push('beam');
+        else if (t.value === '(' || t.value === ')') {
+          post.push('slur');
+          marks.push({ type: 'slur', start: t.value === '(', phrasing: false });
+        } else if (t.value === '[' || t.value === ']') post.push('beam');
         else if (t.value === ':') unsupported(t, 'tremolo (:)');
         else if (t.value === '-' || t.value === '^' || t.value === '_') {
           next();
-          post.push(parseDirectedPost());
+          const placement = t.value === '^' ? 'above' : t.value === '_' ? 'below' : undefined;
+          post.push(parseDirectedPost(marks, placement));
           continue;
         } else return post;
         next();
@@ -521,7 +554,9 @@ export function parseLilyPond(source: string): LyScore {
       }
       if (t.type === 'command' && t.value in POST_COMMANDS) {
         next();
-        post.push(POST_COMMANDS[t.value] as LyPost);
+        const kind = POST_COMMANDS[t.value] as LyPost;
+        post.push(kind);
+        marks.push(commandMark(kind, t.value));
         continue;
       }
       return post;
@@ -529,19 +564,37 @@ export function parseLilyPond(source: string): LyScore {
   }
 
   /** What follows '-', '^' or '_' on a note. */
-  function parseDirectedPost(): LyPost {
+  function parseDirectedPost(marks: LyMark[], placement: 'above' | 'below' | undefined): LyPost {
     const t = next();
-    if (t.type === 'symbol' && t.value in SHORTHAND) return SHORTHAND[t.value] as LyPost;
-    if (t.type === 'symbol' && (t.value === '(' || t.value === ')')) return 'slur';
+    const push = (mark: LyMark) => marks.push(placement ? { ...mark, placement } : mark);
+    if (t.type === 'symbol' && t.value in SHORTHAND) {
+      push({ type: 'articulation', name: t.value });
+      return SHORTHAND[t.value] as LyPost;
+    }
+    if (t.type === 'symbol' && (t.value === '(' || t.value === ')')) {
+      push({ type: 'slur', start: t.value === '(', phrasing: false });
+      return 'slur';
+    }
     if (t.type === 'symbol' && (t.value === '[' || t.value === ']')) return 'beam';
     if (t.type === 'symbol' && t.value === '~') return 'tie';
-    if (t.type === 'number') return 'fingering';
-    if (t.type === 'string') return 'text';
-    if (t.type === 'command' && t.value === '\\markup') {
-      skipMarkup();
+    if (t.type === 'number') {
+      push({ type: 'fingering', finger: Number(t.value) });
+      return 'fingering';
+    }
+    if (t.type === 'string') {
+      push({ type: 'text', text: t.value });
       return 'text';
     }
-    if (t.type === 'command' && t.value in POST_COMMANDS) return POST_COMMANDS[t.value] as LyPost;
+    if (t.type === 'command' && t.value === '\\markup') {
+      skipMarkup();
+      push({ type: 'text' });
+      return 'text';
+    }
+    if (t.type === 'command' && t.value in POST_COMMANDS) {
+      const kind = POST_COMMANDS[t.value] as LyPost;
+      push(commandMark(kind, t.value));
+      return kind;
+    }
     return unsupported(t, `'${t.value}' after a direction mark`);
   }
 
@@ -680,7 +733,7 @@ export function parseLilyPond(source: string): LyScore {
       case '\\skip': {
         const d = parseDuration();
         if (!d) unsupported(peek(), '\\skip without a duration');
-        return { kind: 'rest', rest: 's', duration: d as LyDuration, pos: p };
+        return { kind: 'rest', rest: 's', duration: d as LyDuration, marks: [], pos: p };
       }
       case '\\once':
         return parseCommand();
@@ -794,6 +847,15 @@ export function parseLilyPond(source: string): LyScore {
     }
     unsupported(t, 'markup');
   }
+}
+
+/** The detailed mark of a post-event command such as \p, \staccato or \sustainOn. */
+function commandMark(kind: LyPost, command: string): LyMark {
+  const name = command.slice(1);
+  if (command === '\\(' || command === '\\)') return { type: 'slur', start: command === '\\(', phrasing: true };
+  if (kind === 'dynamic' || kind === 'pedal' || kind === 'articulation' || kind === 'ornament')
+    return { type: kind, name };
+  return { type: 'text' };
 }
 
 function duration(base: number, dots: number, factor: QuarterTime): LyDuration {

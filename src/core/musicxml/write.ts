@@ -6,10 +6,10 @@
  *  item). Dev-only generation code, guarded out of the shipped bundle by
  *  `tests/architecture/layers.test.ts` (tasks.md T086).
  *
- *  Feature 007 (research R13) added optional fields for pieces converted from LilyPond by
- *  `tools/library/lilypond/to-musicxml.ts`: endings, grace notes, tuplets, octave shifts, mid-bar
- *  attributes, slurs, articulations, ornaments, dynamics, hairpins, pedal marks. An exercise never sets
- *  them, so its output stays byte-identical (the exercise goldens are the guard). */
+ *  Feature 007 (research R13) added optional fields for pieces converted from LilyPond by the
+ *  library tools' converter: endings, grace notes, tuplets, octave shifts, mid-bar attributes, slurs,
+ *  articulations, ornaments, arpeggios, dynamics, hairpins, pedal marks, rights and source. An exercise
+ *  never sets them, so its output stays byte-identical (the exercise goldens are the guard). */
 
 export type WriteDuration = 'breve' | 'whole' | 'half' | 'quarter' | 'eighth' | '16th' | '32nd' | '64th';
 

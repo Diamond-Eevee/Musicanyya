@@ -42,6 +42,15 @@ export function fromMusicXml(xml: string): ReferenceScore;
 // tools/library/lilypond/read.ts - the LilyPond subset (section 3)
 export function readLilyPond(source: string): LyScore;                        // throws LyUnsupportedError(line, col, construct)
 export function fromLilyPond(score: LyScore): ReferenceScore;
+/** The same reading plus the written events (notes, rests, clefs, marks ... in source order), for the converter. */
+export function readWritten(score: LyScore): { reading: ReferenceScore; events: LyEvent[]; staves: number };
+
+// tools/library/lilypond/to-musicxml.ts - the converter (section 3.3); `dropped` lists display-only marks not written
+export function toMusicXml(score: LyScore, meta?: { title?: string; composer?: string; rights?: string; source?: string }):
+  { xml: string; dropped: string[] };
+
+// tools/library/lilypond/cli.ts - pnpm library:convert-ly (section 1)
+export function main(args: string[], io: { root: string; out: (line: string) => void }): number;
 
 // tools/library/fidelity/compare.ts
 export function compare(item: ReferenceScore, source: ReferenceScore, aspects: Aspect[], alignment: Alignment): Difference[];
@@ -138,6 +147,9 @@ and duration before writing anything. Two independent readings of the same sourc
 the reader read the source right. A difference stops the conversion and prints it. Known, explained exceptions
 (for example how LilyPond's MIDI places grace notes, research R5) are handled by the comparison rules, not by
 per-source exceptions.
+
+A second check runs before the file is written: the MusicXML written, read back with `fromMusicXml`, must equal
+`fromLilyPond` on every aspect. A difference is a converter bug; it stops the conversion and prints it.
 
 ## 4. Theory check (`tools/library/fidelity/theory.ts`)
 

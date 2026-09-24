@@ -287,7 +287,7 @@ copy makes `pnpm library:fidelity --item <id> --file <copy>` fail and name that 
 
   The existing exercise goldens (`tests/core/library/exercise/goldens.test.ts`) must stay byte-identical. Confirm
   the new cases fail.
-- [~] T028 [P] [US1] `tests/tools/lilypond/to-musicxml.test.ts`: (claimed: claude-opus-5.5 2026-09-24)
+- [x] T028 [P] [US1] `tests/tools/lilypond/to-musicxml.test.ts`:
   - every T010 fixture that the converter supports converts to MusicXML, and `fromMusicXml(output)` equals
     `fromLilyPond(input)` on every aspect;
   - the output loads through the app with no unexpected notice;
@@ -302,7 +302,7 @@ copy makes `pnpm library:fidelity --item <id> --file <copy>` fail and name that 
 
 - [x] T029 [US1] Extend `src/core/musicxml/write.ts` additively with the elements in T027, optional fields only
   (makes T027 pass; exercise goldens unchanged). (Depends on T027.)
-- [ ] T030 [US1] `tools/library/lilypond/to-musicxml.ts` + `tools/library/lilypond/cli.ts`
+- [x] T030 [US1] `tools/library/lilypond/to-musicxml.ts` + `tools/library/lilypond/cli.ts`
   (`pnpm library:convert-ly <source-id> <item-id> [--replace]`, contract §1 and §3.3-3.4). Titles, composer and
   credit come from the sidecar, not from the `.ly` header (makes T028 pass). (Depends on T018, T021, T029.)
 
