@@ -181,6 +181,46 @@ describe('readLilyPond / fromLilyPond (contract fidelity-tools.md §3.1)', () =>
     expect(voice(4, 72)).toBe(voice(6, 76));
   });
 
+  it('\\partcombine: two parts on one staff are two voices, read like << \\\\ >> (T098)', () => {
+    const combined = fromLilyPond(
+      readLilyPond(
+        "\\new Staff { \\partcombine { #(set-accidental-style 'modern-cautionary) e''4 d''4 } { c''4 b'4 } }",
+      ),
+    );
+    const split = fromLilyPond(readLilyPond("\\new Staff << { e''4 d''4 } \\\\ { c''4 b'4 } >>"));
+    expect(noVoice(combined.notes)).toEqual([
+      n(0, [0], [1], 'C5'),
+      n(0, [0], [1], 'E5'),
+      n(0, [1], [1], 'B4'),
+      n(0, [1], [1], 'D5'),
+    ]);
+    expect(combined.notes).toEqual(split.notes);
+    const voice = (midi: number) => combined.notes.find((x) => x.midi === midi)?.voice;
+    expect(voice(76)).not.toBe(voice(72));
+    expect(voice(76)).toBe(voice(74));
+  });
+
+  it('reads Mutopia 1283 (New Britain, \\partcombine on both staves): the Soprano is a voice of its own', () => {
+    const r = fromLilyPond(
+      readLilyPond(readFileSync('content/library/sources/mutopia-1283-new-britain/new_britain.ly', 'utf8')),
+    );
+    const upper = r.notes.filter((x) => x.staff === 1);
+    const soprano = upper.filter((x) => x.voice === upper.find((y) => y.midi === 62)?.voice);
+    // "Amazing grace, how sweet the sound": D4 | G4 B4 G4 | B4 A4 | G4 E4 | D4
+    expect(soprano.slice(0, 9).map((x) => x.spelling && `${x.spelling.step}${x.spelling.octave}`)).toEqual([
+      'D4',
+      'G4',
+      'B4',
+      'G4',
+      'B4',
+      'A4',
+      'G4',
+      'E4',
+      'D4',
+    ]);
+    expect(new Set(r.notes.map((x) => `${x.staff}/${x.voice}`)).size).toBe(4);
+  });
+
   it('variables are expanded where they are used', () => {
     expect(noVoice(reading('variables.ly').notes)).toEqual(
       ['C4', 'D4', 'E4', 'F4', 'C4', 'D4', 'E4', 'F4'].map((p, i) => n(i < 4 ? 0 : 1, [i], [1], p)),
@@ -308,6 +348,8 @@ describe('readLilyPond / fromLilyPond (contract fidelity-tools.md §3.1)', () =>
 
     it('a bar check that is not on a bar line', () => fails(source('bar-check-wrong.ly'), 2, 10, /bar check/));
     it('\\transpose', () => fails(source('unsupported-transpose.ly'), 2, 3, /\\transpose/));
+    it('a Scheme expression in music other than set-accidental-style', () =>
+      fails('{ #(ly:message "hi") c\'1 }', 1, 3, /Scheme expression in music/));
     it('an unknown command', () => fails('{ c4 \\foo d }', 1, 6, /\\foo/));
     it('a Scheme expression in the music', () => fails('{ c4 #(ly:make-moment 1 4) d }', 1, 6, /Scheme/));
     it('a word that is not a note, rest or variable', () => fails('{ c4 hello }', 1, 6, /hello/));

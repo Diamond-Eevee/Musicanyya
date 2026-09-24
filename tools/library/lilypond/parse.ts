@@ -495,7 +495,12 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
       }
       unsupported(t, `'${t.value}' (not a note, rest or variable)`);
     }
-    if (t.type === 'scheme') unsupported(t, 'Scheme expression in music');
+    if (t.type === 'scheme') {
+      // Accidental style changes which accidentals are printed, never a pitch.
+      if (!/^\(set-accidental-style\s/.test(t.value)) unsupported(t, 'Scheme expression in music');
+      next();
+      return { kind: 'seq', items: [], pos: at(t) };
+    }
     if (t.type !== 'command') unsupported(t, `'${t.value || t.type}'`);
     return parseCommand();
   }
@@ -729,6 +734,12 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
           next();
         }
         return { kind: 'repeat', mode: mode.value as 'volta' | 'unfold', times, body, alternatives, pos: p };
+      }
+      case '\\partcombine': {
+        // Two parts on one staff (LilyPond decides only how they are printed): the same music as << A \\ B >>.
+        const first = parseMusic();
+        const second = parseMusic();
+        return { kind: 'sim', branches: [first, second], voices: true, pos: p };
       }
       case '\\unfoldRepeats':
         return { kind: 'unfoldRepeats', body: parseMusic(), pos: p };

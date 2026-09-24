@@ -486,7 +486,7 @@ were compared against, and the result. The sidecar's `departures` names every de
 - [x] T059 [P] [US2] `content/library/sources/mutopia-2236-mozart-ah-vous-dirai-je/` (the `.ly` files are published
   zipped: record the zip's hash, commit the extracted `.ly` files with their own hashes, and record the theme's
   voice).
-- [ ] T098 [US2] The LilyPond reader reads `\partcombine A B` as two voices on one staff (LilyPond: "combines two
+- [x] T098 [US2] The LilyPond reader reads `\partcombine A B` as two voices on one staff (LilyPond: "combines two
   parts on one staff"), so `mutopia-1283` and `mutopia-1247` can be read (both fail today with
   `LilyPond 31:9: \partcombine` / `37:7`). Test first in `tests/tools/lilypond/`: a two-voice fixture gives both
   voices' notes with their own `voice`, and the Soprano can be picked by `sourceVoice`. Update

@@ -1,6 +1,6 @@
 # Contract: fidelity tools (readers, comparator, theory check, converter, commands)
 
-**Version**: `1.5.0` (1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands; 1.2.0, 2026-09-24: written bars follow the printed page (§3.2), `measurePosition`, `\tupletSpan`; 1.3.0, 2026-09-24: the converter's marks, §3.3; 1.4.0, 2026-09-24: the constructs of the US1 sources, §3.1, `readLilyPond(source, { score })`; 1.5.0, 2026-09-24: markup text, named voices per staff, moved hairpin ends, the MIDI's playback tempo, T096; 1.6.0, 2026-09-24: `compareMelody` takes `MelodyOptions` and returns `MelodyResult`, `melodyRhythm` differences, `CheckResult.allowed`, T054). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
+**Version**: `1.5.0` (1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands; 1.2.0, 2026-09-24: written bars follow the printed page (§3.2), `measurePosition`, `\tupletSpan`; 1.3.0, 2026-09-24: the converter's marks, §3.3; 1.4.0, 2026-09-24: the constructs of the US1 sources, §3.1, `readLilyPond(source, { score })`; 1.5.0, 2026-09-24: markup text, named voices per staff, moved hairpin ends, the MIDI's playback tempo, T096; 1.6.0, 2026-09-24: `compareMelody` takes `MelodyOptions` and returns `MelodyResult`, `melodyRhythm` differences, `CheckResult.allowed`, T054; 1.7.0, 2026-09-24: `\partcombine` and `#(set-accidental-style ...)` in music, T098). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
 worker, and `tests/architecture/layers.test.ts` asserts it (as it already does for the exercise generator).
 
 **Location**: `tools/library/fidelity/` (pure TypeScript, Node, no DOM; compiled by `tsconfig.tools.json`) and
@@ -131,7 +131,9 @@ to stop.
 | `\book { }` with one `\score` per movement | the source manifest's `score` field (1.1.0) names the `\score` to read; without it, several notation scores are an error |
 | `\barNumberCheck #n` | LilyPond's own measure number must be n there (from 1, or from 0 after `\partial`) |
 | `e4\rest` (a rest at a pitch) | a rest; its pitch counts for `\relative` |
-| `\include` of anything other than `"english.ly"`/`"nederlands.ly"`, any other Scheme expression (in music, or at top level other than `set-global-staff-size`/`set-default-paper-size`), `\relative` without a start pitch, `\afterGrace`, chord repetition `q`, tremolo `:`, `\repeat percent`/`tremolo`, `\repeat volta` with more than two passes and alternatives, any other `Timing` property, an end-repeat `\bar` | **unsupported** -> error |
+| *Added in 1.7.0 (T098):* `\partcombine A B` | two voices on the staff, exactly as `<< A \\ B >>` (LilyPond only decides how the parts are printed); Mutopia 1283 and 1247 read this way agree with their own MIDI (0 differences) |
+| *Added in 1.7.0 (T098):* `#(set-accidental-style ...)` in music | layout only (which accidentals are printed) |
+| `\include` of anything other than `"english.ly"`/`"nederlands.ly"`, any other Scheme expression (in music other than `set-accidental-style`, or at top level other than `set-global-staff-size`/`set-default-paper-size`), `\relative` without a start pitch, `\afterGrace`, chord repetition `q`, tremolo `:`, `\repeat percent`/`tremolo`, `\repeat volta` with more than two passes and alternatives, any other `Timing` property, an end-repeat `\bar` | **unsupported** -> error |
 
 ### 3.2 Bars
 
