@@ -42,7 +42,9 @@ and their licence (FR-020); `tests/library/licence.test.ts` checks both (FR-017)
   (Mutopia-2015/08/18-931) from the Breitkopf & Härtel edition of 1888, and placed in the public domain
   by the typesetter ("free to distribute, modify, and perform"). Converted by Musicanyya from the
   LilyPond source `fur_Elise_WoO59.ly` to MusicXML; the notes were checked against Mutopia's own MIDI
-  file of the same source.
+  file of the same source. Both source files are kept unchanged in
+  `content/library/sources/mutopia-931-beethoven-woo59/`, where `pnpm library:fidelity` re-checks the item against
+  them.
   https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931
 
 The library's `.musicxml` files were completed by the project's engraving tool (`pnpm library:engrave`), which adds

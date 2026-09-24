@@ -170,7 +170,7 @@ harness, proven on the one item that is already verified (Advanced Für Elise).
 - [x] T022 `tools/library/fidelity/cli.ts`: `pnpm library:fidelity` with no arguments, `--item <id>`,
   `--item <id> --file <path>` and `--inspect-midi <path>`, per contract `fidelity-tools.md` §1. The exit code is 1
   on any unreproduced result. Report writing and `--check` come in US4 (T080). (Depends on T021.)
-- [ ] T023 Commit the first source, `content/library/sources/mutopia-931-beethoven-woo59/`:
+- [x] T023 Commit the first source, `content/library/sources/mutopia-931-beethoven-woo59/`:
   - `fur_Elise_WoO59.ly` and `.mid`, byte-for-byte from the Mutopia piece page;
   - `source.json` with SHA-256 per file, `midiOrder`, `midiNoteTracks` and `midiArticulate` (found with
     `--inspect-midi` and a grep for `unfoldRepeats`/`articulate`), and `approvedByOwner` (D-1; the owner accepted this edition in the merge of

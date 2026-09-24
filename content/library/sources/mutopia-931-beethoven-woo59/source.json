@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "id": "mutopia-931-beethoven-woo59",
+  "work": "Beethoven, Für Elise (Bagatelle in A minor), WoO 59",
+  "edition": "Breitkopf & Härtel, 1888",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931",
+  "identifier": "Mutopia-2015/08/18-931",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond 2.18.2 by Stelios Samelis for the Mutopia Project from the Breitkopf & Härtel edition of 1888, and placed in the public domain by the typesetter. The piece page states \"Copyright: Public Domain\" (checked 2026-09-24).",
+  "obtained": "2026-09-24",
+  "approvedByOwner": "2026-09-23",
+  "files": [
+    {
+      "role": "notation",
+      "path": "fur_Elise_WoO59.ly",
+      "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/WoO59/fur_Elise_WoO59/fur_Elise_WoO59.ly",
+      "sha256": "828a7bd1b42e441fe1b0eb0389ba46f1502dab28bbe488389e635fb446ba7a67",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "fur_Elise_WoO59.mid",
+      "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/WoO59/fur_Elise_WoO59/fur_Elise_WoO59.mid",
+      "sha256": "1c12c21c7bbf4cf163896732672648a69d497636059837abd153c71abe50215a",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}
