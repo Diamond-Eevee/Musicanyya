@@ -19,3 +19,7 @@
 - T003 shows (looked at both): today's strip is a row of 20 px white rectangles with a black outline, no black keys, no
   labels, the Sustain Pedal button under it. At 1280 x 800 only the left part of the row fits (the right keys are cut
   off, the strip scrolls sideways); at 1920 x 1080 the row spans the window edge to edge and is 80 px high.
+- Done: T004, T005 (Phase 2 checkpoint). T004 first run: `Test Files 1 failed (1)`, `Tests no tests` - the module
+  `src/ui/piano/keyboard-layout.ts` did not exist (expected reason). After T005: `pnpm vitest run tests/ui/piano` =
+  `Tests 16 passed (16)`. One test of mine was wrong first (counted consecutive black keys; a group of black keys is
+  broken by the white key between them), fixed in the test, not in the layout.

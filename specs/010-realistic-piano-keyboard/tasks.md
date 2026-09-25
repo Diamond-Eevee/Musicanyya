@@ -36,7 +36,7 @@ review task. If a task ends up touching one, add an `rt-audio-reviewer` task nex
 
 ## Phase 2: Foundational (blocks all user stories)
 
-- [ ] T004 Unit tests for the pure layout in `tests/ui/piano/keyboard-layout.test.ts` (data-model section 1, contract
+- [x] T004 Unit tests for the pure layout in `tests/ui/piano/keyboard-layout.test.ts` (data-model section 1, contract
   section 1): 88 entries in key order 21-108; 52 white and 36 black; `isBlackKey` true exactly for pitch classes 1, 3,
   6, 8, 10; white key `i` at `left = i/52`, `width = 1/52`, the last ending at 1; every black key `width =
   0.58/52`, `length = 0.64`, its centre at the equal key-top position of research R-1 (C# 0.9, D# 2.1, F# 6/7, G# 2,
@@ -44,7 +44,7 @@ review task. If a task ends up touching one, add an `rt-audio-reviewer` task nex
   no two black keys overlapping; the outer keys of each group lean outwards (C# left of the C/D line, D# right of the
   D/E line, F# left, A# right, G# on the line); labels exactly `C1`...`C8` on MIDI 24, 36, ..., 108 and null elsewhere;
   the function returns the same array on every call. Run it: fails (module missing)
-- [ ] T005 Implement `keyboardLayout()` and `isBlackKey()` in `src/ui/piano/keyboard-layout.ts` (pure, computed once at
+- [x] T005 Implement `keyboardLayout()` and `isBlackKey()` in `src/ui/piano/keyboard-layout.ts` (pure, computed once at
   module level, labels from `midiNoteName` in `src/ui/format/note-name.ts`); T004 passes
 
 **Checkpoint**: the geometry of a real keyboard is available and proven in Node.
