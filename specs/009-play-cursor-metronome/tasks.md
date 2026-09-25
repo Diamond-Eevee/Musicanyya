@@ -22,9 +22,9 @@ changed it; every replaced assertion gets a new assertion for the new mark, and 
 
 ## Phase 1: Setup
 
-- [ ] T001 [P] Add `MAX_SETUP_CONTROLLERS = 64` under "Audio worklet scheduling" in `src/core/defaults.ts`, and add it
+- [x] T001 [P] Add `MAX_SETUP_CONTROLLERS = 64` under "Audio worklet scheduling" in `src/core/defaults.ts`, and add it
   to the constants table of `specs/001-score-viewer-listen/data-model.md` (data-model section 5)
-- [ ] T002 [P] Add a hand-made fixture `tests/fixtures/musicxml/grade/grade-marks.musicxml` (own work, CC0, noted in
+- [x] T002 [P] Add a hand-made fixture `tests/fixtures/musicxml/grade/grade-marks.musicxml` (own work, CC0, noted in
   `tests/fixtures/musicxml/README.md`): one piano part on a grand staff with a repeated measure, a three-note chord,
   a tie across a barline, an 8va passage, a whole-measure rest in the right hand, a grace note and a key signature
   with one sharp; it opens without notices (checked by T029's first test)
@@ -33,18 +33,18 @@ changed it; every replaced assertion gets a new assertion for the new mark, and 
 
 ## Phase 2: Foundational (blocks all user stories)
 
-- [ ] T003 Unit tests for a new key step `sleep:<ms>` (wall-clock wait, 1-60000 ms) in `tests/tools/key-steps.test.ts`:
+- [x] T003 Unit tests for a new key step `sleep:<ms>` (wall-clock wait, 1-60000 ms) in `tests/tools/key-steps.test.ts`:
   parsed to `{ kind: 'sleep', ms }`, rejects `sleep:0`, `sleep:-5`, `sleep:abc` and `sleep:60001` with the step named in
   the error; existing steps unchanged. Run it and see it fail (unknown step)
-- [ ] T004 Implement `sleep:<ms>` in `tools/dev/key-steps.ts` and honour it in the e2e helper `pressKeys` in
+- [x] T004 Implement `sleep:<ms>` in `tools/dev/key-steps.ts` and honour it in the e2e helper `pressKeys` in
   `tests/e2e/helpers/practice.ts` (a real wait between dispatches)
-- [ ] T005 Add the e2e helper `startPlay(page, itemId, { accompaniment?, tempoPercent?, range? })` in
+- [x] T005 Add the e2e helper `startPlay(page, itemId, { accompaniment?, tempoPercent?, range? })` in
   `tests/e2e/helpers/play.ts`: fake a granted MIDI device through the `e2e-midi` path, switch to Play, set the
   options through the Play panel, press Start; plus `waitForGrade(page)` (reused by T011, T036, T046)
-- [ ] T006 Add the dev-only options `--run` (Play mode, Start, then the `--keys` steps) and `--grade` (wait for the
+- [x] T006 Add the dev-only options `--run` (Play mode, Start, then the `--keys` steps) and `--grade` (wait for the
   Grade before the picture) to `tools/dev/screenshot.ts`; document them in the file header, in `README.md` and in the
   toolchain section of `docs/agents/reference.md` (quickstart "Seeing it" already describes them)
-- [ ] T007 Verify T006: run `pnpm screenshot -- --item repertoire/beginner/fur-elise-theme-16-bar --run --keys
+- [x] T007 Verify T006: run `pnpm screenshot -- --item repertoire/beginner/fur-elise-theme-16-bar --run --keys
   "sleep:3500" --out tests/.generated/009/t007-before.png`, look at the picture (today: no cursor during the run) and
   record what it shows in `specs/009-play-cursor-metronome/implementation-log.md`
 
@@ -62,7 +62,7 @@ the Metronome, looking like Listen mode's cursor, and it is gone when the Grade 
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T008 [P] [US1] Record Listen's current cursor logic as a golden before moving it (contract section 1): copy the
+- [x] T008 [P] [US1] Record Listen's current cursor logic as a golden before moving it (contract section 1): copy the
   inline expressions of `updateCursor` in `src/ui/elements/mx-score-view.ts` (the `timeline.spans` filter and the
   `timeline.passes` find) verbatim into `tests/core/timeline/listen-cursor-reference.ts`; generate
   `tests/core/timeline/__snapshots__/listen-cursor.golden.json` (note IDs and pass index at every quarter of a beat)
@@ -70,20 +70,20 @@ the Metronome, looking like Listen mode's cursor, and it is gone when the Grade 
   files from `tests/fixtures/musicxml/real`. Then, in `tests/core/timeline/position.test.ts`, assert that `notesAtTick`
   and `passAtTick` from `src/core/timeline/position.ts` reproduce the golden exactly, plus the empty-passes case
   (null). Run it: fails (module missing)
-- [ ] T009 [P] [US1] Unit tests for `playCursorAt` in `tests/core/play/cursor.test.ts` (data-model section 1): null for
+- [x] T009 [P] [US1] Unit tests for `playCursorAt` in `tests/core/play/cursor.test.ts` (data-model section 1): null for
   a null run and for `idle`, `finished`, `stopped`, `aborted`; `countIn` -> `{ timelineTick: rangeStartTick, countIn:
   true }` whatever `positionRunTick` says; `running` maps with the PlayTickMap formula; a range starting at measure 5
   starts there; a position before the count-in end clamps to `rangeStartTick`; a late position past the end clamps
   to `rangeEndTick - 1`; `positionRunTick` is used with no extra offset (it is already the audible position, SC-001).
   Run it: fails (module missing)
-- [ ] T010 [P] [US1] Score-view unit tests in `tests/ui/score-view-play-cursor.test.ts` (happy-dom, the harness of
+- [x] T010 [P] [US1] Score-view unit tests in `tests/ui/score-view-play-cursor.test.ts` (happy-dom, the harness of
   `tests/ui/score-view.test.ts`, a recording canvas context): (a) `countIn`: a cursor bar is drawn at the first note's x
   and no note has `.playing`; (b) `running`: the notes at the tick, including a graded note the run does not sound, get
   `.playing` and the bar is at their x; (c) the run becomes `finished`, is stopped, or the mode is switched to Listen or
   Practice: `.playing` is removed and no bar is drawn in the next frame (FR-006); (d) `overlays.cursor` off: no bar,
   highlights and marks unchanged; (e) with a Grade on screen during a replay, the bar is drawn before the Grade marks
   (call order); (f) Listen still draws exactly as before (bar at the sounding note). Run it: (a)-(e) fail
-- [ ] T011 [P] [US1] E2E test `tests/e2e/play-cursor.spec.ts` with `startPlay` (T005) on
+- [x] T011 [P] [US1] E2E test `tests/e2e/play-cursor.spec.ts` with `startPlay` (T005) on
   `repertoire/beginner/fur-elise-theme-16-bar`, accompaniment on, nothing played: during the count-in no `.playing`
   note and `runPositionState` at the first measure; after the count-in the first note gets `.playing`, then later
   notes in order, and the view follows; with tempo 60 % and range 5-8 the first highlighted note is in measure 5;

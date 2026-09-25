@@ -61,6 +61,8 @@ export const VOLUME_DEFAULT = 80;
 // Audio worklet scheduling (R-10, shared with worklet which cannot import engine/config)
 export const POSITION_REPORT_BLOCKS = 4;
 export const VOLUME_RAMP_FRAMES = 256;
+/** Tick-0 controller events (bank, volume, pan, ...) the worklet keeps to apply a schedule's channel setup (009 R-01). */
+export const MAX_SETUP_CONTROLLERS = 64;
 
 // Dropout detection and diagnostics (R-10 "Dropouts")
 export const DROPOUT_DRIFT_THRESHOLD_SECONDS = 0.05;

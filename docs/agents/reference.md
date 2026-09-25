@@ -161,11 +161,15 @@ e2e tests cover it. Use the first option that works for you:
    pnpm screenshot --file tests/fixtures/musicxml/engraving/fur-elise-bare.musicxml   # drop a local file
    pnpm screenshot --item <id> --width 1280 --height 720 --full --out test-results/screenshots/x.png
    pnpm screenshot --item <id> --practice --keys "+76,-76,+75"   # Practice, then key steps (feature 008)
+   pnpm screenshot --item <id> --run --keys "sleep:3500"          # a Play run, picture taken mid-run (feature 009)
+   pnpm screenshot --item <id> --run --grade --keys "sleep:1300,+76,-76"   # a Play run, picture of its Grade
    ```
 
    `--practice` switches to Practice and presses Start (a fake MIDI keyboard through the `e2e-midi` window event, the
    same one the e2e tests use). `--keys` is a comma-separated list of steps, `+<midi>` key down, `-<midi>` key up,
-   `wait` one drawn frame; keys still down stay held in the picture. `--play <n>` first plays the correct keys of the
+   `wait` one drawn frame, `sleep:<ms>` a real wait (1-60000 ms, to play in time with a run); keys still down stay
+   held in the picture. `--run` (Play instead of Practice: switch to Play, press Play, then the `--keys` steps) and
+   `--grade` (with `--run`: wait for the run to end and its Grade to appear before the picture) are for Play mode. `--play <n>` first plays the correct keys of the
    first n events (read from the running session), for real scores whose notes you do not know by heart. The script language lives in
    `tools/dev/key-steps.ts`, shared with `pressKeys` in `tests/e2e/helpers/practice.ts`.
 

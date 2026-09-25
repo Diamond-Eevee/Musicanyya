@@ -4,13 +4,15 @@ import { openPanel } from './panels.js';
 
 /**
  * Drives Practice without a MIDI keyboard through the app's `e2e-midi` window event (src/app/session.ts). A step list is
- * the same script `pnpm screenshot --keys` takes: `+<midi>` key down, `-<midi>` key up, `wait` one drawn frame
- * (tools/dev/key-steps.ts). Keys stay down until their `-<midi>` step, so a held key can be looked at.
+ * the same script `pnpm screenshot --keys` takes: `+<midi>` key down, `-<midi>` key up, `wait` one drawn frame,
+ * `sleep:<ms>` a real wait (tools/dev/key-steps.ts). Keys stay down until their `-<midi>` step, so a held key can be looked at.
  */
 export async function pressKeys(page: Page, steps: string | readonly KeyStep[]): Promise<void> {
   const list = typeof steps === 'string' ? parseKeySteps(steps) : steps;
   for (const step of list) {
-    if (step.kind === 'wait') {
+    if (step.kind === 'sleep') {
+      await page.waitForTimeout(step.ms);
+    } else if (step.kind === 'wait') {
       await page.evaluate(
         () => new Promise<void>((done) => requestAnimationFrame(() => requestAnimationFrame(() => done()))),
       );

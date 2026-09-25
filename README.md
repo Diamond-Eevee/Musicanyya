@@ -31,7 +31,9 @@ and Web MIDI.
 4. Take a screenshot without opening a browser: `pnpm screenshot --item repertoire/intermediate/fur-elise-theme`
    (or `--file <score.musicxml>`); the PNG lands in `test-results/screenshots/`. Add `--practice --keys "+76,-76,+75"`
    to start Practice and press (`+`) / release (`-`) MIDI keys before the picture is taken (no keyboard needed);
-   `--play 6` first plays the correct keys of the first six events
+   `--play 6` first plays the correct keys of the first six events. `--run` starts a Play run instead (count-in,
+   cursor, Metronome) and plays the `--keys` steps in time with it (`sleep:<ms>` waits); add `--grade` to wait for the
+   Grade before the picture, e.g. `--run --grade --keys "sleep:1300,+76,-76"`
 
 ### Testing and Quality Gates
 
