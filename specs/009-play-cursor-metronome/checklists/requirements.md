@@ -41,3 +41,10 @@
   constitution change.
 - Iteration 2: owner answered all three markers with the recommendations (and confirmed the screenshot was a test
   run); FR-016, FR-021, FR-027 and US3 scenario 5 updated; all items pass.
+- Iteration 3 (plan, 2026-09-25): FR-017 made exact, FR-017a added, FR-024 and SC-005 corrected for repeats (the old
+  SC-005 count broke when two passes play the same wrong key), tie edge case refined - all from the
+  `music-domain-expert` review; no new marker; all items still pass.
+- Iteration 4 (owner: "resolve everything, go with recommended", 2026-09-25): skip icon replaces the skip chevron in
+  both modes (FR-016, FR-016a), chord and octave-line explanation wording (FR-022a), Listen instrument change
+  accepted, constitution-audit findings resolved (planning changes and the colour-only extension accepted, FR-020
+  names its two shape-ambiguous cases). No marker; all items pass.

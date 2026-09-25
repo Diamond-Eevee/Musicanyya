@@ -121,12 +121,13 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
    below the written note (or carries an ottava label if it was folded onto the staff).
 4. **Given** an extra key press, **When** the Grade is shown, **Then** a red disc sits at the pitch played, in the
    column of the written moment nearest to when it was played.
-5. **Given** a missed note, **When** the Grade is shown, **Then** its notehead is grey with the small marker Practice
-   uses for a skipped note, and no ring is drawn.
+5. **Given** a missed note, **When** the Grade is shown, **Then** its notehead is grey with the grey skip icon below it
+   (the marker Practice now also uses for a skipped note), and no ring is drawn.
 6. **Given** a note played early or late, **When** the Grade is shown, **Then** its timing marking is shown beside
    it as today, whether its notehead is green or it has a red disc.
 7. **Given** a Grade, **When** the musician selects a green note, a red disc or a missed note, **Then** the plain-words
-   explanation of 003 FR-030 is shown ("D5 played, E5 written", "late by 120 ms", "nothing played here").
+   explanation of 003 FR-030 is shown ("D5 played, E5 written", "late by 120 ms", "nothing played here"), worded
+   as FR-022a says for chords and octave lines.
 8. **Given** a Grade, **When** the musician steps through the mistakes, **Then** each red disc and each missed note is
    visited in turn and brought into view.
 9. **Given** a Grade on dense music (sixteenth notes, chords, two staves), **When** the musician looks at it, **Then**
@@ -146,15 +147,18 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
 - **Anacrusis (pick-up measure)**: the count-in follows 003 FR-003; the cursor waits at the pick-up note and the
   accent stays on the first beat of each full measure.
 - **Tempo and meter changes, tempo percentage**: clicks, cursor and accompaniment all follow them together.
-- **Repeats, endings and jumps**: the cursor follows Listen mode's order. A note played on several passes shows the
-  worse of its results on the Score (a missed or wrong pass wins over a correct one); stepping through the mistakes
-  visits each occurrence, and its explanation names the pass.
+- **Repeats, endings and jumps**: the cursor follows Listen mode's order. A note played on several passes is green
+  only if every pass was correct (FR-024); the same wrong key on two passes is one disc; stepping through the
+  mistakes visits each occurrence, and its explanation names the pass.
+- **Extra key during a long rest**: the disc goes to the nearest note onset of the graded part, which may be the
+  next measure's first note; its explanation gives the exact measure and beat.
+- **A wrong key that is the other hand's written note**: the disc stays on the graded note's staff (FR-017a).
 - **Rests and whole-measure rests**: the cursor behaves as it does in Listen mode (stands at the measure start or at
   the rest).
 - **Chords**: each chord note is green or not on its own; a wrong key in a chord is its own red disc in the chord's
   column. Several discs a second apart stay readable as separate noteheads, as in Practice.
 - **Ties**: a tied note is graded once at its onset (003 FR-021); the tied continuation takes the same colour as the
-  onset, as Practice does.
+  onset, as Practice does; a missed tie shows its marker at the first note only.
 - **Keys the Score has but does not grade** (the other hand, another part, grace notes, ornaments): no red disc, as
   in 003 FR-024 (played-along).
 - **Sustain pedal**: never creates a green note or a red disc.
@@ -180,6 +184,35 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
   Practice in 008? -> A: yes, same as Practice; recorded in plan Complexity Tracking, no constitution change (FR-021).
 - Q: In the owner's screenshot nearly every note is missed; was that a real attempt? -> A: no, a test run; no grading
   problem to follow up.
+
+### Session 2026-09-25 (plan open points; owner: "resolve everything, go with recommended")
+
+- Q: A small ">" under a notehead reads as an accent (`music-domain-expert`); keep Practice's skip chevron for the
+  missed marking, or change the marker? -> A: change it, in both modes: a grey **skip icon** (a solid right-pointing
+  triangle with a bar at its tip, like a media "skip" sign) replaces the chevron for a missed note in Play and for a
+  skipped note in Practice, at the same place below the notehead (FR-016, FR-016a).
+- Q: After the channel-setup fix, multi-instrument Scores sound as their instruments in Listen mode; accept? -> A: yes,
+  that is 001 FR-015 (Assumptions).
+- Q: Adopt the expert's explanation wording for chords and octave lines? -> A: yes: a wrong key inside a chord is
+  explained without pairing it to one written note, and a note played an octave off where an octave line is in force
+  says so (FR-022a).
+- Q (constitution audit, HIGH): the planning changes below rewrote FR-017, FR-024 and SC-005 and added FR-017a; does
+  the owner accept them? -> A: yes, accepted as recommended.
+- Q (constitution audit, MEDIUM): 008 accepted "correct vs not-yet-played by colour only" for Practice, where that
+  state is temporary; in a Grade, correct (green) and ungraded notes (the other hand, another part, notes after a
+  stop) differ by colour only for as long as the Grade is shown. Accept the extension, or add a shape to correct
+  notes? -> A: accept the extension (recommended: a shape on every correct note is the outline look the owner asked
+  to remove); every Grade result still differs from every other result by shape (FR-020). Plan Complexity Tracking.
+
+### Changes from planning (2026-09-25)
+
+- The Metronome cause is confirmed (research R-01): the click's instrument is never selected, so it plays as a short
+  piano note. The same cause makes every part of every Score sound as piano in Listen mode; the fix therefore also
+  restores 001 FR-015 ("each part sounds as its General MIDI instrument"). Piano-only Scores sound as before.
+- After the `music-domain-expert` review (research R-08): FR-017 now defines "nearest written moment" exactly; new
+  FR-017a keeps a wrong-pitch disc on its own note's staff; FR-024 and SC-005 now say how repeats combine (green only
+  if every pass was correct, one disc per distinct wrong key, every timing error shown); a missed tie is marked at
+  its first note only.
 
 ## Requirements *(mandatory)*
 
@@ -226,26 +259,42 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
   pitch actually played, in the column of that written note, drawn exactly as Practice draws a wrong key (008 FR-004,
   FR-006, FR-007: ledger lines, accidental, ottava label). Its written notehead MUST NOT be green, and carries the
   missed marking of FR-016, so the musician sees both what was written and what was played.
-- **FR-016**: A missed note MUST be shown with a grey notehead plus the small marker Practice uses for a skipped note
-  (008 FR-009) - the **missed marking**. Hollow heads stay hollow, and the marker never covers a notehead.
+- **FR-016**: A missed note MUST be shown with a grey notehead plus a grey **skip icon** below it - a solid
+  right-pointing triangle with a bar at its tip, which cannot be read as an accent - the **missed marking**. Hollow
+  heads stay hollow, and the icon never covers a notehead.
+- **FR-016a**: Practice mode's skipped note MUST use the same skip icon in place of today's chevron (amends 008
+  FR-009, FR-010), so skipped and missed look the same in both modes. The held-over chevron is unchanged.
 - **FR-017**: An extra key press MUST be shown as a red disc at the pitch played, in the column of the written
-  moment nearest in time to when it was played, on the staff Practice would choose for that pitch.
+  moment nearest to it in the music: the nearest note onset of the graded part on either staff (the unselected hand
+  included, grace notes excluded) within the run's passage, the earlier one when it lies exactly between two, across
+  a barline if that is nearer. It goes on the staff Practice would choose for that pitch.
+- **FR-017a**: A wrong-pitch disc MUST go on the staff of the written note it stands for, even where the key played
+  equals a note written for the other hand at that moment, so it never looks like a mark on that other note.
 - **FR-018**: The timing result of a played note (early, late) MUST keep its current marking beside the note; on
   time stays unmarked.
 - **FR-019**: A Grade MUST NOT draw a ring, a cross or any other outline around a notehead.
 - **FR-020**: Correct, wrong pitch, missed, extra, early and late MUST be distinguishable without colour vision
   (Constitution VI): correct is an unmarked head; wrong pitch is the missed marking plus a red disc in the note's
   column; missed is the missed marking alone; extra is a red disc in a column whose written notes carry no missed
-  marking or where nothing is written; early and late keep their side markings.
+  marking or where nothing is written; early and late keep their side markings. Two cases cannot be told apart by
+  shape alone and are resolved by the explanation (FR-022) and the mistake stepper: an extra key in a column whose
+  note was missed or wrong reads like a wrong pitch there; a wrong key that no staff can show (percussion or TAB
+  clef) gets no disc and reads like a missed note.
 - **FR-021**: A red disc MUST stay in the column of its written moment and MAY cover a written notehead it meets
   there, exactly as in Practice (008 FR-006). This is the same bounded exception to Constitution VI ("overlays MUST
   NOT hide the notes they refer to") that the owner accepted for Practice, extended to the Grade.
 - **FR-022**: Selecting a green note, a red disc or a missed note MUST show its plain-words explanation (003 FR-030);
   a red disc MUST be selectable in its own right.
+- **FR-022a**: Two explanations MUST be worded more precisely than 003 FR-030's defaults: (1) a wrong key in a chord
+  names what was played in the chord and which written notes were not played ("B4 played in this chord; E4 not
+  played"), never implying which written note the key was meant for; (2) a note played exactly the octave an octave
+  line (8va / 8vb / 15ma / 15mb) in force would shift says so ("played without the 8va"). All other texts stay 003's.
 - **FR-023**: Stepping through the mistakes (003 FR-031) MUST visit every red disc and every missed note in playing
   order and bring each into view.
-- **FR-024**: Where a note occurs on several passes (repeats, jumps), the Score MUST show the worse of its results,
-  and its explanation MUST list every pass.
+- **FR-024**: Where a note occurs on several passes (repeats, jumps), its notehead MUST be green only if every pass
+  was correct and otherwise carry the missed marking; one red disc MUST be drawn per distinct key played wrongly in
+  that column, whatever the number of passes; every timing marking that occurred on any pass MUST be shown (on time
+  never hides an early or late); and its explanation MUST list every pass.
 - **FR-025**: The marks MUST follow their notes when the Score scrolls, turns page, zooms or reflows; the marks layer
   switch MUST hide all of them; they MUST be cleared when a new run starts or the mode changes (003 FR-035).
 - **FR-026**: A mark MUST NOT spread over a neighbouring written note, apart from a red disc in its own column
@@ -281,8 +330,9 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
   zero sounds are notes of the Score's instrument.
 - **SC-004**: In a listening check, the owner identifies the click as a metronome and tells the accented first beat
   from the others without looking at the screen.
-- **SC-005**: For every reference Grade, the number of green notes on the Score equals the Grade's count of correct
-  notes, the number of red discs equals its count of wrong pitch plus extra, and zero rings or crosses are drawn.
+- **SC-005**: For every reference Grade, every graded notehead is green exactly when all its passes are correct, the
+  red discs are exactly the distinct (written moment, key) pairs of its wrong pitches and extras (without repeats:
+  as many discs as wrong pitches plus extras), and zero rings or crosses are drawn.
 - **SC-006**: In a greyscale rendering of a Grade containing every result, a reviewer can tell correct, wrong pitch,
   missed, extra, early and late apart for every marked note.
 - **SC-007**: On the owner's "Für Elise" example and on every library item, no Grade mark overlaps a neighbouring
@@ -310,11 +360,13 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
   every note is missed, came from a test run without real playing (Clarifications).
 - Red discs appear in Play mode only after the run; during the run the Score shows green notes only (Clarifications).
 - The desktop app needs nothing of its own; the Native audio plugin is not involved.
+- After the Metronome fix, multi-instrument Scores sound as their instruments in Listen mode (001 FR-015); accepted
+  by the owner 2026-09-25. Piano-only Scores, the whole library, sound as before.
 
 ## Out of Scope
 
 - A Metronome in Listen or Practice mode.
 - Metronome volume, sound choice, subdivisions, or a visual beat flash.
 - Any change to grading, strictness levels, the summary figures or the Performance log.
-- Changing Practice mode's marks.
+- Changing Practice mode's marks, except the skipped note's marker shape (FR-016a).
 - New MusicXML coverage.
