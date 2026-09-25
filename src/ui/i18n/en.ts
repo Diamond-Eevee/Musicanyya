@@ -216,6 +216,7 @@ export const en = {
     soundFontMissing: 'The built-in sound could not be loaded.',
     audioDeviceChanged: 'Playback paused because the audio device changed.',
     workletLoadFailed: 'The audio engine failed to start.',
+    processorFaulted: 'Playback stopped unexpectedly. Reload the page to keep playing.',
     storageUnavailable: 'Scores and settings could not be saved on this device.',
     unsupportedElement: 'An unsupported notation element was skipped.',
     timingRounded: 'Some note timings were rounded to fit the beat grid.',

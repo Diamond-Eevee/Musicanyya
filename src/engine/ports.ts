@@ -19,7 +19,12 @@ export type AudioEngineState =
   | { kind: 'suspended'; reason: 'hidden' | 'deviceChanged' | 'browserPolicy' }
   | { kind: 'error'; code: AudioErrorCode; detail: string };
 
-export type AudioErrorCode = 'notSupported' | 'soundFontLoadFailed' | 'workletLoadFailed' | 'contextFailed';
+export type AudioErrorCode =
+  | 'notSupported'
+  | 'soundFontLoadFailed'
+  | 'workletLoadFailed'
+  | 'contextFailed'
+  | 'processorFaulted'; // the AudioWorkletProcessor threw mid-session and was guarded off (tasks.md T161)
 
 export interface LatencyInfo {
   outputLatencyMs: number | null; // base + output latency, null if the browser does not report it

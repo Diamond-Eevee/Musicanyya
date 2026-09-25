@@ -1,6 +1,6 @@
 # Contract: `score-player` AudioWorklet protocol
 
-**Version**: `1.2.0`. Messages between `WebAudioEngine` (main thread) and the `ScorePlayerProcessor`
+**Version**: `1.3.0`. Messages between `WebAudioEngine` (main thread) and the `ScorePlayerProcessor`
 (`src/engine/worklets/score-player.processor.ts`, registered as `"musicanyya-score-player"`). Research R-10.
 `1.1.0` (feature 002, T057, 2026-09-20): adds the `liveDropped` message, posted from `port.onmessage`'s `'live'`
 case (not from `process()`) whenever the 64-entry live queue is full - a dropped `noteOn`/`noteOff` would otherwise
@@ -10,6 +10,11 @@ accompaniment roughly doubles the live message rate (specs/002-practice-wait-mod
 `DispatchState.splits` marks out, applying every event at its own frame instead of at the block boundary (research
 R-02, SC-002) - no message shape changed for this. Adds the `channelVolume` message (also R-02), CC7 on one
 channel applied in `port.onmessage`, used to mute the Play mode Metronome without touching the schedule.
+`1.3.0` (feature 001, T161, 2026-09-25): adds `status: { state: "processorFaulted", detail? }`. A throw from the
+synth or the dispatch math inside `process()` previously escaped uncaught and permanently silenced the processor
+(the host stops calling `process()` once it throws) with no diagnostic. `processBlock` now catches it, sets an
+internal `faulted` flag (never cleared - the processor stays quiet for the rest of the session rather than risk
+continuing from unknown state) and posts this message exactly once.
 
 Constitution I rules for the processor (checked by `rt-audio-reviewer`):
 
@@ -63,7 +68,7 @@ interface ScheduleMessage {
 
 | `type` | Payload | When |
 |---|---|---|
-| `status` | `{ state: "initialised" | "soundReady" | "error", detail?: string }` | After `init` / `soundBank`, on handler failure |
+| `status` | `{ state: "initialised" | "soundReady" | "error" | "processorFaulted", detail?: string }` | After `init` / `soundBank`, on handler failure, or once if `process()`'s own call into `processBlock` faults (T161) |
 | `position` | `{ frame: number, contextTime: number, tick: number, ticksPerFrame: number, playing: boolean }` | Every 4 blocks while playing; once after `play`/`pause`/`stop`/`seek`/`tempo`/`schedule` |
 | `ended` | `{ frame: number }` | The end tick was reached; the processor paused itself |
 | `liveDropped` | `{ total: number }` | A `live` message arrived while the 64-entry queue was already full (1.1.0) |

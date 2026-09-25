@@ -111,6 +111,7 @@ describe('the notices layer never hides a failure', () => {
     'fileTooLarge',
     'soundFontMissing',
     'workletLoadFailed',
+    'processorFaulted',
     'storageUnavailable',
     'playGradeError',
   ])('still shows %s with the layer off', (code) => {

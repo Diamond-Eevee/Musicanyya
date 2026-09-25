@@ -50,7 +50,7 @@ export interface SimpleSynth {
 }
 
 export type ProcessorMessage =
-  | { type: 'status'; state: 'initialised' | 'soundReady' | 'error'; detail?: string }
+  | { type: 'status'; state: 'initialised' | 'soundReady' | 'error' | 'processorFaulted'; detail?: string }
   | { type: 'position'; frame: number; contextTime: number; tick: number; ticksPerFrame: number; playing: boolean }
   | { type: 'ended'; frame: number }
   | { type: 'liveDropped'; total: number };
@@ -72,6 +72,18 @@ export type LiveMessage =
  * matters here; each branch narrows to the concrete message it needs (`ScheduleMessage` and friends).
  */
 export type InboundMessage = { type: string; [field: string]: unknown };
+
+/**
+ * Never throws (T161's own catch bodies use this): a hostile thrown value whose `.toString()` throws must not
+ * turn the fault-reporting path into the very escape from `process()` the guard exists to prevent.
+ */
+function safeErrorDetail(err: unknown): string {
+  try {
+    return err instanceof Error && err.message ? err.message : String(err);
+  } catch {
+    return 'unknown';
+  }
+}
 
 export interface ScorePlayerProcessor {
   /** Called by the test harness instead of AudioWorkletProcessor.process(); blockSize = left.length. */
@@ -286,7 +298,33 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     if (sampleCount > 0) synth.process?.(left, right, startIndex, sampleCount);
   }
 
+  let faulted = false; // T161: once true, stay silent rather than risk repeating whatever just threw
+
+  /**
+   * Guards `processBlockInner` (T161): an uncaught throw from the synth or the dispatch math inside `process()`
+   * would otherwise escape the AudioWorkletProcessor's `process()` and permanently silence it with no
+   * diagnostic - the host stops calling `process()` once it throws. Caught here instead, reported once via the
+   * existing message channel (already used for `position`/`ended`/`liveDropped`, all posted synchronously from
+   * inside a block like this one), and the processor goes quiet on purpose from then on rather than risk
+   * corrupting audio by continuing from unknown state.
+   */
   function processBlock(left: Float32Array, right: Float32Array): void {
+    if (faulted) return;
+    try {
+      processBlockInner(left, right);
+    } catch (err) {
+      faulted = true;
+      // Nested: post() ultimately reaches structured clone, which could itself throw; the fault-reporting path
+      // must never become the throw that escapes process() (rt-audio-reviewer finding on this task).
+      try {
+        post({ type: 'status', state: 'processorFaulted', detail: safeErrorDetail(err) });
+      } catch {
+        // best-effort diagnostic only - the processor is already faulted and staying silent either way
+      }
+    }
+  }
+
+  function processBlockInner(left: Float32Array, right: Float32Array): void {
     const blockSize = left.length;
 
     // Process live inputs immediately
@@ -375,6 +413,7 @@ if (typeof AudioWorkletProcessor !== 'undefined') {
     private inner: ScorePlayerProcessor;
     private synth: SpessaSynthProcessor;
     private soundReady = false;
+    private faulted = false; // T161 backstop: processBlockInner already guards itself; this covers anything else
 
     constructor() {
       super();
@@ -429,8 +468,7 @@ if (typeof AudioWorkletProcessor !== 'undefined') {
             this.soundReady = true;
             this.port.postMessage({ type: 'status', state: 'soundReady' });
           } catch (err) {
-            const detail = err instanceof Error && err.message ? err.message : String(err);
-            this.port.postMessage({ type: 'status', state: 'error', detail });
+            this.port.postMessage({ type: 'status', state: 'error', detail: safeErrorDetail(err) });
           }
           return;
         }
@@ -438,8 +476,7 @@ if (typeof AudioWorkletProcessor !== 'undefined') {
         try {
           this.inner.receiveMessage(msg);
         } catch (err) {
-          const detail = err instanceof Error && err.message ? err.message : String(err);
-          this.port.postMessage({ type: 'status', state: 'error', detail });
+          this.port.postMessage({ type: 'status', state: 'error', detail: safeErrorDetail(err) });
         }
       };
     }
@@ -451,11 +488,22 @@ if (typeof AudioWorkletProcessor !== 'undefined') {
       const right = output[1];
       if (!left || !right) return true;
 
-      if (!this.soundReady) {
+      if (!this.soundReady || this.faulted) {
         return true;
       }
 
-      this.inner.processBlock(left, right);
+      try {
+        this.inner.processBlock(left, right);
+      } catch (err) {
+        // processBlockInner already guards its own throws (T161) and posts a `processorFaulted` status; this
+        // only fires if something outside it (a future change, not today's code) throws directly in process().
+        this.faulted = true;
+        try {
+          this.port.postMessage({ type: 'status', state: 'processorFaulted', detail: safeErrorDetail(err) });
+        } catch {
+          // best-effort diagnostic only - nothing left to do if even this throws
+        }
+      }
       return true;
     }
   }
