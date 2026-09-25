@@ -280,12 +280,19 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   channel setup (spessasynth_core `programChange`, `midiChannels[ch].setDrums`) in its message handler
   (worklet-protocol 1.4.0), so the Metronome is a real drum-kit click and every part sounds as its GM instrument.
   New pure core modules `src/core/play/cursor.ts`, `src/core/grade/marks.ts` and `src/core/timeline/position.ts`.
+- Feature 010: no new technology and no new dependency. The on-screen piano is laid out by a pure function
+  (`src/ui/piano/keyboard-layout.ts`, equal key-top geometry) and sized with CSS container units (`container-type:
+  inline-size`, `cqw`; Chrome/Edge 105, Firefox 110, Safari 16).
 
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-26: Feature 010 planned (on-screen piano as a real keyboard): 52 contiguous white keys and 36 black keys
+  placed by the equal key-top model, C keys labelled C1-C8, keys 4 x as long as wide up to 160 px / 20 vh, sized by
+  CSS container units. The element keeps its DOM contract (`[data-key]` + state classes), so 001/002/008 feedback is
+  unchanged; markings move into the uncovered part of each key.
 - 2026-09-25: Feature 009 planned (Play mode cursor, audible Metronome, Practice-style Grade marks). Phase 0 found
   that the worklet never applied program changes or the drum flag, so the Metronome played as a one-tick piano note
   and every Score part sounded as piano (001 FR-015 unmet); the fix goes in the worklet's message handler. The Play
@@ -296,10 +303,4 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   ledger lines, real-font accidentals and ottava labels, and every dashed outline goes. Phase 0 found that Practice
   had no cursor of its own (the dashed waiting ring was the only position mark), so it gets a band behind the
   current event; and that the Score model had no clefs or keys, so the parser now records them.
-- 2026-09-23: Feature 007 planned (library fidelity audit): every library item is compared against a committed
-  public-domain source that is read two independent ways (LilyPond's own MIDI, and our reader of the `.ly`), with
-  exact rational onsets and no tolerances. Differing items are replaced by a conversion, not hand-fixed. Phase 0
-  found that Mutopia's only Schumann Op. 68 No. 10 is CC BY-SA 2.5 and the shipped item was derived from it. It also
-  found that Satie and Burgmüller No. 2 carry undisclosed invented or changed bars, and that LilyPond's MIDI shortens
-  the note before a grace group, so the comparator accepts a shorter MIDI note only where the notation shows why.
 <!-- RECENT-CHANGES:END -->
