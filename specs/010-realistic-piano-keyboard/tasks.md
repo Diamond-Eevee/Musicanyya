@@ -67,14 +67,17 @@ scrolling.
   all black keys in DOM order; `.key-label` exists exactly on the eight C keys with texts `C1`...`C8`; clicking a key
   changes no state (no `pressed` class, no event). Run it: fails (no white/black classes, no labels, no positions)
 - [ ] T007 [P] [US1] E2E `tests/e2e/piano-keyboard.spec.ts` (chromium, firefox, webkit; piano layer switched on through
-  the View menu), at 1024 x 768, 1280 x 800, 1600 x 900, 1920 x 1080 and 2560 x 1440: no horizontal scroll bar on the
+  the View menu), at 1024 x 768, 1280 x 800, 1280 x 1080, 1600 x 900, 1600 x 1080, 1920 x 1080 and 2560 x 1440: no
+  horizontal scroll bar on the
   document or the element (`scrollWidth <= clientWidth`); every key's box inside the window; 52 white keys contiguous
   (each one's left edge within 1 px of the previous one's right edge) and equal in width within 1 px; every black key
   between its two white neighbours, its top at the keyboard's top, its height 0.64 +- 0.02 of the white keys', its
   width 0.58 +- 0.03 of a white key's; the white keys' height either 4 x their width (+- 1 px) or exactly the cap
   `min(160 px, 20 % of the window height)` (+- 1 px) - SC-006; the eight labels read C1...C8 and the label of MIDI 60
   is C4; the rightmost key ends within one white-key width of the window's right edge (SC-002); after resizing the
-  window from 1920 to 1280 wide the same checks hold; the Score's bottom inset equals the strip's height (004). Run
+  window from 1920 to 1280 wide the same checks hold; at 800 x 600 (below the design width, spec edge case) all 88
+  keys are inside the window with no horizontal scroll (fit only, no proportion check); the Score's bottom inset
+  equals the strip's height (004). Run
   it: fails (today: equal keys, no black keys, sideways overflow at 1280)
 
 ### Implementation
@@ -110,10 +113,13 @@ pressed, readable in colour and greyscale.
   each wrong-key state and help give the same class and glyph as on a white key (✕ ▢ ◆ ?; wrong-key glyph wins over
   help, 002 R-14); on the C key 60 a mark and a dot are added beside its `.key-label`, which keeps its text; ten held
   neighbouring keys 60-69 each get their own dot and nothing else changes. Run it: fails (no `.key-dot`)
-- [ ] T012 [P] [US2] E2E in `tests/e2e/piano-keyboard.spec.ts` (a second `describe`, chromium, firefox, webkit; states
+- [ ] T012 [P] [US2] E2E in `tests/e2e/piano-keyboard.spec.ts` (a second `describe`, chromium and firefox - skipped on
+  webkit, which has no Web MIDI or AudioContext, as `pressed-keys.spec.ts` does; states
   set through the `e2e-midi` seam and Practice on `learning/chords/c-major-scale-and-chords`, as
   `pressed-keys.spec.ts` does), at 1024 x 768 and 1920 x 1080: every `.key-mark`, `.key-dot` and `.key-label` box lies
-  inside its own key's box, and on a white key below the bottom of the black keys (FR-011, SC-007); with keys 60-69
+  inside its own key's box, and on a white key below the bottom of the black keys (FR-011, SC-007); a key in each
+  state has a computed `outline-offset` of at most minus its `outline-width` and no outer `box-shadow` (every shadow
+  `inset`), so its border and help glow stay inside it; with keys 60-69
   held (both colours), no marking box intersects another key's marking box or another key's uncovered area; on a
   black key the mark's computed background (badge) and the dot's ring are light (luminance above 0.6) and the key's
   pressed background differs in luminance from its unpressed one by at least 0.05, likewise on a white key (SC-004);
@@ -127,7 +133,9 @@ pressed, readable in colour and greyscale.
   below the black keys; on black keys glyph and dot in the lower part, the glyph on a light badge, the dot with a
   light ring; sizes from the white-key width clamped (glyph 8-12 px, dot 5-10 px, label 7-11 px); state borders and
   the help glow as outlines of the key itself; pressed white `#ffcccc`, pressed black `#6b2020`, with a short inset
-  shadow; T011 and T012 pass and every existing unit and e2e test of the strip stays green
+  shadow; badge and dot at most 0.9 of their key's width, borders as inward outlines and the help glow inset
+  (research R-3); T011 and T012 pass and every existing unit and e2e test of the strip stays green, including the
+  50 ms feedback test in `tests/ui/midi-panel.test.ts` (SC-005)
 - [ ] T014 [US2] Checkpoint: pictures with states - `pnpm screenshot --item learning/chords/c-major-scale-and-chords
   --piano --practice --keys "<held keys>"` at 1280 wide with a white and a black key held, a wrong pitch, a wrong
   octave and an extra key on black and white keys and help showing (`tests/.generated/010/t014-*.png`), plus the same

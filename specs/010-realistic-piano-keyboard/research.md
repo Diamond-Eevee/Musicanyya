@@ -73,13 +73,16 @@ an inline SVG (same element count as divs, no benefit).
 **Decision**: every marking sits in the part of its key that no other key covers.
 
 - White key: markings go in the lower zone below the black keys (from `BLACK_KEY_LENGTH_RATIO` of the height down),
-  stacked from the bottom: the C label (C keys only), then the pressed dot, then the state glyph; the help glow and
-  the state border are drawn as an `outline` (no layout shift), clipped to the key's own box.
+  stacked from the bottom: the C label (C keys only), then the pressed dot, then the state glyph; the state border is
+  an `outline` pulled inside the key (`outline-offset` of minus its width) and the help glow an inset `box-shadow`, so
+  neither reaches a neighbouring key (FR-011; today's glow is drawn outside the key - analyze F1).
 - Black key: glyph and dot in the lower part of the black key; the glyph sits on a small light rounded badge so the
   state colours (`#d55e00`, `#e69f00`, `#cc79a7`, help `#0072b2`) keep their contrast on black; the pressed dot has a
   light ring for the same reason.
-- Sizes follow the white-key width (`cqw`), clamped (glyph 8-12 px, dot 5-10 px, label 7-11 px), so markings stay
-  inside their key at 1024 px (white key ~19.5 px, black ~11 px) and do not grow absurdly at 2560 px.
+- Sizes follow the white-key width (`cqw`) with upper limits (glyph 12 px, dot 10 px, label 11 px) and are never
+  wider than 0.9 of the key they sit on: on a black key the badge and the dot are at most 0.9 of the black key's width
+  (about 10 px at 1024, where a black key is ~11 px), the glyph scaled inside the badge; at 2560 px they stop growing
+  (analyze F3).
 
 **Rationale**: the upper part of a white key is partly covered by black keys, so a marking there could be hidden or
 look as if it belonged to a black key (FR-011, SC-007). Colours and glyphs are exactly today's (FR-010, Constitution

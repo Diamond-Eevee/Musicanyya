@@ -54,8 +54,9 @@ measured, research R-6); `.key-label` on the eight C keys (text `C1` ... `C8`); 
 - Keyboard height: `min(100cqw / 52 * WHITE_KEY_ASPECT, PIANO_KEYS_MAX_HEIGHT_PX px, PIANO_KEYS_MAX_HEIGHT_VH vh)`.
 - The element never scrolls sideways (`layout.css` drops `overflow-x: auto`).
 - Markings lie inside their own key's uncovered area: on a white key below the black keys (bottom up: label, dot,
-  glyph); on a black key in its lower part, the glyph on a light badge and the dot with a light ring. State borders
-  and the help glow are outlines of the key itself.
+  glyph); on a black key in its lower part, the glyph on a light badge and the dot with a light ring, both at most
+  0.9 of the key's width. State borders are outlines pulled inside the key and the help glow an inset shadow: no
+  decoration reaches a neighbouring key.
 - Clicking a key does nothing (002 FR-033, 003 FR-010).
 
 ## 4. Test seams

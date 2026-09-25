@@ -123,8 +123,8 @@ exactly the key pressed, readable in colour and in greyscale.
 - **FR-004**: Black keys MUST sit where they sit on a real piano: the black keys of a group of two and a group of three
   are placed as on an instrument (not simply centred on the line between two white keys), so the keyboard reads as a
   piano and not as a diagram.
-- **FR-005**: The keys MUST keep piano proportions at a moderate height: a white key's visible length MUST be about
-  four times its width, with the keys' height capped at 160 pixels and at 20 % of the window height, whichever is
+- **FR-005**: The keys MUST keep piano proportions at a moderate height: a white key's length (top edge to bottom
+  edge) MUST be about four times its width, with the keys' height capped at 160 pixels and at 20 % of the window height, whichever is
   smaller, so the Score keeps most of the window (at 1920 pixels wide: about 140 pixels of keys).
 - **FR-006**: All 88 keys MUST be visible at once, filling the width of the window, at every window width the app
   supports, with no horizontal scrolling and no key cut off; the keyboard MUST keep its proportions when the window is
@@ -162,8 +162,8 @@ exactly the key pressed, readable in colour and in greyscale.
 - **SC-004**: For each of the six states (pressed, wrong pitch, wrong octave, extra, help, none), on a white key and on
   a black key, a greyscale picture lets a reviewer tell the state apart from every other state at 1280 pixels wide.
 - **SC-005**: A held key is shown pressed within 50 ms of the key press (the budget of 001/002), measured as today.
-- **SC-006**: At 1280, 1600 and 1920 pixels wide (window 1080 pixels high), a white key's visible length is between
-  3.5 and 4.5 times its width, or the keys are exactly at the height cap (160 pixels, or 20 % of the window height if
+- **SC-006**: At 1280, 1600 and 1920 pixels wide (window 1080 pixels high), a white key's length (from its top edge to
+  its bottom edge, the part under the black keys included) is between 3.5 and 4.5 times its width, or the keys are exactly at the height cap (160 pixels, or 20 % of the window height if
   that is smaller); the eight C labels read C1 to C8 and middle C reads C4.
 - **SC-007**: With ten keys held at once, including adjacent black and white keys, every one is marked and no marking
   overlaps another key's.
