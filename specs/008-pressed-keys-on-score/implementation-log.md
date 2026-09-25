@@ -52,3 +52,11 @@
 - Earlier finding fixed: `library.spec.ts:175` launched Electron without its own user-data dir, so the shell's single-instance lock made it quit whenever another Electron spec ran (failed in every full run before; now passes in the full run and alone).
 - Owner questions still open: (1) other hand's written note played: green `playedAlong` (implemented) vs red disc (spec line 138); (2) the principle-VI row above; (3) held-over key release clears its mark (my reading of FR-009a).
 - Handoff: feature 008 is ready to merge except the open owner questions; not merged, not pushed. Tree clean at the commit below; run `git log --oneline main..HEAD`.
+
+## 2026-09-25 13:40 - claude-opus-5.5 (owner answers)
+- Owner: "use recommendations (answers only)". Recorded in spec Clarifications; docs only, no code or test changed.
+- (1) Other hand's written note played while practising hands separately: green `playedAlong`, no disc (as implemented); spec edge case "Hands separately" corrected to match FR-004 and the 002 contract.
+- (2) Principle VI (correct vs not-yet-played by colour only): plan Complexity Tracking row accepted; no constitution change.
+- (3) Releasing a held-over key clears its orange mark with its hint (T068, as implemented); noted in research R-12.
+- Not decided here: the load-sensitive `electron-playback.spec.ts:47` flake stays a known issue outside this feature (no task created).
+- Handoff: feature 008 has no open owner questions; ready to merge when the owner asks (not merged, not pushed). Tree clean after this commit.

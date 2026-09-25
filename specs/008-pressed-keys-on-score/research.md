@@ -217,6 +217,7 @@ would duplicate matching logic (Constitution V). Pure and replayable, so FR-016 
 **Also (T068, found running T014)**: the matcher never withdrew a `correctSoFar` mark when a chord key was released,
 although FR-003 needs it (and this document first assumed 002 did). `noteOff` of a key required by the current event
 now removes the `correctSoFar` / `heldOver` mark of its notes, the same moment its held-over hint is hidden.
+Owner confirmed 2026-09-25 that a released held-over key clears its orange mark (spec Clarifications).
 
 **Alternatives considered**: UI keeps its own map from `keyFeedback` effects (misses re-evaluation at event
 changes and device loss; logic in the UI).

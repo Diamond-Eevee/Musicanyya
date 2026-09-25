@@ -21,6 +21,12 @@ dotted rectangles, they don't look very nice."
   again (today's behaviour), not the whole passage at once (FR-012).
 - Q (analyze A14): overlap as in the reference picture, or shift aside? -> A: shift aside; a disc never hides a
   written head (FR-006).
+- Q (implement): hands separately, a key that plays the other hand's written note: red disc or green? -> A: green
+  notehead (`playedAlong`, "never a mistake", 002 contract); no disc, progress not blocked (Edge Cases, FR-004).
+- Q (constitution review T064): correct vs not-yet-played differ by colour only -> A: accepted as the plan
+  Complexity Tracking row (position behind the band is the non-colour cue); no constitution change.
+- Q (implement T068): releasing a held-over key clears its orange mark together with its hint? -> A: yes (FR-009a
+  reading confirmed).
 - Owner's reference picture: green noteheads (hollow heads stay hollow) for played notes, solid red discs at the
   pressed pitches in the cursor column that disappear on release -> matches FR-001, FR-004, FR-005; red disc size,
   hollow-head colouring and the sideways shift for a second (FR-006) refined from it.
@@ -135,9 +141,9 @@ event (the skipped note is grey with a small skip chevron below it); no dashed o
   hands): every one of those noteheads turns green (002 FR-038).
 - **Ties**: a note tied from an earlier onset is not played again; its continuation noteheads turn green together
   with the onset that was played.
-- **Hands separately**: only the practised hand's notes turn green. The other hand's notes are not expected, so a
-  key that plays one of them is treated like any other key that is not expected: it shows as a red disc on that
-  note's staff (placed beside the written note, FR-006) and does not block progress, exactly as today's matching treats it.
+- **Hands separately**: the practised hand's notes are the ones the session waits for. A key that plays a written
+  note of the other hand is played along, never a mistake (002): that notehead turns green, no red disc is drawn,
+  and it does not block progress, exactly as today's matching treats it.
 - **Repeats, voltas and loops**: the same written note is played again on the second pass; its green mark is cleared
   when the session enters that passage again, so the second pass starts clean.
 - **Where to draw a wrong key on a grand staff**: a key pressed while no staff is obviously its own (e.g. G4 between
