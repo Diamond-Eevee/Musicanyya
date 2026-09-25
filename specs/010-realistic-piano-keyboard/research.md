@@ -122,7 +122,8 @@ black keys overlapping, labels C1-C8 on MIDI 24-108; (2) the element keeps its u
 gains `white`/`black` classes and C labels; (3) a Playwright spec measures the real layout at 1024, 1280, 1600, 1920
 and 2560 px wide (every key inside the window, no horizontal scroll, white keys contiguous, black keys on top and
 between their neighbours, aspect ratio or height cap - SC-001, SC-002, SC-006), and checks that each marking's box
-lies inside its own key and that states on black keys have visible (non-transparent, contrasting) marks (SC-004,
+(`.key-mark`, `.key-dot` - the dot becomes a real element for this, it was a `::after` pseudo-element whose box a test
+cannot read - and `.key-label`) lies inside its own key and that states on black keys have visible (non-transparent, contrasting) marks (SC-004,
 SC-007); (4) pictures via `pnpm screenshot` (normal and greyscale) are looked at for SC-003/SC-004 and shown to the
 owner.
 

@@ -34,7 +34,7 @@ A key's look is derived on every `midiState` / `practiceState` change, as today 
 
 | Source | Class on `.key` | Mark |
 |---|---|---|
-| held on the MIDI keyboard (`midiState.pressedKeys`) | `pressed` | pressed shade + red dot |
+| held on the MIDI keyboard (`midiState.pressedKeys`) | `pressed` | pressed shade + red dot (`.key-dot`, new element; was `::after`) |
 | Practice key feedback `wrongPitch` / `wrongOctave` / `extra` | `wrong-pitch` / `wrong-octave` / `extra` | coloured outline + glyph ✕ / ▢ / ◆ in `.key-mark` |
 | Practice help (`practiceState.helpOverlay.keys`) | `expected-help` | blue outline + glow + "?" |
 

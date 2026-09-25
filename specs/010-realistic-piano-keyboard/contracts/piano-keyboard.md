@@ -33,6 +33,7 @@ data-model section 1 holds.
   ...                                          <!-- then the 36 black keys, drawn on top -->
   <!-- on each C key: <span class="key-label">C4</span> -->
   <!-- when a state needs one: <span class="key-mark">✕</span> (as today) -->
+  <!-- while the key is held: <span class="key-dot"></span> (the red dot; was a ::after pseudo-element) -->
 </div>
 <div class="key-messages" id="key-messages"></div>   <!-- unchanged -->
 <div class="sustain-indicator" id="sustain">Sustain Pedal</div>   <!-- unchanged -->
@@ -42,7 +43,8 @@ Kept exactly as before (every existing test relies on them): one `.key[data-key]
 classes `pressed`, `wrong-pitch`, `wrong-octave`, `extra`, `expected-help`; the glyph in `.key-mark` (✕ ▢ ◆ ?, the same
 precedence); `.key-message[data-key]` with the English hint text; `.sustain-indicator` with `down`.
 
-New: the `white` / `black` class on every key; `.key-label` on the eight C keys (text `C1` ... `C8`); `left` and
+New: the `white` / `black` class on every key; the pressed dot as a real `.key-dot` element (so its box can be
+measured, research R-6); `.key-label` on the eight C keys (text `C1` ... `C8`); `left` and
 `width` as inline percentages from `keyboardLayout()`; the host is a size container (`container-type: inline-size`).
 
 ## 3. Look (normative, research R-2 to R-5)
