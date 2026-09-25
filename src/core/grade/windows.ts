@@ -15,14 +15,16 @@ export interface ResolvedWindow {
 }
 
 function msToTicks(ms: number, qpm: number, ppq: number): number {
-  return (ms / 1000) * (qpm / 60) * ppq;
+  return Math.round((ms / 1000) * (qpm / 60) * ppq);
 }
 
-/** clamp(rawTicks, floorMs, capMs) at the local effective tempo - the millisecond bounds, in ticks (R-06). */
+/** clamp(rawTicks, floorMs, capMs) at the local effective tempo - the millisecond bounds, in ticks (R-06). Rounded
+ *  to an integer tick (Constitution II, contracts/grading.md §2 rule 5): the beat fraction and the ms bounds
+ *  rarely land on the same integer, and every window ends up on the timeline's own axis regardless. */
 function clampToTicks(rawTicks: number, floorMs: number, capMs: number, qpm: number, ppq: number): number {
   const floorTicks = msToTicks(floorMs, qpm, ppq);
   const capTicks = msToTicks(capMs, qpm, ppq);
-  return Math.min(Math.max(rawTicks, floorTicks), capTicks);
+  return Math.round(Math.min(Math.max(rawTicks, floorTicks), capTicks));
 }
 
 /**
@@ -73,8 +75,8 @@ export function resolveWindows(
       spreadTicks;
     const rawClaim = clampToTicks(level.claim.beats * beatTicks, level.claim.floorMs, level.claim.capMs, qpm, ppq);
 
-    const claimEarlyTicks = Math.min(rawClaim, PLAY_NEIGHBOUR_GAP_FRACTION * gapBeforeTicks);
-    const claimLateTicks = Math.min(rawClaim, PLAY_NEIGHBOUR_GAP_FRACTION * gapAfterTicks);
+    const claimEarlyTicks = Math.min(rawClaim, Math.round(PLAY_NEIGHBOUR_GAP_FRACTION * gapBeforeTicks));
+    const claimLateTicks = Math.min(rawClaim, Math.round(PLAY_NEIGHBOUR_GAP_FRACTION * gapAfterTicks));
     const onTimeEarlyTicks = Math.min(rawOnTimeEarly, claimEarlyTicks);
     const onTimeLateTicks = Math.min(rawOnTimeLate, claimLateTicks);
 

@@ -144,12 +144,14 @@ describe('resolveWindows (contracts/grading.md §2)', () => {
       const resolved = resolveWindows(expected, measures, singleTempo(bpm), PPQ, 100, 'beginner');
       const raw = PLAY_STRICTNESS_LEVELS.beginner.claim;
       const rawTicks = raw.beats * PPQ;
-      const floorTicks = (raw.floorMs / 1000) * (bpm / 60) * PPQ;
-      const capTicks = (raw.capMs / 1000) * (bpm / 60) * PPQ;
-      const expectedClamped = Math.min(Math.max(rawTicks, floorTicks), capTicks);
-      expect(resolved[0]!.claimLateTicks, `${bpm} bpm`).toBeCloseTo(expectedClamped, 3);
+      // floor/cap are rounded to integer ticks before the clamp (Constitution II, T110): at 208bpm the 150ms
+      // floor is 499.2 ticks, which resolveWindows must round to 499 rather than carry as a float.
+      const floorTicks = Math.round((raw.floorMs / 1000) * (bpm / 60) * PPQ);
+      const capTicks = Math.round((raw.capMs / 1000) * (bpm / 60) * PPQ);
+      const expectedClamped = Math.round(Math.min(Math.max(rawTicks, floorTicks), capTicks));
+      expect(resolved[0]!.claimLateTicks, `${bpm} bpm`).toBe(expectedClamped);
       if (bpm >= 60 && bpm <= 160) {
-        expect(resolved[0]!.claimLateTicks, `${bpm} bpm should be unclamped`).toBeCloseTo(rawTicks, 3);
+        expect(resolved[0]!.claimLateTicks, `${bpm} bpm should be unclamped`).toBe(rawTicks);
       }
     }
   });
@@ -167,6 +169,27 @@ describe('resolveWindows (contracts/grading.md §2)', () => {
         }
       }
     }
+  });
+
+  it('every resolved window is an integer tick, even where the ms floor/cap does not divide evenly (Constitution II, contracts/grading.md §2 rule 5, T110)', () => {
+    // At 208 bpm the beginner claim floor (150ms) converts to 499.2 ticks at ppq 960 - a genuine fraction,
+    // not float noise - which the raw 480-tick claim window is then clamped up to.
+    const measures = [measure({ beats: '4', beatType: 4 })];
+    const expected = [expectedNote(0), expectedNote(100000)];
+    const resolved = resolveWindows(expected, measures, singleTempo(208), PPQ, 100, 'beginner')[0]!;
+    expect(Number.isInteger(resolved.onTimeEarlyTicks)).toBe(true);
+    expect(Number.isInteger(resolved.onTimeLateTicks)).toBe(true);
+    expect(Number.isInteger(resolved.claimEarlyTicks)).toBe(true);
+    expect(Number.isInteger(resolved.claimLateTicks)).toBe(true);
+  });
+
+  it('the neighbour-gap half-clamp is an integer tick even when the gap is odd', () => {
+    // gapTicks = 7 either side of the middle note: PLAY_NEIGHBOUR_GAP_FRACTION (0.5) * 7 = 3.5, a genuine fraction.
+    const measures = [measure({ beats: '4', beatType: 4 })];
+    const expected = [expectedNote(0), expectedNote(7), expectedNote(14)];
+    const resolved = resolveWindows(expected, measures, singleTempo(120), PPQ, 100, 'strict')[1]!;
+    expect(Number.isInteger(resolved.claimEarlyTicks)).toBe(true);
+    expect(Number.isInteger(resolved.claimLateTicks)).toBe(true);
   });
 
   it('a chord member never shrinks its own members windows (chord-spread-rolled, unmarked)', () => {

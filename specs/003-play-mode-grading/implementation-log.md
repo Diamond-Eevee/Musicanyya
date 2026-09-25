@@ -883,3 +883,54 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
 - Handoff: next = T082 (manual, needs hardware) and T110 (decide round-vs-document, then implement). Every other
   task in `specs/003-play-mode-grading/tasks.md` is `[x]` - **feature 003 is functionally complete**. Tree clean
   at the commit below, not pushed.
+
+## 2026-09-25 - claude-sonnet-5 (continue: T110 resolved)
+
+- Session start: status showed 003 at 107/109, resume point T082 (manual, needs a real MIDI keyboard - not
+  agent-doable) and T110 (the round-vs-document call the T083 audit left open). T082 stays open; picked up T110
+  as the only independent work left on this feature.
+- Decision: **round to integer ticks**, not loosen the docs. Constitution II is non-negotiable ("Musical time in
+  the core MUST be integer ticks"), and `src/core/play/replay.ts:56` already does
+  `Math.round(tickAtAudioTime(...))` for exactly this reason - rounding at the call site is the established
+  convention on this codebase, not a new one.
+- Test first: added `tests/core/grade/grade.test.ts`'s new describe block with a hand-built `GradeInput` (no
+  fixture files, so the tempo is exactly under the test's control) using a three-segment tempo map
+  (`DRIFTING_TEMPO`) found by search to make a plain float round-trip miss its integer tick (e.g. tick 4001 comes
+  back as 4000.9999999999995) - confirmed both new tests failed for that exact reason before the fix. Also added
+  two tests to `tests/core/grade/windows.test.ts`: 208bpm's beginner-claim floor (150ms) converts to a genuine
+  fraction (499.2 ticks, not float noise) and must round, and an odd neighbour gap (7 ticks) makes the
+  `PLAY_NEIGHBOUR_GAP_FRACTION` half-clamp (3.5) fractional too. Both failed as expected before the fix.
+- Fix: `Math.round(...)` around the two `tickAtAudioTime` calls in `src/core/grade/grade.ts` (Step 1's message
+  ticks and the reliability-event ticks), and in `src/core/grade/windows.ts`: `msToTicks` rounds its own result,
+  `clampToTicks` rounds its final clamped value, and the neighbour-gap half-clamp
+  (`PLAY_NEIGHBOUR_GAP_FRACTION * gapBeforeTicks/gapAfterTicks`) is rounded before the `Math.min` against the raw
+  claim window. `tickAtAudioTime` itself is untouched - its exact-inverse property is what
+  `tests/core/tempo/rate.test.ts`'s round-trip assertions rely on, and rounding at the two call sites that
+  actually consume the value as an integer is the correct layering, not `rate.ts` itself.
+- Existing test updated (behaviour genuinely changed, not weakened): `windows.test.ts`'s "floor and cap bite only
+  outside 60-160 bpm" computed its own expected value with the same unrounded formula as the old code, so at
+  208bpm it now needs `Math.round` too, matching what `resolveWindows` correctly does; `toBeCloseTo` tightened to
+  exact `toBe` now that the value is a clean integer.
+- Golden snapshots updated (`tests/core/grade/__snapshots__/golden.test.ts.snap`): every diff is float noise
+  (`deltaTicks`/`deltaMs` around 1e-12 to 1e-13, `meanAsynchronyMs` similarly) collapsing to exactly `0` - real
+  evidence this bug already showed up in the shipped fixtures, not just a constructed edge case. No grading
+  outcome (pitch, timing classification, reason code) changed anywhere.
+- RT review (`rt-audio-reviewer` subagent, this task's required review per T110's note, same scope as T090/T091):
+  **verdict compliant**, no blocking or high-severity findings. Confirmed `gradePerformance` only runs inside
+  `grade.worker.ts` (a Web Worker) and `resolveWindows`'s one call site outside `grade.ts`
+  (`play-session.ts`'s `computeTailMs`) runs once at run start, not per-frame or in `AudioWorkletProcessor.process()`
+  - Principle I is not implicated. Traced every downstream consumer (`match.ts`, `computeSummary`, `ExtraNote.atTick`,
+  `PlayedAlongPress.atTick`) and found no remaining float leak in the tick pipeline. Noted one pre-existing,
+  out-of-scope advisory: `Math.round` would silently propagate a `NaN`/`Infinity` if `audioTimeSec` were ever
+  non-finite, but that was equally true before this fix and `grade.worker.ts` already wraps `gradePerformance` in
+  try/catch, turning a stray error into an `{type:'error'}` reply rather than a crash - not this task's scope.
+- Evidence: `pnpm typecheck` exit 0. `pnpm test`: 761 passed (757 baseline + 4 new), 2 skipped, exit 0. `pnpm lint`:
+  27 errors / 271 warnings / 8 infos - unchanged pre-existing project-wide debt (verified none touch
+  `grade.ts`/`windows.ts`/the two test files; biome's own formatter fixed one line-length issue this session
+  introduced in `grade.ts`). `pnpm test:e2e` (all four projects): first full run needed a `pnpm build` first (a
+  stale `dist/` was still being served, the same gotcha a prior session's log already flagged) - after rebuilding,
+  39 passed, 1 failed, 20 skipped; the one failure (`us1-play.spec.ts:46`, chromium, a live-mark timing poll)
+  passed cleanly alone (`npx playwright test --project=chromium tests/e2e/us1-play.spec.ts`, 2/2), matching the
+  pre-existing CPU-contention flake this feature's own log already documented - not caused by this change.
+- Handoff: feature 003 has only T082 left (manual, needs a person with a real MIDI keyboard - not agent-doable).
+  Every other task in `tasks.md` is `[x]`. Tree clean at the commit after this entry, not pushed.
