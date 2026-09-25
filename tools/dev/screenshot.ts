@@ -27,6 +27,9 @@
  *                    (one drawn frame) or `sleep:<ms>` (a real wait, to play in time with a run), e.g.
  *                    "+76,-76,+75,-75,+74" or "sleep:3500,+72,sleep:400,-72". The picture is taken after the last step,
  *                    and keys still down stay held (tools/dev/key-steps.ts)
+ *   --piano          switch the on-screen piano layer on through the View menu before the picture (feature 010)
+ *   --greyscale      apply `filter: grayscale(1)` to the page just before the picture, to check that states can be told
+ *                    apart without colour (feature 010, SC-004)
  *
  * Prints the PNG path, the load notices shown and any browser console errors, so the result can be checked as text
  * too. Exits 1 when the score does not appear.
@@ -57,24 +60,37 @@ const { values } = parseArgs({
     grade: { type: 'boolean', default: false },
     keys: { type: 'string' },
     play: { type: 'string' },
+    piano: { type: 'boolean', default: false },
+    greyscale: { type: 'boolean', default: false },
   },
   allowPositionals: false,
 });
 
 const LOAD_TIMEOUT_MS = 60_000;
 
-async function openLibraryItem(page: Page, id: string): Promise<void> {
-  // The same two activations a person uses (tests/e2e/helpers/panels.ts): the menu that holds "Scores", then the entry.
-  // Wait until the slim bar has folded its menus; a string because tools/ compiles without the DOM lib.
+/** Opens a tool of the slim bar the way a person does (tests/e2e/helpers/panels.ts): the menu that holds it, then its
+ *  entry. Waits until the slim bar has folded its menus; a string because tools/ compiles without the DOM lib. */
+async function openPanel(page: Page, id: string): Promise<void> {
   await page.waitForFunction(
     "(() => { const bar = document.querySelector('#mx-bar'); return bar !== null && bar.scrollWidth <= bar.clientWidth; })()",
   );
   const menu = page
     .locator('#menu-controls mx-menu:visible')
-    .filter({ has: page.locator('[role="menuitem"][data-panel="scores"]') })
+    .filter({ has: page.locator(`[role="menuitem"][data-panel="${id}"]`) })
     .first();
   await menu.locator('button[aria-haspopup="menu"]').click();
-  await menu.locator('[role="menuitem"][data-panel="scores"]').click();
+  await menu.locator(`[role="menuitem"][data-panel="${id}"]`).click();
+}
+
+/** Switches the on-screen piano layer on through the View panel, then closes the panel (feature 010). */
+async function showPiano(page: Page): Promise<void> {
+  await openPanel(page, 'view');
+  await page.locator('mx-view-panel input[data-layer="pianoKeys"]').check();
+  await page.keyboard.press('Escape');
+}
+
+async function openLibraryItem(page: Page, id: string): Promise<void> {
+  await openPanel(page, 'scores');
   const item = page.locator(`.library-item-open[data-id="${id}"]`);
   await item.waitFor({ state: 'visible', timeout: LOAD_TIMEOUT_MS });
   await item.click();
@@ -170,6 +186,7 @@ async function main(): Promise<void> {
     page.on('pageerror', (err) => errors.push(String(err)));
 
     await page.goto(baseUrl);
+    if (values.piano) await showPiano(page);
     if (values.item) await openLibraryItem(page, values.item);
     if (values.file) await page.locator('mx-open-button input[type=file]').setInputFiles(path.resolve(values.file));
 
@@ -191,6 +208,8 @@ async function main(): Promise<void> {
       if (values.grade) await waitForGrade(page);
       await page.waitForTimeout(300); // a few frames for the cursor or the marks to draw
     }
+
+    if (values.greyscale) await page.evaluate("document.documentElement.style.filter = 'grayscale(1)'");
 
     const name = values.item ? path.basename(values.item) : values.file ? path.parse(values.file).name : 'app';
     const out = path.resolve(values.out ?? path.join('test-results', 'screenshots', `${name}.png`));

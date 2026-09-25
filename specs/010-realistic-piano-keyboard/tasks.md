@@ -21,13 +21,13 @@ review task. If a task ends up touching one, add an `rt-audio-reviewer` task nex
 
 ## Phase 1: Setup
 
-- [ ] T001 [P] Add the named constants of data-model section 3 (`PIANO_KEY_LOW = 21`, `PIANO_KEY_HIGH = 108`,
+- [x] T001 [P] Add the named constants of data-model section 3 (`PIANO_KEY_LOW = 21`, `PIANO_KEY_HIGH = 108`,
   `BLACK_KEY_WIDTH_RATIO = 0.58`, `BLACK_KEY_LENGTH_RATIO = 0.64`, `WHITE_KEY_ASPECT = 4`,
   `PIANO_KEYS_MAX_HEIGHT_PX = 160`, `PIANO_KEYS_MAX_HEIGHT_VH = 20`) to `src/engine/config.ts` beside `OVERLAYS_DEFAULT`
-- [ ] T002 [P] Add the dev options `--piano` (switch the on-screen piano layer on through the View menu before the
+- [x] T002 [P] Add the dev options `--piano` (switch the on-screen piano layer on through the View menu before the
   picture) and `--greyscale` (apply `filter: grayscale(1)` to the page before the picture) to `tools/dev/screenshot.ts`;
   document them in the file header, in `README.md` and in the toolchain section of `docs/agents/reference.md`
-- [ ] T003 Verify T002: `pnpm screenshot --item learning/chords/c-major-scale-and-chords --piano --width 1280
+- [x] T003 Verify T002: `pnpm screenshot --item learning/chords/c-major-scale-and-chords --piano --width 1280
   --out tests/.generated/010/t003-before-1280.png` and the same at `--width 1920`; look at both pictures (today: a
   row of equal white rectangles, sideways scrolling at 1280) and record what they show in
   `specs/010-realistic-piano-keyboard/implementation-log.md`

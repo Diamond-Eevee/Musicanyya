@@ -33,7 +33,8 @@ and Web MIDI.
    to start Practice and press (`+`) / release (`-`) MIDI keys before the picture is taken (no keyboard needed);
    `--play 6` first plays the correct keys of the first six events. `--run` starts a Play run instead (count-in,
    cursor, Metronome) and plays the `--keys` steps in time with it (`sleep:<ms>` waits); add `--grade` to wait for the
-   Grade before the picture, e.g. `--run --grade --keys "sleep:1300,+76,-76"`
+   Grade before the picture, e.g. `--run --grade --keys "sleep:1300,+76,-76"`. `--piano` switches the on-screen piano
+   on through the View menu; `--greyscale` puts the page in greyscale for the picture (feature 010)
 
 ### Testing and Quality Gates
 

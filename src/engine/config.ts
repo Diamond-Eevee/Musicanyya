@@ -30,6 +30,15 @@ export const OVERLAYS_DEFAULT = {
   notices: true,
 } as const;
 
+// The on-screen piano is drawn as a real 88-key keyboard (specs/010-realistic-piano-keyboard/data-model.md section 3)
+export const PIANO_KEY_LOW = 21; // A0
+export const PIANO_KEY_HIGH = 108; // C8
+export const BLACK_KEY_WIDTH_RATIO = 0.58; // black key width / white key width
+export const BLACK_KEY_LENGTH_RATIO = 0.64; // black key length / white key length
+export const WHITE_KEY_ASPECT = 4; // white key length / width, before the height cap
+export const PIANO_KEYS_MAX_HEIGHT_PX = 160; // height cap of the keys, in CSS pixels
+export const PIANO_KEYS_MAX_HEIGHT_VH = 20; // height cap of the keys, in % of the window height
+
 // Bounds of the Verovio page requested from a viewport, in Verovio page units (1 unit = 1 CSS px at scale 100)
 export const MIN_PAGE_UNITS = 200;
 export const MAX_PAGE_UNITS = 10000;

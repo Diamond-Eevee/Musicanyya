@@ -9,3 +9,13 @@
 - Noted, no edit: F7 T006's "a click changes nothing" would also pass on today's code - kept as a regression guard,
   T006 as a whole fails first; F8 wording "on-screen piano / keyboard / strip" is one thing.
 - Handoff: next = /speckit.implement from T001. Tree clean at the commit after this entry.
+
+## 2026-09-25 - claude-sonnet-5 (implement)
+- Session start: baseline `pnpm test` = `Tests 2565 passed (2565)`, 209 files; `pnpm lint` = 0 errors (282 warnings, 13
+  infos, all older).
+- Done: T001 (seven constants in `src/engine/config.ts`), T002 (`--piano`, `--greyscale` in `tools/dev/screenshot.ts`;
+  `openPanel` factored out of `openLibraryItem`; README and `docs/agents/reference.md` list them; `pnpm typecheck` and
+  `biome check` on the two files clean), T003 (pictures `tests/.generated/010/t003-before-1280.png` and `-1920.png`).
+- T003 shows (looked at both): today's strip is a row of 20 px white rectangles with a black outline, no black keys, no
+  labels, the Sustain Pedal button under it. At 1280 x 800 only the left part of the row fits (the right keys are cut
+  off, the strip scrolls sideways); at 1920 x 1080 the row spans the window edge to edge and is 80 px high.
