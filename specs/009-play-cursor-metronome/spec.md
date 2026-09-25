@@ -198,6 +198,14 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
   it follow? -> A: owner: "It should follow current played note." The bar stands at the note that started most
   recently among the notes sounding; the highlight still covers every note sounding (FR-001, AS-1.9). Listen mode
   draws the same cursor (FR-001), so it gets the same rule.
+- Q (constitution audit, MEDIUM): with the on-screen piano off (the default), a key pressed during a run now has no
+  visual response, while the constitution's budget asks for visual feedback within 50 ms of a key press. Accept, or
+  add a neutral "key is down" sign? -> A: accept (owner: "Go with recommendations"). During a Play run the feedback
+  for a key is its sound, plus the on-screen piano when the musician switches it on; the run is judged afterwards
+  (FR-027, plan Complexity Tracking).
+- Q (from the US2 checkpoint): the processor now applies a Score's own `<volume>`/`<pan>` (001's design, dropped
+  before), so e.g. `ode-to-joy` is 3.5 % (+0.3 dB) louder in Listen. Accept, or apply only drum flag, bank and
+  program? -> A: accept (owner: "Go with recommendations"; Assumptions).
 
 ### Session 2026-09-25 (plan open points; owner: "resolve everything, go with recommended")
 
@@ -234,7 +242,8 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
 
 - The Metronome cause is confirmed (research R-01): the click's instrument is never selected, so it plays as a short
   piano note. The same cause makes every part of every Score sound as piano in Listen mode; the fix therefore also
-  restores 001 FR-015 ("each part sounds as its General MIDI instrument"). Piano-only Scores sound as before.
+  restores 001 FR-015 ("each part sounds as its General MIDI instrument"). Piano-only Scores sound as before in
+  notes, timing and timbre; a Score's own `<volume>`/`<pan>` now applies (see Assumptions).
 - After the `music-domain-expert` review (research R-08): FR-017 now defines "nearest written moment" exactly; new
   FR-017a keeps a wrong-pitch disc on its own note's staff; FR-024 and SC-005 now say how repeats combine (green only
   if every pass was correct, one disc per distinct wrong key, every timing error shown); a missed tie is marked at
@@ -335,6 +344,8 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
 - **FR-027**: During the run (count-in included), the Score MUST show no mark at all: no green notehead, no red
   disc, no missed or timing marking. Every mark appears with the Grade, when the musician stops the run or it reaches
   its end (owner review 2026-09-25; before, correct keys turned green during the run, 003 FR-011, 008 FR-017).
+  During the run a key's feedback is its sound (003 FR-006) and, when the musician switches it on, the on-screen piano;
+  the Score gives none (owner decision 2026-09-25, plan Complexity Tracking).
 - **FR-028**: The Grade's results, counts, summary figures, per-measure overview and Performance log MUST be exactly
   what they are today; this feature changes only how the results are drawn.
 - **FR-029**: The same Score, Performance log and settings MUST always produce the same marks.
@@ -396,7 +407,9 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
   (Clarifications, owner review 2026-09-25).
 - The desktop app needs nothing of its own; the Native audio plugin is not involved.
 - After the Metronome fix, multi-instrument Scores sound as their instruments in Listen mode (001 FR-015); accepted
-  by the owner 2026-09-25. Piano-only Scores, the whole library, sound as before.
+  by the owner 2026-09-25. Piano-only Scores, the whole library, sound as before in notes, timing and timbre; a
+  Score's own `<volume>` and `<pan>` now apply (001's design), so a Score such as `ode-to-joy` (`<volume>80</volume>`)
+  is 3.5 % (+0.3 dB) louder than before; accepted by the owner 2026-09-25.
 
 ## Out of Scope
 

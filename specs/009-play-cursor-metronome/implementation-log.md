@@ -108,3 +108,15 @@
   - needs owner: in Play, a key press now has no visual response on screen unless the on-screen piano layer is switched on (the sound is the response). Recommendation: accept, and record in FR-027 that sound plus the optional piano layer is Play's feedback during a run (Play is judged afterwards by definition). Alternative: a neutral "key is down" sign during the run (e.g. the on-screen piano shown automatically in Play), a new spec item.
   - still open from before: SC-004 listening check, one run on a real MIDI keyboard, the 3.5 % louder piano Scores.
 - Handoff: next = the owner's answer on the feedback question, then the three older checks, then merge when the owner asks. Tree clean at the commit after this entry.
+
+## 2026-09-26 00:10 - claude-opus-5.5 (owner decisions recorded)
+- Owner: "Go with recommendations" on the open decisions of the previous entry and the US2 checkpoint.
+- Decisions: (1) Play feedback during a run = the key's sound plus the optional on-screen piano; no neutral "key is down"
+  sign (spec Clarifications + FR-027, plan Complexity Tracking row, research R-15 follow-up). (2) A Score's own
+  `<volume>`/`<pan>` keep applying; `ode-to-joy` 3.5 % louder accepted (spec Clarifications + Assumptions + the US
+  background line, research R-16). Documents only; no code or test changed.
+- Problems / open questions (checks only the owner can do, not decisions):
+  - needs owner: the SC-004 listening check (in Play with accompaniment off, the clicks sound like a metronome and the
+    first beat of each measure is heard as accented).
+  - needs owner: one Play run on a real MIDI keyboard in Chrome or Edge.
+- Handoff: next = the two owner checks, then merge when the owner asks. Tree clean at the commit after this entry.

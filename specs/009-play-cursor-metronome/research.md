@@ -322,3 +322,19 @@ second, approximate judgement (D-3) computed on every key press for nothing.
 
 **Alternatives considered**: hiding the live marks in the view only (dead code on the input path); a setting to choose
 (no setting was asked for; Out of Scope forbids new settings in this feature).
+
+**Follow-up decision (owner, 2026-09-25, after the constitution audit)**: with the on-screen piano off by default, a key
+pressed during a run has no visual response. Accepted: the feedback during a run is the key's sound plus the optional
+on-screen piano; recorded in spec FR-027 and plan Complexity Tracking. Rejected: a neutral "key is down" sign.
+
+## R-16 Owner decision: a Score's own volume and pan apply (US2 follow-up)
+
+**Decision**: keep applying a Score's `<volume>` (CC7) and `<pan>` (CC10) in the channel setup (R-01). Accepted by the owner
+2026-09-25 ("Go with recommendations"). A piano Score such as `ode-to-joy` (`<volume>80</volume>` = CC7 102 against the synth
+default 100) is 3.5 % (+0.3 dB) louder in Listen than before this feature; notes, timing and timbre are unchanged (the T053
+golden: shape within 1e-6, level at most 5 % louder).
+
+**Rationale**: 001's design maps these elements to CC7/CC10; they were silently dropped before; the difference is
+imperceptible.
+
+**Alternatives considered**: applying only drum flag, bank and program (would keep ignoring what the file writes).
