@@ -15,6 +15,12 @@ dotted rectangles, they don't look very nice."
   only; correct and wrong differ by shape and position (FR-010).
 - Q: Should Play mode's live dashed "correct so far" ring also become a green notehead? -> A: Yes, same style
   (FR-017); the after-run Grade marks stay as they are.
+- Q (analyze A1): skipped and correct heads both sit behind the cursor; how are they told apart without colour? ->
+  A: a skipped note is a grey head plus a small right-pointing "skip" chevron below it (FR-009, FR-010).
+- Q (analyze A2): when do green marks clear on a loop or repeat? -> A: note by note, as the session reaches each note
+  again (today's behaviour), not the whole passage at once (FR-012).
+- Q (analyze A14): overlap as in the reference picture, or shift aside? -> A: shift aside; a disc never hides a
+  written head (FR-006).
 - Owner's reference picture: green noteheads (hollow heads stay hollow) for played notes, solid red discs at the
   pressed pitches in the cursor column that disappear on release -> matches FR-001, FR-004, FR-005; red disc size,
   hollow-head colouring and the sideways shift for a second (FR-006) refined from it.
@@ -54,8 +60,9 @@ notehead turns green as its key goes down, stays green, and no dashed ring or sq
 3. **Given** the situation of scenario 2, **When** the musician lets go of one held key before the chord is complete,
    **Then** that notehead returns to its printed colour, because the key is no longer pressed.
 4. **Given** a completed chord, **When** the cursor moves on, **Then** all its noteheads stay green.
-5. **Given** a session with green notes, **When** a new session starts (or the loop starts over, or a repeat is
-   entered again), **Then** the notes about to be played again are back in their printed colour.
+5. **Given** a session with green notes, **When** a new session starts, **Then** every note is back in its printed
+   colour; **and when** a loop or repeat brings the session back into a passage, **Then** each note of it returns
+   to its printed colour as the session reaches it again.
 6. **Given** Practice is active at any position, **When** the musician looks at the Score, **Then** no dashed ring,
    dashed square or other dashed outline is drawn on it.
 
@@ -108,7 +115,7 @@ distinguishable once P1 has changed the main look.
 
 **Independent Test**: In a fixture with a grace note and a repeated note, play the grace note (it turns green like a
 correct note), hold a key into the next event that needs it (the held-over mark and hint appear), and skip ahead one
-event (the skipped note is marked grey); no dashed outline appears in any of these.
+event (the skipped note is grey with a small skip chevron below it); no dashed outline appears in any of these.
 
 **Acceptance Scenarios**:
 
@@ -117,7 +124,8 @@ event (the skipped note is marked grey); no dashed outline appears in any of the
    Score, **Then** that notehead is marked as held-over, distinct from green and from red by shape as well as
    colour, and today's "release and play again" hint is shown.
 3. **Given** the musician skips an event forward, **When** the cursor has moved on, **Then** the skipped noteheads are
-   shown greyed, distinct from printed, green and red noteheads.
+   grey with a small right-pointing chevron below each, distinct from printed, green and red noteheads by shape as
+   well as colour.
 4. **Given** Practice is waiting at an event, **When** nothing is pressed, **Then** the waiting note carries no ring;
    the cursor alone shows where the session is.
 
@@ -171,7 +179,7 @@ event (the skipped note is marked grey); no dashed outline appears in any of the
 - **FR-008**: Green and red marks MUST appear within the same time budget as any other Practice feedback (002 SC-002:
   50 ms from the key press) and MUST disappear within the same budget after the release.
 - **FR-009**: Practice mode MUST NOT draw any dashed outline (ring, square or other) on the Score. The waiting state
-  MUST be shown by the cursor alone; skipped notes MUST be shown greyed; held-over notes MUST have a mark in the same
+  MUST be shown by the cursor alone; skipped notes MUST be shown as a grey head with a small skip chevron below it; held-over notes MUST have a mark in the same
   notehead-based style that differs from green and red by shape as well as colour.
 - **FR-010**: Correct, wrong (red disc), held-over and skipped MUST be distinguishable without colour vision. A
   correct note is the written notehead in green with no added shape; it is told apart from a wrong key by shape and
@@ -179,8 +187,8 @@ event (the skipped note is marked grey); no dashed outline appears in any of the
   skipped by their own marks, and from a not-yet-played note by lying behind the cursor.
 - **FR-011**: The on-screen keyboard feedback and the text hints for wrong octave, extra and held-over (002 FR-023,
   FR-039) MUST keep working unchanged alongside the new marks.
-- **FR-012**: Green marks MUST be cleared when a new session starts, when a loop starts over, and when the session
-  re-enters a passage through a repeat, a volta or a jump.
+- **FR-012**: Green marks MUST be cleared when a new session starts; when a loop, repeat, volta or jump brings the
+  session back into a passage, each note's mark MUST be cleared as the session reaches that note again.
 - **FR-013**: The marks MUST follow their notes when the Score scrolls, turns page, zooms or reflows.
 - **FR-014**: Switching the marks layer off MUST hide both the green and the red marks without affecting the session.
 - **FR-015**: The marks MUST behave identically in the browser and in the desktop app, from the same build.

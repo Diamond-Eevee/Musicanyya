@@ -60,9 +60,10 @@ export function layoutDiscs(placements: readonly DiscPlacement[], staff: StaffGe
 export function drawPressedKeyDiscs(options: { ctx: CanvasRenderingContext2D; dpr: number; containerRect: DOMRect;
   slots: readonly DiscSlot[]; staff: ReadonlyMap<number, StaffGeometry>; glyphs: MusicGlyphs; visible: boolean }): void;
 
-/** The held-over chevron above a note box (R-03); the only canvas mark left in the Practice notehead layer. */
-export function drawHeldOverChevron(options: { ctx: CanvasRenderingContext2D; dpr: number; containerRect: DOMRect;
-  noteRect: DOMRect }): void;
+/** The state chevrons (R-03): `heldOver` = upward chevron above the notehead box, `skipped` = right-pointing chevron
+ *  below it; the only canvas marks left in the Practice note layer. `noteheadRect` is the `g.notehead` box. */
+export function drawStateChevron(options: { ctx: CanvasRenderingContext2D; dpr: number; containerRect: DOMRect;
+  noteheadRect: DOMRect; kind: 'heldOver' | 'skipped' }): void;
 
 interface MusicGlyphs { sharp: Path2D; flat: Path2D; natural: Path2D; unitsPerSpace: number }
 ```
@@ -75,13 +76,21 @@ CSS (in `src/ui/styles/score.css`, tokens in `tokens.css`):
 .mx-score-page g.note.mx-mark-skipped  > g.notehead { fill: var(--practice-skipped-color); }
 ```
 
-Removed: the `waiting`, `correctSoFar`, `correct`, `playedAlong`, `skipped` outline branches of
-`drawPracticeMarks` (the function keeps the dimming of unselected-hand notes and the held-over chevron call);
+Removed: every outline branch of `drawPracticeMarks` (the function keeps only the dimming of unselected-hand notes;
+`mx-score-view` calls `drawStateChevron` for `heldOver` and `skipped` notes);
 `drawLiveMarks`; `drawCursorOverlay`'s unused `isPracticeWaiting` branch. No dashed line is drawn by any Practice or
 Play-run layer (SC-003).
 
 The marks layer switch (`overlays.marks`) hides the classes (the view removes them while off) and the discs;
 the cursor layer switch (`overlays.cursor`) hides the band.
+
+Worker side (`src/workers/glyphs.ts`):
+
+```ts
+/** Renders the built-in glyph snippet on a toolkit with no Score loaded and returns the glyph path data (R-11). */
+export function harvestGlyphs(toolkit: VerovioToolkit): { sharp: string; flat: string; natural: string;
+  notehead: string; unitsPerEm: number };
+```
 
 ## 4. Amendments to existing contracts
 

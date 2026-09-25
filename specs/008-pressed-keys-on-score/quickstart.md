@@ -55,7 +55,7 @@ Open the PNG and look at it before reporting a manual check as done (AGENTS.md s
 1. Grace note: in a fixture with a grace note, play it -> its head turns green.
 2. Held-over: hold a key into the next event that needs it -> orange head with a small chevron above it, plus the
    "release and play again" hint.
-3. Skip forward one event (Skip Forward): the skipped heads turn grey.
+3. Skip forward one event (Skip Forward): the skipped heads turn grey with a small right-pointing chevron below.
 4. Play mode: start a run and play the first notes correctly -> green heads, no dashed ring; at the end the Grade
    marks appear as before.
 

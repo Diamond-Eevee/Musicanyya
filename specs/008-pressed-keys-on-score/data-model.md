@@ -107,7 +107,9 @@ State machine of one key in `heldWrongKeys`:
 | present | event changes and k is required by the new event | absent (the note becomes `heldOver`, 002 FR-009a) |
 | present | event changes and k is not required | present, state re-evaluated (`extra` stays `extra`; others keep their state) |
 
-`correctSoFar` withdrawal on release (FR-003) is the existing 002 behaviour (mark back to `waiting`).
+`correctSoFar` withdrawal on release (FR-003) is the existing 002 behaviour (mark back to `waiting`). Clearing on
+a loop or repeat (FR-012) is also existing behaviour: `arriveAt` clears a note's mark when the cursor reaches its
+event again.
 
 ## 5. UI view model (`src/ui/score/`)
 

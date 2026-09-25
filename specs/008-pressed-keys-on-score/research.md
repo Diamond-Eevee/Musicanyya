@@ -60,12 +60,15 @@ keeping the dashed ring (the owner rejected dashed outlines).
 
 **Decision**: `correct`, `correctSoFar` and `playedAlong` = green notehead (`--practice-correct-color`, Okabe-Ito
 bluish-green #009e73). `heldOver` = orange notehead (#e69f00) **plus** a small upward chevron above the head
-("lift the key"), drawn on the canvas above the note's box, never over it. `skipped` = grey notehead (#999999).
+("lift the key"), drawn on the canvas above the notehead box, never over it. `skipped` = grey notehead (#999999) **plus** a small right-pointing chevron below the head ("moved past"), drawn on
+the canvas below the notehead box, never over it (owner decision 2026-09-25, analyze A1). Both chevrons are placed
+relative to the **notehead** box (`g.notehead`), not the whole `g.note` box, so a stem does not push them away.
 `waiting` = no mark (the band of R-02 shows it). Red discs (R-04) are vermilion #d55e00.
 
 **Rationale**: One visual language (recoloured heads, no outlines). Shape distinctions required by FR-010 and
 Constitution VI: correct = the printed head itself; wrong = an added disc at another position or beside the head;
-held-over = the only state with a chevron; skipped = only behind the cursor and grey, never next to a disc. The
+held-over = an upward chevron above the head; skipped = a right-pointing chevron below it (grey and green heads
+alone would differ by colour only, analyze A1). The
 owner decided (2026-09-25) that a green head needs no extra shape.
 
 **Known limit (accepted)**: in greyscale, a chord member held green at the cursor looks close to a black one. The
@@ -87,6 +90,10 @@ placement (R-06 to R-10).
 layer (FR-014). The disc is feedback, not engraving; its appearance is deliberately "your key", not a printed note
 (Constitution III forbids hand-drawn *notation*, so accidentals use the real font glyphs, R-11).
 
+The discs' ledger lines and ottava labels are drawn on the canvas by our code. They are feedback that marks "your
+key", not engraved notation of the Score, so Constitution III's "no hand-drawn approximations of notation" is not
+breached; this reading is recorded in plan.md Complexity Tracking and checked by the constitution review (T064).
+
 **Alternatives considered**: inserting SVG `<use>` elements into Verovio's page SVG (mutates the engraved document,
 glyph defs only exist for glyphs the page used, and pages are re-mounted); a second SVG overlay layer (a new layer
 with the same job as the canvas).
@@ -94,8 +101,9 @@ with the same job as the canvas).
 ## R-05 Staff geometry from the rendered SVG
 
 **Decision**: For the disc's staff, the UI measures the five staff-line paths of that staff in the cursor's measure
-(`#<MeasureId> > g.staff:nth-of-type(k)`, `k` = the part's staff offset + staff number) and derives the bottom-line
-y and the staff space. Cached per element-cache signature and scroll key, like the dimmed-note rects.
+and derives the bottom-line y and the staff space. The staff element is found from a written note of that staff at
+or near the cursor (`noteEl.closest('g.staff')`); only when the measure has no note on that staff does it fall back
+to `#<MeasureId> > g.staff:nth-of-type(k)`, `k` = the part's staff offset + staff number (analyze A10). Cached per element-cache signature and scroll key, like the dimmed-note rects.
 
 **Rationale**: Exact against what Verovio drew, for any zoom; no duplication of Verovio's layout in our code.
 
@@ -177,7 +185,8 @@ pitch and break SC-007.
 
 ## R-11 Accidental glyphs from Verovio, no new asset
 
-**Decision**: On `init`, the Verovio worker renders one tiny built-in MEI measure (a sharp, a flat, a natural and a
+**Decision**: A pure function `harvestGlyphs(toolkit)` in `src/workers/glyphs.ts` (testable in Node with the real
+toolkit, analyze A7) is called by the Verovio worker on `init`: it renders one tiny built-in MEI measure (a sharp, a flat, a natural and a
 black notehead) before any Score is loaded, extracts the glyph path data of E262 (sharp), E260 (flat), E261
 (natural) and E0A4 (black notehead) from the SVG `<defs>`, and returns them in the `ready` response. The UI turns
 them into `Path2D`s once and draws accidentals with them at the staff's scale.

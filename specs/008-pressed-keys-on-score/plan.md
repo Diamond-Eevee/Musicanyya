@@ -39,10 +39,10 @@ layout or scroll changes (cached like the dimmed-note rects)
 |---|---|---|---|
 | I | Real-Time Safety | No AudioWorklet/plugin code touched; no timers decide sound; drawing stays on the existing rAF draw path | PASS |
 | II | One Clock, Measured Latency | No timing change; feedback latency budget (<= 50 ms) is kept and measured (SC-001/002) | PASS |
-| III | Score Fidelity & Note Identity | Green is applied to the SVG element whose id is the Note ID (R-01); Score model grows clefs/keys/octave shifts additively, bad values degrade (no disc) never crash; accidentals use Verovio's own Leipzig glyphs, no hand-drawn notation (R-11); `docs/musicxml-support.md` records the newly used `<clef>`, `<key>`, `<octave-shift>` | PASS |
+| III | Score Fidelity & Note Identity | Green is applied to the SVG element whose id is the Note ID (R-01); Score model grows clefs/keys/octave shifts additively, bad values degrade (no disc) never crash; accidentals use Verovio's own Leipzig glyphs (R-11); disc ledger lines/ottava labels are overlay feedback, not engraving (Complexity Tracking); `docs/musicxml-support.md` records the newly used `<clef>`, `<key>`, `<octave-shift>` | PASS |
 | IV | Test-First, Deterministic | Notation placement and `heldWrongKeys` are pure core functions, tested first in Node; replay golden test covers the new session field (FR-016) | PASS |
 | V | Layered, Framework-Free | Placement logic in `core/notation` (no DOM); UI only measures and draws; no framework; browser-only | PASS |
-| VI | Musician-First Feedback | Colour + shape: correct = the printed head, wrong = an added disc at another position (owner decision 2026-09-25 on greyscale limit, R-03); held-over has a chevron; discs never hide a written head (FR-006, R-09); band sits behind the notes; both layers switchable | PASS (owner-approved interpretation, recorded in spec Clarifications) |
+| VI | Musician-First Feedback | Colour + shape: correct = the printed head, wrong = an added disc at another position (owner decision 2026-09-25 on greyscale limit, R-03); held-over has an upward chevron, skipped a skip chevron (analyze A1); discs never hide a written head (FR-006, R-09); band sits behind the notes; both layers switchable | PASS (owner-approved interpretation, recorded in spec Clarifications) |
 | VII | Pedagogy as Data | No Advice change | PASS (n/a) |
 | VIII | Simplicity, Web-First | P1 = US1 + US2 usable alone; no new dependency or asset; Canvas 2D, CSS, Path2D only | PASS |
 
@@ -72,7 +72,8 @@ src/core/notation/                      # NEW, pure: context.ts (staffContextAt)
                                         #   place-discs.ts, index.ts
 src/core/practice/types.ts, matcher.ts  # heldWrongKeys (R-12)
 src/core/defaults.ts                    # PRACTICE_DISC_MAX_LEDGER_LINES, PRACTICE_DISC_OTHER_STAFF_LEDGER_LINES
-src/workers/verovio.worker.ts           # glyph harvest on init (R-11)
+src/workers/glyphs.ts                   # NEW: harvestGlyphs(toolkit), pure (R-11)
+src/workers/verovio.worker.ts           # calls harvestGlyphs on init
 src/ui/score/verovio-client.ts          # expose glyphs
 src/ui/score/note-marks.ts              # NEW: applyNoteMarks (class diffing, R-01)
 src/ui/score/pressed-keys.ts            # NEW: drawPressedKeyDiscs, drawHeldOverChevron, glyph Path2D
@@ -101,6 +102,7 @@ gets three small modules in `ui/score`; no engine or Electron change beyond the 
 |---|---|---|
 | New core module `src/core/notation` | Staff position, spelling and staff choice are notation logic that must be tested in Node and must not live in the UI (V) | Reading clef glyphs from the SVG puts music logic in the UI and misses mid-bar changes (R-06) |
 | Score model gains `clefs`, `keys`, `octaveShifts` | Placement needs them; additive, no timing effect | Re-running the engraving walk at run time duplicates parsing and is render-copy-only |
+| Canvas-drawn ledger lines and ottava labels for red discs (Constitution III reading) | A disc far from the staff needs ledger lines and, beyond 5, an ottava label to name the key (SC-007). They are feedback on the overlay, not engraving of the Score; accidentals use the real Leipzig glyphs (R-11) | Engraving the disc through Verovio (re-render per key press, far over 50 ms); omitting ledger lines (the pitch could not be read) |
 
 No new runtime dependency, asset or licence.
 

@@ -36,8 +36,8 @@ gets a new assertion for the new mark.
   `+<midi>` / `-<midi>` / `wait` and a `startPractice(page, itemId)` helper, in `tests/e2e/helpers/practice.ts`
   (reused by every story's e2e test and by T004)
 - [ ] T004 Add the dev-only options `--practice` and `--keys "<steps>"` to `tools/dev/screenshot.ts` (quickstart
-  "Seeing it"), using the same `e2e-midi` event; document them in the file header, in `quickstart.md` and in the
-  toolchain section of `docs/agents/reference.md`
+  "Seeing it"), using the same `e2e-midi` event; document them in the file header, in `quickstart.md`, in
+  `README.md` and in the toolchain section of `docs/agents/reference.md`
 - [ ] T005 Verify T004 by running
   `pnpm screenshot -- --item repertoire/intermediate/fur-elise-theme --practice --keys "+76" --out tests/.generated/008/t005.png`
   and looking at the picture (Practice started, the first E5 accepted by today's marks); record the result in the log
@@ -77,7 +77,9 @@ ring or square is drawn anywhere on the Score.
   fill is unchanged; (b) the next E5 is inside the band's box; (c) no canvas call draws a dashed line (spy on
   `setLineDash`); (d) the class appears within 50 ms of the key-down dispatch (SC-001, measured with
   `performance.now()` in the page); (e) marks layer off -> no `mx-mark-*` class on the page; (f) a new session
-  clears every class. Also a chord case with a three-note chord fixture (hold two keys -> two classes; release one
+  clears every class; (g) after zooming in (A+) and out (A-) every green head keeps its class and the band still
+covers the next note (FR-013); (h) in a two-measure loop, the second time round each green head of the loop loses
+its class exactly when the cursor reaches its event, not before (FR-012). Also a chord case with a three-note chord fixture (hold two keys -> two classes; release one
   -> that one loses its class) (FR-003). Adjust `tests/e2e/us1-practice.spec.ts` where it asserted rings; save
   PNGs to `tests/.generated/008/`
 
@@ -158,9 +160,9 @@ staff in the band, beside the black E5; release: gone; press E4: a disc one octa
   dots when present; two discs a second apart zig-zag without touching each other or a written head; a disc's
   accidental sits left of the written chord's accidentals; no disc box ever intersects a written notehead box
   (SC-004, property over random chords)
-- [ ] T030 [P] [US2] Worker contract test in `tests/verovio/glyphs.test.ts` (Node, real verovio): the
-  `ready` response carries non-empty path data for sharp, flat, natural and notehead and `unitsPerEm`; rendering the
-  glyph snippet leaves no Score loaded (a following `load` behaves as before)
+- [ ] T030 [P] [US2] Test for `harvestGlyphs` in `tests/verovio/glyphs.test.ts` (Node, real verovio toolkit): it
+  returns non-empty path data for sharp, flat, natural and notehead and `unitsPerEm > 0`; afterwards the toolkit has
+  no Score loaded and loading a fixture renders as before
 - [ ] T031 [P] [US2] Unit tests for `drawPressedKeyDiscs` in `tests/ui/pressed-keys.test.ts` (recording canvas
   fake): per slot one filled ellipse in the disc colour, the placement's ledger lines at the staff-line width, the
   accidental glyph path only when `showAccidental`, an ottava label only when `ottava != 0`; nothing when
@@ -169,7 +171,10 @@ staff in the band, beside the black E5; release: gone; press E4: a disc one octa
   whose centre is on the D5 staff position (from measured staff lines) and right of the E5 head without overlap;
   release -> gone within 50 ms; E4 -> disc one octave below; black key -> accidental drawn; two keys -> two discs,
   no overlap; A0 -> ottava label; marks layer off -> no disc; appearance within 50 ms of key-down (SC-001/002);
-  MIDI device lost (existing e2e hook) -> all discs gone, green heads stay; PNGs to `tests/.generated/008/`
+  MIDI device lost (existing e2e hook) -> all discs gone, green heads stay; after zoom A+/A- a held disc is still on
+  the D5 position (FR-013); the on-screen keyboard still marks the wrong key and the wrong-octave hint still appears
+  (FR-011); ten wrong keys held at once -> ten discs and no frame over 16.7 ms in a 2 s `requestAnimationFrame`
+  sample (plan performance goals); PNGs to `tests/.generated/008/`
 
 ### Implementation
 
@@ -184,8 +189,8 @@ staff in the band, beside the black E5; release: gone; press E4: a disc one octa
 - [ ] T037 [US2] Add `heldWrongKeys` to `PracticeSession` in `src/core/practice/types.ts` and maintain it in
   `src/core/practice/matcher.ts`; update the replay snapshot with the reason logged - makes T027, T028 pass; bump
   `specs/002-practice-wait-mode/contracts/practice-session.md` to 1.6.0 (contract section 4)
-- [ ] T038 [US2] Harvest the glyphs on `init` in `src/workers/verovio.worker.ts` and expose them from
-  `src/ui/score/verovio-client.ts` - makes T030 pass; bump
+- [ ] T038 [US2] Implement `harvestGlyphs` in `src/workers/glyphs.ts`, call it on `init` in
+  `src/workers/verovio.worker.ts` and expose the glyphs from `src/ui/score/verovio-client.ts` - makes T030 pass; bump
   `specs/001-score-viewer-listen/contracts/worker-messages.md` to 1.2.0
 - [ ] T039 [US2] Implement `layoutDiscs` in `src/ui/score/disc-layout.ts` - makes T029 pass
 - [ ] T040 [US2] Implement `drawPressedKeyDiscs` and the glyph `Path2D` conversion in `src/ui/score/pressed-keys.ts`
@@ -214,30 +219,37 @@ the first correct notes turn green; no dashed outline anywhere.
 ### Tests (write first, confirm they fail)
 
 - [ ] T050 [P] [US3] In `tests/ui/practice-marks.test.ts` replace the `heldOver` triangle, `playedAlong` hexagon
-  and `skipped` dashed-square assertions (logged): `drawHeldOverChevron` draws a solid chevron entirely above the
-  note box (never intersecting it), and `drawPracticeMarks` draws nothing for `playedAlong` and `skipped`
+  and `skipped` dashed-square assertions (logged): `drawStateChevron` with `heldOver` draws a solid upward chevron
+  entirely above the notehead box, with `skipped` a solid right-pointing chevron entirely below it (neither
+  intersects the notehead box, both within one staff space of it), and `drawPracticeMarks` draws nothing for
+  `playedAlong` and `skipped`
 - [ ] T051 [P] [US3] In `tests/ui/grade-marks.test.ts` replace the `drawLiveMarks` dashed-ring assertions (logged)
   with a test that the Play view maps `liveMark` note IDs to `mx-mark-correct` via `applyNoteMarks` and clears them
   when the Grade layer is shown, a new run starts or the mode changes (R-13); the Grade-mark tests stay unchanged
 - [ ] T052 [US3] E2E "US3" in `tests/e2e/pressed-keys.spec.ts`: grace note played -> `mx-mark-correct`; held-over
-  -> `mx-mark-heldover` + chevron pixels above the head + the existing hint; Skip Forward -> `mx-mark-skipped`;
+  -> `mx-mark-heldover` + chevron pixels above the head + the existing hint; Skip Forward -> `mx-mark-skipped` + chevron pixels below the head;
   a Play run (existing Play e2e helpers) -> green heads during the run, no dashed line, Grade marks at the end as
   before; a `setLineDash` spy over a whole Practice session and a whole Play run records no non-empty pattern
   (SC-003)
 - [ ] T053 [P] [US3] Greyscale check in `tests/e2e/pressed-keys.spec.ts`: a PNG with an accepted note, a disc, a
   held-over note and a skipped note, converted to greyscale, is saved to `tests/.generated/008/greyscale.png`;
-  assert the four marks differ in shape/position (chevron present only on held-over, disc only off the written
-  heads, skipped only behind the cursor) (SC-005)
+  assert the four marks differ in shape/position (upward chevron above only the held-over head, right-pointing
+  chevron below only the skipped head, no chevron on the accepted head, disc only off the written heads) (SC-005)
+- [ ] T057 [P] [US3] Static test `tests/ui/no-dashed-lines.test.ts`: no module under `src/ui/score/` or
+  `src/ui/elements/mx-score-view.ts` calls `setLineDash` with a non-empty pattern, except the listed non-Practice,
+  non-Play-run layers that still need one (if any, each named with its reason) (SC-003 for every item by
+  construction)
 
 ### Implementation
 
-- [ ] T054 [US3] Implement `drawHeldOverChevron` in `src/ui/score/pressed-keys.ts`; remove the `heldOver`,
+- [ ] T054 [US3] Implement `drawStateChevron` in `src/ui/score/pressed-keys.ts`; remove the `heldOver`,
   `playedAlong` and `skipped` outline branches from `src/ui/score/practice-marks.ts` and call the chevron for
-  `heldOver` notes from `src/ui/elements/mx-score-view.ts` - makes T050 pass
+  `heldOver` and `skipped` notes (with their `g.notehead` box) from `src/ui/elements/mx-score-view.ts` - makes T050
+  pass
 - [ ] T055 [US3] Remove `drawLiveMarks` from `src/ui/score/grade-marks.ts`; in `src/ui/elements/mx-score-view.ts`
   apply `mx-mark-correct` for Play `liveMark` note IDs and clear them per R-13; remove the unused
   `isPracticeWaiting` branch of `src/ui/score/cursor-overlay.ts`; bump
-  `specs/003-play-mode-grading/contracts/play-run.md` to 1.1.4 - makes T051, T052 pass
+  `specs/003-play-mode-grading/contracts/play-run.md` to 1.1.4 - makes T051, T052, T057 pass
 - [ ] T056 [US3] Make T053 pass (adjust only drawing, never the check); checkpoint: US3 Independent Test with the
   screenshot tool on the grace-note fixture and in Play mode; look at the pictures; full gate; log entry; commit
 
@@ -258,13 +270,16 @@ the first correct notes turn green; no dashed outline anywhere.
 - [ ] T063 Run the whole of `quickstart.md` (automated checks and every manual step); log each result
 - [ ] T064 Constitution review with the `constitution-auditor` agent over the branch diff; summarise its findings
   in `implementation-log.md` and fix or escalate every violation
+- [ ] T066 Electron (FR-015): run the US1 and US2 cases of `tests/e2e/pressed-keys.spec.ts` against the Electron
+  build with the existing Electron e2e setup (`tests/e2e/electron-*.spec.ts` pattern) in a new
+  `tests/e2e/electron-pressed-keys.spec.ts`; same assertions, same results as the browser
 - [ ] T065 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, with summary lines in the log;
   final hand-off entry and commit
 
 ## Dependencies & Execution Order
 
 - Setup (T001-T002) -> Foundational (T003-T005) -> US1 (T010-T020) -> US2 (T021-T042) -> US3 (T050-T056) ->
-  Polish (T060-T065).
+  Polish (T060-T066).
 - US2 does not need US1's code (discs are drawn on the canvas and use their own band-independent geometry), so US2
   can start after Phase 2; its checkpoint picture expects the band, so run T042 after T019.
 - US3 needs US1 (`applyNoteMarks`, the class CSS) and T040 (`pressed-keys.ts` exists for the chevron).
@@ -279,5 +294,5 @@ the first correct notes turn green; no dashed outline anywhere.
 - US1 tests: T010, T011, T012 together.
 - US2: T021 alongside T027-T031; then T022-T026 (tests on different files) together; T027, T028, T029, T030, T031
   together; implementations T037, T038, T039, T040 in parallel once their tests fail (different files).
-- US3 tests: T050, T051, T053.
+- US3 tests: T050, T051, T053, T057.
 - Polish: T060 and T061.
