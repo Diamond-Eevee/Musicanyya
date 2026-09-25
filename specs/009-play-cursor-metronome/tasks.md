@@ -122,11 +122,32 @@ every measure is accented; muting during the run silences only the click.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T018 [P] [US2] Guard test in `tests/core/schedule/setup-events.test.ts`: `compileSchedule` and
+- [x] T018 [P] [US2] Guard test in `tests/core/schedule/setup-events.test.ts`: `compileSchedule` and
   `compilePlaySchedule` emit `programChange` and `controlChange` events only at tick 0, on every fixture under
   `tests/fixtures/musicxml` (incl. `real/`) and every library item. The design relies on this invariant (research
   R-01); it is expected to PASS on today's code - log it as a guard, not as a failing test
-- [ ] T019 [P] [US2] Processor setup tests with a recording fake synth in
+- [x] T056 [US2] Found by T018 (a Score without `<time>`, e.g. `tests/fixtures/musicxml/backup-forward-two-voices.musicxml`, has
+  `nominalTicks: 0`): `compilePlaySchedule` never returns, because its count-in loop `while (secondsOf(measureCount *
+  nominalTicks) < COUNT_IN_MIN_SECONDS)` cannot grow a zero-length measure, so Play on such a file would freeze the tab
+  (Constitution III: a file must never hang the app). Test first in `tests/core/play/play-schedule.test.ts`: it terminates
+  and counts in whole default 4/4 measures (the `beatTicksAt` / `beatsPerMeasure` default for no time signature) lasting
+  at least `COUNT_IN_MIN_SECONDS`, downbeat on every fourth click; see it hang (run it under a timeout), then fix
+  `src/core/schedule/play-schedule.ts` (`nominalTicks` falls back to `beatTicks * beatsInMeasure` when it is 0)
+- [x] T057 [US2] Found by T020 (research B-9, R-14): `compilePlaySchedule` clicks only the count-in, not the run. Tests first in
+  `tests/core/play/play-schedule.test.ts`, each with its own assertion: (a) 4/4, several measures: one click per beat of
+  every pass on `METRONOME_CHANNEL` at `countInTicks + k * beat`, the first beat of each measure accented, the run's first
+  click at run tick `countInTicks`; (b) `meter-change.musicxml`: each measure clicks in its own meter, 6/8 in dotted
+  beats with two clicks per measure; (c) a pickup (`anacrusis-count-in.musicxml`): the run's first click (the pickup note's
+  beat) is NOT accented and the next measure's first beat is; (d) a repeat (`repeat-simple.musicxml`): the repeated
+  measure clicks again on its second pass, downbeat accented; (e) a range: only the range's passes are clicked, after the
+  count-in; (f) `accompaniment: false` and `gradedNoteIds` do not remove clicks; (g) no click at or after the run's
+  end tick; (h) count-in clicks unchanged. The two existing tests that count ALL Metronome events (the pickup test's
+  "6 clicks", the 6/8 test) are narrowed to the count-in (`tick < tickMap.countInTicks`), named in the log as changed by
+  the whole-run requirement (FR-009), nothing else weakened. Run them and see them fail
+- [x] T058 [US2] Implement the run clicks in `src/core/schedule/play-schedule.ts` (research R-14); T057 passes, the rest of
+  `tests/core/play` stays green; note the Play schedule wording in `specs/003-play-mode-grading/contracts/play-run.md` 1.2.0
+  when T024 finishes it
+- [~] T019 [P] [US2] Processor setup tests with a recording fake synth in (claimed: claude-sonnet-5 2026-09-25)
   `tests/engine/worklets/score-player.setup.test.ts`: (a) with the sound ready, a `schedule` whose `channelSetup` marks
   channel 14 percussion and channel 0 program 40 with bank 1, plus tick-0 CC7/CC10, calls, per used channel,
   `setDrums(isPercussion)`, bank select, `programChange`, then the controllers, all before the first `noteOn` is
@@ -136,7 +157,7 @@ every measure is accented; muting during the run silences only the click.
   throw; (f) `processBlock` never calls `programChange`, `setDrums` or `controllerChange` for kinds 2/3 (spy during
   rendering); (g) the compiled schedule of `tests/fixtures/musicxml/real/mozart-quartet-k387.mxl` applies each part's
   program (001 FR-015). Run it: fails (no setup applied)
-- [ ] T020 [P] [US2] Real-synth click test `tests/engine/metronome-click.test.ts` (pattern of
+- [~] T020 [P] [US2] Real-synth click test `tests/engine/metronome-click.test.ts` (pattern of (claimed: claude-sonnet-5 2026-09-25)
   `tests/engine/synth-onset.test.ts`, real `SpessaSynthProcessor` and `public/soundfonts/GeneralUser-GS-2.0.3.sf2`, 48
   kHz): compile the Play schedule, accompaniment off, of `learning/chords/c-major-scale-and-chords` at 100 %, of
   `tests/fixtures/musicxml/tempo-change-mid-measure-offset.musicxml` and `meter-change.musicxml` at 50 % and 150 %, of
@@ -148,11 +169,11 @@ every measure is accented; muting during the run silences only the click.
   `CLICK_TAIL_MAX_RATIO = 0.01` of its first 50 ms; every downbeat peak above the beat peaks (research R-03); every
   beat click's peak at least the peak of a mezzo-forte piano note (C4, velocity 80) rendered the same way (FR-012).
   Run it: fails today (attack about 48 ms)
-- [ ] T021 [P] [US2] Test in `tests/engine/play-session.test.ts`: after a run started with `metronomeMuted: true`, a
+- [~] T021 [P] [US2] Test in `tests/engine/play-session.test.ts`: after a run started with `metronomeMuted: true`, a (claimed: claude-sonnet-5 2026-09-25)
   run started with `metronomeMuted: false` sets the Metronome channel volume to 1 after loading its schedule; a muted
   start sets 0 (research R-02). Run it: the unmuted case fails
 
-- [ ] T053 [P] [US2] Golden fingerprint before the channel-setup change (analyze M6), in
+- [x] T053 [P] [US2] Golden fingerprint before the channel-setup change (analyze M6), in
   `tests/engine/listen-render-golden.test.ts`: render the first 10 s of the Listen schedule of
   `repertoire/beginner/ode-to-joy` through today's processor with the real synth, store the RMS of every 50 ms window in
   `tests/engine/__golden__/ode-to-joy-listen.json`, and assert the render matches it (tolerance 1e-6 per window). It
@@ -338,7 +359,7 @@ cross anywhere.
 - Within US3: T028 -> T037 -> T038 (uses `placeKeys`); T029/T030 -> T038; T032 -> T039 -> T040 (draws the icon);
   T031 -> T040; T033 -> T041; T034 -> T042 (after T041: the panel reads `selectedMark`); T035/T036 -> T043 (after T038,
   T040, T041); T054 -> T055 -> (T039, T040, T043); T044 after T043.
-- T001 before T022; T002 before T008 and T029; T005 before T011, T036, T046; T004 before T036.
+- T057 -> T058 before T020 can pass (its click count needs the run clicks); T056 before T018 can be ticked (its guard test compiles every fixture); T001 before T022; T002 before T008 and T029; T005 before T011, T036, T046; T004 before T036.
 
 ## Parallel Opportunities
 
