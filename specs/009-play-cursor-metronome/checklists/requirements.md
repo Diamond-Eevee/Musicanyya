@@ -48,3 +48,6 @@
   both modes (FR-016, FR-016a), chord and octave-line explanation wording (FR-022a), Listen instrument change
   accepted, constitution-audit findings resolved (planning changes and the colour-only extension accepted, FR-020
   names its two shape-ambiguous cases). No marker; all items pass.
+- Iteration 5 (analyze, owner: "resolve all with recommended", 2026-09-25): FR-016/FR-016a skip-icon placement below
+  the lowest head of its column (C1), FR-018 caret placement clear of accidentals (M7), FR-022 disc explains all it
+  stands for (M4), SC-005 limited to discs a staff can show (M5). All items pass.

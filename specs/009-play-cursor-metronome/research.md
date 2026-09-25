@@ -121,14 +121,14 @@ of a green head while the cursor is on it (happy-dom does not compute the cascad
 
 ## R-06 Grade marks as a pure mark set
 
-**Decision**: a new pure core function `gradeMarks(score, grade)` turns a Grade into what the Score shows
-(data-model section 2): a mark class per notehead (`correct` -> green, `missed` -> grey + skip icon, the latter
-also for a wrong-pitch note), a timing caret per notehead (`early`/`late`), and a list of red discs, each anchored to
-a written moment (its column) with the key played and a reference back to the result or extra it stands for. The
-disc placement on the staff (staff choice, spelling, ledger lines, ottava) reuses 008's notation core through a
-generalised entry point `placeKeys` (R-07). The view applies classes with `applyNoteMarks` and draws discs with
-`layoutDiscs` + `drawPressedKeyDiscs`, carets with the existing caret drawing, skip icons with `drawStateChevron` (its `skipped` shape becomes the skip icon). The
-ring, cross and diamond drawings are deleted.
+**Decision**: a new pure core function `gradeMarks(score, grade)` turns a Grade into what the Score shows (data-model
+section 2): a mark class per notehead (`correct` -> green, `missed` -> grey + skip icon, the latter also for a
+wrong-pitch note), a timing caret per notehead (`early`/`late`), and a list of red discs, each anchored to a written
+moment (its column) with the key played and a reference back to the result or extra it stands for. The disc placement on
+the staff (staff choice, spelling, ledger lines, ottava) reuses 008's notation core through a generalised entry point
+`placeKeys` (R-07). The view applies classes with `applyNoteMarks` and draws discs with `layoutDiscs` +
+`drawPressedKeyDiscs`, carets with the existing caret drawing, skip icons with `drawStateChevron` (its `skipped` shape
+becomes the skip icon). The ring, cross and diamond drawings are deleted.
 
 **Rationale**: the look must be exactly Practice's (FR-014, FR-015); rules such as "worse of the passes" and "nearest
 written moment" are music logic and must be tested in Node (Constitution IV, V); deterministic (FR-029).
@@ -245,3 +245,21 @@ mark set: wrong-pitch and missed notes and extras, in playing order (pass, then 
   `liveMarkedNoteIds` are unchanged.
 - Settings: no new setting and no storage change; the Metronome mute and the overlay switches exist.
 - Dependencies: none new. spessasynth_core 4.3.22 already provides `setDrums` and `programChange`.
+
+## R-13 Marks placed clear of every written head (analyze C1, M7)
+
+**Decision**: the skip icon (missed in Play, skipped in Practice) is placed per written column and staff, not per
+notehead: below the lowest notehead in that column on that staff (all voices), centred on the column, one icon for
+all missed heads there. For a stem-down chord the icon's width (0.4 of a head) stays clear of the stem at the heads'
+left edge. The early caret's tip sits left of the note's accidental (`NoteBox.accidentalLeft`, 008) and of a head
+displaced to the left; the late caret right of a displaced head and of augmentation dots. The geometry is pure
+(`skipIconBox`, `caretBox` in `src/ui/score/disc-layout.ts`) and an e2e sweep over every library item asserts that no
+icon or caret box intersects a head or accidental box (SC-007).
+
+**Rationale**: the chevron box below one head covered the chord tone a third below (the box spans 0.15-0.85 of a
+head height under the head, where that tone's head lies): a Constitution VI violation found by analyze, present in
+Practice since 008. Below the whole chord nothing is written but the stem or beam of a stem-down chord.
+
+**Alternatives considered**: beside the head on the side away from the stem (the expert's first idea: collides with
+seconds, dots and the carets); one icon per missed head stacked below the chord (clutter; the grey heads already say
+which notes); moving the icon out of the way only when it would collide (two placements to read).

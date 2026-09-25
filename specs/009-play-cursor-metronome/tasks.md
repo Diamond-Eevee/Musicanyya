@@ -77,12 +77,12 @@ the Metronome, looking like Listen mode's cursor, and it is gone when the Grade 
   to `rangeEndTick - 1`; `positionRunTick` is used with no extra offset (it is already the audible position, SC-001).
   Run it: fails (module missing)
 - [ ] T010 [P] [US1] Score-view unit tests in `tests/ui/score-view-play-cursor.test.ts` (happy-dom, the harness of
-  `tests/ui/score-view.test.ts`, a recording canvas context): (a) `countIn`: a cursor bar is drawn at the first
-  note's x and no note has `.playing`; (b) `running`: the notes at the tick, including a graded note the run does
-  not sound, get `.playing` and the bar is at their x; (c) the run becomes `finished`: `.playing` is removed and no bar
-  is drawn in the next frame; (d) `overlays.cursor` off: no bar, highlights and marks unchanged; (e) with a Grade on
-  screen during a replay, the bar is drawn before the Grade marks (call order); (f) Listen still draws exactly as
-  before (bar at the sounding note). Run it: (a)-(e) fail
+  `tests/ui/score-view.test.ts`, a recording canvas context): (a) `countIn`: a cursor bar is drawn at the first note's x
+  and no note has `.playing`; (b) `running`: the notes at the tick, including a graded note the run does not sound, get
+  `.playing` and the bar is at their x; (c) the run becomes `finished`, is stopped, or the mode is switched to Listen or
+  Practice: `.playing` is removed and no bar is drawn in the next frame (FR-006); (d) `overlays.cursor` off: no bar,
+  highlights and marks unchanged; (e) with a Grade on screen during a replay, the bar is drawn before the Grade marks
+  (call order); (f) Listen still draws exactly as before (bar at the sounding note). Run it: (a)-(e) fail
 - [ ] T011 [P] [US1] E2E test `tests/e2e/play-cursor.spec.ts` with `startPlay` (T005) on
   `repertoire/beginner/fur-elise-theme-16-bar`, accompaniment on, nothing played: during the count-in no `.playing`
   note and `runPositionState` at the first measure; after the count-in the first note gets `.playing`, then later
@@ -138,7 +138,10 @@ every measure is accented; muting during the run silences only the click.
   program (001 FR-015). Run it: fails (no setup applied)
 - [ ] T020 [P] [US2] Real-synth click test `tests/engine/metronome-click.test.ts` (pattern of
   `tests/engine/synth-onset.test.ts`, real `SpessaSynthProcessor` and `public/soundfonts/GeneralUser-GS-2.0.3.sf2`, 48
-  kHz): compile the Play schedule of `learning/chords/c-major-scale-and-chords` with the accompaniment off, render it
+  kHz): compile the Play schedule, accompaniment off, of `learning/chords/c-major-scale-and-chords` at 100 %, of
+  `tests/fixtures/musicxml/tempo-change-mid-measure-offset.musicxml` and `meter-change.musicxml` at 50 % and 150 %, of
+  `anacrusis-count-in.musicxml` and of `repeat-simple.musicxml` (SC-002; where each click is scheduled stays proven
+  by 003's `tests/core/play/play-schedule.test.ts`), render it
   through `createScorePlayerProcessor` with a synth port that maps `programChange` / `setDrums` to the real synth;
   assert: exactly one click per count-in and run beat; each click's first non-silent frame within 3 ms of its
   scheduled frame (SC-002); peak within `CLICK_ATTACK_MAX_MS = 10` ms; energy 300-500 ms after it below
@@ -148,6 +151,13 @@ every measure is accented; muting during the run silences only the click.
 - [ ] T021 [P] [US2] Test in `tests/engine/play-session.test.ts`: after a run started with `metronomeMuted: true`, a
   run started with `metronomeMuted: false` sets the Metronome channel volume to 1 after loading its schedule; a muted
   start sets 0 (research R-02). Run it: the unmuted case fails
+
+- [ ] T053 [P] [US2] Golden fingerprint before the channel-setup change (analyze M6), in
+  `tests/engine/listen-render-golden.test.ts`: render the first 10 s of the Listen schedule of
+  `repertoire/beginner/ode-to-joy` through today's processor with the real synth, store the RMS of every 50 ms window in
+  `tests/engine/__golden__/ode-to-joy-listen.json`, and assert the render matches it (tolerance 1e-6 per window). It
+  records today's sound, so it passes now; it MUST be committed before T022 and stay green after it (piano Scores
+  sound as before)
 
 ### Implementation
 
@@ -163,8 +173,8 @@ every measure is accented; muting during the run silences only the click.
   finish `specs/003-play-mode-grading/contracts/play-run.md` 1.2.0 with the volume rule (contract 5.2)
 - [ ] T025 [US2] Check the side effect on real files: in Listen, compile and render the first 10 s of
   `tests/fixtures/musicxml/real/mozart-quartet-k387.mxl` and of one library piano item with the real synth; the
-  quartet's parts use their programs, the piano item renders the same as before the change (compare against a render
-  made from the commit before T022, RMS difference below 1e-6); log both results
+  quartet's parts use their programs, and the piano item still matches the golden fingerprint T053 recorded before
+  T022 (T053 green after T022); log both results
 - [ ] T026 [US2] RT review of T022 (and T023) with the `rt-audio-reviewer` agent: `process()` unchanged, setup only in
   `port.onmessage`, no allocation added to the render path, mute ordering; summarise its findings in the log and fix
   any HIGH finding before the checkpoint
@@ -198,7 +208,9 @@ cross anywhere.
   (data-model section 2, research R-08): the fixture opens without notices; the rules table row by row; a note correct
   on pass 1 and missed on pass 2 of the repeat is `missed`; the same wrong key on both passes is ONE disc with two
   refs, two different wrong keys are two discs; timing union (pass 1 late + pass 2 early -> both, on time never hides
-  one); the skip icon and carets on the tie chain's first notehead only, the class on every chain notehead; extra key
+  one); the class on every chain notehead, carets on the chain's first notehead only; `skipIcons`: one per (column,
+  staff) with a missed head, a chord with two missed notes on one staff gives one icon listing both, a missed tie
+  joins the icon of its first note's column only; extra key
   column: nearest onset, the earlier one exactly between two, an unselected-hand onset counts, a grace note does not,
   across the barline when nearer, after the last onset -> last onset, a press in the whole-measure rest -> nearest
   note onset; FR-017a: a wrong key equal to the left hand's written note goes on the right-hand staff; a wrong octave
@@ -214,30 +226,37 @@ cross anywhere.
   with a recording canvas context, discs are drawn first, then skip icons, then carets; no `arc` stroke ring, no cross
   and no diamond path is ever drawn; `visible: false` draws nothing; `gradeHeadClass('correct') === 'mx-mark-correct'`,
   `gradeHeadClass('missed') === 'mx-mark-skipped'`; `discAt` hits inside a disc ellipse and misses just outside it and
-  between two discs a second apart. Run it: fails
-- [ ] T032 [P] [US3] Test in `tests/ui/pressed-keys.test.ts` (behaviour change, FR-016a, logged): `drawStateChevron({
-  kind: 'skipped' })` draws a filled, closed right-pointing triangle plus a bar at its tip, entirely inside the former
-  chevron box below the notehead and never inside the notehead rect; `kind: 'heldOver'` is unchanged. Run it: fails
+  between two discs a second apart; `caretBox` puts the early caret left of an accidental and of a head displaced
+  left, the late caret right of dots and of a head displaced right, never intersecting any head of the column (FR-018);
+  drawing the same mark set and geometry twice records identical canvas calls (SC-008). Run it: fails
+- [ ] T032 [P] [US3] Tests in `tests/ui/pressed-keys.test.ts` and `tests/ui/disc-layout.test.ts` (behaviour change,
+  FR-016, FR-016a, logged): `drawStateChevron({ kind: 'skipped' })` draws a filled, closed right-pointing triangle
+  plus a bar at its tip inside the given box; `skipIconBox` for a single head is below it, for a chord a third apart
+  and a chord with a second (displaced head) it is below the lowest head and intersects no head, for a stem-down chord
+  it stays clear of the stem at the heads' left edge; `kind: 'heldOver'` is unchanged. Run it: fails
 - [ ] T033 [P] [US3] Tests in `tests/ui/mistake-stepper.test.ts`: the stepper is built from `GradeMarkSet.mistakes`;
   extras are included; order is pass then tick; `current` is a `GradeMarkRef`; next/previous wrap as today. Run it:
   fails
 - [ ] T034 [P] [US3] Tests in `tests/ui/grade-panel.test.ts` and `tests/ui/reason-text.test.ts`: a `note` ref on a
   repeated note shows one line per pass with the pass named; an `extra` ref shows its reason; FR-022a: a wrong pitch
   in a chord reads "B4 played in this chord; E4 not played" (never pairing the key to one written note); a wrong
-  octave equal to the 8va in force reads "played without the 8va"; every other reason text is unchanged. Run it: fails
+  octave equal to the octave line in force reads "played without the 8va" (and "without the 8vb" under an 8vb, using
+  `octaveShiftAt`'s sign: +1 for 8va); every other reason text is unchanged; a `disc` ref standing for a wrong pitch
+  and an extra of the same key shows both explanations (FR-022). Run it: fails
 - [ ] T035 [P] [US3] Score-view tests in `tests/ui/score-view-grade.test.ts` (happy-dom): a Grade puts
   `mx-mark-correct` / `mx-mark-skipped` on exactly the marked notes and removes them on a new run and on a mode change;
-  `overlays.marks` off removes classes and canvas marks; a click on a disc selects its ref before the notehead and
-  measure handlers; a second frame without scroll or relayout calls `getBoundingClientRect` zero times for the marks
-  (research R-09), while a relayout or zoom (a `domEpoch` bump) re-measures and the marks move with their notes
-  (FR-025); a `data-grade-discs` seam lists each drawn disc's key, staff and column (like 008's `data-discs`).
-  Run it: fails
+  `overlays.marks` off removes classes and canvas marks; during a live run (no Grade yet) no disc, skip icon, caret or
+  grey head is drawn, only the live green heads (FR-027); a click on a disc selects `{ kind: 'disc' }` before the
+  notehead and measure handlers; a second frame without scroll or relayout calls `getBoundingClientRect` zero times for
+  the marks (research R-09), while a relayout or zoom (a `domEpoch` bump) re-measures and the marks move with their
+  notes (FR-025); a `data-grade-discs` seam lists each drawn disc's key, staff and column (like 008's `data-discs`). Run
+  it: fails
 - [ ] T036 [P] [US3] E2E test `tests/e2e/play-grade-marks.spec.ts` with `startPlay` on
   `repertoire/beginner/fur-elise-theme-16-bar`, accompaniment off: keys timed with `sleep:` steps give correct notes,
   one wrong pitch, one wrong octave, one missed note and one extra key; after the Grade: the green heads are exactly
   the correct results, `data-grade-discs` holds exactly the wrong-pitch and extra keys, no ring or cross (seam and
   `tests/ui/no-dashed-lines.test.ts` style check), clicking a disc shows its reason, the stepper visits every disc and
-  grey note, marks off hides all. Run it: fails
+  grey note and each visited mark is scrolled into view (FR-023), marks off hides all. Run it: fails
 
 ### Implementation
 
@@ -245,10 +264,13 @@ cross anywhere.
   wrapper; export from `src/core/notation/index.ts`; T028 passes and the existing notation tests stay green
 - [ ] T038 [US3] Create `src/core/grade/marks.ts` with `gradeMarks` and `extraColumn` (data-model section 2); T029
   and T030 pass
-- [ ] T039 [US3] Change the `skipped` branch of `drawStateChevron` in `src/ui/score/pressed-keys.ts` to the skip icon
-  (FR-016a); update its doc comment; T032 passes; Practice's existing tests for skipped notes stay green
+- [ ] T039 [US3] Add `skipIconBox` and `caretBox` to `src/ui/score/disc-layout.ts`; change the `skipped` branch of
+  `drawStateChevron` in `src/ui/score/pressed-keys.ts` to draw the skip icon into a given box; make Practice's caller in
+  `src/ui/elements/mx-score-view.ts` group skipped notes by column and staff (one icon below the lowest head) (FR-016,
+  FR-016a, research R-13); update the doc comments; T032 passes; Practice's existing tests for skipped notes stay green
 - [ ] T040 [US3] Rewrite `src/ui/score/grade-marks.ts` (contract section 3): `drawGradeMarks` from cached geometry
-  (discs via `drawPressedKeyDiscs`, then skip icons via `drawStateChevron`, then carets), `gradeHeadClass`, `discAt`;
+  (discs via `drawPressedKeyDiscs`, then skip icons via `drawStateChevron` in `skipIconBox` boxes, then carets in
+  `caretBox` boxes), `gradeHeadClass`, `discAt`;
   delete the ring, cross and diamond code; T031 passes
 - [ ] T041 [US3] Replace `selectedNoteId` with `selectedMark: GradeMarkRef` in `src/ui/state/playState.ts` and build the
   stepper from `GradeMarkSet.mistakes` in `src/ui/state/mistake-stepper.ts`; update every caller; T033 passes
@@ -256,12 +278,21 @@ cross anywhere.
   refs (every pass) and `extra` refs in `src/ui/elements/mx-grade-panel.ts`; T034 passes
 - [ ] T043 [US3] Grade drawing in `src/ui/elements/mx-score-view.ts`: `gradeMarks` once per Grade; classes with
   `applyNoteMarks` + `gradeHeadClass` (re-applied on page mount); geometry cached per `domEpoch` and scroll offset
-  (heads, disc columns through `layoutDiscs`, staff geometry); disc hit test first in the click handler; the
-  `data-grade-discs` seam; remove the per-frame measuring loop; T035 and T036 pass
+  (heads, accidentals, disc columns through `layoutDiscs`, skip-icon and caret boxes, staff geometry); disc hit test
+  first in the click handler; the `data-grade-discs` and `data-grade-marks` seams (contract section 3); remove the
+  per-frame measuring loop; T035 and T036 pass
 - [ ] T044 [US3] Update the existing tests that asserted the old marks (`tests/e2e/us1-play.spec.ts` and any other
   found by searching for the ring/cross assertions), each with a new assertion for the new mark; amend
   `specs/008-pressed-keys-on-score/contracts/pressed-keys.md` to 2.1.0 and finish
   `specs/003-play-mode-grading/contracts/play-run.md` 1.2.0 with the Grade wording (contract 5.2, 5.3)
+- [ ] T054 [US3] Add the `e2e-synthetic-grade` seam in `src/app/session.ts` beside `e2e-midi` (contract section 3):
+  build a `nothing` / `correct` / `semitoneHigh` Performance log from the open Score's expected notes and grade it
+  through the normal grade worker, so e2e tests get a Grade without playing a whole run
+- [ ] T055 [US3] E2E overlap sweep `tests/e2e/grade-marks-overlap.spec.ts` (SC-007, FR-026, analyze M3): for every
+  library item and `tests/fixtures/musicxml/grade/grade-marks.musicxml`, dispatch `e2e-synthetic-grade` with
+  `nothing` and with `semitoneHigh`, then read `data-grade-marks` for every page scrolled into view: no skip-icon or
+  caret box intersects any head or accidental box (discs are the FR-021 exception and are excluded). Write it after
+  T054 and before T039/T040/T043 are finished, and see it fail on the chevron placement; it passes after T043
 - [ ] T045 [US3] Checkpoint: run the Independent Test with `pnpm screenshot -- --item
   repertoire/beginner/fur-elise-theme-16-bar --run --grade --keys "<the T036 steps>" --out
   tests/.generated/009/t045-grade.png` and look at it; run `pnpm test`, `pnpm typecheck`, `pnpm lint`, the US3 e2e
@@ -274,11 +305,13 @@ cross anywhere.
 ## Phase 6: Polish & Cross-Cutting
 
 - [ ] T046 [P] Electron: extend `tests/e2e/electron-playback.spec.ts` with a Play run that shows the cursor
-  (`.playing` during the run) and Grade marks (`data-grade-discs`, green classes) in the desktop app (SC-010)
+  (`.playing` during the run) and Grade marks (`data-grade-discs`, green classes) in the desktop app (SC-010). The
+  Metronome needs no Electron-specific test: it is the same worklet code, proven by T019/T020 in Node; say so in the log
 - [ ] T047 [P] Frame-rate check in `tests/e2e/play-frame-rate.spec.ts`: a Play run with accompaniment on the large
   generated score (`tests/tools/gen-large-score.ts`), then a replay with its Grade on screen; the 95th percentile of
-  animation-frame intervals over 5 s is at most 20 ms in Chromium on the reference machine (SC-009); log the measured
-  values
+  animation-frame intervals over 5 s is at most 20 ms in Chromium on the reference machine (SC-009: 60 fps is 16.7 ms;
+  the named test allowance `FRAME_P95_MAX_MS = 20` in the test file covers browser scheduling jitter); log the
+  measured values
 - [ ] T048 Greyscale check (SC-006): convert the T045 picture to greyscale into `tests/.generated/009/t048-grey.png`,
   look at it, and record in the log that correct, wrong pitch, missed, extra, early and late are each recognisable
 - [ ] T049 Real-file look: `pnpm screenshot -- --file tests/fixtures/musicxml/real/schumann-dichterliebe-15.mxl --run
@@ -289,7 +322,8 @@ cross anywhere.
 - [ ] T051 Constitution review of the whole diff with the `constitution-auditor` agent; summarise its findings in the
   log and resolve or raise every HIGH or CRITICAL one
 - [ ] T052 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, each with its summary line
-  in the log; final hand-off entry
+  in the log; confirm the grading goldens (`tests/core/grade/golden.test.ts` and its snapshots) are unchanged, which is
+  FR-028's evidence; final hand-off entry
 
 ## Dependencies & Execution Order
 
@@ -299,17 +333,18 @@ cross anywhere.
   and play session). US3 depends on US1 only through `src/ui/elements/mx-score-view.ts` (the canvas frame order of
   T015): do T043 after T015.
 - Within US1: T008 -> T012 -> T014; T009 -> T013; T010/T011 -> T015 (after T012, T013); T016 after T015.
-- Within US2: T019/T020 -> T022 -> T025 -> T026; T021 -> T023; T024 after T022 and T023.
+- Within US2: T053 committed before T022; T019/T020 -> T022 -> T025 -> T026; T021 -> T023; T024 after T022 and
+  T023.
 - Within US3: T028 -> T037 -> T038 (uses `placeKeys`); T029/T030 -> T038; T032 -> T039 -> T040 (draws the icon);
   T031 -> T040; T033 -> T041; T034 -> T042 (after T041: the panel reads `selectedMark`); T035/T036 -> T043 (after T038,
-  T040, T041); T044 after T043.
+  T040, T041); T054 -> T055 -> (T039, T040, T043); T044 after T043.
 - T001 before T022; T002 before T008 and T029; T005 before T011, T036, T046; T004 before T036.
 
 ## Parallel Opportunities
 
 - Setup: T001 and T002.
 - US1 tests: T008, T009, T010, T011 together.
-- US2 tests: T018, T019, T020, T021 together; US2 can run in parallel with US1 as a separate lane
+- US2 tests: T018, T019, T020, T021, T053 together; US2 can run in parallel with US1 as a separate lane
   (docs/agents/reference.md R6).
 - US3 tests: T028 to T036 together (all different files); implementation T037, T039, T041 in parallel, then T038,
   T040, T042, then T043.

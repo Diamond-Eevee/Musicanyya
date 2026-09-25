@@ -61,7 +61,7 @@ no per-frame DOM measuring of every graded note (R-09)
 specs/009-play-cursor-metronome/
 |-- spec.md
 |-- plan.md                 # this file
-|-- research.md             # B-1..B-8, R-01..R-12, click spike, music-domain-expert review
+|-- research.md             # B-1..B-8, R-01..R-13, click spike, music-domain-expert review
 |-- data-model.md
 |-- quickstart.md
 |-- contracts/
@@ -84,7 +84,9 @@ src/ui/elements/mx-score-view.ts               # Play cursor + highlights; Liste
 src/core/notation/place-discs.ts, index.ts     # placeKeys (+ preferredStaff); placeDiscs becomes a wrapper (US3)
 src/core/grade/marks.ts                        # NEW: gradeMarks, extraColumn (US3)
 src/ui/score/grade-marks.ts                    # rewritten: discs, then skip icons and carets, from geometry; gradeHeadClass; discAt
-src/ui/score/pressed-keys.ts                   # drawStateChevron 'skipped' -> skip icon, used by Practice and the Grade (FR-016a)
+src/ui/score/pressed-keys.ts                   # drawStateChevron 'skipped' -> skip icon in a given box (FR-016a)
+src/ui/score/disc-layout.ts                    # skipIconBox, caretBox: marks clear of every head (research R-13)
+src/app/session.ts                             # e2e-synthetic-grade seam beside e2e-midi (e2e only)
 src/ui/format/ (grade reasons)                 # chord and octave-line wording (FR-022a)
 src/ui/state/playState.ts, mistake-stepper.ts  # selectedMark / GradeMarkRef; stepper from GradeMarkSet.mistakes
 src/ui/elements/mx-grade-panel.ts              # explain note refs (every pass) and extra refs
@@ -99,7 +101,7 @@ tests/engine/metronome-click.test.ts           # NEW: real-synth click attack/de
 tests/engine/play-session.test.ts              # volume reset at start
 tests/ui/grade-marks.test.ts                   # rewritten for the new look (behaviour change, logged)
 tests/ui/mistake-stepper.test.ts, grade-panel.test.ts, score-view.test.ts
-tests/e2e/play-cursor.spec.ts, play-grade-marks.spec.ts # NEW; existing Play e2e adjusted where they assert rings
+tests/e2e/play-cursor.spec.ts, play-grade-marks.spec.ts, grade-marks-overlap.spec.ts # NEW; old ring asserts adjusted
 tests/tools/key-steps.test.ts                  # sleep step
 ```
 
@@ -156,4 +158,7 @@ Some existing tests change because the specified behaviour changed; each change 
   reworded; (5) LOW Grade disc bounds listed; (6) LOW Listen cursor behaviour captured as a golden test before the
   code moves (contract section 1); (7) LOW Principle I row reworded.
 
-No open point remains.
+Analyze (2026-09-25, 16 findings: CRITICAL 1, HIGH 1, MEDIUM 7, LOW 7), all resolved with the recommended option
+(owner): C1 skip icon below the lowest head of its column on that staff, in both modes (research R-13); H1 no Grade
+mark during a live run tested; M1-M7 and L1-L7 folded into spec FR-016/FR-016a/FR-018/FR-022/SC-005, the contract,
+data-model and tasks (new T053-T055). No open point remains.

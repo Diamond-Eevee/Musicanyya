@@ -204,6 +204,14 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
   notes? -> A: accept the extension (recommended: a shape on every correct note is the outline look the owner asked
   to remove); every Grade result still differs from every other result by shape (FR-020). Plan Complexity Tracking.
 
+### Session 2026-09-25 (analyze findings; owner: "resolve all with recommended")
+
+- C1: the skip icon sat in the old chevron box just below its notehead, where the next chord tone a third below is
+  printed -> it goes below the lowest head of its column on that staff, one icon per column and staff, in both modes
+  (FR-016, FR-016a; fixes the same defect in Practice since 008).
+- M4: a disc standing for several results explains all of them (FR-022). M5: SC-005 counts only discs a staff can
+  show. M7: the early marking goes left of the accidental and displaced heads (FR-018).
+
 ### Changes from planning (2026-09-25)
 
 - The Metronome cause is confirmed (research R-01): the click's instrument is never selected, so it plays as a short
@@ -261,9 +269,12 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
   missed marking of FR-016, so the musician sees both what was written and what was played.
 - **FR-016**: A missed note MUST be shown with a grey notehead plus a grey **skip icon** below it - a solid
   right-pointing triangle with a bar at its tip, which cannot be read as an accent - the **missed marking**. Hollow
-  heads stay hollow, and the icon never covers a notehead.
-- **FR-016a**: Practice mode's skipped note MUST use the same skip icon in place of today's chevron (amends 008
-  FR-009, FR-010), so skipped and missed look the same in both modes. The held-over chevron is unchanged.
+  heads stay hollow, and the icon never covers any notehead or accidental: it goes below the lowest notehead
+  written in its column on that staff (all voices), so in a chord it sits under the whole chord, and one icon stands
+  for every missed head of that column on that staff (the grey heads show which).
+- **FR-016a**: Practice mode's skipped note MUST use the same skip icon, with the same placement, in place of today's
+  chevron (amends 008 FR-009, FR-010), so skipped and missed look the same in both modes. The held-over chevron is
+  unchanged.
 - **FR-017**: An extra key press MUST be shown as a red disc at the pitch played, in the column of the written
   moment nearest to it in the music: the nearest note onset of the graded part on either staff (the unselected hand
   included, grace notes excluded) within the run's passage, the earlier one when it lies exactly between two, across
@@ -271,7 +282,8 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
 - **FR-017a**: A wrong-pitch disc MUST go on the staff of the written note it stands for, even where the key played
   equals a note written for the other hand at that moment, so it never looks like a mark on that other note.
 - **FR-018**: The timing result of a played note (early, late) MUST keep its current marking beside the note; on
-  time stays unmarked.
+  time stays unmarked. The early marking goes left of the note's accidental and of any head displaced to that side,
+  the late marking right of any displaced head and dots, so neither covers part of a written note.
 - **FR-019**: A Grade MUST NOT draw a ring, a cross or any other outline around a notehead.
 - **FR-020**: Correct, wrong pitch, missed, extra, early and late MUST be distinguishable without colour vision
   (Constitution VI): correct is an unmarked head; wrong pitch is the missed marking plus a red disc in the note's
@@ -284,7 +296,8 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
   there, exactly as in Practice (008 FR-006). This is the same bounded exception to Constitution VI ("overlays MUST
   NOT hide the notes they refer to") that the owner accepted for Practice, extended to the Grade.
 - **FR-022**: Selecting a green note, a red disc or a missed note MUST show its plain-words explanation (003 FR-030);
-  a red disc MUST be selectable in its own right.
+  a red disc MUST be selectable in its own right, and its explanation MUST cover everything it stands for (a wrong
+  pitch on one pass and an extra of the same key on another are both explained).
 - **FR-022a**: Two explanations MUST be worded more precisely than 003 FR-030's defaults: (1) a wrong key in a chord
   names what was played in the chord and which written notes were not played ("B4 played in this chord; E4 not
   played"), never implying which written note the key was meant for; (2) a note played exactly the octave an octave
@@ -331,8 +344,9 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
 - **SC-004**: In a listening check, the owner identifies the click as a metronome and tells the accented first beat
   from the others without looking at the screen.
 - **SC-005**: For every reference Grade, every graded notehead is green exactly when all its passes are correct, the
-  red discs are exactly the distinct (written moment, key) pairs of its wrong pitches and extras (without repeats:
-  as many discs as wrong pitches plus extras), and zero rings or crosses are drawn.
+  red discs are exactly the distinct (written moment, key) pairs of its wrong pitches and extras that a staff can
+  show (FR-020; without repeats: as many discs as those wrong pitches plus extras), and zero rings or crosses are
+  drawn.
 - **SC-006**: In a greyscale rendering of a Grade containing every result, a reviewer can tell correct, wrong pitch,
   missed, extra, early and late apart for every marked note.
 - **SC-007**: On the owner's "Für Elise" example and on every library item, no Grade mark overlaps a neighbouring

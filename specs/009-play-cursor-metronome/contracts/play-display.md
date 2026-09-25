@@ -68,6 +68,8 @@ export function placeDiscs(input: { score; selection; event; at; heldWrongKeys; 
 export interface GradeMarkGeometry {
   heads: ReadonlyMap<NoteId, DOMRect>;               // notehead rects (g.note > g.notehead), mounted pages only
   discSlots: readonly { disc: GradeDisc; slot: DiscSlot }[];
+  skipIconBoxes: readonly { icon: GradeSkipIcon; box: Box }[];   // from skipIconBox
+  caretBoxes: readonly { noteId: NoteId; side: 'early' | 'late'; box: Box }[]; // from caretBox
   staff: ReadonlyMap<string, StaffGeometry>;         // by staff element key, for ledger lines
 }
 /** Draws red discs, then skip icons (missed) and timing carets on top, from cached geometry; classes are applied separately. */
@@ -79,6 +81,15 @@ export function drawGradeMarks(options: {
 export function gradeHeadClass(head: GradeHeadMark): NoteMarkClass;
 /** Hit test on the drawn discs (ellipse), in client coordinates; null when no disc is under the point. */
 export function discAt(slots: GradeMarkGeometry['discSlots'], clientX: number, clientY: number): GradeDisc | null;
+
+// src/ui/score/disc-layout.ts - pure geometry (research R-13)
+/** The skip icon's box: below the lowest of `columnHeads` (every head written in the column on that staff), centred on
+ *  the column, 0.4 x 0.7 of a head, with a gap of 0.15 of a head. */
+export function skipIconBox(columnHeads: readonly NoteBox[]): { left: number; right: number; top: number; bottom: number };
+/** A timing caret's box beside `head`: early = left of the accidental and of any head displaced left; late = right of
+ *  any head displaced right and of the dots. */
+export function caretBox(head: NoteBox, columnHeads: readonly NoteBox[], side: 'early' | 'late'):
+  { left: number; right: number; top: number; bottom: number };
 ```
 
 `drawCursorOverlay` and `applyHighlights` are reused unchanged for the Play cursor.
@@ -102,11 +113,16 @@ selectMark(ref: GradeMarkRef | null): void;          // replaces selectNote
 // mistakeStepper: built from GradeMarkSet.mistakes; StepperState.current: GradeMarkRef | null replaces currentId
 ```
 
-`mx-grade-panel` explains a `note` ref with one line per result in `GradeNoteMark.results` (pass named) and an
-`extra` ref with the extra's reason; texts are 003's (FR-022), except the chord and octave-line wording of FR-022a:
-a wrong pitch whose expected note has `chordSize > 1` lists the keys played at that onset and the written notes not
-played; a wrong octave whose `octaveDelta` equals minus the octave shift in force (`octaveShiftAt`) says the octave
-line was not played.
+Test seams (e2e): the score view publishes `data-grade-marks` (JSON: head, accidental, disc, skip-icon and caret boxes
+of mounted pages, rounded to 0.01 px) beside `data-grade-discs`; `session.ts` handles an `e2e-synthetic-grade` window
+event (`detail: 'nothing' | 'correct' | 'semitoneHigh'`) beside `e2e-midi`, building that Performance log from the open
+Score's expected notes and grading it through the normal grade worker.
+
+`mx-grade-panel` explains a `note` ref with one line per result in `GradeNoteMark.results` (pass named) and an `extra`
+ref with the extra's reason, and a `disc` ref as every ref it stands for; texts are 003's (FR-022), except the chord and
+octave-line wording of FR-022a: a wrong pitch whose expected note has `chordSize > 1` lists the keys played at that
+onset and the written notes not played; a wrong octave whose `octaveDelta` equals minus the octave shift in force
+(`octaveShiftAt`) says the octave line was not played.
 
 ## 4. App (`src/app/play-session.ts`)
 
@@ -137,5 +153,7 @@ line was not played.
 
 - Adds `placeKeys` (section 2); `placeDiscs` keeps its signature and results (008 golden tests unchanged).
 - `drawStateChevron({ kind: 'skipped' })` draws the skip icon (solid right-pointing triangle with a bar at its tip,
-  grey, in the chevron's former box below the notehead) instead of the open chevron; `kind: 'heldOver'` unchanged.
-  Used by Practice (skipped) and the Grade (missed). Spec 009 FR-016a amends 008 FR-009/FR-010.
+  grey) into a given box from `skipIconBox` instead of the open chevron below one notehead; `kind: 'heldOver'`
+  unchanged. Practice groups its skipped notes by column and staff like the Grade (one icon below the lowest head).
+  Spec 009 FR-016a amends 008 FR-009/FR-010.
+- `skipIconBox` and `caretBox` are added to `disc-layout.ts` (section 3).

@@ -35,7 +35,6 @@ type GradeHeadMark = 'correct' | 'missed';          // green head | grey head + 
 interface GradeNoteMark {
   noteId: NoteId;
   head: GradeHeadMark;
-  skipIcon: boolean;                                 // true only on a missed/wrong chain's first notehead
   timing: readonly ('early' | 'late')[];             // distinct timing errors over all passes, first notehead only; [] = on time
   results: readonly number[];                        // indexes into grade.results, every pass, playing order
 }
@@ -53,9 +52,16 @@ interface GradeDisc {
   refs: readonly GradeMarkRef[];                     // what it stands for: the wrong-pitch note(s) and/or extras
 }
 
+interface GradeSkipIcon {
+  column: GradeDiscColumn;                           // the written moment
+  staff: number;                                     // 1-based staff of the graded part
+  noteIds: readonly NoteId[];                        // the missed chain-first heads it stands for (>= 1)
+}
+
 interface GradeMarkSet {
   notes: ReadonlyMap<NoteId, GradeNoteMark>;         // one entry per notehead of every graded result
   discs: readonly GradeDisc[];                       // one per distinct (column, key); playing order, then key
+  skipIcons: readonly GradeSkipIcon[];               // one per (column, staff) with a missed head (research R-13)
   mistakes: readonly GradeMarkRef[];                 // FR-023 stepper order: wrong pitch, missed, extras by (pass, tick)
 }
 ```
@@ -65,13 +71,14 @@ Rules (spec FR-014 to FR-024):
 | Result | Head | Skip icon | Disc |
 |---|---|---|---|
 | `correct` on every pass | `correct` on all chain noteheads | no | none |
-| any pass `missed` | `missed` on all chain noteheads | first notehead | none from that pass |
-| any pass `wrongPitch` | `missed` on all chain noteheads | first notehead | `playedKey` in the note's column, on the note's staff (FR-017a) |
+| any pass `missed` | `missed` on all chain noteheads | its chain-first head joins the icon of its (column, staff) | none from that pass |
+| any pass `wrongPitch` | `missed` on all chain noteheads | its chain-first head joins the icon of its (column, staff) | `playedKey` in the note's column, on the note's staff (FR-017a) |
 | extra | - | - | `key` in the nearest-onset column (research R-08), 008 staff rules |
 
 Validation / invariants:
 - Every `NoteId` of every graded result appears in `notes` exactly once.
-- `discs` never contains two entries with the same `(column.at, key)`.
+- `discs` never contains two entries with the same `(column.at, key)`; `skipIcons` never two with the same
+  `(column.at, staff)`, and every `missed` chain-first head is in exactly one icon.
 - No disc's `key` equals a written key of a `correct` head in the same column (research R-08 invariant).
 - A key that no placeable clef can show (percussion or TAB staff) gets no disc; its ref stays in `mistakes`, so it
   can still be stepped to and explained (mirrors 008's "no disc on an unsupported clef").
@@ -82,7 +89,8 @@ Validation / invariants:
 ```ts
 type GradeMarkRef =
   | { kind: 'note'; noteId: NoteId }                 // a graded notehead (all its passes)
-  | { kind: 'extra'; index: number };                // grade.extras[index]
+  | { kind: 'extra'; index: number }                 // grade.extras[index]
+  | { kind: 'disc'; index: number };                 // GradeMarkSet.discs[index]: explained as all of its refs (FR-022)
 ```
 
 `PlayState.selectedNoteId: NoteId | null` becomes `selectedMark: GradeMarkRef | null`. Cleared exactly where
@@ -90,8 +98,8 @@ type GradeMarkRef =
 `current: GradeMarkRef | null`.
 
 Click resolution order on the Score in Play mode with a Grade: (1) a drawn disc (ellipse hit test on the cached
-slots; a disc standing for a wrong-pitch note selects that note, one standing only for extras selects the first
-extra), (2) a graded notehead, (3) the existing measure click.
+slots; selects `{ kind: 'disc' }`, which the panel explains as every note and extra it stands for), (2) a graded
+notehead, (3) the existing measure click. `GradeDisc.refs` only holds `note` and `extra` refs.
 
 ## 4. Channel setup state in the processor (engine, `src/engine/worklets/score-player.processor.ts`)
 
