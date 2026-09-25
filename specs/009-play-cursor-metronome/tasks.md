@@ -219,11 +219,11 @@ cross anywhere.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T028 [P] [US3] Tests for `placeKeys` in `tests/core/notation/place-discs.test.ts`: for every existing
+- [x] T028 [P] [US3] Tests for `placeKeys` in `tests/core/notation/place-discs.test.ts`: for every existing
   `placeDiscs` case, `placeKeys` with the equivalent `notesAtColumn` gives identical placements (the 008 goldens stay
   untouched); `preferredStaff` wins over rules (1)-(3) when its clef is placeable and is ignored for an unplaceable
   clef; `previous = []` gives no stickiness. Run it: fails (function missing)
-- [ ] T029 [P] [US3] Core tests for `gradeMarks` and `extraColumn` in `tests/core/grade/marks.test.ts`, with Grades
+- [x] T029 [P] [US3] Core tests for `gradeMarks` and `extraColumn` in `tests/core/grade/marks.test.ts`, with Grades
   produced by the real `gradePerformance` from synthetic Performance logs on
   `tests/fixtures/musicxml/grade/grade-marks.musicxml`
   (data-model section 2, research R-08): the fixture opens without notices; the rules table row by row; a note correct
@@ -238,7 +238,7 @@ cross anywhere.
   under the 8va folds as 008 does; invariants: every NoteId once, no duplicate (column, key), no disc key equal to a
   correct head's key in its column, an unplaceable key has no disc but a mistake entry; `mistakes` order (pass, tick);
   determinism (two calls deep-equal); a golden snapshot of the whole mark set. Run it: fails (module missing)
-- [ ] T030 [P] [US3] Real-file sweep in `tests/core/grade/marks-real.test.ts`: for every file in
+- [x] T030 [P] [US3] Real-file sweep in `tests/core/grade/marks-real.test.ts`: for every file in
   `tests/fixtures/musicxml/real` and every library item, grade three synthetic logs (nothing played, every note played
   correctly, every note one semitone high) and assert the data-model invariants and "all correct -> no disc, all
   green", "nothing played -> no disc, all missed", "semitone high -> one disc per expected note's (column, key)".
@@ -281,9 +281,9 @@ cross anywhere.
 
 ### Implementation
 
-- [ ] T037 [US3] Add `placeKeys` (with `preferredStaff`) to `src/core/notation/place-discs.ts` and make `placeDiscs` a
+- [x] T037 [US3] Add `placeKeys` (with `preferredStaff`) to `src/core/notation/place-discs.ts` and make `placeDiscs` a
   wrapper; export from `src/core/notation/index.ts`; T028 passes and the existing notation tests stay green
-- [ ] T038 [US3] Create `src/core/grade/marks.ts` with `gradeMarks` and `extraColumn` (data-model section 2); T029
+- [x] T038 [US3] Create `src/core/grade/marks.ts` with `gradeMarks` and `extraColumn` (data-model section 2); T029
   and T030 pass
 - [ ] T039 [US3] Add `skipIconBox` and `caretBox` to `src/ui/score/disc-layout.ts`; change the `skipped` branch of
   `drawStateChevron` in `src/ui/score/pressed-keys.ts` to draw the skip icon into a given box; make Practice's caller in
