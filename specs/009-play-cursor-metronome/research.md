@@ -18,6 +18,7 @@ record. The two engine defects (R-01, R-02) were confirmed by reading the code a
 | B-6 | Grade selection is keyed by `NoteId` (`playState.selectedNoteId`); the mistake stepper skips extras ("they don't have noteIds yet"); on repeats, `findResult` returns the first pass only. | `src/ui/state/playState.ts`, `src/ui/state/mistake-stepper.ts`, `src/ui/elements/mx-grade-panel.ts` |
 | B-7 | Everything 008 built for Practice can be reused: `noteMarkClass`/`applyNoteMarks` (green and grey heads), `placeDiscs` + `layoutDiscs` + `drawPressedKeyDiscs` (red discs with ledger lines, accidentals, ottava labels), `drawStateChevron` (skip chevron, replaced by a skip icon in this feature). `placeDiscs` is tied to Practice types (`ExpectedEvent`, `heldWrongKeys`). | `src/core/notation/place-discs.ts`, `src/ui/score/*` |
 | B-8 | `ExpectedNote.noteIds` / `NoteResult.noteIds` already contain the whole tie chain (`SoundingEvent.members`), so colouring the result's noteIds colours tie continuations too (spec edge case "Ties"). | `src/core/practice/expected.ts` lines 87-89, `src/core/grade/expected.ts` |
+| B-9 | The Play schedule clicks only during the COUNT-IN. `compilePlaySchedule` builds its `clicks` list from the count-in measures and the pickup's missing beats and nothing else, so after the count-in no beat of the run is clicked at all. 003 FR-004, 003 data-model section 2 ("clicks are generated ... of each measure in range, one per beat") and 009 FR-009, FR-010, FR-011 and SC-002 all require the whole run. Found on 2026-09-25 by the real-synth click test (T020): four of its seven Scores had exactly four clicks. | `src/core/schedule/play-schedule.ts` lines 76-83; `tests/core/play/play-schedule.test.ts` (asserts the count-in clicks only) |
 
 ## R-01 Make the Metronome sound as a click: apply the channel setup
 
@@ -63,10 +64,30 @@ piano note (FR-012); the downbeat peaks at 1.4x the beat (FR-010). Today's sound
   kept in step with the worklet's clock (Constitution II), for a sound the SoundFont already has.
 - *Fix only channel 14*: leaves every non-piano part playing as piano, the same defect one line away.
 
+## R-14 The Metronome clicks for the whole run (found by T020; B-9)
+
+**Decision**: `compilePlaySchedule` adds, for every pass of the run (the whole Score, or the chosen range), one click per beat
+of that pass's measure, on `METRONOME_CHANNEL`, at `pass.startTick + k * beatTicks` for every k with the tick inside the pass,
+shifted into run ticks with the same `shift` as the notes. The measure's own `beatTicksAt` and `beatsPerMeasure` give the beat
+(dotted in 6/8, 9/8, 12/8; the default 4 quarters for a measure without a time signature). Beat number `k + beatOffset / beatTicks`
+is accented when it is 0 modulo `beatsPerMeasure`, where `beatOffset` is the measure's `beatOffsetTicks` (a pickup starts on its own
+beat, so its first click is not accented and the next measure's downbeat is). The run's first click, at run tick `countInTicks`,
+is the downbeat that ends the count-in (the count-in itself never clicked it, 003 data-model section 2). Repeats and jumps click
+per pass, so a repeated measure clicks again with its downbeat. The pass structure already carries every tempo and meter
+change, so no other input is needed; the clicks go through the same dispatch path as the notes, so they follow the tempo map, the
+tempo percentage and the range with no drift (003 R-02 stays as decided: scheduled events, no new real-time code).
+
+**Rationale**: FR-009 to FR-011 and SC-002 ask for exactly this and 003 designed it; only the count-in half was built. A run
+of 500 measures adds about 2000 events to a schedule of 10 000 or more notes. Muting still changes only the channel volume
+(003 AS-3.6), so the events stay in the schedule and mute cannot change a tick.
+
+**Alternatives considered**: a metronome voice in the worklet that generates clicks from the tempo map (a second scheduler on a
+second timeline: rejected for the reason 003 R-02 gives); clicking only the notes' beats (would not click rests or held notes).
+
 ## R-02 Reset the Metronome volume at every run start
 
 **Decision**: `PlaySessionController.start()` always sets the Metronome channel volume after loading the schedule:
-0 when `metronomeMuted`, 1 otherwise.
+0 when `metronomeMuted`, otherwise `METRONOME_VOLUME_ON = 100`: the `AudioEngine.setChannelVolume` scale is 0..100 (the engine sends `volume / 100`), so the first draft of this decision, "1", would have left the click at 1 % (caught by the RT review of T023, which also found the same wrong value in the live mute handler of `session.ts`, since 003). Both callers use `metronomeChannelVolume(muted)`.
 
 **Rationale**: B-3; spec FR-013 ("muting keeps working as today") must not leave the next run silent. One explicit
 call, no new state.

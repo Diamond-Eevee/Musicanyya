@@ -147,7 +147,7 @@ every measure is accented; muting during the run silences only the click.
 - [x] T058 [US2] Implement the run clicks in `src/core/schedule/play-schedule.ts` (research R-14); T057 passes, the rest of
   `tests/core/play` stays green; note the Play schedule wording in `specs/003-play-mode-grading/contracts/play-run.md` 1.2.0
   when T024 finishes it
-- [~] T019 [P] [US2] Processor setup tests with a recording fake synth in (claimed: claude-sonnet-5 2026-09-25)
+- [x] T019 [P] [US2] Processor setup tests with a recording fake synth in
   `tests/engine/worklets/score-player.setup.test.ts`: (a) with the sound ready, a `schedule` whose `channelSetup` marks
   channel 14 percussion and channel 0 program 40 with bank 1, plus tick-0 CC7/CC10, calls, per used channel,
   `setDrums(isPercussion)`, bank select, `programChange`, then the controllers, all before the first `noteOn` is
@@ -157,7 +157,7 @@ every measure is accented; muting during the run silences only the click.
   throw; (f) `processBlock` never calls `programChange`, `setDrums` or `controllerChange` for kinds 2/3 (spy during
   rendering); (g) the compiled schedule of `tests/fixtures/musicxml/real/mozart-quartet-k387.mxl` applies each part's
   program (001 FR-015). Run it: fails (no setup applied)
-- [~] T020 [P] [US2] Real-synth click test `tests/engine/metronome-click.test.ts` (pattern of (claimed: claude-sonnet-5 2026-09-25)
+- [x] T020 [P] [US2] Real-synth click test `tests/engine/metronome-click.test.ts` (pattern of
   `tests/engine/synth-onset.test.ts`, real `SpessaSynthProcessor` and `public/soundfonts/GeneralUser-GS-2.0.3.sf2`, 48
   kHz): compile the Play schedule, accompaniment off, of `learning/chords/c-major-scale-and-chords` at 100 %, of
   `tests/fixtures/musicxml/tempo-change-mid-measure-offset.musicxml` and `meter-change.musicxml` at 50 % and 150 %, of
@@ -169,8 +169,8 @@ every measure is accented; muting during the run silences only the click.
   `CLICK_TAIL_MAX_RATIO = 0.01` of its first 50 ms; every downbeat peak above the beat peaks (research R-03); every
   beat click's peak at least the peak of a mezzo-forte piano note (C4, velocity 80) rendered the same way (FR-012).
   Run it: fails today (attack about 48 ms)
-- [~] T021 [P] [US2] Test in `tests/engine/play-session.test.ts`: after a run started with `metronomeMuted: true`, a (claimed: claude-sonnet-5 2026-09-25)
-  run started with `metronomeMuted: false` sets the Metronome channel volume to 1 after loading its schedule; a muted
+- [x] T021 [P] [US2] Test in `tests/engine/play-session.test.ts`: after a run started with `metronomeMuted: true`, a
+  run started with `metronomeMuted: false` sets the Metronome channel volume to full (100 on the port's 0..100 scale, NOT 1: RT review finding) after loading its schedule; a muted
   start sets 0 (research R-02). Run it: the unmuted case fails
 
 - [x] T053 [P] [US2] Golden fingerprint before the channel-setup change (analyze M6), in
@@ -182,24 +182,24 @@ every measure is accented; muting during the run silences only the click.
 
 ### Implementation
 
-- [ ] T022 [US2] Implement the channel setup in `src/engine/worklets/score-player.processor.ts` (data-model section 4,
+- [x] T022 [US2] Implement the channel setup in `src/engine/worklets/score-player.processor.ts` (data-model section 4,
   contract 5.1): pre-allocated `channelSetup` copy and tick-0 controller list filled in the `schedule` handler;
   `applyChannelSetup()` in the handler when the sound is ready; a `soundReady()` entry point on the factory that the
   AudioWorklet wrapper calls after `addSoundBank`; optional synth port methods `programChange` and `setDrums` mapped
   by the wrapper to `this.synth.programChange` and `this.synth.midiChannels[ch]?.setDrums`; `applyEvent` keeps
   ignoring kinds 2/3. T019 and T020 pass; `tests/engine/synth-onset.test.ts` and the other worklet tests stay green
-- [ ] T023 [US2] In `src/app/play-session.ts` `start()`, always call
-  `setChannelVolume(METRONOME_CHANNEL, muted ? 0 : 1)` after `load` (research R-02); T021 passes
-- [ ] T024 [US2] Amend `specs/001-score-viewer-listen/contracts/worklet-protocol.md` to 1.4.0 (contract 5.1) and
+- [x] T023 [US2] In `src/app/play-session.ts` `start()`, always call
+  `setChannelVolume(METRONOME_CHANNEL, metronomeChannelVolume(muted))` (0 muted, 100 otherwise, `src/core/play/metronome.ts`) after `load` (research R-02), and the same call in the live mute handler of `src/app/session.ts`; T021 passes
+- [x] T024 [US2] Amend `specs/001-score-viewer-listen/contracts/worklet-protocol.md` to 1.4.0 (contract 5.1) and
   finish `specs/003-play-mode-grading/contracts/play-run.md` 1.2.0 with the volume rule (contract 5.2)
-- [ ] T025 [US2] Check the side effect on real files: in Listen, compile and render the first 10 s of
+- [x] T025 [US2] Check the side effect on real files: in Listen, compile and render the first 10 s of
   `tests/fixtures/musicxml/real/mozart-quartet-k387.mxl` and of one library piano item with the real synth; the
   quartet's parts use their programs, and the piano item still matches the golden fingerprint T053 recorded before
   T022 (T053 green after T022); log both results
-- [ ] T026 [US2] RT review of T022 (and T023) with the `rt-audio-reviewer` agent: `process()` unchanged, setup only in
+- [x] T026 [US2] RT review of T022 (and T023) with the `rt-audio-reviewer` agent: `process()` unchanged, setup only in
   `port.onmessage`, no allocation added to the render path, mute ordering; summarise its findings in the log and fix
   any HIGH finding before the checkpoint
-- [ ] T027 [US2] Checkpoint: run the Independent Test's automated part (T019, T020, T021 green), `pnpm typecheck`,
+- [x] T027 [US2] Checkpoint: run the Independent Test's automated part (T019, T020, T021 green), `pnpm typecheck`,
   `pnpm lint`; take the `--run` screenshot on `learning/chords/c-major-scale-and-chords` to confirm the run still
   works; log with summary lines; "needs owner:" the SC-004 listening check (the agent cannot hear); commit
 

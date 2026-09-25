@@ -131,7 +131,7 @@ onset and the written notes not played; a wrong octave whose `octaveDelta` equal
 
 ## 4. App (`src/app/play-session.ts`)
 
-- `start()`: after `audioEngine.load(schedule)`, ALWAYS `setChannelVolume(METRONOME_CHANNEL, muted ? 0 : 1)`
+- `start()`: after `audioEngine.load(schedule)`, ALWAYS `setChannelVolume(METRONOME_CHANNEL, metronomeChannelVolume(muted))` (0 when muted, `METRONOME_VOLUME_ON = 100` otherwise: the port's scale is 0..100, so a plain 1 would be 1 %; the live mute handler in `session.ts` uses the same function)
   (research R-02).
 
 ## 5. Amendments to existing contracts

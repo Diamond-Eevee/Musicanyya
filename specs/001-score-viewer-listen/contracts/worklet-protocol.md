@@ -1,6 +1,6 @@
 # Contract: `score-player` AudioWorklet protocol
 
-**Version**: `1.3.0`. Messages between `WebAudioEngine` (main thread) and the `ScorePlayerProcessor`
+**Version**: `1.4.0`. Messages between `WebAudioEngine` (main thread) and the `ScorePlayerProcessor`
 (`src/engine/worklets/score-player.processor.ts`, registered as `"musicanyya-score-player"`). Research R-10.
 `1.1.0` (feature 002, T057, 2026-09-20): adds the `liveDropped` message, posted from `port.onmessage`'s `'live'`
 case (not from `process()`) whenever the 64-entry live queue is full - a dropped `noteOn`/`noteOff` would otherwise
@@ -15,6 +15,18 @@ synth or the dispatch math inside `process()` previously escaped uncaught and pe
 (the host stops calling `process()` once it throws) with no diagnostic. `processBlock` now catches it, sets an
 internal `faulted` flag (never cleared - the processor stays quiet for the rest of the session rather than risk
 continuing from unknown state) and posts this message exactly once.
+`1.4.0` (feature 009, T022/T024, 2026-09-25, no message shape change): the processor now APPLIES a schedule's channel setup,
+which it used to drop (research 009 R-01, B-1/B-2: every part and the Play Metronome sounded as piano). On `schedule` it copies
+`channelSetup` and the tick-0 `controlChange` events into pre-allocated state (`MAX_SETUP_CONTROLLERS = 64`) and, once the sound
+bank is loaded, applies them in `port.onmessage`: for each channel with `used = 1`, in this order, drum flag (`isPercussion`), bank
+select (CC0 = `bankMsb`), program, then the other tick-0 controllers (volume, pan). A schedule that arrives before the bank is
+loaded is applied once, when the sound becomes ready: the AudioWorklet wrapper calls the factory's `soundReady()` right after
+`addSoundBank`, in the same handler. `process()` still never applies event kinds 2 and 3: the compilers emit them only at tick 0
+(pinned by `tests/core/schedule/setup-events.test.ts`), so the handler is the only place they are needed. More than
+`MAX_SETUP_CONTROLLERS` tick-0 controllers: the first 64 are applied and `status: error` is posted once (no throw). The synth port
+(`createScorePlayerProcessor` options) gains the optional `programChange(channel, program)` and `setDrums(channel, isDrum)`,
+which the wrapper maps to spessasynth_core's `programChange` and `midiChannels[channel].setDrums`. Consequence: a Score's own
+`<volume>` and `<pan>` now take effect too (001 research: CC7 / CC10), where they were dropped before.
 
 Constitution I rules for the processor (checked by `rt-audio-reviewer`):
 
@@ -37,7 +49,7 @@ Constitution I rules for the processor (checked by `rt-audio-reviewer`):
 |---|---|---|
 | `init` | `{ protocol: "1.0.0", sampleRate: number, maxBlock: 128 }` | Allocate buffers, reply `status: initialised` |
 | `soundBank` | `{ bytes: ArrayBuffer }` (transferred) | Build the SoundFont bank, reply `status: soundReady` or `status: error` |
-| `schedule` | `ScheduleMessage` (below, buffers transferred) | Stop, all notes off, replace schedule, position = start tick |
+| `schedule` | `ScheduleMessage` (below, buffers transferred) | Stop, all notes off, replace schedule, position = start tick, apply the channel setup (1.4.0) |
 | `play` | `{ fromTick?: number }` | Start/resume at current (or given) tick at the next block |
 | `pause` | `{}` | Stop advancing; release sounding scheduled notes (note-off with release) |
 | `stop` | `{ returnTick: number }` | Pause + position = `returnTick` |

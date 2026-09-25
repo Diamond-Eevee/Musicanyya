@@ -90,6 +90,9 @@ export const METRONOME_KEY_BEAT = 77; // GM Low Wood Block
 export const METRONOME_KEY_DOWNBEAT = 76; // GM High Wood Block, the accent (FR-003)
 export const METRONOME_VELOCITY_BEAT = 88;
 export const METRONOME_VELOCITY_DOWNBEAT = 110;
+/** The Metronome channel's level on the `AudioEngine.setChannelVolume` scale, 0..100 (ports.ts): silent when muted, full otherwise (009 R-02). */
+export const METRONOME_VOLUME_MUTED = 0;
+export const METRONOME_VOLUME_ON = 100;
 export const PLAY_STRICTNESS_DEFAULT: StrictnessLevelName = 'beginner'; // The most forgiving level (FR-039)
 export const PLAY_BEAT_UNIT_SOURCE = 'metronome-mark-then-time'; // What "a beat" means for the windows; compound meters take the dotted note
 export const PLAY_ARPEGGIO_SPREAD_BEATS = 0.5; // Spread allowed for a chord the Score writes as arpeggiated, in place of the chord spread (D-2, FR-022)

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { metronomeChannelVolume } from '../../../src/core/play/metronome.js';
 import { WebAudioEngine } from '../../../src/engine/audio/web-audio-engine.js';
 
 describe('WebAudioEngine', () => {
@@ -118,6 +119,17 @@ describe('WebAudioEngine', () => {
 
     engine.setChannelVolume(14, 50);
     expect(mockPort.postMessage).toHaveBeenCalledWith({ type: 'channelVolume', channel: 14, gain: 0.5 });
+  });
+
+  it('the Metronome full level reaches the worklet as gain 1 and its muted level as 0 (009 R-02)', async () => {
+    const engine = new WebAudioEngine();
+    await engine.unlock();
+    await engine.ensureSoundLoaded();
+
+    engine.setChannelVolume(14, metronomeChannelVolume(false));
+    engine.setChannelVolume(14, metronomeChannelVolume(true));
+    expect(mockPort.postMessage).toHaveBeenCalledWith({ type: 'channelVolume', channel: 14, gain: 1 });
+    expect(mockPort.postMessage).toHaveBeenCalledWith({ type: 'channelVolume', channel: 14, gain: 0 });
   });
 
   it('disposes the context', async () => {

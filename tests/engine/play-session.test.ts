@@ -10,7 +10,12 @@
  */
 import { describe, expect, it } from 'vitest';
 import { type PlaySessionCallbacks, PlaySessionController } from '../../src/app/play-session.js';
-import { PLAY_STRICTNESS_DEFAULT } from '../../src/core/defaults.js';
+import {
+  METRONOME_CHANNEL,
+  METRONOME_VOLUME_MUTED,
+  METRONOME_VOLUME_ON,
+  PLAY_STRICTNESS_DEFAULT,
+} from '../../src/core/defaults.js';
 import { gradePerformance } from '../../src/core/grade/grade.js';
 import type { Grade } from '../../src/core/grade/types.js';
 import type { PlayEffect, RunSettings } from '../../src/core/play/types.js';
@@ -396,5 +401,46 @@ describe('PlaySessionController (T039/T097)', () => {
     expect(grades).toEqual([grade]);
     expect(performanceStore.records.size).toBe(0);
     expect(effects).toContainEqual({ type: 'notice', code: 'playAttemptNotStored' });
+  });
+
+  // 009 research R-02: a muted Metronome must not stay muted on the next run - the worklet keeps channel volumes across
+  // schedules, so every start sets the Metronome channel volume explicitly, after the schedule is loaded.
+  describe('the Metronome channel volume at the start of a run (009 R-02, FR-013)', () => {
+    const volumeCommands = (commands: readonly string[]) => commands.filter((c) => c.startsWith('setChannelVolume:'));
+
+    it('a run started muted sets the Metronome channel volume to its muted level, after the schedule is loaded', () => {
+      const { score, timeline, audioEngine, controller } = setup();
+      controller.start({
+        scoreId: null,
+        score,
+        timeline,
+        measures: score.measures,
+        range: null,
+        settings: settings({ metronomeMuted: true }),
+      });
+      expect(volumeCommands(audioEngine.commands)).toEqual([
+        `setChannelVolume:${METRONOME_CHANNEL},${METRONOME_VOLUME_MUTED}`,
+      ]);
+      expect(
+        audioEngine.commands.indexOf(`setChannelVolume:${METRONOME_CHANNEL},${METRONOME_VOLUME_MUTED}`),
+      ).toBeGreaterThan(audioEngine.commands.indexOf('load'));
+    });
+
+    it('a run started unmuted sets it to full (100 on the 0..100 scale of the port, not 1), after load and before play, so a previous muted run cannot carry over', () => {
+      const { score, timeline, audioEngine, controller } = setup();
+      const options = { scoreId: null, score, timeline, measures: score.measures, range: null };
+      controller.start({ ...options, settings: settings({ metronomeMuted: true }) });
+      controller.start({ ...options, settings: settings({ metronomeMuted: false }) });
+
+      expect(volumeCommands(audioEngine.commands)).toEqual([
+        `setChannelVolume:${METRONOME_CHANNEL},${METRONOME_VOLUME_MUTED}`,
+        `setChannelVolume:${METRONOME_CHANNEL},${METRONOME_VOLUME_ON}`,
+      ]);
+      const second = audioEngine.commands.lastIndexOf(`setChannelVolume:${METRONOME_CHANNEL},${METRONOME_VOLUME_ON}`);
+      const secondLoad = audioEngine.commands.lastIndexOf('load');
+      const secondPlay = audioEngine.commands.lastIndexOf('play');
+      expect(secondLoad).toBeLessThan(second);
+      expect(second).toBeLessThan(secondPlay);
+    });
   });
 });

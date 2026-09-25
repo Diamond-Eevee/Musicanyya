@@ -49,6 +49,7 @@ import {
 } from '../core/defaults.js';
 import { buildExpectedNotes, buildPlayedAlongSpans } from '../core/grade/expected.js';
 import type { Grade, GradeInput, StoredPerformance } from '../core/grade/types.js';
+import { metronomeChannelVolume } from '../core/play/metronome.js';
 import { compileReplay } from '../core/play/replay.js';
 import type { PlayEffect, RunSettings } from '../core/play/types.js';
 import { buildExpectedEvents, firstEventAtOrAfterTick, resolveStartMeasure } from '../core/practice/expected.js';
@@ -784,7 +785,7 @@ export class Session {
     // Metronome mute can be applied live (T067): never by recompiling the schedule (R-02).
     const run = this.playController.getRun();
     if (change.metronomeMuted !== undefined && run && (run.phase === 'countIn' || run.phase === 'running')) {
-      this.audioEngine.setChannelVolume(METRONOME_CHANNEL, change.metronomeMuted ? 0 : 1);
+      this.audioEngine.setChannelVolume(METRONOME_CHANNEL, metronomeChannelVolume(change.metronomeMuted));
     }
   }
 

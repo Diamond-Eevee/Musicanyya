@@ -11,8 +11,8 @@ run, the Grade is drawn in Practice's visual language: green noteheads for corre
 skip icon for missed notes (the same icon replaces Practice's skip chevron); red discs at the pitch actually played
 for wrong pitches and extra keys; timing carets as before. Rings, crosses and diamonds go.
 
-Approach (research.md): the Metronome was already scheduled sample-accurately, but the worklet never selected any
-instrument. It drops program and controller events and ignores the channel setup (B-1, B-2), so the click played as
+Approach (research.md): the Metronome was scheduled sample-accurately for the count-in only (B-9: no click after it, added in
+R-14), and the worklet never selected any instrument. It drops program and controller events and ignores the channel setup (B-1, B-2), so the click played as
 a one-tick piano note (spike R-01). The processor now applies the channel setup in its message handler, which also
 makes every Score part sound as its General MIDI instrument (001 FR-015). A muted click no longer carries over to the
 next run (R-02). The cursor reuses Listen's drawing, driven by the run's already latency-compensated position
@@ -76,6 +76,7 @@ specs/009-play-cursor-metronome/
 src/engine/worklets/score-player.processor.ts  # channel setup stored on `schedule`, applied in the handler and after
                                                #   `soundBank`; synth port + wrapper: programChange, setDrums (US2)
 src/core/defaults.ts                           # MAX_SETUP_CONTROLLERS (US2)
+src/core/schedule/play-schedule.ts             # run clicks for every pass (R-14), count-in without <time> terminates (T056)
 src/app/play-session.ts                        # start(): always set the Metronome channel volume (US2, R-02)
 src/core/timeline/position.ts                  # NEW: notesAtTick, passAtTick (moved from the view, US1)
 src/core/play/cursor.ts                        # NEW: playCursorAt (US1)

@@ -214,6 +214,10 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
 
 ### Changes from planning (2026-09-25)
 
+- Found during implementation (T020, 2026-09-25): the Metronome has a second cause. The Play schedule clicks only during the
+  count-in, so the clicks stop when the run starts (research B-9, R-14). FR-009, FR-010, FR-011 and SC-002 already require
+  the whole run, so no requirement changes; the implementation gains the run clicks (tasks T057, T058).
+
 - The Metronome cause is confirmed (research R-01): the click's instrument is never selected, so it plays as a short
   piano note. The same cause makes every part of every Score sound as piano in Listen mode; the fix therefore also
   restores 001 FR-015 ("each part sounds as its General MIDI instrument"). Piano-only Scores sound as before.

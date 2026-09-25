@@ -17,6 +17,7 @@ import type {
   StoredPerformance,
 } from '../core/grade/types.js';
 import { resolveWindows } from '../core/grade/windows.js';
+import { metronomeChannelVolume } from '../core/play/metronome.js';
 import { createIdleRun, playRunReducer } from '../core/play/run.js';
 import type { PlayAction, PlayEffect, PlayRun, RunSettings } from '../core/play/types.js';
 import type { LoopPassSpan } from '../core/practice/types.js';
@@ -163,7 +164,9 @@ export class PlaySessionController {
     this.tailMs = this.computeTailMs(settings);
 
     this.audioEngine.load(schedule);
-    if (settings.metronomeMuted) this.audioEngine.setChannelVolume(METRONOME_CHANNEL, 0);
+    // Always set, never only when muted: the worklet keeps channel volumes across schedules, so a muted run would leave the
+    // next one silent (009 R-02, FR-013). Sent after the schedule so the tick-0 setup cannot override it.
+    this.audioEngine.setChannelVolume(METRONOME_CHANNEL, metronomeChannelVolume(settings.metronomeMuted));
     this.audioEngine.play();
 
     this.syncClock();

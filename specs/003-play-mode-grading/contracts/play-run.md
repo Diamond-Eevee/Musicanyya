@@ -8,8 +8,10 @@ version bump (MINOR for additions, MAJOR for breaking changes).
 `src/core/play/cursor.ts` (pure; `{ timelineTick, countIn }`, data-model 009 section 1). During `countIn` and `running` the
 Score shows Listen's cursor - the bar at the first note due and the notes due highlighted (none during the count-in) - driven
 by `playCursorAt(run)`, i.e. by `positionRunTick`, which is already the audible position (no extra compensation); the
-cursor is gone in every other phase and when the mode changes. The Grade layer wording and the Metronome volume rule are
-added by the tasks that change them (009 T024, T044).
+cursor is gone in every other phase and when the mode changes. The Metronome (009 T024, research R-14, R-02): `compilePlaySchedule` clicks for the WHOLE run - the count-in and one click per
+beat of every pass in range, the measure's first beat accented, in the meter in force (it used to click the count-in only) -
+and `PlaySessionController.start()` always sets the Metronome channel volume after loading the schedule (0 when muted, 100 on the port's 0..100
+scale otherwise), so a muted run cannot leave the next one silent. The Grade layer wording is added by 009 T044.
 
 **1.1.3 -> 1.1.4** (feature 008, 2026-09-25, wording only): the `liveMark` effect is shown as a green notehead (the note's
 `mx-mark-correct` class), no longer as a dashed ring; the payload is unchanged. The classes are cleared when the Grade layer

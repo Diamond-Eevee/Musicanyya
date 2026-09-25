@@ -9,6 +9,7 @@ import {
 import type { PlayScheduleOptions } from '../../../src/core/play/types.js';
 import { EVENT_KIND } from '../../../src/core/schedule/compile.js';
 import { compilePlaySchedule } from '../../../src/core/schedule/play-schedule.js';
+import type { MeasureInfo } from '../../../src/core/score/model.js';
 import type { ChannelSetup, PlaybackTimeline, SoundingEvent } from '../../../src/core/timeline/types.js';
 import { loadFixture } from '../practice/helpers.js';
 
@@ -169,7 +170,8 @@ describe('compilePlaySchedule', () => {
     const { score, timeline } = loadFixture('anacrusis-count-in.musicxml');
     const { tickMap, schedule } = compilePlaySchedule(timeline, score.measures, baseOptions());
 
-    const clicks = metronomeTicks(schedule);
+    // The count-in part of the click track (009 T057: the run's own clicks follow it, tested below).
+    const clicks = metronomeTicks(schedule).filter((c) => c.tick < tickMap.countInTicks);
     // 1 full measure of count-in (4 beats) + 2 pickup beats = 6 clicks; only the very first is a downbeat.
     expect(clicks).toHaveLength(6);
     expect(clicks.filter((c) => c.downbeat)).toHaveLength(1);
@@ -199,5 +201,156 @@ describe('compilePlaySchedule', () => {
   it('never emits a Score event on METRONOME_CHANNEL (R-19)', () => {
     const timeline = syntheticTimeline({ events: [syntheticEvent({ channel: METRONOME_CHANNEL })] });
     expect(() => compilePlaySchedule(timeline, [], baseOptions())).toThrow(/METRONOME_CHANNEL/);
+  });
+});
+
+// 009 T056: a Score without <time> has measures with nominalTicks 0; the count-in loop once could not grow a zero-length
+// measure and never returned (found by tests/core/schedule/setup-events.test.ts, which compiles every fixture).
+describe('compilePlaySchedule on a Score without a time signature (009 T056)', () => {
+  it('terminates and counts in whole default 4/4 measures lasting at least COUNT_IN_MIN_SECONDS, downbeat every 4th click', () => {
+    const { score, timeline } = loadFixture('backup-forward-two-voices.musicxml');
+    expect(score.measures[0]?.time).toBeNull();
+    expect(score.measures[0]?.nominalTicks).toBe(0);
+
+    const { schedule, tickMap } = compilePlaySchedule(timeline, score.measures, baseOptions());
+
+    const measureTicks = 4 * timeline.ppq; // no time signature: beatTicksAt / beatsPerMeasure default to 4 quarters
+    expect(tickMap.countInTicks % measureTicks).toBe(0);
+    expect(tickMap.countInTicks).toBeGreaterThan(0);
+    // 100 qpm by default (Score without a tempo), so one 4/4 measure lasts 2.4 s: one measure already covers 2 s
+    expect(tickMap.countInTicks).toBe(measureTicks);
+
+    const clicks = metronomeTicks(schedule).filter((c) => c.tick < tickMap.countInTicks);
+    expect(clicks.map((c) => c.tick)).toEqual([0, 960, 1920, 2880]);
+    expect(clicks.map((c) => c.downbeat)).toEqual([true, false, false, false]);
+  });
+});
+
+// 009 T057 (research B-9, R-14; FR-009, FR-010, FR-011, SC-002): the Metronome clicks for the whole run, not only the
+// count-in - one click per beat of every pass in range, the first beat of each measure accented.
+describe('compilePlaySchedule clicks every beat of the run (009 T057)', () => {
+  /** The run's clicks, as ticks relative to the end of the count-in, with their accent. */
+  function runClicks(fixture: string, overrides: Partial<PlayScheduleOptions> = {}) {
+    const { score, timeline } = loadFixture(fixture);
+    const { schedule, tickMap } = compilePlaySchedule(timeline, score.measures, baseOptions(overrides));
+    const all = metronomeTicks(schedule);
+    return {
+      score,
+      timeline,
+      schedule,
+      tickMap,
+      all,
+      countIn: all.filter((c) => c.tick < tickMap.countInTicks),
+      run: all
+        .filter((c) => c.tick >= tickMap.countInTicks)
+        .map((c) => ({ ...c, tick: c.tick - tickMap.countInTicks })),
+    };
+  }
+  const beats = (n: number, ppq: number, first = 0) => Array.from({ length: n }, (_, i) => (first + i) * ppq);
+
+  it("(a) 4/4: one click per beat of every measure at countInTicks + k * beat, the first beat of each measure accented, the first click on the count-in's downbeat", () => {
+    const { timeline, score, run, tickMap } = runClicks('eight-measure-melody.musicxml');
+    expect(score.measures[0]?.time).toEqual({ beats: '4', beatType: 4 }); // written once, in force to the end
+    expect(score.measures.slice(1).every((m) => m.time === null)).toBe(true);
+    const measures = timeline.passes.length;
+    expect(run.map((c) => c.tick)).toEqual(beats(measures * 4, timeline.ppq));
+    expect(run.map((c) => c.downbeat)).toEqual(Array.from({ length: measures * 4 }, (_, i) => i % 4 === 0));
+    expect(run[0]?.tick).toBe(0); // at run tick countInTicks: the downbeat that ends the count-in
+    expect(tickMap.countInTicks).toBeGreaterThan(0);
+  });
+
+  it('(b) each measure clicks in its own meter: 3/4 after 4/4, and dotted beats in 6/8', () => {
+    const change = runClicks('meter-change.musicxml');
+    const ppq = change.timeline.ppq;
+    expect(change.run.map((c) => c.tick)).toEqual(beats(7, ppq)); // 4 beats of 4/4, then 3 of 3/4
+    expect(change.run.map((c) => c.downbeat)).toEqual([true, false, false, false, true, false, false]);
+
+    const compound = runClicks('window-beat-unit-6-8.musicxml');
+    expect(compound.run.map((c) => c.tick)).toEqual([0, (3 * compound.timeline.ppq) / 2]); // dotted quarter beats
+    expect(compound.run.map((c) => c.downbeat)).toEqual([true, false]);
+  });
+
+  it("(c) a pickup starts on its own beat: its first click is not accented, the next measure's first beat is", () => {
+    const { timeline, run } = runClicks('anacrusis-count-in.musicxml');
+    // the pickup's 2 beats, then 4 beats of measure 1
+    expect(run.map((c) => c.tick)).toEqual(beats(6, timeline.ppq));
+    expect(run.map((c) => c.downbeat)).toEqual([false, false, true, false, false, false]);
+  });
+
+  it('(d) a repeated measure clicks again on its second pass, downbeat accented', () => {
+    const { timeline, run } = runClicks('repeat-simple.musicxml');
+    expect(timeline.passes.map((p) => p.measureIndex)).toEqual([0, 1, 0, 1]);
+    expect(run.map((c) => c.tick)).toEqual(beats(16, timeline.ppq));
+    expect(run.map((c) => c.downbeat)).toEqual(Array.from({ length: 16 }, (_, i) => i % 4 === 0));
+  });
+
+  it('(e) a range clicks only its own passes, after the count-in', () => {
+    const whole = runClicks('eight-measure-melody.musicxml');
+    const ranged = runClicks('eight-measure-melody.musicxml', { range: { fromPassIndex: 2, toPassIndex: 4 } });
+    expect(ranged.run.map((c) => c.tick)).toEqual(beats(8, ranged.timeline.ppq)); // measures 3 and 4 only
+    expect(ranged.run.map((c) => c.downbeat)).toEqual([true, false, false, false, true, false, false, false]);
+    expect(ranged.all).toHaveLength(ranged.countIn.length + 8);
+    expect(ranged.all.length).toBeLessThan(whole.all.length);
+    // the count-in is what it was
+    expect(ranged.countIn.map((c) => c.downbeat)).toEqual(whole.countIn.map((c) => c.downbeat));
+  });
+
+  it('(f) turning the accompaniment off or grading every note does not remove a click', () => {
+    const plain = runClicks('eight-measure-melody.musicxml');
+    const silent = runClicks('eight-measure-melody.musicxml', { accompaniment: false });
+    const allGraded = runClicks('eight-measure-melody.musicxml', {
+      gradedNoteIds: new Set(plain.timeline.events.flatMap((e) => e.members)),
+    });
+    expect(silent.all).toEqual(plain.all);
+    expect(allGraded.all).toEqual(plain.all);
+  });
+
+  it('(g) no click at or after the end of the run', () => {
+    const { schedule, all } = runClicks('eight-measure-melody.musicxml');
+    const lastClick = Math.max(...all.map((c) => c.tick));
+    expect(lastClick + 1).toBeLessThanOrEqual(schedule.endTick); // the click's own note-off is inside the run too
+  });
+
+  it('(h) the count-in clicks are what they were: one measure of four beats, the first accented', () => {
+    const { countIn, timeline } = runClicks('eight-measure-melody.musicxml');
+    expect(countIn.map((c) => c.tick).slice(0, 4)).toEqual(beats(4, timeline.ppq));
+    expect(countIn.map((c) => c.downbeat).slice(0, 4)).toEqual([true, false, false, false]);
+    expect(countIn.length % 4).toBe(0);
+  });
+
+  it('(i) a measure without its own <time> clicks in the meter in force, also when the range starts in it', () => {
+    const measure = (index: number, time: MeasureInfo['time']): MeasureInfo => ({
+      index,
+      id: `m${index}`,
+      label: String(index + 1),
+      startTick: index * 2880,
+      lengthTicks: 2880,
+      nominalTicks: 2880,
+      implicit: false,
+      beatOffsetTicks: 0,
+      time,
+    });
+    const measures = [measure(0, { beats: '3', beatType: 4 }), measure(1, null), measure(2, null)];
+    const timeline = syntheticTimeline({
+      endTick: 3 * 2880,
+      passes: [0, 1, 2].map((i) => ({ measureIndex: i, passNo: 1, startTick: i * 2880, lengthTicks: 2880 })),
+    });
+
+    const whole = compilePlaySchedule(timeline, measures, baseOptions());
+    const run = metronomeTicks(whole.schedule).filter((c) => c.tick >= whole.tickMap.countInTicks);
+    expect(run.map((c) => c.tick - whole.tickMap.countInTicks)).toEqual([
+      0, 960, 1920, 2880, 3840, 4800, 5760, 6720, 7680,
+    ]);
+    expect(run.map((c) => c.downbeat)).toEqual([true, false, false, true, false, false, true, false, false]);
+
+    // a range that starts in measure 3, which writes no <time>: the count-in is three beats a measure too
+    const ranged = compilePlaySchedule(
+      timeline,
+      measures,
+      baseOptions({ range: { fromPassIndex: 2, toPassIndex: 3 } }),
+    );
+    const countIn = metronomeTicks(ranged.schedule).filter((c) => c.tick < ranged.tickMap.countInTicks);
+    expect(ranged.tickMap.countInTicks % 2880).toBe(0);
+    expect(countIn.map((c) => c.downbeat)).toEqual(countIn.map((_, i) => i % 3 === 0));
   });
 });
