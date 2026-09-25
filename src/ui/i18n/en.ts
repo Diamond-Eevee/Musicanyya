@@ -234,6 +234,8 @@ export const en = {
     unpitchedWithoutSound: 'An unpitched note had no sound mapping and stayed silent.',
     defaultTempo: 'No tempo was specified, so a default tempo was used.',
     middleBarlineRepeat: 'A repeat starting mid-measure was approximated.',
+    unsupportedClef:
+      'A staff with this kind of clef (percussion or tablature) will not show your pressed keys on the Score.',
     engravingCompleted: 'Missing beams and accidentals were filled in automatically for display.',
     beamDataInvalid: 'A voice has inconsistent beam data and was left as encoded; no beams were added to it.',
     accidentalContradicts: "A printed accidental sign contradicts the note's pitch and was kept as encoded.",

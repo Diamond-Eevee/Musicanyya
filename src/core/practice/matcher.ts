@@ -20,6 +20,7 @@ export function startSession(options: StartOptions): PracticeSession {
     phase: options.events.length === 0 ? 'finished' : 'waiting',
     marks: new Map(),
     heldKeys: new Set(),
+    heldWrongKeys: new Map(),
     soundingAccompaniment: new Map(),
     wrongAttemptsOnCurrent: 0,
     loop: options.loop,
@@ -33,6 +34,7 @@ export function startSession(options: StartOptions): PracticeSession {
 export function applyInput(session: PracticeSession, input: PracticeInput): SessionStep {
   const marks = new Map(session.marks);
   const heldKeys = new Set(session.heldKeys);
+  const heldWrongKeys = new Map(session.heldWrongKeys);
   const log = [...session.log];
   const sounding = new Map(session.soundingAccompaniment);
 
@@ -40,6 +42,7 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
     ...session,
     marks,
     heldKeys,
+    heldWrongKeys,
     soundingAccompaniment: sounding,
     log,
   };
@@ -119,6 +122,9 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
     next.index = index;
     next.wrongAttemptsOnCurrent = 0;
 
+    // A held wrong key that this event requires is now that note's held-over key (below), not a wrong one (008 R-12)
+    for (const req of event.required) heldWrongKeys.delete(req.key);
+
     const stale: NoteId[] = [];
     for (const req of event.required) for (const id of req.noteIds) if (marks.delete(id)) stale.push(id);
     for (const ref of event.accompaniment) if (marks.delete(ref.noteId)) stale.push(ref.noteId);
@@ -169,6 +175,7 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
       heldKeys.delete(k);
     }
     releaseAll();
+    heldWrongKeys.clear(); // no key can be held any more
     next.phase = 'interrupted';
     effects.push({ type: 'notice', code: 'practiceDeviceLost' });
     return { session: next, effects };
@@ -203,6 +210,7 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
         next.index++;
         next.wrongAttemptsOnCurrent = 0;
         next.phase = 'finished';
+        heldWrongKeys.clear(); // the session is over: no red disc stays
         // What still rings goes now unless a key is down, in which case the finished branch releases it at key-up.
         if (heldKeys.size === 0) releaseAll();
         effects.push({ type: 'sessionEnded', reason: 'stopped' });
@@ -224,6 +232,7 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
       next.wrongAttemptsOnCurrent = 0;
       const prevEv = next.events[next.index];
       if (prevEv) {
+        for (const req of prevEv.required) heldWrongKeys.delete(req.key);
         const noteIds = prevEv.required.flatMap((r) => r.noteIds);
         for (const id of noteIds) {
           marks.delete(id);
@@ -243,6 +252,7 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
   if (input.type === 'noteOff') {
     if (input.key !== undefined) {
       heldKeys.delete(input.key);
+      heldWrongKeys.delete(input.key);
 
       // A key let go before its event is complete is no longer "played so far", and a held-over key that is let go no
       // longer has to be lifted: its mark goes back to none (008 FR-003; the hint is hidden below at the same moment).
@@ -320,6 +330,7 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
             next.index++;
             next.wrongAttemptsOnCurrent = 0;
             next.phase = 'finished';
+            heldWrongKeys.clear(); // the session is over: no red disc stays
             effects.push({ type: 'sessionEnded', reason: 'reachedEnd' });
           } else {
             arriveAt(next.index + 1);
@@ -340,6 +351,7 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
       if (allHeld) {
         addLog(key, 'extra');
         // No notehead to mark: the on-screen keyboard carries the feedback instead (T056, owner decision 2026-09-20).
+        heldWrongKeys.set(key, 'extra');
         effects.push({ type: 'keyFeedback', key, state: 'extra', messageId: 'practice.extra.notInChord' });
       } else {
         next.wrongAttemptsOnCurrent++;
@@ -353,9 +365,11 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
         if (matchedReqKey !== undefined) {
           addLog(key, 'wrongOctave');
           const messageId = key > matchedReqKey ? 'practice.octave.lower' : 'practice.octave.higher';
+          heldWrongKeys.set(key, 'wrongOctave');
           effects.push({ type: 'keyFeedback', key, state: 'wrongOctave', messageId });
         } else {
           addLog(key, 'wrongPitch');
+          heldWrongKeys.set(key, 'wrongPitch');
           effects.push({ type: 'keyFeedback', key, state: 'wrongPitch' });
         }
         // FR-023: help appears by itself once the wrong attempts on this event reach the threshold, unless it is

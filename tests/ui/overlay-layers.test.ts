@@ -3,7 +3,7 @@ import { OVERLAYS_DEFAULT } from '../../src/engine/config.js';
 import '../../src/ui/elements/mx-notice-tray.js';
 import '../../src/ui/elements/mx-piano-keys.js';
 import { drawCursorOverlay } from '../../src/ui/score/cursor-overlay.js';
-import { drawGradeMarks, drawLiveMarks } from '../../src/ui/score/grade-marks.js';
+import { drawGradeMarks } from '../../src/ui/score/grade-marks.js';
 import { drawLoopMarks, drawPracticeMarks, drawStartMarker } from '../../src/ui/score/practice-marks.js';
 import { noticeState } from '../../src/ui/state/noticeState.js';
 import { practiceState } from '../../src/ui/state/practiceState.js';
@@ -83,7 +83,9 @@ describe('the layer switches reach the drawing code', () => {
     }
   });
 
-  it('the Grade marks and the live marks already honour their switch', () => {
+  // 008 FR-017: the live "correct so far" mark is a green notehead now, not something drawn on the canvas, so it is
+  // switched off with the marks layer by the view (tests/ui/grade-marks.test.ts); the Grade marks still draw on the canvas.
+  it('the Grade marks already honour their switch', () => {
     const off = recordingContext();
     drawGradeMarks({
       ctx: off.ctx,
@@ -92,14 +94,6 @@ describe('the layer switches reach the drawing code', () => {
       visible: false,
       marks: [{ noteId: 'n1', pitch: 'wrong', timing: 'late' } as never],
       extraRects: [],
-      noteRects: new Map([['n1', rect]]),
-    });
-    drawLiveMarks({
-      ctx: off.ctx,
-      dpr: 1,
-      containerRect,
-      visible: false,
-      noteIds: ['n1'],
       noteRects: new Map([['n1', rect]]),
     });
     expect(off.painted).not.toHaveBeenCalled();

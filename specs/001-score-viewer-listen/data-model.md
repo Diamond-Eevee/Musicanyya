@@ -35,7 +35,16 @@ interface Part {
   notes: Note[];                                     // playable notes only, sorted by (measure, onset, staff, voice, key)
   dynamics: DynamicMark[]; wedges: Wedge[];
   transpositions: Transposition[];                   // with start measure/onset
+  // Added by feature 008 (additive, no effect on timing, Note IDs or playback), sorted by (measure, onset[, staff]):
+  clefs: ClefChange[];                               // every staff has one at the start (G2 / F4 defaults); unsupported signs kept + notice
+  keys: KeyChange[];                                 // <key> fifths/mode, per staff (number) or all staves; fifths null = non-traditional
+  octaveShifts: OctaveShiftSpan[];                   // 8va/15mb...: printed = sounding - octaves; stop exclusive; no stop = end of part
 }
+
+interface ScorePosition { measureIndex: number; onsetInMeasure: Ticks }
+interface ClefChange extends ScorePosition { staff: number; sign: "G"|"F"|"C"|"percussion"|"TAB"|"jianpu"|"none"; line: number; octaveChange: number }
+interface KeyChange extends ScorePosition { staff: number | null; fifths: number | null; mode: "major"|"minor"|null }
+interface OctaveShiftSpan { staff: number; start: ScorePosition; stop: ScorePosition; octaves: -2|-1|1|2 }
 
 interface Instrument {
   xmlId: string; name: string;

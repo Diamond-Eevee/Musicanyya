@@ -89,6 +89,7 @@
 | notation/key-changes | G major -> F major -> A minor (`<mode>`) -> a non-traditional key (no `<fifths>`); a second part with a key per staff (`number`) then one key for both. Feature 008 | Hand-written | CC0 |
 | notation/octave-shift | An 8va stopped mid-measure, a 15mb stopped at the next measure and an 8va with no stop (runs to the end of the part). Feature 008 | Hand-written | CC0 |
 | notation/grand-staff-accidentals | A grand staff in C major with accidentals earlier in the bar on each staff (D#5, Bb4 / C#3, Eb3) and a measure whose lower staff is only a rest. Feature 008 | Hand-written | CC0 |
+| notation/marks-four-states | One staff, five quarters C4 D4 E4 E4 F4: in Practice C4 accepted, D4 skipped, the first E4 held so the second arrives held over, plus a wrong key held: the four marks in one picture (feature 008 US3, greyscale check) | Hand-written | CC0 |
 | notation/transposing-part | A Bb clarinet: written pitch and written key signature (D major), sounding a major second lower. Feature 008 | Hand-written | CC0 |
 
 The `notation/` fixtures sit in a subfolder so the golden snapshot test above (top-level `*.musicxml` only) leaves them alone;

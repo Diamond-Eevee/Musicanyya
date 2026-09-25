@@ -334,3 +334,153 @@ describe('releasing a key before the event is complete (008 FR-003, T067)', () =
     expect(step.session.marks.size).toBe(1);
   });
 });
+
+describe('heldWrongKeys: which held keys are not written at the current event (008 R-12, data-model section 4, T027)', () => {
+  const selection: HandSelection = { preset: 'both', partIndex: 0, staves: [1, 2] };
+  const wrong = (session: PracticeSession) => Array.from(session.heldWrongKeys.entries()).sort((a, b) => a[0] - b[0]);
+  const scale = () => {
+    const { score, timeline } = loadFixture('scale-c-major-q100.musicxml'); // C4 D4 E4 F4
+    return startSession({
+      scoreId: 'test',
+      events: buildExpectedEvents(score, timeline, selection),
+      startEventIndex: 0,
+      loop: null,
+      accompaniment: false,
+      help: false,
+    });
+  };
+
+  it('startSession returns it empty', () => {
+    expect(scale().heldWrongKeys.size).toBe(0);
+  });
+
+  it('a key that is not the expected one is added with the state keyFeedback reports', () => {
+    const step = playSession(scale(), ['on:61@10', 'on:72@20']); // C#4: wrong pitch; C5: the right pitch, an octave up
+    expect(wrong(step.session)).toEqual([
+      [61, 'wrongPitch'],
+      [72, 'wrongOctave'],
+    ]);
+    // ...the very states the keyFeedback effects carry
+    const feedback = step.effects.filter((e) => e.type === 'keyFeedback');
+    expect(feedback.map((e) => (e.type === 'keyFeedback' ? [e.key, e.state] : []))).toEqual([
+      [61, 'wrongPitch'],
+      [72, 'wrongOctave'],
+    ]);
+  });
+
+  it('a key pressed while every required key is already held is extra', () => {
+    const { score, timeline } = loadFixture('repeated-pitch-two-presses.musicxml'); // C4, C4
+    const events = buildExpectedEvents(score, timeline, { preset: 'both', partIndex: 0, staves: [1] });
+    const session = startSession({
+      scoreId: 'test',
+      events,
+      startEventIndex: 0,
+      loop: null,
+      accompaniment: false,
+      help: false,
+    });
+    const held = playSession(session, ['on:60@10']); // accepted; C4 stays down and event 2 needs it again
+    expect(held.session.phase).toBe('blocked');
+    const extra = playSession(held.session, ['on:64@20']);
+    expect(wrong(extra.session)).toEqual([[64, 'extra']]);
+  });
+
+  it('is removed when the key is released', () => {
+    const held = playSession(scale(), ['on:61@10', 'on:72@20']);
+    const released = playSession(held.session, ['off:61@30']);
+    expect(wrong(released.session)).toEqual([[72, 'wrongOctave']]);
+    expect(wrong(playSession(released.session, ['off:72@40']).session)).toEqual([]);
+  });
+
+  it('a key pressed again after its release is added again', () => {
+    const step = playSession(scale(), ['on:61@10', 'off:61@20', 'on:61@30']);
+    expect(wrong(step.session)).toEqual([[61, 'wrongPitch']]);
+  });
+
+  it('a correct key, and a key of the other hand played along, is never in it', () => {
+    const step = playSession(scale(), ['on:60@10']);
+    expect(wrong(step.session)).toEqual([]);
+    const { score, timeline } = loadFixture('played-along-both-hands.musicxml');
+    const events = buildExpectedEvents(score, timeline, { preset: 'right', partIndex: 0, staves: [1] });
+    const along = events[0]?.accompaniment[0];
+    expect(along).toBeDefined();
+    const session = startSession({
+      scoreId: 'test',
+      events,
+      startEventIndex: 0,
+      loop: null,
+      accompaniment: false,
+      help: false,
+    });
+    const played = playSession(session, [`on:${along?.key}@10`]);
+    expect(played.session.marks.get(along?.noteId as string)).toBe('playedAlong');
+    expect(wrong(played.session)).toEqual([]);
+  });
+
+  it('is cleared when the MIDI keyboard is lost, when the session ends and when a new session starts', () => {
+    const held = playSession(scale(), ['on:61@10', 'on:72@20']);
+    expect(wrong(held.session)).toHaveLength(2);
+
+    const lost = applyInput(held.session, { type: 'deviceLost', heldKeys: [61, 72], timeStampMs: 30 });
+    expect(lost.session.heldWrongKeys.size).toBe(0);
+
+    // Stop by skipping past the last event
+    let ended = held.session;
+    while (ended.phase !== 'finished') ended = applyInput(ended, { type: 'skipNext', timeStampMs: 40 }).session;
+    expect(ended.heldWrongKeys.size).toBe(0);
+
+    // Reaching the end by playing the last note
+    const { score, timeline } = loadFixture('minimal-single-note.musicxml');
+    const events = buildExpectedEvents(score, timeline, selection);
+    const one = startSession({
+      scoreId: 'test',
+      events,
+      startEventIndex: 0,
+      loop: null,
+      accompaniment: false,
+      help: false,
+    });
+    const wrongThenEnd = playSession(one, ['on:61@10', 'on:60@20']);
+    expect(wrongThenEnd.session.phase).toBe('finished');
+    expect(wrongThenEnd.session.heldWrongKeys.size).toBe(0);
+
+    expect(scale().heldWrongKeys.size).toBe(0); // a new session
+  });
+
+  it('a held wrong key that the next event requires leaves it, and that note is held over', () => {
+    // D4 (62) is wrong at event 0 (C4) and held; when C4 is played the cursor reaches D4 with its key already down
+    const held = playSession(scale(), ['on:62@10']);
+    expect(wrong(held.session)).toEqual([[62, 'wrongPitch']]);
+    const moved = playSession(held.session, ['on:60@20']);
+    expect(moved.session.index).toBe(1);
+    expect(moved.session.phase).toBe('blocked');
+    expect(wrong(moved.session)).toEqual([]);
+    expect(Array.from(moved.session.marks.values())).toContain('heldOver');
+  });
+
+  it('a held wrong key the next event does not require stays, and so does an extra key', () => {
+    const held = playSession(scale(), ['on:61@10']); // C#4, wrong pitch
+    const moved = playSession(held.session, ['on:60@20']); // C4 accepted, the cursor is on D4
+    expect(moved.session.index).toBe(1);
+    expect(wrong(moved.session)).toEqual([[61, 'wrongPitch']]);
+
+    // An extra key survives an event change too: C4 held over into event 2, E4 pressed as extra, then C4 played again
+    const { score, timeline } = loadFixture('repeated-pitch-two-presses.musicxml');
+    const base = buildExpectedEvents(score, timeline, { preset: 'both', partIndex: 0, staves: [1] });
+    const third = { ...(base[1] as ExpectedEvent), index: 2, required: [{ key: 62, noteIds: ['x'], staff: 1 }] };
+    const events = [...base, third];
+    const session = startSession({
+      scoreId: 'test',
+      events,
+      startEventIndex: 0,
+      loop: null,
+      accompaniment: false,
+      help: false,
+    });
+    const extra = playSession(session, ['on:60@10', 'on:64@20']);
+    expect(wrong(extra.session)).toEqual([[64, 'extra']]);
+    const after = playSession(extra.session, ['off:60@30', 'on:60@40']); // event 2 accepted, the cursor is on D4
+    expect(after.session.index).toBe(2);
+    expect(wrong(after.session)).toEqual([[64, 'extra']]);
+  });
+});

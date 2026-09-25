@@ -45,6 +45,16 @@ exports[`buildScore snapshots > builds time-model for anacrusis-count-in.musicxm
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -61,6 +71,7 @@ exports[`buildScore snapshots > builds time-model for anacrusis-count-in.musicxm
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -268,6 +279,7 @@ exports[`buildScore snapshots > builds time-model for anacrusis-count-in.musicxm
             "writtenKey": 65,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -323,6 +335,16 @@ exports[`buildScore snapshots > builds time-model for arpeggiate-chord.musicxml 
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -339,6 +361,7 @@ exports[`buildScore snapshots > builds time-model for arpeggiate-chord.musicxml 
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -512,6 +535,7 @@ exports[`buildScore snapshots > builds time-model for arpeggiate-chord.musicxml 
             "writtenKey": 69,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -572,6 +596,16 @@ exports[`buildScore snapshots > builds time-model for backup-forward-two-voices.
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -588,6 +622,7 @@ exports[`buildScore snapshots > builds time-model for backup-forward-two-voices.
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -659,6 +694,7 @@ exports[`buildScore snapshots > builds time-model for backup-forward-two-voices.
             "writtenKey": 64,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -719,6 +755,16 @@ exports[`buildScore snapshots > builds time-model for chord-basic.musicxml 1`] =
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -735,6 +781,7 @@ exports[`buildScore snapshots > builds time-model for chord-basic.musicxml 1`] =
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -840,6 +887,7 @@ exports[`buildScore snapshots > builds time-model for chord-basic.musicxml 1`] =
             "writtenKey": 67,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -895,6 +943,16 @@ exports[`buildScore snapshots > builds time-model for chord-spread-rolled.musicx
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -911,6 +969,7 @@ exports[`buildScore snapshots > builds time-model for chord-spread-rolled.musicx
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -1016,6 +1075,7 @@ exports[`buildScore snapshots > builds time-model for chord-spread-rolled.musicx
             "writtenKey": 67,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -1090,6 +1150,24 @@ exports[`buildScore snapshots > builds time-model for cross-staff-beaming.musicx
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+          {
+            "line": 4,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "F",
+            "staff": 2,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -1106,6 +1184,7 @@ exports[`buildScore snapshots > builds time-model for cross-staff-beaming.musicx
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -1653,6 +1732,7 @@ exports[`buildScore snapshots > builds time-model for cross-staff-beaming.musicx
             "writtenKey": 64,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 2,
         "transpositions": [],
@@ -1713,6 +1793,16 @@ exports[`buildScore snapshots > builds time-model for cue-notes-not-played.music
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -1729,6 +1819,7 @@ exports[`buildScore snapshots > builds time-model for cue-notes-not-played.music
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -1766,6 +1857,7 @@ exports[`buildScore snapshots > builds time-model for cue-notes-not-played.music
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -1890,6 +1982,16 @@ exports[`buildScore snapshots > builds time-model for dc-after-jump-repeats.musi
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -1906,6 +2008,7 @@ exports[`buildScore snapshots > builds time-model for dc-after-jump-repeats.musi
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -2045,6 +2148,7 @@ exports[`buildScore snapshots > builds time-model for dc-after-jump-repeats.musi
             "writtenKey": 65,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -2141,6 +2245,16 @@ exports[`buildScore snapshots > builds time-model for dc-al-fine.musicxml 1`] = 
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -2157,6 +2271,7 @@ exports[`buildScore snapshots > builds time-model for dc-al-fine.musicxml 1`] = 
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -2262,6 +2377,7 @@ exports[`buildScore snapshots > builds time-model for dc-al-fine.musicxml 1`] = 
             "writtenKey": 64,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -2333,6 +2449,16 @@ exports[`buildScore snapshots > builds time-model for divisions-change-mid-part.
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -2349,6 +2475,7 @@ exports[`buildScore snapshots > builds time-model for divisions-change-mid-part.
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -2420,6 +2547,7 @@ exports[`buildScore snapshots > builds time-model for divisions-change-mid-part.
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -2535,6 +2663,16 @@ exports[`buildScore snapshots > builds time-model for ds-al-coda.musicxml 1`] = 
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -2551,6 +2689,7 @@ exports[`buildScore snapshots > builds time-model for ds-al-coda.musicxml 1`] = 
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -2690,6 +2829,7 @@ exports[`buildScore snapshots > builds time-model for ds-al-coda.musicxml 1`] = 
             "writtenKey": 65,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -2750,6 +2890,16 @@ exports[`buildScore snapshots > builds time-model for duplicate-notes-disambigua
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -2766,6 +2916,7 @@ exports[`buildScore snapshots > builds time-model for duplicate-notes-disambigua
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -2837,6 +2988,7 @@ exports[`buildScore snapshots > builds time-model for duplicate-notes-disambigua
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -2909,6 +3061,16 @@ exports[`buildScore snapshots > builds time-model for duration-unreadable.musicx
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -2925,6 +3087,7 @@ exports[`buildScore snapshots > builds time-model for duration-unreadable.musicx
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -3064,6 +3227,7 @@ exports[`buildScore snapshots > builds time-model for duration-unreadable.musicx
             "writtenKey": 65,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -3127,6 +3291,16 @@ exports[`buildScore snapshots > builds time-model for dynamics-marks.musicxml 1`
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [
           {
             "measureIndex": 0,
@@ -3159,6 +3333,7 @@ exports[`buildScore snapshots > builds time-model for dynamics-marks.musicxml 1`
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -3264,6 +3439,7 @@ exports[`buildScore snapshots > builds time-model for dynamics-marks.musicxml 1`
             "writtenKey": 64,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -3324,6 +3500,16 @@ exports[`buildScore snapshots > builds time-model for dynamics-sound-override.mu
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [
           {
             "measureIndex": 0,
@@ -3346,6 +3532,7 @@ exports[`buildScore snapshots > builds time-model for dynamics-sound-override.mu
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -3383,6 +3570,7 @@ exports[`buildScore snapshots > builds time-model for dynamics-sound-override.mu
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [
           {
             "measureIndex": 0,
@@ -3521,6 +3709,16 @@ exports[`buildScore snapshots > builds time-model for eight-measure-melody.music
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -3537,6 +3735,7 @@ exports[`buildScore snapshots > builds time-model for eight-measure-melody.music
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -4526,6 +4725,7 @@ exports[`buildScore snapshots > builds time-model for eight-measure-melody.music
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -4581,6 +4781,16 @@ exports[`buildScore snapshots > builds time-model for enharmonic-cs-db.musicxml 
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -4597,6 +4807,7 @@ exports[`buildScore snapshots > builds time-model for enharmonic-cs-db.musicxml 
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -4668,6 +4879,7 @@ exports[`buildScore snapshots > builds time-model for enharmonic-cs-db.musicxml 
             "writtenKey": 61,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -4728,6 +4940,16 @@ exports[`buildScore snapshots > builds time-model for fingering-substitution-alt
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -4744,6 +4966,7 @@ exports[`buildScore snapshots > builds time-model for fingering-substitution-alt
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -4796,6 +5019,7 @@ exports[`buildScore snapshots > builds time-model for fingering-substitution-alt
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -4862,6 +5086,16 @@ exports[`buildScore snapshots > builds time-model for first-note-early-into-coun
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -4878,6 +5112,7 @@ exports[`buildScore snapshots > builds time-model for first-note-early-into-coun
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -5051,6 +5286,7 @@ exports[`buildScore snapshots > builds time-model for first-note-early-into-coun
             "writtenKey": 67,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -5111,6 +5347,16 @@ exports[`buildScore snapshots > builds time-model for fractional-duration.musicx
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -5127,6 +5373,7 @@ exports[`buildScore snapshots > builds time-model for fractional-duration.musicx
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -5198,6 +5445,7 @@ exports[`buildScore snapshots > builds time-model for fractional-duration.musicx
             "writtenKey": 62,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -5258,6 +5506,16 @@ exports[`buildScore snapshots > builds time-model for grace-acciaccatura.musicxm
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -5274,6 +5532,7 @@ exports[`buildScore snapshots > builds time-model for grace-acciaccatura.musicxm
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -5351,6 +5610,7 @@ exports[`buildScore snapshots > builds time-model for grace-acciaccatura.musicxm
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -5422,6 +5682,16 @@ exports[`buildScore snapshots > builds time-model for grace-after-note-end-of-me
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -5438,6 +5708,7 @@ exports[`buildScore snapshots > builds time-model for grace-after-note-end-of-me
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -5549,6 +5820,7 @@ exports[`buildScore snapshots > builds time-model for grace-after-note-end-of-me
             "writtenKey": 64,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -5609,6 +5881,16 @@ exports[`buildScore snapshots > builds time-model for grace-group-at-start.music
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -5625,6 +5907,7 @@ exports[`buildScore snapshots > builds time-model for grace-group-at-start.music
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -5742,6 +6025,7 @@ exports[`buildScore snapshots > builds time-model for grace-group-at-start.music
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -5802,6 +6086,24 @@ exports[`buildScore snapshots > builds time-model for grand-staff-two-voices-per
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+          {
+            "line": 4,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "F",
+            "staff": 2,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -5818,6 +6120,7 @@ exports[`buildScore snapshots > builds time-model for grand-staff-two-voices-per
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -5957,6 +6260,7 @@ exports[`buildScore snapshots > builds time-model for grand-staff-two-voices-per
             "writtenKey": 43,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 2,
         "transpositions": [],
@@ -6020,6 +6324,24 @@ exports[`buildScore snapshots > builds time-model for hands-accompaniment.musicx
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+          {
+            "line": 4,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "F",
+            "staff": 2,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -6036,6 +6358,7 @@ exports[`buildScore snapshots > builds time-model for hands-accompaniment.musicx
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -6243,6 +6566,7 @@ exports[`buildScore snapshots > builds time-model for hands-accompaniment.musicx
             "writtenKey": 52,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 2,
         "transpositions": [],
@@ -6311,6 +6635,16 @@ exports[`buildScore snapshots > builds time-model for instrument-missing-fallbac
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -6327,6 +6661,7 @@ exports[`buildScore snapshots > builds time-model for instrument-missing-fallbac
             "xmlId": "P1-I1",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -6364,6 +6699,7 @@ exports[`buildScore snapshots > builds time-model for instrument-missing-fallbac
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -6424,6 +6760,16 @@ exports[`buildScore snapshots > builds time-model for instruments-two-parts.musi
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -6440,6 +6786,7 @@ exports[`buildScore snapshots > builds time-model for instruments-two-parts.musi
             "xmlId": "P1-I1",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -6477,6 +6824,7 @@ exports[`buildScore snapshots > builds time-model for instruments-two-parts.musi
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -6484,6 +6832,16 @@ exports[`buildScore snapshots > builds time-model for instruments-two-parts.musi
         "xmlId": "P1",
       },
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 1,
         "instruments": [
@@ -6500,6 +6858,7 @@ exports[`buildScore snapshots > builds time-model for instruments-two-parts.musi
             "xmlId": "P2-I1",
           },
         ],
+        "keys": [],
         "name": "Violin",
         "notes": [
           {
@@ -6537,6 +6896,7 @@ exports[`buildScore snapshots > builds time-model for instruments-two-parts.musi
             "writtenKey": 67,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -6624,6 +6984,16 @@ exports[`buildScore snapshots > builds time-model for jump-text-only.musicxml 1`
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -6640,6 +7010,7 @@ exports[`buildScore snapshots > builds time-model for jump-text-only.musicxml 1`
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -6745,6 +7116,7 @@ exports[`buildScore snapshots > builds time-model for jump-text-only.musicxml 1`
             "writtenKey": 64,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -6853,6 +7225,16 @@ exports[`buildScore snapshots > builds time-model for jump-time-only.musicxml 1`
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -6869,6 +7251,7 @@ exports[`buildScore snapshots > builds time-model for jump-time-only.musicxml 1`
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -6974,6 +7357,7 @@ exports[`buildScore snapshots > builds time-model for jump-time-only.musicxml 1`
             "writtenKey": 64,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -7040,6 +7424,16 @@ exports[`buildScore snapshots > builds time-model for last-note-late-past-end.mu
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -7056,6 +7450,7 @@ exports[`buildScore snapshots > builds time-model for last-note-late-past-end.mu
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -7331,6 +7726,7 @@ exports[`buildScore snapshots > builds time-model for last-note-late-past-end.mu
             "writtenKey": 72,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -7413,6 +7809,16 @@ exports[`buildScore snapshots > builds time-model for measure-numbers-duplicate-
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -7429,6 +7835,7 @@ exports[`buildScore snapshots > builds time-model for measure-numbers-duplicate-
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -7534,6 +7941,7 @@ exports[`buildScore snapshots > builds time-model for measure-numbers-duplicate-
             "writtenKey": 64,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -7604,6 +8012,16 @@ exports[`buildScore snapshots > builds time-model for measure-overfull.musicxml 
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -7620,6 +8038,7 @@ exports[`buildScore snapshots > builds time-model for measure-overfull.musicxml 
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -7657,6 +8076,7 @@ exports[`buildScore snapshots > builds time-model for measure-overfull.musicxml 
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -7728,6 +8148,16 @@ exports[`buildScore snapshots > builds time-model for measure-repeat.musicxml 1`
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -7744,6 +8174,7 @@ exports[`buildScore snapshots > builds time-model for measure-repeat.musicxml 1`
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -7815,6 +8246,7 @@ exports[`buildScore snapshots > builds time-model for measure-repeat.musicxml 1`
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -7885,6 +8317,16 @@ exports[`buildScore snapshots > builds time-model for measure-underfull.musicxml
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -7901,6 +8343,7 @@ exports[`buildScore snapshots > builds time-model for measure-underfull.musicxml
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -7938,6 +8381,7 @@ exports[`buildScore snapshots > builds time-model for measure-underfull.musicxml
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -8015,6 +8459,16 @@ exports[`buildScore snapshots > builds time-model for meter-change.musicxml 1`] 
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -8031,6 +8485,7 @@ exports[`buildScore snapshots > builds time-model for meter-change.musicxml 1`] 
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -8272,6 +8727,7 @@ exports[`buildScore snapshots > builds time-model for meter-change.musicxml 1`] 
             "writtenKey": 71,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -8327,6 +8783,16 @@ exports[`buildScore snapshots > builds time-model for metronome-channel-collisio
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -8343,6 +8809,7 @@ exports[`buildScore snapshots > builds time-model for metronome-channel-collisio
             "xmlId": "P1-I1",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -8380,6 +8847,7 @@ exports[`buildScore snapshots > builds time-model for metronome-channel-collisio
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -8443,6 +8911,16 @@ exports[`buildScore snapshots > builds time-model for minimal-single-note.musicx
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -8459,6 +8937,7 @@ exports[`buildScore snapshots > builds time-model for minimal-single-note.musicx
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -8496,6 +8975,7 @@ exports[`buildScore snapshots > builds time-model for minimal-single-note.musicx
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -8578,6 +9058,16 @@ exports[`buildScore snapshots > builds time-model for multi-measure-rest.musicxm
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -8594,8 +9084,10 @@ exports[`buildScore snapshots > builds time-model for multi-measure-rest.musicxm
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -8659,6 +9151,16 @@ exports[`buildScore snapshots > builds time-model for neighbour-clamp-sixteenths
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -8675,6 +9177,7 @@ exports[`buildScore snapshots > builds time-model for neighbour-clamp-sixteenths
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -8950,6 +9453,7 @@ exports[`buildScore snapshots > builds time-model for neighbour-clamp-sixteenths
             "writtenKey": 72,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -9010,6 +9514,16 @@ exports[`buildScore snapshots > builds time-model for non-ascii-Łódź-日本.m
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -9026,6 +9540,7 @@ exports[`buildScore snapshots > builds time-model for non-ascii-Łódź-日本.m
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -9063,6 +9578,7 @@ exports[`buildScore snapshots > builds time-model for non-ascii-Łódź-日本.m
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -9123,6 +9639,16 @@ exports[`buildScore snapshots > builds time-model for octave-shift-8va.musicxml 
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -9139,6 +9665,7 @@ exports[`buildScore snapshots > builds time-model for octave-shift-8va.musicxml 
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -9244,6 +9771,20 @@ exports[`buildScore snapshots > builds time-model for octave-shift-8va.musicxml 
             "writtenKey": 76,
           },
         ],
+        "octaveShifts": [
+          {
+            "octaves": -1,
+            "staff": 1,
+            "start": {
+              "measureIndex": 0,
+              "onsetInMeasure": 0,
+            },
+            "stop": {
+              "measureIndex": 0,
+              "onsetInMeasure": 1920,
+            },
+          },
+        ],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -9304,6 +9845,16 @@ exports[`buildScore snapshots > builds time-model for percussion-unpitched.music
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -9320,6 +9871,7 @@ exports[`buildScore snapshots > builds time-model for percussion-unpitched.music
             "xmlId": "P1-I1",
           },
         ],
+        "keys": [],
         "name": "Percussion",
         "notes": [
           {
@@ -9357,6 +9909,7 @@ exports[`buildScore snapshots > builds time-model for percussion-unpitched.music
             "writtenKey": 72,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -9431,6 +9984,16 @@ exports[`buildScore snapshots > builds time-model for pickup-implicit.musicxml 1
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -9447,6 +10010,7 @@ exports[`buildScore snapshots > builds time-model for pickup-implicit.musicxml 1
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -9518,6 +10082,7 @@ exports[`buildScore snapshots > builds time-model for pickup-implicit.musicxml 1
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -9573,6 +10138,24 @@ exports[`buildScore snapshots > builds time-model for played-along-both-hands.mu
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+          {
+            "line": 4,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "F",
+            "staff": 2,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -9589,6 +10172,7 @@ exports[`buildScore snapshots > builds time-model for played-along-both-hands.mu
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -9864,6 +10448,7 @@ exports[`buildScore snapshots > builds time-model for played-along-both-hands.mu
             "writtenKey": 38,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 2,
         "transpositions": [],
@@ -9941,6 +10526,16 @@ exports[`buildScore snapshots > builds time-model for range-start-mid-measure-re
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -9957,6 +10552,7 @@ exports[`buildScore snapshots > builds time-model for range-start-mid-measure-re
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -10232,6 +10828,7 @@ exports[`buildScore snapshots > builds time-model for range-start-mid-measure-re
             "writtenKey": 72,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -10309,6 +10906,16 @@ exports[`buildScore snapshots > builds time-model for repeat-implicit-start.musi
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -10325,6 +10932,7 @@ exports[`buildScore snapshots > builds time-model for repeat-implicit-start.musi
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -10396,6 +11004,7 @@ exports[`buildScore snapshots > builds time-model for repeat-implicit-start.musi
             "writtenKey": 62,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -10478,6 +11087,16 @@ exports[`buildScore snapshots > builds time-model for repeat-simple.musicxml 1`]
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -10494,6 +11113,7 @@ exports[`buildScore snapshots > builds time-model for repeat-simple.musicxml 1`]
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -10565,6 +11185,7 @@ exports[`buildScore snapshots > builds time-model for repeat-simple.musicxml 1`]
             "writtenKey": 62,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -10647,6 +11268,16 @@ exports[`buildScore snapshots > builds time-model for repeat-times-3.musicxml 1`
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -10663,6 +11294,7 @@ exports[`buildScore snapshots > builds time-model for repeat-times-3.musicxml 1`
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -10734,6 +11366,7 @@ exports[`buildScore snapshots > builds time-model for repeat-times-3.musicxml 1`
             "writtenKey": 62,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -10832,6 +11465,16 @@ exports[`buildScore snapshots > builds time-model for repeat-unbalanced-backward
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -10848,6 +11491,7 @@ exports[`buildScore snapshots > builds time-model for repeat-unbalanced-backward
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -10953,6 +11597,7 @@ exports[`buildScore snapshots > builds time-model for repeat-unbalanced-backward
             "writtenKey": 64,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -11008,6 +11653,16 @@ exports[`buildScore snapshots > builds time-model for repeated-pitch-two-presses
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -11024,6 +11679,7 @@ exports[`buildScore snapshots > builds time-model for repeated-pitch-two-presses
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -11095,6 +11751,7 @@ exports[`buildScore snapshots > builds time-model for repeated-pitch-two-presses
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -11150,6 +11807,16 @@ exports[`buildScore snapshots > builds time-model for scale-c-major-q100.musicxm
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -11166,6 +11833,7 @@ exports[`buildScore snapshots > builds time-model for scale-c-major-q100.musicxm
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -11305,6 +11973,7 @@ exports[`buildScore snapshots > builds time-model for scale-c-major-q100.musicxm
             "writtenKey": 65,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -11360,6 +12029,16 @@ exports[`buildScore snapshots > builds time-model for tempo-change-mid-measure-o
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -11376,6 +12055,7 @@ exports[`buildScore snapshots > builds time-model for tempo-change-mid-measure-o
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -11515,6 +12195,7 @@ exports[`buildScore snapshots > builds time-model for tempo-change-mid-measure-o
             "writtenKey": 65,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -11567,6 +12248,16 @@ exports[`buildScore snapshots > builds time-model for tempo-dotted-beat-unit.mus
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -11583,6 +12274,7 @@ exports[`buildScore snapshots > builds time-model for tempo-dotted-beat-unit.mus
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -11620,6 +12312,7 @@ exports[`buildScore snapshots > builds time-model for tempo-dotted-beat-unit.mus
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -11683,6 +12376,16 @@ exports[`buildScore snapshots > builds time-model for tempo-none-default.musicxm
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -11699,6 +12402,7 @@ exports[`buildScore snapshots > builds time-model for tempo-none-default.musicxm
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -11838,6 +12542,7 @@ exports[`buildScore snapshots > builds time-model for tempo-none-default.musicxm
             "writtenKey": 65,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -11890,6 +12595,16 @@ exports[`buildScore snapshots > builds time-model for tempo-sound-vs-metronome.m
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -11906,6 +12621,7 @@ exports[`buildScore snapshots > builds time-model for tempo-sound-vs-metronome.m
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -11943,6 +12659,7 @@ exports[`buildScore snapshots > builds time-model for tempo-sound-vs-metronome.m
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -12014,6 +12731,16 @@ exports[`buildScore snapshots > builds time-model for tie-across-barline.musicxm
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -12030,6 +12757,7 @@ exports[`buildScore snapshots > builds time-model for tie-across-barline.musicxm
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -12101,6 +12829,7 @@ exports[`buildScore snapshots > builds time-model for tie-across-barline.musicxm
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -12172,6 +12901,16 @@ exports[`buildScore snapshots > builds time-model for tie-broken.musicxml 1`] = 
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -12188,6 +12927,7 @@ exports[`buildScore snapshots > builds time-model for tie-broken.musicxml 1`] = 
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -12259,6 +12999,7 @@ exports[`buildScore snapshots > builds time-model for tie-broken.musicxml 1`] = 
             "writtenKey": 62,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -12322,6 +13063,16 @@ exports[`buildScore snapshots > builds time-model for tie-chain-three.musicxml 1
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -12338,6 +13089,7 @@ exports[`buildScore snapshots > builds time-model for tie-chain-three.musicxml 1
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -12443,6 +13195,7 @@ exports[`buildScore snapshots > builds time-model for tie-chain-three.musicxml 1
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -12514,6 +13267,16 @@ exports[`buildScore snapshots > builds time-model for tie-chord-partial.musicxml
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -12530,6 +13293,7 @@ exports[`buildScore snapshots > builds time-model for tie-chord-partial.musicxml
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -12669,6 +13433,7 @@ exports[`buildScore snapshots > builds time-model for tie-chord-partial.musicxml
             "writtenKey": 64,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -12786,6 +13551,16 @@ exports[`buildScore snapshots > builds time-model for tie-into-volta.musicxml 1`
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -12802,6 +13577,7 @@ exports[`buildScore snapshots > builds time-model for tie-into-volta.musicxml 1`
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -12941,6 +13717,7 @@ exports[`buildScore snapshots > builds time-model for tie-into-volta.musicxml 1`
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -13012,6 +13789,16 @@ exports[`buildScore snapshots > builds time-model for tied-without-tie.musicxml 
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -13028,6 +13815,7 @@ exports[`buildScore snapshots > builds time-model for tied-without-tie.musicxml 
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -13099,6 +13887,7 @@ exports[`buildScore snapshots > builds time-model for tied-without-tie.musicxml 
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -13159,6 +13948,16 @@ exports[`buildScore snapshots > builds time-model for transpose-bb-clarinet.musi
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -13175,6 +13974,7 @@ exports[`buildScore snapshots > builds time-model for transpose-bb-clarinet.musi
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Clarinet in Bb",
         "notes": [
           {
@@ -13212,6 +14012,7 @@ exports[`buildScore snapshots > builds time-model for transpose-bb-clarinet.musi
             "writtenKey": 72,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [
@@ -13274,6 +14075,16 @@ exports[`buildScore snapshots > builds time-model for transposing-part-sounding-
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -13290,6 +14101,7 @@ exports[`buildScore snapshots > builds time-model for transposing-part-sounding-
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Clarinet in Bb",
         "notes": [
           {
@@ -13395,6 +14207,7 @@ exports[`buildScore snapshots > builds time-model for transposing-part-sounding-
             "writtenKey": 76,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [
@@ -13466,6 +14279,16 @@ exports[`buildScore snapshots > builds time-model for trill-realisation.musicxml
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -13482,6 +14305,7 @@ exports[`buildScore snapshots > builds time-model for trill-realisation.musicxml
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -13655,6 +14479,7 @@ exports[`buildScore snapshots > builds time-model for trill-realisation.musicxml
             "writtenKey": 67,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -13715,6 +14540,16 @@ exports[`buildScore snapshots > builds time-model for tuplet-triplet-eighths.mus
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -13731,6 +14566,7 @@ exports[`buildScore snapshots > builds time-model for tuplet-triplet-eighths.mus
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -13836,6 +14672,7 @@ exports[`buildScore snapshots > builds time-model for tuplet-triplet-eighths.mus
             "writtenKey": 64,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -13899,6 +14736,16 @@ exports[`buildScore snapshots > builds time-model for tuplet-triplet-exact.music
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -13915,6 +14762,7 @@ exports[`buildScore snapshots > builds time-model for tuplet-triplet-exact.music
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -14054,6 +14902,7 @@ exports[`buildScore snapshots > builds time-model for tuplet-triplet-exact.music
             "writtenKey": 65,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -14117,6 +14966,24 @@ exports[`buildScore snapshots > builds time-model for unison-across-hands.musicx
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+          {
+            "line": 4,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "F",
+            "staff": 2,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -14133,6 +15000,7 @@ exports[`buildScore snapshots > builds time-model for unison-across-hands.musicx
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -14272,6 +15140,7 @@ exports[`buildScore snapshots > builds time-model for unison-across-hands.musicx
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 2,
         "transpositions": [],
@@ -14327,6 +15196,16 @@ exports[`buildScore snapshots > builds time-model for unison-two-voices.musicxml
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -14343,6 +15222,7 @@ exports[`buildScore snapshots > builds time-model for unison-two-voices.musicxml
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -14414,6 +15294,7 @@ exports[`buildScore snapshots > builds time-model for unison-two-voices.musicxml
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -14474,6 +15355,16 @@ exports[`buildScore snapshots > builds time-model for unsupported-elements-notic
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -14490,6 +15381,7 @@ exports[`buildScore snapshots > builds time-model for unsupported-elements-notic
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -14527,6 +15419,7 @@ exports[`buildScore snapshots > builds time-model for unsupported-elements-notic
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -14587,6 +15480,16 @@ exports[`buildScore snapshots > builds time-model for verovio-id-roundtrip.music
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -14603,6 +15506,7 @@ exports[`buildScore snapshots > builds time-model for verovio-id-roundtrip.music
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -14640,6 +15544,7 @@ exports[`buildScore snapshots > builds time-model for verovio-id-roundtrip.music
             "writtenKey": 60,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -14703,6 +15608,16 @@ exports[`buildScore snapshots > builds time-model for voice-and-piano.musicxml 1
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -14719,6 +15634,7 @@ exports[`buildScore snapshots > builds time-model for voice-and-piano.musicxml 1
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Voice",
         "notes": [
           {
@@ -14790,6 +15706,7 @@ exports[`buildScore snapshots > builds time-model for voice-and-piano.musicxml 1
             "writtenKey": 69,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -14797,6 +15714,24 @@ exports[`buildScore snapshots > builds time-model for voice-and-piano.musicxml 1
         "xmlId": "P1",
       },
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+          {
+            "line": 4,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "F",
+            "staff": 2,
+          },
+        ],
         "dynamics": [],
         "index": 1,
         "instruments": [
@@ -14813,6 +15748,7 @@ exports[`buildScore snapshots > builds time-model for voice-and-piano.musicxml 1
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -14918,6 +15854,7 @@ exports[`buildScore snapshots > builds time-model for voice-and-piano.musicxml 1
             "writtenKey": 74,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 2,
         "transpositions": [],
@@ -15051,6 +15988,16 @@ exports[`buildScore snapshots > builds time-model for volta-1-2.musicxml 1`] = `
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -15067,6 +16014,7 @@ exports[`buildScore snapshots > builds time-model for volta-1-2.musicxml 1`] = `
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -15206,6 +16154,7 @@ exports[`buildScore snapshots > builds time-model for volta-1-2.musicxml 1`] = `
             "writtenKey": 65,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -15316,6 +16265,16 @@ exports[`buildScore snapshots > builds time-model for volta-combined-numbers.mus
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -15332,6 +16291,7 @@ exports[`buildScore snapshots > builds time-model for volta-combined-numbers.mus
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -15437,6 +16397,7 @@ exports[`buildScore snapshots > builds time-model for volta-combined-numbers.mus
             "writtenKey": 64,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -15570,6 +16531,16 @@ exports[`buildScore snapshots > builds time-model for volta-discontinue.musicxml
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -15586,6 +16557,7 @@ exports[`buildScore snapshots > builds time-model for volta-discontinue.musicxml
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -15725,6 +16697,7 @@ exports[`buildScore snapshots > builds time-model for volta-discontinue.musicxml
             "writtenKey": 65,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -15785,6 +16758,16 @@ exports[`buildScore snapshots > builds time-model for wedge-crescendo.musicxml 1
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [
           {
             "measureIndex": 0,
@@ -15812,6 +16795,7 @@ exports[`buildScore snapshots > builds time-model for wedge-crescendo.musicxml 1
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -15951,6 +16935,7 @@ exports[`buildScore snapshots > builds time-model for wedge-crescendo.musicxml 1
             "writtenKey": 65,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -16027,6 +17012,16 @@ exports[`buildScore snapshots > builds time-model for whole-measure-rest.musicxm
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -16043,8 +17038,10 @@ exports[`buildScore snapshots > builds time-model for whole-measure-rest.musicxm
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],
@@ -16100,6 +17097,16 @@ exports[`buildScore snapshots > builds time-model for window-beat-unit-6-8.music
     },
     "parts": [
       {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
         "dynamics": [],
         "index": 0,
         "instruments": [
@@ -16116,6 +17123,7 @@ exports[`buildScore snapshots > builds time-model for window-beat-unit-6-8.music
             "xmlId": "",
           },
         ],
+        "keys": [],
         "name": "Piano",
         "notes": [
           {
@@ -16323,6 +17331,7 @@ exports[`buildScore snapshots > builds time-model for window-beat-unit-6-8.music
             "writtenKey": 69,
           },
         ],
+        "octaveShifts": [],
         "soundDynamics": [],
         "staves": 1,
         "transpositions": [],

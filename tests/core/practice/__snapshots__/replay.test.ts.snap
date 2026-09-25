@@ -80,6 +80,12 @@ exports[`replay (snapshots) > golden snapshot: chord-basic (using grand-staff) 1
       "type": "sessionEnded",
     },
   ],
+  "heldWrongKeys": [
+    [],
+    [],
+    [],
+    [],
+  ],
   "marks": [
     [
       "n-p0-s1-m0-v1-o0-k72",
@@ -179,6 +185,21 @@ exports[`replay (snapshots) > golden snapshot: scale-c-major-q100 1`] = `
       "type": "moveCursor",
     },
   ],
+  "heldWrongKeys": [
+    [],
+    [],
+    [
+      [
+        61,
+        "wrongPitch",
+      ],
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+  ],
   "marks": [
     [
       "n-p0-s1-m0-v1-o0-k60",
@@ -190,6 +211,167 @@ exports[`replay (snapshots) > golden snapshot: scale-c-major-q100 1`] = `
     ],
     [
       "n-p0-s1-m0-v1-o2-k64",
+      "correct",
+    ],
+  ],
+}
+`;
+
+exports[`replay (snapshots) > golden snapshot: wrong keys held across an event change (scale-c-major-q100, 008 FR-016) 1`] = `
+{
+  "effects": [
+    {
+      "key": 61,
+      "state": "wrongPitch",
+      "type": "keyFeedback",
+    },
+    {
+      "key": 72,
+      "messageId": "practice.octave.lower",
+      "state": "wrongOctave",
+      "type": "keyFeedback",
+    },
+    {
+      "key": 62,
+      "state": "wrongPitch",
+      "type": "keyFeedback",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s1-m0-v1-o0-k60",
+          "state": "correctSoFar",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s1-m0-v1-o0-k60",
+          "state": "correct",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "eventIndex": 1,
+      "onsetTick": 960,
+      "type": "moveCursor",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s1-m0-v1-o1-k62",
+          "state": "heldOver",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "eventIndex": 1,
+      "reason": "heldOver",
+      "type": "showHelp",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s1-m0-v1-o1-k62",
+          "state": "waiting",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "type": "hideHelp",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s1-m0-v1-o1-k62",
+          "state": "correctSoFar",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "marks": [
+        {
+          "noteId": "n-p0-s1-m0-v1-o1-k62",
+          "state": "correct",
+        },
+      ],
+      "type": "markNotes",
+    },
+    {
+      "type": "hideHelp",
+    },
+    {
+      "eventIndex": 2,
+      "onsetTick": 1920,
+      "type": "moveCursor",
+    },
+  ],
+  "heldWrongKeys": [
+    [
+      [
+        61,
+        "wrongPitch",
+      ],
+    ],
+    [
+      [
+        61,
+        "wrongPitch",
+      ],
+      [
+        72,
+        "wrongOctave",
+      ],
+    ],
+    [
+      [
+        61,
+        "wrongPitch",
+      ],
+    ],
+    [
+      [
+        61,
+        "wrongPitch",
+      ],
+      [
+        62,
+        "wrongPitch",
+      ],
+    ],
+    [
+      [
+        61,
+        "wrongPitch",
+      ],
+    ],
+    [
+      [
+        61,
+        "wrongPitch",
+      ],
+    ],
+    [
+      [
+        61,
+        "wrongPitch",
+      ],
+    ],
+    [],
+  ],
+  "marks": [
+    [
+      "n-p0-s1-m0-v1-o0-k60",
+      "correct",
+    ],
+    [
+      "n-p0-s1-m0-v1-o1-k62",
       "correct",
     ],
   ],

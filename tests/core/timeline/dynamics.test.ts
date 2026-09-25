@@ -24,6 +24,9 @@ function part(overrides: Partial<Part> = {}): Part {
     soundDynamics: [],
     wedges: [],
     transpositions: [],
+    clefs: [],
+    keys: [],
+    octaveShifts: [],
     ...overrides,
   };
 }

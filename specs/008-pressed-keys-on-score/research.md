@@ -176,8 +176,9 @@ of the note the musician is reading).
 
 ## R-10 Far-away keys: ledger limit and ottava label
 
-**Decision**: `PRACTICE_DISC_MAX_LEDGER_LINES = 5`. Beyond it the disc is placed one octave (then two) closer, at
-that octave's correct position, with an "8va"/"8vb" ("15ma"/"15mb") label beside it. Applied after R-08, which often
+**Decision**: `PRACTICE_DISC_MAX_LEDGER_LINES = 5`. Beyond it the disc is placed one octave (then two, then three) closer, at
+that octave's correct position, with an "8va"/"8vb" ("15ma"/"15mb", "22ma"/"22mb") label beside it. Three folds are needed
+when a Score's own 8va/15mb is in force (implementation, 2026-09-25): a piano key can then lie up to 16 ledger lines from the staff. Applied after R-08, which often
 solves it by choosing the other staff.
 
 **Rationale**: Beyond 4-5 ledger lines engravers use ottava; a disc parked at the staff edge would show a wrong

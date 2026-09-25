@@ -1,11 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { drawCursorOverlay } from '../../src/ui/score/cursor-overlay.js';
 import { drawLoopMarks, drawPracticeMarks } from '../../src/ui/score/practice-marks.js';
+import { drawStateChevron } from '../../src/ui/score/pressed-keys.js';
 
 describe('practice marks rendering', () => {
-  it('the states still drawn as outlines (heldOver, playedAlong, skipped) render a stroke, until US3 replaces them (T050)', () => {
-    // We will test that drawPracticeMarks calls the appropriate canvas context methods
-    // with different fillStyles and shapes (rects, arcs, etc.) for each MarkState.
+  it('draws no mark of its own for any state: not for heldOver, playedAlong or skipped either (008 FR-009, T050)', () => {
+    const dashPatterns: number[][] = [];
     const ctx = {
       fillRect: vi.fn(),
       strokeRect: vi.fn(),
@@ -15,44 +14,29 @@ describe('practice marks rendering', () => {
       stroke: vi.fn(),
       moveTo: vi.fn(),
       lineTo: vi.fn(),
-      setLineDash: vi.fn(),
       closePath: vi.fn(),
+      setLineDash: vi.fn((pattern: number[]) => dashPatterns.push(pattern)),
     } as unknown as CanvasRenderingContext2D;
+    const rect = { left: 10, top: 20, right: 30, bottom: 40, width: 20, height: 20 } as DOMRect;
 
-    // We can define dummy note rects
-    const getRect = (id: string): DOMRect =>
-      ({ left: 10, top: 20, right: 30, bottom: 40, width: 20, height: 20 }) as DOMRect;
-
-    // Call drawPracticeMarks with a variety of states. wrongPitch/wrongOctave/extra are excluded: they have no
-    // notehead of their own to mark (the key pressed is not written at this event at all) and are never produced
-    // as a `markNotes` state by the matcher any more - they reach the on-screen keyboard instead, via the separate
-    // `keyFeedback` effect (T056, R-14), covered by tests/ui/practice-key-feedback.test.ts.
-    // 008 T013: waiting, correctSoFar and correct are no longer outlines (FR-009): they are the printed notehead in
-    // green (or nothing, for waiting) and are asserted below. The other three stay until T050/T054 (US3).
-    const marks = [
-      { noteId: 'n7', state: 'heldOver' as const },
-      { noteId: 'n8', state: 'playedAlong' as const },
-      { noteId: 'n9', state: 'skipped' as const },
-    ];
-
-    // Pass noteRects for each
-    const noteRects = new Map([
-      ['n7', getRect('n7')],
-      ['n8', getRect('n8')],
-      ['n9', getRect('n9')],
-    ]);
-
+    // The outlines of these three states are gone: heldOver and skipped get a chevron from `drawStateChevron` (below),
+    // playedAlong is a green notehead like a correct note (note-marks.ts); wrongPitch/wrongOctave/extra are discs.
+    const marks = (['heldOver', 'playedAlong', 'skipped', 'wrongPitch', 'wrongOctave', 'extra'] as const).map(
+      (state, i) => ({ noteId: `n${i}`, state }),
+    );
     drawPracticeMarks({
       ctx,
       dpr: 1,
       containerRect: { left: 0, top: 0 } as DOMRect,
       marks,
-      noteRects,
+      noteRects: new Map(marks.map((m) => [m.noteId, rect])),
     });
 
-    // The test asserts that drawPracticeMarks uses stroke methods to avoid covering noteheads
-    expect(ctx.stroke).toHaveBeenCalled();
-    expect(ctx.strokeRect).toHaveBeenCalled();
+    expect(ctx.stroke).not.toHaveBeenCalled();
+    expect(ctx.strokeRect).not.toHaveBeenCalled();
+    expect(ctx.arc).not.toHaveBeenCalled();
+    expect(ctx.moveTo).not.toHaveBeenCalled();
+    expect(dashPatterns.filter((pattern) => pattern.length > 0)).toEqual([]);
   });
 
   it('waiting, correctSoFar and correct draw no outline at all, never a dashed one; dimming is unchanged (008 FR-009, T013)', () => {
@@ -97,30 +81,6 @@ describe('practice marks rendering', () => {
     expect(ctx.moveTo).not.toHaveBeenCalled();
     expect(ctx.fillRect).toHaveBeenCalledTimes(1); // the one dimmed rect, untouched behaviour
     expect(dashPatterns.filter((pattern) => pattern.length > 0)).toEqual([]); // never a dashed pattern
-  });
-
-  it('waiting cursor sits on the expected event (using drawCursorOverlay with mode)', () => {
-    const ctx = {
-      fillRect: vi.fn(),
-      beginPath: vi.fn(),
-      arc: vi.fn(),
-      fill: vi.fn(),
-      stroke: vi.fn(),
-      strokeRect: vi.fn(),
-    } as unknown as CanvasRenderingContext2D;
-
-    drawCursorOverlay({
-      ctx,
-      dpr: 1,
-      measureRect: { left: 5, top: 10, bottom: 50, right: 50 } as DOMRect,
-      noteRects: [{ left: 20, top: 20, bottom: 30, right: 30 } as DOMRect],
-      containerRect: { left: 0, top: 0 } as DOMRect,
-      isPracticeWaiting: true, // Some new flag we will add to drawCursorOverlay
-    });
-
-    // Practice cursor should be visually distinct (e.g., hollow box instead of line)
-    // For now we just expect it to draw something around the note
-    expect(ctx.strokeRect).toHaveBeenCalled(); // e.g. it draws a strokeRect around the expected event
   });
 });
 
@@ -203,5 +163,103 @@ describe('loop marks (AS-3.2: the looped measures are clearly marked)', () => {
     drawLoopMarks({ ctx, dpr: 1, containerRect, measures: [] });
 
     expect(ctx.stroke).not.toHaveBeenCalled();
+  });
+});
+
+describe('state chevrons: the shapes that tell held-over and skipped notes apart without colour (008 R-03, T050)', () => {
+  interface Point {
+    x: number;
+    y: number;
+  }
+  function recording() {
+    const points: Point[] = [];
+    const dashes: number[][] = [];
+    const styles: unknown[] = [];
+    const state: Record<string, unknown> = {};
+    const ctx = new Proxy(
+      {},
+      {
+        get: (_t, name) => {
+          if (typeof name === 'symbol') return undefined;
+          if (name in state) return state[name];
+          return (...args: unknown[]) => {
+            if (name === 'moveTo' || name === 'lineTo') points.push({ x: args[0] as number, y: args[1] as number });
+            if (name === 'setLineDash') dashes.push(args[0] as number[]);
+            if (name === 'stroke') styles.push(state.strokeStyle);
+          };
+        },
+        set: (_t, name, value) => {
+          state[String(name)] = value;
+          return true;
+        },
+      },
+    ) as unknown as CanvasRenderingContext2D;
+    return { ctx, points, dashes, styles };
+  }
+  /** A notehead box of one staff space (16 px) high and a little wider. */
+  const head = { left: 100, right: 119, top: 200, bottom: 216, width: 19, height: 16 } as DOMRect;
+  const container = { left: 0, top: 0 } as DOMRect;
+  const bounds = (points: Point[]) => ({
+    left: Math.min(...points.map((p) => p.x)),
+    right: Math.max(...points.map((p) => p.x)),
+    top: Math.min(...points.map((p) => p.y)),
+    bottom: Math.max(...points.map((p) => p.y)),
+  });
+
+  it('held-over: a solid upward chevron entirely above the notehead box and within one staff space of it', () => {
+    const { ctx, points, dashes, styles } = recording();
+    drawStateChevron({ ctx, dpr: 1, containerRect: container, noteheadRect: head, kind: 'heldOver' });
+    expect(points).toHaveLength(3);
+    const [a, apex, b] = points as [Point, Point, Point];
+    expect(apex.y).toBeLessThan(a.y); // it points up
+    expect(a.y).toBe(b.y);
+    expect(apex.x).toBeGreaterThan(a.x);
+    expect(apex.x).toBeLessThan(b.x);
+    const box = bounds(points);
+    expect(box.bottom).toBeLessThan(head.top); // entirely above, touching nothing
+    expect(head.top - box.top).toBeLessThanOrEqual(head.height); // within one staff space
+    expect(box.left).toBeGreaterThanOrEqual(head.left - head.width / 2);
+    expect(box.right).toBeLessThanOrEqual(head.right + head.width / 2);
+    expect(styles).toEqual(['#e69f00']);
+    expect(dashes.filter((d) => d.length > 0)).toEqual([]); // solid
+  });
+
+  it('skipped: a solid right-pointing chevron entirely below the notehead box and within one staff space of it', () => {
+    const { ctx, points, dashes, styles } = recording();
+    drawStateChevron({ ctx, dpr: 1, containerRect: container, noteheadRect: head, kind: 'skipped' });
+    expect(points).toHaveLength(3);
+    const [a, tip, b] = points as [Point, Point, Point];
+    expect(tip.x).toBeGreaterThan(a.x); // it points right
+    expect(a.x).toBe(b.x);
+    expect(tip.y).toBeGreaterThan(a.y);
+    expect(tip.y).toBeLessThan(b.y);
+    const box = bounds(points);
+    expect(box.top).toBeGreaterThan(head.bottom); // entirely below
+    expect(box.bottom - head.bottom).toBeLessThanOrEqual(head.height);
+    expect(styles).toEqual(['#999999']);
+    expect(dashes.filter((d) => d.length > 0)).toEqual([]);
+  });
+
+  it('follows the notehead when the page is scrolled or the pixel ratio is not 1', () => {
+    const { ctx, points } = recording();
+    drawStateChevron({
+      ctx,
+      dpr: 2,
+      containerRect: { left: 40, top: 60 } as DOMRect,
+      noteheadRect: head,
+      kind: 'heldOver',
+    });
+    const box = bounds(points);
+    expect(box.bottom).toBeLessThan((head.top - 60) * 2);
+    expect(box.left).toBeGreaterThan((head.left - 40 - head.width) * 2);
+  });
+
+  it('the two chevrons are told apart by direction and side, not only by colour', () => {
+    const held = recording();
+    const skipped = recording();
+    drawStateChevron({ ctx: held.ctx, dpr: 1, containerRect: container, noteheadRect: head, kind: 'heldOver' });
+    drawStateChevron({ ctx: skipped.ctx, dpr: 1, containerRect: container, noteheadRect: head, kind: 'skipped' });
+    expect(bounds(held.points).bottom).toBeLessThan(head.top);
+    expect(bounds(skipped.points).top).toBeGreaterThan(head.bottom);
   });
 });

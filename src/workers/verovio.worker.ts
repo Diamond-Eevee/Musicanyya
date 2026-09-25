@@ -1,8 +1,11 @@
 import verovio, { type VerovioToolkit } from 'verovio';
 import { errorMessage } from '../core/errors.js';
+import { type HarvestedGlyphs, harvestGlyphs } from './glyphs.js';
 
 let toolkit: VerovioToolkit | null = null;
 let initPromise: Promise<VerovioToolkit> | null = null;
+/** The glyphs for the red discs' accidentals (feature 008), read once at the first `init`; null when they could not be. */
+let glyphs: HarvestedGlyphs | null | undefined;
 
 /**
  * The toolkit, constructing it on the first call and sharing one in-flight construction between
@@ -32,7 +35,15 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
     switch (data.type) {
       case 'init': {
         const ready = await ensureToolkit();
-        postMessageFn({ type: 'ready', requestId: data.requestId, version: ready.getVersion() });
+        if (glyphs === undefined) {
+          // Before any Score is loaded, and only once: a later `init` must not replace a Score the toolkit holds
+          try {
+            glyphs = harvestGlyphs(ready);
+          } catch {
+            glyphs = null; // the discs are then drawn without accidentals, never with a wrong one
+          }
+        }
+        postMessageFn({ type: 'ready', requestId: data.requestId, version: ready.getVersion(), glyphs });
         break;
       }
       case 'load': {

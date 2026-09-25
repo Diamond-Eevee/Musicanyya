@@ -156,3 +156,129 @@ describe('title block metadata (US5)', () => {
     expect(score.arranger).toBe(null);
   });
 });
+
+describe('clefs, keys and octave shifts (feature 008, research R-06, data-model section 1)', () => {
+  const posOf = (measureIndex: number, onsetInMeasure: number) => ({ measureIndex, onsetInMeasure });
+
+  describe('Part.clefs', () => {
+    const { score } = load('notation/clef-changes.musicxml');
+    const ppq = score.ppq;
+
+    it('reads sign, line, octave change, staff and position, including a mid-measure change', () => {
+      expect(score.parts[0]?.clefs).toEqual([
+        { ...posOf(0, 0), staff: 1, sign: 'G', line: 2, octaveChange: 0 },
+        { ...posOf(0, 2 * ppq), staff: 1, sign: 'F', line: 4, octaveChange: 0 },
+        { ...posOf(1, 0), staff: 1, sign: 'G', line: 2, octaveChange: -1 },
+      ]);
+    });
+
+    it('defaults to G2 for staff 1 and F4 for staff 2 when the file names no clef', () => {
+      expect(score.parts[1]?.staves).toBe(2);
+      expect(score.parts[1]?.clefs).toEqual([
+        { ...posOf(0, 0), staff: 1, sign: 'G', line: 2, octaveChange: 0 },
+        { ...posOf(0, 0), staff: 2, sign: 'F', line: 4, octaveChange: 0 },
+      ]);
+    });
+
+    it('defaults a clef-less single-staff part to G2', () => {
+      const { score: bare } = load('minimal-single-note.musicxml');
+      expect(bare.parts[0]?.clefs).toEqual([{ ...posOf(0, 0), staff: 1, sign: 'G', line: 2, octaveChange: 0 }]);
+    });
+
+    it('keeps an unsupported clef sign as written, reports it as a load notice and never throws', () => {
+      expect(score.parts[2]?.clefs).toEqual([{ ...posOf(0, 0), staff: 1, sign: 'TAB', line: 5, octaveChange: 0 }]);
+      const notice = load('notation/clef-changes.musicxml').report.entries.find((e) => e.code === 'unsupportedClef');
+      expect(notice).toMatchObject({ code: 'unsupportedClef', severity: 'info', element: 'TAB', measureLabels: ['1'] });
+      // the notes of that part are still parsed and played
+      expect(score.parts[2]?.notes).toHaveLength(2);
+    });
+
+    it('a clef sign that is not in the MusicXML list is treated as unsupported (sign "none"), not as a crash', () => {
+      const xml = `<score-partwise><part-list><score-part id="P1"><part-name>x</part-name></score-part></part-list>
+        <part id="P1"><measure number="1"><attributes><divisions>1</divisions><clef><sign>banana</sign></clef></attributes>
+        <note><pitch><step>C</step><octave>4</octave></pitch><duration>1</duration></note></measure></part></score-partwise>`;
+      const built = buildScore(readXml(xml).doc);
+      expect(built.score.parts[0]?.clefs[0]?.sign).toBe('none');
+      expect(built.report.entries.some((e) => e.code === 'unsupportedClef')).toBe(true);
+    });
+
+    it('lists clefs in (measure, onset, staff) order', () => {
+      for (const part of score.parts) {
+        const keys = part.clefs.map((c) => [c.measureIndex, c.onsetInMeasure, c.staff]);
+        expect(keys).toEqual(
+          [...keys].sort((a, b) => (a[0] ?? 0) - (b[0] ?? 0) || (a[1] ?? 0) - (b[1] ?? 0) || (a[2] ?? 0) - (b[2] ?? 0)),
+        );
+      }
+    });
+  });
+
+  describe('Part.keys', () => {
+    const { score } = load('notation/key-changes.musicxml');
+
+    it('reads fifths and mode for the whole part, in order (G major, F major, A minor, non-traditional)', () => {
+      expect(score.parts[0]?.keys).toEqual([
+        { ...posOf(0, 0), staff: null, fifths: 1, mode: 'major' },
+        { ...posOf(1, 0), staff: null, fifths: -1, mode: 'major' },
+        { ...posOf(2, 0), staff: null, fifths: 0, mode: 'minor' },
+        { ...posOf(3, 0), staff: null, fifths: null, mode: null },
+      ]);
+    });
+
+    it('reads a key per staff (number attribute), then one key for all staves', () => {
+      expect(score.parts[1]?.keys).toEqual([
+        { ...posOf(0, 0), staff: 1, fifths: 2, mode: null },
+        { ...posOf(0, 0), staff: 2, fifths: -2, mode: null },
+        { ...posOf(1, 0), staff: null, fifths: 0, mode: null },
+      ]);
+    });
+
+    it('has no entry for a part that names no key (C major is the default, applied by staffContextAt)', () => {
+      expect(load('minimal-single-note.musicxml').score.parts[0]?.keys).toEqual([]);
+    });
+  });
+
+  describe('Part.octaveShifts', () => {
+    const { score } = load('notation/octave-shift.musicxml');
+    const ppq = score.ppq;
+
+    it('reads an 8va (encoded type="down") as +1, a 15mb (type="up", size 15) as -2, with their stop positions', () => {
+      const shifts = score.parts[0]?.octaveShifts ?? [];
+      expect(shifts[0]).toEqual({ staff: 1, start: posOf(0, 0), stop: posOf(0, 2 * ppq), octaves: 1 });
+      expect(shifts[1]).toEqual({ staff: 1, start: posOf(1, 0), stop: posOf(2, 0), octaves: -2 });
+    });
+
+    it('lets a shift with no stop run to the end of the part (one past the last measure)', () => {
+      const shifts = score.parts[0]?.octaveShifts ?? [];
+      expect(shifts).toHaveLength(3);
+      expect(shifts[2]).toEqual({ staff: 1, start: posOf(3, 0), stop: posOf(score.measures.length, 0), octaves: 1 });
+    });
+
+    it('is empty for a score without shifts', () => {
+      expect(load('minimal-single-note.musicxml').score.parts[0]?.octaveShifts).toEqual([]);
+    });
+  });
+
+  it('changes no Note ID, tick or pitch: the notes of a fixture with clefs, keys and shifts equal those of the same file with them stripped', () => {
+    const original = load('notation/octave-shift.musicxml').score;
+    const stripped = readXml(
+      fs
+        .readFileSync(path.join(__dirname, '../../fixtures/musicxml/notation/octave-shift.musicxml'), 'utf8')
+        .replace(
+          /<direction placement="(?:above|below)"><direction-type><octave-shift[^>]*\/><\/direction-type><\/direction>/g,
+          '',
+        )
+        .replace(/<clef>[\s\S]*?<\/clef>/g, ''),
+    ).doc;
+    const plain = buildScore(stripped).score;
+    const strip = (s: typeof original) =>
+      s.parts[0]?.notes.map((n) => ({
+        id: n.id,
+        tick: n.onsetInMeasure,
+        m: n.measureIndex,
+        d: n.durationTicks,
+        w: n.writtenKey,
+        s: n.soundingKey,
+      }));
+    expect(strip(original)).toEqual(strip(plain));
+  });
+});

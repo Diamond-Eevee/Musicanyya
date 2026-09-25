@@ -18,6 +18,8 @@ export type LoadNoticeCode =
   | 'unpitchedWithoutSound'
   | 'defaultTempo'
   | 'middleBarlineRepeat'
+  // 008 (pressed-keys-on-score): a clef the red-disc placement cannot use (percussion, TAB, ...)
+  | 'unsupportedClef'
   // US3 (006-beamed-note-engraving): engraving completion notices
   | 'engravingCompleted'
   | 'beamDataInvalid'

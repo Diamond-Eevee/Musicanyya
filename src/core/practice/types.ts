@@ -79,6 +79,9 @@ export interface PracticeSession {
   phase: SessionPhase;
   marks: ReadonlyMap<NoteId, MarkState>;
   heldKeys: ReadonlySet<number>;
+  /** The held keys that are not written at the current event, with the reason (feature 008, research R-12): what the
+   *  Score shows as red discs. Empty when no such key is held, and after the session ends or the keyboard is lost. */
+  heldWrongKeys: ReadonlyMap<number, WrongKeyState>;
   /** Accompaniment notes currently sounding, by key, with the tick at which the cursor releases them (R-03). */
   soundingAccompaniment: ReadonlyMap<number, Ticks>;
   wrongAttemptsOnCurrent: number;

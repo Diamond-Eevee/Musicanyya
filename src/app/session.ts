@@ -660,7 +660,12 @@ export class Session {
     const session = practiceState.get().session;
     if (!session || (session.phase === 'finished' && session.soundingAccompaniment.size === 0)) return;
     this.releasePracticeSound(session);
-    practiceState.setSession({ ...session, phase: 'finished', soundingAccompaniment: new Map() });
+    practiceState.setSession({
+      ...session,
+      phase: 'finished',
+      soundingAccompaniment: new Map(),
+      heldWrongKeys: new Map(), // the session is over: no red disc stays on the Score
+    });
   }
 
   /** Switching to Listen ends the session and clears its marks (FR-019). */
@@ -1292,6 +1297,7 @@ export class Session {
       contentHash: response.contentHash,
     });
 
+    this.scoreView?.setNotationScore(response.fullScore); // the clefs, keys and shifts the red discs are printed with
     if (this.scoreView) {
       await this.scoreView.load(response.renderXml, response.summary.measureIds, viewState.get().scale);
     }

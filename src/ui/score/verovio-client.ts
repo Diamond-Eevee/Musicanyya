@@ -4,8 +4,18 @@ export interface LayoutOptions {
   scale: number; // 50..200
 }
 
+/** Path data of the music-font glyphs the red discs need, in font units, y up (contracts/worker-messages.md 1.2.0). */
+export interface MusicGlyphData {
+  sharp: string;
+  flat: string;
+  natural: string;
+  notehead: string;
+  unitsPerEm: number;
+}
+
 export interface VerovioClient {
-  init(): Promise<{ version: string }>;
+  /** `glyphs` is null when the worker could not read them (then the discs have no accidentals). */
+  init(): Promise<{ version: string; glyphs?: MusicGlyphData | null }>;
   load(renderXml: string, options: LayoutOptions): Promise<{ pageCount: number }>;
   relayout(options: LayoutOptions): Promise<{ pageCount: number }>;
   page(page: number): Promise<{ svg: string }>;

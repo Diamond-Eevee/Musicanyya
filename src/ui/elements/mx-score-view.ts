@@ -1,5 +1,7 @@
+import { type DiscPlacement, eventPosition, placeDiscs } from '../../core/notation/place-discs.js';
 import type { PlayRun } from '../../core/play/types.js';
 import type { ExpectedEvent, LoopRange, MarkState, PracticeSession } from '../../core/practice/types.js';
+import type { Score } from '../../core/score/model.js';
 import {
   FOLLOW_MARGIN,
   RELAYOUT_DEBOUNCE_MS,
@@ -11,7 +13,8 @@ import type { AudioEngine } from '../../engine/ports.js';
 import { en } from '../i18n/en.js';
 import { fitLayout } from '../layout/fit.js';
 import { drawCursorOverlay } from '../score/cursor-overlay.js';
-import { drawGradeMarks, drawLiveMarks } from '../score/grade-marks.js';
+import { type DiscSlot, layoutDiscs, type NoteBox, type StaffGeometry } from '../score/disc-layout.js';
+import { drawGradeMarks } from '../score/grade-marks.js';
 import { applyHighlights } from '../score/highlight.js';
 import { applyNoteMarks, type NoteMarkClass, noteMarkClass } from '../score/note-marks.js';
 import {
@@ -23,6 +26,13 @@ import {
 } from '../score/pages.js';
 import { bandRectFor, placePracticeBand } from '../score/practice-band.js';
 import { drawLoopMarks, drawPracticeMarks, drawStartMarker } from '../score/practice-marks.js';
+import {
+  chevronBox,
+  drawPressedKeyDiscs,
+  drawStateChevron,
+  type MusicGlyphs,
+  toMusicGlyphs,
+} from '../score/pressed-keys.js';
 import type { LayoutOptions, VerovioClient } from '../score/verovio-client.js';
 import { insetState } from '../state/insetState.js';
 import { playState } from '../state/playState.js';
@@ -95,8 +105,16 @@ export class MxScoreView extends HTMLElement {
   private band!: HTMLElement;
   /** Note classes on the page now, and what they were computed from: a frame that changes none of these skips the work. */
   private readonly appliedNoteMarks = new Map<string, NoteMarkClass>();
-  private noteMarksFrom: { marks: ReadonlyMap<string, MarkState> | null; epoch: number; visible: boolean } | null =
-    null;
+  private noteMarksFrom: { source: object | null; epoch: number; visible: boolean } | null = null;
+  /** The parsed Score, for the notation the red discs need (clef, key, octave shifts: 008); set by session.ts. */
+  private notationScore: Score | null = null;
+  /** The accidental glyphs Verovio's worker read at start-up (008 R-11); null draws discs without accidentals. */
+  private glyphs: MusicGlyphs | null = null;
+  /** The discs of the last frame and what they were computed from: a frame that changes none of it reuses them, and a
+   *  key that is still held keeps its staff (008 R-08). */
+  private discPlacements: DiscPlacement[] = [];
+  private discsFrom: { held: unknown; event: unknown; score: unknown; selection: unknown } | null = null;
+  private discsSeam = '[]';
   // Play mode (003 T107): set once by session.ts once a PlaySessionController exists.
   private playSession: PlayPositionReporter | null = null;
   private playDrawn = false;
@@ -184,6 +202,13 @@ export class MxScoreView extends HTMLElement {
     this.timeline = timeline;
   }
 
+  /** The parsed Score, so Practice can print the pitch of a wrong key as notation (008); null when none is open. */
+  setNotationScore(score: Score | null): void {
+    this.notationScore = score;
+    this.discPlacements = [];
+    this.discsFrom = null;
+  }
+
   /** Called once by session.ts (T107) so this element's own rAF loop can drive the controller, mirroring how it
    *  already drives the Listen cursor - never a second loop, and never a timer (Constitution I/II). */
   setPlaySession(controller: PlayPositionReporter | null): void {
@@ -198,7 +223,8 @@ export class MxScoreView extends HTMLElement {
     if (scale !== undefined) {
       this.scale = Math.min(SCORE_SCALE_MAX, Math.max(SCORE_SCALE_MIN, Math.round(scale)));
     }
-    await this.client.init();
+    const initialised = await this.client.init();
+    this.glyphs = toMusicGlyphs(initialised.glyphs);
     const layout = this.fittedLayout() ?? this.requested ?? this.defaultLayout();
     this.requested = layout;
     this.pageAspect = null;
@@ -446,6 +472,7 @@ export class MxScoreView extends HTMLElement {
     if (this.playDrawn) {
       // Leaving Play: FR-035's "cleared ... when the mode changes", the same treatment Practice gets above.
       this.playDrawn = false;
+      this.clearNoteMarks();
       this.canvasEl.getContext('2d')?.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
     }
 
@@ -555,18 +582,37 @@ export class MxScoreView extends HTMLElement {
 
   /** Puts the wanted note-mark classes on the pages (008 R-01). Only when the marks, the mounted pages or the marks
    *  layer changed, so a frame with no change costs one comparison. Off while the layer is off (FR-014). */
-  private syncNoteMarks(marks: ReadonlyMap<string, MarkState> | null, visible: boolean): void {
+  private syncNoteMarks(
+    source: object | null,
+    visible: boolean,
+    classes: (source: object) => Iterable<[string, NoteMarkClass]>,
+  ): void {
     const from = this.noteMarksFrom;
-    if (from && from.marks === marks && from.epoch === this.domEpoch && from.visible === visible) return;
-    this.noteMarksFrom = { marks, epoch: this.domEpoch, visible };
+    if (from && from.source === source && from.epoch === this.domEpoch && from.visible === visible) return;
+    this.noteMarksFrom = { source, epoch: this.domEpoch, visible };
     const wanted = new Map<string, NoteMarkClass>();
-    if (visible && marks) {
-      for (const [noteId, state] of marks) {
-        const cls = noteMarkClass(state);
-        if (cls) wanted.set(noteId, cls);
-      }
-    }
+    if (visible && source) for (const [noteId, cls] of classes(source)) wanted.set(noteId, cls);
     applyNoteMarks(this.stack, wanted, this.appliedNoteMarks);
+  }
+
+  /** The classes a Practice session's marks ask for (008 R-01). */
+  private practiceClasses = (marks: object): Iterable<[string, NoteMarkClass]> => {
+    const wanted: [string, NoteMarkClass][] = [];
+    for (const [noteId, state] of marks as ReadonlyMap<string, MarkState>) {
+      const cls = noteMarkClass(state);
+      if (cls) wanted.push([noteId, cls]);
+    }
+    return wanted;
+  };
+
+  /** The classes the Play run's live "correct so far" marks ask for: green heads, like a correct note (008 R-13). */
+  private liveClasses = (ids: object): Iterable<[string, NoteMarkClass]> =>
+    [...(ids as ReadonlySet<string>)].map((id): [string, NoteMarkClass] => [id, 'mx-mark-correct']);
+
+  /** Takes every note-mark class off the page (leaving Practice or Play). */
+  private clearNoteMarks(): void {
+    applyNoteMarks(this.stack, new Map(), this.appliedNoteMarks);
+    this.noteMarksFrom = null;
   }
 
   /** The Practice band behind the current event's column (008 R-02); hidden with the cursor layer, while its
@@ -591,10 +637,176 @@ export class MxScoreView extends HTMLElement {
     placePracticeBand(this.band, rect, this.stack.getBoundingClientRect(), cursorOn);
   }
 
+  /** The e2e / debugging seam: the discs of this frame as JSON on the overlay canvas (`data-discs`), written only when it
+   *  changed. Coordinates are viewport CSS pixels. */
+  private publishDiscs(slots: readonly DiscSlot[]): void {
+    const json = JSON.stringify(
+      slots.map((slot) => ({
+        key: slot.placement.key,
+        staff: slot.placement.staff,
+        position: slot.placement.position,
+        ledgerLines: slot.placement.ledgerLines,
+        ottava: slot.placement.ottava,
+        alter: slot.placement.alter,
+        showAccidental: slot.placement.showAccidental,
+        x: Math.round(slot.x * 100) / 100,
+        y: Math.round(slot.y * 100) / 100,
+        width: Math.round(slot.width * 100) / 100,
+        height: Math.round(slot.height * 100) / 100,
+        accidentalX: slot.accidentalX === null ? null : Math.round(slot.accidentalX * 100) / 100,
+      })),
+    );
+    if (json === this.discsSeam) return;
+    this.discsSeam = json;
+    this.canvasEl.setAttribute('data-discs', json);
+  }
+
+  /** The five staff lines of a staff element, measured on the page: the y of the bottom line, the space between lines
+   *  and the line width (008 R-05). Null when the lines cannot be read (the page is not mounted). */
+  private staffGeometry(staffEl: Element): StaffGeometry | null {
+    const lines = Array.from(staffEl.querySelectorAll(':scope > path'))
+      .slice(0, 5)
+      .map((line) => line.getBoundingClientRect());
+    if (lines.length < 5) return null;
+    const ys = lines.map((r) => (r.top + r.bottom) / 2);
+    const bottomLineY = Math.max(...ys);
+    const space = (bottomLineY - Math.min(...ys)) / 4;
+    if (!(space > 0)) return null;
+    const lineWidth = Math.max(1, lines.reduce((sum, r) => sum + r.height, 0) / lines.length);
+    return {
+      bottomLineY,
+      space,
+      lineWidth,
+      left: Math.min(...lines.map((r) => r.left)),
+      right: Math.max(...lines.map((r) => r.right)),
+    };
+  }
+
+  /**
+   * The red discs for the keys held that are not written at the current event (feature 008): the core places each one
+   * (staff, pitch as printed, sign, ledger lines), the page's own staff lines and noteheads give the geometry, and the
+   * overlay draws them. Off with the marks layer; nothing when no such key is held.
+   */
+  private drawDiscs(
+    ctx: CanvasRenderingContext2D,
+    dpr: number,
+    containerRect: DOMRect,
+    session: PracticeSession | null,
+    event: ExpectedEvent | undefined,
+    visible: boolean,
+  ): void {
+    const score = this.notationScore;
+    if (!visible || !session || !event || !score || session.phase === 'finished' || session.heldWrongKeys.size === 0) {
+      this.discPlacements = [];
+      this.discsFrom = null;
+      this.publishDiscs([]);
+      return;
+    }
+
+    const from = { held: session.heldWrongKeys, event, score, selection: session.selection };
+    const last = this.discsFrom;
+    if (
+      !last ||
+      last.held !== from.held ||
+      last.event !== from.event ||
+      last.score !== from.score ||
+      last.selection !== from.selection
+    ) {
+      const at = eventPosition(score, event);
+      this.discPlacements = at
+        ? placeDiscs({
+            score,
+            selection: session.selection,
+            event,
+            at,
+            heldWrongKeys: session.heldWrongKeys,
+            previous: this.discPlacements,
+          })
+        : [];
+      this.discsFrom = from;
+    }
+
+    // Which staff element is which staff of the practised part: the required notes say (an element index minus the
+    // staff they are printed on gives the offset of this part's first staff in the measure)
+    const measureId = this.measureIds[event.measureIndex];
+    const measureEl = measureId === undefined ? null : this.elementFor(measureId);
+    const staffEls = measureEl ? Array.from(measureEl.querySelectorAll(':scope > g.staff')) : [];
+    const votes = new Map<number, number>();
+    for (const req of event.required) {
+      for (const noteId of req.noteIds) {
+        const index = staffEls.indexOf(this.elementFor(noteId)?.closest('g.staff') as Element);
+        if (index >= 0) votes.set(index - (req.staff - 1), (votes.get(index - (req.staff - 1)) ?? 0) + 1);
+      }
+    }
+    const offset = [...votes.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+    if (offset === undefined) {
+      this.publishDiscs([]);
+      return;
+    }
+
+    // The column of the current event: the leftmost written head, and the heads at it, by staff element
+    const headOf = (noteId: string) => this.elementFor(noteId)?.querySelector(':scope > g.notehead') ?? null;
+    const requiredHeads = event.required
+      .flatMap((r) => r.noteIds)
+      .map(headOf)
+      .filter((h): h is Element => h !== null);
+    if (requiredHeads.length === 0) {
+      this.publishDiscs([]);
+      return;
+    }
+    const requiredRects = requiredHeads.map((h) => h.getBoundingClientRect());
+    const headWidth = requiredRects.reduce((sum, r) => sum + r.width, 0) / requiredRects.length;
+    const cursorX = Math.min(...requiredRects.map((r) => (r.left + r.right) / 2));
+    const atColumn = [...event.required.flatMap((r) => r.noteIds), ...event.accompaniment.map((a) => a.noteId)];
+
+    const geometry = new Map<number, StaffGeometry>();
+    const slots: DiscSlot[] = [];
+    const staves = [...new Set(this.discPlacements.map((d) => d.staff))].sort((a, b) => a - b);
+    for (const staff of staves) {
+      const staffEl = staffEls[offset + staff - 1];
+      const staffGeometry = staffEl ? this.staffGeometry(staffEl) : null;
+      if (!staffEl || !staffGeometry) continue;
+      geometry.set(staff, staffGeometry);
+      const obstacles: NoteBox[] = [];
+      for (const noteId of atColumn) {
+        const noteEl = this.elementFor(noteId);
+        const head = headOf(noteId);
+        if (!noteEl || !head || noteEl.closest('g.staff') !== staffEl) continue;
+        const rect = head.getBoundingClientRect();
+        if (Math.abs((rect.left + rect.right) / 2 - cursorX) > 1.75 * headWidth) continue; // a later onset, not this column
+        const box: NoteBox = { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom };
+        if (session.marks.get(noteId) === 'heldOver') {
+          // its chevron stands above the head (drawStateChevron): a disc must not cover it either
+          const chevron = chevronBox(rect);
+          obstacles.push({ ...chevron, mark: true });
+        }
+        const dots = noteEl.querySelector(':scope > g.dots');
+        if (dots) box.dotsRight = dots.getBoundingClientRect().right;
+        const accidental = noteEl.querySelector(':scope > g.accid');
+        if (accidental) box.accidentalLeft = accidental.getBoundingClientRect().left;
+        obstacles.push(box);
+      }
+      slots.push(
+        ...layoutDiscs(
+          this.discPlacements.filter((d) => d.staff === staff),
+          staffGeometry,
+          cursorX,
+          obstacles,
+        ),
+      );
+    }
+    slots.sort((a, b) => a.placement.key - b.placement.key);
+
+    drawPressedKeyDiscs({ ctx, dpr, containerRect, slots, staff: geometry, glyphs: this.glyphs, visible });
+    this.publishDiscs(slots);
+  }
+
   /** Leaving Practice: nothing of it stays on the Score (the classes and the band go; the canvas is cleared by the caller). */
   private clearPracticeDom(): void {
-    applyNoteMarks(this.stack, new Map(), this.appliedNoteMarks);
-    this.noteMarksFrom = null;
+    this.clearNoteMarks();
+    this.discPlacements = [];
+    this.discsFrom = null;
+    this.publishDiscs([]);
     placePracticeBand(this.band, null, this.stack.getBoundingClientRect(), false);
   }
 
@@ -609,16 +821,17 @@ export class MxScoreView extends HTMLElement {
     runPositionState.set(currentEvent && session?.phase !== 'finished' ? currentEvent.measureIndex : null);
 
     const marksVisible = viewState.get().overlays.marks;
-    this.syncNoteMarks(session?.marks ?? null, marksVisible);
+    this.syncNoteMarks(session?.marks ?? null, marksVisible, this.practiceClasses);
     this.placeBand(session, currentEvent);
 
-    // The marks the canvas still draws as shapes of their own: the printed noteheads of accepted notes are recoloured
-    // by class (syncNoteMarks) and the waiting note is shown by the band, so neither needs a rectangle per frame.
-    const markEntries = session
-      ? Array.from(session.marks.entries())
-          .filter(([, state]) => state === 'heldOver' || state === 'playedAlong' || state === 'skipped')
-          .map(([noteId, state]) => ({ noteId, state }))
-      : [];
+    // The notes that also carry a chevron on the canvas (held-over above, skipped below its notehead): every other state
+    // is a class on the note (syncNoteMarks) or the band, so it needs no rectangle per frame.
+    const chevronEntries: { noteId: string; kind: 'heldOver' | 'skipped' }[] = [];
+    if (session) {
+      for (const [noteId, state] of session.marks) {
+        if (state === 'heldOver' || state === 'skipped') chevronEntries.push({ noteId, kind: state });
+      }
+    }
 
     const containerRect = this.scrollEl.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
@@ -632,23 +845,26 @@ export class MxScoreView extends HTMLElement {
     if (!ctx) return;
     ctx.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
 
-    const noteRects = new Map<string, DOMRect>();
-    for (const mark of markEntries) {
-      const el = this.elementFor(mark.noteId);
-      if (el) noteRects.set(mark.noteId, el.getBoundingClientRect());
-    }
-
     drawPracticeMarks({
       ctx,
       dpr,
       containerRect,
-      marks: markEntries,
-      noteRects,
+      marks: [],
+      noteRects: new Map(),
       visible: marksVisible,
       ...(session ? { dimmedNoteRects: this.dimmedRects(session.events, containerRect) } : {}),
     });
 
+    if (marksVisible) {
+      for (const { noteId, kind } of chevronEntries) {
+        const head = this.elementFor(noteId)?.querySelector(':scope > g.notehead');
+        if (head) drawStateChevron({ ctx, dpr, containerRect, noteheadRect: head.getBoundingClientRect(), kind });
+      }
+    }
+
     if (loop) drawLoopMarks({ ctx, dpr, containerRect, measures: this.loopMeasures(loop), visible: marksVisible });
+
+    this.drawDiscs(ctx, dpr, containerRect, session, currentEvent, marksVisible);
 
     if (startMeasureIndex !== null && (!session || session.phase === 'finished')) {
       const measureId = this.measureIds[startMeasureIndex];
@@ -694,6 +910,8 @@ export class MxScoreView extends HTMLElement {
   private drawPlayState(): void {
     this.syncElementCache();
     const { grade, liveMarkedNoteIds } = playState.get();
+    // The live "correct so far" marks are green noteheads, and give way to the Grade's own marks (008 FR-017, R-13)
+    this.syncNoteMarks(grade ? null : liveMarkedNoteIds, viewState.get().overlays.marks, this.liveClasses);
 
     const containerRect = this.scrollEl.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
@@ -727,14 +945,6 @@ export class MxScoreView extends HTMLElement {
         extraRects: [],
         noteRects,
       });
-    } else if (liveMarkedNoteIds.size > 0) {
-      const noteIds = [...liveMarkedNoteIds];
-      const noteRects = new Map<string, DOMRect>();
-      for (const noteId of noteIds) {
-        const el = this.elementFor(noteId);
-        if (el) noteRects.set(noteId, el.getBoundingClientRect());
-      }
-      drawLiveMarks({ ctx, dpr, containerRect, visible: viewState.get().overlays.marks, noteIds, noteRects });
     }
   }
 

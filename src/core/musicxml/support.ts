@@ -149,7 +149,21 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
     element: '<octave-shift>',
     status: 'Supported',
     notes:
-      '8va/8vb lines engraved by Verovio and used when completing accidentals; `<pitch>` is the sounding pitch, so playback and grading are unaffected',
+      '8va/8vb lines engraved by Verovio and used when completing accidentals; also read into the Score (staff, span, octaves) so Practice prints a pressed key where that note would be (feature 008); `<pitch>` is the sounding pitch, so playback and grading are unaffected',
+  },
+  {
+    category: 'Attributes',
+    element: '<clef>',
+    status: 'Supported',
+    notes:
+      'Engraved by Verovio; also read into the Score (sign, line, octave change, per staff and position) so Practice shows a pressed key on the staff at the right place (feature 008). Percussion, TAB and other non-pitched clefs are reported and no key is drawn on that staff',
+  },
+  {
+    category: 'Attributes',
+    element: '<key>',
+    status: 'Supported',
+    notes:
+      'Engraved by Verovio and used when completing accidentals; also read (fifths, mode, per staff or all staves) so Practice spells a pressed key against the key signature (feature 008). A non-traditional key (no fifths element) shows a sign on every pressed key',
   },
   {
     category: 'Directions',

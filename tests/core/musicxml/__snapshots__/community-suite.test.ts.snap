@@ -6,6 +6,7 @@ exports[`MusicXML Test Suite (community corpus) > reports what it skips instead 
   "defaultTempo": 180,
   "instrumentFallback": 20,
   "measureLengthMismatch": 24,
+  "unsupportedClef": 8,
   "unsupportedElement:accidental-mark": 3,
   "unsupportedElement:delayed-inverted-turn": 1,
   "unsupportedElement:delayed-turn": 1,

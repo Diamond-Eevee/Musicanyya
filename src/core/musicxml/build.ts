@@ -3,7 +3,18 @@ import { XmlElement, XmlText } from '@rgrove/parse-xml';
 import { BASE_PPQ, DEFAULT_TEMPO_QPM, DYNAMIC_VELOCITY, INFER_JUMPS_FROM_TEXT } from '../defaults.js';
 import { applyTransposition, getMidiKey, getUnpitchedDisplayKey } from '../pitch.js';
 import type { LoadNoticeCode, LoadReport, LoadReportEntry, Severity } from '../score/load-report.js';
-import type { Fingering, Instrument, Note, Part, Score, Transposition, Wedge } from '../score/model.js';
+import type {
+  ClefChange,
+  Fingering,
+  Instrument,
+  KeyChange,
+  Note,
+  OctaveShiftSpan,
+  Part,
+  Score,
+  Transposition,
+  Wedge,
+} from '../score/model.js';
 import { buildMeasureId, buildNoteId } from '../score/note-id.js';
 import { computePPQ, reduceFraction } from '../ticks.js';
 import { MusicXmlLoadError } from './load-error.js';
@@ -65,6 +76,92 @@ function getAttr(el: XmlElement, name: string): string | undefined {
 interface PendingNote {
   startCursor: number;
   note: Note;
+}
+
+const CLEF_SIGNS = ['G', 'F', 'C', 'percussion', 'TAB', 'jianpu', 'none'] as const;
+/** Signs a pressed key can be placed under (feature 008); the others are kept as written and reported. */
+const PLACEABLE_CLEF_SIGNS = new Set<string>(['G', 'F', 'C']);
+const DEFAULT_CLEF_LINE: Record<string, number> = { G: 2, F: 4, C: 3 };
+
+/** The `<clef>` elements of an `<attributes>`, at the current position of the part (feature 008, R-06). */
+function readClefs(
+  attributes: XmlElement,
+  measureIndex: number,
+  onsetInMeasure: number,
+  measureLabel: string,
+  report: ReportBuilder,
+): ClefChange[] {
+  const clefs: ClefChange[] = [];
+  for (const clefEl of getChildren(attributes, 'clef')) {
+    const staff = parseInt(getAttr(clefEl, 'number') ?? '', 10) || 1;
+    const written = getText(getChild(clefEl, 'sign')).trim();
+    const known = (CLEF_SIGNS as readonly string[]).includes(written);
+    const sign = (known ? written : 'none') as ClefChange['sign'];
+    if (!PLACEABLE_CLEF_SIGNS.has(sign)) report.add('info', 'unsupportedClef', measureLabel, written || 'none');
+    const line = parseInt(getText(getChild(clefEl, 'line')), 10) || DEFAULT_CLEF_LINE[sign] || 3;
+    const octaveChange = parseInt(getText(getChild(clefEl, 'clef-octave-change')), 10) || 0;
+    clefs.push({ measureIndex, onsetInMeasure, staff, sign, line, octaveChange });
+  }
+  return clefs;
+}
+
+/** The `<key>` elements of an `<attributes>`: `<fifths>` (and `<mode>`), or a non-traditional key (`fifths: null`). */
+function readKeys(attributes: XmlElement, measureIndex: number, onsetInMeasure: number): KeyChange[] {
+  const keys: KeyChange[] = [];
+  for (const keyEl of getChildren(attributes, 'key')) {
+    const numberAttr = parseInt(getAttr(keyEl, 'number') ?? '', 10);
+    const fifthsEl = getChild(keyEl, 'fifths');
+    let fifths: number | null = 0;
+    if (fifthsEl) {
+      const parsed = parseInt(getText(fifthsEl), 10);
+      fifths = Number.isFinite(parsed) ? Math.max(-7, Math.min(7, parsed)) : 0;
+    } else if (getChild(keyEl, 'key-step')) {
+      fifths = null;
+    }
+    const modeText = getText(getChild(keyEl, 'mode')).trim();
+    keys.push({
+      measureIndex,
+      onsetInMeasure,
+      staff: Number.isFinite(numberAttr) ? numberAttr : null,
+      fifths,
+      mode: fifths !== null && (modeText === 'major' || modeText === 'minor') ? modeText : null,
+    });
+  }
+  return keys;
+}
+
+/** How many octaves an `<octave-shift size>` moves: 8 -> 1, 15 -> 2 (22 is limited to 2). */
+function octaveShiftOctaves(size: string | undefined): 1 | 2 {
+  return Math.round(((parseInt(size ?? '8', 10) || 8) - 1) / 7) >= 2 ? 2 : 1;
+}
+
+const byPosition = (
+  a: { measureIndex: number; onsetInMeasure: number },
+  b: { measureIndex: number; onsetInMeasure: number },
+) => a.measureIndex - b.measureIndex || a.onsetInMeasure - b.onsetInMeasure;
+
+/** A part's clefs, keys and shifts once every measure is read: a staff the file names no clef for gets the default at
+ *  the start (G2, F4 on the second staff of a two-staff part), a shift with no stop runs to one past the last measure,
+ *  and the lists are in position order (feature 008). */
+function finishNotation(part: Part, measureCount: number): void {
+  for (let staff = 1; staff <= Math.max(1, part.staves); staff++) {
+    if (part.clefs.some((c) => c.staff === staff && c.measureIndex === 0 && c.onsetInMeasure === 0)) continue;
+    const sign = staff === 2 && part.staves === 2 ? 'F' : 'G';
+    part.clefs.push({
+      measureIndex: 0,
+      onsetInMeasure: 0,
+      staff,
+      sign,
+      line: DEFAULT_CLEF_LINE[sign] ?? 2,
+      octaveChange: 0,
+    });
+  }
+  part.clefs.sort((a, b) => byPosition(a, b) || a.staff - b.staff);
+  part.keys.sort(byPosition);
+  for (const span of part.octaveShifts) {
+    if (!Number.isFinite(span.stop.measureIndex)) span.stop = { measureIndex: measureCount, onsetInMeasure: 0 };
+  }
+  part.octaveShifts.sort((a, b) => byPosition(a.start, b.start) || a.staff - b.staff);
 }
 
 function durationToTicks(
@@ -386,7 +483,11 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
       soundDynamics: [],
       wedges: [],
       transpositions: [],
+      clefs: [],
+      keys: [],
+      octaveShifts: [],
     };
+    const openOctaveShifts = new Map<string, OctaveShiftSpan>();
 
     let currentDivisions = 1;
     let cursor = 0;
@@ -462,6 +563,10 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
               mInfo.time = { beats, beatType };
             }
           }
+
+          const attributePosition = cursor - measureStartCursor;
+          part.clefs.push(...readClefs(el, currentMeasureIndex, attributePosition, measureLabel, report));
+          part.keys.push(...readKeys(el, currentMeasureIndex, attributePosition));
 
           const transEls = getChildren(el, 'transpose');
           for (const transEl of transEls) {
@@ -718,6 +823,38 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
             }
           }
 
+          const shiftStaff = parseInt(getText(getChild(el, 'staff')), 10) || 1;
+          const shiftOffsetText = getText(offsetEl);
+          const shiftOffset = shiftOffsetText ? Math.round(parseFloat(shiftOffsetText) * (ppq / currentDivisions)) : 0;
+          const shiftAt = {
+            measureIndex: currentMeasureIndex,
+            onsetInMeasure: Math.max(0, onsetInMeasure + (Number.isFinite(shiftOffset) ? shiftOffset : 0)),
+          };
+          for (const typeEl of getChildren(el, 'direction-type')) {
+            for (const shiftEl of getChildren(typeEl, 'octave-shift')) {
+              const type = getAttr(shiftEl, 'type');
+              const id = `${shiftStaff}:${getAttr(shiftEl, 'number') ?? '1'}`;
+              if (type === 'stop') {
+                const open = openOctaveShifts.get(id);
+                if (open) open.stop = shiftAt;
+                openOctaveShifts.delete(id);
+              } else if (type === 'up' || type === 'down') {
+                const before = openOctaveShifts.get(id);
+                if (before) before.stop = shiftAt; // a new shift starts before the old one was stopped
+                const octaves = octaveShiftOctaves(getAttr(shiftEl, 'size'));
+                const span: OctaveShiftSpan = {
+                  staff: shiftStaff,
+                  start: shiftAt,
+                  // set when it stops, else finishNotation puts it at the end of the part
+                  stop: { measureIndex: Number.POSITIVE_INFINITY, onsetInMeasure: 0 },
+                  octaves: (type === 'down' ? octaves : -octaves) as OctaveShiftSpan['octaves'],
+                };
+                part.octaveShifts.push(span);
+                openOctaveShifts.set(id, span);
+              }
+            }
+          }
+
           if (dirType) {
             const metronome = getChild(dirType, 'metronome');
             let qpm = 0;
@@ -962,6 +1099,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
       cursor = measureMaxCursor;
     }
     part.staves = currentStaves;
+    finishNotation(part, measureNodes.length);
     score.parts.push(part);
     partIndex++;
   }

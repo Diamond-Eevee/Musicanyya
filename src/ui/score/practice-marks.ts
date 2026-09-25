@@ -12,8 +12,15 @@ export interface PracticeMarksOptions {
   visible?: boolean;
 }
 
+/**
+ * What the Practice note layer still paints: the dimming of the notes the musician is not practising (FR-032). Every
+ * mark of a note is something else now (feature 008): a correct, played-along, held-over or skipped note is a recoloured
+ * notehead (`note-marks.ts`), the held-over and skipped ones also carry a chevron (`drawStateChevron` in
+ * `pressed-keys.ts`), the waiting note is the band behind it (`practice-band.ts`), and a wrong key is a red disc. No
+ * outline is drawn here, and never a dashed one (FR-009, SC-003) - `marks` and `noteRects` are accepted and ignored.
+ */
 export function drawPracticeMarks(options: PracticeMarksOptions): void {
-  const { ctx, dpr, containerRect, marks, noteRects, dimmedNoteRects, visible = true } = options;
+  const { ctx, dpr, containerRect, dimmedNoteRects, visible = true } = options;
   if (!visible) return;
 
   // Dim unselected notes
@@ -25,62 +32,6 @@ export function drawPracticeMarks(options: PracticeMarksOptions): void {
       const w = rect.width * dpr;
       const h = rect.height * dpr;
       ctx.fillRect(x - 2 * dpr, y - 2 * dpr, w + 4 * dpr, h + 4 * dpr);
-    }
-  }
-
-  for (const mark of marks) {
-    const rect = noteRects.get(mark.noteId);
-    if (!rect) continue;
-
-    const x = (rect.left - containerRect.left) * dpr;
-    const y = (rect.top - containerRect.top) * dpr;
-    const w = rect.width * dpr;
-    const h = rect.height * dpr;
-    const cx = x + w / 2;
-    const cy = y + h / 2;
-    const r = Math.max(w, h) / 2 + 4 * dpr; // Draw outside the notehead
-
-    ctx.beginPath();
-    ctx.lineWidth = 2 * dpr;
-    ctx.setLineDash([]);
-
-    switch (mark.state) {
-      case 'waiting':
-      case 'correctSoFar':
-      case 'correct':
-        // The printed notehead itself is recoloured (note-marks.ts, feature 008 FR-002) and the band shows where the
-        // session waits: no outline, and never a dashed one (FR-009).
-        break;
-      case 'wrongPitch':
-      case 'wrongOctave':
-      case 'extra':
-        // No notehead of their own to mark: the key pressed is not written at this event at all, so these three
-        // are shown on the on-screen keyboard instead, via the `keyFeedback` effect (T056, R-14) - never here.
-        break;
-      case 'heldOver':
-        ctx.strokeStyle = '#f0e442'; // yellow
-        ctx.moveTo(cx, cy - r);
-        ctx.lineTo(cx + r, cy + r);
-        ctx.lineTo(cx - r, cy + r);
-        ctx.closePath();
-        ctx.stroke();
-        break;
-      case 'playedAlong':
-        ctx.strokeStyle = '#0072b2'; // blue
-        ctx.moveTo(cx - r, cy - r / 2);
-        ctx.lineTo(cx, cy - r);
-        ctx.lineTo(cx + r, cy - r / 2);
-        ctx.lineTo(cx + r, cy + r / 2);
-        ctx.lineTo(cx, cy + r);
-        ctx.lineTo(cx - r, cy + r / 2);
-        ctx.closePath();
-        ctx.stroke();
-        break;
-      case 'skipped':
-        ctx.strokeStyle = '#999999'; // gray
-        ctx.setLineDash([2 * dpr, 2 * dpr]);
-        ctx.strokeRect(cx - r, cy - r, r * 2, r * 2);
-        break;
     }
   }
 }

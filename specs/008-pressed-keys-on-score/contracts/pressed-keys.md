@@ -1,13 +1,26 @@
 # Contract: pressed keys on the Score
 
-**Version**: `1.0.0` (internal TypeScript contract between `src/core/notation`, `src/core/practice`, `src/app` and
+**Version**: `1.1.0` (internal TypeScript contract between `src/core/notation`, `src/core/practice`, `src/app` and
 `src/ui/score`). Signatures are normative in shape. Changes bump the version (MINOR additive, MAJOR breaking).
+`1.1.0` (implementation of US2, 2026-09-25): additive - `eventPosition`, `isPlaceableClef`, `middleLineKey`; `ottava` may be
++-3 (22ma / 22mb: any key of the piano is shown under an 8va or 15mb); `DiscSlot` carries the disc's size; `NoteBox` carries
+its dots and accidental; `MusicGlyphs` is built by `toMusicGlyphs`; `MxScoreView.setNotationScore`; the `data-discs` seam.
 
 This contract also amends three existing contracts (section 4).
 
 ## 1. Core: notation (`src/core/notation/`, pure, runs in Node)
 
 ```ts
+/** The position in the Score of an expected event: where its first required note is written (null when not found). */
+export function eventPosition(score: Score, event: ExpectedEvent): ScorePosition | null;
+
+/** Whether a pressed key can be placed under a clef: G, F and C yes; percussion, TAB, jianpu, none no. */
+export function isPlaceableClef(clef: ClefChange): boolean;
+
+/** The white-key pitch on the middle line of a staff under a clef (B4 treble, D3 bass): a staff with no note at the cursor
+ *  competes for a key by this pitch (R-08 (3)). */
+export function middleLineKey(clef: ClefChange): number;
+
 /** The clef, key, octave shift, transposition and bar accidentals in force on one staff at one position. */
 export function staffContextAt(score: Score, partIndex: number, staff: number, at: ScorePosition): StaffContext;
 
@@ -33,7 +46,9 @@ export function placeDiscs(input: {
 
 Guarantees: pure and deterministic; never throws on any parsed Score (unsupported clef -> no disc on that staff);
 `|ledgerLines| <= PRACTICE_DISC_MAX_LEDGER_LINES`; a disc's `(letter, alter, printedOctave + ottava)` always
-names exactly `key` (SC-007).
+names exactly `key` (SC-007), once any octave shift and transposition in force (`staffContextAt`) are undone. `ottava` is
++-1 (8va / 8vb), +-2 (15ma / 15mb) or +-3 (22ma / 22mb): the disc is folded until it needs at most
+`PRACTICE_DISC_MAX_LEDGER_LINES` ledger lines.
 
 ## 2. Core: practice session (amends `specs/002-practice-wait-mode/contracts/practice-session.md` to 1.6.0)
 
@@ -52,7 +67,11 @@ export function applyNoteMarks(container: HTMLElement, wanted: ReadonlyMap<NoteI
 /** Positions the Practice band (R-02) behind the page SVG; hidden when `rect` is null or the cursor layer is off. */
 export function placePracticeBand(band: HTMLElement, rect: DOMRect | null, containerRect: DOMRect, visible: boolean): void;
 
-/** Pure geometry (R-09): horizontal slots for discs and their accidentals. */
+/** Pure geometry (R-09): horizontal slots for the discs of ONE staff and their accidentals, in the order of `placements`.
+ *  `cursorX` is the centre of the written notehead column; `obstacles` are the written heads there (`dotsRight`: the right
+ *  edge of their dots, `accidentalLeft`: the left edge of their sign). `DiscSlot` = `{ placement, x, y, width, height,
+ *  accidentalX }`: the disc's centre and size, and the origin (left edge) of its accidental glyph, or null.
+ *  `DISC_SIZE_RATIO` and `DISC_SHIFT_GAP_SPACES` are exported from `disc-layout.ts`. */
 export function layoutDiscs(placements: readonly DiscPlacement[], staff: StaffGeometry, cursorX: number,
   obstacles: readonly NoteBox[]): DiscSlot[];
 
@@ -66,7 +85,18 @@ export function drawStateChevron(options: { ctx: CanvasRenderingContext2D; dpr: 
   noteheadRect: DOMRect; kind: 'heldOver' | 'skipped' }): void;
 
 interface MusicGlyphs { sharp: Path2D; flat: Path2D; natural: Path2D; unitsPerSpace: number }
+
+/** Turns the worker's path data (`MusicGlyphData`) into `MusicGlyphs`; null without `Path2D` or data (no accidentals then). */
+export function toMusicGlyphs(data: MusicGlyphData | null | undefined): MusicGlyphs | null;
+
+/** MxScoreView: the parsed Score, so the view can print a pressed key as notation (set by `src/app/session.ts` with
+ *  each new Score); the Verovio worker's glyphs arrive with `VerovioClient.init()`. */
+setNotationScore(score: Score | null): void;
 ```
+
+E2E / debugging seam: the overlay canvas (`canvas.mx-score-cursor`) carries `data-discs`, a JSON array of the discs drawn in
+the last frame (`key, staff, position, ledgerLines, ottava, alter, showAccidental, x, y, width, height, accidentalX`, viewport
+CSS pixels), `[]` when none; it is written only when it changes and read by `tests/e2e/pressed-keys.spec.ts`.
 
 CSS (in `src/ui/styles/score.css`, tokens in `tokens.css`):
 

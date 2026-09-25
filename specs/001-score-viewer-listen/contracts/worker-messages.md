@@ -1,6 +1,8 @@
 # Contract: Web Worker messages
 
-**Version**: `1.1.0` (MINOR: additive — four new `LoadNoticeCode` values: `engravingCompleted`, `beamDataInvalid`,
+**Version**: `1.2.0` (MINOR, feature 008-pressed-keys-on-score: the Verovio worker's `ready` response gains `glyphs`,
+the sharp, flat, natural and black-notehead glyph path data read from Verovio's own SVG at start-up, for the accidentals
+of the red discs; nothing else changes). `1.1.0` (MINOR: additive — four new `LoadNoticeCode` values: `engravingCompleted`, `beamDataInvalid`,
 `accidentalContradicts`, `engravingSkipped`; feature 006-beamed-note-engraving US3). Two dedicated module workers keep heavy work off
 the main thread (Constitution I). Every request carries a `requestId`; every response echoes it. A newer request of
 the same kind supersedes older ones (the main thread ignores stale responses).
@@ -44,7 +46,7 @@ Holds one `VerovioToolkit`. The WASM module is created on the first `init`.
 
 | Direction | `type` | Payload |
 |---|---|---|
-| main -> worker | `init` | `{ requestId }` -> `ready { requestId, version: string }` |
+| main -> worker | `init` | `{ requestId }` -> `ready { requestId, version: string, glyphs: MusicGlyphData \| null }` (1.2.0) |
 | main -> worker | `load` | `{ requestId, renderXml: string, options: LayoutOptions }` -> `laidOut { requestId, pageCount }` |
 | main -> worker | `relayout` | `{ requestId, options: LayoutOptions }` -> `laidOut { requestId, pageCount }` |
 | main -> worker | `page` | `{ requestId, page: number /* 1-based */ }` -> `svg { requestId, page, svg: string }` |
@@ -53,6 +55,11 @@ Holds one `VerovioToolkit`. The WASM module is created on the first `init`.
 
 ```ts
 interface LayoutOptions { pageWidth: number; pageHeight: number; scale: number /* 50..200 */ }
+
+/** 1.2.0: SVG path data in font units, y up (`<path d>`); `unitsPerEm` is four staff spaces (Leipzig: 1000). Read once, at
+ *  the first `init`, by rendering a tiny built-in snippet before any Score is loaded (research R-11 of feature 008);
+ *  `null` when that failed, and the discs are then drawn without accidentals. */
+interface MusicGlyphData { sharp: string; flat: string; natural: string; notehead: string; unitsPerEm: number }
 ```
 
 Fixed options are applied in the worker (R-9): `breaks: "auto"`, `adjustPageHeight: true`, `header: "encoded"`,

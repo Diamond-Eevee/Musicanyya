@@ -1,8 +1,12 @@
 # Contract: play run (core API)
 
-**Version**: `1.1.3` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
+**Version**: `1.1.4` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
 `src/app/play-session.ts` and `src/ui`). Signatures are normative in shape; every change is reflected here with a
 version bump (MINOR for additions, MAJOR for breaking changes).
+
+**1.1.3 -> 1.1.4** (feature 008, 2026-09-25, wording only): the `liveMark` effect is shown as a green notehead (the note's
+`mx-mark-correct` class), no longer as a dashed ring; the payload is unchanged. The classes are cleared when the Grade layer
+replaces them, when a new run starts and when the mode changes.
 
 **1.1.2 -> 1.1.3** (T074): `PlayNoticeCode` gains `playAttemptNotStored` - a finished run's Grade is shown even
 when `PerformanceStore.put` fails (contracts/performance-log.md "Failure behaviour"), and the musician is told the

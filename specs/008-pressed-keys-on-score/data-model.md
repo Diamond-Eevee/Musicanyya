@@ -27,7 +27,8 @@ interface KeyChange extends ScorePosition {
 interface OctaveShiftSpan {
   staff: number;
   start: ScorePosition;
-  stop: ScorePosition;                  // inclusive of notes starting at `stop`
+  stop: ScorePosition;                  // exclusive: a note starting at `stop` is printed as written (as the engraving
+                                        // does, walk.ts); one past the last measure when the file gives no stop
   octaves: -2 | -1 | 1 | 2;             // printed = sounding - octaves; 8va (type="down") = +1, 8vb = -1, 15ma = +2
 }
 
@@ -79,7 +80,7 @@ interface DiscPlacement {
   position: number;                     // diatonic steps above the bottom line: 0 = bottom line, 1 = first space,
                                         // 8 = top line, -2 = first ledger line below, 10 = first ledger line above
   ledgerLines: number;                  // count, sign = side (negative below); |ledgerLines| <= MAX (R-10)
-  ottava: -2 | -1 | 0 | 1 | 2;          // folded octaves for the label (R-10); 0 = no label
+  ottava: -3 | -2 | -1 | 0 | 1 | 2 | 3; // folded octaves for the label (R-10; +-3 = 22ma/22mb, needed under an 8va or 15mb); 0 = no label
   state: WrongKeyState;                 // why the key is not accepted (accessibility name, never shown as a verdict)
 }
 ```
@@ -123,7 +124,9 @@ type NoteMarkClass = 'mx-mark-correct' | 'mx-mark-heldover' | 'mx-mark-skipped';
 
 interface StaffGeometry { bottomLineY: number; space: number; lineWidth: number; left: number; right: number }
 
-interface DiscSlot { placement: DiscPlacement; x: number; y: number; accidentalX: number | null }
+interface DiscSlot { placement: DiscPlacement; x: number; y: number; width: number; height: number; accidentalX: number | null }
+// x, y = centre of the disc; accidentalX = origin (left edge) of the accidental glyph, in the column left of the chord
+interface NoteBox { left: number; right: number; top: number; bottom: number; dotsRight?: number; accidentalLeft?: number }
 ```
 
 `layoutDiscs(placements, geometry, cursorX, obstacles: readonly NoteBox[]) -> DiscSlot[]` (R-09) is pure geometry.
@@ -134,7 +137,7 @@ interface DiscSlot { placement: DiscPlacement; x: number; y: number; accidentalX
 |---|---|---|
 | `PRACTICE_DISC_MAX_LEDGER_LINES` | 5 | `src/core/defaults.ts`, R-10 |
 | `PRACTICE_DISC_OTHER_STAFF_LEDGER_LINES` | 3 | `src/core/defaults.ts`, R-08 |
-| `DISC_SIZE_RATIO` | 0.85 | `src/ui/score/pressed-keys.ts`, R-04 (drawing, not domain) |
+| `DISC_SIZE_RATIO` | 0.85 | `src/ui/score/disc-layout.ts`, R-04 (drawing geometry, not domain) |
 | `DISC_SHIFT_GAP_SPACES` | 0.1 | `src/ui/score/disc-layout.ts`, R-09 |
 | `--practice-correct-color` / `--practice-heldover-color` / `--practice-skipped-color` / `--practice-disc-color` / `--practice-band-color` | #009e73 / #e69f00 / #999999 / #d55e00 / sky-blue at 30 % | `src/ui/styles/tokens.css`, R-02, R-03 |
 

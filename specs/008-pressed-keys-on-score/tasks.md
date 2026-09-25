@@ -135,24 +135,24 @@ staff in the band, beside the black E5; release: gone; press E4: a disc one octa
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T022 [P] [US2] Parser tests in `tests/core/musicxml/build.test.ts` on the T021 fixtures: `Part.clefs` (sign,
+- [x] T022 [P] [US2] Parser tests in `tests/core/musicxml/build.test.ts` on the T021 fixtures: `Part.clefs` (sign,
   line, octaveChange, staff, position incl. the mid-measure change; defaults G2/F4 when absent), `Part.keys`
   (fifths, mode, per-staff and all-staves, `fifths: null` for the non-traditional key), `Part.octaveShifts`
   (octaves +1 for 8va encoded `type="down"`, -2 for 15mb, stop position; unterminated -> end of part); an
   unsupported clef sign adds a load notice and does not throw; Note IDs, ticks and the existing snapshots unchanged
-- [ ] T023 [P] [US2] Tests for `staffContextAt` in `tests/core/notation/context.test.ts`: clef/key/octave shift in
+- [x] T023 [P] [US2] Tests for `staffContextAt` in `tests/core/notation/context.test.ts`: clef/key/octave shift in
   force at a position incl. mid-measure changes; `barAlters` and `barSpellings` from notes earlier in the bar on
   that staff only (not the other staff, not the previous bar); `transposeSemitones` from `transpositions`
-- [ ] T024 [P] [US2] Tests for `spellPressedKey` in `tests/core/notation/spell.test.ts`, one assertion per rule of
+- [x] T024 [P] [US2] Tests for `spellPressedKey` in `tests/core/notation/spell.test.ts`, one assertion per rule of
   research R-07: (a) spelling already in the bar wins (D# written earlier -> D#, not Eb); (b) key's own scale note
   (E# in F# major, Cb in Gb major); (c) white key natural; (d) black key sharp for fifths >= 0, flat for < 0;
   (e) minor raised 7th (C# in D minor); (f) no double accidentals; sign shown: F natural in G major -> natural sign,
   F natural after a written F# in C major -> natural sign, a letter altered in another octave in the bar -> sign;
   non-traditional key -> sign always
-- [ ] T025 [P] [US2] Tests for `staffPosition` in `tests/core/notation/staff-position.test.ts`: G2 E4 = 0,
+- [x] T025 [P] [US2] Tests for `staffPosition` in `tests/core/notation/staff-position.test.ts`: G2 E4 = 0,
   G2 F5 = 8, F4 G2 = 0, F4 A3 = 8, C3 C4 = 4, G8vb clef shifts by 7 steps; ledger-line counts above and below
   (C4 in treble = -1, A5 = +1)
-- [ ] T026 [P] [US2] Tests for `placeDiscs` in `tests/core/notation/place-discs.test.ts`, one assertion per rule:
+- [x] T026 [P] [US2] Tests for `placeDiscs` in `tests/core/notation/place-discs.test.ts`, one assertion per rule:
   staff choice R-08 (1) key matching a written note goes on that note's staff, (2) one hand -> its staff, switched
   when > 3 ledger lines and the other staff fewer, (3) both hands -> nearest sounding notes in semitones,
   (4) no notes -> fewer ledger lines, tie C4+ upper; sticky: a key present in `previous` keeps its staff after the
@@ -160,25 +160,25 @@ staff in the band, beside the black E5; release: gone; press E4: a disc one octa
   R-10 beyond 5 ledger lines folds one or two octaves with `ottava` set; unsupported clef -> no disc; property:
   `(letter, alter, printedOctave, octaveShift, ottava, transposition)` always resolves back to `key` for every key
   21..108 on every fixture staff (SC-007); same input -> same output (FR-016)
-- [ ] T027 [P] [US2] Matcher tests for `heldWrongKeys` in `tests/core/practice/matcher.test.ts`, one per row of
+- [x] T027 [P] [US2] Matcher tests for `heldWrongKeys` in `tests/core/practice/matcher.test.ts`, one per row of
   data-model section 4: added with the `keyFeedback` state; removed on `noteOff`; cleared on `deviceLost`, session
   end and new session; on event change a held key required by the new event leaves the map (and its note is
   `heldOver`), an `extra` key stays; `startSession` returns it empty
-- [ ] T028 [P] [US2] Replay golden test: extend `tests/core/practice/replay.test.ts` so the snapshot records
+- [x] T028 [P] [US2] Replay golden test: extend `tests/core/practice/replay.test.ts` so the snapshot records
   `heldWrongKeys` after every step of the recorded sessions (FR-016); run it, see it fail on the missing field
-- [ ] T029 [P] [US2] Unit tests for `layoutDiscs` in `tests/ui/disc-layout.test.ts` (pure numbers, R-09): a disc a
+- [x] T029 [P] [US2] Unit tests for `layoutDiscs` in `tests/ui/disc-layout.test.ts` (pure numbers, R-09): a disc a
   second from a written head moves right by one head width + 0.1 space; same position -> right; past augmentation
   dots when present; two discs a second apart zig-zag without touching each other or a written head; a disc's
   accidental sits left of the written chord's accidentals; no disc box ever intersects a written notehead box
   (SC-004, property over random chords)
-- [ ] T030 [P] [US2] Test for `harvestGlyphs` in `tests/verovio/glyphs.test.ts` (Node, real verovio toolkit): it
+- [x] T030 [P] [US2] Test for `harvestGlyphs` in `tests/verovio/glyphs.test.ts` (Node, real verovio toolkit): it
   returns non-empty path data for sharp, flat, natural and notehead and `unitsPerEm > 0`; afterwards the toolkit has
   no Score loaded and loading a fixture renders as before
-- [ ] T031 [P] [US2] Unit tests for `drawPressedKeyDiscs` in `tests/ui/pressed-keys.test.ts` (recording canvas
+- [x] T031 [P] [US2] Unit tests for `drawPressedKeyDiscs` in `tests/ui/pressed-keys.test.ts` (recording canvas
   fake): per slot one filled ellipse in the disc colour, the placement's ledger lines at the staff-line width, the
   accidental glyph path only when `showAccidental`, an ottava label only when `ottava != 0`; nothing when
   `visible = false`; never `setLineDash` with a pattern
-- [ ] T032 [US2] E2E "US2" in `tests/e2e/pressed-keys.spec.ts` (quickstart US2 steps 1-7): D5 held -> a disc
+- [x] T032 [US2] E2E "US2" in `tests/e2e/pressed-keys.spec.ts` (quickstart US2 steps 1-7): D5 held -> a disc
   whose centre is on the D5 staff position (from measured staff lines) and right of the E5 head without overlap;
   release -> gone within 50 ms; E4 -> disc one octave below; black key -> accidental drawn; two keys -> two discs,
   no overlap; A0 -> ottava label; marks layer off -> no disc; appearance within 50 ms of key-down (SC-001/002);
@@ -189,27 +189,27 @@ staff in the band, beside the black E5; release: gone; press E4: a disc one octa
 
 ### Implementation
 
-- [ ] T033 [US2] Add `ScorePosition`, `ClefChange`, `KeyChange`, `OctaveShiftSpan` and the three `Part` lists to
+- [x] T033 [US2] Add `ScorePosition`, `ClefChange`, `KeyChange`, `OctaveShiftSpan` and the three `Part` lists to
   `src/core/score/model.ts`; parse `<clef>`, `<key>`, `<octave-shift>` in `src/core/musicxml/build.ts` (defaults,
   unsupported-clef notice) - makes T022 pass; update `specs/001-score-viewer-listen/data-model.md` section 1
-- [ ] T034 [US2] Implement `staffContextAt` in `src/core/notation/context.ts` and `staffPosition` in
+- [x] T034 [US2] Implement `staffContextAt` in `src/core/notation/context.ts` and `staffPosition` in
   `src/core/notation/staff-position.ts` - makes T023, T025 pass
-- [ ] T035 [US2] Implement `spellPressedKey` in `src/core/notation/spell.ts` - makes T024 pass
-- [ ] T036 [US2] Implement `placeDiscs` in `src/core/notation/place-discs.ts` and export the module from
+- [x] T035 [US2] Implement `spellPressedKey` in `src/core/notation/spell.ts` - makes T024 pass
+- [x] T036 [US2] Implement `placeDiscs` in `src/core/notation/place-discs.ts` and export the module from
   `src/core/notation/index.ts` - makes T026 pass
-- [ ] T037 [US2] Add `heldWrongKeys` to `PracticeSession` in `src/core/practice/types.ts` and maintain it in
+- [x] T037 [US2] Add `heldWrongKeys` to `PracticeSession` in `src/core/practice/types.ts` and maintain it in
   `src/core/practice/matcher.ts`; update the replay snapshot with the reason logged - makes T027, T028 pass; bump
   `specs/002-practice-wait-mode/contracts/practice-session.md` to 1.6.0 (contract section 4)
-- [ ] T038 [US2] Implement `harvestGlyphs` in `src/workers/glyphs.ts`, call it on `init` in
+- [x] T038 [US2] Implement `harvestGlyphs` in `src/workers/glyphs.ts`, call it on `init` in
   `src/workers/verovio.worker.ts` and expose the glyphs from `src/ui/score/verovio-client.ts` - makes T030 pass; bump
   `specs/001-score-viewer-listen/contracts/worker-messages.md` to 1.2.0
-- [ ] T039 [US2] Implement `layoutDiscs` in `src/ui/score/disc-layout.ts` - makes T029 pass
-- [ ] T040 [US2] Implement `drawPressedKeyDiscs` and the glyph `Path2D` conversion in `src/ui/score/pressed-keys.ts`
+- [x] T039 [US2] Implement `layoutDiscs` in `src/ui/score/disc-layout.ts` - makes T029 pass
+- [x] T040 [US2] Implement `drawPressedKeyDiscs` and the glyph `Path2D` conversion in `src/ui/score/pressed-keys.ts`
   - makes T031 pass
-- [ ] T041 [US2] Wire it in `src/ui/elements/mx-score-view.ts`: measure the staff geometry of the cursor measure
+- [x] T041 [US2] Wire it in `src/ui/elements/mx-score-view.ts`: measure the staff geometry of the cursor measure
   (R-05, cached per layout/scroll key), call `placeDiscs` with the previous placements, `layoutDiscs` against the
   rendered notehead boxes, then `drawPressedKeyDiscs`; clear on session end - makes T032 pass
-- [ ] T042 [US2] Checkpoint: run the US2 Independent Test with
+- [x] T042 [US2] Checkpoint: run the US2 Independent Test with
   `pnpm screenshot -- --item repertoire/intermediate/fur-elise-theme --practice --keys "+74" --out tests/.generated/008/us2-d5.png`,
   then `--keys "+64"`, `--keys "+70"` and `--keys "+21"`, and on one grand-staff item from
   `tests/fixtures/musicxml/real` with a key signature; look at every picture (disc on the right line, beside not over
@@ -229,39 +229,39 @@ the first correct notes turn green; no dashed outline anywhere.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T050 [P] [US3] In `tests/ui/practice-marks.test.ts` replace the `heldOver` triangle, `playedAlong` hexagon
+- [x] T050 [P] [US3] In `tests/ui/practice-marks.test.ts` replace the `heldOver` triangle, `playedAlong` hexagon
   and `skipped` dashed-square assertions (logged): `drawStateChevron` with `heldOver` draws a solid upward chevron
   entirely above the notehead box, with `skipped` a solid right-pointing chevron entirely below it (neither
   intersects the notehead box, both within one staff space of it), and `drawPracticeMarks` draws nothing for
   `playedAlong` and `skipped`
-- [ ] T051 [P] [US3] In `tests/ui/grade-marks.test.ts` replace the `drawLiveMarks` dashed-ring assertions (logged)
+- [x] T051 [P] [US3] In `tests/ui/grade-marks.test.ts` replace the `drawLiveMarks` dashed-ring assertions (logged)
   with a test that the Play view maps `liveMark` note IDs to `mx-mark-correct` via `applyNoteMarks` and clears them
   when the Grade layer is shown, a new run starts or the mode changes (R-13); the Grade-mark tests stay unchanged
-- [ ] T052 [US3] E2E "US3" in `tests/e2e/pressed-keys.spec.ts`: grace note played -> `mx-mark-correct`; held-over
+- [x] T052 [US3] E2E "US3" in `tests/e2e/pressed-keys.spec.ts`: grace note played -> `mx-mark-correct`; held-over
   -> `mx-mark-heldover` + chevron pixels above the head + the existing hint; Skip Forward -> `mx-mark-skipped` + chevron pixels below the head;
   a Play run (existing Play e2e helpers) -> green heads during the run, no dashed line, Grade marks at the end as
   before; a `setLineDash` spy over a whole Practice session and a whole Play run records no non-empty pattern
   (SC-003)
-- [ ] T053 [P] [US3] Greyscale check in `tests/e2e/pressed-keys.spec.ts`: a PNG with an accepted note, a disc, a
+- [x] T053 [P] [US3] Greyscale check in `tests/e2e/pressed-keys.spec.ts`: a PNG with an accepted note, a disc, a
   held-over note and a skipped note, converted to greyscale, is saved to `tests/.generated/008/greyscale.png`;
   assert the four marks differ in shape/position (upward chevron above only the held-over head, right-pointing
   chevron below only the skipped head, no chevron on the accepted head, disc only off the written heads) (SC-005)
-- [ ] T057 [P] [US3] Static test `tests/ui/no-dashed-lines.test.ts`: no module under `src/ui/score/` or
+- [x] T057 [P] [US3] Static test `tests/ui/no-dashed-lines.test.ts`: no module under `src/ui/score/` or
   `src/ui/elements/mx-score-view.ts` calls `setLineDash` with a non-empty pattern, except the listed non-Practice,
   non-Play-run layers that still need one (if any, each named with its reason) (SC-003 for every item by
   construction)
 
 ### Implementation
 
-- [ ] T054 [US3] Implement `drawStateChevron` in `src/ui/score/pressed-keys.ts`; remove the `heldOver`,
+- [x] T054 [US3] Implement `drawStateChevron` in `src/ui/score/pressed-keys.ts`; remove the `heldOver`,
   `playedAlong` and `skipped` outline branches from `src/ui/score/practice-marks.ts` and call the chevron for
   `heldOver` and `skipped` notes (with their `g.notehead` box) from `src/ui/elements/mx-score-view.ts` - makes T050
   pass
-- [ ] T055 [US3] Remove `drawLiveMarks` from `src/ui/score/grade-marks.ts`; in `src/ui/elements/mx-score-view.ts`
+- [x] T055 [US3] Remove `drawLiveMarks` from `src/ui/score/grade-marks.ts`; in `src/ui/elements/mx-score-view.ts`
   apply `mx-mark-correct` for Play `liveMark` note IDs and clear them per R-13; remove the unused
   `isPracticeWaiting` branch of `src/ui/score/cursor-overlay.ts`; bump
   `specs/003-play-mode-grading/contracts/play-run.md` to 1.1.4 - makes T051, T052, T057 pass
-- [ ] T056 [US3] Make T053 pass (adjust only drawing, never the check); checkpoint: US3 Independent Test with the
+- [x] T056 [US3] Make T053 pass (adjust only drawing, never the check); checkpoint: US3 Independent Test with the
   screenshot tool on the grace-note fixture and in Play mode; look at the pictures; full gate; log entry; commit
 
 **Checkpoint**: all three stories work; no dashed outline in Practice or during a Play run.
@@ -270,9 +270,9 @@ the first correct notes turn green; no dashed outline anywhere.
 
 ## Phase 6: Polish & Cross-Cutting
 
-- [ ] T060 [P] Update `docs/musicxml-support.md` and `SUPPORT_MATRIX` (keep `tests/core/musicxml/support-doc-sync.test.ts`
+- [x] T060 [P] Update `docs/musicxml-support.md` and `SUPPORT_MATRIX` (keep `tests/core/musicxml/support-doc-sync.test.ts`
   green): `<clef>`, `<key>` (incl. `<mode>`), `<octave-shift>` are now read into the Score and used by Practice
-- [ ] T061 [P] Update `specs/002-practice-wait-mode/contracts/practice-session.md` "Marks and feedback" wording
+- [x] T061 [P] Update `specs/002-practice-wait-mode/contracts/practice-session.md` "Marks and feedback" wording
   (wrong keys also shown on the Score while held) and the i18n state labels in `src/ui/i18n/en.ts` if any label
   named a removed outline
 - [ ] T062 Real files: run quickstart "Real files" on two grand-staff items from `tests/fixtures/musicxml/real` and

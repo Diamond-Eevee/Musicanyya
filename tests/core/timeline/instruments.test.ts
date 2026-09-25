@@ -36,6 +36,9 @@ function part(index: number, instruments: Instrument[]): Part {
     soundDynamics: [],
     wedges: [],
     transpositions: [],
+    clefs: [],
+    keys: [],
+    octaveShifts: [],
   };
 }
 

@@ -1,6 +1,6 @@
 # Contract: practice session (core API)
 
-**Version**: `1.5.0` (internal TypeScript contract between `src/core/practice`, `src/app/session.ts` and
+**Version**: `1.6.0` (internal TypeScript contract between `src/core/practice`, `src/app/session.ts` and
 `src/ui`). Signatures are normative in shape; every change is reflected here with a version bump (MINOR for
 additions, MAJOR for breaking changes). `1.0.0` was amended on 2026-09-20 by the clarification session (played-along
 and skipped marks, the wrong-versus-extra rule, part selection, skip inputs) before anything was implemented.
@@ -16,6 +16,14 @@ on-screen keyboard (R-14) since it has no notehead of its own; `WrongKeyState` i
 `hideHelp`); `practice.extra.heldOver` / `practice.repress` are assigned to the `heldOver` help text (R-15).
 `1.5.0` (US4, 2026-09-20): the `setHelp` input is added, mirroring `setAccompaniment` - it updates `help` on a
 running session (switching it off also hides help that is currently shown) without restarting the session.
+`1.6.0` (feature 008, 2026-09-25): `PracticeSession.heldWrongKeys` is added (`ReadonlyMap<number, WrongKeyState>`,
+research R-12 of that feature): the held keys that are not written at the current event, with the reason. `step()`
+adds a key whenever it emits `keyFeedback` for it, removes it on its `noteOff`, clears the map on `deviceLost` and
+when the session ends, and drops a key that the newly current event requires (that note becomes `heldOver`, FR-009a);
+an extra or wrong key that the new event does not require stays. `startSession()` returns it empty. Also, a
+`noteOff` of a key the current event requires now withdraws the `correctSoFar` or `heldOver` mark of its notes
+(`markNotes` `waiting`) - a chord key let go before the chord is complete is no longer "played so far" (008 FR-003).
+No input or effect is added.
 
 Constitution IV and V: this module is pure. It imports nothing from `src/engine` or `src/ui`, touches no DOM, no
 Web API, no clock and no randomness, and therefore runs in Node under test. It **returns** effects; it never
@@ -162,7 +170,9 @@ is not written at the current event at all. They are shown on the on-screen keyb
 effect (R-14, owner decision 2026-09-20): `wrongOctave` carries `practice.octave.higher` / `.lower` depending on
 which way the pressed key is from the required one; `extra` (every required key already held) carries
 `practice.extra.notInChord`; `wrongPitch` carries no message - there is no useful direction to give for a letter
-that is simply wrong, so the mark alone stands until FR-023's help lights the right key. `heldOver` keeps marking
+that is simply wrong, so the mark alone stands until FR-023's help lights the right key. Since 1.6.0 the same keys
+are also shown **on the Score** while they are held, as red discs on the staff at the pitch pressed (feature 008,
+`PracticeSession.heldWrongKeys`). `heldOver` keeps marking
 the required notehead as before (`markNotes`), unchanged by this contract; `practice.extra.heldOver` ("Release the
 held key.") and `practice.repress` ("Press the key again.") are shown together by the help overlay for `reason:
 "heldOver"` (R-15) - the release-then-repress instruction FR-009a asks for.
