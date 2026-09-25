@@ -245,3 +245,92 @@ describe('matcher', () => {
     expect(complete.session.index).toBe(5);
   });
 });
+
+describe('releasing a key before the event is complete (008 FR-003, T067)', () => {
+  const chordSession = () => {
+    const { score, timeline } = loadFixture('chords/c-major-scale-and-chords.musicxml');
+    const events = buildExpectedEvents(score, timeline, { preset: 'both', partIndex: 0, staves: [1] });
+    const session = startSession({
+      scoreId: 'test',
+      events,
+      startEventIndex: 4, // the C-E-G chord
+      loop: null,
+      accompaniment: false,
+      help: false,
+    });
+    const noteOf = (key: number) => events[4]?.required.find((r) => r.key === key)?.noteIds ?? [];
+    return { session, noteOf };
+  };
+
+  it('(a) takes the released key’s note back to no mark; the key still held keeps correctSoFar', () => {
+    const { session, noteOf } = chordSession();
+    const held = playSession(session, ['on:60@10', 'on:64@20']);
+    expect(held.session.marks.get(noteOf(64)[0] as string)).toBe('correctSoFar');
+
+    const released = playSession(held.session, ['off:64@30']);
+    expect(released.session.marks.has(noteOf(64)[0] as string)).toBe(false);
+    expect(released.session.marks.get(noteOf(60)[0] as string)).toBe('correctSoFar');
+    expect(released.session.index).toBe(4);
+    expect(released.effects).toContainEqual({
+      type: 'markNotes',
+      marks: noteOf(64).map((noteId) => ({ noteId, state: 'waiting' })),
+    });
+    expect(released.effects.filter((e) => e.type === 'markNotes')).toHaveLength(1); // only that key's note
+  });
+
+  it('(b) pressing the released key again completes the chord as before', () => {
+    const { session } = chordSession();
+    const step = playSession(session, ['on:60@10', 'on:64@20', 'off:64@30', 'on:64@40']);
+    expect(step.session.index).toBe(4); // 67 is not held yet
+    const done = playSession(step.session, ['on:67@50']);
+    expect(done.session.index).toBe(5);
+  });
+
+  it('(c) releasing a key after its event was accepted changes no mark', () => {
+    const { session, noteOf } = chordSession();
+    const accepted = playSession(session, ['on:60@10', 'on:64@20', 'on:67@30']);
+    expect(accepted.session.index).toBe(5);
+    expect(accepted.session.marks.get(noteOf(60)[0] as string)).toBe('correct');
+
+    const released = playSession(accepted.session, ['off:60@40', 'off:64@50', 'off:67@60']);
+    for (const key of [60, 64, 67]) expect(released.session.marks.get(noteOf(key)[0] as string)).toBe('correct');
+    expect(released.effects.filter((e) => e.type === 'markNotes')).toEqual([]);
+  });
+
+  it('(d) releasing a held-over key clears its held-over mark (its hint goes away then, FR-009a)', () => {
+    // Event 3 (F4, key 65) is followed by the chord; hold 65 through the arrival of an event that needs it: use the
+    // repeated-pitch fixture, where the same key is required twice in a row.
+    const { score, timeline } = loadFixture('repeated-pitch-two-presses.musicxml');
+    const events = buildExpectedEvents(score, timeline, { preset: 'both', partIndex: 0, staves: [1] });
+    const key = events[0]?.required[0]?.key as number;
+    expect(events[1]?.required.some((r) => r.key === key)).toBe(true);
+    const session = startSession({
+      scoreId: 'test',
+      events,
+      startEventIndex: 0,
+      loop: null,
+      accompaniment: false,
+      help: false,
+    });
+
+    const held = playSession(session, [`on:${key}@10`]); // accepted; the key stays down, event 1 needs it
+    expect(held.session.phase).toBe('blocked');
+    const noteId = events[1]?.required.find((r) => r.key === key)?.noteIds[0] as string;
+    expect(held.session.marks.get(noteId)).toBe('heldOver');
+
+    const released = playSession(held.session, [`off:${key}@20`]);
+    expect(released.session.phase).toBe('waiting');
+    expect(released.session.marks.has(noteId)).toBe(false);
+    expect(released.effects).toContainEqual({ type: 'markNotes', marks: [{ noteId, state: 'waiting' }] });
+    // ...and the note that was played first stays correct
+    const first = events[0]?.required.find((r) => r.key === key)?.noteIds[0] as string;
+    expect(released.session.marks.get(first)).toBe('correct');
+  });
+
+  it('(e) releasing a key the event does not require changes no mark', () => {
+    const { session, noteOf } = chordSession();
+    const step = playSession(session, ['on:60@10', 'on:61@20', 'off:61@30']);
+    expect(step.session.marks.get(noteOf(60)[0] as string)).toBe('correctSoFar');
+    expect(step.session.marks.size).toBe(1);
+  });
+});

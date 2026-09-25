@@ -3,7 +3,7 @@ import { drawCursorOverlay } from '../../src/ui/score/cursor-overlay.js';
 import { drawLoopMarks, drawPracticeMarks } from '../../src/ui/score/practice-marks.js';
 
 describe('practice marks rendering', () => {
-  it('each of the six markable MarkStates renders a distinct shape class as well as a colour, and no mark covers the notehead', () => {
+  it('the states still drawn as outlines (heldOver, playedAlong, skipped) render a stroke, until US3 replaces them (T050)', () => {
     // We will test that drawPracticeMarks calls the appropriate canvas context methods
     // with different fillStyles and shapes (rects, arcs, etc.) for each MarkState.
     const ctx = {
@@ -27,10 +27,9 @@ describe('practice marks rendering', () => {
     // notehead of their own to mark (the key pressed is not written at this event at all) and are never produced
     // as a `markNotes` state by the matcher any more - they reach the on-screen keyboard instead, via the separate
     // `keyFeedback` effect (T056, R-14), covered by tests/ui/practice-key-feedback.test.ts.
+    // 008 T013: waiting, correctSoFar and correct are no longer outlines (FR-009): they are the printed notehead in
+    // green (or nothing, for waiting) and are asserted below. The other three stay until T050/T054 (US3).
     const marks = [
-      { noteId: 'n1', state: 'waiting' as const },
-      { noteId: 'n2', state: 'correctSoFar' as const },
-      { noteId: 'n3', state: 'correct' as const },
       { noteId: 'n7', state: 'heldOver' as const },
       { noteId: 'n8', state: 'playedAlong' as const },
       { noteId: 'n9', state: 'skipped' as const },
@@ -38,9 +37,6 @@ describe('practice marks rendering', () => {
 
     // Pass noteRects for each
     const noteRects = new Map([
-      ['n1', getRect('n1')],
-      ['n2', getRect('n2')],
-      ['n3', getRect('n3')],
       ['n7', getRect('n7')],
       ['n8', getRect('n8')],
       ['n9', getRect('n9')],
@@ -57,6 +53,50 @@ describe('practice marks rendering', () => {
     // The test asserts that drawPracticeMarks uses stroke methods to avoid covering noteheads
     expect(ctx.stroke).toHaveBeenCalled();
     expect(ctx.strokeRect).toHaveBeenCalled();
+  });
+
+  it('waiting, correctSoFar and correct draw no outline at all, never a dashed one; dimming is unchanged (008 FR-009, T013)', () => {
+    const dashPatterns: number[][] = [];
+    const ctx = {
+      fillRect: vi.fn(),
+      strokeRect: vi.fn(),
+      beginPath: vi.fn(),
+      arc: vi.fn(),
+      ellipse: vi.fn(),
+      rect: vi.fn(),
+      fill: vi.fn(),
+      stroke: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      closePath: vi.fn(),
+      setLineDash: vi.fn((pattern: number[]) => dashPatterns.push(pattern)),
+    } as unknown as CanvasRenderingContext2D;
+    const rect = { left: 10, top: 20, right: 30, bottom: 40, width: 20, height: 20 } as DOMRect;
+
+    drawPracticeMarks({
+      ctx,
+      dpr: 1,
+      containerRect: { left: 0, top: 0 } as DOMRect,
+      marks: [
+        { noteId: 'w', state: 'waiting' },
+        { noteId: 's', state: 'correctSoFar' },
+        { noteId: 'c', state: 'correct' },
+      ],
+      noteRects: new Map([
+        ['w', rect],
+        ['s', rect],
+        ['c', rect],
+      ]),
+      dimmedNoteRects: [{ left: 50, top: 20, right: 70, bottom: 40, width: 20, height: 20 } as DOMRect],
+    });
+
+    // Not a ring, not a square, not a line: nothing but the dimming of the unselected hand's notes
+    expect(ctx.stroke).not.toHaveBeenCalled();
+    expect(ctx.strokeRect).not.toHaveBeenCalled();
+    expect(ctx.arc).not.toHaveBeenCalled();
+    expect(ctx.moveTo).not.toHaveBeenCalled();
+    expect(ctx.fillRect).toHaveBeenCalledTimes(1); // the one dimmed rect, untouched behaviour
+    expect(dashPatterns.filter((pattern) => pattern.length > 0)).toEqual([]); // never a dashed pattern
   });
 
   it('waiting cursor sits on the expected event (using drawCursorOverlay with mode)', () => {

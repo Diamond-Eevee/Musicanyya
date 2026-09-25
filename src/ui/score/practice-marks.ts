@@ -45,16 +45,11 @@ export function drawPracticeMarks(options: PracticeMarksOptions): void {
     ctx.setLineDash([]);
 
     switch (mark.state) {
+      case 'waiting':
       case 'correctSoFar':
-        ctx.strokeStyle = '#56b4e9'; // sky-blue
-        ctx.setLineDash([4 * dpr, 4 * dpr]);
-        ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.stroke();
-        break;
       case 'correct':
-        ctx.strokeStyle = '#009e73'; // bluish-green
-        ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.stroke();
+        // The printed notehead itself is recoloured (note-marks.ts, feature 008 FR-002) and the band shows where the
+        // session waits: no outline, and never a dashed one (FR-009).
         break;
       case 'wrongPitch':
       case 'wrongOctave':
@@ -85,12 +80,6 @@ export function drawPracticeMarks(options: PracticeMarksOptions): void {
         ctx.strokeStyle = '#999999'; // gray
         ctx.setLineDash([2 * dpr, 2 * dpr]);
         ctx.strokeRect(cx - r, cy - r, r * 2, r * 2);
-        break;
-      case 'waiting':
-        ctx.strokeStyle = '#0072b2'; // blue
-        ctx.setLineDash([6 * dpr, 4 * dpr]);
-        ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.stroke();
         break;
     }
   }

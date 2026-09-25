@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="3.1">
+  <part-list>
+    <score-part id="P1"><part-name>Piano right hand</part-name></score-part>
+  </part-list>
+  <!-- Octave shifts on staff 1 (the <pitch> is the sounding pitch; a shifted note is printed at another octave):
+       measure 1: 8va (type="down", size 8) over the first two notes, stopped after them, so E5 and F5 are printed as
+       written; measure 2: a 15mb (type="up", size 15) from the first note to the stop at the start of measure 3;
+       measure 4: an 8va with no stop, which runs to the end of the part. -->
+  <part id="P1">
+    <measure number="1">
+      <attributes>
+        <divisions>1</divisions>
+        <time><beats>4</beats><beat-type>4</beat-type></time>
+        <clef><sign>G</sign><line>2</line></clef>
+      </attributes>
+      <direction><direction-type><metronome><beat-unit>quarter</beat-unit><per-minute>100</per-minute></metronome></direction-type><sound tempo="100"/></direction>
+      <direction placement="above"><direction-type><octave-shift type="down" size="8" number="1"/></direction-type></direction>
+      <note><pitch><step>C</step><octave>6</octave></pitch><duration>1</duration><type>quarter</type></note>
+      <note><pitch><step>D</step><octave>6</octave></pitch><duration>1</duration><type>quarter</type></note>
+      <direction placement="above"><direction-type><octave-shift type="stop" size="8" number="1"/></direction-type></direction>
+      <note><pitch><step>E</step><octave>5</octave></pitch><duration>1</duration><type>quarter</type></note>
+      <note><pitch><step>F</step><octave>5</octave></pitch><duration>1</duration><type>quarter</type></note>
+    </measure>
+    <measure number="2">
+      <direction placement="below"><direction-type><octave-shift type="up" size="15" number="1"/></direction-type></direction>
+      <note><pitch><step>C</step><octave>2</octave></pitch><duration>1</duration><type>quarter</type></note>
+      <note><pitch><step>D</step><octave>2</octave></pitch><duration>1</duration><type>quarter</type></note>
+      <note><pitch><step>E</step><octave>2</octave></pitch><duration>1</duration><type>quarter</type></note>
+      <note><pitch><step>F</step><octave>2</octave></pitch><duration>1</duration><type>quarter</type></note>
+    </measure>
+    <measure number="3">
+      <direction placement="below"><direction-type><octave-shift type="stop" size="15" number="1"/></direction-type></direction>
+      <note><pitch><step>C</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type></note>
+      <note><pitch><step>D</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type></note>
+      <note><pitch><step>E</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type></note>
+      <note><pitch><step>F</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type></note>
+    </measure>
+    <measure number="4">
+      <direction placement="above"><direction-type><octave-shift type="down" size="8" number="1"/></direction-type></direction>
+      <note><pitch><step>C</step><octave>6</octave></pitch><duration>1</duration><type>quarter</type></note>
+      <note><pitch><step>D</step><octave>6</octave></pitch><duration>1</duration><type>quarter</type></note>
+      <note><pitch><step>E</step><octave>6</octave></pitch><duration>1</duration><type>quarter</type></note>
+      <note><pitch><step>F</step><octave>6</octave></pitch><duration>1</duration><type>quarter</type></note>
+    </measure>
+  </part>
+</score-partwise>

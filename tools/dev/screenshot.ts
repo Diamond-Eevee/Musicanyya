@@ -17,6 +17,8 @@
  *   --url <url>      use an already running server instead of starting one
  *   --practice       after opening the score, switch to Practice and press Start (fakes a MIDI keyboard through the
  *                    same `e2e-midi` window event the e2e tests use; needs --item or --file)
+ *   --play <n>       with --practice: first play the correct keys of the first n events (a chord: all its keys down, then
+ *                    all up), read from the running session - for real scores whose notes you do not know by heart
  *   --keys "<steps>" with --practice: comma-separated steps `+<midi>` (key down), `-<midi>` (key up) or `wait` (one
  *                    drawn frame), e.g. "+76,-76,+75,-75,+74". The picture is taken after the last step, and keys
  *                    still down stay held (tools/dev/key-steps.ts)
@@ -47,6 +49,7 @@ const { values } = parseArgs({
     url: { type: 'string' },
     practice: { type: 'boolean', default: false },
     keys: { type: 'string' },
+    play: { type: 'string' },
   },
   allowPositionals: false,
 });
@@ -80,6 +83,19 @@ async function startPractice(page: Page): Promise<void> {
   await page.locator('mx-transport .play-btn', { hasText: 'Stop' }).waitFor({ timeout: LOAD_TIMEOUT_MS });
 }
 
+/** Plays the correct keys of the first `count` events of the running session, one event after the other. */
+async function playEvents(page: Page, count: number): Promise<void> {
+  const eventKeys = (await page.evaluate(
+    `window.__PRACTICE_STATE__.get().session.events.slice(0, ${count}).map((e) => e.required.map((r) => r.key))`,
+  )) as number[][];
+  for (const keys of eventKeys) {
+    for (const key of keys)
+      await page.evaluate(`window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x90, ${key}, 100] }))`);
+    for (const key of keys)
+      await page.evaluate(`window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x80, ${key}, 0] }))`);
+  }
+}
+
 async function pressKeys(page: Page, steps: string): Promise<void> {
   for (const step of parseKeySteps(steps)) {
     if (step.kind === 'wait') {
@@ -96,7 +112,8 @@ async function main(): Promise<void> {
   if ((values.practice || values.keys) && !values.item && !values.file) {
     throw new Error('--practice and --keys need a score: give --item <id> or --file <path>');
   }
-  if (values.keys && !values.practice) throw new Error('--keys needs --practice');
+  if ((values.keys || values.play) && !values.practice) throw new Error('--keys and --play need --practice');
+  if (values.play !== undefined && !/^\d+$/.test(values.play)) throw new Error('--play needs a number of events');
   if (values.keys) parseKeySteps(values.keys); // fail early on a bad step, before a server is started
   let server: ViteDevServer | null = null;
   let baseUrl = values.url;
@@ -127,6 +144,7 @@ async function main(): Promise<void> {
     await page.waitForTimeout(1000);
     if (values.practice) {
       await startPractice(page);
+      if (values.play) await playEvents(page, Number(values.play));
       if (values.keys) await pressKeys(page, values.keys);
       await page.waitForTimeout(300); // a few frames for the marks to draw
     }

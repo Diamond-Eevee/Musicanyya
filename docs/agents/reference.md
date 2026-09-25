@@ -165,7 +165,8 @@ e2e tests cover it. Use the first option that works for you:
 
    `--practice` switches to Practice and presses Start (a fake MIDI keyboard through the `e2e-midi` window event, the
    same one the e2e tests use). `--keys` is a comma-separated list of steps, `+<midi>` key down, `-<midi>` key up,
-   `wait` one drawn frame; keys still down stay held in the picture. The script language lives in
+   `wait` one drawn frame; keys still down stay held in the picture. `--play <n>` first plays the correct keys of the
+   first n events (read from the running session), for real scores whose notes you do not know by heart. The script language lives in
    `tools/dev/key-steps.ts`, shared with `pressKeys` in `tests/e2e/helpers/practice.ts`.
 
    Write the options straight after `pnpm screenshot`. The older `pnpm screenshot -- --item ...` form failed with

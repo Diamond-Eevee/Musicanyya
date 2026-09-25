@@ -57,22 +57,22 @@ ring or square is drawn anywhere on the Score.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T010 [P] [US1] Unit tests for `applyNoteMarks` in `tests/ui/note-marks.test.ts` (happy-dom, a hand-made SVG
+- [x] T010 [P] [US1] Unit tests for `applyNoteMarks` in `tests/ui/note-marks.test.ts` (happy-dom, a hand-made SVG
   with `g.note#id > g.notehead` + `g.stem`): (a) `correct`, `correctSoFar` and `playedAlong` map to
   `mx-mark-correct`, `heldOver` to `mx-mark-heldover`, `skipped` to `mx-mark-skipped`, `waiting` to no class;
   (b) a note no longer wanted loses its class before new ones gain theirs (off before on); (c) the class is set on
   `g.note`, never on the stem or another element; (d) calling it twice with the same map changes nothing;
   (e) re-applying after the page's SVG is replaced restores every class
-- [ ] T011 [P] [US1] Unit test for the CSS rule in `tests/ui/note-marks.test.ts`: `score.css` contains the three
+- [x] T011 [P] [US1] Unit test for the CSS rule in `tests/ui/note-marks.test.ts`: `score.css` contains the three
   `g.note.<class> > g.notehead` fill rules and no rule that colours `g.note.<class>` itself, `g.stem`, `g.dots` or
   `g.accid` (FR-002)
-- [ ] T012 [P] [US1] Unit tests for `placePracticeBand` in `tests/ui/practice-band.test.ts`: (a) the band spans the
+- [x] T012 [P] [US1] Unit tests for `placePracticeBand` in `tests/ui/practice-band.test.ts`: (a) the band spans the
   event's notehead x-range plus the margin and the measure's full height; (b) `rect = null` or `visible = false`
   hides it; (c) the band element comes before the page SVG in the stack (drawn behind the notes, R-02)
-- [ ] T013 [US1] Replace the outline assertions in `tests/ui/practice-marks.test.ts` for `waiting`, `correctSoFar`
+- [x] T013 [US1] Replace the outline assertions in `tests/ui/practice-marks.test.ts` for `waiting`, `correctSoFar`
   and `correct` with assertions that `drawPracticeMarks` draws **no** stroke for these states and never calls
   `setLineDash` with a non-empty pattern (FR-009); log the replaced assertions (see header)
-- [ ] T014 [US1] E2E test `tests/e2e/pressed-keys.spec.ts` "US1": Für Elise, Practice, keys
+- [x] T014 [US1] E2E test `tests/e2e/pressed-keys.spec.ts` "US1": Für Elise, Practice, keys
   `+76,-76,+75,-75,+76,-76,+75,-75`: (a) the four noteheads' computed fill is the correct colour and their stems'
   fill is unchanged; (b) the next E5 is inside the band's box; (c) no canvas call draws a dashed line (spy on
   `setLineDash`); (d) the class appears within 50 ms of the key-down dispatch (SC-001, measured with
@@ -83,20 +83,31 @@ its class exactly when the cursor reaches its event, not before (FR-012). Also a
   -> that one loses its class) (FR-003). Adjust `tests/e2e/us1-practice.spec.ts` where it asserted rings; save
   PNGs to `tests/.generated/008/`
 
+- [x] T067 [P] [US1] Matcher test in `tests/core/practice/matcher.test.ts` (found running T014: the matcher never
+  withdrew a `correctSoFar` mark on `noteOff`, although data-model section 4 and FR-003 assumed it did): (a) with two
+  keys of a three-note chord held, releasing one sets that key's note back to no mark and emits `markNotes` `waiting`
+  for it, the other keeps `correctSoFar`; (b) pressing it again completes the chord as before; (c) releasing a key
+  after its event was accepted (`correct`) changes no mark; (d) releasing a held-over key (`heldOver`) also clears its
+  mark (its hint is hidden then, FR-009a); (e) releasing a key that is not required by the event changes no mark
+
 ### Implementation
 
-- [ ] T015 [US1] Implement `applyNoteMarks` and the MarkState -> class table in `src/ui/score/note-marks.ts`
+- [x] T015 [US1] Implement `applyNoteMarks` and the MarkState -> class table in `src/ui/score/note-marks.ts`
   (contract section 3) - makes T010 pass
-- [ ] T016 [US1] Add the three notehead fill rules and the `.mx-practice-band` style (absolute, behind the page SVG,
+- [x] T016 [US1] Add the three notehead fill rules and the `.mx-practice-band` style (absolute, behind the page SVG,
   `pointer-events: none`) in `src/ui/styles/score.css` - makes T011 pass
-- [ ] T017 [US1] Implement `placePracticeBand` in `src/ui/score/practice-band.ts` - makes T012 pass
-- [ ] T018 [US1] Remove the `waiting`, `correctSoFar` and `correct` outline branches from `drawPracticeMarks` in
+- [x] T017 [US1] Implement `placePracticeBand` in `src/ui/score/practice-band.ts` - makes T012 pass
+- [x] T018 [US1] Remove the `waiting`, `correctSoFar` and `correct` outline branches from `drawPracticeMarks` in
   `src/ui/score/practice-marks.ts` (dimming stays) - makes T013 pass
-- [ ] T019 [US1] Wire it in `src/ui/elements/mx-score-view.ts`: create the band element in the stack; in
+- [x] T019 [US1] Wire it in `src/ui/elements/mx-score-view.ts`: create the band element in the stack; in
   `drawPracticeState` compute the wanted classes from `session.marks`, call `applyNoteMarks` (also after a page
   mounts and when `overlays.marks` changes), place the band from the current event's notehead rects and measure
   (hidden with `overlays.cursor`), and stop pushing synthetic `waiting` marks - makes T014 pass
-- [ ] T020 [US1] Checkpoint: run the US1 Independent Test with
+- [x] T068 [US1] In `src/core/practice/matcher.ts`, on `noteOff` of a key required by the current event, remove the
+  `correctSoFar` or `heldOver` mark of its notes and emit `markNotes` `waiting` (FR-003) - makes T067 pass and T014
+  (chord case) pass; correct data-model section 4 and research R-12 (the withdrawal was assumed to exist) and note it in
+  the practice-session 1.6.0 amendment (T037)
+- [x] T020 [US1] Checkpoint: run the US1 Independent Test with
   `pnpm screenshot -- --item repertoire/intermediate/fur-elise-theme --practice --keys "+76,-76,+75,-75,+76,-76,+75,-75" --out tests/.generated/008/us1.png`
   and on one grand-staff item from `tests/fixtures/musicxml/real`; look at both pictures (green heads, hollow heads
   hollow, black stems, band behind the next note, no dashed outline); `pnpm lint`, `pnpm typecheck`, `pnpm test`,
@@ -116,7 +127,7 @@ staff in the band, beside the black E5; release: gone; press E4: a disc one octa
 
 ### Fixtures (origin and licence in `tests/fixtures/musicxml/README.md`; own work)
 
-- [ ] T021 [P] [US2] Create hand-made fixtures in `tests/fixtures/musicxml/notation/`: `clef-changes.musicxml`
+- [x] T021 [P] [US2] Create hand-made fixtures in `tests/fixtures/musicxml/notation/`: `clef-changes.musicxml`
   (treble -> bass mid-measure on staff 1, a G8vb clef), `key-changes.musicxml` (G major -> F major, a minor-key
   passage with `<mode>minor</mode>`, a non-traditional key), `octave-shift.musicxml` (an 8va and a 15mb span),
   `grand-staff-accidentals.musicxml` (grand staff, accidentals earlier in the bar on each staff, a rest-only bar

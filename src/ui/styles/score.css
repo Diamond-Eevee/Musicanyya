@@ -33,6 +33,20 @@ mx-score-view {
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* The positioning context of the Practice band, and a stacking context of its own so the band's negative z-index
+     puts it behind the pages without going behind the score background (feature 008, R-02). */
+  position: relative;
+  isolation: isolate;
+}
+
+/* The Practice cursor: a translucent band behind the current event (feature 008, R-02). It sits under the page SVG,
+   which has a transparent background, so the noteheads are never tinted; practice-band.ts sets its box. */
+.mx-practice-band {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--practice-band-color);
+  border-radius: 4px;
 }
 
 .mx-score-page {
@@ -50,6 +64,21 @@ mx-score-view {
 
 .mx-score-page g.measure {
   cursor: pointer;
+}
+
+/* Practice note states (feature 008, R-01, R-03): the notehead glyph alone is recoloured - never the note as a whole,
+   so stems, dots, accidentals and fingering stay black (FR-002), and hollow heads stay hollow. Classes are set on
+   the note's own element by note-marks.ts; the held-over and skipped heads also get a chevron drawn by the overlay. */
+.mx-score-page g.note.mx-mark-correct > g.notehead {
+  fill: var(--practice-correct-color);
+}
+
+.mx-score-page g.note.mx-mark-heldover > g.notehead {
+  fill: var(--practice-heldover-color);
+}
+
+.mx-score-page g.note.mx-mark-skipped > g.notehead {
+  fill: var(--practice-skipped-color);
 }
 
 /* Sounding notes: accent fill and a thicker outline (colour + shape, Constitution VI). */

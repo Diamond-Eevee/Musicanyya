@@ -54,7 +54,9 @@ describe('the layer switches reach the drawing code', () => {
         'practice marks',
         (visible) => {
           const r = recordingContext();
-          drawPracticeMarks({ ctx: r.ctx, dpr: 1, containerRect, marks, noteRects, visible });
+          // 008 FR-009: a correct note is no longer an outline, so what this layer still paints is the dimming of
+          // the notes the musician is not practising (and, until US3, the held-over/skipped shapes).
+          drawPracticeMarks({ ctx: r.ctx, dpr: 1, containerRect, marks, noteRects, dimmedNoteRects: [rect], visible });
           return r;
         },
       ],

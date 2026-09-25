@@ -17,9 +17,10 @@ The e2e spec drives Practice with the existing `e2e-midi` window event and saves
 
 ## Seeing it (no MIDI keyboard needed)
 
-`pnpm screenshot` gains two dev-only options (this feature): `--practice` (start Practice after opening) and
+`pnpm screenshot` gains dev-only options (this feature): `--practice` (start Practice after opening) and
 `--keys "<list>"`, a comma-separated list of steps, each `+<midi>` (key down), `-<midi>` (key up) or `wait`. The
-picture is taken after the last step, with keys still down shown as held.
+picture is taken after the last step, with keys still down shown as held. A further option, `--play <n>`, first plays the
+correct keys of the first n events (read from the session), which is how real scores are checked.
 
 ```bash
 pnpm screenshot -- --item repertoire/intermediate/fur-elise-theme --practice --keys "+76,-76,+75,-75,+74" --out tests/.generated/008/us2-d5.png

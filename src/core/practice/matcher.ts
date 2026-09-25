@@ -244,6 +244,20 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
     if (input.key !== undefined) {
       heldKeys.delete(input.key);
 
+      // A key let go before its event is complete is no longer "played so far", and a held-over key that is let go no
+      // longer has to be lifted: its mark goes back to none (008 FR-003; the hint is hidden below at the same moment).
+      const released = currentEvent?.required.find((req) => req.key === input.key);
+      if (released) {
+        const cleared = released.noteIds.filter((id) => {
+          const state = marks.get(id);
+          return state === 'correctSoFar' || state === 'heldOver';
+        });
+        for (const id of cleared) marks.delete(id);
+        if (cleared.length > 0) {
+          effects.push({ type: 'markNotes', marks: cleared.map((noteId) => ({ noteId, state: 'waiting' })) });
+        }
+      }
+
       if (next.phase === 'blocked' && currentEvent) {
         let stillBlocked = false;
         for (const req of currentEvent.required) {

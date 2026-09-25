@@ -1,5 +1,5 @@
 import type { PlayRun } from '../../core/play/types.js';
-import type { ExpectedEvent, LoopRange, PracticeSession } from '../../core/practice/types.js';
+import type { ExpectedEvent, LoopRange, MarkState, PracticeSession } from '../../core/practice/types.js';
 import {
   FOLLOW_MARGIN,
   RELAYOUT_DEBOUNCE_MS,
@@ -13,6 +13,7 @@ import { fitLayout } from '../layout/fit.js';
 import { drawCursorOverlay } from '../score/cursor-overlay.js';
 import { drawGradeMarks, drawLiveMarks } from '../score/grade-marks.js';
 import { applyHighlights } from '../score/highlight.js';
+import { applyNoteMarks, type NoteMarkClass, noteMarkClass } from '../score/note-marks.js';
 import {
   layoutPages,
   measureIndexFromElementId,
@@ -20,6 +21,7 @@ import {
   type PageLayout,
   sanitiseAndExtractMeasures,
 } from '../score/pages.js';
+import { bandRectFor, placePracticeBand } from '../score/practice-band.js';
 import { drawLoopMarks, drawPracticeMarks, drawStartMarker } from '../score/practice-marks.js';
 import type { LayoutOptions, VerovioClient } from '../score/verovio-client.js';
 import { insetState } from '../state/insetState.js';
@@ -89,6 +91,12 @@ export class MxScoreView extends HTMLElement {
   private timeline: TimelineDto | null = null;
   private soundingNoteIds = new Set<string>();
   private practiceDrawn = false;
+  /** The Practice cursor: a band behind the current event, first child of the stack so it sits under every page (008). */
+  private band!: HTMLElement;
+  /** Note classes on the page now, and what they were computed from: a frame that changes none of these skips the work. */
+  private readonly appliedNoteMarks = new Map<string, NoteMarkClass>();
+  private noteMarksFrom: { marks: ReadonlyMap<string, MarkState> | null; epoch: number; visible: boolean } | null =
+    null;
   // Play mode (003 T107): set once by session.ts once a PlaySessionController exists.
   private playSession: PlayPositionReporter | null = null;
   private playDrawn = false;
@@ -135,6 +143,11 @@ export class MxScoreView extends HTMLElement {
     this.scrollEl = this.querySelector('.mx-score-scroll') as HTMLElement;
     this.stack = this.querySelector('.mx-score-stack') as HTMLElement;
     this.canvasEl = this.querySelector('.mx-score-cursor') as HTMLCanvasElement;
+    this.band = document.createElement('div');
+    this.band.className = 'mx-practice-band';
+    this.band.hidden = true;
+    this.band.setAttribute('aria-hidden', 'true');
+    this.stack.appendChild(this.band);
     this.scrollEl.addEventListener('scroll', () => {
       this.mountVisiblePages();
       this.noticeUserScroll();
@@ -252,6 +265,7 @@ export class MxScoreView extends HTMLElement {
     this.pageLookup = null;
     this.mountedPages.clear();
     this.stack.innerHTML = '';
+    this.stack.appendChild(this.band); // first, so it is drawn behind every page (R-02)
 
     const block = this.createTitleBlock();
     if (block) this.stack.appendChild(block);
@@ -419,6 +433,7 @@ export class MxScoreView extends HTMLElement {
     if (this.practiceDrawn) {
       // Leaving Practice: nothing else clears the overlay when there is no Listen playback to draw.
       this.practiceDrawn = false;
+      this.clearPracticeDom();
       this.canvasEl.getContext('2d')?.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
     }
 
@@ -538,6 +553,51 @@ export class MxScoreView extends HTMLElement {
     return measures;
   }
 
+  /** Puts the wanted note-mark classes on the pages (008 R-01). Only when the marks, the mounted pages or the marks
+   *  layer changed, so a frame with no change costs one comparison. Off while the layer is off (FR-014). */
+  private syncNoteMarks(marks: ReadonlyMap<string, MarkState> | null, visible: boolean): void {
+    const from = this.noteMarksFrom;
+    if (from && from.marks === marks && from.epoch === this.domEpoch && from.visible === visible) return;
+    this.noteMarksFrom = { marks, epoch: this.domEpoch, visible };
+    const wanted = new Map<string, NoteMarkClass>();
+    if (visible && marks) {
+      for (const [noteId, state] of marks) {
+        const cls = noteMarkClass(state);
+        if (cls) wanted.set(noteId, cls);
+      }
+    }
+    applyNoteMarks(this.stack, wanted, this.appliedNoteMarks);
+  }
+
+  /** The Practice band behind the current event's column (008 R-02); hidden with the cursor layer, while its
+   *  page is not mounted, and once the session is over. */
+  private placeBand(session: PracticeSession | null, event: ExpectedEvent | undefined): void {
+    const cursorOn = viewState.get().overlays.cursor;
+    let rect: DOMRect | null = null;
+    if (cursorOn && session && event && session.phase !== 'finished') {
+      const measureId = this.measureIds[event.measureIndex];
+      const measureEl = measureId === undefined ? null : this.elementFor(measureId);
+      if (measureEl) {
+        const heads: DOMRect[] = [];
+        for (const req of event.required) {
+          for (const noteId of req.noteIds) {
+            const head = this.elementFor(noteId)?.querySelector(':scope > g.notehead');
+            if (head) heads.push(head.getBoundingClientRect());
+          }
+        }
+        rect = bandRectFor(heads, measureEl.getBoundingClientRect());
+      }
+    }
+    placePracticeBand(this.band, rect, this.stack.getBoundingClientRect(), cursorOn);
+  }
+
+  /** Leaving Practice: nothing of it stays on the Score (the classes and the band go; the canvas is cleared by the caller). */
+  private clearPracticeDom(): void {
+    applyNoteMarks(this.stack, new Map(), this.appliedNoteMarks);
+    this.noteMarksFrom = null;
+    placePracticeBand(this.band, null, this.stack.getBoundingClientRect(), false);
+  }
+
   private drawPracticeState(
     session: PracticeSession | null,
     startMeasureIndex: number | null,
@@ -548,21 +608,18 @@ export class MxScoreView extends HTMLElement {
     // The slim bar's run status reads the measure from here (it never derives musical position itself).
     runPositionState.set(currentEvent && session?.phase !== 'finished' ? currentEvent.measureIndex : null);
 
-    // Convert session marks to array
-    const markEntries = session
-      ? Array.from(session.marks.entries()).map(([noteId, state]) => ({ noteId, state }))
-      : [];
-    if (session && currentEvent && session.phase !== 'finished') {
-      for (const req of currentEvent.required) {
-        for (const noteId of req.noteIds) {
-          if (!session.marks.has(noteId)) {
-            markEntries.push({ noteId, state: 'waiting' });
-          }
-        }
-      }
-    }
-
     const marksVisible = viewState.get().overlays.marks;
+    this.syncNoteMarks(session?.marks ?? null, marksVisible);
+    this.placeBand(session, currentEvent);
+
+    // The marks the canvas still draws as shapes of their own: the printed noteheads of accepted notes are recoloured
+    // by class (syncNoteMarks) and the waiting note is shown by the band, so neither needs a rectangle per frame.
+    const markEntries = session
+      ? Array.from(session.marks.entries())
+          .filter(([, state]) => state === 'heldOver' || state === 'playedAlong' || state === 'skipped')
+          .map(([noteId, state]) => ({ noteId, state }))
+      : [];
+
     const containerRect = this.scrollEl.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     const width = Math.round(containerRect.width) * dpr;
