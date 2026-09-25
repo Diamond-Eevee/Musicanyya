@@ -59,7 +59,6 @@ export type PlayNoticeCode =
 export type PlayEffect =
   | { type: 'countInBeat'; beat: number; of: number } // the count-in reached a beat; the UI may show it (never modal)
   | { type: 'runStarted' } // the count-in is over; the first expected note is now live (FR-003)
-  | { type: 'liveMark'; noteIds: readonly NoteId[] } // display-only "correct" marking during the run (FR-011); no pitch field (D-3)
   | { type: 'soundInput'; key: number; velocity: number; on: boolean } // the musician's own note, through the live channel (FR-006)
   | { type: 'notice'; code: PlayNoticeCode } // non-blocking notice; never a dialogue (FR-009)
   | { type: 'runEnded'; reason: 'reachedEnd' | 'stopped' | 'audioLost' }; // grading may begin

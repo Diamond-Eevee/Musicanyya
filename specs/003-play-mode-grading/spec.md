@@ -278,6 +278,8 @@ recommendation:
   Grade.
 - **FR-011a**: The marking during the run is display only. The Grade MUST be computed from the Performance log
   after the run, and wherever it disagrees with a live mark, the Grade's result MUST replace it.
+  *Superseded 2026-09-25 by feature 009's owner review (009 spec FR-027, research R-15): no note is marked during
+  the run, correct ones included; every mark comes with the Grade. FR-011a and SC-015 therefore no longer apply.*
 
 #### Recording the performance
 

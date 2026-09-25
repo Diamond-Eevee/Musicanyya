@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { type GradeMarkSet, gradeMarks } from '../../src/core/grade/marks.js';
 import type { Grade } from '../../src/core/grade/types.js';
+import { createIdleRun } from '../../src/core/play/run.js';
 import { playState } from '../../src/ui/state/playState.js';
 import { practiceState } from '../../src/ui/state/practiceState.js';
 import { viewState } from '../../src/ui/state/viewState.js';
@@ -83,13 +84,27 @@ describe('the notehead classes of a Grade (FR-014, FR-016, FR-025)', () => {
   });
 });
 
-describe('during a live run nothing of the Grade is drawn (FR-027)', () => {
-  it('shows green heads that were matched, and no disc, no skip icon, no caret and no grey head', () => {
-    // a run in progress: live marks, no Grade yet
-    playState.addLiveMark([noteIdOf(0, 0, 1, 67)]);
+describe('during a live run nothing is drawn: the marks come with the Grade (FR-027, owner review 2026-09-25)', () => {
+  it('shows no green head, no disc, no skip icon, no caret and no grey head', () => {
+    // a run in progress in measure 2, no Grade yet: nothing on the Score (the key presses reach it only through the Grade)
+    const run = createIdleRun(
+      'score-1',
+      {
+        range: null,
+        tempoPercent: 100,
+        selection: { preset: 'both', partIndex: 0, staves: [1, 2] },
+        strictness: 'beginner',
+        countInMeasures: 1,
+        metronomeMuted: false,
+        accompaniment: true,
+      },
+      { countInTicks: 4 * h.dto.ppq, rangeStartTick: 0, rangeEndTick: h.dto.endTick, ppq: h.dto.ppq },
+    );
+    playState.setRun({ ...run, phase: 'running', positionRunTick: 5 * h.dto.ppq });
     h.canvas.reset();
     h.frame();
-    expect(h.withClass('mx-mark-correct')).toEqual([noteIdOf(0, 0, 1, 67)]);
+    expect(h.noteEl(noteIdOf(0, 0, 1, 67))).not.toBeNull();
+    expect(h.withClass('mx-mark-correct')).toEqual([]);
     expect(h.withClass('mx-mark-skipped')).toEqual([]);
     expect(h.canvas.named('ellipse')).toEqual([]);
     expect(h.canvas.named('closePath')).toEqual([]);

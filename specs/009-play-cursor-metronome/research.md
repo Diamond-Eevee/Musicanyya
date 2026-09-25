@@ -270,8 +270,8 @@ mark set: wrong-pitch and missed notes and extras, in playing order (pass, then 
 
 - Grading, the Performance log, stored attempts, strictness levels: no change (FR-028). `grading.md` and
   `performance-log.md` are untouched.
-- During a run only green marks appear (FR-027, 003 FR-011): the live marker, `liveMark` effect and
-  `liveMarkedNoteIds` are unchanged.
+- ~~During a run only green marks appear (FR-027, 003 FR-011): the live marker, `liveMark` effect and
+  `liveMarkedNoteIds` are unchanged.~~ Superseded by R-15 (owner review): no mark at all during a run.
 - Settings: no new setting and no storage change; the Metronome mute and the overlay switches exist.
 - Dependencies: none new. spessasynth_core 4.3.22 already provides `setDrums` and `programChange`.
 
@@ -292,3 +292,31 @@ Practice since 008. Below the whole chord nothing is written but the stem or bea
 **Alternatives considered**: beside the head on the side away from the stem (the expert's first idea: collides with
 seconds, dots and the carets); one icon per missed head stacked below the chord (clutter; the grey heads already say
 which notes); moving the icon out of the way only when it would collide (two placements to read).
+
+## R-15 Owner review: the bar at the latest onset, no mark during a run (T061-T067)
+
+**Decision (cursor)**: the bar stands at `cursorNotesAtTick(timeline, tick)`, the notes sounding at `tick` whose span
+started last (`src/core/timeline/position.ts`); the highlight stays `notesAtTick` (every note sounding). Listen uses the
+same rule, because FR-001 asks for one cursor. Before, the bar stood at the first sounding note in span order; spans are
+sorted by start, so a whole-measure chord held in the left hand came first and the bar stayed on it while the right hand
+moved (owner's screenshot of `learning/chords/c-major-scale-and-chords`).
+
+**Rationale**: the owner: "It should follow current played note." The latest onset is where the music is; it needs no
+geometry (a pure function of the timeline, tested in Node) and costs one pass over the spans per frame, like
+`notesAtTick`.
+
+**Alternatives considered**: the rightmost sounding notehead on screen (needs layout, and wrong across a system break);
+highlighting only the latest notes too (the held chord still sounds, and Listen's highlight has always meant "sounding");
+the bar at the start of a rest when one hand rests while a long note is held (the timeline has no spans for rests; the
+bar stays at the held note's onset then, as before).
+
+**Decision (marks)**: the live "correct" marking is removed: the `liveMark` effect, the controller's pitch test
+(`checkLiveMark`), `playState.liveMarkedNoteIds` / `addLiveMark` and the view's live classes. During a run the Score shows
+the cursor and its highlight only; every mark comes with the Grade (FR-027). A replay of a stored attempt (003 US4) keeps
+showing that attempt's Grade while it plays: the Grade already exists, nothing is judged during the replay.
+
+**Rationale**: the owner: "It's a grade and should be shown after." Keeping the effect but not drawing it would leave a
+second, approximate judgement (D-3) computed on every key press for nothing.
+
+**Alternatives considered**: hiding the live marks in the view only (dead code on the input path); a setting to choose
+(no setting was asked for; Out of Scope forbids new settings in this feature).

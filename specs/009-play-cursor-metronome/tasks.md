@@ -386,13 +386,15 @@ assertion gets an assertion of the new behaviour.
 
 ### Implementation
 
-- [ ] T064 [US1] `cursorNotesAtTick` in `src/core/timeline/position.ts`; `src/ui/elements/mx-score-view.ts` draws the
+- [x] T064 [US1] `cursorNotesAtTick` in `src/core/timeline/position.ts`; `src/ui/elements/mx-score-view.ts` draws the
   bar of Listen and Play at those notes (highlights unchanged: every note sounding)
-- [ ] T065 [US3] Remove the live marking: the `liveMark` effect (`src/core/play/types.ts`), `checkLiveMark` and
+- [x] T065 [US3] Remove the live marking: the `liveMark` effect (`src/core/play/types.ts`), `checkLiveMark` and
   `liveMarkedOnsets` (`src/app/play-session.ts`), its handler (`src/app/session.ts`), `liveMarkedNoteIds` and
-  `addLiveMark` (`src/ui/state/playState.ts`), the live classes (`src/ui/elements/mx-score-view.ts`)
-- [ ] T066 Documents: contracts `003 play-run.md` 2.0.0 (the `liveMark` effect is removed) and `009 play-display.md`
-  2.0.0 (`cursorNotesAtTick`, the bar rule, no `liveMarkedNoteIds`), research R-15, `quickstart.md` US1 step 5
+  `addLiveMark` (`src/ui/state/playState.ts`), the live classes (`src/ui/elements/mx-score-view.ts`); the live-run case of
+  `tests/ui/score-view-grade.test.ts` (it fed the removed `addLiveMark`) now sets a running run and asserts no mark
+- [x] T066 Documents: contracts `003 play-run.md` 2.0.0 (the `liveMark` effect is removed) and `009 play-display.md`
+  2.0.0 (`cursorNotesAtTick`, the bar rule, no `liveMarkedNoteIds`), research R-15, `quickstart.md` US1 steps 3 and 5,
+  003 `spec.md` FR-011 marked as superseded
 - [ ] T067 Checkpoint: picture of the owner's example (`learning/chords/c-major-scale-and-chords`) during a run with a
   correct key pressed (bar at the right-hand note, no green) and after the Grade; full gate; log entry
 

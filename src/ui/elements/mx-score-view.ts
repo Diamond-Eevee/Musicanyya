@@ -4,7 +4,7 @@ import { type PlayCursorPosition, playCursorAt } from '../../core/play/cursor.js
 import type { PlayRun } from '../../core/play/types.js';
 import type { ExpectedEvent, LoopRange, MarkState, PracticeSession } from '../../core/practice/types.js';
 import type { Score } from '../../core/score/model.js';
-import { notesAtTick, passAtTick } from '../../core/timeline/position.js';
+import { cursorNotesAtTick, notesAtTick, passAtTick } from '../../core/timeline/position.js';
 import {
   FOLLOW_MARGIN,
   RELAYOUT_DEBOUNCE_MS,
@@ -556,7 +556,8 @@ export class MxScoreView extends HTMLElement {
       return;
     }
 
-    this.drawCursor(measureEl, soundingNoteIds);
+    // the bar stands at the notes that started last, not at a long note still held under them (009 FR-001, owner review)
+    this.drawCursor(measureEl, soundingNoteIds.size === 0 ? soundingNoteIds : cursorNotesAtTick(timeline, tick));
     if (following) this.followScrollTo(measureEl);
   }
 
@@ -648,10 +649,6 @@ export class MxScoreView extends HTMLElement {
     }
     return wanted;
   };
-
-  /** The classes the Play run's live "correct so far" marks ask for: green heads, like a correct note (008 R-13). */
-  private liveClasses = (ids: object): Iterable<[string, NoteMarkClass]> =>
-    [...(ids as ReadonlySet<string>)].map((id): [string, NoteMarkClass] => [id, 'mx-mark-correct']);
 
   /** Takes every note-mark class off the page (leaving Practice or Play). */
   private clearNoteMarks(): void {
@@ -1001,8 +998,8 @@ export class MxScoreView extends HTMLElement {
     this.soundingNoteIds = noteIds;
   }
 
-  /** The Play cursor (009 FR-001, FR-002): Listen's bar through the current measure at the first note due, and the
-   *  notes due highlighted - the musician's own part too, the timeline is the whole Score. During the count-in the bar
+  /** The Play cursor (009 FR-001, FR-002): Listen's bar through the current measure at the notes that started last (not
+   *  at a long note held under them, owner review 2026-09-25), and every note due highlighted - the musician's own part too, the timeline is the whole Score. During the count-in the bar
    *  stands at the first written moment and nothing is highlighted. The cursor layer switch hides only the bar. */
   private drawPlayCursor(
     ctx: CanvasRenderingContext2D,
@@ -1023,7 +1020,7 @@ export class MxScoreView extends HTMLElement {
     const measureEl = measureId === undefined ? null : this.elementFor(measureId);
     if (!measureEl) return; // its page is not mounted (yet): followPlayCursor scrolls there, the next frame draws
     const noteRects: DOMRect[] = [];
-    for (const id of due) {
+    for (const id of cursorNotesAtTick(timeline, cursor.timelineTick)) {
       const rect = this.elementFor(id)?.getBoundingClientRect();
       if (rect) noteRects.push(rect);
     }
@@ -1289,16 +1286,14 @@ export class MxScoreView extends HTMLElement {
     }
   }
 
-  /** The Play cursor, then the Grade's own marks once a run has been graded, or the cheap live "correct" marks while
-   *  one is still running (T041/T044, FR-011a: the Grade replaces the live marks - `playState` never holds both at once). */
+  /** The Play cursor, then the Grade's marks once a run has been graded. A run under way marks nothing: green and red
+   *  come with the Grade (009 FR-027, owner review 2026-09-25). */
   private drawPlayState(cursor: PlayCursorPosition | null): void {
     this.syncElementCache();
-    const { grade, marks, liveMarkedNoteIds } = playState.get();
+    const { grade, marks } = playState.get();
     const marksVisible = viewState.get().overlays.marks;
-    // The live "correct so far" marks are green noteheads, and give way to the Grade's own marks: green for correct notes,
-    // grey for missed ones (008 FR-017, R-13; 009 FR-014, FR-016)
-    if (grade) this.syncNoteMarks(marks, marksVisible, this.gradeClasses);
-    else this.syncNoteMarks(liveMarkedNoteIds, marksVisible, this.liveClasses);
+    // The Grade's heads: green for correct notes, grey for missed ones (009 FR-014, FR-016); none without a Grade
+    this.syncNoteMarks(grade ? marks : null, marksVisible, this.gradeClasses);
 
     const containerRect = this.scrollEl.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
@@ -1320,7 +1315,8 @@ export class MxScoreView extends HTMLElement {
     this.revealSelectedMark();
   }
 
-  private drawCursor(measureEl: Element, soundingNoteIds: ReadonlySet<string>): void {
+  /** Listen's bar through the measure, at `cursorNoteIds` (or the measure start when there are none). */
+  private drawCursor(measureEl: Element, cursorNoteIds: ReadonlySet<string>): void {
     const containerRect = this.scrollEl.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     const width = Math.round(containerRect.width) * dpr;
@@ -1334,7 +1330,7 @@ export class MxScoreView extends HTMLElement {
     ctx.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
     ctx.fillStyle = getComputedStyle(this.canvasEl).getPropertyValue('--highlight-cursor-color').trim() || '#e69f00';
 
-    const noteRects = [...soundingNoteIds]
+    const noteRects = [...cursorNoteIds]
       .map((id) => this.stack.querySelector(`#${CSS.escape(id)}`)?.getBoundingClientRect())
       .filter((rect): rect is DOMRect => rect !== undefined);
 

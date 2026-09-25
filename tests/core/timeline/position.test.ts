@@ -101,7 +101,6 @@ describe('cursorNotesAtTick: the notes the cursor bar stands at (FR-001, owner r
       const timeline = await loadListenTimeline(name);
       const step = timeline.ppq / 4;
       let checked = 0;
-      let heldUnderneath = 0;
       for (let tick = 0; tick <= timeline.endTick + timeline.ppq; tick += step) {
         const sounding = timeline.spans.filter((s) => s.startTick <= tick && s.endTick > tick);
         const latest = Math.max(...sounding.map((s) => s.startTick));
@@ -109,13 +108,29 @@ describe('cursorNotesAtTick: the notes the cursor bar stands at (FR-001, owner r
         const at = cursorNotesAtTick(timeline, tick);
         expect(ids(at), `tick ${tick}`).toEqual([...new Set(expected)].sort());
         if (sounding.length > 0) checked++;
-        if (sounding.some((s) => s.startTick < latest)) heldUnderneath++;
       }
       expect(checked).toBeGreaterThan(0);
-      // every file here has moments where an older note is still held while a newer one sounds: the case the rule is for
-      expect(heldUnderneath).toBeGreaterThan(0);
     },
   );
+
+  it("the owner's example (library learning/chords/c-major-scale-and-chords): the bar follows the scale over the held chords", async () => {
+    // measure 1: C4 D4 E4 F4 in the right hand over a whole-note C3 E3 G3 chord; measure 2: G4 A4 ... over half-note chords
+    const timeline = await loadListenTimeline(
+      '../../../public/library/learning/chords/c-major-scale-and-chords.musicxml',
+    );
+    const { ppq } = timeline;
+    const chord = ['n-p0-s2-m0-v5-o0-k48', 'n-p0-s2-m0-v5-o0-k52', 'n-p0-s2-m0-v5-o0-k55'];
+    expect(ids(cursorNotesAtTick(timeline, 0))).toEqual(['n-p0-s1-m0-v1-o0-k60', ...chord].sort());
+    for (const [beat, id] of [
+      [1, 'n-p0-s1-m0-v1-o1-k62'],
+      [2, 'n-p0-s1-m0-v1-o2-k64'],
+      [3, 'n-p0-s1-m0-v1-o3-k65'],
+      [5, 'n-p0-s1-m1-v1-o1-k69'],
+    ] as const) {
+      expect(ids(cursorNotesAtTick(timeline, beat * ppq)), `beat ${beat}`).toEqual([id]);
+      expect(notesAtTick(timeline, beat * ppq).size, `beat ${beat}: the chord is still highlighted`).toBe(4);
+    }
+  });
 
   it('nothing sounding: no notes (the bar stands at the measure start); a timeline without spans: none either', async () => {
     const timeline = await loadListenTimeline('grade/grade-marks.musicxml');

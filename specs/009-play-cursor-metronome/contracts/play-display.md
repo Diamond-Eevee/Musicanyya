@@ -1,6 +1,6 @@
 # Contract: Play display (cursor, Grade marks) and channel setup
 
-**Version**: `1.1.0` (internal TypeScript contract between `src/core/play`, `src/core/timeline`, `src/core/grade`,
+**Version**: `2.0.0` (internal TypeScript contract between `src/core/play`, `src/core/timeline`, `src/core/grade`,
 `src/core/notation`, `src/app`, `src/ui` and the `score-player` worklet). Signatures are normative in shape. Changes
 bump the version (MINOR additive, MAJOR breaking).
 
@@ -21,6 +21,13 @@ content coordinates and a scroll measures nothing) and no longer takes the mark 
 `reasonText(reason, context?)`. 003 grades only octave errors as `wrongPitch`: any other wrong key is a missed note plus an
 extra key (research R-08).
 
+**1.1.0 -> 2.0.0** (T061-T066, 2026-09-25, owner review, MAJOR): new `cursorNotesAtTick(timeline, tick)` in
+`src/core/timeline/position.ts` - of the notes sounding at `tick`, those that started last; the bar of Listen and Play
+stands at them (was: the first note due in span order, which kept the bar on a long note held under a moving part). The
+highlight is unchanged (`notesAtTick`). Breaking: `playState` no longer has `liveMarkedNoteIds` / `addLiveMark` - a run
+under way marks nothing; every mark comes with the Grade (spec FR-027; 003 play-run.md 2.0.0 drops the `liveMark` effect).
+Research R-15.
+
 This contract also amends three existing contracts (section 5). Their files are owned by earlier features and are
 updated by the tasks that change them.
 
@@ -30,6 +37,9 @@ updated by the tasks that change them.
 // src/core/timeline/position.ts - moved out of mx-score-view's Listen code, behaviour unchanged
 /** Note IDs whose span covers `tick` (startTick <= tick < endTick). */
 export function notesAtTick(timeline: Pick<TimelinePositions, 'spans'>, tick: Ticks): ReadonlySet<NoteId>;
+/** Of the notes sounding at `tick`, those whose span started last: where the cursor bar stands (2.0.0). Empty when
+ *  nothing sounds. */
+export function cursorNotesAtTick(timeline: Pick<TimelinePositions, 'spans'>, tick: Ticks): ReadonlySet<NoteId>;
 /** The pass containing `tick`, else the last pass; null for a timeline without passes. */
 export function passAtTick<P extends TimelinePositions['passes'][number]>(timeline: { passes: readonly P[] }, tick: Ticks): P | null;
 
@@ -112,15 +122,15 @@ export function caretBox(head: NoteBox, columnHeads: readonly NoteBox[], side: '
 `drawCursorOverlay` and `applyHighlights` are reused unchanged for the Play cursor.
 
 Score view behaviour (normative):
-- While `playCursorAt(run)` is non-null, every animation frame: draw the cursor (bar at the column of the first note
-  at `timelineTick`, or the measure start) with `overlays.cursor`; when `countIn` is false, apply highlights to
+- While `playCursorAt(run)` is non-null, every animation frame: draw the cursor (bar at the column of
+  `cursorNotesAtTick(timelineTick)`, or the measure start; Listen's bar follows the same rule) with `overlays.cursor`; when `countIn` is false, apply highlights to
   `notesAtTick`; follow-scroll as today (`followPlayCursor`). When it becomes null: clear highlights, stop drawing.
 - Frame order on the shared canvas: clear, cursor, red discs, then skip icons and carets, so the only shapes that
   separate missed and wrong pitch from correct are never hidden under a disc (008 bound 4).
 - Grade: `gradeMarks` once per Grade; classes via `applyNoteMarks` (idempotent, re-run on page mount); geometry
   measured per `domEpoch` and scroll offset, never per frame (research R-09); `overlays.marks` hides classes and
   canvas marks alike.
-- The run's live green marks (`liveMarkedNoteIds`) are unchanged (FR-027).
+- A run under way marks no note (FR-027, 2.0.0): the note classes and the canvas marks come from the Grade only.
 
 State (`src/ui/state/playState.ts`, `mistake-stepper.ts`):
 

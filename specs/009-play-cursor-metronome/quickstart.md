@@ -38,9 +38,11 @@ Use a real MIDI keyboard in Chrome or Edge, and the desktop app for SC-010 (`pnp
 1. Open `repertoire/beginner/fur-elise-theme-16-bar`, choose **Play**, press **Start**, play nothing.
 2. During the count-in: the orange bar stands at the first note; no note is highlighted.
 3. After the count-in: the bar moves note by note with the clicks and the accompaniment, the notes under it are
-   highlighted as in Listen, and the view follows.
+   highlighted as in Listen, and the view follows. On `learning/chords/c-major-scale-and-chords` the bar moves with the
+   right hand's scale in measure 1; it does not stay on the left hand's whole-note chord (which stays highlighted).
 4. Set tempo 60 % and a range of measures 5-8, Start: the bar starts at measure 5, moves slower, ends after 8.
-5. Play the first notes correctly: they turn green and stay green while the bar passes over them.
+5. Play the first notes correctly: nothing turns green (or red) while the run goes on; the notes are green once the
+   run ends or is stopped and the Grade is shown.
 6. Switch the cursor layer off (View panel): no bar, run unchanged. Stop the run: the bar is gone, the Grade shows.
 
 ### US2 - Metronome

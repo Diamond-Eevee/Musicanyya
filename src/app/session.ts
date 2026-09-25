@@ -758,9 +758,7 @@ export class Session {
   }
 
   private onPlayEffect(effect: PlayEffect): void {
-    if (effect.type === 'liveMark') {
-      playState.addLiveMark(effect.noteIds);
-    } else if (effect.type === 'notice') {
+    if (effect.type === 'notice') {
       noticeState.addNotice({ code: effect.code, severity: 'warning' });
     }
   }
