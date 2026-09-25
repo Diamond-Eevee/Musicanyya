@@ -122,7 +122,8 @@ describe('readMxl', () => {
     const largeData = Buffer.alloc(257 * 1024 * 1024);
     const zip = createZip([{ name: 'score.xml', data: largeData, method: 'deflate' }]);
     await expect(readMxl(zip)).rejects.toThrow('Archive too large');
-  });
+    // Deflating 257 MB takes about a second alone but more than the default 5 s when the whole suite runs in parallel (009 T052).
+  }, 60_000);
 
   it('throws on too many entries', async () => {
     const entries = [];

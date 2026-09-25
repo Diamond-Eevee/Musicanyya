@@ -1,4 +1,9 @@
-import { COUNT_IN_INCLUDES_ANACRUSIS, COUNT_IN_MIN_SECONDS, METRONOME_CHANNEL } from '../defaults.js';
+import {
+  COUNT_IN_INCLUDES_ANACRUSIS,
+  COUNT_IN_MIN_SECONDS,
+  METRONOME_CHANNEL,
+  RUN_CLICKS_PER_PASS_MAX,
+} from '../defaults.js';
 import type { PlayScheduleOptions, PlayTickMap } from '../play/types.js';
 import type { MeasureInfo } from '../score/model.js';
 import { audioTimeAtTick } from '../tempo/rate.js';
@@ -111,7 +116,7 @@ export function compilePlaySchedule(
     const perMeasure = beatsPerMeasure(pass.measureIndex, inForce);
     const pickup = pass.measureIndex === 0 && inForce[0]?.implicit === true;
     const offsetBeats = pickup ? Math.round((inForce[0]?.beatOffsetTicks ?? 0) / beat) : 0;
-    for (let k = 0; k * beat < pass.lengthTicks; k++) {
+    for (let k = 0; k < RUN_CLICKS_PER_PASS_MAX && k * beat < pass.lengthTicks; k++) {
       clicks.push({ tick: pass.startTick + shift + k * beat, downbeat: (offsetBeats + k) % perMeasure === 0 });
     }
   }

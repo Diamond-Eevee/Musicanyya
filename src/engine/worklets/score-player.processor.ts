@@ -142,7 +142,10 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   let pendingReport = false; // send one extra report after a command
 
   // Held note tracking for all-notes-off on pause/stop/seek
-  const heldNotes: Set<number> = new Set(); // encoded as (channel << 7) | key
+  // One flag per (channel, key), in storage allocated once: noteOn/noteOff run inside process() and the Metronome adds one per beat
+  // (Constitution I: no allocation there, which a Set's add/delete may do when it grows).
+  const heldNotes = new Uint8Array(16 * 128); // index (channel << 7) | key
+  let heldCount = 0;
 
   // Channel setup (009 R-01, data-model section 4): copied out of the schedule message into pre-allocated storage, applied
   // only from the message handler, when the sound is ready. 16 x [used, program, bankMsb, isPercussion].
@@ -193,22 +196,31 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   }
 
   function allNotesOff(): void {
-    for (const encoded of heldNotes) {
-      const key = encoded & 0x7f;
-      const channel = (encoded >> 7) & 0xf;
-      synth.noteOff(channel, key);
+    if (heldCount === 0) return;
+    for (let encoded = 0; encoded < heldNotes.length; encoded++) {
+      if (heldNotes[encoded] === 0) continue;
+      synth.noteOff((encoded >> 7) & 0xf, encoded & 0x7f);
+      heldNotes[encoded] = 0;
     }
-    heldNotes.clear();
+    heldCount = 0;
   }
 
   function noteOn(channel: number, key: number, velocity: number): void {
     synth.noteOn(channel, key, velocity);
-    heldNotes.add((channel << 7) | key);
+    const index = ((channel & 0xf) << 7) | (key & 0x7f);
+    if (heldNotes[index] === 0) {
+      heldNotes[index] = 1;
+      heldCount++;
+    }
   }
 
   function noteOff(channel: number, key: number): void {
     synth.noteOff(channel, key);
-    heldNotes.delete((channel << 7) | key);
+    const index = ((channel & 0xf) << 7) | (key & 0x7f);
+    if (heldNotes[index] !== 0) {
+      heldNotes[index] = 0;
+      heldCount--;
+    }
   }
 
   function applyEvent(ev: BlockEvent): void {

@@ -118,4 +118,64 @@ test.describe('Electron: Listen mode plays under the app:// origin (T140, T141)'
     await expect(window.locator('g.note.playing').first()).toBeVisible({ timeout: 30_000 });
     await window.keyboard.press('Escape');
   });
+
+  // 009 SC-010: the Play cursor and the Grade marks look the same in the desktop app. The click is the same worklet code as in
+  // the browser, proven in Node by tests/engine/metronome-click.test.ts, so it needs no Electron-specific test.
+  // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
+  test('a Play run shows the cursor, then the Grade in Practice’s look (009 SC-010)', async ({}, testInfo) => {
+    test.skip(testInfo.project.name !== 'electron', 'launches the desktop shell; electron project only');
+    test.setTimeout(120_000);
+
+    const window = await electronApp.firstWindow();
+    const consoleErrors: string[] = [];
+    window.on('pageerror', (error) => consoleErrors.push(`pageerror: ${error.message}`));
+    await window.reload();
+    await window.locator('mx-open-button input[type=file]').setInputFiles(fixture('scale-c-major-q100.musicxml'));
+    await expect(window.locator('.mx-score-page svg').first()).toBeVisible({ timeout: 30_000 });
+    await expect(window.locator('.play-btn')).not.toBeDisabled({ timeout: 90_000 });
+    await window.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
+    await window.locator('mx-mode-switch input[value=play]').check();
+
+    // the run: a note is highlighted as the cursor reaches it, with nothing played
+    await window.locator('.play-btn').click();
+    await expect(window.locator('g.note.playing').first()).toBeVisible({ timeout: 30_000 });
+
+    // ...and once it has ended and been graded, every note is missed: grey heads, skip icons, no green head
+    await expect
+      .poll(
+        () =>
+          window.evaluate(
+            () =>
+              (globalThis as unknown as { __PLAY_STATE__: { get(): { grade: unknown } } }).__PLAY_STATE__.get()
+                .grade !== null,
+          ),
+        { timeout: 60_000 },
+      )
+      .toBe(true);
+    await expect(window.locator('g.note.playing')).toHaveCount(0); // the cursor is gone with the run
+    await window.keyboard.press('Escape'); // the Grade popup
+    await expect
+      .poll(() => window.locator('.mx-score-page g.note.mx-mark-skipped').count(), { timeout: 10_000 })
+      .toBeGreaterThan(0);
+    expect(await window.locator('.mx-score-page g.note.mx-mark-correct').count()).toBe(0);
+    const seam = () =>
+      window.evaluate(() => {
+        const json = document.querySelector('canvas.mx-score-cursor')?.getAttribute('data-grade-marks');
+        return json ? (JSON.parse(json) as { skipIcons: unknown[]; discs: unknown[] }) : null;
+      });
+    await expect.poll(async () => (await seam())?.skipIcons.length ?? 0).toBeGreaterThan(0);
+
+    // a Grade with every key played on its beat: green heads, and no disc (the seam that grades a canned performance)
+    await window.evaluate(() => {
+      (globalThis as unknown as { __PLAY_STATE__: { clear(): void } }).__PLAY_STATE__.clear();
+      window.dispatchEvent(new CustomEvent('e2e-synthetic-grade', { detail: 'correct' }));
+    });
+    await expect
+      .poll(() => window.locator('.mx-score-page g.note.mx-mark-correct').count(), { timeout: 30_000 })
+      .toBeGreaterThan(0);
+    expect(await window.locator('.mx-score-page g.note.mx-mark-skipped').count()).toBe(0);
+    expect((await seam())?.discs ?? []).toHaveLength(0);
+
+    expect(consoleErrors, 'no uncaught page error').toEqual([]);
+  });
 });

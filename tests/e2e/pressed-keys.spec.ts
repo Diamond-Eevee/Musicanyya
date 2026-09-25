@@ -586,7 +586,7 @@ test.describe('US3: the other Practice states without dashed outlines (feature 0
     expect(await dashesSeen(page)).toEqual([]);
   });
 
-  test('Play mode: correct notes turn green during the run, no dashed ring, the Grade marks at the end as before', async ({
+  test('Play mode: correct notes turn green during the run, no dashed ring, the Grade keeps the green and greys the rest (009 FR-014)', async ({
     page,
   }) => {
     test.setTimeout(60_000);
@@ -616,7 +616,8 @@ test.describe('US3: the other Practice states without dashed outlines (feature 0
     expect(await fillOf(page, id as string, 'notehead')).toBe(GREEN);
     await screenshot(page, 'us3-play.png');
 
-    // The run ends on its own and is graded: the live marks give way to the Grade's own marks
+    // The run ends on its own and is graded: the live marks give way to the Grade's own marks, which since 009 are Practice's
+    // (FR-014): the note that was played stays green and every note that was not is grey, where 003's Grade drew rings
     await expect
       .poll(
         () =>
@@ -629,7 +630,13 @@ test.describe('US3: the other Practice states without dashed outlines (feature 0
         { timeout: 25_000 },
       )
       .toBe(true);
-    await expect.poll(() => markClasses(page)).toEqual({});
+    await expect
+      .poll(async () => {
+        const { [id as string]: played, ...rest } = await markClasses(page);
+        const others = Object.values(rest);
+        return { played, others: others.length > 0 && others.every((cls) => cls === 'mx-mark-skipped') };
+      })
+      .toEqual({ played: 'mx-mark-correct', others: true });
     expect(await dashesSeen(page)).toEqual([]);
   });
 

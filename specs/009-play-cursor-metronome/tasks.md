@@ -325,26 +325,34 @@ cross anywhere.
 
 ## Phase 6: Polish & Cross-Cutting
 
-- [ ] T046 [P] Electron: extend `tests/e2e/electron-playback.spec.ts` with a Play run that shows the cursor
+- [x] T046 [P] Electron: extend `tests/e2e/electron-playback.spec.ts` with a Play run that shows the cursor
   (`.playing` during the run) and Grade marks (`data-grade-discs`, green classes) in the desktop app (SC-010). The
   Metronome needs no Electron-specific test: it is the same worklet code, proven by T019/T020 in Node; say so in the log
-- [ ] T047 [P] Frame-rate check in `tests/e2e/play-frame-rate.spec.ts`: a Play run with accompaniment on the large
+- [x] T047 [P] Frame-rate check in `tests/e2e/play-frame-rate.spec.ts`: a Play run with accompaniment on the large
   generated score (`tests/tools/gen-large-score.ts`), then a replay with its Grade on screen; the 95th percentile of
   animation-frame intervals over 5 s is at most 20 ms in Chromium on the reference machine (SC-009: 60 fps is 16.7 ms;
   the named test allowance `FRAME_P95_MAX_MS = 20` in the test file covers browser scheduling jitter); log the
   measured values
-- [ ] T048 Greyscale check (SC-006): convert the T045 picture to greyscale into `tests/.generated/009/t048-grey.png`,
+- [x] T048 Greyscale check (SC-006): convert the T045 picture to greyscale into `tests/.generated/009/t048-grey.png`,
   look at it, and record in the log that correct, wrong pitch, missed, extra, early and late are each recognisable
-- [ ] T049 Real-file look: `pnpm screenshot -- --file tests/fixtures/musicxml/real/schumann-dichterliebe-15.mxl --run
+- [x] T049 Real-file look: `pnpm screenshot -- --file tests/fixtures/musicxml/real/schumann-dichterliebe-15.mxl --run
   --grade --keys "sleep:6000"` and one intermediate library item; look at both (no mark spreads over neighbouring
   notes, SC-007); log
-- [ ] T050 Run the `quickstart.md` manual verification; everything that needs ears or a real keyboard (US2 listening,
+- [x] T050 Run the `quickstart.md` manual verification; everything that needs ears or a real keyboard (US2 listening,
   SC-004; a real MIDI keyboard run) is handed to the owner with "needs owner:" in the log, not reported as done
-- [ ] T051 Constitution review of the whole diff with the `constitution-auditor` agent; summarise its findings in the
+- [x] T051 Constitution review of the whole diff with the `constitution-auditor` agent; summarise its findings in the
   log and resolve or raise every HIGH or CRITICAL one
-- [ ] T052 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, each with its summary line
+- [x] T052 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, each with its summary line
   in the log; confirm the grading goldens (`tests/core/grade/golden.test.ts` and its snapshots) are unchanged, which is
   FR-028's evidence; final hand-off entry
+- [x] T059 Found by T051 (constitution audit, HIGH, Constitution III: a bad file never hangs): `<beat-type>` and `<beats>` are
+  untrusted and the click loops step by the beat, so `-4`, `1000000`, `7` or an absurd numerator meant a loop that never ends
+  or a fractional tick. Test first in `tests/core/play/play-schedule.test.ts` (hostile meters read as 4/4, absurd measure length
+  has a bounded number of clicks; it hung before the fix), then `meterOf` in `src/core/timeline/beat.ts` (shared by the
+  grading windows, whose results for valid meters are unchanged) and `RUN_CLICKS_PER_PASS_MAX` in `play-schedule.ts`
+- [x] T060 Found by T026/T051 (RT review LOW, audit MEDIUM): `heldNotes` in `score-player.processor.ts` was a `Set` touched by
+  `noteOn`/`noteOff` inside `process()`, now once per Metronome beat as well; replaced by a pre-allocated `Uint8Array` (Constitution I).
+  The existing pause/stop release tests cover it
 
 ## Dependencies & Execution Order
 

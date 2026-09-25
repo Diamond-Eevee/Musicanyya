@@ -354,3 +354,53 @@ describe('compilePlaySchedule clicks every beat of the run (009 T057)', () => {
     expect(countIn.map((c) => c.downbeat)).toEqual(countIn.map((_, i) => i % 3 === 0));
   });
 });
+
+// 009 constitution audit (III: a bad file never crashes or hangs): <beat-type> and <beats> come straight from the file, and
+// the click loops step by the beat, so a negative, tiny or non-power-of-two denominator (or an absurd numerator) once meant a
+// loop that never ended or a fractional tick. Such a meter is read as 4/4 (what `beatTicksAt` already answers for no <time>).
+describe('compilePlaySchedule on a hostile time signature (009 audit)', () => {
+  const measure = (index: number, time: MeasureInfo['time'], lengthTicks = 3840): MeasureInfo => ({
+    index,
+    id: `m${index}`,
+    label: String(index + 1),
+    startTick: index * lengthTicks,
+    lengthTicks,
+    nominalTicks: lengthTicks,
+    implicit: false,
+    beatOffsetTicks: 0,
+    time,
+  });
+  const compile = (time: MeasureInfo['time'], passLength = 3840, nominal = 3840) => {
+    const measures = [measure(0, time, nominal), measure(1, time, nominal)];
+    const timeline = syntheticTimeline({
+      ppq: 960,
+      endTick: 2 * passLength,
+      passes: [0, 1].map((i) => ({ measureIndex: i, passNo: 1, startTick: i * passLength, lengthTicks: passLength })),
+    });
+    return compilePlaySchedule(timeline, measures, baseOptions());
+  };
+  const clickTicks = (result: ReturnType<typeof compile>) => metronomeTicks(result.schedule);
+  const reference = clickTicks(compile({ beats: '4', beatType: 4 }));
+
+  for (const time of [
+    { beats: '4', beatType: -4 },
+    { beats: '4', beatType: 1_000_000 },
+    { beats: '4', beatType: 7 },
+    { beats: '4', beatType: 3 },
+    { beats: '-3', beatType: 4 },
+    { beats: '0', beatType: 4 },
+    { beats: '1000000000', beatType: 4 },
+    { beats: '4', beatType: Number.NaN },
+  ]) {
+    it(`reads ${time.beats}/${time.beatType} as 4/4: the same clicks, all on whole ticks, and it ends`, () => {
+      const clicks = clickTicks(compile(time));
+      expect(clicks).toEqual(reference);
+      expect(clicks.every((c) => Number.isInteger(c.tick))).toBe(true);
+    });
+  }
+
+  it('a measure of absurd length has a bounded number of clicks', () => {
+    const clicks = clickTicks(compile({ beats: '4', beatType: 4 }, 960 * 100_000, 3840));
+    expect(clicks.length).toBeLessThan(2000);
+  });
+});
