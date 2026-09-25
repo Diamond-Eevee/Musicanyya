@@ -1,10 +1,13 @@
 # Contract: pressed keys on the Score
 
-**Version**: `1.1.0` (internal TypeScript contract between `src/core/notation`, `src/core/practice`, `src/app` and
+**Version**: `2.0.0` (internal TypeScript contract between `src/core/notation`, `src/core/practice`, `src/app` and
 `src/ui/score`). Signatures are normative in shape. Changes bump the version (MINOR additive, MAJOR breaking).
 `1.1.0` (implementation of US2, 2026-09-25): additive - `eventPosition`, `isPlaceableClef`, `middleLineKey`; `ottava` may be
 +-3 (22ma / 22mb: any key of the piano is shown under an 8va or 15mb); `DiscSlot` carries the disc's size; `NoteBox` carries
 its dots and accidental; `MusicGlyphs` is built by `toMusicGlyphs`; `MxScoreView.setNotationScore`; the `data-discs` seam.
+`2.0.0` (owner decision 2026-09-25, FR-006 revised): breaking - `layoutDiscs` keeps every disc in the cursor column
+(written heads no longer push it aside; only another disc a second away does); its last parameter is renamed `heads`;
+`NoteBox.dotsRight` is removed (nothing is avoided any more), and so is the code-only `NoteBox.mark` (chevron boxes).
 
 This contract also amends three existing contracts (section 4).
 
@@ -68,12 +71,13 @@ export function applyNoteMarks(container: HTMLElement, wanted: ReadonlyMap<NoteI
 export function placePracticeBand(band: HTMLElement, rect: DOMRect | null, containerRect: DOMRect, visible: boolean): void;
 
 /** Pure geometry (R-09): horizontal slots for the discs of ONE staff and their accidentals, in the order of `placements`.
- *  `cursorX` is the centre of the written notehead column; `obstacles` are the written heads there (`dotsRight`: the right
- *  edge of their dots, `accidentalLeft`: the left edge of their sign). `DiscSlot` = `{ placement, x, y, width, height,
- *  accidentalX }`: the disc's centre and size, and the origin (left edge) of its accidental glyph, or null.
- *  `DISC_SIZE_RATIO` and `DISC_SHIFT_GAP_SPACES` are exported from `disc-layout.ts`. */
+ *  `cursorX` is the centre of the written notehead column; every disc sits there, over any written head it meets, except
+ *  that a disc a second or less from an earlier one moves one slot right. `heads` are the written heads there: they size
+ *  the discs and place the accidental column (`accidentalLeft`: the left edge of their sign), they are not avoided.
+ *  `DiscSlot` = `{ placement, x, y, width, height, accidentalX }`: the disc's centre and size, and the origin (left edge)
+ *  of its accidental glyph, or null. `DISC_SIZE_RATIO` and `DISC_SHIFT_GAP_SPACES` are exported from `disc-layout.ts`. */
 export function layoutDiscs(placements: readonly DiscPlacement[], staff: StaffGeometry, cursorX: number,
-  obstacles: readonly NoteBox[]): DiscSlot[];
+  heads: readonly NoteBox[]): DiscSlot[];
 
 /** Draws discs, ledger lines, accidental glyphs and ottava labels on the overlay canvas; no-op when !visible. */
 export function drawPressedKeyDiscs(options: { ctx: CanvasRenderingContext2D; dpr: number; containerRect: DOMRect;

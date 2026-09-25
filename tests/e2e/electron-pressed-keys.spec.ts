@@ -87,14 +87,15 @@ test.describe('Electron: pressed keys on the Score (feature 008, FR-015)', () =>
       expect(band.right).toBeGreaterThanOrEqual(nextHead.right);
     }
 
-    // US2: D5 held at the next E5: a disc exactly on the D5 position, beside the head, gone on release
+    // US2: D5 held at the next E5: a disc exactly on the D5 position, in the E5's column over its head, gone on release
     await pressKeys(window, '+74');
     await expect.poll(async () => (await discs(window)).length).toBe(1);
     const [d] = (await discs(window)) as [DiscInfo];
     const g = (await staffGeometryOf(window, nextId)) as { bottomY: number; space: number };
     expect(d).toMatchObject({ key: 74, staff: 1, position: 6 });
     expect(Math.abs(d.y - (g.bottomY - 3 * g.space))).toBeLessThan(1);
-    expect(overlaps(boxOf(d), nextHead)).toBe(false);
+    expect(Math.abs(d.x - (nextHead.left + nextHead.right) / 2)).toBeLessThan(0.5);
+    expect(overlaps(boxOf(d), nextHead)).toBe(true);
     await pressKeys(window, '-74');
     await expect.poll(async () => (await discs(window)).length).toBe(0);
 
