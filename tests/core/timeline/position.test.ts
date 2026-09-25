@@ -113,6 +113,32 @@ describe('cursorNotesAtTick: the notes the cursor bar stands at (FR-001, owner r
     },
   );
 
+  // The files above with a note held while a newer one sounds (chords/c-major-scale-and-chords.musicxml has none: its
+  // chords and scale notes always start together or alone): there, the held notes are never where the bar stands.
+  it.each(GOLDEN_FIXTURES.filter((name) => name !== 'chords/c-major-scale-and-chords.musicxml'))(
+    'over %s, a note held under a newer one is highlighted but never under the bar',
+    async (name) => {
+      const timeline = await loadListenTimeline(name);
+      let heldUnderneath = 0;
+      for (let tick = 0; tick <= timeline.endTick; tick += timeline.ppq / 4) {
+        const sounding = timeline.spans.filter((s) => s.startTick <= tick && s.endTick > tick);
+        const latest = Math.max(...sounding.map((s) => s.startTick));
+        const held = sounding.filter((s) => s.startTick < latest);
+        if (held.length === 0) continue;
+        heldUnderneath++;
+        const at = cursorNotesAtTick(timeline, tick);
+        for (const s of held) {
+          expect(notesAtTick(timeline, tick).has(s.noteId), `tick ${tick} ${s.noteId} lit`).toBe(true);
+          // a note ID can recur on a later pass; it is held only if no span of it started at `latest`
+          if (!sounding.some((o) => o.noteId === s.noteId && o.startTick === latest)) {
+            expect(at.has(s.noteId), `tick ${tick} ${s.noteId} under the bar`).toBe(false);
+          }
+        }
+      }
+      expect(heldUnderneath).toBeGreaterThan(0);
+    },
+  );
+
   it("the owner's example (library learning/chords/c-major-scale-and-chords): the bar follows the scale over the held chords", async () => {
     // measure 1: C4 D4 E4 F4 in the right hand over a whole-note C3 E3 G3 chord; measure 2: G4 A4 ... over half-note chords
     const timeline = await loadListenTimeline(

@@ -133,6 +133,8 @@ drawing code (two cursors to keep alike).
 
 ## R-05 Green notes under the cursor highlight
 
+*Superseded by R-15 (owner review): no note is green during a run, so the highlight never meets a green head.*
+
 **Decision**: no change needed; covered by a test. `g.note.playing` sets `fill` on the whole note (inherited), while
 `g.note.mx-mark-correct > g.notehead` sets `fill` on the notehead itself, which wins by specificity and by being set on
 the nearer element; the highlight's outline stays visible around the green head. An e2e test reads the computed fill

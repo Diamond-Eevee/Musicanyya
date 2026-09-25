@@ -373,7 +373,9 @@ assertion gets an assertion of the new behaviour.
 - [x] T061 [P] [US1] `cursorNotesAtTick` in `tests/core/timeline/position.test.ts`: on `grade/grade-marks.musicxml` the
   held whole note is not returned while the right hand moves (beat 2: A4 only; beat 3: the chord B4 D5 G5 only; beat 1:
   G4 and G3, the same onset); on every golden fixture at every quarter beat the result is exactly the sounding notes of
-  the latest start (so empty exactly when nothing sounds), and each file has moments with an older note held underneath
+  the latest start (so empty exactly when nothing sounds); on every golden fixture that has a note held under a newer
+  one (all but `chords/c-major-scale-and-chords.musicxml`, which has none) such moments exist and the held note is lit
+  but never under the bar; the owner's library example (`learning/chords/c-major-scale-and-chords`) beat by beat
 - [x] T062 [P] [US1] `tests/ui/score-view-play-cursor.test.ts`: the bar stands at the notes that started last, in Play
   and in Listen: new case (g) on measure 1 (the bar at A4 and at the chord, not at the held G3, while G3 stays
   highlighted); cases (a), (b), (e), (f) use the new reference
@@ -395,7 +397,7 @@ assertion gets an assertion of the new behaviour.
 - [x] T066 Documents: contracts `003 play-run.md` 2.0.0 (the `liveMark` effect is removed) and `009 play-display.md`
   2.0.0 (`cursorNotesAtTick`, the bar rule, no `liveMarkedNoteIds`), research R-15, `quickstart.md` US1 steps 3 and 5,
   003 `spec.md` FR-011 marked as superseded
-- [ ] T067 Checkpoint: picture of the owner's example (`learning/chords/c-major-scale-and-chords`) during a run with a
+- [x] T067 Checkpoint: picture of the owner's example (`learning/chords/c-major-scale-and-chords`) during a run with a
   correct key pressed (bar at the right-hand note, no green) and after the Grade; full gate; log entry
 
 ## Dependencies & Execution Order

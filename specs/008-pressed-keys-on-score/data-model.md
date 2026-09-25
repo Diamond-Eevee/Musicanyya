@@ -120,7 +120,8 @@ event again.
 type NoteMarkClass = 'mx-mark-correct' | 'mx-mark-heldover' | 'mx-mark-skipped';
 
 // MarkState -> class: correct, correctSoFar, playedAlong -> mx-mark-correct; heldOver -> mx-mark-heldover;
-// skipped -> mx-mark-skipped; waiting -> none. Play-mode liveMark -> mx-mark-correct.
+// skipped -> mx-mark-skipped; waiting -> none. Play-mode liveMark -> mx-mark-correct (removed by 009 research R-15:
+// nothing is marked during a Play run).
 
 interface StaffGeometry { bottomLineY: number; space: number; lineWidth: number; left: number; right: number }
 
