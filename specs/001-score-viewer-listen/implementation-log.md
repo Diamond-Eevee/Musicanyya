@@ -924,3 +924,68 @@
 - Evidence: new e2e `tests/e2e/us2-listen.spec.ts` "Follow (FR-014)". Before the fix it failed at the stop-then-scroll assertion (scrollTop pulled back to 0); with `scrollToPageOf` disabled it fails at "Ticking Follow brings the playing measure back into view". `tests/ui/transport.test.ts` updated for the checkbox. Screenshot of Fur Elise checked. Full gate: lint 0 errors, typecheck clean, 1525 unit tests pass, e2e 292 passed with 1 failure: `library.spec.ts` electron, where Electron exited during `electron.launch` before any app code ran. It passed on its own rerun
 - Decisions: no RT review, because the cursor rAF loop runs on the UI main thread, not the audio path
 - Handoff: branch not merged or pushed; merge to `main` when the owner agrees. Tree clean after this commit
+
+## 2026-09-25 - claude-sonnet-5 (continue: T161, on branch `fix/worklet-process-guard`)
+
+- Session start found that the branch `001-score-viewer-listen` this session had been working from all day was
+  **stale**: `main` had already continued this feature directly (via small topic branches merged in sequence,
+  e.g. `ff30e93`) past the old branch's tip, reaching 163/173 tasks with its own equivalent (and more thorough)
+  fixes for everything this session had just built on the old branch (T138 fuzz test, T139 `any` removal
+  including the same two bugs, T140/T141 Electron playback coverage). A dry-run merge of the old branch into
+  `main` produced 14 file conflicts for exactly that reason; aborted rather than resolve it blind. Per the
+  owner's direction: left the stale `001-score-viewer-listen` branch as-is (not deleted, not merged), and moved
+  to `main`'s real remaining work - starting with T161, the one **High**-severity item.
+- **T161**: `process()` called `this.inner.processBlock(left, right)` with no guard; any throw from
+  `spessasynth_core`'s `synth.process()` or the dispatch math would escape `process()` uncaught, and the Web
+  Audio host stops calling `process()` for good once it throws - silent audio for the rest of the session, no
+  diagnostic anywhere.
+  - Fix placed in the **testable factory**, not only the worklet class: renamed the existing `processBlock` body
+    to `processBlockInner`, made `processBlock` a thin guard (`if (faulted) return; try { processBlockInner(...) }
+    catch { faulted = true; post({type:'status', state:'processorFaulted', detail}) }`). `faulted` never clears -
+    the processor goes quiet on purpose rather than continue from unknown state. Chose the factory over the
+    `AudioWorkletProcessor` subclass specifically because `AudioWorkletProcessor` is undefined in Node, so the
+    class's own `process()` method has no way to be exercised by Vitest; the factory's `processBlock` is what
+    every existing worklet test already calls directly. Added a second, defense-in-depth try/catch at the class
+    level around `this.inner.processBlock(...)` too, matching the task's literal wording, as a backstop for
+    anything that might someday throw outside `processBlockInner`.
+  - Test-first: `tests/engine/worklets/score-player.fault.test.ts`, a synth whose `process()` throws. Verified
+    the tests fail for the right reason by temporarily short-circuiting the guard (`return processBlockInner(...)`
+    before the `if (faulted)` check) - all three failed with the synth's own exception escaping `processBlock`, as
+    expected before the fix; restored, all three pass.
+  - New message `status: processorFaulted` (`ProcessorMessage`'s `status` variant gained a fourth state) wired
+    through `web-audio-engine.ts` (a new `AudioErrorCode: 'processorFaulted'`, ports.ts) and `session.ts`
+    (`transportState.pause()` so the UI stops claiming to be playing, plus a notice). Added `processorFaulted` to
+    `mx-notice-tray.ts`'s `FAILURE_NOTICES` set (found while running the existing `run-guard.test.ts` suite: a
+    new failure notice must be listed there too, or the "layer off never hides a failure" guarantee silently
+    excludes it - the test caught this immediately) and to that test's own parametrised list.
+  - **Owner decision noted, not blocked on**: the task text says this "needs an owner decision on what the UI
+    shows". Implemented anyway with a plain, honest default (`en.notices.processorFaulted`: "Playback stopped
+    unexpectedly. Reload the page to keep playing.") because leaving a known HIGH-severity silent-failure bug
+    unfixed while waiting on wording would be worse than shipping a fixable default; the string is not
+    load-perturbing elsewhere and the owner can change it freely.
+  - Contract docs updated with version bumps: `contracts/worklet-protocol.md` 1.2.0 -> 1.3.0 (new `status` state),
+    `contracts/ports.md` 1.3.0 -> 1.4.0 (new `AudioErrorCode`).
+- **RT review** (`rt-audio-reviewer` subagent, required - this touches the AudioWorkletProcessor file directly):
+  logged separately below once it returns.
+- **RT review** (`rt-audio-reviewer` subagent): **verdict PASS WITH ADVISORIES**. Confirmed the guard's coverage is
+  complete - traced every throw-risk path reachable from `process()` (live-queue drain, volume ramp, dispatch,
+  `renderSegment`/`synth.process`, `applyEvent`, `sendPositionReport`) and found all of it inside
+  `processBlockInner`, itself entirely inside the new `try`. One real finding, fixed before this entry: the catch
+  bodies themselves were unguarded - `String(err)` on a hostile thrown value, or `post()`/`postMessage()` hitting
+  a structured-clone failure, could itself throw *inside* the catch, which would be the exact escape T161 exists
+  to prevent, just moved one level up. Fixed with a `safeErrorDetail()` helper (never throws) and a nested
+  try/catch around the `post`/`postMessage` call in both the factory and the class-level backstop; applied
+  `safeErrorDetail()` to the two pre-existing `port.onmessage` catches too (same pattern, lower stakes since
+  they're off the render path, but no reason to leave them inconsistent). Added two more tests per the reviewer's
+  suggestion: a throw from `synth.noteOn` in the live-queue drain (not just `renderSegment`), and a throw from the
+  injected `onMessage` callback itself - both would have failed before the nested try/catch (verified by
+  temporarily removing it), both pass now. Other advisories (two independent `faulted` booleons can't actually
+  desync given how the guard is structured; the one-shot fault allocation is no worse than the file's existing
+  periodic position-report allocation) were assessed as informational, no change needed.
+- Evidence (final): `pnpm typecheck` exit 0; `pnpm test` 2287 passed, exit 0; `pnpm lint` exit 0, 289 warnings / 13
+  infos (unchanged pre-existing project-wide debt); `pnpm test:e2e` (fresh `pnpm build` first): 362 passed, 90
+  skipped, 0 failed.
+- Handoff: T161 done on branch `fix/worklet-process-guard` (off `main`). Merging into `main` next, following the
+  same small-topic-branch pattern the rest of this feature's continuation already used. Main's `specs/001-*`
+  still has 9 open tasks after this (T155, T162-169) - independent RT/allocation/type-safety follow-ups on the
+  same worklet file, plus one MusicXML title-reading item and one percussion note-count doc gap.

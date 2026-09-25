@@ -567,6 +567,11 @@ export class Session {
         }
       } else if (event.state.kind === 'error' && event.state.code === 'workletLoadFailed') {
         noticeState.addNotice({ code: 'workletLoadFailed', severity: 'warning' });
+      } else if (event.state.kind === 'error' && event.state.code === 'processorFaulted') {
+        // T161: the processor caught its own throw and has gone quiet for the rest of the session (no more
+        // position/ended messages will follow) - reflect that in the transport so Pause doesn't sit there lying.
+        transportState.pause();
+        noticeState.addNotice({ code: 'processorFaulted', severity: 'warning' });
       }
     }
   }

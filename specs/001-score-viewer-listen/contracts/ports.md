@@ -1,6 +1,6 @@
 # Contract: ports (engine layer interfaces)
 
-**Version**: `1.3.0` (internal TypeScript contract between `src/engine` adapters and `src/ui`/`src/app`).
+**Version**: `1.4.0` (internal TypeScript contract between `src/engine` adapters and `src/ui`/`src/app`).
 1.1.0 (feature 002, T030): `SettingsStore` gains `loadPractice` and `savePractice`; nothing existing changed.
 1.2.0 (feature 003, T036): `AudioEngine` gains `setChannelVolume` (mutes the Play mode Metronome without
 recompiling the schedule, research R-02 in specs/003-play-mode-grading/research.md); `latencyProfile` (T038,
@@ -10,6 +10,9 @@ and land in the same feature.
 1.3.0 (feature 003, T039): `AudioEngine` gains `clockPair()`, the `(contextTime, performanceTime)` pairing
 `MidiClockMap` needs to map a MIDI message's `timeStampMs` onto the audio clock (research R-04 in
 specs/003-play-mode-grading/research.md).
+1.4.0 (feature 001, T161): `AudioErrorCode` gains `processorFaulted` - the AudioWorklet processor caught an
+uncaught throw from the synth or dispatch math inside `process()` (contracts/worklet-protocol.md 1.3.0's
+`status: processorFaulted`) and went quiet for the rest of the session rather than let the throw silently kill it.
 Signatures are normative in shape; names may be refined during implementation, but every change must be reflected
 here and the version bumped (MINOR for additions, MAJOR for breaking changes).
 
@@ -30,7 +33,8 @@ export type AudioEngineState =
   | { kind: "suspended"; reason: "hidden" | "deviceChanged" | "browserPolicy" }
   | { kind: "error"; code: AudioErrorCode; detail: string };
 
-export type AudioErrorCode = "notSupported" | "soundFontLoadFailed" | "workletLoadFailed" | "contextFailed";
+export type AudioErrorCode =
+  | "notSupported" | "soundFontLoadFailed" | "workletLoadFailed" | "contextFailed" | "processorFaulted";
 
 export interface LatencyInfo {
   outputLatencyMs: number | null;       // base + output latency, null if the browser does not report it

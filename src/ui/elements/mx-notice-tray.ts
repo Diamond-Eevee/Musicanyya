@@ -18,6 +18,7 @@ const FAILURE_NOTICES: ReadonlySet<string> = new Set([
   'internal',
   'soundFontMissing',
   'workletLoadFailed',
+  'processorFaulted',
   'storageUnavailable',
   'playGradeTimeout',
   'playGradeError',

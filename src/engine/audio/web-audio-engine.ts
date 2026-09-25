@@ -19,12 +19,12 @@ import { loadSoundFont } from './soundfont-cache.js';
 
 const SOUNDFONT_URL = 'soundfonts/GeneralUser-GS-2.0.3.sf2';
 const WORKLET_NAME = 'musicanyya-score-player';
-const WORKLET_PROTOCOL_VERSION = '1.2.0';
+const WORKLET_PROTOCOL_VERSION = '1.3.0';
 
 // The score-player worklet's outbound messages (contracts/worklet-protocol.md); defined locally because the
 // worklet module lives outside this file's TS project (tsconfig.worklet.json, AudioWorkletGlobalScope types).
 type ProcessorMessage =
-  | { type: 'status'; state: 'initialised' | 'soundReady' | 'error'; detail?: string }
+  | { type: 'status'; state: 'initialised' | 'soundReady' | 'error' | 'processorFaulted'; detail?: string }
   | { type: 'position'; frame: number; contextTime: number; tick: number; ticksPerFrame: number; playing: boolean }
   | { type: 'ended'; frame: number }
   | { type: 'liveDropped'; total: number };
@@ -138,6 +138,10 @@ export class WebAudioEngine implements AudioEngine {
           this.setState({ kind: 'ready' });
         } else if (msg.state === 'error') {
           this.setState({ kind: 'error', code: 'soundFontLoadFailed', detail: msg.detail ?? 'unknown' });
+        } else if (msg.state === 'processorFaulted') {
+          // T161: the processor caught its own throw and went quiet on purpose - no more position/ended
+          // messages will follow, so nothing else here recovers this run on its own.
+          this.setState({ kind: 'error', code: 'processorFaulted', detail: msg.detail ?? 'unknown' });
         }
         break;
       }
