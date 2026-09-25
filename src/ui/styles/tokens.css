@@ -26,6 +26,14 @@
   --grade-extra-color: var(--color-yellow);
   --grade-live-correct-color: var(--color-sky-blue);
 
+  /* Pressed keys on the Score (feature 008, R-02/R-03/R-04): recoloured noteheads and the Practice band. Shape
+     carries the distinction (added disc, chevrons); colour is decoration, never the sole differentiator. */
+  --practice-correct-color: var(--color-bluish-green);
+  --practice-heldover-color: var(--color-orange);
+  --practice-skipped-color: #999999;
+  --practice-disc-color: var(--color-vermilion);
+  --practice-band-color: color-mix(in srgb, var(--color-sky-blue) 30%, transparent);
+
   --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 

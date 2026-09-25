@@ -76,6 +76,8 @@ export const PRACTICE_LOOP_OCCURRENCE = 'current-pass'; // Which occurrence a ra
 export const PRACTICE_PART_PRESELECTION = 'first-keyboard-like'; // Which part is preselected in a multi-part Score
 export const PRACTICE_HELP_AFTER_WRONG_ATTEMPTS = 3; // Wrong attempts before help appears by itself
 export const PRACTICE_RELEASE_OF_SUSTAINED_NOTE_BLOCKS = false; // Letting a long note go early never blocks
+export const PRACTICE_DISC_MAX_LEDGER_LINES = 5; // Ledger lines a red disc may need before it is folded by octaves (008 R-10)
+export const PRACTICE_DISC_OTHER_STAFF_LEDGER_LINES = 3; // Ledger lines on the practised staff that make a disc move to the other staff (008 R-08)
 
 // Play Mode (Metronome-paced performance) and Grading rules
 export const PLAY_COUNT_IN_MEASURES = 1; // Default count-in length, never less than 1 measure (FR-003)

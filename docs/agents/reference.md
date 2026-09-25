@@ -160,7 +160,13 @@ e2e tests cover it. Use the first option that works for you:
    pnpm screenshot --item repertoire/intermediate/fur-elise-theme      # a library item (its id in index.json)
    pnpm screenshot --file tests/fixtures/musicxml/engraving/fur-elise-bare.musicxml   # drop a local file
    pnpm screenshot --item <id> --width 1280 --height 720 --full --out test-results/screenshots/x.png
+   pnpm screenshot --item <id> --practice --keys "+76,-76,+75"   # Practice, then key steps (feature 008)
    ```
+
+   `--practice` switches to Practice and presses Start (a fake MIDI keyboard through the `e2e-midi` window event, the
+   same one the e2e tests use). `--keys` is a comma-separated list of steps, `+<midi>` key down, `-<midi>` key up,
+   `wait` one drawn frame; keys still down stay held in the picture. The script language lives in
+   `tools/dev/key-steps.ts`, shared with `pressKeys` in `tests/e2e/helpers/practice.ts`.
 
    Write the options straight after `pnpm screenshot`. The older `pnpm screenshot -- --item ...` form failed with
    some pnpm versions (`ERR_PARSE_ARGS_UNEXPECTED_POSITIONAL`, feature 005 log); the script now drops a leading

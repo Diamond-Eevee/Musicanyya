@@ -22,23 +22,23 @@ gets a new assertion for the new mark.
 
 ## Phase 1: Setup
 
-- [ ] T001 [P] Add the colour tokens `--practice-correct-color` (#009e73), `--practice-heldover-color` (#e69f00),
+- [x] T001 [P] Add the colour tokens `--practice-correct-color` (#009e73), `--practice-heldover-color` (#e69f00),
   `--practice-skipped-color` (#999999), `--practice-disc-color` (#d55e00) and `--practice-band-color` (sky-blue at
   30 %) in `src/ui/styles/tokens.css` (data-model section 6)
-- [ ] T002 [P] Add the named constants `PRACTICE_DISC_MAX_LEDGER_LINES = 5` and
+- [x] T002 [P] Add the named constants `PRACTICE_DISC_MAX_LEDGER_LINES = 5` and
   `PRACTICE_DISC_OTHER_STAFF_LEDGER_LINES = 3` to `src/core/defaults.ts` (data-model section 6, research R-08, R-10)
 
 ---
 
 ## Phase 2: Foundational (blocks all user stories)
 
-- [ ] T003 Add an e2e helper `pressKeys(page, steps)` that dispatches the existing `e2e-midi` event for steps
+- [x] T003 Add an e2e helper `pressKeys(page, steps)` that dispatches the existing `e2e-midi` event for steps
   `+<midi>` / `-<midi>` / `wait` and a `startPractice(page, itemId)` helper, in `tests/e2e/helpers/practice.ts`
   (reused by every story's e2e test and by T004)
-- [ ] T004 Add the dev-only options `--practice` and `--keys "<steps>"` to `tools/dev/screenshot.ts` (quickstart
+- [x] T004 Add the dev-only options `--practice` and `--keys "<steps>"` to `tools/dev/screenshot.ts` (quickstart
   "Seeing it"), using the same `e2e-midi` event; document them in the file header, in `quickstart.md`, in
   `README.md` and in the toolchain section of `docs/agents/reference.md`
-- [ ] T005 Verify T004 by running
+- [x] T005 Verify T004 by running
   `pnpm screenshot -- --item repertoire/intermediate/fur-elise-theme --practice --keys "+76" --out tests/.generated/008/t005.png`
   and looking at the picture (Practice started, the first E5 accepted by today's marks); record the result in the log
 

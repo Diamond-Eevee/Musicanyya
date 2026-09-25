@@ -29,7 +29,8 @@ and Web MIDI.
 2. Run web app locally: `pnpm dev`
 3. Run desktop app locally: `pnpm electron:dev`
 4. Take a screenshot without opening a browser: `pnpm screenshot --item repertoire/intermediate/fur-elise-theme`
-   (or `--file <score.musicxml>`); the PNG lands in `test-results/screenshots/`
+   (or `--file <score.musicxml>`); the PNG lands in `test-results/screenshots/`. Add `--practice --keys "+76,-76,+75"`
+   to start Practice and press (`+`) / release (`-`) MIDI keys before the picture is taken (no keyboard needed)
 
 ### Testing and Quality Gates
 
