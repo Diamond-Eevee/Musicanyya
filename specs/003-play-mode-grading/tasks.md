@@ -477,7 +477,7 @@ replay the first one and confirm the notes heard are the ones that were played, 
   and two already-tracked LOW advisories from T035/T037 (worklet `currentGain` dead code, unramped/unvalidated
   `channelVolume`), neither blocking
 - [x] T084 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` - all green
-- [ ] T110 Constitution II, MEDIUM (found by the T083 audit): `contracts/grading.md` §2 rule 5 and research R-06
+- [x] T110 Constitution II, MEDIUM (found by the T083 audit): `contracts/grading.md` §2 rule 5 and research R-06
   say ticks are integers and every comparison is integer-vs-integer, but `tickAtAudioTime`
   (`src/core/tempo/rate.ts`) returns a float that Step 1 (`src/core/grade/grade.ts`) never rounds, and
   `resolveWindows`'s `clampToTicks`/`msToTicks` (`src/core/grade/windows.ts`) return floats never rounded either
@@ -486,7 +486,9 @@ replay the first one and confirm the notes heard are the ones that were played, 
   but the contract and the code disagree. Either round to integer ticks at the one conversion site and the
   window bound computations (carries an `rt-audio-reviewer` review, same scope as T090/T091), or correct
   `contracts/grading.md` and `research.md` to describe the real-valued arithmetic actually used - owner/agent
-  judgement call, not decided here
+  judgement call, not decided here. **Resolved 2026-09-25 (claude-sonnet-5): rounded to integer ticks**, matching
+  the contract and the pre-existing `Math.round(tickAtAudioTime(...))` convention already used in
+  `src/core/play/replay.ts`; see the implementation log for the fix, tests and `rt-audio-reviewer` verdict.
 
 ---
 

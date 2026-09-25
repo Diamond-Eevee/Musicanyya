@@ -524,8 +524,8 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades accurate-ei
       "timing": "onTime",
     },
     {
-      "deltaMs": -2.8421709430404007e-13,
-      "deltaTicks": -4.547473508864641e-13,
+      "deltaMs": 0,
+      "deltaTicks": 0,
       "expectedIndex": 3,
       "noteIds": [
         "n-p0-s1-m0-v1-o3-k65",
@@ -534,7 +534,7 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades accurate-ei
       "playedKey": 65,
       "reason": {
         "code": "correctOnTime",
-        "deltaMs": -2.8421709430404007e-13,
+        "deltaMs": 0,
         "expectedKey": 65,
         "octaveDelta": null,
         "playedKey": 65,
@@ -578,8 +578,8 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades accurate-ei
       "timing": "onTime",
     },
     {
-      "deltaMs": -5.684341886080801e-13,
-      "deltaTicks": -9.094947017729282e-13,
+      "deltaMs": 0,
+      "deltaTicks": 0,
       "expectedIndex": 6,
       "noteIds": [
         "n-p0-s1-m1-v1-o2-k71",
@@ -588,7 +588,7 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades accurate-ei
       "playedKey": 71,
       "reason": {
         "code": "correctOnTime",
-        "deltaMs": -5.684341886080801e-13,
+        "deltaMs": 0,
         "expectedKey": 71,
         "octaveDelta": null,
         "playedKey": 71,
@@ -686,8 +686,8 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades accurate-ei
       "timing": "onTime",
     },
     {
-      "deltaMs": -1.1368683772161603e-12,
-      "deltaTicks": -1.8189894035458565e-12,
+      "deltaMs": 0,
+      "deltaTicks": 0,
       "expectedIndex": 12,
       "noteIds": [
         "n-p0-s1-m3-v1-o0-k67",
@@ -696,7 +696,7 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades accurate-ei
       "playedKey": 67,
       "reason": {
         "code": "correctOnTime",
-        "deltaMs": -1.1368683772161603e-12,
+        "deltaMs": 0,
         "expectedKey": 67,
         "octaveDelta": null,
         "playedKey": 67,
@@ -776,8 +776,8 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades accurate-ei
       "timing": "onTime",
     },
     {
-      "deltaMs": -1.1368683772161603e-12,
-      "deltaTicks": -1.8189894035458565e-12,
+      "deltaMs": 0,
+      "deltaTicks": 0,
       "expectedIndex": 17,
       "noteIds": [
         "n-p0-s1-m4-v1-o1-k64",
@@ -786,7 +786,7 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades accurate-ei
       "playedKey": 64,
       "reason": {
         "code": "correctOnTime",
-        "deltaMs": -1.1368683772161603e-12,
+        "deltaMs": 0,
         "expectedKey": 64,
         "octaveDelta": null,
         "playedKey": 64,
@@ -902,8 +902,8 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades accurate-ei
       "timing": "onTime",
     },
     {
-      "deltaMs": -2.2737367544323206e-12,
-      "deltaTicks": -3.637978807091713e-12,
+      "deltaMs": 0,
+      "deltaTicks": 0,
       "expectedIndex": 24,
       "noteIds": [
         "n-p0-s1-m6-v1-o0-k62",
@@ -912,7 +912,7 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades accurate-ei
       "playedKey": 62,
       "reason": {
         "code": "correctOnTime",
-        "deltaMs": -2.2737367544323206e-12,
+        "deltaMs": 0,
         "expectedKey": 62,
         "octaveDelta": null,
         "playedKey": 62,
@@ -1017,7 +1017,7 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades accurate-ei
       "missed": 0,
       "wrongPitch": 0,
     },
-    "meanAsynchronyMs": -1.8621119971644005e-13,
+    "meanAsynchronyMs": 0,
     "notesCorrect": {
       "count": 29,
       "total": 29,
@@ -1386,7 +1386,7 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades mistakes-me
   ],
   "extras": [
     {
-      "atTick": 25343.999999999996,
+      "atTick": 25344,
       "audioTimeSec": 15.839999999999998,
       "key": 55,
       "measureIndex": 6,
@@ -1570,8 +1570,8 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades mistakes-me
       "timing": "onTime",
     },
     {
-      "deltaMs": -2.8421709430404007e-13,
-      "deltaTicks": -4.547473508864641e-13,
+      "deltaMs": 0,
+      "deltaTicks": 0,
       "expectedIndex": 3,
       "noteIds": [
         "n-p0-s1-m0-v1-o3-k65",
@@ -1580,7 +1580,7 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades mistakes-me
       "playedKey": 65,
       "reason": {
         "code": "correctOnTime",
-        "deltaMs": -2.8421709430404007e-13,
+        "deltaMs": 0,
         "expectedKey": 65,
         "octaveDelta": null,
         "playedKey": 65,
@@ -1624,8 +1624,8 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades mistakes-me
       "timing": "onTime",
     },
     {
-      "deltaMs": -5.684341886080801e-13,
-      "deltaTicks": -9.094947017729282e-13,
+      "deltaMs": 0,
+      "deltaTicks": 0,
       "expectedIndex": 6,
       "noteIds": [
         "n-p0-s1-m1-v1-o2-k71",
@@ -1634,7 +1634,7 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades mistakes-me
       "playedKey": 71,
       "reason": {
         "code": "correctOnTime",
-        "deltaMs": -5.684341886080801e-13,
+        "deltaMs": 0,
         "expectedKey": 71,
         "octaveDelta": null,
         "playedKey": 71,
@@ -1732,8 +1732,8 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades mistakes-me
       "timing": null,
     },
     {
-      "deltaMs": -1.1368683772161603e-12,
-      "deltaTicks": -1.8189894035458565e-12,
+      "deltaMs": 0,
+      "deltaTicks": 0,
       "expectedIndex": 12,
       "noteIds": [
         "n-p0-s1-m3-v1-o0-k67",
@@ -1742,7 +1742,7 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades mistakes-me
       "playedKey": 67,
       "reason": {
         "code": "correctOnTime",
-        "deltaMs": -1.1368683772161603e-12,
+        "deltaMs": 0,
         "expectedKey": 67,
         "octaveDelta": null,
         "playedKey": 67,
@@ -1822,8 +1822,8 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades mistakes-me
       "timing": "onTime",
     },
     {
-      "deltaMs": -1.1368683772161603e-12,
-      "deltaTicks": -1.8189894035458565e-12,
+      "deltaMs": 0,
+      "deltaTicks": 0,
       "expectedIndex": 17,
       "noteIds": [
         "n-p0-s1-m4-v1-o1-k64",
@@ -1832,7 +1832,7 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades mistakes-me
       "playedKey": 64,
       "reason": {
         "code": "correctOnTime",
-        "deltaMs": -1.1368683772161603e-12,
+        "deltaMs": 0,
         "expectedKey": 64,
         "octaveDelta": null,
         "playedKey": 64,
@@ -1948,8 +1948,8 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades mistakes-me
       "timing": "onTime",
     },
     {
-      "deltaMs": -2.2737367544323206e-12,
-      "deltaTicks": -3.637978807091713e-12,
+      "deltaMs": 0,
+      "deltaTicks": 0,
       "expectedIndex": 24,
       "noteIds": [
         "n-p0-s1-m6-v1-o0-k62",
@@ -1958,7 +1958,7 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades mistakes-me
       "playedKey": 62,
       "reason": {
         "code": "correctOnTime",
-        "deltaMs": -2.2737367544323206e-12,
+        "deltaMs": 0,
         "expectedKey": 62,
         "octaveDelta": null,
         "playedKey": 62,
@@ -2063,7 +2063,7 @@ exports[`gradePerformance golden snapshots (FR-025, SC-001) > grades mistakes-me
       "missed": 2,
       "wrongPitch": 1,
     },
-    "meanAsynchronyMs": -2.0000462191765783e-13,
+    "meanAsynchronyMs": 0,
     "notesCorrect": {
       "count": 26,
       "total": 29,

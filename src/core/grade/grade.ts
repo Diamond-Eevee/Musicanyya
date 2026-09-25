@@ -73,7 +73,9 @@ export function gradePerformance(input: GradeInput): Grade {
   // Step 1: put everything on one (timeline-tick) axis, then sort by (tick, key) - arrival order never matters.
   const ticked: TickedMessage[] = log.messages.map((m) => {
     const correctedAudioTime = m.audioTimeSec - compensationSec;
-    const runTick = tickAtAudioTime(correctedAudioTime - startAudioTimeSec, tempo, ppq, settings.tempoPercent);
+    const runTick = Math.round(
+      tickAtAudioTime(correctedAudioTime - startAudioTimeSec, tempo, ppq, settings.tempoPercent),
+    );
     const timelineTick = runTick - tickMap.countInTicks + tickMap.rangeStartTick;
     return { kind: m.kind, key: m.key, velocity: m.velocity, tick: timelineTick, audioTimeSec: m.audioTimeSec };
   });
@@ -167,7 +169,9 @@ export function gradePerformance(input: GradeInput): Grade {
 
   // Reliability events, on the same tick axis (no latency compensation: these are engine events, not input).
   const tickedReliability: TickedReliabilityEvent[] = reliability.map((event) => {
-    const runTick = tickAtAudioTime(event.audioTimeSec - startAudioTimeSec, tempo, ppq, settings.tempoPercent);
+    const runTick = Math.round(
+      tickAtAudioTime(event.audioTimeSec - startAudioTimeSec, tempo, ppq, settings.tempoPercent),
+    );
     return { kind: event.kind, tick: runTick - tickMap.countInTicks + tickMap.rangeStartTick };
   });
 
