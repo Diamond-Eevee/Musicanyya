@@ -171,7 +171,8 @@ layer, tested in Vitest without a DOM).
 **Rationale**: The owner, after using the feature: a disc moved right of the written head reads as a mistake on the
 *next* note; in the column it reads as "this note, wrong key", as in Piano Marvel and in the owner's reference
 picture. The disc is 0.85 of a head, so a written head at the same position still shows around it, and it lasts only
-while the key is held. It is an exception to Constitution VI, with its bounds in plan Complexity Tracking. The state
+while the key is held. It is an exception to Constitution VI, with its bounds in plan Complexity Tracking (accepted by the owner
+2026-09-25). The state
 chevrons (R-03) are now drawn after the discs, so a disc in the column never hides the held-over or skipped cue (the
 first version kept discs clear of chevrons instead).
 

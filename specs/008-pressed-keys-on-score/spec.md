@@ -24,6 +24,10 @@ dotted rectangles, they don't look very nice."
 - Q (owner, after using the feature, 2026-09-25): a disc shifted right of the written head reads as a mistake on the
   *next* note; should it cover the note instead? -> A: yes, as in Piano Marvel: the disc stays in the column of the
   current note, drawn over any written head it meets, and still disappears on release (FR-006, AS-8, SC-004).
+- Q (constitution review of that change): the disc now partly covers the note it gives feedback on, against
+  principle VI ("Overlays ... MUST NOT hide the notes they refer to"): accept a bounded exception, amend VI, or
+  redraw the head's outline over the disc? -> A: accept the exception, as bounded in plan Complexity Tracking; no
+  constitution change.
 - Q (implement): hands separately, a key that plays the other hand's written note: red disc or green? -> A: green
   notehead (`playedAlong`, "never a mistake", 002 contract); no disc, progress not blocked (Edge Cases, FR-004).
 - Q (constitution review T064): correct vs not-yet-played differ by colour only -> A: accepted as the plan

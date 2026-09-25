@@ -79,3 +79,9 @@
 - Known, unchanged by this fix: a disc's accidental sits in the column left of the written chord's own accidentals, so at the D#5 the natural sign stands close to the previous note's stem (`us2-unison.png`).
 - needs owner: accept the Constitution VI exception in plan Complexity Tracking (the disc partly covers the current note's head while the key is held), or amend principle VI (MINOR, `/speckit.constitution`). The alternative that keeps VI's letter: redraw the written head's outline over the disc.
 - Handoff: T069-T071 done on `fix/008-disc-covers-note`; not merged, not pushed; merge after the owner answers the VI question. Tree clean after this commit.
+
+## 2026-09-25 16:40 - claude-opus-5.5 (owner answer: Constitution VI exception)
+- Owner: "please do necessary edits" in reply to the three options (accept the exception / amend VI / redraw the head outline over the disc); read as the recommendation, option 1: accept the bounded exception, no constitution change.
+- Recorded: plan Complexity Tracking row "Accepted by the owner 2026-09-25", Constitution Check VI back to PASS (with the accepted exception), spec Clarifications, research R-09. Docs only; no code or test changed since the gate above (lint exit 0, typecheck exit 0, Tests 2286 passed, e2e 362 passed / 0 failed, pressed-keys files 70 passed / 0 failed).
+- The constitution review's verdict was "COMPLIANT WITH NOTES once the owner accepts the exception"; its other findings were addressed in the previous entry. I did not run the auditor again.
+- Handoff: `fix/008-disc-covers-note` has no open owner questions; ready to merge into `main` when the owner asks (not merged, not pushed). Tree clean after this commit.
