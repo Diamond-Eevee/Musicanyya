@@ -108,12 +108,12 @@ pressed, readable in colour and greyscale.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T011 [P] [US2] Element tests in `tests/ui/piano/piano-keys-element.test.ts` (a second `describe`): a held key gets
+- [x] T011 [P] [US2] Element tests in `tests/ui/piano/piano-keys-element.test.ts` (a second `describe`): a held key gets
   `pressed` and exactly one `.key-dot`, released it has none, on a white key (60) and a black key (61); on a black key
   each wrong-key state and help give the same class and glyph as on a white key (✕ ▢ ◆ ?; wrong-key glyph wins over
   help, 002 R-14); on the C key 60 a mark and a dot are added beside its `.key-label`, which keeps its text; ten held
   neighbouring keys 60-69 each get their own dot and nothing else changes. Run it: fails (no `.key-dot`)
-- [ ] T012 [P] [US2] E2E in `tests/e2e/piano-keyboard.spec.ts` (a second `describe`, chromium and firefox - skipped on
+- [x] T012 [P] [US2] E2E in `tests/e2e/piano-keyboard.spec.ts` (a second `describe`, chromium and firefox - skipped on
   webkit, which has no Web MIDI or AudioContext, as `pressed-keys.spec.ts` does; states
   set through the `e2e-midi` seam and Practice on `learning/chords/c-major-scale-and-chords`, as
   `pressed-keys.spec.ts` does), at 1024 x 768 and 1920 x 1080: every `.key-mark`, `.key-dot` and `.key-label` box lies
@@ -128,7 +128,7 @@ pressed, readable in colour and greyscale.
 
 ### Implementation
 
-- [ ] T013 [US2] Place and colour the markings in `src/ui/elements/mx-piano-keys.ts` (research R-3, R-4): the dot as a
+- [x] T013 [US2] Place and colour the markings in `src/ui/elements/mx-piano-keys.ts` (research R-3, R-4): the dot as a
   `.key-dot` element while `pressed`; on white keys the label, dot and glyph stacked from the bottom inside the zone
   below the black keys; on black keys glyph and dot in the lower part, the glyph on a light badge, the dot with a
   light ring; sizes from the white-key width clamped (glyph 8-12 px, dot 5-10 px, label 7-11 px); state borders and
@@ -136,7 +136,7 @@ pressed, readable in colour and greyscale.
   shadow; badge and dot at most 0.9 of their key's width, borders as inward outlines and the help glow inset
   (research R-3); T011 and T012 pass and every existing unit and e2e test of the strip stays green, including the
   50 ms feedback test in `tests/ui/midi-panel.test.ts` (SC-005)
-- [ ] T014 [US2] Checkpoint: pictures with states - `pnpm screenshot --item learning/chords/c-major-scale-and-chords
+- [x] T014 [US2] Checkpoint: pictures with states - `pnpm screenshot --item learning/chords/c-major-scale-and-chords
   --piano --practice --keys "<held keys>"` at 1280 wide with a white and a black key held, a wrong pitch, a wrong
   octave and an extra key on black and white keys and help showing (`tests/.generated/010/t014-*.png`), plus the same
   with `--greyscale`; look at each against the US2 Independent Test and SC-004; run `pnpm vitest run tests/ui` and the

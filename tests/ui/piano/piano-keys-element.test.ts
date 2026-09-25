@@ -99,3 +99,119 @@ describe('US1: the keys are those of a real piano', () => {
     expect(root().querySelectorAll('.key.pressed')).toHaveLength(0);
   });
 });
+
+// ---------------------------------------------------------------------------------------------------------------
+// US2: the states of 001 / 002 / 008 show on the right key, on white and on black keys alike
+// ---------------------------------------------------------------------------------------------------------------
+
+const GLYPHS = { wrongPitch: '✕', wrongOctave: '▢', extra: '◆', help: '?' } as const;
+const WHITE_KEY = 60; // C4
+const BLACK_KEY = 61; // C#4
+
+const hold = (...held: number[]) => {
+  for (const key of held) midiState.pressedKeys.add(key);
+  midiState.emit();
+};
+const release = (...released: number[]) => {
+  for (const key of released) midiState.pressedKeys.delete(key);
+  midiState.emit();
+};
+const dots = (key: number) => keyEl(key).querySelectorAll('.key-dot');
+const markText = (key: number) => keyEl(key).querySelector('.key-mark')?.textContent ?? null;
+
+describe('US2: pressed keys and feedback on the realistic keys', () => {
+  afterEach(() => {
+    midiState.pressedKeys.clear();
+    midiState.emit();
+    practiceState.clearAllKeyFeedback();
+    practiceState.clearHelpOverlay();
+  });
+
+  for (const [name, key] of [
+    ['a white key (C4)', WHITE_KEY],
+    ['a black key (C#4)', BLACK_KEY],
+  ] as const) {
+    it(`a held ${name} is pressed and carries exactly one dot; released it has neither`, () => {
+      expect(dots(key)).toHaveLength(0);
+      hold(key);
+      expect(keyEl(key).classList.contains('pressed')).toBe(true);
+      expect(dots(key)).toHaveLength(1);
+      hold(key); // a repeated update must not add a second dot
+      expect(dots(key)).toHaveLength(1);
+      release(key);
+      expect(keyEl(key).classList.contains('pressed')).toBe(false);
+      expect(dots(key)).toHaveLength(0);
+    });
+  }
+
+  it('gives each wrong-key state the same class and glyph on a black key as on a white key (colour and shape)', () => {
+    const cases = [
+      ['wrongPitch', 'wrong-pitch', GLYPHS.wrongPitch],
+      ['wrongOctave', 'wrong-octave', GLYPHS.wrongOctave],
+      ['extra', 'extra', GLYPHS.extra],
+    ] as const;
+    for (const [state, className, glyph] of cases) {
+      practiceState.clearAllKeyFeedback();
+      practiceState.setKeyFeedback(WHITE_KEY, { state });
+      practiceState.setKeyFeedback(BLACK_KEY, { state });
+      for (const key of [WHITE_KEY, BLACK_KEY]) {
+        expect(keyEl(key).classList.contains(className), `${state} on ${key}: class`).toBe(true);
+        expect(markText(key), `${state} on ${key}: glyph`).toBe(glyph);
+      }
+    }
+  });
+
+  it('shows help as the same class and "?" on a black key as on a white key', () => {
+    practiceState.setHelpOverlay({
+      reason: 'requested',
+      keys: [
+        { key: WHITE_KEY, noteName: 'C4', fingering: null },
+        { key: BLACK_KEY, noteName: 'C#4', fingering: null },
+      ],
+    });
+    for (const key of [WHITE_KEY, BLACK_KEY]) {
+      expect(keyEl(key).classList.contains('expected-help'), `key ${key}`).toBe(true);
+      expect(markText(key), `key ${key}`).toBe(GLYPHS.help);
+    }
+  });
+
+  it('lets a wrong-key glyph win over the help glyph on the same key, on a black key too (002 R-14)', () => {
+    practiceState.setHelpOverlay({ reason: 'requested', keys: [{ key: BLACK_KEY, noteName: 'C#4', fingering: null }] });
+    practiceState.setKeyFeedback(BLACK_KEY, { state: 'wrongPitch' });
+    expect(markText(BLACK_KEY)).toBe(GLYPHS.wrongPitch);
+    expect(keyEl(BLACK_KEY).classList.contains('expected-help')).toBe(true); // the help outline stays
+  });
+
+  it('adds the mark and the dot beside the label of a C key, which keeps its text', () => {
+    hold(WHITE_KEY);
+    practiceState.setKeyFeedback(WHITE_KEY, { state: 'wrongPitch' });
+    const labels = keyEl(WHITE_KEY).querySelectorAll('.key-label');
+    expect(labels).toHaveLength(1);
+    expect(labels[0]?.textContent).toBe('C4');
+    expect(markText(WHITE_KEY)).toBe(GLYPHS.wrongPitch);
+    expect(dots(WHITE_KEY)).toHaveLength(1);
+    // and when the states end the label is still there, alone
+    release(WHITE_KEY);
+    practiceState.clearAllKeyFeedback();
+    expect(keyEl(WHITE_KEY).querySelectorAll('.key-label')).toHaveLength(1);
+    expect(keyEl(WHITE_KEY).querySelector('.key-mark')).toBeNull();
+    expect(dots(WHITE_KEY)).toHaveLength(0);
+  });
+
+  it('gives ten held neighbouring keys (60-69, white and black) one dot each and changes nothing else', () => {
+    const held = Array.from({ length: 10 }, (_, i) => 60 + i);
+    hold(...held);
+    for (const key of held) {
+      expect(keyEl(key).classList.contains('pressed'), `key ${key} pressed`).toBe(true);
+      expect(dots(key), `key ${key} dots`).toHaveLength(1);
+      expect(keyEl(key).querySelector('.key-mark'), `key ${key} mark`).toBeNull();
+    }
+    expect(root().querySelectorAll('.key-dot')).toHaveLength(10);
+    expect(root().querySelectorAll('.key.pressed')).toHaveLength(10);
+    expect(root().querySelectorAll('.key-mark')).toHaveLength(0);
+    for (const key of [59, 70]) {
+      expect(keyEl(key).classList.contains('pressed'), `key ${key}`).toBe(false);
+      expect(dots(key), `key ${key}`).toHaveLength(0);
+    }
+  });
+});

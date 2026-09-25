@@ -48,3 +48,35 @@
   Independent Test: white keys contiguous, black keys on top in twos and threes, C1...C8 labels at the bottom of the C
   keys, the last key C8 at the right edge, A0 at the left, the strip 146 px tall at 1920 (keys 4 x as long as wide) and
   scaled down at 1024; no sideways scroll; the Score's blank area above the strip is as before.
+
+## 2026-09-25 - claude-sonnet-5 (implement, US2)
+- Done: T011, T012 (tests, seen failing). `pnpm vitest run tests/ui/piano/piano-keys-element.test.ts`: `Tests 4 failed |
+  9 passed (13)` - the four fail with "expected  to have a length of 1 but got +0" (no `.key-dot` element: held keys
+  have no dot); the nine that pass are the existing state behaviour on the new keys (classes and glyphs on black and
+  white keys, the wrong-key glyph beating the help glyph, the label kept). `playwright test tests/e2e/piano-keyboard.spec.ts
+  --project=chromium -g US2`: `3 failed` at `expect(markings ... 'dot' ...).toEqual([60, 61, 62, 64])` (received none).
+  The e2e defines "light" and "differs" by the luminance a greyscale picture shows (the weights of CSS `grayscale(1)`
+  on encoded values), so SC-004's greyscale claim is what is asserted; the dot's "ring" is its border colour.
+- Done: T013 (`mx-piano-keys.ts`: the red dot is a real `.key-dot` element added and removed with `pressed`; on white
+  keys label, dot and glyph stack from the bottom inside the part below the black keys (`has-label` on the C keys
+  lifts the stack); on black keys the glyph sits on a light badge and the dot has a light ring, both at most 0.9 of the
+  key's width; sizes follow the white-key width with caps (glyph 8-12 px, dot 5-10 px, label 7-11 px); pressed white
+  `#ffcccc`, pressed black `#6b2020`, each with an inset shadow; state borders are inward outlines, the help glow inset;
+  black keys have a solid `background-color` plus a gradient image so a pressed one can be measured) and T014.
+- Two test fixes of mine, not weakenings: the e2e listed marked keys in DOM order (whites before blacks), now sorted
+  ("keysWith"); its setup now clears Practice's own feedback for the held key 64 before setting the seam feedback, so 64
+  is held and unmarked (the pressed-versus-free contrast check needs that).
+- Evidence: `pnpm test` = `Test Files 211 passed (211)`, `Tests 2594 passed (2594)` (2565 at session start + 16 layout
+  + 13 element); `pnpm typecheck` exit 0; `pnpm lint` 0 errors (282 warnings, 13 infos); `playwright test
+  piano-keyboard pressed-keys us1-layout us4-overlays` (four projects) = `224 passed`, 0 failed (the rest skipped by
+  design: webkit MIDI specs). `piano-keyboard.spec.ts` alone: chromium + firefox `24 passed`. The 50 ms feedback test
+  in `tests/ui/midi-panel.test.ts` is unchanged and green (SC-005; the update path is still synchronous).
+- T014 pictures looked at: `tests/.generated/010/t014-states.png`, `-zoom.png`, `-greyscale.png`,
+  `-greyscale-zoom.png` (an e2e test writes them: white and black keys held, wrong pitch / extra / wrong octave on both
+  colours, help on both) and `t014-practice-1280.png`, `-grey.png` (`pnpm screenshot --piano --practice --keys
+  "+60,+61,+62,+66,+69,wait"`, real Practice feedback). Against the US2 Independent Test: each state is on exactly the
+  key pressed; on white keys glyph, dot and the C4 label are stacked below the black keys, on black keys the glyph is on
+  a white badge above the ringed dot; the pressed black key is dark red; in greyscale the pressed keys, the badges and
+  the dot rings are still distinct and the glyph shapes (x, square, diamond, ?) separate the states. One thing seen, not
+  from this feature: the Practice help popup at the bottom right covers the right end of the strip while it shows
+  (existing overlay placement, 002).

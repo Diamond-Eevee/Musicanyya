@@ -1,6 +1,7 @@
 import type { WrongKeyState } from '../../core/practice/types.js';
 import {
   BLACK_KEY_LENGTH_RATIO,
+  BLACK_KEY_WIDTH_RATIO,
   PIANO_KEY_HIGH,
   PIANO_KEY_LOW,
   PIANO_KEYS_MAX_HEIGHT_PX,
@@ -30,6 +31,8 @@ const HELP_GLYPH = '?';
 
 // The keyboard fills the element's width minus this room at both sides.
 const KEYBOARD_INLINE_PADDING_PX = 4;
+// A badge or a dot on a black key is at most this share of the key's width, so it never reaches the neighbours.
+const MARKING_MAX_SHARE = 0.9;
 const WHITE_KEY_COUNT = keyboardLayout().filter((geometry) => geometry.colour === 'white').length;
 
 class MxPianoKeys extends HTMLElement {
@@ -100,11 +103,21 @@ class MxPianoKeys extends HTMLElement {
           container-type: inline-size;
         }
         /* The keys fill the width (a percentage of it each, from the pure layout); the height follows the key
-           proportions up to the caps, so nothing scrolls sideways at any window width (FR-005, FR-006, R-2). */
+           proportions up to the caps, so nothing scrolls sideways at any window width (FR-005, FR-006, R-2). The sizes
+           of the markings follow the white-key width with upper limits (R-3). */
         .keyboard {
+          --white-width: calc(100cqw / ${WHITE_KEY_COUNT});
+          --black-width: calc(var(--white-width) * ${BLACK_KEY_WIDTH_RATIO});
+          --gap: 1px;
+          --label-size: clamp(7px, calc(var(--white-width) * 0.45), 11px);
+          --white-glyph: clamp(8px, calc(var(--white-width) * 0.5), 12px);
+          --white-dot: clamp(5px, calc(var(--white-width) * 0.3), 10px);
+          /* on a black key the badge and the dot are at most ${MARKING_MAX_SHARE} of the key's width */
+          --black-badge: min(calc(var(--black-width) * ${MARKING_MAX_SHARE}), 12px);
+          --black-dot: min(calc(var(--black-width) * ${MARKING_MAX_SHARE}), 10px);
           position: relative;
           width: 100%;
-          height: min(calc(100cqw / ${WHITE_KEY_COUNT} * ${WHITE_KEY_ASPECT}), ${PIANO_KEYS_MAX_HEIGHT_PX}px, ${PIANO_KEYS_MAX_HEIGHT_VH}vh);
+          height: min(calc(var(--white-width) * ${WHITE_KEY_ASPECT}), ${PIANO_KEYS_MAX_HEIGHT_PX}px, ${PIANO_KEYS_MAX_HEIGHT_VH}vh);
         }
         .key {
           position: absolute;
@@ -113,45 +126,36 @@ class MxPianoKeys extends HTMLElement {
           box-sizing: border-box;
         }
         .key.white {
-          background: #fdfdfb;
+          background-color: #fdfdfb;
           border: 1px solid #555;
           border-left-width: 0;
           border-radius: 0 0 3px 3px;
+          /* the markings stack from the bottom, in the part no black key covers: label, dot, glyph */
+          --base: var(--gap);
+        }
+        .key.white.has-label {
+          --base: calc(var(--gap) + var(--label-size) + var(--gap));
         }
         .key.white[data-key="${PIANO_KEY_LOW}"] {
           border-left-width: 1px;
         }
         .key.black {
           height: ${BLACK_KEY_LENGTH_RATIO * 100}%;
-          background: linear-gradient(to bottom, #1b1b1b 82%, #3b3b3b);
+          background-color: #1b1b1b;
+          background-image: linear-gradient(to bottom, transparent 82%, rgba(255, 255, 255, 0.14));
           border-radius: 0 0 3px 3px;
-        }
-        .key-label {
-          position: absolute;
-          left: 0;
-          right: 0;
-          bottom: 2px;
-          text-align: center;
-          font-size: clamp(7px, 1.4cqw, 11px);
-          line-height: 1;
-          color: #666;
-          pointer-events: none;
+          --base: 3px;
         }
         .key.white.pressed {
-          background: #ffcccc;
+          background-color: #ffcccc;
+          box-shadow: inset 0 3px 3px rgba(0, 0, 0, 0.25);
         }
         .key.black.pressed {
-          background: #6b2020;
+          background-color: #6b2020;
+          box-shadow: inset 0 3px 3px rgba(0, 0, 0, 0.5);
         }
-        .key.pressed::after {
-          content: '';
-          display: block;
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          background: red;
-          margin: 60px auto 0;
-        }
+        /* a state border is an outline pulled inside the key and the help glow is inset, so nothing reaches the
+           neighbouring key (FR-011) */
         .key.wrong-pitch, .key.wrong-octave, .key.extra, .key.expected-help {
           outline: 2px solid;
           outline-offset: -2px;
@@ -163,17 +167,77 @@ class MxPianoKeys extends HTMLElement {
           outline-color: ${HELP_COLOUR};
           box-shadow: inset 0 0 4px 1px ${HELP_COLOUR};
         }
-        .key.expected-help .key-mark { color: ${HELP_COLOUR}; }
-        .key-mark {
+        .key.white.pressed.expected-help {
+          box-shadow: inset 0 3px 3px rgba(0, 0, 0, 0.25), inset 0 0 4px 1px ${HELP_COLOUR};
+        }
+        .key.black.pressed.expected-help {
+          box-shadow: inset 0 3px 3px rgba(0, 0, 0, 0.5), inset 0 0 4px 1px ${HELP_COLOUR};
+        }
+        .key-label {
           position: absolute;
-          top: 2px;
           left: 0;
           right: 0;
+          bottom: var(--gap);
+          height: var(--label-size);
           text-align: center;
-          font-size: 12px;
+          font-size: var(--label-size);
           line-height: 1;
+          color: #666;
           pointer-events: none;
         }
+        .key-dot {
+          position: absolute;
+          left: 50%;
+          bottom: var(--base);
+          transform: translateX(-50%);
+          box-sizing: border-box;
+          border-radius: 50%;
+          background: red;
+          pointer-events: none;
+        }
+        .key.white .key-dot {
+          width: var(--white-dot);
+          height: var(--white-dot);
+        }
+        .key.black .key-dot {
+          width: var(--black-dot);
+          height: var(--black-dot);
+          border: 1.5px solid #fdfdfb;
+        }
+        .key-mark {
+          position: absolute;
+          bottom: var(--base);
+          pointer-events: none;
+          line-height: 1;
+          text-align: center;
+        }
+        .key.white .key-mark {
+          left: 0;
+          right: 0;
+          height: var(--white-glyph);
+          font-size: var(--white-glyph);
+        }
+        .key.black .key-mark {
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-sizing: border-box;
+          width: var(--black-badge);
+          height: var(--black-badge);
+          font-size: calc(var(--black-badge) * 0.8);
+          background: #fdfdfb;
+          border-radius: 3px;
+        }
+        /* a glyph goes above the dot of a held key */
+        .key.white.pressed .key-mark {
+          bottom: calc(var(--base) + var(--white-dot) + var(--gap));
+        }
+        .key.black.pressed .key-mark {
+          bottom: calc(var(--base) + var(--black-dot) + var(--gap));
+        }
+        .key.expected-help .key-mark { color: ${HELP_COLOUR}; }
         .key.wrong-pitch .key-mark { color: ${WRONG_KEY_STYLE.wrongPitch.colour}; }
         .key.wrong-octave .key-mark { color: ${WRONG_KEY_STYLE.wrongOctave.colour}; }
         .key.extra .key-mark { color: ${WRONG_KEY_STYLE.extra.colour}; }
@@ -212,7 +276,7 @@ class MxPianoKeys extends HTMLElement {
         for (const geometry of layout) {
           if (geometry.colour !== colour) continue;
           const keyDiv = document.createElement('div');
-          keyDiv.className = `key ${colour}`;
+          keyDiv.className = geometry.label !== null ? `key ${colour} has-label` : `key ${colour}`;
           keyDiv.dataset.key = String(geometry.key);
           keyDiv.style.left = `${(geometry.left * 100).toFixed(4)}%`;
           keyDiv.style.width = `${(geometry.width * 100).toFixed(4)}%`;
@@ -246,6 +310,18 @@ class MxPianoKeys extends HTMLElement {
       for (const state of Object.keys(WRONG_KEY_STYLE) as WrongKeyState[]) {
         el.classList.toggle(WRONG_KEY_STYLE[state].className, feedback?.state === state);
       }
+      // The red dot of a held key is a real element, so it can be placed and measured like the glyph
+      const existingDot = el.querySelector('.key-dot');
+      if (pressedKeys.has(k)) {
+        if (!existingDot) {
+          const dot = document.createElement('span');
+          dot.className = 'key-dot';
+          el.appendChild(dot);
+        }
+      } else {
+        existingDot?.remove();
+      }
+
       const existingMark = el.querySelector('.key-mark');
       // A wrong-key press takes precedence over the help glyph: it reflects what is happening right now (R-14).
       const glyph = feedback ? WRONG_KEY_STYLE[feedback.state].glyph : helpKeys.has(k) ? HELP_GLYPH : null;
