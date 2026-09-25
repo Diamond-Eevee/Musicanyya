@@ -5,8 +5,8 @@ import { describe, expect, it } from 'vitest';
 /**
  * Feature 008, SC-003: no dashed outline is drawn on the Score in Practice mode or during a Play run - by construction:
  * no module of the Score overlay hands a canvas a non-empty dash pattern. `setLineDash([])` (solid again) is fine. A layer
- * that truly needs a dash must be listed here with its reason; none is: the Grade marks are solid rings, crosses, carets
- * and diamonds, and the loop bracket and start marker are solid lines.
+ * that truly needs a dash must be listed here with its reason; none is: the Grade marks are solid discs, skip icons, carets
+ * and the loop bracket and start marker are solid lines.
  */
 const NEEDS_A_DASH: Record<string, string> = {};
 

@@ -161,11 +161,15 @@ e2e tests cover it. Use the first option that works for you:
    pnpm screenshot --file tests/fixtures/musicxml/engraving/fur-elise-bare.musicxml   # drop a local file
    pnpm screenshot --item <id> --width 1280 --height 720 --full --out test-results/screenshots/x.png
    pnpm screenshot --item <id> --practice --keys "+76,-76,+75"   # Practice, then key steps (feature 008)
+   pnpm screenshot --item <id> --run --keys "sleep:3500"          # a Play run, picture taken mid-run (feature 009)
+   pnpm screenshot --item <id> --run --grade --keys "sleep:1300,+76,-76"   # a Play run, picture of its Grade
    ```
 
    `--practice` switches to Practice and presses Start (a fake MIDI keyboard through the `e2e-midi` window event, the
    same one the e2e tests use). `--keys` is a comma-separated list of steps, `+<midi>` key down, `-<midi>` key up,
-   `wait` one drawn frame; keys still down stay held in the picture. `--play <n>` first plays the correct keys of the
+   `wait` one drawn frame, `sleep:<ms>` a real wait (1-60000 ms, to play in time with a run); keys still down stay
+   held in the picture. `--run` (Play instead of Practice: switch to Play, press Play, then the `--keys` steps) and
+   `--grade` (with `--run`: wait for the run to end and its Grade to appear before the picture) are for Play mode. `--play <n>` first plays the correct keys of the
    first n events (read from the running session), for real scores whose notes you do not know by heart. The script language lives in
    `tools/dev/key-steps.ts`, shared with `pressKeys` in `tests/e2e/helpers/practice.ts`.
 
@@ -272,12 +276,21 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   context, spelling, staff position, disc placement); the Score model gains `clefs`, `keys`, `octaveShifts` per
   part. Note marks are CSS classes on Verovio's `g.note > g.notehead`; red discs use `Path2D` from Leipzig glyphs
   that the Verovio worker renders once on `init` (worker-messages 1.2.0).
+- Feature 009: no new technology and no new dependency. The `score-player` worklet now applies the schedule's
+  channel setup (spessasynth_core `programChange`, `midiChannels[ch].setDrums`) in its message handler
+  (worklet-protocol 1.4.0), so the Metronome is a real drum-kit click and every part sounds as its GM instrument.
+  New pure core modules `src/core/play/cursor.ts`, `src/core/grade/marks.ts` and `src/core/timeline/position.ts`.
 
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-25: Feature 009 planned (Play mode cursor, audible Metronome, Practice-style Grade marks). Phase 0 found
+  that the worklet never applied program changes or the drum flag, so the Metronome played as a one-tick piano note
+  and every Score part sounded as piano (001 FR-015 unmet); the fix goes in the worklet's message handler. The Play
+  cursor reuses Listen's, driven by the run's audible position; the Grade becomes a pure mark set drawn with 008's
+  green heads and red discs, with extras as discs at the nearest note onset.
 - 2026-09-25: Feature 008 planned (pressed keys on the Score): correct notes turn their notehead green (a CSS
   class on the Note's own SVG element), held wrong keys appear as red discs at the printed pitch position with
   ledger lines, real-font accidentals and ottava labels, and every dashed outline goes. Phase 0 found that Practice
@@ -289,11 +302,4 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   found that Mutopia's only Schumann Op. 68 No. 10 is CC BY-SA 2.5 and the shipped item was derived from it. It also
   found that Satie and Burgmüller No. 2 carry undisclosed invented or changed bars, and that LilyPond's MIDI shortens
   the note before a grace group, so the comparator accepts a shorter MIDI note only where the notation shows why.
-- 2026-09-23: Feature 006 planned (beamed notes and complete engraving): Verovio 6.3.0 draws exactly what
-  MusicXML encodes - no automatic beams, and a pitch given only by `<alter>` becomes an invisible gestural
-  accidental - so the whole library showed flags and 117 notes printed a different pitch from the one graded.
-  One pure core module (`src/core/musicxml/engraving/`) plans `<beam>`/`<accidental>` inserts on the parse
-  tree; it completes opened scores in the render copy only (Score and Note IDs untouched), completes the library
-  files on disk (`pnpm library:engrave` + the exercise generator) and backs a zero-insert guard test. Verovio
-  draws no composer/arranger with any header option, so the title moves to an HTML title block above page 1.
 <!-- RECENT-CHANGES:END -->

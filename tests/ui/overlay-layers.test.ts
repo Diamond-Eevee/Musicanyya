@@ -91,12 +91,38 @@ describe('the layer switches reach the drawing code', () => {
       ctx: off.ctx,
       dpr: 1,
       containerRect,
+      origin: { x: 0, y: 0 },
       visible: false,
-      marks: [{ noteId: 'n1', pitch: 'wrong', timing: 'late' } as never],
-      extraRects: [],
-      noteRects: new Map([['n1', rect]]),
+      geometry: {
+        discSlots: [],
+        skipIconBoxes: [
+          { icon: { staff: 1, noteIds: ['n1'] } as never, box: { left: 10, right: 14, top: 40, bottom: 47 } },
+        ],
+        caretBoxes: [{ noteId: 'n1', side: 'late', box: { left: 34, right: 40, top: 22, bottom: 30 } }],
+      },
+      glyphs: null,
     });
     expect(off.painted).not.toHaveBeenCalled();
+  });
+
+  it('...and draws the same marks when the layer is on (so the test above proves the switch, not an empty layer)', () => {
+    const on = recordingContext();
+    drawGradeMarks({
+      ctx: on.ctx,
+      dpr: 1,
+      containerRect,
+      origin: { x: 0, y: 0 },
+      visible: true,
+      geometry: {
+        discSlots: [],
+        skipIconBoxes: [
+          { icon: { staff: 1, noteIds: ['n1'] } as never, box: { left: 10, right: 14, top: 40, bottom: 47 } },
+        ],
+        caretBoxes: [{ noteId: 'n1', side: 'late', box: { left: 34, right: 40, top: 22, bottom: 30 } }],
+      },
+      glyphs: null,
+    });
+    expect(on.painted).toHaveBeenCalled();
   });
 });
 

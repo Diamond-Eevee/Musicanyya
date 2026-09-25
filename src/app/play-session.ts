@@ -17,6 +17,7 @@ import type {
   StoredPerformance,
 } from '../core/grade/types.js';
 import { resolveWindows } from '../core/grade/windows.js';
+import { metronomeChannelVolume } from '../core/play/metronome.js';
 import { createIdleRun, playRunReducer } from '../core/play/run.js';
 import type { PlayAction, PlayEffect, PlayRun, RunSettings } from '../core/play/types.js';
 import type { LoopPassSpan } from '../core/practice/types.js';
@@ -94,9 +95,6 @@ export class PlaySessionController {
   private initialSampleRate: number | null = null;
   private lastLiveQueueDropped = 0;
 
-  /** T044/FR-011: onset ticks already given a live mark this run, so a held or repeated key does not re-emit one. */
-  private readonly liveMarkedOnsets = new Set<number>();
-
   private nextGradeRequestId = 1;
   private pendingGrade: Promise<void> | null = null;
 
@@ -134,7 +132,6 @@ export class PlaySessionController {
     this.timelineTempo = timeline.tempo;
     this.latency = this.audioEngine.latencyProfile();
     this.awaitingTail = false;
-    this.liveMarkedOnsets.clear();
 
     const gradedNoteIds = new Set(this.expected.flatMap((note) => note.noteIds));
     const { schedule, tickMap } = compilePlaySchedule(timeline, measures, {
@@ -163,7 +160,9 @@ export class PlaySessionController {
     this.tailMs = this.computeTailMs(settings);
 
     this.audioEngine.load(schedule);
-    if (settings.metronomeMuted) this.audioEngine.setChannelVolume(METRONOME_CHANNEL, 0);
+    // Always set, never only when muted: the worklet keeps channel volumes across schedules, so a muted run would leave the
+    // next one silent (009 R-02, FR-013). Sent after the schedule so the tick-0 setup cannot override it.
+    this.audioEngine.setChannelVolume(METRONOME_CHANNEL, metronomeChannelVolume(settings.metronomeMuted));
     this.audioEngine.play();
 
     this.syncClock();
@@ -317,35 +316,8 @@ export class PlaySessionController {
             timeStampMs: event.timeStampMs,
             deviceId: event.deviceId,
           };
+    // a key only sounds and is recorded: nothing is marked on the Score before the Grade (009 FR-027, owner review)
     this.dispatch({ type: 'input', message });
-    if (event.type === 'noteOn') this.checkLiveMark(event.key);
-  }
-
-  /** FR-011, contracts/play-run.md "The live marking of `liveMark`": deliberately cheap and approximate - matches
-   *  a press against the expected notes at or next to the cursor by pitch only, says nothing about timing or
-   *  about wrong pitches (D-3), and is display only (`onEffect`, never the reducer's own state - the Grade
-   *  computed from the log is the only thing that can be wrong, FR-011a). */
-  private checkLiveMark(key: number): void {
-    if (!this.run) return;
-    const timelineTick = this.run.positionRunTick - this.run.tickMap.countInTicks + this.run.tickMap.rangeStartTick;
-    const windowTicks = this.ppq; // a quarter note either side: generous and cheap, not the real claim window
-
-    let nearest: ExpectedNote | null = null;
-    let nearestDistance = Infinity;
-    for (const note of this.expected) {
-      if (note.key !== key) continue;
-      const distance = Math.abs(note.onsetTick - timelineTick);
-      if (distance > windowTicks || distance >= nearestDistance) continue;
-      nearest = note;
-      nearestDistance = distance;
-    }
-    if (!nearest || this.liveMarkedOnsets.has(nearest.onsetTick)) return;
-
-    this.liveMarkedOnsets.add(nearest.onsetTick);
-    const noteIds = this.expected
-      .filter((note) => note.onsetTick === nearest.onsetTick && note.key === key)
-      .flatMap((note) => note.noteIds);
-    this.callbacks.onEffect({ type: 'liveMark', noteIds });
   }
 
   private dispatch(action: PlayAction): void {

@@ -1,4 +1,5 @@
-import type { Grade, NoteResult } from '../../core/grade/types.js';
+import type { GradeMarkRef, GradeMarkSet } from '../../core/grade/marks.js';
+import type { Grade } from '../../core/grade/types.js';
 import { reasonText } from '../format/reason-text.js';
 import { en, ordinal } from '../i18n/en.js';
 import { mistakeStepper } from '../state/mistake-stepper.js';
@@ -21,16 +22,38 @@ function figure(count: number, total: number): string {
     .replace('{percent}', String(percent(count, total)));
 }
 
-function findResult(grade: Grade, noteId: string): NoteResult | null {
-  return grade.results.find((result) => result.noteIds.includes(noteId)) ?? null;
+/**
+ * The plain-words lines for what is selected (FR-030; 009 FR-022, FR-024): a graded note explained once for every pass it
+ * was played, the pass named when there is more than one; an extra key by its own reason; a red disc as everything it stands
+ * for. The mark set (from the core) says which results a note has and what their wording needs to know (FR-022a); without one
+ * (a Score that is not open) the results themselves are searched.
+ */
+function explain(grade: Grade, marks: GradeMarkSet | null, ref: GradeMarkRef): string[] {
+  if (ref.kind === 'extra') {
+    const extra = grade.extras[ref.index];
+    return extra ? [reasonText(extra.reason)] : [];
+  }
+  if (ref.kind === 'disc') {
+    const disc = marks?.discs[ref.index];
+    return disc ? disc.refs.flatMap((inner) => explain(grade, marks, inner)) : [];
+  }
+  const indexes =
+    marks?.notes.get(ref.noteId)?.results ??
+    grade.results.flatMap((result, index) => (result.noteIds.includes(ref.noteId) ? [index] : []));
+  const lines = indexes.flatMap((index) => {
+    const result = grade.results[index];
+    return result ? [reasonText(result.reason, marks?.contexts.get(index))] : [];
+  });
+  return lines.length > 1
+    ? lines.map((line, i) => en.play.panel.passLine.replace('{ordinal}', ordinal(i + 1)).replace('{reason}', line))
+    : lines;
 }
 
 /**
  * The two figures, the six plain counts and a plain-words reason for whatever mark the musician selected on the
  * Score (FR-028, FR-030). A pure view of `playState`/`practiceState`: it renders what it is given and decides
- * nothing (Constitution V), same treatment as `mx-practice-panel`. Extra notes have no notehead of their own to
- * select (R-11, same limitation `practice-marks.ts` already documents) - their reason is not shown here; FR-031's
- * mistake stepper (US2, T051) is the general way to step through every mistake including extras.
+ * nothing (Constitution V), same treatment as `mx-practice-panel`. What is selected is a mark reference (009): a graded
+ * note, an extra key (reached through the mistake stepper) or a red disc; each is explained from the mark set.
  */
 export class MxGradePanel extends HTMLElement {
   private unsubscribePlay?: () => void;
@@ -52,7 +75,7 @@ export class MxGradePanel extends HTMLElement {
 
   private render() {
     const { mode } = practiceState.get();
-    const { grade, selectedNoteId } = playState.get();
+    const { grade, marks, selectedMark } = playState.get();
     this.hidden = mode !== 'play' || grade === null;
     if (this.hidden || !grade) {
       this.innerHTML = '';
@@ -62,8 +85,9 @@ export class MxGradePanel extends HTMLElement {
     const p = en.play.panel;
     const { summary } = grade;
     const incomplete = grade.complete ? '' : `<p class="grade-incomplete">${p.incomplete}</p>`;
-    const selected = selectedNoteId ? findResult(grade, selectedNoteId) : null;
-    const reason = selected ? `<p class="grade-reason">${escapeHtml(reasonText(selected.reason))}</p>` : '';
+    const reason = (selectedMark ? explain(grade, marks, selectedMark) : [])
+      .map((line) => `<p class="grade-reason">${escapeHtml(line)}</p>`)
+      .join('');
 
     const stepperState = mistakeStepper.get();
     const stepper =
@@ -131,13 +155,13 @@ export class MxGradePanel extends HTMLElement {
   private wire() {
     this.querySelector('[data-id="stepper-previous"]')?.addEventListener('click', () => {
       mistakeStepper.previous();
-      const id = mistakeStepper.get().currentId;
-      if (id) playState.selectNote(id);
+      const ref = mistakeStepper.get().current;
+      if (ref) playState.selectMark(ref);
     });
     this.querySelector('[data-id="stepper-next"]')?.addEventListener('click', () => {
       mistakeStepper.next();
-      const id = mistakeStepper.get().currentId;
-      if (id) playState.selectNote(id);
+      const ref = mistakeStepper.get().current;
+      if (ref) playState.selectMark(ref);
     });
     for (const btn of this.querySelectorAll<HTMLButtonElement>('[data-id="practise-pass"]')) {
       btn.addEventListener('click', () => {

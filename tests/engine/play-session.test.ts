@@ -10,7 +10,12 @@
  */
 import { describe, expect, it } from 'vitest';
 import { type PlaySessionCallbacks, PlaySessionController } from '../../src/app/play-session.js';
-import { PLAY_STRICTNESS_DEFAULT } from '../../src/core/defaults.js';
+import {
+  METRONOME_CHANNEL,
+  METRONOME_VOLUME_MUTED,
+  METRONOME_VOLUME_ON,
+  PLAY_STRICTNESS_DEFAULT,
+} from '../../src/core/defaults.js';
 import { gradePerformance } from '../../src/core/grade/grade.js';
 import type { Grade } from '../../src/core/grade/types.js';
 import type { PlayEffect, RunSettings } from '../../src/core/play/types.js';
@@ -235,44 +240,26 @@ describe('PlaySessionController (T039/T097)', () => {
     expect(gradeFailures).toEqual([{ reason: 'timeout', message: undefined }]);
   });
 
-  it('T044: a press matching the note at the cursor emits a display-only liveMark, by pitch only (FR-011)', () => {
+  it('a key pressed during the run only sounds: no effect marks the Score before the Grade (FR-027, owner review 2026-09-25)', () => {
     const { score, timeline, audioEngine, midiInput, effects, controller } = setup();
     controller.start({ scoreId: null, score, timeline, measures: score.measures, range: null, settings: settings() });
     const countInTicks = controller.getRun()!.tickMap.countInTicks;
     audioEngine.currentPosition = { audibleTick: countInTicks, playing: true };
     controller.reportPosition(2500); // the cursor is now exactly at the first written note (C4, key 60)
+    effects.length = 0;
 
-    midiInput.fire({ type: 'noteOn', deviceId: 'kb-1', key: 60, velocity: 70, timeStampMs: 2500 });
-
-    const liveMarks = effects.filter((e): e is PlayEffect & { type: 'liveMark' } => e.type === 'liveMark');
-    expect(liveMarks).toHaveLength(1);
-    expect(liveMarks[0]?.noteIds.length).toBeGreaterThan(0);
-  });
-
-  it("T044: a wrong pitch is never marked - D-3's marker can only ever say 'correct', never 'wrong'", () => {
-    const { score, timeline, audioEngine, midiInput, effects, controller } = setup();
-    controller.start({ scoreId: null, score, timeline, measures: score.measures, range: null, settings: settings() });
-    const countInTicks = controller.getRun()!.tickMap.countInTicks;
-    audioEngine.currentPosition = { audibleTick: countInTicks, playing: true };
-    controller.reportPosition(2500);
-
-    midiInput.fire({ type: 'noteOn', deviceId: 'kb-1', key: 61, velocity: 70, timeStampMs: 2500 }); // C#4, not written
-
-    expect(effects.filter((e) => e.type === 'liveMark')).toHaveLength(0);
-  });
-
-  it('T044: a held or repeated key at the same onset emits at most one liveMark for it, not one per press', () => {
-    const { score, timeline, audioEngine, midiInput, effects, controller } = setup();
-    controller.start({ scoreId: null, score, timeline, measures: score.measures, range: null, settings: settings() });
-    const countInTicks = controller.getRun()!.tickMap.countInTicks;
-    audioEngine.currentPosition = { audibleTick: countInTicks, playing: true };
-    controller.reportPosition(2500);
-
-    midiInput.fire({ type: 'noteOn', deviceId: 'kb-1', key: 60, velocity: 70, timeStampMs: 2500 });
+    midiInput.fire({ type: 'noteOn', deviceId: 'kb-1', key: 60, velocity: 70, timeStampMs: 2500 }); // the written note
     midiInput.fire({ type: 'noteOff', deviceId: 'kb-1', key: 60, timeStampMs: 2550 });
-    midiInput.fire({ type: 'noteOn', deviceId: 'kb-1', key: 60, velocity: 70, timeStampMs: 2600 });
+    midiInput.fire({ type: 'noteOn', deviceId: 'kb-1', key: 61, velocity: 70, timeStampMs: 2600 }); // C#4, not written
 
-    expect(effects.filter((e) => e.type === 'liveMark')).toHaveLength(1);
+    // each press and release is heard through the live channel, and that is all the run shows of it
+    expect(effects.map((e) => e.type)).toEqual(['soundInput', 'soundInput', 'soundInput']);
+    expect(effects).toEqual([
+      { type: 'soundInput', key: 60, velocity: 70, on: true },
+      { type: 'soundInput', key: 60, velocity: 0, on: false },
+      { type: 'soundInput', key: 61, velocity: 70, on: true },
+    ]);
+    expect(controller.getRun()?.phase).toBe('running'); // recorded for the Grade, not graded yet
   });
 
   it('T098: engine suspended with deviceChanged raises audioLost, stops the run, and marks Grade unreliable', async () => {
@@ -396,5 +383,46 @@ describe('PlaySessionController (T039/T097)', () => {
     expect(grades).toEqual([grade]);
     expect(performanceStore.records.size).toBe(0);
     expect(effects).toContainEqual({ type: 'notice', code: 'playAttemptNotStored' });
+  });
+
+  // 009 research R-02: a muted Metronome must not stay muted on the next run - the worklet keeps channel volumes across
+  // schedules, so every start sets the Metronome channel volume explicitly, after the schedule is loaded.
+  describe('the Metronome channel volume at the start of a run (009 R-02, FR-013)', () => {
+    const volumeCommands = (commands: readonly string[]) => commands.filter((c) => c.startsWith('setChannelVolume:'));
+
+    it('a run started muted sets the Metronome channel volume to its muted level, after the schedule is loaded', () => {
+      const { score, timeline, audioEngine, controller } = setup();
+      controller.start({
+        scoreId: null,
+        score,
+        timeline,
+        measures: score.measures,
+        range: null,
+        settings: settings({ metronomeMuted: true }),
+      });
+      expect(volumeCommands(audioEngine.commands)).toEqual([
+        `setChannelVolume:${METRONOME_CHANNEL},${METRONOME_VOLUME_MUTED}`,
+      ]);
+      expect(
+        audioEngine.commands.indexOf(`setChannelVolume:${METRONOME_CHANNEL},${METRONOME_VOLUME_MUTED}`),
+      ).toBeGreaterThan(audioEngine.commands.indexOf('load'));
+    });
+
+    it('a run started unmuted sets it to full (100 on the 0..100 scale of the port, not 1), after load and before play, so a previous muted run cannot carry over', () => {
+      const { score, timeline, audioEngine, controller } = setup();
+      const options = { scoreId: null, score, timeline, measures: score.measures, range: null };
+      controller.start({ ...options, settings: settings({ metronomeMuted: true }) });
+      controller.start({ ...options, settings: settings({ metronomeMuted: false }) });
+
+      expect(volumeCommands(audioEngine.commands)).toEqual([
+        `setChannelVolume:${METRONOME_CHANNEL},${METRONOME_VOLUME_MUTED}`,
+        `setChannelVolume:${METRONOME_CHANNEL},${METRONOME_VOLUME_ON}`,
+      ]);
+      const second = audioEngine.commands.lastIndexOf(`setChannelVolume:${METRONOME_CHANNEL},${METRONOME_VOLUME_ON}`);
+      const secondLoad = audioEngine.commands.lastIndexOf('load');
+      const secondPlay = audioEngine.commands.lastIndexOf('play');
+      expect(secondLoad).toBeLessThan(second);
+      expect(second).toBeLessThan(secondPlay);
+    });
   });
 });

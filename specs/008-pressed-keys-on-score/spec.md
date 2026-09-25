@@ -34,6 +34,10 @@ dotted rectangles, they don't look very nice."
   Complexity Tracking row (position behind the band is the non-colour cue); no constitution change.
 - Q (implement T068): releasing a held-over key clears its orange mark together with its hint? -> A: yes (FR-009a
   reading confirmed).
+- Superseded by feature 009 (owner, 2026-09-25): a small ">" chevron under a notehead reads as an accent, so the
+  skipped note's chevron becomes a grey skip icon (solid right-pointing triangle with a bar), shared with Play's
+  missed note, and it goes below the lowest head of its column on that staff so it never covers a chord tone
+  (009 FR-016, FR-016a, analyze C1). The held-over chevron is unchanged.
 - Owner's reference picture: green noteheads (hollow heads stay hollow) for played notes, solid red discs at the
   pressed pitches in the cursor column that disappear on release -> matches FR-001, FR-004, FR-005; red disc size,
   hollow-head colouring refined from it; its overlap of the written head is the owner's final choice (FR-006).

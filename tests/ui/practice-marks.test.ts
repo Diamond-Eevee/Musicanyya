@@ -224,19 +224,22 @@ describe('state chevrons: the shapes that tell held-over and skipped notes apart
     expect(dashes.filter((d) => d.length > 0)).toEqual([]); // solid
   });
 
-  it('skipped: a solid right-pointing chevron entirely below the notehead box and within one staff space of it', () => {
-    const { ctx, points, dashes, styles } = recording();
-    drawStateChevron({ ctx, dpr: 1, containerRect: container, noteheadRect: head, kind: 'skipped' });
+  // 009 FR-016a (amends 008 FR-009/FR-010, logged): the skipped note's marker is the skip icon - a solid right-pointing
+  // triangle with a bar - drawn into a box below the lowest head of its column, not the open chevron below its own head.
+  it('skipped: the skip icon, a solid right-pointing triangle inside the box below the notehead box, none of it on the head', () => {
+    const { ctx, points, dashes } = recording();
+    const box = { left: 105, right: 113, top: head.bottom + 2, bottom: head.bottom + 13 };
+    drawStateChevron({ ctx, dpr: 1, containerRect: container, kind: 'skipped', box });
     expect(points).toHaveLength(3);
     const [a, tip, b] = points as [Point, Point, Point];
     expect(tip.x).toBeGreaterThan(a.x); // it points right
     expect(a.x).toBe(b.x);
     expect(tip.y).toBeGreaterThan(a.y);
     expect(tip.y).toBeLessThan(b.y);
-    const box = bounds(points);
-    expect(box.top).toBeGreaterThan(head.bottom); // entirely below
-    expect(box.bottom - head.bottom).toBeLessThanOrEqual(head.height);
-    expect(styles).toEqual(['#999999']);
+    const drawn = bounds(points);
+    expect(drawn.top).toBeGreaterThan(head.bottom); // entirely below the head
+    expect(drawn.left).toBeGreaterThanOrEqual(box.left);
+    expect(drawn.right).toBeLessThanOrEqual(box.right);
     expect(dashes.filter((d) => d.length > 0)).toEqual([]);
   });
 
@@ -258,7 +261,13 @@ describe('state chevrons: the shapes that tell held-over and skipped notes apart
     const held = recording();
     const skipped = recording();
     drawStateChevron({ ctx: held.ctx, dpr: 1, containerRect: container, noteheadRect: head, kind: 'heldOver' });
-    drawStateChevron({ ctx: skipped.ctx, dpr: 1, containerRect: container, noteheadRect: head, kind: 'skipped' });
+    drawStateChevron({
+      ctx: skipped.ctx,
+      dpr: 1,
+      containerRect: container,
+      kind: 'skipped',
+      box: { left: 105, right: 113, top: head.bottom + 2, bottom: head.bottom + 13 },
+    });
     expect(bounds(held.points).bottom).toBeLessThan(head.top);
     expect(bounds(skipped.points).top).toBeGreaterThan(head.bottom);
   });

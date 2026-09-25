@@ -1,120 +1,70 @@
-import { describe, expect, it } from 'vitest';
-import { PLAY_STRICTNESS_DEFAULT } from '../../src/core/defaults.js';
-import type { ExpectedNote, ExtraNote, Grade, NoteResult } from '../../src/core/grade/types.js';
+import { beforeEach, describe, expect, it } from 'vitest';
+import type { GradeMarkRef, GradeMarkSet } from '../../src/core/grade/marks.js';
 import { mistakeStepper } from '../../src/ui/state/mistake-stepper.js';
 
-describe('Mistake stepper (FR-031)', () => {
-  it('stepping forwards and backwards visits every mistake repeatedly, in Score order', () => {
-    const expected: ExpectedNote[] = [
-      {
-        index: 0,
-        noteIds: ['n1'],
-        key: 60,
-        onsetTick: 100,
-        measureIndex: 0,
-        passIndex: 0,
-        chordSize: 1,
-        arpeggiated: false,
-      },
-      {
-        index: 1,
-        noteIds: ['n2'],
-        key: 62,
-        onsetTick: 50,
-        measureIndex: 0,
-        passIndex: 0,
-        chordSize: 1,
-        arpeggiated: false,
-      }, // earlier tick
-      {
-        index: 2,
-        noteIds: ['n3'],
-        key: 64,
-        onsetTick: 150,
-        measureIndex: 0,
-        passIndex: 0,
-        chordSize: 1,
-        arpeggiated: false,
-      },
-    ];
+// 009 T033 (FR-023, research R-10): the stepper visits what the mark set says is a mistake - wrong pitches, missed notes and
+// extras - in the order the core gave (pass, then tick). Its current position is a GradeMarkRef, not a note ID. The stepper
+// used to be built from the Grade's results and skipped extras; that changed with the specified behaviour (logged).
 
-    const results: NoteResult[] = [
-      {
-        expectedIndex: 0,
-        noteIds: ['n1'],
-        pitch: 'wrongPitch',
-        timing: 'onTime',
-        playedKey: 61,
-        deltaTicks: 0,
-        deltaMs: 0,
-        reason: { code: 'correctOnTime', expectedKey: null, playedKey: null, octaveDelta: null, deltaMs: null },
-      },
-      {
-        expectedIndex: 1,
-        noteIds: ['n2'],
-        pitch: 'missed',
-        timing: null,
-        playedKey: null,
-        deltaTicks: null,
-        deltaMs: null,
-        reason: { code: 'missedNothingPlayed', expectedKey: null, playedKey: null, octaveDelta: null, deltaMs: null },
-      },
-      {
-        expectedIndex: 2,
-        noteIds: ['n3'],
-        pitch: 'correct',
-        timing: 'onTime',
-        playedKey: 64,
-        deltaTicks: 0,
-        deltaMs: 0,
-        reason: { code: 'correctOnTime', expectedKey: null, playedKey: null, octaveDelta: null, deltaMs: null },
-      },
-    ];
+const note = (noteId: string): GradeMarkRef => ({ kind: 'note', noteId });
+const extra = (index: number): GradeMarkRef => ({ kind: 'extra', index });
+const marksOf = (mistakes: readonly GradeMarkRef[]): GradeMarkSet => ({ mistakes }) as unknown as GradeMarkSet;
 
-    const grade: Grade = {
-      runId: '1',
-      complete: true,
-      results,
-      extras: [],
-      playedAlong: [],
-      summary: {
-        notesCorrect: { count: 1, total: 3 },
-        notesOnTime: { count: 2, total: 2 },
-        counts: { correct: 1, wrongPitch: 1, missed: 1, extra: 0, early: 0, late: 0 },
-        meanAsynchronyMs: 0,
-        timingNotResolvable: false,
-      },
-      measures: [],
-      reliability: [],
-      settings: {
-        range: null,
-        tempoPercent: 100,
-        selection: { preset: 'both', partIndex: 0, staves: [1, 2] },
-        strictness: PLAY_STRICTNESS_DEFAULT,
-        countInMeasures: 1,
-        metronomeMuted: false,
-        accompaniment: true,
-      },
-      latency: { outputLatencyMs: 0, inputLatencyMs: 0, source: 'assumed', measuredAt: null },
-      expected,
-    } as any; // Using "as any" since Grade type might differ from this mock structure.
+describe('the mistake stepper is built from the mark set (FR-023)', () => {
+  beforeEach(() => mistakeStepper.setMarks(null));
 
-    mistakeStepper.setGrade(grade);
+  it('visits every mistake in the order it is given, extras included, starting at the first', () => {
+    mistakeStepper.setMarks(marksOf([note('n2'), extra(0), note('n1'), extra(1)]));
+    expect(mistakeStepper.get()).toEqual({ index: 0, total: 4, current: note('n2') });
+    const seen: (GradeMarkRef | null)[] = [];
+    for (let i = 0; i < 4; i++) {
+      seen.push(mistakeStepper.get().current);
+      mistakeStepper.next();
+    }
+    expect(seen).toEqual([note('n2'), extra(0), note('n1'), extra(1)]);
+  });
 
-    let state = mistakeStepper.get();
-    expect(state.total).toBe(2);
-    expect(state.currentId).toBe('n2'); // n2 has tick 50
-
-    mistakeStepper.next();
-    state = mistakeStepper.get();
-    expect(state.currentId).toBe('n1'); // n1 has tick 100
-
-    mistakeStepper.next();
-    state = mistakeStepper.get();
-    expect(state.currentId).toBe('n2'); // loops back
-
+  it('next and previous wrap around', () => {
+    mistakeStepper.setMarks(marksOf([note('a'), extra(3), note('b')]));
     mistakeStepper.previous();
-    state = mistakeStepper.get();
-    expect(state.currentId).toBe('n1'); // loops backwards
+    expect(mistakeStepper.get().current).toEqual(note('b')); // before the first: the last
+    mistakeStepper.next();
+    expect(mistakeStepper.get().current).toEqual(note('a')); // after the last: the first
+    mistakeStepper.next();
+    mistakeStepper.next();
+    expect(mistakeStepper.get()).toEqual({ index: 2, total: 3, current: note('b') });
+  });
+
+  it('the current position is a mark reference: a note or an extra, never a bare ID', () => {
+    mistakeStepper.setMarks(marksOf([extra(7)]));
+    expect(mistakeStepper.get().current).toEqual({ kind: 'extra', index: 7 });
+  });
+
+  it('is empty without marks, or with a Grade that has no mistake, and stepping then does nothing', () => {
+    expect(mistakeStepper.get()).toEqual({ index: -1, total: 0, current: null });
+    mistakeStepper.setMarks(marksOf([]));
+    expect(mistakeStepper.get()).toEqual({ index: -1, total: 0, current: null });
+    mistakeStepper.next();
+    mistakeStepper.previous();
+    expect(mistakeStepper.get().current).toBeNull();
+  });
+
+  it('starts again at the first mistake when new marks arrive, and clears when they go', () => {
+    mistakeStepper.setMarks(marksOf([note('a'), note('b')]));
+    mistakeStepper.next();
+    mistakeStepper.setMarks(marksOf([note('c')]));
+    expect(mistakeStepper.get()).toEqual({ index: 0, total: 1, current: note('c') });
+    mistakeStepper.setMarks(null);
+    expect(mistakeStepper.get().total).toBe(0);
+  });
+
+  it('tells its subscribers on every change', () => {
+    const totals: number[] = [];
+    const unsubscribe = mistakeStepper.subscribe((state) => totals.push(state.total));
+    mistakeStepper.setMarks(marksOf([note('a'), extra(0)]));
+    mistakeStepper.next();
+    mistakeStepper.setMarks(null);
+    unsubscribe();
+    expect(totals).toEqual([0, 2, 2, 0]); // the immediate call on subscribing, then each change
   });
 });

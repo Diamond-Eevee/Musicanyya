@@ -28,7 +28,8 @@ const playSnapshot = (page: Page) =>
       gradeComplete: s.grade?.complete as boolean | undefined,
       resultsCount: s.grade?.results.length as number | undefined,
       missed: s.grade?.summary.counts.missed as number | undefined,
-      selectedNoteId: s.selectedNoteId as string | null | undefined,
+      // 009: the selection is a mark reference now ({ kind: 'note', noteId } | { kind: 'extra' } | { kind: 'disc' })
+      selectedNoteId: (s.selectedMark?.kind === 'note' ? s.selectedMark.noteId : null) as string | null | undefined,
     };
   });
 

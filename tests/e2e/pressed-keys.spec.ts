@@ -1,6 +1,7 @@
 import * as path from 'node:path';
 import { expect, type Page, test } from '@playwright/test';
 import { openPanel } from './helpers/panels.js';
+import { marksDuringRun } from './helpers/play.js';
 import { pressKeys, startPractice, startPracticeOnOpenScore } from './helpers/practice.js';
 import {
   above,
@@ -586,7 +587,7 @@ test.describe('US3: the other Practice states without dashed outlines (feature 0
     expect(await dashesSeen(page)).toEqual([]);
   });
 
-  test('Play mode: correct notes turn green during the run, no dashed ring, the Grade marks at the end as before', async ({
+  test('Play mode: nothing is marked during the run, no dashed ring; the Grade makes the played note green and greys the rest (009 FR-014, FR-027)', async ({
     page,
   }) => {
     test.setTimeout(60_000);
@@ -600,7 +601,7 @@ test.describe('US3: the other Practice states without dashed outlines (feature 0
     await page.locator('mx-mode-switch input[value=play]').check();
     const playBtn = page.locator('mx-transport .play-btn');
     await playBtn.click();
-    // As us1-play.spec.ts: wait for the run and press the written first note (C4) inside the live marker's window
+    // As us1-play.spec.ts: wait for the run and press the written first note (C4) on its beat
     await page.evaluate(async (key) => {
       const state = (window as unknown as { __PLAY_STATE__: { get(): { run?: { phase: string } } } }).__PLAY_STATE__;
       const deadline = performance.now() + 10_000;
@@ -610,13 +611,12 @@ test.describe('US3: the other Practice states without dashed outlines (feature 0
       window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x90, key, 100] }));
       window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x80, key, 0] }));
     }, 60);
-    await expect.poll(async () => Object.keys(await markClasses(page)).length, { timeout: 5_000 }).toBeGreaterThan(0);
-    const [id] = Object.keys(await markClasses(page));
-    expect(await markClasses(page)).toEqual({ [id as string]: 'mx-mark-correct' });
-    expect(await fillOf(page, id as string, 'notehead')).toBe(GREEN);
+    // 009 FR-027 (owner review 2026-09-25): during the run the correct key marks nothing, green or otherwise
+    expect(await marksDuringRun(page, 1_000)).toEqual({ marked: [], phaseAfter: 'running' });
     await screenshot(page, 'us3-play.png');
 
-    // The run ends on its own and is graded: the live marks give way to the Grade's own marks
+    // The run ends on its own and is graded: the Grade's marks, which since 009 are Practice's (FR-014): the note that
+    // was played is green and every note that was not is grey, where 003's Grade drew rings
     await expect
       .poll(
         () =>
@@ -629,7 +629,20 @@ test.describe('US3: the other Practice states without dashed outlines (feature 0
         { timeout: 25_000 },
       )
       .toBe(true);
-    await expect.poll(() => markClasses(page)).toEqual({});
+    await expect
+      .poll(async () => {
+        const classes = Object.entries(await markClasses(page));
+        const played = classes.filter(([, cls]) => cls === 'mx-mark-correct').map(([noteId]) => noteId);
+        const others = classes.filter(([, cls]) => cls !== 'mx-mark-correct');
+        return {
+          played: played.length,
+          others: others.length > 0 && others.every(([, cls]) => cls === 'mx-mark-skipped'),
+        };
+      })
+      .toEqual({ played: 1, others: true });
+    const [id] = Object.entries(await markClasses(page)).find(([, cls]) => cls === 'mx-mark-correct') ?? [];
+    expect(id).toMatch(/-k60$/); // the C4 that was played
+    expect(await fillOf(page, id as string, 'notehead')).toBe(GREEN);
     expect(await dashesSeen(page)).toEqual([]);
   });
 

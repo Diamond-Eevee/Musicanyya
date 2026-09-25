@@ -61,6 +61,8 @@ export const VOLUME_DEFAULT = 80;
 // Audio worklet scheduling (R-10, shared with worklet which cannot import engine/config)
 export const POSITION_REPORT_BLOCKS = 4;
 export const VOLUME_RAMP_FRAMES = 256;
+/** Tick-0 controller events (bank, volume, pan, ...) the worklet keeps to apply a schedule's channel setup (009 R-01). */
+export const MAX_SETUP_CONTROLLERS = 64;
 
 // Dropout detection and diagnostics (R-10 "Dropouts")
 export const DROPOUT_DRIFT_THRESHOLD_SECONDS = 0.05;
@@ -88,6 +90,14 @@ export const METRONOME_KEY_BEAT = 77; // GM Low Wood Block
 export const METRONOME_KEY_DOWNBEAT = 76; // GM High Wood Block, the accent (FR-003)
 export const METRONOME_VELOCITY_BEAT = 88;
 export const METRONOME_VELOCITY_DOWNBEAT = 110;
+/** The Metronome channel's level on the `AudioEngine.setChannelVolume` scale, 0..100 (ports.ts): silent when muted, full otherwise (009 R-02). */
+export const METRONOME_VOLUME_MUTED = 0;
+export const METRONOME_VOLUME_ON = 100;
+/** A time signature outside these is read as 4/4: a file's <beats> and <beat-type> are untrusted, and the click loops step by the beat (009 audit). */
+export const METER_BEATS_MAX = 64;
+export const METER_BEAT_TYPES: readonly number[] = [1, 2, 4, 8, 16, 32, 64];
+/** No measure has more beats than this, so a measure of absurd length still gets a bounded number of run clicks (009 audit). */
+export const RUN_CLICKS_PER_PASS_MAX = 256;
 export const PLAY_STRICTNESS_DEFAULT: StrictnessLevelName = 'beginner'; // The most forgiving level (FR-039)
 export const PLAY_BEAT_UNIT_SOURCE = 'metronome-mark-then-time'; // What "a beat" means for the windows; compound meters take the dotted note
 export const PLAY_ARPEGGIO_SPREAD_BEATS = 0.5; // Spread allowed for a chord the Score writes as arpeggiated, in place of the chord spread (D-2, FR-022)

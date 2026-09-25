@@ -48,7 +48,10 @@ import {
   PLAY_STRICTNESS_DEFAULT,
 } from '../core/defaults.js';
 import { buildExpectedNotes, buildPlayedAlongSpans } from '../core/grade/expected.js';
+import { type GradeMarkSet, gradeMarks } from '../core/grade/marks.js';
+import { type SyntheticKind, syntheticLog } from '../core/grade/synthetic.js';
 import type { Grade, GradeInput, StoredPerformance } from '../core/grade/types.js';
+import { metronomeChannelVolume } from '../core/play/metronome.js';
 import { compileReplay } from '../core/play/replay.js';
 import type { PlayEffect, RunSettings } from '../core/play/types.js';
 import { buildExpectedEvents, firstEventAtOrAfterTick, resolveStartMeasure } from '../core/practice/expected.js';
@@ -68,6 +71,7 @@ import type {
 import { compilePlaySchedule } from '../core/schedule/play-schedule.js';
 import type { LoadReport } from '../core/score/load-report.js';
 import type { Score } from '../core/score/model.js';
+import { audioTimeAtTick } from '../core/tempo/rate.js';
 import type { PlaybackTimeline, TempoSegment } from '../core/timeline/types.js';
 import type { MxOpenButton } from '../ui/elements/mx-open-button.js';
 import type { PlaySetupChange } from '../ui/elements/mx-play-panel.js';
@@ -222,6 +226,10 @@ export class Session {
       window.addEventListener('e2e-midi', (e) => {
         const detail = (e as CustomEvent<number[]>).detail;
         midiTestSeam.handleMidiMessage('fake-midi-1', { data: detail, timeStamp: performance.now() });
+      });
+      // e2e-only: a Grade of a canned performance ('nothing' | 'correct' | 'semitoneHigh') of the open Score (009 T054)
+      window.addEventListener('e2e-synthetic-grade', (e) => {
+        void this.onSyntheticGrade((e as CustomEvent<SyntheticKind>).detail);
       });
     }
     this.scoreStore = scoreStore;
@@ -724,7 +732,7 @@ export class Session {
     }
 
     playState.clear();
-    mistakeStepper.setGrade(null);
+    mistakeStepper.setMarks(null);
     this.playController.start({
       scoreId: this.playScoreId,
       score: this.currentScore,
@@ -745,14 +753,12 @@ export class Session {
     const phase = this.playController.getRun()?.phase;
     if (phase === 'countIn' || phase === 'running') this.playController.stop();
     playState.clear();
-    mistakeStepper.setGrade(null);
+    mistakeStepper.setMarks(null);
     this.scoreView?.setPlaySession(null);
   }
 
   private onPlayEffect(effect: PlayEffect): void {
-    if (effect.type === 'liveMark') {
-      playState.addLiveMark(effect.noteIds);
-    } else if (effect.type === 'notice') {
+    if (effect.type === 'notice') {
       noticeState.addNotice({ code: effect.code, severity: 'warning' });
     }
   }
@@ -784,13 +790,73 @@ export class Session {
     // Metronome mute can be applied live (T067): never by recompiling the schedule (R-02).
     const run = this.playController.getRun();
     if (change.metronomeMuted !== undefined && run && (run.phase === 'countIn' || run.phase === 'running')) {
-      this.audioEngine.setChannelVolume(METRONOME_CHANNEL, change.metronomeMuted ? 0 : 1);
+      this.audioEngine.setChannelVolume(METRONOME_CHANNEL, metronomeChannelVolume(change.metronomeMuted));
     }
   }
 
+  /**
+   * Puts a Grade on the Score: the mark set is worked out once here (the core knows the Score and the run's passes) and kept
+   * in `playState` beside it, for the view, the panel and the mistake stepper alike (009 R-06, FR-023).
+   */
+  private showGrade(grade: Grade): void {
+    const score = this.currentScore;
+    const timeline = this.currentPlaybackTimeline;
+    let marks: GradeMarkSet | null = null;
+    if (score && timeline) {
+      const range = this.resolveRunRange(score, timeline, grade.settings);
+      const passes = range ? timeline.passes.slice(range.fromPassIndex, range.toPassIndex) : timeline.passes;
+      marks = gradeMarks(score, grade, passes);
+    }
+    playState.setGrade(grade, marks);
+    mistakeStepper.setMarks(marks);
+  }
+
+  /**
+   * The `e2e-synthetic-grade` test seam (contract play-display.md section 3): grades a canned performance of the open Score's
+   * expected notes through the normal grade worker and shows it, so an e2e test gets a Grade without playing a whole run.
+   */
+  private async onSyntheticGrade(kind: SyntheticKind): Promise<void> {
+    const setup = playState.get().setup;
+    if (!setup || !this.currentScore || !this.currentPlaybackTimeline) return;
+    const perf: StoredPerformance = {
+      runId: 'e2e-synthetic',
+      scoreId: this.playScoreId ?? 'e2e',
+      finishedAt: new Date(0).toISOString(),
+      settings: setup.settings,
+      latency: this.audioEngine.latencyProfile(),
+      appVersion: 'e2e',
+      log: { version: 1, messages: [], droppedMessages: 0 },
+      summary: {
+        notesCorrect: { count: 0, total: 0 },
+        notesOnTime: { count: 0, total: 0 },
+        counts: { correct: 0, wrongPitch: 0, missed: 0, extra: 0, early: 0, late: 0 },
+        meanAsynchronyMs: null,
+        timingNotResolvable: false,
+      },
+      schema: 1,
+    };
+    const prepared = this.prepareStoredRun(perf);
+    if (!prepared) return;
+    const { context } = prepared;
+    const log = syntheticLog(context.expected, kind, (tick) =>
+      audioTimeAtTick(
+        tick - context.tickMap.rangeStartTick + context.tickMap.countInTicks,
+        context.tempo,
+        context.ppq,
+        setup.settings.tempoPercent,
+      ),
+    );
+    const result = await requestGrade(
+      this.gradeWorker,
+      { ...context, log },
+      this.nextRegradeRequestId--,
+      GRADE_WORKER_TIMEOUT_MS,
+    );
+    if (result.ok) this.showGrade(result.grade);
+  }
+
   private onPlayGraded(grade: Grade): void {
-    playState.setGrade(grade);
-    mistakeStepper.setGrade(grade);
+    this.showGrade(grade);
     // The Grade arrives over the Score in a dismissible popup; dismissing it leaves the marks on the notes (FR-009). It
     // can arrive late (grading has its own timeout): never over a run that has started since.
     if (!isRunActive()) viewState.openPanel('grade');
@@ -840,7 +906,7 @@ export class Session {
   /** Loads stored play settings for the Score and sets up the PlaySetup state (T065/T066/T068). */
   private setupPlay(score: Score): void {
     playState.clear();
-    mistakeStepper.setGrade(null);
+    mistakeStepper.setMarks(null);
     const { parts, preselected } = partOptions(score);
     const storedSettings = this.settingsStore.loadPlay(this.playScoreId);
     // Validate the stored selection still fits the Score.
@@ -947,8 +1013,7 @@ export class Session {
 
     const result = await requestGrade(this.gradeWorker, input, this.nextRegradeRequestId--, GRADE_WORKER_TIMEOUT_MS);
     if (result.ok) {
-      playState.setGrade(result.grade);
-      mistakeStepper.setGrade(result.grade);
+      this.showGrade(result.grade);
     } else
       noticeState.addNotice({
         code: result.reason === 'timeout' ? 'playGradeTimeout' : 'playGradeError',
@@ -981,8 +1046,7 @@ export class Session {
       GRADE_WORKER_TIMEOUT_MS,
     );
     if (graded.ok) {
-      playState.setGrade(graded.grade);
-      mistakeStepper.setGrade(graded.grade);
+      this.showGrade(graded.grade);
     } else
       noticeState.addNotice({
         code: graded.reason === 'timeout' ? 'playGradeTimeout' : 'playGradeError',

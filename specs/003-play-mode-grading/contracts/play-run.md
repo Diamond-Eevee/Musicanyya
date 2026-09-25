@@ -1,8 +1,30 @@
 # Contract: play run (core API)
 
-**Version**: `1.1.4` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
+**Version**: `2.0.0` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
 `src/app/play-session.ts` and `src/ui`). Signatures are normative in shape; every change is reflected here with a
 version bump (MINOR for additions, MAJOR for breaking changes).
+
+**1.2.0 -> 2.0.0** (feature 009 owner review, 2026-09-25, MAJOR): the `liveMark` effect is removed, with the controller's
+live pitch test that emitted it. A run under way marks nothing on the Score; green, red and every other mark come with the
+Grade (009 spec FR-027, research R-15; this replaces FR-011's live marking, and FR-011a and SC-015 no longer apply). A key
+pressed during the run still sounds (`soundInput`) and is recorded. The Play cursor's bar stands at the notes that started
+last (009 play-display.md 2.0.0).
+
+**1.1.4 -> 1.2.0** (feature 009, 2026-09-25, MINOR): the core gains `playCursorAt(run): PlayCursorPosition | null` in
+`src/core/play/cursor.ts` (pure; `{ timelineTick, countIn }`, data-model 009 section 1). During `countIn` and `running` the
+Score shows Listen's cursor - the bar at the first note due and the notes due highlighted (none during the count-in) - driven
+by `playCursorAt(run)`, i.e. by `positionRunTick`, which is already the audible position (no extra compensation); the
+cursor is gone in every other phase and when the mode changes. The Metronome (009 T024, research R-14, R-02): `compilePlaySchedule` clicks for the WHOLE run - the count-in and one click per
+beat of every pass in range, the measure's first beat accented, in the meter in force (it used to click the count-in only) -
+and `PlaySessionController.start()` always sets the Metronome channel volume after loading the schedule (0 when muted, 100 on the port's 0..100
+scale otherwise), so a muted run cannot leave the next one silent. The Grade is drawn in Practice's look instead of rings, crosses and diamonds (009 US3, T044): a correct
+note is a green notehead, a missed one - and a wrong pitch's own note - a grey notehead with the skip icon below its column, a
+wrong pitch or an extra key a red disc at the pitch played in the column of its note (an extra: the nearest written moment),
+early / late a caret beside the head; nothing is drawn as an outline. What the Score shows for a Grade is the pure
+`gradeMarks(score, grade, passes)` (`src/core/grade/marks.ts`), computed once per Grade by the session and kept in `playState`
+beside it. The selection is a `GradeMarkRef` (a note, an extra key or a disc), the mistake stepper is built from
+`GradeMarkSet.mistakes` (extras included) and brings each mark into view, and the panel words a wrong pitch in a chord and a
+note played without its octave line precisely (FR-022a).
 
 **1.1.3 -> 1.1.4** (feature 008, 2026-09-25, wording only): the `liveMark` effect is shown as a green notehead (the note's
 `mx-mark-correct` class), no longer as a dashed ring; the payload is unchanged. The classes are cleared when the Grade layer
@@ -55,7 +77,6 @@ export function playRunReducer(run: PlayRun, action: PlayAction): PlayStep;
 |---|---|---|
 | `countInBeat` | `{ beat: number; of: number }` | The count-in reached a beat; the UI may show it (never modal) |
 | `runStarted` | `{}` | The count-in is over; the first expected note is now live (FR-003) |
-| `liveMark` | `{ noteIds: readonly NoteId[] }` | Display-only "correct" marking during the run (FR-011); the Grade replaces it (FR-011a). Version 1.1.0 dropped `pitch`: the live test is same-pitch only and can never establish a wrong pitch (D-3) |
 | `soundInput` | `{ key: number; velocity: number; on: boolean }` | The musician's own note, through the live channel (FR-006) |
 | `notice` | `{ code: PlayNoticeCode }` | Non-blocking notice; never a dialogue (FR-009) |
 | `runEnded` | `{ reason: "reachedEnd" \| "stopped" \| "audioLost" }` | Grading may begin |
@@ -73,7 +94,7 @@ late claim window has passed, and only then emits `runEnded`. Without the tail, 
 only ever be early or missed; without the head, the first note could only ever be late or missed. A stop (FR-008)
 honours the same window at its boundary.
 
-The live marking of `liveMark` is deliberately cheap and approximate: it matches a press against the expected
+*Removed in 2.0.0 (009 owner review): nothing is marked during a run.* The live marking of `liveMark` was deliberately cheap and approximate: it matches a press against the expected
 notes at or next to the cursor **by pitch only**, and says nothing about timing or about wrong pitches. It is
 display only, and the Grade computed from the log replaces it wherever the two disagree (FR-011a). Since the
 owner's D-3 answer, SC-015 measures that agreement as a rate over the reference fixtures instead of demanding

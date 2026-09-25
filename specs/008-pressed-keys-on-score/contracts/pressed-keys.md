@@ -1,6 +1,6 @@
 # Contract: pressed keys on the Score
 
-**Version**: `2.0.0` (internal TypeScript contract between `src/core/notation`, `src/core/practice`, `src/app` and
+**Version**: `2.1.0` (internal TypeScript contract between `src/core/notation`, `src/core/practice`, `src/app` and
 `src/ui/score`). Signatures are normative in shape. Changes bump the version (MINOR additive, MAJOR breaking).
 `1.1.0` (implementation of US2, 2026-09-25): additive - `eventPosition`, `isPlaceableClef`, `middleLineKey`; `ottava` may be
 +-3 (22ma / 22mb: any key of the piano is shown under an 8va or 15mb); `DiscSlot` carries the disc's size; `NoteBox` carries
@@ -8,6 +8,18 @@ its dots and accidental; `MusicGlyphs` is built by `toMusicGlyphs`; `MxScoreView
 `2.0.0` (owner decision 2026-09-25, FR-006 revised): breaking - `layoutDiscs` keeps every disc in the cursor column
 (written heads no longer push it aside; only another disc a second away does); its last parameter is renamed `heads`;
 `NoteBox.dotsRight` is removed (nothing is avoided any more), and so is the code-only `NoteBox.mark` (chevron boxes).
+
+`2.1.0` (feature 009, T037/T039/T040, 2026-09-25, additive for callers of the placement, one behaviour change): `placeKeys`
+(`src/core/notation/place-discs.ts`) places any set of keys at one written moment, with an optional preferred staff per key
+that wins over the staff rules when that staff exists and has a placeable clef; `placeDiscs` keeps its signature and results
+(the 008 golden tests are unchanged) and is now a wrapper that reads the notes written at the cursor from the event and calls
+`placeKeys`. `drawStateChevron({ kind: 'skipped' })` draws the skip icon - a solid right-pointing triangle with a bar at its
+tip, grey - into a `box` given by `skipIconBox` (`disc-layout.ts`: below the lowest head of the note's column on its staff,
+all voices, `SKIP_ICON_*_RATIO` of a head) instead of the open chevron below one notehead, which read like an accent
+(009 FR-016a amends 008 FR-009/FR-010); `kind: 'heldOver'` is unchanged. Practice groups its skipped notes by written
+column and staff, one icon each (`mx-score-view`, with `ScoreNoteIndex`). `NoteBox` regains `dotsRight` (an optional
+right edge of the dots, ignored when the element has no size) for `caretBox`, the timing caret's box (009 FR-018), which sits
+outside every head, accidental and dot of its column. `layoutDiscs` and the discs' drawing are unchanged.
 
 This contract also amends three existing contracts (section 4).
 

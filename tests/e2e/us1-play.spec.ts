@@ -1,6 +1,7 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
+import { marksDuringRun } from './helpers/play.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(__dirname, '../fixtures/musicxml');
@@ -30,7 +31,6 @@ const playSnapshot = (page: Page) =>
     return {
       phase: s.run?.phase as string | undefined,
       positionRunTick: s.run?.positionRunTick as number | undefined,
-      liveMarks: s.liveMarkedNoteIds.size as number,
       gradeComplete: s.grade?.complete as boolean | undefined,
       resultsCount: s.grade?.results.length as number | undefined,
     };
@@ -64,12 +64,10 @@ test('US1 end-to-end: Play Mode - two actions to start, count-in, a graded run w
 
   // The Score moves on without waiting: the run reaches 'running' on its own, with no input at all (FR-002).
   //
-  // FR-006: the musician's own note sounds through the app's instrument the instant it is played - proven here by
-  // the cheap live-pitch marker (T044) reacting to it, the one DOM-visible effect of a press that also plays sound
-  // (the mark itself is drawn on Canvas, not the DOM, R-11). The written first note (C4) is pressed right as the run
-  // starts so it lands inside the live marker's window (one quarter note either side of the cursor). The wait and
-  // the press happen in one page call: a Playwright poll backs off up to a second between reads, which is longer
-  // than that window at this tempo, so pressing after `expect.poll` saw 'running' missed it in Firefox.
+  // The written first note (C4) is pressed right as the run starts, so it is graded correct. The wait and the press
+  // happen in one page call: a Playwright poll backs off up to a second between reads, longer than a beat at this
+  // tempo. (FR-006, the press sounding through the live channel, is proven by tests/engine/play-session.test.ts; since
+  // the owner review of 009 a press shows nothing on the Score during the run.)
   const phaseAtPress = await page.evaluate(async (key) => {
     const state = (window as any).__PLAY_STATE__;
     const deadline = performance.now() + 10_000;
@@ -82,12 +80,16 @@ test('US1 end-to-end: Play Mode - two actions to start, count-in, a graded run w
     return phase;
   }, 60);
   expect(phaseAtPress).toBe('running');
-  await expect.poll(async () => (await playSnapshot(page)).liveMarks, { timeout: 3_000 }).toBeGreaterThan(0);
+  // 009 FR-027 (owner review 2026-09-25): the correct key marks nothing while the run is going on
+  const during = await marksDuringRun(page, 1_000);
+  expect(during).toEqual({ marked: [], phaseAfter: 'running' });
 
   // The run ends on its own and is graded - every expected note gets a result, not just the one that was played.
   await expect.poll(async () => (await playSnapshot(page)).gradeComplete, { timeout: 20_000 }).toBe(true);
   const graded = await playSnapshot(page);
   expect(graded.resultsCount).toBeGreaterThan(0);
+  // ... and only now is the Score marked: the key played in time is a green head (009 FR-027)
+  await expect.poll(() => page.locator('.mx-score-page g.note.mx-mark-correct').count()).toBeGreaterThan(0);
   await expect(playBtn).toHaveText('Play');
 
   // FR-030: clicking a marked notehead explains it in plain words.

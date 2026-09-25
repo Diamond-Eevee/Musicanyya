@@ -1,0 +1,346 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`gradeMarks: invariants > golden: the whole mark set of a Grade with every kind of result 1`] = `
+{
+  "discs": [
+    {
+      "alter": 0,
+      "at": {
+        "measureIndex": 0,
+        "onsetInMeasure": 960,
+      },
+      "key": 81,
+      "ledgerLines": 1,
+      "ottava": 0,
+      "position": 10,
+      "refs": [
+        {
+          "kind": "note",
+          "noteId": "n-p0-s1-m0-v1-o1-k69",
+        },
+      ],
+      "showAccidental": false,
+      "staff": 1,
+      "state": "wrongOctave",
+    },
+    {
+      "alter": 0,
+      "at": {
+        "measureIndex": 1,
+        "onsetInMeasure": 960,
+      },
+      "key": 60,
+      "ledgerLines": -1,
+      "ottava": 0,
+      "position": -2,
+      "refs": [
+        {
+          "index": 0,
+          "kind": "extra",
+        },
+      ],
+      "showAccidental": false,
+      "staff": 1,
+      "state": "extra",
+    },
+    {
+      "alter": 0,
+      "at": {
+        "measureIndex": 3,
+        "onsetInMeasure": 0,
+      },
+      "key": 79,
+      "ledgerLines": 0,
+      "ottava": 0,
+      "position": 2,
+      "refs": [
+        {
+          "kind": "note",
+          "noteId": "n-p0-s1-m3-v1-o0-k91",
+        },
+      ],
+      "showAccidental": false,
+      "staff": 1,
+      "state": "wrongOctave",
+    },
+    {
+      "alter": 0,
+      "at": {
+        "measureIndex": 4,
+        "onsetInMeasure": 0,
+      },
+      "key": 60,
+      "ledgerLines": -1,
+      "ottava": 0,
+      "position": -2,
+      "refs": [
+        {
+          "index": 1,
+          "kind": "extra",
+        },
+      ],
+      "showAccidental": false,
+      "staff": 1,
+      "state": "extra",
+    },
+  ],
+  "mistakes": [
+    {
+      "kind": "note",
+      "noteId": "n-p0-s1-m0-v1-o1-k69",
+    },
+    {
+      "kind": "note",
+      "noteId": "n-p0-s1-m1-v1-o0-k71",
+    },
+    {
+      "index": 0,
+      "kind": "extra",
+    },
+    {
+      "kind": "note",
+      "noteId": "n-p0-s2-m3-v2-o0-k48",
+    },
+    {
+      "kind": "note",
+      "noteId": "n-p0-s1-m3-v1-o0-k91",
+    },
+    {
+      "index": 1,
+      "kind": "extra",
+    },
+  ],
+  "notes": [
+    {
+      "head": "correct",
+      "noteId": "n-p0-s2-m0-v2-o0-k55",
+      "results": [
+        0,
+        6,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "correct",
+      "noteId": "n-p0-s1-m0-v1-o0-k67",
+      "results": [
+        1,
+        7,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "missed",
+      "noteId": "n-p0-s1-m0-v1-o1-k69",
+      "results": [
+        2,
+        8,
+      ],
+      "timing": [
+        "late",
+      ],
+    },
+    {
+      "head": "correct",
+      "noteId": "n-p0-s1-m0-v1-o2-k71",
+      "results": [
+        3,
+        9,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "correct",
+      "noteId": "n-p0-s1-m0-v1-o2-k74",
+      "results": [
+        4,
+        10,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "correct",
+      "noteId": "n-p0-s1-m0-v1-o2-k79",
+      "results": [
+        5,
+        11,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "correct",
+      "noteId": "n-p0-s2-m1-v2-o0-k50",
+      "results": [
+        12,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "missed",
+      "noteId": "n-p0-s1-m1-v1-o0-k71",
+      "results": [
+        13,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "correct",
+      "noteId": "n-p0-s1-m1-v1-o1-k69",
+      "results": [
+        14,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "correct",
+      "noteId": "n-p0-s2-m1-v2-o2-k55",
+      "results": [
+        15,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "correct",
+      "noteId": "n-p0-s1-m1-v1-o2-k74",
+      "results": [
+        16,
+      ],
+      "timing": [
+        "late",
+      ],
+    },
+    {
+      "head": "correct",
+      "noteId": "n-p0-s1-m2-v1-o0-k74",
+      "results": [
+        16,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "correct",
+      "noteId": "n-p0-s2-m2-v2-o0-k43",
+      "results": [
+        17,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "correct",
+      "noteId": "n-p0-s1-m2-v1-o2-k67",
+      "results": [
+        18,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "missed",
+      "noteId": "n-p0-s2-m3-v2-o0-k48",
+      "results": [
+        19,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "missed",
+      "noteId": "n-p0-s1-m3-v1-o0-k91",
+      "results": [
+        20,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "correct",
+      "noteId": "n-p0-s1-m3-v1-o1-k93",
+      "results": [
+        21,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "correct",
+      "noteId": "n-p0-s2-m3-v2-o2-k50",
+      "results": [
+        22,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "correct",
+      "noteId": "n-p0-s1-m3-v1-o2-k95",
+      "results": [
+        23,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "correct",
+      "noteId": "n-p0-s1-m3-v1-o3-k98",
+      "results": [
+        24,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "correct",
+      "noteId": "n-p0-s2-m4-v2-o0-k43",
+      "results": [
+        25,
+      ],
+      "timing": [],
+    },
+    {
+      "head": "correct",
+      "noteId": "n-p0-s2-m4-v2-o2-k50",
+      "results": [
+        26,
+      ],
+      "timing": [
+        "early",
+      ],
+    },
+  ],
+  "skipIcons": [
+    {
+      "at": {
+        "measureIndex": 0,
+        "onsetInMeasure": 960,
+      },
+      "noteIds": [
+        "n-p0-s1-m0-v1-o1-k69",
+      ],
+      "staff": 1,
+    },
+    {
+      "at": {
+        "measureIndex": 1,
+        "onsetInMeasure": 0,
+      },
+      "noteIds": [
+        "n-p0-s1-m1-v1-o0-k71",
+      ],
+      "staff": 1,
+    },
+    {
+      "at": {
+        "measureIndex": 3,
+        "onsetInMeasure": 0,
+      },
+      "noteIds": [
+        "n-p0-s1-m3-v1-o0-k91",
+      ],
+      "staff": 1,
+    },
+    {
+      "at": {
+        "measureIndex": 3,
+        "onsetInMeasure": 0,
+      },
+      "noteIds": [
+        "n-p0-s2-m3-v2-o0-k48",
+      ],
+      "staff": 2,
+    },
+  ],
+}
+`;

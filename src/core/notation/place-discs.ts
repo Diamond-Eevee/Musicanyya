@@ -45,7 +45,8 @@ export function eventPosition(score: Score, event: ExpectedEvent): ScorePosition
   return null;
 }
 
-interface CursorNote {
+/** A note written at a column: its sounding key and the staff it is printed on. */
+export interface CursorNote {
   key: number;
   staff: number;
 }
@@ -75,7 +76,8 @@ function notesAtCursor(score: Score, partIndex: number, event: ExpectedEvent, at
  * Every disc for the held wrong keys at the current event (research R-06 to R-10): the staff each key is drawn on, its
  * spelling and sign, its position, ledger lines and any octave folding. `previous` is the last result: a key that is
  * still held keeps its staff, so a disc never jumps between staves while it is held (R-08). Pure and deterministic
- * (FR-016); never throws on any parsed Score; a key whose staff has a clef that cannot be placed gets no disc.
+ * (FR-016); never throws on any parsed Score; a key whose staff has a clef that cannot be placed gets no disc. Practice's
+ * entry point: it reads what is written at the cursor from the event and calls `placeKeys` (009 R-07).
  */
 export function placeDiscs(input: {
   score: Score;
@@ -86,13 +88,40 @@ export function placeDiscs(input: {
   previous: readonly DiscPlacement[];
 }): DiscPlacement[] {
   const { score, selection, event, at, heldWrongKeys, previous } = input;
+  return placeKeys({
+    score,
+    selection,
+    at,
+    notesAtColumn: notesAtCursor(score, selection.partIndex, event, at),
+    keys: heldWrongKeys,
+    previous,
+  });
+}
+
+/**
+ * Places any set of keys at one written moment (009 contract section 2): the staff each key is drawn on, its spelling
+ * and sign, its position, ledger lines and any octave folding, exactly as `placeDiscs` always did. `notesAtColumn` are the
+ * notes written at that moment with their printed staff; `preferredStaff` (per key) wins over the staff rules when that
+ * staff exists and has a clef that can be placed, and is ignored otherwise (the Grade puts a wrong key on the staff of the
+ * written note it stands for, FR-017a); `previous` keeps a still-held key on its staff (Practice; the Grade passes []).
+ * Pure and deterministic; never throws on any parsed Score.
+ */
+export function placeKeys(input: {
+  score: Score;
+  selection: HandSelection;
+  at: ScorePosition;
+  notesAtColumn: readonly CursorNote[];
+  keys: ReadonlyMap<number, WrongKeyState>;
+  preferredStaff?: ReadonlyMap<number, number>;
+  previous: readonly DiscPlacement[];
+}): DiscPlacement[] {
+  const { score, selection, at, notesAtColumn: atCursor, keys: heldWrongKeys, preferredStaff, previous } = input;
   const part = score.parts[selection.partIndex];
   if (!part || heldWrongKeys.size === 0) return [];
 
   const staffCount = Math.max(1, part.staves);
   const staves = Array.from({ length: staffCount }, (_, i) => i + 1);
   const practised = selection.staves.filter((s) => s >= 1 && s <= staffCount);
-  const atCursor = notesAtCursor(score, selection.partIndex, event, at);
   const previousStaff = new Map(previous.map((p) => [p.key, p.staff]));
 
   /** The disc for a key on a staff, before any octave folding. */
@@ -107,6 +136,15 @@ export function placeDiscs(input: {
   const ledgerOn = (key: number, staff: number) => Math.abs(raw(key, staff).ledgerLines);
 
   const chooseStaff = (key: number): number => {
+    const preferred = preferredStaff?.get(key);
+    if (
+      preferred !== undefined &&
+      staves.includes(preferred) &&
+      isPlaceableClef(staffContextAt(score, selection.partIndex, preferred, at).clef)
+    ) {
+      return preferred;
+    }
+
     const kept = previousStaff.get(key);
     if (kept !== undefined && staves.includes(kept)) return kept;
 

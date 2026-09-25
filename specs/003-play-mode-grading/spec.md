@@ -274,10 +274,12 @@ recommendation:
   and help only and MUST NOT produce graded input.
 - **FR-011**: During the run the app MUST show which keys are being played, within the same time budget as MIDI
   input outside Play mode, and MUST mark an expected note correct as soon as a key of the same pitch is played
-  for it. Wrong pitch, early, late, missed and extra MUST NOT be marked during the run; they appear with the
+  for it *(this clause superseded, see below)*. Wrong pitch, early, late, missed and extra MUST NOT be marked during the run; they appear with the
   Grade.
 - **FR-011a**: The marking during the run is display only. The Grade MUST be computed from the Performance log
   after the run, and wherever it disagrees with a live mark, the Grade's result MUST replace it.
+  *Superseded 2026-09-25 by feature 009's owner review (009 spec FR-027, research R-15): no note is marked during
+  the run, correct ones included; every mark comes with the Grade. FR-011a and SC-015 therefore no longer apply.*
 
 #### Recording the performance
 
@@ -454,6 +456,7 @@ recommendation:
   written note, at any tempo from 40 to 208 beats per minute.
 - **SC-015**: Over the reference fixtures, the pitch marks shown while playing agree with the Grade for at least
   95% of the notes they cover, and every disagreement is a note the Grade re-assigned to a different key press.
+  *No longer applies (009 owner review, 2026-09-25): no pitch marks are shown while playing (009 FR-027).*
   The Grade always wins (FR-011a); only timing results, wrong-pitch results and extra notes are added afterwards.
 - **SC-016**: A performance that plays every written ornament and every written arpeggio correctly produces no
   extra notes and no late results from them, across the ornament and arpeggio fixtures.

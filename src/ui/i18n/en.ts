@@ -348,6 +348,7 @@ export const en = {
       early: 'Early',
       late: 'Late',
       mistakes: 'Mistakes',
+      passLine: '{ordinal} time: {reason}',
       previous: 'Previous',
       next: 'Next',
       measureOverview: 'Measures by mistakes',
@@ -376,6 +377,9 @@ export const en = {
       wrongOctaveLow: '{played} played, {expected} written - {octaves} too low.',
       missedNothingPlayed: '{expected} written, nothing played here.',
       extraNoNoteWritten: '{played} played, no note written for it here.',
+      // 009 FR-022a: a wrong key in a chord does not say which written note it was meant for; a note played without its octave line says so
+      wrongInChord: '{played} played in this chord; {notPlayed} not played.',
+      wrongWithoutLine: '{played} played, {expected} written - played without the {line}.',
     } as Record<string, string>,
   },
   latency: {

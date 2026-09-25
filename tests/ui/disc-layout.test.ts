@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { DiscPlacement } from '../../src/core/notation/place-discs.js';
 import {
+  caretBox,
   DISC_SHIFT_GAP_SPACES,
   DISC_SIZE_RATIO,
   layoutDiscs,
   type NoteBox,
   type StaffGeometry,
+  skipIconBox,
 } from '../../src/ui/score/disc-layout.js';
 
 /** A staff 10 px per space: bottom line at y = 100 (canvas coordinates grow downward), so a position p is at y = 100 - 5p. */
@@ -227,5 +229,89 @@ describe('layoutDiscs: horizontal slots for the red discs, pure geometry (featur
         }
       }
     }
+  });
+});
+
+// 009 T032 (FR-016, FR-016a, FR-018, research R-13): the marks that go beside and below the heads of a column are placed
+// clear of every head: one skip icon below the lowest head, a caret outside the accidental / displaced heads / dots.
+describe('skipIconBox (009 R-13)', () => {
+  const box = (heads: readonly NoteBox[]) => skipIconBox(heads);
+  const overlaps = (a: { left: number; right: number; top: number; bottom: number }, b: NoteBox) =>
+    a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+
+  it('for a single head: below it, centred on it, 0.4 of a head wide and 0.7 high, 0.15 of a head clear', () => {
+    const h = head(0); // position 0: the bottom line
+    const b = box([h]);
+    expect(b.left + (b.right - b.left) / 2).toBeCloseTo(CURSOR_X);
+    expect(b.right - b.left).toBeCloseTo(0.4 * HEAD_W);
+    expect(b.bottom - b.top).toBeCloseTo(0.7 * HEAD_H);
+    expect(b.top - h.bottom).toBeCloseTo(0.15 * HEAD_H);
+    expect(overlaps(b, h)).toBe(false);
+  });
+
+  it('for a chord a third apart: below the lowest head, touching neither', () => {
+    const heads = [head(0), head(2), head(4)]; // stacked thirds
+    const lowest = heads[0] as NoteBox;
+    const b = box(heads);
+    expect(b.top).toBeGreaterThan(lowest.bottom);
+    expect(heads.some((h) => overlaps(b, h))).toBe(false);
+  });
+
+  it('for a chord with a second (a displaced head): below the lowest head of both columns, touching no head', () => {
+    const heads = [head(0), head(1, HEAD_W)]; // the second is drawn beside, to the right
+    const b = box(heads);
+    expect(heads.some((h) => overlaps(b, h))).toBe(false);
+    expect(b.top).toBeGreaterThan(Math.max(...heads.map((h) => h.bottom)) - 0.001);
+  });
+
+  it('for a stem-down chord it stays clear of the stem at the heads’ left edge', () => {
+    const heads = [head(0), head(2)];
+    const b = box(heads);
+    const stemX = CURSOR_X - HEAD_W / 2; // a stem-down chord's stem is at the left edge of its heads
+    expect(b.left).toBeGreaterThan(stemX + 0.2 * HEAD_W);
+  });
+
+  it('is the same wherever the column is on the page: only the heads decide', () => {
+    const a = box([head(3)]);
+    const shifted = box([{ ...head(3), left: head(3).left + 500, right: head(3).right + 500 }]);
+    expect(shifted.left - a.left).toBeCloseTo(500);
+    expect(shifted.right - a.right).toBeCloseTo(500);
+    expect(shifted.top).toBeCloseTo(a.top);
+  });
+});
+
+describe('caretBox (009 FR-018, R-13)', () => {
+  const overlaps = (a: { left: number; right: number; top: number; bottom: number }, b: NoteBox) =>
+    a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+
+  it('the early caret is left of the head, the late caret right of it, both beside the head at its height', () => {
+    const h = head(4);
+    const early = caretBox(h, [h], 'early');
+    const late = caretBox(h, [h], 'late');
+    expect(early.right).toBeLessThan(h.left);
+    expect(late.left).toBeGreaterThan(h.right);
+    for (const b of [early, late]) {
+      expect(b.top).toBeGreaterThanOrEqual(h.top - 0.001);
+      expect(b.bottom).toBeLessThanOrEqual(h.bottom + 0.001);
+    }
+  });
+
+  it('the early caret goes left of the accidental, the late caret right of the dots', () => {
+    const h = head(4, 0, { accidentalLeft: CURSOR_X - HEAD_W / 2 - 14, dotsRight: CURSOR_X + HEAD_W / 2 + 9 });
+    const early = caretBox(h, [h], 'early');
+    const late = caretBox(h, [h], 'late');
+    expect(early.right).toBeLessThan(h.accidentalLeft as number);
+    expect(late.left).toBeGreaterThan(h.dotsRight as number);
+  });
+
+  it('in a chord with displaced heads neither caret touches any head: left of the leftmost, right of the rightmost', () => {
+    const heads = [head(0, -HEAD_W), head(1), head(2, HEAD_W)];
+    const middle = heads[1] as NoteBox;
+    const early = caretBox(middle, heads, 'early');
+    const late = caretBox(middle, heads, 'late');
+    expect(heads.some((h) => overlaps(early, h))).toBe(false);
+    expect(heads.some((h) => overlaps(late, h))).toBe(false);
+    expect(early.right).toBeLessThan(Math.min(...heads.map((h) => h.left)));
+    expect(late.left).toBeGreaterThan(Math.max(...heads.map((h) => h.right)));
   });
 });
