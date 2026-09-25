@@ -261,12 +261,21 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   additively). Public-domain sources are committed unchanged and hash-pinned under `content/library/sources/`;
   audit records live in `content/library/audit/`. Commands `pnpm library:fidelity` and `pnpm library:convert-ly`.
   Sidecar contract 1.1.0 adds the optional `departures` list (required for arrangements).
+- Feature 008: no new technology and no new dependency. One pure core module (`src/core/notation`: staff
+  context, spelling, staff position, disc placement); the Score model gains `clefs`, `keys`, `octaveShifts` per
+  part. Note marks are CSS classes on Verovio's `g.note > g.notehead`; red discs use `Path2D` from Leipzig glyphs
+  that the Verovio worker renders once on `init` (worker-messages 1.2.0).
 
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-25: Feature 008 planned (pressed keys on the Score): correct notes turn their notehead green (a CSS
+  class on the Note's own SVG element), held wrong keys appear as red discs at the printed pitch position with
+  ledger lines, real-font accidentals and ottava labels, and every dashed outline goes. Phase 0 found that Practice
+  had no cursor of its own (the dashed waiting ring was the only position mark), so it gets a band behind the
+  current event; and that the Score model had no clefs or keys, so the parser now records them.
 - 2026-09-23: Feature 007 planned (library fidelity audit): every library item is compared against a committed
   public-domain source that is read two independent ways (LilyPond's own MIDI, and our reader of the `.ly`), with
   exact rational onsets and no tolerances. Differing items are replaced by a conversion, not hand-fixed. Phase 0
@@ -280,16 +289,4 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   tree; it completes opened scores in the render copy only (Score and Note IDs untouched), completes the library
   files on disk (`pnpm library:engrave` + the exercise generator) and backs a zero-insert guard test. Verovio
   draws no composer/arranger with any header option, so the title moves to an HTML title block above page 1.
-- 2026-09-22: Feature 005 planned (practice score library): Phase 0 found that **no fetchable corpus
-  of CC0 solo piano repertoire exists** - OpenScore (the one verifiable CC0 source, already used here)
-  has Lieder and string quartets only, and every general "public domain MusicXML" collection either
-  asserts a licence it cannot support or mixes in copyrighted arrangements. So the shelf is content
-  this project authors: exercise families generated from one definition per family (which is what
-  makes "same drill in 24 keys" true by construction), short public-domain pieces engraved here, and
-  OpenScore where it fits. Content lives under `public/library/` with a generated, test-verified
-  `index.json`; the app gains a pure `core/library`, a `LibraryCatalog` port and one element in the
-  existing Scores panel, and opening an item reuses `session.loadBytes`, so a library item and a
-  dragged-in file are the same thing. Two spec corrections came out of planning: there is no service
-  worker, so "offline" can only mean already-fetched content (D-2), and FR-008's 15 pieces are a
-  target for the finished feature rather than for P1 (D-1).
 <!-- RECENT-CHANGES:END -->
