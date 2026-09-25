@@ -158,7 +158,7 @@ pressed, readable in colour and greyscale.
   the log until they answer
 - [x] T018 Constitution review of the whole diff with the `constitution-auditor` agent; summarise its findings in the
   log and resolve or raise every HIGH or CRITICAL one
-- [ ] T019 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` (after both builds), each
+- [x] T019 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` (after both builds), each
   with its summary line in the log; final hand-off entry
 
 - [ ] T020 needs owner: the Practice help popup (`src/ui/elements/mx-practice-help.ts`, `position: fixed`, bottom right,

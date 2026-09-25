@@ -110,3 +110,17 @@
   entries use this machine's date and I did not rewrite the earlier entry; F5 `PianoKeyGeometry.length` is tested but the
   element takes the black-key length from the constant in CSS -> noted, left (both come from `BLACK_KEY_LENGTH_RATIO`);
   F6, F7, F9 no action; F8 T017's SC-003 is still "needs owner:" -> stays open below.
+
+## 2026-09-26 00:10 - claude-sonnet-5 (implement, final gate and hand-off)
+- Done: T001-T019 (T019 = full gate). Evidence, all on the tree at the commit after T018: `pnpm lint` exit 0 (0 errors, 282
+  warnings, 13 infos, the same count as at session start); `pnpm typecheck` exit 0; `pnpm test` = `Test Files 211 passed
+  (211)`, `Tests 2594 passed (2594)`; `pnpm test:e2e` (after `vite build` and `vite build -c vite.electron.config.ts`, four
+  projects) = `549 passed`, `227 skipped` (by design: webkit MIDI/Practice specs, Electron-only cases in other projects),
+  0 failed, exit code 0.
+- Independent Tests: US1 (recognise the keyboard) and US2 (states on the realistic keys) both met, by the e2e geometry
+  checks and the pictures of T010/T014, in colour and greyscale.
+- Open, for the owner: (1) needs owner: SC-003 "looks like real piano keys" - pictures sent, no answer yet, so the
+  feature is not merge-ready on that point; (2) needs owner: T020, the Practice help popup covers the strip's right end
+  (002's placement; proposed fix above). Not decided by me.
+- Handoff: next = owner answers SC-003 and T020; if T020 is approved, implement it (offset the popup by
+  `--mx-inset-bottom` + e2e assertion). Then the feature can be merged when the owner asks. Not pushed, not merged.
