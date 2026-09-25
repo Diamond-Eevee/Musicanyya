@@ -68,9 +68,15 @@ test.describe('Electron: Listen mode plays under the app:// origin (T140, T141)'
     await expect(window.locator('g.note.playing').first()).toBeVisible({ timeout: 30_000 });
 
     const audio = await window.evaluate(async () => {
+      // A fresh context can start suspended and take a moment to start its clock on a busy machine (four browser
+      // projects run in parallel): resume it, then give the clock up to 3 s to move instead of judging it at 300 ms.
       const ctx = new AudioContext();
+      await ctx.resume();
       const before = ctx.currentTime;
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      const deadline = performance.now() + 3000;
+      while (ctx.currentTime <= before && performance.now() < deadline) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
       const after = ctx.currentTime;
       await ctx.close();
       return { before, after, state: after > before ? 'running' : 'stalled' };

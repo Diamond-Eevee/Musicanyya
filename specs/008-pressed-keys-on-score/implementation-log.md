@@ -60,3 +60,9 @@
 - (3) Releasing a held-over key clears its orange mark with its hint (T068, as implemented); noted in research R-12.
 - Not decided here: the load-sensitive `electron-playback.spec.ts:47` flake stays a known issue outside this feature (no task created).
 - Handoff: feature 008 has no open owner questions; ready to merge when the owner asks (not merged, not pushed). Tree clean after this commit.
+
+## 2026-09-25 14:10 - claude-sonnet-5 (continue: owner answers applied, last flake fixed)
+- Session start: status showed NEXT STEP done; another agent (claude-opus-5.5) had already recorded the owner's "use recommendations" for questions 1-3 (`2d0dfea`); nothing left to apply there. The input "answered" carried no further content, so I read it as the same "use recommendations" and applied the one recommendation still open: question 4.
+- Question 4 (recommendation: make the flaky test robust): `tests/e2e/electron-playback.spec.ts` no longer judges the throw-away `AudioContext` after 300 ms; it resumes the context and gives the clock up to 3 s to move. Test-only change, no product code.
+- Evidence: `pnpm test:e2e` (all four projects): **362 passed, 90 skipped, 0 failed** (4.7 min) - first fully green e2e run of this feature, including `electron-playback` and `library.spec.ts:175`; `pnpm lint` exit 0 (284 warnings, 13 infos, unchanged). No source or unit test changed since the last `pnpm test` (Tests 2277 passed) and `pnpm typecheck` (exit 0) runs.
+- Handoff: feature 008 is complete, gate green, no open owner questions; ready to merge when the owner asks (not merged, not pushed). Tree clean after this commit.
