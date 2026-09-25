@@ -120,3 +120,9 @@
     first beat of each measure is heard as accented).
   - needs owner: one Play run on a real MIDI keyboard in Chrome or Edge.
 - Handoff: next = the two owner checks, then merge when the owner asks. Tree clean at the commit after this entry.
+
+## 2026-09-26 00:20 - claude-opus-5.5 (merge on the owner's request)
+- Owner: "Please merge it looks good." Merged `009-play-cursor-metronome` into `main` with `--no-ff`; not pushed.
+- State at merge: 67/67 tasks ticked with evidence; last full gate (a043347, only tests and documents changed after it, unit gate rerun at ba7a029): vitest 2565 passed, typecheck exit 0, lint exit 0 (282 warnings), e2e 502 passed / 218 skipped; constitution review COMPLIANT WITH NOTES, every finding fixed or decided by the owner.
+- The SC-004 listening check and the real MIDI keyboard run were not reported separately; the owner approved the merge after using the build ("it looks good").
+- Handoff: feature 009 is merged into `main` locally; next = push when the owner asks.
