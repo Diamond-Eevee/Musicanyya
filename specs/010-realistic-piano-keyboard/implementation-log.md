@@ -89,3 +89,24 @@
   none after release). T016 (contract `piano-keyboard.md` 1.1.0: `has-label`, percent format, the dot's ring; data-model:
   the two element-local styling constants; quickstart: reference pictures; README and reference already list the
   screenshot options from T002).
+- Done: T017 (quickstart manual verification, from the pictures of T010 and T014 and the e2e that measures them).
+  US1 steps 1-5: switched on through the View menu; 52 white / 36 black counted by the e2e and seen in the 1920 and 1024
+  pictures (twos and threes, A0 at the left edge, C8 at the right); the outer black keys lean apart and G# is centred
+  (unit-tested to 1e-10, visible in the zoom); C1-C8 labels only on the C keys (C4 = middle C); 1024 to 2560 px wide it
+  fills the width without scrolling (e2e, four engines) and the Score's inset equals the strip's height. US2 steps 1-6:
+  held C4 and C#4 pressed with a dot each, wrong pitch / octave / extra on white and black keys in the right symbol,
+  the hint text under the keys, help "?" on a black key (set through the `setHelpOverlay` seam; the real "What note is
+  next?" help in the Practice picture marked white keys only), ten neighbouring held keys without touching marks
+  (e2e), the sustain indicator shows, greyscale pictures tell the states apart.
+- needs owner: SC-003 ("looks like real piano keys") is the owner's judgement. I sent them `t010-1920.png` and
+  `t014-states-zoom.png` and asked. Until they answer, the feature is not marked ready to merge on that point.
+- Done: T018 (constitution review by the `constitution-auditor` agent, read-only, on `git diff 5e5c967..HEAD`). Verdict
+  COMPLIANT WITH NOTES: 0 CRITICAL, 0 HIGH, 1 MEDIUM, 6 LOW, 1 INFO. No principle violated; the UI-only change touches no
+  real-time path, the layout module is pure, no dependency or setting is new, the constants of the CSS are presentation and
+  not "tolerances" (Principle II). Findings and what I did: F1 MEDIUM the Practice help popup covers the strip's right end
+  (002's placement, not caused by 010) -> new task T020, "needs owner:" (it changes visible 002/004 behaviour); F2 small
+  minima below 1024 px -> accepted, written into research R-3; F3 marking sizes not in the data model -> added to
+  data-model; F4 log dates 2026-09-26 (analyze entry, written by the previous agent) above my 2026-09-25 ones -> my
+  entries use this machine's date and I did not rewrite the earlier entry; F5 `PianoKeyGeometry.length` is tested but the
+  element takes the black-key length from the constant in CSS -> noted, left (both come from `BLACK_KEY_LENGTH_RATIO`);
+  F6, F7, F9 no action; F8 T017's SC-003 is still "needs owner:" -> stays open below.

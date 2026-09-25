@@ -153,13 +153,19 @@ pressed, readable in colour and greyscale.
   black key showing `pressed` with its `.key-dot`; run after `vite build` and `vite build -c vite.electron.config.ts`
 - [x] T016 [P] Documents: contract `piano-keyboard.md` and `data-model.md` match the code (constants, DOM, `.key-dot`);
   README and `docs/agents/reference.md` list the screenshot options (T002); `quickstart.md` steps still true
-- [ ] T017 Run the `quickstart.md` manual verification (US1, US2) with the pictures of T010 and T014; SC-003 is the
+- [x] T017 Run the `quickstart.md` manual verification (US1, US2) with the pictures of T010 and T014; SC-003 is the
   owner's judgement ("looks like real piano keys"): send them the 1920-wide picture and record it as "needs owner:" in
   the log until they answer
-- [ ] T018 Constitution review of the whole diff with the `constitution-auditor` agent; summarise its findings in the
+- [x] T018 Constitution review of the whole diff with the `constitution-auditor` agent; summarise its findings in the
   log and resolve or raise every HIGH or CRITICAL one
 - [ ] T019 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` (after both builds), each
   with its summary line in the log; final hand-off entry
+
+- [ ] T020 needs owner: the Practice help popup (`src/ui/elements/mx-practice-help.ts`, `position: fixed`, bottom right,
+  z-index 20) covers the right end of the on-screen piano while it shows, and can hide the key it names. Not caused by
+  010 (002's placement), found in the T014 picture and by the T018 audit (F1). Proposed: offset the popup by
+  `--mx-inset-bottom` so it sits above the strip, plus an e2e assertion that the popup box does not intersect
+  `mx-piano-keys`. It changes visible 002/004 behaviour, so it waits for the owner's agreement (AGENTS.md section 7)
 
 ## Dependencies & Execution Order
 

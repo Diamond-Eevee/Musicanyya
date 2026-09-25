@@ -84,6 +84,9 @@ an inline SVG (same element count as divs, no benefit).
   (about 10 px at 1024, where a black key is ~11 px), the glyph scaled inside the badge; at 2560 px they stop growing
   (analyze F3).
 
+Accepted (constitution audit F2): below the 1024 px design width the label and glyph shrink to their minima (7 and 8 px
+at about 800 px) - legible enough to tell apart, and only fit is required there (spec edge case).
+
 **Rationale**: the upper part of a white key is partly covered by black keys, so a marking there could be hidden or
 look as if it belonged to a black key (FR-011, SC-007). Colours and glyphs are exactly today's (FR-010, Constitution
 VI: colour and shape).

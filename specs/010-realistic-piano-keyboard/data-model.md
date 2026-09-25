@@ -58,3 +58,7 @@ The number of white keys (52) is derived from `PIANO_KEY_LOW` / `PIANO_KEY_HIGH`
 Two styling constants live in `src/ui/elements/mx-piano-keys.ts` beside the CSS that uses them (presentation only, not
 timing or grading): `KEYBOARD_INLINE_PADDING_PX = 4` (room left of the first and right of the last key) and
 `MARKING_MAX_SHARE = 0.9` (a badge or dot on a black key is at most this share of the key's width).
+
+Marking sizes (in the element's CSS, from the white-key width `w`): glyph `clamp(8px, 0.5 w, 12px)`, dot
+`clamp(5px, 0.3 w, 10px)`, label `clamp(7px, 0.45 w, 11px)`; on a black key the badge is at most `min(0.9 x its width,
+12px)` and the dot at most `min(0.9 x its width, 10px)`, the glyph in the badge 0.8 of the badge.
