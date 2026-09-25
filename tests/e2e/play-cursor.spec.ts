@@ -14,11 +14,11 @@ interface NoteAt {
   onset: number;
 }
 
-/** A Note ID is `n-p<part>-s<staff>-m<measure>-v<voice>-o<onset>-k<key>` (Constitution III). */
+/** A Note ID is `n-p<part>-s<staff>-m<measure>-v<voice>-o<onset>-k<key>`, the onset in quarters as `n` or `n_d`. */
 function noteAt(id: string): NoteAt {
-  const match = /-m(\d+)-v\d+-o(\d+)-k/.exec(id);
+  const match = /-m(\d+)-v\d+-o(\d+)(?:_(\d+))?-k/.exec(id);
   if (!match) throw new Error(`Not a Note ID: ${id}`);
-  return { measure: Number(match[1]), onset: Number(match[2]) };
+  return { measure: Number(match[1]), onset: Number(match[2]) / Number(match[3] ?? 1) };
 }
 
 /** Records the first highlighted note (by written position) at every animation frame for `ms`, in the page. */

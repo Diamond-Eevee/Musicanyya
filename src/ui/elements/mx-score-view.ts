@@ -1,7 +1,9 @@
 import { type DiscPlacement, eventPosition, placeDiscs } from '../../core/notation/place-discs.js';
+import { type PlayCursorPosition, playCursorAt } from '../../core/play/cursor.js';
 import type { PlayRun } from '../../core/play/types.js';
 import type { ExpectedEvent, LoopRange, MarkState, PracticeSession } from '../../core/practice/types.js';
 import type { Score } from '../../core/score/model.js';
+import { notesAtTick, passAtTick } from '../../core/timeline/position.js';
 import {
   FOLLOW_MARGIN,
   RELAYOUT_DEBOUNCE_MS,
@@ -97,7 +99,8 @@ export class MxScoreView extends HTMLElement {
   // Listen-mode cursor/highlight (T107, R-11): set once by session.ts (T108) after a Score + engine are ready.
   private engine: AudioEngine | null = null;
   private timeline: TimelineDto | null = null;
-  private soundingNoteIds = new Set<string>();
+  /** The notes highlighted now, by Listen's cursor or by the Play cursor (both use the `.playing` class). */
+  private soundingNoteIds: ReadonlySet<string> = new Set<string>();
   private practiceDrawn = false;
   /** The Practice cursor: a band behind the current event, first child of the stack so it sits under every page (008). */
   private band!: HTMLElement; // created in connectedCallback, before anything can use it (like scrollEl and stack)
@@ -449,6 +452,14 @@ export class MxScoreView extends HTMLElement {
     // Practice draws from the session alone: it needs no audio engine and no Listen timeline, so it must not wait
     // for `setPlayback` (which only happens once a Listen schedule has been delivered).
     const pState = practiceState.get();
+    if (this.playDrawn && pState.mode !== 'play') {
+      // Leaving Play for Listen or Practice: FR-035's "cleared ... when the mode changes" and FR-006's "the cursor
+      // disappears when the mode changes" - the marks, the highlights and the canvas, before either mode draws.
+      this.playDrawn = false;
+      this.clearNoteMarks();
+      this.setHighlights(new Set());
+      this.canvasEl.getContext('2d')?.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
+    }
     if (pState.mode === 'practice') {
       this.drawPracticeState(pState.session, pState.startMeasureIndex, pState.setup?.loop ?? null);
       this.practiceDrawn = true;
@@ -462,16 +473,12 @@ export class MxScoreView extends HTMLElement {
     }
 
     if (pState.mode === 'play') {
-      this.drawPlayState();
-      this.followPlayCursor();
+      // One position for the whole frame: the cursor is drawn from it and the view follows it (009 R-04).
+      const cursor = playCursorAt(playState.get().run);
+      this.drawPlayState(cursor);
+      this.followPlayCursor(cursor);
       this.playDrawn = true;
       return;
-    }
-    if (this.playDrawn) {
-      // Leaving Play: FR-035's "cleared ... when the mode changes", the same treatment Practice gets above.
-      this.playDrawn = false;
-      this.clearNoteMarks();
-      this.canvasEl.getContext('2d')?.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
     }
 
     const engine = this.engine;
@@ -486,18 +493,11 @@ export class MxScoreView extends HTMLElement {
     // otherwise the first note would show as "sounding" as soon as a schedule loads, before Play is ever pressed,
     // and would stay lit after Stop returns to the start. Paused keeps the highlight frozen where it paused.
     const phase = transportState.get().phase;
-    const soundingNoteIds =
-      phase === 'stopped' || phase === 'loading'
-        ? new Set<string>()
-        : new Set(
-            timeline.spans.filter((span) => span.startTick <= tick && span.endTick > tick).map((span) => span.noteId),
-          );
-    applyHighlights(this.stack, soundingNoteIds, this.soundingNoteIds);
-    this.soundingNoteIds = soundingNoteIds;
+    const soundingNoteIds: ReadonlySet<string> =
+      phase === 'stopped' || phase === 'loading' ? new Set<string>() : notesAtTick(timeline, tick);
+    this.setHighlights(soundingNoteIds);
 
-    const pass =
-      timeline.passes.find((p) => p.startTick <= tick && tick < p.endTick) ??
-      timeline.passes[timeline.passes.length - 1];
+    const pass = passAtTick(timeline, tick);
     runPositionState.set(pass ? pass.measureIndex : null);
     const measureId = pass ? this.measureIds[pass.measureIndex] : undefined;
     const measureEl = measureId !== undefined ? this.stack.querySelector(`#${CSS.escape(measureId)}`) : null;
@@ -879,29 +879,64 @@ export class MxScoreView extends HTMLElement {
     }
   }
 
-  /** T109 (found writing T046's e2e test): FR-007 needs the Play run to follow-scroll exactly like Listen and
-   *  Practice already do, but nothing called it - `drawPlayState` only ever drew marks. Mirrors
-   *  `drawPracticeState`'s own current-measure follow call: no cursor rectangle (Play's canvas is the marks layer,
-   *  same treatment Practice already gives it), just keeping the run's current measure in the middle band. Needs
-   *  `this.timeline` (session.ts's `setPlayback`, now also called from `startPlay`) to convert the run's own
-   *  tick space back to timeline-tick space via `PlayTickMap` (contracts/play-run.md's own tick formula). */
-  private followPlayCursor(): void {
-    const { run } = playState.get();
-    if (!run || (run.phase !== 'countIn' && run.phase !== 'running') || !this.timeline) return;
-    const { countInTicks, rangeStartTick } = run.tickMap;
-    const timelineTick = Math.max(rangeStartTick, run.positionRunTick - countInTicks + rangeStartTick);
-    const pass =
-      this.timeline.passes.find((p) => p.startTick <= timelineTick && timelineTick < p.endTick) ??
-      this.timeline.passes[this.timeline.passes.length - 1];
-    // The slim bar shows the measure whether or not the view is following it.
+  /** Keeps the Play run's current measure in the middle band (FR-005, 003 FR-007), under the same Follow rules as
+   *  Listen; the slim bar shows the measure whether or not the view is following it. The position is the one the
+   *  cursor is drawn at (`playCursorAt`, 009 R-04), so the two can never disagree. Needs `this.timeline`
+   *  (session.ts's `setPlayback`, also called from `startPlay`). */
+  private followPlayCursor(cursor: PlayCursorPosition | null): void {
+    if (!cursor || !this.timeline) return;
+    const pass = passAtTick(this.timeline, cursor.timelineTick);
     runPositionState.set(pass ? pass.measureIndex : null);
     if (!transportState.get().follow) return;
     this.followMeasure(pass ? this.measureIds[pass.measureIndex] : undefined);
   }
 
-  /** The Grade's own marks once a run has been graded, or the cheap live "correct" marks while one is still
-   *  running (T041/T044, FR-011a: the Grade replaces the live marks - `playState` never holds both at once). */
-  private drawPlayState(): void {
+  /** Puts the `.playing` highlight on exactly these notes (off before on), for Listen's cursor and the Play cursor. */
+  private setHighlights(noteIds: ReadonlySet<string>): void {
+    applyHighlights(this.stack, noteIds, this.soundingNoteIds);
+    this.soundingNoteIds = noteIds;
+  }
+
+  /** The Play cursor (009 FR-001, FR-002): Listen's bar through the current measure at the first note due, and the
+   *  notes due highlighted - the musician's own part too, the timeline is the whole Score. During the count-in the bar
+   *  stands at the first written moment and nothing is highlighted. The cursor layer switch hides only the bar. */
+  private drawPlayCursor(
+    ctx: CanvasRenderingContext2D,
+    cursor: PlayCursorPosition | null,
+    containerRect: DOMRect,
+    dpr: number,
+  ): void {
+    const timeline = this.timeline;
+    if (!cursor || !timeline) {
+      this.setHighlights(new Set());
+      return;
+    }
+    const due = notesAtTick(timeline, cursor.timelineTick);
+    this.setHighlights(cursor.countIn ? new Set() : due);
+
+    const pass = passAtTick(timeline, cursor.timelineTick);
+    const measureId = pass ? this.measureIds[pass.measureIndex] : undefined;
+    const measureEl = measureId === undefined ? null : this.elementFor(measureId);
+    if (!measureEl) return; // its page is not mounted (yet): followPlayCursor scrolls there, the next frame draws
+    const noteRects: DOMRect[] = [];
+    for (const id of due) {
+      const rect = this.elementFor(id)?.getBoundingClientRect();
+      if (rect) noteRects.push(rect);
+    }
+    ctx.fillStyle = getComputedStyle(this.canvasEl).getPropertyValue('--highlight-cursor-color').trim() || '#e69f00';
+    drawCursorOverlay({
+      ctx,
+      dpr,
+      measureRect: measureEl.getBoundingClientRect(),
+      noteRects,
+      containerRect,
+      visible: viewState.get().overlays.cursor,
+    });
+  }
+
+  /** The Play cursor, then the Grade's own marks once a run has been graded, or the cheap live "correct" marks while
+   *  one is still running (T041/T044, FR-011a: the Grade replaces the live marks - `playState` never holds both at once). */
+  private drawPlayState(cursor: PlayCursorPosition | null): void {
     this.syncElementCache();
     const { grade, liveMarkedNoteIds } = playState.get();
     // The live "correct so far" marks are green noteheads, and give way to the Grade's own marks (008 FR-017, R-13)
@@ -918,6 +953,9 @@ export class MxScoreView extends HTMLElement {
     const ctx = this.canvasEl.getContext('2d');
     if (!ctx) return;
     ctx.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
+
+    // Frame order on the shared canvas: clear, cursor, Grade marks (contract play-display.md section 3).
+    this.drawPlayCursor(ctx, cursor, containerRect, dpr);
 
     if (grade) {
       const marks = grade.results.flatMap((result) =>

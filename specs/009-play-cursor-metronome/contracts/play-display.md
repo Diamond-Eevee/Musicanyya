@@ -1,8 +1,13 @@
 # Contract: Play display (cursor, Grade marks) and channel setup
 
-**Version**: `1.0.0` (internal TypeScript contract between `src/core/play`, `src/core/timeline`, `src/core/grade`,
+**Version**: `1.0.1` (internal TypeScript contract between `src/core/play`, `src/core/timeline`, `src/core/grade`,
 `src/core/notation`, `src/app`, `src/ui` and the `score-player` worklet). Signatures are normative in shape. Changes
 bump the version (MINOR additive, MAJOR breaking).
+
+**1.0.0 -> 1.0.1** (T012, signature type only): `notesAtTick` and `passAtTick` take the compact timeline the score view
+holds (`TimelinePositions`: `spans` and `passes` with `endTick`, satisfied by the worker's `TimelineDto`) instead of core's
+`PlaybackTimeline` (whose passes carry `lengthTicks`); `passAtTick` is generic over the pass type. Behaviour is the Listen
+view's, unchanged.
 
 This contract also amends three existing contracts (section 5). Their files are owned by earlier features and are
 updated by the tasks that change them.
@@ -12,9 +17,9 @@ updated by the tasks that change them.
 ```ts
 // src/core/timeline/position.ts - moved out of mx-score-view's Listen code, behaviour unchanged
 /** Note IDs whose span covers `tick` (startTick <= tick < endTick). */
-export function notesAtTick(timeline: PlaybackTimeline, tick: Ticks): ReadonlySet<NoteId>;
+export function notesAtTick(timeline: Pick<TimelinePositions, 'spans'>, tick: Ticks): ReadonlySet<NoteId>;
 /** The pass containing `tick`, else the last pass; null for a timeline without passes. */
-export function passAtTick(timeline: PlaybackTimeline, tick: Ticks): MeasurePass | null;
+export function passAtTick<P extends TimelinePositions['passes'][number]>(timeline: { passes: readonly P[] }, tick: Ticks): P | null;
 
 // src/core/play/cursor.ts
 /** Where the Play cursor stands for a run (data-model section 1); null when no run is live. */

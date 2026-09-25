@@ -1,8 +1,15 @@
 # Contract: play run (core API)
 
-**Version**: `1.1.4` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
+**Version**: `1.2.0` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
 `src/app/play-session.ts` and `src/ui`). Signatures are normative in shape; every change is reflected here with a
 version bump (MINOR for additions, MAJOR for breaking changes).
+
+**1.1.4 -> 1.2.0** (feature 009, 2026-09-25, MINOR): the core gains `playCursorAt(run): PlayCursorPosition | null` in
+`src/core/play/cursor.ts` (pure; `{ timelineTick, countIn }`, data-model 009 section 1). During `countIn` and `running` the
+Score shows Listen's cursor - the bar at the first note due and the notes due highlighted (none during the count-in) - driven
+by `playCursorAt(run)`, i.e. by `positionRunTick`, which is already the audible position (no extra compensation); the
+cursor is gone in every other phase and when the mode changes. The Grade layer wording and the Metronome volume rule are
+added by the tasks that change them (009 T024, T044).
 
 **1.1.3 -> 1.1.4** (feature 008, 2026-09-25, wording only): the `liveMark` effect is shown as a green notehead (the note's
 `mx-mark-correct` class), no longer as a dashed ring; the payload is unchanged. The classes are cleared when the Grade layer

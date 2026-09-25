@@ -92,18 +92,18 @@ the Metronome, looking like Listen mode's cursor, and it is gone when the Grade 
 
 ### Implementation
 
-- [ ] T012 [US1] Create `src/core/timeline/position.ts` with `notesAtTick` and `passAtTick` (contract section 1),
+- [x] T012 [US1] Create `src/core/timeline/position.ts` with `notesAtTick` and `passAtTick` (contract section 1),
   imported directly like the other core modules; T008 passes
-- [ ] T013 [US1] Create `src/core/play/cursor.ts` with `playCursorAt` (data-model section 1); T009 passes
-- [ ] T014 [US1] Make the Listen path of `updateCursor` in `src/ui/elements/mx-score-view.ts` use `notesAtTick` /
+- [x] T013 [US1] Create `src/core/play/cursor.ts` with `playCursorAt` (data-model section 1); T009 passes
+- [x] T014 [US1] Make the Listen path of `updateCursor` in `src/ui/elements/mx-score-view.ts` use `notesAtTick` /
   `passAtTick` instead of the inline code (no behaviour change: T010 (f) and the existing Listen tests stay green)
-- [ ] T015 [US1] Draw the Play cursor in `src/ui/elements/mx-score-view.ts`: every frame, `playCursorAt(run)` ->
+- [x] T015 [US1] Draw the Play cursor in `src/ui/elements/mx-score-view.ts`: every frame, `playCursorAt(run)` ->
   `drawCursorOverlay` at the first note of `notesAtTick` (bar only during the count-in), `applyHighlights` when
   running, cleared when the position becomes null; canvas order clear -> cursor -> Grade marks; `followPlayCursor`
   reuses the same position; replay gets it through the same `PlayRun`. T010 and T011 pass
-- [ ] T016 [US1] Amend `specs/003-play-mode-grading/contracts/play-run.md` to 1.2.0 for the cursor (contract 5.2,
+- [x] T016 [US1] Amend `specs/003-play-mode-grading/contracts/play-run.md` to 1.2.0 for the cursor (contract 5.2,
   first bullet's `playCursorAt` part and the cursor wording)
-- [ ] T017 [US1] Checkpoint: run the Independent Test with `pnpm screenshot -- --item
+- [x] T017 [US1] Checkpoint: run the Independent Test with `pnpm screenshot -- --item
   repertoire/beginner/fur-elise-theme-16-bar --run --keys "sleep:3500" --out tests/.generated/009/t017-cursor.png`
   and look at it (bar and highlighted notes mid-run); run `pnpm test -- tests/core/timeline tests/core/play
   tests/ui`, `pnpm typecheck`, `pnpm lint`, the new e2e spec; log with summary lines; commit
