@@ -1,3 +1,5 @@
+import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type ElectronApplication, _electron as electron, expect, test } from '@playwright/test';
@@ -176,7 +178,12 @@ test.describe('Practice score library: browse, open, Listen', () => {
     test.skip(testInfo.project.name !== 'electron', 'Run the Electron half on the electron project only');
 
     const mainPath = path.join(__dirname, '../../dist-electron/main.js');
-    const electronApp: ElectronApplication = await electron.launch({ args: [mainPath] });
+    // A user-data directory of our own: the shell takes a single-instance lock keyed on it, so without one this launch
+    // quit at once whenever another Electron spec was running (found by feature 008's full gate)
+    const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'musicanyya-e2e-library-'));
+    const electronApp: ElectronApplication = await electron.launch({
+      args: [mainPath, `--user-data-dir=${userDataDir}`],
+    });
     try {
       const window = await electronApp.firstWindow();
       expect(window.url()).toBe('app://musicanyya/');

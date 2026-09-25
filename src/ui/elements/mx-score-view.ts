@@ -42,6 +42,10 @@ import { scoreState } from '../state/scoreState.js';
 import { transportState } from '../state/transportState.js';
 import { viewState } from '../state/viewState.js';
 
+/** How far, in head widths, from the event's column a written head still counts as being in that column when the red
+ *  discs look for room (a chord second or a second voice is shifted by about one head width). */
+const DISC_COLUMN_SPREAD_HEADS = 1.75;
+
 /** Used only when the viewport has no size to fit to (an element that is not laid out yet, or a test): the page the
  *  view asked for before feature 004. A real window always gets `fitLayout()` instead. */
 const DEFAULT_PAGE_WIDTH = 1200;
@@ -102,7 +106,7 @@ export class MxScoreView extends HTMLElement {
   private soundingNoteIds = new Set<string>();
   private practiceDrawn = false;
   /** The Practice cursor: a band behind the current event, first child of the stack so it sits under every page (008). */
-  private band!: HTMLElement;
+  private band!: HTMLElement; // created in connectedCallback, before anything can use it (like scrollEl and stack)
   /** Note classes on the page now, and what they were computed from: a frame that changes none of these skips the work. */
   private readonly appliedNoteMarks = new Map<string, NoteMarkClass>();
   private noteMarksFrom: { source: object | null; epoch: number; visible: boolean } | null = null;
@@ -734,7 +738,8 @@ export class MxScoreView extends HTMLElement {
     const votes = new Map<number, number>();
     for (const req of event.required) {
       for (const noteId of req.noteIds) {
-        const index = staffEls.indexOf(this.elementFor(noteId)?.closest('g.staff') as Element);
+        const staffEl = this.elementFor(noteId)?.closest('g.staff');
+        const index = staffEl ? staffEls.indexOf(staffEl) : -1;
         if (index >= 0) votes.set(index - (req.staff - 1), (votes.get(index - (req.staff - 1)) ?? 0) + 1);
       }
     }
@@ -773,7 +778,7 @@ export class MxScoreView extends HTMLElement {
         const head = headOf(noteId);
         if (!noteEl || !head || noteEl.closest('g.staff') !== staffEl) continue;
         const rect = head.getBoundingClientRect();
-        if (Math.abs((rect.left + rect.right) / 2 - cursorX) > 1.75 * headWidth) continue; // a later onset, not this column
+        if (Math.abs((rect.left + rect.right) / 2 - cursorX) > DISC_COLUMN_SPREAD_HEADS * headWidth) continue; // a later onset
         const box: NoteBox = { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom };
         if (session.marks.get(noteId) === 'heldOver') {
           // its chevron stands above the head (drawStateChevron): a disc must not cover it either

@@ -278,13 +278,13 @@ the first correct notes turn green; no dashed outline anywhere.
 - [x] T062 Real files: run quickstart "Real files" on two grand-staff items from `tests/fixtures/musicxml/real` and
   on three library items with key signatures (incl. one flat key and one minor key); look at every picture; log
   what was checked
-- [ ] T063 Run the whole of `quickstart.md` (automated checks and every manual step); log each result
-- [ ] T064 Constitution review with the `constitution-auditor` agent over the branch diff; summarise its findings
+- [x] T063 Run the whole of `quickstart.md` (automated checks and every manual step); log each result
+- [x] T064 Constitution review with the `constitution-auditor` agent over the branch diff; summarise its findings
   in `implementation-log.md` and fix or escalate every violation
 - [x] T066 Electron (FR-015): run the US1 and US2 cases of `tests/e2e/pressed-keys.spec.ts` against the Electron
   build with the existing Electron e2e setup (`tests/e2e/electron-*.spec.ts` pattern) in a new
   `tests/e2e/electron-pressed-keys.spec.ts`; same assertions, same results as the browser
-- [ ] T065 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, with summary lines in the log;
+- [x] T065 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, with summary lines in the log;
   final hand-off entry and commit
 
 ## Dependencies & Execution Order
