@@ -1,15 +1,21 @@
-import type { Grade } from '../../core/grade/types.js';
+import type { GradeMarkRef, GradeMarkSet } from '../../core/grade/marks.js';
 
 export interface StepperState {
   index: number;
   total: number;
-  currentId: string | null;
+  /** What the stepper stands at: a graded note or an extra key (never a bare note ID, 009 R-10). */
+  current: GradeMarkRef | null;
 }
 
 type Subscriber = (state: StepperState) => void;
 
+/**
+ * Steps through the mistakes of the Grade on screen (003 FR-031, 009 FR-023): the wrong pitches, the missed notes and the
+ * extra keys, in the order the core gives them (`GradeMarkSet.mistakes`: by pass, then tick). It decides nothing about
+ * music - the mark set says what a mistake is and where it comes in playing order.
+ */
 class MistakeStepperStore {
-  private mistakes: string[] = [];
+  private mistakes: readonly GradeMarkRef[] = [];
   private index = -1;
   private subs: Set<Subscriber> = new Set();
 
@@ -23,37 +29,13 @@ class MistakeStepperStore {
     return {
       index: this.index,
       total: this.mistakes.length,
-      currentId: this.index >= 0 && this.index < this.mistakes.length ? this.mistakes[this.index]! : null,
+      current: (this.index >= 0 ? this.mistakes[this.index] : undefined) ?? null,
     };
   }
 
-  setGrade(grade: Grade | null) {
-    if (!grade) {
-      this.mistakes = [];
-      this.index = -1;
-      this.notify();
-      return;
-    }
-
-    // Build a tick lookup from expected notes so we can sort mistakes in Score order (FR-031).
-    const tickOf = new Map<string, number>();
-    for (const exp of grade.expected ?? []) {
-      for (const id of exp.noteIds) tickOf.set(id, exp.onsetTick);
-    }
-
-    const mistakes: { id: string; tick: number }[] = [];
-    for (const res of grade.results) {
-      if (res.pitch === 'wrongPitch' || res.pitch === 'missed') {
-        if (res.noteIds.length > 0) {
-          const id = res.noteIds[0]!;
-          mistakes.push({ id, tick: tickOf.get(id) ?? 0 });
-        }
-      }
-    }
-
-    mistakes.sort((a, b) => a.tick - b.tick);
-    this.mistakes = mistakes.map((m) => m.id);
-    // Removing extras for now because they don't have noteIds yet (T042 scoping note).
+  /** New marks (a new Grade) start at the first mistake; null (no Grade) empties the stepper. */
+  setMarks(marks: GradeMarkSet | null) {
+    this.mistakes = marks ? marks.mistakes : [];
     this.index = this.mistakes.length > 0 ? 0 : -1;
     this.notify();
   }

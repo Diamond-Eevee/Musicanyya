@@ -11,7 +11,14 @@ by `playCursorAt(run)`, i.e. by `positionRunTick`, which is already the audible 
 cursor is gone in every other phase and when the mode changes. The Metronome (009 T024, research R-14, R-02): `compilePlaySchedule` clicks for the WHOLE run - the count-in and one click per
 beat of every pass in range, the measure's first beat accented, in the meter in force (it used to click the count-in only) -
 and `PlaySessionController.start()` always sets the Metronome channel volume after loading the schedule (0 when muted, 100 on the port's 0..100
-scale otherwise), so a muted run cannot leave the next one silent. The Grade layer wording is added by 009 T044.
+scale otherwise), so a muted run cannot leave the next one silent. The Grade is drawn in Practice's look instead of rings, crosses and diamonds (009 US3, T044): a correct
+note is a green notehead, a missed one - and a wrong pitch's own note - a grey notehead with the skip icon below its column, a
+wrong pitch or an extra key a red disc at the pitch played in the column of its note (an extra: the nearest written moment),
+early / late a caret beside the head; nothing is drawn as an outline. What the Score shows for a Grade is the pure
+`gradeMarks(score, grade, passes)` (`src/core/grade/marks.ts`), computed once per Grade by the session and kept in `playState`
+beside it. The selection is a `GradeMarkRef` (a note, an extra key or a disc), the mistake stepper is built from
+`GradeMarkSet.mistakes` (extras included) and brings each mark into view, and the panel words a wrong pitch in a chord and a
+note played without its octave line precisely (FR-022a).
 
 **1.1.3 -> 1.1.4** (feature 008, 2026-09-25, wording only): the `liveMark` effect is shown as a green notehead (the note's
 `mx-mark-correct` class), no longer as a dashed ring; the payload is unchanged. The classes are cleared when the Grade layer

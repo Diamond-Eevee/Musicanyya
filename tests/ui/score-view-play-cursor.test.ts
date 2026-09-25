@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { gradePerformance } from '../../src/core/grade/grade.js';
+import { gradeMarks } from '../../src/core/grade/marks.js';
 import type { Grade, PerformanceLog } from '../../src/core/grade/types.js';
 import { createIdleRun } from '../../src/core/play/run.js';
 import type { PlayRun, RunPhase } from '../../src/core/play/types.js';
@@ -160,14 +161,15 @@ describe('the Play cursor (009 FR-001 to FR-008)', () => {
   });
 
   it('(e) with a Grade on screen (a replay) the bar is drawn first, then the Grade marks on top of it', () => {
-    playState.setGrade(nothingPlayedGrade());
+    const grade = nothingPlayedGrade();
+    playState.setGrade(grade, gradeMarks(h.score, grade, h.timeline.passes));
     playState.setRun(runAt('running', 2 * h.dto.ppq));
     h.frame();
 
     const paints = h.canvas.calls.filter((call) => PAINT.includes(call.name));
     expect(paints[0]?.name).toBe('fillRect'); // the bar comes before any mark
     expect(paints.length).toBeGreaterThan(2); // the bar and its marker are two paints; the marks are more
-    expect(barCalls()).toHaveLength(1);
+    expect(barCalls()[0]?.args[0]).toBe(expectedBarX(dueAt(2 * h.dto.ppq))); // the first fillRect is the cursor's bar
   });
 
   it('(f) Listen still draws exactly as before: the bar at the sounding note, that note highlighted', () => {

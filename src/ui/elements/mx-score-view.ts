@@ -1,3 +1,4 @@
+import type { GradeDisc, GradeMarkRef, GradeMarkSet } from '../../core/grade/marks.js';
 import { type DiscPlacement, eventPosition, placeDiscs } from '../../core/notation/place-discs.js';
 import { type PlayCursorPosition, playCursorAt } from '../../core/play/cursor.js';
 import type { PlayRun } from '../../core/play/types.js';
@@ -15,9 +16,18 @@ import type { AudioEngine } from '../../engine/ports.js';
 import { en } from '../i18n/en.js';
 import { fitLayout } from '../layout/fit.js';
 import { drawCursorOverlay } from '../score/cursor-overlay.js';
-import { type DiscSlot, layoutDiscs, type NoteBox, type StaffGeometry } from '../score/disc-layout.js';
-import { drawGradeMarks } from '../score/grade-marks.js';
+import {
+  type Box,
+  caretBox,
+  type DiscSlot,
+  layoutDiscs,
+  type NoteBox,
+  type StaffGeometry,
+  skipIconBox,
+} from '../score/disc-layout.js';
+import { discAt, drawGradeMarks, type GradeMarkGeometry, gradeHeadClass } from '../score/grade-marks.js';
 import { applyHighlights } from '../score/highlight.js';
+import { ScoreNoteIndex } from '../score/note-index.js';
 import { applyNoteMarks, type NoteMarkClass, noteMarkClass } from '../score/note-marks.js';
 import {
   layoutPages,
@@ -109,6 +119,17 @@ export class MxScoreView extends HTMLElement {
   private noteMarksFrom: { source: object | null; epoch: number; visible: boolean } | null = null;
   /** The parsed Score, for the notation the red discs need (clef, key, octave shifts: 008); set by session.ts. */
   private notationScore: Score | null = null;
+  /** Notes by ID and the heads of each column, built on first use from `notationScore` (009 R-13). */
+  private noteIndex: ScoreNoteIndex | null = null;
+  /** The Grade's marks as last measured on the page and what they were measured from (009 R-09), in content coordinates. */
+  private gradeGeometry: GradeMarkGeometry | null = null;
+  private gradeGeometryFrom: { marks: GradeMarkSet; epoch: number; score: Score | null } | null = null;
+  private gradeDiscsSeam = '';
+  private gradeMarksSeam = '';
+  /** A measure to bring into view when the musician steps to a mark (009 FR-023); cleared once it has been. */
+  private revealMeasureId: string | null = null;
+  private lastSelectedMark: GradeMarkRef | null = null;
+  private unsubscribePlayState?: () => void;
   /** The accidental glyphs Verovio's worker read at start-up (008 R-11); null draws discs without accidentals. */
   private glyphs: MusicGlyphs | null = null;
   /** The discs of the last frame and what they were computed from: a frame that changes none of it reuses them, and a
@@ -180,6 +201,13 @@ export class MxScoreView extends HTMLElement {
     }
     // Overlays that cover the bottom of the viewport (the piano strip) declare it, so the last page can scroll clear of
     // them and the follow band ignores the covered part (ui-shell.md, Insets).
+    this.unsubscribePlayState = playState.subscribe((state) => {
+      // The mark the musician selects or steps to is brought into view (FR-023)
+      if (state.selectedMark === this.lastSelectedMark) return;
+      this.lastSelectedMark = state.selectedMark;
+      const measureIndex = state.selectedMark ? this.measureIndexOfMark(state.selectedMark) : null;
+      this.revealMeasureId = measureIndex === null ? null : (this.measureIds[measureIndex] ?? null);
+    });
     this.unsubscribeInset = insetState.subscribe((inset) => this.applyInset(inset.bottom));
     this.applyInset(insetState.get().bottom);
     this.rafHandle = requestAnimationFrame(this.tick);
@@ -191,6 +219,7 @@ export class MxScoreView extends HTMLElement {
 
   disconnectedCallback() {
     this.unsubscribeInset?.();
+    this.unsubscribePlayState?.();
     if (this.relayoutTimer !== null) clearTimeout(this.relayoutTimer);
     if (this.rafHandle !== null) cancelAnimationFrame(this.rafHandle);
     this.resizeObserver?.disconnect();
@@ -206,6 +235,7 @@ export class MxScoreView extends HTMLElement {
   /** The parsed Score, so Practice can print the pitch of a wrong key as notation (008); null when none is open. */
   setNotationScore(score: Score | null): void {
     this.notationScore = score;
+    this.noteIndex = null;
     this.discPlacements = [];
     this.discsFrom = null;
   }
@@ -425,9 +455,21 @@ export class MxScoreView extends HTMLElement {
     const target = event.target as Element | null;
 
     if (practiceState.get().mode === 'play') {
+      // 009 FR-022: a drawn red disc is selectable in its own right, and wins over the notehead it lies over
+      const point = event as MouseEvent;
+      const { marks } = playState.get();
+      if (this.gradeGeometry && marks && viewState.get().overlays.marks && typeof point.clientX === 'number') {
+        const rect = this.stack.getBoundingClientRect();
+        const disc = discAt(this.gradeGeometry.discSlots, point.clientX, point.clientY, { x: rect.left, y: rect.top });
+        const discIndex = disc ? marks.discs.indexOf(disc) : -1;
+        if (discIndex >= 0) {
+          playState.selectMark({ kind: 'disc', index: discIndex });
+          return;
+        }
+      }
       const id = target?.closest('[id]')?.id;
       if (id && this.isGradedNoteId(id)) {
-        playState.selectNote(id);
+        playState.selectMark({ kind: 'note', noteId: id });
         return;
       }
     }
@@ -442,8 +484,9 @@ export class MxScoreView extends HTMLElement {
   /** T042/T107, FR-030: only a note the Grade actually marked can be selected for its plain-words reason -
    *  everything else (measures, other ids) falls through to the ordinary measure-click handling below. */
   private isGradedNoteId(id: string): boolean {
-    const grade = playState.get().grade;
-    return grade !== null && grade.results.some((result) => result.noteIds.includes(id));
+    const { grade, marks } = playState.get();
+    if (grade === null) return false;
+    return marks ? marks.notes.has(id) : grade.results.some((result) => result.noteIds.includes(id));
   }
 
   /** Runs every animation frame (R-11): reads the audible position, highlights sounding notes, draws the
@@ -458,6 +501,9 @@ export class MxScoreView extends HTMLElement {
       this.playDrawn = false;
       this.clearNoteMarks();
       this.setHighlights(new Set());
+      this.gradeGeometry = null;
+      this.gradeGeometryFrom = null;
+      this.publishGradeSeams(null, []);
       this.canvasEl.getContext('2d')?.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
     }
     if (pState.mode === 'practice') {
@@ -802,6 +848,58 @@ export class MxScoreView extends HTMLElement {
     placePracticeBand(this.band, null, this.stack.getBoundingClientRect(), false);
   }
 
+  /** The Score's note index, built on first use; null while no Score is set (a test, or before a Score is open). */
+  private notes(): ScoreNoteIndex | null {
+    if (!this.noteIndex && this.notationScore) this.noteIndex = new ScoreNoteIndex(this.notationScore);
+    return this.noteIndex;
+  }
+
+  /** A notehead measured on the page, with its accidental and dots: null while its page is not mounted. */
+  private headBox(noteId: string): NoteBox | null {
+    const noteEl = this.elementFor(noteId);
+    const head = noteEl?.querySelector(':scope > g.notehead');
+    if (!noteEl || !head) return null;
+    const rect = head.getBoundingClientRect();
+    const box: NoteBox = { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom };
+    // An accidental or dots element that is not drawn (a grace note's redundant sign) measures as an empty rect at some
+    // other place; only a rect with a size counts
+    const accidental = noteEl.querySelector(':scope > g.accid')?.getBoundingClientRect();
+    if (accidental && accidental.width > 0 && accidental.height > 0) box.accidentalLeft = accidental.left;
+    const dots = noteEl.querySelector(':scope > g.dots')?.getBoundingClientRect();
+    if (dots && dots.width > 0 && dots.height > 0) box.dotsRight = dots.right;
+    return box;
+  }
+
+  /**
+   * One skip icon per written column and staff that has a skipped or missed note (009 FR-016, FR-016a, research R-13): below
+   * the lowest head of that column on that staff, all voices, so in a chord it sits under the whole chord and covers no
+   * head. Without a Score (no column information) each note is its own column.
+   */
+  private drawSkipIcons(
+    ctx: CanvasRenderingContext2D,
+    dpr: number,
+    containerRect: DOMRect,
+    noteIds: readonly string[],
+  ): void {
+    if (noteIds.length === 0) return;
+    const index = this.notes();
+    const groups = new Map<string, string[]>(); // column and staff -> the note IDs of its heads
+    for (const noteId of noteIds) {
+      const note = index?.note(noteId);
+      const key = note ? `${note.part}:${note.measureIndex}:${note.onsetInMeasure}:${note.staff}` : noteId;
+      const group = groups.get(key);
+      if (group) group.push(noteId);
+      else groups.set(key, [noteId]);
+    }
+    for (const ids of groups.values()) {
+      const first = index?.note(ids[0] ?? '');
+      const columnIds = first && index ? index.columnOnStaff(first).map((n) => n.id) : ids;
+      const heads = columnIds.map((id) => this.headBox(id)).filter((b): b is NoteBox => b !== null);
+      if (heads.length === 0) continue;
+      drawStateChevron({ ctx, dpr, containerRect, kind: 'skipped', box: skipIconBox(heads) });
+    }
+  }
+
   private drawPracticeState(
     session: PracticeSession | null,
     startMeasureIndex: number | null,
@@ -854,10 +952,16 @@ export class MxScoreView extends HTMLElement {
     // After the discs: a disc stays in the note's column (FR-006), so it may lie where a chevron is; the chevron, the
     // non-colour cue of a held-over or skipped note, stays on top
     if (marksVisible) {
+      const skipped: string[] = [];
       for (const { noteId, kind } of chevronEntries) {
+        if (kind === 'skipped') {
+          skipped.push(noteId);
+          continue;
+        }
         const head = this.elementFor(noteId)?.querySelector(':scope > g.notehead');
         if (head) drawStateChevron({ ctx, dpr, containerRect, noteheadRect: head.getBoundingClientRect(), kind });
       }
+      this.drawSkipIcons(ctx, dpr, containerRect, skipped);
     }
 
     if (startMeasureIndex !== null && (!session || session.phase === 'finished')) {
@@ -934,13 +1038,267 @@ export class MxScoreView extends HTMLElement {
     });
   }
 
+  /** The classes a Grade's mark set asks for: green heads for correct notes, grey ones for missed notes (009 FR-014, FR-016). */
+  private gradeClasses = (marks: object): Iterable<[string, NoteMarkClass]> =>
+    [...(marks as GradeMarkSet).notes.values()].map((m): [string, NoteMarkClass] => [m.noteId, gradeHeadClass(m.head)]);
+
+  /**
+   * The Grade's marks (009 US3): discs at the pitch played, skip icons and timing carets, from geometry measured once per
+   * page content and kept in content coordinates (relative to the page stack), so a frame - or a scroll - re-measures
+   * nothing: it reads the stack's own position once and draws (research R-09). A relayout, a zoom or a page mount changes
+   * `domEpoch` and measures again. The marks layer switch hides every mark.
+   */
+  private drawGrade(
+    ctx: CanvasRenderingContext2D,
+    dpr: number,
+    containerRect: DOMRect,
+    marks: GradeMarkSet | null,
+    visible: boolean,
+  ): void {
+    if (!marks || !visible || !this.notes()) {
+      this.gradeGeometry = null;
+      this.gradeGeometryFrom = null;
+      this.publishGradeSeams(null, []);
+      return;
+    }
+    const stackRect = this.stack.getBoundingClientRect();
+    const from = this.gradeGeometryFrom;
+    if (!from || from.marks !== marks || from.epoch !== this.domEpoch || from.score !== this.notationScore) {
+      const measured = this.measureGradeGeometry(marks, stackRect);
+      this.gradeGeometry = measured.geometry;
+      this.gradeGeometryFrom = { marks, epoch: this.domEpoch, score: this.notationScore };
+      this.publishGradeSeams(measured.geometry, measured.heads);
+    }
+    if (!this.gradeGeometry) return;
+    drawGradeMarks({
+      ctx,
+      dpr,
+      containerRect,
+      origin: { x: stackRect.left, y: stackRect.top },
+      visible: true,
+      geometry: this.gradeGeometry,
+      glyphs: this.glyphs,
+    });
+  }
+
+  /**
+   * Measures the Grade's marks on the mounted pages, in content coordinates: the red discs (008's layout, per written
+   * column and staff), the skip icon of each column of missed notes and the carets, each placed clear of every head of its
+   * column (`skipIconBox`, `caretBox`); and, for the test seam, every notehead on the mounted pages.
+   */
+  private measureGradeGeometry(
+    marks: GradeMarkSet,
+    origin: DOMRect,
+  ): { geometry: GradeMarkGeometry; heads: NoteBox[] } {
+    const index = this.notes();
+    const inContent = <T extends Box>(box: T): T => ({
+      ...box,
+      left: box.left - origin.left,
+      right: box.right - origin.left,
+      top: box.top - origin.top,
+      bottom: box.bottom - origin.top,
+    });
+    const discSlots: GradeMarkGeometry['discSlots'][number][] = [];
+    const skipIconBoxes: GradeMarkGeometry['skipIconBoxes'][number][] = [];
+    const caretBoxes: GradeMarkGeometry['caretBoxes'][number][] = [];
+    if (!index) return { geometry: { discSlots, skipIconBoxes, caretBoxes }, heads: [] };
+
+    // The red discs, one layout per written column and staff
+    const byColumn = new Map<string, GradeDisc[]>();
+    for (const disc of marks.discs) {
+      const key = `${disc.column.at.measureIndex}:${disc.column.at.onsetInMeasure}`;
+      const list = byColumn.get(key);
+      if (list) list.push(disc);
+      else byColumn.set(key, [disc]);
+    }
+    for (const discs of byColumn.values()) {
+      const column = (discs[0] as GradeDisc).column;
+      const measureId = this.measureIds[column.at.measureIndex];
+      const measureEl = measureId === undefined ? null : this.elementFor(measureId);
+      if (!measureEl) continue;
+      const staffEls = Array.from(measureEl.querySelectorAll(':scope > g.staff'));
+      // Which staff element is which staff of the graded part: the heads written in the column say
+      const votes = new Map<number, number>();
+      const columnHeads: { box: NoteBox; staffEl: Element | null }[] = [];
+      for (const noteId of column.noteIdsAtColumn) {
+        const box = this.headBox(noteId);
+        if (!box) continue;
+        const staffEl = this.elementFor(noteId)?.closest('g.staff') ?? null;
+        columnHeads.push({ box, staffEl });
+        const note = index.note(noteId);
+        const at = staffEl ? staffEls.indexOf(staffEl) : -1;
+        if (note && at >= 0) votes.set(at - (note.staff - 1), (votes.get(at - (note.staff - 1)) ?? 0) + 1);
+      }
+      const offset = [...votes.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+      if (offset === undefined || columnHeads.length === 0) continue;
+      const headWidth = columnHeads.reduce((sum, h) => sum + (h.box.right - h.box.left), 0) / columnHeads.length;
+      const cursorX = Math.min(...columnHeads.map((h) => (h.box.left + h.box.right) / 2));
+
+      const staves = [...new Set(discs.map((d) => d.placement.staff))].sort((a, b) => a - b);
+      for (const staff of staves) {
+        const staffEl = staffEls[offset + staff - 1];
+        const geometry = staffEl ? this.staffGeometry(staffEl) : null;
+        if (!staffEl || !geometry) continue;
+        const heads = columnHeads
+          .filter(
+            (h) =>
+              h.staffEl === staffEl &&
+              Math.abs((h.box.left + h.box.right) / 2 - cursorX) <= DISC_COLUMN_SPREAD_HEADS * headWidth,
+          )
+          .map((h) => h.box);
+        const onStaff = discs.filter((d) => d.placement.staff === staff);
+        const slots = layoutDiscs(
+          onStaff.map((d) => d.placement),
+          geometry,
+          cursorX,
+          heads,
+        );
+        const contentStaff: StaffGeometry = {
+          ...geometry,
+          bottomLineY: geometry.bottomLineY - origin.top,
+          left: geometry.left - origin.left,
+          right: geometry.right - origin.left,
+        };
+        slots.forEach((slot, i) => {
+          const disc = onStaff[i];
+          if (!disc) return;
+          discSlots.push({
+            disc,
+            slot: {
+              ...slot,
+              x: slot.x - origin.left,
+              y: slot.y - origin.top,
+              accidentalX: slot.accidentalX === null ? null : slot.accidentalX - origin.left,
+            },
+            staff: contentStaff,
+          });
+        });
+      }
+    }
+
+    // One skip icon per written column and staff that has a missed note, below the lowest head of that column on that staff
+    for (const icon of marks.skipIcons) {
+      const heads = icon.column.noteIdsAtColumn
+        .filter((id) => index.note(id)?.staff === icon.staff)
+        .map((id) => this.headBox(id))
+        .filter((b): b is NoteBox => b !== null);
+      if (heads.length > 0) skipIconBoxes.push({ icon, box: inContent(skipIconBox(heads)) });
+    }
+
+    // The timing carets, on the first notehead of a tie chain, clear of every head, accidental and dot of its column
+    for (const mark of marks.notes.values()) {
+      if (mark.timing.length === 0) continue;
+      const note = index.note(mark.noteId);
+      const head = this.headBox(mark.noteId);
+      if (!note || !head) continue;
+      const heads = index
+        .columnOnStaff(note)
+        .map((n) => this.headBox(n.id))
+        .filter((b): b is NoteBox => b !== null);
+      for (const side of mark.timing) {
+        caretBoxes.push({ noteId: mark.noteId, side, box: inContent(caretBox(head, heads, side)) });
+      }
+    }
+
+    // Every notehead on the mounted pages, for the test seam (the marks must never cover one)
+    const heads: NoteBox[] = [];
+    for (const noteEl of this.stack.querySelectorAll('g.note')) {
+      const box = this.headBox(noteEl.id);
+      if (box) {
+        heads.push({
+          ...inContent(box),
+          ...(box.accidentalLeft === undefined ? {} : { accidentalLeft: box.accidentalLeft - origin.left }),
+          ...(box.dotsRight === undefined ? {} : { dotsRight: box.dotsRight - origin.left }),
+        });
+      }
+    }
+    return { geometry: { discSlots, skipIconBoxes, caretBoxes }, heads };
+  }
+
+  /** The e2e / debugging seams for the Grade: `data-grade-discs` (each disc's key, staff, column and place, like Practice's
+   *  `data-discs`) and `data-grade-marks` (every box that was drawn, and every notehead), in content coordinates. */
+  private publishGradeSeams(geometry: GradeMarkGeometry | null, heads: readonly NoteBox[]): void {
+    const round = (n: number) => Math.round(n * 100) / 100;
+    const box = (b: Box) => ({
+      left: round(b.left),
+      right: round(b.right),
+      top: round(b.top),
+      bottom: round(b.bottom),
+    });
+    const discs = (geometry?.discSlots ?? []).map(({ disc, slot }) => ({
+      key: disc.key,
+      staff: disc.placement.staff,
+      column: disc.column.at,
+      position: disc.placement.position,
+      ledgerLines: disc.placement.ledgerLines,
+      ottava: disc.placement.ottava,
+      x: round(slot.x),
+      y: round(slot.y),
+      width: round(slot.width),
+      height: round(slot.height),
+    }));
+    const discsJson = geometry ? JSON.stringify(discs) : '';
+    if (discsJson !== this.gradeDiscsSeam) {
+      this.gradeDiscsSeam = discsJson;
+      if (geometry) this.canvasEl.setAttribute('data-grade-discs', discsJson);
+      else this.canvasEl.removeAttribute('data-grade-discs');
+    }
+    const marksJson = geometry
+      ? JSON.stringify({
+          discs,
+          skipIcons: geometry.skipIconBoxes.map(({ icon, box: b }) => ({
+            staff: icon.staff,
+            noteIds: icon.noteIds,
+            box: box(b),
+          })),
+          carets: geometry.caretBoxes.map(({ noteId, side, box: b }) => ({ noteId, side, box: box(b) })),
+          heads: heads.map((h) => ({
+            ...box(h),
+            ...(h.accidentalLeft === undefined ? {} : { accidentalLeft: round(h.accidentalLeft) }),
+            ...(h.dotsRight === undefined ? {} : { dotsRight: round(h.dotsRight) }),
+          })),
+        })
+      : '';
+    if (marksJson !== this.gradeMarksSeam) {
+      this.gradeMarksSeam = marksJson;
+      if (geometry) this.canvasEl.setAttribute('data-grade-marks', marksJson);
+      else this.canvasEl.removeAttribute('data-grade-marks');
+    }
+  }
+
+  /** The measure a mark reference is in, for bringing it into view (009 FR-023). */
+  private measureIndexOfMark(ref: GradeMarkRef): number | null {
+    const { grade, marks } = playState.get();
+    if (ref.kind === 'note') return this.notes()?.note(ref.noteId)?.measureIndex ?? null;
+    if (ref.kind === 'disc') return marks?.discs[ref.index]?.column.at.measureIndex ?? null;
+    const disc = marks?.discs.find((d) => d.refs.some((r) => r.kind === 'extra' && r.index === ref.index));
+    return disc?.column.at.measureIndex ?? grade?.extras[ref.index]?.measureIndex ?? null;
+  }
+
+  /** Brings the mark the musician stepped to into view: scrolls its measure into the middle band when it is outside it,
+   *  whether or not Follow is on (an explicit action), mounting its page first when it has none. */
+  private revealSelectedMark(): void {
+    const id = this.revealMeasureId;
+    if (id === null) return;
+    const measureEl = this.elementFor(id);
+    if (measureEl) {
+      this.followScrollTo(measureEl);
+      this.revealMeasureId = null;
+    } else {
+      this.scrollToPageOf(id);
+    }
+  }
+
   /** The Play cursor, then the Grade's own marks once a run has been graded, or the cheap live "correct" marks while
    *  one is still running (T041/T044, FR-011a: the Grade replaces the live marks - `playState` never holds both at once). */
   private drawPlayState(cursor: PlayCursorPosition | null): void {
     this.syncElementCache();
-    const { grade, liveMarkedNoteIds } = playState.get();
-    // The live "correct so far" marks are green noteheads, and give way to the Grade's own marks (008 FR-017, R-13)
-    this.syncNoteMarks(grade ? null : liveMarkedNoteIds, viewState.get().overlays.marks, this.liveClasses);
+    const { grade, marks, liveMarkedNoteIds } = playState.get();
+    const marksVisible = viewState.get().overlays.marks;
+    // The live "correct so far" marks are green noteheads, and give way to the Grade's own marks: green for correct notes,
+    // grey for missed ones (008 FR-017, R-13; 009 FR-014, FR-016)
+    if (grade) this.syncNoteMarks(marks, marksVisible, this.gradeClasses);
+    else this.syncNoteMarks(liveMarkedNoteIds, marksVisible, this.liveClasses);
 
     const containerRect = this.scrollEl.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
@@ -957,27 +1315,9 @@ export class MxScoreView extends HTMLElement {
     // Frame order on the shared canvas: clear, cursor, Grade marks (contract play-display.md section 3).
     this.drawPlayCursor(ctx, cursor, containerRect, dpr);
 
-    if (grade) {
-      const marks = grade.results.flatMap((result) =>
-        result.noteIds.map((noteId) => ({ noteId, pitch: result.pitch, timing: result.timing })),
-      );
-      const noteRects = new Map<string, DOMRect>();
-      for (const mark of marks) {
-        const el = this.elementFor(mark.noteId);
-        if (el) noteRects.set(mark.noteId, el.getBoundingClientRect());
-      }
-      // Extra notes have no notehead of their own to anchor a lane rect to yet (T042's own scoping note) - they
-      // still show up in mx-grade-panel's counts, just not drawn on the Score here.
-      drawGradeMarks({
-        ctx,
-        dpr,
-        containerRect,
-        visible: viewState.get().overlays.marks,
-        marks,
-        extraRects: [],
-        noteRects,
-      });
-    }
+    // The Grade's discs, skip icons and carets go on top of the cursor (frame order: clear, cursor, marks)
+    this.drawGrade(ctx, dpr, containerRect, grade ? marks : null, marksVisible);
+    this.revealSelectedMark();
   }
 
   private drawCursor(measureEl: Element, soundingNoteIds: ReadonlySet<string>): void {

@@ -243,28 +243,28 @@ cross anywhere.
   correctly, every note one semitone high) and assert the data-model invariants and "all correct -> no disc, all
   green", "nothing played -> no disc, all missed", "semitone high -> one disc per expected note's (column, key)".
   Run it: fails (module missing)
-- [ ] T031 [P] [US3] Rewrite `tests/ui/grade-marks.test.ts` for the new look (behaviour change, FR-016/FR-019, logged):
+- [x] T031 [P] [US3] Rewrite `tests/ui/grade-marks.test.ts` for the new look (behaviour change, FR-016/FR-019, logged):
   with a recording canvas context, discs are drawn first, then skip icons, then carets; no `arc` stroke ring, no cross
   and no diamond path is ever drawn; `visible: false` draws nothing; `gradeHeadClass('correct') === 'mx-mark-correct'`,
   `gradeHeadClass('missed') === 'mx-mark-skipped'`; `discAt` hits inside a disc ellipse and misses just outside it and
   between two discs a second apart; `caretBox` puts the early caret left of an accidental and of a head displaced
   left, the late caret right of dots and of a head displaced right, never intersecting any head of the column (FR-018);
   drawing the same mark set and geometry twice records identical canvas calls (SC-008). Run it: fails
-- [ ] T032 [P] [US3] Tests in `tests/ui/pressed-keys.test.ts` and `tests/ui/disc-layout.test.ts` (behaviour change,
+- [x] T032 [P] [US3] Tests in `tests/ui/pressed-keys.test.ts` and `tests/ui/disc-layout.test.ts` (behaviour change,
   FR-016, FR-016a, logged): `drawStateChevron({ kind: 'skipped' })` draws a filled, closed right-pointing triangle
   plus a bar at its tip inside the given box; `skipIconBox` for a single head is below it, for a chord a third apart
   and a chord with a second (displaced head) it is below the lowest head and intersects no head, for a stem-down chord
   it stays clear of the stem at the heads' left edge; `kind: 'heldOver'` is unchanged. Run it: fails
-- [ ] T033 [P] [US3] Tests in `tests/ui/mistake-stepper.test.ts`: the stepper is built from `GradeMarkSet.mistakes`;
+- [x] T033 [P] [US3] Tests in `tests/ui/mistake-stepper.test.ts`: the stepper is built from `GradeMarkSet.mistakes`;
   extras are included; order is pass then tick; `current` is a `GradeMarkRef`; next/previous wrap as today. Run it:
   fails
-- [ ] T034 [P] [US3] Tests in `tests/ui/grade-panel.test.ts` and `tests/ui/reason-text.test.ts`: a `note` ref on a
+- [x] T034 [P] [US3] Tests in `tests/ui/grade-panel.test.ts` and `tests/ui/reason-text.test.ts`: a `note` ref on a
   repeated note shows one line per pass with the pass named; an `extra` ref shows its reason; FR-022a: a wrong pitch
   in a chord reads "B4 played in this chord; E4 not played" (never pairing the key to one written note); a wrong
   octave equal to the octave line in force reads "played without the 8va" (and "without the 8vb" under an 8vb, using
   `octaveShiftAt`'s sign: +1 for 8va); every other reason text is unchanged; a `disc` ref standing for a wrong pitch
   and an extra of the same key shows both explanations (FR-022). Run it: fails
-- [ ] T035 [P] [US3] Score-view tests in `tests/ui/score-view-grade.test.ts` (happy-dom): a Grade puts
+- [x] T035 [P] [US3] Score-view tests in `tests/ui/score-view-grade.test.ts` (happy-dom): a Grade puts
   `mx-mark-correct` / `mx-mark-skipped` on exactly the marked notes and removes them on a new run and on a mode change;
   `overlays.marks` off removes classes and canvas marks; during a live run (no Grade yet) no disc, skip icon, caret or
   grey head is drawn, only the live green heads (FR-027); a click on a disc selects `{ kind: 'disc' }` before the
@@ -272,7 +272,7 @@ cross anywhere.
   the marks (research R-09), while a relayout or zoom (a `domEpoch` bump) re-measures and the marks move with their
   notes (FR-025); a `data-grade-discs` seam lists each drawn disc's key, staff and column (like 008's `data-discs`). Run
   it: fails
-- [ ] T036 [P] [US3] E2E test `tests/e2e/play-grade-marks.spec.ts` with `startPlay` on
+- [x] T036 [P] [US3] E2E test `tests/e2e/play-grade-marks.spec.ts` with `startPlay` on
   `repertoire/beginner/fur-elise-theme-16-bar`, accompaniment off: keys timed with `sleep:` steps give correct notes,
   one wrong pitch, one wrong octave, one missed note and one extra key; after the Grade: the green heads are exactly
   the correct results, `data-grade-discs` holds exactly the wrong-pitch and extra keys, no ring or cross (seam and
@@ -285,36 +285,36 @@ cross anywhere.
   wrapper; export from `src/core/notation/index.ts`; T028 passes and the existing notation tests stay green
 - [x] T038 [US3] Create `src/core/grade/marks.ts` with `gradeMarks` and `extraColumn` (data-model section 2); T029
   and T030 pass
-- [ ] T039 [US3] Add `skipIconBox` and `caretBox` to `src/ui/score/disc-layout.ts`; change the `skipped` branch of
+- [x] T039 [US3] Add `skipIconBox` and `caretBox` to `src/ui/score/disc-layout.ts`; change the `skipped` branch of
   `drawStateChevron` in `src/ui/score/pressed-keys.ts` to draw the skip icon into a given box; make Practice's caller in
   `src/ui/elements/mx-score-view.ts` group skipped notes by column and staff (one icon below the lowest head) (FR-016,
   FR-016a, research R-13); update the doc comments; T032 passes; Practice's existing tests for skipped notes stay green
-- [ ] T040 [US3] Rewrite `src/ui/score/grade-marks.ts` (contract section 3): `drawGradeMarks` from cached geometry
+- [x] T040 [US3] Rewrite `src/ui/score/grade-marks.ts` (contract section 3): `drawGradeMarks` from cached geometry
   (discs via `drawPressedKeyDiscs`, then skip icons via `drawStateChevron` in `skipIconBox` boxes, then carets in
   `caretBox` boxes), `gradeHeadClass`, `discAt`;
   delete the ring, cross and diamond code; T031 passes
-- [ ] T041 [US3] Replace `selectedNoteId` with `selectedMark: GradeMarkRef` in `src/ui/state/playState.ts` and build the
+- [x] T041 [US3] Replace `selectedNoteId` with `selectedMark: GradeMarkRef` in `src/ui/state/playState.ts` and build the
   stepper from `GradeMarkSet.mistakes` in `src/ui/state/mistake-stepper.ts`; update every caller; T033 passes
-- [ ] T042 [US3] Add the FR-022a wording to `src/ui/format/reason-text.ts` and `src/ui/i18n/en.ts`, and explain `note`
+- [x] T042 [US3] Add the FR-022a wording to `src/ui/format/reason-text.ts` and `src/ui/i18n/en.ts`, and explain `note`
   refs (every pass) and `extra` refs in `src/ui/elements/mx-grade-panel.ts`; T034 passes
-- [ ] T043 [US3] Grade drawing in `src/ui/elements/mx-score-view.ts`: `gradeMarks` once per Grade; classes with
+- [x] T043 [US3] Grade drawing in `src/ui/elements/mx-score-view.ts`: `gradeMarks` once per Grade; classes with
   `applyNoteMarks` + `gradeHeadClass` (re-applied on page mount); geometry cached per `domEpoch` and scroll offset
   (heads, accidentals, disc columns through `layoutDiscs`, skip-icon and caret boxes, staff geometry); disc hit test
   first in the click handler; the `data-grade-discs` and `data-grade-marks` seams (contract section 3); remove the
   per-frame measuring loop; T035 and T036 pass
-- [ ] T044 [US3] Update the existing tests that asserted the old marks (`tests/e2e/us1-play.spec.ts` and any other
+- [x] T044 [US3] Update the existing tests that asserted the old marks (`tests/e2e/us1-play.spec.ts` and any other
   found by searching for the ring/cross assertions), each with a new assertion for the new mark; amend
   `specs/008-pressed-keys-on-score/contracts/pressed-keys.md` to 2.1.0 and finish
   `specs/003-play-mode-grading/contracts/play-run.md` 1.2.0 with the Grade wording (contract 5.2, 5.3)
-- [ ] T054 [US3] Add the `e2e-synthetic-grade` seam in `src/app/session.ts` beside `e2e-midi` (contract section 3):
+- [x] T054 [US3] Add the `e2e-synthetic-grade` seam in `src/app/session.ts` beside `e2e-midi` (contract section 3):
   build a `nothing` / `correct` / `semitoneHigh` Performance log from the open Score's expected notes and grade it
   through the normal grade worker, so e2e tests get a Grade without playing a whole run
-- [ ] T055 [US3] E2E overlap sweep `tests/e2e/grade-marks-overlap.spec.ts` (SC-007, FR-026, analyze M3): for every
+- [x] T055 [US3] E2E overlap sweep `tests/e2e/grade-marks-overlap.spec.ts` (SC-007, FR-026, analyze M3): for every
   library item and `tests/fixtures/musicxml/grade/grade-marks.musicxml`, dispatch `e2e-synthetic-grade` with
   `nothing` and with `semitoneHigh`, then read `data-grade-marks` for every page scrolled into view: no skip-icon or
   caret box intersects any head or accidental box (discs are the FR-021 exception and are excluded). Write it after
   T054 and before T039/T040/T043 are finished, and see it fail on the chevron placement; it passes after T043
-- [ ] T045 [US3] Checkpoint: run the Independent Test with `pnpm screenshot -- --item
+- [x] T045 [US3] Checkpoint: run the Independent Test with `pnpm screenshot -- --item
   repertoire/beginner/fur-elise-theme-16-bar --run --grade --keys "<the T036 steps>" --out
   tests/.generated/009/t045-grade.png` and look at it; run `pnpm test`, `pnpm typecheck`, `pnpm lint`, the US3 e2e
   spec; log with summary lines; commit

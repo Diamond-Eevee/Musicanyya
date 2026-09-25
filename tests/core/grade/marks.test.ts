@@ -450,3 +450,40 @@ describe('gradeMarks: invariants', () => {
     expect(plain(marksOf(grade))).toMatchSnapshot();
   });
 });
+
+// 009 FR-022a: what the explanation of a wrong pitch needs to say more precisely than 003's default text - the written notes of
+// its chord that were not played, and the octave line (8va / 8vb / 15ma / ...) in force at its note. The mark set carries it
+// so the panel only words it (Constitution V: the UI decides no music).
+describe('gradeMarks: the context of a wrong pitch (FR-022a)', () => {
+  it('a wrong pitch inside a chord lists the written notes of the chord that were not played', () => {
+    // the chord B4 D5 G5 (71 74 79): B4 played, D5 an octave up, G5 not played
+    const grade = gradeOf(performance({ remove: ['D5@2', 'G5@2', 'D5@6', 'G5@6'], add: ['D6@2', 'D6@6'] }));
+    const marks = marksOf(grade);
+    const index = grade.results.findIndex((r) => r.pitch === 'wrongPitch' && r.reason.expectedKey === 74);
+    expect(index).toBeGreaterThanOrEqual(0);
+    expect(marks.contexts.get(index)).toMatchObject({ chordNotPlayed: [74, 79] });
+  });
+
+  it('a wrong pitch that is not in a chord has an empty list', () => {
+    const grade = gradeOf(performance({ remove: ['A4@9'], add: ['A5@9'] }));
+    const index = grade.results.findIndex((r) => r.pitch === 'wrongPitch');
+    expect(marksOf(grade).contexts.get(index)).toMatchObject({ chordNotPlayed: [] });
+  });
+
+  it('carries the octave shift in force at the note: +1 under the 8va of m4, 0 elsewhere', () => {
+    const under = gradeOf(performance({ remove: ['G6@16'], add: ['G5@16'] }));
+    const underIndex = under.results.findIndex((r) => r.pitch === 'wrongPitch');
+    expect(marksOf(under).contexts.get(underIndex)).toMatchObject({ octaveShift: 1 });
+
+    const plain = gradeOf(performance({ remove: ['A4@9'], add: ['A5@9'] }));
+    const plainIndex = plain.results.findIndex((r) => r.pitch === 'wrongPitch');
+    expect(marksOf(plain).contexts.get(plainIndex)).toMatchObject({ octaveShift: 0 });
+  });
+
+  it('has a context only for wrong pitches: a correct or a missed note needs no special wording', () => {
+    const grade = gradeOf(performance({ remove: ['A4@9', 'B4@8'], add: ['A5@9'] }));
+    const marks = marksOf(grade);
+    const withContext = [...marks.contexts.keys()];
+    expect(withContext).toEqual([grade.results.findIndex((r) => r.pitch === 'wrongPitch')]);
+  });
+});

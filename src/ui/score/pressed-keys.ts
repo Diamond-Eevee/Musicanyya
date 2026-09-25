@@ -1,4 +1,4 @@
-import type { DiscSlot, StaffGeometry } from './disc-layout.js';
+import type { Box, DiscSlot, StaffGeometry } from './disc-layout.js';
 import type { MusicGlyphData } from './verovio-client.js';
 
 /**
@@ -17,7 +17,7 @@ export const SKIPPED_COLOR = '#999999';
 /** How far a ledger line reaches past the disc on each side, in staff spaces. */
 const LEDGER_OVERHANG_SPACES = 0.4;
 /** Tilt of the disc, like the slant of an engraved notehead. */
-const DISC_TILT_RADIANS = -0.35;
+export const DISC_TILT_RADIANS = -0.35;
 /** The ottava label sits beside the disc, in staff spaces, and is this tall. */
 const LABEL_OFFSET_SPACES = 0.35;
 const LABEL_SIZE_SPACES = 1.1;
@@ -138,44 +138,61 @@ export function chevronBox(noteheadRect: DOMRect): { left: number; right: number
   return { left: cx - 0.45 * w, right: cx + 0.45 * w, top: base - 0.6 * h, bottom: base };
 }
 
-export interface StateChevronOptions {
+interface StateChevronBase {
   ctx: CanvasRenderingContext2D;
   dpr: number;
   containerRect: DOMRect;
-  /** The box of the note's `g.notehead` (not the whole note: a stem must not push the chevron away). */
-  noteheadRect: DOMRect;
-  kind: 'heldOver' | 'skipped';
 }
+export type StateChevronOptions =
+  | (StateChevronBase & {
+      kind: 'heldOver';
+      /** The box of the note's `g.notehead` (not the whole note: a stem must not push the chevron away). */
+      noteheadRect: DOMRect;
+    })
+  | (StateChevronBase & {
+      kind: 'skipped';
+      /** Where the skip icon goes: `skipIconBox` of the column's heads (009 R-13), so it never covers a head. */
+      box: Box;
+    });
+
+/** Where the skip icon's triangle ends and its bar begins, as a fraction of the box's width. */
+const SKIP_ICON_TIP = 0.7;
 
 /**
- * The small solid chevron that tells a held-over or skipped note apart without colour (feature 008, research R-03):
- * held-over gets an upward chevron above the notehead ("lift the key"), skipped a right-pointing one below it ("moved
- * past"). Sized from the notehead box, entirely outside it and within one staff space of it, so it never hides the head.
+ * The marker that tells a held-over or skipped/missed note apart without colour (feature 008, research R-03; 009 FR-016).
+ * Held-over: a small solid upward chevron above the notehead ("lift the key"), sized from the notehead box, entirely
+ * outside it and within one staff space of it. Skipped (Practice) and missed (a Grade): the skip icon - a solid
+ * right-pointing triangle with a bar at its tip, like a media "skip" sign, which cannot be read as an accent - filled into
+ * `box` (`skipIconBox` of the column's heads), so it never covers a head or an accidental.
  */
 export function drawStateChevron(options: StateChevronOptions): void {
-  const { ctx, dpr, containerRect, noteheadRect, kind } = options;
-  const w = noteheadRect.width;
-  const h = noteheadRect.height;
-  const cx = (noteheadRect.left + noteheadRect.right) / 2;
-  const gap = 0.15 * h;
+  const { ctx, dpr, containerRect } = options;
   const px = (x: number) => (x - containerRect.left) * dpr;
   const py = (y: number) => (y - containerRect.top) * dpr;
 
-  ctx.strokeStyle = kind === 'heldOver' ? HELD_OVER_COLOR : SKIPPED_COLOR;
+  if (options.kind === 'skipped') {
+    const { box } = options;
+    const tipX = box.left + SKIP_ICON_TIP * (box.right - box.left);
+    ctx.fillStyle = SKIPPED_COLOR;
+    ctx.beginPath();
+    ctx.moveTo(px(box.left), py(box.top));
+    ctx.lineTo(px(tipX), py((box.top + box.bottom) / 2));
+    ctx.lineTo(px(box.left), py(box.bottom));
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillRect(px(tipX), py(box.top), (box.right - tipX) * dpr, (box.bottom - box.top) * dpr);
+    return;
+  }
+
+  const box = chevronBox(options.noteheadRect);
+  const cx = (options.noteheadRect.left + options.noteheadRect.right) / 2;
+  ctx.strokeStyle = HELD_OVER_COLOR;
   ctx.lineWidth = 2 * dpr;
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
   ctx.beginPath();
-  if (kind === 'heldOver') {
-    const box = chevronBox(noteheadRect);
-    ctx.moveTo(px(box.left), py(box.bottom));
-    ctx.lineTo(px(cx), py(box.top));
-    ctx.lineTo(px(box.right), py(box.bottom));
-  } else {
-    const top = noteheadRect.bottom + gap;
-    ctx.moveTo(px(cx - 0.2 * h), py(top));
-    ctx.lineTo(px(cx + 0.2 * h), py(top + 0.35 * h));
-    ctx.lineTo(px(cx - 0.2 * h), py(top + 0.7 * h));
-  }
+  ctx.moveTo(px(box.left), py(box.bottom));
+  ctx.lineTo(px(cx), py(box.top));
+  ctx.lineTo(px(box.right), py(box.bottom));
   ctx.stroke();
 }

@@ -215,6 +215,14 @@ cursor stood at), and ticks keep it reproducible.
   `ExpectedNote.chordSize` and the results at the same onset, the octave line from `octaveShiftAt` (008 notation
   core) at the note's position.
 
+**Found while implementing (T029, 2026-09-25)**: (1) 003's matcher grades only an *octave* error as `wrongPitch` (its second
+pass claims by pitch class); any other wrong key claims nothing, so its note is `missed` and the key an `extra`. The disc rules
+above cover both, but "a wrong pitch" in a real Grade is almost always a missed note plus an extra key in the same column, and
+the tests use both. (2) The candidate columns for an extra come from the passes of the run's passage the caller passes to
+`gradeMarks` (every pass for a whole-Score run), not from the Grade, which does not carry them. (3) A disc whose key equals a
+correct head's key in its column is not drawn (a second strike of a correctly played key), so no disc ever hides a green head.
+(4) An accidental or dots element that Verovio does not draw measures as an empty rect elsewhere; such rects are ignored.
+
 **Alternatives considered**: nearest graded onset only (a press next to an unselected-hand note would jump to a
 farther graded note); the later onset on a tie (reads as a mistake on the next note, the problem the owner rejected in
 008); showing only the worst pass's caret (hides a timing error the musician made).

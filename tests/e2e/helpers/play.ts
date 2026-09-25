@@ -4,6 +4,8 @@ import { openPanel } from './panels.js';
 export interface PlayOptions {
   /** Accompaniment on or off (the Play panel's checkbox); left as the Score's default when omitted. */
   accompaniment?: boolean;
+  /** Which hand is graded (the Play panel's radio buttons); left as the Score's default when omitted. */
+  hands?: 'right' | 'left' | 'both';
   /** The tempo percentage the Play panel offers (e.g. 60). */
   tempoPercent?: number;
   /** Measures to play, 1-based and inclusive (the panel's "From measure" and "To measure"). */
@@ -34,14 +36,18 @@ export async function startPlay(page: Page, itemId: string, options: PlayOptions
   await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
   await page.locator('mx-mode-switch input[value=play]').check();
 
-  const { accompaniment, tempoPercent, range } = options;
-  if (accompaniment !== undefined || tempoPercent !== undefined || range !== undefined) {
+  const { accompaniment, tempoPercent, range, hands } = options;
+  if (accompaniment !== undefined || tempoPercent !== undefined || range !== undefined || hands !== undefined) {
     await openPanel(page, 'setup');
     const panel = page.locator('mx-play-panel');
     await expect(panel).toBeVisible();
     if (accompaniment !== undefined) {
       const box = panel.locator('input[data-id="accompaniment"]');
       if ((await box.count()) > 0) await box.setChecked(accompaniment);
+    }
+    if (hands) {
+      const label = { right: 'Right hand', left: 'Left hand', both: 'Both hands' }[hands];
+      await panel.getByLabel(label).check();
     }
     if (range) {
       const from = panel.getByLabel('From measure');
@@ -70,4 +76,37 @@ export async function waitForGrade(page: Page, timeoutMs = 90_000): Promise<void
       { timeout: timeoutMs },
     )
     .toBe(true);
+}
+
+/** A key press on the run's own clock: `at` milliseconds after the count-in ends, held for `hold` ms. */
+export interface TimedPress {
+  at: number;
+  key: number;
+  hold?: number;
+}
+
+/**
+ * Plays `presses` through the `e2e-midi` seam in one page call, timed from the moment the run leaves the count-in (the
+ * page watches `__PLAY_STATE__` itself: a Playwright poll can be a second late). Resolves after the last key is released.
+ */
+export async function pressInTime(page: Page, presses: readonly TimedPress[]): Promise<void> {
+  await page.evaluate(async (list) => {
+    const state = (window as unknown as { __PLAY_STATE__: { get(): { run: { phase: string } | null } } })
+      .__PLAY_STATE__;
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+    const deadline = performance.now() + 20_000;
+    while (state.get().run?.phase !== 'running' && performance.now() < deadline) await sleep(2);
+    const t0 = performance.now();
+    const events = list
+      .flatMap((p) => [
+        { at: p.at, bytes: [0x90, p.key, 100] },
+        { at: p.at + (p.hold ?? 120), bytes: [0x80, p.key, 0] },
+      ])
+      .sort((a, b) => a.at - b.at);
+    for (const event of events) {
+      const wait = event.at - (performance.now() - t0);
+      if (wait > 0) await sleep(wait);
+      window.dispatchEvent(new CustomEvent('e2e-midi', { detail: event.bytes }));
+    }
+  }, presses);
 }

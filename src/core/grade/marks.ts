@@ -1,3 +1,4 @@
+import { octaveShiftAt } from '../notation/context.js';
 import type { DiscPlacement } from '../notation/place-discs.js';
 import { placeKeys } from '../notation/place-discs.js';
 import type { WrongKeyState } from '../practice/types.js';
@@ -55,6 +56,17 @@ export interface GradeSkipIcon {
   noteIds: readonly NoteId[];
 }
 
+/**
+ * What the explanation of a wrong pitch needs beyond its reason (009 FR-022a), worked out here so the panel only words it:
+ * the written notes of its chord that were not played, and the octave line in force at its note.
+ */
+export interface ResultContext {
+  /** Keys of the chord's written notes whose result was not `correct`, ascending; [] when the note is not in a chord. */
+  chordNotPlayed: readonly number[];
+  /** Octaves the printed line lies below the sounding pitch at the note: +1 under an 8va, -1 under an 8vb, +-2 a 15ma / 15mb. */
+  octaveShift: number;
+}
+
 export interface GradeMarkSet {
   notes: ReadonlyMap<NoteId, GradeNoteMark>;
   /** One per distinct (written moment, key); playing order, then key. */
@@ -63,6 +75,8 @@ export interface GradeMarkSet {
   skipIcons: readonly GradeSkipIcon[];
   /** What the mistake stepper visits: wrong pitches and missed notes, then extras, by (pass, tick). */
   mistakes: readonly GradeMarkRef[];
+  /** By index into `grade.results`, for the wrong-pitch results only. */
+  contexts: ReadonlyMap<number, ResultContext>;
 }
 
 const momentKey = (measureIndex: number, onsetInMeasure: number) => `${measureIndex}:${onsetInMeasure}`;
@@ -299,7 +313,37 @@ export function gradeMarks(score: Score, grade: Grade, passes: readonly MeasureP
   }
   discs.sort((a, b) => a.column.onsetTick - b.column.onsetTick || a.key - b.key);
 
-  // 4. What the stepper visits, in playing order
+  // 4. The context of each wrong pitch, for its explanation (FR-022a)
+  const contexts = new Map<number, ResultContext>();
+  grade.results.forEach((result, index) => {
+    if (result.pitch !== 'wrongPitch') return;
+    const expected = expectedByIndex.get(result.expectedIndex);
+    const head = headsOf(result.noteIds)[0];
+    const note = head === undefined ? undefined : noteById.get(head);
+    const notPlayed = new Set<number>();
+    if (expected && expected.chordSize > 1) {
+      for (const other of grade.results) {
+        const at = expectedByIndex.get(other.expectedIndex);
+        if (
+          at &&
+          at.passIndex === expected.passIndex &&
+          at.onsetTick === expected.onsetTick &&
+          other.pitch !== 'correct'
+        ) {
+          notPlayed.add(at.key);
+        }
+      }
+    }
+    contexts.set(index, {
+      chordNotPlayed: [...notPlayed].sort((a, b) => a - b),
+      octaveShift:
+        part && note
+          ? octaveShiftAt(part, note.staff, { measureIndex: note.measureIndex, onsetInMeasure: note.onsetInMeasure })
+          : 0,
+    });
+  });
+
+  // 5. What the stepper visits, in playing order
   const sorted: SortedMistake[] = [];
   grade.results.forEach((result, order) => {
     if (result.pitch === 'correct') return;
@@ -337,5 +381,6 @@ export function gradeMarks(score: Score, grade: Grade, passes: readonly MeasureP
     discs,
     skipIcons,
     mistakes,
+    contexts,
   };
 }

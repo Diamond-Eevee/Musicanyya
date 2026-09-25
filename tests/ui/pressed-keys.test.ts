@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { DiscPlacement } from '../../src/core/notation/place-discs.js';
 import type { DiscSlot, StaffGeometry } from '../../src/ui/score/disc-layout.js';
-import { DISC_COLOR, drawPressedKeyDiscs, type MusicGlyphs } from '../../src/ui/score/pressed-keys.js';
+import {
+  DISC_COLOR,
+  drawPressedKeyDiscs,
+  drawStateChevron,
+  type MusicGlyphs,
+} from '../../src/ui/score/pressed-keys.js';
 
 interface Call {
   name: string;
@@ -192,5 +197,78 @@ describe('drawPressedKeyDiscs: the red discs on the overlay canvas (feature 008,
   it('never sets a dash pattern (no dashed outline anywhere, SC-003)', () => {
     const { named } = draw([slot({ ledgerLines: -2, alter: 1, showAccidental: true, ottava: -1 }, 200, 270, 170)]);
     for (const c of named('setLineDash')) expect(c.args[0]).toEqual([]);
+  });
+});
+
+// 009 T032 (FR-016, FR-016a): the skipped / missed note's marker is a skip icon - a solid right-pointing triangle with a bar
+// at its tip - drawn into a box below the lowest head of its column, in place of the open chevron of 008 (which read like an
+// accent). The held-over chevron is unchanged.
+describe('drawStateChevron: the skip icon (009 FR-016, FR-016a)', () => {
+  const BOX = { left: 100, right: 108, top: 220, bottom: 234 };
+  const CONTAINER = { left: 20, top: 40, width: 800, height: 600 } as DOMRect;
+
+  it('draws a filled, closed, right-pointing triangle with a bar at its tip, all inside the given box', () => {
+    const { ctx, calls, named } = recordingCanvas();
+    drawStateChevron({ ctx, dpr: 1, containerRect: { left: 0, top: 0 } as DOMRect, kind: 'skipped', box: BOX });
+
+    // the triangle: a closed path of three points, filled, never stroked
+    const points = calls
+      .filter((c) => c.name === 'moveTo' || c.name === 'lineTo')
+      .map((c) => ({ x: c.args[0] as number, y: c.args[1] as number }));
+    expect(points).toHaveLength(3);
+    expect(named('closePath')).toHaveLength(1);
+    expect(named('fill')).toHaveLength(1);
+    expect(named('stroke')).toHaveLength(0);
+    const [a, tip, b] = points as [{ x: number; y: number }, { x: number; y: number }, { x: number; y: number }];
+    expect(tip.x).toBeGreaterThan(a.x); // it points right
+    expect(a.x).toBe(b.x); // its base is vertical
+    expect(tip.y).toBeGreaterThan(a.y);
+    expect(tip.y).toBeLessThan(b.y); // the tip is between the base's ends
+
+    // the bar at the tip, full height
+    const bars = named('fillRect');
+    expect(bars).toHaveLength(1);
+    const [bx, by, bw, bh] = (bars[0]?.args ?? []) as number[] as [number, number, number, number];
+    expect(bx).toBeGreaterThanOrEqual(tip.x - 0.001);
+    expect(bx + bw).toBeLessThanOrEqual(BOX.right + 0.001);
+    expect(by).toBe(BOX.top);
+    expect(by + bh).toBe(BOX.bottom);
+
+    // everything is inside the box
+    for (const p of points) {
+      expect(p.x).toBeGreaterThanOrEqual(BOX.left);
+      expect(p.x).toBeLessThanOrEqual(BOX.right);
+      expect(p.y).toBeGreaterThanOrEqual(BOX.top);
+      expect(p.y).toBeLessThanOrEqual(BOX.bottom);
+    }
+    // grey, solid
+    expect(named('fill')[0]?.fillStyle).toBe('#999999');
+    expect(calls.filter((c) => c.name === 'setLineDash' && (c.args[0] as number[]).length > 0)).toEqual([]);
+  });
+
+  it('follows the box when the page is scrolled and the pixel ratio is not 1', () => {
+    const { ctx, calls, named } = recordingCanvas();
+    drawStateChevron({ ctx, dpr: 2, containerRect: CONTAINER, kind: 'skipped', box: BOX });
+    const xs = calls.filter((c) => c.name === 'moveTo' || c.name === 'lineTo').map((c) => c.args[0] as number);
+    expect(Math.min(...xs)).toBe((BOX.left - 20) * 2);
+    const [, by, , bh] = (named('fillRect')[0]?.args ?? []) as number[] as [number, number, number, number];
+    expect(by).toBe((BOX.top - 40) * 2);
+    expect(by + bh).toBe((BOX.bottom - 40) * 2);
+  });
+
+  it('the held-over chevron is unchanged: a stroked upward chevron above the notehead', () => {
+    const { ctx, calls, named } = recordingCanvas();
+    const head = { left: 100, right: 119, top: 200, bottom: 216, width: 19, height: 16 } as DOMRect;
+    drawStateChevron({
+      ctx,
+      dpr: 1,
+      containerRect: { left: 0, top: 0 } as DOMRect,
+      kind: 'heldOver',
+      noteheadRect: head,
+    });
+    expect(named('stroke')).toHaveLength(1);
+    expect(named('fill')).toHaveLength(0);
+    const ys = calls.filter((c) => c.name === 'moveTo' || c.name === 'lineTo').map((c) => c.args[1] as number);
+    expect(Math.max(...ys)).toBeLessThan(head.top); // entirely above
   });
 });

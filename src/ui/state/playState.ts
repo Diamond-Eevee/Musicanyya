@@ -1,3 +1,4 @@
+import type { GradeMarkRef, GradeMarkSet } from '../../core/grade/marks.js';
 import type { Grade } from '../../core/grade/types.js';
 import type { PlayRun, RunSettings } from '../../core/play/types.js';
 import type { HandSelection } from '../../core/practice/types.js';
@@ -23,8 +24,11 @@ export interface PlayState {
   grade: Grade | null;
   /** The play setup (T066): the settings panel reflects this; null before a Score is loaded. */
   setup: PlaySetup | null;
-  /** The mark the musician clicked on the Score, if any (T042, FR-030): `mx-grade-panel` explains it in words. */
-  selectedNoteId: NoteId | null;
+  /** What the Score shows for the Grade (009 R-06): computed once per Grade by the session, read by the view, the panel and
+   *  the stepper; null while there is no Grade or no Score to place it on. */
+  marks: GradeMarkSet | null;
+  /** The mark the musician clicked on the Score or stepped to, if any (T042, FR-030): `mx-grade-panel` explains it in words. */
+  selectedMark: GradeMarkRef | null;
   /** Every notehead the run's cheap live pitch test has matched so far (T044, FR-011); replaced by `grade`'s own
    *  marks once the run is graded (FR-011a). */
   liveMarkedNoteIds: ReadonlySet<NoteId>;
@@ -39,7 +43,8 @@ class PlayStateStore {
     run: null,
     grade: null,
     setup: null,
-    selectedNoteId: null,
+    marks: null,
+    selectedMark: null,
     liveMarkedNoteIds: EMPTY,
     attempts: [],
   });
@@ -71,13 +76,13 @@ class PlayStateStore {
     });
   }
 
-  /** FR-011a: the Grade replaces whatever the live marker showed during the run. */
-  setGrade(grade: Grade | null) {
-    this.store.update((state) => ({ ...state, grade, selectedNoteId: null, liveMarkedNoteIds: EMPTY }));
+  /** FR-011a: the Grade replaces whatever the live marker showed during the run. `marks` is what the Score shows for it. */
+  setGrade(grade: Grade | null, marks: GradeMarkSet | null = null) {
+    this.store.update((state) => ({ ...state, grade, marks, selectedMark: null, liveMarkedNoteIds: EMPTY }));
   }
 
-  selectNote(noteId: NoteId | null) {
-    this.store.update((state) => ({ ...state, selectedNoteId: noteId }));
+  selectMark(ref: GradeMarkRef | null) {
+    this.store.update((state) => ({ ...state, selectedMark: ref }));
   }
 
   addLiveMark(noteIds: readonly NoteId[]) {
@@ -92,9 +97,13 @@ class PlayStateStore {
   /** FR-035: the result layer is cleared when a new run starts or the mode changes. Keeps `setup`. */
   clear() {
     this.store.update((state) =>
-      state.run === null && state.grade === null && state.selectedNoteId === null && state.liveMarkedNoteIds.size === 0
+      state.run === null &&
+      state.grade === null &&
+      state.marks === null &&
+      state.selectedMark === null &&
+      state.liveMarkedNoteIds.size === 0
         ? state
-        : { ...state, run: null, grade: null, selectedNoteId: null, liveMarkedNoteIds: EMPTY },
+        : { ...state, run: null, grade: null, marks: null, selectedMark: null, liveMarkedNoteIds: EMPTY },
     );
   }
 }

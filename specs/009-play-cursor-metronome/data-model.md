@@ -63,7 +63,15 @@ interface GradeMarkSet {
   discs: readonly GradeDisc[];                       // one per distinct (column, key); playing order, then key
   skipIcons: readonly GradeSkipIcon[];               // one per (column, staff) with a missed head (research R-13)
   mistakes: readonly GradeMarkRef[];                 // FR-023 stepper order: wrong pitch, missed, extras by (pass, tick)
+  contexts: ReadonlyMap<number, ResultContext>;      // by result index, wrong pitches only (FR-022a)
 }
+
+interface ResultContext {
+  chordNotPlayed: readonly number[];                 // keys of the chord's written notes whose result was not correct
+  octaveShift: number;                               // octaves the printed line lies below the sounding pitch (+1 under an 8va)
+}
+
+// gradeMarks(score, grade, passes): `passes` are the passes of the run's passage (all of them for a whole-Score run)
 ```
 
 Rules (spec FR-014 to FR-024):
@@ -80,11 +88,15 @@ Validation / invariants:
 - `discs` never contains two entries with the same `(column.at, key)`; `skipIcons` never two with the same
   `(column.at, staff)`, and every `missed` chain-first head is in exactly one icon.
 - No disc's `key` equals a written key of a `correct` head in the same column (research R-08 invariant).
+- A disc is not drawn when its key equals the key of a `correct` head written in its column (a second strike of a key
+  that was played correctly would hide the green head); its ref stays in `mistakes`.
+- `disc.refs` holds each distinct ref once: the same wrong key on two passes is one disc with one note ref, whose
+  `GradeNoteMark.results` lists both passes.
 - A key that no placeable clef can show (percussion or TAB staff) gets no disc; its ref stays in `mistakes`, so it
   can still be stepped to and explained (mirrors 008's "no disc on an unsupported clef").
 - `timing` is empty for a head whose played passes were all on time, and for `missed` passes (no timing result).
 
-## 3. Grade mark reference and selection (UI state, `src/ui/state/playState.ts`)
+## 3. Grade mark reference and selection (type in core `src/core/grade/marks.ts`, state in `src/ui/state/playState.ts`)
 
 ```ts
 type GradeMarkRef =

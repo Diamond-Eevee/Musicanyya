@@ -1,6 +1,6 @@
 # Contract: Play display (cursor, Grade marks) and channel setup
 
-**Version**: `1.0.1` (internal TypeScript contract between `src/core/play`, `src/core/timeline`, `src/core/grade`,
+**Version**: `1.1.0` (internal TypeScript contract between `src/core/play`, `src/core/timeline`, `src/core/grade`,
 `src/core/notation`, `src/app`, `src/ui` and the `score-player` worklet). Signatures are normative in shape. Changes
 bump the version (MINOR additive, MAJOR breaking).
 
@@ -8,6 +8,18 @@ bump the version (MINOR additive, MAJOR breaking).
 holds (`TimelinePositions`: `spans` and `passes` with `endTick`, satisfied by the worker's `TimelineDto`) instead of core's
 `PlaybackTimeline` (whose passes carry `lengthTicks`); `passAtTick` is generic over the pass type. Behaviour is the Listen
 view's, unchanged.
+
+**1.0.1 -> 1.1.0** (T029-T044, 2026-09-25, found while implementing US3): `gradeMarks(score, grade, passes)` takes the passes of
+the run's passage (the extra key's column is chosen by timeline tick, which the Grade does not carry) and returns `contexts`
+(by result index: the chord's written notes not played and the octave shift at the note, for FR-022a); `GradeMarkRef` lives in
+`src/core/grade/marks.ts` (core), the UI state re-uses it; a disc whose key equals the key of a correct head in its column is
+not drawn (it would hide the head); `drawGradeMarks` takes `origin` (where the page content sits, so geometry is kept in
+content coordinates and a scroll measures nothing) and no longer takes the mark set; `discAt` takes the same `origin`;
+`GradeMarkGeometry.discSlots` carries each disc's own staff geometry (a Grade spans many systems); `playState` holds
+`marks: GradeMarkSet | null` and `selectedMark: GradeMarkRef | null`; the session's `showGrade` computes the marks; the
+`data-grade-marks` seam is `{ discs, skipIcons, carets, heads }` in content coordinates and `data-grade-discs` is the disc list;
+`reasonText(reason, context?)`. 003 grades only octave errors as `wrongPitch`: any other wrong key is a missed note plus an
+extra key (research R-08).
 
 This contract also amends three existing contracts (section 5). Their files are owned by earlier features and are
 updated by the tasks that change them.
