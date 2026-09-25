@@ -66,7 +66,7 @@ relative to the **notehead** box (`g.notehead`), not the whole `g.note` box, so 
 `waiting` = no mark (the band of R-02 shows it). Red discs (R-04) are vermilion #d55e00.
 
 **Rationale**: One visual language (recoloured heads, no outlines). Shape distinctions required by FR-010 and
-Constitution VI: correct = the printed head itself; wrong = an added disc at another position or beside the head;
+Constitution VI: correct = the printed head itself; wrong = an added disc at another position or over the head (R-09);
 held-over = an upward chevron above the head; skipped = a right-pointing chevron below it (grey and green heads
 alone would differ by colour only, analyze A1). The
 owner decided (2026-09-25) that a green head needs no extra shape.
@@ -158,21 +158,26 @@ staff of a key that is still held).
 **Alternatives considered**: "middle C and above on the upper staff" alone (wrong when both staves are in bass
 clef); re-choosing every frame (discs jump as the cursor moves).
 
-## R-09 Sideways shift (FR-006) and clusters
+## R-09 Disc column (FR-006) and clusters
 
-**Decision**: Obstacles are the rendered notehead boxes on the disc's staff at the cursor column. A disc at the same
-staff position as a written head, or a second from it, moves **right** by one written-head width plus 0.1 staff
-space (further right past augmentation dots). Several discs: placed lowest first, each in the leftmost free slot
-(base column, +1, +2 head widths) that does not touch a written head or an earlier disc a second or less away. A
-disc's accidental sits in the accidental column left of the written chord's accidentals. This is a pure geometry
-function over numbers (UI layer, tested in Vitest without a DOM).
+**Decision** (revised 2026-09-25, owner): every disc sits in the cursor column (the centre of the current event's
+leftmost written head), also where it coincides with a written head or lies a second from one; it is drawn over that
+head. Written heads are no obstacles; they only size the disc and place its accidental. Several discs: placed lowest
+first, each in the leftmost free slot (base column, +1, +2 head widths plus 0.1 staff space) that does not touch an
+earlier disc a second or less away, so discs a second apart zig-zag like a chord second. A disc's accidental sits in
+the accidental column left of the written chord's accidentals. This is a pure geometry function over numbers (UI
+layer, tested in Vitest without a DOM).
 
-**Rationale**: The engraver's chord-second convention; notes Verovio already displaced are respected because the
-check uses rendered boxes. The owner's reference picture shows slight overlap; the spec keeps "never hide a written
-notehead" (Constitution VI), as explained to the owner on 2026-09-25.
+**Rationale**: The owner, after using the feature: a disc moved right of the written head reads as a mistake on the
+*next* note; in the column it reads as "this note, wrong key", as in Piano Marvel and in the owner's reference
+picture. The disc is 0.85 of a head, so a written head at the same position still shows around it, and it lasts only
+while the key is held. It is an exception to Constitution VI, with its bounds in plan Complexity Tracking. The state
+chevrons (R-03) are now drawn after the discs, so a disc in the column never hides the held-over or skipped cue (the
+first version kept discs clear of chevrons instead).
 
-**Alternatives considered**: left shift (collides with the written note's accidental); overlap allowed (hides part
-of the note the musician is reading).
+**Alternatives considered**: the first version of this decision - moving the disc right past written heads and their
+dots (read as belonging to the next note; in dense 16ths it also covered the next note's accidental); left shift
+(collides with the written note's accidental); a see-through disc over the head (offered, not chosen).
 
 ## R-10 Far-away keys: ledger limit and ottava label
 

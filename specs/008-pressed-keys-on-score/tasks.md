@@ -287,6 +287,26 @@ the first correct notes turn green; no dashed outline anywhere.
 - [x] T065 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, with summary lines in the log;
   final hand-off entry and commit
 
+## Phase 7: Owner change - the red disc covers the current note (FR-006 revised 2026-09-25)
+
+Branch `fix/008-disc-covers-note` from `main` (008 is merged). Spec, research R-09, plan, data-model, contract 2.0.0
+and quickstart are updated first.
+
+- [x] T069 [US2] Rewrite the `layoutDiscs` tests in `tests/ui/disc-layout.test.ts` for FR-006 as revised: a disc at
+  the same position as a written head (inside its box) or a second above or below it, and next to a written chord
+  second, stays at `cursorX`; its accidental stays left of the head; two discs a second apart still zig-zag (lower in
+  the column); the SC-004 property test asserts every disc is at `cursorX` unless another disc is a second away, on
+  whole slots, and no two discs overlap (the dots and chevron cases go: they are no longer inputs); run them and see
+  them fail on the old layout
+- [x] T070 [US2] In `src/ui/score/disc-layout.ts`, drop the written-head avoidance (only earlier discs block a slot),
+  rename `obstacles` to `heads`, remove `NoteBox.dotsRight`/`mark`; in `src/ui/elements/mx-score-view.ts` stop
+  collecting dots and chevron boxes - makes T069 pass
+- [x] T071 [US2] Update the D5-at-E5 cases in `tests/e2e/pressed-keys.spec.ts` and
+  `tests/e2e/electron-pressed-keys.spec.ts`: the disc is centred on the E5's column and overlaps its head; the
+  two-disc case (lower in the column, upper set right) and the greyscale case (the held-over chevron stays on top of a
+  disc in its column) follow the revised rule; a new case puts a disc at the written D#5's own position (inside its
+  head) with greyscale pictures (SC-005); look at `us2-d5.png` and a real-file picture; full gate
+
 ## Dependencies & Execution Order
 
 - Setup (T001-T002) -> Foundational (T003-T005) -> US1 (T010-T020) -> US2 (T021-T042) -> US3 (T050-T056) ->

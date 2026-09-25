@@ -20,7 +20,10 @@ dotted rectangles, they don't look very nice."
 - Q (analyze A2): when do green marks clear on a loop or repeat? -> A: note by note, as the session reaches each note
   again (today's behaviour), not the whole passage at once (FR-012).
 - Q (analyze A14): overlap as in the reference picture, or shift aside? -> A: shift aside; a disc never hides a
-  written head (FR-006).
+  written head (FR-006). **Superseded** by the owner after using the feature (next answer).
+- Q (owner, after using the feature, 2026-09-25): a disc shifted right of the written head reads as a mistake on the
+  *next* note; should it cover the note instead? -> A: yes, as in Piano Marvel: the disc stays in the column of the
+  current note, drawn over any written head it meets, and still disappears on release (FR-006, AS-8, SC-004).
 - Q (implement): hands separately, a key that plays the other hand's written note: red disc or green? -> A: green
   notehead (`playedAlong`, "never a mistake", 002 contract); no disc, progress not blocked (Edge Cases, FR-004).
 - Q (constitution review T064): correct vs not-yet-played differ by colour only -> A: accepted as the plan
@@ -29,7 +32,7 @@ dotted rectangles, they don't look very nice."
   reading confirmed).
 - Owner's reference picture: green noteheads (hollow heads stay hollow) for played notes, solid red discs at the
   pressed pitches in the cursor column that disappear on release -> matches FR-001, FR-004, FR-005; red disc size,
-  hollow-head colouring and the sideways shift for a second (FR-006) refined from it.
+  hollow-head colouring refined from it; its overlap of the written head is the owner's final choice (FR-006).
 
 ## Background
 
@@ -104,9 +107,9 @@ gone. Press E4: a red disc appears one octave below E5.
 7. **Given** a red disc is shown, **When** the musician then presses the correct key, **Then** the written note turns
    green and the cursor moves on, whatever wrong keys are still held; each still-held wrong key keeps its disc, now
    in the new cursor column.
-8. **Given** a red disc, **When** its position is compared to the notes written at that moment, **Then** it never
-   covers a written notehead: where the pitch coincides with a written note of another voice or staff, the disc is
-   placed beside it.
+8. **Given** a red disc, **When** its position is compared to the notes written at that moment, **Then** it sits in
+   the column of the current note, also where its pitch coincides with a written note or lies a second from one: it
+   is drawn over that notehead, so the mistake reads as belonging to the current note, not to the next one.
 
 ---
 
@@ -176,9 +179,11 @@ event (the skipped note is grey with a small skip chevron below it); no dashed o
   position of the pitch pressed, with the ledger lines and accidental that pitch needs.
 - **FR-005**: A red disc MUST be shown while its key is held and MUST disappear when the key is released, when the
   session ends or when the MIDI keyboard is lost.
-- **FR-006**: A red disc MUST NOT hide any written notehead: where its position coincides with a written note, or
-  lies a step (a second) above or below one so the two would overlap, it MUST be shifted sideways, as engravers
-  offset a second in a chord, so that the written notehead stays fully readable.
+- **FR-006**: A red disc MUST stay in the column of the current note: where its position coincides with a written
+  note, or lies a step (a second) above or below one, it MUST be drawn over that notehead, not moved aside (owner
+  decision 2026-09-25, as in Piano Marvel). It is smaller than a notehead, so a written head at the same position
+  still shows around it, and it is gone as soon as the key is released (FR-005). Only two discs a second apart are
+  set side by side, as engravers set a second in a chord, so that each stays readable (AS-5).
 - **FR-007**: The accidental on a red disc MUST name the key pressed unambiguously, read against the key signature
   and the accidentals already in force in the bar on that staff: a sign is shown whenever the disc's pitch differs
   from what its letter would mean there without one. A disc never changes how later written notes read.
@@ -222,8 +227,9 @@ event (the skipped note is grey with a small skip chevron below it); no dashed o
   the Score for a key that is not held.
 - **SC-003**: Across every library item and the real MusicXML fixtures, zero dashed outlines are drawn on the Score
   in Practice mode or during a Play-mode run.
-- **SC-004**: A red disc never overlaps a written notehead in any reference fixture, including dense chords and
-  two-voice staves.
+- **SC-004**: In every reference fixture, including dense chords and two-voice staves, a red disc is centred on the
+  current note's column (the upper of two discs a second apart: one head width right of it), and no two discs
+  overlap.
 - **SC-005**: In a greyscale rendering, a reviewer can tell correct, wrong, held-over and skipped notes apart for
   100% of the marks in the reference screenshots.
 - **SC-006**: Replaying the same recorded input events on the same Score reproduces identical marks at every step.

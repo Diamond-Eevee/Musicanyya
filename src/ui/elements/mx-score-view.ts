@@ -26,13 +26,7 @@ import {
 } from '../score/pages.js';
 import { bandRectFor, placePracticeBand } from '../score/practice-band.js';
 import { drawLoopMarks, drawPracticeMarks, drawStartMarker } from '../score/practice-marks.js';
-import {
-  chevronBox,
-  drawPressedKeyDiscs,
-  drawStateChevron,
-  type MusicGlyphs,
-  toMusicGlyphs,
-} from '../score/pressed-keys.js';
+import { drawPressedKeyDiscs, drawStateChevron, type MusicGlyphs, toMusicGlyphs } from '../score/pressed-keys.js';
 import type { LayoutOptions, VerovioClient } from '../score/verovio-client.js';
 import { insetState } from '../state/insetState.js';
 import { playState } from '../state/playState.js';
@@ -43,7 +37,7 @@ import { transportState } from '../state/transportState.js';
 import { viewState } from '../state/viewState.js';
 
 /** How far, in head widths, from the event's column a written head still counts as being in that column when the red
- *  discs look for room (a chord second or a second voice is shifted by about one head width). */
+ *  discs are sized and their accidentals placed (a chord second or a second voice is shifted by about one head width). */
 const DISC_COLUMN_SPREAD_HEADS = 1.75;
 
 /** Used only when the viewport has no size to fit to (an element that is not laid out yet, or a test): the page the
@@ -772,7 +766,7 @@ export class MxScoreView extends HTMLElement {
       const staffGeometry = staffEl ? this.staffGeometry(staffEl) : null;
       if (!staffEl || !staffGeometry) continue;
       geometry.set(staff, staffGeometry);
-      const obstacles: NoteBox[] = [];
+      const heads: NoteBox[] = [];
       for (const noteId of atColumn) {
         const noteEl = this.elementFor(noteId);
         const head = headOf(noteId);
@@ -780,23 +774,16 @@ export class MxScoreView extends HTMLElement {
         const rect = head.getBoundingClientRect();
         if (Math.abs((rect.left + rect.right) / 2 - cursorX) > DISC_COLUMN_SPREAD_HEADS * headWidth) continue; // a later onset
         const box: NoteBox = { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom };
-        if (session.marks.get(noteId) === 'heldOver') {
-          // its chevron stands above the head (drawStateChevron): a disc must not cover it either
-          const chevron = chevronBox(rect);
-          obstacles.push({ ...chevron, mark: true });
-        }
-        const dots = noteEl.querySelector(':scope > g.dots');
-        if (dots) box.dotsRight = dots.getBoundingClientRect().right;
         const accidental = noteEl.querySelector(':scope > g.accid');
         if (accidental) box.accidentalLeft = accidental.getBoundingClientRect().left;
-        obstacles.push(box);
+        heads.push(box);
       }
       slots.push(
         ...layoutDiscs(
           this.discPlacements.filter((d) => d.staff === staff),
           staffGeometry,
           cursorX,
-          obstacles,
+          heads,
         ),
       );
     }
@@ -860,16 +847,18 @@ export class MxScoreView extends HTMLElement {
       ...(session ? { dimmedNoteRects: this.dimmedRects(session.events, containerRect) } : {}),
     });
 
+    if (loop) drawLoopMarks({ ctx, dpr, containerRect, measures: this.loopMeasures(loop), visible: marksVisible });
+
+    this.drawDiscs(ctx, dpr, containerRect, session, currentEvent, marksVisible);
+
+    // After the discs: a disc stays in the note's column (FR-006), so it may lie where a chevron is; the chevron, the
+    // non-colour cue of a held-over or skipped note, stays on top
     if (marksVisible) {
       for (const { noteId, kind } of chevronEntries) {
         const head = this.elementFor(noteId)?.querySelector(':scope > g.notehead');
         if (head) drawStateChevron({ ctx, dpr, containerRect, noteheadRect: head.getBoundingClientRect(), kind });
       }
     }
-
-    if (loop) drawLoopMarks({ ctx, dpr, containerRect, measures: this.loopMeasures(loop), visible: marksVisible });
-
-    this.drawDiscs(ctx, dpr, containerRect, session, currentEvent, marksVisible);
 
     if (startMeasureIndex !== null && (!session || session.phase === 'finished')) {
       const measureId = this.measureIds[startMeasureIndex];

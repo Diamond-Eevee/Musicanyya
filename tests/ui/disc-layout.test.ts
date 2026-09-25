@@ -65,19 +65,27 @@ describe('layoutDiscs: horizontal slots for the red discs, pure geometry (featur
     expect(slot?.height).toBeCloseTo(DISC_SIZE_RATIO * 1.0 * SPACE);
   });
 
-  it('(a) a disc a second from a written head moves right by one head width plus 0.1 space', () => {
+  it('(a) a disc a second from a written head stays in the column, over the head (FR-006 revised)', () => {
     // E5 written on the top space (position 7); the pressed D5 is a second below it (position 6)
     const [slot] = layoutDiscs([disc(74, 6)], STAFF, CURSOR_X, [head(7)]);
-    expect(slot?.x).toBeCloseTo(CURSOR_X + HEAD_W + GAP);
+    expect(slot?.x).toBe(CURSOR_X);
     expect(slot?.y).toBe(yOf(6));
+    expect(intersects(box(slot as never), head(7))).toBe(true); // it lies over the lower half of the E5
     // and the same second above the written head
     const [above] = layoutDiscs([disc(77, 8)], STAFF, CURSOR_X, [head(7)]);
-    expect(above?.x).toBeCloseTo(CURSOR_X + HEAD_W + GAP);
+    expect(above?.x).toBe(CURSOR_X);
+    expect(intersects(box(above as never), head(7))).toBe(true);
   });
 
-  it('(b) a disc at the same position as a written head moves right too', () => {
+  it('(b) a disc at the same position as a written head sits on it, inside its box, so the head shows around it', () => {
     const [slot] = layoutDiscs([disc(76, 7)], STAFF, CURSOR_X, [head(7)]);
-    expect(slot?.x).toBeCloseTo(CURSOR_X + HEAD_W + GAP);
+    expect(slot).toMatchObject({ x: CURSOR_X, y: yOf(7) });
+    const discBox = box(slot as never);
+    const written = head(7);
+    expect(discBox.left).toBeGreaterThan(written.left);
+    expect(discBox.right).toBeLessThan(written.right);
+    expect(discBox.top).toBeGreaterThan(written.top);
+    expect(discBox.bottom).toBeLessThan(written.bottom);
   });
 
   it('a disc a third or more from every written head stays in the cursor column', () => {
@@ -85,34 +93,13 @@ describe('layoutDiscs: horizontal slots for the red discs, pure geometry (featur
     expect(slot?.x).toBe(CURSOR_X);
   });
 
-  it('a written head that already sits to the side (a chord second) is not an obstacle to a disc in the column', () => {
-    // written E5 at the column and F5 shifted right by Verovio; the pressed D5 (a second below E5) still moves aside
-    // to the first slot free of both: the column slot is blocked by E5, slot 1 by the shifted F5? no - F5 is a third
-    // away from D5, so slot 1 is free
+  it('a written chord second (one head set right of the stem) does not move the disc either', () => {
+    // written E5 at the column and F5 shifted right by Verovio; the pressed D5 (a second below E5) stays in the column
     const [slot] = layoutDiscs([disc(74, 6)], STAFF, CURSOR_X, [head(7), head(8, HEAD_W)]);
-    expect(slot?.x).toBeCloseTo(CURSOR_X + HEAD_W + GAP);
-  });
-
-  it('(c) moves past augmentation dots when the written head has them', () => {
-    const dotsRight = CURSOR_X + HEAD_W / 2 + 18;
-    const [slot] = layoutDiscs([disc(76, 7)], STAFF, CURSOR_X, [head(7, 0, { dotsRight })]);
-    const discBox = box(slot as never);
-    expect(discBox.left).toBeGreaterThanOrEqual(dotsRight);
-    expect(slot?.x).toBeGreaterThan(CURSOR_X + HEAD_W + GAP); // further than the plain second
-    // ...and it is the nearest slot that clears the dots, not a far one
-    expect(slot?.x).toBeLessThanOrEqual(CURSOR_X + 3 * (HEAD_W + GAP));
-  });
-
-  it('keeps clear of a mark that is not a notehead (a held-over chevron) without changing the size of the discs', () => {
-    // a chevron box sits just above the written head at position 0; a disc at position 2 would land on it
-    const chevron: NoteBox = { left: 94, right: 106, top: yOf(0) - 15, bottom: yOf(0) - 8, mark: true };
-    const [slot] = layoutDiscs([disc(67, 2)], STAFF, CURSOR_X, [head(0), chevron]);
-    expect(intersects(box(slot as never), chevron)).toBe(false);
-    expect(slot?.x).toBeGreaterThan(CURSOR_X);
-    expect(slot?.width).toBeCloseTo(DISC_SIZE_RATIO * HEAD_W); // sized from the head only
-    // and when the chevron is not there, the same disc stays in the column
-    const [plain] = layoutDiscs([disc(67, 2)], STAFF, CURSOR_X, [head(0)]);
-    expect(plain?.x).toBe(CURSOR_X);
+    expect(slot?.x).toBe(CURSOR_X);
+    // nor a pressed F5 (the displaced head's own position): the column, not the displaced head
+    const [f5] = layoutDiscs([disc(77, 8)], STAFF, CURSOR_X, [head(7), head(8, HEAD_W)]);
+    expect(f5?.x).toBe(CURSOR_X);
   });
 
   it('(d) two discs a second apart zig-zag without touching each other', () => {
@@ -161,10 +148,16 @@ describe('layoutDiscs: horizontal slots for the red discs, pure geometry (featur
     expect(slot?.accidentalX as number).toBeLessThan(head(7).left);
   });
 
-  it('a disc moved to the side keeps its accidental left of everything, not next to the disc', () => {
+  it('a disc over a written head keeps its accidental left of the head, not on it', () => {
     const [slot] = layoutDiscs([disc(74, 6, { showAccidental: true, alter: 1 })], STAFF, CURSOR_X, [head(7)]);
-    expect(slot?.x).toBeGreaterThan(CURSOR_X);
-    expect(slot?.accidentalX as number).toBeLessThan(head(7).left);
+    expect(slot?.x).toBe(CURSOR_X);
+    expect((slot?.accidentalX as number) + 1.1 * SPACE).toBeLessThan(head(7).left);
+  });
+
+  it('the upper of two discs a second apart moves right of the column, over or past written heads alike', () => {
+    const slots = layoutDiscs([disc(72, 5), disc(74, 6)], STAFF, CURSOR_X, [head(7)]);
+    expect(slots[0]?.x).toBe(CURSOR_X);
+    expect(slots[1]?.x).toBeCloseTo(CURSOR_X + HEAD_W + GAP);
   });
 
   it('no accidental for a disc that shows none', () => {
@@ -189,7 +182,7 @@ describe('layoutDiscs: horizontal slots for the red discs, pure geometry (featur
     expect(layoutDiscs(input, STAFF, CURSOR_X, [head(2)])).toEqual(layoutDiscs(input, STAFF, CURSOR_X, [head(2)]));
   });
 
-  it('(f) property: no disc box ever intersects a written notehead box or another disc, over random chords (SC-004)', () => {
+  it('(f) property: every disc is in the column unless another disc is a second away, and no two discs overlap, over random chords (SC-004)', () => {
     // A small deterministic PRNG so the run is the same every time
     let seed = 20260925;
     const random = () => {
@@ -206,9 +199,7 @@ describe('layoutDiscs: horizontal slots for the red discs, pure geometry (featur
         written.add(position);
         // a written second is engraved with one head on the other side of the stem
         const shifted = written.has(position - 1) || written.has(position + 1);
-        heads.push(
-          head(position, shifted ? HEAD_W : 0, random() < 0.2 ? { dotsRight: CURSOR_X + HEAD_W / 2 + 16 } : {}),
-        );
+        heads.push(head(position, shifted ? HEAD_W : 0));
       }
       const placements: DiscPlacement[] = [];
       const used = new Set<number>();
@@ -222,11 +213,13 @@ describe('layoutDiscs: horizontal slots for the red discs, pure geometry (featur
       const slots = layoutDiscs(placements, STAFF, CURSOR_X, heads);
       expect(slots).toHaveLength(placements.length);
       for (const slot of slots) {
-        for (const h of heads) {
-          expect(intersects(box(slot), h), `trial ${trial}: disc ${slot.placement.position} over a written head`).toBe(
-            false,
-          );
-        }
+        const step = (slot.x - CURSOR_X) / (HEAD_W + GAP);
+        expect(Math.abs(step - Math.round(step)), `trial ${trial}: disc between slots`).toBeLessThan(1e-9);
+        expect(step, `trial ${trial}: disc left of the column`).toBeGreaterThanOrEqual(0);
+        const discNear = slots.some(
+          (other) => other !== slot && Math.abs(other.placement.position - slot.placement.position) <= 1,
+        );
+        if (!discNear) expect(slot.x, `trial ${trial}: disc ${slot.placement.position} left the column`).toBe(CURSOR_X);
       }
       for (let i = 0; i < slots.length; i++) {
         for (let j = i + 1; j < slots.length; j++) {

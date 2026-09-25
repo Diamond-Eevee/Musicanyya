@@ -42,12 +42,12 @@ Open the PNG and look at it before reporting a manual check as done (AGENTS.md s
 ### US2 - wrong keys as red discs
 
 1. Für Elise, Practice, at the first E5: `+74` (D5, held). Expect a red disc on the D5 position of the treble staff,
-   in the band, shifted right of the E5 head (a second), E5 unobscured.
+   in the band, in the E5's column, overlapping the lower part of the E5 head (a second, FR-006).
 2. `-74`: the disc disappears.
 3. `+64` (E4, wrong octave): a disc one octave below E5 on the treble staff; the hint names the octave as today.
 4. `+70` (A#4/Bb4, black key, A minor context): a disc with a sharp sign (rule R-07), read correctly as the key
    pressed.
-5. `+74,+72` held together: two discs, placed as a second without touching each other or the E5.
+5. `+74,+72` held together: two discs, placed as a second without touching each other (the lower one in the E5's column).
 6. `+21` (A0): a disc with ottava label ("15mb" or "8vb") on the bass staff, not parked at the edge.
 7. Toggle the marks layer off (View panel): discs and green heads vanish; the session continues.
 

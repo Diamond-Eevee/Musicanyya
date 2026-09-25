@@ -126,10 +126,11 @@ interface StaffGeometry { bottomLineY: number; space: number; lineWidth: number;
 
 interface DiscSlot { placement: DiscPlacement; x: number; y: number; width: number; height: number; accidentalX: number | null }
 // x, y = centre of the disc; accidentalX = origin (left edge) of the accidental glyph, in the column left of the chord
-interface NoteBox { left: number; right: number; top: number; bottom: number; dotsRight?: number; accidentalLeft?: number }
+interface NoteBox { left: number; right: number; top: number; bottom: number; accidentalLeft?: number }
 ```
 
-`layoutDiscs(placements, geometry, cursorX, obstacles: readonly NoteBox[]) -> DiscSlot[]` (R-09) is pure geometry.
+`layoutDiscs(placements, geometry, cursorX, heads: readonly NoteBox[]) -> DiscSlot[]` (R-09) is pure geometry: every
+disc in the cursor column, over written heads; only discs a second apart are set side by side.
 
 ## 6. Named constants
 

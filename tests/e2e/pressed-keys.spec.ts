@@ -291,7 +291,9 @@ test.describe('US2: wrong keys appear on the staff as red discs (feature 008)', 
     return { noteId, yOf };
   }
 
-  test('D5 held at the first E5: a red disc on the D5 line beside the black E5, gone on release', async ({ page }) => {
+  test('D5 held at the first E5: a red disc on the D5 line over the black E5, in its column, gone on release', async ({
+    page,
+  }) => {
     const { noteId, yOf } = await furElise(page);
     await pressKeys(page, '+74');
     await expect.poll(async () => (await discs(page)).length).toBe(1);
@@ -299,8 +301,9 @@ test.describe('US2: wrong keys appear on the staff as red discs (feature 008)', 
     expect(d).toMatchObject({ key: 74, staff: 1, position: 6, ledgerLines: 0, ottava: 0 });
     expect(Math.abs(d.y - (await yOf(6)))).toBeLessThan(1); // exactly on the D5 position of the treble staff
     const head = (await headRect(page, noteId)) as { left: number; right: number; top: number; bottom: number };
-    expect(overlaps(boxOf(d), head), 'the disc never covers the written head').toBe(false);
-    expect(d.x - d.width / 2).toBeGreaterThanOrEqual(head.right - 0.5); // beside it, on the right
+    // FR-006 (revised 2026-09-25): in the E5's own column, drawn over the lower part of its head
+    expect(Math.abs(d.x - (head.left + head.right) / 2)).toBeLessThan(0.5);
+    expect(overlaps(boxOf(d), head), 'the disc lies over the written head').toBe(true);
     expect(await vermilionIn(page, around(d.x, d.y, 2))).toBeGreaterThan(0); // and really painted
     expect(await fillOf(page, noteId, 'notehead')).not.toBe(GREEN); // the written E5 is not accepted
     expect(await sessionIndex(page)).toBe(0); // the cursor does not move
@@ -309,6 +312,36 @@ test.describe('US2: wrong keys appear on the staff as red discs (feature 008)', 
     await pressKeys(page, '-74');
     await expect.poll(async () => (await discs(page)).length).toBe(0);
     expect(await vermilionIn(page, around(d.x, d.y, 6))).toBe(0);
+  });
+
+  test('D5 held at the written D#5: the disc sits on the D#5 head itself, its rim showing, with a natural (FR-006, SC-005)', async ({
+    page,
+  }) => {
+    await furElise(page);
+    await pressKeys(page, '+76,-76,wait'); // the first E5: the cursor moves to the D#5
+    expect(await sessionIndex(page)).toBe(1);
+    const dSharp = (await eventKeys(page))[1]?.[0]?.noteIds[0] as string;
+    expect(dSharp).toBeDefined();
+    await pressKeys(page, '+74');
+    await expect.poll(async () => (await discs(page)).length).toBe(1);
+    const [d] = (await discs(page)) as [DiscInfo];
+    expect(d).toMatchObject({ key: 74, position: 6, showAccidental: true, alter: 0 });
+    const head = (await headRect(page, dSharp)) as Rect;
+    expect(Math.abs(d.x - (head.left + head.right) / 2)).toBeLessThan(0.5);
+    expect(Math.abs(d.y - (head.top + head.bottom) / 2)).toBeLessThan(1);
+    // smaller than the head, inside it: the written head shows as a rim around the disc
+    const disc = boxOf(d);
+    expect(disc.left).toBeGreaterThan(head.left);
+    expect(disc.right).toBeLessThan(head.right);
+    expect(disc.top).toBeGreaterThan(head.top);
+    expect(disc.bottom).toBeLessThan(head.bottom);
+    await screenshot(page, 'us2-unison.png');
+    // SC-005 for the overlap: the same picture in greyscale, looked at by the reviewer (implementation log)
+    await page.addStyleTag({ content: 'html { filter: grayscale(1); }' });
+    await screenshot(page, 'us2-unison-grey.png');
+    await pressKeys(page, '-74,+72'); // C5, a second below the D#5: the disc over its lower half
+    await expect.poll(async () => (await discs(page)).map((x) => x.key)).toEqual([72]);
+    await screenshot(page, 'us2-second-grey.png');
   });
 
   test('the disc appears and disappears within 50 ms of the key (SC-001, SC-002)', async ({ page }) => {
@@ -364,15 +397,18 @@ test.describe('US2: wrong keys appear on the staff as red discs (feature 008)', 
     await screenshot(page, 'us2-sharp.png');
   });
 
-  test('two keys held at once are two discs that touch neither each other nor the written head', async ({ page }) => {
+  test('two keys a second apart are two discs side by side: the lower in the written note’s column', async ({
+    page,
+  }) => {
     const { noteId } = await furElise(page);
     await pressKeys(page, '+74,+72'); // D5 and C5
     await expect.poll(async () => (await discs(page)).length).toBe(2);
-    const [a, b] = (await discs(page)) as [DiscInfo, DiscInfo];
-    expect(overlaps(boxOf(a), boxOf(b))).toBe(false);
+    const [c5, d5] = (await discs(page)) as [DiscInfo, DiscInfo];
+    expect([c5.key, d5.key]).toEqual([72, 74]);
+    expect(overlaps(boxOf(c5), boxOf(d5))).toBe(false);
     const head = (await headRect(page, noteId)) as { left: number; right: number; top: number; bottom: number };
-    expect(overlaps(boxOf(a), head)).toBe(false);
-    expect(overlaps(boxOf(b), head)).toBe(false);
+    expect(Math.abs(c5.x - (head.left + head.right) / 2)).toBeLessThan(0.5);
+    expect(d5.x - d5.width / 2).toBeGreaterThanOrEqual(c5.x + c5.width / 2); // set right of it, as a chord second
     await screenshot(page, 'us2-two.png');
   });
 
@@ -630,9 +666,16 @@ test.describe('US3: the other Practice states without dashed outlines (feature 0
     expect(orangeAbove[2]).toBe(0);
     expect(greyBelow[0]).toBe(0);
     expect(greyBelow[2]).toBe(0);
-    // the disc lies off every written head
-    const [disc] = await discs(page);
-    for (const h of heads) expect(overlaps(boxOf(disc as DiscInfo), h)).toBe(false);
+    // the disc stands in the held-over E4's column (FR-006), a third above it, over the chevron's place: the chevron
+    // stays drawn on top of it: none of its ink is lost to the disc (its anti-aliased edge over vermilion even adds a
+    // few near-orange pixels), where a disc drawn over it takes a part away
+    const [disc] = (await discs(page)) as [DiscInfo];
+    const column = heads[3] as Rect;
+    expect(Math.abs(disc.x - (column.left + column.right) / 2)).toBeLessThan(0.5);
+    expect(overlaps(boxOf(disc), above(column))).toBe(true);
+    await pressKeys(page, '-67');
+    await expect.poll(async () => (await discs(page)).length).toBe(0);
+    expect(orangeAbove[3]).toBeGreaterThanOrEqual(await inkIn(page, above(column), [230, 159, 0]));
   });
 });
 
