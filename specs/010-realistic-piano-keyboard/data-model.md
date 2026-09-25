@@ -54,3 +54,7 @@ once (e.g. `pressed` and `wrong-pitch`).
 | `PIANO_KEYS_MAX_HEIGHT_VH` | 20 | height cap of the keys, in % of the window height |
 
 The number of white keys (52) is derived from `PIANO_KEY_LOW` / `PIANO_KEY_HIGH`, not a separate constant.
+
+Two styling constants live in `src/ui/elements/mx-piano-keys.ts` beside the CSS that uses them (presentation only, not
+timing or grading): `KEYBOARD_INLINE_PADDING_PX = 4` (room left of the first and right of the last key) and
+`MARKING_MAX_SHARE = 0.9` (a badge or dot on a black key is at most this share of the key's width).

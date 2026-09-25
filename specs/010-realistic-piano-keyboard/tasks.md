@@ -148,10 +148,10 @@ pressed, readable in colour and greyscale.
 
 ## Phase 5: Polish & Cross-Cutting
 
-- [ ] T015 [P] Electron (FR-013, SC-001/SC-002 in the desktop app): a case in `tests/e2e/electron-pressed-keys.spec.ts`
+- [x] T015 [P] Electron (FR-013, SC-001/SC-002 in the desktop app): a case in `tests/e2e/electron-pressed-keys.spec.ts`
   that switches the piano on in the real shell and checks 88 keys, 52 white / 36 black, no sideways scroll and a held
   black key showing `pressed` with its `.key-dot`; run after `vite build` and `vite build -c vite.electron.config.ts`
-- [ ] T016 [P] Documents: contract `piano-keyboard.md` and `data-model.md` match the code (constants, DOM, `.key-dot`);
+- [x] T016 [P] Documents: contract `piano-keyboard.md` and `data-model.md` match the code (constants, DOM, `.key-dot`);
   README and `docs/agents/reference.md` list the screenshot options (T002); `quickstart.md` steps still true
 - [ ] T017 Run the `quickstart.md` manual verification (US1, US2) with the pictures of T010 and T014; SC-003 is the
   owner's judgement ("looks like real piano keys"): send them the 1920-wide picture and record it as "needs owner:" in

@@ -80,3 +80,12 @@
   the dot rings are still distinct and the glyph shapes (x, square, diamond, ?) separate the states. One thing seen, not
   from this feature: the Practice help popup at the bottom right covers the right end of the strip while it shows
   (existing overlay placement, 002).
+
+## 2026-09-25 - claude-sonnet-5 (implement, polish)
+- Done: T015 (a second describe in `tests/e2e/electron-pressed-keys.spec.ts` with its own shell: the first case leaves
+  the Practice bar too full for `openPanel`, which timed out - so it is separate): after `vite build` and `vite build -c
+  vite.electron.config.ts`, `playwright test tests/e2e/electron-pressed-keys.spec.ts --project=electron` = `2 passed`
+  (88 keys, 52 white / 36 black, labels C1-C8, no sideways scroll, a held black key C#4 is `pressed` with one `.key-dot`,
+  none after release). T016 (contract `piano-keyboard.md` 1.1.0: `has-label`, percent format, the dot's ring; data-model:
+  the two element-local styling constants; quickstart: reference pictures; README and reference already list the
+  screenshot options from T002).

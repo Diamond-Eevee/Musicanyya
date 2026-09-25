@@ -1,6 +1,6 @@
 # Contract: On-screen piano keyboard (layout and element)
 
-**Version**: `1.0.0` (new with feature 010; internal contract between `src/ui/piano/keyboard-layout.ts`,
+**Version**: `1.1.0` (1.0.0 new with feature 010; 1.1.0 additive, from the implementation: `has-label`, the dot's ring; internal contract between `src/ui/piano/keyboard-layout.ts`,
 `src/ui/elements/mx-piano-keys.ts`, `src/ui/styles/layout.css` and the tests). Signatures and the DOM structure below
 are normative. Changes bump the version (MINOR additive, MAJOR breaking).
 
@@ -27,11 +27,11 @@ data-model section 1 holds.
 
 ```html
 <div class="keyboard" id="keys">              <!-- position: relative; width 100 %; height per research R-2 -->
-  <div class="key white" data-key="21" style="left: 0%; width: 1.923%"></div>
+  <div class="key white" data-key="21" style="left: 0.0000%; width: 1.9231%"></div>
   ...                                          <!-- the 52 white keys first -->
   <div class="key black" data-key="22" style="left: ...%; width: ...%"></div>
   ...                                          <!-- then the 36 black keys, drawn on top -->
-  <!-- on each C key: <span class="key-label">C4</span> -->
+  <!-- on each C key (which also has the class `has-label`): <span class="key-label">C4</span> -->
   <!-- when a state needs one: <span class="key-mark">✕</span> (as today) -->
   <!-- while the key is held: <span class="key-dot"></span> (the red dot; was a ::after pseudo-element) -->
 </div>
@@ -45,7 +45,8 @@ precedence); `.key-message[data-key]` with the English hint text; `.sustain-indi
 
 New: the `white` / `black` class on every key; the pressed dot as a real `.key-dot` element (so its box can be
 measured, research R-6); `.key-label` on the eight C keys (text `C1` ... `C8`); `left` and
-`width` as inline percentages from `keyboardLayout()`; the host is a size container (`container-type: inline-size`).
+`width` as inline percentages from `keyboardLayout()` (four decimals); the class `has-label` on the eight C keys (the
+stack of markings starts above the label); the host is a size container (`container-type: inline-size`).
 
 ## 3. Look (normative, research R-2 to R-5)
 
@@ -55,7 +56,7 @@ measured, research R-6); `.key-label` on the eight C keys (text `C1` ... `C8`); 
 - The element never scrolls sideways (`layout.css` drops `overflow-x: auto`).
 - Markings lie inside their own key's uncovered area: on a white key below the black keys (bottom up: label, dot,
   glyph); on a black key in its lower part, the glyph on a light badge and the dot with a light ring, both at most
-  0.9 of the key's width. State borders are outlines pulled inside the key and the help glow an inset shadow: no
+  0.9 of the key's width (the ring of the dot is its light border; the badge is opaque). State borders are outlines pulled inside the key and the help glow an inset shadow: no
   decoration reaches a neighbouring key.
 - Clicking a key does nothing (002 FR-033, 003 FR-010).
 

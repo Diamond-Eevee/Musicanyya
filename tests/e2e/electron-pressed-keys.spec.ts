@@ -102,3 +102,70 @@ test.describe('Electron: pressed keys on the Score (feature 008, FR-015)', () =>
     expect(await window.evaluate(() => (window as unknown as { __dashes: number[][] }).__dashes)).toEqual([]);
   });
 });
+
+// Feature 010, FR-013: the on-screen piano is the same real keyboard in the desktop app. Its own shell: the Practice
+// test above leaves the slim bar too full to reach the View menu.
+test.describe('Electron: on-screen piano as a real keyboard (feature 010, FR-013)', () => {
+  let electronApp: ElectronApplication;
+  let userDataDir: string;
+  let window: Page;
+
+  // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
+  test.beforeAll(async ({}, testInfo) => {
+    if (testInfo.project.name !== 'electron') return;
+    userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'musicanyya-e2e-piano-keys-'));
+    electronApp = await electron.launch({
+      args: [path.join(__dirname, '../../dist-electron/main.js'), `--user-data-dir=${userDataDir}`],
+    });
+    window = await electronApp.firstWindow();
+  });
+
+  // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
+  test.afterAll(async ({}, testInfo) => {
+    if (testInfo.project.name !== 'electron') return;
+    await electronApp.close();
+    fs.rmSync(userDataDir, { recursive: true, force: true });
+  });
+
+  // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
+  test('on-screen piano in the desktop app: 52 white and 36 black keys, no sideways scroll, a held black key shows its dot (feature 010)', async ({}, testInfo) => {
+    test.skip(testInfo.project.name !== 'electron', 'launches the desktop shell; electron project only');
+    await openPanel(window, 'view');
+    await window.locator('mx-view-panel input[data-layer="pianoKeys"]').check();
+    await window.keyboard.press('Escape');
+    await expect(window.locator('mx-piano-keys')).toBeVisible();
+
+    const shape = await window.evaluate(() => {
+      const host = document.querySelector('mx-piano-keys');
+      const shadow = host?.shadowRoot;
+      if (!host || !shadow) throw new Error('mx-piano-keys is not in the page');
+      const doc = document.documentElement;
+      return {
+        keys: shadow.querySelectorAll('.key[data-key]').length,
+        white: shadow.querySelectorAll('.key.white').length,
+        black: shadow.querySelectorAll('.key.black').length,
+        labels: Array.from(shadow.querySelectorAll('.key-label')).map((el) => el.textContent),
+        documentScrolls: doc.scrollWidth > doc.clientWidth,
+        stripScrolls: host.scrollWidth > host.clientWidth,
+      };
+    });
+    expect(shape).toEqual({
+      keys: 88,
+      white: 52,
+      black: 36,
+      labels: ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8'],
+      documentScrolls: false,
+      stripScrolls: false,
+    });
+
+    // a held black key (C#4) is pressed and carries its dot; released, neither
+    await window.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
+    const blackKey = window.locator('mx-piano-keys .key.black[data-key="61"]');
+    await pressKeys(window, '+61,wait');
+    await expect(blackKey).toHaveClass(/pressed/);
+    await expect(blackKey.locator('.key-dot')).toHaveCount(1);
+    await pressKeys(window, '-61,wait');
+    await expect(blackKey).not.toHaveClass(/pressed/);
+    await expect(blackKey.locator('.key-dot')).toHaveCount(0);
+  });
+});

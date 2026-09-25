@@ -14,7 +14,8 @@ Feature 010. No new setup: `pnpm install` as before.
 `pnpm screenshot --item learning/chords/c-major-scale-and-chords --piano --width 1280` (also 1024, 1600, 1920,
 2560), with `--practice --keys "..."` to put keys down (a held key stays down in the picture) and `--greyscale` for the
 state check. `--piano` and `--greyscale` are new dev options of `tools/dev/screenshot.ts` (this feature's setup
-task). Look at every picture before reporting.
+task). Look at every picture before reporting. The e2e spec also writes reference pictures of every state at once, in
+colour and greyscale, to `tests/.generated/010/t014-states*.png` (chromium only).
 
 ## Manual verification
 
