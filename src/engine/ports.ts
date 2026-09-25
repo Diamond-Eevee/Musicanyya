@@ -251,6 +251,7 @@ export type CatalogResult<T> = { ok: true; value: T } | { ok: false; error: Cata
 export interface LibraryCatalog {
   /** The parsed, validated index. Cached in memory for the session after the first success. */
   index(): Promise<CatalogResult<LibraryIndex>>;
-  /** One item's raw bytes, by its `file` path from the index. Never larger than MAX_FILE_BYTES. */
-  item(file: string): Promise<CatalogResult<ArrayBuffer>>;
+  /** One item's raw bytes, by its `file` path from the index. Never larger than MAX_FILE_BYTES. With
+   *  `expectedHash` (the index entry's `hash`) a cached copy is used only if its content hash equals it. */
+  item(file: string, expectedHash?: string): Promise<CatalogResult<ArrayBuffer>>;
 } // contracts/library-port.md §1

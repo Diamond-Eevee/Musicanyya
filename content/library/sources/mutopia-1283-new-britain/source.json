@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "id": "mutopia-1283-new-britain",
+  "work": "New Britain (the \"Amazing Grace\" hymn tune), SATB; the tune is in the Soprano",
+  "edition": "www.cyberhymnal.org (tune: Virginia Harmony, 1831; harmonization: E. O. Excell, 1900)",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1283",
+  "identifier": "Mutopia-2008/02/19-1283",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond by Steve Dunlop for the Mutopia Project from www.cyberhymnal.org, and placed in the public domain by the typesetter. The piece page states \"Copyright: Public Domain\" (checked 2026-09-24). The file names the harmonization by E. O. Excell, 1900.",
+  "obtained": "2026-09-24",
+  "approvedByOwner": "2026-09-23",
+  "files": [
+    {
+      "role": "notation",
+      "path": "new_britain.ly",
+      "url": "https://www.mutopiaproject.org/ftp/Anonymous/new_britain/new_britain.ly",
+      "sha256": "98d91c76395a37fd0379896f6fee83f61386de08dd544ef188bc98251c513f4c",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "new_britain.mid",
+      "url": "https://www.mutopiaproject.org/ftp/Anonymous/new_britain/new_britain.mid",
+      "sha256": "5bd1b1afdf9f2a5df31e531955169b90ce07a898f9a4c44e67192ee4350a1993",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}

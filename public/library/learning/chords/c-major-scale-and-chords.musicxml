@@ -98,9 +98,9 @@
     <note><pitch><step>G</step><octave>4</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>1</fingering></technical></notations></note>
     <note><chord/><pitch><step>B</step><octave>4</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>3</fingering></technical></notations></note>
     <note><chord/><pitch><step>D</step><octave>5</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>5</fingering></technical></notations></note>
-    <note><pitch><step>C</step><octave>4</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>1</fingering></technical></notations></note>
-    <note><chord/><pitch><step>E</step><octave>4</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>3</fingering></technical></notations></note>
-    <note><chord/><pitch><step>G</step><octave>4</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>5</fingering></technical></notations></note>
+    <note><pitch><step>C</step><octave>5</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>1</fingering></technical></notations></note>
+    <note><chord/><pitch><step>E</step><octave>5</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>3</fingering></technical></notations></note>
+    <note><chord/><pitch><step>G</step><octave>5</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>5</fingering></technical></notations></note>
     <backup><duration>16</duration></backup>
     <note><pitch><step>G</step><octave>3</octave></pitch><duration>4</duration><voice>5</voice><type>quarter</type><staff>2</staff><notations><technical><fingering>1</fingering></technical></notations></note>
     <note><pitch><step>A</step><octave>3</octave></pitch><duration>4</duration><voice>5</voice><type>quarter</type><staff>2</staff><notations><technical><fingering>3</fingering></technical></notations></note>
@@ -109,9 +109,9 @@
   </measure>
 
   <measure number="7">
-    <note><pitch><step>C</step><octave>4</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>1</fingering></technical></notations></note>
-    <note><chord/><pitch><step>E</step><octave>4</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>3</fingering></technical></notations></note>
-    <note><chord/><pitch><step>G</step><octave>4</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>5</fingering></technical></notations></note>
+    <note><pitch><step>C</step><octave>5</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>1</fingering></technical></notations></note>
+    <note><chord/><pitch><step>E</step><octave>5</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>3</fingering></technical></notations></note>
+    <note><chord/><pitch><step>G</step><octave>5</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>5</fingering></technical></notations></note>
     <note><pitch><step>G</step><octave>4</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>1</fingering></technical></notations></note>
     <note><chord/><pitch><step>B</step><octave>4</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>3</fingering></technical></notations></note>
     <note><chord/><pitch><step>D</step><octave>5</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><technical><fingering>5</fingering></technical></notations></note>

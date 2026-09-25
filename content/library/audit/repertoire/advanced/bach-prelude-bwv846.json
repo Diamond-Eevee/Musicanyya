@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "itemId": "repertoire/advanced/bach-prelude-bwv846",
+  "claim": "original",
+  "claimText": "Bach WTC I Prelude 1, BWV 846",
+  "checks": [
+    {
+      "method": "visual",
+      "source": "Bach-Gesellschaft Ausgabe vol. 14 scan (IMSLP) and Open Well-Tempered Clavier CC0",
+      "bars": "all",
+      "result": "35 bars, no Schwencke measure (measure 23 absent), matches BGA.",
+      "differences": []
+    },
+    {
+      "method": "mechanical",
+      "source": "mutopia-5-bach-bwv846",
+      "sourceFiles": ["notation", "sound"],
+      "aspects": [
+        "barCount",
+        "barLengths",
+        "repeats",
+        "playedOrder",
+        "pitch",
+        "onset",
+        "duration",
+        "spelling",
+        "graceNotes"
+      ],
+      "alignment": { "itemBars": "all", "sourceBars": "all" },
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "verified",
+  "outcomeNote": "Pending fidelity check.",
+  "checkedBy": "antigravity-gemini-3.1-pro",
+  "date": "2026-09-24"
+}

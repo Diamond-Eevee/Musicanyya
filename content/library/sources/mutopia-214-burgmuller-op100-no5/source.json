@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "id": "mutopia-214-burgmuller-op100-no5",
+  "work": "Burgmüller, 25 Études faciles et progressives, Op. 100 No. 5, Innocence",
+  "edition": "Collection Litolff, 19th Century",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=214",
+  "identifier": "Mutopia-2013/01/12-214",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond 2.16.1 by Bas Wassink for the Mutopia Project from the Collection Litolff (19th century), and placed in the public domain by the typesetter. The piece page states \"Copyright: Public Domain\" (checked 2026-09-24).",
+  "obtained": "2026-09-24",
+  "approvedByOwner": "2026-09-23",
+  "files": [
+    {
+      "role": "notation",
+      "path": "25EF-05.ly",
+      "url": "https://www.mutopiaproject.org/ftp/BurgmullerJFF/O100/25EF-05/25EF-05.ly",
+      "sha256": "f19c5f5986cfc75d56263a4cab98eac7d3927c10bce75917766e49351280286a",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "25EF-05.mid",
+      "url": "https://www.mutopiaproject.org/ftp/BurgmullerJFF/O100/25EF-05/25EF-05.mid",
+      "sha256": "39768b50abb623d24986b0e3993518ca92a6f1340d6154fc092f218cb6b97fee",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}

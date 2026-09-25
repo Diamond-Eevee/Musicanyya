@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "itemId": "repertoire/intermediate/schumann-op68-no10",
+  "claim": "original",
+  "claimText": "Fröhlicher Landmann (The Happy Farmer), Op. 68 No. 10 - complete, from Album für die Jugend (sidecar: arrangement false).",
+  "checks": [
+    {
+      "method": "visual",
+      "source": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=659",
+      "bars": "all",
+      "result": "Licence check, not a note check: the piece page of the only machine-readable source (Mutopia-2007/02/11-659, Peters) says \"Copyright: Creative Commons Attribution-ShareAlike 2.5\" (read 2026-09-23 and again 2026-09-24). The item's notes were extracted from that source's MIDI.",
+      "differences": []
+    }
+  ],
+  "outcome": "removed",
+  "outcomeNote": "Removed by owner decision D-2 (2026-09-23): an item derived from a CC BY-SA source breaks the library's public-domain/CC0 rule (FR-006). The .musicxml and .json are deleted, the index is regenerated, and public/library/README.md has a Rejected items row.",
+  "checkedBy": "claude-opus-5.5",
+  "date": "2026-09-24",
+  "previous": {
+    "title": "Fröhlicher Landmann (The Happy Farmer), Op. 68 No. 10",
+    "level": "intermediate",
+    "bars": 21,
+    "notes": 352
+  }
+}

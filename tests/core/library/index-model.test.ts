@@ -92,6 +92,45 @@ describe('parseLibraryIndex', () => {
     expect(notices).toContainEqual({ code: 'itemTooLarge', id: 'repertoire/beginner/huge' });
   });
 
+  describe('departures (contract library-index.md 1.1.0)', () => {
+    const withDepartures = (departures: unknown) => {
+      const item = validItem('repertoire/beginner/ode-to-joy');
+      return validItem('repertoire/beginner/ode-to-joy', { meta: { ...item.meta, arrangement: true, departures } });
+    };
+
+    it('accepts departures and copies them into the item meta', () => {
+      const departures = ['Transposed to C major.', 'Bars 9-16 are our own accompaniment, not Beethoven.'];
+      const { index, notices } = parseLibraryIndex(validIndex([withDepartures(departures)]));
+      expect(notices).toEqual([]);
+      expect(index.items[0]?.meta.departures).toEqual(departures);
+    });
+
+    it('leaves departures out of the meta when the sidecar has none', () => {
+      const { index } = parseLibraryIndex(validIndex());
+      expect(index.items[0]?.meta).not.toHaveProperty('departures');
+    });
+
+    it.each([
+      ['not a list', 'Transposed to C major.'],
+      ['an empty list', []],
+      ['more than 8 entries', Array.from({ length: 9 }, (_, i) => `Departure ${i + 1}.`)],
+      ['an entry over 200 characters', ['x'.repeat(201)]],
+      ['an empty entry', ['']],
+      ['an entry that is not text', [42]],
+    ])('skips an item whose departures is %s, with a notice', (_what, departures) => {
+      const { index, notices } = parseLibraryIndex(validIndex([withDepartures(departures)]));
+      expect(index.items).toEqual([]);
+      expect(notices).toEqual([{ code: 'invalidItem', id: 'repertoire/beginner/ode-to-joy' }]);
+    });
+
+    it('accepts exactly 8 entries of 200 characters', () => {
+      const departures = Array.from({ length: 8 }, () => 'y'.repeat(200));
+      const { index, notices } = parseLibraryIndex(validIndex([withDepartures(departures)]));
+      expect(notices).toEqual([]);
+      expect(index.items[0]?.meta.departures).toHaveLength(8);
+    });
+  });
+
   it('rejects a non-object payload with one notice', () => {
     const { index, notices } = parseLibraryIndex(null);
     expect(index.items).toEqual([]);

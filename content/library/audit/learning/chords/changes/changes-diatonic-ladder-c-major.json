@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "itemId": "learning/chords/changes/changes-diatonic-ladder-c-major",
+  "claim": "exercise",
+  "claimText": "C major - diatonic ladder",
+  "checks": [
+    {
+      "method": "theory",
+      "ruleSet": "exercise-theory-v1",
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "fixed",
+  "outcomeNote": "The theory check found 1 label difference: the diminished chord was labelled \"B° · vii\" without the degree sign. The generator now writes \"vii°\"; no note changed.",
+  "checkedBy": "claude-sonnet-5",
+  "date": "2026-09-24",
+  "previous": {
+    "title": "C major - diatonic ladder",
+    "level": "intermediate",
+    "bars": 17,
+    "notes": 102
+  }
+}

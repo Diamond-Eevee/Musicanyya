@@ -13,7 +13,7 @@ const ENGRAVING_SAMPLE = [
   'learning/chords/c-major-scale-and-chords',
   'learning/chords/changes/changes-cadence-c-major',
   'repertoire/beginner/amazing-grace',
-  'repertoire/intermediate/burgmuller-op100-no2',
+  'repertoire/advanced/burgmuller-op100-no2',
   'repertoire/advanced/bach-prelude-bwv846',
 ];
 
@@ -93,6 +93,79 @@ test.describe('Practice score library: browse, open, Listen', () => {
       await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
       await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
       await expect(page.locator('.notice')).toHaveCount(0);
+    } finally {
+      await page.context().setOffline(false);
+    }
+  });
+
+  test('browser: a corrected item replaces a stale cached copy, and still opens offline (feature 007 FR-024, SC-010)', async ({
+    page,
+  }, testInfo) => {
+    test.skip(
+      testInfo.project.name === 'electron',
+      'the app:// shell has no Cache Storage (contracts/library-port.md §1)',
+    );
+    // Playwright's WebKit build keeps Cache Storage entries within a page but drops them on reload (probed on
+    // 2026-09-24: 1 entry before page.reload(), 0 after; Chromium and Firefox keep it). The seeded stale copy would
+    // vanish, so the test would pass even on the old cache-first adapter - it proves nothing there.
+    test.skip(testInfo.project.name === 'webkit', 'Playwright WebKit drops Cache Storage entries on reload');
+    const itemId = 'repertoire/intermediate/fur-elise-theme';
+
+    // Seed the cache as a browser that visited before the correction would have it: an altered copy of the item
+    // (its last bar removed) and a stale index.json whose entry names that copy's hash.
+    await page.goto('/');
+    const seeded = await page.evaluate(async (id) => {
+      const base = new URL('library/', location.href).href;
+      const sha256 = async (bytes: ArrayBuffer) =>
+        Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), (b) =>
+          b.toString(16).padStart(2, '0'),
+        ).join('');
+      const index = await (await fetch(`${base}index.json`)).json();
+      const entry = index.items.find((i: { id: string }) => i.id === id);
+      const current = await (await fetch(`${base}${entry.file}`)).text();
+      const altered = current.replace(/<measure [^>]*>(?:(?!<measure )[\s\S])*<\/measure>\s*<\/part>/, '</part>');
+      const alteredBytes = new TextEncoder().encode(altered);
+      const stale = structuredClone(index);
+      const staleEntry = stale.items.find((i: { id: string }) => i.id === id);
+      staleEntry.hash = await sha256(alteredBytes.buffer);
+      staleEntry.bytes = alteredBytes.byteLength;
+      const cache = await caches.open('musicanyya-library-v1');
+      await cache.put(`${base}index.json`, new Response(JSON.stringify(stale)));
+      await cache.put(`${base}${entry.file}`, new Response(alteredBytes));
+      return {
+        file: `${base}${entry.file}`,
+        currentHash: entry.hash as string,
+        currentNotes: entry.facts.notes as number,
+        altered: altered !== current,
+      };
+    }, itemId);
+    expect(seeded.altered, 'the altered copy lacks the last bar').toBe(true);
+
+    const engravedNotes = () => page.locator('.mx-score-page svg g.note[id^="n-"]').count();
+    const openItem = async () => {
+      await openPanel(page, 'scores');
+      await page.locator(`.library-item-open[data-id="${itemId}"]`).click();
+      await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
+      await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    };
+
+    await page.reload();
+    await openItem();
+    expect(await engravedNotes(), 'the current file, not the stale cached copy').toBe(seeded.currentNotes);
+    const cachedHash = await page.evaluate(async (file) => {
+      const cached = await (await caches.open('musicanyya-library-v1')).match(file);
+      if (!cached) return null;
+      const digest = await crypto.subtle.digest('SHA-256', await cached.arrayBuffer());
+      return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
+    }, seeded.file);
+    expect(cachedHash, 'the stale entry was replaced by the current file').toBe(seeded.currentHash);
+
+    await page.context().setOffline(true);
+    try {
+      await page.waitForTimeout(300); // let the bar's own layout settle before the next menu click
+      await openItem();
+      await expect(page.locator('.notice')).toHaveCount(0);
+      expect(await engravedNotes(), 'offline, from the cache').toBe(seeded.currentNotes);
     } finally {
       await page.context().setOffline(false);
     }

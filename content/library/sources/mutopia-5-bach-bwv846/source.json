@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "id": "mutopia-5-bach-bwv846",
+  "work": "Bach, Das Wohltemperierte Clavier I, Prelude No. 1 in C major, BWV 846",
+  "edition": "Unknown",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=5",
+  "identifier": "Mutopia-2011/09/12-5",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond 2.14.2 by Tobias Erbsland for the Mutopia Project from an edition it names as \"Unknown\", and placed in the public domain by the typesetter. The piece page states \"Copyright: Public Domain\" (checked 2026-09-24).",
+  "obtained": "2026-09-24",
+  "approvedByOwner": "2026-09-23",
+  "files": [
+    {
+      "role": "notation",
+      "path": "wtk1-prelude1.ly",
+      "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV846/wtk1-prelude1/wtk1-prelude1.ly",
+      "sha256": "afa237b10637ca7839b4c9e98b64ba89c781e2cfc1b980679b2632a31951aacd",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "wtk1-prelude1.mid",
+      "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV846/wtk1-prelude1/wtk1-prelude1.mid",
+      "sha256": "874e07d0479542971bfceaf420d6117da8d602d89d26eea4610e7dd1ef58bf26",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}

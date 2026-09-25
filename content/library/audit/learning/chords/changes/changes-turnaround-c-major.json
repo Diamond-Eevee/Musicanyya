@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "itemId": "learning/chords/changes/changes-turnaround-c-major",
+  "claim": "exercise",
+  "claimText": "C major - I-vi-ii-V",
+  "checks": [
+    {
+      "method": "theory",
+      "ruleSet": "exercise-theory-v1",
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "fixed",
+  "outcomeNote": "The description said \"one common tone per change\", but I to vi shares two (C, E). Corrected at the exercise definition to \"one or two common tones per change\"; no note changed.",
+  "checkedBy": "claude-sonnet-5",
+  "date": "2026-09-24",
+  "previous": {
+    "title": "C major - I-vi-ii-V",
+    "level": "beginner",
+    "bars": 9,
+    "notes": 54
+  }
+}

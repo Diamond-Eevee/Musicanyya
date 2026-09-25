@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "itemId": "repertoire/intermediate/fur-elise-theme",
+  "claim": "arrangement",
+  "claimText": "Für Elise (theme, arranged for this app) - the pickup and bars 1-8 of WoO 59, with a single-pass ending",
+  "checks": [
+    {
+      "method": "mechanical",
+      "source": "mutopia-931-beethoven-woo59",
+      "sourceFiles": ["notation", "sound"],
+      "aspects": ["barCount", "barLengths", "repeats", "pitch", "onset", "duration", "spelling", "graceNotes"],
+      "alignment": { "itemBars": "0-7", "sourceBars": "0-7" },
+      "expectedDifferences": 0
+    },
+    {
+      "method": "mechanical",
+      "source": "mutopia-931-beethoven-woo59",
+      "sourceFiles": ["notation"],
+      "aspects": ["barCount", "barLengths", "repeats", "pitch", "onset", "duration", "spelling", "graceNotes"],
+      "alignment": { "itemBars": "8-8", "sourceBars": "8-8" },
+      "expectedDifferences": 4,
+      "differenceNotes": [
+        "bar 8: a whole 3/8 bar (1 1/2 quarters) instead of the source's first-ending bar of 1 quarter - declared departure (single-pass ending)",
+        "bar 8: no repeat sign - declared departure (no repeat back to the start)",
+        "bar 8: no first-ending bracket - declared departure (single-pass ending)",
+        "bar 8, beat 0: the final A4 is a dotted quarter instead of a quarter - declared departure (held to fill the bar)"
+      ]
+    }
+  ],
+  "outcome": "verified",
+  "outcomeNote": "Checked 2026-09-24 against Mutopia 931 (Breitkopf & Härtel, 1888): the pickup and bars 1-7 match on every aspect (pitch, onset, duration, spelling, bar lengths, no repeats or grace notes), and the source reading matches its own MIDI. Bar 8 differs only by the declared single-pass ending. No note changed; the sidecar now lists the departures.",
+  "checkedBy": "claude-opus-5-5",
+  "date": "2026-09-24"
+}

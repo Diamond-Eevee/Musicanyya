@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "itemId": "repertoire/advanced/burgmuller-op100-no2",
+  "claim": "original",
+  "claimText": "25 Etudes faciles, Op. 100, No. 2",
+  "checks": [
+    {
+      "method": "mechanical",
+      "source": "mutopia-203-burgmuller-op100-no2",
+      "sourceFiles": ["notation", "sound"],
+      "aspects": [
+        "barCount",
+        "barLengths",
+        "repeats",
+        "playedOrder",
+        "pitch",
+        "onset",
+        "duration",
+        "spelling",
+        "graceNotes"
+      ],
+      "alignment": {
+        "itemBars": "all",
+        "sourceBars": "all"
+      },
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "replaced",
+  "outcomeNote": "replaced faithfully by the Mutopia conversion (moved to Advanced due to leap in bar 31)",
+  "checkedBy": "music-domain-expert",
+  "date": "2026-09-24",
+  "previous": {
+    "title": "l'Arabesque (25 Etudes faciles, Op. 100, No. 2)",
+    "level": "intermediate",
+    "bars": 33,
+    "notes": 283
+  }
+}

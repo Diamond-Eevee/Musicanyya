@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "itemId": "repertoire/advanced/satie-gymnopedie-no1",
+  "claim": "original",
+  "claimText": "Gymnopedie No. 1",
+  "checks": [
+    {
+      "method": "mechanical",
+      "source": "mutopia-37-satie-gymnopedie1",
+      "sourceFiles": ["notation", "sound"],
+      "aspects": [
+        "barCount",
+        "barLengths",
+        "repeats",
+        "playedOrder",
+        "pitch",
+        "onset",
+        "duration",
+        "spelling",
+        "graceNotes"
+      ],
+      "alignment": {
+        "itemBars": "all",
+        "sourceBars": "all"
+      },
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "replaced",
+  "outcomeNote": "Replaced by the complete conversion from mutopia-37 (0 differences on every aspect). One change the aspects do not cover: the accompaniment chords, which the source (like Satie's original print) puts mostly on the upper staff (bars 19-31 are already on the lower staff), are on the lower staff in the item (all but the last accompaniment bar of each ending) so Practice and Play treat them as left hand (owner decision 2026-09-24). This had been done by editing the committed .ly; the source is restored to its downloaded bytes (T102), so the item is no longer the converter's plain output.",
+  "checkedBy": "music-domain-expert",
+  "date": "2026-09-24",
+  "previous": {
+    "title": "Gymnopedie No. 1 (arranged for this app)",
+    "level": "advanced",
+    "bars": 37,
+    "notes": 219
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "itemId": "repertoire/beginner/ode-to-joy",
+  "claim": "arrangement",
+  "claimText": "Ode to Joy (theme, arranged for beginners): the first two phrases of the theme in C major, melody unchanged, with our own block-chord left hand",
+  "checks": [
+    {
+      "method": "mechanical",
+      "source": "mutopia-528-ode-to-joy",
+      "sourceFiles": ["notation", "sound"],
+      "aspects": ["melody", "spelling"],
+      "alignment": {
+        "itemBars": "1-8",
+        "sourceBars": "1-8",
+        "sourceStaff": 1,
+        "sourceVoice": "staff1:voice:sop",
+        "transpose": "-P5"
+      },
+      "melodyRhythm": "compared",
+      "expectedDifferences": 0
+    },
+    {
+      "method": "visual",
+      "source": "https://archive.org/details/VaultM1001B415Op1251826 (Beethoven, Symphony No. 9, first edition, Mainz: Schott, 1826, plate 2322; finale pp. 101 and 113)",
+      "bars": "1-8",
+      "result": "Transposed from D to C, the item matches the theme as the baritone sings it (\"Freude, schöner Götterfunken\", p. 113, repeated quarters) and the dotted figure of bars 4 and 8 as the cellos and basses first play it (bars 92-99, p. 101).",
+      "differences": []
+    }
+  ],
+  "outcome": "fixed",
+  "outcomeNote": "Checked 2026-09-24 against the Soprano of Mutopia 528, transposed from G to C. Bars 4 and 8 had the dotted figure (E. D D, D. C C) flattened to two notes, dropping a melody note each; they now follow the source, which the Beginner caps allow, and bar 4's left hand holds the dominant chord through the half cadence. 0 differences in pitch, order, onset and duration; the source matches its MIDI. Still Beginner. Also checked by eye against the 1826 first edition (T100).",
+  "checkedBy": "claude-opus-5-5",
+  "date": "2026-09-24",
+  "previous": {
+    "title": "Ode to Joy (theme, arranged for beginners)",
+    "level": "beginner",
+    "bars": 8,
+    "notes": 58
+  }
+}

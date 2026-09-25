@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "itemId": "repertoire/beginner/jingle-bells",
+  "claim": "arrangement",
+  "claimText": "Jingle Bells (opening refrain, arranged for beginners): the modern chorus in C major, values doubled, with our own bass",
+  "checks": [
+    {
+      "method": "visual",
+      "source": "https://archive.org/details/mostpopularhomes00nobl (The most popular home songs, New York: Hinds, Hayden & Eldredge, 1913; \"Jingle, Bells\", arr. George Rosey, copyright 1908, pp. 54-55)",
+      "bars": "1-8",
+      "result": "The modern chorus (\"Jingle, bells! jingle, bells!\"), G major, 4/4 with eighths. With every value doubled and transposed to C, the item matches its last four bars in pitch and order, except one note.",
+      "differences": [
+        "bars 5-6: \"to ride in a\" - the printing has two sixteenths B-B on \"in a\" (E-E in C); the item has one E",
+        "bars 3 and 5: the dotted figure on \"Jingle all\" and the dotted and sixteenth notes of \"Oh! what fun\" are even quarters",
+        "bars 4 and 8: the last note is held for the whole bar"
+      ]
+    }
+  ],
+  "outcome": "verified",
+  "outcomeNote": "Checked by eye 2026-09-24 against a 1908 public-domain printing with the modern chorus (research R11 table B). Pitches and order match, transposed from G to C with values doubled, except that \"in a\" is sung on one note; the rhythm is made plain. All named in departures. No note changed.",
+  "checkedBy": "claude-opus-5-5",
+  "date": "2026-09-24"
+}

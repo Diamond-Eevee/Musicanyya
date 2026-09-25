@@ -130,7 +130,20 @@ pnpm library:exercises # regenerate the exercise families from content/library/e
 pnpm library:engrave  # complete hand-written repertoire files in place (beams + accidentals)
 pnpm library:index    # regenerate public/library/index.json from the files on disk
 pnpm screenshot       # open the app headless and save a PNG (see "Running and seeing the app" below)
+pnpm library:fidelity # re-run every audit record (feature 007) and rewrite docs/library-audit.md when all reproduce
+pnpm library:fidelity --check      # the same, but only confirm docs/library-audit.md is fresh (writes nothing)
+pnpm library:fidelity --item <id>  # one record, every difference in full (add --file <path> to test another file)
+pnpm library:convert-ly <source-id> <item-id> [--replace]  # convert an approved LilyPond source into an item
+pnpm tsx tools/library/probe.ts <dir> [outDir]  # level numbers + page-1 SVGs; outDir defaults to tests/.generated/probe
 ```
+
+Tool output (probe SVGs, `probe-results.json`, screenshots) is never committed: it goes to `tests/.generated/` or the
+system temp folder, never under `public/` (it would ship with the app) or the repository root.
+
+**Known flaky**: the two Electron e2e tests `electron-playback.spec.ts:47` and `library.spec.ts:175` sometimes fail
+under load on Windows ("Target page ... has been closed", "audio clock advances"); both pass when run alone
+(`pnpm exec playwright test --project=electron <file>`). Re-run them alone and log both results; do not call the gate
+green without that.
 
 Tests use fakes (fake clock, fake MIDI input, offline rendering, recorded Performance logs), never real devices.
 
@@ -144,10 +157,14 @@ e2e tests cover it. Use the first option that works for you:
    under `test-results/screenshots/` (git-ignored). It also prints the load notices and any browser console errors.
 
    ```text
-   pnpm screenshot -- --item repertoire/intermediate/fur-elise-theme      # a library item (its id in index.json)
-   pnpm screenshot -- --file tests/fixtures/musicxml/engraving/fur-elise-bare.musicxml   # drop a local file
-   pnpm screenshot -- --item <id> --width 1280 --height 720 --full --out test-results/screenshots/x.png
+   pnpm screenshot --item repertoire/intermediate/fur-elise-theme      # a library item (its id in index.json)
+   pnpm screenshot --file tests/fixtures/musicxml/engraving/fur-elise-bare.musicxml   # drop a local file
+   pnpm screenshot --item <id> --width 1280 --height 720 --full --out test-results/screenshots/x.png
    ```
+
+   Write the options straight after `pnpm screenshot`. The older `pnpm screenshot -- --item ...` form failed with
+   some pnpm versions (`ERR_PARSE_ARGS_UNEXPECTED_POSITIONAL`, feature 005 log); the script now drops a leading
+   `--`, but the plain form works everywhere.
 
    Then open the PNG with your image-reading tool and describe what you see against the quickstart step.
    Library ids are the `id` fields in `public/library/index.json`. If Chromium is missing, run
@@ -237,12 +254,25 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   Two verified parser facts constrain authored content: `<harmony>`/`<figured-bass>` are not in
   `supportedElements`, so chord labels use `<direction><words>`; `<octave-shift>` is correctly ignored
   by the time model, because MusicXML `<pitch>` is the sounding pitch.
+- Feature 007: no new runtime technology and no new dependency. Dev-time only: a fidelity tool
+  (`tools/library/fidelity/`: exact-rational note model, own Standard MIDI File reader, comparator, independent
+  exercise theory check, audit records and a generated `docs/library-audit.md`) and an own LilyPond-subset reader
+  and converter (`tools/library/lilypond/`) that writes through the dev-only `src/core/musicxml/write.ts` (extended
+  additively). Public-domain sources are committed unchanged and hash-pinned under `content/library/sources/`;
+  audit records live in `content/library/audit/`. Commands `pnpm library:fidelity` and `pnpm library:convert-ly`.
+  Sidecar contract 1.1.0 adds the optional `departures` list (required for arrangements).
 
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-23: Feature 007 planned (library fidelity audit): every library item is compared against a committed
+  public-domain source that is read two independent ways (LilyPond's own MIDI, and our reader of the `.ly`), with
+  exact rational onsets and no tolerances. Differing items are replaced by a conversion, not hand-fixed. Phase 0
+  found that Mutopia's only Schumann Op. 68 No. 10 is CC BY-SA 2.5 and the shipped item was derived from it. It also
+  found that Satie and Burgmüller No. 2 carry undisclosed invented or changed bars, and that LilyPond's MIDI shortens
+  the note before a grace group, so the comparator accepts a shorter MIDI note only where the notation shows why.
 - 2026-09-23: Feature 006 planned (beamed notes and complete engraving): Verovio 6.3.0 draws exactly what
   MusicXML encodes - no automatic beams, and a pitch given only by `<alter>` becomes an invisible gestural
   accidental - so the whole library showed flags and 117 notes printed a different pitch from the one graded.
@@ -262,12 +292,4 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   dragged-in file are the same thing. Two spec corrections came out of planning: there is no service
   worker, so "offline" can only mean already-fetched content (D-2), and FR-008's 15 pieces are a
   target for the finished feature rather than for P1 (D-1).
-- 2026-09-21: Feature 004 planned (score-first application window): the three fixed asides (300 + 360 +
-  280 px) leave the layout entirely, so only a <= 48 px bar reserves space; every secondary panel
-  becomes a native popover with `viewState.openPanel` as the single source of truth, cleared by
-  `closeForRun()` whenever a run starts (Principle VI in one testable branch). The Score view derives
-  its Verovio page from the live viewport instead of a fixed 1200x1600, which also fixes an existing
-  mismatch where page elements were hard-coded to 1600 px while `adjustPageHeight` made the real
-  height content-dependent. Escape now closes an open panel before it stops the transport. Spec
-  FR-014a was corrected during planning: enlarging re-flows the music, it never scrolls horizontally.
 <!-- RECENT-CHANGES:END -->

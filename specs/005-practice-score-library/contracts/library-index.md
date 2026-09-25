@@ -36,12 +36,19 @@ Everything a human decides. Never generated, never rewritten by a tool.
     "arrangement": { "type": "boolean", "default": false },
     "provenance": { "$ref": "#/$defs/provenance" },
     "expected":  { "$ref": "#/$defs/expected" },
-    "reviewedBy": { "type": "string", "description": "who checked the music itself - a person or an agent id" },
+    "reviewedBy": { "type": "string", "description": "who ran the item's fidelity audit (content/library/audit/<item-id>.json checkedBy), on reviewedOn = that record's date. It names a check against a source or the exercise theory rules; a review with nothing to compare against is not recorded here (FR-018)." },
     "reviewedOn": { "type": "string", "format": "date" },
     "raisedBecause": { "type": "string", "maxLength": 300,
                        "description": "required when the assigned level is above the computed one (data-model SS4)" },
     "limitations": { "type": "array", "items": { "type": "string" }, "maxItems": 5,
-                     "description": "what the app does not do with this item, e.g. \"written pedal is not played\"" }
+                     "description": "what the app does not do with this item, e.g. \"written pedal is not played\"" },
+    "departures": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 200 },
+      "minItems": 1,
+      "maxItems": 8,
+      "description": "each deliberate departure of an arrangement from the original, in musician's words, naming the bars"
+    }
   },
   "$defs": {
     "skillTag": {
@@ -103,13 +110,13 @@ Everything a human decides. Never generated, never rewritten by a tool.
   (FR-019, US4 scenario 3).
 - `arrangement: true` must be reflected in `title` or `subtitle` (FR-007), e.g. "Fur Elise (main
   theme, arranged for this app)".
-- `reviewedBy` / `reviewedOn` record who checked the *music* - the level check is arithmetic and
-  cannot hear a wrong note (data-model SS4.1). `raisedBecause` is required whenever the assigned level
-  sits above the level the criteria compute, and the licence test enforces its presence.
-- `limitations` is shown with the item. It exists for honest gaps, e.g. Satie's written pedal, which
-  the engine does not schedule.
-- `hands` is authored, not derived: which hands the learner is *meant* to use can differ from which
-  staves carry notes (an exercise may rest one hand deliberately).
+- `reviewedBy` / `reviewedOn` record who ran the item's fidelity audit (`content/library/audit/<item-id>.json` `checkedBy`), on `reviewedOn` = that record's `date`. It names a check against a source or the exercise theory rules; a review with nothing to compare against is not recorded here (FR-018). `raisedBecause` is required whenever the assigned level sits above the level the criteria compute, and the licence test enforces its presence.
+- `limitations` is shown with the item. It exists for honest gaps, e.g. Satie's written pedal, which the engine does not schedule.
+- `hands` is authored, not derived: which hands the learner is *meant* to use can differ from which staves carry notes (an exercise may rest one hand deliberately).
+- `arrangement: true` **requires** `departures` (FR-010). `arrangement: false` (or absent) **forbids** it.
+- `departures` never describes added material as the composer's (FR-012); it says whose it is ("our own continuation").
+- `src/core/library/index-model.ts` accepts the field, validates length and type, and copies it into the item's `meta`. The app does not display it in this feature (spec: UI changes out of scope).
+- Rejected items are recorded in `public/library/README.md` in the format `| <item id> (<title>) | <reason, source searched, date> |`.
 
 ## 2. Generated index (`index.json`)
 

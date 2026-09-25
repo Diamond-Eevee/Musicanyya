@@ -7,7 +7,7 @@
   "kind": "piece",
   "level": "beginner",
   "tags": ["hands-together", "phrasing", "dynamics"],
-  "trains": "A well-known pentatonic melody with a one-beat pickup, mostly half and dotted-half notes, over a single sustained bass note per bar - gentle two-hand reading at a slow tempo.",
+  "trains": "A well-known pentatonic melody with a one-beat pickup, in half, quarter and a few eighth notes, over a single sustained bass note per bar - gentle two-hand reading at a slow tempo.",
   "hands": "both",
   "arrangement": true,
   "provenance": {
@@ -15,9 +15,12 @@
     "licence": "CC0-1.0",
     "author": "Musicanyya practice material",
     "created": "2026-09-22",
-    "basedOn": "The tune \"New Britain\" is a pentatonic American folk/shape-note melody of unknown authorship, first published in Columbian Harmony (1829) and paired with John Newton's 1779 text \"Amazing Grace\" in William Walker's The Southern Harmony (1835) - both public domain. Verified via Wikipedia's \"New Britain (tune)\" entry and hymnary.org's tune record, which both confirm the pentatonic character (built from the scale degrees 1, 2, 3, 5, 6 only) and the 1829/1835 publication history.",
-    "note": "Four 4-bar phrases (16 bars) plus a one-beat pickup, key of G major, quarter=72. The source tune's characteristic long-short (dotted-quarter/eighth) hymn rhythm is smoothed here to plain quarter and half/dotted-half notes so the shortest value and tempo stay inside the Beginner caps; the melodic contour and pentatonic pitch content follow the verified tune closely. The left-hand single bass note per bar (I-IV-V harmonisation) is our own simple setting."
+    "basedOn": "The hymn tune \"New Britain\" (the \"Amazing Grace\" tune; Virginia Harmony, 1831) in the form harmonized by E. O. Excell (1900), both public domain. The melody is the Soprano of the Mutopia Project's public-domain LilyPond engraving (piece-info id 1283, new_britain.ly, typeset by Steve Dunlop from www.cyberhymnal.org); the audit record content/library/audit/repertoire/beginner/amazing-grace.json re-checks it note by note.",
+    "note": "A one-beat pickup and 15 bars in G major at quarter = 72. The right hand plays the tune exactly as the source gives it, rhythm included; the left hand holds one bass note per bar."
   },
-  "reviewedBy": "music-domain-expert",
-  "reviewedOn": "2026-09-22"
+  "departures": [
+    "Left hand: our own setting, one held note per bar from E. O. Excell's bass, not his four-part harmony; where his bass moves, the longer note is kept (bars 9, 11, 12), C in bar 10, D in bar 14."
+  ],
+  "reviewedBy": "claude-opus-5-5",
+  "reviewedOn": "2026-09-24"
 }

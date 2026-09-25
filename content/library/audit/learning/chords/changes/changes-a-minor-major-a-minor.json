@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "itemId": "learning/chords/changes/changes-a-minor-major-a-minor",
+  "claim": "exercise",
+  "claimText": "A minor - minor and major",
+  "checks": [
+    {
+      "method": "theory",
+      "ruleSet": "exercise-theory-v1",
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "fixed",
+  "outcomeNote": "The theory check found 2 label differences: the parallel major of the tonic was labelled \"A · i\". Corrected at the exercise definition to \"A · I\" (the case of a Roman numeral follows the quality); no note changed.",
+  "checkedBy": "claude-sonnet-5",
+  "date": "2026-09-24",
+  "previous": {
+    "title": "A minor - minor and major",
+    "level": "advanced",
+    "bars": 9,
+    "notes": 54
+  }
+}

@@ -132,6 +132,43 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
     status: 'Ignored',
     notes: 'Not drawn by the engraver; UI title block used instead',
   },
+  {
+    category: 'Notes',
+    element: '<slur>',
+    status: 'Ignored',
+    notes: 'Engraved by Verovio; not used by playback or grading',
+  },
+  {
+    category: 'Notes',
+    element: '<tuplet>',
+    status: 'Supported',
+    notes: 'The bracket and number are engraved by Verovio; the timing comes from `<time-modification>`',
+  },
+  {
+    category: 'Directions',
+    element: '<octave-shift>',
+    status: 'Supported',
+    notes:
+      '8va/8vb lines engraved by Verovio and used when completing accidentals; `<pitch>` is the sounding pitch, so playback and grading are unaffected',
+  },
+  {
+    category: 'Directions',
+    element: '<pedal>',
+    status: 'Ignored',
+    notes: 'Engraved by Verovio; the sustain is not played (library items say so in their limitations)',
+  },
+  {
+    category: 'Credits',
+    element: '<rights>',
+    status: 'Ignored',
+    notes: 'Kept in the file for attribution; not shown',
+  },
+  {
+    category: 'Credits',
+    element: '<source>',
+    status: 'Ignored',
+    notes: 'Kept in the file for attribution; not shown',
+  },
 ];
 
 export function generateSupportMatrixMarkdown(): string {

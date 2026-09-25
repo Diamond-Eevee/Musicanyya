@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "itemId": "learning/chords/changes/changes-same-tonic-c-major",
+  "claim": "exercise",
+  "claimText": "C major - major and minor",
+  "checks": [
+    {
+      "method": "theory",
+      "ruleSet": "exercise-theory-v1",
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "fixed",
+  "outcomeNote": "The theory check found 2 label differences: the parallel minor of the tonic was labelled \"Cm · I\". Corrected at the exercise definition to \"Cm · i\" (the case of a Roman numeral follows the quality); no note changed.",
+  "checkedBy": "claude-sonnet-5",
+  "date": "2026-09-24",
+  "previous": {
+    "title": "C major - major and minor",
+    "level": "advanced",
+    "bars": 9,
+    "notes": 54
+  }
+}

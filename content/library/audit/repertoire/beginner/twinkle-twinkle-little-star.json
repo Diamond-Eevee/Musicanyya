@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "itemId": "repertoire/beginner/twinkle-twinkle-little-star",
+  "claim": "arrangement",
+  "claimText": "Twinkle, Twinkle, Little Star (arranged for beginners): the nursery-song melody in C major with our own bass",
+  "checks": [
+    {
+      "method": "visual",
+      "source": "https://archive.org/details/childsownmusicbo00wier (The child's own music book, ed. A. E. Wier, New York: Mumil, 1918, p. 116)",
+      "bars": "1-12",
+      "result": "Every pitch and note value of the item matches the printed melody (F major, 2/4) transposed to C: A-B-A, 24 bars of 2/4 written as 12 bars of 4/4.",
+      "differences": []
+    },
+    {
+      "method": "visual",
+      "source": "https://archive.org/details/b25645894 (Mozart, Ah! vous dirai-je Maman, Paris: Porro, c. 1801, theme)",
+      "bars": "1-12",
+      "result": "Second witness: Mozart's theme (K. 265) has the same tune an octave higher, with his own ornaments; the item follows the plain nursery form, not the ornaments.",
+      "differences": [
+        "bars 4 and 12: Mozart has D, D-E (dotted eighth, sixteenth), C; the item has D, D, C",
+        "bar 6: Mozart has E, E, D, D; the item has E, E, D (half note)",
+        "bar 8: Mozart has E, E-F (dotted eighth, sixteenth, with a trill), E, D; the item has E, E, D (half note)"
+      ]
+    }
+  ],
+  "outcome": "verified",
+  "outcomeNote": "Checked by eye 2026-09-24 against a 1918 public-domain printing of the nursery song: the melody matches note for note (transposed from F to C). Mozart's K. 265 theme (Porro, c. 1801) ornaments the same tune in three bars; the item follows the nursery form, which the spec allows when the record names it. No note changed.",
+  "checkedBy": "claude-opus-5-5",
+  "date": "2026-09-24"
+}

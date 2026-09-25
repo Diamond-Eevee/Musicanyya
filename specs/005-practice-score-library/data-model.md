@@ -253,7 +253,7 @@ A 2- or 4-chord cycle fills the eight slots exactly; a 3-chord cycle holds its l
 |---|---|---|---|
 | 1 | I–V–I in C | C · G⁶ · C · C | the smallest change: two notes move by step |
 | 2 | I–IV–I in C | C · F⁶⁴ · C · C | the other primary change; common tone C tied |
-| 3 | I–IV–V–I in C | C · F⁶⁴ · G⁶ · C | the full perfect cadence (FR-004) |
+| 3 | I–IV–V–I in C | C · F⁶⁴ · G⁶ · C | the full I–IV–V–I cadence in close position (FR-004) |
 | 4 | I–IV–V–I in G | G · C⁶⁴ · D⁶ · G | the same with one black key |
 | 5 | I–IV–V–I in F | F · B♭⁶⁴ · C⁶ · F | the same in a flat key |
 | 6 | C major ↔ C minor | C · Cm · C · Cm | same-tonic quality change (FR-004): only the third moves |
@@ -266,7 +266,7 @@ A 2- or 4-chord cycle fills the eight slots exactly; a 3-chord cycle holds its l
 | 13 | I–vi–ii–V in C | C · Am · Dm · G | turnaround; minimal hand travel |
 | 14 | Diatonic ladder in C | C Dm Em F G Am B° C | major/minor/diminished by shape |
 | 15 | Tonic inversions in C | C · C⁶ · C⁶⁴ · C | the shapes that make the rest easy |
-| 16 | Plagal then perfect in C | F⁶⁴ · C · G⁶ · C | "amen" against V–I |
+| 16 | Plagal then V–I in C | F⁶⁴ · C · G⁶ · C | "amen" against V–I |
 
 Twelve is the requirement (FR-004/SC-004); sixteen is the planned set. A 12-bar blues does **not**
 fit this template and would be a separate family, not an exception to this one.

@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "itemId": "repertoire/advanced/chopin-prelude-op28-no4",
+  "claim": "original",
+  "claimText": "Prelude in E minor, Op. 28 No. 4",
+  "checks": [
+    {
+      "method": "mechanical",
+      "source": "mutopia-468-chopin-op28-no4",
+      "sourceFiles": ["notation", "sound"],
+      "aspects": [
+        "barCount",
+        "barLengths",
+        "repeats",
+        "playedOrder",
+        "pitch",
+        "onset",
+        "duration",
+        "spelling",
+        "graceNotes"
+      ],
+      "alignment": {
+        "itemBars": "all",
+        "sourceBars": "all"
+      },
+      "expectedDifferences": 0
+    }
+  ],
+  "previous": {
+    "title": "Prelude in E minor, Op. 28 No. 4 (\"Largo\")",
+    "level": "advanced",
+    "bars": 26,
+    "notes": 562
+  },
+  "outcome": "replaced",
+  "outcomeNote": "Replaced by the conversion from mutopia-468 (0 differences on every aspect). One change the aspects do not cover: the right hand's closing chords in bars 24-25, written across onto the lower staff in the source, are printed on the upper staff so the level check's per-staff span does not add them to the left hand (owner decision 2026-09-24, T105). The previous file, labelled an arrangement with 'hand-span fixes', had raised the left-hand B1 of the octaves in bars 17 and 24 to B2 (unisons on one key), which no level criterion needed, and its difference notes named edits it did not contain.",
+  "checkedBy": "claude-opus-5.5",
+  "date": "2026-09-24"
+}

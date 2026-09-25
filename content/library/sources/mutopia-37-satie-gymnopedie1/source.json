@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "id": "mutopia-37-satie-gymnopedie1",
+  "work": "Satie, Gymnopédie No. 1",
+  "edition": "Dover Edition",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=37",
+  "identifier": "Mutopia-2014/12/14-37",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond 2.18.2 by Evin Robertson for the Mutopia Project from the Dover edition (a reprint of the original; Dover's added translations are not in the file), and placed in the public domain by the typesetter. The piece page states \"Copyright: Public Domain\" (checked 2026-09-24).",
+  "obtained": "2026-09-24",
+  "approvedByOwner": "2026-09-23",
+  "files": [
+    {
+      "role": "notation",
+      "path": "gymnopedie_1.ly",
+      "url": "https://www.mutopiaproject.org/ftp/SatieE/gymnopedie_1/gymnopedie_1.ly",
+      "sha256": "420a52244e9fbe106dd33ba2cac84414fd66e0d01c6d472205bad39678d4ce04",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "gymnopedie_1.mid",
+      "url": "https://www.mutopiaproject.org/ftp/SatieE/gymnopedie_1/gymnopedie_1.mid",
+      "sha256": "09ce7337b4bf42ba12e1aa64b4c7dc7fcfa6455f1070cb12f8880a755df97384",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}

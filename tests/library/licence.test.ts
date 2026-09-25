@@ -90,6 +90,15 @@ describe('the real shelf (FR-017, FR-018, FR-025, US4)', () => {
     }
   });
 
+  // T051: fails until every arrangement's sidecar names its departures (T060-T067, US2 checkpoint).
+  it('every arrangement names its departures, and no original has any (FR-010)', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    const wrong = index.items
+      .filter((item) => (item.meta.arrangement ? !item.meta.departures?.length : item.meta.departures !== undefined))
+      .map((item) => item.id);
+    expect(wrong).toEqual([]);
+  });
+
   it('stays inside the SC-008 size budget (FR-026, analyze A7)', () => {
     expect(totalBytes(libraryRoot)).toBeLessThanOrEqual(LIBRARY_BUDGET_BYTES);
   });
@@ -150,9 +159,29 @@ describe('placeholder rejection (FR-021)', () => {
 
 describe('arrangement labelling (FR-007)', () => {
   it('rejects arrangement: true when the title does not say so', async () => {
-    const tempRoot = makeFixture({ ...baseSidecar(), arrangement: true, title: 'A Fixture Item' });
+    // Departures present (FR-010, T097), so only the title rule can reject it.
+    const tempRoot = makeFixture({
+      ...baseSidecar(),
+      arrangement: true,
+      title: 'A Fixture Item',
+      departures: ['Bar 1: a named departure.'],
+    });
     const { problems } = await buildLibraryIndex(tempRoot);
     expect(problems.some((p) => p.includes('arrangement'))).toBe(true);
+  });
+
+  // T097: the index model enforces FR-010 once every shelf arrangement has departures (after T067).
+  it('rejects arrangement: true without departures', async () => {
+    const tempRoot = makeFixture({ ...baseSidecar(), arrangement: true, title: 'Arranged Fixture' });
+    const { problems } = await buildLibraryIndex(tempRoot);
+    expect(problems.some((p) => p.includes('item-metadata schema'))).toBe(true);
+  });
+
+  // T097, as above.
+  it('rejects arrangement: false with a departures array', async () => {
+    const tempRoot = makeFixture({ ...baseSidecar(), arrangement: false, departures: ['A departure'] });
+    const { problems } = await buildLibraryIndex(tempRoot);
+    expect(problems.some((p) => p.includes('item-metadata schema'))).toBe(true);
   });
 });
 

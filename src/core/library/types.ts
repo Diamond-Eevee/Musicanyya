@@ -72,6 +72,9 @@ export interface ItemMetadata {
   /** Required when the assigned level sits above the level `checkLevel` computes. */
   raisedBecause?: string;
   limitations?: readonly string[];
+  /** An arrangement's deliberate departures from the original, naming the bars (contract library-index.md 1.1.0).
+   *  Not displayed by the app in feature 007. */
+  departures?: readonly string[];
 }
 
 export interface LibrarySection {

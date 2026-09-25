@@ -25,7 +25,12 @@ import { parseArgs } from 'node:util';
 import { chromium, type Page } from '@playwright/test';
 import { createServer, type ViteDevServer } from 'vite';
 
+// `pnpm screenshot -- --item x` (the documented form) passes the `--` through on newer pnpm versions: drop it.
+const args = process.argv.slice(2);
+if (args[0] === '--') args.shift();
+
 const { values } = parseArgs({
+  args,
   options: {
     item: { type: 'string' },
     file: { type: 'string' },

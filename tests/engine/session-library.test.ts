@@ -106,6 +106,17 @@ describe('LibrarySessionController (session-library, US1 T016)', () => {
     expect(viaLibrary.report).toEqual(viaDragIn.report);
   });
 
+  it("passes the index entry's hash to catalog.item, so a stale cached copy is never used (feature 007 FR-024)", async () => {
+    const catalog = new FakeLibraryCatalog();
+    catalog.setItem('repertoire/beginner/scale.musicxml', fixtureBytes);
+    const controller = new LibrarySessionController(catalog, { loadBytes: async () => {}, onNotice: () => {} });
+
+    await controller.openItem(index([item({ hash: 'b'.repeat(64) })]), 'repertoire/beginner/scale');
+    expect(catalog.itemRequests).toEqual([
+      { file: 'repertoire/beginner/scale.musicxml', expectedHash: 'b'.repeat(64) },
+    ]);
+  });
+
   it('a fetch failure raises a notice and never calls loadBytes (the current Score stays untouched)', async () => {
     const catalog = new FakeLibraryCatalog();
     catalog.failNextItem = 'unavailable';

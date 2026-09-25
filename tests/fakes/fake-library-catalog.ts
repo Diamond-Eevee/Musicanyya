@@ -9,6 +9,8 @@ export class FakeLibraryCatalog implements LibraryCatalog {
   private readonly items = new Map<string, ArrayBuffer>();
   failNextIndex: CatalogError | null = null;
   failNextItem: CatalogError | null = null;
+  /** Every `item()` call, with the hash it was given (contracts/library-port.md 1.1.0). */
+  readonly itemRequests: { file: string; expectedHash?: string }[] = [];
 
   setIndex(index: LibraryIndex): void {
     this.indexValue = index;
@@ -28,7 +30,8 @@ export class FakeLibraryCatalog implements LibraryCatalog {
     return { ok: true, value: this.indexValue };
   }
 
-  async item(file: string): Promise<CatalogResult<ArrayBuffer>> {
+  async item(file: string, expectedHash?: string): Promise<CatalogResult<ArrayBuffer>> {
+    this.itemRequests.push(expectedHash === undefined ? { file } : { file, expectedHash });
     if (this.failNextItem) {
       const error = this.failNextItem;
       this.failNextItem = null;

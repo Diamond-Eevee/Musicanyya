@@ -34,6 +34,8 @@ and Antigravity (`.agents/workflows/`). Elsewhere, treat them as plain text as d
 5. If the branch has an upstream: `git pull --ff-only`. Never merge, rebase or push unless asked.
 6. Read the feature's documents (`spec.md`, `plan.md`, `research.md`, `data-model.md`, `contracts/`,
    `quickstart.md`, `tasks.md`) and the last two entries of `implementation-log.md` (the `Handoff` line).
+   **Trust nothing unchecked**: run `pnpm test` and `pnpm lint`; if they contradict the log, tell the user and fix
+   that first.
 7. **Open owner decisions** (status lists them): ask the user once, now. Unanswered: skip what they block.
 8. **Announce** in one short message: your agent id, the instruction file you follow, the resume point, and any
    decision you need. Then work.
@@ -69,19 +71,22 @@ in progress, `- [x] T012 ...` done. Start at the resume point; follow file order
 5. Run checks for what you touched (`pnpm test -- <path>`, `pnpm typecheck`, `pnpm lint`). All green.
 6. **Tick**: `[~]` -> `[x]`, remove the suffix. Never tick failing work (a test task is done when its test fails as
    expected; log it). A tick needs **evidence**: every part the task names exists, and the log names the test or
-   command that proves it; do only part and leave `[~]` or split off a new task. Commit after each task group.
+   command that proves it with its summary line (e.g. `Tests 3 failed | 1811 passed`, each failure named);
+   "all green" only when the exit code was 0. Do only part: leave `[~]` or split off a new task. Commit per group.
 7. **Checkpoint** (end of phase/story): verify the story's Independent Test (`spec.md`), full gate, log entry, commit.
 
-Rules: stay in scope; missing work becomes a new task (next free T-number). Design wrong? Update
-`plan.md`/`contracts/` first, or ask. RT tasks (AudioWorklet, scheduler, MIDI timing, plugin callbacks) are followed
+Rules: stay in scope - change no file the task does not name; missing work becomes a new task (next free
+T-number). Implement the signatures in `contracts/`; design wrong? Update `plan.md`/`contracts/` first, or ask. RT tasks (AudioWorklet, scheduler, MIDI timing, plugin callbacks) are followed
 by an RT review with `.claude/agents/rt-audio-reviewer.md`. **No placeholders**: never create empty, dummy or fake
-files, assets or data to finish a task (e.g. a 0-byte SoundFont); if something cannot be obtained, stop and ask.
+files, assets, data or tests to finish a task (e.g. a 0-byte SoundFont, an empty `it()`); every bullet of a test
+task gets its own assertion; if something cannot be obtained, stop and ask.
 Never weaken, delete or skip tests to go green - no workaround inside a test (e.g. scrolling past what it checks),
 no looser threshold or either-or assertion, no test that would also pass on the old code. If behaviour really changed
 an expected value, say why in the log. Check behaviour changes on real files too (`tests/fixtures/musicxml/real`, the
 library), not only on hand-made fixtures. Reviews: a role review counts only with its findings summarised in the log;
 without sub-agents, say you performed the role yourself - never claim a review that did not run. Write files as UTF-8
-without BOM (Windows PowerShell 5.1 does not by default) and leave no scratch files in the repository.
+without BOM (Windows PowerShell 5.1 does not by default) and leave no scratch files in the repository (tool output
+such as probe SVGs goes to `tests/.generated/`, never `public/` or the root).
 
 ## 5. Session end and hand-off (always; also when context/time runs low)
 
@@ -142,7 +147,8 @@ evidence and the constitution review passed - and it is merged only when the use
 **Full quality gate** (every checkpoint, before merge): `pnpm lint`, `pnpm typecheck`, `pnpm test`, and
 `pnpm test:e2e`. Tests never need a MIDI keyboard or audio hardware.
 
-**Seeing the app** (quickstart "Manual verification"): run `pnpm screenshot -- --item <library id>` or
-`-- --file <path>`, then open the PNG it prints. It starts its own server and uses Playwright's Chromium, so it
+**Seeing the app** (quickstart "Manual verification"): run `pnpm screenshot --item <library id>` or
+`--file <path>`, then open the PNG it prints. It starts its own server and uses Playwright's Chromium, so it
 works when your own browser tool does not. Never report a manual check as done without looking at the picture. See
-reference R7.
+reference R7. Library audit: `pnpm library:fidelity` (`--check`, `--item <id>`); replace an item only with
+`pnpm library:convert-ly <source-id> <item-id>`, never by hand.
