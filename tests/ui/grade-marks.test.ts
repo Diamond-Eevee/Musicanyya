@@ -1,15 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import '../../src/ui/elements/mx-score-view.js';
+import { describe, expect, it } from 'vitest';
 import type { GradeDisc, GradeSkipIcon } from '../../src/core/grade/marks.js';
-import type { Grade } from '../../src/core/grade/types.js';
-import type { MxScoreView } from '../../src/ui/elements/mx-score-view.js';
 import type { DiscSlot, StaffGeometry } from '../../src/ui/score/disc-layout.js';
 import { discAt, drawGradeMarks, type GradeMarkGeometry, gradeHeadClass } from '../../src/ui/score/grade-marks.js';
 import { DISC_COLOR, SKIPPED_COLOR } from '../../src/ui/score/pressed-keys.js';
-import type { VerovioClient } from '../../src/ui/score/verovio-client.js';
-import { playState } from '../../src/ui/state/playState.js';
-import { practiceState } from '../../src/ui/state/practiceState.js';
-import { viewState } from '../../src/ui/state/viewState.js';
 import { recordingCanvas } from './helpers/recording-canvas.js';
 
 // 009 T031 (FR-014 to FR-019, FR-021, FR-022, SC-008): the Grade is drawn in Practice's look - red discs at the pitch played,
@@ -204,104 +197,5 @@ describe('discAt: which drawn disc is under a point (009 FR-022)', () => {
 
   it('finds nothing without discs', () => {
     expect(discAt([], 0, 0, origin)).toBeNull();
-  });
-});
-
-describe('live marks during a run are green noteheads (008 FR-017, R-13, T051)', () => {
-  /** A view over one page with three notes, in Play mode, whose frame we drive by hand. */
-  async function playView() {
-    const client: VerovioClient = {
-      init: async () => ({ version: 'fake' }),
-      load: async () => ({ pageCount: 1 }),
-      relayout: async () => ({ pageCount: 1 }),
-      page: async () =>
-        ({
-          svg: `<svg xmlns="http://www.w3.org/2000/svg"><g class="measure" id="m-1">${['n1', 'n2', 'n3']
-            .map((id) => `<g class="note" id="${id}"><g class="notehead"><use/></g><g class="stem"><rect/></g></g>`)
-            .join('')}</g></svg>`,
-        }) as { svg: string },
-      pageOf: async () => ({ page: 1 }),
-    };
-    const view = document.createElement('mx-score-view') as MxScoreView;
-    view.client = client;
-    document.body.appendChild(view);
-    await view.load('<score-partwise/>', ['m-1']);
-    practiceState.setMode('play');
-    const frame = () => (view as unknown as { updateCursor(): void }).updateCursor();
-    const marked = () =>
-      Array.from(view.querySelectorAll('g.note'))
-        .filter((el) => el.classList.contains('mx-mark-correct'))
-        .map((el) => el.id);
-    return { view, frame, marked };
-  }
-
-  beforeEach(() => {
-    playState.clear();
-    practiceState.setMode('listen');
-    viewState.setOverlay('marks', true);
-  });
-  afterEach(() => {
-    document.body.innerHTML = '';
-    playState.clear();
-    practiceState.setMode('listen');
-    viewState.setOverlay('marks', true);
-  });
-
-  it('maps every liveMark note ID to mx-mark-correct, on the note and nowhere else', async () => {
-    const { frame, marked, view } = await playView();
-    frame();
-    expect(marked()).toEqual([]);
-    playState.addLiveMark(['n1']);
-    frame();
-    expect(marked()).toEqual(['n1']);
-    playState.addLiveMark(['n3']);
-    frame();
-    expect(marked()).toEqual(['n1', 'n3']);
-    expect(view.querySelector('#n1 > g.stem')?.getAttribute('class')).not.toContain('mx-mark');
-    expect(view.querySelectorAll('[class*="mx-mark"]')).toHaveLength(2);
-  });
-
-  it('clears them when the Grade layer is shown', async () => {
-    const { frame, marked } = await playView();
-    playState.addLiveMark(['n1', 'n2']);
-    frame();
-    expect(marked()).toEqual(['n1', 'n2']);
-    playState.setGrade({ results: [] } as unknown as Grade);
-    frame();
-    expect(marked()).toEqual([]);
-  });
-
-  it('clears them when a new run starts', async () => {
-    const { frame, marked } = await playView();
-    playState.addLiveMark(['n2']);
-    frame();
-    expect(marked()).toEqual(['n2']);
-    playState.clear(); // what a new run does first (FR-035)
-    frame();
-    expect(marked()).toEqual([]);
-    playState.addLiveMark(['n3']);
-    frame();
-    expect(marked()).toEqual(['n3']);
-  });
-
-  it('clears them when the mode changes', async () => {
-    const { frame, marked } = await playView();
-    playState.addLiveMark(['n1']);
-    frame();
-    expect(marked()).toEqual(['n1']);
-    practiceState.setMode('listen');
-    frame();
-    expect(marked()).toEqual([]);
-  });
-
-  it('shows none while the marks layer is switched off, and them again when it is switched on', async () => {
-    const { frame, marked } = await playView();
-    playState.addLiveMark(['n1']);
-    viewState.setOverlay('marks', false);
-    frame();
-    expect(marked()).toEqual([]);
-    viewState.setOverlay('marks', true);
-    frame();
-    expect(marked()).toEqual(['n1']);
   });
 });

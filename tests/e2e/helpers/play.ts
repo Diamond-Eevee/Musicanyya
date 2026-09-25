@@ -110,3 +110,27 @@ export async function pressInTime(page: Page, presses: readonly TimedPress[]): P
     }
   }, presses);
 }
+
+/**
+ * Watches the Score at every animation frame for `ms` and returns every note that carried an `mx-mark-*` class in any
+ * of them, and the run's phase at the end. A run under way marks nothing (009 FR-027, owner review 2026-09-25): the
+ * marks come with the Grade. Sampling every frame, not once, so a mark drawn and gone again cannot slip past.
+ */
+export const marksDuringRun = (page: Page, ms: number): Promise<{ marked: string[]; phaseAfter: string | null }> =>
+  page.evaluate(
+    (durationMs) =>
+      new Promise<{ marked: string[]; phaseAfter: string | null }>((done) => {
+        const marked = new Set<string>();
+        const end = performance.now() + durationMs;
+        const tick = () => {
+          for (const el of document.querySelectorAll('.mx-score-page g.note[class*="mx-mark-"]')) marked.add(el.id);
+          if (performance.now() < end) requestAnimationFrame(tick);
+          else {
+            const state = (window as unknown as { __PLAY_STATE__: PlayStateSeam }).__PLAY_STATE__.get();
+            done({ marked: [...marked], phaseAfter: state.run?.phase ?? null });
+          }
+        };
+        requestAnimationFrame(tick);
+      }),
+    ms,
+  );

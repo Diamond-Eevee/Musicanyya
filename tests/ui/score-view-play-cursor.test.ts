@@ -11,8 +11,9 @@ import { viewState } from '../../src/ui/state/viewState.js';
 import { buildGradeInput } from '../core/grade/helpers.js';
 import { mountScoreView, type ViewHarness } from './helpers/score-view-harness.js';
 
-// 009 US1 (FR-001 to FR-008): during a Play run the Score view draws Listen's cursor - the bar at the first note due,
-// the notes due highlighted - driven by the run's own position. Geometry is fake (see helpers/score-view-harness.ts);
+// 009 US1 (FR-001 to FR-008): during a Play run the Score view draws Listen's cursor - the bar at the notes that started
+// last (owner review 2026-09-25: never at a long note held under a moving part), every note due highlighted - driven by
+// the run's own position. Geometry is fake (see helpers/score-view-harness.ts);
 // what is asserted is what is drawn and in which order, and which notes carry `.playing`.
 
 const FIXTURE = 'grade/grade-marks.musicxml';
@@ -50,7 +51,13 @@ const barX = () => {
   const bars = barCalls();
   return bars.length === 1 ? (bars[0]?.args[0] as number) : null;
 };
-/** Where the bar should stand for a set of due notes: the left edge of the first one, less half the bar. */
+/** The notes the bar stands at (FR-001, owner review): of the notes due at `tick`, those that started last. */
+const cursorAt = (tick: number): string[] => {
+  const due = h.dto.spans.filter((s) => s.startTick <= tick && s.endTick > tick);
+  const latest = Math.max(...due.map((s) => s.startTick));
+  return due.filter((s) => s.startTick === latest).map((s) => s.noteId);
+};
+/** Where the bar should stand for a set of notes: the left edge of the first one, less half the bar. */
 const expectedBarX = (noteIds: string[]): number => {
   const first = noteIds[0];
   const rect = first === undefined ? null : h.noteEl(first)?.getBoundingClientRect();
@@ -78,12 +85,12 @@ describe('the Play cursor (009 FR-001 to FR-008)', () => {
 
     expect(h.withClass('playing')).toEqual([]);
     expect(barCalls()).toHaveLength(1);
-    expect(barX()).toBe(expectedBarX(dueAt(0)));
+    expect(barX()).toBe(expectedBarX(cursorAt(0)));
     // a later position in the count-in changes nothing: the cursor waits at the first written moment
     h.canvas.reset();
     playState.setRun({ ...runAt('countIn', 0), positionRunTick: 3 * h.dto.ppq });
     h.frame();
-    expect(barX()).toBe(expectedBarX(dueAt(0)));
+    expect(barX()).toBe(expectedBarX(cursorAt(0)));
     expect(h.withClass('playing')).toEqual([]);
   });
 
@@ -95,7 +102,7 @@ describe('the Play cursor (009 FR-001 to FR-008)', () => {
     h.frame();
 
     expect(h.withClass('playing').sort()).toEqual([...due].sort());
-    expect(barX()).toBe(expectedBarX(due));
+    expect(barX()).toBe(expectedBarX(cursorAt(tick)));
 
     // it moves on with the position and never waits for input (FR-004): the next frame, a later tick
     h.canvas.reset();
@@ -103,7 +110,7 @@ describe('the Play cursor (009 FR-001 to FR-008)', () => {
     playState.setRun(runAt('running', later));
     h.frame();
     expect(h.withClass('playing').sort()).toEqual([...dueAt(later)].sort());
-    expect(barX()).toBe(expectedBarX(dueAt(later)));
+    expect(barX()).toBe(expectedBarX(cursorAt(later)));
   });
 
   it.each(['finished', 'stopped', 'aborted'] as const)(
@@ -169,17 +176,62 @@ describe('the Play cursor (009 FR-001 to FR-008)', () => {
     const paints = h.canvas.calls.filter((call) => PAINT.includes(call.name));
     expect(paints[0]?.name).toBe('fillRect'); // the bar comes before any mark
     expect(paints.length).toBeGreaterThan(2); // the bar and its marker are two paints; the marks are more
-    expect(barCalls()[0]?.args[0]).toBe(expectedBarX(dueAt(2 * h.dto.ppq))); // the first fillRect is the cursor's bar
+    expect(barCalls()[0]?.args[0]).toBe(expectedBarX(cursorAt(2 * h.dto.ppq))); // the first fillRect is the cursor's bar
   });
 
-  it('(f) Listen still draws exactly as before: the bar at the sounding note, that note highlighted', () => {
+  it('(f) Listen draws the same cursor: the bar at the notes that started last, every sounding note highlighted', () => {
     practiceState.setMode('listen');
     const tick = 2 * h.dto.ppq;
     h.listenAt(tick);
     h.frame();
 
     expect(h.withClass('playing').sort()).toEqual([...dueAt(tick)].sort());
-    expect(barX()).toBe(expectedBarX(dueAt(tick)));
+    expect(barX()).toBe(expectedBarX(cursorAt(tick)));
     expect(h.canvas.named('arc')).toHaveLength(1); // the marker dot on the bar
+  });
+
+  it.each(['play', 'listen'] as const)(
+    '(g) in %s, the bar moves on with the right hand while the left hand holds its whole note (FR-001, AS-1.9)',
+    (mode) => {
+      // measure 1: G4 (beat 1), A4 (beat 2), the chord B4 D5 G5 (beats 3-4) over a whole-note G3 in the left hand
+      const heldG3 = 'n-p0-s2-m0-v2-o0-k55';
+      const at = (tick: number) => {
+        h.canvas.reset();
+        if (mode === 'play') playState.setRun(runAt('running', tick));
+        else h.listenAt(tick);
+        h.frame();
+      };
+      if (mode === 'listen') practiceState.setMode('listen');
+      const heldX = expectedBarX([heldG3]);
+
+      at(h.dto.ppq); // beat 2
+      expect(barX()).toBe(expectedBarX(['n-p0-s1-m0-v1-o1-k69'])); // at A4
+      expect(barX()).not.toBe(heldX);
+      expect(h.withClass('playing').sort()).toEqual(['n-p0-s1-m0-v1-o1-k69', heldG3].sort()); // both still lit
+
+      at(3 * h.dto.ppq); // beat 4, the chord still sounding
+      expect(barX()).toBe(expectedBarX(['n-p0-s1-m0-v1-o2-k71'])); // at the chord
+      expect(barX()).not.toBe(heldX);
+      expect(h.withClass('playing')).toContain(heldG3);
+    },
+  );
+
+  it('(h) a run under way marks no note; the Grade marks them once the run is over (FR-027, owner review 2026-09-25)', () => {
+    const marked = () =>
+      [...h.el.querySelectorAll('g.note')].filter((el) => [...el.classList].some((c) => c.startsWith('mx-mark-')));
+    // the Play state has no live marking left to feed the Score during a run
+    expect(Object.keys(playState.get())).not.toContain('liveMarkedNoteIds');
+    for (const tick of [0, h.dto.ppq, 2 * h.dto.ppq, 5 * h.dto.ppq]) {
+      playState.setRun(runAt('running', tick));
+      h.frame();
+      expect(marked(), `tick ${tick}`).toEqual([]);
+    }
+
+    const grade = nothingPlayedGrade();
+    playState.setRun(runAt('finished', 5 * h.dto.ppq));
+    playState.setGrade(grade, gradeMarks(h.score, grade, h.timeline.passes));
+    h.frame();
+    expect(marked().length).toBeGreaterThan(0);
+    expect(marked().every((el) => el.classList.contains('mx-mark-skipped'))).toBe(true);
   });
 });

@@ -354,6 +354,48 @@ cross anywhere.
   `noteOn`/`noteOff` inside `process()`, now once per Metronome beat as well; replaced by a pre-allocated `Uint8Array` (Constitution I).
   The existing pause/stop release tests cover it
 
+---
+
+## Phase 7: Owner review of the implemented feature (2026-09-25)
+
+**Input**: the owner's two UX issues (spec Clarifications, "owner review of the implemented feature"): (1) no mark
+during a run, green and red appear only with the Grade (FR-027 changed, FR-008 withdrawn, AS-1.6); (2) the bar follows
+the note that started last, not a long note held under a moving part (FR-001, AS-1.9; Listen's cursor too).
+
+**Tests that change because the specified behaviour changed**: the Play and Listen cursor cases that expected the bar at
+the first note in span order (`tests/ui/score-view-play-cursor.test.ts` b, e, f), and every test of the live "correct"
+marking (`tests/engine/play-session.test.ts` T044, `tests/ui/grade-marks.test.ts` live marks, `tests/e2e/us1-play.spec.ts`,
+`tests/e2e/pressed-keys.spec.ts` "Play mode", `tests/e2e/play-cursor.spec.ts` green under the highlight). Each replaced
+assertion gets an assertion of the new behaviour.
+
+### Tests (write first, confirm they fail)
+
+- [x] T061 [P] [US1] `cursorNotesAtTick` in `tests/core/timeline/position.test.ts`: on `grade/grade-marks.musicxml` the
+  held whole note is not returned while the right hand moves (beat 2: A4 only; beat 3: the chord B4 D5 G5 only; beat 1:
+  G4 and G3, the same onset); on every golden fixture at every quarter beat the result is exactly the sounding notes of
+  the latest start (so empty exactly when nothing sounds), and each file has moments with an older note held underneath
+- [x] T062 [P] [US1] `tests/ui/score-view-play-cursor.test.ts`: the bar stands at the notes that started last, in Play
+  and in Listen: new case (g) on measure 1 (the bar at A4 and at the chord, not at the held G3, while G3 stays
+  highlighted); cases (a), (b), (e), (f) use the new reference
+- [x] T063 [P] [US3] No mark during a run: `tests/engine/play-session.test.ts` (keys pressed during the run give
+  `soundInput` and no other effect, replacing the three T044 tests); `tests/ui/score-view-play-cursor.test.ts` case (h)
+  (a running run marks no note and `playState` has no live marking; the Grade marks them after the run), replacing the
+  live-mark describe of `tests/ui/grade-marks.test.ts`; `tests/e2e/us1-play.spec.ts`, `tests/e2e/pressed-keys.spec.ts`
+  ("Play mode") and `tests/e2e/play-cursor.spec.ts` (a correct key pressed during the run: no note marked in any frame
+  for 1 s (`marksDuringRun` in `tests/e2e/helpers/play.ts`), then green with the Grade)
+
+### Implementation
+
+- [ ] T064 [US1] `cursorNotesAtTick` in `src/core/timeline/position.ts`; `src/ui/elements/mx-score-view.ts` draws the
+  bar of Listen and Play at those notes (highlights unchanged: every note sounding)
+- [ ] T065 [US3] Remove the live marking: the `liveMark` effect (`src/core/play/types.ts`), `checkLiveMark` and
+  `liveMarkedOnsets` (`src/app/play-session.ts`), its handler (`src/app/session.ts`), `liveMarkedNoteIds` and
+  `addLiveMark` (`src/ui/state/playState.ts`), the live classes (`src/ui/elements/mx-score-view.ts`)
+- [ ] T066 Documents: contracts `003 play-run.md` 2.0.0 (the `liveMark` effect is removed) and `009 play-display.md`
+  2.0.0 (`cursorNotesAtTick`, the bar rule, no `liveMarkedNoteIds`), research R-15, `quickstart.md` US1 step 5
+- [ ] T067 Checkpoint: picture of the owner's example (`learning/chords/c-major-scale-and-chords`) during a run with a
+  correct key pressed (bar at the right-hand note, no green) and after the Grade; full gate; log entry
+
 ## Dependencies & Execution Order
 
 - Setup (T001-T002) -> Foundational (T003-T007) -> US1 (T008-T017), US2 (T018-T027), US3 (T028-T045) -> Polish

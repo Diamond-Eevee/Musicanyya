@@ -1,5 +1,5 @@
 import { expect, type Page, test } from '@playwright/test';
-import { playPhase, startPlay, waitForGrade } from './helpers/play.js';
+import { marksDuringRun, playPhase, startPlay, waitForGrade } from './helpers/play.js';
 
 // 009 US1: during a Play run the Score shows Listen's cursor - the highlighted notes are what the run is at. The bar
 // itself is canvas, so these tests read what the DOM shows: `.playing` on the notes due, and the run status.
@@ -90,11 +90,11 @@ test('US1 end-to-end: the cursor is gone once the Grade is shown (FR-006)', asyn
   await expect.poll(() => page.locator('.mx-score-page g.note.playing').count()).toBe(0);
 });
 
-test('US1 end-to-end: a correct key at the first note gives a green head that stays green under the highlight (FR-008, R-05)', async ({
+test('US1 end-to-end: a correct key at the first note marks nothing during the run; the head is green once the Grade is shown (FR-027, owner review)', async ({
   page,
 }) => {
-  test.setTimeout(60_000);
-  await startPlay(page, ITEM, { accompaniment: false });
+  test.setTimeout(90_000);
+  await startPlay(page, ITEM, { accompaniment: false, range: { from: 1, to: 2 } });
 
   // Press E5 (76), the piece's first note, as soon as the count-in is over: wait and press in one page call, as
   // us1-play.spec.ts does, because a Playwright poll can be a whole second late.
@@ -109,22 +109,25 @@ test('US1 end-to-end: a correct key at the first note gives a green head that st
     window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x80, key, 0] }));
   }, 76);
 
-  // while the first note is highlighted, its head is filled with the Practice green: one atomic read in the page, so
-  // the highlight cannot move on between two reads
+  // the cursor goes on through the run, and no note is marked in any frame of it (the owner: "It's a grade and should
+  // be shown after") - FR-008's green under the highlight is withdrawn with it
+  expect(await marksDuringRun(page, 1_000)).toEqual({ marked: [], phaseAfter: 'running' });
+  expect(await page.locator('.mx-score-page g.note.playing').count()).toBeGreaterThan(0);
+
+  // with the Grade, the E5 that was played is a green head
+  await waitForGrade(page);
   await expect
-    .poll(
-      () =>
-        page.evaluate(() => {
-          const head = document.querySelector('.mx-score-page g.note.playing.mx-mark-correct > g.notehead');
-          if (!head) return null;
-          const probe = document.createElement('span');
-          probe.style.color = getComputedStyle(document.documentElement).getPropertyValue('--practice-correct-color');
-          document.body.appendChild(probe);
-          const green = getComputedStyle(probe).color;
-          probe.remove();
-          return getComputedStyle(head).fill === green;
-        }),
-      { timeout: 10_000 },
+    .poll(() =>
+      page.evaluate(() => {
+        const head = document.querySelector('.mx-score-page g.note.mx-mark-correct[id$="-k76"] > g.notehead');
+        if (!head) return null;
+        const probe = document.createElement('span');
+        probe.style.color = getComputedStyle(document.documentElement).getPropertyValue('--practice-correct-color');
+        document.body.appendChild(probe);
+        const green = getComputedStyle(probe).color;
+        probe.remove();
+        return getComputedStyle(head).fill === green;
+      }),
     )
     .toBe(true);
 });

@@ -55,12 +55,15 @@ the Metronome, looking like Listen mode's cursor, and it is gone when the Grade 
    at measure 5, moves at 60% of the written tempo and stops at the end of measure 8.
 5. **Given** a Score with repeats or a tempo change, **When** it is played, **Then** the cursor follows the same
    order and the same timing as Listen mode.
-6. **Given** a run is under way, **When** the musician presses a correct key, **Then** the note still turns green
-   (008) and stays readable as green when the cursor passes over it.
+6. **Given** a run is under way, **When** the musician presses a correct key, **Then** nothing is marked on the
+   Score yet: the note turns green only when the Grade is shown (FR-027, owner review 2026-09-25).
 7. **Given** a run is under way, **When** the musician stops it or it reaches the end, **Then** the cursor
    disappears and the Grade's marks are shown.
 8. **Given** the cursor layer is switched off, **When** a run plays, **Then** no cursor is drawn and nothing else
    about the run changes.
+9. **Given** one hand holds a long note (a whole-measure chord) while the other hand moves, **When** the run goes on,
+   **Then** the bar moves to each new note as it starts and does not stay on the long note (FR-001, owner review
+   2026-09-25).
 
 ---
 
@@ -185,6 +188,17 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
 - Q: In the owner's screenshot nearly every note is missed; was that a real attempt? -> A: no, a test run; no grading
   problem to follow up.
 
+### Session 2026-09-25 (owner review of the implemented feature)
+
+- Q: During a run, correct keys turn their notes green (003 FR-011, 008 FR-017, kept by FR-027). Keep that? -> A: no.
+  Owner: "green and red dots should be shown only after hitting stop, or going to the end. It's a grade and should be
+  shown after." During a run the Score shows the cursor and its highlight only; every mark appears with the Grade
+  (FR-027, FR-008 withdrawn, AS-1.6). This replaces the live "correct" marking of 003 FR-011 in Play mode.
+- Q: The bar stays on a long note (a whole-measure left-hand chord) while the right hand moves on. Which note should
+  it follow? -> A: owner: "It should follow current played note." The bar stands at the note that started most
+  recently among the notes sounding; the highlight still covers every note sounding (FR-001, AS-1.9). Listen mode
+  draws the same cursor (FR-001), so it gets the same rule.
+
 ### Session 2026-09-25 (plan open points; owner: "resolve everything, go with recommended")
 
 - Q: A small ">" under a notehead reads as an accent (`music-domain-expert`); keep Practice's skip chevron for the
@@ -234,7 +248,9 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
 
 - **FR-001**: During a Play run, from Start to the end of the run, the Score MUST show the same cursor as Listen
   mode: a bar through the current measure at the current written moment, with its marker, and the notes due at that
-  moment highlighted - including the graded notes the app does not sound.
+  moment highlighted - including the graded notes the app does not sound. The current written moment is the latest
+  onset among the notes sounding, so the bar moves with every new note and never stays on a long note held while
+  another part moves (owner review 2026-09-25; Listen mode's cursor follows the same rule).
 - **FR-002**: During the count-in, the cursor MUST stand at the first written moment of the passage being played and
   MUST start moving when the count-in ends.
 - **FR-003**: The cursor MUST follow the run's clock at the tempo actually played (003 FR-037), through tempo and
@@ -245,8 +261,8 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
   stops following until the musician asks to follow again.
 - **FR-006**: The cursor MUST disappear when the run ends, is stopped or the mode changes.
 - **FR-007**: The existing cursor layer switch MUST apply in Play mode too; switching it off hides only the cursor.
-- **FR-008**: A note marked green during the run (008 FR-017) MUST stay recognisably green while the cursor or its
-  highlight is on it.
+- **FR-008**: *Withdrawn (owner review 2026-09-25)*: no note is marked green during a run any more (FR-027), so the
+  cursor's highlight never meets a green head.
 
 #### Metronome
 
@@ -316,9 +332,9 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
   switch MUST hide all of them; they MUST be cleared when a new run starts or the mode changes (003 FR-035).
 - **FR-026**: A mark MUST NOT spread over a neighbouring written note, apart from a red disc in its own column
   (FR-021).
-- **FR-027**: During the run, correct keys MUST keep turning their notes green as today (008 FR-017), and wrong keys
-  MUST NOT be marked on the Score until the Grade (003 FR-011 unchanged): no red disc and no missed marking appears
-  while the run is going on.
+- **FR-027**: During the run (count-in included), the Score MUST show no mark at all: no green notehead, no red
+  disc, no missed or timing marking. Every mark appears with the Grade, when the musician stops the run or it reaches
+  its end (owner review 2026-09-25; before, correct keys turned green during the run, 003 FR-011, 008 FR-017).
 - **FR-028**: The Grade's results, counts, summary figures, per-measure overview and Performance log MUST be exactly
   what they are today; this feature changes only how the results are drawn.
 - **FR-029**: The same Score, Performance log and settings MUST always produce the same marks.
@@ -376,7 +392,8 @@ missed note has the missed marking, and no ring or cross is drawn anywhere.
   (the column of the current note); a disc floating between two notes would be hard to relate to the music.
 - Grading itself (windows, strictness levels, matching, counts) is untouched. The owner's screenshot, where nearly
   every note is missed, came from a test run without real playing (Clarifications).
-- Red discs appear in Play mode only after the run; during the run the Score shows green notes only (Clarifications).
+- No mark appears in Play mode during a run; green heads, red discs and every other marking appear with the Grade
+  (Clarifications, owner review 2026-09-25).
 - The desktop app needs nothing of its own; the Native audio plugin is not involved.
 - After the Metronome fix, multi-instrument Scores sound as their instruments in Listen mode (001 FR-015); accepted
   by the owner 2026-09-25. Piano-only Scores, the whole library, sound as before.

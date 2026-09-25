@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { notesAtTick, passAtTick } from '../../../src/core/timeline/position.js';
+import { cursorNotesAtTick, notesAtTick, passAtTick } from '../../../src/core/timeline/position.js';
 import {
   GOLDEN_FIXTURES,
   type GoldenSample,
@@ -72,5 +72,54 @@ describe('the Listen cursor position logic, moved out of the score view (009 con
     expect(passAtTick(empty, 0)).toBeNull();
     expect(passAtTick(empty, 12345)).toBeNull();
     expect(notesAtTick(empty, 0).size).toBe(0);
+  });
+});
+
+// Owner review 2026-09-25 (spec FR-001, AS-1.9): the bar follows the note that started last, not a long note held under
+// a moving part. The highlight is still every note sounding (`notesAtTick`); only where the bar stands changes.
+describe('cursorNotesAtTick: the notes the cursor bar stands at (FR-001, owner review)', () => {
+  // grade-marks.musicxml, measure 1: G4 A4 then the chord B4 D5 G5 in the right hand over a whole-note G3 in the left
+  const ids = (set: ReadonlySet<string>) => [...set].sort();
+
+  it('while the left hand holds its whole note, the bar is at the right hand note that started last', async () => {
+    const timeline = await loadListenTimeline('grade/grade-marks.musicxml');
+    const { ppq } = timeline;
+    // beat 1: G4 and G3 start together, both are the current moment
+    expect(ids(cursorNotesAtTick(timeline, 0))).toEqual(['n-p0-s1-m0-v1-o0-k67', 'n-p0-s2-m0-v2-o0-k55']);
+    // beat 2: A4 only - the held G3 is still sounding (and highlighted) but it is not where the music is
+    expect(notesAtTick(timeline, ppq).has('n-p0-s2-m0-v2-o0-k55')).toBe(true);
+    expect(ids(cursorNotesAtTick(timeline, ppq))).toEqual(['n-p0-s1-m0-v1-o1-k69']);
+    // beats 3 and 4: the chord, all three of its notes, and still not the G3
+    const chord = ['n-p0-s1-m0-v1-o2-k71', 'n-p0-s1-m0-v1-o2-k74', 'n-p0-s1-m0-v1-o2-k79'];
+    expect(ids(cursorNotesAtTick(timeline, 2 * ppq))).toEqual(chord);
+    expect(ids(cursorNotesAtTick(timeline, 3 * ppq + ppq / 2))).toEqual(chord);
+  });
+
+  it.each(GOLDEN_FIXTURES)(
+    'over %s, at every quarter of a beat: the sounding notes of the latest start, nothing else, never empty while one sounds',
+    async (name) => {
+      const timeline = await loadListenTimeline(name);
+      const step = timeline.ppq / 4;
+      let checked = 0;
+      let heldUnderneath = 0;
+      for (let tick = 0; tick <= timeline.endTick + timeline.ppq; tick += step) {
+        const sounding = timeline.spans.filter((s) => s.startTick <= tick && s.endTick > tick);
+        const latest = Math.max(...sounding.map((s) => s.startTick));
+        const expected = sounding.filter((s) => s.startTick === latest).map((s) => s.noteId);
+        const at = cursorNotesAtTick(timeline, tick);
+        expect(ids(at), `tick ${tick}`).toEqual([...new Set(expected)].sort());
+        if (sounding.length > 0) checked++;
+        if (sounding.some((s) => s.startTick < latest)) heldUnderneath++;
+      }
+      expect(checked).toBeGreaterThan(0);
+      // every file here has moments where an older note is still held while a newer one sounds: the case the rule is for
+      expect(heldUnderneath).toBeGreaterThan(0);
+    },
+  );
+
+  it('nothing sounding: no notes (the bar stands at the measure start); a timeline without spans: none either', async () => {
+    const timeline = await loadListenTimeline('grade/grade-marks.musicxml');
+    expect(cursorNotesAtTick(timeline, timeline.endTick + 5000).size).toBe(0);
+    expect(cursorNotesAtTick({ spans: [] }, 0).size).toBe(0);
   });
 });
