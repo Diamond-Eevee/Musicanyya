@@ -23,3 +23,28 @@
   `src/ui/piano/keyboard-layout.ts` did not exist (expected reason). After T005: `pnpm vitest run tests/ui/piano` =
   `Tests 16 passed (16)`. One test of mine was wrong first (counted consecutive black keys; a group of black keys is
   broken by the white key between them), fixed in the test, not in the layout.
+- Done: T006, T007 (tests, seen failing). `pnpm vitest run tests/ui/piano/piano-keys-element.test.ts`: `Tests 4 failed |
+  2 passed (6)` - the four fail because keys have no white/black class, no inline left/width and no `.key-label`; the two
+  that pass (88 keys present, a click changes nothing) are regression guards, as analyze F7 noted.
+  `playwright test tests/e2e/piano-keyboard.spec.ts --project=chromium`: `8 failed, 1 passed` - each of the eight
+  fails at `expect(whites).toHaveLength(52)` (received 88: no black keys); the 800 x 600 fit-only case passes on today's
+  row (flex-shrunk keys), a regression guard. Note on T003: the e2e measures today's keys 12.3 px wide at 1280 x 800
+  while the screenshot at that size showed 20 px keys cut off at the right edge; the two differ and I did not chase why,
+  because the row is being replaced.
+
+## 2026-09-25 - claude-sonnet-5 (implement, US1 checkpoint)
+- Done: T008 (`mx-piano-keys` builds white keys then black keys from `keyboardLayout()`: `.keyboard` box of height
+  `min(100cqw / 52 * 4, 160px, 20vh)`, host is a size container, `left`/`width` inline percentages, `white`/`black`
+  classes, `.key-label` on the C keys, colours of R-4; the state classes and the update path are unchanged) and T009
+  (`overflow-x: auto` removed from `mx-piano-keys` in `layout.css`). State borders are already outlines pulled inside the
+  key and the help glow an inset shadow (T013 finishes the marking placement; `.key-mark` and the `::after` dot are
+  still the old ones, so on the new keys they sit where today's CSS puts them until T013).
+- Evidence: `pnpm vitest run tests/ui` = `Test Files 56 passed (56)`, `Tests 507 passed (507)` (includes
+  `tests/ui/piano/*`: keyboard-layout 16, piano-keys-element 6, all green now); `pnpm typecheck` exit 0; `pnpm lint` 0
+  errors (282 warnings, 13 infos, unchanged count); `playwright test tests/e2e/piano-keyboard.spec.ts` (all four
+  projects) = `36 passed`; the existing `pressed-keys`, `us1-layout`, `us4-overlays` specs = `178 passed, 26 skipped`
+  (the skips are the existing webkit/MIDI ones), none failed. No existing test was changed.
+- T010 pictures looked at: `tests/.generated/010/t010-1024.png`, `-1280.png` (same design), `-1920.png`. Against the US1
+  Independent Test: white keys contiguous, black keys on top in twos and threes, C1...C8 labels at the bottom of the C
+  keys, the last key C8 at the right edge, A0 at the left, the strip 146 px tall at 1920 (keys 4 x as long as wide) and
+  scaled down at 1024; no sideways scroll; the Score's blank area above the strip is as before.

@@ -61,12 +61,12 @@ scrolling.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T006 [P] [US1] Element tests in `tests/ui/piano/piano-keys-element.test.ts` (happy-dom): the shadow root has one
+- [x] T006 [P] [US1] Element tests in `tests/ui/piano/piano-keys-element.test.ts` (happy-dom): the shadow root has one
   `.key[data-key]` per MIDI key 21-108 inside `.keyboard`; each has exactly one of `white` / `black` matching
   `isBlackKey`; its inline `left` and `width` equal the layout's fractions as percentages; all white keys come before
   all black keys in DOM order; `.key-label` exists exactly on the eight C keys with texts `C1`...`C8`; clicking a key
   changes no state (no `pressed` class, no event). Run it: fails (no white/black classes, no labels, no positions)
-- [ ] T007 [P] [US1] E2E `tests/e2e/piano-keyboard.spec.ts` (chromium, firefox, webkit; piano layer switched on through
+- [x] T007 [P] [US1] E2E `tests/e2e/piano-keyboard.spec.ts` (chromium, firefox, webkit; piano layer switched on through
   the View menu), at 1024 x 768, 1280 x 800, 1280 x 1080, 1600 x 900, 1600 x 1080, 1920 x 1080 and 2560 x 1440: no
   horizontal scroll bar on the
   document or the element (`scrollWidth <= clientWidth`); every key's box inside the window; 52 white keys contiguous
@@ -82,15 +82,15 @@ scrolling.
 
 ### Implementation
 
-- [ ] T008 [US1] Rebuild the keys in `src/ui/elements/mx-piano-keys.ts` from `keyboardLayout()`: a `.keyboard` box
+- [x] T008 [US1] Rebuild the keys in `src/ui/elements/mx-piano-keys.ts` from `keyboardLayout()`: a `.keyboard` box
   (position relative, full width, height `min(100cqw / 52 * 4, 160px, 20vh)` from the T001 constants), the host a size
   container (`container-type: inline-size`, inline padding of a few px), white keys then black keys absolutely
   positioned by the layout's percentages, `white` / `black` classes, `.key-label` on C keys, the key colours of
   research R-4 (white `#fdfdfb` with a 1 px `#555` divider; black `#1b1b1b` with its lighter lower edge); the update
   path and every state class stay as they are; T006 passes and the existing unit tests stay green
-- [ ] T009 [US1] Remove sideways scrolling from `mx-piano-keys` in `src/ui/styles/layout.css` (`overflow-x: auto`
+- [x] T009 [US1] Remove sideways scrolling from `mx-piano-keys` in `src/ui/styles/layout.css` (`overflow-x: auto`
   goes; the strip keeps its bottom placement and inset); T007 passes in chromium, firefox and webkit
-- [ ] T010 [US1] Checkpoint: look at `pnpm screenshot --item learning/chords/c-major-scale-and-chords --piano` at
+- [x] T010 [US1] Checkpoint: look at `pnpm screenshot --item learning/chords/c-major-scale-and-chords --piano` at
   1024, 1280 and 1920 wide (`tests/.generated/010/t010-*.png`) against the US1 Independent Test and quickstart US1;
   run `pnpm vitest run tests/ui`, `pnpm typecheck`, `pnpm lint` and the T007 spec; log entry with summary lines; commit
 

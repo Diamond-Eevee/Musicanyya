@@ -1,5 +1,14 @@
 import type { WrongKeyState } from '../../core/practice/types.js';
+import {
+  BLACK_KEY_LENGTH_RATIO,
+  PIANO_KEY_HIGH,
+  PIANO_KEY_LOW,
+  PIANO_KEYS_MAX_HEIGHT_PX,
+  PIANO_KEYS_MAX_HEIGHT_VH,
+  WHITE_KEY_ASPECT,
+} from '../../engine/config.js';
 import { en } from '../i18n/en.js';
+import { keyboardLayout } from '../piano/keyboard-layout.js';
 import { insetState } from '../state/insetState.js';
 import { midiState } from '../state/midiState.js';
 import { practiceState } from '../state/practiceState.js';
@@ -18,6 +27,10 @@ const WRONG_KEY_STYLE: Record<WrongKeyState, { className: string; colour: string
 // is never confused with a judgement (FR-010, R-08).
 const HELP_COLOUR = '#0072b2';
 const HELP_GLYPH = '?';
+
+// The keyboard fills the element's width minus this room at both sides.
+const KEYBOARD_INLINE_PADDING_PX = 4;
+const WHITE_KEY_COUNT = keyboardLayout().filter((geometry) => geometry.colour === 'white').length;
 
 class MxPianoKeys extends HTMLElement {
   static readonly observedAttributes = ['hidden'];
@@ -83,21 +96,52 @@ class MxPianoKeys extends HTMLElement {
       <style>
         :host {
           display: block;
-          padding: 10px;
+          padding: 6px ${KEYBOARD_INLINE_PADDING_PX}px 10px;
+          container-type: inline-size;
         }
+        /* The keys fill the width (a percentage of it each, from the pure layout); the height follows the key
+           proportions up to the caps, so nothing scrolls sideways at any window width (FR-005, FR-006, R-2). */
         .keyboard {
-          display: flex;
+          position: relative;
+          width: 100%;
+          height: min(calc(100cqw / ${WHITE_KEY_COUNT} * ${WHITE_KEY_ASPECT}), ${PIANO_KEYS_MAX_HEIGHT_PX}px, ${PIANO_KEYS_MAX_HEIGHT_VH}vh);
         }
         .key {
-          position: relative;
-          width: 20px;
-          height: 80px;
-          border: 1px solid #000;
-          background: white;
-          margin-right: 2px;
+          position: absolute;
+          top: 0;
+          height: 100%;
+          box-sizing: border-box;
         }
-        .key.pressed {
+        .key.white {
+          background: #fdfdfb;
+          border: 1px solid #555;
+          border-left-width: 0;
+          border-radius: 0 0 3px 3px;
+        }
+        .key.white[data-key="${PIANO_KEY_LOW}"] {
+          border-left-width: 1px;
+        }
+        .key.black {
+          height: ${BLACK_KEY_LENGTH_RATIO * 100}%;
+          background: linear-gradient(to bottom, #1b1b1b 82%, #3b3b3b);
+          border-radius: 0 0 3px 3px;
+        }
+        .key-label {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 2px;
+          text-align: center;
+          font-size: clamp(7px, 1.4cqw, 11px);
+          line-height: 1;
+          color: #666;
+          pointer-events: none;
+        }
+        .key.white.pressed {
           background: #ffcccc;
+        }
+        .key.black.pressed {
+          background: #6b2020;
         }
         .key.pressed::after {
           content: '';
@@ -108,16 +152,16 @@ class MxPianoKeys extends HTMLElement {
           background: red;
           margin: 60px auto 0;
         }
-        .key.wrong-pitch, .key.wrong-octave, .key.extra {
-          border-width: 2px;
+        .key.wrong-pitch, .key.wrong-octave, .key.extra, .key.expected-help {
+          outline: 2px solid;
+          outline-offset: -2px;
         }
-        .key.wrong-pitch { border-color: ${WRONG_KEY_STYLE.wrongPitch.colour}; }
-        .key.wrong-octave { border-color: ${WRONG_KEY_STYLE.wrongOctave.colour}; }
-        .key.extra { border-color: ${WRONG_KEY_STYLE.extra.colour}; }
+        .key.wrong-pitch { outline-color: ${WRONG_KEY_STYLE.wrongPitch.colour}; }
+        .key.wrong-octave { outline-color: ${WRONG_KEY_STYLE.wrongOctave.colour}; }
+        .key.extra { outline-color: ${WRONG_KEY_STYLE.extra.colour}; }
         .key.expected-help {
-          border-width: 2px;
-          border-color: ${HELP_COLOUR};
-          box-shadow: 0 0 4px 1px ${HELP_COLOUR};
+          outline-color: ${HELP_COLOUR};
+          box-shadow: inset 0 0 4px 1px ${HELP_COLOUR};
         }
         .key.expected-help .key-mark { color: ${HELP_COLOUR}; }
         .key-mark {
@@ -162,12 +206,24 @@ class MxPianoKeys extends HTMLElement {
     this.messagesContainer = this.shadowRoot.getElementById('key-messages');
 
     if (this.keysContainer) {
-      // Create 88 keys (MIDI 21 to 108)
-      for (let k = 21; k <= 108; k++) {
-        const keyDiv = document.createElement('div');
-        keyDiv.className = 'key';
-        keyDiv.dataset.key = String(k);
-        this.keysContainer.appendChild(keyDiv);
+      // The white keys first, then the black ones, so the black keys are drawn on top of the whites
+      const layout = keyboardLayout();
+      for (const colour of ['white', 'black'] as const) {
+        for (const geometry of layout) {
+          if (geometry.colour !== colour) continue;
+          const keyDiv = document.createElement('div');
+          keyDiv.className = `key ${colour}`;
+          keyDiv.dataset.key = String(geometry.key);
+          keyDiv.style.left = `${(geometry.left * 100).toFixed(4)}%`;
+          keyDiv.style.width = `${(geometry.width * 100).toFixed(4)}%`;
+          if (geometry.label !== null) {
+            const label = document.createElement('span');
+            label.className = 'key-label';
+            label.textContent = geometry.label;
+            keyDiv.appendChild(label);
+          }
+          this.keysContainer.appendChild(keyDiv);
+        }
       }
     }
   }
@@ -179,7 +235,7 @@ class MxPianoKeys extends HTMLElement {
     const { keyFeedback, helpOverlay } = practiceState.get();
     const helpKeys = new Set(helpOverlay?.keys.map((k) => k.key) ?? []);
 
-    for (let k = 21; k <= 108; k++) {
+    for (let k = PIANO_KEY_LOW; k <= PIANO_KEY_HIGH; k++) {
       const el = this.keysContainer.querySelector(`[data-key="${k}"]`);
       if (!el) continue;
 
