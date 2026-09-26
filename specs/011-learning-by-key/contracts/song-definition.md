@@ -74,7 +74,9 @@ A song item = the melody of an approved public-domain source (right hand) + our 
    fingering requirement - FR-012 of 011 names exercises only).
 4. Chord names as `<direction><words>` above staff 1 at each chord (never `<harmony>`).
 5. Tempo mark from `tempoBpm`; key signature from `key`; runs `planEngraving(doc, 'library')` and applies the inserts.
-6. Writes the sidecar: `kind: "piece"`, `step: "song"`, `stepOrder` by level (beginner 0, intermediate 10, then title),
+6. Writes the sidecar: `kind: "piece"`, `step: "song"`, `stepOrder` = 10 x the song's position in its folder (beginner
+   songs first, then intermediate, each by title), unique per folder (analyze A5), `provenance.note` =
+   "Melody from <edition> (<source url>), public domain; left-hand chords our own (CC0)" (analyze A1),
    `tags: ["chords", "hands-together"]`, `arrangement: true`, `departures` (at least "Left-hand block chords are our own
    (CC0)"; plus the transposition when present), `provenance: { origin: "authored", licence: "CC0-1.0", author,
    created, basedOn: <source id> }`, `hands: "both"`.

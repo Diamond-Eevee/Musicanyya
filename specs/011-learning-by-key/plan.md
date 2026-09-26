@@ -109,6 +109,7 @@ src/core/
 src/engine/storage/local-settings-store.ts   # adoptScoreSettings(fromHashes, toHash)
 src/app/library-session.ts                   # adopt settings from item.supersedes before loading bytes
 src/ui/elements/mx-library.ts                # folder tree (<details>), step labels, auto-open on filter
+src/ui/elements/mx-score-source.ts           # songs: "Arrangement (CC0)" + source note (library-port 1.2 §4a)
 src/ui/state/libraryState.ts                 # isLevel incl. introduction; sectionId migration via formerIds
 src/ui/i18n/en.ts                            # level 'Introduction', step names, key-change relation words
 src/ui/styles/*.css                          # tree indentation / disclosure marker (existing library stylesheet)

@@ -53,6 +53,12 @@ not change keep their hash, so their settings apply with no adoption at all.
 Recent scores are copies of the bytes the user opened (feature 001); a recent entry of an old item keeps opening that
 copy and is not redirected. The audit report's existing note says so for replaced items (007 FR-020).
 
+## 4a. Where the Score came from (`mx-score-source`)
+
+For an `authored` item with `provenance.basedOn`, the panel shows "Arrangement for this app (CC0)" and then
+`provenance.note` (for songs: the source edition, its link and "public domain"), so a song names the source it was
+checked against and both licences (spec US3 scenario 3). Authored items without `basedOn` are unchanged.
+
 ## 5. Performance
 
 Unchanged budgets (list <= 1 s for 200 items, filter <= 200 ms); the synthetic-index test grows to 200 items spread over

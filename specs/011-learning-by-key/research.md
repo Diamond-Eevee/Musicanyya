@@ -96,8 +96,10 @@ each:
 | Intermediate | q=80 | 15 | A, B as Beginner with close voice leading (I, V6, IV64). C b11-15, both hands chords: RH halves I-I6 / I64-I6 / I-IV64 / V6-I / I; LH broken root triads in quarters (1-3-5-3, fingers 5-3-1-3). Minor: melodic minor scale. |
 | Advanced | q=96 | 9 | b1-2 RH scale in eighths up / down, LH halves I-V / I-IV; b3 RH quarters I vi6 IV64 V6; b4 I ii64 V6 I (minor: i iv64 V6 i); LH root-and-fifth eighths; b5-8 mirrored; b9 I (whole). |
 
-Measured by the expert: tempo 60/72/80/96; notes per beat ~1.6/2.05/2.6/3.5; chord changes per bar 1/2/2/4; hand
-independence rises once B1 is applied. Minor keys: harmonic minor for Introduction, Beginner, Advanced and every V;
+Measured by the expert: tempo 60/72/80/96; notes per beat ~1.6/2.05/2.6/3.5; chord changes per bar 1/2/2/4. Under the
+B1 rule every step measures hand independence 0 (each bar's slower hand is a subset of the faster hand), so the step
+order rests on tempo, notes per beat and chord changes (analyze A9). Where a step's computed level is below its step
+name (e.g. Advanced computing Intermediate), the definition carries `raisedBecause` (analyze A3). Minor keys: harmonic minor for Introduction, Beginner, Advanced and every V;
 melodic for Intermediate. Register (data-model §5): RH scale tonic T in octave 4 for C, Db, D, Eb, E, F and octave 3 for
 F#, G, Ab, A, Bb, B; chords I at T-12 (LH) / T+12 (RH) with IV and V below.
 
@@ -111,8 +113,8 @@ the whole run.
 ## R7 - Key-change exercises
 
 **Decision**: exercise-definition 1.1 adds a **key-change form**: `keyPairs[]` (from, to, relation) and `sections[]` that
-name the key they are in. Steps: Introduction (q=60, 12 bars), Beginner (q=72, 11 bars), Intermediate (voice-led pivot
-progression, both hands chords). **No Advanced** (expert: there is nothing harder that still ends in the second key
+name the key they are in. Steps: Introduction (q=60, 12 bars), Beginner (q=72, 11 bars), Intermediate (q=80, 9 bars,
+voice-led pivot progression, both hands chords: I, vi, ii6 = iv6, V of the new key, i, iv64, V6, i, i whole; analyze A6). **No Advanced** (expert: there is nothing harder that still ends in the second key
 without becoming a piece). Relative change: pivot IV = VI (or ii = iv), then V of the new key, then i; key signature
 unchanged, a light-light double barline and a words direction naming the new key. Parallel change: the shared dominant is
 the pivot; light-light barline, new `<key>` (with `<cancel>`) at the arrival bar. The existing `same-tonic` and
@@ -168,19 +170,23 @@ Gospel listings; Internet Archive for the rest). **Finding: Mutopia has almost n
 | # | Song | Source | Key, metre (source) | Shelf key | Chords | Notes |
 |---|---|---|---|---|---|---|
 | 1 | Au clair de la lune | Mutopia 1111 (Horetzky No. 21, guitar), `HoretzkyF/horetzky21/horetzky21` | C, 2/4 | C major | I, V | top voice extracted; ideal first song |
-| 2 | Good King Wenceslas | Mutopia 905 (melody only, Hutchins), `Anonymous/GoodKingWenceslas/GoodKingWenceslas` | A, 4/4 | A major | I, IV, V | cleanest source |
+| 2 | Good King Wenceslas | Mutopia 905 (melody only, Hutchins), `Anonymous/GoodKingWenceslas/GoodKingWenceslas` | A, 4/4 | **G major** (transposed -M2) | I, IV, V | cleanest source; transposed because A major's 3 sharps exceed the beginner key cap (analyze A2) |
 | 3 | The Holly and the Ivy | Mutopia 644 (melody), `Traditional/thehollyandtheivy/thehollyandtheivy` | F, 3/4 | F major | I, IV, V | pickup |
 | 4 | Joy to the World | Mutopia 1223 (SATB), `HandelGF/antioch/antioch` | D, 2/4 | D major | I, IV, V | soprano line |
 | 5 | O Come, All Ye Faithful | Mutopia 1220 (SATB), `WadeJF/adeste_fideles/adeste_fideles` | G, 4/4 | G major | I, IV, V | soprano line, pickup |
-| 6 | Silent Night | Mutopia 1295 (SATB), `GruberFX/stille_nacht/stille_nacht` | Bb, 6/8 | Bb major | I, IV, V | (Mutopia 521 is CC BY-SA - not this one) |
+| 6 | Silent Night | Mutopia 1295 (SATB), `GruberFX/stille_nacht/stille_nacht` | Bb, 6/8 | Bb major | I, IV, V | intermediate song: 6/8 is not a beginner metre (analyze A2); (Mutopia 521 is CC BY-SA - not this one) |
 | 7 | Auld Lang Syne | Mutopia 1121 (Horetzky No. 31, guitar), `HoretzkyF/horetzky31/horetzky31` | D, 2/4 | D major | I, IV, V | top voice extracted |
 | 8 | O Come, O Come, Emmanuel | Mutopia 1300 (SATB), `Traditional/veniemma/veniemma` | E minor (Aeolian), 4/4 | E minor | i, iv, V, VII | modal; intermediate song (VII) |
 | 9 | Greensleeves | already approved `mutopia-1247-greensleeves-hymntune` | E minor, 6/8 | **A minor** (transposed +P4) | i, III, VII, iv, V | intermediate song; different item from the repertoire piece |
 | (10) | Home, Sweet Home | Mutopia 435, `BishopHR/homeshome/homeshome` | F, 4/4 | F major | I, IV, V | reserve |
 | (11) | It's Me, O Lord | Mutopia 1003 (SATB), `Traditional/its_me_oh_Lord/its_me_oh_Lord` | D, 2/4 | D major | I, IV, V | reserve |
 
-Result: 9 songs in 8 keys (C, G, D, A, F, Bb, E minor, A minor), 2 minor - meets FR-016 / SC-004 with every melody
-mechanically comparable. Internet Archive scans (e.g. *God Rest You Merry* in Bramley & Stainer, IA
+Result: 9 songs in 7 keys (C, G, D, F, Bb, E minor, A minor), 2 minor - meets FR-016 / SC-004 with every melody
+mechanically comparable. **Level risk (analyze A2)**: beginner songs must pass the beginner caps as pieces (metres 4/4,
+3/4, 2/4; key fifths <= 2; shortest value >= half a beat). Dotted eighth-sixteenth figures (*Joy to the World*,
+*Auld Lang Syne*) break the shortest-value cap, so those songs may compute intermediate. Every song is level-checked
+before its definition is committed (T063); if fewer than 6 beginner songs remain, the reserves (10, 11) need the owner's
+source approval first - stop and ask. Internet Archive scans (e.g. *God Rest You Merry* in Bramley & Stainer, IA
 `christmascarolsn00staiiala`; *Go Down, Moses*, IA `cu31924022492304` p. 142) would need hand encoding and only a visual
 check - kept as a fallback, not planned.
 

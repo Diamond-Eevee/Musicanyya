@@ -78,7 +78,8 @@ accompanying hand has at most one chord per bar.
 1. **Given** the library is open, **When** the user opens *Learning*, **Then** they see *Keys* and *Key changes*,
    and *Keys* lists every key in scope in circle-of-fifths order with each major key followed by its relative minor.
 2. **Given** a key folder, **When** it is opened, **Then** its items appear in the fixed order Introduction,
-   Beginner, Intermediate, Advanced, Songs, each marked with its step name and level.
+   Beginner, Intermediate, Advanced, Songs, each marked with its step name and level; extra practice items of a step
+   follow that step's main item.
 3. **Given** the *Introduction* item of any key, **When** it is opened, **Then** one hand plays the scale of that key
    and the other plays only the tonic and dominant chords, at most one chord per bar, at a slower tempo than the
    *Beginner* item of the same key.
@@ -271,8 +272,8 @@ after the update (*Keys > C major > Intermediate*): the remembered run settings 
 
 - **SC-001**: From the library, a user reaches the *Introduction* item of any key in scope in at most 3 selections
   (Learning -> Keys -> key -> item already listed).
-- **SC-002**: 100% of keys in scope have their steps in strictly non-decreasing difficulty as measured by the
-  library's derived facts, with an automatic check that fails when not.
+- **SC-002**: 100% of key and key-change folders have main steps that are non-decreasing on every measured fact and
+  rising on at least one (FR-010), with an automatic check that fails when not.
 - **SC-003**: In every *Introduction* item the accompanying hand plays at most one chord per bar and the tempo is at
   least 10% slower than the same key's *Beginner* item.
 - **SC-004**: At least 8 songs over at least 4 keys (at least 2 minor) ship, each with a passing audit record naming

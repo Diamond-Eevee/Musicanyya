@@ -83,7 +83,8 @@ are both non-empty and **neither is a subset of the other**.
 `chordChangesPerBar`: for each staff, the chord attacks (onsets with 2+ sounding notes of that staff starting together)
 whose pitch set differs from the previous chord attack of that staff; summed over staves, divided by written bars.
 
-**Step order** (`checkStepOrder`, FR-010): over the main items of one folder in step order, for each consecutive pair
+**Step order** (`checkStepOrder`, FR-010): over the main items (step introduction/beginner/intermediate/advanced with
+`stepOrder` 0; songs never take part) of one folder in step order, for each consecutive pair
 (a, b): `tempoBpm`, `notesPerBeat`, `handIndependenceFraction`, `chordChangesPerBar` of b >= a, and at least one >.
 Failure message: `learning/keys/f-sharp-major: intermediate is less demanding than beginner on notesPerBeat (2.4 < 2.5)`.
 

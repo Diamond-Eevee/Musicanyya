@@ -22,7 +22,9 @@ goldens are the guard). `version` stays `1`.
   "description": "key slug (or pair slug) -> old item ids this generated item replaces; hashes are looked up from the old files by the build tool" }
 ```
 
-`meta.level` gains `introduction`. `meta.tags` may include `key-changes`.
+`meta.level` gains `introduction`. `meta.tags` may include `key-changes`. `meta` gains optional `raisedBecause`
+(string, copied to every generated sidecar): required when the step's level is above the level `checkLevel` computes for
+any generated key (library-index rule, analyze A3); the generator's tests fail when it is missing or superfluous.
 
 Rules:
 
