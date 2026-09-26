@@ -3,7 +3,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { KEYS } from '../../src/core/library/exercise/keys.js';
+import { KEY_CHANGE_PAIRS, KEYS } from '../../src/core/library/exercise/keys.js';
 import { buildLibraryIndex } from '../../tools/library/build-index.js';
 import type { LibrarySectionDefinition } from '../../tools/library/sections.js';
 import { SUCCESSORS } from '../../tools/library/successors.js';
@@ -393,16 +393,9 @@ describe('the Learning > Keys shelf (feature 011 US1)', () => {
     ]);
   });
 
-  it('replaces the old Chords items: only the two same-tonic drills US2 moves remain under learning/chords', async () => {
+  it('replaces the old Chords items: nothing remains under learning/chords (the two same-tonic drills moved in US2)', async () => {
     const { index } = await buildLibraryIndex(libraryRoot);
-    const left = index.items
-      .filter((i) => i.id.startsWith('learning/chords/'))
-      .map((i) => i.id)
-      .sort();
-    expect(left).toEqual([
-      'learning/chords/changes/changes-a-minor-major-a-minor',
-      'learning/chords/changes/changes-same-tonic-c-major',
-    ]);
+    expect(index.items.filter((i) => i.id.startsWith('learning/chords/'))).toEqual([]);
   });
 
   it('every old item that US1 replaces is superseded by exactly one new item, with the SHA-256 of its old file (FR-005, FR-020)', async () => {
@@ -425,5 +418,108 @@ describe('the Learning > Keys shelf (feature 011 US1)', () => {
     const shelf = new Set(index.items.map((i) => i.id));
     for (const item of index.items)
       for (const old of item.meta.supersedes ?? []) expect(shelf.has(old.id), old.id).toBe(false);
+  });
+});
+
+// Feature 011 T045 (spec FR-013-FR-015; data-model §2; library-index 1.2.0 §4): the Learning > Key changes shelf.
+describe('the Learning > Key changes shelf (feature 011 US2)', () => {
+  const PAIR_SLUGS = [
+    'c-major-to-a-minor',
+    'a-minor-to-c-major',
+    'c-major-to-c-minor',
+    'c-minor-to-c-major',
+    'g-major-to-e-minor',
+    'e-minor-to-g-major',
+    'g-major-to-g-minor',
+    'g-minor-to-g-major',
+    'f-major-to-d-minor',
+    'd-minor-to-f-major',
+    'f-major-to-f-minor',
+    'f-minor-to-f-major',
+    'd-major-to-b-minor',
+    'b-minor-to-d-major',
+    'd-major-to-d-minor',
+    'd-minor-to-d-major',
+    'a-minor-to-a-major',
+    'a-major-to-a-minor',
+  ];
+  const STEPS = ['introduction', 'beginner', 'intermediate'] as const;
+
+  it('has 18 pair folders under Learning > Key changes, in data-model §2 order, titled "<from> -> <to>"', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    const root = index.sections.find((s) => s.id === 'learning/key-changes');
+    expect(root?.title).toBe('Key changes');
+    expect(root?.parent).toBe('learning');
+    expect(root?.order).toBe(2);
+    const folders = index.sections.filter((s) => s.parent === 'learning/key-changes').sort((a, b) => a.order - b.order);
+    expect(folders.map((s) => s.id)).toEqual(PAIR_SLUGS.map((slug) => `learning/key-changes/${slug}`));
+    expect(folders.map((s) => s.order)).toEqual(Array.from({ length: 18 }, (_, i) => i + 1));
+    expect(folders.slice(0, 4).map((s) => s.title)).toEqual([
+      'C major -> A minor',
+      'A minor -> C major',
+      'C major -> C minor',
+      'C minor -> C major',
+    ]);
+    expect(folders.map((s) => s.description)).toEqual(
+      KEY_CHANGE_PAIRS.map((p) => p.relation), // the pair table's own order is the shelf's
+    );
+  });
+
+  it('every pair folder has exactly one main introduction, beginner and intermediate, tagged key-changes', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    for (const slug of PAIR_SLUGS) {
+      const items = index.items.filter((i) => i.section === `learning/key-changes/${slug}`);
+      for (const step of STEPS) {
+        const main = items.filter((i) => i.meta.step === step && (i.meta.stepOrder ?? 0) === 0);
+        expect(
+          main.map((i) => i.id),
+          `${slug} ${step}`,
+        ).toEqual([`learning/key-changes/${slug}/${step}`]);
+        expect(main[0]?.meta.level, `${slug} ${step}`).toBe(step);
+        expect(main[0]?.meta.tags, `${slug} ${step}`).toContain('key-changes');
+      }
+      expect(
+        items.every((i) => i.meta.tags.includes('key-changes')),
+        slug,
+      ).toBe(true);
+    }
+  });
+
+  it('has at least 54 key-change exercises (18 pairs x 3 steps)', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    const mains = index.items.filter(
+      (i) => i.id.startsWith('learning/key-changes/') && (i.meta.stepOrder ?? 0) === 0 && i.meta.step !== undefined,
+    );
+    expect(mains.length).toBeGreaterThanOrEqual(54);
+  });
+
+  it('the two same-tonic drills sit in their pair folders as extras: major-and-minor and minor-and-major', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    const extras = index.items.filter((i) => i.id.startsWith('learning/key-changes/') && (i.meta.stepOrder ?? 0) > 0);
+    expect(extras.map((i) => [i.id, i.meta.step, i.meta.stepOrder]).sort()).toEqual([
+      ['learning/key-changes/a-minor-to-a-major/minor-and-major', 'intermediate', 10],
+      ['learning/key-changes/c-major-to-c-minor/major-and-minor', 'intermediate', 10],
+    ]);
+  });
+
+  it('nothing is left under learning/chords, and the folders remember the old ids', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    expect(index.items.filter((i) => i.id.startsWith('learning/chords/'))).toEqual([]);
+    expect(index.sections.filter((s) => s.id.startsWith('learning/chords'))).toEqual([]);
+    expect(index.sections.find((s) => s.id === 'learning/key-changes')?.formerIds).toEqual(['learning/chords/changes']);
+  });
+
+  it('the two moved drills supersede their old ids, with the SHA-256 of the old file (FR-014, FR-020)', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    const moved = SUCCESSORS.filter((s) => s.newId?.startsWith('learning/key-changes/'));
+    expect(moved.map((s) => s.oldId).sort()).toEqual([
+      'learning/chords/changes/changes-a-minor-major-a-minor',
+      'learning/chords/changes/changes-same-tonic-c-major',
+    ]);
+    for (const successor of moved) {
+      const claimants = index.items.filter((i) => i.meta.supersedes?.some((s) => s.id === successor.oldId));
+      expect(claimants.map((i) => i.id)).toEqual([successor.newId]);
+      expect(claimants[0]?.meta.supersedes?.find((s) => s.id === successor.oldId)?.hash).toBe(successor.hash);
+    }
   });
 });

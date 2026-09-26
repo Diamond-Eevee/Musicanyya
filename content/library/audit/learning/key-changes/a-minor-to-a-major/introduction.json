@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "itemId": "learning/key-changes/a-minor-to-a-major/introduction",
+  "claim": "exercise",
+  "claimText": "A minor to A major - introduction",
+  "checks": [
+    {
+      "method": "theory",
+      "ruleSet": "exercise-theory-v2",
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "verified",
+  "outcomeNote": "The independent theory check derives every chord from the title alone (both key segments: the signature in force, the key named at the arrival bar, every chord spelled in its own key, the last chord the tonic of the second key) and finds 0 differences.",
+  "checkedBy": "claude-sonnet-5",
+  "date": "2026-09-26"
+}

@@ -162,6 +162,17 @@ unchanged, a light-light double barline and a words direction naming the new key
 the pivot; light-light barline, new `<key>` (with `<cancel>`) at the arrival bar. The existing `same-tonic` and
 `a-minor-major` drills become extras in the matching folders.
 
+**As built (2026-09-26, claude-sonnet-5; corrects the paragraph above)**: the relative Introduction and Beginner go from
+the pivot (IV of a major first key, VI of a minor one) **straight to the new tonic**; they do not pass through the dominant
+of the new key. Adding it was tried: the bass of V of the new key lies one tone below the pivot's, which takes the four
+major-to-minor pairs to a 39-semitone span, one over the cap of D-2 (38 semitones for exercises), and the cap is an owner
+decision. The change is still shown three ways (the pivot, the light-light double barline, the new key named in words) and
+ends on the new tonic (FR-013). The parallel change keeps the shared dominant as its pivot, as designed. The Intermediate
+progression as built is `I | i iv6 V VI iv64 V6 i i` (arrival key's numerals), not the `i` in the fourth place that the list above
+gives (V resolves deceptively to VI). The earlier log does not record why; it is left as built and put to the music review.
+The theory check's claims (`exercise-claims.ts`) state these sequences. Open for the music review (T081): whether a relative
+change without the dominant is acceptable teaching material, or whether the owner wants the span cap raised for key changes.
+
 Folders: 16 chosen by the owner, plus **A minor <-> A major** so `a-minor-major` has a home (spec FR-014 names it, FR-015
 did not list A) - part of **D-3**. `facts.keys` must not count a same-fifths relative change as a key change; the fact
 scanner already de-duplicates consecutive equal names.

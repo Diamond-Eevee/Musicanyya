@@ -6,13 +6,13 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 | Outcome | Items |
 |---|---|
-| verified | 101 |
+| verified | 155 |
 | verified (visual) | 3 |
 | fixed | 7 |
 | replaced | 4 |
 | relabelled | 2 |
 | removed | 1 |
-| Total | 118 |
+| Total | 172 |
 
 ## Level counts after the audit
 
@@ -146,8 +146,62 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 | D minor - beginner<br>`learning/keys/d-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | D minor - intermediate<br>`learning/keys/d-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | D minor - advanced<br>`learning/keys/d-minor/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
-| A minor - minor and major<br>`learning/chords/changes/changes-a-minor-major-a-minor` | exercise | exercise-theory-v1 | theory | 0 | fixed | 2026-09-24 |
-| C major - major and minor<br>`learning/chords/changes/changes-same-tonic-c-major` | exercise | exercise-theory-v1 | theory | 0 | fixed | 2026-09-24 |
+| C major to A minor - introduction<br>`learning/key-changes/c-major-to-a-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C major to A minor - beginner<br>`learning/key-changes/c-major-to-a-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C major to A minor - intermediate<br>`learning/key-changes/c-major-to-a-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A minor to C major - introduction<br>`learning/key-changes/a-minor-to-c-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A minor to C major - beginner<br>`learning/key-changes/a-minor-to-c-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A minor to C major - intermediate<br>`learning/key-changes/a-minor-to-c-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C major to C minor - introduction<br>`learning/key-changes/c-major-to-c-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C major to C minor - beginner<br>`learning/key-changes/c-major-to-c-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C major to C minor - intermediate<br>`learning/key-changes/c-major-to-c-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C major - major and minor<br>`learning/key-changes/c-major-to-c-minor/major-and-minor` | exercise | exercise-theory-v1 | theory | 0 | fixed | 2026-09-24 |
+| C minor to C major - introduction<br>`learning/key-changes/c-minor-to-c-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C minor to C major - beginner<br>`learning/key-changes/c-minor-to-c-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C minor to C major - intermediate<br>`learning/key-changes/c-minor-to-c-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G major to E minor - introduction<br>`learning/key-changes/g-major-to-e-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G major to E minor - beginner<br>`learning/key-changes/g-major-to-e-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G major to E minor - intermediate<br>`learning/key-changes/g-major-to-e-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E minor to G major - introduction<br>`learning/key-changes/e-minor-to-g-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E minor to G major - beginner<br>`learning/key-changes/e-minor-to-g-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E minor to G major - intermediate<br>`learning/key-changes/e-minor-to-g-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G major to G minor - introduction<br>`learning/key-changes/g-major-to-g-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G major to G minor - beginner<br>`learning/key-changes/g-major-to-g-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G major to G minor - intermediate<br>`learning/key-changes/g-major-to-g-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G minor to G major - introduction<br>`learning/key-changes/g-minor-to-g-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G minor to G major - beginner<br>`learning/key-changes/g-minor-to-g-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G minor to G major - intermediate<br>`learning/key-changes/g-minor-to-g-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F major to D minor - introduction<br>`learning/key-changes/f-major-to-d-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F major to D minor - beginner<br>`learning/key-changes/f-major-to-d-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F major to D minor - intermediate<br>`learning/key-changes/f-major-to-d-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D minor to F major - introduction<br>`learning/key-changes/d-minor-to-f-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D minor to F major - beginner<br>`learning/key-changes/d-minor-to-f-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D minor to F major - intermediate<br>`learning/key-changes/d-minor-to-f-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F major to F minor - introduction<br>`learning/key-changes/f-major-to-f-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F major to F minor - beginner<br>`learning/key-changes/f-major-to-f-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F major to F minor - intermediate<br>`learning/key-changes/f-major-to-f-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F minor to F major - introduction<br>`learning/key-changes/f-minor-to-f-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F minor to F major - beginner<br>`learning/key-changes/f-minor-to-f-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F minor to F major - intermediate<br>`learning/key-changes/f-minor-to-f-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D major to B minor - introduction<br>`learning/key-changes/d-major-to-b-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D major to B minor - beginner<br>`learning/key-changes/d-major-to-b-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D major to B minor - intermediate<br>`learning/key-changes/d-major-to-b-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B minor to D major - introduction<br>`learning/key-changes/b-minor-to-d-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B minor to D major - beginner<br>`learning/key-changes/b-minor-to-d-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B minor to D major - intermediate<br>`learning/key-changes/b-minor-to-d-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D major to D minor - introduction<br>`learning/key-changes/d-major-to-d-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D major to D minor - beginner<br>`learning/key-changes/d-major-to-d-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D major to D minor - intermediate<br>`learning/key-changes/d-major-to-d-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D minor to D major - introduction<br>`learning/key-changes/d-minor-to-d-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D minor to D major - beginner<br>`learning/key-changes/d-minor-to-d-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D minor to D major - intermediate<br>`learning/key-changes/d-minor-to-d-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A minor to A major - introduction<br>`learning/key-changes/a-minor-to-a-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A minor to A major - beginner<br>`learning/key-changes/a-minor-to-a-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A minor to A major - intermediate<br>`learning/key-changes/a-minor-to-a-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A minor - minor and major<br>`learning/key-changes/a-minor-to-a-major/minor-and-major` | exercise | exercise-theory-v1 | theory | 0 | fixed | 2026-09-24 |
+| A major to A minor - introduction<br>`learning/key-changes/a-major-to-a-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A major to A minor - beginner<br>`learning/key-changes/a-major-to-a-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A major to A minor - intermediate<br>`learning/key-changes/a-major-to-a-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 
 ## Removed
 
@@ -160,6 +214,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 | Old id | New item |
 |---|---|
 | `learning/chords/c-major-scale-and-chords` | C major - beginner<br>`learning/keys/c-major/beginner` |
+| `learning/chords/changes/changes-a-minor-major-a-minor` | A minor - minor and major<br>`learning/key-changes/a-minor-to-a-major/minor-and-major` |
 | `learning/chords/changes/changes-cadence-c-major` | C major - beginner<br>`learning/keys/c-major/beginner` |
 | `learning/chords/changes/changes-cadence-f-major` | F major - beginner<br>`learning/keys/f-major/beginner` |
 | `learning/chords/changes/changes-cadence-g-major` | G major - beginner<br>`learning/keys/g-major/beginner` |
@@ -172,6 +227,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 | `learning/chords/changes/changes-minor-cadence-a-minor` | A minor - beginner<br>`learning/keys/a-minor/beginner` |
 | `learning/chords/changes/changes-minor-cadence-d-minor` | D minor - beginner<br>`learning/keys/d-minor/beginner` |
 | `learning/chords/changes/changes-plagal-perfect-c-major` | C major - beginner<br>`learning/keys/c-major/beginner` |
+| `learning/chords/changes/changes-same-tonic-c-major` | C major - major and minor<br>`learning/key-changes/c-major-to-c-minor/major-and-minor` |
 | `learning/chords/changes/changes-tonic-inversions-c-major` | C major - intermediate<br>`learning/keys/c-major/intermediate` |
 | `learning/chords/changes/changes-turnaround-c-major` | C major - I-vi-ii-V<br>`learning/keys/c-major/turnaround` |
 | `learning/chords/triads-a-flat-major` | A♭ major - intermediate<br>`learning/keys/a-flat-major/intermediate` |
@@ -201,11 +257,11 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 ## Notes
 
-### A minor - minor and major (`learning/chords/changes/changes-a-minor-major-a-minor`)
+### A minor - minor and major (`learning/key-changes/a-minor-to-a-major/minor-and-major`)
 
 - Outcome (fixed): The theory check found 2 label differences: the parallel major of the tonic was labelled "A · i". Corrected at the exercise definition to "A · I" (the case of a Roman numeral follows the quality); no note changed.
 
-### C major - major and minor (`learning/chords/changes/changes-same-tonic-c-major`)
+### C major - major and minor (`learning/key-changes/c-major-to-c-minor/major-and-minor`)
 
 - Outcome (fixed): The theory check found 2 label differences: the parallel minor of the tonic was labelled "Cm · I". Corrected at the exercise definition to "Cm · i" (the case of a Roman numeral follows the quality); no note changed.
 

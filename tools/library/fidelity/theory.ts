@@ -74,14 +74,26 @@ export interface SectionClaim {
   left: SectionHand;
 }
 
+/** A run of printed bars (`firstBar` to `lastBar`, inclusive) in one key: the key claim per bar range of a key change. */
+export interface KeySegment {
+  firstBar: number;
+  lastBar: number;
+  key: KeyClaim;
+}
+
 export interface ExerciseClaim {
   itemId: string;
+  /** The key of the first bar (and of the whole file when there are no `segments`). */
   key: KeyClaim;
   /** In written order, one per sounded chord event (a moment at which some hand plays two or more notes). */
   chords: ChordClaim[];
   scales?: ScaleClaim[];
   /** exercise-theory-v2: the scale and single-note voicings of each hand, bar range by bar range. */
   sections?: SectionClaim[];
+  /** exercise-theory-v2 key change: the key of each bar range in written order. Every chord is spelled in the key of the
+   *  segment its bar lies in; from the second segment on the file must show the change (new signature when the fifths
+   *  differ, and the key named in a words direction at the segment's first bar). */
+  segments?: KeySegment[];
 }
 
 export type TheoryRule =
@@ -235,14 +247,23 @@ interface WrittenNote {
   end: QuarterTime;
 }
 interface Words {
+  bar: number;
   onset: QuarterTime;
   text: string;
   /** The hand whose staff the direction sits on, when the file says. */
   hand?: Hand;
 }
+/** One `<key>` element of the file, with the printed bar it stands in. */
+interface WrittenKey {
+  bar: number;
+  fifths: string;
+  mode?: string;
+}
 interface Reading {
   fifths?: string;
   mode?: string;
+  /** Every `<key>` in written order (the first is also `fifths`/`mode`). */
+  keys: WrittenKey[];
   firstBar: string;
   notes: WrittenNote[];
   words: Words[];
@@ -258,7 +279,7 @@ function readScore(xml: string): Reading {
   const { doc } = readXml(xml);
   const root = doc.children.find((c): c is XmlElement => c instanceof XmlElement);
   if (root?.name !== 'score-partwise') throw new Error('the theory check reads score-partwise files');
-  const reading: Reading = { firstBar: '1', notes: [], words: [] };
+  const reading: Reading = { firstBar: '1', keys: [], notes: [], words: [] };
   let first = true;
   for (const part of elements(root.children, 'part')) {
     let measureStart = q(0);
@@ -277,17 +298,26 @@ function readScore(xml: string): Reading {
           const d = child(node, 'divisions');
           if (d) divisions = Number(text(d));
           const key = child(node, 'key');
-          if (key && reading.fifths === undefined) {
-            reading.fifths = text(child(key, 'fifths'));
+          if (key) {
+            const fifths = text(child(key, 'fifths'));
             const mode = text(child(key, 'mode'));
-            if (mode !== '') reading.mode = mode;
+            reading.keys.push({ bar: Number(bar), fifths, ...(mode !== '' ? { mode } : {}) });
+            if (reading.fifths === undefined) {
+              reading.fifths = fifths;
+              if (mode !== '') reading.mode = mode;
+            }
           }
         } else if (node.name === 'direction') {
           for (const type of elements(node.children, 'direction-type'))
             for (const words of elements(type.children, 'words')) {
               const staff = text(child(node, 'staff'));
               const hand = staff === '' ? undefined : HAND_OF_STAFF[Number(staff)];
-              reading.words.push({ onset: timeOf(position), text: text(words), ...(hand ? { hand } : {}) });
+              reading.words.push({
+                bar: Number(bar),
+                onset: timeOf(position),
+                text: text(words),
+                ...(hand ? { hand } : {}),
+              });
             }
         } else if (node.name === 'backup') {
           position -= Number(text(child(node, 'duration')));
@@ -383,9 +413,15 @@ export function checkExercise(xml: string, claim: ExerciseClaim): TheoryDifferen
   if (reading.mode !== undefined && reading.mode !== claim.key.mode)
     out.push(wholeFile('mode', claim.key.mode, reading.mode));
 
+  const keyAt = (bar: string): KeyClaim =>
+    claim.segments?.find((s) => Number(bar) >= s.firstBar && Number(bar) <= s.lastBar)?.key ?? claim.key;
+  if (claim.segments) out.push(...checkKeySegments(claim.segments, reading));
+
   const compared = Math.min(claim.chords.length, events.length);
-  for (let i = 0; i < compared; i++)
-    out.push(...checkChord(claim.key, i, claim.chords[i] as ChordClaim, events[i] as ChordEvent, reading.words));
+  for (let i = 0; i < compared; i++) {
+    const event = events[i] as ChordEvent;
+    out.push(...checkChord(keyAt(event.bar), i, claim.chords[i] as ChordClaim, event, reading.words));
+  }
   if (claim.chords.length !== events.length) {
     const at = events[Math.min(compared, events.length - 1)];
     out.push({
@@ -403,6 +439,42 @@ export function checkExercise(xml: string, claim: ExerciseClaim): TheoryDifferen
   for (const scale of claim.scales ?? [])
     out.push(...checkScale(claim.key, scale, singles.get(scale.hand) ?? [], reading));
   if (claim.sections) out.push(...checkSections(claim.sections, singles, reading));
+  return out;
+}
+
+/** A key name in a words direction: "A minor", "F♯ minor", "B♭ major" (ASCII # and b are read too). */
+const KEY_NAME = /^([A-G])([♯♭#b]?) (major|minor)$/;
+
+/** The key change itself, from the second segment on: the signature in force at the segment's first bar has the fifths of the
+ *  claimed key (a relative change keeps the signature, so nothing new is written), a `<key>` written at that bar has the
+ *  claimed mode, and a words direction at that bar names the claimed key (the only sign of a relative change). */
+function checkKeySegments(segments: readonly KeySegment[], reading: Reading): TheoryDifference[] {
+  const out: TheoryDifference[] = [];
+  segments.forEach((segment, index) => {
+    if (index === 0) return;
+    const bar = String(segment.firstBar);
+    const at = { kind: 'theory' as const, chordIndex: -1, bar, hand: 'both' as const };
+    const fifths = String(expectedFifths(segment.key));
+    const inForce = reading.keys.filter((k) => k.bar <= segment.firstBar).pop();
+    if (inForce?.fifths !== fifths) out.push({ ...at, rule: 'key', expected: fifths, found: inForce?.fifths ?? NONE });
+    const written = reading.keys.find((k) => k.bar === segment.firstBar);
+    if (written?.mode !== undefined && written.mode !== segment.key.mode)
+      out.push({ ...at, rule: 'mode', expected: segment.key.mode, found: written.mode });
+
+    const names = reading.words.filter((w) => w.bar === segment.firstBar && KEY_NAME.test(w.text.trim()));
+    const named = names.some((w) => {
+      const m = KEY_NAME.exec(w.text.trim()) as RegExpExecArray;
+      const alter = m[2] === '♯' || m[2] === '#' ? 1 : m[2] === '♭' || m[2] === 'b' ? -1 : 0;
+      return m[1] === segment.key.tonicLetter && alter === segment.key.tonicAlter && m[3] === segment.key.mode;
+    });
+    if (!named)
+      out.push({
+        ...at,
+        rule: 'key',
+        expected: `${describeTheoryTone({ step: segment.key.tonicLetter, alter: segment.key.tonicAlter })} ${segment.key.mode} named in a direction`,
+        found: names[0]?.text.trim() ?? NONE,
+      });
+  });
   return out;
 }
 

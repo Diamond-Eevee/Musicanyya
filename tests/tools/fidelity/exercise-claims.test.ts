@@ -3,7 +3,11 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { generateFamily, generatePatternFamily } from '../../../src/core/library/exercise/generate';
+import {
+  generateFamily,
+  generateKeyChangeFamily,
+  generatePatternFamily,
+} from '../../../src/core/library/exercise/generate';
 import type { ExerciseDefinition } from '../../../src/core/library/exercise/types';
 import { ClaimError, claimForItem, parseExerciseTitle } from '../../../tools/library/fidelity/exercise-claims';
 import { type ChordClaim, checkExercise, type ExerciseClaim } from '../../../tools/library/fidelity/theory';
@@ -474,5 +478,116 @@ describe('the generated steps agree with their claims, in every key (the indepen
         expect(checkExercise(item.xml, claim), item.meta.title).toEqual([]);
       }
     });
+  }
+});
+
+// ---- exercise-theory-v2: key changes (feature 011 T043, research R7/R8, data-model §3) ----
+// "<from> to <to> - introduction|beginner|intermediate": a claim with one key segment per key, written by hand from the
+// key-pair table of data-model §3 and the step shapes of research R7 - never read from the generator or the definitions.
+describe('the key-change claims: "<from> to <to> - introduction|beginner|intermediate" for the 18 pairs', () => {
+  const PAIRS: [string, string, 'relative' | 'parallel'][] = [
+    ['C major', 'A minor', 'relative'],
+    ['A minor', 'C major', 'relative'],
+    ['C major', 'C minor', 'parallel'],
+    ['C minor', 'C major', 'parallel'],
+    ['G major', 'E minor', 'relative'],
+    ['E minor', 'G major', 'relative'],
+    ['G major', 'G minor', 'parallel'],
+    ['G minor', 'G major', 'parallel'],
+    ['F major', 'D minor', 'relative'],
+    ['D minor', 'F major', 'relative'],
+    ['F major', 'F minor', 'parallel'],
+    ['F minor', 'F major', 'parallel'],
+    ['D major', 'B minor', 'relative'],
+    ['B minor', 'D major', 'relative'],
+    ['D major', 'D minor', 'parallel'],
+    ['D minor', 'D major', 'parallel'],
+    ['A minor', 'A major', 'parallel'],
+    ['A major', 'A minor', 'parallel'],
+  ];
+  const STEPS = ['introduction', 'beginner', 'intermediate'] as const;
+  const keyChangeClaim = (from: string, to: string, step: string): ExerciseClaim =>
+    claimForItem({ itemId: `learning/key-changes/x/${step}`, title: `${from} to ${to} - ${step}`, trains: '' });
+  /** The bars of each segment, by relation and step (research R7: 12, 11 and 9 bars in all). */
+  const BARS: Record<'relative' | 'parallel', Record<(typeof STEPS)[number], [number, number]>> = {
+    relative: { introduction: [4, 8], beginner: [6, 5], intermediate: [1, 8] },
+    parallel: { introduction: [4, 8], beginner: [6, 5], intermediate: [4, 5] },
+  };
+
+  it('every pair and step has a claim with two segments that cover the whole piece, the first in the first key', () => {
+    for (const [from, to, relation] of PAIRS) {
+      for (const step of STEPS) {
+        const claim = keyChangeClaim(from, to, step);
+        const [first, second] = BARS[relation][step];
+        expect(claim.key, `${from} to ${to} - ${step}`).toEqual(parseExerciseTitle(`${from} - x`).key);
+        expect(claim.segments, `${from} to ${to} - ${step}`).toEqual([
+          { firstBar: 1, lastBar: first, key: parseExerciseTitle(`${from} - x`).key },
+          { firstBar: first + 1, lastBar: first + second, key: parseExerciseTitle(`${to} - x`).key },
+        ]);
+        expect(claim.chords, `${from} to ${to} - ${step}`).toHaveLength(first + second);
+      }
+    }
+  });
+
+  it('every chord is a whole-note triad in both hands, two octaves apart', () => {
+    const claim = keyChangeClaim('C major', 'A minor', 'beginner');
+    expect(claim.chords.every((c) => c.hands.join() === 'left,right' && c.octavesApart === 2)).toBe(true);
+  });
+
+  it('a relative change: the tonic, then the pivot (IV of the first key, VI in a minor first key), then the new tonic', () => {
+    expect(shortChords(keyChangeClaim('C major', 'A minor', 'introduction'))).toEqual(
+      'I I I IV i i i i i i i i'.split(' '),
+    );
+    expect(shortChords(keyChangeClaim('A minor', 'C major', 'introduction'))).toEqual(
+      'i i i VI I I I I I I I I'.split(' '),
+    );
+    expect(shortChords(keyChangeClaim('D major', 'B minor', 'beginner'))).toEqual('I I I I I IV i i i i i'.split(' '));
+  });
+
+  it('a parallel change: the shared dominant is the pivot, the new tonic follows', () => {
+    expect(shortChords(keyChangeClaim('C major', 'C minor', 'introduction'))).toEqual(
+      'I V I V i iv i V i V i i'.split(' '),
+    );
+  });
+
+  it('the intermediate steps use inversions and end on the tonic of the second key', () => {
+    const relative = shortChords(keyChangeClaim('C major', 'A minor', 'intermediate'));
+    expect(relative).toEqual('I i iv6 V VI iv64 V6 i i'.split(' '));
+    const parallel = shortChords(keyChangeClaim('C minor', 'C major', 'intermediate'));
+    expect(parallel).toEqual('i iv V6 V I vi IV64 V6 I'.split(' '));
+  });
+
+  it('a title that is no relative or parallel pair, or names no step, has no claim', () => {
+    expect(() => keyChangeClaim('C major', 'D major', 'introduction')).toThrow(ClaimError);
+    expect(() => keyChangeClaim('C major', 'C major', 'introduction')).toThrow(ClaimError);
+    expect(() => keyChangeClaim('C major', 'A minor', 'advanced')).toThrow(/no claim/);
+  });
+
+  it('the chord-change drills that moved into the key-change folders keep their v1 claims', () => {
+    expect(
+      claimForItem({ itemId: 'x', title: 'C major - major and minor', trains: 'major to minor and back' }).segments,
+    ).toBe(undefined);
+  });
+});
+
+describe('the generated key changes agree with their claims, for all 18 pairs (the independent check)', () => {
+  for (const relation of ['relative', 'parallel'] as const) {
+    for (const step of ['introduction', 'beginner', 'intermediate'] as const) {
+      it(`${relation} ${step}: 0 differences in every pair`, () => {
+        const definition = JSON.parse(
+          readFileSync(`content/library/exercises/key-change-${relation}-${step}.json`, 'utf8'),
+        ) as ExerciseDefinition;
+        const items = generateKeyChangeFamily(definition, '2026-09-26');
+        expect(items.length).toBeGreaterThanOrEqual(8);
+        for (const item of items) {
+          const claim = claimForItem({
+            itemId: `${item.section}/${item.fileStem}`,
+            title: item.meta.title,
+            trains: item.meta.trains ?? '',
+          });
+          expect(checkExercise(item.xml, claim), item.meta.title).toEqual([]);
+        }
+      });
+    }
   }
 });

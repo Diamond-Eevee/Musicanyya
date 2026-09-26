@@ -27,6 +27,7 @@ import type {
   SectionHand,
   Voicing,
 } from './theory';
+import { expectedFifths } from './theory';
 
 export class ClaimError extends Error {}
 
@@ -40,6 +41,13 @@ export interface ExerciseItem {
 const BOTH: Hand[] = ['left', 'right'];
 const TITLE = /^([A-G])([♯♭#b]?) (major|minor)(?: triads| - (.+))$/;
 const TRIADS_NAME = 'triads';
+
+/** "A♭ minor", "F# major": the key a name spells. */
+function keyOfName(name: string): KeyClaim {
+  const m = /^([A-G])([♯♭#b]?) (major|minor)$/.exec(name) as RegExpExecArray;
+  const tonicAlter = m[2] === '♯' || m[2] === '#' ? 1 : m[2] === '♭' || m[2] === 'b' ? -1 : 0;
+  return { tonicLetter: m[1] as Letter, tonicAlter, mode: m[3] as Mode };
+}
 
 export function parseExerciseTitle(title: string): { key: KeyClaim; name: string } {
   const m = TITLE.exec(title);
@@ -166,6 +174,18 @@ function requireStated(name: string, trains: string, words: readonly string[]): 
 /** The claim of one shelf exercise. Throws `ClaimError` when the title names no known exercise, names it in the wrong
  *  mode, or does not spell its chords and the description does not state them either. */
 export function claimForItem(item: ExerciseItem): ExerciseClaim {
+  const change = KEY_CHANGE_TITLE.exec(item.title);
+  if (change) {
+    if (!(KEY_CHANGE_STEPS as readonly string[]).includes(change[3] as string))
+      throw new ClaimError(`no claim for "${change[3]}" (title "${item.title}")`);
+    return keyChangeClaim(
+      item.itemId,
+      item.title,
+      keyOfName(change[1] as string),
+      keyOfName(change[2] as string),
+      change[3] as KeyChangeStep,
+    );
+  }
   const { key, name } = parseExerciseTitle(item.title);
   if ((STEP_NAMES as readonly string[]).includes(name)) return stepClaim(item.itemId, key, name as StepName);
   if (name === SCALE_AND_CHORDS) {
@@ -397,4 +417,99 @@ function stepClaim(itemId: string, key: KeyClaim, step: StepName): ExerciseClaim
   }
   const chords = [...events.entries()].sort((a, b) => a[0] - b[0]).map(([, claimed]) => claimed);
   return { itemId, key, chords, sections };
+}
+
+// ---- key changes (feature 011, rule set exercise-theory-v2, research R7 and data-model §3) ---------------------------
+// "<from> to <to> - introduction|beginner|intermediate": a piece in the first key that moves to the second and ends on its
+// tonic, every bar one whole-note triad in both hands. Written by hand from the key-pair table and the step shapes, never
+// read from the generator or the definitions. Two segments, one key claim each.
+
+const KEY_CHANGE_TITLE = /^([A-G][♯♭#b]? (?:major|minor)) to ([A-G][♯♭#b]? (?:major|minor)) - (.+)$/;
+const KEY_CHANGE_STEPS = ['introduction', 'beginner', 'intermediate'] as const;
+type KeyChangeStep = (typeof KEY_CHANGE_STEPS)[number];
+
+/** The chords of a key change, one per bar: those in the first key, then those in the second. */
+interface KeyChangePlan {
+  from: Pt[];
+  to: Pt[];
+}
+
+/** The pivot of a relative change is the chord both keys share: IV of a major first key, VI of a minor one (F in C major and in
+ *  A minor). */
+const PIVOT = pt('IV', 'VI', WHOLE);
+const repeat = (p: Pt, times: number): Pt[] => Array.from({ length: times }, () => p);
+const tonic = I(WHOLE);
+const dominant = V(WHOLE);
+const subdominant = IV(WHOLE);
+
+/** A relative change goes from the pivot chord straight to the new tonic and settles there (data-model §3 and research R7 asked
+ *  for the dominant of the new key in between; its bass, one tone below the pivot's, takes the piece one semitone past the
+ *  span cap of D-2 in the major-to-minor pairs, so the change is shown by the pivot, the double barline and the key name). */
+const RELATIVE_PLANS: Record<KeyChangeStep, KeyChangePlan> = {
+  introduction: { from: [...repeat(tonic, 3), PIVOT], to: repeat(tonic, 8) },
+  beginner: { from: [...repeat(tonic, 5), PIVOT], to: repeat(tonic, 5) },
+  intermediate: {
+    from: [tonic],
+    to: [
+      tonic,
+      withFigure(subdominant, '6'),
+      dominant,
+      pt('vi', 'VI', WHOLE),
+      withFigure(subdominant, '64'),
+      withFigure(dominant, '6'),
+      tonic,
+      tonic,
+    ],
+  },
+};
+
+/** A parallel change shares the dominant: it closes the first key and leads to the tonic of the new one. */
+const PARALLEL_PLANS: Record<KeyChangeStep, KeyChangePlan> = {
+  introduction: {
+    from: [tonic, dominant, tonic, dominant],
+    to: [tonic, subdominant, tonic, dominant, tonic, dominant, tonic, tonic],
+  },
+  beginner: {
+    from: [tonic, subdominant, tonic, dominant, tonic, dominant],
+    to: [tonic, subdominant, tonic, dominant, tonic],
+  },
+  intermediate: {
+    from: [tonic, subdominant, withFigure(dominant, '6'), dominant],
+    to: [tonic, pt('vi', 'VI', WHOLE), withFigure(subdominant, '64'), withFigure(dominant, '6'), tonic],
+  },
+};
+
+const isSameTonic = (a: KeyClaim, b: KeyClaim): boolean =>
+  a.tonicLetter === b.tonicLetter && a.tonicAlter === b.tonicAlter;
+
+function keyChangeRelation(from: KeyClaim, to: KeyClaim, title: string): 'relative' | 'parallel' {
+  if (from.mode === to.mode) throw new ClaimError(`"${title}" changes between two ${from.mode} keys: no claim`);
+  if (isSameTonic(from, to)) return 'parallel';
+  if (expectedFifths(from) === expectedFifths(to)) return 'relative';
+  throw new ClaimError(`"${title}": the keys are neither relative (one signature) nor parallel (one tonic): no claim`);
+}
+
+function keyChangeClaim(
+  itemId: string,
+  title: string,
+  from: KeyClaim,
+  to: KeyClaim,
+  step: KeyChangeStep,
+): ExerciseClaim {
+  const relation = keyChangeRelation(from, to, title);
+  const plan = (relation === 'relative' ? RELATIVE_PLANS : PARALLEL_PLANS)[step];
+  const chordOf = (p: Pt, key: KeyClaim): ChordClaim => ({
+    ...chord(key.mode === 'major' ? p.major : p.minor),
+    octavesApart: 2,
+  });
+  const segments = [
+    { firstBar: 1, lastBar: plan.from.length, key: from },
+    { firstBar: plan.from.length + 1, lastBar: plan.from.length + plan.to.length, key: to },
+  ];
+  return {
+    itemId,
+    key: from,
+    chords: [...plan.from.map((p) => chordOf(p, from)), ...plan.to.map((p) => chordOf(p, to))],
+    segments,
+  };
 }

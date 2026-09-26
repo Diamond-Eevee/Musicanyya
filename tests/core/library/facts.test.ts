@@ -2,6 +2,8 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { generateKeyChangeFamily } from '../../../src/core/library/exercise/generate.js';
+import type { ExerciseDefinition } from '../../../src/core/library/exercise/types.js';
 import { deriveFacts } from '../../../src/core/library/facts.js';
 import { buildScore } from '../../../src/core/musicxml/build.js';
 import { readXml } from '../../../src/core/musicxml/read.js';
@@ -359,5 +361,41 @@ describe('deriveFacts: minorScaleAccidentalCount (D-2 B5)', () => {
 
   it('is 0 when the score has no accidentals', () => {
     expect(load('scale-c-major-q100.musicxml').minorScaleAccidentalCount).toBe(0);
+  });
+});
+
+// Feature 011 T044 (research R7): a relative key change keeps the key signature, so the file has one `<key>` and the item
+// reports one key name (it is not a key change to criterion 10); a parallel change writes a second `<key>` and reports two.
+describe('deriveFacts: key changes of the generated key-change items', () => {
+  const generated = (relation: 'relative' | 'parallel') =>
+    generateKeyChangeFamily(
+      JSON.parse(
+        fs.readFileSync(
+          path.resolve(__dirname, `../../../content/library/exercises/key-change-${relation}-introduction.json`),
+          'utf-8',
+        ),
+      ) as ExerciseDefinition,
+      '2026-09-26',
+    );
+  const keysOf = (xml: string): string[] => {
+    const { doc } = readXml(xml);
+    const { score, report } = buildScore(doc);
+    const { timeline, notices } = buildTimeline(score);
+    return deriveFacts({ doc, score, timeline, report, timelineNotices: notices }).keys;
+  };
+
+  it('C major to A minor (relative, one signature): one key name', () => {
+    const item = generated('relative').find((i) => i.section.endsWith('/c-major-to-a-minor'));
+    expect(keysOf(item?.xml ?? '')).toEqual(['C major']);
+  });
+
+  it('C major to C minor (parallel, a second signature): two key names', () => {
+    const item = generated('parallel').find((i) => i.section.endsWith('/c-major-to-c-minor'));
+    expect(keysOf(item?.xml ?? '')).toEqual(['C major', 'C minor']);
+  });
+
+  it('every relative pair reports one key name and every parallel pair two', () => {
+    for (const item of generated('relative')) expect(keysOf(item.xml), item.section).toHaveLength(1);
+    for (const item of generated('parallel')) expect(keysOf(item.xml), item.section).toHaveLength(2);
   });
 });

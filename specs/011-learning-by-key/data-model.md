@@ -45,8 +45,8 @@ repertoire/ (unchanged)
 
 | From | To | Relation | Pivot (Introduction/Beginner) |
 |---|---|---|---|
-| C major | A minor | relative | IV = VI (F), then E (V of A minor) |
-| A minor | C major | relative | VI = IV (F), then G (V of C) |
+| C major | A minor | relative | IV = VI (F), then the new tonic A minor (no V of the new key, see research R7 note) |
+| A minor | C major | relative | VI = IV (F), then the new tonic C major |
 | C major | C minor | parallel | V (G) shared; new signature (3 flats) at the arrival bar |
 | C minor | C major | parallel | V shared; 3 naturals (`<cancel>`) at the arrival bar |
 | G/E minor, F/D minor, D/B minor | ... | relative | same pattern |

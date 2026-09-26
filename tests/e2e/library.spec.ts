@@ -145,6 +145,52 @@ test.describe('Practice score library: browse, open, Listen', () => {
     }
   });
 
+  test('browser: Learning > Key changes > C major -> C minor > 1 Introduction shows the new signature mid-score and plays through the change (feature 011 US2)', async ({
+    page,
+    browserName,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === 'electron', 'Electron is covered by its own test below');
+    test.setTimeout(150_000); // the Introduction is 12 bars at q=60: 48 s of Listen
+
+    await page.goto('/');
+    await openPanel(page, 'scores');
+    const { item } = await revealLibraryItem(page, 'learning/key-changes/c-major-to-c-minor/introduction');
+    await expect(item).toContainText('1 Introduction');
+    await expect(item).toContainText('C major to C minor - introduction');
+    await item.click();
+    await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    await expect(page.locator('.notice')).toHaveCount(0);
+
+    // C major has no signature; the change to C minor writes three flats in each staff at the arrival bar, and again at the
+    // start of every system after it. So the file shows at least two signatures (one per staff) of three flats each.
+    const signatures = page.locator('.mx-score-page g.keySig');
+    expect(await signatures.count()).toBeGreaterThanOrEqual(2);
+    expect(await page.locator('.mx-score-page g.keySig g.keyAccid').count()).toBeGreaterThanOrEqual(6);
+    // ...and the first flat is not at the start of the piece: at least one note stands before it in reading order.
+    const beforeFirstSignature = await page.evaluate(() => {
+      const scope = document.querySelector('.mx-score-page') as HTMLElement;
+      const all = Array.from(scope.querySelectorAll('g.keyAccid, g.note'));
+      return all.findIndex((el) => el.matches('g.keyAccid'));
+    });
+    expect(beforeFirstSignature, 'notes before the first flat of the new signature').toBeGreaterThan(0);
+
+    await expect(page.locator('.play-btn')).not.toBeDisabled();
+    if (browserName !== 'webkit') {
+      await page.locator('.play-btn').click();
+      await expect(page.locator('g.note.playing').first()).toBeVisible();
+      // the cursor passes the change (bar 5: measure index 4 in the note ids) and the run ends by itself
+      await expect
+        .poll(
+          async () =>
+            page.locator('g.note.playing').evaluateAll((els) => els.some((el) => /-m(?:[4-9]|1\d)-/.test(el.id))),
+          { timeout: 60_000 },
+        )
+        .toBe(true);
+      await expect(page.locator('g.note.playing')).toHaveCount(0, { timeout: 60_000 });
+    }
+  });
+
   test('browser: a corrected item replaces a stale cached copy, and still opens offline (feature 007 FR-024, SC-010)', async ({
     page,
   }, testInfo) => {

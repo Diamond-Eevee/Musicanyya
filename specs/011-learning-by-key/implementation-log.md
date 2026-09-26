@@ -216,3 +216,74 @@
   (regenerate + audit + screenshots), still inside US2, before its Checkpoint (full gate incl. `test:e2e`, US1 still
   passing, log, commit). Nothing currently on disk is broken or half-applied: `pnpm test`/`typecheck`/`lint` are all
   green as committed; T048 stays `[~]` until T042 lands.
+
+## 2026-09-26 17:00 - claude-sonnet-5 (US2 checkpoint)
+- Done: T042, T043, T044, T045, T046, T048 (now `[x]`), T049, T050, T051, T052 - all of US2.
+- **The independent theory check found a real error in my previous entry, and it is corrected here.** The previous log entry said
+  the relative Introduction/Beginner `to` section holds "the arrival V once, then tonic repeats". It does not: the shipped
+  JSON and the generated files have the new tonic straight after the pivot (the T043 claim table, written from data-model §3
+  before I looked at the files, said V and failed on all 16 relative Introduction/Beginner items). Putting the V into the
+  content (`V` as the first arrival chord, both hands) was tried and fails the level check, criterion 1: in the four
+  major-to-minor pairs the bass of V of the new key lies a tone below the pivot's and the piece spans 39 semitones, one over
+  the D-2 cap of 38 for exercises. That cap is an owner decision, so the content stays without the V, the claim table and
+  data-model §3 now say what is built, and research R7 has an "As built" paragraph. **Needs owner (or the T081 music review):**
+  is a relative change with no dominant of the new key acceptable teaching material (pivot, double barline and key name
+  show the change; it ends on the new tonic, so FR-013 holds), or should the span cap be raised for key changes? The R7
+  Intermediate list also differs from the built progression in one chord (built: `... V VI ...`, R7: `... V i ...`); the earlier
+  log gives no reason, it is left as built and goes to T081 too. No spec.md text changed.
+- T042: `goldens.test.ts` gained a "key-change family goldens" section: `c-major-to-a-minor`, `c-minor-to-c-major` and
+  `d-major-to-b-minor` x introduction/beginner/intermediate = 9 new snapshots. Read back before trusting: the parallel
+  change writes `<cancel>-3</cancel>` and both `<fifths>` (-3, 0), the relative changes one `<fifths>`, every one a light-light
+  barline before the arrival bar and a words direction with the new key name. Each also round-trips through `buildScore`
+  with no report entries and fingering on every note.
+- T043/T051: `tools/library/fidelity/theory.ts` gained `KeySegment` and `ExerciseClaim.segments`: every chord is spelled in the key of
+  the segment its bar lies in; from the second segment on the signature in force at its first bar must have the claimed fifths
+  (a relative change keeps the signature, so nothing new is written), a `<key>` written at that bar must have the claimed mode,
+  and a words direction at that bar must name the claimed key (`F♯ minor` and `F# minor` both read). Reading now keeps every
+  `<key>` with its bar and every direction with its bar. `exercise-claims.ts` reads "`<from>` to `<to>` - introduction|
+  beginner|intermediate", decides relative (same signature, different mode) or parallel (same tonic), and states the chord
+  per bar for both relations by hand (pivot IV of a major first key, VI of a minor one; the parallel pivot is the shared V).
+  An unknown step, two keys of one mode or an unrelated pair throw `ClaimError`. Tests (11 in `theory.test.ts`, 7 claim tests +
+  6 generated-vs-claim suites in `exercise-claims.test.ts`): planted single errors each give exactly one difference (new
+  signature missing, wrong mode on the new `<key>`, new key never named, wrong key named, G natural where the dominant of A
+  minor needs G sharp, a chord that is the tonic of the parallel major); all 18 pairs x 3 steps x both relations agree with their
+  claims (0 differences). The architecture guard (checker imports neither generator nor definitions) is unchanged and green.
+- T044: the fact test passes without a generator change (as predicted): a relative pair reports one key name, a parallel pair two,
+  asserted over all 18 generated items.
+- T049/T050: the two same-tonic drills' definitions now put them in `learning/key-changes/c-major-to-c-minor/major-and-minor`
+  and `.../a-minor-to-a-major/minor-and-major` (step intermediate, stepOrder 10, tag `key-changes`, `supersedes` the old ids; their
+  meta level stays `advanced`, an extra keeps its own level). `sections.ts` has `learning/key-changes` (formerIds
+  `learning/chords/changes`) and 18 pair sections generated from `KEY_CHANGE_PAIRS` ("C major -> A minor", description
+  "relative"/"parallel"); `learning/chords/changes` is gone. The old generated files under `public/library/learning/chords/`
+  (4 files, created by this project's generator) and their two audit records were deleted; the drills' records moved (same
+  content, new `itemId`, `supersedes`).
+- T045: seven shelf tests in `tests/library/index.test.ts` (18 folders in data-model order with titles and descriptions; one main
+  introduction/beginner/intermediate per pair at the matching level with the `key-changes` tag; >= 54 exercises; the two drills as
+  extras; nothing under `learning/chords`; the two moved ids superseded with their SHA-256). One US1 test's expected value changed
+  because the file moved: "only the two same-tonic drills remain under learning/chords" is now "nothing remains" (the drills moved
+  in this very story; no threshold loosened).
+- T052: `pnpm library:exercises` (155 items), `pnpm library:index` (171 items, 49 sections), 56 new audit records under
+  `content/library/audit/learning/key-changes/` (54 `exercise-theory-v2` records with `expectedDifferences: 0`, 2 moved),
+  `pnpm library:fidelity`: `172 records, 0 failed`, `docs/library-audit.md` regenerated. The library identity golden
+  (`tests/fixtures/library-identity.json`, 117 -> 171 items) was regenerated with `tools/library/identity.ts` and compared with
+  the committed one before trusting it: no existing entry changed, the two moved drills carry identical notes under their new
+  paths, 54 items added, the Für Elise theme Grade is equal. Screenshots looked at (`pnpm screenshot --item ...`):
+  `learning/key-changes/c-major-to-c-minor/introduction` - tempo 60, bars 1-4 with I V I V in both hands, a light-light double
+  barline, then bar 5 with three flats in both staves, the words "C minor" and `i` above the C minor chord, fingering 1-3-5
+  on every note, no notices; `learning/key-changes/c-major-to-a-minor/beginner` - tempo 72, five C major I bars then the F major
+  pivot as the sixth bar of the first system, no notices (the arrival bars are on the next system, off screen).
+- T046: e2e in `tests/e2e/library.spec.ts` (Chromium 49.7 s): opens Key changes > C major -> C minor > 1 Introduction, the score
+  engraves with no notices, at least two `g.keySig` and six `g.keyAccid` (three flats x two staves), a note stands before the first
+  flat in reading order, and Listen plays until a note in bar 5 or later sounds and then ends by itself. It plays the whole 48 s (the
+  transport tempo slider set to its 200 maximum did not shorten the run in a trial - bars kept taking about 4 s; not investigated,
+  outside this feature, so the test runs at the default tempo).
+- Evidence: `pnpm test` -> `Test Files 218 passed (218)  Tests 3738 passed (3738)`; `pnpm typecheck` clean; `pnpm lint` -> 0 errors,
+  282 warnings (the baseline). `pnpm test:e2e` -> `460 skipped, 792 passed (8.1m)`, exit 0, none failed (the skips are the per-project skips of the suite; the new key-change spec ran in Chromium and Firefox).
+- Decisions: relative Introduction/Beginner without the arrival dominant (above, needs owner); the moved drills keep meta level
+  `advanced` (an extra); no other.
+- Problems / open questions: **needs owner** - the relative-change decision above (relative changes without a V of the new
+  key vs raising the exercise span cap for key changes); `raisedBecause` on `key-change-relative-intermediate.json` still covers the three
+  minor-to-major pairs uniformly (unchanged from the previous entry).
+- Handoff: US2 is done and is committed as the US2 checkpoint. next = US3 (songs): T053-T057 tests (song-definition schema,
+  builder, song-chords check, shelf/licence, practice), T084 (score-source test), then T058 (download the 8 approved Mutopia
+  sources; stop and ask if any page no longer says "Public Domain"), T059-T063, T085, T064; tree clean at the checkpoint commit.

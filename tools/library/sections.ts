@@ -1,4 +1,4 @@
-import { KEYS } from '../../src/core/library/exercise/keys.js';
+import { displayKeyName, KEY_CHANGE_PAIRS, KEYS } from '../../src/core/library/exercise/keys.js';
 
 /** The shelf's wording, in one place (data-model.md §2). `tools/library/build-index.ts` copies this
  *  table into `index.json` verbatim; nothing else names a section's title or description. A folder
@@ -33,6 +33,16 @@ const KEY_SECTIONS: readonly LibrarySectionDefinition[] = KEYS.map((key) => {
   };
 });
 
+/** Learning > Key changes: one folder per pair of the key-pair table, in its order (feature 011 FR-013, data-model §2-3). */
+const KEY_CHANGE_SECTIONS: readonly LibrarySectionDefinition[] = KEY_CHANGE_PAIRS.map((pair, index) => ({
+  id: `learning/key-changes/${pair.slug}`,
+  title: `${displayKeyName(pair.from)} -> ${displayKeyName(pair.to)}`,
+  description: pair.relation,
+  path: `learning/key-changes/${pair.slug}`,
+  parent: 'learning/key-changes',
+  order: index + 1,
+}));
+
 export const LIBRARY_SECTIONS: readonly LibrarySectionDefinition[] = [
   {
     id: 'learning',
@@ -52,15 +62,16 @@ export const LIBRARY_SECTIONS: readonly LibrarySectionDefinition[] = [
     formerIds: ['learning/chords'],
   },
   ...KEY_SECTIONS,
-  // Until the key-change folders arrive (feature 011 US2) the two same-tonic drills stay where they are.
   {
-    id: 'learning/chords/changes',
-    title: 'Chord changes',
-    description: 'Moving from one chord to the next without losing the beat.',
-    path: 'learning/chords/changes',
+    id: 'learning/key-changes',
+    title: 'Key changes',
+    description: 'Moving from one key to another.',
+    path: 'learning/key-changes',
     parent: 'learning',
     order: 2,
+    formerIds: ['learning/chords/changes'],
   },
+  ...KEY_CHANGE_SECTIONS,
   {
     id: 'repertoire',
     title: 'Repertoire',

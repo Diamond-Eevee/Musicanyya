@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-26T10:15:59.960Z",
+  "generated": "2026-09-26T14:44:18.047Z",
   "sections": [
     {
       "id": "learning",
@@ -214,12 +214,159 @@
       "order": 24
     },
     {
-      "id": "learning/chords/changes",
-      "title": "Chord changes",
-      "description": "Moving from one chord to the next without losing the beat.",
-      "path": "learning/chords/changes",
+      "id": "learning/key-changes",
+      "title": "Key changes",
+      "description": "Moving from one key to another.",
+      "path": "learning/key-changes",
       "parent": "learning",
+      "order": 2,
+      "formerIds": [
+        "learning/chords/changes"
+      ]
+    },
+    {
+      "id": "learning/key-changes/c-major-to-a-minor",
+      "title": "C major -> A minor",
+      "description": "relative",
+      "path": "learning/key-changes/c-major-to-a-minor",
+      "parent": "learning/key-changes",
+      "order": 1
+    },
+    {
+      "id": "learning/key-changes/a-minor-to-c-major",
+      "title": "A minor -> C major",
+      "description": "relative",
+      "path": "learning/key-changes/a-minor-to-c-major",
+      "parent": "learning/key-changes",
       "order": 2
+    },
+    {
+      "id": "learning/key-changes/c-major-to-c-minor",
+      "title": "C major -> C minor",
+      "description": "parallel",
+      "path": "learning/key-changes/c-major-to-c-minor",
+      "parent": "learning/key-changes",
+      "order": 3
+    },
+    {
+      "id": "learning/key-changes/c-minor-to-c-major",
+      "title": "C minor -> C major",
+      "description": "parallel",
+      "path": "learning/key-changes/c-minor-to-c-major",
+      "parent": "learning/key-changes",
+      "order": 4
+    },
+    {
+      "id": "learning/key-changes/g-major-to-e-minor",
+      "title": "G major -> E minor",
+      "description": "relative",
+      "path": "learning/key-changes/g-major-to-e-minor",
+      "parent": "learning/key-changes",
+      "order": 5
+    },
+    {
+      "id": "learning/key-changes/e-minor-to-g-major",
+      "title": "E minor -> G major",
+      "description": "relative",
+      "path": "learning/key-changes/e-minor-to-g-major",
+      "parent": "learning/key-changes",
+      "order": 6
+    },
+    {
+      "id": "learning/key-changes/g-major-to-g-minor",
+      "title": "G major -> G minor",
+      "description": "parallel",
+      "path": "learning/key-changes/g-major-to-g-minor",
+      "parent": "learning/key-changes",
+      "order": 7
+    },
+    {
+      "id": "learning/key-changes/g-minor-to-g-major",
+      "title": "G minor -> G major",
+      "description": "parallel",
+      "path": "learning/key-changes/g-minor-to-g-major",
+      "parent": "learning/key-changes",
+      "order": 8
+    },
+    {
+      "id": "learning/key-changes/f-major-to-d-minor",
+      "title": "F major -> D minor",
+      "description": "relative",
+      "path": "learning/key-changes/f-major-to-d-minor",
+      "parent": "learning/key-changes",
+      "order": 9
+    },
+    {
+      "id": "learning/key-changes/d-minor-to-f-major",
+      "title": "D minor -> F major",
+      "description": "relative",
+      "path": "learning/key-changes/d-minor-to-f-major",
+      "parent": "learning/key-changes",
+      "order": 10
+    },
+    {
+      "id": "learning/key-changes/f-major-to-f-minor",
+      "title": "F major -> F minor",
+      "description": "parallel",
+      "path": "learning/key-changes/f-major-to-f-minor",
+      "parent": "learning/key-changes",
+      "order": 11
+    },
+    {
+      "id": "learning/key-changes/f-minor-to-f-major",
+      "title": "F minor -> F major",
+      "description": "parallel",
+      "path": "learning/key-changes/f-minor-to-f-major",
+      "parent": "learning/key-changes",
+      "order": 12
+    },
+    {
+      "id": "learning/key-changes/d-major-to-b-minor",
+      "title": "D major -> B minor",
+      "description": "relative",
+      "path": "learning/key-changes/d-major-to-b-minor",
+      "parent": "learning/key-changes",
+      "order": 13
+    },
+    {
+      "id": "learning/key-changes/b-minor-to-d-major",
+      "title": "B minor -> D major",
+      "description": "relative",
+      "path": "learning/key-changes/b-minor-to-d-major",
+      "parent": "learning/key-changes",
+      "order": 14
+    },
+    {
+      "id": "learning/key-changes/d-major-to-d-minor",
+      "title": "D major -> D minor",
+      "description": "parallel",
+      "path": "learning/key-changes/d-major-to-d-minor",
+      "parent": "learning/key-changes",
+      "order": 15
+    },
+    {
+      "id": "learning/key-changes/d-minor-to-d-major",
+      "title": "D minor -> D major",
+      "description": "parallel",
+      "path": "learning/key-changes/d-minor-to-d-major",
+      "parent": "learning/key-changes",
+      "order": 16
+    },
+    {
+      "id": "learning/key-changes/a-minor-to-a-major",
+      "title": "A minor -> A major",
+      "description": "parallel",
+      "path": "learning/key-changes/a-minor-to-a-major",
+      "parent": "learning/key-changes",
+      "order": 17
+    },
+    {
+      "id": "learning/key-changes/a-major-to-a-minor",
+      "title": "A major -> A minor",
+      "description": "parallel",
+      "path": "learning/key-changes/a-major-to-a-minor",
+      "parent": "learning/key-changes",
+      "order": 18
     },
     {
       "id": "repertoire",
@@ -253,9 +400,495 @@
   ],
   "items": [
     {
-      "id": "learning/chords/changes/changes-a-minor-major-a-minor",
-      "section": "learning/chords/changes",
-      "file": "learning/chords/changes/changes-a-minor-major-a-minor.musicxml",
+      "id": "learning/key-changes/a-major-to-a-minor/beginner",
+      "section": "learning/key-changes/a-major-to-a-minor",
+      "file": "learning/key-changes/a-major-to-a-minor/beginner.musicxml",
+      "bytes": 18600,
+      "hash": "017e6c2b3a1df643d1b3601bcd85325c9e769ac30e8ef6b32aefd4d579280d8d",
+      "meta": {
+        "version": 1,
+        "title": "A major to A minor - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "A major",
+          "A minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 38,
+        "highestMidi": 76,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 3,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 2,
+        "minorScaleAccidentalCount": 2,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/a-major-to-a-minor/intermediate",
+      "section": "learning/key-changes/a-major-to-a-minor",
+      "file": "learning/key-changes/a-major-to-a-minor/intermediate.musicxml",
+      "bytes": 16564,
+      "hash": "11380e9d1b508d342f70ffabd6e5a5e33b606be0bd4e4d0f955059796abcf360",
+      "meta": {
+        "version": 1,
+        "title": "A major to A minor - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "A major",
+          "A minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 38,
+        "highestMidi": 77,
+        "maxSpanSemitones": 8,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 3,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 2,
+        "minorScaleAccidentalCount": 2,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/a-major-to-a-minor/introduction",
+      "section": "learning/key-changes/a-major-to-a-minor",
+      "file": "learning/key-changes/a-major-to-a-minor/introduction.musicxml",
+      "bytes": 20163,
+      "hash": "70de4bd5878eca28bfd501a5844eb7f3f20e9bb4c3a31badb360c4e587e84a0b",
+      "meta": {
+        "version": 1,
+        "title": "A major to A minor - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "A major",
+          "A minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 38,
+        "highestMidi": 76,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.8333333333333333,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 3,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/a-minor-to-a-major/beginner",
+      "section": "learning/key-changes/a-minor-to-a-major",
+      "file": "learning/key-changes/a-minor-to-a-major/beginner.musicxml",
+      "bytes": 18642,
+      "hash": "22ee90d4185b37b247be5a01f30bddf339ac210b760defba1e9bd382d42fb0d8",
+      "meta": {
+        "version": 1,
+        "title": "A minor to A major - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "A minor",
+          "A major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 38,
+        "highestMidi": 76,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 3,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/a-minor-to-a-major/intermediate",
+      "section": "learning/key-changes/a-minor-to-a-major",
+      "file": "learning/key-changes/a-minor-to-a-major/intermediate.musicxml",
+      "bytes": 16642,
+      "hash": "c89f593595f8b6b443c264ce4dccf5fa9e9d8c00aea32349a3baaea0e3ce8b67",
+      "meta": {
+        "version": 1,
+        "title": "A minor to A major - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "A minor",
+          "A major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 38,
+        "highestMidi": 78,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 3,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 2,
+        "minorScaleAccidentalCount": 2,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/a-minor-to-a-major/introduction",
+      "section": "learning/key-changes/a-minor-to-a-major",
+      "file": "learning/key-changes/a-minor-to-a-major/introduction.musicxml",
+      "bytes": 20273,
+      "hash": "23627621e8fe5b3f9f6f223473aa60fca938ef0355a38130196bb0d8dc60bedc",
+      "meta": {
+        "version": 1,
+        "title": "A minor to A major - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "A minor",
+          "A major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 38,
+        "highestMidi": 76,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.8333333333333333,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 3,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/a-minor-to-a-major/minor-and-major",
+      "section": "learning/key-changes/a-minor-to-a-major",
+      "file": "learning/key-changes/a-minor-to-a-major/minor-and-major.musicxml",
       "bytes": 15964,
       "hash": "dbadc1f9b60a25c50df77c1aec9aa643cfe9ba4ffad20c3966db2d4563048b84",
       "meta": {
@@ -265,7 +898,8 @@
         "level": "advanced",
         "tags": [
           "chords",
-          "chord-changes"
+          "chord-changes",
+          "key-changes"
         ],
         "provenance": {
           "origin": "authored",
@@ -277,7 +911,15 @@
         "reviewedBy": "claude-sonnet-5",
         "reviewedOn": "2026-09-24",
         "trains": "The same same-tonic quality change moving the other way, minor to major.",
-        "hands": "both"
+        "hands": "both",
+        "step": "intermediate",
+        "stepOrder": 10,
+        "supersedes": [
+          {
+            "id": "learning/chords/changes/changes-a-minor-major-a-minor",
+            "hash": "dbadc1f9b60a25c50df77c1aec9aa643cfe9ba4ffad20c3966db2d4563048b84"
+          }
+        ]
       },
       "facts": {
         "measures": 9,
@@ -332,9 +974,975 @@
       }
     },
     {
-      "id": "learning/chords/changes/changes-same-tonic-c-major",
-      "section": "learning/chords/changes",
-      "file": "learning/chords/changes/changes-same-tonic-c-major.musicxml",
+      "id": "learning/key-changes/a-minor-to-c-major/beginner",
+      "section": "learning/key-changes/a-minor-to-c-major",
+      "file": "learning/key-changes/a-minor-to-c-major/beginner.musicxml",
+      "bytes": 18224,
+      "hash": "6de83b53c56c9c84ebfbb87f5840cbd8846561fa5a674074c51fbea8a44e373a",
+      "meta": {
+        "version": 1,
+        "title": "A minor to C major - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "A minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 41,
+        "highestMidi": 79,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.5454545454545454,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/a-minor-to-c-major/intermediate",
+      "section": "learning/key-changes/a-minor-to-c-major",
+      "file": "learning/key-changes/a-minor-to-c-major/intermediate.musicxml",
+      "bytes": 16406,
+      "hash": "f80f82fb3ed124a91de8ccdc2e63f80eb44ca781e690f6a7cb57a429eb276a25",
+      "meta": {
+        "version": 1,
+        "title": "A minor to C major - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "raisedBecause": "the minor-to-major pairs (A minor to C major, E minor to G major, B minor to D major) compute beginner on this content - kept at intermediate so every pair in the folder shares one step",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "A minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 43,
+        "highestMidi": 81,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.7777777777777777,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 0,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 5,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/a-minor-to-c-major/introduction",
+      "section": "learning/key-changes/a-minor-to-c-major",
+      "file": "learning/key-changes/a-minor-to-c-major/introduction.musicxml",
+      "bytes": 19761,
+      "hash": "427f245337307bc8cfccbceb7ea9f4d1fede690833be71120b7904e54e693197",
+      "meta": {
+        "version": 1,
+        "title": "A minor to C major - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "A minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 41,
+        "highestMidi": 79,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.5,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/b-minor-to-d-major/beginner",
+      "section": "learning/key-changes/b-minor-to-d-major",
+      "file": "learning/key-changes/b-minor-to-d-major/beginner.musicxml",
+      "bytes": 18544,
+      "hash": "8a3dd0e827a3afc6dd3cf289c0402b75ca15b759564e216df775ae30a87921e2",
+      "meta": {
+        "version": 1,
+        "title": "B minor to D major - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "B minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 43,
+        "highestMidi": 81,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.5454545454545454,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/b-minor-to-d-major/intermediate",
+      "section": "learning/key-changes/b-minor-to-d-major",
+      "file": "learning/key-changes/b-minor-to-d-major/intermediate.musicxml",
+      "bytes": 16630,
+      "hash": "e5b35a7ad98b5a721b5bcd48c967446f5c3f04ece7b636ea04c03b31ef2b3d85",
+      "meta": {
+        "version": 1,
+        "title": "B minor to D major - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "raisedBecause": "the minor-to-major pairs (A minor to C major, E minor to G major, B minor to D major) compute beginner on this content - kept at intermediate so every pair in the folder shares one step",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "B minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 45,
+        "highestMidi": 83,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.7777777777777777,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 5,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/b-minor-to-d-major/introduction",
+      "section": "learning/key-changes/b-minor-to-d-major",
+      "file": "learning/key-changes/b-minor-to-d-major/introduction.musicxml",
+      "bytes": 20113,
+      "hash": "e0dff2453e2c2641ddb8fd16bd0e058d11afc2de8a61f261c69671f3e82d08d9",
+      "meta": {
+        "version": 1,
+        "title": "B minor to D major - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "B minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 43,
+        "highestMidi": 81,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.5,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/c-major-to-a-minor/beginner",
+      "section": "learning/key-changes/c-major-to-a-minor",
+      "file": "learning/key-changes/c-major-to-a-minor/beginner.musicxml",
+      "bytes": 18224,
+      "hash": "5ff5409a9bd72d9c95b4db8d2d4a2a5df97866e03ab5daba4e92968932e810dc",
+      "meta": {
+        "version": 1,
+        "title": "C major to A minor - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "C major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 41,
+        "highestMidi": 79,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.5454545454545454,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/c-major-to-a-minor/intermediate",
+      "section": "learning/key-changes/c-major-to-a-minor",
+      "file": "learning/key-changes/c-major-to-a-minor/intermediate.musicxml",
+      "bytes": 16590,
+      "hash": "0778ab5321ce7b677784999cdc3432e033b920c837440ed27e348ab88d187939",
+      "meta": {
+        "version": 1,
+        "title": "C major to A minor - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "raisedBecause": "the minor-to-major pairs (A minor to C major, E minor to G major, B minor to D major) compute beginner on this content - kept at intermediate so every pair in the folder shares one step",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "C major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 40,
+        "highestMidi": 79,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.7777777777777777,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 0,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 5,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/c-major-to-a-minor/introduction",
+      "section": "learning/key-changes/c-major-to-a-minor",
+      "file": "learning/key-changes/c-major-to-a-minor/introduction.musicxml",
+      "bytes": 19761,
+      "hash": "051474063841ee073b45e83d9d4d955ccc2e8b68604b609697119047f30d8df4",
+      "meta": {
+        "version": 1,
+        "title": "C major to A minor - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "C major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 41,
+        "highestMidi": 79,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.5,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/c-major-to-c-minor/beginner",
+      "section": "learning/key-changes/c-major-to-c-minor",
+      "file": "learning/key-changes/c-major-to-c-minor/beginner.musicxml",
+      "bytes": 18499,
+      "hash": "d248776640df9b83be4405337a651ebf2afa17099ad422e2df8b1628b7c64c58",
+      "meta": {
+        "version": 1,
+        "title": "C major to C minor - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "C major",
+          "C minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 41,
+        "highestMidi": 79,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 3,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 2,
+        "minorScaleAccidentalCount": 2,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/c-major-to-c-minor/intermediate",
+      "section": "learning/key-changes/c-major-to-c-minor",
+      "file": "learning/key-changes/c-major-to-c-minor/intermediate.musicxml",
+      "bytes": 16561,
+      "hash": "afcd9882348bcbe6ac7e23b761f47f28ebb8ad2f12f87caa4e106eb27fc28111",
+      "meta": {
+        "version": 1,
+        "title": "C major to C minor - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "C major",
+          "C minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 41,
+        "highestMidi": 80,
+        "maxSpanSemitones": 8,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 3,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 2,
+        "minorScaleAccidentalCount": 2,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/c-major-to-c-minor/introduction",
+      "section": "learning/key-changes/c-major-to-c-minor",
+      "file": "learning/key-changes/c-major-to-c-minor/introduction.musicxml",
+      "bytes": 20166,
+      "hash": "9106f0274dc551c1b10051bbce842428b746ee1036ab2d15927075f11d5f8ed3",
+      "meta": {
+        "version": 1,
+        "title": "C major to C minor - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "C major",
+          "C minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 41,
+        "highestMidi": 79,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.8333333333333333,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 3,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/c-major-to-c-minor/major-and-minor",
+      "section": "learning/key-changes/c-major-to-c-minor",
+      "file": "learning/key-changes/c-major-to-c-minor/major-and-minor.musicxml",
       "bytes": 15964,
       "hash": "8240b94812f0c015d8701fc9b3f4907ac87af7d74fbf65a78c8b44d648d6a148",
       "meta": {
@@ -344,7 +1952,8 @@
         "level": "advanced",
         "tags": [
           "chords",
-          "chord-changes"
+          "chord-changes",
+          "key-changes"
         ],
         "provenance": {
           "origin": "authored",
@@ -356,7 +1965,15 @@
         "reviewedBy": "claude-sonnet-5",
         "reviewedOn": "2026-09-24",
         "trains": "Same-tonic quality change: only the third moves, major to minor and back.",
-        "hands": "both"
+        "hands": "both",
+        "step": "intermediate",
+        "stepOrder": 10,
+        "supersedes": [
+          {
+            "id": "learning/chords/changes/changes-same-tonic-c-major",
+            "hash": "8240b94812f0c015d8701fc9b3f4907ac87af7d74fbf65a78c8b44d648d6a148"
+          }
+        ]
       },
       "facts": {
         "measures": 9,
@@ -406,6 +2023,2912 @@
       },
       "levelCheck": {
         "level": "advanced",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/c-minor-to-c-major/beginner",
+      "section": "learning/key-changes/c-minor-to-c-major",
+      "file": "learning/key-changes/c-minor-to-c-major/beginner.musicxml",
+      "bytes": 18582,
+      "hash": "b261cfb9ed5f53b6e59d9d9a9e29b29508305c9ee850c4c379070dc666c995db",
+      "meta": {
+        "version": 1,
+        "title": "C minor to C major - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "C minor",
+          "C major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 41,
+        "highestMidi": 79,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 3,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/c-minor-to-c-major/intermediate",
+      "section": "learning/key-changes/c-minor-to-c-major",
+      "file": "learning/key-changes/c-minor-to-c-major/intermediate.musicxml",
+      "bytes": 16478,
+      "hash": "2f330e23a991ca1427f1255fea789142ee45ef7c46c67e90d2084f92f4990691",
+      "meta": {
+        "version": 1,
+        "title": "C minor to C major - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "C minor",
+          "C major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 41,
+        "highestMidi": 81,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 3,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 2,
+        "minorScaleAccidentalCount": 2,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/c-minor-to-c-major/introduction",
+      "section": "learning/key-changes/c-minor-to-c-major",
+      "file": "learning/key-changes/c-minor-to-c-major/introduction.musicxml",
+      "bytes": 20049,
+      "hash": "055c5e391b936f3841462ca49cadf398d0035b02adf6ea4f1a940e9c1c839d2c",
+      "meta": {
+        "version": 1,
+        "title": "C minor to C major - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "C minor",
+          "C major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 41,
+        "highestMidi": 79,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.8333333333333333,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 3,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/d-major-to-b-minor/beginner",
+      "section": "learning/key-changes/d-major-to-b-minor",
+      "file": "learning/key-changes/d-major-to-b-minor/beginner.musicxml",
+      "bytes": 18544,
+      "hash": "31cffbaceb2c3911f5e24c5961b0280cca6c5044d9dc833db98b833509e2f10f",
+      "meta": {
+        "version": 1,
+        "title": "D major to B minor - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "D major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 43,
+        "highestMidi": 81,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.5454545454545454,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/d-major-to-b-minor/intermediate",
+      "section": "learning/key-changes/d-major-to-b-minor",
+      "file": "learning/key-changes/d-major-to-b-minor/intermediate.musicxml",
+      "bytes": 16846,
+      "hash": "1e1bc55b68c26cae02b9ae74a0ccee958c97d6b62b91d3ad27f0f10ceb6ed602",
+      "meta": {
+        "version": 1,
+        "title": "D major to B minor - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "raisedBecause": "the minor-to-major pairs (A minor to C major, E minor to G major, B minor to D major) compute beginner on this content - kept at intermediate so every pair in the folder shares one step",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "D major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 42,
+        "highestMidi": 81,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.7777777777777777,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 5,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/d-major-to-b-minor/introduction",
+      "section": "learning/key-changes/d-major-to-b-minor",
+      "file": "learning/key-changes/d-major-to-b-minor/introduction.musicxml",
+      "bytes": 20113,
+      "hash": "87bd8272f1d0daabc2b5202346faec1f04a788ce2edde4d0ff21154fc3f2577b",
+      "meta": {
+        "version": 1,
+        "title": "D major to B minor - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "D major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 43,
+        "highestMidi": 81,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.5,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/d-major-to-d-minor/beginner",
+      "section": "learning/key-changes/d-major-to-d-minor",
+      "file": "learning/key-changes/d-major-to-d-minor/beginner.musicxml",
+      "bytes": 18603,
+      "hash": "f711e3814ca4d9adab7f55c7f1d1d1c6281c2823db07133fab80a5ad67a94b42",
+      "meta": {
+        "version": 1,
+        "title": "D major to D minor - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "D major",
+          "D minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 43,
+        "highestMidi": 81,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 2,
+        "minorScaleAccidentalCount": 2,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/d-major-to-d-minor/intermediate",
+      "section": "learning/key-changes/d-major-to-d-minor",
+      "file": "learning/key-changes/d-major-to-d-minor/intermediate.musicxml",
+      "bytes": 16601,
+      "hash": "323e9cd60c325dc8afb361abb0d09df83a58bd64a68dd3c29e4ebbab87b0d5a4",
+      "meta": {
+        "version": 1,
+        "title": "D major to D minor - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "D major",
+          "D minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 43,
+        "highestMidi": 82,
+        "maxSpanSemitones": 8,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 2,
+        "minorScaleAccidentalCount": 2,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/d-major-to-d-minor/introduction",
+      "section": "learning/key-changes/d-major-to-d-minor",
+      "file": "learning/key-changes/d-major-to-d-minor/introduction.musicxml",
+      "bytes": 20198,
+      "hash": "7466720ca2779fe9e52f31e7a0752553f2a3cc9eae4e0809d52a6bd579c2eb84",
+      "meta": {
+        "version": 1,
+        "title": "D major to D minor - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "D major",
+          "D minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 43,
+        "highestMidi": 81,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.8333333333333333,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/d-minor-to-d-major/beginner",
+      "section": "learning/key-changes/d-minor-to-d-major",
+      "file": "learning/key-changes/d-minor-to-d-major/beginner.musicxml",
+      "bytes": 18664,
+      "hash": "ed43098338eba974555672015ee974a901b1d6aa5aad90010945b3c4601821b5",
+      "meta": {
+        "version": 1,
+        "title": "D minor to D major - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "D minor",
+          "D major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 43,
+        "highestMidi": 81,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/d-minor-to-d-major/intermediate",
+      "section": "learning/key-changes/d-minor-to-d-major",
+      "file": "learning/key-changes/d-minor-to-d-major/intermediate.musicxml",
+      "bytes": 16632,
+      "hash": "192059a6047da5dfe13fb5b1a6cb82fbdcbc58d1542a02097edafc6525ce296b",
+      "meta": {
+        "version": 1,
+        "title": "D minor to D major - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "D minor",
+          "D major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 43,
+        "highestMidi": 83,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 2,
+        "minorScaleAccidentalCount": 2,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/d-minor-to-d-major/introduction",
+      "section": "learning/key-changes/d-minor-to-d-major",
+      "file": "learning/key-changes/d-minor-to-d-major/introduction.musicxml",
+      "bytes": 20261,
+      "hash": "72266e4fd78e017220f6fcffa941525104f3bf7787f84e6d337c151c7809c923",
+      "meta": {
+        "version": 1,
+        "title": "D minor to D major - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "D minor",
+          "D major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 43,
+        "highestMidi": 81,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.8333333333333333,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/d-minor-to-f-major/beginner",
+      "section": "learning/key-changes/d-minor-to-f-major",
+      "file": "learning/key-changes/d-minor-to-f-major/beginner.musicxml",
+      "bytes": 18259,
+      "hash": "ceb1d658769e71fa4d875e1afad4a0efbbee8032705a213872d5dbc5ae673bd8",
+      "meta": {
+        "version": 1,
+        "title": "D minor to F major - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "D minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 46,
+        "highestMidi": 84,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.5454545454545454,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/d-minor-to-f-major/intermediate",
+      "section": "learning/key-changes/d-minor-to-f-major",
+      "file": "learning/key-changes/d-minor-to-f-major/intermediate.musicxml",
+      "bytes": 16475,
+      "hash": "bb7b7798ab3d7e2445784315b0708f1f314db79736662ddd7bd2ebb5ad067030",
+      "meta": {
+        "version": 1,
+        "title": "D minor to F major - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "raisedBecause": "the minor-to-major pairs (A minor to C major, E minor to G major, B minor to D major) compute beginner on this content - kept at intermediate so every pair in the folder shares one step",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "D minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 48,
+        "highestMidi": 86,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.7777777777777777,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 1,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 5,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/d-minor-to-f-major/introduction",
+      "section": "learning/key-changes/d-minor-to-f-major",
+      "file": "learning/key-changes/d-minor-to-f-major/introduction.musicxml",
+      "bytes": 19796,
+      "hash": "55c277dd26d508412d0e09f93577d3208ce62f50627e80b9757ad8ed93dccf28",
+      "meta": {
+        "version": 1,
+        "title": "D minor to F major - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "D minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 46,
+        "highestMidi": 84,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.5,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/e-minor-to-g-major/beginner",
+      "section": "learning/key-changes/e-minor-to-g-major",
+      "file": "learning/key-changes/e-minor-to-g-major/beginner.musicxml",
+      "bytes": 18224,
+      "hash": "7b1609bb0a9c8d1e211620e85494ec42cc406f9ffd50f4b0bd868bd212097c20",
+      "meta": {
+        "version": 1,
+        "title": "E minor to G major - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "E minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 36,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.5454545454545454,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/e-minor-to-g-major/intermediate",
+      "section": "learning/key-changes/e-minor-to-g-major",
+      "file": "learning/key-changes/e-minor-to-g-major/intermediate.musicxml",
+      "bytes": 16470,
+      "hash": "ad43bd4ada9900c2c3a41ce2735600288ab964472f0a5e2fa6303d755656442c",
+      "meta": {
+        "version": 1,
+        "title": "E minor to G major - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "raisedBecause": "the minor-to-major pairs (A minor to C major, E minor to G major, B minor to D major) compute beginner on this content - kept at intermediate so every pair in the folder shares one step",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "E minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 38,
+        "highestMidi": 76,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.7777777777777777,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 1,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 5,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/e-minor-to-g-major/introduction",
+      "section": "learning/key-changes/e-minor-to-g-major",
+      "file": "learning/key-changes/e-minor-to-g-major/introduction.musicxml",
+      "bytes": 19761,
+      "hash": "034a9ec0f50046b9c779a02796fa7e43773adc8fa97facdb88216318e3d6f351",
+      "meta": {
+        "version": 1,
+        "title": "E minor to G major - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "E minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 36,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.5,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/f-major-to-d-minor/beginner",
+      "section": "learning/key-changes/f-major-to-d-minor",
+      "file": "learning/key-changes/f-major-to-d-minor/beginner.musicxml",
+      "bytes": 18259,
+      "hash": "27acc683b78e7c9adc59be9c4087025cf7302a67f8931c20db03984b288bba9c",
+      "meta": {
+        "version": 1,
+        "title": "F major to D minor - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "F major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 46,
+        "highestMidi": 84,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.5454545454545454,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/f-major-to-d-minor/intermediate",
+      "section": "learning/key-changes/f-major-to-d-minor",
+      "file": "learning/key-changes/f-major-to-d-minor/intermediate.musicxml",
+      "bytes": 16693,
+      "hash": "39ca1b21abc104e5851c684739673671ec8f2d6664298a61fbd78a24c08c3759",
+      "meta": {
+        "version": 1,
+        "title": "F major to D minor - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "raisedBecause": "the minor-to-major pairs (A minor to C major, E minor to G major, B minor to D major) compute beginner on this content - kept at intermediate so every pair in the folder shares one step",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "F major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 45,
+        "highestMidi": 84,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.7777777777777777,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 1,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 5,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/f-major-to-d-minor/introduction",
+      "section": "learning/key-changes/f-major-to-d-minor",
+      "file": "learning/key-changes/f-major-to-d-minor/introduction.musicxml",
+      "bytes": 19796,
+      "hash": "8c2da14a88915b4f23be116bb62779ae26765eef1158eededfa5163ed60d1043",
+      "meta": {
+        "version": 1,
+        "title": "F major to D minor - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "F major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 46,
+        "highestMidi": 84,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.5,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/f-major-to-f-minor/beginner",
+      "section": "learning/key-changes/f-major-to-f-minor",
+      "file": "learning/key-changes/f-major-to-f-minor/beginner.musicxml",
+      "bytes": 18568,
+      "hash": "395f424fb1cf43be7eaef262ca3dd7584bc2f770124af3876138fe395faaed7b",
+      "meta": {
+        "version": 1,
+        "title": "F major to F minor - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "F major",
+          "F minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 46,
+        "highestMidi": 84,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 4,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 2,
+        "minorScaleAccidentalCount": 2,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/f-major-to-f-minor/intermediate",
+      "section": "learning/key-changes/f-major-to-f-minor",
+      "file": "learning/key-changes/f-major-to-f-minor/intermediate.musicxml",
+      "bytes": 16630,
+      "hash": "26632ea9c08448826199adadf853b8407ad0b8250c228ac26b5f47cc29e97358",
+      "meta": {
+        "version": 1,
+        "title": "F major to F minor - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "F major",
+          "F minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 46,
+        "highestMidi": 85,
+        "maxSpanSemitones": 8,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 4,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 2,
+        "minorScaleAccidentalCount": 2,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/f-major-to-f-minor/introduction",
+      "section": "learning/key-changes/f-major-to-f-minor",
+      "file": "learning/key-changes/f-major-to-f-minor/introduction.musicxml",
+      "bytes": 20201,
+      "hash": "691e9dfa9663c21f35836ba2e68fb475321be31174285eace9df44a1d9a0adbf",
+      "meta": {
+        "version": 1,
+        "title": "F major to F minor - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "F major",
+          "F minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 46,
+        "highestMidi": 84,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.8333333333333333,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 4,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/f-minor-to-f-major/beginner",
+      "section": "learning/key-changes/f-minor-to-f-major",
+      "file": "learning/key-changes/f-minor-to-f-major/beginner.musicxml",
+      "bytes": 18651,
+      "hash": "0e241e6d3f586ce5396a5b7bd2cb4626b0508fc83f5666dd8da4e131d9bbf474",
+      "meta": {
+        "version": 1,
+        "title": "F minor to F major - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "F minor",
+          "F major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 46,
+        "highestMidi": 84,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 4,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/f-minor-to-f-major/intermediate",
+      "section": "learning/key-changes/f-minor-to-f-major",
+      "file": "learning/key-changes/f-minor-to-f-major/intermediate.musicxml",
+      "bytes": 16547,
+      "hash": "eb3fef82fbfc58173a2515d41e0d05434e024f3f97883e7d7cc17212f3d9aa5f",
+      "meta": {
+        "version": 1,
+        "title": "F minor to F major - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "F minor",
+          "F major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 46,
+        "highestMidi": 86,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 4,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 2,
+        "minorScaleAccidentalCount": 2,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/f-minor-to-f-major/introduction",
+      "section": "learning/key-changes/f-minor-to-f-major",
+      "file": "learning/key-changes/f-minor-to-f-major/introduction.musicxml",
+      "bytes": 20084,
+      "hash": "ea07d1be43a57d25cfab82ff57eeb2033f126ed0c2b7ca7b2662a17cb63a0205",
+      "meta": {
+        "version": 1,
+        "title": "F minor to F major - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "F minor",
+          "F major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 46,
+        "highestMidi": 84,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.8333333333333333,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 4,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/g-major-to-e-minor/beginner",
+      "section": "learning/key-changes/g-major-to-e-minor",
+      "file": "learning/key-changes/g-major-to-e-minor/beginner.musicxml",
+      "bytes": 18224,
+      "hash": "dd5d6564c14d1ba641c226b56fd8fe3eba0b23f6850cff439e08f80ae20a2695",
+      "meta": {
+        "version": 1,
+        "title": "G major to E minor - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "G major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 36,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.5454545454545454,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/g-major-to-e-minor/intermediate",
+      "section": "learning/key-changes/g-major-to-e-minor",
+      "file": "learning/key-changes/g-major-to-e-minor/intermediate.musicxml",
+      "bytes": 16654,
+      "hash": "e54dcafbd7175d7528fadbb4b23cd5d3200c3f6912dc8eee0696fa570bc3ada2",
+      "meta": {
+        "version": 1,
+        "title": "G major to E minor - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "raisedBecause": "the minor-to-major pairs (A minor to C major, E minor to G major, B minor to D major) compute beginner on this content - kept at intermediate so every pair in the folder shares one step",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "G major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 35,
+        "highestMidi": 74,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.7777777777777777,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 1,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 5,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/g-major-to-e-minor/introduction",
+      "section": "learning/key-changes/g-major-to-e-minor",
+      "file": "learning/key-changes/g-major-to-e-minor/introduction.musicxml",
+      "bytes": 19761,
+      "hash": "640e47729ac68c119f33fc619c8cb315bebfc77d7025fa296b466899e50fc075",
+      "meta": {
+        "version": 1,
+        "title": "G major to E minor - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "G major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 36,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.5,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/g-major-to-g-minor/beginner",
+      "section": "learning/key-changes/g-major-to-g-minor",
+      "file": "learning/key-changes/g-major-to-g-minor/beginner.musicxml",
+      "bytes": 18609,
+      "hash": "1308fe6de88d84b66d0fbdc29315528dc785d926e4f175e540959991e07137f4",
+      "meta": {
+        "version": 1,
+        "title": "G major to G minor - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "G major",
+          "G minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 36,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 2,
+        "minorScaleAccidentalCount": 2,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/g-major-to-g-minor/intermediate",
+      "section": "learning/key-changes/g-major-to-g-minor",
+      "file": "learning/key-changes/g-major-to-g-minor/intermediate.musicxml",
+      "bytes": 16671,
+      "hash": "66552f25f2b341eeb622b9cd56ff0dbfe5955443d99458946527c22f2580f7e9",
+      "meta": {
+        "version": 1,
+        "title": "G major to G minor - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "G major",
+          "G minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 36,
+        "highestMidi": 75,
+        "maxSpanSemitones": 8,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 2,
+        "minorScaleAccidentalCount": 2,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/g-major-to-g-minor/introduction",
+      "section": "learning/key-changes/g-major-to-g-minor",
+      "file": "learning/key-changes/g-major-to-g-minor/introduction.musicxml",
+      "bytes": 20304,
+      "hash": "bd4cdf99aa329813a9dc67577ca79c693669d7c05f4b5c50a711201aa14a2719",
+      "meta": {
+        "version": 1,
+        "title": "G major to G minor - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "G major",
+          "G minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 36,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.8333333333333333,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/g-minor-to-g-major/beginner",
+      "section": "learning/key-changes/g-minor-to-g-major",
+      "file": "learning/key-changes/g-minor-to-g-major/beginner.musicxml",
+      "bytes": 18670,
+      "hash": "a01e5a6a332d26126554d5460b7892718ae53ce95495c8c2ed9de7c4a6e7caab",
+      "meta": {
+        "version": 1,
+        "title": "G minor to G major - beginner",
+        "kind": "exercise",
+        "level": "beginner",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "beginner",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 11,
+        "notes": 66,
+        "durationSeconds": 36.666666666666664,
+        "keys": [
+          "G minor",
+          "G major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 36,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 22,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/g-minor-to-g-major/intermediate",
+      "section": "learning/key-changes/g-minor-to-g-major",
+      "file": "learning/key-changes/g-minor-to-g-major/intermediate.musicxml",
+      "bytes": 16570,
+      "hash": "6f8eeee0ceaaa9177a8a2875e03c09586e510d389c3ed70095b02b5f7381cbee",
+      "meta": {
+        "version": 1,
+        "title": "G minor to G major - intermediate",
+        "kind": "exercise",
+        "level": "intermediate",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "intermediate",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 54,
+        "durationSeconds": 27,
+        "keys": [
+          "G minor",
+          "G major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 36,
+        "highestMidi": 76,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 2,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 18,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 2,
+        "minorScaleAccidentalCount": 2,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/key-changes/g-minor-to-g-major/introduction",
+      "section": "learning/key-changes/g-minor-to-g-major",
+      "file": "learning/key-changes/g-minor-to-g-major/introduction.musicxml",
+      "bytes": 20169,
+      "hash": "bb6e4cb97c37cebce3b3ffff659984e30d7b16fd6592538449a8a8aeddebf143",
+      "meta": {
+        "version": 1,
+        "title": "G minor to G major - introduction",
+        "kind": "exercise",
+        "level": "introduction",
+        "tags": [
+          "key-changes"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+        "hands": "both",
+        "step": "introduction",
+        "stepOrder": 0
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 72,
+        "durationSeconds": 48,
+        "keys": [
+          "G minor",
+          "G major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 36,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.8333333333333333,
+        "shortestDivision": 1,
+        "notesPerBeat": 1.5,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 1,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 24,
+        "peakNotesPerSecond": 1,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "introduction",
         "pass": true,
         "failed": []
       }
