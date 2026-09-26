@@ -110,6 +110,42 @@ the chord rate (FR-007: one chord per bar, I and V only, 17% slower).
 true); extend the chord `step` with a `scale` voicing - rejected, a scale is many notes per step and fingering depends on
 the whole run.
 
+### R6 fingering source (T002, 2026-09-26)
+
+**Source**: Franklin Taylor, *Scales and Arpeggios for the Pianoforte, with preparatory exercises* (Novello, Ewer and Co.,
+Music Primers and Educational Series, plate 10209, c. 1900; the author died in 1919). Internet Archive item
+`scalesarpeggiosf00tayluoft`; page images only (`https://archive.org/download/scalesarpeggiosf00tayluoft/page/n<leaf>.jpg`),
+read by eye on 2026-09-26. No IMSLP/LOC. The book prints two-octave scales in groups of four notes with the finger on the
+notes where the pattern changes; the first octave from the tonic is what this table takes. Descending fingering is the
+reverse of ascending (the universal rule; spot-checked on the printed descending groups of C, E and F major, not compared
+note by note for every key). The top note of a one-octave scale takes the finger the book gives at that point of the
+pattern (RH 5 for the C-shape keys, where the two-octave scale continues with 1).
+
+| Printed page (leaf) | Scales read |
+|---|---|
+| p.4 (n9) | C, G, D, A major |
+| p.5 (n10) | E, B, F# (Gb), F, Bb major |
+| p.6 (n11) | Eb, Ab, Db major; A, E harmonic minor |
+| p.7 (n12) | B, F#, C#, G#, Eb (D#) harmonic minor |
+| p.8 (n13) | D, G, C, F, Bb harmonic minor |
+| p.9 (n14) | A, E, B, F#, C#, G# melodic minor |
+| p.10 (n15) | D, G, C, F, Bb, Eb melodic minor |
+
+**Outcome per row of data-model §6** (RH / LH ascending):
+
+- Agree with the book, no change: C, G, D, A, E major and A, E, C, G, D minor (RH 1 2 3 1 2 3 4 5, LH 5 4 3 2 1 3 2 1);
+  B major and B minor (RH 1 2 3 1 2 3 4 5, LH 4 3 2 1 4 3 2 1); F major and F minor (RH 1 2 3 4 1 2 3 4, LH 5 4 3 2 1 3 2 1);
+  F# major (both hands); Db major (both hands); every LH of the flat keys and of C#, G# minor (3 2 1 4 3 2 1 3; Eb minor
+  2 1 4 3 2 1 3 2; F# minor 4 3 2 1 3 2 1 4); Bb minor RH 2 1 2 3 1 2 3 4 and LH 2 1 3 2 1 4 3 2 (was "verify", now confirmed).
+- **Corrected to the book (RH)**: Ab major 3 4 1 2 3 1 2 3 -> **2 3 1 2 3 1 2 3**; Eb major 3 1 2 3 4 1 2 3 -> **2 1 2 3 4 1 2 3**;
+  Bb major 4 1 2 3 1 2 3 4 -> **2 1 2 3 1 2 3 4**; F# minor, C# minor and G# minor 3 4 1 2 3 1 2 3 -> **2 3 1 2 3 1 2 3**;
+  Eb minor 3 1 2 3 4 1 2 3 -> **2 1 2 3 4 1 2 3**. The draft rows followed the common modern method books; the book
+  starts these scales on a finger one lower. The book is the public-domain source, so it wins (recorded, not silently resolved).
+- G# minor LH (was "verify"): **3 2 1 4 3 2 1 3** confirmed.
+- **Melodic minor differs from harmonic** in three places: F# minor RH **2 3 1 2 3 4 1 2** and C# minor RH
+  **2 3 1 2 3 4 1 2** (harmonic 2 3 1 2 3 1 2 3), and Bb minor LH **2 1 4 3 2 1 3 2** (harmonic 2 1 3 2 1 4 3 2). Every other
+  melodic minor fingering equals the harmonic one; the melodic minor table is the harmonic table plus these three rows.
+
 ## R7 - Key-change exercises
 
 **Decision**: exercise-definition 1.1 adds a **key-change form**: `keyPairs[]` (from, to, relation) and `sections[]` that

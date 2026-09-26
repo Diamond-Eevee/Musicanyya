@@ -4,6 +4,10 @@
 §1.1, so a corrected item reaches browsers that cached the old one - FR-024 of feature 007; change request
 `specs/007-library-fidelity-audit/contracts/library-port-1.1.md`).
 
+**Version 1.2.0** (2026-09-26, feature 011: the panel is a folder tree with a step order, the persisted filter follows
+`formerIds`, opening an item adopts settings from `supersedes`, songs name their source; §2 "Panel behaviour (1.2.0)", §3,
+§4 "Opening an item", §4a; change request `specs/011-learning-by-key/contracts/library-port-1.2.md`).
+
 **Owner**: `src/engine/ports.ts` (port), `src/engine/library/http-catalog.ts` (adapter),
 `src/ui/elements/mx-library.ts` + `src/ui/state/libraryState.ts` (UI), `src/app/session.ts` (wiring).
 
@@ -93,7 +97,7 @@ source and licence (FR-019). Opening a user's own file clears it.
 ```ts
 export interface LibraryFilter {
   sectionId: string | null;                 // null = whole library
-  level: 'beginner' | 'intermediate' | 'advanced' | null;
+  level: 'introduction' | 'beginner' | 'intermediate' | 'advanced' | null;
   key: string | null;                       // e.g. "C major", matched against facts.keys
   tag: SkillTag | null;
   text: string;                             // title / composer substring, case- and accent-insensitive
@@ -104,6 +108,10 @@ export interface LibraryFilter {
   `filterItems(items, filter) -> readonly LibraryItem[]`, sorted by section order then title using
   `Intl.Collator` semantics supplied by the caller (the core stays Web-API-free: the comparator is a
   parameter).
+- **Sort (1.2.0)**: section tree order (depth-first over `buildSectionTree`), then inside a section step rank
+  (introduction, beginner, intermediate, advanced, song; items without a step after them), `stepOrder`, then title.
+- When the persisted `sectionId` is not a section of the loaded index, it is replaced by the section whose `formerIds`
+  contains it, or by `null` when none does (1.2.0).
 - Persisted in `localStorage` under `musicanyya.library.v1` as `{ version: 1, filter }`. Invalid or
   missing data falls back to "no filter"; storage that throws is ignored (one notice, once), matching
   `local-settings-store.ts`.
@@ -112,6 +120,15 @@ export interface LibraryFilter {
 
 ## 4. Panel behaviour
 
+- **Tree (1.2.0, replaces "always expanded")**: sections render as a tree built by `buildSectionTree(sections)`
+  (`src/core/library/tree.ts`, pure): roots and children ordered by `order` among siblings; a section with no items and
+  no non-empty descendant is omitted. Each section is a native `<details class="library-section">` with a `<summary>`
+  holding its title (key-change folders also show the relation word "relative" / "parallel" from their `description`);
+  Enter/Space toggle as the browser provides. **Default open state**: the roots and their direct children are open; key
+  and key-change folders are closed (a key's items: open the key folder, then the item - within SC-001's 3 selections).
+  **With a filter active**, every folder containing a matching item is open and folders without matches are omitted.
+  Open/closed state set by the user survives re-renders within the session (`libraryState`, not persisted). Items show
+  their step as text ("1 Introduction" ... "4 Advanced", "Song") before the level chip.
 - The library renders inside the existing `scores` panel (`PanelId 'scores'`) - no new panel id, no
   new menu entry (research R-10).
 - It inherits feature 004's rules unchanged: popover, light dismiss, Escape closes the panel before
@@ -119,6 +136,28 @@ export interface LibraryFilter {
   Score during a session (Principle VI).
 - While the index is loading the panel shows a progress row, not a spinner overlay; a failed index
   shows one line with a Retry button plus the notice, and the recents list below stays usable.
+
+### 4.1 Opening an item: settings adoption (1.2.0)
+
+Before `loadBytes`, `LibrarySession.openItem` calls
+`settings.adoptScoreSettings(item.meta.supersedes?.map((s) => s.hash) ?? [], item.hash)`:
+
+```ts
+/** Copies per-Score Practice and Play settings from the first of `fromHashes` that has an entry to `toHash`, when
+ *  `toHash` has no entry of its own. Never overwrites, never deletes the old entry, never throws (storage errors are
+ *  swallowed like every other write in this store). Returns true when something was copied. */
+adoptScoreSettings(fromHashes: readonly string[], toHash: string): boolean;
+```
+
+It lives on the existing settings store (`src/engine/storage/local-settings-store.ts`) and its fake. Items whose bytes
+did not change keep their hash, so their settings apply with no adoption at all. Recent scores are copies of the bytes
+the user opened (feature 001); a recent entry of an old item keeps opening that copy and is not redirected.
+
+### 4a. Where the Score came from (`mx-score-source`, 1.2.0)
+
+For an `authored` item with `provenance.basedOn`, the panel shows "Arrangement for this app (CC0)" and then
+`provenance.note` (for songs: the source edition, its link and "public domain"). Authored items without `basedOn` are
+unchanged.
 
 ## 5. Performance
 
@@ -129,7 +168,8 @@ export interface LibraryFilter {
   (list <= 1 s for 200 items, filter <= 200 ms) are asserted in a unit test over a synthetic
   200-item index and in the e2e test against the real one.
 - The panel renders its rows in one `innerHTML` assignment per change, as the existing elements do -
-  no virtual list, no incremental DOM. At 200 items this stays well inside a 50 ms task.
+  no virtual list, no incremental DOM. At 200 items this stays well inside a 50 ms task. The synthetic-index test
+  spreads its 200 items over a 3-level tree (1.2.0).
 
 ## 6. Versioning
 

@@ -99,6 +99,9 @@ Failure message: `learning/keys/f-sharp-major: intermediate is less demanding th
 
 ## 6. Scale and triad fingering (one octave, ascending; descending reverses)
 
+Verified against Franklin Taylor, *Scales and Arpeggios for the Pianoforte* (Internet Archive
+`scalesarpeggiosf00tayluoft`), research R6 "fingering source" (T002). Harmonic minor and major:
+
 | Keys | RH | LH |
 |---|---|---|
 | C, G, D, A, E; A m, E m, C m, G m, D m | 1 2 3 1 2 3 4 5 | 5 4 3 2 1 3 2 1 |
@@ -106,19 +109,18 @@ Failure message: `learning/keys/f-sharp-major: intermediate is less demanding th
 | F major, F minor | 1 2 3 4 1 2 3 4 | 5 4 3 2 1 3 2 1 |
 | F# major | 2 3 4 1 2 3 1 2 | 4 3 2 1 3 2 1 4 |
 | Db major | 2 3 1 2 3 4 1 2 | 3 2 1 4 3 2 1 3 |
-| Ab major | 3 4 1 2 3 1 2 3 | 3 2 1 4 3 2 1 3 |
-| Eb major | 3 1 2 3 4 1 2 3 | 3 2 1 4 3 2 1 3 |
-| Bb major | 4 1 2 3 1 2 3 4 | 3 2 1 4 3 2 1 3 |
-| F# minor (harmonic) | 3 4 1 2 3 1 2 3 | 4 3 2 1 3 2 1 4 |
-| C# minor | 3 4 1 2 3 1 2 3 | 3 2 1 4 3 2 1 3 |
-| G# minor | 3 4 1 2 3 1 2 3 | 3 2 1 4 3 2 1 3 (verify) |
-| Eb minor | 3 1 2 3 4 1 2 3 | 2 1 4 3 2 1 3 2 |
-| Bb minor | 2 1 2 3 1 2 3 4 (verify) | 2 1 3 2 1 4 3 2 |
+| Ab major | 2 3 1 2 3 1 2 3 | 3 2 1 4 3 2 1 3 |
+| Eb major | 2 1 2 3 4 1 2 3 | 3 2 1 4 3 2 1 3 |
+| Bb major | 2 1 2 3 1 2 3 4 | 3 2 1 4 3 2 1 3 |
+| F# minor | 2 3 1 2 3 1 2 3 | 4 3 2 1 3 2 1 4 |
+| C# minor | 2 3 1 2 3 1 2 3 | 3 2 1 4 3 2 1 3 |
+| G# minor | 2 3 1 2 3 1 2 3 | 3 2 1 4 3 2 1 3 |
+| Eb minor | 2 1 2 3 4 1 2 3 | 2 1 4 3 2 1 3 2 |
+| Bb minor | 2 1 2 3 1 2 3 4 | 2 1 3 2 1 4 3 2 |
 
-Rows marked *verify* (and every non-C-shape row) are checked against a public-domain scale book before the table is
-committed (task in tasks.md); a disagreement is recorded, not silently resolved. Melodic minor (Intermediate) uses the
-same fingering as harmonic unless the scale book differs. Triads: RH 1-3-5 / 1-2-5 / 1-3-5 (root, 1st, 2nd inversion); LH
-5-3-1 / 5-3-1 / 5-2-1; broken 5-3-1-3; root-fifth 5-1.
+Melodic minor (Intermediate) uses the same rows, except F# minor RH 2 3 1 2 3 4 1 2, C# minor RH 2 3 1 2 3 4 1 2 and
+Bb minor LH 2 1 4 3 2 1 3 2 (the book prints these differently). Triads: RH 1-3-5 / 1-2-5 / 1-3-5 (root, 1st, 2nd
+inversion); LH 5-3-1 / 5-3-1 / 5-2-1; broken 5-3-1-3; root-fifth 5-1.
 
 ## 7. Successor table (`tools/library/successors.ts`)
 
