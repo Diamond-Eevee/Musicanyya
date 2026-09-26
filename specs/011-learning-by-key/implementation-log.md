@@ -124,3 +124,95 @@
   this entry; commit follows.
 - Handoff: next = US2 (T040 -> T053, key-change generator and steps), quickstart US2. Run `pnpm test -- tests/core/
   library/exercise/key-change` first (T040/T041, write first, expect red).
+
+## 2026-09-26 - claude-sonnet-5 (US2: key-change generator, T040/T041/T047, T048 in progress)
+- Consulted `music-domain-expert` for the actual bar-by-bar chord progressions (Introduction/Beginner/Intermediate,
+  both relations) before writing any code - R7's Intermediate text ("I, vi, ii6 = iv6, ...") is ambiguous/has a real
+  bug if read literally (see below), and inventing voice-leading myself risked exactly what the independent theory
+  checker exists to catch. Full report not reproduced here; the concrete degree tables it gave are now the content
+  files' `sections`.
+- **Deviated from strict test-first** for T040: the mechanism (`PatternChord.minor` firing on a *section's own*
+  resolved key, verified by reading `generate.ts:677` and tracing `chordTones`/`invertOrder` by hand) had to be
+  understood before any assertion would mean anything, so implementation and the test file were built together, not
+  test-then-implementation. Logged plainly rather than claiming a red-first cycle that did not happen.
+- **T040 - `generateKeyChangeFamily` and its tests, both green**:
+  - `src/core/musicxml/write.ts`: `WriteMeasureAttributes.key` gained `cancel?: number`, emitted before `<fifths>`
+    (MusicXML 4.0 `<key>` child order) - needed for a parallel change's `<cancel>`.
+  - `generate.ts`'s `renderPattern` (already shared with the not-yet-written key-change form per its own docstring)
+    gained: (a) a mid-bar `<key>` attributes event whenever a bar's resolved key has different `fifths` from the
+    previous bar - inert for the pattern form (one key throughout, `previousKey` never differs) so no regression
+    risk to the 96 already-shipped step files; (b) an optional `applyTies` hook run on the finished per-bar note
+    lists before they enter measures, likewise a no-op unless passed one (only key-change Intermediate does).
+    `sectionLabel` gained a `{toKey}` placeholder (`displayKeyName(section.key)`) alongside the existing `{scale}`.
+  - `cancelFifths(oldFifths, newFifths)`: cancel needed when old is 0->nothing to cancel; new is 0->always show it;
+    same direction and fewer accidentals->show it; opposite direction->show it. Verified against all 10 parallel
+    directions by hand before trusting it (5 mandatory, 3 none, 2 spec-optional-but-included-anyway).
+  - `tieAdjacentChords`: ties any note whose pitch matches the same hand's note in the next bar - generic pitch
+    matching (same idea `generateChangeItem`'s section-B already used), gated on `form==='key-change' &&
+    step==='intermediate'`. Verified the tie fixture actually needs this: C major's tonic (C E G) and A minor's
+    tonic (A C E) share two tones, and the *existing, unmodified* bass-window register rule places both chords on
+    the same C5/E5 without any chained voice-leading - a real, reliable common tone, not a contrived one.
+  - `generateKeyChangeFamily`: dispatches `keyPairs`, resolves each section's key via `inKey` ('from'/'to'), reuses
+    `renderPattern` (contract 1.1 §3 already said key-change is "shared", though the mid-bar attributes/ties gaps
+    above were still open). `pairSlug` and `identityOf`'s `{pair}` support added.
+  - `tests/core/library/exercise/key-change.test.ts` (16 tests): identity/title/section resolution; relative change
+    (first chord = tonic of the first key, pivot bar physically identical to bar 1's IV, arrival V is the raised-
+    leading-tone dominant, exactly one `<key>` for the whole piece, words direction names the arrival); parallel
+    change (tonic-to-tonic, a second `<key>` with the right fifths, `<cancel>` only on the arrival-simplifies
+    direction); ties (Intermediate only, the C/E common-tone case above); no engraving inserts anywhere. My first
+    draft's register-octave assumptions were wrong (assumed C4-anchored chords; the existing bass-window rule
+    anchors right-hand chords near C5) - caught immediately by running the tests, not asserted around.
+- **T041/T048 (18-pair content) - real register and metadata problems found and mostly fixed**:
+  - Wrote `KEY_CHANGE_PAIRS` in `keys.ts` (the 18 pairs, data-model §2 order) as the one source both the content
+    generation and `tests/core/library/exercise/steps.test.ts`'s new key-change section read.
+  - Authored the 6 content files (`content/library/exercises/key-change-{relative,parallel}-{introduction,beginner,
+    intermediate}.json`) with a throwaway `tsx` script (written to and deleted from `tools/library/`, never
+    committed) rather than by hand - 18 pairs x up to 8 chords by hand invites transcription errors the checker
+    would only catch one at a time.
+  - **Span**: Introduction/Beginner initially failed `checkLevel` criterion 1 (pitch span) for most or all of the 8
+    relative pairs (not parallel - same tonic, same table octave, no mismatch). Root cause: combining two keys'
+    *independent* bass-window anchors in one piece can exceed even the existing "exercise" span exemption (38
+    semitones) in a way a single-key step never could. Fixed by simplifying the `from` section to plain tonic
+    repeats + the pivot (dropping an incidental V) and the `to` section to the arrival V once, then tonic repeats
+    (dropping a second, unneeded IV) - closer to data-model §3's own "pivot, then V, then i" than my first, more
+    elaborate draft.
+  - **G major <-> E minor specifically span 47** (vs ~38-40 for the other three relative pairs): G's tonic lands in
+    the key table's octave 3 while E's lands in octave 4 (the table's pc<=5 -> octave 4 rule, feature 011 US1) - the
+    *only* relative pair where the two tonics fall on opposite sides of that boundary in the direction that adds a
+    full extra octave instead of the usual 3-semitone gap. Fixed with a **scoped, additive contract change**:
+    `octaveShift` (schema already allowed -1..1, `ExerciseKey.octaveShift`) is re-enabled for key-change pairs only
+    (`tonicMidiOf` now adds it; a plain pattern section still never sets it, so this is a no-op everywhere else) -
+    `specs/005-practice-score-library/contracts/exercise-definition.md` bumped 1.1.0 -> 1.2.0 (MINOR, additive) with
+    the rule and rationale. `KEY_CHANGE_PAIRS` sets it only on the G major<->E minor entries (-1 one direction, the
+    `from` key -1 the other - found by trial against the actual span, not derived in closed form).
+  - **`raisedBecause` is per-file, not per-pair**: 3 of the 8 relative-Intermediate pairs (the reverse "minor to
+    major" direction, minus G/E's reverse which needed the shift instead) compute simpler than Intermediate once the
+    span fixes landed. `ExerciseDefinition.meta.raisedBecause` is one string for the whole file, shared by all 8/10
+    pairs - T018's exact per-item convention ("present exactly when needed") cannot hold when one file covers many
+    pairs with different facts. Added a uniform `raisedBecause` to `key-change-relative-intermediate.json` (true and
+    accurate for the 3 pairs that need it, inert for the 5 that don't - `checkLevel` only fails on a *missing*
+    `raisedBecause`, never an unneeded one) and wrote the key-change step test to check the realistic invariant
+    ("every pair that needs it has it"), not the stricter single-file convention T018 could afford.
+  - End state, verified with a throwaway script before writing it into the real test: **all 54 generated items (18
+    pairs x 3 steps) pass their own level check and `checkStepOrder`, zero engraving inserts.**
+  - `tests/core/library/exercise/steps.test.ts` gained a "key-change steps cover all 18 pairs (T041)" section: one
+    item per pair per step; bar count/tempo/whole-note-chords per step; Intermediate has a both-hands bar; every
+    item passes its level; `checkStepOrder` over all 18 folders; identical shape within each relation (FR-011); the
+    realistic `raisedBecause` invariant above. 51/51 green.
+- Evidence: `pnpm test` -> `3372 passed`; `pnpm typecheck` clean; `pnpm lint` -> 0 errors, 282 warnings (unchanged
+  baseline). `test:e2e` not run this entry - no UI-visible change yet (T050's panel/index regeneration is what makes
+  key-changes appear in the shelf) and US2's own checkpoint requires it later, not per-task.
+- **Not yet done, left honestly open**: T042 (goldens for 3 named pairs - T048 needs this to be fully green per its
+  own stated criterion, hence `[~]` not `[x]`); T043/T051 (theory-v2 key-segment claims - the mechanical, independent
+  check nothing above substitutes for); T044 (a fact test for the "relative change yields one key name" claim - very
+  likely passes for free, since a relative change's generator never writes a second `<key>` element at all, so the
+  fact scanner never sees more than one - not yet written to confirm this); T045 (shelf tests in
+  `tests/library/index.test.ts`); T046 (e2e in `library.spec.ts`); T049 (move the two same-tonic drills into their
+  new homes); T050 (`tools/library/sections.ts` - `learning/key-changes` and the 18 pair sections; nothing shows in
+  the actual library panel until this and a regenerate happen); T052 (regenerate, audit records, `pnpm library:index`
+  / `pnpm library:fidelity`, screenshots).
+- Handoff: next = T042 (goldens, quick - the content already exists and is stable) -> T043/T051 (theory-v2, the
+  biggest remaining design piece - key segments per bar range) -> T044 -> T045 -> T046 -> T049 -> T050 -> T052
+  (regenerate + audit + screenshots), still inside US2, before its Checkpoint (full gate incl. `test:e2e`, US1 still
+  passing, log, commit). Nothing currently on disk is broken or half-applied: `pnpm test`/`typecheck`/`lint` are all
+  green as committed; T048 stays `[~]` until T042 lands.

@@ -2,8 +2,12 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { type GeneratedExerciseItem, generatePatternFamily } from '../../../../src/core/library/exercise/generate.js';
-import { KEYS } from '../../../../src/core/library/exercise/keys.js';
+import {
+  type GeneratedExerciseItem,
+  generateKeyChangeFamily,
+  generatePatternFamily,
+} from '../../../../src/core/library/exercise/generate.js';
+import { KEY_CHANGE_PAIRS, KEYS } from '../../../../src/core/library/exercise/keys.js';
 import type { ExerciseDefinition } from '../../../../src/core/library/exercise/types.js';
 import { checkStepOrder } from '../../../../src/core/library/step-order.js';
 import type { ItemFacts, LibraryItem, Step } from '../../../../src/core/library/types.js';
@@ -342,6 +346,133 @@ describe('minor keys name the scale form in their section labels (spec edge case
   it('the facts report a minor key for a minor exercise', () => {
     for (const { facts, key } of built.beginner) {
       expect(facts.keys, key.slug).toEqual([key.displayName]);
+    }
+  });
+});
+
+// Feature 011 T041 (US2, research R7, data-model §2-3): the three key-change definitions (one file per relation),
+// generated over all 18 pairs.
+
+const KEY_CHANGE_STEP_FILES: Record<'introduction' | 'beginner' | 'intermediate', [string, string]> = {
+  introduction: ['key-change-relative-introduction.json', 'key-change-parallel-introduction.json'],
+  beginner: ['key-change-relative-beginner.json', 'key-change-parallel-beginner.json'],
+  intermediate: ['key-change-relative-intermediate.json', 'key-change-parallel-intermediate.json'],
+};
+const KEY_CHANGE_BARS: Record<'introduction' | 'beginner' | 'intermediate', number> = {
+  introduction: 12,
+  beginner: 11,
+  intermediate: 9,
+};
+const KEY_CHANGE_TEMPO: Record<'introduction' | 'beginner' | 'intermediate', number> = {
+  introduction: 60,
+  beginner: 72,
+  intermediate: 80,
+};
+
+interface BuiltPair {
+  item: GeneratedExerciseItem;
+  slug: string;
+  relation: 'relative' | 'parallel';
+  notes: TestNote[];
+  facts: ItemFacts;
+}
+
+const keyChangeBuilt = Object.fromEntries(
+  (Object.keys(KEY_CHANGE_STEP_FILES) as (keyof typeof KEY_CHANGE_STEP_FILES)[]).map((step) => {
+    const rows: BuiltPair[] = [];
+    for (const file of KEY_CHANGE_STEP_FILES[step]) {
+      const definition = load(file);
+      for (const item of generateKeyChangeFamily(definition, '2026-09-26')) {
+        const slug = item.section.replace('learning/key-changes/', '');
+        const pair = KEY_CHANGE_PAIRS.find((p) => p.slug === slug);
+        if (!pair) throw new Error(`no KEY_CHANGE_PAIRS entry for ${slug}`);
+        rows.push({ item, slug, relation: pair.relation, notes: notesOf(item.xml), facts: factsOf(item.xml) });
+      }
+    }
+    return [step, rows];
+  }),
+) as Record<keyof typeof KEY_CHANGE_STEP_FILES, BuiltPair[]>;
+
+describe('key-change steps cover all 18 pairs (T041)', () => {
+  it.each(Object.keys(KEY_CHANGE_STEP_FILES) as (keyof typeof KEY_CHANGE_STEP_FILES)[])(
+    '%s: one item per pair, 18 total',
+    (step) => {
+      const rows = keyChangeBuilt[step];
+      expect(rows).toHaveLength(18);
+      expect(new Set(rows.map((r) => r.slug)).size).toBe(18);
+      expect(rows.every((r) => r.item.fileStem === step)).toBe(true);
+      expect(rows.every((r) => r.item.meta.step === step && r.item.meta.level === step)).toBe(true);
+    },
+  );
+
+  it.each(Object.entries(KEY_CHANGE_BARS))(
+    '%s: is %i bars at the right tempo, whole-note chords throughout',
+    (step, bars) => {
+      for (const { notes, facts, slug } of keyChangeBuilt[step as keyof typeof KEY_CHANGE_BARS]) {
+        expect(Math.max(...notes.map((n) => n.measure)), slug).toBe(bars);
+        expect(facts.tempoBpm, slug).toBe(KEY_CHANGE_TEMPO[step as keyof typeof KEY_CHANGE_TEMPO]);
+        expect(
+          notes.every((n) => n.duration === 3840),
+          slug,
+        ).toBe(true);
+      }
+    },
+  );
+
+  it('Intermediate has a passage where both hands play chords in the same bar', () => {
+    for (const { notes, slug } of keyChangeBuilt.intermediate) {
+      const bothHands = new Set(notes.filter((n) => n.staff === 1).map((n) => n.measure)).intersection(
+        new Set(notes.filter((n) => n.staff === 2).map((n) => n.measure)),
+      );
+      expect(bothHands.size, slug).toBeGreaterThan(0);
+    }
+  });
+
+  it('every item passes its own level', () => {
+    for (const step of Object.keys(KEY_CHANGE_STEP_FILES) as (keyof typeof KEY_CHANGE_STEP_FILES)[]) {
+      for (const { item, facts, slug } of keyChangeBuilt[step]) {
+        const check = levelCheckOf(facts, item.meta);
+        expect(check.failed, `${slug} ${step}`).toEqual([]);
+        expect(check.pass, `${slug} ${step}`).toBe(true);
+      }
+    }
+  });
+
+  it('every key-change folder is in step order (introduction, beginner, intermediate)', () => {
+    const items: Pick<LibraryItem, 'id' | 'section' | 'meta' | 'facts'>[] = [];
+    for (const step of Object.keys(KEY_CHANGE_STEP_FILES) as (keyof typeof KEY_CHANGE_STEP_FILES)[]) {
+      for (const { item, facts } of keyChangeBuilt[step]) {
+        items.push({ id: `${item.section}/${item.fileStem}`, section: item.section, meta: item.meta, facts });
+      }
+    }
+    expect(checkStepOrder(items)).toEqual([]);
+  });
+
+  it.each(['relative', 'parallel'] as const)(
+    '%s: identical rhythm and staves in every pair of the relation (FR-011)',
+    (relation) => {
+      for (const step of Object.keys(KEY_CHANGE_STEP_FILES) as (keyof typeof KEY_CHANGE_STEP_FILES)[]) {
+        const rows = keyChangeBuilt[step].filter((r) => r.relation === relation);
+        const shape = (notes: readonly TestNote[]) =>
+          notes.map((n) => `${n.measure}/${n.staff}/${n.onset}/${n.duration}`);
+        const [reference, ...rest] = rows;
+        if (!reference) throw new Error('no items');
+        for (const row of rest) expect(shape(row.notes), `${step} ${row.slug}`).toEqual(shape(reference.notes));
+      }
+    },
+  );
+
+  // Unlike the four single-key steps (one file, one `meta.raisedBecause` per whole shelf), a key-change file's
+  // `meta` is shared by all 18 (or however many of one relation) pairs, so `raisedBecause` cannot follow the exact
+  // per-item rule T018 established (analyze A3) - it can only say "at least one pair here needs it". Every pair
+  // that actually needs it must have it (this is the part that would silently break a real gap); a pair that
+  // doesn't need it but gets it anyway is the accepted cost of one string covering the whole file.
+  it('every pair that needs raisedBecause has it (a uniform raisedBecause covers the whole file - FR-022)', () => {
+    for (const step of Object.keys(KEY_CHANGE_STEP_FILES) as (keyof typeof KEY_CHANGE_STEP_FILES)[]) {
+      for (const { item, facts, slug } of keyChangeBuilt[step]) {
+        const needsRaised = !levelCheckOf(facts, item.meta, false).pass;
+        if (needsRaised) expect(item.meta.raisedBecause, `${step} ${slug}`).toBeDefined();
+      }
     }
   });
 });

@@ -12,6 +12,7 @@ import type {
   WritePitch,
 } from '../../musicxml/write.js';
 import { writeScoreXml } from '../../musicxml/write.js';
+import { getMidiKey } from '../../pitch.js';
 import type { ItemMetadata } from '../types.js';
 import { chordTones, invertOrder, pitchClassOfTone, tonicPitchClass } from './degrees.js';
 import { assertFingeringLength, triadFingering } from './fingering.js';
@@ -24,6 +25,7 @@ import type {
   ExerciseKey,
   ExerciseStep,
   Inversion,
+  KeyPair,
   PatternChord,
   PatternHandPart,
   PatternSection,
@@ -198,7 +200,7 @@ function identityOf(
 ): Pick<GeneratedExerciseItem, 'fileStem' | 'section' | 'supersedes'> {
   return {
     fileStem: definition.fileStem ?? `${definition.family}-${slug}`,
-    section: definition.section.replace('{key}', slug),
+    section: definition.section.replace('{key}', slug).replace('{pair}', slug),
     supersedes: definition.supersedes?.[slug] ?? [],
   };
 }
@@ -558,10 +560,15 @@ function definitionSteps(definition: ExerciseDefinition): ExerciseStep[] {
 }
 
 /** The MIDI number of the scale tonic: octave 4 for tonics C to F, octave 3 from F sharp up (key table, data-model §5). */
+/** The scale/chord tonic's MIDI pitch (data-model §5, per-key table). `octaveShift` does not apply to a plain
+ *  pattern section (one key throughout - contract exercise-definition 1.1 §3) but a key-change pair's `to` (or
+ *  `from`) key may set it to bridge two keys whose table octaves land far apart (contract 1.2 §3): the four
+ *  relative pairs sit 3 semitones apart except G major/E minor, which straddle the table's octave-4/3 boundary in
+ *  the "wrong" direction (G > E's table octave despite G being the higher letter) and land 9 apart unshifted. */
 function tonicMidiOf(key: ExerciseKey): number {
   const info = keyBySlug(keySlug(key));
   if (!info) throw new Error(`${key.tonic} ${key.mode} is not one of the 24 keys of the shelf`);
-  return 12 * (info.tonicOctave + 1) + tonicPitchClass(key);
+  return 12 * (info.tonicOctave + 1 + (key.octaveShift ?? 0)) + tonicPitchClass(key);
 }
 
 function ticksOfDuration(duration: StepDuration): number {
@@ -609,12 +616,17 @@ function scaleLabel(section: ResolvedSection): string | undefined {
 function sectionLabel(definition: ExerciseDefinition, section: ResolvedSection, index: number): string | undefined {
   const label = section.spec.label;
   if (label === undefined) return undefined;
-  if (!label.includes('{scale}')) return label;
-  const scale = scaleLabel(section);
-  if (scale === undefined) {
-    throw new Error(`${definition.family}: section ${index + 1}: the label uses {scale} but no hand plays a scale`);
+  let resolved = label;
+  if (resolved.includes('{scale}')) {
+    const scale = scaleLabel(section);
+    if (scale === undefined) {
+      throw new Error(`${definition.family}: section ${index + 1}: the label uses {scale} but no hand plays a scale`);
+    }
+    resolved = resolved.replaceAll('{scale}', scale);
   }
-  return label.replaceAll('{scale}', scale);
+  // Key-change form (contracts/exercise-definition 1.1 §3): the arrival section names the key it lands on.
+  if (resolved.includes('{toKey}')) resolved = resolved.replaceAll('{toKey}', displayKeyName(section.key));
+  return resolved;
 }
 
 function noteEvent(hand: HandName, pitch: WritePitch, ticks: number, finger: number, chord: boolean): WriteEvent {
@@ -754,9 +766,39 @@ interface PatternRender {
   firstKey: ExerciseKey;
 }
 
+/** Key-change form only (contracts/exercise-definition 1.1 §3): ties any note whose pitch matches the same hand's
+ *  note in the next bar - the common-tone voice-leading the Intermediate step uses across its whole progression,
+ *  not just at the arrival (research R7). A no-op for every other form (never called). */
+function tieAdjacentChords(right: WriteEvent[][], left: WriteEvent[][]): void {
+  const midiOf = (e: WriteEvent): number | undefined =>
+    e.kind === 'note' && e.note.pitch
+      ? getMidiKey(e.note.pitch.step, e.note.pitch.alter ?? 0, e.note.pitch.octave)
+      : undefined;
+  for (const bars of [right, left]) {
+    for (let i = 0; i + 1 < bars.length; i++) {
+      const here = bars[i] ?? [];
+      const next = bars[i + 1] ?? [];
+      for (const a of here) {
+        if (a.kind !== 'note') continue;
+        const am = midiOf(a);
+        if (am === undefined) continue;
+        for (const b of next) {
+          if (b.kind !== 'note' || midiOf(b) !== am) continue;
+          a.note.tie = { ...a.note.tie, start: true };
+          b.note.tie = { ...b.note.tie, stop: true };
+        }
+      }
+    }
+  }
+}
+
 /** Lays the hands' segments out bar by bar and writes the completed file. Section barlines, the tempo mark and the words
- *  directions come from the definition. Shared by the pattern and key-change forms. */
-function renderPattern(render: PatternRender): string {
+ *  directions come from the definition. Shared by the pattern and key-change forms; `applyTies` (key-change Intermediate
+ *  only) runs on the finished per-bar note lists, before they are placed into measures. */
+function renderPattern(
+  render: PatternRender,
+  applyTies?: (right: WriteEvent[][], left: WriteEvent[][]) => void,
+): string {
   const { definition, sections, firstKey, title } = render;
   const barTicks = measureTicks(definition.metre);
   const streams: Record<HandName, Segment[]> = { right: [], left: [] };
@@ -812,17 +854,30 @@ function renderPattern(render: PatternRender): string {
   };
   const right = cut('right');
   const left = cut('left');
+  applyTies?.(right, left);
 
   const measures: WriteMeasure[] = [];
   let previousKey: ExerciseKey | undefined;
   for (let bar = 1; bar <= bars; bar++) {
+    const section = sectionStarts.get(bar);
+    const key = section?.key ?? previousKey ?? firstKey;
+    // Key-change form only: previousKey is always firstKey for the pattern form (one key throughout), so this never
+    // fires there. fifths (not mode) is what decides a *written* key change - a relative change shares a signature.
+    const keyChanged = bar > 1 && previousKey !== undefined && key.fifths !== previousKey.fifths;
+    const cancel = keyChanged ? cancelFifths(previousKey?.fifths ?? 0, key.fifths) : undefined;
     const events: WriteEvent[] = [
+      ...(keyChanged
+        ? [
+            {
+              kind: 'attributes' as const,
+              key: { fifths: key.fifths, mode: key.mode, ...(cancel !== undefined ? { cancel } : {}) },
+            },
+          ]
+        : []),
       ...(right[bar - 1] ?? []),
       { kind: 'backup', duration: barTicks },
       ...(left[bar - 1] ?? []),
     ];
-    const section = sectionStarts.get(bar);
-    const key = section?.key ?? previousKey ?? firstKey;
     const attributes: WriteMeasureAttributes | undefined =
       bar === 1
         ? {
@@ -873,11 +928,54 @@ export function generatePatternFamily(definition: ExerciseDefinition, generatedO
   });
 }
 
+/** MusicXML `<cancel>` (contracts/exercise-definition 1.1 §3): needed when the arriving signature has fewer
+ *  accidentals in the same direction as the old one, flips direction, or lands on no sharps/flats at all -
+ *  `undefined` when there was nothing to cancel (`oldFifths` 0) or the new signature only adds more. */
+function cancelFifths(oldFifths: number, newFifths: number): number | undefined {
+  if (oldFifths === 0) return undefined;
+  if (newFifths === 0) return oldFifths;
+  if (Math.sign(oldFifths) !== Math.sign(newFifths)) return oldFifths;
+  return Math.abs(newFifths) < Math.abs(oldFifths) ? oldFifths : undefined;
+}
+
+function pairSlug(pair: KeyPair): string {
+  return `${keySlug(pair.from)}-to-${keySlug(pair.to)}`;
+}
+
+/** Generates the key-change form's items, one per key pair (contract exercise-definition 1.1): each section's chords
+ *  are read in `pair.from` or `pair.to` per its `inKey` (the same `.minor` mechanism `chordSegments` already has -
+ *  the *pivot* chord degree is the major-key spelling of the shared triad, its `.minor` override the minor-key
+ *  spelling of that same triad, resolved by whichever of the pair is actually minor); `renderPattern` (shared with
+ *  the pattern form) writes the new `<key>`/`<cancel>` itself once the section's key actually has different fifths,
+ *  and ties the Intermediate step's common tones through `applyTies`. */
+export function generateKeyChangeFamily(definition: ExerciseDefinition, generatedOn: string): GeneratedExerciseItem[] {
+  if (definition.form !== 'key-change')
+    throw new Error(`${definition.family}: generateKeyChangeFamily needs form "key-change"`);
+  if (definition.keys !== undefined || definition.steps !== undefined) {
+    throw new Error(
+      `${definition.family}: the key-change form takes \`keyPairs\` and \`sections\`, not \`keys\` or \`steps\``,
+    );
+  }
+  const pairs = definition.keyPairs;
+  if (!pairs || pairs.length === 0) throw new Error(`${definition.family}: the key-change form needs \`keyPairs\``);
+  const applyTies = definition.step === 'intermediate' ? tieAdjacentChords : undefined;
+  return pairs.map((pair) => {
+    const slug = pairSlug(pair);
+    const sections = resolveSections(definition, (section) => (section.inKey === 'to' ? pair.to : pair.from));
+    const title = definition.titleTemplate
+      .replace('{from}', displayKeyName(pair.from))
+      .replace('{to}', displayKeyName(pair.to));
+    const xml = renderPattern({ title, definition, sections, firstKey: pair.from }, applyTies);
+    return { ...identityOf(definition, slug), xml, meta: buildMeta(definition, title, generatedOn) };
+  });
+}
+
 /** The generator for a definition, by its `form` (contract exercise-definition 1.1 §1a): the 1.0.0 families are told apart
  *  by their name as before (`changes-*` are chord-change drills, the rest triad exercises). One dispatch for the build tool
  *  and the tests, so a new form is added in one place. */
 export function generateFamily(definition: ExerciseDefinition, generatedOn: string): GeneratedExerciseItem[] {
   if (definition.form === 'pattern') return generatePatternFamily(definition, generatedOn);
+  if (definition.form === 'key-change') return generateKeyChangeFamily(definition, generatedOn);
   return definition.family.startsWith('changes')
     ? generateChangeFamily(definition, generatedOn)
     : generateTriadFamily(definition, generatedOn);

@@ -113,3 +113,56 @@ export function keyBySlug(slug: string): KeyInfo | undefined {
 export function exerciseKeyOf(key: KeyInfo): ExerciseKey {
   return { tonic: key.tonic, mode: key.mode, fifths: key.fifths };
 }
+
+/** The 18 key-change folders, both directions, in data-model.md §2's order - the single source the content
+ *  definitions (hand-authored, one `keyPairs` entry per row) and `tools/library/sections.ts` both draw from,
+ *  so the shelf and the generator can never disagree about which 18 pairs exist. */
+export interface KeyChangePairInfo {
+  from: ExerciseKey;
+  to: ExerciseKey;
+  relation: 'relative' | 'parallel';
+  /** e.g. `c-major-to-a-minor` - matches `generate.ts`'s own `pairSlug`. */
+  slug: string;
+}
+
+/** `toOctaveShift`: register-bridging only (generate.ts's `tonicMidiOf`, contract 1.2 §3) - the G major/E minor
+ *  pair straddles the per-key table's octave-4/3 boundary the "wrong" way and would otherwise land the two
+ *  keys' chords 9 semitones apart instead of the other three relative pairs' 3. */
+function pair(
+  fromSlug: string,
+  toSlug: string,
+  relation: 'relative' | 'parallel',
+  toOctaveShift?: number,
+  fromOctaveShift?: number,
+): KeyChangePairInfo {
+  const from = keyBySlug(fromSlug);
+  const to = keyBySlug(toSlug);
+  if (!from || !to) throw new Error(`unknown key slug in pair ${fromSlug} -> ${toSlug}`);
+  return {
+    from: { ...exerciseKeyOf(from), ...(fromOctaveShift !== undefined ? { octaveShift: fromOctaveShift } : {}) },
+    to: { ...exerciseKeyOf(to), ...(toOctaveShift !== undefined ? { octaveShift: toOctaveShift } : {}) },
+    relation,
+    slug: `${fromSlug}-to-${toSlug}`,
+  };
+}
+
+export const KEY_CHANGE_PAIRS: readonly KeyChangePairInfo[] = [
+  pair('c-major', 'a-minor', 'relative'),
+  pair('a-minor', 'c-major', 'relative'),
+  pair('c-major', 'c-minor', 'parallel'),
+  pair('c-minor', 'c-major', 'parallel'),
+  pair('g-major', 'e-minor', 'relative', -1),
+  pair('e-minor', 'g-major', 'relative', undefined, -1),
+  pair('g-major', 'g-minor', 'parallel'),
+  pair('g-minor', 'g-major', 'parallel'),
+  pair('f-major', 'd-minor', 'relative'),
+  pair('d-minor', 'f-major', 'relative'),
+  pair('f-major', 'f-minor', 'parallel'),
+  pair('f-minor', 'f-major', 'parallel'),
+  pair('d-major', 'b-minor', 'relative'),
+  pair('b-minor', 'd-major', 'relative'),
+  pair('d-major', 'd-minor', 'parallel'),
+  pair('d-minor', 'd-major', 'parallel'),
+  pair('a-minor', 'a-major', 'parallel'),
+  pair('a-major', 'a-minor', 'parallel'),
+];

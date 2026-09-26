@@ -1,6 +1,6 @@
 # Contract: exercise definition (`content/library/exercises/*.json`)
 
-**Version**: `1.1.0` (1.0.0 new; 1.1.0, 2026-09-26, feature 011: the `pattern` and `key-change` forms, `step`, `stepOrder`, `fileStem`, `supersedes`, `raisedBecause`, §1a-§2a; change request `specs/011-learning-by-key/contracts/exercise-definition-1.1.md`). Every 1.0.0 file stays valid and generates byte-identical output.
+**Version**: `1.2.0` (1.0.0 new; 1.1.0, 2026-09-26, feature 011: the `pattern` and `key-change` forms, `step`, `stepOrder`, `fileStem`, `supersedes`, `raisedBecause`, §1a-§2a; change request `specs/011-learning-by-key/contracts/exercise-definition-1.1.md`; 1.2.0, 2026-09-26, feature 011 US2: `octaveShift` re-enabled, key-change pairs only, to bridge two keys whose per-key table octaves land far apart - see §2a). Every 1.0.0/1.1.0 file stays valid and generates byte-identical output.
 
 **Owner**: `src/core/library/exercise/` (pure generation), `tools/library/build-exercises.ts`
 (writes the generated scores).
@@ -223,7 +223,7 @@ Rules:
   `bars x measure length` (the generator throws, naming the definition and section, otherwise).
 - Scale spelling: letter arithmetic from the tonic (`scales.ts`); harmonic minor raises 7, melodic raises 6 and 7 going
   up and restores them going down; every altered note carries `<accidental>`. Fingering from the table in data-model §6.
-- Register: data-model §5 (tonic octave per key; a chord's bass is the unique pitch of its bass pitch class in [anchor-7, anchor+4], the anchor being the tonic chord's root, T-12 left and T+12 right; so I sits at the anchor and IV and V below it; `octaveShift` no longer applies to pattern sections).
+- Register: data-model §5 (tonic octave per key; a chord's bass is the unique pitch of its bass pitch class in [anchor-7, anchor+4], the anchor being the tonic chord's root, T-12 left and T+12 right; so I sits at the anchor and IV and V below it; `octaveShift` does not apply to a plain pattern section, one key throughout). **1.2.0**: a key-change pair's `from` or `to` key may set `octaveShift` (schema range -1..1 already allowed it) to bridge two keys whose table octaves would otherwise land far apart - needed only for G major/E minor, the one relative pair that straddles the table's octave-4/octave-3 boundary the "wrong" way (`src/core/library/exercise/keys.ts`'s `KEY_CHANGE_PAIRS`, `generate.ts`'s `tonicMidiOf`); every other pair needs no shift.
 - Key-change form: the generator writes `<key>` (with `<cancel>` when accidentals disappear) in the first bar of the first
   `inKey: "to"` section when the fifths differ; the preceding bar ends light-light; a words direction names the new key.
 - Titles: `{key} - introduction` etc. (key-change: `{from} to {to} - introduction`) - the theory check parses them.
