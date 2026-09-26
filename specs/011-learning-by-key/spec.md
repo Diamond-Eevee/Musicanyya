@@ -28,7 +28,7 @@ Learning
     C major -> A minor   (relative: same key signature, new tonic)
     C major -> C minor   (parallel: same tonic, new key signature)
     A minor -> A major
-    ...  (relative and parallel pairs, both directions, for C, G, F and D major - 16 folders)
+    ...  (relative and parallel pairs, both directions, for C, G, F and D major, plus A minor <-> A major - 18 folders)
 ```
 
 Inside every key the same four steps, each one small step harder than the last:
@@ -41,9 +41,9 @@ Inside every key the same four steps, each one small step harder than the last:
 | 4 Advanced | Cadences and progressions (I-vi-IV-V, ii-V-I, minor cadence with the raised leading tone) with the scale in both hands, quicker values. |
 | Songs | Public-domain songs with the melody in the right hand and **block chords in the left hand**. Practise the left hand alone and the app plays the melody for you (existing hands-separately accompaniment). |
 
-The existing drills are not thrown away: each one moves to the key and step it fits (e.g. *C major triads* ->
-*C major / Intermediate*, *C major - I-V-I* -> *C major / Beginner*, *C major - major and minor* ->
-*Key changes / C major -> C minor*).
+The existing 41 Learning items are not thrown away: each one either moves to the key and step it fits or is replaced
+by the generated step that covers the same skill (e.g. *C major triads* -> *C major / Intermediate*, *C major - I-V-I*
+-> *C major / Introduction*, *C major - major and minor* -> *Key changes / C major -> C minor*).
 
 ## Clarifications
 
@@ -52,6 +52,11 @@ The existing drills are not thrown away: each one moves to the key and step it f
 - Q: Which keys get the full four-step path? -> A: All 24 major and minor keys.
 - Q: Which key changes? -> A: Relative and parallel pairs in both directions, starting with C, G, F and D major
   (16 folders); no longer journeys.
+- Plan decisions (owner, 2026-09-26): D-1 songs come from Mutopia public-domain carols and hymn tunes (plus the approved
+  Greensleeves source transposed to A minor), because Mutopia has almost no public-domain nursery/folk tunes; D-2 the
+  level criteria change as research R4 recommends (hand independence, leading-tone accidentals, one key change in
+  key-change exercises, span 38 for exercises); D-3 add the A minor <-> A major pair (18 folders), and key-change
+  folders have three steps (Introduction, Beginner, Intermediate).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -132,20 +137,23 @@ song's step promises.
 
 ### User Story 4 - Old links still work (Priority: P3)
 
-A returning user had a drill in their recent items or remembered settings from before the reorganisation. After the
-update, the drill opens from its new place and their remembered settings still apply.
+A returning user had remembered Practice/Play settings for a drill and a library filter set to an old folder. After the
+update, the drill's successor opens with those settings, and the filter points at the new folder. Recent scores keep
+opening the copy the user opened back then.
 
 **Why this priority**: protects existing users; small.
 
-**Independent Test**: with a remembered item from the old layout (e.g. *Chords > C major triads*), open the library
-after the update: the item opens from its new place and its remembered run settings are kept.
+**Independent Test**: with settings remembered for an old item (e.g. *Chords > C major triads*), open its successor
+after the update (*Keys > C major > Intermediate*): the remembered run settings are preselected.
 
 **Acceptance Scenarios**:
 
-1. **Given** a remembered library item from the old layout, **When** the app starts, **Then** it resolves to the same
-   exercise in the new layout, with its remembered settings.
-2. **Given** an old item that no longer exists as such, **When** it is requested, **Then** the user sees a notice
-   naming what replaced it, never an error.
+1. **Given** Practice or Play settings remembered for an old item, **When** its successor is opened and has no settings
+   of its own, **Then** the old settings are applied.
+2. **Given** a library filter saved on an old folder, **When** the library loads, **Then** the filter points at that
+   folder's successor, never at nothing.
+3. **Given** a recent score opened from the old layout, **When** it is reopened, **Then** it opens its stored copy
+   without an error.
 
 ### Edge Cases
 
@@ -178,14 +186,15 @@ after the update: the item opens from its new place and its remembered run setti
 - **FR-003**: Each key folder MUST present its items as ordered steps - Introduction, Beginner, Intermediate,
   Advanced, then Songs - and each item MUST show its step.
 - **FR-004**: *Key changes* MUST hold one folder per key pair in scope, named "<from key> -> <to key>", each stating
-  the relationship (relative or parallel) and holding its items in difficulty order (Introduction to Advanced).
+  the relationship (relative or parallel) and holding its items in difficulty order (Introduction, Beginner,
+  Intermediate).
 - **FR-005**: Every existing *Learning* item MUST be placed in the key (or key-change) folder and step it fits, or be
   replaced by a newer item that covers the same skill; no existing skill may disappear from the shelf.
 
 **Steps inside a key**
 
-- **FR-006**: Every key in scope (FR-015) MUST have one *Introduction*, *Beginner*, *Intermediate* and *Advanced*
-  item.
+- **FR-006**: Every key in scope (FR-015) MUST have one main *Introduction*, *Beginner*, *Intermediate* and *Advanced*
+  item; a step MAY also hold extra practice items (existing drills that fit it), listed after the main item.
 - **FR-007**: The *Introduction* item MUST have one hand play the key's one-octave scale up and down in quarter notes
   while the other hand plays only I and V (i and V in minor) in root position, **at most one chord per bar**, then the
   same with the hands swapped; its tempo MUST be lower than the *Beginner* item of the same key.
@@ -195,9 +204,10 @@ after the update: the item opens from its new place and its remembered run setti
   least one passage where both hands play chords; the *Advanced* item MUST add at least one four-chord progression
   including a minor chord of the key (vi or ii in major; VI or iv in minor) and a faster note value than the step
   before.
-- **FR-010**: Within one key, each step MUST be at least as demanding as the step before on every measured difficulty
-  fact the library already derives (tempo, notes per beat, hand independence, chord changes per bar) and more
-  demanding on at least one; the library check MUST reject a key whose steps break this order.
+- **FR-010**: Within one key or key-change folder, each step's main item MUST be at least as demanding as the step
+  before on every measured difficulty fact (tempo, notes per beat, hand independence, chord changes per bar - the last
+  one a new derived fact) and more demanding on at least one; the library check MUST reject a folder whose steps break
+  this order.
 - **FR-011**: All exercises of one step MUST share the same shape in every key (only the key differs), so a learner
   who finished a step in one key knows what the same step asks in another.
 - **FR-012**: Every exercise MUST carry fingering for every note, matching standard fingering for that key's scale
@@ -217,13 +227,13 @@ after the update: the item opens from its new place and its remembered run setti
   Beginner, Intermediate, Advanced). *Key changes* MUST cover relative and parallel pairs in both directions for
   the major keys C, G, F and D: each major key to and from its relative minor (C major <-> A minor, G major <->
   E minor, F major <-> D minor, D major <-> B minor) and to and from its parallel minor (C major <-> C minor,
-  G major <-> G minor, F major <-> F minor, D major <-> D minor) - 16 key-change folders. Longer journeys through
-  three or more keys are out of scope.
+  G major <-> G minor, F major <-> F minor, D major <-> D minor), plus A minor <-> A major for the existing drill
+  (FR-014) - 18 key-change folders. Longer journeys through three or more keys are out of scope.
 
 **Songs**
 
-- **FR-016**: The library MUST offer at least 8 beginner songs for practising chords, spread over at least 4 keys
-  including at least 2 minor keys, each placed in the *Songs* step of its key.
+- **FR-016**: The library MUST offer at least 8 songs for practising chords (at least 6 of them beginner level), spread
+  over at least 4 keys including at least 2 minor keys, each placed in the *Songs* step of its key.
 - **FR-017**: Each song MUST have the melody in the right hand and block chords in the left hand with chord symbols
   above the staff; a beginner-level song MUST use only the key's primary chords and change chord at most once per bar.
 - **FR-018**: Each song's melody MUST be public domain and checked note by note against a named public-domain
@@ -235,8 +245,9 @@ after the update: the item opens from its new place and its remembered run setti
 
 **Continuity and quality**
 
-- **FR-020**: Remembered library items and their remembered run settings from the old layout MUST resolve to the
-  corresponding new items; an item with no direct successor MUST show a notice naming its replacement.
+- **FR-020**: Every old Learning item MUST have exactly one successor on the new shelf; Practice/Play settings
+  remembered for an old item MUST apply to its successor when the successor has none of its own; a library filter saved
+  on an old folder MUST move to that folder's successor; recent scores MUST keep opening their stored copy.
 - **FR-021**: Every new and moved item MUST pass the library's existing checks: licence, engraving (beams and
   accidentals complete), level criteria, fidelity audit record, and loading through the app's parser without notices.
 - **FR-022**: The published level criteria MUST gain an *Introduction* level (below *Beginner*) with written,
@@ -269,7 +280,8 @@ after the update: the item opens from its new place and its remembered run setti
 - **SC-005**: A first-time learner playing the C major *Introduction* hands together in Practice mode completes it
   with no more than 3 wrong notes on the first attempt in an owner test with at least 3 people (or the owner alone,
   recorded).
-- **SC-006**: 100% of remembered items from the previous layout open the corresponding new item.
+- **SC-006**: 100% of old Learning items have a successor, and remembered settings of every old item apply to its
+  successor.
 - **SC-007**: 100% of Learning items pass the licence, engraving, level, fidelity and parser checks; the full quality
   gate stays green.
 
@@ -286,11 +298,11 @@ after the update: the item opens from its new place and its remembered run setti
   from *Intermediate* on.
 - Exercises are generated from definitions (as the current 24-key drills are), so adding keys costs review, not hand
   engraving.
-- Songs are traditional, long-out-of-copyright tunes (e.g. *Frere Jacques*, *London Bridge*, *Oh When the Saints*,
-  *Michael, Row the Boat Ashore*, *Skip to My Lou*, *Aura Lee*, *Scarborough Fair*, *Wayfaring Stranger*,
-  *Drunken Sailor*), checked against public-domain printings such as those on the Internet Archive. Song titles still
-  under copyright or disputed (e.g. *Happy Birthday*) are avoided. The final list is decided during planning and
-  sourcing.
+- Songs are traditional public-domain tunes available as public-domain Mutopia sources - in practice carols and hymn
+  tunes (*Au clair de la lune*, *Good King Wenceslas*, *The Holly and the Ivy*, *Joy to the World*, *O Come, All Ye
+  Faithful*, *Silent Night*, *Auld Lang Syne*, *O Come, O Come, Emmanuel*, *Greensleeves* in A minor; research R9,
+  owner decision D-1). Nursery/folk tunes were searched for but have no public-domain machine-readable source; titles
+  under copyright or disputed (e.g. *Happy Birthday*, the familiar *Scarborough Fair* tune) are avoided.
 - Existing repertoire pieces (Twinkle, Ode to Joy, ...) stay in *Repertoire*; the new songs are chord-practice
   arrangements and live in *Learning*.
 - No change to grading, Practice or Play mode behaviour, or the Metronome.
