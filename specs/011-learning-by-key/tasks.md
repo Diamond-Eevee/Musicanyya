@@ -164,18 +164,18 @@ folder; recent scores keep opening their copy.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T065 [P] [US4] Adoption tests in `tests/engine/storage/local-settings-store.test.ts`: `adoptScoreSettings(from, to)` copies Practice and Play per-Score settings from the first `from` hash with an entry; never overwrites an existing `to` entry; keeps the old entry; returns false and writes nothing when no `from` has an entry; swallows storage errors (library-port 1.2 §4); the fake settings store implements the same
-- [ ] T066 [P] [US4] Session test in `tests/engine/session-library.test.ts`: `openItem` calls `adoptScoreSettings` with the item's `supersedes` hashes and its own hash before `loadBytes`; an item without `supersedes` calls it with `[]` (no copy)
-- [ ] T067 [P] [US4] Filter migration tests in `tests/ui/library-state.test.ts`: a persisted `sectionId: "learning/chords"` becomes `learning/keys` once the index loads; `learning/chords/changes` becomes `learning/key-changes`; an unknown id becomes `null`
-- [ ] T068 [P] [US4] Recents test in `tests/engine/storage/indexeddb-score-store.test.ts`: a stored recent whose bytes equal an old library file reopens without an error after the shelf changed (no lookup by library id)
-- [ ] T069 [P] [US4] Successor coverage test in `tests/library/index.test.ts`: all 41 old ids of data-model §7 appear exactly once across the shelf's `supersedes`, each with the SHA-256 of the file as it was on `main` before this feature (hashes recorded in `tools/library/successors.ts`, SC-006)
+- [x] T065 [P] [US4] Adoption tests in `tests/engine/storage/local-settings-store.test.ts`: `adoptScoreSettings(from, to)` copies Practice and Play per-Score settings from the first `from` hash with an entry; never overwrites an existing `to` entry; keeps the old entry; returns false and writes nothing when no `from` has an entry; swallows storage errors (library-port 1.2 §4); the fake settings store implements the same
+- [x] T066 [P] [US4] Session test in `tests/engine/session-library.test.ts`: `openItem` calls `adoptScoreSettings` with the item's `supersedes` hashes and its own hash before `loadBytes`; an item without `supersedes` calls it with `[]` (no copy)
+- [x] T067 [P] [US4] Filter migration tests in `tests/ui/library-state.test.ts`: a persisted `sectionId: "learning/chords"` becomes `learning/keys` once the index loads; `learning/chords/changes` becomes `learning/key-changes`; an unknown id becomes `null`
+- [x] T068 [P] [US4] Recents test in `tests/engine/storage/indexeddb-score-store.test.ts`: a stored recent whose bytes equal an old library file reopens without an error after the shelf changed (no lookup by library id)
+- [x] T069 [P] [US4] Successor coverage test in `tests/library/index.test.ts`: all 41 old ids of data-model §7 appear exactly once across the shelf's `supersedes`, each with the SHA-256 of the file as it was on `main` before this feature (hashes recorded in `tools/library/successors.ts`, SC-006)
 
 ### Implementation
 
-- [ ] T070 [US4] `adoptScoreSettings` in `src/engine/storage/local-settings-store.ts`, the settings port in `src/engine/ports.ts`, and the fake used by the engine tests (T065 green)
-- [ ] T071 [US4] Call it from `src/app/library-session.ts` `openItem` (T066 green)
-- [ ] T072 [US4] Section-id migration via `formerIds` in `src/ui/state/libraryState.ts` (T067 green); `tools/library/build-index.ts` copies `formerIds` from `tools/library/sections.ts` into `index.json`
-- [ ] T073 [US4] Old hashes in `tools/library/successors.ts` taken from the `main` commit before this feature (`git show e450501:public/library/...`), used by `build-exercises.ts` when the old file is already deleted; regenerate the index (T068, T069 green)
+- [x] T070 [US4] `adoptScoreSettings` in `src/engine/storage/local-settings-store.ts`, the settings port in `src/engine/ports.ts`, and the fake used by the engine tests (T065 green)
+- [x] T071 [US4] Call it from `src/app/library-session.ts` `openItem` (T066 green)
+- [x] T072 [US4] Section-id migration via `formerIds` in `src/ui/state/libraryState.ts` (T067 green); `tools/library/build-index.ts` copies `formerIds` from `tools/library/sections.ts` into `index.json`
+- [x] T073 [US4] Old hashes in `tools/library/successors.ts` taken from the `main` commit before this feature (`git show e450501:public/library/...`), used by `build-exercises.ts` when the old file is already deleted; regenerate the index (T068, T069 green)
 
 **Checkpoint**: US4 Independent Test (quickstart US4) passes; all stories pass; full gate green; log entry; commit.
 

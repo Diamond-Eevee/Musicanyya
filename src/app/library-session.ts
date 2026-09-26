@@ -1,5 +1,5 @@
 import type { LibraryIndex } from '../core/library/types.js';
-import type { CatalogError, LibraryCatalog } from '../engine/ports.js';
+import type { CatalogError, LibraryCatalog, SettingsStore } from '../engine/ports.js';
 
 const ITEM_ERROR_NOTICE: Record<CatalogError, string> = {
   unavailable: 'libraryUnavailable',
@@ -27,6 +27,8 @@ export class LibrarySessionController {
   constructor(
     private readonly catalog: LibraryCatalog,
     private readonly callbacks: LibrarySessionCallbacks,
+    /** Lets an item that replaced others inherit their remembered settings (feature 011, library-port 1.2 §4). */
+    private readonly settings?: Pick<SettingsStore, 'adoptScoreSettings'>,
   ) {}
 
   get openedLibraryItemId(): string | null {
@@ -53,6 +55,9 @@ export class LibrarySessionController {
       this.callbacks.onNotice(ITEM_ERROR_NOTICE[result.error]);
       return false;
     }
+
+    // Settings remembered for the items this one replaced apply to it, before the Score loads and reads them.
+    this.settings?.adoptScoreSettings(item.meta.supersedes?.map((s) => s.hash) ?? [], item.hash);
 
     const fileName = item.file.slice(item.file.lastIndexOf('/') + 1);
     await this.callbacks.loadBytes(fileName, result.value);

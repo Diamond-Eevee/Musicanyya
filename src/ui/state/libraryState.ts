@@ -54,6 +54,13 @@ function persistFilter(filter: LibraryFilter): void {
   }
 }
 
+/** The id of the section a saved filter should select now: itself when the index has it, else the section whose `formerIds`
+ *  names it, else no section. */
+function currentSectionId(sectionId: string | null, index: LibraryIndex): string | null {
+  if (sectionId === null || index.sections.some((s) => s.id === sectionId)) return sectionId;
+  return index.sections.find((s) => s.formerIds?.includes(sectionId))?.id ?? null;
+}
+
 /** data-model.md §6: `idle -> loadingIndex -> ready | indexError`, then `ready -> openingItem -> ready`
  *  on success or failure. Session-only - never persisted, and never blocks the recents list or the
  *  Open button, which come from the unrelated `scoreState`. */
@@ -112,6 +119,10 @@ export class LibraryStateStore {
   }
 
   indexLoaded(index: LibraryIndex): void {
+    // A saved folder filter follows its folder through a reorganisation (library-port 1.2 §3, feature 011 FR-020).
+    const filter = this.filterStore.get();
+    const moved = currentSectionId(filter.sectionId, index);
+    if (moved !== filter.sectionId) this.setFilter({ ...filter, sectionId: moved });
     if (this.openFolders === null) this.openFolders = defaultOpenFolders(buildSectionTree(index.sections, index.items));
     this.statusStore.set({ kind: 'ready', index });
   }

@@ -192,6 +192,62 @@ test.describe('Practice score library: browse, open, Listen', () => {
     }
   });
 
+  test('browser: settings remembered for a superseded item apply to its successor (feature 011 US4, quickstart US4)', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === 'electron', 'Electron is covered by its own test below');
+
+    // What the index says about the successor: its own hash and the hash of the old item it replaced
+    const index = (await (await page.request.get('/library/index.json')).json()) as {
+      items: { id: string; hash: string; meta: { supersedes?: { id: string; hash: string }[] } }[];
+    };
+    const successor = index.items.find((i) => i.id === 'learning/keys/c-major/intermediate');
+    const old = successor?.meta.supersedes?.find((s) => s.id === 'learning/chords/triads-c-major');
+    if (!successor || !old) throw new Error('the successor of learning/chords/triads-c-major is not on the shelf');
+
+    // A visit from before the reorganisation: Practice settings stored under the old item's hash, "left hand"
+    await page.addInitScript((oldHash) => {
+      if (localStorage.getItem('musicanyya.practice.v1') !== null) return;
+      localStorage.setItem(
+        'musicanyya.practice.v1',
+        JSON.stringify({
+          version: 1,
+          byScore: {
+            [oldHash]: {
+              selection: { preset: 'left', partIndex: 0, staves: [2] },
+              loop: null,
+              accompaniment: false,
+              help: true,
+              updated: '2026-09-01T00:00:00.000Z',
+            },
+          },
+        }),
+      );
+    }, old.hash);
+
+    await page.goto('/');
+    await openPanel(page, 'scores');
+    const { item } = await revealLibraryItem(page, 'learning/keys/c-major/intermediate');
+    await item.click();
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+
+    // The successor now has the old item's choices as its own (written after the store's short debounce), the old entry stays
+    await expect
+      .poll(async () =>
+        page.evaluate((newHash) => {
+          const file = JSON.parse(localStorage.getItem('musicanyya.practice.v1') ?? '{}');
+          const own = file.byScore?.[newHash];
+          return own ? [own.selection?.preset, own.accompaniment] : null;
+        }, successor.hash),
+      )
+      .toEqual(['left', false]);
+    const oldStillThere = await page.evaluate(
+      (oldHash) => JSON.parse(localStorage.getItem('musicanyya.practice.v1') ?? '{}').byScore?.[oldHash] !== undefined,
+      old.hash,
+    );
+    expect(oldStillThere).toBe(true);
+  });
+
   test('browser: a corrected item replaces a stale cached copy, and still opens offline (feature 007 FR-024, SC-010)', async ({
     page,
   }, testInfo) => {

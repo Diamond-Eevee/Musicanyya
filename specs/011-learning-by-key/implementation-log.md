@@ -338,3 +338,27 @@
 - Handoff: US3 done. next = US4 (T065-T073): tests T065-T069 first (`adoptScoreSettings`, session `openItem`, section-id migration through `formerIds`,
   recents, successor coverage), then T070-T073; then Polish T074-T083, T088 (T081 music review of the step definitions and key changes; T080
   constitution review; T083 needs the owner). Tree clean at the checkpoint commit.
+
+## 2026-09-26 22:30 - claude-sonnet-5 (US4 checkpoint)
+- Owner instruction for this run: "to the very end, go with recommended if there will be questions" - applied to every question below.
+- Done: T065-T073 (all of US4). Tests first (14 failing for the expected reason: no `adoptScoreSettings`, no third constructor argument, no
+  section migration), then code.
+- `SettingsStore.adoptScoreSettings(fromHashes, toHash)` (port, `LocalSettingsStore`, `MemorySettingsStore` fake): copies the Practice and the Play
+  entry of the first old hash that has one to the new hash when the new hash has none; the loop (Practice) and the measure range (Play) are dropped
+  because they belong to one Score (practice-settings contract); never overwrites, keeps the old entry, evicts by the existing cap, swallows storage
+  errors, returns whether it copied. The tests live in a new file `tests/engine/storage/adopt-settings.test.ts` (not appended to
+  `local-settings-store.test.ts` as T065 names it: the fake storage and the fake-store test are the same subject). `LibrarySessionController` takes the
+  store as an optional third argument and calls it before `loadBytes` (`[]` when the item has no `supersedes`); `session.ts` passes its store.
+  `libraryState.indexLoaded` moves a saved `sectionId` to the section whose `formerIds` names it (`learning/chords` -> `learning/keys`,
+  `learning/chords/changes` -> `learning/key-changes`), to `null` when none does, and persists the move; the other filter fields are kept.
+- T068 and T069 were green at once (a recent is keyed by its content hash and never looked up in the library; all 41 successors with their
+  SHA-256 were recorded in US1, and `build-exercises.ts` already skips the old file when it is gone): asserted, not changed. T073 needed no code:
+  `pnpm library:exercises` with the old files deleted regenerated 155 items with no diff under `public/`.
+- New e2e (`tests/e2e/library.spec.ts`, Chromium): practice settings stored under the hash of `learning/chords/triads-c-major` (left hand,
+  accompaniment off) are found under the hash of `learning/keys/c-major/intermediate` after opening it in the real app, and the old entry is still
+  there (quickstart US4 steps 1-2 without a second checkout; step 3 is the unit test).
+- Evidence: `pnpm test` -> `Test Files 222 passed (222)  Tests 3834 passed (3834)`; `pnpm typecheck` clean; `pnpm lint` 0 errors (baseline warnings). Full
+  `pnpm test:e2e` runs once at the end (T082).
+- Handoff: next = Polish T074-T083, T088 (docs T074-T077, shelf size T078, quickstart screenshots T079, constitution audit T080, music review of the
+  step and key-change definitions T081, Electron spec T088, full gate T082); T083 needs the owner and cannot be done by an agent. Tree clean at the
+  checkpoint commit.

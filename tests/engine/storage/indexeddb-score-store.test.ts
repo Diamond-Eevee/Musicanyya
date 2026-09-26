@@ -103,3 +103,33 @@ describe('IndexedDB score store', () => {
     expect(put).toEqual({ ok: false, error: 'unavailable' });
   });
 });
+
+// Feature 011 T068 (library-port 1.2 §4): a recent score is a copy of the bytes the user opened, keyed by their hash.
+// Nothing about it refers to the library index, so it keeps opening after the shelf changed.
+describe('a recent score of a library item that the shelf later replaced (feature 011 US4)', () => {
+  beforeEach(() => {
+    globalThis.indexedDB = new IDBFactory();
+  });
+
+  it('is stored and reopened by its content hash, with no lookup by library id', async () => {
+    const store = new IndexedDbScoreStore();
+    const bytes = bytesFor('an old library file, as it was when the user opened it');
+    const put = await store.put({
+      fileName: 'triads-c-major.musicxml',
+      bytes,
+      title: 'C major triads',
+      composer: null,
+    });
+    expect(put.ok).toBe(true);
+    if (!put.ok) return;
+    expect(put.value.id).toBe(await hashFile(new Uint8Array(bytes)));
+
+    // a new store instance stands for a later visit, after the shelf changed: only the hash is needed
+    const later = new IndexedDbScoreStore();
+    const listed = await later.list();
+    expect(listed.ok && listed.value.map((r) => r.id)).toEqual([put.value.id]);
+    const reopened = await later.get(put.value.id);
+    expect(reopened.ok).toBe(true);
+    if (reopened.ok) expect(new Uint8Array(reopened.value.bytes)).toEqual(new Uint8Array(bytes));
+  });
+});

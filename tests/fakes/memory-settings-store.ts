@@ -35,6 +35,15 @@ export class MemorySettingsStore implements SettingsStore {
     return own ? { ...own } : { ...this.defaults, loop: null };
   }
 
+  adoptScoreSettings(fromHashes: readonly string[], toHash: string): boolean {
+    if (this.byScore.has(toHash)) return false;
+    const from = fromHashes.find((hash) => this.byScore.has(hash));
+    const own = from === undefined ? undefined : this.byScore.get(from);
+    if (!own) return false;
+    this.byScore.set(toHash, { ...own, loop: null });
+    return true;
+  }
+
   savePractice(scoreId: string | null, settings: PracticeSettings): void {
     if (scoreId === null) return;
     this.byScore.set(scoreId, { ...settings });

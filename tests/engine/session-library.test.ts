@@ -202,3 +202,58 @@ describe('practising a song with the left hand (feature 011 US3, FR-019)', () =>
     expect(new Set(accompaniment.map((id) => staffOf.get(id)))).toEqual(new Set([1]));
   });
 });
+
+// Feature 011 T066 (library-port 1.2 §4): opening an item first lets its settings adopt those of the items it replaced.
+describe('opening a library item adopts the settings of the items it supersedes (feature 011 US4)', () => {
+  const NEW_HASH = 'b'.repeat(64);
+  const OLD_HASH = 'c'.repeat(64);
+
+  async function open(supersedes: { id: string; hash: string }[] | undefined) {
+    const catalog = new FakeLibraryCatalog();
+    catalog.setItem('repertoire/beginner/scale.musicxml', fixtureBytes);
+    const order: string[] = [];
+    const adopted: { from: readonly string[]; to: string }[] = [];
+    const controller = new LibrarySessionController(
+      catalog,
+      {
+        loadBytes: async () => {
+          order.push('loadBytes');
+        },
+        onNotice: () => {},
+      },
+      {
+        adoptScoreSettings: (from: readonly string[], to: string) => {
+          order.push('adopt');
+          adopted.push({ from, to });
+          return false;
+        },
+      },
+    );
+    const base = item();
+    const withHash = {
+      ...base,
+      hash: NEW_HASH,
+      meta: { ...base.meta, ...(supersedes ? { supersedes } : {}) },
+    };
+    await controller.openItem(index([withHash]), withHash.id);
+    return { order, adopted };
+  }
+
+  it('calls adoptScoreSettings with the old hashes and its own hash, before loadBytes', async () => {
+    const { order, adopted } = await open([{ id: 'learning/chords/triads-c-major', hash: OLD_HASH }]);
+    expect(adopted).toEqual([{ from: [OLD_HASH], to: NEW_HASH }]);
+    expect(order).toEqual(['adopt', 'loadBytes']);
+  });
+
+  it('an item without supersedes calls it with no old hashes (nothing is copied)', async () => {
+    const { adopted } = await open(undefined);
+    expect(adopted).toEqual([{ from: [], to: NEW_HASH }]);
+  });
+
+  it('a controller built without a settings port still opens items', async () => {
+    const catalog = new FakeLibraryCatalog();
+    catalog.setItem('repertoire/beginner/scale.musicxml', fixtureBytes);
+    const controller = new LibrarySessionController(catalog, { loadBytes: async () => {}, onNotice: () => {} });
+    expect(await controller.openItem(index([item()]), 'repertoire/beginner/scale')).toBe(true);
+  });
+});

@@ -305,6 +305,39 @@ export class LocalSettingsStore implements SettingsStore {
     this.playTimer = setTimeout(() => this.flushPlay(), SETTINGS_WRITE_DEBOUNCE_MS);
   }
 
+  adoptScoreSettings(fromHashes: readonly string[], toHash: string): boolean {
+    if (!SCORE_ID_PATTERN.test(toHash)) return false;
+    try {
+      const practice = this.adoptInto(this.readPracticeFile(), 'loop', fromHashes, toHash);
+      if (practice) {
+        this.practiceFile = practice;
+        if (this.practiceTimer !== null) clearTimeout(this.practiceTimer);
+        this.practiceTimer = setTimeout(() => this.flushPractice(), SETTINGS_WRITE_DEBOUNCE_MS);
+      }
+      const play = this.adoptInto(this.readPlayFile(), 'range', fromHashes, toHash);
+      if (play) {
+        this.playFile = play;
+        if (this.playTimer !== null) clearTimeout(this.playTimer);
+        this.playTimer = setTimeout(() => this.flushPlay(), SETTINGS_WRITE_DEBOUNCE_MS);
+      }
+      return practice !== null || play !== null;
+    } catch {
+      return false;
+    }
+  }
+
+  /** `file` with the entry of the first of `fromHashes` that has one copied to `toHash` (without `omit`, the field that
+   *  belongs to one Score); null when `toHash` already has an entry or none of the old ones does. */
+  private adoptInto(file: JsonObject, omit: string, fromHashes: readonly string[], toHash: string): JsonObject | null {
+    const byScore: JsonObject = isObject(file.byScore) ? file.byScore : {};
+    if (isObject(byScore[toHash])) return null;
+    const from = fromHashes.find((hash) => SCORE_ID_PATTERN.test(hash) && isObject(byScore[hash]));
+    if (from === undefined) return null;
+    const { [omit]: _belongsToOneScore, ...kept } = byScore[from] as JsonObject;
+    const next: JsonObject = { ...byScore, [toHash]: { ...kept, updated: new Date().toISOString() } };
+    return { ...file, version: 1, byScore: this.evictOldest(next, toHash, PRACTICE_SETTINGS_MAX) };
+  }
+
   /** At most `max` Scores stay; the oldest-updated go first, and the Score just saved never does. */
   private evictOldest(byScore: JsonObject, keep: string, max: number): JsonObject {
     const ids = Object.keys(byScore);

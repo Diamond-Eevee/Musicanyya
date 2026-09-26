@@ -577,3 +577,29 @@ describe('the songs on the Learning > Keys shelf (feature 011 US3)', () => {
     }
   });
 });
+
+// Feature 011 T069 (SC-006, FR-020): every one of the 41 items the old Learning shelf held has a successor on the shelf.
+describe('the successors of the old Learning shelf (feature 011 US4, SC-006)', () => {
+  it('all 41 old ids appear exactly once across the shelf supersedes, each with the SHA-256 recorded from main', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    expect(SUCCESSORS).toHaveLength(41);
+    expect(new Set(SUCCESSORS.map((s) => s.oldId)).size).toBe(41);
+    const claims = index.items.flatMap((i) => (i.meta.supersedes ?? []).map((s) => ({ ...s, by: i.id })));
+    expect(claims).toHaveLength(41);
+    for (const successor of SUCCESSORS) {
+      const found = claims.filter((c) => c.id === successor.oldId);
+      expect(
+        found.map((c) => c.by),
+        successor.oldId,
+      ).toEqual([successor.newId]);
+      expect(found[0]?.hash, successor.oldId).toBe(successor.hash);
+      expect(successor.hash, successor.oldId).toMatch(/^[0-9a-f]{64}$/);
+    }
+  });
+
+  it('every successor item is on the shelf', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    const ids = new Set(index.items.map((i) => i.id));
+    for (const successor of SUCCESSORS) expect(ids.has(successor.newId), successor.newId).toBe(true);
+  });
+});
