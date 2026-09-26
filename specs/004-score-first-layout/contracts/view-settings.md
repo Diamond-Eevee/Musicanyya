@@ -1,6 +1,9 @@
 # Contract: view settings (`musicanyya.settings.v1`, format version 2)
 
-**Version**: `2.0.0` - MAJOR, because the `zoomPercent` field is renamed to `scale` and a required
+**Version**: `2.1.0` - MINOR, feature 012-tempo-bpm-field: `tempoPercent` is deprecated (FR-015, R-9). It is no
+longer written by `save()`, and is ignored (not read into `UserSettings`) when present in a stored file. A file with
+or without the field still validates; the format version stays 2 because both old and new files read correctly (no
+migration needed). `2.0.0` - MAJOR, because the `zoomPercent` field is renamed to `scale` and a required
 `overlays` object is added. Supersedes the settings section of
 [`001/contracts/storage.md`](../../001-score-viewer-listen/contracts/storage.md); the storage **key**
 is unchanged, so no user loses their settings.
@@ -20,7 +23,7 @@ is unchanged, so no user loses their settings.
   "properties": {
     "version":      { "const": 2 },
     "volume":       { "type": "integer", "minimum": 0,  "maximum": 100, "default": 80 },
-    "tempoPercent": { "type": "integer", "minimum": 25, "maximum": 200, "multipleOf": 5, "default": 100 },
+    "tempoPercent": { "deprecated": true, "description": "2.1.0: ignored when read; never written (feature 012 FR-015)" },
     "scale":        { "type": "integer", "minimum": 50, "maximum": 200, "multipleOf": 10, "default": 100 },
     "follow":       { "type": "boolean", "default": true },
     "overlays": {
@@ -43,6 +46,9 @@ is unchanged, so no user loses their settings.
 - Every field is validated **on its own**; anything invalid or missing falls back to its default.
 - Unknown fields are preserved on save, so a newer build's settings survive an older build.
 - Unparsable JSON, or storage that throws, yields all defaults and one `storageUnavailable` notice.
+- `tempoPercent` (2.1.0): if present, it is preserved as an unknown-field passthrough on save like any other stray
+  field, but never parsed into `UserSettings` and never written by the app itself. `UserSettings` has no
+  `tempoPercent` property (`src/engine/ports.ts`).
 
 ## 3. Migration from version 1
 

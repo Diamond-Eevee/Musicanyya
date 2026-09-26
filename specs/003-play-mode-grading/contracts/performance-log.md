@@ -1,7 +1,9 @@
 # Contract: persisted performances and run settings
 
-**Version**: Performance log format `1`, IndexedDB schema `1` -> **`2`**, play-settings format `1`.
-Research R-04, R-05, R-09. All data stays on the musician's device; nothing is uploaded (FR-016).
+**Version**: Performance log format `1`, IndexedDB schema `1` -> **`2`**, play-settings format `1` (wording update,
+feature 012-tempo-bpm-field: `RunSettings.tempoPercent` validation and `lastUsed.tempoPercent` below; format version
+unchanged, every old file is still valid). Research R-04, R-05, R-09. All data stays on the musician's device;
+nothing is uploaded (FR-016).
 
 ## IndexedDB database `musicanyya` (version 2)
 
@@ -88,6 +90,12 @@ interface PlaySettingsFile {
 
 Invalid or unparsable content falls back to the built-in defaults and is overwritten on the next write; a storage
 failure is reported once and never throws (feature 001's `storage.md` rule).
+
+`RunSettings.tempoPercent` validation (feature 012-tempo-bpm-field, R-1, R-9): a finite number in [25, 200]; anything
+else (missing, non-finite, out of range) falls back to the built-in default (100). Older stored integer values
+(steps of 5) are still valid. `lastUsed.tempoPercent` is **not** applied to a Score never played: `loadPlay` for
+such a Score returns `lastUsed` with `tempoPercent` forced to `TEMPO_PERCENT_DEFAULT` (100), while its other fields
+(strictness, count-in, selection, ...) still come from `lastUsed` unchanged.
 
 ## Latency profile (`localStorage`)
 

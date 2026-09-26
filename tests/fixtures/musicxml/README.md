@@ -36,6 +36,11 @@
 | tempo-sound-vs-metronome | Both sound tempo and metronome present; sound wins | Hand-written | CC0 |
 | tempo-dotted-beat-unit | Metronome with a dotted beat-unit | Hand-written | CC0 |
 | tempo-change-mid-measure-offset | Tempo direction mid-measure shifted by offset sound="yes" | Hand-written | CC0 |
+| tempo-change-90-60 | quarter=90 (sound) in m1, quarter=60 (sound) in m5, 8 measures, backward repeat at m6 to m1 (feature 012) | Hand-written | CC0 |
+| tempo-beat-inherit-6-8 | 6/8 dotted-quarter=60 (sound 90) in m1, sound-only 120 in m3, `<time>` 2/4 with no mark in m5, sound-only 80 in m6 (feature 012) | Hand-written | CC0 |
+| tempo-circa-range | "c. 90" in m1, "90-100" in m3, "fast" (unreadable) in m5 (feature 012) | Hand-written | CC0 |
+| tempo-whole-unit | 2/2, whole=30, no sound (feature 012, x1-fallback bug fix) | Hand-written | CC0 |
+| tempo-absurd | sound 5000 in m1, sound 0 in m2, quarter=60 in m3 (feature 012, qpm bounds) | Hand-written | CC0 |
 | meter-change | Time signature changes mid-piece | Hand-written | CC0 |
 | repeat-simple | One forward+backward repeat pair | Hand-written | CC0 |
 | repeat-implicit-start | Backward repeat with no forward repeat; implicit start at measure 1 | Hand-written | CC0 |

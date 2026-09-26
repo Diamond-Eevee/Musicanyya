@@ -1,6 +1,7 @@
 # Contract: `score-player` AudioWorklet protocol
 
-**Version**: `1.4.0`. Messages between `WebAudioEngine` (main thread) and the `ScorePlayerProcessor`
+**Version**: `1.4.1` (PATCH, wording, feature 012-tempo-bpm-field: `tempo.percent` is any finite number in [25, 200],
+no longer an integer multiple of 5 - the message shape and the processor's handling are unchanged, R-11). `1.4.0`. Messages between `WebAudioEngine` (main thread) and the `ScorePlayerProcessor`
 (`src/engine/worklets/score-player.processor.ts`, registered as `"musicanyya-score-player"`). Research R-10.
 `1.1.0` (feature 002, T057, 2026-09-20): adds the `liveDropped` message, posted from `port.onmessage`'s `'live'`
 case (not from `process()`) whenever the 64-entry live queue is full - a dropped `noteOn`/`noteOff` would otherwise
@@ -54,7 +55,7 @@ Constitution I rules for the processor (checked by `rt-audio-reviewer`):
 | `pause` | `{}` | Stop advancing; release sounding scheduled notes (note-off with release) |
 | `stop` | `{ returnTick: number }` | Pause + position = `returnTick` |
 | `seek` | `{ tick: number }` | All scheduled notes off (release), jump; keeps playing state |
-| `tempo` | `{ percent: number }` | 25..200; new ticks-per-frame from the next block |
+| `tempo` | `{ percent: number }` | any finite number in [25, 200] (1.4.1); new ticks-per-frame from the next block |
 | `volume` | `{ gain: number }` | 0..1 linear target; ramped over `VOLUME_RAMP_FRAMES = 256` |
 | `channelVolume` | `{ channel: number; gain: number }` | CC7 = `round(gain * 127)` on `channel`, applied in `port.onmessage`, effective at the next block (1.2.0) |
 | `live` | `{ kind: "on" | "off" | "sustain" | "allOff", key?: number, velocity?: number, down?: boolean }` | Applied at the start of the next block on `LIVE_CHANNEL = 15` (piano) |

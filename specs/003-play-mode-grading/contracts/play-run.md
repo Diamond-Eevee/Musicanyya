@@ -1,8 +1,12 @@
 # Contract: play run (core API)
 
-**Version**: `2.0.0` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
+**Version**: `2.1.0` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
 `src/app/play-session.ts` and `src/ui`). Signatures are normative in shape; every change is reflected here with a
 version bump (MINOR for additions, MAJOR for breaking changes).
+
+**2.0.0 -> 2.1.0** (feature 012-tempo-bpm-field, MINOR): `RunSettings.tempoPercent` is any finite number in
+[25, 200] (was an integer, multiple of 5) - the tempo field converts a typed BPM with `percentForBpm` (R-1). Shape
+unchanged; older stored integer values are still valid.
 
 **1.2.0 -> 2.0.0** (feature 009 owner review, 2026-09-25, MAJOR): the `liveMark` effect is removed, with the controller's
 live pitch test that emitted it. A run under way marks nothing on the Score; green, red and every other mark come with the
