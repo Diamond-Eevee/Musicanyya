@@ -8,7 +8,8 @@ import { buildScore } from '../../../../src/core/musicxml/build.js';
 import { readXml } from '../../../../src/core/musicxml/read.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const contentDir = path.join(__dirname, '../../../../content/library/exercises');
+// The triads definitions moved to tests/fixtures/exercises when feature 011 retired them from the shelf (README there).
+const contentDir = path.join(__dirname, '../../../fixtures/exercises');
 
 function loadDefinition(fileName: string): ExerciseDefinition {
   return JSON.parse(fs.readFileSync(path.join(contentDir, fileName), 'utf-8')) as ExerciseDefinition;

@@ -315,6 +315,13 @@ export const LEVEL_EXERCISE_PITCH_BOUNDS_MIDI: Partial<Record<Level, { min: numb
   introduction: { min: 35, max: 85 },
   beginner: { min: 35, max: 85 },
 };
+// Owner decision D-2 B8 (2026-09-26, asked during implementation): an exercise may leap 19 semitones at Introduction and
+// Beginner. Where the hands swap, the right hand goes from the scale's last note (T) to a chord rooted at T+12 whose top is
+// T+19; the chords cannot sit lower without colliding with the left-hand scale on the same keys. Pieces keep the caps above.
+export const LEVEL_EXERCISE_MAX_LEAP_SEMITONES: Partial<Record<Level, number>> = {
+  introduction: 19,
+  beginner: 19,
+};
 /** Key changes a `key-changes` exercise may contain at Introduction and Beginner (D-2 B6). */
 export const LEVEL_KEY_CHANGE_EXERCISE_MAX = 1;
 

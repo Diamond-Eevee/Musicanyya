@@ -162,3 +162,92 @@ describe('filterItems (contracts/library-port.md §3)', () => {
     expect(elapsedMs).toBeLessThan(200);
   });
 });
+
+// Feature 011 T021 (contracts/library-port.md 1.2.0 §2): the sort follows the section tree, then the step.
+describe('filterItems: tree order, then step rank, stepOrder, title (feature 011)', () => {
+  const TREE: LibrarySection[] = [
+    { id: 'repertoire', title: 'Repertoire', path: 'repertoire', parent: null, order: 2 },
+    { id: 'learning', title: 'Learning', path: 'learning', parent: null, order: 1 },
+    { id: 'learning/key-changes', title: 'Key changes', path: 'learning/key-changes', parent: 'learning', order: 2 },
+    { id: 'learning/keys', title: 'Keys', path: 'learning/keys', parent: 'learning', order: 1 },
+    { id: 'learning/keys/a-minor', title: 'A minor', path: 'learning/keys/a-minor', parent: 'learning/keys', order: 2 },
+    { id: 'learning/keys/c-major', title: 'C major', path: 'learning/keys/c-major', parent: 'learning/keys', order: 1 },
+    { id: 'repertoire/beginner', title: 'Beginner', path: 'repertoire/beginner', parent: 'repertoire', order: 1 },
+  ];
+  const step = (
+    id: string,
+    section: string,
+    stepName: string | undefined,
+    stepOrder: number | undefined,
+    title: string,
+  ) =>
+    item(id, section, {
+      title,
+      kind: 'exercise',
+      level: stepName === 'song' || stepName === undefined ? 'beginner' : (stepName as 'beginner'),
+      ...(stepName !== undefined ? { step: stepName as 'beginner' } : {}),
+      ...(stepOrder !== undefined ? { stepOrder } : {}),
+    });
+
+  const SHELF: LibraryItem[] = [
+    item('repertoire/beginner/ode', 'repertoire/beginner', { title: 'Ode to Joy' }),
+    step('learning/keys/a-minor/advanced', 'learning/keys/a-minor', 'advanced', 0, 'A minor - advanced'),
+    step('learning/keys/c-major/song-x', 'learning/keys/c-major', 'song', 10, 'C major song'),
+    step('learning/keys/c-major/advanced', 'learning/keys/c-major', 'advanced', 0, 'C major - advanced'),
+    step('learning/keys/c-major/i-v-vi-iv', 'learning/keys/c-major', 'advanced', 10, 'C major - I-V-vi-IV'),
+    step('learning/keys/c-major/beginner', 'learning/keys/c-major', 'beginner', 0, 'C major - beginner'),
+    step('learning/keys/c-major/introduction', 'learning/keys/c-major', 'introduction', 0, 'C major - introduction'),
+    step('learning/keys/c-major/diatonic-ladder', 'learning/keys/c-major', 'advanced', 30, 'C major - diatonic ladder'),
+    step('learning/keys/c-major/turnaround', 'learning/keys/c-major', 'advanced', 20, 'C major - turnaround'),
+    step('learning/keys/c-major/intermediate', 'learning/keys/c-major', 'intermediate', 0, 'C major - intermediate'),
+    step('learning/key-changes/x', 'learning/key-changes', 'introduction', 0, 'Key change'),
+    step('learning/keys/c-major/no-step', 'learning/keys/c-major', undefined, undefined, 'A drill with no step'),
+  ];
+
+  it('sorts depth-first by the section tree, whatever the order of `order` values across depths', () => {
+    const ids = filterItems(SHELF, TREE, NO_FILTER, compare).map((i) => i.id);
+    const sectionOrder = ids.map((id) => SHELF.find((i) => i.id === id)?.section);
+    expect(sectionOrder[0]).toBe('learning/keys/c-major');
+    expect(sectionOrder.lastIndexOf('learning/keys/c-major')).toBeLessThan(
+      sectionOrder.indexOf('learning/keys/a-minor'),
+    );
+    expect(sectionOrder.indexOf('learning/keys/a-minor')).toBeLessThan(sectionOrder.indexOf('learning/key-changes'));
+    expect(sectionOrder.indexOf('learning/key-changes')).toBeLessThan(sectionOrder.indexOf('repertoire/beginner'));
+  });
+
+  it('inside a key folder: step rank, then stepOrder, then title; items with no step come last', () => {
+    const ids = filterItems(SHELF, TREE, { ...NO_FILTER, sectionId: 'learning/keys/c-major' }, compare).map(
+      (i) => i.id,
+    );
+    expect(ids).toEqual([
+      'learning/keys/c-major/introduction',
+      'learning/keys/c-major/beginner',
+      'learning/keys/c-major/intermediate',
+      'learning/keys/c-major/advanced',
+      'learning/keys/c-major/i-v-vi-iv',
+      'learning/keys/c-major/turnaround',
+      'learning/keys/c-major/diatonic-ladder',
+      'learning/keys/c-major/song-x',
+      'learning/keys/c-major/no-step',
+    ]);
+  });
+
+  it("two items at the same step and stepOrder fall back to the title under the caller's collator", () => {
+    const twins = [
+      step('a/b', 'learning/keys/c-major', 'advanced', 10, 'Zeta'),
+      step('a/c', 'learning/keys/c-major', 'advanced', 10, 'Alpha'),
+    ];
+    expect(filterItems(twins, TREE, NO_FILTER, compare).map((i) => i.meta.title)).toEqual(['Alpha', 'Zeta']);
+  });
+
+  it('filters by level introduction', () => {
+    const result = filterItems(SHELF, TREE, { ...NO_FILTER, level: 'introduction' }, compare);
+    expect(result.map((i) => i.id)).toEqual(['learning/keys/c-major/introduction', 'learning/key-changes/x']);
+  });
+
+  it('an item whose section is not in the list sorts after the rest', () => {
+    const stray = item('x/stray', 'unknown', { title: 'Stray' });
+    const ids = filterItems([stray, ...SHELF], TREE, NO_FILTER, compare).map((i) => i.id);
+    expect(ids[ids.length - 1]).toBe('x/stray');
+  });
+});

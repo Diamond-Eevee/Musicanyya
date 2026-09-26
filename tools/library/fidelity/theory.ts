@@ -33,6 +33,9 @@ export interface ChordClaim {
   handInversions?: Partial<Record<Hand, Inversion>>;
   /** Hands that play the root alone, in one or more octaves (the closing chord of the scale item). */
   rootOnly?: Hand[];
+  /** When both hands play the same shape: how many octaves the left hand lies below the right (default 1; the pattern steps
+   *  put the right hand's chords at T+12 and the left hand's at T-12, so 2). */
+  octavesApart?: number;
 }
 
 /** A run of single notes in one hand: scale degrees counted up from the tonic (1 = the tonic in `tonicOctave`, 8 = the
@@ -43,12 +46,42 @@ export interface ScaleClaim {
   degrees: number[];
 }
 
+export type ScaleForm = 'harmonic' | 'melodic';
+export type Voicing = 'triad' | 'broken' | 'root-fifth';
+
+/** One chord a hand plays in a section (rule set exercise-theory-v2). A `triad` is simultaneous and is also listed, once, in
+ *  the claim's `chords`; `broken` is root-third-fifth-third and `root-fifth` root then fifth, as single notes. */
+export interface SectionChord {
+  roman: string;
+  quality: Quality;
+  inversion: Inversion;
+  voicing: Voicing;
+}
+
+/** What one hand plays in a section: a scale (`degrees` counted up from the tonic in `tonicOctave`; a major key ignores
+ *  the form, melodic minor raises the 6th and 7th going up and restores them going down), chords, or nothing. */
+export type SectionHand =
+  | { kind: 'scale'; form: ScaleForm; tonicOctave: number; degrees: number[] }
+  | { kind: 'chords'; chords: SectionChord[] }
+  | { kind: 'rest' };
+
+/** A run of printed bars (`firstBar` to `lastBar`, inclusive) in one key, with what each hand plays. */
+export interface SectionClaim {
+  firstBar: number;
+  lastBar: number;
+  key: KeyClaim;
+  right: SectionHand;
+  left: SectionHand;
+}
+
 export interface ExerciseClaim {
   itemId: string;
   key: KeyClaim;
   /** In written order, one per sounded chord event (a moment at which some hand plays two or more notes). */
   chords: ChordClaim[];
   scales?: ScaleClaim[];
+  /** exercise-theory-v2: the scale and single-note voicings of each hand, bar range by bar range. */
+  sections?: SectionClaim[];
 }
 
 export type TheoryRule =
@@ -204,6 +237,8 @@ interface WrittenNote {
 interface Words {
   onset: QuarterTime;
   text: string;
+  /** The hand whose staff the direction sits on, when the file says. */
+  hand?: Hand;
 }
 interface Reading {
   fifths?: string;
@@ -249,8 +284,11 @@ function readScore(xml: string): Reading {
           }
         } else if (node.name === 'direction') {
           for (const type of elements(node.children, 'direction-type'))
-            for (const words of elements(type.children, 'words'))
-              reading.words.push({ onset: timeOf(position), text: text(words) });
+            for (const words of elements(type.children, 'words')) {
+              const staff = text(child(node, 'staff'));
+              const hand = staff === '' ? undefined : HAND_OF_STAFF[Number(staff)];
+              reading.words.push({ onset: timeOf(position), text: text(words), ...(hand ? { hand } : {}) });
+            }
         } else if (node.name === 'backup') {
           position -= Number(text(child(node, 'duration')));
         } else if (node.name === 'forward') {
@@ -364,6 +402,7 @@ export function checkExercise(xml: string, claim: ExerciseClaim): TheoryDifferen
   out.push(...checkOverlap(reading.notes));
   for (const scale of claim.scales ?? [])
     out.push(...checkScale(claim.key, scale, singles.get(scale.hand) ?? [], reading));
+  if (claim.sections) out.push(...checkSections(claim.sections, singles, reading));
   return out;
 }
 
@@ -395,7 +434,10 @@ function checkChord(
 
   // Voicing rules only make sense once every tone is right, so a wrong tone is reported once, not again as a voicing.
   if (out.length === 0) out.push(...checkVoicing(base, claimed, event));
-  const labels = words.filter((w) => cmp(w.onset, event.onset) === 0);
+  // A direction on one staff names the chord of that hand: the other hand may play something else at the same moment.
+  const labels = words.filter(
+    (w) => cmp(w.onset, event.onset) === 0 && (w.hand === undefined || claimed.hands.includes(w.hand)),
+  );
   for (const label of labels) {
     for (const part of label.text.split(LABEL_SEPARATOR).map((p) => p.trim())) {
       const found = checkLabel(part, tones[0], claimed);
@@ -448,12 +490,16 @@ function checkVoicing(base: Base, claimed: ChordClaim, event: ChordEvent): Theor
   if (sameShape) {
     const right = midis('right');
     const left = midis('left');
-    if (right.some((m, i) => m - (left[i] ?? Number.NaN) !== SEMITONES_PER_OCTAVE))
+    const apart = SEMITONES_PER_OCTAVE * (claimed.octavesApart ?? 1);
+    if (right.some((m, i) => m - (left[i] ?? Number.NaN) !== apart))
       out.push({
         ...base,
         hand: 'both',
         rule: 'octave',
-        expected: 'the left hand an octave below the right',
+        expected:
+          (claimed.octavesApart ?? 1) === 1
+            ? 'the left hand an octave below the right'
+            : `the left hand ${claimed.octavesApart} octaves below the right`,
         found: `left ${left.join(' ')}, right ${right.join(' ')} (MIDI)`,
       });
   }
@@ -584,6 +630,140 @@ function checkScale(
       bar: found[compared]?.bar ?? found[found.length - 1]?.bar ?? reading.firstBar,
       expected: `${expected.length} notes`,
       found: `${found.length} notes`,
+    });
+  return out;
+}
+
+// ---- exercise-theory-v2: sections ---------------------------------------------------------------------------------------
+// A section is a run of bars in one key. Each hand's single notes in those bars are checked against what the claim says the
+// hand plays: a scale (spelled by letter arithmetic, the melodic minor's direction rule included), the single notes of a broken
+// or root-fifth chord, or nothing. Simultaneous chords are compared through `claim.chords` as before.
+
+/** One scale degree with the alteration the form asks for, going up or down. */
+function formScaleNote(
+  key: KeyClaim,
+  tonicOctave: number,
+  form: ScaleForm,
+  degree: number,
+  ascending: boolean,
+): Tone & { octave: number } {
+  const base = scaleToneAt(key, degree - 1);
+  const octave = tonicOctave + Math.floor((letterIndex(key.tonicLetter) + degree - 1) / LETTERS_PER_OCTAVE);
+  let raise = 0;
+  if (key.mode === 'minor') {
+    if (degree === 7 && (form === 'harmonic' || ascending)) raise = LEADING_TONE_RAISE;
+    if (degree === 6 && form === 'melodic' && ascending) raise = LEADING_TONE_RAISE;
+  }
+  return { step: base.step, alter: alterFor(base.step, tonicPc(key) + base.semitones + raise), octave };
+}
+
+function checkSections(
+  sections: readonly SectionClaim[],
+  singles: ReadonlyMap<Hand, WrittenNote[]>,
+  reading: Reading,
+): TheoryDifference[] {
+  const out: TheoryDifference[] = [];
+  let chordIndex = 0;
+  for (const section of sections) {
+    const inSection = (n: WrittenNote): boolean => {
+      const bar = Number(n.bar);
+      return bar >= section.firstBar && bar <= section.lastBar;
+    };
+    for (const hand of HANDS_ORDER) {
+      const part = section[hand];
+      const found = (singles.get(hand) ?? []).filter(inSection);
+      const firstBar = String(section.firstBar);
+      if (part.kind === 'rest') {
+        const stray = found[0];
+        if (stray)
+          out.push({
+            kind: 'theory',
+            chordIndex: -1,
+            bar: stray.bar,
+            hand,
+            rule: 'hands',
+            expected: 'no notes',
+            found: describeNote(stray),
+          });
+      } else if (part.kind === 'scale') {
+        out.push(...checkSectionScale(section.key, hand, part, found, firstBar));
+      } else {
+        const expected: Tone[] = [];
+        for (const chord of part.chords) {
+          if (chord.voicing === 'triad') continue;
+          const tones = expectedChordTones(section.key, { ...chord, hands: [hand] });
+          const pattern = chord.voicing === 'broken' ? [0, 1, 2, 1] : [0, 2];
+          for (const i of pattern) expected.push(tones[i] as Tone);
+        }
+        out.push(...checkSectionVoicing(hand, expected, found, firstBar, chordIndex, reading));
+      }
+      chordIndex += part.kind === 'chords' ? part.chords.length : 0;
+    }
+  }
+  return out;
+}
+
+function checkSectionScale(
+  key: KeyClaim,
+  hand: Hand,
+  claimed: Extract<SectionHand, { kind: 'scale' }>,
+  found: readonly WrittenNote[],
+  firstBar: string,
+): TheoryDifference[] {
+  const out: TheoryDifference[] = [];
+  let ascending = true;
+  let previous = 0;
+  const expected = claimed.degrees.map((degree) => {
+    if (previous !== 0 && degree < previous) ascending = false;
+    else if (previous !== 0 && degree > previous) ascending = true;
+    previous = degree;
+    return formScaleNote(key, claimed.tonicOctave, claimed.form, degree, ascending);
+  });
+  const base = { kind: 'theory' as const, chordIndex: -1, hand, rule: 'scale' as const };
+  const compared = Math.min(expected.length, found.length);
+  for (let i = 0; i < compared; i++) {
+    const e = expected[i] as Tone & { octave: number };
+    const f = found[i] as WrittenNote;
+    if (e.step !== f.step || e.alter !== f.alter || e.octave !== f.octave)
+      out.push({ ...base, scaleNote: i, bar: f.bar, expected: describeNote(e), found: describeNote(f) });
+  }
+  if (expected.length !== found.length)
+    out.push({
+      ...base,
+      scaleNote: compared,
+      bar: found[compared]?.bar ?? found[found.length - 1]?.bar ?? firstBar,
+      expected: `${expected.length} notes`,
+      found: `${found.length} notes`,
+    });
+  return out;
+}
+
+/** The single notes of broken and root-fifth chords, one expected tone each, in order. */
+function checkSectionVoicing(
+  hand: Hand,
+  expected: readonly Tone[],
+  found: readonly WrittenNote[],
+  firstBar: string,
+  chordIndex: number,
+  reading: Reading,
+): TheoryDifference[] {
+  const out: TheoryDifference[] = [];
+  const compared = Math.min(expected.length, found.length);
+  for (let i = 0; i < compared; i++) {
+    const note = found[i] as WrittenNote;
+    out.push(
+      ...checkHand({ kind: 'theory', chordIndex, bar: note.bar }, hand, [expected[i] as Tone], undefined, [note]),
+    );
+  }
+  if (expected.length !== found.length)
+    out.push({
+      kind: 'theory',
+      chordIndex,
+      bar: found[compared]?.bar ?? found[found.length - 1]?.bar ?? (firstBar || reading.firstBar),
+      hand,
+      rule: 'voicing',
+      expected: `${expected.length} single notes`,
+      found: `${found.length} single notes`,
     });
   return out;
 }

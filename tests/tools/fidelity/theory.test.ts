@@ -12,6 +12,9 @@ import {
   expectedFifths,
   type Hand,
   type KeyClaim,
+  type SectionChord,
+  type SectionClaim,
+  type SectionHand,
   soundingMidi,
   type TheoryDifference,
 } from '../../../tools/library/fidelity/theory';
@@ -525,5 +528,329 @@ describe('voicing, and the two hands together', () => {
     // The right hand's chord is over before the left hand strikes the same key: no overlap.
     const after = scoreOf([{ right: [['C4', 'E4', 'G4'], []], left: [[], ['C4']] }]);
     expect(checkExercise(after, claim).map((d) => d.rule)).not.toContain('overlap');
+  });
+});
+
+// ---- exercise-theory-v2 (feature 011, research R8): sections, scale claims per hand, broken and root-fifth voicings ----
+// Tiny hand-written fixtures, each correct once and then with one planted error that gives exactly one difference.
+describe('exercise-theory-v2: sections', () => {
+  interface N {
+    staff: 1 | 2;
+    step: string;
+    octave: number;
+    alter?: number;
+    /** Duration in quarters; the fixture uses divisions = 1. */
+    quarters: number;
+    chord?: boolean;
+  }
+  const n = (staff: 1 | 2, step: string, octave: number, quarters: number, alter = 0, chord = false): N => ({
+    staff,
+    step,
+    octave,
+    alter,
+    quarters,
+    chord,
+  });
+  const typeOf = (quarters: number) => (quarters === 4 ? 'whole' : quarters === 2 ? 'half' : 'quarter');
+  const noteXml = (x: N): string =>
+    `<note>${x.chord ? '<chord/>' : ''}${pitchXml(x.step, x.octave, x.alter ?? 0)}<duration>${x.quarters}</duration><voice>${x.staff}</voice><type>${typeOf(x.quarters)}</type><staff>${x.staff}</staff></note>`;
+  const restXml = (staff: 1 | 2, quarters: number): string =>
+    `<note><rest/><duration>${quarters}</duration><voice>${staff}</voice><type>${typeOf(quarters)}</type><staff>${staff}</staff></note>`;
+  /** One measure: staff 1's events, a backup over them, staff 2's events. */
+  const bar = (number: number, upper: string, lower: string): string =>
+    `<measure number="${number}">${number === 1 ? '<attributes><divisions>1</divisions><key><fifths>0</fifths><mode>major</mode></key><time><beats>4</beats><beat-type>4</beat-type></time><staves>2</staves></attributes>' : ''}${upper}<backup><duration>4</duration></backup>${lower}</measure>`;
+  const file = (fifths: number, mode: string, measures: string[]): string =>
+    `<?xml version="1.0" encoding="UTF-8"?><score-partwise version="4.0"><part-list><score-part id="P1"><part-name>P</part-name></score-part></part-list><part id="P1">${measures
+      .join('')
+      .replace(
+        '<fifths>0</fifths><mode>major</mode>',
+        `<fifths>${fifths}</fifths><mode>${mode}</mode>`,
+      )}</part></score-partwise>`;
+  const triad = (staff: 1 | 2, tones: [string, number, number?][], quarters: number): string =>
+    tones.map(([step, octave, alter], i) => noteXml(n(staff, step, octave, quarters, alter ?? 0, i > 0))).join('');
+
+  const A_MINOR = key('A', 0, 'minor');
+  const chordOf = (
+    roman: string,
+    quality: ChordClaim['quality'],
+    inversion: ChordClaim['inversion'],
+    voicing: 'triad' | 'broken' | 'root-fifth' = 'triad',
+  ): SectionChord => ({ roman, quality, inversion, voicing });
+  const sectionClaim = (k: KeyClaim, right: SectionHand, left: SectionHand, lastBar = 1): SectionClaim => ({
+    firstBar: 1,
+    lastBar,
+    key: k,
+    right,
+    left,
+  });
+  const scaleOf = (form: 'harmonic' | 'melodic', tonicOctave: number, degrees: number[]): SectionHand => ({
+    kind: 'scale',
+    form,
+    tonicOctave,
+    degrees,
+  });
+  const claimOf = (k: KeyClaim, chords: ChordClaim[], sections: SectionClaim[]): ExerciseClaim => ({
+    itemId: 'fixture/v2',
+    key: k,
+    chords,
+    sections,
+  });
+
+  describe('a scale in one hand against a chord in the other', () => {
+    const cScaleFile = (rightNotes: N[]): string =>
+      file(0, 'major', [
+        bar(
+          1,
+          rightNotes.map(noteXml).join(''),
+          triad(
+            2,
+            [
+              ['C', 3],
+              ['E', 3],
+              ['G', 3],
+            ],
+            4,
+          ),
+        ),
+      ]);
+    const rightC = [n(1, 'C', 4, 1), n(1, 'D', 4, 1), n(1, 'E', 4, 1), n(1, 'F', 4, 1)];
+    const claim = claimOf(
+      C_MAJOR,
+      [{ ...chord('I', 'major', 0, ['left']) }],
+      [
+        sectionClaim(C_MAJOR, scaleOf('harmonic', 4, [1, 2, 3, 4]), {
+          kind: 'chords',
+          chords: [chordOf('I', 'major', 0)],
+        }),
+      ],
+    );
+
+    it('a correct section gives no difference', () => {
+      expect(checkExercise(cScaleFile(rightC), claim)).toEqual([]);
+    });
+
+    it('a wrong scale letter (D4 written as G4): one scale difference naming the note', () => {
+      const xml = cScaleFile([rightC[0] as N, n(1, 'G', 4, 1), rightC[2] as N, rightC[3] as N]);
+      expect(checkExercise(xml, claim)).toEqual<TheoryDifference[]>([
+        {
+          kind: 'theory',
+          chordIndex: -1,
+          scaleNote: 1,
+          bar: '1',
+          hand: 'right',
+          rule: 'scale',
+          expected: 'D4',
+          found: 'G4',
+        },
+      ]);
+    });
+
+    it('a scale note missing at the end: one scale difference naming the count', () => {
+      const xml = cScaleFile(rightC.slice(0, 3));
+      expect(checkExercise(xml, claim).map((d) => d.rule)).toEqual(['scale']);
+    });
+  });
+
+  describe('the minor scale forms', () => {
+    const scaleFile = (notes: N[]): string => file(0, 'minor', [bar(1, notes.map(noteXml).join(''), restXml(2, 4))]);
+    const claimFor = (form: 'harmonic' | 'melodic', degrees: number[]) =>
+      claimOf(A_MINOR, [], [sectionClaim(A_MINOR, scaleOf(form, 3, degrees), { kind: 'rest' })]);
+    const up = [n(1, 'E', 4, 1), n(1, 'F', 4, 1), n(1, 'G', 4, 1, 1), n(1, 'A', 4, 1)];
+
+    it('harmonic minor A: the raised seventh G# is the scale', () => {
+      expect(checkExercise(scaleFile(up), claimFor('harmonic', [5, 6, 7, 8]))).toEqual([]);
+    });
+
+    it('a missing raised 7th (G written natural): one scale difference, expected G#4, found G4', () => {
+      const xml = scaleFile([up[0] as N, up[1] as N, n(1, 'G', 4, 1), up[3] as N]);
+      expect(checkExercise(xml, claimFor('harmonic', [5, 6, 7, 8]))).toEqual<TheoryDifference[]>([
+        {
+          kind: 'theory',
+          chordIndex: -1,
+          scaleNote: 2,
+          bar: '1',
+          hand: 'right',
+          rule: 'scale',
+          expected: 'G#4',
+          found: 'G4',
+        },
+      ]);
+    });
+
+    it('melodic minor going up raises the 6th and 7th: F# G# up', () => {
+      const xml = scaleFile([n(1, 'E', 4, 1), n(1, 'F', 4, 1, 1), n(1, 'G', 4, 1, 1), n(1, 'A', 4, 1)]);
+      expect(checkExercise(xml, claimFor('melodic', [5, 6, 7, 8]))).toEqual([]);
+    });
+
+    it('melodic minor going down restores them: A G F E, not A G# F# E', () => {
+      const down = scaleFile([n(1, 'A', 4, 1), n(1, 'G', 4, 1), n(1, 'F', 4, 1), n(1, 'E', 4, 1)]);
+      expect(checkExercise(down, claimFor('melodic', [8, 7, 6, 5]))).toEqual([]);
+      const raised = scaleFile([n(1, 'A', 4, 1), n(1, 'G', 4, 1, 1), n(1, 'F', 4, 1), n(1, 'E', 4, 1)]);
+      expect(checkExercise(raised, claimFor('melodic', [8, 7, 6, 5]))).toEqual<TheoryDifference[]>([
+        {
+          kind: 'theory',
+          chordIndex: -1,
+          scaleNote: 1,
+          bar: '1',
+          hand: 'right',
+          rule: 'scale',
+          expected: 'G4',
+          found: 'G#4',
+        },
+      ]);
+      // harmonic minor keeps the raised 7th going down
+      expect(checkExercise(raised, claimFor('harmonic', [8, 7, 6, 5]))).toEqual([]);
+    });
+
+    it('a major key ignores the minor form: C major melodic is the major scale', () => {
+      const xml = file(0, 'major', [
+        bar(
+          1,
+          [n(1, 'C', 4, 1), n(1, 'D', 4, 1), n(1, 'E', 4, 1), n(1, 'F', 4, 1)].map(noteXml).join(''),
+          restXml(2, 4),
+        ),
+      ]);
+      expect(
+        checkExercise(
+          xml,
+          claimOf(C_MAJOR, [], [sectionClaim(C_MAJOR, scaleOf('melodic', 4, [1, 2, 3, 4]), { kind: 'rest' })]),
+        ),
+      ).toEqual([]);
+    });
+  });
+
+  describe('the hand a chord is written in', () => {
+    const fileWith = (chordStaff: 1 | 2): string =>
+      file(0, 'major', [
+        bar(
+          1,
+          chordStaff === 1
+            ? triad(
+                1,
+                [
+                  ['C', 3],
+                  ['E', 3],
+                  ['G', 3],
+                ],
+                4,
+              )
+            : restXml(1, 4),
+          chordStaff === 2
+            ? triad(
+                2,
+                [
+                  ['C', 3],
+                  ['E', 3],
+                  ['G', 3],
+                ],
+                4,
+              )
+            : restXml(2, 4),
+        ),
+      ]);
+    const claim = claimOf(
+      C_MAJOR,
+      [chord('I', 'major', 0, ['left'])],
+      [sectionClaim(C_MAJOR, { kind: 'rest' }, { kind: 'chords', chords: [chordOf('I', 'major', 0)] })],
+    );
+
+    it('the chord in the claimed hand gives no difference', () => {
+      expect(checkExercise(fileWith(2), claim)).toEqual([]);
+    });
+
+    it('a chord in the wrong hand: one hands difference', () => {
+      expect(checkExercise(fileWith(1), claim)).toEqual<TheoryDifference[]>([
+        { kind: 'theory', chordIndex: 0, bar: '1', hand: 'both', rule: 'hands', expected: 'left', found: 'right' },
+      ]);
+    });
+  });
+
+  describe('inversions in a section', () => {
+    const chordFile = (tones: [string, number, number?][]): string =>
+      file(0, 'major', [bar(1, restXml(1, 4), triad(2, tones, 4))]);
+    const claim = claimOf(
+      C_MAJOR,
+      [chord('V', 'major', 1, ['left'])],
+      [sectionClaim(C_MAJOR, { kind: 'rest' }, { kind: 'chords', chords: [chordOf('V', 'major', 1)] })],
+    );
+    const V6: [string, number][] = [
+      ['B', 2],
+      ['D', 3],
+      ['G', 3],
+    ];
+
+    it('V6 (B2 D3 G3) gives no difference', () => {
+      expect(checkExercise(chordFile(V6), claim)).toEqual([]);
+    });
+
+    it('a wrong inversion (G3 written as G2, so the bass is G): one inversion difference', () => {
+      expect(
+        checkExercise(
+          chordFile([
+            ['B', 2],
+            ['D', 3],
+            ['G', 2],
+          ]),
+          claim,
+        ),
+      ).toEqual<TheoryDifference[]>([
+        {
+          kind: 'theory',
+          chordIndex: 0,
+          bar: '1',
+          hand: 'left',
+          rule: 'inversion',
+          expected: 'B in the bass',
+          found: 'G2',
+        },
+      ]);
+    });
+  });
+
+  describe('broken chords and root-fifth voicings', () => {
+    const brokenFile = (notes: N[]): string => file(0, 'major', [bar(1, restXml(1, 4), notes.map(noteXml).join(''))]);
+    const brokenClaim = claimOf(
+      C_MAJOR,
+      [],
+      [sectionClaim(C_MAJOR, { kind: 'rest' }, { kind: 'chords', chords: [chordOf('I', 'major', 0, 'broken')] })],
+    );
+    const broken = [n(2, 'C', 3, 1), n(2, 'E', 3, 1), n(2, 'G', 3, 1), n(2, 'E', 3, 1)];
+
+    it('a broken triad is root, third, fifth, third', () => {
+      expect(checkExercise(brokenFile(broken), brokenClaim)).toEqual([]);
+    });
+
+    it('a wrong note in a broken triad (the last third written as F): one pitch difference', () => {
+      const xml = brokenFile([...broken.slice(0, 3), n(2, 'F', 3, 1)]);
+      expect(checkExercise(xml, brokenClaim)).toEqual<TheoryDifference[]>([
+        { kind: 'theory', chordIndex: 0, bar: '1', hand: 'left', rule: 'pitch', expected: 'E', found: 'F3' },
+      ]);
+    });
+
+    const rootFifthFile = (notes: N[]): string =>
+      file(0, 'major', [bar(1, restXml(1, 4), notes.map(noteXml).join(''))]);
+    const rootFifthClaim = claimOf(
+      C_MAJOR,
+      [],
+      [sectionClaim(C_MAJOR, { kind: 'rest' }, { kind: 'chords', chords: [chordOf('IV', 'major', 0, 'root-fifth')] })],
+    );
+
+    it('root-fifth is the root then the fifth (F2 C3 for IV)', () => {
+      expect(checkExercise(rootFifthFile([n(2, 'F', 2, 2), n(2, 'C', 3, 2)]), rootFifthClaim)).toEqual([]);
+    });
+
+    it('a wrong fifth (C3 written as D3): one pitch difference', () => {
+      expect(checkExercise(rootFifthFile([n(2, 'F', 2, 2), n(2, 'D', 3, 2)]), rootFifthClaim)).toEqual<
+        TheoryDifference[]
+      >([{ kind: 'theory', chordIndex: 0, bar: '1', hand: 'left', rule: 'pitch', expected: 'C', found: 'D3' }]);
+    });
+  });
+
+  describe('a rest hand', () => {
+    it('a hand claimed to rest that plays a note: one hands difference', () => {
+      const xml = file(0, 'major', [bar(1, noteXml(n(1, 'C', 4, 4)), restXml(2, 4))]);
+      const claim = claimOf(C_MAJOR, [], [sectionClaim(C_MAJOR, { kind: 'rest' }, { kind: 'rest' })]);
+      expect(checkExercise(xml, claim).map((d) => d.rule)).toEqual(['hands']);
+    });
   });
 });

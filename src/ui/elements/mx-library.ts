@@ -1,12 +1,6 @@
 import { filterItems } from '../../core/library/filter.js';
-import type {
-  Level,
-  LibraryFilter,
-  LibraryIndex,
-  LibraryItem,
-  LibrarySection,
-  SkillTag,
-} from '../../core/library/types.js';
+import { buildSectionTree, type SectionNode } from '../../core/library/tree.js';
+import type { Level, LibraryFilter, LibraryIndex, LibraryItem, SkillTag } from '../../core/library/types.js';
 import type { CatalogError } from '../../engine/ports.js';
 import { en } from '../i18n/en.js';
 import { libraryState } from '../state/libraryState.js';
@@ -63,6 +57,8 @@ function formatDuration(seconds: number): string {
  * (contracts/library-port.md §2 - both `mx-library` and `libraryState` already live in the UI layer).
  */
 export class MxLibrary extends HTMLElement {
+  /** What the last render set each folder to; a `toggle` that differs from it is the user's doing, not the render's. */
+  private renderedOpen = new Map<string, boolean>();
   private unsubscribeStatus?: () => void;
   private unsubscribeFilter?: () => void;
 
@@ -108,16 +104,23 @@ export class MxLibrary extends HTMLElement {
     const filter = libraryState.getFilter();
     const filtered = filterItems(index.items, index.sections, filter, collator.compare);
     const bySection = itemsBySection(filtered);
-    const sections = [...index.sections].sort((a, b) => a.order - b.order);
-    const isFiltered = filter.level !== null || filter.key !== null || filter.tag !== null || filter.text !== '';
+    const isFiltered =
+      filter.sectionId !== null ||
+      filter.level !== null ||
+      filter.key !== null ||
+      filter.tag !== null ||
+      filter.text !== '';
+    // With a filter active every folder that holds a match is open and the rest are left out (the tree is built from the
+    // matches); otherwise the user's own choices decide, starting from the default (library-port 1.2.0 §2).
+    const tree = buildSectionTree(index.sections, filtered);
+    const openByUser = libraryState.getOpenFolders();
+    const isOpen = (id: string) => isFiltered || openByUser.has(id);
+    this.renderedOpen = new Map();
 
     const sectionsHtml =
       filtered.length === 0 && isFiltered
         ? `<p class="library-no-results">${escapeHtml(s.filters.noResults)}</p>`
-        : sections
-            .map((section) => this.sectionHtml(section, bySection.get(section.id) ?? []))
-            .filter((html) => html !== '')
-            .join('');
+        : tree.map((node) => this.nodeHtml(node, bySection, isOpen)).join('');
 
     // A full innerHTML replacement (contracts/library-port.md §5) would otherwise steal focus and the
     // cursor out of the text box on every keystroke - save and restore them around it.
@@ -126,7 +129,7 @@ export class MxLibrary extends HTMLElement {
     const selectionStart = textInput?.selectionStart ?? null;
 
     this.innerHTML = `<div class="library">${this.filterBarHtml(index, filter)}${sectionsHtml}</div>`;
-    this.wire(filter);
+    this.wire(filter, isFiltered);
 
     if (hadFocus) {
       const restored = this.querySelector<HTMLInputElement>('.library-filter-text');
@@ -182,23 +185,41 @@ export class MxLibrary extends HTMLElement {
       ${description}`;
   }
 
-  private sectionHtml(section: LibrarySection, items: readonly LibraryItem[]): string {
-    if (items.length === 0) return '';
+  /** One folder: a native `<details>` (Enter/Space toggle, keyboard and screen reader for free) with its own items, then its
+   *  child folders. Key-change folders also show their relation word in the summary (library-port 1.2.0 §2). */
+  private nodeHtml(
+    node: SectionNode,
+    bySection: ReadonlyMap<string, readonly LibraryItem[]>,
+    isOpen: (id: string) => boolean,
+  ): string {
+    const { section } = node;
+    const open = isOpen(section.id);
+    this.renderedOpen.set(section.id, open);
+    const relation =
+      section.id.startsWith('learning/key-changes/') && section.description
+        ? ` <span class="library-section-relation">${escapeHtml(section.description)}</span>`
+        : '';
+    const own = bySection.get(section.id) ?? [];
+    const items =
+      own.length > 0 ? `<ul class="library-items">${own.map((item) => this.itemHtml(item)).join('')}</ul>` : '';
+    const children = node.children.map((child) => this.nodeHtml(child, bySection, isOpen)).join('');
     return `
-      <section class="library-section" data-section="${escapeHtml(section.id)}">
-        <h3 class="library-section-title">${escapeHtml(section.title)}</h3>
-        <ul class="library-items">${items.map((item) => this.itemHtml(item)).join('')}</ul>
-      </section>`;
+      <details class="library-section" data-section="${escapeHtml(section.id)}" data-depth="${node.depth}"${open ? ' open' : ''}>
+        <summary class="library-section-title">${escapeHtml(section.title)}${relation}</summary>
+        ${items}${children}
+      </details>`;
   }
 
   private itemHtml(item: LibraryItem): string {
     const s = en.library;
     const composer = item.meta.composer ? escapeHtml(item.meta.composer) : '';
+    const step = item.meta.step ? s.steps[item.meta.step] : '';
     return `
       <li class="library-item">
         <button type="button" class="library-item-open" data-id="${escapeHtml(item.id)}">
           <span class="library-item-title">${escapeHtml(item.meta.title)}</span>
           ${composer ? `<span class="library-item-composer">${composer}</span>` : ''}
+          ${step ? `<span class="library-item-step">${escapeHtml(step)}</span>` : ''}
           <span class="library-item-level">${escapeHtml(s.levels[item.meta.level])}</span>
           ${this.itemDetailHtml(item)}
         </button>
@@ -222,11 +243,22 @@ export class MxLibrary extends HTMLElement {
     return `<span class="library-item-detail">${parts.join(' · ')}</span>`;
   }
 
-  private wire(filter: LibraryFilter) {
+  private wire(filter: LibraryFilter, isFiltered: boolean) {
     this.querySelectorAll<HTMLButtonElement>('.library-item-open').forEach((button) => {
       button.addEventListener('click', () => {
         const id = button.dataset.id;
         if (id) this.dispatchEvent(new CustomEvent('openlibraryitem', { detail: { id }, bubbles: true }));
+      });
+    });
+
+    // A folder the user opens or closes is remembered for the session. While a filter is active the panel decides (every
+    // folder with a match is open), so those toggles are not the user's choice and are left out of the remembered state.
+    this.querySelectorAll<HTMLDetailsElement>('details.library-section').forEach((details) => {
+      details.addEventListener('toggle', () => {
+        const id = details.dataset.section;
+        if (!id || isFiltered || details.open === this.renderedOpen.get(id)) return;
+        libraryState.setFolderOpen(id, details.open);
+        this.renderedOpen.set(id, details.open);
       });
     });
 

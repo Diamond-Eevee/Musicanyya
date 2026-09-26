@@ -249,7 +249,7 @@ const LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 const NATURAL = [0, 2, 4, 5, 7, 9, 11];
 const midiOf = (t: Tone) => (t.octave + 1) * 12 + (NATURAL[LETTERS.indexOf(t.step)] as number) + t.alter;
 const name = (t: Tone, octave: boolean) =>
-  `${t.step}${{ '-2': 'bb', '-1': 'b', '0': '', '1': '#', '2': '##' }[String(t.alter)]}${octave ? t.octave : ''}`;
+  `${t.step}${{ '-3': 'bbb', '-2': 'bb', '-1': 'b', '0': '', '1': '#', '2': '##', '3': '###' }[String(t.alter)]}${octave ? t.octave : ''}`;
 
 /** The chords of one staff in file order: runs of pitched <note> elements that begin at a note without <chord/>.
  *  Runs of one note (the scale of the hand-written item) are not chords. */
@@ -277,6 +277,52 @@ const barAt = (xml: string, offset: number): string => {
   for (const m of xml.matchAll(/<measure number="([^"]+)"/g)) if ((m.index as number) < offset) bar = m[1] as string;
   return bar;
 };
+/** Where each note element starts in time: its offset in the file mapped to the absolute divisions since the first bar,
+ *  following `<backup>` and `<forward>`. Feature 011 needs it because a step item plays chords in either hand, so the index
+ *  of a chord among the claim's chords is its place in time, not in the file. */
+function onsetsOf(xml: string): Map<number, number> {
+  const onsets = new Map<number, number>();
+  let barStart = 0;
+  let position = 0;
+  let longest = 0;
+  const pattern =
+    /<measure |<note>([\s\S]*?)<\/note>|<backup><duration>(\d+)<\/duration><\/backup>|<forward><duration>(\d+)<\/duration><\/forward>/g;
+  for (const m of xml.matchAll(pattern)) {
+    if (m[0] === '<measure ') {
+      barStart += longest;
+      position = 0;
+      longest = 0;
+    } else if (m[1] !== undefined) {
+      const body = m[1];
+      const isChord = /^<chord\/>/.test(body);
+      const duration = Number(/<duration>(\d+)<\/duration>/.exec(body)?.[1] ?? 0);
+      if (!isChord) {
+        onsets.set(m.index as number, barStart + position);
+        position += duration;
+        longest = Math.max(longest, position);
+      } else {
+        // a chord member sounds with the note before it: same onset
+        const previous = [...onsets.entries()].pop();
+        if (previous) onsets.set(m.index as number, previous[1]);
+      }
+    } else if (m[2] !== undefined) {
+      position -= Number(m[2]);
+    } else if (m[3] !== undefined) {
+      position += Number(m[3]);
+      longest = Math.max(longest, position);
+    }
+  }
+  return onsets;
+}
+/** The index of the chord that starts with `group` among all the chords of both hands, in time order. */
+function chordEventIndex(xml: string, group: ChordNote[]): number {
+  const onsets = onsetsOf(xml);
+  const events = new Set<number>();
+  for (const staff of [1, 2] as const)
+    for (const g of chordsOf(xml, staff)) events.add(onsets.get((g[0] as ChordNote).start) as number);
+  const target = onsets.get((group[0] as ChordNote).start) as number;
+  return [...events].sort((a, b) => a - b).indexOf(target);
+}
 /** Rewrites the pitch of one note element. */
 function withPitch(xml: string, note: ChordNote, to: Tone): string {
   const text = xml.slice(note.start, note.end);
@@ -305,13 +351,13 @@ describe('planted errors: the theory check on every exercise of the shelf', () =
     const xml = readFileSync(`public/library/${item.file}`, 'utf8');
     const claim = claimForItem({ itemId: item.id, title: item.meta.title, trains: item.meta.trains ?? '' });
     const right = chordsOf(xml, 1);
-    // The hand-written item plays its first eight chords in the left hand; the others play both hands at every chord.
-    const chordIndex = (right: number) => right + (item.id.endsWith('c-major-scale-and-chords') ? 8 : 0);
+    // A chord's index in the claim is its place in time among the chords of both hands: a step plays its first chords in
+    // one hand and its later ones in the other, the drills play both hands at every chord.
     const at = Math.min(2, right.length - 1);
     const chord = right[at] as ChordNote[];
     const where = {
       kind: 'theory',
-      chordIndex: chordIndex(at),
+      chordIndex: chordEventIndex(xml, chord),
       bar: barAt(xml, (chord[0] as ChordNote).start),
       hand: 'right',
     };
@@ -349,18 +395,21 @@ describe('planted errors: the theory check on every exercise of the shelf', () =
   }
 });
 
-// Found by the audit's review, not planted: until this feature the scale item's section B had its right-hand I chords of
-// bars 6 and 7 on C4-E4-G4 while the left-hand scale struck C4 - one key, two hands. The check names it (rule overlap).
-describe('planted errors: two hands on one key in the scale item', () => {
-  const item = exercises.find((i) => i.id.endsWith('c-major-scale-and-chords'));
-  if (!item) throw new Error('the scale item is on the shelf');
+// Found by the audit's review, not planted: the hand-written scale item of feature 005 had, in section B, right-hand I chords on
+// C4-E4-G4 while the left-hand scale struck C4 - one key, two hands. The check names it (rule overlap). The generated
+// Beginner step of C major has the same shape (feature 011 replaced the hand-written item), so the mutation is planted there:
+// the right-hand I chord of bar 7 moved down an octave lands on the C4 of the left-hand scale.
+describe('planted errors: two hands on one key in the C major Beginner step', () => {
+  const item = exercises.find((i) => i.id === 'learning/keys/c-major/beginner');
+  if (!item) throw new Error('the C major Beginner step is on the shelf');
   const xml = readFileSync(`public/library/${item.file}`, 'utf8');
   const claim = claimForItem({ itemId: item.id, title: item.meta.title, trains: item.meta.trains ?? '' });
 
-  it('the right-hand I chord of bar 7 moved back down to C4-E4-G4: one overlap, in bar 7', () => {
-    const [chord] = chordsOf(xml, 1).filter((g) => barAt(xml, (g[0] as ChordNote).start) === '7');
+  it('the right-hand I chord of bar 7 moved down to C4-E4-G4: one overlap, in bar 7', () => {
+    const inBar7 = chordsOf(xml, 1).filter((g) => barAt(xml, (g[0] as ChordNote).start) === '7');
+    const chord = inBar7[1] as ChordNote[]; // bar 7 is V then I in the right hand
     let mutated = xml;
-    for (const n of chord as ChordNote[]) mutated = withPitch(mutated, n, { ...n, octave: n.octave - 1 });
+    for (const n of chord) mutated = withPitch(mutated, n, { ...n, octave: n.octave - 1 });
     expect(checkExercise(mutated, claim)).toEqual([
       {
         kind: 'theory',

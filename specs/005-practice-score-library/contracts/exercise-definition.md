@@ -164,7 +164,7 @@ Rules:
   "properties": {
     "bars":     { "type": "integer", "minimum": 1, "maximum": 16 },
     "inKey":    { "enum": ["from", "to"], "description": "key-change form only" },
-    "label":    { "type": "string", "maxLength": 60, "description": "words direction at the section start, e.g. \"A - right hand: scale, left hand: chords\"" },
+    "label":    { "type": "string", "maxLength": 60, "description": "words direction at the section start; {scale} becomes \"major scale\", \"harmonic minor scale\" or \"melodic minor scale\"" },
     "barline":  { "enum": ["regular", "light-light", "light-heavy"], "default": "regular", "description": "barline at the section end" },
     "mirror":   { "type": "integer", "minimum": 0,
                   "description": "index of an earlier section to repeat with the hands swapped (scale an octave lower in the left hand, chords an octave higher in the right); right/left must then be {\"mirror\": true}" },
@@ -178,7 +178,7 @@ Rules:
       "properties": { "scale": {
         "type": "object", "additionalProperties": false, "required": ["form", "shape", "value"],
         "properties": {
-          "form":  { "enum": ["major", "harmonic", "melodic"] },
+          "form":  { "enum": ["harmonic", "melodic"], "description": "the minor form a minor key uses; a major key always uses the major scale" },
           "shape": { "type": "array", "items": { "type": "integer", "minimum": 1, "maximum": 8 }, "minItems": 1,
                      "description": "scale degrees in order, 1 = tonic, 8 = tonic an octave up; one entry per note" },
           "value": { "enum": ["whole", "half", "quarter", "eighth"] },
@@ -198,8 +198,11 @@ Rules:
     "inversion": { "enum": [0, 1, 2] },
     "duration":  { "enum": ["whole", "half", "quarter", "eighth", "dotted-half", "dotted-quarter"] },
     "voicing":   { "enum": ["triad", "broken", "root-fifth"], "default": "triad",
-                   "description": "broken = 1-3-5-3 in the duration's value; root-fifth = alternating root and fifth" },
-    "label":     { "type": "string" }
+                   "description": "the duration is the whole entry: broken = root-third-fifth-third in four equal notes (a whole becomes four quarters); root-fifth = root then fifth in two equal notes" },
+    "label":     { "type": "string" },
+    "minor":     { "type": "object", "additionalProperties": false,
+                   "properties": { "degree": { "type": "string" }, "quality": { "enum": ["major", "minor", "diminished", "augmented"] }, "inversion": { "enum": [0, 1, 2] }, "label": { "type": "string" } },
+                   "description": "what the chord is in a minor key when it differs from the major key's (I -> i, ii -> iv), so one definition serves all 24 keys" }
   }
 },
 "keyPair": {
@@ -220,7 +223,7 @@ Rules:
   `bars x measure length` (the generator throws, naming the definition and section, otherwise).
 - Scale spelling: letter arithmetic from the tonic (`scales.ts`); harmonic minor raises 7, melodic raises 6 and 7 going
   up and restores them going down; every altered note carries `<accidental>`. Fingering from the table in data-model §6.
-- Register: data-model §5 (tonic octave per key; chords I at T-12 / T+12 with IV and V below; `octaveShift` still applies).
+- Register: data-model §5 (tonic octave per key; a chord's bass is the unique pitch of its bass pitch class in [anchor-7, anchor+4], the anchor being the tonic chord's root, T-12 left and T+12 right; so I sits at the anchor and IV and V below it; `octaveShift` no longer applies to pattern sections).
 - Key-change form: the generator writes `<key>` (with `<cancel>` when accidentals disappear) in the first bar of the first
   `inKey: "to"` section when the fifths differ; the preceding bar ends light-light; a words direction names the new key.
 - Titles: `{key} - introduction` etc. (key-change: `{from} to {to} - introduction`) - the theory check parses them.

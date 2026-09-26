@@ -13,7 +13,20 @@
 //     chord for a fourth measure.
 // Never read from the exercise definitions or the generator (tests/tools/fidelity/exercise-claims.test.ts
 // asserts it).
-import type { ChordClaim, ExerciseClaim, Hand, Inversion, KeyClaim, Letter, Mode, Quality } from './theory';
+import type {
+  ChordClaim,
+  ExerciseClaim,
+  Hand,
+  Inversion,
+  KeyClaim,
+  Letter,
+  Mode,
+  Quality,
+  ScaleForm,
+  SectionClaim,
+  SectionHand,
+  Voicing,
+} from './theory';
 
 export class ClaimError extends Error {}
 
@@ -154,6 +167,7 @@ function requireStated(name: string, trains: string, words: readonly string[]): 
  *  mode, or does not spell its chords and the description does not state them either. */
 export function claimForItem(item: ExerciseItem): ExerciseClaim {
   const { key, name } = parseExerciseTitle(item.title);
+  if ((STEP_NAMES as readonly string[]).includes(name)) return stepClaim(item.itemId, key, name as StepName);
   if (name === SCALE_AND_CHORDS) {
     requireStated(name, item.trains, SCALE_STATES);
     return scaleAndChords(item.itemId, key);
@@ -174,4 +188,213 @@ export function claimForItem(item: ExerciseItem): ExerciseClaim {
   // A drill: the cycle with its rests, the same cycle joined with ties, then the tonic triad in root position.
   const tonic = chord(key.mode === 'major' ? 'I' : 'i');
   return { itemId: item.itemId, key, chords: [...cycle, ...cycle, tonic] };
+}
+
+// ---- the four steps of a key (feature 011, rule set exercise-theory-v2) ---------------------------------------------------
+// "<key> - introduction|beginner|intermediate|advanced". Written by hand from the step shapes of research R6 (a document written
+// before the definitions), never read from the generator or the definitions: each step is a list of sections, each section
+// says what the right and the left hand play in a run of bars.
+
+const STEP_NAMES = ['introduction', 'beginner', 'intermediate', 'advanced'] as const;
+type StepName = (typeof STEP_NAMES)[number];
+
+/** One chord entry of a hand: the Roman numeral token of a major key and of a minor key (the case says the quality), how it
+ *  is voiced, and how long it lasts in quarters (used to find the moments at which both hands play a chord together). */
+interface Pt {
+  major: string;
+  minor: string;
+  voicing: Voicing;
+  quarters: number;
+}
+
+const pt = (major: string, minor: string, quarters: number, voicing: Voicing = 'triad'): Pt => ({
+  major,
+  minor,
+  voicing,
+  quarters,
+});
+/** A chord with the same token in both modes ("V", "V6"). */
+const same = (token: string, quarters: number, voicing: Voicing = 'triad'): Pt => pt(token, token, quarters, voicing);
+
+const WHOLE = 4;
+const HALF = 2;
+const QUARTER = 1;
+
+/** One octave up and down the scale and home again: degrees 1-8, 8-1, then the closing 1. */
+const SCALE_UP_DOWN_HOME = [1, 2, 3, 4, 5, 6, 7, 8, 8, 7, 6, 5, 4, 3, 2, 1, 1];
+/** The same run in eighth notes, without the closing note. */
+const SCALE_UP_DOWN = [1, 2, 3, 4, 5, 6, 7, 8, 8, 7, 6, 5, 4, 3, 2, 1];
+
+type ScaleSpec = { scale: { form: ScaleForm; degrees: number[] } };
+type ChordsSpec = { chords: Pt[] };
+type HandSpec = ScaleSpec | ChordsSpec;
+interface SectionSpec {
+  bars: number;
+  right: HandSpec;
+  left: HandSpec;
+}
+
+const scaleOf = (form: ScaleForm, degrees: number[]): ScaleSpec => ({ scale: { form, degrees } });
+const chordsOf = (...list: Pt[]): ChordsSpec => ({ chords: list });
+
+/** Swaps the hands of a section: the mirrored half of every step. */
+const swapped = (section: SectionSpec): SectionSpec => ({
+  bars: section.bars,
+  right: section.left,
+  left: section.right,
+});
+
+const I = (q: number, voicing?: Voicing) => pt('I', 'i', q, voicing);
+const IV = (q: number, voicing?: Voicing) => pt('IV', 'iv', q, voicing);
+const V = (q: number, voicing?: Voicing) => same('V', q, voicing);
+const withFigure = (p: Pt, figure: '6' | '64'): Pt => ({
+  ...p,
+  major: `${p.major}${figure}`,
+  minor: `${p.minor}${figure}`,
+});
+
+/** The sections of each step, in bar order (research R6). */
+function stepSections(step: StepName): SectionSpec[] {
+  if (step === 'introduction') {
+    const a: SectionSpec = {
+      bars: 5,
+      right: scaleOf('harmonic', SCALE_UP_DOWN_HOME),
+      left: chordsOf(I(WHOLE), V(WHOLE), I(WHOLE), V(WHOLE), I(WHOLE)),
+    };
+    return [a, swapped(a)];
+  }
+  if (step === 'beginner') {
+    const a: SectionSpec = {
+      bars: 5,
+      right: scaleOf('harmonic', SCALE_UP_DOWN_HOME),
+      left: chordsOf(I(WHOLE), V(HALF), I(HALF), I(HALF), IV(HALF), IV(HALF), V(HALF), I(WHOLE)),
+    };
+    return [a, swapped(a)];
+  }
+  if (step === 'intermediate') {
+    const a: SectionSpec = {
+      bars: 5,
+      right: scaleOf('melodic', SCALE_UP_DOWN_HOME),
+      left: chordsOf(
+        I(WHOLE),
+        withFigure(V(HALF), '6'),
+        I(HALF),
+        I(HALF),
+        withFigure(IV(HALF), '64'),
+        withFigure(IV(HALF), '64'),
+        withFigure(V(HALF), '6'),
+        I(WHOLE),
+      ),
+    };
+    const c: SectionSpec = {
+      bars: 5,
+      right: chordsOf(
+        I(HALF),
+        withFigure(I(HALF), '6'),
+        withFigure(I(HALF), '64'),
+        I(HALF),
+        withFigure(IV(HALF), '64'),
+        withFigure(IV(HALF), '6'),
+        withFigure(V(HALF), '6'),
+        V(HALF),
+        I(WHOLE),
+      ),
+      left: chordsOf(I(WHOLE, 'broken'), I(WHOLE, 'broken'), IV(WHOLE, 'broken'), V(WHOLE, 'broken'), I(WHOLE)),
+    };
+    return [a, swapped(a), c];
+  }
+  // advanced: eighth-note scale over halves, then a four-chord progression over root and fifth, both mirrored, then a close
+  const a1: SectionSpec = {
+    bars: 2,
+    right: scaleOf('harmonic', SCALE_UP_DOWN),
+    left: chordsOf(I(HALF), V(HALF), I(HALF), IV(HALF)),
+  };
+  const progression: Pt[] = [
+    I(QUARTER),
+    pt('vi6', 'VI6', QUARTER),
+    pt('IV64', 'iv64', QUARTER),
+    same('V6', QUARTER),
+    I(QUARTER),
+    pt('ii64', 'iv64', QUARTER),
+    same('V6', QUARTER),
+    I(QUARTER),
+  ];
+  const rootFifth = (p: Pt): Pt => ({
+    ...p,
+    major: p.major.replace(/(64|6)$/, ''),
+    minor: p.minor.replace(/(64|6)$/, ''),
+    voicing: 'root-fifth',
+  });
+  const a2: SectionSpec = { bars: 2, right: chordsOf(...progression), left: chordsOf(...progression.map(rootFifth)) };
+  const close: SectionSpec = { bars: 1, right: chordsOf(I(WHOLE)), left: chordsOf(I(WHOLE)) };
+  return [a1, a2, swapped(a1), swapped(a2), close];
+}
+
+const NATURAL_PC: Record<Letter, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+
+/** Octave 4 for tonics C to F (pitch classes 0-5), octave 3 from F sharp up: the right hand's scale tonic (the left hand's is
+ *  one octave lower). Written down in data-model §5 of feature 011. */
+function tonicOctaveOf(key: KeyClaim): number {
+  const pc = (((NATURAL_PC[key.tonicLetter] + key.tonicAlter) % 12) + 12) % 12;
+  return pc <= 5 ? 4 : 3;
+}
+
+function handClaim(spec: HandSpec, key: KeyClaim, hand: Hand): SectionHand {
+  if ('scale' in spec) {
+    const octave = tonicOctaveOf(key) - (hand === 'left' ? 1 : 0);
+    return { kind: 'scale', form: spec.scale.form, tonicOctave: octave, degrees: spec.scale.degrees };
+  }
+  return {
+    kind: 'chords',
+    chords: spec.chords.map((p) => {
+      const c = chord(key.mode === 'major' ? p.major : p.minor);
+      return { roman: c.roman, quality: c.quality, inversion: c.inversion, voicing: p.voicing };
+    }),
+  };
+}
+
+/** The sections of a step in `key`, and the simultaneous chords in written order (the moments at which a hand plays a triad;
+ *  when both hands play the same chord together it is one chord of two hands). */
+function stepClaim(itemId: string, key: KeyClaim, step: StepName): ExerciseClaim {
+  const specs = stepSections(step);
+  const sections: SectionClaim[] = [];
+  const events = new Map<number, ChordClaim>();
+  let bar = 1;
+  for (const spec of specs) {
+    sections.push({
+      firstBar: bar,
+      lastBar: bar + spec.bars - 1,
+      key,
+      right: handClaim(spec.right, key, 'right'),
+      left: handClaim(spec.left, key, 'left'),
+    });
+    for (const hand of ['left', 'right'] as const) {
+      const part = spec[hand];
+      if (!('chords' in part)) continue;
+      let position = (bar - 1) * WHOLE;
+      for (const p of part.chords) {
+        if (p.voicing === 'triad') {
+          const claimed = chord(key.mode === 'major' ? p.major : p.minor, [hand]);
+          const there = events.get(position);
+          if (there) {
+            if (
+              there.roman !== claimed.roman ||
+              there.inversion !== claimed.inversion ||
+              there.quality !== claimed.quality
+            )
+              throw new Error(`exercise-claims.ts: the hands play different chords at once in ${itemId}`);
+            there.hands = [...there.hands, hand];
+            // the right hand's chords sit at T+12 and the left hand's at T-12 (data-model §5): two octaves apart
+            there.octavesApart = 2;
+          } else {
+            events.set(position, claimed);
+          }
+        }
+        position += p.quarters;
+      }
+    }
+    bar += spec.bars;
+  }
+  const chords = [...events.entries()].sort((a, b) => a[0] - b[0]).map(([, claimed]) => claimed);
+  return { itemId, key, chords, sections };
 }

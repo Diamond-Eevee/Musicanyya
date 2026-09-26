@@ -1,6 +1,9 @@
+import { KEYS } from '../../src/core/library/exercise/keys.js';
+
 /** The shelf's wording, in one place (data-model.md §2). `tools/library/build-index.ts` copies this
  *  table into `index.json` verbatim; nothing else names a section's title or description. A folder
- *  with no items is left out of the generated index by the builder, not by this table. */
+ *  with no items is left out of the generated index by the builder, not by this table (feature 011: a folder that holds no
+ *  items itself but has children that do is kept, so readers can build the tree). */
 export interface LibrarySectionDefinition {
   id: string;
   title: string;
@@ -14,6 +17,22 @@ export interface LibrarySectionDefinition {
   formerIds?: readonly string[];
 }
 
+/** Learning > Keys: one folder per key of the key table, in circle-of-fifths order (feature 011 FR-002). Generated from the
+ *  table, so a key's title and place cannot drift from the generator's. */
+const KEY_SECTIONS: readonly LibrarySectionDefinition[] = KEYS.map((key) => {
+  const relative = KEYS.find((k) => k.slug === key.relativeSlug);
+  // F sharp major is paired with E flat minor, not D sharp minor (research R2): the description says so once.
+  const note = key.slug === 'f-sharp-major' ? ' (written as E♭ minor: D♯ minor needs a double sharp)' : '';
+  return {
+    id: `learning/keys/${key.slug}`,
+    title: key.displayName,
+    description: relative ? `Relative key: ${relative.displayName}${note}.` : '',
+    path: `learning/keys/${key.slug}`,
+    parent: 'learning/keys',
+    order: key.circleIndex,
+  };
+});
+
 export const LIBRARY_SECTIONS: readonly LibrarySectionDefinition[] = [
   {
     id: 'learning',
@@ -24,19 +43,22 @@ export const LIBRARY_SECTIONS: readonly LibrarySectionDefinition[] = [
     order: 1,
   },
   {
-    id: 'learning/chords',
-    title: 'Chords',
-    description: 'One exercise per key - the same drill in all of them.',
-    path: 'learning/chords',
+    id: 'learning/keys',
+    title: 'Keys',
+    description: 'Every key, step by step.',
+    path: 'learning/keys',
     parent: 'learning',
     order: 1,
+    formerIds: ['learning/chords'],
   },
+  ...KEY_SECTIONS,
+  // Until the key-change folders arrive (feature 011 US2) the two same-tonic drills stay where they are.
   {
     id: 'learning/chords/changes',
     title: 'Chord changes',
     description: 'Moving from one chord to the next without losing the beat.',
     path: 'learning/chords/changes',
-    parent: 'learning/chords',
+    parent: 'learning',
     order: 2,
   },
   {

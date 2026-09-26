@@ -260,3 +260,59 @@ describe('melody checks in records (research R7, T054)', () => {
     expect(problems({ ...r, claim: 'arrangement' })).toEqual([]);
   });
 });
+
+describe('feature 011: rule sets, supersedes and the Introduction level (contract audit-record 1.2.0)', () => {
+  const theoryCheck = (ruleSet: string) => ({ method: 'theory', ruleSet, expectedDifferences: 0 });
+  const withChecks = (checks: unknown[]) => JSON.parse(JSON.stringify({ ...record(), claim: 'exercise', checks }));
+
+  it.each(['exercise-theory-v1', 'exercise-theory-v2', 'song-chords-v1'])(
+    'accepts the theory rule set %s',
+    (ruleSet) => {
+      expect(() => validateRecord(withChecks([theoryCheck(ruleSet)]), 'x.json')).not.toThrow();
+    },
+  );
+
+  it('rejects an unknown theory rule set', () => {
+    expect(() => validateRecord(withChecks([theoryCheck('exercise-theory-v3')]), 'x.json')).toThrow(/ruleSet/);
+  });
+
+  it('accepts a supersedes list of item ids, and rejects an empty or malformed one', () => {
+    const base = JSON.parse(JSON.stringify(record()));
+    expect(validateRecord({ ...base, supersedes: ['learning/chords/triads-c-major'] }, 'x.json').supersedes).toEqual([
+      'learning/chords/triads-c-major',
+    ]);
+    expect(() => validateRecord({ ...base, supersedes: [] }, 'x.json')).toThrow(/supersedes/);
+    expect(() => validateRecord({ ...base, supersedes: [3] }, 'x.json')).toThrow(/supersedes/);
+    expect(() => validateRecord({ ...base, supersedes: ['Not An Id'] }, 'x.json')).toThrow(/supersedes/);
+  });
+
+  it('accepts previous.level introduction', () => {
+    const base = JSON.parse(JSON.stringify(record()));
+    const previous = { title: 'Old', level: 'introduction', bars: 8, notes: 20 };
+    expect(() => validateRecord({ ...base, previous }, 'x.json')).not.toThrow();
+  });
+
+  it("rule 2.7: a record's supersedes equal the sidecar's supersedes ids", () => {
+    const hash = 'a'.repeat(64);
+    sidecar({
+      supersedes: [
+        { id: 'learning/chords/old-a', hash },
+        { id: 'learning/chords/old-b', hash },
+      ],
+    });
+    const base = record();
+    expect(problems({ ...base, supersedes: ['learning/chords/old-a', 'learning/chords/old-b'] })).toEqual([]);
+    expect(problems({ ...base, supersedes: ['learning/chords/old-b', 'learning/chords/old-a'] })).toEqual([]);
+    expect(problems({ ...base, supersedes: ['learning/chords/old-a'] })).toContainEqual(
+      expect.stringMatching(/supersedes/),
+    );
+    expect(problems(base)).toContainEqual(expect.stringMatching(/supersedes/));
+  });
+
+  it('rule 2.7: a record that supersedes something needs the sidecar to say so', () => {
+    sidecar({});
+    expect(problems({ ...record(), supersedes: ['learning/chords/old-a'] })).toContainEqual(
+      expect.stringMatching(/supersedes/),
+    );
+  });
+});

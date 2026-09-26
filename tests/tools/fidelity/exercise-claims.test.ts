@@ -1,21 +1,48 @@
 // The claim table of the exercise theory check (task T071, data-model.md §5, research R8): what each exercise family
 // SAYS it teaches, written by hand from its title and description, never read from the exercise generator's input.
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { generateFamily, generatePatternFamily } from '../../../src/core/library/exercise/generate';
+import type { ExerciseDefinition } from '../../../src/core/library/exercise/types';
 import { ClaimError, claimForItem, parseExerciseTitle } from '../../../tools/library/fidelity/exercise-claims';
-import type { ChordClaim, ExerciseClaim } from '../../../tools/library/fidelity/theory';
+import { type ChordClaim, checkExercise, type ExerciseClaim } from '../../../tools/library/fidelity/theory';
+import { SUCCESSORS } from '../../../tools/library/successors';
 
 interface ShelfExercise {
   itemId: string;
   title: string;
   trains: string;
 }
-const index = JSON.parse(readFileSync('public/library/index.json', 'utf8')) as {
-  items: { id: string; meta: { kind: string; title: string; trains?: string } }[];
+// Feature 011 retired 36 of the 41 items this table was written for from the shelf. The table still claims them: the v1 claims are
+// checked here on the same 41 items, rebuilt as they were - the retired definitions (tests/fixtures/exercises) through the 1.0.0
+// generator, the five drills that kept their music from the current shelf under their old ids (successors.ts), and the
+// hand-written scale item, which only its title and description are left of.
+const contentExercises = join('content', 'library', 'exercises');
+const fixtureExercises = join('tests', 'fixtures', 'exercises');
+const generated = (dir: string, files: (name: string) => boolean): ShelfExercise[] =>
+  readdirSync(dir)
+    .filter((f) => f.endsWith('.json') && files(f))
+    .flatMap((f) =>
+      generateFamily(JSON.parse(readFileSync(join(dir, f), 'utf8')) as ExerciseDefinition, '2026-09-24').map((item) => {
+        const newId = `${item.section}/${item.fileStem}`;
+        return {
+          itemId: SUCCESSORS.find((s) => s.newId === newId)?.oldId ?? newId,
+          title: item.meta.title,
+          trains: item.meta.trains ?? '',
+        };
+      }),
+    );
+const SCALE_ITEM: ShelfExercise = {
+  itemId: 'learning/chords/c-major-scale-and-chords',
+  title: 'C major - scale and chords for both hands',
+  trains: 'One hand plays the scale while the other holds the chords, then the hands swap.',
 };
-const shelf: ShelfExercise[] = index.items
-  .filter((i) => i.meta.kind === 'exercise')
-  .map((i) => ({ itemId: i.id, title: i.meta.title, trains: i.meta.trains ?? '' }));
+const shelf: ShelfExercise[] = [
+  ...generated(fixtureExercises, () => true),
+  ...generated(contentExercises, (f) => f.startsWith('changes-')),
+  SCALE_ITEM,
+];
 const claimOf = (title: string): ExerciseClaim => {
   const item = shelf.find((s) => s.title === title);
   if (!item) throw new Error(`no exercise on the shelf is titled "${title}"`);
@@ -26,7 +53,7 @@ const shortChords = (claim: ExerciseClaim): string[] =>
   claim.chords.map((c) => `${c.roman}${['', '6', '64'][c.inversion]}`);
 
 describe('every exercise on the shelf has a claim', () => {
-  it('the audited shelf holds 41 exercises: 24 triads, 16 chord-change drills and the hand-written scale item', () => {
+  it('the audited shelf of feature 007 held 41 exercises: 24 triads, 16 chord-change drills and the hand-written scale item', () => {
     expect(shelf).toHaveLength(41);
     expect(shelf.filter((s) => s.itemId.includes('/triads-'))).toHaveLength(24);
     expect(shelf.filter((s) => s.itemId.includes('/changes/'))).toHaveLength(16);
@@ -255,4 +282,197 @@ describe('the claim table is consistent', () => {
     expect(source).not.toMatch(/content\/library\/exercises/);
     expect(source).not.toMatch(/readFileSync|readdirSync/);
   });
+});
+
+// ---- exercise-theory-v2: the four steps of a key (feature 011, research R6/R8) ----
+describe('the step claims: "<key> - introduction|beginner|intermediate|advanced" in all 24 keys', () => {
+  const KEY_NAMES = [
+    'C',
+    'A',
+    'G',
+    'E',
+    'D',
+    'B',
+    'A',
+    'F♯',
+    'E',
+    'C♯',
+    'B',
+    'G♯',
+    'F♯',
+    'E♭',
+    'D♭',
+    'B♭',
+    'A♭',
+    'F',
+    'E♭',
+    'C',
+    'B♭',
+    'G',
+    'F',
+    'D',
+  ];
+  const MODES = ['major', 'minor'];
+  const keyTitles = KEY_NAMES.map((name, i) => `${name} ${MODES[i % 2]}`);
+  const SCALE_RUN_17 = [1, 2, 3, 4, 5, 6, 7, 8, 8, 7, 6, 5, 4, 3, 2, 1, 1];
+  const STEPS = ['introduction', 'beginner', 'intermediate', 'advanced'] as const;
+  const stepClaim = (keyTitle: string, step: string): ExerciseClaim =>
+    claimForItem({ itemId: `learning/keys/x/${step}`, title: `${keyTitle} - ${step}`, trains: '' });
+
+  it('every title of every key has a claim with its key, and the claim needs no description', () => {
+    for (const title of keyTitles) {
+      for (const step of STEPS) {
+        const claim = stepClaim(title, step);
+        const parsed = parseExerciseTitle(`${title} - ${step}`);
+        expect(claim.key, `${title} - ${step}`).toEqual(parsed.key);
+        expect(claim.sections?.length, `${title} - ${step}`).toBe(
+          { introduction: 2, beginner: 2, intermediate: 3, advanced: 5 }[step],
+        );
+      }
+    }
+  });
+
+  it('Introduction: bars 1-5 the right hand plays the scale over I V I V I, bars 6-10 the hands swap', () => {
+    const claim = stepClaim('C major', 'introduction');
+    const [a, b] = claim.sections ?? [];
+    expect([a?.firstBar, a?.lastBar, b?.firstBar, b?.lastBar]).toEqual([1, 5, 6, 10]);
+    expect(a?.right).toEqual({ kind: 'scale', form: 'harmonic', tonicOctave: 4, degrees: SCALE_RUN_17 });
+    expect(a?.left.kind).toBe('chords');
+    const leftChords = a?.left.kind === 'chords' ? a.left.chords.map((c) => c.roman) : [];
+    expect(leftChords).toEqual(['I', 'V', 'I', 'V', 'I']);
+    expect(b?.left).toEqual({ kind: 'scale', form: 'harmonic', tonicOctave: 3, degrees: SCALE_RUN_17 });
+    expect(b?.right.kind).toBe('chords');
+    // the flattened chord list is what the chord check compares, in written order: the left hand's five, then the right's
+    expect(claim.chords.map((c) => `${c.roman}:${c.hands.join()}`)).toEqual([
+      ...['I', 'V', 'I', 'V', 'I'].map((r) => `${r}:left`),
+      ...['I', 'V', 'I', 'V', 'I'].map((r) => `${r}:right`),
+    ]);
+  });
+
+  it('the tonic octave of the scale follows the key: octave 4 for tonics C to F, octave 3 from F sharp up', () => {
+    const octave = (title: string) => {
+      const scale = stepClaim(title, 'introduction').sections?.[0]?.right;
+      return scale?.kind === 'scale' ? scale.tonicOctave : -1;
+    };
+    for (const title of [
+      'C major',
+      'D♭ major',
+      'D major',
+      'E♭ major',
+      'E major',
+      'F major',
+      'C minor',
+      'D minor',
+      'E♭ minor',
+      'E minor',
+      'F minor',
+      'C♯ minor',
+    ]) {
+      expect(octave(title), title).toBe(4);
+    }
+    for (const title of [
+      'F♯ major',
+      'G major',
+      'A♭ major',
+      'A major',
+      'B♭ major',
+      'B major',
+      'F♯ minor',
+      'G minor',
+      'G♯ minor',
+      'A minor',
+      'B♭ minor',
+      'B minor',
+    ]) {
+      expect(octave(title), title).toBe(3);
+    }
+  });
+
+  it('Beginner: the same scale against I V-I I-IV IV-V I in half notes, then the hands swap', () => {
+    const [a] = stepClaim('A minor', 'beginner').sections ?? [];
+    expect(a?.right.kind === 'scale' && a.right.form).toBe('harmonic');
+    const chords = a?.left.kind === 'chords' ? a.left.chords.map((c) => `${c.roman}${c.inversion}`) : [];
+    // a minor key writes i and iv in lower case, and the V is major (the raised leading tone)
+    expect(chords).toEqual(['i0', 'V0', 'i0', 'i0', 'iv0', 'iv0', 'V0', 'i0']);
+    const major = stepClaim('C major', 'beginner').sections?.[0];
+    expect(major?.left.kind === 'chords' && major.left.chords.map((c) => c.roman)).toEqual([
+      'I',
+      'V',
+      'I',
+      'I',
+      'IV',
+      'IV',
+      'V',
+      'I',
+    ]);
+  });
+
+  it('Intermediate: inversions, the melodic minor scale, and a section of chords in both hands', () => {
+    const claim = stepClaim('A minor', 'intermediate');
+    const [a, , c] = claim.sections ?? [];
+    expect(a?.right.kind === 'scale' && a.right.form).toBe('melodic');
+    const inversions = a?.left.kind === 'chords' ? a.left.chords.map((x) => x.inversion) : [];
+    expect(inversions).toEqual([0, 1, 0, 0, 2, 2, 1, 0]);
+    expect(c?.firstBar).toBe(11);
+    expect(c?.lastBar).toBe(15);
+    const broken = c?.left.kind === 'chords' ? c.left.chords.map((x) => x.voicing) : [];
+    expect(broken).toEqual(['broken', 'broken', 'broken', 'broken', 'triad']);
+    expect(c?.right.kind).toBe('chords');
+  });
+
+  it('Advanced: eighth-note scale, a four-chord bar with vi or ii (VI or iv in minor), root-fifth accompaniment', () => {
+    const major = stepClaim('C major', 'advanced').sections ?? [];
+    const bar3 = major[1]?.right;
+    expect(bar3?.kind === 'chords' && bar3.chords.map((x) => `${x.roman}${x.inversion}`)).toEqual([
+      'I0',
+      'vi1',
+      'IV2',
+      'V1',
+      'I0',
+      'ii2',
+      'V1',
+      'I0',
+    ]);
+    const accompaniment = major[1]?.left;
+    expect(accompaniment?.kind === 'chords' && accompaniment.chords.every((x) => x.voicing === 'root-fifth')).toBe(
+      true,
+    );
+    const minor = stepClaim('C minor', 'advanced').sections ?? [];
+    const minorBars = minor[1]?.right;
+    expect(minorBars?.kind === 'chords' && minorBars.chords.map((x) => `${x.roman}${x.inversion}`)).toEqual([
+      'i0',
+      'VI1',
+      'iv2',
+      'V1',
+      'i0',
+      'iv2',
+      'V1',
+      'i0',
+    ]);
+  });
+
+  it('an unknown step, or a step title in the wrong shape, has no claim', () => {
+    expect(() => claimForItem({ itemId: 'x', title: 'C major - expert', trains: '' })).toThrow(/no claim/);
+  });
+});
+
+describe('the generated steps agree with their claims, in every key (the independent check)', () => {
+  const STEP_FILES = ['introduction', 'beginner', 'intermediate', 'advanced'] as const;
+  for (const step of STEP_FILES) {
+    it(`${step}: 24 items, 0 differences each`, () => {
+      const definition = JSON.parse(
+        readFileSync(`content/library/exercises/step-${step}.json`, 'utf8'),
+      ) as ExerciseDefinition;
+      const items = generatePatternFamily(definition, '2026-09-26');
+      expect(items).toHaveLength(24);
+      for (const item of items) {
+        const claim = claimForItem({
+          itemId: `${item.section}/${item.fileStem}`,
+          title: item.meta.title,
+          trains: item.meta.trains ?? '',
+        });
+        expect(checkExercise(item.xml, claim), item.meta.title).toEqual([]);
+      }
+    });
+  }
 });

@@ -2,6 +2,7 @@ import {
   LEVEL_ACCIDENTALS_PER_16_MEASURES_MAX,
   LEVEL_BACKWARD_REPEATS_MAX,
   LEVEL_DURATION_SECONDS_MAX,
+  LEVEL_EXERCISE_MAX_LEAP_SEMITONES,
   LEVEL_EXERCISE_PITCH_BOUNDS_MIDI,
   LEVEL_EXERCISE_PITCH_SPAN_SEMITONES_MAX,
   LEVEL_GRACE_NOTES_PER_4_MEASURES_MAX,
@@ -65,9 +66,10 @@ function ratePer16Measures(count: number, measures: number): number {
  *  (a deliberately short excerpt, data-model.md §5.3) is exempt from criterion 14's *minimum* only -
  *  its maximum, and every other criterion, still applies in full.
  *
- *  Feature 011 (owner decision D-2) adds three exercise-only variants: criteria 1-2 allow 38 semitones within
+ *  Feature 011 (owner decision D-2) adds four exercise-only variants: criteria 1-2 allow 38 semitones within
  *  MIDI 35-85 at Introduction and Beginner (B7); criterion 10 allows one key change in an exercise tagged
- *  `key-changes` (B6); criterion 11 does not count the 6th and 7th degree accidentals of a minor key (B5). */
+ *  `key-changes` (B6); criterion 11 does not count the 6th and 7th degree accidentals of a minor key (B5); criterion 17
+ *  allows a 19-semitone leap at Introduction and Beginner, where the hands swap (B8). */
 function failingCriteria(
   facts: ItemFacts,
   level: Level,
@@ -137,7 +139,9 @@ function failingCriteria(
 
   if (facts.maxSpanSemitones > LEVEL_MAX_INTERVAL_SEMITONES[level]) failed.push('16');
 
-  if ((facts.maxLeapSemitones ?? 0) > LEVEL_MAX_LEAP_SEMITONES[level]) failed.push('17');
+  const leapMax =
+    (kind === 'exercise' ? LEVEL_EXERCISE_MAX_LEAP_SEMITONES[level] : undefined) ?? LEVEL_MAX_LEAP_SEMITONES[level];
+  if ((facts.maxLeapSemitones ?? 0) > leapMax) failed.push('17');
 
   // Density is attacks per second, not raw Note count - a 3-note chord is one attack, not three
   // (data-model.md §4 correction C).

@@ -3,6 +3,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type ElectronApplication, _electron as electron, expect, test } from '@playwright/test';
+import { revealLibraryItem } from './helpers/library.js';
 import { openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -12,8 +13,8 @@ const FUR_ELISE_SELECTOR = '.library-item-open[data-id="repertoire/intermediate/
 /** One item per section (data-model.md §2), so an engraving regression on real content - not just the
  *  Fur Elise item the test above already exercises - is caught (T075). */
 const ENGRAVING_SAMPLE = [
-  'learning/chords/c-major-scale-and-chords',
-  'learning/chords/changes/changes-cadence-c-major',
+  'learning/keys/c-major/beginner',
+  'learning/keys/f-sharp-major/advanced',
   'repertoire/beginner/amazing-grace',
   'repertoire/advanced/burgmuller-op100-no2',
   'repertoire/advanced/bach-prelude-bwv846',
@@ -97,6 +98,50 @@ test.describe('Practice score library: browse, open, Listen', () => {
       await expect(page.locator('.notice')).toHaveCount(0);
     } finally {
       await page.context().setOffline(false);
+    }
+  });
+
+  test('browser: Learning > Keys > C major > 1 Introduction opens, engraves and plays (feature 011 US1, SC-001)', async ({
+    page,
+    browserName,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === 'electron', 'Electron is covered by its own test below');
+
+    await page.goto('/');
+    await openPanel(page, 'scores');
+
+    // The tree: Learning and Keys are open, the key folders are closed until the user opens one.
+    await expect(page.locator('details.library-section[data-section="learning/keys"]')).toHaveJSProperty('open', true);
+    await expect(page.locator('details.library-section[data-section="learning/keys/c-major"]')).toHaveJSProperty(
+      'open',
+      false,
+    );
+    // Circle order: C major, then its relative minor A minor, then G major.
+    const keyTitles = await page
+      .locator('details.library-section[data-section="learning/keys"] > details > summary')
+      .allTextContents();
+    expect(keyTitles.slice(0, 3).map((t) => t.trim())).toEqual(['C major', 'A minor', 'G major']);
+
+    // SC-001: from the open panel, opening the folder and the item is at most 3 selections.
+    const { item, clicks } = await revealLibraryItem(page, 'learning/keys/c-major/introduction');
+    await expect(item).toContainText('1 Introduction');
+    await expect(item).toContainText('C major - introduction');
+    expect(clicks + 1, 'selections from the open panel to the Score').toBeLessThanOrEqual(3);
+    await item.click();
+    await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    await expect(page.locator('.notice')).toHaveCount(0);
+    await expect(page.locator('.mx-title-block')).toContainText('C major - introduction');
+
+    await expect(page.locator('.play-btn')).not.toBeDisabled();
+    if (browserName !== 'webkit') {
+      await page.locator('.play-btn').click();
+      await expect(page.locator('g.note.playing').first()).toBeVisible();
+      // Escape stops the run; a press that lands while the run is still starting is ignored, so press again until it took
+      await expect(async () => {
+        await page.keyboard.press('Escape');
+        await expect(page.locator('g.note.playing')).toBeHidden({ timeout: 1500 });
+      }).toPass({ timeout: 15_000 });
     }
   });
 
@@ -219,8 +264,7 @@ test.describe('Practice score library: browse, open, Listen', () => {
 
     for (const id of ENGRAVING_SAMPLE) {
       await openPanel(page, 'scores');
-      const itemLocator = page.locator(`.library-item-open[data-id="${id}"]`);
-      await expect(itemLocator).toBeVisible();
+      const { item: itemLocator } = await revealLibraryItem(page, id);
       await itemLocator.click();
       await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
       await expect(page.locator('.mx-score-page svg').first()).toBeVisible();

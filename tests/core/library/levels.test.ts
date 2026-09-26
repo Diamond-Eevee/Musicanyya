@@ -480,4 +480,12 @@ describe('D-2 exercise variants (research R4 B5-B7)', () => {
     expect(fails(34, 60)).toContain('2');
     expect(fails(60, 86)).toContain('2');
   });
+
+  it('B8: an exercise may leap 19 semitones at Introduction and Beginner (the hands swap), a piece still 12', () => {
+    const swap = introFacts({ maxLeapSemitones: 19 });
+    expect(checkLevel(swap, 'introduction', { kind: 'exercise' }).pass).toBe(true);
+    expect(checkLevel(swap, 'beginner', { kind: 'exercise' }).pass).toBe(true);
+    expect(checkLevel(swap, 'beginner').failed).toContain('17');
+    expect(checkLevel(introFacts({ maxLeapSemitones: 20 }), 'beginner', { kind: 'exercise' }).failed).toContain('17');
+  });
 });

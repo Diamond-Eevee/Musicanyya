@@ -80,7 +80,7 @@ function stepRuleProblems(items: readonly LibraryItem[]): string[] {
         if (meta.level !== 'beginner' && meta.level !== 'intermediate') {
           problems.push(`${id}: a song is beginner or intermediate, not ${meta.level}`);
         }
-      } else if (meta.level !== meta.step) {
+      } else if (meta.level !== meta.step && (meta.stepOrder ?? 0) === 0) {
         problems.push(`${id}: step "${meta.step}" requires level "${meta.step}", not "${meta.level}"`);
       }
       const key = `${section}|${meta.step}|${meta.stepOrder ?? 0}`;

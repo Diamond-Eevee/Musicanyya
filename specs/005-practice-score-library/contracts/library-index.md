@@ -139,8 +139,9 @@ Everything a human decides. Never generated, never rewritten by a tool.
 - `departures` never describes added material as the composer's (FR-012); it says whose it is ("our own continuation").
 - `src/core/library/index-model.ts` accepts the field, validates length and type, and copies it into the item's `meta`. The app does not display it in this feature (spec: UI changes out of scope).
 - Every item under `learning/keys/` or `learning/key-changes/` **requires** `step`. Items elsewhere **forbid** it (1.2.0).
-- `step` = `introduction` requires `level` = `introduction`; `beginner`, `intermediate`, `advanced` require the level of
-  the same name. `song` items carry their own level (`beginner` or `intermediate`) and `kind: "piece"` (1.2.0).
+- For a main item (`stepOrder` 0), `step` = `introduction` requires `level` = `introduction`; `beginner`, `intermediate`,
+  `advanced` require the level of the same name. An extra (`stepOrder` 10+, an existing drill kept at that step) keeps its own
+  level: the step says where it sits on the path, the level says how hard it measures. `song` items carry their own level (`beginner` or `intermediate`) and `kind: "piece"` (1.2.0).
 - Within one folder, `(step, stepOrder)` is unique. A folder in `learning/keys/` holds exactly one item with
   `stepOrder: 0` for each of the four exercise steps; a folder in `learning/key-changes/` for introduction, beginner and
   intermediate (1.2.0).

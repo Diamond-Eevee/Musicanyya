@@ -43,8 +43,9 @@ New optional properties:
 Rules:
 
 - Every item under `learning/keys/` or `learning/key-changes/` **requires** `step`. Items elsewhere **forbid** it.
-- `step` = `introduction` requires `level` = `introduction`; `beginner`, `intermediate`, `advanced` require the level of
-  the same name. `song` items carry their own level (`beginner` or `intermediate`) and `kind: "piece"`.
+- For a main item (`stepOrder` 0), `step` = `introduction` requires `level` = `introduction`; `beginner`, `intermediate`,
+  `advanced` require the level of the same name. An extra (`stepOrder` 10+, an existing drill kept at that step) keeps its own
+  level: the step says where it sits on the path, the level says how hard it measures. `song` items carry their own level (`beginner` or `intermediate`) and `kind: "piece"`.
 - Within one folder, `(step, stepOrder)` is unique. A folder in `learning/keys/` holds exactly one item with
   `stepOrder: 0` for each of the four exercise steps.
 - `supersedes[].id` must not be the id of any item on the shelf, and one old id may be superseded by at most one item

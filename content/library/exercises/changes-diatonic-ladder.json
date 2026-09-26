@@ -2,17 +2,62 @@
   "version": 1,
   "family": "changes-diatonic-ladder",
   "titleTemplate": "{key} - diatonic ladder",
-  "section": "learning/chords/changes",
+  "section": "learning/keys/{key}",
+  "step": "advanced",
+  "stepOrder": 30,
+  "fileStem": "diatonic-ladder",
   "metre": "4/4",
   "tempoBpm": 60,
-  "keys": [{ "tonic": "C", "mode": "major", "fifths": 0 }],
+  "keys": [
+    {
+      "tonic": "C",
+      "mode": "major",
+      "fifths": 0
+    }
+  ],
   "steps": [
-    { "degree": "I", "inversion": 0, "duration": "dotted-half", "restAfter": "quarter", "label": "C" },
-    { "degree": "ii", "inversion": 0, "duration": "dotted-half", "restAfter": "quarter", "label": "Dm" },
-    { "degree": "iii", "inversion": 0, "duration": "dotted-half", "restAfter": "quarter", "label": "Em" },
-    { "degree": "IV", "inversion": 0, "duration": "dotted-half", "restAfter": "quarter", "label": "F" },
-    { "degree": "V", "inversion": 0, "duration": "dotted-half", "restAfter": "quarter", "label": "G" },
-    { "degree": "vi", "inversion": 0, "duration": "dotted-half", "restAfter": "quarter", "label": "Am" },
+    {
+      "degree": "I",
+      "inversion": 0,
+      "duration": "dotted-half",
+      "restAfter": "quarter",
+      "label": "C"
+    },
+    {
+      "degree": "ii",
+      "inversion": 0,
+      "duration": "dotted-half",
+      "restAfter": "quarter",
+      "label": "Dm"
+    },
+    {
+      "degree": "iii",
+      "inversion": 0,
+      "duration": "dotted-half",
+      "restAfter": "quarter",
+      "label": "Em"
+    },
+    {
+      "degree": "IV",
+      "inversion": 0,
+      "duration": "dotted-half",
+      "restAfter": "quarter",
+      "label": "F"
+    },
+    {
+      "degree": "V",
+      "inversion": 0,
+      "duration": "dotted-half",
+      "restAfter": "quarter",
+      "label": "G"
+    },
+    {
+      "degree": "vi",
+      "inversion": 0,
+      "duration": "dotted-half",
+      "restAfter": "quarter",
+      "label": "Am"
+    },
     {
       "degree": "vii",
       "quality": "diminished",
@@ -21,8 +66,17 @@
       "restAfter": "quarter",
       "label": "B°"
     },
-    { "degree": "I", "inversion": 0, "duration": "dotted-half", "restAfter": "quarter", "label": "C" }
+    {
+      "degree": "I",
+      "inversion": 0,
+      "duration": "dotted-half",
+      "restAfter": "quarter",
+      "label": "C"
+    }
   ],
+  "supersedes": {
+    "c-major": ["learning/chords/changes/changes-diatonic-ladder-c-major"]
+  },
   "meta": {
     "kind": "exercise",
     "level": "intermediate",

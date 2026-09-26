@@ -6,13 +6,13 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 | Outcome | Items |
 |---|---|
-| verified | 36 |
+| verified | 101 |
 | verified (visual) | 3 |
-| fixed | 11 |
+| fixed | 7 |
 | replaced | 4 |
-| relabelled | 3 |
+| relabelled | 2 |
 | removed | 1 |
-| Total | 58 |
+| Total | 118 |
 
 ## Level counts after the audit
 
@@ -47,47 +47,107 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 | Item | Claim | Rule set | Method | Differences | Outcome | Date |
 |---|---|---|---|---|---|---|
-| C major - scale and chords for both hands<br>`learning/chords/c-major-scale-and-chords` | exercise | exercise-theory-v1 | theory | 0 | fixed | 2026-09-24 |
+| C major - introduction<br>`learning/keys/c-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C major - beginner<br>`learning/keys/c-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C major - intermediate<br>`learning/keys/c-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C major - advanced<br>`learning/keys/c-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C major - I-V-vi-IV<br>`learning/keys/c-major/i-v-vi-iv` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
+| C major - I-vi-ii-V<br>`learning/keys/c-major/turnaround` | exercise | exercise-theory-v1 | theory | 0 | fixed | 2026-09-24 |
+| C major - diatonic ladder<br>`learning/keys/c-major/diatonic-ladder` | exercise | exercise-theory-v1 | theory | 0 | fixed | 2026-09-24 |
+| A minor - introduction<br>`learning/keys/a-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A minor - beginner<br>`learning/keys/a-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A minor - intermediate<br>`learning/keys/a-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A minor - advanced<br>`learning/keys/a-minor/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G major - introduction<br>`learning/keys/g-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G major - beginner<br>`learning/keys/g-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G major - intermediate<br>`learning/keys/g-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G major - advanced<br>`learning/keys/g-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E minor - introduction<br>`learning/keys/e-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E minor - beginner<br>`learning/keys/e-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E minor - intermediate<br>`learning/keys/e-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E minor - advanced<br>`learning/keys/e-minor/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D major - introduction<br>`learning/keys/d-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D major - beginner<br>`learning/keys/d-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D major - intermediate<br>`learning/keys/d-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D major - advanced<br>`learning/keys/d-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B minor - introduction<br>`learning/keys/b-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B minor - beginner<br>`learning/keys/b-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B minor - intermediate<br>`learning/keys/b-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B minor - advanced<br>`learning/keys/b-minor/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A major - introduction<br>`learning/keys/a-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A major - beginner<br>`learning/keys/a-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A major - intermediate<br>`learning/keys/a-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A major - advanced<br>`learning/keys/a-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F♯ minor - introduction<br>`learning/keys/f-sharp-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F♯ minor - beginner<br>`learning/keys/f-sharp-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F♯ minor - intermediate<br>`learning/keys/f-sharp-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F♯ minor - advanced<br>`learning/keys/f-sharp-minor/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E major - introduction<br>`learning/keys/e-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E major - beginner<br>`learning/keys/e-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E major - intermediate<br>`learning/keys/e-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E major - advanced<br>`learning/keys/e-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C♯ minor - introduction<br>`learning/keys/c-sharp-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C♯ minor - beginner<br>`learning/keys/c-sharp-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C♯ minor - intermediate<br>`learning/keys/c-sharp-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C♯ minor - advanced<br>`learning/keys/c-sharp-minor/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B major - introduction<br>`learning/keys/b-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B major - beginner<br>`learning/keys/b-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B major - intermediate<br>`learning/keys/b-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B major - advanced<br>`learning/keys/b-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G♯ minor - introduction<br>`learning/keys/g-sharp-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G♯ minor - beginner<br>`learning/keys/g-sharp-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G♯ minor - intermediate<br>`learning/keys/g-sharp-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G♯ minor - advanced<br>`learning/keys/g-sharp-minor/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F♯ major - introduction<br>`learning/keys/f-sharp-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F♯ major - beginner<br>`learning/keys/f-sharp-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F♯ major - intermediate<br>`learning/keys/f-sharp-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F♯ major - advanced<br>`learning/keys/f-sharp-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E♭ minor - introduction<br>`learning/keys/e-flat-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E♭ minor - beginner<br>`learning/keys/e-flat-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E♭ minor - intermediate<br>`learning/keys/e-flat-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E♭ minor - advanced<br>`learning/keys/e-flat-minor/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D♭ major - introduction<br>`learning/keys/d-flat-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D♭ major - beginner<br>`learning/keys/d-flat-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D♭ major - intermediate<br>`learning/keys/d-flat-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D♭ major - advanced<br>`learning/keys/d-flat-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B♭ minor - introduction<br>`learning/keys/b-flat-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B♭ minor - beginner<br>`learning/keys/b-flat-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B♭ minor - intermediate<br>`learning/keys/b-flat-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B♭ minor - advanced<br>`learning/keys/b-flat-minor/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A♭ major - introduction<br>`learning/keys/a-flat-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A♭ major - beginner<br>`learning/keys/a-flat-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A♭ major - intermediate<br>`learning/keys/a-flat-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| A♭ major - advanced<br>`learning/keys/a-flat-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F minor - introduction<br>`learning/keys/f-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F minor - beginner<br>`learning/keys/f-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F minor - intermediate<br>`learning/keys/f-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F minor - advanced<br>`learning/keys/f-minor/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E♭ major - introduction<br>`learning/keys/e-flat-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E♭ major - beginner<br>`learning/keys/e-flat-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E♭ major - intermediate<br>`learning/keys/e-flat-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| E♭ major - advanced<br>`learning/keys/e-flat-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C minor - introduction<br>`learning/keys/c-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C minor - beginner<br>`learning/keys/c-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C minor - intermediate<br>`learning/keys/c-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| C minor - advanced<br>`learning/keys/c-minor/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B♭ major - introduction<br>`learning/keys/b-flat-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B♭ major - beginner<br>`learning/keys/b-flat-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B♭ major - intermediate<br>`learning/keys/b-flat-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| B♭ major - advanced<br>`learning/keys/b-flat-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G minor - introduction<br>`learning/keys/g-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G minor - beginner<br>`learning/keys/g-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G minor - intermediate<br>`learning/keys/g-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| G minor - advanced<br>`learning/keys/g-minor/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F major - introduction<br>`learning/keys/f-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F major - beginner<br>`learning/keys/f-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F major - intermediate<br>`learning/keys/f-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| F major - advanced<br>`learning/keys/f-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D minor - introduction<br>`learning/keys/d-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D minor - beginner<br>`learning/keys/d-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D minor - intermediate<br>`learning/keys/d-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| D minor - advanced<br>`learning/keys/d-minor/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | A minor - minor and major<br>`learning/chords/changes/changes-a-minor-major-a-minor` | exercise | exercise-theory-v1 | theory | 0 | fixed | 2026-09-24 |
-| C major - I-IV-V-I<br>`learning/chords/changes/changes-cadence-c-major` | exercise | exercise-theory-v1 | theory | 0 | fixed | 2026-09-24 |
-| F major - I-IV-V-I<br>`learning/chords/changes/changes-cadence-f-major` | exercise | exercise-theory-v1 | theory | 0 | fixed | 2026-09-24 |
-| G major - I-IV-V-I<br>`learning/chords/changes/changes-cadence-g-major` | exercise | exercise-theory-v1 | theory | 0 | fixed | 2026-09-24 |
-| C major - diatonic ladder<br>`learning/chords/changes/changes-diatonic-ladder-c-major` | exercise | exercise-theory-v1 | theory | 0 | fixed | 2026-09-24 |
-| C major - I-IV-I<br>`learning/chords/changes/changes-i-iv-i-c-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| C major - I-V-I<br>`learning/chords/changes/changes-i-v-i-c-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| C major - I-V-vi-IV<br>`learning/chords/changes/changes-i-v-vi-iv-c-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| C major - I-vi-IV-V<br>`learning/chords/changes/changes-i-vi-iv-v-c-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| C major - ii-V-I<br>`learning/chords/changes/changes-ii-v-i-c-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| A minor - i-iv-V-i<br>`learning/chords/changes/changes-minor-cadence-a-minor` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| D minor - i-iv-V-i<br>`learning/chords/changes/changes-minor-cadence-d-minor` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| C major - plagal then V-I<br>`learning/chords/changes/changes-plagal-perfect-c-major` | exercise | exercise-theory-v1 | theory | 0 | relabelled | 2026-09-24 |
 | C major - major and minor<br>`learning/chords/changes/changes-same-tonic-c-major` | exercise | exercise-theory-v1 | theory | 0 | fixed | 2026-09-24 |
-| C major - tonic inversions<br>`learning/chords/changes/changes-tonic-inversions-c-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| C major - I-vi-ii-V<br>`learning/chords/changes/changes-turnaround-c-major` | exercise | exercise-theory-v1 | theory | 0 | fixed | 2026-09-24 |
-| A♭ major triads<br>`learning/chords/triads-a-flat-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| A major triads<br>`learning/chords/triads-a-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| A minor triads<br>`learning/chords/triads-a-minor` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| B♭ major triads<br>`learning/chords/triads-b-flat-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| B♭ minor triads<br>`learning/chords/triads-b-flat-minor` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| B major triads<br>`learning/chords/triads-b-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| B minor triads<br>`learning/chords/triads-b-minor` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| C major triads<br>`learning/chords/triads-c-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| C minor triads<br>`learning/chords/triads-c-minor` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| C♯ minor triads<br>`learning/chords/triads-c-sharp-minor` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| D♭ major triads<br>`learning/chords/triads-d-flat-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| D major triads<br>`learning/chords/triads-d-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| D minor triads<br>`learning/chords/triads-d-minor` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| E♭ major triads<br>`learning/chords/triads-e-flat-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| E♭ minor triads<br>`learning/chords/triads-e-flat-minor` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| E major triads<br>`learning/chords/triads-e-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| E minor triads<br>`learning/chords/triads-e-minor` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| F major triads<br>`learning/chords/triads-f-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| F minor triads<br>`learning/chords/triads-f-minor` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| F♯ major triads<br>`learning/chords/triads-f-sharp-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| F♯ minor triads<br>`learning/chords/triads-f-sharp-minor` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| G major triads<br>`learning/chords/triads-g-major` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| G minor triads<br>`learning/chords/triads-g-minor` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
-| G♯ minor triads<br>`learning/chords/triads-g-sharp-minor` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
 
 ## Removed
 
@@ -95,41 +155,65 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 |---|---|---|
 | Fröhlicher Landmann (The Happy Farmer), Op. 68 No. 10<br>`repertoire/intermediate/schumann-op68-no10` | Removed by owner decision D-2 (2026-09-23): an item derived from a CC BY-SA source breaks the library's public-domain/CC0 rule (FR-006). The .musicxml and .json are deleted, the index is regenerated, and public/library/README.md has a Rejected items row. | 2026-09-24 |
 
+## Replaced by feature 011
+
+| Old id | New item |
+|---|---|
+| `learning/chords/c-major-scale-and-chords` | C major - beginner<br>`learning/keys/c-major/beginner` |
+| `learning/chords/changes/changes-cadence-c-major` | C major - beginner<br>`learning/keys/c-major/beginner` |
+| `learning/chords/changes/changes-cadence-f-major` | F major - beginner<br>`learning/keys/f-major/beginner` |
+| `learning/chords/changes/changes-cadence-g-major` | G major - beginner<br>`learning/keys/g-major/beginner` |
+| `learning/chords/changes/changes-diatonic-ladder-c-major` | C major - diatonic ladder<br>`learning/keys/c-major/diatonic-ladder` |
+| `learning/chords/changes/changes-i-iv-i-c-major` | C major - beginner<br>`learning/keys/c-major/beginner` |
+| `learning/chords/changes/changes-i-v-i-c-major` | C major - introduction<br>`learning/keys/c-major/introduction` |
+| `learning/chords/changes/changes-i-v-vi-iv-c-major` | C major - I-V-vi-IV<br>`learning/keys/c-major/i-v-vi-iv` |
+| `learning/chords/changes/changes-i-vi-iv-v-c-major` | C major - advanced<br>`learning/keys/c-major/advanced` |
+| `learning/chords/changes/changes-ii-v-i-c-major` | C major - advanced<br>`learning/keys/c-major/advanced` |
+| `learning/chords/changes/changes-minor-cadence-a-minor` | A minor - beginner<br>`learning/keys/a-minor/beginner` |
+| `learning/chords/changes/changes-minor-cadence-d-minor` | D minor - beginner<br>`learning/keys/d-minor/beginner` |
+| `learning/chords/changes/changes-plagal-perfect-c-major` | C major - beginner<br>`learning/keys/c-major/beginner` |
+| `learning/chords/changes/changes-tonic-inversions-c-major` | C major - intermediate<br>`learning/keys/c-major/intermediate` |
+| `learning/chords/changes/changes-turnaround-c-major` | C major - I-vi-ii-V<br>`learning/keys/c-major/turnaround` |
+| `learning/chords/triads-a-flat-major` | A♭ major - intermediate<br>`learning/keys/a-flat-major/intermediate` |
+| `learning/chords/triads-a-major` | A major - intermediate<br>`learning/keys/a-major/intermediate` |
+| `learning/chords/triads-a-minor` | A minor - intermediate<br>`learning/keys/a-minor/intermediate` |
+| `learning/chords/triads-b-flat-major` | B♭ major - intermediate<br>`learning/keys/b-flat-major/intermediate` |
+| `learning/chords/triads-b-flat-minor` | B♭ minor - intermediate<br>`learning/keys/b-flat-minor/intermediate` |
+| `learning/chords/triads-b-major` | B major - intermediate<br>`learning/keys/b-major/intermediate` |
+| `learning/chords/triads-b-minor` | B minor - intermediate<br>`learning/keys/b-minor/intermediate` |
+| `learning/chords/triads-c-major` | C major - intermediate<br>`learning/keys/c-major/intermediate` |
+| `learning/chords/triads-c-minor` | C minor - intermediate<br>`learning/keys/c-minor/intermediate` |
+| `learning/chords/triads-c-sharp-minor` | C♯ minor - intermediate<br>`learning/keys/c-sharp-minor/intermediate` |
+| `learning/chords/triads-d-flat-major` | D♭ major - intermediate<br>`learning/keys/d-flat-major/intermediate` |
+| `learning/chords/triads-d-major` | D major - intermediate<br>`learning/keys/d-major/intermediate` |
+| `learning/chords/triads-d-minor` | D minor - intermediate<br>`learning/keys/d-minor/intermediate` |
+| `learning/chords/triads-e-flat-major` | E♭ major - intermediate<br>`learning/keys/e-flat-major/intermediate` |
+| `learning/chords/triads-e-flat-minor` | E♭ minor - intermediate<br>`learning/keys/e-flat-minor/intermediate` |
+| `learning/chords/triads-e-major` | E major - intermediate<br>`learning/keys/e-major/intermediate` |
+| `learning/chords/triads-e-minor` | E minor - intermediate<br>`learning/keys/e-minor/intermediate` |
+| `learning/chords/triads-f-major` | F major - intermediate<br>`learning/keys/f-major/intermediate` |
+| `learning/chords/triads-f-minor` | F minor - intermediate<br>`learning/keys/f-minor/intermediate` |
+| `learning/chords/triads-f-sharp-major` | F♯ major - intermediate<br>`learning/keys/f-sharp-major/intermediate` |
+| `learning/chords/triads-f-sharp-minor` | F♯ minor - intermediate<br>`learning/keys/f-sharp-minor/intermediate` |
+| `learning/chords/triads-g-major` | G major - intermediate<br>`learning/keys/g-major/intermediate` |
+| `learning/chords/triads-g-minor` | G minor - intermediate<br>`learning/keys/g-minor/intermediate` |
+| `learning/chords/triads-g-sharp-minor` | G♯ minor - intermediate<br>`learning/keys/g-sharp-minor/intermediate` |
+
 ## Notes
-
-### C major - scale and chords for both hands (`learning/chords/c-major-scale-and-chords`)
-
-- Outcome (fixed): Found by the music-domain review, then by the check's new overlap rule: in section B the right-hand I chords of bars 6 and 7 sat on C4-E4-G4 while the left-hand scale struck C4, one key for two hands. Both chords moved up an octave (C5-E5-G5); nothing else changed.
 
 ### A minor - minor and major (`learning/chords/changes/changes-a-minor-major-a-minor`)
 
 - Outcome (fixed): The theory check found 2 label differences: the parallel major of the tonic was labelled "A · i". Corrected at the exercise definition to "A · I" (the case of a Roman numeral follows the quality); no note changed.
 
-### C major - I-IV-V-I (`learning/chords/changes/changes-cadence-c-major`)
-
-- Outcome (fixed): Description corrected (owner decision 2026-09-24): "full perfect cadence" became "full I-IV-V-I cadence in close position", because its V6-I is not a perfect authentic cadence. No note changed.
-
-### F major - I-IV-V-I (`learning/chords/changes/changes-cadence-f-major`)
-
-- Outcome (fixed): Description corrected (owner decision 2026-09-24): "full perfect cadence" became "full I-IV-V-I cadence in close position", because its V6-I is not a perfect authentic cadence. No note changed.
-
-### G major - I-IV-V-I (`learning/chords/changes/changes-cadence-g-major`)
-
-- Outcome (fixed): Description corrected (owner decision 2026-09-24): "full perfect cadence" became "full I-IV-V-I cadence in close position", because its V6-I is not a perfect authentic cadence. No note changed.
-
-### C major - diatonic ladder (`learning/chords/changes/changes-diatonic-ladder-c-major`)
-
-- Outcome (fixed): The theory check found 1 label difference: the diminished chord was labelled "B° · vii" without the degree sign. The generator now writes "vii°"; no note changed.
-
-### C major - plagal then V-I (`learning/chords/changes/changes-plagal-perfect-c-major`)
-
-- Outcome (relabelled): Title and description corrected (owner decision 2026-09-24): "plagal then perfect" became "plagal then V-I", because its V6-I is not a perfect authentic cadence. The item id and the notes are unchanged.
-
 ### C major - major and minor (`learning/chords/changes/changes-same-tonic-c-major`)
 
 - Outcome (fixed): The theory check found 2 label differences: the parallel minor of the tonic was labelled "Cm · I". Corrected at the exercise definition to "Cm · i" (the case of a Roman numeral follows the quality); no note changed.
 
-### C major - I-vi-ii-V (`learning/chords/changes/changes-turnaround-c-major`)
+### C major - diatonic ladder (`learning/keys/c-major/diatonic-ladder`)
+
+- Outcome (fixed): The theory check found 1 label difference: the diminished chord was labelled "B° · vii" without the degree sign. The generator now writes "vii°"; no note changed.
+
+### C major - I-vi-ii-V (`learning/keys/c-major/turnaround`)
 
 - Outcome (fixed): The description said "one common tone per change", but I to vi shares two (C, E). Corrected at the exercise definition to "one or two common tones per change"; no note changed.
 

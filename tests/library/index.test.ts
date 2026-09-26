@@ -3,8 +3,10 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { KEYS } from '../../src/core/library/exercise/keys.js';
 import { buildLibraryIndex } from '../../tools/library/build-index.js';
 import type { LibrarySectionDefinition } from '../../tools/library/sections.js';
+import { SUCCESSORS } from '../../tools/library/successors.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const libraryRoot = path.resolve(__dirname, '../../public/library');
@@ -86,14 +88,17 @@ describe('US2 chord shelf (data-model.md §5.1-5.2, FR-005, FR-006, SC-004, anal
     }
   });
 
-  it('has at least 24 chord exercises and 12 chord-change drills', async () => {
+  // Feature 011 replaced "at least 24 chord exercises and 12 chord-change drills" (contract library-index 1.2.0 §4): the shelf
+  // now counts step exercises, and every old drill's skill lives on in its successor (checked by the successor tests below).
+  it('has at least 96 step exercises (24 keys x 4 steps) and the C major extras (five kept drills after US2)', async () => {
     const { index } = await buildLibraryIndex(libraryRoot);
-    const chordExercises = index.items.filter(
-      (item) => item.section === 'learning/chords' && item.id.startsWith('learning/chords/triads-'),
+    const steps = index.items.filter(
+      (item) =>
+        item.id.startsWith('learning/keys/') && item.meta.step !== undefined && (item.meta.stepOrder ?? 0) === 0,
     );
-    const changeDrills = index.items.filter((item) => item.section === 'learning/chords/changes');
-    expect(chordExercises.length).toBeGreaterThanOrEqual(24);
-    expect(changeDrills.length).toBeGreaterThanOrEqual(12);
+    expect(steps.length).toBeGreaterThanOrEqual(96);
+    const kept = index.items.filter((item) => (item.meta.stepOrder ?? 0) > 0 && item.meta.kind === 'exercise');
+    expect(kept.length).toBeGreaterThanOrEqual(3);
   });
 });
 
@@ -214,6 +219,14 @@ describe('build-index rules for step folders (library-index 1.2.0 §1, feature 0
     );
   });
 
+  it('an extra (stepOrder 10+) keeps its own level: the step is where it sits, the level is how hard it measures', async () => {
+    const { problems } = await build([
+      ...goodFolder(),
+      { id: 'learning/keys/c-major/extra', tempo: 60, meta: { step: 'advanced', stepOrder: 10, level: 'beginner' } },
+    ]);
+    expect(problems).toEqual([]);
+  });
+
   it('refuses a song that is not a piece of level beginner or intermediate', async () => {
     const song = (id: string, meta: Record<string, unknown>): ItemSpec => ({
       id,
@@ -318,5 +331,99 @@ describe('build-index rules for step folders (library-index 1.2.0 §1, feature 0
     expect((await build(bad)).problems).toContainEqual(
       `${folder}: intermediate is less demanding than beginner on tempoBpm (66 < 72)`,
     );
+  });
+});
+
+// Feature 011 T023 (spec FR-002, FR-003, FR-005, FR-006, FR-020; library-index 1.2.0 §4): the Learning > Keys shelf.
+describe('the Learning > Keys shelf (feature 011 US1)', () => {
+  const STEPS = ['introduction', 'beginner', 'intermediate', 'advanced'] as const;
+
+  it('has 24 key folders in circle-of-fifths order, titled with the key, under Learning > Keys', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    const folders = index.sections.filter((s) => s.parent === 'learning/keys');
+    expect(folders.sort((a, b) => a.order - b.order).map((s) => s.id)).toEqual(
+      KEYS.map((k) => `learning/keys/${k.slug}`),
+    );
+    expect(folders.map((s) => s.title)).toEqual(KEYS.map((k) => k.displayName));
+    expect(folders.map((s) => s.title).slice(0, 4)).toEqual(['C major', 'A minor', 'G major', 'E minor']);
+    expect(folders.map((s) => s.order)).toEqual(Array.from({ length: 24 }, (_, i) => i + 1));
+    const keys = index.sections.find((s) => s.id === 'learning/keys');
+    expect(keys?.title).toBe('Keys');
+    expect(keys?.parent).toBe('learning');
+    expect(index.sections.find((s) => s.id === 'learning')?.parent).toBeNull();
+  });
+
+  it('every key folder has exactly one main item for each of the four steps, at the matching level', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    for (const key of KEYS) {
+      const items = index.items.filter((i) => i.section === `learning/keys/${key.slug}`);
+      for (const step of STEPS) {
+        const main = items.filter((i) => i.meta.step === step && (i.meta.stepOrder ?? 0) === 0);
+        expect(
+          main.map((i) => i.id),
+          `${key.slug} ${step}`,
+        ).toEqual([`learning/keys/${key.slug}/${step}`]);
+        expect(main[0]?.meta.level, `${key.slug} ${step}`).toBe(step);
+        expect(main[0]?.meta.kind).toBe('exercise');
+      }
+    }
+  });
+
+  it('has at least 96 step exercises (24 keys x 4 steps)', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    const stepExercises = index.items.filter(
+      (i) =>
+        i.id.startsWith('learning/keys/') &&
+        i.meta.step !== undefined &&
+        i.meta.step !== 'song' &&
+        (i.meta.stepOrder ?? 0) === 0,
+    );
+    expect(stepExercises.length).toBeGreaterThanOrEqual(96);
+  });
+
+  it('C major keeps the three Advanced extras, after the main step: stepOrder 10, 20, 30', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    const extras = index.items
+      .filter((i) => i.section === 'learning/keys/c-major' && (i.meta.stepOrder ?? 0) > 0)
+      .sort((a, b) => (a.meta.stepOrder ?? 0) - (b.meta.stepOrder ?? 0));
+    expect(extras.map((i) => [i.id, i.meta.step, i.meta.stepOrder])).toEqual([
+      ['learning/keys/c-major/i-v-vi-iv', 'advanced', 10],
+      ['learning/keys/c-major/turnaround', 'advanced', 20],
+      ['learning/keys/c-major/diatonic-ladder', 'advanced', 30],
+    ]);
+  });
+
+  it('replaces the old Chords items: only the two same-tonic drills US2 moves remain under learning/chords', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    const left = index.items
+      .filter((i) => i.id.startsWith('learning/chords/'))
+      .map((i) => i.id)
+      .sort();
+    expect(left).toEqual([
+      'learning/chords/changes/changes-a-minor-major-a-minor',
+      'learning/chords/changes/changes-same-tonic-c-major',
+    ]);
+  });
+
+  it('every old item that US1 replaces is superseded by exactly one new item, with the SHA-256 of its old file (FR-005, FR-020)', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    const handledByUs1 = SUCCESSORS.filter((s) => s.newId.startsWith('learning/keys/'));
+    expect(handledByUs1.length).toBeGreaterThan(0);
+    for (const successor of handledByUs1) {
+      const claimants = index.items.filter((i) => i.meta.supersedes?.some((s) => s.id === successor.oldId));
+      expect(
+        claimants.map((i) => i.id),
+        successor.oldId,
+      ).toEqual([successor.newId]);
+      const entry = claimants[0]?.meta.supersedes?.find((s) => s.id === successor.oldId);
+      expect(entry?.hash, successor.oldId).toBe(successor.hash);
+    }
+  });
+
+  it('no superseded id is still a shelf item', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    const shelf = new Set(index.items.map((i) => i.id));
+    for (const item of index.items)
+      for (const old of item.meta.supersedes ?? []) expect(shelf.has(old.id), old.id).toBe(false);
   });
 });

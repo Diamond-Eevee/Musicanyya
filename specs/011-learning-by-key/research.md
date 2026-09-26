@@ -62,6 +62,12 @@ owner decision because it changes published level criteria (005 FR-009); the rec
 | B6 | Criterion 10 (key changes, Beginner 0) fails every parallel key-change drill. | Key-change exercises (tag `key-changes`) may have 1 key change at any level. |
 | B7 | IV below I in both hands gives a 38-semitone span (T-19..T+19); Beginner cap 36. The current C exercise already spans 38. F# major does not fit bounds 36-84 at all. | For exercises, span cap 38 and bounds 35-85 at Introduction and Beginner. |
 
+**B8 (added 2026-09-26 during implementation, owner answered "exempt exercises up to 19")**: criterion 17 (largest leap in one
+hand, 12 at Introduction/Beginner) fails every generated step where the hands swap: the right hand goes from the scale's last note
+(T) to a chord rooted at T+12 whose top is T+19. The chords cannot sit lower without colliding with the left-hand scale on the
+same keys. For exercises the cap is 19 at Introduction and Beginner (`LEVEL_EXERCISE_MAX_LEAP_SEMITONES`); pieces keep 12. Rejected:
+scales that start at the top (less familiar shape), and computing leaps per section (changes every item's facts).
+
 **Rationale**: the alternative - calling the steps Introduction/Beginner while the computed level says Intermediate -
 breaks FR-022 and SC-002 and misleads the learner.
 

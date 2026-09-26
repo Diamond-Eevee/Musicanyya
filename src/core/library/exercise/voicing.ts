@@ -53,3 +53,11 @@ export function placeAscending(orderedTones: readonly PitchClass[], anchorMidi: 
 export function transposeOctaves(notes: readonly VoicedNote[], octaves: number): VoicedNote[] {
   return notes.map((n) => ({ ...n, midi: n.midi + 12 * octaves, octave: n.octave + octaves }));
 }
+
+/** The pitch of `pitchClass` in the 12-wide window [anchor - 7, anchor + 4] (feature 011, data-model §5): the bass of every
+ *  chord of a pattern section. `anchor` is the root of the tonic chord in that hand (T-12 left, T+12 right), so I is rooted at
+ *  the anchor, IV and V below it, and the inversions sit right beside them - one unique value for any pitch class. */
+export function bassInWindow(pitchClass: number, anchorMidi: number): number {
+  const low = anchorMidi - 7;
+  return low + ((((pitchClass - low) % 12) + 12) % 12);
+}

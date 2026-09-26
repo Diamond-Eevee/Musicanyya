@@ -139,11 +139,11 @@ describe('cursorNotesAtTick: the notes the cursor bar stands at (FR-001, owner r
     },
   );
 
-  it("the owner's example (library learning/chords/c-major-scale-and-chords): the bar follows the scale over the held chords", async () => {
+  // Feature 011 replaced the hand-written learning/chords/c-major-scale-and-chords with the generated Beginner step of C major,
+  // which starts the same way, so the owner's example is asserted on it.
+  it("the owner's example (library learning/keys/c-major/beginner): the bar follows the scale over the held chords", async () => {
     // measure 1: C4 D4 E4 F4 in the right hand over a whole-note C3 E3 G3 chord; measure 2: G4 A4 ... over half-note chords
-    const timeline = await loadListenTimeline(
-      '../../../public/library/learning/chords/c-major-scale-and-chords.musicxml',
-    );
+    const timeline = await loadListenTimeline('../../../public/library/learning/keys/c-major/beginner.musicxml');
     const { ppq } = timeline;
     const chord = ['n-p0-s2-m0-v5-o0-k48', 'n-p0-s2-m0-v5-o0-k52', 'n-p0-s2-m0-v5-o0-k55'];
     expect(ids(cursorNotesAtTick(timeline, 0))).toEqual(['n-p0-s1-m0-v1-o0-k60', ...chord].sort());

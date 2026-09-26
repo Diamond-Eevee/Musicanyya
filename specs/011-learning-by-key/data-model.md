@@ -92,8 +92,11 @@ Failure message: `learning/keys/f-sharp-major: intermediate is less demanding th
 
 - T = the right-hand scale tonic: octave 4 for C, Db, D, Eb, E, F (and their minors); octave 3 for F#, G, Ab, A, Bb, B.
 - RH scale T..T+12; LH scale T-12..T.
-- LH chords: I rooted at T-12, IV and V rooted below it; RH chords: I rooted at T+12 when the RH plays chords (mirror),
-  IV and V below it. Inversions keep the nearest voicing to the previous chord.
+- Chords: the bass of every chord is the unique pitch of its bass pitch class in the window [anchor-7, anchor+4], where
+  the anchor is the root of the tonic chord in that hand: T-12 in the left hand, T+12 in the right. So I is rooted at the
+  anchor, IV and V below it (F2 and G2 in C major), ii and iii just above, and every inversion sits beside its root
+  position; the other notes stack upward in close position. (The first draft chose the voicing nearest to the previous chord;
+  it drifts upward through I-I6-I64, so the fixed window replaced it.)
 - Span: I/V only (Introduction) T-17..T+19 = 36; with IV T-19..T+19 = 38 (hence D-2 B7). F# major sits at the edge of
   bounds 35-85; the generator's range guard fails the build rather than moving one key.
 

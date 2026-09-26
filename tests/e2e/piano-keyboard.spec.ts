@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
+import { revealLibraryItem } from './helpers/library.js';
 import { openPanel } from './helpers/panels.js';
 import { pressKeys, startPracticeOnOpenScore } from './helpers/practice.js';
 
@@ -223,7 +224,9 @@ test.describe('US1: the on-screen piano looks like a real 88-key keyboard (featu
 // US2: pressed keys and feedback sit on the right key, inside its uncovered part, readable on white and black keys
 // ---------------------------------------------------------------------------------------------------------------
 
-const CMAJOR_ITEM = 'learning/chords/c-major-scale-and-chords';
+// Feature 011 moved the hand-written 'learning/chords/c-major-scale-and-chords' to the generated Beginner step of C major
+// (it was superseded: same shape - scale against half-note chords, hands swapping - in the new key folders).
+const CMAJOR_ITEM = 'learning/keys/c-major/beginner';
 const OUTSIDE_TOLERANCE_PX = 0.5;
 const LIGHT_LUMINANCE = 0.6; // SC-004: a badge or ring on a black key is light
 const MIN_PRESSED_CONTRAST = 0.05; // SC-004: a pressed key differs from a free one in greyscale
@@ -362,7 +365,7 @@ async function practiceWithPiano(page: Page, size: { width: number; height: numb
   await page.locator('mx-view-panel input[data-layer="pianoKeys"]').check();
   await page.keyboard.press('Escape');
   await openPanel(page, 'scores');
-  await page.locator(`.library-item-open[data-id="${CMAJOR_ITEM}"]`).click();
+  await (await revealLibraryItem(page, CMAJOR_ITEM)).item.click();
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
   await startPracticeOnOpenScore(page);
   await expect(page.locator('mx-piano-keys')).toBeVisible();

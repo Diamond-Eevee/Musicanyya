@@ -105,7 +105,7 @@ assigned level:
 | 14 | Measures (written) | 8–16 | 8–32 | 16–96 | ≤ 250 |
 | 15 | Duration after repeat expansion | ≤ 60 s | ≤ 90 s | ≤ 240 s | ≤ 480 s |
 | 16 | Largest simultaneous interval in one hand (semitones) | ≤ 7 | ≤ 9 | ≤ 12 | ≤ 14, wider only under `<arpeggiate>` |
-| 17 | Largest leap in one hand between consecutive onsets | ≤ 12 | ≤ 12 | ≤ 24 | unlimited |
+| 17 | Largest leap in one hand between consecutive onsets | ≤ 12 (exercises 19, B8) | ≤ 12 (exercises 19) | ≤ 24 | unlimited |
 | 18 | Mean note density (notes/s) | ≤ 1.5 | ≤ 2.5 | ≤ 6 | ≤ 12 |
 | 19 | Peak note density (max notes/s in any 2 s window) | ≤ 3 | ≤ 5 | ≤ 12 | ≤ 24 |
 | 20 | Ties | none | within a bar or across one barline, chain ≤ 2 | any | any |
@@ -179,6 +179,9 @@ piece, which every criterion above still gates normally.
   (`LEVEL_KEY_CHANGE_EXERCISE_MAX`).
 - **B7 (criteria 1-2)**: for `kind: "exercise"` at Introduction and Beginner the span cap is 38 and the bounds are MIDI
   35-85 (`LEVEL_EXERCISE_PITCH_SPAN_SEMITONES_MAX`, `LEVEL_EXERCISE_PITCH_BOUNDS_MIDI`).
+- **B8 (criterion 17, decided 2026-09-26 during implementation)**: for `kind: "exercise"` at Introduction and Beginner the
+  largest leap is 19 semitones (`LEVEL_EXERCISE_MAX_LEAP_SEMITONES`): where the hands swap the right hand goes from the scale's
+  last note to a chord whose top is T+19.
 - **Introduction level** (new): the first column of the table above; every threshold constant lives in
   `src/core/defaults.ts` as a `LEVEL_*` record with an `introduction` entry.
 

@@ -109,6 +109,14 @@ export const en = {
     },
     /** Plain-language level criteria (FR-009, US3 scenario 1) - data-model.md §4's thresholds in
      *  words, not numbers, so a musician can judge fit without reading the constants table. */
+    /** The step of a key folder an item belongs to, numbered so the order reads at a glance (feature 011 FR-003). */
+    steps: {
+      introduction: '1 Introduction',
+      beginner: '2 Beginner',
+      intermediate: '3 Intermediate',
+      advanced: '4 Advanced',
+      song: 'Song',
+    },
     levelDescriptions: {
       introduction:
         'The first step: one hand plays a slow scale while the other holds one chord per bar, in a small range.',

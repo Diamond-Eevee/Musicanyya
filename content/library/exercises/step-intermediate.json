@@ -1,0 +1,368 @@
+{
+  "version": 1,
+  "family": "step-intermediate",
+  "form": "pattern",
+  "titleTemplate": "{key} - intermediate",
+  "section": "learning/keys/{key}",
+  "step": "intermediate",
+  "stepOrder": 0,
+  "fileStem": "intermediate",
+  "metre": "4/4",
+  "tempoBpm": 80,
+  "keys": [
+    {
+      "tonic": "C",
+      "mode": "major",
+      "fifths": 0
+    },
+    {
+      "tonic": "A",
+      "mode": "minor",
+      "fifths": 0
+    },
+    {
+      "tonic": "G",
+      "mode": "major",
+      "fifths": 1
+    },
+    {
+      "tonic": "E",
+      "mode": "minor",
+      "fifths": 1
+    },
+    {
+      "tonic": "D",
+      "mode": "major",
+      "fifths": 2
+    },
+    {
+      "tonic": "B",
+      "mode": "minor",
+      "fifths": 2
+    },
+    {
+      "tonic": "A",
+      "mode": "major",
+      "fifths": 3
+    },
+    {
+      "tonic": "F#",
+      "mode": "minor",
+      "fifths": 3
+    },
+    {
+      "tonic": "E",
+      "mode": "major",
+      "fifths": 4
+    },
+    {
+      "tonic": "C#",
+      "mode": "minor",
+      "fifths": 4
+    },
+    {
+      "tonic": "B",
+      "mode": "major",
+      "fifths": 5
+    },
+    {
+      "tonic": "G#",
+      "mode": "minor",
+      "fifths": 5
+    },
+    {
+      "tonic": "F#",
+      "mode": "major",
+      "fifths": 6
+    },
+    {
+      "tonic": "Eb",
+      "mode": "minor",
+      "fifths": -6
+    },
+    {
+      "tonic": "Db",
+      "mode": "major",
+      "fifths": -5
+    },
+    {
+      "tonic": "Bb",
+      "mode": "minor",
+      "fifths": -5
+    },
+    {
+      "tonic": "Ab",
+      "mode": "major",
+      "fifths": -4
+    },
+    {
+      "tonic": "F",
+      "mode": "minor",
+      "fifths": -4
+    },
+    {
+      "tonic": "Eb",
+      "mode": "major",
+      "fifths": -3
+    },
+    {
+      "tonic": "C",
+      "mode": "minor",
+      "fifths": -3
+    },
+    {
+      "tonic": "Bb",
+      "mode": "major",
+      "fifths": -2
+    },
+    {
+      "tonic": "G",
+      "mode": "minor",
+      "fifths": -2
+    },
+    {
+      "tonic": "F",
+      "mode": "major",
+      "fifths": -1
+    },
+    {
+      "tonic": "D",
+      "mode": "minor",
+      "fifths": -1
+    }
+  ],
+  "sections": [
+    {
+      "bars": 5,
+      "label": "A - right hand: {scale}, left hand: chords",
+      "right": {
+        "scale": {
+          "form": "melodic",
+          "shape": [1, 2, 3, 4, 5, 6, 7, 8, 8, 7, 6, 5, 4, 3, 2, 1, 1],
+          "value": "quarter",
+          "lastValue": "whole"
+        }
+      },
+      "left": {
+        "chords": [
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "V",
+            "duration": "half",
+            "inversion": 1
+          },
+          {
+            "degree": "I",
+            "duration": "half",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "I",
+            "duration": "half",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "IV",
+            "duration": "half",
+            "minor": {
+              "degree": "iv"
+            },
+            "inversion": 2
+          },
+          {
+            "degree": "IV",
+            "duration": "half",
+            "minor": {
+              "degree": "iv"
+            },
+            "inversion": 2
+          },
+          {
+            "degree": "V",
+            "duration": "half",
+            "inversion": 1
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "bars": 5,
+      "mirror": 0,
+      "label": "B - left hand: {scale}, right hand: chords",
+      "right": {
+        "mirror": true
+      },
+      "left": {
+        "mirror": true
+      }
+    },
+    {
+      "bars": 5,
+      "label": "C - both hands: chords and broken chords",
+      "right": {
+        "chords": [
+          {
+            "degree": "I",
+            "duration": "half",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "I",
+            "duration": "half",
+            "minor": {
+              "degree": "i"
+            },
+            "inversion": 1
+          },
+          {
+            "degree": "I",
+            "duration": "half",
+            "minor": {
+              "degree": "i"
+            },
+            "inversion": 2
+          },
+          {
+            "degree": "I",
+            "duration": "half",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "IV",
+            "duration": "half",
+            "minor": {
+              "degree": "iv"
+            },
+            "inversion": 2
+          },
+          {
+            "degree": "IV",
+            "duration": "half",
+            "minor": {
+              "degree": "iv"
+            },
+            "inversion": 1
+          },
+          {
+            "degree": "V",
+            "duration": "half",
+            "inversion": 1
+          },
+          {
+            "degree": "V",
+            "duration": "half"
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          }
+        ]
+      },
+      "left": {
+        "chords": [
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            },
+            "voicing": "broken"
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            },
+            "voicing": "broken"
+          },
+          {
+            "degree": "IV",
+            "duration": "whole",
+            "minor": {
+              "degree": "iv"
+            },
+            "voicing": "broken"
+          },
+          {
+            "degree": "V",
+            "duration": "whole",
+            "voicing": "broken"
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "supersedes": {
+    "c-major": ["learning/chords/changes/changes-tonic-inversions-c-major", "learning/chords/triads-c-major"],
+    "g-major": ["learning/chords/triads-g-major"],
+    "d-major": ["learning/chords/triads-d-major"],
+    "a-major": ["learning/chords/triads-a-major"],
+    "e-major": ["learning/chords/triads-e-major"],
+    "b-major": ["learning/chords/triads-b-major"],
+    "f-sharp-major": ["learning/chords/triads-f-sharp-major"],
+    "d-flat-major": ["learning/chords/triads-d-flat-major"],
+    "a-flat-major": ["learning/chords/triads-a-flat-major"],
+    "e-flat-major": ["learning/chords/triads-e-flat-major"],
+    "b-flat-major": ["learning/chords/triads-b-flat-major"],
+    "f-major": ["learning/chords/triads-f-major"],
+    "a-minor": ["learning/chords/triads-a-minor"],
+    "e-minor": ["learning/chords/triads-e-minor"],
+    "b-minor": ["learning/chords/triads-b-minor"],
+    "f-sharp-minor": ["learning/chords/triads-f-sharp-minor"],
+    "c-sharp-minor": ["learning/chords/triads-c-sharp-minor"],
+    "g-sharp-minor": ["learning/chords/triads-g-sharp-minor"],
+    "e-flat-minor": ["learning/chords/triads-e-flat-minor"],
+    "b-flat-minor": ["learning/chords/triads-b-flat-minor"],
+    "f-minor": ["learning/chords/triads-f-minor"],
+    "c-minor": ["learning/chords/triads-c-minor"],
+    "g-minor": ["learning/chords/triads-g-minor"],
+    "d-minor": ["learning/chords/triads-d-minor"]
+  },
+  "meta": {
+    "kind": "exercise",
+    "level": "intermediate",
+    "tags": ["scales", "chords", "chord-changes", "hands-together"],
+    "trains": "The scale against chords with inversions (I, V6, IV64), then chords in both hands over broken chords; the hands swap halfway.",
+    "hands": "both",
+    "provenance": {
+      "origin": "authored",
+      "licence": "CC0-1.0",
+      "author": "claude-sonnet-5",
+      "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, pattern form); never hand-edit the .musicxml/.json pair this produces."
+    },
+    "reviewedBy": "claude-sonnet-5",
+    "reviewedOn": "2026-09-26"
+  }
+}
