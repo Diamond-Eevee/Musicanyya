@@ -47,7 +47,7 @@ renders the tree in <= 50 ms on the reference machine; opening an item unchanged
 **Constraints**: generator, song builder and fidelity tools stay dev-only (layers test); every shelf file passes the
 existing licence, engraving, level, notice and audit checks; `index.json` regenerated, never hand-edited
 **Scale/Scope**: 24 keys x 4 steps = 96 generated items; 18 key-change folders x 3 steps = 54 items (R7, D-3); 5 moved
-drills; 9 songs (R9, D-1); 36 of today's 41 items superseded by generated successors (R12); ~164 items in total
+drills; 10 songs (R9 as built); 36 of today's 41 items superseded by generated successors (R12); ~164 items in total
 
 ## Constitution Check
 

@@ -44,7 +44,8 @@ Run the full quality gate before pushing:
 ### Practice Score Library
 
 Regenerate the bundled library after editing its content:
-`pnpm library:exercises` (chord exercises and drills from `content/library/exercises/*.json`), then
+`pnpm library:exercises` (the steps of every key, the key changes and the chord drills from `content/library/exercises/*.json`), then
+`pnpm library:songs` (the songs from `content/library/songs/*.json` and the approved public-domain sources), then
 `pnpm library:engrave` (completes hand-written repertoire files with beams and accidentals in place), then
 `pnpm library:index` (rebuilds `public/library/index.json` from the files on disk).
 

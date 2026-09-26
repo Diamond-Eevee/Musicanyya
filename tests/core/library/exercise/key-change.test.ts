@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { generateKeyChangeFamily } from '../../../../src/core/library/exercise/generate.js';
 import type { ExerciseDefinition, ExerciseKey } from '../../../../src/core/library/exercise/types.js';
@@ -213,12 +215,11 @@ describe('generateKeyChangeFamily: parallel change (C major -> C minor)', () => 
   });
 });
 
-describe('generateKeyChangeFamily: ties (Intermediate step only)', () => {
-  /** C major's tonic triad (C E G) and A minor's tonic triad (A C E) share two tones (C, E) - the classic
-   *  relative-key pivot relationship - so the register rule's own bass window naturally lands both chords on the
-   *  same C5/E5 pair without any chained voice-leading logic: an ideal, reliably common tone to test ties on. */
-  function intermediateDefinition(): ExerciseDefinition {
-    return relativeDefinition({
+describe('generateKeyChangeFamily: nothing is tied across the change (music review 2026-09-26)', () => {
+  // Each chord is fingered on its own (1-3-5, 1-2-5 ...), so a common tone held over the barline would have to change finger
+  // while it is down: not playable. The Intermediate items re-strike every chord instead; the common tones are still there.
+  it('an Intermediate key change writes no tie, and the common tones (C, E of C major and A minor) are struck again', () => {
+    const definition = relativeDefinition({
       step: 'intermediate',
       sections: [
         {
@@ -236,20 +237,59 @@ describe('generateKeyChangeFamily: ties (Intermediate step only)', () => {
         },
       ],
     });
-  }
-
-  it('ties the tones the two tonic triads share across the change (C, E), keeping their pitch', () => {
-    const xml = only(generateKeyChangeFamily(intermediateDefinition(), '2026-09-26')).xml;
+    const xml = only(generateKeyChangeFamily(definition, '2026-09-26')).xml;
+    expect(xml).not.toContain('<tie');
     const notes = notesOf(xml);
-    // bar 1 = I of C major (C5 E5 G5); bar 2 = i6 of A minor (C5 E5 A5, first inversion): C5 and E5 are common.
     expect(pitches(notes, 1, 1)).toEqual(expect.arrayContaining([72, 76]));
     expect(pitches(notes, 1, 2)).toEqual(expect.arrayContaining([72, 76]));
-    expect(xml).toContain('<tie type="start"/>');
-    expect(xml).toContain('<tie type="stop"/>');
   });
 
-  it('does not tie anything for Introduction/Beginner (the default step)', () => {
-    const xml = only(generateKeyChangeFamily(relativeDefinition(), '2026-09-26')).xml;
-    expect(xml).not.toContain('<tie');
+  it('none of the 108 generated key-change files has a tie', () => {
+    for (const relation of ['relative', 'parallel']) {
+      for (const step of ['introduction', 'beginner', 'intermediate']) {
+        const definition = JSON.parse(
+          readFileSync(resolve(`content/library/exercises/key-change-${relation}-${step}.json`), 'utf8'),
+        ) as ExerciseDefinition;
+        for (const item of generateKeyChangeFamily(definition, '2026-09-26'))
+          expect(item.xml, `${item.section} ${step}`).not.toContain('<tie');
+      }
+    }
+  });
+});
+
+// Constitution audit follow-up (T040 was built with its tests): which parallel changes write a <cancel>. Planting "always
+// cancel" or "never cancel" in `cancelFifths` must turn this red. MusicXML 4.0: the naturals of the old signature are shown
+// when the new one has fewer accidentals in the same direction, flips direction, or has none; a signature that only adds
+// accidentals, or comes from none, cancels nothing.
+describe('the <cancel> of every parallel key change (audit follow-up)', () => {
+  const EXPECTED_CANCEL: Record<string, number | null> = {
+    'c-major-to-c-minor': null, // 0 -> -3: from no signature
+    'c-minor-to-c-major': -3, // -3 -> 0
+    'g-major-to-g-minor': 1, // +1 -> -2: direction flips
+    'g-minor-to-g-major': -2, // -2 -> +1
+    'f-major-to-f-minor': null, // -1 -> -4: only more flats
+    'f-minor-to-f-major': -4, // -4 -> -1: fewer flats
+    'd-major-to-d-minor': 2, // +2 -> -1
+    'd-minor-to-d-major': -1, // -1 -> +2
+    'a-minor-to-a-major': null, // 0 -> +3
+    'a-major-to-a-minor': 3, // +3 -> 0
+  };
+
+  const definition = JSON.parse(
+    readFileSync(resolve('content/library/exercises/key-change-parallel-introduction.json'), 'utf8'),
+  ) as ExerciseDefinition;
+  const items = generateKeyChangeFamily(definition, '2026-09-26');
+
+  it('covers all ten parallel pairs', () => {
+    expect(items.map((i) => i.section.replace('learning/key-changes/', '')).sort()).toEqual(
+      Object.keys(EXPECTED_CANCEL).sort(),
+    );
+  });
+
+  it.each(Object.entries(EXPECTED_CANCEL))('%s writes cancel %s', (slug, cancel) => {
+    const item = items.find((i) => i.section.endsWith(`/${slug}`));
+    if (!item) throw new Error(`no item ${slug}`);
+    const cancels = [...item.xml.matchAll(/<cancel>(-?\d+)<\/cancel>/g)].map((m) => Number(m[1]));
+    expect(cancels).toEqual(cancel === null ? [] : [cancel]);
   });
 });

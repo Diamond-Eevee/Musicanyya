@@ -173,6 +173,11 @@ gives (V resolves deceptively to VI). The earlier log does not record why; it is
 The theory check's claims (`exercise-claims.ts`) state these sequences. Open for the music review (T081): whether a relative
 change without the dominant is acceptable teaching material, or whether the owner wants the span cap raised for key changes.
 
+**Ties dropped (2026-09-26, music review)**: the Intermediate key-change items no longer tie the common tones across bars. Each
+chord is fingered on its own, so a tied key would have to change finger while held, which no learner can do (the review found
+it in all 18 files); every chord is struck again and the common tones stay visible. The parallel and relative `trains` texts
+say what the pieces do (relative Intermediate: voice-leading through the shared tones, there is no pivot chord in it).
+
 Folders: 16 chosen by the owner, plus **A minor <-> A major** so `a-minor-major` has a home (spec FR-014 names it, FR-015
 did not list A) - part of **D-3**. `facts.keys` must not count a same-fifths relative change as a key change; the fact
 scanner already de-duplicates consecutive equal names.

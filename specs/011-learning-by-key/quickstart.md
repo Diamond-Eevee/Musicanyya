@@ -5,7 +5,7 @@
 ```bash
 pnpm install
 pnpm library:exercises        # regenerate every exercise (keys, key changes, moved drills) from content/library/exercises
-pnpm library:songs            # build the songs from content/library/songs + approved sources (needs D-1)
+pnpm library:songs            # build the songs from content/library/songs + approved sources
 pnpm library:engrave          # no-op for generated files; completes any hand-edited file
 pnpm library:index            # rewrite public/library/index.json; refuses on level, step-order or successor errors
 pnpm library:fidelity         # re-run every audit record, rewrite docs/library-audit.md

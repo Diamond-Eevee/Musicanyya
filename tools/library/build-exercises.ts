@@ -4,6 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { generateFamily } from '../../src/core/library/exercise/generate.js';
 import type { ExerciseDefinition } from '../../src/core/library/exercise/types.js';
 import { hashFile } from '../../src/engine/files/hash.js';
+import { keepStamps } from './stamps.js';
 import { SUCCESSORS } from './successors.js';
 
 /** Reads every `content/library/exercises/*.json` definition (contracts/exercise-definition.md, 1.1.0) and
@@ -76,7 +77,8 @@ export async function buildExercises(
       }
 
       const supersedes = await supersedesOf(`${item.section}/${item.fileStem}`, item.supersedes, libraryRoot);
-      const meta = supersedes.length > 0 ? { ...item.meta, supersedes } : item.meta;
+      const stamped = keepStamps(item.meta, sidecarPath, generatedOn);
+      const meta = supersedes.length > 0 ? { ...stamped, supersedes } : stamped;
       fs.writeFileSync(xmlPath, item.xml);
       fs.writeFileSync(sidecarPath, `${JSON.stringify(meta, null, 2)}\n`);
       written.push(path.relative(libraryRoot, xmlPath));

@@ -850,7 +850,7 @@
           "soundingKey": 52
         }
       ],
-      "scheduleDigest": "470dd7e489d54d7e38763a5870377d2d58fb598237024ffea089637178d51861"
+      "scheduleDigest": "12d71b2ec6f10e5a41412a6dff18ec8de3688d517fc3a4acb967787a14a47059"
     },
     {
       "file": "learning/key-changes/a-major-to-a-minor/introduction.musicxml",
@@ -2212,7 +2212,7 @@
           "soundingKey": 52
         }
       ],
-      "scheduleDigest": "10827d3d5ab21b87aedcc9a722f5db767fdadaca4b02c109919bc8ff58f1797e"
+      "scheduleDigest": "d5096df56abceeb3a3ac4f1f891efd101524b5f4ee96559fb6eb9680d7461e7e"
     },
     {
       "file": "learning/key-changes/a-minor-to-a-major/introduction.musicxml",
@@ -3958,7 +3958,7 @@
           "soundingKey": 55
         }
       ],
-      "scheduleDigest": "16e2a3b43b29f48cf9f48eaa149a1566d20989f9d61526b879f0d05608fcbaaa"
+      "scheduleDigest": "7c2b37836f9a485a766c9693d2e31947a62743bad50e02a416c42fbb1859b09a"
     },
     {
       "file": "learning/key-changes/a-minor-to-c-major/introduction.musicxml",
@@ -5320,7 +5320,7 @@
           "soundingKey": 57
         }
       ],
-      "scheduleDigest": "4c841c8c85645cbec5212f2101da36a83b79dd189230876bc4324ab84e9de876"
+      "scheduleDigest": "0fa06a2231f50ec20e18a0b6856d640ad197b45a0c5291dae35e68391916f24e"
     },
     {
       "file": "learning/key-changes/b-minor-to-d-major/introduction.musicxml",
@@ -6682,7 +6682,7 @@
           "soundingKey": 52
         }
       ],
-      "scheduleDigest": "8fc29484b09aa1ffd0659f5f9fb11e51b8c70eb3506908109eb81ea20508c7af"
+      "scheduleDigest": "a73fd61ada3bba40cc38897b562d608e0b7ab8d527a37362370e80cf13c2c238"
     },
     {
       "file": "learning/key-changes/c-major-to-a-minor/introduction.musicxml",
@@ -8044,7 +8044,7 @@
           "soundingKey": 55
         }
       ],
-      "scheduleDigest": "269fb72d19fe7948f828fd66885c8d7c2cd0ccf6ee094e1ec289c9f673be7271"
+      "scheduleDigest": "e4feae78480e3447f3649ef11b63f01a6169e4fda8231730859437078967519c"
     },
     {
       "file": "learning/key-changes/c-major-to-c-minor/introduction.musicxml",
@@ -9790,7 +9790,7 @@
           "soundingKey": 55
         }
       ],
-      "scheduleDigest": "5ab764c9270839b9dd6e0c5ce4b190250c26cdf916e8f0a2e312b3b18af284c8"
+      "scheduleDigest": "af09fde74c22a8ae3456e123e55805ed0beae89b7580968ef47af3c17dea2cd1"
     },
     {
       "file": "learning/key-changes/c-minor-to-c-major/introduction.musicxml",
@@ -11152,7 +11152,7 @@
           "soundingKey": 54
         }
       ],
-      "scheduleDigest": "1a3956ba999007d9ea5e4a8bd4d4a2cf94b15fa5dbebec2ccb0bf5f85f5a14d8"
+      "scheduleDigest": "cc46c0066d6b4c1a65868c99f749f671a7709eeac1c18aec725a6c6548e66cbd"
     },
     {
       "file": "learning/key-changes/d-major-to-b-minor/introduction.musicxml",
@@ -12514,7 +12514,7 @@
           "soundingKey": 57
         }
       ],
-      "scheduleDigest": "b53d24e32f59f4083854b1843c17d6ef0733bef6c7136b193d37c9999543396d"
+      "scheduleDigest": "f141daf51a72bcfcc10d67c919f67187e1c8913d9dad66e49d57507c0e25283c"
     },
     {
       "file": "learning/key-changes/d-major-to-d-minor/introduction.musicxml",
@@ -13876,7 +13876,7 @@
           "soundingKey": 57
         }
       ],
-      "scheduleDigest": "7600f749ea5f7463f6563366a54e8f5d091cf4b60091b2ea34d074f9e1efa691"
+      "scheduleDigest": "a76673322d6b5cd5bd59c62d6f8552e3b13a78967034c641c65aa2088b922d93"
     },
     {
       "file": "learning/key-changes/d-minor-to-d-major/introduction.musicxml",
@@ -15238,7 +15238,7 @@
           "soundingKey": 60
         }
       ],
-      "scheduleDigest": "ca078cdeddb5767e6cb712203fdaddbe6ddb7143899aae19396546b7309bb9cd"
+      "scheduleDigest": "9c3a682ac7c1b64564c090096879710d4e954af77b4ece698eb46f8f81f6019b"
     },
     {
       "file": "learning/key-changes/d-minor-to-f-major/introduction.musicxml",
@@ -16600,7 +16600,7 @@
           "soundingKey": 50
         }
       ],
-      "scheduleDigest": "898221b1a2f5a382d3e36a9d0e91de2a1e2ab35186ca5712130dbd06324dab8f"
+      "scheduleDigest": "229ecdb26aa2c135b29a7c250dbc691c29e6b0fc63038c9ded0e7a430ad4f48b"
     },
     {
       "file": "learning/key-changes/e-minor-to-g-major/introduction.musicxml",
@@ -17962,7 +17962,7 @@
           "soundingKey": 57
         }
       ],
-      "scheduleDigest": "0f304c2435ba67e6f1487bd0ba33c44663c3918a893ff541167b019609e7b8db"
+      "scheduleDigest": "e835fa4d60963fb180ae0f809861366e7d65bd9b55515149554f99d1f6cc955b"
     },
     {
       "file": "learning/key-changes/f-major-to-d-minor/introduction.musicxml",
@@ -19324,7 +19324,7 @@
           "soundingKey": 60
         }
       ],
-      "scheduleDigest": "c3794b7baffc370332645e37bbdb9023bd13536cafa9b36525d841426dda23a0"
+      "scheduleDigest": "b93d74fcba9f53a7df203c9e5714d541de8bc885d1ec384aad76898239cf7a99"
     },
     {
       "file": "learning/key-changes/f-major-to-f-minor/introduction.musicxml",
@@ -20686,7 +20686,7 @@
           "soundingKey": 60
         }
       ],
-      "scheduleDigest": "d72aef10fcce77305cfc1f915e3e09d2bf4c329c66a88cd032b67b58570cd3a2"
+      "scheduleDigest": "8f8be4e7ab910d80800cb4df2b652fc00174824246c168d59ad5130c3d9e1554"
     },
     {
       "file": "learning/key-changes/f-minor-to-f-major/introduction.musicxml",
@@ -22048,7 +22048,7 @@
           "soundingKey": 47
         }
       ],
-      "scheduleDigest": "b5ff11b585a4068a9b6eb210fd9183f84ab19c9a97e465210520d69e5238cdf5"
+      "scheduleDigest": "5e68ba4d1032cc2794c1df40748435f20ca3b5913e8ce0e0c8013ea1c4775ac4"
     },
     {
       "file": "learning/key-changes/g-major-to-e-minor/introduction.musicxml",
@@ -23410,7 +23410,7 @@
           "soundingKey": 50
         }
       ],
-      "scheduleDigest": "ba4294509944499e1646540141b7683b5a6e9028837a688e03d50a4140300ded"
+      "scheduleDigest": "962c3655c1b83a2cab0c055362d47c8a915f13b28b3a4b97e5d9ce4fd178f429"
     },
     {
       "file": "learning/key-changes/g-major-to-g-minor/introduction.musicxml",
@@ -24772,7 +24772,7 @@
           "soundingKey": 50
         }
       ],
-      "scheduleDigest": "81f1173037a61beb1359cb60f2b0a153060cc60c6973728ef1eeb8eb5c8b95ef"
+      "scheduleDigest": "fcf6dc30cf265d3358f1a186da78c9fca39ec406a323b165229a5bdef614ea12"
     },
     {
       "file": "learning/key-changes/g-minor-to-g-major/introduction.musicxml",

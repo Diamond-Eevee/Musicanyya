@@ -4,7 +4,7 @@
   "kind": "exercise",
   "level": "intermediate",
   "tags": ["scales", "chords", "chord-changes", "hands-together"],
-  "trains": "The scale against chords with inversions (I, V6, IV64), then chords in both hands over broken chords; the hands swap halfway.",
+  "trains": "The scale against chords with inversions (I, V6, IV64; in minor i, V6, iv64), then the hands swap, then chords in one hand over broken chords in the other.",
   "hands": "both",
   "provenance": {
     "origin": "authored",

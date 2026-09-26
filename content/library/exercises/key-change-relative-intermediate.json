@@ -270,7 +270,7 @@
     "kind": "exercise",
     "level": "intermediate",
     "tags": ["key-changes"],
-    "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic.",
+    "trains": "Moving between relative keys by voice-leading through the tones the two keys share, arriving on the new tonic.",
     "hands": "both",
     "provenance": {
       "origin": "authored",

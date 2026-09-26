@@ -183,17 +183,17 @@ folder; recent scores keep opening their copy.
 
 ## Phase 7: Polish & Cross-Cutting
 
-- [ ] T074 [P] `public/library/README.md`: the new shelf layout, the song builder, `supersedes`, the step-order check; the 24-key and chord-change paragraph rewritten for the step definitions
-- [ ] T075 [P] `specs/005-practice-score-library/data-model.md` §2 shelf tree and §4 level table point to 011 (Introduction level, D-2 changes) so the canonical documents agree
-- [ ] T076 [P] `docs/musicxml-support.md`: confirm no row changes (key changes mid-piece, `<cancel>` and light-light barlines already supported); if Verovio or the parser needed anything, update the row and `SUPPORT_MATRIX`
-- [ ] T077 [P] `quickstart.md`, `README.md` and the toolchain section of `docs/agents/reference.md`: `pnpm library:songs`
-- [ ] T078 Shelf size: `tests/library` budget test still passes with ~164 items; index size recorded in the log (research R13)
-- [ ] T079 Run every quickstart.md manual verification with `pnpm screenshot`, look at each PNG, describe it in the log
-- [ ] T080 Constitution review of the branch with the `constitution-auditor` agent; findings summarised in the log and fixed or turned into tasks
-- [ ] T081 Music review of the step definitions, key-change definitions and song chord plans with the `music-domain-expert` agent (musical correctness, fingering, levels); findings summarised in the log and fixed or turned into tasks
-- [ ] T088 Electron Shell (FR-023): `pnpm test:e2e` includes the Electron specs; add to `tests/e2e/electron-smoke.spec.ts` an assertion that the packaged shelf opens `learning/keys/c-major/introduction` from the library panel (analyze A7)
-- [ ] T082 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` - summary lines in the log
-- [ ] T083 SC-005 learner test: the owner (or three people) plays the C major Introduction hands together in Practice mode once; wrong-note counts recorded in the log. Needs the owner; does not block merge readiness of the other tasks but SC-005 is unmet until done
+- [x] T074 [P] `public/library/README.md`: the new shelf layout, the song builder, `supersedes`, the step-order check; the 24-key and chord-change paragraph rewritten for the step definitions
+- [x] T075 [P] `specs/005-practice-score-library/data-model.md` §2 shelf tree and §4 level table point to 011 (Introduction level, D-2 changes) so the canonical documents agree
+- [x] T076 [P] `docs/musicxml-support.md`: confirm no row changes (key changes mid-piece, `<cancel>` and light-light barlines already supported); if Verovio or the parser needed anything, update the row and `SUPPORT_MATRIX`
+- [x] T077 [P] `quickstart.md`, `README.md` and the toolchain section of `docs/agents/reference.md`: `pnpm library:songs`
+- [x] T078 Shelf size: `tests/library` budget test still passes with ~164 items; index size recorded in the log (research R13)
+- [x] T079 Run every quickstart.md manual verification with `pnpm screenshot`, look at each PNG, describe it in the log
+- [x] T080 Constitution review of the branch with the `constitution-auditor` agent; findings summarised in the log and fixed or turned into tasks
+- [x] T081 Music review of the step definitions, key-change definitions and song chord plans with the `music-domain-expert` agent (musical correctness, fingering, levels); findings summarised in the log and fixed or turned into tasks
+- [x] T088 Electron Shell (FR-023): `pnpm test:e2e` includes the Electron specs; add to `tests/e2e/electron-smoke.spec.ts` an assertion that the packaged shelf opens `learning/keys/c-major/introduction` from the library panel (analyze A7)
+- [x] T082 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` - summary lines in the log
+- [ ] T083 SC-005 learner test (open: needs the owner, see the log): the owner (or three people) plays the C major Introduction hands together in Practice mode once; wrong-note counts recorded in the log. Needs the owner; does not block merge readiness of the other tasks but SC-005 is unmet until done
 
 ## Dependencies & Execution Order
 

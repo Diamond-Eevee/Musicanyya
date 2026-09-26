@@ -26,6 +26,7 @@ import { loadSources, type SourceManifest, sourceFile } from './fidelity/sources
 import { add, cmp, type QuarterTime, q, show, sub } from './fidelity/time.js';
 import { readLilyPond, readWritten } from './lilypond/read.js';
 import { type SongChordEntry, type SongDefinition, validateSongDefinition } from './songs/definition.js';
+import { keepStamps } from './stamps.js';
 
 export interface BuildSongOptions {
   /** The approved sources (`loadSources`), by id. */
@@ -584,7 +585,9 @@ export async function buildSongs(
     const xmlPath = join(libraryRoot, `${built.id}.musicxml`);
     mkdirSync(dirname(xmlPath), { recursive: true });
     writeFileSync(xmlPath, built.xml);
-    writeFileSync(join(libraryRoot, `${built.id}.json`), `${JSON.stringify(built.sidecar, null, 2)}\n`);
+    const sidecarPath = join(libraryRoot, `${built.id}.json`);
+    const sidecar = keepStamps(built.sidecar, sidecarPath, generatedOn);
+    writeFileSync(sidecarPath, `${JSON.stringify(sidecar, null, 2)}\n`);
     written.push(relative(libraryRoot, xmlPath));
   }
   if (only !== undefined && written.length === 0) throw new Error(`no song definition has the id ${only}`);

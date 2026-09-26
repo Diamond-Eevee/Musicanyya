@@ -362,3 +362,53 @@
 - Handoff: next = Polish T074-T083, T088 (docs T074-T077, shelf size T078, quickstart screenshots T079, constitution audit T080, music review of the
   step and key-change definitions T081, Electron spec T088, full gate T082); T083 needs the owner and cannot be done by an agent. Tree clean at the
   checkpoint commit.
+
+## 2026-09-26 23:30 - claude-sonnet-5 (Polish, final gate)
+- Owner instruction for this run: "to the very end, go with recommended if there will be questions". No question was needed in Polish.
+- Done: T074-T082 and T088. **T083 (SC-005 learner test) stays open: it needs the owner (or three people) to play the C major Introduction
+  hands together in Practice mode once and report the wrong-note counts. SC-005 is unmet until then; nothing else waits for it.**
+- Docs (T074-T077): `public/library/README.md` (the shelf tree, steps and `stepOrder`, generated steps and key changes, songs and
+  `pnpm library:songs`, `supersedes`, audit records), 005 `data-model.md` §2 (points to 011's tree), `README.md`, `docs/agents/reference.md` and
+  `quickstart.md` (`pnpm library:songs`), plan.md (10 songs). T076: `docs/musicxml-support.md` needs no row: mid-piece `<key>` is covered by the
+  existing `<key>` row and `<cancel>` is only engraved (never read); the songs' `<words>` chord names are ordinary directions.
+- T078 shelf size: 181 items, `public/library/index.json` 516,046 bytes (R13 estimated ~420 KB for ~160 items), whole library 5.49 MB of the 10 MiB
+  budget; loading the index costs `JSON.parse` 1.4 ms + `parseLibraryIndex` 2.1 ms (Node); the 200-item render budget tests pass.
+- T079 quickstart manual checks with `pnpm screenshot`, looked at: `learning/keys/c-major/introduction` (tempo 60, section label "A - right hand: major
+  scale, left hand: chords", RH scale in quarters with fingering over LH I V I V, no notices), `g-sharp-minor/introduction` (5 sharps in both staves,
+  F double sharp on every occurrence, "harmonic minor" in the label, no notices), `f-sharp-major/introduction` (no notices); US2 and US3 pictures are
+  in the earlier entries. The panel tree (quickstart US1 steps 1-2) is asserted by the e2e, US4 by the unit tests and the new e2e. Step 5 of US1
+  (Practice: the held chord never re-struck) follows from the generated files (hand independence 0, whole-note chords) and was not driven by hand.
+- T088: `tests/e2e/electron-smoke.spec.ts` now opens Learning > Keys > C major > 1 Introduction from the packaged app's library panel (2 passed, 3
+  runs in a row). Its `beforeAll` launched Electron without its own user-data directory and lost the single-instance lock whenever another instance
+  was still closing (it failed every second run); it now uses a temp directory like `library.spec.ts` does. The app was rebuilt (`vite build` x2) first.
+- **T080 constitution audit** (`constitution-auditor`): COMPLIANT WITH NOTES, no CRITICAL or HIGH. Layers, RT-safety (no audio path touched), no
+  framework, no new dependency, licences and Conventional Commits all pass. Findings and what I did:
+  - MEDIUM determinism: `pnpm library:exercises`/`library:songs` stamped today's date into every regenerated sidecar. Fixed: `tools/library/stamps.ts`
+    keeps the stamps of the sidecar on disk when the new one would only be today's date; new `tests/library/regeneration.test.ts` copies the committed
+    shelf, regenerates every exercise and song with the date 2099-01-01 and requires MusicXML byte-equal and sidecars equal as data (it failed for the
+    songs before the fix, so it does test the property).
+  - MEDIUM test-first (T040 was built with its tests, said so in its entry): mutation check instead of a claimed red-first cycle. Planted in the
+    key-change code: `<cancel>` after `<fifths>` (3 tests red), no cancel when arriving in C major (4 red), cancel always (**survived: nothing asserted
+    which parallel pairs cancel**). New test "the `<cancel>` of every parallel key change" lists all ten directions; with it the surviving mutant goes red
+    (1) and the second one 3; all three restored, files verified unchanged.
+  - LOW: the "Criterion 27" comment in `defaults.ts` was above the wrong constant (moved). Accepted, not changed: about 68 `as X` casts on indexed access
+    (the code is in range by construction; no `!` and no `@ts-ignore` were added), content-shape constants next to the code (not timing tolerances), the
+    panel's `learning/key-changes/` prefix for the relation word (noted for a future `relation` field), the vocabulary term "Step".
+  - One unexplained one-off: the first mutation-baseline run of `tests/core/library/exercise tests/core/musicxml` showed 1 failed / 699 passed; it did not
+    repeat (4 full `pnpm test` runs since: 3846 passed each). Recorded, not understood.
+- **T081 music review** (`music-domain-expert`, about 13 files read in full): spelling, accidentals, chord contents, `<cancel>` and the scale and triad
+  fingering are all correct. Acted on: **A1** - the Intermediate key-change items tied common tones across bars while each chord is fingered on its own
+  (a held key would have to change finger, e.g. C5 1 then 3): the tie code (`tieAdjacentChords`) is removed, every chord is struck again, a test asserts no
+  tie in the 18 x 3 x 2 generated key-change files; the 18 Intermediate items and their identity-golden entries changed, nothing else (compared before
+  regenerating the golden); **A3/A4** - wording of `trains` fixed (Advanced "vi or ii; VI or iv in minor" was called "the minor chord"; Intermediate
+  numerals for minor keys and "the hands swap halfway"; the relative Intermediate has no pivot chord). Recorded, not changed (taste or owner decisions):
+  **A2** the F sharp keys' IV chord and the g-major-to-e-minor V chord reach B1 = MIDI 35, below a 61-key controller's C2 (35 is the lower bound the
+  owner set in D-2 B7; a V6 fix at that one spot would put an augmented second in the bass line); **B1** relative Introduction/Beginner without the
+  dominant of the new key (owner: keep as built; the reviewer's V6-of-the-new-key alternative stays inside the span cap by the reviewer's reasoning, not
+  tried); **B2** key-change Beginner differs from Introduction mainly by tempo; **B3** Advanced minor returns to harmonic minor after Intermediate's
+  melodic; **B4** no parallel-hands scale at Advanced; **B5** the RH scale starts in octave 3 in 12 of 24 keys (ledger lines); **B7** inversion labels are
+  hand-local (I6 over an RH chord whose LH plays the root); **B8** the source-backed starting fingers of Ab, Eb, Bb and the sharp minors differ from the
+  common 3-3-4-3; and the "hands-separate" tag on Introduction. None of these is an error of notes or fingering.
+- Evidence: full gate after the last change: `pnpm lint` -> 0 errors, 282 warnings (baseline); `pnpm typecheck` clean; `pnpm test` -> `Test Files 223 passed (223)  Tests 3846 passed (3846)` (twice); `pnpm test:e2e` -> `484 skipped, 816 passed (8.4m)`, exit 0, none failed; `pnpm library:fidelity` -> `182 records, 0 failed`; `pnpm library:index` 181 items, 49 sections.
+- Handoff: everything but T083 is done; the branch is ready to merge once the owner has done T083 or accepts SC-005 as open (AGENTS §7: merge only
+  when asked). Not pushed, not merged.

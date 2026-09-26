@@ -12,7 +12,6 @@ import type {
   WritePitch,
 } from '../../musicxml/write.js';
 import { writeScoreXml } from '../../musicxml/write.js';
-import { getMidiKey } from '../../pitch.js';
 import type { ItemMetadata } from '../types.js';
 import { chordTones, invertOrder, pitchClassOfTone, tonicPitchClass } from './degrees.js';
 import { assertFingeringLength, triadFingering } from './fingering.js';
@@ -766,39 +765,9 @@ interface PatternRender {
   firstKey: ExerciseKey;
 }
 
-/** Key-change form only (contracts/exercise-definition 1.1 §3): ties any note whose pitch matches the same hand's
- *  note in the next bar - the common-tone voice-leading the Intermediate step uses across its whole progression,
- *  not just at the arrival (research R7). A no-op for every other form (never called). */
-function tieAdjacentChords(right: WriteEvent[][], left: WriteEvent[][]): void {
-  const midiOf = (e: WriteEvent): number | undefined =>
-    e.kind === 'note' && e.note.pitch
-      ? getMidiKey(e.note.pitch.step, e.note.pitch.alter ?? 0, e.note.pitch.octave)
-      : undefined;
-  for (const bars of [right, left]) {
-    for (let i = 0; i + 1 < bars.length; i++) {
-      const here = bars[i] ?? [];
-      const next = bars[i + 1] ?? [];
-      for (const a of here) {
-        if (a.kind !== 'note') continue;
-        const am = midiOf(a);
-        if (am === undefined) continue;
-        for (const b of next) {
-          if (b.kind !== 'note' || midiOf(b) !== am) continue;
-          a.note.tie = { ...a.note.tie, start: true };
-          b.note.tie = { ...b.note.tie, stop: true };
-        }
-      }
-    }
-  }
-}
-
 /** Lays the hands' segments out bar by bar and writes the completed file. Section barlines, the tempo mark and the words
- *  directions come from the definition. Shared by the pattern and key-change forms; `applyTies` (key-change Intermediate
- *  only) runs on the finished per-bar note lists, before they are placed into measures. */
-function renderPattern(
-  render: PatternRender,
-  applyTies?: (right: WriteEvent[][], left: WriteEvent[][]) => void,
-): string {
+ *  directions come from the definition. Shared by the pattern and key-change forms. */
+function renderPattern(render: PatternRender): string {
   const { definition, sections, firstKey, title } = render;
   const barTicks = measureTicks(definition.metre);
   const streams: Record<HandName, Segment[]> = { right: [], left: [] };
@@ -854,7 +823,6 @@ function renderPattern(
   };
   const right = cut('right');
   const left = cut('left');
-  applyTies?.(right, left);
 
   const measures: WriteMeasure[] = [];
   let previousKey: ExerciseKey | undefined;
@@ -947,7 +915,7 @@ function pairSlug(pair: KeyPair): string {
  *  the *pivot* chord degree is the major-key spelling of the shared triad, its `.minor` override the minor-key
  *  spelling of that same triad, resolved by whichever of the pair is actually minor); `renderPattern` (shared with
  *  the pattern form) writes the new `<key>`/`<cancel>` itself once the section's key actually has different fifths,
- *  and ties the Intermediate step's common tones through `applyTies`. */
+ *  (no note is tied across the change: a held key cannot change finger, music review 2026-09-26). */
 export function generateKeyChangeFamily(definition: ExerciseDefinition, generatedOn: string): GeneratedExerciseItem[] {
   if (definition.form !== 'key-change')
     throw new Error(`${definition.family}: generateKeyChangeFamily needs form "key-change"`);
@@ -958,14 +926,13 @@ export function generateKeyChangeFamily(definition: ExerciseDefinition, generate
   }
   const pairs = definition.keyPairs;
   if (!pairs || pairs.length === 0) throw new Error(`${definition.family}: the key-change form needs \`keyPairs\``);
-  const applyTies = definition.step === 'intermediate' ? tieAdjacentChords : undefined;
   return pairs.map((pair) => {
     const slug = pairSlug(pair);
     const sections = resolveSections(definition, (section) => (section.inKey === 'to' ? pair.to : pair.from));
     const title = definition.titleTemplate
       .replace('{from}', displayKeyName(pair.from))
       .replace('{to}', displayKeyName(pair.to));
-    const xml = renderPattern({ title, definition, sections, firstKey: pair.from }, applyTies);
+    const xml = renderPattern({ title, definition, sections, firstKey: pair.from });
     return { ...identityOf(definition, slug), xml, meta: buildMeta(definition, title, generatedOn) };
   });
 }

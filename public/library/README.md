@@ -83,6 +83,37 @@ This walks the tree, validates every sidecar, loads every score through the app'
 the display facts and the level check, and rewrites `index.json`. Commit the regenerated file.
 `tests/library/index.test.ts` fails if the committed file and a fresh regeneration disagree (FR-025).
 
-The 24-key chord exercises and the chord-change drills are generated from
-`content/library/exercises/*.json` by `pnpm library:exercises` - edit the definition, not the
-generated `.musicxml` files, and regenerate.
+## The shelf: keys, key changes, songs, repertoire (feature 011)
+
+```text
+learning/
+  keys/<key>/                24 folders (C major, A minor, G major, ... circle of fifths, each major followed by its relative minor)
+    introduction  beginner  intermediate  advanced     the four generated steps of that key
+    <extra>                  C major only: three Advanced chord-loop extras (stepOrder 10, 20, 30)
+    song-<name>              songs: a public-domain tune in the right hand, our block chords in the left
+  key-changes/<from>-to-<to>/   18 folders (relative and parallel pairs); introduction, beginner, intermediate, and the
+                                two same-tonic drills (major-and-minor, minor-and-major) as extras
+repertoire/{beginner,intermediate,advanced}/    pieces
+```
+
+Every item under `learning/keys/` and `learning/key-changes/` has a `step` (`introduction`, `beginner`, `intermediate`,
+`advanced` or `song`) and a `stepOrder` (0 for the main step, 10, 20 ... for extras and songs). `pnpm library:index`
+refuses to write the index when a step is missing or misplaced, when two items share `(step, stepOrder)` in a folder, or
+when the step-order check finds a later step that is not harder than the one before it (tempo, notes per beat, hand
+independence and chord changes per bar must not fall, and at least one must rise).
+
+- **Generated steps and key changes**: `content/library/exercises/step-*.json` (the four steps, 24 keys each) and
+  `key-change-*.json` (18 pairs each) are read by `pnpm library:exercises`; edit the definition, never the generated
+  `.musicxml`, and regenerate. The older chord-change drills are generated the same way.
+- **Songs**: `content/library/songs/<name>.json` (a source id from `content/library/sources/`, the melody's staff, voice and
+  bars, an optional transposition, and one chord per bar) are read by `pnpm library:songs`, which takes the melody from
+  the approved public-domain source (cross-checked against the source's own MIDI), writes our left-hand block chords and
+  prints the chord names above the melody. `--song <id>` builds one. Songs are `kind: piece` arrangements: the sidecar
+  names the source (`provenance.basedOn`) and the departures (left hand ours, any transposition), and the panel shows
+  "Arrangement for this app (CC0)" with the source's edition and link.
+- **`supersedes`**: an item that replaced an old one lists the old item's id and SHA-256 (from `tools/library/successors.ts`),
+  so the settings remembered for the old Score apply to the new one, and a saved folder filter follows its folder through
+  the section's `formerIds`.
+- Each generated or song item has an audit record (`content/library/audit/<item-id>.json`): exercises are checked by the
+  independent theory check (`exercise-theory-v2`), songs by the melody comparison against their source and by
+  `song-chords-v1`.

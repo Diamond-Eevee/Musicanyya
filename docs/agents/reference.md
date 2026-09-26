@@ -127,6 +127,7 @@ pnpm build            # static site in dist/
 pnpm electron:dev     # desktop shell against the dev server
 pnpm electron:build   # desktop build (electron-builder)
 pnpm library:exercises # regenerate the exercise families from content/library/exercises/*.json
+pnpm library:songs     # build the songs from content/library/songs/*.json + approved sources (--song <id> for one)
 pnpm library:engrave  # complete hand-written repertoire files in place (beams + accidentals)
 pnpm library:index    # regenerate public/library/index.json from the files on disk
 pnpm screenshot       # open the app headless and save a PNG (see "Running and seeing the app" below)
@@ -292,7 +293,7 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
 ## Recent Changes
 
 - 2026-09-26: Feature 011 planned (Learning by key): Learning becomes Keys (24 folders, circle of fifths) and Key
-  changes (18 relative/parallel folders), each with generated steps Introduction/Beginner/Intermediate(/Advanced), plus 9
+  changes (18 relative/parallel folders), each with generated steps Introduction/Beginner/Intermediate(/Advanced), plus 10
   songs built from Mutopia public-domain melodies with our CC0 left-hand chords (`pnpm library:songs`). New level
   `introduction`, a step-order check in `library:index`, a folder-tree library panel, and `supersedes` links so settings
   follow renamed items. No new dependency.

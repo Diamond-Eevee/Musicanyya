@@ -1,6 +1,9 @@
+import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type ElectronApplication, _electron as electron, expect, test } from '@playwright/test';
+import { revealLibraryItem } from './helpers/library.js';
 import { openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -14,7 +17,10 @@ test.describe('Electron smoke test', () => {
 
     // Launch electron app using the built dist-electron
     const mainPath = path.join(__dirname, '../../dist-electron/main.js');
-    electronApp = await electron.launch({ args: [mainPath] });
+    // A user-data directory of our own: the shell takes a single-instance lock keyed on it, so a launch beside another
+    // Electron instance (a spec still closing, the previous run) would quit at once
+    const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'musicanyya-e2e-smoke-'));
+    electronApp = await electron.launch({ args: [mainPath, `--user-data-dir=${userDataDir}`] });
     electronApp.process().stdout?.on('data', (d) => console.log('STDOUT:', d.toString()));
     electronApp.process().stderr?.on('data', (d) => console.log('STDERR:', d.toString()));
   });
@@ -85,5 +91,20 @@ test.describe('Electron smoke test', () => {
     // It shouldn't navigate. Wait a bit and check URL.
     await window.waitForTimeout(1000);
     expect(window.url()).toBe('app://musicanyya/');
+  });
+  // Feature 011 FR-023 (T088): the packaged shelf is the same tree, and its first exercise opens from the library panel.
+  // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
+  test('the packaged shelf opens Learning > Keys > C major > 1 Introduction', async ({}, testInfo) => {
+    test.skip(testInfo.project.name !== 'electron', 'Run electron smoke test on electron project only');
+
+    const window = await electronApp.firstWindow();
+    await openPanel(window, 'scores');
+    const { item } = await revealLibraryItem(window, 'learning/keys/c-major/introduction');
+    await expect(item).toContainText('1 Introduction');
+    await item.click();
+    await expect(window.locator('mx-panel[data-panel="scores"]')).toBeHidden();
+    await expect(window.locator('.mx-score-page svg').first()).toBeVisible();
+    await expect(window.locator('.mx-title-block')).toContainText('C major - introduction');
+    await expect(window.locator('.notice')).toHaveCount(0);
   });
 });

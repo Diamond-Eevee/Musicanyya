@@ -303,7 +303,6 @@ export const LEVEL_PEDAL: Record<Level, 'forbidden' | 'allowed'> = {
   intermediate: 'allowed',
   advanced: 'allowed',
 };
-// Criterion 27 - identical at every level: one part, a grand staff.
 // Exercise variants (feature 011, owner decision D-2 B7): an exercise may span 38 semitones within MIDI 35-85 at
 // Introduction and Beginner - IV below I in both hands needs T-19..T+19, and F sharp major sits at the edge.
 // Pieces keep the caps above; Intermediate and Advanced already exceed these values.
@@ -328,5 +327,6 @@ export const LEVEL_KEY_CHANGE_EXERCISE_MAX = 1;
 // Step order (FR-010, SC-002): the facts `checkStepOrder` compares between consecutive main steps of one folder.
 export const STEP_ORDER_FACTS = ['tempoBpm', 'notesPerBeat', 'handIndependenceFraction', 'chordChangesPerBar'] as const;
 
+// Criterion 27 - identical at every level: one part, a grand staff.
 export const LEVEL_REQUIRED_PARTS = 1;
 export const LEVEL_REQUIRED_STAVES = 2;

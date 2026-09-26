@@ -32,11 +32,11 @@ storage: the index describes a file, the app always parses the file itself.
 ## 2. The shelf
 
 ```text
-learning/                     Exercises written for this app
-  chords/                     One exercise per key, same drill in all of them
-    triads-<key>              24 items: 12 major keys, 12 minor keys
-    changes/                  Chord-change drills (SS5.2)
-  (later: scales/, arpeggios/, five-finger/, intervals-cadences/, rhythm/ - spec "Suggested additions")
+learning/                     Exercises written for this app (reorganised by feature 011: see
+                              specs/011-learning-by-key/data-model.md §2 for the current tree)
+  keys/<key>/                 24 folders; introduction, beginner, intermediate, advanced (+ extras, songs)
+  key-changes/<from>-to-<to>/ 18 folders; introduction, beginner, intermediate (+ extras)
+  (this document's original learning/chords/ folder - triads-<key> and changes/ - was replaced by feature 011)
 repertoire/                   Pieces
   beginner/
   intermediate/
