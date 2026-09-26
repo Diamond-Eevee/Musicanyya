@@ -1,10 +1,4 @@
-import {
-  TEMPO_PERCENT_DEFAULT,
-  TEMPO_PERCENT_MAX,
-  TEMPO_PERCENT_MIN,
-  TEMPO_PERCENT_STEP,
-  VOLUME_DEFAULT,
-} from '../defaults.js';
+import { TEMPO_PERCENT_DEFAULT, TEMPO_PERCENT_MAX, TEMPO_PERCENT_MIN, VOLUME_DEFAULT } from '../defaults.js';
 
 export type TransportPhase = 'stopped' | 'loading' | 'playing' | 'paused';
 export type TempoPercent = number;
@@ -45,10 +39,13 @@ export function initialTransport(): TransportSnapshot {
   };
 }
 
+/** The tempo factor is any finite number in [TEMPO_PERCENT_MIN, TEMPO_PERCENT_MAX]: not stepped (feature 012 FR-009),
+ *  so every whole BPM the tempo field turns into a percentage plays exactly. A non-finite value is the default. */
 export function clampTempoPercent(value: TempoPercent): TempoPercent {
-  const stepped = Math.round(value / TEMPO_PERCENT_STEP) * TEMPO_PERCENT_STEP;
-  return Math.min(TEMPO_PERCENT_MAX, Math.max(TEMPO_PERCENT_MIN, stepped));
+  if (!Number.isFinite(value)) return TEMPO_PERCENT_DEFAULT;
+  return Math.min(TEMPO_PERCENT_MAX, Math.max(TEMPO_PERCENT_MIN, value));
 }
+
 export function clampVolume(value: Volume): Volume {
   return Math.min(100, Math.max(0, Math.round(value)));
 }

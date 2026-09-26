@@ -78,6 +78,7 @@ import type { MxOpenButton } from '../ui/elements/mx-open-button.js';
 import type { PlaySetupChange } from '../ui/elements/mx-play-panel.js';
 import type { PracticeSetupChange } from '../ui/elements/mx-practice-panel.js';
 import type { MxScoreView, TimelineDto } from '../ui/elements/mx-score-view.js';
+import type { TempoChangeDetail } from '../ui/elements/mx-tempo-field.js';
 import type { MxTransport } from '../ui/elements/mx-transport.js';
 import { midiNoteName } from '../ui/format/note-name.js';
 import { mountPanels, type PanelTools } from '../ui/layout/panel-host.js';
@@ -291,6 +292,12 @@ export class Session {
     document.getElementById('transport-controls')?.appendChild(transport);
     tempoPositionState.subscribe(() => this.updateTempoModel());
     transportState.subscribe(() => this.updateTempoModel());
+    transport.addEventListener('tempochange', (event) => {
+      // Listen and Practice: the transport factor, applied live (FR-013). Play mode edits the Play setup instead
+      // (US3, T044); until then the field is inert there rather than changing a factor Play does not use.
+      if (practiceState.get().mode === 'play') return;
+      transportState.setTempo((event as CustomEvent<TempoChangeDetail>).detail.percent);
+    });
     const modeSwitch = document.createElement('mx-mode-switch');
     document.getElementById('mode-controls')?.appendChild(modeSwitch);
     const sizeControls = document.createElement('mx-size-controls');

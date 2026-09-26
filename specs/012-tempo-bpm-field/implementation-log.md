@@ -158,3 +158,61 @@
 - Handoff: next = `/speckit.implement` from T028 (US2: typing the tempo). US1 alone is independently testable and
   shippable per its Independent Test (verified above); US1+US2 together are the MVP per plan.md. Branch
   `012-tempo-bpm-field`, not pushed; tree has US1 uncommitted at this log entry (commit follows immediately).
+
+## 2026-09-26 23:55 - claude-sonnet-5 (US2 checkpoint, T028-T036, T053-T057)
+- Done: T028-T036 (US2: type the tempo) and T053-T057, new tasks from the T036 RT review (worklet defects the new
+  behaviour exposed). T036 is closed by T057.
+- Baseline at session start: `pnpm test` was green, but `pnpm lint` exited 1 - one formatting error in
+  `tests/engine/storage/settings-v2.test.ts` (an over-long line committed with US1), although the US1 entry says
+  "lint clean". Fixed with the formatter; noted so nobody trusts that line.
+- What US2 does: `mx-tempo-field` edits (Enter/blur apply, Escape restores and stops there, ArrowUp/Down and +/- step one
+  BPM, reset, limits 25-200 % of the written tempo); `clampTempoPercent` no longer steps (`TEMPO_PERCENT_STEP` removed), a
+  non-finite value is the default; `tempochange` is wired to `transportState.setTempo` in Listen and Practice (inert in Play
+  until T044); Space no longer toggles playback while a text-entry control has focus (`src/ui/shortcuts.ts`). Test-changes
+  that were a behaviour change, not going green: `transport.test.ts` "103 -> 105 (step of 5)" became "103 stays 103" (FR-009);
+  `us2-listen.spec.ts` drives the field instead of `input.tempo`.
+- Deviations from the task text: (1) T031's Space/digit tests are in `tests/ui/shortcuts.test.ts`, not
+  `help-shortcuts.test.ts` (that file tests the Help popup). (2) The field's "editing" state is "holds unapplied typed text",
+  not "focused" (contracts/tempo-field.md updated): otherwise a focused field stops following the tempo after ArrowUp.
+  (3) New e2e seam `window.__TRANSPORT_STATE__` (same pattern as `__PLAY_STATE__`): tests read the factor the engine was given.
+- RT review T036 (`rt-audio-reviewer`, real processor driven with tsx probes) found four blocking defects in EXISTING worklet
+  code, reproduced by me before fixing (`tick 5120 -> 2.6` on one `tempo` message during play):
+  B1 a `tempo` message re-anchored at the seek/stop tick, restarting the piece (30 msgs/s = continuous restart) - my first
+  SC-006 e2e passed against it (its first sample was taken at the start, so a jump back to 0 was invisible); B2 the playhead
+  advanced while paused/idle, so resume skipped ahead by the pause length (2 s pause -> 2 s skipped); B3 per-message cost
+  (event rescan) - gone with B1, `reanchor` is O(segments); B4 `percent` unvalidated in the worklet. Also the position report
+  carried the LAST segment's rate. Fixed in T054 (`holdTick` playhead, `reanchor`, validation/clamp, `currentSegment`,
+  `atEnd` replay); protocol contract 1.4.2 (T056). Tests first: `tests/engine/worklets/score-player.tempo.test.ts` (24 tests,
+  20 failed before the fix, one passed by accident: 83.3333 clamp).
+- RT re-review T057 found one more blocking defect (N1): after a tempo change that SLOWS playback an event not yet dispatched
+  can get a frame just before the block start and `dispatchBlock` silently skipped it (probe: 3315 of ~3331 note-ons, 3319
+  note-offs = stuck notes); the same window could skip the end. Fixed in `dispatch.ts` (an already-due event, and the end,
+  happen at the block start); tests in `score-player.tempo.test.ts` and `dispatch.test.ts`; re-review after the fix: no
+  blocking findings (3331/3331 in the probe). Side effect, an improvement: `play`/`seek` to a tick at or past `endTick` used to
+  run silent forever, now ends in the first block (one test). Not tested, said so: `DispatchState` overflow (1024 events)
+  now sounds leftovers late instead of dropping them.
+  Advisory, not done: `reanchor` allocates nSegs objects per message on the message handler (not in `process()`), fine at
+  30 msgs/s, could become a pooled array for scores with hundreds of tempo segments. Pre-existing, untouched: the object
+  literal in `sendPositionReport` and the spread in the wrapper allocate inside `process()` (~94/s each).
+- Found by the full e2e run (not by any unit test): the wider tempo field made the slim bar overflow at 1280x720 (Play run:
+  Stop clipped by 58 px; `barFitted` never settled in `pressed-keys`, `us3-run-chrome`, `us4-attempts`; 6 tests x 3 projects).
+  Fixed in `layout.css`: in compact mode the word "Tempo" is hidden (the input keeps it as `aria-label`; the spec asks for
+  "90 BPM", not the word) and the field's gaps/buttons shrink. It fits with little to spare at 1280 - T049 (phone width) must
+  look at it again. Picture: `test-results/screenshots/run-1280.png` (before the fix, run in count-in, bar compact).
+- Tests: `pnpm test` - 232 files, 4385 tests green (an earlier full run had 1 failure, `tests/library/regeneration.test.ts`
+  timing out at 5.1 s vs the default 5 s only under full-suite load - the flake noted at the Foundational checkpoint; it passes
+  standalone in 1.1 s). `pnpm typecheck` clean. `pnpm lint` 0 errors (290 warnings, the pre-existing baseline).
+- Full gate on the final code: `pnpm test:e2e` - `828 passed (8.4m)`, 0 failed, 520 skipped (the projects' own
+  Chromium-only / webkit skips), exit code 0, all three projects (chromium, firefox, electron). The run before the layout fix
+  had `18 failed | 810 passed` (the bar overflow above). US2 Independent Test (spec): typing 72 on a Score written at 90 gives
+  80 % and 72 BPM (`tempo-field.spec.ts`), stepping and reset live during playback with no stop or restart (SC-006), 45 in the
+  60 section shows 68 after the repeat (scenario 9), Practice keeps waiting at the same note (FR-013).
+- Decisions: hide "Tempo" in the compact bar rather than shrink the number, unit or step buttons (FR-006 protects those);
+  `dispatchBlock` clamps a late event to the block start (instead of a per-call re-scan in the worklet) because it is the
+  one place both the tempo change and resume paths pass through.
+- Problems / open questions: none for the owner. Flag for T049: the bar at 1280x720 in a Play run fits by a few px only.
+  Flag for T048 (unchanged from US1): the three library items whose first tempo has no metronome mark.
+- Handoff: next = `/speckit.implement` from T037 (US3: Play setup in BPM, attempts "90 BPM (75% of written)"); `validPlay` in
+  `src/engine/storage/local-settings-store.ts` still requires an integer multiple of 5 (T043 fixes it; the Play field is
+  inert until T044). US1 + US2 = MVP and are complete. Branch `012-tempo-bpm-field`, not pushed; tree clean at the commit
+  that follows this entry.

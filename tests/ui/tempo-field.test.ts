@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import '../../src/ui/elements/mx-tempo-field.js';
-import type { TempoBeat, TempoDisplaySegment } from '../../src/core/tempo/tempo-display.js';
+import { percentForBpm, type TempoBeat, type TempoDisplaySegment } from '../../src/core/tempo/tempo-display.js';
 import type { TempoFieldModel } from '../../src/ui/elements/mx-tempo-field.js';
 import type { MusicGlyphData } from '../../src/ui/score/verovio-client.js';
 
@@ -132,5 +132,197 @@ describe('mx-tempo-field', () => {
   it('the element is hidden for a null segment', () => {
     el.model = baseModel({ segment: null });
     expect(el.hidden).toBe(true);
+  });
+});
+
+// contracts/tempo-field.md (feature 012), US2 editing behaviour (T030)
+describe('mx-tempo-field editing', () => {
+  type Detail = { percent: number; source: 'typed' | 'step' | 'reset' };
+  let el: HTMLElement & { model: TempoFieldModel };
+  let events: Detail[];
+  let input: HTMLInputElement;
+
+  /** A host that applies what the field emits, like session.ts does through the transport. */
+  function feed(seg: TempoDisplaySegment = segment()) {
+    el.addEventListener('tempochange', (event) => {
+      const detail = (event as CustomEvent<Detail>).detail;
+      events.push(detail);
+      el.model = { ...el.model, segment: seg, percent: detail.percent };
+    });
+  }
+
+  function type(text: string) {
+    input.focus();
+    input.value = text;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  function press(key: string): KeyboardEvent {
+    const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+    input.dispatchEvent(event);
+    return event;
+  }
+
+  const button = (id: string) => el.querySelector(`[data-id="${id}"]`) as HTMLButtonElement;
+
+  beforeEach(() => {
+    events = [];
+    el = document.createElement('mx-tempo-field') as HTMLElement & { model: TempoFieldModel };
+    document.body.appendChild(el);
+    el.model = baseModel(); // a Score written at 90, 100 %
+    input = el.querySelector('[data-id="tempo-bpm"]') as HTMLInputElement;
+    feed();
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('Enter applies the typed number and emits tempochange with percentForBpm and source "typed"', () => {
+    type('72');
+    press('Enter');
+    expect(events).toEqual([{ percent: percentForBpm(segment(), 72), source: 'typed' }]);
+    expect(events[0]?.percent).toBeCloseTo(80, 10);
+    expect(input.value).toBe('72');
+    expect(document.activeElement).toBe(input); // Enter keeps focus
+  });
+
+  it('blur applies the typed number', () => {
+    type('72');
+    input.blur();
+    expect(events).toEqual([{ percent: percentForBpm(segment(), 72), source: 'typed' }]);
+  });
+
+  it('Escape restores the shown value and emits nothing', () => {
+    type('72');
+    press('Escape');
+    expect(input.value).toBe('90');
+    expect(events).toEqual([]);
+    input.blur(); // and the restored text is not applied afterwards either
+    expect(events).toEqual([]);
+  });
+
+  it('Escape in the field does not reach the document (global Escape handling)', () => {
+    let reached = 0;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') reached++;
+    };
+    document.addEventListener('keydown', onKey);
+    try {
+      type('72');
+      press('Escape');
+    } finally {
+      document.removeEventListener('keydown', onKey);
+    }
+    expect(reached).toBe(0);
+  });
+
+  it.each([[''], ['abc'], ['-5'], ['7 2'], ['12345'], ['7.5']])(
+    '%j is not a number of up to four digits: restored, nothing emitted',
+    (text) => {
+      type(text);
+      press('Enter');
+      expect(input.value).toBe('90');
+      expect(events).toEqual([]);
+    },
+  );
+
+  it('applies text with spaces around the digits', () => {
+    type(' 72 ');
+    press('Enter');
+    expect(events).toEqual([{ percent: percentForBpm(segment(), 72), source: 'typed' }]);
+  });
+
+  it('500 on a 90 segment emits the upper limit (200 %) and shows 180', () => {
+    type('500');
+    press('Enter');
+    expect(events).toEqual([{ percent: 200, source: 'typed' }]);
+    expect(input.value).toBe('180');
+  });
+
+  it('10 on a 90 segment emits the lower limit (23 BPM, 25.56 %) and shows 23', () => {
+    type('10');
+    press('Enter');
+    expect(events).toEqual([{ percent: percentForBpm(segment(), 23), source: 'typed' }]);
+    expect(events[0]?.percent).toBeCloseTo((100 * 23) / 90, 10);
+    expect(input.value).toBe('23');
+  });
+
+  it('ArrowUp and ArrowDown step by one BPM and emit at once with source "step"', () => {
+    press('ArrowUp');
+    expect(events.at(-1)).toEqual({ percent: percentForBpm(segment(), 91), source: 'step' });
+    expect(input.value).toBe('91');
+    press('ArrowDown');
+    press('ArrowDown');
+    expect(events.at(-1)).toEqual({ percent: percentForBpm(segment(), 89), source: 'step' });
+    expect(input.value).toBe('89');
+    expect(events).toHaveLength(3);
+  });
+
+  it('the + and - buttons step by one BPM with source "step"', () => {
+    button('tempo-up').click();
+    expect(events.at(-1)).toEqual({ percent: percentForBpm(segment(), 91), source: 'step' });
+    button('tempo-down').click();
+    button('tempo-down').click();
+    expect(events.at(-1)).toEqual({ percent: percentForBpm(segment(), 89), source: 'step' });
+    expect(input.value).toBe('89');
+  });
+
+  it('the step buttons are disabled at the limits and a step key there emits nothing', () => {
+    el.model = baseModel({ percent: 200 });
+    expect(button('tempo-up').disabled).toBe(true);
+    expect(button('tempo-down').disabled).toBe(false);
+    press('ArrowUp');
+    expect(events).toEqual([]);
+
+    el.model = baseModel({ percent: 25 });
+    expect(input.value).toBe('23');
+    expect(button('tempo-down').disabled).toBe(true);
+    expect(button('tempo-up').disabled).toBe(false);
+    press('ArrowDown');
+    expect(events).toEqual([]);
+  });
+
+  it('reset emits 100 with source "reset" and is disabled at 100', () => {
+    expect(button('tempo-reset').disabled).toBe(true);
+    el.model = baseModel({ percent: 80 });
+    expect(button('tempo-reset').disabled).toBe(false);
+    button('tempo-reset').click();
+    expect(events).toEqual([{ percent: 100, source: 'reset' }]);
+    expect(input.value).toBe('90');
+    expect(button('tempo-reset').disabled).toBe(true);
+  });
+
+  it('a model update while the input holds edited text does not replace the typed text', () => {
+    type('7');
+    el.model = baseModel({ segment: segment({ qpmNum: 6000, qpmDen: 100 }) });
+    expect(input.value).toBe('7');
+    // ...but the rest of the field still follows (FR-007)
+    expect(input.getAttribute('aria-valuenow')).toBe('60');
+  });
+
+  it('a focused field that was not edited still follows a model update (the value after a step key)', () => {
+    input.focus();
+    el.model = baseModel({ segment: segment({ qpmNum: 6000, qpmDen: 100 }) });
+    expect(input.value).toBe('60');
+  });
+
+  it('applying the value already shown emits nothing', () => {
+    type('90');
+    press('Enter');
+    expect(events).toEqual([]);
+    type('90');
+    input.blur();
+    expect(events).toEqual([]);
+  });
+
+  it('a locked field ignores step keys and buttons and is read-only', () => {
+    el.model = baseModel({ locked: true });
+    expect(input.readOnly).toBe(true);
+    expect(button('tempo-up').disabled).toBe(true);
+    expect(button('tempo-down').disabled).toBe(true);
+    expect(button('tempo-reset').disabled).toBe(true);
+    press('ArrowUp');
+    expect(events).toEqual([]);
   });
 });

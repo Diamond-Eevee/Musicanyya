@@ -35,6 +35,8 @@ function handleScoreSizeKey(event: KeyboardEvent): boolean {
 export function initShortcuts(): void {
   document.addEventListener('keydown', (event) => {
     if (event.code === 'Space') {
+      // A space typed into a text field (the tempo field, say) is text, not "play/pause"; the field takes it.
+      if (isTextEntry(event.composedPath()[0] ?? event.target)) return;
       event.preventDefault();
       transportState.togglePlay();
     } else if (event.key === 'Escape') {

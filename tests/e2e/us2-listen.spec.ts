@@ -67,9 +67,10 @@ test('US2 end-to-end: play scale-c-major-q100 (sound cached), pause/resume/stop,
   await page.locator('.play-btn').click();
   await expect(page.locator('g.note.playing')).toBeVisible();
 
-  // Tempo change
-  await page.locator('input.tempo').fill('150');
-  await page.locator('input.tempo').dispatchEvent('change');
+  // Tempo change (feature 012: the slider is now the tempo field - type a number, press Enter)
+  await page.locator('input[data-id="tempo-bpm"]').fill('150');
+  await page.locator('input[data-id="tempo-bpm"]').press('Enter');
+  await expect(page.locator('input[data-id="tempo-bpm"]')).toHaveValue('150');
 
   // Load volta-1-2 to test cursor path
   await fileInput.setInputFiles(fixturePath('volta-1-2.musicxml'));

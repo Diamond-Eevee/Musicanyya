@@ -1,4 +1,7 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import type { TempoDisplaySegment } from '../../src/core/tempo/tempo-display.js';
+import '../../src/ui/elements/mx-tempo-field.js';
+import type { TempoFieldModel } from '../../src/ui/elements/mx-tempo-field.js';
 import { initShortcuts } from '../../src/ui/shortcuts.js';
 import { transportState } from '../../src/ui/state/transportState.js';
 import { viewState } from '../../src/ui/state/viewState.js';
@@ -61,6 +64,42 @@ describe('Escape precedence', () => {
       pressEscape();
       expect(viewState.get().openPanel, id).toBeNull();
     }
+    expect(stop).not.toHaveBeenCalled();
+  });
+});
+
+/** feature 012 contracts/tempo-field.md: Escape in the tempo field restores the value and stops there. */
+describe('Escape in the tempo field', () => {
+  const segment: TempoDisplaySegment = {
+    startTick: 0,
+    qpmNum: 90,
+    qpmDen: 1,
+    beat: { type: 'quarter', dots: 0, quartersNum: 1, quartersDen: 1 },
+    beatSource: 'mark',
+    isDefault: false,
+  };
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+    viewState.closePanel();
+    vi.restoreAllMocks();
+  });
+
+  it('restores the shown value, keeps an open panel open and does not stop the transport', () => {
+    const stop = vi.spyOn(transportState, 'stop').mockImplementation(() => undefined);
+    const field = document.createElement('mx-tempo-field') as HTMLElement & { model: TempoFieldModel };
+    document.body.appendChild(field);
+    field.model = { segment, percent: 100, locked: false, glyphs: null };
+    const input = field.querySelector('[data-id="tempo-bpm"]') as HTMLInputElement;
+    input.focus();
+    input.value = '72';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    viewState.openPanel('help');
+
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+
+    expect(input.value).toBe('90');
+    expect(viewState.get().openPanel).toBe('help');
     expect(stop).not.toHaveBeenCalled();
   });
 });

@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { OVERLAYS_DEFAULT, SCORE_SCALE_DEFAULT, SETTINGS_WRITE_DEBOUNCE_MS, VOLUME_DEFAULT } from '../../../src/engine/config.js';
+import {
+  OVERLAYS_DEFAULT,
+  SCORE_SCALE_DEFAULT,
+  SETTINGS_WRITE_DEBOUNCE_MS,
+  VOLUME_DEFAULT,
+} from '../../../src/engine/config.js';
 import { LocalSettingsStore, SETTINGS_STORAGE_KEY } from '../../../src/engine/storage/local-settings-store.js';
 
 class FakeStorage implements Storage {
@@ -208,7 +213,14 @@ describe('Settings v2', () => {
     });
 
     it('a save writes no tempoPercent, even when the loaded file still had one (2.1.0, feature 012 FR-015)', () => {
-      const instance = store({ version: 2, volume: 50, tempoPercent: 70, scale: 100, follow: true, overlays: OVERLAYS_DEFAULT });
+      const instance = store({
+        version: 2,
+        volume: 50,
+        tempoPercent: 70,
+        scale: 100,
+        follow: true,
+        overlays: OVERLAYS_DEFAULT,
+      });
       instance.save(instance.load());
       vi.advanceTimersByTime(SETTINGS_WRITE_DEBOUNCE_MS);
       expect('tempoPercent' in stored()).toBe(false);

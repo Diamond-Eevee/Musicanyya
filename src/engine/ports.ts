@@ -83,7 +83,7 @@ export interface AudioEngine extends Emitter<AudioEngineEvent> {
   pause(): void;
   stop(): void;
   seekTick(tick: number): void;
-  setTempoPercent(percent: number): void; // 25..200, multiple of 5
+  setTempoPercent(percent: number): void; // any finite number in 25..200 (feature 012: not stepped)
   setVolume(volume: number): void; // 0..100
   /** CC7 on one channel, applied at the next block. Used to mute the Metronome without touching the schedule. */
   setChannelVolume(channel: number, volume: number): void; // 0..100

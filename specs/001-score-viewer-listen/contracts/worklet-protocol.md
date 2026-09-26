@@ -1,6 +1,13 @@
 # Contract: `score-player` AudioWorklet protocol
 
-**Version**: `1.4.1` (PATCH, wording, feature 012-tempo-bpm-field: `tempo.percent` is any finite number in [25, 200],
+**Version**: `1.4.2` (PATCH, feature 012-tempo-bpm-field, T054, found by the RT review T036; no message shape change):
+a `tempo` message is **position-preserving** - the new rate starts at the tick the playhead is at (it used to re-anchor at the
+seek/stop tick, restarting the piece on every message while playing) - and **validated**: a non-number or non-finite `percent` is
+ignored, a finite one is clamped to [25, 200]. The playhead is held while nothing plays: `pause` keeps the tick it paused at, a bare
+`play` resumes from it however long the pause or the idle time was (it used to skip ahead by that time), a `tempo` while
+paused/stopped keeps it, and `play` after `ended` starts again from the return tick. `position.ticksPerFrame` is the rate of the
+segment the reported tick is in (it was the last segment's). Tests: `tests/engine/worklets/score-player.tempo.test.ts`.
+`1.4.1` (PATCH, wording, feature 012-tempo-bpm-field: `tempo.percent` is any finite number in [25, 200],
 no longer an integer multiple of 5 - the message shape and the processor's handling are unchanged, R-11). `1.4.0`. Messages between `WebAudioEngine` (main thread) and the `ScorePlayerProcessor`
 (`src/engine/worklets/score-player.processor.ts`, registered as `"musicanyya-score-player"`). Research R-10.
 `1.1.0` (feature 002, T057, 2026-09-20): adds the `liveDropped` message, posted from `port.onmessage`'s `'live'`
@@ -51,11 +58,11 @@ Constitution I rules for the processor (checked by `rt-audio-reviewer`):
 | `init` | `{ protocol: "1.0.0", sampleRate: number, maxBlock: 128 }` | Allocate buffers, reply `status: initialised` |
 | `soundBank` | `{ bytes: ArrayBuffer }` (transferred) | Build the SoundFont bank, reply `status: soundReady` or `status: error` |
 | `schedule` | `ScheduleMessage` (below, buffers transferred) | Stop, all notes off, replace schedule, position = start tick, apply the channel setup (1.4.0) |
-| `play` | `{ fromTick?: number }` | Start/resume at current (or given) tick at the next block |
+| `play` | `{ fromTick?: number }` | Start/resume at the held tick (after `pause`, `stop`, `seek`, a new schedule; the return tick after `ended`) or at `fromTick`, at the next block (1.4.2) |
 | `pause` | `{}` | Stop advancing; release sounding scheduled notes (note-off with release) |
 | `stop` | `{ returnTick: number }` | Pause + position = `returnTick` |
 | `seek` | `{ tick: number }` | All scheduled notes off (release), jump; keeps playing state |
-| `tempo` | `{ percent: number }` | any finite number in [25, 200] (1.4.1); new ticks-per-frame from the next block |
+| `tempo` | `{ percent: number }` | any finite number in [25, 200] (1.4.1), otherwise ignored / clamped (1.4.2); new ticks-per-frame from the next block, at the current position (1.4.2) |
 | `volume` | `{ gain: number }` | 0..1 linear target; ramped over `VOLUME_RAMP_FRAMES = 256` |
 | `channelVolume` | `{ channel: number; gain: number }` | CC7 = `round(gain * 127)` on `channel`, applied in `port.onmessage`, effective at the next block (1.2.0) |
 | `live` | `{ kind: "on" | "off" | "sustain" | "allOff", key?: number, velocity?: number, down?: boolean }` | Applied at the start of the next block on `LIVE_CHANNEL = 15` (piano) |

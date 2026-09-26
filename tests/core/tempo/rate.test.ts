@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { TempoBeat } from '../../../src/core/score/model.js';
 import {
   audioTimeAtTick,
   frameOfTick,
@@ -6,7 +7,9 @@ import {
   tickAtFrame,
   ticksPerFrame,
 } from '../../../src/core/tempo/rate.js';
+import { percentForBpm, shownBpm, type TempoDisplaySegment } from '../../../src/core/tempo/tempo-display.js';
 import type { TempoSegment } from '../../../src/core/timeline/types.js';
+import { initialTransport, transportReducer } from '../../../src/core/transport/transport.js';
 
 describe('tempo/rate', () => {
   const sampleRate = 48000;
@@ -92,6 +95,54 @@ describe('tempo/rate', () => {
 
     it('honours tempo percentage: 50% halves the effective rate', () => {
       expect(audioTimeAtTick(1920, singleSegment, ppq, 50)).toBeCloseTo(2, 10);
+    });
+  });
+
+  // feature 012 SC-002, driven the way the app drives it: the typed BPM -> percentForBpm -> the transport reducer ->
+  // the stored factor -> the tick <-> time conversion. If any step rounded the factor to a step, 91 BPM would play as
+  // 100 % of 90 (91 beats in 60.67 s, not 60 s).
+  describe('a typed BPM plays exactly (feature 012 SC-002)', () => {
+    function typed(seg: TempoDisplaySegment, bpm: number): number {
+      const next = transportReducer(initialTransport(), { type: 'tempoPercent', value: percentForBpm(seg, bpm) });
+      return next.tempoPercent;
+    }
+
+    const quarter: TempoBeat = { type: 'quarter', dots: 0, quartersNum: 1, quartersDen: 1 };
+    const dottedQuarter: TempoBeat = { type: 'quarter', dots: 1, quartersNum: 3, quartersDen: 2 };
+
+    it('91 typed on a 90-qpm Score: 91 consecutive beats span 60 s within 1 ms', () => {
+      const seg: TempoDisplaySegment = {
+        startTick: 0,
+        qpmNum: 90,
+        qpmDen: 1,
+        beat: quarter,
+        beatSource: 'mark',
+        isDefault: false,
+      };
+      const percent = typed(seg, 91);
+      expect(percent).toBeCloseTo((100 * 91) / 90, 10);
+      const tempo: TempoSegment[] = [{ startTick: 0, qpmNum: 90, qpmDen: 1 }];
+      const seconds = audioTimeAtTick(91 * ppq, tempo, ppq, percent);
+      expect(Math.abs(seconds - 60)).toBeLessThan(0.001);
+      expect(shownBpm(seg, percent)).toBe(91);
+    });
+
+    it('61 typed on a 6/8 Score written dotted quarter = 60: 61 dotted-quarter beats span 60 s within 1 ms', () => {
+      // dotted quarter = 60 is 90 quarter notes per minute
+      const seg: TempoDisplaySegment = {
+        startTick: 0,
+        qpmNum: 90,
+        qpmDen: 1,
+        beat: dottedQuarter,
+        beatSource: 'mark',
+        isDefault: false,
+      };
+      const percent = typed(seg, 61);
+      expect(percent).toBeCloseTo((100 * 61) / 60, 10);
+      const tempo: TempoSegment[] = [{ startTick: 0, qpmNum: 90, qpmDen: 1 }];
+      const seconds = audioTimeAtTick(61 * ppq * 1.5, tempo, ppq, percent);
+      expect(Math.abs(seconds - 60)).toBeLessThan(0.001);
+      expect(shownBpm(seg, percent)).toBe(61);
     });
   });
 });

@@ -77,6 +77,23 @@ mx-tempo-field input[data-id="tempo-bpm"] {
   font-size: 1em;
 }
 
+/* Compact bar: the word "Tempo" goes (the input keeps it as its accessible name); "90 BPM" already says what the
+   number is, and the room keeps the run status and Stop on screen at 1280 px. */
+.mx-bar-compact mx-tempo-field [data-id="tempo-label"] {
+  display: none;
+}
+
+.mx-bar-compact mx-tempo-field {
+  gap: 2px;
+}
+
+.mx-bar-compact mx-tempo-field [data-id="tempo-down"],
+.mx-bar-compact mx-tempo-field [data-id="tempo-up"],
+.mx-bar-compact mx-tempo-field [data-id="tempo-reset"] {
+  width: 1.4em;
+  height: 1.4em;
+}
+
 mx-tempo-field .tempo-beat-symbol {
   width: auto;
   height: 1.3em;

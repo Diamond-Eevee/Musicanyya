@@ -54,7 +54,6 @@ export const LIVE_VELOCITY_DEFAULT = 80; // or from key velocity
 
 export const TEMPO_PERCENT_MIN = 25;
 export const TEMPO_PERCENT_MAX = 200;
-export const TEMPO_PERCENT_STEP = 5; // removed in feature 012-tempo-bpm-field T031: the factor is no longer stepped
 export const TEMPO_PERCENT_DEFAULT = 100;
 export const TEMPO_BPM_STEP = 1; // one press of a tempo-field step control (012 FR-010)
 export const TEMPO_MARK_QPM_MIN = 10; // a mark's quarter-notes-per-minute outside this is unusable (012 R-2)

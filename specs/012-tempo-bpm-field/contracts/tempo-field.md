@@ -17,8 +17,9 @@ set model(value: TempoFieldModel);
 ```
 
 The host passes a new model whenever the segment, the factor, the lock or the glyphs change. Setting the model never
-replaces the element's DOM subtree; it updates text nodes, attributes and - only when the input is **not** focused -
-the input's value.
+replaces the element's DOM subtree; it updates text nodes, attributes and - only when the input holds no unapplied
+typed text - the input's value. (Refined in implementation, T034: the test is "edited", not "focused", so a focused
+field that was only stepped with ArrowUp/ArrowDown keeps following the tempo; typed text is never overwritten.)
 
 ## Output (event)
 

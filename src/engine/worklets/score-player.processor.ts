@@ -25,6 +25,8 @@ import {
   MAX_SETUP_CONTROLLERS,
   POSITION_REPORT_BLOCKS,
   TEMPO_PERCENT_DEFAULT,
+  TEMPO_PERCENT_MAX,
+  TEMPO_PERCENT_MIN,
   VOLUME_RAMP_FRAMES,
 } from '../../core/defaults.js';
 import type { ScheduleMessage } from '../../core/schedule/compile.js';
@@ -131,6 +133,11 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   let currentFrame = 0;
   let currentTick = 0;
   let returnTick = 0; // tick to return to on stop
+  // Where the playhead sits while nothing plays (stopped, paused, before the first play, after the end). `currentFrame`
+  // keeps counting through idle blocks, so the segment frame anchors only describe the position while playing; a
+  // resume or a tempo change re-anchors them at this tick (worklet-protocol 1.4.2, feature 012 T054).
+  let holdTick = 0;
+  let atEnd = false; // the end tick was reached: the next `play` starts again from `returnTick`
 
   let tempoPercent = opts.tempoPercent ?? TEMPO_PERCENT_DEFAULT;
   let targetGain = (opts.volume ?? 80) / 100;
@@ -164,25 +171,31 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     onMessage?.(msg);
   }
 
-  function computeCurrentTick(): number {
-    if (!schedule || segs.length === 0) return returnTick;
-    // Walked backwards by index, not `[...segs].reverse().find(...)`: that copied the array, reversed
-    // the copy and allocated a closure on every call, and this is called from inside the render
-    // quantum via sendPositionReport() - roughly 94 allocations a second at
-    // POSITION_REPORT_BLOCKS = 4. Constitution I forbids allocating in process().
+  /** The tempo segment the playhead is in: by frame while playing, by `holdTick` otherwise. `segs` is never empty once a
+   *  schedule is loaded. Walked backwards by index, not `[...segs].reverse().find(...)`: that copied the array,
+   *  reversed the copy and allocated a closure on every call, and this is called from inside the render quantum via
+   *  sendPositionReport() - roughly 94 allocations a second at POSITION_REPORT_BLOCKS = 4. Constitution I forbids
+   *  allocating in process(). */
+  function currentSegment(): TempoSegmentFrame {
     let seg = segs[0]!;
     for (let i = segs.length - 1; i >= 0; i--) {
       const candidate = segs[i]!;
-      if (candidate.startFrame <= currentFrame) {
+      if (playing ? candidate.startFrame <= currentFrame : candidate.startTick <= holdTick) {
         seg = candidate;
         break;
       }
     }
+    return seg;
+  }
+
+  function computeCurrentTick(): number {
+    if (!schedule || segs.length === 0 || !playing) return schedule ? holdTick : returnTick;
+    const seg = currentSegment();
     return seg.startTick + (currentFrame - seg.startFrame) * seg.ticksPerFrame;
   }
 
   function sendPositionReport(): void {
-    const tpf = segs.length > 0 ? segs[segs.length - 1]!.ticksPerFrame : 0;
+    const tpf = segs.length > 0 ? currentSegment().ticksPerFrame : 0;
     post({
       type: 'position',
       frame: currentFrame,
@@ -302,6 +315,13 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     }
   }
 
+  /** New segment frames anchored at `tick` = the current frame (a tempo change, a resume): the position does not move
+   *  and the event cursor already points at the next event that has not sounded, so it is left alone. */
+  function reanchor(tick: number): void {
+    if (!schedule) return;
+    segs = recomputeSegmentFrames(schedule, tick, currentFrame, sampleRate, tempoPercent);
+  }
+
   function receiveMessage(msg: InboundMessage): void {
     switch (msg.type) {
       case 'schedule': {
@@ -312,6 +332,8 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         allNotesOff();
         currentTick = 0;
         returnTick = 0;
+        holdTick = 0;
+        atEnd = false;
         currentFrame = 0;
         reloadSchedule();
         if (soundIsReady) applyChannelSetup();
@@ -323,14 +345,26 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         if (fromTick !== undefined) {
           allNotesOff();
           returnTick = fromTick;
+          holdTick = fromTick;
+          atEnd = false;
           currentFrame = 0; // simplified: reset frame to 0 at seek
           reloadSchedule();
+        } else if (atEnd) {
+          // Played to the end and asked to play again: start over, the event cursor is at the end of the schedule.
+          atEnd = false;
+          allNotesOff();
+          holdTick = returnTick;
+          currentFrame = 0;
+          reloadSchedule();
+        } else if (!playing) {
+          reanchor(holdTick); // resume (or first play after idle blocks): continue from the held tick
         }
         playing = true;
         pendingReport = true;
         break;
       }
       case 'pause': {
+        holdTick = computeCurrentTick(); // before `playing` goes false: the tick the playhead is at now
         playing = false;
         allNotesOff();
         pendingReport = true;
@@ -340,6 +374,8 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         playing = false;
         allNotesOff();
         returnTick = (msg.returnTick as number | undefined) ?? 0;
+        holdTick = returnTick;
+        atEnd = false;
         currentFrame = 0;
         if (schedule) reloadSchedule();
         pendingReport = true;
@@ -349,14 +385,22 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         const tick = msg.tick as number;
         allNotesOff();
         returnTick = tick;
+        holdTick = tick;
+        atEnd = false;
         currentFrame = 0; // simplified: reset frame to 0 on seek; in real processor this is audio-clock based
         if (schedule) reloadSchedule();
         pendingReport = true;
         break;
       }
       case 'tempo': {
-        tempoPercent = msg.percent as number;
-        if (schedule) reloadSchedule();
+        // Validated here, at the trust boundary: NaN or Infinity would make every frame anchor NaN and silence the
+        // Score without a throw. A finite value outside the range is clamped like the main thread does.
+        const raw = msg.percent;
+        if (typeof raw !== 'number' || !Number.isFinite(raw)) break;
+        tempoPercent = Math.min(TEMPO_PERCENT_MAX, Math.max(TEMPO_PERCENT_MIN, raw));
+        // Position-preserving: the new rate starts at the tick the playhead is at now (feature 012 FR-013). Only the
+        // tempo segments are recomputed (a handful of objects); the event schedule is not rescanned.
+        reanchor(computeCurrentTick());
         pendingReport = true;
         break;
       }
@@ -481,7 +525,9 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     blocksSinceReport++;
 
     if (dispatchState.endReached) {
+      holdTick = computeCurrentTick(); // where the end was reached, before `playing` goes false
       playing = false;
+      atEnd = true;
       allNotesOff();
       post({ type: 'ended', frame: dispatchState.endFrame! });
       sendPositionReport();
