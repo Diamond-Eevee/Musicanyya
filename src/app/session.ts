@@ -72,11 +72,13 @@ import { compilePlaySchedule } from '../core/schedule/play-schedule.js';
 import type { LoadReport } from '../core/score/load-report.js';
 import type { Score } from '../core/score/model.js';
 import { audioTimeAtTick } from '../core/tempo/rate.js';
+import { displaySegmentIndexAt } from '../core/tempo/tempo-display.js';
 import type { PlaybackTimeline, TempoSegment } from '../core/timeline/types.js';
 import type { MxOpenButton } from '../ui/elements/mx-open-button.js';
 import type { PlaySetupChange } from '../ui/elements/mx-play-panel.js';
 import type { PracticeSetupChange } from '../ui/elements/mx-practice-panel.js';
 import type { MxScoreView, TimelineDto } from '../ui/elements/mx-score-view.js';
+import type { MxTransport } from '../ui/elements/mx-transport.js';
 import { midiNoteName } from '../ui/format/note-name.js';
 import { mountPanels, type PanelTools } from '../ui/layout/panel-host.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
@@ -92,6 +94,7 @@ import { isRunActive } from '../ui/state/runActive.js';
 import { guardPanelsDuringRuns } from '../ui/state/runGuard.js';
 import type { LoadError, ScoreSummary } from '../ui/state/scoreState.js';
 import { scoreState } from '../ui/state/scoreState.js';
+import { tempoPositionState } from '../ui/state/tempoPositionState.js';
 import { transportState } from '../ui/state/transportState.js';
 import { type OverlayLayer, viewState } from '../ui/state/viewState.js';
 import { requestGrade } from '../workers/grade.worker.js';
@@ -151,6 +154,7 @@ export class Session {
   private readonly libraryController: LibrarySessionController;
   private nextRequestId = 1;
   private scoreView: MxScoreView | null = null;
+  private transportEl: MxTransport | null = null;
   private userSettings!: UserSettings; // assigned at the top of start(), before anything reads it
 
   // Listen mode (US2, T108)
@@ -250,7 +254,7 @@ export class Session {
     const settings = this.userSettings;
     viewState.setScale(settings.scale);
     for (const [layer, on] of Object.entries(settings.overlays)) viewState.setOverlay(layer as OverlayLayer, on);
-    transportState.applySavedSettings(settings.tempoPercent, settings.volume, settings.follow);
+    transportState.applySavedSettings(settings.volume, settings.follow);
 
     this.scoreView = document.createElement('mx-score-view');
     this.scoreView.client = this.verovioClient;
@@ -282,8 +286,11 @@ export class Session {
     const main = document.getElementById('mx-main') as HTMLElement;
     main.prepend(this.scoreView);
 
-    const transport = document.createElement('mx-transport');
+    const transport = document.createElement('mx-transport') as MxTransport;
+    this.transportEl = transport;
     document.getElementById('transport-controls')?.appendChild(transport);
+    tempoPositionState.subscribe(() => this.updateTempoModel());
+    transportState.subscribe(() => this.updateTempoModel());
     const modeSwitch = document.createElement('mx-mode-switch');
     document.getElementById('mode-controls')?.appendChild(modeSwitch);
     const sizeControls = document.createElement('mx-size-controls');
@@ -313,7 +320,7 @@ export class Session {
       setVolume: (volume) => this.audioEngine.setVolume(volume),
     });
     transportState.subscribe((state) => {
-      this.persistUserSettings({ tempoPercent: state.tempoPercent, volume: state.volume, follow: state.follow });
+      this.persistUserSettings({ volume: state.volume, follow: state.follow });
     });
     this.audioEngine.on((event) => this.onAudioEngineEvent(event));
     let lastMode = practiceState.get().mode;
@@ -523,6 +530,25 @@ export class Session {
   private persistUserSettings(patch: Partial<UserSettings>): void {
     this.userSettings = { ...this.userSettings, ...patch };
     this.settingsStore.save(this.userSettings);
+  }
+
+  /** The tempo field's model (contracts/tempo-field.md): the display segment at tempoPositionState's index, the
+   *  transport's own factor, never locked in Listen/Practice (Play's binding is T038/US3), and the glyphs harvested
+   *  once at the first Score load. Called whenever any of those inputs change, and once after a Score loads.
+   *  `mx-score-view` only publishes tempoPositionState once it has playback attached (after the first unlock, a
+   *  user gesture) - before that (a freshly opened Score, or a measure click before ever pressing Play), this
+   *  falls back to the transport's own `startTick` (data-model.md section 5's Listen rest position), which is
+   *  exactly what audiblePosition() would report once attached anyway. */
+  private updateTempoModel(): void {
+    const tempo = this.currentTimeline?.tempo ?? [];
+    const index = tempoPositionState.get() ?? displaySegmentIndexAt(tempo, transportState.get().startTick);
+    const segment = tempo[index] ?? null;
+    this.transportEl?.setTempoModel({
+      segment,
+      percent: transportState.get().tempoPercent,
+      locked: false,
+      glyphs: this.scoreView?.harvestedGlyphs ?? null,
+    });
   }
 
   /** Unlock (user gesture), deliver the schedule if this is the first Play since it was loaded, ensure the
@@ -1377,6 +1403,7 @@ export class Session {
     if (this.scoreView) {
       await this.scoreView.load(response.renderXml, response.summary.measureIds, viewState.get().scale);
     }
+    this.updateTempoModel(); // the new Score's tempo (and, on the first load, the harvested glyphs)
 
     // this.soundReady is intentionally not reset here: the SoundFont is loaded once into the worklet's sound
     // bank, which is independent of which Score's schedule is currently loaded (contracts/worklet-protocol.md -

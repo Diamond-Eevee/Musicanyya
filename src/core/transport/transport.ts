@@ -93,7 +93,8 @@ export function transportReducer(state: TransportSnapshot, action: TransportActi
       return { ...state, startTick: action.tick, positionTick: action.tick };
     }
     case 'newScore': {
-      return { ...initialTransport(), tempoPercent: state.tempoPercent, volume: state.volume, follow: state.follow };
+      // feature 012 FR-015: the tempo factor is not carried over; every Score opens at its written tempo.
+      return { ...initialTransport(), volume: state.volume, follow: state.follow };
     }
     case 'tempoPercent': {
       return { ...state, tempoPercent: clampTempoPercent(action.value) };

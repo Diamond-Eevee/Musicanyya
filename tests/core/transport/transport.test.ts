@@ -73,14 +73,14 @@ describe('transportReducer', () => {
     expect(seeked).toMatchObject({ phase: 'playing', startTick: 1920, positionTick: 1920 });
   });
 
-  it('newScore resets to stopped at tick 0 but keeps tempo/volume/follow preferences', () => {
+  it('newScore resets to stopped at tick 0, keeps volume/follow, and resets tempo to 100 (feature 012 FR-015: no carry-over)', () => {
     const customized = transportReducer(transportReducer(initialTransport(), { type: 'tempoPercent', value: 150 }), {
       type: 'volume',
       value: 50,
     });
     const playing = transportReducer(customized, { type: 'play', soundReady: true });
     const fresh = transportReducer(playing, { type: 'newScore' });
-    expect(fresh).toMatchObject({ phase: 'stopped', startTick: 0, positionTick: 0, tempoPercent: 150, volume: 50 });
+    expect(fresh).toMatchObject({ phase: 'stopped', startTick: 0, positionTick: 0, tempoPercent: 100, volume: 50 });
   });
 
   it('follow becomes false on manual scroll while playing, but not while stopped', () => {

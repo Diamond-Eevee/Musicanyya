@@ -865,7 +865,12 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           }
 
           if (dirType) {
-            const metronome = getChild(dirType, 'metronome');
+            // A <metronome> may sit in any <direction-type> sibling of the direction (e.g. one direction-type for
+            // printed words like "Allegro maestoso", another for the mark itself) - not necessarily the first,
+            // which is all `dirType` gives (found on real repertoire, holmes-lor.mxl).
+            const metronome = getChildren(el, 'direction-type')
+              .map((dt) => getChild(dt, 'metronome'))
+              .find((m): m is XmlElement => m !== undefined);
             // The mark's own note value (012 R-2): null for a metric modulation (more than one <beat-unit>), a
             // <metronome-note> form, or a <beat-unit-tied> unit - none of those give a beat, even when a <sound
             // tempo> in the same direction still supplies the played qpm.

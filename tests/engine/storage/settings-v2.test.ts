@@ -1,11 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  OVERLAYS_DEFAULT,
-  SCORE_SCALE_DEFAULT,
-  SETTINGS_WRITE_DEBOUNCE_MS,
-  TEMPO_PERCENT_DEFAULT,
-  VOLUME_DEFAULT,
-} from '../../../src/engine/config.js';
+import { OVERLAYS_DEFAULT, SCORE_SCALE_DEFAULT, SETTINGS_WRITE_DEBOUNCE_MS, VOLUME_DEFAULT } from '../../../src/engine/config.js';
 import { LocalSettingsStore, SETTINGS_STORAGE_KEY } from '../../../src/engine/storage/local-settings-store.js';
 
 class FakeStorage implements Storage {
@@ -33,7 +27,6 @@ class FakeStorage implements Storage {
 const DEFAULTS = {
   version: 2,
   volume: VOLUME_DEFAULT,
-  tempoPercent: TEMPO_PERCENT_DEFAULT,
   scale: SCORE_SCALE_DEFAULT,
   follow: true,
   overlays: OVERLAYS_DEFAULT,
@@ -72,12 +65,12 @@ describe('Settings v2', () => {
       expect(settings).toEqual({
         version: 2,
         volume: 60,
-        tempoPercent: 90,
         scale: 130,
         follow: false,
         overlays: OVERLAYS_DEFAULT,
       });
       expect('zoomPercent' in settings).toBe(false);
+      expect('tempoPercent' in settings).toBe(false); // 2.1.0: deprecated, ignored on read (feature 012 FR-015)
     });
 
     it('version 1 without a zoomPercent gives the default scale', () => {
@@ -108,12 +101,26 @@ describe('Settings v2', () => {
       const raw = {
         version: 2,
         volume: 40,
-        tempoPercent: 75,
         scale: 150,
         follow: false,
         overlays: { cursor: false, marks: false, advice: false, pianoKeys: true, notices: false },
       };
       expect(store(raw).load()).toEqual(raw);
+    });
+
+    it('ignores a stored tempoPercent (2.1.0, feature 012 FR-015): the file still validates, tempoPercent is dropped', () => {
+      const raw = {
+        version: 2,
+        volume: 40,
+        tempoPercent: 70,
+        scale: 150,
+        follow: false,
+        overlays: OVERLAYS_DEFAULT,
+      };
+      const settings = store(raw).load();
+      expect('tempoPercent' in settings).toBe(false);
+      expect(settings.volume).toBe(40);
+      expect(settings.scale).toBe(150);
     });
 
     it('validates scale on its own: range and step', () => {
@@ -198,6 +205,13 @@ describe('Settings v2', () => {
       const reloaded = new LocalSettingsStore().load();
       expect(reloaded.scale).toBe(180);
       expect(reloaded.overlays).toEqual({ ...OVERLAYS_DEFAULT, pianoKeys: true, marks: false });
+    });
+
+    it('a save writes no tempoPercent, even when the loaded file still had one (2.1.0, feature 012 FR-015)', () => {
+      const instance = store({ version: 2, volume: 50, tempoPercent: 70, scale: 100, follow: true, overlays: OVERLAYS_DEFAULT });
+      instance.save(instance.load());
+      vi.advanceTimersByTime(SETTINGS_WRITE_DEBOUNCE_MS);
+      expect('tempoPercent' in stored()).toBe(false);
     });
 
     it('unknown fields survive a save', () => {

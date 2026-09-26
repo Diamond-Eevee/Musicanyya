@@ -1,7 +1,6 @@
 import type { Score } from '../score/model.js';
 import { buildTempoDisplayMap, type TempoDisplaySegment } from '../tempo/tempo-display.js';
 import type { PlaybackTimeline } from './types.js';
-import { unroll } from './unroll.js';
 
 // contracts/worker-messages.md 1.3.0 (feature 012): TimelineDto gains `tempo`
 

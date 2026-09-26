@@ -164,16 +164,30 @@ it, in Listen as in a first Play setup. Play already remembers per Score, which 
 ## R-10 Library details and consistency (FR-021)
 
 **Decision**: The library index keeps `tempoBpm` (quarter notes per minute of the first mark; it feeds the level and
-step-order criteria and must not change meaning). The library item details show "Tempo: NN BPM". A library test
-asserts that every library item's first tempo mark counts quarter notes, so the quarter-based fact is the same
-number the transport shows; the day an item with another beat is added, that test fails and the index gains a beat
-field (a MINOR index change) in that feature.
+step-order criteria and must not change meaning). The library item details show "Tempo: NN BPM" (the same unit as
+`tempoBpm`, quarters). `tests/library/tempo-beat.test.ts` pins the real invariant: `tempoBpm` is always the qpm the
+tempo-display segment at tick 0 implies (`writtenBpm x beat.quartersNum/Den`), in whatever beat that segment uses -
+not "every item is quarter-based", which turned out to be false (below).
 
-**Rationale**: All 175 library marks are quarters today; adding a beat field now would regenerate the committed index
-for no visible change (Constitution VIII).
+**Correction (found implementing T017, not assumed at design time)**: three real repertoire items -
+`chopin-prelude-op28-no4`, `clementi-sonatina-op36-no1-mvt1` (both cut time, 2/2) and `fur-elise-complete` (3/8) -
+have only a `<sound tempo>` and no printed `<metronome>` mark on their first direction, so their first display
+segment's beat falls back to the meter's own counting beat (R-4): half for the two 2/2 pieces, eighth for the 3/8
+one. Once the tempo field ships, these three will show a different number and beat symbol than the library detail's
+quarters-based "Tempo: NN BPM" (e.g. `fur-elise-complete`: library shows 72, the field will show 144 with an
+eighth-note symbol). `tempoBpm` itself does not change meaning or value - only what the *field* shows for these
+three differs from the library's quarters-based text. Flagged for `music-domain-expert`'s T048 review of the
+display semantics: R-4's fallback (no mark -> the Metronome's meter-implied beat) is a defensible default in
+general, but whether it is the musically right call specifically for these three real, unmarked pieces is a
+judgement call outside this decision's scope. No index change is made now (below).
 
-**Alternatives considered**: Add `tempoBeat` to the index now (index regeneration and contract 1.3 with no user
-effect).
+**Rationale**: All but three of the library's marks are quarters; adding a `tempoBeat` field now would regenerate
+the committed index for a difference that shows up in only three items, and the display rule itself (not the index)
+is what T048 should confirm or adjust first (Constitution VIII: no speculative index change ahead of that review).
+
+**Alternatives considered**: Add `tempoBeat` to the index now (index regeneration and contract 1.3, pre-empting a
+review that might instead change the fallback rule); special-case these three pieces in the parser (contradicts R-4,
+which the owner already approved for every other Score).
 
 ## R-11 Real-time impact
 

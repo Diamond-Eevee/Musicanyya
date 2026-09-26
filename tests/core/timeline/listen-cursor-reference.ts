@@ -30,7 +30,9 @@ export function listenPassAtTick(timeline: TimelineDto, tick: number) {
   );
 }
 
-/** The compact timeline the worker sends the view (`score.worker.ts`: a pass ends at `startTick + lengthTicks`). */
+/** The compact timeline the worker sends the view (`score.worker.ts`: a pass ends at `startTick + lengthTicks`).
+ *  `tempo` is left empty here (feature 012): this file is a frozen reference for the Listen cursor logic alone,
+ *  which never reads it; tests that need real tempo segments build their own DTO with `buildTimelineDto`. */
 export function compactTimeline(timeline: PlaybackTimeline): TimelineDto {
   return {
     ppq: timeline.ppq,
@@ -41,6 +43,7 @@ export function compactTimeline(timeline: PlaybackTimeline): TimelineDto {
       endTick: p.startTick + p.lengthTicks,
     })),
     spans: timeline.spans.map((s) => ({ noteId: s.noteId, startTick: s.startTick, endTick: s.endTick })),
+    tempo: [],
   };
 }
 

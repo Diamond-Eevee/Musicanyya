@@ -48,7 +48,18 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
     category: 'Time & Repeats',
     element: '<sound tempo>',
     status: 'Supported',
-    notes: 'Note: continuous changes (rit./accel.) not supported',
+    notes:
+      'Wins over a <metronome> in the same direction (012). Note: continuous changes (rit./accel.) not supported; ' +
+      'outside 10-1000 quarter notes per minute is treated as unusable, like a missing tempo',
+  },
+  {
+    category: 'Time & Repeats',
+    element: '<metronome>',
+    status: 'Supported',
+    notes:
+      'Every note value from 1024th to maxima, 0-3 dots, "c."/"ca."/"circa" and a range read as their first number, ' +
+      'parenthesised marks (012). A metric modulation (two <beat-unit>s), <metronome-note> and <beat-unit-tied> give ' +
+      'no tempo and no beat from the mark',
   },
   { category: 'Time & Repeats', element: '<fermata>', status: 'Unsupported', notes: 'Ignored for playback' },
   { category: 'Dynamics', element: '<dynamics>', status: 'Supported', notes: 'Marks and wedges' },

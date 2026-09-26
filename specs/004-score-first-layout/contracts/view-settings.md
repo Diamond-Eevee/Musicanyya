@@ -46,9 +46,9 @@ is unchanged, so no user loses their settings.
 - Every field is validated **on its own**; anything invalid or missing falls back to its default.
 - Unknown fields are preserved on save, so a newer build's settings survive an older build.
 - Unparsable JSON, or storage that throws, yields all defaults and one `storageUnavailable` notice.
-- `tempoPercent` (2.1.0): if present, it is preserved as an unknown-field passthrough on save like any other stray
-  field, but never parsed into `UserSettings` and never written by the app itself. `UserSettings` has no
-  `tempoPercent` property (`src/engine/ports.ts`).
+- `tempoPercent` (2.1.0): ignored when reading (never parsed into `UserSettings`, which has no `tempoPercent`
+  property, `src/engine/ports.ts`) and actively dropped on every save, even when an older file already had one -
+  unlike other unrecognised fields, it does not survive a save.
 
 ## 3. Migration from version 1
 

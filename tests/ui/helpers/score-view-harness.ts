@@ -71,6 +71,8 @@ export interface ViewHarness {
   withClass(cls: string): string[];
   /** Puts the Listen transport in `playing` at `tick` (what `updateCursor` reads for Listen). */
   listenAt(tick: number): void;
+  /** The engine's read head alone, without changing the transport phase (feature 012 T014). */
+  setAudiblePosition(tick: number): void;
   /** Scrolls the fake page: every rect on the page moves up by `y`, as it does in a browser. */
   scrollTo(y: number): void;
   /** Zooms (a relayout: the pages are replaced) and puts the fake geometry back, moved by `shift`. */
@@ -107,9 +109,12 @@ class FakeClient implements VerovioClient {
  * Verovio's SVG has it), and fake geometry from `LAYOUT`. The canvas is a recording context, so tests read what was drawn
  * and in which order; element sizes are counted so tests can prove the view does not measure the page every frame.
  */
-export async function mountScoreView(fixture: string, options: { withScore?: boolean } = {}): Promise<ViewHarness> {
+export async function mountScoreView(
+  fixture: string,
+  options: { withScore?: boolean; dto?: TimelineDto } = {},
+): Promise<ViewHarness> {
   const { score, timeline } = loadFixture(fixture);
-  const dto = compactTimeline(timeline);
+  const dto = options.dto ?? compactTimeline(timeline);
   const measureIds = score.measures.map((m) => measureElementId(m.index));
   const part = score.parts[0];
   const staves = Math.max(1, part?.staves ?? 1);
@@ -231,6 +236,11 @@ export async function mountScoreView(fixture: string, options: { withScore?: boo
     listenAt: (tick) => {
       transportState.setSoundReady(true);
       if (transportState.get().phase !== 'playing') transportState.play();
+      listenPosition = { audibleTick: tick };
+    },
+    // The engine's own read head, without forcing playback (feature 012 T014: "Listen, stopped" reference position -
+    // a real engine's audiblePosition() reflects the last seek even while stopped, which is what this simulates).
+    setAudiblePosition: (tick) => {
       listenPosition = { audibleTick: tick };
     },
     scrollTo: (y) => {

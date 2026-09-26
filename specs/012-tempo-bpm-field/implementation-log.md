@@ -72,3 +72,89 @@
   `score-view-tempo-position.test.ts`, transport FR-015 tests, glyph harvest test, library tests, SC-001 real-data
   test, e2e); tree has the Setup+Foundational work uncommitted at this log entry (commit follows immediately);
   branch `012-tempo-bpm-field`, not pushed.
+
+## 2026-09-26 23:10 - claude-sonnet-5 (US1 checkpoint, T012-T027)
+
+- Done: all of US1, test-first throughout. T012 (`tests/ui/tempo-field.test.ts`, 12 tests) + T022 (`mx-tempo-field.ts`
+  display part: model setter, beat symbol as an inline SVG built from harvested glyphs or a text label, written/
+  default hint, ARIA `spinbutton`/`aria-valuetext`, i18n keys for the beat name/dot prefix so `beatLabel` has a
+  localisable UI-side equivalent). T013 (`transport.test.ts` additions) + T023 (`mx-transport.ts` rebuilt from
+  "rebuild innerHTML every render" to "build the skeleton once, patch attributes afterwards" - required to keep the
+  tempo field's DOM connected and focused across re-renders, since patching around a placeholder inside a
+  rebuilt `innerHTML` still disconnects and reconnects the same node, dropping focus; `session.ts` computes the
+  model from `tempoPositionState`, `transportState.tempoPercent` and `scoreView.harvestedGlyphs`). T014
+  (`score-view-tempo-position.test.ts`, 5 tests) + T021 (`tempoPositionState.ts`; `mx-score-view.ts` publishes it
+  from the Listen, Practice and Play branches of `updateCursor`, with the Practice "no session" case falling back
+  to the chosen start measure's pass, data-model.md section 5). T015 (`newScore` resets tempo; settings 2.1.0;
+  `applySavedSettings(volume, follow)`) + T024 (reducer, `UserSettings`, `local-settings-store.ts` `flush()` now
+  strips `tempoPercent` like `zoomPercent` - "no longer written" means actively dropped, not merely un-parsed;
+  corrected the view-settings.md 2.1.0 note to say so, since my first draft of that note undersold it).
+  T016 (`glyphs.test.ts` additions) + T020 (`glyphs.ts`: `noteheadHalf`/`noteheadWhole`/`flag8thUp` harvested from
+  an extended snippet - had to widen the page and keep the eighth note's pitch low so Verovio chose an up-flag, not
+  a down-flag, and had to put every note in one measure since two measures overflowed the page and the second one
+  silently rendered on a page never captured). T017 (`mx-library-filters.test.ts` "Tempo: 72 BPM"; new
+  `tests/library/tempo-beat.test.ts`, 182 tests) + T025 (`mx-library.ts` string). T018
+  (`tests/core/tempo/tempo-display-real.test.ts`, 102 tests: an independent raw-XML walk of measure 0, not a second
+  call to `buildScore`). T019 (`tests/e2e/tempo-field.spec.ts`, 5 tests, Chromium). T026 (`docs/musicxml-support.md`
+  `<metronome>` row, regenerated from `SUPPORT_MATRIX`). T027 (screenshots, both named below).
+- Two real bugs found and fixed while making T018/T019 genuinely pass (not just once the test's own expectations
+  were adjusted to match a wrong answer):
+  1. `buildTempoDisplayMap`'s placeholder state (before any mark has taken effect) had `isDefault: true`, so a Score
+     whose only early tempo directions are unusable (e.g. `tempo-absurd.musicxml`, whose first two sound tempos are
+     out of bounds) showed "default" at tick 0 even though the Score has a real tempo later and
+     `score.defaultTempoUsed` is false. Fixed: the placeholder is `isDefault: false` (data-model.md's flag means
+     "the Score has no usable tempo anywhere", not "no mark has fired yet"); a real `isDefault: true` mark still
+     overwrites it correctly. `tests/core/tempo/tempo-display-real.test.ts` pins the placeholder case directly.
+  2. `src/core/musicxml/build.ts` read `<metronome>` only from the *first* `<direction-type>` of a `<direction>`
+     (`const dirType = getChild(el, 'direction-type')`, pre-existing, predates 012). Real scores routinely put the
+     printed words ("Allegro maestoso") in one `direction-type` and the metronome mark in a second sibling one
+     (found on `real/holmes-lor.mxl`) - invisible before 012 because the sound tempo always won regardless of
+     `beat`, but now silently gave `beat: null` and the wrong fallback beat. Fixed: the metronome lookup now scans
+     every `direction-type` of the direction, independently of `dirType` (left alone; other lookups keyed on it -
+     `words`, `dynamics`, `wedge` - have the same latent gap but are out of this feature's scope, not touched).
+  3. (Caught by the *screenshot*, not a test - AGENTS.md "look at the picture" earned its keep here.) `mx-tempo-field`
+     had no CSS at all: its beat-symbol `<svg>` has a `viewBox` in font units (~1600x3000) with no `width`/`height`,
+     so an unstyled browser renders it at those raw dimensions - about 1000px wide. That blew out `#mx-bar`'s
+     width, so `mx-app`'s own overflow check correctly folded Play/Stop/the whole transport into "More" - a Score
+     opened via Open Score (not the library, which happened to still fit) would show no way to press Play without
+     that extra click. `pnpm test` never touches CSS or real layout, so this was invisible to every prior check.
+     Fixed with `src/ui/styles/layout.css` rules sizing the field, its input, its buttons and the beat SVG (`height:
+     1.3em; width: auto`, scaling by the intrinsic aspect ratio). Re-screenshotted to confirm the bar no longer
+     folds and the beat symbol is visible at its intended ~11x21px.
+  4. (Found by the e2e test, fixed, not a defect but a real gap in T021/T023's first design.) `mx-score-view` only
+     publishes `tempoPositionState` once it has a playback engine attached (`setPlayback`, called only after the
+     first Play/unlock - a user gesture). A freshly opened Score, before ever pressing Play, therefore had no tempo
+     shown at all. Fixed in `session.ts`'s `updateTempoModel`: `tempoPositionState.get() ?? displaySegmentIndexAt(tempo,
+     transportState.get().startTick)` - falls back to the transport's own `startTick` (data-model.md section 5's
+     "Listen, stopped" rest position) until `mx-score-view` starts publishing live positions, at which point the
+     fallback and the live value agree anyway.
+- Tests: `pnpm test` - 230/231 files, 4326/4327 tests green; the one failure is
+  `tests/library/regeneration.test.ts` timing out at the default 5 s only under full-suite load (same pre-existing
+  flake noted at the Foundational checkpoint; passes standalone). `pnpm typecheck` clean. `pnpm lint` clean (0
+  errors; warnings at or below the pre-012 baseline). `npx playwright test tests/e2e/tempo-field.spec.ts
+  --project=chromium` - 5/5 green (the rest of the e2e suite, e.g. `us2-listen.spec.ts`'s `input.tempo` slider
+  assertion, is expected to fail until T032 replaces it - plan.md's Structure Decision says so explicitly, and the
+  US1 checkpoint's own gate does not include `pnpm test:e2e`, only US2's does).
+- Screenshots (T027, quickstart US1 steps 1-2): `learning/key-changes/a-major-to-a-minor/beginner` -> "Tempo [-] 72
+  [+] [BPM]" with reset visibly disabled (greyed) and no written hint, alongside the full Score/Setup/View/Help set,
+  un-folded; `tempo-dotted-beat-unit.musicxml` -> "60 BPM" with a small dotted-quarter glyph (stem, filled notehead,
+  augmentation dot), same un-folded bar. Not saved into the repo (git-ignored `test-results/screenshots/`).
+- Finding for T048 (`music-domain-expert`, flagged, not resolved here - a musical judgement call, not a code
+  question): three real library items (`chopin-prelude-op28-no4`, `clementi-sonatina-op36-no1-mvt1`, both 2/2;
+  `fur-elise-complete`, 3/8) have only a `<sound tempo>` and no printed `<metronome>` mark on their first direction,
+  so R-4's fallback (no mark -> the meter's own counting beat) gives them a beat other than quarter - the field will
+  show a different number and symbol than the library's quarters-based "Tempo: NN BPM" text (worked example:
+  `fur-elise-complete` library shows 72, the field will show 144 with an eighth-note symbol). `tempoBpm` itself is
+  unchanged (still qpm, still what the level/step-order criteria use); research.md R-10 now documents this
+  correction in full. `tests/library/tempo-beat.test.ts`'s second test pins the exact three-item list so a future
+  change to the fallback rule (or a newly added item) is caught, not silently absorbed.
+- Decisions: `mx-transport.ts`'s render model changed from "rebuild `innerHTML` every render" to "build once, patch
+  afterwards" (T023) - the only way to keep a persistent child's DOM connection (and therefore focus) intact across
+  a re-render is to never remove it from the tree, which an `innerHTML` rebuild does even when the same node is
+  immediately reinserted. `mx-tempo-field`'s beat symbol and `MusicGlyphData` type live under `src/ui/score/
+  verovio-client.ts` (extended with the three new fields) rather than importing `src/workers/glyphs.ts`'s
+  `HarvestedGlyphs` into the UI layer, for cleaner layering (workers/ is not one of Constitution V's named layers).
+- Problems / open questions: none beyond the T048 flag above; no owner decision is open.
+- Handoff: next = `/speckit.implement` from T028 (US2: typing the tempo). US1 alone is independently testable and
+  shippable per its Independent Test (verified above); US1+US2 together are the MVP per plan.md. Branch
+  `012-tempo-bpm-field`, not pushed; tree has US1 uncommitted at this log entry (commit follows immediately).

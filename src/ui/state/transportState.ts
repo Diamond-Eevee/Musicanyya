@@ -1,5 +1,4 @@
 import {
-  clampTempoPercent,
   clampVolume,
   initialTransport,
   type TransportSnapshot,
@@ -74,11 +73,11 @@ class TransportStateStore {
     this.progressStore.set(null);
   }
 
-  /** Applies persisted settings at startup, bypassing the driver (there is nothing to notify yet). */
-  applySavedSettings(tempoPercent: number, volume: number, follow: boolean): void {
+  /** Applies persisted settings at startup, bypassing the driver (there is nothing to notify yet). Tempo is not
+   *  among them (feature 012 FR-015): the transport always opens a Score at its written tempo. */
+  applySavedSettings(volume: number, follow: boolean): void {
     this.store.update((s) => ({
       ...s,
-      tempoPercent: clampTempoPercent(tempoPercent),
       volume: clampVolume(volume),
       follow,
     }));

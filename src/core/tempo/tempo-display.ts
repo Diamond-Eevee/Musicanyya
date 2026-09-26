@@ -5,6 +5,8 @@ import { metronomeBeatAt } from './beat-unit.js';
 
 // contracts/tempo-display.md, data-model.md section 3 (feature 012)
 
+export type { NoteTypeValue, TempoBeat } from '../score/model.js';
+
 export interface TempoDisplaySegment {
   startTick: number;
   qpmNum: number;
@@ -41,9 +43,14 @@ export function buildTempoDisplayMap(
   const segments: TempoDisplaySegment[] = [];
   let last: TempoDisplaySegment | undefined;
 
+  // Placeholder for "no mark has taken effect yet" (e.g. a file whose only marks are unusable up to some measure,
+  // R-2): DEFAULT_TEMPO_QPM plays there exactly as buildTempoMap's own fallback does, but `isDefault` stays false -
+  // that flag means "the Score has no usable tempo anywhere" (score.defaultTempoUsed), which a real mark elsewhere
+  // in the file already contradicts. A file with truly no usable tempo always has the parser's synthetic mark at
+  // tick 0 (isDefault: true), which overwrites this placeholder immediately.
   let qpmNum = DEFAULT_TEMPO_QPM * 100;
   let qpmDen = 100;
-  let isDefault = true;
+  let isDefault = false;
   let beat: TempoBeat = metronomeBeatAt(0, measures);
   let beatSource: TempoDisplaySegment['beatSource'] = 'metronome';
   let lastOwnBeat: TempoBeat | null = null;

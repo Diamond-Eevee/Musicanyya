@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { beatLabel, beatOf, metronomeBeatAt, parsePerMinute } from '../../../src/core/tempo/beat-unit.js';
 import type { MeasureInfo } from '../../../src/core/score/model.js';
+import { beatLabel, beatOf, metronomeBeatAt, parsePerMinute } from '../../../src/core/tempo/beat-unit.js';
 
 // contracts/tempo-display.md, data-model.md section 1 (feature 012)
 

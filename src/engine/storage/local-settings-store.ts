@@ -7,10 +7,6 @@ import {
   SCORE_SCALE_MIN,
   SCORE_SCALE_STEP,
   SETTINGS_WRITE_DEBOUNCE_MS,
-  TEMPO_PERCENT_DEFAULT,
-  TEMPO_PERCENT_MAX,
-  TEMPO_PERCENT_MIN,
-  TEMPO_PERCENT_STEP,
   VOLUME_DEFAULT,
 } from '../config.js';
 import type { OverlayFlags, PracticeSettings, SettingsStore, UserSettings } from '../ports.js';
@@ -73,9 +69,7 @@ function validate(raw: Record<string, unknown>): UserSettings {
   return {
     version: 2,
     volume: isInt(raw.volume, 0, 100) ? raw.volume : VOLUME_DEFAULT,
-    tempoPercent: isInt(raw.tempoPercent, TEMPO_PERCENT_MIN, TEMPO_PERCENT_MAX, TEMPO_PERCENT_STEP)
-      ? raw.tempoPercent
-      : TEMPO_PERCENT_DEFAULT,
+    // tempoPercent (2.1.0, feature 012 FR-015): deprecated, ignored when present.
     scale: isInt(storedScale, SCORE_SCALE_MIN, SCORE_SCALE_MAX, SCORE_SCALE_STEP) ? storedScale : SCORE_SCALE_DEFAULT,
     follow: typeof raw.follow === 'boolean' ? raw.follow : true,
     overlays: validOverlays(raw.overlays),
@@ -198,9 +192,10 @@ export class LocalSettingsStore implements SettingsStore {
   private flush(): void {
     this.writeTimer = null;
     if (!this.pending) return;
-    // Unknown fields are kept; v1's `zoomPercent` is dropped now that its value lives in `scale`.
+    // Unknown fields are kept; v1's `zoomPercent` is dropped now that its value lives in `scale`, and
+    // `tempoPercent` is dropped too (2.1.0, feature 012 FR-015: no longer written).
     const combined: Record<string, unknown> = { ...this.raw, ...this.pending };
-    const { zoomPercent: _superseded, ...merged } = combined;
+    const { zoomPercent: _superseded, tempoPercent: _deprecated, ...merged } = combined;
     this.raw = merged;
     this.pending = null;
     this.write(SETTINGS_STORAGE_KEY, this.raw);

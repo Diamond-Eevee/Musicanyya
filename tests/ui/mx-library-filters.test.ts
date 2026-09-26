@@ -206,7 +206,7 @@ describe('mx-library filters (contracts/library-port.md §3, FR-012)', () => {
     const detail = el.querySelector('.library-item-detail')?.textContent ?? '';
     expect(detail).toContain('A minor');
     expect(detail).toContain('3/8');
-    expect(detail).toContain('72');
+    expect(detail).toContain('Tempo: 72 BPM'); // feature 012 FR-021: the same unit the transport shows
     expect(detail).toContain('9');
     expect(detail).toContain('0:10');
     expect(detail).toContain('both');

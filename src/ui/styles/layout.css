@@ -58,6 +58,46 @@ mx-menu[menu="more"] {
   width: 64px;
 }
 
+/* mx-tempo-field (feature 012, contracts/tempo-field.md): a custom element defaults to display: inline, which would
+   let its children (and the beat SVG, drawn in font-unit coordinates far larger than its intended on-screen size)
+   flow without any layout or size constraint. */
+mx-tempo-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+mx-tempo-field[hidden] {
+  display: none;
+}
+
+mx-tempo-field input[data-id="tempo-bpm"] {
+  width: 3.5em;
+  text-align: right;
+  font-size: 1em;
+}
+
+mx-tempo-field .tempo-beat-symbol {
+  width: auto;
+  height: 1.3em;
+  display: block;
+  fill: currentcolor;
+}
+
+mx-tempo-field [data-id="tempo-down"],
+mx-tempo-field [data-id="tempo-up"],
+mx-tempo-field [data-id="tempo-reset"] {
+  width: 1.6em;
+  height: 1.6em;
+  line-height: 1;
+  padding: 0;
+}
+
+mx-tempo-field [data-id="tempo-written"] {
+  color: #666666;
+  font-size: 0.9em;
+}
+
 #run-status {
   margin-inline-start: auto;
 }

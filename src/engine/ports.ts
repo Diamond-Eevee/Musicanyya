@@ -180,7 +180,8 @@ export interface OverlayFlags {
 export interface UserSettings {
   version: 2;
   volume: number;
-  tempoPercent: number;
+  // `tempoPercent` removed in feature 012-tempo-bpm-field (FR-015, view-settings.md 2.1.0): the transport factor
+  // is never carried over between Scores, so it is not persisted.
   /** Score size in percent, 50-200 in steps of 10; 100 = fitted to the viewport (v1 called this `zoomPercent`). */
   scale: number;
   follow: boolean;

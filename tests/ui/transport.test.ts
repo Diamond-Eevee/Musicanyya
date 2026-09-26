@@ -21,23 +21,31 @@ describe('mx-transport & shortcuts', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders transport controls (play, stop, tempo, volume, follow)', () => {
+  it('renders transport controls (play, stop, the tempo field, volume, follow)', () => {
     expect(el.querySelector('.play-btn')).not.toBeNull();
     expect(el.querySelector('.stop-btn')).not.toBeNull();
-    expect(el.querySelector('input.tempo')).not.toBeNull();
+    expect(el.querySelector('mx-tempo-field')).not.toBeNull();
     expect(el.querySelector('input.volume')).not.toBeNull();
     expect(el.querySelector('input.follow')).not.toBeNull();
   });
 
-  it('tempo input enforces 25-200 step 5', () => {
-    const input = el.querySelector('input.tempo') as HTMLInputElement;
-    expect(input.min).toBe('25');
-    expect(input.max).toBe('200');
-    expect(input.step).toBe('5');
+  it('there is one mx-tempo-field and no input.tempo range (feature 012 US1: the slider is gone)', () => {
+    expect(el.querySelectorAll('mx-tempo-field')).toHaveLength(1);
+    expect(el.querySelector('input.tempo')).toBeNull();
+    expect(el.querySelector('input[type="range"].tempo')).toBeNull();
+  });
 
-    input.value = '150';
-    input.dispatchEvent(new Event('change'));
-    expect(transportState.setTempo).toHaveBeenCalledWith(150);
+  it('keeps the same mx-tempo-field element instance across re-renders, with focus kept (research R-8)', () => {
+    const field = el.querySelector('mx-tempo-field');
+    expect(field).not.toBeNull();
+    const input = field?.querySelector('[data-id="tempo-bpm"]') as HTMLInputElement | null;
+    input?.focus();
+
+    transportState.setPositionTick(480); // a real (unmocked) store change that makes mx-transport re-render
+
+    const fieldAfter = el.querySelector('mx-tempo-field');
+    expect(fieldAfter).toBe(field); // same instance, not rebuilt
+    expect(document.activeElement).toBe(input);
   });
 
   it('volume input changes volume', () => {
@@ -62,6 +70,14 @@ describe('mx-transport & shortcuts', () => {
     expect((el.querySelector('input.follow') as HTMLInputElement).checked).toBe(!before);
     transportState.toggleFollow();
     expect((el.querySelector('input.follow') as HTMLInputElement).checked).toBe(before);
+  });
+
+  it('applySavedSettings no longer takes a tempo (feature 012 FR-015): it only applies volume and follow', () => {
+    const before = transportState.get().tempoPercent;
+    transportState.applySavedSettings(42, false);
+    expect(transportState.get().volume).toBe(42);
+    expect(transportState.get().follow).toBe(false);
+    expect(transportState.get().tempoPercent).toBe(before); // unaffected: no tempo argument exists any more
   });
 
   describe('shortcuts', () => {

@@ -17,7 +17,8 @@ This document lists the supported MusicXML elements.
 | Time & Repeats | `<repeat>` | Supported | Backward and forward repeats. Note: middle-barline repeats not supported |
 | Time & Repeats | `<ending>` | Supported | Voltas (1., 2. endings) |
 | Time & Repeats | `<direction>` | Supported | Jumps (D.C., D.S., To Coda, Fine). Note: mid-measure jumps not supported |
-| Time & Repeats | `<sound tempo>` | Supported | Note: continuous changes (rit./accel.) not supported |
+| Time & Repeats | `<sound tempo>` | Supported | Wins over a <metronome> in the same direction (012). Note: continuous changes (rit./accel.) not supported; outside 10-1000 quarter notes per minute is treated as unusable, like a missing tempo |
+| Time & Repeats | `<metronome>` | Supported | Every note value from 1024th to maxima, 0-3 dots, "c."/"ca."/"circa" and a range read as their first number, parenthesised marks (012). A metric modulation (two <beat-unit>s), <metronome-note> and <beat-unit-tied> give no tempo and no beat from the mark |
 | Time & Repeats | `<fermata>` | Unsupported | Ignored for playback |
 | Dynamics | `<dynamics>` | Supported | Marks and wedges |
 | Instruments | `<midi-instrument>` | Supported | MIDI programs and unpitched percussion |
@@ -43,4 +44,3 @@ This document lists the supported MusicXML elements.
 | Directions | `<pedal>` | Ignored | Engraved by Verovio; the sustain is not played (library items say so in their limitations) |
 | Credits | `<rights>` | Ignored | Kept in the file for attribution; not shown |
 | Credits | `<source>` | Ignored | Kept in the file for attribution; not shown |
-
