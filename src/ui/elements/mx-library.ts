@@ -1,5 +1,12 @@
 import { filterItems } from '../../core/library/filter.js';
-import type { LibraryFilter, LibraryIndex, LibraryItem, LibrarySection, SkillTag } from '../../core/library/types.js';
+import type {
+  Level,
+  LibraryFilter,
+  LibraryIndex,
+  LibraryItem,
+  LibrarySection,
+  SkillTag,
+} from '../../core/library/types.js';
 import type { CatalogError } from '../../engine/ports.js';
 import { en } from '../i18n/en.js';
 import { libraryState } from '../state/libraryState.js';
@@ -132,7 +139,7 @@ export class MxLibrary extends HTMLElement {
     const s = en.library;
     const keys = availableKeys(index.items);
     const tags = availableTags(index.items);
-    const levelOption = (level: 'beginner' | 'intermediate' | 'advanced') =>
+    const levelOption = (level: Level) =>
       `<option value="${level}" ${filter.level === level ? 'selected' : ''}>${escapeHtml(s.levels[level])}</option>`;
     const keyOption = (key: string) =>
       `<option value="${escapeHtml(key)}" ${filter.key === key ? 'selected' : ''}>${escapeHtml(key)}</option>`;
@@ -149,7 +156,7 @@ export class MxLibrary extends HTMLElement {
           <span>${escapeHtml(s.filters.level)}</span>
           <select class="library-filter-level">
             <option value="" ${filter.level === null ? 'selected' : ''}>${escapeHtml(s.filters.anyLevel)}</option>
-            ${levelOption('beginner')}${levelOption('intermediate')}${levelOption('advanced')}
+            ${levelOption('introduction')}${levelOption('beginner')}${levelOption('intermediate')}${levelOption('advanced')}
           </select>
         </label>
         <label class="library-filter">
@@ -225,7 +232,7 @@ export class MxLibrary extends HTMLElement {
 
     const levelSelect = this.querySelector<HTMLSelectElement>('.library-filter-level');
     levelSelect?.addEventListener('change', () => {
-      const value = levelSelect.value as '' | 'beginner' | 'intermediate' | 'advanced';
+      const value = levelSelect.value as '' | Level;
       this.applyFilter({ ...filter, level: value === '' ? null : value });
     });
 

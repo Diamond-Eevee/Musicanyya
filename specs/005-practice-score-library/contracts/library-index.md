@@ -224,6 +224,7 @@ Everything a human decides. Never generated, never rewritten by a tool.
         "shortestDivision":{ "type": "integer", "description": "1 = whole, 4 = quarter, 16 = sixteenth ..." },
         "notesPerBeat":    { "type": "number" },
         "chordChangesPerBar": { "type": "number", "description": "mean over written measures of the chord attacks (onsets where one staff sounds 2+ notes) that differ from the previous chord attack of the same staff (1.2.0)" },
+        "minorScaleAccidentalCount": { "type": "integer", "description": "accidentals on the 6th or 7th degree of the relative minor of a key signature in the score; exercises do not count them for criterion 11 (1.2.0, D-2 B5)" },
         "accidentals":     { "type": "integer", "description": "key-signature accidentals, max over the piece" },
         "hasTies":         { "type": "boolean" },
         "hasTuplets":      { "type": "boolean" },

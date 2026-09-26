@@ -5,6 +5,7 @@ import { MAX_FILE_BYTES } from '../../src/core/defaults.js';
 import { deriveFacts } from '../../src/core/library/facts.js';
 import { validMetadata } from '../../src/core/library/index-model.js';
 import { checkLevel } from '../../src/core/library/levels.js';
+import { checkStepOrder } from '../../src/core/library/step-order.js';
 import type { LibraryIndex, LibraryItem, LibrarySection } from '../../src/core/library/types.js';
 import { buildScore } from '../../src/core/musicxml/build.js';
 import { planEngraving } from '../../src/core/musicxml/engraving/plan.js';
@@ -13,7 +14,7 @@ import { buildTimeline } from '../../src/core/timeline/timeline.js';
 import { decodeXml } from '../../src/engine/files/decode.js';
 import { hashFile } from '../../src/engine/files/hash.js';
 import { readMxl } from '../../src/engine/files/mxl.js';
-import { LIBRARY_SECTIONS } from './sections.js';
+import { LIBRARY_SECTIONS, type LibrarySectionDefinition } from './sections.js';
 
 export interface BuildLibraryIndexResult {
   index: LibraryIndex;
@@ -46,9 +47,65 @@ function readThirdPartyNotices(): string {
   return fs.readFileSync(fileURLToPath(new URL('../../THIRD_PARTY_NOTICES.md', import.meta.url)), 'utf-8');
 }
 
-function sectionIdForFile(relFile: string): string | null {
+function sectionIdForFile(relFile: string, sections: readonly LibrarySectionDefinition[]): string | null {
   const dir = relFile.split('/').slice(0, -1).join('/');
-  return LIBRARY_SECTIONS.find((s) => s.path === dir)?.id ?? null;
+  return sections.find((s) => s.path === dir)?.id ?? null;
+}
+
+/** Items under these folders belong to a key or key-change folder and carry a `step` (library-index 1.2.0 §1). */
+const STEP_FOLDERS = ['learning/keys/', 'learning/key-changes/'];
+
+/** The cross-item rules of contract library-index 1.2.0 §1 and the step-order check (FR-010, SC-002). Every failure
+ *  names the item or folder and the cause; a failing shelf is not written. */
+function stepRuleProblems(items: readonly LibraryItem[]): string[] {
+  const problems: string[] = [];
+  const seenSteps = new Map<string, string>();
+  const supersededBy = new Map<string, string>();
+  const shelfIds = new Set(items.map((item) => item.id));
+
+  for (const item of items) {
+    const { meta, id, section } = item;
+    const underStepFolder = STEP_FOLDERS.some((prefix) => id.startsWith(prefix));
+    if (meta.step === undefined && underStepFolder) {
+      problems.push(`${id}: step is required under learning/keys and learning/key-changes (library-index 1.2.0 §1)`);
+    }
+    if (meta.step !== undefined && !underStepFolder) {
+      problems.push(
+        `${id}: step is only allowed under learning/keys and learning/key-changes (library-index 1.2.0 §1)`,
+      );
+    }
+    if (meta.step !== undefined) {
+      if (meta.step === 'song') {
+        if (meta.kind !== 'piece') problems.push(`${id}: a song must be a piece, not an exercise`);
+        if (meta.level !== 'beginner' && meta.level !== 'intermediate') {
+          problems.push(`${id}: a song is beginner or intermediate, not ${meta.level}`);
+        }
+      } else if (meta.level !== meta.step) {
+        problems.push(`${id}: step "${meta.step}" requires level "${meta.step}", not "${meta.level}"`);
+      }
+      const key = `${section}|${meta.step}|${meta.stepOrder ?? 0}`;
+      const other = seenSteps.get(key);
+      if (other !== undefined) {
+        problems.push(
+          `${section}: duplicate (step, stepOrder) (${meta.step}, ${meta.stepOrder ?? 0}) - ${other} and ${id}`,
+        );
+      } else {
+        seenSteps.set(key, id);
+      }
+    }
+    if (id.startsWith('learning/key-changes/') && !meta.tags.includes('key-changes')) {
+      problems.push(`${id}: an item under learning/key-changes needs the skill tag key-changes`);
+    }
+    for (const old of meta.supersedes ?? []) {
+      if (shelfIds.has(old.id)) problems.push(`${id}: supersedes ${old.id}, which is still on the shelf`);
+      const first = supersededBy.get(old.id);
+      if (first !== undefined) problems.push(`${old.id}: superseded by both ${first} and ${id}`);
+      else supersededBy.set(old.id, id);
+    }
+  }
+
+  problems.push(...checkStepOrder(items));
+  return problems;
 }
 
 /** Walks `libraryRoot`, validates every sidecar, loads every score through the app's own `readXml` +
@@ -59,6 +116,7 @@ function sectionIdForFile(relFile: string): string | null {
 export async function buildLibraryIndex(
   libraryRoot: string,
   thirdPartyNotices = readThirdPartyNotices(),
+  sectionDefinitions: readonly LibrarySectionDefinition[] = LIBRARY_SECTIONS,
 ): Promise<BuildLibraryIndexResult> {
   const problems: string[] = [];
   const items: LibraryItem[] = [];
@@ -89,7 +147,7 @@ export async function buildLibraryIndex(
       continue;
     }
 
-    const sectionId = sectionIdForFile(relFile);
+    const sectionId = sectionIdForFile(relFile, sectionDefinitions);
     if (!sectionId) {
       problems.push(`${relFile}: its folder is not one of tools/library/sections.ts's declared sections`);
       continue;
@@ -169,6 +227,7 @@ export async function buildLibraryIndex(
       ...(meta.raisedBecause !== undefined ? { raisedBecause: meta.raisedBecause } : {}),
       expectedNotices: meta.expected?.notices ?? [],
       kind: meta.kind,
+      tags: meta.tags,
       ...(meta.arrangement !== undefined ? { arrangement: meta.arrangement } : {}),
     });
     if (!levelCheck.pass) {
@@ -182,8 +241,16 @@ export async function buildLibraryIndex(
     items.push({ id, section: sectionId, file: relFile, bytes: fileBuffer.byteLength, hash, meta, facts, levelCheck });
   }
 
+  problems.push(...stepRuleProblems(items));
+
+  // A section is listed when it holds items or is an ancestor of one that does: readers build the tree from
+  // `parent` + `order` (contract library-index 1.2.0 §2), so a folder with no items of its own but with children stays.
   const usedSectionIds = new Set(items.map((i) => i.section));
-  const sections: LibrarySection[] = LIBRARY_SECTIONS.filter((s) => usedSectionIds.has(s.id)).map((s) => ({ ...s }));
+  const byId = new Map(sectionDefinitions.map((s) => [s.id, s]));
+  for (const id of Array.from(usedSectionIds)) {
+    for (let parent = byId.get(id)?.parent; parent; parent = byId.get(parent)?.parent) usedSectionIds.add(parent);
+  }
+  const sections: LibrarySection[] = sectionDefinitions.filter((s) => usedSectionIds.has(s.id)).map((s) => ({ ...s }));
 
   const index: LibraryIndex = {
     version: 1,

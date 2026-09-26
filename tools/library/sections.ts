@@ -8,7 +8,10 @@ export interface LibrarySectionDefinition {
   /** Folder under `public/library/` this section reads from. */
   path: string;
   parent: string | null;
+  /** Position among siblings (same `parent`). */
   order: number;
+  /** Section ids this section replaces (feature 011 FR-020): copied into `index.json`. */
+  formerIds?: readonly string[];
 }
 
 export const LIBRARY_SECTIONS: readonly LibrarySectionDefinition[] = [

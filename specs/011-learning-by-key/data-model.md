@@ -64,13 +64,13 @@ Introduction caps (added to every `LEVEL_*` record in `src/core/defaults.ts`; Be
 | 4 voices per staff | 1 | 1 |
 | 5 shortest value (beats) | 0.5 | 1 |
 | 6 longest run at shortest value | 4 | 4 |
-| 7 tempo qpm | 50-100 | 40-72 |
+| 7 tempo qpm | 50-100 | 50-72 (kept inside Beginner's range so the caps nest) |
 | 8 tempo changes | 0 | 0 |
 | 9 key fifths (pieces) | 2 | 1 |
 | 10 key changes | 0 (key-change exercises 1, D-2 B6) | 0 (key-change exercises 1) |
 | 11 accidentals per 16 bars | 2 (exercise leading tone/6th exempt, D-2 B5) | 2 (same exemption) |
 | 12 metres | 4/4, 3/4, 2/4 | 4/4, 3/4 |
-| 14 bars | 8-32 | 4-16 |
+| 14 bars | 8-32 | 8-16 (kept inside Beginner's range; the minimum does not apply to exercises anyway) |
 | 15 duration (s) | 90 | 60 |
 | 16 largest interval one hand | 9 | 7 |
 | 17 largest leap | 12 | 12 |

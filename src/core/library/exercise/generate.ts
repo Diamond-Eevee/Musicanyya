@@ -15,6 +15,7 @@ import { writeScoreXml } from '../../musicxml/write.js';
 import type { ItemMetadata } from '../types.js';
 import { chordTones, invertOrder, tonicPitchClass } from './degrees.js';
 import { assertFingeringLength, triadFingering } from './fingering.js';
+import { displayKeyName, keySlug } from './keys.js';
 import { assertWithin88Keys } from './range-guard.js';
 import type { ExerciseDefinition, ExerciseKey, ExerciseStep, Inversion, Quality, StepDuration } from './types.js';
 import { placeAscending, registerAnchorMidi, transposeOctaves, type VoicedNote } from './voicing.js';
@@ -78,20 +79,6 @@ export function romanFigure(degree: string, inversion: Inversion, quality?: Qual
   if (inversion === 0) return numeral;
   if (inversion === 1) return `${numeral}${superscript(6)}`;
   return `${numeral}${superscript(6)}${superscript(4)}`;
-}
-
-function displayKeyName(key: ExerciseKey): string {
-  const letter = key.tonic[0];
-  const accidental = key.tonic.slice(1);
-  const symbol = accidental === '#' ? '♯' : accidental === 'b' ? '♭' : '';
-  return `${letter}${symbol} ${key.mode}`;
-}
-
-function keySlug(key: ExerciseKey): string {
-  const letter = (key.tonic[0] ?? '').toLowerCase();
-  const accidental = key.tonic.slice(1);
-  const accSlug = accidental === '#' ? '-sharp' : accidental === 'b' ? '-flat' : '';
-  return `${letter}${accSlug}-${key.mode}`;
 }
 
 function toWritePitch(n: VoicedNote): WritePitch {

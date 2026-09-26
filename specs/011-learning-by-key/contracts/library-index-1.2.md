@@ -66,7 +66,8 @@ Section objects gain one optional property:
 Item objects copy `supersedes` from the sidecar's metadata (it stays inside `meta`; no new top-level item field).
 `levelCheck.level` gains `introduction`. `facts` gains `chordChangesPerBar` (number, mean over written measures of the
 chord attacks - onsets where one staff sounds two or more notes - that differ from the previous chord attack in the
-same staff).
+same staff), and `minorScaleAccidentalCount` (number: how many of the score's accidentals sit on the 6th or 7th
+degree of the relative minor of a key signature in the score - the scale notes exercises need not count, D-2 B5).
 
 Section order: `order` is now **the position among siblings** (same `parent`), which is what the builder already
 writes; readers build the tree from `parent` + `order` (library-port 1.2 §2). Sibling `order` values are unique.

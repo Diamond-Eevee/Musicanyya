@@ -136,97 +136,190 @@ export const PLAY_STRICTNESS_LEVELS: Record<StrictnessLevelName, StrictnessLevel
 };
 
 // Library level criteria (data-model.md §4) - the threshold values `src/core/library/levels.ts`
-// checks `ItemFacts` against. Nested caps: Beginner ⊂ Intermediate ⊂ Advanced.
-export const LEVEL_PITCH_SPAN_SEMITONES_MAX: Record<Level, number> = { beginner: 36, intermediate: 48, advanced: 88 };
+// checks `ItemFacts` against. Nested caps: Introduction ⊂ Beginner ⊂ Intermediate ⊂ Advanced (feature 011 added
+// Introduction; its tempo and bar-count ranges are kept inside Beginner's so the nesting holds).
+export const LEVEL_PITCH_SPAN_SEMITONES_MAX: Record<Level, number> = {
+  introduction: 36,
+  beginner: 36,
+  intermediate: 48,
+  advanced: 88,
+};
 export const LEVEL_PITCH_BOUNDS_MIDI: Record<Level, { min: number; max: number }> = {
+  introduction: { min: 36, max: 84 },
   beginner: { min: 36, max: 84 },
   intermediate: { min: 28, max: 96 },
   advanced: { min: 21, max: 108 },
 };
 export const LEVEL_HAND_INDEPENDENCE_FRACTION_MAX: Record<Level, number> = {
+  introduction: 0,
   beginner: 0.35,
   intermediate: 1,
   advanced: 1,
 };
-export const LEVEL_VOICES_PER_STAFF_MAX: Record<Level, number> = { beginner: 1, intermediate: 2, advanced: 4 };
+export const LEVEL_VOICES_PER_STAFF_MAX: Record<Level, number> = {
+  introduction: 1,
+  beginner: 1,
+  intermediate: 2,
+  advanced: 4,
+};
 export const LEVEL_SHORTEST_VALUE_BEATS_MIN: Record<Level, number> = {
+  introduction: 1,
   beginner: 0.5,
   intermediate: 0.25,
   advanced: 0.125,
 };
-export const LEVEL_LONGEST_RUN_MAX: Record<Level, number> = { beginner: 4, intermediate: 32, advanced: Infinity };
+export const LEVEL_LONGEST_RUN_MAX: Record<Level, number> = {
+  introduction: 4,
+  beginner: 4,
+  intermediate: 32,
+  advanced: Infinity,
+};
 export const LEVEL_TEMPO_QPM_RANGE: Record<Level, { min: number; max: number }> = {
+  introduction: { min: 50, max: 72 },
   beginner: { min: 50, max: 100 },
   intermediate: { min: 40, max: 152 },
   advanced: { min: 30, max: 208 },
 };
-export const LEVEL_TEMPO_CHANGES_MAX: Record<Level, number> = { beginner: 0, intermediate: 2, advanced: Infinity };
-export const LEVEL_KEY_FIFTHS_MAX: Record<Level, number> = { beginner: 2, intermediate: 4, advanced: 7 };
-export const LEVEL_KEY_CHANGES_MAX: Record<Level, number> = { beginner: 0, intermediate: 2, advanced: Infinity };
+export const LEVEL_TEMPO_CHANGES_MAX: Record<Level, number> = {
+  introduction: 0,
+  beginner: 0,
+  intermediate: 2,
+  advanced: Infinity,
+};
+export const LEVEL_KEY_FIFTHS_MAX: Record<Level, number> = {
+  introduction: 1,
+  beginner: 2,
+  intermediate: 4,
+  advanced: 7,
+};
+export const LEVEL_KEY_CHANGES_MAX: Record<Level, number> = {
+  introduction: 0,
+  beginner: 0,
+  intermediate: 2,
+  advanced: Infinity,
+};
 export const LEVEL_ACCIDENTALS_PER_16_MEASURES_MAX: Record<Level, number> = {
+  introduction: 2,
   beginner: 2,
   intermediate: 12,
   advanced: Infinity,
 };
 // Empty array = "any metre", the Advanced row of data-model.md §4 criterion 12.
 export const LEVEL_METRES: Record<Level, readonly string[]> = {
+  introduction: ['4/4', '3/4'],
   beginner: ['4/4', '3/4', '2/4'],
   intermediate: ['4/4', '3/4', '2/4', '6/8', '3/8', '2/2', '12/8'],
   advanced: [],
 };
-export const LEVEL_METRE_CHANGES_MAX: Record<Level, number> = { beginner: 0, intermediate: 1, advanced: Infinity };
+export const LEVEL_METRE_CHANGES_MAX: Record<Level, number> = {
+  introduction: 0,
+  beginner: 0,
+  intermediate: 1,
+  advanced: Infinity,
+};
 export const LEVEL_MEASURES_RANGE: Record<Level, { min: number; max: number }> = {
+  introduction: { min: 8, max: 16 },
   beginner: { min: 8, max: 32 },
   intermediate: { min: 16, max: 96 },
   advanced: { min: 0, max: 250 },
 };
-export const LEVEL_DURATION_SECONDS_MAX: Record<Level, number> = { beginner: 90, intermediate: 240, advanced: 480 };
+export const LEVEL_DURATION_SECONDS_MAX: Record<Level, number> = {
+  introduction: 60,
+  beginner: 90,
+  intermediate: 240,
+  advanced: 480,
+};
 // Largest simultaneous interval in one hand (criterion 16). Advanced's "wider only under <arpeggiate>"
 // exception is not modelled - `maxSpanSemitones` does not distinguish arpeggiated chords.
-export const LEVEL_MAX_INTERVAL_SEMITONES: Record<Level, number> = { beginner: 9, intermediate: 12, advanced: 14 };
-export const LEVEL_MAX_LEAP_SEMITONES: Record<Level, number> = { beginner: 12, intermediate: 24, advanced: Infinity };
-export const LEVEL_MEAN_DENSITY_MAX: Record<Level, number> = { beginner: 2.5, intermediate: 6, advanced: 12 };
-export const LEVEL_PEAK_DENSITY_MAX: Record<Level, number> = { beginner: 5, intermediate: 12, advanced: 24 };
+export const LEVEL_MAX_INTERVAL_SEMITONES: Record<Level, number> = {
+  introduction: 7,
+  beginner: 9,
+  intermediate: 12,
+  advanced: 14,
+};
+export const LEVEL_MAX_LEAP_SEMITONES: Record<Level, number> = {
+  introduction: 12,
+  beginner: 12,
+  intermediate: 24,
+  advanced: Infinity,
+};
+export const LEVEL_MEAN_DENSITY_MAX: Record<Level, number> = {
+  introduction: 1.5,
+  beginner: 2.5,
+  intermediate: 6,
+  advanced: 12,
+};
+export const LEVEL_PEAK_DENSITY_MAX: Record<Level, number> = {
+  introduction: 3,
+  beginner: 5,
+  intermediate: 12,
+  advanced: 24,
+};
 export const LEVEL_TIE_CHAIN_NOTES_MAX: Record<Level, number> = {
+  introduction: 0,
   beginner: 2,
   intermediate: Infinity,
   advanced: Infinity,
 };
 export const LEVEL_TIE_BARLINES_MAX: Record<Level, number> = {
+  introduction: 0,
   beginner: 1,
   intermediate: Infinity,
   advanced: Infinity,
 };
 export const LEVEL_TUPLETS: Record<Level, 'none' | 'simple' | 'any'> = {
+  introduction: 'none',
   beginner: 'none',
   intermediate: 'simple',
   advanced: 'any',
 };
 export const LEVEL_GRACE_NOTES_PER_4_MEASURES_MAX: Record<Level, number> = {
+  introduction: 0,
   beginner: 0,
   intermediate: 1,
   advanced: Infinity,
 };
 export const LEVEL_ORNAMENTS_PER_4_MEASURES_MAX: Record<Level, number> = {
+  introduction: 0,
   beginner: 0,
   intermediate: 1,
   advanced: Infinity,
 };
 export const LEVEL_REPEAT_KINDS: Record<Level, readonly string[]> = {
+  introduction: ['none'],
   beginner: ['none', 'simple'],
   intermediate: ['none', 'simple', 'voltas'],
   advanced: ['none', 'simple', 'voltas', 'jumps'],
 };
 export const LEVEL_BACKWARD_REPEATS_MAX: Record<Level, number> = {
+  introduction: 0,
   beginner: 1,
   intermediate: Infinity,
   advanced: Infinity,
 };
 export const LEVEL_PEDAL: Record<Level, 'forbidden' | 'allowed'> = {
+  introduction: 'forbidden',
   beginner: 'forbidden',
   intermediate: 'allowed',
   advanced: 'allowed',
 };
 // Criterion 27 - identical at every level: one part, a grand staff.
+// Exercise variants (feature 011, owner decision D-2 B7): an exercise may span 38 semitones within MIDI 35-85 at
+// Introduction and Beginner - IV below I in both hands needs T-19..T+19, and F sharp major sits at the edge.
+// Pieces keep the caps above; Intermediate and Advanced already exceed these values.
+export const LEVEL_EXERCISE_PITCH_SPAN_SEMITONES_MAX: Partial<Record<Level, number>> = {
+  introduction: 38,
+  beginner: 38,
+};
+export const LEVEL_EXERCISE_PITCH_BOUNDS_MIDI: Partial<Record<Level, { min: number; max: number }>> = {
+  introduction: { min: 35, max: 85 },
+  beginner: { min: 35, max: 85 },
+};
+/** Key changes a `key-changes` exercise may contain at Introduction and Beginner (D-2 B6). */
+export const LEVEL_KEY_CHANGE_EXERCISE_MAX = 1;
+
+// Step order (FR-010, SC-002): the facts `checkStepOrder` compares between consecutive main steps of one folder.
+export const STEP_ORDER_FACTS = ['tempoBpm', 'notesPerBeat', 'handIndependenceFraction', 'chordChangesPerBar'] as const;
+
 export const LEVEL_REQUIRED_PARTS = 1;
 export const LEVEL_REQUIRED_STAVES = 2;

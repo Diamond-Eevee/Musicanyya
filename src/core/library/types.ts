@@ -1,7 +1,23 @@
 /** contracts/library-index.md, contracts/library-port.md - the shapes the library content formats
  *  and the app's in-memory model share. Pure data: no DOM, no `fetch` (Principle V). */
 
-export type Level = 'beginner' | 'intermediate' | 'advanced';
+/** Feature 011 adds `introduction` below `beginner` (specs/011-learning-by-key/data-model.md §4). */
+export type Level = 'introduction' | 'beginner' | 'intermediate' | 'advanced';
+
+/** The step of a key or key-change folder an item belongs to (contracts/library-index.md 1.2.0 §1). `song` is
+ *  the chord-practice songs of a key folder; the other four are the generated exercise steps. */
+export type Step = 'introduction' | 'beginner' | 'intermediate' | 'advanced' | 'song';
+
+/** Position of each step in a folder: the panel sorts by it, and `checkStepOrder` walks the four exercise steps in
+ *  this order. */
+export const STEP_RANK: Readonly<Record<Step, number>> = {
+  introduction: 0,
+  beginner: 1,
+  intermediate: 2,
+  advanced: 3,
+  song: 4,
+};
+export const STEPS: readonly Step[] = ['introduction', 'beginner', 'intermediate', 'advanced', 'song'];
 
 export const SKILL_TAGS = [
   'chords',
@@ -22,6 +38,7 @@ export const SKILL_TAGS = [
   'sight-reading',
   'dynamics',
   'phrasing',
+  'key-changes',
 ] as const;
 export type SkillTag = (typeof SKILL_TAGS)[number];
 
@@ -75,6 +92,13 @@ export interface ItemMetadata {
   /** An arrangement's deliberate departures from the original, naming the bars (contract library-index.md 1.1.0).
    *  Not displayed by the app in feature 007. */
   departures?: readonly string[];
+  /** The step of a key or key-change folder this item belongs to (contracts/library-index.md 1.2.0). */
+  step?: Step;
+  /** Position inside its step: 0 = the step's main exercise, 10+ = more practice at the same step. */
+  stepOrder?: number;
+  /** Former library items this item replaces: old id and the SHA-256 of the old file. Read only by the session (settings
+   *  adoption); never affects what is listed. */
+  supersedes?: readonly { id: string; hash: string }[];
 }
 
 export interface LibrarySection {
@@ -83,7 +107,10 @@ export interface LibrarySection {
   description?: string;
   path: string;
   parent: string | null;
+  /** Position among siblings (same `parent`). */
   order: number;
+  /** Section ids this section replaces; a persisted filter naming one is moved here (feature 011 FR-020). */
+  formerIds?: readonly string[];
 }
 
 /** Derived by `tools/library/build-index.ts` through `readXml` + `buildScore`. Display and filtering
@@ -106,9 +133,13 @@ export interface ItemFacts {
   /** Max distinct voices in any one staff (data-model.md §4, criterion 4). Not part of the v1.0.0
    *  contract's required fields; the schema allows additional facts (MINOR addition). */
   voicesPerStaff?: number;
-  /** Fraction of measures whose staves 1 and 2 have different onset-tick sets (criterion 3). 0 when
-   *  the item has fewer than two staves. */
+  /** Fraction of measures where both staves have onsets and neither staff's onset-tick set is a subset of the
+   *  other's (criterion 3, the B1 rule of feature 011: a held chord under a moving hand is dependent). 0 when the
+   *  item has fewer than two staves. */
   handIndependenceFraction?: number;
+  /** Mean over written measures of the chord attacks (onsets where one staff sounds 2+ notes) that differ from the
+   *  previous chord attack of the same staff (feature 011, data-model.md §4). Summed over staves. */
+  chordChangesPerBar?: number;
   /** 1 = whole, 4 = quarter, 16 = sixteenth ... */
   shortestDivision: number;
   notesPerBeat: number;
@@ -140,6 +171,9 @@ export interface ItemFacts {
   peakNotesPerSecond?: number;
   /** Explicit `<accidental>` markup count - accidentals outside the key signature (criterion 11). */
   accidentalMarkCount?: number;
+  /** How many of those accidentals sit on the 6th or 7th degree of the relative minor of a key signature in the score -
+   *  the harmonic and melodic minor scale notes exercises are exempt from counting (D-2 B5, criterion 11). */
+  minorScaleAccidentalCount?: number;
   /** Longest chain of tied notes sharing a pitch, within one staff/voice (criterion 20). */
   maxTieChainNotes?: number;
   /** Most barlines a single tie chain crosses (criterion 20). */

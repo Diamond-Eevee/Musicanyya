@@ -6,9 +6,14 @@ import { type AuditRecord, type Check, type CheckResult, outcomeLabel } from './
 import type { SourceManifest } from './sources';
 
 /** FR-022 / feature 005 FR-008: the minimum piece count per level. */
-export const LEVEL_MINIMUMS: Readonly<Record<Level, number>> = { beginner: 7, intermediate: 5, advanced: 5 };
+export const LEVEL_MINIMUMS: Readonly<Record<Exclude<Level, 'introduction'>, number>> = {
+  beginner: 7,
+  intermediate: 5,
+  advanced: 5,
+};
 
-const LEVELS: Level[] = ['beginner', 'intermediate', 'advanced'];
+/** The repertoire levels the audit counts pieces for; Introduction holds exercises only. */
+const LEVELS: Exclude<Level, 'introduction'>[] = ['beginner', 'intermediate', 'advanced'];
 const OUTCOME_ROWS = ['verified', 'verified (visual)', 'fixed', 'replaced', 'relabelled', 'removed'];
 /** Spec FR-020: what a replaced item means for the musician's Recents and progress. */
 const RECENTS_NOTE =

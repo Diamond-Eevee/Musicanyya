@@ -10,7 +10,7 @@ export const LIBRARY_FILTER_STORAGE_KEY = 'musicanyya.library.v1';
 const NO_FILTER: LibraryFilter = { sectionId: null, level: null, key: null, tag: null, text: '' };
 
 function isLevel(value: unknown): value is Level {
-  return value === 'beginner' || value === 'intermediate' || value === 'advanced';
+  return value === 'introduction' || value === 'beginner' || value === 'intermediate' || value === 'advanced';
 }
 
 function isSkillTag(value: unknown): value is LibraryFilter['tag'] {

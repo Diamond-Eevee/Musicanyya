@@ -102,6 +102,7 @@ export const en = {
     open: 'Open',
     allSections: 'All sections',
     levels: {
+      introduction: 'Introduction',
       beginner: 'Beginner',
       intermediate: 'Intermediate',
       advanced: 'Advanced',
@@ -109,6 +110,8 @@ export const en = {
     /** Plain-language level criteria (FR-009, US3 scenario 1) - data-model.md §4's thresholds in
      *  words, not numbers, so a musician can judge fit without reading the constants table. */
     levelDescriptions: {
+      introduction:
+        'The first step: one hand plays a slow scale while the other holds one chord per bar, in a small range.',
       beginner:
         'One hand at a time for the most part, simple rhythms, a small range, and a key with few sharps or flats.',
       intermediate: 'Both hands can move independently, faster notes, a wider range, and up to a few sharps or flats.',
@@ -144,6 +147,7 @@ export const en = {
       'sight-reading': 'Sight-reading',
       dynamics: 'Dynamics',
       phrasing: 'Phrasing',
+      'key-changes': 'Key changes',
     } as Record<string, string>,
     detail: {
       composer: 'Composer',
