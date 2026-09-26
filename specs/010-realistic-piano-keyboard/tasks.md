@@ -167,6 +167,17 @@ pressed, readable in colour and greyscale.
   `--mx-inset-bottom` so it sits above the strip, plus an e2e assertion that the popup box does not intersect
   `mx-piano-keys`. It changes visible 002/004 behaviour, so it waits for the owner's agreement (AGENTS.md section 7)
 
+- [x] T021 The hint messages ("Play one octave lower.") sit under the keys and make the strip taller, so the keyboard jumps
+  up while one shows (owner, 2026-09-26). Test first: an e2e case in `tests/e2e/piano-keyboard.spec.ts` - with two hints
+  showing, the top of the keys, the strip's height and the bottom inset equal their values without hints (+- 0.5 px)
+  and the hint box lies above the keys; run it, see it fail. Then in `src/ui/elements/mx-piano-keys.ts` take `.key-messages`
+  out of the strip's layout (absolute, just above the keys, light background, no pointer events)
+- [x] T022 Stopping Practice leaves the help ("What note is next?" popup and the blue "?" keys) and the wrong-key feedback
+  on screen (owner, 2026-09-26). 002 FR-018 keeps the Score's marks, but the help and the key feedback are live views of
+  a session that is over. Test first: an e2e case in `tests/e2e/piano-keyboard.spec.ts` - with help and feedback showing,
+  press Stop: `mx-practice-help` hidden, no `.expected-help`, no `.key-message`, no `.key-mark`; see it fail. Then
+  `onTransportStopped` in `src/app/session.ts` clears the help overlay and the key feedback
+
 ## Dependencies & Execution Order
 
 - Setup (T001-T003) -> Foundational (T004-T005) -> US1 (T006-T010) -> US2 (T011-T014) -> Polish (T015-T019).

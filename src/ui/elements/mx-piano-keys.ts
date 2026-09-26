@@ -241,11 +241,22 @@ class MxPianoKeys extends HTMLElement {
         .key.wrong-pitch .key-mark { color: ${WRONG_KEY_STYLE.wrongPitch.colour}; }
         .key.wrong-octave .key-mark { color: ${WRONG_KEY_STYLE.wrongOctave.colour}; }
         .key.extra .key-mark { color: ${WRONG_KEY_STYLE.extra.colour}; }
+        /* The hints float just above the keys, out of the strip's layout: a hint showing or going never moves the
+           keyboard or changes the strip's height (the host is positioned by layout.css). */
         .key-messages {
-          margin-top: 6px;
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 100%;
+          padding: 0 ${KEYBOARD_INLINE_PADDING_PX}px 2px;
+          pointer-events: none;
         }
         .key-message {
+          width: fit-content;
+          padding: 1px 8px;
           font-size: 12px;
+          background: var(--bg-color, #fff);
+          border-radius: 4px;
         }
         .key-message.wrong-octave { color: ${WRONG_KEY_STYLE.wrongOctave.colour}; }
         .key-message.extra { color: ${WRONG_KEY_STYLE.extra.colour}; }

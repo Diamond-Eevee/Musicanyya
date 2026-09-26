@@ -124,3 +124,23 @@
   (002's placement; proposed fix above). Not decided by me.
 - Handoff: next = owner answers SC-003 and T020; if T020 is approved, implement it (offset the popup by
   `--mx-inset-bottom` + e2e assertion). Then the feature can be merged when the owner asks. Not pushed, not merged.
+
+## 2026-09-26 - claude-sonnet-5 (implement, owner feedback)
+- Owner feedback (two pictures + text): (1) when a hint ("Play one octave lower.") shows, the piano goes up; (2) after
+  Practice is stopped the "what to play" indicator stays. New tasks T021, T022 (tests first).
+- T021: e2e "hint messages appear above the keys and do not move the keyboard" failed first: `the keys did not move
+  Expected: <= 0.5, Received: 32` (two hints made the strip 32 px taller). Fix in `mx-piano-keys.ts`: `.key-messages` is
+  absolutely positioned just above the keys (`bottom: 100%`, light background, no pointer events), so the strip's
+  height, the keys and the bottom inset never change. Decision: above the keys, over the Score's bottom margin, rather than
+  reserving blank space (wasteful) - hints are short-lived and small; contract 1.2.0.
+- T022: e2e "Stop clears the help and the wrong-key feedback of the strip" failed first: `mx-practice-help` stayed visible
+  after Stop. Fix in `src/app/session.ts` `onTransportStopped`: it now clears the help overlay and the key feedback. The
+  Score's practice marks stay (002 FR-018 speaks of the marks on the Score; the help and the key feedback are live views
+  of a session that is over). Decision taken on the owner's request, no spec text changed.
+- Evidence: `piano-keyboard.spec.ts` chromium + firefox `29 passed`; `pnpm test` = `Tests 2594 passed (2594)`; lint 0
+  errors. First full `pnpm test:e2e` after the fixes: `554 passed, 229 skipped, 1 failed` - the failure was
+  `us1-layout.spec.ts:215` "no clipped control at 1280x720", `locator.setInputFiles: Test timeout of 45000ms` (load
+  under 4 workers); alone it passes `15 passed` with and without my changes, so a flake in a spec I did not touch. Picture
+  `tests/.generated/010/t021-hints.png` looked at: the hints sit above the keys, the keyboard stays at the bottom.
+- Still open for the owner: SC-003 (looks like real piano keys) and T020 (the help popup covers the strip's right end;
+  it is fixed-position bottom right).

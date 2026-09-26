@@ -516,6 +516,62 @@ test.describe('US2: states on the realistic keys (feature 010)', () => {
   });
 });
 
+// Owner feedback of 2026-09-26 (T021, T022): a hint must not move the keyboard, and Stop resets the live help.
+test.describe('US2: hints and help around the piano (feature 010, owner feedback)', () => {
+  test.beforeEach(({ browserName }) => {
+    test.skip(browserName === 'webkit', 'Practice needs AudioContext, which Playwright WebKit does not provide');
+  });
+
+  test('hint messages appear above the keys and do not move the keyboard (T021)', async ({ page }) => {
+    await practiceWithPiano(page, { width: 1280, height: 800 });
+    const before = await measure(page);
+    const keyTop = (m: KeyboardMeasure) => (m.keys.find((k) => k.key === 60) as KeyBox).top;
+
+    await page.evaluate(() => {
+      const practice = (window as unknown as { __PRACTICE_STATE__: PracticeSeam }).__PRACTICE_STATE__;
+      practice.setKeyFeedback(66, { state: 'wrongOctave', messageId: 'practice.octave.lower' });
+      practice.setKeyFeedback(65, { state: 'wrongOctave', messageId: 'practice.octave.lower' });
+    });
+    const messages = page.locator('mx-piano-keys .key-message');
+    await expect(messages).toHaveCount(2);
+    await expect(messages.first()).toBeVisible();
+    await pressKeys(page, 'wait');
+
+    const after = await measure(page);
+    expect(Math.abs(keyTop(after) - keyTop(before)), 'the keys did not move').toBeLessThanOrEqual(0.5);
+    expect(Math.abs(after.hostHeight - before.hostHeight), 'the strip did not grow').toBeLessThanOrEqual(0.5);
+    expect(Math.abs(after.insetBottom - before.insetBottom), 'the bottom inset did not change').toBeLessThanOrEqual(
+      0.5,
+    );
+
+    // both hints lie above the keys, inside the window
+    for (const i of [0, 1]) {
+      const box = await messages.nth(i).boundingBox();
+      expect(box, `hint ${i} has a box`).not.toBeNull();
+      expect((box?.y ?? 0) + (box?.height ?? 0), `hint ${i} ends above the keys`).toBeLessThanOrEqual(
+        keyTop(after) + 0.5,
+      );
+      expect(box?.y ?? -1, `hint ${i} is inside the window`).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  test('Stop clears the help and the wrong-key feedback of the strip (T022)', async ({ page }) => {
+    await practiceWithPiano(page, { width: 1280, height: 800 });
+    await setUpStates(page);
+    await expect(page.locator('mx-practice-help')).toBeVisible();
+    await expect(page.locator('mx-piano-keys .key.expected-help')).toHaveCount(2);
+    await expect(page.locator('mx-piano-keys .key-message')).toHaveCount(1);
+
+    await page.locator('mx-transport .play-btn').click(); // Stop
+    await expect(page.locator('mx-transport .play-btn')).toHaveText('Start');
+
+    await expect(page.locator('mx-practice-help'), 'the "what to play" popup is gone').toBeHidden();
+    await expect(page.locator('mx-piano-keys .key.expected-help'), 'no key is marked as expected').toHaveCount(0);
+    await expect(page.locator('mx-piano-keys .key-message'), 'no hint text stays').toHaveCount(0);
+    await expect(page.locator('mx-piano-keys .key-mark'), 'no glyph stays on a key').toHaveCount(0);
+  });
+});
+
 // Reference pictures for the manual checks (T014, T017, SC-003, SC-004): the strip with every state at once, in colour
 // and in greyscale, whole and zoomed on the middle octave. Written to tests/.generated/010/ (git-ignored).
 test.describe('US2: reference pictures of the states (feature 010)', () => {

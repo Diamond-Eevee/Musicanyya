@@ -1,6 +1,6 @@
 # Contract: On-screen piano keyboard (layout and element)
 
-**Version**: `1.1.0` (1.0.0 new with feature 010; 1.1.0 additive, from the implementation: `has-label`, the dot's ring; internal contract between `src/ui/piano/keyboard-layout.ts`,
+**Version**: `1.2.0` (1.0.0 new with feature 010; 1.1.0 additive, from the implementation: `has-label`, the dot's ring; 1.2.0 the hint messages float above the keys; internal contract between `src/ui/piano/keyboard-layout.ts`,
 `src/ui/elements/mx-piano-keys.ts`, `src/ui/styles/layout.css` and the tests). Signatures and the DOM structure below
 are normative. Changes bump the version (MINOR additive, MAJOR breaking).
 
@@ -35,7 +35,7 @@ data-model section 1 holds.
   <!-- when a state needs one: <span class="key-mark">✕</span> (as today) -->
   <!-- while the key is held: <span class="key-dot"></span> (the red dot; was a ::after pseudo-element) -->
 </div>
-<div class="key-messages" id="key-messages"></div>   <!-- unchanged -->
+<div class="key-messages" id="key-messages"></div>   <!-- same content; positioned above the keys, out of the layout (section 3) -->
 <div class="sustain-indicator" id="sustain">Sustain Pedal</div>   <!-- unchanged -->
 ```
 
@@ -58,6 +58,8 @@ stack of markings starts above the label); the host is a size container (`contai
   glyph); on a black key in its lower part, the glyph on a light badge and the dot with a light ring, both at most
   0.9 of the key's width (the ring of the dot is its light border; the badge is opaque). State borders are outlines pulled inside the key and the help glow an inset shadow: no
   decoration reaches a neighbouring key.
+- The hint messages (`.key-messages`) are out of the strip's layout: absolutely positioned just above the keys with a
+  light background. A hint showing or going never moves the keys or changes the strip's height or the bottom inset.
 - Clicking a key does nothing (002 FR-033, 003 FR-010).
 
 ## 4. Test seams
