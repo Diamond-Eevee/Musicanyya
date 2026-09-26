@@ -412,3 +412,8 @@
 - Evidence: full gate after the last change: `pnpm lint` -> 0 errors, 282 warnings (baseline); `pnpm typecheck` clean; `pnpm test` -> `Test Files 223 passed (223)  Tests 3846 passed (3846)` (twice); `pnpm test:e2e` -> `484 skipped, 816 passed (8.4m)`, exit 0, none failed; `pnpm library:fidelity` -> `182 records, 0 failed`; `pnpm library:index` 181 items, 49 sections.
 - Handoff: everything but T083 is done; the branch is ready to merge once the owner has done T083 or accepts SC-005 as open (AGENTS §7: merge only
   when asked). Not pushed, not merged.
+
+## 2026-09-27 - claude-sonnet-5 (merge)
+- Owner said "merge" after being told T083 (SC-005 learner test) is still open: **merged with SC-005 accepted as open**. T083 stays `[ ]` in tasks.md; the
+  wrong-note counts of a first play of the C major Introduction, hands together in Practice mode, are still to be recorded here by the owner or three people.
+- Merged into `main` locally with a merge commit; not pushed (not asked).
