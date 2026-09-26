@@ -18,7 +18,8 @@ class MxPracticeHelp extends HTMLElement {
     // fixed docking (FR-024) is set here instead.
     this.style.position = 'fixed';
     this.style.insetInlineEnd = '1rem';
-    this.style.insetBlockEnd = '1rem';
+    // Above the on-screen piano while it shows: the strip declares its height as this bottom inset (004 ui-shell.md)
+    this.style.insetBlockEnd = 'calc(1rem + var(--mx-inset-bottom, 0px))';
     this.style.zIndex = '20';
     this.unsubscribe = practiceState.subscribe(() => this.render());
     this.render();

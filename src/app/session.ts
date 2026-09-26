@@ -670,6 +670,9 @@ export class Session {
    * (FR-018); reaching the end on its own is left alone so the last accompaniment notes can ring (R-12). */
   private onTransportStopped(): void {
     if (practiceState.get().mode !== 'practice' || this.endingPracticeNaturally) return;
+    // The help and the wrong-key feedback are live views of a session that is over; the Score's marks stay (FR-018)
+    practiceState.clearHelpOverlay();
+    practiceState.clearAllKeyFeedback();
     const session = practiceState.get().session;
     if (!session || (session.phase === 'finished' && session.soundingAccompaniment.size === 0)) return;
     this.releasePracticeSound(session);
