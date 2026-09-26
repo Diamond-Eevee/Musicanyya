@@ -121,4 +121,5 @@ store, same "costs nothing when unchanged" rule as `runPositionState`); the sess
 | `TEMPO_BPM_STEP` | 1 | new: one press of a step control (FR-010) |
 | `TEMPO_MARK_QPM_MIN` / `MAX` | 10 / 1000 | new: a tempo outside is treated as unusable (spec edge "absurdly large", R-2) |
 | `TEMPO_BEAT_DOTS_MAX` | 3 | new: more dots than this make the mark unusable (R-2) |
+| `TEMPO_BPM_DIGITS_MAX` | 4 | new: longest number the tempo field accepts (spec edge "four digits", analyze A9) |
 | `DEFAULT_TEMPO_QPM` | 100 | unchanged; shown in the Metronome's beat with "(default)" |

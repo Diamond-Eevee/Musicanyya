@@ -53,8 +53,9 @@ Hosts: Listen / Practice -> `transportState.setTempo(percent)`; Play -> the Play
 | ArrowUp / ArrowDown | +1 / -1 BPM from the shown value, emitted at once (`source: 'step'`) |
 | Tab / blur | apply like Enter when the text is a valid number, else restore |
 
-Apply rule: text matching `/^\s*\d{1,4}\s*$/` -> `percentForBpm(segment, n)`; if the resulting shown value equals the
-current one and the percent equals the current percent, nothing is emitted. Anything else -> restore.
+Apply rule: text that is, after trimming, 1 to `TEMPO_BPM_DIGITS_MAX` (4) digits -> `percentForBpm(segment, n)`; if
+the resulting shown value equals the current one and the percent equals the current percent, nothing is emitted.
+Anything else -> restore.
 
 ## Layout
 

@@ -99,7 +99,7 @@ per-meter defaults - a new behaviour for another feature.
 autocomplete="off">` exposed as `role="spinbutton"` (`aria-valuemin/max/now`, `aria-valuetext` "72 beats per minute,
 dotted quarter note"), a "BPM" unit, the beat symbol, "-" and "+" buttons (1 BPM), a reset button, and the "written
 NN" hint. Enter or blur applies; Escape, empty or non-numeric text restores (FR-007). ArrowUp/ArrowDown step by 1; no
-PageUp/PageDown or wheel changes. Digits only are accepted on apply (`/^\s*\d{1,4}\s*$/`).
+PageUp/PageDown or wheel changes. Digits only are accepted on apply (at most `TEMPO_BPM_DIGITS_MAX` = 4).
 
 **Rationale**: `type="number"` behaves differently per browser (Firefox accepts letters and reports "" for them; the
 mouse wheel changes the value in some browsers; Safari has no spinner) and its native arrow keys change the value

@@ -29,6 +29,9 @@ editable as a plain number of beats per minute, e.g. **90 BPM**, everywhere a te
 - Q: (plan, music-domain review) Is "c. 90" readable? → A: Yes, as 90; a range "90-100" uses 90 (Edge Cases).
 - Q: (plan) Which note does a later sound-only tempo change count? → A: The earlier mark's note value, until the next
   time-signature change; then the Metronome's beat (FR-003).
+- (analyze A1, A7, A9, A13, owner said "use the recommendations") Listen and Practice have no Metronome, so US2,
+  FR-013, SC-002 and SC-006 speak of the beats of the music; the tempo bounds of research R-2 are stated as new; the
+  field holds four digits; the Assumptions name the extra `<metronome>` forms.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -63,19 +66,21 @@ shows "90 BPM". Open a Score without any tempo marking; it shows the default tem
 
 ### User Story 2 - Type the tempo to practise at (Priority: P1)
 
-The musician types a tempo, e.g. 72, and the music, the cursor and the Metronome follow exactly that tempo. They can
+The musician types a tempo, e.g. 72, and the music and the cursor (and, in Play mode, the Metronome) follow exactly
+that tempo. They can
 also nudge it up or down one step at a time, and get back to the written tempo with one action.
 
 **Why this priority**: The owner asked for an *editable* number. Setting a precise tempo is how musicians practise
 (a teacher's "take it at 72", or working a piece up a few BPM a day); the percentage slider cannot do it.
 
-**Independent Test**: Open a Score written at 90, type 72 into the tempo field and play in Listen mode; the beats come
-at 72 per minute and the Metronome clicks at 72. Press the reset control; the field shows 90 again.
+**Independent Test**: Open a Score written at 90, type 72 into the tempo field and play in Listen mode; the beats of
+the music come at 72 per minute. Press the reset control; the field shows 90 again.
 
 **Acceptance Scenarios**:
 
 1. **Given** a Score written at 90 BPM, **When** the musician types 72 and confirms (Enter or leaving the field),
-   **Then** the field shows "72 BPM" and playback, cursor and Metronome run at 72 beats per minute.
+   **Then** the field shows "72 BPM" and playback and cursor run at 72 beats per minute (in Play mode the Metronome
+   too, US3).
 2. **Given** a Score written at 90 BPM, **When** the musician types 91, **Then** the music plays at exactly 91 beats
    per minute - any whole number in the allowed range is accepted, not only multiples of a step.
 3. **Given** Listen mode is playing, **When** the musician confirms a new tempo, **Then** the music continues from
@@ -139,13 +144,15 @@ clicks at 90, and the attempts list shows the attempt at "90 BPM (75% of written
 - **Compound and cut-time meters**: see FR-003; the number is never shown against a different beat than the one the
   Metronome clicks in, without saying which beat it is.
 - **Very slow or very fast written tempos**: the allowed range is relative to the written tempo (FR-008), so a Score
-  written at 40 can go down to 10 BPM and one written at 200 up to 400; the field has room for three digits.
+  written at 40 can go down to 10 BPM and one written at 200 up to 400; the field has room for four digits (a
+  fast marking in short notes can exceed 999).
 - **Practice mode**: the field works as in Listen mode; wait mode still waits for the correct notes, and the tempo sets
-  the pace of the accompaniment, cursor and Metronome between them, as the percentage does today.
+  the pace of the accompaniment and the cursor between them, as the percentage does today.
 - **Small screens**: the field, its unit and its controls stay usable at phone width without hiding the play buttons.
 - **Audio device loss or MIDI unplugged mid-run**: nothing new; the tempo stays as set.
-- **Malformed MusicXML**: a tempo value of zero, negative, not a number or absurdly large is ignored as today; the
-  Score still opens (Constitution III).
+- **Malformed MusicXML**: a tempo value of zero, negative or not a number is ignored as today; a tempo below 10 or
+  above 1000 quarter notes per minute is now ignored the same way (new, research R-2). The Score still opens
+  (Constitution III).
 
 ## Requirements *(mandatory)*
 
@@ -185,7 +192,8 @@ clicks at 90, and the attempts list shows the attempt at "90 BPM (75% of written
 - **FR-012**: A changed tempo MUST apply to the whole Score in proportion: every written tempo is scaled by the same
   factor, so a Score's tempo changes keep their relationship.
 - **FR-013**: In Listen and Practice mode a new tempo MUST take effect immediately without stopping playback, and the
-  audio, cursor and Metronome MUST stay in step, as with the slider today.
+  audio and the cursor MUST stay in step, as with the slider today. (Listen and Practice have no Metronome; Play
+  mode's Metronome follows the run's tempo, FR-018.)
 - **FR-014**: Keys typed into the tempo field MUST NOT trigger keyboard shortcuts.
 - **FR-015**: When a Score is opened, the tempo MUST start at its written tempo (100%); a tempo chosen for an earlier
   Score MUST NOT carry over. (Play mode keeps its per-Score remembered run tempo, FR-016.)
@@ -229,21 +237,23 @@ clicks at 90, and the attempts list shows the attempt at "90 BPM (75% of written
   on opening equals the tempo of its first marking as played (FR-002, counted in the beat of FR-003); for every Score
   without one, it shows the default and says so. 100% of cases.
 - **SC-002**: A typed tempo is played exactly: over one minute of Listen playback at any whole BPM in the allowed
-  range, the Metronome's beats are spaced 60/BPM seconds apart within 1 ms.
+  range, the beats of the music (and, in Play mode, the Metronome's clicks) are spaced 60/BPM seconds apart within
+  1 ms.
 - **SC-003**: A musician can set a named tempo (e.g. 72) in one typing action plus Enter, under 5 seconds, and return
   to the written tempo with one action.
-- **SC-004**: The full tempo text of any allowed value (up to three digits, the unit and the beat symbol) is visible
+- **SC-004**: The full tempo text of any allowed value (up to four digits, the unit and the beat symbol) is visible
   without truncation at phone width (375 px) and on desktop, and the play buttons stay visible.
 - **SC-005**: Regrading every stored attempt (old percentage-based and new BPM-based) gives a Grade identical to its
   first grading - 100% reproducible.
-- **SC-006**: Changing the tempo during Listen playback causes no audible gap or restart, and the cursor and the
-  Metronome stay in step with the audio within the existing cursor tolerance.
+- **SC-006**: Changing the tempo during Listen or Practice playback causes no audible gap or restart, and the cursor
+  stays in step with the audio within the existing cursor tolerance.
 
 ## Assumptions
 
 - "BPM" means beats per minute of the beat in FR-003; the written tempo is the first tempo marking of the Score, read
   as the app already reads it (sound tempo first, else the metronome mark), with the existing default when there is
-  none. No new MusicXML elements are supported by this feature.
+  none. No new MusicXML elements are supported; more forms of `<metronome>` are read (every note value, up to three
+  dots, "c. 90", ranges; research R-2).
 - The allowed range stays 25%-200% of the written tempo, now at whole-BPM precision instead of 5% steps.
 - One step is 1 BPM; a reset-to-written control is part of the field. Larger jumps are done by typing.
 - The tempo is one factor over the whole Score; setting a separate tempo per section is not offered.

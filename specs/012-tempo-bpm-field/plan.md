@@ -80,7 +80,7 @@ specs/012-tempo-bpm-field/
 |-- data-model.md        # TempoBeat, TempoMark, TempoDisplaySegment, tempo factor, reference position, field states
 |-- quickstart.md
 |-- contracts/
-|   |-- tempo-display.md     # core API 1.0.0 (new)
+|   |-- tempo-display.md     # core API 1.1.0 (new)
 |   |-- tempo-field.md       # mx-tempo-field 1.0.0 (new)
 |   `-- contract-changes.md  # bumps to 001/003/004 contracts
 |-- checklists/requirements.md

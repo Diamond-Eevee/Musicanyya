@@ -5,9 +5,9 @@ tasks (AGENTS.md section 6: contract first, then code). Reasons: [research.md](.
 
 | Contract | From -> to | Change |
 |---|---|---|
-| `001/contracts/worker-messages.md` | 1.2.0 -> **1.3.0** (MINOR) | `TimelineDto` gains `tempo: TempoDisplaySegment[]` (tempo-display.md 1.0.0; R-8). The Verovio worker's `ready.glyphs` gains `noteheadHalf`, `noteheadWhole`, `flag8thUp` path data (R-7). Additive only. |
+| `001/contracts/worker-messages.md` | 1.2.0 -> **1.3.0** (MINOR) | `TimelineDto` gains `tempo: TempoDisplaySegment[]` (tempo-display.md 1.1.0; R-8). The Verovio worker's `ready.glyphs` gains `noteheadHalf`, `noteheadWhole`, `flag8thUp` path data (R-7). Additive only. |
 | `001/data-model.md` section 2 / Score model | - | `TempoMark` gains `beat: TempoBeat \| null` and `isDefault: boolean` (012 data-model section 2). Parser rules R-2: all note-type-values, 0-3 dots, `parsePerMinute`, no x1 fallback, qpm bounds. |
-| `001/data-model.md` section 10 | - | Remove `TEMPO_PERCENT_STEP`; add `TEMPO_BPM_STEP`, `TEMPO_MARK_QPM_MIN`/`MAX`, `TEMPO_BEAT_DOTS_MAX` (012 data-model section 7). |
+| `001/data-model.md` section 10 | - | Remove `TEMPO_PERCENT_STEP`; add `TEMPO_BPM_STEP`, `TEMPO_MARK_QPM_MIN`/`MAX`, `TEMPO_BEAT_DOTS_MAX`, `TEMPO_BPM_DIGITS_MAX` (012 data-model section 7). |
 | `001/contracts/worklet-protocol.md` | 1.4.0 -> **1.4.1** (PATCH, wording) | `tempo.percent` is any finite number in [25, 200], no longer an integer multiple of 5. Message shape unchanged. |
 | `004/contracts/view-settings.md` (`musicanyya.settings.v1`, format 2) | 2.0.0 -> **2.1.0** (MINOR) | `tempoPercent` is deprecated: no longer written, and ignored when read (FR-015, R-9). Files with or without it validate; format version stays 2. `UserSettings` (engine ports) drops the field. |
 | `001/contracts/storage.md` | note only | Points to view-settings 2.1.0 for `tempoPercent`. |

@@ -1,8 +1,8 @@
 # Contract: tempo display (core API)
 
-**Version**: `1.0.0` (new, feature 012). Internal TypeScript contract of `src/core/tempo/tempo-display.ts` and the
-beat helpers in `src/core/tempo/beat-unit.ts`, used by `src/workers/score.worker.ts` (to build `TimelineDto.tempo`),
-`src/ui/elements/mx-tempo-field.ts`, `mx-attempts-list.ts` and `mx-grade-panel.ts`. Pure, no DOM, runs in Node
+**Version**: `1.1.0` (new, feature 012; 1.1.0 adds `attemptTempo` after analyze A5, before any code). Internal
+TypeScript contract of `src/core/tempo/tempo-display.ts` and the beat helpers in `src/core/tempo/beat-unit.ts`,
+used by `src/workers/score.worker.ts` (to build `TimelineDto.tempo`), `src/ui/elements/mx-tempo-field.ts`, `mx-attempts-list.ts` and `mx-grade-panel.ts`. Pure, no DOM, runs in Node
 (Constitution IV, V). Signatures are normative in shape; every change bumps the version (MINOR additive, MAJOR
 breaking). Entities: [data-model.md](../data-model.md) sections 1-4.
 
@@ -70,6 +70,17 @@ export function bpmLimits(seg: TempoDisplaySegment): { min: number; max: number 
 
 /** The factor that plays `bpm` (clamped to bpmLimits) at this segment. Always within [25, 200]. */
 export function percentForBpm(seg: TempoDisplaySegment, bpm: number): number;
+
+/**
+ * The tempo of a stored attempt, for the attempts list and the Grade (FR-019, FR-021): the display segment at the
+ * attempt's range start (first pass of its first measure, else tick 0), shown at the attempt's percent.
+ * `percent` is the attempt's tempoPercent rounded half up to a whole number, for the "(75% of written)" text.
+ */
+export function attemptTempo(
+  map: readonly TempoDisplaySegment[],
+  passes: readonly MeasurePass[],
+  settings: { tempoPercent: number; range: { fromMeasureIndex: number; toMeasureIndex: number } | null },
+): { bpm: number; percent: number; beat: TempoBeat };
 
 /** A human label of the beat for text and accessibility: "quarter", "dotted quarter", "double-dotted half". */
 export function beatLabel(beat: TempoBeat): string; // English; the UI maps it through i18n keys

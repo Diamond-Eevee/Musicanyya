@@ -46,7 +46,8 @@ a whole-note unit. Behaviour is also checked on the real corpora (`tests/fixture
    previous value returns. Type a space in the field: playback does not toggle.
 4. Press reset: 90, hint gone, reset disabled.
 5. Open a different Score written at 120: it starts at 120 (no carry-over, FR-015).
-6. On the 90 -> 60 fixture, with the cursor in the 60 section, type 45: the 90 section later shows 68.
+6. On the 90 -> 60 fixture, with the cursor in the 60 section, type 45: after the repeat back to m1 the 90 section
+   shows 68.
 
 ### US3 - Play mode and the Grade
 
