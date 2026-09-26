@@ -26,6 +26,9 @@ editable as a plain number of beats per minute, e.g. **90 BPM**, everywhere a te
   shows 60 with a dotted-quarter symbol); without a mark, the beat the Metronome clicks.
 - Q: What tempo does a Score start at when opened (FR-015)? → A: Always its written tempo; no carry-over from the
   previous Score (Play mode keeps its per-Score run tempo).
+- Q: (plan, music-domain review) Is "c. 90" readable? → A: Yes, as 90; a range "90-100" uses 90 (Edge Cases).
+- Q: (plan) Which note does a later sound-only tempo change count? → A: The earlier mark's note value, until the next
+  time-signature change; then the Metronome's beat (FR-003).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -123,8 +126,9 @@ clicks at 90, and the attempts list shows the attempt at "90 BPM (75% of written
 ### Edge Cases
 
 - **No tempo, text-only tempo, unreadable number**: a marking with no sound value and no readable metronome number
-  (e.g. "Allegro", "c. 90" or a metric modulation such as "quarter = dotted quarter") gives the default tempo, shown
-  as a default, and the existing notice is kept. A metronome mark with a range ("60-70") uses its first number.
+  (e.g. "Allegro", or a metric modulation such as "quarter = dotted quarter") gives the default tempo, shown as a
+  default, and the existing notice is kept. An approximate mark ("c. 90", "ca. 90") counts as 90, and a range
+  ("60-70") uses its first, slower number.
 - **Marking and sound tempo disagree**: the field shows the tempo that is played (the sound tempo), as playback does
   today.
 - **Tempo changes and repeats**: the number shown is the tempo in force at the cursor, before and after repeats and
@@ -155,8 +159,9 @@ clicks at 90, and the attempts list shows the attempt at "90 BPM (75% of written
   (its sound tempo, else its metronome mark). A Score with no usable marking MUST show the default tempo it is played
   at, marked as a default (e.g. "100 BPM (default)").
 - **FR-003**: The number MUST count beats of the note value of the written metronome mark in force (6/8 marked
-  "dotted quarter = 60" shows 60; "half = 60" shows 60). Where no metronome mark gives a note value (sound tempo only,
-  or the default tempo), it MUST count the beat the Metronome clicks at that point. When the beat is not a quarter
+  "dotted quarter = 60" shows 60; "half = 60" shows 60). A later tempo change without its own metronome mark keeps
+  that note value until the next time-signature change. Where no metronome mark gives a note value (none yet, or
+  after a time-signature change, or the default tempo), it MUST count the beat the Metronome clicks at that point. When the beat is not a quarter
   note, the beat MUST be shown next to the number (e.g. a dotted-quarter note symbol).
 - **FR-004**: While music plays, the number MUST follow the tempo in force at the cursor (tempo changes, repeats,
   jumps), and after a seek it MUST show the tempo in force at the new position.

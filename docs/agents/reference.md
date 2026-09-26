@@ -292,6 +292,11 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-26: Feature 012 planned (tempo as an editable BPM number): `mx-tempo-field` replaces the tempo slider and
+  Play's percentage list; the parser keeps the metronome mark's note value (all units, 0-3 dots, "c. 90", ranges);
+  a core tempo display map gives the tempo and beat at the cursor. The engine keeps its percentage factor, now any
+  number in 25-200, so grading and stored runs are unchanged. The transport tempo is no longer persisted. No new
+  dependency.
 - 2026-09-26: Feature 011 planned (Learning by key): Learning becomes Keys (24 folders, circle of fifths) and Key
   changes (18 relative/parallel folders), each with generated steps Introduction/Beginner/Intermediate(/Advanced), plus 10
   songs built from Mutopia public-domain melodies with our CC0 left-hand chords (`pnpm library:songs`). New level
@@ -301,9 +306,4 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   placed by the equal key-top model, C keys labelled C1-C8, keys 4 x as long as wide up to 160 px / 20 vh, sized by
   CSS container units. The element keeps its DOM contract (`[data-key]` + state classes), so 001/002/008 feedback is
   unchanged; markings move into the uncovered part of each key.
-- 2026-09-25: Feature 009 planned (Play mode cursor, audible Metronome, Practice-style Grade marks). Phase 0 found
-  that the worklet never applied program changes or the drum flag, so the Metronome played as a one-tick piano note
-  and every Score part sounded as piano (001 FR-015 unmet); the fix goes in the worklet's message handler. The Play
-  cursor reuses Listen's, driven by the run's audible position; the Grade becomes a pure mark set drawn with 008's
-  green heads and red discs, with extras as discs at the nearest note onset.
 <!-- RECENT-CHANGES:END -->
