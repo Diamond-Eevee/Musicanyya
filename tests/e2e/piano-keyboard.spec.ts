@@ -555,6 +555,35 @@ test.describe('US2: hints and help around the piano (feature 010, owner feedback
     }
   });
 
+  test('the help popup sits above the on-screen piano and covers no key (T020)', async ({ page }) => {
+    await practiceWithPiano(page, { width: 1280, height: 800 });
+    await setUpStates(page);
+    const help = page.locator('mx-practice-help');
+    await expect(help).toBeVisible();
+    const box = await help.boundingBox();
+    const { keys, hostTop } = await page.evaluate(() => {
+      const host = document.querySelector('mx-piano-keys') as HTMLElement;
+      const shadow = host.shadowRoot as ShadowRoot;
+      return {
+        hostTop: host.getBoundingClientRect().top,
+        keys: Array.from(shadow.querySelectorAll<HTMLElement>('.key[data-key]')).map((el) => {
+          const r = el.getBoundingClientRect();
+          return { key: Number(el.dataset.key), left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+        }),
+      };
+    });
+    expect(box, 'the popup has a box').not.toBeNull();
+    const popup = box as { x: number; y: number; width: number; height: number };
+    expect(popup.y + popup.height, 'the popup ends above the strip').toBeLessThanOrEqual(hostTop + 0.5);
+    expect(popup.y, 'the popup is inside the window').toBeGreaterThanOrEqual(0);
+    for (const k of keys) {
+      const touches =
+        Math.min(popup.x + popup.width, k.right) - Math.max(popup.x, k.left) > 0.5 &&
+        Math.min(popup.y + popup.height, k.bottom) - Math.max(popup.y, k.top) > 0.5;
+      expect(touches, `the popup does not cover key ${k.key}`).toBe(false);
+    }
+  });
+
   test('Stop clears the help and the wrong-key feedback of the strip (T022)', async ({ page }) => {
     await practiceWithPiano(page, { width: 1280, height: 800 });
     await setUpStates(page);

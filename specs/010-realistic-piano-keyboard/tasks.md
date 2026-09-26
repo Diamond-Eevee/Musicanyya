@@ -161,7 +161,7 @@ pressed, readable in colour and greyscale.
 - [x] T019 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` (after both builds), each
   with its summary line in the log; final hand-off entry
 
-- [ ] T020 needs owner: the Practice help popup (`src/ui/elements/mx-practice-help.ts`, `position: fixed`, bottom right,
+- [x] T020 (owner approved 2026-09-26) the Practice help popup (`src/ui/elements/mx-practice-help.ts`, `position: fixed`, bottom right,
   z-index 20) covers the right end of the on-screen piano while it shows, and can hide the key it names. Not caused by
   010 (002's placement), found in the T014 picture and by the T018 audit (F1). Proposed: offset the popup by
   `--mx-inset-bottom` so it sits above the strip, plus an e2e assertion that the popup box does not intersect

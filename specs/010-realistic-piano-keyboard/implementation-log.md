@@ -144,3 +144,15 @@
   `tests/.generated/010/t021-hints.png` looked at: the hints sit above the keys, the keyboard stays at the bottom.
 - Still open for the owner: SC-003 (looks like real piano keys) and T020 (the help popup covers the strip's right end;
   it is fixed-position bottom right).
+
+## 2026-09-26 - claude-sonnet-5 (final gate, owner answers)
+- Owner answers: SC-003 "It's good enough" (accepted); T020 approved; merge after the gate.
+- T020: e2e "the help popup sits above the on-screen piano and covers no key" failed first (`the popup ends above the
+  strip`, `Expected: <= 642.65625, Received: 784`). Fix: `mx-practice-help.ts` docks at `calc(1rem + var(--mx-inset-bottom,
+  0px))`, i.e. above the strip while it shows and unchanged (1rem) when it is off. `piano-keyboard.spec.ts` = `55 passed`
+  (four projects).
+- Final gate on the tree after T020: `pnpm lint` exit 0 (0 errors, 282 warnings, 13 infos); `pnpm typecheck` exit 0;
+  `pnpm test` = `Test Files 211 passed (211)`, `Tests 2594 passed (2594)`; `pnpm test:e2e` (both builds first) =
+  `558 passed`, `230 skipped`, 0 failed, exit 0 (the earlier us1-layout timeout did not recur).
+- All tasks T001-T022 are `[x]` with evidence; constitution review passed; no open owner decision.
+- Handoff: merge `010-realistic-piano-keyboard` into `main` (owner asked); not pushed.
