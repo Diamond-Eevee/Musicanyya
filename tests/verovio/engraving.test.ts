@@ -121,9 +121,11 @@ describe('Verovio renders visible accidentals, not only gestural ones (research 
     expect((svg.match(/class="accid"/g) ?? []).length).toBeGreaterThan(0);
   }, 20000);
 
-  it("Triads in A minor (shipped library item): the V chord's G# renders as a visible accid in both staves", async () => {
+  // Feature 011 replaced the A minor triads item with the generated steps of A minor; the Beginner step has the same V chord and
+  // scale with the raised leading tone G#.
+  it("A minor Beginner (shipped library item): the V chord's and the scale's G# render as a visible accid", async () => {
     await initVerovio();
-    const xml = fs.readFileSync(path.join(libraryRoot, 'learning/chords/triads-a-minor.musicxml'), 'utf8');
+    const xml = fs.readFileSync(path.join(libraryRoot, 'learning/keys/a-minor/beginner.musicxml'), 'utf8');
     const svg = await renderSvg(xml); // already completed on disk (T026) - render as-is, no re-planning
 
     expect((svg.match(/class="accid"/g) ?? []).length).toBeGreaterThan(0);

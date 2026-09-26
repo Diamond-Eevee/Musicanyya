@@ -292,3 +292,101 @@ describe('renderReport (contract audit-record.md §3)', () => {
     expect(report.endsWith('\n')).toBe(true);
   });
 });
+
+// Feature 011 (contract audit-record 1.2.0 §3): the Learning table follows the key folders in shelf order, and a
+// "Replaced by feature 011" table follows Removed.
+describe('renderReport: the Learning tree and the replaced items (feature 011)', () => {
+  const sec = (id: string, parent: string | null, order: number) => ({ id, title: id, path: id, parent, order });
+  const step = (id: string, section: string, title: string, level: string, stepName: string, stepOrder = 0) =>
+    ({
+      id,
+      section,
+      meta: { title, kind: 'exercise', level, step: stepName, stepOrder },
+    }) as unknown as LibraryItem;
+  const treeIndex = {
+    version: 1,
+    generated: '2026-09-26T00:00:00.000Z',
+    sections: [
+      sec('learning', null, 1),
+      sec('learning/keys', 'learning', 1),
+      sec('learning/keys/c-major', 'learning/keys', 1),
+      sec('learning/keys/a-minor', 'learning/keys', 2),
+    ],
+    // deliberately id-sorted, not shelf order: a-minor sorts before c-major by id
+    items: [
+      step('learning/keys/a-minor/beginner', 'learning/keys/a-minor', 'A minor - beginner', 'beginner', 'beginner'),
+      step('learning/keys/c-major/advanced', 'learning/keys/c-major', 'C major - advanced', 'advanced', 'advanced'),
+      step('learning/keys/c-major/beginner', 'learning/keys/c-major', 'C major - beginner', 'beginner', 'beginner'),
+      step(
+        'learning/keys/c-major/introduction',
+        'learning/keys/c-major',
+        'C major - introduction',
+        'introduction',
+        'introduction',
+      ),
+    ],
+  } as unknown as LibraryIndex;
+  const theory = { method: 'theory' as const, ruleSet: 'exercise-theory-v2' as const, expectedDifferences: 0 as const };
+  const recordFor = (id: string, extra: Partial<AuditRecord> = {}): AuditRecord => ({
+    ...base,
+    itemId: id,
+    claim: 'exercise',
+    claimText: id,
+    checks: [theory],
+    outcome: 'verified',
+    outcomeNote: 'checked',
+    ...extra,
+  });
+  const treeRecords = [
+    recordFor('learning/keys/a-minor/beginner', {
+      supersedes: ['learning/chords/changes/changes-minor-cadence-a-minor'],
+    }),
+    recordFor('learning/keys/c-major/advanced'),
+    recordFor('learning/keys/c-major/beginner', {
+      supersedes: ['learning/chords/c-major-scale-and-chords', 'learning/chords/changes/changes-i-iv-i-c-major'],
+    }),
+    recordFor('learning/keys/c-major/introduction'),
+  ];
+  const out = renderReport(treeRecords, new Map(), treeIndex, new Map());
+  const learningRows = (): string[] => {
+    const start = out.indexOf('## Learning');
+    const end = out.indexOf('\n## ', start + 1);
+    return out
+      .slice(start, end)
+      .split('\n')
+      .filter((l) => l.startsWith('| ') && l.includes('`learning/'));
+  };
+
+  it('lists the Learning rows by key folder in shelf order, then by step', () => {
+    expect(learningRows().map((r) => /`(learning\/[^`]+)`/.exec(r)?.[1])).toEqual([
+      'learning/keys/c-major/introduction',
+      'learning/keys/c-major/beginner',
+      'learning/keys/c-major/advanced',
+      'learning/keys/a-minor/beginner',
+    ]);
+  });
+
+  it('has a "Replaced by feature 011" table after Removed: old id, then the item that replaced it', () => {
+    expect(out.indexOf('## Replaced by feature 011')).toBeGreaterThan(out.indexOf('## Removed'));
+    const start = out.indexOf('## Replaced by feature 011');
+    const table = out
+      .slice(start, out.indexOf('\n## ', start + 1))
+      .split('\n')
+      .filter((l) => l.startsWith('| ') && l.includes('`learning/chords/'));
+    expect(table).toEqual([
+      '| `learning/chords/c-major-scale-and-chords` | C major - beginner<br>`learning/keys/c-major/beginner` |',
+      '| `learning/chords/changes/changes-i-iv-i-c-major` | C major - beginner<br>`learning/keys/c-major/beginner` |',
+      '| `learning/chords/changes/changes-minor-cadence-a-minor` | A minor - beginner<br>`learning/keys/a-minor/beginner` |',
+    ]);
+  });
+
+  it('omits the table when nothing was replaced', () => {
+    const plain = renderReport(
+      treeRecords.map((r) => ({ ...r, supersedes: undefined })),
+      new Map(),
+      treeIndex,
+      new Map(),
+    );
+    expect(plain).not.toContain('Replaced by feature 011');
+  });
+});

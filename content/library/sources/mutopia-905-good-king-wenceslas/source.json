@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "id": "mutopia-905-good-king-wenceslas",
+  "work": "\"Good King Wenceslas\" (anonymous tune, words J. M. Neale), voice and piano-style setting; the tune is in the top voice",
+  "edition": "Rev. Charles Lewis Hutchins, Carols Old and Carols New (Boston: Parish Choir, 1916), Carol #415",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=905",
+  "identifier": "Mutopia-2007/01/10-905",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond for the Mutopia Project (maintainer James Kilfiger) and placed in the public domain. The piece page states \"Copyright: Public Domain\" (checked 2026-09-26); the .ly header says the same.",
+  "obtained": "2026-09-26",
+  "approvedByOwner": "2026-09-26",
+  "files": [
+    {
+      "role": "notation",
+      "path": "GoodKingWenceslas.ly",
+      "url": "https://www.mutopiaproject.org/ftp/Anonymous/GoodKingWenceslas/GoodKingWenceslas.ly",
+      "sha256": "d5967412ef47cc91add5eb361c25392273aaa7557028bfd76b1becb3af0e35e7",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "GoodKingWenceslas.mid",
+      "url": "https://www.mutopiaproject.org/ftp/Anonymous/GoodKingWenceslas/GoodKingWenceslas.mid",
+      "sha256": "f854da74a0790af27192f9b0002348649852dbcfcaa26e490e789517b2dde97a",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}

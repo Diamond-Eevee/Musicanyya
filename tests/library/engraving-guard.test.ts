@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { generateChangeFamily, generateTriadFamily } from '../../src/core/library/exercise/generate.js';
+import { generateFamily } from '../../src/core/library/exercise/generate.js';
 import type { ExerciseDefinition } from '../../src/core/library/exercise/types.js';
 import { planEngraving } from '../../src/core/musicxml/engraving/plan.js';
 import { readXml } from '../../src/core/musicxml/read.js';
@@ -110,9 +110,7 @@ describe('T035: US4 engraving guard mutations and exercises', () => {
 
     for (const file of definitionFiles) {
       const definition = JSON.parse(fs.readFileSync(path.join(contentDir, file), 'utf-8')) as ExerciseDefinition;
-      const items = definition.family.startsWith('changes')
-        ? generateChangeFamily(definition, '2026-09-23')
-        : generateTriadFamily(definition, '2026-09-23');
+      const items = generateFamily(definition, '2026-09-23');
 
       for (const item of items) {
         const parsed = readXml(item.xml);

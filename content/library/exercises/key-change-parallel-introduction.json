@@ -1,0 +1,332 @@
+{
+  "version": 1,
+  "family": "key-change-parallel",
+  "form": "key-change",
+  "titleTemplate": "{from} to {to} - introduction",
+  "section": "learning/key-changes/{pair}",
+  "step": "introduction",
+  "stepOrder": 0,
+  "fileStem": "introduction",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "keyPairs": [
+    {
+      "from": {
+        "tonic": "C",
+        "mode": "major",
+        "fifths": 0
+      },
+      "to": {
+        "tonic": "C",
+        "mode": "minor",
+        "fifths": -3
+      },
+      "relation": "parallel"
+    },
+    {
+      "from": {
+        "tonic": "C",
+        "mode": "minor",
+        "fifths": -3
+      },
+      "to": {
+        "tonic": "C",
+        "mode": "major",
+        "fifths": 0
+      },
+      "relation": "parallel"
+    },
+    {
+      "from": {
+        "tonic": "G",
+        "mode": "major",
+        "fifths": 1
+      },
+      "to": {
+        "tonic": "G",
+        "mode": "minor",
+        "fifths": -2
+      },
+      "relation": "parallel"
+    },
+    {
+      "from": {
+        "tonic": "G",
+        "mode": "minor",
+        "fifths": -2
+      },
+      "to": {
+        "tonic": "G",
+        "mode": "major",
+        "fifths": 1
+      },
+      "relation": "parallel"
+    },
+    {
+      "from": {
+        "tonic": "F",
+        "mode": "major",
+        "fifths": -1
+      },
+      "to": {
+        "tonic": "F",
+        "mode": "minor",
+        "fifths": -4
+      },
+      "relation": "parallel"
+    },
+    {
+      "from": {
+        "tonic": "F",
+        "mode": "minor",
+        "fifths": -4
+      },
+      "to": {
+        "tonic": "F",
+        "mode": "major",
+        "fifths": -1
+      },
+      "relation": "parallel"
+    },
+    {
+      "from": {
+        "tonic": "D",
+        "mode": "major",
+        "fifths": 2
+      },
+      "to": {
+        "tonic": "D",
+        "mode": "minor",
+        "fifths": -1
+      },
+      "relation": "parallel"
+    },
+    {
+      "from": {
+        "tonic": "D",
+        "mode": "minor",
+        "fifths": -1
+      },
+      "to": {
+        "tonic": "D",
+        "mode": "major",
+        "fifths": 2
+      },
+      "relation": "parallel"
+    },
+    {
+      "from": {
+        "tonic": "A",
+        "mode": "minor",
+        "fifths": 0
+      },
+      "to": {
+        "tonic": "A",
+        "mode": "major",
+        "fifths": 3
+      },
+      "relation": "parallel"
+    },
+    {
+      "from": {
+        "tonic": "A",
+        "mode": "major",
+        "fifths": 3
+      },
+      "to": {
+        "tonic": "A",
+        "mode": "minor",
+        "fifths": 0
+      },
+      "relation": "parallel"
+    }
+  ],
+  "sections": [
+    {
+      "bars": 4,
+      "inKey": "from",
+      "barline": "light-light",
+      "right": {
+        "chords": [
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "V",
+            "duration": "whole"
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "V",
+            "duration": "whole"
+          }
+        ]
+      },
+      "left": {
+        "chords": [
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "V",
+            "duration": "whole"
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "V",
+            "duration": "whole"
+          }
+        ]
+      }
+    },
+    {
+      "bars": 8,
+      "inKey": "to",
+      "label": "{toKey}",
+      "right": {
+        "chords": [
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "IV",
+            "duration": "whole",
+            "minor": {
+              "degree": "iv"
+            }
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "V",
+            "duration": "whole"
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "V",
+            "duration": "whole"
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          }
+        ]
+      },
+      "left": {
+        "chords": [
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "IV",
+            "duration": "whole",
+            "minor": {
+              "degree": "iv"
+            }
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "V",
+            "duration": "whole"
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "V",
+            "duration": "whole"
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "supersedes": {},
+  "meta": {
+    "kind": "exercise",
+    "level": "introduction",
+    "tags": ["key-changes"],
+    "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant.",
+    "hands": "both",
+    "provenance": {
+      "origin": "authored",
+      "licence": "CC0-1.0",
+      "author": "claude-sonnet-5",
+      "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+    },
+    "reviewedBy": "claude-sonnet-5",
+    "reviewedOn": "2026-09-26"
+  }
+}

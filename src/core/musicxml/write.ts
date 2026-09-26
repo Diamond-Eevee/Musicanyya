@@ -98,7 +98,9 @@ export interface WriteClef {
 
 export interface WriteMeasureAttributes {
   divisions?: number;
-  key?: { fifths: number; mode?: string };
+  /** `cancel` shows naturals against the previous signature (MusicXML 4.0 `cancel`): needed whenever the new
+   *  signature has fewer accidentals in the same direction, flips direction, or lands on no sharps/flats. */
+  key?: { fifths: number; mode?: string; cancel?: number };
   time?: { beats: string; beatType: number };
   staves?: number;
   clefs?: WriteClef[];
@@ -224,8 +226,9 @@ function writeAttributesXml(a: WriteMeasureAttributes): string {
   const parts: string[] = ['<attributes>'];
   if (a.divisions !== undefined) parts.push(`<divisions>${a.divisions}</divisions>`);
   if (a.key) {
+    const cancel = a.key.cancel !== undefined ? `<cancel>${a.key.cancel}</cancel>` : '';
     const mode = a.key.mode !== undefined ? `<mode>${esc(a.key.mode)}</mode>` : '';
-    parts.push(`<key><fifths>${a.key.fifths}</fifths>${mode}</key>`);
+    parts.push(`<key>${cancel}<fifths>${a.key.fifths}</fifths>${mode}</key>`);
   }
   if (a.time) parts.push(`<time><beats>${a.time.beats}</beats><beat-type>${a.time.beatType}</beat-type></time>`);
   if (a.staves !== undefined) parts.push(`<staves>${a.staves}</staves>`);

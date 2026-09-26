@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { generateChangeFamily, generateTriadFamily } from '../../../../src/core/library/exercise/generate.js';
+import { generateFamily } from '../../../../src/core/library/exercise/generate.js';
 import type { ExerciseDefinition } from '../../../../src/core/library/exercise/types.js';
 import { planEngraving } from '../../../../src/core/musicxml/engraving/plan.js';
 import { readXml } from '../../../../src/core/musicxml/read.js';
@@ -21,9 +21,7 @@ describe('generated exercise families ship fully engraved (FR-012)', () => {
 
   for (const file of definitionFiles) {
     const definition = loadDefinition(file);
-    const items = definition.family.startsWith('changes')
-      ? generateChangeFamily(definition, GENERATED_ON)
-      : generateTriadFamily(definition, GENERATED_ON);
+    const items = generateFamily(definition, GENERATED_ON);
 
     it(`${file}: every generated item plans zero engraving inserts (beams and accidentals are already complete)`, () => {
       for (const item of items) {

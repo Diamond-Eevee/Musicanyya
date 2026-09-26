@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "title": "Song - The Holly and the Ivy",
+  "composer": "Traditional (English)",
+  "subtitle": "Arrangement: the tune with left-hand block chords",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "A carol tune in 3/4 with a one-beat pickup, over block chords (F, B flat, C) in the left, one chord per bar.",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-sonnet-5",
+    "created": "2026-09-26",
+    "basedOn": "mutopia-644-holly-and-the-ivy: \"The Holly and the Ivy\" (traditional), melody (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=644)",
+    "note": "Melody from http://www.hymnsandcarolsofchristmas.com/Hymns_and_Carols/holly_and_the_ivy.htm (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=644), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": ["Left-hand block chords are our own (CC0)."],
+  "reviewedBy": "claude-sonnet-5",
+  "reviewedOn": "2026-09-26",
+  "step": "song",
+  "stepOrder": 10
+}

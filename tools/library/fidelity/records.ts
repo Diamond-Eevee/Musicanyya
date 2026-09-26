@@ -9,6 +9,7 @@ import { ClaimError, claimForItem } from './exercise-claims';
 import { fromMusicXml } from './from-musicxml';
 import { fromMidi, readMidi } from './midi';
 import type { ReferenceScore } from './reference';
+import { checkSong } from './song-chords';
 import { date, type SourceManifest, sourceFile } from './sources';
 import { checkExercise } from './theory';
 
@@ -26,9 +27,14 @@ export interface MechanicalCheck {
   /** Melody checks only: "allowedByDeparture" when the item's departures name a rhythmic change (research R7). */
   melodyRhythm?: 'compared' | 'allowedByDeparture';
 }
+/** exercise-theory-v2 adds sections (scales, broken and root-fifth voicings, key segments) to v1; song-chords-v1 checks the
+ *  left-hand chords of a song against their printed names (feature 011, contract audit-record 1.2.0). */
+export const THEORY_RULE_SETS = ['exercise-theory-v1', 'exercise-theory-v2', 'song-chords-v1'] as const;
+export type TheoryRuleSet = (typeof THEORY_RULE_SETS)[number];
+
 export interface TheoryCheck {
   method: 'theory';
-  ruleSet: 'exercise-theory-v1';
+  ruleSet: TheoryRuleSet;
   expectedDifferences: 0;
 }
 export interface VisualCheck {
@@ -50,7 +56,14 @@ export interface AuditRecord {
   outcomeNote: string;
   checkedBy: string;
   date: string;
-  previous?: { title: string; level: 'beginner' | 'intermediate' | 'advanced'; bars: number; notes: number };
+  previous?: {
+    title: string;
+    level: 'introduction' | 'beginner' | 'intermediate' | 'advanced';
+    bars: number;
+    notes: number;
+  };
+  /** Old item ids whose records were retired because this item replaced them (feature 011; must equal the sidecar's). */
+  supersedes?: string[];
 }
 
 export interface RunContext {
@@ -98,7 +111,19 @@ export function validateRecord(json: unknown, where: string): AuditRecord {
   const r = object(json, 'record', fail);
   only(
     r,
-    ['version', 'itemId', 'claim', 'claimText', 'checks', 'outcome', 'outcomeNote', 'checkedBy', 'date', 'previous'],
+    [
+      'version',
+      'itemId',
+      'claim',
+      'claimText',
+      'checks',
+      'outcome',
+      'outcomeNote',
+      'checkedBy',
+      'date',
+      'previous',
+      'supersedes',
+    ],
     'record',
     fail,
   );
@@ -117,8 +142,15 @@ export function validateRecord(json: unknown, where: string): AuditRecord {
     const p = object(r.previous, 'previous', fail);
     only(p, ['title', 'level', 'bars', 'notes'], 'previous', fail);
     string(p.title, 'previous.title', fail);
-    oneOf(p.level, ['beginner', 'intermediate', 'advanced'], 'previous.level', fail);
+    oneOf(p.level, ['introduction', 'beginner', 'intermediate', 'advanced'], 'previous.level', fail);
     for (const k of ['bars', 'notes']) if (!Number.isInteger(p[k])) fail(`previous.${k} must be an integer`);
+  }
+  if (r.supersedes !== undefined) {
+    if (!Array.isArray(r.supersedes) || r.supersedes.length === 0) fail('supersedes must list at least one item id');
+    for (const id of r.supersedes as unknown[]) {
+      if (typeof id !== 'string' || !/^[a-z0-9-]+(\/[a-z0-9-]+)*$/.test(id))
+        fail(`supersedes entry "${String(id)}" is not a library item id`);
+    }
   }
   return r as unknown as AuditRecord;
 }
@@ -178,7 +210,7 @@ function validateCheck(json: unknown, at: string, fail: (d: string) => never): v
     }
   } else if (c.method === 'theory') {
     only(c, ['method', 'ruleSet', 'expectedDifferences'], at, fail);
-    if (c.ruleSet !== 'exercise-theory-v1') fail(`${at}.ruleSet must be "exercise-theory-v1"`);
+    oneOf(c.ruleSet, THEORY_RULE_SETS, `${at}.ruleSet`, fail);
     if (c.expectedDifferences !== 0) fail(`${at}: a theory check's expectedDifferences must be 0`);
   } else if (c.method === 'visual') {
     only(c, ['method', 'source', 'bars', 'result', 'differences'], at, fail);
@@ -230,6 +262,7 @@ export function runRecord(record: AuditRecord, ctx: RunContext): CheckResult[] {
 /** The independent exercise check (research R8): the claim comes from the item's title and description on the shelf. */
 function runTheory(record: AuditRecord, check: TheoryCheck, ctx: RunContext): CheckResult {
   const sidecar = JSON.parse(readFileSync(join(ctx.libraryRoot, `${record.itemId}.json`), 'utf8')) as Sidecar;
+  if (check.ruleSet === 'song-chords-v1') return runSongChords(record, check, sidecar, ctx);
   let claim: ReturnType<typeof claimForItem>;
   try {
     claim = claimForItem({ itemId: record.itemId, title: sidecar.title ?? '', trains: sidecar.trains ?? '' });
@@ -245,6 +278,27 @@ function runTheory(record: AuditRecord, check: TheoryCheck, ctx: RunContext): Ch
     allowed: [],
     reproduced: differences.length === check.expectedDifferences,
     detail: `${claim.chords.length} chords checked against "${sidecar.title}": ${differences.length} differences`,
+  };
+}
+
+/** song-chords-v1: the left-hand chords of a song against their printed names and the chords its level promises. */
+function runSongChords(record: AuditRecord, check: TheoryCheck, sidecar: Sidecar, ctx: RunContext): CheckResult {
+  if (sidecar.level !== 'beginner' && sidecar.level !== 'intermediate')
+    return {
+      check,
+      differences: [],
+      allowed: [],
+      reproduced: false,
+      detail: `a song is beginner or intermediate, not ${sidecar.level}`,
+    };
+  const xml = readFileSync(ctx.itemFile ?? join(ctx.libraryRoot, `${record.itemId}.musicxml`), 'utf8');
+  const differences = checkSong(xml, record.itemId, sidecar.level);
+  return {
+    check,
+    differences,
+    allowed: [],
+    reproduced: differences.length === check.expectedDifferences,
+    detail: `left-hand chords of "${sidecar.title}" checked at ${sidecar.level}: ${differences.length} differences`,
   };
 }
 
@@ -298,11 +352,13 @@ function readNotation(manifest: SourceManifest, ctx: RunContext): ReferenceScore
 // ---- rules ---------------------------------------------------------------------------------------------------------
 
 interface Sidecar {
+  supersedes?: { id: string }[];
   title?: string;
   subtitle?: string;
   trains?: string;
   arrangement?: boolean;
   departures?: string[];
+  level?: string;
   reviewedBy?: string;
   reviewedOn?: string;
 }
@@ -387,6 +443,14 @@ export function checkRecord(record: AuditRecord, results: CheckResult[], ctx: Ru
     (sidecar.arrangement !== true || departures.length === 0)
   )
     problems.push('rhythm is allowed by departures, but the sidecar is not an arrangement with departures');
+
+  // 2.7 supersedes: the record and the sidecar name the same old items (feature 011)
+  const recorded = [...(record.supersedes ?? [])].sort();
+  const sidecarIds = (sidecar.supersedes ?? []).map((s) => s.id).sort();
+  if (recorded.join() !== sidecarIds.join())
+    problems.push(
+      `supersedes: the record lists [${recorded.join(', ')}] but the sidecar lists [${sidecarIds.join(', ')}]`,
+    );
 
   // 2.5 reviewer
   if (sidecar.reviewedBy !== record.checkedBy)

@@ -72,7 +72,7 @@ export function tonicPitchClass(key: Pick<ExerciseKey, 'tonic'>): number {
 /** The alteration needed to spell `letter` as `targetPc` - the shortest signed distance, so a
  *  diatonic third or fifth never gets an accidental it does not need. Can exceed +-1 (the harmonic-
  *  minor raised leading tone, e.g. G# minor's V, needs a double sharp - data-model.md §5.1). */
-function spelledAlter(letter: string, targetPc: number): number {
+export function spelledAlter(letter: string, targetPc: number): number {
   const natural = NATURAL_PC[letter] ?? 0;
   let alter = (((targetPc - natural) % 12) + 12) % 12;
   if (alter > 6) alter -= 12;

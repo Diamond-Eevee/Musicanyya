@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "id": "learning/keys/g-major/song-good-king-wenceslas",
+  "title": "Song - Good King Wenceslas",
+  "source": "mutopia-905-good-king-wenceslas",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1.1",
+    "bars": "all",
+    "transpose": "-M2"
+  },
+  "key": {
+    "tonic": "G",
+    "mode": "major",
+    "fifths": 1
+  },
+  "tempoBpm": 88,
+  "chords": [
+    {
+      "bar": 1,
+      "degree": "I"
+    },
+    {
+      "bar": 2,
+      "degree": "I"
+    },
+    {
+      "bar": 3,
+      "degree": "V"
+    },
+    {
+      "bar": 4,
+      "degree": "I"
+    },
+    {
+      "bar": 5,
+      "degree": "I"
+    },
+    {
+      "bar": 6,
+      "degree": "I"
+    },
+    {
+      "bar": 7,
+      "degree": "V"
+    },
+    {
+      "bar": 8,
+      "degree": "I"
+    },
+    {
+      "bar": 9,
+      "degree": "I"
+    },
+    {
+      "bar": 10,
+      "degree": "I"
+    },
+    {
+      "bar": 11,
+      "degree": "V"
+    },
+    {
+      "bar": 12,
+      "degree": "I"
+    },
+    {
+      "bar": 13,
+      "degree": "V"
+    },
+    {
+      "bar": 14,
+      "degree": "I"
+    },
+    {
+      "bar": 15,
+      "degree": "V"
+    },
+    {
+      "bar": 16,
+      "degree": "IV"
+    },
+    {
+      "bar": 17,
+      "degree": "I"
+    }
+  ],
+  "meta": {
+    "level": "beginner",
+    "trains": "A carol tune in the right hand over block chords (G, C, D) in the left, one chord per bar, hands together.",
+    "composer": "Traditional (tune \"Tempus adest floridum\")",
+    "departures": ["Transposed down a major second, from A major to G major."],
+    "reviewedBy": "claude-sonnet-5",
+    "reviewedOn": "2026-09-26"
+  }
+}

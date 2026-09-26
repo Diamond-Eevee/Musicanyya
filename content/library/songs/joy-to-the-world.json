@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "id": "learning/keys/d-major/song-joy-to-the-world",
+  "title": "Song - Joy to the World",
+  "source": "mutopia-1223-antioch",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1.1",
+    "bars": "all"
+  },
+  "key": {
+    "tonic": "D",
+    "mode": "major",
+    "fifths": 2
+  },
+  "tempoBpm": 84,
+  "chords": [
+    {
+      "bar": 1,
+      "degree": "I"
+    },
+    {
+      "bar": 2,
+      "degree": "I"
+    },
+    {
+      "bar": 3,
+      "degree": "V"
+    },
+    {
+      "bar": 4,
+      "degree": "I"
+    },
+    {
+      "bar": 5,
+      "degree": "IV"
+    },
+    {
+      "bar": 6,
+      "degree": "V"
+    },
+    {
+      "bar": 7,
+      "degree": "I"
+    },
+    {
+      "bar": 8,
+      "degree": "I"
+    },
+    {
+      "bar": 9,
+      "degree": "I"
+    },
+    {
+      "bar": 10,
+      "degree": "V"
+    },
+    {
+      "bar": 11,
+      "degree": "I"
+    },
+    {
+      "bar": 12,
+      "degree": "I"
+    },
+    {
+      "bar": 13,
+      "degree": "I"
+    },
+    {
+      "bar": 14,
+      "degree": "V"
+    },
+    {
+      "bar": 15,
+      "degree": "IV"
+    },
+    {
+      "bar": 16,
+      "degree": "IV"
+    },
+    {
+      "bar": 17,
+      "degree": "I"
+    },
+    {
+      "bar": 18,
+      "degree": "V"
+    },
+    {
+      "bar": 19,
+      "degree": "I"
+    }
+  ],
+  "meta": {
+    "level": "intermediate",
+    "trains": "The tune of Joy to the World over block chords (D, G, A) in the left, with its dotted rhythms.",
+    "composer": "G. F. Handel (tune \"Antioch\")",
+    "reviewedBy": "claude-sonnet-5",
+    "reviewedOn": "2026-09-26"
+  }
+}

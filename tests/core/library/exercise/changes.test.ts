@@ -8,26 +8,38 @@ import { buildScore } from '../../../../src/core/musicxml/build.js';
 import { readXml } from '../../../../src/core/musicxml/read.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const contentDir = path.join(__dirname, '../../../../content/library/exercises');
+// Feature 011 retired eight of these definitions from content/library/exercises (the generated steps replace them); they stay
+// as fixtures of the 1.0.0 `chords` form so the generator keeps its tests (tests/fixtures/exercises/README.md). The five that
+// keep their music (I-V-vi-IV, turnaround, diatonic ladder, the two same-tonic drills) are still shelf content.
+const directories = [
+  path.join(__dirname, '../../../fixtures/exercises'),
+  path.join(__dirname, '../../../../content/library/exercises'),
+];
 
-const changeFiles = fs.readdirSync(contentDir).filter((f) => f.startsWith('changes-'));
+const changeFiles = directories.flatMap((dir) =>
+  fs
+    .readdirSync(dir)
+    .filter((f) => f.startsWith('changes-'))
+    .map((f) => path.join(dir, f)),
+);
+
+function load(file: string): ExerciseDefinition {
+  return JSON.parse(fs.readFileSync(file, 'utf-8')) as ExerciseDefinition;
+}
 
 describe('chord-change drills (data-model.md §5.2)', () => {
   it('at least 12 drills are defined across all changes-*.json files (FR-004/SC-004)', () => {
     let total = 0;
-    for (const file of changeFiles) {
-      const def = JSON.parse(fs.readFileSync(path.join(contentDir, file), 'utf-8')) as ExerciseDefinition;
-      total += def.keys.length;
-    }
+    for (const file of changeFiles) total += load(file).keys?.length ?? 0;
     expect(changeFiles.length).toBeGreaterThan(0);
     expect(total).toBeGreaterThanOrEqual(12);
   });
 
   for (const file of changeFiles) {
-    it(`${file}: generates loadable MusicXML with no unexpected notices and full fingering coverage`, () => {
-      const def = JSON.parse(fs.readFileSync(path.join(contentDir, file), 'utf-8')) as ExerciseDefinition;
+    it(`${path.basename(file)}: generates loadable MusicXML with no unexpected notices and full fingering coverage`, () => {
+      const def = load(file);
       const items = generateChangeFamily(def, '2026-09-22');
-      expect(items.length).toBe(def.keys.length);
+      expect(items.length).toBe(def.keys?.length ?? 0);
       for (const item of items) {
         const { doc } = readXml(item.xml);
         const { score, report } = buildScore(doc);

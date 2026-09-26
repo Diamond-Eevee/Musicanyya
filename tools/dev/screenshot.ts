@@ -91,6 +91,16 @@ async function showPiano(page: Page): Promise<void> {
 
 async function openLibraryItem(page: Page, id: string): Promise<void> {
   await openPanel(page, 'scores');
+  // The shelf is a tree of folders and the key folders start closed (feature 011): open every closed folder above the item
+  // with one click on its summary, as a person would.
+  await page.locator('details.library-section').first().waitFor({ timeout: LOAD_TIMEOUT_MS });
+  const parts = id.split('/').slice(0, -1);
+  for (let i = 1; i <= parts.length; i++) {
+    const folder = page.locator(`details.library-section[data-section="${parts.slice(0, i).join('/')}"]`);
+    if ((await folder.count()) > 0 && (await folder.getAttribute('open')) === null) {
+      await folder.locator(':scope > summary').click();
+    }
+  }
   const item = page.locator(`.library-item-open[data-id="${id}"]`);
   await item.waitFor({ state: 'visible', timeout: LOAD_TIMEOUT_MS });
   await item.click();

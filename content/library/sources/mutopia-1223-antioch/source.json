@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "id": "mutopia-1223-antioch",
+  "work": "\"Antioch\" (hymn tune, \"Joy to the World\"), G. F. Handel, SATB; the tune is in the Soprano",
+  "edition": "www.cyberhymnal.org",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1223",
+  "identifier": "Mutopia-2008/01/13-1223",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond for the Mutopia Project (maintainer Steve Dunlop) and placed in the public domain. The piece page states \"Copyright: Public Domain\" (checked 2026-09-26); the .ly header says the same.",
+  "obtained": "2026-09-26",
+  "approvedByOwner": "2026-09-26",
+  "files": [
+    {
+      "role": "notation",
+      "path": "antioch.ly",
+      "url": "https://www.mutopiaproject.org/ftp/HandelGF/antioch/antioch.ly",
+      "sha256": "ecd34e100586b875d39ef2989d62af7c8a4f1b89f39e52f44ddb3f2d28fc8761",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "antioch.mid",
+      "url": "https://www.mutopiaproject.org/ftp/HandelGF/antioch/antioch.mid",
+      "sha256": "41152c8c7c18750cf2040f215e1db3c5b05ce6f79ffeae1a76a1c18cf7978844",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}

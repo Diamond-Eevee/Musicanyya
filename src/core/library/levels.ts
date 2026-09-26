@@ -2,8 +2,12 @@ import {
   LEVEL_ACCIDENTALS_PER_16_MEASURES_MAX,
   LEVEL_BACKWARD_REPEATS_MAX,
   LEVEL_DURATION_SECONDS_MAX,
+  LEVEL_EXERCISE_MAX_LEAP_SEMITONES,
+  LEVEL_EXERCISE_PITCH_BOUNDS_MIDI,
+  LEVEL_EXERCISE_PITCH_SPAN_SEMITONES_MAX,
   LEVEL_GRACE_NOTES_PER_4_MEASURES_MAX,
   LEVEL_HAND_INDEPENDENCE_FRACTION_MAX,
+  LEVEL_KEY_CHANGE_EXERCISE_MAX,
   LEVEL_KEY_CHANGES_MAX,
   LEVEL_KEY_FIFTHS_MAX,
   LEVEL_LONGEST_RUN_MAX,
@@ -29,10 +33,10 @@ import {
   LEVEL_TUPLETS,
   LEVEL_VOICES_PER_STAFF_MAX,
 } from '../defaults.js';
-import type { ItemFacts, Level, LevelCheck } from './types.js';
+import type { ItemFacts, Level, LevelCheck, SkillTag } from './types.js';
 
-/** Nested-cap order (data-model.md §4: Beginner ⊂ Intermediate ⊂ Advanced). */
-const LEVELS_ORDER: readonly Level[] = ['beginner', 'intermediate', 'advanced'];
+/** Nested-cap order (data-model.md §4: Introduction ⊂ Beginner ⊂ Intermediate ⊂ Advanced). */
+const LEVELS_ORDER: readonly Level[] = ['introduction', 'beginner', 'intermediate', 'advanced'];
 
 function shortestValueBeats(shortestDivision: number): number {
   return shortestDivision > 0 ? 4 / shortestDivision : Number.POSITIVE_INFINITY;
@@ -60,20 +64,30 @@ function ratePer16Measures(count: number, measures: number): number {
  *  exercise family spells its accidentals explicitly, and a chord-change drill's tie is "don't lift
  *  the finger that didn't move", not a piece's held-note coordination challenge. An `arrangement`
  *  (a deliberately short excerpt, data-model.md §5.3) is exempt from criterion 14's *minimum* only -
- *  its maximum, and every other criterion, still applies in full. */
+ *  its maximum, and every other criterion, still applies in full.
+ *
+ *  Feature 011 (owner decision D-2) adds four exercise-only variants: criteria 1-2 allow 38 semitones within
+ *  MIDI 35-85 at Introduction and Beginner (B7); criterion 10 allows one key change in an exercise tagged
+ *  `key-changes` (B6); criterion 11 does not count the 6th and 7th degree accidentals of a minor key (B5); criterion 17
+ *  allows a 19-semitone leap at Introduction and Beginner, where the hands swap (B8). */
 function failingCriteria(
   facts: ItemFacts,
   level: Level,
   expectedNotices: readonly string[],
   kind: 'exercise' | 'piece' = 'piece',
   arrangement = false,
+  tags: readonly SkillTag[] = [],
 ): string[] {
   const failed: string[] = [];
 
+  const spanMax =
+    (kind === 'exercise' ? LEVEL_EXERCISE_PITCH_SPAN_SEMITONES_MAX[level] : undefined) ??
+    LEVEL_PITCH_SPAN_SEMITONES_MAX[level];
   const span = facts.highestMidi - facts.lowestMidi;
-  if (span > LEVEL_PITCH_SPAN_SEMITONES_MAX[level]) failed.push('1');
+  if (span > spanMax) failed.push('1');
 
-  const bounds = LEVEL_PITCH_BOUNDS_MIDI[level];
+  const bounds =
+    (kind === 'exercise' ? LEVEL_EXERCISE_PITCH_BOUNDS_MIDI[level] : undefined) ?? LEVEL_PITCH_BOUNDS_MIDI[level];
   if (facts.notes > 0 && (facts.lowestMidi < bounds.min || facts.highestMidi > bounds.max)) failed.push('2');
 
   if ((facts.handIndependenceFraction ?? 0) > LEVEL_HAND_INDEPENDENCE_FRACTION_MAX[level]) failed.push('3');
@@ -98,9 +112,17 @@ function failingCriteria(
   if (kind === 'piece' && facts.accidentals > LEVEL_KEY_FIFTHS_MAX[level]) failed.push('9');
 
   const keyChanges = Math.max(0, facts.keys.length - 1);
-  if (keyChanges > LEVEL_KEY_CHANGES_MAX[level]) failed.push('10');
+  const keyChangesMax =
+    kind === 'exercise' && tags.includes('key-changes') && LEVEL_KEY_CHANGES_MAX[level] < LEVEL_KEY_CHANGE_EXERCISE_MAX
+      ? LEVEL_KEY_CHANGE_EXERCISE_MAX
+      : LEVEL_KEY_CHANGES_MAX[level];
+  if (keyChanges > keyChangesMax) failed.push('10');
 
-  const accidentalRate = ratePer16Measures(facts.accidentalMarkCount ?? 0, facts.measures);
+  // The 6th and 7th degree accidentals of a minor key are the scale, not chromaticism (D-2 B5); only exercises
+  // are exempt, and only when the score really is in a minor key.
+  const hasMinorKey = facts.keys.some((k) => k.endsWith(' minor'));
+  const exempted = kind === 'exercise' && hasMinorKey ? (facts.minorScaleAccidentalCount ?? 0) : 0;
+  const accidentalRate = ratePer16Measures(Math.max(0, (facts.accidentalMarkCount ?? 0) - exempted), facts.measures);
   if (accidentalRate > LEVEL_ACCIDENTALS_PER_16_MEASURES_MAX[level]) failed.push('11');
 
   const allowedMetres = LEVEL_METRES[level];
@@ -117,7 +139,9 @@ function failingCriteria(
 
   if (facts.maxSpanSemitones > LEVEL_MAX_INTERVAL_SEMITONES[level]) failed.push('16');
 
-  if ((facts.maxLeapSemitones ?? 0) > LEVEL_MAX_LEAP_SEMITONES[level]) failed.push('17');
+  const leapMax =
+    (kind === 'exercise' ? LEVEL_EXERCISE_MAX_LEAP_SEMITONES[level] : undefined) ?? LEVEL_MAX_LEAP_SEMITONES[level];
+  if ((facts.maxLeapSemitones ?? 0) > leapMax) failed.push('17');
 
   // Density is attacks per second, not raw Note count - a 3-note chord is one attack, not three
   // (data-model.md §4 correction C).
@@ -173,9 +197,10 @@ export function computeLevel(
   expectedNotices: readonly string[] = [],
   kind: 'exercise' | 'piece' = 'piece',
   arrangement = false,
+  tags: readonly SkillTag[] = [],
 ): Level {
   for (const level of LEVELS_ORDER) {
-    if (failingCriteria(facts, level, expectedNotices, kind, arrangement).length === 0) return level;
+    if (failingCriteria(facts, level, expectedNotices, kind, arrangement, tags).length === 0) return level;
   }
   return 'advanced';
 }
@@ -189,6 +214,8 @@ export interface CheckLevelOptions {
   kind?: 'exercise' | 'piece';
   /** A deliberately short excerpt (data-model.md §5.3): exempts criterion 14's minimum only. */
   arrangement?: boolean;
+  /** The item's skill tags; `key-changes` lets an exercise contain one key change (D-2 B6). */
+  tags?: readonly SkillTag[];
 }
 
 /** Compares `assignedLevel` against the level `facts` actually computes to (data-model.md §4):
@@ -201,13 +228,21 @@ export function checkLevel(facts: ItemFacts, assignedLevel: Level, options: Chec
   const expectedNotices = options.expectedNotices ?? [];
   const kind = options.kind ?? 'piece';
   const arrangement = options.arrangement ?? false;
-  const ownFailed = failingCriteria(facts, assignedLevel, expectedNotices, kind, arrangement);
+  const tags = options.tags ?? [];
+  const ownFailed = failingCriteria(facts, assignedLevel, expectedNotices, kind, arrangement, tags);
   if (ownFailed.length > 0) {
     return { level: assignedLevel, pass: false, failed: ownFailed };
   }
 
+  // Introduction is a sub-tier of Beginner: an item not assigned Introduction is never "raised" for being simpler
+  // than the Introduction caps, so a Beginner item needs no `raisedBecause` for that.
   const assignedRank = LEVELS_ORDER.indexOf(assignedLevel);
-  const computedRank = LEVELS_ORDER.indexOf(computeLevel(facts, expectedNotices, kind, arrangement));
+  const introductionRank = LEVELS_ORDER.indexOf('introduction');
+  const computed = computeLevel(facts, expectedNotices, kind, arrangement, tags);
+  const computedRank =
+    assignedLevel === 'introduction'
+      ? LEVELS_ORDER.indexOf(computed)
+      : Math.max(introductionRank + 1, LEVELS_ORDER.indexOf(computed));
   if (assignedRank <= computedRank) {
     return { level: assignedLevel, pass: true, failed: [] };
   }

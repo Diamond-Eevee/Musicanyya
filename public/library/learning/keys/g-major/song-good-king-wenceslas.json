@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "title": "Song - Good King Wenceslas",
+  "composer": "Traditional (tune \"Tempus adest floridum\")",
+  "subtitle": "Arrangement: the tune with left-hand block chords",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "A carol tune in the right hand over block chords (G, C, D) in the left, one chord per bar, hands together.",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-sonnet-5",
+    "created": "2026-09-26",
+    "basedOn": "mutopia-905-good-king-wenceslas: \"Good King Wenceslas\" (anonymous tune, words J. M. Neale), voice and piano-style setting; the tune is in the top voice (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=905)",
+    "note": "Melody from Rev. Charles Lewis Hutchins, Carols Old and Carols New (Boston: Parish Choir, 1916), Carol #415 (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=905), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": [
+    "Left-hand block chords are our own (CC0).",
+    "Transposed down a major second, from A major to G major."
+  ],
+  "reviewedBy": "claude-sonnet-5",
+  "reviewedOn": "2026-09-26",
+  "step": "song",
+  "stepOrder": 20
+}

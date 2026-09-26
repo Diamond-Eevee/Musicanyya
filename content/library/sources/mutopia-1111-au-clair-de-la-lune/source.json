@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "id": "mutopia-1111-au-clair-de-la-lune",
+  "work": "F. Horetzky, \"Nº. 21. Au Clair De la Lune.\" (60 National Airs of Different Nations), classical guitar",
+  "edition": "Boije collection #268 (http://www.muslib.se/ebibliotek/boije/)",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1111",
+  "identifier": "Mutopia-2007/11/10-1111",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond for the Mutopia Project (maintainer Stan Sanderson) and placed in the public domain. The piece page states \"Copyright: Public Domain\" (checked 2026-09-26); the .ly header says the same.",
+  "obtained": "2026-09-26",
+  "approvedByOwner": "2026-09-26",
+  "files": [
+    {
+      "role": "notation",
+      "path": "horetzky21.ly",
+      "url": "https://www.mutopiaproject.org/ftp/HoretzkyF/horetzky21/horetzky21.ly",
+      "sha256": "158e1dac03a3cd1c2d8a1cb92fbd24d0d20dad8d6cbaec4f1c6df88b94213415",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "horetzky21.mid",
+      "url": "https://www.mutopiaproject.org/ftp/HoretzkyF/horetzky21/horetzky21.mid",
+      "sha256": "5fe77a997dff609a9867805e28875794d8a75f59b225f97ba208c1ecacc458b6",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1],
+      "midiArticulate": false
+    }
+  ]
+}

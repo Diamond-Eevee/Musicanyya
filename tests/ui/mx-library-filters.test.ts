@@ -244,4 +244,39 @@ describe('mx-library filters (contracts/library-port.md §3, FR-012)', () => {
     document.body.appendChild(el2);
     expect(el2.querySelectorAll('.library-item').length).toBe(1);
   });
+  it('offers the Introduction level (feature 011) and filters by it', () => {
+    const intro = item('learning/keys/c-major/introduction', {
+      section: 'repertoire/beginner',
+      meta: {
+        ...item('x').meta,
+        title: 'C major - introduction',
+        kind: 'exercise',
+        level: 'introduction',
+        step: 'introduction',
+        stepOrder: 0,
+      },
+    });
+    libraryState.indexLoaded(index([item('repertoire/beginner/ode-to-joy'), intro]));
+    const el = document.createElement('mx-library');
+    document.body.appendChild(el);
+
+    const options = Array.from(el.querySelectorAll<HTMLOptionElement>('.library-filter-level option')).map((o) => [
+      o.value,
+      o.textContent?.trim(),
+    ]);
+    expect(options).toEqual([
+      ['', 'Any level'],
+      ['introduction', 'Introduction'],
+      ['beginner', 'Beginner'],
+      ['intermediate', 'Intermediate'],
+      ['advanced', 'Advanced'],
+    ]);
+    const levelSelect = el.querySelector<HTMLSelectElement>('.library-filter-level');
+    if (!levelSelect) throw new Error('no level select');
+    levelSelect.value = 'introduction';
+    levelSelect.dispatchEvent(new Event('change'));
+    expect(libraryState.getFilter().level).toBe('introduction');
+    expect(el.querySelectorAll('.library-item')).toHaveLength(1);
+    expect(el.querySelector('.library-level-description')?.textContent?.length).toBeGreaterThan(0);
+  });
 });

@@ -2,9 +2,15 @@
   "version": 1,
   "family": "changes-same-tonic",
   "titleTemplate": "{key} - major and minor",
-  "section": "learning/chords/changes",
+  "section": "learning/key-changes/c-major-to-c-minor",
+  "step": "intermediate",
+  "stepOrder": 10,
+  "fileStem": "major-and-minor",
   "metre": "4/4",
   "tempoBpm": 60,
+  "supersedes": {
+    "c-major": ["learning/chords/changes/changes-same-tonic-c-major"]
+  },
   "keys": [{ "tonic": "C", "mode": "major", "fifths": 0 }],
   "steps": [
     {
@@ -43,7 +49,7 @@
   "meta": {
     "kind": "exercise",
     "level": "advanced",
-    "tags": ["chords", "chord-changes"],
+    "tags": ["chords", "chord-changes", "key-changes"],
     "trains": "Same-tonic quality change: only the third moves, major to minor and back.",
     "hands": "both",
     "provenance": {

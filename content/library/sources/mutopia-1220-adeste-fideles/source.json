@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "id": "mutopia-1220-adeste-fideles",
+  "work": "\"Adeste Fideles\" (hymn tune, \"O Come, All Ye Faithful\"), J. F. Wade, SATB; the tune is in the Soprano",
+  "edition": "www.cyberhymnal.org",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1220",
+  "identifier": "Mutopia-2008/01/13-1220",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond for the Mutopia Project (maintainer Steve Dunlop) and placed in the public domain. The piece page states \"Copyright: Public Domain\" (checked 2026-09-26); the .ly header says the same.",
+  "obtained": "2026-09-26",
+  "approvedByOwner": "2026-09-26",
+  "files": [
+    {
+      "role": "notation",
+      "path": "adeste_fideles.ly",
+      "url": "https://www.mutopiaproject.org/ftp/WadeJF/adeste_fideles/adeste_fideles.ly",
+      "sha256": "75e2152e43828a22e02632d57c5bf9a8325734a5b6132264c4021a51cc20a644",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "adeste_fideles.mid",
+      "url": "https://www.mutopiaproject.org/ftp/WadeJF/adeste_fideles/adeste_fideles.mid",
+      "sha256": "d6fe90acc41b3da16a932e636c75219d4accae3bf89105741581825b7a889976",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "title": "Song - Silent Night",
+  "composer": "F. X. Gruber",
+  "subtitle": "Arrangement: the tune with left-hand block chords",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "intermediate",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "A lullaby in 6/8 over block chords (B flat, E flat, F) in the left, with dotted rhythms.",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-sonnet-5",
+    "created": "2026-09-26",
+    "basedOn": "mutopia-1295-stille-nacht: \"Stille Nacht\" (hymn tune, \"Silent Night\"), F. X. Gruber, SATB; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1295)",
+    "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1295), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": ["Left-hand block chords are our own (CC0)."],
+  "reviewedBy": "claude-sonnet-5",
+  "reviewedOn": "2026-09-26",
+  "step": "song",
+  "stepOrder": 10
+}

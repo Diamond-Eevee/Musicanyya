@@ -212,6 +212,12 @@ export interface SettingsStore {
   /** Stores the settings for that Score id and updates the last-used defaults. No-op for a null id. */
   savePlay(scoreId: string | null, settings: RunSettings): void;
 
+  /** Copies per-Score Practice and Play settings from the first of `fromHashes` that has an entry to `toHash`, when `toHash`
+   *  has no entry of its own (feature 011, library-port 1.2 §4: an item that replaced another inherits its settings). A loop
+   *  and a measure range belong to one Score and are not copied. Never overwrites, never deletes the old entry, never throws
+   *  (storage errors are swallowed like every other write). Returns true when something was copied. */
+  adoptScoreSettings(fromHashes: readonly string[], toHash: string): boolean;
+
   loadLatencyProfile(): LatencyProfile;
   saveLatencyProfile(profile: LatencyProfile): void;
 }

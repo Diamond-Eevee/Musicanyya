@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "id": "learning/keys/e-minor/song-o-come-o-come-emmanuel",
+  "title": "Song - O Come, O Come, Emmanuel",
+  "source": "mutopia-1300-veni-emmanuel",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1.1",
+    "bars": "all"
+  },
+  "key": {
+    "tonic": "E",
+    "mode": "minor",
+    "fifths": 1
+  },
+  "tempoBpm": 72,
+  "chords": [
+    {
+      "bar": 1,
+      "degree": "i"
+    },
+    {
+      "bar": 2,
+      "degree": "i"
+    },
+    {
+      "bar": 3,
+      "degree": "iv"
+    },
+    {
+      "bar": 4,
+      "degree": "i"
+    },
+    {
+      "bar": 5,
+      "degree": "III"
+    },
+    {
+      "bar": 6,
+      "degree": "iv"
+    },
+    {
+      "bar": 7,
+      "degree": "III"
+    },
+    {
+      "bar": 8,
+      "degree": "i"
+    },
+    {
+      "bar": 9,
+      "degree": "i"
+    }
+  ],
+  "meta": {
+    "level": "intermediate",
+    "trains": "A modal hymn tune in E minor over block chords (Em, Am, B, D) in the left.",
+    "composer": "Traditional (tune \"Veni Emmanuel\")",
+    "reviewedBy": "claude-sonnet-5",
+    "reviewedOn": "2026-09-26"
+  }
+}

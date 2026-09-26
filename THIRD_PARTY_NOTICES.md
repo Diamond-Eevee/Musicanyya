@@ -122,6 +122,28 @@ LilyPond source and the MIDI file LilyPond made from it, obtained 2026-09-24:
   sources (as Mutopia states it). `mutopia-528-ode-to-joy/`.
   https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=528
 
+The melodies of the songs in *Learning > Keys* (feature 011) are taken unchanged from these public-domain Mutopia
+sources (LilyPond source and the MIDI file LilyPond made from it, obtained 2026-09-26; each piece page states
+"Copyright: Public Domain"); the left-hand chords are Musicanyya's own and CC0. `pnpm library:songs` re-reads the
+source, cross-checks it against its MIDI and `pnpm library:fidelity` re-checks every song against it:
+
+- **Au clair de la lune** (F. Horetzky, Nº. 21) - Mutopia-2007/11/10-1111, classical guitar, Boije collection #268.
+  `mutopia-1111-au-clair-de-la-lune/`. https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1111
+- **Good King Wenceslas** - Mutopia-2007/01/10-905, Hutchins, Carols Old and Carols New (1916), carol #415.
+  `mutopia-905-good-king-wenceslas/`. https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=905
+- **The Holly and the Ivy** - Mutopia-2005/12/23-644 (traditional).
+  `mutopia-644-holly-and-the-ivy/`. https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=644
+- **Antioch ("Joy to the World", G. F. Handel)** - Mutopia-2008/01/13-1223, typeset by Steve Dunlop from
+  www.cyberhymnal.org. `mutopia-1223-antioch/`. https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1223
+- **Adeste Fideles ("O Come, All Ye Faithful", J. F. Wade)** - Mutopia-2008/01/13-1220, typeset by Steve Dunlop
+  from www.cyberhymnal.org. `mutopia-1220-adeste-fideles/`. https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1220
+- **Stille Nacht ("Silent Night", F. X. Gruber)** - Mutopia-2008/02/19-1295, typeset by Steve Dunlop from
+  www.cyberhymnal.org. `mutopia-1295-stille-nacht/`. https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1295
+- **Veni Emmanuel ("O Come, O Come, Emmanuel")** - Mutopia-2008/02/19-1300, typeset by Steve Dunlop from
+  www.cyberhymnal.org. `mutopia-1300-veni-emmanuel/`. https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1300
+  (The songs Greensleeves, Ode to Joy and Amazing Grace take their melodies from the Mutopia 1247, 528 and 1283 sources
+  listed above.)
+
 ## Test fixtures (not shipped with the application)
 
 - **OpenScore Lieder Corpus** and **OpenScore String Quartets** (downloaded 2026-09-22)

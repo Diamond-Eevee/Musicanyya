@@ -198,3 +198,19 @@ describe('a raised level requires raisedBecause (data-model.md §3, FR-009)', ()
     expect(problems).toEqual([]);
   });
 });
+
+// Feature 011 T056: every public-domain source a song is built from is recorded in THIRD_PARTY_NOTICES.md before release.
+describe('the sources of the songs (feature 011 FR-017)', () => {
+  it('every source a shelf song is based on appears in THIRD_PARTY_NOTICES.md', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    const notices = fs.readFileSync(path.resolve(__dirname, '../../THIRD_PARTY_NOTICES.md'), 'utf8');
+    const songs = index.items.filter((i) => i.meta.step === 'song');
+    expect(songs.length).toBeGreaterThan(0);
+    for (const song of songs) {
+      const basedOn = song.meta.provenance.origin === 'authored' ? (song.meta.provenance.basedOn ?? '') : '';
+      const id = /^(mutopia-\d+-[a-z0-9-]+)/.exec(basedOn)?.[1];
+      expect(id, `${song.id}: basedOn "${basedOn}" starts with the source id`).toBeDefined();
+      expect(notices, `${id} in THIRD_PARTY_NOTICES.md`).toContain(id as string);
+    }
+  });
+});

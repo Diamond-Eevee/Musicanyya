@@ -1,0 +1,368 @@
+{
+  "version": 1,
+  "family": "step-advanced",
+  "form": "pattern",
+  "titleTemplate": "{key} - advanced",
+  "section": "learning/keys/{key}",
+  "step": "advanced",
+  "stepOrder": 0,
+  "fileStem": "advanced",
+  "metre": "4/4",
+  "tempoBpm": 96,
+  "keys": [
+    {
+      "tonic": "C",
+      "mode": "major",
+      "fifths": 0
+    },
+    {
+      "tonic": "A",
+      "mode": "minor",
+      "fifths": 0
+    },
+    {
+      "tonic": "G",
+      "mode": "major",
+      "fifths": 1
+    },
+    {
+      "tonic": "E",
+      "mode": "minor",
+      "fifths": 1
+    },
+    {
+      "tonic": "D",
+      "mode": "major",
+      "fifths": 2
+    },
+    {
+      "tonic": "B",
+      "mode": "minor",
+      "fifths": 2
+    },
+    {
+      "tonic": "A",
+      "mode": "major",
+      "fifths": 3
+    },
+    {
+      "tonic": "F#",
+      "mode": "minor",
+      "fifths": 3
+    },
+    {
+      "tonic": "E",
+      "mode": "major",
+      "fifths": 4
+    },
+    {
+      "tonic": "C#",
+      "mode": "minor",
+      "fifths": 4
+    },
+    {
+      "tonic": "B",
+      "mode": "major",
+      "fifths": 5
+    },
+    {
+      "tonic": "G#",
+      "mode": "minor",
+      "fifths": 5
+    },
+    {
+      "tonic": "F#",
+      "mode": "major",
+      "fifths": 6
+    },
+    {
+      "tonic": "Eb",
+      "mode": "minor",
+      "fifths": -6
+    },
+    {
+      "tonic": "Db",
+      "mode": "major",
+      "fifths": -5
+    },
+    {
+      "tonic": "Bb",
+      "mode": "minor",
+      "fifths": -5
+    },
+    {
+      "tonic": "Ab",
+      "mode": "major",
+      "fifths": -4
+    },
+    {
+      "tonic": "F",
+      "mode": "minor",
+      "fifths": -4
+    },
+    {
+      "tonic": "Eb",
+      "mode": "major",
+      "fifths": -3
+    },
+    {
+      "tonic": "C",
+      "mode": "minor",
+      "fifths": -3
+    },
+    {
+      "tonic": "Bb",
+      "mode": "major",
+      "fifths": -2
+    },
+    {
+      "tonic": "G",
+      "mode": "minor",
+      "fifths": -2
+    },
+    {
+      "tonic": "F",
+      "mode": "major",
+      "fifths": -1
+    },
+    {
+      "tonic": "D",
+      "mode": "minor",
+      "fifths": -1
+    }
+  ],
+  "sections": [
+    {
+      "bars": 2,
+      "label": "A - right hand: {scale} in eighth notes",
+      "right": {
+        "scale": {
+          "form": "harmonic",
+          "shape": [1, 2, 3, 4, 5, 6, 7, 8, 8, 7, 6, 5, 4, 3, 2, 1],
+          "value": "eighth"
+        }
+      },
+      "left": {
+        "chords": [
+          {
+            "degree": "I",
+            "duration": "half",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "V",
+            "duration": "half"
+          },
+          {
+            "degree": "I",
+            "duration": "half",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "IV",
+            "duration": "half",
+            "minor": {
+              "degree": "iv"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "bars": 2,
+      "label": "A - right hand: chord progression, left hand: root and fifth",
+      "right": {
+        "chords": [
+          {
+            "degree": "I",
+            "duration": "quarter",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "vi",
+            "duration": "quarter",
+            "inversion": 1,
+            "minor": {
+              "degree": "VI"
+            }
+          },
+          {
+            "degree": "IV",
+            "duration": "quarter",
+            "inversion": 2,
+            "minor": {
+              "degree": "iv"
+            }
+          },
+          {
+            "degree": "V",
+            "duration": "quarter",
+            "inversion": 1
+          },
+          {
+            "degree": "I",
+            "duration": "quarter",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "ii",
+            "duration": "quarter",
+            "inversion": 2,
+            "minor": {
+              "degree": "iv"
+            }
+          },
+          {
+            "degree": "V",
+            "duration": "quarter",
+            "inversion": 1
+          },
+          {
+            "degree": "I",
+            "duration": "quarter",
+            "minor": {
+              "degree": "i"
+            }
+          }
+        ]
+      },
+      "left": {
+        "chords": [
+          {
+            "degree": "I",
+            "duration": "quarter",
+            "voicing": "root-fifth",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "vi",
+            "duration": "quarter",
+            "voicing": "root-fifth",
+            "minor": {
+              "degree": "VI"
+            }
+          },
+          {
+            "degree": "IV",
+            "duration": "quarter",
+            "voicing": "root-fifth",
+            "minor": {
+              "degree": "iv"
+            }
+          },
+          {
+            "degree": "V",
+            "duration": "quarter",
+            "voicing": "root-fifth"
+          },
+          {
+            "degree": "I",
+            "duration": "quarter",
+            "voicing": "root-fifth",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "ii",
+            "duration": "quarter",
+            "voicing": "root-fifth",
+            "minor": {
+              "degree": "iv"
+            }
+          },
+          {
+            "degree": "V",
+            "duration": "quarter",
+            "voicing": "root-fifth"
+          },
+          {
+            "degree": "I",
+            "duration": "quarter",
+            "voicing": "root-fifth",
+            "minor": {
+              "degree": "i"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "bars": 2,
+      "mirror": 0,
+      "label": "B - left hand: {scale} in eighth notes",
+      "right": {
+        "mirror": true
+      },
+      "left": {
+        "mirror": true
+      }
+    },
+    {
+      "bars": 2,
+      "mirror": 1,
+      "label": "B - left hand: chord progression, right hand: root and fifth",
+      "right": {
+        "mirror": true
+      },
+      "left": {
+        "mirror": true
+      }
+    },
+    {
+      "bars": 1,
+      "label": "Close - both hands: the tonic chord",
+      "right": {
+        "chords": [
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          }
+        ]
+      },
+      "left": {
+        "chords": [
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "supersedes": {
+    "c-major": ["learning/chords/changes/changes-i-vi-iv-v-c-major", "learning/chords/changes/changes-ii-v-i-c-major"]
+  },
+  "meta": {
+    "kind": "exercise",
+    "level": "advanced",
+    "tags": ["scales", "chords", "chord-changes", "steady-eighths", "hands-together"],
+    "trains": "Eighth-note scales and a four-chord progression with a second-degree or sixth-degree chord (ii or vi; in minor iv or VI) over root-and-fifth accompaniment; the hands swap.",
+    "hands": "both",
+    "provenance": {
+      "origin": "authored",
+      "licence": "CC0-1.0",
+      "author": "claude-sonnet-5",
+      "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, pattern form); never hand-edit the .musicxml/.json pair this produces."
+    },
+    "reviewedBy": "claude-sonnet-5",
+    "reviewedOn": "2026-09-26",
+    "raisedBecause": "The criteria compute Intermediate for this shape (eighth notes and root-and-fifth patterns at a moderate tempo); the step adds a four-chord progression at a faster tempo than Intermediate, so it sits one step higher on the key path."
+  }
+}

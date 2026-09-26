@@ -1,6 +1,6 @@
 # Contract: audit records and the audit report
 
-**Version**: `1.1.0` (1.0.0 new; 1.1.0, 2026-09-24: `melodyRhythm`, and a melody check may add only `spelling`, T054).
+**Version**: `1.2.0` (1.0.0 new; 1.1.0, 2026-09-24: `melodyRhythm`, and a melody check may add only `spelling`, T054; 1.2.0, 2026-09-26, feature 011: theory rule sets `exercise-theory-v2` and `song-chords-v1`, `previous.level` `introduction`, optional `supersedes`, moved records, the "Replaced by feature 011" table; change request `specs/011-learning-by-key/contracts/audit-record-1.2.md`).
 
 **Owner**: `tools/library/fidelity/records.ts` (reads, validates, re-runs), `tools/library/fidelity/report.ts`
 (writes the report). **Location**: records at `content/library/audit/<item-id>.json` (the item id's slashes are
@@ -26,11 +26,13 @@ folders, e.g. `content/library/audit/repertoire/advanced/chopin-prelude-op28-no4
     "outcomeNote": { "type": "string", "maxLength": 600 },
     "checkedBy": { "type": "string" },
     "date":      { "type": "string", "format": "date" },
+    "supersedes": { "type": "array", "items": { "type": "string" }, "minItems": 1,
+                     "description": "old item ids whose records were retired because this item replaced them (feature 011); equals the sidecar supersedes[].id set" },
     "previous":  {
       "type": "object", "additionalProperties": false,
       "required": ["title", "level", "bars", "notes"],
       "properties": {
-        "title": { "type": "string" }, "level": { "enum": ["beginner", "intermediate", "advanced"] },
+        "title": { "type": "string" }, "level": { "enum": ["introduction", "beginner", "intermediate", "advanced"] },
         "bars": { "type": "integer" }, "notes": { "type": "integer" }
       }
     }
@@ -72,7 +74,7 @@ folders, e.g. `content/library/audit/repertoire/advanced/chopin-prelude-op28-no4
           "required": ["method", "ruleSet", "expectedDifferences"],
           "properties": {
             "method": { "const": "theory" },
-            "ruleSet": { "const": "exercise-theory-v1" },
+            "ruleSet": { "enum": ["exercise-theory-v1", "exercise-theory-v2", "song-chords-v1"] },
             "expectedDifferences": { "const": 0 }
           }
         },
@@ -115,7 +117,16 @@ folders, e.g. `content/library/audit/repertoire/advanced/chopin-prelude-op28-no4
 6. **Sources**: every `source` named by a check exists under `content/library/sources/` and validates
    (contract source-manifest.md).
 7. **Item ids** (FR-020, SC-007): a record whose `previous` is present keeps its `itemId`; ids are never renamed by
-   this feature.
+   feature 007. Feature 011 moves records with their items: a moved record keeps its checks and outcome and changes
+   only `itemId`; the file moves to the new path. A superseded item's record is deleted with the old file; the
+   successor's record lists the old ids in `supersedes`.
+8. **Rule sets** (feature 011): `exercise-theory-v2` = v1 plus key segments (a key per bar range, key-change items), scale
+   claims per section and hand (major, harmonic, melodic with direction), broken-chord and root-fifth voicings; claims come
+   from the title (`{key} - introduction|beginner|intermediate|advanced`, `{from} to {to} - introduction|beginner|intermediate`).
+   `song-chords-v1` reads the shelf key, every words-direction chord name above staff 1 and every staff-2 chord; each
+   chord's notes must be exactly the triad its name spells and each name must be in the allowed set of the item's level.
+   `claim: "arrangement"` for songs requires `arrangement: true`, non-empty `departures`, one `mechanical` check with aspect
+   `melody` and one `song-chords-v1` check.
 
 ## 3. The report (`docs/library-audit.md`)
 
@@ -143,6 +154,9 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 ## Removed
 | Item | Reason | Date |
 
+## Replaced by feature 011
+| Old id | New id |   <- from the successors' `supersedes` (1.2.0)
+
 ## Notes
 <- per item with differenceNotes, departures or an edition decision: the full text
 <- per replaced item: "Recent scores that opened the old version keep that copy; progress saved against it
@@ -151,6 +165,9 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 SC-009 (find any item in under a minute): rows are in shelf order, one row per item, with the item title as it
 appears in the app plus its id.
+
+The Learning table groups rows by key folder, then key-change folder, in shelf order; songs appear in it with Claim =
+arrangement, Source = the Mutopia edition, Method = mechanical + theory (1.2.0).
 
 ## 4. Versioning
 

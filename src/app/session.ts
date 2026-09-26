@@ -235,10 +235,14 @@ export class Session {
     this.scoreStore = scoreStore;
     this.settingsStore = settingsStore;
     this.libraryCatalog = libraryCatalog;
-    this.libraryController = new LibrarySessionController(this.libraryCatalog, {
-      loadBytes: (fileName, bytes) => this.loadBytes(fileName, bytes),
-      onNotice: (code) => noticeState.addNotice({ code, severity: 'warning' }),
-    });
+    this.libraryController = new LibrarySessionController(
+      this.libraryCatalog,
+      {
+        loadBytes: (fileName, bytes) => this.loadBytes(fileName, bytes),
+        onNotice: (code) => noticeState.addNotice({ code, severity: 'warning' }),
+      },
+      this.settingsStore,
+    );
   }
 
   async start(): Promise<void> {

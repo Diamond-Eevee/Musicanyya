@@ -77,6 +77,38 @@ describe('mx-score-source (FR-019)', () => {
     expect(el.textContent).toContain('Written for Musicanyya');
   });
 
+  // Feature 011 T084 (library-port 1.2 §4a, spec US3 scenario 3)
+  it('an authored item with provenance.basedOn shows "Arrangement for this app (CC0)" and its provenance.note', () => {
+    const item = authoredItem();
+    libraryState.setOpenedItem({
+      ...item,
+      meta: {
+        ...item.meta,
+        provenance: {
+          ...item.meta.provenance,
+          basedOn: 'mutopia-528-ode-to-joy: Ode to Joy',
+          note: 'Melody from Various (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=528), public domain; left-hand chords our own (CC0)',
+        } as typeof item.meta.provenance,
+      },
+    });
+    const el = document.createElement('mx-score-source');
+    document.body.appendChild(el);
+    const lines = Array.from(el.querySelectorAll('.score-source-line')).map((l) => l.textContent);
+    expect(lines).toEqual([
+      'Arrangement for this app (CC0)',
+      'Melody from Various (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=528), public domain; left-hand chords our own (CC0)',
+    ]);
+  });
+
+  it('an authored item without basedOn still shows only the authored line', () => {
+    libraryState.setOpenedItem(authoredItem());
+    const el = document.createElement('mx-score-source');
+    document.body.appendChild(el);
+    expect(Array.from(el.querySelectorAll('.score-source-line')).map((l) => l.textContent)).toEqual([
+      'Written for Musicanyya',
+    ]);
+  });
+
   it('shows licence, source and credit for a downloaded item, plus its limitations', () => {
     libraryState.setOpenedItem(downloadedItem());
     const el = document.createElement('mx-score-source');

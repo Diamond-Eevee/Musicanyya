@@ -169,3 +169,91 @@ describe('LibrarySessionController (session-library, US1 T016)', () => {
     expect(controller.openedLibraryItemId).toBeNull();
   });
 });
+
+// Feature 011 T057 (FR-019, existing 002 behaviour asserted on a real song file): opening a song and practising the left hand
+// waits for the chords only, and the melody is heard as accompaniment.
+describe('practising a song with the left hand (feature 011 US3, FR-019)', () => {
+  const songFile = path.resolve(
+    __dirname,
+    '../../public/library/learning/keys/c-major/song-au-clair-de-la-lune.musicxml',
+  );
+
+  async function events() {
+    const { buildScore } = await import('../../src/core/musicxml/build.js');
+    const { readXml } = await import('../../src/core/musicxml/read.js');
+    const { buildTimeline } = await import('../../src/core/timeline/timeline.js');
+    const { buildExpectedEvents } = await import('../../src/core/practice/expected.js');
+    const { handOptions } = await import('../../src/core/practice/hands.js');
+    const { score } = buildScore(readXml(fs.readFileSync(songFile, 'utf8')).doc);
+    const { timeline } = buildTimeline(score);
+    const left = handOptions(score, 0).find((o) => o.preset === 'left');
+    if (!left) throw new Error('the song offers no left-hand selection');
+    const staffOf = new Map((score.parts[0]?.notes ?? []).map((n) => [n.id, n.staff]));
+    return { expected: buildExpectedEvents(score, timeline, left), staffOf };
+  }
+
+  it('expects only staff-2 notes and schedules the staff-1 melody as accompaniment', async () => {
+    const { expected, staffOf } = await events();
+    const required = expected.flatMap((e) => e.required.flatMap((r) => r.noteIds));
+    const accompaniment = expected.flatMap((e) => e.accompaniment.map((a) => a.noteId));
+    expect(required.length).toBeGreaterThan(0);
+    expect(new Set(required.map((id) => staffOf.get(id)))).toEqual(new Set([2]));
+    expect(accompaniment.length).toBeGreaterThan(0);
+    expect(new Set(accompaniment.map((id) => staffOf.get(id)))).toEqual(new Set([1]));
+  });
+});
+
+// Feature 011 T066 (library-port 1.2 §4): opening an item first lets its settings adopt those of the items it replaced.
+describe('opening a library item adopts the settings of the items it supersedes (feature 011 US4)', () => {
+  const NEW_HASH = 'b'.repeat(64);
+  const OLD_HASH = 'c'.repeat(64);
+
+  async function open(supersedes: { id: string; hash: string }[] | undefined) {
+    const catalog = new FakeLibraryCatalog();
+    catalog.setItem('repertoire/beginner/scale.musicxml', fixtureBytes);
+    const order: string[] = [];
+    const adopted: { from: readonly string[]; to: string }[] = [];
+    const controller = new LibrarySessionController(
+      catalog,
+      {
+        loadBytes: async () => {
+          order.push('loadBytes');
+        },
+        onNotice: () => {},
+      },
+      {
+        adoptScoreSettings: (from: readonly string[], to: string) => {
+          order.push('adopt');
+          adopted.push({ from, to });
+          return false;
+        },
+      },
+    );
+    const base = item();
+    const withHash = {
+      ...base,
+      hash: NEW_HASH,
+      meta: { ...base.meta, ...(supersedes ? { supersedes } : {}) },
+    };
+    await controller.openItem(index([withHash]), withHash.id);
+    return { order, adopted };
+  }
+
+  it('calls adoptScoreSettings with the old hashes and its own hash, before loadBytes', async () => {
+    const { order, adopted } = await open([{ id: 'learning/chords/triads-c-major', hash: OLD_HASH }]);
+    expect(adopted).toEqual([{ from: [OLD_HASH], to: NEW_HASH }]);
+    expect(order).toEqual(['adopt', 'loadBytes']);
+  });
+
+  it('an item without supersedes calls it with no old hashes (nothing is copied)', async () => {
+    const { adopted } = await open(undefined);
+    expect(adopted).toEqual([{ from: [], to: NEW_HASH }]);
+  });
+
+  it('a controller built without a settings port still opens items', async () => {
+    const catalog = new FakeLibraryCatalog();
+    catalog.setItem('repertoire/beginner/scale.musicxml', fixtureBytes);
+    const controller = new LibrarySessionController(catalog, { loadBytes: async () => {}, onNotice: () => {} });
+    expect(await controller.openItem(index([item()]), 'repertoire/beginner/scale')).toBe(true);
+  });
+});

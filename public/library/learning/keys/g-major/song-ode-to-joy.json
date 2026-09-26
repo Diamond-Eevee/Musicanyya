@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "title": "Song - Ode to Joy",
+  "composer": "L. van Beethoven (tune of the Ninth Symphony finale)",
+  "subtitle": "Arrangement: the tune with left-hand block chords",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "A tune of steps and repeated notes over block chords (G, C, D) in the left, one chord per bar.",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-sonnet-5",
+    "created": "2026-09-26",
+    "basedOn": "mutopia-528-ode-to-joy: Beethoven, \"Ode to Joy\" (hymn setting of the Symphony No. 9 finale theme), SATB, G major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=528)",
+    "note": "Melody from Various (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=528), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": ["Left-hand block chords are our own (CC0)."],
+  "reviewedBy": "claude-sonnet-5",
+  "reviewedOn": "2026-09-26",
+  "step": "song",
+  "stepOrder": 40
+}

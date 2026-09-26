@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "itemId": "learning/keys/c-major/intermediate",
+  "claim": "exercise",
+  "claimText": "C major - intermediate",
+  "checks": [
+    {
+      "method": "theory",
+      "ruleSet": "exercise-theory-v2",
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "verified",
+  "outcomeNote": "The independent theory check derives every chord and scale from the title alone (letters, spellings, inversions, hands, scale form, broken and root-fifth voicings) and finds 0 differences.",
+  "checkedBy": "claude-sonnet-5",
+  "date": "2026-09-26",
+  "supersedes": ["learning/chords/changes/changes-tonic-inversions-c-major", "learning/chords/triads-c-major"]
+}

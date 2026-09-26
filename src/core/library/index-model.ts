@@ -9,8 +9,9 @@ import type {
   LibrarySection,
   Provenance,
   SkillTag,
+  Step,
 } from './types.js';
-import { SKILL_TAGS } from './types.js';
+import { SKILL_TAGS, STEPS } from './types.js';
 
 /** contracts/library-index.md §3: an item that fails validation is skipped and reported, never fatal
  *  to the rest of the index; a `version` other than 1 rejects the whole index with one notice. */
@@ -25,12 +26,17 @@ export interface ParsedLibraryIndex {
   notices: readonly IndexNotice[];
 }
 
-const LEVELS: readonly Level[] = ['beginner', 'intermediate', 'advanced'];
+const LEVELS: readonly Level[] = ['introduction', 'beginner', 'intermediate', 'advanced'];
 const KINDS = ['exercise', 'piece'] as const;
 const HANDS = ['right', 'left', 'both'] as const;
 /** contracts/library-index.md 1.1.0 `departures`: 1 to 8 entries, each 1 to 200 characters. */
 const DEPARTURES_MAX_ENTRIES = 8;
 const DEPARTURE_MAX_CHARS = 200;
+/** contracts/library-index.md 1.2.0 `supersedes`: 1 to 8 entries of a former item id and the SHA-256 of its file. */
+const SUPERSEDES_MAX_ENTRIES = 8;
+const STEP_ORDER_MAX = 99;
+const ITEM_ID_PATTERN = /^[a-z0-9-]+(\/[a-z0-9-]+)*$/;
+const SHA256_PATTERN = /^[0-9a-f]{64}$/;
 
 type JsonObject = Record<string, unknown>;
 
@@ -96,6 +102,12 @@ export function validMetadata(raw: unknown): ItemMetadata | null {
   if (!isNonEmptyString(raw.reviewedBy) || !isNonEmptyString(raw.reviewedOn)) return null;
   // FR-010 (contract library-index-1.1.md §1): an arrangement names its departures; an original has none.
   if (raw.arrangement === true ? !validDepartures(raw.departures) : raw.departures !== undefined) return null;
+  // contracts/library-index.md 1.2.0: an unknown or malformed step, stepOrder or supersedes skips the item.
+  if (raw.step !== undefined && !STEPS.includes(raw.step as Step)) return null;
+  if (raw.stepOrder !== undefined && !(Number.isInteger(raw.stepOrder) && inRange(raw.stepOrder, 0, STEP_ORDER_MAX))) {
+    return null;
+  }
+  if (raw.supersedes !== undefined && !validSupersedes(raw.supersedes)) return null;
 
   const meta: ItemMetadata = {
     version: 1,
@@ -119,6 +131,9 @@ export function validMetadata(raw: unknown): ItemMetadata | null {
   if (isNonEmptyString(raw.raisedBecause)) meta.raisedBecause = raw.raisedBecause;
   if (isStringArray(raw.limitations)) meta.limitations = raw.limitations;
   if (validDepartures(raw.departures)) meta.departures = raw.departures;
+  if (raw.step !== undefined) meta.step = raw.step as Step;
+  if (raw.stepOrder !== undefined) meta.stepOrder = raw.stepOrder as number;
+  if (validSupersedes(raw.supersedes)) meta.supersedes = raw.supersedes;
   return meta;
 }
 
@@ -128,6 +143,26 @@ function validDepartures(value: unknown): value is string[] {
     value.length >= 1 &&
     value.length <= DEPARTURES_MAX_ENTRIES &&
     value.every((d) => d.length >= 1 && d.length <= DEPARTURE_MAX_CHARS)
+  );
+}
+
+function inRange(value: unknown, min: number, max: number): boolean {
+  return typeof value === 'number' && value >= min && value <= max;
+}
+
+function validSupersedes(value: unknown): value is { id: string; hash: string }[] {
+  return (
+    Array.isArray(value) &&
+    value.length >= 1 &&
+    value.length <= SUPERSEDES_MAX_ENTRIES &&
+    value.every(
+      (entry) =>
+        isObject(entry) &&
+        typeof entry.id === 'string' &&
+        ITEM_ID_PATTERN.test(entry.id) &&
+        typeof entry.hash === 'string' &&
+        SHA256_PATTERN.test(entry.hash),
+    )
   );
 }
 
@@ -184,6 +219,8 @@ function validFacts(raw: unknown): ItemFacts | null {
     'longestRunAtShortestValue',
     'peakNotesPerSecond',
     'accidentalMarkCount',
+    'minorScaleAccidentalCount',
+    'chordChangesPerBar',
     'maxTieChainNotes',
     'maxTieBarlinesCrossed',
     'graceNoteCount',
@@ -220,6 +257,7 @@ function validSection(raw: unknown): LibrarySection | null {
     order: raw.order as number,
   };
   if (isNonEmptyString(raw.description)) section.description = raw.description;
+  if (isStringArray(raw.formerIds) && raw.formerIds.length > 0) section.formerIds = raw.formerIds;
   return section;
 }
 

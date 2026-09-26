@@ -127,6 +127,7 @@ pnpm build            # static site in dist/
 pnpm electron:dev     # desktop shell against the dev server
 pnpm electron:build   # desktop build (electron-builder)
 pnpm library:exercises # regenerate the exercise families from content/library/exercises/*.json
+pnpm library:songs     # build the songs from content/library/songs/*.json + approved sources (--song <id> for one)
 pnpm library:engrave  # complete hand-written repertoire files in place (beams + accidentals)
 pnpm library:index    # regenerate public/library/index.json from the files on disk
 pnpm screenshot       # open the app headless and save a PNG (see "Running and seeing the app" below)
@@ -291,6 +292,11 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-26: Feature 011 planned (Learning by key): Learning becomes Keys (24 folders, circle of fifths) and Key
+  changes (18 relative/parallel folders), each with generated steps Introduction/Beginner/Intermediate(/Advanced), plus 10
+  songs built from Mutopia public-domain melodies with our CC0 left-hand chords (`pnpm library:songs`). New level
+  `introduction`, a step-order check in `library:index`, a folder-tree library panel, and `supersedes` links so settings
+  follow renamed items. No new dependency.
 - 2026-09-26: Feature 010 planned (on-screen piano as a real keyboard): 52 contiguous white keys and 36 black keys
   placed by the equal key-top model, C keys labelled C1-C8, keys 4 x as long as wide up to 160 px / 20 vh, sized by
   CSS container units. The element keeps its DOM contract (`[data-key]` + state classes), so 001/002/008 feedback is
@@ -300,9 +306,4 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   and every Score part sounded as piano (001 FR-015 unmet); the fix goes in the worklet's message handler. The Play
   cursor reuses Listen's, driven by the run's audible position; the Grade becomes a pure mark set drawn with 008's
   green heads and red discs, with extras as discs at the nearest note onset.
-- 2026-09-25: Feature 008 planned (pressed keys on the Score): correct notes turn their notehead green (a CSS
-  class on the Note's own SVG element), held wrong keys appear as red discs at the printed pitch position with
-  ledger lines, real-font accidentals and ottava labels, and every dashed outline goes. Phase 0 found that Practice
-  had no cursor of its own (the dashed waiting ring was the only position mark), so it gets a band behind the
-  current event; and that the Score model had no clefs or keys, so the parser now records them.
 <!-- RECENT-CHANGES:END -->

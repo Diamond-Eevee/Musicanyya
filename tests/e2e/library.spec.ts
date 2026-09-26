@@ -3,6 +3,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type ElectronApplication, _electron as electron, expect, test } from '@playwright/test';
+import { revealLibraryItem } from './helpers/library.js';
 import { openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -12,8 +13,8 @@ const FUR_ELISE_SELECTOR = '.library-item-open[data-id="repertoire/intermediate/
 /** One item per section (data-model.md §2), so an engraving regression on real content - not just the
  *  Fur Elise item the test above already exercises - is caught (T075). */
 const ENGRAVING_SAMPLE = [
-  'learning/chords/c-major-scale-and-chords',
-  'learning/chords/changes/changes-cadence-c-major',
+  'learning/keys/c-major/beginner',
+  'learning/keys/f-sharp-major/advanced',
   'repertoire/beginner/amazing-grace',
   'repertoire/advanced/burgmuller-op100-no2',
   'repertoire/advanced/bach-prelude-bwv846',
@@ -60,7 +61,8 @@ test.describe('Practice score library: browse, open, Listen', () => {
 
     // FR-019: source/licence visible without leaving the score view - reopen the (non-modal) panel to check it.
     await openPanel(page, 'scores');
-    await expect(page.locator('mx-score-source')).toContainText('Written for Musicanyya');
+    // the theme is an authored arrangement with provenance.basedOn: library-port 1.2 §4a (feature 011) shows it as such
+    await expect(page.locator('mx-score-source')).toContainText('Arrangement for this app (CC0)');
     await page.keyboard.press('Escape');
 
     // Interaction 3: Play (Listen). Playwright's WebKit build has no AudioContext at all (a test-
@@ -98,6 +100,152 @@ test.describe('Practice score library: browse, open, Listen', () => {
     } finally {
       await page.context().setOffline(false);
     }
+  });
+
+  test('browser: Learning > Keys > C major > 1 Introduction opens, engraves and plays (feature 011 US1, SC-001)', async ({
+    page,
+    browserName,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === 'electron', 'Electron is covered by its own test below');
+
+    await page.goto('/');
+    await openPanel(page, 'scores');
+
+    // The tree: Learning and Keys are open, the key folders are closed until the user opens one.
+    await expect(page.locator('details.library-section[data-section="learning/keys"]')).toHaveJSProperty('open', true);
+    await expect(page.locator('details.library-section[data-section="learning/keys/c-major"]')).toHaveJSProperty(
+      'open',
+      false,
+    );
+    // Circle order: C major, then its relative minor A minor, then G major.
+    const keyTitles = await page
+      .locator('details.library-section[data-section="learning/keys"] > details > summary')
+      .allTextContents();
+    expect(keyTitles.slice(0, 3).map((t) => t.trim())).toEqual(['C major', 'A minor', 'G major']);
+
+    // SC-001: from the open panel, opening the folder and the item is at most 3 selections.
+    const { item, clicks } = await revealLibraryItem(page, 'learning/keys/c-major/introduction');
+    await expect(item).toContainText('1 Introduction');
+    await expect(item).toContainText('C major - introduction');
+    expect(clicks + 1, 'selections from the open panel to the Score').toBeLessThanOrEqual(3);
+    await item.click();
+    await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    await expect(page.locator('.notice')).toHaveCount(0);
+    await expect(page.locator('.mx-title-block')).toContainText('C major - introduction');
+
+    await expect(page.locator('.play-btn')).not.toBeDisabled();
+    if (browserName !== 'webkit') {
+      await page.locator('.play-btn').click();
+      await expect(page.locator('g.note.playing').first()).toBeVisible();
+      // Escape stops the run; a press that lands while the run is still starting is ignored, so press again until it took
+      await expect(async () => {
+        await page.keyboard.press('Escape');
+        await expect(page.locator('g.note.playing')).toBeHidden({ timeout: 1500 });
+      }).toPass({ timeout: 15_000 });
+    }
+  });
+
+  test('browser: Learning > Key changes > C major -> C minor > 1 Introduction shows the new signature mid-score and plays through the change (feature 011 US2)', async ({
+    page,
+    browserName,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === 'electron', 'Electron is covered by its own test below');
+    test.setTimeout(150_000); // the Introduction is 12 bars at q=60: 48 s of Listen
+
+    await page.goto('/');
+    await openPanel(page, 'scores');
+    const { item } = await revealLibraryItem(page, 'learning/key-changes/c-major-to-c-minor/introduction');
+    await expect(item).toContainText('1 Introduction');
+    await expect(item).toContainText('C major to C minor - introduction');
+    await item.click();
+    await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    await expect(page.locator('.notice')).toHaveCount(0);
+
+    // C major has no signature; the change to C minor writes three flats in each staff at the arrival bar, and again at the
+    // start of every system after it. So the file shows at least two signatures (one per staff) of three flats each.
+    const signatures = page.locator('.mx-score-page g.keySig');
+    expect(await signatures.count()).toBeGreaterThanOrEqual(2);
+    expect(await page.locator('.mx-score-page g.keySig g.keyAccid').count()).toBeGreaterThanOrEqual(6);
+    // ...and the first flat is not at the start of the piece: at least one note stands before it in reading order.
+    const beforeFirstSignature = await page.evaluate(() => {
+      const scope = document.querySelector('.mx-score-page') as HTMLElement;
+      const all = Array.from(scope.querySelectorAll('g.keyAccid, g.note'));
+      return all.findIndex((el) => el.matches('g.keyAccid'));
+    });
+    expect(beforeFirstSignature, 'notes before the first flat of the new signature').toBeGreaterThan(0);
+
+    await expect(page.locator('.play-btn')).not.toBeDisabled();
+    if (browserName !== 'webkit') {
+      await page.locator('.play-btn').click();
+      await expect(page.locator('g.note.playing').first()).toBeVisible();
+      // the cursor passes the change (bar 5: measure index 4 in the note ids) and the run ends by itself
+      await expect
+        .poll(
+          async () =>
+            page.locator('g.note.playing').evaluateAll((els) => els.some((el) => /-m(?:[4-9]|1\d)-/.test(el.id))),
+          { timeout: 60_000 },
+        )
+        .toBe(true);
+      await expect(page.locator('g.note.playing')).toHaveCount(0, { timeout: 60_000 });
+    }
+  });
+
+  test('browser: settings remembered for a superseded item apply to its successor (feature 011 US4, quickstart US4)', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === 'electron', 'Electron is covered by its own test below');
+
+    // What the index says about the successor: its own hash and the hash of the old item it replaced
+    const index = (await (await page.request.get('/library/index.json')).json()) as {
+      items: { id: string; hash: string; meta: { supersedes?: { id: string; hash: string }[] } }[];
+    };
+    const successor = index.items.find((i) => i.id === 'learning/keys/c-major/intermediate');
+    const old = successor?.meta.supersedes?.find((s) => s.id === 'learning/chords/triads-c-major');
+    if (!successor || !old) throw new Error('the successor of learning/chords/triads-c-major is not on the shelf');
+
+    // A visit from before the reorganisation: Practice settings stored under the old item's hash, "left hand"
+    await page.addInitScript((oldHash) => {
+      if (localStorage.getItem('musicanyya.practice.v1') !== null) return;
+      localStorage.setItem(
+        'musicanyya.practice.v1',
+        JSON.stringify({
+          version: 1,
+          byScore: {
+            [oldHash]: {
+              selection: { preset: 'left', partIndex: 0, staves: [2] },
+              loop: null,
+              accompaniment: false,
+              help: true,
+              updated: '2026-09-01T00:00:00.000Z',
+            },
+          },
+        }),
+      );
+    }, old.hash);
+
+    await page.goto('/');
+    await openPanel(page, 'scores');
+    const { item } = await revealLibraryItem(page, 'learning/keys/c-major/intermediate');
+    await item.click();
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+
+    // The successor now has the old item's choices as its own (written after the store's short debounce), the old entry stays
+    await expect
+      .poll(async () =>
+        page.evaluate((newHash) => {
+          const file = JSON.parse(localStorage.getItem('musicanyya.practice.v1') ?? '{}');
+          const own = file.byScore?.[newHash];
+          return own ? [own.selection?.preset, own.accompaniment] : null;
+        }, successor.hash),
+      )
+      .toEqual(['left', false]);
+    const oldStillThere = await page.evaluate(
+      (oldHash) => JSON.parse(localStorage.getItem('musicanyya.practice.v1') ?? '{}').byScore?.[oldHash] !== undefined,
+      old.hash,
+    );
+    expect(oldStillThere).toBe(true);
   });
 
   test('browser: a corrected item replaces a stale cached copy, and still opens offline (feature 007 FR-024, SC-010)', async ({
@@ -219,8 +367,7 @@ test.describe('Practice score library: browse, open, Listen', () => {
 
     for (const id of ENGRAVING_SAMPLE) {
       await openPanel(page, 'scores');
-      const itemLocator = page.locator(`.library-item-open[data-id="${id}"]`);
-      await expect(itemLocator).toBeVisible();
+      const { item: itemLocator } = await revealLibraryItem(page, id);
       await itemLocator.click();
       await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
       await expect(page.locator('.mx-score-page svg').first()).toBeVisible();

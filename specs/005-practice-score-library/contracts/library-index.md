@@ -1,6 +1,9 @@
 # Contract: library content formats (`item.json` + generated `index.json`)
 
-**Version**: `1.0.0` - new. Two related formats: the **authored item metadata** written beside every
+**Version**: `1.2.0` (1.0.0 new; 1.1.0, 2026-09-23, feature 007: `departures`, `reviewedBy`/`reviewedOn` meaning, change request
+`specs/007-library-fidelity-audit/contracts/library-index-1.1.md`; 1.2.0, 2026-09-26, feature 011: level `introduction`,
+`step`, `stepOrder`, `supersedes`, section `formerIds`, fact `chordChangesPerBar`, skill tag `key-changes`, sibling `order`,
+change request `specs/011-learning-by-key/contracts/library-index-1.2.md`). Two related formats: the **authored item metadata** written beside every
 score, and the **generated index** the app actually reads.
 
 **Owner**: `tools/library/build-index.ts` (writes), `src/core/library/index-model.ts` (reads and
@@ -29,7 +32,26 @@ Everything a human decides. Never generated, never rewritten by a tool.
     "composer":  { "type": ["string", "null"], "maxLength": 200 },
     "arranger":  { "type": ["string", "null"], "maxLength": 200 },
     "kind":      { "enum": ["exercise", "piece"] },
-    "level":     { "enum": ["beginner", "intermediate", "advanced"] },
+    "level":     { "enum": ["introduction", "beginner", "intermediate", "advanced"] },
+    "step": {
+      "enum": ["introduction", "beginner", "intermediate", "advanced", "song"],
+      "description": "the step of a key or key-change folder this item belongs to (feature 011 FR-003)"
+    },
+    "stepOrder": {
+      "type": "integer", "minimum": 0, "maximum": 99,
+      "description": "position inside its step; 0 = the step's main exercise, 10+ = more practice at the same step"
+    },
+    "supersedes": {
+      "type": "array", "minItems": 1, "maxItems": 8,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["id", "hash"],
+        "properties": {
+          "id":   { "type": "string", "pattern": "^[a-z0-9-]+(/[a-z0-9-]+)*$" },
+          "hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        }
+      },
+      "description": "former library items this item replaces: old id and the SHA-256 of the old file (feature 011 FR-020)"
+    },
     "tags":      { "type": "array", "items": { "$ref": "#/$defs/skillTag" }, "minItems": 1, "maxItems": 8 },
     "trains":    { "type": "string", "maxLength": 300 },
     "hands":     { "enum": ["right", "left", "both"] },
@@ -54,7 +76,7 @@ Everything a human decides. Never generated, never rewritten by a tool.
     "skillTag": {
       "enum": ["chords", "chord-changes", "scales", "arpeggios", "five-finger", "hands-together",
                "hands-separate", "steady-eighths", "dotted-rhythm", "triplets", "ties", "repeats",
-               "pedal", "octave-shift", "ornaments", "sight-reading", "dynamics", "phrasing"]
+               "pedal", "octave-shift", "ornaments", "sight-reading", "dynamics", "phrasing", "key-changes"]
     },
     "provenance": {
       "oneOf": [
@@ -116,6 +138,17 @@ Everything a human decides. Never generated, never rewritten by a tool.
 - `arrangement: true` **requires** `departures` (FR-010). `arrangement: false` (or absent) **forbids** it.
 - `departures` never describes added material as the composer's (FR-012); it says whose it is ("our own continuation").
 - `src/core/library/index-model.ts` accepts the field, validates length and type, and copies it into the item's `meta`. The app does not display it in this feature (spec: UI changes out of scope).
+- Every item under `learning/keys/` or `learning/key-changes/` **requires** `step`. Items elsewhere **forbid** it (1.2.0).
+- For a main item (`stepOrder` 0), `step` = `introduction` requires `level` = `introduction`; `beginner`, `intermediate`,
+  `advanced` require the level of the same name. An extra (`stepOrder` 10+, an existing drill kept at that step) keeps its own
+  level: the step says where it sits on the path, the level says how hard it measures. `song` items carry their own level (`beginner` or `intermediate`) and `kind: "piece"` (1.2.0).
+- Within one folder, `(step, stepOrder)` is unique. A folder in `learning/keys/` holds exactly one item with
+  `stepOrder: 0` for each of the four exercise steps; a folder in `learning/key-changes/` for introduction, beginner and
+  intermediate (1.2.0).
+- `supersedes[].id` must not be the id of any item on the shelf, and one old id may be superseded by at most one item
+  (the successor table of feature 011, `tools/library/successors.ts`, is the single source) (1.2.0).
+- The skill tag `key-changes` (1.2.0): the item practises moving between two keys. Required on every item under
+  `learning/key-changes/`.
 - Rejected items are recorded in `public/library/README.md` in the format `| <item id> (<title>) | <reason, source searched, date> |`.
 
 ## 2. Generated index (`index.json`)
@@ -142,7 +175,11 @@ Everything a human decides. Never generated, never rewritten by a tool.
           "description": { "type": "string" },
           "path":     { "type": "string" },
           "parent":   { "type": ["string", "null"] },
-          "order":    { "type": "integer" }
+          "order":    { "type": "integer", "description": "position among siblings (same parent); unique per parent (1.2.0)" },
+          "formerIds": {
+            "type": "array", "items": { "type": "string" }, "minItems": 1,
+            "description": "section ids this section replaces; a persisted filter naming one is moved here (1.2.0, feature 011 FR-020)"
+          }
         }
       }
     },
@@ -187,6 +224,8 @@ Everything a human decides. Never generated, never rewritten by a tool.
         "handsWithNotes":  { "enum": ["right", "left", "both"] },
         "shortestDivision":{ "type": "integer", "description": "1 = whole, 4 = quarter, 16 = sixteenth ..." },
         "notesPerBeat":    { "type": "number" },
+        "chordChangesPerBar": { "type": "number", "description": "mean over written measures of the chord attacks (onsets where one staff sounds 2+ notes) that differ from the previous chord attack of the same staff (1.2.0)" },
+        "minorScaleAccidentalCount": { "type": "integer", "description": "accidentals on the 6th or 7th degree of the relative minor of a key signature in the score; exercises do not count them for criterion 11 (1.2.0, D-2 B5)" },
         "accidentals":     { "type": "integer", "description": "key-signature accidentals, max over the piece" },
         "hasTies":         { "type": "boolean" },
         "hasTuplets":      { "type": "boolean" },
@@ -202,7 +241,7 @@ Everything a human decides. Never generated, never rewritten by a tool.
       "type": "object",
       "required": ["level", "pass", "failed"],
       "properties": {
-        "level":  { "enum": ["beginner", "intermediate", "advanced"] },
+        "level":  { "enum": ["introduction", "beginner", "intermediate", "advanced"] },
         "pass":   { "type": "boolean" },
         "failed": { "type": "array", "items": { "type": "string" }, "description": "criterion ids that failed" }
       }
@@ -223,7 +262,11 @@ Everything a human decides. Never generated, never rewritten by a tool.
   and the level check. The Score the app plays always comes from parsing the file itself.
 - Item ids are stable: they are the path under `public/library/` without the extension. Renaming a
   file is a breaking change to a user's recents and to any future Advice anchor, so it is a
-  deliberate act, not a refactor.
+  deliberate act, not a refactor. Feature 011 renamed every `learning/` id once; a future rename must add a
+  `supersedes` entry (1.2.0).
+- An item whose `meta.level` or `meta.step` is unknown to the reader is skipped and reported (1.2.0). `supersedes` and
+  `formerIds` are read by `src/app/library-session.ts` and `src/ui/state/libraryState.ts` only; they never affect what
+  is listed.
 
 ## 4. Generation and verification
 
@@ -237,8 +280,11 @@ Everything a human decides. Never generated, never rewritten by a tool.
 - `tests/library/sweep.test.ts` loads every item and asserts `facts.notices` equals
   `meta.expected.notices` (FR-023) and that the load produced no error (FR-022).
 - The same suites also assert, so that FR-025 has teeth beyond the obvious cases:
-  - **counts**: at least 24 chord exercises and 12 chord-change drills (SC-004), and the repertoire
+  - **counts** (1.2.0): at least 96 step exercises (24 keys x 4 steps), at least 54 key-change exercises (18 pairs x 3
+    steps), at least 8 songs in at least 4 keys of which at least 2 minor (feature 011), and the repertoire
     spread of FR-008 including more than one composer and more than one key signature per level;
+  - **step order** (1.2.0): `pnpm library:index` refuses to write when a key or key-change folder's main items are not
+    increasingly demanding (`checkStepOrder`, feature 011 data-model §4), naming folder, steps and fact;
   - **shelf size**: the total bytes of `public/library/` stay inside the SC-008 budget (FR-026);
   - **not silent**: every item has at least one sounding note (FR-021);
   - **labelled arrangements**: `arrangement: true` requires the word in `title` or `subtitle`

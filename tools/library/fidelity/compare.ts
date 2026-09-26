@@ -493,13 +493,13 @@ const LETTERS: Step[] = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 const PERFECT: Record<number, number> = { 1: 0, 4: 5, 5: 7, 8: 12 };
 const MAJOR: Record<number, number> = { 2: 2, 3: 4, 6: 9, 7: 11 };
 
-interface Interval {
+export interface Interval {
   letters: number;
   semitones: number;
 }
 
 /** "-M2", "+P4" ... (contract audit-record.md) as signed letter steps and semitones. */
-function parseInterval(text: string): Interval {
+export function parseInterval(text: string): Interval {
   const m = /^([+-])([PMmAd])([1-8])$/.exec(text);
   const degree = Number(m?.[3]);
   const perfect = PERFECT[degree];
@@ -525,7 +525,7 @@ function parseInterval(text: string): Interval {
 }
 
 /** Letter arithmetic: move the letter, then take the alteration from the semitone distance. */
-function transposeSpelling(s: Spelling, interval: Interval): Spelling {
+export function transposeSpelling(s: Spelling, interval: Interval): Spelling {
   const from = LETTERS.indexOf(s.step) + 7 * s.octave;
   const to = from + interval.letters;
   const step = LETTERS[((to % 7) + 7) % 7] as Step;

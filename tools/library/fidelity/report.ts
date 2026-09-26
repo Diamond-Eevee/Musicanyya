@@ -1,14 +1,20 @@
 // The audit report (contract audit-record.md §3): docs/library-audit.md, rendered from the audit records, their re-run
 // results, the library index (shelf order, titles, departures) and the source manifests (edition and link).
 // Deterministic: no timestamp other than the records' own dates, so a test can compare it with a fresh render.
-import type { Level, LibraryIndex, LibraryItem } from '../../../src/core/library/types';
+import { filterItems } from '../../../src/core/library/filter';
+import type { Level, LibraryFilter, LibraryIndex, LibraryItem } from '../../../src/core/library/types';
 import { type AuditRecord, type Check, type CheckResult, outcomeLabel } from './records';
 import type { SourceManifest } from './sources';
 
 /** FR-022 / feature 005 FR-008: the minimum piece count per level. */
-export const LEVEL_MINIMUMS: Readonly<Record<Level, number>> = { beginner: 7, intermediate: 5, advanced: 5 };
+export const LEVEL_MINIMUMS: Readonly<Record<Exclude<Level, 'introduction'>, number>> = {
+  beginner: 7,
+  intermediate: 5,
+  advanced: 5,
+};
 
-const LEVELS: Level[] = ['beginner', 'intermediate', 'advanced'];
+/** The repertoire levels the audit counts pieces for; Introduction holds exercises only. */
+const LEVELS: Exclude<Level, 'introduction'>[] = ['beginner', 'intermediate', 'advanced'];
 const OUTCOME_ROWS = ['verified', 'verified (visual)', 'fixed', 'replaced', 'relabelled', 'removed'];
 /** Spec FR-020: what a replaced item means for the musician's Recents and progress. */
 const RECENTS_NOTE =
@@ -83,7 +89,15 @@ export function renderReport(
     '| Item | Claim | Rule set | Method | Differences | Outcome | Date |',
     '|---|---|---|---|---|---|---|',
   );
-  for (const { item, record } of shelved.filter(({ item }) => isLearning(item.id))) {
+  // Learning follows the shelf's tree: key folder by key folder, each in step order (feature 011, contract 1.2.0 §3).
+  const learningOrder = filterItems(
+    index.items.filter((i) => isLearning(i.id)),
+    index.sections,
+    NO_FILTER,
+    (a, b) => (a < b ? -1 : a > b ? 1 : 0),
+  );
+  const learning = learningOrder.map((item) => ({ item, record: byId.get(item.id) as AuditRecord }));
+  for (const { item, record } of learning) {
     const checks = record.checks;
     out.push(
       row([
@@ -105,6 +119,15 @@ export function renderReport(
     out.push(row([itemCell(r.previous?.title ?? r.itemId, r.itemId), cell(r.outcomeNote), r.date]));
   out.push('');
 
+  // Replaced by feature 011: the old items each successor took over (contract audit-record 1.2.0 §3)
+  const replaced = learning.flatMap(({ item, record }) => (record.supersedes ?? []).map((old) => ({ old, item })));
+  if (replaced.length > 0) {
+    out.push('## Replaced by feature 011', '', '| Old id | New item |', '|---|---|');
+    for (const { old, item } of replaced.sort((a, b) => (a.old < b.old ? -1 : a.old > b.old ? 1 : 0)))
+      out.push(row([`\`${old}\``, itemCell(item.meta.title, item.id)]));
+    out.push('');
+  }
+
   // Notes
   out.push('## Notes', '');
   for (const { item, record } of shelved) {
@@ -121,6 +144,7 @@ export function renderReport(
 // ---- cells ---------------------------------------------------------------------------------------------------------
 
 const isLearning = (id: string) => id.startsWith('learning/');
+const NO_FILTER: LibraryFilter = { sectionId: null, level: null, key: null, tag: null, text: '' };
 /** Free text in a table cell: no pipe splits the row, no newline ends it. */
 const cell = (s: string) => s.replace(/\|/g, '\\|').replace(/\s*\n\s*/g, ' ');
 const row = (cells: string[]) => `| ${cells.join(' | ')} |`;

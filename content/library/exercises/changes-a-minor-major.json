@@ -2,9 +2,15 @@
   "version": 1,
   "family": "changes-a-minor-major",
   "titleTemplate": "{key} - minor and major",
-  "section": "learning/chords/changes",
+  "section": "learning/key-changes/a-minor-to-a-major",
+  "step": "intermediate",
+  "stepOrder": 10,
+  "fileStem": "minor-and-major",
   "metre": "4/4",
   "tempoBpm": 60,
+  "supersedes": {
+    "a-minor": ["learning/chords/changes/changes-a-minor-major-a-minor"]
+  },
   "keys": [{ "tonic": "A", "mode": "minor", "fifths": 0 }],
   "steps": [
     {
@@ -43,7 +49,7 @@
   "meta": {
     "kind": "exercise",
     "level": "advanced",
-    "tags": ["chords", "chord-changes"],
+    "tags": ["chords", "chord-changes", "key-changes"],
     "trains": "The same same-tonic quality change moving the other way, minor to major.",
     "hands": "both",
     "provenance": {

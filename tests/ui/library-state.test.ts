@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createLibraryStateStore, LIBRARY_FILTER_STORAGE_KEY } from '../../src/ui/state/libraryState.js';
 import { scoreState } from '../../src/ui/state/scoreState.js';
 
@@ -148,5 +148,84 @@ describe('libraryState: filter persistence (contracts/library-port.md §3, data-
     lib.setFilter({ sectionId: null, level: 'advanced', key: null, tag: null, text: '' });
     lib.reset();
     expect(lib.getFilter()).toEqual({ sectionId: null, level: null, key: null, tag: null, text: '' });
+  });
+});
+
+// Feature 011 T067 (library-port 1.2 §3): a saved folder filter moves to the folder that replaced it.
+describe('libraryState: a persisted section id moves to its successor through formerIds (feature 011 US4)', () => {
+  const section = (id: string, formerIds?: string[]) => ({
+    id,
+    title: id,
+    parent: null,
+    order: 1,
+    ...(formerIds ? { formerIds } : {}),
+  });
+  const indexWith = (sections: ReturnType<typeof section>[]) =>
+    ({
+      version: 1,
+      generated: '2026-09-26',
+      sections,
+      items: [],
+    }) as unknown as import('../../src/core/library/types.js').LibraryIndex;
+  const SHELF = indexWith([
+    section('learning'),
+    section('learning/keys', ['learning/chords']),
+    section('learning/key-changes', ['learning/chords/changes']),
+  ]);
+
+  const stored = (sectionId: string | null) => {
+    localStorage.setItem(
+      LIBRARY_FILTER_STORAGE_KEY,
+      JSON.stringify({ version: 1, filter: { sectionId, level: null, key: null, tag: null, text: '' } }),
+    );
+  };
+
+  beforeEach(() => localStorage.removeItem(LIBRARY_FILTER_STORAGE_KEY));
+
+  it('learning/chords becomes learning/keys once the index loads', () => {
+    stored('learning/chords');
+    const lib = createLibraryStateStore();
+    expect(lib.getFilter().sectionId).toBe('learning/chords'); // until the index says otherwise
+    lib.indexLoaded(SHELF);
+    expect(lib.getFilter().sectionId).toBe('learning/keys');
+    expect(JSON.parse(localStorage.getItem(LIBRARY_FILTER_STORAGE_KEY) ?? '{}').filter.sectionId).toBe('learning/keys');
+  });
+
+  it('learning/chords/changes becomes learning/key-changes', () => {
+    stored('learning/chords/changes');
+    const lib = createLibraryStateStore();
+    lib.indexLoaded(SHELF);
+    expect(lib.getFilter().sectionId).toBe('learning/key-changes');
+  });
+
+  it('a section that still exists is left alone, and an unknown id becomes null', () => {
+    stored('learning/keys');
+    const kept = createLibraryStateStore();
+    kept.indexLoaded(SHELF);
+    expect(kept.getFilter().sectionId).toBe('learning/keys');
+
+    stored('nowhere/at-all');
+    const unknown = createLibraryStateStore();
+    unknown.indexLoaded(SHELF);
+    expect(unknown.getFilter().sectionId).toBeNull();
+  });
+
+  it('the other filter fields survive the move', () => {
+    localStorage.setItem(
+      LIBRARY_FILTER_STORAGE_KEY,
+      JSON.stringify({
+        version: 1,
+        filter: { sectionId: 'learning/chords', level: 'beginner', key: 'C major', tag: 'chords', text: '' },
+      }),
+    );
+    const lib = createLibraryStateStore();
+    lib.indexLoaded(SHELF);
+    expect(lib.getFilter()).toEqual({
+      sectionId: 'learning/keys',
+      level: 'beginner',
+      key: 'C major',
+      tag: 'chords',
+      text: '',
+    });
   });
 });

@@ -1,0 +1,285 @@
+{
+  "version": 1,
+  "family": "key-change-relative",
+  "form": "key-change",
+  "titleTemplate": "{from} to {to} - intermediate",
+  "section": "learning/key-changes/{pair}",
+  "step": "intermediate",
+  "stepOrder": 0,
+  "fileStem": "intermediate",
+  "metre": "4/4",
+  "tempoBpm": 80,
+  "keyPairs": [
+    {
+      "from": {
+        "tonic": "C",
+        "mode": "major",
+        "fifths": 0
+      },
+      "to": {
+        "tonic": "A",
+        "mode": "minor",
+        "fifths": 0
+      },
+      "relation": "relative"
+    },
+    {
+      "from": {
+        "tonic": "A",
+        "mode": "minor",
+        "fifths": 0
+      },
+      "to": {
+        "tonic": "C",
+        "mode": "major",
+        "fifths": 0
+      },
+      "relation": "relative"
+    },
+    {
+      "from": {
+        "tonic": "G",
+        "mode": "major",
+        "fifths": 1
+      },
+      "to": {
+        "tonic": "E",
+        "mode": "minor",
+        "fifths": 1,
+        "octaveShift": -1
+      },
+      "relation": "relative"
+    },
+    {
+      "from": {
+        "tonic": "E",
+        "mode": "minor",
+        "fifths": 1,
+        "octaveShift": -1
+      },
+      "to": {
+        "tonic": "G",
+        "mode": "major",
+        "fifths": 1
+      },
+      "relation": "relative"
+    },
+    {
+      "from": {
+        "tonic": "F",
+        "mode": "major",
+        "fifths": -1
+      },
+      "to": {
+        "tonic": "D",
+        "mode": "minor",
+        "fifths": -1
+      },
+      "relation": "relative"
+    },
+    {
+      "from": {
+        "tonic": "D",
+        "mode": "minor",
+        "fifths": -1
+      },
+      "to": {
+        "tonic": "F",
+        "mode": "major",
+        "fifths": -1
+      },
+      "relation": "relative"
+    },
+    {
+      "from": {
+        "tonic": "D",
+        "mode": "major",
+        "fifths": 2
+      },
+      "to": {
+        "tonic": "B",
+        "mode": "minor",
+        "fifths": 2
+      },
+      "relation": "relative"
+    },
+    {
+      "from": {
+        "tonic": "B",
+        "mode": "minor",
+        "fifths": 2
+      },
+      "to": {
+        "tonic": "D",
+        "mode": "major",
+        "fifths": 2
+      },
+      "relation": "relative"
+    }
+  ],
+  "sections": [
+    {
+      "bars": 1,
+      "inKey": "from",
+      "barline": "light-light",
+      "right": {
+        "chords": [
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          }
+        ]
+      },
+      "left": {
+        "chords": [
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "bars": 8,
+      "inKey": "to",
+      "label": "{toKey}",
+      "right": {
+        "chords": [
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "IV",
+            "duration": "whole",
+            "minor": {
+              "degree": "iv"
+            },
+            "inversion": 1
+          },
+          {
+            "degree": "V",
+            "duration": "whole"
+          },
+          {
+            "degree": "vi",
+            "duration": "whole",
+            "minor": {
+              "degree": "VI"
+            }
+          },
+          {
+            "degree": "IV",
+            "duration": "whole",
+            "minor": {
+              "degree": "iv"
+            },
+            "inversion": 2
+          },
+          {
+            "degree": "V",
+            "duration": "whole",
+            "inversion": 1
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          }
+        ]
+      },
+      "left": {
+        "chords": [
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "IV",
+            "duration": "whole",
+            "minor": {
+              "degree": "iv"
+            },
+            "inversion": 1
+          },
+          {
+            "degree": "V",
+            "duration": "whole"
+          },
+          {
+            "degree": "vi",
+            "duration": "whole",
+            "minor": {
+              "degree": "VI"
+            }
+          },
+          {
+            "degree": "IV",
+            "duration": "whole",
+            "minor": {
+              "degree": "iv"
+            },
+            "inversion": 2
+          },
+          {
+            "degree": "V",
+            "duration": "whole",
+            "inversion": 1
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          },
+          {
+            "degree": "I",
+            "duration": "whole",
+            "minor": {
+              "degree": "i"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "supersedes": {},
+  "meta": {
+    "kind": "exercise",
+    "level": "intermediate",
+    "tags": ["key-changes"],
+    "trains": "Moving between relative keys by voice-leading through the tones the two keys share, arriving on the new tonic.",
+    "hands": "both",
+    "provenance": {
+      "origin": "authored",
+      "licence": "CC0-1.0",
+      "author": "claude-sonnet-5",
+      "note": "Generated by tools/library/build-exercises.ts from this definition (contracts/exercise-definition.md 1.1.0, key-change form); never hand-edit the .musicxml/.json pair this produces."
+    },
+    "reviewedBy": "claude-sonnet-5",
+    "reviewedOn": "2026-09-26",
+    "raisedBecause": "the minor-to-major pairs (A minor to C major, E minor to G major, B minor to D major) compute beginner on this content - kept at intermediate so every pair in the folder shares one step"
+  }
+}

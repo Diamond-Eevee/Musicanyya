@@ -1,3 +1,4 @@
+import { buildSectionTree, type SectionNode } from '../../core/library/tree.js';
 import type { Level, LibraryFilter, LibraryIndex, LibraryItem } from '../../core/library/types.js';
 import { SKILL_TAGS } from '../../core/library/types.js';
 import type { CatalogError } from '../../engine/ports.js';
@@ -10,7 +11,7 @@ export const LIBRARY_FILTER_STORAGE_KEY = 'musicanyya.library.v1';
 const NO_FILTER: LibraryFilter = { sectionId: null, level: null, key: null, tag: null, text: '' };
 
 function isLevel(value: unknown): value is Level {
-  return value === 'beginner' || value === 'intermediate' || value === 'advanced';
+  return value === 'introduction' || value === 'beginner' || value === 'intermediate' || value === 'advanced';
 }
 
 function isSkillTag(value: unknown): value is LibraryFilter['tag'] {
@@ -53,6 +54,13 @@ function persistFilter(filter: LibraryFilter): void {
   }
 }
 
+/** The id of the section a saved filter should select now: itself when the index has it, else the section whose `formerIds`
+ *  names it, else no section. */
+function currentSectionId(sectionId: string | null, index: LibraryIndex): string | null {
+  if (sectionId === null || index.sections.some((s) => s.id === sectionId)) return sectionId;
+  return index.sections.find((s) => s.formerIds?.includes(sectionId))?.id ?? null;
+}
+
 /** data-model.md §6: `idle -> loadingIndex -> ready | indexError`, then `ready -> openingItem -> ready`
  *  on success or failure. Session-only - never persisted, and never blocks the recents list or the
  *  Open button, which come from the unrelated `scoreState`. */
@@ -63,6 +71,16 @@ export type LibraryStatus =
   | { kind: 'indexError'; error: CatalogError }
   | { kind: 'openingItem'; index: LibraryIndex; itemId: string };
 
+/** The default open state: the roots and their direct children (Keys, Key changes, Beginner ...); key folders start closed. */
+function defaultOpenFolders(tree: readonly SectionNode[]): Set<string> {
+  const open = new Set<string>();
+  for (const root of tree) {
+    open.add(root.section.id);
+    for (const child of root.children) open.add(child.section.id);
+  }
+  return open;
+}
+
 export class LibraryStateStore {
   private readonly statusStore = createStore<LibraryStatus>({ kind: 'idle' });
   /** The selected section, if any; survives a filter/section change (data-model.md §6). */
@@ -72,6 +90,9 @@ export class LibraryStateStore {
   private readonly openedItemStore = createStore<LibraryItem | null>(null);
   /** contracts/library-port.md §3, persisted except `text` (data-model.md §6). */
   private readonly filterStore = createStore<LibraryFilter>(loadPersistedFilter());
+  /** The folders the user has open (feature 011, contracts/library-port.md 1.2.0 §2, data-model §9): null until the first index
+   *  load fills it with the default (roots and their direct children open). Session only, never persisted. */
+  private openFolders: Set<string> | null = null;
 
   getStatus(): LibraryStatus {
     return this.statusStore.get();
@@ -98,7 +119,25 @@ export class LibraryStateStore {
   }
 
   indexLoaded(index: LibraryIndex): void {
+    // A saved folder filter follows its folder through a reorganisation (library-port 1.2 §3, feature 011 FR-020).
+    const filter = this.filterStore.get();
+    const moved = currentSectionId(filter.sectionId, index);
+    if (moved !== filter.sectionId) this.setFilter({ ...filter, sectionId: moved });
+    if (this.openFolders === null) this.openFolders = defaultOpenFolders(buildSectionTree(index.sections, index.items));
     this.statusStore.set({ kind: 'ready', index });
+  }
+
+  /** The folders open by the user's own choice (or the default until they choose). Not what a filter shows: while one is
+   *  active the panel opens every folder with a match and leaves this set alone. */
+  getOpenFolders(): ReadonlySet<string> {
+    return this.openFolders ?? new Set();
+  }
+
+  setFolderOpen(sectionId: string, open: boolean): void {
+    const next = new Set(this.openFolders ?? []);
+    if (open) next.add(sectionId);
+    else next.delete(sectionId);
+    this.openFolders = next;
   }
 
   indexFailed(error: CatalogError): void {
@@ -169,6 +208,7 @@ export class LibraryStateStore {
     this.statusStore.set({ kind: 'idle' });
     this.sectionStore.set(null);
     this.openedItemStore.set(null);
+    this.openFolders = null;
     this.filterStore.set(NO_FILTER);
   }
 }

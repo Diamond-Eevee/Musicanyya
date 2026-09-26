@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "id": "learning/keys/a-minor/song-greensleeves",
+  "title": "Song - Greensleeves",
+  "source": "mutopia-1247-greensleeves-hymntune",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1.1",
+    "bars": "all",
+    "transpose": "+P4"
+  },
+  "key": {
+    "tonic": "A",
+    "mode": "minor",
+    "fifths": 0
+  },
+  "tempoBpm": 84,
+  "chords": [
+    {
+      "bar": 1,
+      "degree": "i"
+    },
+    {
+      "bar": 2,
+      "degree": "VII"
+    },
+    {
+      "bar": 3,
+      "degree": "i"
+    },
+    {
+      "bar": 4,
+      "degree": "V"
+    },
+    {
+      "bar": 5,
+      "degree": "i"
+    },
+    {
+      "bar": 6,
+      "degree": "VII"
+    },
+    {
+      "bar": 7,
+      "degree": "V"
+    },
+    {
+      "bar": 8,
+      "degree": "i"
+    },
+    {
+      "bar": 9,
+      "degree": "III"
+    },
+    {
+      "bar": 10,
+      "degree": "VII"
+    },
+    {
+      "bar": 11,
+      "degree": "i"
+    },
+    {
+      "bar": 12,
+      "degree": "V"
+    },
+    {
+      "bar": 13,
+      "degree": "III"
+    },
+    {
+      "bar": 14,
+      "degree": "VII"
+    },
+    {
+      "bar": 15,
+      "degree": "V"
+    },
+    {
+      "bar": 16,
+      "degree": "i"
+    }
+  ],
+  "meta": {
+    "level": "intermediate",
+    "trains": "The tune of Greensleeves in 6/8 with a pickup over block chords (Am, C, G, Dm, E) in the left.",
+    "composer": "Traditional (English)",
+    "departures": ["Transposed up a perfect fourth, from E minor to A minor."],
+    "reviewedBy": "claude-sonnet-5",
+    "reviewedOn": "2026-09-26"
+  }
+}

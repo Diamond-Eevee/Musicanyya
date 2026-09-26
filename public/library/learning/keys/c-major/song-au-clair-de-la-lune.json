@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "title": "Song - Au clair de la lune",
+  "composer": "Traditional (French)",
+  "subtitle": "Arrangement: the tune with left-hand block chords",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "A first song: a familiar tune in the right hand over one block chord per bar in the left (C and G), hands together.",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-sonnet-5",
+    "created": "2026-09-26",
+    "basedOn": "mutopia-1111-au-clair-de-la-lune: F. Horetzky, \"Nº. 21. Au Clair De la Lune.\" (60 National Airs of Different Nations), classical guitar (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1111)",
+    "note": "Melody from Boije collection #268 (http://www.muslib.se/ebibliotek/boije/) (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1111), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": [
+    "Left-hand block chords are our own (CC0).",
+    "The first eight bars only (the two phrases everyone knows)."
+  ],
+  "reviewedBy": "claude-sonnet-5",
+  "reviewedOn": "2026-09-26",
+  "step": "song",
+  "stepOrder": 10
+}

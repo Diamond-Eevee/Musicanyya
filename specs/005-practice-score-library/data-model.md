@@ -32,11 +32,11 @@ storage: the index describes a file, the app always parses the file itself.
 ## 2. The shelf
 
 ```text
-learning/                     Exercises written for this app
-  chords/                     One exercise per key, same drill in all of them
-    triads-<key>              24 items: 12 major keys, 12 minor keys
-    changes/                  Chord-change drills (SS5.2)
-  (later: scales/, arpeggios/, five-finger/, intervals-cadences/, rhythm/ - spec "Suggested additions")
+learning/                     Exercises written for this app (reorganised by feature 011: see
+                              specs/011-learning-by-key/data-model.md §2 for the current tree)
+  keys/<key>/                 24 folders; introduction, beginner, intermediate, advanced (+ extras, songs)
+  key-changes/<from>-to-<to>/ 18 folders; introduction, beginner, intermediate (+ extras)
+  (this document's original learning/chords/ folder - triads-<key> and changes/ - was replaced by feature 011)
 repertoire/                   Pieces
   beginner/
   intermediate/
@@ -76,45 +76,47 @@ live in code, not in content, so they are versioned with the checker that applie
 is this project's constants table (AGENTS.md SS6, Principle II: every tolerance named, documented and
 configurable); `src/core/library/levels.ts` holds only the criterion definitions and `checkLevel`.
 
-**Model: nested caps.** Beginner ⊂ Intermediate ⊂ Advanced. `checkLevel` computes each metric from
+**Model: nested caps.** Introduction ⊂ Beginner ⊂ Intermediate ⊂ Advanced (Introduction added by feature 011, see
+`specs/011-learning-by-key/data-model.md` §4; its tempo and bar-count ranges sit inside Beginner's so the nesting holds). `checkLevel` computes each metric from
 `ItemFacts`, derives the **lowest level whose caps the item satisfies**, and compares it with the
 assigned level:
 
 - assigned **below** computed -> the library check fails (the item is harder than its shelf says);
 - assigned **equal** -> pass;
-- assigned **above** computed -> allowed **only** with `meta.raisedBecause` and a reviewer recorded
+- assigned **above** computed -> allowed **only** with `meta.raisedBecause` (Introduction is a sub-tier of Beginner: a
+  Beginner item that also fits the Introduction caps needs no `raisedBecause` for being simpler) and a reviewer recorded
   (SS4.2). This is how the judgement a script cannot make stays visible instead of hidden.
 
-| # | Criterion (computed from the parsed Score) | Beginner | Intermediate | Advanced |
-|---|---|---|---|---|
-| 1 | Pitch span, highest − lowest (semitones) | ≤ 36 | ≤ 48 | ≤ 88 |
-| 2 | Absolute pitch bounds (MIDI) | 36–84 | 28–96 | 21–108 |
-| 3 | Hand independence: fraction of measures whose two staves have different onset sets | ≤ 0.35 | ≤ 1.0 | ≤ 1.0 |
-| 4 | Voices per staff | 1 | ≤ 2 | ≤ 4 |
-| 5 | Shortest sounding duration, in beats (`PLAY_BEAT_UNIT_SOURCE`) | ≥ 0.5 | ≥ 0.25 | ≥ 0.125 |
-| 6 | Longest unbroken run of shortest-value notes in one hand | ≤ 4 | ≤ 32 | unlimited |
-| 7 | Tempo, quarter-equivalent BPM | 50–100 | 40–152 | 30–208 |
-| 8 | Tempo changes | 0 | ≤ 2 | unlimited |
-| 9 | Key signature, max \|fifths\| | ≤ 2 | ≤ 4 | ≤ 7 |
-| 10 | Key changes | 0 | ≤ 2 | unlimited |
-| 11 | Accidentals outside the key signature, per 16 measures | ≤ 2 | ≤ 12 | unlimited |
-| 12 | Metre | 4/4, 3/4, 2/4 | + 6/8, 3/8, 2/2, 12/8 | any, incl. `senza-misura` |
-| 13 | Metre changes | 0 | ≤ 1 | unlimited |
-| 14 | Measures (written) | 8–32 | 16–96 | ≤ 250 |
-| 15 | Duration after repeat expansion | ≤ 90 s | ≤ 240 s | ≤ 480 s |
-| 16 | Largest simultaneous interval in one hand (semitones) | ≤ 9 | ≤ 12 | ≤ 14, wider only under `<arpeggiate>` |
-| 17 | Largest leap in one hand between consecutive onsets | ≤ 12 | ≤ 24 | unlimited |
-| 18 | Mean note density (notes/s) | ≤ 2.5 | ≤ 6 | ≤ 12 |
-| 19 | Peak note density (max notes/s in any 2 s window) | ≤ 5 | ≤ 12 | ≤ 24 |
-| 20 | Ties | within a bar or across one barline, chain ≤ 2 | any | any |
-| 21 | Tuplets | none | 3:2 only | any ratio that divides `<divisions>` evenly |
-| 22 | Grace notes | none | ≤ 1 per 4 measures | unlimited |
-| 23 | Ornaments (trill / turn / mordent / tremolo) | none | ≤ 1 per 4 measures | unlimited |
-| 24 | Repeat structure | none, or one backward repeat | + voltas | + D.C./D.S./To Coda/Fine |
-| 25 | Written `<pedal>` | forbidden | allowed, recorded as a limitation | allowed, recorded |
-| 26 | `<octave-shift>` | allowed (see correction B) | allowed | allowed |
-| 27 | Parts / staves | 1 part, 2 staves | 1 part, 2 staves | 1 part, 2 staves |
-| 28 | Load report | no warnings; notices only if recorded in `meta.expected.notices`, and an **authored** item must have none | same | same |
+| # | Criterion (computed from the parsed Score) | Introduction | Beginner | Intermediate | Advanced |
+|---|---|---|---|---|---|
+| 1 | Pitch span, highest − lowest (semitones) | ≤ 36 (exercises 38, D-2 B7) | ≤ 36 (exercises 38) | ≤ 48 | ≤ 88 |
+| 2 | Absolute pitch bounds (MIDI) | 36–84 (exercises 35–85) | 36–84 (exercises 35–85) | 28–96 | 21–108 |
+| 3 | Hand independence: fraction of measures where both staves have onsets and neither onset set is a subset of the other (B1, feature 011) | 0 | ≤ 0.35 | ≤ 1.0 | ≤ 1.0 |
+| 4 | Voices per staff | 1 | 1 | ≤ 2 | ≤ 4 |
+| 5 | Shortest sounding duration, in beats (`PLAY_BEAT_UNIT_SOURCE`) | ≥ 1 | ≥ 0.5 | ≥ 0.25 | ≥ 0.125 |
+| 6 | Longest unbroken run of shortest-value notes in one hand | ≤ 4 | ≤ 4 | ≤ 32 | unlimited |
+| 7 | Tempo, quarter-equivalent BPM | 50–72 | 50–100 | 40–152 | 30–208 |
+| 8 | Tempo changes | 0 | 0 | ≤ 2 | unlimited |
+| 9 | Key signature, max \|fifths\| | ≤ 1 | ≤ 2 | ≤ 4 | ≤ 7 |
+| 10 | Key changes | 0 (key-change exercises ≤ 1) | 0 | ≤ 2 | unlimited |
+| 11 | Accidentals outside the key signature, per 16 measures | ≤ 2 (exercise 6th/7th degree of a minor key not counted) | ≤ 2 | ≤ 12 | unlimited |
+| 12 | Metre | 4/4, 3/4 | 4/4, 3/4, 2/4 | + 6/8, 3/8, 2/2, 12/8 | any, incl. `senza-misura` |
+| 13 | Metre changes | 0 | 0 | ≤ 1 | unlimited |
+| 14 | Measures (written) | 8–16 | 8–32 | 16–96 | ≤ 250 |
+| 15 | Duration after repeat expansion | ≤ 60 s | ≤ 90 s | ≤ 240 s | ≤ 480 s |
+| 16 | Largest simultaneous interval in one hand (semitones) | ≤ 7 | ≤ 9 | ≤ 12 | ≤ 14, wider only under `<arpeggiate>` |
+| 17 | Largest leap in one hand between consecutive onsets | ≤ 12 (exercises 19, B8) | ≤ 12 (exercises 19) | ≤ 24 | unlimited |
+| 18 | Mean note density (notes/s) | ≤ 1.5 | ≤ 2.5 | ≤ 6 | ≤ 12 |
+| 19 | Peak note density (max notes/s in any 2 s window) | ≤ 3 | ≤ 5 | ≤ 12 | ≤ 24 |
+| 20 | Ties | none | within a bar or across one barline, chain ≤ 2 | any | any |
+| 21 | Tuplets | none | none | 3:2 only | any ratio that divides `<divisions>` evenly |
+| 22 | Grace notes | none | none | ≤ 1 per 4 measures | unlimited |
+| 23 | Ornaments (trill / turn / mordent / tremolo) | none | none | ≤ 1 per 4 measures | unlimited |
+| 24 | Repeat structure | none | none, or one backward repeat | + voltas | + D.C./D.S./To Coda/Fine |
+| 25 | Written `<pedal>` | forbidden | forbidden | allowed, recorded as a limitation | allowed, recorded |
+| 26 | `<octave-shift>` | allowed | allowed (see correction B) | allowed | allowed |
+| 27 | Parts / staves | 1 part, 2 staves | 1 part, 2 staves | 1 part, 2 staves | 1 part, 2 staves |
+| 28 | Load report | same | no warnings; notices only if recorded in `meta.expected.notices`, and an **authored** item must have none | same | same |
 
 **Correction A (`<harmony>`)**: verified in `src/core/musicxml/build.ts` - the unsupported-element
 check runs over the **direct children of `<measure>`**, and neither `harmony` nor `figured-bass` is in
@@ -164,6 +166,24 @@ thresholds are unchanged.
 
 None of these change a threshold in the table above, and none apply to a non-arrangement repertoire
 piece, which every criterion above still gates normally.
+
+**Feature 011 changes (owner decision D-2, 2026-09-26; `specs/011-learning-by-key/research.md` R4)**:
+
+- **B1 (criterion 3)**: a measure is independent only when both staves have onsets and *neither staff's onset set is a
+  subset of the other's* - replaces the rule of Correction C 1. A held chord, or half notes, under moving quarters is
+  the first hands-together skill, not independence. Applies to every item; no repertoire item's computed level changed
+  (recorded in `specs/011-learning-by-key/implementation-log.md`).
+- **B5 (criterion 11)**: for `kind: "exercise"`, accidentals on the 6th or 7th degree of the relative minor of a key
+  signature in the score (`ItemFacts.minorScaleAccidentalCount`) are not counted - the raised leading tone is the scale.
+- **B6 (criterion 10)**: an exercise tagged `key-changes` may contain one key change at Introduction and Beginner
+  (`LEVEL_KEY_CHANGE_EXERCISE_MAX`).
+- **B7 (criteria 1-2)**: for `kind: "exercise"` at Introduction and Beginner the span cap is 38 and the bounds are MIDI
+  35-85 (`LEVEL_EXERCISE_PITCH_SPAN_SEMITONES_MAX`, `LEVEL_EXERCISE_PITCH_BOUNDS_MIDI`).
+- **B8 (criterion 17, decided 2026-09-26 during implementation)**: for `kind: "exercise"` at Introduction and Beginner the
+  largest leap is 19 semitones (`LEVEL_EXERCISE_MAX_LEAP_SEMITONES`): where the hands swap the right hand goes from the scale's
+  last note to a chord whose top is T+19.
+- **Introduction level** (new): the first column of the table above; every threshold constant lives in
+  `src/core/defaults.ts` as a `LEVEL_*` record with an `introduction` entry.
 
 ### 4.1 What the check deliberately cannot see
 

@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "itemId": "learning/keys/a-minor/song-greensleeves",
+  "claim": "arrangement",
+  "claimText": "Greensleeves (arranged for two hands): the melody of Mutopia source mutopia-1247-greensleeves-hymntune, +P4, right hand; block chords our own (CC0), left hand",
+  "checks": [
+    {
+      "method": "mechanical",
+      "source": "mutopia-1247-greensleeves-hymntune",
+      "sourceFiles": ["notation", "sound"],
+      "aspects": ["melody", "spelling"],
+      "alignment": {
+        "itemBars": "all",
+        "sourceBars": "all",
+        "staff": 1,
+        "sourceStaff": 1,
+        "sourceVoice": "staff1.1",
+        "transpose": "+P4"
+      },
+      "melodyRhythm": "compared",
+      "expectedDifferences": 0
+    },
+    {
+      "method": "theory",
+      "ruleSet": "song-chords-v1",
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "verified",
+  "outcomeNote": "The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check finds every left-hand chord equal to the triad its printed name spells and inside the chords its level promises (0 differences).",
+  "checkedBy": "claude-sonnet-5",
+  "date": "2026-09-26"
+}

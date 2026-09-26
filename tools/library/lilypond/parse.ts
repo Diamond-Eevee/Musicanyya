@@ -132,7 +132,16 @@ export interface LyScore {
   midi: { unfoldRepeats: boolean; articulate: boolean };
 }
 
-const CONTEXT_TYPES = new Set(['Staff', 'Voice', 'PianoStaff', 'GrandStaff', 'StaffGroup', 'ChoirStaff', 'Dynamics']);
+const CONTEXT_TYPES = new Set([
+  'Staff',
+  'Voice',
+  'PianoStaff',
+  'GrandStaff',
+  'StaffGroup',
+  'ChoirStaff',
+  'Dynamics',
+  'Lyrics',
+]);
 
 /** Post-event commands after a note (ignored by the comparator; the articulations mark a note that may sound shorter). */
 const POST_COMMANDS: Record<string, LyPost> = {};
@@ -220,6 +229,9 @@ const ENGLISH: Record<string, [number, LyPitch['alter']]> = {};
 Object.assign(DUTCH, { es: [2, -1], eses: [2, -2], as: [5, -1], ases: [5, -2] });
 
 /** Printed start-repeat bar lines; allowed only where a \repeat volta starts (read.ts checks). */
+/** A repeat sign printed at the very end of a piece (a strophic song's "sing it again"): LilyPond's own MIDI does not repeat
+ *  it, so it is read as a final bar line. Anywhere else it is refused (repeats are written with \repeat). */
+export const FINAL_REPEAT_BAR = ':|';
 export const START_REPEAT_BARS = new Set(['.|:', '|:', '[|:']);
 
 export interface LyReadOptions {
@@ -741,6 +753,16 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
         const second = parseMusic();
         return { kind: 'sim', branches: [first, second], voices: true, pos: p };
       }
+      case '\\lyricmode':
+      case '\\lyrics':
+      case '\\addlyrics':
+        // the lexer emptied the lyric block: words are no music
+        return { kind: 'seq', items: [parseMusic()], pos: p };
+      case '\\lyricsto': {
+        const voice = next();
+        if (voice.type !== 'string' && voice.type !== 'word') unsupported(voice, '\\lyricsto voice name');
+        return { kind: 'seq', items: [parseMusic()], pos: p };
+      }
       case '\\unfoldRepeats':
         return { kind: 'unfoldRepeats', body: parseMusic(), pos: p };
       case '\\articulate':
@@ -813,7 +835,7 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
       }
       case '\\bar': {
         const style = expect('string');
-        if (style.value.includes(':') && !START_REPEAT_BARS.has(style.value))
+        if (style.value.includes(':') && !START_REPEAT_BARS.has(style.value) && style.value !== FINAL_REPEAT_BAR)
           unsupported(style, `\\bar "${style.value}" (repeats are written with \\repeat)`);
         return { kind: 'bar', style: style.value, pos: p };
       }

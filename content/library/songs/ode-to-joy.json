@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "id": "learning/keys/g-major/song-ode-to-joy",
+  "title": "Song - Ode to Joy",
+  "source": "mutopia-528-ode-to-joy",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1:voice:sop",
+    "bars": "all"
+  },
+  "key": {
+    "tonic": "G",
+    "mode": "major",
+    "fifths": 1
+  },
+  "tempoBpm": 72,
+  "chords": [
+    {
+      "bar": 1,
+      "degree": "I"
+    },
+    {
+      "bar": 2,
+      "degree": "V"
+    },
+    {
+      "bar": 3,
+      "degree": "I"
+    },
+    {
+      "bar": 4,
+      "degree": "V"
+    },
+    {
+      "bar": 5,
+      "degree": "I"
+    },
+    {
+      "bar": 6,
+      "degree": "V"
+    },
+    {
+      "bar": 7,
+      "degree": "I"
+    },
+    {
+      "bar": 8,
+      "degree": "I"
+    },
+    {
+      "bar": 9,
+      "degree": "V"
+    },
+    {
+      "bar": 10,
+      "degree": "I"
+    },
+    {
+      "bar": 11,
+      "degree": "V"
+    },
+    {
+      "bar": 12,
+      "degree": "V"
+    },
+    {
+      "bar": 13,
+      "degree": "I"
+    },
+    {
+      "bar": 14,
+      "degree": "V"
+    },
+    {
+      "bar": 15,
+      "degree": "I"
+    },
+    {
+      "bar": 16,
+      "degree": "I"
+    }
+  ],
+  "meta": {
+    "level": "beginner",
+    "trains": "A tune of steps and repeated notes over block chords (G, C, D) in the left, one chord per bar.",
+    "composer": "L. van Beethoven (tune of the Ninth Symphony finale)",
+    "reviewedBy": "claude-sonnet-5",
+    "reviewedOn": "2026-09-26"
+  }
+}

@@ -29,6 +29,28 @@ function textOf(el: XmlElementType | undefined): string {
   return text ? text.text.trim() : '';
 }
 
+/** Pitch class of each step letter (C = 0) and the letter order, for the minor-scale accidental count. */
+const LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'] as const;
+const LETTER_PITCH_CLASS: Readonly<Record<string, number>> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+
+function mod(n: number, m: number): number {
+  return ((n % m) + m) % m;
+}
+
+/** True when `step`/`alter` is the 6th or 7th degree of the relative minor of a key signature with `fifths`, raised or
+ *  natural: the notes a harmonic or melodic minor scale writes as accidentals (D-2 B5). Each step of the circle of
+ *  fifths is four letters up, so the major tonic letter is at index 4 x fifths and the relative minor two letters below. */
+function isMinorScaleDegreeAccidental(fifths: number, step: string, alter: number): boolean {
+  const tonicLetter = mod(4 * fifths - 2, 7);
+  const tonicPc = mod(7 * fifths + 9, 12);
+  const letter = LETTERS.indexOf(step as (typeof LETTERS)[number]);
+  if (letter < 0) return false;
+  const pc = mod((LETTER_PITCH_CLASS[step] ?? 0) + alter, 12);
+  if (letter === mod(tonicLetter - 1, 7)) return pc === mod(tonicPc + 11, 12) || pc === mod(tonicPc + 10, 12);
+  if (letter === mod(tonicLetter + 5, 7)) return pc === mod(tonicPc + 9, 12) || pc === mod(tonicPc + 8, 12);
+  return false;
+}
+
 interface DocScan {
   keys: { fifths: number; mode: string }[];
   hasTuplets: boolean;
@@ -39,6 +61,8 @@ interface DocScan {
    *  §4 criterion 11). `<key-accidental>` (inside `<key>` itself) is a different element name, so
    *  this never double-counts a key signature. */
   accidentalMarkCount: number;
+  /** How many of those sit on the 6th or 7th degree of the relative minor of the key signature in force. */
+  minorScaleAccidentalCount: number;
 }
 
 /** Walks the whole document once for the handful of facts the Score model does not carry - key
@@ -52,7 +76,9 @@ function scanDoc(doc: XmlDocument): DocScan {
     hasOctaveShift: false,
     hasPedal: false,
     accidentalMarkCount: 0,
+    minorScaleAccidentalCount: 0,
   };
+  let currentFifths = 0;
   const root = doc.children.find((c): c is XmlElementType => c instanceof XmlElement);
   if (!root) return scan;
 
@@ -62,6 +88,19 @@ function scanDoc(doc: XmlDocument): DocScan {
       const fifths = fifthsText === '' ? 0 : Number.parseInt(fifthsText, 10);
       const mode = textOf(elementChild(el, 'mode')) || 'major';
       scan.keys.push({ fifths: Number.isFinite(fifths) ? fifths : 0, mode });
+      currentFifths = Number.isFinite(fifths) ? fifths : 0;
+    } else if (el.name === 'note') {
+      const pitch = elementChild(el, 'pitch');
+      if (pitch && elementChild(el, 'accidental')) {
+        const alterText = textOf(elementChild(pitch, 'alter'));
+        const alter = alterText === '' ? 0 : Number.parseFloat(alterText);
+        if (
+          Number.isFinite(alter) &&
+          isMinorScaleDegreeAccidental(currentFifths, textOf(elementChild(pitch, 'step')), alter)
+        ) {
+          scan.minorScaleAccidentalCount++;
+        }
+      }
     } else if (el.name === 'time-modification') {
       scan.hasTuplets = true;
       const actual = Number.parseInt(textOf(elementChild(el, 'actual-notes')), 10);
@@ -250,13 +289,15 @@ export function deriveFacts(input: FactsInput): ItemFacts {
     for (let m = 0; m < measures; m++) {
       const staff1 = onsetsByStaffMeasure.get(`1:${m}`) ?? new Set<number>();
       const staff2 = onsetsByStaffMeasure.get(`2:${m}`) ?? new Set<number>();
-      // Both hands must be rhythmically *active* (more than one onset) for a differing pattern to be
-      // a coordination challenge - a melody over one held chord differs in onset count on every
-      // measure but needs no ongoing coordination once the chord is pressed, so it does not count
-      // (data-model.md §4 correction C, found generating the Ode to Joy / triad exercise content).
-      if (staff1.size < 2 || staff2.size < 2) continue;
-      const same = staff1.size === staff2.size && Array.from(staff1).every((t) => staff2.has(t));
-      if (!same) independentMeasures++;
+      // B1 (feature 011, owner decision D-2): a measure is independent only when both hands have onsets and
+      // neither hand's onsets are a subset of the other's - a held chord under a moving hand, or half notes under
+      // quarters, is the first hands-together skill (every onset of the slower hand lands with the faster one), not
+      // independence. This replaces the earlier "onset sets differ" rule of correction C, which scored a scale over
+      // half-note chords as fully independent.
+      if (staff1.size === 0 || staff2.size === 0) continue;
+      const staff1InStaff2 = Array.from(staff1).every((t) => staff2.has(t));
+      const staff2InStaff1 = Array.from(staff2).every((t) => staff1.has(t));
+      if (!staff1InStaff2 && !staff2InStaff1) independentMeasures++;
     }
     handIndependenceFraction = measures > 0 ? independentMeasures / measures : 0;
   }
@@ -327,6 +368,23 @@ export function deriveFacts(input: FactsInput): ItemFacts {
     }
   }
 
+  // Chord attacks (onsets where one staff sounds two or more notes together) that differ from the previous chord
+  // attack of the same staff - the first counts, a repeated identical chord does not, a broken chord has none
+  // (feature 011 data-model.md §4). Summed over staves, per written measure.
+  let chordChanges = 0;
+  for (const list of groupsByStaff.values()) {
+    let previous: string | null = null;
+    for (const g of list) {
+      if (g.pitches.length < 2) continue;
+      const shape = Array.from(new Set(g.pitches))
+        .sort((a, b) => a - b)
+        .join(',');
+      if (shape !== previous) chordChanges++;
+      previous = shape;
+    }
+  }
+  const chordChangesPerBar = measures > 0 ? chordChanges / measures : 0;
+
   // Peak note-attack rate: every pitched, non-grace onset (chords count once per onset, not per
   // pitch - a chord is one attack), in a sliding 2-second window (data-model.md §4 criteria 18, 19).
   const onsetTimes: number[] = [];
@@ -381,6 +439,7 @@ export function deriveFacts(input: FactsInput): ItemFacts {
     staves,
     voicesPerStaff,
     handIndependenceFraction,
+    chordChangesPerBar,
     shortestDivision,
     notesPerBeat,
     accidentals,
@@ -399,6 +458,7 @@ export function deriveFacts(input: FactsInput): ItemFacts {
     attackCount,
     peakNotesPerSecond,
     accidentalMarkCount: scan.accidentalMarkCount,
+    minorScaleAccidentalCount: scan.minorScaleAccidentalCount,
     maxTieChainNotes,
     maxTieBarlinesCrossed,
     hasNonSimpleTuplet: scan.hasNonSimpleTuplet,
