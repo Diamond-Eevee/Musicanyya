@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "learning/keys/c-major/song-au-clair-de-la-lune",
+  "title": "Song - Au clair de la lune",
+  "source": "mutopia-1111-au-clair-de-la-lune",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1:voice:A",
+    "topVoice": true,
+    "bars": "1-8"
+  },
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "tempoBpm": 60,
+  "chords": [
+    {
+      "bar": 1,
+      "degree": "I"
+    },
+    {
+      "bar": 2,
+      "degree": "V"
+    },
+    {
+      "bar": 3,
+      "degree": "I"
+    },
+    {
+      "bar": 4,
+      "degree": "I"
+    },
+    {
+      "bar": 5,
+      "degree": "I"
+    },
+    {
+      "bar": 6,
+      "degree": "V"
+    },
+    {
+      "bar": 7,
+      "degree": "I"
+    },
+    {
+      "bar": 8,
+      "degree": "I"
+    }
+  ],
+  "meta": {
+    "level": "beginner",
+    "trains": "A first song: a familiar tune in the right hand over one block chord per bar in the left (C and G), hands together.",
+    "composer": "Traditional (French)",
+    "reviewedBy": "claude-sonnet-5",
+    "reviewedOn": "2026-09-26",
+    "departures": ["The first eight bars only (the two phrases everyone knows)."]
+  }
+}

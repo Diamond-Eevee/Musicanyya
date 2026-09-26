@@ -9,6 +9,7 @@ import { ClaimError, claimForItem } from './exercise-claims';
 import { fromMusicXml } from './from-musicxml';
 import { fromMidi, readMidi } from './midi';
 import type { ReferenceScore } from './reference';
+import { checkSong } from './song-chords';
 import { date, type SourceManifest, sourceFile } from './sources';
 import { checkExercise } from './theory';
 
@@ -261,6 +262,7 @@ export function runRecord(record: AuditRecord, ctx: RunContext): CheckResult[] {
 /** The independent exercise check (research R8): the claim comes from the item's title and description on the shelf. */
 function runTheory(record: AuditRecord, check: TheoryCheck, ctx: RunContext): CheckResult {
   const sidecar = JSON.parse(readFileSync(join(ctx.libraryRoot, `${record.itemId}.json`), 'utf8')) as Sidecar;
+  if (check.ruleSet === 'song-chords-v1') return runSongChords(record, check, sidecar, ctx);
   let claim: ReturnType<typeof claimForItem>;
   try {
     claim = claimForItem({ itemId: record.itemId, title: sidecar.title ?? '', trains: sidecar.trains ?? '' });
@@ -276,6 +278,27 @@ function runTheory(record: AuditRecord, check: TheoryCheck, ctx: RunContext): Ch
     allowed: [],
     reproduced: differences.length === check.expectedDifferences,
     detail: `${claim.chords.length} chords checked against "${sidecar.title}": ${differences.length} differences`,
+  };
+}
+
+/** song-chords-v1: the left-hand chords of a song against their printed names and the chords its level promises. */
+function runSongChords(record: AuditRecord, check: TheoryCheck, sidecar: Sidecar, ctx: RunContext): CheckResult {
+  if (sidecar.level !== 'beginner' && sidecar.level !== 'intermediate')
+    return {
+      check,
+      differences: [],
+      allowed: [],
+      reproduced: false,
+      detail: `a song is beginner or intermediate, not ${sidecar.level}`,
+    };
+  const xml = readFileSync(ctx.itemFile ?? join(ctx.libraryRoot, `${record.itemId}.musicxml`), 'utf8');
+  const differences = checkSong(xml, record.itemId, sidecar.level);
+  return {
+    check,
+    differences,
+    allowed: [],
+    reproduced: differences.length === check.expectedDifferences,
+    detail: `left-hand chords of "${sidecar.title}" checked at ${sidecar.level}: ${differences.length} differences`,
   };
 }
 
@@ -335,6 +358,7 @@ interface Sidecar {
   trains?: string;
   arrangement?: boolean;
   departures?: string[];
+  level?: string;
   reviewedBy?: string;
   reviewedOn?: string;
 }

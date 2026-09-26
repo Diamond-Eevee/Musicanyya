@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "id": "learning/keys/b-flat-major/song-silent-night",
+  "title": "Song - Silent Night",
+  "source": "mutopia-1295-stille-nacht",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1.1",
+    "bars": "all"
+  },
+  "key": {
+    "tonic": "Bb",
+    "mode": "major",
+    "fifths": -2
+  },
+  "tempoBpm": 84,
+  "chords": [
+    {
+      "bar": 1,
+      "degree": "I"
+    },
+    {
+      "bar": 2,
+      "degree": "I"
+    },
+    {
+      "bar": 3,
+      "degree": "V"
+    },
+    {
+      "bar": 4,
+      "degree": "I"
+    },
+    {
+      "bar": 5,
+      "degree": "IV"
+    },
+    {
+      "bar": 6,
+      "degree": "I"
+    },
+    {
+      "bar": 7,
+      "degree": "IV"
+    },
+    {
+      "bar": 8,
+      "degree": "I"
+    },
+    {
+      "bar": 9,
+      "degree": "V"
+    },
+    {
+      "bar": 10,
+      "degree": "I"
+    },
+    {
+      "bar": 11,
+      "degree": "I"
+    },
+    {
+      "bar": 11,
+      "beat": 2,
+      "degree": "V",
+      "inversion": 1
+    },
+    {
+      "bar": 12,
+      "degree": "I"
+    }
+  ],
+  "meta": {
+    "level": "intermediate",
+    "trains": "A lullaby in 6/8 over block chords (B flat, E flat, F) in the left, with dotted rhythms.",
+    "composer": "F. X. Gruber",
+    "reviewedBy": "claude-sonnet-5",
+    "reviewedOn": "2026-09-26"
+  }
+}

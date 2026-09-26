@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "title": "Song - O Come, O Come, Emmanuel",
+  "composer": "Traditional (tune \"Veni Emmanuel\")",
+  "subtitle": "Arrangement: the tune with left-hand block chords",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "intermediate",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "A modal hymn tune in E minor over block chords (Em, Am, B, D) in the left.",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-sonnet-5",
+    "created": "2026-09-26",
+    "basedOn": "mutopia-1300-veni-emmanuel: \"Veni Emmanuel\" (hymn tune, \"O Come, O Come, Emmanuel\"), traditional, SATB; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1300)",
+    "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1300), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": ["Left-hand block chords are our own (CC0)."],
+  "reviewedBy": "claude-sonnet-5",
+  "reviewedOn": "2026-09-26",
+  "step": "song",
+  "stepOrder": 10
+}

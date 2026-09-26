@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "title": "Song - Greensleeves",
+  "composer": "Traditional (English)",
+  "subtitle": "Arrangement: the tune with left-hand block chords",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "intermediate",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "The tune of Greensleeves in 6/8 with a pickup over block chords (Am, C, G, Dm, E) in the left.",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-sonnet-5",
+    "created": "2026-09-26",
+    "basedOn": "mutopia-1247-greensleeves-hymntune: Greensleeves (hymn tune), SATB, E minor; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1247)",
+    "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1247), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": [
+    "Left-hand block chords are our own (CC0).",
+    "Transposed up a perfect fourth, from E minor to A minor."
+  ],
+  "reviewedBy": "claude-sonnet-5",
+  "reviewedOn": "2026-09-26",
+  "step": "song",
+  "stepOrder": 10
+}

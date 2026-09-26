@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "title": "Song - Amazing Grace",
+  "composer": "Traditional (tune \"New Britain\")",
+  "subtitle": "Arrangement: the tune with left-hand block chords",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "A pentatonic tune in 3/4 with a one-beat pickup over block chords (G, C, D) in the left, one chord per bar.",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-sonnet-5",
+    "created": "2026-09-26",
+    "basedOn": "mutopia-1283-new-britain: New Britain (the \"Amazing Grace\" hymn tune), SATB; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1283)",
+    "note": "Melody from www.cyberhymnal.org (tune: Virginia Harmony, 1831; harmonization: E. O. Excell, 1900) (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1283), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": ["Left-hand block chords are our own (CC0)."],
+  "reviewedBy": "claude-sonnet-5",
+  "reviewedOn": "2026-09-26",
+  "step": "song",
+  "stepOrder": 10
+}

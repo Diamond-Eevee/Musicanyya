@@ -530,3 +530,37 @@ describe('readLilyPond / fromLilyPond (contract fidelity-tools.md §3.1)', () =>
       expect(() => readLilyPond("\\score { { c'1 } \\layout { } }", { score: 2 })).toThrow(/score 2/));
   });
 });
+
+// Feature 011 US3: two constructs of the approved song sources that carry no music. Lyrics are skipped (they are words, not
+// notes) and a repeat sign printed at the very end of a song is read as its final bar line (LilyPond's MIDI does not repeat it).
+describe('lyrics and a final repeat sign (feature 011, Mutopia 905 and 644)', () => {
+  const notesOf = (text: string) => fromLilyPond(readLilyPond(text)).notes.map((x) => x.midi);
+  const PLAIN = "\\relative c' { c4 d e f | g1 }";
+
+  it('\\addlyrics after a voice is skipped, whatever punctuation the words hold', () => {
+    const withWords =
+      '<< { \\relative c\' { c4 d e f | g1 } } \\addlyrics { Good King Wen -- ces -- las; "a { brace" } >>';
+    expect(notesOf(withWords)).toEqual(notesOf(PLAIN));
+  });
+
+  it('\\lyricmode variables and \\lyricsto in a \\new Lyrics context are skipped', () => {
+    const text = `Verse = \\lyricmode { The ri -- sing; of the sun, }
+      << \\context Voice = "one" { \\relative c' { c4 d e f | g1 } } \\lyricsto "one" \\new Lyrics { \\Verse } >>`;
+    expect(notesOf(text)).toEqual(notesOf(PLAIN));
+  });
+
+  it('a lyrics block that never closes is refused', () => {
+    expect(() => readLilyPond("{ c'4 } \\addlyrics { never closed")).toThrow(/lyrics block/);
+  });
+
+  it('\\bar ":|" at the end of the music is a final bar line: the notes are unchanged and nothing repeats', () => {
+    const r = fromLilyPond(readLilyPond('\\relative c\' { c4 d e f | g1 \\bar ":|" }'));
+    expect(r.notes).toHaveLength(5);
+    expect(r.bars.some((b) => b.repeatEnd || b.repeatStart)).toBe(false);
+    expect(r.playedOrder).toEqual([0, 1]);
+  });
+
+  it('\\bar ":|" before the end of the music is still refused, as an end-repeat written by hand', () => {
+    expect(() => fromLilyPond(readLilyPond('\\relative c\' { c4 d e f \\bar ":|" | g1 }'))).toThrow(/before the end/);
+  });
+});

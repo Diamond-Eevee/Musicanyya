@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "id": "mutopia-644-holly-and-the-ivy",
+  "work": "\"The Holly and the Ivy\" (traditional), melody",
+  "edition": "http://www.hymnsandcarolsofchristmas.com/Hymns_and_Carols/holly_and_the_ivy.htm",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=644",
+  "identifier": "Mutopia-2005/12/23-644",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond for the Mutopia Project (maintainer Geoffrey Lehr) and placed in the public domain. The piece page states \"Copyright: Public Domain\" (checked 2026-09-26); the .ly header says the same.",
+  "obtained": "2026-09-26",
+  "approvedByOwner": "2026-09-26",
+  "files": [
+    {
+      "role": "notation",
+      "path": "thehollyandtheivy.ly",
+      "url": "https://www.mutopiaproject.org/ftp/Traditional/thehollyandtheivy/thehollyandtheivy.ly",
+      "sha256": "b5de0ee05f7d516cd7515b32acd24ed3e9e2a0e0cac7b87f540cb60abd8e8c08",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "thehollyandtheivy.mid",
+      "url": "https://www.mutopiaproject.org/ftp/Traditional/thehollyandtheivy/thehollyandtheivy.mid",
+      "sha256": "103692f749b39bf85c0bef8fba057f74c06d1de130aec01fd38f2eede2b22c4b",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1],
+      "midiArticulate": false
+    }
+  ]
+}

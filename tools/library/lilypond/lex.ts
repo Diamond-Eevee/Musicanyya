@@ -16,6 +16,9 @@ export interface LyToken {
 const SYMBOLS2 = ['<<', '>>'];
 const SYMBOLS1 = "{}<>|~()[]-^_.=',!?*/:";
 const WORD = /[A-Za-z\u0080-￿]/;
+/** Commands whose braced block is lyric text: syllables, hyphens and punctuation that are no music, so the block is skipped
+ *  whole and the parser sees an empty pair of braces. Lyrics carry no note, so nothing the reader compares is lost. */
+const LYRIC_COMMANDS = new Set(['\\lyricmode', '\\addlyrics', '\\lyrics']);
 
 export function lexLilyPond(source: string): LyToken[] {
   const tokens: LyToken[] = [];
@@ -70,6 +73,7 @@ export function lexLilyPond(source: string): LyToken[] {
           advance();
         }
         push('command', name, l, c);
+        if (LYRIC_COMMANDS.has(name)) skipLyricBlock();
       } else if ('\\()<>![]'.includes(next) && next !== '') {
         advance(2);
         push('command', `\\${next}`, l, c);
@@ -135,6 +139,30 @@ export function lexLilyPond(source: string): LyToken[] {
   }
   tokens.push({ type: 'eof', value: '', line, column, spaced: true });
   return tokens;
+
+  /** After a lyric command: the `{ ... }` block that follows it, replaced by an empty pair of brace tokens. */
+  function skipLyricBlock(): void {
+    while (i < source.length && /\s/.test(source[i] as string)) advance();
+    if (source[i] !== '{') return;
+    const l = line;
+    const c = column;
+    push('symbol', '{', l, c);
+    advance();
+    let depth = 1;
+    while (depth > 0) {
+      const x = source[i];
+      if (x === undefined) throw new LyUnsupportedError(l, c, 'unterminated lyrics block');
+      if (x === '"') {
+        advance();
+        while (i < source.length && source[i] !== '"') advance(source[i] === '\\' ? 2 : 1);
+      } else if (x === '{') depth++;
+      else if (x === '}') depth--;
+      if (depth === 0) break;
+      advance();
+    }
+    push('symbol', '}', line, column);
+    advance();
+  }
 
   /** One Scheme datum after '#', as source text (without the '#'): a number, string, boolean, symbol or list. */
   function readScheme(): string {

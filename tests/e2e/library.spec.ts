@@ -61,7 +61,8 @@ test.describe('Practice score library: browse, open, Listen', () => {
 
     // FR-019: source/licence visible without leaving the score view - reopen the (non-modal) panel to check it.
     await openPanel(page, 'scores');
-    await expect(page.locator('mx-score-source')).toContainText('Written for Musicanyya');
+    // the theme is an authored arrangement with provenance.basedOn: library-port 1.2 §4a (feature 011) shows it as such
+    await expect(page.locator('mx-score-source')).toContainText('Arrangement for this app (CC0)');
     await page.keyboard.press('Escape');
 
     // Interaction 3: Play (Listen). Playwright's WebKit build has no AudioContext at all (a test-

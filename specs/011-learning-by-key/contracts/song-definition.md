@@ -1,6 +1,6 @@
 # Contract: song definition (`content/library/songs/*.json`) and `pnpm library:songs`
 
-**Version**: `1.0.0` - new.
+**Version**: `1.1.0` (1.1.0, 2026-09-26, US3 as built: `meta.composer`; `topVoice` is the highest note of each chord *of the named voice*; the left-hand voicing avoids the melody; a short last bar; the sidecar's `subtitle`; 1.0.0 new).
 
 **Owner**: `tools/library/build-songs.ts` (dev-only, Node). **Read by**: nothing at run time (layers test).
 
@@ -25,7 +25,7 @@ A song item = the melody of an approved public-domain source (right hand) + our 
       "properties": {
         "staff":     { "type": "integer", "minimum": 1, "description": "source staff (LilyPond staff order)" },
         "voice":     { "type": "string", "description": "source voice name, e.g. \"Soprano\"; the top voice when the staff is polyphonic" },
-        "topVoice":  { "type": "boolean", "default": false, "description": "take the highest note of each onset (guitar sources)" },
+        "topVoice":  { "type": "boolean", "default": false, "description": "the melody voice holds chords: take the highest note of each chord of the named voice (guitar sources)" },
         "bars":      { "type": "string", "pattern": "^\\d+-\\d+$|^all$" },
         "transpose": { "type": "string", "pattern": "^[+-](P1|m2|M2|m3|M3|P4|A4|d5|P5|m6|M6|m7|M7|P8)$" }
       }
@@ -51,6 +51,7 @@ A song item = the melody of an approved public-domain source (right hand) + our 
       "properties": {
         "level":      { "enum": ["beginner", "intermediate"] },
         "trains":     { "type": "string" },
+        "composer":   { "type": "string", "maxLength": 200, "description": "printed as the composer of the item (e.g. \"Traditional (French)\")" },
         "departures": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
         "reviewedBy": { "type": "string" },
         "reviewedOn": { "type": "string", "format": "date" }
@@ -81,6 +82,25 @@ A song item = the melody of an approved public-domain source (right hand) + our 
    (CC0)"; plus the transposition when present), `provenance: { origin: "authored", licence: "CC0-1.0", author,
    created, basedOn: <source id> }`, `hands: "both"`.
 7. Writes nothing and exits 1 when the chords do not cover every bar from the first full bar to the last.
+
+### 2.1 As built (1.1.0)
+
+- **Bars**: the selected source bars are laid end to end; a range `N-M` renumbers the item from bar 1, `all` keeps the source
+  numbers (a pickup is bar 0). Only the first bar (a pickup) and the last bar (the short bar that completes it) may be shorter
+  than the metre; both are written `implicit`, so the app raises no measure-length notice. A source with a shorter bar in the
+  middle (a pickup inside a repeated section, a first ending) is refused.
+- **Melody**: the named `staff` and `voice`; with `topVoice` the highest note of each chord of that voice, without it a chord in
+  the voice is refused. Durations are cut at barlines and at chord onsets and written as standard single-dotted values, tied.
+- **Left-hand voicing**: the plan's own voicing (root position unless the entry names `inversion`, the root in C3-B3, the
+  whole triad an octave lower when its top would pass E4) stands wherever it lies wholly below the melody sounding over the
+  chord. Otherwise the builder chooses another inversion (only the named one when the plan names one) or an octave lower,
+  preferring a voicing wholly below the melody, then one that never shares a key with it, the nearest to the previous chord's
+  register; it refuses when every voicing shares a key with the melody. (Music review 2026-09-26: a held chord tone under the
+  same key in the right hand cannot be played by one pianist.)
+- **Sidecar**: also `subtitle` "Arrangement: the tune with left-hand block chords" (the library guard, spec FR-007, wants the
+  word "arrangement" in the title or subtitle), `arranger` "Musicanyya practice material" and `composer` from `meta.composer`.
+- **Tempo**: `tempoBpm` is quarter notes per minute, written as a quarter-note metronome mark also in 6/8.
+
 
 ## 3. Audit (audit-record 1.2)
 

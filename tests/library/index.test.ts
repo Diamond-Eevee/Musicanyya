@@ -384,7 +384,7 @@ describe('the Learning > Keys shelf (feature 011 US1)', () => {
   it('C major keeps the three Advanced extras, after the main step: stepOrder 10, 20, 30', async () => {
     const { index } = await buildLibraryIndex(libraryRoot);
     const extras = index.items
-      .filter((i) => i.section === 'learning/keys/c-major' && (i.meta.stepOrder ?? 0) > 0)
+      .filter((i) => i.section === 'learning/keys/c-major' && (i.meta.stepOrder ?? 0) > 0 && i.meta.step !== 'song')
       .sort((a, b) => (a.meta.stepOrder ?? 0) - (b.meta.stepOrder ?? 0));
     expect(extras.map((i) => [i.id, i.meta.step, i.meta.stepOrder])).toEqual([
       ['learning/keys/c-major/i-v-vi-iv', 'advanced', 10],
@@ -520,6 +520,60 @@ describe('the Learning > Key changes shelf (feature 011 US2)', () => {
       const claimants = index.items.filter((i) => i.meta.supersedes?.some((s) => s.id === successor.oldId));
       expect(claimants.map((i) => i.id)).toEqual([successor.newId]);
       expect(claimants[0]?.meta.supersedes?.find((s) => s.id === successor.oldId)?.hash).toBe(successor.hash);
+    }
+  });
+});
+
+// Feature 011 T056 (spec FR-016, FR-017, FR-019, SC-004; contract song-definition §2 step 6): the songs on the shelf.
+describe('the songs on the Learning > Keys shelf (feature 011 US3)', () => {
+  const songs = async () => (await buildLibraryIndex(libraryRoot)).index.items.filter((i) => i.meta.step === 'song');
+
+  it('has at least 8 songs, at least 6 of them beginner, in at least 4 keys, at least 2 of them minor', async () => {
+    const all = await songs();
+    expect(all.length).toBeGreaterThanOrEqual(8);
+    expect(all.filter((s) => s.meta.level === 'beginner').length).toBeGreaterThanOrEqual(6);
+    const folders = new Set(all.map((s) => s.section));
+    expect(folders.size).toBeGreaterThanOrEqual(4);
+    expect([...folders].filter((f) => f.endsWith('-minor')).length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('every song is a piece in a key folder, an arrangement with its departures, based on an approved source', async () => {
+    const sources = new Set(
+      fs
+        .readdirSync(path.resolve(__dirname, '../../content/library/sources'), { withFileTypes: true })
+        .filter((d) => d.isDirectory())
+        .map((d) => d.name),
+    );
+    for (const song of await songs()) {
+      expect(song.id, song.id).toMatch(/^learning\/keys\/[a-z0-9-]+\/song-[a-z0-9-]+$/);
+      expect(song.meta.kind, song.id).toBe('piece');
+      expect(song.meta.arrangement, song.id).toBe(true);
+      expect(song.meta.departures?.length ?? 0, song.id).toBeGreaterThan(0);
+      expect(song.meta.tags, song.id).toEqual(expect.arrayContaining(['chords', 'hands-together']));
+      expect(['beginner', 'intermediate'], song.id).toContain(song.meta.level);
+      const provenance = song.meta.provenance;
+      expect(provenance.origin, song.id).toBe('authored');
+      expect(provenance.licence, song.id).toBe('CC0-1.0');
+      const basedOn = provenance.origin === 'authored' ? (provenance.basedOn ?? '') : '';
+      expect(
+        [...sources].some((id) => basedOn.includes(id)),
+        `${song.id} is based on ${basedOn}`,
+      ).toBe(true);
+    }
+  });
+
+  it('songs come after the four steps of their folder, with distinct stepOrder, beginner songs first', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    for (const key of KEYS) {
+      const inFolder = index.items.filter((i) => i.section === `learning/keys/${key.slug}` && i.meta.step === 'song');
+      const orders = inFolder.map((i) => i.meta.stepOrder ?? 0);
+      expect(new Set(orders).size, key.slug).toBe(orders.length);
+      const levels = [...inFolder]
+        .sort((a, b) => (a.meta.stepOrder ?? 0) - (b.meta.stepOrder ?? 0))
+        .map((i) => i.meta.level);
+      expect(levels, key.slug).toEqual(
+        [...levels].sort((a, b) => (a === 'beginner' ? 0 : 1) - (b === 'beginner' ? 0 : 1)),
+      );
     }
   });
 });

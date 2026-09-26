@@ -109,7 +109,9 @@ export type TheoryRule =
   | 'scale'
   | 'voicing'
   | 'octave'
-  | 'overlap';
+  | 'overlap'
+  | 'chordSet'
+  | 'changeRate';
 
 export interface TheoryDifference {
   kind: 'theory';
@@ -207,6 +209,19 @@ function scaleToneAt(key: KeyClaim, degreeIndex: number): Tone & { semitones: nu
   return { step: letter, alter: alterFor(letter, tonicPc(key) + semitones), semitones, letters: degreeIndex };
 }
 
+/** The three tones of a triad on `root`, root first: the third and fifth by letter arithmetic from the root's letter. */
+export function triadTones(root: Tone, quality: Quality): [Tone, Tone, Tone] {
+  const rootPc = mod(NATURAL_SEMITONES[root.step] + root.alter, SEMITONES_PER_OCTAVE);
+  const [third, fifth] = TRIAD_SEMITONES[quality];
+  const thirdLetter = LETTERS[mod(letterIndex(root.step) + 2, LETTERS_PER_OCTAVE)] as Letter;
+  const fifthLetter = LETTERS[mod(letterIndex(root.step) + 4, LETTERS_PER_OCTAVE)] as Letter;
+  return [
+    root,
+    { step: thirdLetter, alter: alterFor(thirdLetter, rootPc + third) },
+    { step: fifthLetter, alter: alterFor(fifthLetter, rootPc + fifth) },
+  ];
+}
+
 /** The three tones of the claimed triad, root first: the root from the scale, the third and fifth by letter arithmetic. */
 export function expectedChordTones(key: KeyClaim, chord: ChordClaim): [Tone, Tone, Tone] {
   const degree = ROMAN_DEGREES[chord.roman.toLowerCase()];
@@ -235,7 +250,7 @@ function scaleNote(key: KeyClaim, tonicOctave: number, degree: number): Tone & {
 
 // ---- reading the file --------------------------------------------------------------------------------------------
 
-interface WrittenNote {
+export interface WrittenNote {
   hand: Hand;
   bar: string;
   onset: QuarterTime;
@@ -245,8 +260,10 @@ interface WrittenNote {
   midi: number;
   /** Where the written note stops sounding. */
   end: QuarterTime;
+  /** The note continues a tie from the note before (`<tie type="stop"/>`): it is not a new attack. */
+  tiedFromPrevious: boolean;
 }
-interface Words {
+export interface Words {
   bar: number;
   onset: QuarterTime;
   text: string;
@@ -259,7 +276,7 @@ interface WrittenKey {
   fifths: string;
   mode?: string;
 }
-interface Reading {
+export interface Reading {
   fifths?: string;
   mode?: string;
   /** Every `<key>` in written order (the first is also `fifths`/`mode`). */
@@ -275,7 +292,7 @@ const text = (el: XmlElement | undefined): string => el?.text.trim() ?? '';
 const elements = (nodes: readonly XmlNode[], name: string): XmlElement[] =>
   nodes.filter((c): c is XmlElement => c instanceof XmlElement && c.name === name);
 
-function readScore(xml: string): Reading {
+export function readScore(xml: string): Reading {
   const { doc } = readXml(xml);
   const root = doc.children.find((c): c is XmlElement => c instanceof XmlElement);
   if (root?.name !== 'score-partwise') throw new Error('the theory check reads score-partwise files');
@@ -349,6 +366,7 @@ function readScore(xml: string): Reading {
             bar,
             onset,
             end: add(onset, q(duration, divisions)),
+            tiedFromPrevious: elements(node.children, 'tie').some((t) => t.attributes.type === 'stop'),
             step,
             alter,
             octave,
@@ -538,7 +556,7 @@ function checkLabel(part: string, root: Tone, claimed: ChordClaim): { expected: 
   return undefined;
 }
 
-type Base = { kind: 'theory'; chordIndex: number; bar: string };
+export type Base = { kind: 'theory'; chordIndex: number; bar: string };
 
 /** Close position within each hand, and - where both hands play the same shape - the left hand an octave below the right. */
 function checkVoicing(base: Base, claimed: ChordClaim, event: ChordEvent): TheoryDifference[] {
@@ -598,7 +616,7 @@ function checkOverlap(notes: readonly WrittenNote[]): TheoryDifference[] {
 }
 
 /** One hand's notes at one chord against its expected tones: each wrong tone is one difference, naming the tone. */
-function checkHand(
+export function checkHand(
   base: Base,
   hand: Hand,
   expected: readonly Tone[],

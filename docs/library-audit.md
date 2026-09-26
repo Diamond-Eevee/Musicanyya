@@ -6,20 +6,20 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 | Outcome | Items |
 |---|---|
-| verified | 155 |
+| verified | 165 |
 | verified (visual) | 3 |
 | fixed | 7 |
 | replaced | 4 |
 | relabelled | 2 |
 | removed | 1 |
-| Total | 172 |
+| Total | 182 |
 
 ## Level counts after the audit
 
 | Level | Pieces | Minimum | Status |
 |---|---|---|---|
-| Beginner | 7 | 7 | meets the minimum |
-| Intermediate | 2 | 5 | short by 3 - reported to the owner |
+| Beginner | 13 | 7 | meets the minimum |
+| Intermediate | 6 | 5 | meets the minimum |
 | Advanced | 7 | 5 | meets the minimum |
 
 ## Repertoire
@@ -54,22 +54,30 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 | C major - I-V-vi-IV<br>`learning/keys/c-major/i-v-vi-iv` | exercise | exercise-theory-v1 | theory | 0 | verified | 2026-09-24 |
 | C major - I-vi-ii-V<br>`learning/keys/c-major/turnaround` | exercise | exercise-theory-v1 | theory | 0 | fixed | 2026-09-24 |
 | C major - diatonic ladder<br>`learning/keys/c-major/diatonic-ladder` | exercise | exercise-theory-v1 | theory | 0 | fixed | 2026-09-24 |
+| Song - Au clair de la lune<br>`learning/keys/c-major/song-au-clair-de-la-lune` | arrangement | [Boije collection #268 (http://www.muslib.se/ebibliotek/boije/)](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1111)<br>song-chords-v1 | mechanical (bars 1-8)<br>theory | 0 | verified | 2026-09-26 |
 | A minor - introduction<br>`learning/keys/a-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | A minor - beginner<br>`learning/keys/a-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | A minor - intermediate<br>`learning/keys/a-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | A minor - advanced<br>`learning/keys/a-minor/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| Song - Greensleeves<br>`learning/keys/a-minor/song-greensleeves` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1247)<br>song-chords-v1 | mechanical (bars all)<br>theory | 0 | verified | 2026-09-26 |
 | G major - introduction<br>`learning/keys/g-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | G major - beginner<br>`learning/keys/g-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | G major - intermediate<br>`learning/keys/g-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | G major - advanced<br>`learning/keys/g-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| Song - Amazing Grace<br>`learning/keys/g-major/song-amazing-grace` | arrangement | [www.cyberhymnal.org (tune: Virginia Harmony, 1831; harmonization: E. O. Excell, 1900)](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1283)<br>song-chords-v1 | mechanical (bars all)<br>theory | 0 | verified | 2026-09-26 |
+| Song - Good King Wenceslas<br>`learning/keys/g-major/song-good-king-wenceslas` | arrangement | [Rev. Charles Lewis Hutchins, Carols Old and Carols New (Boston: Parish Choir, 1916), Carol #415](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=905)<br>song-chords-v1 | mechanical (bars all)<br>theory | 0 | verified | 2026-09-26 |
+| Song - O Come, All Ye Faithful<br>`learning/keys/g-major/song-o-come-all-ye-faithful` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1220)<br>song-chords-v1 | mechanical (bars all)<br>theory | 0 | verified | 2026-09-26 |
+| Song - Ode to Joy<br>`learning/keys/g-major/song-ode-to-joy` | arrangement | [Various](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=528)<br>song-chords-v1 | mechanical (bars all)<br>theory | 0 | verified | 2026-09-26 |
 | E minor - introduction<br>`learning/keys/e-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | E minor - beginner<br>`learning/keys/e-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | E minor - intermediate<br>`learning/keys/e-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | E minor - advanced<br>`learning/keys/e-minor/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| Song - O Come, O Come, Emmanuel<br>`learning/keys/e-minor/song-o-come-o-come-emmanuel` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1300)<br>song-chords-v1 | mechanical (bars all)<br>theory | 0 | verified | 2026-09-26 |
 | D major - introduction<br>`learning/keys/d-major/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | D major - beginner<br>`learning/keys/d-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | D major - intermediate<br>`learning/keys/d-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | D major - advanced<br>`learning/keys/d-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| Song - Joy to the World<br>`learning/keys/d-major/song-joy-to-the-world` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1223)<br>song-chords-v1 | mechanical (bars all)<br>theory | 0 | verified | 2026-09-26 |
 | B minor - introduction<br>`learning/keys/b-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | B minor - beginner<br>`learning/keys/b-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | B minor - intermediate<br>`learning/keys/b-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
@@ -134,6 +142,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 | B♭ major - beginner<br>`learning/keys/b-flat-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | B♭ major - intermediate<br>`learning/keys/b-flat-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | B♭ major - advanced<br>`learning/keys/b-flat-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| Song - Silent Night<br>`learning/keys/b-flat-major/song-silent-night` | arrangement | [www.cyberhymnal.org](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1295)<br>song-chords-v1 | mechanical (bars all)<br>theory | 0 | verified | 2026-09-26 |
 | G minor - introduction<br>`learning/keys/g-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | G minor - beginner<br>`learning/keys/g-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | G minor - intermediate<br>`learning/keys/g-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
@@ -142,6 +151,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 | F major - beginner<br>`learning/keys/f-major/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | F major - intermediate<br>`learning/keys/f-major/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | F major - advanced<br>`learning/keys/f-major/advanced` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
+| Song - The Holly and the Ivy<br>`learning/keys/f-major/song-the-holly-and-the-ivy` | arrangement | [http://www.hymnsandcarolsofchristmas.com/Hymns_and_Carols/holly_and_the_ivy.htm](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=644)<br>song-chords-v1 | mechanical (bars all)<br>theory | 0 | verified | 2026-09-26 |
 | D minor - introduction<br>`learning/keys/d-minor/introduction` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | D minor - beginner<br>`learning/keys/d-minor/beginner` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
 | D minor - intermediate<br>`learning/keys/d-minor/intermediate` | exercise | exercise-theory-v2 | theory | 0 | verified | 2026-09-26 |
@@ -265,13 +275,66 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 - Outcome (fixed): The theory check found 2 label differences: the parallel minor of the tonic was labelled "Cm · I". Corrected at the exercise definition to "Cm · i" (the case of a Roman numeral follows the quality); no note changed.
 
+### Song - Greensleeves (`learning/keys/a-minor/song-greensleeves`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check finds every left-hand chord equal to the triad its printed name spells and inside the chords its level promises (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+- Departure: Transposed up a perfect fourth, from E minor to A minor.
+
+### Song - Silent Night (`learning/keys/b-flat-major/song-silent-night`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check finds every left-hand chord equal to the triad its printed name spells and inside the chords its level promises (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+
 ### C major - diatonic ladder (`learning/keys/c-major/diatonic-ladder`)
 
 - Outcome (fixed): The theory check found 1 label difference: the diminished chord was labelled "B° · vii" without the degree sign. The generator now writes "vii°"; no note changed.
 
+### Song - Au clair de la lune (`learning/keys/c-major/song-au-clair-de-la-lune`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check finds every left-hand chord equal to the triad its printed name spells and inside the chords its level promises (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+- Departure: The first eight bars only (the two phrases everyone knows).
+
 ### C major - I-vi-ii-V (`learning/keys/c-major/turnaround`)
 
 - Outcome (fixed): The description said "one common tone per change", but I to vi shares two (C, E). Corrected at the exercise definition to "one or two common tones per change"; no note changed.
+
+### Song - Joy to the World (`learning/keys/d-major/song-joy-to-the-world`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check finds every left-hand chord equal to the triad its printed name spells and inside the chords its level promises (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+
+### Song - O Come, O Come, Emmanuel (`learning/keys/e-minor/song-o-come-o-come-emmanuel`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check finds every left-hand chord equal to the triad its printed name spells and inside the chords its level promises (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+
+### Song - The Holly and the Ivy (`learning/keys/f-major/song-the-holly-and-the-ivy`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check finds every left-hand chord equal to the triad its printed name spells and inside the chords its level promises (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+
+### Song - Amazing Grace (`learning/keys/g-major/song-amazing-grace`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check finds every left-hand chord equal to the triad its printed name spells and inside the chords its level promises (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+
+### Song - Good King Wenceslas (`learning/keys/g-major/song-good-king-wenceslas`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check finds every left-hand chord equal to the triad its printed name spells and inside the chords its level promises (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+- Departure: Transposed down a major second, from A major to G major.
+
+### Song - O Come, All Ye Faithful (`learning/keys/g-major/song-o-come-all-ye-faithful`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check finds every left-hand chord equal to the triad its printed name spells and inside the chords its level promises (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
+
+### Song - Ode to Joy (`learning/keys/g-major/song-ode-to-joy`)
+
+- Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check finds every left-hand chord equal to the triad its printed name spells and inside the chords its level promises (0 differences).
+- Departure: Left-hand block chords are our own (CC0).
 
 ### Prelude No. 1 in C major, BWV 846 (`repertoire/advanced/bach-prelude-bwv846`)
 

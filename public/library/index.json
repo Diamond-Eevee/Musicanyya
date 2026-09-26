@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-26T14:44:18.047Z",
+  "generated": "2026-09-26T16:23:38.754Z",
   "sections": [
     {
       "id": "learning",
@@ -5954,6 +5954,96 @@
       }
     },
     {
+      "id": "learning/keys/a-minor/song-greensleeves",
+      "section": "learning/keys/a-minor",
+      "file": "learning/keys/a-minor/song-greensleeves.musicxml",
+      "bytes": 26868,
+      "hash": "5799fd47d945ce361b833de300621b72e98bd35e07b69f1623af8a8ce42ce91b",
+      "meta": {
+        "version": 1,
+        "title": "Song - Greensleeves",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "basedOn": "mutopia-1247-greensleeves-hymntune: Greensleeves (hymn tune), SATB, E minor; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1247)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1247), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "Traditional (English)",
+        "arranger": "Musicanyya practice material",
+        "trains": "The tune of Greensleeves in 6/8 with a pickup over block chords (Am, C, G, Dm, E) in the left.",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0).",
+          "Transposed up a perfect fourth, from E minor to A minor."
+        ],
+        "step": "song",
+        "stepOrder": 10
+      },
+      "facts": {
+        "measures": 17,
+        "notes": 119,
+        "durationSeconds": 34.642857142857146,
+        "keys": [
+          "A minor"
+        ],
+        "metres": [
+          "6/8"
+        ],
+        "tempoBpm": 84,
+        "tempoDefaulted": false,
+        "lowestMidi": 48,
+        "highestMidi": 79,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.9411764705882353,
+        "shortestDivision": 16,
+        "notesPerBeat": 2.4536082474226806,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.40336134453781514,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 15,
+        "longestRunAtShortestValue": 1,
+        "attackCount": 87,
+        "peakNotesPerSecond": 3.5,
+        "accidentalMarkCount": 14,
+        "minorScaleAccidentalCount": 14,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
       "id": "learning/keys/b-flat-major/advanced",
       "section": "learning/keys/b-flat-major",
       "file": "learning/keys/b-flat-major/advanced.musicxml",
@@ -6287,6 +6377,95 @@
       },
       "levelCheck": {
         "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/b-flat-major/song-silent-night",
+      "section": "learning/keys/b-flat-major",
+      "file": "learning/keys/b-flat-major/song-silent-night.musicxml",
+      "bytes": 19718,
+      "hash": "fc35f350573de77a627b09dda511275631e0c7a99b2a7364e69da5d709bd5277",
+      "meta": {
+        "version": 1,
+        "title": "Song - Silent Night",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "basedOn": "mutopia-1295-stille-nacht: \"Stille Nacht\" (hymn tune, \"Silent Night\"), F. X. Gruber, SATB; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1295)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1295), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "F. X. Gruber",
+        "arranger": "Musicanyya practice material",
+        "trains": "A lullaby in 6/8 over block chords (B flat, E flat, F) in the left, with dotted rhythms.",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0)."
+        ],
+        "step": "song",
+        "stepOrder": 10
+      },
+      "facts": {
+        "measures": 12,
+        "notes": 85,
+        "durationSeconds": 25.714285714285715,
+        "keys": [
+          "B♭ major"
+        ],
+        "metres": [
+          "6/8"
+        ],
+        "tempoBpm": 84,
+        "tempoDefaulted": false,
+        "lowestMidi": 45,
+        "highestMidi": 75,
+        "maxSpanSemitones": 8,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.9166666666666666,
+        "shortestDivision": 16,
+        "notesPerBeat": 2.361111111111111,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.4588235294117647,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 10,
+        "longestRunAtShortestValue": 1,
+        "attackCount": 59,
+        "peakNotesPerSecond": 4,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
         "pass": true,
         "failed": []
       }
@@ -7856,6 +8035,96 @@
       }
     },
     {
+      "id": "learning/keys/c-major/song-au-clair-de-la-lune",
+      "section": "learning/keys/c-major",
+      "file": "learning/keys/c-major/song-au-clair-de-la-lune.musicxml",
+      "bytes": 11369,
+      "hash": "85639b7ced97c1b5e4f16ee4617d3fd8c3f1a481bd71d66383d77120bc0a2a03",
+      "meta": {
+        "version": 1,
+        "title": "Song - Au clair de la lune",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "basedOn": "mutopia-1111-au-clair-de-la-lune: F. Horetzky, \"Nº. 21. Au Clair De la Lune.\" (60 National Airs of Different Nations), classical guitar (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1111)",
+          "note": "Melody from Boije collection #268 (http://www.muslib.se/ebibliotek/boije/) (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1111), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "Traditional (French)",
+        "arranger": "Musicanyya practice material",
+        "trains": "A first song: a familiar tune in the right hand over one block chord per bar in the left (C and G), hands together.",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0).",
+          "The first eight bars only (the two phrases everyone knows)."
+        ],
+        "step": "song",
+        "stepOrder": 10
+      },
+      "facts": {
+        "measures": 8,
+        "notes": 46,
+        "durationSeconds": 16,
+        "keys": [
+          "C major"
+        ],
+        "metres": [
+          "2/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 48,
+        "highestMidi": 76,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.625,
+        "shortestDivision": 8,
+        "notesPerBeat": 2.875,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.5217391304347826,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 4,
+        "attackCount": 30,
+        "peakNotesPerSecond": 3.5,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
       "id": "learning/keys/c-major/turnaround",
       "section": "learning/keys/c-major",
       "file": "learning/keys/c-major/turnaround.musicxml",
@@ -9290,6 +9559,95 @@
       },
       "levelCheck": {
         "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/d-major/song-joy-to-the-world",
+      "section": "learning/keys/d-major",
+      "file": "learning/keys/d-major/song-joy-to-the-world.musicxml",
+      "bytes": 26108,
+      "hash": "1474ad25fcb43ae72bdb1742f3606251bccf2d36fd2a209fcc13a2f62af1380e",
+      "meta": {
+        "version": 1,
+        "title": "Song - Joy to the World",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "basedOn": "mutopia-1223-antioch: \"Antioch\" (hymn tune, \"Joy to the World\"), G. F. Handel, SATB; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1223)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1223), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "G. F. Handel (tune \"Antioch\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "The tune of Joy to the World over block chords (D, G, A) in the left, with its dotted rhythms.",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0)."
+        ],
+        "step": "song",
+        "stepOrder": 10
+      },
+      "facts": {
+        "measures": 19,
+        "notes": 114,
+        "durationSeconds": 27.142857142857142,
+        "keys": [
+          "D major"
+        ],
+        "metres": [
+          "2/4"
+        ],
+        "tempoBpm": 84,
+        "tempoDefaulted": false,
+        "lowestMidi": 49,
+        "highestMidi": 74,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.7368421052631579,
+        "shortestDivision": 16,
+        "notesPerBeat": 3,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.5,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 12,
+        "longestRunAtShortestValue": 2,
+        "attackCount": 76,
+        "peakNotesPerSecond": 5,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
         "pass": true,
         "failed": []
       }
@@ -10991,6 +11349,95 @@
       }
     },
     {
+      "id": "learning/keys/e-minor/song-o-come-o-come-emmanuel",
+      "section": "learning/keys/e-minor",
+      "file": "learning/keys/e-minor/song-o-come-o-come-emmanuel.musicxml",
+      "bytes": 18204,
+      "hash": "29ab42d79e48229ccc5658e7809178fdda77e3316fcb539f73d998c499a06c49",
+      "meta": {
+        "version": 1,
+        "title": "Song - O Come, O Come, Emmanuel",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "basedOn": "mutopia-1300-veni-emmanuel: \"Veni Emmanuel\" (hymn tune, \"O Come, O Come, Emmanuel\"), traditional, SATB; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1300)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1300), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "Traditional (tune \"Veni Emmanuel\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "A modal hymn tune in E minor over block chords (Em, Am, B, D) in the left.",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0)."
+        ],
+        "step": "song",
+        "stepOrder": 10
+      },
+      "facts": {
+        "measures": 10,
+        "notes": 86,
+        "durationSeconds": 30.416666666666668,
+        "keys": [
+          "E minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 50,
+        "highestMidi": 74,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.7,
+        "shortestDivision": 8,
+        "notesPerBeat": 2.356164383561644,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.313953488372093,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 16,
+        "attackCount": 68,
+        "peakNotesPerSecond": 3,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
       "id": "learning/keys/f-major/advanced",
       "section": "learning/keys/f-major",
       "file": "learning/keys/f-major/advanced.musicxml",
@@ -11330,6 +11777,95 @@
       },
       "levelCheck": {
         "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/f-major/song-the-holly-and-the-ivy",
+      "section": "learning/keys/f-major",
+      "file": "learning/keys/f-major/song-the-holly-and-the-ivy.musicxml",
+      "bytes": 23391,
+      "hash": "1e545437a5420ebd1f3ed50d82749297d321734be61c79fbca922ecb4f110a88",
+      "meta": {
+        "version": 1,
+        "title": "Song - The Holly and the Ivy",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "basedOn": "mutopia-644-holly-and-the-ivy: \"The Holly and the Ivy\" (traditional), melody (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=644)",
+          "note": "Melody from http://www.hymnsandcarolsofchristmas.com/Hymns_and_Carols/holly_and_the_ivy.htm (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=644), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "Traditional (English)",
+        "arranger": "Musicanyya practice material",
+        "trains": "A carol tune in 3/4 with a one-beat pickup, over block chords (F, B flat, C) in the left, one chord per bar.",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0)."
+        ],
+        "step": "song",
+        "stepOrder": 10
+      },
+      "facts": {
+        "measures": 17,
+        "notes": 107,
+        "durationSeconds": 34.285714285714285,
+        "keys": [
+          "F major"
+        ],
+        "metres": [
+          "3/4"
+        ],
+        "tempoBpm": 84,
+        "tempoDefaulted": false,
+        "lowestMidi": 46,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.6470588235294118,
+        "shortestDivision": 8,
+        "notesPerBeat": 2.2291666666666665,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.4485981308411215,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 9,
+        "longestRunAtShortestValue": 4,
+        "attackCount": 75,
+        "peakNotesPerSecond": 3,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
         "pass": true,
         "failed": []
       }
@@ -12688,6 +13224,363 @@
       },
       "levelCheck": {
         "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/g-major/song-amazing-grace",
+      "section": "learning/keys/g-major",
+      "file": "learning/keys/g-major/song-amazing-grace.musicxml",
+      "bytes": 18985,
+      "hash": "b3255c32878e279a2f0299d3c1b922c35cbe6391791258451d9c651597bd9817",
+      "meta": {
+        "version": 1,
+        "title": "Song - Amazing Grace",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "basedOn": "mutopia-1283-new-britain: New Britain (the \"Amazing Grace\" hymn tune), SATB; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1283)",
+          "note": "Melody from www.cyberhymnal.org (tune: Virginia Harmony, 1831; harmonization: E. O. Excell, 1900) (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1283), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "Traditional (tune \"New Britain\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "A pentatonic tune in 3/4 with a one-beat pickup over block chords (G, C, D) in the left, one chord per bar.",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0)."
+        ],
+        "step": "song",
+        "stepOrder": 10
+      },
+      "facts": {
+        "measures": 16,
+        "notes": 81,
+        "durationSeconds": 41.81818181818182,
+        "keys": [
+          "G major"
+        ],
+        "metres": [
+          "3/4"
+        ],
+        "tempoBpm": 66,
+        "tempoDefaulted": false,
+        "lowestMidi": 47,
+        "highestMidi": 74,
+        "maxSpanSemitones": 8,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.4375,
+        "shortestDivision": 8,
+        "notesPerBeat": 1.7608695652173914,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.5555555555555556,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 3,
+        "attackCount": 51,
+        "peakNotesPerSecond": 2.5,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/g-major/song-good-king-wenceslas",
+      "section": "learning/keys/g-major",
+      "file": "learning/keys/g-major/song-good-king-wenceslas.musicxml",
+      "bytes": 22261,
+      "hash": "327b8f0a19bcd12444aaa0b1f042434827096e9d7c68a8dbc38c8107b41ec77c",
+      "meta": {
+        "version": 1,
+        "title": "Song - Good King Wenceslas",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "basedOn": "mutopia-905-good-king-wenceslas: \"Good King Wenceslas\" (anonymous tune, words J. M. Neale), voice and piano-style setting; the tune is in the top voice (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=905)",
+          "note": "Melody from Rev. Charles Lewis Hutchins, Carols Old and Carols New (Boston: Parish Choir, 1916), Carol #415 (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=905), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "Traditional (tune \"Tempus adest floridum\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "A carol tune in the right hand over block chords (G, C, D) in the left, one chord per bar, hands together.",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0).",
+          "Transposed down a major second, from A major to G major."
+        ],
+        "step": "song",
+        "stepOrder": 20
+      },
+      "facts": {
+        "measures": 17,
+        "notes": 104,
+        "durationSeconds": 46.36363636363637,
+        "keys": [
+          "G major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 88,
+        "tempoDefaulted": false,
+        "lowestMidi": 48,
+        "highestMidi": 74,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.8235294117647058,
+        "shortestDivision": 4,
+        "notesPerBeat": 1.5294117647058822,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.49038461538461536,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 70,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/g-major/song-o-come-all-ye-faithful",
+      "section": "learning/keys/g-major",
+      "file": "learning/keys/g-major/song-o-come-all-ye-faithful.musicxml",
+      "bytes": 26186,
+      "hash": "86da3454b94c6e5c06ec29a50616048369db0373553bf5fe5a9cfb34eae93d23",
+      "meta": {
+        "version": 1,
+        "title": "Song - O Come, All Ye Faithful",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "basedOn": "mutopia-1220-adeste-fideles: \"Adeste Fideles\" (hymn tune, \"O Come, All Ye Faithful\"), J. F. Wade, SATB; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1220)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1220), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "J. F. Wade (tune \"Adeste Fideles\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "A hymn tune with a one-beat pickup over block chords (G, C, D) in the left, one chord per bar.",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0)."
+        ],
+        "step": "song",
+        "stepOrder": 30
+      },
+      "facts": {
+        "measures": 21,
+        "notes": 122,
+        "durationSeconds": 57.857142857142854,
+        "keys": [
+          "G major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 84,
+        "tempoDefaulted": false,
+        "lowestMidi": 43,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.5238095238095238,
+        "shortestDivision": 8,
+        "notesPerBeat": 1.5061728395061729,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.4918032786885246,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 12,
+        "longestRunAtShortestValue": 1,
+        "attackCount": 82,
+        "peakNotesPerSecond": 2.5,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/g-major/song-ode-to-joy",
+      "section": "learning/keys/g-major",
+      "file": "learning/keys/g-major/song-ode-to-joy.musicxml",
+      "bytes": 22775,
+      "hash": "b0cdae3b578732fc9111632407a5c42a20a6be54793f7d4020b306066263c7a5",
+      "meta": {
+        "version": 1,
+        "title": "Song - Ode to Joy",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-sonnet-5",
+          "created": "2026-09-26",
+          "basedOn": "mutopia-528-ode-to-joy: Beethoven, \"Ode to Joy\" (hymn setting of the Symphony No. 9 finale theme), SATB, G major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=528)",
+          "note": "Melody from Various (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=528), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-sonnet-5",
+        "reviewedOn": "2026-09-26",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "L. van Beethoven (tune of the Ninth Symphony finale)",
+        "arranger": "Musicanyya practice material",
+        "trains": "A tune of steps and repeated notes over block chords (G, C, D) in the left, one chord per bar.",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0)."
+        ],
+        "step": "song",
+        "stepOrder": 40
+      },
+      "facts": {
+        "measures": 16,
+        "notes": 110,
+        "durationSeconds": 53.333333333333336,
+        "keys": [
+          "G major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 50,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.8125,
+        "shortestDivision": 8,
+        "notesPerBeat": 1.71875,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.43636363636363634,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 9,
+        "longestRunAtShortestValue": 2,
+        "attackCount": 78,
+        "peakNotesPerSecond": 2.5,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "beginner",
         "pass": true,
         "failed": []
       }

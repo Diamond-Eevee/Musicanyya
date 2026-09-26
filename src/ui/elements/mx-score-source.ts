@@ -39,7 +39,11 @@ export class MxScoreSource extends HTMLElement {
     const { provenance } = item.meta;
     const lines: string[] = [];
 
-    if (provenance.origin === 'authored') {
+    if (provenance.origin === 'authored' && provenance.basedOn) {
+      // an arrangement of a public-domain source (a song): name the source and both licences (library-port 1.2 §4a)
+      lines.push(escapeHtml(s.arrangement));
+      if (provenance.note) lines.push(escapeHtml(provenance.note));
+    } else if (provenance.origin === 'authored') {
       lines.push(escapeHtml(s.authored));
     } else {
       lines.push(`${escapeHtml(s.licence)}: ${escapeHtml(provenance.licence)}`);

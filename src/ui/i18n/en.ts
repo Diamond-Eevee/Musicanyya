@@ -170,6 +170,7 @@ export const en = {
     source: {
       heading: 'Where this score came from',
       authored: 'Written for Musicanyya',
+      arrangement: 'Arrangement for this app (CC0)',
       licence: 'Licence',
       credit: 'Credit',
       limitations: 'Limitations',

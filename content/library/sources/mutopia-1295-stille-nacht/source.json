@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "id": "mutopia-1295-stille-nacht",
+  "work": "\"Stille Nacht\" (hymn tune, \"Silent Night\"), F. X. Gruber, SATB; the tune is in the Soprano",
+  "edition": "www.cyberhymnal.org",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1295",
+  "identifier": "Mutopia-2008/02/19-1295",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond for the Mutopia Project (maintainer Steve Dunlop) and placed in the public domain. The piece page states \"Copyright: Public Domain\" (checked 2026-09-26); the .ly header says the same.",
+  "obtained": "2026-09-26",
+  "approvedByOwner": "2026-09-26",
+  "files": [
+    {
+      "role": "notation",
+      "path": "stille_nacht.ly",
+      "url": "https://www.mutopiaproject.org/ftp/GruberFX/stille_nacht/stille_nacht.ly",
+      "sha256": "41ac15027dc4626bd7d18beae68ef8a23fe2359e5f6ac618d5a2366e81aa4151",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "stille_nacht.mid",
+      "url": "https://www.mutopiaproject.org/ftp/GruberFX/stille_nacht/stille_nacht.mid",
+      "sha256": "c5d4e634edb067b7bda02f148f8f43ccfeac7bb9e10bd3add9051057ae6e9f39",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}

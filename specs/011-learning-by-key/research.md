@@ -243,6 +243,24 @@ source approval first - stop and ask. Internet Archive scans (e.g. *God Rest You
 `christmascarolsn00staiiala`; *Go Down, Moses*, IA `cu31924022492304` p. 142) would need hand encoding and only a visual
 check - kept as a fallback, not planned.
 
+### R9 as built (2026-09-26, claude-sonnet-5; owner decision of the same day)
+
+Eight of the nine planned songs were built; Auld Lang Syne (Mutopia 1121, the Horetzky guitar version) was downloaded,
+cross-checked against its MIDI, found unusable as a Beginner song (sixteenth notes, a very high register, a pickup inside a
+repeated section, a first ending) and removed again. Only three of the planned songs pass the Beginner caps as pieces, so the
+owner chose to add **Ode to Joy** (Mutopia 528) and **Amazing Grace** (Mutopia 1283), two sources already approved for the
+repertoire, instead of approving the reserves 435 and 1003. The shelf has **10 songs**: 6 Beginner - *Au clair de la lune*
+(first 8 bars only: bars 9-11 hold a run of six eighths; C, q=60), *Good King Wenceslas* (G, transposed -M2, q=88), *The Holly
+and the Ivy* (F, 3/4, q=84), *O Come, All Ye Faithful* (G, q=84), *Ode to Joy* (G, q=72), *Amazing Grace* (G, 3/4, q=66) - and
+4 Intermediate - *Joy to the World* (D; sixteenth notes), *Silent Night* (B flat, 6/8), *O Come, O Come, Emmanuel* (E minor;
+eighth-note runs), *Greensleeves* (A minor, 6/8, transposed +P4) - in 7 keys (C, G, F, D, B flat major; E minor, A minor), 2 of
+them minor. `pnpm library:index` levelled each song as a piece; every level is the one the song computes.
+
+Two reader gaps had to be closed for Mutopia 905 and 644 (fidelity-tools 1.11.0): lyric blocks are skipped, and a repeat sign at the very end of the music is read as a final bar line. Chord plans were reviewed by the `music-domain-expert` agent: the
+harmonizations stood, four bars changed (O Come All Ye Faithful bar 10 and Amazing Grace bar 14 to I, Silent Night bar 11 split
+I then V, tempi of Au clair, Good King Wenceslas and Emmanuel lowered), and its main finding - a left-hand chord tone held under
+the same key in the right hand in five songs - became the builder's melody-aware voicing (contract song-definition 1.1.0 §2.1).
+
 **Rejected**: Mutopia 521 Stille Nacht (CC BY-SA 2.0), 1641 Old Folks at Home (CC BY-SA 3.0), 1832 Amazing Grace
 (CC BY-SA), Swedish dances (CC BY 2.5); *House of the Rising Sun*, *Kumbaya*, *Scarborough Fair* (the familiar tune is a
 1947 source), *Hush Little Baby*, *Happy Birthday*, 1960s versions of *Michael, Row* - copyright risk; not found in a clean

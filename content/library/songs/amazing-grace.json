@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "id": "learning/keys/g-major/song-amazing-grace",
+  "title": "Song - Amazing Grace",
+  "source": "mutopia-1283-new-britain",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1.1",
+    "bars": "all"
+  },
+  "key": {
+    "tonic": "G",
+    "mode": "major",
+    "fifths": 1
+  },
+  "tempoBpm": 66,
+  "chords": [
+    {
+      "bar": 1,
+      "degree": "I"
+    },
+    {
+      "bar": 2,
+      "degree": "I"
+    },
+    {
+      "bar": 3,
+      "degree": "IV"
+    },
+    {
+      "bar": 4,
+      "degree": "V"
+    },
+    {
+      "bar": 5,
+      "degree": "I"
+    },
+    {
+      "bar": 6,
+      "degree": "I"
+    },
+    {
+      "bar": 7,
+      "degree": "I"
+    },
+    {
+      "bar": 8,
+      "degree": "I"
+    },
+    {
+      "bar": 9,
+      "degree": "I"
+    },
+    {
+      "bar": 10,
+      "degree": "IV"
+    },
+    {
+      "bar": 11,
+      "degree": "I"
+    },
+    {
+      "bar": 12,
+      "degree": "I"
+    },
+    {
+      "bar": 13,
+      "degree": "I"
+    },
+    {
+      "bar": 14,
+      "degree": "I"
+    },
+    {
+      "bar": 15,
+      "degree": "I"
+    }
+  ],
+  "meta": {
+    "level": "beginner",
+    "trains": "A pentatonic tune in 3/4 with a one-beat pickup over block chords (G, C, D) in the left, one chord per bar.",
+    "composer": "Traditional (tune \"New Britain\")",
+    "reviewedBy": "claude-sonnet-5",
+    "reviewedOn": "2026-09-26"
+  }
+}

@@ -287,3 +287,54 @@
 - Handoff: US2 is done and is committed as the US2 checkpoint. next = US3 (songs): T053-T057 tests (song-definition schema,
   builder, song-chords check, shelf/licence, practice), T084 (score-source test), then T058 (download the 8 approved Mutopia
   sources; stop and ask if any page no longer says "Public Domain"), T059-T063, T085, T064; tree clean at the checkpoint commit.
+
+## 2026-09-26 21:00 - claude-sonnet-5 (US3 checkpoint)
+- Done: T053-T064, T084, T085 (all of US3). **Owner decisions taken today and applied**: (1) the relative-change question of the US2 entry: "keep as built"
+  (relative Introduction/Beginner without the arrival dominant; no cap change); (2) T058 downloads: "yes"; (3) the song list: "add Ode to Joy + Amazing
+  Grace" (see below).
+- **Tests first, then code** (each seen failing for the expected reason before the implementation): `tests/tools/songs/definition.test.ts` (11) ->
+  `tools/library/songs/definition.ts` (T053/T060); `tests/tools/fidelity/song-chords.test.ts` (17: correct file, planted wrong third, two-note chord, no
+  label, tied continuation, beginner vi, two changes in a bar at beginner vs intermediate, minor-key sets, non-diatonic root, folder key) ->
+  `tools/library/fidelity/song-chords.ts` + `checkSong` wired into `records.ts` as `song-chords-v1` (T055/T062); `tests/tools/songs/build-songs.test.ts`
+  (29) -> `tools/library/build-songs.ts` + `pnpm library:songs` (T054/T061; run on the approved Ode to Joy, Greensleeves and Au clair sources);
+  `tests/ui/mx-score-source.test.ts` +2 -> `mx-score-source.ts` "Arrangement for this app (CC0)" + `provenance.note` (T084/T085); the shelf, licence
+  and practice tests of T056/T057 failed until the content existed (0 songs; missing file) and pass now.
+- **Two 007 reader gaps closed** (Mutopia 905 and 644 did not parse): `\lyricmode`/`\addlyrics`/`\lyrics` blocks are skipped by the lexer and
+  `\lyricsto` is accepted; a `\bar ":|"` at the very end of the music is read as a final bar line (LilyPond's MIDI does not repeat it; earlier in the
+  piece it is still refused, and `":|."` still is - the existing test). 5 new reader tests; fidelity-tools contract 1.10.0 -> 1.11.0.
+- **T058/T059**: 8 Mutopia sources downloaded unchanged (16 files, 1.2-5.9 KB each); each piece page re-read, all say "Copyright: Public Domain",
+  and so does each .ly header; `source.json` per source with SHA-256, `midiOrder: written`, `midiNoteTracks` from `--inspect-midi`; every notation
+  agrees with its own MIDI (0 differences, durations compared). `THIRD_PARTY_NOTICES.md` lists the sources; the README's "Rejected sources"
+  table gained the rejected candidates of R9.
+- **T063 - only 3 of 9 pass Beginner; owner asked.** Level-checked as pieces: Good King Wenceslas, O Come All Ye Faithful and The Holly and the Ivy
+  pass Beginner; Au clair de la lune only as its first 8 bars (criterion 6: bars 9-11 hold a run of six eighths) at q<=72 (criterion 18);
+  Joy to the World (16ths), Silent Night (16ths, 6/8), Emmanuel (eighth runs), Greensleeves (6/8) are Intermediate; Auld Lang Syne (Horetzky
+  guitar) cannot be built (a pickup inside a repeated section, a first ending) and would fail Beginner anyway (16ths, register). Owner chose to
+  add Ode to Joy (528) and Amazing Grace (1283), already approved sources, and to drop Auld Lang Syne (folder and notice removed, README row).
+  Result: **10 songs, 6 Beginner + 4 Intermediate, 7 keys (C, G, F, D, B flat major; E minor, A minor), 2 minor** (research R9 "as built").
+- **Music review** (`music-domain-expert` agent; its report is summarised here): every plan respected its level
+  set and one chord per bar; the harmonizations stood except four bars (O Come All Ye Faithful bar 10 IV -> I, Amazing Grace bar 14 V -> I,
+  Silent Night bar 11 split I then V, all applied) and three tempi (Au clair 72 -> 60, Good King Wenceslas 92 -> 88, Emmanuel 76 -> 72, applied; at
+  q=60 Au clair still passes Beginner). **Main finding: in 5 songs a held left-hand chord tone shared a key with the melody (or the melody sat inside the
+  chord), which one pianist cannot play** (Wenceslas 2 and 6, Amazing Grace 11 and 12, O Come All Ye Faithful 1, Joy 3/14/16/18, Emmanuel 3 and 5). Fixed in
+  the builder, not per bar: the plan's voicing stands wherever it lies below the melody sounding over the chord, otherwise another inversion or an
+  octave lower is chosen (contract song-definition 1.1.0 §2.1); checked over all ten built songs with a throwaway script: 0 same-key clashes, 0
+  crossings.
+- **Builder facts worth knowing**: `topVoice` = highest note of each chord of the named voice (my first version took the highest note of the whole
+  staff, which made an inner voice's note a melody note; caught by the Ode to Joy test and changed); a pickup and the short last bar that completes it
+  are written `implicit` (Holly and the Ivy raised `measureLengthMismatch` otherwise); the sidecar carries `subtitle` "Arrangement: the tune with
+  left-hand block chords" because the library guard (FR-007) wants "arrangement" in title or subtitle (a gap in contract 1.0.0, now 1.1.0); tempo is
+  quarter notes per minute also in 6/8.
+- Evidence: `pnpm test` -> `Test Files 221 passed (221)  Tests 3816 passed (3816)`; `pnpm typecheck` clean; `pnpm lint` -> 0 errors (warnings unchanged
+  baseline); `pnpm library:index` 181 items, 49 sections; `pnpm library:fidelity` -> `182 records, 0 failed` (10 new song records: melody 0
+  differences against the source with spelling and rhythm compared, `song-chords-v1` 0 differences); the identity golden 171 -> 181 items compared
+  before trusting it: no existing entry changed. Screenshots looked at: `learning/keys/c-major/song-au-clair-de-la-lune` (2/4, q=60, C major, the first six bars on one system: C G C C C G chord names, block chords with 1-3-5 fingering, a quarter-rest after
+  the bar-4 melody note because the source's melody voice holds a quarter there) and `learning/keys/a-minor/song-greensleeves` (6/8, A minor, eighth
+  pickup with a left-hand rest, Am G Am E, no notices). **E2E**: the full `pnpm test:e2e` gave `3 failed, 480 skipped, 809 passed (8.3m)`; the 3 failures (Chromium, Firefox, WebKit) were one expectation of `tests/e2e/library.spec.ts` ("pick Fur Elise"): the panel's source line for the Für Elise theme now reads "Arrangement for this app (CC0)" plus its note instead of "Written for Musicanyya", because that item is an authored arrangement with `provenance.basedOn` and library-port 1.2 §4a (T085) shows exactly that for such items (Amazing Grace and the other arrangements change the same way). The expectation was updated to the specified text (the behaviour changed on purpose; nothing loosened) and that test then passed on all three browsers (`3 passed, 1 skipped`, run on its own); the full run was not repeated.
+- Decisions: `topVoice` semantics; the melody-aware voicing; implicit short bars; the subtitle; Ode to Joy and Amazing Grace added, Auld Lang Syne
+  dropped (owner). Not done, on purpose: no melody-only octave option for high sources (Auld Lang Syne's register was one reason it was dropped).
+- Problems / open questions: none needing the owner. Observed, not fixed: the Au clair excerpt ends bar 4 and bar 8 on a melody quarter followed by a
+  rest because the guitar source's melody voice is written that way (faithful to the source; the audit checks it).
+- Handoff: US3 done. next = US4 (T065-T073): tests T065-T069 first (`adoptScoreSettings`, session `openItem`, section-id migration through `formerIds`,
+  recents, successor coverage), then T070-T073; then Polish T074-T083, T088 (T081 music review of the step definitions and key changes; T080
+  constitution review; T083 needs the owner). Tree clean at the checkpoint commit.

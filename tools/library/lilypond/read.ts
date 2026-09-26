@@ -18,7 +18,7 @@ import {
 import { add, cmp, mul, type QuarterTime, q, show, sub } from '../fidelity/time';
 import { LyUnsupportedError } from './errors';
 import type { LyDuration, LyMark, LyMusic, LyPitch, LyReadOptions, LyScore, Pos } from './parse';
-import { parseLilyPond, START_REPEAT_BARS } from './parse';
+import { FINAL_REPEAT_BAR, parseLilyPond, START_REPEAT_BARS } from './parse';
 
 export type { LyMark, LyReadOptions, LyScore } from './parse';
 
@@ -89,6 +89,9 @@ function analyse(score: LyScore): { reading: ReferenceScore; layout: Layout; sta
   resolveOctaves(music);
   const staves = numberStaves(music);
   const layout = layOut(music, staves);
+  for (const b of layout.finalRepeatBars)
+    if (cmp(b.t, layout.end) !== 0)
+      fail(b.pos, `\\bar "${FINAL_REPEAT_BAR}" before the end of the music (repeats are written with \\repeat)`);
   const bars = buildBars(layout);
   markRepeats(bars, layout.repeats, layout.repeatBars);
 
@@ -298,6 +301,8 @@ interface Layout {
   barLines: { t: QuarterTime; style: string }[];
   /** Printed start-repeat bar lines (\bar ".|:"); each must be where a \repeat volta starts. */
   repeatBars: { t: QuarterTime; pos: Pos }[];
+  /** \bar ":|" events: read as a final bar line, so each must be at the end of the piece. */
+  finalRepeatBars: { t: QuarterTime; pos: Pos }[];
   partial?: QuarterTime;
   repeats: Repeat[];
   end: QuarterTime;
@@ -315,6 +320,7 @@ function layOut(root: LyMusic, staves: Staves): Layout {
     resets: [],
     barLines: [],
     repeatBars: [],
+    finalRepeatBars: [],
     repeats: [],
     end: q(0),
     events: [],
@@ -523,8 +529,11 @@ function layOut(root: LyMusic, staves: Staves): Layout {
       case 'bar':
         if (grace) return;
         if (START_REPEAT_BARS.has(m.style)) out.repeatBars.push({ t: cursor, pos: m.pos });
-        else out.barLines.push({ t: cursor, style: m.style });
-        out.events.push({ kind: 'bar', t: cursor, style: m.style, pos: m.pos });
+        else if (m.style === FINAL_REPEAT_BAR) {
+          out.finalRepeatBars.push({ t: cursor, pos: m.pos });
+          out.barLines.push({ t: cursor, style: '|.' });
+        } else out.barLines.push({ t: cursor, style: m.style });
+        out.events.push({ kind: 'bar', t: cursor, style: m.style === FINAL_REPEAT_BAR ? '|.' : m.style, pos: m.pos });
         return;
       // Display only for the reading; the converter prints them. \ottava only moves the staff position: the entered
       // pitch is the sounding pitch (contract §3.1).

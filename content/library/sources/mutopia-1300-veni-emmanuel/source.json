@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "id": "mutopia-1300-veni-emmanuel",
+  "work": "\"Veni Emmanuel\" (hymn tune, \"O Come, O Come, Emmanuel\"), traditional, SATB; the tune is in the Soprano",
+  "edition": "www.cyberhymnal.org",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1300",
+  "identifier": "Mutopia-2008/02/19-1300",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond for the Mutopia Project (maintainer Steve Dunlop) and placed in the public domain. The piece page states \"Copyright: Public Domain\" (checked 2026-09-26); the .ly header says the same.",
+  "obtained": "2026-09-26",
+  "approvedByOwner": "2026-09-26",
+  "files": [
+    {
+      "role": "notation",
+      "path": "veniemma.ly",
+      "url": "https://www.mutopiaproject.org/ftp/Traditional/veniemma/veniemma.ly",
+      "sha256": "985895a084729980da17758720e4aa0db3a86bb7fca9dde9a1db33874572be07",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "veniemma.mid",
+      "url": "https://www.mutopiaproject.org/ftp/Traditional/veniemma/veniemma.mid",
+      "sha256": "935dfdd5d7fa90b8d78a52990dc6bbe16c818d0be20e710e58ab471a08093224",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}
