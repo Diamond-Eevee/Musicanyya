@@ -133,10 +133,21 @@ describe('toMusicXml: what the printed page shows', () => {
     expect(xml).toContain('<direction><direction-type><words/></direction-type><sound tempo="96"/><staff>1</staff>');
     const { score } = buildScore(readXml(xml).doc);
     expect(score.defaultTempoUsed).toBe(false);
-    expect(score.tempoMarks).toEqual([{ measureIndex: 0, onsetInMeasure: 0, qpmNum: 9600, qpmDen: 100 }]);
+    expect(score.tempoMarks).toEqual([
+      { measureIndex: 0, onsetInMeasure: 0, qpmNum: 9600, qpmDen: 100, beat: null, isDefault: false },
+    ]);
     // The notation's own metronome mark wins (marks.ly: 4 = 120).
     const marks = buildScore(readXml(toMusicXml(read('marks.ly'), { playbackTempo: 96 }).xml).doc).score;
-    expect(marks.tempoMarks).toEqual([{ measureIndex: 0, onsetInMeasure: 0, qpmNum: 12000, qpmDen: 100 }]);
+    expect(marks.tempoMarks).toEqual([
+      {
+        measureIndex: 0,
+        onsetInMeasure: 0,
+        qpmNum: 12000,
+        qpmDen: 100,
+        beat: { type: 'quarter', dots: 0, quartersNum: 1, quartersDen: 1 },
+        isDefault: false,
+      },
+    ]);
   });
 
   it('grace.ly: \\acciaccatura and \\slashedGrace are slashed, \\grace and \\appoggiatura are not', () => {

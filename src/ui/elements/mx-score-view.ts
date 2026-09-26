@@ -4,6 +4,7 @@ import { type PlayCursorPosition, playCursorAt } from '../../core/play/cursor.js
 import type { PlayRun } from '../../core/play/types.js';
 import type { ExpectedEvent, LoopRange, MarkState, PracticeSession } from '../../core/practice/types.js';
 import type { Score } from '../../core/score/model.js';
+import type { TempoDisplaySegment } from '../../core/tempo/tempo-display.js';
 import { cursorNotesAtTick, notesAtTick, passAtTick } from '../../core/timeline/position.js';
 import {
   FOLLOW_MARGIN,
@@ -65,6 +66,7 @@ export interface TimelineDto {
   endTick: number;
   passes: { measureIndex: number; startTick: number; endTick: number }[];
   spans: { noteId: string; startTick: number; endTick: number }[];
+  tempo: TempoDisplaySegment[]; // 1.3.0: buildTempoDisplayMap output (feature 012)
 }
 
 /** Structural, not imported from `src/app/play-session.js`: `PlaySessionController` satisfies this without a `ui`

@@ -5,6 +5,7 @@ import { planEngraving } from '../core/musicxml/engraving/plan.js';
 import { readXml } from '../core/musicxml/read.js';
 import { createRenderCopy } from '../core/musicxml/render-copy.js';
 import { compileSchedule } from '../core/schedule/compile.js';
+import { buildTimelineDto } from '../core/timeline/dto.js';
 import { buildTimeline } from '../core/timeline/timeline.js';
 import { decodeXml } from '../engine/files/decode.js';
 import { hashFile } from '../engine/files/hash.js';
@@ -133,20 +134,7 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
     }
 
     // Build the TimelineDto (compact form for the main thread per contracts/worker-messages.md)
-    const timelineDto = {
-      ppq: timeline.ppq,
-      endTick: timeline.endTick,
-      passes: timeline.passes.map((p) => ({
-        measureIndex: p.measureIndex,
-        startTick: p.startTick,
-        endTick: p.startTick + p.lengthTicks,
-      })),
-      spans: timeline.spans.map((s) => ({
-        noteId: s.noteId,
-        startTick: s.startTick,
-        endTick: s.endTick,
-      })),
-    };
+    const timelineDto = buildTimelineDto(timeline, score);
 
     const summary = {
       title: score.title,

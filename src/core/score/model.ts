@@ -138,11 +138,40 @@ export interface Fingering {
   placement: 'above' | 'below' | null;
 }
 
+/** MusicXML note-type-value accepted in <beat-unit> (feature 012, contracts/tempo-display.md). */
+export type NoteTypeValue =
+  | '1024th'
+  | '512th'
+  | '256th'
+  | '128th'
+  | '64th'
+  | '32nd'
+  | '16th'
+  | 'eighth'
+  | 'quarter'
+  | 'half'
+  | 'whole'
+  | 'breve'
+  | 'long'
+  | 'maxima';
+
+/** The note value one BPM counts, as an exact length in quarter notes (012 data-model.md section 1). */
+export interface TempoBeat {
+  type: NoteTypeValue;
+  dots: 0 | 1 | 2 | 3;
+  quartersNum: number;
+  quartersDen: number;
+}
+
 export interface TempoMark {
   measureIndex: number;
   onsetInMeasure: Ticks;
   qpmNum: number;
   qpmDen: number;
+  /** Note value of the <metronome> mark in the same direction; null when the direction has only <sound tempo>. */
+  beat: TempoBeat | null;
+  /** True only for the mark inserted when the Score has no usable tempo (012 R-5). */
+  isDefault: boolean;
 }
 
 export interface NavigationMarks {
