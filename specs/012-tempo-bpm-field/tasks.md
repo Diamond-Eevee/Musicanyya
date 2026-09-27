@@ -145,7 +145,7 @@ attempt shows "90 BPM (75% of written)".
 
 ## Phase 6: Polish & Cross-Cutting
 
-- [ ] T048 [P] Review of the fixtures (T002), the parser rules and the display semantics with `music-domain-expert`; findings in the log
+- [x] T048 [P] Review of the fixtures (T002), the parser rules and the display semantics with `music-domain-expert`; findings in the log
 - [ ] T049 [P] Phone width (SC-004): `pnpm screenshot --item learning/key-changes/a-major-to-a-minor/beginner --width 375` and with the Play setup open; number, unit, beat symbol and step buttons fully visible, play buttons on screen; an e2e assertion at 375 px in `tests/e2e/tempo-field.spec.ts` (element boxes inside the viewport, no overflow); FR-006: the computed font size of the number and of "BPM" is at least that of the Volume label, at 375 px and 1600 px
 - [ ] T050 Run the full `quickstart.md` manual verification with screenshots, naming each picture in the log
 - [ ] T051 Constitution review of the branch diff with `constitution-auditor`; findings in the log

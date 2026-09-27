@@ -298,3 +298,40 @@
   rules, phone-width screenshot + font-size check, full quickstart manual verification, constitution-auditor review,
   doc/data-model updates + final full gate). US1+US2+US3 all complete and independently tested. Branch
   `012-tempo-bpm-field`, not pushed; tree clean at the commit that follows this entry.
+
+## 2026-09-27 10:20 - claude-sonnet-5 (Polish, T048)
+
+- Done: T048, `music-domain-expert` review of the T002 fixtures, the metronome-mark parser rules
+  (`src/core/musicxml/build.ts`, `src/core/tempo/beat-unit.ts`) and the display/inheritance semantics
+  (`src/core/tempo/tempo-display.ts`, data-model.md section 3).
+- Findings, confirmed correct: all seven hand-written/pre-existing tempo fixtures are well-formed and each isolates
+  exactly what its README row claims (`tempo-beat-inherit-6-8`'s m1 mark and sound tempo were checked for numeric
+  consistency: 90 qpm / 1.5 = 60, so it is not accidentally a sound-vs-mark disagreement case too); R-3 ("sound
+  tempo wins over the metronome mark") is standard notation-software practice; dropping metric modulations,
+  `<metronome-note>` and `<beat-unit-tied>` is the right simplification for this app's repertoire; the qpm bounds
+  [10, 1000] are musically reasonable (10 is slower than any published marking, 1000 catches garbage without
+  excluding genuine extremes); `metronomeBeatAt`'s compound-meter rule (dotted quarter for 6/8, 9/8, 12/8; one note
+  of the denominator otherwise, e.g. half for cut time) is standard and unchanged from before 012.
+- Finding, a design concern (not a bug - the code correctly implements FR-003/R-4 as written): R-4's beat-inheritance
+  fallback (no printed mark -> the meter's own counting beat) is applied to two situations research.md only
+  distinguishes loosely - an established printed unit broken by a later meter change (what R-4 was written for),
+  and a piece whose *first* tempo information is a bare `<sound tempo>` with no printed `<metronome>` mark
+  anywhere yet (`tempo-display.ts` lines ~51-54/104, `lastOwnBeat` starts null). `<sound tempo>` is defined by
+  MusicXML itself as quarter notes per minute with no beat-unit of its own - there is no printed marking for a
+  meter-derived beat to be "inheriting" from in the second case. The reviewer's recommendation: for "no printed
+  mark has occurred anywhere in the piece up to this point" specifically, fall back to quarter notes (not the
+  meter's counting beat), reserving the meter-derived fallback for an established unit broken by a meter change.
+  This would change the *display only* (not `tempoBpm`/grading) for the three real library items research.md's R-10
+  already named (`chopin-prelude-op28-no4`, `clementi-sonatina-op36-no1-mvt1`, `fur-elise-complete`): e.g.
+  `fur-elise-complete` would show "72 BPM" (its library figure, no beat symbol) instead of "144 BPM" with an
+  eighth-note glyph.
+- Decisions: none - this changes user-visible spec behaviour (FR-003, R-4), so it is an owner decision
+  (AGENTS.md section 7), not mine to make; asked the user, not applied in this session pending their answer.
+- Problems / open questions: **needs owner**: apply the reviewer's quarter-note-fallback recommendation (spec/R-4/
+  FR-003 change + a small `tempo-display.ts` fix + updated expectations in `tempo-display.test.ts`/`tempo-beat.test.ts`
+  for the three named items), or keep the current meter-derived fallback as already documented in R-10 (no code
+  change, close the flag as accepted). Unrelated: the `play-grade-marks.spec.ts` pre-existing failure (flagged
+  last entry as background task `task_c4d89f4f`) and the 1280px bar-fit flag (T049) are unaffected by this.
+- Handoff: paused after T048 pending the owner's answer above; T049-T052 (phone width, quickstart manual
+  verification, constitution-auditor review, doc/data-model updates, final gate) still open. Branch
+  `012-tempo-bpm-field`, not pushed; tree clean at the commit that follows this entry.
