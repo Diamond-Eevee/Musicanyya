@@ -15,7 +15,7 @@ Focused runs while implementing:
 pnpm test -- tests/core/progress         # reducer, compare, mastery thresholds, scope, status, trend, suggest, SC-004 property test
 pnpm test -- tests/core/browser          # build items, query (search/filter/sort), folder progress, SC-003 timing (500 items / 10,000 results)
 pnpm test -- tests/engine/storage        # ProgressStore contract suite on memory + IndexedDB, migration from DB v2, performance-log `complete`
-pnpm test -- tests/app/browser-session   # event recording points, new best, undo windows, fallback store
+pnpm test -- tests/engine/browser-session # event recording points, new best, undo windows, fallback store
 pnpm test -- tests/ui/score-browser      # dialog, rail/list/detail rendering, keyboard, announcements (happy-dom)
 pnpm test:e2e -- score-browser           # US1-US5 flows, SC-001/SC-002/SC-003 timings, narrow widths, reload (SC-005)
 ```

@@ -22,3 +22,14 @@
 - needs owner: OD-6 delete retired `mx-library`, `mx-recent-list`, `IndexedDbScoreStore`/`ScoreStore` and their tests (recommended: yes)
 - Handoff: next = `/speckit.tasks` (the plan assumes the recommendations; OD-2 changes spec FR-024 once approved).
   Nothing is implemented yet.
+
+## 2026-09-27 - claude-opus-5-5 (tasks)
+- Done: `/speckit.tasks`. `tasks.md` has 93 tasks: Setup 8, Foundational 4, US1 22, US2 24, US3 12, US4 6, US5 9,
+  Polish 8. 57 of them are marked [P]. Tests come first in every story, and each story ends with a checkpoint that
+  runs its Independent Test.
+- Decisions: there is no RT review task, because no worklet, scheduler, MIDI-timing or plugin path is touched; the
+  tasks.md header says to add one if that changes. App-controller tests go in `tests/engine/` (`tests/app/` is not a
+  Vitest project), so the plan and quickstart paths are corrected.
+- Problems / open questions: T001 is the owner decision gate for OD-1 to OD-6, still open. Tasks marked (OD-n) assume
+  the recommendation.
+- Handoff: next = `/speckit.analyze`, then `/speckit.implement` from T001 (ask OD-1 to OD-6 first).

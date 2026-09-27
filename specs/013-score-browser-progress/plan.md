@@ -49,7 +49,7 @@ read once by the migration, `performances` unchanged plus an optional `complete`
 **Testing**: Vitest. Core in Node: reducer, comparisons at integer boundaries, scope, status, trend, suggestions, query
 and folder summaries, and the SC-004 property test over random histories with trimming and removals. Engine: the
 `ProgressStore` contract suite on both adapters (fake-indexeddb), migration from a version-2 database, fault
-injection. App: `BrowserSessionController` with fakes. UI in happy-dom: dialog, rail/list/detail, keyboard,
+injection. App: `BrowserSessionController` with fakes (`tests/engine/browser-session.test.ts`). UI in happy-dom: dialog, rail/list/detail, keyboard,
 announcements. Playwright e2e: US1-US5 flows, reload (SC-005), narrow widths, timings (SC-001 to SC-003), keyboard-only
 flow, and axe (SC-007, OD-5).
 **Shells / Delivery Targets**: browser and Electron (same build; IndexedDB and `<dialog>` behave identically in
@@ -176,7 +176,7 @@ tools/dev/screenshot.ts            # --browser, --seed-progress; closes the star
 tests/
 |-- core/progress/*.test.ts, core/browser/*.test.ts
 |-- engine/storage/progress-store.contract.ts + memory-/indexeddb-progress-store.test.ts + progress-migration.test.ts
-|-- app/browser-session.test.ts
+|-- engine/browser-session.test.ts   # app controllers are tested in the Node engine project, like session-library.test.ts
 |-- ui/score-browser/*.test.ts
 |-- fixtures/progress/*.json       # seeds for e2e/screenshots (mixed statuses, c-major-intro-mastered, 200 files, 500 items)
 `-- e2e/score-browser.spec.ts (+ helpers/browser.ts; existing specs switch to helpers.openScoreFile)
