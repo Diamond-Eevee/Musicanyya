@@ -229,3 +229,48 @@
   the folder-picker/breadcrumb/back-button behaviour this CSS anticipates), T018 (run-guard/open-rules test),
   T032-T034 (old e2e/tooling migration, screenshot flag, manual check), and T020 (e2e, once the wiring exists to
   drive it against). Tree is clean after this commit.
+
+## 2026-09-27 18:20 - claude-sonnet-5 (implement: US1 run guards + BrowserSessionController - T018, T019, T030)
+- Done: T018 extended `tests/ui/run-guard.test.ts` (a new describe block: a Play run reaching count-in, and a
+  Practice session starting to wait, both close an open browser; Listen playing or pausing does not) and added
+  `tests/ui/score-browser/open-rules.test.ts` (`BrowserSessionController.open()` refuses during a Play run
+  count-in/running or a Practice session waiting/blocked/interrupted, opens during finished/stopped/aborted or
+  idle/finished, pauses a playing Listen before opening and leaves an already-paused Listen's position untouched).
+  T019 added `tests/engine/browser-session.test.ts` (fakes: `FakeLibraryCatalog`, a `loadBytes` spy): `openItem`
+  for a library ref goes through the same load path and closes the browser on success; a failed item load keeps
+  the browser `ready` with the catalog's notice as `browserState.message`; an index failure gives `indexError` and
+  `retryLibrary` reloads it. Confirmed every new test failed first ("Cannot find module .../browser-session.js"),
+  then implemented against it.
+  T030 `src/app/browser-session.ts` `BrowserSessionController`: builds and owns its own `LibrarySessionController`
+  (retiring the old *Scores* panel's separate instance, R-20) so `openItem` for a library ref is the identical
+  path a dragged-in file takes (FR-005); its `onNotice` callback redirects a load failure into
+  `browserState.openFailed({code})` instead of the global notice tray while the browser is the one asking
+  (`phase === 'opening'`), so the dialog "never fails silently" (contracts §3) without duplicating
+  `library-session.ts`'s own fetch logic. `open()` refuses while `isPlayOrPracticeActive()` (new in `runActive.ts`
+  - narrower than `isRunActive()`: only a Play run count-in/running or a Practice session waiting/blocked/
+  interrupted, not a playing or paused Listen, matching R-2's own split) and pauses a playing Listen first;
+  `guardPanelsDuringRuns` (`runGuard.ts`) now also closes the browser on the edge into
+  `isPlayOrPracticeActive()`, so a run that starts *while the browser is open* closes it too (`open()`'s own guard
+  only stops it from ever opening over an *already* active run/session).
+- Decisions: (1) T019's own "the view state is written to `musicanyya.browser.v1` ... and read back" assertion
+  cannot run where `tasks.md` put it - `tests/engine/**` runs under Node (`vitest.config.ts`), which has no
+  `localStorage` (confirmed: `localStorage.getItem` throws `TypeError: Cannot read properties of undefined`).
+  Moved that one assertion to a new describe block in `tests/ui/score-browser/open-rules.test.ts` (happy-dom, a
+  real `localStorage`); `BrowserSessionController`'s behaviour is identical either way, only the test's
+  environment needed to change. Per AGENTS.md section 3 ("a later step shows an earlier document is wrong, fix
+  that document first, and say so in the log"), tasks.md's T019 description is corrected by this note rather than
+  silently working around it. (2) `BrowserSessionController.openItem` takes `index: LibraryIndex | null` as a
+  parameter rather than reading `browserState.get().data.index` itself, so the pure "which index was this called
+  with" question stays visible at the call site and in the unit test, matching how `Session.openLibraryItem`
+  already threads its own `index` through explicitly.
+- Checks: `pnpm typecheck` green; `pnpm lint` clean on every file touched (one import-order and one formatting nit
+  fixed by `biome check --write`; the pre-existing `src/core/play/calibration.ts` finding is unrelated). `pnpm test`
+  full suite: 4464/4465 passed, +13 new; the one failure is the same pre-existing `tests/library/regeneration.test.ts`
+  timeout flakiness under full parallel load noted in the previous log entry (passes in isolation, touches no file
+  this branch has edited).
+- Handoff: next = T031 (wiring `session.ts`: mount `mx-score-browser`, `mx-open-button` opens it, the Score menu's
+  *Open...* entry, the folder-picker/breadcrumb/back-button behaviour `browser.css` (T029) already anticipates,
+  starting the app with the browser open when no Score is loaded), then T032-T034 (old e2e/tooling migration, the
+  screenshot `--browser` flag, the manual check) and T020 (e2e, once the wiring exists to drive it against). T031
+  is the last piece before the US1 Independent Test and Checkpoint can be verified end to end. Tree is clean after
+  this commit.
