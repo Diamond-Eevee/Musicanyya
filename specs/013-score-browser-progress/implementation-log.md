@@ -33,3 +33,15 @@
 - Problems / open questions: T001 is the owner decision gate for OD-1 to OD-6, still open. Tasks marked (OD-n) assume
   the recommendation.
 - Handoff: next = `/speckit.analyze`, then `/speckit.implement` from T001 (ask OD-1 to OD-6 first).
+
+## 2026-09-27 - claude-opus-5-5 (analyze)
+- Analyze: 18 findings (CRITICAL 0, HIGH 3, MEDIUM 8, LOW 7); tasks.md as of be47c6d; coverage 31/31 FR, 8/8 SC.
+- Top recommendations: (A1) US4 "opens on Continue" conflicts with FR-006/US1 #5 "restore the last view". Keep
+  FR-006; *Continue* is the first-use default and sits at the top of the rail. (A2) T031 unmounts the Recent list in
+  US1, but *My files* only arrives in US3, so own files cannot be reopened in between and the old recent e2e tests fail
+  at the US1 checkpoint. Keep it mounted until T068. (A3) T048 has an either-or assertion; make it deterministic
+  (k1/k2 correct notes of N). (A4) The rail's default expansion is unspecified, and SC-001's 3 actions depends on it.
+  (A6) T052 stubs the file half of the port; add that half in US3 instead. (A7) the `e2e-progress-seed` seam is hidden
+  inside the manual-check task T058, but earlier tasks need it.
+- Handoff: next = apply the recommendations (the owner said "respond with recommended"), then `/speckit.implement`
+  from T002.
