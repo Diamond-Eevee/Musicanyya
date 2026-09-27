@@ -170,7 +170,7 @@ export const en = {
     lastPlayed: 'Last played',
     lastPractised: 'Last practised',
     history: 'History',
-    earlierVersion: 'earlier version',
+    earlierVersion: 'Earlier version of this file',
     folderProgress: '{played} of {total} played, {mastered} mastered',
     resetProgress: 'Reset progress',
     resetConfirm: 'This removes every result and stored attempt for this item. Reset?',
@@ -179,6 +179,12 @@ export const en = {
     resetCancelButton: 'Cancel',
     resetPending: 'Progress reset.',
     undo: 'Undo',
+    /** US3 - *My files*: the *Open file...* button/input, drop handling and the remove flow (R-11, R-12, OD-3). */
+    fileNotStoredRow: 'file not stored - open it again from disk to play',
+    removeFile: 'Remove from My files',
+    removeKeepProgress: 'Remove file, keep progress',
+    removeAndProgress: 'Remove file and progress',
+    removePending: 'File removed.',
   },
   /** The practice score library shelf inside the "scores" panel (contracts/library-port.md). */
   library: {

@@ -48,6 +48,9 @@ export class MxBrowserDetail extends HTMLElement {
   /** OD-3/T057: which item currently shows the inline "Reset progress?" confirmation - transient UI state, reset
    *  whenever the selection changes (never persisted, never in `browserState`). */
   private confirming: ItemRef | null = null;
+  /** US3 #4/T062: which *My files* entry currently shows the inline remove choice - the same kind of transient
+   *  state as `confirming`, kept separate so the two confirmations never show for the same ref at once. */
+  private confirmingRemove: ItemRef | null = null;
 
   connectedCallback() {
     this.setAttribute('role', 'region');
@@ -68,9 +71,11 @@ export class MxBrowserDetail extends HTMLElement {
       return;
     }
     if (this.confirming && !refEquals(this.confirming, ref)) this.confirming = null;
+    if (this.confirmingRemove && !refEquals(this.confirmingRemove, ref)) this.confirmingRemove = null;
     const items = buildBrowserItems(data.index, data.files, data.records, DEFAULT_MASTERY_THRESHOLDS, collator.compare);
     const row = items.find((i) => refEquals(i.ref, ref)) ?? null;
     const pendingHere = pending?.kind === 'reset' && refEquals(pending.ref, ref);
+    const pendingRemoveHere = ref.kind === 'file' && pending?.kind === 'removeFile' && pending.fileKey === ref.fileKey;
     if (ref.kind === 'library') {
       const item = data.index?.items.find((i) => i.id === ref.id) ?? null;
       const shared = (item?.meta.supersedes?.length ?? 0) > 0;
@@ -78,12 +83,13 @@ export class MxBrowserDetail extends HTMLElement {
     } else {
       const entry = data.files.find((f) => f.fileKey === ref.fileKey) ?? null;
       const shared = (entry?.earlierHashes.length ?? 0) > 0;
-      this.innerHTML = entry && row ? this.fileHtml(entry, row, ref, shared, pendingHere) : '';
+      this.innerHTML = entry && row ? this.fileHtml(entry, row, ref, shared, pendingHere, pendingRemoveHere) : '';
     }
     this.querySelector('.browser-detail-open')?.addEventListener('click', () => {
       this.dispatchEvent(new CustomEvent('browseropenitem', { detail: { ref }, bubbles: true }));
     });
     this.wireReset(ref);
+    if (ref.kind === 'file') this.wireRemove(ref);
   }
 
   private wireReset(ref: ItemRef): void {
@@ -102,6 +108,49 @@ export class MxBrowserDetail extends HTMLElement {
     this.querySelector('.browser-reset-undo')?.addEventListener('click', () => {
       this.dispatchEvent(new CustomEvent('browserundoreset', { bubbles: true }));
     });
+  }
+
+  /** US3 #4/OD-3: "Remove from My files" -> two inline choices, never a blocking dialog (R-12). */
+  private wireRemove(ref: Extract<ItemRef, { kind: 'file' }>): void {
+    this.querySelector('.browser-remove-start')?.addEventListener('click', () => {
+      this.confirmingRemove = ref;
+      this.confirming = null;
+      this.render();
+    });
+    this.querySelector('.browser-remove-cancel')?.addEventListener('click', () => {
+      this.confirmingRemove = null;
+      this.render();
+    });
+    this.querySelector('.browser-remove-keep')?.addEventListener('click', () => {
+      this.confirmingRemove = null;
+      this.dispatchEvent(
+        new CustomEvent('browserremovefile', { detail: { fileKey: ref.fileKey, keepProgress: true }, bubbles: true }),
+      );
+    });
+    this.querySelector('.browser-remove-progress')?.addEventListener('click', () => {
+      this.confirmingRemove = null;
+      this.dispatchEvent(
+        new CustomEvent('browserremovefile', { detail: { fileKey: ref.fileKey, keepProgress: false }, bubbles: true }),
+      );
+    });
+    this.querySelector('.browser-remove-undo')?.addEventListener('click', () => {
+      this.dispatchEvent(new CustomEvent('browserundoremovefile', { bubbles: true }));
+    });
+  }
+
+  /** US3 #4: "Remove from My files", its inline two-choice confirmation, or the undo line for a removal already
+   *  pending - available whether or not the entry has any progress (unlike reset, which needs some to reset). */
+  private removeControlsHtml(ref: Extract<ItemRef, { kind: 'file' }>, pendingRemoveHere: boolean): string {
+    const b = en.browser;
+    if (pendingRemoveHere) {
+      return `<p class="browser-remove-pending">${escapeHtml(b.removePending)} <button type="button" class="browser-remove-undo">${escapeHtml(b.undo)}</button></p>`;
+    }
+    if (this.confirmingRemove && refEquals(this.confirmingRemove, ref)) {
+      return `<button type="button" class="browser-remove-keep">${escapeHtml(b.removeKeepProgress)}</button>
+        <button type="button" class="browser-remove-progress">${escapeHtml(b.removeAndProgress)}</button>
+        <button type="button" class="browser-remove-cancel">${escapeHtml(b.resetCancelButton)}</button>`;
+    }
+    return `<button type="button" class="browser-remove-start">${escapeHtml(b.removeFile)}</button>`;
   }
 
   /** OD-3: the "Reset progress" button, its inline confirmation, or the undo line for a reset already pending. */
@@ -186,16 +235,22 @@ export class MxBrowserDetail extends HTMLElement {
   private fileHtml(
     entry: UserFileEntry,
     row: BrowserItem,
-    ref: ItemRef,
+    ref: Extract<ItemRef, { kind: 'file' }>,
     shared: boolean,
     pendingHere: boolean,
+    pendingRemoveHere: boolean,
   ): string {
     const title = escapeHtml(entry.title ?? entry.fileName);
+    const stored = entry.stored
+      ? ''
+      : `<p class="browser-detail-not-stored">${escapeHtml(en.browser.fileNotStoredRow)}</p>`;
     return `
       <h3 class="browser-detail-title">${title}</h3>
       <p class="browser-detail-filename">${escapeHtml(entry.fileName)}</p>
+      ${stored}
       ${this.progressHtml(row, ref, shared, pendingHere)}
-      <button type="button" class="browser-detail-open">${escapeHtml(en.browser.open)}</button>`;
+      <button type="button" class="browser-detail-open">${escapeHtml(en.browser.open)}</button>
+      ${this.removeControlsHtml(ref, pendingRemoveHere)}`;
   }
 }
 customElements.define('mx-browser-detail', MxBrowserDetail);

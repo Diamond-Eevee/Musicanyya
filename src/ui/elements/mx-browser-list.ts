@@ -122,6 +122,7 @@ export class MxBrowserList extends HTMLElement {
         ${row.keys.length > 0 ? `<span class="browser-row-key">${escapeHtml(row.keys.join(', '))}</span>` : ''}
         ${length ? `<span class="browser-row-length">${escapeHtml(length)}</span>` : ''}
         ${this.resultHtml(row)}
+        ${row.stored ? '' : `<span class="browser-row-not-stored">${escapeHtml(en.browser.fileNotStoredRow)}</span>`}
       </div>`;
   }
 

@@ -289,6 +289,20 @@ mx-browser-detail {
   display: none;
 }
 
+/* US3: a drop onto the dialog (the *Open file...* target, contracts/score-browser.md §3) - the same highlight
+   mx-drop-zone's own .drag-active gives the empty-state invitation. */
+dialog.browser.browser-drag-active {
+  outline: 3px dashed var(--color-blue);
+  outline-offset: -6px;
+}
+
+.browser-row-not-stored,
+.browser-detail-not-stored {
+  font-size: 0.85em;
+  opacity: 0.75;
+  font-style: italic;
+}
+
 /* 768-1023px: the rail becomes a folder-picker button with a breadcrumb (contracts/score-browser.md section 1);
    the grid keeps only the list and detail columns. */
 @media (max-width: 1023px) {
