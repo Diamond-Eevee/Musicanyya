@@ -77,6 +77,15 @@ function storedGradeInput(strictness: StrictnessLevelName, log: PerformanceLog):
   };
 }
 
+/** feature 012, US3, SC-005: a fractional `tempoPercent` (a typed BPM plays exactly, no longer a multiple of 5)
+ *  regrades exactly like any other stored settings value - grading never treats it specially. */
+function storedGradeInputAtFractionalTempo(tempoPercent: number, log: PerformanceLog): GradeInput {
+  return {
+    ...storedGradeInput('standard', log),
+    settings: { ...storedGradeInput('standard', log).settings, tempoPercent },
+  };
+}
+
 describe('Re-grading a stored performance (FR-027, SC-011)', () => {
   it('a different strictness yields a different Grade from the byte-identical stored log', () => {
     const offsetSec = 0.1; // 100ms late
@@ -125,5 +134,22 @@ describe('Re-grading a stored performance (FR-027, SC-011)', () => {
     const first = gradePerformance(storedGradeInput('standard', log));
     const second = gradePerformance(storedGradeInput('standard', log));
     expect(second).toEqual(first);
+  });
+
+  it('a run stored at a fractional tempoPercent (100 x 91 / 120) regrades to a deep-equal Grade (SC-005)', () => {
+    const log: PerformanceLog = {
+      version: 1,
+      messages: [
+        { kind: 'noteOn', key: 60, velocity: 80, down: false, audioTimeSec: 0, timeStampMs: 0, deviceId: 'd' },
+        { kind: 'noteOff', key: 60, velocity: 0, down: false, audioTimeSec: 0.2, timeStampMs: 0, deviceId: 'd' },
+      ],
+      droppedMessages: 0,
+    };
+    const tempoPercent = (100 * 91) / 120; // 75.8333...
+
+    const first = gradePerformance(storedGradeInputAtFractionalTempo(tempoPercent, log));
+    const second = gradePerformance(storedGradeInputAtFractionalTempo(tempoPercent, log));
+    expect(second).toEqual(first);
+    expect(first.settings.tempoPercent).toBe(tempoPercent); // kept exactly, not rounded (R-1)
   });
 });
