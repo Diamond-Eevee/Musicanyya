@@ -45,3 +45,19 @@
   inside the manual-check task T058, but earlier tasks need it.
 - Handoff: next = apply the recommendations (the owner said "respond with recommended"), then `/speckit.implement`
   from T002.
+
+## 2026-09-27 - claude-opus-5-5 (analyze remediation)
+- Done: T001. The owner's "respond with recommended" approves OD-1 to OD-6 and every analyze recommendation. The
+  answers are in the spec Clarifications, and FR-010, FR-015, FR-018, FR-022 and FR-024, the Assumptions and the Key
+  Entities are reworded; the plan table is marked answered.
+- Analyze fixes: A1 US4 wording; the browser restores the last view, and *Continue* is the first-use default at the
+  top of the rail. A2 T031 keeps the Recent list until T068. A3 T048 deterministic (k1/k2 of N on
+  `learning/keys/c-major/introduction`). A4 rail fully expanded by default (score-browser contract section 1, T017,
+  T020). A5 SC-001 two-action path in T073. A6 the port's file half moves to T066, so there are no stubs. A7 the
+  `e2e-progress-seed` seam is its own task, T094. A8 skipped-record notice in T046. A9 new T095 (app on the memory
+  store, SC-006). A10 500 items = 181 library + 319 files in T086. A12 `BROWSER_ANNOUNCE_DEBOUNCE_MS` named (T003,
+  data model, contract). A13 file name searchable (T059). A14 scope fixtures named (T036). A16 the earlier-version
+  flag is derived, not stored (data model). A17 no backdrop area below 768 px (contract). A11 is resolved by T001.
+  A15 (FR-010/FR-023 overlap) and A18 (003 FR-008 wording) are left as notes.
+- Handoff: next = `/speckit.implement` from T002 (Setup), then Foundational T009-T012. The tree is clean after this
+  commit.

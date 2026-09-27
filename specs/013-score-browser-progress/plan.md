@@ -84,7 +84,7 @@ violations. The one addition (a test-only dev dependency) is recorded in Complex
 | VII | Pedagogy as Data | Advice as schema-validated JSON anchored to Note IDs/measures? Invalid entries skipped, not fatal? | [x] No Advice change. *Suggested next* derives from existing library content data (`step`, `stepOrder`, section order), not from code tables (R-10). |
 | VIII | Simplicity, Web-First Delivery | P1 is a usable MVP? Web APIs before libraries? New runtime deps justified below? | [x] P1 (US1 + US2) alone replaces the cramped panel and shows progress. Web APIs only (IndexedDB, `<dialog>`, Custom Elements, `Intl`). No runtime dependency. The memory adapter is needed by SC-006 and doubles as the storage-unavailable fallback, so it is not speculative. Retired code is removed rather than kept (OD-6). |
 
-## Owner decisions (asked once; the plan assumes the recommendation)
+## Owner decisions (answered 2026-09-27: "respond with recommended" - every recommendation approved, spec Clarifications)
 
 | Id | Decision | Recommendation | If declined |
 |---|---|---|---|

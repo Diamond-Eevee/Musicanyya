@@ -19,6 +19,19 @@ Please improve my design, and do nice UX."
 - Q: What makes one result better? -> A: Notes correct first, notes on time as tie-break (FR-023).
 - Q: Do slowed-tempo runs count? -> A: Yes for *Played* and best (tempo shown); *Mastered* needs 100 % tempo or
   faster (FR-024).
+- Owner decisions of the plan (answered "respond with recommended", 2026-09-27):
+  - OD-1: best and *Mastered* count only runs over the whole Score with every staff of the part that has notes;
+    bar-range and one-hand runs count for *Played* and the attempt count and are shown, labelled (FR-010, FR-024).
+  - OD-2: *Mastered* also needs extra notes at most a named, configurable share of the notes total, default 10 %
+    (FR-024).
+  - OD-3: resetting an item's progress, and removing a file together with its progress, also deletes its stored
+    attempts (FR-018, FR-022).
+  - OD-4: deleting one stored attempt removes it from progress too (FR-015).
+  - OD-5: the automated accessibility check (SC-007) may use the test-only tool `@axe-core/playwright`.
+  - OD-6: the side panel's library list and *Recent* list, and their storage code, are removed once the browser
+    covers them.
+- Q: Which view does the browser open on - *Continue* (US4) or the last view (FR-006)? -> A: The last view (FR-006);
+  *Continue* is the view on first use and always the first entry of the rail (analyze A1).
 
 ## Context and design direction
 
@@ -147,22 +160,22 @@ without choosing it from disk.
 
 ### User Story 4 - Continue where I left off (Priority: P2)
 
-The browser opens on a *Continue* view: the last few items the musician opened (with progress), and a *Suggested
-next* card - the next step in the folder they were working in (e.g. after mastering *C major - Beginner*, suggest
+The first entry of the browser's rail is a *Continue* view (and the view shown the first time the browser opens):
+the last few items the musician opened (with progress), and a *Suggested next* card - the next step in the folder they were working in (e.g. after mastering *C major - Beginner*, suggest
 *C major - Intermediate*; after the last step of a key, the next key in the library's order).
 
 **Why this priority**: It turns the browser from a catalogue into a practice companion, but depends on US1 and US2.
 
-**Independent Test**: Master the *Introduction* step of *C major*, open the browser - *Continue* shows that item
+**Independent Test**: Master the *Introduction* step of *C major*, open the browser on *Continue* - it shows that item
 first among recent items and suggests the *Beginner* step of *C major*; opening the suggestion needs one click.
 
 **Acceptance Scenarios**:
 
-1. **Given** the musician has opened items before, **When** the browser opens, **Then** *Continue* lists up to
+1. **Given** the musician has opened items before, **When** they view *Continue*, **Then** it lists up to
    8 recently opened items, newest first, each with status and best result.
 2. **Given** the most recent item is in a stepped folder (a key or key-change folder) and it is mastered, **Then**
    *Suggested next* is the next step in that folder; if it is not mastered, the suggestion is to continue that item.
-3. **Given** the musician has no history, **Then** *Continue* shows a short welcome with a suggested first item
+3. **Given** the musician has no history, **Then** the browser opens on *Continue*, which shows a short welcome with a suggested first item
    (the first step of the first key folder) and a pointer to *Repertoire > Beginner*.
 
 ---
@@ -245,7 +258,9 @@ Score without touching the pointer.
   completeness.
 - **FR-009**: A *result* MUST consist of the two Grade figures already used by the grade panel (notes correct, notes
   on time) and never a new, unexplained number (Principle VI).
-- **FR-010**: The *best result* MUST be chosen among complete runs only, by the rule in FR-023.
+- **FR-010**: The *best result* MUST be chosen among complete runs over the whole Score with every staff of the part
+  that has notes, by the rule in FR-023; bar-range and one-hand runs are shown and counted for *Played* but never
+  best. (OD-1, 2026-09-27.)
 - **FR-011**: Status MUST be derived as: *New* (never practised or played), *Practised* (a Practice session reached
   the end of the Score or the loop, no Play attempt), *Played* (at least one Play attempt), *Mastered* (a complete Play
   run meeting the mastery thresholds of FR-024).
@@ -256,11 +271,13 @@ Score without touching the pointer.
   with date, tempo, both figures and completeness.
 - **FR-014**: Each folder MUST show a progress summary: items played, items mastered and total, counting sub-folders.
 - **FR-015**: The progress record MUST be updated when a Play run's Grade is stored and when a Practice session ends,
-  and MUST stay correct when old attempts are trimmed from the attempt history (US2 #5).
+  and MUST stay correct when old attempts are trimmed from the attempt history (US2 #5). Deleting a stored attempt
+  MUST remove it from progress too (OD-4).
 - **FR-016**: After a run whose result becomes the new best, the grade panel MUST say so ("New best").
 - **FR-017**: On first use, progress MUST be built from attempts already stored by earlier versions, so no earned
   result is lost.
-- **FR-018**: The musician MUST be able to reset one item's progress (with confirmation and a short undo).
+- **FR-018**: The musician MUST be able to reset one item's progress (with confirmation and a short undo); a reset
+  also deletes the item's stored attempts (OD-3).
 
 **My files**
 
@@ -273,15 +290,16 @@ Score without touching the pointer.
   content MUST reuse the entry and keep its history, mark the results recorded before the change as "earlier
   version", and count only results from the current content toward best result and *Mastered*. Identical content
   under another name is the same Score (see Edge Cases). (Clarified 2026-09-27.)
-- **FR-022**: The musician MUST be able to remove a *My files* entry, choosing "keep progress" or "remove progress too",
-  with a short undo.
+- **FR-022**: The musician MUST be able to remove a *My files* entry, choosing "keep progress" or "remove progress too"
+  (which also deletes its stored attempts, OD-3), with a short undo.
 
 **Grading rules for progress**
 
 - **FR-023**: "Best result" MUST be the run with the highest notes-correct figure, ties broken by the higher
   notes-on-time figure, then by the later run; both figures are always shown. (Clarified 2026-09-27.)
-- **FR-024**: *Mastered* MUST require a complete Play run with notes correct and notes on time at or above named,
-  configurable thresholds, played at 100 % of the written tempo or faster. Runs at any tempo count for *Played* and the best result, and the
+- **FR-024**: *Mastered* MUST require a complete Play run over the whole Score with every staff of the part that has
+  notes, with notes correct and notes on time at or above named, configurable thresholds and extra notes at most a
+  named, configurable share of the notes total, played at 100 % of the written tempo or faster (OD-1, OD-2). Runs at any tempo count for *Played* and the best result, and the
   tempo MUST be shown next to every result. (Clarified 2026-09-27.)
 
 **Continue, search, filters**
@@ -319,7 +337,8 @@ Score without touching the pointer.
   whether a stored copy is available, and its Score identity.
 - **Folder progress**: derived counts (played, mastered, total) for a library folder or *My files*.
 - **Browser view state**: last folder, search, filters, sort and selection - a per-device preference.
-- **Mastery thresholds**: named, configurable minimums for notes correct and notes on time.
+- **Mastery thresholds**: named, configurable minimums for notes correct and notes on time, and a maximum share of
+  extra notes.
 
 ## Success Criteria *(mandatory)*
 
@@ -352,7 +371,8 @@ Score without touching the pointer.
 - The per-Score attempt history keeps its current limit (20); the progress record is kept separately so best and
   counts survive trimming.
 - Practice mode gives no Grade (constitution vocabulary), so it only contributes the *Practised* status and date.
-- Default mastery thresholds (FR-024): notes correct >= 90 % and notes on time >= 80 %, at 100 % tempo or faster.
+- Default mastery thresholds (FR-024): notes correct >= 90 % and notes on time >= 80 %, extra notes <= 10 % of the
+  notes total, at 100 % tempo or faster.
 - Removing items and resetting progress use a small inline confirmation and a timed undo, never a blocking dialog.
 - No accounts, sign-in or server sync in this feature; FR-029/FR-030 only prepare for it.
 - English UI strings via the existing i18n catalogue.

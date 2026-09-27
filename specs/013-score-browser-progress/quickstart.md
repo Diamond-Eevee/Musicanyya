@@ -1,7 +1,7 @@
 # Quickstart: Score browser with progress
 
-Feature 013. No new runtime dependency. One new **dev** dependency, `@axe-core/playwright`, is needed for SC-007 only
-if the owner approves OD-5 (plan.md). Until then the SC-007 e2e check stays unwritten, not faked.
+Feature 013. No new runtime dependency. One new **dev** dependency, `@axe-core/playwright` 4.13.0, for SC-007
+(OD-5, approved 2026-09-27; installed by task T008).
 
 ```bash
 pnpm install

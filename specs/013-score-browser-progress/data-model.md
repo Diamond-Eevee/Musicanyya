@@ -165,7 +165,9 @@ content under another name: separate entry, same `hash`, same progress.
 It combines `records[entry.hash]` (current) and `records[h]` for each `h` of `earlierHashes`:
 - status, best, *Mastered*, trend: current record only.
 - attempts: sum over all.
-- history: every result of every record, newest first, each flagged `earlierVersion: h !== entry.hash`.
+- history: every result of every record, newest first, each flagged `earlierVersion: h !== entry.hash`. The flag is
+  derived when the entry is shown, never stored on the result: a result belongs to a content hash, and only the
+  entry knows which hash is current (spec Key Entities "Result").
 
 ## 6. Browser item (row)
 
@@ -278,4 +280,5 @@ Plus `morePractice: ItemRef | null` (R-10: after `MORE_PRACTICE_AFTER_RUNS` whol
 | `USER_FILES_BYTES_BUDGET` | 100 MiB | `src/engine/config.ts` |
 | `UNDO_WINDOW_MS` | 8000 | `src/engine/config.ts` (UI timing, not audio) |
 | `BROWSER_SEARCH_MAX_CHARS` | 200 | `src/engine/config.ts` |
+| `BROWSER_ANNOUNCE_DEBOUNCE_MS` | 300 | `src/engine/config.ts` (screen-reader count announcement) |
 | `DB_VERSION` | 2 -> 3 | `src/engine/storage/db.ts` |

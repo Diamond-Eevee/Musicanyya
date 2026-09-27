@@ -24,9 +24,13 @@ The UI renders what the core computes (Principle V): rows, folder summaries, sta
     <p class="browser-message" role="alert">        load failure of a chosen or dropped file (US3 #5)
 ```
 
+Rail default state: every folder is expanded, so every leaf folder (each key, each key change, each Repertoire level)
+is visible without extra clicks (SC-001: Open, folder, item). Collapsing is allowed and kept for the session only.
+
 Layout: CSS grid `rail 16rem | list 1fr | detail 22rem` at >= 1024 px. From 768 to 1023 px, the rail becomes a folder
 picker button with a breadcrumb in the toolbar. Below 768 px, the detail pane becomes a panel over the list with a
-Back button (US1 #6). No horizontal scrolling at 320 px and above (e2e checks `scrollWidth <= clientWidth` at 1280,
+Back button (US1 #6). Below 768 px there is no area outside the dialog, so it closes with its close button or Escape only. No horizontal
+scrolling at 320 px and above (e2e checks `scrollWidth <= clientWidth` at 1280,
 900, 600 and 360 px). The dialog margin is `--browser-margin` (24 px, 12 px below 1024 px, 0 below 768 px) (FR-002).
 
 ## 2. Row and detail content
@@ -93,7 +97,7 @@ The app shortcuts (`src/ui/shortcuts.ts`: Space, Escape, size keys) are ignored 
 
 ## 6. Announcements (`aria-live="polite"`)
 
-"{n} items" after a folder, search or filter change (debounced 300 ms); "No items match these filters" plus a *Clear
+"{n} items" after a folder, search or filter change (debounced by `BROWSER_ANNOUNCE_DEBOUNCE_MS`, 300 ms); "No items match these filters" plus a *Clear
 filters* button (US5 #2); "{title} removed from My files. Undo available for 8 seconds."; "Progress of {title}
 reset."; "New best for {title}" (after a run, when the browser next opens on that item).
 
