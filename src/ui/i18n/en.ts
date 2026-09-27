@@ -365,6 +365,10 @@ export const en = {
     progressFull: 'Storage is full - progress could not be saved.',
     progressPartiallyUnreadable: 'Some stored progress could not be read.',
     progressResetPending: 'Progress reset.',
+    fileNotStored: 'File not stored - open it again from disk to play.',
+    /** `{name}` is substituted from the notice's own `element` field (mx-notice-tray's formatNotice), not
+     *  appended in parens like every other code here - US3 #4's toast needs the file's title in the sentence. */
+    fileRemovedPending: '{name} removed from My files.',
   } as Record<string, string>,
   practice: {
     panel: {

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { BrowserSessionController } from '../../src/app/browser-session.js';
+import { BrowserSessionController, type LoadBytesOutcome } from '../../src/app/browser-session.js';
 import type { LibraryIndex, LibraryItem } from '../../src/core/library/types.js';
-import type { MasteryThresholds, ProgressEvent, ProgressRecord } from '../../src/core/progress/types.js';
+import type { ItemRef, MasteryThresholds, ProgressEvent, ProgressRecord } from '../../src/core/progress/types.js';
 import type { ProgressStore, ProgressStoreResult } from '../../src/engine/ports.js';
 import { MemoryProgressStore } from '../../src/engine/storage/memory-progress-store.js';
 import { browserState } from '../../src/ui/state/browserState.js';
@@ -165,10 +165,13 @@ const SCORE_KEY = 'a'.repeat(64);
 function controllerWith(
   progressStore: ProgressStore = new MemoryProgressStore(),
   removeAttempts: (scoreKey: string) => Promise<void> = async () => {},
+  loadBytes: (fileName: string, bytes: ArrayBuffer, openedAs: ItemRef) => Promise<LoadBytesOutcome> = async () => ({
+    ok: true,
+  }),
 ): BrowserSessionController {
   const catalog = new FakeLibraryCatalog();
   catalog.setIndex(index([]));
-  return new BrowserSessionController(catalog, { loadBytes: async () => {}, removeAttempts }, undefined, progressStore);
+  return new BrowserSessionController(catalog, { loadBytes, removeAttempts }, undefined, progressStore);
 }
 
 describe('BrowserSessionController progress events (US2, contracts/progress-store.md, R-18)', () => {
@@ -435,5 +438,278 @@ describe('BrowserSessionController.seedProgressEvent (T094, contracts/score-brow
       kind: 'library',
       id: 'learning/keys/c-major/beginner',
     });
+  });
+});
+
+const FILE_BYTES = new Uint8Array([9, 9, 9]).buffer;
+
+describe('BrowserSessionController *My files* (US3, T062)', () => {
+  afterEach(() => {
+    browserState.reset();
+    libraryState.reset();
+    noticeState.clear();
+  });
+
+  it('fileLoaded upserts the entry, visible through the browser data once open', async () => {
+    const store = new MemoryProgressStore();
+    const controller = controllerWith(store);
+    controller.open();
+    await flush();
+
+    await controller.fileLoaded({
+      fileName: 'Etude.musicxml',
+      bytes: FILE_BYTES,
+      hash: 'a'.repeat(64),
+      title: 'Etude',
+      composer: 'Composer',
+    });
+    await flush();
+
+    expect(browserState.get().data.files.map((f) => f.fileKey)).toEqual(['etude.musicxml']);
+  });
+
+  it('reopening the same name and content touches the entry - no duplicate, progress kept', async () => {
+    const store = new MemoryProgressStore();
+    const controller = controllerWith(store);
+    await controller.fileLoaded({
+      fileName: 'Etude.musicxml',
+      bytes: FILE_BYTES,
+      hash: 'a'.repeat(64),
+      title: null,
+      composer: null,
+    });
+    await controller.played('a'.repeat(64), result({ runId: 'r1' }));
+
+    await controller.fileLoaded({
+      fileName: 'Etude.musicxml',
+      bytes: FILE_BYTES,
+      hash: 'a'.repeat(64),
+      title: null,
+      composer: null,
+    });
+
+    const listed = await store.listFiles();
+    expect(listed.ok && listed.value).toHaveLength(1);
+    const progress = await store.getProgress('a'.repeat(64));
+    expect(progress.ok && progress.value?.attempts).toBe(1); // kept, not reset by the second open
+  });
+
+  it('openItem for a file with a stored copy loads its bytes with no file chooser (US3 #3)', async () => {
+    const store = new MemoryProgressStore();
+    const received: { fileName: string; bytes: ArrayBuffer }[] = [];
+    const controller = controllerWith(store, undefined, async (fileName, bytes) => {
+      received.push({ fileName, bytes });
+      return { ok: true };
+    });
+    await controller.fileLoaded({
+      fileName: 'Etude.musicxml',
+      bytes: FILE_BYTES,
+      hash: 'a'.repeat(64),
+      title: null,
+      composer: null,
+    });
+    controller.open();
+    await flush();
+
+    await controller.openItem({ kind: 'file', fileKey: 'etude.musicxml' }, null);
+
+    expect(received).toHaveLength(1);
+    expect(received[0]?.fileName).toBe('Etude.musicxml');
+    expect(browserState.get().phase).toBe('closed');
+  });
+
+  it('openItem for a file without a stored copy gives the fileNotStored message, browser stays open (US3 #3)', async () => {
+    const store = new MemoryProgressStore();
+    store.setFileBytesBudgetForTest(1); // the entry exists but its copy never fit
+    const controller = controllerWith(store);
+    await controller.fileLoaded({
+      fileName: 'Etude.musicxml',
+      bytes: FILE_BYTES,
+      hash: 'a'.repeat(64),
+      title: null,
+      composer: null,
+    });
+    controller.open();
+    await flush();
+
+    await controller.openItem({ kind: 'file', fileKey: 'etude.musicxml' }, null);
+
+    expect(browserState.get().phase).toBe('ready');
+    expect(browserState.get().message).toEqual({ code: 'fileNotStored', fileName: 'Etude.musicxml' });
+  });
+
+  it('choosing the same name again reattaches the copy - one entry, now stored', async () => {
+    const store = new MemoryProgressStore();
+    store.setFileBytesBudgetForTest(1);
+    const controller = controllerWith(store);
+    await controller.fileLoaded({
+      fileName: 'Etude.musicxml',
+      bytes: FILE_BYTES,
+      hash: 'a'.repeat(64),
+      title: null,
+      composer: null,
+    });
+    expect((await store.listFiles()).ok && (await store.listFiles()).value?.[0]?.stored).toBe(false);
+
+    store.setFileBytesBudgetForTest(1_000_000);
+    await controller.fileLoaded({
+      fileName: 'Etude.musicxml',
+      bytes: FILE_BYTES,
+      hash: 'a'.repeat(64),
+      title: null,
+      composer: null,
+    });
+
+    const listed = await store.listFiles();
+    expect(listed.ok && listed.value).toHaveLength(1);
+    expect(listed.ok && listed.value?.[0]?.stored).toBe(true);
+  });
+
+  it('an invalid file reopened from storage gives a message naming the file and the load error (US3 #5)', async () => {
+    const store = new MemoryProgressStore();
+    const controller = controllerWith(store, undefined, async () => ({ ok: false, errorCode: 'malformedXml' }));
+    await controller.fileLoaded({
+      fileName: 'Broken.musicxml',
+      bytes: FILE_BYTES,
+      hash: 'a'.repeat(64),
+      title: null,
+      composer: null,
+    });
+    controller.open();
+    await flush();
+
+    await controller.openItem({ kind: 'file', fileKey: 'broken.musicxml' }, null);
+
+    expect(browserState.get().phase).toBe('ready');
+    expect(browserState.get().message).toEqual({ code: 'malformedXml', fileName: 'Broken.musicxml' });
+    // My files is unchanged - the entry from the earlier successful fileLoaded is still there.
+    expect((await store.listFiles()).ok && (await store.listFiles()).value).toHaveLength(1);
+  });
+});
+
+describe('BrowserSessionController.startRemoveFile (OD-3, R-12, T062)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    browserState.reset();
+    libraryState.reset();
+    noticeState.clear();
+  });
+
+  it('cancelRemoveFile (Undo) leaves the entry and progress untouched', async () => {
+    const store = new MemoryProgressStore();
+    const removed: string[] = [];
+    const controller = controllerWith(store, async (scoreKey) => void removed.push(scoreKey));
+    await controller.fileLoaded({
+      fileName: 'Etude.musicxml',
+      bytes: FILE_BYTES,
+      hash: 'a'.repeat(64),
+      title: null,
+      composer: null,
+    });
+    await controller.played('a'.repeat(64), result({ runId: 'r1' }));
+
+    controller.startRemoveFile('etude.musicxml', 'Etude', false, ['a'.repeat(64)]);
+    expect(browserState.get().pending).toMatchObject({ kind: 'removeFile', fileKey: 'etude.musicxml' });
+
+    controller.cancelRemoveFile();
+    expect(browserState.get().pending).toBeNull();
+    await vi.runAllTimersAsync();
+
+    expect(removed).toEqual([]);
+    expect((await store.listFiles()).ok && (await store.listFiles()).value).toHaveLength(1);
+    const progress = await store.getProgress('a'.repeat(64));
+    expect(progress.ok && progress.value?.attempts).toBe(1);
+  });
+
+  it('"keep progress" removes only the entry - progress and attempts survive', async () => {
+    const store = new MemoryProgressStore();
+    const removed: string[] = [];
+    const controller = controllerWith(store, async (scoreKey) => void removed.push(scoreKey));
+    await controller.fileLoaded({
+      fileName: 'Etude.musicxml',
+      bytes: FILE_BYTES,
+      hash: 'a'.repeat(64),
+      title: null,
+      composer: null,
+    });
+    await controller.played('a'.repeat(64), result({ runId: 'r1' }));
+
+    controller.startRemoveFile('etude.musicxml', 'Etude', true, ['a'.repeat(64)]);
+    await vi.advanceTimersByTimeAsync(8000);
+
+    expect(removed).toEqual([]); // Performances are only deleted for "remove and progress"
+    expect((await store.listFiles()).ok && (await store.listFiles()).value).toHaveLength(0);
+    const progress = await store.getProgress('a'.repeat(64));
+    expect(progress.ok && progress.value?.attempts).toBe(1);
+  });
+
+  it('"remove progress" deletes the entry, resets progress for every hash, and removes their Performances', async () => {
+    const store = new MemoryProgressStore();
+    const removed: string[] = [];
+    const controller = controllerWith(store, async (scoreKey) => void removed.push(scoreKey));
+    const olderHash = 'b'.repeat(64);
+    await controller.fileLoaded({
+      fileName: 'Etude.musicxml',
+      bytes: FILE_BYTES,
+      hash: 'a'.repeat(64),
+      title: null,
+      composer: null,
+    });
+    await controller.played('a'.repeat(64), result({ runId: 'r1' }));
+    await controller.played(olderHash, result({ runId: 'r2' }));
+
+    controller.startRemoveFile('etude.musicxml', 'Etude', false, ['a'.repeat(64), olderHash]);
+    await vi.advanceTimersByTimeAsync(8000);
+
+    expect(removed.sort()).toEqual(['a'.repeat(64), olderHash].sort());
+    expect((await store.listFiles()).ok && (await store.listFiles()).value).toHaveLength(0);
+    expect(await store.getProgress('a'.repeat(64))).toEqual({ ok: true, value: null });
+    expect(await store.getProgress(olderHash)).toEqual({ ok: true, value: null });
+  });
+
+  it('closing the browser inside the undo window shows a fileRemovedPending toast naming the file', async () => {
+    const store = new MemoryProgressStore();
+    const controller = controllerWith(store);
+    await controller.fileLoaded({
+      fileName: 'Etude.musicxml',
+      bytes: FILE_BYTES,
+      hash: 'a'.repeat(64),
+      title: null,
+      composer: null,
+    });
+    controller.open();
+    await flush();
+
+    controller.startRemoveFile('etude.musicxml', 'Etude', false, ['a'.repeat(64)]);
+    browserState.close();
+    await vi.advanceTimersByTimeAsync(1000); // well inside the 8s undo window
+
+    expect((await store.listFiles()).ok && (await store.listFiles()).value).toHaveLength(1);
+    const toast = noticeState.getNotices().find((n) => n.code === 'fileRemovedPending');
+    expect(toast).toBeDefined();
+    expect(toast?.element).toBe('Etude');
+  });
+
+  it('starting a reset while a removal is pending commits the removal immediately (R-12: only one at a time)', async () => {
+    const store = new MemoryProgressStore();
+    const removed: string[] = [];
+    const controller = controllerWith(store, async (scoreKey) => void removed.push(scoreKey));
+    await controller.fileLoaded({
+      fileName: 'Etude.musicxml',
+      bytes: FILE_BYTES,
+      hash: 'a'.repeat(64),
+      title: null,
+      composer: null,
+    });
+    await controller.played(SCORE_KEY, result({ runId: 'r-other' }));
+
+    controller.startRemoveFile('etude.musicxml', 'Etude', false, ['a'.repeat(64)]);
+    controller.startResetProgress({ kind: 'file', fileKey: 'other.musicxml' }, [SCORE_KEY]);
+
+    expect((await store.listFiles()).ok && (await store.listFiles()).value).toHaveLength(0); // removal committed at once
   });
 });

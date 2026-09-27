@@ -8,12 +8,10 @@ import type {
   LibraryCatalog,
   MidiAvailability,
   PracticeSettings,
-  ScoreStore,
   SettingsStore,
   UserSettings,
 } from '../engine/ports.js';
 import { IndexedDbPerformanceStore } from '../engine/storage/indexeddb-performance-store.js';
-import { IndexedDbScoreStore } from '../engine/storage/indexeddb-score-store.js';
 import { LocalSettingsStore } from '../engine/storage/local-settings-store.js';
 
 import '../ui/elements/mx-attempts-list.js';
@@ -28,7 +26,6 @@ import '../ui/elements/mx-help-notation.js';
 import '../ui/elements/mx-menu.js';
 import '../ui/elements/mx-open-button.js';
 import '../ui/elements/mx-play-panel.js';
-import '../ui/elements/mx-recent-list.js';
 import '../ui/elements/mx-score-browser.js';
 import '../ui/elements/mx-score-source.js';
 import '../ui/elements/mx-score-view.js';
@@ -73,6 +70,7 @@ import type {
 import { resultFromStoredPerformance } from '../core/progress/from-performance.js';
 import { resultScope, scopeFromStoredSettings } from '../core/progress/scope.js';
 import type { ItemRef, ProgressEvent, ProgressResult } from '../core/progress/types.js';
+import { fileKey } from '../core/progress/user-files.js';
 import { compilePlaySchedule } from '../core/schedule/play-schedule.js';
 import type { LoadReport } from '../core/score/load-report.js';
 import type { Score } from '../core/score/model.js';
@@ -105,7 +103,7 @@ import { tempoPositionState } from '../ui/state/tempoPositionState.js';
 import { transportState } from '../ui/state/transportState.js';
 import { type OverlayLayer, viewState } from '../ui/state/viewState.js';
 import { requestGrade } from '../workers/grade.worker.js';
-import { BrowserSessionController } from './browser-session.js';
+import { BrowserSessionController, type LoadBytesOutcome } from './browser-session.js';
 import { PlaySessionController } from './play-session.js';
 import { ReplaySessionController } from './replay-session.js';
 
@@ -128,10 +126,8 @@ interface ScoreWorkerFailed {
 }
 type ScoreWorkerResponse = ScoreWorkerLoaded | ScoreWorkerFailed;
 
-/** data-model.md §5 `fileKey` (R-11) - a direct drop/dialog/recent-list open's `opened` ref, ahead of the full
- *  *My files* entry itself (T059's canonical `fileKey()` supersedes this inline copy once it exists). */
 function fileRef(fileName: string): ItemRef {
-  return { kind: 'file', fileKey: fileName.normalize('NFC').toLowerCase() };
+  return { kind: 'file', fileKey: fileKey(fileName) };
 }
 
 function requestScoreLoad(
@@ -161,7 +157,6 @@ export class Session {
     type: 'module',
   });
   private readonly verovioClient = createVerovioClient(this.verovioWorker);
-  private readonly scoreStore: ScoreStore;
   private readonly settingsStore: SettingsStore;
   private readonly libraryCatalog: LibraryCatalog;
   private readonly browserController: BrowserSessionController;
@@ -194,7 +189,7 @@ export class Session {
   private readonly gradeWorker = new Worker(new URL('../workers/grade.worker.ts', import.meta.url), {
     type: 'module',
   });
-  // T074: kept attempts (FR-041) - shares the `musicanyya` IndexedDB database with `scoreStore` above.
+  // T074: kept attempts (FR-041) - shares the `musicanyya` IndexedDB database with the progress store.
   private readonly performanceStore = new IndexedDbPerformanceStore();
   private readonly playController = new PlaySessionController(
     this.audioEngine,
@@ -216,7 +211,6 @@ export class Session {
   private nextRegradeRequestId = -1;
 
   constructor(
-    scoreStore: ScoreStore = new IndexedDbScoreStore(),
     settingsStore: SettingsStore = new LocalSettingsStore((code) =>
       noticeState.addNotice({ code, severity: 'warning' }),
     ),
@@ -259,24 +253,28 @@ export class Session {
         const seeds = (e as CustomEvent<readonly { ref: ItemRef; event: ProgressEvent }[]>).detail;
         void (async () => {
           const indexResult = await this.libraryCatalog.index();
-          if (!indexResult.ok) return;
           for (const seed of seeds) {
             const ref = seed.ref;
-            if (ref.kind !== 'library') continue; // a file ref needs My files (T066) to resolve a hash
-            const item = indexResult.value.items.find((i) => i.id === ref.id);
-            if (item) await this.browserController.seedProgressEvent(item.hash, seed.event);
+            if (ref.kind === 'library') {
+              const item = indexResult.ok ? indexResult.value.items.find((i) => i.id === ref.id) : undefined;
+              if (item) await this.browserController.seedProgressEvent(item.hash, seed.event);
+            } else {
+              // T066: a file ref resolves through its *My files* entry, which already exists by the time a seed
+              // wants to add progress to it (the seed's own fixture opens or `putFile`s it first).
+              const hash = await this.browserController.fileHashFor(ref.fileKey);
+              if (hash) await this.browserController.seedProgressEvent(hash, seed.event);
+            }
           }
           this.browserController.refreshIfOpen();
         })();
       });
     }
-    this.scoreStore = scoreStore;
     this.settingsStore = settingsStore;
     this.libraryCatalog = libraryCatalog;
     this.browserController = new BrowserSessionController(
       this.libraryCatalog,
       {
-        loadBytes: async (fileName, bytes, openedAs) => void (await this.loadBytes(fileName, bytes, openedAs)),
+        loadBytes: (fileName, bytes, openedAs) => this.loadBytes(fileName, bytes, openedAs),
         removeAttempts: async (scoreKey) => {
           const result = await this.performanceStore.removeByScore(scoreKey);
           if (!result.ok) noticeState.addNotice({ code: 'storageUnavailable', severity: 'warning' });
@@ -414,6 +412,23 @@ export class Session {
       void this.browserController.openItem(ref, browserState.get().data.index);
     });
     scoreBrowser.addEventListener('browserretrylibrary', () => this.browserController.retryLibrary());
+    // US3: *Open file...* and a drop onto the dialog take the same path as the empty-state drop zone (FR-005) -
+    // `openFile` itself decides whether the browser's own message line or the existing load-error view gets a
+    // failure, based on whether the browser was the one open.
+    scoreBrowser.addEventListener('browseropenfile', (event) => {
+      void this.openFile((event as CustomEvent<{ file: File }>).detail.file);
+    });
+    // OD-3, US3 #4: "keep progress" removes only the entry/copy; "remove and progress" also resets every hash it
+    // shares progress with (its own current hash plus every earlier version) and deletes their Performances.
+    scoreBrowser.addEventListener('browserremovefile', (event) => {
+      const { fileKey, keepProgress } = (event as CustomEvent<{ fileKey: string; keepProgress: boolean }>).detail;
+      const entry = browserState.get().data.files.find((f) => f.fileKey === fileKey);
+      if (!entry) return;
+      this.browserController.startRemoveFile(fileKey, entry.title ?? entry.fileName, keepProgress, [
+        entry.hash,
+        ...entry.earlierHashes,
+      ]);
+    });
     // OD-3/T057: every hash the item shares progress with (a library item's `supersedes[].hash`, a *My files*
     // entry's `earlierHashes`) resets together, since the library/entry itself already treats them as one item.
     scoreBrowser.addEventListener('browserresetprogress', (event) => {
@@ -434,6 +449,7 @@ export class Session {
     // On `document`, not `scoreBrowser`: the toast (`mx-notice-tray`'s own Undo button, R-12) is not inside the
     // browser dialog, but its event still bubbles all the way up.
     document.addEventListener('browserundoreset', () => this.browserController.cancelResetProgress());
+    document.addEventListener('browserundoremovefile', () => this.browserController.cancelRemoveFile());
 
     const menuControls = document.getElementById('menu-controls');
     // 'more' is the four folded into one; the bar shows it instead of them when it runs out of width (mx-app)
@@ -443,16 +459,8 @@ export class Session {
       menuControls?.appendChild(element);
     }
 
-    const recentList = document.createElement('mx-recent-list');
-    recentList.addEventListener('reopenrecent', (event) =>
-      this.reopenRecent((event as CustomEvent<{ id: string }>).detail.id),
-    );
-    recentList.addEventListener('removerecent', (event) =>
-      this.removeRecent((event as CustomEvent<{ id: string }>).detail.id),
-    );
-
     // "About this score" (R-20): the old shelf and its lazy index fetch are gone - the browser (above) owns the
-    // index fetch now, on open.
+    // index fetch now, on open. *My files* (T068) replaces the old recent-scores list as the reopen/remove flow.
     const scoreSource = document.createElement('mx-score-source');
 
     const helpPanel = document.createElement('mx-help-notation');
@@ -517,7 +525,7 @@ export class Session {
     // Every secondary tool is a popup over the Score, opened from a menu (contracts/ui-shell.md section 3).
     const environmentPanel = document.querySelector('mx-environment-panel') as HTMLElement;
     const tools: PanelTools = {
-      scores: [scoreSource, recentList],
+      scores: [scoreSource],
       attempts: [attemptsList],
       setup: [practicePanel, playPanel],
       midi: [midiPanel],
@@ -595,8 +603,6 @@ export class Session {
         }
       }
     }, 1000);
-
-    await this.refreshRecent();
 
     // FR-001: the browser is where a Score is found now - with none loaded, it opens once at start-up. The
     // drop-zone invitation stays behind it for when the browser is closed.
@@ -1500,33 +1506,39 @@ export class Session {
     return null;
   }
 
+  /** A drop or the file chooser, from either the empty-state drop zone or the browser's own "Open file..." button
+   *  or drop target (T068). Closes the browser on success, exactly like a successful library item does
+   *  (contracts/score-browser.md §5); a failure shows a message naming the file and the load error in the
+   *  browser's own message line when it was the one open (US3 #5), otherwise the existing load-error view
+   *  already covers it. */
   async openFile(file: File): Promise<void> {
     if (file.size > MAX_FILE_BYTES) {
-      scoreState.failed(file.name, {
-        code: 'fileTooLarge',
-        message: `File exceeds the ${MAX_FILE_BYTES} byte limit.`,
-      });
+      const error: LoadError = { code: 'fileTooLarge', message: `File exceeds the ${MAX_FILE_BYTES} byte limit.` };
+      scoreState.failed(file.name, error);
+      if (browserState.get().phase === 'ready') browserState.openFailed({ code: error.code, fileName: file.name });
       return;
     }
     this.browserController.clearOpenedItem();
     const bytes = await file.arrayBuffer();
-    // contracts/score-browser.md §5: "closes on: successful open of an item or file" - a dropped/chosen file
-    // closes the browser exactly like a successful library item does, whether it was open behind the drop or (US3)
-    // opened through the dialog's own file chooser. A failed load leaves it exactly as it was.
-    if (await this.loadBytes(file.name, bytes, fileRef(file.name))) browserState.close();
+    const browserWasReady = browserState.get().phase === 'ready';
+    if (browserWasReady) browserState.startOpeningItem(fileRef(file.name));
+    const outcome = await this.loadBytes(file.name, bytes, fileRef(file.name));
+    if (outcome.ok) browserState.close();
+    else if (browserWasReady) browserState.openFailed({ code: outcome.errorCode ?? 'internal', fileName: file.name });
   }
 
-  /** Returns whether the load succeeded, so `openFile` knows when it may close the browser. `openedAs` is the ref
-   *  this load represents (R-18): a library ref from `BrowserSessionController.openItem`, or a file ref computed
-   *  from the name for a direct drop/dialog/recent-list open - the full *My files* entry itself is T066/T068. */
-  private async loadBytes(fileName: string, bytes: ArrayBuffer, openedAs: ItemRef): Promise<boolean> {
+  /** `openedAs` is the ref this load represents (R-18): a library ref from `BrowserSessionController.openItem`, or
+   *  a file ref computed from the name for a direct drop/dialog/*My files* reopen. Reports whether the Score
+   *  actually parsed, and the `LoadErrorCode` on failure (`LoadBytesOutcome`, T068) - the boolean alone the library
+   *  path has always used is not enough for a file that can genuinely fail to load. */
+  private async loadBytes(fileName: string, bytes: ArrayBuffer, openedAs: ItemRef): Promise<LoadBytesOutcome> {
     scoreState.startLoading(fileName);
     const requestId = this.nextRequestId++;
     const response = await requestScoreLoad(this.scoreWorker, fileName, bytes.slice(0), requestId);
 
     if (response.type === 'failed') {
       scoreState.failed(fileName, response.error);
-      return false;
+      return { ok: false, errorCode: response.error.code };
     }
 
     this.currentSchedule = response.schedule;
@@ -1564,13 +1576,17 @@ export class Session {
       this.scheduleDelivered = false;
     }
 
-    const putResult = await this.scoreStore.put({
-      fileName,
-      bytes,
-      title: response.summary.title,
-      composer: response.summary.composer,
-    });
-    if (!putResult.ok) noticeState.addNotice({ code: 'storageUnavailable', severity: 'warning' });
+    if (openedAs.kind === 'file') {
+      // R-11/T068: only a direct file open needs a *My files* entry - a library item's own row already comes
+      // from the index, never from this store.
+      void this.browserController.fileLoaded({
+        fileName,
+        bytes,
+        hash: response.contentHash,
+        title: response.summary.title,
+        composer: response.summary.composer,
+      });
+    }
     // R-3: identity is the content hash, independent of whether a copy of the bytes could be stored - a
     // `MemoryProgressStore` fallback (R-19) always reports "available", so this is no longer ever null once a
     // Score has loaded.
@@ -1580,34 +1596,6 @@ export class Session {
     this.setupPlay(response.fullScore);
     void this.browserController.scoreOpened(response.contentHash, openedAs);
 
-    await this.refreshRecent();
-    return true;
-  }
-
-  private async reopenRecent(id: string): Promise<void> {
-    const result = await this.scoreStore.get(id);
-    if (!result.ok) {
-      noticeState.addNotice({
-        code: result.error === 'notFound' ? 'storageEntryMissing' : 'storageUnavailable',
-        severity: 'warning',
-      });
-      return;
-    }
-    this.browserController.clearOpenedItem();
-    await this.loadBytes(result.value.summary.fileName, result.value.bytes, fileRef(result.value.summary.fileName));
-  }
-
-  private async removeRecent(id: string): Promise<void> {
-    const result = await this.scoreStore.remove(id);
-    if (!result.ok) {
-      noticeState.addNotice({ code: 'storageUnavailable', severity: 'warning' });
-      return;
-    }
-    await this.refreshRecent();
-  }
-
-  private async refreshRecent(): Promise<void> {
-    const result = await this.scoreStore.list();
-    if (result.ok) scoreState.setRecent(result.value);
+    return { ok: true };
   }
 }
