@@ -209,6 +209,9 @@ export class BrowserSessionController {
         await this.callbacks.removeAttempts(hash);
         if (hash === this.openScoreKey) this.openRecord = null;
       }
+      // `browserState.data.records` is a snapshot (like the seed seam, T094) - refresh it so the browser (if still
+      // open) shows the reset immediately, rather than only on its next open.
+      this.refreshIfOpen();
     })();
   }
 
@@ -245,7 +248,9 @@ export class BrowserSessionController {
    *  loaded, not a live view, and FR-001 may already have opened the browser (with a now-stale snapshot) before a
    *  seed ever runs. A no-op while `closed`, `loading` or `opening` (each of those already refreshes on its own). */
   refreshIfOpen(): void {
-    if (browserState.get().phase === 'ready') void this.loadIndex();
+    if (browserState.get().phase !== 'ready') return;
+    browserState.startRefresh(); // ready -> loading, so indexLoaded/indexFailed below is not silently discarded
+    void this.loadIndex();
   }
 
   private async loadIndex(): Promise<void> {

@@ -12,7 +12,7 @@ import { result } from '../fakes/progress-builders.js';
 
 /** Lets every microtask hop of `loadIndex` (catalog + progress store availability + listProgress) settle. */
 async function flush(): Promise<void> {
-  for (let i = 0; i < 5; i++) await Promise.resolve();
+  for (let i = 0; i < 20; i++) await Promise.resolve();
 }
 
 function item(overrides: Partial<LibraryItem> = {}): LibraryItem {
@@ -343,6 +343,21 @@ describe('BrowserSessionController.startResetProgress (OD-3, R-12, T057)', () =>
     expect(removed.sort()).toEqual([SCORE_KEY, olderHash].sort());
     expect(await store.getProgress(SCORE_KEY)).toEqual({ ok: true, value: null });
     expect(await store.getProgress(olderHash)).toEqual({ ok: true, value: null });
+  });
+
+  it('a commit refreshes an already-open browser, so its list stops showing the reset item as played', async () => {
+    const store = new MemoryProgressStore();
+    const controller = controllerWith(store);
+    await controller.played(SCORE_KEY, result({ runId: 'r1' }));
+    controller.open();
+    await flush();
+    expect(browserState.get().data.records.some((r) => r.scoreKey === SCORE_KEY)).toBe(true);
+
+    controller.startResetProgress({ kind: 'file', fileKey: 'etude.musicxml' }, [SCORE_KEY]);
+    await vi.advanceTimersByTimeAsync(8000);
+    await flush();
+
+    expect(browserState.get().data.records.some((r) => r.scoreKey === SCORE_KEY)).toBe(false);
   });
 
   it('a second startResetProgress call commits the first immediately (R-12: only one at a time)', async () => {

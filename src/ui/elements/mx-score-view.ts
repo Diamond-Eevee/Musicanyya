@@ -173,8 +173,9 @@ export class MxScoreView extends HTMLElement {
       this.playSession.reportPosition(performance.now());
       // T109: keeps playState.run live every frame (see PlayPositionReporter.getRun's own doc comment) - cheap
       // even at 60fps, since the store's deepEqual set() only notifies mx-grade-panel's one subscriber when
-      // something in the run actually changed.
-      playState.setRun(this.playSession.getRun());
+      // something in the run actually changed. `expected` isn't this driver's concern (T048's e2e seam, set once
+      // by startPlay()) - carry the current value forward so this per-frame call doesn't wipe it back to [].
+      playState.setRun(this.playSession.getRun(), playState.get().expected);
     }
     this.updateCursor();
     this.rafHandle = requestAnimationFrame(this.tick);

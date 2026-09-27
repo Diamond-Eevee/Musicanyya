@@ -261,8 +261,9 @@ export class Session {
           const indexResult = await this.libraryCatalog.index();
           if (!indexResult.ok) return;
           for (const seed of seeds) {
-            if (seed.ref.kind !== 'library') continue; // a file ref needs My files (T066) to resolve a hash
-            const item = indexResult.value.items.find((i) => i.id === seed.ref.id);
+            const ref = seed.ref;
+            if (ref.kind !== 'library') continue; // a file ref needs My files (T066) to resolve a hash
+            const item = indexResult.value.items.find((i) => i.id === ref.id);
             if (item) await this.browserController.seedProgressEvent(item.hash, seed.event);
           }
           this.browserController.refreshIfOpen();
@@ -867,7 +868,10 @@ export class Session {
       range,
       settings,
     });
-    playState.setRun(this.playController.getRun());
+    playState.setRun(
+      this.playController.getRun(),
+      expected.map((note) => ({ key: note.key, onsetTick: note.onsetTick })),
+    );
     this.scoreView?.setPlaySession(this.playController);
     if (this.scoreView && this.currentTimeline) this.scoreView.setPlayback(this.audioEngine, this.currentTimeline);
   }

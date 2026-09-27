@@ -9,6 +9,8 @@ import {
 } from '../defaults.js';
 import type { StrictnessLevelName } from '../grade/types.js';
 
+export type { StrictnessLevelName };
+
 /** How a Score was opened, or how a `played`/`practised` figure is attributed to a browser row (data-model.md §3). */
 export type ItemRef = { kind: 'library'; id: string } | { kind: 'file'; fileKey: string };
 

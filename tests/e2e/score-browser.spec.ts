@@ -4,6 +4,7 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
 import { browserDialog, closeBrowser, openBrowser, rowByRef } from './helpers/browser.js';
+import { expectedNoteCount, playPhase, pressFirstExpectedNotes, startPlay, waitForGrade } from './helpers/play.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixture = (name: string) => path.join(__dirname, '../fixtures/musicxml', name);
@@ -180,5 +181,77 @@ test.describe('Score browser (feature 013, US1)', () => {
     await introduction.dblclick();
     await expect(browserDialog(page)).toBeHidden();
     await expect(page.locator('.mx-title-block')).toContainText('C major - introduction');
+  });
+});
+
+test.describe('Score browser (feature 013, US2 - progress)', () => {
+  test.beforeEach(({ browserName }) => {
+    test.skip(
+      browserName === 'webkit',
+      'Play needs AudioContext and Web MIDI, which Playwright WebKit does not provide',
+    );
+  });
+
+  test('Independent Test: two whole-Score Play runs build best/last/previous and trend; the C major folder counts it played; reload keeps the figures; reset progress with undo', async ({
+    page,
+  }) => {
+    test.setTimeout(150_000);
+    const ITEM = 'learning/keys/c-major/introduction';
+
+    // Both hands, whole Score, is already the default (R-3/R-7 "whole" scope) - no Play-panel change needed.
+    await startPlay(page, ITEM);
+    const n = await expectedNoteCount(page);
+    // analyze A3: deterministic, no either-or - the exact fraction of N pressed correctly, floor-rounded like the
+    // panel itself (percentShown, R-8), so the shown percentage is known ahead of the assertions below.
+    const k1 = Math.ceil(n * 0.7);
+    const k2 = Math.ceil(n * 0.85);
+    const percent = (count: number) => Math.floor((count * 100) / n);
+
+    await pressFirstExpectedNotes(page, k1);
+    await waitForGrade(page);
+    await page.keyboard.press('Escape'); // dismiss the Grade popup, same as us1-play.spec.ts
+
+    // A second run over the same whole Score, better than the first (FR-016's own "New best" line confirms it live).
+    await expect(page.locator('mx-transport .play-btn')).toHaveText('Play');
+    await page.locator('mx-transport .play-btn').click();
+    await expect.poll(() => playPhase(page), { timeout: 15_000 }).toMatch(/^(countIn|running)$/);
+    await pressFirstExpectedNotes(page, k2);
+    await expect(page.locator('.grade-new-best')).toBeVisible({ timeout: 90_000 });
+    await waitForGrade(page);
+    await page.keyboard.press('Escape');
+
+    await openBrowser(page);
+    const row = rowByRef(page, `library:${ITEM}`);
+    await expect(row).toHaveAttribute('data-status', 'played');
+    await row.click(); // selects and opens the detail pane without opening the Score again
+    const detail = page.locator('mx-browser-detail');
+    await expect(detail.locator('.browser-detail-attempts')).toContainText('2');
+    await expect(detail.locator('.browser-detail-result', { hasText: 'Best' })).toContainText(`${percent(k2)}%`);
+    await expect(detail.locator('.browser-detail-result', { hasText: 'Last' })).toContainText(`${percent(k2)}%`);
+    await expect(detail.locator('.browser-detail-result', { hasText: 'Previous' })).toContainText(`${percent(k1)}%`);
+    await expect(detail.locator('.browser-detail-trend')).toContainText('up');
+    // The C major folder counts it as played (FR-014) - fresh browser storage per test, so this is the only one.
+    const folder = page.locator(`[role="treeitem"][data-key="${C_MAJOR_FOLDER}"]`);
+    await expect(folder.locator('.browser-rail-progress')).toContainText(/^1 of \d+ played, 0 mastered$/);
+
+    // SC-005: a reload shows the identical figures - nothing was recomputed from a differently-trimmed history.
+    await page.reload();
+    await expect(browserDialog(page)).toBeVisible();
+    await expect(rowByRef(page, `library:${ITEM}`)).toHaveAttribute('data-status', 'played');
+    await rowByRef(page, `library:${ITEM}`).click();
+    await expect(detail.locator('.browser-detail-result', { hasText: 'Best' })).toContainText(`${percent(k2)}%`);
+    await expect(detail.locator('.browser-detail-result', { hasText: 'Previous' })).toContainText(`${percent(k1)}%`);
+
+    // T057/OD-3: reset progress, undo it (nothing changes), then reset again and let the undo window elapse.
+    await detail.locator('.browser-reset-start').click();
+    await detail.locator('.browser-reset-confirm').click();
+    await expect(detail.locator('.browser-reset-undo')).toBeVisible();
+    await detail.locator('.browser-reset-undo').click();
+    await expect(detail.locator('.browser-detail-attempts')).toContainText('2'); // undone: unaffected
+
+    await detail.locator('.browser-reset-start').click();
+    await detail.locator('.browser-reset-confirm').click();
+    await page.waitForTimeout(8_500); // UNDO_WINDOW_MS (8000) plus a margin for the commit itself
+    await expect(rowByRef(page, `library:${ITEM}`)).toHaveAttribute('data-status', 'new');
   });
 });

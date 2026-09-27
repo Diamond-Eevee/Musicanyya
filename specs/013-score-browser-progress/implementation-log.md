@@ -565,3 +565,84 @@
 - Handoff: next = T047 (grade-panel "New best" line + status-badge/result-text/list-detail-rail UI tests) and
   T055/T056/T057/T094/T048/T058 to close out the US2 checkpoint, then the full gate + checkpoint log entry + commit.
   Tree is not clean - commit this chunk first.
+
+## 2026-09-27 22:40 - claude-sonnet-5 (implement: T048, T058, US2 checkpoint)
+
+- Note: T047, T055, T056, T057 and T094 (this entry's own handoff list) had already landed on the branch in commits
+  `0367a43`, `9f6484d`, `6d0ad3e`, `0465af9` and `35f7734` by the time this session started, each without its own
+  log entry - not re-described here; `tasks.md` already had them ticked.
+- Found at session start: the working tree had 7 uncommitted files (`browser-session.ts`, `session.ts`,
+  `browserState.ts`, `playState.ts`, `play.ts`, `score-browser.spec.ts`, `browser-session.test.ts`) - a prior
+  session's unfinished T048 attempt, left with temporary `console.log('DEBUG', ...)` calls and `biome-ignore`
+  comments in the spec. Explainable from the resume point (T048) and continued rather than discarded.
+- Found the committed tree (`35f7734`) itself failed `pnpm typecheck` (AGENTS.md section 2 step 6, "trust nothing
+  unchecked"), so fixed those first, unrelated to T048's own diff: `src/core/progress/types.ts` imported
+  `StrictnessLevelName` from `grade/types.js` as `import type` without re-exporting it, so `compare.ts`'s `import
+  type { ... } from './types.js'` silently resolved to nothing (added `export type { StrictnessLevelName }`);
+  `session.ts`'s `e2e-progress-seed` handler (T094) read `seed.ref.id` inside a `.find()` callback after narrowing
+  `seed.ref.kind !== 'library'` - TypeScript does not carry property-based narrowing across a closure boundary, so
+  the callback saw the wide `ItemRef` again (fixed by binding `const ref = seed.ref` first, narrowed on the plain
+  variable instead).
+- Done T048 (`tests/e2e/score-browser.spec.ts` US2 Independent Test) - removed the prior session's debug logging,
+  then diagnosed why `expectedNoteCount` (the new `__PLAY_STATE__.expected` e2e seam, `tests/e2e/helpers/play.ts`)
+  read 0: `mx-score-view.ts`'s per-frame `tick()` calls `playState.setRun(this.playSession.getRun())` every frame to
+  keep `positionRunTick` live (T109's own design) - `setRun`'s `expected` parameter defaults to `[]`, so the very
+  first frame after `startPlay()` set it wiped it straight back out. Fixed by carrying `playState.get().expected`
+  forward in that one per-frame call (`src/ui/elements/mx-score-view.ts`) rather than changing the seam's own
+  default. `pressFirstExpectedNotes` (`tests/e2e/helpers/play.ts`) times each press off `run.positionRunTick`
+  against the note's `onsetTick` (converted through `tickMap`), the same approach `pressInTime` already used, so a
+  real, unfamiliar library item can be played deterministically without a hand-transcribed rhythm.
+- Found and fixed while running the US2 checkpoint's full `pnpm test:e2e` gate (not part of T048's own diff, but
+  blocking the checkpoint, so fixed in scope):
+  - `.browser-rail-item` (`src/ui/styles/browser.css`) is `white-space: nowrap` with no truncation; T053/T056's
+    folder-progress suffix (`.browser-rail-progress`, "N of M played, K mastered") pushed real rows past the rail's
+    fixed `16rem` grid column, so `mx-browser-rail`'s `scrollWidth` exceeded its `clientWidth` at every viewport
+    (`tests/e2e/score-browser.spec.ts`'s 1280px `noHorizontalScroll` check, reproduced 3/3 on both chromium and
+    firefox, confirmed unrelated to this session's own uncommitted diff by reproducing on the stashed tree too).
+    Fixed with `overflow: hidden; text-overflow: ellipsis` on `.browser-rail-item` - a long row now truncates
+    instead of overflowing.
+  - The same folder-progress suffix broke an older feature-011 test (`tests/e2e/library.spec.ts`'s "browser:
+    Learning > Keys > C major > 1 Introduction..."): it read the whole `[role="treeitem"]` text expecting an exact
+    `'Keys'`, but every row's textContent is now `<label><progress>` with no separating space (e.g.
+    `'Keys0 of 109 played, 0 mastered'`) once a folder has any items at all. Fixed by scoping the read to
+    `.browser-rail-label` instead (the intended fix is on the test, not the feature - FR-014 wants the progress
+    text there).
+  - `tools/dev/screenshot.ts`'s `--greyscale` (feature 010, SC-004) sets `filter: grayscale(1)` on
+    `document.documentElement`, which a `showModal()` `<dialog>` (the score browser, feature 013) does not inherit
+    - dialogs promoted to the top layer render outside the normal containing-block/filter inheritance chain. `--browser
+    --greyscale` together showed the dialog in full colour. Fixed by also filtering every `dialog[open]` directly.
+  - `tools/dev/screenshot.ts`'s `startRun()` checked `mx-mode-switch input[value=play]` without scoping, which threw
+    a Playwright strict-mode violation once `mx-view-panel.ts`'s second `mx-mode-switch` (T049, phone width) landed
+    - `--run` has apparently been broken for a while, unrelated to this feature. Fixed with `.first()`.
+  - `--play <n>` only worked with `--practice` (reading `__PRACTICE_STATE__`); T058 asks for `--run --grade --play
+    40` to get a real "New best" screenshot, which the tool could not do at all before this. Added `playRunEvents`
+    (mirrors `pressFirstExpectedNotes` above, but string-evaluated like the rest of this file, since the app's CSP
+    forbids function serialization) and wired `--play` into the `--run` branch.
+- Done T058 (manual checks, all three named PNGs looked at, not just generated):
+  `pnpm screenshot --browser --seed-progress tests/fixtures/progress/mixed-statuses.json` -> `app.png`: New
+  (hollow circle), Practised and Played (filled circle) and Mastered (star) render as visibly distinct shapes, not
+  just colours, with the folder rail showing "N of M played, K mastered" per FR-014. The `--greyscale` twin
+  (`browser-mixed-greyscale.png`, after the dialog-filter fix above) confirms the same four states stay
+  distinguishable with colour removed (SC-004). `pnpm screenshot --item learning/keys/c-major/introduction --run
+  --grade --play 40` (`play-new-best.png`, after the `--play`/`--run` and mode-switch fixes above) shows the Grade
+  popup's "New best" line under a filled star for a first, successful run.
+- Checks: `pnpm typecheck` clean; `pnpm lint` clean (0 errors, the repo's pre-existing ~300 warnings unchanged);
+  `pnpm test` 256 files / 4863 tests, 1 failure (`tests/library/regeneration.test.ts`, a 5s timeout under this
+  session's own parallel full-suite load) - passes alone in 1.2s both times re-checked, unrelated to this feature
+  (a fixture-copy test, no progress/browser code in its path); not yet in `docs/agents/reference.md`'s R7 "Known
+  flaky" list, worth adding if it recurs. `pnpm test:e2e` (full run 1, before the library.spec.ts/browser.css
+  fixes): 6 failed - the 3 rail-label failures above (chromium, firefox, webkit) plus 3 already-tracked flakes
+  (webkit `library.spec.ts:31` and `:150`, the dblclick-race symptoms `docs/known-bugs.md` already documents;
+  firefox `pressed-keys.spec.ts:483`'s 60fps frame-timing check, confirmed passing alone in 7.7s). Full run 2
+  (after the fixes): 2 failed, both `us1-layout.spec.ts`'s 150%-scaling clipping check (firefox, electron) at
+  1280x720 only - confirmed passing alone on both projects (12.6s), a load-sensitive layout-measurement flake, not
+  reproduced by either full run's other viewport sizes. 866 passed, 536 skipped both full runs. No new failure
+  pattern survived a standalone re-run; the gate is green modulo this repo's existing under-load flakiness.
+- Decisions: kept the rail truncation fix minimal (CSS only) rather than redesigning the row layout, since FR-014
+  only asks for the count text to be shown, not for a guaranteed no-truncation width; `docs/known-bugs.md` was not
+  touched (WebKit dblclick failures reproduced 0 more times in either full run here, and the frame-timing/layout
+  flakes above are `docs/agents/reference.md` R7 material, not `known-bugs.md`, since they pass standalone).
+- Problems / open questions: none blocking. US2 is done (T035-T058 all ticked).
+- Handoff: next = US3 ("My files" and versioned uploads, T059 onward) or Polish (T086-T093) if merging sooner.
+  Tree is clean at this entry's commit. `docs/known-bugs.md`'s two open entries (`task_c4d89f4f`,
+  `task_028b771b`) and the reference.md R7 Electron flakes still need no further action unless picked up directly.

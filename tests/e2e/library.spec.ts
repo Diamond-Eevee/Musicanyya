@@ -118,8 +118,12 @@ test.describe('Practice score library: browse, open, Listen', () => {
     // already visible under Learning > Keys, with no need to open anything (unlike the old panel's <details>
     // tree, whose "closed until opened" behaviour tests/ui/score-browser/rail-list-detail.test.ts covers now).
     // Circle order: C major, then its relative minor A minor, then G major - the three treeitems right after
-    // "Keys" (children immediately follow their parent in the rail's depth-first order).
-    const allLabels = (await page.locator('[role="treeitem"]').allTextContents()).map((t) => t.trim());
+    // "Keys" (children immediately follow their parent in the rail's depth-first order). Reads `.browser-rail-label`
+    // specifically (013, T053/T056): every row now also carries a `.browser-rail-progress` suffix straight after it
+    // with no separator ("Keys0 of 109 played, 0 mastered"), which the plain treeitem text would include.
+    const allLabels = (await page.locator('[role="treeitem"] .browser-rail-label').allTextContents()).map((t) =>
+      t.trim(),
+    );
     const keysIndex = allLabels.indexOf('Keys');
     expect(keysIndex, '"Keys" is in the rail').toBeGreaterThanOrEqual(0);
     expect(allLabels.slice(keysIndex + 1, keysIndex + 4)).toEqual(['C major', 'A minor', 'G major']);

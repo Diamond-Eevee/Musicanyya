@@ -21,8 +21,10 @@
  *                    close it themselves by opening something, same as a person double-clicking a row
  *   --practice       after opening the score, switch to Practice and press Start (fakes a MIDI keyboard through the
  *                    same `e2e-midi` window event the e2e tests use; needs --item or --file)
- *   --play <n>       with --practice: first play the correct keys of the first n events (a chord: all its keys down, then
- *                    all up), read from the running session - for real scores whose notes you do not know by heart
+ *   --play <n>       with --practice or --run: first play the correct keys of the first n events (a chord: all its
+ *                    keys down, then all up), read from the running session - for real scores whose notes you do not
+ *                    know by heart. With --run, timed off the run's own clock (013, T048's `__PLAY_STATE__.expected`
+ *                    seam), the same way the e2e Play spec presses a real, unfamiliar Score deterministically
  *   --run            after opening the score, switch to Play mode and press Play: the count-in and the run start and go on
  *                    while the --keys steps are played (same fake MIDI keyboard; needs --item or --file). Without
  *                    --grade the picture is taken after the last step, mid-run, so the cursor can be looked at
@@ -156,7 +158,9 @@ const GRADE_TIMEOUT_MS = 180_000;
 async function startRun(page: Page): Promise<void> {
   await page.locator('mx-transport .play-btn:not([disabled])').waitFor({ timeout: LOAD_TIMEOUT_MS });
   await page.evaluate("window.dispatchEvent(new CustomEvent('e2e-ready'))");
-  await page.locator('mx-mode-switch input[value=play]').check();
+  // mx-view-panel.ts has a second mx-mode-switch for phone width (T049) - always in the DOM, so `.first()` picks
+  // the primary toolbar one regardless of viewport, the same as a person would use it at this tool's default size.
+  await page.locator('mx-mode-switch input[value=play]').first().check();
   await page.locator('mx-transport .play-btn').click();
   await pollUntil(page, 'window.__PLAY_STATE__.get().run !== null', LOAD_TIMEOUT_MS);
 }
@@ -188,6 +192,37 @@ async function playEvents(page: Page, count: number): Promise<void> {
   }
 }
 
+/** Plays the correct keys of the first `count` expected notes of the running Play session (013, T048's
+ *  `__PLAY_STATE__.get().expected` e2e seam), timed off the run's own `positionRunTick` the same way
+ *  `pressFirstExpectedNotes` (tests/e2e/helpers/play.ts) does - a chord's members share one `onsetTick` and are
+ *  pressed together. String-evaluated like every other page call in this file (the app's CSP forbids function
+ *  serialization). */
+async function playRunEvents(page: Page, count: number): Promise<void> {
+  await page.evaluate(`(async () => {
+    const state = window.__PLAY_STATE__;
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const groups = [];
+    for (const note of state.get().expected.slice(0, ${count})) {
+      const last = groups[groups.length - 1];
+      if (last && last.onsetTick === note.onsetTick) last.keys.push(note.key);
+      else groups.push({ onsetTick: note.onsetTick, keys: [note.key] });
+    }
+    for (const group of groups) {
+      const deadline = performance.now() + 30000;
+      while (performance.now() < deadline) {
+        const run = state.get().run;
+        if (!run) break;
+        const dueRunTick = group.onsetTick - run.tickMap.rangeStartTick + run.tickMap.countInTicks;
+        if (run.positionRunTick >= dueRunTick) break;
+        await sleep(15);
+      }
+      for (const key of group.keys) window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x90, key, 100] }));
+      await sleep(40);
+      for (const key of group.keys) window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x80, key, 0] }));
+    }
+  })()`);
+}
+
 async function pressKeys(page: Page, steps: string): Promise<void> {
   for (const step of parseKeySteps(steps)) {
     if (step.kind === 'sleep') {
@@ -208,7 +243,7 @@ async function main(): Promise<void> {
   }
   if (values.practice && values.run) throw new Error('--practice and --run are different modes: give one of them');
   if (values.grade && !values.run) throw new Error('--grade needs --run');
-  if (values.play && !values.practice) throw new Error('--play needs --practice');
+  if (values.play && !values.practice && !values.run) throw new Error('--play needs --practice or --run');
   if (values.keys && !values.practice && !values.run) throw new Error('--keys needs --practice or --run');
   if (values.play !== undefined && !/^\d+$/.test(values.play)) throw new Error('--play needs a number of events');
   if (values.keys) parseKeySteps(values.keys); // fail early on a bad step, before a server is started
@@ -255,12 +290,18 @@ async function main(): Promise<void> {
     }
     if (values.run) {
       await startRun(page);
+      if (values.play) await playRunEvents(page, Number(values.play));
       if (values.keys) await pressKeys(page, values.keys);
       if (values.grade) await waitForGrade(page);
       await page.waitForTimeout(300); // a few frames for the cursor or the marks to draw
     }
 
-    if (values.greyscale) await page.evaluate("document.documentElement.style.filter = 'grayscale(1)'");
+    // A `showModal()` dialog (e.g. the score browser, T058) paints in the top layer, which does not inherit an
+    // ancestor's `filter` - grey it out directly too, or `--browser --greyscale` would still show it in colour.
+    if (values.greyscale)
+      await page.evaluate(
+        "document.documentElement.style.filter = 'grayscale(1)'; document.querySelectorAll('dialog[open]').forEach((d) => { d.style.filter = 'grayscale(1)'; });",
+      );
 
     const name = values.item ? path.basename(values.item) : values.file ? path.parse(values.file).name : 'app';
     const out = path.resolve(values.out ?? path.join('test-results', 'screenshots', `${name}.png`));

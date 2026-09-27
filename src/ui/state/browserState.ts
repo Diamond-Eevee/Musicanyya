@@ -157,6 +157,14 @@ export class BrowserStateStore {
     this.store.update((state) => ({ ...state, phase: 'loading', message: null }));
   }
 
+  /** T057/T094: back to `loading` so the controller can re-fetch and call `indexLoaded`/`indexFailed` again, the
+   *  same as `retryLibrary` but regardless of whether the index previously failed - used after a reset commits or
+   *  a seed applies, so an already-open browser shows the change immediately rather than only on its next open. */
+  startRefresh(): void {
+    if (this.store.get().phase !== 'ready') return;
+    this.store.update((state) => ({ ...state, phase: 'loading' }));
+  }
+
   startOpeningItem(ref: ItemRef): void {
     if (this.store.get().phase !== 'ready') return;
     this.store.update((state) => ({ ...state, phase: 'opening', openingRef: ref, message: null }));

@@ -139,6 +139,8 @@ dialog.browser::backdrop {
   padding-left: calc(6px + var(--browser-rail-depth, 0) * 14px);
   cursor: pointer;
   border-radius: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

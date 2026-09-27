@@ -53,6 +53,11 @@ export interface PlayState {
    *  the run is even stored, from the in-memory record `BrowserSessionController` keeps. False for a stopped or
    *  partial run (OD-1) and whenever there is no Grade. */
   newBest: boolean;
+  /** Every expected note of the current run, written order, with its MIDI key and timeline tick (T048's e2e seam
+   *  only - nothing in the UI reads this): so an e2e test can press exactly the first N correct keys of a real,
+   *  unfamiliar Score, timed off `run.positionRunTick` (via `run.tickMap`) rather than a hand-transcribed rhythm.
+   *  Several entries share one `onsetTick` for a chord. Empty when there is no run. */
+  expected: readonly { key: number; onsetTick: number }[];
 }
 
 class PlayStateStore {
@@ -65,6 +70,7 @@ class PlayStateStore {
     attempts: [],
     scoreTempo: null,
     newBest: false,
+    expected: [],
   });
 
   get(): PlayState {
@@ -75,8 +81,8 @@ class PlayStateStore {
     return this.store.subscribe(listener);
   }
 
-  setRun(run: PlayRun | null) {
-    this.store.update((state) => ({ ...state, run }));
+  setRun(run: PlayRun | null, expected: readonly { key: number; onsetTick: number }[] = []) {
+    this.store.update((state) => ({ ...state, run, expected }));
   }
 
   setSetup(setup: PlaySetup | null) {
