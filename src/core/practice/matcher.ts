@@ -321,6 +321,14 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
         }
         const wrapTo = wrapTarget();
         if (wrapTo !== null) {
+          const loop = next.loop; // non-null here: wrapTarget() only returns non-null with a loop set
+          if (loop) {
+            effects.push({
+              type: 'loopCompleted',
+              fromMeasure: (next.events[loop.fromEventIndex]?.measureIndex ?? 0) + 1,
+              toMeasure: (next.events[loop.toEventIndex]?.measureIndex ?? 0) + 1,
+            });
+          }
           releaseAll();
           arriveAt(wrapTo);
         } else {

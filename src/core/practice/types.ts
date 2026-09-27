@@ -134,7 +134,10 @@ export type PracticeEffect =
   | { type: 'hideHelp' }
   | { type: 'notice'; code: PracticeNoticeCode }
   | { type: 'keyFeedback'; key: number; state: WrongKeyState; messageId?: string }
-  | { type: 'sessionEnded'; reason: 'reachedEnd' | 'stopped' };
+  | { type: 'sessionEnded'; reason: 'reachedEnd' | 'stopped' }
+  /** The loop wrapped because its last event was played (never from `skipNext`, research.md R-9, feature 013):
+   *  one full pass through the loop, source of the `practised` progress event. 1-based written measure numbers. */
+  | { type: 'loopCompleted'; fromMeasure: number; toMeasure: number };
 
 export interface StartOptions {
   scoreId: string | null;

@@ -1,10 +1,10 @@
 /** data-model.md sections 6-9 - browser rows, view state and suggestions. Pure data: no DOM, no Web API
  *  (Principle V). */
 import type { Level, SkillTag, Step } from '../library/types.js';
+import type { ProgressStatus, Trend } from '../progress/status.js';
 import type { ItemRef, ProgressResult } from '../progress/types.js';
 
-export type ProgressStatus = 'new' | 'practised' | 'played' | 'mastered'; // FR-011, data-model.md §3
-export type Trend = 'up' | 'down' | 'same' | null; // FR-012, data-model.md §3
+export type { ProgressStatus, Trend };
 
 /** One result in the detail pane's history: `earlierVersion` is derived when shown, never stored (data-model §5). */
 export interface HistoryResult extends ProgressResult {

@@ -144,6 +144,9 @@ export interface StoredPerformance {
   log: PerformanceLog;
   summary: GradeSummary; // denormalised so the attempt list needs no re-grading
   schema: 1;
+  /** Whether the run finished naturally rather than being stopped early (performance-log contract MINOR, feature
+   *  013 R-6). Absent on a run recorded before this feature = "not recorded", not "stopped". */
+  complete?: boolean;
 }
 
 // data-model.md §9 - Stored performance and the Grade
