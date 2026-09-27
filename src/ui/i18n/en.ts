@@ -363,8 +363,6 @@ export const en = {
       rangeTo: 'To measure',
       rangeClear: 'Clear range',
       rangeStatus: 'Measures {from}-{to}',
-      tempo: 'Tempo',
-      tempoPercent: '{n}% of written tempo',
       strictness: 'Timing strictness',
       strictnessBeginner: 'Beginner',
       strictnessStandard: 'Standard',

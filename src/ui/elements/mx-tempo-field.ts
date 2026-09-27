@@ -6,6 +6,7 @@ import {
   type TempoDisplaySegment,
 } from '../../core/tempo/tempo-display.js';
 import { TEMPO_BPM_DIGITS_MAX, TEMPO_BPM_STEP, TEMPO_PERCENT_DEFAULT } from '../../engine/config.js';
+import { localizedBeatLabel } from '../format/beat-label.js';
 import { en } from '../i18n/en.js';
 import type { MusicGlyphData } from '../score/verovio-client.js';
 
@@ -37,13 +38,6 @@ function isBpmText(text: string): boolean {
 
 /** Beats drawable as a real glyph (R-7): eighth, quarter, half, whole, with 0 or 1 dot. Anything else is a text label. */
 const DRAWABLE_TYPES = new Set(['eighth', 'quarter', 'half', 'whole']);
-
-/** English fallback matching src/core/tempo/beat-unit.ts's `beatLabel`, built from i18n keys for localisation. */
-function localizedBeatLabel(beat: TempoBeat): string {
-  const prefix = en.transport.beatDotPrefixes[beat.dots] ?? '';
-  const name = en.transport.beatNames[beat.type] ?? beat.type;
-  return `${prefix}${name}`;
-}
 
 function beatSymbolSvg(beat: TempoBeat, glyphs: MusicGlyphData): string {
   const unit = glyphs.unitsPerEm;

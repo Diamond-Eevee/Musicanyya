@@ -157,3 +157,21 @@ export function percentForBpm(seg: TempoDisplaySegment, bpm: number): number {
   const percent = (100 * clampedBpm) / written;
   return Math.min(TEMPO_PERCENT_MAX, Math.max(TEMPO_PERCENT_MIN, percent));
 }
+
+/**
+ * The tempo of a stored attempt (contracts/tempo-display.md 1.1.0, FR-019/FR-021): the display segment at the
+ * attempt's range start (first pass of its first measure, else tick 0), shown at the attempt's percent. `percent`
+ * is the attempt's tempoPercent rounded half up to a whole number, for the "(75% of written)" text.
+ */
+export function attemptTempo(
+  map: readonly TempoDisplaySegment[],
+  passes: readonly MeasurePass[],
+  settings: { tempoPercent: number; range: { fromMeasureIndex: number; toMeasureIndex: number } | null },
+): { bpm: number; percent: number; beat: TempoBeat } {
+  const { tempoPercent, range } = settings;
+  const measureIndex = range ? Math.min(range.fromMeasureIndex, range.toMeasureIndex) : 0;
+  const pass = passes.find((p) => p.measureIndex === measureIndex);
+  const seg = map[displaySegmentIndexAt(map, pass?.startTick ?? 0)];
+  if (!seg) throw new Error('attemptTempo: empty tempo display map');
+  return { bpm: shownBpm(seg, tempoPercent), percent: roundHalfUp(tempoPercent), beat: seg.beat };
+}

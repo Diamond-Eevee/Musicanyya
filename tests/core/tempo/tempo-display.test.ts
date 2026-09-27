@@ -6,6 +6,7 @@ import { buildScore } from '../../../src/core/musicxml/build.js';
 import { readXml } from '../../../src/core/musicxml/read.js';
 import type { Score } from '../../../src/core/score/model.js';
 import {
+  attemptTempo,
   bpmLimits,
   buildTempoDisplayMap,
   displaySegmentIndexAt,
@@ -171,6 +172,69 @@ describe('buildTempoDisplayMap: contract rules', () => {
     const map = displayMapOf(score, timeline);
     expect(timeline.leadInTicks).toBeGreaterThanOrEqual(0);
     expect(map[0]?.startTick).toBe(timeline.tempo[0]?.startTick);
+  });
+});
+
+describe('attemptTempo (contracts/tempo-display.md 1.1.0, US3 FR-019/FR-021)', () => {
+  function segmentsAndPasses(score: Score, timeline: PlaybackTimeline) {
+    const { passes } = unroll(score.measures, score.navigation);
+    const map = buildTempoDisplayMap(score.tempoMarks, passes, score.measures, timeline.leadInTicks);
+    return { map, passes };
+  }
+
+  const written120Xml = `<?xml version="1.0" encoding="UTF-8"?>
+    <score-partwise version="3.1">
+      <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+      <part id="P1"><measure number="1">
+        <attributes><divisions>1</divisions><time><beats>4</beats><beat-type>4</beat-type></time></attributes>
+        <direction><direction-type><metronome><beat-unit>quarter</beat-unit><per-minute>120</per-minute></metronome></direction-type><sound tempo="120"/></direction>
+        <note><pitch><step>C</step><octave>4</octave></pitch><duration>1</duration></note>
+        <note><pitch><step>D</step><octave>4</octave></pitch><duration>1</duration></note>
+        <note><pitch><step>E</step><octave>4</octave></pitch><duration>1</duration></note>
+        <note><pitch><step>F</step><octave>4</octave></pitch><duration>1</duration></note>
+      </measure></part>
+    </score-partwise>`;
+
+  it('a Score written at 120, no range: 75% -> 90/75, 70% -> 84/70', () => {
+    const { score, timeline } = fromXml(written120Xml);
+    const { map, passes } = segmentsAndPasses(score, timeline);
+    expect(attemptTempo(map, passes, { tempoPercent: 75, range: null })).toEqual({
+      bpm: 90,
+      percent: 75,
+      beat: map[0]?.beat,
+    });
+    expect(attemptTempo(map, passes, { tempoPercent: 70, range: null })).toEqual({
+      bpm: 84,
+      percent: 70,
+      beat: map[0]?.beat,
+    });
+  });
+
+  it('a stored fractional percent (100 x 91/120) rounds bpm and percent independently to 91/76', () => {
+    const { score, timeline } = fromXml(written120Xml);
+    const { map, passes } = segmentsAndPasses(score, timeline);
+    const tempoPercent = (100 * 91) / 120;
+    const result = attemptTempo(map, passes, { tempoPercent, range: null });
+    expect(result.bpm).toBe(91);
+    expect(result.percent).toBe(76); // 75.8333... rounds half up
+  });
+
+  it('a range starting in the later 60 section of tempo-change-90-60 gives 45 at 75%', () => {
+    const { score, timeline } = fromFile('tempo-change-90-60.musicxml');
+    const { map, passes } = segmentsAndPasses(score, timeline);
+    const result = attemptTempo(map, passes, { tempoPercent: 75, range: { fromMeasureIndex: 4, toMeasureIndex: 7 } });
+    expect(result.bpm).toBe(45);
+    expect(result.percent).toBe(75);
+  });
+
+  it('a 6/8 dotted-quarter Score at 60, 80% -> 48 with a dotted-quarter beat', () => {
+    const { score, timeline } = fromFile('tempo-beat-inherit-6-8.musicxml');
+    const { map, passes } = segmentsAndPasses(score, timeline);
+    const result = attemptTempo(map, passes, { tempoPercent: 80, range: null });
+    expect(result.bpm).toBe(48);
+    expect(result.percent).toBe(80);
+    expect(result.beat.type).toBe('quarter');
+    expect(result.beat.dots).toBe(1);
   });
 });
 

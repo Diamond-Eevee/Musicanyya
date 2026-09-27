@@ -1,10 +1,20 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { GradeMarkSet } from '../../src/core/grade/marks.js';
 import type { ExtraNote, Grade, NoteResult } from '../../src/core/grade/types.js';
+import type { TempoDisplaySegment } from '../../src/core/tempo/tempo-display.js';
 import { mistakeStepper } from '../../src/ui/state/mistake-stepper.js';
 import '../../src/ui/elements/mx-grade-panel.js';
 import { playState } from '../../src/ui/state/playState.js';
 import { practiceState } from '../../src/ui/state/practiceState.js';
+
+const written120: TempoDisplaySegment = {
+  startTick: 0,
+  qpmNum: 120,
+  qpmDen: 1,
+  beat: { type: 'quarter', dots: 0, quartersNum: 1, quartersDen: 1 },
+  beatSource: 'mark',
+  isDefault: false,
+};
 
 function grade(over: Partial<Grade> = {}): Grade {
   return {
@@ -66,12 +76,43 @@ function mount(): HTMLElement {
 describe('mx-grade-panel (T042)', () => {
   beforeEach(() => {
     practiceState.setMode('play');
+    playState.setScoreTempo({
+      map: [written120],
+      passes: [{ measureIndex: 0, passNo: 0, startTick: 0, lengthTicks: 4 }],
+    });
   });
 
   afterEach(() => {
     document.body.innerHTML = '';
     practiceState.setMode('listen');
     playState.clear();
+    playState.setScoreTempo(null);
+  });
+
+  it('shows the run\'s tempo as "NN BPM (NN% of written)" (feature 012, US3, FR-019)', () => {
+    playState.setGrade(grade({ settings: { ...grade().settings, tempoPercent: 91 } }));
+    const panel = mount();
+    // Score written at 120, run at 91%: 109 BPM (91% of written).
+    expect(panel.textContent).toContain('109 BPM (91% of written)');
+  });
+
+  it("shows the beat when it isn't a plain quarter (FR-021)", () => {
+    const dottedQuarter60: TempoDisplaySegment = {
+      startTick: 0,
+      qpmNum: 90, // dotted-quarter beat (x1.5): writtenBpm = 90 / 1.5 = 60
+      qpmDen: 1,
+      beat: { type: 'quarter', dots: 1, quartersNum: 3, quartersDen: 2 },
+      beatSource: 'mark',
+      isDefault: false,
+    };
+    playState.setScoreTempo({
+      map: [dottedQuarter60],
+      passes: [{ measureIndex: 0, passNo: 0, startTick: 0, lengthTicks: 4 }],
+    });
+    playState.setGrade(grade({ settings: { ...grade().settings, tempoPercent: 80 } }));
+    const panel = mount();
+    expect(panel.textContent).toContain('48 BPM (80% of written)');
+    expect(panel.textContent).toContain('dotted quarter');
   });
 
   it('is hidden outside Play mode, and with no Grade yet', () => {

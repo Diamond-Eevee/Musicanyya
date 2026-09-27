@@ -972,6 +972,13 @@ export class Session {
   private setupPlay(score: Score): void {
     playState.clear();
     mistakeStepper.setMarks(null);
+    // feature 012, US3: the attempts list and the Grade panel compute their own tempo text (attemptTempo) from
+    // this, given fresh whenever a Score loads. `passes` needs the full core shape (attemptTempo's contract),
+    // not the compact TimelineDto one `this.currentTimeline` carries.
+    playState.setScoreTempo({
+      map: this.currentTimeline?.tempo ?? [],
+      passes: this.currentPlaybackTimeline?.passes ?? [],
+    });
     const { parts, preselected } = partOptions(score);
     const storedSettings = this.settingsStore.loadPlay(this.playScoreId);
     // Validate the stored selection still fits the Score.

@@ -1,7 +1,9 @@
+import { attemptTempo } from '../../core/tempo/tempo-display.js';
 import { PERFORMANCES_PER_SCORE_MAX } from '../../engine/config.js';
 import type { StoredPerformanceSummary } from '../../engine/ports.js';
+import { localizedBeatLabel } from '../format/beat-label.js';
 import { en } from '../i18n/en.js';
-import { playState } from '../state/playState.js';
+import { playState, type ScoreTempo } from '../state/playState.js';
 import { practiceState } from '../state/practiceState.js';
 
 function escapeHtml(text: string): string {
@@ -44,7 +46,7 @@ export class MxAttemptsList extends HTMLElement {
 
   private render() {
     const mode = practiceState.get().mode;
-    const { attempts } = playState.get();
+    const { attempts, scoreTempo } = playState.get();
     this.hidden = mode !== 'play';
     if (this.hidden) {
       this.innerHTML = '';
@@ -57,7 +59,7 @@ export class MxAttemptsList extends HTMLElement {
       return;
     }
 
-    const items = attempts.map((attempt) => this.itemHtml(attempt)).join('');
+    const items = attempts.map((attempt) => this.itemHtml(attempt, scoreTempo)).join('');
     this.innerHTML = `
       <h2 class="attempts-heading">${s.heading}</h2>
       <p class="attempts-kept">${s.kept.replace('{n}', String(PERFORMANCES_PER_SCORE_MAX))}</p>
@@ -72,15 +74,25 @@ export class MxAttemptsList extends HTMLElement {
     strict: 'strictnessStrict',
   } as const;
 
-  private itemHtml(attempt: StoredPerformanceSummary): string {
+  private itemHtml(attempt: StoredPerformanceSummary, scoreTempo: ScoreTempo | null): string {
     const s = en.play.attempts;
     const setup = en.play.setup;
     const { summary, settings } = attempt;
     const strictnessLabel = setup[MxAttemptsList.STRICTNESS_LABEL[settings.strictness]];
+    // feature 012, US3, FR-019: "NN BPM (NN% of written)" - the same beat the field and the library use, computed
+    // from the open Score's own tempo map (a re-opened Score always has one before attempts show, T017/T025).
+    const tempoText = scoreTempo
+      ? (() => {
+          const { bpm, percent, beat } = attemptTempo(scoreTempo.map, scoreTempo.passes, settings);
+          const text = en.transport.attemptTempo.replace('{bpm}', String(bpm)).replace('{percent}', String(percent));
+          const isQuarter = beat.type === 'quarter' && beat.dots === 0;
+          return isQuarter ? text : `${text}, ${localizedBeatLabel(beat)}`;
+        })()
+      : '';
     return `
       <li data-id="${attempt.runId}" class="attempts-item">
         <div class="attempts-date">${escapeHtml(formatDate(attempt.finishedAt))}</div>
-        <div class="attempts-settings">${setup.tempoPercent.replace('{n}', String(settings.tempoPercent))} · ${strictnessLabel}</div>
+        <div class="attempts-settings">${tempoText} · ${strictnessLabel}</div>
         <div class="attempts-summary">
           ${figure(s.notesCorrect, summary.notesCorrect.count, summary.notesCorrect.total)} ·
           ${figure(s.notesOnTime, summary.notesOnTime.count, summary.notesOnTime.total)}
