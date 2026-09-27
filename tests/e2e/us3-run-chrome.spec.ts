@@ -26,7 +26,7 @@ async function openInPlayMode(page: Page, name = 'chords/c-major-scale-and-chord
   await page.locator('mx-open-button input[type=file]').setInputFiles(fixture(name));
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
   await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
-  await page.locator('mx-mode-switch input[value=play]').check();
+  await page.locator('#mode-controls mx-mode-switch input[value=play]').check();
 }
 
 async function startRun(page: Page): Promise<void> {

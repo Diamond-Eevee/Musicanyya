@@ -236,7 +236,7 @@ for (const deviceScaleFactor of [1, 1.5, 1.75]) {
         await check('idle');
         if (browserName !== 'webkit') {
           await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
-          await page.locator('mx-mode-switch input[value=play]').check();
+          await page.locator('#mode-controls mx-mode-switch input[value=play]').check();
           await page.locator('mx-transport .play-btn').click();
           await expect(page.locator('mx-run-status')).toContainText('Measure', { timeout: 15_000 });
           await check('running');

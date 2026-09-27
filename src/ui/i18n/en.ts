@@ -2,6 +2,8 @@ export const en = {
   app: {
     emptyState: 'No score loaded. Open a MusicXML file to start.',
     toolbar: 'Musicanyya controls',
+    // Phone width (feature 012, T049): the label above the View popup's second mx-mode-switch instance.
+    modeGroup: 'Mode',
   },
   /** The Score size controls of the slim bar (feature 004, FR-014a). */
   size: {

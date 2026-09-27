@@ -279,7 +279,7 @@ test.describe('US3: the same tempo field in Play mode, and the attempt it grades
       .setInputFiles(fixturePath('chords/c-major-scale-and-chords.musicxml')); // no tempo mark: written 100, quarter beat
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
     await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
-    await page.locator('mx-mode-switch input[value=play]').check();
+    await page.locator('#mode-controls mx-mode-switch input[value=play]').check();
 
     // In Play mode both fields exist at once (the transport's own, and the setup popup's) - scope each locator to
     // its host so a Playwright strict-mode match never sees both.
@@ -310,5 +310,106 @@ test.describe('US3: the same tempo field in Play mode, and the attempt it grades
 
     await openPanel(page, 'attempts');
     await expect(page.locator('mx-attempts-list')).toContainText('75 BPM (75% of written)');
+  });
+});
+
+// quickstart.md "Phone width" (feature 012, SC-004, T049). Chromium-only, same reasoning as the describes above.
+test.describe('Phone width (SC-004, T049)', () => {
+  // biome-ignore lint/correctness/noEmptyPattern: Playwright requires the destructuring pattern to introspect fixtures
+  test.beforeEach(async ({}, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'DOM/timing test of the field, not cross-browser rendering');
+  });
+
+  async function openAt375(page: Page): Promise<void> {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await page.goto('/');
+    await openPanel(page, 'scores');
+    const { item } = await revealLibraryItem(page, 'learning/key-changes/a-major-to-a-minor/beginner');
+    await item.click();
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+  }
+
+  /** Every named element's box is inside [0, 375) horizontally - no overflow, nothing truncated off-screen. */
+  async function expectOnScreen(page: Page, selectors: readonly string[]): Promise<void> {
+    const bar = page.locator('#mx-bar');
+    await expect.poll(() => bar.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    for (const selector of selectors) {
+      const box = await page.locator(selector).boundingBox();
+      expect(box, selector).not.toBeNull();
+      expect(box?.x, selector).toBeGreaterThanOrEqual(0);
+      expect((box?.x ?? 0) + (box?.width ?? 0), selector).toBeLessThanOrEqual(375);
+    }
+  }
+
+  const TEMPO_FIELD_ELEMENTS = [
+    '.play-btn',
+    '.stop-btn',
+    '[data-id="tempo-down"]',
+    'input[data-id="tempo-bpm"]',
+    '[data-id="tempo-unit"]',
+    '[data-id="tempo-up"]',
+    '[data-id="tempo-reset"]',
+  ];
+
+  test('the tempo field and the play buttons stay fully on screen, no overflow', async ({ page }) => {
+    await openAt375(page);
+    await expectOnScreen(page, TEMPO_FIELD_ELEMENTS);
+  });
+
+  test('with the Play setup open, the same field stays fully visible', async ({ page }) => {
+    await openAt375(page);
+    await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
+    // The bar's own mode-switch is hidden at this width (this spec's other test); switch mode through the View
+    // popup's instance instead, exactly as a musician would have to on a real phone this narrow.
+    await openPanel(page, 'view');
+    await page.locator('mx-view-panel mx-mode-switch input[value=play]').check();
+    await page.keyboard.press('Escape');
+    await openPanel(page, 'setup');
+    await expect(page.locator('mx-play-panel input[data-id="tempo-bpm"]')).toBeVisible();
+    // Both the transport's own field and the Play setup's are on screen at once now - scope to the transport's,
+    // the one that must never move or overflow regardless of what else is open (FR-017).
+    await expectOnScreen(
+      page,
+      TEMPO_FIELD_ELEMENTS.map((selector) => (selector.startsWith('.') ? selector : `mx-transport ${selector}`)),
+    );
+  });
+
+  test('mode-switch and Score size, hidden from the bar at this width, are reachable through the View popup', async ({
+    page,
+  }) => {
+    await openAt375(page);
+    await expect(page.locator('#mode-controls')).toBeHidden();
+    await expect(page.locator('#size-controls')).toBeHidden();
+
+    await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
+    await openPanel(page, 'view');
+    const panel = page.locator('mx-view-panel');
+    await expect(panel.locator('mx-mode-switch input[value=play]')).toBeVisible();
+    await expect(panel.locator('mx-size-controls button[data-action="larger"]')).toBeVisible();
+    await panel.locator('mx-mode-switch input[value=play]').check();
+    await expect.poll(() => page.evaluate(() => (window as any).__PRACTICE_STATE__.get().mode)).toBe('play');
+  });
+
+  test('FR-006: the number and unit are at least as large as another transport label', async ({ page }) => {
+    const fontSize = (selector: string) =>
+      page.locator(selector).evaluate((el) => Number.parseFloat(getComputedStyle(el).fontSize));
+
+    // Desktop: Volume is on the bar, still a fair "other transport label" comparison.
+    await page.setViewportSize({ width: 1600, height: 900 });
+    await page.goto('/');
+    await openPanel(page, 'scores');
+    const wide = await revealLibraryItem(page, 'learning/key-changes/a-major-to-a-minor/beginner');
+    await wide.item.click();
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    const volumeSize = await fontSize('.volume-label');
+    expect(await fontSize('input[data-id="tempo-bpm"]')).toBeGreaterThanOrEqual(volumeSize);
+    expect(await fontSize('[data-id="tempo-unit"]')).toBeGreaterThanOrEqual(volumeSize);
+
+    // Phone width: Volume itself is hidden here (this spec's own choice), so compare against Play/Stop instead -
+    // still "another transport label" in the same bar.
+    await openAt375(page);
+    const playSize = await fontSize('.play-btn');
+    expect(await fontSize('input[data-id="tempo-bpm"]')).toBeGreaterThanOrEqual(playSize);
+    expect(await fontSize('[data-id="tempo-unit"]')).toBeGreaterThanOrEqual(playSize);
   });
 });

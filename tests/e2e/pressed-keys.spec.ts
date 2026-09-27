@@ -598,7 +598,7 @@ test.describe('US3: the other Practice states without dashed outlines (feature 0
       .setInputFiles(path.join(fixturesDir, 'chords/c-major-scale-and-chords.musicxml'));
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
     await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
-    await page.locator('mx-mode-switch input[value=play]').check();
+    await page.locator('#mode-controls mx-mode-switch input[value=play]').check();
     const playBtn = page.locator('mx-transport .play-btn');
     await playBtn.click();
     // As us1-play.spec.ts: wait for the run and press the written first note (C4) on its beat

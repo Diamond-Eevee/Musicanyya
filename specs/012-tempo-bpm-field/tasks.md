@@ -154,7 +154,19 @@ attempt shows "90 BPM (75% of written)".
   retired - every library item counts quarters now) updated first and confirmed failing, then green. Verified with
   `pnpm screenshot --item repertoire/advanced/fur-elise-complete`: "72 BPM", no beat symbol (previously "144 BPM"
   with an eighth-note glyph).
-- [ ] T049 [P] Phone width (SC-004): `pnpm screenshot --item learning/key-changes/a-major-to-a-minor/beginner --width 375` and with the Play setup open; number, unit, beat symbol and step buttons fully visible, play buttons on screen; an e2e assertion at 375 px in `tests/e2e/tempo-field.spec.ts` (element boxes inside the viewport, no overflow); FR-006: the computed font size of the number and of "BPM" is at least that of the Volume label, at 375 px and 1600 px
+- [x] T049 [P] Phone width (SC-004): `pnpm screenshot --item learning/key-changes/a-major-to-a-minor/beginner --width 375` and with the Play setup open; number, unit, beat symbol and step buttons fully visible, play buttons on screen; an e2e assertion at 375 px in `tests/e2e/tempo-field.spec.ts` (element boxes inside the viewport, no overflow); FR-006: the computed font size of the number and of "BPM" is at least that of another transport label (Volume at 1600 px; Play/Stop at 375 px, since Volume itself is hidden there)
+- [x] T059 (new, found by T049) The bar never fit at 375 px at all, in any feature, before this one (confirmed on
+  `main`): mode-switch (209px) and size-controls (145px) alone left no room once the tempo field (wider than the
+  slider it replaced) joined the row. Owner chose "icon-only, nothing removed", then (once the gap was measured at
+  ~450px, too large for icon-only alone) "fold mode-switch and Score-size into the View popup" (the same relocation
+  `mx-size-controls` already had - a second `mx-mode-switch` instance added to `mx-view-panel.ts`, reachable one tap
+  away via the "More" menu). Found and fixed while wiring the second instance: native `<input type="radio">`
+  grouping is global by `name`, not scoped to the custom element, so two `mx-mode-switch`es fought over which was
+  checked until each got its own instance-unique radio name (`tests/ui/mode-switch.test.ts` pins this). Also:
+  short labels for mode-switch/Open-score at moderately narrow widths, Volume/Follow/the "written" hint hidden
+  outright at <=480 px (nowhere else to put them). 17 e2e call sites across 13 files that queried the bar's
+  `mx-mode-switch` by tag alone (now ambiguous with the popup's second instance) rescoped to `#mode-controls
+  mx-mode-switch`.
 - [ ] T050 Run the full `quickstart.md` manual verification with screenshots, naming each picture in the log
 - [ ] T051 Constitution review of the branch diff with `constitution-auditor`; findings in the log
 - [ ] T052 Update `specs/001-score-viewer-listen/data-model.md` section 10 check, `README.md` (tempo control description if present), `docs/agents/reference.md` if anything in the toolchain changed; full gate `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` (including the Electron specs, FR-022) green with summary lines in the log

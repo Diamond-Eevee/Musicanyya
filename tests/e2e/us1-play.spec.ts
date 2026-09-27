@@ -53,7 +53,7 @@ test('US1 end-to-end: Play Mode - two actions to start, count-in, a graded run w
   await openInPlayMode(page, 'chords/c-major-scale-and-chords.musicxml');
 
   // SC-009: starting a run from an open Score takes at most two actions - switch to Play mode, then press Play.
-  await page.locator('mx-mode-switch input[value=play]').check();
+  await page.locator('#mode-controls mx-mode-switch input[value=play]').check();
   const playBtn = page.locator('mx-transport .play-btn');
   await expect(playBtn).toHaveText('Play');
   await playBtn.click();
@@ -125,7 +125,7 @@ test("US1 end-to-end: Play Mode - a stopped run yields a partial Grade, and the 
     .poll(() => page.evaluate(() => (document.querySelector('.mx-score-scroll') as HTMLElement).scrollTop))
     .toBeGreaterThan(500);
 
-  await page.locator('mx-mode-switch input[value=play]').check();
+  await page.locator('#mode-controls mx-mode-switch input[value=play]').check();
   const playBtn = page.locator('mx-transport .play-btn');
   await playBtn.click();
 

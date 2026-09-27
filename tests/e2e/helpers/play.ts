@@ -34,7 +34,7 @@ export async function startPlay(page: Page, itemId: string, options: PlayOptions
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
   await expect(page.locator('mx-transport .play-btn')).not.toBeDisabled();
   await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
-  await page.locator('mx-mode-switch input[value=play]').check();
+  await page.locator('#mode-controls mx-mode-switch input[value=play]').check();
 
   const { accompaniment, tempoPercent, range, hands } = options;
   if (accompaniment !== undefined || tempoPercent !== undefined || range !== undefined || hands !== undefined) {

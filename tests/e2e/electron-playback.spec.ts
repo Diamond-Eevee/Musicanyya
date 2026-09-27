@@ -134,7 +134,7 @@ test.describe('Electron: Listen mode plays under the app:// origin (T140, T141)'
     await expect(window.locator('.mx-score-page svg').first()).toBeVisible({ timeout: 30_000 });
     await expect(window.locator('.play-btn')).not.toBeDisabled({ timeout: 90_000 });
     await window.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
-    await window.locator('mx-mode-switch input[value=play]').check();
+    await window.locator('#mode-controls mx-mode-switch input[value=play]').check();
 
     // the run: a note is highlighted as the cursor reaches it, with nothing played
     await window.locator('.play-btn').click();

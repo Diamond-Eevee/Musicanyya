@@ -366,3 +366,68 @@
   `task_c4d89f4f`) is unaffected by this change (unrelated fixture/mechanism).
 - Handoff: next = T049 (phone width). Branch `012-tempo-bpm-field`, not pushed; tree clean at the commit that
   follows this entry.
+
+## 2026-09-27 11:10 - claude-sonnet-5 (T049/T059, phone width)
+
+- Started at T049 with the quickstart screenshot (`--width 375`) and found the bar overflowing so badly that most
+  of the transport was clipped off-screen entirely, not just the tempo field. Checked out the pre-012 commit
+  (`d0cfce0`'s ancestor on `main`, `1c50a8c`) and measured the same bar there: it *already* overflowed (959px of
+  content in a 375px budget), with mode-switch (209.8px) and size-controls (145.4px) - components from features
+  004/010/011, untouched by this branch - alone accounting for nearly the whole budget. Phone width has never
+  worked for this app; feature 012's tempo field (wider than the slider it replaced) only made an existing, larger
+  gap visible. Reported this to the owner rather than silently either doing a token fix or a large unscoped
+  redesign; owner chose to fix it properly ("apply the recommendation" pattern repeated three times as the true
+  scope became clearer - see T059 below).
+- T049 done: `pnpm screenshot` at 375px (plain, and with the Play setup open) shows the number/unit/beat/step
+  buttons and Play/Stop fully on screen; `tests/e2e/tempo-field.spec.ts`'s new "Phone width" block (4 tests):
+  element-boxes-inside-viewport for the transport's own field alone and with the Play setup open too (both fields
+  on screen at once, scoped to `mx-transport`'s so neither is confused for the other's); FR-006 font-size check
+  against Volume at 1600px (still on the bar there) and against Play/Stop at 375px (the only "other transport
+  label" still on the bar at that width, now that Volume is hidden there too).
+- T059 (new task, found by T049): closing the actual gap (measured at ~450px against the true 351px content
+  budget) needed real changes outside this feature's own files, done in three owner-approved steps:
+  1. Hide Volume/Follow/the tempo field's "written" hint at <=480px (nowhere else to reach them, least
+     time-critical while playing) - `layout.css`.
+  2. Icon-only forms for mode-switch (short "Li"/"Pr"/"Pl" real text, not decorative, at <=600px) and Open score
+     ("+", `aria-label` keeps its full name) - `mx-mode-switch.ts`, `mx-open-button.ts`, `layout.css`; `mx-size-controls.ts`'s
+     own shadow stylesheet gets the same `@media` treatment directly (a plain viewport media query works inside a
+     shadow tree exactly like anywhere else - no container-query plumbing needed).
+  3. Even fully icon-ized, the floor was still ~571px against 351px (Play/Stop + the tempo field alone need
+     ~210-230px, contract-locked, leaving under 150px for everything else, which needs over 230px even at its
+     smallest) - CSS alone cannot close that. At <=480px, mode-switch and Score-size now leave the row entirely
+     (`display: none` on `#mode-controls`/`#size-controls`) and are reachable through the View popup instead
+     (`mx-view-panel.ts` gains a second `mx-mode-switch`, alongside the `mx-size-controls` it already had) - the
+     same "fold into an already-reachable menu" pattern the four panel menus already use at 1280px, just extended
+     further, not a new mechanism.
+  - Bug found and fixed while wiring the second `mx-mode-switch`: two instances both used `name="mode"` on their
+    radios: native HTML radio grouping is global by `name` (not scoped to the custom element or its shadow/light
+    DOM), so clicking one instance's radio silently left the other showing neither the old nor the new selection.
+    Fixed with a per-instance-unique radio name (`mx-mode-switch-${instanceCount}`); `tests/ui/mode-switch.test.ts`
+    (new) pins two instances agreeing after either one changes the mode.
+  - 17 call sites across 13 e2e spec/helper files queried `mx-mode-switch input[value=...]` by tag alone, which is
+    now ambiguous (two instances exist in the DOM from app start, `mountPanels` builds every popup upfront and
+    just keeps it hidden) - rescoped every one to `#mode-controls mx-mode-switch ...` (the bar's own instance,
+    what they all actually meant); verified none relied on the bare tag elsewhere (`tests/ui/view-panel.test.ts`'s
+    checkbox count, `mx-size-controls` locators already scoped to `#size-controls` by a previous author).
+- Tests: `pnpm test` - 234 files, 4415 green (the usual `regeneration.test.ts` full-suite-load flake aside).
+  `pnpm typecheck` clean. `pnpm lint` 0 errors, 295 warnings (+1 over the session baseline: a `noExplicitAny` in
+  the new e2e test, the same established pattern as every other Play e2e spec's own window-seam reads). Full
+  `pnpm test:e2e` run afterward (see next entry once it completes).
+- Decisions: relocate mode-switch into the View popup rather than inventing a new dedicated menu/panel for it -
+  `mx-view-panel` already plays "settings that don't fit the main flow" for Score size, so a second instance there
+  needed no new panel-host plumbing, `PanelId`, or menu-model entry, at the cost of it being a slightly odd fit
+  for "View" semantically. Two rounds of re-scoping the ask (icon-only -> fold into a menu) rather than guessing,
+  since each was a materially different amount of work and a materially different interaction change once the
+  real numbers were in.
+- Problems / open questions: none for the owner - all three approved steps are done. Still open: the
+  `play-grade-marks.spec.ts` pre-existing failure (background task `task_c4d89f4f`), unrelated to any of this.
+- Full `pnpm test:e2e`: 824 passed, 9 failed, 535 skipped (9.0m), all three projects. Checked every failure: the
+  same `play-grade-marks.spec.ts` pair (already confirmed pre-existing, `task_c4d89f4f`) on all three browsers this
+  time (6 of the 9); `play-cursor.spec.ts:47` on chromium+electron (the same machine-load timing flake as the US3
+  checkpoint, confirmed passing standalone there); one new-looking failure, `us1-play.spec.ts` (electron, "Play
+  Mode - two actions to start..."), re-run standalone and passed in 13.5s - the same load-flake pattern, not a
+  regression (nothing in this session's diff touches Play-mode grading or note marking). Every phone-width test
+  this session added (`tempo-field.spec.ts`'s new block, 4 tests) and every rescoped `#mode-controls
+  mx-mode-switch` call site across the 13 touched e2e files passed.
+- Handoff: next = T050 (quickstart manual verification). Branch `012-tempo-bpm-field`, not pushed; tree clean at
+  the commit that follows this entry.

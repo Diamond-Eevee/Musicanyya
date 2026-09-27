@@ -169,7 +169,7 @@ test.describe('US2: starting a run closes any popup, and popups never disturb a 
     await openScore(page);
     await expect(page.locator('mx-transport .play-btn')).not.toBeDisabled();
     await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
-    await page.locator('mx-mode-switch input[value=practice]').check();
+    await page.locator('#mode-controls mx-mode-switch input[value=practice]').check();
     await openViaMenu(page, 'help');
     await expect(panel(page, 'help')).toBeVisible();
 
@@ -182,7 +182,7 @@ test.describe('US2: starting a run closes any popup, and popups never disturb a 
     await openScore(page);
     await expect(page.locator('mx-transport .play-btn')).not.toBeDisabled();
     await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
-    await page.locator('mx-mode-switch input[value=play]').check();
+    await page.locator('#mode-controls mx-mode-switch input[value=play]').check();
     await openViaMenu(page, 'help');
     await expect(panel(page, 'help')).toBeVisible();
 

@@ -115,6 +115,66 @@ mx-tempo-field [data-id="tempo-written"] {
   font-size: 0.9em;
 }
 
+/* Phone width (SC-004, T049): the tempo field alone (number, unit, beat symbol, step buttons) is now wider than the
+   slider it replaced, and never truncates or wraps (Constitution "nothing wraps"). Below 480px even every other
+   control shortened as far as it can go still cannot fit alongside it and Play/Stop (SC-004), so mode-switch and
+   the Score-size controls give way entirely at that width - both stay reachable via the View popup instead, which
+   already carries a second `mx-size-controls` and now a second `mx-mode-switch` too (mx-view-panel.ts). Volume and
+   Follow (reachable nowhere else, but the least time-critical while playing) are hidden outright instead, since
+   there is nowhere to relocate them to. */
+mx-mode-switch .mode-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+mx-mode-switch label {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+mx-mode-switch .mode-label-short,
+mx-open-button .open-label-short {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  /* A moderately narrow bar (compact mode on, but still above the 480px cutoff below): short forms instead of the
+     full words, everything else unchanged. */
+  .mx-bar-compact mx-mode-switch .mode-label-full,
+  .mx-bar-compact mx-open-button .open-label-full {
+    display: none;
+  }
+
+  .mx-bar-compact mx-mode-switch .mode-label-short,
+  .mx-bar-compact mx-open-button .open-label-short {
+    display: inline;
+  }
+
+  .mx-bar-compact mx-mode-switch .mode-switch {
+    gap: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mx-bar-compact mx-transport .volume-label,
+  .mx-bar-compact mx-transport .follow-label {
+    display: none;
+  }
+
+  .mx-bar-compact mx-tempo-field [data-id="tempo-written"] {
+    display: none;
+  }
+
+  /* Relocated to the View popup (above) - not just shortened, gone from the row entirely. */
+  .mx-bar-compact #mode-controls,
+  .mx-bar-compact #size-controls {
+    display: none;
+  }
+}
+
 #run-status {
   margin-inline-start: auto;
 }

@@ -51,7 +51,7 @@ async function openInPlayMode(page: Page, fixture: string): Promise<void> {
   await page.locator('mx-open-button input[type=file]').setInputFiles(fixturePath(fixture));
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
   await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
-  await page.locator('mx-mode-switch input[value=play]').check();
+  await page.locator('#mode-controls mx-mode-switch input[value=play]').check();
 }
 
 test('US2 end-to-end: step through mistakes, see the worst measures, and send one to Practice (AS-2.1 to AS-2.3)', async ({
@@ -126,7 +126,7 @@ test('US2 end-to-end: step through mistakes, see the worst measures, and send on
   const measureNumber = rowText?.match(/Measure (\d)/)?.[1];
   expect(measureNumber).toBeTruthy();
   await firstRow.getByRole('button', { name: 'Practise this passage' }).click();
-  await expect(page.locator('mx-mode-switch input[value=practice]')).toBeChecked();
+  await expect(page.locator('#mode-controls mx-mode-switch input[value=practice]')).toBeChecked();
   await expect(page.locator('mx-practice-panel .practice-loop-status')).toHaveText(
     `Looping measures ${measureNumber}-${measureNumber}`,
   );
