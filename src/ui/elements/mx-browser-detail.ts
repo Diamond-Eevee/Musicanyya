@@ -45,6 +45,9 @@ function refEquals(a: ItemRef, b: ItemRef): boolean {
  */
 export class MxBrowserDetail extends HTMLElement {
   private unsubscribe?: () => void;
+  /** OD-3/T057: which item currently shows the inline "Reset progress?" confirmation - transient UI state, reset
+   *  whenever the selection changes (never persisted, never in `browserState`). */
+  private confirming: ItemRef | null = null;
 
   connectedCallback() {
     this.setAttribute('role', 'region');
@@ -58,29 +61,67 @@ export class MxBrowserDetail extends HTMLElement {
   }
 
   private render(): void {
-    const { data, view } = browserState.get();
+    const { data, view, pending } = browserState.get();
     const ref = view.selected;
     if (!ref) {
       this.innerHTML = '';
       return;
     }
+    if (this.confirming && !refEquals(this.confirming, ref)) this.confirming = null;
     const items = buildBrowserItems(data.index, data.files, data.records, DEFAULT_MASTERY_THRESHOLDS, collator.compare);
     const row = items.find((i) => refEquals(i.ref, ref)) ?? null;
+    const pendingHere = pending?.kind === 'reset' && refEquals(pending.ref, ref);
     if (ref.kind === 'library') {
       const item = data.index?.items.find((i) => i.id === ref.id) ?? null;
-      this.innerHTML = item && row ? this.libraryHtml(item, row) : '';
+      const shared = (item?.meta.supersedes?.length ?? 0) > 0;
+      this.innerHTML = item && row ? this.libraryHtml(item, row, ref, shared, pendingHere) : '';
     } else {
       const entry = data.files.find((f) => f.fileKey === ref.fileKey) ?? null;
-      this.innerHTML = entry && row ? this.fileHtml(entry, row) : '';
+      const shared = (entry?.earlierHashes.length ?? 0) > 0;
+      this.innerHTML = entry && row ? this.fileHtml(entry, row, ref, shared, pendingHere) : '';
     }
     this.querySelector('.browser-detail-open')?.addEventListener('click', () => {
       this.dispatchEvent(new CustomEvent('browseropenitem', { detail: { ref }, bubbles: true }));
     });
+    this.wireReset(ref);
+  }
+
+  private wireReset(ref: ItemRef): void {
+    this.querySelector('.browser-reset-start')?.addEventListener('click', () => {
+      this.confirming = ref;
+      this.render();
+    });
+    this.querySelector('.browser-reset-cancel')?.addEventListener('click', () => {
+      this.confirming = null;
+      this.render();
+    });
+    this.querySelector('.browser-reset-confirm')?.addEventListener('click', () => {
+      this.confirming = null;
+      this.dispatchEvent(new CustomEvent('browserresetprogress', { detail: { ref }, bubbles: true }));
+    });
+    this.querySelector('.browser-reset-undo')?.addEventListener('click', () => {
+      this.dispatchEvent(new CustomEvent('browserundoreset', { bubbles: true }));
+    });
+  }
+
+  /** OD-3: the "Reset progress" button, its inline confirmation, or the undo line for a reset already pending. */
+  private resetControlsHtml(ref: ItemRef, hasProgress: boolean, shared: boolean, pendingHere: boolean): string {
+    const b = en.browser;
+    if (pendingHere) {
+      return `<p class="browser-reset-pending">${escapeHtml(b.resetPending)} <button type="button" class="browser-reset-undo">${escapeHtml(b.undo)}</button></p>`;
+    }
+    if (!hasProgress) return '';
+    if (this.confirming && refEquals(this.confirming, ref)) {
+      return `<p class="browser-reset-confirm-message">${escapeHtml(shared ? b.resetConfirmShared : b.resetConfirm)}</p>
+        <button type="button" class="browser-reset-confirm">${escapeHtml(b.resetConfirmButton)}</button>
+        <button type="button" class="browser-reset-cancel">${escapeHtml(b.resetCancelButton)}</button>`;
+    }
+    return `<button type="button" class="browser-reset-start">${escapeHtml(b.resetProgress)}</button>`;
   }
 
   /** FR-013: status, attempts, first/last opened, last practised with bars, best/last/previous in full words with
    *  tempo and strictness, and up to `PROGRESS_RESULTS_MAX` history rows with scope and completeness. */
-  private progressHtml(row: BrowserItem): string {
+  private progressHtml(row: BrowserItem, ref: ItemRef, shared: boolean, pendingHere: boolean): string {
     const b = en.browser;
     const p = row.progress;
     const [last, previous] = p.history;
@@ -110,10 +151,17 @@ export class MxBrowserDetail extends HTMLElement {
         ${resultLine(b.previous, previous)}
         ${trend ? `<p class="browser-detail-trend">${escapeHtml(trend)}</p>` : ''}
         ${p.history.length > 0 ? `<h4 class="browser-detail-history-heading">${escapeHtml(b.history)}</h4><ul class="browser-detail-history">${historyRows}</ul>` : ''}
+        ${this.resetControlsHtml(ref, p.status !== 'new', shared, pendingHere)}
       </div>`;
   }
 
-  private libraryHtml(item: LibraryItem, row: BrowserItem): string {
+  private libraryHtml(
+    item: LibraryItem,
+    row: BrowserItem,
+    ref: ItemRef,
+    shared: boolean,
+    pendingHere: boolean,
+  ): string {
     const s = en.library;
     const composer = item.meta.composer ? escapeHtml(item.meta.composer) : '';
     const arranger = item.meta.arranger ? escapeHtml(item.meta.arranger) : '';
@@ -129,18 +177,24 @@ export class MxBrowserDetail extends HTMLElement {
       <p class="browser-detail-measures">${item.facts.measures}</p>
       <p class="browser-detail-duration">${formatDuration(item.facts.durationSeconds)}</p>
       ${item.meta.tags.length > 0 ? `<p class="browser-detail-tags">${item.meta.tags.map((t) => escapeHtml(s.tags[t] ?? t)).join(', ')}</p>` : ''}
-      ${this.progressHtml(row)}
+      ${this.progressHtml(row, ref, shared, pendingHere)}
       <h4 class="score-source-heading">${escapeHtml(s.source.heading)}</h4>
       ${sourceLines}
       <button type="button" class="browser-detail-open">${escapeHtml(en.browser.open)}</button>`;
   }
 
-  private fileHtml(entry: UserFileEntry, row: BrowserItem): string {
+  private fileHtml(
+    entry: UserFileEntry,
+    row: BrowserItem,
+    ref: ItemRef,
+    shared: boolean,
+    pendingHere: boolean,
+  ): string {
     const title = escapeHtml(entry.title ?? entry.fileName);
     return `
       <h3 class="browser-detail-title">${title}</h3>
       <p class="browser-detail-filename">${escapeHtml(entry.fileName)}</p>
-      ${this.progressHtml(row)}
+      ${this.progressHtml(row, ref, shared, pendingHere)}
       <button type="button" class="browser-detail-open">${escapeHtml(en.browser.open)}</button>`;
   }
 }

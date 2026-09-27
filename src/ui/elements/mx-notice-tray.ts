@@ -63,8 +63,15 @@ export class MxNoticeTray extends HTMLElement {
 
     this.innerHTML =
       shown
-        .map(
-          (n) => `
+        .map((n) =>
+          n.code === 'progressResetPending'
+            ? `
+      <div class="notice ${n.severity}">
+        ${escapeHtml(formatNotice(n))}
+        <button class="undo-btn" data-id="${n.id}">${escapeHtml(en.browser.undo)}</button>
+      </div>
+    `
+            : `
       <div class="notice ${n.severity}">
         ${escapeHtml(formatNotice(n))}
         <button class="dismiss-btn" data-id="${n.id}">Dismiss</button>
@@ -78,6 +85,15 @@ export class MxNoticeTray extends HTMLElement {
       btn.addEventListener('click', (e) => {
         const id = (e.target as HTMLElement).getAttribute('data-id');
         if (id) noticeState.dismiss(id);
+      });
+    });
+    // R-12: undoing a pending reset from the toast - the controller (listening on `document`) does the actual
+    // cancel; this only clears the toast itself, the same as a dismiss would.
+    this.querySelectorAll('.undo-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const id = (e.target as HTMLElement).getAttribute('data-id');
+        if (id) noticeState.dismiss(id);
+        this.dispatchEvent(new CustomEvent('browserundoreset', { bubbles: true }));
       });
     });
   }

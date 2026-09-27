@@ -187,6 +187,18 @@ export class BrowserStateStore {
     this.store.update((state) => ({ ...state, phase: 'closed', openingRef: null, message: null }));
   }
 
+  /** OD-3/R-12: starts (or replaces) the one deferred action, with its own deadline. The caller (the controller)
+   *  owns the timer that actually commits it; this only holds what the UI shows during the undo window. */
+  setPending(pending: PendingAction): void {
+    this.store.update((state) => ({ ...state, pending }));
+  }
+
+  /** Undo, or a successful/timed-out commit clearing the banner - a no-op if nothing is pending. */
+  clearPending(): void {
+    if (this.store.get().pending === null) return;
+    this.store.update((state) => ({ ...state, pending: null }));
+  }
+
   /** `browserviewchange`: merges the change, validates it against the known sections and persists it (FR-006). */
   setView(change: Partial<BrowserViewState>): void {
     const merged = { ...this.store.get().view, ...change };

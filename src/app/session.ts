@@ -254,7 +254,14 @@ export class Session {
     this.libraryCatalog = libraryCatalog;
     this.browserController = new BrowserSessionController(
       this.libraryCatalog,
-      { loadBytes: async (fileName, bytes, openedAs) => void (await this.loadBytes(fileName, bytes, openedAs)) },
+      {
+        loadBytes: async (fileName, bytes, openedAs) => void (await this.loadBytes(fileName, bytes, openedAs)),
+        removeAttempts: async (scoreKey) => {
+          const result = await this.performanceStore.removeByScore(scoreKey);
+          if (!result.ok) noticeState.addNotice({ code: 'storageUnavailable', severity: 'warning' });
+          if (scoreKey === this.playScoreId) await this.refreshAttempts();
+        },
+      },
       this.settingsStore,
     );
   }
@@ -386,6 +393,26 @@ export class Session {
       void this.browserController.openItem(ref, browserState.get().data.index);
     });
     scoreBrowser.addEventListener('browserretrylibrary', () => this.browserController.retryLibrary());
+    // OD-3/T057: every hash the item shares progress with (a library item's `supersedes[].hash`, a *My files*
+    // entry's `earlierHashes`) resets together, since the library/entry itself already treats them as one item.
+    scoreBrowser.addEventListener('browserresetprogress', (event) => {
+      const { ref } = (event as CustomEvent<{ ref: ItemRef }>).detail;
+      const { data } = browserState.get();
+      const hashes =
+        ref.kind === 'library'
+          ? (() => {
+              const item = data.index?.items.find((i) => i.id === ref.id);
+              return item ? [item.hash, ...(item.meta.supersedes ?? []).map((s) => s.hash)] : [];
+            })()
+          : (() => {
+              const entry = data.files.find((f) => f.fileKey === ref.fileKey);
+              return entry ? [entry.hash, ...entry.earlierHashes] : [];
+            })();
+      if (hashes.length > 0) this.browserController.startResetProgress(ref, hashes);
+    });
+    // On `document`, not `scoreBrowser`: the toast (`mx-notice-tray`'s own Undo button, R-12) is not inside the
+    // browser dialog, but its event still bubbles all the way up.
+    document.addEventListener('browserundoreset', () => this.browserController.cancelResetProgress());
 
     const menuControls = document.getElementById('menu-controls');
     // 'more' is the four folded into one; the bar shows it instead of them when it runs out of width (mx-app)

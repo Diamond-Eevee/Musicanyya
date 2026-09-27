@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { BrowserSessionController } from '../../src/app/browser-session.js';
 import type { LibraryIndex, LibraryItem } from '../../src/core/library/types.js';
 import type { MasteryThresholds, ProgressEvent, ProgressRecord } from '../../src/core/progress/types.js';
@@ -162,10 +162,13 @@ class UnavailableProgressStore implements ProgressStore {
 
 const SCORE_KEY = 'a'.repeat(64);
 
-function controllerWith(progressStore: ProgressStore = new MemoryProgressStore()): BrowserSessionController {
+function controllerWith(
+  progressStore: ProgressStore = new MemoryProgressStore(),
+  removeAttempts: (scoreKey: string) => Promise<void> = async () => {},
+): BrowserSessionController {
   const catalog = new FakeLibraryCatalog();
   catalog.setIndex(index([]));
-  return new BrowserSessionController(catalog, { loadBytes: async () => {} }, undefined, progressStore);
+  return new BrowserSessionController(catalog, { loadBytes: async () => {}, removeAttempts }, undefined, progressStore);
 }
 
 describe('BrowserSessionController progress events (US2, contracts/progress-store.md, R-18)', () => {
@@ -292,5 +295,89 @@ describe('BrowserSessionController progress events (US2, contracts/progress-stor
 
     expect(browserState.get().data.records.some((r) => r.scoreKey === SCORE_KEY)).toBe(true);
     expect(noticeState.getNotices().filter((n) => n.code === 'progressPartiallyUnreadable')).toHaveLength(1);
+  });
+});
+
+describe('BrowserSessionController.startResetProgress (OD-3, R-12, T057)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    browserState.reset();
+    libraryState.reset();
+    noticeState.clear();
+  });
+
+  it('cancelResetProgress (Undo) leaves progress and attempts untouched', async () => {
+    const store = new MemoryProgressStore();
+    const removed: string[] = [];
+    const controller = controllerWith(store, async (scoreKey) => void removed.push(scoreKey));
+    await controller.played(SCORE_KEY, result({ runId: 'r1' }));
+
+    controller.startResetProgress({ kind: 'file', fileKey: 'etude.musicxml' }, [SCORE_KEY]);
+    expect(browserState.get().pending).toMatchObject({ kind: 'reset' });
+
+    controller.cancelResetProgress();
+    expect(browserState.get().pending).toBeNull();
+    await vi.runAllTimersAsync();
+
+    expect(removed).toEqual([]);
+    const got = await store.getProgress(SCORE_KEY);
+    expect(got.ok && got.value?.attempts).toBe(1);
+  });
+
+  it('the deadline elapsing commits: apply(reset) for every given hash and removeAttempts for each', async () => {
+    const store = new MemoryProgressStore();
+    const removed: string[] = [];
+    const controller = controllerWith(store, async (scoreKey) => void removed.push(scoreKey));
+    const olderHash = 'b'.repeat(64);
+    await controller.played(SCORE_KEY, result({ runId: 'r1' }));
+    await controller.played(olderHash, result({ runId: 'r2' }));
+
+    controller.startResetProgress({ kind: 'file', fileKey: 'etude.musicxml' }, [SCORE_KEY, olderHash]);
+    await vi.advanceTimersByTimeAsync(8000);
+
+    expect(browserState.get().pending).toBeNull();
+    expect(removed.sort()).toEqual([SCORE_KEY, olderHash].sort());
+    expect(await store.getProgress(SCORE_KEY)).toEqual({ ok: true, value: null });
+    expect(await store.getProgress(olderHash)).toEqual({ ok: true, value: null });
+  });
+
+  it('a second startResetProgress call commits the first immediately (R-12: only one at a time)', async () => {
+    const store = new MemoryProgressStore();
+    const removed: string[] = [];
+    const controller = controllerWith(store, async (scoreKey) => void removed.push(scoreKey));
+    const otherHash = 'c'.repeat(64);
+    await controller.played(SCORE_KEY, result({ runId: 'r1' }));
+    await controller.played(otherHash, result({ runId: 'r2' }));
+
+    controller.startResetProgress({ kind: 'file', fileKey: 'a.musicxml' }, [SCORE_KEY]);
+    controller.startResetProgress({ kind: 'file', fileKey: 'b.musicxml' }, [otherHash]);
+    await vi.runAllTimersAsync();
+
+    // The first reset (SCORE_KEY) committed as soon as the second started; the second is still pending until its
+    // own deadline, then commits too - both end up removed either way, just not at the same instant.
+    expect(removed).toContain(SCORE_KEY);
+    expect(await store.getProgress(SCORE_KEY)).toEqual({ ok: true, value: null });
+  });
+
+  it('closing the browser inside the undo window removes nothing yet - it only shows a toast, the timer still owns the commit', async () => {
+    const store = new MemoryProgressStore();
+    const removed: string[] = [];
+    const controller = controllerWith(store, async (scoreKey) => void removed.push(scoreKey));
+    await controller.played(SCORE_KEY, result({ runId: 'r1' }));
+    controller.open();
+    await flush();
+
+    controller.startResetProgress({ kind: 'file', fileKey: 'etude.musicxml' }, [SCORE_KEY]);
+    browserState.close();
+    await vi.advanceTimersByTimeAsync(1000); // well inside the 8s undo window
+
+    expect(removed).toEqual([]);
+    const got = await store.getProgress(SCORE_KEY);
+    expect(got.ok && got.value?.attempts).toBe(1);
+    expect(noticeState.getNotices().filter((n) => n.code === 'progressResetPending')).toHaveLength(1);
   });
 });

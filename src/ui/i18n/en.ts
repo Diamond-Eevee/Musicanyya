@@ -172,6 +172,13 @@ export const en = {
     history: 'History',
     earlierVersion: 'earlier version',
     folderProgress: '{played} of {total} played, {mastered} mastered',
+    resetProgress: 'Reset progress',
+    resetConfirm: 'This removes every result and stored attempt for this item. Reset?',
+    resetConfirmShared: 'This removes every result and stored attempt shared by this content. Reset?',
+    resetConfirmButton: 'Reset',
+    resetCancelButton: 'Cancel',
+    resetPending: 'Progress reset.',
+    undo: 'Undo',
   },
   /** The practice score library shelf inside the "scores" panel (contracts/library-port.md). */
   library: {
@@ -357,6 +364,7 @@ export const en = {
     progressUnavailable: 'Progress will not be kept on this device.',
     progressFull: 'Storage is full - progress could not be saved.',
     progressPartiallyUnreadable: 'Some stored progress could not be read.',
+    progressResetPending: 'Progress reset.',
   } as Record<string, string>,
   practice: {
     panel: {

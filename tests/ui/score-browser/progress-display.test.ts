@@ -217,6 +217,77 @@ describe('mx-browser-detail shows the progress record and history (FR-013)', () 
   });
 });
 
+describe('mx-browser-detail reset progress (OD-3, R-12, T057)', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    browserState.reset();
+  });
+
+  function withProgress(): LibraryItem {
+    const item = libraryItem();
+    browserState.open();
+    browserState.indexLoaded(index([item]), [], [record({ scoreKey: HASH, attempts: 1 })]);
+    browserState.setView({ selected: { kind: 'library', id: item.id } });
+    return item;
+  }
+
+  it('shows no reset button for a New item', () => {
+    const item = libraryItem();
+    browserState.open();
+    browserState.indexLoaded(index([item]), [], []);
+    browserState.setView({ selected: { kind: 'library', id: item.id } });
+    const el = document.createElement('mx-browser-detail');
+    document.body.appendChild(el);
+
+    expect(el.querySelector('.browser-reset-start')).toBeNull();
+  });
+
+  it('clicking Reset progress shows an inline confirmation, Cancel returns to the plain button', () => {
+    withProgress();
+    const el = document.createElement('mx-browser-detail');
+    document.body.appendChild(el);
+
+    (el.querySelector('.browser-reset-start') as HTMLButtonElement).click();
+    expect(el.querySelector('.browser-reset-confirm-message')).not.toBeNull();
+
+    (el.querySelector('.browser-reset-cancel') as HTMLButtonElement).click();
+    expect(el.querySelector('.browser-reset-confirm-message')).toBeNull();
+    expect(el.querySelector('.browser-reset-start')).not.toBeNull();
+  });
+
+  it('confirming dispatches browserresetprogress with the selected ref', () => {
+    const item = withProgress();
+    const el = document.createElement('mx-browser-detail');
+    document.body.appendChild(el);
+
+    const reset = new Promise<{ ref: unknown }>((resolve) => {
+      el.addEventListener('browserresetprogress', (e) => resolve((e as CustomEvent).detail), { once: true });
+    });
+    (el.querySelector('.browser-reset-start') as HTMLButtonElement).click();
+    (el.querySelector('.browser-reset-confirm') as HTMLButtonElement).click();
+
+    return reset.then((detail) => {
+      expect(detail.ref).toEqual({ kind: 'library', id: item.id });
+    });
+  });
+
+  it('while a reset is pending for this item, shows Undo instead of the reset button', () => {
+    const item = withProgress();
+    browserState.setPending({ kind: 'reset', ref: { kind: 'library', id: item.id }, deadline: Date.now() + 8000 });
+    const el = document.createElement('mx-browser-detail');
+    document.body.appendChild(el);
+
+    expect(el.querySelector('.browser-reset-undo')).not.toBeNull();
+    expect(el.querySelector('.browser-reset-start')).toBeNull();
+
+    const undone = new Promise<void>((resolve) => {
+      el.addEventListener('browserundoreset', () => resolve(), { once: true });
+    });
+    (el.querySelector('.browser-reset-undo') as HTMLButtonElement).click();
+    return undone;
+  });
+});
+
 describe('mx-browser-rail shows folder progress (FR-014)', () => {
   afterEach(() => {
     document.body.innerHTML = '';

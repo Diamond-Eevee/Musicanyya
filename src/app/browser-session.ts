@@ -6,6 +6,7 @@ import {
   type ProgressRecord,
   type ProgressResult,
 } from '../core/progress/types.js';
+import { UNDO_WINDOW_MS } from '../engine/config.js';
 import type { LibraryCatalog, ProgressStore, SettingsStore } from '../engine/ports.js';
 import { IndexedDbProgressStore } from '../engine/storage/indexeddb-progress-store.js';
 import { MemoryProgressStore } from '../engine/storage/memory-progress-store.js';
@@ -22,6 +23,9 @@ export interface BrowserSessionCallbacks {
    *  Practice/Play behaviour). `openedAs` is the ref this load represents (R-18), so `Session` can fire the
    *  `opened` progress event once it knows the loaded Score's content hash. */
   loadBytes(fileName: string, bytes: ArrayBuffer, openedAs: ItemRef): Promise<void>;
+  /** OD-3: removes every stored Performance of a Score, so a reset (or a *My files* removal, T062) never leaves
+   *  attempts the progress record no longer counts. */
+  removeAttempts(scoreKey: string): Promise<void>;
 }
 
 /**
@@ -43,14 +47,30 @@ export class BrowserSessionController {
   /** The open Score's own progress record, refreshed by every event applied to it (R-18 "New best"). */
   private openScoreKey: string | null = null;
   private openRecord: ProgressRecord | null = null;
+  /** OD-3/R-12: the one deferred reset in flight - its hashes (the item's own plus `supersedes`/`earlierHashes`)
+   *  and the timer that commits it if it is not undone first. `browserState.pending` is the UI's own view of this;
+   *  these are the extra bits the UI does not need to know. */
+  private pendingResetHashes: readonly string[] | null = null;
+  private pendingResetTimer: ReturnType<typeof setTimeout> | null = null;
+  private wasClosedWithPendingReset = false;
 
   constructor(
     private readonly catalog: LibraryCatalog,
-    callbacks: BrowserSessionCallbacks,
+    private readonly callbacks: BrowserSessionCallbacks,
     settings?: Pick<SettingsStore, 'adoptScoreSettings'>,
     progressStore: ProgressStore = new IndexedDbProgressStore(),
   ) {
     this.progressStore = progressStore;
+    // R-12: if the browser closes while a reset is still undoable, the inline banner is gone - a toast keeps the
+    // undo reachable (T057) instead of it silently vanishing along with the detail pane that showed it.
+    browserState.subscribe((state) => {
+      if (state.phase === 'closed' && state.pending?.kind === 'reset' && !this.wasClosedWithPendingReset) {
+        this.wasClosedWithPendingReset = true;
+        noticeState.addNotice({ code: 'progressResetPending', severity: 'info' });
+      } else if (state.pending === null) {
+        this.wasClosedWithPendingReset = false;
+      }
+    });
     this.libraryController = new LibrarySessionController(
       catalog,
       {
@@ -137,6 +157,49 @@ export class BrowserSessionController {
       DEFAULT_MASTERY_THRESHOLDS,
     );
     this.onApplyResult(scoreKey, applied);
+  }
+
+  /** OD-3/R-12: starts (or replaces) the one deferred reset, with a fresh `UNDO_WINDOW_MS` deadline. `hashes` is
+   *  the item's own content hash plus every hash it shares progress with (a library item's `supersedes[].hash`, a
+   *  *My files* entry's `earlierHashes`) - resolved by the caller, which already has the built `BrowserItem`. */
+  startResetProgress(ref: ItemRef, hashes: readonly string[]): void {
+    this.commitPendingReset(); // R-12: starting a second pending action commits the first immediately
+    this.pendingResetHashes = hashes;
+    browserState.setPending({ kind: 'reset', ref, deadline: Date.now() + UNDO_WINDOW_MS });
+    this.pendingResetTimer = setTimeout(() => this.commitPendingReset(), UNDO_WINDOW_MS);
+  }
+
+  /** The undo button, inline or from the toast - cancels the pending reset with no effect at all. */
+  cancelResetProgress(): void {
+    if (this.pendingResetTimer !== null) {
+      clearTimeout(this.pendingResetTimer);
+      this.pendingResetTimer = null;
+    }
+    this.pendingResetHashes = null;
+    browserState.clearPending();
+  }
+
+  /** The undo window elapsed (or a second pending action pre-empted this one): `apply(reset)` for every hash of
+   *  the item and `PerformanceStore.removeByScore` for each (OD-3), so no stored attempt outlives the progress
+   *  that counted it. A no-op if nothing is pending. */
+  private commitPendingReset(): void {
+    if (this.pendingResetTimer !== null) {
+      clearTimeout(this.pendingResetTimer);
+      this.pendingResetTimer = null;
+    }
+    const pending = browserState.get().pending;
+    const hashes = this.pendingResetHashes;
+    this.pendingResetHashes = null;
+    browserState.clearPending();
+    if (pending?.kind !== 'reset' || !hashes) return;
+    void (async () => {
+      const store = await this.store();
+      for (const hash of hashes) {
+        await store.apply(hash, { type: 'reset', at: new Date().toISOString() }, DEFAULT_MASTERY_THRESHOLDS);
+        await this.callbacks.removeAttempts(hash);
+        if (hash === this.openScoreKey) this.openRecord = null;
+      }
+    })();
   }
 
   /** FR-016: whether `result` would become the open Score's new best, using the in-memory record loaded when it
