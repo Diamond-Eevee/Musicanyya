@@ -123,6 +123,22 @@ export const en = {
     reopen: 'Open',
     remove: 'Remove',
   },
+  /** `mx-score-browser` (feature 013, contracts/score-browser.md) - the modal window that replaces the library
+   *  shelf below and the recent-scores list as the one place to find a Score to open (R-20). */
+  browser: {
+    title: 'Scores',
+    searchLabel: 'Search scores',
+    openFile: 'Open file…',
+    close: 'Close',
+    open: 'Open',
+    retry: 'Retry',
+    libraryUnavailable: 'Library unavailable.',
+    noResults: 'No items match these filters.',
+    clearFilters: 'Clear filters',
+    itemCount: '{n} item',
+    itemCountPlural: '{n} items',
+    folders: { continue: 'Continue', all: 'All', myFiles: 'My files' },
+  },
   /** The practice score library shelf inside the "scores" panel (contracts/library-port.md). */
   library: {
     heading: 'Score library',

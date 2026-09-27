@@ -118,3 +118,46 @@
   screenshot flag). This is a substantially larger, UI-heavy slice (new custom elements + app wiring + e2e); stopping
   here at a clean, fully-tested, fully-green boundary rather than starting it partially. Tree is clean after this
   commit.
+
+## 2026-09-27 17:05 - claude-sonnet-5 (implement: US1 dialog shell - T016, T024-T026)
+- Done: T016 (`tests/ui/score-browser/dialog.test.ts`, 8 tests: `showModal()`/focus on open; Escape clears a
+  non-empty search then closes on an empty one; close button and backdrop click each close and emit
+  `browserclose`; a click inside the header does not close it; `scoreState`/`transportState` are unchanged by
+  open+close (FR-004); focus returns to the invoker). Confirmed it failed first with "Failed to resolve import
+  ../../../src/ui/elements/mx-score-browser.js" (the module did not exist yet), then implemented against it.
+  T024 `src/ui/state/browserState.ts`: the `closed -> loading -> ready -> opening -> closed` machine of
+  data-model.md §8 (`indexError` folded into `ready` per the diagram), `BrowserSnapshot` with `phase`, `data`,
+  `view`, `pending` (typed per §8 but no mutator yet - no US1 task drives it), `message`, `openingRef`; the view is
+  read from `musicanyya.browser.v1` (try/catch, best effort like `libraryState`) or, if that key is absent, seeded
+  once from `musicanyya.library.v1` via `seedFromLibraryFilter` (R-15); the raw payload is kept and re-validated
+  against the real `LibrarySection[]` in `indexLoaded`/`indexFailed`, the same "resolve once data arrives" shape
+  `libraryState.indexLoaded`'s `currentSectionId` already uses, so a persisted `section` folder is not lost to an
+  empty-sections fallback before the index loads. T025 extracted `mx-score-source.ts`'s licence-line logic into
+  `src/ui/format/score-source-text.ts` (`scoreSourceLines(item): string[]`, plain text - the caller escapes and
+  wraps), so the browser's future detail pane (T028) can show the identical text (contracts/score-browser.md §2);
+  `tests/ui/mx-score-source.test.ts` passed unchanged (6/6). T026 `src/ui/elements/mx-score-browser.ts`: the
+  `<dialog>` shell (header with search input, hidden *Open file...* placeholder for US3, close button; toolbar and
+  body slots; `aria-live` status line; `role="alert"` message line), driven by `browserState.phase`;
+  `showModal()`/`close()` and search focus follow the `mx-panel`'s own `wasOpen` guard pattern (a state
+  change that does not cross the closed/open boundary is a no-op, and the very first render never treats "already
+  closed" as a close transition); Escape is handled via the dialog's `cancel` event (`preventDefault` first, so a
+  non-empty search is cleared instead of the dialog closing); a backdrop click is `event.target === dialog`.
+  Added the `browser` section to `src/ui/i18n/en.ts` (title, search label, close, open, retry, item-count strings)
+  since T026 needed real text now; T029 still owns the rail/list/detail-specific strings and `browser.css`.
+- Decisions: (1) `PendingAction`/`pending` and the removal/reset mutators are part of data-model.md §8's full
+  snapshot, but no US1 task (T016-T020) exercises them - they start at US2/US3. Declared the field (typed, always
+  `null` for now) rather than omitting it, so `BrowserSnapshot` matches the data model exactly and later code
+  reading it is correctly typed; no placeholder mutator methods were added (AGENTS.md "No placeholders" is about
+  fake behaviour, not an honestly-unpopulated field of a documented shape). (2) `loadLibraryFilterSeed` reads
+  `musicanyya.library.v1` directly with its own minimal validation, rather than through `libraryState.getFilter()`,
+  because `libraryState` already defaults to "no filter" for a fresh app and that default is indistinguishable
+  from a persisted-but-empty filter - reading the raw key is the only way to tell "never set" from "set to
+  nothing" (R-15's "seed once" would otherwise wrongly turn folder `all` on for every first-ever session).
+- Checks: `pnpm typecheck` green; `pnpm test` full suite green (239 files, 4445 tests, +8 new); `pnpm lint` clean on
+  every file touched this session (the pre-existing `src/engine/worklets/dispatch.ts` error and
+  `src/ui/elements/mx-latency-panel.ts` warning are unchanged, both untouched by this branch).
+- Handoff: next = T017-T020 (remaining US1 tests: rail/list/detail, run-guard/open-rules, browser-session
+  controller, e2e), then T027-T034 (rail/list/detail elements, `browser.css` + remaining i18n, the
+  `BrowserSessionController`, wiring into `session.ts`, old e2e/tooling migration, screenshot flag, manual check).
+  This dialog shell is a clean, fully-tested, fully-green boundary - the rail/list/detail elements and the
+  controller are each substantial pieces of their own. Tree is clean after this commit.

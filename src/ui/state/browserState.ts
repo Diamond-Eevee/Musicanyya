@@ -1,0 +1,211 @@
+import type { LibraryIndex, LibrarySection } from '../../core/library/types.js';
+import type { ItemRef, ProgressRecord, UserFileEntry } from '../../core/progress/types.js';
+import { DEFAULT_BROWSER_VIEW, seedFromLibraryFilter, validateViewState } from '../../core/browser/view-state.js';
+import type { BrowserViewState } from '../../core/browser/types.js';
+import type { CatalogError } from '../../engine/ports.js';
+import { LIBRARY_FILTER_STORAGE_KEY } from './libraryState.js';
+import { createStore } from './store.js';
+
+/** data-model.md §7 - persisted view (folder, search, filters, sort, selection). */
+export const BROWSER_VIEW_STORAGE_KEY = 'musicanyya.browser.v1';
+
+/** data-model.md §8 - `closed -> loading -> ready -> opening -> closed`, with `indexError` folded into `ready`
+ *  (the index failed, but *My files* and *Continue* still work). */
+export type BrowserPhase = 'closed' | 'loading' | 'ready' | 'opening';
+
+export interface BrowserData {
+  index: LibraryIndex | null;
+  indexError: CatalogError | null;
+  files: readonly UserFileEntry[];
+  records: readonly ProgressRecord[];
+}
+
+/** R-12 (deferred commit): only one at a time, a second starting commits the first immediately. Not yet driven by
+ *  any US1 task - the fields exist so the snapshot matches data-model.md §8 in full, US2/US3 add the mutators. */
+export type PendingAction =
+  | { kind: 'removeFile'; fileKey: string; keepProgress: boolean; deadline: number }
+  | { kind: 'reset'; ref: ItemRef; deadline: number };
+
+/** A notice line in the dialog's own `role="alert"` message, e.g. a failed item load (contracts/score-browser.md §3). */
+export interface BrowserMessage {
+  code: string;
+  fileName?: string;
+}
+
+export interface BrowserSnapshot {
+  phase: BrowserPhase;
+  data: BrowserData;
+  view: BrowserViewState;
+  pending: PendingAction | null;
+  message: BrowserMessage | null;
+  openingRef: ItemRef | null;
+}
+
+const EMPTY_DATA: BrowserData = { index: null, indexError: null, files: [], records: [] };
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+/** The raw stored `view`, or a seed built from the old library filter - re-validated against real sections once the
+ *  index loads (R-15), the same "resolve once data arrives" shape `libraryState.indexLoaded` already uses. */
+function loadInitialRawView(): unknown {
+  try {
+    const item = localStorage.getItem(BROWSER_VIEW_STORAGE_KEY);
+    if (item) {
+      const parsed = JSON.parse(item);
+      if (isRecord(parsed) && parsed.version === 1) return parsed.view;
+    }
+  } catch {
+    // Storage unavailable or corrupt: fall through to the library-filter seed, like `libraryState`'s best effort.
+  }
+  return loadLibraryFilterSeed();
+}
+
+/** R-15: "On first load, the old key `musicanyya.library.v1`'s `level`/`key`/`tag`/`sectionId` seed the new state."
+ *  Read directly (not through `libraryState`) so a fresh app - where that store already defaulted to "no filter" -
+ *  is not mistaken for a persisted-but-empty filter. */
+function loadLibraryFilterSeed(): BrowserViewState | null {
+  try {
+    const item = localStorage.getItem(LIBRARY_FILTER_STORAGE_KEY);
+    if (!item) return null;
+    const parsed = JSON.parse(item);
+    if (!isRecord(parsed) || parsed.version !== 1 || !isRecord(parsed.filter)) return null;
+    const f = parsed.filter;
+    return seedFromLibraryFilter({
+      sectionId: typeof f.sectionId === 'string' ? f.sectionId : null,
+      level: typeof f.level === 'string' ? (f.level as BrowserViewState['filters']['level']) : null,
+      key: typeof f.key === 'string' ? f.key : null,
+      tag: typeof f.tag === 'string' ? (f.tag as BrowserViewState['filters']['tag']) : null,
+    });
+  } catch {
+    return null;
+  }
+}
+
+function persistView(view: BrowserViewState): void {
+  try {
+    localStorage.setItem(BROWSER_VIEW_STORAGE_KEY, JSON.stringify({ version: 1, view }));
+  } catch {
+    // Best effort, like `libraryState.persistFilter` - the view still works for this session.
+  }
+}
+
+export class BrowserStateStore {
+  private readonly store = createStore<BrowserSnapshot>({
+    phase: 'closed',
+    data: EMPTY_DATA,
+    view: DEFAULT_BROWSER_VIEW,
+    pending: null,
+    message: null,
+    openingRef: null,
+  });
+  /** The last raw view (parsed storage, or a library-filter seed) re-validated whenever real sections arrive. */
+  private rawView: unknown = null;
+  private knownSections: readonly LibrarySection[] = [];
+
+  constructor() {
+    this.rawView = loadInitialRawView();
+    const view = this.rawView === null ? DEFAULT_BROWSER_VIEW : validateViewState(this.rawView, []);
+    this.store.update((state) => ({ ...state, view }));
+  }
+
+  get(): BrowserSnapshot {
+    return this.store.get();
+  }
+
+  subscribe(listener: (state: BrowserSnapshot) => void) {
+    return this.store.subscribe(listener);
+  }
+
+  /** Idempotent: a stray call while already open does nothing (the controller decides whether opening is refused). */
+  open(): void {
+    if (this.store.get().phase !== 'closed') return;
+    this.store.update((state) => ({ ...state, phase: 'loading', message: null }));
+  }
+
+  /** The index loaded: resolves the persisted/seeded view against the real sections (a `section` folder that no
+   *  longer exists follows `formerIds` or becomes `continue`, data-model.md §7) and moves to `ready`. */
+  indexLoaded(index: LibraryIndex, files: readonly UserFileEntry[], records: readonly ProgressRecord[]): void {
+    if (this.store.get().phase !== 'loading') return;
+    this.knownSections = index.sections;
+    const view = validateViewState(this.rawView, this.knownSections);
+    this.store.update((state) => ({
+      ...state,
+      phase: 'ready',
+      data: { index, indexError: null, files, records },
+      view,
+    }));
+  }
+
+  /** The index failed to load: *My files* and *Continue* still work (Edge Cases: library unavailable). */
+  indexFailed(error: CatalogError, files: readonly UserFileEntry[], records: readonly ProgressRecord[]): void {
+    if (this.store.get().phase !== 'loading') return;
+    const view = validateViewState(this.rawView, this.knownSections);
+    this.store.update((state) => ({
+      ...state,
+      phase: 'ready',
+      data: { index: null, indexError: error, files, records },
+      view,
+    }));
+  }
+
+  /** `browserretrylibrary` (contracts §3): back to `loading`; the controller re-fetches and calls `indexLoaded`/
+   *  `indexFailed` again. */
+  retryLibrary(): void {
+    if (this.store.get().phase !== 'ready' || this.store.get().data.indexError === null) return;
+    this.store.update((state) => ({ ...state, phase: 'loading', message: null }));
+  }
+
+  startOpeningItem(ref: ItemRef): void {
+    if (this.store.get().phase !== 'ready') return;
+    this.store.update((state) => ({ ...state, phase: 'opening', openingRef: ref, message: null }));
+  }
+
+  /** Success: closes (contracts §5 - "It closes on: successful open of an item or file"). */
+  openSucceeded(): void {
+    if (this.store.get().phase !== 'opening') return;
+    this.store.update((state) => ({ ...state, phase: 'closed', openingRef: null, message: null }));
+  }
+
+  /** Failure: stays open, ready, with the catalog's notice (contracts §3). */
+  openFailed(message: BrowserMessage): void {
+    if (this.store.get().phase !== 'opening') return;
+    this.store.update((state) => ({ ...state, phase: 'ready', openingRef: null, message }));
+  }
+
+  /** `browserclose` / Escape / backdrop / a run starting (contracts §5). Never touches the loaded Score. */
+  close(): void {
+    if (this.store.get().phase === 'closed') return;
+    this.store.update((state) => ({ ...state, phase: 'closed', openingRef: null, message: null }));
+  }
+
+  /** `browserviewchange`: merges the change, validates it against the known sections and persists it (FR-006). */
+  setView(change: Partial<BrowserViewState>): void {
+    const merged = { ...this.store.get().view, ...change };
+    const view = validateViewState(merged, this.knownSections);
+    this.rawView = view;
+    persistView(view);
+    this.store.update((state) => ({ ...state, view }));
+  }
+
+  /** Test cleanup and a fresh session, like `libraryState.reset()`. */
+  reset(): void {
+    this.rawView = null;
+    this.knownSections = [];
+    this.store.set({
+      phase: 'closed',
+      data: EMPTY_DATA,
+      view: DEFAULT_BROWSER_VIEW,
+      pending: null,
+      message: null,
+      openingRef: null,
+    });
+  }
+}
+
+export function createBrowserStateStore(): BrowserStateStore {
+  return new BrowserStateStore();
+}
+
+export const browserState = createBrowserStateStore();

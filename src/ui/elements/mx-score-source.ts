@@ -1,4 +1,5 @@
 import type { LibraryItem } from '../../core/library/types.js';
+import { scoreSourceLines } from '../format/score-source-text.js';
 import { en } from '../i18n/en.js';
 import { libraryState } from '../state/libraryState.js';
 import { escapeHtml } from '../util/escape-html.js';
@@ -35,27 +36,9 @@ export class MxScoreSource extends HTMLElement {
   }
 
   private linesHtml(item: LibraryItem): string {
-    const s = en.library.source;
-    const { provenance } = item.meta;
-    const lines: string[] = [];
-
-    if (provenance.origin === 'authored' && provenance.basedOn) {
-      // an arrangement of a public-domain source (a song): name the source and both licences (library-port 1.2 §4a)
-      lines.push(escapeHtml(s.arrangement));
-      if (provenance.note) lines.push(escapeHtml(provenance.note));
-    } else if (provenance.origin === 'authored') {
-      lines.push(escapeHtml(s.authored));
-    } else {
-      lines.push(`${escapeHtml(s.licence)}: ${escapeHtml(provenance.licence)}`);
-      lines.push(`${escapeHtml(provenance.source)}`);
-      if (provenance.credit) lines.push(`${escapeHtml(s.credit)}: ${escapeHtml(provenance.credit)}`);
-    }
-
-    if (item.meta.limitations && item.meta.limitations.length > 0) {
-      lines.push(`${escapeHtml(s.limitations)}: ${item.meta.limitations.map(escapeHtml).join('; ')}`);
-    }
-
-    return lines.map((line) => `<p class="score-source-line">${line}</p>`).join('');
+    return scoreSourceLines(item)
+      .map((line) => `<p class="score-source-line">${escapeHtml(line)}</p>`)
+      .join('');
   }
 }
 customElements.define('mx-score-source', MxScoreSource);
