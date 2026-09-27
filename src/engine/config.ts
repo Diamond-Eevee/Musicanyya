@@ -3,8 +3,10 @@ import packageJson from '../../package.json';
 // From the build, so an old stored performance is recognisable (FR-014, contracts/performance-log.md).
 export const APP_VERSION: string = packageJson.version;
 
-// Shared with src/core/transport/transport.ts, which cannot import this engine-layer file.
+// Shared with core modules that cannot import this engine-layer file (src/core/transport/transport.ts;
+// src/core/browser/query.ts, feature 013, needs BROWSER_SEARCH_MAX_CHARS to cut an overlong search).
 export {
+  BROWSER_SEARCH_MAX_CHARS,
   MAX_FILE_BYTES,
   POSITION_REPORT_BLOCKS,
   TEMPO_BEAT_DOTS_MAX,
@@ -87,5 +89,5 @@ export const NOTICE_TRAY_MAX = 3;
 // Score browser & progress (feature 013-score-browser-progress, data-model.md section 11)
 export const USER_FILES_BYTES_BUDGET = 100 * 1024 * 1024; // Total *My files* copy budget, least recently opened evicted first (FR-020)
 export const UNDO_WINDOW_MS = 8000; // Deferred-commit window for reset/remove, UI timing only (FR-018, FR-022, R-12)
-export const BROWSER_SEARCH_MAX_CHARS = 200; // Browser search text is cut to this length (FR-026)
 export const BROWSER_ANNOUNCE_DEBOUNCE_MS = 300; // Debounce of the browser's aria-live item-count announcement (FR-028)
+// BROWSER_SEARCH_MAX_CHARS re-exported from core/defaults.js above (src/core/browser/query.ts needs it too).

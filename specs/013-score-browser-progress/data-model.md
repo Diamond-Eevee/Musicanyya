@@ -193,7 +193,12 @@ interface BrowserItem {
 }
 ```
 
-`buildBrowserItems(index | null, files, records, thresholds): BrowserItem[]` is pure. The library `hash` and every
+`buildBrowserItems(index | null, files, records, thresholds, compare): BrowserItem[]` is pure; `compare` is the same
+caller-supplied `Intl.Collator`-backed comparator `filterItems` takes (library-port.md §2), used only to break a
+title tie within one folder/step (Principle V: the core stays Web-API-free, so it never constructs its own
+collator - found while implementing T013/T021, buildBrowserItems's `libraryOrder` must equal 011's panel order
+exactly, and a title starting with a lower-case letter or punctuation sorts differently under plain ordinal
+comparison than under `filterItems`' own collator). The library `hash` and every
 `supersedes[].hash` are looked up, so progress under an old hash carries over to the replacement (Edge Cases). The
 view merges them the way `entryProgress` does, but **counts** superseded results as current, because the library
 decides the replacement is the same piece.
@@ -279,6 +284,6 @@ Plus `morePractice: ItemRef | null` (R-10: after `MORE_PRACTICE_AFTER_RUNS` whol
 | `USER_FILE_VERSIONS_MAX` | 10 | `src/core/defaults.ts` |
 | `USER_FILES_BYTES_BUDGET` | 100 MiB | `src/engine/config.ts` |
 | `UNDO_WINDOW_MS` | 8000 | `src/engine/config.ts` (UI timing, not audio) |
-| `BROWSER_SEARCH_MAX_CHARS` | 200 | `src/engine/config.ts` |
+| `BROWSER_SEARCH_MAX_CHARS` | 200 | `src/core/defaults.ts` (re-exported from `src/engine/config.ts`) - `src/core/browser/query.ts` cuts the search text itself, so this cannot live only in the engine layer (found implementing T014/T022) |
 | `BROWSER_ANNOUNCE_DEBOUNCE_MS` | 300 | `src/engine/config.ts` (screen-reader count announcement) |
 | `DB_VERSION` | 2 -> 3 | `src/engine/storage/db.ts` |

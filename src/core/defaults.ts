@@ -346,3 +346,6 @@ export const MASTERY_MAX_EXTRA_PERCENT: number | null = 10; // OD-2: extra notes
 export const CONTINUE_ITEMS_MAX = 8; // Recent items shown in *Continue* (FR-025, US4 #1)
 export const MORE_PRACTICE_AFTER_RUNS = 3; // Whole complete runs without *Mastered* before *More practice* is offered (FR-025)
 export const USER_FILE_VERSIONS_MAX = 10; // Earlier content hashes kept per *My files* entry (FR-021)
+// Shared with src/engine/config.ts (re-exported there): src/core/browser/query.ts (pure) cuts an overlong search
+// itself, so this cannot live only in the engine layer (data-model.md section 11 corrected while implementing T014).
+export const BROWSER_SEARCH_MAX_CHARS = 200; // Browser search text is cut to this length (FR-026)

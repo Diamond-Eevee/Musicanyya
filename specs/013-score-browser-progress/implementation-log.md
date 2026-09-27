@@ -92,3 +92,29 @@
   the user, not fixed here (out of scope for 013).
 - Handoff: next = `/speckit.implement` from T013 (US1 tests). Foundational checkpoint passed. Tree is clean after
   this commit.
+
+## 2026-09-27 16:05 - claude-sonnet-5 (implement: US1 pure core - items/query/view-state)
+- Done: T013-T015 (tests) and T021-T023 (implementation) of US1 - the pure `src/core/browser` slice only
+  (`buildBrowserItems`, `queryBrowser`/`effectiveFolder`, `validateViewState`/`seedFromLibraryFilter`/
+  `DEFAULT_BROWSER_VIEW`). Every test was written and confirmed to fail for the right reason (missing module, or -
+  for T013's ordering test - a real mismatch) before its implementation made it pass.
+- Decisions: (1) `buildBrowserItems`'s signature in data-model.md section 6 was missing a `compare` parameter.
+  Matching 011's exact panel order needs a locale-aware collator for title ties (found via a real failing case:
+  "l'Arabesque (25 Etudes faciles...)" sorts before every "Prelude"/"Sonatina" title under `Intl.Collator` but after
+  all of them under plain ordinal `<`/`>`, because of the lower-case leading letter). `buildBrowserItems` now takes
+  `compare` as its 5th parameter, exactly like `filterItems` (Principle V: the core stays Web-API-free, the caller
+  builds the collator). data-model.md and tasks.md T013/T021 are corrected to say so. (2) `BROWSER_SEARCH_MAX_CHARS`
+  was placed in `src/engine/config.ts` in data-model.md section 11, but the pure `src/core/browser/query.ts` needs
+  it to cut an overlong search itself (T014's own test asserts this). Moved the constant's definition to
+  `src/core/defaults.ts` (re-exported from `engine/config.ts`, the same pattern already used for `MAX_FILE_BYTES`);
+  data-model.md and T003's task text are corrected. Both corrections follow AGENTS.md section 3 ("a later step
+  shows an earlier document is wrong, fix that document first").
+- Checks: `pnpm typecheck` green; `pnpm test` full suite green (238 files, 4437 tests, +20 new: 5 items.test.ts, 6
+  query.test.ts, 9 view-state.test.ts). `pnpm lint` clean on every file this session touched (the 2 pre-existing,
+  unrelated errors noted in the previous entry are unchanged).
+- Handoff: next = US1's UI/wiring slice, T016-T020 (tests: dialog, rail/list/detail, run-guard/open-rules,
+  browser-session, e2e) then T024-T034 (`browserState`, `mx-score-browser`/`mx-browser-rail`/`mx-browser-list`/
+  `mx-browser-detail`, `browser.css`, `BrowserSessionController`, `session.ts` wiring, e2e helper migration,
+  screenshot flag). This is a substantially larger, UI-heavy slice (new custom elements + app wiring + e2e); stopping
+  here at a clean, fully-tested, fully-green boundary rather than starting it partially. Tree is clean after this
+  commit.
