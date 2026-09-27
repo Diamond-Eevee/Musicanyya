@@ -290,12 +290,25 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
 - Feature 010: no new technology and no new dependency. The on-screen piano is laid out by a pure function
   (`src/ui/piano/keyboard-layout.ts`, equal key-top geometry) and sized with CSS container units (`container-type:
   inline-size`, `cqw`; Chrome/Edge 105, Firefox 110, Safari 16).
+- Feature 013: no new runtime dependency. The Score browser is a native modal `<dialog>` (`showModal()`, only outside
+  Practice/Play sessions). Progress is a pure event reducer (`src/core/progress`) behind a new `ProgressStore` port
+  with an IndexedDB adapter (database version 3: `progress`, `userFiles`, `userFileBytes`, `meta`; lazy one-shot
+  migration from `recentScores` + `performances`) and a memory adapter (contract tests + storage-unavailable
+  fallback). The browser model (`src/core/browser`) is pure. New `localStorage` key `musicanyya.browser.v1`. Rows use
+  CSS `content-visibility: auto`. Test-only `@axe-core/playwright` 4.13.0 (MPL-2.0) for the WCAG 2.1 AA check, if the
+  owner approves (OD-5).
 
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-27: Feature 013 planned (Score browser with progress): a near-full-screen browser replaces the Scores panel's
+  library tree and Recent list. It has a rail (Continue, All, library folders, My files), a list and a detail pane,
+  with status badges (New/Practised/Played/Mastered), best/last results with trend, and folder summaries. Progress is
+  an event-sourced record per content hash behind one `ProgressStore` port (IndexedDB v3 + memory), ready for a
+  server adapter. My files keep copies within 100 MiB. Suggested next follows the library's step order. No new runtime
+  dependency.
 - 2026-09-26: Feature 012 planned (tempo as an editable BPM number): `mx-tempo-field` replaces the tempo slider and
   Play's percentage list; the parser keeps the metronome mark's note value (all units, 0-3 dots, "c. 90", ranges);
   a core tempo display map gives the tempo and beat at the cursor. The engine keeps its percentage factor, now any
@@ -306,8 +319,4 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   songs built from Mutopia public-domain melodies with our CC0 left-hand chords (`pnpm library:songs`). New level
   `introduction`, a step-order check in `library:index`, a folder-tree library panel, and `supersedes` links so settings
   follow renamed items. No new dependency.
-- 2026-09-26: Feature 010 planned (on-screen piano as a real keyboard): 52 contiguous white keys and 36 black keys
-  placed by the equal key-top model, C keys labelled C1-C8, keys 4 x as long as wide up to 160 px / 20 vh, sized by
-  CSS container units. The element keeps its DOM contract (`[data-key]` + state classes), so 001/002/008 feedback is
-  unchanged; markings move into the uncovered part of each key.
 <!-- RECENT-CHANGES:END -->
