@@ -323,6 +323,9 @@ export const en = {
     libraryIndexMalformed: 'The score library could not be read.',
     libraryItemMissing: 'This library item could not be found.',
     libraryItemTooLarge: 'This library item is too large to open.',
+    progressUnavailable: 'Progress will not be kept on this device.',
+    progressFull: 'Storage is full - progress could not be saved.',
+    progressPartiallyUnreadable: 'Some stored progress could not be read.',
   } as Record<string, string>,
   practice: {
     panel: {

@@ -528,3 +528,40 @@
   Polish-phase tasks (T086-T093) starting with the constitution review. Tree is not clean - commit this checkpoint
   first. `docs/known-bugs.md`'s WebKit entry (both symptoms now) and background task `task_028b771b` still need no
   further action unless picked up directly.
+
+## 2026-09-27 12:00 - claude-sonnet-5 (relay)
+- Done: T044 (progress migration from `recentScores`/`performances`, guarded by `meta.progressMigration`,
+  `src/engine/storage/progress-migration.ts`, wired into `IndexedDbProgressStore.openDb()`), T041/T053 (folder
+  progress `src/core/browser/folders.ts`, item progress wiring via `src/core/progress/merge.ts`'s shared
+  `mergeRecords`/`currentOnlyView`/`pooledView` - a library item's `supersedes[].hash` pools status/best/trend
+  across every hash per data-model.md §6, a *My files* entry (T065) will take them from its current hash only per
+  §5), T046/T054 (`BrowserSessionController` progress wiring: `scoreOpened`/`practised`/`played`/`resultRemoved`,
+  `computeNewBest` from the in-memory open-Score record, IndexedDB-unavailable fallback to `MemoryProgressStore`
+  with a notice, `full`/`progressPartiallyUnreadable` notices; `session.ts` now fires these at the R-18 points -
+  `loadBytes` after a successful load, `sessionEnded('reachedEnd')`/`loopCompleted` for `practised`, `onStored`
+  for `played`, `onAttemptDelete` for `resultRemoved`, `onPlayGraded` for `newBest` - and `practiceScoreId`/
+  `playScoreId` are now unconditionally `contentHash` once a Score has loaded, per R-3). Also caught up ticks for
+  T035-T045, T049-T052 in `tasks.md`, which prior sessions had implemented and tested but never marked done.
+  `playState.newBest` (part of T055) added so `onPlayGraded` has somewhere to write it; the grade-panel UI line
+  itself is still open.
+- Tests: `tests/engine/storage/progress-migration.test.ts` (6), `tests/core/progress/merge.test.ts` (11 across
+  `mergeRecords`/`currentOnlyView`/`pooledView`), `tests/core/browser/folders.test.ts` (5),
+  `tests/core/browser/items.test.ts` (+2, supersedes and earlierHashes), `tests/engine/browser-session.test.ts`
+  (+7 US2 cases, all against `MemoryProgressStore` or a small unavailable-store fake).
+- Decisions: a library item's superseded progress "counts as current" (data-model.md §6) is implemented as pooling
+  every contributing record's own already-sticky `best`/`masteredAt` (a second `compareResults`/earliest-date
+  reduction), not re-deriving mastery from raw results - avoids needing `MasteryThresholds` a second time, since
+  each record's `best`/`masteredAt` already reflects them. `BrowserSessionController` owns the `ProgressStore`
+  choice and the R-19 fallback/notices (not `Session`), matching "`src/app/browser-session.ts` owns the calls;
+  `session.ts` forwards" (R-18). A library open's ref reaches `Session.loadBytes` through a `pendingLibraryRef`
+  field read by the `LibrarySessionController` callback closure, since that controller stays ref-agnostic (also
+  serves a plain file open) and the content hash - the real progress key - is only known once `Session.loadBytes`
+  finishes loading, not before.
+- Problems / open questions: none blocking. `recentScores`/`scoreStore` are still written alongside the new
+  progress events (their retirement is T092, OD-6 already approved in `plan.md`) - not removed yet, to keep this
+  chunk of work scoped to US2 rather than reopening US1's storage boundary.
+- Checks: `pnpm typecheck` clean; `pnpm test` 254 files / 4835 tests green (full run, no flakes this pass);
+  `pnpm lint` clean on every touched file (repo-wide gate not re-run this entry; will run at the US2 checkpoint).
+- Handoff: next = T047 (grade-panel "New best" line + status-badge/result-text/list-detail-rail UI tests) and
+  T055/T056/T057/T094/T048/T058 to close out the US2 checkpoint, then the full gate + checkpoint log entry + commit.
+  Tree is not clean - commit this chunk first.

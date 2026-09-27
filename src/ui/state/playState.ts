@@ -49,6 +49,10 @@ export interface PlayState {
   attempts: readonly StoredPerformanceSummary[];
   /** feature 012, US3: the open Score's tempo display map and passes, for `attemptTempo`; null before a Score loads. */
   scoreTempo: ScoreTempo | null;
+  /** FR-016 (013, R-18): whether the current Grade's result would be the open Score's new best - computed before
+   *  the run is even stored, from the in-memory record `BrowserSessionController` keeps. False for a stopped or
+   *  partial run (OD-1) and whenever there is no Grade. */
+  newBest: boolean;
 }
 
 class PlayStateStore {
@@ -60,6 +64,7 @@ class PlayStateStore {
     selectedMark: null,
     attempts: [],
     scoreTempo: null,
+    newBest: false,
   });
 
   get(): PlayState {
@@ -94,8 +99,8 @@ class PlayStateStore {
   }
 
   /** The Grade, and what the Score shows for it (`marks`): nothing is marked before it (009 FR-027, owner review). */
-  setGrade(grade: Grade | null, marks: GradeMarkSet | null = null) {
-    this.store.update((state) => ({ ...state, grade, marks, selectedMark: null }));
+  setGrade(grade: Grade | null, marks: GradeMarkSet | null = null, newBest = false) {
+    this.store.update((state) => ({ ...state, grade, marks, selectedMark: null, newBest }));
   }
 
   selectMark(ref: GradeMarkRef | null) {
@@ -105,9 +110,13 @@ class PlayStateStore {
   /** FR-035: the result layer is cleared when a new run starts or the mode changes. Keeps `setup`. */
   clear() {
     this.store.update((state) =>
-      state.run === null && state.grade === null && state.marks === null && state.selectedMark === null
+      state.run === null &&
+      state.grade === null &&
+      state.marks === null &&
+      state.selectedMark === null &&
+      !state.newBest
         ? state
-        : { ...state, run: null, grade: null, marks: null, selectedMark: null },
+        : { ...state, run: null, grade: null, marks: null, selectedMark: null, newBest: false },
     );
   }
 }

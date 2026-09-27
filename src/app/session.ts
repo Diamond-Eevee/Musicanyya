@@ -69,7 +69,9 @@ import type {
   PracticeSession,
   ResolvedLoop,
 } from '../core/practice/types.js';
-import type { ItemRef } from '../core/progress/types.js';
+import { resultFromStoredPerformance } from '../core/progress/from-performance.js';
+import { resultScope, scopeFromStoredSettings } from '../core/progress/scope.js';
+import type { ItemRef, ProgressResult } from '../core/progress/types.js';
 import { compilePlaySchedule } from '../core/schedule/play-schedule.js';
 import type { LoadReport } from '../core/score/load-report.js';
 import type { Score } from '../core/score/model.js';
@@ -124,6 +126,12 @@ interface ScoreWorkerFailed {
   error: LoadError;
 }
 type ScoreWorkerResponse = ScoreWorkerLoaded | ScoreWorkerFailed;
+
+/** data-model.md §5 `fileKey` (R-11) - a direct drop/dialog/recent-list open's `opened` ref, ahead of the full
+ *  *My files* entry itself (T059's canonical `fileKey()` supersedes this inline copy once it exists). */
+function fileRef(fileName: string): ItemRef {
+  return { kind: 'file', fileKey: fileName.normalize('NFC').toLowerCase() };
+}
 
 function requestScoreLoad(
   worker: Worker,
@@ -196,7 +204,7 @@ export class Session {
       onEffect: (effect) => this.onPlayEffect(effect),
       onGraded: (grade) => this.onPlayGraded(grade),
       onGradeFailed: (reason, message) => this.onPlayGradeFailed(reason, message),
-      onStored: () => void this.refreshAttempts(),
+      onStored: (stored) => this.onPerformanceStored(stored),
     },
   );
   // T076: a replayed stored attempt (never concurrent with a live `playController` run - starting one stops the
@@ -245,7 +253,7 @@ export class Session {
     this.libraryCatalog = libraryCatalog;
     this.browserController = new BrowserSessionController(
       this.libraryCatalog,
-      { loadBytes: async (fileName, bytes) => void (await this.loadBytes(fileName, bytes)) },
+      { loadBytes: async (fileName, bytes, openedAs) => void (await this.loadBytes(fileName, bytes, openedAs)) },
       this.settingsStore,
     );
   }
@@ -873,7 +881,7 @@ export class Session {
    * Puts a Grade on the Score: the mark set is worked out once here (the core knows the Score and the run's passes) and kept
    * in `playState` beside it, for the view, the panel and the mistake stepper alike (009 R-06, FR-023).
    */
-  private showGrade(grade: Grade): void {
+  private showGrade(grade: Grade, newBest = false): void {
     const score = this.currentScore;
     const timeline = this.currentPlaybackTimeline;
     let marks: GradeMarkSet | null = null;
@@ -882,8 +890,31 @@ export class Session {
       const passes = range ? timeline.passes.slice(range.fromPassIndex, range.toPassIndex) : timeline.passes;
       marks = gradeMarks(score, grade, passes);
     }
-    playState.setGrade(grade, marks);
+    playState.setGrade(grade, marks, newBest);
     mistakeStepper.setMarks(marks);
+  }
+
+  /** R-7: the live scope of a run over the currently loaded Score - the legacy rule (R-6) only for the rare case
+   *  of grading with no Score loaded (should not happen for a live run, kept for defensiveness). */
+  private liveResultScope(settings: RunSettings) {
+    return this.currentScore ? resultScope(this.currentScore, settings) : scopeFromStoredSettings(settings);
+  }
+
+  /** R-18 "New best": the Grade's own figures, as a `ProgressResult` - built before the run is stored, so
+   *  `computeNewBest` can compare it against the in-memory record synchronously. `finishedAt` here is only ever
+   *  used for a same-instant tie-break; the persisted `played` event later carries the stored run's own time. */
+  private progressResultFromGrade(grade: Grade): ProgressResult {
+    return {
+      runId: grade.runId,
+      finishedAt: new Date().toISOString(),
+      notesCorrect: grade.summary.notesCorrect,
+      notesOnTime: grade.summary.notesOnTime,
+      extra: grade.summary.counts.extra,
+      tempoPercent: grade.settings.tempoPercent,
+      strictness: grade.settings.strictness,
+      complete: grade.complete,
+      scope: this.liveResultScope(grade.settings),
+    };
   }
 
   /**
@@ -931,10 +962,22 @@ export class Session {
   }
 
   private onPlayGraded(grade: Grade): void {
-    this.showGrade(grade);
+    const newBest =
+      this.playScoreId !== null &&
+      this.browserController.computeNewBest(this.playScoreId, this.progressResultFromGrade(grade));
+    this.showGrade(grade, newBest);
     // The Grade arrives over the Score in a dismissible popup; dismissing it leaves the marks on the notes (FR-009). It
     // can arrive late (grading has its own timeout): never over a run that has started since.
     if (!isRunActive()) viewState.openPanel('grade');
+  }
+
+  /** R-18: after a Performance is stored (or a storage failure, `stored === null`, in which case progress and
+   *  kept attempts stay in agreement by recording neither). */
+  private onPerformanceStored(stored: StoredPerformance | null): void {
+    void this.refreshAttempts();
+    if (stored === null) return;
+    const result = resultFromStoredPerformance(stored, this.liveResultScope(stored.settings));
+    void this.browserController.played(stored.scoreId, result);
   }
 
   private onPlayGradeFailed(reason: 'timeout' | 'error', _message?: string): void {
@@ -1166,10 +1209,15 @@ export class Session {
     this.scoreView?.setPlaySession(this.replayController);
   }
 
-  /** FR-043: deletes a stored attempt, which removes its recording from the device. */
+  /** FR-043: deletes a stored attempt, which removes its recording from the device. R-18: `resultRemoved` fires
+   *  only once the delete itself succeeded, keyed by the open Score (attempts are always listed for it alone). */
   private async onAttemptDelete(runId: string): Promise<void> {
     const result = await this.performanceStore.remove(runId);
-    if (!result.ok) noticeState.addNotice({ code: 'storageUnavailable', severity: 'warning' });
+    if (!result.ok) {
+      noticeState.addNotice({ code: 'storageUnavailable', severity: 'warning' });
+    } else if (this.playScoreId !== null) {
+      void this.browserController.resultRemoved(this.playScoreId, runId);
+    }
     await this.refreshAttempts();
   }
 
@@ -1356,9 +1404,20 @@ export class Session {
     } else if (effect.type === 'notice') {
       noticeState.addNotice({ code: effect.code, severity: effect.code === 'practiceDeviceLost' ? 'warning' : 'info' });
     } else if (effect.type === 'sessionEnded') {
+      // R-18/R-9: reaching the end naturally records the whole practised range; stopping early records nothing.
+      if (effect.reason === 'reachedEnd') {
+        const session = practiceState.get().session;
+        if (session && session.scoreId !== null && session.events.length > 0) {
+          const measures = session.events.map((e) => e.measureIndex);
+          void this.browserController.practised(session.scoreId, Math.min(...measures) + 1, Math.max(...measures) + 1);
+        }
+      }
       this.endingPracticeNaturally = true;
       transportState.stop();
       this.endingPracticeNaturally = false;
+    } else if (effect.type === 'loopCompleted') {
+      const scoreId = practiceState.get().session?.scoreId ?? null;
+      if (scoreId !== null) void this.browserController.practised(scoreId, effect.fromMeasure, effect.toMeasure);
     }
   }
 
@@ -1402,11 +1461,13 @@ export class Session {
     // contracts/score-browser.md §5: "closes on: successful open of an item or file" - a dropped/chosen file
     // closes the browser exactly like a successful library item does, whether it was open behind the drop or (US3)
     // opened through the dialog's own file chooser. A failed load leaves it exactly as it was.
-    if (await this.loadBytes(file.name, bytes)) browserState.close();
+    if (await this.loadBytes(file.name, bytes, fileRef(file.name))) browserState.close();
   }
 
-  /** Returns whether the load succeeded, so `openFile` knows when it may close the browser. */
-  private async loadBytes(fileName: string, bytes: ArrayBuffer): Promise<boolean> {
+  /** Returns whether the load succeeded, so `openFile` knows when it may close the browser. `openedAs` is the ref
+   *  this load represents (R-18): a library ref from `BrowserSessionController.openItem`, or a file ref computed
+   *  from the name for a direct drop/dialog/recent-list open - the full *My files* entry itself is T066/T068. */
+  private async loadBytes(fileName: string, bytes: ArrayBuffer, openedAs: ItemRef): Promise<boolean> {
     scoreState.startLoading(fileName);
     const requestId = this.nextRequestId++;
     const response = await requestScoreLoad(this.scoreWorker, fileName, bytes.slice(0), requestId);
@@ -1458,10 +1519,14 @@ export class Session {
       composer: response.summary.composer,
     });
     if (!putResult.ok) noticeState.addNotice({ code: 'storageUnavailable', severity: 'warning' });
-    this.practiceScoreId = putResult.ok ? response.contentHash : null;
+    // R-3: identity is the content hash, independent of whether a copy of the bytes could be stored - a
+    // `MemoryProgressStore` fallback (R-19) always reports "available", so this is no longer ever null once a
+    // Score has loaded.
+    this.practiceScoreId = response.contentHash;
     this.setupPractice(response.fullScore);
     this.playScoreId = this.practiceScoreId;
     this.setupPlay(response.fullScore);
+    void this.browserController.scoreOpened(response.contentHash, openedAs);
 
     await this.refreshRecent();
     return true;
@@ -1477,7 +1542,7 @@ export class Session {
       return;
     }
     this.browserController.clearOpenedItem();
-    await this.loadBytes(result.value.summary.fileName, result.value.bytes);
+    await this.loadBytes(result.value.summary.fileName, result.value.bytes, fileRef(result.value.summary.fileName));
   }
 
   private async removeRecent(id: string): Promise<void> {
