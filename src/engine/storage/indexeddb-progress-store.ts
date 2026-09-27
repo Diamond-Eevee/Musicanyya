@@ -4,6 +4,7 @@ import { applyProgressEvent } from '../../core/progress/reduce.js';
 import type { MasteryThresholds, ProgressEvent, ProgressRecord } from '../../core/progress/types.js';
 import type { ProgressStore, ProgressStoreResult } from '../ports.js';
 import { openMusicanyyaDb, requestToPromise, PROGRESS_STORE as STORE_NAME, transactionDone } from './db.js';
+import { migrateIfNeeded } from './progress-migration.js';
 
 /** contracts/progress-store.md §1: "`format` must be 1"; a record failing that is `corrupt` for a single get and
  *  skipped by a list. Per-field validation of individual results (data-model.md §2) is not yet implemented - no
@@ -28,7 +29,10 @@ export class IndexedDbProgressStore implements ProgressStore {
   private nextWriteFails = false;
 
   private openDb(): Promise<IDBDatabase> {
-    if (!this.dbPromise) this.dbPromise = openMusicanyyaDb();
+    if (!this.dbPromise) this.dbPromise = openMusicanyyaDb().then(async (db) => {
+      await migrateIfNeeded(db);
+      return db;
+    });
     return this.dbPromise;
   }
 
