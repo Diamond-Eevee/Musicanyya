@@ -156,7 +156,7 @@ choosing it from disk.
 - [x] T067 [US3] *My files* part of `src/engine/storage/progress-migration.ts` and `removeMigratedLibraryCopies`, called once by the controller after the index loads (T061)
 - [x] T068 [US3] Controller and session: `src/app/browser-session.ts` `openFile(file)` / `openItem(file ref)` / `removeFile` with the deferred commit; `src/app/session.ts` `loadBytes` calls `putFile` after a successful load instead of `scoreStore.put`, with the `opened` event `as: { kind: 'file', fileKey }`; `session.ts` stops writing `recentScores` and unmounts `mx-recent-list` (its reopen and remove flows are now *My files*, T062); `openFile` from `mx-drop-zone` takes the same path; the invalid-file message goes to the browser's message line when the browser is open, otherwise to the existing load error view (T062)
 - [x] T069 [US3] UI: *Open file...* and drop handling in `mx-score-browser.ts`, file rows and the remove flow in `mx-browser-list.ts` / `mx-browser-detail.ts`, strings in `en.ts` (T063)
-- [ ] T070 [US3] Manual check against quickstart US3 steps 1-5 (`pnpm dev` in the built-in browser or scripted Playwright in the scratchpad, plus `pnpm screenshot --browser` of *My files*); name the pictures in the log
+- [x] T070 [US3] Manual check against quickstart US3 steps 1-5 (`pnpm dev` in the built-in browser or scripted Playwright in the scratchpad, plus `pnpm screenshot --browser` of *My files*); name the pictures in the log
 
 **Checkpoint**: US3 Independent Test passes (T064); US1 and US2 still pass; full gate green; log entry; commit.
 

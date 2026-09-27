@@ -144,7 +144,10 @@ system temp folder, never under `public/` (it would ship with the app) or the re
 **Known flaky**: the two Electron e2e tests `electron-playback.spec.ts:47` and `library.spec.ts:175` sometimes fail
 under load on Windows ("Target page ... has been closed", "audio clock advances"); both pass when run alone
 (`pnpm exec playwright test --project=electron <file>`). Re-run them alone and log both results; do not call the gate
-green without that.
+green without that. Also under a full-suite run only (green standalone and within their own file, `--project`
+included): `pressed-keys.spec.ts:483` (firefox, a 60fps frame-timing check) and, since the 013 US3 checkpoint,
+`score-browser.spec.ts`'s "a .musicxml file with invalid content dropped onto the browser..." (firefox) - both
+passed 13/13 and 4/4 respectively re-run alone.
 
 **Known bugs** (confirmed, reproducible, not flaky - see `docs/known-bugs.md`): `tests/e2e/play-grade-marks.spec.ts`
 grades roughly half the expected notes on `repertoire/beginner/fur-elise-theme-16-bar`; not root-caused yet, not

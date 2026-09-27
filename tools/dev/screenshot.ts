@@ -18,7 +18,9 @@
  *   --url <url>      use an already running server instead of starting one
  *   --browser        take the picture with the Score browser open (feature 013). Without it, the browser that
  *                    opens at start-up (FR-001, no Score loaded yet) is closed before the picture; `--item`/`--file`
- *                    close it themselves by opening something, same as a person double-clicking a row
+ *                    close it themselves by opening something, same as a person double-clicking a row - combined
+ *                    with `--browser`, it is reopened afterwards, e.g. `--file <path> --browser` to see a *My
+ *                    files* entry (US3) the open just created
  *   --practice       after opening the score, switch to Practice and press Start (fakes a MIDI keyboard through the
  *                    same `e2e-midi` window event the e2e tests use; needs --item or --file)
  *   --play <n>       with --practice or --run: first play the correct keys of the first n events (a chord: all its
@@ -278,6 +280,20 @@ async function main(): Promise<void> {
     const opened = Boolean(values.item || values.file);
     if (opened) {
       await page.locator('.mx-score-page svg').first().waitFor({ state: 'visible', timeout: LOAD_TIMEOUT_MS });
+      // `--file --browser` together (013 US3): the open closed the dialog on success, same as a person's own
+      // double click would - reopen it so the picture shows the item (or, for --file, the *My files* entry
+      // `putFile` just wrote) selected, instead of contradicting `--browser`'s own "take the picture with the
+      // Score browser open".
+      if (values.browser) {
+        await openBrowserDialog(page);
+        // A file ref has nothing to select in the list (browserState.ts openSucceeded), so the picture would
+        // otherwise still show whatever folder the view last had - go straight to *My files* so it is visible.
+        if (values.file) {
+          const myFiles = page.locator('[role="treeitem"][data-key="myFiles"]');
+          if (!(await myFiles.isVisible())) await page.locator('.browser-folder-picker').click();
+          await myFiles.click();
+        }
+      }
     }
     if (values.piano) await showPiano(page);
     // Let Verovio finish the neighbouring pages and the notice tray settle before the picture.

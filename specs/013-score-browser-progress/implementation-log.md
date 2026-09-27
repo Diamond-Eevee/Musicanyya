@@ -646,3 +646,97 @@
 - Handoff: next = US3 ("My files" and versioned uploads, T059 onward) or Polish (T086-T093) if merging sooner.
   Tree is clean at this entry's commit. `docs/known-bugs.md`'s two open entries (`task_c4d89f4f`,
   `task_028b771b`) and the reference.md R7 Electron flakes still need no further action unless picked up directly.
+
+## 2026-09-28 - claude-sonnet-5 (implement: T059-T070, US3 checkpoint)
+
+- Found at session start: `src/core/progress/merge.ts` (`mergeRecords`/`currentOnlyView`/`pooledView`) and the file
+  half of `buildBrowserItems`/`folderProgress` already existed, landed ahead of schedule while implementing US2's
+  T053 (the same pattern the 2026-09-27 US2 entry itself calls out for T047/T055-T057/T094). `src/engine/storage/
+  progress-migration.ts`'s `removeMigratedLibraryCopies` (T067's own migration half) was similarly already
+  written and tested in T044/T052. Continued from there rather than redoing it.
+- Done T059/T065: `src/core/progress/user-files.ts` (`fileKey`, `nextEntry`, `planFileEviction`, `entryProgress`);
+  refactored `buildBrowserItems`'s file-row progress view to call `entryProgress` instead of duplicating
+  `merge.ts`'s logic inline. Tests: `tests/core/progress/user-files.test.ts` (16 cases), written and run alongside
+  the implementation given how directly it composes already-tested primitives (`mergeRecords`, `currentOnlyView`)
+  - confirmed against the design first, then verified green rather than red-then-green.
+- Done T060/T066: the *My files* half of `ProgressStore` (`listFiles`, `putFile`, `getFileBytes`, `removeFile`) in
+  both adapters, with `planFileEviction` (pure, `src/core/progress/user-files.ts`) deciding what to evict - a hash
+  still shared by another kept entry is never a target, since dropping it would not free anything. Contract suite
+  extended with the file cases of `contracts/progress-store.md` §5, including a new `setFileBytesBudgetForTest`
+  test hook (the real `USER_FILES_BYTES_BUDGET`, 100 MiB, is too large to exercise eviction with real buffers).
+  Confirmed the new contract cases fail for the expected reason (`store.putFile is not a function`) before adding
+  the adapter methods that satisfy them. 53/53 contract cases pass on both adapters.
+- Done T061: already covered by T044/T052's own tests (`removeMigratedLibraryCopies` drops the migrated entry,
+  keeps its progress, runs once) - just ticked, no new test needed.
+- Done T067: wired `removeMigratedLibraryCopies` into `BrowserSessionController.loadIndex`, called once per
+  session after a successful library load (a `libraryCleanupAttempted` flag avoids a readwrite transaction on
+  every browser open, even though the function is idempotent by itself via `meta.migratedLibraryCleanup`); added
+  it to both adapters via duck typing (`hasLibraryCleanup`, not part of the `ProgressStore` port itself, contract
+  §2) since `MemoryProgressStore` has nothing to migrate. `loadIndex` now also populates `data.files` from
+  `store.listFiles()` instead of the hardcoded `[]` T066 left behind.
+- Done T062/T068: `BrowserSessionController.openItem` now handles a `file` ref (load from the stored copy with no
+  chooser, or `fileNotStored` + the caller opens one); `fileLoaded` upserts an entry after a successful load;
+  `startRemoveFile`/`cancelRemoveFile` mirror `startResetProgress`/`cancelResetProgress`'s deferred commit and
+  undo, and each now commits the *other* kind's pending action too (R-12's "only one at a time" covers both kinds,
+  not just reset). `BrowserSessionCallbacks.loadBytes` now returns `{ok, errorCode?}` instead of a bare success
+  boolean - the library path never needed the reason (a curated item's own catalog-fetch failure has its own
+  `onNotice` path), but a directly opened file can genuinely fail to parse, and US3 #5 needs to show why. `session.
+  ts`'s `loadBytes` calls `fileLoaded` for `file` refs instead of `scoreStore.put`; stopped mounting `mx-recent-
+  list` and removed `reopenRecent`/`removeRecent`/`refreshRecent` (My files replaces that flow) along with the
+  `scoreStore` field/constructor param (nothing calls it any more; `IndexedDbScoreStore`/`ScoreStore` themselves
+  are still deleted only by T092/OD-6). The `e2e-progress-seed` handler's file-ref branch (previously `continue`,
+  "needs My files to resolve a hash") now resolves through `BrowserSessionController.fileHashFor`.
+- Done T063/T069: `mx-score-browser.ts` un-hides the header's *Open file...* button (T026 left it `hidden`),
+  wires its own file input and dialog-level drop handling (`browser-drag-active` highlight, mirroring `mx-drop-
+  zone`'s own), and renders `browserState.message` into `.browser-message` for the first time - it existed in the
+  DOM since T026 but nothing ever wrote to it (`en.notices[code]`, the same map `mx-notice-tray` already uses,
+  plus the file name). Row/detail "file not stored" text (`stored: false`); the detail pane's "Remove from My
+  files" button and its two-choice inline confirmation (`removeKeepProgress`/`removeAndProgress`, both wired to
+  `browserremovefile`); `en.browser.earlierVersion` corrected to the contract's exact wording ("Earlier version of
+  this file" - it said lowercase "earlier version" since T053).
+- Done T064: US3 e2e block in `score-browser.spec.ts` (Independent Test with a real Play run on a directly-opened
+  file at 70% correct - not 100%, which meets the mastery thresholds too and would assert the wrong status;
+  reopen-from-disk dedup; invalid-drop message; remove with undo). Found and fixed live: `tests/e2e/us1-open-
+  view.spec.ts` still asserted against `.mx-recent-list button.mx-recent-open`, which T068 stops mounting -
+  rewritten against the browser's own My files rows. Its final reopen also hit a real dblclick race (not caused by
+  this session's own code paths as far as traced): an event listener attached to the row just before a
+  `.dblclick()` recorded only one native `click`, never a second one or a `dblclick`, meaning Playwright's second
+  synthetic click landed on a row already replaced by an `mx-browser-list` re-render. Reproduced 4/4 standalone
+  before the fix, 0/4 after switching to select-then-open-via-detail-button (a real alternative per contracts/
+  score-browser.md §2, not a workaround unique to the test). Logged in `docs/known-bugs.md` under the existing
+  WebKit dblclick-race entry, since both point at the same interactive-dblclick-through-the-dialog shape.
+- Done T070: manual check against quickstart US3 steps 1-5, in the built-in browser pane (`pnpm dev`) with a
+  synthetic drop (DataTransfer + a File built from the fixture's own XML, since the pane has no OS file-picker
+  hook) - step 1 (My files lists the title with the file name beneath), step 4 (the two-choice confirmation, no
+  blocking dialog; "File removed. Undo" inline), step 5 (drop a non-XML `.musicxml` -> message naming the file,
+  browser stays open, My files unchanged - confirmed via `get_page_text`, `0` file rows both before and after).
+  Extended `tools/dev/screenshot.ts`'s `--browser` flag to reopen the dialog after `--file`/`--item` (previously
+  only one or the other, never both meaningfully - opening something always closed it) and, for `--file`
+  specifically, select the *My files* folder so the entry is actually visible; verified `--item --browser` and
+  plain `--browser` still work unchanged. `browser-my-files.png` sent to the user (shows the *Für Elise* entry
+  under *My files*, "New" status, title with the file name beneath).
+- Decisions: `commitPendingRemove` resets progress explicitly per given hash (mirroring `commitPendingReset`,
+  which already does this) rather than relying on `store.removeFile`'s own `withProgress` option end to end -
+  keeps one authority for "which hashes" (the caller's resolved list, same as reset) instead of two slightly
+  different ones (the caller's list vs. the entry's own `earlierHashes`), even though they agree in the normal
+  case. `planFileEviction` never targets a hash another kept entry still shares, even though the contract's
+  eviction-order case does not exercise that path directly - dropping it would not free the budget it looks like
+  it frees, since the shared copy has to stay for the other entry regardless.
+- Problems / open questions: none blocking. The `score-browser.spec.ts` dblclick-race finding is now folded into
+  the existing `docs/known-bugs.md` WebKit entry as a second, cross-browser data point, not a new standalone bug -
+  still not root-caused.
+- Checks: `pnpm typecheck` clean; `pnpm lint` clean (0 errors, 299 pre-existing warnings, unchanged in kind from
+  the US2 entry's ~300); `pnpm test` (vitest) 258 files / 4919 tests, all passed, no flake this run. `pnpm test:
+  e2e` (full run): 3 failed, 877 passed, 540 skipped (10.1 min) - `pressed-keys.spec.ts:483` (firefox, R7's known
+  60fps frame-timing flake, passed alone in 6.9s), `library.spec.ts:154` (webkit, `docs/known-bugs.md`'s tracked
+  key-signature dblclick-race bug, `task_028b771b`), and this session's own `score-browser.spec.ts` US3 invalid-
+  drop test (firefox) - passed 4/4 standalone and 13/13 within its own file's full parallel run, so a full-suite-
+  only load-sensitive flake; added to reference.md R7 rather than `known-bugs.md` (passes standalone, matching
+  that section's own "flaky vs. bug" distinction). US1 (T013-T034) and US2 (T035-T058) both still pass their own
+  e2e blocks (13/13 chromium re-run of the whole `score-browser.spec.ts` file, twice, once per fix). No new
+  failure pattern survived a standalone re-run; the gate is green modulo this repo's existing under-load
+  flakiness.
+- Handoff: next = US4 ("Continue", T071-T076) or Polish (T086-T093) if merging sooner. Tree is clean at this
+  entry's commit. `docs/known-bugs.md`'s two open entries and the reference.md R7 flakes (now three groups: the
+  two Electron ones, `pressed-keys.spec.ts:483`, and this session's own firefox find) need no further action
+  unless picked up directly.
