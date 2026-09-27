@@ -132,6 +132,8 @@ export const en = {
     close: 'Close',
     open: 'Open',
     retry: 'Retry',
+    folderPicker: 'Folders',
+    back: 'Back',
     libraryUnavailable: 'Library unavailable.',
     noResults: 'No items match these filters.',
     clearFilters: 'Clear filters',

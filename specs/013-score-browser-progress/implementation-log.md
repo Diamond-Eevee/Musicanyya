@@ -199,3 +199,33 @@
   migration, the screenshot `--browser` flag, the manual check). The three US1 elements (dialog, rail, list,
   detail) are now a clean, fully-tested, fully-green boundary with no controller wired to them yet - `session.ts`
   wiring (T031) is a large, separate piece of its own. Tree is clean after this commit.
+
+## 2026-09-27 17:50 - claude-sonnet-5 (implement: US1 browser.css + strings - T029)
+- Done: T029 `src/ui/styles/browser.css`, imported from `src/app/main.ts` right after `panels.css` (T029's own
+  wording, "imported by the app like panels.css"). `--browser-margin` (24px / 12px / 0, at >= 1024px / 768-1023px /
+  below 768px, `@media (max-width: ...)`, matching this codebase's existing `layout.css` convention rather than
+  `min-width`); `dialog.browser` uses `inset: var(--browser-margin)` (R-1's "covers the window minus a margin",
+  overriding the platform's own centred-dialog default); `.browser-body` is a 3-column grid (`16rem 1fr 22rem`) at
+  >= 1024px, 2 columns (list + detail, rail hidden) from 768-1023px, and 1 column (list only, detail as an overlay
+  panel) below 768px; `.browser-row` gets `content-visibility: auto` + `contain-intrinsic-size` (SC-007);
+  `:focus-visible` gets a 2px outline. Added `en.browser.folderPicker` ("Folders") and `en.browser.back` ("Back")
+  - the two remaining strings the CSS's `.browser-folder-picker`/`.browser-breadcrumb`/`.browser-back` selectors
+  anticipate.
+- Decisions: the CSS file defines rules for a folder-picker button, a breadcrumb and a Back button
+  (`.browser-folder-picker`, `.browser-breadcrumb`, `.browser-back`) that contracts/score-browser.md §1 requires at
+  the 768-1023px and sub-768px breakpoints, but no matching DOM elements exist yet - `mx-score-browser.ts` (T026)
+  renders an empty `.browser-toolbar`, and `mx-browser-rail`/`mx-browser-list`/`mx-browser-detail` (T027/T028)
+  are not yet mounted into `.browser-body` (that is T031's job). Rather than pull that wiring into this CSS-only
+  task, the actual buttons and their toggle behaviour are deferred to T031 ("wire it in session.ts"), which is
+  where the whole assembly is put together anyway; T029's rules are inert until then, which is harmless (no
+  selector matches, so nothing renders differently). Flagging this explicitly per AGENTS.md section 3 so it is not
+  mistaken for a finished responsive interaction - T020's e2e layout assertions (900px/600px) will only pass once
+  T031 adds the buttons.
+- Checks: `pnpm typecheck` green; `pnpm lint` clean on every file touched. `pnpm test` full suite: 4451/4452 passed;
+  the one failure (`tests/library/regeneration.test.ts`, a 5000ms timeout) is pre-existing flakiness under full
+  parallel load, unrelated to this change - it passes in isolation (confirmed by running it alone twice) and
+  touches none of the files this session edited.
+- Handoff: next = T030 (`BrowserSessionController`) and its test T019, then T031 (wiring `session.ts`, including
+  the folder-picker/breadcrumb/back-button behaviour this CSS anticipates), T018 (run-guard/open-rules test),
+  T032-T034 (old e2e/tooling migration, screenshot flag, manual check), and T020 (e2e, once the wiring exists to
+  drive it against). Tree is clean after this commit.

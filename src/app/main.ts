@@ -2,6 +2,7 @@ import '../ui/styles/tokens.css';
 import '../ui/styles/layout.css';
 import '../ui/styles/score.css';
 import '../ui/styles/panels.css';
+import '../ui/styles/browser.css';
 import '../ui/elements/mx-app.js';
 import '../ui/elements/mx-environment-panel.js';
 import '../ui/elements/mx-notice-tray.js';
