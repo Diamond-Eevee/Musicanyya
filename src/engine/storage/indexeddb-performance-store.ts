@@ -104,4 +104,18 @@ export class IndexedDbPerformanceStore implements PerformanceStore {
       return { ok: false, error: classifyDbError(error) };
     }
   }
+
+  async removeByScore(scoreId: string): Promise<StoreResult<number>> {
+    try {
+      const db = await this.openDb();
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const index = tx.objectStore(STORE_NAME).index(INDEX_BY_SCORE_FINISHED);
+      const keys = await requestToPromise(index.getAllKeys(scoreRange(scoreId)));
+      for (const key of keys) tx.objectStore(STORE_NAME).delete(key);
+      await transactionDone(tx);
+      return { ok: true, value: keys.length };
+    } catch (error) {
+      return { ok: false, error: classifyDbError(error) };
+    }
+  }
 }

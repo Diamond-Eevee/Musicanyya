@@ -170,8 +170,10 @@ export interface PerformanceStore {
   get(runId: string): Promise<StoreResult<StoredPerformance>>;
   /** Removes the record and therefore its recording (FR-043). */
   remove(runId: string): Promise<StoreResult<void>>;
-  // `removeByScore` (013 ports.md 1.5.0, R-12: reset progress / remove file and progress, OD-3/OD-4) is added in
-  // T052 together with its adapter implementation and test, so no adapter ever carries a stub for it.
+  /** Removes every stored Performance of one Score (013 ports.md 1.5.0, R-12: reset progress / remove file and
+   *  progress, OD-3/OD-4), so the attempts list never disagrees with progress that no longer counts them. Returns
+   *  the number removed. */
+  removeByScore(scoreId: string): Promise<StoreResult<number>>;
 }
 
 // ---- ProgressStore (progress records, *My files* and their file copies; contracts/013 progress-store.md 1.0.0) ----
