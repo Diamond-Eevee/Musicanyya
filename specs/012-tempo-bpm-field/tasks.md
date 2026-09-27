@@ -129,7 +129,7 @@ attempt shows "90 BPM (75% of written)".
 - [x] T039 [P] [US3] Setup panel tests in `tests/ui/setup-panel.test.ts`: `mx-play-panel` has an `mx-tempo-field` and no `select[data-id="tempo"]`; its segment is the one at the range start; `tempochange` from typing 90 on a 120 Score emits `{ tempoPercent: 75 }` exactly (FR-018); the field is read-only while a run is active
 - [x] T040 [P] [US3] Attempt tempo tests: core `attemptTempo` in `tests/core/tempo/tempo-display.test.ts` (contracts/tempo-display.md 1.1.0) returns `{ bpm, percent, beat }` for the display segment at the attempt's range start - 75 % of 120 -> 90 / 75; 70 % -> 84 / 70; 100 x 91 / 120 -> 91 / 76; a range starting in a later 60 section -> 45; a 6/8 dotted-quarter Score at 60 and 80 % -> 48 with a dotted-quarter beat (FR-021); UI text in `tests/ui/attempts-list.test.ts` and `tests/ui/grade-panel.test.ts`: "90 BPM (75% of written)", "84 BPM (70% of written)", "91 BPM (76% of written)", and the dotted case shows the beat symbol or label
 - [x] T041 [P] [US3] Reproducibility tests: `tests/core/grade/regrade.test.ts` - a run at `tempoPercent` 100 x 91 / 120 regrades to a deep-equal Grade; `tests/engine/storage/performance-store.test.ts` - that Performance record round-trips `settings.tempoPercent` bit-exactly; `tests/core/grade/golden.test.ts` snapshots unchanged (no `-u`)
-- [ ] T042 [P] [US3] E2E: `tests/e2e/us3-play-setup.spec.ts` and `tests/e2e/helpers/play.ts` move from the percentage `<select>` to the field; `tests/e2e/tempo-field.spec.ts` (US3 block): Play setup 90 -> transport shows 90; both read-only during count-in and run; the attempts list shows "90 BPM (75% of written)"; `tests/e2e/play-cursor.spec.ts` updated where it sets a tempo
+- [x] T042 [P] [US3] E2E: `tests/e2e/us3-play-setup.spec.ts` and `tests/e2e/helpers/play.ts` move from the percentage `<select>` to the field; `tests/e2e/tempo-field.spec.ts` (US3 block): Play setup 90 -> transport shows 90; both read-only during count-in and run; the attempts list shows "90 BPM (75% of written)"; `tests/e2e/play-cursor.spec.ts` updated where it sets a tempo
 
 ### Implementation
 
@@ -137,7 +137,7 @@ attempt shows "90 BPM (75% of written)".
 - [x] T044 [US3] New `src/ui/state/tempoBinding.ts` `tempoFieldBinding`; `src/app/session.ts` uses it so that in Play mode the transport field edits the Play setup (`onPlaySetupChange({ tempoPercent })`) and both fields lock during a run (T038 green)
 - [x] T045 [US3] `src/ui/elements/mx-play-panel.ts`: `mx-tempo-field` replaces the percentage list, segment at the range start (T039 green)
 - [x] T046 [US3] `attemptTempo` in `src/core/tempo/tempo-display.ts` (the UI only renders it, Constitution V); attempt tempo text in `src/ui/elements/mx-attempts-list.ts` and `src/ui/elements/mx-grade-panel.ts`, string `attemptTempo` ("{bpm} BPM ({percent}% of written)") in `src/ui/i18n/en.ts` (T040 green)
-- [ ] T047 [US3] Run T041 and T042 green; comment updates in `src/core/play/types.ts` and `src/core/grade/types.ts` (fractional percent)
+- [x] T047 [US3] Run T041 and T042 green; comment updates in `src/core/play/types.ts` and `src/core/grade/types.ts` (fractional percent)
 
 **Checkpoint**: spec US3 Independent Test passes (quickstart US3 1-4); full gate; log entry; commit.
 

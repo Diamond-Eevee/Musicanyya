@@ -6,6 +6,12 @@ import { openPanel } from './helpers/panels.js';
 import { startPracticeOnOpenScore } from './helpers/practice.js';
 import { sessionIndex } from './helpers/pressed-keys.js';
 
+const press = (page: import('@playwright/test').Page, key: number) =>
+  page.evaluate((k) => {
+    window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x90, k, 100] }));
+    window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x80, k, 0] }));
+  }, key);
+
 // contracts/tempo-field.md, quickstart.md "US1 - see the tempo" (feature 012). Chromium-only: this is about DOM
 // state and timing of the field, not cross-browser rendering, and every other e2e spec already covers that.
 
@@ -249,5 +255,60 @@ test.describe('US2: type the tempo to practise at', () => {
     expect(await sessionIndex(page)).toBe(before);
     await expect(page.locator('mx-transport .play-btn')).toHaveText('Stop'); // the session is still running
     expect((await transportSnapshot(page)).tempoPercent).toBeCloseTo((100 * 92) / 90, 10);
+  });
+});
+
+// quickstart.md "US3 - Play mode and the Grade" (feature 012). Play needs Web Audio and Web MIDI, neither of which
+// Playwright WebKit provides (same treatment every other Play e2e spec gives it) - Chromium-only besides.
+test.describe('US3: the same tempo field in Play mode, and the attempt it grades at', () => {
+  test.beforeEach(async ({ browserName }, testInfo) => {
+    test.skip(
+      browserName === 'webkit',
+      'Play needs AudioContext and Web MIDI, which Playwright WebKit does not provide',
+    );
+    test.skip(testInfo.project.name !== 'chromium', 'DOM/timing test of the field, not cross-browser rendering');
+  });
+
+  test('Play setup 75 -> the transport shows 75 too; both lock during the run; the attempt shows "75 BPM (75% of written)"', async ({
+    page,
+  }) => {
+    test.setTimeout(30_000);
+    await page.goto('/');
+    await page
+      .locator('mx-open-button input[type=file]')
+      .setInputFiles(fixturePath('chords/c-major-scale-and-chords.musicxml')); // no tempo mark: written 100, quarter beat
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
+    await page.locator('mx-mode-switch input[value=play]').check();
+
+    // In Play mode both fields exist at once (the transport's own, and the setup popup's) - scope each locator to
+    // its host so a Playwright strict-mode match never sees both.
+    const transportInput = page.locator('mx-transport [data-id="tempo-bpm"]');
+    await openPanel(page, 'setup');
+    const panel = page.locator('mx-play-panel');
+    const panelInput = panel.locator('[data-id="tempo-bpm"]');
+    await expect(panelInput).toHaveValue('100'); // a first Play setup starts at the written tempo (R-9)
+    await panelInput.fill('75');
+    await panelInput.press('Enter');
+    await expect(panelInput).toHaveValue('75');
+
+    // The transport's own field (the top bar, not the popup) edits the very same value (FR-017).
+    await page.keyboard.press('Escape'); // close the setup popup
+    await expect(transportInput).toHaveValue('75');
+
+    await page.locator('.play-btn').click();
+    await expect
+      .poll(() => page.evaluate(() => (window as any).__PLAY_STATE__.get().run?.phase), { timeout: 15_000 })
+      .toMatch(/^(countIn|running)$/);
+    await expect(transportInput).toHaveAttribute('readonly', ''); // locked during count-in/running (FR-017)
+
+    await press(page, 60);
+    await expect
+      .poll(() => page.evaluate(() => (window as any).__PLAY_STATE__.get().grade?.complete), { timeout: 20_000 })
+      .toBe(true);
+    await expect(transportInput).not.toHaveAttribute('readonly'); // unlocked once the run ends
+
+    await openPanel(page, 'attempts');
+    await expect(page.locator('mx-attempts-list')).toContainText('75 BPM (75% of written)');
   });
 });

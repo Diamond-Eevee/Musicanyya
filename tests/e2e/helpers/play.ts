@@ -58,7 +58,14 @@ export async function startPlay(page: Page, itemId: string, options: PlayOptions
       await to.press('Tab');
       await expect(panel).toContainText(`Measures ${range.from}-${range.to}`);
     }
-    if (tempoPercent !== undefined) await panel.getByLabel('Tempo').selectOption(String(tempoPercent));
+    if (tempoPercent !== undefined) {
+      // feature 012, US3: the Play setup's tempo field takes a whole BPM, not a percentage (FR-018) - a fresh
+      // setup always starts at 100% (R-9), so the value it shows now is the written tempo itself.
+      const input = panel.locator('input[data-id="tempo-bpm"]');
+      const written = Number(await input.inputValue());
+      await input.fill(String(Math.round((written * tempoPercent) / 100)));
+      await input.press('Enter');
+    }
   }
 
   await page.locator('mx-transport .play-btn').click();

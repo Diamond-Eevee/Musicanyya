@@ -68,7 +68,11 @@ test('US3 end-to-end: a range at a reduced tempo with one hand grades only that 
   await to.fill('2');
   await to.press('Tab');
   await expect(panel).toContainText('Measures 2-2');
-  await panel.getByLabel('Tempo').selectOption('70');
+  // feature 012, US3, FR-018: the same tempo field as the transport, typing a BPM (this fixture has no tempo
+  // mark, so the written tempo is the default 100 - typing 70 is exactly 70%).
+  const tempoInput = panel.locator('input[data-id="tempo-bpm"]');
+  await tempoInput.fill('70');
+  await tempoInput.press('Enter');
 
   // The choices are remembered for this Score as soon as they are made (T068, FR-040).
   await expect
@@ -108,7 +112,9 @@ test('US3: play settings are remembered for the Score and restored when it is op
   await from.press('Tab');
   await to.fill('2');
   await to.press('Tab');
-  await panel.getByLabel('Tempo').selectOption('70');
+  const tempoInput = panel.locator('input[data-id="tempo-bpm"]');
+  await tempoInput.fill('70'); // this fixture's written tempo is the default 100, so 70 is exactly 70%
+  await tempoInput.press('Enter');
   await expect(panel).toContainText('Measures 2-2');
 
   await expect.poll(async () => (await storedPlayDefaults(page)).tempoPercent).toBe(70);
@@ -118,5 +124,5 @@ test('US3: play settings are remembered for the Score and restored when it is op
   await openPanel(page, 'setup');
   await expect(panel).toContainText('Measures 2-2');
   await expect(panel.getByLabel('Right hand')).toBeChecked();
-  await expect(panel.getByLabel('Tempo')).toHaveValue('70');
+  await expect(panel.locator('input[data-id="tempo-bpm"]')).toHaveValue('70');
 });
