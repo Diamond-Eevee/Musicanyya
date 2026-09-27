@@ -37,11 +37,18 @@ export async function closeBrowser(page: Page): Promise<void> {
   }
 }
 
-/** Sets a file on the browser's own open control (`mx-open-button`'s hidden input, R-20 - the browser's own
- *  *Open file...* button is a US3 placeholder, so this is the one path there is today). Works whether the browser
- *  is showing or not, and closes it once the Score loads (contracts §5: "closes on ... a file"). */
+/** Sets a file on the bar's own open control (`mx-open-button`'s hidden input, R-20) - works whether the browser
+ *  is showing or not, and closes it once the Score loads (contracts §5: "closes on ... a file"). `openBrowserFile`
+ *  below is the dialog's own *Open file...* input (US3), a second, equally valid path to the same event. */
 export async function openScoreFile(page: Page, path: string): Promise<void> {
   await page.locator('mx-open-button input[type=file]').setInputFiles(path);
+  await expect(browserDialog(page)).toBeHidden();
+}
+
+/** US3: the score browser dialog's own *Open file...* input (contracts §3, T069) - the dialog must already be
+ *  open. Closes it once the Score loads, same as `openScoreFile`. */
+export async function openBrowserFile(page: Page, path: string): Promise<void> {
+  await browserDialog(page).locator('.browser-open-file-input').setInputFiles(path);
   await expect(browserDialog(page)).toBeHidden();
 }
 

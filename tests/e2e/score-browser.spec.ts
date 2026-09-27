@@ -3,7 +3,14 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
-import { browserDialog, closeBrowser, openBrowser, rowByRef } from './helpers/browser.js';
+import {
+  browserDialog,
+  closeBrowser,
+  openBrowser,
+  openBrowserFile,
+  openScoreFile,
+  rowByRef,
+} from './helpers/browser.js';
 import { expectedNoteCount, playPhase, pressFirstExpectedNotes, startPlay, waitForGrade } from './helpers/play.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -253,5 +260,120 @@ test.describe('Score browser (feature 013, US2 - progress)', () => {
     await detail.locator('.browser-reset-confirm').click();
     await page.waitForTimeout(8_500); // UNDO_WINDOW_MS (8000) plus a margin for the commit itself
     await expect(rowByRef(page, `library:${ITEM}`)).toHaveAttribute('data-status', 'new');
+  });
+});
+
+test.describe('Score browser (feature 013, US3 - My files)', () => {
+  test.beforeEach(({ browserName }) => {
+    test.skip(
+      browserName === 'webkit',
+      'Play needs AudioContext and Web MIDI, which Playwright WebKit does not provide',
+    );
+  });
+
+  const FILE_REF = 'file:fur-elise-bare.musicxml';
+
+  test('Independent Test: a Play run on an opened file is kept under My files with its result; one-click reopen after reload', async ({
+    page,
+  }) => {
+    test.setTimeout(60_000);
+    await page.goto('/');
+    await closeBrowser(page);
+    await openScoreFile(page, fixture('engraving/fur-elise-bare.musicxml'));
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    await expect(page.locator('mx-transport .play-btn')).not.toBeDisabled();
+
+    await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
+    await page.locator('#mode-controls mx-mode-switch input[value=play]').check();
+    await page.locator('mx-transport .play-btn').click();
+    await expect.poll(() => playPhase(page), { timeout: 15_000 }).toMatch(/^(countIn|running)$/);
+    const n = await expectedNoteCount(page);
+    // 70% correct: enough for the spec's own "Played" (US3's Independent Test names Played, not Mastered) - a
+    // perfect run would meet the 90%-correct mastery threshold too (R-7), which is not what this test is for.
+    await pressFirstExpectedNotes(page, Math.ceil(n * 0.7));
+    await waitForGrade(page);
+    await page.keyboard.press('Escape');
+
+    await openBrowser(page);
+    const row = rowByRef(page, FILE_REF);
+    await expect(row).toHaveAttribute('data-status', 'played');
+    await row.click();
+    const detail = page.locator('mx-browser-detail');
+    await expect(detail.locator('.browser-detail-attempts')).toContainText('Attempts: 1');
+
+    // Reload, then reopen with one click (select + the detail pane's Open button, contracts §2).
+    await page.reload();
+    await expect(browserDialog(page)).toBeVisible();
+    const rowAfterReload = rowByRef(page, FILE_REF);
+    await expect(rowAfterReload).toHaveAttribute('data-status', 'played');
+    await rowAfterReload.click();
+    await expect(rowAfterReload).toHaveAttribute('aria-selected', 'true');
+    await detail.locator('.browser-detail-open').click();
+    await expect(browserDialog(page)).toBeHidden();
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+  });
+
+  test('reopening the same file from disk gives no duplicate row, and keeps progress (US3 #2)', async ({ page }) => {
+    await page.goto('/');
+    await closeBrowser(page);
+    await openScoreFile(page, fixture('engraving/fur-elise-bare.musicxml'));
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+
+    await openBrowser(page);
+    await expect(rowByRef(page, FILE_REF)).toHaveCount(1);
+
+    // Reopen the same file through the dialog's own *Open file...* input (US3, T069) - a second, equally valid path.
+    await openBrowserFile(page, fixture('engraving/fur-elise-bare.musicxml'));
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    await openBrowser(page);
+    await expect(rowByRef(page, FILE_REF)).toHaveCount(1);
+  });
+
+  test('a .musicxml file with invalid content dropped onto the browser gives a message, browser stays open, My files unchanged (US3 #5)', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(browserDialog(page)).toBeVisible();
+    const before = await page.locator('.browser-row[data-ref^="file:"]').count();
+
+    await browserDialog(page).evaluate((dialog) => {
+      const file = new File(['not xml'], 'broken.musicxml', { type: 'application/xml' });
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      dialog.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer }));
+    });
+
+    await expect(browserDialog(page)).toBeVisible();
+    await expect(page.locator('.browser-message')).toContainText('broken.musicxml');
+    await expect(page.locator('.browser-row[data-ref^="file:"]')).toHaveCount(before);
+  });
+
+  test('remove with undo (US3 #4, OD-3)', async ({ page }) => {
+    await page.goto('/');
+    await closeBrowser(page);
+    await openScoreFile(page, fixture('engraving/fur-elise-bare.musicxml'));
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+
+    await openBrowser(page);
+    const row = rowByRef(page, FILE_REF);
+    await row.click();
+    await expect(row).toHaveAttribute('aria-selected', 'true');
+    const detail = page.locator('mx-browser-detail');
+    await expect(detail.locator('.browser-remove-start')).toBeVisible();
+
+    // Undo restores it - nothing removed.
+    await detail.locator('.browser-remove-start').click();
+    await detail.locator('.browser-remove-progress').click();
+    await expect(detail.locator('.browser-remove-undo')).toBeVisible();
+    await detail.locator('.browser-remove-undo').click();
+    await expect(rowByRef(page, FILE_REF)).toHaveCount(1);
+
+    // Letting the undo window elapse commits the removal.
+    await row.click();
+    await expect(row).toHaveAttribute('aria-selected', 'true');
+    await detail.locator('.browser-remove-start').click();
+    await detail.locator('.browser-remove-progress').click();
+    await page.waitForTimeout(8_500); // UNDO_WINDOW_MS (8000) plus a margin for the commit itself
+    await expect(rowByRef(page, FILE_REF)).toHaveCount(0);
   });
 });

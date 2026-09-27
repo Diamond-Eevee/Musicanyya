@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
-import { closeBrowser } from './helpers/browser.js';
+import { browserDialog, closeBrowser, openBrowser } from './helpers/browser.js';
 import { openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -12,7 +12,10 @@ function fixturePath(name: string): string {
   return path.join(fixturesDir, name);
 }
 
-test('US1 end-to-end: open fixtures, zoom, errors, recent, help page', async ({ page, baseURL }) => {
+test('US1 end-to-end: open fixtures, zoom, errors, My files (feature 013 R-20), help page', async ({
+  page,
+  baseURL,
+}) => {
   const externalRequests: string[] = [];
   page.on('request', (request) => {
     const url = new URL(request.url());
@@ -28,7 +31,9 @@ test('US1 end-to-end: open fixtures, zoom, errors, recent, help page', async ({ 
   await fileInput.setInputFiles(fixturePath('minimal-single-note.musicxml'));
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
   await expect(page.locator('.mx-empty-state')).toBeHidden();
-  await expect(page.locator('.mx-recent-list button.mx-recent-open')).toHaveCount(1);
+  await openBrowser(page);
+  await expect(page.locator('.browser-row[data-ref^="file:"]')).toHaveCount(1); // feature 013 R-20: My files
+  await closeBrowser(page);
 
   // Zoom via the +/- keyboard shortcuts (quickstart US1-4); persisted to settings.
   await page.keyboard.press('+');
@@ -46,25 +51,35 @@ test('US1 end-to-end: open fixtures, zoom, errors, recent, help page', async ({ 
     if (!zone) throw new Error('mx-drop-zone not found');
     zone.dispatchEvent(new DragEvent('drop', { dataTransfer, bubbles: true, cancelable: true }));
   }, dropXml);
-  await expect(page.locator('.mx-recent-list button.mx-recent-open')).toHaveCount(2);
+  await openBrowser(page);
+  await expect(page.locator('.browser-row[data-ref^="file:"]')).toHaveCount(2);
+  await closeBrowser(page);
 
-  // Error case: a malformed file keeps the current Score and shows a notice, recent list stays the same.
+  // Error case: a malformed file keeps the current Score and shows a notice, My files stays the same (R-11: the
+  // entry is written only after the Score loaded successfully).
   await fileInput.setInputFiles(fixturePath('malformed-not-xml.musicxml'));
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
   await expect(page.locator('.mx-empty-state')).toBeHidden();
   await expect(page.locator('.notice')).not.toHaveCount(0);
-  await expect(page.locator('.mx-recent-list button.mx-recent-open')).toHaveCount(2);
+  await openBrowser(page);
+  const fileRows = page.locator('.browser-row[data-ref^="file:"]');
+  await expect(fileRows).toHaveCount(2);
+  await closeBrowser(page);
 
-  // Reload and reopen from the recent list without a file dialog.
+  // Reload and reopen from My files without a file dialog (feature 013 R-20 replaces the old recent list).
   await page.reload();
   await expect(page.locator('.mx-empty-state')).toBeVisible();
-  // FR-001: the reload starts with no Score again, so the browser is open behind the bar - close it before the
-  // Score menu (behind the modal) can be reached.
-  await closeBrowser(page);
-  const recentButtons = page.locator('.mx-recent-list button.mx-recent-open');
-  await expect(recentButtons).toHaveCount(2);
-  await openPanel(page, 'scores'); // the recent list is a popup now
-  await recentButtons.first().click();
+  // FR-001: the reload starts with no Score again, so the browser is open at start-up.
+  await expect(browserDialog(page)).toBeVisible();
+  await expect(fileRows).toHaveCount(2);
+  // A plain .dblclick() can race a re-render between its two clicks once this many state changes have already
+  // happened in the test (found live: the second click's dblclick never fires on the replaced row) - select
+  // through the single click's own 300ms debounce settling first, then use the detail pane's Open button
+  // (contracts/score-browser.md §2, an equally valid way to open the active item).
+  await fileRows.first().click();
+  await expect(fileRows.first()).toHaveAttribute('aria-selected', 'true');
+  await page.locator('mx-browser-detail .browser-detail-open').click();
+  await expect(browserDialog(page)).toBeHidden();
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
 
   // Help page: shows the supported notation table.

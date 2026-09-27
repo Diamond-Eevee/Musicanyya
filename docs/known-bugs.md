@@ -84,3 +84,16 @@ One entry per bug: what fails, how to reproduce it, what has already been ruled 
   T020's Independent Test): reproduces identically with that change stashed out. Not yet investigated together
   with the key-signature bug above, but both point at the same interactive-dblclick-through-the-dialog path on
   WebKit - worth checking as one root cause rather than two.
+- **Update 2026-09-28 (013 US3 session, T064 prep)**: the same *shape* of race also reproduces on **Chromium and
+  Firefox**, not just WebKit - `tests/e2e/us1-open-view.spec.ts`'s final reopen (a *My files* row, after several
+  earlier opens/closes of the browser in the same test) never emits `dblclick` at all: an event listener attached
+  to the row just before the double-click recorded only one native `click`, never a second `click` or `dblclick`,
+  meaning Playwright's second synthetic click landed on a *different* DOM node (the row was replaced by a
+  `mx-browser-list` re-render between the two clicks) rather than firing on the one the listener was attached to.
+  Reproduced 4/4 standalone runs before the fix, 0/4 after. Not yet traced to what triggers that re-render in this
+  window (no `browserState` mutation was expected between the two clicks) or whether it is the same trigger as
+  WebKit's. Worked around in that test by selecting with a single `.click()` (waiting for `aria-selected`) and
+  opening through the detail pane's `.browser-detail-open` button instead of `.dblclick()` - a real alternative
+  per contracts/score-browser.md §2, not a hack, but the underlying re-render race itself is still open. If picked
+  up together with the WebKit case, start by logging every `browserState` transition (`browserState.subscribe`)
+  around an interactive dblclick-open to see what fires between the two clicks.
