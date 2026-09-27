@@ -1,6 +1,13 @@
 import type { XmlDocument } from '@rgrove/parse-xml';
 import { XmlElement, XmlText } from '@rgrove/parse-xml';
-import { BASE_PPQ, DEFAULT_TEMPO_QPM, DYNAMIC_VELOCITY, INFER_JUMPS_FROM_TEXT } from '../defaults.js';
+import {
+  BASE_PPQ,
+  DEFAULT_TEMPO_QPM,
+  DYNAMIC_VELOCITY,
+  INFER_JUMPS_FROM_TEXT,
+  TEMPO_MARK_QPM_MAX,
+  TEMPO_MARK_QPM_MIN,
+} from '../defaults.js';
 import { applyTransposition, getMidiKey, getUnpitchedDisplayKey } from '../pitch.js';
 import type { LoadNoticeCode, LoadReport, LoadReportEntry, Severity } from '../score/load-report.js';
 import type {
@@ -12,10 +19,12 @@ import type {
   OctaveShiftSpan,
   Part,
   Score,
+  TempoBeat,
   Transposition,
   Wedge,
 } from '../score/model.js';
 import { buildMeasureId, buildNoteId } from '../score/note-id.js';
+import { beatOf, metronomeBeatAt, parsePerMinute } from '../tempo/beat-unit.js';
 import { computePPQ, reduceFraction } from '../ticks.js';
 import { MusicXmlLoadError } from './load-error.js';
 
@@ -856,30 +865,44 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           }
 
           if (dirType) {
-            const metronome = getChild(dirType, 'metronome');
-            let qpm = 0;
-            if (sound && getAttr(sound, 'tempo')) {
-              qpm = parseFloat(getAttr(sound, 'tempo')!);
-              hasTempo = true;
-            } else if (metronome) {
-              const beatUnit = getText(getChild(metronome, 'beat-unit'));
-              const dot = getChild(metronome, 'beat-unit-dot') ? 1.5 : 1;
-              const perMinute = getText(getChild(metronome, 'per-minute'));
-              if (beatUnit && perMinute) {
-                let multiplier = 1;
-                if (beatUnit === 'quarter') multiplier = 1;
-                if (beatUnit === 'eighth') multiplier = 0.5;
-                if (beatUnit === 'half') multiplier = 2;
-                qpm = parseFloat(perMinute) * multiplier * dot;
-                hasTempo = true;
+            // A <metronome> may sit in any <direction-type> sibling of the direction (e.g. one direction-type for
+            // printed words like "Allegro maestoso", another for the mark itself) - not necessarily the first,
+            // which is all `dirType` gives (found on real repertoire, holmes-lor.mxl).
+            const metronome = getChildren(el, 'direction-type')
+              .map((dt) => getChild(dt, 'metronome'))
+              .find((m): m is XmlElement => m !== undefined);
+            // The mark's own note value (012 R-2): null for a metric modulation (more than one <beat-unit>), a
+            // <metronome-note> form, or a <beat-unit-tied> unit - none of those give a beat, even when a <sound
+            // tempo> in the same direction still supplies the played qpm.
+            let beat: TempoBeat | null = null;
+            if (metronome) {
+              const beatUnits = getChildren(metronome, 'beat-unit');
+              if (beatUnits.length === 1 && !getChild(metronome, 'beat-unit-tied')) {
+                const dots = getChildren(metronome, 'beat-unit-dot').length;
+                beat = beatOf(getText(beatUnits[0]), dots);
               }
             }
-            if (qpm > 0) {
+            let qpm = 0;
+            let markIsUsable = false;
+            if (sound && getAttr(sound, 'tempo')) {
+              qpm = parseFloat(getAttr(sound, 'tempo')!);
+              markIsUsable = Number.isFinite(qpm) && qpm >= TEMPO_MARK_QPM_MIN && qpm <= TEMPO_MARK_QPM_MAX;
+            } else if (metronome && beat) {
+              const perMinute = parsePerMinute(getText(getChild(metronome, 'per-minute')));
+              if (perMinute !== null) {
+                qpm = perMinute * (beat.quartersNum / beat.quartersDen);
+                markIsUsable = Number.isFinite(qpm) && qpm >= TEMPO_MARK_QPM_MIN && qpm <= TEMPO_MARK_QPM_MAX;
+              }
+            }
+            if (markIsUsable) {
+              hasTempo = true;
               score.tempoMarks.push({
                 measureIndex: currentMeasureIndex,
                 onsetInMeasure: tempoOnsetInMeasure,
                 qpmNum: Math.round(qpm * 100),
                 qpmDen: 100,
+                beat,
+                isDefault: false,
               });
             }
 
@@ -1119,7 +1142,14 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
 
   if (!hasTempo) {
     score.defaultTempoUsed = true;
-    score.tempoMarks.push({ measureIndex: 0, onsetInMeasure: 0, qpmNum: DEFAULT_TEMPO_QPM * 100, qpmDen: 100 });
+    score.tempoMarks.push({
+      measureIndex: 0,
+      onsetInMeasure: 0,
+      qpmNum: DEFAULT_TEMPO_QPM * 100,
+      qpmDen: 100,
+      beat: metronomeBeatAt(0, score.measures),
+      isDefault: true,
+    });
     report.add('info', 'defaultTempo', '0');
   }
 

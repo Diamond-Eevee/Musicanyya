@@ -2,8 +2,19 @@ import type { GradeMarkRef, GradeMarkSet } from '../../core/grade/marks.js';
 import type { Grade } from '../../core/grade/types.js';
 import type { PlayRun, RunSettings } from '../../core/play/types.js';
 import type { HandSelection } from '../../core/practice/types.js';
+import type { TempoDisplaySegment } from '../../core/tempo/tempo-display.js';
+import type { MeasurePass } from '../../core/timeline/types.js';
 import type { StoredPerformanceSummary } from '../../engine/ports.js';
+import type { MusicGlyphData } from '../score/verovio-client.js';
 import { createStore } from './store.js';
+
+/** The open Score's tempo display map and passes (feature 012, US3): what `attemptTempo` (attempts list, Grade
+ *  panel) needs to show a stored run's tempo in its own beat, without either view reaching into session state
+ *  (Constitution V - they call the pure core function themselves, given this). Null before a Score loads. */
+export interface ScoreTempo {
+  map: readonly TempoDisplaySegment[];
+  passes: readonly MeasurePass[];
+}
 
 /** What the musician can configure before starting a Play run (US3, T066). */
 export interface PlaySetup {
@@ -15,6 +26,12 @@ export interface PlaySetup {
   measureCount: number;
   /** Currently chosen run settings (mutated by the panel events). */
   settings: RunSettings;
+  /** feature 012, US3, FR-018: the tempo display segment at the run range's start (first pass of its first
+   *  measure, else tick 0) - what the Play setup's own tempo field shows and edits. Session-computed (Constitution
+   *  V): the panel only renders it. Recomputed whenever the range or the Score changes. */
+  tempoSegment: TempoDisplaySegment | null;
+  /** Harvested beat-symbol glyphs (012 R-7), the same ones the transport's tempo field draws with. */
+  glyphs: MusicGlyphData | null;
 }
 
 /** The run and Grade state for the UI (T040): populated while a Play run is live and once it has been graded. */
@@ -30,6 +47,8 @@ export interface PlayState {
   selectedMark: GradeMarkRef | null;
   /** Kept attempts for the open Score, newest first (US4, T076); empty before a Score is loaded or stored. */
   attempts: readonly StoredPerformanceSummary[];
+  /** feature 012, US3: the open Score's tempo display map and passes, for `attemptTempo`; null before a Score loads. */
+  scoreTempo: ScoreTempo | null;
 }
 
 class PlayStateStore {
@@ -40,6 +59,7 @@ class PlayStateStore {
     marks: null,
     selectedMark: null,
     attempts: [],
+    scoreTempo: null,
   });
 
   get(): PlayState {
@@ -60,6 +80,10 @@ class PlayStateStore {
 
   setAttempts(attempts: readonly StoredPerformanceSummary[]) {
     this.store.update((state) => ({ ...state, attempts }));
+  }
+
+  setScoreTempo(scoreTempo: ScoreTempo | null) {
+    this.store.update((state) => ({ ...state, scoreTempo }));
   }
 
   updateSettings(settings: Partial<RunSettings>) {

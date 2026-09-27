@@ -539,7 +539,9 @@ describe('writeScoreXml (contracts/exercise-definition.md - the minimal writer)'
         '<direction placement="above"><direction-type><words font-weight="bold">Poco moto.</words></direction-type><sound tempo="72"/><staff>1</staff></direction>',
       );
       expect(score.defaultTempoUsed).toBe(false);
-      expect(score.tempoMarks).toEqual([{ measureIndex: 0, onsetInMeasure: 0, qpmNum: 7200, qpmDen: 100 }]);
+      expect(score.tempoMarks).toEqual([
+        { measureIndex: 0, onsetInMeasure: 0, qpmNum: 7200, qpmDen: 100, beat: null, isDefault: false },
+      ]);
     });
 
     it('writes an expression word in italics and a written arpeggio on every chord member', () => {

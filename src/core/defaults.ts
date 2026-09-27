@@ -54,8 +54,12 @@ export const LIVE_VELOCITY_DEFAULT = 80; // or from key velocity
 
 export const TEMPO_PERCENT_MIN = 25;
 export const TEMPO_PERCENT_MAX = 200;
-export const TEMPO_PERCENT_STEP = 5;
 export const TEMPO_PERCENT_DEFAULT = 100;
+export const TEMPO_BPM_STEP = 1; // one press of a tempo-field step control (012 FR-010)
+export const TEMPO_MARK_QPM_MIN = 10; // a mark's quarter-notes-per-minute outside this is unusable (012 R-2)
+export const TEMPO_MARK_QPM_MAX = 1000;
+export const TEMPO_BEAT_DOTS_MAX = 3; // more dots on a <beat-unit> make its mark unusable (012 R-2)
+export const TEMPO_BPM_DIGITS_MAX = 4; // longest number the tempo field accepts (012)
 export const VOLUME_DEFAULT = 80;
 
 // Audio worklet scheduling (R-10, shared with worklet which cannot import engine/config)

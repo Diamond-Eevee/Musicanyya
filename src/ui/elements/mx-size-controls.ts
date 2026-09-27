@@ -16,6 +16,13 @@ export class MxSizeControls extends HTMLElement {
         span { display: inline-flex; gap: 2px; }
         button { font: inherit; min-width: 2.25em; padding: 4px 8px; }
         button[data-action="reset"] { min-width: 3.75em; font-variant-numeric: tabular-nums; }
+
+        /* Phone width (SC-004, T049): the tempo field (wider than the slider it replaced) leaves no room for these
+           at their usual size - a media query works the same inside a shadow tree as anywhere else. */
+        @media (max-width: 480px) {
+          button { min-width: 1.6em; padding: 2px 3px; }
+          button[data-action="reset"] { min-width: 2.4em; }
+        }
       </style>
       <span role="group" aria-label="${en.size.group}">
         <button type="button" data-action="smaller" aria-label="${en.size.smaller}">A&minus;</button>

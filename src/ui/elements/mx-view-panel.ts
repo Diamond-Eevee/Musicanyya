@@ -1,5 +1,6 @@
 import { en } from '../i18n/en.js';
 import { type OverlayLayer, viewState } from '../state/viewState.js';
+import './mx-mode-switch.js';
 import './mx-size-controls.js';
 
 const LAYERS: readonly OverlayLayer[] = ['cursor', 'marks', 'advice', 'pianoKeys', 'notices'];
@@ -7,6 +8,9 @@ const LAYERS: readonly OverlayLayer[] = ['cursor', 'marks', 'advice', 'pianoKeys
 /**
  * The View popup (FR-012, FR-014a): a switch for each optional overlay layer, and the Score size controls. A switch
  * writes the store the moment it is changed; the layers themselves read the store, so nothing here touches a run.
+ * Phone width (SC-004, T049): also a second `mx-mode-switch` instance (same pattern as `mx-size-controls` here) -
+ * at <=480px the bar hides its own mode-switch and size-controls (no room once the tempo field, wider than the
+ * slider it replaced, is on the row too), so both stay reachable through here instead - one tap away, not removed.
  */
 export class MxViewPanel extends HTMLElement {
   private unsubscribe?: () => void;
@@ -20,6 +24,10 @@ export class MxViewPanel extends HTMLElement {
         </div>`,
     ).join('');
     this.innerHTML = `
+      <div class="mx-view-mode-narrow">
+        <span>${en.app.modeGroup}</span>
+        <mx-mode-switch></mx-mode-switch>
+      </div>
       <fieldset class="mx-view-layers">
         <legend>${en.view.layersHeading}</legend>
         ${switches}

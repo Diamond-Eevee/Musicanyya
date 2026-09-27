@@ -1,13 +1,26 @@
-import { TEMPO_PERCENT_MAX, TEMPO_PERCENT_MIN, TEMPO_PERCENT_STEP } from '../../engine/config.js';
 import { en } from '../i18n/en.js';
 import { practiceState } from '../state/practiceState.js';
 import type { LoadingProgress } from '../state/transportState.js';
 import { transportState } from '../state/transportState.js';
+import type { TempoFieldModel } from './mx-tempo-field.js';
+import './mx-tempo-field.js';
 
 export class MxTransport extends HTMLElement {
+  // A persistent instance (research R-8): built once and never removed from the DOM by a re-render, so a focused
+  // edit and its typed text survive a transport or practice-state change. The rest of this element is built once
+  // too (below) and only patched afterwards, for exactly the same reason.
+  private readonly tempoField = document.createElement('mx-tempo-field') as HTMLElement & { model: TempoFieldModel };
+  private tempoModel: TempoFieldModel = { segment: null, percent: 100, locked: false, glyphs: null };
+  private built = false;
   private unsubscribe?: () => void;
   private unsubscribeProgress?: () => void;
   private unsubscribePractice?: () => void;
+
+  /** Pushed by session.ts (T023) whenever the segment, the factor, the lock or the glyphs change. */
+  setTempoModel(model: TempoFieldModel): void {
+    this.tempoModel = model;
+    this.tempoField.model = model;
+  }
 
   connectedCallback() {
     this.unsubscribe = transportState.subscribe(() => this.render());
@@ -22,13 +35,58 @@ export class MxTransport extends HTMLElement {
     this.unsubscribePractice?.();
   }
 
+  private build(): void {
+    this.built = true;
+    this.innerHTML = `
+      <button type="button" class="play-btn"></button>
+      <button type="button" class="stop-btn" aria-label="${en.transport.stop}">${en.transport.stop}</button>
+      <button type="button" class="skip-back-btn" aria-label="${en.transport.skipBack}">${en.transport.skipBack}</button>
+      <button type="button" class="skip-forward-btn" aria-label="${en.transport.skipForward}">${en.transport.skipForward}</button>
+      <span class="tempo-field-slot"></span>
+      <label class="volume-label">${en.transport.volume}
+        <input type="range" class="volume" min="0" max="100" step="1" />
+      </label>
+      <label class="follow-label" title="${en.transport.followHint}">
+        <input type="checkbox" class="follow" />${en.transport.follow}
+      </label>
+      <span class="loading-progress"></span>
+    `;
+    this.querySelector('.tempo-field-slot')?.replaceWith(this.tempoField);
+
+    (this.querySelector('.play-btn') as HTMLButtonElement).addEventListener('click', () => {
+      const isPractice = practiceState.get().mode === 'practice';
+      const playing = transportState.get().phase === 'playing';
+      if (isPractice) {
+        if (playing) transportState.stop();
+        else transportState.play();
+      } else {
+        transportState.togglePlay();
+      }
+    });
+    (this.querySelector('.stop-btn') as HTMLButtonElement).addEventListener('click', () => transportState.stop());
+    (this.querySelector('.skip-back-btn') as HTMLButtonElement).addEventListener('click', () =>
+      this.dispatchEvent(new CustomEvent('skipback')),
+    );
+    (this.querySelector('.skip-forward-btn') as HTMLButtonElement).addEventListener('click', () =>
+      this.dispatchEvent(new CustomEvent('skipforward')),
+    );
+    (this.querySelector('input.volume') as HTMLInputElement).addEventListener('input', (event) => {
+      transportState.setVolume(Number((event.target as HTMLInputElement).value));
+    });
+    (this.querySelector('input.follow') as HTMLInputElement).addEventListener('change', () =>
+      transportState.toggleFollow(),
+    );
+  }
+
   private render() {
+    if (!this.built) this.build();
+
     const state = transportState.get();
     const progress = transportState.getLoadingProgress();
     const playing = state.phase === 'playing';
     const { mode } = practiceState.get();
-
     const isPractice = mode === 'practice';
+
     const playBtnLabel = isPractice
       ? playing
         ? en.transport.stop
@@ -36,66 +94,27 @@ export class MxTransport extends HTMLElement {
       : playing
         ? en.transport.pause
         : en.transport.play;
+    const playBtn = this.querySelector('.play-btn') as HTMLButtonElement;
+    playBtn.textContent = playBtnLabel;
+    playBtn.setAttribute('aria-label', playBtnLabel);
 
-    this.innerHTML = `
-      <button type="button" class="play-btn" aria-label="${playBtnLabel}">${playBtnLabel}</button>
-      ${!isPractice ? `<button type="button" class="stop-btn" aria-label="${en.transport.stop}">${en.transport.stop}</button>` : ''}
-      ${
-        isPractice
-          ? `
-        <button type="button" class="skip-back-btn" aria-label="${en.transport.skipBack}" ${!playing ? 'disabled' : ''}>${en.transport.skipBack}</button>
-        <button type="button" class="skip-forward-btn" aria-label="${en.transport.skipForward}" ${!playing ? 'disabled' : ''}>${en.transport.skipForward}</button>
-      `
-          : ''
-      }
-      <label class="tempo-label">${en.transport.tempo}
-        <input type="range" class="tempo" min="${TEMPO_PERCENT_MIN}" max="${TEMPO_PERCENT_MAX}" step="${TEMPO_PERCENT_STEP}" value="${state.tempoPercent}" />
-      </label>
-      <label class="volume-label">${en.transport.volume}
-        <input type="range" class="volume" min="0" max="100" step="1" value="${state.volume}" />
-      </label>
-      <label class="follow-label" title="${en.transport.followHint}">
-        <input type="checkbox" class="follow" ${state.follow ? 'checked' : ''} />${en.transport.follow}
-      </label>
-      <span class="loading-progress" ${progress ? '' : 'hidden'}>${this.progressText(progress)}</span>
-    `;
+    (this.querySelector('.stop-btn') as HTMLButtonElement).hidden = isPractice;
+    const skipBack = this.querySelector('.skip-back-btn') as HTMLButtonElement;
+    const skipForward = this.querySelector('.skip-forward-btn') as HTMLButtonElement;
+    skipBack.hidden = !isPractice;
+    skipForward.hidden = !isPractice;
+    skipBack.disabled = !playing;
+    skipForward.disabled = !playing;
 
-    (this.querySelector('.play-btn') as HTMLButtonElement).addEventListener('click', () => {
-      if (isPractice) {
-        if (playing) {
-          transportState.stop();
-        } else {
-          transportState.play();
-        }
-      } else {
-        transportState.togglePlay();
-      }
-    });
+    this.tempoField.model = this.tempoModel;
 
-    const stopBtn = this.querySelector('.stop-btn') as HTMLButtonElement | null;
-    if (stopBtn) {
-      stopBtn.addEventListener('click', () => transportState.stop());
-    }
+    const volumeInput = this.querySelector('input.volume') as HTMLInputElement;
+    if (this.ownerDocument.activeElement !== volumeInput) volumeInput.value = String(state.volume);
+    (this.querySelector('input.follow') as HTMLInputElement).checked = state.follow;
 
-    const skipBackBtn = this.querySelector('.skip-back-btn') as HTMLButtonElement | null;
-    if (skipBackBtn) {
-      skipBackBtn.addEventListener('click', () => this.dispatchEvent(new CustomEvent('skipback')));
-    }
-
-    const skipForwardBtn = this.querySelector('.skip-forward-btn') as HTMLButtonElement | null;
-    if (skipForwardBtn) {
-      skipForwardBtn.addEventListener('click', () => this.dispatchEvent(new CustomEvent('skipforward')));
-    }
-
-    (this.querySelector('input.tempo') as HTMLInputElement).addEventListener('change', (event) => {
-      transportState.setTempo(Number((event.target as HTMLInputElement).value));
-    });
-    (this.querySelector('input.volume') as HTMLInputElement).addEventListener('input', (event) => {
-      transportState.setVolume(Number((event.target as HTMLInputElement).value));
-    });
-    (this.querySelector('input.follow') as HTMLInputElement).addEventListener('change', () =>
-      transportState.toggleFollow(),
-    );
+    const progressEl = this.querySelector('.loading-progress') as HTMLElement;
+    progressEl.hidden = !progress;
+    progressEl.textContent = this.progressText(progress);
   }
 
   private progressText(progress: LoadingProgress | null): string {

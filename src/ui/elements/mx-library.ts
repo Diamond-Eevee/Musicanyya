@@ -234,7 +234,7 @@ export class MxLibrary extends HTMLElement {
     const parts: string[] = [];
     if (facts.keys.length > 0) parts.push(`${s.detail.key}: ${escapeHtml(facts.keys.join(', '))}`);
     if (facts.metres.length > 0) parts.push(`${s.detail.metre}: ${escapeHtml(facts.metres.join(', '))}`);
-    if (facts.tempoBpm !== null) parts.push(`${s.detail.tempo}: ${Math.round(facts.tempoBpm)}`);
+    if (facts.tempoBpm !== null) parts.push(`${s.detail.tempo}: ${Math.round(facts.tempoBpm)} ${en.transport.bpm}`);
     parts.push(`${s.detail.measures}: ${facts.measures}`);
     parts.push(`${s.detail.duration}: ${formatDuration(facts.durationSeconds)}`);
     if (meta.hands) parts.push(`${s.detail.hands}: ${escapeHtml(meta.hands)}`);

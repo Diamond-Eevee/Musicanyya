@@ -11,9 +11,15 @@ export interface HarvestedGlyphs {
   natural: string;
   notehead: string;
   unitsPerEm: number;
+  /** 012-tempo-bpm-field R-7: the tempo field's beat symbol (half/whole notehead, up eighth-flag). */
+  noteheadHalf: string;
+  noteheadWhole: string;
+  flag8thUp: string;
 }
 
-/** One measure with a sharp, a flat, a natural and plain black noteheads: everything the harvest needs to see drawn. */
+/** One measure with a sharp, a flat, a natural, plain black/half/whole noteheads and an eighth note (for its flag,
+ *  kept low so the stem points up and the flag drawn is `flag8thUp` rather than `flag8thDown`): everything the
+ *  harvest needs to see drawn. */
 const SNIPPET = `<?xml version="1.0" encoding="UTF-8"?>
 <mei xmlns="http://www.music-encoding.org/ns/mei" meiversion="5.0">
   <meiHead><fileDesc><titleStmt><title/></titleStmt><pubStmt/></fileDesc></meiHead>
@@ -23,13 +29,23 @@ const SNIPPET = `<?xml version="1.0" encoding="UTF-8"?>
       <note pname="f" oct="4" dur="4" accid="s"/>
       <note pname="b" oct="4" dur="4" accid="f"/>
       <note pname="c" oct="5" dur="4" accid="n"/>
-      <note pname="d" oct="5" dur="4"/>
+      <note pname="d" oct="4" dur="8"/>
+      <note pname="e" oct="4" dur="2"/>
+      <note pname="g" oct="4" dur="1"/>
     </layer></staff></measure></section>
   </score></mdiv></body></music>
 </mei>`;
 
-/** SMuFL code points: accidental sharp, flat, natural and the black notehead. */
-const GLYPH_IDS = { sharp: 'E262', flat: 'E260', natural: 'E261', notehead: 'E0A4' } as const;
+/** SMuFL code points: accidental sharp, flat, natural, the black/half/whole noteheads and the up eighth-flag. */
+const GLYPH_IDS = {
+  sharp: 'E262',
+  flat: 'E260',
+  natural: 'E261',
+  notehead: 'E0A4',
+  noteheadHalf: 'E0A3',
+  noteheadWhole: 'E0A2',
+  flag8thUp: 'E240',
+} as const;
 
 /** The path data of one glyph from the SVG's `<defs>`: `<g id="E262-suffix"><path d="..."/></g>`. */
 function pathOf(svg: string, codePoint: string): string {
@@ -47,7 +63,7 @@ function pathOf(svg: string, codePoint: string): string {
  */
 export function harvestGlyphs(toolkit: VerovioToolkit): HarvestedGlyphs {
   toolkit.setOptions({
-    pageWidth: 600,
+    pageWidth: 1400,
     pageHeight: 400,
     scale: 100,
     font: 'Leipzig',
@@ -69,6 +85,9 @@ export function harvestGlyphs(toolkit: VerovioToolkit): HarvestedGlyphs {
     flat: pathOf(svg, GLYPH_IDS.flat),
     natural: pathOf(svg, GLYPH_IDS.natural),
     notehead: pathOf(svg, GLYPH_IDS.notehead),
+    noteheadHalf: pathOf(svg, GLYPH_IDS.noteheadHalf),
+    noteheadWhole: pathOf(svg, GLYPH_IDS.noteheadWhole),
+    flag8thUp: pathOf(svg, GLYPH_IDS.flag8thUp),
     unitsPerEm: Math.round((4 * spacing) / k),
   };
 }

@@ -4,13 +4,17 @@ export interface LayoutOptions {
   scale: number; // 50..200
 }
 
-/** Path data of the music-font glyphs the red discs need, in font units, y up (contracts/worker-messages.md 1.2.0). */
+/** Path data of the music-font glyphs the red discs (and the tempo field's beat symbol, 012 R-7) need, in font
+ *  units, y up (contracts/worker-messages.md 1.3.0). */
 export interface MusicGlyphData {
   sharp: string;
   flat: string;
   natural: string;
   notehead: string;
   unitsPerEm: number;
+  noteheadHalf: string;
+  noteheadWhole: string;
+  flag8thUp: string;
 }
 
 export interface VerovioClient {

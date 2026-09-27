@@ -83,7 +83,7 @@ export interface AudioEngine extends Emitter<AudioEngineEvent> {
   pause(): void;
   stop(): void;
   seekTick(tick: number): void;
-  setTempoPercent(percent: number): void; // 25..200, multiple of 5
+  setTempoPercent(percent: number): void; // any finite number in 25..200 (feature 012: not stepped)
   setVolume(volume: number): void; // 0..100
   /** CC7 on one channel, applied at the next block. Used to mute the Metronome without touching the schedule. */
   setChannelVolume(channel: number, volume: number): void; // 0..100
@@ -180,7 +180,8 @@ export interface OverlayFlags {
 export interface UserSettings {
   version: 2;
   volume: number;
-  tempoPercent: number;
+  // `tempoPercent` removed in feature 012-tempo-bpm-field (FR-015, view-settings.md 2.1.0): the transport factor
+  // is never carried over between Scores, so it is not persisted.
   /** Score size in percent, 50-200 in steps of 10; 100 = fitted to the viewport (v1 called this `zoomPercent`). */
   scale: number;
   follow: boolean;

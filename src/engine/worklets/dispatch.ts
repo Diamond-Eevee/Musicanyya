@@ -67,7 +67,7 @@ export class DispatchState {
  * @param startTick   The tick position at the start of playback (e.g. after a seek).
  * @param startFrame  The audio frame number corresponding to startTick.
  * @param sampleRate  Audio context sample rate.
- * @param tempoPercent 25..200 integer.
+ * @param tempoPercent 25..200, any finite number (feature 012: the tempo field's factor is not stepped).
  */
 export function recomputeSegmentFrames(
   schedule: ScheduleMessage,
@@ -159,18 +159,19 @@ export function dispatchBlock(
 
   while (cursor < n && state.numEvents < maxEv) {
     const tick = schedule.eventTick[cursor]!;
-    const frame = frameOfTickInSegs(tick, segs);
+    // An event that is already due (its frame is before this block) is late, not gone: after a tempo change that slows
+    // playback the re-anchored frame of an event not yet dispatched can land just before `blockStart`. It sounds at the
+    // block start; dropping it would lose a note-on, or leave a note-off out and the note stuck (feature 012, RT review).
+    const frame = Math.max(frameOfTickInSegs(tick, segs), blockStart);
     if (frame >= blockEnd) break; // future event
-    if (frame >= blockStart) {
-      const ev = state.events[state.numEvents]!;
-      ev.frame = frame;
-      ev.kind = schedule.eventKind[cursor]!;
-      ev.channel = schedule.eventChannel[cursor]!;
-      ev.data1 = schedule.eventData1[cursor]!;
-      ev.data2 = schedule.eventData2[cursor]!;
-      ev.eventIndex = cursor;
-      state.numEvents++;
-    }
+    const ev = state.events[state.numEvents]!;
+    ev.frame = frame;
+    ev.kind = schedule.eventKind[cursor]!;
+    ev.channel = schedule.eventChannel[cursor]!;
+    ev.data1 = schedule.eventData1[cursor]!;
+    ev.data2 = schedule.eventData2[cursor]!;
+    ev.eventIndex = cursor;
+    state.numEvents++;
     cursor++;
   }
 
@@ -225,8 +226,8 @@ export function dispatchBlock(
   }
 
   // Check endTick
-  const endFrame = frameOfTickInSegs(schedule.endTick, segs);
-  state.endReached = endFrame >= blockStart && endFrame < blockEnd;
+  const endFrame = Math.max(frameOfTickInSegs(schedule.endTick, segs), blockStart); // late end: at the block start
+  state.endReached = endFrame < blockEnd;
   state.endFrame = state.endReached ? endFrame : 0;
   state.nextEventCursor = cursor;
 }

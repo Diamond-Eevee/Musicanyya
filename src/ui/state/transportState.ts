@@ -1,5 +1,4 @@
 import {
-  clampTempoPercent,
   clampVolume,
   initialTransport,
   type TransportSnapshot,
@@ -74,11 +73,11 @@ class TransportStateStore {
     this.progressStore.set(null);
   }
 
-  /** Applies persisted settings at startup, bypassing the driver (there is nothing to notify yet). */
-  applySavedSettings(tempoPercent: number, volume: number, follow: boolean): void {
+  /** Applies persisted settings at startup, bypassing the driver (there is nothing to notify yet). Tempo is not
+   *  among them (feature 012 FR-015): the transport always opens a Score at its written tempo. */
+  applySavedSettings(volume: number, follow: boolean): void {
     this.store.update((s) => ({
       ...s,
-      tempoPercent: clampTempoPercent(tempoPercent),
       volume: clampVolume(volume),
       follow,
     }));
@@ -145,3 +144,9 @@ class TransportStateStore {
 }
 
 export const transportState = new TransportStateStore();
+
+if (typeof window !== 'undefined') {
+  // e2e/manual-debugging seam only, same treatment as `practiceState`'s own `__PRACTICE_STATE__`: tests read the
+  // tempo factor the Audio engine was given (`tempoPercent`) and the phases the transport went through.
+  (window as Window & { __TRANSPORT_STATE__?: typeof transportState }).__TRANSPORT_STATE__ = transportState;
+}

@@ -54,6 +54,16 @@ describe('harvestGlyphs (feature 008, research R-11)', () => {
     expect(new Set([glyphs.sharp, glyphs.flat, glyphs.natural, glyphs.notehead]).size).toBe(4); // four different shapes
   });
 
+  it('also returns the half and whole noteheads and the up eighth-flag, for the tempo field’s beat symbol (feature 012 R-7)', () => {
+    const glyphs = harvestGlyphs(toolkit);
+    for (const name of ['noteheadHalf', 'noteheadWhole', 'flag8thUp'] as const) {
+      expect(glyphs[name].length, name).toBeGreaterThan(20);
+      expect(glyphs[name], name).toMatch(/^[Mm]\s*[-\d.]/);
+    }
+    // Different shapes from the black notehead and from each other.
+    expect(new Set([glyphs.notehead, glyphs.noteheadHalf, glyphs.noteheadWhole, glyphs.flag8thUp]).size).toBe(4);
+  });
+
   it('is repeatable: the same glyphs every time', () => {
     expect(harvestGlyphs(toolkit)).toEqual(harvestGlyphs(toolkit));
   });

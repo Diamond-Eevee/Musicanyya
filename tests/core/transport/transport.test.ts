@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { TEMPO_PERCENT_MAX, TEMPO_PERCENT_MIN } from '../../../src/core/defaults.js';
+import { TEMPO_PERCENT_DEFAULT, TEMPO_PERCENT_MAX, TEMPO_PERCENT_MIN } from '../../../src/core/defaults.js';
 import type { TransportSnapshot } from '../../../src/core/transport/transport.js';
 import {
   clampTempoPercent,
@@ -73,14 +73,14 @@ describe('transportReducer', () => {
     expect(seeked).toMatchObject({ phase: 'playing', startTick: 1920, positionTick: 1920 });
   });
 
-  it('newScore resets to stopped at tick 0 but keeps tempo/volume/follow preferences', () => {
+  it('newScore resets to stopped at tick 0, keeps volume/follow, and resets tempo to 100 (feature 012 FR-015: no carry-over)', () => {
     const customized = transportReducer(transportReducer(initialTransport(), { type: 'tempoPercent', value: 150 }), {
       type: 'volume',
       value: 50,
     });
     const playing = transportReducer(customized, { type: 'play', soundReady: true });
     const fresh = transportReducer(playing, { type: 'newScore' });
-    expect(fresh).toMatchObject({ phase: 'stopped', startTick: 0, positionTick: 0, tempoPercent: 150, volume: 50 });
+    expect(fresh).toMatchObject({ phase: 'stopped', startTick: 0, positionTick: 0, tempoPercent: 100, volume: 50 });
   });
 
   it('follow becomes false on manual scroll while playing, but not while stopped', () => {
@@ -100,10 +100,31 @@ describe('transportReducer', () => {
 });
 
 describe('clampTempoPercent / clampVolume', () => {
-  it('clamps to [TEMPO_PERCENT_MIN, TEMPO_PERCENT_MAX] rounded to the nearest step', () => {
+  // feature 012 FR-009: the factor is no longer stepped (was: rounded to a multiple of 5, 103 -> 105), so that any
+  // whole BPM plays exactly.
+  it('keeps a fractional factor as it is: no step (101.111 stays 101.111)', () => {
+    expect(clampTempoPercent(101.111)).toBe(101.111);
+    expect(clampTempoPercent(103)).toBe(103);
+    expect(clampTempoPercent(83.3333333)).toBe(83.3333333);
+  });
+
+  it('clamps to [TEMPO_PERCENT_MIN, TEMPO_PERCENT_MAX]', () => {
     expect(clampTempoPercent(10)).toBe(TEMPO_PERCENT_MIN);
+    expect(clampTempoPercent(500)).toBe(TEMPO_PERCENT_MAX);
     expect(clampTempoPercent(300)).toBe(TEMPO_PERCENT_MAX);
-    expect(clampTempoPercent(103)).toBe(105);
+    expect(clampTempoPercent(TEMPO_PERCENT_MIN)).toBe(25);
+    expect(clampTempoPercent(TEMPO_PERCENT_MAX)).toBe(200);
+  });
+
+  it('turns NaN and Infinity into the default factor', () => {
+    expect(clampTempoPercent(Number.NaN)).toBe(TEMPO_PERCENT_DEFAULT);
+    expect(clampTempoPercent(Number.POSITIVE_INFINITY)).toBe(TEMPO_PERCENT_DEFAULT);
+    expect(clampTempoPercent(Number.NEGATIVE_INFINITY)).toBe(TEMPO_PERCENT_DEFAULT);
+  });
+
+  it('the tempoPercent action stores a fractional value', () => {
+    const next = transportReducer(initialTransport(), { type: 'tempoPercent', value: 101.111 });
+    expect(next.tempoPercent).toBe(101.111);
   });
 
   it('clamps volume to [0, 100]', () => {

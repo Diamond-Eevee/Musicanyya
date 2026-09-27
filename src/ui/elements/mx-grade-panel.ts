@@ -1,5 +1,7 @@
 import type { GradeMarkRef, GradeMarkSet } from '../../core/grade/marks.js';
 import type { Grade } from '../../core/grade/types.js';
+import { attemptTempo } from '../../core/tempo/tempo-display.js';
+import { localizedBeatLabel } from '../format/beat-label.js';
 import { reasonText } from '../format/reason-text.js';
 import { en, ordinal } from '../i18n/en.js';
 import { mistakeStepper } from '../state/mistake-stepper.js';
@@ -75,7 +77,7 @@ export class MxGradePanel extends HTMLElement {
 
   private render() {
     const { mode } = practiceState.get();
-    const { grade, marks, selectedMark } = playState.get();
+    const { grade, marks, selectedMark, scoreTempo } = playState.get();
     this.hidden = mode !== 'play' || grade === null;
     if (this.hidden || !grade) {
       this.innerHTML = '';
@@ -85,6 +87,15 @@ export class MxGradePanel extends HTMLElement {
     const p = en.play.panel;
     const { summary } = grade;
     const incomplete = grade.complete ? '' : `<p class="grade-incomplete">${p.incomplete}</p>`;
+    // feature 012, US3, FR-019/FR-021: "NN BPM (NN% of written)", the same tempo the run was actually played at.
+    const tempoLine = scoreTempo
+      ? (() => {
+          const { bpm, percent, beat } = attemptTempo(scoreTempo.map, scoreTempo.passes, grade.settings);
+          const text = en.transport.attemptTempo.replace('{bpm}', String(bpm)).replace('{percent}', String(percent));
+          const isQuarter = beat.type === 'quarter' && beat.dots === 0;
+          return `<p class="grade-tempo">${isQuarter ? text : `${text}, ${localizedBeatLabel(beat)}`}</p>`;
+        })()
+      : '';
     const reason = (selectedMark ? explain(grade, marks, selectedMark) : [])
       .map((line) => `<p class="grade-reason">${escapeHtml(line)}</p>`)
       .join('');
@@ -134,6 +145,7 @@ export class MxGradePanel extends HTMLElement {
     this.innerHTML = `
       <h2 class="grade-heading">${p.heading}</h2>
       ${incomplete}
+      ${tempoLine}
       <p class="grade-figure grade-figure-pitch">${p.notesCorrect}: ${figure(summary.notesCorrect.count, summary.notesCorrect.total)}</p>
       <p class="grade-figure grade-figure-timing">${p.notesOnTime}: ${figure(summary.notesOnTime.count, summary.notesOnTime.total)}</p>
       <ul class="grade-counts">

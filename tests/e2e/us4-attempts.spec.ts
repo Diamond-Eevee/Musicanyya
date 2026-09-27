@@ -39,7 +39,7 @@ async function openInPlayMode(page: Page, fixture: string): Promise<void> {
   await page.locator('mx-open-button input[type=file]').setInputFiles(fixturePath(fixture));
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
   await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
-  await page.locator('mx-mode-switch input[value=play]').check();
+  await page.locator('#mode-controls mx-mode-switch input[value=play]').check();
 }
 
 async function playOneRun(page: Page): Promise<void> {

@@ -103,6 +103,19 @@ describe('IndexedDB performance store (contracts/performance-log.md)', () => {
     expect(got).toEqual({ ok: true, value: performance });
   });
 
+  it('round-trips a fractional settings.tempoPercent bit-exactly (feature 012, US3, R-1)', async () => {
+    const store = new IndexedDbPerformanceStore();
+    const performance = {
+      ...performanceFor('run-1', 'score-1', '2026-01-01T00:00:00.000Z'),
+      settings: { ...SETTINGS, tempoPercent: 83.333 },
+    };
+
+    await store.put(performance);
+    const got = await store.get('run-1');
+    expect(got).toEqual({ ok: true, value: performance });
+    if (got.ok) expect(got.value.settings.tempoPercent).toBe(83.333);
+  });
+
   it('`get` on an unknown runId is notFound', async () => {
     const store = new IndexedDbPerformanceStore();
     const missing = await store.get('does-not-exist');

@@ -54,7 +54,7 @@ test('a Play run with accompaniment, then its Grade, on the large score keeps th
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible({ timeout: 60_000 });
   await expect(page.locator('mx-transport .play-btn')).not.toBeDisabled({ timeout: 90_000 });
   await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
-  await page.locator('mx-mode-switch input[value=play]').check();
+  await page.locator('#mode-controls mx-mode-switch input[value=play]').check();
 
   // 8 measures: a whole-note chord bar lasts 2 s at the Score's tempo, so the run outlasts the 5 s sample
   await openPanel(page, 'setup');

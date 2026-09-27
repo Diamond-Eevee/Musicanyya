@@ -7,10 +7,6 @@ import {
   SCORE_SCALE_MIN,
   SCORE_SCALE_STEP,
   SETTINGS_WRITE_DEBOUNCE_MS,
-  TEMPO_PERCENT_DEFAULT,
-  TEMPO_PERCENT_MAX,
-  TEMPO_PERCENT_MIN,
-  TEMPO_PERCENT_STEP,
   VOLUME_DEFAULT,
 } from '../config.js';
 import type { OverlayFlags, PracticeSettings, SettingsStore, UserSettings } from '../ports.js';
@@ -73,9 +69,7 @@ function validate(raw: Record<string, unknown>): UserSettings {
   return {
     version: 2,
     volume: isInt(raw.volume, 0, 100) ? raw.volume : VOLUME_DEFAULT,
-    tempoPercent: isInt(raw.tempoPercent, TEMPO_PERCENT_MIN, TEMPO_PERCENT_MAX, TEMPO_PERCENT_STEP)
-      ? raw.tempoPercent
-      : TEMPO_PERCENT_DEFAULT,
+    // tempoPercent (2.1.0, feature 012 FR-015): deprecated, ignored when present.
     scale: isInt(storedScale, SCORE_SCALE_MIN, SCORE_SCALE_MAX, SCORE_SCALE_STEP) ? storedScale : SCORE_SCALE_DEFAULT,
     follow: typeof raw.follow === 'boolean' ? raw.follow : true,
     overlays: validOverlays(raw.overlays),
@@ -117,11 +111,16 @@ function validRange(raw: unknown): import('../../core/practice/types.js').LoopRa
   return isIndex(fromMeasureIndex, 0) && isIndex(toMeasureIndex, 0) ? { fromMeasureIndex, toMeasureIndex } : null;
 }
 
+/** Any finite number in [min, max] (feature 012 FR-037: no longer an integer multiple of 5). */
+function isFiniteInRange(value: unknown, min: number, max: number): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max;
+}
+
 function validPlay(raw: JsonObject): import('../../core/play/types.js').RunSettings {
   const strictnessLevels = ['beginner', 'standard', 'strict'];
   return {
     range: validRange(raw.range),
-    tempoPercent: isInt(raw.tempoPercent, 25, 200, 5) ? raw.tempoPercent : BUILT_IN_PLAY.tempoPercent,
+    tempoPercent: isFiniteInRange(raw.tempoPercent, 25, 200) ? raw.tempoPercent : BUILT_IN_PLAY.tempoPercent,
     selection: validSelection(raw.selection) ?? BUILT_IN_PLAY.selection,
     strictness: strictnessLevels.includes(raw.strictness as string)
       ? (raw.strictness as import('../../core/grade/types.js').StrictnessLevelName)
@@ -198,9 +197,10 @@ export class LocalSettingsStore implements SettingsStore {
   private flush(): void {
     this.writeTimer = null;
     if (!this.pending) return;
-    // Unknown fields are kept; v1's `zoomPercent` is dropped now that its value lives in `scale`.
+    // Unknown fields are kept; v1's `zoomPercent` is dropped now that its value lives in `scale`, and
+    // `tempoPercent` is dropped too (2.1.0, feature 012 FR-015: no longer written).
     const combined: Record<string, unknown> = { ...this.raw, ...this.pending };
-    const { zoomPercent: _superseded, ...merged } = combined;
+    const { zoomPercent: _superseded, tempoPercent: _deprecated, ...merged } = combined;
     this.raw = merged;
     this.pending = null;
     this.write(SETTINGS_STORAGE_KEY, this.raw);
@@ -274,8 +274,10 @@ export class LocalSettingsStore implements SettingsStore {
     const own = scoreId !== null && SCORE_ID_PATTERN.test(scoreId) ? byScore[scoreId] : undefined;
     if (isObject(own)) return validPlay(own);
 
+    // A Score never played in Play mode takes strictness/count-in/etc. from the last-used defaults, but never the
+    // tempo (feature 012 R-9, FR-015): its first Play setup starts at the written tempo, exactly like the transport.
     const defaults = isObject(file.defaults) ? validPlay(file.defaults) : BUILT_IN_PLAY;
-    return { ...defaults, range: null };
+    return { ...defaults, range: null, tempoPercent: BUILT_IN_PLAY.tempoPercent };
   }
 
   savePlay(scoreId: string | null, settings: import('../../core/play/types.js').RunSettings): void {

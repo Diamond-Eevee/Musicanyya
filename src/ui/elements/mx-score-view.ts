@@ -4,6 +4,7 @@ import { type PlayCursorPosition, playCursorAt } from '../../core/play/cursor.js
 import type { PlayRun } from '../../core/play/types.js';
 import type { ExpectedEvent, LoopRange, MarkState, PracticeSession } from '../../core/practice/types.js';
 import type { Score } from '../../core/score/model.js';
+import { displaySegmentIndexAt, type TempoDisplaySegment } from '../../core/tempo/tempo-display.js';
 import { cursorNotesAtTick, notesAtTick, passAtTick } from '../../core/timeline/position.js';
 import {
   FOLLOW_MARGIN,
@@ -39,12 +40,13 @@ import {
 import { bandRectFor, placePracticeBand } from '../score/practice-band.js';
 import { drawLoopMarks, drawPracticeMarks, drawStartMarker } from '../score/practice-marks.js';
 import { drawPressedKeyDiscs, drawStateChevron, type MusicGlyphs, toMusicGlyphs } from '../score/pressed-keys.js';
-import type { LayoutOptions, VerovioClient } from '../score/verovio-client.js';
+import type { LayoutOptions, MusicGlyphData, VerovioClient } from '../score/verovio-client.js';
 import { insetState } from '../state/insetState.js';
 import { playState } from '../state/playState.js';
 import { practiceState } from '../state/practiceState.js';
 import { runPositionState } from '../state/runPositionState.js';
 import { scoreState } from '../state/scoreState.js';
+import { tempoPositionState } from '../state/tempoPositionState.js';
 import { transportState } from '../state/transportState.js';
 import { viewState } from '../state/viewState.js';
 
@@ -65,6 +67,7 @@ export interface TimelineDto {
   endTick: number;
   passes: { measureIndex: number; startTick: number; endTick: number }[];
   spans: { noteId: string; startTick: number; endTick: number }[];
+  tempo: TempoDisplaySegment[]; // 1.3.0: buildTempoDisplayMap output (feature 012)
 }
 
 /** Structural, not imported from `src/app/play-session.js`: `PlaySessionController` satisfies this without a `ui`
@@ -132,6 +135,8 @@ export class MxScoreView extends HTMLElement {
   private unsubscribePlayState?: () => void;
   /** The accidental glyphs Verovio's worker read at start-up (008 R-11); null draws discs without accidentals. */
   private glyphs: MusicGlyphs | null = null;
+  /** The same harvest, in its raw (path-string) form, for the tempo field's beat symbol (012 R-7); read by session.ts. */
+  private rawGlyphs: MusicGlyphData | null = null;
   /** The discs of the last frame and what they were computed from: a frame that changes none of it reuses them, and a
    *  key that is still held keeps its staff (008 R-08). */
   private discPlacements: DiscPlacement[] = [];
@@ -246,6 +251,12 @@ export class MxScoreView extends HTMLElement {
     this.playSession = controller;
   }
 
+  /** The harvested beat-symbol glyphs (012 R-7), available once `load()` has resolved; session.ts feeds these to
+   *  `mx-transport`'s tempo field. Null before the first load or if the harvest failed. */
+  get harvestedGlyphs(): MusicGlyphData | null {
+    return this.rawGlyphs;
+  }
+
   async load(renderXml: string, measureIds: readonly string[], scale?: number): Promise<void> {
     if (!this.client) throw new Error('mx-score-view: no VerovioClient attached');
     const token = ++this.loadToken;
@@ -256,6 +267,7 @@ export class MxScoreView extends HTMLElement {
     }
     const initialised = await this.client.init();
     this.glyphs = toMusicGlyphs(initialised.glyphs);
+    this.rawGlyphs = initialised.glyphs ?? null;
     const layout = this.fittedLayout() ?? this.requested ?? this.defaultLayout();
     this.requested = layout;
     this.pageAspect = null;
@@ -545,6 +557,7 @@ export class MxScoreView extends HTMLElement {
 
     const pass = passAtTick(timeline, tick);
     runPositionState.set(pass ? pass.measureIndex : null);
+    tempoPositionState.set(displaySegmentIndexAt(timeline.tempo, tick));
     const measureId = pass ? this.measureIds[pass.measureIndex] : undefined;
     const measureEl = measureId !== undefined ? this.stack.querySelector(`#${CSS.escape(measureId)}`) : null;
     // FR-014: the view follows *during playback* only. Stopped or paused, the cursor stands still and the Score is
@@ -906,6 +919,19 @@ export class MxScoreView extends HTMLElement {
     const currentEvent = session?.events[session.index];
     // The slim bar's run status reads the measure from here (it never derives musical position itself).
     runPositionState.set(currentEvent && session?.phase !== 'finished' ? currentEvent.measureIndex : null);
+    // The tempo field's reference position (data-model.md section 5, feature 012): while a session is running, the
+    // expected event's tick; otherwise the first pass of the chosen start measure (the rest position), else tick 0.
+    if (this.timeline) {
+      if (currentEvent && session?.phase !== 'finished') {
+        tempoPositionState.set(displaySegmentIndexAt(this.timeline.tempo, currentEvent.onsetTick));
+      } else {
+        const startPass =
+          startMeasureIndex !== null
+            ? this.timeline.passes.find((p) => p.measureIndex === startMeasureIndex)
+            : undefined;
+        tempoPositionState.set(displaySegmentIndexAt(this.timeline.tempo, startPass?.startTick ?? 0));
+      }
+    }
 
     const marksVisible = viewState.get().overlays.marks;
     this.syncNoteMarks(session?.marks ?? null, marksVisible, this.practiceClasses);
@@ -988,6 +1014,7 @@ export class MxScoreView extends HTMLElement {
     if (!cursor || !this.timeline) return;
     const pass = passAtTick(this.timeline, cursor.timelineTick);
     runPositionState.set(pass ? pass.measureIndex : null);
+    tempoPositionState.set(displaySegmentIndexAt(this.timeline.tempo, cursor.timelineTick));
     if (!transportState.get().follow) return;
     this.followMeasure(pass ? this.measureIds[pass.measureIndex] : undefined);
   }

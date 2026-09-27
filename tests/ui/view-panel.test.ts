@@ -59,6 +59,11 @@ describe('mx-view-panel', () => {
     expect(el.querySelector('mx-size-controls')).not.toBeNull();
   });
 
+  it('includes a mode switch too (phone width, T049): reachable when the bar hides its own', () => {
+    const el = make();
+    expect(el.querySelector('mx-mode-switch')).not.toBeNull();
+  });
+
   it('stops following the store once removed', () => {
     const el = make();
     el.remove();

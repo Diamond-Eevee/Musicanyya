@@ -3,6 +3,8 @@ import type { HandSelection, LoopRange } from '../../core/practice/types.js';
 import { en } from '../i18n/en.js';
 import { type PlaySetup, playState } from '../state/playState.js';
 import { practiceState } from '../state/practiceState.js';
+import './mx-tempo-field.js';
+import type { TempoChangeDetail, TempoFieldModel } from './mx-tempo-field.js';
 
 /** What the panel emits when the musician changes a setting (FR-036 to FR-039). */
 export interface PlaySetupChange {
@@ -118,16 +120,9 @@ export class MxPlayPanel extends HTMLElement {
         ${rangeStatus}
       </fieldset>`;
 
-    const tempoPercents = [25, 50, 60, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 200];
-    const tempoHtml = `<label class="play-tempo">${s.tempo}
-        <select data-id="tempo">${tempoPercents
-          .map(
-            (p) =>
-              `<option value="${p}" ${p === settings.tempoPercent ? 'selected' : ''}>${s.tempoPercent.replace('{n}', String(p))}</option>`,
-          )
-          .join('')}
-        </select>
-      </label>`;
+    // FR-018: the same tempo field as the transport, editing the Play setup instead of the transport factor
+    // (feature 012, US3) - replaces the percentage <select>.
+    const tempoHtml = `<div class="play-tempo"><mx-tempo-field></mx-tempo-field></div>`;
 
     const strictnessOptions: RunSettings['strictness'][] = ['beginner', 'standard', 'strict'];
     const strictnessLabels: Record<string, string> = {
@@ -186,8 +181,10 @@ export class MxPlayPanel extends HTMLElement {
     to?.addEventListener('change', onRangeField);
     this.querySelector('[data-id="range-clear"]')?.addEventListener('click', () => this.emit({ range: null }));
 
-    this.querySelector<HTMLSelectElement>('[data-id="tempo"]')?.addEventListener('change', (event) => {
-      this.emit({ tempoPercent: Number((event.target as HTMLSelectElement).value) });
+    const tempoField = this.querySelector('mx-tempo-field') as HTMLElement & { model: TempoFieldModel };
+    tempoField.model = this.tempoModel(setup);
+    tempoField.addEventListener('tempochange', (event) => {
+      this.emit({ tempoPercent: (event as CustomEvent<TempoChangeDetail>).detail.percent });
     });
 
     this.querySelector<HTMLSelectElement>('[data-id="strictness"]')?.addEventListener('change', (event) => {
@@ -202,6 +199,18 @@ export class MxPlayPanel extends HTMLElement {
     this.querySelector<HTMLInputElement>('[data-id="metronome-muted"]')?.addEventListener('change', (event) => {
       this.emit({ metronomeMuted: (event.target as HTMLInputElement).checked });
     });
+  }
+
+  /** The Play setup's tempo field model (FR-017): the session-computed range-start segment and factor, read-only
+   *  during a run's count-in or while it is running (the same lock as the transport's own field in Play mode). */
+  private tempoModel(setup: PlaySetup): TempoFieldModel {
+    const phase = playState.get().run?.phase;
+    return {
+      segment: setup.tempoSegment,
+      percent: setup.settings.tempoPercent,
+      locked: phase === 'countIn' || phase === 'running',
+      glyphs: setup.glyphs,
+    };
   }
 
   private measureIndexOf(input: HTMLInputElement | null, measureCount: number): number | null {

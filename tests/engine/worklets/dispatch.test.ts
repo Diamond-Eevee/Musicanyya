@@ -22,6 +22,9 @@
 import { describe, expect, it } from 'vitest';
 import type { ScheduleMessage } from '../../../src/core/schedule/compile.js';
 import { EVENT_KIND } from '../../../src/core/schedule/compile.js';
+import type { TempoBeat } from '../../../src/core/score/model.js';
+import { percentForBpm, type TempoDisplaySegment } from '../../../src/core/tempo/tempo-display.js';
+import { initialTransport, transportReducer } from '../../../src/core/transport/transport.js';
 import {
   type BlockEvent,
   DispatchState,
@@ -104,6 +107,74 @@ describe('recomputeSegmentFrames', () => {
     const segs = recomputeSegmentFrames(sched, 480, 1000, 48000, 100);
     expect(segs).toHaveLength(1);
     expect(segs[0]).toMatchObject({ startTick: 480, startFrame: 1000 });
+  });
+});
+
+// feature 012 SC-002 / FR-009: the factor the field produces is fractional and must reach the frame arithmetic
+// untouched, so a typed BPM that is not a multiple of a step still lands every beat on its exact frame.
+describe('a typed BPM dispatches exact frames (feature 012 SC-002)', () => {
+  const SAMPLE_RATE = 48000;
+
+  function beatFrames(qpm: number, beatQuarters: number, typedBpm: number, beats: number): number[] {
+    const beat: TempoBeat = {
+      type: 'quarter',
+      dots: beatQuarters === 1.5 ? 1 : 0,
+      quartersNum: beatQuarters === 1.5 ? 3 : 1,
+      quartersDen: beatQuarters === 1.5 ? 2 : 1,
+    };
+    const seg: TempoDisplaySegment = {
+      startTick: 0,
+      qpmNum: qpm,
+      qpmDen: 1,
+      beat,
+      beatSource: 'mark',
+      isDefault: false,
+    };
+    // the app path: typed number -> percentForBpm -> the transport reducer -> the factor sent to the worklet
+    const percent = transportReducer(initialTransport(), {
+      type: 'tempoPercent',
+      value: percentForBpm(seg, typedBpm),
+    }).tempoPercent;
+
+    const beatTicks = 480 * beatQuarters;
+    const events = Array.from({ length: beats + 1 }, (_, k) => ({
+      tick: k * beatTicks,
+      kind: EVENT_KIND.noteOn,
+      channel: 0,
+      data1: 60,
+      data2: 80,
+    }));
+    const sched = makeSchedule({
+      ppq: 480,
+      endTick: (beats + 1) * beatTicks,
+      events,
+      tempo: [{ tick: 0, qpmNum: qpm, qpmDen: 1 }],
+    });
+    const segs = recomputeSegmentFrames(sched, 0, 0, SAMPLE_RATE, percent);
+    const state = new DispatchState(beats + 8);
+    dispatchBlock(sched, segs, 0, Math.ceil((beats + 2) * SAMPLE_RATE), 0, state);
+    expect(state.numEvents).toBe(beats + 1);
+    return state.events.slice(0, state.numEvents).map((e) => e.frame);
+  }
+
+  it('91 quarter-note beats typed on a 90-qpm Score are 60/91 s apart within one frame at 48 kHz', () => {
+    const frames = beatFrames(90, 1, 91, 91);
+    const gap = (60 / 91) * SAMPLE_RATE;
+    for (let i = 1; i < frames.length; i++) {
+      expect(Math.abs((frames[i] as number) - (frames[i - 1] as number) - gap)).toBeLessThanOrEqual(1);
+    }
+    // and the 91st beat lands at 60 s
+    expect(Math.abs((frames[91] as number) - 60 * SAMPLE_RATE)).toBeLessThanOrEqual(1);
+  });
+
+  it('61 dotted-quarter beats typed on a 6/8 Score written dotted quarter = 60 span 60 s within one frame', () => {
+    // dotted quarter = 60 is 90 qpm
+    const frames = beatFrames(90, 1.5, 61, 61);
+    const gap = (60 / 61) * SAMPLE_RATE;
+    for (let i = 1; i < frames.length; i++) {
+      expect(Math.abs((frames[i] as number) - (frames[i - 1] as number) - gap)).toBeLessThanOrEqual(1);
+    }
+    expect(Math.abs((frames[61] as number) - 60 * SAMPLE_RATE)).toBeLessThanOrEqual(1);
   });
 });
 
@@ -222,6 +293,29 @@ describe('dispatchBlock', () => {
     dispatchBlock(sched, segs, 2300, 256, 0, state);
     expect(state.endReached).toBe(true);
     expect(state.endFrame).toBe(2400);
+  });
+
+  // RT re-review N1 (feature 012): a tempo change that slows playback re-anchors at a fractional tick, and an event or
+  // the end just before that tick, not yet dispatched, gets a frame below the block start. It is late, not gone.
+  it('an event whose frame is before the block start is dispatched at the block start, not dropped', () => {
+    // 120 qpm: frame(tick) = tick * 50. The event at tick 96 is due at frame 4800; the block starts at 4900.
+    const sched = makeSingleNoteSchedule(96, 960000);
+    const segs = recomputeSegmentFrames(sched, 0, 0, 48000, 100);
+    const state = new DispatchState();
+    dispatchBlock(sched, segs, 4900, 128, 0, state);
+    const noteOns = state.events.slice(0, state.numEvents).filter((e) => e.kind === EVENT_KIND.noteOn);
+    expect(noteOns).toHaveLength(1);
+    expect(noteOns[0]!.frame).toBe(4900);
+    expect(state.nextEventCursor).toBe(1);
+  });
+
+  it('an end frame before the block start still ends the run, at the block start', () => {
+    const sched = makeSchedule({ ppq: 480, endTick: 48, events: [] }); // end frame 2400
+    const segs = recomputeSegmentFrames(sched, 0, 0, 48000, 100);
+    const state = new DispatchState();
+    dispatchBlock(sched, segs, 2500, 128, 0, state);
+    expect(state.endReached).toBe(true);
+    expect(state.endFrame).toBe(2500);
   });
 
   it('does not signal endReached when block ends before the end frame', () => {

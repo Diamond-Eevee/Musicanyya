@@ -33,7 +33,7 @@ export interface PlayScheduleOptions {
   gradedNoteIds: ReadonlySet<NoteId>; // dropped from the schedule (FR-005)
   accompaniment: boolean; // false = everything but the Metronome is silent
   countInMeasures: number; // >= 1 (FR-003)
-  tempoPercent: number; // 25..200 (FR-037): sizes the count-in so it lasts COUNT_IN_MIN_SECONDS as actually played
+  tempoPercent: number; // any finite number in 25..200 (FR-037; 012: not stepped); sizes the count-in so it lasts COUNT_IN_MIN_SECONDS as actually played
   metronome: { beatKey: number; downbeatKey: number; beatVelocity: number; downbeatVelocity: number };
 }
 
@@ -71,7 +71,7 @@ export interface PlayStep {
 // data-model.md §7 - Run settings
 export interface RunSettings {
   range: LoopRange | null; // written measure range; null = whole Score (FR-036)
-  tempoPercent: number; // 25..200, the existing transport range (FR-037)
+  tempoPercent: number; // any finite number in 25..200 (FR-037; 012: not stepped, so a typed BPM plays exactly)
   selection: HandSelection; // part + staves, 002's type (FR-038)
   strictness: StrictnessLevelName;
   countInMeasures: number; // >= 1 (FR-003)

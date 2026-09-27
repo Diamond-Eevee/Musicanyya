@@ -1,6 +1,8 @@
 # Contract: Web Worker messages
 
-**Version**: `1.2.0` (MINOR, feature 008-pressed-keys-on-score: the Verovio worker's `ready` response gains `glyphs`,
+**Version**: `1.3.0` (MINOR, feature 012-tempo-bpm-field: `TimelineDto` gains `tempo: TempoDisplaySegment[]`
+(tempo-display.md 1.1.0, built next to the tempo map); the Verovio worker's `ready` response `glyphs` gains
+`noteheadHalf`, `noteheadWhole`, `flag8thUp` path data, harvested alongside `notehead`). `1.2.0` (MINOR, feature 008-pressed-keys-on-score: the Verovio worker's `ready` response gains `glyphs`,
 the sharp, flat, natural and black-notehead glyph path data read from Verovio's own SVG at start-up, for the accidentals
 of the red discs; nothing else changes). `1.1.0` (MINOR: additive — four new `LoadNoticeCode` values: `engravingCompleted`, `beamDataInvalid`,
 `accidentalContradicts`, `engravingSkipped`; feature 006-beamed-note-engraving US3). Two dedicated module workers keep heavy work off
@@ -35,6 +37,7 @@ interface TimelineDto {                        // compact form of data-model §3
   ppq: number; endTick: number;
   passes: { measureIndex: number; startTick: number; endTick: number }[];   // playback order
   spans: { noteId: string; startTick: number; endTick: number }[];          // visual spans, sorted by startTick
+  tempo: TempoDisplaySegment[];   // 1.3.0: buildTempoDisplayMap output (feature 012 contracts/tempo-display.md 1.1.0)
 }
 ```
 
@@ -58,8 +61,13 @@ interface LayoutOptions { pageWidth: number; pageHeight: number; scale: number /
 
 /** 1.2.0: SVG path data in font units, y up (`<path d>`); `unitsPerEm` is four staff spaces (Leipzig: 1000). Read once, at
  *  the first `init`, by rendering a tiny built-in snippet before any Score is loaded (research R-11 of feature 008);
- *  `null` when that failed, and the discs are then drawn without accidentals. */
-interface MusicGlyphData { sharp: string; flat: string; natural: string; notehead: string; unitsPerEm: number }
+ *  `null` when that failed, and the discs are then drawn without accidentals.
+ *  1.3.0: adds `noteheadHalf`, `noteheadWhole`, `flag8thUp` for the tempo field's beat symbol (feature 012 R-7); the
+ *  same harvest, same fallback (null on failure -> the tempo field shows a text label instead). */
+interface MusicGlyphData {
+  sharp: string; flat: string; natural: string; notehead: string; unitsPerEm: number;
+  noteheadHalf: string; noteheadWhole: string; flag8thUp: string;
+}
 ```
 
 Fixed options are applied in the worker (R-9): `breaks: "auto"`, `adjustPageHeight: true`, `header: "encoded"`,

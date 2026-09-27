@@ -111,7 +111,7 @@ async function sweep(page: Page, label: string): Promise<{ icons: number; carets
 async function toPlayMode(page: Page): Promise<void> {
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible({ timeout: 30_000 });
   await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
-  await page.locator('mx-mode-switch input[value=play]').check();
+  await page.locator('#mode-controls mx-mode-switch input[value=play]').check();
   await expect
     .poll(() =>
       page.evaluate(

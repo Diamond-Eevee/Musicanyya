@@ -1,7 +1,10 @@
 # Contract: grading (core API and worker)
 
-**Version**: `1.2.0` (internal TypeScript contract between `src/core/grade`, `src/workers/grade.worker.ts` and
+**Version**: `1.2.1` (internal TypeScript contract between `src/core/grade`, `src/workers/grade.worker.ts` and
 `src/app/play-session.ts`). Signatures are normative in shape; every change is reflected here with a version bump.
+
+**1.2.0 -> 1.2.1** (feature 012-tempo-bpm-field, PATCH, wording): `settings.tempoPercent` may be a fractional
+number (R-1); the grading formulas and golden results are unchanged.
 
 **1.1.1 -> 1.1.2** (found implementing T039, no shape change): clarified what space `GradeInput.tempo` must be
 in. Step 1 below computes `runTick = tickAtAudioTime(elapsedSec, tempo, ...)`, then converts it to a timeline tick

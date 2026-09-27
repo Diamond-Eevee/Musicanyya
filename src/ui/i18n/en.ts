@@ -2,6 +2,8 @@ export const en = {
   app: {
     emptyState: 'No score loaded. Open a MusicXML file to start.',
     toolbar: 'Musicanyya controls',
+    // Phone width (feature 012, T049): the label above the View popup's second mx-mode-switch instance.
+    modeGroup: 'Mode',
   },
   /** The Score size controls of the slim bar (feature 004, FR-014a). */
   size: {
@@ -85,6 +87,34 @@ export const en = {
     loadingSound: 'Loading sound…',
     skipBack: 'Skip Back',
     skipForward: 'Skip Forward',
+    // mx-tempo-field (feature 012, contracts/tempo-field.md)
+    bpm: 'BPM',
+    writtenTempo: 'written',
+    defaultTempo: 'default',
+    tempoDown: 'Slower',
+    tempoUp: 'Faster',
+    tempoReset: 'Reset tempo',
+    tempoValueUnit: 'beats per minute',
+    tempoValueNote: 'note',
+    attemptTempo: '{bpm} BPM ({percent}% of written)',
+    /** n dots -> the label prefix (beat-unit.ts's beatLabel in English; here for localisation, data-model §1). */
+    beatDotPrefixes: ['', 'dotted ', 'double-dotted ', 'triple-dotted '] as readonly string[],
+    beatNames: {
+      maxima: 'maxima',
+      long: 'long',
+      breve: 'breve',
+      whole: 'whole',
+      half: 'half',
+      quarter: 'quarter',
+      eighth: 'eighth',
+      '16th': '16th',
+      '32nd': '32nd',
+      '64th': '64th',
+      '128th': '128th',
+      '256th': '256th',
+      '512th': '512th',
+      '1024th': '1024th',
+    } as Record<string, string>,
   },
   open: {
     button: 'Open score',
@@ -335,8 +365,6 @@ export const en = {
       rangeTo: 'To measure',
       rangeClear: 'Clear range',
       rangeStatus: 'Measures {from}-{to}',
-      tempo: 'Tempo',
-      tempoPercent: '{n}% of written tempo',
       strictness: 'Timing strictness',
       strictnessBeginner: 'Beginner',
       strictnessStandard: 'Standard',

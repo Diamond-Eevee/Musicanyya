@@ -1,5 +1,6 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { PlayRun } from '../../src/core/play/types.js';
+import type { TempoDisplaySegment } from '../../src/core/tempo/tempo-display.js';
 import '../../src/ui/elements/mx-menu.js';
 import '../../src/ui/elements/mx-play-panel.js';
 import '../../src/ui/elements/mx-practice-panel.js';
@@ -143,6 +144,79 @@ describe('the setup popup', () => {
       expect(entry()?.disabled).toBe(true);
       playState.setRun({ phase: 'finished' } as unknown as PlayRun);
       expect(entry()?.disabled).toBe(false);
+    });
+  });
+
+  /** US3 (T039): the Play setup's own tempo field, same element and contract as the transport's (FR-017, FR-018). */
+  describe('the Play tempo field (feature 012, US3)', () => {
+    const segment120: TempoDisplaySegment = {
+      startTick: 0,
+      qpmNum: 120,
+      qpmDen: 1,
+      beat: { type: 'quarter', dots: 0, quartersNum: 1, quartersDen: 1 },
+      beatSource: 'mark',
+      isDefault: false,
+    };
+
+    function mountPlayPanel(settingsOverrides: Partial<PlayRun['settings']> = {}) {
+      const play = document.createElement('mx-play-panel');
+      document.body.appendChild(play);
+      practiceState.setMode('play');
+      playState.setSetup({
+        hands,
+        settings: {
+          range: null,
+          tempoPercent: 100,
+          selection: hands[0],
+          strictness: 'beginner',
+          countInMeasures: 1,
+          metronomeMuted: false,
+          accompaniment: true,
+          ...settingsOverrides,
+        },
+        measureCount: 8,
+        parts: practiceSetup.parts,
+        tempoSegment: segment120,
+        glyphs: null,
+      } as never);
+      return play;
+    }
+
+    it('has an mx-tempo-field and no percentage <select> (FR-018)', () => {
+      const play = mountPlayPanel();
+      expect(play.querySelector('mx-tempo-field')).not.toBeNull();
+      expect(play.querySelector('select[data-id="tempo"]')).toBeNull();
+    });
+
+    it("shows the segment at the run range's start", () => {
+      const play = mountPlayPanel();
+      const input = play.querySelector('input[data-id="tempo-bpm"]') as HTMLInputElement;
+      expect(input.value).toBe('120');
+    });
+
+    it('typing 90 on a Score written at 120 emits { tempoPercent: 75 } exactly (FR-018)', () => {
+      const play = mountPlayPanel();
+      const changes: unknown[] = [];
+      play.addEventListener('playsetup', (event) => changes.push((event as CustomEvent).detail));
+      const input = play.querySelector('input[data-id="tempo-bpm"]') as HTMLInputElement;
+      input.focus();
+      input.value = '90';
+      input.dispatchEvent(new Event('input'));
+      input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+      expect(changes).toEqual([{ tempoPercent: 75 }]);
+    });
+
+    it('is read-only while a run is active, and editable again once it ends', () => {
+      const play = mountPlayPanel();
+      playState.setRun({ phase: 'countIn' } as unknown as PlayRun);
+      let input = play.querySelector('input[data-id="tempo-bpm"]') as HTMLInputElement;
+      expect(input.readOnly).toBe(true);
+      playState.setRun({ phase: 'running' } as unknown as PlayRun);
+      input = play.querySelector('input[data-id="tempo-bpm"]') as HTMLInputElement;
+      expect(input.readOnly).toBe(true);
+      playState.setRun({ phase: 'finished' } as unknown as PlayRun);
+      input = play.querySelector('input[data-id="tempo-bpm"]') as HTMLInputElement;
+      expect(input.readOnly).toBe(false);
     });
   });
 });

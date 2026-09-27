@@ -75,6 +75,15 @@ interface Note {
 }
 
 interface Fingering { text: string; finger: 1 | 2 | 3 | 4 | 5 | null; substitution: boolean; alternate: boolean; placement: "above" | "below" | null }
+
+// 012-tempo-bpm-field: TempoMark gains `beat` and `isDefault` (012 data-model.md section 2)
+interface TempoMark {
+  measureIndex: number; onsetInMeasure: Ticks;
+  qpmNum: number; qpmDen: number;    // played tempo (sound tempo first, else metronome mark)
+  beat: TempoBeat | null;            // note value of the <metronome> mark in the same direction; null = sound-only
+  isDefault: boolean;                // true only for the mark inserted when the Score has no usable tempo
+}
+interface TempoBeat { type: NoteTypeValue; dots: 0 | 1 | 2 | 3; quartersNum: number; quartersDen: number }
 ```
 
 Validation (builder): out-of-range values are clamped or dropped with a Load report entry; nothing throws.
@@ -239,7 +248,11 @@ interface UserSettings { version: 1; volume: Volume; tempoPercent: TempoPercent;
 | `VELOCITY_MIN` / `VELOCITY_MAX` | 1 / 127 | R-8.6 |
 | `PERCUSSION_CHANNEL` / `LIVE_CHANNEL` | 9 / 15 | R-8.7, R-10 |
 | `LIVE_VELOCITY_DEFAULT` | from key velocity | R-12 |
-| `TEMPO_PERCENT_MIN` / `MAX` / `STEP` / `DEFAULT` | 25 / 200 / 5 / 100 | FR-011 |
+| `TEMPO_PERCENT_MIN` / `MAX` / `DEFAULT` | 25 / 200 / 100 | FR-011; `TEMPO_PERCENT_STEP` removed (012-tempo-bpm-field FR-009: no longer stepped) |
+| `TEMPO_BPM_STEP` | 1 | 012-tempo-bpm-field FR-010: one press of a tempo-field step control |
+| `TEMPO_MARK_QPM_MIN` / `MAX` | 10 / 1000 | 012-tempo-bpm-field R-2: a mark's quarter-notes-per-minute outside this is unusable |
+| `TEMPO_BEAT_DOTS_MAX` | 3 | 012-tempo-bpm-field R-2: more dots on a `<beat-unit>` make its mark unusable |
+| `TEMPO_BPM_DIGITS_MAX` | 4 | 012-tempo-bpm-field: longest number the tempo field accepts |
 | `VOLUME_DEFAULT` | 80 | FR-016 |
 | `ZOOM_MIN` / `ZOOM_MAX` / `ZOOM_DEFAULT` | 50 / 200 / 100 | FR-003 |
 | `ZOOM_STEP` | 10 | FR-003, quickstart US1-4 (+/- keys) |

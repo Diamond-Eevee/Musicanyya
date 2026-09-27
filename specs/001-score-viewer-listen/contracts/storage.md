@@ -62,6 +62,10 @@ Rules:
 Rules: read once at start; each field is validated separately and falls back to its default when missing or
 invalid; unknown fields are preserved on write; writes are debounced (`SETTINGS_WRITE_DEBOUNCE_MS = 500`).
 
+This version-1 shape is superseded by
+[004/contracts/view-settings.md](../../004-score-first-layout/contracts/view-settings.md) (format version 2), whose
+2.1.0 (feature 012-tempo-bpm-field) deprecates `tempoPercent`: no longer written, ignored when read.
+
 ## Other `localStorage` keys (added by later features, documented in their own contracts)
 
 | Key | Feature | Holds | Contract |

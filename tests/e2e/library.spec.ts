@@ -402,7 +402,7 @@ test.describe('Title block (006 FR-017)', () => {
     await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
 
     for (const mode of ['listen', 'practice', 'play']) {
-      await page.locator(`mx-mode-switch input[value=${mode}]`).check();
+      await page.locator(`#mode-controls mx-mode-switch input[value=${mode}]`).check();
       const titleBlock = page.locator('.mx-title-block');
       await expect(titleBlock, mode).toBeVisible();
       await expect(titleBlock.locator('h1'), mode).toContainText('Elise (theme');

@@ -1,8 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '../../src/ui/elements/mx-attempts-list.js';
+import type { TempoDisplaySegment } from '../../src/core/tempo/tempo-display.js';
 import type { StoredPerformanceSummary } from '../../src/engine/ports.js';
 import { playState } from '../../src/ui/state/playState.js';
 import { practiceState } from '../../src/ui/state/practiceState.js';
+
+const written120: TempoDisplaySegment = {
+  startTick: 0,
+  qpmNum: 120,
+  qpmDen: 1,
+  beat: { type: 'quarter', dots: 0, quartersNum: 1, quartersDen: 1 },
+  beatSource: 'mark',
+  isDefault: false,
+};
 
 function attempt(over: Partial<StoredPerformanceSummary> = {}): StoredPerformanceSummary {
   return {
@@ -41,12 +51,17 @@ function mount(): HTMLElement {
 describe('mx-attempts-list (US4, T076)', () => {
   beforeEach(() => {
     practiceState.setMode('play');
+    playState.setScoreTempo({
+      map: [written120],
+      passes: [{ measureIndex: 0, passNo: 0, startTick: 0, lengthTicks: 4 }],
+    });
   });
 
   afterEach(() => {
     document.body.innerHTML = '';
     practiceState.setMode('listen');
     playState.setAttempts([]);
+    playState.setScoreTempo(null);
   });
 
   it('is hidden outside Play mode', () => {
@@ -71,12 +86,39 @@ describe('mx-attempts-list (US4, T076)', () => {
     const list = mount();
 
     const text = list.textContent ?? '';
-    expect(text).toContain('80%');
+    // feature 012, US3, FR-019: "NN BPM (NN% of written)" instead of a bare percentage - a Score written at 120,
+    // this attempt's tempoPercent 80 -> 96 BPM.
+    expect(text).toContain('96 BPM (80% of written)');
     expect(text).toContain('Standard');
     expect(text).toContain('8 of 10');
     expect(text).toContain('7 of 9');
     // States the kept limit (FR-041).
     expect(text).toMatch(/attempts are kept/);
+  });
+
+  it('shows a stored fractional tempoPercent rounded to a whole percent (FR-019, pre-012 attempts too)', () => {
+    playState.setAttempts([attempt({ settings: { ...attempt().settings, tempoPercent: 70 } })]);
+    const list = mount();
+    expect(list.textContent ?? '').toContain('84 BPM (70% of written)');
+  });
+
+  it("shows the beat when it isn't a plain quarter (FR-021)", () => {
+    const dottedQuarter60: TempoDisplaySegment = {
+      startTick: 0,
+      qpmNum: 90, // dotted-quarter beat (x1.5): writtenBpm = 90 / 1.5 = 60
+      qpmDen: 1,
+      beat: { type: 'quarter', dots: 1, quartersNum: 3, quartersDen: 2 },
+      beatSource: 'mark',
+      isDefault: false,
+    };
+    playState.setScoreTempo({
+      map: [dottedQuarter60],
+      passes: [{ measureIndex: 0, passNo: 0, startTick: 0, lengthTicks: 4 }],
+    });
+    playState.setAttempts([attempt({ settings: { ...attempt().settings, tempoPercent: 80 } })]);
+    const list = mount();
+    expect(list.textContent ?? '').toContain('48 BPM (80% of written)');
+    expect(list.textContent ?? '').toContain('dotted quarter');
   });
 
   it('emits attemptreplay with the runId when Replay is clicked', () => {

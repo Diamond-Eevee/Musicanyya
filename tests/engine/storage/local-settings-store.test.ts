@@ -44,7 +44,6 @@ describe('Settings store', () => {
     expect(settings).toEqual({
       version: 2,
       volume: 80,
-      tempoPercent: 100,
       scale: 100,
       follow: true,
       overlays: OVERLAYS_DEFAULT,
@@ -59,7 +58,7 @@ describe('Settings store', () => {
     const store = new LocalSettingsStore();
     const settings = store.load();
     expect(settings.volume).toBe(80); // out of range -> default
-    expect(settings.tempoPercent).toBe(100); // not a multiple of 5 -> default
+    expect('tempoPercent' in settings).toBe(false); // 2.1.0: ignored on read (feature 012 FR-015)
     expect(settings.scale).toBe(100); // wrong type -> default
     expect(settings.follow).toBe(true); // wrong type -> default
   });
