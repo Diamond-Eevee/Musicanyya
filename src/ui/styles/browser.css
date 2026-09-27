@@ -22,10 +22,15 @@
 /* The light-DOM host itself (mounted straight into `#mx-main`, T031) has no visible box of its own - only its
    `<dialog>` child does, already `position: fixed` below - but left at the default `position: static` it still
    counts as a flow child of `#mx-main` (feature 004 FR-001's "no aside reserves space" contract, caught live by
-   electron-smoke.spec.ts). `position: fixed` here takes it out of that flow without affecting the dialog's own
-   (independent) fixed positioning. */
+   electron-smoke.spec.ts). `position: absolute` takes it out of that flow without affecting the dialog's own
+   (independent) fixed positioning, and without a size or offset of its own it stays at its static position either
+   way. `position: fixed` first (same fix in spirit) broke keyboard menu navigation on WebKit only - found live
+   migrating tests/e2e/library.spec.ts's item-opening flow for T032, `us2-panels.spec.ts`'s "a menu is usable with
+   the keyboard alone" test on `--project=webkit`: `ArrowDown` from the Help/More menu's first entry never reached
+   *Audio diagnostics* - the mechanism was not traced further once `absolute` (which the layout checks accept just
+   as well - they only exclude `position: fixed`/`absolute`) was confirmed to fix it with no regression. */
 mx-score-browser {
-  position: fixed;
+  position: absolute;
 }
 
 /* `[open]` keeps the UA's own `dialog:not([open]) { display: none }` in force for a closed dialog - an

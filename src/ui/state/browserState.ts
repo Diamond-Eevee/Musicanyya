@@ -1,7 +1,7 @@
+import type { BrowserViewState } from '../../core/browser/types.js';
+import { DEFAULT_BROWSER_VIEW, seedFromLibraryFilter, validateViewState } from '../../core/browser/view-state.js';
 import type { LibraryIndex, LibrarySection } from '../../core/library/types.js';
 import type { ItemRef, ProgressRecord, UserFileEntry } from '../../core/progress/types.js';
-import { DEFAULT_BROWSER_VIEW, seedFromLibraryFilter, validateViewState } from '../../core/browser/view-state.js';
-import type { BrowserViewState } from '../../core/browser/types.js';
 import type { CatalogError } from '../../engine/ports.js';
 import { LIBRARY_FILTER_STORAGE_KEY } from './libraryState.js';
 import { createStore } from './store.js';
@@ -162,9 +162,16 @@ export class BrowserStateStore {
     this.store.update((state) => ({ ...state, phase: 'opening', openingRef: ref, message: null }));
   }
 
-  /** Success: closes (contracts §5 - "It closes on: successful open of an item or file"). */
+  /** Success: closes (contracts §5 - "It closes on: successful open of an item or file"). Also records the item as
+   *  the view's `selected` one (FR-006, US1 Independent Test: "reopen - it returns to ... with that item selected")
+   *  - a real double click never went through `mx-browser-list`'s own single-click `select()` (cancelled by the
+   *    dblclick that follows it, R-2's own dblclick-race fix), so without this, reopening after opening anything
+   *  but the first row of its folder showed the wrong row active. A *My files* ref (no library entry) is left as
+   *  the view had it: nothing in the list to select. */
   openSucceeded(): void {
-    if (this.store.get().phase !== 'opening') return;
+    const { phase, openingRef } = this.store.get();
+    if (phase !== 'opening') return;
+    if (openingRef && openingRef.kind === 'library') this.setView({ selected: openingRef });
     this.store.update((state) => ({ ...state, phase: 'closed', openingRef: null, message: null }));
   }
 

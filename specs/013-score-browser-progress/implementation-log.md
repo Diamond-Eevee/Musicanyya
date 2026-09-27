@@ -466,3 +466,65 @@
 - Handoff: next = T020 (`tests/e2e/score-browser.spec.ts`, the new US1 e2e spec, with the Independent Test from
   spec.md) and then the US1 checkpoint gate (full `pnpm lint`/`pnpm typecheck`/`pnpm test`/`pnpm test:e2e`,
   Independent Test, log entry, commit). Tree is not clean - commit this pair before starting T020.
+
+## 2026-09-27 18:50 - claude-sonnet-5 (implement: T020 + US1 checkpoint)
+
+- Done: T020. `tests/e2e/score-browser.spec.ts` (8 tests): FR-001 (app starts with the browser open, rail/list/
+  detail visible, focus in the search field); the US1 Independent Test verbatim (browse *Learning > Keys > C
+  major*, open the first exercise, reopen - same folder and item selected); reload keeps folder, search and
+  selection (sort has no UI control yet - nothing in `mx-score-browser`/`mx-browser-list`/`mx-browser-rail` lets a
+  person change it, so nothing was written to exercise it rather than faking a check against a value nothing can
+  move); FR-002/US1 #6 at 1280 (margin, three columns), 900 (folder picker, no rail) and 600px (detail as an
+  overlay panel, closed by Back) plus 360px (edge to edge, nothing cut off), each with a `scrollWidth <= clientWidth`
+  check per pane; SC-001 (Open, the C major folder, double click - three actions, from a loaded Score).
+- A real gap found writing the Independent Test itself (not by running anything first): reopening after opening an
+  item **other than the first row of its folder** showed the wrong row as selected. `mx-browser-list.ts`'s `open()`
+  (a real double click, Enter, or the detail pane's *Open* button) only ever dispatches `browseropenitem` - the
+  view's own `selected` field is set by `select()`, the *single*-click preview handler, which a following dblclick
+  always cancels (T031/T032's own double-click race fix) - so `view.selected` was never actually written by
+  opening anything, and reopening fell back to `mx-browser-list`'s own "first row of the current rows" default.
+  Fixed in `src/ui/state/browserState.ts`: `openSucceeded()` now also sets `view.selected` to the item that was
+  opened (a library ref only - nothing to select in the list for a *My files* one). `tests/engine/browser-session.
+  test.ts` and the unit suite stayed green with no changes needed.
+- A second real regression, found only by running the full e2e suite for this checkpoint (not caught by T020's own
+  spec, which never reaches the Help menu): `src/ui/styles/browser.css`'s `mx-score-browser { position: fixed }`
+  (T032, to stop it counting as a flow child of `#mx-main` in the "no aside reserves space" layout contract) broke
+  keyboard menu navigation on **WebKit only** - `tests/e2e/us2-panels.spec.ts`'s "a menu is usable with the keyboard
+  alone" test could never reach *Audio diagnostics* by `ArrowDown` from the Help/More menu's first entry. Bisected
+  by hand across this session's own commits (T031 `1adbe2a`: green; T032 `10c766e`: red) and then by reverting one
+  file at a time from the current tree (`layout.css`'s widened breakpoint: no effect; `browser.css`'s `position:
+  fixed`: reverting it alone made the test pass again). The exact WebKit mechanism was not traced further, because
+  `position: absolute` (which the layout contract's own check treats identically - it only excludes `fixed` and
+  `absolute`, not by which one) fixes the regression with no loss to the original fix's own purpose, verified live:
+  `electron-smoke.spec.ts`'s reservers check, `us1-layout.spec.ts`'s `flowSiblings`, and `us3-run-chrome.spec.ts`'s
+  `visibleOverlays` all still pass. Changed `mx-score-browser { position: fixed }` to `position: absolute` in
+  `browser.css`, comment updated with what was tried.
+- Checks (the full gate, for real, not assumed): `pnpm lint` 0 errors (295 pre-existing warnings/13 infos untouched
+  - also fixed two small pre-existing errors found along the way while getting a clean gate, `src/ui/state/
+  browserState.ts`'s import order and a stray escaped quote in `tests/ui/menu.test.ts`, both one-line, no behaviour
+  change); `pnpm typecheck` clean; `pnpm test` 242 files / 4472 tests green (one `tests/library/regeneration.test.ts`
+  timeout under parallel load, confirmed passing alone, same pre-existing flake noted at T032). `pnpm test:e2e
+  --project=chromium --project=electron`: 658 passed, 42 skipped, 0 failed. `--project=firefox --project=webkit`:
+  the full parallel run showed 4 failures, all re-run alone per R7's "known flaky, re-run and log" convention:
+  `us2-panels.spec.ts`'s keyboard-menu test (5/5 alone - the `position: fixed` regression above, now fixed and
+  confirmed), `us1-open-view.spec.ts` (1/1 alone) and `play-cursor.spec.ts` (1/1 alone) were parallel-load noise
+  only; `library.spec.ts`'s "pick Fur Elise" test failed 5/6 alone too, with the **wrong item** opened ("Twinkle,
+  Twinkle, Little Star" instead of "Für Elise") - confirmed not caused by this session's `browserState.ts` change
+  (reproduces identically with it stashed out) and likely the same underlying WebKit dblclick-through-the-dialog
+  race as the already-documented "C major -> C minor" key-signature bug (both open a row via `revealLibraryItem` +
+  `dblclick()`); added as an update to that same `docs/known-bugs.md` entry rather than a new one, and its
+  `Tracking` line corrected to name `task_028b771b` (it named no task id before - an oversight from the T032
+  session, fixed here).
+- Decisions: `openSucceeded()` sets `selected` - not an owner decision, a correctness fix matching FR-006's own
+  stated intent (no design change). `position: fixed` -> `absolute` on `mx-score-browser` - not an owner decision
+  either, a bug fix for a regression this session introduced, reverting to the layout contract's own already-
+  accepted rule (either non-flow position value satisfies it).
+- **Checkpoint reached**: US1 (T013-T034) is complete. Independent Test passes (T020, both directly and via the
+  full e2e run). Full gate green except the one documented, tracked, owner-accepted WebKit bug
+  (`docs/known-bugs.md`, `task_028b771b`) - chromium and Electron are fully green, including on WebKit's own two
+  affected tests (they are WebKit-only). Constitution review (T091) is a Polish-phase task, not run yet; this
+  checkpoint is US1's own, not a merge readiness call.
+- Handoff: next = US2 (T035 onward, "See my progress on every item") or, if the user wants to merge sooner, the
+  Polish-phase tasks (T086-T093) starting with the constitution review. Tree is not clean - commit this checkpoint
+  first. `docs/known-bugs.md`'s WebKit entry (both symptoms now) and background task `task_028b771b` still need no
+  further action unless picked up directly.

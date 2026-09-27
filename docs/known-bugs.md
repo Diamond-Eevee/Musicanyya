@@ -72,5 +72,15 @@ One entry per bug: what fails, how to reproduce it, what has already been ruled 
   step more than once only in that path. `src/ui/elements/mx-score-view.ts` (`load()`, `relayout()`,
   `mountVisiblePages()`) and `src/app/browser-session.ts` (`openItem`) are the places to start.
 - **Reproduce**: `npx playwright test tests/e2e/library.spec.ts --project=webkit -g "C major -> C minor"`
-- **Tracking**: not yet spun off as a background task. `tests/e2e/library.spec.ts`'s ordering-check scoping fix
-  (querying all pages, not just the first) is a real, independent improvement kept regardless of this bug.
+- **Tracking**: spun off as background task `task_028b771b` (2026-09-27); not yet started. `tests/e2e/
+  library.spec.ts`'s ordering-check scoping fix (querying all pages, not just the first) is a real, independent
+  improvement kept regardless of this bug.
+- **Update 2026-09-27 (same day, T020 session)**: likely the same underlying WebKit dblclick race, a second
+  symptom - `library.spec.ts`'s "browser: open the browser, pick Fur Elise, press Play" test (a *different* test,
+  opens `repertoire/intermediate/fur-elise-theme` via `revealLibraryItem` + `item.dblclick()`, the same pattern)
+  fails 3-5/6 repeats *standalone* on `--project=webkit`, with the **wrong item** opened (`.mx-title-block` shows
+  "Twinkle, Twinkle, Little Star" instead of "Für Elise"). Confirmed not caused by this session's own
+  `src/ui/state/browserState.ts` change (`openSucceeded` now also sets `view.selected` on a successful open, for
+  T020's Independent Test): reproduces identically with that change stashed out. Not yet investigated together
+  with the key-signature bug above, but both point at the same interactive-dblclick-through-the-dialog path on
+  WebKit - worth checking as one root cause rather than two.

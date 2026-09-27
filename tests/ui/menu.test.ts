@@ -157,7 +157,7 @@ describe('mx-menu', () => {
     });
   });
 
-  describe('the score menu\'s Open... entry (feature 013, R-20)', () => {
+  describe("the score menu's Open... entry (feature 013, R-20)", () => {
     it('activating it dispatches openbrowser (not a viewState panel) and closes the menu', () => {
       const menu = makeMenu('score');
       const opened = new Promise<void>((resolve) => {
