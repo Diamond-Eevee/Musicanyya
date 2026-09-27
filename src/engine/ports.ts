@@ -2,6 +2,7 @@ import type { LatencyProfile, StoredPerformance } from '../core/grade/types.js';
 import type { LibraryIndex } from '../core/library/types.js';
 import type { RunSettings } from '../core/play/types.js';
 import type { HandSelection } from '../core/practice/types.js';
+import type { MasteryThresholds, ProgressEvent, ProgressRecord } from '../core/progress/types.js';
 import type { ScheduleMessage } from '../core/schedule/compile.js';
 import type { ClockPair } from './midi/clock-map.js';
 
@@ -130,6 +131,8 @@ export interface MidiInput extends Emitter<MidiInputEvent> {
 // timeStampMs is MIDIMessageEvent.timeStamp (performance.now() domain), kept for later mapping onto the audio clock.
 
 // ---- ScoreStore (recent Scores, IndexedDB) ----
+/** @deprecated 013-score-browser-progress (ports.md 1.5.0, R-3, R-20): no longer used at run time. `recentScores` is
+ *  read once by the `ProgressStore` migration. Removal waits for OD-6. */
 export interface RecentScoreSummary {
   id: string;
   fileName: string;
@@ -142,6 +145,7 @@ export type StoreResult<T> =
   | { ok: true; value: T }
   | { ok: false; error: 'unavailable' | 'quotaExceeded' | 'notFound' };
 
+/** @deprecated 013-score-browser-progress, see `RecentScoreSummary`. */
 export interface ScoreStore {
   list(): Promise<StoreResult<readonly RecentScoreSummary[]>>; // newest first, max 10
   put(file: {
@@ -166,6 +170,29 @@ export interface PerformanceStore {
   get(runId: string): Promise<StoreResult<StoredPerformance>>;
   /** Removes the record and therefore its recording (FR-043). */
   remove(runId: string): Promise<StoreResult<void>>;
+  // `removeByScore` (013 ports.md 1.5.0, R-12: reset progress / remove file and progress, OD-3/OD-4) is added in
+  // T052 together with its adapter implementation and test, so no adapter ever carries a stub for it.
+}
+
+// ---- ProgressStore (progress records, *My files* and their file copies; contracts/013 progress-store.md 1.0.0) ----
+export type ProgressStoreError = 'unavailable' | 'full' | 'notFound' | 'corrupt';
+export type ProgressStoreResult<T> = { ok: true; value: T } | { ok: false; error: ProgressStoreError };
+
+export interface ProgressStore {
+  /** 'available' | 'unavailable' (no IndexedDB, blocked, private mode). Never throws. */
+  availability(): Promise<'available' | 'unavailable'>;
+  /** All readable records. Unreadable or unknown-format records are skipped and counted in `skipped`. */
+  listProgress(): Promise<ProgressStoreResult<{ records: readonly ProgressRecord[]; skipped: number }>>;
+  getProgress(scoreKey: string): Promise<ProgressStoreResult<ProgressRecord | null>>;
+  /** Applies one event with `applyProgressEvent` atomically (read, reduce, write in one transaction) and returns the
+   *  new record, or null after `reset`. Idempotent for `played`/`resultRemoved` with the same runId. */
+  apply(
+    scoreKey: string,
+    event: ProgressEvent,
+    thresholds: MasteryThresholds,
+  ): Promise<ProgressStoreResult<ProgressRecord | null>>;
+  // The *My files* half of this port (`listFiles`, `putFile`, `getFileBytes`, `removeFile`) is added in T066, so no
+  // adapter ever carries a stub for it (analyze A6).
 }
 
 /** Which optional overlay layers are drawn (contracts/view-settings.md). */

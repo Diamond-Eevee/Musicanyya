@@ -1,12 +1,20 @@
 # Contract: `LibraryCatalog` port, library UI events and filter state
 
-**Version**: `1.1.0` (1.0.0 new; 1.1.0, 2026-09-24, feature 007: `item(file, expectedHash?)` and the caching rules of
+**Version**: `1.3.0` (1.0.0 new; 1.1.0, 2026-09-24, feature 007: `item(file, expectedHash?)` and the caching rules of
 §1.1, so a corrected item reaches browsers that cached the old one - FR-024 of feature 007; change request
 `specs/007-library-fidelity-audit/contracts/library-port-1.1.md`).
 
 **Version 1.2.0** (2026-09-26, feature 011: the panel is a folder tree with a step order, the persisted filter follows
 `formerIds`, opening an item adopts settings from `supersedes`, songs name their source; §2 "Panel behaviour (1.2.0)", §3,
 §4 "Opening an item", §4a; change request `specs/011-learning-by-key/contracts/library-port-1.2.md`).
+
+**Version 1.3.0** (2026-09-27, feature 013-score-browser-progress): the port itself is unchanged. §2-§4 "Panel
+behaviour" (the `mx-library` tree, its open/closed state and its filter popover) are **superseded** by the Score
+browser (`mx-browser-rail` + `mx-browser-list`,
+[013 score-browser.md](../../013-score-browser-progress/contracts/score-browser.md)); `filterItems`,
+`buildSectionTree` and the step-order rules of §3/§4 stay and are reused by the browser's own query and rail code.
+§4.1 settings adoption via `supersedes` is unchanged; progress also follows `supersedes` (013 data-model.md section
+6). `mx-library` itself is retired (013 OD-6, removed with T092).
 
 **Owner**: `src/engine/ports.ts` (port), `src/engine/library/http-catalog.ts` (adapter),
 `src/ui/elements/mx-library.ts` + `src/ui/state/libraryState.ts` (UI), `src/app/session.ts` (wiring).

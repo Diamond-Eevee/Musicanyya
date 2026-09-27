@@ -1,8 +1,13 @@
 # Contract: Play display (cursor, Grade marks) and channel setup
 
-**Version**: `2.0.0` (internal TypeScript contract between `src/core/play`, `src/core/timeline`, `src/core/grade`,
+**Version**: `2.1.0` (internal TypeScript contract between `src/core/play`, `src/core/timeline`, `src/core/grade`,
 `src/core/notation`, `src/app`, `src/ui` and the `score-player` worklet). Signatures are normative in shape. Changes
 bump the version (MINOR additive, MAJOR breaking).
+
+**2.0.0 -> 2.1.0** (feature 013-score-browser-progress, MINOR, FR-016): `playState` gains `newBest: boolean`. The
+`BrowserSessionController` (013 R-18) compares a just-finished run's result with the open Score's best *before* the
+run is stored; `mx-grade-panel` shows a "New best" line with a star shape when it is true, and shows nothing extra
+for a stopped run or when it is false.
 
 **1.0.0 -> 1.0.1** (T012, signature type only): `notesAtTick` and `passAtTick` take the compact timeline the score view
 holds (`TimelinePositions`: `spans` and `passes` with `endTick`, satisfied by the worker's `TimelineDto`) instead of core's

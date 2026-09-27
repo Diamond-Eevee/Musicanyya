@@ -61,3 +61,34 @@
   A15 (FR-010/FR-023 overlap) and A18 (003 FR-008 wording) are left as notes.
 - Handoff: next = `/speckit.implement` from T002 (Setup), then Foundational T009-T012. The tree is clean after this
   commit.
+
+## 2026-09-27 15:10 - claude-sonnet-5 (implement: Setup + Foundational)
+- Done: T002-T012 (T001 was already done). T002 applied `contract-changes.md` to all seven canonical contracts
+  (`ports.md` 1.5.0, `storage.md` schema 3 + `musicanyya.browser.v1`, `performance-log.md` optional `complete`,
+  `practice-session.md` 1.7.0 `loopCompleted`, `ui-shell.md` 1.1.0, `library-port.md` 1.3.0, `play-display.md` 2.1.0).
+  T003/T004 added the named constants (`src/core/defaults.ts`, `src/engine/config.ts`) with
+  `tests/core/progress/constants.test.ts` pinning the `PROGRESS_RESULTS_MAX >= PERFORMANCES_PER_SCORE_MAX` invariant.
+  T005 added `tests/fakes/progress-builders.ts` (`result`, `record`, `userFile`, `libraryIndexOf`, `historyOf`,
+  smoke-verified). T006 added `tests/fixtures/progress/db-v2.ts` (real bytes + real SHA-256 of
+  `fur-elise-bare.musicxml` and library `c-major/introduction.musicxml`, verified against `hashFile` in a throwaway
+  test). T007 added the two seed JSON fixtures and their README row. T008 installed `@axe-core/playwright` 4.13.0
+  (plan/reference.md already recorded it as approved). T009/T010 added `src/core/progress/types.ts` and
+  `src/core/browser/types.ts` (data-model sections 2-9). T011 added the `ProgressStore` port (progress half only)
+  to `src/engine/ports.ts` and marked `ScoreStore`/`RecentScoreSummary` `@deprecated`. T012 extended
+  `tests/architecture/layers.test.ts` with a named assertion for `src/core/progress/**` and `src/core/browser/**`.
+- Decisions: T009/T010 (Foundational, pure type declarations) were implemented ahead of T005 (Setup), because T005's
+  builders need to return values typed against `ProgressResult`/`ProgressRecord`/`UserFileEntry`/`BrowserItem` -
+  otherwise the builder file would either duplicate the data-model shapes or type-check against nothing. This is an
+  execution-order swap only; every dependency in tasks.md still holds (T009 depends on T003/T004, done first).
+  `PerformanceStore.removeByScore` is documented in the two contract files (ports.md, performance-log.md) as part of
+  1.5.0/T002, matching the existing pattern of a contract naming a signature before its code lands (e.g. ports.md's
+  own history for `latencyProfile`), but is **not** yet added to the `PerformanceStore` TypeScript interface - adding
+  it now would break `IndexedDbPerformanceStore`'s and `session.ts`'s typecheck with no adapter to implement it until
+  T052/T045. It lands with T052, test-first, as tasks.md already sequences it.
+- Checks: `pnpm typecheck` green; `pnpm test` full suite green (235 files, 4417 tests, including the new
+  `tests/core/progress/constants.test.ts` and the extended `tests/architecture/layers.test.ts`, 6 assertions).
+  `pnpm lint` has 2 pre-existing errors unrelated to this feature (`src/engine/worklets/dispatch.ts`,
+  `src/ui/elements/mx-latency-panel.ts`, both untouched by this branch and already present before T002) - flagged to
+  the user, not fixed here (out of scope for 013).
+- Handoff: next = `/speckit.implement` from T013 (US1 tests). Foundational checkpoint passed. Tree is clean after
+  this commit.

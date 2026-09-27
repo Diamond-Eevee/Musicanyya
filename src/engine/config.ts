@@ -83,3 +83,9 @@ export const GRADE_WORKER_TIMEOUT_MS = 5000; // A Grade that never arrives becom
 
 // Notices: how many stack in the corner of the Score at once (feature 004, FR-011); older ones wait behind them.
 export const NOTICE_TRAY_MAX = 3;
+
+// Score browser & progress (feature 013-score-browser-progress, data-model.md section 11)
+export const USER_FILES_BYTES_BUDGET = 100 * 1024 * 1024; // Total *My files* copy budget, least recently opened evicted first (FR-020)
+export const UNDO_WINDOW_MS = 8000; // Deferred-commit window for reset/remove, UI timing only (FR-018, FR-022, R-12)
+export const BROWSER_SEARCH_MAX_CHARS = 200; // Browser search text is cut to this length (FR-026)
+export const BROWSER_ANNOUNCE_DEBOUNCE_MS = 300; // Debounce of the browser's aria-live item-count announcement (FR-028)

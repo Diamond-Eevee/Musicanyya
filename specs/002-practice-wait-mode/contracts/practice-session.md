@@ -1,6 +1,6 @@
 # Contract: practice session (core API)
 
-**Version**: `1.6.0` (internal TypeScript contract between `src/core/practice`, `src/app/session.ts` and
+**Version**: `1.7.0` (internal TypeScript contract between `src/core/practice`, `src/app/session.ts` and
 `src/ui`). Signatures are normative in shape; every change is reflected here with a version bump (MINOR for
 additions, MAJOR for breaking changes). `1.0.0` was amended on 2026-09-20 by the clarification session (played-along
 and skipped marks, the wrong-versus-extra rule, part selection, skip inputs) before anything was implemented.
@@ -24,6 +24,9 @@ an extra or wrong key that the new event does not require stays. `startSession()
 `noteOff` of a key the current event requires now withdraws the `correctSoFar` or `heldOver` mark of its notes
 (`markNotes` `waiting`) - a chord key let go before the chord is complete is no longer "played so far" (008 FR-003).
 No input or effect is added.
+`1.7.0` (feature 013-score-browser-progress, R-9): a new effect `{ type: "loopCompleted" }` is added, emitted when
+the loop wraps after its last event was **played** (not reached by `skipNext`). It feeds the Score browser's
+*Practised* progress (013 data-model.md section 4); it changes no existing effect, mark or input.
 
 Constitution IV and V: this module is pure. It imports nothing from `src/engine` or `src/ui`, touches no DOM, no
 Web API, no clock and no randomness, and therefore runs in Node under test. It **returns** effects; it never
@@ -125,7 +128,8 @@ export type PracticeEffect =
   | { type: "hideHelp" }
   | { type: "notice"; code: PracticeNoticeCode }
   | { type: "keyFeedback"; key: number; state: WrongKeyState; messageId?: string }   // T056, R-14
-  | { type: "sessionEnded"; reason: "reachedEnd" | "stopped" };
+  | { type: "sessionEnded"; reason: "reachedEnd" | "stopped" }
+  | { type: "loopCompleted" };   // 1.7.0, 013 R-9: the loop wrapped after its last event was played
 
 export type PracticeNoticeCode =
   | "practiceNothingToPlay"      // the Score (or the selection, or the loop) has no required notes

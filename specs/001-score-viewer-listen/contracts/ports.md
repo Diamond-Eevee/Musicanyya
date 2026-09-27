@@ -1,6 +1,6 @@
 # Contract: ports (engine layer interfaces)
 
-**Version**: `1.4.0` (internal TypeScript contract between `src/engine` adapters and `src/ui`/`src/app`).
+**Version**: `1.5.0` (internal TypeScript contract between `src/engine` adapters and `src/ui`/`src/app`).
 1.1.0 (feature 002, T030): `SettingsStore` gains `loadPractice` and `savePractice`; nothing existing changed.
 1.2.0 (feature 003, T036): `AudioEngine` gains `setChannelVolume` (mutes the Play mode Metronome without
 recompiling the schedule, research R-02 in specs/003-play-mode-grading/research.md); `latencyProfile` (T038,
@@ -13,11 +13,18 @@ specs/003-play-mode-grading/research.md).
 1.4.0 (feature 001, T161): `AudioErrorCode` gains `processorFaulted` - the AudioWorklet processor caught an
 uncaught throw from the synth or dispatch math inside `process()` (contracts/worklet-protocol.md 1.3.0's
 `status: processorFaulted`) and went quiet for the rest of the session rather than let the throw silently kill it.
+1.5.0 (feature 013-score-browser-progress, MINOR): adds the `ProgressStore` port (progress records, *My files*
+entries and their file copies; full shape in
+[specs/013-score-browser-progress/contracts/progress-store.md](../../013-score-browser-progress/contracts/progress-store.md)
+1.0.0). `PerformanceStore` gains `removeByScore(scoreId): Promise<StoreResult<number>>` (research R-12 of 013,
+used by reset progress / remove file and progress, OD-3). `ScoreStore` is **deprecated**: `IndexedDbScoreStore` is
+no longer used at run time (013 R-3, R-20; `recentScores` is read once by the progress migration instead).
+Removal of the port and its adapter waits for OD-6.
 Signatures are normative in shape; names may be refined during implementation, but every change must be reflected
 here and the version bumped (MINOR for additions, MAJOR for breaking changes).
 
 Constitution V: platform capabilities sit behind these ports. The UI depends on the ports, never on a concrete
-adapter. Adapters in feature 001: `WebAudioEngine`, `WebMidiInput`, `IndexedDbScoreStore`,
+adapter. Adapters in feature 001: `WebAudioEngine`, `WebMidiInput`, `IndexedDbScoreStore` (deprecated, 1.5.0),
 `LocalStorageSettingsStore`, `BrowserEnvironmentProbe`. Fakes implement the same ports for tests (R-15).
 
 ```ts
@@ -105,10 +112,14 @@ export interface MidiInput extends Emitter<MidiInputEvent> {
 // timeStampMs is MIDIMessageEvent.timeStamp (performance.now() domain), kept for later mapping onto the audio clock.
 
 // ---- ScoreStore (recent Scores, IndexedDB) ----
+/** @deprecated 1.5.0: no longer used at run time (013 R-3, R-20). `recentScores` is read once by the progress
+ *  migration (013 contracts/progress-store.md section 2). Removal of this port and `IndexedDbScoreStore` waits
+ *  for OD-6 (013 tasks.md T092). */
 export interface RecentScoreSummary { id: string; fileName: string; title: string | null; composer: string | null;
   byteLength: number; lastOpened: string /* ISO 8601 */; }
 export type StoreResult<T> = { ok: true; value: T } | { ok: false; error: "unavailable" | "quotaExceeded" | "notFound" };
 
+/** @deprecated 1.5.0, see `RecentScoreSummary`. */
 export interface ScoreStore {
   list(): Promise<StoreResult<readonly RecentScoreSummary[]>>;           // newest first, max 10
   put(file: { fileName: string; bytes: ArrayBuffer; title: string | null; composer: string | null })
