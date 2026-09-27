@@ -169,7 +169,13 @@ e2e tests cover it. Use the first option that works for you:
    pnpm screenshot --item <id> --run --keys "sleep:3500"          # a Play run, picture taken mid-run (feature 009)
    pnpm screenshot --item <id> --run --grade --keys "sleep:1300,+76,-76"   # a Play run, picture of its Grade
    pnpm screenshot --item <id> --piano --practice --keys "+60,+61" --greyscale   # on-screen piano, in greyscale (feature 010)
+   pnpm screenshot --browser --width 900 --height 700   # the Score browser itself (feature 013), open at start-up
    ```
+
+   `--item`/`--file` open through the Score browser (feature 013, R-20): the picture is taken once the Score has
+   loaded, and the browser (which opens on its own at start-up with nothing loaded yet, FR-001) has closed. `--browser`
+   takes the picture with the browser open instead - with no `--item`/`--file` that is the start-up state; combined
+   with `--width`/`--height` it is the way to see its 1024/900/600 px breakpoints (contracts/score-browser.md §1).
 
    `--practice` switches to Practice and presses Start (a fake MIDI keyboard through the `e2e-midi` window event, the
    same one the e2e tests use). `--keys` is a comma-separated list of steps, `+<midi>` key down, `-<midi>` key up,

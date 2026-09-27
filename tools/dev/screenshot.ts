@@ -7,14 +7,18 @@
  *   pnpm screenshot -- --item repertoire/intermediate/fur-elise-theme
  *   pnpm screenshot -- --file tests/fixtures/musicxml/engraving/fur-elise-bare.musicxml --out shots/bare.png
  *   pnpm screenshot -- --url http://localhost:5173 --width 1280 --height 720 --full
+ *   pnpm screenshot -- --browser --width 900 --height 700
  *
  * Options:
- *   --item <id>      open this library item (its `id` in public/library/index.json) through the Scores panel
+ *   --item <id>      open this library item (its `id` in public/library/index.json) through the Score browser
  *   --file <path>    open this MusicXML/.mxl file through the Open button
  *   --out <path>     where to write the PNG (default test-results/screenshots/<item|file|app>.png, git-ignored)
  *   --width, --height  viewport in CSS px (default 1600 x 900)
  *   --full           capture the whole scrollable page instead of the viewport
  *   --url <url>      use an already running server instead of starting one
+ *   --browser        take the picture with the Score browser open (feature 013). Without it, the browser that
+ *                    opens at start-up (FR-001, no Score loaded yet) is closed before the picture; `--item`/`--file`
+ *                    close it themselves by opening something, same as a person double-clicking a row
  *   --practice       after opening the score, switch to Practice and press Start (fakes a MIDI keyboard through the
  *                    same `e2e-midi` window event the e2e tests use; needs --item or --file)
  *   --play <n>       with --practice: first play the correct keys of the first n events (a chord: all its keys down, then
@@ -55,6 +59,7 @@ const { values } = parseArgs({
     height: { type: 'string', default: '900' },
     full: { type: 'boolean', default: false },
     url: { type: 'string' },
+    browser: { type: 'boolean', default: false },
     practice: { type: 'boolean', default: false },
     run: { type: 'boolean', default: false },
     grade: { type: 'boolean', default: false },
@@ -89,21 +94,33 @@ async function showPiano(page: Page): Promise<void> {
   await page.keyboard.press('Escape');
 }
 
+/** Opens the Score browser (tests/e2e/helpers/browser.ts's `openBrowser`), unless FR-001 already did at start-up. */
+async function openBrowserDialog(page: Page): Promise<void> {
+  const dialog = page.locator('dialog.browser');
+  if (await dialog.isVisible()) return;
+  await page.locator('mx-open-button .mx-open-button').click();
+  await dialog.waitFor({ state: 'visible', timeout: LOAD_TIMEOUT_MS });
+}
+
+/** Closes the Score browser if it is open (tests/e2e/helpers/browser.ts's `closeBrowser`). */
+async function closeBrowserDialog(page: Page): Promise<void> {
+  const dialog = page.locator('dialog.browser');
+  if (!(await dialog.isVisible())) return;
+  await dialog.locator('.browser-close').click();
+  await dialog.waitFor({ state: 'hidden', timeout: LOAD_TIMEOUT_MS });
+}
+
+/** Opens a library item through the Score browser (feature 013, R-20), the way a person does: *All* lists every
+ *  item regardless of folder (tests/e2e/helpers/library.ts's `revealLibraryItem`), then a double click on its row. */
 async function openLibraryItem(page: Page, id: string): Promise<void> {
-  await openPanel(page, 'scores');
-  // The shelf is a tree of folders and the key folders start closed (feature 011): open every closed folder above the item
-  // with one click on its summary, as a person would.
-  await page.locator('details.library-section').first().waitFor({ timeout: LOAD_TIMEOUT_MS });
-  const parts = id.split('/').slice(0, -1);
-  for (let i = 1; i <= parts.length; i++) {
-    const folder = page.locator(`details.library-section[data-section="${parts.slice(0, i).join('/')}"]`);
-    if ((await folder.count()) > 0 && (await folder.getAttribute('open')) === null) {
-      await folder.locator(':scope > summary').click();
-    }
-  }
-  const item = page.locator(`.library-item-open[data-id="${id}"]`);
+  await openBrowserDialog(page);
+  const all = page.locator('[role="treeitem"][data-key="all"]');
+  // Below 1024px the rail is a folder-picker overlay, closed by default (contracts/score-browser.md §1).
+  if (!(await all.isVisible())) await page.locator('.browser-folder-picker').click();
+  await all.click();
+  const item = page.locator(`.browser-row[data-ref="library:${id}"]`);
   await item.waitFor({ state: 'visible', timeout: LOAD_TIMEOUT_MS });
-  await item.click();
+  await item.dblclick();
 }
 
 /** Practice as the e2e tests start it: fake a granted MIDI device, switch the mode, press Start. Strings, because tools/
@@ -196,14 +213,19 @@ async function main(): Promise<void> {
     page.on('pageerror', (err) => errors.push(String(err)));
 
     await page.goto(baseUrl);
-    if (values.piano) await showPiano(page);
+    // FR-001: with no Score loaded, the browser is already open, in front of the bar and the View menu `--piano`
+    // needs - open (or leave open) an item or file first, which closes it on success; otherwise close it now
+    // unless `--browser` asks to see it (feature 013, R-20, T033).
     if (values.item) await openLibraryItem(page, values.item);
-    if (values.file) await page.locator('mx-open-button input[type=file]').setInputFiles(path.resolve(values.file));
+    else if (values.file)
+      await page.locator('mx-open-button input[type=file]').setInputFiles(path.resolve(values.file));
+    else if (!values.browser) await closeBrowserDialog(page);
 
     const opened = Boolean(values.item || values.file);
     if (opened) {
       await page.locator('.mx-score-page svg').first().waitFor({ state: 'visible', timeout: LOAD_TIMEOUT_MS });
     }
+    if (values.piano) await showPiano(page);
     // Let Verovio finish the neighbouring pages and the notice tray settle before the picture.
     await page.waitForTimeout(1000);
     if (values.practice) {

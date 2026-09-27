@@ -429,3 +429,40 @@
   everything in this entry's diff is uncommitted (same as inherited at session start) - committing is the very next
   step, before T033. `docs/known-bugs.md`'s WebKit entry and background task `task_028b771b` need no further
   action from the next agent unless picking that fix up directly.
+
+## 2026-09-27 17:58 - claude-sonnet-5 (implement: T033, T034 - screenshot tool `--browser` flag)
+
+- Done: T033. `tools/dev/screenshot.ts`'s `openLibraryItem` still used the retired panel entirely (`openPanel(page,
+  'scores')`, `.library-item-open`, `<details>` folders) - broken outright since T031 unmounted `mx-library`, not
+  just missing the new flag. Rewrote it against the score browser: `openBrowserDialog`/`closeBrowserDialog` (mirror
+  `tests/e2e/helpers/browser.ts`'s `openBrowser`/`closeBrowser`), then select *All* (opening the folder-picker
+  overlay first below 1024px) and double-click the row by `data-ref` (mirrors `revealLibraryItem`). Added `--browser`
+  (boolean): without it, and with neither `--item` nor `--file`, the browser that FR-001 opens at start-up is closed
+  before the picture; `--item`/`--file` already close it themselves by opening something, so nothing changes for
+  them. Also fixed an ordering bug this same gap would have caused for `--piano` with no `--item`/`--file`: it used
+  to run before anything opened or closed the browser, so it would have tried to reach the View menu through the
+  modal and hung - moved after the open/close decision. Documented in the file's own header comment and in
+  `docs/agents/reference.md` R7; `specs/013-score-browser-progress/quickstart.md` already documented the flag
+  (written ahead of this task, nothing to add there).
+- Done: T034. Ran all three commands for real and read each PNG (not assumed):
+  - `pnpm screenshot --browser` -> `test-results/screenshots/013-t034-browser-default.png`: near-full-screen with a
+    visible margin, rail on the left (*Continue*, *All*, *Learning > Keys* with every key folder, both scrolling),
+    list in the middle, empty detail pane on the right, blue focus ring in the search field - matches quickstart
+    US1 step 1 exactly.
+  - `pnpm screenshot --browser --width 900 --height 700` -> `013-t034-browser-900.png`: a *Folders* picker button
+    and a *Continue* tab in place of the rail, list and (empty) detail panes side by side, nothing cut off - matches
+    step 4's 900px description.
+  - `pnpm screenshot --browser --width 600 --height 800` -> `013-t034-browser-600.png`: dialog fills the window
+    edge to edge (no margin), *Folders*/*Continue*/*Back* toolbar, list at full width (no detail panel, since
+    nothing is selected - correct, it only overlays on a selection), long titles wrap onto a second line instead of
+    truncating or scrolling, no horizontal scrollbar - matches step 4's 600px description.
+  Also verified `--item repertoire/intermediate/fur-elise-theme` (opens the right Score, browser closes) and the
+  same combined with `--piano` (on-screen keyboard renders under the Score, no hang) - both green. All five PNGs
+  are in `test-results/screenshots/` (git-ignored); the three named ones are kept for reference, the two ad hoc
+  ones (`app.png`, `fur-elise-theme.png`) were deleted after checking.
+- Checks: `pnpm typecheck` clean; `pnpm lint` clean on every file touched (`tools/dev/screenshot.ts`,
+  `docs/agents/reference.md`, `specs/013-score-browser-progress/tasks.md`). No unit or e2e suite covers a dev
+  tool script, so the full gate was not re-run for this pair; T032's own last full run stands.
+- Handoff: next = T020 (`tests/e2e/score-browser.spec.ts`, the new US1 e2e spec, with the Independent Test from
+  spec.md) and then the US1 checkpoint gate (full `pnpm lint`/`pnpm typecheck`/`pnpm test`/`pnpm test:e2e`,
+  Independent Test, log entry, commit). Tree is not clean - commit this pair before starting T020.
