@@ -3,8 +3,9 @@
 import { buildSectionTree, flattenSectionTree } from '../library/tree.js';
 import type { LibraryIndex, LibraryItem, LibrarySection } from '../library/types.js';
 import { STEP_RANK } from '../library/types.js';
-import { currentOnlyView, mergeRecords, pooledView } from '../progress/merge.js';
+import { mergeRecords, pooledView } from '../progress/merge.js';
 import type { MasteryThresholds, ProgressRecord, UserFileEntry } from '../progress/types.js';
+import { entryProgress } from '../progress/user-files.js';
 import type { BrowserItem, HistoryResult, ItemProgressView } from './types.js';
 
 /** Items without a step sort after every step of their folder (mirrors src/core/library/filter.ts). */
@@ -55,28 +56,18 @@ function libraryProgressView(
   };
 }
 
-/** A *My files* entry's `earlierHashes` (data-model.md §5, `entryProgress`): status/best/trend from the current
- *  hash only, and an older hash's result is flagged `earlierVersion: true`. */
-function fileProgressView(
-  records: ReadonlyMap<string, ProgressRecord>,
-  hash: string,
-  earlierHashes: readonly string[],
-): ItemProgressView {
-  const merged = mergeRecords(records, hash, earlierHashes);
-  const view = currentOnlyView(merged);
+/** A *My files* entry's progress row: `entryProgress` (src/core/progress/user-files.ts) does the actual data-model
+ *  §5 merge; this only repackages it into the browser's own `ItemProgressView`/`HistoryResult` shapes. */
+function fileProgressView(entry: UserFileEntry, records: ReadonlyMap<string, ProgressRecord>): ItemProgressView {
+  const view = entryProgress(entry, records);
   return {
     status: view.status,
     best: view.best,
-    last: merged.current?.results[0] ?? null,
+    last: view.history[0]?.result ?? null,
     trend: view.trend,
-    attempts: merged.attempts,
+    attempts: view.attempts,
     lastPlayedAt: view.lastPlayedAt,
-    history: merged.history.map(
-      ({ result, fromCurrentHash }): HistoryResult => ({
-        ...result,
-        earlierVersion: !fromCurrentHash,
-      }),
-    ),
+    history: view.history.map(({ result, earlierVersion }): HistoryResult => ({ ...result, earlierVersion })),
   };
 }
 
@@ -135,7 +126,7 @@ function fileRow(
     stepOrder: null,
     libraryOrder,
     searchText,
-    progress: fileProgressView(records, entry.hash, entry.earlierHashes),
+    progress: fileProgressView(entry, records),
     stored: entry.stored,
   };
 }
