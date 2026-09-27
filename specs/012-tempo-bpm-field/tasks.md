@@ -169,7 +169,7 @@ attempt shows "90 BPM (75% of written)".
   mx-mode-switch`.
 - [x] T050 Run the full `quickstart.md` manual verification with screenshots, naming each picture in the log
 - [x] T051 Constitution review of the branch diff with `constitution-auditor`; findings in the log
-- [ ] T052 Update `specs/001-score-viewer-listen/data-model.md` section 10 check, `README.md` (tempo control description if present), `docs/agents/reference.md` if anything in the toolchain changed; full gate `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` (including the Electron specs, FR-022) green with summary lines in the log
+- [x] T052 Update `specs/001-score-viewer-listen/data-model.md` section 10 check, `README.md` (tempo control description if present), `docs/agents/reference.md` if anything in the toolchain changed; full gate `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` (including the Electron specs, FR-022) green with summary lines in the log
 
 ## Dependencies & Execution Order
 

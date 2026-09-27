@@ -494,3 +494,35 @@
 - Problems / open questions: none.
 - Handoff: next = T052 (data-model/README/reference.md updates + final full gate). Branch `012-tempo-bpm-field`,
   not pushed; tree clean at the commit that follows this entry.
+
+## 2026-09-27 11:45 - claude-sonnet-5 (T052, final docs + full gate - feature complete)
+
+- Docs checked, none needed a code-driven update: `specs/001-score-viewer-listen/data-model.md` section 10 already
+  lists every feature-012 constant (`TEMPO_PERCENT_MIN/MAX/DEFAULT`, `TEMPO_BPM_STEP`, `TEMPO_MARK_QPM_MIN/MAX`,
+  `TEMPO_BEAT_DOTS_MAX`, `TEMPO_BPM_DIGITS_MAX`), added at T001. `README.md`'s one tempo mention ("Supports tempo...")
+  is generic, not slider-specific, so nothing to change. `docs/agents/reference.md`'s Recent Changes already has the
+  012 entry (added at the plan step, 2026-09-26) and it still accurately describes what shipped; no toolchain/script
+  change this feature to record.
+- Full gate: `pnpm lint` 0 errors, 295 warnings (2 over the session-start baseline of 293, both `noExplicitAny` in
+  new Play e2e test code, the established pattern throughout this test suite). `pnpm typecheck` clean. `pnpm test`
+  - 234 files, 4415 tests, all green this run (the usual `tests/library/regeneration.test.ts` full-suite-load flake
+  did not reproduce this time; it has been confirmed passing standalone every time it *has* shown up this session).
+  `pnpm test:e2e` - not re-run here: the T049 checkpoint's run (824 passed, 9 failed, 535 skipped, all three
+  projects) is still the current evidence, since nothing between it and this entry changed any source file (T050
+  was read-only verification, T051 changed only `plan.md`'s prose). Every one of those 9 failures was individually
+  re-run standalone and confirmed either the pre-existing `play-grade-marks.spec.ts` bug (reproduced on the
+  pre-012 commit, flagged separately as `task_c4d89f4f`) or a machine-load timing flake (`play-cursor.spec.ts:47`,
+  `us1-play.spec.ts`), none a regression from this branch.
+- US1, US2 and US3's own Independent Tests (spec.md) all verified across their checkpoints (T027, T036, T047) and
+  again narratively at T050; the constitution review (T051) found the branch compliant (one doc-only fix already
+  applied); every task T001-T052 (plus T053-T059, found along the way) is ticked with evidence in this log.
+- Decisions: none.
+- Problems / open questions: none for the owner. Two things remain genuinely open, both already flagged as
+  separate background tasks rather than left silent: `play-grade-marks.spec.ts`'s pre-existing grading mismatch
+  (`task_c4d89f4f`, predates this branch, unrelated to tempo); nothing else.
+- **Feature 012 is complete**: US1 (P1), US2 (P1) and US3 (P2) all done and independently tested; every task
+  ticked with evidence; full gate green except the two pre-existing/flaky items named above, neither a regression.
+  Ready to merge whenever the owner asks - this session does not merge or push on its own (AGENTS.md section 7).
+- Handoff: nothing left in `tasks.md`. Branch `012-tempo-bpm-field`, 19 commits ahead of `main`, not pushed; tree
+  clean at the commit that follows this entry. Next action is the owner's: review, merge (or ask for it), or raise
+  anything else before it does.
