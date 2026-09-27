@@ -3,6 +3,7 @@ import { bestEligible, compareResults } from '../core/progress/compare.js';
 import {
   DEFAULT_MASTERY_THRESHOLDS,
   type ItemRef,
+  type ProgressEvent,
   type ProgressRecord,
   type ProgressResult,
 } from '../core/progress/types.js';
@@ -159,6 +160,15 @@ export class BrowserSessionController {
     this.onApplyResult(scoreKey, applied);
   }
 
+  /** T094, contracts/score-browser.md §8: the `e2e-progress-seed` seam and `--seed-progress` (tools/dev/
+   *  screenshot.ts) go through this - the ordinary `apply`, never a direct record write - so a seeded history is
+   *  exactly as valid as a real one (SC-002/SC-003 measurements need real figures, real trimming, real mastery). */
+  async seedProgressEvent(scoreKey: string, event: ProgressEvent): Promise<void> {
+    const store = await this.store();
+    const applied = await store.apply(scoreKey, event, DEFAULT_MASTERY_THRESHOLDS);
+    this.onApplyResult(scoreKey, applied);
+  }
+
   /** OD-3/R-12: starts (or replaces) the one deferred reset, with a fresh `UNDO_WINDOW_MS` deadline. `hashes` is
    *  the item's own content hash plus every hash it shares progress with (a library item's `supersedes[].hash`, a
    *  *My files* entry's `earlierHashes`) - resolved by the caller, which already has the built `BrowserItem`. */
@@ -228,6 +238,14 @@ export class BrowserSessionController {
   retryLibrary(): void {
     browserState.retryLibrary();
     void this.loadIndex();
+  }
+
+  /** T094: re-fetches and re-applies the browser's own data if it is currently showing any (`ready`) - used after
+   *  `e2e-progress-seed` applies events elsewhere, since `browserState.data` is a snapshot taken when the index last
+   *  loaded, not a live view, and FR-001 may already have opened the browser (with a now-stale snapshot) before a
+   *  seed ever runs. A no-op while `closed`, `loading` or `opening` (each of those already refreshes on its own). */
+  refreshIfOpen(): void {
+    if (browserState.get().phase === 'ready') void this.loadIndex();
   }
 
   private async loadIndex(): Promise<void> {

@@ -381,3 +381,44 @@ describe('BrowserSessionController.startResetProgress (OD-3, R-12, T057)', () =>
     expect(noticeState.getNotices().filter((n) => n.code === 'progressResetPending')).toHaveLength(1);
   });
 });
+
+describe('BrowserSessionController.seedProgressEvent (T094, contracts/score-browser.md §8)', () => {
+  afterEach(() => {
+    browserState.reset();
+    libraryState.reset();
+    noticeState.clear();
+  });
+
+  it('goes through the ordinary reducer (apply), not a direct record write: the same runId seeded twice counts once', async () => {
+    const store = new MemoryProgressStore();
+    const controller = controllerWith(store);
+    const r1 = result({ runId: 'seed-1', finishedAt: '2026-01-01T00:00:00.000Z' });
+
+    await controller.seedProgressEvent(SCORE_KEY, { type: 'played', at: r1.finishedAt, result: r1 });
+    await controller.seedProgressEvent(SCORE_KEY, { type: 'played', at: r1.finishedAt, result: r1 });
+
+    const got = await store.getProgress(SCORE_KEY);
+    // A direct write would not know about idempotence; this only holds because `apply` -> `applyProgressEvent`
+    // recognised the runId as already recorded (data-model.md §4).
+    expect(got.ok && got.value?.attempts).toBe(1);
+  });
+
+  it('a seeded opened event sets openedAs and is visible through listProgress, like any other event', async () => {
+    const store = new MemoryProgressStore();
+    const controller = controllerWith(store);
+
+    await controller.seedProgressEvent(SCORE_KEY, {
+      type: 'opened',
+      at: '2026-01-01T00:00:00.000Z',
+      as: { kind: 'library', id: 'learning/keys/c-major/beginner' },
+    });
+
+    const listed = await store.listProgress();
+    expect(listed.ok).toBe(true);
+    if (!listed.ok) return;
+    expect(listed.value.records.find((r) => r.scoreKey === SCORE_KEY)?.openedAs).toEqual({
+      kind: 'library',
+      id: 'learning/keys/c-major/beginner',
+    });
+  });
+});

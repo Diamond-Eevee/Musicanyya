@@ -34,6 +34,9 @@
  *   --piano          switch the on-screen piano layer on through the View menu before the picture (feature 010)
  *   --greyscale      apply `filter: grayscale(1)` to the page just before the picture, to check that states can be told
  *                    apart without colour (feature 010, SC-004)
+ *   --seed-progress <path>  seeds progress before the picture, through the `e2e-progress-seed` window event (013,
+ *                    T094): the file's own `events` array (tests/fixtures/progress/*.json), e.g.
+ *                    tests/fixtures/progress/mixed-statuses.json. Best combined with `--browser`
  *
  * Prints the PNG path, the load notices shown and any browser console errors, so the result can be checked as text
  * too. Exits 1 when the score does not appear.
@@ -67,6 +70,7 @@ const { values } = parseArgs({
     play: { type: 'string' },
     piano: { type: 'boolean', default: false },
     greyscale: { type: 'boolean', default: false },
+    'seed-progress': { type: 'string' },
   },
   allowPositionals: false,
 });
@@ -121,6 +125,19 @@ async function openLibraryItem(page: Page, id: string): Promise<void> {
   const item = page.locator(`.browser-row[data-ref="library:${id}"]`);
   await item.waitFor({ state: 'visible', timeout: LOAD_TIMEOUT_MS });
   await item.dblclick();
+}
+
+/** T094: reads a `tests/fixtures/progress/*.json` seed file and dispatches its `events` array through the
+ *  `e2e-progress-seed` window event, then gives the app a moment to resolve and apply them (real `ProgressStore`
+ *  round trips, not synchronous). A string, like `pressKeys`/`playEvents` above - tools/ compiles without the DOM
+ *  lib, so `window`/`CustomEvent` are not typed identifiers here. */
+async function seedProgress(page: Page, filePath: string): Promise<void> {
+  const raw = fs.readFileSync(path.resolve(filePath), 'utf8');
+  const parsed = JSON.parse(raw) as { events: unknown };
+  await page.evaluate(
+    `window.dispatchEvent(new CustomEvent('e2e-progress-seed', { detail: ${JSON.stringify(parsed.events)} }))`,
+  );
+  await page.waitForTimeout(300);
 }
 
 /** Practice as the e2e tests start it: fake a granted MIDI device, switch the mode, press Start. Strings, because tools/
@@ -195,6 +212,7 @@ async function main(): Promise<void> {
   if (values.keys && !values.practice && !values.run) throw new Error('--keys needs --practice or --run');
   if (values.play !== undefined && !/^\d+$/.test(values.play)) throw new Error('--play needs a number of events');
   if (values.keys) parseKeySteps(values.keys); // fail early on a bad step, before a server is started
+  if (values['seed-progress']) JSON.parse(fs.readFileSync(path.resolve(values['seed-progress']), 'utf8')); // fail early
   let server: ViteDevServer | null = null;
   let baseUrl = values.url;
   if (!baseUrl) {
@@ -213,6 +231,7 @@ async function main(): Promise<void> {
     page.on('pageerror', (err) => errors.push(String(err)));
 
     await page.goto(baseUrl);
+    if (values['seed-progress']) await seedProgress(page, values['seed-progress']);
     // FR-001: with no Score loaded, the browser is already open, in front of the bar and the View menu `--piano`
     // needs - open (or leave open) an item or file first, which closes it on success; otherwise close it now
     // unless `--browser` asks to see it (feature 013, R-20, T033).

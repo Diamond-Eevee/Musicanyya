@@ -72,7 +72,7 @@ import type {
 } from '../core/practice/types.js';
 import { resultFromStoredPerformance } from '../core/progress/from-performance.js';
 import { resultScope, scopeFromStoredSettings } from '../core/progress/scope.js';
-import type { ItemRef, ProgressResult } from '../core/progress/types.js';
+import type { ItemRef, ProgressEvent, ProgressResult } from '../core/progress/types.js';
 import { compilePlaySchedule } from '../core/schedule/play-schedule.js';
 import type { LoadReport } from '../core/score/load-report.js';
 import type { Score } from '../core/score/model.js';
@@ -247,6 +247,26 @@ export class Session {
       // e2e-only: a Grade of a canned performance ('nothing' | 'correct' | 'semitoneHigh') of the open Score (009 T054)
       window.addEventListener('e2e-synthetic-grade', (e) => {
         void this.onSyntheticGrade((e as CustomEvent<SyntheticKind>).detail);
+      });
+      // T094, contracts/score-browser.md §8: seeds progress through the ordinary `apply` (never a direct record
+      // write), for SC-002/SC-003 measurements and manual checks without playing out a real history first
+      // (`--seed-progress` in tools/dev/screenshot.ts, tests/e2e/*.spec.ts). Each seed names a real library id
+      // (tests/fixtures/progress/README.md); this resolves it to the index's own content hash itself (never through
+      // `browserState`, so it works whether or not the browser has ever opened) and refreshes the browser's own
+      // data afterwards, in case FR-001 already opened it with a now-stale snapshot. `browserController` is
+      // assigned right after this block; by the time this ever fires, it always is.
+      window.addEventListener('e2e-progress-seed', (e) => {
+        const seeds = (e as CustomEvent<readonly { ref: ItemRef; event: ProgressEvent }[]>).detail;
+        void (async () => {
+          const indexResult = await this.libraryCatalog.index();
+          if (!indexResult.ok) return;
+          for (const seed of seeds) {
+            if (seed.ref.kind !== 'library') continue; // a file ref needs My files (T066) to resolve a hash
+            const item = indexResult.value.items.find((i) => i.id === seed.ref.id);
+            if (item) await this.browserController.seedProgressEvent(item.hash, seed.event);
+          }
+          this.browserController.refreshIfOpen();
+        })();
       });
     }
     this.scoreStore = scoreStore;

@@ -29,10 +29,11 @@ export class IndexedDbProgressStore implements ProgressStore {
   private nextWriteFails = false;
 
   private openDb(): Promise<IDBDatabase> {
-    if (!this.dbPromise) this.dbPromise = openMusicanyyaDb().then(async (db) => {
-      await migrateIfNeeded(db);
-      return db;
-    });
+    if (!this.dbPromise)
+      this.dbPromise = openMusicanyyaDb().then(async (db) => {
+        await migrateIfNeeded(db);
+        return db;
+      });
     return this.dbPromise;
   }
 
