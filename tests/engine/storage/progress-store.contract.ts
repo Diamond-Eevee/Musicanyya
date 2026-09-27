@@ -1,5 +1,5 @@
-// contracts/progress-store.md §5 - the shared suite every `ProgressStore` adapter must pass (progress half only;
-// the *My files* half's contract cases are added in T060/US3). Run by one `*.test.ts` per adapter (SC-006).
+// contracts/progress-store.md §5 - the shared suite every `ProgressStore` adapter must pass: the progress half
+// (T043) and the *My files* half (T060/US3, file cases below).
 import { expect, it } from 'vitest';
 import { DEFAULT_MASTERY_THRESHOLDS } from '../../../src/core/progress/types.js';
 import type { ProgressStore } from '../../../src/engine/ports.js';
@@ -8,13 +8,20 @@ import { result } from '../../fakes/progress-builders.js';
 const T = DEFAULT_MASTERY_THRESHOLDS;
 const KEY = 'a'.repeat(64);
 
+function bytesOf(n: number): ArrayBuffer {
+  return new ArrayBuffer(n);
+}
+
 /** Test-only extras every adapter provides beside the public `ProgressStore` interface, so the shared suite can
- *  exercise fault paths (`corrupt`, `full`) no public method can reach. */
+ *  exercise fault paths (`corrupt`, `full`) and eviction (small budgets, real ones would need real-world-sized
+ *  buffers) no public method can reach. */
 export interface ProgressStoreTestHooks {
   /** Writes a record for `scoreKey` that fails read validation (e.g. a bad `format`), bypassing `apply()`. */
   writeUnreadableRecord(scoreKey: string): Promise<void>;
   /** Makes the next write-path call fail as if the storage quota were exceeded. */
   injectQuotaExceededOnNextWrite(): void;
+  /** Overrides `USER_FILES_BYTES_BUDGET` for this store instance, so eviction can be tested with tiny buffers. */
+  setFileBytesBudgetForTest(budget: number): void;
 }
 
 export function describeProgressStoreContract(
@@ -163,9 +170,276 @@ export function describeProgressStoreContract(
     expect(below.ok && below.value?.masteredAt).toBeNull();
   });
 
-  it(`${name}: putFile/removeFile calls are not part of this contract (added with the *My files* half, T060)`, () => {
-    // Placeholder confirming the split is intentional - the interface itself has no such methods yet (T011/T066).
-    expect(true).toBe(true);
+  it(`${name}: putFile of a new name creates an entry and getFileBytes returns its bytes`, async () => {
+    const store = makeStore();
+    const hash = 'f'.repeat(64);
+    const put = await store.putFile({
+      fileName: 'Etude.musicxml',
+      bytes: bytesOf(1024),
+      hash,
+      title: 'Etude',
+      composer: 'Composer',
+      openedAt: '2026-01-01T00:00:00.000Z',
+    });
+    expect(put.ok && put.value.fileKey).toBe('etude.musicxml');
+    expect(put.ok && put.value.stored).toBe(true);
+
+    const got = await store.getFileBytes('etude.musicxml');
+    expect(got.ok).toBe(true);
+    if (got.ok) expect(got.value.bytes.byteLength).toBe(1024);
+  });
+
+  it(`${name}: putFile of the same name and content touches the entry (no new version)`, async () => {
+    const store = makeStore();
+    const hash = 'f'.repeat(64);
+    await store.putFile({
+      fileName: 'Etude.musicxml',
+      bytes: bytesOf(1024),
+      hash,
+      title: null,
+      composer: null,
+      openedAt: '2026-01-01T00:00:00.000Z',
+    });
+    const second = await store.putFile({
+      fileName: 'Etude.musicxml',
+      bytes: bytesOf(1024),
+      hash,
+      title: null,
+      composer: null,
+      openedAt: '2026-01-02T00:00:00.000Z',
+    });
+    expect(second.ok && second.value.hash).toBe(hash);
+    expect(second.ok && second.value.earlierHashes).toEqual([]);
+    expect(second.ok && second.value.lastOpenedAt).toBe('2026-01-02T00:00:00.000Z');
+
+    const listed = await store.listFiles();
+    expect(listed.ok && listed.value).toHaveLength(1);
+  });
+
+  it(`${name}: putFile of the same name with new content keeps the old hash as an earlier version`, async () => {
+    const store = makeStore();
+    const oldHash = 'f'.repeat(64);
+    const newHash = 'e'.repeat(64);
+    await store.putFile({
+      fileName: 'Etude.musicxml',
+      bytes: bytesOf(1024),
+      hash: oldHash,
+      title: null,
+      composer: null,
+      openedAt: '2026-01-01T00:00:00.000Z',
+    });
+    const second = await store.putFile({
+      fileName: 'Etude.musicxml',
+      bytes: bytesOf(2048),
+      hash: newHash,
+      title: null,
+      composer: null,
+      openedAt: '2026-01-02T00:00:00.000Z',
+    });
+    expect(second.ok && second.value.hash).toBe(newHash);
+    expect(second.ok && second.value.earlierHashes).toEqual([oldHash]);
+  });
+
+  it(`${name}: the same content under two names is stored once - both names' getFileBytes succeed`, async () => {
+    const store = makeStore();
+    const hash = 'f'.repeat(64);
+    await store.putFile({
+      fileName: 'Etude.musicxml',
+      bytes: bytesOf(1024),
+      hash,
+      title: null,
+      composer: null,
+      openedAt: '2026-01-01T00:00:00.000Z',
+    });
+    await store.putFile({
+      fileName: 'Copy of Etude.musicxml',
+      bytes: bytesOf(1024),
+      hash,
+      title: null,
+      composer: null,
+      openedAt: '2026-01-02T00:00:00.000Z',
+    });
+
+    const a = await store.getFileBytes('etude.musicxml');
+    const b = await store.getFileBytes('copy of etude.musicxml');
+    expect(a.ok && a.value.bytes.byteLength).toBe(1024);
+    expect(b.ok && b.value.bytes.byteLength).toBe(1024);
+  });
+
+  it(`${name}: eviction drops the least recently opened copy first, within budget`, async () => {
+    const store = makeStore();
+    store.setFileBytesBudgetForTest(1500);
+    await store.putFile({
+      fileName: 'Older.musicxml',
+      bytes: bytesOf(1000),
+      hash: 'a'.repeat(64),
+      title: null,
+      composer: null,
+      openedAt: '2026-01-01T00:00:00.000Z',
+    });
+    await store.putFile({
+      fileName: 'Newer.musicxml',
+      bytes: bytesOf(1000),
+      hash: 'b'.repeat(64),
+      title: null,
+      composer: null,
+      openedAt: '2026-01-02T00:00:00.000Z',
+    });
+
+    const listed = await store.listFiles();
+    expect(listed.ok).toBe(true);
+    if (!listed.ok) return;
+    const older = listed.value.find((f) => f.fileKey === 'older.musicxml');
+    const newer = listed.value.find((f) => f.fileKey === 'newer.musicxml');
+    expect(older?.stored).toBe(false); // evicted to make room
+    expect(newer?.stored).toBe(true);
+
+    const olderBytes = await store.getFileBytes('older.musicxml');
+    expect(olderBytes).toEqual({ ok: false, error: 'notFound' });
+  });
+
+  it(`${name}: a copy larger than the budget is never kept (stored: false, not an error)`, async () => {
+    const store = makeStore();
+    store.setFileBytesBudgetForTest(500);
+    const put = await store.putFile({
+      fileName: 'Big.musicxml',
+      bytes: bytesOf(1000),
+      hash: 'c'.repeat(64),
+      title: null,
+      composer: null,
+      openedAt: '2026-01-01T00:00:00.000Z',
+    });
+    expect(put.ok).toBe(true);
+    expect(put.ok && put.value.stored).toBe(false);
+
+    const bytes = await store.getFileBytes('big.musicxml');
+    expect(bytes).toEqual({ ok: false, error: 'notFound' });
+  });
+
+  it(`${name}: a putFile write that hits the storage quota reports full, not a thrown error`, async () => {
+    const store = makeStore();
+    store.injectQuotaExceededOnNextWrite();
+    const put = await store.putFile({
+      fileName: 'Etude.musicxml',
+      bytes: bytesOf(1024),
+      hash: 'd'.repeat(64),
+      title: null,
+      composer: null,
+      openedAt: '2026-01-01T00:00:00.000Z',
+    });
+    expect(put).toEqual({ ok: false, error: 'full' });
+  });
+
+  it(`${name}: getFileBytes without a stored copy or entry is notFound`, async () => {
+    const store = makeStore();
+    expect(await store.getFileBytes('nope.musicxml')).toEqual({ ok: false, error: 'notFound' });
+  });
+
+  it(`${name}: removeFile without progress removes the entry and its copy, keeping the progress record`, async () => {
+    const store = makeStore();
+    const hash = 'f'.repeat(64);
+    await store.putFile({
+      fileName: 'Etude.musicxml',
+      bytes: bytesOf(1024),
+      hash,
+      title: null,
+      composer: null,
+      openedAt: '2026-01-01T00:00:00.000Z',
+    });
+    await store.apply(
+      hash,
+      { type: 'opened', at: '2026-01-01T00:00:00.000Z', as: { kind: 'file', fileKey: 'etude.musicxml' } },
+      T,
+    );
+
+    const removed = await store.removeFile('etude.musicxml', { withProgress: false });
+    expect(removed).toEqual({ ok: true, value: undefined });
+    expect(await store.getFileBytes('etude.musicxml')).toEqual({ ok: false, error: 'notFound' });
+    const listed = await store.listFiles();
+    expect(listed.ok && listed.value).toHaveLength(0);
+    const progress = await store.getProgress(hash);
+    expect(progress.ok && progress.value?.lastOpenedAt).toBe('2026-01-01T00:00:00.000Z'); // kept
+  });
+
+  it(`${name}: removeFile with withProgress also resets the progress record`, async () => {
+    const store = makeStore();
+    const hash = 'f'.repeat(64);
+    await store.putFile({
+      fileName: 'Etude.musicxml',
+      bytes: bytesOf(1024),
+      hash,
+      title: null,
+      composer: null,
+      openedAt: '2026-01-01T00:00:00.000Z',
+    });
+    await store.apply(
+      hash,
+      { type: 'opened', at: '2026-01-01T00:00:00.000Z', as: { kind: 'file', fileKey: 'etude.musicxml' } },
+      T,
+    );
+
+    await store.removeFile('etude.musicxml', { withProgress: true });
+    const progress = await store.getProgress(hash);
+    expect(progress).toEqual({ ok: true, value: null });
+  });
+
+  it(`${name}: a shared copy survives removeFile while another entry still uses it`, async () => {
+    const store = makeStore();
+    const hash = 'f'.repeat(64);
+    await store.putFile({
+      fileName: 'Etude.musicxml',
+      bytes: bytesOf(1024),
+      hash,
+      title: null,
+      composer: null,
+      openedAt: '2026-01-01T00:00:00.000Z',
+    });
+    await store.putFile({
+      fileName: 'Copy of Etude.musicxml',
+      bytes: bytesOf(1024),
+      hash,
+      title: null,
+      composer: null,
+      openedAt: '2026-01-02T00:00:00.000Z',
+    });
+
+    await store.removeFile('etude.musicxml', { withProgress: false });
+
+    const survivor = await store.getFileBytes('copy of etude.musicxml');
+    expect(survivor.ok).toBe(true);
+    if (survivor.ok) expect(survivor.value.bytes.byteLength).toBe(1024);
+  });
+
+  it(`${name}: listFiles is ordered newest lastOpenedAt first, then fileKey ascending`, async () => {
+    const store = makeStore();
+    await store.putFile({
+      fileName: 'B.musicxml',
+      bytes: bytesOf(10),
+      hash: 'a'.repeat(64),
+      title: null,
+      composer: null,
+      openedAt: '2026-01-01T00:00:00.000Z',
+    });
+    await store.putFile({
+      fileName: 'A.musicxml',
+      bytes: bytesOf(10),
+      hash: 'b'.repeat(64),
+      title: null,
+      composer: null,
+      openedAt: '2026-01-01T00:00:00.000Z',
+    });
+    await store.putFile({
+      fileName: 'C.musicxml',
+      bytes: bytesOf(10),
+      hash: 'c'.repeat(64),
+      title: null,
+      composer: null,
+      openedAt: '2026-01-02T00:00:00.000Z',
+    });
+
+    const listed = await store.listFiles();
+    expect(listed.ok).toBe(true);
+    if (listed.ok) expect(listed.value.map((f) => f.fileKey)).toEqual(['c.musicxml', 'a.musicxml', 'b.musicxml']);
   });
 
   it(`${name}: an unreadable record is skipped by listProgress, with skipped: 1 and no error`, async () => {

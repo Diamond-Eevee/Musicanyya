@@ -2,7 +2,7 @@ import type { LatencyProfile, StoredPerformance } from '../core/grade/types.js';
 import type { LibraryIndex } from '../core/library/types.js';
 import type { RunSettings } from '../core/play/types.js';
 import type { HandSelection } from '../core/practice/types.js';
-import type { MasteryThresholds, ProgressEvent, ProgressRecord } from '../core/progress/types.js';
+import type { MasteryThresholds, ProgressEvent, ProgressRecord, UserFileEntry } from '../core/progress/types.js';
 import type { ScheduleMessage } from '../core/schedule/compile.js';
 import type { ClockPair } from './midi/clock-map.js';
 
@@ -193,8 +193,27 @@ export interface ProgressStore {
     event: ProgressEvent,
     thresholds: MasteryThresholds,
   ): Promise<ProgressStoreResult<ProgressRecord | null>>;
-  // The *My files* half of this port (`listFiles`, `putFile`, `getFileBytes`, `removeFile`) is added in T066, so no
-  // adapter ever carries a stub for it (analyze A6).
+
+  // ---- My files (data-model.md §5) ----
+  /** Entries without bytes, newest `lastOpenedAt` first, then `fileKey` ascending. */
+  listFiles(): Promise<ProgressStoreResult<readonly UserFileEntry[]>>;
+  /** Upsert by `fileKey` after a successful load: new entry, same content (touch), or new version (FR-021, via
+   *  `nextEntry`). Tries to keep a copy of `bytes` within `USER_FILES_BYTES_BUDGET`, evicting least recently opened
+   *  copies of *other* entries first. Returns the entry; `entry.stored === false` when no copy could be kept (not
+   *  an error). */
+  putFile(file: {
+    fileName: string;
+    bytes: ArrayBuffer;
+    hash: string;
+    title: string | null;
+    composer: string | null;
+    openedAt: string;
+  }): Promise<ProgressStoreResult<UserFileEntry>>;
+  /** The stored copy; `notFound` when the entry has none (`stored === false`) or does not exist. */
+  getFileBytes(fileKey: string): Promise<ProgressStoreResult<{ entry: UserFileEntry; bytes: ArrayBuffer }>>;
+  /** Removes the entry (and its copy, unless another entry shares the same hash). With `withProgress`, also resets
+   *  the progress of `hash` and every `earlierHashes` (the caller deletes the Performances, contracts §4). */
+  removeFile(fileKey: string, options: { withProgress: boolean }): Promise<ProgressStoreResult<void>>;
 }
 
 /** Which optional overlay layers are drawn (contracts/view-settings.md). */

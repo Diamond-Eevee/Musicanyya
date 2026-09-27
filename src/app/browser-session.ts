@@ -19,6 +19,16 @@ import { isPlayOrPracticeActive } from '../ui/state/runActive.js';
 import { transportState } from '../ui/state/transportState.js';
 import { LibrarySessionController } from './library-session.js';
 
+/** contracts/progress-store.md §2: not part of the `ProgressStore` port (both concrete adapters carry it, the
+ *  memory one as a no-op) - a duck-typed guard rather than an `instanceof` list, so a future adapter (e.g. a
+ *  server one) that has nothing to migrate simply omits the method. */
+interface ProgressStoreWithLibraryCleanup {
+  removeMigratedLibraryCopies(libraryHashes: ReadonlySet<string>): Promise<void>;
+}
+function hasLibraryCleanup(store: ProgressStore): store is ProgressStore & ProgressStoreWithLibraryCleanup {
+  return typeof (store as Partial<ProgressStoreWithLibraryCleanup>).removeMigratedLibraryCopies === 'function';
+}
+
 export interface BrowserSessionCallbacks {
   /** The existing `Session.loadBytes` (FR-005: identical to a dragged-in file - same Note IDs, load report,
    *  Practice/Play behaviour). `openedAs` is the ref this load represents (R-18), so `Session` can fire the
@@ -54,6 +64,9 @@ export class BrowserSessionController {
   private pendingResetHashes: readonly string[] | null = null;
   private pendingResetTimer: ReturnType<typeof setTimeout> | null = null;
   private wasClosedWithPendingReset = false;
+  /** R-6/T067: `removeMigratedLibraryCopies` is idempotent by itself (guarded by `meta.migratedLibraryCleanup`),
+   *  but there is no reason to open a new readwrite transaction for it on every browser open in one session. */
+  private libraryCleanupAttempted = false;
 
   constructor(
     private readonly catalog: LibraryCatalog,
@@ -255,14 +268,21 @@ export class BrowserSessionController {
 
   private async loadIndex(): Promise<void> {
     const [libraryResult, store] = await Promise.all([this.catalog.index(), this.store()]);
-    const listed = await store.listProgress();
+    if (libraryResult.ok && !this.libraryCleanupAttempted && hasLibraryCleanup(store)) {
+      this.libraryCleanupAttempted = true;
+      const libraryHashes = new Set(
+        libraryResult.value.items.flatMap((item) => [item.hash, ...(item.meta.supersedes ?? []).map((s) => s.hash)]),
+      );
+      await store.removeMigratedLibraryCopies(libraryHashes);
+    }
+    const [listed, filesListed] = await Promise.all([store.listProgress(), store.listFiles()]);
     const records = listed.ok ? listed.value.records : [];
+    const files = filesListed.ok ? filesListed.value : [];
     if (listed.ok && listed.value.skipped > 0) {
       noticeState.addNotice({ code: 'progressPartiallyUnreadable', severity: 'warning' });
     }
-    // *My files* (T066) is not yet persisted - every open sees none.
-    if (libraryResult.ok) browserState.indexLoaded(libraryResult.value, [], records);
-    else browserState.indexFailed(libraryResult.error, [], records);
+    if (libraryResult.ok) browserState.indexLoaded(libraryResult.value, files, records);
+    else browserState.indexFailed(libraryResult.error, files, records);
   }
 
   /** `browseropenitem` (contracts §3). A library ref goes through the shared `LibrarySessionController` - the
