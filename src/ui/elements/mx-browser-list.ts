@@ -33,6 +33,8 @@ function refEquals(a: ItemRef, b: ItemRef): boolean {
 export class MxBrowserList extends HTMLElement {
   private unsubscribe?: () => void;
   private activeRef: ItemRef | null = null;
+  /** A pending single-click selection, deferred so a following dblclick can cancel it (see `wire()`). */
+  private selectTimer: ReturnType<typeof setTimeout> | null = null;
 
   connectedCallback() {
     this.setAttribute('role', 'listbox');
@@ -46,6 +48,7 @@ export class MxBrowserList extends HTMLElement {
   disconnectedCallback() {
     this.unsubscribe?.();
     this.removeEventListener('keydown', this.onKeydown);
+    if (this.selectTimer !== null) clearTimeout(this.selectTimer);
   }
 
   private rows(): BrowserItem[] {
@@ -105,8 +108,25 @@ export class MxBrowserList extends HTMLElement {
   private wire(rows: BrowserItem[]): void {
     this.querySelectorAll<HTMLElement>('.browser-row').forEach((el) => {
       const index = Number(el.dataset.index);
-      el.addEventListener('click', () => this.select(index, rows));
-      el.addEventListener('dblclick', () => this.open(index, rows));
+      // `select()` re-renders synchronously (`render()` replaces `innerHTML`), which would tear down this very
+      // element between the two clicks of a double click - found live (dblclick never opened anything: the first
+      // click's re-render swapped the row out from under the browser's own double-click tracking, e2e
+      // library.spec.ts). Deferring the single-click selection past the double-click window (Explorer/VS Code's
+      // own threshold) keeps the element alive long enough for a real dblclick to fire and cancel it.
+      el.addEventListener('click', () => {
+        if (this.selectTimer !== null) clearTimeout(this.selectTimer);
+        this.selectTimer = setTimeout(() => {
+          this.selectTimer = null;
+          this.select(index, rows);
+        }, 300);
+      });
+      el.addEventListener('dblclick', () => {
+        if (this.selectTimer !== null) {
+          clearTimeout(this.selectTimer);
+          this.selectTimer = null;
+        }
+        this.open(index, rows);
+      });
     });
   }
 

@@ -200,8 +200,11 @@ describe('mx-menu', () => {
       const browser = items(menu).find((item) => item.dataset.panel === 'browser');
       expect(attempts?.disabled).toBe(true);
       expect(attempts?.getAttribute('aria-disabled')).toBe('true');
-      // "About this score" needs an open Score to show anything (R-20); "Open..." never does.
-      expect(scores?.disabled).toBe(true);
+      // "About this score" (mx-score-source) needs an open Score to show anything, but the same panel also holds
+      // the recent list (T031, until T068's "My files") - reopening a recent file is exactly what that is for
+      // with nothing open, so unlike "attempts" this entry stays enabled (found via tests/e2e/us1-open-view.spec.ts:
+      // its own "Score" menu click, after a reload with no Score, was disabled and hung).
+      expect(scores?.disabled).toBe(false);
       expect(browser?.disabled).toBe(false);
     });
 

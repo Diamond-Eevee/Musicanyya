@@ -44,7 +44,11 @@ const visibleOverlays = (page: Page) =>
     for (const child of Array.from(main?.children ?? [])) {
       if (child.tagName === 'MX-SCORE-VIEW' || child.tagName === 'MX-NOTICE-TRAY') continue;
       const anyVisibleInside = Array.from(child.querySelectorAll('*')).some((el) => el.checkVisibility());
-      const emptyContainer = child.id === 'panel-host' || child.tagName === 'MX-DROP-ZONE';
+      // mx-score-browser (feature 013) is mounted here like mx-drop-zone/panel-host: an always-present light-DOM
+      // host whose own box passes checkVisibility() even while its <dialog> child is closed (display:none, no box
+      // of its own) - it must be judged by whether anything inside is actually showing, same as the other two.
+      const emptyContainer =
+        child.id === 'panel-host' || child.tagName === 'MX-DROP-ZONE' || child.tagName === 'MX-SCORE-BROWSER';
       if (emptyContainer ? anyVisibleInside : child.checkVisibility()) shown.push(child.tagName.toLowerCase());
     }
     return shown;

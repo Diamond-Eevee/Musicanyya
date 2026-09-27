@@ -3,6 +3,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type ElectronApplication, _electron as electron, expect, test } from '@playwright/test';
+import { closeBrowser } from './helpers/browser.js';
 import { revealLibraryItem } from './helpers/library.js';
 import { openPanel } from './helpers/panels.js';
 
@@ -43,6 +44,9 @@ test.describe('Electron smoke test', () => {
     expect(url).toBe('app://musicanyya/');
 
     await expect(window.locator('.mx-empty-state')).toBeVisible();
+    // FR-001: the score browser opens at start-up with no Score loaded; close it before reaching the menu bar
+    // behind it (unrelated to this test, which checks the desktop shell's own name in the environment panel).
+    await closeBrowser(window);
 
     // Environment panel
     await openPanel(window, 'environment');
@@ -98,11 +102,10 @@ test.describe('Electron smoke test', () => {
     test.skip(testInfo.project.name !== 'electron', 'Run electron smoke test on electron project only');
 
     const window = await electronApp.firstWindow();
-    await openPanel(window, 'scores');
     const { item } = await revealLibraryItem(window, 'learning/keys/c-major/introduction');
-    await expect(item).toContainText('1 Introduction');
-    await item.click();
-    await expect(window.locator('mx-panel[data-panel="scores"]')).toBeHidden();
+    await expect(item).toContainText('Introduction');
+    await item.dblclick();
+    await expect(window.locator('dialog.browser')).toBeHidden();
     await expect(window.locator('.mx-score-page svg').first()).toBeVisible();
     await expect(window.locator('.mx-title-block')).toContainText('C major - introduction');
     await expect(window.locator('.notice')).toHaveCount(0);

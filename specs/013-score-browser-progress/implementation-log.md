@@ -335,3 +335,97 @@
   green, Independent Test, full log entry). This is a clean, fully-tested, fully-green (per the unit suite) boundary,
   but e2e is unverified beyond the interactive check above - flagging that honestly rather than guessing at its
   state. Tree is clean after this commit.
+
+## 2026-09-27 16:56 - claude-sonnet-5 (implement: T032 - migrate the e2e suite off the old panel)
+
+- Session start: found the previous session's T032 work already in the working tree, uncommitted (helper
+  `tests/e2e/helpers/browser.ts`, migrated specs, `mx-browser-list.ts`'s dblclick-race fix). Explained exactly by
+  the last log entry's own handoff (next = T032, same files) - continued it rather than asking, per AGENTS.md
+  step 4 ("uncommitted changes you cannot explain" only blocks when the log doesn't already account for them).
+- Done: T032. `grep -l "mx-open-input\|setInputFiles\|mx-library\|mx-recent-list" tests/e2e tools/dev` (re-run, not
+  guessed) showed every remaining hit is a spec that sets files directly on `mx-open-button input[type=file]` with
+  no interaction in between that would meet the auto-opened browser first (verified file by file, not assumed) -
+  except three that did, all fixed:
+  - `tests/e2e/static-host.spec.ts` and `tests/e2e/electron-smoke.spec.ts`: each opened the environment/diagnostics
+    panel (an unrelated check - the *host* browser's own name, not the score browser) before loading any file;
+    FR-001's auto-opened dialog now blocks the bar underneath it. Fixed with `closeBrowser(page)` right after the
+    empty-state check.
+  - `tests/e2e/us1-open-view.spec.ts`: reopens a recent file from the Score menu after a `page.reload()`, which
+    restarts with no Score and the browser open again. Same fix.
+  - `tests/e2e/electron-pressed-keys.spec.ts`'s on-screen-piano test never opens a Score at all, just the View
+    menu; same fix.
+  - Along the way, `openPanel`'s "About this score" menu entry (`data-panel="scores"`) turned out to be disabled
+    whenever no Score is loaded (`menu-model.ts`'s `entry('scores', true)`, unchanged since before T031) - but that
+    panel now also holds the recent list (T031), which is exactly what you reach for with *nothing* open. Changed
+    to `needsScore: false`; `tests/ui/menu.test.ts` updated to match (a real behaviour fix, not a weakened
+    assertion: `mx-score-source` already renders empty with no item, so nothing regresses for "About this score"
+    itself). This is why `tests/ui/menu.test.ts` is in this diff.
+- Two of `helpers/browser.ts`'s own functions had a real race, found only by running e2e for real (never on
+  chromium/webkit - Electron's `firstWindow()` resolves before the app's own bootstrap script has necessarily run,
+  where Playwright's `page.goto()` waits longer): a check-then-click "is it open already?" can run *before* FR-001's
+  own auto-open decision, click the Open button while it is still reachable, and then watch FR-001 open the dialog
+  underneath the click's own retry loop, which never succeeds because the header now permanently covers the button.
+  Fixed `openBrowser` (retry the click itself, tolerating an interception, until the dialog is visible) and
+  `closeBrowser` (poll briefly for the dialog to appear before deciding there is nothing to close) so either order
+  of "FR-001 opens it" vs. "the check runs" works. Caught by `--project=electron`, reproduced standalone with
+  `-g "packaged shelf" --workers=1`.
+- A second, unrelated real bug, also only caught by running e2e for real: `electron-smoke.spec.ts`'s "no aside
+  reserves space" layout contract (feature 004 FR-001) failed because `mx-score-browser` - a light-DOM host mounted
+  straight into `#mx-main`, T031 - has no CSS of its own, so it defaults to `position: static` and counts as a flow
+  child even though its only content (the `<dialog>`) is independently `position: fixed`. Fixed with
+  `mx-score-browser { position: fixed }` in `browser.css` (browser.css already had the identical instinct for the
+  dialog itself). The same underlying gap made `us3-run-chrome.spec.ts`'s `visibleOverlays()` helper flag
+  `mx-score-browser` as "shown" whenever its own box passed `checkVisibility()`, regardless of whether the dialog
+  inside was open - fixed by adding it to that helper's existing `emptyContainer` treatment (same as
+  `mx-drop-zone`/`#panel-host`: judged by whether anything is visible *inside*, not the container's own box).
+- A third real, pre-existing bug, exposed (not caused) by the required reordering: `mx-app`'s bar-fold
+  (`fitBar()`) did not fit the bar's contents even compact once a Score is loaded at <= ~800-900px width, because
+  no prior test had ever opened a bar menu *after* loading a Score at a narrow width (every one used to do it on
+  the empty, lighter bar first; FR-001 now forces that order). The overflow left the focused "View" menu button
+  past the viewport edge, and the browser's own focus-follows-scroll auto-scrolled `mx-app` (a valid scroll
+  container despite `overflow: hidden`) sideways - `tests/e2e/piano-keyboard.spec.ts`'s 800x600 fit check caught
+  the resulting off-screen keys. Root-caused and fixed per owner decision (asked via AskUserQuestion, chose "extend
+  the existing breakpoint"): `layout.css`'s "relocate mode-controls/size-controls to the View popup" rule, previously
+  phone-only (`max-width: 480px`), widened to `max-width: 900px` - reuses the relocation `mx-view-panel.ts` already
+  had, loses nothing. Logged as T096 (added then ticked, same session). `tests/e2e/helpers/panels.ts`'s
+  `barFitted()` also now accepts "folded already" as settled, not only "exactly fits" (defensive; still correct
+  once the bar genuinely fits again).
+- A fourth issue, found live and **not fixed**: `tests/e2e/library.spec.ts`'s "C major -> C minor" key-change test
+  fails reproducibly on WebKit only (chromium and Electron green) - opening that item through the score browser
+  dialog renders its key signature twice (12 `g.keyAccid` instead of 6) on page 1. Ruled out: a missing wait (poll
+  doesn't help, the wrong state is stable), the test's own query scoping (fixed independently - it read only
+  `document.querySelector('.mx-score-page')`, always page 1; now flattens every page, kept regardless), the
+  dialog's mere DOM presence (drag-and-drop bypassing it entirely renders correctly on the same branch), and a
+  `refit()` re-layout-after-close patch (tried, no effect, reverted - not in this diff). Documented in
+  `docs/known-bugs.md` with everything ruled out and the specific wrong state, and spun off as background task
+  `task_028b771b`. Asked the user how to leave it for this checkpoint (AskUserQuestion): leave it red and report
+  honestly, per the existing `play-grade-marks.spec.ts` precedent - not skipped, not weakened.
+- Checks: `pnpm typecheck` clean; `pnpm lint` (biome) clean on every file this diff touches (pre-existing findings
+  in `calibration.ts`/`dispatch.ts`/`menu.test.ts:160` untouched); `pnpm test` 242 files / 4472 tests green.
+  `pnpm test:e2e --project=chromium` 333 passed / 8 skipped, 0 failed (two re-runs; a `us1-open-view`/`piano-
+  keyboard` pair failed on the first full run before the fixes above, both green after). `--project=electron`
+  green except the known WebKit-only bug does not apply there (Electron uses chromium); one `us2-panels.spec.ts`
+  SC-007 100ms-timing test flaked in both directions across five solo re-runs (2 failed, 3 passed) - pre-existing,
+  untouched by this diff, timing-sensitive by design; not investigated further (out of scope, matches the
+  established "known flaky under load" pattern in `docs/agents/reference.md` R7, though not yet added to that
+  list). `--project=webkit`: green except the one documented, tracked bug above.
+- Decisions: `entry('scores', true)` -> `entry('scores')` in `menu-model.ts` (owner-independent - the old
+  behaviour was a bug against T031's own stated intent, not a design choice); `layout.css`'s breakpoint widened to
+  900px (owner decision, asked and answered - see above); the WebKit key-signature bug left red rather than
+  skipped/weakened (owner decision, asked and answered - see above).
+- T032's own required mapping (old-panel-behaviour assertions -> what covers them now): `tests/e2e/library.spec.ts`
+  itself is migrated in place (every assertion kept, only the opening mechanism changed - see the diff). The panel
+  component's own unit tests (`tests/ui/mx-library.test.ts`, `tests/ui/mx-library-filters.test.ts`,
+  `tests/ui/open-and-recent.test.ts`, `tests/ui/library-state.test.ts`) still test `mx-library`/`mx-recent-list`/
+  `libraryState` directly and still pass, because those components still exist (unmounted from the live app since
+  T031, not deleted) - `tests/ui/score-browser/rail-list-detail.test.ts` and the other US1 unit suites are their
+  replacement for the *mounted, reachable* behaviour: folder tree -> `mx-browser-rail`'s section tests; item list,
+  search, sort, selection -> `mx-browser-list`'s tests (plus this session's own double-click race regression
+  test); recent/open flow -> `browser-session.test.ts`. T092 (OD-6) removes the old files together once that
+  mapping is confirmed complete - not yet re-verified item by item against T092's own file list, flagging that
+  honestly rather than assuming this note alone satisfies it.
+- Handoff: next = T033 (`tools/dev/screenshot.ts` `--browser` flag + docs), T034 (manual check, needs T033), then
+  T020 (`tests/e2e/score-browser.spec.ts`, the new US1 e2e spec) and the US1 checkpoint gate. Tree is **not** clean:
+  everything in this entry's diff is uncommitted (same as inherited at session start) - committing is the very next
+  step, before T033. `docs/known-bugs.md`'s WebKit entry and background task `task_028b771b` need no further
+  action from the next agent unless picking that fix up directly.

@@ -167,8 +167,13 @@ mx-open-button .open-label-short {
   .mx-bar-compact mx-tempo-field [data-id="tempo-written"] {
     display: none;
   }
+}
 
-  /* Relocated to the View popup (above) - not just shortened, gone from the row entirely. */
+/* Relocated to the View popup (mx-view-panel.ts already carries a second mx-mode-switch and mx-size-controls for
+   exactly this, above) - not just shortened, gone from the row entirely. Widened from a phone-only 480px (feature
+   013 T032/T096, found live): with a Score loaded, compact mode alone still overflows around 800px, and no test
+   had ever opened a bar menu after loading a Score at a narrow width before FR-001 made that the only order. */
+@media (max-width: 900px) {
   .mx-bar-compact #mode-controls,
   .mx-bar-compact #size-controls {
     display: none;

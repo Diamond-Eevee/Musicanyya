@@ -19,6 +19,15 @@
   }
 }
 
+/* The light-DOM host itself (mounted straight into `#mx-main`, T031) has no visible box of its own - only its
+   `<dialog>` child does, already `position: fixed` below - but left at the default `position: static` it still
+   counts as a flow child of `#mx-main` (feature 004 FR-001's "no aside reserves space" contract, caught live by
+   electron-smoke.spec.ts). `position: fixed` here takes it out of that flow without affecting the dialog's own
+   (independent) fixed positioning. */
+mx-score-browser {
+  position: fixed;
+}
+
 /* `[open]` keeps the UA's own `dialog:not([open]) { display: none }` in force for a closed dialog - an
    unconditional `display: flex` here would override it (author styles beat the UA sheet at equal specificity)
    and leave the dialog visible with no `open` attribute, in effect undoing `close()` (found interactively with

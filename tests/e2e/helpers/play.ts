@@ -1,4 +1,6 @@
 import { expect, type Page } from '@playwright/test';
+import { browserDialog } from './browser.js';
+import { revealLibraryItem } from './library.js';
 import { openPanel } from './panels.js';
 
 export interface PlayOptions {
@@ -21,16 +23,17 @@ export const playPhase = (page: Page) =>
   page.evaluate(() => (window as unknown as { __PLAY_STATE__: PlayStateSeam }).__PLAY_STATE__.get().run?.phase ?? null);
 
 /**
- * Drives Play without a MIDI keyboard, the way `startPractice` (helpers/practice.ts) drives Practice: open a library item
- * through the Scores panel, fake a granted MIDI device through the `e2e-midi` path (`e2e-ready`), switch to Play, set the
- * options through the Play panel (the panel closes when the run starts), and press the transport button. Resolves once
- * the run has started (count-in or running). Keys are then pressed with `pressKeys` (helpers/practice.ts), timed with its
- * `sleep:<ms>` steps.
+ * Drives Play without a MIDI keyboard, the way `startPractice` (helpers/practice.ts) drives Practice: open a library
+ * item through the browser (feature 013, R-20 - it is already open at start-up, FR-001), fake a granted MIDI device
+ * through the `e2e-midi` path (`e2e-ready`), switch to Play, set the options through the Play panel (the panel
+ * closes when the run starts), and press the transport button. Resolves once the run has started (count-in or
+ * running). Keys are then pressed with `pressKeys` (helpers/practice.ts), timed with its `sleep:<ms>` steps.
  */
 export async function startPlay(page: Page, itemId: string, options: PlayOptions = {}): Promise<void> {
   await page.goto('/');
-  await openPanel(page, 'scores');
-  await page.locator(`.library-item-open[data-id="${itemId}"]`).click();
+  const { item } = await revealLibraryItem(page, itemId);
+  await item.dblclick();
+  await expect(browserDialog(page)).toBeHidden();
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
   await expect(page.locator('mx-transport .play-btn')).not.toBeDisabled();
   await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));

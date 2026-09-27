@@ -69,8 +69,8 @@ import type {
   PracticeSession,
   ResolvedLoop,
 } from '../core/practice/types.js';
-import { compilePlaySchedule } from '../core/schedule/play-schedule.js';
 import type { ItemRef } from '../core/progress/types.js';
+import { compilePlaySchedule } from '../core/schedule/play-schedule.js';
 import type { LoadReport } from '../core/score/load-report.js';
 import type { Score } from '../core/score/model.js';
 import { audioTimeAtTick } from '../core/tempo/rate.js';
@@ -87,7 +87,6 @@ import { mountPanels, type PanelTools } from '../ui/layout/panel-host.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
 import { initShortcuts } from '../ui/shortcuts.js';
 import { browserState } from '../ui/state/browserState.js';
-import { libraryState } from '../ui/state/libraryState.js';
 import { midiState } from '../ui/state/midiState.js';
 import { mistakeStepper } from '../ui/state/mistake-stepper.js';
 import { noticeState } from '../ui/state/noticeState.js';
@@ -246,7 +245,7 @@ export class Session {
     this.libraryCatalog = libraryCatalog;
     this.browserController = new BrowserSessionController(
       this.libraryCatalog,
-      { loadBytes: (fileName, bytes) => this.loadBytes(fileName, bytes) },
+      { loadBytes: async (fileName, bytes) => void (await this.loadBytes(fileName, bytes)) },
       this.settingsStore,
     );
   }
@@ -1400,17 +1399,21 @@ export class Session {
     }
     this.browserController.clearOpenedItem();
     const bytes = await file.arrayBuffer();
-    await this.loadBytes(file.name, bytes);
+    // contracts/score-browser.md §5: "closes on: successful open of an item or file" - a dropped/chosen file
+    // closes the browser exactly like a successful library item does, whether it was open behind the drop or (US3)
+    // opened through the dialog's own file chooser. A failed load leaves it exactly as it was.
+    if (await this.loadBytes(file.name, bytes)) browserState.close();
   }
 
-  private async loadBytes(fileName: string, bytes: ArrayBuffer): Promise<void> {
+  /** Returns whether the load succeeded, so `openFile` knows when it may close the browser. */
+  private async loadBytes(fileName: string, bytes: ArrayBuffer): Promise<boolean> {
     scoreState.startLoading(fileName);
     const requestId = this.nextRequestId++;
     const response = await requestScoreLoad(this.scoreWorker, fileName, bytes.slice(0), requestId);
 
     if (response.type === 'failed') {
       scoreState.failed(fileName, response.error);
-      return;
+      return false;
     }
 
     this.currentSchedule = response.schedule;
@@ -1461,6 +1464,7 @@ export class Session {
     this.setupPlay(response.fullScore);
 
     await this.refreshRecent();
+    return true;
   }
 
   private async reopenRecent(id: string): Promise<void> {

@@ -153,6 +153,28 @@ describe('mx-browser-list (US1 #2)', () => {
     });
   });
 
+  it('a real double click (click, click, dblclick) still opens - the first click never re-renders the row out from under the second (found live in e2e)', () => {
+    loadIndex([libraryItem('repertoire/beginner/ode-to-joy')]);
+    const el = document.createElement('mx-browser-list');
+    document.body.appendChild(el);
+
+    const opened = new Promise<{ ref: unknown }>((resolve) => {
+      el.addEventListener('browseropenitem', (e) => resolve((e as CustomEvent).detail), { once: true });
+    });
+    const row = el.querySelector('[role="option"]') as HTMLElement;
+    // A native double click fires click, click, then dblclick, all within milliseconds - well before the
+    // deferred single-click selection (300ms) would otherwise replace this element's own innerHTML.
+    row.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    row.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    row.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+    // The row is still the same element (no re-render happened): the deferred select() was cancelled.
+    expect(el.querySelector('[role="option"]')).toBe(row);
+
+    return opened.then((detail) => {
+      expect(detail.ref).toEqual({ kind: 'library', id: 'repertoire/beginner/ode-to-joy' });
+    });
+  });
+
   it('Enter on the active row emits browseropenitem', () => {
     loadIndex([libraryItem('repertoire/beginner/ode-to-joy')]);
     const el = document.createElement('mx-browser-list');

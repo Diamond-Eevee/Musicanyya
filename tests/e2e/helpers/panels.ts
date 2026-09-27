@@ -15,12 +15,17 @@ export type ManualPanel =
 
 export const panelLocator = (page: Page, id: ManualPanel | 'grade') => page.locator(`mx-panel[data-panel="${id}"]`);
 
-/** Waits until the slim bar has fitted its contents: after content changes it folds the four menus into "More" on the
- *  next animation frame, so a menu resolved a moment too early can vanish under the click. */
+/** Waits until the slim bar has settled its fold decision: after content changes it folds the four menus into
+ *  "More" on the next animation frame, so a menu resolved a moment too early can vanish under the click. Below the
+ *  design width, with a Score loaded, the bar's content does not fit even folded (found live migrating to the
+ *  browser, feature 013 T032 - a pre-existing gap this is the first case to load a Score before opening a menu at
+ *  such a narrow width) - waiting for an unreachable exact fit would hang forever, so this also accepts "folded
+ *  already" as settled. */
 export const barFitted = (page: Page) =>
   page.waitForFunction(() => {
     const bar = document.querySelector('#mx-bar');
-    return bar !== null && bar.scrollWidth <= bar.clientWidth;
+    if (bar === null) return false;
+    return bar.scrollWidth <= bar.clientWidth || bar.classList.contains('mx-bar-compact');
   });
 
 /** The visible menu that holds a tool's entry: its own menu, or "More" when the bar has folded the four into one. */

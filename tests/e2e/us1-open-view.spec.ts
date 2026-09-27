@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
+import { closeBrowser } from './helpers/browser.js';
 import { openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -57,6 +58,9 @@ test('US1 end-to-end: open fixtures, zoom, errors, recent, help page', async ({ 
   // Reload and reopen from the recent list without a file dialog.
   await page.reload();
   await expect(page.locator('.mx-empty-state')).toBeVisible();
+  // FR-001: the reload starts with no Score again, so the browser is open behind the bar - close it before the
+  // Score menu (behind the modal) can be reached.
+  await closeBrowser(page);
   const recentButtons = page.locator('.mx-recent-list button.mx-recent-open');
   await expect(recentButtons).toHaveCount(2);
   await openPanel(page, 'scores'); // the recent list is a popup now
