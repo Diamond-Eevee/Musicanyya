@@ -146,6 +146,14 @@ attempt shows "90 BPM (75% of written)".
 ## Phase 6: Polish & Cross-Cutting
 
 - [x] T048 [P] Review of the fixtures (T002), the parser rules and the display semantics with `music-domain-expert`; findings in the log
+- [x] T058 (new, found by T048) Owner said "apply the recommendation": R-4's beat fallback counts quarter notes,
+  not the meter's beat, when no printed metronome mark has appeared anywhere in the Score yet (reserving the
+  meter-derived fallback for an established unit broken by a later time-signature change). `tempo-display.ts`'s
+  `fallbackBeat`/`hadPrintedMark`; spec.md FR-003 + Edge Cases + a new Clarifications entry, research.md R-4/R-10,
+  data-model.md section 3 updated; `tempo-display-real.test.ts` and `tempo-beat.test.ts` (the "except..." test
+  retired - every library item counts quarters now) updated first and confirmed failing, then green. Verified with
+  `pnpm screenshot --item repertoire/advanced/fur-elise-complete`: "72 BPM", no beat symbol (previously "144 BPM"
+  with an eighth-note glyph).
 - [ ] T049 [P] Phone width (SC-004): `pnpm screenshot --item learning/key-changes/a-major-to-a-minor/beginner --width 375` and with the Play setup open; number, unit, beat symbol and step buttons fully visible, play buttons on screen; an e2e assertion at 375 px in `tests/e2e/tempo-field.spec.ts` (element boxes inside the viewport, no overflow); FR-006: the computed font size of the number and of "BPM" is at least that of the Volume label, at 375 px and 1600 px
 - [ ] T050 Run the full `quickstart.md` manual verification with screenshots, naming each picture in the log
 - [ ] T051 Constitution review of the branch diff with `constitution-auditor`; findings in the log

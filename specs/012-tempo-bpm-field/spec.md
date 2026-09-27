@@ -33,6 +33,16 @@ editable as a plain number of beats per minute, e.g. **90 BPM**, everywhere a te
   FR-013, SC-002 and SC-006 speak of the beats of the music; the tempo bounds of research R-2 are stated as new; the
   field holds four digits; the Assumptions name the extra `<metronome>` forms.
 
+### Session 2026-09-27 (T048 polish review)
+
+- Q: (T048, music-domain-expert review) When a Score's first tempo information is a bare sound tempo with no
+  metronome mark anywhere yet, should the beat fall back to the meter's counting beat (e.g. eighth for 3/8) or to
+  quarter notes? → A: Quarter notes (owner: "apply the recommendation") - reserves the meter-derived fallback for
+  an established printed unit broken by a later time-signature change, its original purpose (FR-003, R-4). Changes
+  the display only (not `tempoBpm` or grading) for three real library items: `chopin-prelude-op28-no4`,
+  `clementi-sonatina-op36-no1-mvt1`, `fur-elise-complete` (research R-10) - each now shows its library BPM figure
+  directly, with no beat symbol.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - See the Score's tempo as a number (Priority: P1)
@@ -142,7 +152,10 @@ clicks at 90, and the attempts list shows the attempt at "90 BPM (75% of written
 - **Rounding**: the field always shows a whole number. When scaling produces a fraction in another section (e.g.
   67.5), the music plays the exact value and the field shows it rounded.
 - **Compound and cut-time meters**: see FR-003; the number is never shown against a different beat than the one the
-  Metronome clicks in, without saying which beat it is.
+  Metronome clicks in, without saying which beat it is - except before the first metronome mark ever appears, when
+  it counts quarter notes instead (FR-003, T048).
+- **Sound tempo alone, no metronome mark anywhere yet**: counts quarter notes, not the meter's counting beat (FR-003,
+  T048 music-domain review) - a sound tempo has no note value of its own to show a beat symbol for.
 - **Very slow or very fast written tempos**: the allowed range is relative to the written tempo (FR-008), so a Score
   written at 40 can go down to 10 BPM and one written at 200 up to 400; the field has room for four digits (a
   fast marking in short notes can exceed 999).
@@ -167,9 +180,12 @@ clicks at 90, and the attempts list shows the attempt at "90 BPM (75% of written
   at, marked as a default (e.g. "100 BPM (default)").
 - **FR-003**: The number MUST count beats of the note value of the written metronome mark in force (6/8 marked
   "dotted quarter = 60" shows 60; "half = 60" shows 60). A later tempo change without its own metronome mark keeps
-  that note value until the next time-signature change. Where no metronome mark gives a note value (none yet, or
-  after a time-signature change, or the default tempo), it MUST count the beat the Metronome clicks at that point. When the beat is not a quarter
-  note, the beat MUST be shown next to the number (e.g. a dotted-quarter note symbol).
+  that note value until the next time-signature change, where it MUST fall back to the beat the Metronome clicks
+  (a real meter is already on the page there) - the same fallback the Score's default tempo uses. But where the
+  Score's *first* tempo information is a sound tempo alone, with no metronome mark anywhere in the piece yet, it
+  MUST count quarter notes (a sound tempo carries no note value of its own; T048 music-domain review, owner
+  2026-09-27) - not the Metronome's beat, which would look like a mark that was never printed. When the beat is not
+  a quarter note, the beat MUST be shown next to the number (e.g. a dotted-quarter note symbol).
 - **FR-004**: While music plays, the number MUST follow the tempo in force at the cursor (tempo changes, repeats,
   jumps), and after a seek it MUST show the tempo in force at the new position.
 - **FR-005**: When the tempo differs from the written tempo in force, the written tempo MUST also be visible (e.g.

@@ -20,6 +20,8 @@ function sameBeat(a: TempoBeat, b: TempoBeat): boolean {
   return a.type === b.type && a.dots === b.dots;
 }
 
+const QUARTER_BEAT: TempoBeat = { type: 'quarter', dots: 0, quartersNum: 1, quartersDen: 1 };
+
 /**
  * Walks `passes` like buildTempoMap (tempo-map.ts) and returns segments sorted by startTick, the first at tick 0:
  * a new segment starts wherever the played tempo, the beat or `isDefault` changes (data-model.md section 3). A
@@ -51,9 +53,19 @@ export function buildTempoDisplayMap(
   let qpmNum = DEFAULT_TEMPO_QPM * 100;
   let qpmDen = 100;
   let isDefault = false;
-  let beat: TempoBeat = metronomeBeatAt(0, measures);
+  let beat: TempoBeat = QUARTER_BEAT;
   let beatSource: TempoDisplaySegment['beatSource'] = 'metronome';
   let lastOwnBeat: TempoBeat | null = null;
+  // T048 (music-domain-expert review): the meter-derived fallback only makes sense once some *printed* metronome
+  // mark has appeared to fall back from (research R-4). Before that (or if none ever appears), a <sound tempo>
+  // alone has no note value of its own to imply one, so quarter notes are the honest "no marking" reading rather
+  // than an invented one. Never set by the parser's own synthetic default mark (`isDefault`, R-5): that mark
+  // already carries its own beat directly, so this flag genuinely means "a mark printed in the score itself".
+  let hadPrintedMark = false;
+
+  function fallbackBeat(measureIndex: number): TempoBeat {
+    return hadPrintedMark ? metronomeBeatAt(measureIndex, measures) : QUARTER_BEAT;
+  }
 
   function commit(tick: number): void {
     if (last && last.startTick === tick) {
@@ -82,7 +94,7 @@ export function buildTempoDisplayMap(
     const time = measures[pass.measureIndex]?.time;
     if (time) {
       lastOwnBeat = null;
-      beat = metronomeBeatAt(pass.measureIndex, measures);
+      beat = fallbackBeat(pass.measureIndex);
       beatSource = 'metronome';
       commit(pass.startTick);
     }
@@ -97,11 +109,12 @@ export function buildTempoDisplayMap(
         beat = mark.beat;
         beatSource = 'mark';
         lastOwnBeat = mark.beat;
+        if (!mark.isDefault) hadPrintedMark = true;
       } else if (lastOwnBeat) {
         beat = lastOwnBeat;
         beatSource = 'inherited';
       } else {
-        beat = metronomeBeatAt(pass.measureIndex, measures);
+        beat = fallbackBeat(pass.measureIndex);
         beatSource = 'metronome';
       }
       commit(pass.startTick + mark.onsetInMeasure);

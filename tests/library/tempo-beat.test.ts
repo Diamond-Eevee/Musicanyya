@@ -1,10 +1,9 @@
 // research R-10 (feature 012, FR-021): the library index's `tempoBpm` keeps meaning "quarter notes per minute of
-// the first mark" - unchanged by this feature. Most items' first mark counts quarters, so `tempoBpm` is also what
-// the tempo field shows; a few real pieces (cut-time or 3/8 with only a `<sound tempo>` and no printed metronome
-// mark) fall back to the meter's own counting beat (half, eighth) instead, so this pins the invariant that is
-// actually true for every item - `tempoBpm` is the qpm the display segment implies, in whatever beat it uses -
-// rather than assuming every item happens to be quarter-based (found while implementing 012, see the log; the
-// three non-quarter items are a case for music-domain-expert's T048 review of the display semantics).
+// the first mark" - unchanged by this feature. `tempoBpm` is the qpm the display segment implies
+// (`writtenBpm x beat.quartersNum/Den`), in whatever beat that segment uses. Before T048's review, three real
+// pieces (cut-time or 3/8 with only a `<sound tempo>` and no printed metronome mark) fell back to the meter's own
+// counting beat (half, eighth) instead of quarters; T048 refined R-4 so a Score with no metronome mark anywhere yet
+// counts quarter notes, and every library item is quarter-based again (below).
 
 import { readFileSync } from 'node:fs';
 import * as path from 'node:path';
@@ -40,7 +39,7 @@ describe('library tempoBpm counts quarter notes (research R-10)', () => {
     });
   }
 
-  it('every item counts quarters except the known cut-time/3-8 pieces with no printed metronome mark', () => {
+  it('every item counts quarters (T048: no metronome mark yet falls back to quarters, not the meter)', () => {
     const nonQuarter: string[] = [];
     for (const item of index.items) {
       const bytes = readFileSync(path.join(libraryRoot, item.file));
@@ -52,13 +51,6 @@ describe('library tempoBpm counts quarter notes (research R-10)', () => {
       const first = map[0];
       if (first && (first.beat.type !== 'quarter' || first.beat.dots !== 0)) nonQuarter.push(item.id);
     }
-    // T048 (music-domain-expert): confirm the fallback beat (meter, no printed mark) is the right display for these.
-    expect(nonQuarter.sort()).toEqual(
-      [
-        'repertoire/advanced/chopin-prelude-op28-no4',
-        'repertoire/advanced/clementi-sonatina-op36-no1-mvt1',
-        'repertoire/advanced/fur-elise-complete',
-      ].sort(),
-    );
+    expect(nonQuarter).toEqual([]);
   });
 });

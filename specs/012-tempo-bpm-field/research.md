@@ -71,12 +71,21 @@ FR-001's "what is shown is what is played").
 
 **Decision**: A tempo mark without its own `<metronome>` inherits the beat of the last earlier mark in playback order
 that had one, unless a `<time>` change lies between them; otherwise it counts the Metronome's beat at its measure
-(`beatTicksAt` expressed as a `TempoBeat`). The owner approved this (spec FR-003, Clarifications).
+(`beatTicksAt` expressed as a `TempoBeat`) - *unless no metronome mark has appeared anywhere in the Score yet*, in
+which case it counts quarter notes instead (T048 music-domain review, owner 2026-09-27). The owner approved the
+original rule (spec FR-003, Clarifications) and this refinement to it.
 
 **Rationale**: With "half = 60" in 4/4, a sound-only change that switched to quarters would double the number and look
-like a tempo jump. After a meter change the old unit may not fit (6/8 -> 2/4).
+like a tempo jump. After a meter change the old unit may not fit (6/8 -> 2/4). But `<sound tempo>` is itself defined
+as quarter notes per minute with no note value of its own - before any metronome mark has ever been printed, the
+meter's counting beat is not something the mark is "falling back to" (nothing has been established to fall back
+from); showing it looks like a fabricated marking. Quarter notes are the honest "no marking here" reading. This
+does not touch R-5's default-tempo case (a Score with no usable tempo at all still shows the Metronome's own beat,
+"(default)") - the parser assigns that synthetic mark its beat directly (`build.ts`), so `tempo-display.ts`'s
+"no printed mark yet" fallback never applies to it.
 
-**Alternatives considered**: Always fall back to the Metronome's beat (numbers jump); carry the beat forever
+**Alternatives considered**: Always fall back to the Metronome's beat (numbers jump, and - the T048 finding - looks
+like a mark that was never printed for a piece whose first tempo is sound-only); carry the beat forever
 (a dotted-quarter beat in a later 2/4 section is wrong).
 
 ## R-5 Default tempo and the "written" hint
@@ -169,25 +178,27 @@ step-order criteria and must not change meaning). The library item details show 
 tempo-display segment at tick 0 implies (`writtenBpm x beat.quartersNum/Den`), in whatever beat that segment uses -
 not "every item is quarter-based", which turned out to be false (below).
 
-**Correction (found implementing T017, not assumed at design time)**: three real repertoire items -
+**Correction (found implementing T017, not assumed at design time; resolved by T048)**: three real repertoire items -
 `chopin-prelude-op28-no4`, `clementi-sonatina-op36-no1-mvt1` (both cut time, 2/2) and `fur-elise-complete` (3/8) -
-have only a `<sound tempo>` and no printed `<metronome>` mark on their first direction, so their first display
-segment's beat falls back to the meter's own counting beat (R-4): half for the two 2/2 pieces, eighth for the 3/8
-one. Once the tempo field ships, these three will show a different number and beat symbol than the library detail's
-quarters-based "Tempo: NN BPM" (e.g. `fur-elise-complete`: library shows 72, the field will show 144 with an
-eighth-note symbol). `tempoBpm` itself does not change meaning or value - only what the *field* shows for these
-three differs from the library's quarters-based text. Flagged for `music-domain-expert`'s T048 review of the
-display semantics: R-4's fallback (no mark -> the Metronome's meter-implied beat) is a defensible default in
-general, but whether it is the musically right call specifically for these three real, unmarked pieces is a
-judgement call outside this decision's scope. No index change is made now (below).
+have only a `<sound tempo>` and no printed `<metronome>` mark on their first direction. At design time this fell
+back to the meter's own counting beat (R-4's general rule): half for the two 2/2 pieces, eighth for the 3/8 one,
+which would have shown a different number and beat symbol than the library detail's quarters-based "Tempo: NN BPM"
+(e.g. `fur-elise-complete`: library 72, field would have shown 144 with an eighth-note symbol). Flagged for
+`music-domain-expert`'s T048 review, which recommended R-4's refinement above instead (quarter notes before any
+metronome mark has ever appeared) - the owner agreed (2026-09-27). With that refinement these three now show their
+library's own quarters-based figure exactly, with no beat symbol: the divergence this correction originally
+recorded no longer exists. `tests/library/tempo-beat.test.ts`'s "every item counts quarters except..." test is
+retired (now every item counts quarters); its qpm-invariant test is unaffected, since `tempoBpm` never depended on
+which beat the display chose. No index change was needed either way (`tempoBpm` always meant qpm, not beat).
 
-**Rationale**: All but three of the library's marks are quarters; adding a `tempoBeat` field now would regenerate
-the committed index for a difference that shows up in only three items, and the display rule itself (not the index)
-is what T048 should confirm or adjust first (Constitution VIII: no speculative index change ahead of that review).
+**Rationale**: All but three of the library's marks are quarters; adding a `tempoBeat` field now would have
+regenerated the committed index for a difference that showed up in only three items, and the display rule itself
+(not the index) is what T048 needed to confirm or adjust first (Constitution VIII: no speculative index change
+ahead of that review) - which is exactly what happened.
 
-**Alternatives considered**: Add `tempoBeat` to the index now (index regeneration and contract 1.3, pre-empting a
-review that might instead change the fallback rule); special-case these three pieces in the parser (contradicts R-4,
-which the owner already approved for every other Score).
+**Alternatives considered**: Add `tempoBeat` to the index (index regeneration and contract 1.3, pre-empting a review
+that might instead change the fallback rule - and did); special-case these three pieces in the parser (contradicts
+R-4, which the owner already approved for every other Score, and was unnecessary once R-4 itself was refined).
 
 ## R-11 Real-time impact
 

@@ -335,3 +335,34 @@
 - Handoff: paused after T048 pending the owner's answer above; T049-T052 (phone width, quickstart manual
   verification, constitution-auditor review, doc/data-model updates, final gate) still open. Branch
   `012-tempo-bpm-field`, not pushed; tree clean at the commit that follows this entry.
+
+## 2026-09-27 10:30 - claude-sonnet-5 (T058, applying T048's finding)
+
+- Owner answered T048's question: "apply the recommendation" (AskUserQuestion, this session).
+- Done: new task T058 (tasks.md, "missing work found -> new task", AGENTS.md section 6). `tempo-display.ts`:
+  new `hadPrintedMark` (set only by a *non-default* mark with its own beat - the parser's synthetic default mark,
+  R-5, already carries its beat directly and must not count) and `fallbackBeat(measureIndex)` (quarter notes until
+  the first printed mark, the meter's beat after). Both call sites that used to call `metronomeBeatAt` directly for
+  a mark-less tempo (the `<time>`-change branch and the mark loop's "no beat to inherit" branch) now call
+  `fallbackBeat` instead; the initial placeholder's beat is `QUARTER_BEAT` too (same "nothing has appeared yet"
+  reasoning).
+- Tests updated first, confirmed failing against the pre-fix code, then green: `tempo-display-real.test.ts`'s two
+  independent-computation branches (no mark at tick 0; no printed beat-unit on the tick-0 mark) now expect quarter
+  notes instead of replicating the old meter-derived fallback - this also caught four *real corpus* files beyond
+  the three library items (`mendelssohn-duet-op63-1`, `schubert-im-gegenwaertigen-vergangenes-d710`,
+  `schumann-dichterliebe-15`, `wolf-auf-einer-wanderung`), confirming the concern was broader than only the three
+  named library pieces. `tempo-beat.test.ts`'s "except the three..." test is retired (renamed, `nonQuarter` now
+  expected empty) since every library item counts quarters again.
+- Docs: spec.md FR-003 reworded, a new Edge Cases bullet, a new Clarifications session recording the owner's
+  answer; research.md R-4 (the refinement + why R-5's default-tempo case is untouched) and R-10 (the correction is
+  resolved, not just flagged); data-model.md section 3's `beat` row.
+- Verified with the actual UI, not just tests (AGENTS.md "look at the picture"): `pnpm screenshot --item
+  repertoire/advanced/fur-elise-complete` now shows "72 BPM" with no beat symbol (was "144 BPM" with an eighth-note
+  glyph before this fix).
+- Tests: `pnpm test` - 233 files, 4412 green (the usual `regeneration.test.ts` full-suite-load flake aside,
+  confirmed passing standalone again). `pnpm typecheck` clean. `pnpm lint` 0 errors, 294 warnings (unchanged).
+- Decisions: none beyond the owner's answer above.
+- Problems / open questions: none new. The `play-grade-marks.spec.ts` pre-existing failure (background task
+  `task_c4d89f4f`) is unaffected by this change (unrelated fixture/mechanism).
+- Handoff: next = T049 (phone width). Branch `012-tempo-bpm-field`, not pushed; tree clean at the commit that
+  follows this entry.

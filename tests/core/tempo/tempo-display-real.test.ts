@@ -10,7 +10,6 @@ import { parseXml, XmlElement, XmlText } from '@rgrove/parse-xml';
 import { describe, expect, it } from 'vitest';
 import { buildScore } from '../../../src/core/musicxml/build.js';
 import { readXml } from '../../../src/core/musicxml/read.js';
-import { metronomeBeatAt } from '../../../src/core/tempo/beat-unit.js';
 import { buildTempoDisplayMap, shownBpm } from '../../../src/core/tempo/tempo-display.js';
 import { buildTimeline } from '../../../src/core/timeline/timeline.js';
 import { unroll } from '../../../src/core/timeline/unroll.js';
@@ -136,9 +135,9 @@ function check(label: string, xmlText: string) {
 
   if (!markAtZero) {
     // No mark takes effect at tick 0 (e.g. the file's only early marks are unusable, or offset later in the
-    // measure): the fallback default plays there, and it is not the "whole Score has no tempo" case.
-    const beat = metronomeBeatAt(0, score.measures);
-    expect(shownBpm(first!, 100), label).toBe(roundHalfUp(100 / (beat.quartersNum / beat.quartersDen)));
+    // measure): the fallback default plays there, and it is not the "whole Score has no tempo" case. No metronome
+    // mark has appeared yet either, so it counts quarter notes (T048: R-4 refined), not the meter's beat.
+    expect(shownBpm(first!, 100), label).toBe(roundHalfUp(100));
     expect(first?.isDefault, label).toBe(false);
     return;
   }
@@ -150,12 +149,9 @@ function check(label: string, xmlText: string) {
 
   const independent = independentMarkAtStart(xmlText);
   expect(independent, `${label}: expected a usable mark at measure 0 onset 0`).not.toBeNull();
-  const beatQuarters =
-    independent!.beatQuarters ??
-    (() => {
-      const beat = metronomeBeatAt(0, score.measures);
-      return beat.quartersNum / beat.quartersDen;
-    })();
+  // The mark at tick 0 is necessarily the *first* tempo information in the Score, so a missing printed beat-unit
+  // here always means "no metronome mark has appeared yet" (T048: R-4 refined) - quarter notes, not the meter's.
+  const beatQuarters = independent!.beatQuarters ?? 1;
   expect(shownBpm(first!, 100), label).toBe(roundHalfUp(independent!.qpm / beatQuarters));
 }
 

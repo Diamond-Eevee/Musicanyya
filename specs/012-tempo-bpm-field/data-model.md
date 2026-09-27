@@ -43,7 +43,7 @@ jumps and the global lead-in shift line up with playback.
 |---|---|---|
 | `startTick` | `Ticks` | same tick space as `PlaybackTimeline.tempo` |
 | `qpmNum` / `qpmDen` | integers | the played tempo of the segment (equal to the tempo map at that tick) |
-| `beat` | `TempoBeat` | the mark's own beat; else the beat of the last earlier mark (in playback order) that had one, unless a `<time>` change lies between them; else the Metronome's beat at that measure (R-4, spec FR-003) |
+| `beat` | `TempoBeat` | the mark's own beat; else the beat of the last earlier mark (in playback order) that had one, unless a `<time>` change lies between them; else the Metronome's beat at that measure - *unless no mark with its own beat has appeared anywhere in the Score yet, in which case quarter notes* (R-4 refined by T048, spec FR-003) |
 | `beatSource` | `'mark' \| 'inherited' \| 'metronome'` | where `beat` came from (tests and the accessible description) |
 | `isDefault` | `boolean` | from the mark (FR-002 "default") |
 
