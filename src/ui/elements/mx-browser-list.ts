@@ -61,10 +61,21 @@ export class MxBrowserList extends HTMLElement {
       const selectedRow = selected && rows.find((r) => refEquals(r.ref, selected));
       this.activeRef = selectedRow ? selectedRow.ref : (rows[0]?.ref ?? null);
     }
-    this.innerHTML = rows.map((row, index) => this.rowHtml(row, index, selected, this.activeRef)).join('');
+    const indexError = browserState.get().data.indexError;
+    const banner =
+      indexError !== null
+        ? `<div class="browser-error">
+             <p class="browser-error-message">${escapeHtml(en.browser.libraryUnavailable)}</p>
+             <button type="button" class="browser-retry">${escapeHtml(en.browser.retry)}</button>
+           </div>`
+        : '';
+    this.innerHTML = banner + rows.map((row, index) => this.rowHtml(row, index, selected, this.activeRef)).join('');
     const activeIndex = this.activeRef ? rows.findIndex((r) => refEquals(r.ref, this.activeRef as ItemRef)) : -1;
     if (activeIndex >= 0) this.setAttribute('aria-activedescendant', `browser-row-${activeIndex}`);
     else this.removeAttribute('aria-activedescendant');
+    this.querySelector('.browser-retry')?.addEventListener('click', () => {
+      this.dispatchEvent(new CustomEvent('browserretrylibrary', { bubbles: true }));
+    });
     this.wire(rows);
   }
 

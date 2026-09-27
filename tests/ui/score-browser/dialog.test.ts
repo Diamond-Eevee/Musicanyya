@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import '../../../src/ui/elements/mx-browser-detail.js';
+import '../../../src/ui/elements/mx-browser-rail.js';
 import '../../../src/ui/elements/mx-score-browser.js';
 import { rememberInvoker } from '../../../src/ui/layout/invoker.js';
 import { browserState } from '../../../src/ui/state/browserState.js';
@@ -107,6 +109,47 @@ describe('mx-score-browser dialog shell (US1 #1, US1 #3, FR-004)', () => {
     expect(dialog.open).toBe(false);
     expect(scoreState.getStatus()).toEqual(scoreBefore);
     expect(transportState.get()).toEqual(transportBefore);
+  });
+
+  it('the folder picker toggles the rail overlay open class, closed again by a folder/row selection (contract §1)', () => {
+    const el = mount();
+    const rail = document.createElement('mx-browser-rail');
+    el.querySelector('.browser-body')?.appendChild(rail);
+    browserState.open();
+
+    (el.querySelector('.browser-folder-picker') as HTMLButtonElement).click();
+    expect(rail.classList.contains('browser-rail-overlay-open')).toBe(true);
+
+    el.dispatchEvent(new CustomEvent('browserviewchange', { detail: { view: { folder: { kind: 'all' } } } }));
+    expect(rail.classList.contains('browser-rail-overlay-open')).toBe(false);
+  });
+
+  it('a row selection opens the detail overlay; Back closes it without changing the selection', () => {
+    const el = mount();
+    const detail = document.createElement('mx-browser-detail');
+    el.querySelector('.browser-body')?.appendChild(detail);
+    browserState.open();
+
+    browserState.setView({ selected: { kind: 'library', id: 'x' } });
+    el.dispatchEvent(
+      new CustomEvent('browserviewchange', {
+        detail: { view: { selected: { kind: 'library', id: 'x' } } },
+      }),
+    );
+    expect(detail.classList.contains('browser-detail-overlay-open')).toBe(true);
+
+    (el.querySelector('.browser-back') as HTMLButtonElement).click();
+    expect(detail.classList.contains('browser-detail-overlay-open')).toBe(false);
+    expect(browserState.get().view.selected).toEqual({ kind: 'library', id: 'x' });
+  });
+
+  it('the breadcrumb shows the current folder label', () => {
+    const el = mount();
+    browserState.open();
+    expect(el.querySelector('.browser-breadcrumb')?.textContent).toBe('Continue');
+
+    browserState.setView({ folder: { kind: 'myFiles' } });
+    expect(el.querySelector('.browser-breadcrumb')?.textContent).toBe('My files');
   });
 
   it('focus returns to the invoker on close', () => {

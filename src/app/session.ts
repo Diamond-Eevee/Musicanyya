@@ -17,16 +17,19 @@ import { IndexedDbScoreStore } from '../engine/storage/indexeddb-score-store.js'
 import { LocalSettingsStore } from '../engine/storage/local-settings-store.js';
 
 import '../ui/elements/mx-attempts-list.js';
+import '../ui/elements/mx-browser-detail.js';
+import '../ui/elements/mx-browser-list.js';
+import '../ui/elements/mx-browser-rail.js';
 import '../ui/elements/mx-diagnostics.js';
 import '../ui/elements/mx-drop-zone.js';
 import '../ui/elements/mx-grade-panel.js';
 import '../ui/elements/mx-latency-panel.js';
 import '../ui/elements/mx-help-notation.js';
-import '../ui/elements/mx-library.js';
 import '../ui/elements/mx-menu.js';
 import '../ui/elements/mx-open-button.js';
 import '../ui/elements/mx-play-panel.js';
 import '../ui/elements/mx-recent-list.js';
+import '../ui/elements/mx-score-browser.js';
 import '../ui/elements/mx-score-source.js';
 import '../ui/elements/mx-score-view.js';
 import '../ui/elements/mx-size-controls.js';
@@ -67,6 +70,7 @@ import type {
   ResolvedLoop,
 } from '../core/practice/types.js';
 import { compilePlaySchedule } from '../core/schedule/play-schedule.js';
+import type { ItemRef } from '../core/progress/types.js';
 import type { LoadReport } from '../core/score/load-report.js';
 import type { Score } from '../core/score/model.js';
 import { audioTimeAtTick } from '../core/tempo/rate.js';
@@ -82,6 +86,7 @@ import { midiNoteName } from '../ui/format/note-name.js';
 import { mountPanels, type PanelTools } from '../ui/layout/panel-host.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
 import { initShortcuts } from '../ui/shortcuts.js';
+import { browserState } from '../ui/state/browserState.js';
 import { libraryState } from '../ui/state/libraryState.js';
 import { midiState } from '../ui/state/midiState.js';
 import { mistakeStepper } from '../ui/state/mistake-stepper.js';
@@ -98,7 +103,7 @@ import { tempoPositionState } from '../ui/state/tempoPositionState.js';
 import { transportState } from '../ui/state/transportState.js';
 import { type OverlayLayer, viewState } from '../ui/state/viewState.js';
 import { requestGrade } from '../workers/grade.worker.js';
-import { LibrarySessionController } from './library-session.js';
+import { BrowserSessionController } from './browser-session.js';
 import { PlaySessionController } from './play-session.js';
 import { ReplaySessionController } from './replay-session.js';
 
@@ -151,7 +156,7 @@ export class Session {
   private readonly scoreStore: ScoreStore;
   private readonly settingsStore: SettingsStore;
   private readonly libraryCatalog: LibraryCatalog;
-  private readonly libraryController: LibrarySessionController;
+  private readonly browserController: BrowserSessionController;
   private nextRequestId = 1;
   private scoreView: MxScoreView | null = null;
   private transportEl: MxTransport | null = null;
@@ -239,12 +244,9 @@ export class Session {
     this.scoreStore = scoreStore;
     this.settingsStore = settingsStore;
     this.libraryCatalog = libraryCatalog;
-    this.libraryController = new LibrarySessionController(
+    this.browserController = new BrowserSessionController(
       this.libraryCatalog,
-      {
-        loadBytes: (fileName, bytes) => this.loadBytes(fileName, bytes),
-        onNotice: (code) => noticeState.addNotice({ code, severity: 'warning' }),
-      },
+      { loadBytes: (fileName, bytes) => this.loadBytes(fileName, bytes) },
       this.settingsStore,
     );
   }
@@ -351,10 +353,31 @@ export class Session {
       this.openFile((event as CustomEvent<{ file: File }>).detail.file),
     );
     dropZone.addEventListener('fileopen', (event) => this.openFile((event as CustomEvent<{ file: File }>).detail.file));
-    // The invitation in the empty Score area asks for the one file chooser the bar's open button owns.
+    // The invitation in the empty Score area asks for the one thing the bar's open button now asks for too: the
+    // browser (feature 013, R-20) - `openbrowser` is handled once, below, wherever it comes from.
     dropZone.addEventListener('openrequest', () => (openButton as MxOpenButton).open());
     document.getElementById('open-controls')?.appendChild(openButton);
     main.appendChild(dropZone);
+
+    // mx-open-button and the score menu's *Open...* entry (mx-menu, across its shadow boundary) both ask for the
+    // browser this way instead of calling a `viewState` popup (contracts/score-browser.md §5, R-2) - each already
+    // remembers its own invoker before dispatching, so this only has to ask the guarded controller.
+    document.addEventListener('openbrowser', () => this.browserController.open());
+
+    const scoreBrowser = document.createElement('mx-score-browser');
+    main.appendChild(scoreBrowser); // connects it now, so `.browser-body` exists to receive the rail/list/detail
+    scoreBrowser
+      .querySelector('.browser-body')
+      ?.append(
+        document.createElement('mx-browser-rail'),
+        document.createElement('mx-browser-list'),
+        document.createElement('mx-browser-detail'),
+      );
+    scoreBrowser.addEventListener('browseropenitem', (event) => {
+      const { ref } = (event as CustomEvent<{ ref: ItemRef }>).detail;
+      void this.browserController.openItem(ref, browserState.get().data.index);
+    });
+    scoreBrowser.addEventListener('browserretrylibrary', () => this.browserController.retryLibrary());
 
     const menuControls = document.getElementById('menu-controls');
     // 'more' is the four folded into one; the bar shows it instead of them when it runs out of width (mx-app)
@@ -372,25 +395,9 @@ export class Session {
       this.removeRecent((event as CustomEvent<{ id: string }>).detail.id),
     );
 
-    const library = document.createElement('mx-library');
-    library.addEventListener('openlibraryitem', (event) =>
-      this.openLibraryItem((event as CustomEvent<{ id: string }>).detail.id),
-    );
-    library.addEventListener('libraryretry', () => this.loadLibraryIndex());
+    // "About this score" (R-20): the old shelf and its lazy index fetch are gone - the browser (above) owns the
+    // index fetch now, on open.
     const scoreSource = document.createElement('mx-score-source');
-    // The index is fetched once, lazily, the first time the shelf is opened (contracts/library-port.md
-    // §5: one fetch per session) - never at startup, so opening a dragged-in file costs nothing extra.
-    let previousPanel = viewState.get().openPanel;
-    viewState.subscribe((state) => {
-      if (state.openPanel === 'scores' && libraryState.getStatus().kind === 'idle') {
-        this.loadLibraryIndex();
-      }
-      // data-model.md §6: the filter survives panel close, but its text box does not.
-      if (previousPanel === 'scores' && state.openPanel !== 'scores') {
-        libraryState.clearFilterText();
-      }
-      previousPanel = state.openPanel;
-    });
 
     const helpPanel = document.createElement('mx-help-notation');
 
@@ -454,7 +461,7 @@ export class Session {
     // Every secondary tool is a popup over the Score, opened from a menu (contracts/ui-shell.md section 3).
     const environmentPanel = document.querySelector('mx-environment-panel') as HTMLElement;
     const tools: PanelTools = {
-      scores: [scoreSource, library, recentList],
+      scores: [scoreSource, recentList],
       attempts: [attemptsList],
       setup: [practicePanel, playPanel],
       midi: [midiPanel],
@@ -534,6 +541,10 @@ export class Session {
     }, 1000);
 
     await this.refreshRecent();
+
+    // FR-001: the browser is where a Score is found now - with none loaded, it opens once at start-up. The
+    // drop-zone invitation stays behind it for when the browser is closed.
+    if (scoreState.getStatus().kind === 'empty') this.browserController.open();
   }
 
   /** The user's settings live in memory here, so two changes inside the store's write debounce cannot overwrite each
@@ -1387,43 +1398,9 @@ export class Session {
       });
       return;
     }
-    this.clearOpenedLibraryItem();
+    this.browserController.clearOpenedItem();
     const bytes = await file.arrayBuffer();
     await this.loadBytes(file.name, bytes);
-  }
-
-  /** contracts/library-port.md §2: `session.ts` remembers the opened item's id so `mx-score-source`
-   *  can show its source and licence; a user's own file clears it. */
-  private clearOpenedLibraryItem(): void {
-    this.libraryController.clearOpenedItem();
-    libraryState.setOpenedItem(null);
-  }
-
-  private async loadLibraryIndex(): Promise<void> {
-    libraryState.startLoadingIndex();
-    const result = await this.libraryCatalog.index();
-    if (result.ok) {
-      libraryState.indexLoaded(result.value);
-    } else {
-      libraryState.indexFailed(result.error);
-    }
-  }
-
-  private async openLibraryItem(itemId: string): Promise<void> {
-    const status = libraryState.getStatus();
-    if (status.kind !== 'ready') return;
-    const index = status.index;
-    libraryState.startOpeningItem(itemId);
-    const ok = await this.libraryController.openItem(index, itemId);
-    if (ok) {
-      libraryState.setOpenedItem(index.items.find((item) => item.id === itemId) ?? null);
-      libraryState.itemOpened();
-      // data-model.md §6: `openingItem` is the only state that can end with the panel closing, and
-      // only on success - the musician asked for a Score and got one.
-      viewState.closePanel();
-    } else {
-      libraryState.itemOpenFailed();
-    }
   }
 
   private async loadBytes(fileName: string, bytes: ArrayBuffer): Promise<void> {
@@ -1495,7 +1472,7 @@ export class Session {
       });
       return;
     }
-    this.clearOpenedLibraryItem();
+    this.browserController.clearOpenedItem();
     await this.loadBytes(result.value.summary.fileName, result.value.bytes);
   }
 

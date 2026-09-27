@@ -35,6 +35,20 @@ describe('Open and recent UI', () => {
     return detail.then((d) => expect(d.file).toBe(file));
   });
 
+  it('clicking the button, or calling open(), asks the app to open the browser instead of the file chooser (feature 013, R-20)', () => {
+    const el = document.createElement('mx-open-button');
+    document.body.appendChild(el);
+
+    const opens: string[] = [];
+    el.addEventListener('openbrowser', () => opens.push('click'));
+    (el.querySelector('.mx-open-button') as HTMLButtonElement).click();
+    expect(opens).toEqual(['click']);
+
+    el.addEventListener('openbrowser', () => opens.push('open()'));
+    (el as unknown as { open(): void }).open();
+    expect(opens).toEqual(['click', 'click', 'open()']);
+  });
+
   it('drop zone accepts only the first dropped file', () => {
     const el = document.createElement('mx-drop-zone');
     document.body.appendChild(el);

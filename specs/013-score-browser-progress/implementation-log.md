@@ -274,3 +274,64 @@
   screenshot `--browser` flag, the manual check) and T020 (e2e, once the wiring exists to drive it against). T031
   is the last piece before the US1 Independent Test and Checkpoint can be verified end to end. Tree is clean after
   this commit.
+
+## 2026-09-27 19:10 - claude-sonnet-5 (implement: US1 wiring into session.ts - T031)
+- Done: T031, wiring the browser into the running app.
+  `src/app/session.ts`: `BrowserSessionController` replaces the standalone `LibrarySessionController` field
+  (retired - `BrowserSessionController` now builds and owns its own, R-20); mounts `mx-score-browser` into `#mx-main`
+  and appends `mx-browser-rail`/`mx-browser-list`/`mx-browser-detail` into its `.browser-body` once connected;
+  `document` gets one `openbrowser` listener (`mx-open-button` and the score menu's *Open...* entry each remember
+  their own invoker and dispatch it, so this only calls the guarded `this.browserController.open()`); a
+  `browseropenitem` listener calls `browserController.openItem(ref, browserState.get().data.index)`; a
+  `browserretrylibrary` listener calls `retryLibrary()`; the *Scores* panel's tools drop `mx-library` (`scores:
+  [scoreSource, recentList]` - `mx-recent-list` stays per T031's own text, until T068 replaces it with *My files*);
+  the old `loadLibraryIndex`/`openLibraryItem`/`clearOpenedLibraryItem` private methods and the `viewState`-driven
+  lazy-index-fetch-on-panel-open are deleted (dead code, nothing dispatches `openlibraryitem`/`libraryretry`
+  anymore); `openFile`/`reopenRecent` call `browserController.clearOpenedItem()` directly; FR-001 - `start()` opens
+  the browser once at the end if `scoreState.getStatus().kind === 'empty'`.
+  `src/ui/elements/mx-open-button.ts`: the button's own click and its public `open()` (called by the drop-zone
+  invitation) now remember the invoker and dispatch `openbrowser` instead of clicking the file input directly; the
+  hidden `<input type="file">` and its `fileopen` event are unchanged, so every existing e2e spec that sets files
+  on `mx-open-button input[type=file]` directly (not through a click) keeps working untouched - checked across the
+  whole `tests/e2e/` tree before deciding not to touch those files in this task (T032 is next).
+  `src/ui/layout/menu-model.ts` + `mx-menu.ts`: a `MenuEntry.panel` may now be `'browser'` (not a `PanelId`, R-2/R-20)
+  - `entry('browser', false, false)` (`needsScore: false`, `idleOnly: false`, since its own guard is the narrower
+  `isPlayOrPracticeActive()` inside `BrowserSessionController.open()`, which already safely no-ops when refused,
+  matching the bar's own Open button which was never disabled either); `mx-menu`'s `activate()` dispatches a
+  `bubbles, composed` `openbrowser` event for it instead of calling `viewState.openPanel`. The score menu is now
+  *Open...*, *About this score*, *Recent attempts* (`en.panels.scores` relabelled from "Recent scores" to "About
+  this score", `en.panels.browser` added as "Open…").
+  `src/ui/elements/mx-browser-list.ts`: added the "Library unavailable" + Retry banner (`browserState.data.
+  indexError`) that Edge Cases and T020's Independent Test need - not built in T027/T028, whose own task text
+  didn't call for it, but nothing else in the US1 slice owned it either.
+  `src/ui/elements/mx-score-browser.ts` (T026, this session): added the folder-picker button, breadcrumb and Back
+  button contracts/score-browser.md §1 describes for the 768-1023px and sub-768px breakpoints - `browser.css`
+  (T029) already had rules for `.browser-folder-picker`/`.browser-breadcrumb`/`.browser-back` waiting for real
+  elements. The folder picker toggles `.browser-rail-overlay-open` on `mx-browser-rail` (closed again by any
+  `browserviewchange`, i.e. picking a folder or a row); a `browserviewchange` carrying a `selected` field opens
+  `.browser-detail-overlay-open` on `mx-browser-detail`; Back only removes that class (the selection itself is
+  untouched, so reopening the same row shows it again without re-querying).
+- A real bug, found only by manual verification, not by any unit test: `dialog.browser { display: flex; ... }`
+  (T029's own CSS) matched the dialog element **regardless of the `open` attribute**, so at equal specificity with
+  the User-Agent's own `dialog:not([open]) { display: none }` rule, the *author* rule always won (origin beats
+  specificity in the cascade) - `browserState.close()` correctly removed the `open` attribute and called
+  `dialog.close()`, but the dialog stayed visually on screen regardless. happy-dom's tests never caught this
+  because it renders no CSS at all. Caught by starting the real dev server (`preview_start`) and driving the app in
+  the browser pane end to end: opening a library item, watching it actually load behind a dialog that never
+  visually closed. Fixed by scoping the rule to `dialog.browser[open]`. Re-verified after the fix: opening
+  "C major - introduction" from the browser now correctly closes the dialog and shows the loaded Score; the *Open*
+  button, the score menu's *Open...* entry, Escape, and reload-preserves-selection (`musicanyya.browser.v1`) all
+  behave as designed; the 900px folder-picker overlay and the 600px detail-overlay-with-Back both work as built.
+- Checks: `pnpm typecheck` green; `pnpm lint` clean on every file touched (the two pre-existing, unrelated findings
+  in `src/core/play/calibration.ts`/`src/engine/worklets/dispatch.ts` are untouched by this branch); `pnpm test`
+  full suite green (242 files, 4471 tests, +26 new/updated since the last log entry, including fixes to
+  `tests/ui/menu.test.ts` for the redesigned score menu). Manually verified live in the browser pane per the note
+  above (not yet through `pnpm test:e2e` - the existing e2e suite has not been run or migrated: that is T032).
+- Handoff: next = T032 (migrate the e2e suite: most specs that set files directly on `mx-open-button input[type=
+  file]` should need no change, but every spec that starts from an empty Score now meets the auto-opened browser
+  first and must close it, per R-20 - this needs an actual `pnpm test:e2e` run to find out which, not a guess),
+  `tests/e2e/helpers/browser.ts` (`openBrowser`, `closeBrowser`, `openScoreFile`, `rowByRef`), T033 (`--browser`
+  screenshot flag), T034 (manual check), then T020 (the new e2e spec) and the US1 checkpoint gate (`pnpm test:e2e`
+  green, Independent Test, full log entry). This is a clean, fully-tested, fully-green (per the unit suite) boundary,
+  but e2e is unverified beyond the interactive check above - flagging that honestly rather than guessing at its
+  state. Tree is clean after this commit.

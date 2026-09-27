@@ -144,6 +144,12 @@ export class MxMenu extends HTMLElement {
     if (!panel) return;
     rememberInvoker(this.trigger);
     this.close(false);
+    if (panel === 'browser') {
+      // Not a `viewState` popup (R-2): `session.ts` owns the guarded `BrowserSessionController.open()`, so this
+      // asks for it the same way `mx-open-button`'s own `open()` does, across the shadow boundary (`composed`).
+      this.dispatchEvent(new CustomEvent('openbrowser', { bubbles: true, composed: true }));
+      return;
+    }
     viewState.openPanel(panel as Parameters<typeof viewState.openPanel>[0]);
   }
 

@@ -25,16 +25,18 @@ const press = (target: Element, key: string) =>
 describe('menu model', () => {
   it('matches the four menus of data-model.md section 5', () => {
     expect(MENU_GROUPS.map((group) => group.id)).toEqual(['score', 'setup', 'view', 'help']);
-    expect(menuGroup('score').entries.map((entry) => entry.panel)).toEqual(['scores', 'attempts']);
+    expect(menuGroup('score').entries.map((entry) => entry.panel)).toEqual(['browser', 'scores', 'attempts']);
     expect(menuGroup('setup').entries.map((entry) => entry.panel)).toEqual(['setup', 'midi', 'latency']);
     expect(menuGroup('view').entries.map((entry) => entry.panel)).toEqual(['view']);
     expect(menuGroup('help').entries.map((entry) => entry.panel)).toEqual(['help', 'diagnostics', 'environment']);
   });
 
-  it('reaches every panel that a person opens by hand from exactly one entry (grade is opened by a run)', () => {
-    const reachable = MENU_GROUPS.flatMap((group) => group.entries.map((entry) => entry.panel)).sort();
-    expect(reachable).toEqual(PANEL_IDS.filter((id) => id !== 'grade').sort());
+  it('reaches every panel that a person opens by hand from exactly one entry (grade is opened by a run; browser is not a panel)', () => {
+    const reachable = MENU_GROUPS.flatMap((group) => group.entries.map((entry) => entry.panel));
+    const panelEntries = reachable.filter((panel) => panel !== 'browser').sort();
+    expect(panelEntries).toEqual(PANEL_IDS.filter((id) => id !== 'grade').sort());
     expect(new Set(reachable).size).toBe(reachable.length);
+    expect(reachable).toContain('browser');
   });
 
   it('gives every menu and entry a non-empty label', () => {
@@ -155,6 +157,22 @@ describe('mx-menu', () => {
     });
   });
 
+  describe('the score menu\'s Open... entry (feature 013, R-20)', () => {
+    it('activating it dispatches openbrowser (not a viewState panel) and closes the menu', () => {
+      const menu = makeMenu('score');
+      const opened = new Promise<void>((resolve) => {
+        menu.addEventListener('openbrowser', () => resolve(), { once: true });
+      });
+      trigger(menu).click();
+      items(menu)
+        .find((item) => item.dataset.panel === 'browser')
+        ?.click();
+      expect(viewState.get().openPanel).toBeNull();
+      expect(trigger(menu).getAttribute('aria-expanded')).toBe('false');
+      return opened;
+    });
+  });
+
   describe('focus return (FR-005)', () => {
     it('closing the panel that a menu entry opened puts focus back on that menu button', () => {
       const menu = makeMenu('help');
@@ -176,12 +194,15 @@ describe('mx-menu', () => {
   describe('entries that cannot apply are disabled, not hidden (no Score loaded)', () => {
     it('keeps every entry in the list, and disables the ones that need a Score', () => {
       const menu = makeMenu('score');
-      expect(items(menu)).toHaveLength(2);
+      expect(items(menu)).toHaveLength(3);
       const attempts = items(menu).find((item) => item.dataset.panel === 'attempts');
       const scores = items(menu).find((item) => item.dataset.panel === 'scores');
+      const browser = items(menu).find((item) => item.dataset.panel === 'browser');
       expect(attempts?.disabled).toBe(true);
       expect(attempts?.getAttribute('aria-disabled')).toBe('true');
-      expect(scores?.disabled).toBe(false);
+      // "About this score" needs an open Score to show anything (R-20); "Open..." never does.
+      expect(scores?.disabled).toBe(true);
+      expect(browser?.disabled).toBe(false);
     });
 
     it('a disabled entry opens nothing', () => {

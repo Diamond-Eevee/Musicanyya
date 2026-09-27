@@ -1,7 +1,22 @@
+import type { FolderSel } from '../../core/browser/types.js';
+import type { LibraryIndex } from '../../core/library/types.js';
 import { en } from '../i18n/en.js';
 import { restoreInvokerFocus } from '../layout/invoker.js';
 import { browserState } from '../state/browserState.js';
 import { escapeHtml } from '../util/escape-html.js';
+
+function folderLabel(folder: FolderSel, index: LibraryIndex | null): string {
+  switch (folder.kind) {
+    case 'continue':
+      return en.browser.folders.continue;
+    case 'all':
+      return en.browser.folders.all;
+    case 'myFiles':
+      return en.browser.folders.myFiles;
+    case 'section':
+      return index?.sections.find((s) => s.id === folder.id)?.title ?? en.browser.folders.all;
+  }
+}
 
 /**
  * The modal window that replaces the old *Scores* panel and recent-scores list as the one place to find a Score
@@ -34,7 +49,11 @@ export class MxScoreBrowser extends HTMLElement {
           </button>
           <button type="button" class="browser-close" aria-label="${escapeHtml(en.browser.close)}">&times;</button>
         </header>
-        <div class="browser-toolbar"></div>
+        <div class="browser-toolbar">
+          <button type="button" class="browser-folder-picker">${escapeHtml(en.browser.folderPicker)}</button>
+          <span class="browser-breadcrumb"></span>
+          <button type="button" class="browser-back">${escapeHtml(en.browser.back)}</button>
+        </div>
         <div class="browser-body"></div>
         <p class="browser-status" aria-live="polite"></p>
         <p class="browser-message" role="alert"></p>
@@ -48,6 +67,24 @@ export class MxScoreBrowser extends HTMLElement {
     this.dialog.addEventListener('click', this.onDialogClick);
     this.searchInput.addEventListener('input', () => {
       browserState.setView({ search: this.searchInput.value });
+    });
+
+    // 768-1023px: the rail is a folder-picker overlay (contracts/score-browser.md §1) - opened by this button,
+    // closed again by choosing a folder (below) or picking a row (T027/T028 already select on click).
+    this.querySelector('.browser-folder-picker')?.addEventListener('click', () => {
+      this.querySelector('mx-browser-rail')?.classList.toggle('browser-rail-overlay-open');
+    });
+    // Below 768px: the detail pane is a panel over the list (contracts §1) - Back only hides the overlay, it
+    // never changes the selection, so reopening the same row shows it again without re-querying anything.
+    this.querySelector('.browser-back')?.addEventListener('click', () => {
+      this.querySelector('mx-browser-detail')?.classList.remove('browser-detail-overlay-open');
+    });
+    this.addEventListener('browserviewchange', (event) => {
+      this.querySelector('mx-browser-rail')?.classList.remove('browser-rail-overlay-open');
+      const view = (event as CustomEvent<{ view?: Partial<{ selected: unknown }> }>).detail?.view;
+      if (view && 'selected' in view && view.selected) {
+        this.querySelector('mx-browser-detail')?.classList.add('browser-detail-overlay-open');
+      }
     });
 
     this.unsubscribe = browserState.subscribe(() => this.sync());
@@ -84,7 +121,11 @@ export class MxScoreBrowser extends HTMLElement {
   }
 
   private sync(): void {
-    const open = browserState.get().phase !== 'closed';
+    const { phase, view, data } = browserState.get();
+    const breadcrumb = this.querySelector('.browser-breadcrumb');
+    if (breadcrumb) breadcrumb.textContent = folderLabel(view.folder, data.index);
+
+    const open = phase !== 'closed';
     if (open === this.shownOpen) return;
     // Only a real open->closed transition hands focus back (mx-panel's own `wasOpen` pattern) - otherwise the
     // very first render, which starts from `shownOpen === null`, would consume the remembered invoker before the

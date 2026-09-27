@@ -51,7 +51,8 @@ export const en = {
   /** Titles of the secondary tools that open as popups; also the label of the menu entry that opens each. */
   panels: {
     close: 'Close',
-    scores: 'Recent scores',
+    browser: 'Open…',
+    scores: 'About this score',
     attempts: 'Recent attempts',
     setup: 'Practice and Play setup',
     midi: 'MIDI keyboard',

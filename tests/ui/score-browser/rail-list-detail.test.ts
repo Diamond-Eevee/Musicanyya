@@ -123,6 +123,20 @@ describe('mx-browser-list (US1 #2)', () => {
     expect(row.textContent).toContain('1:20');
   });
 
+  it('shows "Library unavailable" with a Retry button when the index failed, and Retry emits browserretrylibrary (Edge Cases)', () => {
+    browserState.open();
+    browserState.indexFailed('unavailable', [], []);
+    const el = document.createElement('mx-browser-list');
+    document.body.appendChild(el);
+
+    expect(el.querySelector('.browser-error-message')?.textContent).toBe('Library unavailable.');
+    const retried = new Promise<void>((resolve) => {
+      el.addEventListener('browserretrylibrary', () => resolve(), { once: true });
+    });
+    (el.querySelector('.browser-retry') as HTMLButtonElement).click();
+    return retried;
+  });
+
   it('double click on a row emits browseropenitem with its ItemRef', () => {
     loadIndex([libraryItem('repertoire/beginner/ode-to-joy')]);
     const el = document.createElement('mx-browser-list');
