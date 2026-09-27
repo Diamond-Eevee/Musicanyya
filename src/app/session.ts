@@ -44,8 +44,6 @@ import {
   METRONOME_KEY_DOWNBEAT,
   METRONOME_VELOCITY_BEAT,
   METRONOME_VELOCITY_DOWNBEAT,
-  PLAY_COUNT_IN_MEASURES,
-  PLAY_STRICTNESS_DEFAULT,
 } from '../core/defaults.js';
 import { buildExpectedNotes, buildPlayedAlongSpans } from '../core/grade/expected.js';
 import { type GradeMarkSet, gradeMarks } from '../core/grade/marks.js';
@@ -72,7 +70,7 @@ import { compilePlaySchedule } from '../core/schedule/play-schedule.js';
 import type { LoadReport } from '../core/score/load-report.js';
 import type { Score } from '../core/score/model.js';
 import { audioTimeAtTick } from '../core/tempo/rate.js';
-import { displaySegmentIndexAt } from '../core/tempo/tempo-display.js';
+import { displaySegmentIndexAt, type TempoDisplaySegment } from '../core/tempo/tempo-display.js';
 import type { PlaybackTimeline, TempoSegment } from '../core/timeline/types.js';
 import type { MxOpenButton } from '../ui/elements/mx-open-button.js';
 import type { PlaySetupChange } from '../ui/elements/mx-play-panel.js';
@@ -95,6 +93,7 @@ import { isRunActive } from '../ui/state/runActive.js';
 import { guardPanelsDuringRuns } from '../ui/state/runGuard.js';
 import type { LoadError, ScoreSummary } from '../ui/state/scoreState.js';
 import { scoreState } from '../ui/state/scoreState.js';
+import { type TempoBindingPlaySetup, tempoFieldBinding } from '../ui/state/tempoBinding.js';
 import { tempoPositionState } from '../ui/state/tempoPositionState.js';
 import { transportState } from '../ui/state/transportState.js';
 import { type OverlayLayer, viewState } from '../ui/state/viewState.js';
@@ -292,11 +291,16 @@ export class Session {
     document.getElementById('transport-controls')?.appendChild(transport);
     tempoPositionState.subscribe(() => this.updateTempoModel());
     transportState.subscribe(() => this.updateTempoModel());
+    playState.subscribe(() => this.updateTempoModel());
     transport.addEventListener('tempochange', (event) => {
+      const { percent } = (event as CustomEvent<TempoChangeDetail>).detail;
       // Listen and Practice: the transport factor, applied live (FR-013). Play mode edits the Play setup instead
-      // (US3, T044); until then the field is inert there rather than changing a factor Play does not use.
-      if (practiceState.get().mode === 'play') return;
-      transportState.setTempo((event as CustomEvent<TempoChangeDetail>).detail.percent);
+      // (US3, FR-017) - both fields edit the same value, so they can never disagree.
+      if (practiceState.get().mode === 'play') {
+        this.onPlaySetupChange({ tempoPercent: percent });
+        return;
+      }
+      transportState.setTempo(percent);
     });
     const modeSwitch = document.createElement('mx-mode-switch');
     document.getElementById('mode-controls')?.appendChild(modeSwitch);
@@ -549,13 +553,29 @@ export class Session {
   private updateTempoModel(): void {
     const tempo = this.currentTimeline?.tempo ?? [];
     const index = tempoPositionState.get() ?? displaySegmentIndexAt(tempo, transportState.get().startTick);
-    const segment = tempo[index] ?? null;
-    this.transportEl?.setTempoModel({
-      segment,
-      percent: transportState.get().tempoPercent,
-      locked: false,
-      glyphs: this.scoreView?.harvestedGlyphs ?? null,
-    });
+    const transportSegment = tempo[index] ?? null;
+
+    // Play mode (US3): the range-start segment session.ts already keeps on the setup, except while a run is
+    // actually counting in or running, when the live cursor's own segment (tempoPositionState, published by
+    // mx-score-view's Play branch) takes over - the same segment the run's own tempo is measured against.
+    const setup = playState.get().setup;
+    const run = playState.get().run;
+    const running = run !== null && (run.phase === 'countIn' || run.phase === 'running');
+    const liveIndex = running ? tempoPositionState.get() : null;
+    const playSetupBinding: TempoBindingPlaySetup | null = setup
+      ? {
+          segment: liveIndex !== null ? (tempo[liveIndex] ?? setup.tempoSegment) : setup.tempoSegment,
+          tempoPercent: setup.settings.tempoPercent,
+        }
+      : null;
+
+    const binding = tempoFieldBinding(
+      practiceState.get().mode,
+      { segment: transportSegment, percent: transportState.get().tempoPercent },
+      playSetupBinding,
+      run ? { phase: run.phase } : null,
+    );
+    this.transportEl?.setTempoModel({ ...binding, glyphs: this.scoreView?.harvestedGlyphs ?? null });
   }
 
   /** Unlock (user gesture), deliver the schedule if this is the first Play since it was loaded, ensure the
@@ -813,7 +833,12 @@ export class Session {
     if (change.partIndex !== undefined && change.partIndex !== settings.selection.partIndex) {
       const newHands = handOptions(score, change.partIndex);
       settings = { ...settings, selection: newHands[0] ?? settings.selection };
-      playState.setSetup({ ...setup, hands: newHands, settings });
+      playState.setSetup({
+        ...setup,
+        hands: newHands,
+        settings,
+        tempoSegment: this.playRangeStartSegment(settings.range),
+      });
     } else {
       if (change.selection) settings = { ...settings, selection: change.selection };
       if (change.range !== undefined) settings = { ...settings, range: change.range };
@@ -822,7 +847,7 @@ export class Session {
       if (change.countInMeasures !== undefined) settings = { ...settings, countInMeasures: change.countInMeasures };
       if (change.metronomeMuted !== undefined) settings = { ...settings, metronomeMuted: change.metronomeMuted };
       if (change.accompaniment !== undefined) settings = { ...settings, accompaniment: change.accompaniment };
-      playState.setSetup({ ...setup, settings });
+      playState.setSetup({ ...setup, settings, tempoSegment: this.playRangeStartSegment(settings.range) });
     }
 
     this.settingsStore.savePlay(this.playScoreId, settings);
@@ -957,8 +982,20 @@ export class Session {
       hands,
       measureCount: score.measures.length,
       settings: validatedSettings,
+      tempoSegment: this.playRangeStartSegment(validatedSettings.range),
+      glyphs: this.scoreView?.harvestedGlyphs ?? null,
     });
     void this.refreshAttempts();
+  }
+
+  /** feature 012, US3, FR-018: the display segment at the run range's start (first pass of its first measure,
+   *  else tick 0) - data-model.md section 5's "Play, no run" reference position, what the Play setup's own tempo
+   *  field shows and edits before/after a run. */
+  private playRangeStartSegment(range: LoopRange | null): TempoDisplaySegment | null {
+    const tempo = this.currentTimeline?.tempo ?? [];
+    const measureIndex = range ? Math.min(range.fromMeasureIndex, range.toMeasureIndex) : 0;
+    const pass = this.currentTimeline?.passes.find((p) => p.measureIndex === measureIndex);
+    return tempo[displaySegmentIndexAt(tempo, pass?.startTick ?? 0)] ?? null;
   }
 
   /** US4, T076: the kept attempts for the open Score, newest first - empty (and no store call) for a Score that

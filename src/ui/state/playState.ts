@@ -2,7 +2,9 @@ import type { GradeMarkRef, GradeMarkSet } from '../../core/grade/marks.js';
 import type { Grade } from '../../core/grade/types.js';
 import type { PlayRun, RunSettings } from '../../core/play/types.js';
 import type { HandSelection } from '../../core/practice/types.js';
+import type { TempoDisplaySegment } from '../../core/tempo/tempo-display.js';
 import type { StoredPerformanceSummary } from '../../engine/ports.js';
+import type { MusicGlyphData } from '../score/verovio-client.js';
 import { createStore } from './store.js';
 
 /** What the musician can configure before starting a Play run (US3, T066). */
@@ -15,6 +17,12 @@ export interface PlaySetup {
   measureCount: number;
   /** Currently chosen run settings (mutated by the panel events). */
   settings: RunSettings;
+  /** feature 012, US3, FR-018: the tempo display segment at the run range's start (first pass of its first
+   *  measure, else tick 0) - what the Play setup's own tempo field shows and edits. Session-computed (Constitution
+   *  V): the panel only renders it. Recomputed whenever the range or the Score changes. */
+  tempoSegment: TempoDisplaySegment | null;
+  /** Harvested beat-symbol glyphs (012 R-7), the same ones the transport's tempo field draws with. */
+  glyphs: MusicGlyphData | null;
 }
 
 /** The run and Grade state for the UI (T040): populated while a Play run is live and once it has been graded. */
