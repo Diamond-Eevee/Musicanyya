@@ -111,11 +111,16 @@ function validRange(raw: unknown): import('../../core/practice/types.js').LoopRa
   return isIndex(fromMeasureIndex, 0) && isIndex(toMeasureIndex, 0) ? { fromMeasureIndex, toMeasureIndex } : null;
 }
 
+/** Any finite number in [min, max] (feature 012 FR-037: no longer an integer multiple of 5). */
+function isFiniteInRange(value: unknown, min: number, max: number): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max;
+}
+
 function validPlay(raw: JsonObject): import('../../core/play/types.js').RunSettings {
   const strictnessLevels = ['beginner', 'standard', 'strict'];
   return {
     range: validRange(raw.range),
-    tempoPercent: isInt(raw.tempoPercent, 25, 200, 5) ? raw.tempoPercent : BUILT_IN_PLAY.tempoPercent,
+    tempoPercent: isFiniteInRange(raw.tempoPercent, 25, 200) ? raw.tempoPercent : BUILT_IN_PLAY.tempoPercent,
     selection: validSelection(raw.selection) ?? BUILT_IN_PLAY.selection,
     strictness: strictnessLevels.includes(raw.strictness as string)
       ? (raw.strictness as import('../../core/grade/types.js').StrictnessLevelName)
@@ -269,8 +274,10 @@ export class LocalSettingsStore implements SettingsStore {
     const own = scoreId !== null && SCORE_ID_PATTERN.test(scoreId) ? byScore[scoreId] : undefined;
     if (isObject(own)) return validPlay(own);
 
+    // A Score never played in Play mode takes strictness/count-in/etc. from the last-used defaults, but never the
+    // tempo (feature 012 R-9, FR-015): its first Play setup starts at the written tempo, exactly like the transport.
     const defaults = isObject(file.defaults) ? validPlay(file.defaults) : BUILT_IN_PLAY;
-    return { ...defaults, range: null };
+    return { ...defaults, range: null, tempoPercent: BUILT_IN_PLAY.tempoPercent };
   }
 
   savePlay(scoreId: string | null, settings: import('../../core/play/types.js').RunSettings): void {

@@ -55,12 +55,15 @@ describe('Play settings storage (FR-040)', () => {
     flush();
     expect(store.loadPlay(id(1)).tempoPercent).toBe(85);
 
-    // 3. A second score falls back to the last-used defaults (tempo from score 1), but range is null
-    store.savePlay(id(2), { ...defaults, tempoPercent: 70 });
+    // 3. A second score, never played, does NOT take tempo from the last-used score (R-9, feature 012 FR-015):
+    // its Play setup starts at the written tempo (100%), while other lastUsed fields (strictness, count-in) do
+    // still carry over.
+    store.savePlay(id(2), { ...defaults, tempoPercent: 70, strictness: 'strict', countInMeasures: 2 });
     flush();
-    // A fresh load of an unknown score gets the last-used defaults (tempoPercent = 70, no range)
     const score3Defaults = store.loadPlay(id(3));
-    expect(score3Defaults.tempoPercent).toBe(70);
+    expect(score3Defaults.tempoPercent).toBe(100); // not 70: R-9, never applied to a Score never played
+    expect(score3Defaults.strictness).toBe('strict'); // still carried over from lastUsed
+    expect(score3Defaults.countInMeasures).toBe(2); // still carried over from lastUsed
     expect(score3Defaults.range).toBeNull();
 
     // 4. Eviction: fill beyond PLAY_SETTINGS_MAX and verify oldest is dropped
@@ -74,5 +77,28 @@ describe('Play settings storage (FR-040)', () => {
     // so it falls back to the last-used defaults (not 85).
     const fresh = new LocalSettingsStore();
     expect(fresh.loadPlay(id(1)).tempoPercent).not.toBe(85); // evicted: not its own saved value
+  });
+
+  it('a fractional tempoPercent (feature 012 FR-037) round-trips exactly through musicanyya.play.v1', () => {
+    const defaults = store.loadPlay(id(1));
+    store.savePlay(id(1), { ...defaults, tempoPercent: 83.333 });
+    flush();
+    expect(store.loadPlay(id(1)).tempoPercent).toBe(83.333);
+  });
+
+  it('an older stored integer tempoPercent (a multiple of 5, pre-012) still loads', () => {
+    const defaults = store.loadPlay(id(1));
+    store.savePlay(id(1), { ...defaults, tempoPercent: 70 });
+    flush();
+    expect(store.loadPlay(id(1)).tempoPercent).toBe(70);
+  });
+
+  it('validation falls back to the default for a value outside [25, 200] or not a finite number', () => {
+    for (const bad of [10, 300, '80', Number.NaN, Number.POSITIVE_INFINITY, undefined, null]) {
+      const raw = { byScore: { [id(1)]: { tempoPercent: bad } } };
+      localStorage.setItem('musicanyya.play.v1', JSON.stringify({ version: 1, ...raw }));
+      const fresh = new LocalSettingsStore();
+      expect(fresh.loadPlay(id(1)).tempoPercent).toBe(100); // BUILT_IN_PLAY.tempoPercent
+    }
   });
 });

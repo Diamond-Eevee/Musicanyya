@@ -124,7 +124,7 @@ attempt shows "90 BPM (75% of written)".
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T037 [P] [US3] Play settings tests in `tests/engine/storage/play-settings.test.ts`: a stored `tempoPercent` of 83.333 is kept; stored 70 still loads; 10, 300, "80" and NaN fall back to the default; for a Score never played, `loadPlay` returns `lastUsed` with `tempoPercent` 100 while strictness and count-in still come from `lastUsed` (R-9)
+- [x] T037 [P] [US3] Play settings tests in `tests/engine/storage/play-settings.test.ts`: a stored `tempoPercent` of 83.333 is kept; stored 70 still loads; 10, 300, "80" and NaN fall back to the default; for a Score never played, `loadPlay` returns `lastUsed` with `tempoPercent` 100 while strictness and count-in still come from `lastUsed` (R-9)
 - [ ] T038 [P] [US3] Binding tests in new `tests/ui/tempo-binding.test.ts` for new `tempoFieldBinding(mode, transport, playSetup, run)`: Listen and Practice use the transport percent, unlocked; Play uses the Play settings percent and the range-start segment; locked during `countIn` and `running`, unlocked after the run ends
 - [ ] T039 [P] [US3] Setup panel tests in `tests/ui/setup-panel.test.ts`: `mx-play-panel` has an `mx-tempo-field` and no `select[data-id="tempo"]`; its segment is the one at the range start; `tempochange` from typing 90 on a 120 Score emits `{ tempoPercent: 75 }` exactly (FR-018); the field is read-only while a run is active
 - [ ] T040 [P] [US3] Attempt tempo tests: core `attemptTempo` in `tests/core/tempo/tempo-display.test.ts` (contracts/tempo-display.md 1.1.0) returns `{ bpm, percent, beat }` for the display segment at the attempt's range start - 75 % of 120 -> 90 / 75; 70 % -> 84 / 70; 100 x 91 / 120 -> 91 / 76; a range starting in a later 60 section -> 45; a 6/8 dotted-quarter Score at 60 and 80 % -> 48 with a dotted-quarter beat (FR-021); UI text in `tests/ui/attempts-list.test.ts` and `tests/ui/grade-panel.test.ts`: "90 BPM (75% of written)", "84 BPM (70% of written)", "91 BPM (76% of written)", and the dotted case shows the beat symbol or label
@@ -133,7 +133,7 @@ attempt shows "90 BPM (75% of written)".
 
 ### Implementation
 
-- [ ] T043 [US3] `validPlay` accepts a finite `tempoPercent` in [25, 200] and `loadPlay` does not apply `lastUsed.tempoPercent` to a Score never played, in `src/engine/storage/local-settings-store.ts` (T037 green)
+- [x] T043 [US3] `validPlay` accepts a finite `tempoPercent` in [25, 200] and `loadPlay` does not apply `lastUsed.tempoPercent` to a Score never played, in `src/engine/storage/local-settings-store.ts` (T037 green)
 - [ ] T044 [US3] New `src/ui/state/tempoBinding.ts` `tempoFieldBinding`; `src/app/session.ts` uses it so that in Play mode the transport field edits the Play setup (`onPlaySetupChange({ tempoPercent })`) and both fields lock during a run (T038 green)
 - [ ] T045 [US3] `src/ui/elements/mx-play-panel.ts`: `mx-tempo-field` replaces the percentage list, segment at the range start (T039 green)
 - [ ] T046 [US3] `attemptTempo` in `src/core/tempo/tempo-display.ts` (the UI only renders it, Constitution V); attempt tempo text in `src/ui/elements/mx-attempts-list.ts` and `src/ui/elements/mx-grade-panel.ts`, string `attemptTempo` ("{bpm} BPM ({percent}% of written)") in `src/ui/i18n/en.ts` (T040 green)
