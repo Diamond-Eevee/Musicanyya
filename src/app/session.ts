@@ -33,6 +33,7 @@ import '../ui/elements/mx-score-browser.js';
 import '../ui/elements/mx-score-source.js';
 import '../ui/elements/mx-score-view.js';
 import '../ui/elements/mx-size-controls.js';
+import '../ui/elements/mx-status-badge.js';
 import '../ui/elements/mx-transport.js';
 import '../ui/elements/mx-view-panel.js';
 import '../ui/elements/mx-midi-panel.js';

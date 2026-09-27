@@ -2,6 +2,8 @@ import { buildBrowserItems } from '../../core/browser/items.js';
 import { queryBrowser } from '../../core/browser/query.js';
 import type { BrowserItem } from '../../core/browser/types.js';
 import { DEFAULT_MASTERY_THRESHOLDS, type ItemRef } from '../../core/progress/types.js';
+import { historyTrendDeltaPoints, resultFigures, resultTempoSuffix, trendText } from '../format/result-text.js';
+import './mx-status-badge.js';
 import { en } from '../i18n/en.js';
 import { browserState } from '../state/browserState.js';
 import { escapeHtml } from '../util/escape-html.js';
@@ -82,6 +84,22 @@ export class MxBrowserList extends HTMLElement {
     this.wire(rows);
   }
 
+  /** FR-012: for a played item, the best result, the last result and the trend between the last two. */
+  private resultHtml(row: BrowserItem): string {
+    if (row.progress.attempts === 0) return '';
+    const best = row.progress.best;
+    const last = row.progress.last;
+    const bestText = best
+      ? `${en.browser.best}: ${resultFigures(best)}${resultTempoSuffix(best) ? ` ${resultTempoSuffix(best)}` : ''}`
+      : '';
+    const lastText = last ? `${en.browser.last}: ${resultFigures(last)}` : '';
+    const trend = trendText(row.progress.trend, historyTrendDeltaPoints(row.progress.history));
+    return `
+      ${bestText ? `<span class="browser-row-result">${escapeHtml(bestText)}</span>` : ''}
+      ${lastText ? `<span class="browser-row-result">${escapeHtml(lastText)}</span>` : ''}
+      ${trend ? `<span class="browser-row-trend">${escapeHtml(trend)}</span>` : ''}`;
+  }
+
   private rowHtml(row: BrowserItem, index: number, selected: ItemRef | null, active: ItemRef | null): string {
     const isSelected = selected !== null && refEquals(row.ref, selected);
     const isActive = active !== null && refEquals(row.ref, active);
@@ -97,11 +115,13 @@ export class MxBrowserList extends HTMLElement {
         aria-selected="${isSelected}"
         ${isActive ? 'data-active' : ''}
       >
+        <mx-status-badge status="${row.progress.status}"></mx-status-badge>
         <span class="browser-row-title">${escapeHtml(row.title)}</span>
         ${row.subtitle ? `<span class="browser-row-subtitle">${escapeHtml(row.subtitle)}</span>` : ''}
         ${row.level ? `<span class="browser-row-level">${escapeHtml(en.library.levels[row.level])}</span>` : ''}
         ${row.keys.length > 0 ? `<span class="browser-row-key">${escapeHtml(row.keys.join(', '))}</span>` : ''}
         ${length ? `<span class="browser-row-length">${escapeHtml(length)}</span>` : ''}
+        ${this.resultHtml(row)}
       </div>`;
   }
 

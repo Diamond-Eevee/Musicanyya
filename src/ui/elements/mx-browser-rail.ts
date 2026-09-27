@@ -1,8 +1,21 @@
+import { folderProgress, MY_FILES_FOLDER_KEY } from '../../core/browser/folders.js';
+import { buildBrowserItems } from '../../core/browser/items.js';
 import type { FolderSel } from '../../core/browser/types.js';
 import { buildSectionTree, type SectionNode } from '../../core/library/tree.js';
+import { DEFAULT_MASTERY_THRESHOLDS } from '../../core/progress/types.js';
 import { en } from '../i18n/en.js';
 import { browserState } from '../state/browserState.js';
 import { escapeHtml } from '../util/escape-html.js';
+
+const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
+
+function folderProgressText(counts: { played: number; mastered: number; total: number } | undefined): string {
+  if (!counts || counts.total === 0) return '';
+  return en.browser.folderProgress
+    .replace('{played}', String(counts.played))
+    .replace('{total}', String(counts.total))
+    .replace('{mastered}', String(counts.mastered));
+}
 
 function folderKey(folder: FolderSel): string {
   return folder.kind === 'section' ? `section:${folder.id}` : folder.kind;
@@ -37,24 +50,34 @@ export class MxBrowserRail extends HTMLElement {
     this.removeEventListener('keydown', this.onKeydown);
   }
 
-  private entries(): { key: string; label: string; depth: number; hasChildren: boolean }[] {
+  private entries(): { key: string; label: string; depth: number; hasChildren: boolean; progress: string }[] {
     const { data } = browserState.get();
-    const out: { key: string; label: string; depth: number; hasChildren: boolean }[] = [
-      { key: 'continue', label: en.browser.folders.continue, depth: 0, hasChildren: false },
-      { key: 'all', label: en.browser.folders.all, depth: 0, hasChildren: false },
-    ];
     const tree = data.index ? buildSectionTree(data.index.sections, data.index.items) : [];
+    // FR-014: counted over every row the browser knows, sections and My files alike (folderProgress.js).
+    const items = buildBrowserItems(data.index, data.files, data.records, DEFAULT_MASTERY_THRESHOLDS, collator.compare);
+    const counts = folderProgress(tree, items);
+    const out: { key: string; label: string; depth: number; hasChildren: boolean; progress: string }[] = [
+      { key: 'continue', label: en.browser.folders.continue, depth: 0, hasChildren: false, progress: '' },
+      { key: 'all', label: en.browser.folders.all, depth: 0, hasChildren: false, progress: '' },
+    ];
     const walk = (node: SectionNode) => {
       out.push({
         key: `section:${node.section.id}`,
         label: node.section.title,
         depth: node.depth,
         hasChildren: node.children.length > 0,
+        progress: folderProgressText(counts.get(node.section.id)),
       });
       node.children.forEach(walk);
     };
     tree.forEach(walk);
-    out.push({ key: 'myFiles', label: en.browser.folders.myFiles, depth: 0, hasChildren: false });
+    out.push({
+      key: 'myFiles',
+      label: en.browser.folders.myFiles,
+      depth: 0,
+      hasChildren: false,
+      progress: folderProgressText(counts.get(MY_FILES_FOLDER_KEY)),
+    });
     return out;
   }
 
@@ -66,7 +89,10 @@ export class MxBrowserRail extends HTMLElement {
         const selected = entry.key === selectedKey;
         return `<div role="treeitem" class="browser-rail-item" data-key="${escapeHtml(entry.key)}"
           data-depth="${entry.depth}" tabindex="${selected ? '0' : '-1'}" aria-selected="${selected}"
-          ${entry.hasChildren ? 'aria-expanded="true"' : ''} style="--browser-rail-depth:${entry.depth}">${escapeHtml(entry.label)}</div>`;
+          ${entry.hasChildren ? 'aria-expanded="true"' : ''} style="--browser-rail-depth:${entry.depth}"
+          ><span class="browser-rail-label">${escapeHtml(entry.label)}</span>${
+            entry.progress ? `<span class="browser-rail-progress">${escapeHtml(entry.progress)}</span>` : ''
+          }</div>`;
       })
       .join('');
     this.wire();

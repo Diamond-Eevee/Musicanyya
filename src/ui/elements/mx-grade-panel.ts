@@ -77,7 +77,7 @@ export class MxGradePanel extends HTMLElement {
 
   private render() {
     const { mode } = practiceState.get();
-    const { grade, marks, selectedMark, scoreTempo } = playState.get();
+    const { grade, marks, selectedMark, scoreTempo, newBest } = playState.get();
     this.hidden = mode !== 'play' || grade === null;
     if (this.hidden || !grade) {
       this.innerHTML = '';
@@ -87,6 +87,15 @@ export class MxGradePanel extends HTMLElement {
     const p = en.play.panel;
     const { summary } = grade;
     const incomplete = grade.complete ? '' : `<p class="grade-incomplete">${p.incomplete}</p>`;
+    // FR-016, R-16: the star shape also used for the Mastered status badge.
+    const newBestLine = newBest
+      ? `<p class="grade-new-best">
+          <svg viewBox="0 0 20 20" aria-hidden="true" class="grade-new-best-star">
+            <path d="M10 1 L12.35 7.02 L18.8 7.36 L13.78 11.36 L15.5 17.64 L10 14 L4.5 17.64 L6.22 11.36 L1.2 7.36 L7.65 7.02 Z" />
+          </svg>
+          ${p.newBest}
+        </p>`
+      : '';
     // feature 012, US3, FR-019/FR-021: "NN BPM (NN% of written)", the same tempo the run was actually played at.
     const tempoLine = scoreTempo
       ? (() => {
@@ -144,6 +153,7 @@ export class MxGradePanel extends HTMLElement {
 
     this.innerHTML = `
       <h2 class="grade-heading">${p.heading}</h2>
+      ${newBestLine}
       ${incomplete}
       ${tempoLine}
       <p class="grade-figure grade-figure-pitch">${p.notesCorrect}: ${figure(summary.notesCorrect.count, summary.notesCorrect.total)}</p>

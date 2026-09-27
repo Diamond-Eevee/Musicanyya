@@ -1,9 +1,29 @@
+import { buildBrowserItems } from '../../core/browser/items.js';
+import type { BrowserItem } from '../../core/browser/types.js';
 import type { LibraryItem } from '../../core/library/types.js';
-import type { UserFileEntry } from '../../core/progress/types.js';
+import {
+  DEFAULT_MASTERY_THRESHOLDS,
+  type ItemRef,
+  type ProgressResult,
+  type UserFileEntry,
+} from '../../core/progress/types.js';
+import {
+  completenessText,
+  historyTrendDeltaPoints,
+  relativeDate,
+  resultFigures,
+  resultTempoSuffix,
+  scopeText,
+  strictnessText,
+  trendText,
+} from '../format/result-text.js';
 import { scoreSourceLines } from '../format/score-source-text.js';
 import { en } from '../i18n/en.js';
 import { browserState } from '../state/browserState.js';
 import { escapeHtml } from '../util/escape-html.js';
+import './mx-status-badge.js';
+
+const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
 
 function formatDuration(seconds: number): string {
   const total = Math.round(seconds);
@@ -12,11 +32,16 @@ function formatDuration(seconds: number): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
+function refEquals(a: ItemRef, b: ItemRef): boolean {
+  if (a.kind === 'library' && b.kind === 'library') return a.id === b.id;
+  return a.kind === 'file' && b.kind === 'file' && a.fileKey === b.fileKey;
+}
+
 /**
- * The detail pane (`role="region"`, contracts/score-browser.md §2): metadata, and for a library item the same
- * source/licence text `mx-score-source` shows for the open Score (FR-013, one shared formatter,
- * `score-source-text.ts`). Progress, history and the reset/remove actions land with T053/US2-US3; this is the US1
- * slice - metadata, source/licence and the *Open* button. A pure view of `browserState` (Principle V).
+ * The detail pane (`role="region"`, contracts/score-browser.md §2): metadata, source/licence text for a library
+ * item (FR-013, one shared formatter, `score-source-text.ts`), the progress record and its history, and the *Open*
+ * button. The reset/remove actions are T057/T062. A pure view of `browserState` (Principle V): it builds the same
+ * `BrowserItem` rows `mx-browser-list` does, for the progress fields only `buildBrowserItems` computes.
  */
 export class MxBrowserDetail extends HTMLElement {
   private unsubscribe?: () => void;
@@ -39,19 +64,56 @@ export class MxBrowserDetail extends HTMLElement {
       this.innerHTML = '';
       return;
     }
+    const items = buildBrowserItems(data.index, data.files, data.records, DEFAULT_MASTERY_THRESHOLDS, collator.compare);
+    const row = items.find((i) => refEquals(i.ref, ref)) ?? null;
     if (ref.kind === 'library') {
       const item = data.index?.items.find((i) => i.id === ref.id) ?? null;
-      this.innerHTML = item ? this.libraryHtml(item) : '';
+      this.innerHTML = item && row ? this.libraryHtml(item, row) : '';
     } else {
       const entry = data.files.find((f) => f.fileKey === ref.fileKey) ?? null;
-      this.innerHTML = entry ? this.fileHtml(entry) : '';
+      this.innerHTML = entry && row ? this.fileHtml(entry, row) : '';
     }
     this.querySelector('.browser-detail-open')?.addEventListener('click', () => {
       this.dispatchEvent(new CustomEvent('browseropenitem', { detail: { ref }, bubbles: true }));
     });
   }
 
-  private libraryHtml(item: LibraryItem): string {
+  /** FR-013: status, attempts, first/last opened, last practised with bars, best/last/previous in full words with
+   *  tempo and strictness, and up to `PROGRESS_RESULTS_MAX` history rows with scope and completeness. */
+  private progressHtml(row: BrowserItem): string {
+    const b = en.browser;
+    const p = row.progress;
+    const [last, previous] = p.history;
+    const resultLine = (label: string, result: ProgressResult | undefined) =>
+      result
+        ? `<p class="browser-detail-result">${escapeHtml(label)}: ${escapeHtml(resultFigures(result))}${
+            resultTempoSuffix(result) ? ` ${escapeHtml(resultTempoSuffix(result))}` : ''
+          }, ${escapeHtml(strictnessText(result.strictness))}, ${escapeHtml(scopeText(result.scope))}${
+            completenessText(result) ? ` (${escapeHtml(completenessText(result))})` : ''
+          }</p>`
+        : '';
+    const trend = trendText(p.trend, historyTrendDeltaPoints(p.history));
+    const historyRows = p.history
+      .map((r) => {
+        const version = r.earlierVersion ? `, ${escapeHtml(b.earlierVersion)}` : '';
+        return `<li>${escapeHtml(relativeDate(r.finishedAt))} - ${escapeHtml(resultFigures(r))}${
+          resultTempoSuffix(r) ? ` ${escapeHtml(resultTempoSuffix(r))}` : ''
+        }, ${escapeHtml(scopeText(r.scope))}${completenessText(r) ? ` (${escapeHtml(completenessText(r))})` : ''}${version}</li>`;
+      })
+      .join('');
+    return `
+      <div class="browser-detail-progress">
+        <mx-status-badge status="${p.status}"></mx-status-badge>
+        ${p.attempts > 0 ? `<p class="browser-detail-attempts">${escapeHtml(b.attempts)}: ${p.attempts}</p>` : ''}
+        ${resultLine(b.best, p.best ?? undefined)}
+        ${resultLine(b.last, last)}
+        ${resultLine(b.previous, previous)}
+        ${trend ? `<p class="browser-detail-trend">${escapeHtml(trend)}</p>` : ''}
+        ${p.history.length > 0 ? `<h4 class="browser-detail-history-heading">${escapeHtml(b.history)}</h4><ul class="browser-detail-history">${historyRows}</ul>` : ''}
+      </div>`;
+  }
+
+  private libraryHtml(item: LibraryItem, row: BrowserItem): string {
     const s = en.library;
     const composer = item.meta.composer ? escapeHtml(item.meta.composer) : '';
     const arranger = item.meta.arranger ? escapeHtml(item.meta.arranger) : '';
@@ -67,16 +129,18 @@ export class MxBrowserDetail extends HTMLElement {
       <p class="browser-detail-measures">${item.facts.measures}</p>
       <p class="browser-detail-duration">${formatDuration(item.facts.durationSeconds)}</p>
       ${item.meta.tags.length > 0 ? `<p class="browser-detail-tags">${item.meta.tags.map((t) => escapeHtml(s.tags[t] ?? t)).join(', ')}</p>` : ''}
+      ${this.progressHtml(row)}
       <h4 class="score-source-heading">${escapeHtml(s.source.heading)}</h4>
       ${sourceLines}
       <button type="button" class="browser-detail-open">${escapeHtml(en.browser.open)}</button>`;
   }
 
-  private fileHtml(entry: UserFileEntry): string {
+  private fileHtml(entry: UserFileEntry, row: BrowserItem): string {
     const title = escapeHtml(entry.title ?? entry.fileName);
     return `
       <h3 class="browser-detail-title">${title}</h3>
       <p class="browser-detail-filename">${escapeHtml(entry.fileName)}</p>
+      ${this.progressHtml(row)}
       <button type="button" class="browser-detail-open">${escapeHtml(en.browser.open)}</button>`;
   }
 }

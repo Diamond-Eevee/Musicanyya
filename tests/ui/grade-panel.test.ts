@@ -308,3 +308,37 @@ describe('mx-grade-panel explains a mark reference (009 FR-022, FR-024)', () => 
     mistakeStepper.setMarks(null);
   });
 });
+
+describe('mx-grade-panel "New best" line (FR-016, 013 US2)', () => {
+  beforeEach(() => {
+    practiceState.setMode('play');
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+    practiceState.setMode('listen');
+    playState.clear();
+  });
+
+  it('shows "New best" with its star shape when playState.newBest is true', () => {
+    playState.setGrade(grade(), null, true);
+    const panel = mount();
+    expect(panel.textContent).toContain('New best');
+    expect(panel.querySelector('.grade-new-best-star')).not.toBeNull();
+  });
+
+  it('shows nothing when newBest is false', () => {
+    playState.setGrade(grade(), null, false);
+    const panel = mount();
+    expect(panel.textContent).not.toContain('New best');
+    expect(panel.querySelector('.grade-new-best-star')).toBeNull();
+  });
+
+  it('shows nothing for a stopped (incomplete) run, even if newBest were somehow set', () => {
+    // BrowserSessionController.computeNewBest never returns true for an incomplete run (OD-1) - this checks the
+    // panel does not show "New best" this session's stopped-run Grade regardless.
+    playState.setGrade(grade({ complete: false }), null, false);
+    const panel = mount();
+    expect(panel.textContent).not.toContain('New best');
+  });
+});

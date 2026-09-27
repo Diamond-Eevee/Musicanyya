@@ -74,10 +74,10 @@ describe('mx-browser-rail (US1 #2, contracts/score-browser.md §1)', () => {
 
     expect(el.getAttribute('role')).toBe('tree');
     const items = Array.from(el.querySelectorAll('[role="treeitem"]'));
-    const labels = items.map((i) => i.textContent?.trim());
+    const labels = items.map((i) => i.querySelector('.browser-rail-label')?.textContent?.trim());
     expect(labels).toEqual(['Continue', 'All', 'Repertoire', 'Beginner', 'My files']);
     // Every folder with children is expanded by default (contracts/score-browser.md §1).
-    const repertoire = items.find((i) => i.textContent?.trim() === 'Repertoire');
+    const repertoire = items.find((i) => i.querySelector('.browser-rail-label')?.textContent?.trim() === 'Repertoire');
     expect(repertoire?.getAttribute('aria-expanded')).toBe('true');
   });
 
@@ -90,7 +90,7 @@ describe('mx-browser-rail (US1 #2, contracts/score-browser.md §1)', () => {
       el.addEventListener('browserviewchange', (e) => resolve((e as CustomEvent).detail), { once: true });
     });
     const beginner = Array.from(el.querySelectorAll('[role="treeitem"]')).find(
-      (i) => i.textContent?.trim() === 'Beginner',
+      (i) => i.querySelector('.browser-rail-label')?.textContent?.trim() === 'Beginner',
     );
     (beginner as HTMLElement).click();
 
