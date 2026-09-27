@@ -216,3 +216,85 @@
   `src/engine/storage/local-settings-store.ts` still requires an integer multiple of 5 (T043 fixes it; the Play field is
   inert until T044). US1 + US2 = MVP and are complete. Branch `012-tempo-bpm-field`, not pushed; tree clean at the commit
   that follows this entry.
+
+## 2026-09-27 10:05 - claude-sonnet-5 (US3 checkpoint, T037-T047)
+
+- Done: all of US3, test-first throughout, five commits (one per task group: T037/T043, T038/T039/T044/T045,
+  T040/T046, T041, T042/T047).
+  - T037/T043: `validPlay` (`local-settings-store.ts`) accepts any finite `tempoPercent` in [25, 200], not just an
+    integer multiple of 5; `loadPlay` for a Score never played now returns `BUILT_IN_PLAY.tempoPercent` (100)
+    instead of `lastUsed.tempoPercent` (R-9), while strictness/count-in/etc. still come from `lastUsed`.
+  - T038/T044: new `src/ui/state/tempoBinding.ts` `tempoFieldBinding(mode, transport, playSetup, run)` - a pure
+    selector Listen/Practice/Play share, tested in isolation (`tests/ui/tempo-binding.test.ts`). `session.ts`'s
+    `updateTempoModel` now computes a Play-mode segment too: the live cursor's segment (`tempoPositionState`) while
+    a run is actually counting in or running, else the range-start segment kept on `PlaySetup.tempoSegment`
+    (`session.ts`'s new `playRangeStartSegment`, recomputed whenever the range or the Score changes). The
+    transport's `tempochange` listener now routes to `onPlaySetupChange({ tempoPercent })` in Play mode instead of
+    being a no-op there.
+  - T039/T045: `mx-play-panel.ts`'s percentage `<select>` is replaced by the same `mx-tempo-field` the transport
+    uses; its model comes from `PlaySetup.tempoSegment`/`.glyphs` (new fields, session-computed) and `settings
+    .tempoPercent`, with `locked` read directly from `playState.get().run?.phase` inside the panel's own render (so
+    a unit test can drive it with nothing but `playState.setSetup`/`.setRun`, matching this file's existing "pure
+    view" pattern) - a deliberate split from T044's push-based transport model, since the panel is closed for the
+    whole time it would otherwise need to track a live run.
+  - T040/T046: new core `attemptTempo(map, passes, settings)` (contracts/tempo-display.md 1.1.0): the display
+    segment at a stored/graded run's range start (first pass of its first measure, else tick 0), `bpm` from
+    `shownBpm`, `percent` the stored `tempoPercent` rounded half up independently (so a fractional stored value and
+    an old integer one read the same way). `mx-attempts-list.ts` and `mx-grade-panel.ts` call it directly (Constitution
+    V: they already import core tempo functions the way `mx-tempo-field` does) given a new `playState.scoreTempo`
+    (the open Score's tempo map + passes, set once by `session.ts` on load) - not a per-attempt push, since the map
+    and passes are the same for every attempt of one Score. Extracted `src/ui/format/beat-label.ts` (`localizedBeatLabel`)
+    out of `mx-tempo-field.ts` so all three elements share one i18n mapping instead of three copies. Removed the
+    now-dead `en.play.setup.tempo`/`.tempoPercent` strings the old `<select>` used.
+  - T041: reproducibility tests only, no production change needed - a fractional `tempoPercent` (100 x 91/120)
+    already regrades to a deep-equal Grade and already round-trips bit-exactly through IndexedDB, confirming
+    T028/T033/T043's widening needed nothing further here.
+  - T042/T047: `tests/e2e/helpers/play.ts`'s `startPlay` and `us3-play-setup.spec.ts` move from `selectOption` on
+    the old `<select>` to filling/Entering a BPM into the field (a fresh Play setup always starts at 100%, so the
+    field's own current value - the written tempo - times the wanted percent gives the exact BPM to type);
+    `play-cursor.spec.ts` needed no direct edit, since it only ever went through the shared helper. New
+    `tempo-field.spec.ts` US3 block (a Score with no tempo mark, written 100 by default): typing 75 into the Play
+    setup shows 75 in the transport's own field too; both lock during count-in/running and unlock once the run
+    ends; the attempts list then shows "75 BPM (75% of written)". Comment updates in `play/types.ts` (`grade/types.ts`
+    already read correctly).
+- Also found and fixed while touching `session.ts`: two dead imports (`PLAY_COUNT_IN_MEASURES`, `PLAY_STRICTNESS_DEFAULT`)
+  biome flagged as an error the moment `pnpm lint` ran on the whole project - pre-existing (confirmed on the
+  US2-checkpoint commit via `git stash`), not something this session's own edits caused, but trivial and in a file
+  already being edited, so cleaned up rather than left for later.
+- Tests: `pnpm test` - 233 files, 4412 tests green, aside from the same pre-existing `tests/library/regeneration.test.ts`
+  timeout-under-full-suite-load flake noted at every earlier checkpoint (passes standalone, confirmed again here).
+  `pnpm typecheck` clean. `pnpm lint` 0 errors (294 warnings - 2 over the session-start baseline of 292, both
+  `noExplicitAny` in the new Play e2e test code, the same pattern already used throughout `tests/e2e/us3-play-setup.spec.ts`
+  and `us4-attempts.spec.ts`; no new lint errors).
+- Full gate: `pnpm test:e2e` - 817 passed, 12 failed, 523 skipped (8.9m), all three projects. Every failure was
+  checked individually and is **not** a regression from this checkpoint's work:
+  - `tests/e2e/play-grade-marks.spec.ts`'s two tests (all three browsers) fail identically - reproduced by checking
+    out `d0cfce0` (the commit at this session's start, before any US3 change) and re-running in isolation: the same
+    "correct.length 2 not 4" / "Mistakes (9) not (4)" failure is already there. Pre-existing, unrelated to feature
+    012; flagged to the user as a separate background task (`task_c4d89f4f`) rather than investigated here (out of
+    this checkpoint's scope) - not silently claiming a clean e2e gate.
+  - `tests/e2e/play-cursor.spec.ts:47`, `pressed-keys.spec.ts:478` (a frame-timing budget: median <= 17.5ms, got
+    30ms) and the other scattered single-browser failures are machine-load-sensitive (many workers/projects
+    competing for one machine's CPU): each re-ran green standalone (`play-cursor.spec.ts:47` and
+    `pressed-keys.spec.ts:478` verified directly; the rest share the same timing-assertion shape as tests already
+    known flaky under full-suite load at earlier checkpoints, e.g. `regeneration.test.ts` above).
+  - Every test this session touched or added (`tempo-field.spec.ts`'s new US3 block, both `us3-play-setup.spec.ts`
+    tests, `us4-attempts.spec.ts`) passed both in the full run and re-run in isolation.
+- US3 Independent Test (spec.md): verified by `tempo-field.spec.ts`'s new US3 test with different but equivalent
+  numbers (a Score with no tempo mark, written 100, not literally "120"): Play setup 75 -> the Metronome/count-in
+  play at 75, the transport shows 75 too, both lock during the run, and the attempt reads "75 BPM (75% of written)".
+  Scenario 4 (a pre-012 stored attempt, percentage only) and scenario 5 (regrade identical) are covered at the unit
+  level (`attempts-list.test.ts`, `regrade.test.ts`) rather than end-to-end.
+- Decisions: `PlaySetup.tempoSegment`/`.glyphs` and `playState.scoreTempo` are new session-computed/session-set
+  fields rather than the panel or the attempts list reaching into `session.ts` or the Score/timeline themselves
+  (Constitution V); the Play panel's `locked` is read live from `playState.get().run` inside its own render instead
+  of being pushed, specifically so `tests/ui/setup-panel.test.ts` could keep driving it with nothing but
+  `playState.setRun(...)`, the same pattern every other test in that file already uses.
+- Problems / open questions: the `play-grade-marks.spec.ts` pre-existing failure above (flagged as a background
+  task, not an owner decision - it needs investigation, not a choice). Flag for T048 (unchanged since US1): the
+  three library items whose first tempo has no metronome mark. Flag for T049 (unchanged since US2): the transport
+  bar at 1280x720 in a Play run fits by only a few px.
+- Handoff: next = `/speckit.implement` from T048 (Polish: music-domain-expert review of T002's fixtures/parser/display
+  rules, phone-width screenshot + font-size check, full quickstart manual verification, constitution-auditor review,
+  doc/data-model updates + final full gate). US1+US2+US3 all complete and independently tested. Branch
+  `012-tempo-bpm-field`, not pushed; tree clean at the commit that follows this entry.
