@@ -6,6 +6,7 @@ import { buildBrowserItems } from '../../../src/core/browser/items.js';
 import { filterItems } from '../../../src/core/library/filter.js';
 import type { LibraryIndex } from '../../../src/core/library/types.js';
 import { DEFAULT_MASTERY_THRESHOLDS } from '../../../src/core/progress/types.js';
+import { libraryIndexOf, record, result, userFile } from '../../fakes/progress-builders.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '../../..');
@@ -81,5 +82,40 @@ describe('buildBrowserItems (T013)', () => {
   it('with no index, gives no library rows', () => {
     const items = buildBrowserItems(null, [], [], DEFAULT_MASTERY_THRESHOLDS, compare);
     expect(items).toEqual([]);
+  });
+
+  it('an item whose supersedes[].hash has a record shows that progress as its own (Edge Cases: library replacement)', () => {
+    const index = libraryIndexOf(4);
+    const item0 = index.items[0];
+    if (!item0) throw new Error('unreachable');
+    const oldHash = 'f'.repeat(64);
+    item0.meta.supersedes = [{ id: 'old-item-id', hash: oldHash }];
+    const oldResult = result({ runId: 'old-run', finishedAt: '2026-01-01T00:00:00.000Z' });
+    const records = [record({ scoreKey: oldHash, attempts: 1, results: [oldResult], best: oldResult })];
+
+    const items = buildBrowserItems(index, [], records, DEFAULT_MASTERY_THRESHOLDS, compare);
+    const row = items.find((i) => i.ref.kind === 'library' && i.ref.id === item0.id);
+    expect(row).toBeDefined();
+    if (!row) throw new Error('unreachable');
+    expect(row.progress.status).toBe('played');
+    expect(row.progress.attempts).toBe(1);
+    expect(row.progress.best).toEqual(oldResult);
+    // The old hash's result counts as current (the library decided the replacement is the same piece) - never
+    // flagged earlierVersion, unlike a My files entry's own earlierHashes (data-model.md §6 vs §5).
+    expect(row.progress.history).toEqual([{ ...oldResult, earlierVersion: false }]);
+  });
+
+  it('a file entry with earlierHashes flags an older hash result earlierVersion: true (data-model.md §5)', () => {
+    const oldHash = 'e'.repeat(64);
+    const entry = userFile({ fileName: 'Etude.musicxml', earlierHashes: [oldHash] });
+    const oldResult = result({ runId: 'old-run', finishedAt: '2026-01-01T00:00:00.000Z' });
+    const records = [record({ scoreKey: oldHash, attempts: 1, results: [oldResult], best: oldResult })];
+
+    const items = buildBrowserItems(null, [entry], records, DEFAULT_MASTERY_THRESHOLDS, compare);
+    const row = items[0];
+    expect(row).toBeDefined();
+    if (!row) throw new Error('unreachable');
+    expect(row.progress.attempts).toBe(1);
+    expect(row.progress.history).toEqual([{ ...oldResult, earlierVersion: true }]);
   });
 });
