@@ -44,8 +44,10 @@ as today)
 **Performance Goals**: a confirmed tempo reaches the Audio engine in the same task (no added latency beyond today's
 slider); the number follows a tempo change at the cursor within one frame; no per-frame DOM work when the segment is
 unchanged; SC-002 beat spacing within 1 ms of 60/BPM
-**Real-time Paths Touched**: none in code; the worklet's existing `tempo` message may now carry a fractional percent
-and arrive once per step press (RT review planned, R-11)
+**Real-time Paths Touched**: yes, in the end (updated after T036/T057's RT review found real defects the new fractional-
+percent/step-repeat traffic exposed in the *existing* worklet code): `score-player.processor.ts`'s `tempo`/`pause`/`play`
+handling and `dispatch.ts`'s late-event handling, fixed and re-reviewed clean (implementation-log.md T028-T036, T053-T057;
+worklet-protocol.md 1.4.2)
 **Constraints**: core stays DOM-free; no main-thread task > 50 ms (display map is O(marks x passes), built in the score
 worker); the tempo field is never rebuilt while focused; typing never triggers shortcuts
 **Scale/Scope**: Scores up to `MAX_MEASURES`; tempo maps with hundreds of segments (display lookup is a binary or
@@ -57,7 +59,7 @@ linear scan per frame only when the tick crosses a segment)
 
 | # | Principle | Question | Status |
 |---|---|---|---|
-| I | Real-Time Safety (Web and Native) | New code in AudioWorklet/plugin callbacks allocation-, await- and log-free? Sounds scheduled ahead on the audio clock (no timers)? Heavy work off the main thread? | [x] No worklet or plugin code changes; the tempo message and its handler are as today (R-11). No timer decides sound; the field reacts to events and the score view's existing frame loop. Display map built in the score worker. RT review of the tempo-change path planned. |
+| I | Real-Time Safety (Web and Native) | New code in AudioWorklet/plugin callbacks allocation-, await- and log-free? Sounds scheduled ahead on the audio clock (no timers)? Heavy work off the main thread? | [x] Updated post-review (T036/T057): the worklet *was* touched, not left alone as first planned (R-11) - fractional percents and step-press repeat rate exposed 5 pre-existing defects (restart-on-tempo-message, playhead drift while paused, per-message rescan cost, unvalidated percent, a late-dispatched event dropped after a slowing tempo change), all fixed and re-reviewed clean (`holdTick`/`reanchor` state machine, `Number.isFinite` validation, `dispatchBlock` clamps instead of drops); `reanchor`'s allocation runs only from `port.onmessage`, never inside `process()`. No timer decides sound; the field reacts to events and the score view's existing frame loop. Display map built in the score worker. |
 | II | One Clock, Measured Latency | All events on the audio-clock timeline, MIDI timestamps mapped onto it? Integer ticks in core? Latency compensated? Tolerances named & configurable? | [x] Tempo still one tempo map x one factor, the single tick <-> time conversion site (`rate.ts`). Display segments use the same integer ticks. New limits are named constants (`TEMPO_BPM_STEP`, `TEMPO_MARK_QPM_MIN/MAX`, `TEMPO_BEAT_DOTS_MAX`). |
 | III | Score Fidelity, Engraving & Note Identity | Canonical score model + Note IDs (= SVG ids)? Verovio engraving? Unsupported MusicXML degrades gracefully? | [x] One Score model, extended (`TempoMark.beat`, `isDefault`); unreadable or absurd marks are dropped like today, the Score opens. Engraving untouched; the beat glyph uses Verovio's own Leipzig shapes (R-7). The x1 unit bug fix improves fidelity (logged in `docs/musicxml-support.md`). |
 | IV | Test-First Core, Deterministic Grading | Tests first? Core testable in Node with fakes? Golden tests for grading? | [x] Tasks are test-first; all new logic is pure core. Grading formulas unchanged; golden results must stay byte-identical; old stored percentages regrade identically (SC-005); fractional percentages round-trip exactly (R-1). |

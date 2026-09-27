@@ -473,3 +473,24 @@
   automated e2e coverage that passed this session.
 - Handoff: next = T051 (constitution-auditor review of the branch diff). Branch `012-tempo-bpm-field`, not pushed;
   tree clean at the commit that follows this entry.
+
+## 2026-09-27 11:40 - claude-sonnet-5 (T051, constitution review)
+
+- Done: `constitution-auditor` reviewed `git diff main...HEAD` (113 files, ~10,700 insertions) against
+  `.specify/memory/constitution.md`, focused on core purity, the RT worklet path, the UI layer, contract/spec sync
+  and persisted-data backward compatibility.
+- Verdict: **compliant with notes**. Confirmed clean: core stays DOM-free with no `engine`/`ui` imports; RT path
+  changes (T036/T057) match exactly what `implementation-log.md` already describes, `reanchor`'s allocation
+  verified to run only from `port.onmessage` (never inside `process()`); UI layer only renders values computed in
+  core (`shownBpm`/`bpmLimits`/`percentForBpm`/`attemptTempo`), no framework, no modal, no colour-only feedback;
+  `local-settings-store.ts` still validates an old integer-multiple-of-5 stored `tempoPercent` under the widened
+  rule; contracts (`worklet-protocol.md` 1.4.2, `tempo-display.md`, `tempo-field.md`) match the code.
+- One LOW finding, a doc-sync nit not a code defect: `plan.md`'s Constitution Check (Principle I row and "Real-time
+  Paths Touched") still said "no worklet or plugin code changes... RT review planned" - true when written, made
+  stale by T036/T057 finding and fixing 5 real defects in the existing worklet code. Fixed immediately: both lines
+  now say the worklet was touched and reviewed, and name what was fixed.
+- Tests: none changed (docs only); no gate re-run needed.
+- Decisions: none.
+- Problems / open questions: none.
+- Handoff: next = T052 (data-model/README/reference.md updates + final full gate). Branch `012-tempo-bpm-field`,
+  not pushed; tree clean at the commit that follows this entry.
