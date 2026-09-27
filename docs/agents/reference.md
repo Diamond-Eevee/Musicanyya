@@ -146,6 +146,10 @@ under load on Windows ("Target page ... has been closed", "audio clock advances"
 (`pnpm exec playwright test --project=electron <file>`). Re-run them alone and log both results; do not call the gate
 green without that.
 
+**Known bugs** (confirmed, reproducible, not flaky - see `docs/known-bugs.md`): `tests/e2e/play-grade-marks.spec.ts`
+grades roughly half the expected notes on `repertoire/beginner/fur-elise-theme-16-bar`; not root-caused yet, not
+blocking any feature. Check that file before assuming a new failure there is something you caused.
+
 Tests use fakes (fake clock, fake MIDI input, offline rendering, recorded Performance logs), never real devices.
 
 ### Running and seeing the app (manual verification)
