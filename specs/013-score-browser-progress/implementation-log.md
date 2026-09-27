@@ -161,3 +161,41 @@
   `BrowserSessionController`, wiring into `session.ts`, old e2e/tooling migration, screenshot flag, manual check).
   This dialog shell is a clean, fully-tested, fully-green boundary - the rail/list/detail elements and the
   controller are each substantial pieces of their own. Tree is clean after this commit.
+
+## 2026-09-27 17:35 - claude-sonnet-5 (implement: US1 rail/list/detail - T017, T027, T028)
+- Done: T017 (`tests/ui/score-browser/rail-list-detail.test.ts`, 7 tests across the three elements): the rail
+  renders *Continue*, *All*, the section tree and *My files* as `role="treeitem"` rows with every folder expanded
+  (`aria-expanded="true"`); selecting one emits `browserviewchange` and updates `browserState.view.folder`; the
+  list renders `role="option"` rows with title, subtitle, level, key and length (`1:20` for 80 s), double click and
+  Enter on the active row both emit `browseropenitem`; the detail pane (`role="region"`) shows metadata and its
+  `.score-source-line` text equals `scoreSourceLines(item)` (T025) for the same item, and its Open button emits
+  `browseropenitem` with the selected `ItemRef`. Confirmed it failed first ("Failed to resolve import
+  .../mx-browser-detail.js"), then implemented against it - all 7 passed on the first run after the three elements
+  were written.
+  T027 `src/ui/elements/mx-browser-rail.ts`: `role="tree"` list built from `buildSectionTree` (reused directly, the
+  same call `mx-library` already makes) plus the two fixed *Continue*/*All* rows and the trailing *My files* row;
+  every row with children gets `aria-expanded="true"` (no collapsing yet - SC-001 only needs "visible without an
+  extra click"); a roving `tabindex` plus basic Up/Down/Enter, full APG (Left/Right, Home/End) deferred to T084 as
+  the task names.
+  T028 `src/ui/elements/mx-browser-list.ts` and `mx-browser-detail.ts`: the list calls `buildBrowserItems`/
+  `queryBrowser` itself with its own `Intl.Collator` (the same pattern `mx-library` uses for `filterItems` -
+  Principle V keeps the collator out of the pure core); `aria-activedescendant` follows an `activeRef` that
+  Up/Down move and click/select set; double click and Enter both dispatch `browseropenitem`. The detail pane looks
+  up the full `LibraryItem` (for `scoreSourceLines`) or `UserFileEntry` by the selected `ItemRef` directly from
+  `browserState.data` - it does not yet show progress/history (data-model.md §2's `ItemProgressView` is still
+  `emptyProgressView()` until T053; T028's own task text scopes the detail pane to "metadata, source/licence and
+  the Open button", matching this).
+- Decisions: keyed row reuse (mentioned in T028's task text as a perf technique) was not built - `mx-browser-list`
+  replaces its `innerHTML` on every render, matching every other list-rendering element in this codebase
+  (`mx-library`, `mx-recent-list`). Nothing in T017 or SC-007 (checked in T013's own test, over the real 200-ish
+  item library) requires more than that yet; a keyed-diff rewrite is better justified once T082 (US5, more filters
+  and sorts) or a real perf regression asks for it, not sketched in speculatively now.
+- Checks: `pnpm typecheck` green; `pnpm test` full suite green (240 files, 4452 tests, +7 new); `pnpm lint` clean on
+  every file touched this session after `biome check --write` fixed one import-order and one formatting nit in the
+  new files (the two pre-existing, unrelated findings in `src/core/play/calibration.ts` and
+  `src/engine/worklets/dispatch.ts` are untouched by this branch).
+- Handoff: next = T018-T020 (run-guard/open-rules tests, the `BrowserSessionController` test, e2e), then T029-T034
+  (`browser.css` + remaining i18n strings, the controller itself, wiring into `session.ts`, old e2e/tooling
+  migration, the screenshot `--browser` flag, the manual check). The three US1 elements (dialog, rail, list,
+  detail) are now a clean, fully-tested, fully-green boundary with no controller wired to them yet - `session.ts`
+  wiring (T031) is a large, separate piece of its own. Tree is clean after this commit.
