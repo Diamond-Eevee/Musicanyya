@@ -431,3 +431,45 @@
   mx-mode-switch` call site across the 13 touched e2e files passed.
 - Handoff: next = T050 (quickstart manual verification). Branch `012-tempo-bpm-field`, not pushed; tree clean at
   the commit that follows this entry.
+
+## 2026-09-27 11:25 - claude-sonnet-5 (T050, quickstart manual verification)
+
+- US1 (screenshots taken and looked at, `test-results/screenshots/quickstart-us1-{1,2,3}.png`, git-ignored):
+  1. `--item learning/key-changes/a-major-to-a-minor/beginner` -> "Tempo [-] 72 BPM [+] [reset]", reset greyed
+     (disabled), no beat symbol, no written hint. Matches.
+  2. `--file tempo-dotted-beat-unit.musicxml` -> "60 BPM" with a dotted-quarter symbol (notehead, stem, dot) next
+     to it. Matches.
+  3. `--file tempo-none-default.musicxml` -> "100 BPM", "default" hint, and the existing default-tempo notice.
+     Matches.
+  4. Live tempo change on a repeat/section boundary: not re-driven live here (Web Audio needs a trusted user
+     gesture, which a scripted click in an automation harness does not reliably provide - confirmed while doing
+     US3 below, where count-in never advanced past a scripted `.click()`); already covered end-to-end by
+     `tempo-field.spec.ts`'s "tempo-change-90-60: Listen shows 90 then 60..." test (green this session, US1
+     checkpoint log).
+- US2 (all six steps are dynamic - typing, stepping, playback, a second Score, a repeat): covered by
+  `tempo-field.spec.ts`'s US2 block (typing 72+Enter, three + presses during playback, 500/10/"abc"+Escape, reset,
+  a second Score's own tempo, the 45-after-repeat-shows-68 case) plus the manual screenshots already taken and
+  logged at the US2 checkpoint. Not re-driven live here for the same trusted-gesture reason as US1 step 4.
+- US3, driven live in the browser this time (not just automated), `learning/keys/c-major/beginner` (written 72):
+  1. Play mode, Setup open: both the transport and the Play setup read "72 BPM" (screenshot viewed, not saved -
+     same as the US1 checkpoint's own precedent). Typed 54 into the Play setup field, Enter: the transport's own
+     field updated to 54 too (`tempoPercent` 75 exactly, 54/72) - confirmed via `__PLAY_STATE__`, not just the
+     display.
+  2. Pressed Play: `__PLAY_STATE__.get().run.phase` reached `'countIn'` with `tempoPercent: 75`, and the
+     transport's field's `readOnly` became `true` - locked, matching FR-017. Count-in itself never advanced to
+     `'running'` in this manual session (a script-dispatched click is not a trusted gesture, so the audio clock
+     never actually started) - the live playback/grading part of scenarios 2-4 is exactly what
+     `tempo-field.spec.ts`'s own US3 test already proved through Playwright's real (trusted) clicks this session:
+     "75 BPM (75% of written)" in the attempts list after a real run.
+  3-4. Covered by that same e2e test (T042) and by the unit-level `attemptTempo`/`mx-attempts-list` tests (T040)
+     for both a fresh fractional `tempoPercent` and an old integer one.
+- Phone width: re-confirmed with the T049 screenshots and e2e block already taken/passing this session
+  (`test-results/screenshots/phone-width-transport.png`).
+- Tests: nothing changed by this task; `pnpm test` and `pnpm typecheck` already green from the previous entry, not
+  re-run for a read-only verification pass.
+- Decisions: none.
+- Problems / open questions: none new. The scripted-click / trusted-gesture limit above is a manual-testing-tool
+  constraint, not an app defect - Playwright's own clicks are trusted and every affected scenario already has
+  automated e2e coverage that passed this session.
+- Handoff: next = T051 (constitution-auditor review of the branch diff). Branch `012-tempo-bpm-field`, not pushed;
+  tree clean at the commit that follows this entry.
