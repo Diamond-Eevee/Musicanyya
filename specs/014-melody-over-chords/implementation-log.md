@@ -19,3 +19,12 @@
 - Decisions: none beyond the above; tasks now T001-T059 (59 tasks).
 - Problems / open questions: needs owner: T057 SC-005 listening check before merge (not blocking implement).
 - Handoff: next = `/speckit.implement` from T001 (Setup), then Foundational T004-T014; tree clean after this commit
+
+## 2026-09-28 11:45 - claude-opus-5.5 (model fit)
+- Done: owner asked for recommended models per task and a switch-or-continue question when the model does not fit.
+  Constitution 1.1.1 -> 1.2.0 (MINOR, Development Workflow "Model fit"); tier table in `docs/agents/reference.md` R11
+  (`deep` = claude-opus-5.5; `standard` = claude-sonnet-5 or claude-opus-5.5); AGENTS.md 2.8 and 4.1; model-fit lines
+  in every `.claude/commands/speckit.*.md`; tasks template gets a `**Model**` line per phase and `[deep]`/`[standard]`
+  tags; `status.ps1` prints `MODEL TIER` for the resume point. This feature's tasks.md: phases `standard`; `[deep]` on
+  T005, T010 (melody checker), T021-T026, T042-T044 (composing), T032, T049 (music reviews).
+- Handoff: next = `/speckit.implement` from T001 (tier standard); the first `deep` task is T005

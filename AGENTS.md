@@ -37,7 +37,9 @@ and Antigravity (`.agents/workflows/`). Elsewhere, treat them as plain text as d
    **Trust nothing unchecked**: run `pnpm test` and `pnpm lint`; if they contradict the log, tell the user and fix
    that first.
 7. **Open owner decisions** (status lists them): ask the user once, now. Unanswered: skip what they block.
-8. **Announce** in one short message: your agent id, the instruction file you follow, the resume point, and any
+8. **Model fit** (reference R11): if your model does not fit the tier of the next task or step, ask the user once:
+   switch model, or continue with you? Switch: hand off. Continue: log it.
+9. **Announce** in one short message: your agent id, the instruction file you follow, the resume point, and any
    decision you need. Then work.
 
 ## 3. The Spec Kit flow
@@ -64,7 +66,8 @@ earlier document is wrong, fix that document first and say so in the log.
 `tasks.md` is the source of truth. States: `- [ ] T012 ...` open, `- [~] T012 ... (claimed: <agent-id> <YYYY-MM-DD>)`
 in progress, `- [x] T012 ...` done. Start at the resume point; follow file order and "Dependencies".
 
-1. **Claim** the task (at most the current task group), with the exact claim suffix.
+1. **Claim** the task (at most the current task group), with the exact claim suffix. New tier your model does not
+   fit: model-fit question first (2.8).
 2. Read the task and the design documents it relies on.
 3. **Test tasks**: write the test, run it, see it **fail for the expected reason**. Do not implement yet.
 4. **Implementation tasks**: minimum code to pass the related tests, then refactor.

@@ -13,6 +13,10 @@ The text after `/speckit.specify` IS the feature description. If it is empty, st
 
 ## Steps
 
+**Model fit**: this step is tier `deep` (`docs/agents/reference.md` R11). If your model does not fit it, ask the user
+first: switch model, or continue with you? Switch: stop and say which model to use. Continue: note it in the report
+(and in `implementation-log.md` when the feature has one).
+
 1. Choose a 2-4 word kebab-case short name capturing the essence (e.g. `listen-mode-playback`, `midi-device-setup`).
 2. Run exactly once from the repo root and parse the JSON output (`BRANCH_NAME`, `SPEC_FILE`, `FEATURE_NUM`):
    ```

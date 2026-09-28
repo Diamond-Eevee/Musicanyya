@@ -252,6 +252,31 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
 - `quickstart.md` verified; `docs/musicxml-support.md` and the commands in R7 up to date.
 - Final `implementation-log.md` entry; work committed on the feature branch. Merging is the user's call.
 
+## R11. Model fit (constitution, Development Workflow "Model fit")
+
+Every task and every Spec Kit step has a **model tier**. The owner edits this table when models change; tasks and
+commands name tiers, never model ids, so nothing else needs updating.
+
+| Tier | Use for | Models that fit (agent id prefix) |
+|---|---|---|
+| `deep` | composing or authoring music (melodies, exercises, arrangements); intricate rule engines (checkers, grading, levelling); architecture and design (`specify`, `clarify`, `plan`, `analyze`, `constitution`); music reviews | `claude-opus-5.5` |
+| `standard` | implementing a precisely specified task: generator/tool code, tests, regeneration, docs, e2e, gates (`tasks`, most of `implement`) | `claude-sonnet-5`, `claude-opus-5.5` |
+
+Where the tier comes from: `tasks.md` gives a **Model** line per phase (the default for its tasks) and a `[deep]` or
+`[standard]` tag on a task that differs; a Spec Kit step's tier is in the table above. The status script prints the
+tier of the resume point (`MODEL TIER: ...`).
+
+**The check** (AGENTS.md sections 2 and 4): before the first task or step of a tier your own model does not fit, stop
+and ask the owner once: *"Task T021 is tier `deep` (recommended: claude-opus-5.5); I am <agent id>. Switch model, or
+continue with me?"* Then:
+
+- **Switch**: hand off (AGENTS.md section 5) with `Handoff: next = T021, needs tier deep` and stop.
+- **Continue**: log `Model fit: owner chose to continue <tier> tasks with <agent id> (<date>)` and go on. The answer
+  holds for the rest of that session and that tier; ask again in a new session or at a new tier.
+
+A model not in the table fits no tier: ask at the first task. A model that fits a *higher* tier than needed (Opus on a
+`standard` task) never asks.
+
 ---
 
 <!-- ACTIVE-TECHNOLOGIES:START (updated by the plan step) -->

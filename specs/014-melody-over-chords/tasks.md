@@ -10,6 +10,7 @@ quickstart.md
   - [P]   = can run in parallel (different files, no dependency on unfinished tasks)
   - [USn] = user story the task belongs to (omit for Setup/Foundational/Polish)
   - Tests come BEFORE implementation (Constitution IV) and must fail first.
+  - [deep] / [standard] = model tier when it differs from the phase's **Model** line (docs/agents/reference.md R11)
   - No task touches AudioWorklets, the scheduler, MIDI input timing or plugin callbacks: no RT review is needed.
 -->
 
@@ -18,6 +19,8 @@ Scope reminder: 59 items - 54 key-change items (`content/library/exercises/key-c
 steps, Songs and Repertoire must stay byte-identical (FR-003, SC-004).
 
 ## Phase 1: Setup
+
+**Model**: standard (claude-sonnet-5)
 
 - [ ] T001 [P] Fold contract change `specs/014-melody-over-chords/contracts/exercise-definition-1.3.md` into the
   canonical `specs/005-practice-score-library/contracts/exercise-definition.md` (version line -> 1.3.0, new §1b/§2a
@@ -34,12 +37,15 @@ steps, Songs and Repertoire must stay byte-identical (FR-003, SC-004).
 
 ## Phase 2: Foundational (blocks all user stories)
 
+**Model**: standard (claude-sonnet-5); the melody checker (T005, T010) is `deep` (claude-opus-5.5): a wrong checker
+lets bad melodies through
+
 ### Tests (write first, confirm they fail)
 
 - [ ] T004 [P] Write `tests/tools/fidelity/melody-fixtures.ts`: a small builder that writes two-staff MusicXML
   strings (right-hand single notes, left-hand block chords, key, metre, key change) for the checker tests - test
   helper only, no generator import
-- [ ] T005 Write `tests/tools/fidelity/melody-rules.test.ts` (depends on T004): (a) one clean fixture per level passes
+- [ ] T005 [deep] Write `tests/tools/fidelity/melody-rules.test.ts` (depends on T004): (a) one clean fixture per level passes
   with 0 findings; (b) one planted fault per rule of data-model §5, each its own `it()` asserting exactly that `rule`
   with the right bar and beat - `key`, `chord-tone`, `non-chord-tone`, `minor-degree`, `augmented-second`,
   `cross-relation`, `clash`, `parallel-octaves` (fails at intermediate, allowed at beginner), `register`, `hand-gap`,
@@ -71,7 +77,7 @@ steps, Songs and Repertoire must stay byte-identical (FR-003, SC-004).
   `specs/014-melody-over-chords/data-model.md` §4 if names differ
 - [ ] T009 Add `MelodyPart`, `MelodyPhrase`, `MelodyNote`, the `{ melody }` member of `PatternHandPart` and
   `ExerciseDefinition.melody` (drills) to `src/core/library/exercise/types.ts`
-- [ ] T010 Implement `tools/library/fidelity/melody-rules.ts` (`checkMelodyRules`, `checkMelodyVariation`, research
+- [ ] T010 [deep] Implement `tools/library/fidelity/melody-rules.ts` (`checkMelodyRules`, `checkMelodyVariation`, research
   R3-R8, thresholds from `MELODY_LADDER`, reader shared with `theory.ts`) until T005 passes
 - [ ] T011 Implement `src/core/library/exercise/melody.ts` (pitch, variant choice, fingering, write events) and wire
   the `melody` part into `handSegments` in `src/core/library/exercise/generate.ts` until T006 passes; confirm the
@@ -91,6 +97,8 @@ has changed yet (T003 passes).
 
 ## Phase 3: User Stories 1 and 2 - Key-change items have a melody, and the ladder holds (Priority: P1) MVP
 
+**Model**: standard (claude-sonnet-5); composing the melodies (T021-T026) and the music review (T032) are `deep`
+(claude-opus-5.5)
 **Goal**: all 54 key-change items have a right-hand melody over the unchanged left-hand chords (US1), each within
 its level's Difficulty ladder row, levelled correctly and harder step by step (US2).
 **Independent Test**: US1 - open *C major to A minor - introduction* in Listen mode: single notes moving by step in
@@ -133,16 +141,16 @@ as demanding as the one before, and the level check passes.
 
 - [ ] T020 [US1] Change the key-change claims in `tools/library/fidelity/exercise-claims.ts` (right hand -> melody,
   rule set v3) until T016 passes; still no read of definitions or generator
-- [ ] T021 [P] [US1] Author the right-hand `melody` (major and minor variants, at least 2 per section and mode) in
+- [ ] T021 [P] [US1] [deep] Author the right-hand `melody` (major and minor variants, at least 2 per section and mode) in
   `content/library/exercises/key-change-relative-introduction.json` - half and whole notes, five-finger position,
   steps only
-- [ ] T022 [P] [US1] Same for `content/library/exercises/key-change-parallel-introduction.json`
-- [ ] T023 [P] [US2] Author the beginner melodies in `content/library/exercises/key-change-relative-beginner.json`
+- [ ] T022 [P] [US1] [deep] Same for `content/library/exercises/key-change-parallel-introduction.json`
+- [ ] T023 [P] [US2] [deep] Author the beginner melodies in `content/library/exercises/key-change-relative-beginner.json`
   (quarters, runs of at most 4 quarters, leaps up to a third, at most one shift at a section start)
-- [ ] T024 [P] [US2] Same for `content/library/exercises/key-change-parallel-beginner.json`
-- [ ] T025 [P] [US2] Author the intermediate melodies in `content/library/exercises/key-change-relative-intermediate.json`
+- [ ] T024 [P] [US2] [deep] Same for `content/library/exercises/key-change-parallel-beginner.json`
+- [ ] T025 [P] [US2] [deep] Author the intermediate melodies in `content/library/exercises/key-change-relative-intermediate.json`
   (eighth pairs on the beat, range up to an octave, thumb-under/finger-over, leaps up to a fifth to chord notes)
-- [ ] T026 [P] [US2] Same for `content/library/exercises/key-change-parallel-intermediate.json` (T025/T026: B major and
+- [ ] T026 [P] [US2] [deep] Same for `content/library/exercises/key-change-parallel-intermediate.json` (T025/T026: B major and
   B minor sit high with the tonic in octave 4 - use steps below the tonic to stay under A5, research R5)
 - [ ] T027 [US1] Review each key-change definition's `meta.trains` and update the text where it no longer describes
   the music (US3 #3 applies here too), in the six files of T021-T026
@@ -162,7 +170,7 @@ as demanding as the one before, and the level check passes.
 - [ ] T031 [US1] Run `pnpm test:e2e -- tests/e2e/library.spec.ts tests/e2e/tempo-field.spec.ts` (they open
   `c-major-to-c-minor/introduction` and `a-major-to-a-minor/beginner`); fix only assertions that read the old notes,
   logging why
-- [ ] T032 [US1] Music review of the authored key-change phrases with the `music-domain-expert` agent (readability,
+- [ ] T032 [US1] [deep] Music review of the authored key-change phrases with the `music-domain-expert` agent (readability,
   musicality, level fit, fingering); fix findings in the definitions, regenerate, summarise findings in
   `specs/014-melody-over-chords/implementation-log.md`
 - [ ] T033 [US1] Manual verification per `specs/014-melody-over-chords/quickstart.md` US1 and US2 (`pnpm screenshot
@@ -176,6 +184,8 @@ as demanding as the one before, and the level check passes.
 
 ## Phase 4: User Story 3 - Chord-change drills lose their doubled bars (Priority: P2)
 
+**Model**: standard (claude-sonnet-5); composing the drill melodies (T042-T044) and the music review (T049) are
+`deep` (claude-opus-5.5)
 **Goal**: the 5 drills keep their left hand exactly and get a right-hand melody that rests with the left hand.
 **Independent Test**: open *C major - I-V-vi-IV*: no bar has both hands on the same block chord; the left hand plays
 the same chords and inversions as before, the right hand a melody.
@@ -207,10 +217,10 @@ the same chords and inversions as before, the right hand a melody.
   (`src/core/library/exercise/generate.ts`, using `melody.ts`) until T035 passes; per-key-step and key-change goldens
   unchanged
 - [ ] T041 [US3] Change the drill claims in `tools/library/fidelity/exercise-claims.ts` until T037 passes
-- [ ] T042 [P] [US3] Author `melody` and remove `supersedes` in `content/library/exercises/changes-i-v-vi-iv.json`
+- [ ] T042 [P] [US3] [deep] Author `melody` and remove `supersedes` in `content/library/exercises/changes-i-v-vi-iv.json`
   and `content/library/exercises/changes-turnaround.json` (beginner)
-- [ ] T043 [P] [US3] Same for `content/library/exercises/changes-diatonic-ladder.json` (intermediate)
-- [ ] T044 [P] [US3] Same for `content/library/exercises/changes-same-tonic.json` and
+- [ ] T043 [P] [US3] [deep] Same for `content/library/exercises/changes-diatonic-ladder.json` (intermediate)
+- [ ] T044 [P] [US3] [deep] Same for `content/library/exercises/changes-same-tonic.json` and
   `content/library/exercises/changes-a-minor-major.json` (advanced; `alter: -1` on the third over the minor chords)
 - [ ] T045 [US3] Add `resetBy: '014'` to the 5 drill entries in `tools/library/successors.ts` (and the field to its
   `Successor` type) until T038 and T039 pass
@@ -219,7 +229,7 @@ the same chords and inversions as before, the right hand a melody.
   `tests/core/library/exercise/changes.test.ts` expectations with logged reasons; T036, T017, T003 green
 - [ ] T048 [US3] Move the 5 drills' audit records to `exercise-theory-v3`; `pnpm library:fidelity`,
   `pnpm library:fidelity --check` green
-- [ ] T049 [US3] Music review of the drill phrases with the `music-domain-expert` agent; fix, regenerate, summarise in
+- [ ] T049 [US3] [deep] Music review of the drill phrases with the `music-domain-expert` agent; fix, regenerate, summarise in
   the log
 - [ ] T050 [US3] Manual verification per quickstart US3 and FR-012 (screenshots of `c-major/i-v-vi-iv` and
   `c-major-to-c-minor/major-and-minor`; the FR-012 browser check with an old result) recorded in the log
@@ -230,6 +240,8 @@ the same chords and inversions as before, the right hand a melody.
 ---
 
 ## Phase 5: Polish & Cross-Cutting
+
+**Model**: standard (claude-sonnet-5)
 
 - [ ] T052 [P] Add an assertion to `tests/library/melody-sweep.test.ts` that no Learning item (all of
   `learning/**`) has a `doubled` finding apart from a single closing tonic chord (SC-001), and that the in-scope list

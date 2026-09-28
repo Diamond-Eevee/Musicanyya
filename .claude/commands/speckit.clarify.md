@@ -11,6 +11,10 @@ $ARGUMENTS
 
 ## Steps
 
+**Model fit**: this step is tier `deep` (`docs/agents/reference.md` R11). If your model does not fit it, ask the user
+first: switch model, or continue with you? Switch: stop and say which model to use. Continue: note it in the report
+(and in `implementation-log.md` when the feature has one).
+
 1. Run and parse JSON (`FEATURE_DIR`, `FEATURE_SPEC`):
    ```
    powershell -NoProfile -ExecutionPolicy Bypass -File .specify/scripts/powershell/check-prerequisites.ps1 -Json -PathsOnly

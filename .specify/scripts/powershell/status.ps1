@@ -58,20 +58,26 @@ function Get-FeatureState([string]$dir) {
     $planFilled = (Test-Path $plan) -and -not (Select-String -Path $plan -Pattern '^# Implementation Plan: \[FEATURE\]' -Quiet)
 
     $total = 0; $done = 0; $inProgress = @(); $next = @(); $ownerGates = @(); $resume = $null
+    # Model tier (docs/agents/reference.md R11): the phase's **Model** line, or the task's [deep]/[standard] tag.
+    $phaseTier = $null; $firstOpenTier = $null; $firstProgressTier = $null; $resumeTier = $null
     if (Test-Path $tasks) {
         $lines = Get-Content -Path $tasks -Encoding UTF8
         foreach ($l in $lines) {
+            if ($l -match '^## ') { $phaseTier = $null }
+            if ($l -match '^\*\*Model\*\*:\s*`?(deep|standard)') { $phaseTier = $Matches[1] }
             if ($l -match $taskPattern) {
                 $state = $Matches[1]; $id = $Matches[2]
                 $total++
                 if ($state -eq 'x' -or $state -eq 'X') { $done++; continue }
-                if ($state -eq '~') { $inProgress += $l.Trim() }
-                elseif ($next.Count -lt 3) { $next += $l.Trim() }
+                $tier = $phaseTier
+                if ($l -match '^\s*- \[.\] T\d+(?: \[P\])?(?: \[US\d+\])? \[(deep|standard)\]') { $tier = $Matches[1] }
+                if ($state -eq '~') { if ($inProgress.Count -eq 0) { $firstProgressTier = $tier }; $inProgress += $l.Trim() }
+                elseif ($next.Count -lt 3) { if ($next.Count -eq 0) { $firstOpenTier = $tier }; $next += $l.Trim() }
                 if ($l -match 'Owner decision gate' -and $l -notmatch 'owner approved|owner rejected') { $ownerGates += $id }
             }
         }
-        if ($inProgress.Count -gt 0) { $resume = $inProgress[0] }
-        elseif ($next.Count -gt 0) { $resume = $next[0] }
+        if ($inProgress.Count -gt 0) { $resume = $inProgress[0]; $resumeTier = $firstProgressTier }
+        elseif ($next.Count -gt 0) { $resume = $next[0]; $resumeTier = $firstOpenTier }
     }
 
     if (-not (Test-Path $spec)) { $step = 'specify' }
@@ -81,6 +87,10 @@ function Get-FeatureState([string]$dir) {
     elseif ($total -eq 0) { $step = 'tasks (tasks.md has no T### items)' }
     elseif ($done -lt $total) { $step = 'implement' }
     else { $step = 'done (run full quality gate, then merge)' }
+    # Spec Kit steps have fixed tiers (reference R11).
+    if ($step -match '^tasks') { $resumeTier = 'standard' }
+    elseif ($step -match '^(specify|clarify|plan)') { $resumeTier = 'deep' }
+    elseif ($step -match '^done') { $resumeTier = $null }
 
     [PSCustomObject]@{
         FEATURE             = Split-Path $dir -Leaf
@@ -94,6 +104,7 @@ function Get-FeatureState([string]$dir) {
         IN_PROGRESS         = $inProgress
         NEXT_TASKS          = $next
         RESUME_AT           = $resume
+        MODEL_TIER          = $resumeTier
         OWNER_GATES_OPEN    = $ownerGates
         LAST_LOG            = (Get-LastLogEntry $dir)
         NEXT_STEP           = $step
@@ -164,6 +175,7 @@ if ($current) {
     Write-Output "  tasks.md: $(if ($current.HAS_TASKS) { "yes ($($current.TASKS_DONE)/$($current.TASKS_TOTAL) done, $($current.IN_PROGRESS.Count) in progress)" } else { 'no' })"
     Write-Output "  NEXT STEP: $($current.NEXT_STEP)"
     if ($current.RESUME_AT) { Write-Output "  RESUME AT: $(Format-Short $current.RESUME_AT)" }
+    if ($current.MODEL_TIER) { Write-Output "  MODEL TIER: $($current.MODEL_TIER) - does your model fit? (docs/agents/reference.md R11; if not, ask the user: switch or continue)" }
     if ($current.IN_PROGRESS.Count -gt 0) {
         Write-Output '  In progress (claims):'
         foreach ($t in $current.IN_PROGRESS) { Write-Output "    $(Format-Short $t)" }
