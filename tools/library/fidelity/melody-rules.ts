@@ -121,6 +121,8 @@ const FINGERS = 5;
 const CROSSING_LEAP_MAX_STEPS = 2;
 /** Widest span from the thumb to finger 2 on a leap: a fourth, in diatonic steps (T066). */
 const THUMB_TO_SECOND_MAX_STEPS = 3;
+/** Crossings this many notes apart, in one direction, are a zigzag (T091). */
+const ZIGZAG_NOTES = 2;
 /** The shortest note after which the hand may lift to a new position at a chord start (T066), in quarters. */
 const SHIFT_MIN_QUARTERS = 1;
 /** Bars within which a key change must be heard (FR-007, research R8). */
@@ -715,6 +717,8 @@ function checkFingering(
     report('fingering', first.onset, `the first note ${name(first)} has no finger written`);
   let thumb = first.diat - ((first.finger ?? THUMB) - 1);
   let shifts = 0;
+  /** The last step crossing: its note index and direction (+1 thumb-under, -1 finger-over). */
+  let lastCrossing = { index: Number.NEGATIVE_INFINITY, direction: 0 };
   for (let i = 1; i < melody.length; i++) {
     const m = melody[i] as Note;
     const before = melody[i - 1] as Note;
@@ -749,6 +753,14 @@ function checkFingering(
       const thumbNote = thumbUnder ? m : before;
       if (BLACK_KEYS.has(thumbNote.pc)) {
         report('fingering', m.onset, `the thumb crosses onto the black key ${name(thumbNote)}`);
+        continue;
+      }
+      // A crossing every second note (1-2-1-2 down, 2-1-2-1 up) is no scale fingering (T091, from the T088 review).
+      const direction = thumbUnder ? 1 : -1;
+      const zigzag = i - lastCrossing.index === ZIGZAG_NOTES && direction === lastCrossing.direction;
+      lastCrossing = { index: i, direction };
+      if (zigzag) {
+        report('fingering', m.onset, `${name(m)} crosses again two notes after the last crossing (zigzag fingering)`);
         continue;
       }
       shift = ladder.crossingIsShift;

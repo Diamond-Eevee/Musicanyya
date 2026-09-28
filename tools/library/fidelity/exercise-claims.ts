@@ -499,8 +499,6 @@ const subdominant = IV(WHOLE);
  *  (C major to A minor ...) keeps the first key's signature, so its raised 7ths count against the level's accidentals
  *  (criterion 11: one in 12 bars): there the harmony moves between i, VI (the pivot chord) and iv, and the melody's leading
  *  tone is the one accidental; a minor first key (A minor to C major ...) has its own signature and plays V. */
-const V6 = withFigure(dominant, '6');
-const IV64 = withFigure(subdominant, '64');
 const RELATIVE_PLANS: Record<KeyChangeStep, KeyChangePlan> = {
   introduction: {
     from: [tonic, dominant, tonic, PIVOT],

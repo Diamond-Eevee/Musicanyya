@@ -184,9 +184,44 @@
                   "finger": 4
                 },
                 {
-                  "step": 8,
+                  "step": 5,
                   "value": "quarter",
-                  "finger": 5
+                  "finger": 2
+                },
+                {
+                  "step": 4,
+                  "value": "quarter",
+                  "finger": 1
+                },
+                {
+                  "step": 3,
+                  "value": "quarter",
+                  "finger": 3
+                },
+                {
+                  "step": 2,
+                  "value": "quarter",
+                  "finger": 2
+                },
+                {
+                  "step": 3,
+                  "value": "quarter",
+                  "finger": 3
+                },
+                {
+                  "step": 4,
+                  "value": "quarter",
+                  "finger": 1
+                },
+                {
+                  "step": 5,
+                  "value": "half",
+                  "finger": 2
+                },
+                {
+                  "step": 6,
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 7,
@@ -194,49 +229,9 @@
                   "finger": 4
                 },
                 {
-                  "step": 6,
-                  "value": "quarter",
-                  "finger": 3
-                },
-                {
-                  "step": 5,
-                  "value": "quarter",
-                  "finger": 2
-                },
-                {
-                  "step": 5,
-                  "value": "quarter",
-                  "finger": 2
-                },
-                {
-                  "step": 3,
-                  "value": "quarter",
-                  "finger": 1
-                },
-                {
-                  "step": 4,
-                  "value": "quarter",
-                  "finger": 2
-                },
-                {
-                  "step": 5,
-                  "value": "quarter",
-                  "finger": 3
-                },
-                {
-                  "step": 6,
-                  "value": "quarter",
-                  "finger": 1
-                },
-                {
-                  "step": 7,
-                  "value": "quarter",
-                  "finger": 2
-                },
-                {
                   "step": 8,
                   "value": "half",
-                  "finger": 3
+                  "finger": 5
                 }
               ]
             },
@@ -295,68 +290,63 @@
                 },
                 {
                   "step": 2,
-                  "value": "quarter",
+                  "value": "half",
                   "finger": 2
                 },
                 {
-                  "step": 0,
+                  "step": 1,
                   "value": "quarter",
                   "finger": 1
                 },
                 {
-                  "step": 1,
+                  "step": 2,
                   "value": "quarter",
                   "finger": 2
                 },
                 {
                   "step": 3,
                   "value": "quarter",
+                  "finger": 3
+                },
+                {
+                  "step": 4,
+                  "value": "quarter",
                   "finger": 4
                 },
                 {
-                  "step": 2,
+                  "step": 5,
                   "value": "quarter",
-                  "finger": 3
+                  "finger": 1
                 },
                 {
-                  "step": 1,
+                  "step": 4,
                   "value": "quarter",
-                  "finger": 2
-                },
-                {
-                  "step": 1,
-                  "value": "quarter",
-                  "finger": 2
-                },
-                {
-                  "step": 2,
-                  "value": "quarter",
-                  "finger": 3
+                  "finger": 4
                 },
                 {
                   "step": 3,
                   "value": "quarter",
-                  "finger": 4
-                },
-                {
-                  "step": 2,
-                  "value": "quarter",
                   "finger": 3
                 },
                 {
-                  "step": 1,
+                  "step": 2,
                   "value": "quarter",
                   "finger": 2
                 },
                 {
+                  "step": 1,
+                  "value": "quarter",
+                  "finger": 1
+                },
+                {
                   "step": 2,
                   "value": "quarter",
-                  "finger": 3
+                  "finger": 2
                 },
                 {
                   "step": 1,
                   "value": "half",
-                  "finger": 2
+                  "finger": 1
                 }
               ]
             },
@@ -401,27 +391,22 @@
                 {
                   "step": 4,
                   "value": "quarter",
-                  "finger": 1
+                  "finger": 4
                 },
                 {
                   "step": 3,
                   "value": "quarter",
-                  "finger": 2
+                  "finger": 3
                 },
                 {
                   "step": 2,
-                  "value": "quarter",
-                  "finger": 1
-                },
-                {
-                  "step": 0,
-                  "value": "quarter",
-                  "finger": 3
+                  "value": "half",
+                  "finger": 2
                 },
                 {
                   "step": 1,
                   "value": "quarter",
-                  "finger": 4
+                  "finger": 1
                 },
                 {
                   "step": 0,
@@ -561,14 +546,14 @@
                   "finger": 3
                 },
                 {
-                  "step": 2,
-                  "value": "quarter",
-                  "finger": 2
-                },
-                {
-                  "step": 1,
+                  "step": 4,
                   "value": "quarter",
                   "finger": 1
+                },
+                {
+                  "step": 3,
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 2,
@@ -636,34 +621,34 @@
                   "finger": 2
                 },
                 {
-                  "step": 3,
-                  "value": "quarter",
-                  "finger": 3
-                },
-                {
                   "step": 1,
                   "value": "quarter",
                   "finger": 1
                 },
                 {
+                  "step": 2,
+                  "value": "quarter",
+                  "finger": 2
+                },
+                {
                   "step": 3,
                   "value": "quarter",
                   "finger": 3
                 },
                 {
-                  "step": 5,
+                  "step": 4,
                   "value": "quarter",
-                  "finger": 5
+                  "finger": 1
                 },
                 {
                   "step": 5,
                   "value": "quarter",
-                  "finger": 5
+                  "finger": 2
                 },
                 {
                   "step": 4,
                   "value": "quarter",
-                  "finger": 4
+                  "finger": 1
                 },
                 {
                   "step": 3,
@@ -746,34 +731,34 @@
                   "finger": 2
                 },
                 {
-                  "step": 3,
-                  "value": "quarter",
-                  "finger": 3
-                },
-                {
                   "step": 1,
                   "value": "quarter",
                   "finger": 1
                 },
                 {
+                  "step": 2,
+                  "value": "quarter",
+                  "finger": 2
+                },
+                {
                   "step": 3,
                   "value": "quarter",
                   "finger": 3
                 },
                 {
-                  "step": 5,
+                  "step": 4,
                   "value": "quarter",
-                  "finger": 5
+                  "finger": 1
                 },
                 {
                   "step": 5,
                   "value": "quarter",
-                  "finger": 5
+                  "finger": 2
                 },
                 {
                   "step": 4,
                   "value": "quarter",
-                  "finger": 4
+                  "finger": 1
                 },
                 {
                   "step": 3,
@@ -924,29 +909,29 @@
                   "finger": 1
                 },
                 {
-                  "step": 0,
+                  "step": 2,
                   "value": "quarter",
                   "finger": 2
                 },
                 {
-                  "step": -1,
+                  "step": 1,
                   "value": "quarter",
                   "finger": 1
                 },
                 {
-                  "step": -2,
-                  "value": "quarter",
-                  "finger": 2
-                },
-                {
                   "step": 0,
                   "value": "quarter",
-                  "finger": 4
+                  "finger": 3
+                },
+                {
+                  "step": 2,
+                  "value": "quarter",
+                  "finger": 5
                 },
                 {
                   "step": 1,
                   "value": "whole",
-                  "finger": 5
+                  "finger": 4
                 }
               ]
             },
@@ -1116,12 +1101,12 @@
                 {
                   "step": 4,
                   "value": "quarter",
-                  "finger": 2
+                  "finger": 4
                 },
                 {
                   "step": 3,
                   "value": "quarter",
-                  "finger": 1
+                  "finger": 3
                 },
                 {
                   "step": 2,
@@ -1205,17 +1190,17 @@
                 {
                   "step": 2,
                   "value": "quarter",
-                  "finger": 2
+                  "finger": 3
                 },
                 {
                   "step": 1,
                   "value": "half",
-                  "finger": 1
+                  "finger": 2
                 },
                 {
                   "step": 1,
                   "value": "whole",
-                  "finger": 1
+                  "finger": 2
                 }
               ]
             },
@@ -1287,17 +1272,17 @@
                 {
                   "step": 2,
                   "value": "quarter",
-                  "finger": 2
+                  "finger": 3
                 },
                 {
                   "step": 1,
                   "value": "half",
-                  "finger": 1
+                  "finger": 2
                 },
                 {
                   "step": 1,
                   "value": "whole",
-                  "finger": 1
+                  "finger": 2
                 }
               ]
             },
@@ -1369,17 +1354,17 @@
                 {
                   "step": 2,
                   "value": "quarter",
-                  "finger": 2
+                  "finger": 3
                 },
                 {
                   "step": 1,
                   "value": "half",
-                  "finger": 1
+                  "finger": 2
                 },
                 {
                   "step": 1,
                   "value": "whole",
-                  "finger": 1
+                  "finger": 2
                 }
               ]
             }
@@ -1435,7 +1420,7 @@
     "kind": "exercise",
     "level": "beginner",
     "tags": ["key-changes"],
-    "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic: left-hand chords under a right-hand melody in quarter notes, with one hand move at the key change.",
+    "trains": "Moving between relative keys through the shared pivot chord, arriving on the new tonic: left-hand chords with a half-bar change under a right-hand melody in quarter notes, with leaps of a third and the thumb passing under.",
     "hands": "both",
     "provenance": {
       "origin": "authored",

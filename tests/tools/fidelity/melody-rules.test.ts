@@ -720,3 +720,32 @@ describe('introduction and beginner play like the key step (T076, owner listenin
     expect(check(bars, 'beginner', BEGINNER_KEYS)).toEqual([{ rule: 'value', bar: 2, beat: 4 }]);
   });
 });
+
+// ---- zigzag fingering (T091, from the T088 music review) ------------------------------------------------------------
+
+describe('fingering: no zigzag crossings (T091)', () => {
+  // C major, beginner (crossings allowed; a parallel octave into the closing tonic is too). The descent C5 B4 A4 G4 fingered 1-2-1-2 crosses over the thumb on B and
+  // again on G - a crossing every second note, which no scale fingering does.
+  const zigzag = (): FixtureBar[] => [
+    bar(C_I, [n('C5', 'quarter', 1), n('B4', 'quarter', 2), n('A4', 'quarter', 1), n('G4', 'quarter', 2)], {
+      key: SIG_C,
+    }),
+    bar(C_V, [n('G4', 'half', 2), n('A4', 'quarter', 3), n('B4', 'quarter', 4)]),
+    bar(C_I, [n('C5', 'whole', 5)], { barline: 'light-heavy' }),
+  ];
+
+  it('a descent fingered 1-2-1-2 is a fingering finding at the second crossing', () => {
+    expect(check(zigzag(), 'beginner', C_KEYS)).toEqual([{ rule: 'fingering', bar: 1, beat: 4 }]);
+  });
+
+  it('the scale fingering of the same descent (5-4-3-2, then 1 and 3 over) has no finding', () => {
+    const bars = withBar(
+      zigzag(),
+      1,
+      bar(C_I, [n('C5', 'quarter', 5), n('B4', 'quarter', 4), n('A4', 'quarter', 3), n('G4', 'quarter', 2)], {
+        key: SIG_C,
+      }),
+    );
+    expect(check(bars, 'beginner', C_KEYS)).toEqual([]);
+  });
+});

@@ -395,7 +395,11 @@ pass; the owner finds it fun to play (T057).
   T084): `checkedBy`, `date`; `pnpm library:fidelity`, `pnpm library:fidelity --check` green
 - [x] T087 `pnpm test:e2e -- tests/e2e/library.spec.ts tests/e2e/tempo-field.spec.ts tests/e2e/electron-smoke.spec.ts`;
   fix only assertions that read the old notes or chords, logging why
-- [ ] T088 [deep] Music review of the new chord plans and phrases with the `music-domain-expert` agent (fun to play at
+- [x] T091 [deep] (T088 review finding) Zigzag fingering: a descending run fingered 1-2-1-2 crosses every second note,
+  which no scale fingering does, and the checker passed it. Test first in `tests/tools/fidelity/melody-rules.test.ts`
+  (a second thumb-under / finger-over in the same direction two notes after the last one is a `fingering` finding; a
+  scale-fingered run with crossings further apart is not), then `melody-rules.ts`
+- [x] T088 [deep] Music review of the new chord plans and phrases with the `music-domain-expert` agent (fun to play at
   the level, like the key step; voice-leading of the new progressions; fingering); fix, regenerate, summarise in the
   log
 - [ ] T089 Update `quickstart.md` US1/US2 expectations, then manual verification (`pnpm screenshot --item ...` for

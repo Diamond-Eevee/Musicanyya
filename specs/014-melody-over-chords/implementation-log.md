@@ -478,3 +478,33 @@
   a-minor/introduction (quarters C4-C5 with the thumb under on F, I V I IV then i i VI VI i i VI i, one G♯ leading to
   A, ends on A), g-major-to-e-minor/beginner (thirds, IV6/4-V6 half bar, D♯ once), c-major-to-c-minor/beginner
   (broken-chord thirds, E♭ after the change, bars 9-10 mirror bars 3-4 in minor).
+- T088 music review (`music-domain-expert` sub-agent, read-only; theory from memory as it says; its replacements were
+  checked by hand, so every one went through the melody check, level check and folder order before use). Findings and
+  what was done:
+  1. Zigzag fingering (a descent fingered 1-2-1-2, crossing every second note; the checker passed it) in 5 items ->
+     T091 (new, deep): test first (`1 failed | 1 passed` on the planted zigzag vs its scale fingering), then a
+     `fingering` finding for a second step crossing in the same direction two notes after the last; the 5 phrases
+     re-fingered (F: 4 over the thumb onto B♭). Intermediate items and drills have none.
+  2. BLOCKING (owner criterion) old-style phrases still in quarter-quarter-half in one position: parallel introduction
+     section 2 (all 10 items), E minor to G major introduction section 2, the minor-first openings of the relative
+     introduction, the minor section 1 of the relative beginner -> re-composed as scale runs with thumb-under /
+     finger-over. The review's parallel template put 3 on beat 3 over IV (a major 7th against the bass in major) and
+     over V in minor (against the leading tone): changed to a neighbour figure over IV and 5-4 over V. Its E minor to
+     G major replacement never sounded the new key's D within two bars: re-composed to start D4-led.
+  3. Doubled leading tone in parallel octaves with the bass (relative beginner, V6 to I) -> bars 3-6 re-composed (the
+     leading tone moves down to 5); E minor to G major bars 10-11 end on A over V6.
+  4. D major to B minor beginner: the thumb landed on F♯ -> re-fingered. Bar 8 re-strike `3/3 2/2 1h/1` not applied: the
+     finger change on the repeated note is a mid-section lift, which introduction does not allow.
+  5. `trains` still said "half and whole notes" / "one five-finger position" -> the four descriptions updated.
+  Not applied, with reasons: iv instead of VI at bar 11 of the relative introduction (root-position iv in the
+  octave-lower E minor is A1, below the introduction's bounds); a half-bar chord change in the parallel beginner
+  (step order: parallel intermediate has exactly 1 change per bar, beginner may not exceed it); i i VI iv6/4 i order
+  in the relative beginner minor half (NOTE, optional); identical minor section-2 variants across the relative items
+  (NOTE; the registers and the one-accidental limit leave little room). Open for the owner: removing E minor's
+  `octaveShift: -1` (the review: the left hand at E2 / B1 is muddy and an octave below the E minor key step) - it
+  changes the recorded tonic voicing that FR-002 keeps, so it is the owner's call.
+  After the fixes: 0 melody findings, level and step order pass in all 36 items and 18 folders (scratch tools), no
+  zigzag on the shelf; regenerated; `vitest run tests/library tests/tools tests/core/library`: `Tests 3007 passed`;
+  4 key-change goldens and 27 identity entries (all rewritten items) updated again; `pnpm lint` exit 0 (299 warnings,
+  after removing two unused constants), `pnpm typecheck` exit 0; `pnpm library:fidelity --check` `182 records, 0
+  failed`.

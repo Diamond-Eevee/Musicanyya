@@ -244,13 +244,23 @@
                 },
                 {
                   "step": 3,
-                  "value": "half",
+                  "value": "quarter",
                   "finger": 3
                 },
                 {
-                  "step": 2,
+                  "step": 4,
                   "value": "quarter",
-                  "finger": 2
+                  "finger": 4
+                },
+                {
+                  "step": 5,
+                  "value": "quarter",
+                  "finger": 5
+                },
+                {
+                  "step": 4,
+                  "value": "quarter",
+                  "finger": 4
                 },
                 {
                   "step": 3,
@@ -259,7 +269,7 @@
                 },
                 {
                   "step": 2,
-                  "value": "half",
+                  "value": "quarter",
                   "finger": 2
                 }
               ]
@@ -355,12 +365,12 @@
                 {
                   "step": 4,
                   "value": "quarter",
-                  "finger": 2
+                  "finger": 4
                 },
                 {
                   "step": 3,
                   "value": "half",
-                  "finger": 1
+                  "finger": 3
                 },
                 {
                   "step": 2,
@@ -474,13 +484,23 @@
                 },
                 {
                   "step": 3,
-                  "value": "half",
+                  "value": "quarter",
                   "finger": 3
                 },
                 {
-                  "step": 2,
+                  "step": 4,
                   "value": "quarter",
-                  "finger": 2
+                  "finger": 4
+                },
+                {
+                  "step": 5,
+                  "value": "quarter",
+                  "finger": 5
+                },
+                {
+                  "step": 4,
+                  "value": "quarter",
+                  "finger": 4
                 },
                 {
                   "step": 3,
@@ -489,7 +509,7 @@
                 },
                 {
                   "step": 2,
-                  "value": "half",
+                  "value": "quarter",
                   "finger": 2
                 }
               ]
@@ -902,6 +922,61 @@
                   "finger": 3
                 },
                 {
+                  "step": 1,
+                  "value": "quarter",
+                  "finger": 1
+                },
+                {
+                  "step": 3,
+                  "value": "quarter",
+                  "finger": 3
+                },
+                {
+                  "step": 5,
+                  "value": "quarter",
+                  "finger": 5
+                },
+                {
+                  "step": 4,
+                  "value": "quarter",
+                  "finger": 4
+                },
+                {
+                  "step": 3,
+                  "value": "quarter",
+                  "finger": 3
+                },
+                {
+                  "step": 2,
+                  "value": "quarter",
+                  "finger": 2
+                },
+                {
+                  "step": 1,
+                  "value": "quarter",
+                  "finger": 1
+                },
+                {
+                  "step": 3,
+                  "value": "quarter",
+                  "finger": 3
+                },
+                {
+                  "step": 5,
+                  "value": "quarter",
+                  "finger": 5
+                },
+                {
+                  "step": 4,
+                  "value": "quarter",
+                  "finger": 4
+                },
+                {
+                  "step": 3,
+                  "value": "quarter",
+                  "finger": 3
+                },
+                {
                   "step": 2,
                   "value": "quarter",
                   "finger": 2
@@ -917,49 +992,9 @@
                   "finger": 2
                 },
                 {
-                  "step": 1,
-                  "value": "quarter",
-                  "finger": 3
-                },
-                {
                   "step": 2,
                   "value": "quarter",
                   "finger": 4
-                },
-                {
-                  "step": 1,
-                  "value": "half",
-                  "finger": 3
-                },
-                {
-                  "step": 1,
-                  "value": "quarter",
-                  "finger": 3
-                },
-                {
-                  "step": 2,
-                  "value": "quarter",
-                  "finger": 4
-                },
-                {
-                  "step": 3,
-                  "value": "half",
-                  "finger": 5
-                },
-                {
-                  "step": 2,
-                  "value": "quarter",
-                  "finger": 4
-                },
-                {
-                  "step": 1,
-                  "value": "quarter",
-                  "finger": 3
-                },
-                {
-                  "step": 0,
-                  "value": "half",
-                  "finger": 2
                 },
                 {
                   "step": 1,
@@ -1374,6 +1409,61 @@
                   "finger": 3
                 },
                 {
+                  "step": 1,
+                  "value": "quarter",
+                  "finger": 1
+                },
+                {
+                  "step": 3,
+                  "value": "quarter",
+                  "finger": 3
+                },
+                {
+                  "step": 5,
+                  "value": "quarter",
+                  "finger": 5
+                },
+                {
+                  "step": 4,
+                  "value": "quarter",
+                  "finger": 4
+                },
+                {
+                  "step": 3,
+                  "value": "quarter",
+                  "finger": 3
+                },
+                {
+                  "step": 2,
+                  "value": "quarter",
+                  "finger": 2
+                },
+                {
+                  "step": 1,
+                  "value": "quarter",
+                  "finger": 1
+                },
+                {
+                  "step": 3,
+                  "value": "quarter",
+                  "finger": 3
+                },
+                {
+                  "step": 5,
+                  "value": "quarter",
+                  "finger": 5
+                },
+                {
+                  "step": 4,
+                  "value": "quarter",
+                  "finger": 4
+                },
+                {
+                  "step": 3,
+                  "value": "quarter",
+                  "finger": 3
+                },
+                {
                   "step": 2,
                   "value": "quarter",
                   "finger": 2
@@ -1390,50 +1480,9 @@
                   "alter": 1
                 },
                 {
-                  "step": 1,
-                  "value": "quarter",
-                  "finger": 3
-                },
-                {
                   "step": 2,
                   "value": "quarter",
                   "finger": 4
-                },
-                {
-                  "step": 1,
-                  "value": "half",
-                  "finger": 3
-                },
-                {
-                  "step": 1,
-                  "value": "quarter",
-                  "finger": 3
-                },
-                {
-                  "step": 2,
-                  "value": "quarter",
-                  "finger": 4
-                },
-                {
-                  "step": 3,
-                  "value": "half",
-                  "finger": 5
-                },
-                {
-                  "step": 2,
-                  "value": "quarter",
-                  "finger": 4
-                },
-                {
-                  "step": 1,
-                  "value": "quarter",
-                  "finger": 3
-                },
-                {
-                  "step": 0,
-                  "value": "half",
-                  "finger": 2,
-                  "alter": 1
                 },
                 {
                   "step": 1,
@@ -1488,7 +1537,7 @@
     "kind": "exercise",
     "level": "beginner",
     "tags": ["key-changes"],
-    "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant: a right-hand melody in quarter notes in one five-finger position that changes mode with the chords.",
+    "trains": "Moving between parallel keys (same tonic, new signature) through the shared dominant: a right-hand melody in quarter notes with broken-chord thirds and the thumb passing under, that changes mode with the chords.",
     "hands": "both",
     "provenance": {
       "origin": "authored",
