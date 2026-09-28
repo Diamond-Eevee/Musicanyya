@@ -22,13 +22,13 @@ steps, Songs and Repertoire must stay byte-identical (FR-003, SC-004).
 
 **Model**: standard (claude-sonnet-5)
 
-- [ ] T001 [P] Fold contract change `specs/014-melody-over-chords/contracts/exercise-definition-1.3.md` into the
+- [x] T001 [P] Fold contract change `specs/014-melody-over-chords/contracts/exercise-definition-1.3.md` into the
   canonical `specs/005-practice-score-library/contracts/exercise-definition.md` (version line -> 1.3.0, new §1b/§2a
   text for `melody` and the drills' top-level `melody`)
-- [ ] T002 [P] Fold `specs/014-melody-over-chords/contracts/audit-record-1.3.md` into
+- [x] T002 [P] Fold `specs/014-melody-over-chords/contracts/audit-record-1.3.md` into
   `specs/007-library-fidelity-audit/contracts/audit-record.md` (1.3.0, rule set `exercise-theory-v3`) and
   `specs/007-library-fidelity-audit/contracts/fidelity-tools.md` (1.12.0, `checkMelodyRules`, `checkMelodyVariation`)
-- [ ] T003 Write `tests/library/out-of-scope.test.ts`: for every file under `public/library/` that is not one of the
+- [x] T003 Write `tests/library/out-of-scope.test.ts`: for every file under `public/library/` that is not one of the
   59 in-scope items (their `.musicxml` + `.json`) and not `index.json`, assert its SHA-256 equals the value recorded
   in `tests/library/out-of-scope-hashes.json`; create that JSON by hashing the files at commit 7f8ab96 with a
   one-off script in the scratchpad (not committed). Passes now; guards SC-004 / FR-003 for every later task

@@ -1,6 +1,6 @@
 # Contract: audit records and the audit report
 
-**Version**: `1.2.0` (1.0.0 new; 1.1.0, 2026-09-24: `melodyRhythm`, and a melody check may add only `spelling`, T054; 1.2.0, 2026-09-26, feature 011: theory rule sets `exercise-theory-v2` and `song-chords-v1`, `previous.level` `introduction`, optional `supersedes`, moved records, the "Replaced by feature 011" table; change request `specs/011-learning-by-key/contracts/audit-record-1.2.md`).
+**Version**: `1.3.0` (1.0.0 new; 1.1.0, 2026-09-24: `melodyRhythm`, and a melody check may add only `spelling`, T054; 1.2.0, 2026-09-26, feature 011: theory rule sets `exercise-theory-v2` and `song-chords-v1`, `previous.level` `introduction`, optional `supersedes`, moved records, the "Replaced by feature 011" table; change request `specs/011-learning-by-key/contracts/audit-record-1.2.md`; 1.3.0, 2026-09-28, feature 014: theory rule set `exercise-theory-v3`, rule 9; change request `specs/014-melody-over-chords/contracts/audit-record-1.3.md`).
 
 **Owner**: `tools/library/fidelity/records.ts` (reads, validates, re-runs), `tools/library/fidelity/report.ts`
 (writes the report). **Location**: records at `content/library/audit/<item-id>.json` (the item id's slashes are
@@ -74,7 +74,7 @@ folders, e.g. `content/library/audit/repertoire/advanced/chopin-prelude-op28-no4
           "required": ["method", "ruleSet", "expectedDifferences"],
           "properties": {
             "method": { "const": "theory" },
-            "ruleSet": { "enum": ["exercise-theory-v1", "exercise-theory-v2", "song-chords-v1"] },
+            "ruleSet": { "enum": ["exercise-theory-v1", "exercise-theory-v2", "exercise-theory-v3", "song-chords-v1"] },
             "expectedDifferences": { "const": 0 }
           }
         },
@@ -127,6 +127,10 @@ folders, e.g. `content/library/audit/repertoire/advanced/chopin-prelude-op28-no4
    chord's notes must be exactly the triad its name spells and each name must be in the allowed set of the item's level.
    `claim: "arrangement"` for songs requires `arrangement: true`, non-empty `departures`, one `mechanical` check with aspect
    `melody` and one `song-chords-v1` check.
+9. **Rule set `exercise-theory-v3`** (feature 014): runs everything `exercise-theory-v2` runs, except that a section
+   hand claimed as `{ "kind": "melody", "level": <level> }` is checked by `checkMelodyRules` (contract fidelity-tools
+   1.12 §3) instead of note by note; `expectedDifferences` counts findings of both. Used by the 59 records of the
+   rewritten key-change items and chord-change drills (feature 014); no other record changes.
 
 ## 3. The report (`docs/library-audit.md`)
 
