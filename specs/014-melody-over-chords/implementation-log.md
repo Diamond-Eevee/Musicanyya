@@ -512,3 +512,17 @@
   introduction (both sections in quarter-note runs with crossings, E♭ from the first bar in C minor),
   g-major-to-e-minor/introduction, e-minor-to-g-major/introduction (the new section 2: G F♯ E D, D E F♯, runs with
   thumb-under, ends on G); the other quickstart items as described above. No notices, no console errors.
+
+## 2026-09-28 23:15 - claude-sonnet-5-5 (T092 local gate, report only)
+- Done: T092 run on the head of `014-melody-over-chords` (0eb2c58, after T091), Windows 11, all four Playwright projects.
+  `pnpm install` up to date; `pnpm exec vite build -c vite.electron.config.ts` exit 0. No code or test changed; nothing ticked.
+- Results:
+  - `pnpm lint`: exit 0 (`Found 299 warnings.` `Found 13 infos.`, 1027 files checked)
+  - `pnpm typecheck`: exit 0 (`tsc --build tsconfig.json`, no output)
+  - `pnpm test`: exit 0 (`Test Files  272 passed (272)`, `Tests  5961 passed (5961)`)
+  - `pnpm test:e2e`: exit 0 (`965 passed (11.3m)`, `575 skipped`, 0 failed, 0 flaky, 1540 tests, 8 workers).
+    Per project: chromium 375 passed / 10 skipped; firefox 154 / 231; webkit 86 / 299; electron 350 / 35.
+    The skips are the specs' own browser gates (mostly `grade-marks-overlap` and `tempo-field` outside chromium).
+- Failures rerun alone: none, there were none. The two known non-014 failures did not occur here:
+  013's `query-timing.test.ts` (T111) passed inside `pnpm test`, and firefox `score-browser.spec.ts:343` (T112) passed in the e2e run.
+- Handoff: T090 stays with the continuing session; gate is green locally on all four projects at 0eb2c58.
