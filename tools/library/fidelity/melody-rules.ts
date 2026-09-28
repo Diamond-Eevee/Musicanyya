@@ -106,6 +106,11 @@ const MAJOR_THIRD = 4;
 const MINOR_THIRD = 3;
 const PERFECT_FIFTH = 7;
 const THUMB = 1;
+const INDEX_FINGER = 2;
+/** A minor or major second: the semitones of one diatonic step. */
+const DIATONIC_STEP_SEMITONES: ReadonlySet<number> = new Set([1, 2]);
+/** A metre of at least this many beats (and even) has a strong beat at the half bar, as 4/4 does. */
+const HALF_BAR_STRONG_MIN_BEATS = 4;
 const CROSSING_FINGERS: ReadonlySet<number> = new Set([2, 3, 4]);
 const FINGERS = 5;
 /** Widest leap a thumb crossing may span: a third, in diatonic steps (T066, research R6 amendment). */
@@ -309,7 +314,7 @@ export function checkMelodyRules(input: MelodyCheckInput): MelodyFinding[] {
   const hasPc = (chord: readonly Note[], pc: number): boolean => chord.some((c) => c.pc === pc);
   const isStrong = (t: number): boolean => {
     const pos = positionIn(t);
-    const halfBarStrong = metre.beats >= 4 && metre.beats % 2 === 0;
+    const halfBarStrong = metre.beats >= HALF_BAR_STRONG_MIN_BEATS && metre.beats % 2 === 0;
     return pos === 0 || (halfBarStrong && pos === barLength / 2);
   };
   const next = (i: number): Note | undefined => melody[i + 1];
@@ -402,8 +407,8 @@ export function checkMelodyRules(input: MelodyCheckInput): MelodyFinding[] {
   const allowedAt = (t: number): boolean => {
     const pos = positionIn(t);
     if (pos <= 0) return false;
-    if (input.level === 'introduction') return pos >= barLength / 2;
-    if (input.level === 'beginner') return pos >= barLength / 2 || Number.isInteger(pos);
+    if (ladder.nctPlacement === 'second-half-of-bar') return pos >= barLength / 2;
+    if (ladder.nctPlacement === 'weak-beats') return pos >= barLength / 2 || Number.isInteger(pos);
     return true;
   };
   let run: number[] = [];
@@ -522,7 +527,7 @@ export function checkMelodyRules(input: MelodyCheckInput): MelodyFinding[] {
   // A diatonic passing tone on a strong beat that is not a chord start - from a chord tone to a chord tone, by step,
   // one way - is exempt (second-species practice; research R4 amendment, T060); a neighbour tone is not.
   const diatonicStep = (a: Note, b: Note): boolean =>
-    a.end === b.onset && Math.abs(a.diat - b.diat) === 1 && [1, 2].includes(Math.abs(a.midi - b.midi));
+    a.end === b.onset && Math.abs(a.diat - b.diat) === 1 && DIATONIC_STEP_SEMITONES.has(Math.abs(a.midi - b.midi));
   const isPassing = (m: Note, i: number): boolean => {
     const before = prev(i);
     const after = next(i);
@@ -630,8 +635,8 @@ export function checkMelodyRules(input: MelodyCheckInput): MelodyFinding[] {
     const dotted = !Number.isInteger(Math.log2(m.written));
     if (m.written < ladder.shortestValueBeats)
       report('value', m.onset, `${name(m)} is shorter than the ${input.level} shortest value`);
-    else if (dotted && input.level !== 'advanced') report('value', m.onset, `${name(m)} is dotted (advanced only)`);
-    else if (input.level === 'intermediate' && m.written === EIGHTH_BEATS) {
+    else if (dotted && !ladder.dottedValues) report('value', m.onset, `${name(m)} is dotted (not at ${input.level})`);
+    else if (ladder.eighthsInPairs && m.written === EIGHTH_BEATS) {
       const partner = Number.isInteger(pos) ? next(i) : prev(i);
       const paired =
         partner !== undefined &&
@@ -704,7 +709,6 @@ function checkFingering(
     report('fingering', first.onset, `the first note ${name(first)} has no finger written`);
   let thumb = first.diat - ((first.finger ?? THUMB) - 1);
   let shifts = 0;
-  const crossingIsShift = level === 'introduction' || level === 'beginner';
   for (let i = 1; i < melody.length; i++) {
     const m = melody[i] as Note;
     const before = melody[i - 1] as Note;
@@ -740,7 +744,7 @@ function checkFingering(
         report('fingering', m.onset, `the thumb crosses onto the black key ${name(thumbNote)}`);
         continue;
       }
-      shift = crossingIsShift;
+      shift = ladder.crossingIsShift;
     } else {
       const fault = leapFingeringFault(before, m, previousFinger, step, chordStarts);
       if (fault) {
@@ -754,7 +758,7 @@ function checkFingering(
     const sectionStart = segmentStarts.includes(m.onset) || before.end < m.onset;
     if (shifts > ladder.shiftsMax)
       report('shift', m.onset, `${name(m)} moves the hand (shift ${shifts}; at most ${ladder.shiftsMax} at ${level})`);
-    else if ((level === 'introduction' || level === 'beginner') && !sectionStart)
+    else if (ladder.shiftsAtSectionStartOnly && !sectionStart)
       report('shift', m.onset, `${name(m)} moves the hand in the middle of a section`);
   }
 }
@@ -789,7 +793,7 @@ function leapFingeringFault(
     return undefined;
   }
   const pair = new Set([previousFinger, finger]);
-  if (pair.has(THUMB) && pair.has(2) && span > THUMB_TO_SECOND_MAX_STEPS)
+  if (pair.has(THUMB) && pair.has(INDEX_FINGER) && span > THUMB_TO_SECOND_MAX_STEPS)
     return `${what}: thumb to finger 2 wider than a fourth`;
   return undefined;
 }

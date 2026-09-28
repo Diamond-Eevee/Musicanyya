@@ -309,8 +309,19 @@ the same chords and inversions as before, the right hand a melody.
   has exactly 59 ids
 - [x] T053 [P] [light] Update `docs/agents/reference.md` Active Technologies line for 014 from "planned" to "implemented"; check
   `public/library/README.md` needs no change (generated exercises section) and `quickstart.md` still matches the commands
-- [ ] T054 Constitution review of the branch diff with the `constitution-auditor` agent; findings summarised in the log
-- [ ] T055 Run the whole `specs/014-melody-over-chords/quickstart.md` validation once more on the final build
+- [x] T054 Constitution review of the branch diff with the `constitution-auditor` agent; findings summarised in the log
+- [x] T055 Run the whole `specs/014-melody-over-chords/quickstart.md` validation once more on the final build
+- [x] T072 [deep] (T054 finding, Principle II) The melody checker compares level names instead of reading the ladder:
+  `MELODY_LADDER.nctPlacement` is never read, and dotted values, intermediate eighth pairs, crossing-as-shift and the
+  section-start shift rule are hard-coded per level. Test first in `tests/tools/fidelity/melody-rules.test.ts`
+  (`melody-rules.ts` compares no level by name; every `MelodyLadderRow` field is read); then new fields
+  `dottedValues`, `eighthsInPairs`, `crossingIsShift`, `shiftsAtSectionStartOnly` in `src/core/defaults.ts` and
+  `melody-rules.ts` reads them (and `nctPlacement`); the unnamed literals it names (`[1, 2]` semitones of a step,
+  finger 2, the four-beat half bar) become named constants. No finding on the shelf may change (sweep and planted
+  tests unchanged)
+- [x] T073 [light] (T054 findings) `specs/014-melody-over-chords/data-model.md` §4: the T072 fields and the names
+  `MELODY_REGISTER_MIDI`, `MELODY_MIN_CLEARANCE_SEMITONES`; `plan.md` Constitution Check VI row: a finger on every
+  melody note (contract 1.3.1, T062), not "sparingly"
 - [ ] T056 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` green; final log entry; commit
 - [ ] T057 needs owner: SC-005 listening check - the owner listens to at least six rewritten items (one per group and
   level: relative and parallel introduction/beginner/intermediate, plus one drill) and judges each more interesting

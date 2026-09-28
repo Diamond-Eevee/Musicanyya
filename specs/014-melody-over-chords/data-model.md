@@ -48,8 +48,20 @@ to be a tone of the sounding chord or a step between two such tones.
 | intermediate | 0.5 | 12 per section | 4 (a fifth), to a chord note | unlimited, thumb-under / finger-over | also off-beat eighths | 2 | as today | forbidden |
 | advanced | 0.5 (dotted allowed) | 16 (a tenth) | 7 (an octave), to a chord note | unlimited | as intermediate | 2 | as today | forbidden |
 
-A repeated note is 0 steps. Also: melody in C4-A5 (advanced C6); at least 3 semitones above the left hand at every
-instant; dotted values only at advanced; at intermediate no melody eighth coincides with a left-hand eighth.
+Four boolean fields of each row carry the level rules the table's text implies (T072; the checker compares no level by
+name):
+
+| Level | shiftsAtSectionStartOnly | crossingIsShift | dottedValues | eighthsInPairs |
+|---|---|---|---|---|
+| introduction | true | true | false | false |
+| beginner | true | true | false | false |
+| intermediate | false | false | false | true |
+| advanced | false | false | true | false |
+
+A repeated note is 0 steps. Also: melody in C4-A5 (advanced C6; `MELODY_REGISTER_MIDI`); at least 3 semitones above
+the left hand at every instant (`MELODY_MIN_CLEARANCE_SEMITONES`); dotted values only at advanced (`dottedValues`); at
+intermediate the melody's eighths stand in pairs on the beat and no melody eighth coincides with a left-hand eighth
+(`eighthsInPairs`).
 The existing `LEVEL_*` criteria keep applying through `checkLevel`.
 
 ## 5. Melody rule check result (`tools/library/fidelity/melody-rules.ts`)

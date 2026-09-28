@@ -359,9 +359,18 @@ export interface MelodyLadderRow {
   rangeSemitones: number;
   /** Widest leap (consecutive melody notes), in scale steps; 0 = a repeated note is never a leap. */
   maxLeapSteps: number;
-  /** Hand-position shifts allowed across the whole item (introduction and beginner: only at a section start). */
+  /** Hand-position shifts allowed across the whole item. */
   shiftsMax: number;
-  /** Where a non-chord tone may sound. */
+  /** Whether a shift may only come at a section start (or after a rest), never in the middle of a section. */
+  shiftsAtSectionStartOnly: boolean;
+  /** Whether a thumb-under / finger-over crossing counts as a shift (true where the hand stays in one position). */
+  crossingIsShift: boolean;
+  /** Whether dotted values may be written. */
+  dottedValues: boolean;
+  /** Whether a melody eighth must stand in a pair on the beat and never together with a left-hand eighth. */
+  eighthsInPairs: boolean;
+  /** Where a non-chord tone may sound (never on the downbeat): in the bar's second half; on a weak beat or in the
+   *  second half; anywhere after the downbeat (weak beats and off-beat eighths - the shortest value is an eighth). */
   nctPlacement: 'second-half-of-bar' | 'weak-beats' | 'weak-beats-and-off-beat-eighths';
   /** Longest run of non-chord tones in one direction (passing or neighbour tones). */
   nctRun: number;
@@ -376,6 +385,10 @@ export const MELODY_LADDER: Record<Level, MelodyLadderRow> = {
     rangeSemitones: 7,
     maxLeapSteps: 1,
     shiftsMax: 1, // at the key change only (owner decision 2026-09-28, feature 014 T068)
+    shiftsAtSectionStartOnly: true,
+    crossingIsShift: true,
+    dottedValues: false,
+    eighthsInPairs: false,
     nctPlacement: 'second-half-of-bar',
     nctRun: 1,
     lhAttacksPerBar: 1,
@@ -386,6 +399,10 @@ export const MELODY_LADDER: Record<Level, MelodyLadderRow> = {
     rangeSemitones: 7,
     maxLeapSteps: 2,
     shiftsMax: 1,
+    shiftsAtSectionStartOnly: true,
+    crossingIsShift: true,
+    dottedValues: false,
+    eighthsInPairs: false,
     nctPlacement: 'weak-beats',
     nctRun: 1,
     lhAttacksPerBar: 1,
@@ -396,6 +413,10 @@ export const MELODY_LADDER: Record<Level, MelodyLadderRow> = {
     rangeSemitones: 12,
     maxLeapSteps: 4,
     shiftsMax: Infinity,
+    shiftsAtSectionStartOnly: false,
+    crossingIsShift: false,
+    dottedValues: false,
+    eighthsInPairs: true,
     nctPlacement: 'weak-beats-and-off-beat-eighths',
     nctRun: 2,
     lhAttacksPerBar: Infinity,
@@ -406,6 +427,10 @@ export const MELODY_LADDER: Record<Level, MelodyLadderRow> = {
     rangeSemitones: 16,
     maxLeapSteps: 7,
     shiftsMax: Infinity,
+    shiftsAtSectionStartOnly: false,
+    crossingIsShift: false,
+    dottedValues: true,
+    eighthsInPairs: false,
     nctPlacement: 'weak-beats-and-off-beat-eighths',
     nctRun: 2,
     lhAttacksPerBar: Infinity,

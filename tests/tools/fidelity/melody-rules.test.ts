@@ -4,6 +4,7 @@
 // the hand's position, an unwritten one continues it.
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { MELODY_LADDER } from '../../../src/core/defaults';
 import type { Level } from '../../../src/core/library/types';
 import {
   checkMelodyRules,
@@ -619,5 +620,17 @@ describe('independence from the generator (research R8)', () => {
     expect(imports.length).toBeGreaterThan(0);
     for (const path of imports) expect(path).not.toMatch(/library\/exercise/);
     expect(source).not.toMatch(/content\/library\/exercises/);
+  });
+});
+
+describe('the Difficulty ladder drives the level rules (Principle II, T072)', () => {
+  const source = readFileSync('tools/library/fidelity/melody-rules.ts', 'utf8');
+
+  it('melody-rules.ts compares no level by name', () => {
+    expect(source.match(/\blevel\s*[!=]==?\s*'[a-z]+'/g) ?? []).toEqual([]);
+  });
+
+  it.each(Object.keys(MELODY_LADDER.introduction))('melody-rules.ts reads the ladder field %s', (field) => {
+    expect(source).toMatch(new RegExp(`\\bladder\\.${field}\\b`));
   });
 });
