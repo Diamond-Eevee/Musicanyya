@@ -54,11 +54,12 @@ export interface PlaySessionCallbacks {
   onEffect(effect: PlayEffect): void;
   onGraded(grade: Grade): void;
   onGradeFailed(reason: 'timeout' | 'error', message?: string): void;
-  /** T074: fired once a finished run's `storePerformance` attempt has settled, with what was actually written -
-   *  `null` when nothing was (a null `scoreId` writes nothing, or the store call failed) - so the UI refreshes its
-   *  attempts list after storage, not before, and feature 013's `played` progress event is only ever built from a
-   *  performance that is genuinely on record (R-18). */
-  onStored(stored: StoredPerformance | null): void;
+  /** T074: fired once a finished run's `storePerformance` attempt has settled, with the run's record - `null` only
+   *  when the Score has no identity to record it under (a null `scoreId`). `kept` says whether the attempt is on
+   *  disk: `false` when the store call failed (owner decision 2026-09-28, feature 013 T095: the result still reaches
+   *  progress, so it works with no IndexedDB, and only the kept attempt is missing). The UI refreshes its attempts
+   *  list after storage, not before. */
+  onStored(stored: StoredPerformance | null, kept: boolean): void;
 }
 
 function ticksToMs(ticks: number, qpm: number, ppq: number): number {
@@ -371,8 +372,8 @@ export class PlaySessionController {
       return;
     }
     this.callbacks.onGraded(result.grade);
-    const stored = await this.storePerformance(run, result.grade, complete);
-    this.callbacks.onStored(stored);
+    const { stored, kept } = await this.storePerformance(run, result.grade, complete);
+    this.callbacks.onStored(stored, kept);
   }
 
   /** FR-014, FR-041: kept for the Score with its date, settings and summary - never the Grade itself (R-09), which
@@ -380,9 +381,13 @@ export class PlaySessionController {
    *  has nowhere to keep an attempt, so nothing is written; a storage failure still leaves the Grade shown, only
    *  the attempt is not kept (contracts/performance-log.md "Failure behaviour"). `complete` (feature 013 R-6) is
    *  the same flag `finishRun` already computed for grading - whether the run reached the end naturally rather
-   *  than being stopped. Returns what was actually written, or null. */
-  private async storePerformance(run: PlayRun, grade: Grade, complete: boolean): Promise<StoredPerformance | null> {
-    if (run.scoreId === null) return null;
+   *  than being stopped. Returns the run's record (null with no `scoreId`) and whether it was actually written. */
+  private async storePerformance(
+    run: PlayRun,
+    grade: Grade,
+    complete: boolean,
+  ): Promise<{ stored: StoredPerformance | null; kept: boolean }> {
+    if (run.scoreId === null) return { stored: null, kept: false };
 
     const stored: StoredPerformance = {
       runId: run.runId,
@@ -399,9 +404,9 @@ export class PlaySessionController {
     const result = await this.performanceStore.put(stored);
     if (!result.ok) {
       this.callbacks.onEffect({ type: 'notice', code: 'playAttemptNotStored' });
-      return null;
+      return { stored, kept: false };
     }
-    return stored;
+    return { stored, kept: true };
   }
 }
 

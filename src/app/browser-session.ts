@@ -186,8 +186,8 @@ export class BrowserSessionController {
     this.onApplyResult(scoreKey, applied);
   }
 
-  /** R-18: after `PerformanceStore.put` succeeds - a storage failure of the Performance skips this too, so
-   *  progress and kept attempts never disagree. */
+  /** R-18: after a Play run finishes. Owner decision 2026-09-28 (T095): also when `PerformanceStore.put` failed, so
+   *  progress works without IndexedDB; the result then has no kept attempt, and nothing here assumes one exists. */
   async played(scoreKey: string, result: ProgressResult): Promise<void> {
     // Decided before the event is applied: it is a new best against the record as it stood (T097, contracts §6).
     if (this.computeNewBest(scoreKey, result)) browserState.setNewBest(scoreKey);

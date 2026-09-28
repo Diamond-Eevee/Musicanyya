@@ -394,9 +394,12 @@ the input covers every browser.
 - `opened`: after a Score **successfully** loads from any entry point. It carries `openedAs`
   (`{ kind: 'library', id }` or `{ kind: 'file', fileKey }`).
 - `practised`: on `sessionEnded('reachedEnd')` or `loopCompleted` (R-9).
-- `played`: after `PerformanceStore.put` succeeds, from the stored run's summary, settings, `complete` and the scope
-  computed with the loaded Score (R-7). A storage failure of the Performance also skips the event, so progress and
-  attempts never disagree.
+- `played`: after a Play run has finished and its storage has settled, from the run's summary, settings, `complete`
+  and the scope computed with the loaded Score (R-7). **Amended 2026-09-28 (owner decision A, T095)**: it is recorded
+  also when `PerformanceStore.put` failed (no IndexedDB, quota), so progress works in a private window. Progress and
+  kept attempts can therefore disagree: a result may have no attempt. Nothing assumes one exists - only the attempts
+  list and `resultRemoved` (after an attempt delete) work from stored attempts, and Reset/Remove delete whatever attempts
+  there are. Alternative rejected: keeping the old rule (memory store holds only opened/practised).
 - **New best** (FR-016): `onGraded` runs before storing (`play-session.ts:371-372`). The controller compares the
   Grade's result with the best held by the in-memory record of the open Score (loaded when the Score opened).
   `playState` gets `newBest: boolean`, and `mx-grade-panel` shows "New best" with a star shape. The stored event later

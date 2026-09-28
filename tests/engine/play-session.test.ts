@@ -71,11 +71,15 @@ function setup(gradeTimeoutMs = 5000) {
   const grades: Grade[] = [];
   const gradeFailures: { reason: 'timeout' | 'error'; message?: string }[] = [];
   const stored: (StoredPerformance | null)[] = [];
+  const kept: boolean[] = [];
   const callbacks: PlaySessionCallbacks = {
     onEffect: (e) => effects.push(e),
     onGraded: (g) => grades.push(g),
     onGradeFailed: (reason, message) => gradeFailures.push({ reason, message }),
-    onStored: (performance) => stored.push(performance),
+    onStored: (performance, wasKept) => {
+      stored.push(performance);
+      kept.push(wasKept);
+    },
   };
 
   const nowRef = { value: 1000 };
@@ -104,6 +108,7 @@ function setup(gradeTimeoutMs = 5000) {
     grades,
     gradeFailures,
     stored,
+    kept,
     nowRef,
     controller,
   };
@@ -345,7 +350,7 @@ describe('PlaySessionController (T039/T097)', () => {
   });
 
   it('feature 013 R-6: a run that reaches the end stores complete: true, and onStored reports it', async () => {
-    const { score, timeline, audioEngine, gradeWorker, stored, controller } = setup();
+    const { score, timeline, audioEngine, gradeWorker, stored, kept, controller } = setup();
     controller.start({
       scoreId: 'score-hash-1',
       score,
@@ -366,6 +371,7 @@ describe('PlaySessionController (T039/T097)', () => {
     expect(stored).toHaveLength(1);
     expect(stored[0]?.complete).toBe(true);
     expect(stored[0]?.runId).toBe(controller.getRun()!.runId);
+    expect(kept).toEqual([true]);
   });
 
   it('feature 013 R-6: stop() stores complete: false, and onStored reports it', async () => {
@@ -391,8 +397,8 @@ describe('PlaySessionController (T039/T097)', () => {
     expect(stored[0]?.complete).toBe(false);
   });
 
-  it('feature 013: onStored reports null when nothing was written (no scoreId or a storage failure)', async () => {
-    const { score, timeline, audioEngine, gradeWorker, stored, controller } = setup();
+  it('feature 013: onStored reports null when the run has no Score identity (no scoreId), nothing kept', async () => {
+    const { score, timeline, audioEngine, gradeWorker, stored, kept, controller } = setup();
     controller.start({ scoreId: null, score, timeline, measures: score.measures, range: null, settings: settings() });
     const countInTicks = controller.getRun()!.tickMap.countInTicks;
     audioEngine.currentPosition = { audibleTick: countInTicks, playing: true };
@@ -404,6 +410,7 @@ describe('PlaySessionController (T039/T097)', () => {
     await controller.waitForGrade();
 
     expect(stored).toEqual([null]);
+    expect(kept).toEqual([false]);
   });
 
   it('T074: a Score that was never stored (scoreId null) keeps no attempt and raises no notice', async () => {
@@ -420,6 +427,34 @@ describe('PlaySessionController (T039/T097)', () => {
 
     expect(performanceStore.records.size).toBe(0);
     expect(effects.some((e) => e.type === 'notice' && e.code === 'playAttemptNotStored')).toBe(false);
+  });
+
+  it('feature 013 T095 (owner decision A): a storage failure still reports the finished run to onStored, marked not kept, so the result is recorded without an attempt', async () => {
+    const { score, timeline, audioEngine, gradeWorker, performanceStore, stored, kept, controller } = setup();
+    performanceStore.failNextPut = true;
+    controller.start({
+      scoreId: 'score-hash-1',
+      score,
+      timeline,
+      measures: score.measures,
+      range: null,
+      settings: settings(),
+    });
+    const countInTicks = controller.getRun()!.tickMap.countInTicks;
+    audioEngine.currentPosition = { audibleTick: countInTicks, playing: true };
+    controller.reportPosition(2000);
+    audioEngine.fireEvent({ type: 'ended' });
+    controller.reportPosition(60000);
+    const { requestId, input } = gradeWorker.posted[0];
+    gradeWorker.reply({ type: 'graded', requestId, grade: gradePerformance(input) });
+    await controller.waitForGrade();
+
+    expect(performanceStore.records.size).toBe(0);
+    expect(stored).toHaveLength(1);
+    expect(stored[0]?.scoreId).toBe('score-hash-1');
+    expect(stored[0]?.runId).toBe(controller.getRun()!.runId);
+    expect(stored[0]?.complete).toBe(true);
+    expect(kept).toEqual([false]);
   });
 
   it('T074: a storage failure still shows the Grade, with a non-blocking notice that the attempt was not kept', async () => {

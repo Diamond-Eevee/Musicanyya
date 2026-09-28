@@ -203,7 +203,7 @@ export class Session {
       onEffect: (effect) => this.onPlayEffect(effect),
       onGraded: (grade) => this.onPlayGraded(grade),
       onGradeFailed: (reason, message) => this.onPlayGradeFailed(reason, message),
-      onStored: (stored) => this.onPerformanceStored(stored),
+      onStored: (stored) => this.onPerformanceFinished(stored),
     },
   );
   // T076: a replayed stored attempt (never concurrent with a live `playController` run - starting one stops the
@@ -1050,9 +1050,10 @@ export class Session {
     if (!isRunActive()) viewState.openPanel('grade');
   }
 
-  /** R-18: after a Performance is stored (or a storage failure, `stored === null`, in which case progress and
-   *  kept attempts stay in agreement by recording neither). */
-  private onPerformanceStored(stored: StoredPerformance | null): void {
+  /** R-18: after a Play run has finished and its storage has settled. The result is recorded whether or not the
+   *  attempt could be kept (owner decision 2026-09-28, T095), so progress works with no IndexedDB; only a run
+   *  without a Score identity (`stored === null`) records nothing. */
+  private onPerformanceFinished(stored: StoredPerformance | null): void {
     void this.refreshAttempts();
     if (stored === null) return;
     const result = resultFromStoredPerformance(stored, this.liveResultScope(stored.settings));
