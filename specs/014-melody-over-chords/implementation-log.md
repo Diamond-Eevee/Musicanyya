@@ -431,3 +431,50 @@
   c-major/i-v-vi-iv. Any item judged too hard goes back to its authoring task. Merge only when the owner asks.
 - Handoff: next = T057 (owner). Record the verdicts in this log, then ask the owner about merging. Tree clean after
   this commit.
+
+## 2026-09-28 23:30 - claude-opus-5.5 (implement, cloud session: Phase 6 rework after the listening check)
+- T057 first verdict (owner, played *C major to A minor - introduction*): "not fun to play ... it is fun [the key step]
+  because it has quarter notes"; half notes, then one whole note, over one held chord. Owner decisions (asked this
+  session): introduction plays like the key step, beginner a step above; the key-change left hand may change chords;
+  only the introduction was tried so far. Spec amended (Amendment section, US1 #2, FR-002, Difficulty ladder), research
+  R11, data-model §4, plan; tasks T075-T090 added (T075 = that amendment).
+- Done: T075-T087 (T084: no change needed). Open: T088 (music review running), T089 (screenshots taken, below), T090.
+- T076 (deep): tests first `Tests 9 failed | 62 passed` (old rows: quarters as `value`, five-note range, crossings as
+  shifts), then `MELODY_LADDER` introduction 1 / 12 / 1 / one lift at a section start / crossings not shifts / weak
+  beats / nctRun 2; beginner adds leaps of a third, 2 lifts anywhere, 2 chord changes per bar. Two checker bugs found
+  writing the fixture, fixed test-first: a legal crossing on a chord start counted as a lift; `triadRoot` named G♯ the
+  root of G♯-B-E (augmented fifth in `FIFTHS`), rejecting 5-♯6-♯7-1 over V6 (the V6 test failed on the old code with
+  `minor-degree`). Changed expectation: the beginner range fault C4-A4 is now allowed; the planted fault is C4-D5.
+- T077: FR-002 (amended) sweep test failed as expected, `Tests 16 failed | 373 passed` (the 16 relative items hold i
+  for 3+ bars). Its voicing check first compared chords by pitch-class set and so caught the beginner IV6/4 against the
+  root-position pivot (same notes F-A-C); narrowed to what FR-002 keeps: the two tonic chords and the chord before the
+  change, note for note (my own new test, fixed before it guarded anything).
+- T078/T079: claims test first (`4 failed | 49 passed`), then the relative plans and `RELATIVE_PLANS`; section bars now
+  counted from chord lengths. Constraints found while composing (library level criteria, not changed; research R11):
+  introduction allows no chord wider than a fifth (criterion 16) -> root position; beginner V6 / IV6/4 keep the hand
+  still; root-position iv in the octave-lower E minor is A1 (criterion 2); a relative minor second key keeps the first
+  key's signature so its raised 7ths count as accidentals (criterion 11: one in 12 bars) -> those minor halves move
+  i / VI / iv (VI = the pivot chord; FR-002 and the T077 test allow VI in minor) and the melody's leading tone is the
+  one accidental; step order: chordChangesPerBar may not exceed the unchanged intermediate items' 0.89 -> 9 changes in
+  12 bars (introduction), 9 in 11 (beginner), so chords last two bars after the change. Final relative plans:
+  introduction I V I IV(VI) | I I IV IV I I V I (minor: i i VI VI i i VI i), beginner I I IV6/4-V6 I I IV(VI) |
+  I I IV6/4 V6 I (minor: i i iv6/4 VI i). Parallel plans unchanged (already moving).
+- T080-T083 (deep): 36 items re-composed: introduction quarter-note scale runs up to an octave with thumb-under /
+  finger-over (thumb only onto white keys), beginner adds broken-chord thirds; a finger on every note. Composed with two
+  scratch tools (not committed): per item the melody check + level check + engraving guard, per folder the step order
+  and the sweep's ladder comparison. Registers per variant set by the keys each variant serves (item i uses variant
+  i mod 3) and by the whole-piece span (38).
+- T085: `pnpm library:exercises` (155 items), `pnpm library:index` (no problem); `vitest run tests/library tests/tools
+  tests/core/library`: `Tests 3005 passed`. Changed expectations (behaviour changed by the owner's decisions):
+  6 key-change goldens (introduction/beginner of c-major-to-a-minor, c-minor-to-c-major, d-major-to-b-minor);
+  identity golden: exactly the 36 rewritten entries changed (every other entry equal; the Für Elise performance log
+  rewrite was formatting only and reverted); `steps.test.ts` introduction shortest right-hand value half -> quarter,
+  beginner left hand may hold half-note chords; the sweep's `shifts` metric no longer counts a stepwise thumb-under /
+  finger-over (the amended ladder: crossings are not shifts).
+- T086: `pnpm library:fidelity --check`: `182 records, 0 failed` (records already current). T087: chromium
+  `library.spec.ts` + `tempo-field.spec.ts` `26 passed | 1 skipped`; electron-smoke under Xvfb `3 passed`, :101 the known
+  pre-014 order failure (passes alone). No assertion changed.
+- T089 (part): quickstart US1/US2 expectations updated; screenshots opened (tests/.generated/t089-*.png): c-major-to-
+  a-minor/introduction (quarters C4-C5 with the thumb under on F, I V I IV then i i VI VI i i VI i, one G♯ leading to
+  A, ends on A), g-major-to-e-minor/beginner (thirds, IV6/4-V6 half bar, D♯ once), c-major-to-c-minor/beginner
+  (broken-chord thirds, E♭ after the change, bars 9-10 mirror bars 3-4 in minor).
