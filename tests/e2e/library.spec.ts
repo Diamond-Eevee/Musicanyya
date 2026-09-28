@@ -208,6 +208,40 @@ test.describe('Practice score library: browse, open, Listen', () => {
     }
   });
 
+  test('browser: a key change rewritten with a right-hand melody (C major -> A minor, Introduction) plays in Listen to its last bar with no console error (feature 014 FR-015, SC-003)', async ({
+    page,
+    browserName,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === 'electron', 'Electron is covered by its own test');
+    test.skip(browserName === 'webkit', "Playwright's WebKit build has no AudioContext, so it cannot Listen");
+    test.setTimeout(150_000); // 12 bars at q=60: 48 s of Listen
+    const errors: string[] = [];
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') errors.push(msg.text());
+    });
+    page.on('pageerror', (err) => errors.push(String(err)));
+
+    await page.goto('/');
+    const { item } = await revealLibraryItem(page, 'learning/key-changes/c-major-to-a-minor/introduction');
+    await expect(item).toContainText('C major to A minor - introduction');
+    await item.dblclick();
+    await expect(browserDialog(page)).toBeHidden();
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    await expect(page.locator('.notice')).toHaveCount(0);
+
+    await expect(page.locator('.play-btn')).not.toBeDisabled();
+    await page.locator('.play-btn').click();
+    await expect(page.locator('g.note.playing').first()).toBeVisible();
+    // the cursor reaches the last bar (bar 12: measure index 11 in the note ids), then the run ends by itself
+    await expect
+      .poll(async () => page.locator('g.note.playing').evaluateAll((els) => els.some((el) => /-m11-/.test(el.id))), {
+        timeout: 70_000,
+      })
+      .toBe(true);
+    await expect(page.locator('g.note.playing')).toHaveCount(0, { timeout: 30_000 });
+    expect(errors).toEqual([]);
+  });
+
   test('browser: settings remembered for a superseded item apply to its successor (feature 011 US4, quickstart US4)', async ({
     page,
   }, testInfo) => {

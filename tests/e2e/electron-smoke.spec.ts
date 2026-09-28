@@ -140,4 +140,18 @@ test.describe('Electron smoke test', () => {
     );
     await closeBrowser(window);
   });
+  // Feature 014 FR-015 (T059): a key-change item rewritten with a right-hand melody loads in the desktop shell and
+  // engraves both staves - the melody above, the left hand's chords below.
+  // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
+  test('a key change with a right-hand melody (C major -> A minor, Introduction) loads with two staves', async ({}, testInfo) => {
+    test.skip(testInfo.project.name !== 'electron', 'Run electron smoke test on electron project only');
+
+    const window = await electronApp.firstWindow();
+    const { item } = await revealLibraryItem(window, 'learning/key-changes/c-major-to-a-minor/introduction');
+    await item.dblclick();
+    await expect(browserDialog(window)).toBeHidden();
+    await expect(window.locator('.mx-title-block')).toContainText('C major to A minor - introduction');
+    await expect(window.locator('.notice')).toHaveCount(0);
+    await expect.poll(() => window.locator('.mx-score-page g.measure').first().locator('g.staff').count()).toBe(2);
+  });
 });
