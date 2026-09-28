@@ -13,6 +13,11 @@ export function effectiveFolder(view: Pick<BrowserViewState, 'folder' | 'search'
   return view.search.trim() === '' ? view.folder : { kind: 'all' };
 }
 
+/** Contracts/score-browser.md §1: the *Continue* view replaces the list only for the Continue folder with no search. */
+export function showsContinue(view: Pick<BrowserViewState, 'folder' | 'search'>): boolean {
+  return effectiveFolder(view).kind === 'continue';
+}
+
 function inFolder(item: BrowserItem, folder: FolderSel): boolean {
   switch (folder.kind) {
     case 'continue':

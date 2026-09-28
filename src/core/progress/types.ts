@@ -14,6 +14,11 @@ export type { StrictnessLevelName };
 /** How a Score was opened, or how a `played`/`practised` figure is attributed to a browser row (data-model.md §3). */
 export type ItemRef = { kind: 'library'; id: string } | { kind: 'file'; fileKey: string };
 
+/** One string per item, the `data-ref` of a browser row or card: `library:<id>` or `file:<fileKey>`. */
+export function itemRefKey(ref: ItemRef): string {
+  return ref.kind === 'library' ? `library:${ref.id}` : `file:${ref.fileKey}`;
+}
+
 /** data-model.md §2. `kind: 'partial'` covers a bar range, one-hand-only, or both. */
 export type ResultScope =
   | { kind: 'whole' }

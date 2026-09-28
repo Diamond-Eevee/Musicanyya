@@ -185,6 +185,20 @@ export const en = {
     removeKeepProgress: 'Remove file, keep progress',
     removeAndProgress: 'Remove file and progress',
     removePending: 'File removed.',
+    /** US4 - the *Continue* view (FR-025, R-10). */
+    recentHeading: 'Recently opened',
+    nothingRecent: 'Nothing opened yet.',
+    suggestedHeading: 'Suggested next',
+    suggestReasonContinue: 'Pick up where you left off',
+    suggestReasonNext: 'Next step after {title}',
+    suggestReasonFirst: 'A good place to begin',
+    morePracticeHeading: 'More practice',
+    morePracticeReason: 'Extra practice at the same step',
+    welcomeTitle: 'Welcome',
+    welcomeText: 'Pick something to play. New here? Start with the first step below.',
+    welcomeRepertoire: 'Or start with an easy piece: Repertoire › Beginner',
+    lastPlayedAgo: 'Last played {when}',
+    openedAgo: 'Opened {when}',
   },
   /** The practice score library shelf inside the "scores" panel (contracts/library-port.md). */
   library: {

@@ -1,7 +1,7 @@
 import { buildBrowserItems } from '../../core/browser/items.js';
-import { queryBrowser } from '../../core/browser/query.js';
+import { queryBrowser, showsContinue } from '../../core/browser/query.js';
 import type { BrowserItem } from '../../core/browser/types.js';
-import { DEFAULT_MASTERY_THRESHOLDS, type ItemRef } from '../../core/progress/types.js';
+import { DEFAULT_MASTERY_THRESHOLDS, type ItemRef, itemRefKey } from '../../core/progress/types.js';
 import { historyTrendDeltaPoints, resultFigures, resultTempoSuffix, trendText } from '../format/result-text.js';
 import './mx-status-badge.js';
 import { en } from '../i18n/en.js';
@@ -17,12 +17,8 @@ function formatDuration(seconds: number): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-function refKey(ref: ItemRef): string {
-  return ref.kind === 'library' ? `library:${ref.id}` : `file:${ref.fileKey}`;
-}
-
 function refEquals(a: ItemRef, b: ItemRef): boolean {
-  return refKey(a) === refKey(b);
+  return itemRefKey(a) === itemRefKey(b);
 }
 
 /**
@@ -60,6 +56,8 @@ export class MxBrowserList extends HTMLElement {
   }
 
   private render(): void {
+    // *Continue* takes this pane's place for the Continue folder with an empty search (US4, contracts §1).
+    this.hidden = showsContinue(browserState.get().view);
     const rows = this.rows();
     const selected = browserState.get().view.selected;
     if (this.activeRef === null || !rows.some((r) => refEquals(r.ref, this.activeRef as ItemRef))) {
@@ -109,7 +107,7 @@ export class MxBrowserList extends HTMLElement {
         role="option"
         id="browser-row-${index}"
         class="browser-row"
-        data-ref="${escapeHtml(refKey(row.ref))}"
+        data-ref="${escapeHtml(itemRefKey(row.ref))}"
         data-index="${index}"
         data-status="${row.progress.status}"
         aria-selected="${isSelected}"

@@ -15,6 +15,7 @@ import { IndexedDbPerformanceStore } from '../engine/storage/indexeddb-performan
 import { LocalSettingsStore } from '../engine/storage/local-settings-store.js';
 
 import '../ui/elements/mx-attempts-list.js';
+import '../ui/elements/mx-browser-continue.js';
 import '../ui/elements/mx-browser-detail.js';
 import '../ui/elements/mx-browser-list.js';
 import '../ui/elements/mx-browser-rail.js';
@@ -404,6 +405,7 @@ export class Session {
       .querySelector('.browser-body')
       ?.append(
         document.createElement('mx-browser-rail'),
+        document.createElement('mx-browser-continue'),
         document.createElement('mx-browser-list'),
         document.createElement('mx-browser-detail'),
       );
