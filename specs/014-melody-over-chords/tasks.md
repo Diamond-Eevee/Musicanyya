@@ -274,21 +274,21 @@ the same chords and inversions as before, the right hand a melody.
 
 ### Implementation
 
-- [ ] T040 [US3] Implement the drills' top-level `melody` in `generateChangeItem`
+- [x] T040 [US3] Implement the drills' top-level `melody` in `generateChangeItem`
   (`src/core/library/exercise/generate.ts`, using `melody.ts`) until T035 passes; per-key-step and key-change goldens
   unchanged
-- [ ] T041 [US3] Change the drill claims in `tools/library/fidelity/exercise-claims.ts` until T037 passes
-- [ ] T042 [P] [US3] [deep] Author `melody` and remove `supersedes` in `content/library/exercises/changes-i-v-vi-iv.json`
+- [x] T041 [US3] Change the drill claims in `tools/library/fidelity/exercise-claims.ts` until T037 passes
+- [x] T042 [P] [US3] [deep] Author `melody` and remove `supersedes` in `content/library/exercises/changes-i-v-vi-iv.json`
   and `content/library/exercises/changes-turnaround.json` (beginner)
-- [ ] T043 [P] [US3] [deep] Same for `content/library/exercises/changes-diatonic-ladder.json` (intermediate)
-- [ ] T044 [P] [US3] [deep] Same for `content/library/exercises/changes-same-tonic.json` and
+- [x] T043 [P] [US3] [deep] Same for `content/library/exercises/changes-diatonic-ladder.json` (intermediate)
+- [x] T044 [P] [US3] [deep] Same for `content/library/exercises/changes-same-tonic.json` and
   `content/library/exercises/changes-a-minor-major.json` (advanced; `alter: -1` on the third over the minor chords)
-- [ ] T045 [US3] [light] Add `resetBy: '014'` to the 5 drill entries in `tools/library/successors.ts` (and the field to its
+- [x] T045 [US3] [light] Add `resetBy: '014'` to the 5 drill entries in `tools/library/successors.ts` (and the field to its
   `Successor` type) until T038 and T039 pass
-- [ ] T046 [US3] Review the 5 drills' `meta.trains` texts and update where needed
-- [ ] T047 [US3] Regenerate (`pnpm library:exercises`, `pnpm library:index`), update the drills' goldens and
+- [x] T046 [US3] Review the 5 drills' `meta.trains` texts and update where needed
+- [x] T047 [US3] Regenerate (`pnpm library:exercises`, `pnpm library:index`), update the drills' goldens and
   `tests/core/library/exercise/changes.test.ts` expectations with logged reasons; T036, T017, T003 green
-- [ ] T048 [US3] [light] Move the 5 drills' audit records to `exercise-theory-v3`; `pnpm library:fidelity`,
+- [x] T048 [US3] [light] Move the 5 drills' audit records to `exercise-theory-v3`; `pnpm library:fidelity`,
   `pnpm library:fidelity --check` green
 - [ ] T049 [US3] [deep] Music review of the drill phrases with the `music-domain-expert` agent; fix, regenerate, summarise in
   the log

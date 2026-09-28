@@ -6,19 +6,18 @@
   "checks": [
     {
       "method": "theory",
-      "ruleSet": "exercise-theory-v1",
+      "ruleSet": "exercise-theory-v3",
       "expectedDifferences": 0
     }
   ],
   "outcome": "fixed",
-  "outcomeNote": "The theory check found 2 label differences: the parallel major of the tonic was labelled \"A · i\". Corrected at the exercise definition to \"A · I\" (the case of a Roman numeral follows the quality); no note changed.",
-  "checkedBy": "claude-sonnet-5",
-  "date": "2026-09-24",
+  "outcomeNote": "Feature 014: a advanced right-hand melody over the unchanged left-hand chords; the item starts fresh. Theory check (the left-hand chords from the title) and melody rule check (harmony, key, ending, register, fingering, Difficulty ladder): 0 differences. Earlier (feature 007): The theory check found 2 label differences: the parallel major of the tonic was labelled \"A · i\". Corrected at the exercise definition to \"A · I\" (the case of a Roman numeral follows the quality); no note changed.",
+  "checkedBy": "claude-opus-5.5",
+  "date": "2026-09-28",
   "previous": {
     "title": "A minor - minor and major",
     "level": "advanced",
     "bars": 9,
     "notes": 54
-  },
-  "supersedes": ["learning/chords/changes/changes-a-minor-major-a-minor"]
+  }
 }

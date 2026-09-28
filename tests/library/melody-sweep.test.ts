@@ -199,9 +199,7 @@ describe('chord-change drill melody sweep (US3, FR-001, FR-005)', () => {
     if (!drill) throw new Error(id);
     const reading = readScore(drill.xml);
     const borrowedChordBars = new Set(
-      reading.notes
-        .filter((n) => n.hand === 'left' && n.step === step && n.alter === alter)
-        .map((n) => Number(n.bar)),
+      reading.notes.filter((n) => n.hand === 'left' && n.step === step && n.alter === alter).map((n) => Number(n.bar)),
     );
     expect(borrowedChordBars.size).toBeGreaterThan(0);
     const right = reading.notes.filter((n) => n.hand === 'right');

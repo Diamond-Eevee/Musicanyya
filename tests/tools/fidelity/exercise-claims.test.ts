@@ -624,29 +624,32 @@ describe('the melody drill claims: left-hand chords under a right-hand melody (f
     ['A minor - minor and major', 'The same same-tonic quality change moving the other way, minor to major.', 4],
   ];
 
-  it.each(DRILL_TITLES)('%s: sections A, B and the final bar, each a melody over left-hand chords', (title, trains, n) => {
-    const claim = claimForItem({ itemId: 'x', title, trains });
-    const level = MELODY_DRILLS[parseExerciseTitle(title).name];
-    expect(level).toBeDefined();
-    expect(claim.sections?.map((s) => [s.firstBar, s.lastBar])).toEqual([
-      [1, n],
-      [n + 1, 2 * n],
-      [2 * n + 1, 2 * n + 1],
-    ]);
-    for (const section of claim.sections ?? []) {
-      expect(section.key).toEqual(claim.key);
-      expect(section.right).toEqual({ kind: 'melody', level });
-      expect(section.left.kind).toBe('chords');
-      const left = section.left.kind === 'chords' ? section.left.chords : [];
-      expect(left.every((c) => c.voicing === 'triad')).toBe(true);
-    }
-    const sectionChords = (claim.sections ?? []).flatMap((s) =>
-      s.left.kind === 'chords' ? s.left.chords.map((c) => `${c.roman}${['', '6', '64'][c.inversion]}`) : [],
-    );
-    expect(sectionChords).toEqual(shortChords(claim));
-    expect(claim.chords.every((c) => c.hands.join() === 'left')).toBe(true);
-    expect(claim.segments).toBeUndefined();
-  });
+  it.each(DRILL_TITLES)(
+    '%s: sections A, B and the final bar, each a melody over left-hand chords',
+    (title, trains, n) => {
+      const claim = claimForItem({ itemId: 'x', title, trains });
+      const level = MELODY_DRILLS[parseExerciseTitle(title).name];
+      expect(level).toBeDefined();
+      expect(claim.sections?.map((s) => [s.firstBar, s.lastBar])).toEqual([
+        [1, n],
+        [n + 1, 2 * n],
+        [2 * n + 1, 2 * n + 1],
+      ]);
+      for (const section of claim.sections ?? []) {
+        expect(section.key).toEqual(claim.key);
+        expect(section.right).toEqual({ kind: 'melody', level });
+        expect(section.left.kind).toBe('chords');
+        const left = section.left.kind === 'chords' ? section.left.chords : [];
+        expect(left.every((c) => c.voicing === 'triad')).toBe(true);
+      }
+      const sectionChords = (claim.sections ?? []).flatMap((s) =>
+        s.left.kind === 'chords' ? s.left.chords.map((c) => `${c.roman}${['', '6', '64'][c.inversion]}`) : [],
+      );
+      expect(sectionChords).toEqual(shortChords(claim));
+      expect(claim.chords.every((c) => c.hands.join() === 'left')).toBe(true);
+      expect(claim.segments).toBeUndefined();
+    },
+  );
 
   it('the drills retired from the shelf keep their v1 claims: both hands, no sections', () => {
     const claim = claimOf('C major - ii-V-I');

@@ -13,6 +13,8 @@
 //     chord for a fourth measure.
 // Never read from the exercise definitions or the generator (tests/tools/fidelity/exercise-claims.test.ts
 // asserts it).
+
+import type { Level } from '../../../src/core/library/types';
 import type {
   ChordClaim,
   ExerciseClaim,
@@ -82,6 +84,9 @@ interface Entry {
   form: 'triads' | 'drill';
   /** Words (case-insensitive) the item's description must contain when the title does not spell the sequence. */
   states?: string[];
+  /** Feature 014 (rule set exercise-theory-v3): the drill's chords are in the left hand only, under a right-hand melody
+   *  of this level - the level each of the five drills left on the shelf is shelved under (spec 014 US3). */
+  melody?: Level;
 }
 
 const TRIAD_MAJOR = 'I IV V I I I6 I64 I I IV64 V6 I IV64 V6 I';
@@ -101,13 +106,14 @@ const TABLE: Record<Mode, Record<string, Entry>> = {
     'I-IV-I': { sequence: 'I IV64 I I', form: 'drill', states: ['common tone'] },
     'I-IV-V-I': { sequence: 'I IV64 V6 I', form: 'drill' },
     'I-vi-IV-V': { sequence: 'I vi IV V', form: 'drill' },
-    'I-V-vi-IV': { sequence: 'I V vi IV', form: 'drill' },
+    'I-V-vi-IV': { sequence: 'I V vi IV', form: 'drill', melody: 'beginner' },
     'ii-V-I': { sequence: 'ii V I I', form: 'drill' },
-    'I-vi-ii-V': { sequence: 'I vi ii V', form: 'drill' },
+    'I-vi-ii-V': { sequence: 'I vi ii V', form: 'drill', melody: 'beginner' },
     'diatonic ladder': {
       sequence: 'I ii iii IV V vi vii° I',
       form: 'drill',
       states: ['every diatonic triad'],
+      melody: 'intermediate',
     },
     'tonic inversions': { sequence: 'I I6 I64 I', form: 'drill', states: ['three shapes of one chord'] },
     'plagal then V-I': {
@@ -116,7 +122,12 @@ const TABLE: Record<Mode, Record<string, Entry>> = {
       states: ['plagal', 'V-I'],
     },
     // The parallel minor of a major tonic is written i, the parallel major of a minor tonic I: the case says the quality.
-    'major and minor': { sequence: 'I i I i', form: 'drill', states: ['major to minor and back'] },
+    'major and minor': {
+      sequence: 'I i I i',
+      form: 'drill',
+      states: ['major to minor and back'],
+      melody: 'advanced',
+    },
   },
   minor: {
     [TRIADS_NAME]: {
@@ -125,7 +136,7 @@ const TABLE: Record<Mode, Record<string, Entry>> = {
       states: ['harmonic-minor major V', 'three shapes of the tonic'],
     },
     'i-iv-V-i': { sequence: 'i iv64 V6 i', form: 'drill' },
-    'minor and major': { sequence: 'i I i I', form: 'drill', states: ['minor to major'] },
+    'minor and major': { sequence: 'i I i I', form: 'drill', states: ['minor to major'], melody: 'advanced' },
   },
 };
 
@@ -208,7 +219,43 @@ export function claimForItem(item: ExerciseItem): ExerciseClaim {
   if (entry.form === 'triads') return { itemId: item.itemId, key, chords: cycle };
   // A drill: the cycle with its rests, the same cycle joined with ties, then the tonic triad in root position.
   const tonic = chord(key.mode === 'major' ? 'I' : 'i');
-  return { itemId: item.itemId, key, chords: [...cycle, ...cycle, tonic] };
+  if (entry.melody === undefined) return { itemId: item.itemId, key, chords: [...cycle, ...cycle, tonic] };
+  return melodyDrillClaim(item.itemId, key, cycle, tonic, entry.melody);
+}
+
+/** A drill with a melody (feature 014 US3, exercise-theory-v3): the same three sections - the cycle (bars 1 to n), the
+ *  cycle joined (n + 1 to 2n), the tonic (the last bar) - with every chord in the left hand and the right hand a melody at
+ *  the drill's level. */
+function melodyDrillClaim(
+  itemId: string,
+  key: KeyClaim,
+  cycle: readonly ChordClaim[],
+  tonic: ChordClaim,
+  level: Level,
+): ExerciseClaim {
+  const left = (c: ChordClaim): ChordClaim => ({ ...c, hands: ['left'] });
+  const sectionOf = (firstBar: number, chordsOfSection: readonly ChordClaim[]): SectionClaim => ({
+    firstBar,
+    lastBar: firstBar + chordsOfSection.length - 1,
+    key,
+    right: { kind: 'melody', level },
+    left: {
+      kind: 'chords',
+      chords: chordsOfSection.map((c) => ({
+        roman: c.roman,
+        quality: c.quality,
+        inversion: c.inversion,
+        voicing: 'triad' as const,
+      })),
+    },
+  });
+  const n = cycle.length;
+  return {
+    itemId,
+    key,
+    chords: [...cycle, ...cycle, tonic].map(left),
+    sections: [sectionOf(1, cycle), sectionOf(n + 1, cycle), sectionOf(2 * n + 1, [tonic])],
+  };
 }
 
 // ---- the four steps of a key (feature 011, rule set exercise-theory-v2) ---------------------------------------------------

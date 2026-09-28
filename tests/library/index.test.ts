@@ -598,7 +598,11 @@ describe('the successors of the old Learning shelf (feature 011 US4, SC-006)', (
     expect(claims).toHaveLength(36);
     const reset = SUCCESSORS.filter((s) => s.resetBy === '014');
     expect(reset).toHaveLength(5);
-    for (const successor of reset) expect(claims.filter((c) => c.id === successor.oldId), successor.oldId).toEqual([]);
+    for (const successor of reset)
+      expect(
+        claims.filter((c) => c.id === successor.oldId),
+        successor.oldId,
+      ).toEqual([]);
     for (const successor of SUCCESSORS.filter((s) => s.resetBy === undefined)) {
       const found = claims.filter((c) => c.id === successor.oldId);
       expect(
