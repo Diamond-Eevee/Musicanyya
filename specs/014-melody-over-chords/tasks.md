@@ -46,7 +46,7 @@ lets bad melodies through
 - [x] T004 [P] Write `tests/tools/fidelity/melody-fixtures.ts`: a small builder that writes two-staff MusicXML
   strings (right-hand single notes, left-hand block chords, key, metre, key change) for the checker tests - test
   helper only, no generator import
-- [ ] T005 [deep] Write `tests/tools/fidelity/melody-rules.test.ts` (depends on T004): (a) one clean fixture per level passes
+- [x] T005 [deep] Write `tests/tools/fidelity/melody-rules.test.ts` (depends on T004): (a) one clean fixture per level passes
   with 0 findings; (b) one planted fault per rule of data-model §5, each its own `it()` asserting exactly that `rule`
   with the right bar and beat - `key`, `chord-tone`, `non-chord-tone`, `minor-degree`, `augmented-second`,
   `cross-relation`, `clash`, `parallel-octaves` (fails at intermediate, allowed at beginner), `register`, `hand-gap`,
@@ -78,7 +78,7 @@ lets bad melodies through
   `specs/014-melody-over-chords/data-model.md` §4 if names differ
 - [x] T009 [light] Add `MelodyPart`, `MelodyPhrase`, `MelodyNote`, the `{ melody }` member of `PatternHandPart` and
   `ExerciseDefinition.melody` (drills) to `src/core/library/exercise/types.ts`
-- [ ] T010 [deep] Implement `tools/library/fidelity/melody-rules.ts` (`checkMelodyRules`, `checkMelodyVariation`, research
+- [x] T010 [deep] Implement `tools/library/fidelity/melody-rules.ts` (`checkMelodyRules`, `checkMelodyVariation`, research
   R3-R8, thresholds from `MELODY_LADDER`, reader shared with `theory.ts`) until T005 passes
 - [x] T011 Implement `src/core/library/exercise/melody.ts` (pitch, variant choice, fingering, write events) and wire
   the `melody` part into `handSegments` in `src/core/library/exercise/generate.ts` until T006 passes; confirm the

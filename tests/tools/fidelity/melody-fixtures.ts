@@ -29,11 +29,13 @@ export interface FixturePitch {
   octave: number;
 }
 
-/** One right-hand event: a single melody note, or a rest, of `value`. */
+/** One right-hand event: a single melody note, or a rest, of `value`. `with` adds notes struck together with it (a
+ *  right-hand block chord, for the `doubled` rule's fixtures). */
 export interface FixtureMelodyEvent extends Partial<FixturePitch> {
   value: FixtureValue;
   rest?: true;
   fingering?: number;
+  with?: FixturePitch[];
 }
 
 /** One left-hand event: a block chord (two or more simultaneous notes), or a rest, of `value`. */
@@ -115,7 +117,11 @@ export function buildMelodyFixture(bars: readonly FixtureBar[], options: Fixture
       const above = bar.wordsAbove ? wordsXml(bar.wordsAbove, 'above', 1) : '';
       const rightTicks = bar.right.reduce((sum, e) => sum + TICKS[e.value], 0);
       const rightNotes = bar.right
-        .map((e) => noteXml(e.rest ? undefined : (e as FixturePitch), e.value, 1, 1, false, e.fingering))
+        .map(
+          (e) =>
+            noteXml(e.rest ? undefined : (e as FixturePitch), e.value, 1, 1, false, e.fingering) +
+            (e.with ?? []).map((p) => noteXml(p, e.value, 1, 1, true)).join(''),
+        )
         .join('');
       const backup = `<backup><duration>${rightTicks}</duration></backup>`;
       const below = bar.wordsBelow ? wordsXml(bar.wordsBelow, 'below', 2) : '';

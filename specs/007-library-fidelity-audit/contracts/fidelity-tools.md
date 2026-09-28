@@ -1,7 +1,7 @@
 # Contract: fidelity tools (readers, comparator, theory check, converter, commands)
 
 **Version**: `1.12.0` (1.12.0, 2026-09-28, feature 014: rule set `exercise-theory-v3`, `checkMelodyRules` and
-`checkMelodyVariation` (`tools/library/fidelity/melody-rules.ts`, new), `SectionHand` gains `{ kind: 'melody'; level:
+`checkMelodyVariation`, `melodyDegrees` (`tools/library/fidelity/melody-rules.ts`, new), `SectionHand` gains `{ kind: 'melody'; level:
 Level }` (`theory.ts`), thresholds from `MELODY_LADDER` (`src/core/defaults.ts`); change request
 `specs/014-melody-over-chords/contracts/audit-record-1.3.md`; 1.11.0, 2026-09-26, feature 011 US3: the LilyPond reader skips the braced lyric block of `\lyricmode`, `\addlyrics` and `\lyrics` and the `\lyricsto <voice>` argument (words carry no note; a `Lyrics` context is accepted), and reads a `\bar ":|"` at the very end of the music as its final bar line (LilyPond's own MIDI does not repeat it; anywhere earlier it is still refused); `parseInterval` and `transposeSpelling` are exported from `compare.ts`; `checkSong` and `songKeyOfItemId` (rule set `song-chords-v1` runs from `runRecord`); 1.10.0, 2026-09-26, feature 011: rule sets `exercise-theory-v2` (key segments, scale claims, pattern and key-change claims) and `song-chords-v1`, `checkSongChords`, the report's "Replaced by feature 011" table; 1.9.0, 2026-09-24: `renderReport` takes the source manifests, `LEVEL_MINIMUMS`, the CLI's `--check`, T077-T080; 1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands; 1.2.0, 2026-09-24: written bars follow the printed page (§3.2), `measurePosition`, `\tupletSpan`; 1.3.0, 2026-09-24: the converter's marks, §3.3; 1.4.0, 2026-09-24: the constructs of the US1 sources, §3.1, `readLilyPond(source, { score })`; 1.5.0, 2026-09-24: markup text, named voices per staff, moved hairpin ends, the MIDI's playback tempo, T096; 1.6.0, 2026-09-24: `compareMelody` takes `MelodyOptions` and returns `MelodyResult`, `melodyRhythm` differences, `CheckResult.allowed`, T054; 1.7.0, 2026-09-24: `\partcombine` and `#(set-accidental-style ...)` in music, T098; 1.8.0, 2026-09-24: `claimForItem` and `ClaimError`, `TheoryDifference` joins the comparator's `Difference` union as `kind: 'theory'`, the theory check runs from `runRecord`, T073-T074). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
 worker, and `tests/architecture/layers.test.ts` asserts it (as it already does for the exercise generator).
@@ -98,6 +98,9 @@ export function checkMelodyRules(input: MelodyCheckInput): MelodyFinding[];
 /** feature 014 FR-008: returns a `variation` finding when every item of one level and group shares one right-hand
  *  degree sequence. */
 export function checkMelodyVariation(items: readonly { itemId: string; degrees: string }[]): MelodyFinding[];
+/** The right hand's degree sequence of one item for checkMelodyVariation: each melody note's scale degree in the key
+ *  in force with its accidental against the natural scale ("♯7"), key segments joined by " | ". */
+export function melodyDegrees(input: Omit<MelodyCheckInput, 'level'>): string;
 
 // tools/library/fidelity/sources.ts
 export function loadSources(root: string): Map<string, SourceManifest>;       // validates + re-hashes

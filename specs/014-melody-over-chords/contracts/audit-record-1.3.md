@@ -38,6 +38,8 @@ export function checkMelodyRules(input: MelodyCheckInput): MelodyFinding[];
 /** FR-008 across a family: returns a `variation` finding when every item of one level and group has the same
  *  right-hand degree sequence. */
 export function checkMelodyVariation(items: readonly { itemId: string; degrees: string }[]): MelodyFinding[];
+/** The right hand's degree sequence of one item, for checkMelodyVariation ("5 6 5 | 1 ♯7 1"). Added in T010. */
+export function melodyDegrees(input: Omit<MelodyCheckInput, 'level'>): string;
 ```
 
 Reads the file with the theory check's reader; sounding chords are the left hand's notes at each instant, named

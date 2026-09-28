@@ -72,6 +72,15 @@ gain.
 **Alternatives considered**: Chord tones only (static, forces repeated notes with two notes per bar); full four-part
 voice-leading rules (wrong model for melody plus block chord).
 
+**Implementation note (T010, 2026-09-28)**: the downbeat is strong, and so is the half bar in a metre of four beats;
+a non-chord tone may stand where its level or a lower one allows it (introduction from the half bar on, beginner also
+on any later beat, intermediate and advanced anywhere after the downbeat). The clash rule exempts the leading tone
+rising by step to the tonic: FR-005 requires the raised 7th leading to the tonic, and over the tonic chord it always
+lies a major seventh above the root, so without the exemption no introduction item could sound G♯ over A minor's
+i - and a relative change into minor (C major to A minor) could not be heard (FR-007). Alternatives: treating beat 3 as
+weak (makes the clash rule redundant with `chord-tone` for triads); dropping the key-change audibility requirement at
+introduction (FR-007 applies at every level).
+
 ## R5 - Register
 
 **Decision**: The melody's reference tonic (`step` 1) is the section key's tonic in **octave 4** (C4-B4) in every
@@ -101,6 +110,12 @@ thumb-under onto a black key; spans limited per level.
 table, and is mechanically checkable.
 
 **Alternatives considered**: A fingering optimiser (not explainable); fingering on every note (clutter).
+
+**Implementation note (T010)**: the check reads fingers the way a learner does - a written finger sets the hand's
+position, an unwritten one continues it (finger = steps above the thumb + 1); a note outside the position with no
+finger written is a `fingering` finding. A position change is a thumb-under / finger-over or else a shift; at
+introduction and beginner a thumb crossing counts as a shift (the ladder allows crossings from intermediate). A shift
+is "at a section start" at the first note of a key segment or after a rest.
 
 ## R7 - Difficulty: ladder, existing criteria and step order
 
@@ -134,6 +149,13 @@ from the generator means a shared mistake cannot pass both.
 
 **Alternatives considered**: Checks inside the generator only (not independent); review by the music-domain-expert
 only (FR-014 forbids).
+
+**Implementation note (T010)**: key-change audibility (FR-007) asks, within two bars of the change, for a melody pitch
+class of the new key's characteristic scale (major, or harmonic minor) that the old key's lacks - C to A minor: G♯;
+A minor to C: G natural; C to C minor: E♭ or A♭. A note of the old key only (full scales, both forms of a minor
+6th/7th) after the change is a `key-change` finding rather than `key`. The left hand's chord changes per bar
+(`lhAttacksPerBar`) are reported under `value`. `melodyDegrees` (exported) gives each item's degree sequence for
+`checkMelodyVariation`.
 
 ## R9 - Progress starts fresh
 
