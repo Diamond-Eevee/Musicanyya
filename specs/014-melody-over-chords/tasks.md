@@ -391,9 +391,9 @@ pass; the owner finds it fun to play (T057).
 - [x] T085 Regenerate (`pnpm library:exercises`, `pnpm library:index`); T015/T019/T077, T017, T003, T058 green; update
   the key-change goldens, `steps.test.ts`, `key-change.test.ts`, `planted.test.ts`, the identity golden
   (`tools/library/identity.ts`; every other entry unchanged, Für Elise grade unchanged); log each changed expectation
-- [ ] T086 [light] Audit records of the 36 regenerated introduction/beginner items (and any intermediate changed in
+- [x] T086 [light] Audit records of the 36 regenerated introduction/beginner items (and any intermediate changed in
   T084): `checkedBy`, `date`; `pnpm library:fidelity`, `pnpm library:fidelity --check` green
-- [ ] T087 `pnpm test:e2e -- tests/e2e/library.spec.ts tests/e2e/tempo-field.spec.ts tests/e2e/electron-smoke.spec.ts`;
+- [x] T087 `pnpm test:e2e -- tests/e2e/library.spec.ts tests/e2e/tempo-field.spec.ts tests/e2e/electron-smoke.spec.ts`;
   fix only assertions that read the old notes or chords, logging why
 - [ ] T088 [deep] Music review of the new chord plans and phrases with the `music-domain-expert` agent (fun to play at
   the level, like the key step; voice-leading of the new progressions; fingering); fix, regenerate, summarise in the

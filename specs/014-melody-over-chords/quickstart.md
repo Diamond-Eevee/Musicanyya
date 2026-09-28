@@ -25,20 +25,21 @@ Look at every picture; a check is not done until the PNG was opened.
 ### US1 - key-change items have a melody
 
 1. `pnpm screenshot --item learning/key-changes/c-major-to-a-minor/introduction`
-   Expect: treble staff has single notes (half or whole notes) moving by step within one five-finger position per
-   key (G♯4-D5 in this item) with a finger on every note;
-   bass staff has whole-note triads with roman numerals below; after the double bar the melody uses G♯ within two
-   bars and ends on A over the A minor chord. No bar with a triad on both staves.
-2. `pnpm screenshot --item learning/key-changes/c-major-to-c-minor/beginner` - quarter notes over whole-note chords,
-   E♭/A♭/B♭ after the change.
+   Expect (amended after the owner's listening check, 2026-09-28): treble staff has quarter notes moving by step in
+   scale runs like *C major - introduction* (C4 up to C5, the thumb passing under on F), a finger on every note;
+   bass staff has root-position whole-note triads that change (I V I IV, then i i VI VI i i VI i) with roman numerals
+   below; after the double bar the melody uses G♯ once, leading to A, and ends on A over the A minor chord. No bar with
+   a triad on both staves.
+2. `pnpm screenshot --item learning/key-changes/c-major-to-c-minor/beginner` - quarter notes with broken-chord
+   thirds over whole-note chords, E♭ after the change.
 3. `pnpm dev`, open the same item from the Score browser, press Listen: the melody sounds over the chords. Practice
    mode with the on-screen piano: the first stop waits for the melody note plus the left-hand chord.
 
 ### US2 - the difficulty ladder
 
-1. Screenshot the introduction, beginner and intermediate items of `learning/key-changes/g-major-to-e-minor`: note
-   values get shorter step by step (half -> quarter -> eighths), the range grows, fingering shows thumb-under only at
-   intermediate.
+1. Screenshot the introduction, beginner and intermediate items of `learning/key-changes/g-major-to-e-minor`:
+   introduction in quarter-note steps, beginner adds leaps of a third and a half-bar IV6/4-V6 in the left hand,
+   intermediate adds eighth pairs and wider leaps; the range does not shrink from one step to the next.
 2. `pnpm library:index` prints no level or step-order failure.
 
 ### US3 - drills
