@@ -1,4 +1,9 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { expect, type Locator, type Page } from '@playwright/test';
+
+const progressFixtures = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../fixtures/progress');
 
 /** The modal window itself (contracts/score-browser.md §1, §8: `data-testid="browser"`). */
 export const browserDialog = (page: Page) => page.locator('dialog.browser');
@@ -64,4 +69,15 @@ export async function openLibraryItem(page: Page, itemId: string, searchText: st
   await expect(row).toBeVisible();
   await row.dblclick();
   await expect(browserDialog(page)).toBeHidden();
+}
+
+/** Seeds progress the way a played history would (contracts/score-browser.md §8, T094): reads a
+ *  `tests/fixtures/progress/<name>.json` file and dispatches its `events` through the `e2e-progress-seed` window event.
+ *  The events go through the ordinary `ProgressStore.apply`; the open browser refreshes itself afterwards, so callers
+ *  wait on what they expect to see, not on this. */
+export async function seedProgress(page: Page, fixtureName: string): Promise<void> {
+  const seed = JSON.parse(fs.readFileSync(path.join(progressFixtures, fixtureName), 'utf8')) as { events: unknown };
+  await page.evaluate((events) => {
+    window.dispatchEvent(new CustomEvent('e2e-progress-seed', { detail: events }));
+  }, seed.events);
 }

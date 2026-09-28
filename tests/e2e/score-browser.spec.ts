@@ -10,6 +10,7 @@ import {
   openBrowserFile,
   openScoreFile,
   rowByRef,
+  seedProgress,
 } from './helpers/browser.js';
 import { expectedNoteCount, playPhase, pressFirstExpectedNotes, startPlay, waitForGrade } from './helpers/play.js';
 
@@ -42,7 +43,9 @@ test.describe('Score browser (feature 013, US1)', () => {
     const dialog = browserDialog(page);
     await expect(dialog).toBeVisible();
     await expect(dialog.locator('mx-browser-rail [role="treeitem"]').first()).toBeVisible();
-    await expect(dialog.locator('mx-browser-list')).toBeVisible();
+    // Continue is the default folder and takes the list's place (US4, contracts §1).
+    await expect(dialog.locator('mx-browser-continue')).toBeVisible();
+    await expect(dialog.locator('mx-browser-list')).toBeHidden();
     await expect(dialog.locator('mx-browser-detail')).toBeVisible();
     await expect(dialog.locator('.browser-search')).toBeFocused();
   });
@@ -111,9 +114,13 @@ test.describe('Score browser (feature 013, US1)', () => {
     expect(box?.y, 'top margin').toBeGreaterThan(4);
     expect((box?.x ?? 0) + (box?.width ?? 0), 'right margin').toBeLessThan(1280 - 4);
     await expect(page.locator('mx-browser-rail')).toBeVisible();
-    await expect(page.locator('mx-browser-list')).toBeVisible();
+    await expect(page.locator('mx-browser-continue')).toBeVisible();
     await expect(page.locator('mx-browser-detail')).toBeVisible();
-    await noHorizontalScroll(page, ['dialog.browser', 'mx-browser-rail', 'mx-browser-list', 'mx-browser-detail']);
+    await noHorizontalScroll(page, ['dialog.browser', 'mx-browser-rail', 'mx-browser-continue', 'mx-browser-detail']);
+    // A folder brings the list back in the same column, with the same no-overflow guarantee.
+    await page.locator(`[role="treeitem"][data-key="${C_MAJOR_FOLDER}"]`).click();
+    await expect(page.locator('mx-browser-list')).toBeVisible();
+    await noHorizontalScroll(page, ['mx-browser-list']);
   });
 
   test('at 900px the rail collapses to a folder picker, nothing cut off, no horizontal scroll (US1 #6)', async ({
@@ -124,7 +131,7 @@ test.describe('Score browser (feature 013, US1)', () => {
     await expect(browserDialog(page)).toBeVisible();
     await expect(page.locator('.browser-folder-picker')).toBeVisible();
     await expect(page.locator('mx-browser-rail')).toBeHidden();
-    await expect(page.locator('mx-browser-list')).toBeVisible();
+    await expect(page.locator('mx-browser-continue')).toBeVisible();
     await expect(page.locator('mx-browser-detail')).toBeVisible();
     // The folder picker still reaches every folder, over the list, without resizing the dialog.
     await page.locator('.browser-folder-picker').click();
@@ -132,6 +139,7 @@ test.describe('Score browser (feature 013, US1)', () => {
     await expect(folder).toBeVisible();
     await folder.click();
     await expect(page.locator('mx-browser-rail')).toBeHidden(); // picking a folder closes the overlay again
+    await expect(page.locator('mx-browser-list')).toBeVisible();
     await noHorizontalScroll(page, ['dialog.browser', 'mx-browser-list', 'mx-browser-detail']);
   });
 
@@ -160,7 +168,7 @@ test.describe('Score browser (feature 013, US1)', () => {
     await page.goto('/');
     await expect(browserDialog(page)).toBeVisible();
     await expect(page.locator('.browser-folder-picker')).toBeVisible();
-    await noHorizontalScroll(page, ['dialog.browser', 'mx-browser-list']);
+    await noHorizontalScroll(page, ['dialog.browser', 'mx-browser-continue']);
     const dialogBox = await browserDialog(page).boundingBox();
     // Below 768px the dialog fills the window edge to edge (browser.css `--browser-margin: 0`).
     expect(dialogBox?.width).toBeLessThanOrEqual(360);
@@ -295,6 +303,7 @@ test.describe('Score browser (feature 013, US3 - My files)', () => {
     await page.keyboard.press('Escape');
 
     await openBrowser(page);
+    await page.locator('[role="treeitem"][data-key="myFiles"]').click(); // Continue is the default view now (US4)
     const row = rowByRef(page, FILE_REF);
     await expect(row).toHaveAttribute('data-status', 'played');
     await row.click();
@@ -355,6 +364,7 @@ test.describe('Score browser (feature 013, US3 - My files)', () => {
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
 
     await openBrowser(page);
+    await page.locator('[role="treeitem"][data-key="myFiles"]').click(); // Continue is the default view now (US4)
     const row = rowByRef(page, FILE_REF);
     await row.click();
     await expect(row).toHaveAttribute('aria-selected', 'true');
@@ -375,5 +385,113 @@ test.describe('Score browser (feature 013, US3 - My files)', () => {
     await detail.locator('.browser-remove-progress').click();
     await page.waitForTimeout(8_500); // UNDO_WINDOW_MS (8000) plus a margin for the commit itself
     await expect(rowByRef(page, FILE_REF)).toHaveCount(0);
+  });
+});
+
+test.describe('Score browser (feature 013, US4 - Continue)', () => {
+  const INTRODUCTION = 'learning/keys/c-major/introduction';
+  const BEGINNER = 'learning/keys/c-major/beginner';
+  const continueView = (page: Page) => page.locator('mx-browser-continue');
+  const suggestedCard = (page: Page) => page.locator('[data-testid="browser-suggested"] .continue-card');
+  const recentCard = (page: Page, id: string) =>
+    page.locator(`.continue-recent .continue-card[data-ref="library:${id}"]`);
+
+  test('Independent Test (seeded): a mastered Introduction is the first recent item and Beginner is suggested, one click away', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(browserDialog(page)).toBeVisible();
+    await seedProgress(page, 'c-major-intro-mastered.json');
+
+    // Continue is the default folder, and it replaces the list (contracts §1).
+    await expect(continueView(page)).toBeVisible();
+    await expect(page.locator('mx-browser-list')).toBeHidden();
+    const first = page.locator('.continue-recent .continue-card').first();
+    await expect(first).toHaveAttribute('data-ref', `library:${INTRODUCTION}`);
+    await expect(first).toHaveAttribute('data-status', 'mastered');
+    await expect(first).toContainText('Best:');
+    await expect(suggestedCard(page)).toHaveAttribute('data-ref', `library:${BEGINNER}`);
+    await expect(page.locator('[data-testid="browser-suggested"]')).toContainText(
+      'Next step after C major - introduction',
+    );
+
+    // One click opens the suggestion (US4 #2).
+    await suggestedCard(page).click();
+    await expect(browserDialog(page)).toBeHidden();
+    await expect(page.locator('.mx-title-block')).toContainText('C major - beginner');
+  });
+
+  test('Independent Test (real run): mastering the Introduction in Play puts it first in Continue and suggests Beginner', async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(
+      browserName === 'webkit',
+      'Play needs AudioContext and Web MIDI, which Playwright WebKit does not provide',
+    );
+    test.setTimeout(120_000);
+    await startPlay(page, INTRODUCTION);
+    // Every expected note, on its own onset: 100% correct and on time, the whole Score at the written tempo - the
+    // mastering result of R-7 (90% correct, 80% on time, 100% tempo, at most 10% extra).
+    await pressFirstExpectedNotes(page, await expectedNoteCount(page));
+    await waitForGrade(page);
+    await page.keyboard.press('Escape');
+
+    await openBrowser(page);
+    // startPlay left the last view on *All*; Continue is one click in the rail.
+    await page.locator('[role="treeitem"][data-key="continue"]').click();
+    const first = page.locator('.continue-recent .continue-card').first();
+    await expect(first).toHaveAttribute('data-ref', `library:${INTRODUCTION}`);
+    await expect(first).toHaveAttribute('data-status', 'mastered');
+    await expect(suggestedCard(page)).toHaveAttribute('data-ref', `library:${BEGINNER}`);
+  });
+
+  test('a fresh profile opens on Continue with the welcome, the first step and a link to Repertoire > Beginner (US4 #3)', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(browserDialog(page)).toBeVisible();
+    await expect(page.locator('[role="treeitem"][data-key="continue"]')).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('.continue-welcome')).toBeVisible();
+    await expect(suggestedCard(page)).toHaveAttribute('data-ref', `library:${INTRODUCTION}`);
+    await expect(page.locator('.continue-recent .continue-card')).toHaveCount(0);
+
+    await page.locator('.continue-link').click();
+    const repertoire = page.locator('[role="treeitem"][data-key="section:repertoire/beginner"]');
+    await expect(repertoire).toHaveAttribute('aria-selected', 'true');
+    await expect(continueView(page)).toBeHidden();
+    await expect(page.locator('mx-browser-list')).toBeVisible();
+    await expect(rowByRef(page, 'library:repertoire/beginner/ode-to-joy')).toBeVisible();
+  });
+
+  test('a non-empty search replaces Continue with the results, and clearing it brings Continue back', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(continueView(page)).toBeVisible();
+    await page.locator('.browser-search').fill('elise');
+    await expect(continueView(page)).toBeHidden();
+    await expect(rowByRef(page, 'library:repertoire/intermediate/fur-elise-theme')).toBeVisible();
+    await page.locator('.browser-search').fill('');
+    await expect(continueView(page)).toBeVisible();
+    await expect(page.locator('mx-browser-list')).toBeHidden();
+  });
+
+  test('SC-001 (second half): from a loaded Score, a recently opened item opens in 2 actions (Open, its Continue card)', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await seedProgress(page, 'c-major-intro-mastered.json');
+    await closeBrowser(page);
+    await page.locator('mx-open-button input[type=file]').setInputFiles(fixture('minimal-single-note.musicxml'));
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+
+    // Action 1: Open. The last view was Continue (the default), so it is what shows.
+    await openBrowser(page);
+    await expect(continueView(page)).toBeVisible();
+    // Action 2: the item's own card.
+    await recentCard(page, INTRODUCTION).click();
+    await expect(browserDialog(page)).toBeHidden();
+    await expect(page.locator('.mx-title-block')).toContainText('C major - introduction');
   });
 });

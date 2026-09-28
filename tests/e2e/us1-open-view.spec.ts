@@ -71,6 +71,8 @@ test('US1 end-to-end: open fixtures, zoom, errors, My files (feature 013 R-20), 
   await expect(page.locator('.mx-empty-state')).toBeVisible();
   // FR-001: the reload starts with no Score again, so the browser is open at start-up.
   await expect(browserDialog(page)).toBeVisible();
+  // The browser starts on Continue now (feature 013 US4), which shows recent items as cards: the rows are in *My files*.
+  await page.locator('[role="treeitem"][data-key="myFiles"]').click();
   await expect(fileRows).toHaveCount(2);
   // A plain .dblclick() can race a re-render between its two clicks once this many state changes have already
   // happened in the test (found live: the second click's dblclick never fires on the replaced row) - select

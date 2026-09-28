@@ -7,7 +7,7 @@ library index's own hash - no bytes or musical content of their own.
 | Fixture | Behaviour | Origin | Licence |
 |---|---|---|---|
 | mixed-statuses.json | One real library item each in status New, Practised, Played and Mastered (`learning/keys/c-major` folder) | Hand-written (own work) | CC0 |
-| c-major-intro-mastered.json | A single mastering result on `learning/keys/c-major/introduction`, for the US4 *Continue*/*Suggested next* Independent Test | Hand-written (own work) | CC0 |
+| c-major-intro-mastered.json | The item opened, then a single mastering result on `learning/keys/c-major/introduction`, for the US4 *Continue*/*Suggested next* Independent Test | Hand-written (own work) | CC0 |
 
 `db-v2.ts` (T006) is not a seed file for the app; it is a version-2 `recentScores`/`performances` fixture for the
 progress migration test (`tests/engine/storage/progress-migration.test.ts`). It reads the real bytes of
