@@ -368,17 +368,19 @@ pass; the owner finds it fun to play (T057).
 - [x] T077 FR-002 (amended) tests first in `tests/library/melody-sweep.test.ts`, replacing "left hand is unchanged" for
   the key-change items: the key-change bar and the chord just before it equal the recorded ones
   (`tests/library/key-change-left-hand.json`); each key's section starts on its tonic chord and the item ends on the
-  new tonic; every other chord is a primary triad of its key at introduction and beginner; at most one chord per bar at introduction and two at
-  beginner; every degree keeps its recorded voicing (inversion and octave); no chord is held more than two bars in a
-  row at introduction and beginner except the closing tonic. Run: fails (i held for 8 bars)
+  new tonic; every other chord is a primary triad of its key (or VI in minor) at introduction and beginner; at most one
+  chord per bar at introduction and two at beginner; the two tonic chords (and the chord before the change) keep their
+  recorded notes; introduction chords are in root position; no chord is held more than two bars in a row at
+  introduction and beginner except the closing tonic. Run: fails (i held for 8 bars). (Text amended after the second
+  constitution review to what the test checks; the log of 23:30 says why the voicing check was narrowed.)
 - [x] T078 Update `tests/tools/fidelity/exercise-claims.test.ts` first, then the key-change chord plans in
   `tools/library/fidelity/exercise-claims.ts` (independent of the definitions) to the new progressions of T079
 - [x] T079 [deep] New left-hand chord plans (primary triads, key change, section tonics and the chord before the change
   kept) in `content/library/exercises/key-change-{relative,parallel}-{introduction,beginner}.json`; intermediate plans
   kept. Done: only the relative files needed it (the parallel plans already move, I V I V | I IV I V ...):
-  introduction I V6 I IV(VI) | I IV64 V6 I IV64 I V6 I; beginner I IV64-V6 I V6 I IV(VI) | I IV64-V6 I V6 I (half
-  bars). V6 and IV6/4 (not root position): the bass moves by step and the octave-lower E minor stays inside the
-  introduction's pitch bounds (root-position iv there is A1, criterion 2)
+  final plans (after T080-T085): introduction I V I IV(VI) | I I IV IV I I V I (minor second key: i i VI VI i i VI i),
+  root position; beginner I I IV6/4-V6 I I IV(VI) | I I IV6/4 V6 I (minor second key: i i iv6/4 VI i); the reasons
+  (level criteria 2, 11, 16 and the step order) are in research R11
 - [x] T080 [P] [deep] Re-compose the melodies of `key-change-relative-introduction.json` (quarter notes, scale runs up to
   an octave, thumb-under / finger-over, at least 2 variants per section and mode)
 - [x] T081 [P] [deep] Same for `key-change-parallel-introduction.json`

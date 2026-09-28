@@ -8,6 +8,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { MELODY_LADDER } from '../../src/core/defaults';
 import { checkLevel } from '../../src/core/library/levels';
 import { checkStepOrder } from '../../src/core/library/step-order';
 import type { Level, LibraryItem } from '../../src/core/library/types';
@@ -123,12 +124,20 @@ function chordsOf(notes: readonly RecordedNote[]): Chord[] {
 const LETTER_PC: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
 /** Sorted pitch classes of the triad on scale degree 1, 4, 5 or (minor) 6; V is major in minor too (the raised 7th),
  *  VI is major. */
+function rootPc(key: KeyClaim, degree: 1 | 4 | 5 | 6): number {
+  const tonic = (LETTER_PC[key.tonicLetter] ?? 0) + key.tonicAlter;
+  return (((tonic + { 1: 0, 4: 5, 5: 7, 6: 8 }[degree]) % 12) + 12) % 12;
+}
 function triadPcs(key: KeyClaim, degree: 1 | 4 | 5 | 6): number[] {
   const tonic = (LETTER_PC[key.tonicLetter] ?? 0) + key.tonicAlter;
   const root = tonic + { 1: 0, 4: 5, 5: 7, 6: 8 }[degree];
   const third = key.mode === 'minor' && (degree === 1 || degree === 4) ? 3 : 4;
   return [...new Set([root, root + third, root + 7].map((pc) => ((pc % 12) + 12) % 12))].sort((a, b) => a - b);
 }
+
+const THUMB = 1;
+/** The fingers that pass over the thumb, or that the thumb passes under (melody-rules.ts's CROSSING_FINGERS). */
+const CROSSING_FINGERS: ReadonlySet<number> = new Set([2, 3, 4]);
 
 function melodyMetrics(xml: string) {
   const reading = readScore(xml);
@@ -170,8 +179,8 @@ function melodyMetrics(xml: string) {
       const newThumb = diat - (m.finger - 1);
       if (thumb !== null && previous !== null && newThumb !== thumb) {
         const step = diat - previous.diat;
-        const thumbUnder = step === 1 && m.finger === 1 && previous.finger >= 2 && previous.finger <= 4;
-        const fingerOver = step === -1 && previous.finger === 1 && m.finger >= 2 && m.finger <= 4;
+        const thumbUnder = step === 1 && m.finger === THUMB && CROSSING_FINGERS.has(previous.finger);
+        const fingerOver = step === -1 && previous.finger === THUMB && CROSSING_FINGERS.has(m.finger);
         if (!thumbUnder && !fingerOver) shifts++;
       }
       thumb = newThumb;
@@ -297,7 +306,7 @@ describe('key-change melody sweep (FR-001, FR-002, US1)', () => {
       expect(moving).toHaveLength(36);
     });
 
-    it.each(moving)('$id keeps its key change, the chord before it and its voicings, and moves', (item) => {
+    it.each(moving)('$id keeps its key change, the chord before it and its tonic voicings, and moves', (item) => {
       const now = chordsOf(leftHandNotes(item.xml));
       const before = chordsOf((recordedLeftHand as Record<string, RecordedNote[]>)[item.id] ?? []);
       const keys = keysOf(item);
@@ -330,7 +339,19 @@ describe('key-change melody sweep (FR-001, FR-002, US1)', () => {
       // chords per bar: one at introduction, two at beginner (MELODY_LADDER.lhAttacksPerBar)
       const perBar = new Map<number, number>();
       for (const c of now) perBar.set(c.bar, (perBar.get(c.bar) ?? 0) + 1);
-      expect(Math.max(...perBar.values())).toBeLessThanOrEqual(item.level === 'introduction' ? 1 : 2);
+      expect(Math.max(...perBar.values())).toBeLessThanOrEqual(MELODY_LADDER[item.level].lhAttacksPerBar);
+      // introduction plays root-position triads only (its widest chord is a fifth, level criterion 16): the bass is
+      // the chord's root
+      if (item.level === 'introduction') {
+        for (const c of now) {
+          const bassPc = (c.midis[0] ?? 0) % 12;
+          const k = keyAtBar(c.bar);
+          const roots = ([1, 4, 5, 6] as const)
+            .filter((d) => triadPcs(k, d).join(',') === c.pcs.join(','))
+            .map((d) => rootPc(k, d));
+          expect(roots, `bar ${c.bar}: bass ${bassPc}`).toContain(bassPc);
+        }
+      }
       // the two tonic chords keep their recorded notes (the chord before the change is checked above); the new chords
       // are voiced by the level (root position at introduction, V6 and IV6/4 at beginner, so a IV6/4 may share the
       // pivot's notes in another inversion)

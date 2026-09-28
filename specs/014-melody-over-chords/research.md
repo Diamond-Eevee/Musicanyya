@@ -157,6 +157,14 @@ lifts between phrases; a teacher writes 5-4-3-2-1 into a cadence rather than cro
 a step keeps thumb-under / finger-over only. **Why**: the T032 follow-up review found thumb-pivot figures (A1 G♯4 A1)
 and crossings onto the tonic that the strict step rule forced; its natural fixes need this lift.
 
+**Amendment (T076, T091, 2026-09-28)**: three checker rules added with the reworked ladder. (1) A legal thumb-under
+/ finger-over that lands on a chord start is a crossing, not a lift: the T071 rule (a step may move the hand at a chord
+start after at least a quarter) applies only when the step is not a legal crossing. (2) A second step crossing in the
+same direction two notes after the last one (`ZIGZAG_NOTES`, a descent fingered 1-2-1-2) is a `fingering` finding:
+no scale fingering crosses every second note (found by the T088 review). (3) `triadRoot` recognises a root only by a
+triad's own third-and-fifth pair (`TRIAD_SHAPES`: major, minor, diminished, augmented); "a third and any fifth" had
+named G♯ the root of G♯-B-E (an augmented fifth above G♯), rejecting the rising 5-♯6-♯7-1 over V6.
+
 ## R7 - Difficulty: ladder, existing criteria and step order
 
 **Decision**: The spec's Difficulty ladder becomes a named constants table (`MELODY_LADDER` in
@@ -235,9 +243,10 @@ alternating every bar. The first ladder (R7) set introduction below the key step
 
 **Decision** (owner, 2026-09-28):
 1. Ladder rows, introduction: quarter notes, range up to an octave per section, steps only, thumb-under /
-   finger-over inside a scale run (no other shift), non-chord tones on weak beats (passing tones of a scale run),
-   one block chord per bar. Beginner: as introduction plus leaps up to a third (to chord notes) and chord changes on
-   the half bar. Intermediate and advanced unchanged. `MELODY_LADDER` follows (T072 made the checker read every
+   finger-over inside a scale run (not counted as shifts) plus the one lift at a section start kept from T068, non-chord tones on weak beats (passing tones of a scale run),
+   one block chord per bar. Beginner: as introduction plus leaps up to a third (to chord notes), chord changes on
+   the half bar, and at most two lifts anywhere (the agent's value within "a step above introduction"; the owner may
+   tune `MELODY_LADDER.beginner.shiftsMax`). Intermediate and advanced unchanged. `MELODY_LADDER` follows (T072 made the checker read every
    level rule from it).
 2. FR-002 amended for the key-change items: the key change bar, the tonic at the start of each key's section and at
    the end, and the chord before the change stay; the chords in between are re-written with the key's primary triads (I/IV/V,

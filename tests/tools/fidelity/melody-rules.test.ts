@@ -702,6 +702,26 @@ describe('introduction and beginner play like the key step (T076, owner listenin
     expect(check(bars, 'beginner', A_KEYS)).toEqual([]);
   });
 
+  // C major, introduction: C5 B4 A4 G4 over I is a passing run of two non-chord tones (B, A) on weak beats - allowed
+  // since the ladder row changed (nctRun 1 -> 2, placement "weak beats"); a non-chord tone on a chord start is not.
+  const passingRun = (): FixtureBar[] => [
+    bar(C_I, [n('C5', 'quarter', 5), n('B4', 'quarter', 4), n('A4', 'quarter', 3), n('G4', 'quarter', 2)], {
+      key: SIG_C,
+    }),
+    bar(C_V, [n('G4', 'half', 2), n('A4', 'quarter', 3), n('G4', 'quarter', 2)]),
+    bar(C_I, [n('G4', 'quarter', 2), n('F4', 'quarter', 1), n('E4', 'quarter', 3), n('D4', 'quarter', 2)]),
+    bar(C_I, [n('C4', 'whole', 1)], { barline: 'light-heavy' }),
+  ];
+
+  it('non-chord-tone: a passing run of two on weak beats passes at introduction', () => {
+    expect(check(passingRun(), 'introduction', C_KEYS)).toEqual([]);
+  });
+
+  it('chord-tone: a non-chord tone on the downbeat is still a finding at introduction', () => {
+    const bars = withBar(passingRun(), 2, bar(C_V, [n('A4', 'half', 3), n('G4', 'half', 2)]));
+    expect(check(bars, 'introduction', C_KEYS)).toEqual([{ rule: 'chord-tone', bar: 2, beat: 1 }]);
+  });
+
   it('value: two chords in a bar pass at beginner', () => {
     const bars = withBar(beginner(), 2, halfBarChords(C_V, C_IV, [n('G4', 'half'), n('F4', 'half')]));
     expect(check(bars, 'beginner', BEGINNER_KEYS)).toEqual([]);

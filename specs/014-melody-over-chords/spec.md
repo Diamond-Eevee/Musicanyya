@@ -210,8 +210,8 @@ allowed at a lower level.
 
 | Level | Shortest RH note | RH range | Largest RH leap | RH hand shifts | LH pattern |
 |---|---|---|---|---|---|
-| Introduction | quarter | up to an octave per section (scale runs, as the key step) | a step (2nd) | thumb-under / finger-over inside a scale run | one block chord per bar; it may change every bar |
-| Beginner | quarter | up to an octave per section | a third, to a chord note | thumb-under / finger-over | block chord per bar or half bar |
+| Introduction | quarter | up to an octave per section (scale runs, as the key step) | a step (2nd) | thumb-under / finger-over (not counted as shifts), plus at most one lift, at a section start | one block chord per bar; it may change every bar |
+| Beginner | quarter | up to an octave per section | a third, to a chord note | thumb-under / finger-over, plus at most two lifts anywhere | block chord per bar or half bar |
 | Intermediate | eighth (in pairs on the beat) | up to an octave per section | a fifth, to a chord note | thumb-under / finger-over allowed | block chords or broken chords (as today's broken voicing) |
 | Advanced | eighth, including dotted rhythms | up to a tenth | an octave, to a chord note | free | broken chords, root-fifth or block chords, mixed |
 

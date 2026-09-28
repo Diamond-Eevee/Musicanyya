@@ -551,3 +551,29 @@
   verdict (introduction "not fun to play") led to Phase 6 (T075-T092).
 - Every task of 014 is [x]. Ready to merge when the owner asks (the branch also carries feature 013, which is not on
   main yet). Handoff: none left in 014; follow-ups outside it: 013 T111, T112, 013 T090 (owner's SC-008 check).
+
+## 2026-09-29 01:20 - claude-opus-5.5 (second constitution review, before merge)
+- Constitution review of the rework (`constitution-auditor` sub-agent, read-only, `git diff b21a73f..dcce81a`): verdict
+  compliant with notes, no CRITICAL/HIGH. It re-ran the new tests against the old checker (T091 `1 failed | 71 passed`
+  for the expected reason; T076 `9 failed | 63 passed`; the T077 sweep fails on the old left hand) and found the
+  identity golden, grade golden, out-of-scope guard, layering and dependencies in order. Findings and what was done:
+  1. MEDIUM: the spec's ladder table / R11 did not state the lifts `MELODY_LADDER` allows (introduction one at a section
+     start, beginner two anywhere) -> both now state them; beginner's two lifts are marked as the agent's value within
+     the owner's "a step above introduction" (the owner may tune `MELODY_LADDER.beginner.shiftsMax`).
+  2. MEDIUM: T077's text named "every degree keeps its recorded voicing", the test checks the tonic chords and the pivot
+     -> text and test title amended to what is checked, and an assertion added that introduction chords are in root
+     position (a guard: true of the old items too).
+  3. MEDIUM: two T076 bullets had no test of their own -> added "a passing run of two non-chord tones on weak beats
+     passes at introduction" and "a non-chord tone on the downbeat is still a finding" (mutation check: with
+     introduction `nctRun` back to 1 the first fails, `non-chord-tone`; restored, no diff).
+  4. LOW: `steps.test.ts` allowed half-note left-hand chords for every beginner item -> only the relative ones.
+  5. LOW: the three new checker rules were only in code comments -> research R6/R7 amendment paragraph.
+  6-7. LOW: a broken sentence in the `RELATIVE_PLANS` comment; T079's text still named an intermediate plan -> fixed.
+  8. LOW: the T092 entry's time (23:15) is the local machine's clock, not this log's; left as written by that agent.
+  9. LOW: `Agent:` was not in the final trailer block of the Phase 6 commits (history not rewritten); fixed from now on.
+  10. LOW: the sweep test used literals for crossing fingers and chords per bar -> `CROSSING_FINGERS`, `MELODY_LADDER`.
+  Note (outside 014, not changed): `scratch-test.ts` in the repository root (added by feature 008, e266c27) - the owner
+  decides whether to delete it.
+- Checks: `vitest run tests/library tests/tools tests/core/library tests/core/browser` `Tests 3056 passed`; `pnpm lint`
+  exit 0 (299 warnings); `pnpm typecheck` exit 0. 013 T111 done (fastest-of-15 timing, three green full `pnpm test`
+  runs, see 013's log).

@@ -410,16 +410,22 @@ describe('key-change steps cover all 18 pairs (T041)', () => {
   // check, T085): introduction plays quarter notes like the key step (was: half notes), and beginner may change chord
   // on the half bar (the relative items' IV6/4-V6), so its left hand has half-note chords too (was: whole notes only).
   const SHORTEST_RIGHT_HAND_TICKS = { introduction: 960, beginner: 960, intermediate: 480 } as const;
-  const LEFT_HAND_TICKS = { introduction: [3840], beginner: [3840, 1920], intermediate: [3840] } as const;
+  /** Left-hand chord lengths: whole notes, and half notes only in the relative beginner items (their half-bar
+   *  IV6/4-V6; the parallel plans change once per bar). */
+  const leftHandTicks = (step: string, slug: string): readonly number[] => {
+    const [from = '', to = ''] = slug.split('-to-');
+    const parallel = from.split('-')[0] === to.split('-')[0];
+    return step === 'beginner' && !parallel ? [3840, 1920] : [3840];
+  };
   it.each(Object.entries(KEY_CHANGE_BARS))(
-    '%s: is %i bars at the right tempo, left-hand whole-note chords under a single-note right hand',
+    '%s: is %i bars at the right tempo, left-hand block chords under a single-note right hand',
     (step, bars) => {
       for (const { notes, facts, slug } of keyChangeBuilt[step as keyof typeof KEY_CHANGE_BARS]) {
         expect(Math.max(...notes.map((n) => n.measure)), slug).toBe(bars);
         expect(facts.tempoBpm, slug).toBe(KEY_CHANGE_TEMPO[step as keyof typeof KEY_CHANGE_TEMPO]);
         const left = notes.filter((n) => n.staff === 2);
         const right = notes.filter((n) => n.staff === 1);
-        const allowed: readonly number[] = LEFT_HAND_TICKS[step as keyof typeof LEFT_HAND_TICKS];
+        const allowed = leftHandTicks(step, slug);
         expect(
           left.every((n) => allowed.includes(n.duration)),
           slug,

@@ -491,14 +491,13 @@ const subdominant = IV(WHOLE);
 
 /** A relative change goes from the pivot chord straight to the new tonic (the change is shown by the pivot, the double
  *  barline and the key name). Around it the harmony moves with the primary triads, as in the key step (feature 014 FR-002
- *  as amended 2026-09-28, owner listening check): one chord per bar at introduction, a half-bar IV V in each key at
- *  beginner Introduction plays root-position triads only (its widest
- *  chord is a fifth, level criterion 16); beginner uses V6 and IV6/4, which keep the hand in one place. The step order caps the chord changes (level criterion
- *  chordChangesPerBar may not fall from introduction to beginner to the intermediate items' 0.89): 9 in 12 bars at
- *  introduction, 9 in 11 at beginner, so chords last two bars after the change. A minor second key
- *  (C major to A minor ...) keeps the first key's signature, so its raised 7ths count against the level's accidentals
- *  (criterion 11: one in 12 bars): there the harmony moves between i, VI (the pivot chord) and iv, and the melody's leading
- *  tone is the one accidental; a minor first key (A minor to C major ...) has its own signature and plays V. */
+ *  as amended 2026-09-28, owner listening check). Introduction plays root-position triads only (its widest chord is a
+ *  fifth, level criterion 16); beginner adds a half-bar IV6/4-V6, and its V6 and IV6/4 keep the hand in one place. The
+ *  step order caps the chord changes (chordChangesPerBar may not rise above the intermediate items' 0.89): 9 in 12 bars
+ *  at introduction, 9 in 11 at beginner, so chords last two bars after the change. A minor second key (C major to
+ *  A minor ...) keeps the first key's signature, so its raised 7ths count against the level's accidentals (criterion 11:
+ *  one in 12 bars): there the harmony moves between i, VI (the pivot chord) and iv, and the melody's leading tone is the
+ *  one accidental; a minor first key (A minor to C major ...) has its own signature and plays V. */
 const RELATIVE_PLANS: Record<KeyChangeStep, KeyChangePlan> = {
   introduction: {
     from: [tonic, dominant, tonic, PIVOT],
