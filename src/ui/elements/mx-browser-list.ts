@@ -10,6 +10,10 @@ import { escapeHtml } from '../util/escape-html.js';
 
 const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
 
+/** How many rows PageUp/PageDown move: about what a laptop-height list shows at once. A fixed step, not a
+ *  measurement, so the keys behave the same in every window and in tests without layout. */
+const LIST_PAGE_ROWS = 10;
+
 function formatDuration(seconds: number): string {
   const total = Math.round(seconds);
   const m = Math.floor(total / 60);
@@ -165,18 +169,41 @@ export class MxBrowserList extends HTMLElement {
     this.dispatchEvent(new CustomEvent('browseropenitem', { detail: { ref: row.ref }, bubbles: true }));
   }
 
+  /** FR-028 (contracts/score-browser.md §4): the active row moves and the selection (so the detail pane) follows;
+   *  Enter opens it. The list scrolls to keep the active row in view. */
   private readonly onKeydown = (event: KeyboardEvent): void => {
     const rows = this.rows();
+    if (rows.length === 0) return;
     const activeIndex = this.activeRef ? rows.findIndex((r) => refEquals(r.ref, this.activeRef as ItemRef)) : -1;
-    if (event.key === 'ArrowDown') {
+    const last = rows.length - 1;
+    const moveTo = (index: number): void => {
       event.preventDefault();
-      this.select(Math.min(rows.length - 1, activeIndex + 1), rows);
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      this.select(Math.max(0, activeIndex - 1), rows);
-    } else if (event.key === 'Enter') {
-      event.preventDefault();
-      if (activeIndex >= 0) this.open(activeIndex, rows);
+      this.select(Math.max(0, Math.min(last, index)), rows);
+      this.querySelector('[data-active]')?.scrollIntoView?.({ block: 'nearest' });
+    };
+    switch (event.key) {
+      case 'ArrowDown':
+        moveTo(activeIndex + 1);
+        break;
+      case 'ArrowUp':
+        moveTo(activeIndex - 1);
+        break;
+      case 'Home':
+        moveTo(0);
+        break;
+      case 'End':
+        moveTo(last);
+        break;
+      case 'PageDown':
+        moveTo(activeIndex + LIST_PAGE_ROWS);
+        break;
+      case 'PageUp':
+        moveTo(activeIndex - LIST_PAGE_ROWS);
+        break;
+      case 'Enter':
+        event.preventDefault();
+        if (activeIndex >= 0) this.open(activeIndex, rows);
+        break;
     }
   };
 }

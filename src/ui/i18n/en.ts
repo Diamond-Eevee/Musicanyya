@@ -150,7 +150,32 @@ export const en = {
       practisedTooltip: 'Practised in Practice mode',
       playedTooltip: 'Played in Play mode',
       masteredTooltip: 'Meets the mastery thresholds',
+      /** The two status filters that span several statuses (FR-027, US5). */
+      notMastered: 'Not mastered',
+      playedNotMastered: 'Played, not mastered',
     },
+    /** US5 - the toolbar's filter and sort controls (FR-027). Level, key and skill reuse `library.filters`/`levels`/`tags`. */
+    filterBar: {
+      group: 'Filters',
+      status: 'Status',
+      anyStatus: 'Any status',
+      sort: 'Sort',
+      clearAll: 'Clear all',
+      removeFilter: 'Remove filter {filter}',
+    },
+    sorts: {
+      libraryAsc: 'Library order',
+      libraryDesc: 'Library order, reversed',
+      titleAsc: 'Title, A to Z',
+      titleDesc: 'Title, Z to A',
+      lastPlayedDesc: 'Last played, newest first',
+      lastPlayedAsc: 'Last played, oldest first',
+      bestDesc: 'Best result, highest first',
+      bestAsc: 'Best result, lowest first',
+    },
+    /** FR-028 - announced through the browser's `aria-live` line, beside the debounced item count. */
+    announceRemoved: '{title} removed from My files. Undo available for {seconds} seconds.',
+    announceReset: 'Progress of {title} reset.',
     trend: { up: 'up {points} points', down: 'down {points} points', same: 'same' },
     /** FR-013/FR-012, R-8: the two figures, always a count out of a total as well as a percentage. */
     resultFigures: '{correct}% correct · {onTime}% on time',

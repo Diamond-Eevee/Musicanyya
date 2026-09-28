@@ -31,12 +31,17 @@ export function mergeRecords(
     .filter((record): record is ProgressRecord => record !== undefined);
 
   const attempts = (current?.attempts ?? 0) + older.reduce((sum, r) => sum + r.attempts, 0);
+  // Each timestamp is parsed once, not on every comparison: the browser builds a history for every one of its rows
+  // on each data change, and parsing inside the comparator dominated that build (SC-003).
   const history = [
-    ...(current?.results.map((result) => ({ result, fromCurrentHash: true })) ?? []),
-    ...older.flatMap((r) => r.results.map((result) => ({ result, fromCurrentHash: false }))),
+    ...(current?.results.map((result) => ({ result, fromCurrentHash: true, at: Date.parse(result.finishedAt) })) ?? []),
+    ...older.flatMap((r) =>
+      r.results.map((result) => ({ result, fromCurrentHash: false, at: Date.parse(result.finishedAt) })),
+    ),
   ]
-    .sort((a, b) => Date.parse(b.result.finishedAt) - Date.parse(a.result.finishedAt))
-    .slice(0, PROGRESS_RESULTS_MAX);
+    .sort((a, b) => b.at - a.at)
+    .slice(0, PROGRESS_RESULTS_MAX)
+    .map(({ result, fromCurrentHash }): HistoryEntry => ({ result, fromCurrentHash }));
 
   return { current, older, attempts, history };
 }

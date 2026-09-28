@@ -193,17 +193,17 @@ Score without touching the pointer.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T077 [P] [US5] `tests/core/browser/query.test.ts` (extend): filters level, key, tag and every `StatusFilter` combine with AND (US5 #1: key G major + status New lists only never-attempted G-major items); sort by `lastPlayed` and `best` in both directions, items without a best last in both, ties in library order; `best` ascending gives the "needs work" order of the Independent Test
-- [ ] T078 [P] [US5] `tests/core/browser/query-timing.test.ts` (SC-003 core budget): `buildBrowserItems` + `queryBrowser` over `libraryIndexOf(500)` with 10,000 results (20 per record) for folder, search and filter changes each take <= 20 ms (median of 5 runs after one warm-up)
-- [ ] T079 [P] [US5] `tests/ui/score-browser/filters.test.ts`: filter controls for level, key, skill and status; each active filter appears as a removable chip, *Clear all* clears them (US5 #1); no match shows "No items match these filters" and *Clear filters* (US5 #2); the sort control offers library order, title, last played and best result in both directions (FR-027)
-- [ ] T080 [P] [US5] `tests/ui/score-browser/keyboard.test.ts`: `/` focuses search (not while typing in a field); Escape clears a non-empty search, then closes; rail APG tree keys (Up/Down/Right/Left/Home/End/Enter) with roving `tabindex`; list Up/Down/Home/End/PageUp/PageDown move the active row and the detail follows; Tab order search -> filters -> sort -> rail -> list -> detail -> close, cyclic; the `aria-live` line announces "{n} items" (debounced by `BROWSER_ANNOUNCE_DEBOUNCE_MS`) and status changes (FR-028)
+- [x] T077 [P] [US5] `tests/core/browser/query.test.ts` (extend): filters level, key, tag and every `StatusFilter` combine with AND (US5 #1: key G major + status New lists only never-attempted G-major items); sort by `lastPlayed` and `best` in both directions, items without a best last in both, ties in library order; `best` ascending gives the "needs work" order of the Independent Test
+- [x] T078 [P] [US5] `tests/core/browser/query-timing.test.ts` (SC-003 core budget): `buildBrowserItems` + `queryBrowser` over `libraryIndexOf(500)` with 10,000 results (20 per record) for folder, search and filter changes each take <= 20 ms (median of 5 runs after one warm-up)
+- [x] T079 [P] [US5] `tests/ui/score-browser/filters.test.ts`: filter controls for level, key, skill and status; each active filter appears as a removable chip, *Clear all* clears them (US5 #1); no match shows "No items match these filters" and *Clear filters* (US5 #2); the sort control offers library order, title, last played and best result in both directions (FR-027)
+- [x] T080 [P] [US5] `tests/ui/score-browser/keyboard.test.ts`: `/` focuses search (not while typing in a field); Escape clears a non-empty search, then closes; rail APG tree keys (Up/Down/Right/Left/Home/End/Enter) with roving `tabindex`; list Up/Down/Home/End/PageUp/PageDown move the active row and the detail follows; Tab order search -> filters -> sort -> rail -> list -> detail -> close, cyclic; the `aria-live` line announces "{n} items" (debounced by `BROWSER_ANNOUNCE_DEBOUNCE_MS`) and status changes (FR-028)
 - [ ] T081 [P] [US5] `tests/e2e/score-browser.spec.ts` (US5 block): the Independent Test (seeded mixed progress; asserts exact rows and order); the keyboard-only flow from the *Open* button to an open Score with `page.keyboard` only, focus visible at every step, and focus back on *Open* after closing (US5 #3)
 
 ### Implementation
 
-- [ ] T082 [US5] `queryBrowser` filters and sorts in `src/core/browser/query.ts` (T077, T078)
-- [ ] T083 [US5] Toolbar in `mx-score-browser.ts`: filter controls, chips, *Clear all*, sort control, empty-state *Clear filters*; strings in `en.ts` (T079)
-- [ ] T084 [US5] Keyboard and announcements in `mx-score-browser.ts`, `mx-browser-rail.ts` and `mx-browser-list.ts` (T080)
+- [x] T082 [US5] `queryBrowser` filters and sorts in `src/core/browser/query.ts` (T077, T078)
+- [x] T083 [US5] Toolbar in `mx-score-browser.ts`: filter controls, chips, *Clear all*, sort control, empty-state *Clear filters*; strings in `en.ts` (T079)
+- [x] T084 [US5] Keyboard and announcements in `mx-score-browser.ts`, `mx-browser-rail.ts` and `mx-browser-list.ts` (T080)
 - [ ] T085 [US5] Manual check: quickstart US5 steps 1-3 (filter + sort picture with `pnpm screenshot --browser --seed-progress ...`, keyboard-only run in the built-in browser or scripted Playwright); name the pictures in the log
 
 **Checkpoint**: US5 Independent Test passes (T081); US1-US4 still pass; full gate green; log entry; commit.
