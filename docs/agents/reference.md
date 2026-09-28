@@ -315,12 +315,19 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   migration from `recentScores` + `performances`) and a memory adapter (contract tests + storage-unavailable
   fallback). The browser model (`src/core/browser`) is pure. New `localStorage` key `musicanyya.browser.v1`. Test-only `@axe-core/playwright` 4.13.0 (MPL-2.0) for the WCAG 2.1 AA check (OD-5,
   approved 2026-09-27, in use: `tests/e2e/score-browser-a11y.spec.ts`).
+- Feature 014 (planned): no new technology and no new dependency. Exercise definitions gain a `melody` hand part
+  (contract exercise-definition 1.3); a dev-only melody rule check (`tools/library/fidelity/melody-rules.ts`, audit rule
+  set `exercise-theory-v3`) and a named `MELODY_LADDER` in `src/core/defaults.ts`.
 
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-28: Feature 014 planned (melody over chords): the 54 key-change items and 5 chord-change drills stop playing
+  the same block chord in both hands; the right hand gets authored scale-step melodies (variants rotated across keys)
+  over the unchanged left-hand chords, limited per level by a Difficulty ladder and verified by an independent melody
+  rule check in the build and the audit. Rewritten items start with fresh progress. No new dependency.
 - 2026-09-27: Feature 013 planned (Score browser with progress): a near-full-screen browser replaces the Scores panel's
   library tree and Recent list. It has a rail (Continue, All, library folders, My files), a list and a detail pane,
   with status badges (New/Practised/Played/Mastered), best/last results with trend, and folder summaries. Progress is
@@ -332,9 +339,4 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   a core tempo display map gives the tempo and beat at the cursor. The engine keeps its percentage factor, now any
   number in 25-200, so grading and stored runs are unchanged. The transport tempo is no longer persisted. No new
   dependency.
-- 2026-09-26: Feature 011 planned (Learning by key): Learning becomes Keys (24 folders, circle of fifths) and Key
-  changes (18 relative/parallel folders), each with generated steps Introduction/Beginner/Intermediate(/Advanced), plus 10
-  songs built from Mutopia public-domain melodies with our CC0 left-hand chords (`pnpm library:songs`). New level
-  `introduction`, a step-order check in `library:index`, a folder-tree library panel, and `supersedes` links so settings
-  follow renamed items. No new dependency.
 <!-- RECENT-CHANGES:END -->

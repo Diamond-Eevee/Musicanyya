@@ -15,11 +15,12 @@ Many generated Learning exercises have both hands strike the same block chord at
 |---|---|---|
 | Key changes (relative and parallel, introduction / beginner / intermediate) | 54 | every bar |
 | Chord-change drills in C major and A minor (I-V-vi-IV, I-vi-ii-V, diatonic ladder, same tonic, minor and major) | 5 | every bar |
-| Per-key steps, advanced (24 keys) | 24 | the closing section |
-| Per-key steps, intermediate (24 keys) | 24 | bars of the last section where the left hand plays block chords |
-
 The screenshot that raised this is *C major to A minor - introduction*: twelve bars of whole-note triads in both hands.
-Per-key steps where one hand plays a scale and the other chords, and all Songs, are not doubled and not in scope.
+
+Not in scope: the 96 per-key steps (one hand plays a scale, triads or broken chords while the other does something
+else; the intermediate and advanced steps share only their single closing tonic chord), and all Songs. A single
+closing tonic chord in both hands is a normal ending and does not count as doubled chords (owner decision
+2026-09-28, during plan; the first draft of this spec wrongly listed 48 step items).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -65,8 +66,9 @@ below), and the library's level check still agrees with the level each item is s
 introduction level would make the exercises worse than doubled chords. It must hold from the first rewritten item,
 so it shares P1.
 
-**Independent Test**: For one key, open the four steps and the key-change items that start in it: each rewritten
-item satisfies the limits of its row in the Difficulty ladder, and the library level check passes for all of them.
+**Independent Test**: For one key pair, open its introduction, beginner and intermediate key-change items: each
+satisfies the limits of its row in the Difficulty ladder, each is at least as demanding as the one before, and the
+library level check passes for all of them.
 
 **Acceptance Scenarios**:
 
@@ -80,26 +82,24 @@ item satisfies the limits of its row in the Difficulty ladder, and the library l
 
 ---
 
-### User Story 3 - Chord-change drills and step exercises lose their doubled bars (Priority: P2)
+### User Story 3 - Chord-change drills lose their doubled bars (Priority: P2)
 
-A learner practising a chord-change drill (I-V-vi-IV, I-vi-ii-V, the diatonic ladder, same tonic, minor and major) or
-the closing section of an intermediate or advanced step hears left-hand chords with a right-hand line on top,
-instead of two copies of the same chord. The drill still trains what its description says (chord changes with
-little hand travel): the left hand keeps the drill's chords, inversions and voice-leading; the right hand adds a
-melody on top.
+A learner practising a chord-change drill (I-V-vi-IV, I-vi-ii-V, the diatonic ladder, same tonic, minor and major)
+hears left-hand chords with a right-hand line on top, instead of two copies of the same chord. The drill still trains
+what its description says (chord changes with little hand travel): the left hand keeps the drill's chords, inversions,
+voice-leading, held common tones and the lift before each change; the right hand adds a melody on top.
 
-**Why this priority**: Fewer items (5 drills, plus one section in 48 step items) and those sections already sit next
-to non-doubled material, so the gain is smaller than US1.
+**Why this priority**: Only 5 items, so the gain is smaller than US1.
 
-**Independent Test**: Open *C major - I-V-vi-IV* and *C major - advanced*: no bar has both hands on the same block
-chord; the left hand plays the same chord sequence with the same inversions as before.
+**Independent Test**: Open *C major - I-V-vi-IV*: no bar has both hands on the same block chord; the left hand plays
+the same chord sequence with the same inversions as before, and the right hand a melody.
 
 **Acceptance Scenarios**:
 
 1. **Given** a chord-change drill, **When** it is opened, **Then** the left hand plays the drill's chord sequence and
    inversions unchanged, and the right hand plays a melody that fits each chord.
-2. **Given** an intermediate or advanced per-key step, **When** it is opened, **Then** its scale sections are
-   unchanged and its formerly doubled bars have a right-hand melody over left-hand chords.
+2. **Given** a drill passage where the left hand lifts before the next chord (the quarter rest), **When** the right
+   hand plays its melody, **Then** the right hand rests at the same moment, so the drill's shape is kept.
 3. **Given** any item described as training a skill ("trains"), **When** it is rewritten, **Then** its description
    still matches the music, or is updated to say what it now trains.
 
@@ -132,10 +132,11 @@ chord; the left hand plays the same chord sequence with the same inversions as b
 **Which music changes**
 
 - **FR-001**: Every Learning item listed under Background MUST, after this feature, have no bar in which both hands
-  strike the same chord at the same time as block chords.
+  strike the same chord at the same time as block chords. A single closing tonic chord in both hands at the very end
+  of an item is not doubled chords; the rewritten items nevertheless end with the melody (FR-007).
 - **FR-002**: In the rewritten bars the left hand MUST play the item's chord progression (same chords, same
   inversions, same bar positions, same key change) and the right hand MUST play a single-note melody.
-- **FR-003**: Items not listed under Background (scale sections, Songs, Repertoire, *My files*) MUST NOT change.
+- **FR-003**: Items not listed under Background (the per-key steps, Songs, Repertoire, *My files*) MUST NOT change.
 - **FR-004**: Titles, section places, levels, tempo, metre, bar count and the way items are listed in the browser
   MUST stay the same unless a Difficulty ladder limit forces a change, which MUST be recorded per item.
 
@@ -190,6 +191,9 @@ allowed at a lower level.
 | Intermediate | eighth (in pairs on the beat) | up to an octave | a fifth, to a chord note | thumb-under / finger-over allowed | block chords or broken chords (as today's broken voicing) |
 | Advanced | eighth, including dotted rhythms | up to a tenth | an octave, to a chord note | free | broken chords, root-fifth or block chords, mixed |
 
+A repeated note is not a leap. The library's existing level criteria (for example at most four notes in a row at the
+shortest value at beginner level) apply on top of this table.
+
 ### Key Entities
 
 - **Learning item**: a generated exercise on the shelf - title, level, section, key or key pair, what it trains -
@@ -202,8 +206,8 @@ allowed at a lower level.
 
 ### Measurable Outcomes
 
-- **SC-001**: 0 bars with both hands striking the same block chord remain in the Learning section (today: every bar
-  of 59 items and part of 48 more).
+- **SC-001**: 0 bars with both hands striking the same block chord remain in the Learning section, apart from single
+  closing tonic chords (today: every bar of 59 items).
 - **SC-002**: 100% of rewritten items pass the mechanical melody check (FR-014) and the library level check (FR-011);
   0 rewritten items exceed their level's row of the Difficulty ladder.
 - **SC-003**: 100% of rewritten items open, play in Listen mode and can be completed in Practice mode without a load
@@ -234,5 +238,6 @@ allowed at a lower level.
 - Songs and Repertoire items, and per-key scale sections that already give each hand a different part.
 - New exercise families, new keys, new levels, or new chord progressions.
 - Melodies in the left hand with chords in the right (the per-key steps already practise swapped hands with scales).
+- The per-key steps (introduction to advanced, 96 items), including their closing tonic chord.
 - Letting the learner choose between the doubled and the melody version.
 - Changing how grades, Practice mode or the browser work.
