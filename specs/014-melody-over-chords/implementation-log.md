@@ -170,3 +170,36 @@
 - Handoff: next = T032 music review (tier `deep`, claude-opus-5.5; brief the `music-domain-expert` sub-agent on the six
   key-change definitions - the compact notation used for authoring is described in this entry's commits), then T033
   screenshots, T034 checkpoint (full gate), then Phase 4 (T035-T051). Run `pnpm test` first; tree clean after this commit.
+
+## 2026-09-28 17:40 - claude-opus-5.5 (relay)
+- T032 review ran (`music-domain-expert` sub-agent, read-only), reported after the 17:10 hand-off. Findings summarised
+  here; none applied yet, so T032 stays open (its fixes remain to do).
+  1. BLOCKING, all 18 intermediate items: the fingering is looked up per scale degree and printed on every note -
+     crossings inside a five-finger span, 1-4-1 around the leading tone, leaps fingered backwards or with the same
+     finger. Verified: c-major-to-c-minor/intermediate bar 1 prints E3 F1 G2 E3 C1, bar 2 F1 E3 F1. The checker misses
+     it (a leap at intermediate counts as a shift, `shiftsMax` Infinity, no direction check). New task T066 (generator
+     + checker, design first).
+  2. Should-fix: melody and bass in octaves resolving leading tone -> tonic after V6 on a weak beat (relative
+     intermediate s1 minor v0 bar 6, s1 major v0 bar 6; parallel intermediate s1 major v0 and s1 minor v1 bar 4); the
+     checker compares chord starts only. New task T067; reviewer fixes: `5q 4e 3e 2h` (rel minor v0 bar 6); bars 6-8
+     `5q 4e 3e 2h | 1q 2e 3e 5h | 3q 2q 1h` (rel major v0); `5q 6e 7e 5h | 8w` (par major v0); `5q 7#e 5e 2h | 1w`
+     (par minor v1).
+  3. Should-fix: relative introduction s0 major v2 (G->Em) is D E D E D E for four bars; suggested position -2
+     `1h 0h | 1h 2h | 1h 0h | -1w`.
+  4. needs owner: relative introduction minor->major (4 items) never plays the minor tonic or leading tone in the right
+     hand (no five-note position holds both keys' needs). Options: allow one shift at the key change at introduction
+     (ladder change), extend the contract's step range to -4, or accept it and say in `trains` that the left hand
+     carries the minor key. Recommendation: allow the one shift at the key change (the beginner row already does).
+  5. Should-fix: relative beginner Am->C / Bm->D join is a finger-over, which the ladder allows only from intermediate
+     (my checker counted it as the one shift). Suggested: s0 minor v1 ends `1w`; s1 major v1
+     `5h 4q 3q | 3q 4q 5h | 3q 2q 1q 2q | 3h 2h | 1w` - but check it: a step join with a thumb change is a `fingering`
+     finding under today's checker, so this may need T066's rules.
+  6. Should-fix: relative beginner s0 minor v0/v2 have no raised 7th in the minor key being left; suggestions in the
+     review (position 0 variants).
+  7. Nice-to-have: parallel beginner s1 v1 ending `3q 2q 1h`; parallel introduction s1 major v0 bars 3-6 swing
+     `3w 2w 3w 2w`; relative introduction minor variants all open `1h 0#h`; relative intermediate s0 minor v0 never
+     sounds E (use `1q 2e 3e 5h`).
+  Verdict: note values, leaps, range and the step-by-step climb fit each level; the key change is audible in every
+  item; intermediate fingering must be fixed before sign-off. The reviewer's theory references were from memory.
+- Handoff: next = T066 (deep, claude-opus-5.5), then T067 and T032's remaining fixes (3, 5, 6, 7), regenerate, then T033,
+  T034. Ask the owner about finding 4 at session start. Tree clean after this commit.

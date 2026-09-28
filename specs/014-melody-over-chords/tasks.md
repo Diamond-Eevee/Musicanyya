@@ -196,9 +196,9 @@ as demanding as the one before, and the level check passes.
 - [x] T031 [US1] [light] Run `pnpm test:e2e -- tests/e2e/library.spec.ts tests/e2e/tempo-field.spec.ts` (they open
   `c-major-to-c-minor/introduction` and `a-major-to-a-minor/beginner`); fix only assertions that read the old notes,
   logging why
-- [ ] T032 [US1] [deep] Music review of the authored key-change phrases with the `music-domain-expert` agent (readability,
+- [~] T032 [US1] [deep] Music review of the authored key-change phrases with the `music-domain-expert` agent (readability,
   musicality, level fit, fingering); fix findings in the definitions, regenerate, summarise findings in
-  `specs/014-melody-over-chords/implementation-log.md`
+  `specs/014-melody-over-chords/implementation-log.md` (claimed: claude-opus-5.5 2026-09-28)
 - [ ] T033 [US1] Manual verification per `specs/014-melody-over-chords/quickstart.md` US1 and US2 (`pnpm screenshot
   --item ...` for c-major-to-a-minor/introduction, c-major-to-c-minor/beginner and the three g-major-to-e-minor items;
   open every PNG) and record what was seen in the log
