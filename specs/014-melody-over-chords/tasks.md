@@ -43,7 +43,7 @@ lets bad melodies through
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T004 [P] Write `tests/tools/fidelity/melody-fixtures.ts`: a small builder that writes two-staff MusicXML
+- [x] T004 [P] Write `tests/tools/fidelity/melody-fixtures.ts`: a small builder that writes two-staff MusicXML
   strings (right-hand single notes, left-hand block chords, key, metre, key change) for the checker tests - test
   helper only, no generator import
 - [ ] T005 [deep] Write `tests/tools/fidelity/melody-rules.test.ts` (depends on T004): (a) one clean fixture per level passes
@@ -58,7 +58,7 @@ lets bad melodies through
   `checkMelodyVariation` flags a family whose items share one degree sequence and passes one with two; (d) a repeated
   note is not a leap; (e) `tools/library/fidelity/melody-rules.ts` imports nothing from `src/core/library/exercise/`
   (read the source file's imports). Run: fails because the module does not exist
-- [ ] T006 [P] Write `tests/core/library/exercise/melody.test.ts`: (a) step -> pitch with the tonic in octave 4 in all
+- [x] T006 [P] Write `tests/core/library/exercise/melody.test.ts`: (a) step -> pitch with the tonic in octave 4 in all
   24 keys, including steps -3..10 and the minor `alter` +1 on 6/7 (G♯ in A minor, E♯ in F♯ minor, F𝄪 in G♯ minor);
   (b) variant rotation `variants[i mod n]` per section; (c) throws naming family/section/variant/note when a part
   does not fill its section, a minor 6th/7th has no explicit `alter`, `melody` is in the left hand or in a mirrored
@@ -74,13 +74,13 @@ lets bad melodies through
 
 ### Implementation
 
-- [ ] T008 [light] Add `MELODY_LADDER` (data-model §4) to `src/core/defaults.ts` and its row to the constants table in
+- [x] T008 [light] Add `MELODY_LADDER` (data-model §4) to `src/core/defaults.ts` and its row to the constants table in
   `specs/014-melody-over-chords/data-model.md` §4 if names differ
-- [ ] T009 [light] Add `MelodyPart`, `MelodyPhrase`, `MelodyNote`, the `{ melody }` member of `PatternHandPart` and
+- [x] T009 [light] Add `MelodyPart`, `MelodyPhrase`, `MelodyNote`, the `{ melody }` member of `PatternHandPart` and
   `ExerciseDefinition.melody` (drills) to `src/core/library/exercise/types.ts`
 - [ ] T010 [deep] Implement `tools/library/fidelity/melody-rules.ts` (`checkMelodyRules`, `checkMelodyVariation`, research
   R3-R8, thresholds from `MELODY_LADDER`, reader shared with `theory.ts`) until T005 passes
-- [ ] T011 Implement `src/core/library/exercise/melody.ts` (pitch, variant choice, fingering, write events) and wire
+- [x] T011 Implement `src/core/library/exercise/melody.ts` (pitch, variant choice, fingering, write events) and wire
   the `melody` part into `handSegments` in `src/core/library/exercise/generate.ts` until T006 passes; confirm the
   existing goldens (`tests/core/library/exercise/goldens.test.ts`) and `tests/library/regeneration.test.ts` are
   unchanged (contract 1.3 MINOR: no 1.2.0 output changes)

@@ -16,6 +16,7 @@ import type { ItemMetadata } from '../types.js';
 import { chordTones, invertOrder, pitchClassOfTone, tonicPitchClass } from './degrees.js';
 import { assertFingeringLength, triadFingering } from './fingering.js';
 import { displayKeyName, keyBySlug, keySlug } from './keys.js';
+import { buildMelodySegments, type MelodyChordOnset } from './melody.js';
 import { assertWithin88Keys } from './range-guard.js';
 import { scaleFingering, scaleName, scaleNotes } from './scales.js';
 import type {
@@ -25,12 +26,14 @@ import type {
   ExerciseStep,
   Inversion,
   KeyPair,
+  MelodyPart,
   PatternChord,
   PatternHandPart,
   PatternSection,
   Quality,
   ScalePart,
   StepDuration,
+  StepName,
 } from './types.js';
 import { bassInWindow, placeAscending, registerAnchorMidi, transposeOctaves, type VoicedNote } from './voicing.js';
 
@@ -594,11 +597,17 @@ function resolveSections(
           `${here}: a mirror has ${spec.bars} bars but section ${spec.mirror + 1} has ${source.spec.bars}`,
         );
       }
+      if ('melody' in source.left) {
+        throw new Error(`${here}: a mirror of section ${spec.mirror + 1} would put its melody in the left hand`);
+      }
       resolved.push({ spec, key: keyOf(spec), right: source.left, left: source.right });
       return;
     }
     if ('mirror' in spec.right || 'mirror' in spec.left) {
       throw new Error(`${here}: a hand part of \`mirror\` needs the section's \`mirror\` index`);
+    }
+    if ('melody' in spec.left) {
+      throw new Error(`${here}: \`melody\` is allowed in the right hand only`);
     }
     resolved.push({ spec, key: keyOf(spec), right: spec.right, left: spec.left });
   });
@@ -743,13 +752,46 @@ function restSegments(hand: HandName, bars: number, barTicks: number): Segment[]
   }));
 }
 
-function handSegments(section: ResolvedSection, hand: HandName, barTicks: number, context: string): Segment[] {
+/** The right-hand melody of a section (feature 014, contract exercise-definition 1.3 §1c-2a): the left hand's own
+ *  chords (generated exactly as in 1.2.0) give the words direction and onset of each chord, which the melody's own
+ *  copy is attached to (data-model.md 014 §7, "attached to the melody note that sounds at the chord start"). */
+function melodySegmentsForSection(
+  section: ResolvedSection,
+  part: MelodyPart,
+  context: string,
+  itemIndex: number,
+  level: StepName,
+): Segment[] {
+  const leftPart = section.left;
+  if (!('chords' in leftPart)) throw new Error(`${context}: a melody section needs the left hand's \`chords\``);
+  const leftSegments = chordSegments(section, 'left', leftPart.chords, `${context} (left hand)`);
+  const chordOnsets: MelodyChordOnset[] = [];
+  let onset = 0;
+  for (const segment of leftSegments) {
+    const words = segment.events.find((e) => e.kind === 'direction')?.words;
+    if (words !== undefined) chordOnsets.push({ onset, words });
+    onset += segment.ticks;
+  }
+  return buildMelodySegments(section.key, part, section.key.mode, itemIndex, level, false, chordOnsets, context);
+}
+
+function handSegments(
+  section: ResolvedSection,
+  hand: HandName,
+  barTicks: number,
+  context: string,
+  itemIndex: number,
+  level: StepName,
+): Segment[] {
   const part = section[hand];
   let segments: Segment[];
   if ('scale' in part) segments = scaleSegments(section, hand, part.scale, context);
   else if ('chords' in part) segments = chordSegments(section, hand, part.chords, context);
   else if ('rest' in part) segments = restSegments(hand, section.spec.bars, barTicks);
-  else throw new Error(`${context}: a mirror part was not resolved`);
+  else if ('melody' in part) {
+    if (hand !== 'right') throw new Error(`${context}: \`melody\` is allowed in the right hand only`);
+    segments = melodySegmentsForSection(section, part.melody, context, itemIndex, level);
+  } else throw new Error(`${context}: a mirror part was not resolved`);
   const filled = segments.reduce((sum, s) => sum + s.ticks, 0);
   const wanted = section.spec.bars * barTicks;
   if (filled !== wanted) {
@@ -763,16 +805,19 @@ interface PatternRender {
   definition: ExerciseDefinition;
   sections: ResolvedSection[];
   firstKey: ExerciseKey;
+  /** The family's item index (order of `keys`/`keyPairs`): which melody variant a section's `variants[i mod n]` uses. */
+  itemIndex: number;
 }
 
 /** Lays the hands' segments out bar by bar and writes the completed file. Section barlines, the tempo mark and the words
  *  directions come from the definition. Shared by the pattern and key-change forms. */
 function renderPattern(render: PatternRender): string {
-  const { definition, sections, firstKey, title } = render;
+  const { definition, sections, firstKey, title, itemIndex } = render;
   const barTicks = measureTicks(definition.metre);
   const streams: Record<HandName, Segment[]> = { right: [], left: [] };
   const sectionEnds: { lastBar: number; barline: BarlineKind }[] = [];
   const sectionStarts = new Map<number, ResolvedSection>();
+  const level: StepName = definition.step ?? 'introduction';
   let bars = 0;
 
   sections.forEach((section, index) => {
@@ -780,7 +825,7 @@ function renderPattern(render: PatternRender): string {
     const context = `${definition.family}: section ${index + 1}${label ? ` ("${label}")` : ''}`;
     sectionStarts.set(bars + 1, section);
     for (const hand of ['right', 'left'] as const) {
-      const segments = handSegments(section, hand, barTicks, context);
+      const segments = handSegments(section, hand, barTicks, context, itemIndex, level);
       if (hand === 'right') {
         // the tempo mark and the section label lead the right hand's first segment of the score / section
         const lead: WriteEvent[] = [];
@@ -887,11 +932,11 @@ export function generatePatternFamily(definition: ExerciseDefinition, generatedO
       `${definition.family}: the pattern form takes \`keys\` and \`sections\`, not \`steps\` or \`keyPairs\``,
     );
   }
-  return definitionKeys(definition).map((key) => {
+  return definitionKeys(definition).map((key, itemIndex) => {
     const slug = keySlug(key);
     const sections = resolveSections(definition, () => key);
     const title = definition.titleTemplate.replace('{key}', displayKeyName(key));
-    const xml = renderPattern({ title, definition, sections, firstKey: key });
+    const xml = renderPattern({ title, definition, sections, firstKey: key, itemIndex });
     return { ...identityOf(definition, slug), xml, meta: buildMeta(definition, title, generatedOn) };
   });
 }
@@ -926,13 +971,13 @@ export function generateKeyChangeFamily(definition: ExerciseDefinition, generate
   }
   const pairs = definition.keyPairs;
   if (!pairs || pairs.length === 0) throw new Error(`${definition.family}: the key-change form needs \`keyPairs\``);
-  return pairs.map((pair) => {
+  return pairs.map((pair, itemIndex) => {
     const slug = pairSlug(pair);
     const sections = resolveSections(definition, (section) => (section.inKey === 'to' ? pair.to : pair.from));
     const title = definition.titleTemplate
       .replace('{from}', displayKeyName(pair.from))
       .replace('{to}', displayKeyName(pair.to));
-    const xml = renderPattern({ title, definition, sections, firstKey: pair.from });
+    const xml = renderPattern({ title, definition, sections, firstKey: pair.from, itemIndex });
     return { ...identityOf(definition, slug), xml, meta: buildMeta(definition, title, generatedOn) };
   });
 }

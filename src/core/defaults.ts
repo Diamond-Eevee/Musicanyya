@@ -349,3 +349,74 @@ export const USER_FILE_VERSIONS_MAX = 10; // Earlier content hashes kept per *My
 // Shared with src/engine/config.ts (re-exported there): src/core/browser/query.ts (pure) cuts an overlong search
 // itself, so this cannot live only in the engine layer (data-model.md section 11 corrected while implementing T014).
 export const BROWSER_SEARCH_MAX_CHARS = 200; // Browser search text is cut to this length (FR-026)
+
+// Melody over chords (feature 014, data-model.md §4): the Difficulty ladder the melody rule check verifies a
+// rewritten Learning item's right-hand melody against, on top of the existing LEVEL_* criteria above.
+export interface MelodyLadderRow {
+  /** Shortest written value, in quarter-note beats (0.5 = an eighth note). */
+  shortestValueBeats: number;
+  /** Widest span the melody may cover within one section, in semitones. */
+  rangeSemitones: number;
+  /** Widest leap (consecutive melody notes), in scale steps; 0 = a repeated note is never a leap. */
+  maxLeapSteps: number;
+  /** Hand-position shifts allowed across the whole item. */
+  shiftsMax: number;
+  /** Where a non-chord tone may sound. */
+  nctPlacement: 'second-half-of-bar' | 'weak-beats' | 'weak-beats-and-off-beat-eighths';
+  /** Longest run of non-chord tones in one direction (passing or neighbour tones). */
+  nctRun: number;
+  /** Left-hand chord changes allowed per bar (a house rule, research R7; `Infinity` = no extra limit). */
+  lhAttacksPerBar: number;
+  /** Whether melody-against-bass parallel octaves on consecutive chord starts are allowed. */
+  parallelOctaves: boolean;
+}
+export const MELODY_LADDER: Record<Level, MelodyLadderRow> = {
+  introduction: {
+    shortestValueBeats: 2,
+    rangeSemitones: 7,
+    maxLeapSteps: 1,
+    shiftsMax: 0,
+    nctPlacement: 'second-half-of-bar',
+    nctRun: 1,
+    lhAttacksPerBar: 1,
+    parallelOctaves: true,
+  },
+  beginner: {
+    shortestValueBeats: 1,
+    rangeSemitones: 7,
+    maxLeapSteps: 2,
+    shiftsMax: 1,
+    nctPlacement: 'weak-beats',
+    nctRun: 1,
+    lhAttacksPerBar: 1,
+    parallelOctaves: true,
+  },
+  intermediate: {
+    shortestValueBeats: 0.5,
+    rangeSemitones: 12,
+    maxLeapSteps: 4,
+    shiftsMax: Infinity,
+    nctPlacement: 'weak-beats-and-off-beat-eighths',
+    nctRun: 2,
+    lhAttacksPerBar: Infinity,
+    parallelOctaves: false,
+  },
+  advanced: {
+    shortestValueBeats: 0.5,
+    rangeSemitones: 16,
+    maxLeapSteps: 7,
+    shiftsMax: Infinity,
+    nctPlacement: 'weak-beats-and-off-beat-eighths',
+    nctRun: 2,
+    lhAttacksPerBar: Infinity,
+    parallelOctaves: false,
+  },
+};
+// Melody register (data-model §4 note): C4-A5 at every level except advanced, which reaches C6.
+export const MELODY_REGISTER_MIDI: Record<Level, { min: number; max: number }> = {
+  introduction: { min: 60, max: 81 }, // C4-A5
+  beginner: { min: 60, max: 81 },
+  intermediate: { min: 60, max: 81 },
+  advanced: { min: 60, max: 84 }, // C4-C6
+};
+export const MELODY_MIN_CLEARANCE_SEMITONES = 3; // the melody's lowest note above the left hand's highest, at every instant
