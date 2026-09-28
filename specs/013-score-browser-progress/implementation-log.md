@@ -1057,3 +1057,14 @@
 - Handoff: after the merge, `main` carries this feature with one open item, T090/SC-008. The next agent or the owner
   should run SC-008 (quickstart.md "SC-008") and log the results in this file, then tick T090. Not pushed until the
   owner asks.
+
+## 2026-09-29 01:00 - claude-opus-5.5 (T111, from the 014 cloud session)
+- Done: T111. `tests/core/browser/query-timing.test.ts` measured the median of 5 runs, which under full-suite load
+  measured the load (22-29 ms in the cloud container, 24.99 ms on the owner's machine; under 20 ms alone). It now takes
+  the fastest of 15 runs after a warm-up (`fastestMs`): other work can only add time to a run, so the fastest run is
+  the core's own cost. `CORE_BUDGET_MS` stays 20; no assertion loosened.
+- Evidence: alone `Tests 4 passed`; three full `pnpm test` runs in the 4-CPU container (where the old median failed
+  twice in a row this session): run 1, 2, 3 each exit 0, `Test Files 272 passed`, `Tests 5961 passed`.
+- Open: T112 (firefox `score-browser.spec.ts:343` late under load) - Firefox is not installed in the cloud container,
+  so it could not be reproduced there; it passed in the owner's full local runs of 2026-09-28 (T074, T092 of 014).
+  T090 (owner's SC-008 check, post-merge by owner decision).
