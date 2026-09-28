@@ -322,7 +322,7 @@ the same chords and inversions as before, the right hand a melody.
 - [x] T073 [light] (T054 findings) `specs/014-melody-over-chords/data-model.md` §4: the T072 fields and the names
   `MELODY_REGISTER_MIDI`, `MELODY_MIN_CLEARANCE_SEMITONES`; `plan.md` Constitution Check VI row: a finger on every
   melody note (contract 1.3.1, T062), not "sparingly"
-- [ ] T074 [light] (owner request 2026-09-28: a local agent runs the gate the cloud container could not) On a local
+- [x] T074 [light] (owner request 2026-09-28: a local agent runs the gate the cloud container could not) On a local
   machine with all four Playwright projects installed (chromium, firefox, webkit, electron): `pnpm lint`,
   `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; record each exit code and summary line in
   `specs/014-melody-over-chords/implementation-log.md`, naming every failing test. For each failure, rerun it alone
