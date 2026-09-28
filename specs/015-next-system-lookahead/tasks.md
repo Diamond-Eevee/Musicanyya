@@ -1,7 +1,7 @@
 # Tasks: See the Next System While Playing
 
 **Input**: Design documents from `specs/015-next-system-lookahead/`
-**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/ (score-layout 2.0.0, follow-view 1.0.0),
+**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/ (score-layout 2.0.0, follow-view 1.1.0),
 quickstart.md
 
 <!--
@@ -25,7 +25,7 @@ cropped pages (FR-003) are foundational because every story measures systems acr
 **Model**: light (Gemini Flash or claude-haiku-4-5)
 
 - [ ] T001 Add the named constants of `data-model.md` section 3 to `src/engine/config.ts` with one-line comments
-  naming their requirement: `FOLLOW_GLIDE_MS = 400`, `FOLLOW_GLIDE_REDUCED_MS = 0`, `LOOKAHEAD_TOP_GAP_PX = 12`,
+  naming their requirement: `FOLLOW_GLIDE_MS = 400`, `FOLLOW_GLIDE_MIN_REDIRECT_MS = 250`, `FOLLOW_GLIDE_REDUCED_MS = 0`, `LOOKAHEAD_TOP_GAP_PX = 12`,
   `FOLLOW_TARGET_EPSILON_PX = 1`, `ENGRAVING_PAGE_MARGIN_TOP = 18`, `ENGRAVING_PAGE_MARGIN_BOTTOM = 18`,
   `ENGRAVING_SPACING_BRACE_GROUP = 8`; change the comment of `FOLLOW_MARGIN` to "Grade-mark reveal only (009
   FR-023); runs use the look-ahead rule (015)". Nothing uses them yet; `pnpm typecheck` and `pnpm lint` green
@@ -124,7 +124,9 @@ changes; at every system change where two systems fit, both are fully in clear s
   run still uses the middle-band rule (`FOLLOW_MARGIN`); (i) FR-006 - after a relayout (scale change) and after an
   `insetState` change (piano strip shown) during a Listen run, the next frame applies the look-ahead target for the
   new geometry and the cursor's measure is unchanged; (j) a repeat jump back to a measure of the same system writes no
-  scroll (spec Edge Cases). Run: (a), (c), (e), (i) fail
+  scroll (spec Edge Cases); (k) a Practice loop whose end and start lie in the same system writes no scroll when it
+  returns to its start, and one whose start lies two systems above scrolls to the start's system. Run: (a), (c), (e),
+  (i), (k second half) fail
 - [ ] T012 [P] [US1] Create `tests/e2e/lookahead.spec.ts` with a helper (in `tests/e2e/helpers/lookahead.ts`) that,
   inside the page, finds the cursor's system (`g.note.playing` -> `closest('g.system')`, or the Practice band's
   measure), the next `g.system` in reading order across `.mx-score-page` elements, and the clear rectangle (score
@@ -151,9 +153,9 @@ changes; at every system change where two systems fit, both are fully in clear s
   non-null target with `scrollOwn()`; keep `followScrollTo` (middle band) only for `revealSelectedMark`; T011 green
 - [ ] T015 [US1] Re-run the e2e specs that assert follow positions - `tests/e2e/us2-listen.spec.ts` (Follow),
   `tests/e2e/us1-play.spec.ts` (range follow, `FOLLOW_MARGIN` comment), `tests/e2e/us4-overlays.spec.ts` (current
-  system never covered), `tests/e2e/play-cursor.spec.ts`, `tests/e2e/real-scores.spec.ts`: they must pass unchanged;
-  where a pixel threshold only encoded the old centring rule, change the threshold (never the assertion's meaning)
-  and log the reason per test (AGENTS.md section 4); T012 green
+  system never covered), `tests/e2e/play-cursor.spec.ts`, `tests/e2e/real-scores.spec.ts`: they must pass unchanged,
+  except a pixel threshold that only encoded the old centring rule, which may be changed (never the assertion's
+  meaning) with the reason logged per test (AGENTS.md section 4); T012 green
 
 - [ ] T016 [US1] Checkpoint: see below
 
@@ -178,10 +180,13 @@ glide of bounded length, never a jump, and the cursor's system stays at least pa
   `from` at `startMs`, exactly `to` and `done` at `startMs + durationMs` and after; (c) positions sampled every 1 ms are
   monotonic and never outside [from, to] (no overshoot), for both easings and both directions; (d) the largest step
   between samples 16.7 ms apart is ≤ 12.5 % of the distance (F-3); (e) redirecting a running glide starts from its
-  current position with `easing: 'out'` and a new `startMs`, so the position is continuous at the redirect; (f) a new
+  current position with `easing: 'out'` and a new `startMs`, so the position is continuous at the redirect, and keeps
+  the running glide's end time (redirect 100 ms into a 400 ms glide -> `durationMs` 300); (i) a redirect 300 ms into
+  a 400 ms glide gets `durationMs: FOLLOW_GLIDE_MIN_REDIRECT_MS` (250); (j) a redirected glide's largest step between
+  samples 16.7 ms apart is ≤ 20 % of its distance; (f) a new
   target within `FOLLOW_TARGET_EPSILON_PX` of the running `to` returns the running glide unchanged; (g)
   `reducedMotion` gives `durationMs: FOLLOW_GLIDE_REDUCED_MS` and the first position is `to`; (h) `shiftGlide` moves
-  `from` and `to` by Δ and nothing else. Run: fails (functions missing)
+  `from` and `to` by Δ and nothing else (contract follow-view.md 1.1.0). Run: fails (functions missing)
 - [ ] T018 [P] [US2] Extend `tests/ui/score-view-follow.test.ts` with a controllable `requestAnimationFrame` and
   `performance.now()`: (a) a new target produces intermediate `scrollTop` values over several frames and lands on the
   target after `FOLLOW_GLIDE_MS`; (b) within one frame, the scroll write happens before the cursor overlay reads the
@@ -195,12 +200,17 @@ glide of bounded length, never a jump, and the cursor's system stays at least pa
 - [ ] T019 [P] [US2] Extend `tests/e2e/lookahead.spec.ts`: (a) SC-002 - from the first frame the cursor is in a new
   system to the last frame the view moves is ≤ 600 ms, at every system change of a Listen run through Clementi op. 36
   no. 1 at 1920 x 1080; (b) SC-003 - `scrollTop` sampled every animation frame inside the page: every per-frame step
-  of a system-to-system movement is ≤ 1/6 of the scroller height, and each movement spans more than one frame; (c)
-  FR-009 - clicking a measure two pages back during playback: the view arrives within 600 ms, over more than one
+  of a system-to-system movement is ≤ 1/6 of the scroller height, each movement spans more than one frame, and
+  (FR-008) in every sampled frame the cursor's system box overlaps the clear rectangle; (c) FR-009 - clicking a
+  measure two pages back during playback, and a measure 20+ pages away in `tests/fixtures/musicxml/large-score.musicxml`
+  (its page not mounted before the click): the view arrives within `FOLLOW_GLIDE_MS` + 100 ms, over more than one
   frame; (d) FR-011 - a context with `reducedMotion: 'reduce'`: each movement happens within one frame; (e) FR-012 -
-  a mouse wheel in the middle of a glide: no further programmatic movement, Follow unticked; (f) SC-004 - frame
-  intervals during a 20 s Listen run with the piano strip on, measured as in `tests/e2e/play-frame-rate.spec.ts`, meet
-  that spec's existing threshold. Run: (a)-(e) fail on US1's instant moves ((f) records the baseline)
+  a mouse wheel in the middle of a glide: no further programmatic movement, Follow unticked; then (FR-005) ticking
+  Follow again brings the view, once settled, to a position where the cursor's system and the next are in clear space
+  (where they fit); (f) SC-004 - frame intervals during a 20 s Listen run with the piano strip on, measured as in
+  `tests/e2e/play-frame-rate.spec.ts`, meet that spec's existing threshold, and after the run the Diagnostics popup's
+  "Dropouts since Play" is no higher than after the same run with Follow off (scrolling adds no audible glitch). Run:
+  (a)-(e) fail on US1's instant moves ((f) records the baseline)
 
 ### Implementation
 
@@ -241,9 +251,10 @@ research R-4
   two-staff piano fixture (`tests/fixtures/musicxml/engraving/fur-elise-bare.musicxml` or `large-score.musicxml`,
   whichever has a measure without notes between the staves - name it in the test) the smallest gap between the
   treble staff's bottom line and the bass staff's top line over all systems is 720 inner units (4 x interline 180)
-  within 1 unit; (b) in a voice + piano fixture from `tests/fixtures/musicxml/` (two parts; add none if one exists -
-  name it) the gap between the voice staff and the piano's treble staff is the same with and without
-  `spacingBraceGroup` (compare against a direct Verovio render with the worker's options minus that option). Run:
+  within 1 unit; (b) in `tests/fixtures/musicxml/voice-and-piano.musicxml` (two parts: a voice and a braced piano grand staff) the
+  gap between the voice staff and the piano's treble staff is the same with and without `spacingBraceGroup` (compare
+  against a direct Verovio render with the worker's options minus that option), while the piano's own staff gap
+  shrinks. Run:
   (a) fails (default 12 -> 1080 units)
 - [ ] T025 [P] [US3] [deep] Add `tests/fixtures/musicxml/engraving/grand-staff-between-staves.musicxml` (requested
   by the notation review, research R-4): 8 measures, piano grand staff, with dynamics and hairpins placed between the
@@ -269,7 +280,9 @@ research R-4
   expectation that changes because the engraving is more compact is updated with the reason in the log; T026 green
 - [ ] T029 [US3] [light] Run `pnpm library:fidelity --check` again with the compact spacing and record its summary
   line in the log (a failure is a stop-and-ask)
-- [ ] T030 [US3] [deep] Notation review (SC-008) with the `music-domain-expert` agent: screenshots (`pnpm screenshot
+- [ ] T030 [US3] [deep] Notation review (SC-008) with the `music-domain-expert` agent (needs a working `pnpm
+  screenshot`: run on a machine with Playwright's own Chromium, or after the follow-up that lets the tool use a given
+  Chromium executable; in a cloud container without either, stop and hand off rather than skip): screenshots (`pnpm screenshot
   --item <id> --width 1920 --height 950 --out tests/.generated/015-<id>.png`) of every piano piece in
   `public/library/repertoire/**`, of the T025 fixture and of the piano files in `tests/fixtures/musicxml/real`, plus one
   voice + piano Score; the agent checks collisions and crowding against printed-edition norms; findings summarised in
@@ -292,8 +305,8 @@ commit.
 - [ ] T033 [P] [light] Fold any contract change made during implementation into `contracts/score-layout.md` /
   `contracts/follow-view.md` with a version bump (MINOR additive, MAJOR breaking); if none, note "contracts unchanged"
   in the log
-- [ ] T034 Run the manual verification of `quickstart.md` (US1-US3 sections that do not need the owner): look at every
-  screenshot, record what was seen in the log (AGENTS.md: never report a manual check without looking at the picture)
+- [ ] T034 Run the manual verification of `quickstart.md` (US1-US3 sections that do not need the owner; same
+  `pnpm screenshot` precondition as T030): look at every screenshot, record what was seen in the log (AGENTS.md: never report a manual check without looking at the picture)
 - [ ] T035 Constitution review of the branch diff with the `constitution-auditor` agent; findings summarised in the log;
   every finding fixed or raised with the owner
 - [ ] T036 Owner checks (block merge only): the hand test of `quickstart.md` "Owner hand test" (SC-006) and the

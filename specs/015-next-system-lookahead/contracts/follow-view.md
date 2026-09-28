@@ -1,6 +1,7 @@
 # Contract: Follow view (look-ahead target and glide)
 
-**Version**: `1.0.0` (new). Replaces the follow rule "keep the cursor's measure in the middle 60 % and jump to centre
+**Version**: `1.1.0` (1.1.0, 2026-09-28 after analyze A1: a redirect keeps the running glide's end time, new
+constant `FOLLOW_GLIDE_MIN_REDIRECT_MS`; 1.0.0 was the first version). Replaces the follow rule "keep the cursor's measure in the middle 60 % and jump to centre
 it" (001 FR-014, `followScrollTo` with `FOLLOW_MARGIN`) **for runs** (Listen playing, Practice session, Play run).
 Revealing a Grade mark after a run (009 FR-023) keeps the old middle-band rule and is not covered here.
 
@@ -69,11 +70,15 @@ export function shiftGlide(glide: Glide, delta: number): Glide;
 
 1. Fresh glide (`active` null or done): `easing: 'inOut'` (cubic), `durationMs: FOLLOW_GLIDE_MS`.
 2. Redirect (`active` running and `|to - active.to| >= FOLLOW_TARGET_EPSILON_PX`): `from` = the running glide's
-   current position, `easing: 'out'` (cubic), `durationMs: FOLLOW_GLIDE_MS`, `startMs: nowMs`. A target within the
-   epsilon of the running glide's `to` keeps the running glide unchanged.
+   current position, `easing: 'out'` (cubic), `startMs: nowMs`, and `durationMs = max(active.startMs +
+   active.durationMs - nowMs, FOLLOW_GLIDE_MIN_REDIRECT_MS)` - the redirected glide keeps the running glide's end time,
+   and only when less than the minimum is left does it end up to `FOLLOW_GLIDE_MIN_REDIRECT_MS` later. A target within
+   the epsilon of the running glide's `to` keeps the running glide unchanged.
 3. `reducedMotion` true: `durationMs: FOLLOW_GLIDE_REDUCED_MS`.
 4. Positions never overshoot: every `top` lies between `from` and `to`, and is monotonic in time.
-5. Duration does not depend on distance (FR-009).
+5. Duration does not depend on distance (FR-009). A redirect at time `t` ends the movement at
+   `max(original end, t + FOLLOW_GLIDE_MIN_REDIRECT_MS)`: redirects in the first 150 ms of a glide (such as the exact
+   target arriving once a page has rendered) never make it end later than `FOLLOW_GLIDE_MS` after it started.
 
 ## 4. Frame integration (`mx-score-view`)
 
@@ -96,6 +101,7 @@ Reduced motion is read from `matchMedia('(prefers-reduced-motion: reduce)')` whe
 | Constant | Value | Meaning |
 |---|---|---|
 | `FOLLOW_GLIDE_MS` | 400 | duration of every follow glide, fresh or redirected (FR-007, FR-009; SC-002 needs ≤ 600) |
+| `FOLLOW_GLIDE_MIN_REDIRECT_MS` | 250 | shortest duration of a redirected glide, so a late redirect never snaps (FR-010; its largest 60 Hz step is 20 % of its distance) |
 | `FOLLOW_GLIDE_REDUCED_MS` | 0 | duration when the OS asks for reduced motion (FR-011) |
 | `LOOKAHEAD_TOP_GAP_PX` | 12 | clear space left above the current system's box at the target |
 | `FOLLOW_TARGET_EPSILON_PX` | 1 | positions closer than this count as equal (no move, no redirect) |
@@ -106,5 +112,6 @@ Reduced motion is read from `matchMedia('(prefers-reduced-motion: reduce)')` whe
 - **F-1**: Following never changes sound, cursor time, Practice waiting or grading (spec FR-013); the follow code
   reads positions and writes only `scrollTop`.
 - **F-2**: No follow movement is a single-frame cut unless reduced motion is on.
-- **F-3**: A system-to-system glide moves the music by at most 12.5 % of its distance per 60 Hz frame (SC-003).
+- **F-3**: A fresh glide moves the music by at most 12.5 % of its distance per 60 Hz frame, a redirected one by at
+  most 20 % of its (remaining) distance (SC-003).
 - **F-4**: The per-frame follow work is two element box reads and arithmetic; no DOM writes other than `scrollTop`.

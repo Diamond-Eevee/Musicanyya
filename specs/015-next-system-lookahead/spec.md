@@ -43,13 +43,14 @@ mode and let it play through at least two page turns. At every system change whe
 
 **Acceptance Scenarios**:
 
-1. **Given** a run is active and the cursor is in system N (not the last), **When** the view has settled, **Then**
-   system N and system N+1 are both fully visible in clear space.
+1. **Given** a run is active, the cursor is in system N (not the last), and systems N and N+1 fit together in clear
+   space, **When** the view has settled, **Then** both are fully visible in clear space (where they do not fit, see
+   User Story 3).
 2. **Given** the cursor is in the last system of a page, **When** the view has settled, **Then** the first system
    of the next page is fully visible directly below it, with no more blank space between them than between two
    systems on the same page.
-3. **Given** the cursor moves from system N into system N+1, **When** the view has settled, **Then** systems N+1
-   and N+2 are fully visible.
+3. **Given** the cursor moves from system N into system N+1 and systems N+1 and N+2 fit together, **When** the view
+   has settled, **Then** systems N+1 and N+2 are fully visible.
 4. **Given** the cursor is in the last system of the Score, **Then** that system is fully visible and the view does
    not scroll further than needed to show it.
 5. **Given** the same situations in Practice mode (the cursor waits for the musician) and in Play mode, **Then**
@@ -123,8 +124,9 @@ and the Score size never changes.
    part of the next system.
 3. **Given** two systems do not fit, **Then** the Score size stays exactly what the musician chose; no hint, dialog
    or automatic resize appears.
-4. **Given** a single system is taller than the clear space (very large Score size, many staves), **Then** the part
-   of the system with the cursor is shown, and the view never hides the cursor to show the next system.
+4. **Given** a single system is taller than the clear space (very large Score size, many staves), **Then** the
+   system is shown from its top, the cursor bar crossing it stays visible, and the view never hides the cursor to show
+   the next system.
 5. **Given** a piano Score, **When** it is displayed (with or without a run), **Then** its staves are engraved with
    the compact vertical spacing, with no collisions between notes, beams, dynamics, pedal marks or slurs of the two
    staves, and the result still looks like a printed edition.
@@ -168,8 +170,10 @@ and the Score size never changes.
 **Look-ahead (US1)**
 
 - **FR-001**: While the view follows a run (Listen, Practice or Play mode), it MUST keep the system containing the
-  cursor and the next system in reading order fully visible in clear space (not under the slim bar, the piano strip,
-  a notice or the Grade panel), whenever both fit in that space.
+  cursor and the next system in reading order fully visible in clear space (not under the slim bar or the piano
+  strip), whenever both fit in that space. Notices are a bounded corner overlay (004 FR-011) and do not reduce the
+  clear space. *(Amended 2026-09-28 after analyze A3, owner accepted the recommendation: the first wording also named
+  notices and the Grade panel; the Grade panel only appears after a run.)*
 - **FR-002**: When the cursor enters a new system, the view MUST move so that FR-001 holds again for the new
   system; it MUST NOT move while the cursor stays within a system whose position already satisfies FR-001.
 - **FR-003**: The first system of a page MUST be shown after the last system of the previous page with a gap no
@@ -201,8 +205,10 @@ and the Score size never changes.
 
 - **FR-014**: When the current system and the next do not both fit in clear space, the current system MUST take
   priority and stay fully visible, placed at the top of the clear space, and the remaining clear space below it MUST
-  show the top part of the next system. If the current system alone does not fit, the view MUST keep the part with
-  the cursor visible and never hide the cursor to show the next system.
+  show the top part of the next system. If the current system alone does not fit, the view MUST show it from its top
+  (the cursor bar crosses every staff of the system, so the cursor stays visible) and never hide the cursor to show the
+  next system. *(Amended 2026-09-28 after analyze A6, owner accepted the recommendation: the first wording said "the
+  part with the cursor".)*
 - **FR-015**: The app MUST NOT change the Score size, re-flow the music or show a hint or dialog because two systems
   do not fit; the musician's chosen size (004 FR-014a, FR-019) is kept.
   *(Owner decision 2026-09-28: "show what fits", over automatic shrinking during runs or a suggestion hint.)*
@@ -219,8 +225,8 @@ and the Score size never changes.
 
 - **System**: one line of engraved music across the page, containing every staff of every part for a run of
   measures; systems are ordered by reading order across pages.
-- **Clear space**: the part of the Score view not covered by floating chrome (slim bar, piano strip, notice area,
-  Grade panel), as defined by 004 FR-010.
+- **Clear space**: the part of the Score view not covered by the slim bar or the piano strip (004 FR-010); the
+  bounded notice area in a corner is not subtracted (004 FR-011).
 - **Look-ahead position**: the view position in which the cursor's system and the following system are both fully
   in clear space.
 
@@ -269,6 +275,8 @@ and the Score size never changes.
   movement happens while the cursor's system and the next are already fully visible (for example when three systems
   fit on screen, every second system change moves nothing).
 - A movement eases in and out, never overshoots, and moves the music no further than needed (normally one system).
+  A movement redirected while it runs (a fast system change, a jump) continues without stopping first and still ends
+  within the original movement's time (FR-009, FR-010).
 - The movement duration default (about 0.3-0.5 s) and the "distant jump" handling are tuning values chosen during
   planning and written down as named settings (Constitution II).
 - The existing Follow button and its behaviour stay; no new control is added for the look-ahead itself.

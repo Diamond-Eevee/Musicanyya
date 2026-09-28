@@ -170,7 +170,11 @@ draws the cursor and follows), writing `scrollTop` through `scrollOwn()`:
 
 - A fresh glide eases in and out (cubic) over `FOLLOW_GLIDE_MS` (400 ms), whatever the distance (FR-009).
 - A new target during a glide (fast system change, a jump, a page's height corrected) redirects from the current
-  position with an ease-out curve over the same duration: it starts at speed instead of stopping first (FR-010).
+  position with an ease-out curve that keeps the running glide's end time, never shorter than
+  `FOLLOW_GLIDE_MIN_REDIRECT_MS` (250 ms): it starts at speed instead of stopping first (FR-010), and a jump to a page
+  that renders only during the glide still arrives when the first glide would have (FR-009). *(Changed after analyze
+  A1, 2026-09-28: the first design restarted a full 400 ms on every redirect, so a jump to an unmounted page - estimate
+  first, exact system after the page rendered - took up to ~800 ms.)*
 - `prefers-reduced-motion: reduce` (read with `matchMedia` when a glide starts) sets the duration to
   `FOLLOW_GLIDE_REDUCED_MS` (0: instant) (FR-011).
 - A user scroll (detected by the existing `noticeUserScroll`, which runs first in every frame) cancels the glide at
@@ -183,7 +187,9 @@ draws the cursor and follows), writing `scrollTop` through `scrollOwn()`:
 
 **SC-003 check**: the largest per-frame step of a cubic ease over 400 ms at 60 Hz is `3 x 16.7/400 = 12.5 %` of the
 distance. A system-to-system move is at most about one clear-space height, so at most ~12.5 % of the viewport per
-frame, under the 1/6 limit. (At 30 Hz it would be 25 %; SC-004 requires 60 Hz.)
+frame, under the 1/6 limit. A redirect over at least 250 ms moves at most `3 x 16.7/250 = 20 %` of its remaining
+distance per frame; a fast system change leaves at most about half a viewport to go, so about 10 % of the viewport.
+(At 30 Hz the fresh case would be 25 %; SC-004 requires 60 Hz.)
 
 **Alternatives considered**: `scrollTo({ behavior: 'smooth' })` / CSS `scroll-behavior: smooth` - the duration is
 browser-defined and distance-dependent (no named setting, FR-007/FR-009 unverifiable), and the `scroll` events it

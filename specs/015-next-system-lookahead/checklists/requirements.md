@@ -44,3 +44,6 @@
   assumption "two systems already fit at the default size" false. Owner decisions: SC-001 made fit-aware; compact
   vertical spacing added (US3, FR-016, SC-007, SC-008, Out of Scope amended). Notation review added the repeat/jump
   edge cases and limited compact spacing to braced groups. All items still pass.
+- Iteration 4 (after /speckit.analyze, 2026-09-28, owner accepted every recommendation): FR-001 and Clear space no
+  longer count notices or the Grade panel (A3); FR-014 and US3 #4 show an over-tall system from its top (A6); US1 #1
+  and #3 state the fit condition (A9); the movement assumption covers redirects (A13). All items still pass.

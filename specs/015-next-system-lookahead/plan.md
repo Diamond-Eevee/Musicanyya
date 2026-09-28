@@ -1,6 +1,7 @@
 # Implementation Plan: See the Next System While Playing
 
-**Branch**: `015-next-system-lookahead` (work carried on the session branch `claude/wonderful-curie-ajrosv`) |
+**Branch**: `015-next-system-lookahead` (created 2026-09-28 after analyze A2 so the Spec Kit scripts find the feature;
+the cloud session branch `claude/wonderful-curie-ajrosv` carries the same commits) |
 **Date**: 2026-09-28 | **Spec**: [spec.md](spec.md)
 **Input**: Feature specification from `specs/015-next-system-lookahead/spec.md`
 
@@ -71,7 +72,7 @@ specs/015-next-system-lookahead/
 |-- quickstart.md        # commands and manual verification per story
 |-- contracts/
 |   |-- score-layout.md  # 2.0.0 - supersedes 004 score-layout 1.1.1 (cropped pages, margins, compact spacing)
-|   `-- follow-view.md   # 1.0.0 - look-ahead target, glide, frame order, constants
+|   `-- follow-view.md   # 1.1.0 - look-ahead target, glide, frame order, constants
 |-- checklists/requirements.md
 `-- tasks.md             # /speckit.tasks (not created by /speckit.plan)
 ```
@@ -80,7 +81,7 @@ specs/015-next-system-lookahead/
 
 ```text
 src/
-|-- engine/config.ts                  # + FOLLOW_GLIDE_MS, FOLLOW_GLIDE_REDUCED_MS, LOOKAHEAD_TOP_GAP_PX,
+|-- engine/config.ts                  # + FOLLOW_GLIDE_MS, FOLLOW_GLIDE_MIN_REDIRECT_MS, FOLLOW_GLIDE_REDUCED_MS, LOOKAHEAD_TOP_GAP_PX,
 |                                     #   FOLLOW_TARGET_EPSILON_PX, ENGRAVING_PAGE_MARGIN_TOP/BOTTOM,
 |                                     #   ENGRAVING_SPACING_BRACE_GROUP (FOLLOW_MARGIN kept for Grade-mark reveal)
 |-- workers/verovio.worker.ts         # load/relayout options: adjustPageHeight 1, page margins, spacingBraceGroup
@@ -123,7 +124,7 @@ compensation; R-4 compact spacing (options verified in 6.3.0, fit table, notatio
 
 ## Phase 1: Design
 
-Done: `data-model.md`, `contracts/score-layout.md` 2.0.0, `contracts/follow-view.md` 1.0.0, `quickstart.md`;
+Done: `data-model.md`, `contracts/score-layout.md` 2.0.0, `contracts/follow-view.md` 1.1.0 (after analyze), `quickstart.md`;
 `docs/agents/reference.md` Active Technologies and Recent Changes updated (no new technology).
 
 **Constitution Check after design**: unchanged - all pass. The design adds no RT code, no dependency, no persisted

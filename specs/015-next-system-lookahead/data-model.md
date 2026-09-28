@@ -69,6 +69,7 @@ Kept per layout epoch: `measuredHeights: Map<page, number>` (cleared on `load` a
  Reduced motion: durationMs = 0, so Gliding lasts zero frames (the first step lands on `to`)
 ```
 
+- A redirect keeps the running glide's end time (at least `FOLLOW_GLIDE_MIN_REDIRECT_MS` from the redirect).
 - Entering Gliding writes `scrollTop` on the same frame (step 4 of `follow-view.md` section 4), never later.
 - "Follow off" is today's `transportState.follow === false` (manual scroll or the Follow checkbox); "run ends" is
   Listen leaving `playing`, a Practice session finishing, a Play run ending. The view then stays where it is.
@@ -80,6 +81,7 @@ Kept per layout epoch: `measuredHeights: Map<page, number>` (cleared on `load` a
 | Constant | Value | Unit | Used by | Requirement |
 |---|---|---|---|---|
 | `FOLLOW_GLIDE_MS` | 400 | ms | `glideTo` | FR-007, FR-009, SC-002 |
+| `FOLLOW_GLIDE_MIN_REDIRECT_MS` | 250 | ms | `glideTo` (redirect) | FR-009, FR-010 |
 | `FOLLOW_GLIDE_REDUCED_MS` | 0 | ms | `glideTo` | FR-011 |
 | `LOOKAHEAD_TOP_GAP_PX` | 12 | CSS px | `lookaheadTarget` | FR-001, FR-014 |
 | `FOLLOW_TARGET_EPSILON_PX` | 1 | CSS px | `lookaheadTarget`, `glideTo` | FR-002 (no move, no oscillation) |
