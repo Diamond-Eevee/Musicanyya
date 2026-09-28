@@ -38,3 +38,33 @@
 - Problems / open questions: a claude-sonnet-5 session is implementing in the same tree (T001-T003 committed, T004
   ticked, uncommitted); this commit stages only the retagging on top of HEAD and leaves its T004 work untouched.
 - Handoff: unchanged for the implementing session - next = T005 (`deep`: it must ask the owner switch or continue)
+
+## 2026-09-28 13:40 - claude-sonnet-5 (implement, Setup + Foundational generator)
+- Done: T001-T002 (exercise-definition 1.3.0 and audit-record 1.3.0 / fidelity-tools 1.12.0 folded into their
+  canonical contracts), T003 (`tests/library/out-of-scope.test.ts` + `out-of-scope-hashes.json`, 245 files hashed
+  at commit 7f8ab96 - unchanged since, verified with `git diff --stat`), T004 (`tests/tools/fidelity/melody-fixtures.ts`),
+  T006 (`tests/core/library/exercise/melody.test.ts`, 53 cases: pitch in all 24 keys, variant rotation, fingering,
+  validation throws, the chord's words direction on the melody, generator integration), T008 (`MELODY_LADDER` +
+  `MELODY_REGISTER_MIDI`/`MELODY_MIN_CLEARANCE_SEMITONES` in `src/core/defaults.ts`), T009 (`MelodyPart`,
+  `MelodyPhrase`, `MelodyNote`, `PatternHandPart`'s `melody` member, `ExerciseDefinition.melody` in
+  `src/core/library/exercise/types.ts`), T011 (`src/core/library/exercise/melody.ts` - step-to-pitch by letter
+  arithmetic generalised from `scales.ts` to steps outside one octave; fingering from a five-finger position or the
+  scale table cycled by octave; wired into `generate.ts`'s `handSegments` for the pattern and key-change forms, with
+  the left hand's own chord segments read once to place the melody's copy of each words direction at the correct
+  chord onset).
+- Decisions: `scaleTableFinger` always reads the *harmonic* row of the scale-fingering table (three keys' melodic row
+  differs only slightly; `MelodyNote.finger` is the schema's own escape hatch for a wrong default, "the rule check
+  still applies"). Step 8 (the tonic an octave up) keeps the one-octave table's own finger 5 rather than folding to
+  degree 1's finger, since it is normally a phrase's ending note, not a mid-run pivot. These are implementation
+  choices inside research R6, not new decisions; no research.md change.
+- Verification: `pnpm typecheck`, `pnpm lint` (no new findings), full `pnpm test` (5293 tests, all green, including
+  the untouched-goldens guard and `tests/library/regeneration.test.ts`) - the melody hand part is confirmed a
+  contract-1.3 MINOR change with no 1.2.0 output change.
+- Problems / open questions: T005 and T010 (the independent melody rule checker - `tools/library/fidelity/melody-rules.ts`,
+  ~19 rules) are tier `deep`; T007/T012 (wiring `exercise-theory-v3` into the audit) are `standard` but need
+  `checkMelodyRules` to exist to write a test that fails for the right reason rather than a placeholder. Stopping
+  here for the model-fit question (AGENTS.md 2.8/4.1) before T005, per the phase's Model line. The 6 melody-composing
+  tasks (T021-T026), the music reviews (T032, T049) and the drill-melody authoring (T042-T044) later in this feature
+  are `deep` too and will need the same answer.
+- Handoff: next = model-fit question for T005 (tier `deep`, recommended `claude-opus-5.5`) -> T005 -> T007 -> T010 ->
+  T012 -> T013 -> T014 (Foundational checkpoint). Tree clean at commit 961a753 (Setup) after this entry's commit.
