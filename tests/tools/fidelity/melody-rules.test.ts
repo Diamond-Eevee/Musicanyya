@@ -431,9 +431,20 @@ describe('checkMelodyRules: one planted fault per rule', () => {
     ]);
   });
 
-  it('fingering: an ascending step from finger 3 to finger 2', () => {
+  // A step in the middle of a bar must be a thumb-under / finger-over; at a chord start after at least a quarter
+  // the hand may lift to a new position instead (T071 - the fault moved from bar 8's downbeat to the middle of a bar).
+  it('fingering: an ascending step from finger 3 to finger 2 in the middle of a bar', () => {
+    const bars: FixtureBar[] = [
+      bar(C_I, [n('C4', 'quarter', 1), n('D4', 'quarter'), n('E4', 'quarter'), n('F4', 'quarter', 2)], { key: SIG_C }),
+      bar(C_V, [n('G4', 'whole')]),
+      bar(C_I, [n('C4', 'whole', 1)], { barline: 'light-heavy' }),
+    ];
+    expect(check(bars, 'intermediate', C_KEYS)).toEqual([{ rule: 'fingering', bar: 1, beat: 4 }]);
+  });
+
+  it('fingering: a step to a new position at a chord start after a half note is a shift (G♯ 3 to A 2)', () => {
     const bars = withBar(intermediate(), 8, bar(A_I, [n('A4', 'whole', 2)], { barline: 'light-heavy' }));
-    expect(check(bars, 'intermediate', INTERMEDIATE_KEYS)).toEqual([{ rule: 'fingering', bar: 8, beat: 1 }]);
+    expect(check(bars, 'intermediate', INTERMEDIATE_KEYS)).toEqual([]);
   });
 
   // Leaps (T066, research R6 amendment): at a chord start after at least a quarter the hand may lift to a new

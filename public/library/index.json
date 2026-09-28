@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-28T16:01:45.686Z",
+  "generated": "2026-09-28T16:10:37.973Z",
   "sections": [
     {
       "id": "learning",
@@ -485,7 +485,7 @@
       "section": "learning/key-changes/a-major-to-a-minor",
       "file": "learning/key-changes/a-major-to-a-minor/intermediate.musicxml",
       "bytes": 17954,
-      "hash": "8cb835048c2800c5d89a9d6df03a5268d31c02747321093b7396af1ece05d6ca",
+      "hash": "843a8cb67559c611691afe8b22135bda1f8f9a40c13d9fd595f82c36dcf93473",
       "meta": {
         "version": 1,
         "title": "A major to A minor - intermediate",
@@ -728,7 +728,7 @@
       "section": "learning/key-changes/a-minor-to-a-major",
       "file": "learning/key-changes/a-minor-to-a-major/intermediate.musicxml",
       "bytes": 17864,
-      "hash": "44d6fdb18076281430e7c9875ef7acf3ebdd51955a143e7ad348ad8afe7e3363",
+      "hash": "ab44eec8e4ae97a593e5455a9a029bdfccd9f7a87042144b65097a0921412d93",
       "meta": {
         "version": 1,
         "title": "A minor to A major - intermediate",
@@ -1058,7 +1058,7 @@
       "section": "learning/key-changes/a-minor-to-c-major",
       "file": "learning/key-changes/a-minor-to-c-major/intermediate.musicxml",
       "bytes": 17435,
-      "hash": "8e9605a4356ca51933f8bb2b5781ce607b24a82929a647d2ae2032e24a4962c9",
+      "hash": "27401ed3c2a484d316e3e234b42620ea4603178baaea9768d48fab68440a7204",
       "meta": {
         "version": 1,
         "title": "A minor to C major - intermediate",
@@ -1298,7 +1298,7 @@
       "section": "learning/key-changes/b-minor-to-d-major",
       "file": "learning/key-changes/b-minor-to-d-major/intermediate.musicxml",
       "bytes": 17691,
-      "hash": "5876dddc9b0732a9d3d4ace0c0345c18338820ea2f462c95e79533b603a66f17",
+      "hash": "500322f10d27fec9d261f453af00ba01cdadb23cb3552ebfe5b9f82310c88019",
       "meta": {
         "version": 1,
         "title": "B minor to D major - intermediate",
@@ -1538,7 +1538,7 @@
       "section": "learning/key-changes/c-major-to-a-minor",
       "file": "learning/key-changes/c-major-to-a-minor/intermediate.musicxml",
       "bytes": 17302,
-      "hash": "02a34eccbe6b9f87b38696c307dd9d5a546c3a0e4d22db84769715fc288204c2",
+      "hash": "5bccfff237ea808128c5b02e2ca6437432f77f17c5aba4a065ad3a56f9d9320f",
       "meta": {
         "version": 1,
         "title": "C major to A minor - intermediate",
@@ -1779,7 +1779,7 @@
       "section": "learning/key-changes/c-major-to-c-minor",
       "file": "learning/key-changes/c-major-to-c-minor/intermediate.musicxml",
       "bytes": 17934,
-      "hash": "7521ba4809d10d5cf8548e59c906692aae4082a42af366a15e64e7b7593b89a7",
+      "hash": "28638a9d7beca33b36aea76b1e0db5fc74ac3f86a3d9b94c00aa526d982e5ff2",
       "meta": {
         "version": 1,
         "title": "C major to C minor - intermediate",
@@ -2110,7 +2110,7 @@
       "section": "learning/key-changes/c-minor-to-c-major",
       "file": "learning/key-changes/c-minor-to-c-major/intermediate.musicxml",
       "bytes": 17915,
-      "hash": "c0ee98165f06afc1443f254d7458d5bf616126b853e05cecacd52a12da33bdb0",
+      "hash": "c7235363831db2b87f2f0ad2cf030f2ceffea0835097fdd7b097c644268325be",
       "meta": {
         "version": 1,
         "title": "C minor to C major - intermediate",
@@ -2352,7 +2352,7 @@
       "section": "learning/key-changes/d-major-to-b-minor",
       "file": "learning/key-changes/d-major-to-b-minor/intermediate.musicxml",
       "bytes": 17590,
-      "hash": "91b936fddf1e828326961d09dfa9da843b947e5bf50ae4c0c9bec7d37c852478",
+      "hash": "b94bc43dca1f0d8b322bd348ce777ef2edabd4fb5c5db6230f63a6582e96087b",
       "meta": {
         "version": 1,
         "title": "D major to B minor - intermediate",
@@ -2593,7 +2593,7 @@
       "section": "learning/key-changes/d-major-to-d-minor",
       "file": "learning/key-changes/d-major-to-d-minor/intermediate.musicxml",
       "bytes": 17991,
-      "hash": "af1f8ad5609e74d02f810500b252c7e1895e5a6207f5416f60026aeb83238828",
+      "hash": "b552d1df39debd49cfcab520cae0fd7c153a71367f9bda7f020cc1ae02993625",
       "meta": {
         "version": 1,
         "title": "D major to D minor - intermediate",
@@ -2836,7 +2836,7 @@
       "section": "learning/key-changes/d-minor-to-d-major",
       "file": "learning/key-changes/d-minor-to-d-major/intermediate.musicxml",
       "bytes": 18018,
-      "hash": "7112016b8660ef9e71f0c0c071826ea328429bb3c596837c2c5cbd53cb77be02",
+      "hash": "24c9ef202fd6fab25dd98a7c5cce4eab8923fc455e5cbef1a23bfb3ed219d222",
       "meta": {
         "version": 1,
         "title": "D minor to D major - intermediate",
@@ -3078,7 +3078,7 @@
       "section": "learning/key-changes/d-minor-to-f-major",
       "file": "learning/key-changes/d-minor-to-f-major/intermediate.musicxml",
       "bytes": 17995,
-      "hash": "911a427d76ed1b00731f49e51f8104b1552079b2fd24b3ddec83add161ddc6bb",
+      "hash": "9bd1253b551947a1299e170de8bab7d1ef1f80752526e6eb01434fa764bead97",
       "meta": {
         "version": 1,
         "title": "D minor to F major - intermediate",
@@ -3318,7 +3318,7 @@
       "section": "learning/key-changes/e-minor-to-g-major",
       "file": "learning/key-changes/e-minor-to-g-major/intermediate.musicxml",
       "bytes": 17905,
-      "hash": "3429f2ff2fa7fb8591267271f88be5417772166a0512f24ded3d3948f2746d30",
+      "hash": "e75c48ee6fcc424ca82a1da6e5d154dd44c319f187a9eed85bf0eeb4b9a3853f",
       "meta": {
         "version": 1,
         "title": "E minor to G major - intermediate",
@@ -3558,7 +3558,7 @@
       "section": "learning/key-changes/f-major-to-d-minor",
       "file": "learning/key-changes/f-major-to-d-minor/intermediate.musicxml",
       "bytes": 17468,
-      "hash": "a84631b7df6c1a19fc81bded3b54c7791bb21fcc7af20c2569d3be1666c8827f",
+      "hash": "bb175f8e07713a24deaa23a8a804b97d5ad305e24e5b3fc629af225a33af36bb",
       "meta": {
         "version": 1,
         "title": "F major to D minor - intermediate",
@@ -4042,7 +4042,7 @@
       "section": "learning/key-changes/f-minor-to-f-major",
       "file": "learning/key-changes/f-minor-to-f-major/intermediate.musicxml",
       "bytes": 17843,
-      "hash": "2c59bb9d24626656029508682a8b0a2570383be89fccfe057faf62da0a8e6396",
+      "hash": "3477e0867c401364627b79b285c47df6f5fec87cb61c0fe49058136142ae5502",
       "meta": {
         "version": 1,
         "title": "F minor to F major - intermediate",
@@ -4284,7 +4284,7 @@
       "section": "learning/key-changes/g-major-to-e-minor",
       "file": "learning/key-changes/g-major-to-e-minor/intermediate.musicxml",
       "bytes": 17191,
-      "hash": "8f7dd8a89d918547ef31625161a0bf75175976ec71aff5c6287158817d5b6c53",
+      "hash": "e9c08ddd5fcb0018d8b9b5b360547e69ab11880c0091526d71b591f482b43d74",
       "meta": {
         "version": 1,
         "title": "G major to E minor - intermediate",
@@ -4525,7 +4525,7 @@
       "section": "learning/key-changes/g-major-to-g-minor",
       "file": "learning/key-changes/g-major-to-g-minor/intermediate.musicxml",
       "bytes": 17806,
-      "hash": "ff3f2194c937f2c5ea9738526d3397660b4fb30f8af0944fc149b7850bbbcf1f",
+      "hash": "27ae195038d9c6cf54c55f11be5c8ed46f4a5f2df32c5a3eda1c74d76778cf98",
       "meta": {
         "version": 1,
         "title": "G major to G minor - intermediate",
@@ -4768,7 +4768,7 @@
       "section": "learning/key-changes/g-minor-to-g-major",
       "file": "learning/key-changes/g-minor-to-g-major/intermediate.musicxml",
       "bytes": 18068,
-      "hash": "2c7a963f2ac0bdcb733ca845cf341f167af36d98d28274b2d8c136b74dc9eaa7",
+      "hash": "eb3f0a78f825a0c8fde6259cef3c863b3ef300082df62597be4e401d9f772b4e",
       "meta": {
         "version": 1,
         "title": "G minor to G major - intermediate",

@@ -22,7 +22,8 @@
 //   fingers 2-4 to 1 going up, 1 to 2-4 going down), or else a shift; below intermediate, where the ladder allows no
 //   thumb-under, a thumb crossing counts as a shift too. A shift is "at a section start" when it is the first note of
 //   a key segment or follows a rest; introduction and beginner allow their one shift only there (T068). A leap that
-//   moves the hand follows it unless it is at a chord start after at least a quarter (T066, `leapFingeringFault`).
+//   moves the hand follows it unless it is at a chord start after at least a quarter (T066, `leapFingeringFault`);
+//   there a step may move the hand as well (T071).
 // - Key change: the new key must be heard within two bars through a pitch class of its characteristic scale (major,
 //   or harmonic minor) that the old key's characteristic scale lacks (C to A minor: G♯; A minor to C: G natural).
 //   A note of the old key only (its full scale, both forms of a minor 6th/7th, minus the new key's) after the change
@@ -719,7 +720,11 @@ function checkFingering(
     thumb = newThumb;
     const step = m.diat - before.diat;
     let shift = false;
-    if (Math.abs(step) === 1) {
+    const lifted = chordStarts.includes(m.onset) && before.end - before.onset >= SHIFT_MIN_QUARTERS;
+    if (Math.abs(step) === 1 && lifted) {
+      // The hand lifts to a new position at a chord start after at least a quarter, stepping too (T071).
+      shift = true;
+    } else if (Math.abs(step) === 1) {
       const thumbUnder = step > 0 && CROSSING_FINGERS.has(previousFinger) && m.finger === THUMB;
       const fingerOver = step < 0 && previousFinger === THUMB && CROSSING_FINGERS.has(m.finger);
       if (!thumbUnder && !fingerOver) {

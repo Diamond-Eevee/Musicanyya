@@ -219,6 +219,11 @@ as demanding as the one before, and the level check passes.
   major: the minor section plays the tonic and the leading tone (thumb on the 6th: C B | A G♯ | A G | F), a finger-over
   from the thumb (the one shift) into a major section that opens on its third, in
   `key-change-relative-introduction.json`; regenerate, goldens, identity golden
+- [x] T071 [US2] [deep] (T032 follow-up review) A step may also move the hand at a chord start after at least a
+  quarter (research R6 amendment T071): test first in `tests/tools/fidelity/melody-rules.test.ts` (the old "ascending
+  step 3 to 2" fault at bar 8's downbeat is now a legal shift; the fault moves to the middle of a bar), then
+  `melody-rules.ts`; then the follow-up review's fingering fixes (thumb-pivot neighbour figures, needless crossings,
+  5-4-3-2-1 cadences) in `key-change-{relative,parallel}-intermediate.json`; regenerate (only `<fingering>` changes)
 - [ ] T070 needs owner: relative introduction E minor -> G major and D minor -> F major still play neither the minor
   tonic nor its leading tone in the right hand. No melody within the introduction rules exists for them even with the
   one shift: the major section holds one tonic chord for 8 bars and must sound the new key's note (D / C natural)

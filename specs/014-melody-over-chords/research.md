@@ -152,6 +152,11 @@ finger on every note (`MelodyNote.finger`, contract 1.3.1), checked by the rule 
 leaps inside a five-finger frame would break the table's thumb-under points for the stepwise runs that follow, and
 choosing positions automatically is the fingering optimiser rejected above.
 
+**Amendment (T071, 2026-09-28)**: at a chord start after at least a quarter a **step** may move the hand too (the hand
+lifts between phrases; a teacher writes 5-4-3-2-1 into a cadence rather than crossing onto the tonic). Everywhere else
+a step keeps thumb-under / finger-over only. **Why**: the T032 follow-up review found thumb-pivot figures (A1 G♯4 A1)
+and crossings onto the tonic that the strict step rule forced; its natural fixes need this lift.
+
 ## R7 - Difficulty: ladder, existing criteria and step order
 
 **Decision**: The spec's Difficulty ladder becomes a named constants table (`MELODY_LADDER` in

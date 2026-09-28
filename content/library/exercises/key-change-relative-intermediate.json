@@ -146,7 +146,7 @@
                 {
                   "step": 5,
                   "value": "half",
-                  "finger": 4
+                  "finger": 1
                 }
               ]
             },
@@ -320,17 +320,17 @@
                 {
                   "step": 4,
                   "value": "eighth",
-                  "finger": 1
+                  "finger": 4
                 },
                 {
                   "step": 5,
                   "value": "eighth",
-                  "finger": 2
+                  "finger": 5
                 },
                 {
                   "step": 4,
                   "value": "eighth",
-                  "finger": 1
+                  "finger": 4
                 },
                 {
                   "step": 3,
@@ -360,42 +360,42 @@
                 {
                   "step": 5,
                   "value": "quarter",
-                  "finger": 2
+                  "finger": 4
                 },
                 {
                   "step": 4,
                   "value": "eighth",
-                  "finger": 1
+                  "finger": 3
                 },
                 {
                   "step": 3,
                   "value": "eighth",
-                  "finger": 3
+                  "finger": 2
                 },
                 {
                   "step": 2,
                   "value": "half",
-                  "finger": 2
+                  "finger": 1
                 },
                 {
                   "step": 3,
                   "value": "quarter",
-                  "finger": 3
+                  "finger": 2
                 },
                 {
                   "step": 4,
                   "value": "eighth",
-                  "finger": 1
+                  "finger": 3
                 },
                 {
                   "step": 5,
                   "value": "eighth",
-                  "finger": 2
+                  "finger": 4
                 },
                 {
                   "step": 6,
                   "value": "half",
-                  "finger": 3
+                  "finger": 5
                 },
                 {
                   "step": 6,
@@ -480,12 +480,12 @@
                 {
                   "step": 5,
                   "value": "eighth",
-                  "finger": 2
+                  "finger": 5
                 },
                 {
                   "step": 4,
                   "value": "eighth",
-                  "finger": 1
+                  "finger": 4
                 },
                 {
                   "step": 3,
@@ -555,7 +555,7 @@
                 {
                   "step": 3,
                   "value": "quarter",
-                  "finger": 2
+                  "finger": 3
                 },
                 {
                   "step": 1,
@@ -780,17 +780,17 @@
                 {
                   "step": 3,
                   "value": "quarter",
-                  "finger": 2
+                  "finger": 1
                 },
                 {
                   "step": 4,
                   "value": "eighth",
-                  "finger": 3
+                  "finger": 2
                 },
                 {
                   "step": 5,
                   "value": "eighth",
-                  "finger": 4
+                  "finger": 3
                 },
                 {
                   "step": 8,
@@ -822,28 +822,28 @@
                 {
                   "step": 1,
                   "value": "quarter",
-                  "finger": 1
+                  "finger": 2
                 },
                 {
                   "step": 0,
                   "value": "eighth",
                   "alter": 1,
-                  "finger": 4
+                  "finger": 1
                 },
                 {
                   "step": 1,
                   "value": "eighth",
-                  "finger": 1
+                  "finger": 2
                 },
                 {
                   "step": 2,
                   "value": "eighth",
-                  "finger": 2
+                  "finger": 3
                 },
                 {
                   "step": 3,
                   "value": "eighth",
-                  "finger": 3
+                  "finger": 4
                 },
                 {
                   "step": 5,
@@ -986,65 +986,65 @@
                 {
                   "step": 1,
                   "value": "quarter",
-                  "finger": 1
+                  "finger": 2
                 },
                 {
                   "step": 0,
                   "value": "eighth",
                   "alter": 1,
-                  "finger": 4
+                  "finger": 1
                 },
                 {
                   "step": 1,
                   "value": "eighth",
-                  "finger": 1
+                  "finger": 2
                 },
                 {
                   "step": 3,
                   "value": "quarter",
-                  "finger": 2
+                  "finger": 3
                 },
                 {
                   "step": 5,
                   "value": "quarter",
-                  "finger": 3
+                  "finger": 4
                 },
                 {
                   "step": 4,
                   "value": "quarter",
-                  "finger": 2
+                  "finger": 3
                 },
                 {
                   "step": 5,
                   "value": "eighth",
-                  "finger": 3
+                  "finger": 4
                 },
                 {
                   "step": 6,
                   "value": "eighth",
                   "alter": 0,
-                  "finger": 4
+                  "finger": 5
                 },
                 {
                   "step": 4,
                   "value": "half",
-                  "finger": 2
+                  "finger": 3
                 },
                 {
                   "step": 5,
                   "value": "quarter",
-                  "finger": 3
+                  "finger": 2
                 },
                 {
                   "step": 7,
                   "value": "eighth",
                   "alter": 1,
-                  "finger": 5
+                  "finger": 4
                 },
                 {
                   "step": 5,
                   "value": "eighth",
-                  "finger": 3
+                  "finger": 2
                 },
                 {
                   "step": 2,
@@ -1152,28 +1152,28 @@
                 {
                   "step": 3,
                   "value": "quarter",
-                  "finger": 3
+                  "finger": 4
                 },
                 {
                   "step": 2,
                   "value": "eighth",
-                  "finger": 2
+                  "finger": 3
                 },
                 {
                   "step": 1,
                   "value": "eighth",
-                  "finger": 1
+                  "finger": 2
                 },
                 {
                   "step": 0,
                   "value": "quarter",
                   "alter": 1,
-                  "finger": 4
+                  "finger": 1
                 },
                 {
                   "step": 1,
                   "value": "quarter",
-                  "finger": 1
+                  "finger": 2
                 },
                 {
                   "step": 4,

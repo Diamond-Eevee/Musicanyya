@@ -25,7 +25,8 @@ Look at every picture; a check is not done until the PNG was opened.
 ### US1 - key-change items have a melody
 
 1. `pnpm screenshot --item learning/key-changes/c-major-to-a-minor/introduction`
-   Expect: treble staff has single notes (half or whole notes) moving by step in C4-G4 with fingering at the start;
+   Expect: treble staff has single notes (half or whole notes) moving by step within one five-finger position per
+   key (G♯4-D5 in this item) with a finger on every note;
    bass staff has whole-note triads with roman numerals below; after the double bar the melody uses G♯ within two
    bars and ends on A over the A minor chord. No bar with a triad on both staves.
 2. `pnpm screenshot --item learning/key-changes/c-major-to-c-minor/beginner` - quarter notes over whole-note chords,
