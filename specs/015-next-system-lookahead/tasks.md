@@ -247,7 +247,7 @@ research R-4
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T024 [P] [US3] Extend `tests/verovio/page-units.test.ts` (worker options group of T004): (a) in a sparse
+- [x] T024 [P] [US3] Extend `tests/verovio/page-units.test.ts` (worker options group of T004): (a) in a sparse
   two-staff piano fixture (`tests/fixtures/musicxml/engraving/fur-elise-bare.musicxml` or `large-score.musicxml`,
   whichever has a measure without notes between the staves - name it in the test) the smallest gap between the
   treble staff's bottom line and the bass staff's top line over all systems is 720 inner units (4 x interline 180)

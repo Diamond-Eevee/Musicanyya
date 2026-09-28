@@ -242,6 +242,28 @@ describe('Verovio page-unit relation (score-layout.md section 2)', () => {
     });
   });
 
+  interface StaffBounds {
+    top: number;
+    bottom: number;
+  }
+
+  function systemStaves(svg: string): StaffBounds[][] {
+    const systemSections = svg.split(/<g [^>]*class="system"/).slice(1);
+    return systemSections.map((sys) => {
+      const staffBlocks = sys.split(/<g [^>]*class="staff"/).slice(1);
+      return staffBlocks.map((sBlock) => {
+        const staffLinePaths = [...sBlock.matchAll(/<path d="M\d+ (\d+) L\d+ \1"[^>]*stroke-width="\d+" \/>/g)].map(
+          (m) => Number(m[1]),
+        );
+        const lines = staffLinePaths.length
+          ? staffLinePaths
+          : [...sBlock.matchAll(/<path d="M\d+ (\d+) L\d+ \1"/g)].map((m) => Number(m[1]));
+        const sorted = [...new Set(lines)].sort((a, b) => a - b);
+        return { top: sorted[0]!, bottom: sorted[4] ?? sorted[sorted.length - 1]! };
+      });
+    });
+  }
+
   describe('worker options (score-layout 2.0.0)', () => {
     let reqId = 100;
     const send = async (data: Record<string, unknown>): Promise<Record<string, unknown>[]> => {
@@ -310,6 +332,67 @@ describe('Verovio page-unit relation (score-layout.md section 2)', () => {
       const p1 = await send({ type: 'page', page: 1 });
       const svg = p1.find((m) => m.type === 'svg')?.svg as string;
       expect(geometryOf(svg).outerHeight).toBeLessThan(900);
+    });
+
+    it('(a) in sparse two-staff piano fixture fur-elise-bare.musicxml the smallest gap between treble bottom and bass top is 720 inner units', async () => {
+      const FUR_ELISE_BARE = fs.readFileSync(
+        path.join(FIXTURES, 'engraving/fur-elise-bare.musicxml'),
+        'utf8',
+      );
+      const loadMsgs = await send({
+        type: 'load',
+        renderXml: FUR_ELISE_BARE,
+        options: { pageWidth: 1920, pageHeight: 1000, scale: 100 },
+      });
+      const pageCount = (loadMsgs.find((m) => m.type === 'laidOut')?.pageCount as number) ?? 1;
+      let smallestGap = Number.POSITIVE_INFINITY;
+      for (let p = 1; p <= pageCount; p++) {
+        const pageMsgs = await send({ type: 'page', page: p });
+        const svg = pageMsgs.find((m) => m.type === 'svg')?.svg as string;
+        const systems = systemStaves(svg);
+        for (const sys of systems) {
+          if (sys.length >= 2) {
+            const gap = sys[1]!.top - sys[0]!.bottom;
+            if (gap < smallestGap) smallestGap = gap;
+          }
+        }
+      }
+      expect(Math.abs(smallestGap - 720)).toBeLessThanOrEqual(1);
+    });
+
+    it('(b) in voice-and-piano.musicxml the gap between voice and piano treble is unchanged with spacingBraceGroup while piano gap shrinks', async () => {
+      const VOICE_AND_PIANO = fs.readFileSync(
+        path.join(FIXTURES, 'voice-and-piano.musicxml'),
+        'utf8',
+      );
+      const tk = await newToolkit();
+      const baseOptions = {
+        ...WORKER_OPTIONS,
+        pageWidth: 1920,
+        pageHeight: 1000,
+        scale: 100,
+        adjustPageHeight: 1,
+        pageMarginTop: 18,
+        pageMarginBottom: 18,
+      };
+      tk.setOptions(baseOptions);
+      tk.loadData(VOICE_AND_PIANO);
+      const svgDefault = tk.renderToSVG(1);
+      const sysDefault = systemStaves(svgDefault)[0]!;
+
+      tk.setOptions({ ...baseOptions, spacingBraceGroup: 8 });
+      tk.loadData(VOICE_AND_PIANO);
+      const svgCompact = tk.renderToSVG(1);
+      const sysCompact = systemStaves(svgCompact)[0]!;
+
+      const defaultVoiceToPiano = sysDefault[1]!.top - sysDefault[0]!.bottom;
+      const compactVoiceToPiano = sysCompact[1]!.top - sysCompact[0]!.bottom;
+      expect(compactVoiceToPiano).toBe(defaultVoiceToPiano);
+
+      const defaultPianoGap = sysDefault[2]!.top - sysDefault[1]!.bottom;
+      const compactPianoGap = sysCompact[2]!.top - sysCompact[1]!.bottom;
+      expect(compactPianoGap).toBeLessThan(defaultPianoGap);
+      expect(Math.abs(compactPianoGap - 720)).toBeLessThanOrEqual(1);
     });
   });
 });

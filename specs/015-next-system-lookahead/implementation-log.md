@@ -80,3 +80,14 @@
   - Draw order guarantees: in Listen, Practice, and Play run paths, the scroll position is updated via the glide before computing overlay bounds so cursor and selection markers never lag the score.
 - Handoff: next = Phase 5 (US3 - Two systems fit more often; otherwise show what fits) starting at T024. Note: T025 and T030 tier is deep.
 
+## 2026-09-29 01:45 - gemini-3.8-flash (T024 test written)
+- Done: T024 (US3 worker options test: grand-staff compact gap and voice-and-piano isolation)
+- Changes:
+  - `tests/verovio/page-units.test.ts`: added `systemStaves()` helper and two tests: (a) asserts worker grand-staff minimum gap is 720 inner units on `fur-elise-bare.musicxml`, which fails as expected (received 1080 units with default spacingBraceGroup: 12); (b) asserts `voice-and-piano.musicxml` voice-to-piano treble gap remains 1080 units while piano grand-staff gap shrinks to 720 units with `spacingBraceGroup: 8`.
+- Evidence:
+  - `pnpm test tests/verovio/page-units.test.ts`: 1 failed (expected 360 to be <= 1, 1080 vs 720 on test (a)), 22 passed.
+- Model fit / handoff:
+  - Next task is T025 [P] [US3] [deep] (authoring `grand-staff-between-staves.musicxml` with cross-staff beam, hairpins, dynamics, pedal line, and review with music-domain-expert).
+  - T025 requires tier `deep` (claude-opus-5.5). Asking owner per AGENTS.md section 2.8.
+
+
