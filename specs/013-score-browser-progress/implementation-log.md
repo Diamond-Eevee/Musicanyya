@@ -740,3 +740,39 @@
   entry's commit. `docs/known-bugs.md`'s two open entries and the reference.md R7 flakes (now three groups: the
   two Electron ones, `pressed-keys.spec.ts:483`, and this session's own firefox find) need no further action
   unless picked up directly.
+
+## 2026-09-28 - claude-sonnet-5 (implement: T071-T076, US4 checkpoint)
+- Done T071 + T074: `src/core/progress/suggest.ts` (`continueItems`, `suggestNext`, `morePractice`, `ContinueEntry`,
+  `REPERTOIRE_BEGINNER_SECTION_ID`), test-first over the real library index (`tests/core/progress/suggest.test.ts`, first
+  run failed on the missing module; then 26 tests pass). Also `itemRefKey` (`src/core/progress/types.ts`, replaces two
+  private copies) and `showsContinue` (`src/core/browser/query.ts`).
+- Done T072 + T075: `src/ui/elements/mx-browser-continue.ts` (cards as real buttons; *Suggested next* with its reason,
+  optional *More practice*, welcome + link to *Repertoire > Beginner*), strings in `en.ts`, CSS in `browser.css`, mounted
+  by `session.ts`; `mx-browser-list` sets `hidden` while Continue shows. `tests/ui/score-browser/continue.test.ts`
+  (12 tests; failed first on the missing module). One fixture slip of my own found by running it (90/96 is 93 %, not
+  90 %): fixed in the test data, not the code.
+- Done T073: US4 block in `tests/e2e/score-browser.spec.ts` (seeded Independent Test, one real mastering Play run, fresh
+  profile with the welcome and link, search replaces Continue and clearing brings it back, SC-001's second half in 2
+  actions). Added `seedProgress` to `tests/e2e/helpers/browser.ts`. The seed `c-major-intro-mastered.json` now also
+  carries the `opened` event a real run always has (Continue needs `lastOpenedAt`/`openedAs`).
+- Older e2e follow the new default (Continue takes the list's place on the default folder, as the spec says): the
+  start-up, 1280/900/360 px layout checks in `score-browser.spec.ts` assert `mx-browser-continue` visible and check the
+  list after choosing a folder; the two US3 tests and `us1-open-view.spec.ts` choose *My files* first. No assertion was
+  loosened: each still checks what it checked, in the pane that now shows it.
+- Done T076: `pnpm screenshot --browser --seed-progress tests/fixtures/progress/c-major-intro-mastered.json` (looked at:
+  *Suggested next* = C major - beginner with "Next step after C major - introduction"; *Recently opened* = the
+  mastered introduction with star badge, "Best: 95% correct · 89% on time · Last played last week") and
+  `pnpm screenshot --browser` for a fresh profile (welcome, link "Or start with an easy piece: Repertoire › Beginner",
+  suggested = C major - introduction, "Nothing opened yet."). Both match quickstart US4; PNGs in `tests/.generated/`.
+- Decisions (also in research.md R-10): main step = non-song `stepOrder` 0; songs come after the last main step;
+  wrap-around to earlier folders so `none` means all mastered; only records with `lastOpenedAt` + `openedAs` are history.
+- Problems / open questions: none blocking. No RT path touched (no RT review).
+- Checks: `pnpm typecheck` clean; `pnpm lint` 0 errors, 299 warnings (unchanged); `npx vitest run` 260 files / 4958
+  tests, all passed (one earlier full run had `tests/library/regeneration.test.ts` time out at 5 s under load, 6.1 s;
+  passes alone in 1.1 s, not touched by this work). `pnpm test:e2e` full run: 3 failed, 896 passed, 541 skipped
+  (10.1 min): `library.spec.ts:31` (webkit, wrong item opened - the known WebKit dblclick race in
+  `docs/known-bugs.md`; `--repeat-each=4` failed 1/4 here and 3/4 on `ecf0710`, so US4 did not cause it),
+  `library.spec.ts:154` (webkit, tracked known bug), `score-browser.spec.ts:341` (firefox, US3 invalid drop, already in
+  R7 as a load flake: passed standalone and in two later whole-file runs).
+- Handoff: next = US5 ("Find fast", T077-T085/T087-T088) or Polish (T086-T093) if merging sooner. Tree clean at this
+  entry's commit.

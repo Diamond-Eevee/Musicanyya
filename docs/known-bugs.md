@@ -97,3 +97,7 @@ One entry per bug: what fails, how to reproduce it, what has already been ruled 
   per contracts/score-browser.md §2, not a hack, but the underlying re-render race itself is still open. If picked
   up together with the WebKit case, start by logging every `browserState` transition (`browserState.subscribe`)
   around an interactive dblclick-open to see what fires between the two clicks.
+- **Update 2026-09-28 (013 US4 checkpoint)**: the full e2e run failed the WebKit "pick Fur Elise" test again (wrong
+  item, "Twinkle, Twinkle"). Checked against US4 (the *Continue* view now hides the list on the default folder):
+  `--repeat-each=4` failed 1/4 with US4 and 3/4 on the commit before it (`ecf0710`), so US4 did not introduce or
+  worsen it. Still the same open race.

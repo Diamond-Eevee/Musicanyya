@@ -226,6 +226,22 @@ learned, and *Practised* claims effort, not quality. Today the matcher wraps sil
     on a main item without *Mastered*, the same step's first extra is offered as a second card, "More practice".
   - No history: the first main step of the first key folder, plus a pointer to *Repertoire > Beginner* (US4 #3).
 
+**Implementation decisions (T074, 2026-09-28)**:
+- A *main* step is a non-song item with `stepOrder` 0 (the convention of `checkStepOrder`); an *extra* is a non-song item
+  with any other `stepOrder`; songs (`step: song`, `stepOrder` 10 in the shelf) are neither, and are offered after the
+  last main step. So "extras are never suggested" cannot hide a song.
+- "Above the highest mastered main step" ranks with `STEP_RANK`. Later folders start from their first unmastered main
+  step, then their first unmastered song ("fully mastered" includes the songs).
+- **Wrap-around** (not in the original rule): when nothing lies ahead, the search continues in the earlier folders and
+  finally in the anchor's own folder from its start, so `none` means every stepped item is mastered and never "nothing
+  after here".
+- `More practice` looks at the most recent stepped item only, counts whole, `complete === true` results in its pooled
+  history (at most `PROGRESS_RESULTS_MAX`), and offers the first not-yet-mastered extra of the same step.
+- Only records with `lastOpenedAt` and `openedAs` count as history. A record made by migration from performances alone has
+  neither and joins *Continue* once the item is opened again.
+- The view: `showsContinue(view)` (`src/core/browser/query.ts`) decides that `mx-browser-continue` replaces `mx-browser-list`
+  (the list stays rendered but `hidden`, so its row logic is unchanged).
+
 **Rationale**: the spec rule, with the expert's refinements. "Lowest unmastered" would send a musician who skipped
 Introduction back to it. Extras exist for a musician who is stuck, not for everyone. Step metadata already exists
 (`Step`, `STEP_RANK`, `stepOrder`, `src/core/library/types.ts`).

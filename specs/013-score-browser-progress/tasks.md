@@ -178,7 +178,7 @@ among recent items and suggests the *Beginner* step of *C major*; opening the su
 
 - [x] T074 [US4] `src/core/progress/suggest.ts` (`continueItems`, `suggestNext`, `morePractice`) (T071)
 - [x] T075 [US4] `src/ui/elements/mx-browser-continue.ts`, shown when the folder is *Continue* and search is empty; the default folder is *Continue* (data-model section 7); strings in `en.ts` (T072)
-- [ ] T076 [US4] Manual check: `pnpm screenshot --browser --seed-progress tests/fixtures/progress/c-major-intro-mastered.json` and one with no progress; look at them against quickstart US4 and name them in the log
+- [x] T076 [US4] Manual check: `pnpm screenshot --browser --seed-progress tests/fixtures/progress/c-major-intro-mastered.json` and one with no progress; look at them against quickstart US4 and name them in the log
 
 **Checkpoint**: US4 Independent Test passes (T073); US1-US3 still pass; full gate green; log entry; commit.
 
