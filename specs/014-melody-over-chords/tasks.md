@@ -186,7 +186,7 @@ as demanding as the one before, and the level check passes.
 - [x] T065 [US1] (found during T028) Regenerate `tests/fixtures/library-identity.json` with `pnpm exec tsx
   tools/library/identity.ts` for the 54 rewritten items; confirm by comparing old and new golden that every other item's
   entry is unchanged (SC-004) and the Für Elise grade golden is unchanged
-- [ ] T030 [US1] [light] Move the 54 audit records under `content/library/audit/learning/key-changes/` (all but the two drills)
+- [x] T030 [US1] [light] Move the 54 audit records under `content/library/audit/learning/key-changes/` (all but the two drills)
   to `exercise-theory-v3` (`checkedBy`, `date` updated), run `pnpm library:fidelity` to regenerate
   `docs/library-audit.md`, `pnpm library:fidelity --check` green
 - [ ] T059 [US1] Add a Listen-mode check for a rewritten item in the browser (`tests/e2e/library.spec.ts`: open
