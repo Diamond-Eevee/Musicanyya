@@ -297,6 +297,9 @@ describe('mx-score-browser keyboard model (T080, FR-028)', () => {
     expect(browserState.get().view.search).toBe('');
     expect(dialog.open).toBe(true);
     expect(document.activeElement).toBe(search); // focus stays
+    // the field itself is emptied, not only the stored view: a browser that does not clear a search field on Escape
+    // by itself (WebKit) would otherwise keep showing text the list no longer filters by
+    expect(search.value).toBe('');
 
     dialog.dispatchEvent(new Event('cancel', { cancelable: true }));
     expect(dialog.open).toBe(false);

@@ -110,6 +110,16 @@ dialog.browser::backdrop {
   min-height: 1px; /* present even when empty, so the border always shows a toolbar row exists */
 }
 
+/* The chrome around the body keeps its full height: the dialog is a column, the body alone takes what is left, and
+   a toolbar that wraps to a second row (active filter chips) must push the body down, not be squeezed under it. */
+.browser-header,
+.browser-toolbar,
+.browser-empty,
+.browser-status,
+.browser-message {
+  flex-shrink: 0;
+}
+
 .browser-folder-picker,
 .browser-back {
   display: none;

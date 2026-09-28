@@ -1,5 +1,6 @@
 // Feature 013 US1 (spec.md "Browse and open from a big, comfortable window"): the score browser dialog that
 // replaces the old *Scores* panel's library list and *Recent* list (FR-001-FR-007). T020.
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
@@ -493,5 +494,210 @@ test.describe('Score browser (feature 013, US4 - Continue)', () => {
     await recentCard(page, INTRODUCTION).click();
     await expect(browserDialog(page)).toBeHidden();
     await expect(page.locator('.mx-title-block')).toContainText('C major - introduction');
+  });
+});
+
+test.describe('Score browser (feature 013, US5 - Find fast)', () => {
+  const LADDER = {
+    best60: 'library:learning/keys/c-major/intermediate',
+    best72: 'library:learning/keys/g-major/introduction',
+    best85: 'library:learning/keys/c-major/beginner',
+    mastered: 'library:learning/keys/g-major/beginner',
+    practised: 'library:learning/keys/c-major/advanced',
+  };
+  const allFolder = (page: Page) => page.locator('[role="treeitem"][data-key="all"]');
+  const statusFilter = (page: Page) => page.locator('select[data-filter="status"]');
+  const keyFilter = (page: Page) => page.locator('select[data-filter="key"]');
+  const sortControl = (page: Page) => page.locator('select[data-sort]');
+  const refsInList = (page: Page) =>
+    page.locator('.browser-row').evaluateAll((rows) => rows.map((r) => (r as HTMLElement).dataset.ref ?? ''));
+
+  /** Every library item that names `key` among its keys, straight from the shipped index - an oracle that does not
+   *  go through the browser's own query code. */
+  const libraryRefsInKey = (key: string): string[] => {
+    const index = JSON.parse(fs.readFileSync(path.join(__dirname, '../../public/library/index.json'), 'utf8')) as {
+      items: { id: string; facts: { keys: string[] } }[];
+    };
+    return index.items.filter((i) => i.facts.keys.includes(key)).map((i) => `library:${i.id}`);
+  };
+
+  /** "Focus is always visible" (US5 #3): the focused element matches :focus-visible and draws an outline. */
+  async function expectFocusVisible(page: Page): Promise<void> {
+    const state = await page.evaluate(() => {
+      const el = document.activeElement;
+      if (!el || el === document.body) return null;
+      return { visible: el.matches(':focus-visible'), outline: getComputedStyle(el).outlineStyle, tag: el.tagName };
+    });
+    expect(state, 'something has focus').not.toBeNull();
+    expect(state?.visible, `${state?.tag} matches :focus-visible`).toBe(true);
+    expect(state?.outline, `${state?.tag} draws a focus outline`).not.toBe('none');
+  }
+
+  test('Independent Test: Status "played, not mastered" with sort "Best result, lowest first" lists exactly those items, lowest best first', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(browserDialog(page)).toBeVisible();
+    await seedProgress(page, 'played-ladder.json');
+    await allFolder(page).click();
+
+    await statusFilter(page).selectOption('playedNotMastered');
+    await sortControl(page).selectOption('best:asc');
+
+    // Library order would be beginner (85), intermediate (60), G major introduction (72): the sort reorders them.
+    await expect.poll(() => refsInList(page)).toEqual([LADDER.best60, LADDER.best72, LADDER.best85]);
+    for (const ref of [LADDER.best60, LADDER.best72, LADDER.best85]) {
+      await expect(rowByRef(page, ref)).toHaveAttribute('data-status', 'played');
+    }
+    await expect(page.locator('.browser-chip')).toHaveText(/Status: Played, not mastered/);
+    await expect(page.locator('.browser-status')).toHaveText('3 items');
+
+    await sortControl(page).selectOption('best:desc');
+    await expect.poll(() => refsInList(page)).toEqual([LADDER.best85, LADDER.best72, LADDER.best60]);
+
+    // The choices are part of the persisted view (FR-006): a reload comes back to the same list.
+    await page.reload();
+    await expect(browserDialog(page)).toBeVisible();
+    await expect(statusFilter(page)).toHaveValue('playedNotMastered');
+    await expect(sortControl(page)).toHaveValue('best:desc');
+    await expect.poll(() => refsInList(page)).toEqual([LADDER.best85, LADDER.best72, LADDER.best60]);
+  });
+
+  test('US5 #1: key G major and status New lists only never-attempted G-major items, with removable chips and Clear all', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(browserDialog(page)).toBeVisible();
+    await seedProgress(page, 'played-ladder.json');
+    await allFolder(page).click();
+    await expect(rowByRef(page, LADDER.best60)).toBeVisible();
+
+    await keyFilter(page).selectOption('G major');
+    await statusFilter(page).selectOption('new');
+
+    // Two G-major items have progress in the seed (a played one and a mastered one); every other one is New.
+    const expected = libraryRefsInKey('G major').filter((ref) => ref !== LADDER.best72 && ref !== LADDER.mastered);
+    expect(expected.length).toBeGreaterThan(2);
+    await expect.poll(async () => (await refsInList(page)).slice().sort()).toEqual(expected.slice().sort());
+    await expect(page.locator('.browser-chip')).toHaveCount(2);
+
+    // A chip removes its own filter and leaves the other.
+    await page.locator('.browser-chip[data-filter="status"]').click();
+    await expect(page.locator('.browser-chip')).toHaveCount(1);
+    await expect.poll(async () => (await refsInList(page)).slice().sort()).toEqual(libraryRefsInKey('G major').sort());
+
+    await page.locator('.browser-clear-all').click();
+    await expect(page.locator('.browser-chip')).toHaveCount(0);
+    await expect(page.locator('.browser-clear-all')).toHaveCount(0);
+    await expect(keyFilter(page)).toHaveValue('');
+  });
+
+  test('US5 #2: a combination that matches nothing says so and Clear filters brings the list back', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(browserDialog(page)).toBeVisible();
+    await seedProgress(page, 'played-ladder.json');
+    await allFolder(page).click();
+
+    // The only mastered item is in G major, so C major + Mastered is empty.
+    await keyFilter(page).selectOption('C major');
+    await statusFilter(page).selectOption('mastered');
+
+    await expect(page.locator('.browser-empty')).toContainText('No items match these filters.');
+    await expect(page.locator('.browser-row')).toHaveCount(0);
+    await expect(page.locator('.browser-status')).toHaveText('No items match these filters.');
+
+    await page.locator('.browser-empty .browser-clear-filters').click();
+    await expect(page.locator('.browser-empty')).toBeHidden();
+    await expect(page.locator('.browser-row').first()).toBeVisible();
+    await expect(statusFilter(page)).toHaveValue('');
+  });
+
+  test('keyboard only: from the Open button, search, move to the results and Enter opens a Score; Escape closes back onto Open (US5 #3)', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(browserDialog(page)).toBeVisible();
+    await closeBrowser(page);
+    const openButton = page.locator('mx-open-button .mx-open-button');
+
+    // Where a musician's Tab lands, then only keys from here on.
+    await openButton.focus();
+    await page.keyboard.press('Enter');
+    await expect(browserDialog(page)).toBeVisible();
+    await expect(page.locator('.browser-search')).toBeFocused();
+    await expectFocusVisible(page);
+
+    await page.keyboard.type('introduction');
+    await expect(page.locator('.browser-row').first()).toBeVisible();
+
+    // Tab runs search, Open file, the filters, sort, the rail, then the list: the first stop in the list is the
+    // list itself, with its first row active.
+    for (let i = 0; i < 20; i++) {
+      if (await page.locator('mx-browser-list').evaluate((el) => el === document.activeElement)) break;
+      await page.keyboard.press('Tab');
+      await expectFocusVisible(page);
+    }
+    await expect(page.locator('mx-browser-list')).toBeFocused();
+    await page.keyboard.press('ArrowDown');
+    const second = page.locator('.browser-row').nth(1);
+    const secondTitle = (await second.locator('.browser-row-title').textContent()) ?? '';
+    await expect(second).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('mx-browser-detail')).toContainText(secondTitle);
+
+    await page.keyboard.press('Enter');
+    await expect(browserDialog(page)).toBeHidden();
+    await expect(page.locator('.mx-title-block')).toContainText(secondTitle);
+
+    // Open again with the keyboard: the first Escape clears the search, the second closes; focus is on Open.
+    await openButton.focus();
+    await page.keyboard.press('Enter');
+    await expect(browserDialog(page)).toBeVisible();
+    await expect(page.locator('.browser-search')).toHaveValue('introduction');
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.browser-search')).toHaveValue('');
+    await expect(browserDialog(page)).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(browserDialog(page)).toBeHidden();
+    await expect(openButton).toBeFocused();
+  });
+
+  test('/ jumps to search from the list, and the rail is a tree walked with the arrow keys (FR-028)', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(browserDialog(page)).toBeVisible();
+    await allFolder(page).click();
+    await expect(page.locator('.browser-row').first()).toBeVisible();
+
+    await page.locator('mx-browser-list').focus();
+    await page.keyboard.press('/');
+    await expect(page.locator('.browser-search')).toBeFocused();
+    await page.keyboard.type('/'); // an ordinary character in the field
+    await expect(page.locator('.browser-search')).toHaveValue('/');
+    await page.locator('.browser-search').fill('');
+
+    // Rail: the tab stop is the selected folder (All); Home goes to Continue, Enter chooses it.
+    await page.locator('.browser-rail-item[tabindex="0"]').focus();
+    await page.keyboard.press('Home');
+    await expect(page.locator('.browser-rail-item[data-key="continue"]')).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('.browser-rail-item[data-key="continue"]')).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('.browser-rail-item[data-key="continue"]')).toBeFocused(); // focus stays
+
+    // Down to Learning, then Left collapses it: its Keys folder disappears from the tree.
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    await expect(page.locator('.browser-rail-item[data-key="section:learning"]')).toBeFocused();
+    await expect(page.locator('.browser-rail-item[data-key="section:learning/keys"]')).toBeVisible();
+    await page.keyboard.press('ArrowLeft');
+    await expect(page.locator('.browser-rail-item[data-key="section:learning"]')).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+    await expect(page.locator('.browser-rail-item[data-key="section:learning/keys"]')).toHaveCount(0);
+    await page.keyboard.press('ArrowRight');
+    await expect(page.locator('.browser-rail-item[data-key="section:learning/keys"]')).toBeVisible();
   });
 });

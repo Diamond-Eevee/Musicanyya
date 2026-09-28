@@ -41,6 +41,11 @@
  *   --seed-progress <path>  seeds progress before the picture, through the `e2e-progress-seed` window event (013,
  *                    T094): the file's own `events` array (tests/fixtures/progress/*.json), e.g.
  *                    tests/fixtures/progress/mixed-statuses.json. Best combined with `--browser`
+ *   --filter <name>=<value>  with --browser: choose a filter in the browser's toolbar (013 US5), after selecting the
+ *                    *All* folder. Name is level, key, tag or status; repeat it for several, e.g.
+ *                    `--filter status=playedNotMastered --filter key="G major"`
+ *   --sort <by:dir>  with --browser: choose the sort, e.g. `best:asc` (Best result, lowest first), `title:desc`,
+ *                    `lastPlayed:desc`, `library:asc`
  *
  * Prints the PNG path, the load notices shown and any browser console errors, so the result can be checked as text
  * too. Exits 1 when the score does not appear.
@@ -75,6 +80,8 @@ const { values } = parseArgs({
     piano: { type: 'boolean', default: false },
     greyscale: { type: 'boolean', default: false },
     'seed-progress': { type: 'string' },
+    filter: { type: 'string', multiple: true },
+    sort: { type: 'string' },
   },
   allowPositionals: false,
 });
@@ -250,6 +257,12 @@ async function main(): Promise<void> {
   if (values.play !== undefined && !/^\d+$/.test(values.play)) throw new Error('--play needs a number of events');
   if (values.keys) parseKeySteps(values.keys); // fail early on a bad step, before a server is started
   if (values['seed-progress']) JSON.parse(fs.readFileSync(path.resolve(values['seed-progress']), 'utf8')); // fail early
+  const filters = (values.filter ?? []).map((f) => {
+    const at = f.indexOf('=');
+    if (at < 1) throw new Error(`--filter needs <name>=<value>, got "${f}"`);
+    return { name: f.slice(0, at), value: f.slice(at + 1) };
+  });
+  if ((filters.length > 0 || values.sort) && !values.browser) throw new Error('--filter and --sort need --browser');
   let server: ViteDevServer | null = null;
   let baseUrl = values.url;
   if (!baseUrl) {
@@ -294,6 +307,16 @@ async function main(): Promise<void> {
           await myFiles.click();
         }
       }
+    }
+    if (values.browser && (filters.length > 0 || values.sort)) {
+      // The controls a person uses (013 US5): the *All* folder first, so the filters apply to every item.
+      const all = page.locator('[role="treeitem"][data-key="all"]');
+      if (!(await all.isVisible())) await page.locator('.browser-folder-picker').click();
+      await all.click();
+      for (const { name, value } of filters) {
+        await page.locator(`select[data-filter="${name}"]`).selectOption(value);
+      }
+      if (values.sort) await page.locator('select[data-sort]').selectOption(values.sort);
     }
     if (values.piano) await showPiano(page);
     // Let Verovio finish the neighbouring pages and the notice tray settle before the picture.

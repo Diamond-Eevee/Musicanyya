@@ -496,6 +496,10 @@ export class MxScoreBrowser extends HTMLElement {
     const breadcrumb = this.querySelector('.browser-breadcrumb');
     if (breadcrumb) breadcrumb.textContent = folderLabel(view.folder, data.index);
 
+    // Escape (and anything else that changes the stored search) must show in the field too; while typing the two
+    // are already equal, so the caret is never disturbed.
+    if (this.searchInput.value !== view.search) this.searchInput.value = view.search;
+
     this.refreshItems(data);
     this.syncToolbar(view);
     this.syncEmpty(phase, view);

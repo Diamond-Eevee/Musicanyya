@@ -147,7 +147,8 @@ under load on Windows ("Target page ... has been closed", "audio clock advances"
 green without that. Also under a full-suite run only (green standalone and within their own file, `--project`
 included): `pressed-keys.spec.ts:483` (firefox, a 60fps frame-timing check) and, since the 013 US3 checkpoint,
 `score-browser.spec.ts`'s "a .musicxml file with invalid content dropped onto the browser..." (firefox) - both
-passed 13/13 and 4/4 respectively re-run alone.
+passed 13/13 and 4/4 respectively re-run alone. At the 013 US5 checkpoint `library.spec.ts:370` (firefox, "a sample of
+items across sections each engrave at least one page") joined them: failed once in the full run, 3/3 alone.
 
 **Known bugs** (confirmed, reproducible, not flaky - see `docs/known-bugs.md`): `tests/e2e/play-grade-marks.spec.ts`
 grades roughly half the expected notes on `repertoire/beginner/fur-elise-theme-16-bar`; not root-caused yet, not
@@ -173,6 +174,7 @@ e2e tests cover it. Use the first option that works for you:
    pnpm screenshot --item <id> --run --grade --keys "sleep:1300,+76,-76"   # a Play run, picture of its Grade
    pnpm screenshot --item <id> --piano --practice --keys "+60,+61" --greyscale   # on-screen piano, in greyscale (feature 010)
    pnpm screenshot --browser --width 900 --height 700   # the Score browser itself (feature 013), open at start-up
+   pnpm screenshot --browser --seed-progress tests/fixtures/progress/played-ladder.json --filter status=playedNotMastered --sort best:asc   # filters and sort (013 US5)
    ```
 
    `--item`/`--file` open through the Score browser (feature 013, R-20): the picture is taken once the Score has

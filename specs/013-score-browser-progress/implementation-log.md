@@ -776,3 +776,64 @@
   R7 as a load flake: passed standalone and in two later whole-file runs).
 - Handoff: next = US5 ("Find fast", T077-T085/T087-T088) or Polish (T086-T093) if merging sooner. Tree clean at this
   entry's commit.
+
+## 2026-09-28 - claude-sonnet-5 (implement: T077-T085, US5 checkpoint)
+- Session start: tree clean, no upstream; baseline re-run before any change matched the last hand-off (`pnpm lint` 0
+  errors / 299 warnings, `npx vitest run` 260 files / 4958 tests passed).
+- Done T077 + T082: `queryBrowser` filters (level, key, skill, every `StatusFilter`; AND) and the `lastPlayed` / `best`
+  sorts in `src/core/browser/query.ts`. Items without a value go last in both directions, ties keep library order,
+  `best` compares the two figures exactly (`compareFigures`). Test-first: the 11 new cases in
+  `tests/core/browser/query.test.ts` failed (filters and sorts ignored), then passed. One expectation of mine was
+  wrong (a G-major New item legitimately matches status `new`); fixed in the test, not the code.
+- Done T078: `tests/core/browser/query-timing.test.ts` (500 items, 10,000 results, build + query per change, median of
+  5 after a warm-up, <= 20 ms). Its filter case first failed on the row count (500 instead of 400). It then failed
+  under full-suite load (22 and 28 ms; alone ~9 ms). Profiled: `buildBrowserItems` ~7 ms, the query 0.04 ms, and the
+  cost was `Date.parse` inside `mergeRecords`' sort comparator. Fixed at the cause (`src/core/progress/merge.ts`:
+  parse each timestamp once), budget untouched; two full vitest runs and the progress tests passed afterwards.
+- Done T079/T083: toolbar in `src/ui/elements/mx-score-browser.ts` - level/key/skill/status selects (key and skill
+  options from `filterOptions`, new pure `src/core/browser/filter-options.ts` with its own test, written together
+  rather than red first), removable chips with "Remove filter ..." names, *Clear all*, the sort select (8 entries),
+  the `.browser-empty` state with *Clear filters* (only when filters are part of the cause); strings in `en.ts`,
+  styles in `browser.css`. `tests/ui/score-browser/filters.test.ts` (10 tests) failed first (no controls).
+- Done T080/T084: `tests/ui/score-browser/keyboard.test.ts` (19 tests; 14 failed first, 5 already held: list
+  Up/Down/Enter, Escape). Rail: WAI-ARIA tree model - roving tab stop, Up/Down/Home/End move focus without choosing,
+  Enter/Space choose, Right/Left expand/collapse or go to child/parent, `aria-level`, focus restored after the
+  re-render (before, the first key press dropped focus to the page). List: Home/End/PageUp/PageDown
+  (`LIST_PAGE_ROWS` = 10) and scroll into view. Dialog: `/` focuses search unless typing in a field, Tab wraps
+  between the last control (close, moved to the end of the DOM, placed top right by CSS) and search; `aria-live`
+  line: item count debounced by `BROWSER_ANNOUNCE_DEBOUNCE_MS`, "No items match these filters.", removal and reset
+  announced at once.
+- Done T081: US5 block in `tests/e2e/score-browser.spec.ts` (5 tests, new seed `tests/fixtures/progress/
+  played-ladder.json`, README row): the Independent Test (exact three rows in best order 60/72/85 %, the reverse
+  order, persistence over a reload), US5 #1 (G major + New, expected set computed from the shipped `index.json`,
+  chips and Clear all), US5 #2, the keyboard-only flow from the Open button (focus visible at every step, Escape
+  clears then closes, focus back on Open), and `/` plus the rail keys. Written after the implementation, not before.
+  15/15 pass on chromium, firefox and webkit. Found by them and fixed: (a) a wrapped toolbar was squeezed under the
+  rail (chips unclickable) - `flex-shrink: 0` on the dialog's chrome; (b) Escape cleared the stored search but not the
+  field in WebKit (Chromium clears a search field itself) - the field now follows the state, with a unit assertion
+  that failed first. Bug (b) predates US5.
+- Done T085: `pnpm screenshot` gained `--filter <name>=<value>` and `--sort <by:dir>` (with `--browser`); documented in
+  the tool header, `docs/agents/reference.md` R7 and `quickstart.md`. Looked at
+  `tests/.generated/us5-filter-sort.png` (three rows, best 60/72/85 %, chip "Status: Played, not mastered", *Clear
+  all*, "3 items"), `us5-no-match.png` ("No items match these filters." + *Clear filters*, chips) and
+  `us5-narrow-600.png` (toolbar wraps, no horizontal overflow). Quickstart step 3 (keyboard only) is the e2e test
+  above, not a manual run in the pane. The rail showed a second grey row in one picture; the live DOM had only *All*
+  selected (checked with `javascript_tool`), so I take it for hover from the scripted click and did not chase it.
+- Decisions: status filters `notMastered` = every status but mastered (New included), `playedNotMastered` = status
+  played; My files rows have no level/key/skill so they match none of those three filters; the empty state sits in
+  `mx-score-browser` (between toolbar and body), not in the `role=listbox` list, to keep the listbox to options; the
+  Continue view is not counted or announced (no list).
+- Problems / open questions: none blocking. New task T097: the "New best for {title}" announcement of contracts
+  §6 is not implemented (only the grade panel's own line exists). `mx-browser-detail`, `-continue` and the rail
+  still call `buildBrowserItems` themselves on every state change (SC-002/SC-003 measurement is T086). One
+  `npx vite-node` call downloaded `vite-node` into the npx cache; nothing in the repository changed.
+  No RT path touched (no RT review).
+- Checks: `pnpm typecheck` clean; `pnpm lint` 0 errors, 299 warnings (unchanged); `npx vitest run` 264 files / 5005
+  tests, all passed (twice). `pnpm test:e2e` full run: 4 failed, 915 passed, 541 skipped (10.2 min):
+  `library.spec.ts:31` and `:154` (webkit, tracked in `docs/known-bugs.md`), `score-browser.spec.ts:342` (firefox, US3
+  invalid drop, already in R7) and `library.spec.ts:370` (firefox, "a sample of items ... each engrave at least one
+  page"). The last two passed 3/3 each when re-run alone (`--repeat-each=3`), so both are full-suite load flakes; the
+  second one is new and now listed in R7. The two Electron specs did not fail in this run.
+- Handoff: next = Polish - T086 (SC-002/SC-003 timing in the browser), T087, T088, T095, T089, T097, T090-T093
+  (T092 is the OD-6 removal of the old panel code; T090 also needs the owner's SC-008 run). Tree clean at this
+  entry's commit.

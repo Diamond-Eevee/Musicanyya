@@ -23,6 +23,8 @@ pnpm test:e2e -- score-browser           # US1-US5 flows, SC-001/SC-002/SC-003 t
 `pnpm screenshot` gains `--browser`: it takes the picture with the Score browser open. Without it, the script closes
 the browser that opens at start-up before taking its picture (R-20). `--seed-progress <json>` seeds progress and
 files through the `e2e-progress-seed` seam, so pictures can show played and mastered items without playing.
+`--filter <name>=<value>` (repeatable; level, key, tag, status) and `--sort <by:dir>` choose filters and the sort in the
+browser's own toolbar before the picture (they need `--browser`).
 
 ## Manual verification (AGENTS.md "Seeing the app": look at the picture)
 
@@ -77,6 +79,8 @@ Play runs in `pnpm screenshot` use the fake keyboard (`--run --keys`).
 
 1. Filter *Status: played, not mastered*, sort *Best result, lowest first* -> only those items, lowest first, with the
    active filters as removable chips and *Clear all* (US5 #1).
+   `pnpm screenshot --browser --seed-progress tests/fixtures/progress/played-ladder.json --filter status=playedNotMastered --sort best:asc`
+   -> three rows, best 60 %, 72 %, 85 %.
 2. A filter that matches nothing -> "No items match these filters" and *Clear filters* (US5 #2).
 3. Keyboard only: Tab to *Open*, Enter, type a title, Down, Enter -> the Score opens, focus returns to *Open* (US5 #3).
 
