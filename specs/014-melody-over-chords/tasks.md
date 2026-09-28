@@ -196,20 +196,20 @@ as demanding as the one before, and the level check passes.
 - [x] T031 [US1] [light] Run `pnpm test:e2e -- tests/e2e/library.spec.ts tests/e2e/tempo-field.spec.ts` (they open
   `c-major-to-c-minor/introduction` and `a-major-to-a-minor/beginner`); fix only assertions that read the old notes,
   logging why
-- [ ] T066 [US2] [deep] (found by the T032 review) Intermediate fingering: `computedFinger` reads the scale table per degree,
-  so the printed fingers cross inside a five-finger span (E3 F1 G2 E3 C1), inside neighbour figures (F1 E3 F1, A1 G#4
-  A1) and finger leaps backwards; the checker passes it because a leap at intermediate is an unlimited shift. Research
-  R6 / contract first, then tests first in `tests/tools/fidelity/melody-rules.test.ts` (leap direction matches finger
-  direction unless a declared shift; no crossing inside x-y-x or where the notes fit one position; a shift cap at
-  intermediate) and `tests/core/library/exercise/melody.test.ts` (position fingering at intermediate, scale-table
-  crossing only for a run leaving the position); then `melody-rules.ts`, `melody.ts`, `MELODY_LADDER`; regenerate
-  (T028 steps), goldens, audit
+- [x] T066 [US2] [deep] (found by the T032 review) Intermediate fingering: `computedFinger` reads the scale table per degree,
+  so the printed fingers cross inside a five-finger span (E3 F1 G2 E3 C1), inside neighbour figures and finger leaps
+  backwards or with the same finger; the checker passed it because a leap at intermediate was an unlimited shift.
+  Done as: research R6 amendment (T066) first; tests first in `tests/tools/fidelity/melody-rules.test.ts` (five planted
+  leap faults, two legal shifts); `melody-rules.ts` checks a leap that moves the hand (outside a chord start after at
+  least a quarter: only the thumb crosses, at most a third, onto/from a white key; no same-finger jump; thumb to 2 at
+  most a fourth); the 24 intermediate phrases in `key-change-{relative,parallel}-intermediate.json` carry an explicit
+  finger on every note (the generator is unchanged - see R6 amendment for why); regenerate (T028 steps), goldens, audit
 - [ ] T067 [US1] [deep] (found by the T032 review) Parallel octaves on a weak beat: the leading tone in the melody
   over V6 (bass = leading tone) resolving with the bass to the tonic. Extend the `parallel-octaves` rule beyond chord
   starts (test first), then fix the four variants the review names (implementation-log 2026-09-28 17:40)
-- [ ] T032 [US1] [deep] Music review of the authored key-change phrases with the `music-domain-expert` agent (readability,
+- [~] T032 [US1] [deep] Music review of the authored key-change phrases with the `music-domain-expert` agent (readability,
   musicality, level fit, fingering); fix findings in the definitions, regenerate, summarise findings in
-  `specs/014-melody-over-chords/implementation-log.md`
+  `specs/014-melody-over-chords/implementation-log.md` (claimed: claude-opus-5.5 2026-09-28)
 - [ ] T033 [US1] Manual verification per `specs/014-melody-over-chords/quickstart.md` US1 and US2 (`pnpm screenshot
   --item ...` for c-major-to-a-minor/introduction, c-major-to-c-minor/beginner and the three g-major-to-e-minor items;
   open every PNG) and record what was seen in the log

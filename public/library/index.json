@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-28T14:50:36.814Z",
+  "generated": "2026-09-28T15:44:50.428Z",
   "sections": [
     {
       "id": "learning",
@@ -485,7 +485,7 @@
       "section": "learning/key-changes/a-major-to-a-minor",
       "file": "learning/key-changes/a-major-to-a-minor/intermediate.musicxml",
       "bytes": 17954,
-      "hash": "7245f2268a39059b6f3ba9e2d36ac0142ab4597b094450e07d4c672607aef5b0",
+      "hash": "8cb835048c2800c5d89a9d6df03a5268d31c02747321093b7396af1ece05d6ca",
       "meta": {
         "version": 1,
         "title": "A major to A minor - intermediate",
@@ -565,8 +565,8 @@
       "id": "learning/key-changes/a-major-to-a-minor/introduction",
       "section": "learning/key-changes/a-major-to-a-minor",
       "file": "learning/key-changes/a-major-to-a-minor/introduction.musicxml",
-      "bytes": 15357,
-      "hash": "92fda9c828ef5008f7642b98f8ad7cba243c4821036f2207f539a2a81e2971a2",
+      "bytes": 15556,
+      "hash": "c5df1cd17e71ae9c69d2bf73c6f7a29bc44df5db27af21c3a284ab98c0b94460",
       "meta": {
         "version": 1,
         "title": "A major to A minor - introduction",
@@ -591,7 +591,7 @@
       },
       "facts": {
         "measures": 12,
-        "notes": 50,
+        "notes": 51,
         "durationSeconds": 48,
         "keys": [
           "A major",
@@ -610,7 +610,7 @@
         "handIndependenceFraction": 0,
         "chordChangesPerBar": 0.9166666666666666,
         "shortestDivision": 2,
-        "notesPerBeat": 1.0416666666666667,
+        "notesPerBeat": 1.0625,
         "accidentals": 3,
         "hasTies": false,
         "hasTuplets": false,
@@ -624,7 +624,7 @@
         "tempoChanges": 0,
         "maxLeapSemitones": 7,
         "longestRunAtShortestValue": 0,
-        "attackCount": 26,
+        "attackCount": 27,
         "peakNotesPerSecond": 1.5,
         "accidentalMarkCount": 2,
         "minorScaleAccidentalCount": 2,
@@ -728,7 +728,7 @@
       "section": "learning/key-changes/a-minor-to-a-major",
       "file": "learning/key-changes/a-minor-to-a-major/intermediate.musicxml",
       "bytes": 17864,
-      "hash": "b40112596fce0e92dc8fa6e8f706465ec0a5998e36a1c9d00aa76e51e768333e",
+      "hash": "44d6fdb18076281430e7c9875ef7acf3ebdd51955a143e7ad348ad8afe7e3363",
       "meta": {
         "version": 1,
         "title": "A minor to A major - intermediate",
@@ -1058,7 +1058,7 @@
       "section": "learning/key-changes/a-minor-to-c-major",
       "file": "learning/key-changes/a-minor-to-c-major/intermediate.musicxml",
       "bytes": 17435,
-      "hash": "017bed22e73f42aa3284088bddf991335a3810cc65847531df3b0d1618b1c1e0",
+      "hash": "8e9605a4356ca51933f8bb2b5781ce607b24a82929a647d2ae2032e24a4962c9",
       "meta": {
         "version": 1,
         "title": "A minor to C major - intermediate",
@@ -1138,7 +1138,7 @@
       "section": "learning/key-changes/a-minor-to-c-major",
       "file": "learning/key-changes/a-minor-to-c-major/introduction.musicxml",
       "bytes": 16289,
-      "hash": "e06942a81931432aa581b175899224ab842a89fc575c2c87d0c1e32d0695ad26",
+      "hash": "262f4671b1bcf528590c9d137dad8726f5d1e195dceed715e56b4acc4e29d707",
       "meta": {
         "version": 1,
         "title": "A minor to C major - introduction",
@@ -1298,7 +1298,7 @@
       "section": "learning/key-changes/b-minor-to-d-major",
       "file": "learning/key-changes/b-minor-to-d-major/intermediate.musicxml",
       "bytes": 17691,
-      "hash": "06f8340108af16896483b19eec2a8aa1a08bff8bc907b00ca7673f86444253c8",
+      "hash": "5876dddc9b0732a9d3d4ace0c0345c18338820ea2f462c95e79533b603a66f17",
       "meta": {
         "version": 1,
         "title": "B minor to D major - intermediate",
@@ -1377,8 +1377,8 @@
       "id": "learning/key-changes/b-minor-to-d-major/introduction",
       "section": "learning/key-changes/b-minor-to-d-major",
       "file": "learning/key-changes/b-minor-to-d-major/introduction.musicxml",
-      "bytes": 16561,
-      "hash": "66bdf2bc5cfdca2f98e292d563dc98675e76ee51519f34d64278d2d160b836e9",
+      "bytes": 16545,
+      "hash": "e0df79c562ece68904a74c325ea3c08d76bcd73df735b20dd34f7f1034c2432c",
       "meta": {
         "version": 1,
         "title": "B minor to D major - introduction",
@@ -1538,7 +1538,7 @@
       "section": "learning/key-changes/c-major-to-a-minor",
       "file": "learning/key-changes/c-major-to-a-minor/intermediate.musicxml",
       "bytes": 17555,
-      "hash": "db88d8e9f774c462dc7c1e89e648247eb7522151c96ea89f6cd2b5f0669cdd9e",
+      "hash": "a020758fe2f94e2a83715c55a03db6cee589479b3a89df2c904bab65a314af78",
       "meta": {
         "version": 1,
         "title": "C major to A minor - intermediate",
@@ -1779,7 +1779,7 @@
       "section": "learning/key-changes/c-major-to-c-minor",
       "file": "learning/key-changes/c-major-to-c-minor/intermediate.musicxml",
       "bytes": 17934,
-      "hash": "478ab091ffe57124e39186359888259ea7c03df62534a226e8b4e624438a71e0",
+      "hash": "7521ba4809d10d5cf8548e59c906692aae4082a42af366a15e64e7b7593b89a7",
       "meta": {
         "version": 1,
         "title": "C major to C minor - intermediate",
@@ -1859,8 +1859,8 @@
       "id": "learning/key-changes/c-major-to-c-minor/introduction",
       "section": "learning/key-changes/c-major-to-c-minor",
       "file": "learning/key-changes/c-major-to-c-minor/introduction.musicxml",
-      "bytes": 15385,
-      "hash": "6ee4548e85f0b2a70aac74659d0b4bff7bfe65f936cabfa08ef56917fc76b452",
+      "bytes": 15601,
+      "hash": "716c70286dfa2f049c190541231daf87cc853a3f688003af2706ebfa73285f79",
       "meta": {
         "version": 1,
         "title": "C major to C minor - introduction",
@@ -1885,7 +1885,7 @@
       },
       "facts": {
         "measures": 12,
-        "notes": 50,
+        "notes": 51,
         "durationSeconds": 48,
         "keys": [
           "C major",
@@ -1904,7 +1904,7 @@
         "handIndependenceFraction": 0,
         "chordChangesPerBar": 0.9166666666666666,
         "shortestDivision": 2,
-        "notesPerBeat": 1.0416666666666667,
+        "notesPerBeat": 1.0625,
         "accidentals": 3,
         "hasTies": false,
         "hasTuplets": false,
@@ -1918,7 +1918,7 @@
         "tempoChanges": 0,
         "maxLeapSemitones": 7,
         "longestRunAtShortestValue": 0,
-        "attackCount": 26,
+        "attackCount": 27,
         "peakNotesPerSecond": 1.5,
         "accidentalMarkCount": 2,
         "minorScaleAccidentalCount": 2,
@@ -2110,7 +2110,7 @@
       "section": "learning/key-changes/c-minor-to-c-major",
       "file": "learning/key-changes/c-minor-to-c-major/intermediate.musicxml",
       "bytes": 17915,
-      "hash": "278801ffeec944cb86e5e47c236ccd5501ae5ed25ee08a4af37c79a115b7996f",
+      "hash": "c0ee98165f06afc1443f254d7458d5bf616126b853e05cecacd52a12da33bdb0",
       "meta": {
         "version": 1,
         "title": "C minor to C major - intermediate",
@@ -2352,7 +2352,7 @@
       "section": "learning/key-changes/d-major-to-b-minor",
       "file": "learning/key-changes/d-major-to-b-minor/intermediate.musicxml",
       "bytes": 17843,
-      "hash": "7d69ccf3daf237989ac117e2ae216d2ebc87dc30b1ec8fd9fb402ed3ca6a2d66",
+      "hash": "b0c5a17a658c2349c9091d69f89c38b70a305e733cfc06c22ea4233eba8c5002",
       "meta": {
         "version": 1,
         "title": "D major to B minor - intermediate",
@@ -2593,7 +2593,7 @@
       "section": "learning/key-changes/d-major-to-d-minor",
       "file": "learning/key-changes/d-major-to-d-minor/intermediate.musicxml",
       "bytes": 17991,
-      "hash": "5a2670264c698217b9fecde6208e5ea1ce9961248036aeedcaba43814e2e154a",
+      "hash": "af1f8ad5609e74d02f810500b252c7e1895e5a6207f5416f60026aeb83238828",
       "meta": {
         "version": 1,
         "title": "D major to D minor - intermediate",
@@ -2673,8 +2673,8 @@
       "id": "learning/key-changes/d-major-to-d-minor/introduction",
       "section": "learning/key-changes/d-major-to-d-minor",
       "file": "learning/key-changes/d-major-to-d-minor/introduction.musicxml",
-      "bytes": 15375,
-      "hash": "a3103818f26e8351a2eae6bdebe21ac57dab20e12c2b8d7758bc09288d853956",
+      "bytes": 15574,
+      "hash": "ae2bd16245a6cdbbe2de32920fdaa675009509c743c1bc20b4905fa8936b5534",
       "meta": {
         "version": 1,
         "title": "D major to D minor - introduction",
@@ -2699,7 +2699,7 @@
       },
       "facts": {
         "measures": 12,
-        "notes": 50,
+        "notes": 51,
         "durationSeconds": 48,
         "keys": [
           "D major",
@@ -2718,7 +2718,7 @@
         "handIndependenceFraction": 0,
         "chordChangesPerBar": 0.9166666666666666,
         "shortestDivision": 2,
-        "notesPerBeat": 1.0416666666666667,
+        "notesPerBeat": 1.0625,
         "accidentals": 2,
         "hasTies": false,
         "hasTuplets": false,
@@ -2732,7 +2732,7 @@
         "tempoChanges": 0,
         "maxLeapSemitones": 7,
         "longestRunAtShortestValue": 0,
-        "attackCount": 26,
+        "attackCount": 27,
         "peakNotesPerSecond": 1.5,
         "accidentalMarkCount": 2,
         "minorScaleAccidentalCount": 2,
@@ -2836,7 +2836,7 @@
       "section": "learning/key-changes/d-minor-to-d-major",
       "file": "learning/key-changes/d-minor-to-d-major/intermediate.musicxml",
       "bytes": 18018,
-      "hash": "8a3e45bb518d7dbd6dc6c60b08848fcb81f88d1a33a801390ad5b334fb9994f3",
+      "hash": "7112016b8660ef9e71f0c0c071826ea328429bb3c596837c2c5cbd53cb77be02",
       "meta": {
         "version": 1,
         "title": "D minor to D major - intermediate",
@@ -3078,7 +3078,7 @@
       "section": "learning/key-changes/d-minor-to-f-major",
       "file": "learning/key-changes/d-minor-to-f-major/intermediate.musicxml",
       "bytes": 17995,
-      "hash": "6978e66d5a41082d20478c4e7e005fe50b6ceb1d1a85298e923a907672024380",
+      "hash": "911a427d76ed1b00731f49e51f8104b1552079b2fd24b3ddec83add161ddc6bb",
       "meta": {
         "version": 1,
         "title": "D minor to F major - intermediate",
@@ -3318,7 +3318,7 @@
       "section": "learning/key-changes/e-minor-to-g-major",
       "file": "learning/key-changes/e-minor-to-g-major/intermediate.musicxml",
       "bytes": 17921,
-      "hash": "100414d9bc68860aab4865402c705c302122e9f46cd3980cfd1e0fb370e8b69b",
+      "hash": "d3abf65eed9d9f40db32e7ef3b041211a1f52bbb351656fc934b6d60480e9741",
       "meta": {
         "version": 1,
         "title": "E minor to G major - intermediate",
@@ -3558,7 +3558,7 @@
       "section": "learning/key-changes/f-major-to-d-minor",
       "file": "learning/key-changes/f-major-to-d-minor/intermediate.musicxml",
       "bytes": 17468,
-      "hash": "63fdb39a0af6074553de9c32f03fce6aadbac1f09a02a84a819070f434499723",
+      "hash": "e0761d5faf3f78badd9b11cb76bf4df6d2081dde65fa9ceea83248ad5facd2ad",
       "meta": {
         "version": 1,
         "title": "F major to D minor - intermediate",
@@ -3799,7 +3799,7 @@
       "section": "learning/key-changes/f-major-to-f-minor",
       "file": "learning/key-changes/f-major-to-f-minor/intermediate.musicxml",
       "bytes": 18086,
-      "hash": "9295a01b1a5e93b72bc2fd8f89a76bfade3824aaef5957835a91be9b243802ec",
+      "hash": "20240be4b8d01a638ab72e16a6eadeaada78e6a774de5489d1e7258ea983c1b6",
       "meta": {
         "version": 1,
         "title": "F major to F minor - intermediate",
@@ -3879,8 +3879,8 @@
       "id": "learning/key-changes/f-major-to-f-minor/introduction",
       "section": "learning/key-changes/f-major-to-f-minor",
       "file": "learning/key-changes/f-major-to-f-minor/introduction.musicxml",
-      "bytes": 15437,
-      "hash": "9252831b64e8b155064ec9e385c00cde5de7385c556b7feb02f0dc691fcade38",
+      "bytes": 15653,
+      "hash": "b7913605af4a50618094cbff4c089b2a81c255d3fef56c28a122b30198a5865a",
       "meta": {
         "version": 1,
         "title": "F major to F minor - introduction",
@@ -3905,7 +3905,7 @@
       },
       "facts": {
         "measures": 12,
-        "notes": 50,
+        "notes": 51,
         "durationSeconds": 48,
         "keys": [
           "F major",
@@ -3924,7 +3924,7 @@
         "handIndependenceFraction": 0,
         "chordChangesPerBar": 0.9166666666666666,
         "shortestDivision": 2,
-        "notesPerBeat": 1.0416666666666667,
+        "notesPerBeat": 1.0625,
         "accidentals": 4,
         "hasTies": false,
         "hasTuplets": false,
@@ -3938,7 +3938,7 @@
         "tempoChanges": 0,
         "maxLeapSemitones": 7,
         "longestRunAtShortestValue": 0,
-        "attackCount": 26,
+        "attackCount": 27,
         "peakNotesPerSecond": 1.5,
         "accidentalMarkCount": 2,
         "minorScaleAccidentalCount": 2,
@@ -4042,7 +4042,7 @@
       "section": "learning/key-changes/f-minor-to-f-major",
       "file": "learning/key-changes/f-minor-to-f-major/intermediate.musicxml",
       "bytes": 17843,
-      "hash": "28f7129fe0f4779680af88ce42e700c8a925a3ea62e4943726d6efae48e10929",
+      "hash": "2c59bb9d24626656029508682a8b0a2570383be89fccfe057faf62da0a8e6396",
       "meta": {
         "version": 1,
         "title": "F minor to F major - intermediate",
@@ -4284,7 +4284,7 @@
       "section": "learning/key-changes/g-major-to-e-minor",
       "file": "learning/key-changes/g-major-to-e-minor/intermediate.musicxml",
       "bytes": 17175,
-      "hash": "bf7f7668949839e5e2e611a50c3a475f049200c87b6b5d16c2745f135b7a0fa7",
+      "hash": "9e6056bee77c2b14f713e5e3b063879fbfef1e18f008b9178c249b441b97771c",
       "meta": {
         "version": 1,
         "title": "G major to E minor - intermediate",
@@ -4525,7 +4525,7 @@
       "section": "learning/key-changes/g-major-to-g-minor",
       "file": "learning/key-changes/g-major-to-g-minor/intermediate.musicxml",
       "bytes": 17806,
-      "hash": "fc536d157c7a971e2729b17d773d8cadbe2dc2fdd2101722e45a2ebffcf6fe89",
+      "hash": "ff3f2194c937f2c5ea9738526d3397660b4fb30f8af0944fc149b7850bbbcf1f",
       "meta": {
         "version": 1,
         "title": "G major to G minor - intermediate",
@@ -4605,8 +4605,8 @@
       "id": "learning/key-changes/g-major-to-g-minor/introduction",
       "section": "learning/key-changes/g-major-to-g-minor",
       "file": "learning/key-changes/g-major-to-g-minor/introduction.musicxml",
-      "bytes": 15048,
-      "hash": "b2a51ab0a917f4a0297b18d7cc01812c09efc82490904b4baf0526ea0a373e3c",
+      "bytes": 15264,
+      "hash": "0a78f15257843efc259d927fd43c5a5a4d558da0708c9fe0b9664b4ed2d6a064",
       "meta": {
         "version": 1,
         "title": "G major to G minor - introduction",
@@ -4631,7 +4631,7 @@
       },
       "facts": {
         "measures": 12,
-        "notes": 48,
+        "notes": 49,
         "durationSeconds": 48,
         "keys": [
           "G major",
@@ -4649,8 +4649,8 @@
         "voicesPerStaff": 1,
         "handIndependenceFraction": 0,
         "chordChangesPerBar": 0.9166666666666666,
-        "shortestDivision": 1,
-        "notesPerBeat": 1,
+        "shortestDivision": 2,
+        "notesPerBeat": 1.0208333333333333,
         "accidentals": 2,
         "hasTies": false,
         "hasTuplets": false,
@@ -4664,8 +4664,8 @@
         "tempoChanges": 0,
         "maxLeapSemitones": 7,
         "longestRunAtShortestValue": 0,
-        "attackCount": 24,
-        "peakNotesPerSecond": 1,
+        "attackCount": 25,
+        "peakNotesPerSecond": 1.5,
         "accidentalMarkCount": 2,
         "minorScaleAccidentalCount": 2,
         "maxTieChainNotes": 0,
@@ -4768,7 +4768,7 @@
       "section": "learning/key-changes/g-minor-to-g-major",
       "file": "learning/key-changes/g-minor-to-g-major/intermediate.musicxml",
       "bytes": 18084,
-      "hash": "854ba817ad80f44158cf5c3635aae703853f8a54d8d5c8a05a9a4829a7f1c343",
+      "hash": "126166f4e7020292d82b6c129a18001ca519409fc08ba06a31d7f5181ad30146",
       "meta": {
         "version": 1,
         "title": "G minor to G major - intermediate",
@@ -4849,7 +4849,7 @@
       "section": "learning/key-changes/g-minor-to-g-major",
       "file": "learning/key-changes/g-minor-to-g-major/introduction.musicxml",
       "bytes": 15561,
-      "hash": "fc3b8a2470d8323fc32344b78214f7adafea860563a30303c0849790135d67e5",
+      "hash": "1d60f52a7b12b13b0e7bc8e92c3e6e02ecc143deccc88abed87dc495e66f1de0",
       "meta": {
         "version": 1,
         "title": "G minor to G major - introduction",

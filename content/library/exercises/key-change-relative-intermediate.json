@@ -130,19 +130,23 @@
               "notes": [
                 {
                   "step": 1,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 1
                 },
                 {
                   "step": 2,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 5,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 4
                 }
               ]
             },
@@ -151,19 +155,23 @@
               "notes": [
                 {
                   "step": 5,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 5
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 4
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 1,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 1
                 }
               ]
             },
@@ -172,19 +180,23 @@
               "notes": [
                 {
                   "step": 1,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 1
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 5
                 },
                 {
                   "step": 3,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 3
                 }
               ]
             }
@@ -195,19 +207,23 @@
               "notes": [
                 {
                   "step": 5,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 5
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 4
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 5,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 5
                 }
               ]
             },
@@ -216,19 +232,23 @@
               "notes": [
                 {
                   "step": 5,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 5
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 4
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 1,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 1
                 }
               ]
             },
@@ -237,19 +257,23 @@
               "notes": [
                 {
                   "step": 3,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 2,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 1,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 1
                 },
                 {
                   "step": 5,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 5
                 }
               ]
             }
@@ -280,139 +304,173 @@
               "notes": [
                 {
                   "step": 1,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 1
                 },
                 {
                   "step": 2,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 1
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 1
                 },
                 {
                   "step": 3,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 4,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 1
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 6,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 4,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 1
                 },
                 {
                   "step": 5,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 2
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 1
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 2,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 2
                 },
                 {
                   "step": 3,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 1
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 6,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 3
                 },
                 {
                   "step": 8,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 5
                 },
                 {
                   "step": 7,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 4
                 },
                 {
                   "step": 6,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 4,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 1
                 },
                 {
                   "step": 5,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 2
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 1
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 7,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 3
                 },
                 {
                   "step": 8,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 4
                 },
                 {
                   "step": 7,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 6,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 5,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 1
                 },
                 {
                   "step": 3,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 2,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 2
                 },
                 {
                   "step": 1,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 1
                 }
               ]
             },
@@ -421,131 +479,163 @@
               "notes": [
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 1
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 2,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 1,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 1
                 },
                 {
                   "step": 2,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 3,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 1,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 1
                 },
                 {
                   "step": 2,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 4,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 1
                 },
                 {
                   "step": 5,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 2
                 },
                 {
                   "step": 7,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 4
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 2,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 1
                 },
                 {
                   "step": 3,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 2
                 },
                 {
                   "step": 1,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 1
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 6,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 5
                 },
                 {
                   "step": 6,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 5
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 4
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 4,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 3
                 },
                 {
                   "step": 2,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 1
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 5,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 4
                 },
                 {
                   "step": 5,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 4
                 },
                 {
                   "step": 6,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 5
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 4
                 },
                 {
                   "step": 3,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 2
                 },
                 {
                   "step": 1,
-                  "value": "whole"
+                  "value": "whole",
+                  "finger": 1
                 }
               ]
             },
@@ -554,139 +644,173 @@
               "notes": [
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 2,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 1,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 1
                 },
                 {
                   "step": 2,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 4
                 },
                 {
                   "step": 5,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 1
                 },
                 {
                   "step": 4,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 2
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 6,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 4
                 },
                 {
                   "step": 8,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 5
                 },
                 {
                   "step": 7,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 4
                 },
                 {
                   "step": 6,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 2,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 1
                 },
                 {
                   "step": 3,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 2
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 4
                 },
                 {
                   "step": 6,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 5
                 },
                 {
                   "step": 6,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 5
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 4
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 4,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 3
                 },
                 {
                   "step": 5,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 4
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 2,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 1
                 },
                 {
                   "step": 3,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 2
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 4
                 },
                 {
                   "step": 8,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 5
                 },
                 {
                   "step": 5,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 5
                 },
                 {
                   "step": 3,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 1,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 1
                 }
               ]
             }
@@ -697,136 +821,168 @@
               "notes": [
                 {
                   "step": 1,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 1
                 },
                 {
                   "step": 0,
                   "value": "eighth",
-                  "alter": 1
+                  "alter": 1,
+                  "finger": 4
                 },
                 {
                   "step": 1,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 1
                 },
                 {
                   "step": 2,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 5,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 5
                 },
                 {
                   "step": 4,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 4
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 2,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 1,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 1
                 },
                 {
                   "step": 0,
                   "value": "quarter",
-                  "alter": 1
+                  "alter": 1,
+                  "finger": 3
                 },
                 {
                   "step": 1,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 1
                 },
                 {
                   "step": 2,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 5,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 4
                 },
                 {
                   "step": 6,
                   "value": "quarter",
-                  "alter": 0
+                  "alter": 0,
+                  "finger": 5
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 4
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 3,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 2
                 },
                 {
                   "step": 4,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 6,
                   "value": "quarter",
-                  "alter": 0
+                  "alter": 0,
+                  "finger": 5
                 },
                 {
                   "step": 4,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 2
                 },
                 {
                   "step": 5,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 1
                 },
                 {
                   "step": 2,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 0,
                   "value": "quarter",
-                  "alter": 1
+                  "alter": 1,
+                  "finger": 1
                 },
                 {
                   "step": 1,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 2
                 },
                 {
                   "step": 3,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 4
                 },
                 {
                   "step": 2,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 1,
-                  "value": "whole"
+                  "value": "whole",
+                  "finger": 2
                 }
               ]
             },
@@ -835,133 +991,164 @@
               "notes": [
                 {
                   "step": 1,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 1
                 },
                 {
                   "step": 0,
                   "value": "eighth",
-                  "alter": 1
+                  "alter": 1,
+                  "finger": 4
                 },
                 {
                   "step": 1,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 1
                 },
                 {
                   "step": 3,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 2
                 },
                 {
                   "step": 5,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 4,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 2
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 6,
                   "value": "eighth",
-                  "alter": 0
+                  "alter": 0,
+                  "finger": 4
                 },
                 {
                   "step": 4,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 2
                 },
                 {
                   "step": 5,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 7,
                   "value": "eighth",
-                  "alter": 1
+                  "alter": 1,
+                  "finger": 5
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 2,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 1
                 },
                 {
                   "step": 3,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 2
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 4
                 },
                 {
                   "step": 6,
                   "value": "half",
-                  "alter": 0
+                  "alter": 0,
+                  "finger": 5
                 },
                 {
                   "step": 6,
                   "value": "quarter",
-                  "alter": 0
+                  "alter": 0,
+                  "finger": 5
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 4
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 4,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 3
                 },
                 {
                   "step": 5,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 4
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 2,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 1
                 },
                 {
                   "step": 3,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 2
                 },
                 {
                   "step": 2,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 1
                 },
                 {
                   "step": 1,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 0,
                   "value": "quarter",
-                  "alter": 1
+                  "alter": 1,
+                  "finger": 2
                 },
                 {
                   "step": 1,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 1,
-                  "value": "whole"
+                  "value": "whole",
+                  "finger": 1
                 }
               ]
             },
@@ -970,129 +1157,159 @@
               "notes": [
                 {
                   "step": 3,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 2,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 1,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 1
                 },
                 {
                   "step": 0,
                   "value": "quarter",
-                  "alter": 1
+                  "alter": 1,
+                  "finger": 4
                 },
                 {
                   "step": 1,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 1
                 },
                 {
                   "step": 4,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 6,
                   "value": "eighth",
-                  "alter": 0
+                  "alter": 0,
+                  "finger": 5
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 1,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 1
                 },
                 {
                   "step": 0,
                   "value": "quarter",
-                  "alter": 1
+                  "alter": 1,
+                  "finger": 2
                 },
                 {
                   "step": 2,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 5
                 },
                 {
                   "step": 5,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 4
                 },
                 {
                   "step": 6,
                   "value": "quarter",
-                  "alter": 0
+                  "alter": 0,
+                  "finger": 5
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 4
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 3,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 2
                 },
                 {
                   "step": 4,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 3
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 2
                 },
                 {
                   "step": 4,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 6,
                   "value": "half",
-                  "alter": 0
+                  "alter": 0,
+                  "finger": 5
                 },
                 {
                   "step": 5,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 4
                 },
                 {
                   "step": 6,
                   "value": "eighth",
-                  "alter": 0
+                  "alter": 0,
+                  "finger": 5
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 4
                 },
                 {
                   "step": 2,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 2
                 },
                 {
                   "step": 1,
-                  "value": "quarter"
+                  "value": "quarter",
+                  "finger": 1
                 },
                 {
                   "step": 3,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 3
                 },
                 {
                   "step": 5,
-                  "value": "eighth"
+                  "value": "eighth",
+                  "finger": 5
                 },
                 {
                   "step": 3,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 3
                 },
                 {
                   "step": 1,
-                  "value": "whole"
+                  "value": "whole",
+                  "finger": 1
                 }
               ]
             }

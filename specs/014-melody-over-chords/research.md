@@ -139,6 +139,19 @@ position, so a phrase must now finger every note consistently (a `finger` overri
 unwritten position for the notes after it). **Alternatives**: exempting melody items from the coverage rule (changes
 feature 005's requirement - an owner decision, and it would make these the only exercises with unfingered notes).
 
+**Amendment (T066, 2026-09-28)**: the check reads a **leap** that moves the hand by direction, not only by span. At a
+chord start after at least a quarter (`SHIFT_MIN_QUARTERS`) the hand may lift to a new position with any fingers (a
+shift). Anywhere else: going up, a lower finger is only the thumb passing under; coming down, a higher finger only
+passes over the thumb; such a crossing spans at most a third (`CROSSING_LEAP_MAX_STEPS`) and the thumb is on a white
+key; the same finger never moves to a new pitch; thumb to finger 2 spans at most a fourth
+(`THUMB_TO_SECOND_MAX_STEPS`). A step keeps its rule (thumb-under / finger-over only, no chord-start exemption).
+**Why**: the T032 music review found backward and same-finger leaps in all 18 intermediate items (e.g. E3 G2, B2 G♯4,
+G2 D2 after an eighth) that the old rule passed, since a leap at intermediate counted as an unlimited shift.
+**Fingers in the definitions, not the generator**: the scale-table default stays; each intermediate phrase writes a
+finger on every note (`MelodyNote.finger`, contract 1.3.1), checked by the rule above. Making the generator keep
+leaps inside a five-finger frame would break the table's thumb-under points for the stepwise runs that follow, and
+choosing positions automatically is the fingering optimiser rejected above.
+
 ## R7 - Difficulty: ladder, existing criteria and step order
 
 **Decision**: The spec's Difficulty ladder becomes a named constants table (`MELODY_LADDER` in

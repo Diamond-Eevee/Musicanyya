@@ -106,6 +106,12 @@ const PERFECT_FIFTH = 7;
 const THUMB = 1;
 const CROSSING_FINGERS: ReadonlySet<number> = new Set([2, 3, 4]);
 const FINGERS = 5;
+/** Widest leap a thumb crossing may span: a third, in diatonic steps (T066, research R6 amendment). */
+const CROSSING_LEAP_MAX_STEPS = 2;
+/** Widest span from the thumb to finger 2 on a leap: a fourth, in diatonic steps (T066). */
+const THUMB_TO_SECOND_MAX_STEPS = 3;
+/** The shortest note after which the hand may lift to a new position at a chord start (T066), in quarters. */
+const SHIFT_MIN_QUARTERS = 1;
 /** Bars within which a key change must be heard (FR-007, research R8). */
 const KEY_CHANGE_AUDIBLE_BARS = 2;
 /** A pitch held or repeated for more than this many bars is static (FR-008). */
@@ -643,6 +649,7 @@ export function checkMelodyRules(input: MelodyCheckInput): MelodyFinding[] {
     input.level,
     ladder,
     segments.map((s) => startOf(s.firstBar)),
+    chordStarts,
     report,
   );
 
@@ -679,6 +686,7 @@ function checkFingering(
   level: Level,
   ladder: MelodyLadderRow,
   segmentStarts: readonly number[],
+  chordStarts: readonly number[],
   report: (rule: MelodyRule, t: number, message: string) => void,
 ): void {
   const first = melody[0];
@@ -721,6 +729,11 @@ function checkFingering(
       }
       shift = crossingIsShift;
     } else {
+      const fault = leapFingeringFault(before, m, previousFinger, step, chordStarts);
+      if (fault) {
+        report('fingering', m.onset, fault);
+        continue;
+      }
       shift = true;
     }
     if (!shift) continue;
@@ -731,6 +744,41 @@ function checkFingering(
     else if (level === 'beginner' && !sectionStart)
       report('shift', m.onset, `${name(m)} moves the hand in the middle of a section`);
   }
+}
+
+/** A leap that moves the hand (T066, research R6 amendment): at a chord start after at least a quarter the hand
+ *  lifts to a new position (a shift, any fingers). Elsewhere it follows the hand: going up, a lower finger is only
+ *  the thumb passing under; coming down, a higher finger only passes over the thumb; a crossing spans at most a
+ *  third, onto or from a white-key thumb; the same finger never moves to a new pitch; and thumb to finger 2 spans at
+ *  most a fourth. Returns the finding's message, or undefined. */
+function leapFingeringFault(
+  before: Note,
+  m: Note,
+  previousFinger: number,
+  step: number,
+  chordStarts: readonly number[],
+): string | undefined {
+  // A repeated note with a new finger moves the hand without a leap (a shift, counted by the caller).
+  if (step === 0) return undefined;
+  // The hand lifts and takes a new position at a chord start after at least a quarter: a shift, any fingers.
+  if (chordStarts.includes(m.onset) && before.end - before.onset >= SHIFT_MIN_QUARTERS) return undefined;
+  const finger = m.finger as number;
+  const span = Math.abs(step);
+  const what = `${name(before)} to ${name(m)} leaps from finger ${previousFinger} to ${finger}`;
+  if (finger === previousFinger) return `${what}: the same finger moves in the middle of the music`;
+  const crossing = step > 0 ? finger < previousFinger : finger > previousFinger;
+  if (crossing) {
+    const thumbNote = step > 0 ? m : before;
+    const thumbCrosses = step > 0 ? finger === THUMB : previousFinger === THUMB;
+    if (!thumbCrosses) return `${what}: the fingers cross without the thumb`;
+    if (span > CROSSING_LEAP_MAX_STEPS) return `${what}: a thumb crossing wider than a third`;
+    if (BLACK_KEYS.has(thumbNote.pc)) return `${what}: the thumb crosses onto the black key ${name(thumbNote)}`;
+    return undefined;
+  }
+  const pair = new Set([previousFinger, finger]);
+  if (pair.has(THUMB) && pair.has(2) && span > THUMB_TO_SECOND_MAX_STEPS)
+    return `${what}: thumb to finger 2 wider than a fourth`;
+  return undefined;
 }
 
 /** The melody's degree sequence, for `checkMelodyVariation`: each note's scale degree in the key in force, with its

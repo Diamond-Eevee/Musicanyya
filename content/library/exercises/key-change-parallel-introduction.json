@@ -350,7 +350,7 @@
                   "value": "whole"
                 },
                 {
-                  "step": 3,
+                  "step": 1,
                   "value": "whole"
                 },
                 {
@@ -495,8 +495,12 @@
                   "value": "whole"
                 },
                 {
-                  "step": 1,
-                  "value": "whole"
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
                 },
                 {
                   "step": 1,
@@ -536,8 +540,12 @@
                   "value": "whole"
                 },
                 {
-                  "step": 1,
-                  "value": "whole"
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
                 },
                 {
                   "step": 1,
@@ -573,8 +581,12 @@
                   "value": "whole"
                 },
                 {
-                  "step": 1,
-                  "value": "whole"
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
                 },
                 {
                   "step": 1,

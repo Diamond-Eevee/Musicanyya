@@ -1192,11 +1192,11 @@
           "soundingKey": 47
         },
         {
-          "id": "n-p0-s1-m10-v1-o0-k69",
+          "id": "n-p0-s1-m10-v1-o0-k72",
           "measureIndex": 10,
           "onsetInMeasure": 0,
-          "durationTicks": 3840,
-          "soundingKey": 69
+          "durationTicks": 1920,
+          "soundingKey": 72
         },
         {
           "id": "n-p0-s2-m10-v5-o0-k45",
@@ -1218,6 +1218,13 @@
           "onsetInMeasure": 0,
           "durationTicks": 3840,
           "soundingKey": 52
+        },
+        {
+          "id": "n-p0-s1-m10-v1-o2-k71",
+          "measureIndex": 10,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 71
         },
         {
           "id": "n-p0-s1-m11-v1-o0-k69",
@@ -1248,7 +1255,7 @@
           "soundingKey": 52
         }
       ],
-      "scheduleDigest": "c3bd3c17242a157ac543e6c6202839003d8f9dde111cf4fb9b4242172c16bccb"
+      "scheduleDigest": "261db2e443def27428e6590157d1b8389744f832b121a77e5ab5002526516b51"
     },
     {
       "file": "learning/key-changes/a-minor-to-a-major/beginner.musicxml",
@@ -3803,11 +3810,11 @@
           "soundingKey": 62
         },
         {
-          "id": "n-p0-s1-m1-v1-o0-k64",
+          "id": "n-p0-s1-m1-v1-o0-k60",
           "measureIndex": 1,
           "onsetInMeasure": 0,
           "durationTicks": 1920,
-          "soundingKey": 64
+          "soundingKey": 60
         },
         {
           "id": "n-p0-s2-m1-v5-o0-k45",
@@ -4160,7 +4167,7 @@
           "soundingKey": 55
         }
       ],
-      "scheduleDigest": "f1eaca6bd1264044bc5fd2b717733bc40544177dcfbc5a3de484a3ff5ddcb98c"
+      "scheduleDigest": "2cc0ce26060f6ff8ea74f260350d156a4a3bc89c87d37818994a6609cce6ee99"
     },
     {
       "file": "learning/key-changes/b-minor-to-d-major/beginner.musicxml",
@@ -5095,11 +5102,11 @@
           "soundingKey": 64
         },
         {
-          "id": "n-p0-s1-m1-v1-o0-k66",
+          "id": "n-p0-s1-m1-v1-o0-k62",
           "measureIndex": 1,
           "onsetInMeasure": 0,
           "durationTicks": 1920,
-          "soundingKey": 66
+          "soundingKey": 62
         },
         {
           "id": "n-p0-s2-m1-v5-o0-k47",
@@ -5452,7 +5459,7 @@
           "soundingKey": 57
         }
       ],
-      "scheduleDigest": "85de5851af983e0e63109b212e23f150392900e96357c4570bf06492828a58bb"
+      "scheduleDigest": "3c9b02dbfa8a54134f66079c9a1c3407e33247a7d084cd57d3e00c056c76876c"
     },
     {
       "file": "learning/key-changes/c-major-to-a-minor/beginner.musicxml",
@@ -7931,11 +7938,11 @@
           "soundingKey": 50
         },
         {
-          "id": "n-p0-s1-m10-v1-o0-k60",
+          "id": "n-p0-s1-m10-v1-o0-k63",
           "measureIndex": 10,
           "onsetInMeasure": 0,
-          "durationTicks": 3840,
-          "soundingKey": 60
+          "durationTicks": 1920,
+          "soundingKey": 63
         },
         {
           "id": "n-p0-s2-m10-v5-o0-k48",
@@ -7957,6 +7964,13 @@
           "onsetInMeasure": 0,
           "durationTicks": 3840,
           "soundingKey": 55
+        },
+        {
+          "id": "n-p0-s1-m10-v1-o2-k62",
+          "measureIndex": 10,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 62
         },
         {
           "id": "n-p0-s1-m11-v1-o0-k60",
@@ -7987,7 +8001,7 @@
           "soundingKey": 55
         }
       ],
-      "scheduleDigest": "168c49e41cb7a528840952995fb28ab65036732d173042883040baad1b8d5ca8"
+      "scheduleDigest": "3dbcd0391d538e86bf75ae518f33a9d8c87f951b13978a70b4887fc2621f415c"
     },
     {
       "file": "learning/key-changes/c-major-to-c-minor/major-and-minor.musicxml",
@@ -12107,11 +12121,11 @@
           "soundingKey": 52
         },
         {
-          "id": "n-p0-s1-m10-v1-o0-k62",
+          "id": "n-p0-s1-m10-v1-o0-k65",
           "measureIndex": 10,
           "onsetInMeasure": 0,
-          "durationTicks": 3840,
-          "soundingKey": 62
+          "durationTicks": 1920,
+          "soundingKey": 65
         },
         {
           "id": "n-p0-s2-m10-v5-o0-k50",
@@ -12133,6 +12147,13 @@
           "onsetInMeasure": 0,
           "durationTicks": 3840,
           "soundingKey": 57
+        },
+        {
+          "id": "n-p0-s1-m10-v1-o2-k64",
+          "measureIndex": 10,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 64
         },
         {
           "id": "n-p0-s1-m11-v1-o0-k62",
@@ -12163,7 +12184,7 @@
           "soundingKey": 57
         }
       ],
-      "scheduleDigest": "e6b3ad7bfbf7a6a947bb33e48cbacd6d05dd798dd7bcff9f67dab6cdd108d250"
+      "scheduleDigest": "5b6a58aced4f8f3f47f3116472a002bf765d5ba3f5fa5bc16a654359222c4d94"
     },
     {
       "file": "learning/key-changes/d-minor-to-d-major/beginner.musicxml",
@@ -18525,11 +18546,11 @@
           "soundingKey": 55
         },
         {
-          "id": "n-p0-s1-m10-v1-o0-k65",
+          "id": "n-p0-s1-m10-v1-o0-k68",
           "measureIndex": 10,
           "onsetInMeasure": 0,
-          "durationTicks": 3840,
-          "soundingKey": 65
+          "durationTicks": 1920,
+          "soundingKey": 68
         },
         {
           "id": "n-p0-s2-m10-v5-o0-k53",
@@ -18551,6 +18572,13 @@
           "onsetInMeasure": 0,
           "durationTicks": 3840,
           "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m10-v1-o2-k67",
+          "measureIndex": 10,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 67
         },
         {
           "id": "n-p0-s1-m11-v1-o0-k65",
@@ -18581,7 +18609,7 @@
           "soundingKey": 60
         }
       ],
-      "scheduleDigest": "1e537775fbe0828618a03972ef3ea90f84b66011594f2de51ecbd2a803ed0583"
+      "scheduleDigest": "35e5a66eb377fa08d91244d36eac9d4aec999a3e5fe2842d8cd3ca5656ec2e88"
     },
     {
       "file": "learning/key-changes/f-minor-to-f-major/beginner.musicxml",
@@ -22275,11 +22303,11 @@
           "soundingKey": 45
         },
         {
-          "id": "n-p0-s1-m10-v1-o0-k67",
+          "id": "n-p0-s1-m10-v1-o0-k70",
           "measureIndex": 10,
           "onsetInMeasure": 0,
-          "durationTicks": 3840,
-          "soundingKey": 67
+          "durationTicks": 1920,
+          "soundingKey": 70
         },
         {
           "id": "n-p0-s2-m10-v5-o0-k43",
@@ -22301,6 +22329,13 @@
           "onsetInMeasure": 0,
           "durationTicks": 3840,
           "soundingKey": 50
+        },
+        {
+          "id": "n-p0-s1-m10-v1-o2-k69",
+          "measureIndex": 10,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 69
         },
         {
           "id": "n-p0-s1-m11-v1-o0-k67",
@@ -22331,7 +22366,7 @@
           "soundingKey": 50
         }
       ],
-      "scheduleDigest": "929a4a5dab94c8a828a051ed6859730341cc6496637d0a04b0963ab225bba996"
+      "scheduleDigest": "8d30af2c7ab8002662c92a16e16a358944ec834212a17e544728546eb5281114"
     },
     {
       "file": "learning/key-changes/g-minor-to-g-major/beginner.musicxml",
@@ -23469,11 +23504,11 @@
           "soundingKey": 45
         },
         {
-          "id": "n-p0-s1-m8-v1-o0-k71",
+          "id": "n-p0-s1-m8-v1-o0-k67",
           "measureIndex": 8,
           "onsetInMeasure": 0,
           "durationTicks": 3840,
-          "soundingKey": 71
+          "soundingKey": 67
         },
         {
           "id": "n-p0-s2-m8-v5-o0-k43",
@@ -23588,7 +23623,7 @@
           "soundingKey": 50
         }
       ],
-      "scheduleDigest": "8ea42e2589a451b71967f20ea26f64ad674e45faa31e45becc98e19d6442bb69"
+      "scheduleDigest": "996aafa480906dd4bd90e111582d91afdeec729c5a13cbd44d687e52cba6c88c"
     },
     {
       "file": "learning/keys/a-flat-major/advanced.musicxml",

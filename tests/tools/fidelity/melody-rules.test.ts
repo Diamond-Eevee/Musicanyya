@@ -410,6 +410,76 @@ describe('checkMelodyRules: one planted fault per rule', () => {
     expect(check(bars, 'intermediate', INTERMEDIATE_KEYS)).toEqual([{ rule: 'fingering', bar: 8, beat: 1 }]);
   });
 
+  // Leaps (T066, research R6 amendment): at a chord start after at least a quarter the hand may lift to a new
+  // position (a shift, any fingers); elsewhere a position change on a leap must follow the hand. Only the thumb
+  // passes under (going up) or the fingers over it (coming down), across at most a third; the same finger never
+  // moves to a new pitch; thumb to finger 2 spans at most a fourth.
+  it('fingering: a leap up from finger 3 to finger 2 (E to G, 2 passing under 3)', () => {
+    const bars = withBar(
+      intermediate(),
+      1,
+      bar(C_I, [n('C4', 'half', 1), n('D4', 'eighth'), n('E4', 'eighth'), n('G4', 'quarter', 2)], { key: SIG_C }),
+    );
+    expect(check(bars, 'intermediate', INTERMEDIATE_KEYS)).toEqual([{ rule: 'fingering', bar: 1, beat: 4 }]);
+  });
+
+  it('fingering: a leap down from finger 3 to finger 4 in the middle of a bar (E to C, 4 passing over 3)', () => {
+    const bars: FixtureBar[] = [
+      bar(C_I, [n('C4', 'half', 1), n('E4', 'quarter'), n('C4', 'quarter', 4)], { key: SIG_C }),
+      bar(C_V, [n('D4', 'whole')]),
+      bar(C_I, [n('C4', 'whole')], { barline: 'light-heavy' }),
+    ];
+    expect(check(bars, 'intermediate', C_KEYS)).toEqual([{ rule: 'fingering', bar: 1, beat: 4 }]);
+  });
+
+  it('fingering: the same finger jumps a fourth in the middle of a bar (G to D, finger 2)', () => {
+    const bars = withBar(intermediate(), 3, bar(C_V, [n('G4', 'quarter'), n('D4', 'quarter', 2), n('D4', 'half')]));
+    expect(check(bars, 'intermediate', INTERMEDIATE_KEYS)).toEqual([{ rule: 'fingering', bar: 3, beat: 2 }]);
+  });
+
+  it('fingering: thumb to finger 2 across a fifth (C to G)', () => {
+    const bars = withBar(
+      intermediate(),
+      4,
+      bar(C_I, [n('C4', 'half'), n('G4', 'half', 2)], { barline: 'light-light' }),
+    );
+    expect(check(bars, 'intermediate', INTERMEDIATE_KEYS)).toEqual([{ rule: 'fingering', bar: 4, beat: 3 }]);
+  });
+
+  it('fingering: finger 2 over the thumb across a fourth (F to C)', () => {
+    let bars = withBar(intermediate(), 2, bar(C_IV, [n('A4', 'half'), n('F4', 'quarter'), n('C4', 'quarter', 2)]));
+    bars = withBar(
+      bars,
+      3,
+      bar(C_V, [n('G4', 'quarter', 5), n('F4', 'eighth'), n('E4', 'eighth', 3), n('D4', 'half')]),
+    );
+    expect(check(bars, 'intermediate', INTERMEDIATE_KEYS)).toEqual([{ rule: 'fingering', bar: 2, beat: 4 }]);
+  });
+
+  it('fingering: the same finger moving to a new pitch at a chord start after a half note is a shift', () => {
+    const bars = withBar(
+      intermediate(),
+      5,
+      bar(A_I, [n('A4', 'quarter', 3), n('G#4', 'quarter'), n('A4', 'quarter'), n('E4', 'quarter', 1)], {
+        key: SIG_A_MINOR,
+        wordsAbove: 'A minor',
+      }),
+    );
+    expect(check(bars, 'intermediate', INTERMEDIATE_KEYS)).toEqual([]);
+  });
+
+  it('fingering: a new position at a chord start after a half note is a shift, whatever the fingers (3 then 2)', () => {
+    const bars = withBar(
+      intermediate(),
+      5,
+      bar(A_I, [n('A4', 'quarter', 2), n('G#4', 'quarter'), n('A4', 'quarter'), n('E4', 'quarter', 1)], {
+        key: SIG_A_MINOR,
+        wordsAbove: 'A minor',
+      }),
+    );
+    expect(check(bars, 'intermediate', INTERMEDIATE_KEYS)).toEqual([]);
+  });
+
   it('ending: the melody ends on the third, not the tonic', () => {
     const bars = withBar(
       beginner(),
