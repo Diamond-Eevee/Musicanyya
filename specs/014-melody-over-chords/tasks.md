@@ -404,6 +404,11 @@ pass; the owner finds it fun to play (T057).
   log
 - [x] T089 Update `quickstart.md` US1/US2 expectations, then manual verification (`pnpm screenshot --item ...` for
   c-major-to-a-minor/introduction, the three g-major-to-e-minor items, c-major-to-c-minor/beginner; open every PNG)
+- [ ] T092 [light] (owner request, as T074) On a local machine with all four Playwright projects: `pnpm lint`,
+  `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` on the head of the branch after T091; record each exit code and summary
+  line in `implementation-log.md`, rerun every failure alone and record that too. Known, not caused by 014: 013's
+  `query-timing.test.ts` (013 T111) and firefox `score-browser.spec.ts:343` (013 T112). Change no code and no test;
+  report only (T090 is decided by the continuing session)
 - [~] T090 Checkpoint: full gate (`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; firefox/webkit by a local
   agent as in T074 if the container cannot run them), log entry, commit; then T057 again (claimed: claude-opus-5.5 2026-09-28)
 
