@@ -1,5 +1,6 @@
 import { folderProgress, MY_FILES_FOLDER_KEY } from '../../core/browser/folders.js';
 import { buildBrowserItems } from '../../core/browser/items.js';
+import { effectiveFolder } from '../../core/browser/query.js';
 import type { FolderSel } from '../../core/browser/types.js';
 import { buildSectionTree, type SectionNode } from '../../core/library/tree.js';
 import { DEFAULT_MASTERY_THRESHOLDS } from '../../core/progress/types.js';
@@ -122,7 +123,7 @@ export class MxBrowserRail extends HTMLElement {
   }
 
   private render(): void {
-    const selectedKey = folderKey(browserState.get().view.folder);
+    const selectedKey = folderKey(effectiveFolder(browserState.get().view));
     const entries = this.entries();
     const stop = this.tabStop(entries);
     // Replacing the items would drop focus to the page; the musician keeps their place in the tree.

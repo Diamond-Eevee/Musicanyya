@@ -986,3 +986,59 @@
 - Handoff: next = owner runs SC-008 and gives the numbers (T090); then one more full `pnpm test:e2e` for T093 (expect
   only R7's known flakes; re-run those alone and log them), then the constitution audit and a merge only when asked. Tree
   clean at this entry's commit. Not merged, not pushed.
+
+## 2026-09-28 (2) - claude-sonnet-5 (continue: T090 manual verification, T110 bug fix, T093 docs and final gate)
+- Owner answer (asked once at session start): SC-008 (the 5-person timed check) is the owner's own run; they will do
+  it themselves and give the results to log. T090 stays `[~]` until then; everything else in it is done below.
+- Done T090's screenshot/manual-verification part (every US1-US5 quickstart step): US1 #1 `pnpm screenshot --browser`
+  (`013-t090-us1-browser.png`) matches the described layout; #4 `--width 900/600 --height 700/800`
+  (`013-t090-us1-900/600.png`) show the folder picker and breadcrumb, nothing cut off; #2, #3, #5 (double-click open,
+  reopen/reload keeping the same C major/Introduction selection, search, Escape-over-Listen pause/resume) verified
+  live in `pnpm dev` through the Browser pane - found T110 below. US2 #1/#3 `--item ... --run --grade --play 40`
+  twice (`013-t090-us2-grade1/2.png`): "New best" with a star, matching FR-016; #2 `--seed-progress
+  mixed-statuses.json --greyscale --filter "key=C major"` (`013-t090-us2-greyscale.png`): New/Practised/Played/
+  Mastered read apart by shape and text alone (circle outline / half circle / filled circle / star); #4 (reload
+  keeps the figures) verified live via the `e2e-progress-seed` seam + an actual page reload (not the screenshot
+  tool - each of its invocations is a fresh, non-persistent `chromium.launch()`, so three separate CLI calls can
+  never show accumulated progress; this is a real limit of the tool, not the app - noted for whoever next touches
+  `tools/dev/screenshot.ts`'s doc comment). US3 #1-5 (open from disk via a real `File`/`DataTransfer` `drop` on the
+  dialog, reload + one-click reopen from *My files*, no duplicate on a second open, Remove "keep progress" + Undo,
+  an invalid file dropped gives a named message and leaves *My files* unchanged) all verified live. US4 #1
+  `--seed-progress c-major-intro-mastered.json` (`013-t090-us4-continue.png`): Continue shows it first, "Suggested
+  next: C major - beginner"; #2 is US1 #1's own picture (fresh profile). US5 #1 `--seed-progress played-ladder.json
+  --filter status=playedNotMastered --sort best:asc` (`013-t090-us5-filter-sort.png`): three rows, 60/72/85 %
+  exactly as quickstart says; #2 `--filter status=mastered` on a fresh profile (`013-t090-us5-no-match.png`): "No
+  items match these filters."; #3 (keyboard-only: Open button -> Enter -> search focused -> type -> reach the list
+  -> ArrowDown -> Enter opens the second row -> focus back on Open) verified live, matching
+  `tests/e2e/score-browser.spec.ts`'s own version of this flow. Screenshots are in `test-results/screenshots/`
+  (git-ignored, T034's naming convention).
+- Done T110 (found live in US1 #3): typing a search left the rail showing the *previously selected* folder instead
+  of *All* - spec.md's own acceptance scenario 4 for US1 ("the folder selection is shown as All") was not met, even
+  though the query itself was already correct (`effectiveFolder()` in `src/core/browser/query.ts` already treats a
+  non-empty search as folder `all`). The bug: `mx-browser-rail.ts`'s `render()` read `browserState.get().view.folder`
+  directly for the `aria-selected` key instead of going through `effectiveFolder`. Test first: a new case in
+  `tests/ui/score-browser/rail-list-detail.test.ts` ("with a search active, All is shown selected..."), confirmed
+  red on the old code (`git stash` the fix, run the test alone, `AssertionError: expected 'false' to be 'true'`),
+  green after `mx-browser-rail.ts` uses `effectiveFolder(browserState.get().view)`. The roving tab stop
+  (`tabStop()`) still reads the raw stored folder on purpose, so Tab order returns to it once the search clears.
+  Verified live too: reloading `pnpm dev` with a stale "elise" search showed the rail's `aria-selected` move to
+  *All*.
+- Done T093's docs review: `README.md`, `docs/agents/reference.md` (screenshot flags, "Feature 013 (implemented)"
+  in Active Technologies) and `specs/001-score-viewer-listen/contracts/storage.md` (schema v3, the four new stores,
+  `musicanyya.browser.v1`) were already accurate from earlier sessions - no changes needed. One small fix: R7's
+  "known flaky" line still named `library.spec.ts:175` for the second Electron flake; every test in that file now
+  skips under the `electron` project except "electron: identical behaviour under the app:// origin", which has
+  drifted to line 340 (a comment added for T032 pushed the line numbers down) - corrected to `library.spec.ts:340`.
+- Done T093's final gate: `pnpm lint` 0 errors, 299 warnings; `pnpm typecheck` exit 0; `pnpm test` 4993 passed (one
+  run had `query-timing.test.ts`'s 20 ms budget miss by 0.58 ms under load, green alone - the same R7 load flake as
+  last session, not a regression). `pnpm test:e2e` (full, rebuilt `dist`): **1 failed**, 570 skipped, 961 passed
+  (10.7 min) - firefox `score-browser.spec.ts:343` ("a .musicxml file with invalid content dropped..."), already in
+  R7; re-run alone 6/6 passed. The two known-flaky Electron specs re-run alone as T093 asks: `electron-playback.spec.ts`
+  3/3 passed; `library.spec.ts --project=electron` 1/1 passed (every other test in the file skips itself under that
+  project by design). No WebKit failure this run (T107/T108 hold). The gate is green.
+- Problems / open: none new. `us2-panels.spec.ts:121` and firefox `library.spec.ts:370`/`pressed-keys.spec.ts:483`
+  (R7's other known flakes) did not appear in this run, nothing to re-confirm for them this time.
+- Handoff: next = the owner runs SC-008 (quickstart.md "SC-008", 5 people, target 4/5 under 30 s) and gives the
+  per-person results to log under T090 - only then can T090 be ticked. After that: `speckit.implement`'s Polish
+  checkpoint gate (`constitution-auditor` on the full branch diff, T091 was already done and clean), and a merge
+  only when the owner asks. Tree clean at this entry's commit once committed. Not merged, not pushed.

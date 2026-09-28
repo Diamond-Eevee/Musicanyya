@@ -100,6 +100,22 @@ describe('mx-browser-rail (US1 #2, contracts/score-browser.md §1)', () => {
       expect(browserState.get().view.folder).toEqual({ kind: 'section', id: 'repertoire/beginner' });
     });
   });
+
+  it('with a search active, All is shown selected even though the stored folder is something else (US1 #4, spec.md scenario 4)', () => {
+    loadIndex([libraryItem('repertoire/beginner/ode-to-joy')]);
+    browserState.setView({ folder: { kind: 'section', id: 'repertoire/beginner' } });
+    const el = document.createElement('mx-browser-rail');
+    document.body.appendChild(el);
+    browserState.setView({ search: 'joy' });
+
+    const items = Array.from(el.querySelectorAll('[role="treeitem"]'));
+    const byLabel = (label: string) =>
+      items.find((i) => i.querySelector('.browser-rail-label')?.textContent?.trim() === label);
+    expect(byLabel('All')?.getAttribute('aria-selected')).toBe('true');
+    expect(byLabel('Beginner')?.getAttribute('aria-selected')).toBe('false');
+    // The stored folder itself is untouched - clearing the search returns to it (spec.md scenario 5).
+    expect(browserState.get().view.folder).toEqual({ kind: 'section', id: 'repertoire/beginner' });
+  });
 });
 
 describe('mx-browser-list (US1 #2)', () => {

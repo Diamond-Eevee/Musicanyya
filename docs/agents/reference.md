@@ -141,7 +141,7 @@ pnpm tsx tools/library/probe.ts <dir> [outDir]  # level numbers + page-1 SVGs; o
 Tool output (probe SVGs, `probe-results.json`, screenshots) is never committed: it goes to `tests/.generated/` or the
 system temp folder, never under `public/` (it would ship with the app) or the repository root.
 
-**Known flaky**: the two Electron e2e tests `electron-playback.spec.ts:47` and `library.spec.ts:175` sometimes fail
+**Known flaky**: the two Electron e2e tests `electron-playback.spec.ts:47` and `library.spec.ts:340` sometimes fail
 under load on Windows ("Target page ... has been closed", "audio clock advances"); both pass when run alone
 (`pnpm exec playwright test --project=electron <file>`). Re-run them alone and log both results; do not call the gate
 green without that. Also under a full-suite run only (green standalone and within their own file, `--project`
