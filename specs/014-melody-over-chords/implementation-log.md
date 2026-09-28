@@ -508,3 +508,7 @@
   4 key-change goldens and 27 identity entries (all rewritten items) updated again; `pnpm lint` exit 0 (299 warnings,
   after removing two unused constants), `pnpm typecheck` exit 0; `pnpm library:fidelity --check` `182 records, 0
   failed`.
+- T089: screenshots retaken after the review fixes and opened (tests/.generated/t089-*.png): c-major-to-c-minor/
+  introduction (both sections in quarter-note runs with crossings, E♭ from the first bar in C minor),
+  g-major-to-e-minor/introduction, e-minor-to-g-major/introduction (the new section 2: G F♯ E D, D E F♯, runs with
+  thumb-under, ends on G); the other quickstart items as described above. No notices, no console errors.

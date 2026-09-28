@@ -402,10 +402,10 @@ pass; the owner finds it fun to play (T057).
 - [x] T088 [deep] Music review of the new chord plans and phrases with the `music-domain-expert` agent (fun to play at
   the level, like the key step; voice-leading of the new progressions; fingering); fix, regenerate, summarise in the
   log
-- [ ] T089 Update `quickstart.md` US1/US2 expectations, then manual verification (`pnpm screenshot --item ...` for
+- [x] T089 Update `quickstart.md` US1/US2 expectations, then manual verification (`pnpm screenshot --item ...` for
   c-major-to-a-minor/introduction, the three g-major-to-e-minor items, c-major-to-c-minor/beginner; open every PNG)
-- [ ] T090 Checkpoint: full gate (`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; firefox/webkit by a local
-  agent as in T074 if the container cannot run them), log entry, commit; then T057 again
+- [~] T090 Checkpoint: full gate (`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; firefox/webkit by a local
+  agent as in T074 if the container cannot run them), log entry, commit; then T057 again (claimed: claude-opus-5.5 2026-09-28)
 
 ## Dependencies & Execution Order
 
