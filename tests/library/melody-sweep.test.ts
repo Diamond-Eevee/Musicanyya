@@ -59,6 +59,16 @@ const keyChangeItems: ShelfItem[] = (indexJson.items as LibraryItem[])
     };
   });
 
+/** `relative` or `parallel`: a parallel pair keeps its tonic ("learning/key-changes/a-minor-to-a-major/..."). */
+function familyOf(id: string): 'relative' | 'parallel' {
+  const [fromKey = '', toKey = ''] = (id.split('/')[2] ?? '').split('-to-');
+  return fromKey.split('-')[0] === toKey.split('-')[0] ? 'parallel' : 'relative';
+}
+
+/** The one `raisedBecause` on a key-change item at 7f8ab96 (`key-change-relative-intermediate.json`). */
+const RELATIVE_INTERMEDIATE_RAISED_BECAUSE_AT_BASELINE =
+  'the minor-to-major pairs (A minor to C major, E minor to G major, B minor to D major) compute beginner on this content - kept at intermediate so every pair in the folder shares one step';
+
 function keysOf(item: ShelfItem) {
   const claim = claimForItem({ itemId: item.id, title: item.title, trains: item.trains });
   return claim.segments?.map((s) => ({ firstBar: s.firstBar, key: s.key })) ?? [{ firstBar: 1, key: claim.key }];
@@ -134,29 +144,22 @@ describe('key-change melody sweep (FR-001, FR-002, US1)', () => {
   });
 
   describe('checkMelodyVariation per family group (FR-008)', () => {
-    // 6 groups: relative/parallel x introduction/beginner/intermediate (9 items each)
+    // 6 groups: relative/parallel x introduction/beginner/intermediate, one definition each - 8 relative pairs and
+    // 10 parallel pairs (5 major-to-minor, 5 minor-to-major) per level.
     const groups = new Map<string, { itemId: string; degrees: string }[]>();
     for (const item of keyChangeItems) {
       const keys = keysOf(item);
       const degrees = melodyDegrees({ itemId: item.id, xml: item.xml, keys });
-      const parts = item.id.split('/');
-      // e.g. "learning/key-changes/c-major-to-a-minor/introduction" -> group by step and whether relative or parallel
-      const pairFolder = parts[2] ?? '';
-      const step = parts[3] ?? '';
-      const isParallel =
-        pairFolder.includes('-major-to-') &&
-        pairFolder.includes('-minor') &&
-        pairFolder.split('-to-')[0]?.replace('-major', '') === pairFolder.split('-to-')[1]?.replace('-minor', '');
-      const groupKey = `${isParallel ? 'parallel' : 'relative'}-${step}`;
+      const groupKey = `${familyOf(item.id)}-${item.id.split('/')[3] ?? ''}`;
       const list = groups.get(groupKey) ?? [];
       list.push({ itemId: item.id, degrees });
       groups.set(groupKey, list);
     }
 
-    it('has 6 groups of 9 items each', () => {
+    it('has 6 groups: 8 relative and 10 parallel items per level', () => {
       expect(groups.size).toBe(6);
       for (const [key, items] of groups) {
-        expect(items, key).toHaveLength(9);
+        expect(items, key).toHaveLength(key.startsWith('parallel') ? 10 : 8);
       }
     });
 
@@ -181,17 +184,23 @@ describe('key-change melody sweep (FR-001, FR-002, US1)', () => {
     });
   });
 
-  describe('checkLevel passes with no raisedBecause (FR-011)', () => {
-    it.each(keyChangeItems)('$id passes at assigned level without raisedBecause', (shelfItem) => {
+  describe('checkLevel passes with no new raisedBecause (FR-011)', () => {
+    it.each(keyChangeItems)('$id passes at assigned level without a new raisedBecause', (shelfItem) => {
       const { meta, facts } = shelfItem.item;
       const result = checkLevel(facts, meta.level, {
         expectedNotices: meta.expected?.notices ?? [],
         kind: meta.kind,
         tags: meta.tags,
         ...(meta.arrangement !== undefined ? { arrangement: meta.arrangement } : {}),
+        ...(meta.raisedBecause !== undefined ? { raisedBecause: meta.raisedBecause } : {}),
       });
       expect(result.pass).toBe(true);
-      expect(meta.raisedBecause).toBeUndefined();
+      // FR-011: "without a new raisedBecause unless the item already had one" - at 7f8ab96 only the relative
+      // intermediate items had one; it may stay or go, but no other item may gain one.
+      if (meta.raisedBecause !== undefined) {
+        expect(`${familyOf(shelfItem.id)}-${meta.step}`).toBe('relative-intermediate');
+        expect(meta.raisedBecause).toBe(RELATIVE_INTERMEDIATE_RAISED_BECAUSE_AT_BASELINE);
+      }
     });
   });
 

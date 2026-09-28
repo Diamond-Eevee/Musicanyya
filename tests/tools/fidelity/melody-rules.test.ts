@@ -263,6 +263,53 @@ describe('checkMelodyRules: one planted fault per rule', () => {
     expect(check(bars, 'introduction', INTRO_KEYS)).toEqual([{ rule: 'clash', bar: 1, beat: 3 }]);
   });
 
+  // T060 (research R4 amendment): a diatonic passing tone on the half bar, from a chord tone to a chord tone in one
+  // direction, is second-species practice and is exempt; a neighbour tone there is not.
+  describe('clash: passing tones on the half bar', () => {
+    it('G F | E D | C over C-E-G passes at introduction (F against E, D against C as passing tones)', () => {
+      const bars: FixtureBar[] = [
+        bar(C_I, [n('G4', 'half', 5), n('F4', 'half')], { key: SIG_C }),
+        bar(C_I, [n('E4', 'half'), n('D4', 'half')]),
+        bar(C_I, [n('C4', 'whole')], { barline: 'light-heavy' }),
+      ];
+      expect(check(bars, 'introduction', [{ firstBar: 1, key: C_MAJOR }])).toEqual([]);
+    });
+
+    it('A B | C B | A over A-C-E passes at introduction (B against C as a passing tone, both ways)', () => {
+      const bars: FixtureBar[] = [
+        bar(A_I, [n('A4', 'half', 1), n('B4', 'half')], { key: SIG_A_MINOR }),
+        bar(A_I, [n('C5', 'half'), n('B4', 'half')]),
+        bar(A_I, [n('A4', 'whole')], { barline: 'light-heavy' }),
+      ];
+      expect(check(bars, 'introduction', [{ firstBar: 1, key: A_MINOR }])).toEqual([]);
+    });
+
+    it('an upper neighbour E F | E over C-E-G still clashes', () => {
+      const bars: FixtureBar[] = [
+        bar(C_I, [n('E4', 'half', 3), n('F4', 'half')], { key: SIG_C }),
+        bar(C_I, [n('E4', 'half'), n('D4', 'half')]),
+        bar(C_I, [n('C4', 'whole')], { barline: 'light-heavy' }),
+      ];
+      expect(check(bars, 'introduction', [{ firstBar: 1, key: C_MAJOR }])).toEqual([
+        { rule: 'clash', bar: 1, beat: 3 },
+      ]);
+    });
+
+    it('a passing shape that lands on a note outside the next chord still clashes', () => {
+      const bars: FixtureBar[] = [
+        bar(C_I, [n('G4', 'half', 5), n('F4', 'half')], { key: SIG_C }),
+        bar(C_II, [n('E4', 'whole')]),
+        bar(C_I, [n('C4', 'whole')], { barline: 'light-heavy' }),
+      ];
+      expect(check(bars, 'introduction', [{ firstBar: 1, key: C_MAJOR }])).toEqual(
+        expect.arrayContaining([
+          { rule: 'clash', bar: 1, beat: 3 },
+          { rule: 'chord-tone', bar: 2, beat: 1 },
+        ]),
+      );
+    });
+  });
+
   describe('parallel-octaves: C over C then D over D, both moving up', () => {
     const bars: FixtureBar[] = [
       bar(C_I, [n('C4', 'half', 1), n('E4', 'half')], { key: SIG_C }),

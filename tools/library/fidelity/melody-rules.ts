@@ -15,6 +15,8 @@
 // - Clash: the leading tone moving up by step to the tonic is exempt. FR-005 requires the raised 7th leading to the
 //   tonic, and over a tonic chord it always stands a major seventh from the root; without the exemption a minor key
 //   could never sound its leading tone over i, and a relative key change into minor could not be heard (FR-007).
+//   A diatonic passing tone on a strong beat that is not a chord start is exempt too (T060): at introduction a
+//   non-chord tone can only stand on the half bar, and without it no melody could move 5-4-3 over I.
 // - Fingering is what a learner reads: a written finger sets the hand's position (thumb = the note `finger - 1` steps
 //   below), an unwritten finger continues the position. A position change is a thumb-under or finger-over (a step,
 //   fingers 2-4 to 1 going up, 1 to 2-4 going down), or else a shift; below intermediate, where the ladder allows no
@@ -509,12 +511,32 @@ export function checkMelodyRules(input: MelodyCheckInput): MelodyFinding[] {
   }
 
   // clash: no minor second, major seventh or minor ninth against the left hand when a chord starts or on a strong beat.
+  // A diatonic passing tone on a strong beat that is not a chord start - from a chord tone to a chord tone, by step,
+  // one way - is exempt (second-species practice; research R4 amendment, T060); a neighbour tone is not.
+  const diatonicStep = (a: Note, b: Note): boolean =>
+    a.end === b.onset && Math.abs(a.diat - b.diat) === 1 && [1, 2].includes(Math.abs(a.midi - b.midi));
+  const isPassing = (m: Note, i: number): boolean => {
+    const before = prev(i);
+    const after = next(i);
+    return (
+      before !== undefined &&
+      after !== undefined &&
+      !isChordStart(m.onset) &&
+      fullScale(keyAt(m.bar)).has(m.pc) &&
+      diatonicStep(before, m) &&
+      diatonicStep(m, after) &&
+      Math.sign(m.diat - before.diat) === Math.sign(after.diat - m.diat) &&
+      hasPc(chordAt(before.onset), before.pc) &&
+      hasPc(chordAt(after.onset), after.pc)
+    );
+  };
   const instants = [...new Set([...chordStarts, ...melody.map((m) => m.onset).filter(isStrong)])].sort((a, b) => a - b);
   for (const t of instants) {
     const m = melodyAt(t);
     if (!m) continue;
     const index = melody.indexOf(m);
     if (leadsToTonic(m, next(index))) continue;
+    if (m.onset === t && isPassing(m, index)) continue;
     const against = sounding(left, t).find((l) => CLASH_INTERVALS.has(mod(m.midi - l.midi, OCTAVE)));
     if (against) report('clash', t, `${name(m)} clashes with ${name(against)} in the left hand`);
   }

@@ -147,30 +147,146 @@
       "inKey": "from",
       "barline": "light-light",
       "right": {
-        "chords": [
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
+        "melody": {
+          "major": [
+            {
+              "position": 1,
+              "notes": [
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                }
+              ]
+            },
+            {
+              "position": 1,
+              "notes": [
+                {
+                  "step": 5,
+                  "value": "whole"
+                },
+                {
+                  "step": 5,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                }
+              ]
+            },
+            {
+              "position": 1,
+              "notes": [
+                {
+                  "step": 1,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                },
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                }
+              ]
             }
-          },
-          {
-            "degree": "V",
-            "duration": "whole"
-          },
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
+          ],
+          "minor": [
+            {
+              "position": 1,
+              "notes": [
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                }
+              ]
+            },
+            {
+              "position": 1,
+              "notes": [
+                {
+                  "step": 5,
+                  "value": "whole"
+                },
+                {
+                  "step": 5,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                }
+              ]
+            },
+            {
+              "position": 1,
+              "notes": [
+                {
+                  "step": 1,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                },
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                }
+              ]
             }
-          },
-          {
-            "degree": "V",
-            "duration": "whole"
-          }
-        ]
+          ]
+        }
       },
       "left": {
         "chords": [
@@ -204,58 +320,270 @@
       "inKey": "to",
       "label": "{toKey}",
       "right": {
-        "chords": [
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
+        "melody": {
+          "major": [
+            {
+              "position": 1,
+              "notes": [
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 1,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                },
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                }
+              ]
+            },
+            {
+              "position": 1,
+              "notes": [
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 4,
+                  "value": "whole"
+                },
+                {
+                  "step": 5,
+                  "value": "whole"
+                },
+                {
+                  "step": 5,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                }
+              ]
+            },
+            {
+              "position": 1,
+              "notes": [
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 4,
+                  "value": "whole"
+                },
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                }
+              ]
             }
-          },
-          {
-            "degree": "IV",
-            "duration": "whole",
-            "minor": {
-              "degree": "iv"
+          ],
+          "minor": [
+            {
+              "position": 1,
+              "notes": [
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 4,
+                  "value": "whole"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 5,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                }
+              ]
+            },
+            {
+              "position": 1,
+              "notes": [
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 4,
+                  "value": "whole"
+                },
+                {
+                  "step": 5,
+                  "value": "whole"
+                },
+                {
+                  "step": 5,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                }
+              ]
+            },
+            {
+              "position": 1,
+              "notes": [
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 4,
+                  "value": "whole"
+                },
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                },
+                {
+                  "step": 2,
+                  "value": "whole"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                }
+              ]
             }
-          },
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
-            }
-          },
-          {
-            "degree": "V",
-            "duration": "whole"
-          },
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
-            }
-          },
-          {
-            "degree": "V",
-            "duration": "whole"
-          },
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
-            }
-          },
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
-            }
-          }
-        ]
+          ]
+        }
       },
       "left": {
         "chords": [

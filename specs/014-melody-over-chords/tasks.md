@@ -142,10 +142,15 @@ as demanding as the one before, and the level check passes.
 
 - [x] T020 [US1] Change the key-change claims in `tools/library/fidelity/exercise-claims.ts` (right hand -> melody,
   rule set v3) until T016 passes; still no read of definitions or generator
-- [ ] T021 [P] [US1] [deep] Author the right-hand `melody` (major and minor variants, at least 2 per section and mode) in
+- [x] T060 [deep] (found during T021) Clash rule amendment (research R4): exempt a diatonic passing tone on the half
+  bar, chord tone to chord tone in one direction, from `clash` in `tools/library/fidelity/melody-rules.ts`; test first in
+  `tests/tools/fidelity/melody-rules.test.ts` (G F | E D | C over I and A B | C B | A over i pass; an upper neighbour
+  and a passing shape landing outside the next chord still clash). Without it *A minor to C major - introduction* has
+  no valid melody
+- [x] T021 [P] [US1] [deep] Author the right-hand `melody` (major and minor variants, at least 2 per section and mode) in
   `content/library/exercises/key-change-relative-introduction.json` - half and whole notes, five-finger position,
   steps only
-- [ ] T022 [P] [US1] [deep] Same for `content/library/exercises/key-change-parallel-introduction.json`
+- [x] T022 [P] [US1] [deep] Same for `content/library/exercises/key-change-parallel-introduction.json`
 - [ ] T023 [P] [US2] [deep] Author the beginner melodies in `content/library/exercises/key-change-relative-beginner.json`
   (quarters, runs of at most 4 quarters, leaps up to a third, at most one shift at a section start)
 - [ ] T024 [P] [US2] [deep] Same for `content/library/exercises/key-change-parallel-beginner.json`
@@ -161,6 +166,11 @@ as demanding as the one before, and the level check passes.
 - [ ] T029 [US1] Update the key-change goldens in `tests/core/library/exercise/__snapshots__/goldens.test.ts.snap` and
   any assertion of old right-hand notes in `tests/core/library/exercise/key-change.test.ts`; log each changed
   expectation with its reason (behaviour changed by FR-002)
+- [ ] T061 [US1] (found during T021) Update `tests/core/library/exercise/steps.test.ts`, which T029 does not name: the
+  key-change assertions "whole-note chords throughout" (introduction), "identical rhythm and staves in every pair of
+  the relation" and "Intermediate has a passage where both hands play chords in the same bar" describe the doubled
+  right hand; keep them for the left hand (FR-002) and assert the right hand's single-note melody instead (its rhythm
+  varies per variant, FR-008); log each changed expectation
 - [ ] T030 [US1] [light] Move the 54 audit records under `content/library/audit/learning/key-changes/` (all but the two drills)
   to `exercise-theory-v3` (`checkedBy`, `date` updated), run `pnpm library:fidelity` to regenerate
   `docs/library-audit.md`, `pnpm library:fidelity --check` green
@@ -263,7 +273,7 @@ the same chords and inversions as before, the right hand a melody.
 - Phase 4 depends only on Foundational; it can run in parallel with Phase 3 if staffed, except that T020/T041 both
   edit `exercise-claims.ts` and T015/T036 both edit `melody-sweep.test.ts` (do them in sequence).
 - Within Foundational: T004 -> T005 -> T010; T006 -> T009 -> T011; T007 -> T012; T010 + T011 -> T013.
-- Within Phase 3: T015-T019 and T058 before T020-T026; T021-T026 -> T027 -> T028 -> T029/T030/T059/T031 -> T032 -> T033 -> T034.
+- Within Phase 3: T015-T019 and T058 before T020-T026; T021-T026 -> T027 -> T028 -> T029/T061/T030/T059/T031 -> T032 -> T033 -> T034.
 - Within Phase 4: T035-T039 before T040-T046; T040 + T042-T045 -> T047 -> T048 -> T049 -> T050 -> T051.
 - T057 (owner) blocks merge only, not other tasks.
 

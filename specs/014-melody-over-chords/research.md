@@ -81,6 +81,19 @@ i - and a relative change into minor (C major to A minor) could not be heard (FR
 weak (makes the clash rule redundant with `chord-tone` for triads); dropping the key-change audibility requirement at
 introduction (FR-007 applies at every level).
 
+**Amendment (T060, 2026-09-28)**: a **diatonic passing tone** on a strong beat that is not a chord start (in 4/4 the
+half bar) is exempt from the clash rule: it moves by diatonic step from a chord tone and on by step, in the same
+direction, to a note in the chord sounding under it. Neighbour tones there stay checked. **Why**: at introduction a non-chord
+tone can only be a half note on beat 3, so the unamended rule forbade 4 and 7 over I and 2 and 6 over i on every beat
+where a non-chord tone may stand. A melody could then never move 5-4-3 over I or 3-2-1 over i. *A minor to C major -
+introduction* (8 bars of I, G needed within 2 bars, ending on C) had no valid melody at all, and *C major to A minor*
+was left with A-G♯-A for 8 bars. The exemption is second-species counterpoint (dissonance on the second half note only
+as a passing tone) and method-book practice (*Ode to Joy*: E E F G over C). `music-domain-expert` consultation
+2026-09-28 (its Fux/method-book references were from memory) agreed, and advised keeping neighbours checked: a
+dissonant neighbour dwells on the clash and returns to the note it clashed with. **Alternatives**: treating the half
+bar as weak (also exempts neighbours and chord-start-like dwelling); dropping key-change audibility at introduction
+(rejected above).
+
 ## R5 - Register
 
 **Decision**: The melody's reference tonic (`step` 1) is the section key's tonic in **octave 4** (C4-B4) in every

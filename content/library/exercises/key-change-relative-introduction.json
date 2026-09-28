@@ -123,36 +123,193 @@
       "inKey": "from",
       "barline": "light-light",
       "right": {
-        "chords": [
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
+        "melody": {
+          "major": [
+            {
+              "position": 5,
+              "notes": [
+                {
+                  "step": 8,
+                  "value": "half"
+                },
+                {
+                  "step": 9,
+                  "value": "half"
+                },
+                {
+                  "step": 8,
+                  "value": "whole"
+                },
+                {
+                  "step": 8,
+                  "value": "half"
+                },
+                {
+                  "step": 7,
+                  "value": "half"
+                },
+                {
+                  "step": 6,
+                  "value": "whole"
+                }
+              ]
+            },
+            {
+              "position": -2,
+              "notes": [
+                {
+                  "step": 1,
+                  "value": "whole"
+                },
+                {
+                  "step": 1,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 1,
+                  "value": "half"
+                },
+                {
+                  "step": 0,
+                  "value": "half"
+                },
+                {
+                  "step": -1,
+                  "value": "whole"
+                }
+              ]
+            },
+            {
+              "position": -2,
+              "notes": [
+                {
+                  "step": -2,
+                  "value": "half"
+                },
+                {
+                  "step": -1,
+                  "value": "half"
+                },
+                {
+                  "step": -2,
+                  "value": "half"
+                },
+                {
+                  "step": -1,
+                  "value": "half"
+                },
+                {
+                  "step": -2,
+                  "value": "whole"
+                },
+                {
+                  "step": -1,
+                  "value": "whole"
+                }
+              ]
             }
-          },
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
+          ],
+          "minor": [
+            {
+              "position": 3,
+              "notes": [
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 5,
+                  "value": "whole"
+                },
+                {
+                  "step": 5,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                }
+              ]
+            },
+            {
+              "position": -3,
+              "notes": [
+                {
+                  "step": -2,
+                  "value": "half",
+                  "finger": 3
+                },
+                {
+                  "step": -3,
+                  "value": "half"
+                },
+                {
+                  "step": -2,
+                  "value": "half"
+                },
+                {
+                  "step": -3,
+                  "value": "half"
+                },
+                {
+                  "step": -2,
+                  "value": "whole"
+                },
+                {
+                  "step": -1,
+                  "value": "whole",
+                  "alter": 0
+                }
+              ]
+            },
+            {
+              "position": 3,
+              "notes": [
+                {
+                  "step": 5,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 5,
+                  "value": "whole"
+                },
+                {
+                  "step": 6,
+                  "value": "whole",
+                  "alter": 0
+                }
+              ]
             }
-          },
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
-            }
-          },
-          {
-            "degree": "IV",
-            "duration": "whole",
-            "minor": {
-              "degree": "VI"
-            }
-          }
-        ]
+          ]
+        }
       },
       "left": {
         "chords": [
@@ -192,64 +349,377 @@
       "inKey": "to",
       "label": "{toKey}",
       "right": {
-        "chords": [
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
+        "melody": {
+          "major": [
+            {
+              "position": 1,
+              "notes": [
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 5,
+                  "value": "whole"
+                },
+                {
+                  "step": 5,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                },
+                {
+                  "step": 1,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                }
+              ]
+            },
+            {
+              "position": 1,
+              "notes": [
+                {
+                  "step": 5,
+                  "value": "whole"
+                },
+                {
+                  "step": 5,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 1,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 5,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                }
+              ]
+            },
+            {
+              "position": 1,
+              "notes": [
+                {
+                  "step": 5,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 1,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 5,
+                  "value": "whole"
+                },
+                {
+                  "step": 5,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                }
+              ]
             }
-          },
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
+          ],
+          "minor": [
+            {
+              "position": 0,
+              "notes": [
+                {
+                  "step": 1,
+                  "value": "half"
+                },
+                {
+                  "step": 0,
+                  "value": "half",
+                  "alter": 1
+                },
+                {
+                  "step": 1,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 1,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                }
+              ]
+            },
+            {
+              "position": 0,
+              "notes": [
+                {
+                  "step": 1,
+                  "value": "half"
+                },
+                {
+                  "step": 0,
+                  "value": "half",
+                  "alter": 1
+                },
+                {
+                  "step": 1,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "whole"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 1,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                }
+              ]
+            },
+            {
+              "position": 0,
+              "notes": [
+                {
+                  "step": 1,
+                  "value": "half"
+                },
+                {
+                  "step": 0,
+                  "value": "half",
+                  "alter": 1
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                },
+                {
+                  "step": 1,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 1,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 2,
+                  "value": "half"
+                },
+                {
+                  "step": 1,
+                  "value": "whole"
+                }
+              ]
             }
-          },
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
-            }
-          },
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
-            }
-          },
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
-            }
-          },
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
-            }
-          },
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
-            }
-          },
-          {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
-            }
-          }
-        ]
+          ]
+        }
       },
       "left": {
         "chords": [
