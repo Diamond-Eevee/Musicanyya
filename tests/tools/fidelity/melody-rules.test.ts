@@ -39,7 +39,6 @@ const n = (name: string, value: FixtureValue, fingering?: number): FixtureMelody
   value,
   ...(fingering ? { fingering } : {}),
 });
-const rest = (value: FixtureValue): FixtureMelodyEvent => ({ value, rest: true });
 /** A right-hand block chord: the top note plus `others` struck with it. */
 const rhChord = (top: string, others: string[], value: FixtureValue): FixtureMelodyEvent => ({
   ...n(top, value),
@@ -68,6 +67,8 @@ const A_V = 'G#2 B2 E3';
  *  bass (T067). */
 const A_V64 = 'B2 E3 G#3';
 const A_VI = 'A2 C3 F3';
+/** V6 as generate.ts voices it in A minor: G♯ in the bass, root E on top. */
+const A_V6 = 'G#2 B2 E3';
 const CM_I = 'C3 Eb3 G3';
 const D_I = 'D3 F#3 A3';
 
@@ -369,14 +370,16 @@ describe('checkMelodyRules: one planted fault per rule', () => {
     expect(check(bars, 'beginner', BEGINNER_KEYS)).toEqual([{ rule: 'leap', bar: 2, beat: 1 }]);
   });
 
-  it('range: C4 to A4 in one beginner section (wider than five notes)', () => {
+  // Beginner's range grew from five notes to an octave per section (T076, owner listening check 2026-09-28): the
+  // old fault, C4 to A4, is now allowed, so the planted range reaches past the octave, C4 to D5.
+  it('range: C4 to D5 in one beginner section (wider than an octave)', () => {
     const bars: FixtureBar[] = [
-      bar(C_I, [n('C4', 'quarter', 1), n('D4', 'quarter'), n('E4', 'half')], { key: SIG_C }),
-      bar(C_V, [n('G4', 'half'), rest('half')]),
-      bar(C_V, [n('G4', 'half', 1), n('A4', 'quarter'), n('B4', 'quarter')]),
+      bar(C_I, [n('C4', 'quarter', 1), n('D4', 'quarter'), n('E4', 'quarter'), n('F4', 'quarter', 1)], { key: SIG_C }),
+      bar(C_V, [n('G4', 'quarter'), n('A4', 'quarter'), n('B4', 'quarter'), n('C5', 'quarter')]),
+      bar(C_V, [n('D5', 'half', 5), n('B4', 'half')]),
       bar(C_I, [n('C5', 'whole')], { barline: 'light-heavy' }),
     ];
-    expect(check(bars, 'beginner', C_KEYS)).toEqual([{ rule: 'range', bar: 3, beat: 3 }]);
+    expect(check(bars, 'beginner', C_KEYS)).toEqual([{ rule: 'range', bar: 3, beat: 1 }]);
   });
 
   it('value: a dotted value at intermediate', () => {
@@ -632,5 +635,88 @@ describe('the Difficulty ladder drives the level rules (Principle II, T072)', ()
 
   it.each(Object.keys(MELODY_LADDER.introduction))('melody-rules.ts reads the ladder field %s', (field) => {
     expect(source).toMatch(new RegExp(`\\bladder\\.${field}\\b`));
+  });
+});
+
+// ---- the introduction and beginner rows after the owner's listening check (T076, research R11) ---------------------
+
+/** Introduction like the key step, C major to A minor: quarter-note scale runs, a thumb-under (F4, E4 at a chord
+ *  start) and a finger-over (E4 over the thumb), the chord changing every bar, the rising E F♯ G♯ | A over V6 (the
+ *  generator's G♯-B-E voicing). */
+const introductionRuns = (): FixtureBar[] => [
+  bar(C_I, [n('C4', 'quarter', 1), n('D4', 'quarter'), n('E4', 'quarter'), n('F4', 'quarter', 1)], { key: SIG_C }),
+  bar(C_V, [n('G4', 'quarter'), n('A4', 'quarter'), n('B4', 'quarter'), n('A4', 'quarter')]),
+  bar(C_I, [n('G4', 'quarter'), n('F4', 'quarter'), n('E4', 'quarter', 3), n('D4', 'quarter')]),
+  bar(C_IV, [n('C4', 'quarter'), n('D4', 'quarter'), n('C4', 'quarter'), n('D4', 'quarter')], {
+    barline: 'light-light',
+  }),
+  bar(A_I, [n('E4', 'quarter'), n('D4', 'quarter'), n('C4', 'quarter'), n('D4', 'quarter')], {
+    key: SIG_A_MINOR,
+    wordsAbove: 'A minor',
+  }),
+  bar(A_V6, [n('E4', 'quarter', 1), n('F#4', 'quarter'), n('G#4', 'half')]),
+  bar(A_I, [n('A4', 'quarter', 1), n('G#4', 'quarter', 3), n('A4', 'quarter', 1), n('B4', 'quarter')]),
+  bar(A_I, [n('C5', 'quarter'), n('B4', 'quarter'), n('A4', 'half')], { barline: 'light-heavy' }),
+];
+const RUNS_KEYS = [
+  { firstBar: 1, key: C_MAJOR },
+  { firstBar: 5, key: A_MINOR },
+];
+/** Two chords in one bar, each a half note. */
+const halfBarChords = (first: string, second: string, right: FixtureMelodyEvent[]): FixtureBar => ({
+  left: [lh(first, 'half'), lh(second, 'half')],
+  right,
+});
+
+describe('introduction and beginner play like the key step (T076, owner listening check 2026-09-28)', () => {
+  // Bars 6 and 7 cross (thumb under) on a chord start after a quarter: a crossing, not a lift, or they would be two
+  // shifts where introduction allows one.
+  it('a quarter-note introduction in scale runs, thumb-under and finger-over, has no finding', () => {
+    expect(check(introductionRuns(), 'introduction', RUNS_KEYS)).toEqual([]);
+  });
+
+  it('the same runs pass at beginner (a level may use anything a lower one allows)', () => {
+    expect(check(introductionRuns(), 'beginner', RUNS_KEYS)).toEqual([]);
+  });
+
+  it('value: an eighth at introduction', () => {
+    const bars = withBar(
+      introductionRuns(),
+      4,
+      bar(C_IV, [n('C4', 'quarter'), n('D4', 'eighth'), n('C4', 'eighth'), n('C4', 'quarter'), n('D4', 'quarter')], {
+        barline: 'light-light',
+      }),
+    );
+    expect(check(bars, 'introduction', RUNS_KEYS)).toEqual([
+      { rule: 'value', bar: 4, beat: 2 },
+      { rule: 'value', bar: 4, beat: 2.5 },
+    ]);
+  });
+
+  it('minor-degree: the rising 5-♯6-♯7-1 over V6 (G♯-B-E, root E) passes', () => {
+    const bars: FixtureBar[] = [
+      bar(A_I, [n('E4', 'whole', 1)], { key: SIG_A_MINOR }),
+      bar(A_V6, [n('E4', 'quarter'), n('F#4', 'quarter'), n('G#4', 'half')]),
+      bar(A_I, [n('A4', 'whole')], { barline: 'light-heavy' }),
+    ];
+    expect(check(bars, 'beginner', A_KEYS)).toEqual([]);
+  });
+
+  it('value: two chords in a bar pass at beginner', () => {
+    const bars = withBar(beginner(), 2, halfBarChords(C_V, C_IV, [n('G4', 'half'), n('F4', 'half')]));
+    expect(check(bars, 'beginner', BEGINNER_KEYS)).toEqual([]);
+  });
+
+  it('value: two chords in a bar at introduction', () => {
+    const bars = withBar(introduction(), 2, halfBarChords(C_I, C_IV, [n('G4', 'half'), n('A4', 'half')]));
+    expect(check(bars, 'introduction', INTRO_KEYS)).toEqual([{ rule: 'value', bar: 2, beat: 3 }]);
+  });
+
+  it('value: three chords in a bar at beginner', () => {
+    const bars = withBar(beginner(), 2, {
+      left: [lh(C_V, 'half'), lh(C_IV, 'quarter'), lh(C_V, 'quarter')],
+      right: [n('G4', 'half'), n('F4', 'quarter'), n('G4', 'quarter')],
+    });
+    expect(check(bars, 'beginner', BEGINNER_KEYS)).toEqual([{ rule: 'value', bar: 2, beat: 4 }]);
   });
 });

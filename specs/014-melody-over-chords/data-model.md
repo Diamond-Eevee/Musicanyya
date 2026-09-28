@@ -48,8 +48,8 @@ true.
 
 | Level | shortestValueBeats | rangeSemitones | maxLeapSteps | shiftsMax | nctPlacement | nctRun | lhAttacksPerBar | parallelOctaves |
 |---|---|---|---|---|---|---|---|---|
-| introduction | 1 | 12 (an octave) per section | 1 | unlimited, thumb-under / finger-over inside a run only | weak beats | 2 | 1 | allowed |
-| beginner | 1 | 12 per section | 2 (a third), to a chord note | unlimited, thumb-under / finger-over | weak beats | 2 | 2 (half-bar changes) | allowed |
+| introduction | 1 | 12 (an octave) per section | 1 | 1, at a section start; thumb-under / finger-over are not shifts | weak beats | 2 | 1 | allowed |
+| beginner | 1 | 12 per section | 2 (a third), to a chord note | 2, anywhere; thumb-under / finger-over are not shifts | weak beats | 2 | 2 (half-bar changes) | allowed |
 | intermediate | 0.5 | 12 per section | 4 (a fifth), to a chord note | unlimited, thumb-under / finger-over | also off-beat eighths | 2 | as today | forbidden |
 | advanced | 0.5 (dotted allowed) | 16 (a tenth) | 7 (an octave), to a chord note | unlimited | as intermediate | 2 | as today | forbidden |
 
@@ -58,7 +58,7 @@ name):
 
 | Level | shiftsAtSectionStartOnly | crossingIsShift | dottedValues | eighthsInPairs |
 |---|---|---|---|---|
-| introduction | false | false | false | false |
+| introduction | true | false | false | false |
 | beginner | false | false | false | false |
 | intermediate | false | false | false | true |
 | advanced | false | false | true | false |

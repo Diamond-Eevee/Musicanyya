@@ -99,9 +99,13 @@ const TONIC = 1;
 const BLACK_KEYS: ReadonlySet<number> = new Set([1, 3, 6, 8, 10]);
 /** Minor second, major seventh, minor ninth (and their compounds): the clash intervals, mod 12. */
 const CLASH_INTERVALS: ReadonlySet<number> = new Set([1, 11]);
-/** Thirds and fifths above a triad's root, in semitones. */
-const THIRDS: ReadonlySet<number> = new Set([3, 4]);
-const FIFTHS: ReadonlySet<number> = new Set([6, 7, 8]);
+/** Third and fifth above the root, in semitones: major, minor, diminished, augmented. */
+const TRIAD_SHAPES: readonly (readonly [number, number])[] = [
+  [4, 7],
+  [3, 7],
+  [3, 6],
+  [4, 8],
+];
 const MAJOR_THIRD = 4;
 const MINOR_THIRD = 3;
 const PERFECT_FIFTH = 7;
@@ -247,9 +251,11 @@ const names = (ns: readonly Note[]): string =>
 function triadRoot(chord: readonly Note[]): Note | undefined {
   const pcs = [...new Set(chord.map((n) => n.pc))];
   if (pcs.length !== 3) return undefined;
+  // The note whose third and fifth above form a triad's own pair (major, minor, diminished, augmented): a third and
+  // "a fifth" alone would also name G♯ the root of G♯-B-E (a minor third and an augmented fifth) (T076).
   return chord.find((r) => {
     const above = pcs.filter((pc) => pc !== r.pc).map((pc) => mod(pc - r.pc, OCTAVE));
-    return above.some((i) => THIRDS.has(i)) && above.some((i) => FIFTHS.has(i));
+    return TRIAD_SHAPES.some(([third, fifth]) => above.includes(third) && above.includes(fifth));
   });
 }
 
@@ -725,12 +731,13 @@ function checkFingering(
     const step = m.diat - before.diat;
     let shift = false;
     const lifted = chordStarts.includes(m.onset) && before.end - before.onset >= SHIFT_MIN_QUARTERS;
-    if (Math.abs(step) === 1 && lifted) {
-      // The hand lifts to a new position at a chord start after at least a quarter, stepping too (T071).
+    const thumbUnder = step === 1 && CROSSING_FINGERS.has(previousFinger) && m.finger === THUMB;
+    const fingerOver = step === -1 && previousFinger === THUMB && CROSSING_FINGERS.has(m.finger);
+    if (Math.abs(step) === 1 && lifted && !thumbUnder && !fingerOver) {
+      // The hand lifts to a new position at a chord start after at least a quarter, stepping too (T071); a legal
+      // crossing there stays a crossing (T076).
       shift = true;
     } else if (Math.abs(step) === 1) {
-      const thumbUnder = step > 0 && CROSSING_FINGERS.has(previousFinger) && m.finger === THUMB;
-      const fingerOver = step < 0 && previousFinger === THUMB && CROSSING_FINGERS.has(m.finger);
       if (!thumbUnder && !fingerOver) {
         report(
           'fingering',

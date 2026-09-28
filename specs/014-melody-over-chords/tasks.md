@@ -355,13 +355,16 @@ pass; the owner finds it fun to play (T057).
 - [x] T075 (owner decisions 2026-09-28) Amend `spec.md` (Amendment section, US1 #2, FR-002, Difficulty ladder,
   assumptions, out of scope), `research.md` (R11; R7 run correction; R10 superseded for the key-change chords),
   `data-model.md` §4 (introduction and beginner rows), `plan.md` (summary, risks)
-- [ ] T076 [deep] Tests first in `tests/tools/fidelity/melody-rules.test.ts` for the new introduction and beginner rows:
+- [x] T076 [deep] Tests first in `tests/tools/fidelity/melody-rules.test.ts` for the new introduction and beginner rows:
   a clean introduction fixture in quarter-note scale runs with a thumb-under passes; an eighth at introduction is a
   `value` finding (a quarter no longer is); a thumb-under inside a run is no `shift` finding at introduction or
   beginner (the old "one shift at the key change" / "mid-section shift" expectations change - log each); a passing
   run of two non-chord tones on weak beats passes at introduction, a non-chord tone on the downbeat still does not; two
   chord changes per bar pass at beginner, three do not. Then `MELODY_LADDER` introduction/beginner in
-  `src/core/defaults.ts` (data-model §4) until green
+  `src/core/defaults.ts` (data-model §4) until green. Found while writing the fixture, same task: a legal thumb-under /
+  finger-over that lands on a chord start is a crossing, not a lift (it counted as a shift); and `triadRoot` names
+  G♯ the root of G♯-B-E (the augmented fifth in `FIFTHS`), so the rising 5-♯6-♯7-1 over V6 was a `minor-degree`
+  finding - tests first for both, then `melody-rules.ts`
 - [ ] T077 FR-002 (amended) tests first in `tests/library/melody-sweep.test.ts`, replacing "left hand is unchanged" for
   the key-change items: the key-change bar and the chord just before it equal the recorded ones
   (`tests/library/key-change-left-hand.json`); each key's section starts and ends on its tonic chord; every chord is

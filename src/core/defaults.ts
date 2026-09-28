@@ -381,31 +381,32 @@ export interface MelodyLadderRow {
 }
 export const MELODY_LADDER: Record<Level, MelodyLadderRow> = {
   introduction: {
-    shortestValueBeats: 2,
-    rangeSemitones: 7,
+    // Amended 2026-09-28 after the owner's listening check (feature 014 T076, research R11): like the key step.
+    shortestValueBeats: 1,
+    rangeSemitones: 12,
     maxLeapSteps: 1,
-    shiftsMax: 1, // at the key change only (owner decision 2026-09-28, feature 014 T068)
+    shiftsMax: 1, // one lift, at a section start (T068); thumb-under / finger-over are not shifts
     shiftsAtSectionStartOnly: true,
-    crossingIsShift: true,
+    crossingIsShift: false,
     dottedValues: false,
     eighthsInPairs: false,
-    nctPlacement: 'second-half-of-bar',
-    nctRun: 1,
+    nctPlacement: 'weak-beats',
+    nctRun: 2,
     lhAttacksPerBar: 1,
     parallelOctaves: true,
   },
   beginner: {
     shortestValueBeats: 1,
-    rangeSemitones: 7,
+    rangeSemitones: 12,
     maxLeapSteps: 2,
-    shiftsMax: 1,
-    shiftsAtSectionStartOnly: true,
-    crossingIsShift: true,
+    shiftsMax: 2,
+    shiftsAtSectionStartOnly: false,
+    crossingIsShift: false,
     dottedValues: false,
     eighthsInPairs: false,
     nctPlacement: 'weak-beats',
-    nctRun: 1,
-    lhAttacksPerBar: 1,
+    nctRun: 2,
+    lhAttacksPerBar: 2,
     parallelOctaves: true,
   },
   intermediate: {
