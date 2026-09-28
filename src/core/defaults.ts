@@ -359,7 +359,7 @@ export interface MelodyLadderRow {
   rangeSemitones: number;
   /** Widest leap (consecutive melody notes), in scale steps; 0 = a repeated note is never a leap. */
   maxLeapSteps: number;
-  /** Hand-position shifts allowed across the whole item. */
+  /** Hand-position shifts allowed across the whole item (introduction and beginner: only at a section start). */
   shiftsMax: number;
   /** Where a non-chord tone may sound. */
   nctPlacement: 'second-half-of-bar' | 'weak-beats' | 'weak-beats-and-off-beat-eighths';
@@ -375,7 +375,7 @@ export const MELODY_LADDER: Record<Level, MelodyLadderRow> = {
     shortestValueBeats: 2,
     rangeSemitones: 7,
     maxLeapSteps: 1,
-    shiftsMax: 0,
+    shiftsMax: 1, // at the key change only (owner decision 2026-09-28, feature 014 T068)
     nctPlacement: 'second-half-of-bar',
     nctRun: 1,
     lhAttacksPerBar: 1,

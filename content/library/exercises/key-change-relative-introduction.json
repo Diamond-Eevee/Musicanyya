@@ -187,24 +187,28 @@
               "position": -2,
               "notes": [
                 {
-                  "step": -2,
+                  "step": 1,
                   "value": "half"
                 },
                 {
-                  "step": -1,
+                  "step": 0,
                   "value": "half"
                 },
                 {
-                  "step": -2,
+                  "step": 1,
                   "value": "half"
                 },
                 {
-                  "step": -1,
+                  "step": 2,
                   "value": "half"
                 },
                 {
-                  "step": -2,
-                  "value": "whole"
+                  "step": 1,
+                  "value": "half"
+                },
+                {
+                  "step": 0,
+                  "value": "half"
                 },
                 {
                   "step": -1,
@@ -248,38 +252,38 @@
               ]
             },
             {
-              "position": -3,
+              "position": -1,
               "notes": [
                 {
-                  "step": -2,
-                  "value": "half",
-                  "finger": 3
+                  "step": 3,
+                  "value": "half"
                 },
                 {
-                  "step": -3,
-                  "value": "half",
-                  "finger": 2
+                  "step": 2,
+                  "value": "half"
                 },
                 {
-                  "step": -4,
-                  "value": "half",
-                  "finger": 1
+                  "step": 1,
+                  "value": "half"
                 },
                 {
-                  "step": -3,
+                  "step": 0,
                   "value": "half",
-                  "finger": 2
+                  "alter": 1
                 },
                 {
-                  "step": -2,
-                  "value": "whole",
-                  "finger": 3
+                  "step": 1,
+                  "value": "half"
+                },
+                {
+                  "step": 0,
+                  "value": "half",
+                  "alter": 0
                 },
                 {
                   "step": -1,
                   "value": "whole",
-                  "alter": 0,
-                  "finger": 4
+                  "alter": 0
                 }
               ]
             },
@@ -417,6 +421,14 @@
               "position": 1,
               "notes": [
                 {
+                  "step": 3,
+                  "value": "half"
+                },
+                {
+                  "step": 4,
+                  "value": "half"
+                },
+                {
                   "step": 5,
                   "value": "whole"
                 },
@@ -446,19 +458,7 @@
                 },
                 {
                   "step": 3,
-                  "value": "half"
-                },
-                {
-                  "step": 4,
-                  "value": "half"
-                },
-                {
-                  "step": 5,
-                  "value": "half"
-                },
-                {
-                  "step": 4,
-                  "value": "half"
+                  "value": "whole"
                 },
                 {
                   "step": 3,

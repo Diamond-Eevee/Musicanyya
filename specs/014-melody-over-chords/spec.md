@@ -189,13 +189,15 @@ allowed at a lower level.
 
 | Level | Shortest RH note | RH range | Largest RH leap | RH hand shifts | LH pattern |
 |---|---|---|---|---|---|
-| Introduction | half | five notes (one five-finger position) | a step (2nd) | none | one held block chord per bar |
+| Introduction | half | five notes per section (one five-finger position per section) | a step (2nd) | at most one, at the key change | one held block chord per bar |
 | Beginner | quarter | five notes, one position per section | a third | at most one, at a section start | block chord per bar or half bar |
-| Intermediate | eighth (in pairs on the beat) | up to an octave | a fifth, to a chord note | thumb-under / finger-over allowed | block chords or broken chords (as today's broken voicing) |
+| Intermediate | eighth (in pairs on the beat) | up to an octave per section | a fifth, to a chord note | thumb-under / finger-over allowed | block chords or broken chords (as today's broken voicing) |
 | Advanced | eighth, including dotted rhythms | up to a tenth | an octave, to a chord note | free | broken chords, root-fifth or block chords, mixed |
 
-A repeated note is not a leap. The library's existing level criteria (for example at most four notes in a row at the
-shortest value at beginner level) apply on top of this table.
+A repeated note is not a leap. "Per section" means per key: the range is measured separately before and after a key
+change. (Owner decisions, 2026-09-28: the introduction's one shift at the key change, because no five-note position
+holds both keys of a relative minor-to-major item; intermediate range per section.) The library's existing level
+criteria (for example at most four notes in a row at the shortest value at beginner level) apply on top of this table.
 
 ### Key Entities
 

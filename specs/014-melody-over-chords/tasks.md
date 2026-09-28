@@ -204,9 +204,27 @@ as demanding as the one before, and the level check passes.
   least a quarter: only the thumb crosses, at most a third, onto/from a white key; no same-finger jump; thumb to 2 at
   most a fourth); the 24 intermediate phrases in `key-change-{relative,parallel}-intermediate.json` carry an explicit
   finger on every note (the generator is unchanged - see R6 amendment for why); regenerate (T028 steps), goldens, audit
-- [ ] T067 [US1] [deep] (found by the T032 review) Parallel octaves on a weak beat: the leading tone in the melody
-  over V6 (bass = leading tone) resolving with the bass to the tonic. Extend the `parallel-octaves` rule beyond chord
-  starts (test first), then fix the four variants the review names (implementation-log 2026-09-28 17:40)
+- [x] T067 [US1] [deep] (found by the T032 review) Parallel octaves on a weak beat: the leading tone in the melody
+  over V6 (bass = leading tone) resolving with the bass to the tonic. Done as: test first in
+  `tests/tools/fidelity/melody-rules.test.ts` (B over V6 on the last beat to C over I); `parallel-octaves` in
+  `melody-rules.ts` also compares the melody's last note before a chord start; the clean intermediate fixture's bar 7
+  moved to V6/4 (its G♯ over a G♯ bass was such an octave); the six phrases it found on the shelf (10 items, the
+  review's four among them) rewritten in `key-change-{relative,parallel}-intermediate.json`; regenerate, goldens, audit
+- [x] T068 [US2] [deep] (owner decision 2026-09-28, from the T032 review) Introduction allows one hand shift, at the key
+  change only: spec Difficulty ladder and data-model ladder rows first (also: intermediate range is per section, owner
+  decision); test first in `tests/tools/fidelity/melody-rules.test.ts` (a shift at the key change is no finding - the
+  old expectation changed; a second shift mid-section is); `MELODY_LADDER.introduction.shiftsMax` 1 in
+  `src/core/defaults.ts`, the section-start rule in `melody-rules.ts` for introduction as for beginner
+- [x] T069 [US1] [deep] (T032 review finding 4, after T068) Relative introduction A minor -> C major and B minor -> D
+  major: the minor section plays the tonic and the leading tone (thumb on the 6th: C B | A G♯ | A G | F), a finger-over
+  from the thumb (the one shift) into a major section that opens on its third, in
+  `key-change-relative-introduction.json`; regenerate, goldens, identity golden
+- [ ] T070 needs owner: relative introduction E minor -> G major and D minor -> F major still play neither the minor
+  tonic nor its leading tone in the right hand. No melody within the introduction rules exists for them even with the
+  one shift: the major section holds one tonic chord for 8 bars and must sound the new key's note (D / C natural)
+  within two bars by steps, and every join into it needs a leap, a thumb on a black key, two non-chord tones in a row,
+  or (E minor high) a pitch span of 40 semitones against the level's 38 (criterion 1). Options: accept (the left hand
+  carries the minor), or change the harmony of those two items' major section (not allowed by FR-002)
 - [~] T032 [US1] [deep] Music review of the authored key-change phrases with the `music-domain-expert` agent (readability,
   musicality, level fit, fingering); fix findings in the definitions, regenerate, summarise findings in
   `specs/014-melody-over-chords/implementation-log.md` (claimed: claude-opus-5.5 2026-09-28)

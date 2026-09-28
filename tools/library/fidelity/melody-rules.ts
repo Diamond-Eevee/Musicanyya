@@ -21,7 +21,8 @@
 //   below), an unwritten finger continues the position. A position change is a thumb-under or finger-over (a step,
 //   fingers 2-4 to 1 going up, 1 to 2-4 going down), or else a shift; below intermediate, where the ladder allows no
 //   thumb-under, a thumb crossing counts as a shift too. A shift is "at a section start" when it is the first note of
-//   a key segment or follows a rest.
+//   a key segment or follows a rest; introduction and beginner allow their one shift only there (T068). A leap that
+//   moves the hand follows it unless it is at a chord start after at least a quarter (T066, `leapFingeringFault`).
 // - Key change: the new key must be heard within two bars through a pitch class of its characteristic scale (major,
 //   or harmonic minor) that the old key's characteristic scale lacks (C to A minor: G♯; A minor to C: G natural).
 //   A note of the old key only (its full scale, both forms of a minor 6th/7th, minus the new key's) after the change
@@ -547,17 +548,24 @@ export function checkMelodyRules(input: MelodyCheckInput): MelodyFinding[] {
     if (against) report('clash', t, `${name(m)} clashes with ${name(against)} in the left hand`);
   }
 
-  // parallel-octaves: melody and bass an octave apart at two chord starts in a row, moving the same way.
+  // parallel-octaves: melody and bass an octave apart into a chord start, moving the same way - from the melody note
+  // at the previous chord start, or from its last note before this one (a weak beat, T067).
   if (!ladder.parallelOctaves) {
     for (let i = 1; i < chordStarts.length; i++) {
       const [t1, t2] = [chordStarts[i - 1] as number, chordStarts[i] as number];
-      const m1 = melodyAt(t1);
       const m2 = melodyAt(t2);
       const b1 = [...sounding(left, t1)].sort((a, b) => a.midi - b.midi)[0];
       const b2 = [...sounding(left, t2)].sort((a, b) => a.midi - b.midi)[0];
-      if (!m1 || !m2 || !b1 || !b2) continue;
-      if (m1.pc !== b1.pc || m2.pc !== b2.pc || m1.midi === m2.midi || b1.midi === b2.midi) continue;
-      if (Math.sign(m2.midi - m1.midi) === Math.sign(b2.midi - b1.midi))
+      if (!m2 || !b1 || !b2 || m2.pc !== b2.pc || b1.midi === b2.midi) continue;
+      const lastBefore = melody.filter((m) => m.onset >= t1 && m.onset < t2).pop();
+      const m1 = [melodyAt(t1), lastBefore].find(
+        (m) =>
+          m !== undefined &&
+          m.pc === b1.pc &&
+          m.midi !== m2.midi &&
+          Math.sign(m2.midi - m.midi) === Math.sign(b2.midi - b1.midi),
+      );
+      if (m1)
         report(
           'parallel-octaves',
           t2,
@@ -741,7 +749,7 @@ function checkFingering(
     const sectionStart = segmentStarts.includes(m.onset) || before.end < m.onset;
     if (shifts > ladder.shiftsMax)
       report('shift', m.onset, `${name(m)} moves the hand (shift ${shifts}; at most ${ladder.shiftsMax} at ${level})`);
-    else if (level === 'beginner' && !sectionStart)
+    else if ((level === 'introduction' || level === 'beginner') && !sectionStart)
       report('shift', m.onset, `${name(m)} moves the hand in the middle of a section`);
   }
 }

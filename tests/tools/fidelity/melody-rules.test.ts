@@ -63,6 +63,9 @@ const C_VI = 'A2 C3 E3';
 const A_I = 'A2 C3 E3';
 const A_IV = 'A2 D3 F3';
 const A_V = 'G#2 B2 E3';
+/** V6/4: the clean intermediate fixture's G♯ on the half bar would move in octaves to A with a G♯ bass, and its E with an E
+ *  bass (T067). */
+const A_V64 = 'B2 E3 G#3';
 const A_VI = 'A2 C3 F3';
 const CM_I = 'C3 Eb3 G3';
 const D_I = 'D3 F#3 A3';
@@ -146,7 +149,7 @@ const intermediate = (): FixtureBar[] => [
     wordsAbove: 'A minor',
   }),
   bar(A_IV, [n('A4', 'half'), n('F4', 'half')]),
-  bar(A_V, [n('E4', 'half'), n('G#4', 'half')]),
+  bar(A_V64, [n('E4', 'half'), n('G#4', 'half')]),
   bar(A_I, [n('A4', 'whole')], { barline: 'light-heavy' }),
 ];
 const INTERMEDIATE_KEYS = [
@@ -325,6 +328,17 @@ describe('checkMelodyRules: one planted fault per rule', () => {
     });
   });
 
+  // T067: the melody's last note before a chord change counts too - the leading tone on a weak beat over V6 (bass =
+  // the leading tone) resolving with the bass to the tonic.
+  it('parallel-octaves: B on the last beat over V6 (bass B) to C over I (bass C), at intermediate', () => {
+    const bars: FixtureBar[] = [
+      bar(C_I, [n('C5', 'half', 2), n('E5', 'half')], { key: SIG_C }),
+      bar(C_V, [n('D5', 'half'), n('C5', 'quarter'), n('B4', 'quarter')]),
+      bar(C_I, [n('C5', 'whole')], { barline: 'light-heavy' }),
+    ];
+    expect(check(bars, 'intermediate', C_KEYS)).toEqual([{ rule: 'parallel-octaves', bar: 3, beat: 1 }]);
+  });
+
   it('register: B5 above the intermediate ceiling A5', () => {
     const bars: FixtureBar[] = [
       bar(C_I, [n('E5', 'half', 1), n('G5', 'half')], { key: SIG_C }),
@@ -385,13 +399,25 @@ describe('checkMelodyRules: one planted fault per rule', () => {
     ]);
   });
 
-  it('shift: a new five-finger position at the key change of an introduction item', () => {
+  // Introduction allows one shift, at the key change (owner decision 2026-09-28, T068): no five-note position holds
+  // both keys of a relative minor-to-major item.
+  it('shift: a new five-finger position at the key change of an introduction item is allowed', () => {
     const bars = withBar(
       introduction(),
       4,
       bar(A_I, [n('A4', 'half', 4), n('G#4', 'half')], { key: SIG_A_MINOR, wordsAbove: 'A minor' }),
     );
-    expect(check(bars, 'introduction', INTRO_KEYS)).toEqual([{ rule: 'shift', bar: 4, beat: 1 }]);
+    expect(check(bars, 'introduction', INTRO_KEYS)).toEqual([]);
+  });
+
+  it('shift: a second shift in an introduction item, in the middle of a section', () => {
+    const bars: FixtureBar[] = [
+      ...introduction().slice(0, 3),
+      bar(A_I, [n('A4', 'half', 4), n('G#4', 'half')], { key: SIG_A_MINOR, wordsAbove: 'A minor' }),
+      bar(A_I, [n('A4', 'half'), n('A4', 'half', 3)]),
+      bar(A_I, [n('A4', 'whole')], { barline: 'light-heavy' }),
+    ];
+    expect(check(bars, 'introduction', INTRO_KEYS)).toEqual([{ rule: 'shift', bar: 5, beat: 3 }]);
   });
 
   it('fingering: a thumb-under onto a black key (E to F♯ in D major)', () => {

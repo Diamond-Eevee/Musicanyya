@@ -43,9 +43,9 @@ to be a tone of the sounding chord or a step between two such tones.
 
 | Level | shortestValueBeats | rangeSemitones | maxLeapSteps | shiftsMax | nctPlacement | nctRun | lhAttacksPerBar | parallelOctaves |
 |---|---|---|---|---|---|---|---|---|
-| introduction | 2 | 7 (five notes) | 1 | 0 | second half of bar | 1 | 1 | allowed |
+| introduction | 2 | 7 (five notes) per section | 1 | 1, at the key change (T068) | second half of bar | 1 | 1 | allowed |
 | beginner | 1 | 7 per section | 2 (a third) | 1, at a section start | weak beats | 1 | 1 (house rule, R7) | allowed |
-| intermediate | 0.5 | 12 | 4 (a fifth), to a chord note | unlimited, thumb-under / finger-over | also off-beat eighths | 2 | as today | forbidden |
+| intermediate | 0.5 | 12 per section | 4 (a fifth), to a chord note | unlimited, thumb-under / finger-over | also off-beat eighths | 2 | as today | forbidden |
 | advanced | 0.5 (dotted allowed) | 16 (a tenth) | 7 (an octave), to a chord note | unlimited | as intermediate | 2 | as today | forbidden |
 
 A repeated note is 0 steps. Also: melody in C4-A5 (advanced C6); at least 3 semitones above the left hand at every
