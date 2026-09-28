@@ -365,10 +365,10 @@ pass; the owner finds it fun to play (T057).
   finger-over that lands on a chord start is a crossing, not a lift (it counted as a shift); and `triadRoot` names
   G♯ the root of G♯-B-E (the augmented fifth in `FIFTHS`), so the rising 5-♯6-♯7-1 over V6 was a `minor-degree`
   finding - tests first for both, then `melody-rules.ts`
-- [ ] T077 FR-002 (amended) tests first in `tests/library/melody-sweep.test.ts`, replacing "left hand is unchanged" for
+- [x] T077 FR-002 (amended) tests first in `tests/library/melody-sweep.test.ts`, replacing "left hand is unchanged" for
   the key-change items: the key-change bar and the chord just before it equal the recorded ones
-  (`tests/library/key-change-left-hand.json`); each key's section starts and ends on its tonic chord; every chord is
-  a primary triad of its key at introduction and beginner; at most one chord per bar at introduction and two at
+  (`tests/library/key-change-left-hand.json`); each key's section starts on its tonic chord and the item ends on the
+  new tonic; every other chord is a primary triad of its key at introduction and beginner; at most one chord per bar at introduction and two at
   beginner; every degree keeps its recorded voicing (inversion and octave); no chord is held more than two bars in a
   row at introduction and beginner except the closing tonic. Run: fails (i held for 8 bars)
 - [ ] T078 Update `tests/tools/fidelity/exercise-claims.test.ts` first, then the key-change chord plans in

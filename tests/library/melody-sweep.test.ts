@@ -20,7 +20,7 @@ import {
   melodyDegrees,
 } from '../../tools/library/fidelity/melody-rules';
 import { songKeyOfItemId } from '../../tools/library/fidelity/song-chords';
-import { readScore } from '../../tools/library/fidelity/theory';
+import { type KeyClaim, readScore } from '../../tools/library/fidelity/theory';
 import inScopeMetadata from './in-scope-metadata.json';
 import recordedLeftHand from './key-change-left-hand.json';
 
@@ -75,6 +75,58 @@ const RELATIVE_INTERMEDIATE_RAISED_BECAUSE_AT_BASELINE =
 function keysOf(item: ShelfItem) {
   const claim = claimForItem({ itemId: item.id, title: item.title, trains: item.trains });
   return claim.segments?.map((s) => ({ firstBar: s.firstBar, key: s.key })) ?? [{ firstBar: 1, key: claim.key }];
+}
+
+interface RecordedNote {
+  bar: number;
+  midi: number;
+  onset: { num: number; den: number };
+}
+function leftHandNotes(xml: string) {
+  return readScore(xml)
+    .notes.filter((n) => n.hand === 'left')
+    .map((n) => ({
+      bar: Number(n.bar),
+      step: n.step,
+      alter: n.alter,
+      octave: n.octave,
+      midi: n.midi,
+      onset: n.onset,
+      end: n.end,
+      ...(n.finger !== undefined ? { finger: n.finger } : {}),
+    }));
+}
+interface Chord {
+  bar: number;
+  onset: number;
+  /** Sorted pitch classes. */
+  pcs: number[];
+  /** Sorted MIDI numbers. */
+  midis: number[];
+}
+/** The left hand's chords in time order: the notes struck at one onset. */
+function chordsOf(notes: readonly RecordedNote[]): Chord[] {
+  const byOnset = new Map<number, RecordedNote[]>();
+  for (const n of notes) {
+    const t = n.onset.num / n.onset.den;
+    byOnset.set(t, [...(byOnset.get(t) ?? []), n]);
+  }
+  return [...byOnset.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([onset, group]) => ({
+      bar: group[0]?.bar ?? 0,
+      onset,
+      pcs: [...new Set(group.map((g) => g.midi % 12))].sort((a, b) => a - b),
+      midis: group.map((g) => g.midi).sort((a, b) => a - b),
+    }));
+}
+const LETTER_PC: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+/** Sorted pitch classes of the triad on scale degree 1, 4 or 5; V is major in minor too (the raised 7th). */
+function triadPcs(key: KeyClaim, degree: 1 | 4 | 5): number[] {
+  const tonic = (LETTER_PC[key.tonicLetter] ?? 0) + key.tonicAlter;
+  const root = tonic + (degree === 1 ? 0 : degree === 4 ? 5 : 7);
+  const third = key.mode === 'minor' && degree !== 5 ? 3 : 4;
+  return [...new Set([root, root + third, root + 7].map((pc) => ((pc % 12) + 12) % 12))].sort((a, b) => a - b);
 }
 
 function melodyMetrics(xml: string) {
@@ -221,22 +273,70 @@ describe('key-change melody sweep (FR-001, FR-002, US1)', () => {
     expect(keyChangeItems).toHaveLength(54);
   });
 
-  describe('left-hand notes equal those of commit 7f8ab96 (FR-002)', () => {
-    it.each(keyChangeItems)('$id left hand is unchanged', (item) => {
-      const reading = readScore(item.xml);
-      const currentLh = reading.notes
-        .filter((n) => n.hand === 'left')
-        .map((n) => ({
-          bar: Number(n.bar),
-          step: n.step,
-          alter: n.alter,
-          octave: n.octave,
-          midi: n.midi,
-          onset: n.onset,
-          end: n.end,
-          ...(n.finger !== undefined ? { finger: n.finger } : {}),
-        }));
-      expect(currentLh).toEqual((recordedLeftHand as Record<string, unknown[]>)[item.id]);
+  // FR-002 as amended 2026-09-28 (owner listening check, T077): the intermediate items keep the left hand of 7f8ab96;
+  // the introduction and beginner items keep the key change, the chord before it and the voicing of every chord they
+  // had, but their harmony moves with the key's primary triads.
+  describe('left-hand notes equal those of commit 7f8ab96 (FR-002) - intermediate', () => {
+    it.each(keyChangeItems.filter((i) => i.level === 'intermediate'))('$id left hand is unchanged', (item) => {
+      expect(leftHandNotes(item.xml)).toEqual((recordedLeftHand as Record<string, unknown[]>)[item.id]);
+    });
+  });
+
+  describe('introduction and beginner: a moving left hand of primary triads (FR-002 amended, T077)', () => {
+    const moving = keyChangeItems.filter((i) => i.level === 'introduction' || i.level === 'beginner');
+
+    it('covers the 36 introduction and beginner items', () => {
+      expect(moving).toHaveLength(36);
+    });
+
+    it.each(moving)('$id keeps its key change, the chord before it and its voicings, and moves', (item) => {
+      const now = chordsOf(leftHandNotes(item.xml));
+      const before = chordsOf((recordedLeftHand as Record<string, RecordedNote[]>)[item.id] ?? []);
+      const keys = keysOf(item);
+      const change = keys[1]?.firstBar;
+      expect(change, 'a key-change item has a second key').toBeDefined();
+      if (change === undefined) return;
+      const keyAtBar = (b: number) => (b >= change ? keys[1] : keys[0])?.key as KeyClaim;
+      const lastBar = (cs: Chord[]) => Math.max(...cs.map((c) => c.bar));
+
+      // the same length and the same key-change bar (the claim's second key starts where the recorded chords did)
+      expect(lastBar(now)).toBe(lastBar(before));
+      // the chord before the change, note for note
+      const pivot = (cs: Chord[]) => cs.filter((c) => c.bar < change).at(-1)?.midis;
+      expect(pivot(now)).toEqual(pivot(before));
+      // each key's section starts on its tonic, and the item ends on the new tonic
+      const tonicOf = (k: KeyClaim) => triadPcs(k, 1);
+      expect(now.find((c) => c.bar === 1)?.pcs).toEqual(tonicOf(keyAtBar(1)));
+      expect(now.find((c) => c.bar === change)?.pcs).toEqual(tonicOf(keyAtBar(change)));
+      expect(now.at(-1)?.pcs).toEqual(tonicOf(keyAtBar(change)));
+      // every other chord is a primary triad of its key (the chord before the change is the one kept as it was)
+      const pivotOnset = now.filter((c) => c.bar < change).at(-1)?.onset;
+      for (const c of now.filter((x) => x.onset !== pivotOnset)) {
+        const k = keyAtBar(c.bar);
+        const primary = [1, 4, 5].map((d) => triadPcs(k, d).join(','));
+        expect(primary, `bar ${c.bar}: ${c.pcs.join(',')}`).toContain(c.pcs.join(','));
+      }
+      // chords per bar: one at introduction, two at beginner (MELODY_LADDER.lhAttacksPerBar)
+      const perBar = new Map<number, number>();
+      for (const c of now) perBar.set(c.bar, (perBar.get(c.bar) ?? 0) + 1);
+      expect(Math.max(...perBar.values())).toBeLessThanOrEqual(item.level === 'introduction' ? 1 : 2);
+      // a degree the recorded item had keeps its notes; every degree is voiced one way in the item
+      const voicing = new Map<string, string>();
+      for (const c of before) voicing.set(c.pcs.join(','), c.midis.join(','));
+      for (const c of now) {
+        const pcsKey = c.pcs.join(',');
+        const recorded = voicing.get(pcsKey);
+        if (recorded !== undefined) expect(c.midis.join(','), `bar ${c.bar}`).toBe(recorded);
+        else voicing.set(pcsKey, c.midis.join(','));
+      }
+      // the harmony moves: no chord held or repeated for more than two bars in a row, apart from the closing tonic
+      const byBar = [...new Map(now.map((c) => [c.bar, c.pcs.join(',')])).entries()].sort((a, b) => a[0] - b[0]);
+      let runLength = 1;
+      for (let i = 1; i < byBar.length; i++) {
+        runLength = byBar[i]?.[1] === byBar[i - 1]?.[1] ? runLength + 1 : 1;
+        const closing = i === byBar.length - 1;
+        if (!closing) expect(runLength, `bar ${byBar[i]?.[0]}: ${byBar[i]?.[1]} again`).toBeLessThanOrEqual(2);
+      }
     });
   });
 

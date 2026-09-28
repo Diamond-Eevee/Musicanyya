@@ -239,8 +239,8 @@ alternating every bar. The first ladder (R7) set introduction below the key step
    one block chord per bar. Beginner: as introduction plus leaps up to a third (to chord notes) and chord changes on
    the half bar. Intermediate and advanced unchanged. `MELODY_LADDER` follows (T072 made the checker read every
    level rule from it).
-2. FR-002 amended for the key-change items: the key change bar, the tonic at the start and end of each key's section
-   and the chord before the change stay; the chords in between are re-written with the key's primary triads (I/IV/V,
+2. FR-002 amended for the key-change items: the key change bar, the tonic at the start of each key's section and at
+   the end, and the chord before the change stay; the chords in between are re-written with the key's primary triads (I/IV/V,
    i/iv/V) so the harmony moves - at introduction one chord per bar, as the key step; beginner may change on the half
    bar; intermediate keeps its (already moving) progressions unless a melody needs otherwise. Voicing (close
    position, the same inversions per degree as today) and left-hand fingering stay as generated. The drills keep
