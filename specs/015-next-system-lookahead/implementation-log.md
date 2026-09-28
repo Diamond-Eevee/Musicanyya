@@ -88,6 +88,8 @@
   - `pnpm test tests/verovio/page-units.test.ts`: 1 failed (expected 360 to be <= 1, 1080 vs 720 on test (a)), 22 passed.
 - Model fit / handoff:
   - Next task is T025 [P] [US3] [deep] (authoring `grand-staff-between-staves.musicxml` with cross-staff beam, hairpins, dynamics, pedal line, and review with music-domain-expert).
-  - T025 requires tier `deep` (claude-opus-5.5). Asking owner per AGENTS.md section 2.8.
+  - T025 requires tier `deep` (claude-opus-5.5 / gemini-pro).
+- Handoff: next = T025 [P] [US3] [deep] -> T026; tree clean at 0120f6c
+
 
 
