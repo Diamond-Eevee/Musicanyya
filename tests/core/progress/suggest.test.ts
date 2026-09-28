@@ -149,6 +149,40 @@ describe('continueItems (T071, US4 #1)', () => {
   it('is empty for no records', () => {
     expect(continueItems(itemsFor([]), [])).toEqual([]);
   });
+
+  it('FR-012: a leftover record for an old hash does not raise and shows status New in Continue with no results', () => {
+    const targetId = 'learning/key-changes/c-major-to-a-minor/introduction';
+    const oldHash = hashOf(targetId);
+    // Simulate that the shelf has a new hash for the item
+    const customIndex: LibraryIndex = {
+      ...index,
+      items: index.items.map((i) => (i.id === targetId ? { ...i, hash: 'a'.repeat(64) } : i)),
+    };
+    const oldResult = result({ runId: 'old-run', finishedAt: at(10) });
+    const oldRecord = record({
+      scoreKey: oldHash,
+      openedAs: lib(targetId),
+      lastOpenedAt: at(20),
+      attempts: 5,
+      best: oldResult,
+      results: [oldResult],
+    });
+    const otherRecord = opened(`${C}/introduction`, 5);
+    const records = [oldRecord, otherRecord];
+
+    const items = buildBrowserItems(customIndex, [], records, DEFAULT_MASTERY_THRESHOLDS, compare);
+    const entries = continueItems(items, records);
+    expect(entries.length).toBeGreaterThan(0);
+    const entry = entries.find((e) => e.item.ref.kind === 'library' && e.item.ref.id === targetId);
+    expect(entry).toBeDefined();
+    if (!entry) throw new Error('unreachable');
+    expect(entry.item.progress.status).toBe('new');
+    expect(entry.item.progress.best).toBeNull();
+    expect(entry.item.progress.attempts).toBe(0);
+    expect(entry.item.progress.history).toEqual([]);
+
+    expect(() => suggestNext(items, records, tree)).not.toThrow();
+  });
 });
 
 describe('suggestNext (T071, US4 #2 and #3, R-10)', () => {

@@ -529,9 +529,19 @@ describe('the key-change claims: "<from> to <to> - introduction|beginner|interme
     }
   });
 
-  it('every chord is a whole-note triad in both hands, two octaves apart', () => {
-    const claim = keyChangeClaim('C major', 'A minor', 'beginner');
-    expect(claim.chords.every((c) => c.hands.join() === 'left,right' && c.octavesApart === 2)).toBe(true);
+  it('the key-change claims give the right hand as a melody at the item level for every section, and the left hand plays the chords', () => {
+    for (const [from, to] of PAIRS) {
+      for (const step of STEPS) {
+        const claim = keyChangeClaim(from, to, step);
+        expect(claim.sections, `${from} to ${to} - ${step}`).toBeDefined();
+        expect(claim.sections, `${from} to ${to} - ${step}`).toHaveLength(2);
+        for (const section of claim.sections ?? []) {
+          expect(section.right).toEqual({ kind: 'melody', level: step });
+          expect(section.left.kind).toBe('chords');
+        }
+        expect(claim.chords.every((c) => c.hands.join() === 'left')).toBe(true);
+      }
+    }
   });
 
   it('a relative change: the tonic, then the pivot (IV of the first key, VI in a minor first key), then the new tonic', () => {

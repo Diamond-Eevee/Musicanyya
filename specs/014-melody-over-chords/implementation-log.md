@@ -108,3 +108,27 @@
   (F over C-E-G, B over A-C-E); the checker will say so per bar.
 - Handoff: next = Phase 3 tests T015-T019 and T058 (tier standard), then T020, then the melody authoring T021-T026
   (tier `deep`, claude-opus-5.5); tree clean after this entry's commit.
+
+## 2026-09-28 15:10 - antigravity-gemini-3.8-flash (relay)
+- Done: T015-T020, T058 (US1/US2 Phase 3 tests and key-change claims)
+  - T015: created `tests/library/key-change-left-hand.json` capturing left-hand notes for all 54 key-change items at 7f8ab96; created `tests/library/melody-sweep.test.ts` verifying left-hand invariance and `checkMelodyRules` (fails with `doubled` on 54 items as expected).
+  - T016: updated `tests/tools/fidelity/exercise-claims.test.ts` to assert that key-change claims define `sections` with `right: { kind: 'melody', level: step }` and left-hand chords (failed first as expected).
+  - T017: created `tests/library/melody-practice.test.ts` running wait-mode Practice and Play-mode 100% correct grading across all 59 in-scope items (passes 119/119 as guard).
+  - T018: added FR-012 tests in `tests/core/browser/items.test.ts` and `tests/core/progress/suggest.test.ts` verifying unlinked progress records for old content hash start fresh as `New` without raising (passes 19/19 by construction).
+  - T019: extended `tests/library/melody-sweep.test.ts` for ladder checks (`checkStepOrder` passes 18/18, `checkLevel` passes 54/54, ladder dimension comparison fails as expected due to identical whole-note levels).
+  - T058: created `tests/library/in-scope-metadata.json` and `tests/library/item-metadata.test.ts` guarding title, section, level, step, stepOrder, tempo, metre, and bar count across all 59 items (passes 60/60).
+  - T020: updated `tools/library/fidelity/exercise-claims.ts` `keyChangeClaim` to return two `SectionClaim`s with `right: { kind: 'melody', level: step }` and `left: { kind: 'chords', chords: ... }` and chords played by left hand only; T016 passes (7/7 in `the key-change claims`).
+- Verification:
+  - `pnpm test -t "the key-change claims"`: exit 0 (`7 passed | 5720 skipped`)
+  - `pnpm test -- tests/library/item-metadata.test.ts`: exit 0 (`60 passed`)
+  - `pnpm test -- tests/library/melody-practice.test.ts`: exit 0 (`119 passed`)
+  - `pnpm test -- tests/core/browser/items.test.ts tests/core/progress/suggest.test.ts`: exit 0 (`19 passed`)
+  - `pnpm test -- tests/library/melody-sweep.test.ts`: exit 1 (`54 failed | 153 passed`, failing with `doubled` findings and ladder step comparison as expected)
+  - `pnpm typecheck`: exit 0
+  - `pnpm lint`: exit 0 (clean, 0 errors, 299 warnings all pre-existing)
+- Decisions:
+  - `keyChangeClaim` in `tools/library/fidelity/exercise-claims.ts` constructs two `SectionClaim` segments (`firstBar` to `lastBar`) matching the `from` and `to` plan lengths, with right hand `{ kind: 'melody', level: step }` and left hand `{ kind: 'chords', chords: ... }`, with `chords` played by `['left']`.
+- Problems / open questions:
+  - Needs model fit check: next tasks are T021-T026 (tier `deep`: authoring melodies in `content/library/exercises/key-change-*.json` under `MELODY_LADDER`).
+- Handoff: next = T021-T026 (tier `deep`, recommended: claude-opus-5.5); tree clean at e147ee9.
+

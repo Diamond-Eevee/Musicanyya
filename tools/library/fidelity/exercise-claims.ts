@@ -23,6 +23,7 @@ import type {
   Mode,
   Quality,
   ScaleForm,
+  SectionChord,
   SectionClaim,
   SectionHand,
   Voicing,
@@ -419,10 +420,10 @@ function stepClaim(itemId: string, key: KeyClaim, step: StepName): ExerciseClaim
   return { itemId, key, chords, sections };
 }
 
-// ---- key changes (feature 011, rule set exercise-theory-v2, research R7 and data-model §3) ---------------------------
+// ---- key changes (feature 014, rule set exercise-theory-v3, research R7 and data-model §3) ---------------------------
 // "<from> to <to> - introduction|beginner|intermediate": a piece in the first key that moves to the second and ends on its
-// tonic, every bar one whole-note triad in both hands. Written by hand from the key-pair table and the step shapes, never
-// read from the generator or the definitions. Two segments, one key claim each.
+// tonic, every bar one whole-note triad in the left hand under a right-hand melody. Written by hand from the key-pair table
+// and the step shapes, never read from the generator or the definitions. Two segments, one key claim each.
 
 const KEY_CHANGE_TITLE = /^([A-G][♯♭#b]? (?:major|minor)) to ([A-G][♯♭#b]? (?:major|minor)) - (.+)$/;
 const KEY_CHANGE_STEPS = ['introduction', 'beginner', 'intermediate'] as const;
@@ -498,18 +499,37 @@ function keyChangeClaim(
 ): ExerciseClaim {
   const relation = keyChangeRelation(from, to, title);
   const plan = (relation === 'relative' ? RELATIVE_PLANS : PARALLEL_PLANS)[step];
-  const chordOf = (p: Pt, key: KeyClaim): ChordClaim => ({
-    ...chord(key.mode === 'major' ? p.major : p.minor),
-    octavesApart: 2,
-  });
+  const chordOf = (p: Pt, key: KeyClaim): ChordClaim => chord(key.mode === 'major' ? p.major : p.minor, ['left']);
+  const sectionChords = (pts: Pt[], key: KeyClaim): SectionChord[] =>
+    pts.map((p) => {
+      const c = chord(key.mode === 'major' ? p.major : p.minor);
+      return { roman: c.roman, quality: c.quality, inversion: c.inversion, voicing: p.voicing };
+    });
   const segments = [
     { firstBar: 1, lastBar: plan.from.length, key: from },
     { firstBar: plan.from.length + 1, lastBar: plan.from.length + plan.to.length, key: to },
+  ];
+  const sections: SectionClaim[] = [
+    {
+      firstBar: 1,
+      lastBar: plan.from.length,
+      key: from,
+      right: { kind: 'melody', level: step },
+      left: { kind: 'chords', chords: sectionChords(plan.from, from) },
+    },
+    {
+      firstBar: plan.from.length + 1,
+      lastBar: plan.from.length + plan.to.length,
+      key: to,
+      right: { kind: 'melody', level: step },
+      left: { kind: 'chords', chords: sectionChords(plan.to, to) },
+    },
   ];
   return {
     itemId,
     key: from,
     chords: [...plan.from.map((p) => chordOf(p, from)), ...plan.to.map((p) => chordOf(p, to))],
     segments,
+    sections,
   };
 }

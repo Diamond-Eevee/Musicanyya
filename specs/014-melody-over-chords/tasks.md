@@ -109,38 +109,38 @@ as demanding as the one before, and the level check passes.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T015 [P] [US1] Write `tests/library/melody-sweep.test.ts`: for every key-change item on the shelf (ids from
+- [x] T015 [P] [US1] Write `tests/library/melody-sweep.test.ts`: for every key-change item on the shelf (ids from
   `public/library/index.json`, section `learning/key-changes/*`, excluding the drills `major-and-minor` and
   `minor-and-major`), `checkMelodyRules` at the item's level returns 0 findings (so 0 `doubled` bars, chord tone at
   every chord start, minor degrees, ending, key-change audibility, register, fingering); `checkMelodyVariation` per
   definition returns 0; each item's left-hand notes equal those of the same item at 7f8ab96 (read from git or a
   recorded copy in `tests/library/key-change-left-hand.json`) (FR-002). Run: fails with `doubled` findings on all 54
   items
-- [ ] T016 [P] [US1] Update `tests/tools/fidelity/exercise-claims.test.ts` first: the key-change claims give the right
+- [x] T016 [P] [US1] Update `tests/tools/fidelity/exercise-claims.test.ts` first: the key-change claims give the right
   hand as `{ kind: 'melody', level }` for every section and the left hand's chords unchanged. Run: fails
-- [ ] T017 [P] [US1] Write `tests/library/melody-practice.test.ts`: for every rewritten item, run the core Practice
+- [x] T017 [P] [US1] Write `tests/library/melody-practice.test.ts`: for every rewritten item, run the core Practice
   mode (`src/core/practice`) with a fake input that plays each expected note/chord in order and assert the session
   completes; run Play-mode grading (`src/core/grade`) on a perfect Performance log built from the schedule and assert
   every Note is graded correct (FR-015, SC-003). Run: passes on today's files (guard), must stay green after
   regeneration - log it as a guard, not a failing-first test
-- [ ] T018 [P] [US1] Write the FR-012 test in `tests/core/browser/items.test.ts` (and `tests/core/progress/suggest.test.ts`
+- [x] T018 [P] [US1] Write the FR-012 test in `tests/core/browser/items.test.ts` (and `tests/core/progress/suggest.test.ts`
   for Continue): a progress record keyed by the old hash of `learning/key-changes/c-major-to-a-minor/introduction`
   while the index lists a new hash -> the item shows status New with no results, the leftover record raises nothing,
   and other items' progress is unchanged. Run: record whether it fails (expected: passes by construction, research
   R9) and log the outcome
-- [ ] T019 [US2] Extend `tests/library/melody-sweep.test.ts`: for each key-change folder, `checkStepOrder` returns
+- [x] T019 [US2] Extend `tests/library/melody-sweep.test.ts`: for each key-change folder, `checkStepOrder` returns
   no message and, per MELODY_LADDER dimension (shortest value, range, largest leap, shifts), the beginner item is not
   easier than the introduction and the intermediate not easier than the beginner (US2 #3); `checkLevel` passes at the
   shelved level for all 54 items with no `raisedBecause` added (FR-011). Run: the ladder comparison fails (all three
   levels identical today)
-- [ ] T058 [P] [US1] [light] Write `tests/library/item-metadata.test.ts` (FR-004): for each of the 59 in-scope items, title,
+- [x] T058 [P] [US1] [light] Write `tests/library/item-metadata.test.ts` (FR-004): for each of the 59 in-scope items, title,
   section, level, step, stepOrder, tempo, metre and bar count equal the values recorded in
   `tests/library/in-scope-metadata.json` (made from the sidecars and files at 7f8ab96 by a one-off scratchpad script,
   not committed). Passes now; a guard for T028 and T047 - log it as such
 
 ### Implementation
 
-- [ ] T020 [US1] Change the key-change claims in `tools/library/fidelity/exercise-claims.ts` (right hand -> melody,
+- [x] T020 [US1] Change the key-change claims in `tools/library/fidelity/exercise-claims.ts` (right hand -> melody,
   rule set v3) until T016 passes; still no read of definitions or generator
 - [ ] T021 [P] [US1] [deep] Author the right-hand `melody` (major and minor variants, at least 2 per section and mode) in
   `content/library/exercises/key-change-relative-introduction.json` - half and whole notes, five-finger position,

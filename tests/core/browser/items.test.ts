@@ -118,4 +118,44 @@ describe('buildBrowserItems (T013)', () => {
     expect(row.progress.attempts).toBe(1);
     expect(row.progress.history).toEqual([{ ...oldResult, earlierVersion: true }]);
   });
+
+  it('FR-012: an item whose file has a new hash starts fresh as New while a leftover record for its old hash raises nothing', () => {
+    const index = realIndex();
+    const targetId = 'learning/key-changes/c-major-to-a-minor/introduction';
+    const otherId = 'learning/keys/c-major/introduction';
+
+    const targetItem = index.items.find((i) => i.id === targetId);
+    const otherItem = index.items.find((i) => i.id === otherId);
+    if (!targetItem || !otherItem) throw new Error('missing test items');
+
+    const oldHash = targetItem.hash;
+    const newHash = 'a'.repeat(64);
+    // Simulate that the shelf has been regenerated with a new hash, and no supersedes link exists
+    targetItem.hash = newHash;
+
+    const oldResult = result({ runId: 'old-kc-run', finishedAt: '2026-09-01T10:00:00.000Z' });
+    const otherResult = result({ runId: 'other-run', finishedAt: '2026-09-01T11:00:00.000Z' });
+
+    const records = [
+      record({ scoreKey: oldHash, attempts: 2, results: [oldResult], best: oldResult }),
+      record({ scoreKey: otherItem.hash, attempts: 1, results: [otherResult], best: otherResult }),
+    ];
+
+    const items = buildBrowserItems(index, [], records, DEFAULT_MASTERY_THRESHOLDS, compare);
+
+    const targetRow = items.find((i) => i.ref.kind === 'library' && i.ref.id === targetId);
+    expect(targetRow).toBeDefined();
+    if (!targetRow) throw new Error('unreachable');
+    expect(targetRow.progress.status).toBe('new');
+    expect(targetRow.progress.best).toBeNull();
+    expect(targetRow.progress.attempts).toBe(0);
+    expect(targetRow.progress.history).toEqual([]);
+
+    const otherRow = items.find((i) => i.ref.kind === 'library' && i.ref.id === otherId);
+    expect(otherRow).toBeDefined();
+    if (!otherRow) throw new Error('unreachable');
+    expect(otherRow.progress.status).toBe('played');
+    expect(otherRow.progress.attempts).toBe(1);
+    expect(otherRow.progress.best).toEqual(otherResult);
+  });
 });
