@@ -149,6 +149,14 @@ included): `pressed-keys.spec.ts:483` (firefox, a 60fps frame-timing check) and,
 `score-browser.spec.ts`'s "a .musicxml file with invalid content dropped onto the browser..." (firefox) - both
 passed 13/13 and 4/4 respectively re-run alone. At the 013 US5 checkpoint `library.spec.ts:370` (firefox, "a sample of
 items across sections each engrave at least one page") joined them: failed once in the full run, 3/3 alone.
+`us2-panels.spec.ts` "opening and closing a popup each take well under 100 ms (SC-007)" (firefox) failed once in a full
+run and 2 times in about 100 standalone repeats at `--workers=4` (the menu button "waiting for element to be visible,
+enabled and stable" until the 30 s timeout); 0 in 38 repeats on the commit before the 013 list/rail patching, so
+watch it, but no cause was found in 013's files.
+Unit tests under a full `pnpm test` run only (green standalone; 2026-09-28): `tests/core/browser/query-timing.test.ts`
+"a filter and sort change takes at most 20 ms" failed in 2 of 4 full runs (23.5 ms in the first), green alone and in the other two.
+Re-run it alone before calling it a regression; `tests/library/regeneration.test.ts` used to time out the same way and
+now has a 30 s timeout.
 
 **Known bugs** (confirmed, reproducible, not flaky - see `docs/known-bugs.md`): `tests/e2e/play-grade-marks.spec.ts`
 grades roughly half the expected notes on `repertoire/beginner/fur-elise-theme-16-bar`; not root-caused yet, not
@@ -305,8 +313,7 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   refused during Practice/Play sessions, and while one starts; it pauses a playing Listen). Progress is a pure event reducer (`src/core/progress`) behind a new `ProgressStore` port
   with an IndexedDB adapter (database version 3: `progress`, `userFiles`, `userFileBytes`, `meta`; lazy one-shot
   migration from `recentScores` + `performances`) and a memory adapter (contract tests + storage-unavailable
-  fallback). The browser model (`src/core/browser`) is pure. New `localStorage` key `musicanyya.browser.v1`. Rows use
-  CSS `content-visibility: auto`. Test-only `@axe-core/playwright` 4.13.0 (MPL-2.0) for the WCAG 2.1 AA check (OD-5,
+  fallback). The browser model (`src/core/browser`) is pure. New `localStorage` key `musicanyya.browser.v1`. Test-only `@axe-core/playwright` 4.13.0 (MPL-2.0) for the WCAG 2.1 AA check (OD-5,
   approved 2026-09-27, in use: `tests/e2e/score-browser-a11y.spec.ts`).
 
 <!-- ACTIVE-TECHNOLOGIES:END -->

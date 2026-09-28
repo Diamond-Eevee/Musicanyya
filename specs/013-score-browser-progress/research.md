@@ -312,9 +312,19 @@ fail). A blocking `confirm()` (spec: never). Keeping Performances on reset (the 
 - One pure core function builds rows (`buildBrowserItems`), one filters, searches and sorts them (`queryBrowser`), and
   one gives folder summaries (`folderProgress`), all in `src/core/browser/`. No DOM work happens until the query
   result is known.
-- The list renders every row (no virtualisation), with keyed row reuse, `content-visibility: auto` and
-  `contain-intrinsic-size` on rows. That CSS is supported by Chrome/Edge 85, Firefox 125 and Safari 18; older engines
-  just render everything.
+- The list renders every row (no virtualisation). **Amended 2026-09-28 (keyed reuse)**: the list, the rail and
+  nothing else of the first version actually reused rows (each update replaced `innerHTML`); they now use
+  `patchChildren` (`src/ui/util/patch-children.ts`), which keeps every child whose markup is unchanged, with
+  delegated listeners. A press on an element that an update replaced never becomes a click, so a state update landing
+  between mousedown and mouseup lost the first click on *All* (about 1 run in 20 on WebKit under load) and made the
+  double click on a *My files* row flaky. **Amended 2026-09-28**: rows first had
+  `content-visibility: auto` with `contain-intrinsic-size: 0 40px`; it is removed. Real rows are 33, 59 or 85 px (the
+  subtitle wraps), so no single intrinsic size fits, and the list's height changed as rows scrolled into view. WebKit
+  has no scroll anchoring, so rows moved under the pointer between the two clicks of a double click and the wrong Score
+  opened (`tests/e2e/score-browser.spec.ts` "list layout is stable" fails on the old CSS in WebKit and Chromium).
+  Measured cost of removing it (Chromium, T086 seeds): open 20 -> 35 ms (budget 300), folder/search/filter change
+  12/19/21 -> 15/24/21 ms (budget 100). If lists ever outgrow this (thousands of rows), virtualise with a fixed row
+  height rather than bring `content-visibility` back.
 - Budgets are tested, not assumed. A Node test runs `queryBrowser` over 500 items with 10,000 results (<= 20 ms, well
   inside SC-003's 100 ms). An e2e test measures open-to-first-list-paint with the real library plus 200 seeded
   *My files* entries (SC-002 <= 300 ms), and folder/search/filter updates with 500 items (SC-003 <= 100 ms).
@@ -440,5 +450,17 @@ source (licence, feature 005/011) still needs a home for the open Score.
 ## R-21 No new runtime technology
 
 **Decision**: no new runtime dependency. Everything uses Web Platform APIs already in the stack (IndexedDB, `<dialog>`,
-Custom Elements, CSS `content-visibility`, `Intl.Collator`, `Intl.DateTimeFormat`/`RelativeTimeFormat` for "3 days
+Custom Elements, `Intl.Collator`, `Intl.DateTimeFormat`/`RelativeTimeFormat` for "3 days
 ago"). The only addition is the test-only `@axe-core/playwright` (OD-5).
+
+## R-22 The `e2e-*` test seams ship in every build (owner decision, 2026-09-28)
+
+**Decision**: `e2e-midi`, `e2e-ready`, `e2e-synthetic-grade` and `e2e-progress-seed` stay in every build, production
+included.
+
+**Rationale**: they are `window` events handled by same-origin page script only, so nothing outside the page can use
+them, and the Electron e2e (T088) reaches the same code through them. A build flag would remove them from the
+production bundle but the Electron test would need another way in.
+
+**Alternatives considered**: gating them behind a build flag (a new task, and a different entry point for the Electron
+test). Revisit if a seam ever accepts data that reaches storage without going through the ordinary `apply` path.

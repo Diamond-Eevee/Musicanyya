@@ -43,6 +43,8 @@ export default defineConfig({
           name: 'library',
           include: ['tests/library/**/*.test.ts'],
           environment: 'node',
+          // Regenerating the whole shelf takes ~1 s alone but 5-7 s in a parallel run; the default 5 s failed it.
+          testTimeout: 30000,
         },
       },
       {

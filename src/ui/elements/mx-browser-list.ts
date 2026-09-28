@@ -9,6 +9,7 @@ import { BROWSER_DBLCLICK_WINDOW_MS } from '../../engine/config.js';
 import { en } from '../i18n/en.js';
 import { browserState } from '../state/browserState.js';
 import { escapeHtml } from '../util/escape-html.js';
+import { patchChildren } from '../util/patch-children.js';
 
 const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
 
@@ -37,6 +38,9 @@ function refEquals(a: ItemRef, b: ItemRef): boolean {
 export class MxBrowserList extends HTMLElement {
   private unsubscribe?: () => void;
   private activeRef: ItemRef | null = null;
+  /** The rows as of the last render, for the delegated listeners (rows are kept across renders, so a listener
+   *  cannot close over them). */
+  private currentRows: BrowserItem[] = [];
   /** A pending single-click selection, deferred so a following dblclick can cancel it (see `wire()`). */
   private selectTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -45,6 +49,8 @@ export class MxBrowserList extends HTMLElement {
     this.setAttribute('aria-label', en.browser.title);
     this.tabIndex = 0;
     this.addEventListener('keydown', this.onKeydown);
+    this.addEventListener('click', this.onClick);
+    this.addEventListener('dblclick', this.onDblclick);
     this.unsubscribe = browserState.subscribe(() => this.render());
     this.render();
   }
@@ -52,6 +58,8 @@ export class MxBrowserList extends HTMLElement {
   disconnectedCallback() {
     this.unsubscribe?.();
     this.removeEventListener('keydown', this.onKeydown);
+    this.removeEventListener('click', this.onClick);
+    this.removeEventListener('dblclick', this.onDblclick);
     if (this.selectTimer !== null) clearTimeout(this.selectTimer);
   }
 
@@ -70,11 +78,13 @@ export class MxBrowserList extends HTMLElement {
       const selectedRow = selected && rows.find((r) => refEquals(r.ref, selected));
       this.activeRef = selectedRow ? selectedRow.ref : (rows[0]?.ref ?? null);
     }
-    this.innerHTML = rows.map((row, index) => this.rowHtml(row, index, selected, this.activeRef)).join('');
+    this.currentRows = rows;
+    // Rows whose markup did not change stay the same elements: an update between the two clicks of a double click
+    // (or between a press and its release) must not swap the row out from under the pointer.
+    patchChildren(this, rows.map((row, index) => this.rowHtml(row, index, selected, this.activeRef)).join(''));
     const activeIndex = this.activeRef ? rows.findIndex((r) => refEquals(r.ref, this.activeRef as ItemRef)) : -1;
     if (activeIndex >= 0) this.setAttribute('aria-activedescendant', `browser-row-${activeIndex}`);
     else this.removeAttribute('aria-activedescendant');
-    this.wire(rows);
   }
 
   /** FR-012: for a played item, the best result, the last result and the trend between the last two. */
@@ -120,34 +130,40 @@ export class MxBrowserList extends HTMLElement {
       </div>`;
   }
 
-  private wire(rows: BrowserItem[]): void {
-    this.querySelectorAll<HTMLElement>('.browser-row').forEach((el) => {
-      const index = Number(el.dataset.index);
-      // `select()` re-renders synchronously (`render()` replaces `innerHTML`), which would tear down this very
-      // element between the two clicks of a double click - found live (dblclick never opened anything: the first
-      // click's re-render swapped the row out from under the browser's own double-click tracking, e2e
-      // library.spec.ts). Deferring the single-click selection past the double-click window (Explorer/VS Code's
-      // own threshold) keeps the element alive long enough for a real dblclick to fire and cancel it.
-      el.addEventListener('click', () => {
-        if (this.selectTimer !== null) clearTimeout(this.selectTimer);
-        this.selectTimer = setTimeout(() => {
-          this.selectTimer = null;
-          this.select(index, rows);
-        }, BROWSER_DBLCLICK_WINDOW_MS);
-      });
-      el.addEventListener('dblclick', () => {
-        if (this.selectTimer !== null) {
-          clearTimeout(this.selectTimer);
-          this.selectTimer = null;
-        }
-        this.open(index, rows);
-      });
-    });
+  /** The row a mouse event happened on, as of its own render: its `data-index` is part of the markup, so a kept row
+   *  always names its current place, and a replaced one names the new place. */
+  private rowFor(event: Event): BrowserItem | null {
+    if (!(event.target instanceof Element)) return null;
+    const el = event.target.closest<HTMLElement>('.browser-row');
+    return el ? (this.currentRows[Number(el.dataset.index)] ?? null) : null;
   }
 
-  private select(index: number, rows: BrowserItem[]): void {
-    const row = rows[index];
+  // `select()` re-renders synchronously, which used to tear down this very element between the two clicks of a
+  // double click - found live (dblclick never opened anything, e2e library.spec.ts). Deferring the single-click
+  // selection past the double-click window (Explorer/VS Code's own threshold) lets a real dblclick fire and cancel
+  // it. The row is resolved when the click happens, so a list that changes during the window still selects the row
+  // that was clicked.
+  private readonly onClick = (event: MouseEvent): void => {
+    const row = this.rowFor(event);
     if (!row) return;
+    if (this.selectTimer !== null) clearTimeout(this.selectTimer);
+    this.selectTimer = setTimeout(() => {
+      this.selectTimer = null;
+      this.select(row);
+    }, BROWSER_DBLCLICK_WINDOW_MS);
+  };
+
+  private readonly onDblclick = (event: MouseEvent): void => {
+    const row = this.rowFor(event);
+    if (!row) return;
+    if (this.selectTimer !== null) {
+      clearTimeout(this.selectTimer);
+      this.selectTimer = null;
+    }
+    this.open(row);
+  };
+
+  private select(row: BrowserItem): void {
     this.activeRef = row.ref;
     browserState.setView({ selected: row.ref });
     this.dispatchEvent(
@@ -155,9 +171,7 @@ export class MxBrowserList extends HTMLElement {
     );
   }
 
-  private open(index: number, rows: BrowserItem[]): void {
-    const row = rows[index];
-    if (!row) return;
+  private open(row: BrowserItem): void {
     this.dispatchEvent(new CustomEvent('browseropenitem', { detail: { ref: row.ref }, bubbles: true }));
   }
 
@@ -170,7 +184,8 @@ export class MxBrowserList extends HTMLElement {
     const last = rows.length - 1;
     const moveTo = (index: number): void => {
       event.preventDefault();
-      this.select(Math.max(0, Math.min(last, index)), rows);
+      const target = rows[Math.max(0, Math.min(last, index))];
+      if (target) this.select(target);
       this.querySelector('[data-active]')?.scrollIntoView?.({ block: 'nearest' });
     };
     switch (event.key) {
@@ -194,7 +209,7 @@ export class MxBrowserList extends HTMLElement {
         break;
       case 'Enter':
         event.preventDefault();
-        if (activeIndex >= 0) this.open(activeIndex, rows);
+        if (activeIndex >= 0 && rows[activeIndex]) this.open(rows[activeIndex] as BrowserItem);
         break;
     }
   };

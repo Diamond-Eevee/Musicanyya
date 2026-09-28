@@ -55,7 +55,7 @@ flow, and axe (SC-007, OD-5).
 **Shells / Delivery Targets**: browser and Electron (same build; IndexedDB and `<dialog>` behave identically in
 Electron 44's Chromium, FR-031); Native audio plugin not involved
 **Target Browsers**: latest 2 Chrome + Edge (reference); Firefox; Safari = view + Listen only (no Web MIDI). The browser
-and progress work in all of them (`<dialog>` Baseline 2022; `content-visibility` degrades gracefully)
+and progress work in all of them (`<dialog>` Baseline 2022)
 **Performance Goals**: browser visible <= 300 ms after *Open* with the full library + 200 files (SC-002); list update
 <= 100 ms for 500 items / 10,000 results (SC-003; the core query is budgeted at <= 20 ms in Node); no main-thread task
 > 50 ms while a session runs (the browser is closed during Play/Practice sessions, and progress writes are small
@@ -193,7 +193,7 @@ helper are in R-20.
 | Violation / Addition | Why Needed | Simpler Alternative Rejected Because |
 |---|---|---|
 | Dev dependency `@axe-core/playwright` 4.13.0 (+ `axe-core`), MPL-2.0, test only (**OD-5**) | SC-007 requires an automated check reporting no WCAG 2.1 AA violations | Hand-written assertions cannot establish "no WCAG 2.1 AA violations". Lighthouse is larger and uses axe internally. Nothing ships to users. |
-| The browser is a **modal** `<dialog>` that can open over a Listen session (Principle VI: nothing modal may interrupt an active Listen, Practice or Play session) | The musician asked for a near-full-screen browser (FR-002) and Open must work while a Score is loaded, including with Listen running (US1 #3, FR-007, R-2) | Refusing to open during Listen would make the browser unreachable for anyone who left Listen on; a non-modal panel cannot be near-full-screen without covering the Score anyway. Mitigation: it is user-initiated, it pauses a playing Listen, Escape returns to the same position (`tests/e2e/score-browser.spec.ts` "Listen plays"), and it is refused for Play and Practice. Owner-visible: say so if a Listen should never be paused by opening it. |
+| The browser is a **modal** `<dialog>` that can open over a Listen session (Principle VI: nothing modal may interrupt an active Listen, Practice or Play session) | The musician asked for a near-full-screen browser (FR-002) and Open must work while a Score is loaded, including with Listen running (US1 #3, FR-007, R-2) | Refusing to open during Listen would make the browser unreachable for anyone who left Listen on; a non-modal panel cannot be near-full-screen without covering the Score anyway. Mitigation: it is user-initiated, it pauses a playing Listen, Escape returns to the same position (`tests/e2e/score-browser.spec.ts` "Listen plays"), and it is refused for Play and Practice. **Accepted by the owner 2026-09-28.** |
 | IndexedDB schema 2 -> 3 with a data migration | FR-017 (earned results kept), FR-020 (file copies), FR-015 (progress survives trimming) | Deriving progress from Performances on each open loses bests after trimming. Keeping `recentScores` as *My files* mixes library items in and caps it at 10. |
 
 ## Phase 0: Research

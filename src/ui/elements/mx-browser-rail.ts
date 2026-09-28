@@ -6,6 +6,7 @@ import { DEFAULT_MASTERY_THRESHOLDS } from '../../core/progress/types.js';
 import { en } from '../i18n/en.js';
 import { browserState } from '../state/browserState.js';
 import { escapeHtml } from '../util/escape-html.js';
+import { patchChildren } from '../util/patch-children.js';
 
 const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
 
@@ -58,6 +59,7 @@ export class MxBrowserRail extends HTMLElement {
     this.setAttribute('aria-label', en.browser.title);
     this.classList.add('browser-rail');
     this.addEventListener('keydown', this.onKeydown);
+    this.addEventListener('click', this.onClick);
     this.unsubscribe = browserState.subscribe(() => this.render());
     this.render();
   }
@@ -65,6 +67,7 @@ export class MxBrowserRail extends HTMLElement {
   disconnectedCallback() {
     this.unsubscribe?.();
     this.removeEventListener('keydown', this.onKeydown);
+    this.removeEventListener('click', this.onClick);
   }
 
   /** The visible folders in tree order: a folder hidden by a collapsed ancestor is left out. */
@@ -124,27 +127,31 @@ export class MxBrowserRail extends HTMLElement {
     const stop = this.tabStop(entries);
     // Replacing the items would drop focus to the page; the musician keeps their place in the tree.
     const hadFocus = this.contains(document.activeElement);
-    this.innerHTML = entries
-      .map((entry) => {
-        const selected = entry.key === selectedKey;
-        return `<div role="treeitem" class="browser-rail-item" data-key="${escapeHtml(entry.key)}"
+    // Items whose markup did not change stay the same elements, so a click that an update lands in the middle of
+    // (press, update, release) still arrives - it was lost on the first click after the browser's load-time update.
+    patchChildren(
+      this,
+      entries
+        .map((entry) => {
+          const selected = entry.key === selectedKey;
+          return `<div role="treeitem" class="browser-rail-item" data-key="${escapeHtml(entry.key)}"
           data-depth="${entry.depth}" aria-level="${entry.depth + 1}" tabindex="${entry.key === stop ? '0' : '-1'}"
           aria-selected="${selected}" ${entry.hasChildren ? `aria-expanded="${entry.expanded}"` : ''}
           style="--browser-rail-depth:${entry.depth}"
           ><span class="browser-rail-label">${escapeHtml(entry.label)}</span>${
             entry.relation ? `<span class="browser-rail-relation">${escapeHtml(entry.relation)}</span>` : ''
           }${entry.progress ? `<span class="browser-rail-progress">${escapeHtml(entry.progress)}</span>` : ''}</div>`;
-      })
-      .join('');
-    this.wire();
+        })
+        .join(''),
+    );
     if (hadFocus) this.itemFor(stop)?.focus();
   }
 
-  private wire(): void {
-    this.querySelectorAll<HTMLElement>('.browser-rail-item').forEach((el) => {
-      el.addEventListener('click', () => this.select(el.dataset.key ?? ''));
-    });
-  }
+  /** One listener on the rail, not one per item: items are kept across renders (`patchChildren`). */
+  private readonly onClick = (event: MouseEvent): void => {
+    if (!(event.target instanceof Element)) return;
+    this.select(event.target.closest<HTMLElement>('.browser-rail-item')?.dataset.key ?? '');
+  };
 
   private select(key: string): void {
     if (key === '') return;

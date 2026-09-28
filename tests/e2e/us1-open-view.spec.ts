@@ -74,13 +74,10 @@ test('US1 end-to-end: open fixtures, zoom, errors, My files (feature 013 R-20), 
   // The browser starts on Continue now (feature 013 US4), which shows recent items as cards: the rows are in *My files*.
   await page.locator('[role="treeitem"][data-key="myFiles"]').click();
   await expect(fileRows).toHaveCount(2);
-  // A plain .dblclick() can race a re-render between its two clicks once this many state changes have already
-  // happened in the test (found live: the second click's dblclick never fires on the replaced row) - select
-  // through the single click's own 300ms debounce settling first, then use the detail pane's Open button
-  // (contracts/score-browser.md §2, an equally valid way to open the active item).
-  await fileRows.first().click();
-  await expect(fileRows.first()).toHaveAttribute('aria-selected', 'true');
-  await page.locator('mx-browser-detail .browser-detail-open').click();
+  // A double click on the row (contracts/score-browser.md §2). It used to race a re-render between its two clicks
+  // (the second click's dblclick never fired on the replaced row), which needed a single click plus the detail
+  // pane's Open button; rows are kept across renders now (`patchChildren`), so the plain double click works again.
+  await fileRows.first().dblclick();
   await expect(browserDialog(page)).toBeHidden();
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
 

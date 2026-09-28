@@ -839,3 +839,77 @@ test.describe('Score browser while Listen plays (feature 013, US1 #3, FR-007)', 
     expect(await soundingNotes()).toEqual(pausedAt);
   });
 });
+
+// docs/known-bugs.md (WebKit double click opening the wrong Score, fixed in 013): `content-visibility: auto` on rows
+// with a fixed `contain-intrinsic-size` made the list's height change as rows scrolled into view, and WebKit has no
+// scroll anchoring, so rows moved under the pointer between the two clicks of a double click. The list must keep
+// one height however it is scrolled, and the row a double click aims at must be the one that opens.
+test.describe('Score browser list layout is stable (feature 013, WebKit double-click regression)', () => {
+  test('the result list keeps one scroll height however it is scrolled, and a double click on a far row opens that row', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(browserDialog(page)).toBeVisible();
+    await page.locator('[role="treeitem"][data-key="all"]').click();
+    const list = page.locator('mx-browser-list');
+    await expect(list.locator('.browser-row').nth(100)).toBeAttached();
+
+    // Jump to the far end, the middle, the top and the end again, letting layout settle after each: WebKit's shift
+    // showed up after the jump, over the next few frames.
+    const heights = await list.evaluate(async (el) => {
+      const settle = async () => {
+        await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+        await new Promise<void>((resolve) => setTimeout(resolve, 150));
+      };
+      const seen: number[] = [];
+      for (const fraction of [1, 0.5, 0, 1]) {
+        el.scrollTop = el.scrollHeight * fraction;
+        await settle();
+        seen.push(el.scrollHeight);
+      }
+      return seen;
+    });
+    expect(new Set(heights).size, `scroll heights while scrolling: ${heights.join(', ')}`).toBe(1);
+
+    // The last library row, opened by the double click that aims at it (the pointer must not slide onto a neighbour).
+    const lastRow = list.locator('.browser-row').last();
+    const wanted = await lastRow.getAttribute('data-ref');
+    const title = (await lastRow.locator('.browser-row-title').innerText()).trim();
+    expect(wanted).not.toBeNull();
+    await list.evaluate((el) => {
+      el.scrollTop = 0;
+    });
+    await lastRow.dblclick();
+    await expect(browserDialog(page)).toBeHidden();
+    await expect(page.locator('.mx-title-block')).toContainText(title.split(' (')[0] ?? title);
+  });
+});
+
+// Found on WebKit under load: the browser's first click on *All* was lost about one run in twenty, because a state
+// update landed between the press and the release and swapped the rail's items, and a press on a removed element never
+// becomes a click. Deterministic here: hold the button down, let a real update arrive (seeded progress refreshes the
+// folder counts), release.
+test.describe('A click survives an update that arrives while the button is down (feature 013)', () => {
+  test('pressing on All, then a progress update refreshing the rail, then releasing, still selects All', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(browserDialog(page)).toBeVisible();
+    const all = page.locator('[role="treeitem"][data-key="all"]');
+    await expect(all).toBeVisible();
+    const box = await all.boundingBox();
+    expect(box).not.toBeNull();
+    const x = (box?.x ?? 0) + (box?.width ?? 0) / 2;
+    const y = (box?.y ?? 0) + (box?.height ?? 0) / 2;
+
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await seedProgress(page, 'greensleeves-one-result.json');
+    // The update reached the rail (a folder now counts one played item) while the button is still down.
+    await expect(page.locator('.browser-rail-progress', { hasText: /^1 of \d+ played/ }).first()).toBeAttached();
+    await page.mouse.up();
+
+    await expect(all).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('mx-browser-list')).toBeVisible();
+  });
+});

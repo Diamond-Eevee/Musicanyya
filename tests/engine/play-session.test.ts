@@ -440,7 +440,7 @@ describe('PlaySessionController (T039/T097)', () => {
       range: null,
       settings: settings(),
     });
-    const countInTicks = controller.getRun()!.tickMap.countInTicks;
+    const countInTicks = controller.getRun()?.tickMap.countInTicks ?? 0;
     audioEngine.currentPosition = { audibleTick: countInTicks, playing: true };
     controller.reportPosition(2000);
     audioEngine.fireEvent({ type: 'ended' });
@@ -452,7 +452,7 @@ describe('PlaySessionController (T039/T097)', () => {
     expect(performanceStore.records.size).toBe(0);
     expect(stored).toHaveLength(1);
     expect(stored[0]?.scoreId).toBe('score-hash-1');
-    expect(stored[0]?.runId).toBe(controller.getRun()!.runId);
+    expect(stored[0]?.runId).toBe(controller.getRun()?.runId);
     expect(stored[0]?.complete).toBe(true);
     expect(kept).toEqual([false]);
   });

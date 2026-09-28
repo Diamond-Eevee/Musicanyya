@@ -933,3 +933,56 @@
 - Handoff: next = owner answers (a) and (b) above and runs SC-008; then T095's second half per the answer, T090 (log the
   SC-008 results), T093 (re-run the gate; it ends green only when `library.spec.ts:31` is fixed or accepted). Tree clean at
   this entry's commit. Not merged, not pushed.
+
+## 2026-09-28 15:30 - claude-sonnet-5 (continue: owner decisions, T095, the WebKit and lost-click bugs)
+- Owner answers (asked once at session start, all "recommended"): (a) **A** record a Play result even when the attempt
+  cannot be stored; (b) keep the `e2e-*` seams in every build, documented (`research.md` R-22); (c) **fix** the WebKit
+  wrong-item double click now; (d) the modal browser over Listen is accepted (`plan.md` Complexity Tracking).
+- Session start check (trust nothing): `pnpm lint` 0 errors / 299 warnings, `pnpm typecheck` clean, but `pnpm test` was
+  **not** the logged green: 2 failed in each of the first two full runs (`tests/library/regeneration.test.ts` 5 s
+  timeout, `tests/core/browser/query-timing.test.ts` 23.5 ms against 20 ms); both green alone. Load, not code (tree
+  clean at `44b1317`); see T109 and R7.
+- Done T095 (second half, test first): `play-session.test.ts` "a storage failure still reports the finished run ...
+  marked not kept" failed (3 red), then `PlaySessionController.onStored(stored, kept)` and `Session.onPerformanceFinished`
+  record `played` either way; e2e `score-browser-memory-store.spec.ts` (new Play-result test red on the old code, green
+  after): 4 passed (chromium, firefox). `research.md` R-18 amended. Reset/Remove do not assume an attempt: attempts come
+  from the Performance store, `resultRemoved` fires only after an attempt delete.
+- Done T107 (WebKit wrong Score): the cause was **not** the click handling. Probing showed the list's `scrollHeight`
+  changing after it was shown (9168 -> 9252 -> 9420 -> 9452 px) because `.browser-row { content-visibility: auto;
+  contain-intrinsic-size: 0 40px }` (real rows are 33/59/85 px, so no single estimate fits) and WebKit has no scroll
+  anchoring: rows moved under the pointer between mousedown and mouseup. (A first guess, focus-scroll on mousedown, was
+  wrong and reverted.) Removed both properties. Cost, Chromium T086 seeds: open 20 -> 35 ms (budget 300), folder/search/
+  filter change 12/19/21 -> 15/24/21 ms (budget 100). New e2e "list layout is stable" **failed on the old CSS in WebKit and
+  Chromium** (heights 9186, 8915...; 8891, 7868...), passes in chromium, webkit, firefox. `library.spec.ts:31` and `:154`
+  on WebKit: 20/20 (before 2/6 and 6-8/8 failing). `research.md` R-13, `plan.md`, `reference.md` updated; `known-bugs.md`
+  entry removed. A mismatch this fixes beyond WebKit: Safari users scrolling the list saw rows jump.
+- Done T108 (lost click): the full e2e then failed `library.spec.ts:31` (webkit) at `revealLibraryItem`: the *All* click
+  was lost. Probing (`RAIL mutations` between `mousedown` and `mouseup` ~25-30 ms after load): the load-time state update
+  replaced the rail's `innerHTML`, and a press on an element that is removed never becomes a click. Reproduced 2-5 in 60-80
+  before and **also on the old CSS** (so not a T107 effect); 0 in 120 after. Fix: `src/ui/util/patch-children.ts` keeps
+  every child whose markup is unchanged; rail and list use it with delegated listeners (this is the "keyed row reuse" R-13
+  had promised and the code never had). Tests first, red: `tests/ui/patch-children.test.ts` (8), `tests/ui/score-browser/
+  keep-elements.test.ts` (rail/list identity red; the click-once and double-click-after-a-change tests guard the
+  refactor), e2e "A click survives an update that arrives while the button is down" (red on the old code in WebKit).
+  The workaround in `us1-open-view.spec.ts` (single click + Open) is replaced by the plain `dblclick()` again: 24/24 over
+  3 browsers (it failed 4/4 with the plain double click before the workaround). Second `known-bugs.md` entry removed.
+- Done T109: `testTimeout: 30000` for the `library` vitest project (as `verovio` has), no assertion changed.
+- Decisions: keep `content-visibility` off rather than tune it; if lists ever reach thousands of rows, virtualise with a fixed
+  row height (R-13). `patchChildren` compares the markup a child was built from, not the DOM, because upgraded custom
+  elements differ from their markup. CSS `content-visibility` line removed from `plan.md`'s target-browser note.
+- Problems / open: `us2-panels.spec.ts:121` (firefox, popup timing) failed once in the last full run and 2 of ~100
+  standalone repeats with my changes, 0 of 38 on the commit before (the menu button never "stable" for 30 s); nothing in
+  013's files explains it; added to R7. Firefox `score-browser.spec.ts:343` (invalid drop) failed again in both full
+  runs, 6/6 alone (already in R7). **needs owner:** (1) **SC-008 run** (T090), steps and seed in `quickstart.md` "SC-008",
+  target 4 of 5 within 30 s, results to be written here; (2) merge is yours to ask for.
+- Checks: `pnpm lint` 0 errors, 299 warnings (my first version had 301: two `!` in a test and an unused import, fixed);
+  `pnpm typecheck` exit 0; `pnpm test` (last run): Tests 4993 passed (4993), Test Files 265 (an earlier run of the same tree
+  failed `query-timing` "a search change takes at most 20 ms" under load, green alone: 4 passed). `pnpm test:e2e` (rebuilt
+  dist), tree with T107 and T108: **2 failed**, 570 skipped, **960 passed** (10.7 min): firefox `score-browser.spec.ts:343`
+  and firefox `us2-panels.spec.ts:121`, both re-run alone (first 6/6 passed; second 5/6 and then 40/40 passed), no WebKit
+  failure. The first full run of the session (T107 only) had 2 failed / 956 passed: the same firefox drop test and
+  webkit `library.spec.ts:31` (the lost click, fixed by T108). The gate is therefore **not green** (exit 1) and T093 stays
+  open for the final re-run; T090 waits for the owner's SC-008.
+- Handoff: next = owner runs SC-008 and gives the numbers (T090); then one more full `pnpm test:e2e` for T093 (expect
+  only R7's known flakes; re-run those alone and log them), then the constitution audit and a merge only when asked. Tree
+  clean at this entry's commit. Not merged, not pushed.

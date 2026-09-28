@@ -362,8 +362,6 @@ mx-browser-continue h3 {
   padding: 6px 8px;
   cursor: pointer;
   border-radius: 4px;
-  content-visibility: auto;
-  contain-intrinsic-size: 0 40px;
 }
 
 .browser-row:hover,
