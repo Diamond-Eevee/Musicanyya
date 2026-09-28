@@ -304,10 +304,10 @@ the same chords and inversions as before, the right hand a melody.
 
 **Model**: standard (claude-sonnet-5 or gemini-3.1-pro)
 
-- [ ] T052 [P] Add an assertion to `tests/library/melody-sweep.test.ts` that no Learning item (all of
+- [x] T052 [P] Add an assertion to `tests/library/melody-sweep.test.ts` that no Learning item (all of
   `learning/**`) has a `doubled` finding apart from a single closing tonic chord (SC-001), and that the in-scope list
   has exactly 59 ids
-- [ ] T053 [P] [light] Update `docs/agents/reference.md` Active Technologies line for 014 from "planned" to "implemented"; check
+- [x] T053 [P] [light] Update `docs/agents/reference.md` Active Technologies line for 014 from "planned" to "implemented"; check
   `public/library/README.md` needs no change (generated exercises section) and `quickstart.md` still matches the commands
 - [ ] T054 Constitution review of the branch diff with the `constitution-auditor` agent; findings summarised in the log
 - [ ] T055 Run the whole `specs/014-melody-over-chords/quickstart.md` validation once more on the final build

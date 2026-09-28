@@ -346,7 +346,7 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
   migration from `recentScores` + `performances`) and a memory adapter (contract tests + storage-unavailable
   fallback). The browser model (`src/core/browser`) is pure. New `localStorage` key `musicanyya.browser.v1`. Test-only `@axe-core/playwright` 4.13.0 (MPL-2.0) for the WCAG 2.1 AA check (OD-5,
   approved 2026-09-27, in use: `tests/e2e/score-browser-a11y.spec.ts`).
-- Feature 014 (planned): no new technology and no new dependency. Exercise definitions gain a `melody` hand part
+- Feature 014 (implemented): no new technology and no new dependency. Exercise definitions gain a `melody` hand part
   (contract exercise-definition 1.3); a dev-only melody rule check (`tools/library/fidelity/melody-rules.ts`, audit rule
   set `exercise-theory-v3`) and a named `MELODY_LADDER` in `src/core/defaults.ts`.
 

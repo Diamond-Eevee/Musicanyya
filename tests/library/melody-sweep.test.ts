@@ -15,10 +15,13 @@ import { claimForItem } from '../../tools/library/fidelity/exercise-claims';
 import {
   checkMelodyRules,
   checkMelodyVariation,
+  type MelodyCheckInput,
   type MelodyFinding,
   melodyDegrees,
 } from '../../tools/library/fidelity/melody-rules';
+import { songKeyOfItemId } from '../../tools/library/fidelity/song-chords';
 import { readScore } from '../../tools/library/fidelity/theory';
+import inScopeMetadata from './in-scope-metadata.json';
 import recordedLeftHand from './key-change-left-hand.json';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -365,4 +368,42 @@ describe('key-change melody sweep (FR-001, FR-002, US1)', () => {
       });
     }
   });
+});
+
+// ---- SC-001 over the whole Learning section (T052) ----
+describe('no doubled block chords in the Learning section (SC-001)', () => {
+  const learningItems = (indexJson.items as LibraryItem[]).filter((i) => i.id.startsWith('learning/'));
+
+  /** The key per bar range: the claim table for exercises, the folder's key for songs (`checkSong` does the same). */
+  function learningKeys(item: LibraryItem): MelodyCheckInput['keys'] {
+    if (/\/song-[a-z0-9-]+$/.test(item.id)) return [{ firstBar: 1, key: songKeyOfItemId(item.id) }];
+    const sidecar = JSON.parse(fs.readFileSync(path.join(libRoot, `${item.id}.json`), 'utf8')) as { trains?: string };
+    const claim = claimForItem({ itemId: item.id, title: item.meta.title, trains: sidecar.trains ?? '' });
+    return claim.segments?.map((s) => ({ firstBar: s.firstBar, key: s.key })) ?? [{ firstBar: 1, key: claim.key }];
+  }
+
+  it('the in-scope list has exactly 59 distinct ids, the 59 recorded before the feature', () => {
+    const inScope = [...keyChangeItems, ...drillItems].map((i) => i.id);
+    expect(new Set(inScope).size).toBe(59);
+    expect([...inScope].sort()).toEqual(Object.keys(inScopeMetadata).sort());
+  });
+
+  it('checks every Learning item on the shelf, songs included', () => {
+    expect(learningItems.length).toBeGreaterThan(59);
+    expect(learningItems.some((i) => /\/song-/.test(i.id))).toBe(true);
+  });
+
+  it.each(learningItems.map((i) => ({ id: i.id, item: i })))(
+    '$id has no doubled finding (a single closing tonic chord is allowed)',
+    ({ item }) => {
+      const xml = fs.readFileSync(path.join(libRoot, `${item.id}.musicxml`), 'utf8');
+      const doubled = checkMelodyRules({
+        itemId: item.id,
+        xml,
+        level: item.meta.level,
+        keys: learningKeys(item),
+      }).filter((f) => f.rule === 'doubled');
+      expect(doubled).toEqual([]);
+    },
+  );
 });
