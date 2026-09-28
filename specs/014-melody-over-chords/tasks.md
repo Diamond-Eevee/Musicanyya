@@ -332,8 +332,9 @@ the same chords and inversions as before, the right hand a melody.
   full-suite load (passes alone); chromium/electron `piano-keyboard.spec.ts:201` and chromium `us1-layout.spec.ts:215`
   (Chromium 1194 there, 1243 expected); electron `electron-smoke.spec.ts:101` (only when its whole file runs). Report
   only: do not tick T056 (the continuing session decides it from this evidence)
-- [ ] T056 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` green; final log entry; commit
-  (depends on T074's local run)
+- [x] T056 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` green; final log entry; commit
+  (depends on T074's local run). Owner decision 2026-09-28: accepted on T074's evidence - the two failures are 013
+  tests that pass alone and no 014 file touches them; follow-ups 013 T111, T112
 - [ ] T057 needs owner: SC-005 listening check - the owner listens to at least six rewritten items (one per group and
   level: relative and parallel introduction/beginner/intermediate, plus one drill) and judges each more interesting
   than the doubled version and fitting its level; any item judged too hard is simplified (back to its authoring task)

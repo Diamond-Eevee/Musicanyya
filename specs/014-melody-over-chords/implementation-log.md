@@ -409,3 +409,25 @@
   budget; score-browser:343 on firefox), each passing alone - the continuing session decides whether T056 counts
   them as green and whether they deserve their own tasks. needs owner: T057 SC-005 listening check (merge blocker).
 - Handoff: next = T056 (decide from this evidence), then T057 (owner). Tree clean after this commit.
+
+## 2026-09-28 21:40 - claude-opus-5.5 (implement, cloud session)
+- Pulled the local T074 report (0285d38). Ticked T074: every command's exit code and summary line is in the 21:15
+  entry, and each failure was rerun alone.
+- Owner decisions (asked this session, answered 2026-09-28):
+  1. T056 accepted on T074's evidence, which is not "all green": `pnpm test` exit 1 (`Tests 1 failed | 5950 passed`)
+     and `pnpm test:e2e` exit 1 (`1 failed | 575 skipped | 964 passed`). The two failures are 013's query-timing
+     budget (24.99 ms > 20) and firefox `score-browser.spec.ts:343`. Both pass alone and are untouched by 014. `pnpm
+     lint` and `pnpm typecheck` exit 0. Follow-ups added to 013's tasks.md as T111 and T112, fixing the cause without
+     loosening a threshold. They do not block 014.
+  2. Model fit: the owner acknowledges after the fact that T015-T020 were done on a light-tier model
+     (antigravity-gemini-3.8-flash) without asking. The work stands; it was re-verified by the T034 and T051 opus
+     checkpoints (T054 finding 2 closed).
+- Every task of 014 is `[x]` except T057.
+- Problems / open questions: needs owner: T057 SC-005 listening check. The owner listens to at least six rewritten
+  items (relative and parallel introduction/beginner/intermediate, plus one drill) and judges each more interesting
+  than the doubled version and fitting its level. Suggested items: c-major-to-a-minor/introduction,
+  g-major-to-e-minor/beginner, g-major-to-e-minor/intermediate (note bar 4: repeated B4 fingered 5 then 4),
+  c-major-to-c-minor/introduction, c-major-to-c-minor/beginner, a-major-to-a-minor/intermediate, and the drill
+  c-major/i-v-vi-iv. Any item judged too hard goes back to its authoring task. Merge only when the owner asks.
+- Handoff: next = T057 (owner). Record the verdicts in this log, then ask the owner about merging. Tree clean after
+  this commit.
