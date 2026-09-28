@@ -158,10 +158,14 @@ as demanding as the one before, and the level check passes.
 - [x] T023 [P] [US2] [deep] Author the beginner melodies in `content/library/exercises/key-change-relative-beginner.json`
   (quarters, runs of at most 4 quarters, leaps up to a third, at most one shift at a section start)
 - [x] T024 [P] [US2] [deep] Same for `content/library/exercises/key-change-parallel-beginner.json`
-- [ ] T025 [P] [US2] [deep] Author the intermediate melodies in `content/library/exercises/key-change-relative-intermediate.json`
+- [x] T025 [P] [US2] [deep] Author the intermediate melodies in `content/library/exercises/key-change-relative-intermediate.json`
   (eighth pairs on the beat, range up to an octave, thumb-under/finger-over, leaps up to a fifth to chord notes)
-- [ ] T026 [P] [US2] [deep] Same for `content/library/exercises/key-change-parallel-intermediate.json` (T025/T026: B major and
+- [x] T026 [P] [US2] [deep] Same for `content/library/exercises/key-change-parallel-intermediate.json` (T025/T026: B major and
   B minor sit high with the tonic in octave 4 - use steps below the tonic to stay under A5, research R5)
+- [x] T063 [US2] (found during T025) Drop the relative intermediate `raisedBecause` ("the minor-to-major pairs ... compute
+  beginner on this content") from `content/library/exercises/key-change-relative-intermediate.json`: with the melodies
+  every pair computes intermediate by itself (a run of three eighth pairs, level criterion 6), so the reason no longer
+  holds; FR-011 and the sweep test allow an existing one to go
 - [ ] T027 [US1] Review each key-change definition's `meta.trains` and update the text where it no longer describes
   the music (US3 #3 applies here too), in the six files of T021-T026
 - [ ] T028 [US1] Regenerate: `pnpm library:exercises`, `pnpm library:index` (writes `public/library/learning/key-changes/**`
