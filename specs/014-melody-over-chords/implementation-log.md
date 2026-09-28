@@ -526,3 +526,18 @@
 - Failures rerun alone: none, there were none. The two known non-014 failures did not occur here:
   013's `query-timing.test.ts` (T111) passed inside `pnpm test`, and firefox `score-browser.spec.ts:343` (T112) passed in the e2e run.
 - Handoff: T090 stays with the continuing session; gate is green locally on all four projects at 0eb2c58.
+
+## 2026-09-29 00:10 - claude-opus-5.5 (implement, cloud session: Phase 6 checkpoint)
+- T092 ticked on the local report above (35b7250): every command's exit code and summary line recorded, no failure.
+- T090 checkpoint: the full gate is green on all four projects at 0eb2c58 (local, T092): `pnpm lint` exit 0 (299
+  warnings, pre-existing), `pnpm typecheck` exit 0, `pnpm test` exit 0 (`Tests 5961 passed`), `pnpm test:e2e` exit 0
+  (`965 passed | 575 skipped`, 0 failed). Only log and task lines changed after 0eb2c58. In this container: `pnpm
+  test` `1 failed | 5960 passed` (013 query-timing, 013 T111; passes locally); chromium e2e (3 workers) `8 failed | 10
+  skipped | 367 passed` - piano-keyboard:201 and us1-layout:215 x3 (the container's Chromium 1194, same at 801767d),
+  us1-layout:251, play-frame-rate:48, pressed-keys:483, us2-listen:13 (timing under load; all green in the local run);
+  no failure touches 014. The electron run here was stopped (the local run covers it: `350 passed`). Phase 6
+  Independent Test: c-major-to-a-minor/introduction plays quarter-note scale runs with the thumb under over changing
+  chords, no doubled bar, level check and step order pass (T085, T089); the owner's verdict is T057.
+- Problems / open questions: needs owner: T057 listening check of the reworked items (verdict per item); E minor's
+  `octaveShift: -1` (review item, recommended: leave for this feature).
+- Handoff: next = T057 (owner). Every other 014 task is [x]. Tree clean after this commit.
