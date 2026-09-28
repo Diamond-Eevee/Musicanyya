@@ -541,3 +541,6 @@
 - Problems / open questions: needs owner: T057 listening check of the reworked items (verdict per item); E minor's
   `octaveShift: -1` (review item, recommended: leave for this feature).
 - Handoff: next = T057 (owner). Every other 014 task is [x]. Tree clean after this commit.
+- Owner decision 2026-09-29: E minor's `octaveShift: -1` stays as it is for this feature (the recommendation; the
+  T088 review's "muddy low left hand" is not changed, the tonic voicing FR-002 keeps stays). T057 still open: it
+  needs the owner's per-item listening verdict on the reworked items.
