@@ -189,11 +189,11 @@ as demanding as the one before, and the level check passes.
 - [x] T030 [US1] [light] Move the 54 audit records under `content/library/audit/learning/key-changes/` (all but the two drills)
   to `exercise-theory-v3` (`checkedBy`, `date` updated), run `pnpm library:fidelity` to regenerate
   `docs/library-audit.md`, `pnpm library:fidelity --check` green
-- [ ] T059 [US1] Add a Listen-mode check for a rewritten item in the browser (`tests/e2e/library.spec.ts`: open
+- [x] T059 [US1] Add a Listen-mode check for a rewritten item in the browser (`tests/e2e/library.spec.ts`: open
   `learning/key-changes/c-major-to-a-minor/introduction`, press Listen, the cursor reaches the last bar with no console
   error) and in Electron (`tests/e2e/electron-smoke.spec.ts`: the same item loads and renders two staves) (FR-015,
   SC-003); run after T028
-- [ ] T031 [US1] [light] Run `pnpm test:e2e -- tests/e2e/library.spec.ts tests/e2e/tempo-field.spec.ts` (they open
+- [x] T031 [US1] [light] Run `pnpm test:e2e -- tests/e2e/library.spec.ts tests/e2e/tempo-field.spec.ts` (they open
   `c-major-to-c-minor/introduction` and `a-major-to-a-minor/beginner`); fix only assertions that read the old notes,
   logging why
 - [ ] T032 [US1] [deep] Music review of the authored key-change phrases with the `music-domain-expert` agent (readability,
