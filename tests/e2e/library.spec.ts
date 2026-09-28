@@ -3,12 +3,13 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type ElectronApplication, _electron as electron, expect, test } from '@playwright/test';
+import { browserDialog, openBrowser } from './helpers/browser.js';
 import { revealLibraryItem } from './helpers/library.js';
 import { openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const FUR_ELISE_SELECTOR = '.library-item-open[data-id="repertoire/intermediate/fur-elise-theme"]';
+const FUR_ELISE_ID = 'repertoire/intermediate/fur-elise-theme';
 
 /** One item per section (data-model.md §2), so an engraving regression on real content - not just the
  *  Fur Elise item the test above already exercises - is caught (T075). */
@@ -27,7 +28,7 @@ const ENGRAVING_SAMPLE = [
  * with the network blocked, research R-4/owner decision D-2) - analyze A5, A15.
  */
 test.describe('Practice score library: browse, open, Listen', () => {
-  test('browser: open the Scores panel, pick Fur Elise, press Play - within 3 interactions and 15s', async ({
+  test('browser: open the browser, pick Fur Elise, press Play - within 3 interactions and 15s', async ({
     page,
     browserName,
   }, testInfo) => {
@@ -36,18 +37,18 @@ test.describe('Practice score library: browse, open, Listen', () => {
     const started = Date.now();
 
     await page.goto('/');
-    await expect(page.locator('.mx-empty-state')).toBeVisible();
+    // FR-001: with no Score loaded, the browser is already open - opening it is not one of the 3 interactions.
+    await expect(browserDialog(page)).toBeVisible();
 
-    // Interaction 1: open the Scores panel.
-    await openPanel(page, 'scores');
-    const furElise = page.locator(FUR_ELISE_SELECTOR);
-    await expect(furElise).toBeVisible();
+    // Interaction 1: find Fur Elise (via *All*, feature 013 R-20 - see helpers/library.ts).
+    const { item: furElise } = await revealLibraryItem(page, FUR_ELISE_ID);
     await expect(furElise).toContainText('Beethoven');
     await expect(furElise).toContainText('Intermediate');
 
-    // Interaction 2: open the item. The panel closes on success (data-model.md §6) and the Score engraves.
-    await furElise.click();
-    await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
+    // Interaction 2: open the item (double click). The browser closes on success (contracts/score-browser.md §5)
+    // and the Score engraves.
+    await furElise.dblclick();
+    await expect(browserDialog(page)).toBeHidden();
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
     await expect(page.locator('.notice')).toHaveCount(0);
     const titleBlock = page.locator('.mx-title-block');
@@ -59,7 +60,7 @@ test.describe('Practice score library: browse, open, Listen', () => {
     // already correct on disk).
     await expect(page.locator('g.beam').first()).toBeVisible();
 
-    // FR-019: source/licence visible without leaving the score view - reopen the (non-modal) panel to check it.
+    // FR-019: source/licence visible without leaving the score view - the (non-modal) "About this score" panel.
     await openPanel(page, 'scores');
     // the theme is an authored arrangement with provenance.basedOn: library-port 1.2 §4a (feature 011) shows it as such
     await expect(page.locator('mx-score-source')).toContainText('Arrangement for this app (CC0)');
@@ -91,10 +92,9 @@ test.describe('Practice score library: browse, open, Listen', () => {
     await page.context().setOffline(true);
     try {
       await page.waitForTimeout(300); // let the bar's own layout settle before the next menu click
-      await openPanel(page, 'scores');
-      await expect(furElise).toBeVisible(); // the index itself is already in memory this session
-      await furElise.click();
-      await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
+      const { item: furEliseAgain } = await revealLibraryItem(page, FUR_ELISE_ID); // the index is already in memory
+      await furEliseAgain.dblclick();
+      await expect(browserDialog(page)).toBeHidden();
       await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
       await expect(page.locator('.notice')).toHaveCount(0);
     } finally {
@@ -109,27 +109,32 @@ test.describe('Practice score library: browse, open, Listen', () => {
     test.skip(testInfo.project.name === 'electron', 'Electron is covered by its own test below');
 
     await page.goto('/');
-    await openPanel(page, 'scores');
+    await openBrowser(page);
+    // The index loads asynchronously after the dialog opens (contracts/score-browser.md §5) - wait for the real
+    // section tree, not just the fixed Continue/All/My files rows.
+    await expect(page.locator('[role="treeitem"]', { hasText: 'Keys' })).toBeVisible();
 
-    // The tree: Learning and Keys are open, the key folders are closed until the user opens one.
-    await expect(page.locator('details.library-section[data-section="learning/keys"]')).toHaveJSProperty('open', true);
-    await expect(page.locator('details.library-section[data-section="learning/keys/c-major"]')).toHaveJSProperty(
-      'open',
-      false,
+    // Every folder is expanded by default (contracts/score-browser.md §1) - C major's key folder is a treeitem
+    // already visible under Learning > Keys, with no need to open anything (unlike the old panel's <details>
+    // tree, whose "closed until opened" behaviour tests/ui/score-browser/rail-list-detail.test.ts covers now).
+    // Circle order: C major, then its relative minor A minor, then G major - the three treeitems right after
+    // "Keys" (children immediately follow their parent in the rail's depth-first order). Reads `.browser-rail-label`
+    // specifically (013, T053/T056): every row now also carries a `.browser-rail-progress` suffix straight after it
+    // with no separator ("Keys0 of 109 played, 0 mastered"), which the plain treeitem text would include.
+    const allLabels = (await page.locator('[role="treeitem"] .browser-rail-label').allTextContents()).map((t) =>
+      t.trim(),
     );
-    // Circle order: C major, then its relative minor A minor, then G major.
-    const keyTitles = await page
-      .locator('details.library-section[data-section="learning/keys"] > details > summary')
-      .allTextContents();
-    expect(keyTitles.slice(0, 3).map((t) => t.trim())).toEqual(['C major', 'A minor', 'G major']);
+    const keysIndex = allLabels.indexOf('Keys');
+    expect(keysIndex, '"Keys" is in the rail').toBeGreaterThanOrEqual(0);
+    expect(allLabels.slice(keysIndex + 1, keysIndex + 4)).toEqual(['C major', 'A minor', 'G major']);
 
-    // SC-001: from the open panel, opening the folder and the item is at most 3 selections.
+    // SC-001: opening the browser and the item is at most 3 selections (no folder click needed at all now).
     const { item, clicks } = await revealLibraryItem(page, 'learning/keys/c-major/introduction');
-    await expect(item).toContainText('1 Introduction');
+    await expect(item).toContainText('Introduction');
     await expect(item).toContainText('C major - introduction');
-    expect(clicks + 1, 'selections from the open panel to the Score').toBeLessThanOrEqual(3);
-    await item.click();
-    await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
+    expect(clicks + 1, 'selections from the open browser to the Score').toBeLessThanOrEqual(3);
+    await item.dblclick();
+    await expect(browserDialog(page)).toBeHidden();
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
     await expect(page.locator('.notice')).toHaveCount(0);
     await expect(page.locator('.mx-title-block')).toContainText('C major - introduction');
@@ -154,27 +159,38 @@ test.describe('Practice score library: browse, open, Listen', () => {
     test.setTimeout(150_000); // the Introduction is 12 bars at q=60: 48 s of Listen
 
     await page.goto('/');
-    await openPanel(page, 'scores');
     const { item } = await revealLibraryItem(page, 'learning/key-changes/c-major-to-c-minor/introduction');
-    await expect(item).toContainText('1 Introduction');
+    await expect(item).toContainText('Introduction');
     await expect(item).toContainText('C major to C minor - introduction');
-    await item.click();
-    await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
+    await item.dblclick();
+    await expect(browserDialog(page)).toBeHidden();
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
     await expect(page.locator('.notice')).toHaveCount(0);
 
     // C major has no signature; the change to C minor writes three flats in each staff at the arrival bar, and again at the
     // start of every system after it. So the file shows at least two signatures (one per staff) of three flats each.
+    // `.count()` reads the DOM once with no retry - the SVG element existing (checked above) does not mean Verovio
+    // has finished filling it in, and this item's own accidentals can still be empty a moment later (found live
+    // migrating to the browser, feature 013 T032: closing a native `<dialog>` leaves less incidental delay before
+    // this runs than the old panel did, so a race that was never actually closed became visible here). `expect.poll`
+    // retries until the render has caught up, same as the codebase's other post-render assertions.
     const signatures = page.locator('.mx-score-page g.keySig');
-    expect(await signatures.count()).toBeGreaterThanOrEqual(2);
-    expect(await page.locator('.mx-score-page g.keySig g.keyAccid').count()).toBeGreaterThanOrEqual(6);
+    await expect.poll(() => signatures.count()).toBeGreaterThanOrEqual(2);
+    await expect.poll(() => page.locator('.mx-score-page g.keySig g.keyAccid').count()).toBeGreaterThanOrEqual(6);
     // ...and the first flat is not at the start of the piece: at least one note stands before it in reading order.
-    const beforeFirstSignature = await page.evaluate(() => {
-      const scope = document.querySelector('.mx-score-page') as HTMLElement;
-      const all = Array.from(scope.querySelectorAll('g.keyAccid, g.note'));
-      return all.findIndex((el) => el.matches('g.keyAccid'));
-    });
-    expect(beforeFirstSignature, 'notes before the first flat of the new signature').toBeGreaterThan(0);
+    // Reading order spans every page, not just the first: this item can paginate onto two pages (font metrics
+    // differ enough between engines that WebKit sometimes splits earlier than Chromium does, found live migrating
+    // to the browser, feature 013 T032/T096) - `document.querySelector('.mx-score-page')` (singular) silently
+    // scoped this to page 1 alone, which happened to hold the whole excerpt only by coincidence before.
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          const pages = Array.from(document.querySelectorAll('.mx-score-page'));
+          const all = pages.flatMap((p) => Array.from(p.querySelectorAll('g.keyAccid, g.note')));
+          return all.findIndex((el) => el.matches('g.keyAccid'));
+        }),
+      )
+      .toBeGreaterThan(0);
 
     await expect(page.locator('.play-btn')).not.toBeDisabled();
     if (browserName !== 'webkit') {
@@ -190,6 +206,40 @@ test.describe('Practice score library: browse, open, Listen', () => {
         .toBe(true);
       await expect(page.locator('g.note.playing')).toHaveCount(0, { timeout: 60_000 });
     }
+  });
+
+  test('browser: a key change rewritten with a right-hand melody (C major -> A minor, Introduction) plays in Listen to its last bar with no console error (feature 014 FR-015, SC-003)', async ({
+    page,
+    browserName,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === 'electron', 'Electron is covered by its own test');
+    test.skip(browserName === 'webkit', "Playwright's WebKit build has no AudioContext, so it cannot Listen");
+    test.setTimeout(150_000); // 12 bars at q=60: 48 s of Listen
+    const errors: string[] = [];
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') errors.push(msg.text());
+    });
+    page.on('pageerror', (err) => errors.push(String(err)));
+
+    await page.goto('/');
+    const { item } = await revealLibraryItem(page, 'learning/key-changes/c-major-to-a-minor/introduction');
+    await expect(item).toContainText('C major to A minor - introduction');
+    await item.dblclick();
+    await expect(browserDialog(page)).toBeHidden();
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    await expect(page.locator('.notice')).toHaveCount(0);
+
+    await expect(page.locator('.play-btn')).not.toBeDisabled();
+    await page.locator('.play-btn').click();
+    await expect(page.locator('g.note.playing').first()).toBeVisible();
+    // the cursor reaches the last bar (bar 12: measure index 11 in the note ids), then the run ends by itself
+    await expect
+      .poll(async () => page.locator('g.note.playing').evaluateAll((els) => els.some((el) => /-m11-/.test(el.id))), {
+        timeout: 70_000,
+      })
+      .toBe(true);
+    await expect(page.locator('g.note.playing')).toHaveCount(0, { timeout: 30_000 });
+    expect(errors).toEqual([]);
   });
 
   test('browser: settings remembered for a superseded item apply to its successor (feature 011 US4, quickstart US4)', async ({
@@ -226,9 +276,8 @@ test.describe('Practice score library: browse, open, Listen', () => {
     }, old.hash);
 
     await page.goto('/');
-    await openPanel(page, 'scores');
     const { item } = await revealLibraryItem(page, 'learning/keys/c-major/intermediate');
-    await item.click();
+    await item.dblclick();
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
 
     // The successor now has the old item's choices as its own (written after the store's short debounce), the old entry stays
@@ -293,9 +342,9 @@ test.describe('Practice score library: browse, open, Listen', () => {
 
     const engravedNotes = () => page.locator('.mx-score-page svg g.note[id^="n-"]').count();
     const openItem = async () => {
-      await openPanel(page, 'scores');
-      await page.locator(`.library-item-open[data-id="${itemId}"]`).click();
-      await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
+      const { item } = await revealLibraryItem(page, itemId);
+      await item.dblclick();
+      await expect(browserDialog(page)).toBeHidden();
       await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
     };
 
@@ -337,12 +386,10 @@ test.describe('Practice score library: browse, open, Listen', () => {
       expect(window.url()).toBe('app://musicanyya/');
 
       await expect(window.locator('.mx-empty-state')).toBeVisible();
-      await openPanel(window, 'scores');
-      const furElise = window.locator(FUR_ELISE_SELECTOR);
-      await expect(furElise).toBeVisible();
+      const { item: furElise } = await revealLibraryItem(window, FUR_ELISE_ID);
 
-      await furElise.click();
-      await expect(window.locator('mx-panel[data-panel="scores"]')).toBeHidden();
+      await furElise.dblclick();
+      await expect(browserDialog(window)).toBeHidden();
       await expect(window.locator('.mx-score-page svg').first()).toBeVisible();
       await expect(window.locator('.notice')).toHaveCount(0);
 
@@ -366,10 +413,9 @@ test.describe('Practice score library: browse, open, Listen', () => {
     const pageCounts: Record<string, number> = {};
 
     for (const id of ENGRAVING_SAMPLE) {
-      await openPanel(page, 'scores');
       const { item: itemLocator } = await revealLibraryItem(page, id);
-      await itemLocator.click();
-      await expect(page.locator('mx-panel[data-panel="scores"]')).toBeHidden();
+      await itemLocator.dblclick();
+      await expect(browserDialog(page)).toBeHidden();
       await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
       await expect(page.locator('.notice')).toHaveCount(0);
       pageCounts[id] = await page.locator('.mx-score-page').count();
@@ -395,8 +441,8 @@ test.describe('Title block (006 FR-017)', () => {
     test.skip(testInfo.project.name === 'electron', 'the browser build covers the score view; Electron shares it');
     test.skip(browserName === 'webkit', 'Practice and Play need Web MIDI, which Playwright WebKit does not provide');
     await page.goto('/');
-    await openPanel(page, 'scores');
-    await page.locator(FUR_ELISE_SELECTOR).click();
+    const { item: furElise } = await revealLibraryItem(page, FUR_ELISE_ID);
+    await furElise.dblclick();
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
     // The fake MIDI keyboard (the `e2e-midi` seam of us1-play.spec.ts) enables Practice and Play.
     await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));

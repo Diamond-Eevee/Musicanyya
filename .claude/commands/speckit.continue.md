@@ -15,7 +15,8 @@ Treat the input as extra scope or answers to open owner decisions (it must still
 
 1. **Session start**: follow AGENTS.md section 2 "Session start" exactly (read AGENTS.md and the constitution,
    pick your agent id, run `status.ps1`, check the working tree, `git pull --ff-only` if the branch has an upstream,
-   read the feature documents and the last two log entries, ask about open owner decisions once, announce).
+   read the feature documents and the last two log entries, ask about open owner decisions once, check model fit
+   for the next task or step (reference R11: switch or continue?), announce).
 2. If the user input answers an owner decision (e.g. `T011: approved`), apply it first: do the gate task (update
    the ADR/plan/constitution it names, via `speckit.constitution.md` for constitution changes), tick it, and log it.
 3. Do the **next chunk** based on the status NEXT STEP:

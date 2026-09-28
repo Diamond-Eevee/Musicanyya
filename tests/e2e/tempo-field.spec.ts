@@ -31,9 +31,8 @@ test.describe('US1: see the Score written tempo as a number', () => {
 
   test('a library item written at 72 shows "72 BPM", reset disabled, no written hint', async ({ page }) => {
     await page.goto('/');
-    await openPanel(page, 'scores');
     const { item } = await revealLibraryItem(page, 'learning/key-changes/a-major-to-a-minor/beginner');
-    await item.click();
+    await item.dblclick();
 
     await expect(bpmInput(page)).toHaveValue('72');
     await expect(page.locator('[data-id="tempo-unit"]')).toHaveText('BPM');
@@ -323,9 +322,8 @@ test.describe('Phone width (SC-004, T049)', () => {
   async function openAt375(page: Page): Promise<void> {
     await page.setViewportSize({ width: 375, height: 800 });
     await page.goto('/');
-    await openPanel(page, 'scores');
     const { item } = await revealLibraryItem(page, 'learning/key-changes/a-major-to-a-minor/beginner');
-    await item.click();
+    await item.dblclick();
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
   }
 
@@ -397,9 +395,8 @@ test.describe('Phone width (SC-004, T049)', () => {
     // Desktop: Volume is on the bar, still a fair "other transport label" comparison.
     await page.setViewportSize({ width: 1600, height: 900 });
     await page.goto('/');
-    await openPanel(page, 'scores');
     const wide = await revealLibraryItem(page, 'learning/key-changes/a-major-to-a-minor/beginner');
-    await wide.item.click();
+    await wide.item.dblclick();
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
     const volumeSize = await fontSize('.volume-label');
     expect(await fontSize('input[data-id="tempo-bpm"]')).toBeGreaterThanOrEqual(volumeSize);

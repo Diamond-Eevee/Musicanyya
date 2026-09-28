@@ -17,6 +17,10 @@ Amend `.specify/memory/constitution.md` and keep every dependent artifact consis
 
 ## Steps
 
+**Model fit**: this step is tier `deep` (`docs/agents/reference.md` R11). If your model does not fit it, ask the user
+first: switch model, or continue with you? Switch: stop and say which model to use. Continue: note it in the report
+(and in `implementation-log.md` when the feature has one).
+
 1. Read `.specify/memory/constitution.md` fully. Identify the current version and every principle/section.
 2. Derive the change set from the user input. If the input is ambiguous about intent (e.g. "relax latency"), ask at most 2 targeted questions before editing.
 3. Determine the version bump (semantic):

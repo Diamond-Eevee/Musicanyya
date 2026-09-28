@@ -6,13 +6,12 @@
   "checks": [
     {
       "method": "theory",
-      "ruleSet": "exercise-theory-v1",
+      "ruleSet": "exercise-theory-v3",
       "expectedDifferences": 0
     }
   ],
   "outcome": "verified",
-  "outcomeNote": "The independent theory check derives every chord from the title and description and finds 0 differences (letters, spellings, inversions, key signature, labels, hands).",
-  "checkedBy": "claude-sonnet-5",
-  "date": "2026-09-24",
-  "supersedes": ["learning/chords/changes/changes-i-v-vi-iv-c-major"]
+  "outcomeNote": "Feature 014: a beginner right-hand melody over the unchanged left-hand chords; the item starts fresh. Theory check (the left-hand chords from the title) and melody rule check (harmony, key, ending, register, fingering, Difficulty ladder): 0 differences.",
+  "checkedBy": "claude-opus-5.5",
+  "date": "2026-09-28"
 }

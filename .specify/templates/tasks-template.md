@@ -8,6 +8,8 @@
   States: `[ ]` open, `[~]` in progress with ` (claimed: <agent-id> <date>)`, `[x]` done (AGENTS.md section 4)
   - [P]   = can run in parallel (different files, no dependency on unfinished tasks)
   - [USn] = user story the task belongs to (omit for Setup/Foundational/Polish)
+  - [deep] / [standard] / [light] = model tier when it differs from the phase's **Model** line (docs/agents/reference.md R11);
+    an agent whose model does not fit the tier asks the owner "switch or continue?" first
   - Tests come BEFORE implementation (Constitution IV) and must fail first.
   - Tasks touching AudioWorklets, the scheduler, MIDI input timing or plugin callbacks get a follow-up RT review
     task (Constitution I).
@@ -15,12 +17,16 @@
 
 ## Phase 1: Setup
 
+**Model**: light (Gemini Flash or claude-haiku-4-5)
+
 - [ ] T001 [Create project structure per plan]
 - [ ] T002 [P] [Configure lint/format/test tooling]
 
 ---
 
 ## Phase 2: Foundational (blocks all user stories)
+
+**Model**: [light | standard | deep] ([first model] or [second model], from reference R11)
 
 - [ ] T003 [Shared domain types / contracts needed by every story]
 - [ ] T004 [P] [Fakes: fake clock / fake MIDI input / offline audio rendering / recorded Performance logs]
@@ -31,6 +37,7 @@
 
 ## Phase 3: User Story 1 - [Title] (Priority: P1) MVP
 
+**Model**: [light | standard | deep] ([first model] or [second model], from reference R11)
 **Goal**: [What this story delivers]
 **Independent Test**: [How to verify it alone]
 

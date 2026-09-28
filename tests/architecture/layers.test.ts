@@ -96,4 +96,24 @@ describe('Architecture Rules', () => {
     expect(content).not.toMatch(/src\/core\/library\/exercise/);
     expect(content).not.toMatch(/content\/library\/exercises/);
   });
+
+  it('src/core/progress and src/core/browser (013-score-browser-progress) must not import engine, ui, app or DOM globals', () => {
+    const restrictedRoots = [path.resolve(coreDir, 'progress'), path.resolve(coreDir, 'browser')];
+    const restrictedImportPatterns = ["'../engine", "'../../engine", "'../ui", "'../../ui", "'../app", "'../../app"];
+    for (const root of restrictedRoots) {
+      const files = getFiles(root);
+      expect(files.length, `${root} has no files yet`).toBeGreaterThan(0);
+      for (const file of files) {
+        if (!file.endsWith('.ts')) continue;
+        const content = fs.readFileSync(file, 'utf-8');
+        for (const pattern of restrictedImportPatterns) {
+          expect(content, `${file} imports ${pattern}`).not.toContain(`from ${pattern}`);
+        }
+        const code = content.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+        expect(code, `${file} references a DOM/Web API global`).not.toMatch(
+          /\b(window|document|HTMLElement|EventTarget)\b/,
+        );
+      }
+    }
+  });
 });

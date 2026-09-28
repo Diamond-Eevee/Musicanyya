@@ -334,3 +334,115 @@ export const STEP_ORDER_FACTS = ['tempoBpm', 'notesPerBeat', 'handIndependenceFr
 // Criterion 27 - identical at every level: one part, a grand staff.
 export const LEVEL_REQUIRED_PARTS = 1;
 export const LEVEL_REQUIRED_STAVES = 2;
+
+// Score browser & progress (feature 013-score-browser-progress, data-model.md section 11)
+export const PROGRESS_FORMAT_VERSION = 1; // ProgressRecord.format / UserFileEntry.format (FR-030)
+export const PROGRESS_RESULTS_MAX = 20; // ProgressRecord.results kept per Score (FR-015, US2 #5); >= PERFORMANCES_PER_SCORE_MAX
+export const MASTERY_NOTES_CORRECT_MIN_PERCENT = 90; // *Mastered* needs notes correct at or above this (FR-024)
+export const MASTERY_NOTES_ON_TIME_MIN_PERCENT = 80; // *Mastered* needs played notes on time at or above this (FR-024)
+export const MASTERY_TEMPO_PERCENT_MIN = 100; // *Mastered* needs the run's tempo factor at or above this (FR-024)
+export const MASTERY_MIN_STRICTNESS: StrictnessLevelName = 'beginner'; // lowest strictness that can master (FR-024)
+export const MASTERY_MAX_EXTRA_PERCENT: number | null = 10; // OD-2: extra notes at most this % of notes total, or null to disable (FR-024)
+export const CONTINUE_ITEMS_MAX = 8; // Recent items shown in *Continue* (FR-025, US4 #1)
+export const MORE_PRACTICE_AFTER_RUNS = 3; // Whole complete runs without *Mastered* before *More practice* is offered (FR-025)
+export const USER_FILE_VERSIONS_MAX = 10; // Earlier content hashes kept per *My files* entry (FR-021)
+// Shared with src/engine/config.ts (re-exported there): src/core/browser/query.ts (pure) cuts an overlong search
+// itself, so this cannot live only in the engine layer (data-model.md section 11 corrected while implementing T014).
+export const BROWSER_SEARCH_MAX_CHARS = 200; // Browser search text is cut to this length (FR-026)
+
+// Melody over chords (feature 014, data-model.md §4): the Difficulty ladder the melody rule check verifies a
+// rewritten Learning item's right-hand melody against, on top of the existing LEVEL_* criteria above.
+export interface MelodyLadderRow {
+  /** Shortest written value, in quarter-note beats (0.5 = an eighth note). */
+  shortestValueBeats: number;
+  /** Widest span the melody may cover within one section, in semitones. */
+  rangeSemitones: number;
+  /** Widest leap (consecutive melody notes), in scale steps; 0 = a repeated note is never a leap. */
+  maxLeapSteps: number;
+  /** Hand-position shifts allowed across the whole item. */
+  shiftsMax: number;
+  /** Whether a shift may only come at a section start (or after a rest), never in the middle of a section. */
+  shiftsAtSectionStartOnly: boolean;
+  /** Whether a thumb-under / finger-over crossing counts as a shift (true where the hand stays in one position). */
+  crossingIsShift: boolean;
+  /** Whether dotted values may be written. */
+  dottedValues: boolean;
+  /** Whether a melody eighth must stand in a pair on the beat and never together with a left-hand eighth. */
+  eighthsInPairs: boolean;
+  /** Where a non-chord tone may sound (never on the downbeat): in the bar's second half; on a weak beat or in the
+   *  second half; anywhere after the downbeat (weak beats and off-beat eighths - the shortest value is an eighth). */
+  nctPlacement: 'second-half-of-bar' | 'weak-beats' | 'weak-beats-and-off-beat-eighths';
+  /** Longest run of non-chord tones in one direction (passing or neighbour tones). */
+  nctRun: number;
+  /** Left-hand chord changes allowed per bar (a house rule, research R7; `Infinity` = no extra limit). */
+  lhAttacksPerBar: number;
+  /** Whether melody-against-bass parallel octaves on consecutive chord starts are allowed. */
+  parallelOctaves: boolean;
+}
+export const MELODY_LADDER: Record<Level, MelodyLadderRow> = {
+  introduction: {
+    // Amended 2026-09-28 after the owner's listening check (feature 014 T076, research R11): like the key step.
+    shortestValueBeats: 1,
+    rangeSemitones: 12,
+    maxLeapSteps: 1,
+    shiftsMax: 1, // one lift, at a section start (T068); thumb-under / finger-over are not shifts
+    shiftsAtSectionStartOnly: true,
+    crossingIsShift: false,
+    dottedValues: false,
+    eighthsInPairs: false,
+    nctPlacement: 'weak-beats',
+    nctRun: 2,
+    lhAttacksPerBar: 1,
+    parallelOctaves: true,
+  },
+  beginner: {
+    shortestValueBeats: 1,
+    rangeSemitones: 12,
+    maxLeapSteps: 2,
+    shiftsMax: 2,
+    shiftsAtSectionStartOnly: false,
+    crossingIsShift: false,
+    dottedValues: false,
+    eighthsInPairs: false,
+    nctPlacement: 'weak-beats',
+    nctRun: 2,
+    lhAttacksPerBar: 2,
+    parallelOctaves: true,
+  },
+  intermediate: {
+    shortestValueBeats: 0.5,
+    rangeSemitones: 12,
+    maxLeapSteps: 4,
+    shiftsMax: Infinity,
+    shiftsAtSectionStartOnly: false,
+    crossingIsShift: false,
+    dottedValues: false,
+    eighthsInPairs: true,
+    nctPlacement: 'weak-beats-and-off-beat-eighths',
+    nctRun: 2,
+    lhAttacksPerBar: Infinity,
+    parallelOctaves: false,
+  },
+  advanced: {
+    shortestValueBeats: 0.5,
+    rangeSemitones: 16,
+    maxLeapSteps: 7,
+    shiftsMax: Infinity,
+    shiftsAtSectionStartOnly: false,
+    crossingIsShift: false,
+    dottedValues: true,
+    eighthsInPairs: false,
+    nctPlacement: 'weak-beats-and-off-beat-eighths',
+    nctRun: 2,
+    lhAttacksPerBar: Infinity,
+    parallelOctaves: false,
+  },
+};
+// Melody register (data-model §4 note): C4-A5 at every level except advanced, which reaches C6.
+export const MELODY_REGISTER_MIDI: Record<Level, { min: number; max: number }> = {
+  introduction: { min: 60, max: 81 }, // C4-A5
+  beginner: { min: 60, max: 81 },
+  intermediate: { min: 60, max: 81 },
+  advanced: { min: 60, max: 84 }, // C4-C6
+};
+export const MELODY_MIN_CLEARANCE_SEMITONES = 3; // the melody's lowest note above the left hand's highest, at every instant

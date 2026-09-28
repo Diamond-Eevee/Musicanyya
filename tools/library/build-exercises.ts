@@ -3,7 +3,10 @@ import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { generateFamily } from '../../src/core/library/exercise/generate.js';
 import type { ExerciseDefinition } from '../../src/core/library/exercise/types.js';
+import type { Level } from '../../src/core/library/types.js';
 import { hashFile } from '../../src/engine/files/hash.js';
+import { claimForItem } from './fidelity/exercise-claims.js';
+import { checkMelodyRules } from './fidelity/melody-rules.js';
 import { keepStamps } from './stamps.js';
 import { SUCCESSORS } from './successors.js';
 
@@ -13,7 +16,10 @@ import { SUCCESSORS } from './successors.js';
  *  when its definition names old items: the ids must be in the successor table (`successors.ts`) under this very item's
  *  id, and the hash is the table's - checked against the old file when it is still on disk. Never touches an item whose
  *  sidecar already says `provenance.origin` is `downloaded` (contracts/exercise-definition.md §2.6) - this tool only ever
- *  writes files it also generated. Importable so tests can call it directly; runnable as `pnpm library:exercises`. */
+ *  writes files it also generated. An item with a melody (feature 014) is first checked by the independent melody rule
+ *  check, with its keys from the claim table (by title) and its level from its sidecar; if any item has a finding,
+ *  nothing is written and the error lists every finding by item, bar, beat and rule. Importable so tests can call it
+ *  directly; runnable as `pnpm library:exercises`. */
 export interface BuildExercisesResult {
   written: string[];
   skipped: string[];
@@ -46,6 +52,20 @@ async function supersedesOf(
   return out;
 }
 
+/** Whether a definition gives the right hand a melody (contract exercise-definition 1.3). */
+function hasMelody(definition: ExerciseDefinition): boolean {
+  return definition.melody !== undefined || (definition.sections ?? []).some((s) => 'melody' in s.right);
+}
+
+/** The melody rule check's findings for one generated item, one line each ("<id>: bar 3, beat 1: clash - ..."). */
+function melodyFindings(itemId: string, title: string, trains: string, level: Level, xml: string): string[] {
+  const claim = claimForItem({ itemId, title, trains });
+  const keys = claim.segments?.map((s) => ({ firstBar: s.firstBar, key: s.key })) ?? [{ firstBar: 1, key: claim.key }];
+  return checkMelodyRules({ itemId, xml, level, keys }).map(
+    (f) => `${itemId}: bar ${f.bar}, beat ${f.beat}: ${f.rule} - ${f.message}`,
+  );
+}
+
 export async function buildExercises(
   contentDir: string,
   libraryRoot: string,
@@ -53,6 +73,8 @@ export async function buildExercises(
 ): Promise<BuildExercisesResult> {
   const written: string[] = [];
   const skipped: string[] = [];
+  const plan: { sectionDir: string; xmlPath: string; sidecarPath: string; xml: string; meta: object }[] = [];
+  const findings: string[] = [];
 
   const definitionFiles = fs
     .readdirSync(contentDir)
@@ -64,7 +86,6 @@ export async function buildExercises(
 
     for (const item of generateFamily(definition, generatedOn)) {
       const sectionDir = path.join(libraryRoot, item.section);
-      fs.mkdirSync(sectionDir, { recursive: true });
       const xmlPath = path.join(sectionDir, `${item.fileStem}.musicxml`);
       const sidecarPath = path.join(sectionDir, `${item.fileStem}.json`);
 
@@ -76,15 +97,26 @@ export async function buildExercises(
         }
       }
 
-      const supersedes = await supersedesOf(`${item.section}/${item.fileStem}`, item.supersedes, libraryRoot);
+      const itemId = `${item.section}/${item.fileStem}`;
+      if (hasMelody(definition))
+        findings.push(...melodyFindings(itemId, item.meta.title, item.meta.trains ?? '', item.meta.level, item.xml));
+      const supersedes = await supersedesOf(itemId, item.supersedes, libraryRoot);
       const stamped = keepStamps(item.meta, sidecarPath, generatedOn);
       const meta = supersedes.length > 0 ? { ...stamped, supersedes } : stamped;
-      fs.writeFileSync(xmlPath, item.xml);
-      fs.writeFileSync(sidecarPath, `${JSON.stringify(meta, null, 2)}\n`);
-      written.push(path.relative(libraryRoot, xmlPath));
+      plan.push({ sectionDir, xmlPath, sidecarPath, xml: item.xml, meta });
     }
   }
 
+  if (findings.length > 0)
+    throw new Error(
+      `The melody rule check found ${findings.length} problem(s); nothing was written:\n${findings.join('\n')}`,
+    );
+  for (const { sectionDir, xmlPath, sidecarPath, xml, meta } of plan) {
+    fs.mkdirSync(sectionDir, { recursive: true });
+    fs.writeFileSync(xmlPath, xml);
+    fs.writeFileSync(sidecarPath, `${JSON.stringify(meta, null, 2)}\n`);
+    written.push(path.relative(libraryRoot, xmlPath));
+  }
   return { written, skipped };
 }
 

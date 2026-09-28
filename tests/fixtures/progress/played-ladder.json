@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "items": {
+    "playedBest60": "learning/keys/c-major/intermediate",
+    "playedBest72": "learning/keys/g-major/introduction",
+    "playedBest85": "learning/keys/c-major/beginner",
+    "mastered": "learning/keys/g-major/beginner",
+    "practised": "learning/keys/c-major/advanced"
+  },
+  "events": [
+    {
+      "ref": { "kind": "library", "id": "learning/keys/c-major/advanced" },
+      "event": { "type": "practised", "at": "2026-09-21T09:00:00.000Z", "fromMeasure": 1, "toMeasure": 4 }
+    },
+    {
+      "ref": { "kind": "library", "id": "learning/keys/c-major/beginner" },
+      "event": {
+        "type": "played",
+        "at": "2026-09-21T10:00:00.000Z",
+        "result": {
+          "runId": "seed-ladder-c-beginner",
+          "finishedAt": "2026-09-21T10:00:00.000Z",
+          "notesCorrect": { "count": 34, "total": 40 },
+          "notesOnTime": { "count": 28, "total": 34 },
+          "extra": 1,
+          "tempoPercent": 100,
+          "strictness": "beginner",
+          "complete": true,
+          "scope": { "kind": "whole" }
+        }
+      }
+    },
+    {
+      "ref": { "kind": "library", "id": "learning/keys/c-major/intermediate" },
+      "event": {
+        "type": "played",
+        "at": "2026-09-21T10:10:00.000Z",
+        "result": {
+          "runId": "seed-ladder-c-intermediate",
+          "finishedAt": "2026-09-21T10:10:00.000Z",
+          "notesCorrect": { "count": 24, "total": 40 },
+          "notesOnTime": { "count": 18, "total": 24 },
+          "extra": 2,
+          "tempoPercent": 100,
+          "strictness": "beginner",
+          "complete": true,
+          "scope": { "kind": "whole" }
+        }
+      }
+    },
+    {
+      "ref": { "kind": "library", "id": "learning/keys/g-major/introduction" },
+      "event": {
+        "type": "played",
+        "at": "2026-09-21T10:20:00.000Z",
+        "result": {
+          "runId": "seed-ladder-g-introduction",
+          "finishedAt": "2026-09-21T10:20:00.000Z",
+          "notesCorrect": { "count": 29, "total": 40 },
+          "notesOnTime": { "count": 24, "total": 29 },
+          "extra": 0,
+          "tempoPercent": 100,
+          "strictness": "beginner",
+          "complete": true,
+          "scope": { "kind": "whole" }
+        }
+      }
+    },
+    {
+      "ref": { "kind": "library", "id": "learning/keys/g-major/beginner" },
+      "event": {
+        "type": "played",
+        "at": "2026-09-21T10:30:00.000Z",
+        "result": {
+          "runId": "seed-ladder-g-beginner-mastered",
+          "finishedAt": "2026-09-21T10:30:00.000Z",
+          "notesCorrect": { "count": 39, "total": 40 },
+          "notesOnTime": { "count": 35, "total": 39 },
+          "extra": 1,
+          "tempoPercent": 100,
+          "strictness": "beginner",
+          "complete": true,
+          "scope": { "kind": "whole" }
+        }
+      }
+    }
+  ]
+}

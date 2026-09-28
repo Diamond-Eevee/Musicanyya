@@ -16,6 +16,7 @@ import type { ItemMetadata } from '../types.js';
 import { chordTones, invertOrder, pitchClassOfTone, tonicPitchClass } from './degrees.js';
 import { assertFingeringLength, triadFingering } from './fingering.js';
 import { displayKeyName, keyBySlug, keySlug } from './keys.js';
+import { buildMelodySegments, type MelodyChordOnset } from './melody.js';
 import { assertWithin88Keys } from './range-guard.js';
 import { scaleFingering, scaleName, scaleNotes } from './scales.js';
 import type {
@@ -25,12 +26,14 @@ import type {
   ExerciseStep,
   Inversion,
   KeyPair,
+  MelodyPart,
   PatternChord,
   PatternHandPart,
   PatternSection,
   Quality,
   ScalePart,
   StepDuration,
+  StepName,
 } from './types.js';
 import { bassInWindow, placeAscending, registerAnchorMidi, transposeOctaves, type VoicedNote } from './voicing.js';
 
@@ -209,7 +212,14 @@ function identityOf(
  *  octave apart - FR-005's cross-key consistency is true by construction, since every key runs the
  *  same `steps` through the same voicing code. */
 export function generateTriadFamily(definition: ExerciseDefinition, generatedOn: string): GeneratedExerciseItem[] {
+  rejectTopLevelMelody(definition);
   return definitionKeys(definition).map((key) => generateTriadItem(definition, key, generatedOn));
+}
+
+/** The top-level `melody` belongs to the chord-change drills only (contract exercise-definition 1.3 §2). */
+function rejectTopLevelMelody(definition: ExerciseDefinition): void {
+  if (definition.melody !== undefined)
+    throw new Error(`${definition.family}: a top-level \`melody\` is allowed only in a chord-change drill (changes-*)`);
 }
 
 function generateTriadItem(
@@ -310,13 +320,67 @@ function measureTicks(metre: string): number {
  *  given (2 to 8 chords - see `research.md` "changes family written-measure count" for the reasoning)
  *  and repeated by the barline instead, which is what `<barline><repeat>` exists for. */
 export function generateChangeFamily(definition: ExerciseDefinition, generatedOn: string): GeneratedExerciseItem[] {
-  return definitionKeys(definition).map((key) => generateChangeItem(definition, key, generatedOn));
+  if (!definition.family.startsWith('changes')) rejectTopLevelMelody(definition);
+  return definitionKeys(definition).map((key, itemIndex) =>
+    generateChangeItem(definition, key, generatedOn, itemIndex),
+  );
+}
+
+/** Section A's bars end in the quarter rest the left hand lifts in (data-model.md §5.2); the right hand's melody rests
+ *  with it (feature 014 US3 #2, contract exercise-definition 1.3 §2). */
+const SECTION_A_REST_TICKS = REST_TICKS.quarter;
+
+/** The right hand of one drill section, bar by bar (feature 014, contract exercise-definition 1.3 §2): item `itemIndex`'s
+ *  variant of the section's part, spelled in `key` - over a chord of the other mode on the same tonic the author writes
+ *  the third's `alter`, so extra alterations are allowed here - with the chord words attached at `chordOnsets`. Throws
+ *  naming the section when the part does not fill exactly `bars` bars or a note crosses a barline. */
+function drillMelodyBars(
+  definition: ExerciseDefinition,
+  section: 'sectionA' | 'sectionB' | 'final',
+  key: ExerciseKey,
+  itemIndex: number,
+  bars: number,
+  chordOnsets: readonly MelodyChordOnset[],
+): WriteEvent[][] {
+  const part = definition.melody?.[section];
+  const context = `${definition.family}: melody.${section}`;
+  if (!part) throw new Error(`${context} is missing`);
+  const barTicks = measureTicks(definition.metre);
+  const level: StepName = definition.meta.level;
+  const segments = buildMelodySegments(key, part, key.mode, itemIndex, level, true, chordOnsets, context);
+  const filled = segments.reduce((sum, s) => sum + s.ticks, 0);
+  if (filled !== bars * barTicks)
+    throw new Error(`${context}: the part fills ${filled} of the ${bars * barTicks} ticks of ${bars} bar(s)`);
+
+  const out: WriteEvent[][] = [];
+  let current: WriteEvent[] = [];
+  let used = 0;
+  for (const segment of segments) {
+    const restAt = section === 'sectionA' && used === barTicks - SECTION_A_REST_TICKS;
+    if (restAt) {
+      const rest = segment.events.find((e) => e.kind === 'note');
+      if (segment.ticks !== SECTION_A_REST_TICKS || rest?.kind !== 'note' || rest.note.rest !== true)
+        throw new Error(`${context}: bar ${out.length + 1} must end in a quarter rest, with the left hand's`);
+    }
+    current.push(...segment.events);
+    used += segment.ticks;
+    if (used > barTicks) throw new Error(`${context}: a note crosses the barline after bar ${out.length + 1}`);
+    if (section === 'sectionA' && used > barTicks - SECTION_A_REST_TICKS && !restAt)
+      throw new Error(`${context}: bar ${out.length + 1} must end in a quarter rest, with the left hand's`);
+    if (used === barTicks) {
+      out.push(current);
+      current = [];
+      used = 0;
+    }
+  }
+  return out;
 }
 
 function generateChangeItem(
   definition: ExerciseDefinition,
   key: ExerciseKey,
   generatedOn: string,
+  itemIndex: number,
 ): GeneratedExerciseItem {
   const anchorMidi = exerciseAnchorMidi(key);
   const cycle = definitionSteps(definition);
@@ -341,6 +405,28 @@ function generateChangeItem(
   const measures: WriteMeasure[] = [];
   let measureNumber = 1;
 
+  const chordWords = (step: ExerciseStep, inversion: Inversion): string =>
+    step.label
+      ? `${step.label} · ${romanFigure(step.degree, inversion, step.quality)}`
+      : romanFigure(step.degree, inversion, step.quality);
+  // Feature 014 (contract exercise-definition 1.3 §2): a top-level melody replaces the right hand's triads; the left hand
+  // below is generated exactly as without it. Section A's chord words move onto the melody note at each chord start.
+  const barTicks = measureTicks(definition.metre);
+  const melodyA = definition.melody
+    ? drillMelodyBars(
+        definition,
+        'sectionA',
+        key,
+        itemIndex,
+        voicedCycle.length,
+        voicedCycle.map(({ step, inversion }, i) => ({ onset: i * barTicks, words: chordWords(step, inversion) })),
+      )
+    : undefined;
+  const melodyB = definition.melody
+    ? drillMelodyBars(definition, 'sectionB', key, itemIndex, voicedCycle.length, [])
+    : undefined;
+  const melodyFinal = definition.melody ? drillMelodyBars(definition, 'final', key, itemIndex, 1, []) : undefined;
+
   // Section A: one measure per cycle chord, dotted-half + quarter rest, ending in a backward repeat.
   voicedCycle.forEach(({ step, inversion, right, left }, i) => {
     const rightEvents: WriteEvent[] = [];
@@ -353,31 +439,27 @@ function generateChangeItem(
         placement: 'above',
       });
     }
-    rightEvents.push({
-      kind: 'direction',
-      words: step.label
-        ? `${step.label} · ${romanFigure(step.degree, inversion, step.quality)}`
-        : romanFigure(step.degree, inversion, step.quality),
-      staff: 1,
-      placement: 'above',
-    });
-    rightEvents.push(
-      ...chordEvents(
-        right,
-        triadFingering(inversion, 'right'),
-        DURATION_TICKS['dotted-half'],
-        'half',
-        true,
-        '1',
-        1,
-        new Set(),
-        new Set(),
-      ),
-    );
-    rightEvents.push({
-      kind: 'note',
-      note: { rest: true, duration: REST_TICKS.quarter, voice: '1', type: 'quarter', staff: 1 },
-    });
+    if (melodyA) rightEvents.push(...(melodyA[i] ?? []));
+    else {
+      rightEvents.push({ kind: 'direction', words: chordWords(step, inversion), staff: 1, placement: 'above' });
+      rightEvents.push(
+        ...chordEvents(
+          right,
+          triadFingering(inversion, 'right'),
+          DURATION_TICKS['dotted-half'],
+          'half',
+          true,
+          '1',
+          1,
+          new Set(),
+          new Set(),
+        ),
+      );
+      rightEvents.push({
+        kind: 'note',
+        note: { rest: true, duration: REST_TICKS.quarter, voice: '1', type: 'quarter', staff: 1 },
+      });
+    }
 
     const leftEvents: WriteEvent[] = [
       ...chordEvents(
@@ -436,17 +518,19 @@ function generateChangeItem(
       });
     }
 
-    const rightEvents = chordEvents(
-      right,
-      triadFingering(inversion, 'right'),
-      DURATION_TICKS.whole,
-      'whole',
-      false,
-      '1',
-      1,
-      tieStopRight,
-      tieStartRight,
-    );
+    const rightEvents =
+      melodyB?.[i] ??
+      chordEvents(
+        right,
+        triadFingering(inversion, 'right'),
+        DURATION_TICKS.whole,
+        'whole',
+        false,
+        '1',
+        1,
+        tieStopRight,
+        tieStartRight,
+      );
     const leftEvents = chordEvents(
       left,
       triadFingering(inversion, 'left'),
@@ -467,17 +551,19 @@ function generateChangeItem(
   const tonicDegree = key.mode === 'major' ? 'I' : 'i';
   const finalContext = `${key.tonic} ${key.mode} final tonic`;
   const finalChord = voiceTriad(key, tonicDegree, undefined, 0, anchorMidi, finalContext);
-  const finalRight = chordEvents(
-    finalChord.right,
-    triadFingering(0, 'right'),
-    DURATION_TICKS.whole,
-    'whole',
-    false,
-    '1',
-    1,
-    new Set(),
-    new Set(),
-  );
+  const finalRight =
+    melodyFinal?.[0] ??
+    chordEvents(
+      finalChord.right,
+      triadFingering(0, 'right'),
+      DURATION_TICKS.whole,
+      'whole',
+      false,
+      '1',
+      1,
+      new Set(),
+      new Set(),
+    );
   const finalLeft = chordEvents(
     finalChord.left,
     triadFingering(0, 'left'),
@@ -594,11 +680,17 @@ function resolveSections(
           `${here}: a mirror has ${spec.bars} bars but section ${spec.mirror + 1} has ${source.spec.bars}`,
         );
       }
+      if ('melody' in source.left) {
+        throw new Error(`${here}: a mirror of section ${spec.mirror + 1} would put its melody in the left hand`);
+      }
       resolved.push({ spec, key: keyOf(spec), right: source.left, left: source.right });
       return;
     }
     if ('mirror' in spec.right || 'mirror' in spec.left) {
       throw new Error(`${here}: a hand part of \`mirror\` needs the section's \`mirror\` index`);
+    }
+    if ('melody' in spec.left) {
+      throw new Error(`${here}: \`melody\` is allowed in the right hand only`);
     }
     resolved.push({ spec, key: keyOf(spec), right: spec.right, left: spec.left });
   });
@@ -743,13 +835,46 @@ function restSegments(hand: HandName, bars: number, barTicks: number): Segment[]
   }));
 }
 
-function handSegments(section: ResolvedSection, hand: HandName, barTicks: number, context: string): Segment[] {
+/** The right-hand melody of a section (feature 014, contract exercise-definition 1.3 §1c-2a): the left hand's own
+ *  chords (generated exactly as in 1.2.0) give the words direction and onset of each chord, which the melody's own
+ *  copy is attached to (data-model.md 014 §7, "attached to the melody note that sounds at the chord start"). */
+function melodySegmentsForSection(
+  section: ResolvedSection,
+  part: MelodyPart,
+  context: string,
+  itemIndex: number,
+  level: StepName,
+): Segment[] {
+  const leftPart = section.left;
+  if (!('chords' in leftPart)) throw new Error(`${context}: a melody section needs the left hand's \`chords\``);
+  const leftSegments = chordSegments(section, 'left', leftPart.chords, `${context} (left hand)`);
+  const chordOnsets: MelodyChordOnset[] = [];
+  let onset = 0;
+  for (const segment of leftSegments) {
+    const words = segment.events.find((e) => e.kind === 'direction')?.words;
+    if (words !== undefined) chordOnsets.push({ onset, words });
+    onset += segment.ticks;
+  }
+  return buildMelodySegments(section.key, part, section.key.mode, itemIndex, level, false, chordOnsets, context);
+}
+
+function handSegments(
+  section: ResolvedSection,
+  hand: HandName,
+  barTicks: number,
+  context: string,
+  itemIndex: number,
+  level: StepName,
+): Segment[] {
   const part = section[hand];
   let segments: Segment[];
   if ('scale' in part) segments = scaleSegments(section, hand, part.scale, context);
   else if ('chords' in part) segments = chordSegments(section, hand, part.chords, context);
   else if ('rest' in part) segments = restSegments(hand, section.spec.bars, barTicks);
-  else throw new Error(`${context}: a mirror part was not resolved`);
+  else if ('melody' in part) {
+    if (hand !== 'right') throw new Error(`${context}: \`melody\` is allowed in the right hand only`);
+    segments = melodySegmentsForSection(section, part.melody, context, itemIndex, level);
+  } else throw new Error(`${context}: a mirror part was not resolved`);
   const filled = segments.reduce((sum, s) => sum + s.ticks, 0);
   const wanted = section.spec.bars * barTicks;
   if (filled !== wanted) {
@@ -763,16 +888,19 @@ interface PatternRender {
   definition: ExerciseDefinition;
   sections: ResolvedSection[];
   firstKey: ExerciseKey;
+  /** The family's item index (order of `keys`/`keyPairs`): which melody variant a section's `variants[i mod n]` uses. */
+  itemIndex: number;
 }
 
 /** Lays the hands' segments out bar by bar and writes the completed file. Section barlines, the tempo mark and the words
  *  directions come from the definition. Shared by the pattern and key-change forms. */
 function renderPattern(render: PatternRender): string {
-  const { definition, sections, firstKey, title } = render;
+  const { definition, sections, firstKey, title, itemIndex } = render;
   const barTicks = measureTicks(definition.metre);
   const streams: Record<HandName, Segment[]> = { right: [], left: [] };
   const sectionEnds: { lastBar: number; barline: BarlineKind }[] = [];
   const sectionStarts = new Map<number, ResolvedSection>();
+  const level: StepName = definition.step ?? 'introduction';
   let bars = 0;
 
   sections.forEach((section, index) => {
@@ -780,7 +908,7 @@ function renderPattern(render: PatternRender): string {
     const context = `${definition.family}: section ${index + 1}${label ? ` ("${label}")` : ''}`;
     sectionStarts.set(bars + 1, section);
     for (const hand of ['right', 'left'] as const) {
-      const segments = handSegments(section, hand, barTicks, context);
+      const segments = handSegments(section, hand, barTicks, context, itemIndex, level);
       if (hand === 'right') {
         // the tempo mark and the section label lead the right hand's first segment of the score / section
         const lead: WriteEvent[] = [];
@@ -882,16 +1010,17 @@ function timeOf(metre: string): { beats: string; beatType: number } {
 export function generatePatternFamily(definition: ExerciseDefinition, generatedOn: string): GeneratedExerciseItem[] {
   if (definition.form !== 'pattern')
     throw new Error(`${definition.family}: generatePatternFamily needs form "pattern"`);
+  rejectTopLevelMelody(definition);
   if (definition.steps !== undefined || definition.keyPairs !== undefined) {
     throw new Error(
       `${definition.family}: the pattern form takes \`keys\` and \`sections\`, not \`steps\` or \`keyPairs\``,
     );
   }
-  return definitionKeys(definition).map((key) => {
+  return definitionKeys(definition).map((key, itemIndex) => {
     const slug = keySlug(key);
     const sections = resolveSections(definition, () => key);
     const title = definition.titleTemplate.replace('{key}', displayKeyName(key));
-    const xml = renderPattern({ title, definition, sections, firstKey: key });
+    const xml = renderPattern({ title, definition, sections, firstKey: key, itemIndex });
     return { ...identityOf(definition, slug), xml, meta: buildMeta(definition, title, generatedOn) };
   });
 }
@@ -919,6 +1048,7 @@ function pairSlug(pair: KeyPair): string {
 export function generateKeyChangeFamily(definition: ExerciseDefinition, generatedOn: string): GeneratedExerciseItem[] {
   if (definition.form !== 'key-change')
     throw new Error(`${definition.family}: generateKeyChangeFamily needs form "key-change"`);
+  rejectTopLevelMelody(definition);
   if (definition.keys !== undefined || definition.steps !== undefined) {
     throw new Error(
       `${definition.family}: the key-change form takes \`keyPairs\` and \`sections\`, not \`keys\` or \`steps\``,
@@ -926,13 +1056,13 @@ export function generateKeyChangeFamily(definition: ExerciseDefinition, generate
   }
   const pairs = definition.keyPairs;
   if (!pairs || pairs.length === 0) throw new Error(`${definition.family}: the key-change form needs \`keyPairs\``);
-  return pairs.map((pair) => {
+  return pairs.map((pair, itemIndex) => {
     const slug = pairSlug(pair);
     const sections = resolveSections(definition, (section) => (section.inKey === 'to' ? pair.to : pair.from));
     const title = definition.titleTemplate
       .replace('{from}', displayKeyName(pair.from))
       .replace('{to}', displayKeyName(pair.to));
-    const xml = renderPattern({ title, definition, sections, firstKey: pair.from });
+    const xml = renderPattern({ title, definition, sections, firstKey: pair.from, itemIndex });
     return { ...identityOf(definition, slug), xml, meta: buildMeta(definition, title, generatedOn) };
   });
 }

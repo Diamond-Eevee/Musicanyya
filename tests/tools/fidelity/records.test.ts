@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { ClaimError } from '../../../tools/library/fidelity/exercise-claims';
 import {
   type AuditRecord,
   checkRecord,
@@ -10,10 +11,13 @@ import {
   outcomeLabel,
   type RunContext,
   runRecord,
+  theoryDifferences,
   validateRecord,
 } from '../../../tools/library/fidelity/records';
 import { loadSources } from '../../../tools/library/fidelity/sources';
+import { checkExercise, type ExerciseClaim, type KeyClaim } from '../../../tools/library/fidelity/theory';
 import { q } from '../../../tools/library/fidelity/time';
+import { buildMelodyFixture, type FixtureBar } from './melody-fixtures';
 import { ITEM_XML, LY, record, SIDECAR, SOURCE, writeFile, writeTree } from './tiny-library';
 
 let root: string;
@@ -265,7 +269,7 @@ describe('feature 011: rule sets, supersedes and the Introduction level (contrac
   const theoryCheck = (ruleSet: string) => ({ method: 'theory', ruleSet, expectedDifferences: 0 });
   const withChecks = (checks: unknown[]) => JSON.parse(JSON.stringify({ ...record(), claim: 'exercise', checks }));
 
-  it.each(['exercise-theory-v1', 'exercise-theory-v2', 'song-chords-v1'])(
+  it.each(['exercise-theory-v1', 'exercise-theory-v2', 'exercise-theory-v3', 'song-chords-v1'])(
     'accepts the theory rule set %s',
     (ruleSet) => {
       expect(() => validateRecord(withChecks([theoryCheck(ruleSet)]), 'x.json')).not.toThrow();
@@ -273,7 +277,7 @@ describe('feature 011: rule sets, supersedes and the Introduction level (contrac
   );
 
   it('rejects an unknown theory rule set', () => {
-    expect(() => validateRecord(withChecks([theoryCheck('exercise-theory-v3')]), 'x.json')).toThrow(/ruleSet/);
+    expect(() => validateRecord(withChecks([theoryCheck('exercise-theory-v4')]), 'x.json')).toThrow(/ruleSet/);
   });
 
   it('accepts a supersedes list of item ids, and rejects an empty or malformed one', () => {
@@ -314,5 +318,99 @@ describe('feature 011: rule sets, supersedes and the Introduction level (contrac
     expect(problems({ ...record(), supersedes: ['learning/chords/old-a'] })).toContainEqual(
       expect.stringMatching(/supersedes/),
     );
+  });
+});
+
+describe('exercise-theory-v3: the melody hand (feature 014, contract audit-record 1.3 §1)', () => {
+  const C: KeyClaim = { tonicLetter: 'C', tonicAlter: 0, mode: 'major' };
+  const lhChord = (notes: [string, number][]) => ({
+    notes: notes.map(([step, octave]) => ({ step: step as 'C', octave })),
+    value: 'whole' as const,
+  });
+  const I = lhChord([
+    ['C', 3],
+    ['E', 3],
+    ['G', 3],
+  ]);
+  const V6 = lhChord([
+    ['B', 2],
+    ['D', 3],
+    ['G', 3],
+  ]);
+  /** An introduction item in C: C D | E | D (over V) | C, or ending on `last`, with the second chord `second`. */
+  const xmlOf = (last = 'C', second = I): string => {
+    const bars: FixtureBar[] = [
+      {
+        key: { fifths: 0, mode: 'major' },
+        left: [I],
+        right: [
+          { step: 'C', octave: 4, value: 'half', fingering: 1 },
+          { step: 'D', octave: 4, value: 'half' },
+        ],
+      },
+      { left: [second], right: [{ step: 'E', octave: 4, value: 'whole' }] },
+      { left: [V6], right: [{ step: 'D', octave: 4, value: 'whole' }] },
+      { left: [I], right: [{ step: last as 'C', octave: 4, value: 'whole' }], barline: 'light-heavy' },
+    ];
+    return buildMelodyFixture(bars);
+  };
+  const leftChords: ExerciseClaim['chords'] = [
+    { roman: 'I', quality: 'major', inversion: 0, hands: ['left'] },
+    { roman: 'I', quality: 'major', inversion: 0, hands: ['left'] },
+    { roman: 'V', quality: 'major', inversion: 1, hands: ['left'] },
+    { roman: 'I', quality: 'major', inversion: 0, hands: ['left'] },
+  ];
+  const melodyClaim: ExerciseClaim = {
+    itemId: 'learning/key-changes/fixture/introduction',
+    key: C,
+    chords: leftChords,
+    sections: [
+      {
+        firstBar: 1,
+        lastBar: 4,
+        key: C,
+        right: { kind: 'melody', level: 'introduction' },
+        left: {
+          kind: 'chords',
+          chords: [
+            { roman: 'I', quality: 'major', inversion: 0, voicing: 'triad' },
+            { roman: 'V', quality: 'major', inversion: 1, voicing: 'triad' },
+          ],
+        },
+      },
+    ],
+  };
+  const chordsOnlyClaim: ExerciseClaim = { itemId: 'fixture/chords-only', key: C, chords: leftChords };
+
+  it('runs checkMelodyRules on the melody hand: a clean melody gives no difference', () => {
+    expect(theoryDifferences(xmlOf(), melodyClaim, 'exercise-theory-v3')).toEqual([]);
+  });
+
+  it('counts the findings of the melody check as differences (a melody that ends on E)', () => {
+    expect(theoryDifferences(xmlOf('E'), melodyClaim, 'exercise-theory-v3')).toEqual([
+      { kind: 'melodyRule', bar: '4', beat: 1, rule: 'ending', message: expect.stringMatching(/E4/) },
+    ]);
+  });
+
+  it('counts findings of both checks: a wrong left-hand chord and the melody finding', () => {
+    const wrong = lhChord([
+      ['C', 3],
+      ['F', 3],
+      ['A', 3],
+    ]);
+    const kinds = theoryDifferences(xmlOf('E', wrong), melodyClaim, 'exercise-theory-v3').map((d) => d.kind);
+    expect(kinds).toContain('theory');
+    expect(kinds).toContain('melodyRule');
+  });
+
+  it('a v1 or v2 rule set re-runs a claim without a melody unchanged', () => {
+    const xml = xmlOf('E');
+    for (const ruleSet of ['exercise-theory-v1', 'exercise-theory-v2'] as const)
+      expect(theoryDifferences(xml, chordsOnlyClaim, ruleSet)).toEqual(checkExercise(xml, chordsOnlyClaim));
+  });
+
+  it('refuses a melody claim under a rule set before v3', () => {
+    expect(() => theoryDifferences(xmlOf(), melodyClaim, 'exercise-theory-v2')).toThrow(ClaimError);
+    expect(() => theoryDifferences(xmlOf(), melodyClaim, 'exercise-theory-v2')).toThrow(/exercise-theory-v3/);
   });
 });

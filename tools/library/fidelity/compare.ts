@@ -3,6 +3,7 @@
 // reported once. Differences name the bar and the position in it (quarter notes after the bar line), sorted by bar,
 // then position, so a re-run gives identical output.
 
+import type { MelodyRule } from './melody-rules';
 import {
   type Alter,
   noteName,
@@ -37,6 +38,8 @@ export type Difference =
   | { kind: 'grace'; bar: string; detail: string }
   | { kind: 'melody'; bar: string; index: number; item: string; source: string }
   | { kind: 'melodyRhythm'; bar: string; index: number; note: string; item: string; source: string }
+  /** exercise-theory-v3: one finding of the melody rule check (feature 014). */
+  | { kind: 'melodyRule'; bar: string; beat: number; rule: MelodyRule; message: string }
   | TheoryDifference;
 
 export type Aspect =
@@ -663,6 +666,8 @@ export function describeDifference(d: Difference): string {
       return `${at(d.bar)}: melody note ${d.index + 1} is ${d.item}, source ${d.source}`;
     case 'melodyRhythm':
       return `${at(d.bar)}: melody note ${d.index + 1} (${d.note}): ${d.item}, source ${d.source}`;
+    case 'melodyRule':
+      return `bar ${d.bar}, beat ${d.beat}: ${d.message} (${d.rule})`;
     case 'theory': {
       const where =
         d.chordIndex >= 0

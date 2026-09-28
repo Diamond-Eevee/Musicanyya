@@ -1,0 +1,592 @@
+{
+  "learning/key-changes/a-major-to-a-minor/beginner": {
+    "title": "A major to A minor - beginner",
+    "section": "learning/key-changes/a-major-to-a-minor",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/a-major-to-a-minor/intermediate": {
+    "title": "A major to A minor - intermediate",
+    "section": "learning/key-changes/a-major-to-a-minor",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/a-major-to-a-minor/introduction": {
+    "title": "A major to A minor - introduction",
+    "section": "learning/key-changes/a-major-to-a-minor",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/key-changes/a-minor-to-a-major/beginner": {
+    "title": "A minor to A major - beginner",
+    "section": "learning/key-changes/a-minor-to-a-major",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/a-minor-to-a-major/intermediate": {
+    "title": "A minor to A major - intermediate",
+    "section": "learning/key-changes/a-minor-to-a-major",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/a-minor-to-a-major/introduction": {
+    "title": "A minor to A major - introduction",
+    "section": "learning/key-changes/a-minor-to-a-major",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/key-changes/a-minor-to-a-major/minor-and-major": {
+    "title": "A minor - minor and major",
+    "section": "learning/key-changes/a-minor-to-a-major",
+    "level": "advanced",
+    "step": "intermediate",
+    "stepOrder": 10,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/a-minor-to-c-major/beginner": {
+    "title": "A minor to C major - beginner",
+    "section": "learning/key-changes/a-minor-to-c-major",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/a-minor-to-c-major/intermediate": {
+    "title": "A minor to C major - intermediate",
+    "section": "learning/key-changes/a-minor-to-c-major",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/a-minor-to-c-major/introduction": {
+    "title": "A minor to C major - introduction",
+    "section": "learning/key-changes/a-minor-to-c-major",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/key-changes/b-minor-to-d-major/beginner": {
+    "title": "B minor to D major - beginner",
+    "section": "learning/key-changes/b-minor-to-d-major",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/b-minor-to-d-major/intermediate": {
+    "title": "B minor to D major - intermediate",
+    "section": "learning/key-changes/b-minor-to-d-major",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/b-minor-to-d-major/introduction": {
+    "title": "B minor to D major - introduction",
+    "section": "learning/key-changes/b-minor-to-d-major",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/key-changes/c-major-to-a-minor/beginner": {
+    "title": "C major to A minor - beginner",
+    "section": "learning/key-changes/c-major-to-a-minor",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/c-major-to-a-minor/intermediate": {
+    "title": "C major to A minor - intermediate",
+    "section": "learning/key-changes/c-major-to-a-minor",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/c-major-to-a-minor/introduction": {
+    "title": "C major to A minor - introduction",
+    "section": "learning/key-changes/c-major-to-a-minor",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/key-changes/c-major-to-c-minor/beginner": {
+    "title": "C major to C minor - beginner",
+    "section": "learning/key-changes/c-major-to-c-minor",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/c-major-to-c-minor/intermediate": {
+    "title": "C major to C minor - intermediate",
+    "section": "learning/key-changes/c-major-to-c-minor",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/c-major-to-c-minor/introduction": {
+    "title": "C major to C minor - introduction",
+    "section": "learning/key-changes/c-major-to-c-minor",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/key-changes/c-major-to-c-minor/major-and-minor": {
+    "title": "C major - major and minor",
+    "section": "learning/key-changes/c-major-to-c-minor",
+    "level": "advanced",
+    "step": "intermediate",
+    "stepOrder": 10,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/c-minor-to-c-major/beginner": {
+    "title": "C minor to C major - beginner",
+    "section": "learning/key-changes/c-minor-to-c-major",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/c-minor-to-c-major/intermediate": {
+    "title": "C minor to C major - intermediate",
+    "section": "learning/key-changes/c-minor-to-c-major",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/c-minor-to-c-major/introduction": {
+    "title": "C minor to C major - introduction",
+    "section": "learning/key-changes/c-minor-to-c-major",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/key-changes/d-major-to-b-minor/beginner": {
+    "title": "D major to B minor - beginner",
+    "section": "learning/key-changes/d-major-to-b-minor",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/d-major-to-b-minor/intermediate": {
+    "title": "D major to B minor - intermediate",
+    "section": "learning/key-changes/d-major-to-b-minor",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/d-major-to-b-minor/introduction": {
+    "title": "D major to B minor - introduction",
+    "section": "learning/key-changes/d-major-to-b-minor",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/key-changes/d-major-to-d-minor/beginner": {
+    "title": "D major to D minor - beginner",
+    "section": "learning/key-changes/d-major-to-d-minor",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/d-major-to-d-minor/intermediate": {
+    "title": "D major to D minor - intermediate",
+    "section": "learning/key-changes/d-major-to-d-minor",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/d-major-to-d-minor/introduction": {
+    "title": "D major to D minor - introduction",
+    "section": "learning/key-changes/d-major-to-d-minor",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/key-changes/d-minor-to-d-major/beginner": {
+    "title": "D minor to D major - beginner",
+    "section": "learning/key-changes/d-minor-to-d-major",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/d-minor-to-d-major/intermediate": {
+    "title": "D minor to D major - intermediate",
+    "section": "learning/key-changes/d-minor-to-d-major",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/d-minor-to-d-major/introduction": {
+    "title": "D minor to D major - introduction",
+    "section": "learning/key-changes/d-minor-to-d-major",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/key-changes/d-minor-to-f-major/beginner": {
+    "title": "D minor to F major - beginner",
+    "section": "learning/key-changes/d-minor-to-f-major",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/d-minor-to-f-major/intermediate": {
+    "title": "D minor to F major - intermediate",
+    "section": "learning/key-changes/d-minor-to-f-major",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/d-minor-to-f-major/introduction": {
+    "title": "D minor to F major - introduction",
+    "section": "learning/key-changes/d-minor-to-f-major",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/key-changes/e-minor-to-g-major/beginner": {
+    "title": "E minor to G major - beginner",
+    "section": "learning/key-changes/e-minor-to-g-major",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/e-minor-to-g-major/intermediate": {
+    "title": "E minor to G major - intermediate",
+    "section": "learning/key-changes/e-minor-to-g-major",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/e-minor-to-g-major/introduction": {
+    "title": "E minor to G major - introduction",
+    "section": "learning/key-changes/e-minor-to-g-major",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/key-changes/f-major-to-d-minor/beginner": {
+    "title": "F major to D minor - beginner",
+    "section": "learning/key-changes/f-major-to-d-minor",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/f-major-to-d-minor/intermediate": {
+    "title": "F major to D minor - intermediate",
+    "section": "learning/key-changes/f-major-to-d-minor",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/f-major-to-d-minor/introduction": {
+    "title": "F major to D minor - introduction",
+    "section": "learning/key-changes/f-major-to-d-minor",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/key-changes/f-major-to-f-minor/beginner": {
+    "title": "F major to F minor - beginner",
+    "section": "learning/key-changes/f-major-to-f-minor",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/f-major-to-f-minor/intermediate": {
+    "title": "F major to F minor - intermediate",
+    "section": "learning/key-changes/f-major-to-f-minor",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/f-major-to-f-minor/introduction": {
+    "title": "F major to F minor - introduction",
+    "section": "learning/key-changes/f-major-to-f-minor",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/key-changes/f-minor-to-f-major/beginner": {
+    "title": "F minor to F major - beginner",
+    "section": "learning/key-changes/f-minor-to-f-major",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/f-minor-to-f-major/intermediate": {
+    "title": "F minor to F major - intermediate",
+    "section": "learning/key-changes/f-minor-to-f-major",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/f-minor-to-f-major/introduction": {
+    "title": "F minor to F major - introduction",
+    "section": "learning/key-changes/f-minor-to-f-major",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/key-changes/g-major-to-e-minor/beginner": {
+    "title": "G major to E minor - beginner",
+    "section": "learning/key-changes/g-major-to-e-minor",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/g-major-to-e-minor/intermediate": {
+    "title": "G major to E minor - intermediate",
+    "section": "learning/key-changes/g-major-to-e-minor",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/g-major-to-e-minor/introduction": {
+    "title": "G major to E minor - introduction",
+    "section": "learning/key-changes/g-major-to-e-minor",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/key-changes/g-major-to-g-minor/beginner": {
+    "title": "G major to G minor - beginner",
+    "section": "learning/key-changes/g-major-to-g-minor",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/g-major-to-g-minor/intermediate": {
+    "title": "G major to G minor - intermediate",
+    "section": "learning/key-changes/g-major-to-g-minor",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/g-major-to-g-minor/introduction": {
+    "title": "G major to G minor - introduction",
+    "section": "learning/key-changes/g-major-to-g-minor",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/key-changes/g-minor-to-g-major/beginner": {
+    "title": "G minor to G major - beginner",
+    "section": "learning/key-changes/g-minor-to-g-major",
+    "level": "beginner",
+    "step": "beginner",
+    "stepOrder": 0,
+    "tempo": 72,
+    "metre": "4/4",
+    "barCount": 11
+  },
+  "learning/key-changes/g-minor-to-g-major/intermediate": {
+    "title": "G minor to G major - intermediate",
+    "section": "learning/key-changes/g-minor-to-g-major",
+    "level": "intermediate",
+    "step": "intermediate",
+    "stepOrder": 0,
+    "tempo": 80,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/key-changes/g-minor-to-g-major/introduction": {
+    "title": "G minor to G major - introduction",
+    "section": "learning/key-changes/g-minor-to-g-major",
+    "level": "introduction",
+    "step": "introduction",
+    "stepOrder": 0,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 12
+  },
+  "learning/keys/c-major/diatonic-ladder": {
+    "title": "C major - diatonic ladder",
+    "section": "learning/keys/c-major",
+    "level": "intermediate",
+    "step": "advanced",
+    "stepOrder": 30,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 17
+  },
+  "learning/keys/c-major/i-v-vi-iv": {
+    "title": "C major - I-V-vi-IV",
+    "section": "learning/keys/c-major",
+    "level": "beginner",
+    "step": "advanced",
+    "stepOrder": 10,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 9
+  },
+  "learning/keys/c-major/turnaround": {
+    "title": "C major - I-vi-ii-V",
+    "section": "learning/keys/c-major",
+    "level": "beginner",
+    "step": "advanced",
+    "stepOrder": 20,
+    "tempo": 60,
+    "metre": "4/4",
+    "barCount": 9
+  }
+}

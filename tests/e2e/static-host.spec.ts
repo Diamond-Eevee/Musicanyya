@@ -3,6 +3,7 @@ import * as http from 'node:http';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
+import { closeBrowser } from './helpers/browser.js';
 import { openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -69,6 +70,9 @@ test.describe('Static host with sub-path', () => {
     await page.goto(serverUrl);
     await expect(page.locator('.mx-empty-state')).toBeVisible();
     await expect(page.locator('mx-environment-panel')).toBeHidden();
+    // FR-001: the score browser opens at start-up with no Score loaded; close it before reaching the menu bar
+    // behind it (unrelated to this test, which checks the web browser's own name in the environment panel).
+    await closeBrowser(page);
 
     // Check environment panel shows Browser
     await openPanel(page, 'environment');

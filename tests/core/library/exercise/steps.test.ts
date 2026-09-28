@@ -405,21 +405,45 @@ describe('key-change steps cover all 18 pairs (T041)', () => {
     },
   );
 
+  // Feature 014 (FR-002, T061): the left hand plays block chords; the right hand, which doubled them, now plays a
+  // single-note melody no shorter than the level's ladder value, filling every bar. Amended 2026-09-28 (owner listening
+  // check, T085): introduction plays quarter notes like the key step (was: half notes), and beginner may change chord
+  // on the half bar (the relative items' IV6/4-V6), so its left hand has half-note chords too (was: whole notes only).
+  const SHORTEST_RIGHT_HAND_TICKS = { introduction: 960, beginner: 960, intermediate: 480 } as const;
+  /** Left-hand chord lengths: whole notes, and half notes only in the relative beginner items (their half-bar
+   *  IV6/4-V6; the parallel plans change once per bar). */
+  const leftHandTicks = (step: string, slug: string): readonly number[] => {
+    const [from = '', to = ''] = slug.split('-to-');
+    const parallel = from.split('-')[0] === to.split('-')[0];
+    return step === 'beginner' && !parallel ? [3840, 1920] : [3840];
+  };
   it.each(Object.entries(KEY_CHANGE_BARS))(
-    '%s: is %i bars at the right tempo, whole-note chords throughout',
+    '%s: is %i bars at the right tempo, left-hand block chords under a single-note right hand',
     (step, bars) => {
       for (const { notes, facts, slug } of keyChangeBuilt[step as keyof typeof KEY_CHANGE_BARS]) {
         expect(Math.max(...notes.map((n) => n.measure)), slug).toBe(bars);
         expect(facts.tempoBpm, slug).toBe(KEY_CHANGE_TEMPO[step as keyof typeof KEY_CHANGE_TEMPO]);
+        const left = notes.filter((n) => n.staff === 2);
+        const right = notes.filter((n) => n.staff === 1);
+        const allowed = leftHandTicks(step, slug);
         expect(
-          notes.every((n) => n.duration === 3840),
+          left.every((n) => allowed.includes(n.duration)),
           slug,
         ).toBe(true);
+        expect(new Set(right.map((n) => `${n.measure}/${n.onset}`)).size, slug).toBe(right.length);
+        expect(Math.min(...right.map((n) => n.duration)), slug).toBeGreaterThanOrEqual(
+          SHORTEST_RIGHT_HAND_TICKS[step as keyof typeof SHORTEST_RIGHT_HAND_TICKS],
+        );
+        for (let m = 1; m <= bars; m++)
+          expect(
+            right.filter((n) => n.measure === m).reduce((sum, n) => sum + n.duration, 0),
+            `${slug} bar ${m}`,
+          ).toBe(3840);
       }
     },
   );
 
-  it('Intermediate has a passage where both hands play chords in the same bar', () => {
+  it('Intermediate has a passage where both hands play in the same bar', () => {
     for (const { notes, slug } of keyChangeBuilt.intermediate) {
       const bothHands = new Set(notes.filter((n) => n.staff === 1).map((n) => n.measure)).intersection(
         new Set(notes.filter((n) => n.staff === 2).map((n) => n.measure)),
@@ -448,13 +472,15 @@ describe('key-change steps cover all 18 pairs (T041)', () => {
     expect(checkStepOrder(items)).toEqual([]);
   });
 
+  // Feature 014 (T061): the right hand's melody varies from pair to pair (FR-008), so only the left hand keeps one
+  // rhythm across a relation.
   it.each(['relative', 'parallel'] as const)(
-    '%s: identical rhythm and staves in every pair of the relation (FR-011)',
+    '%s: identical left-hand rhythm and staves in every pair of the relation (FR-011)',
     (relation) => {
       for (const step of Object.keys(KEY_CHANGE_STEP_FILES) as (keyof typeof KEY_CHANGE_STEP_FILES)[]) {
         const rows = keyChangeBuilt[step].filter((r) => r.relation === relation);
         const shape = (notes: readonly TestNote[]) =>
-          notes.map((n) => `${n.measure}/${n.staff}/${n.onset}/${n.duration}`);
+          notes.filter((n) => n.staff === 2).map((n) => `${n.measure}/${n.staff}/${n.onset}/${n.duration}`);
         const [reference, ...rest] = rows;
         if (!reference) throw new Error('no items');
         for (const row of rest) expect(shape(row.notes), `${step} ${row.slug}`).toEqual(shape(reference.notes));

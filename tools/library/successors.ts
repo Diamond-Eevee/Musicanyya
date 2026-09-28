@@ -13,6 +13,9 @@ export interface Successor {
   kind: 'superseded' | 'moved';
   /** SHA-256 of the old file's bytes on main (e450501). */
   hash: string;
+  /** Feature 014 (FR-012, research R9): the new item was rewritten (a melody over the chords) and starts fresh, so no
+   *  item supersedes this old id any more; the entry stays as history for the audit report. */
+  resetBy?: '014';
 }
 
 export const SUCCESSORS: readonly Successor[] = [
@@ -26,6 +29,7 @@ export const SUCCESSORS: readonly Successor[] = [
     oldId: 'learning/chords/changes/changes-a-minor-major-a-minor',
     newId: 'learning/key-changes/a-minor-to-a-major/minor-and-major',
     kind: 'moved',
+    resetBy: '014',
     hash: 'dbadc1f9b60a25c50df77c1aec9aa643cfe9ba4ffad20c3966db2d4563048b84',
   },
   {
@@ -50,6 +54,7 @@ export const SUCCESSORS: readonly Successor[] = [
     oldId: 'learning/chords/changes/changes-diatonic-ladder-c-major',
     newId: 'learning/keys/c-major/diatonic-ladder',
     kind: 'moved',
+    resetBy: '014',
     hash: '22c7e7bda744c191eb5205a09d6ef0fc26fa99c685b1421c70be6c84b0316b14',
   },
   {
@@ -68,6 +73,7 @@ export const SUCCESSORS: readonly Successor[] = [
     oldId: 'learning/chords/changes/changes-i-v-vi-iv-c-major',
     newId: 'learning/keys/c-major/i-v-vi-iv',
     kind: 'moved',
+    resetBy: '014',
     hash: '50aba9a1b6c03bf31cdaade7d3ff411a61d7109bf5b2fa94a235d6224e657125',
   },
   {
@@ -104,6 +110,7 @@ export const SUCCESSORS: readonly Successor[] = [
     oldId: 'learning/chords/changes/changes-same-tonic-c-major',
     newId: 'learning/key-changes/c-major-to-c-minor/major-and-minor',
     kind: 'moved',
+    resetBy: '014',
     hash: '8240b94812f0c015d8701fc9b3f4907ac87af7d74fbf65a78c8b44d648d6a148',
   },
   {
@@ -116,6 +123,7 @@ export const SUCCESSORS: readonly Successor[] = [
     oldId: 'learning/chords/changes/changes-turnaround-c-major',
     newId: 'learning/keys/c-major/turnaround',
     kind: 'moved',
+    resetBy: '014',
     hash: '5578d7f61bf3a9dd896ef3a0c744c5636162c4b904ea5fde80e630417d8f3a4d',
   },
   {

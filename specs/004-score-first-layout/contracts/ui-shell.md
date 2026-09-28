@@ -1,10 +1,18 @@
 # Contract: UI shell (slim bar, panel host, overlays)
 
-**Version**: `1.0.0` (new with feature 004)
+**Version**: `1.1.0` (new with feature 004)
 **Owner**: `src/ui/elements/mx-app.ts`, `src/ui/layout/*`, `src/ui/state/viewState.ts`
 
 This contract fixes the shape of the application window so that every other element knows where it
 may live. It is a UI-layer contract only: no core type, no engine port and no real-time path changes.
+
+**1.1.0** (feature 013-score-browser-progress, MINOR, R-1/R-2/R-20): the bar's `#open-controls` slot
+(`mx-open-button`) opens the Score browser - a modal `<dialog>` outside sessions - instead of the file chooser
+directly; the file chooser moves inside the browser (*Open file...*). The browser is **not** a `PanelId` and is not
+part of `viewState.openPanel`: it has its own open flag (`browserState`) and its own run rule (opening pauses a
+playing Listen transport; it refuses to open during a Play run or Practice session; a Play/Practice start closes it
+- `src/ui/state/runGuard.ts`). Menu: Score > "Recent scores" becomes "Open..." (opens the browser) and "About this
+score" (the `scores` panel, now holding only `mx-score-source`).
 
 ---
 

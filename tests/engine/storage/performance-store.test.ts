@@ -45,7 +45,7 @@ describe('IndexedDB performance store (contracts/performance-log.md)', () => {
     globalThis.indexedDB = new IDBFactory();
   });
 
-  it('the version 1 -> 2 upgrade adds `performances` without touching an existing `recentScores` store', async () => {
+  it("the version 1 -> 3 upgrade adds `performances` (and feature 013's later stores) without touching an existing `recentScores` store", async () => {
     // Simulate an existing feature-001 database at version 1, with a stored Score.
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.open('musicanyya', 1);
@@ -80,8 +80,10 @@ describe('IndexedDB performance store (contracts/performance-log.md)', () => {
       const request = indexedDB.open('musicanyya');
       request.onsuccess = () => {
         const db = request.result;
-        expect(db.version).toBe(2);
-        expect(Array.from(db.objectStoreNames)).toEqual(expect.arrayContaining(['recentScores', 'performances']));
+        expect(db.version).toBe(3);
+        expect(Array.from(db.objectStoreNames)).toEqual(
+          expect.arrayContaining(['recentScores', 'performances', 'progress', 'userFiles', 'userFileBytes', 'meta']),
+        );
         const tx = db.transaction('recentScores', 'readonly');
         const getRequest = tx.objectStore('recentScores').get('score-1');
         getRequest.onsuccess = () => resolve(getRequest.result?.fileName === 'a.musicxml');
@@ -181,6 +183,49 @@ describe('IndexedDB performance store (contracts/performance-log.md)', () => {
     expect(missing).toEqual({ ok: false, error: 'notFound' });
   });
 
+  it('`complete` round-trips (feature 013 R-6, performance-log MINOR)', async () => {
+    const store = new IndexedDbPerformanceStore();
+    const complete = { ...performanceFor('run-1', 'score-a', '2026-01-01T00:00:00.000Z'), complete: true };
+    const stopped = { ...performanceFor('run-2', 'score-a', '2026-01-02T00:00:00.000Z'), complete: false };
+
+    await store.put(complete);
+    await store.put(stopped);
+
+    expect(await store.get('run-1')).toEqual({ ok: true, value: complete });
+    expect(await store.get('run-2')).toEqual({ ok: true, value: stopped });
+  });
+
+  it('a record with no `complete` field (recorded before feature 013) reads back without one - "not recorded", not "stopped"', async () => {
+    const store = new IndexedDbPerformanceStore();
+    const legacy = performanceFor('run-1', 'score-a', '2026-01-01T00:00:00.000Z');
+    expect('complete' in legacy).toBe(false);
+
+    await store.put(legacy);
+    const got = await store.get('run-1');
+    expect(got.ok).toBe(true);
+    if (got.ok) expect('complete' in got.value).toBe(false);
+  });
+
+  it("removeByScore removes only that Score's records and returns the count removed (R-12, OD-3/OD-4)", async () => {
+    const store = new IndexedDbPerformanceStore();
+    await store.put(performanceFor('a-1', 'score-a', '2026-01-01T00:00:00.000Z'));
+    await store.put(performanceFor('a-2', 'score-a', '2026-01-02T00:00:00.000Z'));
+    await store.put(performanceFor('b-1', 'score-b', '2026-01-01T00:00:00.000Z'));
+
+    const removed = await store.removeByScore('score-a');
+    expect(removed).toEqual({ ok: true, value: 2 });
+
+    expect(await store.get('a-1')).toEqual({ ok: false, error: 'notFound' });
+    expect(await store.get('a-2')).toEqual({ ok: false, error: 'notFound' });
+    expect(await store.get('b-1')).toMatchObject({ ok: true });
+  });
+
+  it('removeByScore on a Score with nothing stored removes nothing and returns 0', async () => {
+    const store = new IndexedDbPerformanceStore();
+    const removed = await store.removeByScore('never-played');
+    expect(removed).toEqual({ ok: true, value: 0 });
+  });
+
   it('reports unavailable when indexedDB is missing, never throws', async () => {
     // @ts-expect-error simulating an environment without IndexedDB (private mode / blocked)
     globalThis.indexedDB = undefined;
@@ -197,5 +242,8 @@ describe('IndexedDB performance store (contracts/performance-log.md)', () => {
 
     const removed = await store.remove('run-1');
     expect(removed).toEqual({ ok: false, error: 'unavailable' });
+
+    const removedByScore = await store.removeByScore('score-a');
+    expect(removedByScore).toEqual({ ok: false, error: 'unavailable' });
   });
 });

@@ -141,10 +141,22 @@ pnpm tsx tools/library/probe.ts <dir> [outDir]  # level numbers + page-1 SVGs; o
 Tool output (probe SVGs, `probe-results.json`, screenshots) is never committed: it goes to `tests/.generated/` or the
 system temp folder, never under `public/` (it would ship with the app) or the repository root.
 
-**Known flaky**: the two Electron e2e tests `electron-playback.spec.ts:47` and `library.spec.ts:175` sometimes fail
+**Known flaky**: the two Electron e2e tests `electron-playback.spec.ts:47` and `library.spec.ts:340` sometimes fail
 under load on Windows ("Target page ... has been closed", "audio clock advances"); both pass when run alone
 (`pnpm exec playwright test --project=electron <file>`). Re-run them alone and log both results; do not call the gate
-green without that.
+green without that. Also under a full-suite run only (green standalone and within their own file, `--project`
+included): `pressed-keys.spec.ts:483` (firefox, a 60fps frame-timing check) and, since the 013 US3 checkpoint,
+`score-browser.spec.ts`'s "a .musicxml file with invalid content dropped onto the browser..." (firefox) - both
+passed 13/13 and 4/4 respectively re-run alone. At the 013 US5 checkpoint `library.spec.ts:370` (firefox, "a sample of
+items across sections each engrave at least one page") joined them: failed once in the full run, 3/3 alone.
+`us2-panels.spec.ts` "opening and closing a popup each take well under 100 ms (SC-007)" (firefox) failed once in a full
+run and 2 times in about 100 standalone repeats at `--workers=4` (the menu button "waiting for element to be visible,
+enabled and stable" until the 30 s timeout); 0 in 38 repeats on the commit before the 013 list/rail patching, so
+watch it, but no cause was found in 013's files.
+Unit tests under a full `pnpm test` run only (green standalone; 2026-09-28): `tests/core/browser/query-timing.test.ts`
+"a filter and sort change takes at most 20 ms" failed in 2 of 4 full runs (23.5 ms in the first), green alone and in the other two.
+Re-run it alone before calling it a regression; `tests/library/regeneration.test.ts` used to time out the same way and
+now has a 30 s timeout.
 
 **Known bugs** (confirmed, reproducible, not flaky - see `docs/known-bugs.md`): `tests/e2e/play-grade-marks.spec.ts`
 grades roughly half the expected notes on `repertoire/beginner/fur-elise-theme-16-bar`; not root-caused yet, not
@@ -169,7 +181,14 @@ e2e tests cover it. Use the first option that works for you:
    pnpm screenshot --item <id> --run --keys "sleep:3500"          # a Play run, picture taken mid-run (feature 009)
    pnpm screenshot --item <id> --run --grade --keys "sleep:1300,+76,-76"   # a Play run, picture of its Grade
    pnpm screenshot --item <id> --piano --practice --keys "+60,+61" --greyscale   # on-screen piano, in greyscale (feature 010)
+   pnpm screenshot --browser --width 900 --height 700   # the Score browser itself (feature 013), open at start-up
+   pnpm screenshot --browser --seed-progress tests/fixtures/progress/played-ladder.json --filter status=playedNotMastered --sort best:asc   # filters and sort (013 US5)
    ```
+
+   `--item`/`--file` open through the Score browser (feature 013, R-20): the picture is taken once the Score has
+   loaded, and the browser (which opens on its own at start-up with nothing loaded yet, FR-001) has closed. `--browser`
+   takes the picture with the browser open instead - with no `--item`/`--file` that is the start-up state; combined
+   with `--width`/`--height` it is the way to see its 1024/900/600 px breakpoints (contracts/score-browser.md §1).
 
    `--practice` switches to Practice and presses Start (a fake MIDI keyboard through the `e2e-midi` window event, the
    same one the e2e tests use). `--keys` is a comma-separated list of steps, `+<midi>` key down, `-<midi>` key up,
@@ -233,6 +252,37 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
 - `quickstart.md` verified; `docs/musicxml-support.md` and the commands in R7 up to date.
 - Final `implementation-log.md` entry; work committed on the feature branch. Merging is the user's call.
 
+## R11. Model fit (constitution, Development Workflow "Model fit")
+
+Every task and every Spec Kit step has a **model tier**. The owner edits this table when models change; tasks and
+commands name tiers, never model ids, so nothing else needs updating.
+
+| Tier | Use for | Recommended (first choice, second choice) | Also fits |
+|---|---|---|---|
+| `deep` | composing or authoring music (melodies, exercises, arrangements); intricate rule engines (checkers, grading, levelling); architecture and design (`specify`, `clarify`, `plan`, `analyze`, `constitution`); music reviews | `claude-opus-5.5` | - |
+| `standard` | implementing a specified task that still needs judgement: generator/tool code, tests, claim tables, golden updates, description texts, manual (screenshot) verification, checkpoints and the full gate (`tasks`, `checklist`, most of `implement`) | `claude-sonnet-5`, `gemini-3.1-pro` | `claude-opus-5.5` |
+| `light` | mechanical, fully specified work with an exact expected result: folding a contract change into its canonical file, bumping versions/rule sets in records, adding a named constant or type from the data model, running a named command and recording its output, doc and reference updates, metadata/hash guard tests from a recorded file | Gemini Flash (`gemini-*-flash`), `claude-haiku-4-5` | every `standard` and `deep` model |
+
+Where the tier comes from: `tasks.md` gives a **Model** line per phase (the default for its tasks, naming one or two
+recommended models) and a `[deep]`, `[standard]` or `[light]` tag on a task that differs; a Spec Kit step's tier is in the table above. The status script prints the
+tier of the resume point (`MODEL TIER: ...`).
+
+**The check** (AGENTS.md sections 2 and 4): before the first task or step of a tier your own model does not fit, stop
+and ask the owner once: *"Task T021 is tier `deep` (recommended: claude-opus-5.5); I am <agent id>. Switch model, or
+continue with me?"* Then:
+
+- **Switch**: hand off (AGENTS.md section 5) with `Handoff: next = T021, needs tier deep` and stop.
+- **Continue**: log `Model fit: owner chose to continue <tier> tasks with <agent id> (<date>)` and go on. The answer
+  holds for the rest of that session and that tier; ask again in a new session or at a new tier.
+
+A model not in the table fits no tier: ask at the first task. A model that fits a *higher* tier than needed (Opus on a
+`standard` task, Sonnet on a `light` one) never asks. The order is `light` < `standard` < `deep`.
+
+**Rules for `light` work**: a `light` task never decides anything (no design, no music, no expected-value change in a
+test); when it finds something that needs a decision, it stops and hands off. Checkpoints (full gate, the story's
+Independent Test) are `standard` or higher, so every `light` task is re-verified by a stronger model at the next
+checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
+
 ---
 
 <!-- ACTIVE-TECHNOLOGIES:START (updated by the plan step) -->
@@ -290,24 +340,34 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
 - Feature 010: no new technology and no new dependency. The on-screen piano is laid out by a pure function
   (`src/ui/piano/keyboard-layout.ts`, equal key-top geometry) and sized with CSS container units (`container-type:
   inline-size`, `cqw`; Chrome/Edge 105, Firefox 110, Safari 16).
+- Feature 013 (implemented): no new runtime dependency. The Score browser is a native modal `<dialog>` (`showModal()`,
+  refused during Practice/Play sessions, and while one starts; it pauses a playing Listen). Progress is a pure event reducer (`src/core/progress`) behind a new `ProgressStore` port
+  with an IndexedDB adapter (database version 3: `progress`, `userFiles`, `userFileBytes`, `meta`; lazy one-shot
+  migration from `recentScores` + `performances`) and a memory adapter (contract tests + storage-unavailable
+  fallback). The browser model (`src/core/browser`) is pure. New `localStorage` key `musicanyya.browser.v1`. Test-only `@axe-core/playwright` 4.13.0 (MPL-2.0) for the WCAG 2.1 AA check (OD-5,
+  approved 2026-09-27, in use: `tests/e2e/score-browser-a11y.spec.ts`).
+- Feature 014 (implemented): no new technology and no new dependency. Exercise definitions gain a `melody` hand part
+  (contract exercise-definition 1.3); a dev-only melody rule check (`tools/library/fidelity/melody-rules.ts`, audit rule
+  set `exercise-theory-v3`) and a named `MELODY_LADDER` in `src/core/defaults.ts`.
 
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-28: Feature 014 planned (melody over chords): the 54 key-change items and 5 chord-change drills stop playing
+  the same block chord in both hands; the right hand gets authored scale-step melodies (variants rotated across keys)
+  over the unchanged left-hand chords, limited per level by a Difficulty ladder and verified by an independent melody
+  rule check in the build and the audit. Rewritten items start with fresh progress. No new dependency.
+- 2026-09-27: Feature 013 planned (Score browser with progress): a near-full-screen browser replaces the Scores panel's
+  library tree and Recent list. It has a rail (Continue, All, library folders, My files), a list and a detail pane,
+  with status badges (New/Practised/Played/Mastered), best/last results with trend, and folder summaries. Progress is
+  an event-sourced record per content hash behind one `ProgressStore` port (IndexedDB v3 + memory), ready for a
+  server adapter. My files keep copies within 100 MiB. Suggested next follows the library's step order. No new runtime
+  dependency.
 - 2026-09-26: Feature 012 planned (tempo as an editable BPM number): `mx-tempo-field` replaces the tempo slider and
   Play's percentage list; the parser keeps the metronome mark's note value (all units, 0-3 dots, "c. 90", ranges);
   a core tempo display map gives the tempo and beat at the cursor. The engine keeps its percentage factor, now any
   number in 25-200, so grading and stored runs are unchanged. The transport tempo is no longer persisted. No new
   dependency.
-- 2026-09-26: Feature 011 planned (Learning by key): Learning becomes Keys (24 folders, circle of fifths) and Key
-  changes (18 relative/parallel folders), each with generated steps Introduction/Beginner/Intermediate(/Advanced), plus 10
-  songs built from Mutopia public-domain melodies with our CC0 left-hand chords (`pnpm library:songs`). New level
-  `introduction`, a step-order check in `library:index`, a folder-tree library panel, and `supersedes` links so settings
-  follow renamed items. No new dependency.
-- 2026-09-26: Feature 010 planned (on-screen piano as a real keyboard): 52 contiguous white keys and 36 black keys
-  placed by the equal key-top model, C keys labelled C1-C8, keys 4 x as long as wide up to 160 px / 20 vh, sized by
-  CSS container units. The element keeps its DOM contract (`[data-key]` + state classes), so 001/002/008 feedback is
-  unchanged; markings move into the uncovered part of each key.
 <!-- RECENT-CHANGES:END -->

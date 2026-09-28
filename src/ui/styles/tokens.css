@@ -34,6 +34,13 @@
   --practice-disc-color: var(--color-vermilion);
   --practice-band-color: color-mix(in srgb, var(--color-sky-blue) 30%, transparent);
 
+  /* Progress status badges (013, R-16): shape (outlined/half-filled/filled circle, star) carries the distinction;
+     colour decorates only, same rule as the grade marks above. */
+  --status-new: #999999;
+  --status-practised: var(--color-sky-blue);
+  --status-played: var(--color-blue);
+  --status-mastered: var(--color-bluish-green);
+
   --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 

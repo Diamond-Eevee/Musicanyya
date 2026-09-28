@@ -13,6 +13,8 @@
 //     chord for a fourth measure.
 // Never read from the exercise definitions or the generator (tests/tools/fidelity/exercise-claims.test.ts
 // asserts it).
+
+import type { Level } from '../../../src/core/library/types';
 import type {
   ChordClaim,
   ExerciseClaim,
@@ -23,6 +25,7 @@ import type {
   Mode,
   Quality,
   ScaleForm,
+  SectionChord,
   SectionClaim,
   SectionHand,
   Voicing,
@@ -81,6 +84,9 @@ interface Entry {
   form: 'triads' | 'drill';
   /** Words (case-insensitive) the item's description must contain when the title does not spell the sequence. */
   states?: string[];
+  /** Feature 014 (rule set exercise-theory-v3): the drill's chords are in the left hand only, under a right-hand melody
+   *  of this level - the level each of the five drills left on the shelf is shelved under (spec 014 US3). */
+  melody?: Level;
 }
 
 const TRIAD_MAJOR = 'I IV V I I I6 I64 I I IV64 V6 I IV64 V6 I';
@@ -100,13 +106,14 @@ const TABLE: Record<Mode, Record<string, Entry>> = {
     'I-IV-I': { sequence: 'I IV64 I I', form: 'drill', states: ['common tone'] },
     'I-IV-V-I': { sequence: 'I IV64 V6 I', form: 'drill' },
     'I-vi-IV-V': { sequence: 'I vi IV V', form: 'drill' },
-    'I-V-vi-IV': { sequence: 'I V vi IV', form: 'drill' },
+    'I-V-vi-IV': { sequence: 'I V vi IV', form: 'drill', melody: 'beginner' },
     'ii-V-I': { sequence: 'ii V I I', form: 'drill' },
-    'I-vi-ii-V': { sequence: 'I vi ii V', form: 'drill' },
+    'I-vi-ii-V': { sequence: 'I vi ii V', form: 'drill', melody: 'beginner' },
     'diatonic ladder': {
       sequence: 'I ii iii IV V vi vii° I',
       form: 'drill',
       states: ['every diatonic triad'],
+      melody: 'intermediate',
     },
     'tonic inversions': { sequence: 'I I6 I64 I', form: 'drill', states: ['three shapes of one chord'] },
     'plagal then V-I': {
@@ -115,7 +122,12 @@ const TABLE: Record<Mode, Record<string, Entry>> = {
       states: ['plagal', 'V-I'],
     },
     // The parallel minor of a major tonic is written i, the parallel major of a minor tonic I: the case says the quality.
-    'major and minor': { sequence: 'I i I i', form: 'drill', states: ['major to minor and back'] },
+    'major and minor': {
+      sequence: 'I i I i',
+      form: 'drill',
+      states: ['major to minor and back'],
+      melody: 'advanced',
+    },
   },
   minor: {
     [TRIADS_NAME]: {
@@ -124,7 +136,7 @@ const TABLE: Record<Mode, Record<string, Entry>> = {
       states: ['harmonic-minor major V', 'three shapes of the tonic'],
     },
     'i-iv-V-i': { sequence: 'i iv64 V6 i', form: 'drill' },
-    'minor and major': { sequence: 'i I i I', form: 'drill', states: ['minor to major'] },
+    'minor and major': { sequence: 'i I i I', form: 'drill', states: ['minor to major'], melody: 'advanced' },
   },
 };
 
@@ -207,7 +219,43 @@ export function claimForItem(item: ExerciseItem): ExerciseClaim {
   if (entry.form === 'triads') return { itemId: item.itemId, key, chords: cycle };
   // A drill: the cycle with its rests, the same cycle joined with ties, then the tonic triad in root position.
   const tonic = chord(key.mode === 'major' ? 'I' : 'i');
-  return { itemId: item.itemId, key, chords: [...cycle, ...cycle, tonic] };
+  if (entry.melody === undefined) return { itemId: item.itemId, key, chords: [...cycle, ...cycle, tonic] };
+  return melodyDrillClaim(item.itemId, key, cycle, tonic, entry.melody);
+}
+
+/** A drill with a melody (feature 014 US3, exercise-theory-v3): the same three sections - the cycle (bars 1 to n), the
+ *  cycle joined (n + 1 to 2n), the tonic (the last bar) - with every chord in the left hand and the right hand a melody at
+ *  the drill's level. */
+function melodyDrillClaim(
+  itemId: string,
+  key: KeyClaim,
+  cycle: readonly ChordClaim[],
+  tonic: ChordClaim,
+  level: Level,
+): ExerciseClaim {
+  const left = (c: ChordClaim): ChordClaim => ({ ...c, hands: ['left'] });
+  const sectionOf = (firstBar: number, chordsOfSection: readonly ChordClaim[]): SectionClaim => ({
+    firstBar,
+    lastBar: firstBar + chordsOfSection.length - 1,
+    key,
+    right: { kind: 'melody', level },
+    left: {
+      kind: 'chords',
+      chords: chordsOfSection.map((c) => ({
+        roman: c.roman,
+        quality: c.quality,
+        inversion: c.inversion,
+        voicing: 'triad' as const,
+      })),
+    },
+  });
+  const n = cycle.length;
+  return {
+    itemId,
+    key,
+    chords: [...cycle, ...cycle, tonic].map(left),
+    sections: [sectionOf(1, cycle), sectionOf(n + 1, cycle), sectionOf(2 * n + 1, [tonic])],
+  };
 }
 
 // ---- the four steps of a key (feature 011, rule set exercise-theory-v2) ---------------------------------------------------
@@ -419,10 +467,10 @@ function stepClaim(itemId: string, key: KeyClaim, step: StepName): ExerciseClaim
   return { itemId, key, chords, sections };
 }
 
-// ---- key changes (feature 011, rule set exercise-theory-v2, research R7 and data-model §3) ---------------------------
+// ---- key changes (feature 014, rule set exercise-theory-v3, research R7 and data-model §3) ---------------------------
 // "<from> to <to> - introduction|beginner|intermediate": a piece in the first key that moves to the second and ends on its
-// tonic, every bar one whole-note triad in both hands. Written by hand from the key-pair table and the step shapes, never
-// read from the generator or the definitions. Two segments, one key claim each.
+// tonic, every bar one whole-note triad in the left hand under a right-hand melody. Written by hand from the key-pair table
+// and the step shapes, never read from the generator or the definitions. Two segments, one key claim each.
 
 const KEY_CHANGE_TITLE = /^([A-G][♯♭#b]? (?:major|minor)) to ([A-G][♯♭#b]? (?:major|minor)) - (.+)$/;
 const KEY_CHANGE_STEPS = ['introduction', 'beginner', 'intermediate'] as const;
@@ -437,17 +485,28 @@ interface KeyChangePlan {
 /** The pivot of a relative change is the chord both keys share: IV of a major first key, VI of a minor one (F in C major and in
  *  A minor). */
 const PIVOT = pt('IV', 'VI', WHOLE);
-const repeat = (p: Pt, times: number): Pt[] => Array.from({ length: times }, () => p);
 const tonic = I(WHOLE);
 const dominant = V(WHOLE);
 const subdominant = IV(WHOLE);
 
-/** A relative change goes from the pivot chord straight to the new tonic and settles there (data-model §3 and research R7 asked
- *  for the dominant of the new key in between; its bass, one tone below the pivot's, takes the piece one semitone past the
- *  span cap of D-2 in the major-to-minor pairs, so the change is shown by the pivot, the double barline and the key name). */
+/** A relative change goes from the pivot chord straight to the new tonic (the change is shown by the pivot, the double
+ *  barline and the key name). Around it the harmony moves with the primary triads, as in the key step (feature 014 FR-002
+ *  as amended 2026-09-28, owner listening check). Introduction plays root-position triads only (its widest chord is a
+ *  fifth, level criterion 16); beginner adds a half-bar IV6/4-V6, and its V6 and IV6/4 keep the hand in one place. The
+ *  step order caps the chord changes (chordChangesPerBar may not rise above the intermediate items' 0.89): 9 in 12 bars
+ *  at introduction, 9 in 11 at beginner, so chords last two bars after the change. A minor second key (C major to
+ *  A minor ...) keeps the first key's signature, so its raised 7ths count against the level's accidentals (criterion 11:
+ *  one in 12 bars): there the harmony moves between i, VI (the pivot chord) and iv, and the melody's leading tone is the
+ *  one accidental; a minor first key (A minor to C major ...) has its own signature and plays V. */
 const RELATIVE_PLANS: Record<KeyChangeStep, KeyChangePlan> = {
-  introduction: { from: [...repeat(tonic, 3), PIVOT], to: repeat(tonic, 8) },
-  beginner: { from: [...repeat(tonic, 5), PIVOT], to: repeat(tonic, 5) },
+  introduction: {
+    from: [tonic, dominant, tonic, PIVOT],
+    to: [tonic, tonic, pt('IV', 'VI', WHOLE), pt('IV', 'VI', WHOLE), tonic, tonic, pt('V', 'VI', WHOLE), tonic],
+  },
+  beginner: {
+    from: [tonic, tonic, withFigure(IV(HALF), '64'), withFigure(V(HALF), '6'), tonic, tonic, PIVOT],
+    to: [tonic, tonic, withFigure(subdominant, '64'), pt('V6', 'VI', WHOLE), tonic],
+  },
   intermediate: {
     from: [tonic],
     to: [
@@ -498,18 +557,40 @@ function keyChangeClaim(
 ): ExerciseClaim {
   const relation = keyChangeRelation(from, to, title);
   const plan = (relation === 'relative' ? RELATIVE_PLANS : PARALLEL_PLANS)[step];
-  const chordOf = (p: Pt, key: KeyClaim): ChordClaim => ({
-    ...chord(key.mode === 'major' ? p.major : p.minor),
-    octavesApart: 2,
-  });
+  const chordOf = (p: Pt, key: KeyClaim): ChordClaim => chord(key.mode === 'major' ? p.major : p.minor, ['left']);
+  const sectionChords = (pts: Pt[], key: KeyClaim): SectionChord[] =>
+    pts.map((p) => {
+      const c = chord(key.mode === 'major' ? p.major : p.minor);
+      return { roman: c.roman, quality: c.quality, inversion: c.inversion, voicing: p.voicing };
+    });
+  const barsOf = (pts: Pt[]): number => pts.reduce((sum, p) => sum + p.quarters, 0) / WHOLE;
+  const fromBars = barsOf(plan.from);
+  const toBars = barsOf(plan.to);
   const segments = [
-    { firstBar: 1, lastBar: plan.from.length, key: from },
-    { firstBar: plan.from.length + 1, lastBar: plan.from.length + plan.to.length, key: to },
+    { firstBar: 1, lastBar: fromBars, key: from },
+    { firstBar: fromBars + 1, lastBar: fromBars + toBars, key: to },
+  ];
+  const sections: SectionClaim[] = [
+    {
+      firstBar: 1,
+      lastBar: fromBars,
+      key: from,
+      right: { kind: 'melody', level: step },
+      left: { kind: 'chords', chords: sectionChords(plan.from, from) },
+    },
+    {
+      firstBar: fromBars + 1,
+      lastBar: fromBars + toBars,
+      key: to,
+      right: { kind: 'melody', level: step },
+      left: { kind: 'chords', chords: sectionChords(plan.to, to) },
+    },
   ];
   return {
     itemId,
     key: from,
     chords: [...plan.from.map((p) => chordOf(p, from)), ...plan.to.map((p) => chordOf(p, to))],
     segments,
+    sections,
   };
 }

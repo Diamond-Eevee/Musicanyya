@@ -8,10 +8,13 @@
   "fileStem": "major-and-minor",
   "metre": "4/4",
   "tempoBpm": 60,
-  "supersedes": {
-    "c-major": ["learning/chords/changes/changes-same-tonic-c-major"]
-  },
-  "keys": [{ "tonic": "C", "mode": "major", "fifths": 0 }],
+  "keys": [
+    {
+      "tonic": "C",
+      "mode": "major",
+      "fifths": 0
+    }
+  ],
   "steps": [
     {
       "degree": "I",
@@ -46,19 +49,213 @@
       "label": "Cm"
     }
   ],
+  "melody": {
+    "sectionA": {
+      "major": [
+        {
+          "position": 1,
+          "notes": [
+            {
+              "step": 3,
+              "value": "dotted-quarter",
+              "finger": 3
+            },
+            {
+              "step": 2,
+              "value": "eighth",
+              "finger": 2
+            },
+            {
+              "step": 1,
+              "value": "quarter",
+              "finger": 1
+            },
+            {
+              "rest": true,
+              "value": "quarter"
+            },
+            {
+              "step": 3,
+              "value": "dotted-quarter",
+              "alter": -1,
+              "finger": 3
+            },
+            {
+              "step": 2,
+              "value": "eighth",
+              "finger": 2
+            },
+            {
+              "step": 1,
+              "value": "quarter",
+              "finger": 1
+            },
+            {
+              "rest": true,
+              "value": "quarter"
+            },
+            {
+              "step": 3,
+              "value": "dotted-quarter",
+              "finger": 3
+            },
+            {
+              "step": 4,
+              "value": "eighth",
+              "finger": 4
+            },
+            {
+              "step": 5,
+              "value": "quarter",
+              "finger": 5
+            },
+            {
+              "rest": true,
+              "value": "quarter"
+            },
+            {
+              "step": 5,
+              "value": "dotted-quarter",
+              "finger": 5
+            },
+            {
+              "step": 4,
+              "value": "eighth",
+              "finger": 4
+            },
+            {
+              "step": 3,
+              "value": "quarter",
+              "alter": -1,
+              "finger": 3
+            },
+            {
+              "rest": true,
+              "value": "quarter"
+            }
+          ]
+        }
+      ]
+    },
+    "sectionB": {
+      "major": [
+        {
+          "position": 1,
+          "notes": [
+            {
+              "step": 1,
+              "value": "eighth",
+              "finger": 1
+            },
+            {
+              "step": 2,
+              "value": "eighth",
+              "finger": 2
+            },
+            {
+              "step": 3,
+              "value": "eighth",
+              "finger": 3
+            },
+            {
+              "step": 4,
+              "value": "eighth",
+              "finger": 4
+            },
+            {
+              "step": 5,
+              "value": "half",
+              "finger": 5
+            },
+            {
+              "step": 5,
+              "value": "dotted-quarter",
+              "finger": 5
+            },
+            {
+              "step": 4,
+              "value": "eighth",
+              "finger": 4
+            },
+            {
+              "step": 3,
+              "value": "half",
+              "alter": -1,
+              "finger": 3
+            },
+            {
+              "step": 3,
+              "value": "dotted-quarter",
+              "finger": 1
+            },
+            {
+              "step": 5,
+              "value": "eighth",
+              "finger": 2
+            },
+            {
+              "step": 8,
+              "value": "quarter",
+              "finger": 4
+            },
+            {
+              "step": 10,
+              "value": "quarter",
+              "finger": 5
+            },
+            {
+              "step": 10,
+              "value": "dotted-quarter",
+              "alter": -1,
+              "finger": 5
+            },
+            {
+              "step": 9,
+              "value": "eighth",
+              "finger": 4
+            },
+            {
+              "step": 8,
+              "value": "quarter",
+              "finger": 3
+            },
+            {
+              "step": 7,
+              "value": "quarter",
+              "finger": 2
+            }
+          ]
+        }
+      ]
+    },
+    "final": {
+      "major": [
+        {
+          "position": 1,
+          "notes": [
+            {
+              "step": 8,
+              "value": "whole",
+              "finger": 3
+            }
+          ]
+        }
+      ]
+    }
+  },
   "meta": {
     "kind": "exercise",
     "level": "advanced",
     "tags": ["chords", "chord-changes", "key-changes"],
-    "trains": "Same-tonic quality change: only the third moves, major to minor and back.",
+    "trains": "Same-tonic quality change: only the third moves, major to minor and back, in the left-hand chords and in the melody above them.",
     "hands": "both",
     "provenance": {
       "origin": "authored",
       "licence": "CC0-1.0",
       "author": "claude-sonnet-5",
-      "note": "Generated by tools/library/build-exercises.ts (data-model.md §5.2, drill 6)."
+      "note": "Generated by tools/library/build-exercises.ts (data-model.md §5.2, drill 6). Right-hand melody authored by claude-opus-5.5 (feature 014, contract exercise-definition 1.3 §2)."
     },
-    "reviewedBy": "claude-sonnet-5",
-    "reviewedOn": "2026-09-24"
+    "reviewedBy": "claude-opus-5.5",
+    "reviewedOn": "2026-09-28"
   }
 }

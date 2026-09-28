@@ -1,7 +1,34 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.1.0 -> 1.1.1 (PATCH)
+Version change: 1.2.0 -> 1.3.0 (MINOR)
+  Model fit gains a third tier, `light` (mechanical, fully specified work, e.g.
+  Gemini Flash), and a tier may recommend two models (e.g. claude-sonnet-5 or
+  gemini-3.1-pro). Light work never decides and is re-verified at the next
+  checkpoint, which is standard or higher.
+Templates requiring updates:
+  OK .specify/templates/tasks-template.md   ([light] tag, two-model Model lines)
+  OK .claude/commands/speckit.tasks.md      (light tier guidance)
+  OK .claude/commands/speckit.implement.md  (light tag)
+  OK .specify/scripts/powershell/status.ps1 (recognises light)
+  OK docs/agents/reference.md R11           (three tiers, two recommendations)
+Deferred TODOs: none new.
+
+Previous: 1.1.1 -> 1.2.0 (MINOR)
+  Development Workflow & Quality Gates gains "Model fit": every task and Spec Kit
+  step carries a model tier; an agent whose model does not fit asks the owner
+  (switch or continue) and logs the answer. Tier table: docs/agents/reference.md R11.
+Templates requiring updates:
+  OK .specify/templates/tasks-template.md   (Model line per phase, [deep]/[standard] tag)
+  OK .specify/templates/plan-template.md    (no change needed)
+  OK .specify/templates/spec-template.md    (no change needed)
+  OK .claude/commands/speckit.tasks.md      (assign tiers)
+  OK .claude/commands/speckit.implement.md  (check before a new tier)
+  OK .claude/commands/speckit.continue.md   (check at session start)
+  OK AGENTS.md sections 2 and 4, docs/agents/reference.md R11
+Deferred TODOs: none new.
+
+Previous: 1.1.0 -> 1.1.1 (PATCH)
   Amends ADR-0002 to use spessasynth_core in our own AudioWorklet instead of spessasynth_lib.
 Templates requiring updates:
   OK .specify/templates/plan-template.md   (no change needed)
@@ -307,6 +334,24 @@ Spec-driven workflow (instructions in `.claude/commands/`):
    implementation.
 7. `/speckit.implement` - execute the tasks, marking them done.
 
+Model fit:
+
+- Every task in `tasks.md` and every Spec Kit step MUST carry a model tier
+  (`light` < `standard` < `deep`); the models that fit each tier, with one or
+  two recommended models per tier, are listed in one owner-maintained table
+  (`docs/agents/reference.md` R11).
+- `light` work MUST be mechanical and fully specified: it MUST NOT make
+  design, musical or expected-value decisions. Checkpoints MUST be run at
+  `standard` or higher, so light work is re-verified by a stronger model.
+- Before starting a task or step whose tier its model does not fit, an agent
+  MUST ask the owner whether to switch model or continue, and MUST record the
+  answer in the feature's `implementation-log.md`. It MUST NOT silently
+  proceed.
+- **Rationale**: composing music and writing intricate rule engines need the
+  strongest model, specified implementation does not, and mechanical work can
+  go to a fast, cheap model; the owner decides
+  the trade-off between cost and quality, and the log shows who did what.
+
 Merge gates (every change):
 
 - `pnpm lint` (Biome), `pnpm typecheck` (`tsc --noEmit`), `pnpm test`
@@ -334,4 +379,4 @@ Merge gates (every change):
 - Runtime guidance for agents lives in `AGENTS.md` (tool-neutral; `CLAUDE.md`
   and `GEMINI.md` only import it) and MUST stay consistent with this document.
 
-**Version**: 1.1.1 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-09-19
+**Version**: 1.3.0 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-09-28

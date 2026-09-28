@@ -52,6 +52,15 @@ const claimOf = (title: string): ExerciseClaim => {
   if (!item) throw new Error(`no exercise on the shelf is titled "${title}"`);
   return claimForItem(item);
 };
+/** Feature 014 (US3): the five drills still on the shelf play their chords in the left hand under a right-hand melody,
+ *  at the level each is shelved under (spec US3, tasks T042-T044): drill name -> level. */
+const MELODY_DRILLS: Record<string, string> = {
+  'I-V-vi-IV': 'beginner',
+  'I-vi-ii-V': 'beginner',
+  'diatonic ladder': 'intermediate',
+  'major and minor': 'advanced',
+  'minor and major': 'advanced',
+};
 /** "I", "IV6", "V64" -> the Roman numerals and inversions of a claim, as one short string per chord. */
 const shortChords = (claim: ExerciseClaim): string[] =>
   claim.chords.map((c) => `${c.roman}${['', '6', '64'][c.inversion]}`);
@@ -177,8 +186,9 @@ describe('the sequences the claim table states', () => {
     expect(minor.chords).toHaveLength(15);
   });
 
-  it('every chord is played by both hands as a triad, except in the hand-written scale item', () => {
-    for (const item of shelf.filter((s) => !s.itemId.endsWith('c-major-scale-and-chords'))) {
+  it('every chord is played by both hands as a triad, except in the hand-written scale item and the melody drills', () => {
+    const melodyDrill = (s: ShelfExercise) => parseExerciseTitle(s.title).name in MELODY_DRILLS;
+    for (const item of shelf.filter((s) => !s.itemId.endsWith('c-major-scale-and-chords') && !melodyDrill(s))) {
       const claim = claimForItem(item);
       for (const c of claim.chords) {
         expect(c.hands, item.itemId).toEqual(['left', 'right']);
@@ -513,6 +523,11 @@ describe('the key-change claims: "<from> to <to> - introduction|beginner|interme
     relative: { introduction: [4, 8], beginner: [6, 5], intermediate: [1, 8] },
     parallel: { introduction: [4, 8], beginner: [6, 5], intermediate: [4, 5] },
   };
+  /** Chords per item: one per bar, except the relative beginner's half-bar IV V in each key (FR-002 amended, T078). */
+  const CHORDS: Record<'relative' | 'parallel', Record<(typeof STEPS)[number], number>> = {
+    relative: { introduction: 12, beginner: 12, intermediate: 9 },
+    parallel: { introduction: 12, beginner: 11, intermediate: 9 },
+  };
 
   it('every pair and step has a claim with two segments that cover the whole piece, the first in the first key', () => {
     for (const [from, to, relation] of PAIRS) {
@@ -524,24 +539,38 @@ describe('the key-change claims: "<from> to <to> - introduction|beginner|interme
           { firstBar: 1, lastBar: first, key: parseExerciseTitle(`${from} - x`).key },
           { firstBar: first + 1, lastBar: first + second, key: parseExerciseTitle(`${to} - x`).key },
         ]);
-        expect(claim.chords, `${from} to ${to} - ${step}`).toHaveLength(first + second);
+        expect(claim.chords, `${from} to ${to} - ${step}`).toHaveLength(CHORDS[relation][step]);
       }
     }
   });
 
-  it('every chord is a whole-note triad in both hands, two octaves apart', () => {
-    const claim = keyChangeClaim('C major', 'A minor', 'beginner');
-    expect(claim.chords.every((c) => c.hands.join() === 'left,right' && c.octavesApart === 2)).toBe(true);
+  it('the key-change claims give the right hand as a melody at the item level for every section, and the left hand plays the chords', () => {
+    for (const [from, to] of PAIRS) {
+      for (const step of STEPS) {
+        const claim = keyChangeClaim(from, to, step);
+        expect(claim.sections, `${from} to ${to} - ${step}`).toBeDefined();
+        expect(claim.sections, `${from} to ${to} - ${step}`).toHaveLength(2);
+        for (const section of claim.sections ?? []) {
+          expect(section.right).toEqual({ kind: 'melody', level: step });
+          expect(section.left.kind).toBe('chords');
+        }
+        expect(claim.chords.every((c) => c.hands.join() === 'left')).toBe(true);
+      }
+    }
   });
 
-  it('a relative change: the tonic, then the pivot (IV of the first key, VI in a minor first key), then the new tonic', () => {
+  // FR-002 as amended 2026-09-28 (owner listening check): the harmony moves with the primary triads; the pivot and the
+  // key change stay. Before: 'I I I IV i i i i i i i i' (introduction), 'I I I I I IV i i i i i' (beginner).
+  it('a relative change: tonic and dominant, the pivot (IV of the first key, VI in a minor first key), then the new key', () => {
     expect(shortChords(keyChangeClaim('C major', 'A minor', 'introduction'))).toEqual(
-      'I I I IV i i i i i i i i'.split(' '),
+      'I V I IV i i VI VI i i VI i'.split(' '),
     );
     expect(shortChords(keyChangeClaim('A minor', 'C major', 'introduction'))).toEqual(
-      'i i i VI I I I I I I I I'.split(' '),
+      'i V i VI I I IV IV I I V I'.split(' '),
     );
-    expect(shortChords(keyChangeClaim('D major', 'B minor', 'beginner'))).toEqual('I I I I I IV i i i i i'.split(' '));
+    expect(shortChords(keyChangeClaim('D major', 'B minor', 'beginner'))).toEqual(
+      'I I IV64 V6 I I IV i i iv64 VI i'.split(' '),
+    );
   });
 
   it('a parallel change: the shared dominant is the pivot, the new tonic follows', () => {
@@ -590,4 +619,67 @@ describe('the generated key changes agree with their claims, for all 18 pairs (t
       });
     }
   }
+});
+
+// ---- exercise-theory-v3: the chord-change drills with a melody (feature 014 US3, T037) ----
+// The five drills still on the shelf: the cycle with its rests (section A), the cycle joined (section B) and the tonic
+// (the final bar), the chords in the left hand only, the right hand a melody at the drill's level.
+describe('the melody drill claims: left-hand chords under a right-hand melody (feature 014 US3)', () => {
+  const DRILL_TITLES: [string, string, number][] = [
+    ['C major - I-V-vi-IV', 'The most transferable four-chord loop in popular music.', 4],
+    ['C major - I-vi-ii-V', 'The turnaround: minimal hand travel, one or two common tones per change.', 4],
+    ['C major - diatonic ladder', 'Every diatonic triad of the key in order, major, minor and diminished by shape.', 8],
+    ['C major - major and minor', 'Same-tonic quality change: major to minor and back.', 4],
+    ['A minor - minor and major', 'The same same-tonic quality change moving the other way, minor to major.', 4],
+  ];
+
+  it.each(DRILL_TITLES)(
+    '%s: sections A, B and the final bar, each a melody over left-hand chords',
+    (title, trains, n) => {
+      const claim = claimForItem({ itemId: 'x', title, trains });
+      const level = MELODY_DRILLS[parseExerciseTitle(title).name];
+      expect(level).toBeDefined();
+      expect(claim.sections?.map((s) => [s.firstBar, s.lastBar])).toEqual([
+        [1, n],
+        [n + 1, 2 * n],
+        [2 * n + 1, 2 * n + 1],
+      ]);
+      for (const section of claim.sections ?? []) {
+        expect(section.key).toEqual(claim.key);
+        expect(section.right).toEqual({ kind: 'melody', level });
+        expect(section.left.kind).toBe('chords');
+        const left = section.left.kind === 'chords' ? section.left.chords : [];
+        expect(left.every((c) => c.voicing === 'triad')).toBe(true);
+      }
+      const sectionChords = (claim.sections ?? []).flatMap((s) =>
+        s.left.kind === 'chords' ? s.left.chords.map((c) => `${c.roman}${['', '6', '64'][c.inversion]}`) : [],
+      );
+      expect(sectionChords).toEqual(shortChords(claim));
+      expect(claim.chords.every((c) => c.hands.join() === 'left')).toBe(true);
+      expect(claim.segments).toBeUndefined();
+    },
+  );
+
+  it('the drills retired from the shelf keep their v1 claims: both hands, no sections', () => {
+    const claim = claimOf('C major - ii-V-I');
+    expect(claim.sections).toBeUndefined();
+    expect(claim.chords.every((c) => c.hands.join() === 'left,right')).toBe(true);
+  });
+
+  it('the five drill definitions on the shelf agree with their claims (the independent check)', () => {
+    const drills = readdirSync(contentExercises).filter((f) => f.startsWith('changes-'));
+    expect(drills).toHaveLength(5);
+    for (const file of drills) {
+      const definition = JSON.parse(readFileSync(join(contentExercises, file), 'utf8')) as ExerciseDefinition;
+      for (const item of generateFamily(definition, '2026-09-28')) {
+        const claim = claimForItem({
+          itemId: `${item.section}/${item.fileStem}`,
+          title: item.meta.title,
+          trains: item.meta.trains ?? '',
+        });
+        expect(claim.sections, item.meta.title).toBeDefined();
+        expect(checkExercise(item.xml, claim), item.meta.title).toEqual([]);
+      }
+    }
+  });
 });

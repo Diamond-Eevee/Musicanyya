@@ -5,6 +5,13 @@ feature 012-tempo-bpm-field: `RunSettings.tempoPercent` validation and `lastUsed
 unchanged, every old file is still valid). Research R-04, R-05, R-09. All data stays on the musician's device;
 nothing is uploaded (FR-016).
 
+**Additive change (feature 013-score-browser-progress, R-6)**: `StoredPerformanceRecord` gains an optional
+`complete?: boolean` (`true` = the run reached the end, `false` = stopped early), written by `src/app/play-session.ts`
+from now on. Schema number stays `1`: an old record without the field is still valid, and its absence means "not
+recorded" to the Score browser's progress rules (013 data-model.md section 2). `PerformanceStore` also gains
+`removeByScore(scoreId): Promise<StoreResult<number>>`, removing every performance of that Score and returning the
+count (013 R-12, OD-3/OD-4, ports.md 1.5.0).
+
 ## IndexedDB database `musicanyya` (version 2)
 
 Version 2 **adds** the object store `performances` and leaves `recentScores` exactly as feature 001 defined it.
@@ -24,6 +31,7 @@ interface StoredPerformanceRecord {
   log: PerformanceLog;           // below
   summary: GradeSummary;         // denormalised for the attempt list; the Grade itself is never stored
   schema: 1;
+  complete?: boolean;            // 013 R-6: reached the end (true) or stopped early (false); absent = not recorded
 }
 ```
 

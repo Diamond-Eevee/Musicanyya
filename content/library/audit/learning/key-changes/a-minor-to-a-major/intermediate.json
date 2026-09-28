@@ -6,12 +6,12 @@
   "checks": [
     {
       "method": "theory",
-      "ruleSet": "exercise-theory-v2",
+      "ruleSet": "exercise-theory-v3",
       "expectedDifferences": 0
     }
   ],
   "outcome": "verified",
-  "outcomeNote": "The independent theory check derives every chord from the title alone (both key segments: the signature in force, the key named at the arrival bar, every chord spelled in its own key, the last chord the tonic of the second key) and finds 0 differences.",
-  "checkedBy": "claude-sonnet-5",
-  "date": "2026-09-26"
+  "outcomeNote": "The independent theory check derives every left-hand chord from the title alone (both key segments: the signature in force, the key named at the arrival bar, every chord spelled in its own key, the last chord the tonic of the second key), and the independent melody rule check reads the right hand as a intermediate melody (chord tones at chord changes, key and minor degrees, key change heard, ending, register, fingering, the Difficulty ladder); 0 differences.",
+  "checkedBy": "claude-opus-5.5",
+  "date": "2026-09-28"
 }

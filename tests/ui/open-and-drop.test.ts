@@ -1,21 +1,17 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import '../../src/ui/elements/mx-drop-zone.js';
 import '../../src/ui/elements/mx-open-button.js';
-import '../../src/ui/elements/mx-recent-list.js';
-import type { RecentScoreSummary } from '../../src/engine/ports.js';
 import { SCORE_FILE_ACCEPT } from '../../src/ui/elements/mx-open-button.js';
 import { noticeState } from '../../src/ui/state/noticeState.js';
 import { scoreState } from '../../src/ui/state/scoreState.js';
 
-function recent(id: string, fileName: string, lastOpened: string): RecentScoreSummary {
-  return { id, fileName, title: null, composer: null, byteLength: 10, lastOpened };
-}
-
-describe('Open and recent UI', () => {
+// Feature 013 T092: the recent-scores list (`mx-recent-list`) is gone; *My files* replaces it, tested in
+// tests/ui/score-browser/my-files.test.ts and the US3 block of tests/e2e/score-browser.spec.ts. What stays here is the
+// open button, the drop zone and how a load result reaches the Score and the notices.
+describe('Open button, drop zone and load results', () => {
   afterEach(() => {
     document.body.innerHTML = '';
     noticeState.clear();
-    scoreState.setRecent([]);
   });
 
   it('open button exposes the score file accept list and dispatches fileopen on selection', () => {
@@ -35,6 +31,20 @@ describe('Open and recent UI', () => {
     return detail.then((d) => expect(d.file).toBe(file));
   });
 
+  it('clicking the button, or calling open(), asks the app to open the browser instead of the file chooser (feature 013, R-20)', () => {
+    const el = document.createElement('mx-open-button');
+    document.body.appendChild(el);
+
+    const opens: string[] = [];
+    el.addEventListener('openbrowser', () => opens.push('click'));
+    (el.querySelector('.mx-open-button') as HTMLButtonElement).click();
+    expect(opens).toEqual(['click']);
+
+    el.addEventListener('openbrowser', () => opens.push('open()'));
+    (el as unknown as { open(): void }).open();
+    expect(opens).toEqual(['click', 'click', 'open()']);
+  });
+
   it('drop zone accepts only the first dropped file', () => {
     const el = document.createElement('mx-drop-zone');
     document.body.appendChild(el);
@@ -52,35 +62,6 @@ describe('Open and recent UI', () => {
     return detail.then((d) => {
       expect(d.file).toBe(first);
       expect(d.file).not.toBe(second);
-    });
-  });
-
-  it('renders the recent list newest first and supports reopen/remove', () => {
-    scoreState.setRecent([
-      recent('id-2', 'second.musicxml', '2026-01-02T00:00:00.000Z'),
-      recent('id-1', 'first.musicxml', '2026-01-01T00:00:00.000Z'),
-    ]);
-    const el = document.createElement('mx-recent-list');
-    document.body.appendChild(el);
-
-    const openButtons = el.querySelectorAll('.mx-recent-open');
-    expect(openButtons).toHaveLength(2);
-    expect(openButtons[0]?.textContent).toBe('second.musicxml');
-    expect(openButtons[1]?.textContent).toBe('first.musicxml');
-
-    const reopened = new Promise<{ id: string }>((resolve) => {
-      el.addEventListener('reopenrecent', (e) => resolve((e as CustomEvent).detail), { once: true });
-    });
-    (openButtons[0] as HTMLButtonElement).click();
-
-    const removed = new Promise<{ id: string }>((resolve) => {
-      el.addEventListener('removerecent', (e) => resolve((e as CustomEvent).detail), { once: true });
-    });
-    (el.querySelectorAll('.mx-recent-remove')[1] as HTMLButtonElement).click();
-
-    return Promise.all([reopened, removed]).then(([r, rm]) => {
-      expect(r.id).toBe('id-2');
-      expect(rm.id).toBe('id-1');
     });
   });
 

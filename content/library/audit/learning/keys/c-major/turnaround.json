@@ -6,19 +6,18 @@
   "checks": [
     {
       "method": "theory",
-      "ruleSet": "exercise-theory-v1",
+      "ruleSet": "exercise-theory-v3",
       "expectedDifferences": 0
     }
   ],
   "outcome": "fixed",
-  "outcomeNote": "The description said \"one common tone per change\", but I to vi shares two (C, E). Corrected at the exercise definition to \"one or two common tones per change\"; no note changed.",
-  "checkedBy": "claude-sonnet-5",
-  "date": "2026-09-24",
+  "outcomeNote": "Feature 014: a beginner right-hand melody over the unchanged left-hand chords; the item starts fresh. Theory check (the left-hand chords from the title) and melody rule check (harmony, key, ending, register, fingering, Difficulty ladder): 0 differences. Earlier (feature 007): The description said \"one common tone per change\", but I to vi shares two (C, E). Corrected at the exercise definition to \"one or two common tones per change\"; no note changed.",
+  "checkedBy": "claude-opus-5.5",
+  "date": "2026-09-28",
   "previous": {
     "title": "C major - I-vi-ii-V",
     "level": "beginner",
     "bars": 9,
     "notes": 54
-  },
-  "supersedes": ["learning/chords/changes/changes-turnaround-c-major"]
+  }
 }

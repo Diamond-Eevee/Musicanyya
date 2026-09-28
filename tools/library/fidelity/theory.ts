@@ -7,6 +7,7 @@
 // letter, its alteration follows from the semitone distance). The generator spells from the key signature and its own
 // degree tables; this uses the scale's semitone pattern, so one shared mistake cannot pass both.
 import { XmlElement, type XmlNode } from '@rgrove/parse-xml';
+import type { Level } from '../../../src/core/library/types';
 import { readXml } from '../../../src/core/musicxml/read';
 import { add, cmp, type QuarterTime, q } from './time';
 
@@ -59,10 +60,13 @@ export interface SectionChord {
 }
 
 /** What one hand plays in a section: a scale (`degrees` counted up from the tonic in `tonicOctave`; a major key ignores
- *  the form, melodic minor raises the 6th and 7th going up and restores them going down), chords, or nothing. */
+ *  the form, melodic minor raises the 6th and 7th going up and restores them going down), chords, a melody (rule set
+ *  exercise-theory-v3: not compared note by note here - `checkMelodyRules` checks it against its level's Difficulty
+ *  ladder), or nothing. */
 export type SectionHand =
   | { kind: 'scale'; form: ScaleForm; tonicOctave: number; degrees: number[] }
   | { kind: 'chords'; chords: SectionChord[] }
+  | { kind: 'melody'; level: Level }
   | { kind: 'rest' };
 
 /** A run of printed bars (`firstBar` to `lastBar`, inclusive) in one key, with what each hand plays. */
@@ -262,6 +266,8 @@ export interface WrittenNote {
   end: QuarterTime;
   /** The note continues a tie from the note before (`<tie type="stop"/>`): it is not a new attack. */
   tiedFromPrevious: boolean;
+  /** The finger written on the note (`<technical><fingering>`), when there is one. */
+  finger?: number;
 }
 export interface Words {
   bar: number;
@@ -284,6 +290,10 @@ export interface Reading {
   firstBar: string;
   notes: WrittenNote[];
   words: Words[];
+  /** Where each printed bar starts, in written order. */
+  barStarts: { bar: number; start: QuarterTime }[];
+  /** The first `<time>` of the file, when it has one. */
+  metre?: { beats: number; beatType: number };
 }
 
 const child = (el: XmlElement, name: string): XmlElement | undefined =>
@@ -296,13 +306,14 @@ export function readScore(xml: string): Reading {
   const { doc } = readXml(xml);
   const root = doc.children.find((c): c is XmlElement => c instanceof XmlElement);
   if (root?.name !== 'score-partwise') throw new Error('the theory check reads score-partwise files');
-  const reading: Reading = { firstBar: '1', keys: [], notes: [], words: [] };
+  const reading: Reading = { firstBar: '1', keys: [], notes: [], words: [], barStarts: [] };
   let first = true;
   for (const part of elements(root.children, 'part')) {
     let measureStart = q(0);
     let divisions = 1;
     elements(part.children, 'measure').forEach((measure, index) => {
       const bar = measure.attributes.number ?? String(index + 1);
+      reading.barStarts.push({ bar: Number(bar), start: measureStart });
       if (first) reading.firstBar = bar;
       first = false;
       let position = 0;
@@ -314,6 +325,12 @@ export function readScore(xml: string): Reading {
         if (node.name === 'attributes') {
           const d = child(node, 'divisions');
           if (d) divisions = Number(text(d));
+          const time = child(node, 'time');
+          if (time && reading.metre === undefined)
+            reading.metre = {
+              beats: Number(text(child(time, 'beats'))),
+              beatType: Number(text(child(time, 'beat-type'))),
+            };
           const key = child(node, 'key');
           if (key) {
             const fifths = text(child(key, 'fifths'));
@@ -361,7 +378,11 @@ export function readScore(xml: string): Reading {
           const octave = Number(text(child(pitch, 'octave')));
           if (!LETTERS.includes(step) || !Number.isInteger(alter) || !Number.isInteger(octave))
             throw new Error(`unreadable <pitch> in bar ${bar}`);
+          const notations = child(node, 'notations');
+          const technical = notations && child(notations, 'technical');
+          const fingering = text(technical && child(technical, 'fingering'));
           reading.notes.push({
+            ...(fingering !== '' ? { finger: Number(fingering) } : {}),
             hand,
             bar,
             onset,
@@ -777,6 +798,8 @@ function checkSections(
           });
       } else if (part.kind === 'scale') {
         out.push(...checkSectionScale(section.key, hand, part, found, firstBar));
+      } else if (part.kind === 'melody') {
+        // exercise-theory-v3: the melody check (melody-rules.ts) judges these notes, run from the audit record.
       } else {
         const expected: Tone[] = [];
         for (const chord of part.chords) {

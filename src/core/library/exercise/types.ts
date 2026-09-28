@@ -77,9 +77,47 @@ export interface PatternChord {
   minor?: Partial<Pick<PatternChord, 'degree' | 'quality' | 'inversion' | 'label'>>;
 }
 
+export type MelodyValue = 'whole' | 'half' | 'quarter' | 'eighth' | 'dotted-half' | 'dotted-quarter';
+
+/** One note of a melody phrase (contract exercise-definition 1.3 §1c). Exactly one of `step`/`rest` is set. */
+export interface MelodyNote {
+  /** 1 = the key's tonic in octave 4; 8 = the tonic above; 9, 10; 0, -1, -2, -3 = the 7th, 6th, 5th, 4th below
+   *  (data-model.md 014 §1). */
+  step?: number;
+  value: MelodyValue;
+  /** Against the natural scale (major / natural minor); +1 on a minor 6th/7th = raised. */
+  alter?: -1 | 0 | 1;
+  /** A rest of `value`; `step` must be absent. */
+  rest?: true;
+  /** Overrides the computed finger (data-model §1, research R6 of feature 014). */
+  finger?: 1 | 2 | 3 | 4 | 5;
+  /** This note starts a new hand position; its finger is written. */
+  shift?: true;
+}
+
+/** One variant of a melody section part: the five-finger position at the phrase's start, and its notes
+ *  (fills the section's bars exactly). */
+export interface MelodyPhrase {
+  position: number;
+  notes: MelodyNote[];
+}
+
+/** A section's right-hand melody (contract exercise-definition 1.3 §1c): variants for a major-key section, for a
+ *  minor-key section, or both; item *i* of the family uses `variants[i mod variants.length]` (data-model §1). */
+export interface MelodyPart {
+  major?: MelodyPhrase[];
+  minor?: MelodyPhrase[];
+}
+
 /** What one hand does in a pattern section. `mirror` (with the section's `mirror` index) plays the earlier section's
- *  material with the hands swapped; `rest` writes whole-bar rests. */
-export type PatternHandPart = { scale: ScalePart } | { chords: PatternChord[] } | { mirror: true } | { rest: true };
+ *  material with the hands swapped; `rest` writes whole-bar rests; `melody` (feature 014, right hand only) is a
+ *  single-note phrase over the other hand's chords. */
+export type PatternHandPart =
+  | { scale: ScalePart }
+  | { chords: PatternChord[] }
+  | { melody: MelodyPart }
+  | { mirror: true }
+  | { rest: true };
 
 export interface PatternSection {
   bars: number;
@@ -123,6 +161,9 @@ export interface ExerciseDefinition {
   steps?: ExerciseStep[];
   sections?: PatternSection[];
   keyPairs?: KeyPair[];
+  /** Chords form (drills) only, `family` starting with `changes` (contract exercise-definition 1.3 §1d): replaces
+   *  the right hand's triads with a melody laid out over the cycle (`sectionA`, `sectionB`, `final`). */
+  melody?: { sectionA: MelodyPart; sectionB: MelodyPart; final: MelodyPart };
   /** Key slug (or pair slug) -> old item ids the generated item replaces; the build tool looks up their hashes. */
   supersedes?: Record<string, string[]>;
   /** Engrave a backward-repeat barline around the steps. */

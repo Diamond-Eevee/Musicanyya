@@ -7,11 +7,12 @@ import { fromLilyPond, readLilyPond } from '../lilypond/read';
 import { type Alignment, type Aspect, compare, compareMelody, compareSound, type Difference } from './compare';
 import { ClaimError, claimForItem } from './exercise-claims';
 import { fromMusicXml } from './from-musicxml';
+import { checkMelodyRules } from './melody-rules';
 import { fromMidi, readMidi } from './midi';
 import type { ReferenceScore } from './reference';
 import { checkSong } from './song-chords';
 import { date, type SourceManifest, sourceFile } from './sources';
-import { checkExercise } from './theory';
+import { checkExercise, type ExerciseClaim } from './theory';
 
 export type Claim = 'original' | 'excerpt' | 'arrangement' | 'exercise';
 export type Outcome = 'verified' | 'fixed' | 'replaced' | 'relabelled' | 'removed';
@@ -28,8 +29,14 @@ export interface MechanicalCheck {
   melodyRhythm?: 'compared' | 'allowedByDeparture';
 }
 /** exercise-theory-v2 adds sections (scales, broken and root-fifth voicings, key segments) to v1; song-chords-v1 checks the
- *  left-hand chords of a song against their printed names (feature 011, contract audit-record 1.2.0). */
-export const THEORY_RULE_SETS = ['exercise-theory-v1', 'exercise-theory-v2', 'song-chords-v1'] as const;
+ *  left-hand chords of a song against their printed names (feature 011, contract audit-record 1.2.0); exercise-theory-v3
+ *  runs everything v2 runs and checks a melody hand with checkMelodyRules (feature 014, contract audit-record 1.3.0). */
+export const THEORY_RULE_SETS = [
+  'exercise-theory-v1',
+  'exercise-theory-v2',
+  'song-chords-v1',
+  'exercise-theory-v3',
+] as const;
 export type TheoryRuleSet = (typeof THEORY_RULE_SETS)[number];
 
 export interface TheoryCheck {
@@ -271,7 +278,13 @@ function runTheory(record: AuditRecord, check: TheoryCheck, ctx: RunContext): Ch
     return { check, differences: [], allowed: [], reproduced: false, detail: e.message };
   }
   const xml = readFileSync(ctx.itemFile ?? join(ctx.libraryRoot, `${record.itemId}.musicxml`), 'utf8');
-  const differences = checkExercise(xml, claim);
+  let differences: Difference[];
+  try {
+    differences = theoryDifferences(xml, claim, check.ruleSet);
+  } catch (e) {
+    if (!(e instanceof ClaimError)) throw e;
+    return { check, differences: [], allowed: [], reproduced: false, detail: e.message };
+  }
   return {
     check,
     differences,
@@ -279,6 +292,29 @@ function runTheory(record: AuditRecord, check: TheoryCheck, ctx: RunContext): Ch
     reproduced: differences.length === check.expectedDifferences,
     detail: `${claim.chords.length} chords checked against "${sidecar.title}": ${differences.length} differences`,
   };
+}
+
+/** The differences an exercise claim finds in a file under one rule set: the theory check, and from exercise-theory-v3
+ *  on the melody rule check of the claim's melody hand, both counted (contract audit-record 1.3 §1). A melody claim
+ *  under an earlier rule set is refused: those rule sets cannot check it. */
+export function theoryDifferences(
+  xml: string,
+  claim: ExerciseClaim,
+  ruleSet: Exclude<TheoryRuleSet, 'song-chords-v1'>,
+): Difference[] {
+  const melody = claim.sections
+    ?.flatMap((s) => [s.right, s.left])
+    .find((hand): hand is Extract<typeof hand, { kind: 'melody' }> => hand.kind === 'melody');
+  if (melody && ruleSet !== 'exercise-theory-v3')
+    throw new ClaimError(`${claim.itemId}: a melody hand is checked by rule set exercise-theory-v3, not ${ruleSet}`);
+  const differences: Difference[] = checkExercise(xml, claim);
+  if (!melody) return differences;
+  const keys = claim.segments?.map((s) => ({ firstBar: s.firstBar, key: s.key })) ?? [
+    { firstBar: claim.sections?.[0]?.firstBar ?? 1, key: claim.key },
+  ];
+  for (const f of checkMelodyRules({ itemId: claim.itemId, xml, level: melody.level, keys }))
+    differences.push({ kind: 'melodyRule', bar: String(f.bar), beat: f.beat, rule: f.rule, message: f.message });
+  return differences;
 }
 
 /** song-chords-v1: the left-hand chords of a song against their printed names and the chords its level promises. */
