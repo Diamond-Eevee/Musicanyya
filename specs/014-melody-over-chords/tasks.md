@@ -376,7 +376,9 @@ pass; the owner finds it fun to play (T057).
 - [x] T079 [deep] New left-hand chord plans (primary triads, key change, section tonics and the chord before the change
   kept) in `content/library/exercises/key-change-{relative,parallel}-{introduction,beginner}.json`; intermediate plans
   kept. Done: only the relative files needed it (the parallel plans already move, I V I V | I IV I V ...):
-  introduction I V I IV(VI) | I IV V I IV I V I; beginner I IV-V I V I IV(VI) | I IV-V I V I (IV V half bars)
+  introduction I V6 I IV(VI) | I IV64 V6 I IV64 I V6 I; beginner I IV64-V6 I V6 I IV(VI) | I IV64-V6 I V6 I (half
+  bars). V6 and IV6/4 (not root position): the bass moves by step and the octave-lower E minor stays inside the
+  introduction's pitch bounds (root-position iv there is A1, criterion 2)
 - [ ] T080 [P] [deep] Re-compose the melodies of `key-change-relative-introduction.json` (quarter notes, scale runs up to
   an octave, thumb-under / finger-over, at least 2 variants per section and mode)
 - [ ] T081 [P] [deep] Same for `key-change-parallel-introduction.json`

@@ -492,15 +492,19 @@ const subdominant = IV(WHOLE);
 /** A relative change goes from the pivot chord straight to the new tonic (the change is shown by the pivot, the double
  *  barline and the key name). Around it the harmony moves with the primary triads, as in the key step (feature 014 FR-002
  *  as amended 2026-09-28, owner listening check): one chord per bar at introduction, a half-bar IV V in each key at
- *  beginner. */
+ *  beginner V6 and IV6/4 keep the hand in one place (the bass moves by
+ *  step: A A G♯ A in A minor) and keep the octave-lower E minor inside the introduction's pitch bounds (root-position iv
+ *  there is A1). */
+const V6 = withFigure(dominant, '6');
+const IV64 = withFigure(subdominant, '64');
 const RELATIVE_PLANS: Record<KeyChangeStep, KeyChangePlan> = {
   introduction: {
-    from: [tonic, dominant, tonic, PIVOT],
-    to: [tonic, subdominant, dominant, tonic, subdominant, tonic, dominant, tonic],
+    from: [tonic, V6, tonic, PIVOT],
+    to: [tonic, IV64, V6, tonic, IV64, tonic, V6, tonic],
   },
   beginner: {
-    from: [tonic, IV(HALF), V(HALF), tonic, dominant, tonic, PIVOT],
-    to: [tonic, IV(HALF), V(HALF), tonic, dominant, tonic],
+    from: [tonic, withFigure(IV(HALF), '64'), withFigure(V(HALF), '6'), tonic, V6, tonic, PIVOT],
+    to: [tonic, withFigure(IV(HALF), '64'), withFigure(V(HALF), '6'), tonic, V6, tonic],
   },
   intermediate: {
     from: [tonic],

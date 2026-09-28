@@ -563,13 +563,13 @@ describe('the key-change claims: "<from> to <to> - introduction|beginner|interme
   // key change stay. Before: 'I I I IV i i i i i i i i' (introduction), 'I I I I I IV i i i i i' (beginner).
   it('a relative change: tonic and dominant, the pivot (IV of the first key, VI in a minor first key), then the new key', () => {
     expect(shortChords(keyChangeClaim('C major', 'A minor', 'introduction'))).toEqual(
-      'I V I IV i iv V i iv i V i'.split(' '),
+      'I V6 I IV i iv64 V6 i iv64 i V6 i'.split(' '),
     );
     expect(shortChords(keyChangeClaim('A minor', 'C major', 'introduction'))).toEqual(
-      'i V i VI I IV V I IV I V I'.split(' '),
+      'i V6 i VI I IV64 V6 I IV64 I V6 I'.split(' '),
     );
     expect(shortChords(keyChangeClaim('D major', 'B minor', 'beginner'))).toEqual(
-      'I IV V I V I IV i iv V i V i'.split(' '),
+      'I IV64 V6 I V6 I IV i iv64 V6 i V6 i'.split(' '),
     );
   });
 

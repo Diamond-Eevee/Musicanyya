@@ -564,11 +564,13 @@
             "duration": "half",
             "minor": {
               "degree": "iv"
-            }
+            },
+            "inversion": 2
           },
           {
             "degree": "V",
-            "duration": "half"
+            "duration": "half",
+            "inversion": 1
           },
           {
             "degree": "I",
@@ -579,7 +581,8 @@
           },
           {
             "degree": "V",
-            "duration": "whole"
+            "duration": "whole",
+            "inversion": 1
           },
           {
             "degree": "I",
@@ -987,11 +990,13 @@
             "duration": "half",
             "minor": {
               "degree": "iv"
-            }
+            },
+            "inversion": 2
           },
           {
             "degree": "V",
-            "duration": "half"
+            "duration": "half",
+            "inversion": 1
           },
           {
             "degree": "I",
@@ -1002,7 +1007,8 @@
           },
           {
             "degree": "V",
-            "duration": "whole"
+            "duration": "whole",
+            "inversion": 1
           },
           {
             "degree": "I",
