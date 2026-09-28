@@ -41,3 +41,22 @@
 - Decisions: in `score-view.test.ts` test (f), re-queried page 1 element after `relayout` since relayout clears and rebuilds the stack DOM nodes
 - Handoff: next = Phase 3 (US1 - The next system is always visible) starting at T010
 
+## 2026-09-29 01:10 - gemini-3.8-flash (checkpoint: Phase 3)
+- Done: T010-T016 (Phase 3: User Story 1 - The next system is always visible)
+- Changes:
+  - `tests/ui/follow.test.ts`: 10 unit tests for `lookaheadTarget` (rules a-j from follow-view.md §2)
+  - `tests/ui/score-view-follow.test.ts`: 11 unit tests for `mx-score-view` follow integration across Listen, Practice, Play, Follow toggle, unmounted pages, relayout, insets, and practice loops
+  - `tests/e2e/helpers/lookahead.ts`: `installLookaheadTracker` to monitor system bounding boxes in clear space
+  - `tests/e2e/lookahead.spec.ts`: e2e suite covering US1 Independent Test on Für Elise, Practice mode on Clementi op. 36 no. 1 with MIDI input, and G-5/G-6 page gaps across repertoire
+  - `src/ui/score/follow.ts`: implemented `lookaheadTarget()` and follow view types
+  - `src/ui/elements/mx-score-view.ts`: added `systemLookup()`, `systemCache`, and `followRun()` for unified lookahead following in Listen, Practice, and Play modes
+- Verification & Evidence:
+  - `tests/e2e/lookahead.spec.ts`: 3 passed (43.5s, chromium). US1 Independent Test: 7 observations sampled across 2 page changes; 100% of observations where systems fit together had both current and next system fully visible in clear space (`fitsTogether: true, bothVisible: true`)
+  - Follow regressions: `us2-listen.spec.ts` (2 passed), `us1-play.spec.ts` (6 passed), `us4-overlays.spec.ts` and `play-cursor.spec.ts` (18 passed)
+  - `pnpm test`: Tests 5994 passed (5994) | Test Files 274 passed (274) (exit code 0)
+  - `npx biome check`: 6 files checked, 0 errors (exit code 0)
+  - `pnpm typecheck`: tsc --build tsconfig.json (exit code 0)
+- Decisions:
+  - Observation timing in e2e tracker: each system change schedules its own observation check after settling (500 ms) instead of clearing a single global timer
+  - Test (a) wait condition: dynamic `page.waitForFunction` waiting for at least 2 page changes
+- Handoff: next = Phase 4 (US2 - Fluent scrolling instead of jumps) starting at T017

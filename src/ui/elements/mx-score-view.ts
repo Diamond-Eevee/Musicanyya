@@ -26,6 +26,7 @@ import {
   type StaffGeometry,
   skipIconBox,
 } from '../score/disc-layout.js';
+import { lookaheadTarget } from '../score/follow.js';
 import { discAt, drawGradeMarks, type GradeMarkGeometry, gradeHeadClass } from '../score/grade-marks.js';
 import { applyHighlights } from '../score/highlight.js';
 import { ScoreNoteIndex } from '../score/note-index.js';
@@ -156,6 +157,7 @@ export class MxScoreView extends HTMLElement {
     rects: DOMRect[];
   } | null = null;
   private readonly elementCache = new Map<string, Element | null>();
+  private readonly systemCache = new Map<string, { current: Element; next: Element | null; nextKnown: boolean }>();
   private elementCacheSig = '';
   /** Bumped every time page content is replaced, so cached element lookups can tell they went stale. */
   private domEpoch = 0;
@@ -581,7 +583,7 @@ export class MxScoreView extends HTMLElement {
 
     // the bar stands at the notes that started last, not at a long note still held under them (009 FR-001, owner review)
     this.drawCursor(measureEl, soundingNoteIds.size === 0 ? soundingNoteIds : cursorNotesAtTick(timeline, tick));
-    if (following) this.followScrollTo(measureEl);
+    if (following) this.followRun(measureId);
   }
 
   /** Notes are looked up in the DOM once per change of the page content, never once per frame: `domEpoch` is bumped
@@ -591,6 +593,7 @@ export class MxScoreView extends HTMLElement {
     if (sig === this.elementCacheSig) return;
     this.elementCacheSig = sig;
     this.elementCache.clear();
+    this.systemCache.clear();
   }
 
   private elementFor(id: string): Element | null {
@@ -1011,12 +1014,17 @@ export class MxScoreView extends HTMLElement {
       }
     }
 
-    if (currentEvent && session?.phase !== 'finished' && transportState.get().follow) {
-      this.followMeasure(this.measureIds[currentEvent.measureIndex]);
+    if (
+      currentEvent &&
+      session?.phase !== 'finished' &&
+      (session as { status?: string })?.status !== 'completed' &&
+      transportState.get().follow
+    ) {
+      this.followRun(this.measureIds[currentEvent.measureIndex]);
     }
   }
 
-  /** Keeps the Play run's current measure in the middle band (FR-005, 003 FR-007), under the same Follow rules as
+  /** Keeps the Play run's current measure in view using the lookahead rule (015 US1), under the same Follow rules as
    *  Listen; the slim bar shows the measure whether or not the view is following it. The position is the one the
    *  cursor is drawn at (`playCursorAt`, 009 R-04), so the two can never disagree. Needs `this.timeline`
    *  (session.ts's `setPlayback`, also called from `startPlay`). */
@@ -1026,7 +1034,7 @@ export class MxScoreView extends HTMLElement {
     runPositionState.set(pass ? pass.measureIndex : null);
     tempoPositionState.set(displaySegmentIndexAt(this.timeline.tempo, cursor.timelineTick));
     if (!transportState.get().follow) return;
-    this.followMeasure(pass ? this.measureIds[pass.measureIndex] : undefined);
+    this.followRun(pass ? this.measureIds[pass.measureIndex] : undefined);
   }
 
   /** Puts the `.playing` highlight on exactly these notes (off before on), for Listen's cursor and the Play cursor. */
@@ -1381,12 +1389,95 @@ export class MxScoreView extends HTMLElement {
     });
   }
 
-  /** Follows a measure whether or not its page is mounted. */
-  private followMeasure(measureId: string | undefined): void {
+  /** System lookup for a measure: returns the system element, the next system element, and whether next is known. */
+  private systemLookup(
+    measureId: string,
+    measureEl: Element,
+  ): {
+    current: Element;
+    next: Element | null;
+    nextKnown: boolean;
+  } | null {
+    const cached = this.systemCache.get(measureId);
+    if (cached) return cached;
+
+    const current = measureEl.closest('g.system');
+    if (!current) return null;
+
+    let next: Element | null = null;
+    let nextKnown = true;
+    const pageEl = current.closest('.mx-score-page');
+    if (pageEl) {
+      const systems = Array.from(pageEl.querySelectorAll('g.system'));
+      const idx = systems.indexOf(current);
+      if (idx >= 0 && idx + 1 < systems.length) {
+        next = systems[idx + 1] ?? null;
+      } else {
+        const pageNum = Number(pageEl.getAttribute('data-page'));
+        const nextPageNum = pageNum + 1;
+        if (nextPageNum <= this.layouts.length) {
+          if (this.mountedPages.has(nextPageNum)) {
+            const nextPageEl = this.stack.querySelector<HTMLElement>(`[data-page="${nextPageNum}"]`);
+            next = nextPageEl?.querySelector('g.system') ?? null;
+          } else {
+            next = null;
+            nextKnown = false;
+          }
+        } else {
+          next = null;
+        }
+      }
+    }
+    const res = { current, next, nextKnown };
+    this.systemCache.set(measureId, res);
+    return res;
+  }
+
+  /** Follows during playback/practice/play using the lookahead target rule (015 US1). */
+  private followRun(measureId: string | undefined): void {
     if (measureId === undefined) return;
-    const measureEl = this.stack.querySelector(`#${CSS.escape(measureId)}`);
-    if (measureEl) this.followScrollTo(measureEl);
-    else this.scrollToPageOf(measureId);
+    this.syncElementCache();
+    const measureEl = this.elementFor(measureId);
+    if (!measureEl) {
+      this.scrollToPageOf(measureId);
+      return;
+    }
+    const sys = this.systemLookup(measureId, measureEl);
+    if (!sys) return;
+
+    const containerRect = this.scrollEl.getBoundingClientRect();
+    const scrollTop = this.scrollEl.scrollTop;
+    const curRect = sys.current.getBoundingClientRect();
+    const current = {
+      top: curRect.top - containerRect.top + scrollTop,
+      bottom: curRect.bottom - containerRect.top + scrollTop,
+    };
+
+    let next: { top: number; bottom: number } | null = null;
+    if (sys.next) {
+      const nextRect = sys.next.getBoundingClientRect();
+      next = {
+        top: nextRect.top - containerRect.top + scrollTop,
+        bottom: nextRect.bottom - containerRect.top + scrollTop,
+      };
+    }
+
+    const clientHeight = this.scrollEl.clientHeight || DEFAULT_PAGE_HEIGHT;
+    const clearHeight = Math.max(0, clientHeight - insetState.get().bottom);
+    const maxScrollTop = Math.max(0, this.scrollEl.scrollHeight - clientHeight);
+
+    const target = lookaheadTarget({
+      current,
+      next,
+      nextKnown: sys.nextKnown,
+      scrollTop,
+      clearHeight,
+      maxScrollTop,
+    });
+
+    if (target !== null) {
+      this.scrollOwn(target);
+    }
   }
 
   /** Brings an unmounted measure's page into view, so it mounts and the next frame can centre the measure itself.
@@ -1436,7 +1527,7 @@ export class MxScoreView extends HTMLElement {
   }
 
   /** Scrolls to keep the cursor within the middle band of the viewport (FOLLOW_MARGIN, FR-014); marks the
-   * resulting 'scroll' event as ours so it isn't mistaken for the user manually scrolling. */
+   * resulting 'scroll' event as ours so it isn't mistaken for the user manually scrolling. Used only for revealSelectedMark (015). */
   private followScrollTo(measureEl: Element): void {
     const containerRect = this.scrollEl.getBoundingClientRect();
     const targetRect = measureEl.getBoundingClientRect();

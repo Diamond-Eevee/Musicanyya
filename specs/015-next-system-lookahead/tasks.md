@@ -102,7 +102,7 @@ changes; at every system change where two systems fit, both are fully in clear s
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T010 [P] [US1] Create `tests/ui/follow.test.ts` with `describe('lookaheadTarget')`, one `it()` per rule of
+- [x] T010 [P] [US1] Create `tests/ui/follow.test.ts` with `describe('lookaheadTarget')`, one `it()` per rule of
   follow-view.md section 2, using `LOOKAHEAD_TOP_GAP_PX` and `FOLLOW_TARGET_EPSILON_PX` from config: (a) current and
   next fully in clear -> `null`; (b) last system (`next: null, nextKnown: true`) fully in clear -> `null`; (c) next
   partly below the clear space -> `current.top - 12`; (d) next known but not fitting: first call gives
@@ -112,7 +112,7 @@ changes; at every system change where two systems fit, both are fully in clear s
   taller than `clearHeight` -> its top minus the gap; (i) a target 0.5 px from `scrollTop` -> `null`; (j) the clear
   space excludes the bottom inset (same boxes, `clearHeight` 700 vs 900 give different answers). Run: fails (module
   missing)
-- [ ] T011 [P] [US1] Create `tests/ui/score-view-follow.test.ts` (happy-dom; fake `VerovioClient` pages with three
+- [x] T011 [P] [US1] Create `tests/ui/score-view-follow.test.ts` (happy-dom; fake `VerovioClient` pages with three
   `g.system` each holding `g.measure` elements; `getBoundingClientRect` stubbed per element to give fixed boxes):
   (a) Listen playing, Follow on, cursor in system 2 whose next is below the clear space -> after one frame
   `scrollTop` equals `lookaheadTarget`'s value; (b) cursor stays in the same system over further frames -> no scroll
@@ -127,7 +127,7 @@ changes; at every system change where two systems fit, both are fully in clear s
   scroll (spec Edge Cases); (k) a Practice loop whose end and start lie in the same system writes no scroll when it
   returns to its start, and one whose start lies two systems above scrolls to the start's system. Run: (a), (c), (e),
   (i), (k second half) fail
-- [ ] T012 [P] [US1] Create `tests/e2e/lookahead.spec.ts` with a helper (in `tests/e2e/helpers/lookahead.ts`) that,
+- [x] T012 [P] [US1] Create `tests/e2e/lookahead.spec.ts` with a helper (in `tests/e2e/helpers/lookahead.ts`) that,
   inside the page, finds the cursor's system (`g.note.playing` -> `closest('g.system')`, or the Practice band's
   measure), the next `g.system` in reading order across `.mx-score-page` elements, and the clear rectangle (score
   scroller box minus `--mx-inset-bottom`), and records at every system change - after the view has been still for
@@ -143,21 +143,21 @@ changes; at every system change where two systems fit, both are fully in clear s
 
 ### Implementation
 
-- [ ] T013 [US1] Create `src/ui/score/follow.ts` with the types of follow-view.md section 1 and `lookaheadTarget()`
+- [x] T013 [US1] Create `src/ui/score/follow.ts` with the types of follow-view.md section 1 and `lookaheadTarget()`
   (section 2); no DOM, no imports beyond `src/engine/config.ts`; T010 green
-- [ ] T014 [US1] In `src/ui/elements/mx-score-view.ts`: add a system lookup (`closest('g.system')`, next in page,
+- [x] T014 [US1] In `src/ui/elements/mx-score-view.ts`: add a system lookup (`closest('g.system')`, next in page,
   else first of the next mounted page, else unknown/absent), cached through the existing `elementFor`/`domEpoch`
   mechanism; build `LookaheadInput` in content coordinates with `clearHeight = clientHeight - insetState.get().bottom`
   and `maxScrollTop`; replace `followScrollTo` in the three run paths (Listen `updateCursor`, Practice
   `drawPracticeState` via `followMeasure`, Play `followPlayCursor`) with one `followRun(measureId)` that applies a
   non-null target with `scrollOwn()`; keep `followScrollTo` (middle band) only for `revealSelectedMark`; T011 green
-- [ ] T015 [US1] Re-run the e2e specs that assert follow positions - `tests/e2e/us2-listen.spec.ts` (Follow),
+- [x] T015 [US1] Re-run the e2e specs that assert follow positions - `tests/e2e/us2-listen.spec.ts` (Follow),
   `tests/e2e/us1-play.spec.ts` (range follow, `FOLLOW_MARGIN` comment), `tests/e2e/us4-overlays.spec.ts` (current
   system never covered), `tests/e2e/play-cursor.spec.ts`, `tests/e2e/real-scores.spec.ts`: they must pass unchanged,
   except a pixel threshold that only encoded the old centring rule, which may be changed (never the assertion's
   meaning) with the reason logged per test (AGENTS.md section 4); T012 green
 
-- [ ] T016 [US1] Checkpoint: see below
+- [x] T016 [US1] Checkpoint: see below
 
 **Checkpoint**: US1 Independent Test verified (T012 a/b output in the log), full gate (`pnpm lint`, `pnpm typecheck`,
 `pnpm test`, `pnpm test:e2e`), log entry, commit.
