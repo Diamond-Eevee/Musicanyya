@@ -257,24 +257,29 @@
                 },
                 {
                   "step": -3,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 2
                 },
                 {
                   "step": -2,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 3
                 },
                 {
                   "step": -3,
-                  "value": "half"
+                  "value": "half",
+                  "finger": 2
                 },
                 {
                   "step": -2,
-                  "value": "whole"
+                  "value": "whole",
+                  "finger": 3
                 },
                 {
                   "step": -1,
                   "value": "whole",
-                  "alter": 0
+                  "alter": 0,
+                  "finger": 4
                 }
               ]
             },

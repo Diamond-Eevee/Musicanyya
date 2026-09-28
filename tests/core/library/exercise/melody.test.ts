@@ -172,7 +172,9 @@ describe('fingering: five-finger position (introduction/beginner) and the scale 
     expect(scaleTableFinger(c, 'right', -3)).toBe(scaleTableFinger(c, 'right', 4));
   });
 
-  it('resolvePhrase prints fingering on the first note, a shift note, and a thumb-under/finger-over, not otherwise', () => {
+  // T062 (contract 1.3.1): every melody note prints its finger (feature 005 FR-006), which covers the first note, a
+  // shift note and a thumb-under/finger-over (014 FR-009). Before 1.3.1 only those places printed one.
+  it('resolvePhrase prints fingering on every note, including the first note and a thumb-under/finger-over', () => {
     // C major RH intermediate table: 1 2 3 1 2 3 4 5 - the step 3->4 transition (finger 3 -> 1) is a thumb-under
     const notes: MelodyNote[] = [
       { value: 'quarter', step: 1 },
@@ -183,7 +185,7 @@ describe('fingering: five-finger position (introduction/beginner) and the scale 
     ];
     const resolved = resolvePhrase(key('c-major'), phrase(notes, 1), 'intermediate', false, 'ctx');
     expect(resolved.map((n) => n.finger)).toEqual([1, 2, 3, 1, 2]);
-    expect(resolved.map((n) => n.printFingering)).toEqual([true, false, false, true, false]);
+    expect(resolved.map((n) => n.printFingering)).toEqual([true, true, true, true, true]);
   });
 
   it('a shift note always prints its finger even without a thumb transition', () => {
@@ -204,13 +206,25 @@ describe('fingering: five-finger position (introduction/beginner) and the scale 
     expect(resolved.map((n) => n.finger)).toEqual([2, 3]);
   });
 
-  it('a repeated note (0 steps) is never a thumb transition', () => {
+  it('a repeated note (0 steps) keeps its finger and prints it', () => {
     const notes: MelodyNote[] = [
       { value: 'quarter', step: 3 },
       { value: 'quarter', step: 3 },
     ];
     const resolved = resolvePhrase(key('c-major'), phrase(notes, 1), 'introduction', false, 'ctx');
-    expect(resolved[1]?.printFingering).toBe(false);
+    expect(resolved.map((n) => [n.finger, n.printFingering])).toEqual([
+      [3, true],
+      [3, true],
+    ]);
+  });
+
+  it('a rest prints no finger', () => {
+    const notes: MelodyNote[] = [
+      { value: 'half', step: 1 },
+      { value: 'half', rest: true },
+    ];
+    const resolved = resolvePhrase(key('c-major'), phrase(notes, 1), 'introduction', false, 'ctx');
+    expect(resolved.map((n) => n.printFingering)).toEqual([true, false]);
   });
 });
 

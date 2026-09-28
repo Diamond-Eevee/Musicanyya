@@ -147,13 +147,17 @@ as demanding as the one before, and the level check passes.
   `tests/tools/fidelity/melody-rules.test.ts` (G F | E D | C over I and A B | C B | A over i pass; an upper neighbour
   and a passing shape landing outside the next chord still clash). Without it *A minor to C major - introduction* has
   no valid melody
+- [x] T062 (found during T023) Fingering on every melody note (feature 005 FR-006; `pnpm library:index` refuses an
+  exercise with `fingeringCoverage` below 1 - the introduction items came out at 0.68): contract exercise-definition
+  1.3.1 and research R6 amendment first, then `tests/core/library/exercise/melody.test.ts` (every note prints its
+  finger; fails), then `src/core/library/exercise/melody.ts` until it passes
 - [x] T021 [P] [US1] [deep] Author the right-hand `melody` (major and minor variants, at least 2 per section and mode) in
   `content/library/exercises/key-change-relative-introduction.json` - half and whole notes, five-finger position,
   steps only
 - [x] T022 [P] [US1] [deep] Same for `content/library/exercises/key-change-parallel-introduction.json`
-- [ ] T023 [P] [US2] [deep] Author the beginner melodies in `content/library/exercises/key-change-relative-beginner.json`
+- [~] T023 [P] [US2] [deep] Author the beginner melodies in `content/library/exercises/key-change-relative-beginner.json` (claimed: claude-opus-5.5 2026-09-28)
   (quarters, runs of at most 4 quarters, leaps up to a third, at most one shift at a section start)
-- [ ] T024 [P] [US2] [deep] Same for `content/library/exercises/key-change-parallel-beginner.json`
+- [~] T024 [P] [US2] [deep] Same for `content/library/exercises/key-change-parallel-beginner.json` (claimed: claude-opus-5.5 2026-09-28)
 - [ ] T025 [P] [US2] [deep] Author the intermediate melodies in `content/library/exercises/key-change-relative-intermediate.json`
   (eighth pairs on the beat, range up to an octave, thumb-under/finger-over, leaps up to a fifth to chord notes)
 - [ ] T026 [P] [US2] [deep] Same for `content/library/exercises/key-change-parallel-intermediate.json` (T025/T026: B major and

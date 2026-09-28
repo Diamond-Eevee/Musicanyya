@@ -75,7 +75,9 @@ one bar. The right hand's triads are then not written; the left hand is generate
   the natural scale plus `alter`; every sounding altered note gets its `<accidental>` from the engraving pass.
 - Staff 1, voice 1; single notes only (no `<chord/>`); beams completed by the engraving pass as for all items.
 - Fingering: computed per note (data-model §1, research R6) and written only on the first note of a phrase, a note
-  with `shift`, and a thumb-under / finger-over; `finger` overrides the computed value.
+  with `shift`, and a thumb-under / finger-over; `finger` overrides the computed value. **Superseded by 1.3.1
+  (T062)**: written on every melody note - feature 005 FR-006 requires a fingering on every note of a Learning
+  exercise, and `pnpm library:index` refuses an exercise whose `fingeringCoverage` is below 1.
 - The chord's words direction (roman numeral / label) is written as today: above the right hand's staff and below
   the left hand's (spec US1 #5 "shown as before"; analyze A3). The right hand's copy is attached to the melody note
   that sounds at the chord start.

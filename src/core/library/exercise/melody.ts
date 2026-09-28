@@ -13,7 +13,8 @@
  *  whole octaves - the table's fingering pattern repeats identically every octave on the keyboard. The table has no
  *  separate melodic-minor row for every key (`MELODIC_OVERRIDES` only lists three), so the harmonic row is read
  *  always; `MelodyNote.finger` overrides a wrong default for a particular passage, same as the schema anticipates
- *  ("the rule check still applies"). `<fingering>` is written on a phrase's first note, a `shift` note, and any
+ *  ("the rule check still applies"). `<fingering>` is written on every note (contract 1.3.1: feature 005 FR-006
+ *  fingers every note of a Learning exercise), so in particular on a phrase's first note, a `shift` note and any
  *  thumb-under (ascending step, previous finger 2-4, this finger 1) or finger-over (the mirror, descending). */
 
 import type { WriteDuration, WriteEvent } from '../../musicxml/write.js';
@@ -109,17 +110,6 @@ export function computedFinger(key: ExerciseKey, level: StepName, position: numb
     : scaleTableFinger(key, 'right', step);
 }
 
-/** An ascending step (this note one degree class above the last) whose finger drops back to the thumb, or the
- *  descending mirror (a finger-over): the two places `<fingering>` is printed beyond a phrase's first note and a
- *  `shift` (R6, contract 1.3 §3). */
-export function isThumbTransition(prevStep: number, prevFinger: number, step: number, finger: number): boolean {
-  const THUMB = 1;
-  const CROSSING_FINGERS = [2, 3, 4];
-  if (step - prevStep === 1) return CROSSING_FINGERS.includes(prevFinger) && finger === THUMB;
-  if (prevStep - step === 1) return prevFinger === THUMB && CROSSING_FINGERS.includes(finger);
-  return false;
-}
-
 export interface MelodyPitchedNote {
   /** Index into `phrase.notes`. */
   index: number;
@@ -129,7 +119,7 @@ export interface MelodyPitchedNote {
   onset: number;
   ticks: number;
   finger?: number;
-  /** Whether this note's `<fingering>` is written (first note, `shift`, or a thumb transition). */
+  /** Whether this note's `<fingering>` is written: every note, never a rest (contract 1.3.1). */
   printFingering: boolean;
   shift: boolean;
 }
@@ -180,7 +170,6 @@ export function resolvePhrase(
 ): MelodyPitchedNote[] {
   const notes: MelodyPitchedNote[] = [];
   let onset = 0;
-  let previous: { step: number; finger: number } | undefined;
   phrase.notes.forEach((note, index) => {
     const noteContext = `${context}, note ${index + 1}`;
     const hasStep = note.step !== undefined;
@@ -190,7 +179,6 @@ export function resolvePhrase(
     const ticks = melodyDurationTicks(note.value);
     if (note.rest) {
       notes.push({ index, rest: true, onset, ticks, printFingering: false, shift: false });
-      previous = undefined;
       onset += ticks;
       return;
     }
@@ -199,10 +187,7 @@ export function resolvePhrase(
     const pitch = stepToPitch(key, step, alter);
     const finger = note.finger ?? computedFinger(key, level, phrase.position, step);
     const shift = note.shift === true;
-    const thumbTransition = previous !== undefined && isThumbTransition(previous.step, previous.finger, step, finger);
-    const printFingering = index === 0 || shift || thumbTransition;
-    notes.push({ index, rest: false, pitch, onset, ticks, finger, printFingering, shift });
-    previous = { step, finger };
+    notes.push({ index, rest: false, pitch, onset, ticks, finger, printFingering: true, shift });
     onset += ticks;
   });
   return notes;

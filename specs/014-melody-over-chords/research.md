@@ -130,6 +130,15 @@ finger written is a `fingering` finding. A position change is a thumb-under / fi
 introduction and beginner a thumb crossing counts as a shift (the ladder allows crossings from intermediate). A shift
 is "at a section start" at the first note of a key segment or after a rest.
 
+**Amendment (T062, 2026-09-28)**: fingering is written on **every** melody note, not only where a position starts.
+**Why**: feature 005 FR-006 requires a fingering mark on every note of a Learning exercise, and the index build
+refuses an exercise whose `fingeringCoverage` is not 1 - with fingers only at position starts every rewritten
+introduction item came out at 0.68. 014 FR-009 names where fingering must at least appear; every note includes those
+places, and it matches every other exercise on the shelf. The rule check is unchanged: each written finger sets the
+position, so a phrase must now finger every note consistently (a `finger` override on one note no longer carries an
+unwritten position for the notes after it). **Alternatives**: exempting melody items from the coverage rule (changes
+feature 005's requirement - an owner decision, and it would make these the only exercises with unfingered notes).
+
 ## R7 - Difficulty: ladder, existing criteria and step order
 
 **Decision**: The spec's Difficulty ladder becomes a named constants table (`MELODY_LADDER` in

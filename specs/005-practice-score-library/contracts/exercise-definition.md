@@ -1,6 +1,6 @@
 # Contract: exercise definition (`content/library/exercises/*.json`)
 
-**Version**: `1.3.0` (1.0.0 new; 1.1.0, 2026-09-26, feature 011: the `pattern` and `key-change` forms, `step`, `stepOrder`, `fileStem`, `supersedes`, `raisedBecause`, §1a-§2a; change request `specs/011-learning-by-key/contracts/exercise-definition-1.1.md`; 1.2.0, 2026-09-26, feature 011 US2: `octaveShift` re-enabled, key-change pairs only, to bridge two keys whose per-key table octaves land far apart - see §2a; 1.3.0, 2026-09-28, feature 014: the `melody` hand part (pattern and key-change forms) and top-level `melody` (chords form, drills only), §1c-§2b; change request `specs/014-melody-over-chords/contracts/exercise-definition-1.3.md`). Every 1.0.0/1.1.0/1.2.0 file stays valid and generates byte-identical output.
+**Version**: `1.3.1` (1.0.0 new; 1.1.0, 2026-09-26, feature 011: the `pattern` and `key-change` forms, `step`, `stepOrder`, `fileStem`, `supersedes`, `raisedBecause`, §1a-§2a; change request `specs/011-learning-by-key/contracts/exercise-definition-1.1.md`; 1.2.0, 2026-09-26, feature 011 US2: `octaveShift` re-enabled, key-change pairs only, to bridge two keys whose per-key table octaves land far apart - see §2a; 1.3.0, 2026-09-28, feature 014: the `melody` hand part (pattern and key-change forms) and top-level `melody` (chords form, drills only), §1c-§2b; change request `specs/014-melody-over-chords/contracts/exercise-definition-1.3.md`; 1.3.1, 2026-09-28, feature 014 T062: a melody note's `<fingering>` is written on every note, as feature 005 FR-006 requires of every Learning exercise, no longer only at position starts - no shelf item had used 1.3.0 melodies). Every 1.0.0/1.1.0/1.2.0 file stays valid and generates byte-identical output.
 
 **Owner**: `src/core/library/exercise/` (pure generation), `tools/library/build-exercises.ts`
 (writes the generated scores).
@@ -299,8 +299,10 @@ one bar. The right hand's triads are then not written; the left hand is generate
 - Pitch: tonic in octave 4 (`12 * 5 + tonic pitch class`), letter arithmetic from the tonic letter, alteration from
   the natural scale plus `alter`; every sounding altered note gets its `<accidental>` from the engraving pass.
 - Staff 1, voice 1; single notes only (no `<chord/>`); beams completed by the engraving pass as for all items.
-- Fingering: computed per note (data-model §1, research R6 of feature 014) and written only on the first note of a
-  phrase, a note with `shift`, and a thumb-under / finger-over; `finger` overrides the computed value.
+- Fingering: computed per note (data-model §1, research R6 of feature 014) and written on every melody note
+  (feature 005 FR-006: every note of a Learning exercise carries a fingering; 1.3.1), so it is in particular written
+  where a phrase or position starts, on a note with `shift`, and on a thumb-under / finger-over (014 FR-009); `finger`
+  overrides the computed value.
 - The chord's words direction (roman numeral / label) is written as today: above the right hand's staff and below
   the left hand's. The right hand's copy is attached to the melody note that sounds at the chord start.
 - A part that does not fill its section, a step outside MIDI 21-108, a missing minor `alter`, or `melody` in the left
