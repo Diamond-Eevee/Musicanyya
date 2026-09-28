@@ -290,11 +290,11 @@ the same chords and inversions as before, the right hand a melody.
   `tests/core/library/exercise/changes.test.ts` expectations with logged reasons; T036, T017, T003 green
 - [x] T048 [US3] [light] Move the 5 drills' audit records to `exercise-theory-v3`; `pnpm library:fidelity`,
   `pnpm library:fidelity --check` green
-- [ ] T049 [US3] [deep] Music review of the drill phrases with the `music-domain-expert` agent; fix, regenerate, summarise in
+- [x] T049 [US3] [deep] Music review of the drill phrases with the `music-domain-expert` agent; fix, regenerate, summarise in
   the log
-- [ ] T050 [US3] Manual verification per quickstart US3 and FR-012 (screenshots of `c-major/i-v-vi-iv` and
+- [x] T050 [US3] Manual verification per quickstart US3 and FR-012 (screenshots of `c-major/i-v-vi-iv` and
   `c-major-to-c-minor/major-and-minor`; the FR-012 browser check with an old result) recorded in the log
-- [ ] T051 [US3] Checkpoint: full gate, log entry, commit
+- [x] T051 [US3] Checkpoint: full gate, log entry, commit
 
 **Checkpoint**: all 59 items rewritten; SC-001 holds on the whole Learning section.
 

@@ -153,8 +153,12 @@
               "value": "half"
             },
             {
+              "step": 8,
+              "value": "quarter"
+            },
+            {
               "step": 7,
-              "value": "half"
+              "value": "quarter"
             }
           ]
         }

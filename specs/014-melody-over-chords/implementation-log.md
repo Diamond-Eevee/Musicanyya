@@ -255,3 +255,56 @@
   listening check before merge.
 - Handoff: next = Phase 4, T035 (US3 drills; composing T042-T044 and review T049 are `deep`). Run `pnpm test` first;
   tree clean after this commit.
+
+## 2026-09-28 19:40 - claude-opus-5.5 (relay, session "Speckit continue")
+- Owner decision at session start: T070 accepted (the left hand carries the minor key in E minor -> G major and
+  D minor -> F major introduction); `trains` unchanged (it speaks of the new key's notes). T057 stays open (merge only).
+- Session-start check: `pnpm test` `Tests 1 failed | 5741 passed` (013 query-timing 20.1 ms > 20, passes alone:
+  `4 passed`); `pnpm lint` exit 0. Matches the last hand-off.
+- Done: T035-T051 (Phase 4, US3 drills).
+- T035-T039 tests first, failures as expected: T035 `3 failed | 16 passed` ((a), the left hand unchanged, is a guard by
+  nature; (b) also asserts the melody's own onsets so it fails on the doubled triads); T036 `8 failed` (`doubled` on 7
+  bars per drill, plus the single-note and borrowed-third checks); T037 `6 failed`; T038 `3 failed`; T039 `1 failed`
+  (the pre-011 record was pooled into the turnaround).
+- Changed expectations (behaviour changed by FR-012, owner decision): index.test "the two moved drills supersede their
+  old ids" -> no item supersedes them, `resetBy: '014'`; "all 41 old ids appear exactly once" -> the 36 not reset
+  appear once, the 5 reset ones nowhere; exercise-claims.test "every chord is played by both hands" excludes the 5
+  melody drills (their chords are left-hand only).
+- T040: `generateChangeItem` takes the top-level melody (section A must rest with the left hand on beat 4, else it
+  throws naming `melody.sectionA`); every other form throws on a top-level melody. Goldens unchanged.
+- T041: the claim table gives the 5 drill names a melody level (beginner, beginner, intermediate, advanced, advanced);
+  their claims have three sections with left-hand chords only.
+- T042-T044 composed (beginner: G and F five-finger positions; ladder: the melody climbs with the chords in parallel
+  tenths, one hand position per chord; same-tonic drills: the melody's third follows the chord, E flat / C sharp);
+  `supersedes` removed. T045 `resetBy: '014'` on the 5 moved successors. T046 `trains` updated (all five name the
+  melody; the claim words still present).
+- T047: regenerated. Decision: the build's `keepStamps` treats a definition `reviewedOn` equal to today as a default
+  stamp and kept the old 2026-09-24, so `tests/library/regeneration.test.ts` failed; regenerated through
+  `buildExercises(..., '2026-09-29')` (as the regeneration test does, "another day") - sidecars now carry the
+  definitions' 2026-09-28, `created` kept. Identity golden: only the 5 drills' entries changed; Fur Elise grade
+  unchanged. T048: 5 audit records to `exercise-theory-v3` (outcome and earlier 007 note kept, `supersedes` removed);
+  `pnpm library:fidelity --check`: `182 records, 0 failed`.
+- T049 music review (`music-domain-expert` sub-agent, read-only; theory from memory, rules from spec/research):
+  nothing BLOCKING. Applied: (1) I-V-vi-IV bar 8 held B4 over F (tritone/major 7th at the cadence) -> `A4 h C5 q B4 q`;
+  (2) turnaround section B had downbeat parallel octaves with the bass and drill 1's rhythm -> `G A G | A B C | A F |
+  G A B`, bar 3 `A4 q F4 h`; (3) ladder bars 10-12 downbeat parallel fifths -> bar 11 `G4 A4 B4 E5`; (4) same-tonic
+  drill was no harder than the intermediate ladder and bar 7 fingering awkward -> bars 7-9 `E4 G4 C5 E5 | Eb5 D5 C5 B4
+  | C5` (1-2-4-5, range a tenth); (5) A-minor drill section A mirrored drill 4 -> `A B C | C# B A | E D C | C# D E`.
+  Accepted as intended: ladder bars 7-8 turn down (octave range), melody and left-hand third moving chromatically at the
+  quality change (the drill's point). Checker question answered: the repeat seam (E5 back to E4) is not checked - the
+  check reads written order. After the fixes: 0 melody findings, 0 theory differences, level pass for all 5.
+- T050: screenshots opened (tests/.generated/t050-*.png, full height): I-V-vi-IV (left hand unchanged - dotted-half
+  triads, quarter rests, repeat, tied whole notes, tonic; right hand rests with the left hand), major-and-minor (E flat
+  over Cm, courtesy naturals, bars 7-9 as fixed), turnaround (fixed section B). FR-012 in the browser pane on the dev
+  server: with the pre-014 turnaround file and index (hash 5578d7f6..., the same as its pre-011 predecessor) a Played
+  result (83 %) was seeded through `e2e-progress-seed`, plus a control on c-major/introduction; after restoring the
+  feature files and reloading, *C major - I-vi-ii-V* shows New with no result, the folder "1 of 8 played", the control
+  still Mastered 92 %, Continue normal, no console errors. (The pane's localhost:5173 storage keeps those two seeded
+  records.)
+- T051 gate: `pnpm lint` exit 0 (299 warnings, pre-existing); `pnpm typecheck` exit 0; `pnpm test` `Tests 5771 passed`
+  (one earlier run had the 013 timing flake, 20.1 ms); `pnpm test:e2e` `1 failed | 575 skipped | 964 passed` - firefox
+  score-browser.spec.ts:343 (013 file drop), rerun alone `--repeat-each=3`: `3 passed` (load-sensitive). The e2e run
+  was before the T049 melody fixes; no e2e test names a drill, so it was not rerun.
+- Problems / open questions: needs owner: T057 SC-005 listening check (at least six items incl. one drill) before merge.
+- Handoff: next = Phase 5, T052 (then T053-T056 polish, constitution review T054). Run `pnpm test` first; tree clean
+  after this commit.

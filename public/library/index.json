@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-28T17:00:17.157Z",
+  "generated": "2026-09-28T17:18:11.280Z",
   "sections": [
     {
       "id": "learning",
@@ -890,7 +890,7 @@
       "section": "learning/key-changes/a-minor-to-a-major",
       "file": "learning/key-changes/a-minor-to-a-major/minor-and-major.musicxml",
       "bytes": 15534,
-      "hash": "356a707519c93336d78256134810f6bf1deb926f6a0b16e17e380a66b990ee7e",
+      "hash": "e9827be9bc9f02d8581e084ebe3bbb33527cb9dff5d873ab28c08fc7e409a48a",
       "meta": {
         "version": 1,
         "title": "A minor - minor and major",
@@ -947,7 +947,7 @@
         "notices": [],
         "parts": 1,
         "tempoChanges": 0,
-        "maxLeapSemitones": 5,
+        "maxLeapSemitones": 7,
         "longestRunAtShortestValue": 1,
         "attackCount": 37,
         "peakNotesPerSecond": 2,
@@ -1934,8 +1934,8 @@
       "id": "learning/key-changes/c-major-to-c-minor/major-and-minor",
       "section": "learning/key-changes/c-major-to-c-minor",
       "file": "learning/key-changes/c-major-to-c-minor/major-and-minor.musicxml",
-      "bytes": 15639,
-      "hash": "7620917d55bb3500372d0b26b985149553f725d21d85bee594a0d9012af17802",
+      "bytes": 15851,
+      "hash": "5911395dfb82d9acfae42336b2cc68196dd67e4ff4a994594ee622d2dbba75f7",
       "meta": {
         "version": 1,
         "title": "C major - major and minor",
@@ -1962,7 +1962,7 @@
       },
       "facts": {
         "measures": 9,
-        "notes": 55,
+        "notes": 56,
         "durationSeconds": 52,
         "keys": [
           "C major"
@@ -1973,14 +1973,14 @@
         "tempoBpm": 60,
         "tempoDefaulted": false,
         "lowestMidi": 48,
-        "highestMidi": 72,
+        "highestMidi": 76,
         "maxSpanSemitones": 7,
         "staves": 2,
         "voicesPerStaff": 1,
         "handIndependenceFraction": 0,
         "chordChangesPerBar": 1,
         "shortestDivision": 8,
-        "notesPerBeat": 1.0576923076923077,
+        "notesPerBeat": 1.0769230769230769,
         "accidentals": 0,
         "hasTies": true,
         "hasTuplets": false,
@@ -1994,7 +1994,7 @@
         "tempoChanges": 0,
         "maxLeapSemitones": 5,
         "longestRunAtShortestValue": 4,
-        "attackCount": 37,
+        "attackCount": 38,
         "peakNotesPerSecond": 3,
         "accidentalMarkCount": 15,
         "minorScaleAccidentalCount": 0,
@@ -7664,7 +7664,7 @@
       "section": "learning/keys/c-major",
       "file": "learning/keys/c-major/diatonic-ladder.musicxml",
       "bytes": 29420,
-      "hash": "1eb73dc1fc0f9cfd5985bb24fdaf6021fd4f7c76156dcaa9c220f38a0cbbb335",
+      "hash": "654d1fb4885fe1543268bc0d5f38fa46d6c22c4ded69e1dc4b4f44646ef77d97",
       "meta": {
         "version": 1,
         "title": "C major - diatonic ladder",
@@ -7744,8 +7744,8 @@
       "id": "learning/keys/c-major/i-v-vi-iv",
       "section": "learning/keys/c-major",
       "file": "learning/keys/c-major/i-v-vi-iv.musicxml",
-      "bytes": 13149,
-      "hash": "971fcde0585d0b43443eb17da7349038461452d536c79afc22f3f64598e36dd1",
+      "bytes": 13356,
+      "hash": "0b63a0485bf20ef44913a85b3f835b34dd13fc46ee520d2a9695deca03a74e90",
       "meta": {
         "version": 1,
         "title": "C major - I-V-vi-IV",
@@ -7771,7 +7771,7 @@
       },
       "facts": {
         "measures": 9,
-        "notes": 48,
+        "notes": 49,
         "durationSeconds": 52,
         "keys": [
           "C major"
@@ -7789,7 +7789,7 @@
         "handIndependenceFraction": 0,
         "chordChangesPerBar": 1,
         "shortestDivision": 4,
-        "notesPerBeat": 0.9230769230769231,
+        "notesPerBeat": 0.9423076923076923,
         "accidentals": 0,
         "hasTies": true,
         "hasTuplets": false,
@@ -7803,7 +7803,7 @@
         "tempoChanges": 0,
         "maxLeapSemitones": 7,
         "longestRunAtShortestValue": 0,
-        "attackCount": 30,
+        "attackCount": 31,
         "peakNotesPerSecond": 2,
         "accidentalMarkCount": 0,
         "minorScaleAccidentalCount": 0,
@@ -8097,7 +8097,7 @@
       "section": "learning/keys/c-major",
       "file": "learning/keys/c-major/turnaround.musicxml",
       "bytes": 13357,
-      "hash": "7b5f8cd79c079f35cdf46e032720d473ad91a83b26a14b58ea0a68b8811db03c",
+      "hash": "408bd1d194c48fd2c87097313e7f2ef75df1372b12994998681fc005a176ed51",
       "meta": {
         "version": 1,
         "title": "C major - I-vi-ii-V",

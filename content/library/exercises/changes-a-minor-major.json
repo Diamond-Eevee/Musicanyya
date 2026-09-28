@@ -56,9 +56,9 @@
           "position": 1,
           "notes": [
             {
-              "step": 3,
+              "step": 1,
               "value": "dotted-quarter",
-              "finger": 3
+              "finger": 1
             },
             {
               "step": 2,
@@ -66,9 +66,9 @@
               "finger": 2
             },
             {
-              "step": 1,
+              "step": 3,
               "value": "quarter",
-              "finger": 1
+              "finger": 3
             },
             {
               "rest": true,
@@ -95,9 +95,9 @@
               "value": "quarter"
             },
             {
-              "step": 3,
+              "step": 5,
               "value": "dotted-quarter",
-              "finger": 3
+              "finger": 5
             },
             {
               "step": 4,
@@ -105,18 +105,19 @@
               "finger": 4
             },
             {
-              "step": 5,
+              "step": 3,
               "value": "quarter",
-              "finger": 5
+              "finger": 3
             },
             {
               "rest": true,
               "value": "quarter"
             },
             {
-              "step": 5,
+              "step": 3,
               "value": "dotted-quarter",
-              "finger": 5
+              "alter": 1,
+              "finger": 3
             },
             {
               "step": 4,
@@ -124,10 +125,9 @@
               "finger": 4
             },
             {
-              "step": 3,
+              "step": 5,
               "value": "quarter",
-              "alter": 1,
-              "finger": 3
+              "finger": 5
             },
             {
               "rest": true,

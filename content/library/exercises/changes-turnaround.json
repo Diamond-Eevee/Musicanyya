@@ -84,12 +84,8 @@
               "value": "quarter"
             },
             {
-              "step": 5,
-              "value": "quarter"
-            },
-            {
               "step": 4,
-              "value": "quarter"
+              "value": "half"
             },
             {
               "rest": true,
@@ -121,11 +117,15 @@
           "position": 4,
           "notes": [
             {
-              "step": 8,
-              "value": "half"
+              "step": 5,
+              "value": "quarter"
             },
             {
-              "step": 7,
+              "step": 6,
+              "value": "quarter"
+            },
+            {
+              "step": 5,
               "value": "half"
             },
             {
@@ -150,7 +150,7 @@
             },
             {
               "step": 5,
-              "value": "quarter"
+              "value": "half"
             },
             {
               "step": 6,
@@ -158,7 +158,7 @@
             },
             {
               "step": 7,
-              "value": "half"
+              "value": "quarter"
             }
           ]
         }
