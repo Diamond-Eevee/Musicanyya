@@ -349,12 +349,21 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
 - Feature 014 (implemented): no new technology and no new dependency. Exercise definitions gain a `melody` hand part
   (contract exercise-definition 1.3); a dev-only melody rule check (`tools/library/fidelity/melody-rules.ts`, audit rule
   set `exercise-theory-v3`) and a named `MELODY_LADDER` in `src/core/defaults.ts`.
+- Feature 015 (planned): no new technology and no new dependency. Verovio options change (`adjustPageHeight: 1`,
+  page margins 18/18, `spacingBraceGroup: 8`; score-layout contract 2.0.0), so pages are cropped and have their own
+  heights. Follow uses a pure look-ahead rule and glide (`src/ui/score/follow.ts`) in the existing rAF loop, with
+  `matchMedia('(prefers-reduced-motion: reduce)')`; native smooth scrolling is deliberately not used.
 
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-28: Feature 015 planned (see the next system while playing): during runs the view keeps the cursor's
+  system and the next one in clear space and glides (400 ms, reduced-motion aware) at each system change; where two
+  systems do not fit it shows the current one at the top and the start of the next. Pages are cropped to their
+  content so page breaks look like system breaks, and piano grand staves are engraved more compactly (4 instead of
+  6 staff spaces minimum). No new dependency.
 - 2026-09-28: Feature 014 planned (melody over chords): the 54 key-change items and 5 chord-change drills stop playing
   the same block chord in both hands; the right hand gets authored scale-step melodies (variants rotated across keys)
   over the unchanged left-hand chords, limited per level by a Difficulty ladder and verified by an independent melody
@@ -364,10 +373,5 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
   with status badges (New/Practised/Played/Mastered), best/last results with trend, and folder summaries. Progress is
   an event-sourced record per content hash behind one `ProgressStore` port (IndexedDB v3 + memory), ready for a
   server adapter. My files keep copies within 100 MiB. Suggested next follows the library's step order. No new runtime
-  dependency.
-- 2026-09-26: Feature 012 planned (tempo as an editable BPM number): `mx-tempo-field` replaces the tempo slider and
-  Play's percentage list; the parser keeps the metronome mark's note value (all units, 0-3 dots, "c. 90", ranges);
-  a core tempo display map gives the tempo and beat at the cursor. The engine keeps its percentage factor, now any
-  number in 25-200, so grading and stored runs are unchanged. The transport tempo is no longer persisted. No new
   dependency.
 <!-- RECENT-CHANGES:END -->

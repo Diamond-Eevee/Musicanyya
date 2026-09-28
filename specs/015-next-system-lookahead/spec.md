@@ -19,6 +19,10 @@ so that the cursor's system is centred (001 FR-014, 004 FR-010). It never looks 
 ends in blank space, so near a page end the next system is often off-screen or pushed far down. Reading ahead is
 basic sight-reading practice: a musician's eyes are always a bar or a line ahead of their hands.
 
+Measured during planning (2026-09-28, Verovio page renders measured in Chromium): at 1920 px wide and the default
+size each page holds one or two systems, and its unused bottom is 100-460 px of blank; piano systems are 305-463 px
+tall, and a 1080p browser window with the piano strip leaves about 700 px of clear space.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - The next system is always visible (Priority: P1)
@@ -33,9 +37,9 @@ current page, without an empty band between them that would push it off-screen.
 line end; seeing it lets them read ahead as they would on a printed page.
 
 **Independent Test**: Open a multi-page piano Score (e.g. Für Elise from the library) in a 1920x1080 window at the
-default Score size with the piano strip shown. Start Listen mode and let it play through at least two page turns.
-At every system change, check (screenshots) that the cursor's system and the following system are both fully
-visible above the piano strip.
+default Score size with the piano strip hidden (or in a window tall enough for two of its systems). Start Listen
+mode and let it play through at least two page turns. At every system change where two systems fit, check
+(screenshots) that the cursor's system and the following system are both fully visible in clear space.
 
 **Acceptance Scenarios**:
 
@@ -86,19 +90,30 @@ cursor's system stays at least partly visible throughout every movement.
 
 ---
 
-### User Story 3 - At least two systems fit on screen (Priority: P3)
+### User Story 3 - Two systems fit more often; otherwise show what fits (Priority: P3)
 
 On a small window, with a large Score size, or with the piano strip taking height, two whole systems may not fit.
 The app keeps the Score size the musician chose and shows what fits: the current system always fully, and below it
 as much of the next system as the clear space allows, so the musician can at least see how the next line begins.
 Nothing changes size on its own.
 
-**Why this priority**: At the default size on a 1080p screen two piano systems already fit (004 US1), so P1 works
-for most musicians without this story. It matters for small windows and for musicians who enlarge the Score.
+To make two systems fit more often, the staves of a piano grand staff are engraved a little closer together
+(compact vertical spacing): the minimum distance between the treble and bass staff shrinks, while music that needs
+more room (ledger lines, beams, dynamics between the staves) still pushes them apart. This applies to the Score
+everywhere, not only during a run, so the page never changes appearance when a run starts.
 
-**Independent Test**: Open a piano Score at 1280x720 with the piano strip shown, and at 1920x1080 with the Score
-enlarged to 200%; start Listen mode; at every system change, the current system is fully visible, the rest of the
-clear space below it shows the top of the next system, and the Score size never changes.
+**Why this priority**: Measured during planning (2026-09-28): on a 1080p browser window with the piano strip shown,
+the clear space is about 700 px and a piano system at the default size is 305-463 px tall, so with the original
+spacing two systems fit for none of the library's piano pieces. Without this story P1 still helps on larger
+windows or with the piano strip hidden; with it, P1 also works on a typical laptop for simple and intermediate pieces.
+*(Amended 2026-09-28 during planning, owner decision: compact spacing added to this feature; the first wording
+assumed two systems already fit at the default size.)*
+
+**Independent Test**: Open Clementi's Sonatina op. 36 no. 1 (library) at 1920x950 with the piano strip shown and
+the default Score size; start Listen mode; at every system change both systems are fully visible. Then open a piano
+Score at 1280x720 with the piano strip shown, and at 1920x1080 with the Score enlarged to 200%; at every system
+change the current system is fully visible, the rest of the clear space below it shows the top of the next system,
+and the Score size never changes.
 
 **Acceptance Scenarios**:
 
@@ -110,14 +125,22 @@ clear space below it shows the top of the next system, and the Score size never 
    or automatic resize appears.
 4. **Given** a single system is taller than the clear space (very large Score size, many staves), **Then** the part
    of the system with the cursor is shown, and the view never hides the cursor to show the next system.
+5. **Given** a piano Score, **When** it is displayed (with or without a run), **Then** its staves are engraved with
+   the compact vertical spacing, with no collisions between notes, beams, dynamics, pedal marks or slurs of the two
+   staves, and the result still looks like a printed edition.
 
 ---
 
 ### Edge Cases
 
-- **Repeats, voltas, D.C./D.S./Coda**: "next system" means the next system on the page, in reading order. When the
-  cursor jumps (to a repeat start, a segno, a coda), the view follows it to its new system and looks ahead from
-  there. Showing the jump target in advance is out of scope.
+- **Repeats, voltas, D.C./D.S./Coda**: "next system" means the next system on the page, in reading order, as on a
+  printed page. When the cursor jumps (to a repeat start, a segno, a coda), the view follows it to its new system
+  and looks ahead from there. Showing the jump target in advance is out of scope. In detail:
+  - a system that ends with a backward repeat, a first-ending volta, D.C./D.S. or "To Coda" shows the following
+    system in reading order, which is not the one played next; the jump target comes into view only at the jump;
+  - a jump within the same system (a short repeat) moves nothing (FR-002);
+  - a jump to the system just above (the usual repeat) is an ordinary system-to-system movement, not a distant one;
+  - a Practice loop that ends in the middle of a system and returns to a measure of the same system moves nothing.
 - **System change within a fast passage**: when systems follow each other faster than a view movement lasts, the
   view never falls behind: the cursor's system is always at least partly visible and the view settles on the latest
   position, not on each intermediate one.
@@ -183,6 +206,14 @@ clear space below it shows the top of the next system, and the Score size never 
 - **FR-015**: The app MUST NOT change the Score size, re-flow the music or show a hint or dialog because two systems
   do not fit; the musician's chosen size (004 FR-014a, FR-019) is kept.
   *(Owner decision 2026-09-28: "show what fits", over automatic shrinking during runs or a suggestion hint.)*
+- **FR-016**: The Score MUST be engraved with a compact vertical spacing: a smaller minimum distance between the
+  staves of one braced instrument (a piano grand staff, an organ or harp part) than the engraving default, while
+  content that needs more room still pushes staves apart. The distance between different parts (voice and piano,
+  two instruments) and between systems stays as it is, so parts and systems remain clearly separated. It
+  applies in every view of the Score (with or without a run, every mode, both Shells) and never changes during a
+  run. The value MUST be a named, documented setting and MUST pass a notation review (printed-edition norms, no
+  collisions) before it ships.
+  *(Added 2026-09-28 during planning, owner decision.)*
 
 ### Key Entities
 
@@ -197,9 +228,15 @@ clear space below it shows the top of the next system, and the Score size never 
 
 ### Measurable Outcomes
 
-- **SC-001**: On a 1920x1080 window at the default Score size with the piano strip shown, for every system change of
-  a full run through Für Elise (library) and one other multi-page piano Score, the next system is fully visible in
-  clear space once the view has settled: 100% of system changes, including every page change.
+- **SC-001**: For every system change of a full Listen run through Für Elise (complete) and Clementi's Sonatina
+  op. 36 no. 1 (library), at the default Score size, once the view has settled:
+  (a) wherever the current and the next system fit together in clear space, both are fully visible - 100% of such
+  system changes, including every page change; checked at 1920x1080 with the piano strip hidden and at 1920x950
+  with it shown;
+  (b) wherever they do not fit, the current system is fully visible and the top of the next system fills the rest of
+  the clear space (at least its top staff whenever that staff fits) - 100% of such system changes.
+  *(Amended 2026-09-28 during planning, owner decision: measured system heights make "both fully visible at 100%"
+  impossible at 1080p with the piano strip; see US3.)*
 - **SC-002**: The view settles on its new position within 0.6 seconds of the cursor entering a new system (default
   setting).
 - **SC-003**: With reduced motion off, no view movement from one system to the next (including across a page end)
@@ -210,30 +247,42 @@ clear space below it shows the top of the next system, and the Score size never 
 - **SC-005**: Grades and Practice feedback for the same recorded performances are identical before and after this
   feature (existing golden tests unchanged).
 - **SC-006**: In a hand test with the owner, the owner confirms they can read the next line before reaching it on
-  both a single-page and a multi-page piano Score, in Listen and Practice mode.
+  both a single-page and a multi-page piano Score, in Listen and Practice mode, including a fast passage across a
+  line change and a line change after a repeat.
+- **SC-007**: With the compact spacing, at 1920x950 with the piano strip shown and the default Score size, two
+  systems fit in clear space for every system change of Clementi's Sonatina op. 36 no. 1 and Mary Had a Little
+  Lamb (measured during planning: 8 of 8 and 1 of 1, against 0 of 8 and 0 of 1 before).
+- **SC-008**: A notation review (music-domain-expert) and the owner's visual check of the library's piano pieces
+  find no collision and no crowding introduced by the compact spacing.
 
 ## Assumptions
 
 - "Sheet" in the request means a system (one line of music), not a page: two whole pages cannot fit on a laptop
-  screen at a readable size, while two systems already do at the default size (004 US1 Independent Test).
+  screen at a readable size.
   *(Confirmed by the owner 2026-09-28.)*
 - The rules apply in both Shells (browser and Electron) identically; the Native audio plugin is not involved.
 - The view turns one system at a time: it glides when the cursor enters a new system, and stays still while the
   cursor travels along a system. *(Owner decision 2026-09-28: "glide at line change", over a continuous
   teleprompter-style scroll, which keeps the notes always moving, and over gliding before the line end, which moves
   the line being played.)*
-- A good position is: the cursor's system near the top of the clear space, the next system(s) below it; the previous
-  system may remain partly visible above if there is room.
+- A good position is: the cursor's system near the top of the clear space, the next system(s) below it. No
+  movement happens while the cursor's system and the next are already fully visible (for example when three systems
+  fit on screen, every second system change moves nothing).
+- A movement eases in and out, never overshoots, and moves the music no further than needed (normally one system).
 - The movement duration default (about 0.3-0.5 s) and the "distant jump" handling are tuning values chosen during
   planning and written down as named settings (Constitution II).
 - The existing Follow button and its behaviour stay; no new control is added for the look-ahead itself.
-- Page layout of the engraving (how many systems per page, where page breaks fall) is not changed by this feature,
-  except that the blank space at the end of a page no longer separates it from the next page on screen (FR-003).
+- The horizontal layout of the engraving (how many measures go into a system) is not changed. The vertical layout
+  changes only through the compact spacing (FR-016), which can put more systems on a page, and through FR-003: the
+  blank space at the end of a page no longer separates it from the next page on screen.
 
 ## Out of Scope
 
 - Showing the target of a repeat or D.C./D.S. jump in advance (for example a split view).
 - Horizontal (one long line) scrolling or a "page turn" presentation with two pages side by side.
-- Changing how many measures go into a system, or the engraving itself.
+- Changing how many measures go into a system, or any engraving change other than the compact vertical spacing
+  (FR-016). *(Amended 2026-09-28: compact spacing moved into scope by the owner.)* In particular, where the
+  engraver places pedal marks below the staff (the notation review found the "Ped." row sits nearly as close to the
+  next system as to its own) is a separate engraving question, not part of this feature.
 - Scrolling behaviour when no run is active (browsing by hand, the Score browser).
 - A user setting to switch the look-ahead off.

@@ -7,6 +7,10 @@ changed) - `1.1.0` was an additive change to
 new Verovio option). No message is removed or renamed, so the Verovio worker stays backward
 compatible.
 
+**Superseded in part** by [`015/contracts/score-layout.md` `2.0.0`](../../015-next-system-lookahead/contracts/score-layout.md)
+(2026-09-28): section 2 rule 4 (pages are now cropped to their content, `adjustPageHeight: 1`) and section 4 (one
+height per page) no longer apply; sections 1, 2 rules 1-3 and 5, and 3 still do.
+
 **Owner**: `src/ui/elements/mx-score-view.ts`, `src/ui/layout/fit.ts`, `src/workers/verovio.worker.ts`
 
 ---

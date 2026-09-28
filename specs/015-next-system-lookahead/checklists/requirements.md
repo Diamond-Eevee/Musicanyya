@@ -40,3 +40,7 @@
   SC-003 and FR-008 contradicted FR-009 for distant jumps.
 - Iteration 2: owner answers recorded (US3, FR-014, FR-015, Assumptions); FR-008 and SC-003 limited to
   system-to-system movements, distant jumps exempt but still animated. All items pass.
+- Iteration 3 (during /speckit.plan, 2026-09-28): planning measurements showed SC-001 impossible as written and the
+  assumption "two systems already fit at the default size" false. Owner decisions: SC-001 made fit-aware; compact
+  vertical spacing added (US3, FR-016, SC-007, SC-008, Out of Scope amended). Notation review added the repeat/jump
+  edge cases and limited compact spacing to braced groups. All items still pass.
