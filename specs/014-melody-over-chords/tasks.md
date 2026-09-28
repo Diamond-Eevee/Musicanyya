@@ -322,7 +322,7 @@ the same chords and inversions as before, the right hand a melody.
 - [x] T073 [light] (T054 findings) `specs/014-melody-over-chords/data-model.md` §4: the T072 fields and the names
   `MELODY_REGISTER_MIDI`, `MELODY_MIN_CLEARANCE_SEMITONES`; `plan.md` Constitution Check VI row: a finger on every
   melody note (contract 1.3.1, T062), not "sparingly"
-- [ ] T056 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` green; final log entry; commit
+- [~] T056 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` green; final log entry; commit (claimed: claude-opus-5.5 2026-09-28)
 - [ ] T057 needs owner: SC-005 listening check - the owner listens to at least six rewritten items (one per group and
   level: relative and parallel introduction/beginner/intermediate, plus one drill) and judges each more interesting
   than the doubled version and fitting its level; any item judged too hard is simplified (back to its authoring task)
