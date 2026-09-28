@@ -153,8 +153,8 @@ the same chord sequence with the same inversions as before, and the right hand a
   chord-change drills the left hand MUST play the drill's chord progression unchanged (same chords, inversions, bar
   positions). In the key-change items the left hand MUST keep the key change (same bar), start each key's section on
   its tonic chord, end the item on the new key's tonic chord, keep the chord just before the change (the pivot or dominant that leads into the new
-  key), and use chords of the key it is in (the primary triads I/IV/V, i/iv/V at introduction and beginner; as today
-  from intermediate up); the chords in between MAY be re-written so the harmony moves, up to one chord per bar at
+  key), and use chords of the key it is in (the primary triads I/IV/V, i/iv/V at introduction and beginner - and VI in a
+  minor key, the chord a relative change pivots on; as today from intermediate up); the chords in between MAY be re-written so the harmony moves, up to one chord per bar at
   introduction (Difficulty ladder). The left hand keeps today's voicing and fingering style per level. (Amended
   2026-09-28, owner listening check: "allow chord changes".)
 - **FR-003**: Items not listed under Background (the per-key steps, Songs, Repertoire, *My files*) MUST NOT change.

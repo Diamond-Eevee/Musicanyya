@@ -379,15 +379,16 @@ pass; the owner finds it fun to play (T057).
   introduction I V6 I IV(VI) | I IV64 V6 I IV64 I V6 I; beginner I IV64-V6 I V6 I IV(VI) | I IV64-V6 I V6 I (half
   bars). V6 and IV6/4 (not root position): the bass moves by step and the octave-lower E minor stays inside the
   introduction's pitch bounds (root-position iv there is A1, criterion 2)
-- [ ] T080 [P] [deep] Re-compose the melodies of `key-change-relative-introduction.json` (quarter notes, scale runs up to
+- [x] T080 [P] [deep] Re-compose the melodies of `key-change-relative-introduction.json` (quarter notes, scale runs up to
   an octave, thumb-under / finger-over, at least 2 variants per section and mode)
-- [ ] T081 [P] [deep] Same for `key-change-parallel-introduction.json`
-- [ ] T082 [P] [deep] Re-compose `key-change-relative-beginner.json` (as introduction plus leaps of a third to chord
+- [x] T081 [P] [deep] Same for `key-change-parallel-introduction.json`
+- [x] T082 [P] [deep] Re-compose `key-change-relative-beginner.json` (as introduction plus leaps of a third to chord
   notes and the half-bar harmony of T079; not easier than the new introduction in any ladder dimension)
-- [ ] T083 [P] [deep] Same for `key-change-parallel-beginner.json`
-- [ ] T084 Re-check the intermediate items against the raised beginner (step order, ladder comparison T019): change
-  `key-change-{relative,parallel}-intermediate.json` phrases only where the sweep fails
-- [ ] T085 Regenerate (`pnpm library:exercises`, `pnpm library:index`); T015/T019/T077, T017, T003, T058 green; update
+- [x] T083 [P] [deep] Same for `key-change-parallel-beginner.json`
+- [x] T084 Re-check the intermediate items against the raised beginner (step order, ladder comparison T019): change
+  `key-change-{relative,parallel}-intermediate.json` phrases only where the sweep fails. Done: none needed - every folder's
+  step order and ladder comparison pass with the intermediate items unchanged
+- [x] T085 Regenerate (`pnpm library:exercises`, `pnpm library:index`); T015/T019/T077, T017, T003, T058 green; update
   the key-change goldens, `steps.test.ts`, `key-change.test.ts`, `planted.test.ts`, the identity golden
   (`tools/library/identity.ts`; every other entry unchanged, Für Elise grade unchanged); log each changed expectation
 - [ ] T086 [light] Audit records of the 36 regenerated introduction/beginner items (and any intermediate changed in

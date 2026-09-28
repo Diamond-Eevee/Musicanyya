@@ -525,7 +525,7 @@ describe('the key-change claims: "<from> to <to> - introduction|beginner|interme
   };
   /** Chords per item: one per bar, except the relative beginner's half-bar IV V in each key (FR-002 amended, T078). */
   const CHORDS: Record<'relative' | 'parallel', Record<(typeof STEPS)[number], number>> = {
-    relative: { introduction: 12, beginner: 13, intermediate: 9 },
+    relative: { introduction: 12, beginner: 12, intermediate: 9 },
     parallel: { introduction: 12, beginner: 11, intermediate: 9 },
   };
 
@@ -563,13 +563,13 @@ describe('the key-change claims: "<from> to <to> - introduction|beginner|interme
   // key change stay. Before: 'I I I IV i i i i i i i i' (introduction), 'I I I I I IV i i i i i' (beginner).
   it('a relative change: tonic and dominant, the pivot (IV of the first key, VI in a minor first key), then the new key', () => {
     expect(shortChords(keyChangeClaim('C major', 'A minor', 'introduction'))).toEqual(
-      'I V6 I IV i iv64 V6 i iv64 i V6 i'.split(' '),
+      'I V I IV i i VI VI i i VI i'.split(' '),
     );
     expect(shortChords(keyChangeClaim('A minor', 'C major', 'introduction'))).toEqual(
-      'i V6 i VI I IV64 V6 I IV64 I V6 I'.split(' '),
+      'i V i VI I I IV IV I I V I'.split(' '),
     );
     expect(shortChords(keyChangeClaim('D major', 'B minor', 'beginner'))).toEqual(
-      'I IV64 V6 I V6 I IV i iv64 V6 i V6 i'.split(' '),
+      'I I IV64 V6 I I IV i i iv64 VI i'.split(' '),
     );
   });
 

@@ -245,6 +245,12 @@ alternating every bar. The first ladder (R7) set introduction below the key step
    bar; intermediate keeps its (already moving) progressions unless a melody needs otherwise. Voicing (close
    position, the same inversions per degree as today) and left-hand fingering stay as generated. The drills keep
    their left hand (they train those chord changes).
+   Found while composing (library level criteria, not changed): introduction allows no chord wider than a fifth
+   (criterion 16), so its chords are root-position triads (beginner: V6 and IV6/4, which keep the hand in place);
+   root-position iv in the octave-lower E minor is A1, below the introduction's bounds (criterion 2); and a minor second
+   key that keeps the first key's signature (C major to A minor ...) counts its raised 7ths as accidentals (criterion
+   11: at most one in 12 bars), so those minor sections move between i, VI (the pivot chord) and iv, and the melody's
+   leading tone is the one accidental. A minor first key has its own signature (its raised 7ths are exempt) and plays V.
 3. Beginner must stay not easier than introduction in every ladder dimension and harder in at least one (US2 #3):
    leaps of a third and half-bar harmony, plus tempo 72 > 60 in step order.
 

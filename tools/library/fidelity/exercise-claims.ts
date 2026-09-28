@@ -492,19 +492,23 @@ const subdominant = IV(WHOLE);
 /** A relative change goes from the pivot chord straight to the new tonic (the change is shown by the pivot, the double
  *  barline and the key name). Around it the harmony moves with the primary triads, as in the key step (feature 014 FR-002
  *  as amended 2026-09-28, owner listening check): one chord per bar at introduction, a half-bar IV V in each key at
- *  beginner V6 and IV6/4 keep the hand in one place (the bass moves by
- *  step: A A G♯ A in A minor) and keep the octave-lower E minor inside the introduction's pitch bounds (root-position iv
- *  there is A1). */
+ *  beginner Introduction plays root-position triads only (its widest
+ *  chord is a fifth, level criterion 16); beginner uses V6 and IV6/4, which keep the hand in one place. The step order caps the chord changes (level criterion
+ *  chordChangesPerBar may not fall from introduction to beginner to the intermediate items' 0.89): 9 in 12 bars at
+ *  introduction, 9 in 11 at beginner, so chords last two bars after the change. A minor second key
+ *  (C major to A minor ...) keeps the first key's signature, so its raised 7ths count against the level's accidentals
+ *  (criterion 11: one in 12 bars): there the harmony moves between i, VI (the pivot chord) and iv, and the melody's leading
+ *  tone is the one accidental; a minor first key (A minor to C major ...) has its own signature and plays V. */
 const V6 = withFigure(dominant, '6');
 const IV64 = withFigure(subdominant, '64');
 const RELATIVE_PLANS: Record<KeyChangeStep, KeyChangePlan> = {
   introduction: {
-    from: [tonic, V6, tonic, PIVOT],
-    to: [tonic, IV64, V6, tonic, IV64, tonic, V6, tonic],
+    from: [tonic, dominant, tonic, PIVOT],
+    to: [tonic, tonic, pt('IV', 'VI', WHOLE), pt('IV', 'VI', WHOLE), tonic, tonic, pt('V', 'VI', WHOLE), tonic],
   },
   beginner: {
-    from: [tonic, withFigure(IV(HALF), '64'), withFigure(V(HALF), '6'), tonic, V6, tonic, PIVOT],
-    to: [tonic, withFigure(IV(HALF), '64'), withFigure(V(HALF), '6'), tonic, V6, tonic],
+    from: [tonic, tonic, withFigure(IV(HALF), '64'), withFigure(V(HALF), '6'), tonic, tonic, PIVOT],
+    to: [tonic, tonic, withFigure(subdominant, '64'), pt('V6', 'VI', WHOLE), tonic],
   },
   intermediate: {
     from: [tonic],

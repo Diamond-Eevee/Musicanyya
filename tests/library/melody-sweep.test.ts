@@ -121,11 +121,12 @@ function chordsOf(notes: readonly RecordedNote[]): Chord[] {
     }));
 }
 const LETTER_PC: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
-/** Sorted pitch classes of the triad on scale degree 1, 4 or 5; V is major in minor too (the raised 7th). */
-function triadPcs(key: KeyClaim, degree: 1 | 4 | 5): number[] {
+/** Sorted pitch classes of the triad on scale degree 1, 4, 5 or (minor) 6; V is major in minor too (the raised 7th),
+ *  VI is major. */
+function triadPcs(key: KeyClaim, degree: 1 | 4 | 5 | 6): number[] {
   const tonic = (LETTER_PC[key.tonicLetter] ?? 0) + key.tonicAlter;
-  const root = tonic + (degree === 1 ? 0 : degree === 4 ? 5 : 7);
-  const third = key.mode === 'minor' && degree !== 5 ? 3 : 4;
+  const root = tonic + { 1: 0, 4: 5, 5: 7, 6: 8 }[degree];
+  const third = key.mode === 'minor' && (degree === 1 || degree === 4) ? 3 : 4;
   return [...new Set([root, root + third, root + 7].map((pc) => ((pc % 12) + 12) % 12))].sort((a, b) => a - b);
 }
 
@@ -158,16 +159,23 @@ function melodyMetrics(xml: string) {
     }
   }
 
+  // A shift is a new hand position that is not a thumb-under / finger-over on a step: the Difficulty ladder as amended
+  // 2026-09-28 (T076) lets introduction and beginner cross freely inside a scale run and limits only the other shifts.
   let shifts = 0;
   let thumb: number | null = null;
+  let previous: { diat: number; finger: number } | null = null;
   for (const m of melody) {
     if (m.finger !== undefined) {
       const diat = diatOf(m);
       const newThumb = diat - (m.finger - 1);
-      if (thumb !== null && newThumb !== thumb) {
-        shifts++;
+      if (thumb !== null && previous !== null && newThumb !== thumb) {
+        const step = diat - previous.diat;
+        const thumbUnder = step === 1 && m.finger === 1 && previous.finger >= 2 && previous.finger <= 4;
+        const fingerOver = step === -1 && previous.finger === 1 && m.finger >= 2 && m.finger <= 4;
+        if (!thumbUnder && !fingerOver) shifts++;
       }
       thumb = newThumb;
+      previous = { diat, finger: m.finger };
     }
   }
 
@@ -309,25 +317,29 @@ describe('key-change melody sweep (FR-001, FR-002, US1)', () => {
       expect(now.find((c) => c.bar === 1)?.pcs).toEqual(tonicOf(keyAtBar(1)));
       expect(now.find((c) => c.bar === change)?.pcs).toEqual(tonicOf(keyAtBar(change)));
       expect(now.at(-1)?.pcs).toEqual(tonicOf(keyAtBar(change)));
-      // every other chord is a primary triad of its key (the chord before the change is the one kept as it was)
+      // every other chord is a primary triad of its key, or VI in a minor key (the chord a relative change pivots on,
+      // with no accidental in a minor second key that keeps the first key's signature); the chord before the change is
+      // the one kept as it was
       const pivotOnset = now.filter((c) => c.bar < change).at(-1)?.onset;
       for (const c of now.filter((x) => x.onset !== pivotOnset)) {
         const k = keyAtBar(c.bar);
         const primary = [1, 4, 5].map((d) => triadPcs(k, d).join(','));
+        if (k.mode === 'minor') primary.push(triadPcs(k, 6).join(','));
         expect(primary, `bar ${c.bar}: ${c.pcs.join(',')}`).toContain(c.pcs.join(','));
       }
       // chords per bar: one at introduction, two at beginner (MELODY_LADDER.lhAttacksPerBar)
       const perBar = new Map<number, number>();
       for (const c of now) perBar.set(c.bar, (perBar.get(c.bar) ?? 0) + 1);
       expect(Math.max(...perBar.values())).toBeLessThanOrEqual(item.level === 'introduction' ? 1 : 2);
-      // a degree the recorded item had keeps its notes; every degree is voiced one way in the item
-      const voicing = new Map<string, string>();
-      for (const c of before) voicing.set(c.pcs.join(','), c.midis.join(','));
-      for (const c of now) {
-        const pcsKey = c.pcs.join(',');
-        const recorded = voicing.get(pcsKey);
-        if (recorded !== undefined) expect(c.midis.join(','), `bar ${c.bar}`).toBe(recorded);
-        else voicing.set(pcsKey, c.midis.join(','));
+      // the two tonic chords keep their recorded notes (the chord before the change is checked above); the new chords
+      // are voiced by the level (root position at introduction, V6 and IV6/4 at beginner, so a IV6/4 may share the
+      // pivot's notes in another inversion)
+      const tonics = new Set([tonicOf(keyAtBar(1)).join(','), tonicOf(keyAtBar(change)).join(',')]);
+      const recordedTonic = new Map(
+        before.filter((c) => tonics.has(c.pcs.join(','))).map((c) => [c.pcs.join(','), c.midis.join(',')]),
+      );
+      for (const c of now.filter((x) => tonics.has(x.pcs.join(',')))) {
+        expect(c.midis.join(','), `bar ${c.bar}`).toBe(recordedTonic.get(c.pcs.join(',')));
       }
       // the harmony moves: no chord held or repeated for more than two bars in a row, apart from the closing tonic
       const byBar = [...new Map(now.map((c) => [c.bar, c.pcs.join(',')])).entries()].sort((a, b) => a[0] - b[0]);

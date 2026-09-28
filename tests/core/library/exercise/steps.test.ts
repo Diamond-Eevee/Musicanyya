@@ -405,9 +405,12 @@ describe('key-change steps cover all 18 pairs (T041)', () => {
     },
   );
 
-  // Feature 014 (FR-002, T061): the left hand keeps its whole-note chords; the right hand, which doubled them, now plays
-  // a single-note melody no shorter than the level's ladder value (half / quarter / eighth), filling every bar.
-  const SHORTEST_RIGHT_HAND_TICKS = { introduction: 1920, beginner: 960, intermediate: 480 } as const;
+  // Feature 014 (FR-002, T061): the left hand plays block chords; the right hand, which doubled them, now plays a
+  // single-note melody no shorter than the level's ladder value, filling every bar. Amended 2026-09-28 (owner listening
+  // check, T085): introduction plays quarter notes like the key step (was: half notes), and beginner may change chord
+  // on the half bar (the relative items' IV6/4-V6), so its left hand has half-note chords too (was: whole notes only).
+  const SHORTEST_RIGHT_HAND_TICKS = { introduction: 960, beginner: 960, intermediate: 480 } as const;
+  const LEFT_HAND_TICKS = { introduction: [3840], beginner: [3840, 1920], intermediate: [3840] } as const;
   it.each(Object.entries(KEY_CHANGE_BARS))(
     '%s: is %i bars at the right tempo, left-hand whole-note chords under a single-note right hand',
     (step, bars) => {
@@ -416,8 +419,9 @@ describe('key-change steps cover all 18 pairs (T041)', () => {
         expect(facts.tempoBpm, slug).toBe(KEY_CHANGE_TEMPO[step as keyof typeof KEY_CHANGE_TEMPO]);
         const left = notes.filter((n) => n.staff === 2);
         const right = notes.filter((n) => n.staff === 1);
+        const allowed: readonly number[] = LEFT_HAND_TICKS[step as keyof typeof LEFT_HAND_TICKS];
         expect(
-          left.every((n) => n.duration === 3840),
+          left.every((n) => allowed.includes(n.duration)),
           slug,
         ).toBe(true);
         expect(new Set(right.map((n) => `${n.measure}/${n.onset}`)).size, slug).toBe(right.length);
