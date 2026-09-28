@@ -201,6 +201,11 @@ export class MxScoreBrowser extends HTMLElement {
             <select data-sort>${SORTS.map(({ sort, label }) => option(sortValue(sort), label, false)).join('')}</select>
           </label>
           <div class="browser-chips"></div>
+          <p class="browser-level-description"></p>
+        </div>
+        <div class="browser-error" hidden>
+          <p class="browser-error-message">${escapeHtml(en.browser.libraryUnavailable)}</p>
+          <button type="button" class="browser-retry">${escapeHtml(en.browser.retry)}</button>
         </div>
         <div class="browser-empty" hidden></div>
         <div class="browser-body"></div>
@@ -266,6 +271,9 @@ export class MxScoreBrowser extends HTMLElement {
       }
     });
 
+    this.querySelector('.browser-retry')?.addEventListener('click', () => {
+      this.dispatchEvent(new CustomEvent('browserretrylibrary', { bubbles: true }));
+    });
     // The empty state's *Clear filters* is created by `syncEmpty`, so its click is caught here, once.
     this.querySelector('.browser-empty')?.addEventListener('click', (event) => {
       if ((event.target as HTMLElement).closest('.browser-clear-filters')) this.clearFilters();
@@ -393,6 +401,10 @@ export class MxScoreBrowser extends HTMLElement {
       this.filterControl('status').innerHTML = optionsHtml('status', STATUS_FILTERS, filters.status);
     }
     for (const name of FILTER_NAMES) this.filterControl(name).value = filters[name] ?? '';
+    // 005 FR-009: a chosen level says in plain words what it means, so the musician can judge the fit.
+    (this.querySelector('.browser-level-description') as HTMLElement).textContent = filters.level
+      ? en.library.levelDescriptions[filters.level]
+      : '';
     this.sortControl().value = sortValue(view.sort);
 
     const chipsSignature = JSON.stringify(filters);
@@ -440,6 +452,14 @@ export class MxScoreBrowser extends HTMLElement {
     }`;
   }
 
+  /** Edge Cases (library unavailable): the library's folders say so, with *Retry*; *Continue* and *My files* keep
+   *  working without it. It sits beside the list, not in it - a listbox holds options only (T089). */
+  private syncLibraryError(phase: BrowserPhase, view: BrowserViewState, data: BrowserData): void {
+    const kind = effectiveFolder(view).kind;
+    const show = phase !== 'closed' && data.indexError !== null && kind !== 'continue' && kind !== 'myFiles';
+    (this.querySelector('.browser-error') as HTMLElement).hidden = !show;
+  }
+
   private titleOf(ref: Parameters<typeof itemRefKey>[0]): string {
     const key = itemRefKey(ref);
     const found = this.items.find((item) => itemRefKey(item.ref) === key);
@@ -480,6 +500,15 @@ export class MxScoreBrowser extends HTMLElement {
     }, BROWSER_ANNOUNCE_DEBOUNCE_MS);
   }
 
+  /** Contracts §6: "New best for {title}", once, when the browser is next open with its data (a run ended while it was
+   *  closed, or the browser is open behind a finished run's Grade). A hash that names nothing listed is dropped. */
+  private announceNewBest(phase: BrowserPhase, scoreKey: string | null): void {
+    if (scoreKey === null || (phase !== 'ready' && phase !== 'opening')) return;
+    const item = this.items.find((i) => i.scoreKey === scoreKey);
+    if (item) this.statusLine.textContent = en.browser.announceNewBest.replace('{title}', item.title);
+    browserState.clearNewBest();
+  }
+
   private announceCount(): void {
     const { phase, view } = browserState.get();
     if (phase === 'closed' || showsContinue(view)) return;
@@ -492,7 +521,7 @@ export class MxScoreBrowser extends HTMLElement {
   }
 
   private sync(): void {
-    const { phase, view, data, message, pending } = browserState.get();
+    const { phase, view, data, message, pending, newBestScoreKey } = browserState.get();
     const breadcrumb = this.querySelector('.browser-breadcrumb');
     if (breadcrumb) breadcrumb.textContent = folderLabel(view.folder, data.index);
 
@@ -503,7 +532,9 @@ export class MxScoreBrowser extends HTMLElement {
     this.refreshItems(data);
     this.syncToolbar(view);
     this.syncEmpty(phase, view);
+    this.syncLibraryError(phase, view, data);
     this.syncAnnouncements(phase, view, pending);
+    this.announceNewBest(phase, newBestScoreKey);
 
     const messageLine = this.querySelector('.browser-message');
     if (messageLine) messageLine.textContent = message ? messageText(message) : '';

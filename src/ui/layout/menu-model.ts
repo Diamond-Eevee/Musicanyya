@@ -33,9 +33,8 @@ function entry(panel: PanelId | 'browser', needsScore = false, idleOnly = true):
 
 /** The static menu structure of `data-model.md` section 5. `grade` has no entry: a finished Play run opens it.
  *  The score menu's *Open...* entry replaced *Recent scores* (R-20) - `scores` is now *About this score*
- *  (`mx-score-source`) plus `mx-recent-list` (T031, until T068's *My files*) - unlike `attempts`, it stays
- *  reachable with no Score open (`needsScore: false`, tests/e2e/us1-open-view.spec.ts): reopening a recent file is
- *  exactly what it is for when nothing is open; `mx-score-source` alone renders empty until then. */
+ *  (`mx-score-source`). It stays reachable with no Score open (`needsScore: false`, tests/ui/menu.test.ts), as it was
+ *  while the recent list lived in it; `mx-score-source` alone renders empty until a Score is open. */
 export const MENU_GROUPS: readonly MenuGroup[] = [
   {
     id: 'score',

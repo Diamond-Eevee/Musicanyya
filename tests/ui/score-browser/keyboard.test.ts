@@ -397,6 +397,42 @@ describe('mx-score-browser keyboard model (T080, FR-028)', () => {
       expect(status.textContent).toBe('No items match these filters.');
     });
 
+    it('T097: announces a new best once, when the browser next opens on that item (contracts §6)', () => {
+      const index = libraryIndexOf(6);
+      const item = index.items[0];
+      if (!item) throw new Error('fixture');
+      const el = document.createElement('mx-score-browser');
+      document.body.appendChild(el);
+      const status = el.querySelector('.browser-status') as HTMLElement;
+
+      // A run finished while the browser was closed and was a new best of this item.
+      browserState.setNewBest(item.hash);
+      expect(status.textContent).toBe(''); // closed: nothing is announced yet
+      browserState.open();
+      browserState.indexLoaded(index, [], []);
+
+      expect(status.textContent).toBe(`New best for ${item.meta.title}`);
+      expect(browserState.get().newBestScoreKey).toBeNull(); // said once
+
+      browserState.close();
+      status.textContent = '';
+      browserState.open();
+      browserState.indexLoaded(index, [], []);
+      expect(status.textContent).not.toContain('New best');
+    });
+
+    it('T097: a new best of an item that is not in the library or My files is dropped, not announced', () => {
+      const index = libraryIndexOf(6);
+      const el = document.createElement('mx-score-browser');
+      document.body.appendChild(el);
+      const status = el.querySelector('.browser-status') as HTMLElement;
+      browserState.setNewBest('f'.repeat(64));
+      browserState.open();
+      browserState.indexLoaded(index, [], []);
+      expect(status.textContent).not.toContain('New best');
+      expect(browserState.get().newBestScoreKey).toBeNull();
+    });
+
     it('announces a removal and a reset at once, with the undo window in seconds', () => {
       const file = userFile({ fileName: 'Etude.musicxml', title: 'Etude in E' });
       const { status } = mountBrowser(6, [file]);

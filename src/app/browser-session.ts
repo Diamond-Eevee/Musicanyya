@@ -181,6 +181,8 @@ export class BrowserSessionController {
   /** R-18: after `PerformanceStore.put` succeeds - a storage failure of the Performance skips this too, so
    *  progress and kept attempts never disagree. */
   async played(scoreKey: string, result: ProgressResult): Promise<void> {
+    // Decided before the event is applied: it is a new best against the record as it stood (T097, contracts §6).
+    if (this.computeNewBest(scoreKey, result)) browserState.setNewBest(scoreKey);
     const store = await this.store();
     const applied = await store.apply(
       scoreKey,
@@ -328,6 +330,19 @@ export class BrowserSessionController {
       return;
     }
     this.refreshIfOpen();
+  }
+
+  /** T086, contracts/score-browser.md §8: a seeded *My files* entry goes through the ordinary `putFile`. Unlike
+   *  `fileLoaded` it does not refresh the browser: a seed adds hundreds of files and refreshes once at the end. */
+  async seedFile(file: {
+    fileName: string;
+    bytes: ArrayBuffer;
+    hash: string;
+    title: string | null;
+    composer: string | null;
+  }): Promise<void> {
+    const store = await this.store();
+    await store.putFile({ ...file, openedAt: new Date().toISOString() });
   }
 
   /** T094: resolves a *My files* seed's `fileKey` to its current content hash, the key `apply` needs - `data.files`

@@ -1,5 +1,4 @@
 import type { LoadReport } from '../../core/score/load-report.js';
-import type { RecentScoreSummary } from '../../engine/ports.js';
 import { noticeState } from './noticeState.js';
 import { createStore } from './store.js';
 
@@ -50,7 +49,6 @@ export type ScoreStatus =
 
 class ScoreState {
   private statusStore = createStore<ScoreStatus>({ kind: 'empty' });
-  private recentStore = createStore<readonly RecentScoreSummary[]>([]);
   /** Survives `startLoading`/`failed` so a later failure can restore it (never cleared by a failed open). */
   private lastLoaded: LoadedScore | null = null;
 
@@ -60,18 +58,6 @@ class ScoreState {
 
   subscribe(listener: (status: ScoreStatus) => void) {
     return this.statusStore.subscribe(listener);
-  }
-
-  getRecent(): readonly RecentScoreSummary[] {
-    return this.recentStore.get();
-  }
-
-  subscribeRecent(listener: (recent: readonly RecentScoreSummary[]) => void) {
-    return this.recentStore.subscribe(listener);
-  }
-
-  setRecent(recent: readonly RecentScoreSummary[]) {
-    this.recentStore.set(recent);
   }
 
   startLoading(fileName: string) {

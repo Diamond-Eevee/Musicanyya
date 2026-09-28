@@ -49,8 +49,6 @@ export const PIANO_KEYS_MAX_HEIGHT_VH = 20; // height cap of the keys, in % of t
 export const MIN_PAGE_UNITS = 200;
 export const MAX_PAGE_UNITS = 10000;
 
-export const RECENT_SCORES_MAX = 10;
-
 // File constraints (MAX_FILE_BYTES re-exported from core/defaults.js above)
 export const MAX_UNCOMPRESSED_BYTES = 256 * 1024 * 1024; // 256 MiB
 export const MAX_ZIP_ENTRIES = 1000;

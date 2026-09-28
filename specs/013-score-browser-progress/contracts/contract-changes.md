@@ -14,4 +14,4 @@ Each change is applied to the named contract file with the version bump shown, a
 | `009/contracts/play-display.md` | 2.0.0 -> **2.1.0** (MINOR) | `playState` gains `newBest: boolean` shown by `mx-grade-panel` (FR-016). |
 
 Engine constants (`src/engine/config.ts`) and core defaults (`src/core/defaults.ts`) gain the constants in data-model.md
-section 11; `RECENT_SCORES_MAX` stays until OD-6 (it is still used by the deprecated `IndexedDbScoreStore`).
+section 11; `RECENT_SCORES_MAX` was removed with the deprecated `IndexedDbScoreStore` (T092/OD-6; ports.md 2.0.0).

@@ -176,6 +176,7 @@ export const en = {
     /** FR-028 - announced through the browser's `aria-live` line, beside the debounced item count. */
     announceRemoved: '{title} removed from My files. Undo available for {seconds} seconds.',
     announceReset: 'Progress of {title} reset.',
+    announceNewBest: 'New best for {title}',
     trend: { up: 'up {points} points', down: 'down {points} points', same: 'same' },
     /** FR-013/FR-012, R-8: the two figures, always a count out of a total as well as a percentage. */
     resultFigures: '{correct}% correct · {onTime}% on time',

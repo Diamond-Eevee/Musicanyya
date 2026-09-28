@@ -114,6 +114,7 @@ dialog.browser::backdrop {
    a toolbar that wraps to a second row (active filter chips) must push the body down, not be squeezed under it. */
 .browser-header,
 .browser-toolbar,
+.browser-error,
 .browser-empty,
 .browser-status,
 .browser-message {
@@ -332,7 +333,16 @@ mx-browser-continue h3 {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 8px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.browser-error[hidden] {
+  display: none;
+}
+
+.browser-error-message {
+  margin: 0;
 }
 
 .browser-retry {
@@ -529,4 +539,32 @@ dialog.browser.browser-drag-active {
 :focus-visible {
   outline: 2px solid var(--color-blue);
   outline-offset: 1px;
+}
+
+/* Carried over from the retired panel (T098-T101). */
+.browser-row-step,
+.browser-rail-relation {
+  font-size: 0.85em;
+  opacity: 0.75;
+}
+
+.browser-rail-relation {
+  margin-left: 6px;
+  font-style: italic;
+}
+
+.browser-detail-facts {
+  margin: 4px 0;
+  font-size: 0.9em;
+}
+
+.browser-level-description {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.85em;
+  opacity: 0.85;
+}
+
+.browser-level-description:empty {
+  display: none;
 }

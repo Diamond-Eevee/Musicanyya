@@ -130,33 +130,10 @@ export interface MidiInput extends Emitter<MidiInputEvent> {
 }
 // timeStampMs is MIDIMessageEvent.timeStamp (performance.now() domain), kept for later mapping onto the audio clock.
 
-// ---- ScoreStore (recent Scores, IndexedDB) ----
-/** @deprecated 013-score-browser-progress (ports.md 1.5.0, R-3, R-20): no longer used at run time. `recentScores` is
- *  read once by the `ProgressStore` migration. Removal waits for OD-6. */
-export interface RecentScoreSummary {
-  id: string;
-  fileName: string;
-  title: string | null;
-  composer: string | null;
-  byteLength: number;
-  lastOpened: string /* ISO 8601 */;
-}
+// ---- Storage results ----
 export type StoreResult<T> =
   | { ok: true; value: T }
   | { ok: false; error: 'unavailable' | 'quotaExceeded' | 'notFound' };
-
-/** @deprecated 013-score-browser-progress, see `RecentScoreSummary`. */
-export interface ScoreStore {
-  list(): Promise<StoreResult<readonly RecentScoreSummary[]>>; // newest first, max 10
-  put(file: {
-    fileName: string;
-    bytes: ArrayBuffer;
-    title: string | null;
-    composer: string | null;
-  }): Promise<StoreResult<RecentScoreSummary>>; // upsert by content hash, trims to 10
-  get(id: string): Promise<StoreResult<{ summary: RecentScoreSummary; bytes: ArrayBuffer }>>;
-  remove(id: string): Promise<StoreResult<void>>;
-}
 
 // ---- PerformanceStore (stored attempts, IndexedDB) ----
 /** `StoredPerformance` without its `log` - what the attempts list needs (contracts/performance-log.md). */

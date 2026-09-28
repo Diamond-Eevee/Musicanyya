@@ -255,6 +255,40 @@ describe('BrowserSessionController progress events (US2, contracts/progress-stor
     expect(controller.computeNewBest('b'.repeat(64), better)).toBe(false);
   });
 
+  it('T097: a stored run that is a new best marks the Score for the browser to announce; a worse or partial run does not', async () => {
+    const controller = controllerWith(new MemoryProgressStore());
+    await controller.scoreOpened(SCORE_KEY, { kind: 'file', fileKey: 'etude.musicxml' });
+    expect(browserState.get().newBestScoreKey).toBeNull();
+
+    await controller.played(
+      SCORE_KEY,
+      result({ runId: 'first', finishedAt: '2026-01-01T00:00:00.000Z', notesCorrect: { count: 80, total: 100 } }),
+    );
+    expect(browserState.get().newBestScoreKey).toBe(SCORE_KEY); // the first result is a best: there was none
+
+    browserState.clearNewBest();
+    await controller.played(
+      SCORE_KEY,
+      result({ runId: 'worse', finishedAt: '2026-01-02T00:00:00.000Z', notesCorrect: { count: 50, total: 100 } }),
+    );
+    await controller.played(
+      SCORE_KEY,
+      result({
+        runId: 'partial',
+        finishedAt: '2026-01-03T00:00:00.000Z',
+        notesCorrect: { count: 100, total: 100 },
+        scope: { kind: 'partial', fromMeasure: 1, toMeasure: 4, hands: null },
+      }),
+    );
+    expect(browserState.get().newBestScoreKey).toBeNull();
+
+    await controller.played(
+      SCORE_KEY,
+      result({ runId: 'better', finishedAt: '2026-01-04T00:00:00.000Z', notesCorrect: { count: 95, total: 100 } }),
+    );
+    expect(browserState.get().newBestScoreKey).toBe(SCORE_KEY);
+  });
+
   it('IndexedDB unavailable falls back to a memory store and raises one notice (R-19)', async () => {
     const controller = controllerWith(new UnavailableProgressStore());
 
@@ -438,6 +472,57 @@ describe('BrowserSessionController.seedProgressEvent (T094, contracts/score-brow
       kind: 'library',
       id: 'learning/keys/c-major/beginner',
     });
+  });
+});
+
+describe('BrowserSessionController.seedFile (T086, contracts/score-browser.md §8)', () => {
+  afterEach(() => {
+    browserState.reset();
+    libraryState.reset();
+    noticeState.clear();
+  });
+
+  const seeded = (fileName: string, hash: string) => ({
+    fileName,
+    bytes: new Uint8Array([1, 2, 3]).buffer,
+    hash,
+    title: `Title of ${fileName}`,
+    composer: null,
+  });
+
+  it('goes through putFile: the same name twice is one entry, and the entry carries its title and hash', async () => {
+    const store = new MemoryProgressStore();
+    const controller = controllerWith(store);
+
+    await controller.seedFile(seeded('Etude.musicxml', 'a'.repeat(64)));
+    await controller.seedFile(seeded('Etude.musicxml', 'a'.repeat(64)));
+    await controller.seedFile(seeded('Waltz.musicxml', 'b'.repeat(64)));
+
+    const listed = await store.listFiles();
+    expect(listed.ok).toBe(true);
+    if (!listed.ok) return;
+    expect(listed.value.map((f) => f.fileKey).sort()).toEqual(['etude.musicxml', 'waltz.musicxml']);
+    expect(listed.value.find((f) => f.fileKey === 'etude.musicxml')).toMatchObject({
+      title: 'Title of Etude.musicxml',
+      hash: 'a'.repeat(64),
+      stored: true,
+    });
+  });
+
+  it('does not refresh the browser itself: a seed of hundreds of files refreshes it once, at the end', async () => {
+    const store = new MemoryProgressStore();
+    const controller = controllerWith(store);
+    let phaseChanges = 0;
+    browserState.open();
+    browserState.indexLoaded(index([]), [], []);
+    const unsubscribe = browserState.subscribe(() => {
+      phaseChanges += 1;
+    });
+
+    for (let i = 0; i < 20; i++) await controller.seedFile(seeded(`f${i}.musicxml`, String(i).padStart(64, '0')));
+
+    unsubscribe();
+    expect(phaseChanges).toBe(0);
   });
 });
 

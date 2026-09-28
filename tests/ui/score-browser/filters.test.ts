@@ -3,6 +3,7 @@ import '../../../src/ui/elements/mx-browser-list.js';
 import '../../../src/ui/elements/mx-score-browser.js';
 import type { BrowserViewState } from '../../../src/core/browser/types.js';
 import type { LibraryIndex, LibraryItem } from '../../../src/core/library/types.js';
+import { en } from '../../../src/ui/i18n/en.js';
 import { browserState } from '../../../src/ui/state/browserState.js';
 import { libraryIndexOf, record, result } from '../../fakes/progress-builders.js';
 
@@ -286,5 +287,26 @@ describe('mx-score-browser sort control (T079, FR-027)', () => {
     choose(sortControl(el), 'best:asc');
 
     expect(titles(el)).toEqual(['Piece 1', 'Piece 2', 'Piece 0']);
+  });
+});
+
+describe('mx-score-browser level description (T101, 005 FR-009)', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    browserState.reset();
+  });
+
+  it('a chosen level shows its plain-language description; none when no level is chosen', () => {
+    const el = mount();
+    expect(el.querySelector('.browser-level-description')?.textContent ?? '').toBe('');
+
+    choose(select(el, 'level'), 'beginner');
+    expect(el.querySelector('.browser-level-description')?.textContent).toBe(en.library.levelDescriptions.beginner);
+
+    choose(select(el, 'level'), 'advanced');
+    expect(el.querySelector('.browser-level-description')?.textContent).toBe(en.library.levelDescriptions.advanced);
+
+    choose(select(el, 'level'), '');
+    expect(el.querySelector('.browser-level-description')?.textContent ?? '').toBe('');
   });
 });

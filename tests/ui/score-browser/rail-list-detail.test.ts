@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import '../../../src/ui/elements/mx-browser-rail.js';
 import '../../../src/ui/elements/mx-browser-list.js';
 import '../../../src/ui/elements/mx-browser-detail.js';
+import '../../../src/ui/elements/mx-score-browser.js';
 import type { LibraryIndex, LibraryItem } from '../../../src/core/library/types.js';
 import { scoreSourceLines } from '../../../src/ui/format/score-source-text.js';
 import { browserState } from '../../../src/ui/state/browserState.js';
@@ -124,16 +125,26 @@ describe('mx-browser-list (US1 #2)', () => {
   });
 
   it('shows "Library unavailable" with a Retry button when the index failed, and Retry emits browserretrylibrary (Edge Cases)', () => {
+    // The message is the dialog's, beside the list, not a child of the listbox (a listbox holds options only,
+    // T089); it belongs to the library's folders, so the default Continue view does not show it.
+    const browser = document.createElement('mx-score-browser');
+    document.body.appendChild(browser);
+    const list = document.createElement('mx-browser-list');
+    browser.querySelector('.browser-body')?.appendChild(list);
     browserState.open();
     browserState.indexFailed('unavailable', [], []);
-    const el = document.createElement('mx-browser-list');
-    document.body.appendChild(el);
+    const banner = browser.querySelector('.browser-error') as HTMLElement;
+    expect(banner.hidden).toBe(true);
 
-    expect(el.querySelector('.browser-error-message')?.textContent).toBe('Library unavailable.');
+    browserState.setView({ folder: { kind: 'all' } });
+
+    expect(banner.hidden).toBe(false);
+    expect(banner.querySelector('.browser-error-message')?.textContent).toBe('Library unavailable.');
+    expect(list.querySelector('.browser-error')).toBeNull();
     const retried = new Promise<void>((resolve) => {
-      el.addEventListener('browserretrylibrary', () => resolve(), { once: true });
+      browser.addEventListener('browserretrylibrary', () => resolve(), { once: true });
     });
-    (el.querySelector('.browser-retry') as HTMLButtonElement).click();
+    (banner.querySelector('.browser-retry') as HTMLButtonElement).click();
     return retried;
   });
 
@@ -226,5 +237,99 @@ describe('mx-browser-detail (FR-013)', () => {
     return opened.then((detail) => {
       expect(detail.ref).toEqual({ kind: 'library', id: item.id });
     });
+  });
+});
+
+// Owner decision 2026-09-28 (T098-T100): what the retired Scores panel showed is carried into the browser first.
+describe('the old panel presentation, carried over (T098-T100)', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    browserState.reset();
+  });
+
+  it('T098: a row shows its step before its level ("1 Introduction" ... "Song"), and nothing for an item with no step', () => {
+    const stepped = libraryItem('repertoire/beginner/a', {
+      meta: { ...libraryItem('x').meta, title: 'Stepped', level: 'introduction', step: 'introduction', stepOrder: 0 },
+    });
+    const song = libraryItem('repertoire/beginner/b', {
+      meta: { ...libraryItem('x').meta, title: 'A song', step: 'song', stepOrder: 10 },
+    });
+    const plain = libraryItem('repertoire/beginner/c', { meta: { ...libraryItem('x').meta, title: 'Plain' } });
+    loadIndex([stepped, song, plain]);
+    browserState.setView({ folder: { kind: 'all' } });
+    const el = document.createElement('mx-browser-list');
+    document.body.appendChild(el);
+
+    const row = (id: string) => el.querySelector(`[data-ref="library:repertoire/beginner/${id}"]`) as HTMLElement;
+    expect(row('a').querySelector('.browser-row-step')?.textContent).toBe('1 Introduction');
+    expect(row('b').querySelector('.browser-row-step')?.textContent).toBe('Song');
+    expect(row('c').querySelector('.browser-row-step')).toBeNull();
+    // before the level chip
+    const children = Array.from(row('a').children).map((c) => c.className);
+    expect(children.indexOf('browser-row-step')).toBeLessThan(children.indexOf('browser-row-level'));
+  });
+
+  it('T099: a key-change folder shows its relation word beside its name in the rail; other folders show none', () => {
+    const sections = [
+      { id: 'learning', title: 'Learning', path: 'learning', parent: null, order: 1 },
+      { id: 'learning/key-changes', title: 'Key changes', path: 'learning/key-changes', parent: 'learning', order: 1 },
+      {
+        id: 'learning/key-changes/c-major-to-a-minor',
+        title: 'C major to A minor',
+        path: 'learning/key-changes/c-major-to-a-minor',
+        parent: 'learning/key-changes',
+        order: 1,
+        description: 'relative minor',
+      },
+    ];
+    const item = libraryItem('learning/key-changes/c-major-to-a-minor/introduction', {
+      section: 'learning/key-changes/c-major-to-a-minor',
+    });
+    browserState.open();
+    browserState.indexLoaded({ version: 1, generated: '2026-09-22T00:00:00.000Z', sections, items: [item] }, [], []);
+    const el = document.createElement('mx-browser-rail');
+    document.body.appendChild(el);
+
+    const relationOf = (key: string) =>
+      el.querySelector(`[data-key="section:${key}"] .browser-rail-relation`)?.textContent;
+    expect(relationOf('learning/key-changes/c-major-to-a-minor')).toBe('relative minor');
+    expect(relationOf('learning/key-changes')).toBeUndefined();
+    expect(relationOf('learning')).toBeUndefined();
+  });
+
+  it("T100: the detail pane labels a library item's key, metre, tempo, measures, duration, hands and skills", () => {
+    const base = libraryItem('repertoire/beginner/ode-to-joy');
+    const item = libraryItem('repertoire/beginner/ode-to-joy', { meta: { ...base.meta, hands: 'both' } });
+    loadIndex([item]);
+    browserState.setView({ selected: { kind: 'library', id: item.id } });
+    const el = document.createElement('mx-browser-detail');
+    document.body.appendChild(el);
+
+    const meta = el.querySelector('.browser-detail-facts')?.textContent ?? '';
+    expect(meta).toContain('Key: C major');
+    expect(meta).toContain('Metre: 4/4');
+    expect(meta).toContain('Tempo: 100 BPM');
+    expect(meta).toContain('Measures: 16');
+    expect(meta).toContain('Duration: 1:20');
+    expect(meta).toContain('Hands: both');
+    expect(meta).toContain('Skill: Sight-reading');
+  });
+
+  it('T100: a fact an item does not have is left out, not shown empty', () => {
+    const base = libraryItem('repertoire/beginner/ode-to-joy');
+    const item = libraryItem('repertoire/beginner/ode-to-joy', {
+      facts: { ...base.facts, keys: [], metres: [], tempoBpm: null },
+    });
+    loadIndex([item]);
+    browserState.setView({ selected: { kind: 'library', id: item.id } });
+    const el = document.createElement('mx-browser-detail');
+    document.body.appendChild(el);
+
+    const meta = el.querySelector('.browser-detail-facts')?.textContent ?? '';
+    expect(meta).not.toContain('Key:');
+    expect(meta).not.toContain('Metre:');
+    expect(meta).not.toContain('Tempo:');
+    expect(meta).not.toContain('Hands:');
+    expect(meta).toContain('Measures: 16');
   });
 });

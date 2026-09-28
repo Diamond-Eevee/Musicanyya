@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import '../../src/ui/elements/mx-library.js';
+import '../../src/ui/elements/mx-browser-list.js';
 import { LibrarySessionController } from '../../src/app/library-session.js';
 import { parseLibraryIndex } from '../../src/core/library/index-model.js';
 import type { LibraryIndex, LibraryItem } from '../../src/core/library/types.js';
-import { libraryState } from '../../src/ui/state/libraryState.js';
+import { browserState } from '../../src/ui/state/browserState.js';
 import { FakeLibraryCatalog } from '../fakes/fake-library-catalog.js';
 
 function item(id: string, overrides: Partial<LibraryItem> = {}): LibraryItem {
@@ -53,36 +53,24 @@ function index(items: LibraryItem[]): LibraryIndex {
   };
 }
 
-/** Mirrors `Session.loadLibraryIndex` (src/app/session.ts) so this test exercises the real
- *  catalog -> libraryState wiring rather than calling `indexLoaded`/`indexFailed` by hand. */
-async function loadLibraryIndex(catalog: FakeLibraryCatalog): Promise<void> {
-  libraryState.startLoadingIndex();
-  const result = await catalog.index();
-  if (result.ok) libraryState.indexLoaded(result.value);
-  else libraryState.indexFailed(result.error);
+/** The browser's own list of everything (the folder *All*), over an index it was given. */
+function listAll(loaded: LibraryIndex): HTMLElement {
+  browserState.open();
+  browserState.indexLoaded(loaded, [], []);
+  browserState.setView({ folder: { kind: 'all' } });
+  const el = document.createElement('mx-browser-list');
+  document.body.appendChild(el);
+  return el;
 }
 
+// Feature 013 T092: these behaviours were tested through the retired `mx-library`; they now run through the
+// browser's list. The remaining case of the old file - a missing index.json shows one message with Retry, and a
+// retry recovers - is `tests/engine/browser-session.test.ts` (an index failure gives `indexError` with My files
+// and Continue still listed, and Retry reloads) and `tests/ui/score-browser/rail-list-detail.test.ts`.
 describe('library degradation (data-model.md §3 + §6, quickstart §US5.3-4)', () => {
   afterEach(() => {
     document.body.innerHTML = '';
-    libraryState.reset();
-  });
-
-  it('a missing index.json shows one notice with Retry, and the rest of the library survives a retry', async () => {
-    const catalog = new FakeLibraryCatalog();
-    catalog.failNextIndex = 'notFound';
-    await loadLibraryIndex(catalog);
-    expect(libraryState.getStatus()).toEqual({ kind: 'indexError', error: 'notFound' });
-
-    const el = document.createElement('mx-library');
-    document.body.appendChild(el);
-    expect(el.querySelectorAll('.library-error').length).toBe(1);
-    expect(el.querySelector('.library-retry')).not.toBeNull();
-
-    // A retry against a now-healthy catalog recovers to `ready` with the shelf listed.
-    catalog.setIndex(index([item('repertoire/beginner/ode-to-joy')]));
-    await loadLibraryIndex(catalog);
-    expect(libraryState.getStatus().kind).toBe('ready');
+    browserState.reset();
   });
 
   it('an item that fails index validation (a missing/invalid sidecar) is skipped with a notice; the rest of the library still lists', () => {
@@ -106,10 +94,8 @@ describe('library degradation (data-model.md §3 + §6, quickstart §US5.3-4)', 
     expect(notices).toEqual([{ code: 'invalidItem', id: 'repertoire/beginner/no-sidecar' }]);
     expect(validated.items.map((i) => i.id)).toEqual(['repertoire/beginner/ode-to-joy']);
 
-    libraryState.indexLoaded(validated);
-    const el = document.createElement('mx-library');
-    document.body.appendChild(el);
-    expect(el.querySelectorAll('.library-item').length).toBe(1);
+    const el = listAll(validated);
+    expect(el.querySelectorAll('.browser-row').length).toBe(1);
     expect(el.innerHTML).toContain('Ode to Joy');
   });
 
@@ -120,8 +106,6 @@ describe('library degradation (data-model.md §3 + §6, quickstart §US5.3-4)', 
       item('repertoire/beginner/fur-elise', { section: 'repertoire/beginner' }),
     ];
     catalog.setIndex(index(twoItems));
-    await loadLibraryIndex(catalog);
-    expect(libraryState.getStatus().kind).toBe('ready');
 
     catalog.failNextItem = 'notFound';
     const notices: string[] = [];
@@ -133,11 +117,9 @@ describe('library degradation (data-model.md §3 + §6, quickstart §US5.3-4)', 
     expect(ok).toBe(false);
     expect(notices).toEqual(['libraryItemMissing']);
 
-    // The panel stays `ready` (data-model.md §6: "ready + notice, panel stays open") with both items intact.
-    const el = document.createElement('mx-library');
-    document.body.appendChild(el);
-    expect(libraryState.getStatus().kind).toBe('ready');
-    expect(el.querySelectorAll('.library-item').length).toBe(2);
-    expect(el.querySelectorAll('.library-item-open').length).toBe(2);
+    // The browser stays usable with both items intact.
+    const el = listAll(index(twoItems));
+    expect(browserState.get().phase).toBe('ready');
+    expect(el.querySelectorAll('.browser-row').length).toBe(2);
   });
 });

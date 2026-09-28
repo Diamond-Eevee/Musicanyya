@@ -34,6 +34,8 @@ interface RailEntry {
   hasChildren: boolean;
   expanded: boolean;
   progress: string;
+  /** Key-change folders only (011): how the second key relates to the first, e.g. "relative minor". */
+  relation: string;
 }
 
 /**
@@ -42,8 +44,7 @@ interface RailEntry {
  * collapse and expand, for the session only. The keyboard follows the WAI-ARIA tree pattern: focus (one roving tab
  * stop) moves with the arrow keys, Home and End, and choosing a folder is a separate act (Enter or Space), so
  * walking the tree does not rebuild the list under the musician. A pure view of `browserState` (Principle V): it
- * renders the index it is given and asks for a folder change via a bubbling event, the same way `mx-library` asks
- * for a filter change.
+ * renders the index it is given and asks for a folder change via a bubbling event.
  */
 export class MxBrowserRail extends HTMLElement {
   private unsubscribe?: () => void;
@@ -81,6 +82,7 @@ export class MxBrowserRail extends HTMLElement {
       hasChildren: false,
       expanded: false,
       progress,
+      relation: '',
     });
     const out: RailEntry[] = [top('continue', en.browser.folders.continue), top('all', en.browser.folders.all)];
     const walk = (node: SectionNode, parent: string | null) => {
@@ -95,6 +97,7 @@ export class MxBrowserRail extends HTMLElement {
         hasChildren,
         expanded,
         progress: folderProgressText(counts.get(node.section.id)),
+        relation: node.section.id.startsWith('learning/key-changes/') ? (node.section.description ?? '') : '',
       });
       if (expanded) for (const child of node.children) walk(child, key);
     };
@@ -129,8 +132,8 @@ export class MxBrowserRail extends HTMLElement {
           aria-selected="${selected}" ${entry.hasChildren ? `aria-expanded="${entry.expanded}"` : ''}
           style="--browser-rail-depth:${entry.depth}"
           ><span class="browser-rail-label">${escapeHtml(entry.label)}</span>${
-            entry.progress ? `<span class="browser-rail-progress">${escapeHtml(entry.progress)}</span>` : ''
-          }</div>`;
+            entry.relation ? `<span class="browser-rail-relation">${escapeHtml(entry.relation)}</span>` : ''
+          }${entry.progress ? `<span class="browser-rail-progress">${escapeHtml(entry.progress)}</span>` : ''}</div>`;
       })
       .join('');
     this.wire();

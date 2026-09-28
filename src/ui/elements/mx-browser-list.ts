@@ -28,7 +28,7 @@ function refEquals(a: ItemRef, b: ItemRef): boolean {
 /**
  * The result list (`role="listbox"`, contracts/score-browser.md §1-2): title, subtitle, level, key and length per
  * row. A pure view of `browserState` (Principle V) - it calls the core's `buildBrowserItems`/`queryBrowser` itself
- * with its own `Intl.Collator`, the same pattern `mx-library` already uses for `filterItems`. The active row
+ * with its own `Intl.Collator`, the way the retired panel called `filterItems`. The active row
  * (`aria-activedescendant`) follows the selection and Up/Down move it; the full APG key set (Home/End/PageUp/
  * PageDown) and keyed row reuse for large lists are T084/T082.
  */
@@ -68,21 +68,10 @@ export class MxBrowserList extends HTMLElement {
       const selectedRow = selected && rows.find((r) => refEquals(r.ref, selected));
       this.activeRef = selectedRow ? selectedRow.ref : (rows[0]?.ref ?? null);
     }
-    const indexError = browserState.get().data.indexError;
-    const banner =
-      indexError !== null
-        ? `<div class="browser-error">
-             <p class="browser-error-message">${escapeHtml(en.browser.libraryUnavailable)}</p>
-             <button type="button" class="browser-retry">${escapeHtml(en.browser.retry)}</button>
-           </div>`
-        : '';
-    this.innerHTML = banner + rows.map((row, index) => this.rowHtml(row, index, selected, this.activeRef)).join('');
+    this.innerHTML = rows.map((row, index) => this.rowHtml(row, index, selected, this.activeRef)).join('');
     const activeIndex = this.activeRef ? rows.findIndex((r) => refEquals(r.ref, this.activeRef as ItemRef)) : -1;
     if (activeIndex >= 0) this.setAttribute('aria-activedescendant', `browser-row-${activeIndex}`);
     else this.removeAttribute('aria-activedescendant');
-    this.querySelector('.browser-retry')?.addEventListener('click', () => {
-      this.dispatchEvent(new CustomEvent('browserretrylibrary', { bubbles: true }));
-    });
     this.wire(rows);
   }
 
@@ -120,6 +109,7 @@ export class MxBrowserList extends HTMLElement {
         <mx-status-badge status="${row.progress.status}"></mx-status-badge>
         <span class="browser-row-title">${escapeHtml(row.title)}</span>
         ${row.subtitle ? `<span class="browser-row-subtitle">${escapeHtml(row.subtitle)}</span>` : ''}
+        ${row.step ? `<span class="browser-row-step">${escapeHtml(en.library.steps[row.step])}</span>` : ''}
         ${row.level ? `<span class="browser-row-level">${escapeHtml(en.library.levels[row.level])}</span>` : ''}
         ${row.keys.length > 0 ? `<span class="browser-row-key">${escapeHtml(row.keys.join(', '))}</span>` : ''}
         ${length ? `<span class="browser-row-length">${escapeHtml(length)}</span>` : ''}

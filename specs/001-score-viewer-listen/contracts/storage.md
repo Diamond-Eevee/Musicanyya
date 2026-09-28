@@ -9,13 +9,13 @@ cross-referenced here rather than duplicated.
 
 Object store `recentScores`, keyPath `id`, index `byLastOpened` on `lastOpened` - unchanged since version 1. As of
 version 3 it is **read only once**, by the progress migration below; nothing writes to it any more (013 R-3, R-20:
-`ScoreStore`/`IndexedDbScoreStore` are deprecated, ports.md 1.5.0).
+`ScoreStore`/`IndexedDbScoreStore` were removed, ports.md 2.0.0).
 
 **Version 2** (feature 003) adds the object store `performances` (kept attempts, FR-041) without ever touching
 `recentScores` - full shape, retention rule and failure behaviour in
 [specs/003-play-mode-grading/contracts/performance-log.md](../../003-play-mode-grading/contracts/performance-log.md).
 `onupgradeneeded` creates only the store that is missing, so a version-1 database upgrades in place; the two
-stores' own `IndexedDbScoreStore` and `IndexedDbPerformanceStore` classes share one open/upgrade path
+stores' own classes (`IndexedDbPerformanceStore`, and until 013 `IndexedDbScoreStore`) share one open/upgrade path
 (`src/engine/storage/db.ts`) so this is true regardless of which one opens the database first.
 
 **Version 3** (feature 013-score-browser-progress) adds four object stores for the `ProgressStore` port: `progress`
@@ -41,7 +41,7 @@ interface RecentScoreRecord {
 }
 ```
 
-Rules:
+Rules (as they were while `ScoreStore` wrote this store, up to feature 013; now only the migration reads it):
 
 - Written only after a **successful** open (the Score parsed without a fatal error).
 - At most `RECENT_SCORES_MAX = 10` records; after `put`, the oldest by `lastOpened` beyond 10 are deleted in the same
@@ -50,8 +50,8 @@ Rules:
   removed; it is never deleted silently.
 - Upgrades: `onupgradeneeded` migrates from older versions; an unknown newer version opens read-only and shows a
   `storageNewerVersion` notice.
-- Failures (private mode, quota, blocked): `ScoreStore` returns `{ ok: false }`; the UI shows `storageUnavailable`
-  once per session; opening files still works.
+- Failures (private mode, quota, blocked): `ScoreStore` returned `{ ok: false }`; the UI showed `storageUnavailable`
+  once per session; opening files still worked.
 
 ## localStorage key `musicanyya.settings.v1`
 

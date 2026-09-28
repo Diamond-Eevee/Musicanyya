@@ -1,5 +1,6 @@
 import { WebAudioEngine } from '../engine/audio/web-audio-engine.js';
 import { GRADE_WORKER_TIMEOUT_MS, MAX_FILE_BYTES } from '../engine/config.js';
+import { hashFile } from '../engine/files/hash.js';
 import { HttpLibraryCatalog } from '../engine/library/http-catalog.js';
 import { WebMidiInput } from '../engine/midi/web-midi-input.js';
 import type {
@@ -250,9 +251,26 @@ export class Session {
       // `browserState`, so it works whether or not the browser has ever opened) and refreshes the browser's own
       // data afterwards, in case FR-001 already opened it with a now-stale snapshot. `browserController` is
       // assigned right after this block; by the time this ever fires, it always is.
+      // The detail is the list of seeds, or `{ files, events }` when *My files* entries are seeded too (T086): each
+      // file is `{ fileName, text, title, composer }`, stored through the ordinary `putFile` with its real hash.
       window.addEventListener('e2e-progress-seed', (e) => {
-        const seeds = (e as CustomEvent<readonly { ref: ItemRef; event: ProgressEvent }[]>).detail;
+        type Seed = { ref: ItemRef; event: ProgressEvent };
+        type SeedFile = { fileName: string; text: string; title: string | null; composer: string | null };
+        const detail = (e as CustomEvent<readonly Seed[] | { files?: readonly SeedFile[]; events?: readonly Seed[] }>)
+          .detail;
+        const seeds = 'length' in detail ? detail : (detail.events ?? []);
+        const files = 'length' in detail ? [] : (detail.files ?? []);
         void (async () => {
+          for (const file of files) {
+            const bytes = new TextEncoder().encode(file.text);
+            await this.browserController.seedFile({
+              fileName: file.fileName,
+              bytes: bytes.buffer,
+              hash: await hashFile(bytes),
+              title: file.title,
+              composer: file.composer,
+            });
+          }
           const indexResult = await this.libraryCatalog.index();
           for (const seed of seeds) {
             const ref = seed.ref;

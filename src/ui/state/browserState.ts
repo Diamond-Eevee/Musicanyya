@@ -39,6 +39,9 @@ export interface BrowserSnapshot {
   pending: PendingAction | null;
   message: BrowserMessage | null;
   openingRef: ItemRef | null;
+  /** T097: the content hash of an item whose latest stored run was a new best, until the browser has announced it
+   *  (contracts/score-browser.md §6: said once, when the browser next opens). */
+  newBestScoreKey: string | null;
 }
 
 const EMPTY_DATA: BrowserData = { index: null, indexError: null, files: [], records: [] };
@@ -99,6 +102,7 @@ export class BrowserStateStore {
     pending: null,
     message: null,
     openingRef: null,
+    newBestScoreKey: null,
   });
   /** The last raw view (parsed storage, or a library-filter seed) re-validated whenever real sections arrive. */
   private rawView: unknown = null;
@@ -216,6 +220,16 @@ export class BrowserStateStore {
     this.store.update((state) => ({ ...state, view }));
   }
 
+  /** T097: a stored run of the item with this content hash was a new best; announced when the browser next opens. */
+  setNewBest(scoreKey: string): void {
+    this.store.update((state) => ({ ...state, newBestScoreKey: scoreKey }));
+  }
+
+  clearNewBest(): void {
+    if (this.store.get().newBestScoreKey === null) return;
+    this.store.update((state) => ({ ...state, newBestScoreKey: null }));
+  }
+
   /** Test cleanup and a fresh session, like `libraryState.reset()`. */
   reset(): void {
     this.rawView = null;
@@ -227,6 +241,7 @@ export class BrowserStateStore {
       pending: null,
       message: null,
       openingRef: null,
+      newBestScoreKey: null,
     });
   }
 }

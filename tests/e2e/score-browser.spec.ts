@@ -701,3 +701,97 @@ test.describe('Score browser (feature 013, US5 - Find fast)', () => {
     await expect(page.locator('.browser-rail-item[data-key="section:learning/keys"]')).toBeVisible();
   });
 });
+
+// T087 (AGENTS.md "check behaviour on real files"): the browser against real scores and the whole library, not only
+// hand-made fixtures. Chromium only: it engraves a great many Scores, and the other engines add nothing to a check of
+// data (the library folders and real files) rather than of a browser.
+//
+// "No load failure the old panel did not also have": a Score that loads shows exactly the notices its own content
+// gives - the parser and the timeline are byte-identical to `main` (`git diff main...HEAD` over src/core/timeline,
+// score and musicxml is empty), so a notice is a property of the file, not of how the browser opened it. The library
+// records the parser's notices per item in `index.json` (`facts.notices`), which is the oracle for library items;
+// the one real file that raises a notice (a volta that does not match its pass, found by the timeline, not the
+// parser) is named below.
+const NOTICE_TEXT: Record<string, string> = {
+  measureLengthMismatch: "A measure's notes do not add up to its time signature.",
+  endingNoMatch: 'A volta ending did not match the current pass.',
+};
+const KNOWN_REAL_FILE_NOTICES: Record<string, string[]> = {
+  'stanford-sailing-at-dawn.mxl': ['endingNoMatch'],
+};
+
+test.describe('Score browser on real files and the whole library (feature 013, T087)', () => {
+  test.skip(({ browserName }) => browserName !== 'chromium', 'engraves ~50 Scores: Chromium only');
+
+  const realFile = (name: string) => path.join(__dirname, '../fixtures/musicxml/real', name);
+
+  /** The notices on screen, as their message text (the tray's Dismiss button and measure labels left out). */
+  async function shownNotices(page: Page): Promise<string[]> {
+    return (await page.locator('.notice').allInnerTexts()).map((t) => t.replace(/\s*Dismiss\s*$/, '').trim());
+  }
+
+  /** Exactly one notice per expected code, each starting with that code's message, and nothing else. */
+  async function expectNotices(page: Page, codes: string[], what: string): Promise<void> {
+    await expect
+      .poll(async () => (await shownNotices(page)).length, { message: `${what}: number of notices` })
+      .toBe(codes.length);
+    const shown = await shownNotices(page);
+    for (const code of codes) {
+      const text = NOTICE_TEXT[code] ?? code;
+      expect(
+        shown.some((n) => n.startsWith(text)),
+        `${what}: notice "${text}" among ${JSON.stringify(shown)}`,
+      ).toBe(true);
+    }
+  }
+
+  test('three real MusicXML files open through Open file... and are listed under My files', async ({ page }) => {
+    test.setTimeout(300_000);
+    const names = ['chopin-zyczenie.mxl', 'holmes-lor.mxl', 'stanford-sailing-at-dawn.mxl'];
+    await page.goto('/');
+    await expect(browserDialog(page)).toBeVisible();
+    for (const name of names) {
+      await openBrowserFile(page, realFile(name));
+      await expect(page.locator('.mx-score-page svg').first()).toBeVisible({ timeout: 120_000 });
+      await expectNotices(page, KNOWN_REAL_FILE_NOTICES[name] ?? [], name);
+      await openBrowser(page);
+    }
+    await page.locator('[role="treeitem"][data-key="myFiles"]').click();
+    await expect(page.locator('.browser-row')).toHaveCount(names.length);
+  });
+
+  test('every library folder in the rail lists exactly its items, and its first item opens with no load failure', async ({
+    page,
+  }) => {
+    test.setTimeout(900_000);
+    const index = JSON.parse(fs.readFileSync(path.join(__dirname, '../../public/library/index.json'), 'utf8')) as {
+      sections: { id: string }[];
+      items: { id: string; section: string; facts: { notices?: string[] } }[];
+    };
+    await page.goto('/');
+    await expect(browserDialog(page)).toBeVisible();
+
+    let opened = 0;
+    for (const { id } of index.sections) {
+      // The oracle for a folder is the set of items whose section is this folder or below it.
+      const expected = index.items.filter((i) => i.section === id || i.section.startsWith(`${id}/`));
+      if (expected.length === 0) continue;
+      await page.locator(`.browser-rail-item[data-key="section:${id}"]`).click();
+      const listed = await page
+        .locator('.browser-row')
+        .evaluateAll((rows) => rows.map((r) => (r as HTMLElement).dataset.ref ?? ''));
+      expect(listed.slice().sort(), `folder ${id}`).toEqual(expected.map((i) => `library:${i.id}`).sort());
+
+      const firstRef = listed[0] ?? '';
+      await page.locator('.browser-row').first().dblclick();
+      await expect(browserDialog(page)).toBeHidden();
+      await expect(page.locator('.mx-score-page svg').first()).toBeVisible({ timeout: 60_000 });
+      const first = index.items.find((i) => `library:${i.id}` === firstRef);
+      await expectNotices(page, first?.facts.notices ?? [], firstRef);
+      opened += 1;
+      await openBrowser(page);
+    }
+    expect(opened, 'folders opened').toBeGreaterThan(20);
+    console.log(`T087: ${opened} library folders listed and one item each opened; notices as the index records`);
+  });
+});

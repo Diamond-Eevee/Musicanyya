@@ -14,7 +14,7 @@ browser (`mx-browser-rail` + `mx-browser-list`,
 [013 score-browser.md](../../013-score-browser-progress/contracts/score-browser.md)); `filterItems`,
 `buildSectionTree` and the step-order rules of §3/§4 stay and are reused by the browser's own query and rail code.
 §4.1 settings adoption via `supersedes` is unchanged; progress also follows `supersedes` (013 data-model.md section
-6). `mx-library` itself is retired (013 OD-6, removed with T092).
+6). `mx-library` itself was retired and removed (013 OD-6, T092); what it showed that the browser did not (step labels, key-change relation words, the labelled item facts, the level description) was carried into the browser first (013 T098-T101).
 
 **Owner**: `src/engine/ports.ts` (port), `src/engine/library/http-catalog.ts` (adapter),
 `src/ui/elements/mx-library.ts` + `src/ui/state/libraryState.ts` (UI), `src/app/session.ts` (wiring).

@@ -204,6 +204,23 @@ export class MxBrowserDetail extends HTMLElement {
       </div>`;
   }
 
+  /** 005 FR-010/012: every item's key, metre, tempo, measures, duration, hands and skills, labelled; a fact the item
+   *  does not have is left out. */
+  private factsText(item: LibraryItem): string {
+    const d = en.library.detail;
+    const { facts, meta } = item;
+    const parts: string[] = [];
+    if (facts.keys.length > 0) parts.push(`${d.key}: ${facts.keys.join(', ')}`);
+    if (facts.metres.length > 0) parts.push(`${d.metre}: ${facts.metres.join(', ')}`);
+    if (facts.tempoBpm !== null) parts.push(`${d.tempo}: ${Math.round(facts.tempoBpm)} ${en.transport.bpm}`);
+    parts.push(`${d.measures}: ${facts.measures}`);
+    parts.push(`${d.duration}: ${formatDuration(facts.durationSeconds)}`);
+    if (meta.hands) parts.push(`${d.hands}: ${meta.hands}`);
+    const tags = meta.tags.map((t) => en.library.tags[t] ?? t).join(', ');
+    if (tags) parts.push(`${en.library.filters.tag}: ${tags}`);
+    return escapeHtml(parts.join(' · '));
+  }
+
   private libraryHtml(
     item: LibraryItem,
     row: BrowserItem,
@@ -222,10 +239,7 @@ export class MxBrowserDetail extends HTMLElement {
       ${composer ? `<p class="browser-detail-composer">${composer}</p>` : ''}
       ${arranger ? `<p class="browser-detail-arranger">${arranger}</p>` : ''}
       <p class="browser-detail-level">${escapeHtml(s.levels[item.meta.level])}</p>
-      ${item.facts.keys.length > 0 ? `<p class="browser-detail-keys">${escapeHtml(item.facts.keys.join(', '))}</p>` : ''}
-      <p class="browser-detail-measures">${item.facts.measures}</p>
-      <p class="browser-detail-duration">${formatDuration(item.facts.durationSeconds)}</p>
-      ${item.meta.tags.length > 0 ? `<p class="browser-detail-tags">${item.meta.tags.map((t) => escapeHtml(s.tags[t] ?? t)).join(', ')}</p>` : ''}
+      <p class="browser-detail-facts">${this.factsText(item)}</p>
       ${this.progressHtml(row, ref, shared, pendingHere)}
       <h4 class="score-source-heading">${escapeHtml(s.source.heading)}</h4>
       ${sourceLines}

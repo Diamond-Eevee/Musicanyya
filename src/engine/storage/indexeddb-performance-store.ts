@@ -22,7 +22,7 @@ function scoreRange(scoreId: string): IDBKeyRange {
 }
 
 /** contracts/performance-log.md: object store `performances`, keyPath `runId`, index `byScoreFinished` on
- *  `[scoreId, finishedAt]`. Shares the `musicanyya` database (and its version 2 upgrade) with `IndexedDbScoreStore`
+ *  `[scoreId, finishedAt]`. Shares the `musicanyya` database (and its version 2 upgrade) with the progress store
  *  via `./db.js`, so an existing `recentScores` store survives the upgrade untouched. */
 export class IndexedDbPerformanceStore implements PerformanceStore {
   private dbPromise: Promise<IDBDatabase> | null = null;

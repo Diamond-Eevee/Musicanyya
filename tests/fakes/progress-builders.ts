@@ -117,7 +117,7 @@ function libraryItem(id: string, section: string, step?: Step): LibraryItem {
 }
 
 /** A synthetic library index of `n` items spread over a 3-level section tree with steps (like 011's 200-item
- *  synthetic index, tests/ui/mx-library.test.ts): `Learning > Keys > Key {k}`, each key folder holding the four
+ *  synthetic index of the retired panel's tests): `Learning > Keys > Key {k}`, each key folder holding the four
  *  exercise steps in order, extra items appended to the last key folder once every step is used. */
 export function libraryIndexOf(n: number): LibraryIndex {
   const steps: readonly Step[] = ['introduction', 'beginner', 'intermediate', 'advanced'];
