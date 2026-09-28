@@ -43,6 +43,8 @@ interface Layout {
   pageHeight: number;
   scale: number;
   adjustPageHeight: 0 | 1;
+  pageMarginTop?: number;
+  pageMarginBottom?: number;
 }
 
 interface PageGeometry {
@@ -143,7 +145,7 @@ describe('Verovio page-unit relation (score-layout.md section 2)', () => {
         { pageWidth: 1920, pageHeight: 1000, scale: 100, adjustPageHeight: 1 },
         [1],
       );
-      // This is why a dictated (screenful) page must set adjustPageHeight to 0 - contract rule 4.
+      // 015 score-layout 2.0.0: adjustPageHeight 1 crops each page to its content.
       expect(pages[0]?.outerHeight).toBeLessThan(1000);
     });
   });
@@ -238,25 +240,76 @@ describe('Verovio page-unit relation (score-layout.md section 2)', () => {
       const { outerWidth } = geometryOf(svg);
       expect(Math.abs(outerWidth - 1920)).toBeLessThanOrEqual(1);
     });
+  });
 
-    /** T030: the worker must ask for a dictated height (`adjustPageHeight: 0`), on both messages that lay out. */
-    it.each(['load', 'relayout'] as const)(
-      'a %s gives every page exactly the requested screenful height',
-      async (kind) => {
-        const messages: Array<Record<string, unknown>> = [];
-        const post = (message: Record<string, unknown>) => messages.push(message);
-        const send = (data: Record<string, unknown>) =>
-          handleMessage({ data } as MessageEvent, post as typeof postMessage);
-        await send({ type: 'init', requestId: 1 });
-        await send({ type: 'load', requestId: 2, renderXml: LARGE, options: fittedLayout(1600, 800, 100) });
-        if (kind === 'relayout') await send({ type: 'relayout', requestId: 3, options: fittedLayout(1920, 1000, 100) });
-        await send({ type: 'page', requestId: 4, page: 2 });
+  describe('worker options (score-layout 2.0.0)', () => {
+    let reqId = 100;
+    const send = async (data: Record<string, unknown>): Promise<Record<string, unknown>[]> => {
+      const responses: Record<string, unknown>[] = [];
+      await handleMessage(
+        { data: { requestId: ++reqId, ...data } } as MessageEvent,
+        ((msg: Record<string, unknown>) => responses.push(msg)) as typeof postMessage,
+      );
+      return responses;
+    };
 
-        const svg = messages.filter((message) => message.type === 'svg').at(-1)?.svg;
-        if (typeof svg !== 'string') throw new Error(`no svg message: ${JSON.stringify(messages)}`);
-        const wanted = kind === 'load' ? 800 : 1000;
-        expect(geometryOf(svg).outerHeight).toBeCloseTo(wanted, 0);
-      },
-    );
+    beforeAll(async () => {
+      await send({ type: 'init' });
+    });
+
+    it('(a) a page of eight-measure-melody.musicxml at 1920 x 1000 has a cropped viewBox height equal to content + margins', async () => {
+      await send({
+        type: 'load',
+        renderXml: SMALL,
+        options: { pageWidth: 1920, pageHeight: 1000, scale: 100 },
+      });
+      const pageMsgs = await send({ type: 'page', page: 1 });
+      const svg = pageMsgs.find((m) => m.type === 'svg')?.svg as string;
+      const geom = geometryOf(svg);
+      expect(geom.outerHeight).toBeLessThan(1000);
+      const contentOnly = await render(
+        SMALL,
+        { pageWidth: 1920, pageHeight: 1000, scale: 100, adjustPageHeight: 1, pageMarginTop: 0, pageMarginBottom: 0 },
+        [1],
+      );
+      const contentHeight = contentOnly.pages[0]?.outerHeight ?? 0;
+      const expectedHeight = contentHeight + (18 + 18);
+      expect(Math.abs(geom.outerHeight - expectedHeight)).toBeLessThanOrEqual(1);
+    });
+
+    it('(b) large-score.musicxml pages have differing viewBox heights', async () => {
+      await send({
+        type: 'load',
+        renderXml: LARGE,
+        options: { pageWidth: 1600, pageHeight: 1300, scale: 100 },
+      });
+      const p1Msgs = await send({ type: 'page', page: 1 });
+      const pLastMsgs = await send({ type: 'page', page: 11 });
+      const svg1 = p1Msgs.find((m) => m.type === 'svg')?.svg as string;
+      const svgLast = pLastMsgs.find((m) => m.type === 'svg')?.svg as string;
+      const h1 = geometryOf(svg1).outerHeight;
+      const hLast = geometryOf(svgLast).outerHeight;
+      expect(h1).not.toBeCloseTo(hLast, 0);
+    });
+
+    it('(c) the page count of large-score.musicxml at 1600 x 900 is <= the count with 1.1.1 options', async () => {
+      const loadMsgs = await send({
+        type: 'load',
+        renderXml: LARGE,
+        options: { pageWidth: 1600, pageHeight: 900, scale: 100 },
+      });
+      const workerCount = (loadMsgs.find((m) => m.type === 'laidOut')?.pageCount as number) ?? 0;
+      // 1.1.1 baseline: default margins (50), adjustPageHeight 0
+      const baseline111 = await render(
+        LARGE,
+        { pageWidth: 1600, pageHeight: 900, scale: 100, adjustPageHeight: 0 },
+        [1],
+      );
+      expect(workerCount).toBeLessThanOrEqual(baseline111.pageCount);
+      // And with adjustPageHeight 1 and smaller margins (18 vs 50), the worker pages must be cropped
+      const p1 = await send({ type: 'page', page: 1 });
+      const svg = p1.find((m) => m.type === 'svg')?.svg as string;
+      expect(geometryOf(svg).outerHeight).toBeLessThan(900);
+    });
   });
 });

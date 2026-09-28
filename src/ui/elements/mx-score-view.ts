@@ -35,7 +35,9 @@ import {
   measureIndexFromElementId,
   mountedPageNumbers,
   type PageLayout,
+  pageHeights,
   sanitiseAndExtractMeasures,
+  scrollCompensation,
 } from '../score/pages.js';
 import { bandRectFor, placePracticeBand } from '../score/practice-band.js';
 import { drawLoopMarks, drawPracticeMarks, drawStartMarker } from '../score/practice-marks.js';
@@ -103,8 +105,8 @@ export class MxScoreView extends HTMLElement {
   private unsubscribeInset?: () => void;
   /** The layout last sent to Verovio; a resize that would ask for the same one is ignored. */
   private requested: LayoutOptions | null = null;
-  /** Height over width of a page, read from its rendered `viewBox` (contracts/score-layout.md section 4). */
-  private pageAspect: number | null = null;
+  /** Measured heights per page (CSS px), kept for the layout epoch (contracts/score-layout.md 2.0.0 section 3). */
+  private readonly measuredHeights = new Map<number, number>();
   private loadToken = 0;
   /** Bumped by every relayout, so one that a newer relayout has overtaken drops its result. */
   private relayoutEpoch = 0;
@@ -271,7 +273,6 @@ export class MxScoreView extends HTMLElement {
     this.rawGlyphs = initialised.glyphs ?? null;
     const layout = this.fittedLayout() ?? this.requested ?? this.defaultLayout();
     this.requested = layout;
-    this.pageAspect = null;
     const { pageCount } = await this.client.load(renderXml, layout);
     if (token !== this.loadToken) return; // superseded by a newer load
     this.applyPageCount(pageCount);
@@ -316,14 +317,12 @@ export class MxScoreView extends HTMLElement {
     this.relayoutTimer = setTimeout(() => this.relayout(), RELAYOUT_DEBOUNCE_MS);
   }
 
-  /** The height of one page element, in CSS px: the page width times the rendered page's own aspect ratio. Until a
-   *  page has been rendered it comes from the layout that was asked for, and with no viewport at all from a fixed
-   *  fallback, so page mounting and follow-scroll always work against a height that is close to the real one. */
-  private pageHeightPx(): number {
+  /** Fallback height for unrendered pages in CSS px, derived from the requested aspect ratio or the fixed default
+   *  (contracts/score-layout.md 2.0.0 section 3). */
+  private fallbackPageHeightPx(): number {
     const width = this.scrollEl.clientWidth;
-    if (width > 0) {
-      const aspect = this.pageAspect ?? (this.requested ? this.requested.pageHeight / this.requested.pageWidth : null);
-      if (aspect !== null) return Math.round(width * aspect * 100) / 100;
+    if (width > 0 && this.requested) {
+      return Math.round(width * (this.requested.pageHeight / this.requested.pageWidth) * 100) / 100;
     }
     return DEFAULT_PAGE_HEIGHT;
   }
@@ -334,6 +333,7 @@ export class MxScoreView extends HTMLElement {
     this.measurePages.clear();
     this.pageLookup = null;
     this.mountedPages.clear();
+    this.measuredHeights.clear();
     this.stack.innerHTML = '';
     this.stack.appendChild(this.band); // first, so it is drawn behind every page (R-02)
 
@@ -341,7 +341,10 @@ export class MxScoreView extends HTMLElement {
     if (block) this.stack.appendChild(block);
     // Page 1 starts below the title block, at its drawn height: a long title wraps onto more lines (FR-017).
     this.titleBlockHeight = block?.offsetHeight ?? 0;
-    this.layouts = layoutPages(pageCount, this.pageHeightPx(), 0, this.titleBlockHeight);
+    this.layouts = layoutPages(
+      pageHeights(pageCount, this.measuredHeights, this.fallbackPageHeightPx()),
+      this.titleBlockHeight,
+    );
 
     for (const layout of this.layouts) {
       const pageEl = document.createElement('div');
@@ -384,19 +387,6 @@ export class MxScoreView extends HTMLElement {
     return block;
   }
 
-  /** The first rendered page tells the real page shape; re-measure the placeholders once if it differs. */
-  private adoptRenderedAspect(aspect: number | null): void {
-    if (aspect === null || aspect === this.pageAspect) return;
-    this.pageAspect = aspect;
-    const height = this.pageHeightPx();
-    if (this.layouts.length === 0 || this.layouts[0]?.height === height) return;
-    this.layouts = layoutPages(this.layouts.length, height, 0, this.titleBlockHeight);
-    for (const layout of this.layouts) {
-      const pageEl = this.stack.querySelector<HTMLElement>(`[data-page="${layout.page}"]`);
-      if (pageEl) pageEl.style.height = `${layout.height}px`;
-    }
-  }
-
   private topVisiblePage(): number {
     const scrollTop = this.scrollEl.scrollTop;
     const layout = this.layouts.find((l) => l.top + l.height > scrollTop) ?? this.layouts[this.layouts.length - 1];
@@ -421,7 +411,6 @@ export class MxScoreView extends HTMLElement {
     const epoch = ++this.relayoutEpoch;
     const anchorMeasureId = this.currentAnchorMeasureId();
     this.requested = layout;
-    this.pageAspect = null;
     const { pageCount } = await this.client.relayout(layout);
     if (token !== this.loadToken || epoch !== this.relayoutEpoch) return;
     this.applyPageCount(pageCount);
@@ -455,7 +444,27 @@ export class MxScoreView extends HTMLElement {
       const { svg } = await this.client.page(page);
       if (token !== this.loadToken) return;
       const sanitised = sanitiseAndExtractMeasures(svg);
-      this.adoptRenderedAspect(sanitised.aspect);
+      if (sanitised.aspect !== null) {
+        const width = this.scrollEl.clientWidth;
+        const pageHeight = width > 0 ? Math.round(width * sanitised.aspect * 100) / 100 : DEFAULT_PAGE_HEIGHT;
+        if (this.measuredHeights.get(page) !== pageHeight) {
+          const beforeLayout = this.layouts.find((l) => l.page === page);
+          this.measuredHeights.set(page, pageHeight);
+          const fallback = this.fallbackPageHeightPx();
+          const heights = pageHeights(this.layouts.length, this.measuredHeights, fallback);
+          this.layouts = layoutPages(heights, this.titleBlockHeight);
+          for (const layout of this.layouts) {
+            const el = this.stack.querySelector<HTMLElement>(`[data-page="${layout.page}"]`);
+            if (el) el.style.height = `${layout.height}px`;
+          }
+          if (beforeLayout) {
+            const delta = scrollCompensation(beforeLayout, pageHeight, this.scrollEl.scrollTop);
+            if (delta !== 0) {
+              this.scrollOwn(this.scrollEl.scrollTop + delta);
+            }
+          }
+        }
+      }
       this.pageMeasureIds.set(page, sanitised.measureIds);
       const pageEl = this.stack.querySelector(`[data-page="${page}"]`);
       if (pageEl) pageEl.innerHTML = sanitised.svg;

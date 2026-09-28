@@ -43,14 +43,14 @@ cropped pages (FR-003) are foundational because every story measures systems acr
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T003 [P] Extend `tests/ui/pages.test.ts` for the 2.0.0 signatures (score-layout.md section 3): (a)
+- [x] T003 [P] Extend `tests/ui/pages.test.ts` for the 2.0.0 signatures (score-layout.md section 3): (a)
   `layoutPages([{height:500,measured:true},{height:300,measured:false}], 40)` gives tops 40 and 540 and keeps
   `measured`; (b) `pageHeights(4, new Map([[1,500],[2,300]]), 900)` gives 500, 300, then the mean 400 for pages 3-4,
   all flagged correctly; (c) with no measured page every height is the fallback 900; (d) `scrollCompensation` returns
   Δ for a page whose old bottom ≤ `scrollTop`, and 0 for a page that reaches below `scrollTop` or lies below the
   viewport, including a page ending exactly at `scrollTop` (counts as above); (e) the existing `mountedPageNumbers`
   cases still hold with unequal heights. Run: fails (old signature)
-- [ ] T004 [P] Extend `tests/verovio/page-units.test.ts` with a `describe('worker options (score-layout 2.0.0)')` that
+- [x] T004 [P] Extend `tests/verovio/page-units.test.ts` with a `describe('worker options (score-layout 2.0.0)')` that
   loads through the worker's own `handleMessage` (as `tests/verovio/engraving.test.ts` does): (a) a page of
   `eight-measure-melody.musicxml` at 1920 x 1000 has an outer `viewBox` height smaller than 1000 (cropped) and equal
   to the inner content height scaled plus the two margins within 1 unit; (b) `large-score.musicxml` pages have
@@ -58,7 +58,7 @@ cropped pages (FR-003) are foundational because every story measures systems acr
   1.1.1 options (margins default, `adjustPageHeight` 0). Keep the existing pins (they describe Verovio, not the
   worker) and change the comment "a dictated (screenful) page must set adjustPageHeight to 0 - contract rule 4" to
   point at 015 score-layout 2.0.0. Run: (a)-(c) fail (worker still sends `adjustPageHeight: 0`)
-- [ ] T005 [P] Update `tests/ui/score-view-fit.test.ts` "sizes each page from its viewBox..." group for per-page
+- [x] T005 [P] Update `tests/ui/score-view-fit.test.ts` "sizes each page from its viewBox..." group for per-page
   heights: (a) two pages whose fake SVGs have different `viewBox` heights get different element heights (each its own
   aspect); (b) an unrendered page takes the mean of the rendered ones; (c) the "before any page has been rendered"
   and "nothing at all is known" cases keep their expectations. Add to `tests/ui/score-view.test.ts`: (d) when a page
@@ -69,19 +69,19 @@ cropped pages (FR-003) are foundational because every story measures systems acr
 
 ### Implementation
 
-- [ ] T006 Implement `layoutPages(heights, startOffset)`, `pageHeights()` and `scrollCompensation()` in
+- [x] T006 Implement `layoutPages(heights, startOffset)`, `pageHeights()` and `scrollCompensation()` in
   `src/ui/score/pages.ts` per score-layout.md section 3 (remove the old `(pageCount, pageHeight, gap, startOffset)`
   form and update its callers); T003 green
-- [ ] T007 Set the worker options in `src/workers/verovio.worker.ts` for both `load` and `relayout`:
+- [x] T007 Set the worker options in `src/workers/verovio.worker.ts` for both `load` and `relayout`:
   `adjustPageHeight: 1`, `pageMarginTop: ENGRAVING_PAGE_MARGIN_TOP`, `pageMarginBottom: ENGRAVING_PAGE_MARGIN_BOTTOM`
   (imported from `src/engine/config.ts`); move the shared option object into one constant so `load` and `relayout`
   cannot drift; update the rule-4 comment to 015 score-layout 2.0.0; T004 green
-- [ ] T008 In `src/ui/elements/mx-score-view.ts`: keep `measuredHeights: Map<page, number>` per layout epoch (cleared
+- [x] T008 In `src/ui/elements/mx-score-view.ts`: keep `measuredHeights: Map<page, number>` per layout epoch (cleared
   in `applyPageCount`, not on unmount); in `mountVisiblePages` record each rendered page's own height from its
   `sanitised.aspect`, re-run `layoutPages(pageHeights(...))`, update the page elements' heights and apply
   `scrollCompensation` through `scrollOwn()`; replace `adoptRenderedAspect` / the shared `pageAspect` accordingly;
   `topVisiblePage`, `scrollToPageOf` and relayout anchoring use the new layouts; T005 green
-- [ ] T009 [light] Run `pnpm library:fidelity --check` and record its summary line in the log; it must pass with the
+- [x] T009 [light] Run `pnpm library:fidelity --check` and record its summary line in the log; it must pass with the
   new options (the audit reads notation content, not geometry - research R-2). A failure is a stop-and-ask (AGENTS.md
   section 7), not a re-baseline
 

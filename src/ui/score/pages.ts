@@ -2,16 +2,59 @@ export interface PageLayout {
   page: number; // 1-based
   top: number;
   height: number;
+  measured: boolean;
 }
 
-export function layoutPages(pageCount: number, pageHeight: number, gap = 0, startOffset = 0): PageLayout[] {
+export interface PageHeight {
+  height: number;
+  measured: boolean;
+}
+
+/** One entry per page, in page order; page 1 starts at `startOffset` (the title block's drawn height). */
+export function layoutPages(heights: readonly PageHeight[], startOffset = 0): PageLayout[] {
   const layouts: PageLayout[] = [];
   let top = startOffset;
-  for (let page = 1; page <= pageCount; page++) {
-    layouts.push({ page, top, height: pageHeight });
-    top += pageHeight + gap;
+  let page = 1;
+  for (const entry of heights) {
+    layouts.push({ page: page++, top, height: entry.height, measured: entry.measured });
+    top += entry.height;
   }
   return layouts;
+}
+
+/** Heights for `pageCount` pages: measured ones as given, the rest estimated (score-layout.md rule 2). */
+export function pageHeights(
+  pageCount: number,
+  measured: ReadonlyMap<number, number>, // page -> CSS px, from the rendered viewBox
+  fallbackHeight: number, // the requested pageHeight in CSS px
+): PageHeight[] {
+  let mean = fallbackHeight;
+  if (measured.size > 0) {
+    let sum = 0;
+    for (const h of measured.values()) {
+      sum += h;
+    }
+    mean = sum / measured.size;
+  }
+
+  const heights: PageHeight[] = [];
+  for (let page = 1; page <= pageCount; page++) {
+    const m = measured.get(page);
+    if (m !== undefined) {
+      heights.push({ height: m, measured: true });
+    } else {
+      heights.push({ height: mean, measured: false });
+    }
+  }
+  return heights;
+}
+
+/** Scroll correction when one page's height changes (score-layout.md rule 3); 0 when nothing on screen would move. */
+export function scrollCompensation(before: PageLayout, newHeight: number, scrollTop: number): number {
+  if (before.top + before.height <= scrollTop) {
+    return newHeight - before.height;
+  }
+  return 0;
 }
 
 /** Pages within +-1 screen of the viewport are mounted; the rest stay unmounted placeholders. */

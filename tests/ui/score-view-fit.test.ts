@@ -8,22 +8,25 @@ import type { LayoutOptions, VerovioClient } from '../../src/ui/score/verovio-cl
 class RecordingClient implements VerovioClient {
   loads: LayoutOptions[] = [];
   relayouts: LayoutOptions[] = [];
+  pageCount = 2;
   /** The outer viewBox each rendered page reports; null renders an SVG with none. */
   viewBox: string | null = null;
+  pageViewBoxes: Map<number, string> = new Map();
 
   async init() {
     return { version: 'fake' };
   }
   async load(_renderXml: string, options: LayoutOptions) {
     this.loads.push(options);
-    return { pageCount: 2 };
+    return { pageCount: this.pageCount };
   }
   async relayout(options: LayoutOptions) {
     this.relayouts.push(options);
-    return { pageCount: 2 };
+    return { pageCount: this.pageCount };
   }
   async page(page: number) {
-    const viewBox = this.viewBox ? ` viewBox="${this.viewBox}"` : '';
+    const vb = this.pageViewBoxes.get(page) ?? this.viewBox;
+    const viewBox = vb ? ` viewBox="${vb}"` : '';
     return { svg: `<svg xmlns="http://www.w3.org/2000/svg"${viewBox}><g class="measure" id="m-${page}"/></svg>` };
   }
   async pageOf() {
@@ -170,18 +173,21 @@ describe('mx-score-view: page height from the rendered SVG (score-layout.md sect
   const pageHeights = () =>
     Array.from(el.querySelectorAll<HTMLElement>('.mx-score-page')).map((page) => page.style.height);
 
-  it('sizes each page from its viewBox aspect ratio and the page width, not a constant', async () => {
+  it('gives two pages with different viewBox heights different element heights (each its own aspect)', async () => {
     setViewport(scroll, 960, 500);
-    client.viewBox = '0 0 1920 1000'; // a 1920 x 1000 page shown 960 px wide
+    client.pageViewBoxes.set(1, '0 0 1920 1000'); // 500px at width 960
+    client.pageViewBoxes.set(2, '0 0 1920 600'); // 300px at width 960
     await el.load('<x/>', ['m-1', 'm-2']);
-    expect(pageHeights()).toEqual(['500px', '500px']);
+    expect(pageHeights()).toEqual(['500px', '300px']);
   });
 
-  it('follows the aspect ratio of a different page shape', async () => {
-    setViewport(scroll, 800, 500);
-    client.viewBox = '0 0 1600 600';
-    await el.load('<x/>', ['m-1', 'm-2']);
-    expect(pageHeights()).toEqual(['300px', '300px']);
+  it('gives an unrendered page the mean of the rendered ones', async () => {
+    setViewport(scroll, 960, 500);
+    client.pageCount = 4;
+    client.pageViewBoxes.set(1, '0 0 1920 1000'); // 500px
+    client.pageViewBoxes.set(2, '0 0 1920 600'); // 300px
+    await el.load('<x/>', ['m-1', 'm-2', 'm-3', 'm-4']);
+    expect(pageHeights()).toEqual(['500px', '300px', '400px', '400px']);
   });
 
   it('before any page has been rendered, uses the requested page shape at the viewport width', async () => {

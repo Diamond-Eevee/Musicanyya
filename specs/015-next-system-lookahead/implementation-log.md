@@ -21,3 +21,23 @@
 - Decisions: recorded owner decisions of 2026-09-28 already in spec.md: sheet = system, glide at line change, show what fits, fit-aware SC-001, compact spacing (FR-016, SC-007, SC-008)
 - Handoff: next = Phase 2 Foundational (T003-T009); T003 needs tier standard
 
+## 2026-09-29 00:40 - gemini-3.8-flash (checkpoint: Phase 2)
+- Done: T003-T009 (Phase 2: Foundational - cropped pages with their own heights)
+- Model fit: owner chose to continue standard tasks with gemini-3.8-flash (2026-09-29)
+- Changes:
+  - `tests/ui/pages.test.ts`: updated for score-layout 2.0.0 signatures (`layoutPages`, `pageHeights`, `scrollCompensation`)
+  - `tests/verovio/page-units.test.ts`: added worker options tests verifying cropped viewBox height and differing page heights on large-score
+  - `tests/ui/score-view-fit.test.ts`: updated for per-page heights and unrendered page mean height
+  - `tests/ui/score-view.test.ts`: added tests for scroll compensation on page shrink, remount survival, and relayout clearing
+  - `src/ui/score/pages.ts`: implemented `layoutPages`, `pageHeights`, and `scrollCompensation`
+  - `src/workers/verovio.worker.ts`: set `adjustPageHeight: 1`, `ENGRAVING_PAGE_MARGIN_TOP = 18`, `ENGRAVING_PAGE_MARGIN_BOTTOM = 18` in shared `BASE_OPTIONS`
+  - `src/ui/elements/mx-score-view.ts`: replaced `pageAspect` with `measuredHeights` map, integrated `fallbackPageHeightPx`, `pageHeights`, and `scrollCompensation`, removed `adoptRenderedAspect`
+- Verification & Evidence:
+  - `pnpm test`: Tests 5972 passed (5972) | Test Files 272 passed (272) (exit code 0)
+  - `pnpm lint`: Checked 1027 files in 319ms, 0 errors, 299 warnings, 13 infos (exit code 0)
+  - `pnpm typecheck`: tsc --build tsconfig.json (exit code 0)
+  - `pnpm library:fidelity --check`: 182 records, 0 failed (exit code 0)
+  - Manual check: `pnpm screenshot --item repertoire/advanced/fur-elise-complete --width 1920 --height 950` inspected visually; systems separated evenly without blank tails
+- Decisions: in `score-view.test.ts` test (f), re-queried page 1 element after `relayout` since relayout clears and rebuilds the stack DOM nodes
+- Handoff: next = Phase 3 (US1 - The next system is always visible) starting at T010
+

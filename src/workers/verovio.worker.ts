@@ -1,11 +1,25 @@
 import verovio, { type VerovioToolkit } from 'verovio';
 import { errorMessage } from '../core/errors.js';
+import { ENGRAVING_PAGE_MARGIN_BOTTOM, ENGRAVING_PAGE_MARGIN_TOP } from '../engine/config.js';
 import { type HarvestedGlyphs, harvestGlyphs } from './glyphs.js';
 
 let toolkit: VerovioToolkit | null = null;
 let initPromise: Promise<VerovioToolkit> | null = null;
 /** The glyphs for the red discs' accidentals (feature 008), read once at the first `init`; null when they could not be. */
 let glyphs: HarvestedGlyphs | null | undefined;
+
+// 015 score-layout 2.0.0: adjustPageHeight 1 crops each page to its content with configured margins.
+const BASE_OPTIONS = {
+  breaks: 'auto',
+  adjustPageHeight: 1,
+  pageMarginTop: ENGRAVING_PAGE_MARGIN_TOP,
+  pageMarginBottom: ENGRAVING_PAGE_MARGIN_BOTTOM,
+  header: 'none',
+  footer: 'none',
+  font: 'Leipzig',
+  svgViewBox: 1,
+  svgHtml5: 0,
+} as const;
 
 /**
  * The toolkit, constructing it on the first call and sharing one in-flight construction between
@@ -49,16 +63,7 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
       case 'load': {
         if (!toolkit) throw new Error('Verovio not initialized');
         toolkit.setOptions({
-          breaks: 'auto',
-          // 0: the page height is dictated by the requested layout (one screenful), not derived from the content
-          // (contracts/score-layout.md section 2, rule 4, measured by tests/verovio/page-units.test.ts). Verovio
-          // boolean options are 1/0.
-          adjustPageHeight: 0,
-          header: 'none',
-          footer: 'none',
-          font: 'Leipzig',
-          svgViewBox: 1,
-          svgHtml5: 0,
+          ...BASE_OPTIONS,
           pageWidth: data.options.pageWidth,
           pageHeight: data.options.pageHeight,
           scale: data.options.scale,
@@ -70,13 +75,7 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
       case 'relayout': {
         if (!toolkit) throw new Error('Verovio not initialized');
         toolkit.setOptions({
-          breaks: 'auto',
-          adjustPageHeight: 0,
-          header: 'none',
-          footer: 'none',
-          font: 'Leipzig',
-          svgViewBox: 1,
-          svgHtml5: 0,
+          ...BASE_OPTIONS,
           pageWidth: data.options.pageWidth,
           pageHeight: data.options.pageHeight,
           scale: data.options.scale,
