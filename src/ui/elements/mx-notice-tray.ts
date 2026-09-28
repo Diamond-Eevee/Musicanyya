@@ -25,6 +25,10 @@ const FAILURE_NOTICES: ReadonlySet<string> = new Set([
 ]);
 
 function formatNotice(notice: Notice): string {
+  // US3 #4: the file's title is substituted into the sentence, not appended in parens like every other code.
+  if (notice.code === 'fileRemovedPending' && notice.element) {
+    return (en.notices.fileRemovedPending ?? '{name} removed from My files.').replace('{name}', notice.element);
+  }
   let text = en.notices[notice.code] ?? notice.code;
   if (notice.element) text += ` (${notice.element})`;
   if (notice.measureLabels.length > 0)
@@ -63,8 +67,15 @@ export class MxNoticeTray extends HTMLElement {
 
     this.innerHTML =
       shown
-        .map(
-          (n) => `
+        .map((n) =>
+          n.code === 'progressResetPending' || n.code === 'fileRemovedPending'
+            ? `
+      <div class="notice ${n.severity}">
+        ${escapeHtml(formatNotice(n))}
+        <button class="undo-btn" data-id="${n.id}" data-undo-event="${n.code === 'progressResetPending' ? 'browserundoreset' : 'browserundoremovefile'}">${escapeHtml(en.browser.undo)}</button>
+      </div>
+    `
+            : `
       <div class="notice ${n.severity}">
         ${escapeHtml(formatNotice(n))}
         <button class="dismiss-btn" data-id="${n.id}">Dismiss</button>
@@ -78,6 +89,18 @@ export class MxNoticeTray extends HTMLElement {
       btn.addEventListener('click', (e) => {
         const id = (e.target as HTMLElement).getAttribute('data-id');
         if (id) noticeState.dismiss(id);
+      });
+    });
+    // R-12: undoing a pending reset or removal from the toast - the controller (listening on `document`) does the
+    // actual cancel; this only clears the toast itself, the same as a dismiss would.
+    this.querySelectorAll('.undo-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        const id = target.getAttribute('data-id');
+        if (id) noticeState.dismiss(id);
+        this.dispatchEvent(
+          new CustomEvent(target.getAttribute('data-undo-event') ?? 'browserundoreset', { bubbles: true }),
+        );
       });
     });
   }

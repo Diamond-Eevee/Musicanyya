@@ -2,10 +2,16 @@ import { en } from '../i18n/en.js';
 
 export const SCORE_FILE_ACCEPT = '.musicxml,.xml,.mxl';
 
+/**
+ * Feature 013, R-20: opens the score browser instead of a file chooser directly - the browser is where a Score is
+ * found now (library items or *Open file...*, the latter added in US3). The hidden file input stays here, wired
+ * exactly as before (`fileopen`), only reachable directly rather than through this button's own click - existing
+ * callers (drag-and-drop, e2e) that set files on it are unaffected.
+ */
 export class MxOpenButton extends HTMLElement {
-  /** Opens the file chooser, for callers (the empty-state invitation) that ask the app to open a Score. */
+  /** Asks the app to open the browser - for callers (the empty-state invitation) that ask the app to open a Score. */
   open(): void {
-    this.querySelector<HTMLInputElement>('.mx-open-input')?.click();
+    this.dispatchEvent(new CustomEvent('openbrowser', { bubbles: true }));
   }
 
   connectedCallback() {
@@ -20,7 +26,7 @@ export class MxOpenButton extends HTMLElement {
     const button = this.querySelector('.mx-open-button') as HTMLButtonElement;
     const input = this.querySelector('.mx-open-input') as HTMLInputElement;
 
-    button.addEventListener('click', () => input.click());
+    button.addEventListener('click', () => this.open());
     input.addEventListener('change', () => {
       const file = input.files?.[0] ?? null;
       input.value = '';

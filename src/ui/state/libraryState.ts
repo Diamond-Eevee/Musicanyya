@@ -1,175 +1,17 @@
-import { buildSectionTree, type SectionNode } from '../../core/library/tree.js';
-import type { Level, LibraryFilter, LibraryIndex, LibraryItem } from '../../core/library/types.js';
-import { SKILL_TAGS } from '../../core/library/types.js';
-import type { CatalogError } from '../../engine/ports.js';
+import type { LibraryItem } from '../../core/library/types.js';
 import { createStore } from './store.js';
 
-/** contracts/library-port.md §3. `text` is deliberately never written here - data-model.md §6: "the
- *  filter survives panel close (persisted); the section selection survives; the text box does not." */
+/** The key the retired *Scores* panel kept its filter under. Nothing writes it any more; the Score browser reads it
+ *  once, on a first load, to seed its own view (feature 013 R-15, `browserState.ts`). */
 export const LIBRARY_FILTER_STORAGE_KEY = 'musicanyya.library.v1';
 
-const NO_FILTER: LibraryFilter = { sectionId: null, level: null, key: null, tag: null, text: '' };
-
-function isLevel(value: unknown): value is Level {
-  return value === 'introduction' || value === 'beginner' || value === 'intermediate' || value === 'advanced';
-}
-
-function isSkillTag(value: unknown): value is LibraryFilter['tag'] {
-  return typeof value === 'string' && (SKILL_TAGS as readonly string[]).includes(value);
-}
-
-/** Every field validated on its own; a missing or invalid one falls back to "no filter" for that
- *  field (contracts/library-port.md §3), matching `local-settings-store.ts`'s pattern. */
-function validFilter(raw: unknown): LibraryFilter {
-  if (typeof raw !== 'object' || raw === null) return NO_FILTER;
-  const r = raw as Record<string, unknown>;
-  return {
-    sectionId: typeof r.sectionId === 'string' ? r.sectionId : null,
-    level: isLevel(r.level) ? r.level : null,
-    key: typeof r.key === 'string' ? r.key : null,
-    tag: isSkillTag(r.tag) ? r.tag : null,
-    text: '',
-  };
-}
-
-function loadPersistedFilter(): LibraryFilter {
-  try {
-    const item = localStorage.getItem(LIBRARY_FILTER_STORAGE_KEY);
-    if (!item) return NO_FILTER;
-    const parsed = JSON.parse(item);
-    if (typeof parsed !== 'object' || parsed === null || parsed.version !== 1) return NO_FILTER;
-    return validFilter(parsed.filter);
-  } catch {
-    return NO_FILTER;
-  }
-}
-
-function persistFilter(filter: LibraryFilter): void {
-  try {
-    // text never persists (see the module comment above) - written as '' regardless of the current value.
-    localStorage.setItem(LIBRARY_FILTER_STORAGE_KEY, JSON.stringify({ version: 1, filter: { ...filter, text: '' } }));
-  } catch {
-    // Storage unavailable or full: the filter still works for this session, just not persisted -
-    // matching local-settings-store.ts's best-effort write.
-  }
-}
-
-/** The id of the section a saved filter should select now: itself when the index has it, else the section whose `formerIds`
- *  names it, else no section. */
-function currentSectionId(sectionId: string | null, index: LibraryIndex): string | null {
-  if (sectionId === null || index.sections.some((s) => s.id === sectionId)) return sectionId;
-  return index.sections.find((s) => s.formerIds?.includes(sectionId))?.id ?? null;
-}
-
-/** data-model.md §6: `idle -> loadingIndex -> ready | indexError`, then `ready -> openingItem -> ready`
- *  on success or failure. Session-only - never persisted, and never blocks the recents list or the
- *  Open button, which come from the unrelated `scoreState`. */
-export type LibraryStatus =
-  | { kind: 'idle' }
-  | { kind: 'loadingIndex' }
-  | { kind: 'ready'; index: LibraryIndex }
-  | { kind: 'indexError'; error: CatalogError }
-  | { kind: 'openingItem'; index: LibraryIndex; itemId: string };
-
-/** The default open state: the roots and their direct children (Keys, Key changes, Beginner ...); key folders start closed. */
-function defaultOpenFolders(tree: readonly SectionNode[]): Set<string> {
-  const open = new Set<string>();
-  for (const root of tree) {
-    open.add(root.section.id);
-    for (const child of root.children) open.add(child.section.id);
-  }
-  return open;
-}
-
+/** What the open Score is, for the parts of the app that show its library source: the library item it came from, or
+ *  null for a user's own file. Feature 013 replaced the panel that used to keep the index, the selected section, the
+ *  open folders and the filter here with the Score browser (`browserState.ts`); this is what is left of it. */
 export class LibraryStateStore {
-  private readonly statusStore = createStore<LibraryStatus>({ kind: 'idle' });
-  /** The selected section, if any; survives a filter/section change (data-model.md §6). */
-  private readonly sectionStore = createStore<string | null>(null);
-  /** The currently open Score's library item, for `mx-score-source` (FR-019) - null for a user's own
-   *  file. Set by `session.ts` alongside `Session.loadBytes`, never derived here. */
+  /** The currently open Score's library item, for `mx-score-source` (FR-019) - null for a user's own file. Set by
+   *  the browser's controller alongside `Session.loadBytes`, never derived here. */
   private readonly openedItemStore = createStore<LibraryItem | null>(null);
-  /** contracts/library-port.md §3, persisted except `text` (data-model.md §6). */
-  private readonly filterStore = createStore<LibraryFilter>(loadPersistedFilter());
-  /** The folders the user has open (feature 011, contracts/library-port.md 1.2.0 §2, data-model §9): null until the first index
-   *  load fills it with the default (roots and their direct children open). Session only, never persisted. */
-  private openFolders: Set<string> | null = null;
-
-  getStatus(): LibraryStatus {
-    return this.statusStore.get();
-  }
-
-  subscribe(listener: (status: LibraryStatus) => void) {
-    return this.statusStore.subscribe(listener);
-  }
-
-  getSection(): string | null {
-    return this.sectionStore.get();
-  }
-
-  subscribeSection(listener: (sectionId: string | null) => void) {
-    return this.sectionStore.subscribe(listener);
-  }
-
-  setSection(sectionId: string | null): void {
-    this.sectionStore.set(sectionId);
-  }
-
-  startLoadingIndex(): void {
-    this.statusStore.set({ kind: 'loadingIndex' });
-  }
-
-  indexLoaded(index: LibraryIndex): void {
-    // A saved folder filter follows its folder through a reorganisation (library-port 1.2 §3, feature 011 FR-020).
-    const filter = this.filterStore.get();
-    const moved = currentSectionId(filter.sectionId, index);
-    if (moved !== filter.sectionId) this.setFilter({ ...filter, sectionId: moved });
-    if (this.openFolders === null) this.openFolders = defaultOpenFolders(buildSectionTree(index.sections, index.items));
-    this.statusStore.set({ kind: 'ready', index });
-  }
-
-  /** The folders open by the user's own choice (or the default until they choose). Not what a filter shows: while one is
-   *  active the panel opens every folder with a match and leaves this set alone. */
-  getOpenFolders(): ReadonlySet<string> {
-    return this.openFolders ?? new Set();
-  }
-
-  setFolderOpen(sectionId: string, open: boolean): void {
-    const next = new Set(this.openFolders ?? []);
-    if (open) next.add(sectionId);
-    else next.delete(sectionId);
-    this.openFolders = next;
-  }
-
-  indexFailed(error: CatalogError): void {
-    this.statusStore.set({ kind: 'indexError', error });
-  }
-
-  retry(): void {
-    this.statusStore.set({ kind: 'loadingIndex' });
-  }
-
-  /** Only leaves `ready`; a stray call while loading or already opening one is ignored. */
-  startOpeningItem(itemId: string): void {
-    const status = this.statusStore.get();
-    if (status.kind !== 'ready') return;
-    this.statusStore.set({ kind: 'openingItem', index: status.index, itemId });
-  }
-
-  /** Success: back to `ready`. The caller (session.ts) closes the panel itself, following feature
-   *  004's popover convention - the state machine only tracks what was asked for, not the UI shell. */
-  itemOpened(): void {
-    const status = this.statusStore.get();
-    if (status.kind !== 'openingItem') return;
-    this.statusStore.set({ kind: 'ready', index: status.index });
-  }
-
-  /** Failure: also back to `ready`, list intact; the caller raises the notice (data-model.md §6:
-   *  "ready + notice, panel stays open"). */
-  itemOpenFailed(): void {
-    const status = this.statusStore.get();
-    if (status.kind !== 'openingItem') return;
-    this.statusStore.set({ kind: 'ready', index: status.index });
-  }
 
   getOpenedItem(): LibraryItem | null {
     return this.openedItemStore.get();
@@ -183,33 +25,9 @@ export class LibraryStateStore {
     this.openedItemStore.set(item);
   }
 
-  getFilter(): LibraryFilter {
-    return this.filterStore.get();
-  }
-
-  subscribeFilter(listener: (filter: LibraryFilter) => void) {
-    return this.filterStore.subscribe(listener);
-  }
-
-  setFilter(filter: LibraryFilter): void {
-    this.filterStore.set(filter);
-    persistFilter(filter);
-  }
-
-  /** The panel closed (data-model.md §6): the text box does not survive, the rest of the filter does. */
-  clearFilterText(): void {
-    const current = this.filterStore.get();
-    if (current.text === '') return;
-    this.filterStore.set({ ...current, text: '' });
-  }
-
-  /** Back to `idle` with no section selected and no filter - test cleanup and a fresh session. */
+  /** Back to no opened item - test cleanup and a fresh session. */
   reset(): void {
-    this.statusStore.set({ kind: 'idle' });
-    this.sectionStore.set(null);
     this.openedItemStore.set(null);
-    this.openFolders = null;
-    this.filterStore.set(NO_FILTER);
   }
 }
 

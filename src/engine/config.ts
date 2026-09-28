@@ -3,8 +3,10 @@ import packageJson from '../../package.json';
 // From the build, so an old stored performance is recognisable (FR-014, contracts/performance-log.md).
 export const APP_VERSION: string = packageJson.version;
 
-// Shared with src/core/transport/transport.ts, which cannot import this engine-layer file.
+// Shared with core modules that cannot import this engine-layer file (src/core/transport/transport.ts;
+// src/core/browser/query.ts, feature 013, needs BROWSER_SEARCH_MAX_CHARS to cut an overlong search).
 export {
+  BROWSER_SEARCH_MAX_CHARS,
   MAX_FILE_BYTES,
   POSITION_REPORT_BLOCKS,
   TEMPO_BEAT_DOTS_MAX,
@@ -47,8 +49,6 @@ export const PIANO_KEYS_MAX_HEIGHT_VH = 20; // height cap of the keys, in % of t
 export const MIN_PAGE_UNITS = 200;
 export const MAX_PAGE_UNITS = 10000;
 
-export const RECENT_SCORES_MAX = 10;
-
 // File constraints (MAX_FILE_BYTES re-exported from core/defaults.js above)
 export const MAX_UNCOMPRESSED_BYTES = 256 * 1024 * 1024; // 256 MiB
 export const MAX_ZIP_ENTRIES = 1000;
@@ -83,3 +83,10 @@ export const GRADE_WORKER_TIMEOUT_MS = 5000; // A Grade that never arrives becom
 
 // Notices: how many stack in the corner of the Score at once (feature 004, FR-011); older ones wait behind them.
 export const NOTICE_TRAY_MAX = 3;
+
+// Score browser & progress (feature 013-score-browser-progress, data-model.md section 11)
+export const USER_FILES_BYTES_BUDGET = 100 * 1024 * 1024; // Total *My files* copy budget, least recently opened evicted first (FR-020)
+export const UNDO_WINDOW_MS = 8000; // Deferred-commit window for reset/remove, UI timing only (FR-018, FR-022, R-12)
+export const BROWSER_ANNOUNCE_DEBOUNCE_MS = 300; // Debounce of the browser's aria-live item-count announcement (FR-028)
+export const BROWSER_DBLCLICK_WINDOW_MS = 300; // How long a single click waits for a second one before it selects the row (UI timing only, contracts §2)
+// BROWSER_SEARCH_MAX_CHARS re-exported from core/defaults.js above (src/core/browser/query.ts needs it too).

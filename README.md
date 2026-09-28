@@ -19,6 +19,16 @@ and Web MIDI.
 - **Score Viewer**: Open and render `.musicxml`, `.xml`, or `.mxl` files with Verovio.
 - **Playback (Listen Mode)**: Built-in `spessasynth` rendering via AudioWorklet. Supports tempo, volume, dynamics, repeats (forward/backward, voltas), jumps (D.C., D.S., To Coda), and instrument program changes.
 - **MIDI Input**: Plug in a MIDI keyboard to play along with the built-in sound (supports sustain).
+- **Score browser**: *Open* shows a large window with every library piece, your own files and your progress. Folders
+  on the left (*Learning > Keys*, *Key changes*, *Repertoire*, *My files*), the list in the middle, details on the
+  right. Search by title, composer, folder or file name; filter by level, key, skill and status (New, Practised,
+  Played, Mastered) and sort by library order, title, last played or best result. Keyboard: `/` searches, arrows move,
+  Enter opens, Escape clears the search and then closes.
+- **Progress**: every piece shows its status, best and last result and the trend, kept on this device (best result of
+  a whole Score played to the end; *Mastered* needs 90 % of notes correct, 80 % on time, at full tempo). *Continue*
+  lists what you opened last and suggests the next step. Reset progress from the detail pane, with Undo.
+- **My files**: files you open from your computer are kept (a copy, up to 100 MB in all) with their progress, and open
+  again with one click; removing one can keep or drop its progress, with Undo.
 - **Cross-Platform**: Runs in the browser (Chrome, Edge) or as a local Electron desktop app.
 
 ## Development & Publishing
@@ -35,6 +45,8 @@ and Web MIDI.
    cursor, Metronome) and plays the `--keys` steps in time with it (`sleep:<ms>` waits); add `--grade` to wait for the
    Grade before the picture, e.g. `--run --grade --keys "sleep:1300,+76,-76"`. `--piano` switches the on-screen piano
    on through the View menu; `--greyscale` puts the page in greyscale for the picture (feature 010)
+   `--browser` takes the picture with the Score browser open (feature 013); with it, `--seed-progress <json>`
+   (`tests/fixtures/progress/`) seeds results, and `--filter status=played --sort best:asc` choose filters and sort
 
 ### Testing and Quality Gates
 

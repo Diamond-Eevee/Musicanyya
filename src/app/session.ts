@@ -1,5 +1,6 @@
 import { WebAudioEngine } from '../engine/audio/web-audio-engine.js';
 import { GRADE_WORKER_TIMEOUT_MS, MAX_FILE_BYTES } from '../engine/config.js';
+import { hashFile } from '../engine/files/hash.js';
 import { HttpLibraryCatalog } from '../engine/library/http-catalog.js';
 import { WebMidiInput } from '../engine/midi/web-midi-input.js';
 import type {
@@ -8,28 +9,30 @@ import type {
   LibraryCatalog,
   MidiAvailability,
   PracticeSettings,
-  ScoreStore,
   SettingsStore,
   UserSettings,
 } from '../engine/ports.js';
 import { IndexedDbPerformanceStore } from '../engine/storage/indexeddb-performance-store.js';
-import { IndexedDbScoreStore } from '../engine/storage/indexeddb-score-store.js';
 import { LocalSettingsStore } from '../engine/storage/local-settings-store.js';
 
 import '../ui/elements/mx-attempts-list.js';
+import '../ui/elements/mx-browser-continue.js';
+import '../ui/elements/mx-browser-detail.js';
+import '../ui/elements/mx-browser-list.js';
+import '../ui/elements/mx-browser-rail.js';
 import '../ui/elements/mx-diagnostics.js';
 import '../ui/elements/mx-drop-zone.js';
 import '../ui/elements/mx-grade-panel.js';
 import '../ui/elements/mx-latency-panel.js';
 import '../ui/elements/mx-help-notation.js';
-import '../ui/elements/mx-library.js';
 import '../ui/elements/mx-menu.js';
 import '../ui/elements/mx-open-button.js';
 import '../ui/elements/mx-play-panel.js';
-import '../ui/elements/mx-recent-list.js';
+import '../ui/elements/mx-score-browser.js';
 import '../ui/elements/mx-score-source.js';
 import '../ui/elements/mx-score-view.js';
 import '../ui/elements/mx-size-controls.js';
+import '../ui/elements/mx-status-badge.js';
 import '../ui/elements/mx-transport.js';
 import '../ui/elements/mx-view-panel.js';
 import '../ui/elements/mx-midi-panel.js';
@@ -66,6 +69,11 @@ import type {
   PracticeSession,
   ResolvedLoop,
 } from '../core/practice/types.js';
+import { resultFromStoredPerformance } from '../core/progress/from-performance.js';
+import { practisedBarRange } from '../core/progress/practised-range.js';
+import { resultScope, scopeFromStoredSettings } from '../core/progress/scope.js';
+import type { ItemRef, ProgressEvent, ProgressResult } from '../core/progress/types.js';
+import { fileKey } from '../core/progress/user-files.js';
 import { compilePlaySchedule } from '../core/schedule/play-schedule.js';
 import type { LoadReport } from '../core/score/load-report.js';
 import type { Score } from '../core/score/model.js';
@@ -82,7 +90,7 @@ import { midiNoteName } from '../ui/format/note-name.js';
 import { mountPanels, type PanelTools } from '../ui/layout/panel-host.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
 import { initShortcuts } from '../ui/shortcuts.js';
-import { libraryState } from '../ui/state/libraryState.js';
+import { browserState } from '../ui/state/browserState.js';
 import { midiState } from '../ui/state/midiState.js';
 import { mistakeStepper } from '../ui/state/mistake-stepper.js';
 import { noticeState } from '../ui/state/noticeState.js';
@@ -98,7 +106,7 @@ import { tempoPositionState } from '../ui/state/tempoPositionState.js';
 import { transportState } from '../ui/state/transportState.js';
 import { type OverlayLayer, viewState } from '../ui/state/viewState.js';
 import { requestGrade } from '../workers/grade.worker.js';
-import { LibrarySessionController } from './library-session.js';
+import { BrowserSessionController, type LoadBytesOutcome } from './browser-session.js';
 import { PlaySessionController } from './play-session.js';
 import { ReplaySessionController } from './replay-session.js';
 
@@ -120,6 +128,10 @@ interface ScoreWorkerFailed {
   error: LoadError;
 }
 type ScoreWorkerResponse = ScoreWorkerLoaded | ScoreWorkerFailed;
+
+function fileRef(fileName: string): ItemRef {
+  return { kind: 'file', fileKey: fileKey(fileName) };
+}
 
 function requestScoreLoad(
   worker: Worker,
@@ -148,10 +160,9 @@ export class Session {
     type: 'module',
   });
   private readonly verovioClient = createVerovioClient(this.verovioWorker);
-  private readonly scoreStore: ScoreStore;
   private readonly settingsStore: SettingsStore;
   private readonly libraryCatalog: LibraryCatalog;
-  private readonly libraryController: LibrarySessionController;
+  private readonly browserController: BrowserSessionController;
   private nextRequestId = 1;
   private scoreView: MxScoreView | null = null;
   private transportEl: MxTransport | null = null;
@@ -181,7 +192,7 @@ export class Session {
   private readonly gradeWorker = new Worker(new URL('../workers/grade.worker.ts', import.meta.url), {
     type: 'module',
   });
-  // T074: kept attempts (FR-041) - shares the `musicanyya` IndexedDB database with `scoreStore` above.
+  // T074: kept attempts (FR-041) - shares the `musicanyya` IndexedDB database with the progress store.
   private readonly performanceStore = new IndexedDbPerformanceStore();
   private readonly playController = new PlaySessionController(
     this.audioEngine,
@@ -192,7 +203,7 @@ export class Session {
       onEffect: (effect) => this.onPlayEffect(effect),
       onGraded: (grade) => this.onPlayGraded(grade),
       onGradeFailed: (reason, message) => this.onPlayGradeFailed(reason, message),
-      onStored: () => void this.refreshAttempts(),
+      onStored: (stored) => this.onPerformanceFinished(stored),
     },
   );
   // T076: a replayed stored attempt (never concurrent with a live `playController` run - starting one stops the
@@ -203,7 +214,6 @@ export class Session {
   private nextRegradeRequestId = -1;
 
   constructor(
-    scoreStore: ScoreStore = new IndexedDbScoreStore(),
     settingsStore: SettingsStore = new LocalSettingsStore((code) =>
       noticeState.addNotice({ code, severity: 'warning' }),
     ),
@@ -235,15 +245,61 @@ export class Session {
       window.addEventListener('e2e-synthetic-grade', (e) => {
         void this.onSyntheticGrade((e as CustomEvent<SyntheticKind>).detail);
       });
+      // T094, contracts/score-browser.md §8: seeds progress through the ordinary `apply` (never a direct record
+      // write), for SC-002/SC-003 measurements and manual checks without playing out a real history first
+      // (`--seed-progress` in tools/dev/screenshot.ts, tests/e2e/*.spec.ts). Each seed names a real library id
+      // (tests/fixtures/progress/README.md); this resolves it to the index's own content hash itself (never through
+      // `browserState`, so it works whether or not the browser has ever opened) and refreshes the browser's own
+      // data afterwards, in case FR-001 already opened it with a now-stale snapshot. `browserController` is
+      // assigned right after this block; by the time this ever fires, it always is.
+      // The detail is the list of seeds, or `{ files, events }` when *My files* entries are seeded too (T086): each
+      // file is `{ fileName, text, title, composer }`, stored through the ordinary `putFile` with its real hash.
+      window.addEventListener('e2e-progress-seed', (e) => {
+        type Seed = { ref: ItemRef; event: ProgressEvent };
+        type SeedFile = { fileName: string; text: string; title: string | null; composer: string | null };
+        const detail = (e as CustomEvent<readonly Seed[] | { files?: readonly SeedFile[]; events?: readonly Seed[] }>)
+          .detail;
+        const seeds = 'length' in detail ? detail : (detail.events ?? []);
+        const files = 'length' in detail ? [] : (detail.files ?? []);
+        void (async () => {
+          for (const file of files) {
+            const bytes = new TextEncoder().encode(file.text);
+            await this.browserController.seedFile({
+              fileName: file.fileName,
+              bytes: bytes.buffer,
+              hash: await hashFile(bytes),
+              title: file.title,
+              composer: file.composer,
+            });
+          }
+          const indexResult = await this.libraryCatalog.index();
+          for (const seed of seeds) {
+            const ref = seed.ref;
+            if (ref.kind === 'library') {
+              const item = indexResult.ok ? indexResult.value.items.find((i) => i.id === ref.id) : undefined;
+              if (item) await this.browserController.seedProgressEvent(item.hash, seed.event);
+            } else {
+              // T066: a file ref resolves through its *My files* entry, which already exists by the time a seed
+              // wants to add progress to it (the seed's own fixture opens or `putFile`s it first).
+              const hash = await this.browserController.fileHashFor(ref.fileKey);
+              if (hash) await this.browserController.seedProgressEvent(hash, seed.event);
+            }
+          }
+          this.browserController.refreshIfOpen();
+        })();
+      });
     }
-    this.scoreStore = scoreStore;
     this.settingsStore = settingsStore;
     this.libraryCatalog = libraryCatalog;
-    this.libraryController = new LibrarySessionController(
+    this.browserController = new BrowserSessionController(
       this.libraryCatalog,
       {
-        loadBytes: (fileName, bytes) => this.loadBytes(fileName, bytes),
-        onNotice: (code) => noticeState.addNotice({ code, severity: 'warning' }),
+        loadBytes: (fileName, bytes, openedAs) => this.loadBytes(fileName, bytes, openedAs),
+        removeAttempts: async (scoreKey) => {
+          const result = await this.performanceStore.removeByScore(scoreKey);
+          if (!result.ok) noticeState.addNotice({ code: 'storageUnavailable', severity: 'warning' });
+          if (scoreKey === this.playScoreId) await this.refreshAttempts();
+        },
       },
       this.settingsStore,
     );
@@ -351,10 +407,70 @@ export class Session {
       this.openFile((event as CustomEvent<{ file: File }>).detail.file),
     );
     dropZone.addEventListener('fileopen', (event) => this.openFile((event as CustomEvent<{ file: File }>).detail.file));
-    // The invitation in the empty Score area asks for the one file chooser the bar's open button owns.
+    // The invitation in the empty Score area asks for the one thing the bar's open button now asks for too: the
+    // browser (feature 013, R-20) - `openbrowser` is handled once, below, wherever it comes from.
     dropZone.addEventListener('openrequest', () => (openButton as MxOpenButton).open());
     document.getElementById('open-controls')?.appendChild(openButton);
     main.appendChild(dropZone);
+
+    // mx-open-button and the score menu's *Open...* entry (mx-menu, across its shadow boundary) both ask for the
+    // browser this way instead of calling a `viewState` popup (contracts/score-browser.md §5, R-2) - each already
+    // remembers its own invoker before dispatching, so this only has to ask the guarded controller.
+    document.addEventListener('openbrowser', () => this.browserController.open());
+
+    const scoreBrowser = document.createElement('mx-score-browser');
+    main.appendChild(scoreBrowser); // connects it now, so `.browser-body` exists to receive the rail/list/detail
+    scoreBrowser
+      .querySelector('.browser-body')
+      ?.append(
+        document.createElement('mx-browser-rail'),
+        document.createElement('mx-browser-continue'),
+        document.createElement('mx-browser-list'),
+        document.createElement('mx-browser-detail'),
+      );
+    scoreBrowser.addEventListener('browseropenitem', (event) => {
+      const { ref } = (event as CustomEvent<{ ref: ItemRef }>).detail;
+      void this.browserController.openItem(ref, browserState.get().data.index);
+    });
+    scoreBrowser.addEventListener('browserretrylibrary', () => this.browserController.retryLibrary());
+    // US3: *Open file...* and a drop onto the dialog take the same path as the empty-state drop zone (FR-005) -
+    // `openFile` itself decides whether the browser's own message line or the existing load-error view gets a
+    // failure, based on whether the browser was the one open.
+    scoreBrowser.addEventListener('browseropenfile', (event) => {
+      void this.openFile((event as CustomEvent<{ file: File }>).detail.file);
+    });
+    // OD-3, US3 #4: "keep progress" removes only the entry/copy; "remove and progress" also resets every hash it
+    // shares progress with (its own current hash plus every earlier version) and deletes their Performances.
+    scoreBrowser.addEventListener('browserremovefile', (event) => {
+      const { fileKey, keepProgress } = (event as CustomEvent<{ fileKey: string; keepProgress: boolean }>).detail;
+      const entry = browserState.get().data.files.find((f) => f.fileKey === fileKey);
+      if (!entry) return;
+      this.browserController.startRemoveFile(fileKey, entry.title ?? entry.fileName, keepProgress, [
+        entry.hash,
+        ...entry.earlierHashes,
+      ]);
+    });
+    // OD-3/T057: every hash the item shares progress with (a library item's `supersedes[].hash`, a *My files*
+    // entry's `earlierHashes`) resets together, since the library/entry itself already treats them as one item.
+    scoreBrowser.addEventListener('browserresetprogress', (event) => {
+      const { ref } = (event as CustomEvent<{ ref: ItemRef }>).detail;
+      const { data } = browserState.get();
+      const hashes =
+        ref.kind === 'library'
+          ? (() => {
+              const item = data.index?.items.find((i) => i.id === ref.id);
+              return item ? [item.hash, ...(item.meta.supersedes ?? []).map((s) => s.hash)] : [];
+            })()
+          : (() => {
+              const entry = data.files.find((f) => f.fileKey === ref.fileKey);
+              return entry ? [entry.hash, ...entry.earlierHashes] : [];
+            })();
+      if (hashes.length > 0) this.browserController.startResetProgress(ref, hashes);
+    });
+    // On `document`, not `scoreBrowser`: the toast (`mx-notice-tray`'s own Undo button, R-12) is not inside the
+    // browser dialog, but its event still bubbles all the way up.
+    document.addEventListener('browserundoreset', () => this.browserController.cancelResetProgress());
+    document.addEventListener('browserundoremovefile', () => this.browserController.cancelRemoveFile());
 
     const menuControls = document.getElementById('menu-controls');
     // 'more' is the four folded into one; the bar shows it instead of them when it runs out of width (mx-app)
@@ -364,33 +480,9 @@ export class Session {
       menuControls?.appendChild(element);
     }
 
-    const recentList = document.createElement('mx-recent-list');
-    recentList.addEventListener('reopenrecent', (event) =>
-      this.reopenRecent((event as CustomEvent<{ id: string }>).detail.id),
-    );
-    recentList.addEventListener('removerecent', (event) =>
-      this.removeRecent((event as CustomEvent<{ id: string }>).detail.id),
-    );
-
-    const library = document.createElement('mx-library');
-    library.addEventListener('openlibraryitem', (event) =>
-      this.openLibraryItem((event as CustomEvent<{ id: string }>).detail.id),
-    );
-    library.addEventListener('libraryretry', () => this.loadLibraryIndex());
+    // "About this score" (R-20): the old shelf and its lazy index fetch are gone - the browser (above) owns the
+    // index fetch now, on open. *My files* (T068) replaces the old recent-scores list as the reopen/remove flow.
     const scoreSource = document.createElement('mx-score-source');
-    // The index is fetched once, lazily, the first time the shelf is opened (contracts/library-port.md
-    // §5: one fetch per session) - never at startup, so opening a dragged-in file costs nothing extra.
-    let previousPanel = viewState.get().openPanel;
-    viewState.subscribe((state) => {
-      if (state.openPanel === 'scores' && libraryState.getStatus().kind === 'idle') {
-        this.loadLibraryIndex();
-      }
-      // data-model.md §6: the filter survives panel close, but its text box does not.
-      if (previousPanel === 'scores' && state.openPanel !== 'scores') {
-        libraryState.clearFilterText();
-      }
-      previousPanel = state.openPanel;
-    });
 
     const helpPanel = document.createElement('mx-help-notation');
 
@@ -454,7 +546,7 @@ export class Session {
     // Every secondary tool is a popup over the Score, opened from a menu (contracts/ui-shell.md section 3).
     const environmentPanel = document.querySelector('mx-environment-panel') as HTMLElement;
     const tools: PanelTools = {
-      scores: [scoreSource, library, recentList],
+      scores: [scoreSource],
       attempts: [attemptsList],
       setup: [practicePanel, playPanel],
       midi: [midiPanel],
@@ -533,7 +625,9 @@ export class Session {
       }
     }, 1000);
 
-    await this.refreshRecent();
+    // FR-001: the browser is where a Score is found now - with none loaded, it opens once at start-up. The
+    // drop-zone invitation stays behind it for when the browser is closed.
+    if (scoreState.getStatus().kind === 'empty') this.browserController.open();
   }
 
   /** The user's settings live in memory here, so two changes inside the store's write debounce cannot overwrite each
@@ -801,7 +895,10 @@ export class Session {
       range,
       settings,
     });
-    playState.setRun(this.playController.getRun());
+    playState.setRun(
+      this.playController.getRun(),
+      expected.map((note) => ({ key: note.key, onsetTick: note.onsetTick })),
+    );
     this.scoreView?.setPlaySession(this.playController);
     if (this.scoreView && this.currentTimeline) this.scoreView.setPlayback(this.audioEngine, this.currentTimeline);
   }
@@ -863,7 +960,7 @@ export class Session {
    * Puts a Grade on the Score: the mark set is worked out once here (the core knows the Score and the run's passes) and kept
    * in `playState` beside it, for the view, the panel and the mistake stepper alike (009 R-06, FR-023).
    */
-  private showGrade(grade: Grade): void {
+  private showGrade(grade: Grade, newBest = false): void {
     const score = this.currentScore;
     const timeline = this.currentPlaybackTimeline;
     let marks: GradeMarkSet | null = null;
@@ -872,8 +969,31 @@ export class Session {
       const passes = range ? timeline.passes.slice(range.fromPassIndex, range.toPassIndex) : timeline.passes;
       marks = gradeMarks(score, grade, passes);
     }
-    playState.setGrade(grade, marks);
+    playState.setGrade(grade, marks, newBest);
     mistakeStepper.setMarks(marks);
+  }
+
+  /** R-7: the live scope of a run over the currently loaded Score - the legacy rule (R-6) only for the rare case
+   *  of grading with no Score loaded (should not happen for a live run, kept for defensiveness). */
+  private liveResultScope(settings: RunSettings) {
+    return this.currentScore ? resultScope(this.currentScore, settings) : scopeFromStoredSettings(settings);
+  }
+
+  /** R-18 "New best": the Grade's own figures, as a `ProgressResult` - built before the run is stored, so
+   *  `computeNewBest` can compare it against the in-memory record synchronously. `finishedAt` here is only ever
+   *  used for a same-instant tie-break; the persisted `played` event later carries the stored run's own time. */
+  private progressResultFromGrade(grade: Grade): ProgressResult {
+    return {
+      runId: grade.runId,
+      finishedAt: new Date().toISOString(),
+      notesCorrect: grade.summary.notesCorrect,
+      notesOnTime: grade.summary.notesOnTime,
+      extra: grade.summary.counts.extra,
+      tempoPercent: grade.settings.tempoPercent,
+      strictness: grade.settings.strictness,
+      complete: grade.complete,
+      scope: this.liveResultScope(grade.settings),
+    };
   }
 
   /**
@@ -921,10 +1041,23 @@ export class Session {
   }
 
   private onPlayGraded(grade: Grade): void {
-    this.showGrade(grade);
+    const newBest =
+      this.playScoreId !== null &&
+      this.browserController.computeNewBest(this.playScoreId, this.progressResultFromGrade(grade));
+    this.showGrade(grade, newBest);
     // The Grade arrives over the Score in a dismissible popup; dismissing it leaves the marks on the notes (FR-009). It
     // can arrive late (grading has its own timeout): never over a run that has started since.
     if (!isRunActive()) viewState.openPanel('grade');
+  }
+
+  /** R-18: after a Play run has finished and its storage has settled. The result is recorded whether or not the
+   *  attempt could be kept (owner decision 2026-09-28, T095), so progress works with no IndexedDB; only a run
+   *  without a Score identity (`stored === null`) records nothing. */
+  private onPerformanceFinished(stored: StoredPerformance | null): void {
+    void this.refreshAttempts();
+    if (stored === null) return;
+    const result = resultFromStoredPerformance(stored, this.liveResultScope(stored.settings));
+    void this.browserController.played(stored.scoreId, result);
   }
 
   private onPlayGradeFailed(reason: 'timeout' | 'error', _message?: string): void {
@@ -1156,10 +1289,15 @@ export class Session {
     this.scoreView?.setPlaySession(this.replayController);
   }
 
-  /** FR-043: deletes a stored attempt, which removes its recording from the device. */
+  /** FR-043: deletes a stored attempt, which removes its recording from the device. R-18: `resultRemoved` fires
+   *  only once the delete itself succeeded, keyed by the open Score (attempts are always listed for it alone). */
   private async onAttemptDelete(runId: string): Promise<void> {
     const result = await this.performanceStore.remove(runId);
-    if (!result.ok) noticeState.addNotice({ code: 'storageUnavailable', severity: 'warning' });
+    if (!result.ok) {
+      noticeState.addNotice({ code: 'storageUnavailable', severity: 'warning' });
+    } else if (this.playScoreId !== null) {
+      void this.browserController.resultRemoved(this.playScoreId, runId);
+    }
     await this.refreshAttempts();
   }
 
@@ -1346,9 +1484,20 @@ export class Session {
     } else if (effect.type === 'notice') {
       noticeState.addNotice({ code: effect.code, severity: effect.code === 'practiceDeviceLost' ? 'warning' : 'info' });
     } else if (effect.type === 'sessionEnded') {
+      // R-18/R-9: reaching the end naturally records the whole practised range; stopping early records nothing.
+      if (effect.reason === 'reachedEnd') {
+        const session = practiceState.get().session;
+        const range = session && session.scoreId !== null ? practisedBarRange(session.events) : null;
+        if (session && session.scoreId !== null && range) {
+          void this.browserController.practised(session.scoreId, range.fromMeasure, range.toMeasure);
+        }
+      }
       this.endingPracticeNaturally = true;
       transportState.stop();
       this.endingPracticeNaturally = false;
+    } else if (effect.type === 'loopCompleted') {
+      const scoreId = practiceState.get().session?.scoreId ?? null;
+      if (scoreId !== null) void this.browserController.practised(scoreId, effect.fromMeasure, effect.toMeasure);
     }
   }
 
@@ -1379,61 +1528,39 @@ export class Session {
     return null;
   }
 
+  /** A drop or the file chooser, from either the empty-state drop zone or the browser's own "Open file..." button
+   *  or drop target (T068). Closes the browser on success, exactly like a successful library item does
+   *  (contracts/score-browser.md §5); a failure shows a message naming the file and the load error in the
+   *  browser's own message line when it was the one open (US3 #5), otherwise the existing load-error view
+   *  already covers it. */
   async openFile(file: File): Promise<void> {
     if (file.size > MAX_FILE_BYTES) {
-      scoreState.failed(file.name, {
-        code: 'fileTooLarge',
-        message: `File exceeds the ${MAX_FILE_BYTES} byte limit.`,
-      });
+      const error: LoadError = { code: 'fileTooLarge', message: `File exceeds the ${MAX_FILE_BYTES} byte limit.` };
+      scoreState.failed(file.name, error);
+      if (browserState.get().phase === 'ready') browserState.openFailed({ code: error.code, fileName: file.name });
       return;
     }
-    this.clearOpenedLibraryItem();
+    this.browserController.clearOpenedItem();
     const bytes = await file.arrayBuffer();
-    await this.loadBytes(file.name, bytes);
+    const browserWasReady = browserState.get().phase === 'ready';
+    if (browserWasReady) browserState.startOpeningItem(fileRef(file.name));
+    const outcome = await this.loadBytes(file.name, bytes, fileRef(file.name));
+    if (outcome.ok) browserState.close();
+    else if (browserWasReady) browserState.openFailed({ code: outcome.errorCode ?? 'internal', fileName: file.name });
   }
 
-  /** contracts/library-port.md §2: `session.ts` remembers the opened item's id so `mx-score-source`
-   *  can show its source and licence; a user's own file clears it. */
-  private clearOpenedLibraryItem(): void {
-    this.libraryController.clearOpenedItem();
-    libraryState.setOpenedItem(null);
-  }
-
-  private async loadLibraryIndex(): Promise<void> {
-    libraryState.startLoadingIndex();
-    const result = await this.libraryCatalog.index();
-    if (result.ok) {
-      libraryState.indexLoaded(result.value);
-    } else {
-      libraryState.indexFailed(result.error);
-    }
-  }
-
-  private async openLibraryItem(itemId: string): Promise<void> {
-    const status = libraryState.getStatus();
-    if (status.kind !== 'ready') return;
-    const index = status.index;
-    libraryState.startOpeningItem(itemId);
-    const ok = await this.libraryController.openItem(index, itemId);
-    if (ok) {
-      libraryState.setOpenedItem(index.items.find((item) => item.id === itemId) ?? null);
-      libraryState.itemOpened();
-      // data-model.md §6: `openingItem` is the only state that can end with the panel closing, and
-      // only on success - the musician asked for a Score and got one.
-      viewState.closePanel();
-    } else {
-      libraryState.itemOpenFailed();
-    }
-  }
-
-  private async loadBytes(fileName: string, bytes: ArrayBuffer): Promise<void> {
+  /** `openedAs` is the ref this load represents (R-18): a library ref from `BrowserSessionController.openItem`, or
+   *  a file ref computed from the name for a direct drop/dialog/*My files* reopen. Reports whether the Score
+   *  actually parsed, and the `LoadErrorCode` on failure (`LoadBytesOutcome`, T068) - the boolean alone the library
+   *  path has always used is not enough for a file that can genuinely fail to load. */
+  private async loadBytes(fileName: string, bytes: ArrayBuffer, openedAs: ItemRef): Promise<LoadBytesOutcome> {
     scoreState.startLoading(fileName);
     const requestId = this.nextRequestId++;
     const response = await requestScoreLoad(this.scoreWorker, fileName, bytes.slice(0), requestId);
 
     if (response.type === 'failed') {
       scoreState.failed(fileName, response.error);
-      return;
+      return { ok: false, errorCode: response.error.code };
     }
 
     this.currentSchedule = response.schedule;
@@ -1471,45 +1598,26 @@ export class Session {
       this.scheduleDelivered = false;
     }
 
-    const putResult = await this.scoreStore.put({
-      fileName,
-      bytes,
-      title: response.summary.title,
-      composer: response.summary.composer,
-    });
-    if (!putResult.ok) noticeState.addNotice({ code: 'storageUnavailable', severity: 'warning' });
-    this.practiceScoreId = putResult.ok ? response.contentHash : null;
+    if (openedAs.kind === 'file') {
+      // R-11/T068: only a direct file open needs a *My files* entry - a library item's own row already comes
+      // from the index, never from this store.
+      void this.browserController.fileLoaded({
+        fileName,
+        bytes,
+        hash: response.contentHash,
+        title: response.summary.title,
+        composer: response.summary.composer,
+      });
+    }
+    // R-3: identity is the content hash, independent of whether a copy of the bytes could be stored - a
+    // `MemoryProgressStore` fallback (R-19) always reports "available", so this is no longer ever null once a
+    // Score has loaded.
+    this.practiceScoreId = response.contentHash;
     this.setupPractice(response.fullScore);
     this.playScoreId = this.practiceScoreId;
     this.setupPlay(response.fullScore);
+    void this.browserController.scoreOpened(response.contentHash, openedAs);
 
-    await this.refreshRecent();
-  }
-
-  private async reopenRecent(id: string): Promise<void> {
-    const result = await this.scoreStore.get(id);
-    if (!result.ok) {
-      noticeState.addNotice({
-        code: result.error === 'notFound' ? 'storageEntryMissing' : 'storageUnavailable',
-        severity: 'warning',
-      });
-      return;
-    }
-    this.clearOpenedLibraryItem();
-    await this.loadBytes(result.value.summary.fileName, result.value.bytes);
-  }
-
-  private async removeRecent(id: string): Promise<void> {
-    const result = await this.scoreStore.remove(id);
-    if (!result.ok) {
-      noticeState.addNotice({ code: 'storageUnavailable', severity: 'warning' });
-      return;
-    }
-    await this.refreshRecent();
-  }
-
-  private async refreshRecent(): Promise<void> {
-    const result = await this.scoreStore.list();
-    if (result.ok) scoreState.setRecent(result.value);
+    return { ok: true };
   }
 }

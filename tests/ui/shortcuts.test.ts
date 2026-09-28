@@ -4,6 +4,7 @@ import { SCORE_SCALE_DEFAULT, SCORE_SCALE_STEP } from '../../src/engine/config.j
 import '../../src/ui/elements/mx-tempo-field.js';
 import type { TempoFieldModel } from '../../src/ui/elements/mx-tempo-field.js';
 import { initShortcuts } from '../../src/ui/shortcuts.js';
+import { browserState } from '../../src/ui/state/browserState.js';
 import { transportState } from '../../src/ui/state/transportState.js';
 import { viewState } from '../../src/ui/state/viewState.js';
 
@@ -121,6 +122,50 @@ describe('shortcuts: unchanged behaviour', () => {
     expect(toggle).toHaveBeenCalledTimes(1);
     expect(event.defaultPrevented).toBe(true);
     toggle.mockRestore();
+  });
+});
+
+// feature 013 contracts/score-browser.md section 4: "The app shortcuts (Space, Escape, size keys) are ignored while
+// the browser is open" - the browser is a modal dialog with its own Escape and Space, and a key meant for it must not
+// also stop the transport behind it or start playback.
+describe('shortcuts: while the Score browser is open', () => {
+  beforeEach(() => {
+    viewState.resetScale();
+    browserState.reset();
+  });
+
+  afterEach(() => {
+    browserState.reset();
+    viewState.resetScale();
+    vi.restoreAllMocks();
+  });
+
+  it('Escape does not stop the transport, Space does not toggle it, and the size keys do not resize the Score', () => {
+    const stop = vi.spyOn(transportState, 'stop').mockImplementation(() => undefined);
+    const toggle = vi.spyOn(transportState, 'togglePlay').mockImplementation(() => undefined);
+    browserState.open();
+
+    const escapeKey = press('Escape');
+    const space = new KeyboardEvent('keydown', { code: 'Space', key: ' ', bubbles: true, cancelable: true });
+    document.body.dispatchEvent(space);
+    press('+', { shiftKey: true });
+    press('-');
+
+    expect(stop).not.toHaveBeenCalled();
+    expect(toggle).not.toHaveBeenCalled();
+    expect(space.defaultPrevented).toBe(false); // the focused control keeps its own Space
+    expect(escapeKey.defaultPrevented).toBe(false); // the dialog's own Escape still runs
+    expect(viewState.get().scale).toBe(SCORE_SCALE_DEFAULT);
+  });
+
+  it('the same keys work again once the browser is closed', () => {
+    const stop = vi.spyOn(transportState, 'stop').mockImplementation(() => undefined);
+    browserState.open();
+    browserState.close();
+
+    press('Escape');
+
+    expect(stop).toHaveBeenCalledTimes(1);
   });
 });
 

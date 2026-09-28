@@ -1,6 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 import { type KeyStep, keyStepBytes, parseKeySteps } from '../../../tools/dev/key-steps.js';
-import { openPanel } from './panels.js';
+import { browserDialog } from './browser.js';
+import { revealLibraryItem } from './library.js';
 
 /**
  * Drives Practice without a MIDI keyboard through the app's `e2e-midi` window event (src/app/session.ts). A step list is
@@ -25,11 +26,12 @@ export async function pressKeys(page: Page, steps: string | readonly KeyStep[]):
   }
 }
 
-/** Opens a library item through the Scores panel, then starts a Practice session on it (both Shells). */
+/** Opens a library item through the browser (feature 013, R-20), then starts a Practice session on it (both Shells). */
 export async function startPractice(page: Page, itemId: string): Promise<void> {
   await page.goto('/');
-  await openPanel(page, 'scores');
-  await page.locator(`.library-item-open[data-id="${itemId}"]`).click();
+  const { item } = await revealLibraryItem(page, itemId);
+  await item.dblclick();
+  await expect(browserDialog(page)).toBeHidden();
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
   await startPracticeOnOpenScore(page);
 }

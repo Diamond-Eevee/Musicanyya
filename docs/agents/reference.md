@@ -141,10 +141,22 @@ pnpm tsx tools/library/probe.ts <dir> [outDir]  # level numbers + page-1 SVGs; o
 Tool output (probe SVGs, `probe-results.json`, screenshots) is never committed: it goes to `tests/.generated/` or the
 system temp folder, never under `public/` (it would ship with the app) or the repository root.
 
-**Known flaky**: the two Electron e2e tests `electron-playback.spec.ts:47` and `library.spec.ts:175` sometimes fail
+**Known flaky**: the two Electron e2e tests `electron-playback.spec.ts:47` and `library.spec.ts:340` sometimes fail
 under load on Windows ("Target page ... has been closed", "audio clock advances"); both pass when run alone
 (`pnpm exec playwright test --project=electron <file>`). Re-run them alone and log both results; do not call the gate
-green without that.
+green without that. Also under a full-suite run only (green standalone and within their own file, `--project`
+included): `pressed-keys.spec.ts:483` (firefox, a 60fps frame-timing check) and, since the 013 US3 checkpoint,
+`score-browser.spec.ts`'s "a .musicxml file with invalid content dropped onto the browser..." (firefox) - both
+passed 13/13 and 4/4 respectively re-run alone. At the 013 US5 checkpoint `library.spec.ts:370` (firefox, "a sample of
+items across sections each engrave at least one page") joined them: failed once in the full run, 3/3 alone.
+`us2-panels.spec.ts` "opening and closing a popup each take well under 100 ms (SC-007)" (firefox) failed once in a full
+run and 2 times in about 100 standalone repeats at `--workers=4` (the menu button "waiting for element to be visible,
+enabled and stable" until the 30 s timeout); 0 in 38 repeats on the commit before the 013 list/rail patching, so
+watch it, but no cause was found in 013's files.
+Unit tests under a full `pnpm test` run only (green standalone; 2026-09-28): `tests/core/browser/query-timing.test.ts`
+"a filter and sort change takes at most 20 ms" failed in 2 of 4 full runs (23.5 ms in the first), green alone and in the other two.
+Re-run it alone before calling it a regression; `tests/library/regeneration.test.ts` used to time out the same way and
+now has a 30 s timeout.
 
 **Known bugs** (confirmed, reproducible, not flaky - see `docs/known-bugs.md`): `tests/e2e/play-grade-marks.spec.ts`
 grades roughly half the expected notes on `repertoire/beginner/fur-elise-theme-16-bar`; not root-caused yet, not
@@ -169,7 +181,14 @@ e2e tests cover it. Use the first option that works for you:
    pnpm screenshot --item <id> --run --keys "sleep:3500"          # a Play run, picture taken mid-run (feature 009)
    pnpm screenshot --item <id> --run --grade --keys "sleep:1300,+76,-76"   # a Play run, picture of its Grade
    pnpm screenshot --item <id> --piano --practice --keys "+60,+61" --greyscale   # on-screen piano, in greyscale (feature 010)
+   pnpm screenshot --browser --width 900 --height 700   # the Score browser itself (feature 013), open at start-up
+   pnpm screenshot --browser --seed-progress tests/fixtures/progress/played-ladder.json --filter status=playedNotMastered --sort best:asc   # filters and sort (013 US5)
    ```
+
+   `--item`/`--file` open through the Score browser (feature 013, R-20): the picture is taken once the Score has
+   loaded, and the browser (which opens on its own at start-up with nothing loaded yet, FR-001) has closed. `--browser`
+   takes the picture with the browser open instead - with no `--item`/`--file` that is the start-up state; combined
+   with `--width`/`--height` it is the way to see its 1024/900/600 px breakpoints (contracts/score-browser.md §1).
 
    `--practice` switches to Practice and presses Start (a fake MIDI keyboard through the `e2e-midi` window event, the
    same one the e2e tests use). `--keys` is a comma-separated list of steps, `+<midi>` key down, `-<midi>` key up,
@@ -290,12 +309,24 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
 - Feature 010: no new technology and no new dependency. The on-screen piano is laid out by a pure function
   (`src/ui/piano/keyboard-layout.ts`, equal key-top geometry) and sized with CSS container units (`container-type:
   inline-size`, `cqw`; Chrome/Edge 105, Firefox 110, Safari 16).
+- Feature 013 (implemented): no new runtime dependency. The Score browser is a native modal `<dialog>` (`showModal()`,
+  refused during Practice/Play sessions, and while one starts; it pauses a playing Listen). Progress is a pure event reducer (`src/core/progress`) behind a new `ProgressStore` port
+  with an IndexedDB adapter (database version 3: `progress`, `userFiles`, `userFileBytes`, `meta`; lazy one-shot
+  migration from `recentScores` + `performances`) and a memory adapter (contract tests + storage-unavailable
+  fallback). The browser model (`src/core/browser`) is pure. New `localStorage` key `musicanyya.browser.v1`. Test-only `@axe-core/playwright` 4.13.0 (MPL-2.0) for the WCAG 2.1 AA check (OD-5,
+  approved 2026-09-27, in use: `tests/e2e/score-browser-a11y.spec.ts`).
 
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-09-27: Feature 013 planned (Score browser with progress): a near-full-screen browser replaces the Scores panel's
+  library tree and Recent list. It has a rail (Continue, All, library folders, My files), a list and a detail pane,
+  with status badges (New/Practised/Played/Mastered), best/last results with trend, and folder summaries. Progress is
+  an event-sourced record per content hash behind one `ProgressStore` port (IndexedDB v3 + memory), ready for a
+  server adapter. My files keep copies within 100 MiB. Suggested next follows the library's step order. No new runtime
+  dependency.
 - 2026-09-26: Feature 012 planned (tempo as an editable BPM number): `mx-tempo-field` replaces the tempo slider and
   Play's percentage list; the parser keeps the metronome mark's note value (all units, 0-3 dots, "c. 90", ranges);
   a core tempo display map gives the tempo and beat at the cursor. The engine keeps its percentage factor, now any
@@ -306,8 +337,4 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
   songs built from Mutopia public-domain melodies with our CC0 left-hand chords (`pnpm library:songs`). New level
   `introduction`, a step-order check in `library:index`, a folder-tree library panel, and `supersedes` links so settings
   follow renamed items. No new dependency.
-- 2026-09-26: Feature 010 planned (on-screen piano as a real keyboard): 52 contiguous white keys and 36 black keys
-  placed by the equal key-top model, C keys labelled C1-C8, keys 4 x as long as wide up to 160 px / 20 vh, sized by
-  CSS container units. The element keeps its DOM contract (`[data-key]` + state classes), so 001/002/008 feedback is
-  unchanged; markings move into the uncovered part of each key.
 <!-- RECENT-CHANGES:END -->

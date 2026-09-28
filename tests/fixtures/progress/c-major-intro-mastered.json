@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "items": {
+    "mastered": "learning/keys/c-major/introduction"
+  },
+  "events": [
+    {
+      "ref": {
+        "kind": "library",
+        "id": "learning/keys/c-major/introduction"
+      },
+      "event": {
+        "type": "opened",
+        "at": "2026-09-20T09:58:00.000Z",
+        "as": {
+          "kind": "library",
+          "id": "learning/keys/c-major/introduction"
+        }
+      }
+    },
+    {
+      "ref": {
+        "kind": "library",
+        "id": "learning/keys/c-major/introduction"
+      },
+      "event": {
+        "type": "played",
+        "at": "2026-09-20T10:00:00.000Z",
+        "result": {
+          "runId": "seed-c-major-intro-mastered",
+          "finishedAt": "2026-09-20T10:00:00.000Z",
+          "notesCorrect": {
+            "count": 19,
+            "total": 20
+          },
+          "notesOnTime": {
+            "count": 17,
+            "total": 19
+          },
+          "extra": 1,
+          "tempoPercent": 100,
+          "strictness": "beginner",
+          "complete": true,
+          "scope": {
+            "kind": "whole"
+          }
+        }
+      }
+    }
+  ]
+}

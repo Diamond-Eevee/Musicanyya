@@ -33,4 +33,12 @@ export class FakePerformanceStore implements PerformanceStore {
     this.records.delete(runId);
     return { ok: true, value: undefined };
   }
+
+  async removeByScore(scoreId: string): Promise<StoreResult<number>> {
+    const runIds = Array.from(this.records.values())
+      .filter((p) => p.scoreId === scoreId)
+      .map((p) => p.runId);
+    for (const runId of runIds) this.records.delete(runId);
+    return { ok: true, value: runIds.length };
+  }
 }

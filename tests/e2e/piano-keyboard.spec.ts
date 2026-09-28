@@ -101,11 +101,13 @@ const settle = (page: Page) =>
 async function openWithPiano(page: Page, size: { width: number; height: number }): Promise<void> {
   await page.setViewportSize(size);
   await page.goto('/');
+  // FR-001: the browser is open behind nothing yet - open the file first (its own hidden input works regardless,
+  // and closes the browser once loaded), then the view menu is reachable.
+  await page.locator('mx-open-button input[type=file]').setInputFiles(fixture('eight-measure-melody.musicxml'));
+  await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
   await openPanel(page, 'view');
   await page.locator('mx-view-panel input[data-layer="pianoKeys"]').check();
   await page.keyboard.press('Escape');
-  await page.locator('mx-open-button input[type=file]').setInputFiles(fixture('eight-measure-melody.musicxml'));
-  await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
   await expect(page.locator('mx-piano-keys')).toBeVisible();
   await settle(page);
 }
@@ -361,12 +363,13 @@ const overlap = (a: Box, b: Box) =>
 async function practiceWithPiano(page: Page, size: { width: number; height: number }): Promise<void> {
   await page.setViewportSize(size);
   await page.goto('/');
+  // FR-001: the browser is already open (no Score yet) - find and open the item before anything behind the modal
+  // (the view menu included) can be reached.
+  await (await revealLibraryItem(page, CMAJOR_ITEM)).item.dblclick();
+  await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
   await openPanel(page, 'view');
   await page.locator('mx-view-panel input[data-layer="pianoKeys"]').check();
   await page.keyboard.press('Escape');
-  await openPanel(page, 'scores');
-  await (await revealLibraryItem(page, CMAJOR_ITEM)).item.click();
-  await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
   await startPracticeOnOpenScore(page);
   await expect(page.locator('mx-piano-keys')).toBeVisible();
 }

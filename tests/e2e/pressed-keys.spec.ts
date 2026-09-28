@@ -1,5 +1,7 @@
 import * as path from 'node:path';
 import { expect, type Page, test } from '@playwright/test';
+import { browserDialog } from './helpers/browser.js';
+import { revealLibraryItem } from './helpers/library.js';
 import { openPanel } from './helpers/panels.js';
 import { marksDuringRun } from './helpers/play.js';
 import { pressKeys, startPractice, startPracticeOnOpenScore } from './helpers/practice.js';
@@ -270,15 +272,18 @@ test.describe('US2: wrong keys appear on the staff as red discs (feature 008)', 
   /** Practice on Fur Elise, waiting at the first E5 (key 76); `pianoKeys` shows the on-screen keyboard too. */
   async function furElise(page: Page, options: { pianoKeys?: boolean; marks?: boolean } = {}) {
     await page.goto('/');
+    // FR-001: the browser is already open (no Score yet) - find and open the item first, before the view menu
+    // (behind the modal) can be reached.
+    const { item } = await revealLibraryItem(page, FUR_ELISE);
+    await item.dblclick();
+    await expect(browserDialog(page)).toBeHidden();
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
     if (options.pianoKeys || options.marks === false) {
       await openPanel(page, 'view');
       if (options.pianoKeys) await page.locator('mx-view-panel input[data-layer="pianoKeys"]').check();
       if (options.marks === false) await page.locator('mx-view-panel input[data-layer="marks"]').uncheck();
       await page.keyboard.press('Escape');
     }
-    await openPanel(page, 'scores');
-    await page.locator(`.library-item-open[data-id="${FUR_ELISE}"]`).click();
-    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
     await startPracticeOnOpenScore(page);
     const events = await eventKeys(page);
     const first = events[0]?.[0] as KeyNotes;

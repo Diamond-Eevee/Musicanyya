@@ -3,7 +3,6 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
 import { revealLibraryItem } from './helpers/library.js';
-import { openPanel } from './helpers/panels.js';
 
 // 009 SC-007, FR-026 (analyze M3): on every library item and on the grade-marks fixture, in the two Grades that draw the
 // most marks - nothing played (a skip icon under every note) and every key a semitone high (a disc and a skip icon per note)
@@ -145,9 +144,8 @@ for (const item of index.items) {
   test(`${item.id}: no mark covers a head, an accidental or a dot`, async ({ page }) => {
     test.setTimeout(120_000);
     await page.goto('/');
-    await openPanel(page, 'scores');
     const { item: itemLocator } = await revealLibraryItem(page, item.id);
-    await itemLocator.click();
+    await itemLocator.dblclick();
     await toPlayMode(page);
     await sweepBoth(page, item.id);
   });

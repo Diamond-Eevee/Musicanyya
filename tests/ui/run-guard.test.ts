@@ -1,8 +1,13 @@
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import '../../src/ui/elements/mx-menu.js';
 import '../../src/ui/elements/mx-notice-tray.js';
+import type { PlayRun } from '../../src/core/play/types.js';
+import type { PracticeSession } from '../../src/core/practice/types.js';
 import { OVERLAYS_DEFAULT } from '../../src/engine/config.js';
+import { browserState } from '../../src/ui/state/browserState.js';
 import { noticeState } from '../../src/ui/state/noticeState.js';
+import { playState } from '../../src/ui/state/playState.js';
+import { practiceState } from '../../src/ui/state/practiceState.js';
 import { isRunActive } from '../../src/ui/state/runActive.js';
 import { guardPanelsDuringRuns } from '../../src/ui/state/runGuard.js';
 import { scoreState } from '../../src/ui/state/scoreState.js';
@@ -89,6 +94,56 @@ describe('popups and a run that is still starting', () => {
     press();
     expect(items().every((item) => item.disabled)).toBe(true);
     expect(trigger.getAttribute('aria-expanded')).toBe('false'); // the list no longer sits over the music
+  });
+});
+
+/**
+ * contracts/score-browser.md §5, FR-007, R-2: the browser closes when a Play run or Practice session *starts*, but
+ * not merely because Listen starts or pauses (`BrowserSessionController.open()`'s own refuse/pause logic, tested
+ * separately in `tests/ui/score-browser/open-rules.test.ts`, is what keeps it from ever opening over an already
+ * active run or session - this guard only has to catch a run/session that starts while the browser is open).
+ */
+describe('the browser and a run that starts while it is open', () => {
+  let stopGuarding: () => void;
+
+  afterEach(() => {
+    stopGuarding?.();
+    browserState.reset();
+    playState.setRun(null);
+    practiceState.setSession(null);
+    practiceState.setMode('listen');
+    transportState.setSoundFailed();
+    transportState.stop();
+  });
+
+  it('closes the browser when a Play run reaches count-in', () => {
+    stopGuarding = guardPanelsDuringRuns();
+    browserState.open();
+    expect(browserState.get().phase).not.toBe('closed');
+
+    playState.setRun({ phase: 'countIn' } as unknown as PlayRun);
+    expect(browserState.get().phase).toBe('closed');
+  });
+
+  it('closes the browser when a Practice session starts waiting', () => {
+    stopGuarding = guardPanelsDuringRuns();
+    browserState.open();
+
+    practiceState.setSession({ phase: 'waiting' } as unknown as PracticeSession);
+    expect(browserState.get().phase).toBe('closed');
+  });
+
+  it('does not close the browser when Listen starts playing or is paused', () => {
+    stopGuarding = guardPanelsDuringRuns();
+    browserState.open();
+
+    practiceState.setMode('listen');
+    transportState.setSoundReady(true);
+    transportState.play();
+    expect(browserState.get().phase).not.toBe('closed');
+
+    transportState.pause();
+    expect(browserState.get().phase).not.toBe('closed');
   });
 });
 

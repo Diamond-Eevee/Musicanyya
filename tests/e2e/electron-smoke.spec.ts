@@ -3,6 +3,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type ElectronApplication, _electron as electron, expect, test } from '@playwright/test';
+import { browserDialog, closeBrowser, openBrowser, seedProgress } from './helpers/browser.js';
 import { revealLibraryItem } from './helpers/library.js';
 import { openPanel } from './helpers/panels.js';
 
@@ -43,6 +44,9 @@ test.describe('Electron smoke test', () => {
     expect(url).toBe('app://musicanyya/');
 
     await expect(window.locator('.mx-empty-state')).toBeVisible();
+    // FR-001: the score browser opens at start-up with no Score loaded; close it before reaching the menu bar
+    // behind it (unrelated to this test, which checks the desktop shell's own name in the environment panel).
+    await closeBrowser(window);
 
     // Environment panel
     await openPanel(window, 'environment');
@@ -98,13 +102,42 @@ test.describe('Electron smoke test', () => {
     test.skip(testInfo.project.name !== 'electron', 'Run electron smoke test on electron project only');
 
     const window = await electronApp.firstWindow();
-    await openPanel(window, 'scores');
     const { item } = await revealLibraryItem(window, 'learning/keys/c-major/introduction');
-    await expect(item).toContainText('1 Introduction');
-    await item.click();
-    await expect(window.locator('mx-panel[data-panel="scores"]')).toBeHidden();
+    await expect(item).toContainText('Introduction');
+    await item.dblclick();
+    await expect(window.locator('dialog.browser')).toBeHidden();
     await expect(window.locator('.mx-score-page svg').first()).toBeVisible();
     await expect(window.locator('.mx-title-block')).toContainText('C major - introduction');
     await expect(window.locator('.notice')).toHaveCount(0);
+  });
+  // Feature 013 FR-031 (T088): the score browser is the same code in the desktop shell - it opens from the bar, takes
+  // seeded progress through the ordinary store (IndexedDB under app://), opens a library item and records that it
+  // was opened.
+  // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
+  test('the score browser opens, shows seeded progress, opens an item and records it (013 T088)', async ({}, testInfo) => {
+    test.skip(testInfo.project.name !== 'electron', 'Run electron smoke test on electron project only');
+
+    const window = await electronApp.firstWindow();
+    await openBrowser(window);
+    await seedProgress(window, 'c-major-intro-mastered.json');
+
+    // The seeded mastering result is a progress record written and read back through the shell's own storage.
+    const first = window.locator('.continue-recent .continue-card').first();
+    await expect(first).toHaveAttribute('data-ref', 'library:learning/keys/c-major/introduction');
+    await expect(first).toHaveAttribute('data-status', 'mastered');
+
+    // One click on the suggestion opens the next step; opening it is itself recorded as progress.
+    const suggested = window.locator('[data-testid="browser-suggested"] .continue-card');
+    await expect(suggested).toHaveAttribute('data-ref', 'library:learning/keys/c-major/beginner');
+    await suggested.click();
+    await expect(browserDialog(window)).toBeHidden();
+    await expect(window.locator('.mx-title-block')).toContainText('C major - beginner');
+
+    await openBrowser(window);
+    await expect(window.locator('.continue-recent .continue-card').first()).toHaveAttribute(
+      'data-ref',
+      'library:learning/keys/c-major/beginner',
+    );
+    await closeBrowser(window);
   });
 });

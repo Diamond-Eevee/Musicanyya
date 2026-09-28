@@ -334,3 +334,18 @@ export const STEP_ORDER_FACTS = ['tempoBpm', 'notesPerBeat', 'handIndependenceFr
 // Criterion 27 - identical at every level: one part, a grand staff.
 export const LEVEL_REQUIRED_PARTS = 1;
 export const LEVEL_REQUIRED_STAVES = 2;
+
+// Score browser & progress (feature 013-score-browser-progress, data-model.md section 11)
+export const PROGRESS_FORMAT_VERSION = 1; // ProgressRecord.format / UserFileEntry.format (FR-030)
+export const PROGRESS_RESULTS_MAX = 20; // ProgressRecord.results kept per Score (FR-015, US2 #5); >= PERFORMANCES_PER_SCORE_MAX
+export const MASTERY_NOTES_CORRECT_MIN_PERCENT = 90; // *Mastered* needs notes correct at or above this (FR-024)
+export const MASTERY_NOTES_ON_TIME_MIN_PERCENT = 80; // *Mastered* needs played notes on time at or above this (FR-024)
+export const MASTERY_TEMPO_PERCENT_MIN = 100; // *Mastered* needs the run's tempo factor at or above this (FR-024)
+export const MASTERY_MIN_STRICTNESS: StrictnessLevelName = 'beginner'; // lowest strictness that can master (FR-024)
+export const MASTERY_MAX_EXTRA_PERCENT: number | null = 10; // OD-2: extra notes at most this % of notes total, or null to disable (FR-024)
+export const CONTINUE_ITEMS_MAX = 8; // Recent items shown in *Continue* (FR-025, US4 #1)
+export const MORE_PRACTICE_AFTER_RUNS = 3; // Whole complete runs without *Mastered* before *More practice* is offered (FR-025)
+export const USER_FILE_VERSIONS_MAX = 10; // Earlier content hashes kept per *My files* entry (FR-021)
+// Shared with src/engine/config.ts (re-exported there): src/core/browser/query.ts (pure) cuts an overlong search
+// itself, so this cannot live only in the engine layer (data-model.md section 11 corrected while implementing T014).
+export const BROWSER_SEARCH_MAX_CHARS = 200; // Browser search text is cut to this length (FR-026)

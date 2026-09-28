@@ -1,4 +1,6 @@
 import { expect, type Page } from '@playwright/test';
+import { browserDialog } from './browser.js';
+import { revealLibraryItem } from './library.js';
 import { openPanel } from './panels.js';
 
 export interface PlayOptions {
@@ -16,21 +18,31 @@ interface PlayStateSeam {
   get(): { run: { phase: string } | null; grade: unknown | null };
 }
 
+/** T048 (013 US2): the current run's expected notes, read back from `__PLAY_STATE__` - not a hand-transcribed
+ *  rhythm, so a real, unfamiliar library item can be played deterministically. */
+export const expectedNoteCount = (page: Page) =>
+  page.evaluate(
+    () =>
+      (window as unknown as { __PLAY_STATE__: { get(): { expected: unknown[] } } }).__PLAY_STATE__.get().expected
+        .length,
+  );
+
 /** `__PLAY_STATE__` (src/ui/state/playState.ts): the same e2e seam the Play specs read; plain data. */
 export const playPhase = (page: Page) =>
   page.evaluate(() => (window as unknown as { __PLAY_STATE__: PlayStateSeam }).__PLAY_STATE__.get().run?.phase ?? null);
 
 /**
- * Drives Play without a MIDI keyboard, the way `startPractice` (helpers/practice.ts) drives Practice: open a library item
- * through the Scores panel, fake a granted MIDI device through the `e2e-midi` path (`e2e-ready`), switch to Play, set the
- * options through the Play panel (the panel closes when the run starts), and press the transport button. Resolves once
- * the run has started (count-in or running). Keys are then pressed with `pressKeys` (helpers/practice.ts), timed with its
- * `sleep:<ms>` steps.
+ * Drives Play without a MIDI keyboard, the way `startPractice` (helpers/practice.ts) drives Practice: open a library
+ * item through the browser (feature 013, R-20 - it is already open at start-up, FR-001), fake a granted MIDI device
+ * through the `e2e-midi` path (`e2e-ready`), switch to Play, set the options through the Play panel (the panel
+ * closes when the run starts), and press the transport button. Resolves once the run has started (count-in or
+ * running). Keys are then pressed with `pressKeys` (helpers/practice.ts), timed with its `sleep:<ms>` steps.
  */
 export async function startPlay(page: Page, itemId: string, options: PlayOptions = {}): Promise<void> {
   await page.goto('/');
-  await openPanel(page, 'scores');
-  await page.locator(`.library-item-open[data-id="${itemId}"]`).click();
+  const { item } = await revealLibraryItem(page, itemId);
+  await item.dblclick();
+  await expect(browserDialog(page)).toBeHidden();
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
   await expect(page.locator('mx-transport .play-btn')).not.toBeDisabled();
   await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
@@ -116,6 +128,51 @@ export async function pressInTime(page: Page, presses: readonly TimedPress[]): P
       window.dispatchEvent(new CustomEvent('e2e-midi', { detail: event.bytes }));
     }
   }, presses);
+}
+
+/**
+ * T048 (013 US2): presses the correct key of exactly the first `count` expected notes (`__PLAY_STATE__.get()
+ * .expected`, written order) and nothing else, timed off the run's own `positionRunTick` (via `run.tickMap`) rather
+ * than a hand-transcribed rhythm - works for any real library item. A chord's members (one `ExpectedNote` each,
+ * sharing one `onsetTick`) are grouped and pressed together. Resolves once the group holding the `count`-th note has
+ * been pressed; the run is left running (undriven notes past `count` are simply never played, so a run that
+ * finishes on its own is `complete: true` with `notesCorrect` exactly `count` of the total, R-18/FR-008).
+ */
+export async function pressFirstExpectedNotes(page: Page, count: number): Promise<void> {
+  await page.evaluate(async (n) => {
+    interface Note {
+      key: number;
+      onsetTick: number;
+    }
+    interface Run {
+      positionRunTick: number;
+      tickMap: { countInTicks: number; rangeStartTick: number };
+    }
+    const state = (window as unknown as { __PLAY_STATE__: { get(): { run: Run | null; expected: Note[] } } })
+      .__PLAY_STATE__;
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    const groups: { onsetTick: number; keys: number[] }[] = [];
+    for (const note of state.get().expected.slice(0, n)) {
+      const last = groups[groups.length - 1];
+      if (last && last.onsetTick === note.onsetTick) last.keys.push(note.key);
+      else groups.push({ onsetTick: note.onsetTick, keys: [note.key] });
+    }
+
+    for (const group of groups) {
+      const deadline = performance.now() + 30_000;
+      while (performance.now() < deadline) {
+        const run = state.get().run;
+        if (!run) break;
+        const dueRunTick = group.onsetTick - run.tickMap.rangeStartTick + run.tickMap.countInTicks;
+        if (run.positionRunTick >= dueRunTick) break;
+        await sleep(15);
+      }
+      for (const key of group.keys) window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x90, key, 100] }));
+      await sleep(40);
+      for (const key of group.keys) window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x80, key, 0] }));
+    }
+  }, count);
 }
 
 /**

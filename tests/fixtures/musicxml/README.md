@@ -8,6 +8,7 @@
 | backup-forward-two-voices | Two voices using backup and forward | Hand-written | CC0 |
 | chord-basic | Basic 3-note chord | Hand-written | CC0 |
 | grand-staff-two-voices-per-staff | 2 staves, 4 voices | Hand-written | CC0 |
+| grand-staff-right-hand-only | 2 staves; staff 2 (left hand) is a whole-measure rest in every measure, no notes at all (feature 013 `resultScope`: a "one-hand piece" whose other staff is empty still counts as the whole Score) | Hand-written | CC0 |
 | tuplet-triplet-eighths | 3:2 eighth-note triplet | Hand-written | CC0 |
 | tuplet-triplet-exact | 3:2 eighth-note triplet with exact `<duration>` (divisions 3), then a dotted half; `tuplet-triplet-eighths` gives each note 1/2 quarter | Hand-written (feature 007) | CC0 |
 | fractional-duration | Durations that don't land on beats easily | Hand-written | CC0 |

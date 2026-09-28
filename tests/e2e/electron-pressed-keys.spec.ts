@@ -5,6 +5,8 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type ElectronApplication, _electron as electron, expect, type Page, test } from '@playwright/test';
+import { browserDialog, closeBrowser } from './helpers/browser.js';
+import { revealLibraryItem } from './helpers/library.js';
 import { openPanel } from './helpers/panels.js';
 import { pressKeys, startPracticeOnOpenScore } from './helpers/practice.js';
 import {
@@ -53,8 +55,9 @@ test.describe('Electron: pressed keys on the Score (feature 008, FR-015)', () =>
     test.setTimeout(120_000);
     expect(window.url()).toBe('app://musicanyya/');
 
-    await openPanel(window, 'scores');
-    await window.locator('.library-item-open[data-id="repertoire/intermediate/fur-elise-theme"]').click();
+    const { item } = await revealLibraryItem(window, 'repertoire/intermediate/fur-elise-theme');
+    await item.dblclick();
+    await expect(browserDialog(window)).toBeHidden();
     await expect(window.locator('.mx-score-page svg').first()).toBeVisible({ timeout: 30_000 });
     await expect(window.locator('mx-transport .play-btn')).not.toBeDisabled({ timeout: 90_000 });
     // (dashes: the same spy the browser spec installs before load, installed here on the loaded page)
@@ -130,6 +133,9 @@ test.describe('Electron: on-screen piano as a real keyboard (feature 010, FR-013
   // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
   test('on-screen piano in the desktop app: 52 white and 36 black keys, no sideways scroll, a held black key shows its dot (feature 010)', async ({}, testInfo) => {
     test.skip(testInfo.project.name !== 'electron', 'launches the desktop shell; electron project only');
+    // FR-001: the browser is open at start-up with no Score loaded; close it before the view menu (behind the
+    // modal) can be reached - this test never opens a Score.
+    await closeBrowser(window);
     await openPanel(window, 'view');
     await window.locator('mx-view-panel input[data-layer="pianoKeys"]').check();
     await window.keyboard.press('Escape');

@@ -1,29 +1,27 @@
 import { expect, type Locator, type Page } from '@playwright/test';
+import { openBrowser, rowByRef } from './browser.js';
 
-/** The ids of every folder above an item: `learning/keys/c-major/beginner` sits in `learning`, `learning/keys` and
- *  `learning/keys/c-major` (the item id is the path, contracts/library-index.md §3). */
-function folderIds(itemId: string): string[] {
-  const parts = itemId.split('/').slice(0, -1);
-  return parts.map((_, i) => parts.slice(0, i + 1).join('/'));
-}
-
-/** Opens every closed folder above the item the way a person does - one click on its summary - and returns the item's
- *  button. Folders the panel already shows open are left alone (feature 011: key folders start closed). Returns the number
- *  of clicks in `clicks` so a test can hold to SC-001's "at most 3 selections". */
+/**
+ * Opens the browser (if not open already) and selects *All*, so the item is listed regardless of which folder
+ * was last selected - the most direct way to reach a specific item by id, not dependent on its title happening to
+ * contain a word derived from its id (feature 005/011 slugs like `fur-elise-theme` do not: FR-026's search matches
+ * title/composer/folder text, not the id). Replaces the old library shelf's own `<details>` folder tree (feature
+ * 013, R-20).
+ *
+ * Returns the row (double click, Enter or the detail pane's *Open* button opens it - a single click only selects
+ * it now) and `clicks`, kept at `0` for SC-001's own "folder, item" count: the browser needing no folder click at
+ * all is strictly better than the two the old scenario budgeted for.
+ */
 export async function revealLibraryItem(page: Page, itemId: string): Promise<{ item: Locator; clicks: number }> {
-  // the index loads after the panel opens: wait for the tree before looking for folders
-  await page.locator('details.library-section').first().waitFor();
-  let clicks = 0;
-  for (const id of folderIds(itemId)) {
-    const folder = page.locator(`details.library-section[data-section="${id}"]`);
-    if ((await folder.count()) === 0) continue;
-    const open = await folder.evaluate((el) => (el as HTMLDetailsElement).open);
-    if (!open) {
-      await folder.locator(':scope > summary').click();
-      clicks++;
-    }
-  }
-  const item = page.locator(`.library-item-open[data-id="${itemId}"]`);
+  await openBrowser(page);
+  const all = page.locator('[role="treeitem"][data-key="all"]');
+  // Below 1024px the rail is a folder-picker overlay, closed by default (contracts/score-browser.md §1) - open it
+  // first, if needed, before its treeitems can be reached. Always click *All* itself, even if a persisted view
+  // (`musicanyya.browser.v1`, US1 #5) already selected it: a no-op `browserviewchange` is what closes the overlay
+  // again - skipping the click when already selected left it open and blocking the list underneath.
+  if (!(await all.isVisible())) await page.locator('.browser-folder-picker').click();
+  await all.click();
+  const item = rowByRef(page, `library:${itemId}`);
   await expect(item).toBeVisible();
-  return { item, clicks };
+  return { item, clicks: 0 };
 }

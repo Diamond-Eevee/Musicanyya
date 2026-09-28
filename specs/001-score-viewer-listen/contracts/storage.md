@@ -1,19 +1,32 @@
 # Contract: persisted data (IndexedDB + localStorage)
 
-**Version**: IndexedDB schema `1` -> **`2`** (feature 003, T077), settings format `1`. Research R-13. All data
-stays on the user's device (FR-030). This file is the index of every store and key; a feature that adds one
-documents its own shape in its own contracts and is cross-referenced here rather than duplicated.
+**Version**: IndexedDB schema `1` -> `2` (feature 003, T077) -> **`3`** (feature 013-score-browser-progress),
+settings format `1`. Research R-13 (001), R-5/R-6 (013). All data stays on the user's device (FR-030). This file is
+the index of every store and key; a feature that adds one documents its own shape in its own contracts and is
+cross-referenced here rather than duplicated.
 
-## IndexedDB database `musicanyya` (version 2)
+## IndexedDB database `musicanyya` (version 3)
 
-Object store `recentScores`, keyPath `id`, index `byLastOpened` on `lastOpened` - unchanged since version 1.
+Object store `recentScores`, keyPath `id`, index `byLastOpened` on `lastOpened` - unchanged since version 1. As of
+version 3 it is **read only once**, by the progress migration below; nothing writes to it any more (013 R-3, R-20:
+`ScoreStore`/`IndexedDbScoreStore` were removed, ports.md 2.0.0).
 
 **Version 2** (feature 003) adds the object store `performances` (kept attempts, FR-041) without ever touching
 `recentScores` - full shape, retention rule and failure behaviour in
 [specs/003-play-mode-grading/contracts/performance-log.md](../../003-play-mode-grading/contracts/performance-log.md).
 `onupgradeneeded` creates only the store that is missing, so a version-1 database upgrades in place; the two
-stores' own `IndexedDbScoreStore` and `IndexedDbPerformanceStore` classes share one open/upgrade path
+stores' own classes (`IndexedDbPerformanceStore`, and until 013 `IndexedDbScoreStore`) share one open/upgrade path
 (`src/engine/storage/db.ts`) so this is true regardless of which one opens the database first.
+
+**Version 3** (feature 013-score-browser-progress) adds four object stores for the `ProgressStore` port: `progress`
+(keyPath `scoreKey`), `userFiles` (keyPath `fileKey`), `userFileBytes` (keyPath `hash`) and `meta` (keyPath `key`) -
+full shape, migration and adapter rules in
+[specs/013-score-browser-progress/contracts/progress-store.md](../../013-score-browser-progress/contracts/progress-store.md)
+1.0.0. `onupgradeneeded` again creates only the stores that are missing, so version-1 and version-2 databases both
+upgrade in place. Every connection sets `onversionchange = () => db.close()` (013 R-5), so an old tab left open
+does not block a later upgrade. A one-shot lazy migration (not run inside `onupgradeneeded`) builds `progress` and
+`userFiles` records from the existing `recentScores` and `performances` stores the first time a `ProgressStore`
+operation runs; it is recorded in `meta['progressMigration']` so it runs at most once.
 
 ```ts
 interface RecentScoreRecord {
@@ -28,7 +41,7 @@ interface RecentScoreRecord {
 }
 ```
 
-Rules:
+Rules (as they were while `ScoreStore` wrote this store, up to feature 013; now only the migration reads it):
 
 - Written only after a **successful** open (the Score parsed without a fatal error).
 - At most `RECENT_SCORES_MAX = 10` records; after `put`, the oldest by `lastOpened` beyond 10 are deleted in the same
@@ -37,8 +50,8 @@ Rules:
   removed; it is never deleted silently.
 - Upgrades: `onupgradeneeded` migrates from older versions; an unknown newer version opens read-only and shows a
   `storageNewerVersion` notice.
-- Failures (private mode, quota, blocked): `ScoreStore` returns `{ ok: false }`; the UI shows `storageUnavailable`
-  once per session; opening files still works.
+- Failures (private mode, quota, blocked): `ScoreStore` returned `{ ok: false }`; the UI showed `storageUnavailable`
+  once per session; opening files still worked.
 
 ## localStorage key `musicanyya.settings.v1`
 
@@ -73,10 +86,12 @@ This version-1 shape is superseded by
 | `musicanyya.practice.v1` | 002 | Practice settings remembered per Score, `PRACTICE_SETTINGS_MAX = 20` | [002 practice-settings.md](../../002-practice-wait-mode/contracts/practice-settings.md) |
 | `musicanyya.play.v1` | 003 | Play run settings remembered per Score, `PLAY_SETTINGS_MAX = 20` | [003 performance-log.md](../../003-play-mode-grading/contracts/performance-log.md) |
 | `musicanyya.latency.v1` | 003 | The device's one measured Latency profile | [003 performance-log.md](../../003-play-mode-grading/contracts/performance-log.md) |
+| `musicanyya.library.v1` | 005/011 | The old library panel's filter state | [005 library-port.md](../../005-practice-score-library/contracts/library-port.md) §3. Superseded by `musicanyya.browser.v1` (013): read once to seed the new key, then left alone, never written again. |
+| `musicanyya.browser.v1` | 013 | Score browser view state (folder, search, filters, sort, selection) | [013 score-browser.md](../../013-score-browser-progress/contracts/score-browser.md) |
 
-All three follow this file's own rule for `musicanyya.settings.v1`: invalid or unparsable content falls back to
-built-in defaults and is overwritten on the next write; a storage failure is reported once (`storageUnavailable`)
-and never throws.
+All of the above follow this file's own rule for `musicanyya.settings.v1`: invalid or unparsable content falls back
+to built-in defaults and is overwritten on the next write; a storage failure is reported once
+(`storageUnavailable`) and never throws.
 
 ## Cache Storage `musicanyya-soundfont-v1`
 

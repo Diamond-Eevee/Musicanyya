@@ -1,0 +1,568 @@
+/*
+ * The score browser (mx-score-browser, feature 013, contracts/score-browser.md section 1) - a native <dialog>
+ * covering the window minus a margin. `--browser-margin` shrinks as the window narrows (R-1): 24px at >= 1024px,
+ * 12px from 768 to 1023px, 0 below 768px, where the dialog fills the window edge to edge.
+ */
+:root {
+  --browser-margin: 24px;
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --browser-margin: 12px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --browser-margin: 0px;
+  }
+}
+
+/* The light-DOM host itself (mounted straight into `#mx-main`, T031) has no visible box of its own - only its
+   `<dialog>` child does, already `position: fixed` below - but left at the default `position: static` it still
+   counts as a flow child of `#mx-main` (feature 004 FR-001's "no aside reserves space" contract, caught live by
+   electron-smoke.spec.ts). `position: absolute` takes it out of that flow without affecting the dialog's own
+   (independent) fixed positioning, and without a size or offset of its own it stays at its static position either
+   way. `position: fixed` first (same fix in spirit) broke keyboard menu navigation on WebKit only - found live
+   migrating tests/e2e/library.spec.ts's item-opening flow for T032, `us2-panels.spec.ts`'s "a menu is usable with
+   the keyboard alone" test on `--project=webkit`: `ArrowDown` from the Help/More menu's first entry never reached
+   *Audio diagnostics* - the mechanism was not traced further once `absolute` (which the layout checks accept just
+   as well - they only exclude `position: fixed`/`absolute`) was confirmed to fix it with no regression. */
+mx-score-browser {
+  position: absolute;
+}
+
+/* `[open]` keeps the UA's own `dialog:not([open]) { display: none }` in force for a closed dialog - an
+   unconditional `display: flex` here would override it (author styles beat the UA sheet at equal specificity)
+   and leave the dialog visible with no `open` attribute, in effect undoing `close()` (found interactively with
+   the browser pane while verifying T031). */
+dialog.browser[open] {
+  position: fixed;
+  inset: var(--browser-margin);
+  margin: 0;
+  padding: 0;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+  color: var(--text-color);
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+dialog.browser::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.browser-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 44px 10px 12px; /* right side: room for the close button, which sits top right (see below) */
+  border-bottom: 1px solid var(--border-color);
+}
+
+.browser-header h2 {
+  margin: 0;
+  font-size: 1.1em;
+}
+
+.browser-search {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+  color: var(--text-color);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font: inherit;
+}
+
+.browser-close {
+  /* Last in the DOM so Tab reaches it after the detail pane (contracts/score-browser.md section 4), placed top
+     right of the dialog (the modal's `position: fixed` is its containing block). */
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  border: none;
+  background: none;
+  color: var(--text-color);
+  font-size: 1.3em;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.browser-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border-color);
+  min-height: 1px; /* present even when empty, so the border always shows a toolbar row exists */
+}
+
+/* The chrome around the body keeps its full height: the dialog is a column, the body alone takes what is left, and
+   a toolbar that wraps to a second row (active filter chips) must push the body down, not be squeezed under it. */
+.browser-header,
+.browser-toolbar,
+.browser-error,
+.browser-empty,
+.browser-status,
+.browser-message {
+  flex-shrink: 0;
+}
+
+.browser-folder-picker,
+.browser-back {
+  display: none;
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+  color: var(--text-color);
+  border-radius: 4px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+
+.browser-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.browser-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9em;
+}
+
+.browser-filter select {
+  max-width: 11rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+  color: var(--text-color);
+  border-radius: 4px;
+  padding: 3px 6px;
+  font: inherit;
+}
+
+.browser-sort {
+  margin-left: auto;
+}
+
+.browser-chips {
+  display: flex;
+  flex-basis: 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.browser-chips:empty {
+  display: none;
+}
+
+.browser-chip,
+.browser-clear-all,
+.browser-clear-filters {
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+  color: var(--text-color);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font: inherit;
+  font-size: 0.85em;
+  cursor: pointer;
+}
+
+.browser-clear-all,
+.browser-clear-filters {
+  border-radius: 4px;
+  text-decoration: underline;
+}
+
+.browser-empty {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.browser-empty[hidden] {
+  display: none;
+}
+
+.browser-empty p {
+  display: inline;
+  margin: 0 8px 0 0;
+}
+
+.browser-breadcrumb {
+  display: none;
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+
+.browser-body {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: 16rem 1fr 22rem;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.browser-rail {
+  overflow-y: auto;
+  padding: 8px;
+  border-right: 1px solid var(--border-color);
+}
+
+.browser-rail-item {
+  padding: 4px 6px;
+  padding-left: calc(6px + var(--browser-rail-depth, 0) * 14px);
+  cursor: pointer;
+  border-radius: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.browser-rail-item:hover,
+.browser-rail-item[aria-selected="true"] {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+mx-browser-list,
+mx-browser-continue {
+  display: block;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+/* An author `display` beats the UA's [hidden] rule; only one of the two panes is ever shown (US4). */
+mx-browser-list[hidden],
+mx-browser-continue[hidden] {
+  display: none;
+}
+
+mx-browser-continue {
+  padding: 8px 12px;
+}
+
+mx-browser-continue h3 {
+  margin: 12px 0 6px;
+  font-size: 0.95em;
+  text-transform: none;
+}
+
+.continue-welcome p {
+  margin: 0 0 8px;
+}
+
+.continue-recent,
+.continue-suggested,
+.continue-more {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.continue-recent-section .continue-recent {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr));
+}
+
+.continue-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  column-gap: 8px;
+  row-gap: 2px;
+  width: 100%;
+  padding: 8px 10px;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.continue-card:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.continue-card-title {
+  font-weight: 500;
+}
+
+.continue-card-subtitle,
+.continue-card-note {
+  grid-column: 2;
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+
+.continue-link {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 0;
+  font: inherit;
+  color: var(--color-blue);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.continue-empty {
+  margin: 0;
+  opacity: 0.75;
+}
+
+.browser-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.browser-error[hidden] {
+  display: none;
+}
+
+.browser-error-message {
+  margin: 0;
+}
+
+.browser-retry {
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+  color: var(--text-color);
+  border-radius: 4px;
+  padding: 2px 10px;
+  cursor: pointer;
+}
+
+.browser-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.browser-row:hover,
+.browser-row[aria-selected="true"] {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.browser-row-title {
+  font-weight: 500;
+}
+
+.browser-row-subtitle,
+.browser-row-level,
+.browser-row-key,
+.browser-row-length,
+.browser-row-result,
+.browser-row-trend {
+  font-size: 0.85em;
+  opacity: 0.75;
+}
+
+mx-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-badge-shape {
+  width: 14px;
+  height: 14px;
+}
+
+.status-badge-label {
+  font-size: 0.85em;
+}
+
+.status-badge-outline {
+  stroke: var(--status-new);
+  stroke-width: 1.5;
+}
+.status-badge[data-status="practised"] .status-badge-outline,
+.status-badge[data-status="practised"] .status-badge-fill {
+  stroke: var(--status-practised);
+  fill: var(--status-practised);
+}
+.status-badge[data-status="played"] .status-badge-outline,
+.status-badge[data-status="played"] .status-badge-fill {
+  stroke: var(--status-played);
+  fill: var(--status-played);
+}
+.status-badge[data-status="mastered"] .status-badge-shape path {
+  fill: var(--status-mastered);
+}
+
+.browser-detail-progress {
+  margin: 10px 0;
+  font-size: 0.9em;
+}
+
+.browser-detail-history {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: 0.85em;
+}
+
+.browser-rail-progress {
+  font-size: 0.75em;
+  opacity: 0.7;
+  margin-left: 4px;
+}
+
+mx-browser-detail {
+  display: block;
+  overflow-y: auto;
+  padding: 8px 12px;
+  border-left: 1px solid var(--border-color);
+}
+
+.browser-detail-title {
+  margin: 0 0 4px;
+}
+
+.browser-detail-open {
+  margin-top: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+  color: var(--text-color);
+  border-radius: 4px;
+  padding: 4px 14px;
+  cursor: pointer;
+}
+
+.browser-status {
+  margin: 0;
+  padding: 4px 12px;
+  font-size: 0.8em;
+  opacity: 0.75;
+}
+
+.browser-message {
+  margin: 0;
+  padding: 4px 12px;
+}
+
+.browser-message:empty {
+  display: none;
+}
+
+/* US3: a drop onto the dialog (the *Open file...* target, contracts/score-browser.md §3) - the same highlight
+   mx-drop-zone's own .drag-active gives the empty-state invitation. */
+dialog.browser.browser-drag-active {
+  outline: 3px dashed var(--color-blue);
+  outline-offset: -6px;
+}
+
+.browser-row-not-stored,
+.browser-detail-not-stored {
+  font-size: 0.85em;
+  opacity: 0.75;
+  font-style: italic;
+}
+
+/* 768-1023px: the rail becomes a folder-picker button with a breadcrumb (contracts/score-browser.md section 1);
+   the grid keeps only the list and detail columns. */
+@media (max-width: 1023px) {
+  .browser-body {
+    grid-template-columns: 1fr 22rem;
+  }
+
+  .browser-rail {
+    display: none;
+  }
+
+  .browser-rail.browser-rail-overlay-open {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: var(--bg-color);
+  }
+
+  .browser-folder-picker,
+  .browser-breadcrumb {
+    display: inline-block;
+  }
+}
+
+/* Below 768px: one column (the list); the detail pane becomes a panel over the list with a Back button. */
+@media (max-width: 767px) {
+  .browser-body {
+    grid-template-columns: 1fr;
+    position: relative;
+  }
+
+  mx-browser-detail {
+    display: none;
+    border-left: none;
+  }
+
+  mx-browser-detail.browser-detail-overlay-open {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: var(--bg-color);
+  }
+
+  .browser-back {
+    display: inline-block;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 1px;
+}
+
+/* Carried over from the retired panel (T098-T101). */
+.browser-row-step,
+.browser-rail-relation {
+  font-size: 0.85em;
+  opacity: 0.75;
+}
+
+.browser-rail-relation {
+  margin-left: 6px;
+  font-style: italic;
+}
+
+.browser-detail-facts {
+  margin: 4px 0;
+  font-size: 0.9em;
+}
+
+.browser-level-description {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.85em;
+  opacity: 0.85;
+}
+
+.browser-level-description:empty {
+  display: none;
+}

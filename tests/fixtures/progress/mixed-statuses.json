@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "items": {
+    "new": "learning/keys/c-major/song-au-clair-de-la-lune",
+    "practised": "learning/keys/c-major/beginner",
+    "played": "learning/keys/c-major/intermediate",
+    "mastered": "learning/keys/c-major/advanced"
+  },
+  "events": [
+    {
+      "ref": { "kind": "library", "id": "learning/keys/c-major/beginner" },
+      "event": { "type": "practised", "at": "2026-09-21T10:00:00.000Z", "fromMeasure": 1, "toMeasure": 8 }
+    },
+    {
+      "ref": { "kind": "library", "id": "learning/keys/c-major/intermediate" },
+      "event": {
+        "type": "played",
+        "at": "2026-09-21T10:05:00.000Z",
+        "result": {
+          "runId": "seed-mixed-played",
+          "finishedAt": "2026-09-21T10:05:00.000Z",
+          "notesCorrect": { "count": 28, "total": 40 },
+          "notesOnTime": { "count": 20, "total": 28 },
+          "extra": 3,
+          "tempoPercent": 100,
+          "strictness": "beginner",
+          "complete": true,
+          "scope": { "kind": "whole" }
+        }
+      }
+    },
+    {
+      "ref": { "kind": "library", "id": "learning/keys/c-major/advanced" },
+      "event": {
+        "type": "played",
+        "at": "2026-09-21T10:10:00.000Z",
+        "result": {
+          "runId": "seed-mixed-mastered",
+          "finishedAt": "2026-09-21T10:10:00.000Z",
+          "notesCorrect": { "count": 38, "total": 40 },
+          "notesOnTime": { "count": 34, "total": 38 },
+          "extra": 2,
+          "tempoPercent": 100,
+          "strictness": "beginner",
+          "complete": true,
+          "scope": { "kind": "whole" }
+        }
+      }
+    }
+  ]
+}

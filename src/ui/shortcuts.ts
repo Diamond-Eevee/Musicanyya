@@ -1,4 +1,5 @@
 import { SCORE_SCALE_STEP } from '../engine/config.js';
+import { browserState } from './state/browserState.js';
 import { transportState } from './state/transportState.js';
 import { viewState } from './state/viewState.js';
 
@@ -31,9 +32,12 @@ function handleScoreSizeKey(event: KeyboardEvent): boolean {
   return true;
 }
 
-/** Space = play/pause, Esc = close the open panel, else stop (research R-4), and the Score-size keys. */
+/** Space = play/pause, Esc = close the open panel, else stop (research R-4), and the Score-size keys. None of them
+ *  while the Score browser is open (contracts/score-browser.md §4): it is a modal dialog with its own Escape and
+ *  Space, and a key meant for it must not also stop or start the transport behind it. */
 export function initShortcuts(): void {
   document.addEventListener('keydown', (event) => {
+    if (browserState.get().phase !== 'closed') return;
     if (event.code === 'Space') {
       // A space typed into a text field (the tempo field, say) is text, not "play/pause"; the field takes it.
       if (isTextEntry(event.composedPath()[0] ?? event.target)) return;
