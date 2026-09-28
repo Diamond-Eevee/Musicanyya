@@ -46,7 +46,7 @@ to be a tone of the sounding chord or a step between two such tones.
 | introduction | 2 | 7 (five notes) | 1 | 0 | second half of bar | 1 | 1 | allowed |
 | beginner | 1 | 7 per section | 2 (a third) | 1, at a section start | weak beats | 1 | 1 (house rule, R7) | allowed |
 | intermediate | 0.5 | 12 | 4 (a fifth), to a chord note | unlimited, thumb-under / finger-over | also off-beat eighths | 2 | as today | forbidden |
-| advanced | 0.5 (dotted allowed) | 16 (a tenth) | 7 (an octave), to a chord note | unlimited | adds appoggiatura | 2 | as today | forbidden |
+| advanced | 0.5 (dotted allowed) | 16 (a tenth) | 7 (an octave), to a chord note | unlimited | as intermediate | 2 | as today | forbidden |
 
 A repeated note is 0 steps. Also: melody in C4-A5 (advanced C6); at least 3 semitones above the left hand at every
 instant; dotted values only at advanced; at intermediate no melody eighth coincides with a left-hand eighth.
@@ -56,9 +56,10 @@ The existing `LEVEL_*` criteria keep applying through `checkLevel`.
 
 `MelodyFinding = { itemId, bar, beat, rule, message }` with `rule` one of: `key`, `chord-tone`, `non-chord-tone`,
 `minor-degree`, `augmented-second`, `cross-relation`, `clash`, `parallel-octaves`, `register`, `hand-gap`, `leap`,
-`range`, `value`, `shift`, `fingering`, `ending`, `key-change`, `variation`, `doubled`. An item passes with zero
+`range`, `value`, `shift`, `fingering`, `ending`, `key-change`, `variation`, `static`, `doubled`. An item passes with zero
 findings. `doubled` = both hands strike the same block chord at one onset (FR-001; a single closing tonic chord is
-allowed).
+allowed). `static` = within one item, one melody pitch is held or repeated for more than two bars in a row (FR-008;
+the closing note of the item is exempt).
 
 ## 6. Items and identity
 

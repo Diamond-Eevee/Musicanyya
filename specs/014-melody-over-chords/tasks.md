@@ -27,7 +27,7 @@ steps, Songs and Repertoire must stay byte-identical (FR-003, SC-004).
   `specs/007-library-fidelity-audit/contracts/fidelity-tools.md` (1.12.0, `checkMelodyRules`, `checkMelodyVariation`)
 - [ ] T003 Write `tests/library/out-of-scope.test.ts`: for every file under `public/library/` that is not one of the
   59 in-scope items (their `.musicxml` + `.json`) and not `index.json`, assert its SHA-256 equals the value recorded
-  in `tests/library/out-of-scope-hashes.json`; create that JSON by hashing the files at commit bea8f3b with a
+  in `tests/library/out-of-scope-hashes.json`; create that JSON by hashing the files at commit 7f8ab96 with a
   one-off script in the scratchpad (not committed). Passes now; guards SC-004 / FR-003 for every later task
 
 ---
@@ -45,7 +45,9 @@ steps, Songs and Repertoire must stay byte-identical (FR-003, SC-004).
   `cross-relation`, `clash`, `parallel-octaves` (fails at intermediate, allowed at beginner), `register`, `hand-gap`,
   `leap`, `range`, `value` (a dotted value at intermediate; an eighth at beginner), `shift`, `fingering` (thumb-under
   onto a black key; ascending step 3->2), `ending`, `key-change` (no new-key-only pitch class within two bars; old-key
-  note after the change), `doubled` (and a single closing tonic chord in both hands is NOT flagged); (c)
+  note after the change), `static` (one pitch held or repeated for more than two bars; the closing note exempt), `minor-degree` also for a
+  raised 6th that is not in 5-♯6-♯7-1 and a raised 7th over VI, `doubled` (and a single closing tonic chord in both
+  hands is NOT flagged); (c)
   `checkMelodyVariation` flags a family whose items share one degree sequence and passes one with two; (d) a repeated
   note is not a leap; (e) `tools/library/fidelity/melody-rules.ts` imports nothing from `src/core/library/exercise/`
   (read the source file's imports). Run: fails because the module does not exist
@@ -53,10 +55,11 @@ steps, Songs and Repertoire must stay byte-identical (FR-003, SC-004).
   24 keys, including steps -3..10 and the minor `alter` +1 on 6/7 (G♯ in A minor, E♯ in F♯ minor, F𝄪 in G♯ minor);
   (b) variant rotation `variants[i mod n]` per section; (c) throws naming family/section/variant/note when a part
   does not fill its section, a minor 6th/7th has no explicit `alter`, `melody` is in the left hand or in a mirrored
-  section, a note has both `step` and `rest`; (d) fingering: finger = position index + 1 at introduction/beginner,
+  section, a note has both `step` and `rest`, a non-zero `alter` other than +1 on a minor 6th/7th appears in a
+  pattern or key-change definition (contract 1.3 §1); (d) fingering: finger = position index + 1 at introduction/beginner,
   scale-table fingers for runs at intermediate, `finger` override honoured, and `<fingering>` written only on a
-  phrase's first note, a `shift` note and a thumb-under / finger-over; (e) the chord's words direction is written on
-  the left hand's staff only in a section with a melody; (f) no `<chord/>` in the right hand of a melody section. Run:
+  phrase's first note, a `shift` note and a thumb-under / finger-over; (e) the chord's words direction is written as
+  today, above the right hand's staff (on the melody note at the chord start) and below the left hand's; (f) no `<chord/>` in the right hand of a melody section. Run:
   fails (no `melody` support)
 - [ ] T007 [P] Extend `tests/tools/fidelity/theory.test.ts` and `tests/tools/fidelity/records.test.ts`: a record with
   `exercise-theory-v3` and a right-hand claim `{ kind: 'melody', level }` runs `checkMelodyRules` and counts its
@@ -101,7 +104,9 @@ as demanding as the one before, and the level check passes.
   `public/library/index.json`, section `learning/key-changes/*`, excluding the drills `major-and-minor` and
   `minor-and-major`), `checkMelodyRules` at the item's level returns 0 findings (so 0 `doubled` bars, chord tone at
   every chord start, minor degrees, ending, key-change audibility, register, fingering); `checkMelodyVariation` per
-  definition returns 0. Run: fails with `doubled` findings on all 54 items
+  definition returns 0; each item's left-hand notes equal those of the same item at 7f8ab96 (read from git or a
+  recorded copy in `tests/library/key-change-left-hand.json`) (FR-002). Run: fails with `doubled` findings on all 54
+  items
 - [ ] T016 [P] [US1] Update `tests/tools/fidelity/exercise-claims.test.ts` first: the key-change claims give the right
   hand as `{ kind: 'melody', level }` for every section and the left hand's chords unchanged. Run: fails
 - [ ] T017 [P] [US1] Write `tests/library/melody-practice.test.ts`: for every rewritten item, run the core Practice
@@ -119,6 +124,10 @@ as demanding as the one before, and the level check passes.
   easier than the introduction and the intermediate not easier than the beginner (US2 #3); `checkLevel` passes at the
   shelved level for all 54 items with no `raisedBecause` added (FR-011). Run: the ladder comparison fails (all three
   levels identical today)
+- [ ] T058 [P] [US1] Write `tests/library/item-metadata.test.ts` (FR-004): for each of the 59 in-scope items, title,
+  section, level, step, stepOrder, tempo, metre and bar count equal the values recorded in
+  `tests/library/in-scope-metadata.json` (made from the sidecars and files at 7f8ab96 by a one-off scratchpad script,
+  not committed). Passes now; a guard for T028 and T047 - log it as such
 
 ### Implementation
 
@@ -133,7 +142,8 @@ as demanding as the one before, and the level check passes.
 - [ ] T024 [P] [US2] Same for `content/library/exercises/key-change-parallel-beginner.json`
 - [ ] T025 [P] [US2] Author the intermediate melodies in `content/library/exercises/key-change-relative-intermediate.json`
   (eighth pairs on the beat, range up to an octave, thumb-under/finger-over, leaps up to a fifth to chord notes)
-- [ ] T026 [P] [US2] Same for `content/library/exercises/key-change-parallel-intermediate.json`
+- [ ] T026 [P] [US2] Same for `content/library/exercises/key-change-parallel-intermediate.json` (T025/T026: B major and
+  B minor sit high with the tonic in octave 4 - use steps below the tonic to stay under A5, research R5)
 - [ ] T027 [US1] Review each key-change definition's `meta.trains` and update the text where it no longer describes
   the music (US3 #3 applies here too), in the six files of T021-T026
 - [ ] T028 [US1] Regenerate: `pnpm library:exercises`, `pnpm library:index` (writes `public/library/learning/key-changes/**`
@@ -145,6 +155,10 @@ as demanding as the one before, and the level check passes.
 - [ ] T030 [US1] Move the 54 audit records under `content/library/audit/learning/key-changes/` (all but the two drills)
   to `exercise-theory-v3` (`checkedBy`, `date` updated), run `pnpm library:fidelity` to regenerate
   `docs/library-audit.md`, `pnpm library:fidelity --check` green
+- [ ] T059 [US1] Add a Listen-mode check for a rewritten item in the browser (`tests/e2e/library.spec.ts`: open
+  `learning/key-changes/c-major-to-a-minor/introduction`, press Listen, the cursor reaches the last bar with no console
+  error) and in Electron (`tests/e2e/electron-smoke.spec.ts`: the same item loads and renders two staves) (FR-015,
+  SC-003); run after T028
 - [ ] T031 [US1] Run `pnpm test:e2e -- tests/e2e/library.spec.ts tests/e2e/tempo-field.spec.ts` (they open
   `c-major-to-c-minor/introduction` and `a-major-to-a-minor/beginner`); fix only assertions that read the old notes,
   logging why
@@ -236,7 +250,7 @@ the same chords and inversions as before, the right hand a melody.
 - Phase 4 depends only on Foundational; it can run in parallel with Phase 3 if staffed, except that T020/T041 both
   edit `exercise-claims.ts` and T015/T036 both edit `melody-sweep.test.ts` (do them in sequence).
 - Within Foundational: T004 -> T005 -> T010; T006 -> T009 -> T011; T007 -> T012; T010 + T011 -> T013.
-- Within Phase 3: T015-T019 before T020-T026; T021-T026 -> T027 -> T028 -> T029/T030/T031 -> T032 -> T033 -> T034.
+- Within Phase 3: T015-T019 and T058 before T020-T026; T021-T026 -> T027 -> T028 -> T029/T030/T059/T031 -> T032 -> T033 -> T034.
 - Within Phase 4: T035-T039 before T040-T046; T040 + T042-T045 -> T047 -> T048 -> T049 -> T050 -> T051.
 - T057 (owner) blocks merge only, not other tasks.
 
@@ -244,7 +258,7 @@ the same chords and inversions as before, the right hand a melody.
 
 - T001, T002 (different contract files); T003 alongside them.
 - T004 + T006 + T007 (checker fixtures, generator tests, theory tests).
-- T015-T019 (separate test files, except T019 after T015 in the same file).
+- T015-T019 and T058 (separate test files, except T019 after T015 in the same file).
 - T021-T026: six definitions, one per agent/person.
 - T035-T039; T042-T044.
 - T052, T053.

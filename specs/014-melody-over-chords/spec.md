@@ -142,8 +142,11 @@ the same chord sequence with the same inversions as before, and the right hand a
 
 **What the melody is**
 
-- **FR-005**: The melody MUST use the scale of the key it is in (major; harmonic minor, or melodic minor where the
-  item already uses it), with every altered note carrying its accidental.
+- **FR-005**: The melody MUST use the scale of the key it is in, with every altered note carrying its accidental. In
+  a minor key the 6th and 7th follow melodic-minor practice: the raised 7th over the dominant chord and when leading
+  up to the tonic, the raised 6th only on the way up from the 5th through the raised 7th to the tonic, the natural
+  forms otherwise; never an augmented second. In a drill that alternates major and minor chords on one tonic, the
+  melody follows the mode of the chord sounding under it. (Owner approval of the analyze recommendation, 2026-09-28.)
 - **FR-006**: The right-hand note sounding when a chord starts MUST be a note of that chord; notes between chord
   changes MUST move mostly by step (do-re-mi-fa), with leaps only as the Difficulty ladder allows and only to chord
   notes.

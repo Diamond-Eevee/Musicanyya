@@ -47,7 +47,9 @@ per-key steps and Songs are the guard). `version` stays `1`.
 ```
 
 Rules: `melody` is allowed in `right` only, and not in a mirrored section. A note has exactly one of `step` / `rest`.
-In a `minor` phrase every note on degree 6 or 7 (steps -1, 0, 6 and 7) states `alter` explicitly (0 or 1).
+In a `minor` phrase every note on degree 6 or 7 (steps -1, 0, 6 and 7) states `alter` explicitly (0 or 1). Any other
+non-zero `alter` (+1 on another degree, or -1 anywhere) is allowed only in the drills' top-level `melody` (§2); the
+generator throws on it in the pattern and key-change forms.
 
 ## 2. Top-level `melody` (chords form, drills only)
 
@@ -74,8 +76,9 @@ one bar. The right hand's triads are then not written; the left hand is generate
 - Staff 1, voice 1; single notes only (no `<chord/>`); beams completed by the engraving pass as for all items.
 - Fingering: computed per note (data-model §1, research R6) and written only on the first note of a phrase, a note
   with `shift`, and a thumb-under / finger-over; `finger` overrides the computed value.
-- The words direction of the chord (roman numeral / label) moves to the left hand's staff for sections with a melody
-  (placement below), so the right hand's staff shows the melody and its fingering only.
+- The chord's words direction (roman numeral / label) is written as today: above the right hand's staff and below
+  the left hand's (spec US1 #5 "shown as before"; analyze A3). The right hand's copy is attached to the melody note
+  that sounds at the chord start.
 - A part that does not fill its section, a step outside MIDI 21-108, a missing minor `alter`, or `melody` in the left
   hand throws, naming the definition, section, variant and note.
 - The build tool (`tools/library/build-exercises.ts`) runs the melody rule check (contract fidelity-tools 1.12

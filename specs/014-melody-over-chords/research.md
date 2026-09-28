@@ -58,8 +58,9 @@ V (cross-relation); the generator choosing alterations (hides decisions; the che
 sounding chord (a non-chord tone) is approached and left by diatonic step, as a passing tone (same direction) or a
 neighbour (step away, step back), and is never the last note. Per level: Introduction - only on the second half of a
 bar, one at a time; Beginner - weak beats only, one at a time; Intermediate - also off-beat eighths, up to two passing
-tones in a row in one direction; Advanced - adds the appoggiatura (strong beat that is not a chord start, entered by
-leap, resolved by step). No suspensions, escape tones or anticipations. Clashes: no minor second / major seventh /
+tones in a row in one direction; Advanced - as intermediate (the appoggiatura the expert suggested is left out:
+it is a leap to a non-chord tone, which FR-006 forbids; analyze A2). No appoggiaturas, suspensions, escape tones or
+anticipations. Clashes: no minor second / major seventh /
 minor ninth between the melody and a sounding left-hand note at a chord start or strong beat (passing and neighbour
 tones on weak beats exempt); parallel octaves between melody and bass on consecutive chord starts forbidden from
 intermediate up only; parallel fifths not checked.
