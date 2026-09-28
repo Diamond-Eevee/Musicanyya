@@ -166,9 +166,9 @@ as demanding as the one before, and the level check passes.
   beginner on this content") from `content/library/exercises/key-change-relative-intermediate.json`: with the melodies
   every pair computes intermediate by itself (a run of three eighth pairs, level criterion 6), so the reason no longer
   holds; FR-011 and the sweep test allow an existing one to go
-- [ ] T027 [US1] Review each key-change definition's `meta.trains` and update the text where it no longer describes
+- [x] T027 [US1] Review each key-change definition's `meta.trains` and update the text where it no longer describes
   the music (US3 #3 applies here too), in the six files of T021-T026
-- [ ] T028 [US1] Regenerate: `pnpm library:exercises`, `pnpm library:index` (writes `public/library/learning/key-changes/**`
+- [x] T028 [US1] Regenerate: `pnpm library:exercises`, `pnpm library:index` (writes `public/library/learning/key-changes/**`
   and `public/library/index.json`); iterate T021-T026 until the build and index report nothing; T015, T019, T017, T003
   green
 - [ ] T029 [US1] Update the key-change goldens in `tests/core/library/exercise/__snapshots__/goldens.test.ts.snap` and
@@ -179,6 +179,13 @@ as demanding as the one before, and the level check passes.
   the relation" and "Intermediate has a passage where both hands play chords in the same bar" describe the doubled
   right hand; keep them for the left hand (FR-002) and assert the right hand's single-note melody instead (its rhythm
   varies per variant, FR-008); log each changed expectation
+- [ ] T064 [US1] (found during T028) `tests/tools/fidelity/planted.test.ts` (feature 007) plants its spelling / pitch /
+  inversion mutations in a right-hand chord of every shelf exercise; a melody item has none (the file fails to load:
+  `group[0]` undefined). Plant them in the left hand's chord where the right hand plays a melody, and log the changed
+  expectation (behaviour changed by FR-002)
+- [ ] T065 [US1] (found during T028) Regenerate `tests/fixtures/library-identity.json` with `pnpm exec tsx
+  tools/library/identity.ts` for the 54 rewritten items; confirm by comparing old and new golden that every other item's
+  entry is unchanged (SC-004) and the Für Elise grade golden is unchanged
 - [ ] T030 [US1] [light] Move the 54 audit records under `content/library/audit/learning/key-changes/` (all but the two drills)
   to `exercise-theory-v3` (`checkedBy`, `date` updated), run `pnpm library:fidelity` to regenerate
   `docs/library-audit.md`, `pnpm library:fidelity --check` green
@@ -281,7 +288,7 @@ the same chords and inversions as before, the right hand a melody.
 - Phase 4 depends only on Foundational; it can run in parallel with Phase 3 if staffed, except that T020/T041 both
   edit `exercise-claims.ts` and T015/T036 both edit `melody-sweep.test.ts` (do them in sequence).
 - Within Foundational: T004 -> T005 -> T010; T006 -> T009 -> T011; T007 -> T012; T010 + T011 -> T013.
-- Within Phase 3: T015-T019 and T058 before T020-T026; T021-T026 -> T027 -> T028 -> T029/T061/T030/T059/T031 -> T032 -> T033 -> T034.
+- Within Phase 3: T015-T019 and T058 before T020-T026; T021-T026 -> T027 -> T028 -> T029/T061/T064/T065/T030/T059/T031 -> T032 -> T033 -> T034.
 - Within Phase 4: T035-T039 before T040-T046; T040 + T042-T045 -> T047 -> T048 -> T049 -> T050 -> T051.
 - T057 (owner) blocks merge only, not other tasks.
 

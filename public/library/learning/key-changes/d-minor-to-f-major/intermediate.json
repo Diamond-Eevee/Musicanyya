@@ -4,7 +4,7 @@
   "kind": "exercise",
   "level": "intermediate",
   "tags": ["key-changes"],
-  "trains": "Moving between relative keys by voice-leading through the tones the two keys share, arriving on the new tonic.",
+  "trains": "Moving between relative keys by voice-leading through the tones the two keys share, arriving on the new tonic: a right-hand melody with eighth-note runs over the left hand's chords.",
   "hands": "both",
   "provenance": {
     "origin": "authored",
@@ -15,7 +15,6 @@
   },
   "reviewedBy": "claude-sonnet-5",
   "reviewedOn": "2026-09-26",
-  "raisedBecause": "the minor-to-major pairs (A minor to C major, E minor to G major, B minor to D major) compute beginner on this content - kept at intermediate so every pair in the folder shares one step",
   "step": "intermediate",
   "stepOrder": 0
 }
