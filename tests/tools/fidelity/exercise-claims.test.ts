@@ -523,6 +523,11 @@ describe('the key-change claims: "<from> to <to> - introduction|beginner|interme
     relative: { introduction: [4, 8], beginner: [6, 5], intermediate: [1, 8] },
     parallel: { introduction: [4, 8], beginner: [6, 5], intermediate: [4, 5] },
   };
+  /** Chords per item: one per bar, except the relative beginner's half-bar IV V in each key (FR-002 amended, T078). */
+  const CHORDS: Record<'relative' | 'parallel', Record<(typeof STEPS)[number], number>> = {
+    relative: { introduction: 12, beginner: 13, intermediate: 9 },
+    parallel: { introduction: 12, beginner: 11, intermediate: 9 },
+  };
 
   it('every pair and step has a claim with two segments that cover the whole piece, the first in the first key', () => {
     for (const [from, to, relation] of PAIRS) {
@@ -534,7 +539,7 @@ describe('the key-change claims: "<from> to <to> - introduction|beginner|interme
           { firstBar: 1, lastBar: first, key: parseExerciseTitle(`${from} - x`).key },
           { firstBar: first + 1, lastBar: first + second, key: parseExerciseTitle(`${to} - x`).key },
         ]);
-        expect(claim.chords, `${from} to ${to} - ${step}`).toHaveLength(first + second);
+        expect(claim.chords, `${from} to ${to} - ${step}`).toHaveLength(CHORDS[relation][step]);
       }
     }
   });
@@ -554,14 +559,18 @@ describe('the key-change claims: "<from> to <to> - introduction|beginner|interme
     }
   });
 
-  it('a relative change: the tonic, then the pivot (IV of the first key, VI in a minor first key), then the new tonic', () => {
+  // FR-002 as amended 2026-09-28 (owner listening check): the harmony moves with the primary triads; the pivot and the
+  // key change stay. Before: 'I I I IV i i i i i i i i' (introduction), 'I I I I I IV i i i i i' (beginner).
+  it('a relative change: tonic and dominant, the pivot (IV of the first key, VI in a minor first key), then the new key', () => {
     expect(shortChords(keyChangeClaim('C major', 'A minor', 'introduction'))).toEqual(
-      'I I I IV i i i i i i i i'.split(' '),
+      'I V I IV i iv V i iv i V i'.split(' '),
     );
     expect(shortChords(keyChangeClaim('A minor', 'C major', 'introduction'))).toEqual(
-      'i i i VI I I I I I I I I'.split(' '),
+      'i V i VI I IV V I IV I V I'.split(' '),
     );
-    expect(shortChords(keyChangeClaim('D major', 'B minor', 'beginner'))).toEqual('I I I I I IV i i i i i'.split(' '));
+    expect(shortChords(keyChangeClaim('D major', 'B minor', 'beginner'))).toEqual(
+      'I IV V I V I IV i iv V i V i'.split(' '),
+    );
   });
 
   it('a parallel change: the shared dominant is the pivot, the new tonic follows', () => {

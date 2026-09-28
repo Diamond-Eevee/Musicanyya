@@ -371,11 +371,12 @@ pass; the owner finds it fun to play (T057).
   new tonic; every other chord is a primary triad of its key at introduction and beginner; at most one chord per bar at introduction and two at
   beginner; every degree keeps its recorded voicing (inversion and octave); no chord is held more than two bars in a
   row at introduction and beginner except the closing tonic. Run: fails (i held for 8 bars)
-- [ ] T078 Update `tests/tools/fidelity/exercise-claims.test.ts` first, then the key-change chord plans in
+- [x] T078 Update `tests/tools/fidelity/exercise-claims.test.ts` first, then the key-change chord plans in
   `tools/library/fidelity/exercise-claims.ts` (independent of the definitions) to the new progressions of T079
-- [ ] T079 [deep] New left-hand chord plans (primary triads, key change, section tonics and the chord before the change
+- [x] T079 [deep] New left-hand chord plans (primary triads, key change, section tonics and the chord before the change
   kept) in `content/library/exercises/key-change-{relative,parallel}-{introduction,beginner}.json`; intermediate plans
-  kept
+  kept. Done: only the relative files needed it (the parallel plans already move, I V I V | I IV I V ...):
+  introduction I V I IV(VI) | I IV V I IV I V I; beginner I IV-V I V I IV(VI) | I IV-V I V I (IV V half bars)
 - [ ] T080 [P] [deep] Re-compose the melodies of `key-change-relative-introduction.json` (quarter notes, scale runs up to
   an octave, thumb-under / finger-over, at least 2 variants per section and mode)
 - [ ] T081 [P] [deep] Same for `key-change-parallel-introduction.json`

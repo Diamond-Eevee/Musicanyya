@@ -560,11 +560,15 @@
             }
           },
           {
-            "degree": "I",
-            "duration": "whole",
+            "degree": "IV",
+            "duration": "half",
             "minor": {
-              "degree": "i"
+              "degree": "iv"
             }
+          },
+          {
+            "degree": "V",
+            "duration": "half"
           },
           {
             "degree": "I",
@@ -574,11 +578,8 @@
             }
           },
           {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
-            }
+            "degree": "V",
+            "duration": "whole"
           },
           {
             "degree": "I",
@@ -982,11 +983,15 @@
             }
           },
           {
-            "degree": "I",
-            "duration": "whole",
+            "degree": "IV",
+            "duration": "half",
             "minor": {
-              "degree": "i"
+              "degree": "iv"
             }
+          },
+          {
+            "degree": "V",
+            "duration": "half"
           },
           {
             "degree": "I",
@@ -996,11 +1001,8 @@
             }
           },
           {
-            "degree": "I",
-            "duration": "whole",
-            "minor": {
-              "degree": "i"
-            }
+            "degree": "V",
+            "duration": "whole"
           },
           {
             "degree": "I",

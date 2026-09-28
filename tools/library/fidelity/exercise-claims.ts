@@ -485,17 +485,23 @@ interface KeyChangePlan {
 /** The pivot of a relative change is the chord both keys share: IV of a major first key, VI of a minor one (F in C major and in
  *  A minor). */
 const PIVOT = pt('IV', 'VI', WHOLE);
-const repeat = (p: Pt, times: number): Pt[] => Array.from({ length: times }, () => p);
 const tonic = I(WHOLE);
 const dominant = V(WHOLE);
 const subdominant = IV(WHOLE);
 
-/** A relative change goes from the pivot chord straight to the new tonic and settles there (data-model §3 and research R7 asked
- *  for the dominant of the new key in between; its bass, one tone below the pivot's, takes the piece one semitone past the
- *  span cap of D-2 in the major-to-minor pairs, so the change is shown by the pivot, the double barline and the key name). */
+/** A relative change goes from the pivot chord straight to the new tonic (the change is shown by the pivot, the double
+ *  barline and the key name). Around it the harmony moves with the primary triads, as in the key step (feature 014 FR-002
+ *  as amended 2026-09-28, owner listening check): one chord per bar at introduction, a half-bar IV V in each key at
+ *  beginner. */
 const RELATIVE_PLANS: Record<KeyChangeStep, KeyChangePlan> = {
-  introduction: { from: [...repeat(tonic, 3), PIVOT], to: repeat(tonic, 8) },
-  beginner: { from: [...repeat(tonic, 5), PIVOT], to: repeat(tonic, 5) },
+  introduction: {
+    from: [tonic, dominant, tonic, PIVOT],
+    to: [tonic, subdominant, dominant, tonic, subdominant, tonic, dominant, tonic],
+  },
+  beginner: {
+    from: [tonic, IV(HALF), V(HALF), tonic, dominant, tonic, PIVOT],
+    to: [tonic, IV(HALF), V(HALF), tonic, dominant, tonic],
+  },
   intermediate: {
     from: [tonic],
     to: [
@@ -552,21 +558,24 @@ function keyChangeClaim(
       const c = chord(key.mode === 'major' ? p.major : p.minor);
       return { roman: c.roman, quality: c.quality, inversion: c.inversion, voicing: p.voicing };
     });
+  const barsOf = (pts: Pt[]): number => pts.reduce((sum, p) => sum + p.quarters, 0) / WHOLE;
+  const fromBars = barsOf(plan.from);
+  const toBars = barsOf(plan.to);
   const segments = [
-    { firstBar: 1, lastBar: plan.from.length, key: from },
-    { firstBar: plan.from.length + 1, lastBar: plan.from.length + plan.to.length, key: to },
+    { firstBar: 1, lastBar: fromBars, key: from },
+    { firstBar: fromBars + 1, lastBar: fromBars + toBars, key: to },
   ];
   const sections: SectionClaim[] = [
     {
       firstBar: 1,
-      lastBar: plan.from.length,
+      lastBar: fromBars,
       key: from,
       right: { kind: 'melody', level: step },
       left: { kind: 'chords', chords: sectionChords(plan.from, from) },
     },
     {
-      firstBar: plan.from.length + 1,
-      lastBar: plan.from.length + plan.to.length,
+      firstBar: fromBars + 1,
+      lastBar: fromBars + toBars,
       key: to,
       right: { kind: 'melody', level: step },
       left: { kind: 'chords', chords: sectionChords(plan.to, to) },
