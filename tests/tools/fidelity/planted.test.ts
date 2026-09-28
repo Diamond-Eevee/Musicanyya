@@ -350,16 +350,20 @@ describe('planted errors: the theory check on every exercise of the shelf', () =
   for (const item of exercises) {
     const xml = readFileSync(`public/library/${item.file}`, 'utf8');
     const claim = claimForItem({ itemId: item.id, title: item.meta.title, trains: item.meta.trains ?? '' });
+    // Feature 014 (T064): a key-change item's right hand plays a melody, no chords - its mutations go into the left hand's
+    // chords instead.
     const right = chordsOf(xml, 1);
+    const hand = right.length > 0 ? 'right' : 'left';
+    const chords = hand === 'right' ? right : chordsOf(xml, 2);
     // A chord's index in the claim is its place in time among the chords of both hands: a step plays its first chords in
     // one hand and its later ones in the other, the drills play both hands at every chord.
-    const at = Math.min(2, right.length - 1);
-    const chord = right[at] as ChordNote[];
+    const at = Math.min(2, chords.length - 1);
+    const chord = chords[at] as ChordNote[];
     const where = {
       kind: 'theory',
       chordIndex: chordEventIndex(xml, chord),
       bar: barAt(xml, (chord[0] as ChordNote).start),
-      hand: 'right',
+      hand,
     };
 
     describe(item.id, () => {
@@ -386,6 +390,17 @@ describe('planted errors: the theory check on every exercise of the shelf', () =
 
       it('one inversion swapped (the lowest note of one hand raised an octave): one inversion difference', () => {
         const bass = chord[0] as ChordNote;
+        if (hand === 'left') {
+          // T064: under a melody, a left-hand bass raised an octave can land on a key the melody plays (a second, real
+          // difference: overlap), so the left hand's inversion is swapped downwards - its highest note an octave lower
+          // becomes the bass.
+          const top = chord[chord.length - 1] as ChordNote;
+          const lowered = { ...top, octave: top.octave - 1 };
+          expect(checkExercise(withPitch(xml, top, lowered), claim)).toEqual([
+            { ...where, rule: 'inversion', expected: `${name(bass, false)} in the bass`, found: name(lowered, true) },
+          ]);
+          return;
+        }
         const next = chord[1] as ChordNote;
         expect(checkExercise(withPitch(xml, bass, { ...bass, octave: bass.octave + 1 }), claim)).toEqual([
           { ...where, rule: 'inversion', expected: `${name(bass, false)} in the bass`, found: name(next, true) },

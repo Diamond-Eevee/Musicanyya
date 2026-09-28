@@ -171,19 +171,19 @@ as demanding as the one before, and the level check passes.
 - [x] T028 [US1] Regenerate: `pnpm library:exercises`, `pnpm library:index` (writes `public/library/learning/key-changes/**`
   and `public/library/index.json`); iterate T021-T026 until the build and index report nothing; T015, T019, T017, T003
   green
-- [ ] T029 [US1] Update the key-change goldens in `tests/core/library/exercise/__snapshots__/goldens.test.ts.snap` and
+- [x] T029 [US1] Update the key-change goldens in `tests/core/library/exercise/__snapshots__/goldens.test.ts.snap` and
   any assertion of old right-hand notes in `tests/core/library/exercise/key-change.test.ts`; log each changed
   expectation with its reason (behaviour changed by FR-002)
-- [ ] T061 [US1] (found during T021) Update `tests/core/library/exercise/steps.test.ts`, which T029 does not name: the
+- [x] T061 [US1] (found during T021) Update `tests/core/library/exercise/steps.test.ts`, which T029 does not name: the
   key-change assertions "whole-note chords throughout" (introduction), "identical rhythm and staves in every pair of
   the relation" and "Intermediate has a passage where both hands play chords in the same bar" describe the doubled
   right hand; keep them for the left hand (FR-002) and assert the right hand's single-note melody instead (its rhythm
   varies per variant, FR-008); log each changed expectation
-- [ ] T064 [US1] (found during T028) `tests/tools/fidelity/planted.test.ts` (feature 007) plants its spelling / pitch /
+- [x] T064 [US1] (found during T028) `tests/tools/fidelity/planted.test.ts` (feature 007) plants its spelling / pitch /
   inversion mutations in a right-hand chord of every shelf exercise; a melody item has none (the file fails to load:
   `group[0]` undefined). Plant them in the left hand's chord where the right hand plays a melody, and log the changed
   expectation (behaviour changed by FR-002)
-- [ ] T065 [US1] (found during T028) Regenerate `tests/fixtures/library-identity.json` with `pnpm exec tsx
+- [x] T065 [US1] (found during T028) Regenerate `tests/fixtures/library-identity.json` with `pnpm exec tsx
   tools/library/identity.ts` for the 54 rewritten items; confirm by comparing old and new golden that every other item's
   entry is unchanged (SC-004) and the Für Elise grade golden is unchanged
 - [ ] T030 [US1] [light] Move the 54 audit records under `content/library/audit/learning/key-changes/` (all but the two drills)
