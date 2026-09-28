@@ -14,6 +14,14 @@ verified by an independent melody rule check (Difficulty ladder, harmony, finger
 in the build, the audit (`exercise-theory-v3`) and a shelf sweep. Progress on the rewritten items starts fresh by
 construction (new content hash); the 5 drills drop their `supersedes` links. No run-time code changes.
 
+**Amendment 2026-09-28 (owner listening check T057, research R11)**: the introduction and beginner melodies move up to
+the key step's level (quarter notes, scale runs up to an octave with thumb-under / finger-over; beginner adds leaps of
+a third and half-bar chord changes), and the key-change items' left hand gets moving progressions of primary triads
+(FR-002 amended; key change, section tonics and the chord before the change kept). The drills are unchanged. Work:
+Phase 6 of `tasks.md` (ladder constants and checker tests, left-hand chord plans and their claims, re-composed
+introduction/beginner phrases, then the parallel/relative intermediate re-checked, regeneration, review, gate, and a
+new owner listening check).
+
 ## Technical Context
 
 **Language/Version**: TypeScript (strict), HTML5, CSS3; no UI frameworks
@@ -127,8 +135,8 @@ progress reset via content hash and dropped `supersedes`; R10 left hand unchange
   refusal lists findings per item so variants can be fixed quickly.
 - **Step order**: each key-change folder must stay introduction < beginner < intermediate on `notesPerBeat` and the
   other step-order facts; the sweep runs `checkStepOrder`.
-- **Level check**: beginner's longest run of 4 quarters and introduction's hand-independence 0 constrain phrases
-  (research R7).
+- **Level check**: introduction's hand-independence 0 constrains phrases (research R7); runs of quarters are not
+  counted (only runs faster than a quarter are), corrected in R11.
 - **Tests that name old notes**: goldens and any e2e that reads a rewritten item's first notes change; each change is
   logged with the reason (behaviour changed by this feature), never loosened.
 - **Owner listening check** (SC-005) is a final task before merge; items judged too hard are simplified.

@@ -163,8 +163,9 @@ and crossings onto the tonic that the strict step rule forced; its natural fixes
 `src/core/defaults.ts`) used by the rule check. Three stricter house rules, inside the spec's limits: at beginner the
 left-hand chord changes at most once per bar (true of every beginner item today); at intermediate the melody's
 eighths never coincide with left-hand eighths; dotted rhythms only at advanced. The existing level criteria still
-apply and bite: beginner allows at most 4 notes in a row at the shortest value (`LEVEL_LONGEST_RUN_MAX`), so a
-beginner phrase breaks runs of quarters with a half note; introduction requires a hand-independence fraction of 0,
+apply and bite: beginner allows at most 4 notes in a row at the shortest value (`LEVEL_LONGEST_RUN_MAX`) - counted
+only when the shortest value is faster than a quarter (`facts.ts`, correction C), so quarter-note scale runs are free
+at introduction and beginner (correction 2026-09-28, R11); introduction requires a hand-independence fraction of 0,
 which a held chord under a moving right hand satisfies (feature 011 B1). Step order (`checkStepOrder`) keeps each
 key-change folder's introduction < beginner < intermediate on `notesPerBeat` and the other step-order facts.
 
@@ -214,8 +215,8 @@ show pre-011 doubled-chord progress, against FR-012).
 
 ## R10 - Left hand in the rewritten items
 
-**Decision**: Key-change items keep their left-hand whole-note block chords at every level (same chords, inversions,
-bars). The drills keep their left hand exactly (dotted half + quarter rest with the repeat, then whole notes with
+**Decision** (superseded for the key-change items' chords by R11, 2026-09-28): Key-change items keep their left-hand
+whole-note block chords at every level (same chords, inversions, bars). The drills keep their left hand exactly (dotted half + quarter rest with the repeat, then whole notes with
 common tones tied, then the tonic); the right hand rests with the left hand's quarter rest (US3 #2). Difficulty grows
 through the melody.
 
@@ -224,5 +225,35 @@ chords, which broken chords would blur; fewer moving parts per item.
 
 **Alternatives considered**: Broken left-hand chords at intermediate (allowed by the ladder; left for a later
 feature if the owner asks).
+
+## R11 - Rework after the owner's listening check (T057, 2026-09-28)
+
+**Finding**: *C major to A minor - introduction* was "not fun to play": half notes then a whole note in one five-note
+position, over i held for eight bars. The key step the learner plays just before it at the same level (*C major -
+introduction*) has quarter notes, a C4-C5 scale up and down with the thumb passing under (1-2-3-1-2-3-4-5) and I-V
+alternating every bar. The first ladder (R7) set introduction below the key step instead of level with it.
+
+**Decision** (owner, 2026-09-28):
+1. Ladder rows, introduction: quarter notes, range up to an octave per section, steps only, thumb-under /
+   finger-over inside a scale run (no other shift), non-chord tones on weak beats (passing tones of a scale run),
+   one block chord per bar. Beginner: as introduction plus leaps up to a third (to chord notes) and chord changes on
+   the half bar. Intermediate and advanced unchanged. `MELODY_LADDER` follows (T072 made the checker read every
+   level rule from it).
+2. FR-002 amended for the key-change items: the key change bar, the tonic at the start and end of each key's section
+   and the chord before the change stay; the chords in between are re-written with the key's primary triads (I/IV/V,
+   i/iv/V) so the harmony moves - at introduction one chord per bar, as the key step; beginner may change on the half
+   bar; intermediate keeps its (already moving) progressions unless a melody needs otherwise. Voicing (close
+   position, the same inversions per degree as today) and left-hand fingering stay as generated. The drills keep
+   their left hand (they train those chord changes).
+3. Beginner must stay not easier than introduction in every ladder dimension and harder in at least one (US2 #3):
+   leaps of a third and half-bar harmony, plus tempo 72 > 60 in step order.
+
+**Rationale**: the learner meets the key-change folder after the key steps; an introduction item slower and emptier
+than the key step reads as a step back. Quarter-note runs are within the library's introduction criteria (shortest
+value 1 beat; runs count only below a quarter; hand independence 0 holds with a block chord under a moving hand, as
+in the key step).
+
+**Alternatives considered**: keep the ladder and only make the phrases more tuneful (rejected by the owner: the rhythm
+is the problem); quarters within one five-finger position (smaller change, but still easier than the key step).
 
 No new dependency, no new technology.

@@ -2,7 +2,7 @@
 
 **Feature Branch**: `014-melody-over-chords`
 **Created**: 2026-09-28
-**Status**: Draft
+**Status**: Draft - amended 2026-09-28 after the owner's listening check (T057, see "Amendment" below)
 **Input**: User description: "I've noticed that a lot of learning tracks have boring double chord playing. Please make
 them more exciting. Like left hand chords, right hand do-re-mi-fa etc. Mind the difficulty level."
 
@@ -21,6 +21,19 @@ Not in scope: the 96 per-key steps (one hand plays a scale, triads or broken cho
 else; the intermediate and advanced steps share only their single closing tonic chord), and all Songs. A single
 closing tonic chord in both hands is a normal ending and does not count as doubled chords (owner decision
 2026-09-28, during plan; the first draft of this spec wrongly listed 48 step items).
+
+## Amendment 2026-09-28 (owner listening check, T057)
+
+The owner played *C major to A minor - introduction* and found it "not fun to play": half notes, then one whole note,
+over a left hand that holds one chord for eight bars - easier and slower than *C major - introduction*, the key step
+the learner has already played at the same level (quarter notes, a scale over an octave with the thumb passing
+under, a new chord every bar). Owner decisions (2026-09-28):
+
+1. The introduction melody plays like the key step: quarter notes, scale runs up to an octave per section, the thumb
+   passing under / a finger crossing over inside a run. Beginner and intermediate each stay a step above it (the
+   Difficulty ladder below is rewritten accordingly).
+2. The key-change items' left hand may get a livelier progression: the chord may change every bar (FR-002 amended).
+   The drills (US3) keep their left hand exactly, since the drills train those chord changes.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -43,8 +56,10 @@ MIDI keyboard (or the on-screen piano) and finish it.
 
 1. **Given** any key-change item, **When** it is opened, **Then** no bar has both hands striking the same chord at the
    same time; the left hand plays the chord progression and the right hand plays single notes.
-2. **Given** an introduction-level key-change item, **When** the learner reads it, **Then** the right hand moves only
-   by step within one five-finger position in half or whole notes, and the left hand holds one chord per bar.
+2. **Given** an introduction-level key-change item, **When** the learner reads it, **Then** the right hand moves by
+   step in quarter notes, in scale runs of up to an octave with the thumb passing under or a finger crossing over as
+   in the key step, and the left hand plays one block chord per bar, which may change every bar. (Amended
+   2026-09-28, owner listening check.)
 3. **Given** a key-change item into a minor key, **When** the melody passes the seventh degree over the dominant or
    leading to the tonic, **Then** it uses the raised seventh with its accidental written.
 4. **Given** a key-change item, **When** a chord starts, **Then** the right-hand note sounding on that beat is a note
@@ -115,8 +130,8 @@ the same chord sequence with the same inversions as before, and the right hand a
   distance between the hands.
 - **Key change bar**: the melody note on the first beat after the key change belongs to the new key's tonic chord; a
   note that exists only in the old key is never held across the change.
-- **Chords that repeat**: several bars of the same chord (the introduction holds the tonic for up to eight bars) still
-  get a melody that moves, not the same note repeated for the whole passage.
+- **Chords that repeat**: where a chord still repeats for several bars, the melody moves, not the same note repeated
+  for the whole passage.
 - **Ending**: every item ends on the tonic in the melody, with the tonic chord in the left hand.
 - **Practice mode with chords**: Practice mode waits for the left-hand chord and the right-hand note that start
   together, as it already does for any two-staff Score; hands-separately practice works on the new items.
@@ -134,8 +149,14 @@ the same chord sequence with the same inversions as before, and the right hand a
 - **FR-001**: Every Learning item listed under Background MUST, after this feature, have no bar in which both hands
   strike the same chord at the same time as block chords. A single closing tonic chord in both hands at the very end
   of an item is not doubled chords; the rewritten items nevertheless end with the melody (FR-007).
-- **FR-002**: In the rewritten bars the left hand MUST play the item's chord progression (same chords, same
-  inversions, same bar positions, same key change) and the right hand MUST play a single-note melody.
+- **FR-002**: In the rewritten bars the right hand MUST play a single-note melody over left-hand chords. In the
+  chord-change drills the left hand MUST play the drill's chord progression unchanged (same chords, inversions, bar
+  positions). In the key-change items the left hand MUST keep the key change (same bar), start and end each key's
+  section on its tonic chord, keep the chord just before the change (the pivot or dominant that leads into the new
+  key), and use chords of the key it is in (the primary triads I/IV/V, i/iv/V at introduction and beginner; as today
+  from intermediate up); the chords in between MAY be re-written so the harmony moves, up to one chord per bar at
+  introduction (Difficulty ladder). The left hand keeps today's voicing and fingering style per level. (Amended
+  2026-09-28, owner listening check: "allow chord changes".)
 - **FR-003**: Items not listed under Background (the per-key steps, Songs, Repertoire, *My files*) MUST NOT change.
 - **FR-004**: Titles, section places, levels, tempo, metre, bar count and the way items are listed in the browser
   MUST stay the same unless a Difficulty ladder limit forces a change, which MUST be recorded per item.
@@ -189,14 +210,16 @@ allowed at a lower level.
 
 | Level | Shortest RH note | RH range | Largest RH leap | RH hand shifts | LH pattern |
 |---|---|---|---|---|---|
-| Introduction | half | five notes per section (one five-finger position per section) | a step (2nd) | at most one, at the key change | one held block chord per bar |
-| Beginner | quarter | five notes, one position per section | a third | at most one, at a section start | block chord per bar or half bar |
+| Introduction | quarter | up to an octave per section (scale runs, as the key step) | a step (2nd) | thumb-under / finger-over inside a scale run | one block chord per bar; it may change every bar |
+| Beginner | quarter | up to an octave per section | a third, to a chord note | thumb-under / finger-over | block chord per bar or half bar |
 | Intermediate | eighth (in pairs on the beat) | up to an octave per section | a fifth, to a chord note | thumb-under / finger-over allowed | block chords or broken chords (as today's broken voicing) |
 | Advanced | eighth, including dotted rhythms | up to a tenth | an octave, to a chord note | free | broken chords, root-fifth or block chords, mixed |
 
 A repeated note is not a leap. "Per section" means per key: the range is measured separately before and after a key
-change. (Owner decisions, 2026-09-28: the introduction's one shift at the key change, because no five-note position
-holds both keys of a relative minor-to-major item; intermediate range per section.) The library's existing level
+change. (Owner decisions, 2026-09-28: intermediate range per section. Amended after the listening check, 2026-09-28:
+introduction and beginner were half notes / quarters in one five-finger position with at most one shift - easier
+than the key step before them; they now play scale runs in quarter notes like the key step, and beginner adds leaps
+of a third and half-bar chord changes.) The library's existing level
 criteria (for example at most four notes in a row at the shortest value at beginner level) apply on top of this table.
 
 ### Key Entities
@@ -230,8 +253,9 @@ criteria (for example at most four notes in a row at the shortest value at begin
   source.
 - Existing items are rewritten in place (same title and place on the shelf) rather than added next to the old
   doubled versions; no doubled-chord version is kept.
-- The chord progressions, inversions and left-hand voicings the exercises teach are right and stay; only the right
-  hand changes (and, from intermediate up, the left-hand pattern as the ladder allows).
+- The drills' chord progressions, inversions and left-hand voicings are right and stay. The key-change items keep
+  their key change, voicing style and cadence into the new key, but their chords in between may change (FR-002 as
+  amended 2026-09-28).
 - Tempo stays as it is (60 BPM for most items); learners can still change it with the tempo field (feature 012).
 - Grading, Practice mode waiting and feedback are unchanged; they already handle a note plus a chord starting
   together on two staves.
@@ -241,7 +265,8 @@ criteria (for example at most four notes in a row at the shortest value at begin
 ## Out of Scope
 
 - Songs and Repertoire items, and per-key scale sections that already give each hand a different part.
-- New exercise families, new keys, new levels, or new chord progressions.
+- New exercise families, new keys or new levels. (New chord progressions are in scope for the key-change items only,
+  FR-002 as amended 2026-09-28.)
 - Melodies in the left hand with chords in the right (the per-key steps already practise swapped hands with scales).
 - The per-key steps (introduction to advanced, 96 items), including their closing tonic chord.
 - Letting the learner choose between the doubled and the melody version.

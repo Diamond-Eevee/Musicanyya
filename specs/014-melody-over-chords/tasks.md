@@ -335,10 +335,66 @@ the same chords and inversions as before, the right hand a melody.
 - [x] T056 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` green; final log entry; commit
   (depends on T074's local run). Owner decision 2026-09-28: accepted on T074's evidence - the two failures are 013
   tests that pass alone and no 014 file touches them; follow-ups 013 T111, T112
-- [ ] T057 needs owner: SC-005 listening check - the owner listens to at least six rewritten items (one per group and
+- [ ] T057 needs owner (first verdict 2026-09-28: *C major to A minor - introduction* "not fun to play" - half notes then a
+  whole note over one held chord; rework = Phase 6; listen again after T090): SC-005 listening check - the owner listens to at least six rewritten items (one per group and
   level: relative and parallel introduction/beginner/intermediate, plus one drill) and judges each more interesting
   than the doubled version and fitting its level; any item judged too hard is simplified (back to its authoring task)
   before merge. Record the verdicts in the log
+
+## Phase 6: Rework after the owner's listening check (T057 first verdict, 2026-09-28)
+
+**Model**: standard (claude-sonnet-5 or gemini-3.1-pro); the checker tests (T076), composing (T079-T083) and the music
+review (T088) are `deep` (claude-opus-5.5)
+**Goal**: the key-change introduction plays like the key step before it (quarter notes, scale runs up to an octave,
+thumb-under), beginner stays a step above it, and the key-change items' left hand moves (spec Amendment, FR-002 as
+amended, research R11). The drills are unchanged.
+**Independent Test**: open *C major to A minor - introduction*: quarter-note scale runs with the thumb passing under,
+over left-hand chords that change (e.g. I V I IV | i iv V i ...), no bar doubled, the level check and the step order
+pass; the owner finds it fun to play (T057).
+
+- [x] T075 (owner decisions 2026-09-28) Amend `spec.md` (Amendment section, US1 #2, FR-002, Difficulty ladder,
+  assumptions, out of scope), `research.md` (R11; R7 run correction; R10 superseded for the key-change chords),
+  `data-model.md` §4 (introduction and beginner rows), `plan.md` (summary, risks)
+- [ ] T076 [deep] Tests first in `tests/tools/fidelity/melody-rules.test.ts` for the new introduction and beginner rows:
+  a clean introduction fixture in quarter-note scale runs with a thumb-under passes; an eighth at introduction is a
+  `value` finding (a quarter no longer is); a thumb-under inside a run is no `shift` finding at introduction or
+  beginner (the old "one shift at the key change" / "mid-section shift" expectations change - log each); a passing
+  run of two non-chord tones on weak beats passes at introduction, a non-chord tone on the downbeat still does not; two
+  chord changes per bar pass at beginner, three do not. Then `MELODY_LADDER` introduction/beginner in
+  `src/core/defaults.ts` (data-model §4) until green
+- [ ] T077 FR-002 (amended) tests first in `tests/library/melody-sweep.test.ts`, replacing "left hand is unchanged" for
+  the key-change items: the key-change bar and the chord just before it equal the recorded ones
+  (`tests/library/key-change-left-hand.json`); each key's section starts and ends on its tonic chord; every chord is
+  a primary triad of its key at introduction and beginner; at most one chord per bar at introduction and two at
+  beginner; every degree keeps its recorded voicing (inversion and octave); no chord is held more than two bars in a
+  row at introduction and beginner except the closing tonic. Run: fails (i held for 8 bars)
+- [ ] T078 Update `tests/tools/fidelity/exercise-claims.test.ts` first, then the key-change chord plans in
+  `tools/library/fidelity/exercise-claims.ts` (independent of the definitions) to the new progressions of T079
+- [ ] T079 [deep] New left-hand chord plans (primary triads, key change, section tonics and the chord before the change
+  kept) in `content/library/exercises/key-change-{relative,parallel}-{introduction,beginner}.json`; intermediate plans
+  kept
+- [ ] T080 [P] [deep] Re-compose the melodies of `key-change-relative-introduction.json` (quarter notes, scale runs up to
+  an octave, thumb-under / finger-over, at least 2 variants per section and mode)
+- [ ] T081 [P] [deep] Same for `key-change-parallel-introduction.json`
+- [ ] T082 [P] [deep] Re-compose `key-change-relative-beginner.json` (as introduction plus leaps of a third to chord
+  notes and the half-bar harmony of T079; not easier than the new introduction in any ladder dimension)
+- [ ] T083 [P] [deep] Same for `key-change-parallel-beginner.json`
+- [ ] T084 Re-check the intermediate items against the raised beginner (step order, ladder comparison T019): change
+  `key-change-{relative,parallel}-intermediate.json` phrases only where the sweep fails
+- [ ] T085 Regenerate (`pnpm library:exercises`, `pnpm library:index`); T015/T019/T077, T017, T003, T058 green; update
+  the key-change goldens, `steps.test.ts`, `key-change.test.ts`, `planted.test.ts`, the identity golden
+  (`tools/library/identity.ts`; every other entry unchanged, Für Elise grade unchanged); log each changed expectation
+- [ ] T086 [light] Audit records of the 36 regenerated introduction/beginner items (and any intermediate changed in
+  T084): `checkedBy`, `date`; `pnpm library:fidelity`, `pnpm library:fidelity --check` green
+- [ ] T087 `pnpm test:e2e -- tests/e2e/library.spec.ts tests/e2e/tempo-field.spec.ts tests/e2e/electron-smoke.spec.ts`;
+  fix only assertions that read the old notes or chords, logging why
+- [ ] T088 [deep] Music review of the new chord plans and phrases with the `music-domain-expert` agent (fun to play at
+  the level, like the key step; voice-leading of the new progressions; fingering); fix, regenerate, summarise in the
+  log
+- [ ] T089 Update `quickstart.md` US1/US2 expectations, then manual verification (`pnpm screenshot --item ...` for
+  c-major-to-a-minor/introduction, the three g-major-to-e-minor items, c-major-to-c-minor/beginner; open every PNG)
+- [ ] T090 Checkpoint: full gate (`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; firefox/webkit by a local
+  agent as in T074 if the container cannot run them), log entry, commit; then T057 again
 
 ## Dependencies & Execution Order
 
@@ -349,6 +405,9 @@ the same chords and inversions as before, the right hand a melody.
 - Within Phase 3: T015-T019 and T058 before T020-T026; T021-T026 -> T027 -> T028 -> T029/T061/T064/T065/T030/T059/T031 -> T032 -> T033 -> T034.
 - Within Phase 4: T035-T039 before T040-T046; T040 + T042-T045 -> T047 -> T048 -> T049 -> T050 -> T051.
 - T057 (owner) blocks merge only, not other tasks.
+- Phase 6 (after the first T057 verdict): T075 -> T076, T077, T078 (tests first) -> T079 -> T080-T083 -> T084 -> T085
+  -> T086, T087 -> T088 -> T089 -> T090 -> T057 again. T078 needs T079's progressions (write T079's plans first, then
+  the claim test, then the claims).
 
 ## Parallel Opportunities
 

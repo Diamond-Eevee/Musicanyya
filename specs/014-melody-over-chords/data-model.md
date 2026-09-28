@@ -41,10 +41,15 @@ to be a tone of the sounding chord or a step between two such tones.
 
 ## 4. Difficulty ladder (`src/core/defaults.ts`, new named constant `MELODY_LADDER`)
 
+Introduction and beginner rows amended 2026-09-28 after the owner's listening check (research R11, spec Amendment);
+before: introduction 2 / 7 / 1 / one shift at the key change / second half of bar / nctRun 1, beginner 1 / 7 / 2 /
+one shift at a section start / weak beats / nctRun 1 / 1, both `shiftsAtSectionStartOnly` and `crossingIsShift`
+true.
+
 | Level | shortestValueBeats | rangeSemitones | maxLeapSteps | shiftsMax | nctPlacement | nctRun | lhAttacksPerBar | parallelOctaves |
 |---|---|---|---|---|---|---|---|---|
-| introduction | 2 | 7 (five notes) per section | 1 | 1, at the key change (T068) | second half of bar | 1 | 1 | allowed |
-| beginner | 1 | 7 per section | 2 (a third) | 1, at a section start | weak beats | 1 | 1 (house rule, R7) | allowed |
+| introduction | 1 | 12 (an octave) per section | 1 | unlimited, thumb-under / finger-over inside a run only | weak beats | 2 | 1 | allowed |
+| beginner | 1 | 12 per section | 2 (a third), to a chord note | unlimited, thumb-under / finger-over | weak beats | 2 | 2 (half-bar changes) | allowed |
 | intermediate | 0.5 | 12 per section | 4 (a fifth), to a chord note | unlimited, thumb-under / finger-over | also off-beat eighths | 2 | as today | forbidden |
 | advanced | 0.5 (dotted allowed) | 16 (a tenth) | 7 (an octave), to a chord note | unlimited | as intermediate | 2 | as today | forbidden |
 
@@ -53,8 +58,8 @@ name):
 
 | Level | shiftsAtSectionStartOnly | crossingIsShift | dottedValues | eighthsInPairs |
 |---|---|---|---|---|
-| introduction | true | true | false | false |
-| beginner | true | true | false | false |
+| introduction | false | false | false | false |
+| beginner | false | false | false | false |
 | intermediate | false | false | false | true |
 | advanced | false | false | true | false |
 
