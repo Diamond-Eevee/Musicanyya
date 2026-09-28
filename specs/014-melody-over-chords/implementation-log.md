@@ -68,3 +68,43 @@
   are `deep` too and will need the same answer.
 - Handoff: next = model-fit question for T005 (tier `deep`, recommended `claude-opus-5.5`) -> T005 -> T007 -> T010 ->
   T012 -> T013 -> T014 (Foundational checkpoint). Tree clean at commit 961a753 (Setup) after this entry's commit.
+
+## 2026-09-28 14:35 - claude-opus-5.5 (implement, Foundational checker + audit + build)
+- Model fit: T005/T010 are tier `deep` (recommended claude-opus-5.5) - this session's model; T007/T012/T013 are
+  `standard` and T014 `light`, which claude-opus-5.5 also fits (reference R11). No switch needed.
+- Done: T005 (`tests/tools/fidelity/melody-rules.test.ts`, 36 tests: a clean fixture per level plus an A-minor base,
+  one planted fault per rule of data-model §5 with bar and beat - three for `minor-degree`, two each for `value`,
+  `fingering`, `key-change`, `doubled` incl. the closing tonic chord that is NOT flagged -, variation, repeated note,
+  independence; first run failed with "module not found", as expected), T010 (`tools/library/fidelity/melody-rules.ts`:
+  `checkMelodyRules`, `checkMelodyVariation`, `melodyDegrees`; 36/36 green; on today's
+  `c-major-to-a-minor/introduction` it reports 11 `doubled` bars of 12, the closing chord exempt), T007 (8 new tests in
+  `theory.test.ts`/`records.test.ts`, failed first: v3 unknown, no `theoryDifferences`, `part.chords is not iterable`),
+  T012 (`exercise-theory-v3` in `THEORY_RULE_SETS`, `SectionHand` `melody`, `records.ts` `theoryDifferences`, the
+  `Difference` `{ kind: 'melodyRule' }` in `compare.ts`), T013 (`tests/tools/build-exercises-melody.test.ts` failed
+  first - "promise resolved instead of rejecting"; `build-exercises.ts` now plans every item, runs the melody check on
+  items whose definition has a melody - keys from the claim table by title, level from the sidecar - and writes nothing
+  when a finding remains; 2/2 green, the clean case also proves generator output and checker agree end to end), T014.
+- Files outside the task names: `tests/tools/fidelity/melody-fixtures.ts` gains `with` (a right-hand chord, for the
+  `doubled` faults); `tools/library/fidelity/theory.ts` reader gains the written finger, bar starts and metre
+  (additive); `compare.ts` gains the `melodyRule` difference and its description. Changed expectation:
+  `records.test.ts` "rejects an unknown theory rule set" now uses `exercise-theory-v4`, since v3 is known (T012).
+- Decisions (research.md notes under R4, R6, R8; contracts audit-record-1.3 and fidelity-tools 1.12.0 updated):
+  clash exempts the leading tone rising by step to the tonic (FR-005 requires it; without it no introduction item
+  could sound G♯ over A minor's i, so a relative change into minor could not be heard, FR-007); strong beats = downbeat
+  and half bar in 4/4; non-chord-tone placement is cumulative over lower levels; fingering is read as a learner reads
+  it (written finger sets the position, unwritten continues it), thumb crossings count as shifts below intermediate;
+  key-change audibility = a pitch class of the new key's characteristic scale (major / harmonic minor) missing from
+  the old one's, within two bars; old-key-only notes after the change are `key-change`, not `key`; the left hand's
+  chord changes per bar are reported under `value`.
+- Verification: `pnpm test` exit 0 (`Test Files 269 passed (269)`, `Tests 5339 passed (5339)`, including T003's
+  out-of-scope guard and `tests/library/regeneration.test.ts`: no shelf file changed); `pnpm typecheck` exit 0;
+  `pnpm lint` exit 0 (299 warnings, all pre-existing; none in the touched files); `pnpm library:fidelity --check`:
+  `182 records, 0 failed`; `pnpm test:e2e` exit 1: `1 failed | 570 skipped | 961 passed (10.7m)` - the failure is
+  `[firefox] score-browser.spec.ts:343` (feature 013, US3 #5, invalid .musicxml dropped on the browser), which touches
+  nothing this session changed; re-run alone with `--repeat-each=3` it passed 3/3, so it is flaky under full-suite load,
+  not a regression. Gate therefore not fully green on the first run; recorded, not fixed (out of scope).
+- Problems / open questions: needs owner: T057 SC-005 listening check before merge (not blocking). Authoring note
+  for T021-T026: at introduction/beginner the clash rule on beat 3 rules out several passing tones over a held triad
+  (F over C-E-G, B over A-C-E); the checker will say so per bar.
+- Handoff: next = Phase 3 tests T015-T019 and T058 (tier standard), then T020, then the melody authoring T021-T026
+  (tier `deep`, claude-opus-5.5); tree clean after this entry's commit.

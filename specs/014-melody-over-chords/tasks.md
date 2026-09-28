@@ -86,10 +86,10 @@ lets bad melodies through
   unchanged (contract 1.3 MINOR: no 1.2.0 output changes)
 - [x] T012 Add `exercise-theory-v3` to `THEORY_RULE_SETS` in `tools/library/fidelity/records.ts` and the `melody`
   `SectionHand` to `tools/library/fidelity/theory.ts` until T007 passes
-- [ ] T013 Write `tests/tools/build-exercises-melody.test.ts` (fails first), then make
+- [x] T013 Write `tests/tools/build-exercises-melody.test.ts` (fails first), then make
   `tools/library/build-exercises.ts` run `checkMelodyRules` on every generated item that has a melody and write
   nothing (exit code 1, findings listed per item, bar and rule) when any finding remains
-- [ ] T014 [light] `pnpm test -- tests/core/library tests/tools tests/library`, `pnpm typecheck`, `pnpm lint` green; commit
+- [x] T014 [light] `pnpm test -- tests/core/library tests/tools tests/library`, `pnpm typecheck`, `pnpm lint` green; commit
 
 **Checkpoint**: the generator can write melodies, the checker catches every planted fault, and nothing on the shelf
 has changed yet (T003 passes).
