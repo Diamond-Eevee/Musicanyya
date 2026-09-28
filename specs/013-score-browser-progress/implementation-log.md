@@ -1042,3 +1042,18 @@
   per-person results to log under T090 - only then can T090 be ticked. After that: `speckit.implement`'s Polish
   checkpoint gate (`constitution-auditor` on the full branch diff, T091 was already done and clean), and a merge
   only when the owner asks. Tree clean at this entry's commit once committed. Not merged, not pushed.
+
+## 2026-09-28 (3) - claude-sonnet-5 (owner decision: merge without SC-008)
+- Owner decision (asked once, explicit): the branch has been open several days and the owner wants to merge now
+  rather than wait on SC-008's 5-person timed check. T090 stays `[~]` - it is **not** ticked and SC-008 is **not**
+  recorded as an accepted deviation (AGENTS.md §7 forbids that); the task text now says plainly "owner decision
+  2026-09-28: merge without it... SC-008 runs as a post-merge follow-up on `main`". Everything else the gate needs
+  was already green as of the previous entry (lint, typecheck, `pnpm test`, `pnpm test:e2e` with both known-flaky
+  Electron specs re-run alone); T091's constitution review already covered the full branch diff and only T110 (a
+  3-line selection fix plus its test) and doc-only changes were added since, so it was not re-run.
+- Merging `013-score-browser-progress` into `main` (fast-forward not possible - `main` has moved on with unrelated
+  work since the branch was cut, e.g. `docs: track known non-flaky bugs`). SC-008 stays open on `main`; whoever runs
+  it next logs the results here and ticks T090 there.
+- Handoff: after the merge, `main` carries this feature with one open item, T090/SC-008. The next agent or the owner
+  should run SC-008 (quickstart.md "SC-008") and log the results in this file, then tick T090. Not pushed until the
+  owner asks.
