@@ -26,7 +26,7 @@ import {
   type StaffGeometry,
   skipIconBox,
 } from '../score/disc-layout.js';
-import { lookaheadTarget } from '../score/follow.js';
+import { type Glide, glidePosition, glideTo, lookaheadTarget, shiftGlide } from '../score/follow.js';
 import { discAt, drawGradeMarks, type GradeMarkGeometry, gradeHeadClass } from '../score/grade-marks.js';
 import { applyHighlights } from '../score/highlight.js';
 import { ScoreNoteIndex } from '../score/note-index.js';
@@ -161,6 +161,8 @@ export class MxScoreView extends HTMLElement {
   private elementCacheSig = '';
   /** Bumped every time page content is replaced, so cached element lookups can tell they went stale. */
   private domEpoch = 0;
+  private activeGlide: Glide | null = null;
+  private reducedMotionQuery: MediaQueryList | null = null;
   private rafHandle: number | null = null;
   /** The scrollTop this element last set or saw. Any other value is a scroll the user made (`noticeUserScroll`). */
   private knownScrollTop = 0;
@@ -220,6 +222,9 @@ export class MxScoreView extends HTMLElement {
     });
     this.unsubscribeInset = insetState.subscribe((inset) => this.applyInset(inset.bottom));
     this.applyInset(insetState.get().bottom);
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      this.reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    }
     this.rafHandle = requestAnimationFrame(this.tick);
   }
 
@@ -430,6 +435,11 @@ export class MxScoreView extends HTMLElement {
     if (!this.client || this.layouts.length === 0) return;
     const viewportHeight = this.scrollEl.clientHeight || DEFAULT_PAGE_HEIGHT;
     const visible = new Set(mountedPageNumbers(this.layouts, this.scrollEl.scrollTop, viewportHeight));
+    if (this.activeGlide) {
+      for (const p of mountedPageNumbers(this.layouts, this.activeGlide.to, viewportHeight)) {
+        visible.add(p);
+      }
+    }
     const token = this.loadToken;
 
     for (const page of Array.from(this.mountedPages)) {
@@ -462,7 +472,7 @@ export class MxScoreView extends HTMLElement {
           if (beforeLayout) {
             const delta = scrollCompensation(beforeLayout, pageHeight, this.scrollEl.scrollTop);
             if (delta !== 0) {
-              this.scrollOwn(this.scrollEl.scrollTop + delta);
+              this.applyScrollCompensation(delta);
             }
           }
         }
@@ -531,7 +541,22 @@ export class MxScoreView extends HTMLElement {
       this.canvasEl.getContext('2d')?.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
     }
     if (pState.mode === 'practice') {
-      this.drawPracticeState(pState.session, pState.startMeasureIndex, pState.setup?.loop ?? null);
+      const session = pState.session;
+      const currentEvent = session
+        ? ((session as { currentEvent?: ExpectedEvent }).currentEvent ?? session.events[session.index])
+        : null;
+      const following =
+        Boolean(currentEvent) &&
+        session?.phase !== 'finished' &&
+        (session as { status?: string })?.status !== 'completed' &&
+        transportState.get().follow;
+
+      if (following && currentEvent) {
+        this.followRun(this.measureIds[currentEvent.measureIndex]);
+      } else {
+        this.setActiveGlide(null);
+      }
+      this.drawPracticeState(session, pState.startMeasureIndex, pState.setup?.loop ?? null);
       this.practiceDrawn = true;
       return;
     }
@@ -545,18 +570,24 @@ export class MxScoreView extends HTMLElement {
     if (pState.mode === 'play') {
       // One position for the whole frame: the cursor is drawn from it and the view follows it (009 R-04).
       const cursor = playCursorAt(playState.get().run);
-      this.drawPlayState(cursor);
       this.followPlayCursor(cursor);
+      this.drawPlayState(cursor);
       this.playDrawn = true;
       return;
     }
 
     const engine = this.engine;
     const timeline = this.timeline;
-    if (!engine || !timeline) return;
+    if (!engine || !timeline) {
+      this.setActiveGlide(null);
+      return;
+    }
 
     const position = engine.audiblePosition(performance.now());
-    if (!position) return;
+    if (!position) {
+      this.setActiveGlide(null);
+      return;
+    }
     const tick = position.audibleTick;
 
     // Tick 0 always falls inside the first note's span, so gate on the transport phase (not just the tick) -
@@ -575,15 +606,20 @@ export class MxScoreView extends HTMLElement {
     // FR-014: the view follows *during playback* only. Stopped or paused, the cursor stands still and the Score is
     // the musician's to browse; following on every frame then pulled any scroll straight back to the cursor.
     const following = phase === 'playing' && transportState.get().follow;
+    if (following) {
+      if (measureId !== undefined) {
+        this.followRun(measureId);
+      }
+    } else {
+      this.setActiveGlide(null);
+    }
+
     if (!measureEl) {
-      // The current measure's page isn't mounted (a distant seek, a jump back, Follow ticked from far away).
-      if (following && measureId !== undefined) this.scrollToPageOf(measureId);
       return;
     }
 
     // the bar stands at the notes that started last, not at a long note still held under them (009 FR-001, owner review)
     this.drawCursor(measureEl, soundingNoteIds.size === 0 ? soundingNoteIds : cursorNotesAtTick(timeline, tick));
-    if (following) this.followRun(measureId);
   }
 
   /** Notes are looked up in the DOM once per change of the page content, never once per frame: `domEpoch` is bumped
@@ -1013,15 +1049,6 @@ export class MxScoreView extends HTMLElement {
         });
       }
     }
-
-    if (
-      currentEvent &&
-      session?.phase !== 'finished' &&
-      (session as { status?: string })?.status !== 'completed' &&
-      transportState.get().follow
-    ) {
-      this.followRun(this.measureIds[currentEvent.measureIndex]);
-    }
   }
 
   /** Keeps the Play run's current measure in view using the lookahead rule (015 US1), under the same Follow rules as
@@ -1029,11 +1056,17 @@ export class MxScoreView extends HTMLElement {
    *  cursor is drawn at (`playCursorAt`, 009 R-04), so the two can never disagree. Needs `this.timeline`
    *  (session.ts's `setPlayback`, also called from `startPlay`). */
   private followPlayCursor(cursor: PlayCursorPosition | null): void {
-    if (!cursor || !this.timeline) return;
+    if (!cursor || !this.timeline) {
+      this.setActiveGlide(null);
+      return;
+    }
     const pass = passAtTick(this.timeline, cursor.timelineTick);
     runPositionState.set(pass ? pass.measureIndex : null);
     tempoPositionState.set(displaySegmentIndexAt(this.timeline.tempo, cursor.timelineTick));
-    if (!transportState.get().follow) return;
+    if (!transportState.get().follow) {
+      this.setActiveGlide(null);
+      return;
+    }
     this.followRun(pass ? this.measureIds[pass.measureIndex] : undefined);
   }
 
@@ -1476,7 +1509,42 @@ export class MxScoreView extends HTMLElement {
     });
 
     if (target !== null) {
-      this.scrollOwn(target);
+      const now = performance.now();
+      const reducedMotion =
+        (typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+          ? window.matchMedia('(prefers-reduced-motion: reduce)')
+          : this.reducedMotionQuery
+        )?.matches ?? false;
+      this.setActiveGlide(glideTo(this.scrollEl.scrollTop, target, now, this.activeGlide, reducedMotion));
+    }
+    this.advanceGlide();
+  }
+
+  private setActiveGlide(glide: Glide | null): void {
+    this.activeGlide = glide;
+    if (glide) {
+      this.dataset.gliding = 'true';
+    } else {
+      delete this.dataset.gliding;
+    }
+  }
+
+  private advanceGlide(): void {
+    if (!this.activeGlide) return;
+    const now = performance.now();
+    const pos = glidePosition(this.activeGlide, now);
+    this.scrollOwn(pos.top);
+    this.mountVisiblePages();
+    if (pos.done) {
+      this.setActiveGlide(null);
+    }
+  }
+
+  private applyScrollCompensation(delta: number): void {
+    if (delta === 0) return;
+    this.scrollOwn(this.scrollEl.scrollTop + delta);
+    if (this.activeGlide) {
+      this.setActiveGlide(shiftGlide(this.activeGlide, delta));
     }
   }
 
@@ -1494,7 +1562,16 @@ export class MxScoreView extends HTMLElement {
     }
     if (page !== undefined) {
       const layout = this.layouts.find((l) => l.page === page);
-      if (layout) this.scrollOwn(layout.top);
+      if (layout) {
+        const now = performance.now();
+        const reducedMotion =
+          (typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+            ? window.matchMedia('(prefers-reduced-motion: reduce)')
+            : this.reducedMotionQuery
+          )?.matches ?? false;
+        this.setActiveGlide(glideTo(this.scrollEl.scrollTop, layout.top, now, this.activeGlide, reducedMotion));
+        this.advanceGlide();
+      }
       return;
     }
     if (!this.client || this.pageLookup !== null) return;
@@ -1523,6 +1600,7 @@ export class MxScoreView extends HTMLElement {
     const top = this.scrollEl.scrollTop;
     if (Math.abs(top - this.knownScrollTop) < 1) return;
     this.knownScrollTop = top;
+    this.setActiveGlide(null);
     if (transportState.get().phase === 'playing') transportState.manualScroll();
   }
 

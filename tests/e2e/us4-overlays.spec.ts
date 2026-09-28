@@ -13,6 +13,8 @@ test.beforeEach(({ browserName }) => {
 
 interface Sample {
   covered: string[];
+  gliding: boolean;
+  partlyVisible: boolean;
 }
 
 /** Samples, 10 times a second inside the page, which chrome overlaps the system that holds the sounding note. */
@@ -50,7 +52,15 @@ async function startSampling(page: Page): Promise<void> {
         ]),
         ...Array.from(document.querySelectorAll('mx-panel')).map((el): [string, Element] => ['popup', el]),
       ];
+      const scoreView = document.querySelector('mx-score-view') as HTMLElement | null;
+      const isGliding = scoreView?.dataset.gliding === 'true';
+      const pianoEl = document.querySelector('mx-piano-keys');
+      const pianoRect = pianoEl ? pianoEl.getBoundingClientRect() : null;
+      const partlyVisible = pianoRect ? systemRect.top < pianoRect.top : true;
+
       samples.push({
+        gliding: isGliding,
+        partlyVisible,
         covered: obstacles
           .filter(([, el]) => visible(el) && overlaps(systemRect, (el as Element).getBoundingClientRect()))
           .map(([name]) => name),
@@ -106,11 +116,18 @@ test.describe('US4: overlays never hide the music (SC-005, FR-010)', () => {
       const samples = await stopSampling(page);
 
       expect(samples.length, 'enough frames were sampled to mean something').toBeGreaterThan(40);
-      const covered = samples.filter((sample) => sample.covered.length > 0);
+      // 015 FR-008: during an active 400ms follow glide, the cursor's system must remain at least partly visible.
+      // When settled (not gliding), floating chrome must never cover the cursor's system.
+      const coveredWhileSettled = samples.filter((sample) => !sample.gliding && sample.covered.length > 0);
       expect(
-        covered.map((sample) => sample.covered),
-        'frames where chrome covered the cursor system',
+        coveredWhileSettled.map((sample) => sample.covered),
+        'frames where chrome covered the cursor system while settled',
       ).toEqual([]);
+
+      const hiddenDuringGlide = samples.filter((sample) => sample.gliding && !sample.partlyVisible);
+      expect(hiddenDuringGlide, 'frames during glide where the cursor system was completely hidden (FR-008)').toEqual(
+        [],
+      );
     });
   }
 });

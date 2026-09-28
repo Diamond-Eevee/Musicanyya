@@ -1,4 +1,10 @@
-import { FOLLOW_TARGET_EPSILON_PX, LOOKAHEAD_TOP_GAP_PX } from '../../engine/config.js';
+import {
+  FOLLOW_GLIDE_MIN_REDIRECT_MS,
+  FOLLOW_GLIDE_MS,
+  FOLLOW_GLIDE_REDUCED_MS,
+  FOLLOW_TARGET_EPSILON_PX,
+  LOOKAHEAD_TOP_GAP_PX,
+} from '../../engine/config.js';
 
 export interface Span {
   top: number;
@@ -22,6 +28,86 @@ export interface Glide {
   startMs: number; // performance.now() time base, same as the rAF loop
   durationMs: number;
   easing: Easing;
+}
+
+function easeInOutCubic(t: number): number {
+  return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+}
+
+function easeOutCubic(t: number): number {
+  return 1 - (1 - t) ** 3;
+}
+
+/** Starts a glide, or redirects the running one (`active`) from where it is now. Duration 0 means "jump now". */
+export function glideTo(
+  position: number,
+  to: number,
+  nowMs: number,
+  active: Glide | null,
+  reducedMotion: boolean,
+): Glide {
+  if (reducedMotion) {
+    return {
+      from: position,
+      to,
+      startMs: nowMs,
+      durationMs: FOLLOW_GLIDE_REDUCED_MS,
+      easing: 'inOut',
+    };
+  }
+
+  if (active !== null) {
+    const isRunning = nowMs < active.startMs + active.durationMs;
+    if (isRunning) {
+      if (Math.abs(to - active.to) < FOLLOW_TARGET_EPSILON_PX) {
+        return active;
+      }
+      const currentPos = glidePosition(active, nowMs).top;
+      const remaining = active.startMs + active.durationMs - nowMs;
+      const durationMs = Math.max(remaining, FOLLOW_GLIDE_MIN_REDIRECT_MS);
+      return {
+        from: currentPos,
+        to,
+        startMs: nowMs,
+        durationMs,
+        easing: 'out',
+      };
+    }
+  }
+
+  return {
+    from: position,
+    to,
+    startMs: nowMs,
+    durationMs: FOLLOW_GLIDE_MS,
+    easing: 'inOut',
+  };
+}
+
+/** The position at `nowMs`; `done` once `nowMs >= startMs + durationMs` (position is then exactly `to`). */
+export function glidePosition(glide: Glide, nowMs: number): { top: number; done: boolean } {
+  if (glide.durationMs <= 0 || nowMs >= glide.startMs + glide.durationMs) {
+    return { top: glide.to, done: true };
+  }
+  if (nowMs <= glide.startMs) {
+    return { top: glide.from, done: false };
+  }
+
+  const elapsed = nowMs - glide.startMs;
+  const t = Math.max(0, Math.min(1, elapsed / glide.durationMs));
+  const factor = glide.easing === 'out' ? easeOutCubic(t) : easeInOutCubic(t);
+  const top = glide.from + (glide.to - glide.from) * factor;
+
+  return { top, done: false };
+}
+
+/** Moves a glide's whole path by `delta` (page height compensation, score-layout.md section 3 rule 3). */
+export function shiftGlide(glide: Glide, delta: number): Glide {
+  return {
+    ...glide,
+    from: glide.from + delta,
+    to: glide.to + delta,
+  };
 }
 
 function inClear(span: Span, scrollTop: number, clearHeight: number): boolean {

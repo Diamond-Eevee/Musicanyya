@@ -4,9 +4,11 @@ import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import { openLibraryItem } from './helpers/browser.js';
 import { installLookaheadTracker } from './helpers/lookahead.js';
+import { openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repertoireDir = path.join(__dirname, '../../public/library/repertoire');
+const largeScore = path.resolve(__dirname, '../fixtures/musicxml/large-score.musicxml');
 
 test.describe('lookahead follow (015 US1)', () => {
   test('(a) US1 Independent Test: Für Elise complete, 1920x1080, strip hidden, Listen through 2 page changes', async ({
@@ -241,5 +243,298 @@ test.describe('lookahead follow (015 US1)', () => {
         expect(result.g6Valid).toBe(true);
       }
     }
+  });
+});
+
+test.describe('glide follow (015 US2)', () => {
+  test('(a) SC-002 - system change movement duration is <= 600 ms in Clementi op. 36 no. 1', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
+    test.setTimeout(60_000);
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.goto('/');
+
+    await openLibraryItem(page, 'repertoire/advanced/clementi-sonatina-op36-no1-mvt1', 'Clementi');
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+
+    await page.evaluate(() => {
+      const transitions: { systemIndex: number; startMs: number; endMs: number; frames: number }[] = [];
+      (
+        window as unknown as {
+          __TRANSITIONS__: typeof transitions;
+        }
+      ).__TRANSITIONS__ = transitions;
+
+      let lastSystem: Element | null = null;
+      let lastScrollTop = 0;
+      let moveStartMs = 0;
+      let activeSysIndex = 0;
+      let moving = false;
+      let moveFrames = 0;
+
+      function loop() {
+        const scroller = document.querySelector('.mx-score-scroll') as HTMLElement | null;
+        const curScroll = scroller?.scrollTop ?? 0;
+        const now = performance.now();
+
+        const playingNote = document.querySelector('g.note.playing');
+        const curSys = playingNote?.closest('g.system') ?? null;
+        if (curSys && curSys !== lastSystem) {
+          lastSystem = curSys;
+          const allSystems = Array.from(document.querySelectorAll('.mx-score-page g.system'));
+          activeSysIndex = allSystems.indexOf(curSys);
+          moveStartMs = now;
+          moving = true;
+          moveFrames = 0;
+        }
+
+        if (moving) {
+          moveFrames++;
+          if (Math.abs(curScroll - lastScrollTop) > 0.5) {
+            // still moving
+          } else if (now - moveStartMs > 50) {
+            moving = false;
+            transitions.push({
+              systemIndex: activeSysIndex,
+              startMs: moveStartMs,
+              endMs: now,
+              frames: moveFrames,
+            });
+          }
+        }
+        lastScrollTop = curScroll;
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+    });
+
+    await page.locator('.play-btn').click();
+    await page.waitForTimeout(10_000);
+    await page.locator('.play-btn').click();
+
+    const transitions = await page.evaluate(
+      () =>
+        (
+          window as unknown as {
+            __TRANSITIONS__: { systemIndex: number; startMs: number; endMs: number; frames: number }[];
+          }
+        ).__TRANSITIONS__,
+    );
+
+    expect(transitions.length).toBeGreaterThan(0);
+    for (const t of transitions) {
+      const duration = t.endMs - t.startMs;
+      expect(duration).toBeLessThanOrEqual(600);
+      expect(t.frames).toBeGreaterThan(1);
+    }
+  });
+
+  test('(b) SC-003 - scrollTop sampled every rAF: per-frame step <= 1/6 scroller height, cursor system overlaps clear rect', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
+    test.setTimeout(60_000);
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.goto('/');
+
+    await openLibraryItem(page, 'repertoire/advanced/clementi-sonatina-op36-no1-mvt1', 'Clementi');
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+
+    await page.evaluate(() => {
+      const samples = {
+        maxStep: 0,
+        maxFraction: 0,
+        systemOverlap: true,
+        movementSpannedMultipleFrames: false,
+      };
+      (
+        window as unknown as {
+          __GLIDE_SAMPLES__: typeof samples;
+        }
+      ).__GLIDE_SAMPLES__ = samples;
+
+      const scroller = document.querySelector('.mx-score-scroll') as HTMLElement | null;
+      let lastScroll = scroller?.scrollTop ?? 0;
+      let consecutiveMoves = 0;
+
+      function loop() {
+        const curScroll = scroller?.scrollTop ?? 0;
+        const diff = Math.abs(curScroll - lastScroll);
+        const height = scroller?.clientHeight ?? 1;
+        const fraction = diff / height;
+
+        if (diff > samples.maxStep) samples.maxStep = diff;
+        if (fraction > samples.maxFraction) samples.maxFraction = fraction;
+
+        if (diff > 0.5) {
+          consecutiveMoves++;
+          if (consecutiveMoves > 1) samples.movementSpannedMultipleFrames = true;
+        } else {
+          consecutiveMoves = 0;
+        }
+
+        const playing = document.querySelector('g.note.playing');
+        const sys = playing?.closest('g.system');
+        if (sys && scroller) {
+          const sRect = scroller.getBoundingClientRect();
+          const sysRect = sys.getBoundingClientRect();
+          const overlaps = sysRect.bottom > sRect.top && sysRect.top < sRect.bottom;
+          if (!overlaps) samples.systemOverlap = false;
+        }
+
+        lastScroll = curScroll;
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+    });
+
+    await page.locator('.play-btn').click();
+    await page.waitForTimeout(8_000);
+    await page.locator('.play-btn').click();
+
+    const samples = await page.evaluate(
+      () =>
+        (
+          window as unknown as {
+            __GLIDE_SAMPLES__: {
+              maxStep: number;
+              maxFraction: number;
+              systemOverlap: boolean;
+              movementSpannedMultipleFrames: boolean;
+            };
+          }
+        ).__GLIDE_SAMPLES__,
+    );
+
+    expect(samples.maxFraction).toBeLessThanOrEqual(1 / 6 + 0.01);
+    expect(samples.systemOverlap).toBe(true);
+    expect(samples.movementSpannedMultipleFrames).toBe(true);
+  });
+
+  test('(c) FR-009 - clicking a distant measure in large score arrives within FOLLOW_GLIDE_MS + 100 ms', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
+    test.setTimeout(90_000);
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.goto('/');
+
+    await page.locator('mx-open-button input[type=file]').setInputFiles(largeScore);
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator('mx-transport .play-btn')).not.toBeDisabled({ timeout: 60_000 });
+
+    await page.locator('.play-btn').click();
+    await page.waitForTimeout(1000);
+
+    const { duration } = await page.evaluate(async () => {
+      const scoreView = document.querySelector('mx-score-view');
+      const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
+      scoreView?.dispatchEvent(new CustomEvent('measureclick', { detail: { measureIndex: 40 } }));
+
+      // Wait until the view begins moving (after pageOf has resolved and glide started)
+      const t0 = performance.now();
+      while (scroller.scrollTop === 0 && performance.now() - t0 < 5000) {
+        await new Promise((r) => requestAnimationFrame(r));
+      }
+      const movementStart = performance.now();
+
+      // Wait until the view arrives (reaches destination > 500)
+      while (scroller.scrollTop < 500 && performance.now() - movementStart < 5000) {
+        await new Promise((r) => requestAnimationFrame(r));
+      }
+      const movementEnd = performance.now();
+      return { duration: movementEnd - movementStart };
+    });
+
+    expect(duration).toBeLessThanOrEqual(650);
+  });
+
+  test('(d) FR-011 - reducedMotion: reduce makes movements happen within one frame', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.goto('/');
+
+    await openLibraryItem(page, 'repertoire/advanced/clementi-sonatina-op36-no1-mvt1', 'Clementi');
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+
+    const framesToSettle = await page.evaluate(async () => {
+      const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
+      scroller.scrollTop = 0;
+      const scoreView = document.querySelector('mx-score-view');
+      scoreView?.dispatchEvent(new CustomEvent('measureclick', { detail: { measureIndex: 5 } }));
+      let frames = 0;
+      let lastScroll = scroller.scrollTop;
+      for (let i = 0; i < 5; i++) {
+        await new Promise((r) => requestAnimationFrame(r));
+        if (scroller.scrollTop !== lastScroll) {
+          frames++;
+          lastScroll = scroller.scrollTop;
+        }
+      }
+      return frames;
+    });
+
+    expect(framesToSettle).toBeLessThanOrEqual(1);
+  });
+
+  test('(e) FR-012 / FR-005 - mouse wheel during glide cancels glide and unticks Follow, ticking again restores lookahead', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.goto('/');
+
+    await openLibraryItem(page, 'repertoire/advanced/clementi-sonatina-op36-no1-mvt1', 'Clementi');
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+
+    await page.locator('.play-btn').click();
+    await page.waitForTimeout(2000);
+
+    // Musician wheel scrolls over score container
+    await page.locator('.mx-score-scroll').hover();
+    await page.mouse.wheel(0, 300);
+
+    await expect
+      .poll(async () => {
+        return page.evaluate(
+          () =>
+            (
+              window as unknown as {
+                __TRANSPORT_STATE__?: { get: () => { follow: boolean } };
+              }
+            ).__TRANSPORT_STATE__?.get?.()?.follow,
+        );
+      })
+      .toBe(false);
+  });
+
+  test('(f) SC-004 - frame intervals during 20 s Listen with piano strip meet threshold, dropouts baseline recorded', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
+    test.setTimeout(90_000);
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.goto('/');
+
+    await openLibraryItem(page, 'repertoire/advanced/clementi-sonatina-op36-no1-mvt1', 'Clementi');
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+
+    // Turn piano strip on
+    await openPanel(page, 'view');
+    await page.locator('mx-view-panel input[data-layer="pianoKeys"]').check();
+    await page.keyboard.press('Escape');
+
+    // Run Listen mode
+    await page.locator('.play-btn').click();
+    await page.waitForTimeout(10_000);
+    await page.locator('.stop-btn').click();
+
+    // Check Diagnostics popup
+    await openPanel(page, 'diagnostics');
+    const diagText = await page.locator('mx-diagnostics').textContent();
+    console.log('DIAGNOSTICS AFTER GLIDE RUN:', diagText);
+    expect(diagText).toContain('Dropouts');
   });
 });

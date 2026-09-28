@@ -175,7 +175,7 @@ glide of bounded length, never a jump, and the cursor's system stays at least pa
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T017 [P] [US2] Add `describe('glide')` to `tests/ui/follow.test.ts`: (a) a fresh `glideTo` has `easing:
+- [x] T017 [P] [US2] Add `describe('glide')` to `tests/ui/follow.test.ts`: (a) a fresh `glideTo` has `easing:
   'inOut'` and `durationMs: FOLLOW_GLIDE_MS` regardless of distance (100 px and 10 000 px); (b) `glidePosition` is
   `from` at `startMs`, exactly `to` and `done` at `startMs + durationMs` and after; (c) positions sampled every 1 ms are
   monotonic and never outside [from, to] (no overshoot), for both easings and both directions; (d) the largest step
@@ -187,7 +187,7 @@ glide of bounded length, never a jump, and the cursor's system stays at least pa
   target within `FOLLOW_TARGET_EPSILON_PX` of the running `to` returns the running glide unchanged; (g)
   `reducedMotion` gives `durationMs: FOLLOW_GLIDE_REDUCED_MS` and the first position is `to`; (h) `shiftGlide` moves
   `from` and `to` by Δ and nothing else (contract follow-view.md 1.1.0). Run: fails (functions missing)
-- [ ] T018 [P] [US2] Extend `tests/ui/score-view-follow.test.ts` with a controllable `requestAnimationFrame` and
+- [x] T018 [P] [US2] Extend `tests/ui/score-view-follow.test.ts` with a controllable `requestAnimationFrame` and
   `performance.now()`: (a) a new target produces intermediate `scrollTop` values over several frames and lands on the
   target after `FOLLOW_GLIDE_MS`; (b) within one frame, the scroll write happens before the cursor overlay reads the
   measure's box (spy on `drawCursorOverlay` and on the `scrollTop` setter; assert call order); the same for Practice
@@ -197,7 +197,7 @@ glide of bounded length, never a jump, and the cursor's system stays at least pa
   target; (f) a page above the viewport rendering during a glide shifts the glide (the target system keeps its screen
   position when the glide ends); (g) during a glide to a far page, `client.page()` is asked for the pages around the
   target and not for the pages in between. Run: fails
-- [ ] T019 [P] [US2] Extend `tests/e2e/lookahead.spec.ts`: (a) SC-002 - from the first frame the cursor is in a new
+- [x] T019 [P] [US2] Extend `tests/e2e/lookahead.spec.ts`: (a) SC-002 - from the first frame the cursor is in a new
   system to the last frame the view moves is ≤ 600 ms, at every system change of a Listen run through Clementi op. 36
   no. 1 at 1920 x 1080; (b) SC-003 - `scrollTop` sampled every animation frame inside the page: every per-frame step
   of a system-to-system movement is ≤ 1/6 of the scroller height, each movement spans more than one frame, and
@@ -214,19 +214,19 @@ glide of bounded length, never a jump, and the cursor's system stays at least pa
 
 ### Implementation
 
-- [ ] T020 [US2] Implement `glideTo`, `glidePosition`, `shiftGlide` and the cubic easings in `src/ui/score/follow.ts`
+- [x] T020 [US2] Implement `glideTo`, `glidePosition`, `shiftGlide` and the cubic easings in `src/ui/score/follow.ts`
   per follow-view.md section 3; T017 green
-- [ ] T021 [US2] In `src/ui/elements/mx-score-view.ts`: hold one `Glide | null`; `followRun()` calls `glideTo()`
+- [x] T021 [US2] In `src/ui/elements/mx-score-view.ts`: hold one `Glide | null`; `followRun()` calls `glideTo()`
   instead of `scrollOwn()` for a new target; advance the glide each frame with `scrollOwn(glidePosition().top)`; reorder
   each run path so that position -> system -> target -> glide step come before drawing (Listen cursor, Practice
   band/marks, Play marks); read `matchMedia('(prefers-reduced-motion: reduce)')` (one `MediaQueryList` created in
   `connectedCallback`) when a glide starts; cancel the glide in `noticeUserScroll()` on any user scroll and whenever
   following stops; apply `shiftGlide(Δ)` together with `scrollCompensation`; make `mountVisiblePages()` also mount
   the pages within one viewport of `glide.to`; T018 green
-- [ ] T022 [US2] Re-run T015's e2e specs and T012; they stay green (a threshold that now needs to wait for a 400 ms
+- [x] T022 [US2] Re-run T015's e2e specs and T012; they stay green (a threshold that now needs to wait for a 400 ms
   glide may poll longer - log it); T019 green
 
-- [ ] T023 [US2] Checkpoint: see below
+- [x] T023 [US2] Checkpoint: see below
 
 **Checkpoint**: US2 Independent Test verified (T019 output in the log, including the measured maximum per-frame step
 and settle time), US1 still green, full gate, log entry, commit.

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { LOOKAHEAD_TOP_GAP_PX } from '../../src/engine/config.js';
+import { FOLLOW_GLIDE_MS, LOOKAHEAD_TOP_GAP_PX } from '../../src/engine/config.js';
 import type { AudioEngine } from '../../src/engine/ports.js';
 import '../../src/ui/elements/mx-score-view.js';
 import type { MxScoreView, PlayPositionReporter, TimelineDto } from '../../src/ui/elements/mx-score-view.js';
@@ -112,6 +112,11 @@ describe('score view follow (015 US1)', () => {
 
   beforeEach(async () => {
     vi.useFakeTimers();
+    const startEpoch = Date.now();
+    vi.spyOn(performance, 'now').mockImplementation(() => Date.now() - startEpoch);
+    if (typeof window !== 'undefined' && window.performance) {
+      vi.spyOn(window.performance, 'now').mockImplementation(() => Date.now() - startEpoch);
+    }
     client = new FollowTestClient();
     el = document.createElement('mx-score-view') as MxScoreView;
     el.client = client;
@@ -218,7 +223,7 @@ describe('score view follow (015 US1)', () => {
     listenPosition = { audibleTick: 2 * 480 }; // m-3 in sys-2
     scrollEl.scrollTop = 0;
 
-    await vi.advanceTimersByTimeAsync(16);
+    await vi.advanceTimersByTimeAsync(FOLLOW_GLIDE_MS + 32);
 
     const expected = 280 - LOOKAHEAD_TOP_GAP_PX;
     expect(scrollEl.scrollTop).toBe(expected);
@@ -226,7 +231,7 @@ describe('score view follow (015 US1)', () => {
 
   it('(b) cursor stays in the same system over further frames -> no scroll write', async () => {
     listenPosition = { audibleTick: 2 * 480 }; // m-3 in sys-2
-    await vi.advanceTimersByTimeAsync(16);
+    await vi.advanceTimersByTimeAsync(FOLLOW_GLIDE_MS + 32);
     const expected = 280 - LOOKAHEAD_TOP_GAP_PX;
     expect(scrollEl.scrollTop).toBe(expected);
 
@@ -282,7 +287,7 @@ describe('score view follow (015 US1)', () => {
       marks: new Map(),
     });
     (el as unknown as { scrollOwn(top: number): void }).scrollOwn(0);
-    await vi.advanceTimersByTimeAsync(16);
+    await vi.advanceTimersByTimeAsync(FOLLOW_GLIDE_MS + 32);
     expect(scrollEl.scrollTop).toBe(280 - LOOKAHEAD_TOP_GAP_PX);
 
     // 2. Play run
@@ -307,7 +312,7 @@ describe('score view follow (015 US1)', () => {
       }),
     };
     (el as unknown as { playSession: PlayPositionReporter }).playSession = playSession;
-    await vi.advanceTimersByTimeAsync(16);
+    await vi.advanceTimersByTimeAsync(FOLLOW_GLIDE_MS + 32);
     expect(scrollEl.scrollTop).toBe(280 - LOOKAHEAD_TOP_GAP_PX);
     (el as unknown as { playSession: PlayPositionReporter | null }).playSession = null;
     playState.setRun(null);
@@ -361,7 +366,7 @@ describe('score view follow (015 US1)', () => {
     listenPosition = { audibleTick: 8 * 480 }; // m-9 in sys-5
     (el as unknown as { scrollOwn(top: number): void }).scrollOwn(1450); // sys-5 is within clear space [1450, 2050]
 
-    await vi.advanceTimersByTimeAsync(16);
+    await vi.advanceTimersByTimeAsync(FOLLOW_GLIDE_MS + 32);
     expect(scrollEl.scrollTop).toBe(1480 - LOOKAHEAD_TOP_GAP_PX);
 
     // Now mount page 3
@@ -394,11 +399,15 @@ describe('score view follow (015 US1)', () => {
 
     // Frame 1 requests pageOf('m-11') asynchronously
     await vi.advanceTimersByTimeAsync(16);
-    // Frame 2 reads resolved measurePages and scrolls to page 3
+    // Frame 2 reads resolved measurePages and starts glide to page 3
     await vi.advanceTimersByTimeAsync(16);
 
-    // Page 3 starts at top 2400 (page 1: 1200, page 2: 1200)
-    expect(scrollEl.scrollTop).toBe(2400);
+    // Initial glide target is the estimated page top
+    expect((el as unknown as { activeGlide: { to: number } | null }).activeGlide?.to).toBe(2400);
+
+    // Once page 3 mounts during the glide, the target refines to sys-6
+    await vi.advanceTimersByTimeAsync(FOLLOW_GLIDE_MS + 32);
+    expect(scrollEl.scrollTop).toBe(2440 - LOOKAHEAD_TOP_GAP_PX);
   });
 
   it('(g) a manual scroll during Listen still unticks Follow (001 FR-014 unchanged)', async () => {
@@ -453,12 +462,12 @@ describe('score view follow (015 US1)', () => {
   it('(i) FR-006 - after a relayout and after an insetState change during Listen, the next frame applies look-ahead target for new geometry', async () => {
     listenPosition = { audibleTick: 2 * 480 }; // m-3 in sys-2 (280-480)
     scrollEl.scrollTop = 0;
-    await vi.advanceTimersByTimeAsync(16);
+    await vi.advanceTimersByTimeAsync(FOLLOW_GLIDE_MS + 32);
     expect(scrollEl.scrollTop).toBe(280 - LOOKAHEAD_TOP_GAP_PX);
 
     // Inset changes (e.g. piano strip shown with 200px bottom inset)
     insetState.setBottom(200);
-    await vi.advanceTimersByTimeAsync(16);
+    await vi.advanceTimersByTimeAsync(FOLLOW_GLIDE_MS + 32);
     // Target still holds sys-2 and sys-3 in clear space
     expect(scrollEl.scrollTop).toBe(280 - LOOKAHEAD_TOP_GAP_PX);
   });
@@ -541,8 +550,270 @@ describe('score view follow (015 US1)', () => {
       currentEvent: ev0,
       events: [ev0],
     });
-    await vi.advanceTimersByTimeAsync(16);
+    await vi.advanceTimersByTimeAsync(FOLLOW_GLIDE_MS + 32);
     // Should scroll back to sys-1 (40 - LOOKAHEAD_TOP_GAP_PX)
     expect(scrollEl.scrollTop).toBe(40 - LOOKAHEAD_TOP_GAP_PX);
+  });
+});
+
+describe('score view follow glide (015 US2)', () => {
+  let el: MxScoreView;
+  let client: FollowTestClient;
+  let scrollEl: HTMLElement;
+  let listenPosition: { audibleTick: number } | null = null;
+  let timeline: TimelineDto;
+  let originalGetBoundingClientRect: typeof Element.prototype.getBoundingClientRect;
+  let originalMatchMedia: typeof window.matchMedia;
+
+  beforeEach(async () => {
+    vi.useFakeTimers();
+    const startEpoch = Date.now();
+    vi.spyOn(performance, 'now').mockImplementation(() => Date.now() - startEpoch);
+    if (typeof window !== 'undefined' && window.performance) {
+      vi.spyOn(window.performance, 'now').mockImplementation(() => Date.now() - startEpoch);
+    }
+    client = new FollowTestClient();
+    el = document.createElement('mx-score-view') as MxScoreView;
+    el.client = client;
+    document.body.appendChild(el);
+    scrollEl = el.querySelector('.mx-score-scroll') as HTMLElement;
+
+    Object.defineProperty(scrollEl, 'clientHeight', { value: 600, configurable: true });
+    Object.defineProperty(scrollEl, 'clientWidth', { value: 1600, configurable: true });
+    Object.defineProperty(scrollEl, 'scrollHeight', { value: 4000, configurable: true });
+
+    originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
+    originalMatchMedia = window.matchMedia;
+
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+      clearRect: () => {},
+      fillRect: () => {},
+      beginPath: () => {},
+      arc: () => {},
+      fill: () => {},
+      stroke: () => {},
+      moveTo: () => {},
+      lineTo: () => {},
+      save: () => {},
+      restore: () => {},
+      fillText: () => {},
+      strokeRect: () => {},
+      measureText: () => ({ width: 0 }),
+    } as unknown as CanvasRenderingContext2D);
+
+    Element.prototype.getBoundingClientRect = function (this: Element) {
+      if (this === scrollEl) {
+        return {
+          top: 0,
+          bottom: 600,
+          left: 0,
+          right: 1600,
+          width: 1600,
+          height: 600,
+          x: 0,
+          y: 0,
+          toJSON: () => ({}),
+        } as DOMRect;
+      }
+      const sysId = SYSTEM_BOXES[this.id] ? this.id : MEASURE_TO_SYSTEM[this.id];
+      const box = sysId ? SYSTEM_BOXES[sysId] : undefined;
+      if (box) {
+        const top = box.top - scrollEl.scrollTop;
+        const bottom = box.bottom - scrollEl.scrollTop;
+        return {
+          top,
+          bottom,
+          left: 0,
+          right: 1600,
+          width: 1600,
+          height: bottom - top,
+          x: 0,
+          y: top,
+          toJSON: () => ({}),
+        } as DOMRect;
+      }
+      return {
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        width: 0,
+        height: 0,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      } as DOMRect;
+    };
+
+    timeline = {
+      passes: Array.from({ length: 12 }, (_, i) => ({
+        measureIndex: i,
+        startTick: i * 480,
+        endTick: (i + 1) * 480,
+      })),
+      spans: Array.from({ length: 12 }, (_, i) => ({
+        noteId: `n-${i + 1}`,
+        startTick: i * 480,
+        endTick: (i + 1) * 480,
+      })),
+      tempo: [],
+    };
+
+    const engine = { audiblePosition: () => listenPosition } as unknown as AudioEngine;
+    el.setPlayback(engine, timeline);
+    listenPosition = { audibleTick: 0 };
+
+    const measureIds = Array.from({ length: 12 }, (_, i) => `m-${i + 1}`);
+    await el.load('<score-partwise/>', measureIds);
+    insetState.setBottom(0);
+    transportState.setSoundReady(true);
+    transportState.applySavedSettings(1, true);
+    transportState.play();
+    practiceState.setMode('listen');
+  });
+
+  afterEach(() => {
+    Element.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+    window.matchMedia = originalMatchMedia;
+    document.body.innerHTML = '';
+    vi.useRealTimers();
+    transportState.stop();
+    playState.clear();
+    practiceState.setMode('listen');
+    practiceState.setSession(null);
+    insetState.setBottom(0);
+  });
+
+  it('(a) a new target produces intermediate scrollTop values over several frames and lands on the target after FOLLOW_GLIDE_MS', async () => {
+    listenPosition = { audibleTick: 2 * 480 }; // m-3 in sys-2 -> target 268
+    scrollEl.scrollTop = 0;
+
+    await vi.advanceTimersByTimeAsync(32);
+    const step1 = scrollEl.scrollTop;
+    expect(step1).toBeGreaterThan(0);
+    expect(step1).toBeLessThan(280 - LOOKAHEAD_TOP_GAP_PX);
+
+    await vi.advanceTimersByTimeAsync(160);
+    const step2 = scrollEl.scrollTop;
+    expect(step2).toBeGreaterThan(step1);
+    expect(step2).toBeLessThan(280 - LOOKAHEAD_TOP_GAP_PX);
+
+    await vi.advanceTimersByTimeAsync(FOLLOW_GLIDE_MS);
+    expect(scrollEl.scrollTop).toBe(280 - LOOKAHEAD_TOP_GAP_PX);
+  });
+
+  it('(b) within one frame, the scroll write happens before cursor drawing reads measure box', async () => {
+    const callOrder: string[] = [];
+    const origSet = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollTop')?.set;
+    Object.defineProperty(scrollEl, 'scrollTop', {
+      set(val: number) {
+        callOrder.push('scrollOwn');
+        origSet?.call(this, val);
+      },
+      get() {
+        return 0;
+      },
+      configurable: true,
+    });
+
+    const origDrawCursor = (el as unknown as { drawCursor: (...args: unknown[]) => void }).drawCursor;
+    (el as unknown as { drawCursor: (...args: unknown[]) => void }).drawCursor = function (...args: unknown[]) {
+      callOrder.push('drawCursor');
+      return origDrawCursor.apply(this, args);
+    };
+
+    listenPosition = { audibleTick: 2 * 480 };
+    await vi.advanceTimersByTimeAsync(16);
+
+    expect(callOrder.indexOf('scrollOwn')).toBeLessThan(callOrder.indexOf('drawCursor'));
+  });
+
+  it('(c) a user scroll cancels the glide: no further writes', async () => {
+    listenPosition = { audibleTick: 2 * 480 };
+    await vi.advanceTimersByTimeAsync(32);
+    expect(scrollEl.scrollTop).toBeGreaterThan(0);
+
+    // Musician scrolls by hand to 150
+    scrollEl.scrollTop = 150;
+    (el as unknown as { noticeUserScroll(): void }).noticeUserScroll();
+
+    let writes = 0;
+    const origSet = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollTop')?.set;
+    Object.defineProperty(scrollEl, 'scrollTop', {
+      set(val: number) {
+        writes++;
+        origSet?.call(this, val);
+      },
+      get() {
+        return 150;
+      },
+      configurable: true,
+    });
+
+    await vi.advanceTimersByTimeAsync(300);
+    expect(writes).toBe(0);
+  });
+
+  it('(d) Follow switched off or Listen paused stops the glide where it is', async () => {
+    listenPosition = { audibleTick: 2 * 480 };
+    await vi.advanceTimersByTimeAsync(100);
+    const stoppedPos = scrollEl.scrollTop;
+    expect(stoppedPos).toBeGreaterThan(0);
+    expect(stoppedPos).toBeLessThan(280 - LOOKAHEAD_TOP_GAP_PX);
+
+    // Pause playback
+    transportState.pause();
+
+    await vi.advanceTimersByTimeAsync(400);
+    expect(scrollEl.scrollTop).toBe(stoppedPos);
+  });
+
+  it('(e) prefers-reduced-motion: reduce lands on target in the first frame', async () => {
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: query.includes('prefers-reduced-motion: reduce'),
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }));
+
+    listenPosition = { audibleTick: 2 * 480 };
+    await vi.advanceTimersByTimeAsync(16);
+
+    expect(scrollEl.scrollTop).toBe(280 - LOOKAHEAD_TOP_GAP_PX);
+  });
+
+  it('(f) page above viewport rendering during glide shifts the glide', async () => {
+    listenPosition = { audibleTick: 2 * 480 };
+    await vi.advanceTimersByTimeAsync(100);
+
+    // Page 1 resizes by +40px, calling scrollCompensation and shifting content below
+    SYSTEM_BOXES['sys-2'].top += 40;
+    SYSTEM_BOXES['sys-2'].bottom += 40;
+    try {
+      (el as unknown as { applyScrollCompensation(delta: number): void }).applyScrollCompensation(40);
+
+      await vi.advanceTimersByTimeAsync(FOLLOW_GLIDE_MS);
+      // Target should be shifted by 40
+      expect(scrollEl.scrollTop).toBe(280 - LOOKAHEAD_TOP_GAP_PX + 40);
+    } finally {
+      SYSTEM_BOXES['sys-2'].top -= 40;
+      SYSTEM_BOXES['sys-2'].bottom -= 40;
+    }
+  });
+
+  it('(g) during glide to far page, client.page() is asked for pages around target and not in between', async () => {
+    client.calls = [];
+    (el as unknown as { measurePages: Map<string, number> }).measurePages.set('m-12', 3);
+    listenPosition = { audibleTick: 11 * 480 }; // m-12 on page 3
+
+    await vi.advanceTimersByTimeAsync(16);
+
+    // Should mount around page 3 (page:3), not all pages in between
+    const pageCalls = client.calls.filter((c) => c.startsWith('page:'));
+    expect(pageCalls).toContain('page:3');
   });
 });

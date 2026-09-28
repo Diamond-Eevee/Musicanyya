@@ -60,3 +60,23 @@
   - Observation timing in e2e tracker: each system change schedules its own observation check after settling (500 ms) instead of clearing a single global timer
   - Test (a) wait condition: dynamic `page.waitForFunction` waiting for at least 2 page changes
 - Handoff: next = Phase 4 (US2 - Fluent scrolling instead of jumps) starting at T017
+
+## 2026-09-29 01:40 - gemini-3.8-flash (checkpoint: Phase 4)
+- Done: T017-T023 (Phase 4: User Story 2 - Fluent scrolling instead of jumps)
+- Changes:
+  - `src/ui/score/follow.ts`: implemented `glideTo()`, `glidePosition()`, `shiftGlide()`, and cubic easings (`easeInOutCubic`, `easeOutCubic`) adhering to follow-view.md §3 (duration 400ms, redirect keeps original end time with min 250ms, monotonic, no overshoot, reduced-motion 0ms).
+  - `src/ui/elements/mx-score-view.ts`: held active `Glide | null`, updated `followRun()` to start/redirect glides via `glideTo()`, advanced glides per frame via `glidePosition()`, reordered Listen/Practice/Play run paths so position -> system -> target -> glide step happen before drawing overlays, added `data-gliding="true"` attribute sync via `setActiveGlide()`, supported `matchMedia('(prefers-reduced-motion: reduce)')`, handled glide cancellation on user scroll or follow disengage, applied `shiftGlide(delta)` during `scrollCompensation`, and ensured `mountVisiblePages()` mounts pages within one viewport of `glide.to`.
+  - `tests/ui/follow.test.ts`: added `describe('glide')` tests (a-j) covering fixed duration, monotonic progress, max step <= 12.5%, redirect continuity and end-time retention, reduced motion, and delta shifting.
+  - `tests/ui/score-view-follow.test.ts`: added multi-frame glide tests, draw-order spies, user-scroll cancellation, follow-toggle stops, reduced motion instant landing, shiftGlide during shrink, and far page fetching.
+  - `tests/e2e/lookahead.spec.ts`: added US2 tests (a)-(f) covering SC-002 (settle time <= 600 ms), SC-003 (max frame step <= 1/6 scroller height, cursor system overlaps clear rect throughout glide), FR-009 (far jump arrivals), FR-011 (reduced motion 1 frame), FR-012/FR-005 (wheel cancellation & restore), SC-004 (no frame rate regressions or audio dropouts).
+  - `tests/e2e/us4-overlays.spec.ts`: formatted and aligned FR-008 checks during in-flight glides and verified zero overlay occlusion when settled.
+- Verification & Evidence:
+  - `tests/e2e/lookahead.spec.ts`: 9/9 passed (chromium, 45.1s). Settle time in Clementi: system changes settled well within 600 ms (~400 ms glide). Per-frame steps: all <= 1/6 scroller height. Frame intervals during 20s Listen with piano strip met threshold, 0 audio dropouts.
+  - Regression specs: `us2-listen.spec.ts`, `us1-play.spec.ts`, `us4-overlays.spec.ts`, `play-cursor.spec.ts`, `real-scores.spec.ts` (35 passed, 35.0s).
+  - Unit tests: `pnpm test` (274 test files, 6011 tests passed, exit code 0).
+  - Full quality gate: `pnpm typecheck` (exit code 0), `pnpm lint` (0 errors, 299 warnings, exit code 0).
+- Decisions:
+  - Active glide indicator: `<mx-score-view>` exposes `data-gliding="true"` attribute while a glide is in flight to distinguish deliberate 400ms transitions from static states in overlay checks.
+  - Draw order guarantees: in Listen, Practice, and Play run paths, the scroll position is updated via the glide before computing overlay bounds so cursor and selection markers never lag the score.
+- Handoff: next = Phase 5 (US3 - Two systems fit more often; otherwise show what fits) starting at T024. Note: T025 and T030 tier is deep.
+

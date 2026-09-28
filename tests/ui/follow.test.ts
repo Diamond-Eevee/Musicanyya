@@ -1,6 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { LOOKAHEAD_TOP_GAP_PX } from '../../src/engine/config.js';
-import { type LookaheadInput, lookaheadTarget } from '../../src/ui/score/follow.js';
+import {
+  FOLLOW_GLIDE_MIN_REDIRECT_MS,
+  FOLLOW_GLIDE_MS,
+  FOLLOW_GLIDE_REDUCED_MS,
+  FOLLOW_TARGET_EPSILON_PX,
+  LOOKAHEAD_TOP_GAP_PX,
+} from '../../src/engine/config.js';
+import {
+  type Glide,
+  glidePosition,
+  glideTo,
+  type LookaheadInput,
+  lookaheadTarget,
+  shiftGlide,
+} from '../../src/ui/score/follow.js';
 
 describe('lookaheadTarget', () => {
   it('(a) current and next fully in clear -> null', () => {
@@ -141,5 +154,164 @@ describe('lookaheadTarget', () => {
 
     // With clearHeight = 700 (e.g. 200px bottom inset), clear bottom is 50 + 700 = 750; next ends at 850 > 750 -> not in clear
     expect(lookaheadTarget({ ...base, clearHeight: 700 })).toBe(100 - LOOKAHEAD_TOP_GAP_PX);
+  });
+});
+
+describe('glide', () => {
+  it('(a) a fresh glideTo has easing: inOut and durationMs: FOLLOW_GLIDE_MS regardless of distance', () => {
+    const g1 = glideTo(0, 100, 1000, null, false);
+    expect(g1.easing).toBe('inOut');
+    expect(g1.durationMs).toBe(FOLLOW_GLIDE_MS);
+    expect(g1.from).toBe(0);
+    expect(g1.to).toBe(100);
+    expect(g1.startMs).toBe(1000);
+
+    const g2 = glideTo(0, 10_000, 1000, null, false);
+    expect(g2.easing).toBe('inOut');
+    expect(g2.durationMs).toBe(FOLLOW_GLIDE_MS);
+    expect(g2.from).toBe(0);
+    expect(g2.to).toBe(10_000);
+  });
+
+  it('(b) glidePosition is from at startMs, exactly to and done at startMs + durationMs and after', () => {
+    const g = glideTo(100, 500, 1000, null, false);
+    const start = glidePosition(g, 1000);
+    expect(start.top).toBe(100);
+    expect(start.done).toBe(false);
+
+    const end = glidePosition(g, 1000 + FOLLOW_GLIDE_MS);
+    expect(end.top).toBe(500);
+    expect(end.done).toBe(true);
+
+    const after = glidePosition(g, 1000 + FOLLOW_GLIDE_MS + 200);
+    expect(after.top).toBe(500);
+    expect(after.done).toBe(true);
+  });
+
+  it('(c) positions sampled every 1 ms are monotonic and never outside [from, to] for both easings and directions', () => {
+    const cases: { from: number; to: number; easing: 'inOut' | 'out' }[] = [
+      { from: 100, to: 600, easing: 'inOut' },
+      { from: 600, to: 100, easing: 'inOut' },
+      { from: 100, to: 600, easing: 'out' },
+      { from: 600, to: 100, easing: 'out' },
+    ];
+
+    for (const c of cases) {
+      const g: Glide = {
+        from: c.from,
+        to: c.to,
+        startMs: 1000,
+        durationMs: FOLLOW_GLIDE_MS,
+        easing: c.easing,
+      };
+
+      const minVal = Math.min(c.from, c.to);
+      const maxVal = Math.max(c.from, c.to);
+      const forward = c.to > c.from;
+
+      let prev = c.from;
+      for (let t = 0; t <= FOLLOW_GLIDE_MS; t++) {
+        const { top } = glidePosition(g, 1000 + t);
+        expect(top).toBeGreaterThanOrEqual(minVal);
+        expect(top).toBeLessThanOrEqual(maxVal);
+        if (forward) {
+          expect(top).toBeGreaterThanOrEqual(prev);
+        } else {
+          expect(top).toBeLessThanOrEqual(prev);
+        }
+        prev = top;
+      }
+    }
+  });
+
+  it('(d) the largest step between samples 16.7 ms apart is <= 12.5% of the distance (F-3)', () => {
+    const distance = 1000;
+    const g = glideTo(0, distance, 1000, null, false);
+    let maxStep = 0;
+    const stepMs = 16.7;
+
+    for (let t = 0; t + stepMs <= FOLLOW_GLIDE_MS; t += 1) {
+      const pos1 = glidePosition(g, 1000 + t).top;
+      const pos2 = glidePosition(g, 1000 + t + stepMs).top;
+      const step = Math.abs(pos2 - pos1);
+      if (step > maxStep) maxStep = step;
+    }
+
+    const stepFraction = maxStep / distance;
+    expect(stepFraction).toBeLessThanOrEqual(0.1255);
+  });
+
+  it('(e) redirecting a running glide starts from current position with easing: out, new startMs, keeps end time', () => {
+    const g1 = glideTo(0, 400, 1000, null, false);
+    // Redirect 100 ms into a 400 ms glide to target 600
+    const redirected = glideTo(glidePosition(g1, 1100).top, 600, 1100, g1, false);
+
+    expect(redirected.easing).toBe('out');
+    expect(redirected.startMs).toBe(1100);
+    expect(redirected.from).toBeCloseTo(glidePosition(g1, 1100).top, 5);
+    expect(redirected.to).toBe(600);
+    // 100 ms into 400 ms -> remaining is 300 ms, which is >= FOLLOW_GLIDE_MIN_REDIRECT_MS (250)
+    expect(redirected.durationMs).toBe(300);
+  });
+
+  it('(i) a redirect 300 ms into a 400 ms glide gets durationMs: FOLLOW_GLIDE_MIN_REDIRECT_MS (250)', () => {
+    const g1 = glideTo(0, 400, 1000, null, false);
+    // Redirect 300 ms into 400 ms glide -> remaining is 100 ms < 250 ms -> gets 250 ms
+    const redirected = glideTo(glidePosition(g1, 1300).top, 700, 1300, g1, false);
+
+    expect(redirected.easing).toBe('out');
+    expect(redirected.startMs).toBe(1300);
+    expect(redirected.durationMs).toBe(FOLLOW_GLIDE_MIN_REDIRECT_MS);
+  });
+
+  it('(j) a redirected glide largest step between samples 16.7 ms apart is <= 20% of its distance', () => {
+    const g1 = glideTo(0, 400, 1000, null, false);
+    const redirected = glideTo(glidePosition(g1, 1300).top, 1000, 1300, g1, false);
+    const distance = Math.abs(redirected.to - redirected.from);
+
+    let maxStep = 0;
+    const stepMs = 16.7;
+    for (let t = 0; t + stepMs <= redirected.durationMs; t += 1) {
+      const pos1 = glidePosition(redirected, redirected.startMs + t).top;
+      const pos2 = glidePosition(redirected, redirected.startMs + t + stepMs).top;
+      const step = Math.abs(pos2 - pos1);
+      if (step > maxStep) maxStep = step;
+    }
+
+    const stepFraction = maxStep / distance;
+    expect(stepFraction).toBeLessThanOrEqual(0.201);
+  });
+
+  it('(f) a new target within FOLLOW_TARGET_EPSILON_PX of the running to returns the running glide unchanged', () => {
+    const g1 = glideTo(0, 400, 1000, null, false);
+    // target within epsilon of g1.to (400)
+    const g2 = glideTo(50, 400 + FOLLOW_TARGET_EPSILON_PX / 2, 1100, g1, false);
+    expect(g2).toBe(g1);
+  });
+
+  it('(g) reducedMotion gives durationMs: FOLLOW_GLIDE_REDUCED_MS and the first position is to', () => {
+    const g = glideTo(100, 500, 1000, null, true);
+    expect(g.durationMs).toBe(FOLLOW_GLIDE_REDUCED_MS);
+    expect(g.to).toBe(500);
+
+    const pos = glidePosition(g, 1000);
+    expect(pos.top).toBe(500);
+    expect(pos.done).toBe(true);
+  });
+
+  it('(h) shiftGlide moves from and to by Delta and nothing else', () => {
+    const g: Glide = {
+      from: 100,
+      to: 500,
+      startMs: 1000,
+      durationMs: 400,
+      easing: 'inOut',
+    };
+    const shifted = shiftGlide(g, 50);
+    expect(shifted.from).toBe(150);
+    expect(shifted.to).toBe(550);
+    expect(shifted.startMs).toBe(1000);
+    expect(shifted.durationMs).toBe(400);
+    expect(shifted.easing).toBe('inOut');
   });
 });
