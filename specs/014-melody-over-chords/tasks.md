@@ -335,7 +335,7 @@ the same chords and inversions as before, the right hand a melody.
 - [x] T056 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` green; final log entry; commit
   (depends on T074's local run). Owner decision 2026-09-28: accepted on T074's evidence - the two failures are 013
   tests that pass alone and no 014 file touches them; follow-ups 013 T111, T112
-- [ ] T057 needs owner (first verdict 2026-09-28: *C major to A minor - introduction* "not fun to play" - half notes then a
+- [x] T057 needs owner (first verdict 2026-09-28: *C major to A minor - introduction* "not fun to play" - half notes then a
   whole note over one held chord; rework = Phase 6; listen again after T090): SC-005 listening check - the owner listens to at least six rewritten items (one per group and
   level: relative and parallel introduction/beginner/intermediate, plus one drill) and judges each more interesting
   than the doubled version and fitting its level; any item judged too hard is simplified (back to its authoring task)
