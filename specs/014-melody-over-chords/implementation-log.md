@@ -358,3 +358,28 @@
   the `generated` timestamp (reverted). FR-012 not redone in a browser (needs the pre-014 build; no src/tools change
   since T050): `items`, `suggest`, `identity`, `index` tests `83 passed`. Observation for T057: three intermediate
   phrases change finger on a repeated note to move the hand (e.g. G major -> E minor bar 4, B4 5 then 4).
+- T056 (not ticked; claim released): gate in this container.
+  `pnpm lint` exit 0 (299 warnings, pre-existing); `pnpm typecheck` exit 0.
+  `pnpm test` exit 1, twice: `Tests 2 failed | 5949 passed`, then `1 failed | 5950 passed`. The failures are all
+  `tests/core/browser/query-timing.test.ts` (013 SC-003 core budget: 29.4 / 28.3 ms, then 22.1 ms > 20; synthetic
+  500-item index, independent of 014). Alone: `4 passed`.
+  `pnpm test:e2e` could not run in full:
+  - Firefox and WebKit are not installed, and the environment forbids downloading them.
+  - Chromium and electron at 8 workers on 4 CPUs (load average 26) failed about 70 tests across 008/010/013 specs,
+    so that run was stopped.
+  - `library.spec.ts` alone on chromium: `9 passed` (incl. 014's Listen test T059).
+  - Failed chromium specs rerun at 2 workers: `4 failed | 1 skipped | 142 passed`. The four are `piano-keyboard.spec.ts:201`
+    (key 21 left edge -29) and `us1-layout.spec.ts:215` x3 (Stop button right edge 1347 > 1280). They fail with the same
+    numbers at 801767d (scratch worktree), so the cause is the container's Chromium 1194 vs Playwright's expected 1243.
+  - Electron needs `vite build -c vite.electron.config.ts` and a display (`xvfb-run -a`). The launch specs under Xvfb:
+    `1 failed | 8 passed`, including 014's T059 smoke test. The failure is `electron-smoke.spec.ts:101` (the browser
+    dialog waits on navigation left by the previous test; only when the whole file runs), which fails the same way
+    at 801767d.
+  - The remaining electron specs under Xvfb were stopped at 115/196 on the owner's request (a local agent will run
+    the gate): only `piano-keyboard.spec.ts:201` and `electron-smoke.spec.ts:101` had failed.
+  New task T074: the local full-gate run; T056 ticks on its evidence.
+- Problems / open questions: needs owner: T057 SC-005 listening check (merge blocker); acknowledge the T015-T020
+  model-fit gap (finding 2 above). Pre-existing, not 014: the query-timing test's load sensitivity and
+  electron-smoke:101's order dependence may deserve their own tasks after the local run confirms them.
+- Handoff: next = T074 (local agent, light: run the gate and record results), then T056, then T057 (owner). Tree
+  clean after this commit.
