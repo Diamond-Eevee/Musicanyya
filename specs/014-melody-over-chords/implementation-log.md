@@ -308,3 +308,53 @@
 - Problems / open questions: needs owner: T057 SC-005 listening check (at least six items incl. one drill) before merge.
 - Handoff: next = Phase 5, T052 (then T053-T056 polish, constitution review T054). Run `pnpm test` first; tree clean
   after this commit.
+## 2026-09-28 18:20 - claude-opus-5.5 (implement, cloud session)
+- Session start: `pwsh` is not installed in this container, so `status.ps1` could not run; checked by hand instead
+  (branch 014-melody-over-chords, up to date with origin at 46c4dab, tree clean, resume point T052, no claims; open
+  owner decision T057 blocks merge only). `pnpm test` exit 0 (`Tests 5771 passed`); `pnpm lint` exit 0 (299 warnings,
+  pre-existing). Matches the last hand-off. Model fit: Phase 5 is standard; opus fits (T072 below is deep).
+- Done: T052, T053, T054, T055, T072 (new), T073 (new).
+- T052: `melody-sweep.test.ts` checks `doubled` on all 165 Learning items (songs keyed by their folder via
+  `songKeyOfItemId`, exercises by the claim table) and that the in-scope list is exactly the 59 ids of
+  `in-scope-metadata.json`: `Tests 5938 passed` (+167). A guard today; not vacuous: the same check on the 59 items at
+  7f8ab96 (scratch probe) reports `59 of 59 in-scope items have doubled findings`.
+- T053: reference Active Technologies 014 -> implemented. `public/library/README.md` not changed: it is an
+  out-of-scope file hashed by `out-of-scope.test.ts` (FR-003); its line "exercises are checked by ...
+  `exercise-theory-v2`" is now true only of the per-key steps (key changes and drills use v3) - follow-up after merge
+  if the owner wants it. Quickstart commands and paths still exist.
+- T054 constitution review (`constitution-auditor` sub-agent, read-only, diff 801767d..HEAD - origin/main lacks 013):
+  verdict pass with findings, none CRITICAL/HIGH. Compliant: layering (core imports only core; the checker imports
+  nothing from `src/core/library/exercise/`), no dependency change, no RT path touched, identity golden only for the
+  rewritten items, no `any`/`@ts-ignore`/`!` added, Conventional Commits. Findings and what was done:
+  1. MEDIUM II: `MELODY_LADDER.nctPlacement` never read; checker compared level names -> T072 (fixed).
+  2. MEDIUM workflow: the 15:10 relay (`antigravity-gemini-3.8-flash`, light tier) did standard tasks T015-T020 with no
+     model-fit answer logged. Recorded here; those tasks were re-verified by the T034 and T051 checkpoints (opus).
+     needs owner: acknowledge after the fact.
+  3. MEDIUM IV: T006 had no fail-first evidence (committed with T011 in 961a753). Produced now: T006's test file run
+     against 961a753^ in a scratch worktree fails with `Cannot find module .../exercise/melody.js`, `Test Files 1
+     failed` - the reason T006 names (no melody support).
+  4. MEDIUM gate: no fully green e2e run on this feature -> T056 below.
+  5. LOW: data-model lacked the names `MELODY_REGISTER_MIDI`, `MELODY_MIN_CLEARANCE_SEMITONES`; plan VI row said
+     fingering "sparingly" -> T073 (fixed). Unnamed literals in melody-rules.ts -> named in T072.
+  6. LOW, not changed: `as number` / `as Note` casts after guards in melody.ts / melody-rules.ts (the gate names only
+     `!`); T017, T018, T058 are regression guards (as logged when written); the 15:10 hand-off's "tree clean at
+     e147ee9" names no commit - it is 112da5d; commits 29dbc48, 961a753, 40bf015 lack the `Agent:` trailer and 112da5d
+     is typed `test:` but carries T020 (history not rewritten).
+- T072 (deep, new): tests first in `melody-rules.test.ts` (no level compared by name; every `MelodyLadderRow` field
+  read): `Tests 2 failed | 57 passed` (level comparisons, `nctPlacement`). Then `MELODY_LADDER` gains
+  `shiftsAtSectionStartOnly`, `crossingIsShift`, `dottedValues`, `eighthsInPairs`; the checker reads them and
+  `nctPlacement`; `DIATONIC_STEP_SEMITONES`, `INDEX_FINGER`, `HALF_BAR_STRONG_MIN_BEATS` named. `pnpm exec vitest run
+  tests/tools tests/library tests/core/library`: `Tests 2997 passed`; `pnpm library:exercises` wrote byte-identical
+  files; `pnpm library:fidelity --check`: `182 records, 0 failed`. One message changed wording ("is dotted (not at
+  <level>)"; no test reads it).
+- T055 quickstart on the final build: Playwright 1.63 wants headless shell 1243; the container has 1194 and must not
+  download, so `/opt/pw-browsers/chromium_headless_shell-1243/...` was linked to the 1194 shell (outside the repo).
+  Screenshots opened (tests/.generated/t055-*.png, 1600x2000 so every system shows): c-major-to-a-minor/introduction
+  (half/whole notes by step G#4-D5, finger on every note, G# in the first A minor bar, ends on A over i);
+  c-major-to-c-minor/beginner (quarters over whole-note chords, E-flat/A-flat/B-flat after the change); the three
+  g-major-to-e-minor items (half -> quarter -> eighth pairs, crossings only at intermediate); i-v-vi-iv (left hand
+  unchanged, melody rests with its quarter rests); major-and-minor (E-flat over C minor). Practice `--practice --play
+  3`: three events green, waits at bar 3. `pnpm library:exercises` byte-identical; `pnpm library:index` changed only
+  the `generated` timestamp (reverted). FR-012 not redone in a browser (needs the pre-014 build; no src/tools change
+  since T050): `items`, `suggest`, `identity`, `index` tests `83 passed`. Observation for T057: three intermediate
+  phrases change finger on a repeated note to move the hand (e.g. G major -> E minor bar 4, B4 5 then 4).
