@@ -383,3 +383,29 @@
   electron-smoke:101's order dependence may deserve their own tasks after the local run confirms them.
 - Handoff: next = T074 (local agent, light: run the gate and record results), then T056, then T057 (owner). Tree
   clean after this commit.
+## 2026-09-28 21:15 - claude-opus-5.5 (T074, local Windows machine)
+- Setup: Windows 11, 32 logical CPUs, Node v26.8.2, pnpm 12.4.2, at 92051b2 (`git pull --ff-only` fast-forwarded
+  from 46c4dab); `pnpm install` "Already up to date"; `pnpm exec playwright install` exit 0 (Playwright 1.63.0;
+  chromium-1243, firefox-1543, webkit-2359 present); `pnpm exec vite build -c vite.electron.config.ts` exit 0.
+- Done (report only, no code or test changed; T074 and T056 not ticked - the continuing session decides): full gate.
+  - `pnpm lint`: exit 0 (`Found 299 warnings. Found 13 infos.`, pre-existing).
+  - `pnpm typecheck`: exit 0 (no diagnostics).
+  - `pnpm test`: exit 1, `Test Files 1 failed | 271 passed (272)`, `Tests 1 failed | 5950 passed (5951)`. The one
+    failure: `tests/core/browser/query-timing.test.ts` > SC-003 core budget (T078) > "a filter and sort change takes at
+    most 20 ms" (`expected 24.9923 to be less than or equal to 20`). Alone (`pnpm exec vitest run
+    tests/core/browser/query-timing.test.ts`): exit 0, `Tests 4 passed (4)`. Same as the known cloud failure.
+  - `pnpm test:e2e --reporter=list` (the list reporter only, to name every test; 8 workers from the config, all four
+    projects): exit 1, `1 failed`, `575 skipped`, `964 passed (11.0m)` of 1540. The one failure: [firefox]
+    `tests/e2e/score-browser.spec.ts:343` (013 US3 #5, invalid .musicxml dropped: `.browser-message` stayed empty
+    within 5 s). Alone (`pnpm exec playwright test tests/e2e/score-browser.spec.ts:343 --project=firefox
+    --workers=1`): exit 0, `1 passed (3.9s)`. Not in T074's known list; the Phase 4 checkpoint entry (T051) records
+    the same test as load-sensitive, passing alone `--repeat-each=3`. It is a 013 test; no 014 file touches it.
+  - The known cloud failures all passed here in the full run: chromium and electron `piano-keyboard.spec.ts:201`
+    (7 each), chromium and electron `us1-layout.spec.ts:215` (15 each), electron `electron-smoke.spec.ts:101` (whole
+    file ran). So they were the container's Chromium 1194 / load / order, as T074 supposed.
+  - The 575 skips are all `test.skip` conditions by project in the specs (electron-only shell tests on the browsers;
+    Chromium-only sweeps such as grade-marks-overlap 182 x2, axe, timing; WebKit without AudioContext/Web MIDI).
+- Problems / open questions: both remaining failures are pre-existing load-sensitive tests (query-timing 20 ms
+  budget; score-browser:343 on firefox), each passing alone - the continuing session decides whether T056 counts
+  them as green and whether they deserve their own tasks. needs owner: T057 SC-005 listening check (merge blocker).
+- Handoff: next = T056 (decide from this evidence), then T057 (owner). Tree clean after this commit.
