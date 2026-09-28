@@ -24,12 +24,12 @@ cropped pages (FR-003) are foundational because every story measures systems acr
 
 **Model**: light (Gemini Flash or claude-haiku-4-5)
 
-- [ ] T001 Add the named constants of `data-model.md` section 3 to `src/engine/config.ts` with one-line comments
+- [x] T001 Add the named constants of `data-model.md` section 3 to `src/engine/config.ts` with one-line comments
   naming their requirement: `FOLLOW_GLIDE_MS = 400`, `FOLLOW_GLIDE_MIN_REDIRECT_MS = 250`, `FOLLOW_GLIDE_REDUCED_MS = 0`, `LOOKAHEAD_TOP_GAP_PX = 12`,
   `FOLLOW_TARGET_EPSILON_PX = 1`, `ENGRAVING_PAGE_MARGIN_TOP = 18`, `ENGRAVING_PAGE_MARGIN_BOTTOM = 18`,
   `ENGRAVING_SPACING_BRACE_GROUP = 8`; change the comment of `FOLLOW_MARGIN` to "Grade-mark reveal only (009
   FR-023); runs use the look-ahead rule (015)". Nothing uses them yet; `pnpm typecheck` and `pnpm lint` green
-- [ ] T002 [P] Create `specs/015-next-system-lookahead/implementation-log.md` with a first entry recording the
+- [x] T002 [P] Create `specs/015-next-system-lookahead/implementation-log.md` with a first entry recording the
   baseline: the summary lines of `pnpm test`, `pnpm lint` and `pnpm typecheck` on the current commit (AGENTS.md 2.6),
   and the owner decisions of 2026-09-28 already in `spec.md` (sheet = system, glide at line change, show what fits,
   fit-aware SC-001, compact spacing)

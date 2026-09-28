@@ -11,3 +11,13 @@
 - Done: every analyze finding resolved as recommended (owner: "resolve all with recommended").
 - Decisions: A1 redirect keeps the running glide's end time, at least FOLLOW_GLIDE_MIN_REDIRECT_MS = 250 ms (follow-view.md 1.1.0, research R-6, data-model, T001, T017 e/i/j, T019 c); A2 branch 015-next-system-lookahead created at the same commit as claude/wonderful-curie-ajrosv, both pushed; A3 FR-001 / Clear space: notices and the Grade panel not counted (spec amended); A4 FR-008 frame check in T019 b; A5 dropout comparison in T019 f; A6 FR-014 over-tall system shown from its top (spec amended); A7 T024 b names tests/fixtures/musicxml/voice-and-piano.musicxml; A8 T030/T034 need a working pnpm screenshot (stop and hand off otherwise); A9 US1 #1/#3 fit condition; A10 kept (FR-012 already refers to FR-005); A11 Practice loop case T011 k, large-score jump T019 c; A12 T015 wording; A13 redirect assumption; A14 re-tick Follow check T019 e.
 - Handoff: next = T001 (/speckit.implement); branch 015-next-system-lookahead.
+
+## 2026-09-29 00:25 - gemini-3.8-flash (baseline)
+- Done: T001, T002 (constants added to src/engine/config.ts, baseline recorded)
+- Baseline checks (clean tree on branch 015-next-system-lookahead):
+  - `pnpm test`: Tests 5963 passed (5963) | Test Files 272 passed (272) (Duration 24.73s, exit code 0)
+  - `pnpm lint`: Checked 1027 files in 320ms. No fixes applied. Found 299 warnings. Found 13 infos. (exit code 0)
+  - `pnpm typecheck`: tsc --build tsconfig.json (exit code 0)
+- Decisions: recorded owner decisions of 2026-09-28 already in spec.md: sheet = system, glide at line change, show what fits, fit-aware SC-001, compact spacing (FR-016, SC-007, SC-008)
+- Handoff: next = Phase 2 Foundational (T003-T009); T003 needs tier standard
+

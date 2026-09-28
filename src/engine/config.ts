@@ -74,7 +74,17 @@ export const SETTINGS_WRITE_DEBOUNCE_MS = 500;
 export const PRACTICE_SETTINGS_MAX = 20;
 
 // UI
-export const FOLLOW_MARGIN = 0.2; // Middle 60% of viewport means 20% margin top/bottom
+export const FOLLOW_MARGIN = 0.2; // Grade-mark reveal only (009 FR-023); runs use the look-ahead rule (015)
+
+// Follow view & look-ahead (feature 015-next-system-lookahead, data-model.md section 3)
+export const FOLLOW_GLIDE_MS = 400; // Duration of every follow glide, fresh or redirected (FR-007, FR-009, SC-002)
+export const FOLLOW_GLIDE_MIN_REDIRECT_MS = 250; // Shortest duration of a redirected glide (FR-009, FR-010)
+export const FOLLOW_GLIDE_REDUCED_MS = 0; // Duration when the OS asks for reduced motion (FR-011)
+export const LOOKAHEAD_TOP_GAP_PX = 12; // Clear space left above the current system's box at the target (FR-001, FR-014)
+export const FOLLOW_TARGET_EPSILON_PX = 1; // Positions closer than this count as equal (FR-002)
+export const ENGRAVING_PAGE_MARGIN_TOP = 18; // Top margin in Verovio page units (FR-003)
+export const ENGRAVING_PAGE_MARGIN_BOTTOM = 18; // Bottom margin in Verovio page units (FR-003)
+export const ENGRAVING_SPACING_BRACE_GROUP = 8; // Minimum 4 staff spaces between staves of one braced instrument (FR-016)
 
 // Play Mode storage limits and worker timeout (data-model.md §10)
 export const PERFORMANCES_PER_SCORE_MAX = 20; // Attempts kept per Score, oldest dropped (FR-041)
