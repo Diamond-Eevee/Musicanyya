@@ -108,6 +108,11 @@ export function loadSources(root: string): Map<string, SourceManifest>;       //
 // tools/library/fidelity/records.ts
 export function loadRecords(root: string): AuditRecord[];                     // validates
 export function runRecord(record: AuditRecord, ctx: RunContext): CheckResult[];  // the two-step chain for notation + sound
+/** feature 014: the theory check plus, from exercise-theory-v3, checkMelodyRules on the claim's melody hand; each melody
+ *  finding is a Difference `{ kind: 'melodyRule'; bar; beat; rule; message }`. A melody claim under v1/v2 throws
+ *  ClaimError (runTheory reports it as not reproduced). */
+export function theoryDifferences(xml: string, claim: ExerciseClaim,
+                                  ruleSet: Exclude<TheoryRuleSet, 'song-chords-v1'>): Difference[];
 export interface CheckResult { check: Check; differences: Difference[] | TheoryDifference[];
                                allowed: Difference[] /* melody checks: rhythm allowed by departures */; reproduced: boolean;
                                detail: string /* "item vs notation: 0 differences; notation vs sound: 0 differences" */ }

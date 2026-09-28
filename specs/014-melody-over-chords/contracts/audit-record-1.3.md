@@ -10,7 +10,9 @@ in by the first fidelity task of feature 014, then kept here as history).
 `THEORY_RULE_SETS` gains `exercise-theory-v3`. A record with it runs everything `exercise-theory-v2` runs, except that
 a section hand claimed as `{ "kind": "melody", "level": <level> }` is checked by `checkMelodyRules` (below) instead of
 note by note. Its `expectedDifferences` counts findings of both. Records of the 59 rewritten items (spec Background)
-use v3; no other record changes.
+use v3; no other record changes. (T012: `records.ts` exports `theoryDifferences(xml, claim, ruleSet)`, which
+`runTheory` calls; a melody finding is the `Difference` `{ kind: 'melodyRule', bar, beat, rule, message }`; a melody
+claim under v1/v2 is refused with a `ClaimError`.)
 
 ## 2. Theory claims (`tools/library/fidelity/theory.ts`)
 

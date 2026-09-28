@@ -68,7 +68,7 @@ lets bad melodies through
   phrase's first note, a `shift` note and a thumb-under / finger-over; (e) the chord's words direction is written as
   today, above the right hand's staff (on the melody note at the chord start) and below the left hand's; (f) no `<chord/>` in the right hand of a melody section. Run:
   fails (no `melody` support)
-- [ ] T007 [P] Extend `tests/tools/fidelity/theory.test.ts` and `tests/tools/fidelity/records.test.ts`: a record with
+- [x] T007 [P] Extend `tests/tools/fidelity/theory.test.ts` and `tests/tools/fidelity/records.test.ts`: a record with
   `exercise-theory-v3` and a right-hand claim `{ kind: 'melody', level }` runs `checkMelodyRules` and counts its
   findings in `expectedDifferences`; a v2 record re-runs unchanged; an unknown rule set is still refused. Run: fails
 
@@ -84,7 +84,7 @@ lets bad melodies through
   the `melody` part into `handSegments` in `src/core/library/exercise/generate.ts` until T006 passes; confirm the
   existing goldens (`tests/core/library/exercise/goldens.test.ts`) and `tests/library/regeneration.test.ts` are
   unchanged (contract 1.3 MINOR: no 1.2.0 output changes)
-- [ ] T012 Add `exercise-theory-v3` to `THEORY_RULE_SETS` in `tools/library/fidelity/records.ts` and the `melody`
+- [x] T012 Add `exercise-theory-v3` to `THEORY_RULE_SETS` in `tools/library/fidelity/records.ts` and the `melody`
   `SectionHand` to `tools/library/fidelity/theory.ts` until T007 passes
 - [ ] T013 Write `tests/tools/build-exercises-melody.test.ts` (fails first), then make
   `tools/library/build-exercises.ts` run `checkMelodyRules` on every generated item that has a melody and write

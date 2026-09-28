@@ -19,6 +19,7 @@ import {
   soundingMidi,
   type TheoryDifference,
 } from '../../../tools/library/fidelity/theory';
+import { buildMelodyFixture, type FixtureBar } from './melody-fixtures';
 
 const fixture = (name: string): string => readFileSync(`tests/fixtures/musicxml/theory/${name}.musicxml`, 'utf8');
 
@@ -1015,5 +1016,74 @@ describe('exercise-theory-v2: key segments', () => {
   it('a claim with no segments still checks the whole file in the claim key', () => {
     const plain: ExerciseClaim = { itemId: 'fixture/plain', key: C_MAJOR, chords: [chord('I', 'major', 0, RIGHT)] };
     expect(checkExercise(file(bar(1, first, C_MAJOR_TRIAD)), plain)).toEqual([]);
+  });
+});
+
+// ---- exercise-theory-v3: a melody hand (feature 014, contract audit-record 1.3 §2) ----------------------------------
+describe('exercise-theory-v3: a right-hand melody over left-hand chords', () => {
+  const C = key('C', 0, 'major');
+  const lhChord = (notes: [string, number][]) => ({
+    notes: notes.map(([step, octave]) => ({ step: step as 'C', octave })),
+    value: 'whole' as const,
+  });
+  const I = lhChord([
+    ['C', 3],
+    ['E', 3],
+    ['G', 3],
+  ]);
+  const V6 = lhChord([
+    ['B', 2],
+    ['D', 3],
+    ['G', 3],
+  ]);
+  const bars = (second: FixtureBar['left'][number] = I): FixtureBar[] => [
+    {
+      key: { fifths: 0, mode: 'major' },
+      left: [I],
+      right: [
+        { step: 'C', octave: 4, value: 'half', fingering: 1 },
+        { step: 'D', octave: 4, value: 'half' },
+      ],
+    },
+    { left: [second], right: [{ step: 'E', octave: 4, value: 'whole' }] },
+    { left: [V6], right: [{ step: 'D', octave: 4, value: 'whole' }] },
+    { left: [I], right: [{ step: 'C', octave: 4, value: 'whole' }], barline: 'light-heavy' },
+  ];
+  const left = (roman: string, quality: ChordClaim['quality'], inversion: ChordClaim['inversion']): ChordClaim =>
+    chord(roman, quality, inversion, ['left']);
+  const claim: ExerciseClaim = {
+    itemId: 'fixture/v3',
+    key: C,
+    chords: [left('I', 'major', 0), left('I', 'major', 0), left('V', 'major', 1), left('I', 'major', 0)],
+    sections: [
+      {
+        firstBar: 1,
+        lastBar: 4,
+        key: C,
+        right: { kind: 'melody', level: 'introduction' },
+        left: {
+          kind: 'chords',
+          chords: [
+            { roman: 'I', quality: 'major', inversion: 0, voicing: 'triad' },
+            { roman: 'V', quality: 'major', inversion: 1, voicing: 'triad' },
+          ],
+        },
+      },
+    ],
+  };
+
+  it('does not compare the melody note by note (checkMelodyRules checks it, from the record)', () => {
+    expect(checkExercise(buildMelodyFixture(bars()), claim)).toEqual([]);
+  });
+
+  it('still checks the left hand chord by chord', () => {
+    const wrong = lhChord([
+      ['C', 3],
+      ['F', 3],
+      ['A', 3],
+    ]);
+    const differences = checkExercise(buildMelodyFixture(bars(wrong)), claim);
+    expect(differences.length).toBeGreaterThan(0);
+    expect(differences.every((d) => d.bar === '2' && d.hand === 'left')).toBe(true);
   });
 });

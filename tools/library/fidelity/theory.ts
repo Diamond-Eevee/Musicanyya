@@ -7,6 +7,7 @@
 // letter, its alteration follows from the semitone distance). The generator spells from the key signature and its own
 // degree tables; this uses the scale's semitone pattern, so one shared mistake cannot pass both.
 import { XmlElement, type XmlNode } from '@rgrove/parse-xml';
+import type { Level } from '../../../src/core/library/types';
 import { readXml } from '../../../src/core/musicxml/read';
 import { add, cmp, type QuarterTime, q } from './time';
 
@@ -59,10 +60,13 @@ export interface SectionChord {
 }
 
 /** What one hand plays in a section: a scale (`degrees` counted up from the tonic in `tonicOctave`; a major key ignores
- *  the form, melodic minor raises the 6th and 7th going up and restores them going down), chords, or nothing. */
+ *  the form, melodic minor raises the 6th and 7th going up and restores them going down), chords, a melody (rule set
+ *  exercise-theory-v3: not compared note by note here - `checkMelodyRules` checks it against its level's Difficulty
+ *  ladder), or nothing. */
 export type SectionHand =
   | { kind: 'scale'; form: ScaleForm; tonicOctave: number; degrees: number[] }
   | { kind: 'chords'; chords: SectionChord[] }
+  | { kind: 'melody'; level: Level }
   | { kind: 'rest' };
 
 /** A run of printed bars (`firstBar` to `lastBar`, inclusive) in one key, with what each hand plays. */
@@ -794,6 +798,8 @@ function checkSections(
           });
       } else if (part.kind === 'scale') {
         out.push(...checkSectionScale(section.key, hand, part, found, firstBar));
+      } else if (part.kind === 'melody') {
+        // exercise-theory-v3: the melody check (melody-rules.ts) judges these notes, run from the audit record.
       } else {
         const expected: Tone[] = [];
         for (const chord of part.chords) {
