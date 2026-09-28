@@ -330,8 +330,8 @@ the same chords and inversions as before, the right hand a melody.
   record that result too. Change no code and no test. Known in the cloud container, all of them failing identically
   at 801767d (before 014), so not caused by this feature: `tests/core/browser/query-timing.test.ts` over 20 ms under
   full-suite load (passes alone); chromium/electron `piano-keyboard.spec.ts:201` and chromium `us1-layout.spec.ts:215`
-  (Chromium 1194 there, 1243 expected); electron `electron-smoke.spec.ts:101` (only when its whole file runs). If
-  everything is green, tick T056 on this evidence; otherwise leave T056 open and hand the failures to the owner
+  (Chromium 1194 there, 1243 expected); electron `electron-smoke.spec.ts:101` (only when its whole file runs). Report
+  only: do not tick T056 (the continuing session decides it from this evidence)
 - [ ] T056 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` green; final log entry; commit
   (depends on T074's local run)
 - [ ] T057 needs owner: SC-005 listening check - the owner listens to at least six rewritten items (one per group and
