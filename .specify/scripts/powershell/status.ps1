@@ -64,13 +64,13 @@ function Get-FeatureState([string]$dir) {
         $lines = Get-Content -Path $tasks -Encoding UTF8
         foreach ($l in $lines) {
             if ($l -match '^## ') { $phaseTier = $null }
-            if ($l -match '^\*\*Model\*\*:\s*`?(deep|standard)') { $phaseTier = $Matches[1] }
+            if ($l -match '^\*\*Model\*\*:\s*`?(deep|standard|light)') { $phaseTier = $Matches[1] }
             if ($l -match $taskPattern) {
                 $state = $Matches[1]; $id = $Matches[2]
                 $total++
                 if ($state -eq 'x' -or $state -eq 'X') { $done++; continue }
                 $tier = $phaseTier
-                if ($l -match '^\s*- \[.\] T\d+(?: \[P\])?(?: \[US\d+\])? \[(deep|standard)\]') { $tier = $Matches[1] }
+                if ($l -match '^\s*- \[.\] T\d+(?: \[P\])?(?: \[US\d+\])? \[(deep|standard|light)\]') { $tier = $Matches[1] }
                 if ($state -eq '~') { if ($inProgress.Count -eq 0) { $firstProgressTier = $tier }; $inProgress += $l.Trim() }
                 elseif ($next.Count -lt 3) { if ($next.Count -eq 0) { $firstOpenTier = $tier }; $next += $l.Trim() }
                 if ($l -match 'Owner decision gate' -and $l -notmatch 'owner approved|owner rejected') { $ownerGates += $id }

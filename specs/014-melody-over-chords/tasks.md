@@ -10,7 +10,8 @@ quickstart.md
   - [P]   = can run in parallel (different files, no dependency on unfinished tasks)
   - [USn] = user story the task belongs to (omit for Setup/Foundational/Polish)
   - Tests come BEFORE implementation (Constitution IV) and must fail first.
-  - [deep] / [standard] = model tier when it differs from the phase's **Model** line (docs/agents/reference.md R11)
+  - [deep] / [standard] / [light] = model tier when it differs from the phase's **Model** line (docs/agents/reference.md
+    R11); `light` tasks can go to Gemini Flash or claude-haiku-4-5
   - No task touches AudioWorklets, the scheduler, MIDI input timing or plugin callbacks: no RT review is needed.
 -->
 
@@ -20,7 +21,7 @@ steps, Songs and Repertoire must stay byte-identical (FR-003, SC-004).
 
 ## Phase 1: Setup
 
-**Model**: standard (claude-sonnet-5)
+**Model**: standard (claude-sonnet-5 or gemini-3.1-pro)
 
 - [x] T001 [P] Fold contract change `specs/014-melody-over-chords/contracts/exercise-definition-1.3.md` into the
   canonical `specs/005-practice-score-library/contracts/exercise-definition.md` (version line -> 1.3.0, new §1b/§2a
@@ -37,7 +38,7 @@ steps, Songs and Repertoire must stay byte-identical (FR-003, SC-004).
 
 ## Phase 2: Foundational (blocks all user stories)
 
-**Model**: standard (claude-sonnet-5); the melody checker (T005, T010) is `deep` (claude-opus-5.5): a wrong checker
+**Model**: standard (claude-sonnet-5 or gemini-3.1-pro); the melody checker (T005, T010) is `deep` (claude-opus-5.5): a wrong checker
 lets bad melodies through
 
 ### Tests (write first, confirm they fail)
@@ -73,9 +74,9 @@ lets bad melodies through
 
 ### Implementation
 
-- [ ] T008 Add `MELODY_LADDER` (data-model §4) to `src/core/defaults.ts` and its row to the constants table in
+- [ ] T008 [light] Add `MELODY_LADDER` (data-model §4) to `src/core/defaults.ts` and its row to the constants table in
   `specs/014-melody-over-chords/data-model.md` §4 if names differ
-- [ ] T009 Add `MelodyPart`, `MelodyPhrase`, `MelodyNote`, the `{ melody }` member of `PatternHandPart` and
+- [ ] T009 [light] Add `MelodyPart`, `MelodyPhrase`, `MelodyNote`, the `{ melody }` member of `PatternHandPart` and
   `ExerciseDefinition.melody` (drills) to `src/core/library/exercise/types.ts`
 - [ ] T010 [deep] Implement `tools/library/fidelity/melody-rules.ts` (`checkMelodyRules`, `checkMelodyVariation`, research
   R3-R8, thresholds from `MELODY_LADDER`, reader shared with `theory.ts`) until T005 passes
@@ -88,7 +89,7 @@ lets bad melodies through
 - [ ] T013 Write `tests/tools/build-exercises-melody.test.ts` (fails first), then make
   `tools/library/build-exercises.ts` run `checkMelodyRules` on every generated item that has a melody and write
   nothing (exit code 1, findings listed per item, bar and rule) when any finding remains
-- [ ] T014 `pnpm test -- tests/core/library tests/tools tests/library`, `pnpm typecheck`, `pnpm lint` green; commit
+- [ ] T014 [light] `pnpm test -- tests/core/library tests/tools tests/library`, `pnpm typecheck`, `pnpm lint` green; commit
 
 **Checkpoint**: the generator can write melodies, the checker catches every planted fault, and nothing on the shelf
 has changed yet (T003 passes).
@@ -97,7 +98,7 @@ has changed yet (T003 passes).
 
 ## Phase 3: User Stories 1 and 2 - Key-change items have a melody, and the ladder holds (Priority: P1) MVP
 
-**Model**: standard (claude-sonnet-5); composing the melodies (T021-T026) and the music review (T032) are `deep`
+**Model**: standard (claude-sonnet-5 or gemini-3.1-pro); composing the melodies (T021-T026) and the music review (T032) are `deep`
 (claude-opus-5.5)
 **Goal**: all 54 key-change items have a right-hand melody over the unchanged left-hand chords (US1), each within
 its level's Difficulty ladder row, levelled correctly and harder step by step (US2).
@@ -132,7 +133,7 @@ as demanding as the one before, and the level check passes.
   easier than the introduction and the intermediate not easier than the beginner (US2 #3); `checkLevel` passes at the
   shelved level for all 54 items with no `raisedBecause` added (FR-011). Run: the ladder comparison fails (all three
   levels identical today)
-- [ ] T058 [P] [US1] Write `tests/library/item-metadata.test.ts` (FR-004): for each of the 59 in-scope items, title,
+- [ ] T058 [P] [US1] [light] Write `tests/library/item-metadata.test.ts` (FR-004): for each of the 59 in-scope items, title,
   section, level, step, stepOrder, tempo, metre and bar count equal the values recorded in
   `tests/library/in-scope-metadata.json` (made from the sidecars and files at 7f8ab96 by a one-off scratchpad script,
   not committed). Passes now; a guard for T028 and T047 - log it as such
@@ -160,14 +161,14 @@ as demanding as the one before, and the level check passes.
 - [ ] T029 [US1] Update the key-change goldens in `tests/core/library/exercise/__snapshots__/goldens.test.ts.snap` and
   any assertion of old right-hand notes in `tests/core/library/exercise/key-change.test.ts`; log each changed
   expectation with its reason (behaviour changed by FR-002)
-- [ ] T030 [US1] Move the 54 audit records under `content/library/audit/learning/key-changes/` (all but the two drills)
+- [ ] T030 [US1] [light] Move the 54 audit records under `content/library/audit/learning/key-changes/` (all but the two drills)
   to `exercise-theory-v3` (`checkedBy`, `date` updated), run `pnpm library:fidelity` to regenerate
   `docs/library-audit.md`, `pnpm library:fidelity --check` green
 - [ ] T059 [US1] Add a Listen-mode check for a rewritten item in the browser (`tests/e2e/library.spec.ts`: open
   `learning/key-changes/c-major-to-a-minor/introduction`, press Listen, the cursor reaches the last bar with no console
   error) and in Electron (`tests/e2e/electron-smoke.spec.ts`: the same item loads and renders two staves) (FR-015,
   SC-003); run after T028
-- [ ] T031 [US1] Run `pnpm test:e2e -- tests/e2e/library.spec.ts tests/e2e/tempo-field.spec.ts` (they open
+- [ ] T031 [US1] [light] Run `pnpm test:e2e -- tests/e2e/library.spec.ts tests/e2e/tempo-field.spec.ts` (they open
   `c-major-to-c-minor/introduction` and `a-major-to-a-minor/beginner`); fix only assertions that read the old notes,
   logging why
 - [ ] T032 [US1] [deep] Music review of the authored key-change phrases with the `music-domain-expert` agent (readability,
@@ -184,7 +185,7 @@ as demanding as the one before, and the level check passes.
 
 ## Phase 4: User Story 3 - Chord-change drills lose their doubled bars (Priority: P2)
 
-**Model**: standard (claude-sonnet-5); composing the drill melodies (T042-T044) and the music review (T049) are
+**Model**: standard (claude-sonnet-5 or gemini-3.1-pro); composing the drill melodies (T042-T044) and the music review (T049) are
 `deep` (claude-opus-5.5)
 **Goal**: the 5 drills keep their left hand exactly and get a right-hand melody that rests with the left hand.
 **Independent Test**: open *C major - I-V-vi-IV*: no bar has both hands on the same block chord; the left hand plays
@@ -222,12 +223,12 @@ the same chords and inversions as before, the right hand a melody.
 - [ ] T043 [P] [US3] [deep] Same for `content/library/exercises/changes-diatonic-ladder.json` (intermediate)
 - [ ] T044 [P] [US3] [deep] Same for `content/library/exercises/changes-same-tonic.json` and
   `content/library/exercises/changes-a-minor-major.json` (advanced; `alter: -1` on the third over the minor chords)
-- [ ] T045 [US3] Add `resetBy: '014'` to the 5 drill entries in `tools/library/successors.ts` (and the field to its
+- [ ] T045 [US3] [light] Add `resetBy: '014'` to the 5 drill entries in `tools/library/successors.ts` (and the field to its
   `Successor` type) until T038 and T039 pass
 - [ ] T046 [US3] Review the 5 drills' `meta.trains` texts and update where needed
 - [ ] T047 [US3] Regenerate (`pnpm library:exercises`, `pnpm library:index`), update the drills' goldens and
   `tests/core/library/exercise/changes.test.ts` expectations with logged reasons; T036, T017, T003 green
-- [ ] T048 [US3] Move the 5 drills' audit records to `exercise-theory-v3`; `pnpm library:fidelity`,
+- [ ] T048 [US3] [light] Move the 5 drills' audit records to `exercise-theory-v3`; `pnpm library:fidelity`,
   `pnpm library:fidelity --check` green
 - [ ] T049 [US3] [deep] Music review of the drill phrases with the `music-domain-expert` agent; fix, regenerate, summarise in
   the log
@@ -241,12 +242,12 @@ the same chords and inversions as before, the right hand a melody.
 
 ## Phase 5: Polish & Cross-Cutting
 
-**Model**: standard (claude-sonnet-5)
+**Model**: standard (claude-sonnet-5 or gemini-3.1-pro)
 
 - [ ] T052 [P] Add an assertion to `tests/library/melody-sweep.test.ts` that no Learning item (all of
   `learning/**`) has a `doubled` finding apart from a single closing tonic chord (SC-001), and that the in-scope list
   has exactly 59 ids
-- [ ] T053 [P] Update `docs/agents/reference.md` Active Technologies line for 014 from "planned" to "implemented"; check
+- [ ] T053 [P] [light] Update `docs/agents/reference.md` Active Technologies line for 014 from "planned" to "implemented"; check
   `public/library/README.md` needs no change (generated exercises section) and `quickstart.md` still matches the commands
 - [ ] T054 Constitution review of the branch diff with the `constitution-auditor` agent; findings summarised in the log
 - [ ] T055 Run the whole `specs/014-melody-over-chords/quickstart.md` validation once more on the final build

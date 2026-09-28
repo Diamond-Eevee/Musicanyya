@@ -28,3 +28,13 @@
   tags; `status.ps1` prints `MODEL TIER` for the resume point. This feature's tasks.md: phases `standard`; `[deep]` on
   T005, T010 (melody checker), T021-T026, T042-T044 (composing), T032, T049 (music reviews).
 - Handoff: next = `/speckit.implement` from T001 (tier standard); the first `deep` task is T005
+
+## 2026-09-28 12:05 - claude-opus-5.5 (model fit: light tier)
+- Done: owner wants to offload work to Gemini agents. Constitution 1.2.0 -> 1.3.0 (MINOR): third tier `light`
+  (mechanical, fully specified; never decides; checkpoints stay standard or higher); a tier may recommend two models.
+  Reference R11: deep = claude-opus-5.5; standard = claude-sonnet-5 or gemini-3.1-pro; light = Gemini Flash
+  (`gemini-*-flash`) or claude-haiku-4-5. speckit.tasks, speckit.implement, tasks template and status.ps1 know `light`.
+  This feature: `[light]` on T008, T009, T014, T058, T030, T031, T045, T048, T053; standard phases name both models.
+- Problems / open questions: a claude-sonnet-5 session is implementing in the same tree (T001-T003 committed, T004
+  ticked, uncommitted); this commit stages only the retagging on top of HEAD and leaves its T004 work untouched.
+- Handoff: unchanged for the implementing session - next = T005 (`deep`: it must ask the owner switch or continue)

@@ -26,10 +26,13 @@ first: switch model, or continue with you? Switch: stop and say which model to u
      then one phase per user story in priority order, then Polish.
    - Every task uses the strict format: `- [ ] T### [P?] [US#?] [tier?] Description with exact file path`.
      `[P]` only when it touches different files and has no dependency on unfinished tasks.
-   - Model fit (constitution, `docs/agents/reference.md` R11): every phase gets a `**Model**: <tier> (<recommended
-     model>)` line; a task whose tier differs from its phase carries `[deep]` or `[standard]`. Composing or authoring
-     music, intricate rule engines and music reviews are `deep`; specified code, tests, regeneration and docs are
-     `standard`.
+   - Model fit (constitution, `docs/agents/reference.md` R11): every phase gets a `**Model**: <tier> (<first model>
+     or <second model>)` line with the tier's recommended models from R11; a task whose tier differs from its phase
+     carries `[deep]`, `[standard]` or `[light]`. Composing or authoring music, intricate rule engines and music
+     reviews are `deep`; code, tests and anything needing judgement are `standard`; mechanical, fully specified work
+     with an exact expected result (folding contract text, version bumps, named constants, running a named command,
+     doc updates) is `light`. Checkpoints are never `light`. Prefer `light` wherever the rules allow, so work can be
+     offloaded to fast models.
    - Constitution IV: within each story, test tasks come first and must be written to fail before implementation.
      Grading changes get golden/snapshot tests. MusicXML behaviours get fixture tasks.
    - Constitution I: any task touching AudioWorklets, the scheduler, MIDI input timing or plugin callbacks is followed by an

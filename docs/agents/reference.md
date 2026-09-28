@@ -257,13 +257,14 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
 Every task and every Spec Kit step has a **model tier**. The owner edits this table when models change; tasks and
 commands name tiers, never model ids, so nothing else needs updating.
 
-| Tier | Use for | Models that fit (agent id prefix) |
-|---|---|---|
-| `deep` | composing or authoring music (melodies, exercises, arrangements); intricate rule engines (checkers, grading, levelling); architecture and design (`specify`, `clarify`, `plan`, `analyze`, `constitution`); music reviews | `claude-opus-5.5` |
-| `standard` | implementing a precisely specified task: generator/tool code, tests, regeneration, docs, e2e, gates (`tasks`, most of `implement`) | `claude-sonnet-5`, `claude-opus-5.5` |
+| Tier | Use for | Recommended (first choice, second choice) | Also fits |
+|---|---|---|---|
+| `deep` | composing or authoring music (melodies, exercises, arrangements); intricate rule engines (checkers, grading, levelling); architecture and design (`specify`, `clarify`, `plan`, `analyze`, `constitution`); music reviews | `claude-opus-5.5` | - |
+| `standard` | implementing a specified task that still needs judgement: generator/tool code, tests, claim tables, golden updates, description texts, manual (screenshot) verification, checkpoints and the full gate (`tasks`, `checklist`, most of `implement`) | `claude-sonnet-5`, `gemini-3.1-pro` | `claude-opus-5.5` |
+| `light` | mechanical, fully specified work with an exact expected result: folding a contract change into its canonical file, bumping versions/rule sets in records, adding a named constant or type from the data model, running a named command and recording its output, doc and reference updates, metadata/hash guard tests from a recorded file | Gemini Flash (`gemini-*-flash`), `claude-haiku-4-5` | every `standard` and `deep` model |
 
-Where the tier comes from: `tasks.md` gives a **Model** line per phase (the default for its tasks) and a `[deep]` or
-`[standard]` tag on a task that differs; a Spec Kit step's tier is in the table above. The status script prints the
+Where the tier comes from: `tasks.md` gives a **Model** line per phase (the default for its tasks, naming one or two
+recommended models) and a `[deep]`, `[standard]` or `[light]` tag on a task that differs; a Spec Kit step's tier is in the table above. The status script prints the
 tier of the resume point (`MODEL TIER: ...`).
 
 **The check** (AGENTS.md sections 2 and 4): before the first task or step of a tier your own model does not fit, stop
@@ -275,7 +276,12 @@ continue with me?"* Then:
   holds for the rest of that session and that tier; ask again in a new session or at a new tier.
 
 A model not in the table fits no tier: ask at the first task. A model that fits a *higher* tier than needed (Opus on a
-`standard` task) never asks.
+`standard` task, Sonnet on a `light` one) never asks. The order is `light` < `standard` < `deep`.
+
+**Rules for `light` work**: a `light` task never decides anything (no design, no music, no expected-value change in a
+test); when it finds something that needs a decision, it stops and hands off. Checkpoints (full gate, the story's
+Independent Test) are `standard` or higher, so every `light` task is re-verified by a stronger model at the next
+checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
 
 ---
 
