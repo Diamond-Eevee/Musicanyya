@@ -9,6 +9,7 @@ import {
   closeBrowser,
   openBrowser,
   openBrowserFile,
+  openLibraryItem,
   openScoreFile,
   rowByRef,
   seedProgress,
@@ -793,5 +794,48 @@ test.describe('Score browser on real files and the whole library (feature 013, T
     }
     expect(opened, 'folders opened').toBeGreaterThan(20);
     console.log(`T087: ${opened} library folders listed and one item each opened; notices as the index records`);
+  });
+});
+
+// US1 #3 / FR-007 (quickstart US1 step 5): opening the browser while Listen is playing pauses it, and closing it
+// again leaves the same Score at the same position. Real transport, real Web Audio clock.
+test.describe('Score browser while Listen plays (feature 013, US1 #3, FR-007)', () => {
+  test('Open pauses a playing Listen, and Escape leaves the same Score at the same position', async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(
+      browserName === 'webkit',
+      'WebKit has the known dblclick race of docs/known-bugs.md when opening the item',
+    );
+    const phase = () =>
+      page.evaluate(
+        () =>
+          (window as unknown as { __TRANSPORT_STATE__: { get(): { phase: string } } }).__TRANSPORT_STATE__.get().phase,
+      );
+    // Where the music is, as the musician sees it: the notes the score marks as sounding right now.
+    const soundingNotes = () => page.locator('g.note.playing').evaluateAll((notes) => notes.map((n) => n.id).sort());
+    await page.goto('/');
+    await openLibraryItem(page, 'learning/keys/c-major/introduction', 'c major - introduction');
+    await expect(page.locator('.mx-title-block')).toContainText('C major - introduction');
+
+    await page.locator('.play-btn').click();
+    await expect.poll(phase).toBe('playing');
+    await expect(page.locator('g.note.playing').first()).toBeVisible();
+
+    await page.locator('mx-open-button .mx-open-button').click();
+    await expect(browserDialog(page)).toBeVisible();
+    await expect.poll(phase).toBe('paused');
+    const pausedAt = await soundingNotes();
+    expect(pausedAt.length).toBeGreaterThan(0);
+    await page.waitForTimeout(600); // a paused Listen does not move on
+    expect(await soundingNotes()).toEqual(pausedAt);
+
+    // The first Escape clears the search the last open left in the field, the next one closes the browser.
+    for (let i = 0; i < 2 && (await browserDialog(page).isVisible()); i++) await page.keyboard.press('Escape');
+    await expect(browserDialog(page)).toBeHidden();
+    await expect(page.locator('.mx-title-block')).toContainText('C major - introduction');
+    expect(await phase()).toBe('paused');
+    expect(await soundingNotes()).toEqual(pausedAt);
   });
 });

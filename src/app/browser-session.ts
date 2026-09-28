@@ -15,7 +15,7 @@ import { browserState } from '../ui/state/browserState.js';
 import { libraryState } from '../ui/state/libraryState.js';
 import { noticeState } from '../ui/state/noticeState.js';
 import { practiceState } from '../ui/state/practiceState.js';
-import { isPlayOrPracticeActive } from '../ui/state/runActive.js';
+import { isPlayOrPracticeActive, subscribePlayOrPracticeActive } from '../ui/state/runActive.js';
 import { transportState } from '../ui/state/transportState.js';
 import { LibrarySessionController } from './library-session.js';
 
@@ -109,6 +109,14 @@ export class BrowserSessionController {
       } else if (state.pending === null) {
         this.wasClosedWithPendingAction = false;
       }
+    });
+    // A pending reset or removal is committed when a Play run or Practice session starts, not left to its deadline:
+    // the deadline could otherwise land mid-run (or just after a very short one) and wipe a result earned after the
+    // click that asked for the reset (T106, R-12). The undo window ends there, like it does when a second one starts.
+    subscribePlayOrPracticeActive(() => {
+      if (!isPlayOrPracticeActive()) return;
+      this.commitPendingReset();
+      this.commitPendingRemove();
     });
     this.libraryController = new LibrarySessionController(
       catalog,
@@ -242,11 +250,12 @@ export class BrowserSessionController {
       clearTimeout(this.pendingResetTimer);
       this.pendingResetTimer = null;
     }
-    const pending = browserState.get().pending;
+    // Whether a reset is pending is this controller's own state (its hashes): the shared `browserState.pending` is
+    // only what the UI shows of it, and another instance's (a test's, say) may already have cleared it.
     const hashes = this.pendingResetHashes;
     this.pendingResetHashes = null;
+    if (!hashes) return;
     browserState.clearPending();
-    if (pending?.kind !== 'reset' || !hashes) return;
     void (async () => {
       const store = await this.store();
       for (const hash of hashes) {
@@ -294,8 +303,8 @@ export class BrowserSessionController {
     const pending = this.pendingRemove;
     this.pendingRemove = null;
     this.pendingRemoveDisplayName = null;
+    if (!pending) return; // nothing of ours in flight: the shared `pending` is not ours to clear
     if (browserState.get().pending?.kind === 'removeFile') browserState.clearPending();
-    if (!pending) return;
     void (async () => {
       const store = await this.store();
       // The controller resets progress itself, hash by hash (like `commitPendingReset`), rather than leaving it to

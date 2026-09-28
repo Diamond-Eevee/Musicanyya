@@ -52,15 +52,6 @@ export function completenessText(result: ProgressResult): string {
   return en.browser.stoppedEarlyUnknown;
 }
 
-/** FR-012, R-8: the same points-delta rule as `trendDeltaPoints` (core/progress/status.ts), but over an
- *  `ItemProgressView.history` array (newest first) rather than a full `ProgressRecord` - what the browser's rows
- *  and detail pane actually have to hand. `null` with fewer than two results. */
-export function historyTrendDeltaPoints(history: readonly ProgressResult[]): number | null {
-  const [last, previous] = history;
-  if (last === undefined || previous === undefined) return null;
-  return (percentShown(last.notesCorrect) ?? 0) - (percentShown(previous.notesCorrect) ?? 0);
-}
-
 /** FR-012: "up 15 points" / "down 3 points" / "same", or `null` with fewer than two results (screen-reader text,
  *  paired with the up/down triangle or equals sign, R-16). */
 export function trendText(trend: Trend, deltaPoints: number | null): string | null {

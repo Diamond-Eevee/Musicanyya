@@ -70,6 +70,7 @@ import type {
   ResolvedLoop,
 } from '../core/practice/types.js';
 import { resultFromStoredPerformance } from '../core/progress/from-performance.js';
+import { practisedBarRange } from '../core/progress/practised-range.js';
 import { resultScope, scopeFromStoredSettings } from '../core/progress/scope.js';
 import type { ItemRef, ProgressEvent, ProgressResult } from '../core/progress/types.js';
 import { fileKey } from '../core/progress/user-files.js';
@@ -1485,9 +1486,9 @@ export class Session {
       // R-18/R-9: reaching the end naturally records the whole practised range; stopping early records nothing.
       if (effect.reason === 'reachedEnd') {
         const session = practiceState.get().session;
-        if (session && session.scoreId !== null && session.events.length > 0) {
-          const measures = session.events.map((e) => e.measureIndex);
-          void this.browserController.practised(session.scoreId, Math.min(...measures) + 1, Math.max(...measures) + 1);
+        const range = session && session.scoreId !== null ? practisedBarRange(session.events) : null;
+        if (session && session.scoreId !== null && range) {
+          void this.browserController.practised(session.scoreId, range.fromMeasure, range.toMeasure);
         }
       }
       this.endingPracticeNaturally = true;

@@ -34,8 +34,9 @@ Play runs in `pnpm screenshot` use the fake keyboard (`--run --keys`).
 ### US1 - browse and open
 
 1. `pnpm screenshot --browser` -> near-full-screen window with a visible margin, rail on the left (*Continue*, *All*,
-   *Learning > Keys / Key changes*, *Repertoire > Beginner / Intermediate / Advanced*, *My files*), list in the middle,
-   detail pane on the right, focus ring in the search field.
+   *Learning > Keys / Key changes*, *Repertoire > Beginner / Intermediate / Advanced*, *My files*), the *Continue* view
+   in the middle (it takes the list's place on the default folder, US4; any other folder shows the list), detail pane on
+   the right, focus ring in the search field.
 2. In `pnpm dev`: *Learning > Keys > C major*, double-click *Introduction* -> the Score opens and the browser closes.
    Press *Open* again -> the browser shows *C major* with *Introduction* selected. Reload the page and press *Open*:
    the same view is shown (US1 #5).
@@ -86,6 +87,17 @@ Play runs in `pnpm screenshot` use the fake keyboard (`--run --keys`).
 
 ### SC-008 (owner, 5 first-time users)
 
-Ask each person: "Open *Greensleeves* from the beginner repertoire and tell me your best result on it" (seed one result
-first). Time it, and count successes (target: 4 of 5 in under 30 s, without help). Record the results in
-`implementation-log.md`.
+Ask each person: "Open *Greensleeves* from the beginner repertoire and tell me your best result on it". Target: 4 of 5
+in under 30 s, without help. Set up each person's session the same way:
+
+1. Start the app with a clean profile (a private window, or clear this site's data), `pnpm dev`, or the built app.
+2. Seed one result: `pnpm screenshot --browser --seed-progress tests/fixtures/progress/greensleeves-one-result.json`
+   only makes a picture. For a session a person uses, dispatch the same file in the page's console instead:
+   `window.dispatchEvent(new CustomEvent('e2e-progress-seed', { detail: <the file's "events" array> }))` (the seam is
+   in every build, contracts/score-browser.md §8).
+3. Close the browser (Escape) so the person starts from a Score view, or leave it open on *Continue*.
+4. Give the sentence above, start the clock at the first click, stop it when they say the number.
+5. The right answer is **78 % correct, 70 % on time**. Count a success only for that answer, within 30 s, with no
+   prompting.
+6. Record per person: time, success, where they hesitated, in `implementation-log.md` under "SC-008 run". Never mark
+   T090's SC-008 part done from anything but these results.

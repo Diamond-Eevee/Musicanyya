@@ -1,9 +1,11 @@
 import { buildBrowserItems } from '../../core/browser/items.js';
 import { queryBrowser, showsContinue } from '../../core/browser/query.js';
 import type { BrowserItem } from '../../core/browser/types.js';
+import { resultsDeltaPoints } from '../../core/progress/status.js';
 import { DEFAULT_MASTERY_THRESHOLDS, type ItemRef, itemRefKey } from '../../core/progress/types.js';
-import { historyTrendDeltaPoints, resultFigures, resultTempoSuffix, trendText } from '../format/result-text.js';
+import { resultFigures, resultTempoSuffix, trendText } from '../format/result-text.js';
 import './mx-status-badge.js';
+import { BROWSER_DBLCLICK_WINDOW_MS } from '../../engine/config.js';
 import { en } from '../i18n/en.js';
 import { browserState } from '../state/browserState.js';
 import { escapeHtml } from '../util/escape-html.js';
@@ -84,7 +86,7 @@ export class MxBrowserList extends HTMLElement {
       ? `${en.browser.best}: ${resultFigures(best)}${resultTempoSuffix(best) ? ` ${resultTempoSuffix(best)}` : ''}`
       : '';
     const lastText = last ? `${en.browser.last}: ${resultFigures(last)}` : '';
-    const trend = trendText(row.progress.trend, historyTrendDeltaPoints(row.progress.history));
+    const trend = trendText(row.progress.trend, resultsDeltaPoints(row.progress.history));
     return `
       ${bestText ? `<span class="browser-row-result">${escapeHtml(bestText)}</span>` : ''}
       ${lastText ? `<span class="browser-row-result">${escapeHtml(lastText)}</span>` : ''}
@@ -131,7 +133,7 @@ export class MxBrowserList extends HTMLElement {
         this.selectTimer = setTimeout(() => {
           this.selectTimer = null;
           this.select(index, rows);
-        }, 300);
+        }, BROWSER_DBLCLICK_WINDOW_MS);
       });
       el.addEventListener('dblclick', () => {
         if (this.selectTimer !== null) {

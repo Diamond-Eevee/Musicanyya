@@ -1,6 +1,7 @@
 import { buildBrowserItems } from '../../core/browser/items.js';
 import type { BrowserItem } from '../../core/browser/types.js';
 import type { LibraryItem } from '../../core/library/types.js';
+import { resultsDeltaPoints } from '../../core/progress/status.js';
 import {
   DEFAULT_MASTERY_THRESHOLDS,
   type ItemRef,
@@ -9,7 +10,6 @@ import {
 } from '../../core/progress/types.js';
 import {
   completenessText,
-  historyTrendDeltaPoints,
   relativeDate,
   resultFigures,
   resultTempoSuffix,
@@ -182,7 +182,7 @@ export class MxBrowserDetail extends HTMLElement {
             completenessText(result) ? ` (${escapeHtml(completenessText(result))})` : ''
           }</p>`
         : '';
-    const trend = trendText(p.trend, historyTrendDeltaPoints(p.history));
+    const trend = trendText(p.trend, resultsDeltaPoints(p.history));
     const historyRows = p.history
       .map((r) => {
         const version = r.earlierVersion ? `, ${escapeHtml(b.earlierVersion)}` : '';

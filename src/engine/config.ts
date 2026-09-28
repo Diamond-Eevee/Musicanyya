@@ -88,4 +88,5 @@ export const NOTICE_TRAY_MAX = 3;
 export const USER_FILES_BYTES_BUDGET = 100 * 1024 * 1024; // Total *My files* copy budget, least recently opened evicted first (FR-020)
 export const UNDO_WINDOW_MS = 8000; // Deferred-commit window for reset/remove, UI timing only (FR-018, FR-022, R-12)
 export const BROWSER_ANNOUNCE_DEBOUNCE_MS = 300; // Debounce of the browser's aria-live item-count announcement (FR-028)
+export const BROWSER_DBLCLICK_WINDOW_MS = 300; // How long a single click waits for a second one before it selects the row (UI timing only, contracts §2)
 // BROWSER_SEARCH_MAX_CHARS re-exported from core/defaults.js above (src/core/browser/query.ts needs it too).

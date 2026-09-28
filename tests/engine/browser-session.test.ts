@@ -1,12 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { BrowserSessionController, type LoadBytesOutcome } from '../../src/app/browser-session.js';
 import type { LibraryIndex, LibraryItem } from '../../src/core/library/types.js';
+import type { PlayRun } from '../../src/core/play/types.js';
 import type { ItemRef, MasteryThresholds, ProgressEvent, ProgressRecord } from '../../src/core/progress/types.js';
 import type { ProgressStore, ProgressStoreResult } from '../../src/engine/ports.js';
 import { MemoryProgressStore } from '../../src/engine/storage/memory-progress-store.js';
 import { browserState } from '../../src/ui/state/browserState.js';
 import { libraryState } from '../../src/ui/state/libraryState.js';
 import { noticeState } from '../../src/ui/state/noticeState.js';
+import { playState } from '../../src/ui/state/playState.js';
 import { FakeLibraryCatalog } from '../fakes/fake-library-catalog.js';
 import { result } from '../fakes/progress-builders.js';
 
@@ -669,6 +671,62 @@ describe('BrowserSessionController *My files* (US3, T062)', () => {
     expect(browserState.get().message).toEqual({ code: 'malformedXml', fileName: 'Broken.musicxml' });
     // My files is unchanged - the entry from the earlier successful fileLoaded is still there.
     expect((await store.listFiles()).ok && (await store.listFiles()).value).toHaveLength(1);
+  });
+});
+
+describe('a pending reset or removal and a run starting (T106, R-12)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    playState.setRun(null);
+    browserState.reset();
+    libraryState.reset();
+    noticeState.clear();
+  });
+
+  it('a Play run starting commits a pending reset at once, so a result earned in the run is not wiped at the deadline', async () => {
+    const store = new MemoryProgressStore();
+    const removed: string[] = [];
+    const controller = controllerWith(store, async (scoreKey) => void removed.push(scoreKey));
+    await controller.played(SCORE_KEY, result({ runId: 'before' }));
+
+    controller.startResetProgress({ kind: 'file', fileKey: 'etude.musicxml' }, [SCORE_KEY]);
+    playState.setRun({ phase: 'countIn' } as unknown as PlayRun); // the musician starts a Play run
+    await flush(); // no time passes: only the run starting can have committed it
+    expect(browserState.get().pending).toBeNull();
+    expect(removed).toEqual([SCORE_KEY]);
+
+    // The run's own result lands after the reset, and the old deadline passing does not touch it.
+    await controller.played(SCORE_KEY, result({ runId: 'in-the-run', finishedAt: '2026-01-02T00:00:00.000Z' }));
+    await vi.advanceTimersByTimeAsync(8000);
+    const got = await store.getProgress(SCORE_KEY);
+    expect(got.ok && got.value?.attempts).toBe(1);
+    expect(got.ok && got.value?.results[0]?.runId).toBe('in-the-run');
+    expect(removed).toEqual([SCORE_KEY]); // committed once, not again at the deadline
+  });
+
+  it('a Play run starting commits a pending file removal at once too', async () => {
+    const store = new MemoryProgressStore();
+    const controller = controllerWith(store);
+    await store.putFile({
+      fileName: 'Etude.musicxml',
+      bytes: new Uint8Array([1]).buffer,
+      hash: SCORE_KEY,
+      title: null,
+      composer: null,
+      openedAt: '2026-01-01T00:00:00.000Z',
+    });
+
+    controller.startRemoveFile('etude.musicxml', 'Etude', true, [SCORE_KEY]);
+    playState.setRun({ phase: 'countIn' } as unknown as PlayRun);
+    await flush();
+
+    expect(browserState.get().pending).toBeNull();
+    const listed = await store.listFiles();
+    expect(listed.ok && listed.value).toEqual([]);
   });
 });
 

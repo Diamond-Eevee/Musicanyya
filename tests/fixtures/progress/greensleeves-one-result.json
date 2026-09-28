@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "items": {
+    "greensleeves": "repertoire/beginner/greensleeves"
+  },
+  "events": [
+    {
+      "ref": { "kind": "library", "id": "repertoire/beginner/greensleeves" },
+      "event": {
+        "type": "played",
+        "at": "2026-09-21T18:30:00.000Z",
+        "result": {
+          "runId": "seed-sc008-greensleeves",
+          "finishedAt": "2026-09-21T18:30:00.000Z",
+          "notesCorrect": { "count": 78, "total": 100 },
+          "notesOnTime": { "count": 55, "total": 78 },
+          "extra": 2,
+          "tempoPercent": 100,
+          "strictness": "beginner",
+          "complete": true,
+          "scope": { "kind": "whole" }
+        }
+      }
+    }
+  ]
+}

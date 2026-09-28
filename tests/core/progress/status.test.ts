@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { deriveStatus, trend, trendDeltaPoints } from '../../../src/core/progress/status.js';
+import { deriveStatus, resultsDeltaPoints, trend, trendDeltaPoints } from '../../../src/core/progress/status.js';
 import { record, result } from '../../fakes/progress-builders.js';
 
 describe('deriveStatus (data-model.md §3, FR-011)', () => {
@@ -94,5 +94,30 @@ describe('trendDeltaPoints (FR-012: the shown delta is the notes-correct percent
     const last = result({ notesCorrect: { count: 899, total: 1000 } });
     const previous = result({ notesCorrect: { count: 809, total: 1000 } });
     expect(trendDeltaPoints(record({ results: [last, previous] }))).toBe(9);
+  });
+});
+
+describe('resultsDeltaPoints (T104: the browser shows the delta over a history it has, with the one rule of core)', () => {
+  it('is the same number trendDeltaPoints gives for the record those results came from', () => {
+    const cases: [number, number, number, number][] = [
+      [85, 100, 70, 100],
+      [60, 100, 80, 100],
+      [899, 1000, 809, 1000],
+      [2, 3, 666666, 1000000],
+    ];
+    for (const [lc, lt, pc, pt] of cases) {
+      const last = result({ notesCorrect: { count: lc, total: lt } });
+      const previous = result({ notesCorrect: { count: pc, total: pt } });
+      expect(resultsDeltaPoints([last, previous])).toBe(trendDeltaPoints(record({ results: [last, previous] })));
+    }
+  });
+
+  it('is null with fewer than two results, and looks only at the newest two', () => {
+    expect(resultsDeltaPoints([])).toBeNull();
+    expect(resultsDeltaPoints([result()])).toBeNull();
+    const newest = result({ notesCorrect: { count: 90, total: 100 } });
+    const before = result({ notesCorrect: { count: 80, total: 100 } });
+    const oldest = result({ notesCorrect: { count: 10, total: 100 } });
+    expect(resultsDeltaPoints([newest, before, oldest])).toBe(10);
   });
 });

@@ -837,3 +837,99 @@
 - Handoff: next = Polish - T086 (SC-002/SC-003 timing in the browser), T087, T088, T095, T089, T097, T090-T093
   (T092 is the OD-6 removal of the old panel code; T090 also needs the owner's SC-008 run). Tree clean at this
   entry's commit.
+
+## 2026-09-28 - claude-sonnet-5 (implement: Polish - T086-T089, T091, T092, T097-T106; T095 first half; T090/T093 partly)
+- Done T086: `tests/e2e/score-browser-timing.spec.ts` (Chromium only). SC-002: *Open* -> dialog and first rows painted with
+  the full library and 200 seeded *My files*: median **19.4 ms** of 26, 19, 19, 24, 18 (budget 300). SC-003: 500 items
+  (the library's 181 + 319 *My files*), 10,000 stored attempts (20 each, every fifth item mastered so a status filter
+  changes the list): median **folder 14.6, search 16.8, filter 22.3 ms** (budget 100; each is one frame plus paint).
+  The first version measured nothing for the filter (every item was Played, so both filters gave the same list); the
+  test now requires the list to change on every measured action. The seed seam gained files (`seedFile`, `{ files,
+  events }`), test-first in `tests/engine/browser-session.test.ts`.
+- Done T087: two e2e tests (Chromium). Three real files (`chopin-zyczenie`, `holmes-lor`, `stanford-sailing-at-dawn`) open
+  through *Open file...* and are listed under *My files*; all 49 non-empty library folders list exactly their items
+  (oracle: the shipped `index.json`) and their first item opens. Two Scores show a notice: Stanford (a volta that does
+  not match its pass, from the timeline) and *Für Elise (complete)* (`measureLengthMismatch`, which `index.json` already
+  records). The parser, timeline and score code are byte-identical to `main` (`git diff main...HEAD` over
+  `src/core/timeline`, `score`, `musicxml` is empty), so a notice belongs to the file, not to the browser; the test
+  asserts exactly the notices each Score is known to give.
+- Done T088: Electron smoke test on the rebuilt `dist`/`dist-electron`: the browser opens, seeded progress is read back
+  (mastered card first), the suggestion opens, and the open is recorded (3/3 electron tests pass).
+- Done T089: `tests/e2e/score-browser-a11y.spec.ts`, axe (`wcag2a/aa`, `wcag21a/aa`) on 8 views: Continue, a folder, search
+  results and an empty search, filters and the no-match state, detail with history, *My files* and the remove
+  confirmation, a 600 px window, library unavailable. Negative control run (an injected `<img>` without alt is reported as
+  `image-alt`, 19 rules pass on the clean page) and the spec asserts rules ran. It found one real critical violation: the
+  "Library unavailable" banner sat inside the `role="listbox"` (`aria-required-children`). Moved into `mx-score-browser`
+  beside the empty state; its unit test moved with it and failed first.
+- Done T097-T101: "New best for {title}" announced once when the browser next opens (controller marks it in `played`,
+  `browserState.newBestScoreKey`); and, owner decision 2026-09-28 (asked: "carry them over"), the old panel's presentation
+  now in the browser before it was deleted: step label on rows ("2 Beginner", "Song"), the key-change relation word in
+  the rail, labelled key/metre/tempo/measures/duration/hands/skills in the detail, the level description under the level
+  filter. Each test-first (red, then green). Picture: `tests/.generated/carry-over.png`.
+- Done T092 (OD-6): mapping done item by item first (below), then removed `mx-library`, `mx-recent-list`,
+  `IndexedDbScoreStore`, the `ScoreStore` port and `RecentScoreSummary`, `RECENT_SCORES_MAX`, `scoreState`'s recent list,
+  the panel-only half of `libraryState` (what stays: the opened item for `mx-score-source`, and the old filter's storage key
+  the browser seeds from once), the panel CSS, and `tests/ui/mx-library.test.ts`, `mx-library-filters.test.ts`,
+  `tests/engine/storage/indexeddb-score-store.test.ts`. `ports.md` 1.5.0 -> **2.0.0** (MAJOR), `storage.md`, `library-port.md`
+  updated. Mapping: panel renders sections/items, opens on click -> `rail-list-detail.test.ts`; index failure with Retry ->
+  `rail-list-detail.test.ts` and `browser-session.test.ts`; folder tree order -> `tests/core/library` and
+  `tests/core/browser/items.test.ts`; default-open folders -> "every folder expanded" + collapse in `keyboard.test.ts`;
+  relation word, step chip, item facts, level description -> T099, T098, T100, T101; filters, no-results, Clear filters ->
+  `filters.test.ts` and `query.test.ts`; text search -> `query.test.ts`; filter persistence, corrupt data, `formerIds` ->
+  `view-state.test.ts` and the US5 e2e reload; load-status machine -> `browser-session.test.ts`, `dialog.test.ts`;
+  `ScoreStore` put/trim/get/remove/unavailable and "recent score of a replaced library item" -> `progress-store.contract.ts`
+  (putFile, eviction, getFileBytes, removeFile, unavailable) and `progress-migration.test.ts`; 200-item render budget ->
+  `query-timing.test.ts` and T086. Kept, not deleted: the open button, drop zone and load-report tests of
+  `open-and-recent.test.ts` (now `open-and-drop.test.ts`, only its recent-list test removed); the degradation tests
+  (`library-degradation.test.ts`, now on the browser's list); an opened-item test for `libraryState`.
+- Done T091: `constitution-auditor` on the branch diff (no CRITICAL, no HIGH; 4 MEDIUM, 6 LOW; I ran no gate for it, it
+  read the diff). Dispositions: (1 VI/MEDIUM) the modal over Listen is a bent MUST NOT: recorded in `plan.md` Complexity
+  Tracking as owner-visible; and the gap while a Play/Practice start is `loading` is closed (T102, test first). (2 IV)
+  `filter-options.ts` was written together with its test and the US5 e2e after the code; backfilled by breaking the function
+  (dropping the sort and a tag) - its test fails, restored - and stated here as a deviation, not as test-first. (3 process)
+  this entry. (4 III/VI) the WebKit wrong-item double-click bug stays open, see "needs owner" below. LOW: `300` ms is now
+  `BROWSER_DBLCLICK_WINDOW_MS` (T103); the trend delta lives once in core, `resultsDeltaPoints` (T104); `Math.min(...measures)`
+  over Practice events is a loop, tested on 200,000 events (T105); a pending reset/removal is committed when a run starts, so
+  its deadline cannot wipe a later result (T106; found on the way that a controller cleared another's shared `pending`).
+  Not changed: `playState.expected` (T048's e2e seam, unread by the UI) - left, cheap.
+- Found by tests and fixed, beyond the tasks: the app's `Space`/`Escape`/size shortcuts were **not** ignored while the
+  browser is open, although T031 and contracts §4 say so (Escape stopped the transport behind the dialog; Space on a row
+  toggled playback): guard in `src/ui/shortcuts.ts`, unit test first, plus an e2e that opens the browser over a playing
+  Listen, pauses it, and Escape returns the same Score with the same notes sounding (Chromium and Firefox).
+- T090: pictures looked at (`tests/.generated/`): `t090-us1-default.png` (margin, rail, Continue view, focus ring in search),
+  `t090-us1-900.png` (Folders button and breadcrumb, no rail), `t090-us1-600.png` (edge to edge, wrapped toolbar, no
+  horizontal scroll), `t090-us2-grey.png` (New hollow circle, Practised light dot, Played dark dot, Mastered star: told
+  apart in greyscale, with text), `t090-us2-grade.png` ("New best" with a star), `t090-us3-myfiles.png` (title with file
+  name beneath), `t090-us4-continue.png` (mastered introduction first, "Suggested next ... Next step after C major -
+  introduction"), fresh profile = `t090-us1-default.png` (welcome, first step, link to Repertoire), US5 = `us5-filter-sort.png`,
+  `us5-no-match.png`, `us5-narrow-600.png`, `t090-sc008-seed.png`. Quickstart US1 step 1 corrected (Continue takes the list's
+  place). US2 #4, US3 #2-#5, US5 #3 are the e2e tests, not manual runs. **needs owner: SC-008 run** - steps and seed are in
+  `quickstart.md` ("SC-008"): `tests/fixtures/progress/greensleeves-one-result.json` (right answer: 78 % correct, 70 % on
+  time), target 4 of 5 within 30 s, results to be written here.
+- Docs (T093): README (Score browser, Progress, My files, the screenshot flags), `docs/agents/reference.md` (Active
+  Technologies "implemented", R7 flake), quickstart, contracts (ports 2.0.0, storage, library-port, score-browser §8 corrected:
+  the `e2e-progress-seed` event is in **every** build, not "dev only" as T094 and §8 first said - it never was gated, like
+  `e2e-midi`; the Electron test depends on that).
+- Decisions: the browser's notices are the file's (above); `commitPendingReset` decides from the controller's own hashes,
+  not the shared `pending`; the empty state and the library-unavailable row belong to the dialog, not the listbox.
+- needs owner: (a) **T095 second half** - "one recorded result on the memory store": a Play result is recorded only from a
+  stored Performance (T046, R-18), and with no IndexedDB the Performance store fails too, so no result ever reaches the
+  memory progress store (only `opened`/`practised` do): the e2e showed the mastering run leaving the row at *New*. Options:
+  **A** (recommended if progress should work in a private window) record `played` even when the Performance cannot be stored
+  (then progress and kept attempts can disagree, and Reset/Remove must not assume an attempt exists); **B** keep the rule
+  and say so - the notice already reads "Progress will not be kept on this device", and the memory store then holds
+  *opened*/*practised* only. T095 stays `[~]` with its first half (notice once, US1 flow, an `opened` record, and
+  `tests/architecture/progress-store-usage.test.ts`) done. (b) **`e2e-*` seams ship in every build** (`e2e-midi`,
+  `e2e-ready`, `e2e-synthetic-grade`, `e2e-progress-seed`): same-origin page script only, but a build flag would remove them
+  and the Electron e2e would then need another way in; keep, or gate them. (c) **WebKit double-click opens the wrong Score**
+  (`docs/known-bugs.md`; `library.spec.ts:31` and `:154`): still open and still the one failing e2e; the audit rates it
+  MEDIUM against Principle III/VI. (d) the browser is modal over Listen (Complexity Tracking). (e) merge is yours to ask for.
+- Checks: `pnpm lint` 0 errors, 299 warnings (the first gate run failed lint on my own test shadowing the global `escape`;
+  renamed, re-run clean); `pnpm typecheck` clean; `npx vitest run` 263 files / 4980 tests, all passed. `pnpm test:e2e` full
+  run (rebuilt `dist`): **1 failed**, 950 passed, 569 skipped (10.5 min): `library.spec.ts:31` (webkit, the tracked
+  known bug above). The flakes of the earlier runs (`score-browser.spec.ts:342` firefox, `library.spec.ts:370` firefox,
+  `library.spec.ts:154` webkit, `pressed-keys.spec.ts:483`) did not fail this run; the two Electron specs of R7 passed in it.
+  The gate is therefore not green: one tracked bug, T095's second half, T090's SC-008 run.
+- Handoff: next = owner answers (a) and (b) above and runs SC-008; then T095's second half per the answer, T090 (log the
+  SC-008 results), T093 (re-run the gate; it ends green only when `library.spec.ts:31` is fixed or accepted). Tree clean at
+  this entry's commit. Not merged, not pushed.

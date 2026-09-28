@@ -301,13 +301,13 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
 - Feature 010: no new technology and no new dependency. The on-screen piano is laid out by a pure function
   (`src/ui/piano/keyboard-layout.ts`, equal key-top geometry) and sized with CSS container units (`container-type:
   inline-size`, `cqw`; Chrome/Edge 105, Firefox 110, Safari 16).
-- Feature 013: no new runtime dependency. The Score browser is a native modal `<dialog>` (`showModal()`, only outside
-  Practice/Play sessions). Progress is a pure event reducer (`src/core/progress`) behind a new `ProgressStore` port
+- Feature 013 (implemented): no new runtime dependency. The Score browser is a native modal `<dialog>` (`showModal()`,
+  refused during Practice/Play sessions, and while one starts; it pauses a playing Listen). Progress is a pure event reducer (`src/core/progress`) behind a new `ProgressStore` port
   with an IndexedDB adapter (database version 3: `progress`, `userFiles`, `userFileBytes`, `meta`; lazy one-shot
   migration from `recentScores` + `performances`) and a memory adapter (contract tests + storage-unavailable
   fallback). The browser model (`src/core/browser`) is pure. New `localStorage` key `musicanyya.browser.v1`. Rows use
   CSS `content-visibility: auto`. Test-only `@axe-core/playwright` 4.13.0 (MPL-2.0) for the WCAG 2.1 AA check (OD-5,
-  approved 2026-09-27).
+  approved 2026-09-27, in use: `tests/e2e/score-browser-a11y.spec.ts`).
 
 <!-- ACTIVE-TECHNOLOGIES:END -->
 

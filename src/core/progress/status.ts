@@ -1,6 +1,6 @@
 /** data-model.md §3, FR-011, FR-012 - pure derivations from a `ProgressRecord`. No DOM, no Web API (Principle V). */
 import { compareFigures, percentShown } from './compare.js';
-import type { ProgressRecord } from './types.js';
+import type { ProgressRecord, ProgressResult } from './types.js';
 
 export type ProgressStatus = 'new' | 'practised' | 'played' | 'mastered';
 export type Trend = 'up' | 'down' | 'same' | null;
@@ -27,13 +27,16 @@ export function trend(record: ProgressRecord | null): Trend {
   return 'same';
 }
 
-/** FR-012: the shown delta - the notes-correct percentage difference in points, each side rounded down first
- *  (R-8), so it always agrees with the two percentages shown next to it. `null` with fewer than two results. */
-export function trendDeltaPoints(record: ProgressRecord | null): number | null {
-  if (record === null) return null;
-  const [last, previous] = record.results;
+/** FR-012: the shown delta - the notes-correct percentage difference in points between the newest two results (a
+ *  history, newest first), each side rounded down first (R-8), so it always agrees with the two percentages shown next
+ *  to it. `null` with fewer than two results. The one implementation: the browser calls it over a row's history. */
+export function resultsDeltaPoints(results: readonly ProgressResult[]): number | null {
+  const [last, previous] = results;
   if (last === undefined || previous === undefined) return null;
-  const lastPercent = percentShown(last.notesCorrect) ?? 0;
-  const previousPercent = percentShown(previous.notesCorrect) ?? 0;
-  return lastPercent - previousPercent;
+  return (percentShown(last.notesCorrect) ?? 0) - (percentShown(previous.notesCorrect) ?? 0);
+}
+
+/** FR-012: `resultsDeltaPoints` of a record's kept results. `null` with fewer than two. */
+export function trendDeltaPoints(record: ProgressRecord | null): number | null {
+  return record === null ? null : resultsDeltaPoints(record.results);
 }

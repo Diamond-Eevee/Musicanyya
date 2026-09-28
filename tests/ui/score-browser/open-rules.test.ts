@@ -58,6 +58,25 @@ describe('opening the browser: run guards (FR-007, R-2)', () => {
     }
   });
 
+  it('refuses to open in the gap between pressing Play or Practice and the run beginning (transport loading), but not for a Listen start (T102)', () => {
+    // No sound yet: `play()` puts the transport in `loading`, the run has not reached count-in or waiting.
+    for (const mode of ['play', 'practice'] as const) {
+      browserState.reset();
+      practiceState.setMode(mode);
+      transportState.play();
+      expect(transportState.get().phase).toBe('loading');
+      expect(controller().open()).toBe(false);
+      expect(browserState.get().phase).toBe('closed');
+      transportState.stop();
+    }
+
+    browserState.reset();
+    practiceState.setMode('listen');
+    transportState.play();
+    expect(transportState.get().phase).toBe('loading');
+    expect(controller().open()).toBe(true);
+  });
+
   it('pauses a playing Listen before opening, and keeps the paused position when the browser closes unopened', () => {
     practiceState.setMode('listen');
     transportState.setSoundReady(true);

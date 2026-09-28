@@ -110,5 +110,9 @@ It never shows it for a stopped run or a partial scope.
 
 `data-testid` values: `browser`, `browser-search`, `browser-rail`, `browser-list`, `browser-detail`,
 `browser-open-file`, `browser-continue`, `browser-suggested`. Row element: `data-ref="library:<id>"` or
-`data-ref="file:<fileKey>"`, plus `data-status`. The e2e seam `window` event `e2e-progress-seed` (dev builds only,
-like `e2e-midi`) seeds records and files for SC-002/SC-003 measurements.
+`data-ref="file:<fileKey>"`, plus `data-status`. The e2e seam `window` event `e2e-progress-seed` seeds records and files for SC-002/SC-003 measurements. Its detail is a
+list of `{ ref, event }` seeds, or `{ files, events }` where each file is `{ fileName, text, title, composer }` (stored
+through `putFile`, T086). Like `e2e-midi`, `e2e-ready` and `e2e-synthetic-grade` it is present in every build, the
+packaged one included (the Electron e2e depends on that); it is applied through the ordinary `ProgressStore.apply`, so a
+seeded history is as valid as a played one. Correction (T090): T094 and this section first said "dev builds only";
+no build flag ever removed it.
