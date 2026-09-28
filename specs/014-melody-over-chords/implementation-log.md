@@ -132,3 +132,41 @@
   - Needs model fit check: next tasks are T021-T026 (tier `deep`: authoring melodies in `content/library/exercises/key-change-*.json` under `MELODY_LADDER`).
 - Handoff: next = T021-T026 (tier `deep`, recommended: claude-opus-5.5); tree clean at e147ee9.
 
+
+## 2026-09-28 17:10 - claude-opus-5.5 (relay)
+- Done: T060, T021, T022 (introduction melodies), T062 (fingering on every melody note, contract exercise-definition
+  1.3.1), T023, T024 (beginner), T025, T026, T063 (intermediate; relative `raisedBecause` dropped), T027 (trains texts),
+  T028 (regenerated 54 items + index), T029 (9 key-change golden hashes), T061 (steps.test), T064 (planted.test),
+  T065 (identity golden), T030 (54 audit records on `exercise-theory-v3`), T059 (e2e Listen + Electron), T031.
+- In progress: none claimed. T032 (music review) was started with the `music-domain-expert` sub-agent but the session
+  ended before it reported, so no review is claimed: T032 is still open.
+- Decisions:
+  - T062: 005 FR-006 requires a finger on every note of a Learning exercise and `pnpm library:index` refuses
+    `fingeringCoverage` < 1 (the introduction items came out at 0.68), so the melody writes a finger on every note;
+    contract 1.3.1 and a research R6 amendment record it. Consequence: a phrase must finger every note consistently.
+  - T060 (from the previous, unlogged part of this session): research R4 amendment, a diatonic passing tone on the half
+    bar is exempt from `clash`; `music-domain-expert` agreed.
+  - Relative beginner A minor -> C and B minor -> D join by a finger-over from the thumb on the minor 6th (the one
+    shift at the key change); no other join fits leaps of a third and the fingering rule.
+  - Intermediate: every second-section variant opens with three eighth pairs (a run the level criteria read as
+    intermediate - beginner allows 4). Without it six parallel items computed beginner (FR-011 forbids a new
+    `raisedBecause`) and the relative minor-to-major pairs still needed theirs; now all 18 compute intermediate and
+    the relative `raisedBecause` is removed (FR-011 and the sweep test allow an existing one to go).
+  - T030: `keepStamps` treats a definition's `reviewedOn` equal to today as a default; the regeneration was run by
+    calling `buildExercises` with another `generatedOn` (no `.musicxml` changed, `created` kept).
+  - Changed expectations (behaviour changed by FR-002/FR-008): steps.test right-hand assertions (left hand unchanged),
+    planted.test plants in the left hand of melody items (its inversion swap goes downwards, since raising the bass
+    lands on a melody key - a real second difference), 9 golden hashes, identity golden (54 entries; other 127 and the
+    Fur Elise grade identical).
+- Verification: `pnpm exec vitest run tests/library tests/tools`: `Test Files 33 passed`, `Tests 2203 passed`;
+  `tests/core/library/exercise` + identity + planted: `Tests 1019 passed`; `pnpm library:fidelity --check`:
+  `182 records, 0 failed`; `pnpm typecheck` exit 0; `pnpm lint` exit 0; full `pnpm test:e2e`: `2 failed | 575 skipped |
+  963 passed` - `[firefox] score-browser.spec.ts:343` and `[electron] score-browser-timing.spec.ts:152` (feature 013),
+  each 3/3 passed alone with `--repeat-each=3`: load-sensitive, not regressions. Full `pnpm test` was not re-run after
+  the last commits (the last full run before T029-T030 had only the expected failures, all fixed since).
+- Problems / open questions: the previous hand-off (antigravity, 15:10) reported only filtered runs; the full suite at
+  its commit had 362 failures (planted, fidelity, exercise-claims, melody-sweep - the claims changed before the shelf),
+  now resolved. needs owner: T057 SC-005 listening check before merge (not blocking).
+- Handoff: next = T032 music review (tier `deep`, claude-opus-5.5; brief the `music-domain-expert` sub-agent on the six
+  key-change definitions - the compact notation used for authoring is described in this entry's commits), then T033
+  screenshots, T034 checkpoint (full gate), then Phase 4 (T035-T051). Run `pnpm test` first; tree clean after this commit.
