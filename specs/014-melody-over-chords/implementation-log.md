@@ -203,3 +203,55 @@
   item; intermediate fingering must be fixed before sign-off. The reviewer's theory references were from memory.
 - Handoff: next = T066 (deep, claude-opus-5.5), then T067 and T032's remaining fixes (3, 5, 6, 7), regenerate, then T033,
   T034. Ask the owner about finding 4 at session start. Tree clean after this commit.
+
+## 2026-09-28 18:30 - claude-opus-5.5 (relay, session "Speckit continue")
+- Note: two sessions ran T032 at once. This session's `music-domain-expert` review started 17:12; the other session
+  committed its own review, T066-T067 and an owner question at 17:13 (entry above, and it reset this session's T032
+  claim). The owner chose (session start answers): this session continues; introduction may shift once at the key
+  change; intermediate range is per section.
+- Done: T066, T067, T068, T069, T071 (new, below), T032, T033, T034.
+- T032 music review (`music-domain-expert`, two runs, both read-only, findings summarised):
+  1. First run (54 items): no wrong pitch anywhere; all 18 intermediate items had illegal leap fingering (crossings
+     without the thumb, same-finger jumps, 1-2 across a fifth) that the checker passed -> T066. Introduction:
+     A/B minor opening E D | E D | E -> E D | C D | E; parallel major-to-minor dead tonic bar -> 2 | 3 2 | 1; G minor
+     to G major bar 9 B A see-saw -> G. Notes kept: thumb on black keys forced by one position (accepted); range per
+     section (owner decision). The other session's review added: weak-beat octaves (T067), G->Em introduction
+     D E D E (fixed: G F# | G A | G F# | E), minor-to-major introduction without the minor tonic (T068/T069/T070),
+     E minor intermediate opening without E (fixed: G F# E B; the suggested E F# G B makes octaves with the bass).
+     Not applied: relative beginner join finger-over (the ladder's one shift at a section start allows it); relative
+     beginner minor sections without the raised 7th (FR-005 requires it only where the 7th leads to the tonic).
+  2. Follow-up run on the changed items: 14 introductions clean; 13 SHOULD FIX fingering refinements in the
+     intermediates (thumb-pivot neighbour figures, needless crossings, crossing onto the closing tonic, 2-3 over a
+     fourth) -> applied, with T071. Not applied: a-minor-to-a-major bars 2-3 (the phrase is shared with F minor, where
+     the thumb-under would land on B-flat); notes 7, 16, 17 (taste).
+- T066: checker reads a leap that moves the hand by direction (R6 amendment); the 24 intermediate phrases write a finger
+  on every note (generator unchanged, R6 amendment says why). Tests first: 5 planted leap faults failed as expected
+  (`Tests 5 failed | 41 passed`), then `47 passed`.
+- T067: `parallel-octaves` also compares the melody's last note before a chord start; test failed first (`1 failed |
+  48 passed`). Changed expectation: the clean intermediate fixture's bar 7 V6 -> V6/4 (its G# over a G# bass moved in
+  octaves to A - the fault the rule now finds; root position made E-E octaves instead). 6 phrases / 10 items rewritten.
+- T068: `MELODY_LADDER.introduction.shiftsMax` 0 -> 1, section start only; spec + data-model ladder rows. Changed
+  expectation: "a new five-finger position at the key change of an introduction item" was a `shift` finding, is now
+  none (owner decision); new test: a second, mid-section shift is one finding (failed first with two).
+- T069: A minor -> C major, B minor -> D major introduction play the tonic and leading tone (thumb on the 6th).
+  T070 (needs owner): E minor -> G major and D minor -> F major have no melody within the rules (E minor high breaks
+  level criterion 1, 40 > 38 semitones; every other join breaks steps-only, black-key thumb or nctRun).
+- T071 (new, found by the follow-up review): a step may move the hand at a chord start after at least a quarter
+  (R6 amendment). Changed expectation: the planted "ascending step 3 to 2" at bar 8's downbeat is now a legal shift
+  (new test asserts it); the fault moved to the middle of a bar in its own fixture.
+- T033: screenshots opened (tests/.generated/t033-*.png): c-major-to-a-minor/introduction, c-major-to-c-minor/beginner,
+  g-major-to-e-minor introduction/beginner/intermediate (half -> quarter -> eighth pairs, fingers on every note,
+  crossings only at intermediate), a-minor-to-c-major/introduction (C B | A G# | A G-natural | F, finger-over to E);
+  Practice via `--practice --play 3`: three events green, waits at G#4. The viewport shows two systems; later bars
+  checked in the MusicXML digest. Quickstart US1 expectation corrected (range G#4-D5, finger on every note).
+- T034 gate: `pnpm lint` exit 0 (299 warnings, pre-existing); `pnpm typecheck` exit 0; `pnpm test` exit 0
+  (`Test Files 272 passed`, `Tests 5742 passed`); `pnpm test:e2e`: `4 failed | 575 skipped | 961 passed` - piano-keyboard
+  :531 [chromium], us1-layout :215, us1-play :46, us3-run-chrome :116 [firefox], none touched by this feature; rerun
+  alone `--repeat-each=3`: 206 passed/1 failed, then 207 passed - load-sensitive (the full run shared the machine with
+  screenshots and vitest). Earlier full `pnpm test` had one load failure (013 query-timing 20.6 ms > 20, passes alone).
+  `pnpm library:fidelity --check`: 182 records, 0 failed. Identity golden: only the rewritten items changed; Fur Elise
+  grade unchanged.
+- Problems / open questions: needs owner: T070 (recommend accept - the left hand carries the minor key); T057 SC-005
+  listening check before merge.
+- Handoff: next = Phase 4, T035 (US3 drills; composing T042-T044 and review T049 are `deep`). Run `pnpm test` first;
+  tree clean after this commit.

@@ -230,13 +230,13 @@ as demanding as the one before, and the level check passes.
   within two bars by steps, and every join into it needs a leap, a thumb on a black key, two non-chord tones in a row,
   or (E minor high) a pitch span of 40 semitones against the level's 38 (criterion 1). Options: accept (the left hand
   carries the minor), or change the harmony of those two items' major section (not allowed by FR-002)
-- [~] T032 [US1] [deep] Music review of the authored key-change phrases with the `music-domain-expert` agent (readability,
+- [x] T032 [US1] [deep] Music review of the authored key-change phrases with the `music-domain-expert` agent (readability,
   musicality, level fit, fingering); fix findings in the definitions, regenerate, summarise findings in
-  `specs/014-melody-over-chords/implementation-log.md` (claimed: claude-opus-5.5 2026-09-28)
-- [ ] T033 [US1] Manual verification per `specs/014-melody-over-chords/quickstart.md` US1 and US2 (`pnpm screenshot
+  `specs/014-melody-over-chords/implementation-log.md`
+- [x] T033 [US1] Manual verification per `specs/014-melody-over-chords/quickstart.md` US1 and US2 (`pnpm screenshot
   --item ...` for c-major-to-a-minor/introduction, c-major-to-c-minor/beginner and the three g-major-to-e-minor items;
   open every PNG) and record what was seen in the log
-- [ ] T034 [US1] Checkpoint: full gate (`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`), log entry, commit
+- [x] T034 [US1] Checkpoint: full gate (`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`), log entry, commit
 
 **Checkpoint**: US1 and US2 verified by their Independent Tests; the drills and every other item are unchanged.
 
