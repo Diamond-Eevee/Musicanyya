@@ -155,9 +155,9 @@ as demanding as the one before, and the level check passes.
   `content/library/exercises/key-change-relative-introduction.json` - half and whole notes, five-finger position,
   steps only
 - [x] T022 [P] [US1] [deep] Same for `content/library/exercises/key-change-parallel-introduction.json`
-- [~] T023 [P] [US2] [deep] Author the beginner melodies in `content/library/exercises/key-change-relative-beginner.json` (claimed: claude-opus-5.5 2026-09-28)
+- [x] T023 [P] [US2] [deep] Author the beginner melodies in `content/library/exercises/key-change-relative-beginner.json`
   (quarters, runs of at most 4 quarters, leaps up to a third, at most one shift at a section start)
-- [~] T024 [P] [US2] [deep] Same for `content/library/exercises/key-change-parallel-beginner.json` (claimed: claude-opus-5.5 2026-09-28)
+- [x] T024 [P] [US2] [deep] Same for `content/library/exercises/key-change-parallel-beginner.json`
 - [ ] T025 [P] [US2] [deep] Author the intermediate melodies in `content/library/exercises/key-change-relative-intermediate.json`
   (eighth pairs on the beat, range up to an octave, thumb-under/finger-over, leaps up to a fifth to chord notes)
 - [ ] T026 [P] [US2] [deep] Same for `content/library/exercises/key-change-parallel-intermediate.json` (T025/T026: B major and
