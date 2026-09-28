@@ -92,6 +92,26 @@ describe('the successor table (feature 011 data-model §7)', () => {
     );
   });
 
+  // Feature 014 FR-012 (owner decision 2026-09-28, research R9): the five moved drills got a melody, so they start fresh -
+  // their entries stay as history for the audit report but are marked `resetBy: '014'`, and nothing supersedes them.
+  it("the five moved drills are reset by feature 014 (resetBy '014'), the other 36 are not", () => {
+    const reset = SUCCESSORS.filter((s) => s.resetBy === '014');
+    expect(reset.map((s) => s.oldId).sort()).toEqual(
+      SUCCESSORS.filter((s) => s.kind === 'moved')
+        .map((s) => s.oldId)
+        .sort(),
+    );
+    expect(reset).toHaveLength(5);
+    expect(SUCCESSORS.filter((s) => s.resetBy === undefined)).toHaveLength(36);
+  });
+
+  it('no definition supersedes an old id that feature 014 reset', () => {
+    const reset = new Set(SUCCESSORS.filter((s) => s.resetBy === '014').map((s) => s.oldId));
+    for (const definition of definitions)
+      for (const oldIds of Object.values(definition.supersedes ?? {}))
+        for (const oldId of oldIds) expect(reset.has(oldId), oldId).toBe(false);
+  });
+
   it("the definitions' `supersedes` agree with the table: same new id for the same old id", () => {
     const fromDefinitions = new Map<string, string>();
     for (const definition of definitions) {

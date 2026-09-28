@@ -158,4 +158,28 @@ describe('buildBrowserItems (T013)', () => {
     expect(otherRow.progress.attempts).toBe(1);
     expect(otherRow.progress.best).toEqual(otherResult);
   });
+
+  // Feature 014 T039 (FR-012, research R9): the drills that got a melody drop their feature-011 `supersedes`, so progress
+  // recorded on the pre-011 doubled-chord file is no longer pooled into the drill.
+  it('FR-012: a record under the pre-011 hash of the turnaround drill is no longer pooled into learning/keys/c-major/turnaround', () => {
+    const index = realIndex();
+    const drillId = 'learning/keys/c-major/turnaround';
+    // SHA-256 of learning/chords/changes/changes-turnaround-c-major on main at e450501 (tools/library/successors.ts)
+    const pre011Hash = '5578d7f61bf3a9dd896ef3a0c744c5636162c4b904ea5fde80e630417d8f3a4d';
+    const drill = index.items.find((i) => i.id === drillId);
+    if (!drill) throw new Error(`${drillId} is not on the shelf`);
+    expect(drill.hash).not.toBe(pre011Hash);
+
+    const oldResult = result({ runId: 'pre-011-run', finishedAt: '2026-09-20T10:00:00.000Z' });
+    const records = [record({ scoreKey: pre011Hash, attempts: 3, results: [oldResult], best: oldResult })];
+
+    const items = buildBrowserItems(index, [], records, DEFAULT_MASTERY_THRESHOLDS, compare);
+    const row = items.find((i) => i.ref.kind === 'library' && i.ref.id === drillId);
+    expect(row).toBeDefined();
+    if (!row) throw new Error('unreachable');
+    expect(row.progress.status).toBe('new');
+    expect(row.progress.attempts).toBe(0);
+    expect(row.progress.best).toBeNull();
+    expect(row.progress.history).toEqual([]);
+  });
 });

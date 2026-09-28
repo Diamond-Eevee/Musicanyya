@@ -400,8 +400,14 @@ describe('the Learning > Keys shelf (feature 011 US1)', () => {
 
   it('every old item that US1 replaces is superseded by exactly one new item, with the SHA-256 of its old file (FR-005, FR-020)', async () => {
     const { index } = await buildLibraryIndex(libraryRoot);
-    const handledByUs1 = SUCCESSORS.filter((s) => s.newId.startsWith('learning/keys/'));
+    // Feature 014 FR-012: the three drills under learning/keys that got a melody start fresh (resetBy '014') - no claimant.
+    const handledByUs1 = SUCCESSORS.filter((s) => s.newId.startsWith('learning/keys/') && s.resetBy === undefined);
     expect(handledByUs1.length).toBeGreaterThan(0);
+    for (const successor of SUCCESSORS.filter((s) => s.newId.startsWith('learning/keys/') && s.resetBy === '014'))
+      expect(
+        index.items.filter((i) => i.meta.supersedes?.some((s) => s.id === successor.oldId)).map((i) => i.id),
+        successor.oldId,
+      ).toEqual([]);
     for (const successor of handledByUs1) {
       const claimants = index.items.filter((i) => i.meta.supersedes?.some((s) => s.id === successor.oldId));
       expect(
@@ -509,7 +515,9 @@ describe('the Learning > Key changes shelf (feature 011 US2)', () => {
     expect(index.sections.find((s) => s.id === 'learning/key-changes')?.formerIds).toEqual(['learning/chords/changes']);
   });
 
-  it('the two moved drills supersede their old ids, with the SHA-256 of the old file (FR-014, FR-020)', async () => {
+  // Changed expectation (feature 014 FR-012, owner decision 2026-09-28): the two moved drills superseded their old ids until
+  // feature 014 gave them a melody; now they start fresh, so no item supersedes those ids and their entries say resetBy '014'.
+  it('the two moved drills start fresh after feature 014: no item supersedes their old ids (FR-014, 014 FR-012)', async () => {
     const { index } = await buildLibraryIndex(libraryRoot);
     const moved = SUCCESSORS.filter((s) => s.newId?.startsWith('learning/key-changes/'));
     expect(moved.map((s) => s.oldId).sort()).toEqual([
@@ -517,9 +525,9 @@ describe('the Learning > Key changes shelf (feature 011 US2)', () => {
       'learning/chords/changes/changes-same-tonic-c-major',
     ]);
     for (const successor of moved) {
+      expect(successor.resetBy, successor.oldId).toBe('014');
       const claimants = index.items.filter((i) => i.meta.supersedes?.some((s) => s.id === successor.oldId));
-      expect(claimants.map((i) => i.id)).toEqual([successor.newId]);
-      expect(claimants[0]?.meta.supersedes?.find((s) => s.id === successor.oldId)?.hash).toBe(successor.hash);
+      expect(claimants.map((i) => i.id)).toEqual([]);
     }
   });
 });
@@ -580,13 +588,18 @@ describe('the songs on the Learning > Keys shelf (feature 011 US3)', () => {
 
 // Feature 011 T069 (SC-006, FR-020): every one of the 41 items the old Learning shelf held has a successor on the shelf.
 describe('the successors of the old Learning shelf (feature 011 US4, SC-006)', () => {
-  it('all 41 old ids appear exactly once across the shelf supersedes, each with the SHA-256 recorded from main', async () => {
+  // Changed expectation (feature 014 FR-012): the 5 drills that got a melody start fresh (resetBy '014'), so 36 of the 41
+  // old ids are claimed, each exactly once, and the 5 reset ones by no item.
+  it('the 36 old ids not reset by feature 014 appear exactly once across the shelf supersedes, with the SHA-256 from main', async () => {
     const { index } = await buildLibraryIndex(libraryRoot);
     expect(SUCCESSORS).toHaveLength(41);
     expect(new Set(SUCCESSORS.map((s) => s.oldId)).size).toBe(41);
     const claims = index.items.flatMap((i) => (i.meta.supersedes ?? []).map((s) => ({ ...s, by: i.id })));
-    expect(claims).toHaveLength(41);
-    for (const successor of SUCCESSORS) {
+    expect(claims).toHaveLength(36);
+    const reset = SUCCESSORS.filter((s) => s.resetBy === '014');
+    expect(reset).toHaveLength(5);
+    for (const successor of reset) expect(claims.filter((c) => c.id === successor.oldId), successor.oldId).toEqual([]);
+    for (const successor of SUCCESSORS.filter((s) => s.resetBy === undefined)) {
       const found = claims.filter((c) => c.id === successor.oldId);
       expect(
         found.map((c) => c.by),

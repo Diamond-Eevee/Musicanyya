@@ -52,6 +52,15 @@ const claimOf = (title: string): ExerciseClaim => {
   if (!item) throw new Error(`no exercise on the shelf is titled "${title}"`);
   return claimForItem(item);
 };
+/** Feature 014 (US3): the five drills still on the shelf play their chords in the left hand under a right-hand melody,
+ *  at the level each is shelved under (spec US3, tasks T042-T044): drill name -> level. */
+const MELODY_DRILLS: Record<string, string> = {
+  'I-V-vi-IV': 'beginner',
+  'I-vi-ii-V': 'beginner',
+  'diatonic ladder': 'intermediate',
+  'major and minor': 'advanced',
+  'minor and major': 'advanced',
+};
 /** "I", "IV6", "V64" -> the Roman numerals and inversions of a claim, as one short string per chord. */
 const shortChords = (claim: ExerciseClaim): string[] =>
   claim.chords.map((c) => `${c.roman}${['', '6', '64'][c.inversion]}`);
@@ -177,8 +186,9 @@ describe('the sequences the claim table states', () => {
     expect(minor.chords).toHaveLength(15);
   });
 
-  it('every chord is played by both hands as a triad, except in the hand-written scale item', () => {
-    for (const item of shelf.filter((s) => !s.itemId.endsWith('c-major-scale-and-chords'))) {
+  it('every chord is played by both hands as a triad, except in the hand-written scale item and the melody drills', () => {
+    const melodyDrill = (s: ShelfExercise) => parseExerciseTitle(s.title).name in MELODY_DRILLS;
+    for (const item of shelf.filter((s) => !s.itemId.endsWith('c-major-scale-and-chords') && !melodyDrill(s))) {
       const claim = claimForItem(item);
       for (const c of claim.chords) {
         expect(c.hands, item.itemId).toEqual(['left', 'right']);
@@ -600,4 +610,64 @@ describe('the generated key changes agree with their claims, for all 18 pairs (t
       });
     }
   }
+});
+
+// ---- exercise-theory-v3: the chord-change drills with a melody (feature 014 US3, T037) ----
+// The five drills still on the shelf: the cycle with its rests (section A), the cycle joined (section B) and the tonic
+// (the final bar), the chords in the left hand only, the right hand a melody at the drill's level.
+describe('the melody drill claims: left-hand chords under a right-hand melody (feature 014 US3)', () => {
+  const DRILL_TITLES: [string, string, number][] = [
+    ['C major - I-V-vi-IV', 'The most transferable four-chord loop in popular music.', 4],
+    ['C major - I-vi-ii-V', 'The turnaround: minimal hand travel, one or two common tones per change.', 4],
+    ['C major - diatonic ladder', 'Every diatonic triad of the key in order, major, minor and diminished by shape.', 8],
+    ['C major - major and minor', 'Same-tonic quality change: major to minor and back.', 4],
+    ['A minor - minor and major', 'The same same-tonic quality change moving the other way, minor to major.', 4],
+  ];
+
+  it.each(DRILL_TITLES)('%s: sections A, B and the final bar, each a melody over left-hand chords', (title, trains, n) => {
+    const claim = claimForItem({ itemId: 'x', title, trains });
+    const level = MELODY_DRILLS[parseExerciseTitle(title).name];
+    expect(level).toBeDefined();
+    expect(claim.sections?.map((s) => [s.firstBar, s.lastBar])).toEqual([
+      [1, n],
+      [n + 1, 2 * n],
+      [2 * n + 1, 2 * n + 1],
+    ]);
+    for (const section of claim.sections ?? []) {
+      expect(section.key).toEqual(claim.key);
+      expect(section.right).toEqual({ kind: 'melody', level });
+      expect(section.left.kind).toBe('chords');
+      const left = section.left.kind === 'chords' ? section.left.chords : [];
+      expect(left.every((c) => c.voicing === 'triad')).toBe(true);
+    }
+    const sectionChords = (claim.sections ?? []).flatMap((s) =>
+      s.left.kind === 'chords' ? s.left.chords.map((c) => `${c.roman}${['', '6', '64'][c.inversion]}`) : [],
+    );
+    expect(sectionChords).toEqual(shortChords(claim));
+    expect(claim.chords.every((c) => c.hands.join() === 'left')).toBe(true);
+    expect(claim.segments).toBeUndefined();
+  });
+
+  it('the drills retired from the shelf keep their v1 claims: both hands, no sections', () => {
+    const claim = claimOf('C major - ii-V-I');
+    expect(claim.sections).toBeUndefined();
+    expect(claim.chords.every((c) => c.hands.join() === 'left,right')).toBe(true);
+  });
+
+  it('the five drill definitions on the shelf agree with their claims (the independent check)', () => {
+    const drills = readdirSync(contentExercises).filter((f) => f.startsWith('changes-'));
+    expect(drills).toHaveLength(5);
+    for (const file of drills) {
+      const definition = JSON.parse(readFileSync(join(contentExercises, file), 'utf8')) as ExerciseDefinition;
+      for (const item of generateFamily(definition, '2026-09-28')) {
+        const claim = claimForItem({
+          itemId: `${item.section}/${item.fileStem}`,
+          title: item.meta.title,
+          trains: item.meta.trains ?? '',
+        });
+        expect(claim.sections, item.meta.title).toBeDefined();
+        expect(checkExercise(item.xml, claim), item.meta.title).toEqual([]);
+      }
+    }
+  });
 });

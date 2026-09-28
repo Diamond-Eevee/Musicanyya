@@ -224,7 +224,8 @@ as demanding as the one before, and the level check passes.
   step 3 to 2" fault at bar 8's downbeat is now a legal shift; the fault moves to the middle of a bar), then
   `melody-rules.ts`; then the follow-up review's fingering fixes (thumb-pivot neighbour figures, needless crossings,
   5-4-3-2-1 cadences) in `key-change-{relative,parallel}-intermediate.json`; regenerate (only `<fingering>` changes)
-- [ ] T070 needs owner: relative introduction E minor -> G major and D minor -> F major still play neither the minor
+- [x] T070 (owner decision 2026-09-28: accept - the left hand carries the minor key; the two items stay as they are,
+  and `trains` still holds since it speaks of the new key's notes) relative introduction E minor -> G major and D minor -> F major still play neither the minor
   tonic nor its leading tone in the right hand. No melody within the introduction rules exists for them even with the
   one shift: the major section holds one tonic chord for 8 bars and must sound the new key's note (D / C natural)
   within two bars by steps, and every join into it needs a leap, a thumb on a black key, two non-chord tones in a row,
@@ -252,23 +253,23 @@ the same chords and inversions as before, the right hand a melody.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T035 [P] [US3] Extend `tests/core/library/exercise/changes.test.ts`: with a top-level `melody`, (a) the left
+- [x] T035 [P] [US3] Extend `tests/core/library/exercise/changes.test.ts`: with a top-level `melody`, (a) the left
   hand's events equal those generated from the same definition without `melody` (chords, inversions, chained voicing,
   ties, quarter rests, repeat); (b) in section A the right hand has a quarter rest at the same onset as the left
   hand's; (c) no `<chord/>` on staff 1; (d) `melody` on a non-`changes` family throws; (e) a part that does not fill
   section A/B/final throws. Run: fails
-- [ ] T036 [P] [US3] Extend `tests/library/melody-sweep.test.ts` to the 5 drills
+- [x] T036 [P] [US3] Extend `tests/library/melody-sweep.test.ts` to the 5 drills
   (`learning/keys/c-major/{i-v-vi-iv,turnaround,diatonic-ladder}`,
   `learning/key-changes/c-major-to-c-minor/major-and-minor`, `learning/key-changes/a-minor-to-a-major/minor-and-major`):
   0 findings at each item's level, including the `alter: -1` third over minor chords of the same-tonic drills. Run:
   fails (`doubled`)
-- [ ] T037 [P] [US3] Update `tests/tools/fidelity/exercise-claims.test.ts` for the drill claims (right hand melody,
+- [x] T037 [P] [US3] Update `tests/tools/fidelity/exercise-claims.test.ts` for the drill claims (right hand melody,
   rule set v3). Run: fails
-- [ ] T038 [P] [US3] Update `tests/library/identity.test.ts` and `tests/library/index.test.ts` first: the 5 successor
+- [x] T038 [P] [US3] Update `tests/library/identity.test.ts` and `tests/library/index.test.ts` first: the 5 successor
   entries whose `newId` is a drill carry `resetBy: '014'`, no shelf item claims their old ids in `supersedes`, and
   the feature-011 "every old id appears exactly once" invariants hold for the other 36; log the changed expectation
   (owner decision FR-012). Run: fails
-- [ ] T039 [P] [US3] Extend the FR-012 test of T018 to a drill: a record under the pre-011 id's hash (old `supersedes`
+- [x] T039 [P] [US3] Extend the FR-012 test of T018 to a drill: a record under the pre-011 id's hash (old `supersedes`
   hash) is no longer pooled into `learning/keys/c-major/turnaround`. Run: fails (still pooled today)
 
 ### Implementation
