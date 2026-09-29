@@ -38,7 +38,7 @@ cropped pages (FR-003) are foundational because every story measures systems acr
 
 ## Phase 2: Foundational - cropped pages with their own heights (blocks all user stories)
 
-**Model**: standard (claude-sonnet-5 or gemini-3.1-pro)
+**Model**: standard (gemini-3.8-flash or claude-sonnet-5.5)
 **Covers**: FR-003, `contracts/score-layout.md` 2.0.0 sections 1-3 (except `spacingBraceGroup`, US3), G-5 - G-7
 
 ### Tests (write first, confirm they fail)
@@ -93,7 +93,7 @@ repertoire/advanced/fur-elise-complete --width 1920 --height 950` shows two syst
 
 ## Phase 3: User Story 1 - The next system is always visible (Priority: P1) MVP
 
-**Model**: standard (claude-sonnet-5 or gemini-3.1-pro)
+**Model**: standard (gemini-3.8-flash or claude-sonnet-5.5)
 **Goal**: during Listen, Practice and Play runs the view keeps the cursor's system and the next one in clear space,
 moving (instantly, in this story) only when that is not already the case.
 **Independent Test**: spec US1 - Für Elise (complete), 1920 x 1080, piano strip hidden, Listen through two page
@@ -166,7 +166,7 @@ changes; at every system change where two systems fit, both are fully in clear s
 
 ## Phase 4: User Story 2 - Fluent scrolling instead of jumps (Priority: P2)
 
-**Model**: standard (claude-sonnet-5 or gemini-3.1-pro)
+**Model**: standard (gemini-3.8-flash or claude-sonnet-5.5)
 **Goal**: every follow movement is a 400 ms glide (redirected smoothly, instant with reduced motion, cancelled by the
 musician's own scroll), and overlays are drawn after the scroll so they never lag.
 **Independent Test**: spec US2 - record several system changes and one page change: every movement is a continuous
@@ -235,7 +235,7 @@ and settle time), US1 still green, full gate, log entry, commit.
 
 ## Phase 5: User Story 3 - Two systems fit more often; otherwise show what fits (Priority: P3)
 
-**Model**: standard (claude-sonnet-5 or gemini-3.1-pro); the fixture design (T025) and the notation review (T030) are
+**Model**: standard (gemini-3.8-flash or claude-sonnet-5.5); the fixture design (T025) and the notation review (T030) are
 `deep` (claude-opus-5.5)
 **Goal**: piano grand staves are engraved with the compact spacing; where two systems still do not fit, the current
 system is shown at the top with the start of the next below, without any resize or hint.
@@ -309,7 +309,7 @@ commit.
 
 ## Phase 6: Polish & Cross-Cutting
 
-**Model**: standard (claude-sonnet-5 or gemini-3.1-pro)
+**Model**: standard (gemini-3.8-flash or claude-sonnet-5.5)
 
 - [x] T032 [P] [light] Update `docs/agents/reference.md` Active Technologies: "Feature 015 (planned)" -> "(implemented)"
   with the final constant values if they changed; check that `data-model.md` section 3 matches `src/engine/config.ts`
