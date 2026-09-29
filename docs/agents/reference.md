@@ -349,9 +349,11 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
 - Feature 014 (implemented): no new technology and no new dependency. Exercise definitions gain a `melody` hand part
   (contract exercise-definition 1.3); a dev-only melody rule check (`tools/library/fidelity/melody-rules.ts`, audit rule
   set `exercise-theory-v3`) and a named `MELODY_LADDER` in `src/core/defaults.ts`.
-- Feature 015 (planned): no new technology and no new dependency. Verovio options change (`adjustPageHeight: 1`,
-  page margins 18/18, `spacingBraceGroup: 8`; score-layout contract 2.0.0), so pages are cropped and have their own
-  heights. Follow uses a pure look-ahead rule and glide (`src/ui/score/follow.ts`) in the existing rAF loop, with
+- Feature 015 (implemented): no new technology and no new dependency. Verovio options change (`adjustPageHeight: 1`,
+  page margins 18/18, `spacingBraceGroup: 8`; score-layout contract 2.1.0), so pages are cropped and have their own
+  heights; the page sanitiser gives the embedded SMuFL font `ascent-override: 75%` / `descent-override: 25%` so text in
+  the music font is measured by its ink (`SMUFL_TEXT_*_PCT`). Follow uses a pure look-ahead rule and glide
+  (`src/ui/score/follow.ts`, follow-view contract 1.2.0) in the existing rAF loop, with
   `matchMedia('(prefers-reduced-motion: reduce)')`; native smooth scrolling is deliberately not used.
 
 <!-- ACTIVE-TECHNOLOGIES:END -->

@@ -1,7 +1,7 @@
 # Contract: Follow view (look-ahead target and glide)
 
 **Version**: `1.2.0` (1.2.0, 2026-09-29, owner decision after T028 measured SC-007: the top gap of rule 3 yields when it
-alone keeps two systems from fitting; 1.1.0, 2026-09-28 after analyze A1: a redirect keeps the running glide's end time, new
+alone keeps two systems from fitting, and section 4 documents `data-gliding`; 1.1.0, 2026-09-28 after analyze A1: a redirect keeps the running glide's end time, new
 constant `FOLLOW_GLIDE_MIN_REDIRECT_MS`; 1.0.0 was the first version). Replaces the follow rule "keep the cursor's measure in the middle 60 % and jump to centre
 it" (001 FR-014, `followScrollTo` with `FOLLOW_MARGIN`) **for runs** (Listen playing, Practice session, Play run).
 Revealing a Grade mark after a run (009 FR-023) keeps the old middle-band rule and is not covered here.
@@ -101,7 +101,9 @@ Per animation frame, in this order:
 4. Advance the glide: `glidePosition(glide, now)` -> `scrollOwn(top)`; drop the glide when `done`.
 5. Draw the cursor, Practice band/marks and Play marks (after the scroll, so overlays never lag the music).
 
-While a glide runs, `mountVisiblePages()` also mounts the pages within one screen of `glide.to` (research R-7).
+While a glide runs, `mountVisiblePages()` also mounts the pages within one screen of `glide.to` (research R-7), and
+`<mx-score-view>` carries `data-gliding="true"`, removed when the glide ends or is cancelled (1.2.0: documented; the
+e2e checks use it to tell a glide from a settled view, `tests/e2e/us4-overlays.spec.ts`).
 Reduced motion is read from `matchMedia('(prefers-reduced-motion: reduce)')` when a glide starts.
 
 ## 5. Constants (`src/engine/config.ts`)

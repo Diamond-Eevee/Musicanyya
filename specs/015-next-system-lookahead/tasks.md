@@ -300,7 +300,7 @@ research R-4
   voice + piano Score; the agent checks collisions and crowding against printed-edition norms; findings summarised in
   the log. A collision found is a stop-and-ask (value change needs the owner), not a silent tweak
 
-- [ ] T031 [US3] Checkpoint: see below
+- [~] T031 [US3] Checkpoint: see below
 
 **Checkpoint**: US3 Independent Test verified (T026 output in the log), US1 and US2 still green, full gate, log entry,
 commit.
@@ -311,10 +311,10 @@ commit.
 
 **Model**: standard (claude-sonnet-5 or gemini-3.1-pro)
 
-- [ ] T032 [P] [light] Update `docs/agents/reference.md` Active Technologies: "Feature 015 (planned)" -> "(implemented)"
+- [x] T032 [P] [light] Update `docs/agents/reference.md` Active Technologies: "Feature 015 (planned)" -> "(implemented)"
   with the final constant values if they changed; check that `data-model.md` section 3 matches `src/engine/config.ts`
   name for name and value for value (fix the document, not the code, if only the document is stale)
-- [ ] T033 [P] [light] Fold any contract change made during implementation into `contracts/score-layout.md` /
+- [x] T033 [P] [light] Fold any contract change made during implementation into `contracts/score-layout.md` /
   `contracts/follow-view.md` with a version bump (MINOR additive, MAJOR breaking); if none, note "contracts unchanged"
   in the log
 - [ ] T034 Run the manual verification of `quickstart.md` (US1-US3 sections that do not need the owner; same
