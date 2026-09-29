@@ -283,6 +283,13 @@ groups (Light, Dark). Each shows a small swatch (desk, surface, accent). The Vie
 (004 FR-014a), so FR-022 holds. Selecting a radio applies the theme at once. Nothing touches a running session,
 because the popup is non-modal and the change is CSS only (FR-023, Constitution VI).
 
+**During a run** (found at implementation, owner decision 2026-09-29): feature 004 disables every bar-menu entry
+while a run is active, so the View popup could not be opened during Listen, which SC-010 and the US5 test need.
+The View entry is therefore enabled during a **Listen** run (playing or paused), and the run guard leaves the View
+popup open then (ui-shell 1.3.0). During a Practice session or a Play run nothing changes: no popup over the music
+of a graded or waiting session (004 SC-004). Alternatives: View open in every run (against 004 SC-004); keep 004
+as is and switch themes during a run only through Automatic (the US5 test could not be met).
+
 **Rationale**: radios give "active shown by more than colour" and keyboard behaviour (arrow keys) for free.
 
 **Alternatives considered**: a `<select>` (swatches cannot be shown); a separate Theme menu in the bar (the bar

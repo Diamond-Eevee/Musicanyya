@@ -1,10 +1,15 @@
 # Contract: UI shell (slim bar, panel host, overlays)
 
-**Version**: `1.2.0` (new with feature 004)
+**Version**: `1.3.0` (new with feature 004)
 **Owner**: `src/ui/elements/mx-app.ts`, `src/ui/layout/*`, `src/ui/state/viewState.ts`
 
 This contract fixes the shape of the application window so that every other element knows where it
 may live. It is a UI-layer contract only: no core type, no engine port and no real-time path changes.
+
+**1.3.0** (feature 016-modern-look-logo, MINOR, owner decision 2026-09-29): Section 3: the **View** entry stays
+enabled during a Listen run (playing or paused), so the theme can be changed while listening (016 SC-010,
+US5). It is the only exception: during a Practice session or a Play run every entry stays disabled, and starting
+any run still closes any open popup. The View popup opened during Listen is not closed by the run guard.
 
 **1.2.0** (feature 016-modern-look-logo, MINOR): Section 2: new first bar slot `#brand` (logo,
 [brand.md](../../../specs/016-modern-look-logo/contracts/brand.md)), not focusable, not a toolbar item; the fit order
@@ -97,11 +102,13 @@ State machine (source of truth: `viewState.openPanel`, see `data-model.md` secti
 | menu entry activated | `openPanel(id)`; any other panel closes |
 | close button / Escape / click outside | `closePanel()`; focus returns to the invoker |
 | a run starts (Listen, Practice or Play) | `closeForRun()` -> `openPanel = null` |
+| View opened during a Listen run (1.3.0) | stays open; any other panel opened during a run is closed |
 | a notice arrives | nothing; notices never change `openPanel` and never take focus |
 | a Play run is graded | `openPanel('grade')` - the Grade arrives over the Score and takes no focus |
 
 **No popup during a run.** While a Listen, Practice or Play run can be stopped (count-in, running, paused) every
-menu entry is disabled. A popup would cover music - a short score is one page, so nothing could scroll clear of it -
+menu entry is disabled - except **View** during a Listen run (1.3.0: the listener chose to open it, and Listen
+grades nothing). A popup would cover music - a short score is one page, so nothing could scroll clear of it -
 and `SC-004` says nothing but the Score, the bar and notices is on screen during a run. Starting a run closes any
 open popup (`closeForRun`) and the entries come back when it ends.
 

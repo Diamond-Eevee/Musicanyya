@@ -3,11 +3,13 @@ import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { THEME_ACCENT_MIN_DELTA_E } from '../../src/engine/config';
 import { DISC_COLOR, HELD_OVER_COLOR, SKIPPED_COLOR } from '../../src/ui/score/pressed-keys';
+import { THEMES } from '../../src/ui/theme/themes';
 
 const themesCssPath = path.resolve(__dirname, '../../src/ui/styles/themes.css');
 const tokensCssPath = path.resolve(__dirname, '../../src/ui/styles/tokens.css');
 const gradeMarksPath = path.resolve(__dirname, '../../src/ui/score/grade-marks.ts');
 const practiceMarksPath = path.resolve(__dirname, '../../src/ui/score/practice-marks.ts');
+const electronMainPath = path.resolve(__dirname, '../../electron/main.ts');
 
 interface RGB {
   r: number;
@@ -154,18 +156,38 @@ function deltaE00(lab1: Lab, lab2: Lab): number {
   return dE;
 }
 
+/**
+ * Parses `selector { --x: v; }` blocks. A block inside an at-rule is keyed `<at-rule prelude> <selector>`, e.g.
+ * `@media (prefers-color-scheme: dark) :root:not([data-theme])`, so it never merges with the same selector outside.
+ */
 function parseCssDeclarations(cssText: string): Map<string, Map<string, string>> {
   const blocks = new Map<string, Map<string, string>>();
-  const regex = /([^{}]+)\{([^{}]+)\}/g;
-  for (const match of cssText.matchAll(regex)) {
-    const selector = match[1].trim();
-    const body = match[2];
-    const decls = blocks.get(selector) ?? new Map<string, string>();
-    const declRegex = /([-\w]+)\s*:\s*([^;]+);/g;
-    for (const declMatch of body.matchAll(declRegex)) {
-      decls.set(declMatch[1].trim(), declMatch[2].trim());
+  const css = cssText.replace(/\/\*[\s\S]*?\*\//g, '');
+  const context: string[] = [];
+  let start = 0;
+  for (let i = 0; i < css.length; i++) {
+    const ch = css[i];
+    if (ch === '{') {
+      const prelude = css.slice(start, i).trim();
+      const close = css.indexOf('}', i);
+      const inner = css.slice(i + 1, close);
+      if (prelude.startsWith('@') || inner.includes('{')) {
+        context.push(prelude);
+        start = i + 1;
+        continue;
+      }
+      const key = [...context, prelude].join(' ');
+      const decls = blocks.get(key) ?? new Map<string, string>();
+      for (const declMatch of inner.matchAll(/([-\w]+)\s*:\s*([^;]+);/g)) {
+        decls.set(declMatch[1].trim(), declMatch[2].trim());
+      }
+      blocks.set(key, decls);
+      i = close;
+      start = close + 1;
+    } else if (ch === '}') {
+      context.pop();
+      start = i + 1;
     }
-    blocks.set(selector, decls);
   }
   return blocks;
 }
@@ -378,116 +400,90 @@ describe('Theme palette and contrast tests (theme.md 3.2/3.3, research R-5/R-6)'
     }
   });
 
-  describe('CSS files checks: (a)-(f)', () => {
-    it('(a) :root[data-theme="paper"] block defines every token of theme.md 3.2 and color-scheme: light', () => {
-      expect(fs.existsSync(themesCssPath), 'themes.css must exist').toBe(true);
-      const themesCss = fs.readFileSync(themesCssPath, 'utf-8');
-      const blocks = parseCssDeclarations(themesCss);
-      const paperBlock = blocks.get(':root[data-theme="paper"]');
-      expect(paperBlock, ':root[data-theme="paper"] block must exist').toBeDefined();
+  describe('CSS files checks: (a)-(f), every theme (T009, T034)', () => {
+    const requiredTokens = [
+      '--mx-desk',
+      '--mx-surface',
+      '--mx-raised',
+      '--mx-border',
+      '--mx-ink',
+      '--mx-ink-muted',
+      '--mx-accent',
+      '--mx-on-accent',
+      '--mx-accent-soft',
+      '--mx-focus',
+      '--mx-warning',
+      '--mx-start-text',
+      '--mx-loop-text',
+      'color-scheme',
+    ];
+    const cssBlocks = () => parseCssDeclarations(fs.readFileSync(themesCssPath, 'utf-8'));
+    /** A token's colour inside one block, following one `var()` step within the same block. */
+    const rgbIn = (block: Map<string, string> | undefined, token: string): RGB => {
+      let val = block?.get(token) ?? '#000000';
+      if (val.startsWith('var(')) val = block?.get(val.slice(4, -1).trim()) ?? '#000000';
+      return parseHexColor(val);
+    };
 
-      const requiredTokens = [
-        '--mx-desk',
-        '--mx-surface',
-        '--mx-raised',
-        '--mx-border',
-        '--mx-ink',
-        '--mx-ink-muted',
-        '--mx-accent',
-        '--mx-on-accent',
-        '--mx-accent-soft',
-        '--mx-focus',
-        '--mx-warning',
-        '--mx-start-text',
-        '--mx-loop-text',
-        'color-scheme',
-      ];
-      for (const token of requiredTokens) {
-        expect(paperBlock?.has(token), `paper must define ${token}`).toBe(true);
-      }
-      expect(paperBlock?.get('color-scheme')).toBe('light');
-    });
+    for (const { id, kind } of THEMES) {
+      const selector = `:root[data-theme="${id}"]`;
 
-    it('(b) every contrast pair of paper in themes.css meets its ratio, naming the pair on failure', () => {
-      const themesCss = fs.readFileSync(themesCssPath, 'utf-8');
-      const blocks = parseCssDeclarations(themesCss);
-      const paper = blocks.get(':root[data-theme="paper"]');
-      expect(paper).toBeDefined();
-
-      const getRgb = (token: string): RGB => {
-        let val = paper?.get(token) ?? '#000000';
-        if (val.startsWith('var(')) {
-          val = paper?.get(val.slice(4, -1).trim()) ?? '#000000';
+      it(`(a) ${selector} defines every token of theme.md 3.2 and color-scheme: ${kind}`, () => {
+        const block = cssBlocks().get(selector);
+        expect(block, `${selector} block must exist`).toBeDefined();
+        for (const token of requiredTokens) {
+          expect(block?.has(token), `${id} must define ${token}`).toBe(true);
         }
-        return parseHexColor(val);
-      };
+        expect(block?.get('color-scheme')).toBe(kind);
+      });
 
-      const desk = getRgb('--mx-desk');
-      const surface = getRgb('--mx-surface');
-      const raised = getRgb('--mx-raised');
-      const border = getRgb('--mx-border');
-      const ink = getRgb('--mx-ink');
-      const inkMuted = getRgb('--mx-ink-muted');
-      const accent = getRgb('--mx-accent');
-      const onAccent = getRgb('--mx-on-accent');
-      const accentSoft = getRgb('--mx-accent-soft');
-      const focus = getRgb('--mx-focus');
-      const warning = getRgb('--mx-warning');
-      const startText = getRgb('--mx-start-text');
-      const loopText = getRgb('--mx-loop-text');
+      it(`(b) every contrast pair of ${id} in themes.css meets its ratio, naming the pair on failure`, () => {
+        const block = cssBlocks().get(selector);
+        expect(block).toBeDefined();
+        const c = (token: string) => rgbIn(block, token);
+        const pairs: Array<[string, string, number]> = [
+          ['--mx-border', '--mx-surface', 3],
+          ['--mx-border', '--mx-raised', 3],
+          ['--mx-ink', '--mx-desk', 4.5],
+          ['--mx-ink', '--mx-surface', 4.5],
+          ['--mx-ink', '--mx-raised', 4.5],
+          ['--mx-ink', '--mx-accent-soft', 4.5],
+          ['--mx-ink-muted', '--mx-desk', 4.5],
+          ['--mx-ink-muted', '--mx-surface', 4.5],
+          ['--mx-ink-muted', '--mx-raised', 4.5],
+          ['--mx-ink-muted', '--mx-accent-soft', 4.5],
+          ['--mx-accent', '--mx-desk', 3],
+          ['--mx-accent', '--mx-surface', 3],
+          ['--mx-accent', '--mx-raised', 3],
+          ['--mx-on-accent', '--mx-accent', 4.5],
+          ['--mx-focus', '--mx-desk', 3],
+          ['--mx-focus', '--mx-surface', 3],
+          ['--mx-focus', '--mx-raised', 3],
+          ['--mx-warning', '--mx-surface', 3],
+          ['--mx-warning', '--mx-raised', 3],
+          ['--mx-start-text', '--mx-raised', 4.5],
+          ['--mx-loop-text', '--mx-raised', 4.5],
+        ];
+        for (const [fg, bg, ratio] of pairs) {
+          expect(contrastRatio(c(fg), c(bg)), `${id}: ${fg} on ${bg}`).toBeGreaterThanOrEqual(ratio);
+        }
+      });
 
-      expect(contrastRatio(border, surface), 'border on surface').toBeGreaterThanOrEqual(3.0);
-      expect(contrastRatio(border, raised), 'border on raised').toBeGreaterThanOrEqual(3.0);
-
-      expect(contrastRatio(ink, desk), 'ink on desk').toBeGreaterThanOrEqual(4.5);
-      expect(contrastRatio(ink, surface), 'ink on surface').toBeGreaterThanOrEqual(4.5);
-      expect(contrastRatio(ink, raised), 'ink on raised').toBeGreaterThanOrEqual(4.5);
-      expect(contrastRatio(ink, accentSoft), 'ink on accent-soft').toBeGreaterThanOrEqual(4.5);
-
-      expect(contrastRatio(inkMuted, desk), 'ink-muted on desk').toBeGreaterThanOrEqual(4.5);
-      expect(contrastRatio(inkMuted, surface), 'ink-muted on surface').toBeGreaterThanOrEqual(4.5);
-      expect(contrastRatio(inkMuted, raised), 'ink-muted on raised').toBeGreaterThanOrEqual(4.5);
-      expect(contrastRatio(inkMuted, accentSoft), 'ink-muted on accent-soft').toBeGreaterThanOrEqual(4.5);
-
-      expect(contrastRatio(accent, desk), 'accent on desk').toBeGreaterThanOrEqual(3.0);
-      expect(contrastRatio(accent, surface), 'accent on surface').toBeGreaterThanOrEqual(3.0);
-      expect(contrastRatio(accent, raised), 'accent on raised').toBeGreaterThanOrEqual(3.0);
-
-      expect(contrastRatio(onAccent, accent), 'on-accent on accent').toBeGreaterThanOrEqual(4.5);
-
-      expect(contrastRatio(focus, desk), 'focus on desk').toBeGreaterThanOrEqual(3.0);
-      expect(contrastRatio(focus, surface), 'focus on surface').toBeGreaterThanOrEqual(3.0);
-      expect(contrastRatio(focus, raised), 'focus on raised').toBeGreaterThanOrEqual(3.0);
-
-      expect(contrastRatio(warning, surface), 'warning on surface').toBeGreaterThanOrEqual(3.0);
-      expect(contrastRatio(warning, raised), 'warning on raised').toBeGreaterThanOrEqual(3.0);
-
-      expect(contrastRatio(startText, raised), 'start-text on raised').toBeGreaterThanOrEqual(4.5);
-      expect(contrastRatio(loopText, raised), 'loop-text on raised').toBeGreaterThanOrEqual(4.5);
-    });
-
-    it('(c) accent ΔE00 ≥ THEME_ACCENT_MIN_DELTA_E to every feedback colour', () => {
-      const themesCss = fs.readFileSync(themesCssPath, 'utf-8');
-      const blocks = parseCssDeclarations(themesCss);
-      const paper = blocks.get(':root[data-theme="paper"]');
-      expect(paper).toBeDefined();
-      const accent = parseHexColor(paper?.get('--mx-accent') ?? '#000000');
-      const accentLab = rgbToLab(accent);
-
-      const feedbackColors = readFeedbackColors();
-      expect(feedbackColors.length).toBeGreaterThan(0);
-
-      for (const fbHex of feedbackColors) {
-        const fbLab = rgbToLab(parseHexColor(fbHex));
-        const de = deltaE00(accentLab, fbLab);
-        expect(de, `paper accent to ${fbHex} deltaE00`).toBeGreaterThanOrEqual(THEME_ACCENT_MIN_DELTA_E);
-      }
-    });
+      it(`(c) ${id} accent ΔE00 ≥ THEME_ACCENT_MIN_DELTA_E to every feedback colour`, () => {
+        const block = cssBlocks().get(selector);
+        expect(block?.get('--mx-accent'), `${id} must define --mx-accent`).toBeDefined();
+        const accentLab = rgbToLab(rgbIn(block, '--mx-accent'));
+        const feedbackColors = readFeedbackColors();
+        expect(feedbackColors.length).toBeGreaterThan(0);
+        for (const fbHex of feedbackColors) {
+          const de = deltaE00(accentLab, rgbToLab(parseHexColor(fbHex)));
+          expect(de, `${id} accent to ${fbHex} deltaE00`).toBeGreaterThanOrEqual(THEME_ACCENT_MIN_DELTA_E);
+        }
+      });
+    }
 
     it('(d) no theme block defines --score-*, --grade-*, --practice-*, --status-* or --highlight-*', () => {
-      const themesCss = fs.readFileSync(themesCssPath, 'utf-8');
-      const blocks = parseCssDeclarations(themesCss);
-      for (const [selector, decls] of blocks) {
+      for (const [selector, decls] of cssBlocks()) {
         if (!selector.includes('data-theme')) continue;
         for (const prop of decls.keys()) {
           expect(prop.startsWith('--score-'), `${selector} defines ${prop}`).toBe(false);
@@ -500,17 +496,40 @@ describe('Theme palette and contrast tests (theme.md 3.2/3.3, research R-5/R-6)'
     });
 
     it('(e) :root:not([data-theme]) resolves to the Paper values', () => {
-      const themesCss = fs.readFileSync(themesCssPath, 'utf-8');
-      const blocks = parseCssDeclarations(themesCss);
-      const notDataTheme = blocks.get(':root:not([data-theme])');
-      expect(notDataTheme, ':root:not([data-theme]) must exist').toBeDefined();
+      const blocks = cssBlocks();
+      const fallback = blocks.get(':root:not([data-theme])');
+      expect(fallback, ':root:not([data-theme]) must exist').toBeDefined();
       const paper = blocks.get(':root[data-theme="paper"]');
       expect(paper, ':root[data-theme="paper"] must exist').toBeDefined();
-      if (paper) {
-        for (const [prop, val] of paper.entries()) {
-          expect(notDataTheme?.get(prop), `fallback must match paper ${prop}`).toBe(val);
-        }
+      for (const [prop, val] of paper?.entries() ?? []) {
+        expect(fallback?.get(prop), `fallback must match paper ${prop}`).toBe(val);
       }
+      expect(fallback?.size).toBe(paper?.size);
+    });
+
+    it('(e2) under prefers-color-scheme: dark, :root:not([data-theme]) resolves to the Night values', () => {
+      const blocks = cssBlocks();
+      const darkFallback = blocks.get('@media (prefers-color-scheme: dark) :root:not([data-theme])');
+      expect(darkFallback, 'dark fallback block must exist').toBeDefined();
+      const night = blocks.get(':root[data-theme="night"]');
+      expect(night, ':root[data-theme="night"] must exist').toBeDefined();
+      for (const [prop, val] of night?.entries() ?? []) {
+        expect(darkFallback?.get(prop), `dark fallback must match night ${prop}`).toBe(val);
+      }
+      expect(darkFallback?.size).toBe(night?.size);
+    });
+
+    it("(e3) the Electron window's start colours equal Paper's and Night's --mx-desk (research R-3)", () => {
+      const mainTs = fs.readFileSync(electronMainPath, 'utf-8');
+      const light = /START_BACKGROUND_LIGHT\s*=\s*'(#[0-9a-fA-F]{6})'/.exec(mainTs)?.[1];
+      const dark = /START_BACKGROUND_DARK\s*=\s*'(#[0-9a-fA-F]{6})'/.exec(mainTs)?.[1];
+      const blocks = cssBlocks();
+      expect(light, 'START_BACKGROUND_LIGHT in electron/main.ts').toBe(
+        blocks.get(':root[data-theme="paper"]')?.get('--mx-desk'),
+      );
+      expect(dark, 'START_BACKGROUND_DARK in electron/main.ts').toBe(
+        blocks.get(':root[data-theme="night"]')?.get('--mx-desk'),
+      );
     });
 
     it('(f) tokens.css defines --score-paper: #ffffff and --score-ink: #000000', () => {

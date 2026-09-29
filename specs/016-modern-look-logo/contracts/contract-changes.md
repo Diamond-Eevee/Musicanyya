@@ -6,6 +6,7 @@ Each change is applied to the named contract file with the version bump shown, a
 | Contract | From -> to | Change |
 |---|---|---|
 | `004/contracts/ui-shell.md` | 1.1.0 -> **1.2.0** (MINOR) | Section 2: new first bar slot `#brand` (logo, [brand.md](brand.md)), not focusable, not a toolbar item; the fit order gains a step between roomy and compact (`.mx-bar-no-word`, R-11). Section 3: the View popup gains the Theme choice ([theme.md](theme.md), R-12). Section 6: notices carry an icon with an accessible name ("Information" / "Warning", R-9); every focusable control has a visible `:focus-visible` ring (FR-006). |
+| `004/contracts/ui-shell.md` | 1.2.0 -> **1.3.0** (MINOR, owner decision 2026-09-29) | Section 3: the View entry stays enabled during a Listen run, and the run guard leaves the View popup open then (SC-010). Practice and Play keep "no popup during a run". |
 | `001/contracts/storage.md` | note only (no schema change) | New `localStorage` key `musicanyya.theme.v1` ([theme.md](theme.md) section 2). IndexedDB schema unchanged (3). |
 | `004/contracts/view-settings.md` | unchanged (2.1.0) | The theme is deliberately **not** a field of `musicanyya.settings.v1` (theme.md section 2 gives the reason). |
 | `010/contracts/piano-keyboard.md` | 1.2.0 -> **1.2.1** (PATCH) | The host's frame and background come from `--mx-surface` / `--mx-border`; key colours, sizes and markings are unchanged and not themed. |

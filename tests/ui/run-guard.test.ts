@@ -147,6 +147,105 @@ describe('the browser and a run that starts while it is open', () => {
   });
 });
 
+/**
+ * ui-shell 1.3.0 (feature 016, owner decision 2026-09-29, research R-12): the View entry and popup stay available during
+ * a Listen run, so the theme can be changed while listening (SC-010). Practice and Play keep "no popup during a run".
+ */
+describe('the View popup during a Listen run', () => {
+  let stopGuarding: (() => void) | undefined;
+
+  afterEach(() => {
+    stopGuarding?.();
+    stopGuarding = undefined;
+    document.body.innerHTML = '';
+    playState.setRun(null);
+    practiceState.setSession(null);
+    practiceState.setMode('listen');
+    transportState.setSoundFailed();
+    transportState.stop();
+    viewState.closePanel();
+  });
+
+  const moreMenu = () => {
+    const menu = document.createElement('mx-menu');
+    menu.setAttribute('menu', 'more');
+    document.body.appendChild(menu);
+    return menu;
+  };
+  const entry = (menu: HTMLElement, panel: string) =>
+    menu.shadowRoot?.querySelector<HTMLButtonElement>(`[role="menuitem"][data-panel="${panel}"]`) ?? null;
+  /** Every entry that is disabled during a run (the browser has its own, narrower rule and is left out). */
+  const runEntries = (menu: HTMLElement) =>
+    Array.from(menu.shadowRoot?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]') ?? []).filter(
+      (item) => item.dataset.panel !== 'browser',
+    );
+  const listen = () => {
+    practiceState.setMode('listen');
+    transportState.setSoundReady(true);
+    transportState.play();
+    expect(transportState.get().phase).toBe('playing');
+    expect(isRunActive()).toBe(true);
+  };
+
+  it('enables View, and only View, while Listen plays and while it is paused', () => {
+    const menu = moreMenu();
+    listen();
+    for (const phase of ['playing', 'paused']) {
+      if (phase === 'paused') transportState.pause();
+      expect(transportState.get().phase).toBe(phase);
+      expect(entry(menu, 'view')?.disabled, `View during Listen ${phase}`).toBe(false);
+      expect(entry(menu, 'view')?.hasAttribute('aria-disabled')).toBe(false);
+      for (const item of runEntries(menu).filter((i) => i.dataset.panel !== 'view')) {
+        expect(item.disabled, `${item.dataset.panel} during Listen ${phase}`).toBe(true);
+      }
+    }
+  });
+
+  it('keeps View disabled during a Practice session and during a Play run', () => {
+    const menu = moreMenu();
+    practiceState.setMode('practice');
+    practiceState.setSession({ phase: 'waiting' } as unknown as PracticeSession);
+    expect(isRunActive()).toBe(true);
+    expect(entry(menu, 'view')?.disabled, 'View during Practice').toBe(true);
+
+    practiceState.setSession(null);
+    practiceState.setMode('play');
+    playState.setRun({ phase: 'running' } as unknown as PlayRun);
+    expect(isRunActive()).toBe(true);
+    expect(entry(menu, 'view')?.disabled, 'View during a Play run').toBe(true);
+  });
+
+  it('leaves the View popup open during Listen, and closes any other popup opened then', () => {
+    stopGuarding = guardPanelsDuringRuns();
+    listen();
+    viewState.openPanel('view');
+    expect(viewState.get().openPanel).toBe('view');
+    transportState.pause();
+    expect(viewState.get().openPanel).toBe('view');
+    viewState.openPanel('help');
+    expect(viewState.get().openPanel).toBeNull();
+  });
+
+  it('still closes every popup, View included, when a run starts', () => {
+    stopGuarding = guardPanelsDuringRuns();
+    viewState.openPanel('view');
+    listen();
+    expect(viewState.get().openPanel, 'starting Listen').toBeNull();
+    transportState.stop();
+
+    viewState.openPanel('view');
+    practiceState.setMode('practice');
+    practiceState.setSession({ phase: 'waiting' } as unknown as PracticeSession);
+    expect(viewState.get().openPanel, 'starting Practice').toBeNull();
+    practiceState.setSession(null);
+
+    viewState.openPanel('view');
+    practiceState.setMode('play');
+    playState.setRun({ phase: 'countIn' } as unknown as PlayRun);
+    expect(viewState.get().openPanel, 'starting a Play run').toBeNull();
+  });
+});
+
 /** Audit finding F4: switching the notices layer off must not turn a failed open into a silent one. */
 describe('the notices layer never hides a failure', () => {
   afterEach(() => {

@@ -77,3 +77,11 @@ export function subscribeRunActive(listener: () => void): () => void {
     for (const unsubscribe of unsubscribes) unsubscribe();
   };
 }
+
+/**
+ * True while the active run is a Listen run (playing, paused or starting) - not a Practice session or a Play run. The
+ * View popup may be open then (ui-shell 1.3.0, feature 016 R-12).
+ */
+export function isListenRunActive(): boolean {
+  return isRunActive() && practiceState.get().mode === 'listen' && playState.get().run === null;
+}

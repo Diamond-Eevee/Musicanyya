@@ -1,7 +1,7 @@
 import { anchorRect } from '../layout/anchor.js';
 import { rememberInvoker } from '../layout/invoker.js';
 import { MENU_GROUPS, type MenuGroup, OVERFLOW_MENU } from '../layout/menu-model.js';
-import { isRunActive, subscribeRunActive } from '../state/runActive.js';
+import { isListenRunActive, isRunActive, subscribeRunActive } from '../state/runActive.js';
 import { scoreState } from '../state/scoreState.js';
 import { viewState } from '../state/viewState.js';
 import controlsCss from '../styles/controls.css?inline';
@@ -59,7 +59,7 @@ export class MxMenu extends HTMLElement {
     const entries = group.entries
       .map(
         (entry) =>
-          `<li role="none"><button type="button" role="menuitem" tabindex="-1" data-panel="${entry.panel}" data-needs-score="${entry.needsScore}" data-idle-only="${entry.idleOnly}">${entry.label}</button></li>`,
+          `<li role="none"><button type="button" role="menuitem" tabindex="-1" data-panel="${entry.panel}" data-needs-score="${entry.needsScore}" data-idle-only="${entry.idleOnly}" data-listen-ok="${entry.listenOk}">${entry.label}</button></li>`,
       )
       .join('');
     root.innerHTML = `
@@ -98,10 +98,13 @@ export class MxMenu extends HTMLElement {
   private updateDisabled(): void {
     const loaded = scoreState.getStatus().kind === 'loaded';
     const running = isRunActive();
+    const listening = running && isListenRunActive();
     // A list that is open when a run starts would sit over the music with every entry greyed out.
     if (running && this.open) this.close(false);
     for (const item of this.items()) {
-      const disabled = (item.dataset.needsScore === 'true' && !loaded) || (item.dataset.idleOnly === 'true' && running);
+      const blockedByRun =
+        item.dataset.idleOnly === 'true' && running && !(listening && item.dataset.listenOk === 'true');
+      const disabled = (item.dataset.needsScore === 'true' && !loaded) || blockedByRun;
       item.disabled = disabled;
       if (disabled) item.setAttribute('aria-disabled', 'true');
       else item.removeAttribute('aria-disabled');

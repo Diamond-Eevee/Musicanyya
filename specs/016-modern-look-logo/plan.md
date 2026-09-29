@@ -149,6 +149,9 @@ the logo design and generation (R-10).
   mark-linked text tints (R-9).
 - Decided: shared `controls.css` via `?inline` in shadow roots (R-7); Theme radios in the View popup (R-12); bar fit
   "word first" (R-11).
+- Decided (owner, 2026-09-29, found at implementation): the View entry and popup stay available during a Listen
+  run, so SC-010 can be met through the View popup; Practice and Play keep 004's "no popup during a run"
+  (ui-shell 1.3.0, research R-12, tasks T056-T057).
 - Decided: icons generated from `logo.ts` with Playwright + an own ICO writer (R-10); no new dependency.
 - **needs owner, OD-1** (spec SC-007): approve the logo artwork from `tests/.generated/brand-sheet.png` before the
   icon files are committed as final. The placements can be built with the draft artwork. Recommendation: review the

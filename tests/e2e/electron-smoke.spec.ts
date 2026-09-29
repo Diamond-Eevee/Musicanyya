@@ -155,3 +155,67 @@ test.describe('Electron smoke test', () => {
     await expect.poll(() => window.locator('.mx-score-page g.measure').first().locator('g.staff').count()).toBe(2);
   });
 });
+
+/**
+ * Feature 016 US5 (research R-3, FR-024): the desktop window starts in the theme's colours, without a white flash. The
+ * test profile has the OS light setting, so Automatic is Paper; a stored Midnight is on screen at the first look.
+ */
+test.describe('Electron start colours (016 T037)', () => {
+  const PAPER_DESK = '#e9e5dc'; // research R-5
+  const MIDNIGHT_SURFACE = 'rgb(21, 30, 51)'; // #151e33, research R-5
+  const mainPath = path.join(__dirname, '../../dist-electron/main.js');
+
+  // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
+  test('(a) the window starts on Paper desk colour and shows once loaded', async ({}, testInfo) => {
+    test.skip(testInfo.project.name !== 'electron', 'Run electron smoke test on electron project only');
+    const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'musicanyya-e2e-theme-a-'));
+    const app = await electron.launch({ args: [mainPath, `--user-data-dir=${userDataDir}`] });
+    try {
+      const window = await app.firstWindow();
+      await window.waitForLoadState('load');
+      const shown = await app.evaluate(({ BrowserWindow }) => {
+        const win = BrowserWindow.getAllWindows()[0];
+        return { background: win?.getBackgroundColor() ?? null, visible: win?.isVisible() ?? false };
+      });
+      expect(shown.background?.toLowerCase()).toBe(PAPER_DESK);
+      await expect
+        .poll(() => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]?.isVisible()))
+        .toBe(true);
+    } finally {
+      await app.close();
+    }
+  });
+
+  // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
+  test('(b) a stored Midnight is the theme at the first look after a restart', async ({}, testInfo) => {
+    test.skip(testInfo.project.name !== 'electron', 'Run electron smoke test on electron project only');
+    const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'musicanyya-e2e-theme-b-'));
+    const first = await electron.launch({ args: [mainPath, `--user-data-dir=${userDataDir}`] });
+    try {
+      const window = await first.firstWindow();
+      await window.waitForLoadState('load');
+      await window.evaluate(() =>
+        localStorage.setItem('musicanyya.theme.v1', JSON.stringify({ version: 1, choice: 'midnight' })),
+      );
+    } finally {
+      await first.close();
+    }
+
+    const second = await electron.launch({ args: [mainPath, `--user-data-dir=${userDataDir}`] });
+    try {
+      const window = await second.firstWindow();
+      await expect
+        .poll(() => second.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]?.isVisible()))
+        .toBe(true);
+      const firstLook = await window.evaluate(() => ({
+        theme: document.documentElement.getAttribute('data-theme'),
+        body: getComputedStyle(document.body).backgroundColor,
+      }));
+      expect(firstLook.theme).toBe('midnight');
+      expect(firstLook.body).toBe(MIDNIGHT_SURFACE);
+      await expect(window.locator('.mx-bar')).toHaveCSS('background-color', MIDNIGHT_SURFACE);
+    } finally {
+      await second.close();
+    }
+  });
+});

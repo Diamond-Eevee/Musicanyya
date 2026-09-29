@@ -1,5 +1,9 @@
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 import { openLibraryItem } from './helpers/browser.js';
+import { pressFirstExpectedNotes, startPlay, waitForGrade } from './helpers/play.js';
+import { pressKeys, startPractice } from './helpers/practice.js';
+
+const ELISE = 'repertoire/intermediate/fur-elise-theme';
 
 test.describe('Theme score isolation (FR-010, research R-4)', () => {
   test('the Score does not take the chrome’s colours', async ({ page, browserName }) => {
@@ -28,5 +32,125 @@ test.describe('Theme score isolation (FR-010, research R-4)', () => {
       return window.getComputedStyle(el).color;
     });
     expect(titleColor).toBe('rgb(0, 0, 0)');
+  });
+});
+
+/** Each theme and its `--mx-surface` (research R-5), in the View popup's order (theme.md section 1). */
+const THEME_SURFACES = [
+  ['paper', 'rgb(247, 245, 240)'],
+  ['ivory', 'rgb(246, 239, 224)'],
+  ['slate', 'rgb(241, 243, 245)'],
+  ['night', 'rgb(27, 29, 33)'],
+  ['walnut', 'rgb(42, 32, 25)'],
+  ['midnight', 'rgb(21, 30, 51)'],
+] as const;
+const SIZES = [
+  { width: 1280, height: 800 },
+  { width: 390, height: 844 },
+] as const;
+
+const twoFrames = (page: Page) =>
+  page.evaluate(() => new Promise<void>((done) => requestAnimationFrame(() => requestAnimationFrame(() => done()))));
+
+/**
+ * Applies a theme exactly as the theme store does (`data-theme` on `<html>`, theme.md section 3.1). The View popup is
+ * not used here: during a Practice session every bar menu is disabled (ui-shell 1.3.0), and the popup is tested in
+ * theme.spec.ts. The bar's surface proves the theme's palette is really in force.
+ */
+async function applyTheme(page: Page, id: string, surface: string): Promise<void> {
+  await page.evaluate((theme) => document.documentElement.setAttribute('data-theme', theme), id);
+  await twoFrames(page);
+  expect(await page.locator('.mx-bar').evaluate((el) => getComputedStyle(el).backgroundColor), `${id} surface`).toBe(
+    surface,
+  );
+}
+
+/** Waits until the Score stack has settled after a resize (the relayout is debounced): two equal pictures in a row. */
+async function settledStack(page: Page): Promise<Buffer> {
+  const stack = page.locator('.mx-score-stack');
+  let last = await stack.screenshot();
+  for (let i = 0; i < 20; i++) {
+    await page.waitForTimeout(250);
+    const next = await stack.screenshot();
+    if (next.equals(last)) return next;
+    last = next;
+  }
+  throw new Error('the Score stack never settled');
+}
+
+/** The Score stack in Paper, then in every other theme: each picture must equal Paper's byte for byte (SC-001). */
+async function expectStackIdenticalInEveryTheme(page: Page, state: string): Promise<void> {
+  // Any popup the state opened (the Grade after a run) is chrome over the Score, not the Score: close it.
+  await page.keyboard.press('Escape');
+  for (const size of SIZES) {
+    await page.setViewportSize(size);
+    const [paperId, paperSurface] = THEME_SURFACES[0];
+    await applyTheme(page, paperId, paperSurface);
+    const paper = await settledStack(page);
+    for (const [id, surface] of THEME_SURFACES.slice(1)) {
+      await applyTheme(page, id, surface);
+      const other = await page.locator('.mx-score-stack').screenshot();
+      expect(other.equals(paper), `${state} at ${size.width}x${size.height}: the Score stack in ${id} differs`).toBe(
+        true,
+      );
+    }
+  }
+}
+
+test.describe('SC-001: the Score is pixel-identical in all six themes (T036)', () => {
+  test.beforeEach(async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'Chromium only (pixel compare, same as the test above)');
+    // Every state is set up at the desktop size (the phone bar hides the mode switch), then compared at both sizes.
+    await page.setViewportSize(SIZES[0]);
+  });
+
+  test('(b1) Listen, paused with the cursor at a fixed position', async ({ page }) => {
+    await page.goto('/');
+    await openLibraryItem(page, ELISE, 'elise');
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    const play = page.locator('mx-transport .play-btn');
+    await play.click();
+    await expect
+      .poll(() => page.evaluate(() => document.querySelector('g.note.playing')?.id ?? null), { timeout: 15_000 })
+      .not.toBeNull();
+    await play.click(); // pause: the cursor stays where it is for every picture
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            (window as unknown as { __TRANSPORT_STATE__: { get(): { phase: string } } }).__TRANSPORT_STATE__.get()
+              .phase,
+        ),
+      )
+      .toBe('paused');
+    await expectStackIdenticalInEveryTheme(page, 'Listen paused');
+  });
+
+  test('(b2) Practice after three correct events', async ({ page }) => {
+    await startPractice(page, ELISE);
+    const events = (await page.evaluate(() =>
+      (
+        window as unknown as {
+          __PRACTICE_STATE__: { get(): { session: { events: { required: { key: number }[] }[] } } };
+        }
+      ).__PRACTICE_STATE__
+        .get()
+        .session.events.slice(0, 3)
+        .map((e) => e.required.map((r) => r.key)),
+    )) as number[][];
+    expect(events).toHaveLength(3);
+    for (const keys of events) {
+      await pressKeys(page, [...keys.map((k) => `+${k}`), ...keys.map((k) => `-${k}`)].join(','));
+    }
+    await twoFrames(page);
+    await expectStackIdenticalInEveryTheme(page, 'Practice after 3 events');
+  });
+
+  test('(b3) after a graded Play run', async ({ page }) => {
+    test.setTimeout(120_000);
+    await startPlay(page, ELISE, { range: { from: 1, to: 2 } });
+    await pressFirstExpectedNotes(page, 3);
+    await waitForGrade(page);
+    await expectStackIdenticalInEveryTheme(page, 'graded Play run');
   });
 });

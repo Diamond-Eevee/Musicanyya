@@ -1,5 +1,12 @@
+import { LISTEN_OK_PANEL } from '../layout/menu-model.js';
 import { browserState } from './browserState.js';
-import { isPlayOrPracticeActive, isRunActive, subscribePlayOrPracticeActive, subscribeRunActive } from './runActive.js';
+import {
+  isListenRunActive,
+  isPlayOrPracticeActive,
+  isRunActive,
+  subscribePlayOrPracticeActive,
+  subscribeRunActive,
+} from './runActive.js';
 import { viewState } from './viewState.js';
 
 /**
@@ -16,8 +23,12 @@ export function guardPanelsDuringRuns(): () => void {
   const stopWatchingRuns = subscribeRunActive(() => {
     if (isRunActive()) viewState.closeForRun();
   });
+  // The View popup opened during a Listen run stays (ui-shell 1.3.0, feature 016 R-12); starting a run above still
+  // closes it like every other popup.
   const stopWatchingPanels = viewState.subscribe((state) => {
-    if (state.openPanel !== null && isRunActive()) viewState.closeForRun();
+    if (state.openPanel === null || !isRunActive()) return;
+    if (state.openPanel === LISTEN_OK_PANEL && isListenRunActive()) return;
+    viewState.closeForRun();
   });
   const stopWatchingBrowser = subscribePlayOrPracticeActive(() => {
     if (isPlayOrPracticeActive()) browserState.close();

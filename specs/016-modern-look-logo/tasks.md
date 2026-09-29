@@ -270,11 +270,11 @@ the OS)
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T034 [P] [US5] Extend `tests/ui/theme-palette.test.ts` (T009) from `paper` to every id of `THEMES`: block
+- [x] T034 [P] [US5] Extend `tests/ui/theme-palette.test.ts` (T009) from `paper` to every id of `THEMES`: block
   present, all tokens, `color-scheme` = kind, contrast pairs, ΔE ≥ 15. Add a check that
   `@media (prefers-color-scheme: dark) { :root:not([data-theme]) }` resolves to the Night values, and that the start
   colours in `electron/main.ts` (T040) equal Paper's and Night's `--mx-desk`. Run: fails (five blocks missing)
-- [ ] T035 [P] [US5] Create `tests/e2e/theme.spec.ts` (all three engines; Automatic cases via `page.emulateMedia`).
+- [x] T035 [P] [US5] Create `tests/e2e/theme.spec.ts` (all three engines; Automatic cases via `page.emulateMedia`).
   (a) The View popup has a "Theme" group with seven radios (Automatic, then Light: Paper, Ivory, Slate; Dark: Night,
   Walnut, Midnight). Choosing Walnut sets `html[data-theme=walnut]`, checks that radio, and changes the bar's
   computed background at once. (b) During Listen, switching to Night leaves `.mx-score-scroll` `scrollTop`, the
@@ -284,16 +284,23 @@ the OS)
   (first frame, FR-024). (d) First start with the colour scheme dark gives `night` and `data-theme-choice=auto`.
   Emulating light switches to `paper` live. After choosing Paper by hand, emulating dark keeps `paper`. (e) Stored
   `{"version":1,"choice":"neon"}` and stored `not json` both give Automatic, with no notice shown. Run: fails
-- [ ] T036 [P] [US5] Extend `tests/e2e/theme-score-identical.spec.ts` (T010) with (b) SC-001 across themes. For each
+- [x] T036 [P] [US5] Extend `tests/e2e/theme-score-identical.spec.ts` (T010) with (b) SC-001 across themes. For each
   of the six themes, at 1280x800 and 390x844, screenshot `.mx-score-stack`: in Listen with the cursor at a fixed
   position (paused), in Practice after 3 correct events (`helpers/practice.ts`) and after a graded Play run
   (`helpers/play.ts`). All six buffers per case equal the Paper buffer. Run: fails (themes missing, so the radios are
   absent)
-- [ ] T037 [P] [US5] In `tests/e2e/electron-smoke.spec.ts`, add: (a) the main window's `getBackgroundColor()` (via
+- [x] T037 [P] [US5] In `tests/e2e/electron-smoke.spec.ts`, add: (a) the main window's `getBackgroundColor()` (via
   `electronApp.evaluate`) is Paper's `--mx-desk` (the test profile has the OS light setting) and the window is
   visible once loaded (`isVisible()`); (b) with `musicanyya.theme.v1` = Midnight stored in the profile, the first
   `evaluate` after the window shows reads `data-theme=midnight` and the bar's background is Midnight's surface.
   Run: (a) fails (default white window background), (b) fails (no Midnight palette)
+
+- [x] T056 [P] [US5] (added 2026-09-29, owner decision: View during Listen, ui-shell 1.3.0, research R-12) In
+  `tests/ui/run-guard.test.ts` (it already builds runs and menus): during a Listen run (playing, and paused) the View entry
+  is enabled and every other idle-only entry is disabled; during a Practice session and a Play run the View entry
+  is disabled. With the run guard installed, opening the View panel during a Listen run leaves it open, opening any
+  other panel then closes it, and starting a Practice or Play run closes an open View panel. Run: fails (View is
+  idle-only today)
 
 ### Implementation
 
@@ -301,6 +308,11 @@ the OS)
   `src/ui/styles/themes.css`, each with `color-scheme` and its `--mx-start-text`/`--mx-loop-text` (light themes:
   `#0072b2`/`#882255`; dark themes: `#8cc4f0`/`#f0a8cc`, R-9). Add the dark fallback `@media (prefers-color-scheme: dark) { :root:not([data-theme]) { Night } }`.
   Makes T034 pass except for the Electron colours
+- [x] T057 [US5] (added 2026-09-29, see T056) `src/ui/layout/menu-model.ts`: an entry flag `listenOk` (true only
+  for View); `src/ui/state/runActive.ts`: `isListenRunActive()`; `src/ui/elements/mx-menu.ts`: an idle-only entry
+  with `listenOk` stays enabled while the active run is a Listen run; `src/ui/state/runGuard.ts`: leaves an open
+  View panel alone during a Listen run (starting any run still closes every popup). Makes T056 pass;
+  `tests/e2e/us2-panels.spec.ts` and `us3-run-chrome.spec.ts` stay green
 - [ ] T039 [US5] Theme choice (R-12): in `src/ui/elements/mx-view-panel.ts`, add a `<fieldset class="mx-view-theme">`
   first. It has the legend `en.theme.heading` ("Theme"), the Automatic radio, and two labelled groups
   (`en.theme.light` "Light", `en.theme.dark` "Dark") with one radio and a swatch (three spans: desk, surface, accent,
@@ -436,7 +448,7 @@ Midnight, looked at. Full gate, log, commit.
 - US5 needs US1 (controls.css, token-only rules). Otherwise dark themes show F-1's hard-coded colours.
 - US3 and US4 need US5, so that they are checked in dark themes once instead of reworked. They are independent of
   each other.
-- Within stories: T011 -> T012, T013; T027 -> T028 -> T029 (gate); T038 -> T041; T043 -> T044.
+- Within stories: T011 -> T012, T013; T027 -> T028 -> T029 (gate); T056 -> T057 -> T039; T038 -> T041; T043 -> T044.
 - Owner gates: T029 (OD-1) blocks the US2 checkpoint and merge. T052 (OD-2) blocks merge. Neither blocks other work.
 
 ## Parallel Opportunities
