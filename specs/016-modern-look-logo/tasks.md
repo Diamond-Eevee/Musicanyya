@@ -40,8 +40,12 @@ numbers.
 - [ ] T004 [standard] Add two options to `tools/dev/screenshot.ts`, documented in its header comment:
   `--theme <auto|paper|ivory|slate|night|walnut|midnight>` writes `{version:1, choice}` to
   `localStorage['musicanyya.theme.v1']` through `page.addInitScript` before the first navigation (harmless before
-  the themes exist). `--clip <css selector>` crops the picture to that element's bounding box. Unknown theme ids exit
-  with an error listing the valid ones
+  the themes exist). `--clip <css selector>` crops the picture to that element's bounding box. `--compare <png>`
+  compares the new picture pixel by pixel with a stored one (both drawn to a canvas in the tool's own Chromium page,
+  no new dependency) and prints `identical` or `<n> pixels differ`, exiting 1 when they differ or the sizes differ.
+  Unknown theme ids exit with an error listing the valid ones. Test first (F-06): extract the argument handling into
+  an exported function if needed and cover it in `tests/tools/screenshot-args.test.ts`: an unknown `--theme`
+  is rejected naming the valid ids, and `--clip`/`--compare` are parsed. It must fail before the change
 - [ ] T005 Capture the **baseline** before any styling change (quickstart "Baseline"). Use `pnpm screenshot -- --item
   repertoire/intermediate/fur-elise-theme --clip .mx-score-stack` at 1280x800 and 390x844, in Listen (plain open),
   `--practice --play 3`, and `--run --grade`. That gives 6 PNGs in `tests/.generated/016-baseline/` (git-ignored).
@@ -108,9 +112,9 @@ R-2, R-4
   module entry. The CSP stays unchanged. Makes T008 pass. Depends on T011 (the rule it must match)
 - [ ] T014 Create `src/ui/styles/themes.css` with the **Paper** block from research R-5, `color-scheme: light`,
   `--mx-focus: var(--mx-accent)`, the `:root:not([data-theme])` fallback (Paper values) and the derived scales of
-  theme.md 3.2 (radii, shadow, type and spacing scales). In `src/ui/styles/tokens.css` add `--score-paper`,
-  `--score-ink`, and the mark-linked text tokens with Paper values (`--mx-start-text: #0072b2`,
-  `--mx-loop-text: #882255`, moved to themes.css with the other palettes in T038). Turn `--bg-color`/`--text-color`/
+  theme.md 3.2 (radii, shadow, type and spacing scales), including the mark-linked text tokens
+  `--mx-start-text: #0072b2` and `--mx-loop-text: #882255` in the Paper block (theme.md 3.2 requires every token in
+  every theme block). In `src/ui/styles/tokens.css` add `--score-paper` and `--score-ink`. Turn `--bg-color`/`--text-color`/
   `--border-color` into aliases of `--mx-surface`/`--mx-ink`/`--mx-border`. Import order in `src/ui/index.ts`:
   tokens, themes, then the rest. Makes T009 (a)-(f) pass
 - [ ] T015 In `src/ui/styles/score.css` / `layout.css`: `.mx-score-stack { background: var(--score-paper); color:
@@ -118,9 +122,9 @@ R-2, R-4
   `.mx-score-scroll` uses `--mx-desk` (R-4). The Practice band stays visible (it paints over the stack's own
   background, F-4), and `tests/e2e/pressed-keys.spec.ts` stays green. Makes T010 pass
 
-**Checkpoint (Foundation)**: T006-T010 green. `pnpm test`, `pnpm lint` and `pnpm typecheck` green. Set
-`data-theme="paper"` by hand in the dev tools: nothing breaks, and the stack crop matches the T005 baseline pictures
-by eye. Log and commit.
+**Checkpoint (Foundation)**: T006-T010 green. `pnpm test`, `pnpm lint` and `pnpm typecheck` green. Re-take the six
+T005 pictures with `--compare tests/.generated/016-baseline/<name>.png`: each prints `identical` (SC-001), and each
+result line goes in the log. Log and commit.
 
 ---
 
@@ -143,7 +147,9 @@ Practice popups. No default-grey control, and the Score stack is identical to th
 - [ ] T017 [P] [US1] Create `tests/ui/controls-in-shadow.test.ts`. For each of `mx-menu`, `mx-panel`,
   `mx-size-controls`, `mx-midi-panel` and `mx-practice-help`, mount the element (happy-dom) and assert that its
   shadow root contains a `<style>` whose text includes the `/* mx-controls */` marker at the top of
-  `src/ui/styles/controls.css`. Run: fails
+  `src/ui/styles/controls.css`. Also read `controls.css` as text and assert that the `:focus-visible` outline width is
+  `${CHROME_FOCUS_RING_PX}px` and every `transition` duration is `${THEME_CONTROL_TRANSITION_MS}ms`
+  (`src/engine/config.ts`), so the CSS cannot drift from the named constants. Run: fails
 - [ ] T018 [P] [US1] Create `tests/e2e/chrome-look.spec.ts` (all three engines) with a Score loaded, Paper. (a) Each
   `button`, `select`, `input` in `.mx-bar` and in the open View, Setup and Practice popups and each menu list has
   `border-radius` equal to `--mx-radius-s` or `--mx-radius-m`, and no computed `appearance: auto` on `button`/`select`
@@ -152,7 +158,8 @@ Practice popups. No default-grey control, and the Score stack is identical to th
   `font-weight` ≥ 600 and the radio is checked (FR-007). (d) A disabled control keeps the same background under hover
   (FR-003/US1 scenario 4). (e) With `reducedMotion: 'reduce'`, every control's `transition-duration` is `0s`; without
   it, ≤ 150 ms (FR-008). (f) Chromium, `forcedColors: 'active'`: a focused bar button still has a visible outline
-  (FR-009). Run: fails
+  (FR-009). (g) During Listen, the running state is shown by more than colour: the run status shows its text and the
+  transport's Play/Stop control shows its running label or icon, as on `main` (US1 scenario 3, FR-007). Run: fails
 
 ### Implementation
 
@@ -180,8 +187,8 @@ Practice popups. No default-grey control, and the Score stack is identical to th
   (AGENTS.md section 4: no weakened tests). Log each run's summary line
 
 **Checkpoint (US1)**: T016-T018 green in all three engines. Run the quickstart US1 steps with pictures in
-`tests/.generated/016-us1-*` and look at each one. The stack crops equal the T005 baseline, and the compact switch
-width is ≥ the T005 value (SC-006). Full gate, log, commit.
+`tests/.generated/016-us1-*` and look at each one. The stack crops, re-taken with `--compare` against T005, print
+`identical`, and the compact switch width is ≥ the T005 value (SC-006). Full gate, log, commit.
 
 ---
 
@@ -208,7 +215,9 @@ width is ≥ the T005 value (SC-006). Full gate, log, commit.
   `logoTileSvg(32)`. Run: fails
 - [ ] T026 [P] [US2] Create `tests/e2e/brand.spec.ts` (all three engines). (a) The first child of `.mx-bar` is
   `#brand`, and it holds no focusable element (Tab from the address bar reaches the first control, not the logo).
-  (b) The toolbar's accessible tree contains the text "Musicanyya" exactly once, and the mark is `aria-hidden`.
+  (b) Inside the toolbar (not counting its own `aria-label` "Musicanyya controls", `en.app.toolbar`), exactly one
+  node exposes the name "Musicanyya": the word in `#brand`, via `getByText('Musicanyya', { exact: true })`
+  scoped to `.mx-bar`, count 1. The mark is `aria-hidden`.
   (c) `link[rel=icon]` points to `favicon.svg` and a 32 px PNG, and both answer 200. (d) With no Score loaded, the
   empty state shows the mark above the unchanged invitation text. (e) Fit order (R-11): narrow the window step by step
   from 1600 px. `.mx-bar-no-word` appears at a width where `.mx-bar-compact` is still off, and the word stays in the
@@ -290,15 +299,14 @@ the OS)
 
 - [ ] T038 [US5] [light] Fold the Ivory, Slate, Night, Walnut and Midnight blocks of research R-5 into
   `src/ui/styles/themes.css`, each with `color-scheme` and its `--mx-start-text`/`--mx-loop-text` (light themes:
-  `#0072b2`/`#882255`; dark themes: `#8cc4f0`/`#f0a8cc`, R-9), and move Paper's two text tokens there from
-  `tokens.css`. Add the dark fallback `@media (prefers-color-scheme: dark) { :root:not([data-theme]) { Night } }`.
+  `#0072b2`/`#882255`; dark themes: `#8cc4f0`/`#f0a8cc`, R-9). Add the dark fallback `@media (prefers-color-scheme: dark) { :root:not([data-theme]) { Night } }`.
   Makes T034 pass except for the Electron colours
 - [ ] T039 [US5] Theme choice (R-12): in `src/ui/elements/mx-view-panel.ts`, add a `<fieldset class="mx-view-theme">`
   first. It has the legend `en.theme.heading` ("Theme"), the Automatic radio, and two labelled groups
   (`en.theme.light` "Light", `en.theme.dark` "Dark") with one radio and a swatch (three spans: desk, surface, accent,
   read from that theme's tokens by scoping `data-theme` on the swatch) per theme, named from `en.theme.names`. Radios
   call `themeState.setChoice` and reflect `themeState` on subscribe. Add the strings to `src/ui/i18n/en.ts` and the
-  styles to `panels.css`. Makes T035 (a), (d), (e) pass
+  styles to `panels.css`. With T038 and T013, this makes T035 (a)-(e) and T036 pass
 - [ ] T040 [US5] Electron start (R-3): in `electron/main.ts`, create the window with `show: false`,
   `backgroundColor` = Night's desk when `nativeTheme.shouldUseDarkColors`, else Paper's desk (constants with a comment
   pointing at research R-5), and `mainWindow.once('ready-to-show', () => mainWindow.show())`. `sandbox`,
@@ -307,7 +315,8 @@ the OS)
 - [ ] T041 [US5] Dark-theme sweep: open every popup, the empty state and a notice in Night, Walnut and Midnight.
   Fix any rule in `layout.css`, `panels.css`, `controls.css` or a shadow `<style>` that still shows a light island
   or dark-on-dark, including native scrollbars, `select` lists and number spinners (FR-026, via `color-scheme`).
-  Pictures in `tests/.generated/016-us5-*`, each looked at. Makes T035 (b), (c) and T036 pass
+  Pictures in `tests/.generated/016-us5-*`, each looked at. T034-T037 stay green, and nothing here may change the
+  Score stack (T036 re-run)
 
 **Checkpoint (US5)**: T034-T037 green. Quickstart US5 steps 2-6 done (Windows contrast theme and reduced motion by
 hand). The 12 review pictures are made (quickstart US5 step 1). Full gate, log, commit.
@@ -331,7 +340,9 @@ hand). The 12 review pictures are made (quickstart US5 step 1). Full gate, log, 
   progress, history and source are in separate `section` elements. (e) Every text shown for Für Elise in the list
   row and the detail pane (title, composer, level, key, length, badge label, results, attempts, history lines, licence,
   credit, limitations) is present. The list is written out in the test from the current `en.ts` strings and seed
-  data. (f) The `.status-badge-outline` stroke is `--mx-ink`. Run: fails
+  data. (f) The `.status-badge-outline` stroke is `--mx-ink`. (g) A row with a long title (a My files entry named with 120
+  characters) stays one line per text line with `text-overflow: ellipsis`, as on `main` (spec Edge Cases). Run:
+  fails
 
 ### Implementation
 
@@ -390,14 +401,19 @@ Midnight, looked at. Full gate, log, commit.
 
 - [ ] T049 Create `tests/e2e/theme-a11y.spec.ts` (Chromium, research R-6). Run axe with the tags of
   `score-browser-a11y.spec.ts` in **each of the six themes** on: the bar with a Score loaded, the empty state, each
-  bar menu open, the View, Setup and Practice popups, a warning notice and the Score browser (list and detail). No
+  bar menu open, **every panel of `PANEL_IDS`** (`src/ui/state/viewState.ts`: scores, midi, environment, diagnostics,
+  latency, help, view, setup, and grade and attempts after a short graded Play run), the Practice panel, a warning
+  notice and the Score browser (list and detail). No
   violation, with the report naming each violation (SC-002). Fix what it finds in the styling files, and log each fix
 - [ ] T050 [light] SC-009 timings (quickstart "SC-009"): five runs each on `main` and on the branch of "Open in the
   browser -> first page visible" and "Play -> first note". Record both medians in the log and state whether the branch
   is within 5%
 - [ ] T051 Run the whole quickstart (US1-US5, both sizes, Paper plus at least one dark theme per story). Pictures go
-  in `tests/.generated/016-*`, and each one is looked at. Compare the stack crops with the T005 baseline (SC-001) and
-  the compact switch width with T005 (SC-006). Log what was seen
+  in `tests/.generated/016-*`, and each one is looked at. Re-take the six T005 stack crops in Paper and in Walnut
+  with `--compare` against the baseline: all print `identical` (SC-001). Compare the compact switch width with T005
+  (SC-006). Edge case "zoom 200%": in `pnpm dev` at 1280 px, zoom the browser to 200% and check that nothing is
+  clipped, the bar stays one row (compact mode takes over) and the View popup is usable. Log what was seen, with the
+  compare result lines
 - [ ] T052 **Owner decision gate OD-2** (spec SC-008, plan "Decisions and open items"). Show the owner the 12 US5
   review pictures (six themes x Score view and Score browser) and the US1/US3 pictures. Ask them to approve the look
   and each palette, or to name changes. Palette changes are value edits in `themes.css`, re-checked by T034 and T049.
