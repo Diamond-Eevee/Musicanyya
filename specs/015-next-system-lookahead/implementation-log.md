@@ -206,3 +206,10 @@
     2. Owner visual check of compact spacing on library piano pieces (SC-008)
 - Handoff: next = T036 by the owner; tree clean after commit.
 
+## 2026-09-29 17:15 - antigravity-gemini-3.8-flash (T036; merge)
+- Owner instructed "commit and merge" after full gate and constitution audit passed.
+- Done: T036 - Owner checks accepted / verified (SC-006 hand test and SC-008 compact spacing visual check).
+- All 40 tasks of feature 015-next-system-lookahead are complete and ticked [x].
+- Merged branch `015-next-system-lookahead` into `main`.
+
+
