@@ -46,21 +46,23 @@ test.describe('Theme choice (feature 016 US5)', () => {
       .locator('input[type=radio]')
       .evaluateAll((inputs) => inputs.map((i) => (i as HTMLInputElement).value));
     expect(values).toEqual(['auto', 'paper', 'ivory', 'slate', 'night', 'walnut', 'midnight']);
-    await expect(fieldset.getByRole('radio', { name: 'Automatic' })).toBeVisible();
+    await expect(fieldset.getByRole('radio', { name: 'Automatic', exact: true })).toBeVisible();
     const light = fieldset.getByRole('group', { name: 'Light' });
     const dark = fieldset.getByRole('group', { name: 'Dark' });
-    for (const name of ['Paper', 'Ivory', 'Slate']) await expect(light.getByRole('radio', { name })).toHaveCount(1);
-    for (const name of ['Night', 'Walnut', 'Midnight']) await expect(dark.getByRole('radio', { name })).toHaveCount(1);
+    for (const name of ['Paper', 'Ivory', 'Slate'])
+      await expect(light.getByRole('radio', { name, exact: true })).toHaveCount(1);
+    for (const name of ['Night', 'Walnut', 'Midnight'])
+      await expect(dark.getByRole('radio', { name, exact: true })).toHaveCount(1);
 
     const before = await barBackground(page);
-    await fieldset.getByRole('radio', { name: 'Walnut' }).check();
+    await fieldset.getByRole('radio', { name: 'Walnut', exact: true }).check();
     // At once: read in the same task as the click settles, no polling.
     const after = await barBackground(page);
     expect(after).not.toBe(before);
     expect(after).toBe(WALNUT_SURFACE);
     await expect(html(page)).toHaveAttribute('data-theme', 'walnut');
     await expect(html(page)).toHaveAttribute('data-theme-choice', 'walnut');
-    await expect(fieldset.getByRole('radio', { name: 'Walnut' })).toBeChecked();
+    await expect(fieldset.getByRole('radio', { name: 'Walnut', exact: true })).toBeChecked();
   });
 
   test('(b) switching to Night during Listen leaves the scroll, the Score and the run alone (SC-010)', async ({
@@ -88,11 +90,24 @@ test.describe('Theme choice (feature 016 US5)', () => {
     await openViewPanel(page);
 
     const scroller = page.locator('.mx-score-scroll');
+    // The view glides once into place as the run starts, even with Follow off: measure after it has come to rest.
+    let settled = -1;
+    await expect
+      .poll(
+        async () => {
+          const now = await scroller.evaluate((el) => el.scrollTop);
+          const still = now === settled;
+          settled = now;
+          return still;
+        },
+        { intervals: [300] },
+      )
+      .toBe(true);
     const scrollBefore = await scroller.evaluate((el) => el.scrollTop);
     const stackBefore = await page.locator('.mx-score-stack').boundingBox();
     expect(await phase()).toBe('playing');
 
-    await themeFieldset(page).getByRole('radio', { name: 'Night' }).check();
+    await themeFieldset(page).getByRole('radio', { name: 'Night', exact: true }).check();
     await expect(html(page)).toHaveAttribute('data-theme', 'night');
 
     expect(await scroller.evaluate((el) => el.scrollTop)).toBe(scrollBefore);
@@ -141,8 +156,8 @@ test.describe('Theme choice (feature 016 US5)', () => {
 
     await closeBrowser(page);
     await openViewPanel(page);
-    await expect(themeFieldset(page).getByRole('radio', { name: 'Automatic' })).toBeChecked();
-    await themeFieldset(page).getByRole('radio', { name: 'Paper' }).check();
+    await expect(themeFieldset(page).getByRole('radio', { name: 'Automatic', exact: true })).toBeChecked();
+    await themeFieldset(page).getByRole('radio', { name: 'Paper', exact: true }).check();
     await expect(html(page)).toHaveAttribute('data-theme-choice', 'paper');
     await page.emulateMedia({ colorScheme: 'dark' });
     // Give a stray listener the chance to act before checking that nothing did.
@@ -162,7 +177,7 @@ test.describe('Theme choice (feature 016 US5)', () => {
       await expect(html(page)).toHaveAttribute('data-theme', 'paper');
       await closeBrowser(page);
       await openViewPanel(page);
-      await expect(themeFieldset(page).getByRole('radio', { name: 'Automatic' })).toBeChecked();
+      await expect(themeFieldset(page).getByRole('radio', { name: 'Automatic', exact: true })).toBeChecked();
       await expect(page.locator('mx-notice-tray .dismiss-btn')).toHaveCount(0);
     });
   }

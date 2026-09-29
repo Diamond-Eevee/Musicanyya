@@ -23,6 +23,21 @@ export const en = {
       notices: 'Notices',
     },
   },
+  /** The Theme choice in the View popup (feature 016, R-12). */
+  theme: {
+    heading: 'Theme',
+    auto: 'Automatic',
+    light: 'Light',
+    dark: 'Dark',
+    names: {
+      paper: 'Paper',
+      ivory: 'Ivory',
+      slate: 'Slate',
+      night: 'Night',
+      walnut: 'Walnut',
+      midnight: 'Midnight',
+    },
+  },
   /** The notice corner: how the notices waiting behind the visible ones are counted. */
   tray: {
     more: '+{n} more',

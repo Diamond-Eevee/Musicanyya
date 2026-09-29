@@ -304,7 +304,7 @@ the OS)
 
 ### Implementation
 
-- [ ] T038 [US5] [light] Fold the Ivory, Slate, Night, Walnut and Midnight blocks of research R-5 into
+- [x] T038 [US5] [light] Fold the Ivory, Slate, Night, Walnut and Midnight blocks of research R-5 into
   `src/ui/styles/themes.css`, each with `color-scheme` and its `--mx-start-text`/`--mx-loop-text` (light themes:
   `#0072b2`/`#882255`; dark themes: `#8cc4f0`/`#f0a8cc`, R-9). Add the dark fallback `@media (prefers-color-scheme: dark) { :root:not([data-theme]) { Night } }`.
   Makes T034 pass except for the Electron colours
@@ -313,13 +313,13 @@ the OS)
   with `listenOk` stays enabled while the active run is a Listen run; `src/ui/state/runGuard.ts`: leaves an open
   View panel alone during a Listen run (starting any run still closes every popup). Makes T056 pass;
   `tests/e2e/us2-panels.spec.ts` and `us3-run-chrome.spec.ts` stay green
-- [ ] T039 [US5] Theme choice (R-12): in `src/ui/elements/mx-view-panel.ts`, add a `<fieldset class="mx-view-theme">`
+- [x] T039 [US5] Theme choice (R-12): in `src/ui/elements/mx-view-panel.ts`, add a `<fieldset class="mx-view-theme">`
   first. It has the legend `en.theme.heading` ("Theme"), the Automatic radio, and two labelled groups
   (`en.theme.light` "Light", `en.theme.dark` "Dark") with one radio and a swatch (three spans: desk, surface, accent,
   read from that theme's tokens by scoping `data-theme` on the swatch) per theme, named from `en.theme.names`. Radios
   call `themeState.setChoice` and reflect `themeState` on subscribe. Add the strings to `src/ui/i18n/en.ts` and the
   styles to `panels.css`. With T038 and T013, this makes T035 (a)-(e) and T036 pass
-- [ ] T040 [US5] Electron start (R-3): in `electron/main.ts`, create the window with `show: false`,
+- [x] T040 [US5] Electron start (R-3): in `electron/main.ts`, create the window with `show: false`,
   `backgroundColor` = Night's desk when `nativeTheme.shouldUseDarkColors`, else Paper's desk (constants with a comment
   pointing at research R-5), and `mainWindow.once('ready-to-show', () => mainWindow.show())`. `sandbox`,
   `contextIsolation` and the navigation policy are unchanged. Makes T034 (Electron colours) and T037 pass.

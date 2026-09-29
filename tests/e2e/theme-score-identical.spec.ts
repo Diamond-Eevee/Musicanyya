@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 import { openLibraryItem } from './helpers/browser.js';
+import { panelLocator } from './helpers/panels.js';
 import { pressFirstExpectedNotes, startPlay, waitForGrade } from './helpers/play.js';
 import { pressKeys, startPractice } from './helpers/practice.js';
 
@@ -65,13 +66,32 @@ async function applyTheme(page: Page, id: string, surface: string): Promise<void
   );
 }
 
+/**
+ * The part of the Score stack a person sees: the stack clipped to the scroller's client area. An element screenshot
+ * of the whole stack would also take in whatever covers it - the bar above a scrolled view, the themed scrollbar -
+ * which is chrome, not the Score.
+ */
+async function stackShot(page: Page): Promise<Buffer> {
+  const clip = await page.evaluate(() => {
+    const stack = (document.querySelector('.mx-score-stack') as HTMLElement).getBoundingClientRect();
+    const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
+    const view = scroller.getBoundingClientRect();
+    const left = Math.max(stack.left, view.left + scroller.clientLeft);
+    const top = Math.max(stack.top, view.top + scroller.clientTop);
+    const right = Math.min(stack.right, view.left + scroller.clientLeft + scroller.clientWidth);
+    const bottom = Math.min(stack.bottom, view.top + scroller.clientTop + scroller.clientHeight);
+    return { x: left, y: top, width: right - left, height: bottom - top };
+  });
+  expect(clip.width * clip.height, 'some of the Score is visible').toBeGreaterThan(0);
+  return page.screenshot({ clip });
+}
+
 /** Waits until the Score stack has settled after a resize (the relayout is debounced): two equal pictures in a row. */
 async function settledStack(page: Page): Promise<Buffer> {
-  const stack = page.locator('.mx-score-stack');
-  let last = await stack.screenshot();
+  let last = await stackShot(page);
   for (let i = 0; i < 20; i++) {
     await page.waitForTimeout(250);
-    const next = await stack.screenshot();
+    const next = await stackShot(page);
     if (next.equals(last)) return next;
     last = next;
   }
@@ -80,16 +100,19 @@ async function settledStack(page: Page): Promise<Buffer> {
 
 /** The Score stack in Paper, then in every other theme: each picture must equal Paper's byte for byte (SC-001). */
 async function expectStackIdenticalInEveryTheme(page: Page, state: string): Promise<void> {
-  // Any popup the state opened (the Grade after a run) is chrome over the Score, not the Score: close it.
-  await page.keyboard.press('Escape');
   for (const size of SIZES) {
     await page.setViewportSize(size);
     const [paperId, paperSurface] = THEME_SURFACES[0];
+    const [lastId, lastSurface] = THEME_SURFACES[THEME_SURFACES.length - 1];
+    // Paper's picture is taken after a theme change too, like every other: a closed popup can leave the area under
+    // it re-rasterised piece by piece, one grey level off from a full repaint (found with the Grade popup), and that
+    // paint history is not what this test compares.
+    await applyTheme(page, lastId, lastSurface);
     await applyTheme(page, paperId, paperSurface);
     const paper = await settledStack(page);
     for (const [id, surface] of THEME_SURFACES.slice(1)) {
       await applyTheme(page, id, surface);
-      const other = await page.locator('.mx-score-stack').screenshot();
+      const other = await stackShot(page);
       expect(other.equals(paper), `${state} at ${size.width}x${size.height}: the Score stack in ${id} differs`).toBe(
         true,
       );
@@ -98,8 +121,8 @@ async function expectStackIdenticalInEveryTheme(page: Page, state: string): Prom
 }
 
 test.describe('SC-001: the Score is pixel-identical in all six themes (T036)', () => {
-  test.beforeEach(async ({ page, browserName }) => {
-    test.skip(browserName !== 'chromium', 'Chromium only (pixel compare, same as the test above)');
+  test.beforeEach(async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Chromium only (pixel compare, same as the test above)');
     // Every state is set up at the desktop size (the phone bar hides the mode switch), then compared at both sizes.
     await page.setViewportSize(SIZES[0]);
   });
@@ -151,6 +174,12 @@ test.describe('SC-001: the Score is pixel-identical in all six themes (T036)', (
     await startPlay(page, ELISE, { range: { from: 1, to: 2 } });
     await pressFirstExpectedNotes(page, 3);
     await waitForGrade(page);
+    // The Grade popup is chrome over the Score, not the Score: close it with its own button (Escape with no popup
+    // open would mean Stop elsewhere).
+    const grade = panelLocator(page, 'grade');
+    await expect(grade).toBeVisible();
+    await grade.locator('button[part="close"]').click();
+    await expect(grade).toBeHidden();
     await expectStackIdenticalInEveryTheme(page, 'graded Play run');
   });
 });

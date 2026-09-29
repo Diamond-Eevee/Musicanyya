@@ -157,27 +157,29 @@ test.describe('Electron smoke test', () => {
 });
 
 /**
- * Feature 016 US5 (research R-3, FR-024): the desktop window starts in the theme's colours, without a white flash. The
- * test profile has the OS light setting, so Automatic is Paper; a stored Midnight is on screen at the first look.
+ * Feature 016 US5 (research R-3, FR-024): the desktop window starts in the theme's colours, without a white flash:
+ * the desk colour of what Automatic resolves to (Paper with the OS light, Night with it dark); a stored Midnight is on
+ * screen at the first look.
  */
 test.describe('Electron start colours (016 T037)', () => {
   const PAPER_DESK = '#e9e5dc'; // research R-5
+  const NIGHT_DESK = '#111214'; // research R-5
   const MIDNIGHT_SURFACE = 'rgb(21, 30, 51)'; // #151e33, research R-5
   const mainPath = path.join(__dirname, '../../dist-electron/main.js');
 
   // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
-  test('(a) the window starts on Paper desk colour and shows once loaded', async ({}, testInfo) => {
+  test('(a) the window starts on the Automatic desk colour and shows once loaded', async ({}, testInfo) => {
     test.skip(testInfo.project.name !== 'electron', 'Run electron smoke test on electron project only');
     const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'musicanyya-e2e-theme-a-'));
     const app = await electron.launch({ args: [mainPath, `--user-data-dir=${userDataDir}`] });
     try {
       const window = await app.firstWindow();
       await window.waitForLoadState('load');
-      const shown = await app.evaluate(({ BrowserWindow }) => {
-        const win = BrowserWindow.getAllWindows()[0];
-        return { background: win?.getBackgroundColor() ?? null, visible: win?.isVisible() ?? false };
-      });
-      expect(shown.background?.toLowerCase()).toBe(PAPER_DESK);
+      const shown = await app.evaluate(({ BrowserWindow, nativeTheme }) => ({
+        background: BrowserWindow.getAllWindows()[0]?.getBackgroundColor() ?? null,
+        dark: nativeTheme.shouldUseDarkColors,
+      }));
+      expect(shown.background?.toLowerCase()).toBe(shown.dark ? NIGHT_DESK : PAPER_DESK);
       await expect
         .poll(() => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0]?.isVisible()))
         .toBe(true);

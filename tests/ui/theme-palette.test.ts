@@ -176,12 +176,15 @@ function parseCssDeclarations(cssText: string): Map<string, Map<string, string>>
         start = i + 1;
         continue;
       }
-      const key = [...context, prelude].join(' ');
-      const decls = blocks.get(key) ?? new Map<string, string>();
-      for (const declMatch of inner.matchAll(/([-\w]+)\s*:\s*([^;]+);/g)) {
-        decls.set(declMatch[1].trim(), declMatch[2].trim());
+      // A selector list (`a, b { ... }`) gives the same declarations to each of its selectors.
+      for (const selector of prelude.split(',').map((part) => part.trim())) {
+        const key = [...context, selector].join(' ');
+        const decls = blocks.get(key) ?? new Map<string, string>();
+        for (const declMatch of inner.matchAll(/([-\w]+)\s*:\s*([^;]+);/g)) {
+          decls.set(declMatch[1].trim(), declMatch[2].trim());
+        }
+        blocks.set(key, decls);
       }
-      blocks.set(key, decls);
       i = close;
       start = close + 1;
     } else if (ch === '}') {

@@ -1,6 +1,10 @@
 # Contract: themes (`musicanyya.theme.v1`, DOM attributes, palette tokens)
 
-**Version**: `1.0.0` (new with feature 016)
+**Version**: `1.0.1` (new with feature 016)
+
+**1.0.1** (PATCH): each theme block's selector list also names `.mx-theme-swatch[data-theme="<id>"]`, so the
+View popup's swatches show a theme's own desk, surface and accent (research R-12). Only `<html>` carries the
+resolved theme; the swatch attribute never changes the page's theme.
 
 **Owner**: `src/ui/theme/themes.ts` (registry, `parseThemeChoice`, `resolveTheme`), `src/ui/theme/theme-state.ts`
 (store, persistence, system listener), `public/theme-boot.js` (first-frame application), `src/ui/styles/themes.css`
@@ -66,7 +70,8 @@ Resolution: `resolveTheme(choice, systemDark)` returns `choice` when it is a the
 
 ### 3.2 Palette tokens
 
-Every theme block `:root[data-theme="<id>"]` MUST define all of these and `color-scheme: light|dark` matching its
+Every theme block `:root[data-theme="<id>"]` (with `.mx-theme-swatch[data-theme="<id>"]` in the same selector
+list, 1.0.1) MUST define all of these and `color-scheme: light|dark` matching its
 kind. The unit test fails if one is missing.
 
 | Token | Use | Must reach (WCAG 2.x) |
