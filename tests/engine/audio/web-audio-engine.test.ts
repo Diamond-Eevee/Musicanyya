@@ -132,6 +132,16 @@ describe('WebAudioEngine', () => {
     expect(mockPort.postMessage).toHaveBeenCalledWith({ type: 'channelVolume', channel: 14, gain: 0 });
   });
 
+  it('a tempo set before the worklet exists reaches it once unlock creates it (012 FR-007), after init', async () => {
+    const engine = new WebAudioEngine();
+    engine.setTempoPercent(150); // typed before the first Play: there is no worklet port yet
+    await engine.unlock();
+
+    const types = mockPort.postMessage.mock.calls.map(([msg]: [{ type: string }]) => msg.type);
+    expect(mockPort.postMessage).toHaveBeenCalledWith({ type: 'tempo', percent: 150 });
+    expect(types.indexOf('tempo')).toBeGreaterThan(types.indexOf('init'));
+  });
+
   it('disposes the context', async () => {
     const engine = new WebAudioEngine();
     await engine.unlock();

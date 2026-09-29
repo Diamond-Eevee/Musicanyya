@@ -397,6 +397,7 @@ export class Session {
       lastMode = state.mode;
       if (state.mode === 'listen') this.leavePractice();
       if (previousMode === 'play' && state.mode !== 'play') this.leavePlay();
+      this.updateTempoModel(); // Play shows the Play setup's tempo, Listen and Practice the transport's (012 FR-017)
     });
     initShortcuts();
     guardPanelsDuringRuns();
@@ -692,13 +693,17 @@ export class Session {
       }
     }
 
-    if (practiceState.get().mode === 'practice') {
-      this.startPractice();
+    if (practiceState.get().mode === 'play') {
+      this.startPlay();
       return;
     }
 
-    if (practiceState.get().mode === 'play') {
-      this.startPlay();
+    // Listen and Practice play at the transport's own tempo: a Play run or a replay leaves the engine at its own
+    // (012 FR-018).
+    this.audioEngine.setTempoPercent(transportState.get().tempoPercent);
+
+    if (practiceState.get().mode === 'practice') {
+      this.startPractice();
       return;
     }
 

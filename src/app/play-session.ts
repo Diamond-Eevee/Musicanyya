@@ -163,6 +163,9 @@ export class PlaySessionController {
     this.tailMs = this.computeTailMs(settings);
 
     this.audioEngine.load(schedule);
+    // The schedule is compiled at the written tempo and graded at `settings.tempoPercent`, so the engine must play it at
+    // that factor too - the worklet keeps whatever Listen or Practice last set across schedules (012 FR-018).
+    this.audioEngine.setTempoPercent(settings.tempoPercent);
     // Always set, never only when muted: the worklet keeps channel volumes across schedules, so a muted run would leave the
     // next one silent (009 R-02, FR-013). Sent after the schedule so the tick-0 setup cannot override it.
     this.audioEngine.setChannelVolume(METRONOME_CHANNEL, metronomeChannelVolume(settings.metronomeMuted));
