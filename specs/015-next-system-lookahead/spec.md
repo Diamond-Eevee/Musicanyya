@@ -217,9 +217,10 @@ and the Score size never changes.
   content that needs more room still pushes staves apart. The distance between different parts (voice and piano,
   two instruments) and between systems stays as it is, so parts and systems remain clearly separated. It
   applies in every view of the Score (with or without a run, every mode, both Shells) and never changes during a
-  run. The value MUST be a named, documented setting and MUST pass a notation review (printed-edition norms, no
-  collisions) before it ships.
-  *(Added 2026-09-28 during planning, owner decision.)*
+  run. The value MUST be a named, documented setting and MUST pass a notation review (printed-edition norms, SC-008)
+  before it ships.
+  *(Added 2026-09-28 during planning, owner decision. Amended 2026-09-29, owner decision after the T030 review: "no
+  collisions" now reads "SC-008", which says what is measured.)*
 
 ### Key Entities
 
@@ -259,7 +260,13 @@ and the Score size never changes.
   systems fit in clear space for every system change of Clementi's Sonatina op. 36 no. 1 and Mary Had a Little
   Lamb (measured during planning: 8 of 8 and 1 of 1, against 0 of 8 and 0 of 1 before).
 - **SC-008**: A notation review (music-domain-expert) and the owner's visual check of the library's piano pieces
-  find no collision and no crowding introduced by the compact spacing.
+  find no ink contact introduced by the compact spacing, and no element of one staff closer to an element of the
+  other staff than the 0.28 staff space Verovio itself leaves wherever the music forces the staves apart. Places in
+  other Scores where Verovio's own placement collides with the compact spacing are recorded as known limits
+  (research R-4), not fixed by hand.
+  *(Amended 2026-09-29, owner decision after the T030 review: the first wording also forbade "crowding"; the review
+  found Bach BWV 846 m. 1/4 and Clementi op. 36 no. 1 m. 20 at that 0.28-space floor, legible and consistent with the
+  rest of the engraving, and ink collisions only in two test files outside the library.)*
 
 ## Assumptions
 

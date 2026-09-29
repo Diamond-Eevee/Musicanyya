@@ -83,11 +83,13 @@ Kept per layout epoch: `measuredHeights: Map<page, number>` (cleared on `load` a
 | `FOLLOW_GLIDE_MS` | 400 | ms | `glideTo` | FR-007, FR-009, SC-002 |
 | `FOLLOW_GLIDE_MIN_REDIRECT_MS` | 250 | ms | `glideTo` (redirect) | FR-009, FR-010 |
 | `FOLLOW_GLIDE_REDUCED_MS` | 0 | ms | `glideTo` | FR-011 |
-| `LOOKAHEAD_TOP_GAP_PX` | 12 | CSS px | `lookaheadTarget` | FR-001, FR-014 |
+| `LOOKAHEAD_TOP_GAP_PX` | 12 | CSS px | `lookaheadTarget` (less, down to 0, when only it keeps two systems from fitting) | FR-001, FR-014 |
 | `FOLLOW_TARGET_EPSILON_PX` | 1 | CSS px | `lookaheadTarget`, `glideTo` | FR-002 (no move, no oscillation) |
 | `ENGRAVING_PAGE_MARGIN_TOP` | 18 | Verovio page units | Verovio worker | FR-003 |
 | `ENGRAVING_PAGE_MARGIN_BOTTOM` | 18 | Verovio page units | Verovio worker | FR-003 |
 | `ENGRAVING_SPACING_BRACE_GROUP` | 8 | MEI half staff spaces | Verovio worker | FR-016 |
+| `SMUFL_TEXT_ASCENT_PCT` | 75 | % of the em | page sanitiser (`ascent-override`) | FR-001, SC-007 (research R-9) |
+| `SMUFL_TEXT_DESCENT_PCT` | 25 | % of the em | page sanitiser (`descent-override`) | FR-001, SC-007 (research R-9) |
 
 Unchanged and still in use: `FOLLOW_MARGIN` (0.2, Grade-mark reveal only), `RELAYOUT_DEBOUNCE_MS`,
 `SCORE_SCALE_*`, `MIN_PAGE_UNITS`, `MAX_PAGE_UNITS`.

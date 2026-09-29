@@ -1,6 +1,7 @@
 # Contract: Follow view (look-ahead target and glide)
 
-**Version**: `1.1.0` (1.1.0, 2026-09-28 after analyze A1: a redirect keeps the running glide's end time, new
+**Version**: `1.2.0` (1.2.0, 2026-09-29, owner decision after T028 measured SC-007: the top gap of rule 3 yields when it
+alone keeps two systems from fitting; 1.1.0, 2026-09-28 after analyze A1: a redirect keeps the running glide's end time, new
 constant `FOLLOW_GLIDE_MIN_REDIRECT_MS`; 1.0.0 was the first version). Replaces the follow rule "keep the cursor's measure in the middle 60 % and jump to centre
 it" (001 FR-014, `followScrollTo` with `FOLLOW_MARGIN`) **for runs** (Listen playing, Practice session, Play run).
 Revealing a Grade mark after a run (009 FR-023) keeps the old middle-band rule and is not covered here.
@@ -47,8 +48,15 @@ export function lookaheadTarget(input: LookaheadInput): number | null;
 1. `inClear(span) := span.top >= scrollTop - FOLLOW_TARGET_EPSILON_PX && span.bottom <= scrollTop + clearHeight + FOLLOW_TARGET_EPSILON_PX`.
 2. Return `null` when `inClear(current)` and either `next === null && nextKnown` (the Score's last system) or
    `next !== null && inClear(next)`.
-3. Otherwise `target = clamp(current.top - LOOKAHEAD_TOP_GAP_PX, 0, maxScrollTop)`.
+3. Otherwise `target = clamp(current.top - gap, 0, maxScrollTop)`, where `span = next.bottom - current.top` and
+   `gap = min(LOOKAHEAD_TOP_GAP_PX, clearHeight - span)` when `next !== null && span <= clearHeight` (the two fit only
+   with less space above them: the gap shrinks just enough, down to 0), else `gap = LOOKAHEAD_TOP_GAP_PX`. *(1.2.0:
+   before, the gap was always `LOOKAHEAD_TOP_GAP_PX`, so a pair up to 12 px shorter than the clear space did not fit.)*
 4. Return `null` when `|target - scrollTop| < FOLLOW_TARGET_EPSILON_PX`, else `target`.
+
+Boxes are the `g.system` elements' bounding boxes. Text in the music font is measured with the line metrics that
+`score-layout.md` 2.1.0 section 5 gives it, so a tempo mark or a text dynamic adds its ink, not the font's much taller
+line box, to its system.
 
 Consequences the tests pin: when two systems fit, the view stays still until the cursor enters a system whose next
 one is not fully visible; when they do not fit, the view settles with the current system at the top and never moves
@@ -103,7 +111,7 @@ Reduced motion is read from `matchMedia('(prefers-reduced-motion: reduce)')` whe
 | `FOLLOW_GLIDE_MS` | 400 | duration of every follow glide, fresh or redirected (FR-007, FR-009; SC-002 needs ≤ 600) |
 | `FOLLOW_GLIDE_MIN_REDIRECT_MS` | 250 | shortest duration of a redirected glide, so a late redirect never snaps (FR-010; its largest 60 Hz step is 20 % of its distance) |
 | `FOLLOW_GLIDE_REDUCED_MS` | 0 | duration when the OS asks for reduced motion (FR-011) |
-| `LOOKAHEAD_TOP_GAP_PX` | 12 | clear space left above the current system's box at the target |
+| `LOOKAHEAD_TOP_GAP_PX` | 12 | clear space left above the current system's box at the target; less (down to 0) when only that keeps the next system from fitting (rule 3) |
 | `FOLLOW_TARGET_EPSILON_PX` | 1 | positions closer than this count as equal (no move, no redirect) |
 | `FOLLOW_MARGIN` | 0.2 | unchanged; now used only to reveal a Grade mark (009 FR-023) |
 

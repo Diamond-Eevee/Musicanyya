@@ -132,6 +132,19 @@ own - an existing Verovio placement, out of scope (spec Out of Scope).
 
 ---
 
+**Review of the implemented spacing (T030, 2026-09-29, music-domain-expert, two parts)**: all 16 library piano pieces,
+the T025 fixture, voice-and-piano and the 13 `tests/fixtures/musicxml/real` files with a piano, first screens plus every
+library page, and a default-vs-compact pre-screen of element boxes. Library: no ink contact; in Bach BWV 846 m. 1/4
+(beats 2 and 4) and Clementi op. 36 no. 1 m. 20 a RH beam ends 0.28 staff space above a LH note (default 1.0-1.25) -
+0.28 space (51 inner units) is the clearance Verovio leaves wherever content forces the staves apart, so values 9 or
+10 would not change these systems; 11 would. Owner decision 2026-09-29: keep 8 and word SC-008 as "no ink contact and
+nothing closer than Verovio's own 0.28-space floor" (spec amended). **Known limits** (Verovio 6.3.0 places these
+elements after fixing the staff gap, and no option changes that): `bridge-dweller-in-my-deathless-dreams` m. 65 (a
+cross-staff beam starts inside a ledger-line notehead of the other voice; still at 10), `wolf-auf-einer-wanderung`
+m. 77 (a "cresc." extender dash on a slur; clear at 10) and m. 33 ("molto cresc." dashes 0.3 space above beams),
+`mendelssohn-duet-op63-1` m. 33 (an *sf* beside the RH ledger lines). Measured cost of a larger value: each step adds
+9 CSS px per grand staff at the default size.
+
 ## R-5. Which system is "current" and "next", and when to move (FR-001, FR-002, FR-014)
 
 **Decision**: a **system** is Verovio's `g.system` element; its box is the element's bounding box (all its staves plus
@@ -150,6 +163,9 @@ The move rule is one pure function (`contracts/follow-view.md`):
    clamped to the scroll range. This one rule gives: the next system below it when both fit (FR-001); the top of the
    next system in the rest of the space when they do not (FR-014); the top of an over-tall system with the cursor bar
    through it (FR-014); no scrolling past the end at the last system (FR-004, clamp).
+   *(Amended 2026-09-29, owner decision, follow-view 1.2.0: the gap shrinks - down to 0 - when it alone keeps the
+   next system from fitting. Measured in T028: Clementi at 1920 x 950 with the strip has a pair of 689 px in 697 px of
+   clear space, which the fixed 12 px gap pushed 4 px under the piano strip.)*
 4. A target within `FOLLOW_TARGET_EPSILON_PX` (1) of the current position is no move (the not-fit case settles at
    its target and stays there - no oscillation).
 
@@ -231,3 +247,35 @@ rendering every page on the way would queue work in the single Verovio worker an
   library piano piece (FR-003, G-5, G-6).
 - **Manual**: owner hand test (SC-006) and the notation review of all library piano pieces (SC-008), both from
   `quickstart.md`.
+
+---
+
+## R-9. Boxes of music-font text (FR-001, SC-007; owner decision 2026-09-29)
+
+**Finding** (T028): at 1920 x 950 with the piano strip, *Mary Had a Little Lamb*'s first system measured 380 px although
+its staves are 4 spaces apart. Its tempo mark "Moderato ♩ = 96" is SVG `<text>`; the note is a `<tspan>` in Leipzig,
+the SMuFL font Verovio embeds with `@font-face` in each page. Chromium sizes SVG text boxes by the font's line metrics,
+about 1.83 em above and 1.14 em below the baseline for Leipzig (2.97 em in total: 214 px at the 72 px the glyphs are
+set in), so the box reached 83 px above the ink (text dynamics such as "più *f*": 100 px). The system box, and the
+look-ahead with it, followed the box: 90 px of white above the tempo mark, and two systems that fit by ink (661 px of
+697) judged as not fitting. Verovio writes metronome notes (U+ECA3/ECA5/ECA7, dot U+ECB7) and dynamics
+(U+E520-E539) this way, all at the same size, in the library and the real files.
+
+**Decision**: the page sanitiser adds `ascent-override: 75%; descent-override: 25%; line-gap-override: 0%` to every
+`@font-face` rule of a page's `<style>` (`score-layout.md` 2.1.0 section 5; constants `SMUFL_TEXT_ASCENT_PCT`,
+`SMUFL_TEXT_DESCENT_PCT`). A box is then one em tall, three quarters above the baseline.
+
+**Measured** (spike in Chromium on library and real pages): the ink of these glyphs reaches at most about 0.68 em above
+and 0.21 em below the baseline (metronome note stems; the descender of *f*); with 75/25 every sampled box contains its
+ink with 3-22 px to spare (tempo marks 5 px above, 8-9 px below; text dynamics 22 px above, 3 px below); 25 pages of
+five Scores rendered with and without the descriptors are pixel-identical (SVG text is placed by `x`/`y`, not by line
+boxes).
+
+**Rationale**: fixes the cause (the font's line metrics) in the one place every page passes through, with standard
+CSS descriptors (Chrome/Edge 87, Firefox 89), no DOM measurement per frame and no change to the engraving.
+
+**Alternatives considered**: a system box built from the boxes of its children minus text (hides the stem of a
+metronome note, which then slides under the slim bar); `getBBox()` (the same font metrics); glyph boxes from the SMuFL
+metadata per character (a font table in our code for a measuring problem); rendering tempo marks without the music
+font (changes the engraving). A browser without the descriptors keeps the old boxes: it looks ahead less often, nothing
+else changes.

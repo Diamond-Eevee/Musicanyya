@@ -1,6 +1,7 @@
 # Contract: Score layout (cropped pages, compact spacing)
 
-**Version**: `2.0.0` - supersedes [`004/contracts/score-layout.md` `1.1.1`](../../004-score-first-layout/contracts/score-layout.md).
+**Version**: `2.1.0` (2.1.0, 2026-09-29, MINOR: section 5, line metrics of music-font text, and guarantee G-9) - `2.0.0`
+supersedes [`004/contracts/score-layout.md` `1.1.1`](../../004-score-first-layout/contracts/score-layout.md).
 **MAJOR** because rule 4 of section 2 is reversed (a page is no longer one screenful) and section 4 changes from one
 shared page height to one height per page. Sections 1 (Score size), 2 rules 1-3 and 5, and 3 (when a relayout
 happens) are unchanged and still read from the 004 file. The Verovio worker's messages
@@ -82,3 +83,23 @@ Rules:
 - **G-7**: A page's height changing from estimate to measurement never moves the notation on screen (rule 3).
 - **G-8**: The compact spacing is the same in every mode and during a run; starting or stopping a run never changes
   the engraving.
+- **G-9**: The line metrics of section 5 change no pixel of the engraving: they only change the box the browser reports
+  for text in the music font (SVG text is placed by its own `x`/`y`, not by line boxes).
+
+## 5. Line metrics of music-font text (2.1.0, research R-9)
+
+Verovio writes metronome-mark notes and text dynamics as SVG `<text>` in the music font, which it embeds as an
+`@font-face` rule inside each page's `<style>`. The font's own line metrics (about 1.83 em above and 1.14 em below the
+baseline) make the box of such text reach 70-100 CSS px beyond its ink at the default size, and a system's box grows
+with it. `sanitiseAndExtractMeasures()` (`src/ui/score/pages.ts`) therefore adds to every `@font-face` rule in the
+page's `<style>` elements:
+
+| Descriptor | Value | Named constant (`src/engine/config.ts`) |
+|---|---|---|
+| `ascent-override` | `75%` | `SMUFL_TEXT_ASCENT_PCT` |
+| `descent-override` | `25%` | `SMUFL_TEXT_DESCENT_PCT` |
+| `line-gap-override` | `0%` | - (no line gap: SVG text has no second line) |
+
+Measured (Chromium, verovio 6.3.0, library and real files): every such box then contains its ink, 3-22 px beyond it.
+A browser without these descriptors keeps the font's own metrics; its boxes stay as tall as before (the view then
+looks ahead less often there, nothing breaks).
