@@ -4,6 +4,7 @@ import { MENU_GROUPS, type MenuGroup, OVERFLOW_MENU } from '../layout/menu-model
 import { isRunActive, subscribeRunActive } from '../state/runActive.js';
 import { scoreState } from '../state/scoreState.js';
 import { viewState } from '../state/viewState.js';
+import controlsCss from '../styles/controls.css?inline';
 
 /**
  * One menu of the slim bar (`menu="score" | "setup" | "view" | "help"`). Activating an entry only calls
@@ -62,15 +63,17 @@ export class MxMenu extends HTMLElement {
       )
       .join('');
     root.innerHTML = `
+      <style>${controlsCss}</style>
       <style>
         :host { position: relative; display: inline-block; }
         ul { position: fixed; z-index: 10; margin: 0; padding: 4px 0; list-style: none; min-width: 12em;
-          background: var(--bg-color, #fff); border: 1px solid var(--border-color, #ccc); }
+          background: var(--mx-raised); border: 1px solid var(--mx-border); border-radius: var(--mx-radius-s, 4px);
+          box-shadow: var(--mx-shadow-popup); }
         ul[hidden] { display: none; }
-        li button { display: block; width: 100%; text-align: left; padding: 6px 12px; border: 0; background: none;
-          font: inherit; color: inherit; cursor: pointer; }
-        li button:hover:not(:disabled), li button:focus-visible { background: rgba(0, 114, 178, 0.12); }
-        li button:disabled { color: #767676; cursor: default; }
+        li button { display: block; width: 100%; text-align: left; padding: 6px 12px; border: 0; background: transparent;
+          font: inherit; color: var(--mx-ink); cursor: pointer; border-radius: var(--mx-radius-s, 4px); }
+        li button:hover:not(:disabled), li button:focus-visible { background: var(--mx-accent-soft); }
+        li button:disabled { color: var(--mx-ink-muted); cursor: default; }
       </style>
       <button type="button" class="trigger" aria-haspopup="menu" aria-expanded="false">${group.label}</button>
       <ul role="menu" aria-label="${group.label}" hidden>${entries}</ul>

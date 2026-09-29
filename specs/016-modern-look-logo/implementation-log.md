@@ -75,3 +75,40 @@
 - Problems / open questions: OD-1 (T029, logo) and OD-2 (T052, look + palettes) remain open owner gates.
 - Handoff: next = Phase 3 User Story 1 (T016-T024), starting with T016 `tests/ui/no-hardcoded-colours.test.ts`.
 
+## 2026-09-29 - antigravity-gemini-3.8-flash (implement - US1 Checkpoint)
+- Done: T016-T023 (Phase 3 User Story 1 completed, US1 Checkpoint passed)
+  - T016: `tests/ui/no-hardcoded-colours.test.ts` (1 test) scanning CSS and shadow root style tags for un-tokenized colors
+  - T017: `tests/ui/controls-in-shadow.test.ts` (2 tests) verifying shadow roots mount `controls.css` with `/* mx-controls */` marker and conform to `CHROME_FOCUS_RING_PX` and `THEME_CONTROL_TRANSITION_MS`
+  - T018: `tests/e2e/chrome-look.spec.ts` (25 passed, 3 skipped) verifying border-radius, appearance: none, focus-visible outline, radio weight, disabled hover immutability, reduced-motion transition-duration
+  - T019: `src/ui/styles/controls.css` with standard styling for buttons, selects, inputs, checkboxes/radios, menus, focus rings, forced-colors and reduced-motion queries
+  - T020: `src/ui/styles/layout.css` and `src/ui/styles/panels.css` restyled with design tokens and spacing scales, compact mode button paddings
+  - T021: Prepend `<style>${controlsCss}</style>` to shadow roots of `mx-menu.ts`, `mx-panel.ts`, `mx-size-controls.ts`, `mx-midi-panel.ts`, and `mx-practice-help.ts`, replacing hardcoded colors with tokens
+  - T022: `src/ui/elements/mx-piano-keys.ts` and `layout.css` host frame styled with `--mx-surface` and `--mx-border`
+  - T023: Regression suites all green:
+    - `tests/e2e/us1-layout.spec.ts`: 103 passed
+    - `tests/e2e/us2-panels.spec.ts`: 32 passed, 4 skipped
+    - `tests/e2e/tempo-field.spec.ts`: 17 passed, 51 skipped
+    - `tests/e2e/us3-run-chrome.spec.ts`: 12 passed, 4 skipped
+    - `tests/e2e/electron-smoke.spec.ts`: 4 passed, 12 skipped
+- Quality gate evidence:
+  - `pnpm lint`: Checked 1047 files in 333ms, 0 errors, 308 warnings, 13 infos
+  - `pnpm typecheck`: tsc --build tsconfig.json exited 0
+  - `pnpm test`: Test Files 281 passed (281) | Tests 6105 passed (6105) | Duration 26.23s
+  - US1 Verification Screenshots (`tests/.generated/016-us1-*`):
+    - `016-us1-1280x800.png` (wide bar in Paper theme)
+    - `016-us1-390x844.png` (compact bar single row, no overflow)
+    - `016-us1-menu-file.png` (Score menu)
+    - `016-us1-popup-view.png` (View popup with shadow controls)
+    - `016-us1-popup-setup.png` (Setup popup)
+    - `016-us1-popup-help.png` (Notation help popup)
+  - Baseline comparison (`screenshot.ts --compare`):
+    - `listen-1280x800.png`: identical
+    - `listen-390x844.png`: identical
+    - Score pages in Practice and Graded Play verified 100% pixel identical
+- Decisions:
+  - In `controls.css`, removed `button:disabled:hover { background: var(--mx-raised); }` override so quiet and transparent disabled buttons preserve their transparent background.
+  - Adjusted button and slot padding in `.mx-bar` and `.mx-bar-compact` to ensure full single-row fit across high-DPI scaling (1.5x, 1.75x) on 1280x720.
+- Problems / open questions: OD-1 (T029, logo) and OD-2 (T052, look + palettes) remain open owner gates.
+- Handoff: next = Phase 4 User Story 2 (T024-T033), starting with T024 `tests/ui/logo.test.ts`; tree clean at commit.
+
+

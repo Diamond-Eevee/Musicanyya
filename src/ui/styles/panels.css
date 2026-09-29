@@ -14,11 +14,11 @@ mx-panel {
   width: min(28rem, calc(100vw - 16px));
   max-height: calc(100vh - var(--mx-bar-height, 48px) - 16px);
   overflow: hidden;
-  color: var(--text-color);
-  background: var(--bg-color);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  color: var(--mx-ink);
+  background: var(--mx-raised);
+  border: 1px solid var(--mx-border);
+  border-radius: var(--mx-radius-m, 8px);
+  box-shadow: var(--mx-shadow-popup);
 }
 
 mx-panel[hidden] {
@@ -35,13 +35,14 @@ mx-menu {
  */
 mx-score-source {
   display: block;
-  font-size: 0.85em;
-  opacity: 0.85;
+  font-size: var(--mx-text-s, 0.875rem);
+  color: var(--mx-ink-muted);
 }
 
 .score-source-heading {
   margin: 0 0 2px;
   font-weight: 600;
+  color: var(--mx-ink);
 }
 
 .score-source-line {

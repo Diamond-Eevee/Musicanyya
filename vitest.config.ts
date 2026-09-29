@@ -36,6 +36,7 @@ export default defineConfig({
           name: 'ui',
           include: ['tests/ui/**/*.test.ts'],
           environment: 'happy-dom',
+          css: true,
         },
       },
       {

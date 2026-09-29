@@ -1,6 +1,7 @@
 import { en } from '../i18n/en.js';
 import { hasInvoker, restoreInvokerFocus } from '../layout/invoker.js';
 import { viewState } from '../state/viewState.js';
+import controlsCss from '../styles/controls.css?inline';
 
 type PopoverHost = HTMLElement & { showPopover?: () => void; hidePopover?: () => void };
 
@@ -25,12 +26,13 @@ export class MxPanel extends HTMLElement {
     super();
     const root = this.attachShadow({ mode: 'open' });
     root.innerHTML = `
+      <style>${controlsCss}</style>
       <style>
-        :host { display: block; }
+        :host { display: block; color: var(--mx-ink); }
         :host([hidden]) { display: none; }
         header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px;
-          border-bottom: 1px solid var(--border-color, #ccc); }
-        h2 { font-size: 1rem; margin: 0; }
+          border-bottom: 1px solid var(--mx-border); }
+        h2 { font-size: 1rem; margin: 0; color: var(--mx-ink); }
         .body { padding: 12px; overflow: auto; max-height: calc(100vh - 120px); }
       </style>
       <header>

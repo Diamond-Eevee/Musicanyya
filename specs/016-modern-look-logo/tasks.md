@@ -138,19 +138,19 @@ Practice popups. No default-grey control, and the Score stack is identical to th
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T016 [P] [US1] Create `tests/ui/no-hardcoded-colours.test.ts`. It scans `src/ui/styles/*.css` (except
+- [x] T016 [P] [US1] Create `tests/ui/no-hardcoded-colours.test.ts`. It scans `src/ui/styles/*.css` (except
   `tokens.css`, `themes.css`) and the `<style>` strings of `src/ui/elements/*.ts` for hex, `rgb()`/`rgba()`/`hsl()`
   and named colours other than `transparent`/`currentcolor`/`inherit`, and reports file, line and value. Allowlist,
   each entry with its reason: the key colours and shadows inside `mx-piano-keys.ts`'s `.key` rules (feature 010,
   unchanged), the `.mx-score-*` mark rules that read feedback tokens, and `rgba(0,0,0,a)` shadows only inside
   `--mx-shadow-popup`. Run: fails, listing F-1's values
-- [ ] T017 [P] [US1] Create `tests/ui/controls-in-shadow.test.ts`. For each of `mx-menu`, `mx-panel`,
+- [x] T017 [P] [US1] Create `tests/ui/controls-in-shadow.test.ts`. For each of `mx-menu`, `mx-panel`,
   `mx-size-controls`, `mx-midi-panel` and `mx-practice-help`, mount the element (happy-dom) and assert that its
   shadow root contains a `<style>` whose text includes the `/* mx-controls */` marker at the top of
   `src/ui/styles/controls.css`. Also read `controls.css` as text and assert that the `:focus-visible` outline width is
   `${CHROME_FOCUS_RING_PX}px` and every `transition` duration is `${THEME_CONTROL_TRANSITION_MS}ms`
   (`src/engine/config.ts`), so the CSS cannot drift from the named constants. Run: fails
-- [ ] T018 [P] [US1] Create `tests/e2e/chrome-look.spec.ts` (all three engines) with a Score loaded, Paper. (a) Each
+- [x] T018 [P] [US1] Create `tests/e2e/chrome-look.spec.ts` (all three engines) with a Score loaded, Paper. (a) Each
   `button`, `select`, `input` in `.mx-bar` and in the open View, Setup and Practice popups and each menu list has
   `border-radius` equal to `--mx-radius-s` or `--mx-radius-m`, and no computed `appearance: auto` on `button`/`select`
   (default look, SC-003). (b) Tab through the bar and one popup: every focused element matches `:focus-visible` with
@@ -163,25 +163,25 @@ Practice popups. No default-grey control, and the Score stack is identical to th
 
 ### Implementation
 
-- [ ] T019 [US1] Create `src/ui/styles/controls.css`, starting with the `/* mx-controls */` marker. It holds the
+- [x] T019 [US1] Create `src/ui/styles/controls.css`, starting with the `/* mx-controls */` marker. It holds the
   button (default, `.mx-primary`, `.mx-quiet`, icon-only), `select` (own chevron as a `data:` SVG, CSP allows
   `img-src data:`), text/number/search inputs, checkbox/radio/range via `accent-color`, menu list rows, disabled
   state, the `:focus-visible` ring (`CHROME_FOCUS_RING_PX`), transitions of 120 ms on background/border-colour only,
   and the `prefers-reduced-motion` and `forced-colors` rules (research R-7, R-8). It uses only theme tokens. Import it
   in `src/ui/index.ts` after themes.css
-- [ ] T020 [US1] Restyle `src/ui/styles/layout.css` and `src/ui/styles/panels.css` with tokens and the spacing and
+- [x] T020 [US1] Restyle `src/ui/styles/layout.css` and `src/ui/styles/panels.css` with tokens and the spacing and
   type scales: the bar (surface, bottom border, slot gaps; same height `--mx-bar-height`), the mode switch (active =
   accent-soft fill + bold, R-9), the tempo field, the transport, `mx-panel` (raised, radius-m, `--mx-shadow-popup`),
   the empty state (`#666` -> `--mx-ink-muted`), diagnostics labels, and the Practice start/loop texts ->
   `--mx-start-text`/`--mx-loop-text`. Replace every hard-coded colour T016 reports in these files
-- [ ] T021 [US1] Shadow roots (R-7): in `src/ui/elements/mx-menu.ts`, `mx-panel.ts`, `mx-size-controls.ts`,
+- [x] T021 [US1] Shadow roots (R-7): in `src/ui/elements/mx-menu.ts`, `mx-panel.ts`, `mx-size-controls.ts`,
   `mx-midi-panel.ts` and `mx-practice-help.ts`, prepend `<style>${controlsCss}</style>` (`import controlsCss from
   '../styles/controls.css?inline'`) and replace their hard-coded colours with tokens (`#767676`, `rgba(0,114,178,.12)`,
   `#ccc`, `#fff`, `#333`, `#555`). Keep every structural rule. Makes T016 (these files) and T017 pass
-- [ ] T022 [US1] `src/ui/elements/mx-piano-keys.ts` and the `mx-piano-keys` rule in `layout.css`: the host frame uses
+- [x] T022 [US1] `src/ui/elements/mx-piano-keys.ts` and the `mx-piano-keys` rule in `layout.css`: the host frame uses
   `--mx-surface` and a top border `--mx-border` (piano-keyboard 1.2.1). Key rules are untouched, and
   `tests/e2e/piano-keyboard.spec.ts` stays green unchanged
-- [ ] T023 [US1] Run `tests/e2e/us1-layout.spec.ts`, `us2-panels.spec.ts`, `tempo-field.spec.ts`,
+- [x] T023 [US1] Run `tests/e2e/us1-layout.spec.ts`, `us2-panels.spec.ts`, `tempo-field.spec.ts`,
   `us3-run-chrome.spec.ts` and `electron-smoke.spec.ts` (one-row bar, compact mode, panels reserve no space, keyboard
   menus). Fix styling regressions in the files of T019-T022 only. If a test's expectation must change, stop and ask
   (AGENTS.md section 4: no weakened tests). Log each run's summary line

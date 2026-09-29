@@ -20,30 +20,49 @@ mx-app {
 .mx-bar {
   height: var(--mx-bar-height);
   box-sizing: border-box;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--mx-border);
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 0 12px;
+  gap: var(--mx-space-3, 8px);
+  padding: 0 var(--mx-space-3, 8px);
   flex-shrink: 0;
-  background: var(--bg-color);
-}
-
-.mx-bar {
+  background: var(--mx-surface);
+  color: var(--mx-ink);
   white-space: nowrap; /* one row, never wrapped into a second that would steal height */
 }
 
 .mx-bar-slot {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--mx-space-1, 4px);
   flex-shrink: 0;
+}
+
+.mx-bar button {
+  padding: 3px 6px;
 }
 
 /* Compact mode (mx-app switches it on when the bar's contents would overflow): the four menus fold into "More" and
    the transport sliders shorten. Nothing is hidden, nothing wraps. */
 mx-menu[menu="more"] {
   display: none;
+}
+
+.mx-bar.mx-bar-compact {
+  gap: var(--mx-space-2, 6px);
+  padding: 0 var(--mx-space-2, 6px);
+}
+
+.mx-bar-compact .mx-bar-slot {
+  gap: var(--mx-space-1, 4px);
+}
+
+.mx-bar-compact button {
+  padding: 3px 6px;
+}
+
+.mx-bar-compact mx-mode-switch label {
+  padding: 2px 4px;
 }
 
 .mx-bar-compact #menu-controls mx-menu:not([menu="more"]) {
@@ -75,12 +94,22 @@ mx-tempo-field input[data-id="tempo-bpm"] {
   width: 3.5em;
   text-align: right;
   font-size: 1em;
+  padding: 2px 4px;
 }
 
 /* Compact bar: the word "Tempo" goes (the input keeps it as its accessible name); "90 BPM" already says what the
    number is, and the room keeps the run status and Stop on screen at 1280 px. */
 .mx-bar-compact mx-tempo-field [data-id="tempo-label"] {
   display: none;
+}
+
+mx-tempo-field [data-id="tempo-down"],
+mx-tempo-field [data-id="tempo-up"],
+mx-tempo-field [data-id="tempo-reset"] {
+  width: 1.6em;
+  height: 1.6em;
+  line-height: 1;
+  padding: 0;
 }
 
 .mx-bar-compact mx-tempo-field {
@@ -101,18 +130,9 @@ mx-tempo-field .tempo-beat-symbol {
   fill: currentcolor;
 }
 
-mx-tempo-field [data-id="tempo-down"],
-mx-tempo-field [data-id="tempo-up"],
-mx-tempo-field [data-id="tempo-reset"] {
-  width: 1.6em;
-  height: 1.6em;
-  line-height: 1;
-  padding: 0;
-}
-
 mx-tempo-field [data-id="tempo-written"] {
-  color: #666666;
-  font-size: 0.9em;
+  color: var(--mx-ink-muted);
+  font-size: var(--mx-text-xs, 0.75rem);
 }
 
 /* Phone width (SC-004, T049): the tempo field alone (number, unit, beat symbol, step buttons) is now wider than the
@@ -125,14 +145,29 @@ mx-tempo-field [data-id="tempo-written"] {
 mx-mode-switch .mode-switch {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--mx-space-1, 2px);
+  background: var(--mx-raised);
+  border: 1px solid var(--mx-border);
+  border-radius: var(--mx-radius-s, 4px);
+  padding: 2px;
 }
 
 mx-mode-switch label {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--mx-space-1, 2px);
   white-space: nowrap;
+  padding: 2px 4px;
+  border-radius: var(--mx-radius-s, 4px);
+  cursor: pointer;
+  font-size: var(--mx-text-s, 0.875rem);
+  color: var(--mx-ink);
+  transition: background-color 120ms ease;
+}
+
+mx-mode-switch label:has(input[type="radio"]:checked) {
+  background: var(--mx-accent-soft);
+  font-weight: 600;
 }
 
 mx-mode-switch .mode-label-short,
@@ -215,7 +250,7 @@ mx-drop-zone .mx-empty-state {
   pointer-events: auto;
   margin: auto;
   text-align: center;
-  color: #666;
+  color: var(--mx-ink-muted);
 }
 
 mx-drop-zone .mx-empty-state[hidden] {
@@ -228,9 +263,9 @@ mx-drop-zone .mx-drop-hint {
 }
 
 mx-drop-zone.drag-active {
-  outline: 3px dashed var(--color-blue);
+  outline: 3px dashed var(--mx-accent);
   outline-offset: -6px;
-  background: rgba(0, 114, 178, 0.06);
+  background: var(--mx-accent-soft);
 }
 
 mx-notice-tray {
@@ -248,14 +283,15 @@ mx-notice-tray {
 mx-notice-tray .notice {
   pointer-events: auto;
   padding: 8px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background: var(--bg-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--mx-border);
+  border-radius: var(--mx-radius-s, 4px);
+  background: var(--mx-raised);
+  color: var(--mx-ink);
+  box-shadow: var(--mx-shadow-popup);
 }
 
 mx-notice-tray .notice.warning {
-  border-color: var(--color-vermilion);
+  border-color: var(--mx-warning);
 }
 
 mx-piano-keys {
@@ -263,8 +299,8 @@ mx-piano-keys {
   inset-inline: 0;
   inset-block-end: 0;
   z-index: 4;
-  background: var(--bg-color);
-  border-top: 1px solid var(--border-color);
+  background: var(--mx-surface);
+  border-top: 1px solid var(--mx-border);
 }
 
 mx-piano-keys[hidden] {
@@ -286,7 +322,7 @@ mx-help-notation th,
 mx-help-notation td {
   text-align: left;
   padding: 4px 8px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--mx-border);
 }
 
 .mx-diagnostics-list {
@@ -298,7 +334,7 @@ mx-help-notation td {
 }
 
 .mx-diagnostics-list dt {
-  color: #666;
+  color: var(--mx-ink-muted);
 }
 
 .mx-diagnostics-list dd {
@@ -317,7 +353,7 @@ mx-environment-panel[hidden] {
 mx-practice-panel {
   display: block;
   padding: 10px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--mx-border);
 }
 
 mx-practice-panel[hidden] {
@@ -338,7 +374,7 @@ mx-practice-panel[hidden] {
 
 .practice-start {
   margin: 6px 0 0;
-  color: #0072b2;
+  color: var(--mx-start-text);
 }
 
 .practice-loop {
@@ -363,7 +399,7 @@ mx-practice-panel[hidden] {
 
 .practice-loop-status {
   margin: 6px 0 0;
-  color: #882255;
+  color: var(--mx-loop-text);
 }
 
 mx-run-status .run-stop {
