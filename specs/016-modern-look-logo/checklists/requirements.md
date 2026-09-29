@@ -1,4 +1,4 @@
-# Specification Quality Checklist: A Modern Look and a Musicanyya Logo
+# Specification Quality Checklist: A Modern Look, Themes and a Musicanyya Logo
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-09-29
@@ -39,6 +39,8 @@
 
 ## Notes
 
-- Validated in one iteration on 2026-09-29.
+- Validated in one iteration on 2026-09-29. Re-validated after /speckit.clarify (2026-09-29, 4 questions: light pages
+  in dark themes, 3 light + 3 dark themes, Automatic follows the system, pure white paper in every theme); User
+  Story 5 and FR-022 to FR-026, SC-010 added; still no implementation details.
 - The Score pages and all feedback colours and shapes are explicitly frozen (FR-010, FR-011, SC-001), so the risk is
   limited to the chrome and to the one-row bar rules of 004/012/013 (FR-013, SC-006).

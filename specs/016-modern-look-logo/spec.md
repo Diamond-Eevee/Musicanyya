@@ -1,4 +1,4 @@
-# Feature Specification: A Modern Look and a Musicanyya Logo
+# Feature Specification: A Modern Look, Themes and a Musicanyya Logo
 
 **Feature Branch**: `016-modern-look-logo`
 **Created**: 2026-09-29
@@ -8,6 +8,23 @@ professional and natural feelings), but menus, buttons etc. Make them look a lit
 that fits white&black sheets). Also add some musicanyaa simple but nice logo. Like double note that is suggesting M
 or something."
 
+## Clarifications
+
+### Session 2026-09-29
+
+- Q: In a dark theme, what should the Score pages look like? -> A: The paper stays light. Dark themes darken only
+  the chrome around the Score (bar, menus, panels, the area around the pages); the pages keep black notation on
+  light paper, like a lit sheet on a dark desk.
+- Q: Which themes should ship? -> A: Three light and three dark themes. Light: **Paper** (warm off-white, ink-blue
+  accent; the default), **Ivory** (cream, burgundy accent), **Slate** (cool grey, teal accent). Dark: **Night**
+  (near-black, ink-blue accent), **Walnut** (dark brown wood, brass accent), **Midnight** (deep navy, soft violet
+  accent).
+- Q: Which theme does a first-time user get? -> A: Follow the system. The theme choice has an **Automatic** entry,
+  selected until the user picks a theme: Paper when the operating system is in light mode, Night when it is in dark
+  mode. A theme picked by hand wins from then on; picking Automatic again restores following the system.
+- Q: Does the paper colour of the pages change with the theme? -> A: No. The pages are pure white with black
+  notation in every theme, so the Score is pixel-identical across all six themes.
+
 ## Context
 
 Today every control around the Score uses the browser's default look: grey system buttons, plain drop-downs, thin
@@ -16,8 +33,9 @@ text. The app has no logo: the browser tab, the Electron window and the installe
 
 This feature changes how the **chrome** looks: the bar, menus, buttons, fields, popup panels, the Score browser,
 notices, the empty state and the frame around the on-screen piano. It adds a logo. The **Score stays exactly as it
-is**: black notation on white pages. The chrome gets a quiet palette of paper and ink tones that suits those pages.
-This feature changes only the look. Nothing a user can do, and no wording, changes.
+is**: black notation on white pages, in every theme. The chrome gets a quiet palette that suits those pages, in one of
+six themes (three light, three dark) the user can choose. Apart from that choice, this feature changes only the look.
+Nothing else a user can do, and no wording, changes.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -137,6 +155,39 @@ apart from information notices by an icon as well as by colour.
 
 ---
 
+### User Story 5 - Choose a theme, light or dark (Priority: P2)
+
+The musician picks one of six themes: three light (Paper, Ivory, Slate) and three dark (Night, Walnut, Midnight). The
+theme changes the whole chrome at once: bar, menus, buttons, popups, the Score browser, notices, the empty state, the
+area around the pages and the frame around the on-screen piano. The Score pages stay light with black notation in
+every theme, so a dark theme looks like a lit sheet on a dark desk. The choice is remembered the next time the app
+opens.
+
+**Why this priority**: the owner wants some variety, including dark themes "for fun". It builds on the control
+styles of Story 1, which become the Paper theme.
+
+**Independent Test**: open a library Score, open the theme choice, and pick each of the six themes in turn during
+Listen. Each time the chrome changes at once, the Score pages and every mark on them stay the same, and nothing
+moves. Reload the app: the last theme chosen is still in use.
+
+**Acceptance Scenarios**:
+
+1. **Given** the app is open, **When** the user chooses a theme, **Then** the whole chrome switches to it at once,
+   with no reload, and the choice shows which theme is active by more than colour (for example a check mark).
+2. **Given** a dark theme, **When** a Score is open, **Then** the pages keep black notation on pure white paper, and the
+   cursor, Practice marks and Grade marks look the same as in the light themes.
+3. **Given** a Listen, Practice or Play session is running, **When** the user changes the theme, **Then** the session
+   goes on undisturbed: no pause, no jump, no change to the Score layout or scroll position.
+4. **Given** a first start (no theme chosen yet), **When** the operating system is in dark mode, **Then** the app uses
+   Night; in light mode it uses Paper. **When** the system setting changes while the app is open and Automatic is
+   selected, **Then** the app follows it at once.
+5. **Given** the user chose a theme, **When** the app is opened again (browser or Electron), **Then** that theme is
+   used from the first frame, without a flash of another theme.
+6. **Given** any of the six themes, **When** the automated contrast check runs on the chrome, **Then** it reports no
+   violation.
+
+---
+
 ### Edge Cases
 
 - **Narrow windows (phone width, compact bar)**: the logo shrinks to the mark alone. The feature 004/012/013 rules
@@ -145,8 +196,12 @@ apart from information notices by an icon as well as by colour.
 - **Forced colours / high contrast (Windows)**: every control is still visible and usable, with system colours taking
   over. Focus rings and selected states stay visible, and the logo stays visible (it follows the text colour).
 - **Reduced motion**: any new hover or open/close transitions are switched off when the user asks for reduced motion.
-- **Operating system in dark mode**: the app stays in its light palette (see Assumptions). Native parts the page
-  cannot style (scrollbars, date or number spinners) must not end up dark on dark.
+- **Native parts the page cannot fully style** (scrollbars, drop-down lists, number spinners): in dark themes they
+  must follow the theme's light or dark kind, never dark on dark or light on light.
+- **Stored theme unknown or unreadable** (renamed in a later version, storage cleared or blocked): the app falls back
+  to Automatic without an error.
+- **On-screen piano in a dark theme**: the keys keep their realistic look (white and black keys); only the frame
+  around them follows the theme.
 - **Browser zoom 200% and larger system text**: controls grow with the text. Nothing is clipped, and the bar keeps its
   one-row rule (compact mode takes over as it does today).
 - **Long titles, composer names and credits** (Score browser rows and detail pane): they truncate with an ellipsis or
@@ -164,10 +219,11 @@ apart from information notices by an icon as well as by colour.
 
 **Palette and look (chrome only)**
 
-- **FR-001**: The chrome MUST use one named palette of neutral paper and ink tones (backgrounds, surfaces, borders,
-  primary and secondary text) plus one accent colour for primary actions, selection and focus. The palette
-  MUST suit black-and-white Score pages: calm, low-saturation surfaces, and no large areas of strong colour.
-- **FR-002**: Every text and icon in the chrome MUST reach a contrast of at least 4.5:1 against its background (3:1 for
+- **FR-001**: The chrome MUST be drawn from the active theme's palette: neutral surface and ink tones (backgrounds,
+  surfaces, borders, primary and secondary text) plus one accent colour for primary actions, selection and focus.
+  Every palette MUST suit black-and-white Score pages: calm, low-saturation surfaces, and no large areas of strong
+  colour.
+- **FR-002**: In every theme, every text and icon in the chrome MUST reach a contrast of at least 4.5:1 against its background (3:1 for
   large text, icons, focus rings and control borders), in every state (normal, hover, pressed, selected, disabled
   excepted).
 - **FR-003**: Buttons, menu buttons, drop-downs, text and number fields, checkboxes, radio buttons, sliders and the
@@ -188,15 +244,15 @@ apart from information notices by an icon as well as by colour.
 
 **What must not change**
 
-- **FR-010**: The Score's rendering MUST NOT change: page background, notation colours, title block, page size and
+- **FR-010**: The Score's rendering MUST NOT change, in any theme: page background, notation colours, title block, page size and
   layout (feature 015's layout guarantees included), cursor, Practice band, notehead marks, Grade marks and the
   on-screen piano keys MUST look exactly as before.
 - **FR-011**: The feedback colours (the colour-blind-safe set used for Grade marks, Practice marks, progress badges and
-  the cursor) MUST stay as they are. The new accent colour MUST NOT be one that can be confused with any of them
+  the cursor) MUST stay as they are. No theme's accent colour may be one that can be confused with any of them
   where they appear together.
 - **FR-012**: Every control, menu entry, label, text, keyboard shortcut, tab order and accessible name MUST stay as it
-  is. The only additions are the logo and its accessible name, and the notice icons (FR-018). This feature changes no
-  behaviour.
+  is. The only additions are the logo and its accessible name, the notice icons (FR-018) and the theme choice
+  (FR-022). Apart from the theme choice, this feature changes no behaviour.
 - **FR-013**: The layout rules of features 004, 012 and 013 MUST keep holding: the bar is one row of the same height
   and never wraps, compact mode and the View popup relocation work at the same widths or wider, no popup reserves
   space, and the Score browser covers the window minus the same margins.
@@ -223,6 +279,21 @@ apart from information notices by an icon as well as by colour.
 - **FR-020**: The frame and background around the on-screen piano, the Grade panel, Practice help, MIDI, latency and
   diagnostics panels MUST use the palette and control styles of FR-001 to FR-006.
 
+**Themes**
+
+- **FR-022**: Users MUST be able to choose one of six themes: Paper, Ivory and Slate (light), and Night, Walnut and
+  Midnight (dark), or **Automatic**. Automatic is the default: it uses Paper while the operating system is in light
+  mode and Night while it is in dark mode, and follows a change of that setting at once. The choice MUST be reachable from the View menu at every window width, and
+  MUST show the active theme by more than colour.
+- **FR-023**: Changing the theme MUST apply to the whole chrome at once, without a reload, and MUST NOT pause, move or
+  re-lay out the Score or a running session.
+- **FR-024**: The chosen theme MUST be remembered on the device and used from the first frame of the next start, in
+  the browser and in Electron. An unknown or unreadable stored theme MUST fall back to Automatic silently.
+- **FR-025**: In every theme, including the dark ones, the Score pages MUST keep black notation on pure white paper,
+  pixel-identical across themes (FR-010), and the feedback colours MUST stay as they are (FR-011).
+- **FR-026**: In dark themes the logo, the focus ring and every state of FR-003 MUST stay clearly visible. Native
+  controls MUST follow the theme's light or dark kind (Edge Cases).
+
 **Shells**
 
 - **FR-021**: The look MUST be the same in the browser app and the Electron app, in Chromium, Firefox and WebKit, at
@@ -230,8 +301,11 @@ apart from information notices by an icon as well as by colour.
 
 ### Key Entities
 
-- **Palette**: the named colours of the chrome (paper, surface, border, ink, secondary ink, accent, accent-on-accent,
-  focus, warning) and the unchanged feedback colours they sit beside.
+- **Theme**: a name (Paper, Ivory, Slate, Night, Walnut, Midnight), a kind (light or dark) and a palette: the named
+  colours of the chrome (surface, raised surface, border, ink, secondary ink, accent, text on accent, focus, warning,
+  the area around the pages). It sits beside the unchanged feedback colours and the light Score pages.
+- **Theme choice**: Automatic or one of the six themes, remembered on the device; Automatic when none or an unknown
+  one is stored. Automatic resolves to Paper (system light) or Night (system dark).
 - **Control styles**: one look per kind of control, with its states (normal, hover, pressed, focus, checked or
   selected, disabled).
 - **Logo**: the mark (two joined notes suggesting M), the word "Musicanyya", and their sizes (bar, tab icon, window,
@@ -242,9 +316,9 @@ apart from information notices by an icon as well as by colour.
 ### Measurable Outcomes
 
 - **SC-001**: Before and after screenshots of the same Score at 1280 x 800 and 390 x 844 show identical Score pages
-  (no pixel differs inside the page area) in Listen, Practice and after a graded Play run.
-- **SC-002**: 100% of chrome text and icons meet the contrast levels of FR-002. An automated accessibility check on the
-  bar, every popup and the Score browser reports no contrast violations.
+  (no pixel differs inside the page area) in Listen, Practice and after a graded Play run, in every theme.
+- **SC-002**: In each of the six themes, 100% of chrome text and icons meet the contrast levels of FR-002. An
+  automated accessibility check on the bar, every popup and the Score browser reports no contrast violations.
 - **SC-003**: No control in the bar, popups or Score browser keeps the browser's default look. Each control kind has
   one style, checked on the screenshots of Story 1 and Story 3.
 - **SC-004**: With the keyboard alone, the focused element is visibly marked at every step through the bar, a popup
@@ -255,19 +329,22 @@ apart from information notices by an icon as well as by colour.
   every control reachable today is still reachable.
 - **SC-007**: The logo is recognisable as two joined notes at 16 px and suggests an "M" at 32 px and larger. The owner
   approves it from a sheet showing every size on light and dark backgrounds before it ships.
-- **SC-008**: The owner approves the overall look from the Story 1 and Story 3 screenshots ("more modern, suits the
+- **SC-008**: The owner approves the overall look, all six themes included, from the Story 1, 3 and 5 screenshots ("more modern, suits the
   black-and-white sheets") before the feature is merged.
 - **SC-009**: Opening a Score and starting playback take no longer than on `main`: within 5% on the same machine, over
   five timed runs each.
+- **SC-010**: Switching theme during a running Listen session changes the chrome within one frame, and the playback
+  position, scroll position and Score layout are identical before and after.
 
 ## Assumptions
 
-- **Light chrome only.** The app keeps one light palette, whatever the operating system's dark mode, because the
-  Score pages stay white. A dark theme for the chrome is a separate feature.
-- **Palette direction.** Warm off-white and paper greys for surfaces, near-black "ink" for text, and **one deep,
-  muted accent** (for example a dark ink blue or a dark burgundy) chosen so it cannot be mistaken for any feedback
-  colour. The exact values are a design decision for the plan, checked against FR-002 and FR-011 and approved under
-  SC-008.
+- **Score pages stay pure white in every theme**, dark ones included (Clarifications 2026-09-29): black notation on
+  white paper. Tinted or inverted (dark) sheets are not part of this feature.
+- **Palette direction.** Each theme is low-saturation surfaces plus one muted accent, as named in the
+  Clarifications, chosen so it cannot be mistaken for any feedback colour. The exact values are a design decision for
+  the plan, checked against FR-002 and FR-011 and approved under SC-008.
+- **The theme choice lives in the View menu** (the popup that already holds view settings), so it is reachable at
+  every width. It is remembered per device, like the other view settings, and is not synced between devices.
 - **System fonts.** The chrome keeps the operating system's font. No web font is added (a font would be a new asset
   with its own licence, which needs owner approval). The title block over the Score keeps its current serif.
 - **The logo is drawn for the project** as simple vector artwork, with no typeface outlines, so it has no third-party
@@ -281,7 +358,8 @@ apart from information notices by an icon as well as by colour.
 ## Out of Scope
 
 - Any change to the engraving, the page background, or the colours and shapes of Score feedback.
-- A dark theme, user-selectable themes, or custom accent colours.
-- New features, new controls, moved controls, renamed labels or changed wording.
+- Dark (inverted) Score pages, or a paper tint per theme.
+- New features, new controls (other than the theme choice), moved controls, renamed labels or changed wording.
+- User-made or edited themes, custom accent colours, and syncing the theme between devices.
 - A marketing website, splash screen or animated logo.
 - Web fonts or third-party icon sets.
