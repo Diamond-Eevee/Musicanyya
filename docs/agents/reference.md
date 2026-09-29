@@ -355,7 +355,7 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
   page margins 18/18, `spacingBraceGroup: 8`; score-layout contract 2.1.0), so pages are cropped and have their own
   heights; the page sanitiser gives the embedded SMuFL font `ascent-override: 75%` / `descent-override: 25%` so text in
   the music font is measured by its ink (`SMUFL_TEXT_*_PCT`). Follow uses a pure look-ahead rule and glide
-  (`src/ui/score/follow.ts`, follow-view contract 1.2.0) in the existing rAF loop, with
+  (`src/ui/score/follow.ts`, follow-view contract 1.3.0) in the existing rAF loop, with
   `matchMedia('(prefers-reduced-motion: reduce)')`; native smooth scrolling is deliberately not used.
 
 <!-- ACTIVE-TECHNOLOGIES:END -->

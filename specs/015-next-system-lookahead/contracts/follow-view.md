@@ -1,6 +1,7 @@
 # Contract: Follow view (look-ahead target and glide)
 
-**Version**: `1.2.0` (1.2.0, 2026-09-29, owner decision after T028 measured SC-007: the top gap of rule 3 yields when it
+**Version**: `1.3.0` (1.3.0, 2026-09-29, T042: section 4 documents the e2e seam `data-follow-settled`, additive;
+1.2.0, 2026-09-29, owner decision after T028 measured SC-007: the top gap of rule 3 yields when it
 alone keeps two systems from fitting, and section 4 documents `data-gliding`; 1.1.0, 2026-09-28 after analyze A1: a redirect keeps the running glide's end time, new
 constant `FOLLOW_GLIDE_MIN_REDIRECT_MS`; 1.0.0 was the first version). Replaces the follow rule "keep the cursor's measure in the middle 60 % and jump to centre
 it" (001 FR-014, `followScrollTo` with `FOLLOW_MARGIN`) **for runs** (Listen playing, Practice session, Play run).
@@ -104,6 +105,12 @@ Per animation frame, in this order:
 While a glide runs, `mountVisiblePages()` also mounts the pages within one screen of `glide.to` (research R-7), and
 `<mx-score-view>` carries `data-gliding="true"`, removed when the glide ends or is cancelled (1.2.0: documented; the
 e2e checks use it to tell a glide from a settled view, `tests/e2e/us4-overlays.spec.ts`).
+In a following frame (step 3), `<mx-score-view>` also carries `data-follow-settled="true"` when `lookaheadTarget`
+returns `null` and no glide runs after step 4: the view rests where the look-ahead rule wants it. Every other following
+frame (a target, a running glide, the measure's page not mounted, no measure) removes it, and so does the end or
+cancellation of a glide. Frames that do not follow leave it as it was. *(1.3.0: added for the e2e checks that measure
+the page during a run, `waitForStillScore` in `tests/e2e/helpers/pressed-keys.ts`; unit test
+`tests/ui/score-view-follow.test.ts` "data-follow-settled is set only while the view rests ...".)*
 Reduced motion is read from `matchMedia('(prefers-reduced-motion: reduce)')` when a glide starts.
 
 ## 5. Constants (`src/engine/config.ts`)
