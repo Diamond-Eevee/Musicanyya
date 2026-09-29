@@ -274,7 +274,7 @@ research R-4
 
 ### Implementation
 
-- [ ] T027 [US3] Add `spacingBraceGroup: ENGRAVING_SPACING_BRACE_GROUP` to the shared worker option object in
+- [x] T027 [US3] Add `spacingBraceGroup: ENGRAVING_SPACING_BRACE_GROUP` to the shared worker option object in
   `src/workers/verovio.worker.ts` (T007); T024 green
 - [ ] T028 [US3] Run T012 (c), T015's specs and T026; fix what the new spacing breaks within this feature's files; an
   expectation that changes because the engraving is more compact is updated with the reason in the log; T026 green

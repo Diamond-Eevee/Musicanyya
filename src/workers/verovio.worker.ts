@@ -1,6 +1,10 @@
 import verovio, { type VerovioToolkit } from 'verovio';
 import { errorMessage } from '../core/errors.js';
-import { ENGRAVING_PAGE_MARGIN_BOTTOM, ENGRAVING_PAGE_MARGIN_TOP } from '../engine/config.js';
+import {
+  ENGRAVING_PAGE_MARGIN_BOTTOM,
+  ENGRAVING_PAGE_MARGIN_TOP,
+  ENGRAVING_SPACING_BRACE_GROUP,
+} from '../engine/config.js';
 import { type HarvestedGlyphs, harvestGlyphs } from './glyphs.js';
 
 let toolkit: VerovioToolkit | null = null;
@@ -8,12 +12,14 @@ let initPromise: Promise<VerovioToolkit> | null = null;
 /** The glyphs for the red discs' accidentals (feature 008), read once at the first `init`; null when they could not be. */
 let glyphs: HarvestedGlyphs | null | undefined;
 
-// 015 score-layout 2.0.0: adjustPageHeight 1 crops each page to its content with configured margins.
+// 015 score-layout 2.0.0: adjustPageHeight 1 crops each page to its content with configured margins;
+// spacingBraceGroup engraves the staves of one braced instrument (a piano grand staff) closer together (FR-016).
 const BASE_OPTIONS = {
   breaks: 'auto',
   adjustPageHeight: 1,
   pageMarginTop: ENGRAVING_PAGE_MARGIN_TOP,
   pageMarginBottom: ENGRAVING_PAGE_MARGIN_BOTTOM,
+  spacingBraceGroup: ENGRAVING_SPACING_BRACE_GROUP,
   header: 'none',
   footer: 'none',
   font: 'Leipzig',
