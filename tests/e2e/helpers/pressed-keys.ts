@@ -18,6 +18,47 @@ export async function screenshot(page: Page, name: string): Promise<void> {
   await page.screenshot({ path: path.join(generatedDir, name) });
 }
 
+/**
+ * Waits until the Score view is still: the run's follow rests where the look-ahead rule wants it (`data-follow-settled`,
+ * feature 015: the first glide of a run can start late, once the next system is known), no glide running, and the same
+ * scroll position and page layout (every mounted page's top and height) over 5 animation frames. A disc's `data-discs`
+ * y and a staff line's box are read in separate steps, so they only agree when nothing moves in between. Follow on.
+ * (`page.evaluate`, not `waitForFunction`: the latter takes a returned Promise itself as a truthy answer.)
+ */
+export async function waitForStillScore(page: Page, timeoutMs = 10_000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    const still = await page.evaluate(
+      () =>
+        new Promise<boolean>((resolve) => {
+          const view = document.querySelector('mx-score-view') as HTMLElement | null;
+          const scroller = document.querySelector('.mx-score-scroll') as HTMLElement | null;
+          if (!view || !scroller) return resolve(false);
+          const layout = () =>
+            [
+              scroller.scrollTop,
+              ...Array.from(document.querySelectorAll('.mx-score-page')).map((p) => {
+                const r = p.getBoundingClientRect();
+                return `${r.top}/${r.height}`;
+              }),
+            ].join(',');
+          const start = layout();
+          let frames = 0;
+          const step = () => {
+            if (view.dataset.followSettled !== 'true' || view.dataset.gliding === 'true' || layout() !== start) {
+              return resolve(false);
+            }
+            if (++frames >= 5) return resolve(true);
+            requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        }),
+    );
+    if (still) return;
+    if (Date.now() > deadline) throw new Error(`the Score view did not come to rest within ${timeoutMs} ms`);
+  }
+}
+
 /** Records every non-empty `setLineDash` pattern any canvas is given: a dashed outline of any kind shows up here (SC-003). */
 export async function spyOnDashes(page: Page): Promise<void> {
   await page.addInitScript(() => {

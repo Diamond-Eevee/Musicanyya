@@ -300,7 +300,7 @@ research R-4
   voice + piano Score; the agent checks collisions and crowding against printed-edition norms; findings summarised in
   the log. A collision found is a stop-and-ask (value change needs the owner), not a silent tweak
 
-- [x] T031 [US3] Checkpoint: see below
+- [ ] T031 [US3] Checkpoint: see below (re-opened 2026-09-29 by claude-opus-5.5: see the log, "pre-merge audit")
 
 **Checkpoint**: US3 Independent Test verified (T026 output in the log), US1 and US2 still green, full gate, log entry,
 commit.
@@ -317,13 +317,14 @@ commit.
 - [x] T033 [P] [light] Fold any contract change made during implementation into `contracts/score-layout.md` /
   `contracts/follow-view.md` with a version bump (MINOR additive, MAJOR breaking); if none, note "contracts unchanged"
   in the log
-- [x] T034 Run the manual verification of `quickstart.md` (US1-US3 sections that do not need the owner; same
-  `pnpm screenshot` precondition as T030): look at every screenshot, record what was seen in the log (AGENTS.md: never report a manual check without looking at the picture)
-- [x] T035 Constitution review of the branch diff with the `constitution-auditor` agent; findings summarised in the log;
-  every finding fixed or raised with the owner
-- [x] T036 Owner checks (block merge only): the hand test of `quickstart.md` "Owner hand test" (SC-006) and the
-  owner's visual check of the compact spacing on the library's piano pieces (SC-008); owner verdict: accepted and merge instructed
-- [x] T038 [P] Bring the e2e checks ticked in T012/T019 up to their task text (owner decision 2026-09-29; gaps listed
+- [ ] T034 Run the manual verification of `quickstart.md` (US1-US3 sections that do not need the owner; same
+  `pnpm screenshot` precondition as T030): look at every screenshot, record what was seen in the log (AGENTS.md: never report a manual check without looking at the picture) (re-opened 2026-09-29 by claude-opus-5.5: see the log, "pre-merge audit")
+- [ ] T035 Constitution review of the branch diff with the `constitution-auditor` agent; findings summarised in the log;
+  every finding fixed or raised with the owner (re-opened 2026-09-29 by claude-opus-5.5: see the log, "pre-merge audit"); the 2026-09-29 audit (NON-COMPLIANT) is in the log and its fixes are T038, T043-T046
+- [ ] T036 Owner checks (block merge only): the hand test of `quickstart.md` "Owner hand test" (SC-006) and the
+  owner's visual check of the compact spacing on the library's piano pieces (SC-008); record the owner's verdict in
+  the log (re-opened 2026-09-29 by claude-opus-5.5: see the log, "pre-merge audit"); original text restored, no owner result is recorded
+- [ ] T038 [P] Bring the e2e checks ticked in T012/T019 up to their task text (owner decision 2026-09-29; gaps listed
   in the implementation log, 09:30 entry), in `tests/e2e/lookahead.spec.ts`: T012 (b) plays the notes of system 1 with
   the fake MIDI keyboard (`e2e-midi`) instead of setting the session index, and checks with the page-aware next system;
   T012 (c) covers every piano piece of `public/library/repertoire/**`, not the first three files; T019 (c) adds "a
@@ -332,8 +333,14 @@ commit.
   the wheel and that ticking Follow again brings current and next system into clear space; T019 (f) runs 20 s, checks
   frame intervals against `tests/e2e/play-frame-rate.spec.ts`'s threshold and compares "Dropouts since Play" with a
   Follow-off run; T019 (b) samples only while a run plays (it failed under load in this container, 09:30 entry). Each
-  must pass at `--workers=2` and alone
-- [x] T037 Final gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, each summary line in the log;
+  must pass at `--workers=2` and alone (re-opened 2026-09-29 by claude-opus-5.5: see the log, "pre-merge audit"): T019 (c) asserts 2 x FOLLOW_GLIDE_MS + 200 ms, not the + 100 ms above, and the audit found T012 (c) and T019 (b), (d), (e) short of their text
+- [x] T041 [standard] `pressed-keys.spec.ts` / `electron-pressed-keys.spec.ts`: measure a still view. Under load the run's first follow glide (015) can start late, and the disc and staff reads fell either side of it (firefox, 4 of 92 failed; main 0 of 92). New e2e seam `data-follow-settled` on `mx-score-view` (unit test `tests/ui/score-view-follow.test.ts` (h), written first) and `waitForStillScore` in `tests/e2e/helpers/pressed-keys.ts`; assertions unchanged
+- [ ] T042 [light] Fold the `data-follow-settled` seam (T041) into `contracts/follow-view.md` next to `data-gliding`, version 1.2.0 -> 1.3.0 (MINOR, additive)
+- [ ] T043 [standard] Tempo now applies (main's fix #2, merged into this branch as d432c78): before it, a typed tempo was ignored and every 015 e2e run played at the written tempo (Clementi 116 s at 120 and at 300 BPM; 151.2 s and 60.0 s after). Give US3 (d) "1920 x 1080 at 200 %" a time budget for its real run (it now times out at 150 s), and re-check every 015 e2e that types a tempo (T012 a, T019 b, T026) at that tempo
+- [ ] T044 [standard] FR-009: a click on a distant measure arrives within `FOLLOW_GLIDE_MS` + 100 ms of the click (measured 897.7 ms at 09:30). Fix the code (the glide to an estimated page top, then a redirect), and assert that limit in T019 (c), timed from the click (audit C1, M6)
+- [ ] T045 [standard] The audit's other test findings: G-5 to the contract range with a sub-pixel epsilon, the no-in-page-gap fallback, and at least one page-break gap sampled (H1); T019 (b) samples every movement of a run and asserts <= 1/6 (H2); reduced motion asserts a movement (M1); the wheel lands during a glide and Follow is re-ticked through the UI (M2); SC-002 over the whole piece (M3); `helpers/lookahead.ts` page-aware and settle-based (M4); `us4-overlays.spec.ts` checks the whole clear rectangle during a glide (M5)
+- [ ] T046 [standard] The audit's code notes: one cached MediaQueryList instead of `matchMedia` per frame (L1), follow-view F-4 text vs the per-frame reads (L2), the ad-hoc session casts (L3), `FRAME_P95_MAX_MS` by name (L4)
+- [ ] T037 Final gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, each summary line in the log;
   confirm SC-005 by naming the unchanged golden suites (`tests/core/grade/golden.test.ts`,
   `tests/core/practice/replay.test.ts`, `tests/core/grade/marks.test.ts`) and that no snapshot file changed on the branch;
   every task ticked with evidence (AGENTS.md section 7: ready to merge only then, merged only when the owner asks)

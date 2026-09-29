@@ -816,4 +816,29 @@ describe('score view follow glide (015 US2)', () => {
     const pageCalls = client.calls.filter((c) => c.startsWith('page:'));
     expect(pageCalls).toContain('page:3');
   });
+
+  it('(h) data-follow-settled is set only while the view rests where the look-ahead rule wants it (e2e seam)', async () => {
+    listenPosition = { audibleTick: 2 * 480 }; // m-3 in sys-2 -> target 268
+    scrollEl.scrollTop = 0;
+
+    await vi.advanceTimersByTimeAsync(32);
+    expect(el.dataset.gliding).toBe('true');
+    expect(el.dataset.followSettled).toBeUndefined(); // on its way
+
+    await vi.advanceTimersByTimeAsync(FOLLOW_GLIDE_MS + 32);
+    expect(scrollEl.scrollTop).toBe(280 - LOOKAHEAD_TOP_GAP_PX);
+    expect(el.dataset.gliding).toBeUndefined();
+    expect(el.dataset.followSettled).toBe('true'); // landed, and the rule asks for no move
+
+    listenPosition = { audibleTick: 4 * 480 }; // m-5: a new target further down
+    await vi.advanceTimersByTimeAsync(16);
+    expect(el.dataset.followSettled).toBeUndefined();
+
+    await vi.advanceTimersByTimeAsync(FOLLOW_GLIDE_MS + 32);
+    expect(el.dataset.followSettled).toBe('true');
+
+    transportState.pause(); // nothing follows: the view is not "settled on a target", it is not following at all
+    await vi.advanceTimersByTimeAsync(32);
+    expect(el.dataset.followSettled).toBeUndefined();
+  });
 });

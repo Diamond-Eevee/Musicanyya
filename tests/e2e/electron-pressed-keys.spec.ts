@@ -22,6 +22,7 @@ import {
   overlaps,
   sessionIndex,
   staffGeometryOf,
+  waitForStillScore,
 } from './helpers/pressed-keys.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -72,6 +73,8 @@ test.describe('Electron: pressed keys on the Score (feature 008, FR-015)', () =>
       };
     });
     await startPracticeOnOpenScore(window);
+    // The run start can glide the view (feature 015): measure a still view
+    await waitForStillScore(window);
     const events = await eventKeys(window);
     const firstFour = events.slice(0, 4).flatMap((event) => event.flatMap((r) => r.noteIds));
     expect(firstFour).toHaveLength(4);

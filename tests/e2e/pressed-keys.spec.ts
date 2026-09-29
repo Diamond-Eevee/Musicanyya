@@ -35,6 +35,7 @@ import {
   spyOnDashes,
   staffGeometryOf,
   vermilionIn,
+  waitForStillScore,
 } from './helpers/pressed-keys.js';
 
 /**
@@ -285,12 +286,15 @@ test.describe('US2: wrong keys appear on the staff as red discs (feature 008)', 
       await page.keyboard.press('Escape');
     }
     await startPracticeOnOpenScore(page);
+    // The run start can glide the view (feature 015), e.g. when the on-screen keyboard appears: measure a still view
+    await waitForStillScore(page);
     const events = await eventKeys(page);
     const first = events[0]?.[0] as KeyNotes;
     expect(first.key).toBe(76);
     const noteId = first.noteIds[0] as string;
     // Measured when asked, not once: the page may scroll or reflow as the run starts (the on-screen keyboard appears)
     const yOf = async (position: number) => {
+      await waitForStillScore(page);
       const g = (await staffGeometryOf(page, noteId)) as { bottomY: number; space: number };
       return g.bottomY - (position * g.space) / 2;
     };

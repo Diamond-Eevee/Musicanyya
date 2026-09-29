@@ -1468,6 +1468,7 @@ export class MxScoreView extends HTMLElement {
 
   /** Follows during playback/practice/play using the lookahead target rule (015 US1). */
   private followRun(measureId: string | undefined): void {
+    this.markFollowSettled(false);
     if (measureId === undefined) return;
     this.syncElementCache();
     const measureEl = this.elementFor(measureId);
@@ -1518,6 +1519,7 @@ export class MxScoreView extends HTMLElement {
       this.setActiveGlide(glideTo(this.scrollEl.scrollTop, target, now, this.activeGlide, reducedMotion));
     }
     this.advanceGlide();
+    this.markFollowSettled(target === null && this.activeGlide === null);
   }
 
   private setActiveGlide(glide: Glide | null): void {
@@ -1526,6 +1528,18 @@ export class MxScoreView extends HTMLElement {
       this.dataset.gliding = 'true';
     } else {
       delete this.dataset.gliding;
+      // Nothing moves any more; only followRun, having found no target, may say the view rests on it
+      this.markFollowSettled(false);
+    }
+  }
+
+  /** The e2e seam `data-follow-settled` (follow-view contract): following, and resting where the look-ahead rule wants
+   *  the view - no target to move to and no glide running. Tests wait for it before measuring the page. */
+  private markFollowSettled(settled: boolean): void {
+    if (settled) {
+      if (this.dataset.followSettled !== 'true') this.dataset.followSettled = 'true';
+    } else if (this.dataset.followSettled !== undefined) {
+      delete this.dataset.followSettled;
     }
   }
 
