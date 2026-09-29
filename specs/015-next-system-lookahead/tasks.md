@@ -263,7 +263,7 @@ research R-4
   `tests/fixtures/musicxml/engraving/README.md`; review the design with the `music-domain-expert` agent before
   committing it and summarise its answer in the log. Add it to the T024 (a) check's list of Scores that must render
   without a Verovio error
-- [ ] T026 [P] [US3] Extend `tests/e2e/lookahead.spec.ts`: (a) SC-007 - at 1920 x 950 with the piano strip on and
+- [x] T026 [P] [US3] Extend `tests/e2e/lookahead.spec.ts`: (a) SC-007 - at 1920 x 950 with the piano strip on and
   the default size, every system change of Clementi op. 36 no. 1 and *Mary Had a Little Lamb* has both systems fully
   in clear space; (b) SC-001 b - *Für Elise (complete)* there: at every system change where the two do not fit, the
   current system box is fully in clear space with its top within `LOOKAHEAD_TOP_GAP_PX` + 1 of the clear space's top,

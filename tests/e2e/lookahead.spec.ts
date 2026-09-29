@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 import { openLibraryItem } from './helpers/browser.js';
 import { installLookaheadTracker } from './helpers/lookahead.js';
 import { openPanel } from './helpers/panels.js';
@@ -9,6 +9,18 @@ import { openPanel } from './helpers/panels.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repertoireDir = path.join(__dirname, '../../public/library/repertoire');
 const largeScore = path.resolve(__dirname, '../fixtures/musicxml/large-score.musicxml');
+
+/** A named number from `src/engine/config.ts` (Playwright cannot import that file: it imports package.json). */
+function configNumber(name: string): number {
+  const source = fs.readFileSync(path.resolve(__dirname, '../../src/engine/config.ts'), 'utf8');
+  const match = source.match(new RegExp(`export const ${name} = (\\d+(?:\\.\\d+)?);`));
+  if (!match) throw new Error(`${name} not found in src/engine/config.ts`);
+  return Number(match[1]);
+}
+const FOLLOW_GLIDE_MS = configNumber('FOLLOW_GLIDE_MS');
+const LOOKAHEAD_TOP_GAP_PX = configNumber('LOOKAHEAD_TOP_GAP_PX');
+const SCORE_SCALE_DEFAULT = configNumber('SCORE_SCALE_DEFAULT');
+const SCORE_SCALE_STEP = configNumber('SCORE_SCALE_STEP');
 
 test.describe('lookahead follow (015 US1)', () => {
   test('(a) US1 Independent Test: Für Elise complete, 1920x1080, strip hidden, Listen through 2 page changes', async ({
@@ -537,4 +549,287 @@ test.describe('glide follow (015 US2)', () => {
     console.log('DIAGNOSTICS AFTER GLIDE RUN:', diagText);
     expect(diagText).toContain('Dropouts');
   });
+});
+
+/** One settled view after a system change (T026): boxes in viewport px, clear space as follow-view.md defines it. */
+interface FitObservation {
+  /** The system's index within its page. */
+  systemIndex: number;
+  page: number;
+  clearTop: number;
+  clearBottom: number;
+  current: { top: number; bottom: number };
+  /** null: the cursor's system is the Score's last; `nextKnown` false: the next page is not mounted. */
+  next: { top: number; bottom: number } | null;
+  nextKnown: boolean;
+  /** The next system's first `g.staff` (its upper staff in the first measure). */
+  nextStaff: { top: number; bottom: number } | null;
+}
+
+interface FitRun {
+  observations: FitObservation[];
+  systemChanges: number;
+  /** System changes left again before the view settled (never observed). */
+  unsettled: number;
+  dialogsSeen: number;
+  noticesBefore: number;
+  noticesMax: number;
+}
+
+/**
+ * Starts Listen, and at every change of the cursor's system (the `g.system` of a `.playing` note) waits until the
+ * view has settled - at least `FOLLOW_GLIDE_MS` + 100 ms after the change and `scrollTop` unchanged for 100 ms - then
+ * records the current and the next system in reading order (the next `g.system` of the page, else the first of the
+ * page element after it). Also samples every frame for a visible `role="dialog"` and for the notice count. Returns
+ * when the run has ended.
+ */
+async function listenAndObserve(page: Page, timeoutMs: number): Promise<FitRun> {
+  await page.evaluate((settleMs) => {
+    const w = window as unknown as { __FIT_RUN__: FitRun; __FIT_STOP__: boolean };
+    const run: FitRun = {
+      observations: [],
+      systemChanges: 0,
+      unsettled: 0,
+      dialogsSeen: 0,
+      noticesBefore: document.querySelectorAll('mx-notice-tray .notice').length,
+      noticesMax: 0,
+    };
+    w.__FIT_RUN__ = run;
+    w.__FIT_STOP__ = false;
+    const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
+    const box = (el: Element) => {
+      const r = el.getBoundingClientRect();
+      return { top: r.top, bottom: r.bottom };
+    };
+    let current: Element | null = null;
+    let changedAt = 0;
+    let observed = true;
+    let lastScroll = scroller.scrollTop;
+    let stillSince = performance.now();
+
+    const observe = (sys: Element) => {
+      const pageEl = sys.closest('.mx-score-page') as HTMLElement;
+      const pageNo = Number(pageEl.dataset.page);
+      const inPage = Array.from(pageEl.querySelectorAll('g.system'));
+      const index = inPage.indexOf(sys);
+      let next: Element | null = inPage[index + 1] ?? null;
+      let nextKnown = true;
+      if (!next) {
+        const nextPage = document.querySelector(`.mx-score-page[data-page="${pageNo + 1}"]`);
+        if (nextPage) {
+          next = nextPage.querySelector('g.system');
+          nextKnown = next !== null;
+        }
+      }
+      const rect = scroller.getBoundingClientRect();
+      const inset = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--mx-inset-bottom'));
+      const staff = next?.querySelector('g.staff') ?? null;
+      run.observations.push({
+        systemIndex: index,
+        page: pageNo,
+        clearTop: rect.top,
+        clearBottom: rect.top + scroller.clientHeight - (Number.isFinite(inset) ? inset : 0),
+        current: box(sys),
+        next: next ? box(next) : null,
+        nextKnown,
+        nextStaff: staff ? box(staff) : null,
+      });
+    };
+
+    const frame = () => {
+      if (w.__FIT_STOP__) return;
+      const now = performance.now();
+      if (Math.abs(scroller.scrollTop - lastScroll) > 0.5) stillSince = now;
+      lastScroll = scroller.scrollTop;
+      const dialogs = Array.from(document.querySelectorAll('[role="dialog"]')).filter(
+        (el) => (el as HTMLElement).checkVisibility?.() ?? (el as HTMLElement).offsetParent !== null,
+      );
+      run.dialogsSeen = Math.max(run.dialogsSeen, dialogs.length);
+      run.noticesMax = Math.max(run.noticesMax, document.querySelectorAll('mx-notice-tray .notice').length);
+
+      const sys = document.querySelector('g.note.playing')?.closest('g.system') ?? null;
+      if (sys && sys !== current) {
+        if (!observed) run.unsettled++;
+        current = sys;
+        changedAt = now;
+        observed = false;
+        run.systemChanges++;
+      }
+      if (current && !observed && now - changedAt >= settleMs && now - stillSince >= 100) {
+        observe(current);
+        observed = true;
+      }
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  }, FOLLOW_GLIDE_MS + 100);
+
+  await page.locator('.play-btn').click();
+  await expect
+    .poll(
+      () =>
+        page.evaluate(
+          () =>
+            (window as unknown as { __TRANSPORT_STATE__: { get(): { phase: string } } }).__TRANSPORT_STATE__.get()
+              .phase,
+        ),
+      { timeout: 10_000 },
+    )
+    .toBe('playing');
+  await expect
+    .poll(
+      () =>
+        page.evaluate(
+          () =>
+            (window as unknown as { __TRANSPORT_STATE__: { get(): { phase: string } } }).__TRANSPORT_STATE__.get()
+              .phase,
+        ),
+      { timeout: timeoutMs, intervals: [500] },
+    )
+    .not.toBe('playing');
+  // The last system's observation is due FOLLOW_GLIDE_MS + 100 ms after it began; the run has ended well after that.
+  return page.evaluate(() => {
+    const w = window as unknown as { __FIT_RUN__: FitRun; __FIT_STOP__: boolean };
+    w.__FIT_STOP__ = true;
+    return w.__FIT_RUN__;
+  });
+}
+
+/** Opens a library item at the given window size, at the default Score size unless `larger` steps are asked for. */
+async function openForFit(
+  page: Page,
+  size: { width: number; height: number },
+  item: string,
+  search: string,
+  opts: { pianoStrip: boolean; larger?: number },
+): Promise<void> {
+  await page.setViewportSize(size);
+  await page.goto('/');
+  await openLibraryItem(page, item, search);
+  await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+  await expect(page.locator('.play-btn')).not.toBeDisabled();
+  if (opts.pianoStrip) {
+    await openPanel(page, 'view');
+    await page.locator('mx-view-panel input[data-layer="pianoKeys"]').check();
+    await page.keyboard.press('Escape');
+    await expect(page.locator('mx-piano-keys')).toBeVisible();
+  }
+  for (let i = 0; i < (opts.larger ?? 0); i++) {
+    await page.locator('mx-size-controls:visible button[data-action="larger"]').first().click();
+  }
+  await expect(page.locator('mx-size-controls:visible button[data-action="reset"]').first()).toHaveText(
+    `${SCORE_SCALE_DEFAULT + (opts.larger ?? 0) * SCORE_SCALE_STEP}%`,
+  );
+  await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+  // Listen at a fast tempo: every system change still happens, the run just takes less time.
+  await page.locator('input[data-id="tempo-bpm"]').fill('300');
+  await page.locator('input[data-id="tempo-bpm"]').press('Enter');
+}
+
+const fullyIn = (span: { top: number; bottom: number }, o: FitObservation) =>
+  span.top >= o.clearTop - 1 && span.bottom <= o.clearBottom + 1;
+const fitsTogether = (o: FitObservation) =>
+  o.next !== null && o.next.bottom - o.current.top + LOOKAHEAD_TOP_GAP_PX <= o.clearBottom - o.clearTop;
+
+/** Every observation (every system change of the run) meets US1 where two systems fit, and FR-014 where they do not. */
+function expectShowsWhatFits(run: FitRun): { fit: number; notFit: number; staffChecks: number } {
+  expect(run.unsettled, 'every system change settles before the next').toBe(0);
+  expect(run.observations.length).toBe(run.systemChanges);
+  let fit = 0;
+  let notFit = 0;
+  let staffChecks = 0;
+  for (const o of run.observations) {
+    const label = `system ${o.systemIndex} (page ${o.page})`;
+    expect(o.nextKnown, `${label}: next page mounted`).toBe(true);
+    expect(fullyIn(o.current, o), `${label}: current system fully in clear space`).toBe(true);
+    if (o.next === null) continue; // the Score's last system: FR-004
+    if (fitsTogether(o)) {
+      fit++;
+      expect(fullyIn(o.next, o), `${label}: next system fully in clear space (they fit)`).toBe(true);
+    } else {
+      notFit++;
+      expect(o.current.top - o.clearTop, `${label}: current system at the top of the clear space`).toBeLessThanOrEqual(
+        LOOKAHEAD_TOP_GAP_PX + 1,
+      );
+      const staff = o.nextStaff;
+      // "Whenever it fits": with the current system at the top of the clear space, the staff's bottom is inside
+      // it. (Its height alone is not enough: the next system starts a system gap below the current one.)
+      if (staff && staff.bottom - o.current.top + LOOKAHEAD_TOP_GAP_PX <= o.clearBottom - o.clearTop) {
+        staffChecks++;
+        expect(fullyIn(staff, o), `${label}: next system's first staff fully visible`).toBe(true);
+      }
+    }
+  }
+  return { fit, notFit, staffChecks };
+}
+
+test.describe('show what fits (015 US3)', () => {
+  for (const [item, search] of [
+    ['repertoire/advanced/clementi-sonatina-op36-no1-mvt1', 'Clementi'],
+    ['repertoire/beginner/mary-had-a-little-lamb', 'Mary'],
+  ] as const) {
+    test(`(a) SC-007 - ${item} at 1920 x 950 with the piano strip: both systems in clear space at every system change`, async ({
+      page,
+    }, testInfo) => {
+      test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
+      test.setTimeout(180_000);
+      await openForFit(page, { width: 1920, height: 950 }, item, search, { pianoStrip: true });
+      const run = await listenAndObserve(page, 150_000);
+      console.log(
+        `${item}: [page, system, fits] ${JSON.stringify(run.observations.map((o) => [o.page, o.systemIndex, fitsTogether(o)]))}`,
+      );
+      expect(run.systemChanges).toBeGreaterThan(1);
+      expect(run.unsettled, 'every system change settles before the next').toBe(0);
+      expect(run.observations.length).toBe(run.systemChanges);
+      for (const o of run.observations) {
+        const label = `system ${o.systemIndex} (page ${o.page})`;
+        expect(fullyIn(o.current, o), `${label}: current system fully in clear space`).toBe(true);
+        if (o.next) expect(fullyIn(o.next, o), `${label}: next system fully in clear space`).toBe(true);
+      }
+    });
+  }
+
+  test('(b)(c) SC-001 b, FR-015 - Für Elise (complete) at 1920 x 950 with the piano strip: show what fits, no resize, no dialog', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
+    test.setTimeout(240_000);
+    await openForFit(page, { width: 1920, height: 950 }, 'repertoire/advanced/fur-elise-complete', 'Elise', {
+      pianoStrip: true,
+    });
+    const run = await listenAndObserve(page, 200_000);
+    const { fit, notFit, staffChecks } = expectShowsWhatFits(run);
+    console.log(
+      `Für Elise 1920x950 strip: ${run.systemChanges} system changes, ${fit} fit, ${notFit} do not fit, next staff checked ${staffChecks}`,
+    );
+    expect(notFit).toBeGreaterThan(0);
+    // (c) FR-015: the size is untouched, nothing modal and no new notice appeared during the run.
+    await expect(page.locator('mx-size-controls:visible button[data-action="reset"]').first()).toHaveText(
+      `${SCORE_SCALE_DEFAULT}%`,
+    );
+    expect(run.dialogsSeen, 'no visible role="dialog" during the run').toBe(0);
+    expect(run.noticesMax, 'no new notice during the run').toBeLessThanOrEqual(run.noticesBefore);
+  });
+
+  for (const [name, size, opts] of [
+    ['1280 x 720 with the piano strip', { width: 1280, height: 720 }, { pianoStrip: true }],
+    ['1920 x 1080 at 200 %', { width: 1920, height: 1080 }, { pianoStrip: false, larger: 10 }],
+  ] as const) {
+    test(`(d) FR-014 - Clementi op. 36 no. 1 at ${name}: show what fits`, async ({ page }, testInfo) => {
+      test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
+      test.setTimeout(180_000);
+      await openForFit(page, size, 'repertoire/advanced/clementi-sonatina-op36-no1-mvt1', 'Clementi', opts);
+      const run = await listenAndObserve(page, 150_000);
+      const { fit, notFit, staffChecks } = expectShowsWhatFits(run);
+      console.log(
+        `Clementi ${name}: ${run.systemChanges} system changes, ${fit} fit, ${notFit} do not fit, next staff checked ${staffChecks}`,
+      );
+      expect(notFit).toBeGreaterThan(0);
+      const scale = SCORE_SCALE_DEFAULT + ('larger' in opts ? opts.larger : 0) * SCORE_SCALE_STEP;
+      await expect(page.locator('mx-size-controls:visible button[data-action="reset"]').first()).toHaveText(
+        `${scale}%`,
+      );
+      expect(run.dialogsSeen).toBe(0);
+    });
+  }
 });
