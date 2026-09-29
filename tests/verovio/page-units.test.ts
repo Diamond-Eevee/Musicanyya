@@ -335,10 +335,7 @@ describe('Verovio page-unit relation (score-layout.md section 2)', () => {
     });
 
     it('(a) in sparse two-staff piano fixture fur-elise-bare.musicxml the smallest gap between treble bottom and bass top is 720 inner units', async () => {
-      const FUR_ELISE_BARE = fs.readFileSync(
-        path.join(FIXTURES, 'engraving/fur-elise-bare.musicxml'),
-        'utf8',
-      );
+      const FUR_ELISE_BARE = fs.readFileSync(path.join(FIXTURES, 'engraving/fur-elise-bare.musicxml'), 'utf8');
       const loadMsgs = await send({
         type: 'load',
         renderXml: FUR_ELISE_BARE,
@@ -361,10 +358,7 @@ describe('Verovio page-unit relation (score-layout.md section 2)', () => {
     });
 
     it('(b) in voice-and-piano.musicxml the gap between voice and piano treble is unchanged with spacingBraceGroup while piano gap shrinks', async () => {
-      const VOICE_AND_PIANO = fs.readFileSync(
-        path.join(FIXTURES, 'voice-and-piano.musicxml'),
-        'utf8',
-      );
+      const VOICE_AND_PIANO = fs.readFileSync(path.join(FIXTURES, 'voice-and-piano.musicxml'), 'utf8');
       const tk = await newToolkit();
       const baseOptions = {
         ...WORKER_OPTIONS,
