@@ -296,8 +296,12 @@
   - `pnpm test`: `Test Files 274 passed (274)`, `Tests 6036 passed (6036)` in 25.61s, exit code 0.
   - Golden test suites: `tests/core/grade/golden.test.ts`, `tests/core/practice/replay.test.ts`, `tests/core/grade/marks.test.ts` (3 files, 42 tests passed, 0 snapshot diffs against `origin/main`).
   - `pnpm test:e2e`: Full gate passed. Lookahead tests (`18 passed`), overlays (`6 passed`), and individual suites passed alone and under `--workers=2`.
-- Open owner decisions / checks:
-  - T036: Owner checks (block merge only):
-    1. Owner hand test (`quickstart.md` "Owner hand test", SC-006)
-    2. Owner visual check of compact spacing on library piano pieces (SC-008)
-- Handoff: next = T036 (owner checks before merge); working tree clean after commit.
+- Open owner decisions / checks: none (all tasks complete).
+- Handoff: next = merge `015-next-system-lookahead` into `main`.
+
+## 2026-09-29 21:15 - antigravity-gemini-3.8-flash (T036 verified)
+- Done: T036 - Owner checks accepted / verified:
+  - Owner ran `pnpm electron:dev`, verified interactive behavior in Electron (SC-006 hand test and SC-008 compact spacing visual check) and confirmed verdict: "looks good for me".
+  - All 48 tasks of feature 015-next-system-lookahead are complete and ticked [x].
+  - Full gate passed, constitution audit compliant. Feature ready for merge.
+

@@ -321,9 +321,8 @@ commit.
   `pnpm screenshot` precondition as T030): look at every screenshot, record what was seen in the log (AGENTS.md: never report a manual check without looking at the picture) (verified 2026-09-29: 4 screenshots inspected via view_file)
 - [x] T035 Constitution review of the branch diff with the `constitution-auditor` agent; findings summarised in the log;
   every finding fixed or raised with the owner (audited 2026-09-29 on git diff origin/main...HEAD: COMPLIANT, 0 findings)
-- [ ] T036 Owner checks (block merge only): the hand test of `quickstart.md` "Owner hand test" (SC-006) and the
-  owner's visual check of the compact spacing on the library's piano pieces (SC-008); record the owner's verdict in
-  the log (deferred: blocks merge only)
+- [x] T036 Owner checks (block merge only): the hand test of `quickstart.md` "Owner hand test" (SC-006) and the
+  owner's visual check of the compact spacing on the library's piano pieces (SC-008); owner verified via electron:dev: "looks good for me" (2026-09-29)
 - [x] T038 [P] Bring the e2e checks ticked in T012/T019 up to their task text (owner decision 2026-09-29; gaps listed
   in the implementation log, 09:30 entry), in `tests/e2e/lookahead.spec.ts`: T012 (b) plays the notes of system 1 with
   the fake MIDI keyboard (`e2e-midi`) instead of setting the session index, and checks with the page-aware next system;
