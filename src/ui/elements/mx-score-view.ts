@@ -8,6 +8,7 @@ import { displaySegmentIndexAt, type TempoDisplaySegment } from '../../core/temp
 import { cursorNotesAtTick, notesAtTick, passAtTick } from '../../core/timeline/position.js';
 import {
   FOLLOW_MARGIN,
+  FOLLOW_TARGET_EPSILON_PX,
   RELAYOUT_DEBOUNCE_MS,
   SCORE_SCALE_DEFAULT,
   SCORE_SCALE_MAX,
@@ -26,6 +27,7 @@ import {
   type StaffGeometry,
   skipIconBox,
 } from '../score/disc-layout.js';
+import { type Glide, glidePosition, glideTo, lookaheadTarget, shiftGlide } from '../score/follow.js';
 import { discAt, drawGradeMarks, type GradeMarkGeometry, gradeHeadClass } from '../score/grade-marks.js';
 import { applyHighlights } from '../score/highlight.js';
 import { ScoreNoteIndex } from '../score/note-index.js';
@@ -35,7 +37,9 @@ import {
   measureIndexFromElementId,
   mountedPageNumbers,
   type PageLayout,
+  pageHeights,
   sanitiseAndExtractMeasures,
+  scrollCompensation,
 } from '../score/pages.js';
 import { bandRectFor, placePracticeBand } from '../score/practice-band.js';
 import { drawLoopMarks, drawPracticeMarks, drawStartMarker } from '../score/practice-marks.js';
@@ -95,6 +99,10 @@ export class MxScoreView extends HTMLElement {
   private titleBlockHeight = 0;
   private pageMeasureIds = new Map<number, string[]>();
   private mountedPages = new Set<number>();
+  /** Pages whose render request is in flight, with the `pageEpoch` they were asked for in. */
+  private pendingPages = new Map<number, number>();
+  /** Bumped whenever the pages are laid out anew (load, relayout): a render asked for before belongs to the old ones. */
+  private pageEpoch = 0;
   private scale = SCORE_SCALE_DEFAULT;
   private relayoutTimer: ReturnType<typeof setTimeout> | null = null;
   /** A scale change (unlike a resize) relays out even when the viewport cannot be measured. */
@@ -103,8 +111,8 @@ export class MxScoreView extends HTMLElement {
   private unsubscribeInset?: () => void;
   /** The layout last sent to Verovio; a resize that would ask for the same one is ignored. */
   private requested: LayoutOptions | null = null;
-  /** Height over width of a page, read from its rendered `viewBox` (contracts/score-layout.md section 4). */
-  private pageAspect: number | null = null;
+  /** Measured heights per page (CSS px), kept for the layout epoch (contracts/score-layout.md 2.0.0 section 3). */
+  private readonly measuredHeights = new Map<number, number>();
   private loadToken = 0;
   /** Bumped by every relayout, so one that a newer relayout has overtaken drops its result. */
   private relayoutEpoch = 0;
@@ -154,9 +162,12 @@ export class MxScoreView extends HTMLElement {
     rects: DOMRect[];
   } | null = null;
   private readonly elementCache = new Map<string, Element | null>();
+  private readonly systemCache = new Map<string, { current: Element; next: Element | null; nextKnown: boolean }>();
   private elementCacheSig = '';
   /** Bumped every time page content is replaced, so cached element lookups can tell they went stale. */
   private domEpoch = 0;
+  private activeGlide: Glide | null = null;
+  private reducedMotionQuery: MediaQueryList | null = null;
   private rafHandle: number | null = null;
   /** The scrollTop this element last set or saw. Any other value is a scroll the user made (`noticeUserScroll`). */
   private knownScrollTop = 0;
@@ -271,7 +282,6 @@ export class MxScoreView extends HTMLElement {
     this.rawGlyphs = initialised.glyphs ?? null;
     const layout = this.fittedLayout() ?? this.requested ?? this.defaultLayout();
     this.requested = layout;
-    this.pageAspect = null;
     const { pageCount } = await this.client.load(renderXml, layout);
     if (token !== this.loadToken) return; // superseded by a newer load
     this.applyPageCount(pageCount);
@@ -316,14 +326,12 @@ export class MxScoreView extends HTMLElement {
     this.relayoutTimer = setTimeout(() => this.relayout(), RELAYOUT_DEBOUNCE_MS);
   }
 
-  /** The height of one page element, in CSS px: the page width times the rendered page's own aspect ratio. Until a
-   *  page has been rendered it comes from the layout that was asked for, and with no viewport at all from a fixed
-   *  fallback, so page mounting and follow-scroll always work against a height that is close to the real one. */
-  private pageHeightPx(): number {
+  /** Fallback height for unrendered pages in CSS px, derived from the requested aspect ratio or the fixed default
+   *  (contracts/score-layout.md 2.0.0 section 3). */
+  private fallbackPageHeightPx(): number {
     const width = this.scrollEl.clientWidth;
-    if (width > 0) {
-      const aspect = this.pageAspect ?? (this.requested ? this.requested.pageHeight / this.requested.pageWidth : null);
-      if (aspect !== null) return Math.round(width * aspect * 100) / 100;
+    if (width > 0 && this.requested) {
+      return Math.round(width * (this.requested.pageHeight / this.requested.pageWidth) * 100) / 100;
     }
     return DEFAULT_PAGE_HEIGHT;
   }
@@ -334,6 +342,8 @@ export class MxScoreView extends HTMLElement {
     this.measurePages.clear();
     this.pageLookup = null;
     this.mountedPages.clear();
+    this.pageEpoch++;
+    this.measuredHeights.clear();
     this.stack.innerHTML = '';
     this.stack.appendChild(this.band); // first, so it is drawn behind every page (R-02)
 
@@ -341,7 +351,10 @@ export class MxScoreView extends HTMLElement {
     if (block) this.stack.appendChild(block);
     // Page 1 starts below the title block, at its drawn height: a long title wraps onto more lines (FR-017).
     this.titleBlockHeight = block?.offsetHeight ?? 0;
-    this.layouts = layoutPages(pageCount, this.pageHeightPx(), 0, this.titleBlockHeight);
+    this.layouts = layoutPages(
+      pageHeights(pageCount, this.measuredHeights, this.fallbackPageHeightPx()),
+      this.titleBlockHeight,
+    );
 
     for (const layout of this.layouts) {
       const pageEl = document.createElement('div');
@@ -384,19 +397,6 @@ export class MxScoreView extends HTMLElement {
     return block;
   }
 
-  /** The first rendered page tells the real page shape; re-measure the placeholders once if it differs. */
-  private adoptRenderedAspect(aspect: number | null): void {
-    if (aspect === null || aspect === this.pageAspect) return;
-    this.pageAspect = aspect;
-    const height = this.pageHeightPx();
-    if (this.layouts.length === 0 || this.layouts[0]?.height === height) return;
-    this.layouts = layoutPages(this.layouts.length, height, 0, this.titleBlockHeight);
-    for (const layout of this.layouts) {
-      const pageEl = this.stack.querySelector<HTMLElement>(`[data-page="${layout.page}"]`);
-      if (pageEl) pageEl.style.height = `${layout.height}px`;
-    }
-  }
-
   private topVisiblePage(): number {
     const scrollTop = this.scrollEl.scrollTop;
     const layout = this.layouts.find((l) => l.top + l.height > scrollTop) ?? this.layouts[this.layouts.length - 1];
@@ -421,7 +421,6 @@ export class MxScoreView extends HTMLElement {
     const epoch = ++this.relayoutEpoch;
     const anchorMeasureId = this.currentAnchorMeasureId();
     this.requested = layout;
-    this.pageAspect = null;
     const { pageCount } = await this.client.relayout(layout);
     if (token !== this.loadToken || epoch !== this.relayoutEpoch) return;
     this.applyPageCount(pageCount);
@@ -435,33 +434,78 @@ export class MxScoreView extends HTMLElement {
     await this.mountVisiblePages();
   }
 
+  /** While a glide runs only the pages it lands on are rendered, the one holding its end first, and nothing is
+   *  unmounted: the pages it flies over pass as placeholders for a few frames (research R-7). Rendering them too kept
+   *  the landing page waiting behind them in the worker and stalled frames, so a jump arrived late (FR-009). */
   private async mountVisiblePages(): Promise<void> {
     if (!this.client || this.layouts.length === 0) return;
     const viewportHeight = this.scrollEl.clientHeight || DEFAULT_PAGE_HEIGHT;
-    const visible = new Set(mountedPageNumbers(this.layouts, this.scrollEl.scrollTop, viewportHeight));
-    const token = this.loadToken;
+    const anchor = this.activeGlide ? this.activeGlide.to : this.scrollEl.scrollTop;
+    const wanted = mountedPageNumbers(this.layouts, anchor, viewportHeight);
 
-    for (const page of Array.from(this.mountedPages)) {
-      if (!visible.has(page)) {
-        const pageEl = this.stack.querySelector(`[data-page="${page}"]`);
-        if (pageEl) pageEl.innerHTML = '';
-        this.domEpoch++;
-        this.mountedPages.delete(page);
+    if (!this.activeGlide) {
+      for (const page of Array.from(this.mountedPages)) {
+        if (!wanted.includes(page)) {
+          const pageEl = this.stack.querySelector(`[data-page="${page}"]`);
+          if (pageEl) pageEl.innerHTML = '';
+          this.domEpoch++;
+          this.mountedPages.delete(page);
+        }
       }
     }
 
-    for (const page of visible) {
-      if (this.mountedPages.has(page)) continue;
-      const { svg } = await this.client.page(page);
-      if (token !== this.loadToken) return;
-      const sanitised = sanitiseAndExtractMeasures(svg);
-      this.adoptRenderedAspect(sanitised.aspect);
-      this.pageMeasureIds.set(page, sanitised.measureIds);
-      const pageEl = this.stack.querySelector(`[data-page="${page}"]`);
-      if (pageEl) pageEl.innerHTML = sanitised.svg;
-      this.domEpoch++;
-      this.mountedPages.add(page);
+    const distance = (page: number): number => {
+      const layout = this.layouts[page - 1];
+      if (!layout) return Number.POSITIVE_INFINITY;
+      return Math.max(0, layout.top - anchor, anchor - (layout.top + layout.height));
+    };
+    const missing = wanted
+      .filter((page) => !this.mountedPages.has(page) && this.pendingPages.get(page) !== this.pageEpoch)
+      .sort((a, b) => distance(a) - distance(b));
+    await Promise.all(missing.map((page) => this.mountPage(page)));
+  }
+
+  /** Renders one page and puts it in the stack; a page already asked for in this layout is not asked for again. */
+  private async mountPage(page: number): Promise<void> {
+    if (!this.client) return;
+    const token = this.loadToken;
+    const epoch = this.pageEpoch;
+    this.pendingPages.set(page, epoch);
+    let svg: string;
+    try {
+      ({ svg } = await this.client.page(page));
+    } finally {
+      if (this.pendingPages.get(page) === epoch) this.pendingPages.delete(page);
     }
+    // A newer load or layout came in meanwhile: this page belongs to the old one
+    if (token !== this.loadToken || epoch !== this.pageEpoch || this.mountedPages.has(page)) return;
+    const sanitised = sanitiseAndExtractMeasures(svg);
+    if (sanitised.aspect !== null) {
+      const width = this.scrollEl.clientWidth;
+      const pageHeight = width > 0 ? Math.round(width * sanitised.aspect * 100) / 100 : DEFAULT_PAGE_HEIGHT;
+      if (this.measuredHeights.get(page) !== pageHeight) {
+        const beforeLayout = this.layouts.find((l) => l.page === page);
+        this.measuredHeights.set(page, pageHeight);
+        const fallback = this.fallbackPageHeightPx();
+        const heights = pageHeights(this.layouts.length, this.measuredHeights, fallback);
+        this.layouts = layoutPages(heights, this.titleBlockHeight);
+        for (const layout of this.layouts) {
+          const el = this.stack.querySelector<HTMLElement>(`[data-page="${layout.page}"]`);
+          if (el) el.style.height = `${layout.height}px`;
+        }
+        if (beforeLayout) {
+          const delta = scrollCompensation(beforeLayout, pageHeight, this.scrollEl.scrollTop);
+          if (delta !== 0) {
+            this.applyScrollCompensation(delta);
+          }
+        }
+      }
+    }
+    this.pageMeasureIds.set(page, sanitised.measureIds);
+    const pageEl = this.stack.querySelector(`[data-page="${page}"]`);
+    if (pageEl) pageEl.innerHTML = sanitised.svg;
+    this.domEpoch++;
+    this.mountedPages.add(page);
   }
 
   private onClick(event: Event): void {
@@ -520,7 +564,16 @@ export class MxScoreView extends HTMLElement {
       this.canvasEl.getContext('2d')?.clearRect(0, 0, this.canvasEl.width, this.canvasEl.height);
     }
     if (pState.mode === 'practice') {
-      this.drawPracticeState(pState.session, pState.startMeasureIndex, pState.setup?.loop ?? null);
+      const session = pState.session;
+      const currentEvent = session?.events[session.index];
+      const following = currentEvent !== undefined && session?.phase !== 'finished' && transportState.get().follow;
+
+      if (following && currentEvent) {
+        this.followRun(this.measureIds[currentEvent.measureIndex]);
+      } else {
+        this.setActiveGlide(null);
+      }
+      this.drawPracticeState(session, pState.startMeasureIndex, pState.setup?.loop ?? null);
       this.practiceDrawn = true;
       return;
     }
@@ -534,18 +587,24 @@ export class MxScoreView extends HTMLElement {
     if (pState.mode === 'play') {
       // One position for the whole frame: the cursor is drawn from it and the view follows it (009 R-04).
       const cursor = playCursorAt(playState.get().run);
-      this.drawPlayState(cursor);
       this.followPlayCursor(cursor);
+      this.drawPlayState(cursor);
       this.playDrawn = true;
       return;
     }
 
     const engine = this.engine;
     const timeline = this.timeline;
-    if (!engine || !timeline) return;
+    if (!engine || !timeline) {
+      this.setActiveGlide(null);
+      return;
+    }
 
     const position = engine.audiblePosition(performance.now());
-    if (!position) return;
+    if (!position) {
+      this.setActiveGlide(null);
+      return;
+    }
     const tick = position.audibleTick;
 
     // Tick 0 always falls inside the first note's span, so gate on the transport phase (not just the tick) -
@@ -556,7 +615,9 @@ export class MxScoreView extends HTMLElement {
       phase === 'stopped' || phase === 'loading' ? new Set<string>() : notesAtTick(timeline, tick);
     this.setHighlights(soundingNoteIds);
 
-    const pass = passAtTick(timeline, tick);
+    // Before the first tick (a run's first frames: the audible position trails the start by the output latency) the
+    // cursor is at the start; `passAtTick` gives the Score's last pass for every tick outside it (golden-pinned)
+    const pass = tick < 0 ? (timeline.passes[0] ?? null) : passAtTick(timeline, tick);
     runPositionState.set(pass ? pass.measureIndex : null);
     tempoPositionState.set(displaySegmentIndexAt(timeline.tempo, tick));
     const measureId = pass ? this.measureIds[pass.measureIndex] : undefined;
@@ -564,15 +625,20 @@ export class MxScoreView extends HTMLElement {
     // FR-014: the view follows *during playback* only. Stopped or paused, the cursor stands still and the Score is
     // the musician's to browse; following on every frame then pulled any scroll straight back to the cursor.
     const following = phase === 'playing' && transportState.get().follow;
+    if (following) {
+      if (measureId !== undefined) {
+        this.followRun(measureId);
+      }
+    } else {
+      this.setActiveGlide(null);
+    }
+
     if (!measureEl) {
-      // The current measure's page isn't mounted (a distant seek, a jump back, Follow ticked from far away).
-      if (following && measureId !== undefined) this.scrollToPageOf(measureId);
       return;
     }
 
     // the bar stands at the notes that started last, not at a long note still held under them (009 FR-001, owner review)
     this.drawCursor(measureEl, soundingNoteIds.size === 0 ? soundingNoteIds : cursorNotesAtTick(timeline, tick));
-    if (following) this.followScrollTo(measureEl);
   }
 
   /** Notes are looked up in the DOM once per change of the page content, never once per frame: `domEpoch` is bumped
@@ -582,6 +648,7 @@ export class MxScoreView extends HTMLElement {
     if (sig === this.elementCacheSig) return;
     this.elementCacheSig = sig;
     this.elementCache.clear();
+    this.systemCache.clear();
   }
 
   private elementFor(id: string): Element | null {
@@ -1001,23 +1068,25 @@ export class MxScoreView extends HTMLElement {
         });
       }
     }
-
-    if (currentEvent && session?.phase !== 'finished' && transportState.get().follow) {
-      this.followMeasure(this.measureIds[currentEvent.measureIndex]);
-    }
   }
 
-  /** Keeps the Play run's current measure in the middle band (FR-005, 003 FR-007), under the same Follow rules as
+  /** Keeps the Play run's current measure in view using the lookahead rule (015 US1), under the same Follow rules as
    *  Listen; the slim bar shows the measure whether or not the view is following it. The position is the one the
    *  cursor is drawn at (`playCursorAt`, 009 R-04), so the two can never disagree. Needs `this.timeline`
    *  (session.ts's `setPlayback`, also called from `startPlay`). */
   private followPlayCursor(cursor: PlayCursorPosition | null): void {
-    if (!cursor || !this.timeline) return;
+    if (!cursor || !this.timeline) {
+      this.setActiveGlide(null);
+      return;
+    }
     const pass = passAtTick(this.timeline, cursor.timelineTick);
     runPositionState.set(pass ? pass.measureIndex : null);
     tempoPositionState.set(displaySegmentIndexAt(this.timeline.tempo, cursor.timelineTick));
-    if (!transportState.get().follow) return;
-    this.followMeasure(pass ? this.measureIds[pass.measureIndex] : undefined);
+    if (!transportState.get().follow) {
+      this.setActiveGlide(null);
+      return;
+    }
+    this.followRun(pass ? this.measureIds[pass.measureIndex] : undefined);
   }
 
   /** Puts the `.playing` highlight on exactly these notes (off before on), for Listen's cursor and the Play cursor. */
@@ -1372,12 +1441,150 @@ export class MxScoreView extends HTMLElement {
     });
   }
 
-  /** Follows a measure whether or not its page is mounted. */
-  private followMeasure(measureId: string | undefined): void {
+  /** System lookup for a measure: returns the system element, the next system element, and whether next is known. */
+  private systemLookup(
+    measureId: string,
+    measureEl: Element,
+  ): {
+    current: Element;
+    next: Element | null;
+    nextKnown: boolean;
+  } | null {
+    const cached = this.systemCache.get(measureId);
+    if (cached) return cached;
+
+    const current = measureEl.closest('g.system');
+    if (!current) return null;
+
+    let next: Element | null = null;
+    let nextKnown = true;
+    const pageEl = current.closest('.mx-score-page');
+    if (pageEl) {
+      const systems = Array.from(pageEl.querySelectorAll('g.system'));
+      const idx = systems.indexOf(current);
+      if (idx >= 0 && idx + 1 < systems.length) {
+        next = systems[idx + 1] ?? null;
+      } else {
+        const pageNum = Number(pageEl.getAttribute('data-page'));
+        const nextPageNum = pageNum + 1;
+        if (nextPageNum <= this.layouts.length) {
+          if (this.mountedPages.has(nextPageNum)) {
+            const nextPageEl = this.stack.querySelector<HTMLElement>(`[data-page="${nextPageNum}"]`);
+            next = nextPageEl?.querySelector('g.system') ?? null;
+          } else {
+            next = null;
+            nextKnown = false;
+          }
+        } else {
+          next = null;
+        }
+      }
+    }
+    const res = { current, next, nextKnown };
+    this.systemCache.set(measureId, res);
+    return res;
+  }
+
+  /** Follows during playback/practice/play using the lookahead target rule (015 US1). */
+  private followRun(measureId: string | undefined): void {
+    this.markFollowSettled(false);
     if (measureId === undefined) return;
-    const measureEl = this.stack.querySelector(`#${CSS.escape(measureId)}`);
-    if (measureEl) this.followScrollTo(measureEl);
-    else this.scrollToPageOf(measureId);
+    this.syncElementCache();
+    const measureEl = this.elementFor(measureId);
+    if (!measureEl) {
+      this.scrollToPageOf(measureId);
+      return;
+    }
+    const sys = this.systemLookup(measureId, measureEl);
+    if (!sys) return;
+
+    const containerRect = this.scrollEl.getBoundingClientRect();
+    const scrollTop = this.scrollEl.scrollTop;
+    const curRect = sys.current.getBoundingClientRect();
+    const current = {
+      top: curRect.top - containerRect.top + scrollTop,
+      bottom: curRect.bottom - containerRect.top + scrollTop,
+    };
+
+    let next: { top: number; bottom: number } | null = null;
+    if (sys.next) {
+      const nextRect = sys.next.getBoundingClientRect();
+      next = {
+        top: nextRect.top - containerRect.top + scrollTop,
+        bottom: nextRect.bottom - containerRect.top + scrollTop,
+      };
+    }
+
+    const clientHeight = this.scrollEl.clientHeight || DEFAULT_PAGE_HEIGHT;
+    const clearHeight = Math.max(0, clientHeight - insetState.get().bottom);
+    const maxScrollTop = Math.max(0, this.scrollEl.scrollHeight - clientHeight);
+
+    const target = lookaheadTarget({
+      current,
+      next,
+      nextKnown: sys.nextKnown,
+      scrollTop,
+      clearHeight,
+      maxScrollTop,
+    });
+
+    if (target !== null) {
+      const now = performance.now();
+      const reducedMotion = this.prefersReducedMotion();
+      this.setActiveGlide(glideTo(this.scrollEl.scrollTop, target, now, this.activeGlide, reducedMotion));
+    }
+    this.advanceGlide();
+    this.markFollowSettled(target === null && this.activeGlide === null);
+  }
+
+  /** Whether the OS asks for reduced motion, read when a glide starts from one MediaQueryList (it follows a change of
+   *  the setting), made the first time it is needed - never a `matchMedia` call per frame. */
+  private prefersReducedMotion(): boolean {
+    if (this.reducedMotionQuery === null && typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      this.reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    }
+    return this.reducedMotionQuery?.matches ?? false;
+  }
+
+  private setActiveGlide(glide: Glide | null): void {
+    this.activeGlide = glide;
+    if (glide) {
+      this.dataset.gliding = 'true';
+    } else {
+      delete this.dataset.gliding;
+      // Nothing moves any more; only followRun, having found no target, may say the view rests on it
+      this.markFollowSettled(false);
+    }
+  }
+
+  /** The e2e seam `data-follow-settled` (follow-view contract): following, and resting where the look-ahead rule wants
+   *  the view - no target to move to and no glide running. Tests wait for it before measuring the page. */
+  private markFollowSettled(settled: boolean): void {
+    if (settled) {
+      if (this.dataset.followSettled !== 'true') this.dataset.followSettled = 'true';
+    } else if (this.dataset.followSettled !== undefined) {
+      delete this.dataset.followSettled;
+    }
+  }
+
+  private advanceGlide(): void {
+    if (!this.activeGlide) return;
+    const now = performance.now();
+    const pos = glidePosition(this.activeGlide, now);
+    this.scrollOwn(pos.top);
+    this.mountVisiblePages();
+    if (pos.done) {
+      this.setActiveGlide(null);
+      this.mountVisiblePages(); // landed: the pages around the view now, and the ones it left are unmounted
+    }
+  }
+
+  private applyScrollCompensation(delta: number): void {
+    if (delta === 0) return;
+    this.scrollOwn(this.scrollEl.scrollTop + delta);
+    if (this.activeGlide) {
+      this.setActiveGlide(shiftGlide(this.activeGlide, delta));
+    }
   }
 
   /** Brings an unmounted measure's page into view, so it mounts and the next frame can centre the measure itself.
@@ -1394,7 +1601,16 @@ export class MxScoreView extends HTMLElement {
     }
     if (page !== undefined) {
       const layout = this.layouts.find((l) => l.page === page);
-      if (layout) this.scrollOwn(layout.top);
+      // Already there, waiting for the page to render: no glide in place
+      const there =
+        this.activeGlide === null &&
+        Math.abs(layout ? layout.top - this.scrollEl.scrollTop : 0) < FOLLOW_TARGET_EPSILON_PX;
+      if (layout && !there) {
+        const now = performance.now();
+        const reducedMotion = this.prefersReducedMotion();
+        this.setActiveGlide(glideTo(this.scrollEl.scrollTop, layout.top, now, this.activeGlide, reducedMotion));
+        this.advanceGlide();
+      }
       return;
     }
     if (!this.client || this.pageLookup !== null) return;
@@ -1423,11 +1639,12 @@ export class MxScoreView extends HTMLElement {
     const top = this.scrollEl.scrollTop;
     if (Math.abs(top - this.knownScrollTop) < 1) return;
     this.knownScrollTop = top;
+    this.setActiveGlide(null);
     if (transportState.get().phase === 'playing') transportState.manualScroll();
   }
 
   /** Scrolls to keep the cursor within the middle band of the viewport (FOLLOW_MARGIN, FR-014); marks the
-   * resulting 'scroll' event as ours so it isn't mistaken for the user manually scrolling. */
+   * resulting 'scroll' event as ours so it isn't mistaken for the user manually scrolling. Used only for revealSelectedMark (015). */
   private followScrollTo(measureEl: Element): void {
     const containerRect = this.scrollEl.getBoundingClientRect();
     const targetRect = measureEl.getBoundingClientRect();

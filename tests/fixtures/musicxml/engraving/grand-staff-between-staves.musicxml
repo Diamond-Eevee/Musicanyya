@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="4.0">
+  <work><work-title>Engraving fixture: content between the staves of a grand staff (015 R-4)</work-title></work>
+  <identification>
+    <creator type="arranger">Musicanyya test fixture</creator>
+    <rights>CC0-1.0 (test fixture, original work)</rights>
+    <encoding><software>Musicanyya</software><encoding-date>2026-09-29</encoding-date></encoding>
+  </identification>
+  <part-list>
+    <score-part id="P1"><part-name>Piano</part-name></score-part>
+  </part-list>
+  <part id="P1">
+  <!--
+  Feature 015 fixture (tasks.md T025, requested by the notation review in research.md R-4): an eight-bar
+  piano piece in C major, 4/4, divisions=4 (eighth=2, quarter=4), whose purpose is to crowd the space
+  BETWEEN the two staves of a grand staff, so that the compact vertical spacing (ENGRAVING_SPACING_BRACE_GROUP)
+  can be checked for collisions: Verovio must push the staves apart wherever this content needs more room
+  than the minimum gap. At the default spacing it engraves without a collision (Verovio 6.3.0, checked by
+  the notation review), so a collision seen with the compact spacing is caused by it. Right hand = voice 1
+  on staff 1; left hand = voice 5 on staff 2 (and on staff 1 where it crosses), plus voice 6 in M5. Every
+  dynamic and hairpin is a direction on staff 1 with placement="below", which is where piano dynamics are
+  printed: between the staves. Pedal marks are on staff 2, placement="below", line="yes" (bracket style,
+  no "Ped." sign); a pedal change is written as a stop followed by a start at the same moment, because
+  Verovio 6.3.0 drops a pedal line that contains type="change", so it is drawn as two brackets with a small
+  gap, not as a notch. Every eighth group carries explicit beam elements.
+  At 1920 px wide Verovio puts M1-M4 in system 1 and M5-M8 in system 2. In system 1 the staves move closer
+  with the compact spacing, down to what the cross-staff beams of M3 need; in system 2 the up-stemmed LH
+  beam of M5 with the crescendo over it sets the gap, wider than the default minimum, so it is the same at both spacings.
+
+  M1  p. RH E5 quarter (slur start), D5 C5 eighths, D5 half (slur stop). LH broken chords C3 G3 C4 G3
+      (C major) then B2 G3 D4 G3 (G major); C4 and D4 sit on and above the first ledger line above the
+      bass staff. Pedal line: pressed on beat 1, changed on beat 3.
+  M2  crescendo hairpin from beat 1 to the barline. RH falling scale G4 F4 E4 D4, C4 quarter,
+      B3 A3 eighths: ledger-line notes below the treble staff (A3 on the second ledger line). LH F2 half,
+      G2 half. Pedal released on beat 1.
+  M3  no dynamic or hairpin in this bar (a hairpin here crosses the
+      cross-staff beams, and an mf on beat 1 touches the first beam, both already at the default spacing:
+      Verovio 6.3.0 does not avoid cross-staff beams). RH half rest, E5 half. LH one voice,
+      eighths with a CROSS-STAFF beam in each half: A2 E3 on staff 2, then C4 E4 on staff 1 (beam begins on
+      staff 2, ends on staff 1); A4 E4 on staff 1, then C4 A3 on staff 2 (beam begins on staff 1, ends on
+      staff 2). Pedal pressed on beat 1.
+  M4  mf. RH F5 E5 D5 B4 quarters. LH D3 A3 D4 F4, G2 D3 B3 F4: ledger-line notes above the bass staff (F4
+      above the second ledger line). Pedal changed on beats 1 and 3.
+  M5  p on beat 1, crescendo hairpin from beat 3 into M6. RH A3 C4 E4 half-note chord (two ledger lines
+      below the treble staff), C5 E5 quarters. LH in two voices: voice 6 holds A2 for the whole bar; voice 5
+      rests for two beats (a forward) and then plays G3 C4 E4 C4 eighths with stems up, so their stems and
+      beam reach into the space between the staves right under the crescendo, and C4 and E4 add ledger
+      lines above the bass staff. Pedal changed on beat 1.
+  M6  f (the crescendo ends here). Clef change in the bass: staff 2 switches to a G clef on beat 1. RH G5
+      E5 quarters, C6 half. LH E4 G4 C5 G4 twice, in the treble clef. Pedal released on beat 1.
+  M7  diminuendo hairpin from beat 1 to the last eighth. RH A5 F5 D5 B4 quarters. LH F4 A4 C5 A4 in the
+      G clef, then the clef changes back to F on beat 3 and the LH continues G3 D3 B2 G2; one slur runs from
+      F4 over the clef change to G2. Pedal line: pressed on beat 1, changed on beat 3.
+  M8  p. RH C5 E5 G5 dotted-half chord, quarter rest. LH C2 C3 dotted-half octave, quarter rest. Pedal
+      changed on beat 1, released on beat 4 with the rests. Final light-heavy barline.
+  -->
+  <measure number="1">
+    <attributes>
+      <divisions>4</divisions>
+      <key><fifths>0</fifths></key>
+      <time><beats>4</beats><beat-type>4</beat-type></time>
+      <staves>2</staves>
+      <clef number="1"><sign>G</sign><line>2</line></clef>
+      <clef number="2"><sign>F</sign><line>4</line></clef>
+    </attributes>
+    <direction placement="below"><direction-type><dynamics><p/></dynamics></direction-type><staff>1</staff></direction>
+    <note><pitch><step>E</step><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><staff>1</staff><notations><slur type="start" number="1"/></notations></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff><beam number="1">begin</beam></note>
+    <note><pitch><step>C</step><octave>5</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff><beam number="1">end</beam></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff><notations><slur type="stop" number="1"/></notations></note>
+    <backup><duration>16</duration></backup>
+    <direction placement="below"><direction-type><pedal type="start" line="yes"/></direction-type><staff>2</staff></direction>
+    <note><pitch><step>C</step><octave>3</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">begin</beam></note>
+    <note><pitch><step>G</step><octave>3</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>G</step><octave>3</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">end</beam></note>
+    <direction placement="below"><direction-type><pedal type="stop" line="yes"/></direction-type><staff>2</staff></direction>
+    <direction placement="below"><direction-type><pedal type="start" line="yes"/></direction-type><staff>2</staff></direction>
+    <note><pitch><step>B</step><octave>2</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">begin</beam></note>
+    <note><pitch><step>G</step><octave>3</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>D</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>G</step><octave>3</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">end</beam></note>
+  </measure>
+  <measure number="2">
+    <direction placement="below"><direction-type><wedge type="crescendo" number="1"/></direction-type><staff>1</staff></direction>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff><beam number="1">begin</beam></note>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>E</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>D</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff><beam number="1">end</beam></note>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>B</step><octave>3</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff><beam number="1">begin</beam></note>
+    <note><pitch><step>A</step><octave>3</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type><staff>1</staff><beam number="1">end</beam></note>
+    <direction placement="below"><direction-type><wedge type="stop" number="1"/></direction-type><staff>1</staff></direction>
+    <backup><duration>16</duration></backup>
+    <direction placement="below"><direction-type><pedal type="stop" line="yes"/></direction-type><staff>2</staff></direction>
+    <note><pitch><step>F</step><octave>2</octave></pitch><duration>8</duration><voice>5</voice><type>half</type><staff>2</staff></note>
+    <note><pitch><step>G</step><octave>2</octave></pitch><duration>8</duration><voice>5</voice><type>half</type><staff>2</staff></note>
+  </measure>
+  <measure number="3">
+    <note><rest/><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff></note>
+    <note><pitch><step>E</step><octave>5</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff></note>
+    <backup><duration>16</duration></backup>
+    <direction placement="below"><direction-type><pedal type="start" line="yes"/></direction-type><staff>2</staff></direction>
+    <note><pitch><step>A</step><octave>2</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">begin</beam></note>
+    <note><pitch><step>E</step><octave>3</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>1</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>E</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>1</staff><beam number="1">end</beam></note>
+    <note><pitch><step>A</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>1</staff><beam number="1">begin</beam></note>
+    <note><pitch><step>E</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>1</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>A</step><octave>3</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">end</beam></note>
+  </measure>
+  <measure number="4">
+    <direction placement="below"><direction-type><dynamics><mf/></dynamics></direction-type><staff>1</staff></direction>
+    <note><pitch><step>F</step><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>E</step><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>B</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <backup><duration>16</duration></backup>
+    <direction placement="below"><direction-type><pedal type="stop" line="yes"/></direction-type><staff>2</staff></direction>
+    <direction placement="below"><direction-type><pedal type="start" line="yes"/></direction-type><staff>2</staff></direction>
+    <note><pitch><step>D</step><octave>3</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">begin</beam></note>
+    <note><pitch><step>A</step><octave>3</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>D</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">end</beam></note>
+    <direction placement="below"><direction-type><pedal type="stop" line="yes"/></direction-type><staff>2</staff></direction>
+    <direction placement="below"><direction-type><pedal type="start" line="yes"/></direction-type><staff>2</staff></direction>
+    <note><pitch><step>G</step><octave>2</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">begin</beam></note>
+    <note><pitch><step>D</step><octave>3</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>B</step><octave>3</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">end</beam></note>
+  </measure>
+  <measure number="5">
+    <direction placement="below"><direction-type><dynamics><p/></dynamics></direction-type><staff>1</staff></direction>
+    <note><pitch><step>A</step><octave>3</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff></note>
+    <note><chord/><pitch><step>C</step><octave>4</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff></note>
+    <note><chord/><pitch><step>E</step><octave>4</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff></note>
+    <direction placement="below"><direction-type><wedge type="crescendo" number="1"/></direction-type><staff>1</staff></direction>
+    <note><pitch><step>C</step><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>E</step><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <backup><duration>16</duration></backup>
+    <direction placement="below"><direction-type><pedal type="stop" line="yes"/></direction-type><staff>2</staff></direction>
+    <direction placement="below"><direction-type><pedal type="start" line="yes"/></direction-type><staff>2</staff></direction>
+    <note><pitch><step>A</step><octave>2</octave></pitch><duration>16</duration><voice>6</voice><type>whole</type><staff>2</staff></note>
+    <backup><duration>16</duration></backup>
+    <forward><duration>8</duration><voice>5</voice><staff>2</staff></forward>
+    <note><pitch><step>G</step><octave>3</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><stem>up</stem><staff>2</staff><beam number="1">begin</beam></note>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><stem>up</stem><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>E</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><stem>up</stem><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><stem>up</stem><staff>2</staff><beam number="1">end</beam></note>
+  </measure>
+  <measure number="6">
+    <direction placement="below"><direction-type><wedge type="stop" number="1"/></direction-type><staff>1</staff></direction>
+    <direction placement="below"><direction-type><dynamics><f/></dynamics></direction-type><staff>1</staff></direction>
+    <note><pitch><step>G</step><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>E</step><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>C</step><octave>6</octave></pitch><duration>8</duration><voice>1</voice><type>half</type><staff>1</staff></note>
+    <backup><duration>16</duration></backup>
+    <attributes><clef number="2"><sign>G</sign><line>2</line></clef></attributes>
+    <direction placement="below"><direction-type><pedal type="stop" line="yes"/></direction-type><staff>2</staff></direction>
+    <note><pitch><step>E</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">begin</beam></note>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>C</step><octave>5</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">end</beam></note>
+    <note><pitch><step>E</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">begin</beam></note>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>C</step><octave>5</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>G</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">end</beam></note>
+  </measure>
+  <measure number="7">
+    <direction placement="below"><direction-type><wedge type="diminuendo" number="1"/></direction-type><staff>1</staff></direction>
+    <note><pitch><step>A</step><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>F</step><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>D</step><octave>5</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <note><pitch><step>B</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <backup><duration>16</duration></backup>
+    <direction placement="below"><direction-type><pedal type="start" line="yes"/></direction-type><staff>2</staff></direction>
+    <note><pitch><step>F</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">begin</beam><notations><slur type="start" number="1"/></notations></note>
+    <note><pitch><step>A</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>C</step><octave>5</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>A</step><octave>4</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">end</beam></note>
+    <attributes><clef number="2"><sign>F</sign><line>4</line></clef></attributes>
+    <direction placement="below"><direction-type><pedal type="stop" line="yes"/></direction-type><staff>2</staff></direction>
+    <direction placement="below"><direction-type><pedal type="start" line="yes"/></direction-type><staff>2</staff></direction>
+    <note><pitch><step>G</step><octave>3</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">begin</beam></note>
+    <note><pitch><step>D</step><octave>3</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <note><pitch><step>B</step><octave>2</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">continue</beam></note>
+    <direction placement="below"><direction-type><wedge type="stop" number="1"/></direction-type><staff>1</staff></direction>
+    <note><pitch><step>G</step><octave>2</octave></pitch><duration>2</duration><voice>5</voice><type>eighth</type><staff>2</staff><beam number="1">end</beam><notations><slur type="stop" number="1"/></notations></note>
+  </measure>
+  <measure number="8">
+    <direction placement="below"><direction-type><dynamics><p/></dynamics></direction-type><staff>1</staff></direction>
+    <note><pitch><step>C</step><octave>5</octave></pitch><duration>12</duration><voice>1</voice><type>half</type><dot/><staff>1</staff></note>
+    <note><chord/><pitch><step>E</step><octave>5</octave></pitch><duration>12</duration><voice>1</voice><type>half</type><dot/><staff>1</staff></note>
+    <note><chord/><pitch><step>G</step><octave>5</octave></pitch><duration>12</duration><voice>1</voice><type>half</type><dot/><staff>1</staff></note>
+    <note><rest/><duration>4</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+    <backup><duration>16</duration></backup>
+    <direction placement="below"><direction-type><pedal type="stop" line="yes"/></direction-type><staff>2</staff></direction>
+    <direction placement="below"><direction-type><pedal type="start" line="yes"/></direction-type><staff>2</staff></direction>
+    <note><pitch><step>C</step><octave>2</octave></pitch><duration>12</duration><voice>5</voice><type>half</type><dot/><staff>2</staff></note>
+    <note><chord/><pitch><step>C</step><octave>3</octave></pitch><duration>12</duration><voice>5</voice><type>half</type><dot/><staff>2</staff></note>
+    <direction placement="below"><direction-type><pedal type="stop" line="yes"/></direction-type><staff>2</staff></direction>
+    <note><rest/><duration>4</duration><voice>5</voice><type>quarter</type><staff>2</staff></note>
+    <barline location="right"><bar-style>light-heavy</bar-style></barline>
+  </measure>
+  </part>
+</score-partwise>

@@ -21,7 +21,7 @@ steps, Songs and Repertoire must stay byte-identical (FR-003, SC-004).
 
 ## Phase 1: Setup
 
-**Model**: standard (claude-sonnet-5 or gemini-3.1-pro)
+**Model**: standard (gemini-3.8-flash or claude-sonnet-5.5)
 
 - [x] T001 [P] Fold contract change `specs/014-melody-over-chords/contracts/exercise-definition-1.3.md` into the
   canonical `specs/005-practice-score-library/contracts/exercise-definition.md` (version line -> 1.3.0, new §1b/§2a
@@ -38,7 +38,7 @@ steps, Songs and Repertoire must stay byte-identical (FR-003, SC-004).
 
 ## Phase 2: Foundational (blocks all user stories)
 
-**Model**: standard (claude-sonnet-5 or gemini-3.1-pro); the melody checker (T005, T010) is `deep` (claude-opus-5.5): a wrong checker
+**Model**: standard (gemini-3.8-flash or claude-sonnet-5.5); the melody checker (T005, T010) is `deep` (claude-opus-5.5): a wrong checker
 lets bad melodies through
 
 ### Tests (write first, confirm they fail)
@@ -98,7 +98,7 @@ has changed yet (T003 passes).
 
 ## Phase 3: User Stories 1 and 2 - Key-change items have a melody, and the ladder holds (Priority: P1) MVP
 
-**Model**: standard (claude-sonnet-5 or gemini-3.1-pro); composing the melodies (T021-T026) and the music review (T032) are `deep`
+**Model**: standard (gemini-3.8-flash or claude-sonnet-5.5); composing the melodies (T021-T026) and the music review (T032) are `deep`
 (claude-opus-5.5)
 **Goal**: all 54 key-change items have a right-hand melody over the unchanged left-hand chords (US1), each within
 its level's Difficulty ladder row, levelled correctly and harder step by step (US2).
@@ -245,7 +245,7 @@ as demanding as the one before, and the level check passes.
 
 ## Phase 4: User Story 3 - Chord-change drills lose their doubled bars (Priority: P2)
 
-**Model**: standard (claude-sonnet-5 or gemini-3.1-pro); composing the drill melodies (T042-T044) and the music review (T049) are
+**Model**: standard (gemini-3.8-flash or claude-sonnet-5.5); composing the drill melodies (T042-T044) and the music review (T049) are
 `deep` (claude-opus-5.5)
 **Goal**: the 5 drills keep their left hand exactly and get a right-hand melody that rests with the left hand.
 **Independent Test**: open *C major - I-V-vi-IV*: no bar has both hands on the same block chord; the left hand plays
@@ -302,7 +302,7 @@ the same chords and inversions as before, the right hand a melody.
 
 ## Phase 5: Polish & Cross-Cutting
 
-**Model**: standard (claude-sonnet-5 or gemini-3.1-pro)
+**Model**: standard (gemini-3.8-flash or claude-sonnet-5.5)
 
 - [x] T052 [P] Add an assertion to `tests/library/melody-sweep.test.ts` that no Learning item (all of
   `learning/**`) has a `doubled` finding apart from a single closing tonic chord (SC-001), and that the in-scope list
@@ -343,7 +343,7 @@ the same chords and inversions as before, the right hand a melody.
 
 ## Phase 6: Rework after the owner's listening check (T057 first verdict, 2026-09-28)
 
-**Model**: standard (claude-sonnet-5 or gemini-3.1-pro); the checker tests (T076), composing (T079-T083) and the music
+**Model**: standard (gemini-3.8-flash or claude-sonnet-5.5); the checker tests (T076), composing (T079-T083) and the music
 review (T088) are `deep` (claude-opus-5.5)
 **Goal**: the key-change introduction plays like the key step before it (quarter notes, scale runs up to an octave,
 thumb-under), beginner stays a step above it, and the key-change items' left hand moves (spec Amendment, FR-002 as

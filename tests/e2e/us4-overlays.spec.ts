@@ -13,6 +13,8 @@ test.beforeEach(({ browserName }) => {
 
 interface Sample {
   covered: string[];
+  gliding: boolean;
+  partlyVisible: boolean;
 }
 
 /** Samples, 10 times a second inside the page, which chrome overlaps the system that holds the sounding note. */
@@ -50,7 +52,24 @@ async function startSampling(page: Page): Promise<void> {
         ]),
         ...Array.from(document.querySelectorAll('mx-panel')).map((el): [string, Element] => ['popup', el]),
       ];
+      const scoreView = document.querySelector('mx-score-view') as HTMLElement | null;
+      const isGliding = scoreView?.dataset.gliding === 'true';
+      // 015 FR-008: the clear space is the Score scroller's box minus the bottom inset the piano strip reserves
+      // (follow-view.md, `clearHeight`); the system is partly visible when its box overlaps that rectangle.
+      const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
+      const scrollerRect = scroller.getBoundingClientRect();
+      const inset = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--mx-inset-bottom'));
+      const clearRect = new DOMRect(
+        scrollerRect.left,
+        scrollerRect.top,
+        scroller.clientWidth,
+        scroller.clientHeight - (Number.isFinite(inset) ? inset : 0),
+      );
+      const partlyVisible = overlaps(systemRect, clearRect);
+
       samples.push({
+        gliding: isGliding,
+        partlyVisible,
         covered: obstacles
           .filter(([, el]) => visible(el) && overlaps(systemRect, (el as Element).getBoundingClientRect()))
           .map(([name]) => name),
@@ -106,11 +125,21 @@ test.describe('US4: overlays never hide the music (SC-005, FR-010)', () => {
       const samples = await stopSampling(page);
 
       expect(samples.length, 'enough frames were sampled to mean something').toBeGreaterThan(40);
-      const covered = samples.filter((sample) => sample.covered.length > 0);
+      // When settled (not gliding), floating chrome must never cover the cursor's system. During a follow glide (015)
+      // the music moves under the chrome on its way, so there FR-008 applies: the cursor's system overlaps the clear
+      // space in every sampled frame.
+      const coveredWhileSettled = samples.filter((sample) => !sample.gliding && sample.covered.length > 0);
       expect(
-        covered.map((sample) => sample.covered),
-        'frames where chrome covered the cursor system',
+        coveredWhileSettled.map((sample) => sample.covered),
+        'frames where chrome covered the cursor system while settled',
       ).toEqual([]);
+
+      const hiddenDuringGlide = samples.filter((sample) => sample.gliding && !sample.partlyVisible);
+      expect(
+        hiddenDuringGlide,
+        'frames during a glide where the cursor system was outside the clear space (FR-008)',
+      ).toEqual([]);
+      expect(samples.filter((sample) => sample.gliding).length, 'frames sampled during a glide').toBeGreaterThan(0);
     });
   }
 });

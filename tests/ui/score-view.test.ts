@@ -3,11 +3,12 @@ import '../../src/ui/elements/mx-score-view.js';
 import type { MxScoreView } from '../../src/ui/elements/mx-score-view.js';
 import type { VerovioClient } from '../../src/ui/score/verovio-client.js';
 
-function svgForPage(measureIds: string[]): string {
+function svgForPage(measureIds: string[], viewBox?: string): string {
   const groups = measureIds
     .map((id) => `<g class="measure" id="${id}"><g class="note" id="${id}-n1"><rect width="1" height="1"/></g></g>`)
     .join('');
-  return `<svg xmlns="http://www.w3.org/2000/svg"><script>alert('x')</script><foreignObject><div onclick="x()">bad</div></foreignObject>${groups}</svg>`;
+  const vb = viewBox ? ` viewBox="${viewBox}"` : '';
+  return `<svg xmlns="http://www.w3.org/2000/svg"${vb}><script>alert('x')</script><foreignObject><div onclick="x()">bad</div></foreignObject>${groups}</svg>`;
 }
 
 class FakeVerovioClient implements VerovioClient {
@@ -17,6 +18,7 @@ class FakeVerovioClient implements VerovioClient {
     [2, ['m-3', 'm-4']],
     [3, ['m-5', 'm-6']],
   ]);
+  pageViewBoxes = new Map<number, string>();
   calls: string[] = [];
 
   async init() {
@@ -42,7 +44,7 @@ class FakeVerovioClient implements VerovioClient {
   }
   async page(page: number) {
     this.calls.push(`page:${page}`);
-    return { svg: svgForPage(this.pagesToMeasures.get(page) ?? []) };
+    return { svg: svgForPage(this.pagesToMeasures.get(page) ?? [], this.pageViewBoxes.get(page)) };
   }
   async pageOf(elementId: string) {
     for (const [page, ids] of this.pagesToMeasures) {
@@ -120,5 +122,48 @@ describe('Score view', () => {
     });
 
     expect(detail.measureIndex).toBe(0); // m-1 is index 0 in the full measureIds list
+  });
+
+  it('(d) when a page wholly above scrollTop is rendered and shrinks by 120 px, scrollTop drops by 120', async () => {
+    const scroll = el.querySelector('.mx-score-scroll') as HTMLElement;
+    Object.defineProperty(scroll, 'clientWidth', { value: 1600, configurable: true });
+    client.pageViewBoxes.set(1, '0 0 1600 1480');
+    scroll.scrollTop = 2000;
+    await el.load('<score-partwise/>', ['m-1', 'm-2', 'm-3', 'm-4', 'm-5', 'm-6']);
+    expect(scroll.scrollTop).toBe(1880);
+  });
+
+  it('(e) a measured height survives unmount and remount (no second change)', async () => {
+    const scroll = el.querySelector('.mx-score-scroll') as HTMLElement;
+    Object.defineProperty(scroll, 'clientWidth', { value: 1600, configurable: true });
+    client.pageViewBoxes.set(1, '0 0 1600 1480');
+    scroll.scrollTop = 2000;
+    await el.load('<score-partwise/>', ['m-1', 'm-2', 'm-3', 'm-4', 'm-5', 'm-6']);
+    expect(scroll.scrollTop).toBe(1880);
+
+    scroll.scrollTop = 10000;
+    scroll.dispatchEvent(new Event('scroll'));
+    await vi.advanceTimersByTimeAsync(0);
+
+    scroll.scrollTop = 1880;
+    scroll.dispatchEvent(new Event('scroll'));
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(scroll.scrollTop).toBe(1880);
+  });
+
+  it('(f) a relayout clears the measured heights', async () => {
+    const scroll = el.querySelector('.mx-score-scroll') as HTMLElement;
+    Object.defineProperty(scroll, 'clientWidth', { value: 1600, configurable: true });
+    client.pageViewBoxes.set(1, '0 0 1600 1480');
+    await el.load('<score-partwise/>', ['m-1', 'm-2', 'm-3', 'm-4', 'm-5', 'm-6']);
+    expect(el.querySelector<HTMLElement>('[data-page="1"]')?.style.height).toBe('1480px');
+
+    client.pageViewBoxes.clear(); // unmeasured on the next epoch
+    el.setZoom(200);
+    await vi.advanceTimersByTimeAsync(200);
+    expect(client.calls).toContain('relayout');
+    // If measured heights was cleared, page 1 uses the new requested fallback (1600px) instead of 1480px
+    expect(el.querySelector<HTMLElement>('[data-page="1"]')?.style.height).toBe('1600px');
   });
 });

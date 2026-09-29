@@ -1,17 +1,21 @@
-# Engraving-completion fixtures (feature 006)
+# Engraving fixtures (features 006 and 015)
 
 Nine hand-written MusicXML 4.0 probes for feature 006 "Beamed Notes and Complete Engraving" - each one
 isolates a single rule from `specs/006-beamed-note-engraving/research.md` R-2 (beam rules B1-B11) or R-3
 (accidental rules A1-A7, C1-C4), so a unit test can assert an exact-match engraving-completion result
 against it. Every file carries a header comment (after `<part-list>`, before the first `<measure>`)
 stating measure by measure, in exact pitch+octave+measure-number language, what the fixture tests and
-what the completion module is expected to produce.
+what the completion module is expected to produce. Feature 015 added one more probe,
+`grand-staff-between-staves.musicxml`, for the compact grand-staff spacing (its header comment describes it
+measure by measure in the same way).
 
 ## Provenance and licence
 
 All nine are **original work**, written for this feature, released under **CC0 1.0** (public-domain
 dedication - no attribution required, no conditions), same as the rest of this app's own test fixtures.
-None is derived from a third-party score except `fur-elise-bare.musicxml`, whose pitches/durations come
+`grand-staff-between-staves.musicxml` was added later by feature 015 (original work, written for this repository
+on 2026-09-29, **CC0 1.0**; origin: authored by the agent `claude-opus-5-5`, design reviewed by the
+`music-domain-expert` role). None is derived from a third-party score except `fur-elise-bare.musicxml`, whose pitches/durations come
 from the app's own bundled arrangement (already CC0, see `THIRD_PARTY_NOTICES.md`).
 
 ## Files
@@ -27,6 +31,7 @@ from the app's own bundled arrangement (already CC0, see `THIRD_PARTY_NOTICES.md
 | `accidentals.musicxml` | R-3 A1-A7, C1-C2: required sharp/natural insertions, per-octave state (A6), a tie that does not leak its alteration into the same-bar state it lands in (A3), a mid-bar key change (A2), a same-position chord needing two signs (A5), a double-sharp resolving to a plain sharp (A4), a grace note's alteration lasting to the end of its bar (A7), a cross-bar courtesy natural (C1/C2), and the first-ending/second-ending courtesy-memory special case (C1). One note already carries an `<accidental>` in the source and must be left untouched (A4). |
 | `prints-accidentals.musicxml` | R-3 C3/A4: a file that already prints most of its own accidentals, so mode `'opened'` must add no courtesy signs anywhere in it - only the one genuinely missing required accidental; plus one note whose printed `<accidental>sharp</accidental>` contradicts its own `<alter>` (left as is, reported as `accidentalContradicts`). |
 | `fur-elise-bare.musicxml` | *Für Elise* (theme)'s pitches and durations with all `<accidental>` elements stripped; no `<beam>` element exists in the source library file either, so this is used as-is - a whole-piece probe alongside the rule-isolating fixtures above. |
+| `grand-staff-between-staves.musicxml` | Feature 015 (T025, `specs/015-next-system-lookahead/research.md` R-4): an eight-bar piano piece that crowds the space *between* the staves of a grand staff - dynamics and hairpins placed below the treble staff, cross-staff beams, ledger-line notes below the treble and above the bass staff, bracket pedal lines, and a bass clef change to G and back under a slur - so the compact grand-staff spacing (`ENGRAVING_SPACING_BRACE_GROUP`) can be checked for collisions. Must render through the Verovio worker with no Verovio error or warning (`tests/verovio/page-units.test.ts`). |
 
 ## A note on verification
 
