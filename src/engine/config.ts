@@ -85,6 +85,8 @@ export const FOLLOW_TARGET_EPSILON_PX = 1; // Positions closer than this count a
 export const ENGRAVING_PAGE_MARGIN_TOP = 18; // Top margin in Verovio page units (FR-003)
 export const ENGRAVING_PAGE_MARGIN_BOTTOM = 18; // Bottom margin in Verovio page units (FR-003)
 export const ENGRAVING_SPACING_BRACE_GROUP = 8; // Minimum 4 staff spaces between staves of one braced instrument (FR-016)
+export const SMUFL_TEXT_ASCENT_PCT = 75; // Line box of music-font text above the baseline, % of the em (score-layout 2.1.0 section 5)
+export const SMUFL_TEXT_DESCENT_PCT = 25; // Line box of music-font text below the baseline, % of the em (score-layout 2.1.0 section 5)
 
 // Play Mode storage limits and worker timeout (data-model.md §10)
 export const PERFORMANCES_PER_SCORE_MAX = 20; // Attempts kept per Score, oldest dropped (FR-041)

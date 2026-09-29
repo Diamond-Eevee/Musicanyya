@@ -40,7 +40,7 @@ describe('lookaheadTarget', () => {
     expect(lookaheadTarget(input)).toBeNull();
   });
 
-  it('(c) next partly below the clear space -> current.top - 12', () => {
+  it('(c) next partly below the clear space, the pair exactly as tall as it -> current.top (the gap yields)', () => {
     const input: LookaheadInput = {
       current: { top: 150, bottom: 350 },
       next: { top: 400, bottom: 650 },
@@ -49,7 +49,8 @@ describe('lookaheadTarget', () => {
       clearHeight: 500, // clear space reaches 100 + 500 = 600; next ends at 650
       maxScrollTop: 2000,
     };
-    expect(lookaheadTarget(input)).toBe(150 - LOOKAHEAD_TOP_GAP_PX);
+    // follow-view 1.2.0 rule 3: the pair spans 500 = clearHeight, so it fits only with no gap above it (1.1.0: 138).
+    expect(lookaheadTarget(input)).toBe(150);
   });
 
   it('(d) next known but not fitting: first call gives current.top - 12, second call with scrollTop at that value gives null (settles)', () => {
@@ -136,6 +137,41 @@ describe('lookaheadTarget', () => {
     };
     // target would be 100.5, |100.5 - 100| = 0.5 < FOLLOW_TARGET_EPSILON_PX (1)
     expect(lookaheadTarget(input)).toBeNull();
+  });
+
+  // follow-view 1.2.0 rule 3 (owner decision 2026-09-29): the top gap shrinks when it alone keeps the pair from fitting.
+  const pair = (span: number) => ({
+    current: { top: 1000, bottom: 1300 },
+    next: { top: 1350, bottom: 1000 + span },
+    nextKnown: true,
+    scrollTop: 0,
+    clearHeight: 697,
+    maxScrollTop: 5000,
+  });
+
+  it('(k) a pair 8 px shorter than the clear space (689 of 697) -> current.top - 8, so the next system fits', () => {
+    expect(lookaheadTarget(pair(689))).toBe(1000 - 8);
+  });
+
+  it('(l) a pair exactly as tall as the clear space -> current.top (gap 0)', () => {
+    expect(lookaheadTarget(pair(697))).toBe(1000);
+  });
+
+  it('(m) a pair with room for the whole gap -> current.top - LOOKAHEAD_TOP_GAP_PX (unchanged)', () => {
+    expect(lookaheadTarget(pair(697 - LOOKAHEAD_TOP_GAP_PX))).toBe(1000 - LOOKAHEAD_TOP_GAP_PX);
+    expect(lookaheadTarget(pair(500))).toBe(1000 - LOOKAHEAD_TOP_GAP_PX);
+  });
+
+  it('(n) a pair taller than the clear space -> current.top - LOOKAHEAD_TOP_GAP_PX (unchanged, FR-014)', () => {
+    expect(lookaheadTarget(pair(698))).toBe(1000 - LOOKAHEAD_TOP_GAP_PX);
+  });
+
+  it('(o) at a gap-yield target both systems are in the clear space, and the next call settles', () => {
+    const input = pair(689);
+    const target = lookaheadTarget(input);
+    if (target === null) throw new Error('expected a target');
+    expect(1000 + 689).toBeLessThanOrEqual(target + input.clearHeight);
+    expect(lookaheadTarget({ ...input, scrollTop: target })).toBeNull();
   });
 
   it('(j) the clear space excludes the bottom inset (clearHeight 700 vs 900)', () => {

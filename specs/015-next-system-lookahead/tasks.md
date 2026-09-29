@@ -276,7 +276,7 @@ research R-4
 
 - [x] T027 [US3] Add `spacingBraceGroup: ENGRAVING_SPACING_BRACE_GROUP` to the shared worker option object in
   `src/workers/verovio.worker.ts` (T007); T024 green
-- [ ] T039 [US3] Tests first for the owner decision of 2026-09-29 (SC-007 design fix; follow-view 1.2.0, score-layout
+- [x] T039 [US3] Tests first for the owner decision of 2026-09-29 (SC-007 design fix; follow-view 1.2.0, score-layout
   2.1.0 section 5, research R-5/R-9): (a) `tests/ui/follow.test.ts`: `lookaheadTarget` with `next` fitting only
   without the full gap (span 689, clearHeight 697) -> `current.top - 8`; span exactly `clearHeight` -> `current.top`;
   span + `LOOKAHEAD_TOP_GAP_PX` <= clearHeight -> `current.top - 12` (unchanged); span > clearHeight -> `current.top -
@@ -285,7 +285,7 @@ research R-4
   `line-gap-override: 0%` inside that rule, the rest of the CSS unchanged, and a page without `<style>` unchanged;
   (c) `tests/e2e/lookahead.spec.ts`: "fits together" in the US3 checks means span <= clear height (no gap). Run: (a)
   and (b) fail
-- [ ] T040 [US3] Implement T039: `SMUFL_TEXT_ASCENT_PCT = 75`, `SMUFL_TEXT_DESCENT_PCT = 25` in
+- [x] T040 [US3] Implement T039: `SMUFL_TEXT_ASCENT_PCT = 75`, `SMUFL_TEXT_DESCENT_PCT = 25` in
   `src/engine/config.ts`; the gap rule in `lookaheadTarget` (`src/ui/score/follow.ts`); the descriptors in
   `sanitiseAndExtractMeasures` (`src/ui/score/pages.ts`); T039 (a)/(b) green
 - [~] T028 [US3] Run T012 (c), T015's specs and T026; fix what the new spacing breaks within this feature's files; an

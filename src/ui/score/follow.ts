@@ -130,7 +130,11 @@ export function lookaheadTarget(input: LookaheadInput): number | null {
     }
   }
 
-  const unboundedTarget = current.top - LOOKAHEAD_TOP_GAP_PX;
+  // Rule 3 (1.2.0): the gap above the current system shrinks, down to 0, when it alone keeps the next one from fitting.
+  const span = next === null ? null : next.bottom - current.top;
+  const gap =
+    span !== null && span <= clearHeight ? Math.min(LOOKAHEAD_TOP_GAP_PX, clearHeight - span) : LOOKAHEAD_TOP_GAP_PX;
+  const unboundedTarget = current.top - gap;
   const maxLimit = Math.max(0, maxScrollTop);
   const target = Math.max(0, Math.min(unboundedTarget, maxLimit));
 

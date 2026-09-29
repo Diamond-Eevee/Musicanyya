@@ -728,8 +728,9 @@ async function openForFit(
 
 const fullyIn = (span: { top: number; bottom: number }, o: FitObservation) =>
   span.top >= o.clearTop - 1 && span.bottom <= o.clearBottom + 1;
+/** follow-view 1.2.0: two systems fit when they span no more than the clear space (the top gap yields). */
 const fitsTogether = (o: FitObservation) =>
-  o.next !== null && o.next.bottom - o.current.top + LOOKAHEAD_TOP_GAP_PX <= o.clearBottom - o.clearTop;
+  o.next !== null && o.next.bottom - o.current.top <= o.clearBottom - o.clearTop;
 
 /** Every observation (every system change of the run) meets US1 where two systems fit, and FR-014 where they do not. */
 function expectShowsWhatFits(run: FitRun): { fit: number; notFit: number; staffChecks: number } {

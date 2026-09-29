@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
+import { SMUFL_TEXT_ASCENT_PCT, SMUFL_TEXT_DESCENT_PCT } from '../../src/engine/config.js';
 import {
   layoutPages,
   mountedPageNumbers,
   type PageLayout,
   pageHeights,
+  sanitiseAndExtractMeasures,
   scrollCompensation,
 } from '../../src/ui/score/pages.js';
 
@@ -108,5 +110,42 @@ describe('mountedPageNumbers with unequal heights', () => {
     expect(mountedPageNumbers(layouts, 0, 500)).toEqual([1, 2, 3]);
     // scrollTop = 900, viewport = 500 -> margin 500 -> range [400, 1900] -> pages 1, 2, 3, 4, 5
     expect(mountedPageNumbers(layouts, 900, 500)).toEqual([1, 2, 3, 4, 5]);
+  });
+});
+
+describe('sanitiseAndExtractMeasures: line metrics of music-font text (score-layout.md 2.1.0 section 5)', () => {
+  // As Verovio 6.3.0 writes a page: a scoped style first, the embedded music font at the end.
+  const fontFace =
+    "@font-face {\n    font-family: 'Leipzig';\n    src: url(data:application/font-woff2;charset=utf-8;base64,d09GMgAB) format('woff2');\n}";
+  const scoped = '#p1 g.ending, #p1 g.tempo {font-weight:bold;}';
+  const page = (styles: string[]) =>
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 400"><g class="page-margin"><g id="ms-0" class="measure"></g></g>${styles
+      .map((css) => `<style type="text/css">${css}</style>`)
+      .join('')}</svg>`;
+  const stylesOf = (svg: string) =>
+    Array.from(new DOMParser().parseFromString(svg, 'image/svg+xml').getElementsByTagName('style')).map(
+      (el) => el.textContent ?? '',
+    );
+
+  it('adds ascent-override 75 %, descent-override 25 % and line-gap-override 0 % inside the @font-face rule', () => {
+    const [, css] = stylesOf(sanitiseAndExtractMeasures(page([scoped, fontFace])).svg);
+    const rule = css?.match(/@font-face\s*\{([^}]*)\}/)?.[1] ?? '';
+    expect(rule).toContain(`ascent-override: ${SMUFL_TEXT_ASCENT_PCT}%;`);
+    expect(rule).toContain(`descent-override: ${SMUFL_TEXT_DESCENT_PCT}%;`);
+    expect(rule).toContain('line-gap-override: 0%;');
+    expect(rule).toContain("font-family: 'Leipzig';");
+    expect(rule).toContain("src: url(data:application/font-woff2;charset=utf-8;base64,d09GMgAB) format('woff2');");
+  });
+
+  it('leaves the other CSS of the page as it was', () => {
+    const [first] = stylesOf(sanitiseAndExtractMeasures(page([scoped, fontFace])).svg);
+    expect(first).toBe(scoped);
+  });
+
+  it('leaves a page without a <style> as it was, measures and all', () => {
+    const plain = page([]);
+    const result = sanitiseAndExtractMeasures(plain);
+    expect(stylesOf(result.svg)).toEqual([]);
+    expect(result.measureIds).toEqual(['ms-0']);
   });
 });

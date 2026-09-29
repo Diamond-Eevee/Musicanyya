@@ -1,3 +1,5 @@
+import { SMUFL_TEXT_ASCENT_PCT, SMUFL_TEXT_DESCENT_PCT } from '../../engine/config.js';
+
 export interface PageLayout {
   page: number; // 1-based
   top: number;
@@ -75,6 +77,9 @@ export function measureIndexFromElementId(measureIds: readonly string[], element
   return idx === -1 ? null : idx;
 }
 
+/** The line metrics given to the music font of a page (score-layout.md 2.1.0 section 5, research R-9). */
+const MUSIC_FONT_METRICS = ` ascent-override: ${SMUFL_TEXT_ASCENT_PCT}%; descent-override: ${SMUFL_TEXT_DESCENT_PCT}%; line-gap-override: 0%;`;
+
 export interface SanitisedPage {
   svg: string;
   measureIds: string[];
@@ -102,6 +107,12 @@ export function sanitiseAndExtractMeasures(svg: string): SanitisedPage {
     for (const child of Array.from(el.children)) stripEventAttributes(child);
   };
   stripEventAttributes(root);
+
+  // score-layout 2.1.0 section 5: the embedded music font's own line metrics make text boxes reach far beyond its ink.
+  for (const style of Array.from(root.getElementsByTagName('style'))) {
+    const css = style.textContent ?? '';
+    if (css.includes('@font-face')) style.textContent = css.replace(/@font-face\s*\{/g, `$&${MUSIC_FONT_METRICS}`);
+  }
 
   const measureIds = Array.from(root.querySelectorAll('g.measure'))
     .map((el) => el.id)
