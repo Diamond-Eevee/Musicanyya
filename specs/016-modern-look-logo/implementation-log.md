@@ -111,4 +111,19 @@
 - Problems / open questions: OD-1 (T029, logo) and OD-2 (T052, look + palettes) remain open owner gates.
 - Handoff: next = Phase 4 User Story 2 (T024-T033), starting with T024 `tests/ui/logo.test.ts`; tree clean at commit.
 
+## 2026-09-29 - antigravity-gemini-3.8-flash (implement)
+- Done: T024-T026 (Phase 4 User Story 2 test suite written, tests fail as expected):
+  - T024: `tests/ui/logo.test.ts` (4 tests) covering `logoMarkSvg` element restrictions/viewBox/fill/aria-hidden/title role and `logoTileSvg` small/regular variants and rect/mark colors. Fails as expected: `../../src/ui/brand/logo.js` does not exist yet.
+  - T025: `tests/tools/brand-icons.test.ts` (4 tests) covering ICO writer header, directory entries, PNG offset signatures, non-PNG rejection, `build/icon.ico` parsing with 7 entries, and `public/favicon.svg` matching `logoTileSvg(32)`. Fails as expected: missing `src/ui/brand/logo.js` and `tools/brand/build-icons.js`.
+  - T026: `tests/e2e/brand.spec.ts` (20 tests across chromium, firefox, webkit, electron) covering `#brand` first child in `.mx-bar` (not focusable), single "Musicanyya" word occurrence, `aria-hidden` mark, `link[rel=icon]` svg & png 200 responses, empty state 64px mark, and fit order (`.mx-bar-no-word` before compact mode, visually hidden word, single-row height). All 20 tests fail as expected.
+- Checks:
+  - `pnpm lint`: clean, 0 errors, 314 warnings, 13 infos
+  - `pnpm typecheck`: clean, exited 0
+- Decisions: None
+- Problems / open questions:
+  - Model fit: Task T027 is tier `deep` (recommended: claude-opus-5.5); current model is antigravity-gemini-3.8-flash (`standard`). Needs owner decision before proceeding with T027.
+  - OD-1 (T029, logo) and OD-2 (T052, look + palettes) remain open owner gates.
+- Handoff: next = T027, needs tier deep (recommended: claude-opus-5.5); tree clean at 96e5e96.
+
+
 
