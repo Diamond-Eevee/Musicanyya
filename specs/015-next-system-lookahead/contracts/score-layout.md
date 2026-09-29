@@ -1,6 +1,6 @@
 # Contract: Score layout (cropped pages, compact spacing)
 
-**Version**: `2.2.0` (2.2.0, 2026-09-29, MINOR: G-5 lower bound 1px tolerance aligning with FR-003, and G-6 spanning slur bleed via overflow: visible) - `2.1.0` (section 5, line metrics of music-font text, and guarantee G-9) - `2.0.0`
+**Version**: `2.2.1` (2.2.1, feature 016-modern-look-logo, PATCH: clarifies that the white page comes from `.mx-score-stack` (`--score-paper`) and the area around it is the theme's desk, [theme.md](../../../specs/016-modern-look-logo/contracts/theme.md), R-4; no geometry change, G-1 to G-6 unchanged) - `2.2.0` (2.2.0, 2026-09-29, MINOR: G-5 lower bound 1px tolerance aligning with FR-003, and G-6 spanning slur bleed via overflow: visible) - `2.1.0` (section 5, line metrics of music-font text, and guarantee G-9) - `2.0.0`
 supersedes [`004/contracts/score-layout.md` `1.1.1`](../../004-score-first-layout/contracts/score-layout.md).
 **MAJOR** because rule 4 of section 2 is reversed (a page is no longer one screenful) and section 4 changes from one
 shared page height to one height per page. Sections 1 (Score size), 2 rules 1-3 and 5, and 3 (when a relayout
@@ -73,6 +73,7 @@ Rules:
    visible content's anchor, or the page is the one being read and only its blank tail disappears).
 4. Pages are stacked with no gap of their own: the space between the last system of one page and the first of the
    next is the two Verovio margins (section 1).
+5. The white page background and black ink are pinned on `.mx-score-stack` (`--score-paper` `#ffffff` and `--score-ink` `#000000`), while the scroll area `.mx-score-scroll` around it is filled by the theme's `--mx-desk` ([theme.md](../../../specs/016-modern-look-logo/contracts/theme.md), R-4). Page dimensions and layout geometry G-1 to G-6 are completely unchanged.
 
 ## 4. Guarantees (G-1 to G-4 of 004 still hold)
 

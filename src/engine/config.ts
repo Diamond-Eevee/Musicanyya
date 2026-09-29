@@ -102,3 +102,13 @@ export const UNDO_WINDOW_MS = 8000; // Deferred-commit window for reset/remove, 
 export const BROWSER_ANNOUNCE_DEBOUNCE_MS = 300; // Debounce of the browser's aria-live item-count announcement (FR-028)
 export const BROWSER_DBLCLICK_WINDOW_MS = 300; // How long a single click waits for a second one before it selects the row (UI timing only, contracts §2)
 // BROWSER_SEARCH_MAX_CHARS re-exported from core/defaults.js above (src/core/browser/query.ts needs it too).
+
+// Modern look, themes & logo (feature 016-modern-look-logo, data-model.md section 5)
+export const THEME_STORAGE_KEY = 'musicanyya.theme.v1'; // theme.md 2
+export const THEME_CHOICE_DEFAULT = 'auto'; // clarification Q3
+export const THEME_AUTO_LIGHT = 'paper'; // clarification Q3
+export const THEME_AUTO_DARK = 'night'; // clarification Q3
+export const THEME_ACCENT_MIN_DELTA_E = 15; // FR-011, research R-5
+export const THEME_CONTROL_TRANSITION_MS = 120; // FR-008 (<= 150), research R-8
+export const CHROME_FOCUS_RING_PX = 2; // FR-006
+export const BRAND_SMALL_BELOW_PX = 24; // brand.md 1

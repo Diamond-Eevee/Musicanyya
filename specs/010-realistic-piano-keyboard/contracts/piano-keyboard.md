@@ -1,6 +1,6 @@
 # Contract: On-screen piano keyboard (layout and element)
 
-**Version**: `1.2.0` (1.0.0 new with feature 010; 1.1.0 additive, from the implementation: `has-label`, the dot's ring; 1.2.0 the hint messages float above the keys; internal contract between `src/ui/piano/keyboard-layout.ts`,
+**Version**: `1.2.1` (1.0.0 new with feature 010; 1.1.0 additive, from the implementation: `has-label`, the dot's ring; 1.2.0 the hint messages float above the keys; 1.2.1 PATCH, feature 016-modern-look-logo: host frame and background from `--mx-surface` / `--mx-border`, [theme.md](../../../specs/016-modern-look-logo/contracts/theme.md); internal contract between `src/ui/piano/keyboard-layout.ts`,
 `src/ui/elements/mx-piano-keys.ts`, `src/ui/styles/layout.css` and the tests). Signatures and the DOM structure below
 are normative. Changes bump the version (MINOR additive, MAJOR breaking).
 
@@ -60,6 +60,7 @@ stack of markings starts above the label); the host is a size container (`contai
   decoration reaches a neighbouring key.
 - The hint messages (`.key-messages`) are out of the strip's layout: absolutely positioned just above the keys with a
   light background. A hint showing or going never moves the keys or changes the strip's height or the bottom inset.
+- Host frame and background: the host frame uses `--mx-surface` and top border `--mx-border` ([theme.md](../../../specs/016-modern-look-logo/contracts/theme.md)); key colours, sizes and markings are unchanged and not themed.
 - Clicking a key does nothing (002 FR-033, 003 FR-010).
 
 ## 4. Test seams

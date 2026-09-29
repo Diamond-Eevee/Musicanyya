@@ -25,19 +25,19 @@ numbers.
 
 **Model**: light (gemini-3.7-flash or claude-haiku-4-5)
 
-- [ ] T001 Add the constants of `data-model.md` section 5 to `src/engine/config.ts`, each with a one-line comment
+- [x] T001 Add the constants of `data-model.md` section 5 to `src/engine/config.ts`, each with a one-line comment
   naming its source: `THEME_STORAGE_KEY = 'musicanyya.theme.v1'`, `THEME_CHOICE_DEFAULT = 'auto'`,
   `THEME_AUTO_LIGHT = 'paper'`, `THEME_AUTO_DARK = 'night'`, `THEME_ACCENT_MIN_DELTA_E = 15`,
   `THEME_CONTROL_TRANSITION_MS = 120`, `CHROME_FOCUS_RING_PX = 2`, `BRAND_SMALL_BELOW_PX = 24`. Nothing uses them
   yet. `pnpm typecheck` and `pnpm lint` green
-- [ ] T002 [P] Append a baseline entry to `specs/016-modern-look-logo/implementation-log.md`: the summary lines of
+- [x] T002 [P] Append a baseline entry to `specs/016-modern-look-logo/implementation-log.md`: the summary lines of
   `pnpm test`, `pnpm lint` and `pnpm typecheck` on the current commit (AGENTS.md 2.6)
-- [ ] T003 [P] Fold `contracts/contract-changes.md` into the earlier contracts with their version bumps:
+- [x] T003 [P] Fold `contracts/contract-changes.md` into the earlier contracts with their version bumps:
   `specs/004-score-first-layout/contracts/ui-shell.md` 1.1.0 -> 1.2.0 (sections 2, 3, 6 as listed),
   `specs/010-realistic-piano-keyboard/contracts/piano-keyboard.md` 1.2.0 -> 1.2.1,
   `specs/015-next-system-lookahead/contracts/score-layout.md` 2.2.0 -> 2.2.1, and the storage note in
   `specs/001-score-viewer-listen/contracts/storage.md`. Text only, each with a link to the 016 contract
-- [ ] T004 [standard] Add two options to `tools/dev/screenshot.ts`, documented in its header comment:
+- [x] T004 [standard] Add two options to `tools/dev/screenshot.ts`, documented in its header comment:
   `--theme <auto|paper|ivory|slate|night|walnut|midnight>` writes `{version:1, choice}` to
   `localStorage['musicanyya.theme.v1']` through `page.addInitScript` before the first navigation (harmless before
   the themes exist). `--clip <css selector>` crops the picture to that element's bounding box. `--compare <png>`
@@ -46,7 +46,7 @@ numbers.
   Unknown theme ids exit with an error listing the valid ones. Test first (F-06): extract the argument handling into
   an exported function if needed and cover it in `tests/tools/screenshot-args.test.ts`: an unknown `--theme`
   is rejected naming the valid ids, and `--clip`/`--compare` are parsed. It must fail before the change
-- [ ] T005 Capture the **baseline** before any styling change (quickstart "Baseline"). Use `pnpm screenshot -- --item
+- [x] T005 Capture the **baseline** before any styling change (quickstart "Baseline"). Use `pnpm screenshot -- --item
   repertoire/intermediate/fur-elise-theme --clip .mx-score-stack` at 1280x800 and 390x844, in Listen (plain open),
   `--practice --play 3`, and `--run --grade`. That gives 6 PNGs in `tests/.generated/016-baseline/` (git-ignored).
   Also record in the log the widest window width (±10 px, with that Score loaded) at which the bar is in compact

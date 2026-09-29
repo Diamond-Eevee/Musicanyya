@@ -31,3 +31,20 @@
   automated check of the dev window icon (manual at the US2 checkpoint); F-12 theme storage read directly in the UI
   layer, as browserState.ts already does (Constitution V allows it; no port needed for a cosmetic setting).
 - Handoff: next = `/speckit.implement` from T001; no code changed yet.
+
+## 2026-09-29 - antigravity-gemini-3.8-flash (implement)
+- Baseline verification at commit 900c2b7 (AGENTS.md 2.6, T002):
+  - `pnpm test`: Test Files 274 passed (274) | Tests 6036 passed (6036) | Duration 25.63s
+  - `pnpm lint`: Checked 1033 files in 348ms, 0 errors, 310 warnings, 13 infos
+  - `pnpm typecheck`: tsc --build tsconfig.json exited 0
+- Done: T001-T005 (Phase 1 Setup completed)
+  - T001: Added theme and brand named constants from data-model.md §5 to `src/engine/config.ts`
+  - T002: Recorded baseline test, lint and typecheck summary lines
+  - T003: Folded `contracts/contract-changes.md` into earlier contracts:
+    `004/contracts/ui-shell.md` 1.1.0 -> 1.2.0, `010/contracts/piano-keyboard.md` 1.2.0 -> 1.2.1,
+    `015/contracts/score-layout.md` 2.2.0 -> 2.2.1, `001/contracts/storage.md`
+  - T004: Added `--theme`, `--clip`, and `--compare` options to `tools/dev/screenshot.ts`; extracted `parseScreenshotArgs` and `VALID_THEMES`, covered in `tests/tools/screenshot-args.test.ts` (6 passed)
+  - T005: Captured 6 baseline PNGs of Für Elise in `tests/.generated/016-baseline/` (listen, practice, run-grade at 1280x800 and 390x844); measured widest window width for compact mode (`.mx-bar-compact`) with Für Elise loaded: 1310 px (±10 px, SC-006). Verified `--compare` prints `identical`.
+- Decisions: None
+- Problems / open questions: OD-1 (T029) and OD-2 (T052) remain open owner gates as planned (neither blocks Foundation).
+- Handoff: next = Phase 2 Foundational (T006-T015) starting with T006 tests.
