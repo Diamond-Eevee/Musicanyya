@@ -989,3 +989,8 @@
   same small-topic-branch pattern the rest of this feature's continuation already used. Main's `specs/001-*`
   still has 9 open tasks after this (T155, T162-169) - independent RT/allocation/type-safety follow-ups on the
   same worklet file, plus one MusicXML title-reading item and one percussion note-count doc gap.
+
+## 2026-09-29 - claude-opus-5.5 (model tier backfill)
+- Done: no task work. This feature's tasks predate model tiers (constitution 1.2.0), so its open tasks got a
+  tier tag (reference R11), at the owner's request: T155, T162-T164, T166-T168 `standard`; T165 `light`; T169 `deep`.
+- Handoff: unchanged; an agent picking up one of these tasks checks model fit against its tag first.

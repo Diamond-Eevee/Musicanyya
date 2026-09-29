@@ -1068,3 +1068,8 @@
 - Open: T112 (firefox `score-browser.spec.ts:343` late under load) - Firefox is not installed in the cloud container,
   so it could not be reproduced there; it passed in the owner's full local runs of 2026-09-28 (T074, T092 of 014).
   T090 (owner's SC-008 check, post-merge by owner decision).
+
+## 2026-09-29 - claude-opus-5.5 (model tier backfill)
+- Done: no task work. This feature's tasks predate model tiers (constitution 1.2.0), so its open tasks got a
+  tier tag (reference R11), at the owner's request: T090, T112 `standard`.
+- Handoff: unchanged; an agent picking up one of these tasks checks model fit against its tag first.
