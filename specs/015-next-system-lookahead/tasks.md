@@ -276,17 +276,19 @@ research R-4
 
 - [x] T027 [US3] Add `spacingBraceGroup: ENGRAVING_SPACING_BRACE_GROUP` to the shared worker option object in
   `src/workers/verovio.worker.ts` (T007); T024 green
-- [ ] T028 [US3] Run T012 (c), T015's specs and T026; fix what the new spacing breaks within this feature's files; an
+- [~] T028 [US3] Run T012 (c), T015's specs and T026; fix what the new spacing breaks within this feature's files; an
   expectation that changes because the engraving is more compact is updated with the reason in the log; T026 green
-- [ ] T029 [US3] [light] Run `pnpm library:fidelity --check` again with the compact spacing and record its summary
+  (claimed: claude-opus-5-5 2026-09-29)
+- [x] T029 [US3] [light] Run `pnpm library:fidelity --check` again with the compact spacing and record its summary
   line in the log (a failure is a stop-and-ask)
-- [ ] T030 [US3] [deep] Notation review (SC-008) with the `music-domain-expert` agent (needs a working `pnpm
+- [~] T030 [US3] [deep] Notation review (SC-008) with the `music-domain-expert` agent (needs a working `pnpm
   screenshot`: run on a machine with Playwright's own Chromium, or after the follow-up that lets the tool use a given
   Chromium executable; in a cloud container without either, stop and hand off rather than skip): screenshots (`pnpm screenshot
   --item <id> --width 1920 --height 950 --out tests/.generated/015-<id>.png`) of every piano piece in
   `public/library/repertoire/**`, of the T025 fixture and of the piano files in `tests/fixtures/musicxml/real`, plus one
   voice + piano Score; the agent checks collisions and crowding against printed-edition norms; findings summarised in
   the log. A collision found is a stop-and-ask (value change needs the owner), not a silent tweak
+  (claimed: claude-opus-5-5 2026-09-29)
 
 - [ ] T031 [US3] Checkpoint: see below
 

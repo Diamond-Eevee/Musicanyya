@@ -776,7 +776,15 @@ test.describe('show what fits (015 US3)', () => {
       await openForFit(page, { width: 1920, height: 950 }, item, search, { pianoStrip: true });
       const run = await listenAndObserve(page, 150_000);
       console.log(
-        `${item}: [page, system, fits] ${JSON.stringify(run.observations.map((o) => [o.page, o.systemIndex, fitsTogether(o)]))}`,
+        `${item}: [page, system, current height, current top to next bottom, clear height] ${JSON.stringify(
+          run.observations.map((o) => [
+            o.page,
+            o.systemIndex,
+            Math.round(o.current.bottom - o.current.top),
+            o.next ? Math.round(o.next.bottom - o.current.top) : null,
+            Math.round(o.clearBottom - o.clearTop),
+          ]),
+        )}`,
       );
       expect(run.systemChanges).toBeGreaterThan(1);
       expect(run.unsettled, 'every system change settles before the next').toBe(0);
