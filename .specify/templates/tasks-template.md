@@ -13,6 +13,7 @@
   - Tests come BEFORE implementation (Constitution IV) and must fail first.
   - Tasks touching AudioWorklets, the scheduler, MIDI input timing or plugin callbacks get a follow-up RT review
     task (Constitution I).
+  - Owner decisions from the plan become "Owner decision gate" tasks that name what they block.
 -->
 
 ## Phase 1: Setup
@@ -78,6 +79,7 @@
 
 - [ ] TXXX [P] Update docs/musicxml-support.md if parsing behaviour changed
 - [ ] TXXX Run quickstart.md validation
+- [ ] TXXX Constitution audit with `.claude/agents/constitution-auditor.md`
 - [ ] TXXX `pnpm lint`, `pnpm typecheck`, `pnpm test` (and `pnpm test:e2e` if present) green
 
 ## Dependencies & Execution Order

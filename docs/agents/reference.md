@@ -90,6 +90,8 @@ perform the review yourself, following its method and output format.
 - A `[~]` task found at session start with a clean working tree belongs to an earlier session: read that session's
   hand-off, check the task's files and tests, continue it and change the claim to your agent id.
 - If you stop before finishing, leave the task `[~]` and describe its exact state in the hand-off.
+- Owner decisions: a task line containing "Owner decision gate" is listed by the status script as open until the
+  line records the answer ("owner approved ..." / "owner rejected ...").
 
 ## R6. Parallel mode (only when the user assigns lanes)
 
