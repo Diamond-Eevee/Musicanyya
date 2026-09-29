@@ -225,11 +225,11 @@ Practice popups. No default-grey control, and the Score stack is identical to th
 
 ### Implementation
 
-- [ ] T027 [US2] [deep] Draw the mark in `src/ui/brand/logo.ts` (research R-10, brand.md section 1). Two stems-up
+- [x] T027 [US2] [deep] Draw the mark in `src/ui/brand/logo.ts` (research R-10, brand.md section 1). Two stems-up
   eighth notes on a 32-unit grid: the stems are the outer strokes of an M, two beam-weight strokes meet in the central
   valley, and filled tilted heads sit at the stem feet. Add a `small` variant with heavier strokes. Export
   `logoMarkSvg` and `logoTileSvg`. Makes T024 pass. Paths only, original work (FR-017)
-- [ ] T028 [US2] Create `tools/brand/build-icons.ts` and `package.json` script `"brand:icons"`. It rasterises
+- [x] T028 [US2] Create `tools/brand/build-icons.ts` and `package.json` script `"brand:icons"`. It rasterises
   `logoTileSvg(size)` with Playwright's Chromium for 16, 24, 32, 48, 64, 128, 256 and 512 px, writes the ICO (exported
   writer + reader for tests), `public/favicon.svg`, `public/favicon-32.png`, `build/icon.ico` and `build/icon.png`,
   and the review sheet `tests/.generated/brand-sheet.png` (every size on the six themes' `--mx-surface` colours from
