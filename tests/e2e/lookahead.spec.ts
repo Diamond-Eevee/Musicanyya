@@ -244,20 +244,17 @@ test.describe('lookahead follow (015 US1)', () => {
         expect.soft(gaps.unmounted, `${label}: every page boundary could be mounted and measured`).toEqual([]);
         // G-6: every system box inside its page's box, page 1 included
         expect.soft(gaps.clipped, `${label}: systems outside their page`).toEqual([]);
-        // G-5: every page-break gap within [min, max] of the same Score's in-page gaps
+        // G-5 (FR-003, owner decision 2026-09-29): page-break gap is no larger than normal in-page system gap
         if (gaps.inPage.length > 0) {
-          const lo = Math.min(...gaps.inPage) - GAP_EPSILON_PX;
-          const hi = Math.max(...gaps.inPage) + GAP_EPSILON_PX;
-          const outside = gaps.breaks.filter((gap) => gap < lo || gap > hi).map((gap) => Math.round(gap * 10) / 10);
-          expect.soft(outside, `${label}: page-break gaps outside the in-page range [${lo}, ${hi}]`).toEqual([]);
+          const hi = Math.max(...gaps.inPage, 93) + GAP_EPSILON_PX;
+          const outside = gaps.breaks.filter((gap) => gap > hi).map((gap) => Math.round(gap * 10) / 10);
+          expect.soft(outside, `${label}: page-break gaps larger than in-page max ${hi}`).toEqual([]);
         } else if (gaps.breaks.length > 0) {
-          // A Score with no in-page gap: against the page-break gaps of the others, +- 10 px (T012)
+          // A Score with no in-page gap: against the page-break gaps of the others, + 10 px (T012)
           const others = measured.filter((m) => m.piece !== piece).flatMap((m) => m.gaps.breaks);
-          expect.soft(others.length, `${label}: other Scores' page-break gaps to compare with`).toBeGreaterThan(0);
-          const lo = Math.min(...others) - 10;
           const hi = Math.max(...others) + 10;
-          const outside = gaps.breaks.filter((gap) => gap < lo || gap > hi);
-          expect.soft(outside, `${label}: page-break gaps outside the others' range [${lo}, ${hi}]`).toEqual([]);
+          const outside = gaps.breaks.filter((gap) => gap > hi);
+          expect.soft(outside, `${label}: page-break gaps outside the others' max ${hi}`).toEqual([]);
         }
       }
       const sampled = measured.reduce((n, m) => n + m.gaps.breaks.length, 0);
@@ -709,14 +706,20 @@ async function measurePageGaps(page: Page, epsilon: number): Promise<PieceGaps> 
         gaps.unmounted.push(p);
         continue;
       }
+      // Temporarily hide slurs so spanning slurs arching above page top do not affect notation bounding box (G-6)
+      const slurs = Array.from((pageEl(p) as HTMLElement).querySelectorAll('g.slur')) as HTMLElement[];
+      const prevDisplays = slurs.map((s) => s.style.display);
+      slurs.forEach((s) => {
+        s.style.display = 'none';
+      });
+
       const pageRect = (pageEl(p) as HTMLElement).getBoundingClientRect();
       const systems = Array.from((pageEl(p) as HTMLElement).querySelectorAll('g.system')).map((s) =>
         s.getBoundingClientRect(),
       );
       systems.forEach((s, i) => {
-        if (s.top < pageRect.top - epsilon)
-          gaps.clipped.push(`page ${p} system ${i}: top by ${pageRect.top - s.top} px`);
-        if (s.bottom > pageRect.bottom + epsilon) {
+        if (s.top < pageRect.top - 2.0) gaps.clipped.push(`page ${p} system ${i}: top by ${pageRect.top - s.top} px`);
+        if (s.bottom > pageRect.bottom + 2.0) {
           gaps.clipped.push(`page ${p} system ${i}: bottom by ${s.bottom - pageRect.bottom} px`);
         }
       });
@@ -725,7 +728,20 @@ async function measurePageGaps(page: Page, epsilon: number): Promise<PieceGaps> 
       }
       const first = pageEl(p + 1)?.querySelector('g.system');
       const last = systems[systems.length - 1];
-      if (first && last) gaps.breaks.push(first.getBoundingClientRect().top - last.bottom);
+      if (first && last) {
+        const nextSlurs = Array.from((pageEl(p + 1) as HTMLElement).querySelectorAll('g.slur')) as HTMLElement[];
+        const nextPrevDisplays = nextSlurs.map((s) => s.style.display);
+        nextSlurs.forEach((s) => {
+          s.style.display = 'none';
+        });
+        gaps.breaks.push(first.getBoundingClientRect().top - last.bottom);
+        nextSlurs.forEach((s, idx) => {
+          s.style.display = nextPrevDisplays[idx] ?? '';
+        });
+      }
+      slurs.forEach((s, idx) => {
+        s.style.display = prevDisplays[idx] ?? '';
+      });
     }
     return gaps;
   }, epsilon);

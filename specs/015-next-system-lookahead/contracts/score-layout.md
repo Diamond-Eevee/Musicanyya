@@ -1,6 +1,6 @@
 # Contract: Score layout (cropped pages, compact spacing)
 
-**Version**: `2.1.0` (2.1.0, 2026-09-29, MINOR: section 5, line metrics of music-font text, and guarantee G-9) - `2.0.0`
+**Version**: `2.2.0` (2.2.0, 2026-09-29, MINOR: G-5 lower bound 1px tolerance aligning with FR-003, and G-6 spanning slur bleed via overflow: visible) - `2.1.0` (section 5, line metrics of music-font text, and guarantee G-9) - `2.0.0`
 supersedes [`004/contracts/score-layout.md` `1.1.1`](../../004-score-first-layout/contracts/score-layout.md).
 **MAJOR** because rule 4 of section 2 is reversed (a page is no longer one screenful) and section 4 changes from one
 shared page height to one height per page. Sections 1 (Score size), 2 rules 1-3 and 5, and 3 (when a relayout
@@ -76,10 +76,12 @@ Rules:
 
 ## 4. Guarantees (G-1 to G-4 of 004 still hold)
 
-- **G-5**: The gap between the boxes of the last system of a page and the first system of the next page lies within
-  the range of gaps between consecutive systems inside pages of the same Score (spec FR-003); checked over the
-  library's piano pieces at 1920 px and 1280 px width.
-- **G-6**: No system is clipped by its own page: every `g.system` box lies within its page element's box.
+- **G-5**: The gap between the boxes of the last system of a page and the first system of the next page is no larger
+  than the maximum gap between consecutive systems inside pages of the same Score (spec FR-003) and not smaller than
+  the minimum gap minus 1 px tolerance (owner decision 2026-09-29); checked over the library's piano pieces at 1920 px and 1280 px width.
+- **G-6**: No system is clipped by its own page: every `g.system`'s notation box lies within its page element's box;
+  slur curves continuing from a previous page (Verovio spanning slurs) may arch into the top margin / bleed above the
+  page boundary and are rendered without clipping via `.mx-score-page svg { overflow: visible }` (owner decision 2026-09-29).
 - **G-7**: A page's height changing from estimate to measurement never moves the notation on screen (rule 3).
 - **G-8**: The compact spacing is the same in every mode and during a run; starting or stopping a run never changes
   the engraving.

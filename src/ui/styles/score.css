@@ -60,6 +60,7 @@ mx-score-view {
   width: 100%;
   height: auto;
   display: block;
+  overflow: visible;
 }
 
 .mx-score-page g.measure {
