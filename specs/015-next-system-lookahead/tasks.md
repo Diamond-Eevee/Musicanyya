@@ -256,7 +256,7 @@ research R-4
   against a direct Verovio render with the worker's options minus that option), while the piano's own staff gap
   shrinks. Run:
   (a) fails (default 12 -> 1080 units)
-- [ ] T025 [P] [US3] [deep] Add `tests/fixtures/musicxml/engraving/grand-staff-between-staves.musicxml` (requested
+- [x] T025 [P] [US3] [deep] Add `tests/fixtures/musicxml/engraving/grand-staff-between-staves.musicxml` (requested
   by the notation review, research R-4): 8 measures, piano grand staff, with dynamics and hairpins placed between the
   staves, a cross-staff beam, ledger-line notes above the bass and below the treble staff, a pedal line and a clef
   change in the bass - authored for this repository (CC0), origin and licence recorded in

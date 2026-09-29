@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import verovio from 'verovio';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { handleMessage } from '../../src/workers/verovio.worker.js';
 
 /**
@@ -247,21 +247,40 @@ describe('Verovio page-unit relation (score-layout.md section 2)', () => {
     bottom: number;
   }
 
+  /**
+   * The staves of every system, in the order Verovio writes them (the first measure's staves first). A staff's
+   * five lines are the `<path>`s that open its `g.staff`, before its first child group; ledger lines are
+   * horizontal paths too, but they sit inside `g.ledgerLines`, so they are not counted as staff lines.
+   */
   function systemStaves(svg: string): StaffBounds[][] {
     const systemSections = svg.split(/<g [^>]*class="system"/).slice(1);
     return systemSections.map((sys) => {
       const staffBlocks = sys.split(/<g [^>]*class="staff"/).slice(1);
       return staffBlocks.map((sBlock) => {
-        const staffLinePaths = [...sBlock.matchAll(/<path d="M\d+ (\d+) L\d+ \1"[^>]*stroke-width="\d+" \/>/g)].map(
-          (m) => Number(m[1]),
-        );
-        const lines = staffLinePaths.length
-          ? staffLinePaths
-          : [...sBlock.matchAll(/<path d="M\d+ (\d+) L\d+ \1"/g)].map((m) => Number(m[1]));
-        const sorted = [...new Set(lines)].sort((a, b) => a - b);
-        return { top: sorted[0]!, bottom: sorted[4] ?? sorted[sorted.length - 1]! };
+        const firstGroup = sBlock.search(/<g[\s>]/);
+        const staffLines = firstGroup === -1 ? sBlock : sBlock.slice(0, firstGroup);
+        const lines = [...staffLines.matchAll(/<path d="M\d+ (\d+) L\d+ \1"/g)].map((m) => Number(m[1]));
+        if (lines.length !== 5) throw new Error(`expected 5 staff lines, found ${lines.length}`);
+        return { top: Math.min(...lines), bottom: Math.max(...lines) };
       });
     });
+  }
+
+  /** The gap (inner units) between the first two staves of every system of every page the worker renders. */
+  async function grandStaffGaps(
+    send: (data: Record<string, unknown>) => Promise<Record<string, unknown>[]>,
+    pageCount: number,
+  ): Promise<number[]> {
+    const gaps: number[] = [];
+    for (let p = 1; p <= pageCount; p++) {
+      const pageMsgs = await send({ type: 'page', page: p });
+      const svg = pageMsgs.find((m) => m.type === 'svg')?.svg;
+      if (typeof svg !== 'string') throw new Error(`no svg message for page ${p}: ${JSON.stringify(pageMsgs)}`);
+      for (const [upper, lower] of systemStaves(svg)) {
+        if (upper && lower) gaps.push(lower.top - upper.bottom);
+      }
+    }
+    return gaps;
   }
 
   describe('worker options (score-layout 2.0.0)', () => {
@@ -342,19 +361,55 @@ describe('Verovio page-unit relation (score-layout.md section 2)', () => {
         options: { pageWidth: 1920, pageHeight: 1000, scale: 100 },
       });
       const pageCount = (loadMsgs.find((m) => m.type === 'laidOut')?.pageCount as number) ?? 1;
-      let smallestGap = Number.POSITIVE_INFINITY;
-      for (let p = 1; p <= pageCount; p++) {
-        const pageMsgs = await send({ type: 'page', page: p });
-        const svg = pageMsgs.find((m) => m.type === 'svg')?.svg as string;
-        const systems = systemStaves(svg);
-        for (const sys of systems) {
-          if (sys.length >= 2) {
-            const gap = sys[1]!.top - sys[0]!.bottom;
-            if (gap < smallestGap) smallestGap = gap;
-          }
+      const gaps = await grandStaffGaps(send, pageCount);
+      expect(Math.abs(Math.min(...gaps) - 720)).toBeLessThanOrEqual(1);
+    });
+
+    /**
+     * T025: the Scores the compact spacing must engrave without a Verovio error. Verovio reports on the console
+     * (`[Error] ...`, `[Warning] ...`); a warning counts too, because Verovio drops content it cannot place (a
+     * pedal line, a hairpin) with a warning only. In each, the grand-staff gap never falls below the minimum.
+     */
+    it.each(['engraving/fur-elise-bare.musicxml', 'engraving/grand-staff-between-staves.musicxml'])(
+      '(a) %s renders through the worker without a Verovio error or warning',
+      async (fixture) => {
+        const xml = fs.readFileSync(path.join(FIXTURES, fixture), 'utf8');
+        const warn = vi.spyOn(console, 'warn');
+        const error = vi.spyOn(console, 'error');
+        try {
+          const loadMsgs = await send({
+            type: 'load',
+            renderXml: xml,
+            options: { pageWidth: 1920, pageHeight: 1000, scale: 100 },
+          });
+          expect(loadMsgs.map((m) => m.type)).toEqual(['laidOut']);
+          const pageCount = loadMsgs[0]?.pageCount;
+          if (typeof pageCount !== 'number') throw new Error(`no page count: ${JSON.stringify(loadMsgs)}`);
+          const gaps = await grandStaffGaps(send, pageCount);
+          expect(gaps.length).toBeGreaterThan(0);
+          expect(Math.min(...gaps)).toBeGreaterThanOrEqual(720 - 1);
+          const verovioLines = [...warn.mock.calls, ...error.mock.calls]
+            .map((args) => args.join(' '))
+            .filter((line) => /\[(Error|Warning)\]/.test(line));
+          expect(verovioLines).toEqual([]);
+        } finally {
+          warn.mockRestore();
+          error.mockRestore();
         }
-      }
-      expect(Math.abs(smallestGap - 720)).toBeLessThanOrEqual(1);
+      },
+    );
+
+    it('(a) grand-staff-between-staves.musicxml: its content pushes the staves further apart than the minimum', async () => {
+      const xml = fs.readFileSync(path.join(FIXTURES, 'engraving/grand-staff-between-staves.musicxml'), 'utf8');
+      const loadMsgs = await send({
+        type: 'load',
+        renderXml: xml,
+        options: { pageWidth: 1920, pageHeight: 1000, scale: 100 },
+      });
+      const pageCount = loadMsgs[0]?.pageCount;
+      if (typeof pageCount !== 'number') throw new Error(`no page count: ${JSON.stringify(loadMsgs)}`);
+      // Every system carries a cross-staff beam, a hairpin or ledger lines of both hands between the staves.
+      for (const gap of await grandStaffGaps(send, pageCount)) expect(gap).toBeGreaterThan(720 + INNER_INTERLINE);
     });
 
     it('(b) in voice-and-piano.musicxml the gap between voice and piano treble is unchanged with spacingBraceGroup while piano gap shrinks', async () => {
