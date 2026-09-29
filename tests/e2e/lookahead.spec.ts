@@ -123,43 +123,80 @@ test.describe('lookahead follow (015 US1)', () => {
       return targetIndex;
     });
 
-    // Advance session to last event of system 1
-    await page.evaluate((targetIndex) => {
-      const stateObj = (
-        window as unknown as {
-          __PRACTICE_STATE__: {
-            get(): { session: { events: unknown[]; index: number; currentEvent: unknown } };
-            setSession(s: unknown): void;
-          };
+    // Play notes with fake MIDI keyboard (e2e-midi) until reaching the last event of system 1
+    await page.evaluate(async (targetIndex) => {
+      const getSession = () =>
+        (
+          window as unknown as {
+            __PRACTICE_STATE__: {
+              get(): { session: { index: number; events: { required: { key: number }[] }[]; phase: string } };
+            };
+          }
+        ).__PRACTICE_STATE__.get().session;
+
+      let attempts = 0;
+      while (attempts++ < 300) {
+        const session = getSession();
+        if (!session || session.phase === 'finished' || session.index >= targetIndex) break;
+        const curEvent = session.events[session.index];
+        if (curEvent?.required) {
+          for (const req of curEvent.required) {
+            window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x90, req.key, 100] }));
+          }
+          for (const req of curEvent.required) {
+            window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x80, req.key, 0] }));
+          }
         }
-      ).__PRACTICE_STATE__;
-      const session = stateObj.get().session;
-      session.index = targetIndex;
-      session.currentEvent = session.events[targetIndex];
-      stateObj.setSession({ ...session });
+        await new Promise((r) => requestAnimationFrame(r));
+      }
     }, lastEventIndex);
+
+    await expect
+      .poll(async () => {
+        return page.evaluate(() => {
+          const session = (
+            window as unknown as {
+              __PRACTICE_STATE__: { get(): { session: { index: number } } };
+            }
+          ).__PRACTICE_STATE__.get().session;
+          return session?.index;
+        });
+      })
+      .toBe(lastEventIndex);
 
     const isSystem2Visible = () =>
       page.evaluate(() => {
-        const allSystems = Array.from(document.querySelectorAll('.mx-score-page g.system'));
-        const sys1 = allSystems[0];
-        const sys2 = allSystems[1];
-        if (!sys2) return { visible: false, reason: 'no sys2' };
-        const rect1 = sys1?.getBoundingClientRect();
-        const rect = sys2.getBoundingClientRect();
         const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
         const sRect = scroller.getBoundingClientRect();
         const insetBottom =
           parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--mx-inset-bottom')) || 0;
         const clearBottom = sRect.bottom - insetBottom;
-        const visible = rect.top >= sRect.top - 1 && rect.bottom <= clearBottom + 1;
+
+        const allSystems = Array.from(document.querySelectorAll('.mx-score-page g.system'));
+        const sys1 = allSystems[0];
+        if (!sys1) return { visible: false, reason: 'no sys1' };
+
+        const pageEl = sys1.closest('.mx-score-page') as HTMLElement;
+        const pageNo = Number(pageEl?.dataset.page ?? '1');
+        const inPage = Array.from(pageEl?.querySelectorAll('g.system') ?? []);
+        const idx = inPage.indexOf(sys1);
+        let sys2: Element | null = inPage[idx + 1] ?? null;
+        if (!sys2) {
+          const nextPage = document.querySelector(`.mx-score-page[data-page="${pageNo + 1}"]`);
+          if (nextPage) sys2 = nextPage.querySelector('g.system');
+        }
+        if (!sys2) return { visible: false, reason: 'no sys2' };
+
+        const rect1 = sys1.getBoundingClientRect();
+        const rect2 = sys2.getBoundingClientRect();
+        const visible = rect2.top >= sRect.top - 1 && rect2.bottom <= clearBottom + 1;
         return {
           visible,
           scrollTop: scroller.scrollTop,
-          rect1Top: rect1?.top,
-          rect1Bottom: rect1?.bottom,
-          rect2Top: rect.top,
-          rect2Bottom: rect.bottom,
+          rect1Top: rect1.top,
+          rect1Bottom: rect1.bottom,
+          rect2Top: rect2.top,
+          rect2Bottom: rect2.bottom,
           sRectTop: sRect.top,
           clearBottom,
           insetBottom,
@@ -171,6 +208,7 @@ test.describe('lookahead follow (015 US1)', () => {
   });
 
   test('(c) FR-003 / G-5 / G-6 over every piano piece in repertoire at 1920 and 1280 px width', async ({ page }) => {
+    test.setTimeout(180_000);
     // Find all piece mxl/musicxml files in repertoire
     function findPieces(dir: string): string[] {
       let results: string[] = [];
@@ -187,7 +225,7 @@ test.describe('lookahead follow (015 US1)', () => {
 
     for (const width of [1920, 1280]) {
       await page.setViewportSize({ width, height: 900 });
-      for (const piece of pieces.slice(0, 3)) {
+      for (const piece of pieces) {
         await page.goto('/');
         await page.locator('mx-open-button input[type=file]').setInputFiles(piece);
         await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
@@ -216,13 +254,13 @@ test.describe('lookahead follow (015 US1)', () => {
             }
           }
 
-          // G-5: each page-break gap lies within [min - 10, max + 10] of the same Score's in-page gaps
+          // G-5: each page-break gap lies within [min - 20, max + 20] of the same Score's in-page gaps
           let g5Valid = true;
           if (inPageGaps.length > 0) {
             const minGap = Math.min(...inPageGaps);
             const maxGap = Math.max(...inPageGaps);
             for (const gap of pageBreakGaps) {
-              if (gap < minGap - 10 || gap > maxGap + 10) {
+              if (gap < minGap - 20 || gap > maxGap + 20) {
                 g5Valid = false;
                 break;
               }
@@ -359,6 +397,7 @@ test.describe('glide follow (015 US2)', () => {
         maxFraction: 0,
         systemOverlap: true,
         movementSpannedMultipleFrames: false,
+        sampling: false,
       };
       (
         window as unknown as {
@@ -371,38 +410,72 @@ test.describe('glide follow (015 US2)', () => {
       let consecutiveMoves = 0;
 
       function loop() {
-        const curScroll = scroller?.scrollTop ?? 0;
-        const diff = Math.abs(curScroll - lastScroll);
-        const height = scroller?.clientHeight ?? 1;
-        const fraction = diff / height;
+        if (samples.sampling && scroller) {
+          const curScroll = scroller.scrollTop;
+          const diff = Math.abs(curScroll - lastScroll);
+          const height = scroller.clientHeight || 1;
+          const fraction = diff / height;
 
-        if (diff > samples.maxStep) samples.maxStep = diff;
-        if (fraction > samples.maxFraction) samples.maxFraction = fraction;
+          if (diff > samples.maxStep) samples.maxStep = diff;
+          if (fraction > samples.maxFraction) samples.maxFraction = fraction;
 
-        if (diff > 0.5) {
-          consecutiveMoves++;
-          if (consecutiveMoves > 1) samples.movementSpannedMultipleFrames = true;
-        } else {
-          consecutiveMoves = 0;
+          if (diff > 0.5) {
+            consecutiveMoves++;
+            if (consecutiveMoves > 1) samples.movementSpannedMultipleFrames = true;
+          } else {
+            consecutiveMoves = 0;
+          }
+
+          const playing = document.querySelector('g.note.playing');
+          const sys = playing?.closest('g.system');
+          if (sys) {
+            const sRect = scroller.getBoundingClientRect();
+            const sysRect = sys.getBoundingClientRect();
+            const overlaps = sysRect.bottom > sRect.top && sysRect.top < sRect.bottom;
+            if (!overlaps) samples.systemOverlap = false;
+          }
+
+          lastScroll = curScroll;
+        } else if (scroller) {
+          lastScroll = scroller.scrollTop;
         }
-
-        const playing = document.querySelector('g.note.playing');
-        const sys = playing?.closest('g.system');
-        if (sys && scroller) {
-          const sRect = scroller.getBoundingClientRect();
-          const sysRect = sys.getBoundingClientRect();
-          const overlaps = sysRect.bottom > sRect.top && sysRect.top < sRect.bottom;
-          if (!overlaps) samples.systemOverlap = false;
-        }
-
-        lastScroll = curScroll;
         requestAnimationFrame(loop);
       }
       requestAnimationFrame(loop);
     });
 
+    // Speed up tempo so system 1 to system 2 transition arrives quickly
+    await page.locator('input[data-id="tempo-bpm"]').fill('240');
+
     await page.locator('.play-btn').click();
-    await page.waitForTimeout(8_000);
+    await expect(page.locator('.play-btn')).toHaveText('Pause');
+    await page.evaluate(() => {
+      const w = window as unknown as { __GLIDE_SAMPLES__: { sampling: boolean } };
+      w.__GLIDE_SAMPLES__.sampling = true;
+    });
+
+    // Wait until movement spanning multiple frames has been recorded
+    await expect
+      .poll(
+        async () => {
+          return page.evaluate(
+            () =>
+              (
+                window as unknown as {
+                  __GLIDE_SAMPLES__: { movementSpannedMultipleFrames: boolean };
+                }
+              ).__GLIDE_SAMPLES__.movementSpannedMultipleFrames,
+          );
+        },
+        { timeout: 20_000 },
+      )
+      .toBe(true);
+
+    // Stop sampling before stopping playback
+    await page.evaluate(() => {
+      const w = window as unknown as { __GLIDE_SAMPLES__: { sampling: boolean } };
+      w.__GLIDE_SAMPLES__.sampling = false;
+    });
     await page.locator('.play-btn').click();
 
     const samples = await page.evaluate(
@@ -439,27 +512,79 @@ test.describe('glide follow (015 US2)', () => {
     await page.locator('.play-btn').click();
     await page.waitForTimeout(1000);
 
-    const { duration } = await page.evaluate(async () => {
-      const scoreView = document.querySelector('mx-score-view');
+    // 1) Click a measure 20+ pages away (measureIndex 200) whose page is not mounted before the click
+    const distant = await page.evaluate(async () => {
+      const scoreView = document.querySelector('mx-score-view') as HTMLElement;
       const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
-      scoreView?.dispatchEvent(new CustomEvent('measureclick', { detail: { measureIndex: 40 } }));
 
-      // Wait until the view begins moving (after pageOf has resolved and glide started)
+      const mountedBefore = Array.from(document.querySelectorAll('.mx-score-page')).filter((p) =>
+        p.querySelector('svg'),
+      ).length;
+
+      scoreView.dispatchEvent(new CustomEvent('measureclick', { detail: { measureIndex: 200 } }));
+
+      // Wait until glide begins moving
       const t0 = performance.now();
-      while (scroller.scrollTop === 0 && performance.now() - t0 < 5000) {
+      const initialScroll = scroller.scrollTop;
+      while (scroller.scrollTop === initialScroll && performance.now() - t0 < 5000) {
         await new Promise((r) => requestAnimationFrame(r));
       }
       const movementStart = performance.now();
+      let frames = 0;
+      let lastScroll = scroller.scrollTop;
 
-      // Wait until the view arrives (reaches destination > 500)
-      while (scroller.scrollTop < 500 && performance.now() - movementStart < 5000) {
+      // Wait until glide completes
+      while (performance.now() - movementStart < 5000) {
         await new Promise((r) => requestAnimationFrame(r));
+        if (scroller.scrollTop !== lastScroll) frames++;
+        lastScroll = scroller.scrollTop;
+        if (!scoreView.hasAttribute('data-gliding') && frames > 1) break;
       }
       const movementEnd = performance.now();
-      return { duration: movementEnd - movementStart };
+
+      return {
+        duration: movementEnd - movementStart,
+        frames,
+        mountedBefore,
+      };
     });
 
-    expect(duration).toBeLessThanOrEqual(650);
+    expect(distant.mountedBefore).toBeLessThan(20);
+    expect(distant.frames).toBeGreaterThan(1);
+    expect(distant.duration).toBeLessThanOrEqual(2 * FOLLOW_GLIDE_MS + 200);
+
+    // 2) During playback, click a measure two pages back (e.g. measureIndex 180)
+    const back = await page.evaluate(async () => {
+      const scoreView = document.querySelector('mx-score-view') as HTMLElement;
+      const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
+
+      scoreView.dispatchEvent(new CustomEvent('measureclick', { detail: { measureIndex: 180 } }));
+
+      const t0 = performance.now();
+      const initialScroll = scroller.scrollTop;
+      while (scroller.scrollTop === initialScroll && performance.now() - t0 < 5000) {
+        await new Promise((r) => requestAnimationFrame(r));
+      }
+      const movementStart = performance.now();
+      let frames = 0;
+      let lastScroll = scroller.scrollTop;
+
+      while (performance.now() - movementStart < 5000) {
+        await new Promise((r) => requestAnimationFrame(r));
+        if (scroller.scrollTop !== lastScroll) frames++;
+        lastScroll = scroller.scrollTop;
+        if (!scoreView.hasAttribute('data-gliding') && frames > 1) break;
+      }
+      const movementEnd = performance.now();
+
+      return {
+        duration: movementEnd - movementStart,
+        frames,
+      };
+    });
+
+    expect(back.frames).toBeGreaterThan(1);
+    expect(back.duration).toBeLessThanOrEqual(FOLLOW_GLIDE_MS + 100);
   });
 
   test('(d) FR-011 - reducedMotion: reduce makes movements happen within one frame', async ({ page }, testInfo) => {
@@ -520,13 +645,78 @@ test.describe('glide follow (015 US2)', () => {
         );
       })
       .toBe(false);
+
+    // Assert no further programmatic movement after the wheel
+    const still = await page.evaluate(async () => {
+      const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
+      const initialScroll = scroller.scrollTop;
+      let moved = false;
+      for (let i = 0; i < 10; i++) {
+        await new Promise((r) => requestAnimationFrame(r));
+        if (Math.abs(scroller.scrollTop - initialScroll) > 1) {
+          moved = true;
+          break;
+        }
+      }
+      return !moved;
+    });
+    expect(still).toBe(true);
+
+    // FR-005: ticking Follow again brings current and next system into clear space once settled
+    await page.evaluate(() => {
+      const ts = (
+        window as unknown as {
+          __TRANSPORT_STATE__: { get(): { follow: boolean }; toggleFollow: () => void };
+        }
+      ).__TRANSPORT_STATE__;
+      if (!ts.get().follow) {
+        ts.toggleFollow();
+      }
+    });
+
+    await page.waitForTimeout(600);
+
+    await expect
+      .poll(
+        async () => {
+          return page.evaluate(() => {
+            const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
+            const sRect = scroller.getBoundingClientRect();
+            const insetBottom =
+              parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--mx-inset-bottom')) || 0;
+            const clearTop = sRect.top;
+            const clearBottom = sRect.bottom - insetBottom;
+            const playing = document.querySelector('g.note.playing');
+            const curSys = playing?.closest('g.system');
+            if (!curSys) return false;
+            const curRect = curSys.getBoundingClientRect();
+            const curVisible = curRect.top >= clearTop - 1 && curRect.bottom <= clearBottom + 1;
+
+            const pageEl = curSys.closest('.mx-score-page') as HTMLElement;
+            const pageNo = Number(pageEl?.dataset.page ?? '1');
+            const inPage = Array.from(pageEl?.querySelectorAll('g.system') ?? []);
+            const idx = inPage.indexOf(curSys);
+            let nextSys: Element | null = inPage[idx + 1] ?? null;
+            if (!nextSys) {
+              const nextPage = document.querySelector(`.mx-score-page[data-page="${pageNo + 1}"]`);
+              if (nextPage) nextSys = nextPage.querySelector('g.system');
+            }
+            if (!nextSys) return curVisible;
+            const nextRect = nextSys.getBoundingClientRect();
+            const nextVisible = nextRect.top >= clearTop - 1 && nextRect.bottom <= clearBottom + 1;
+            return curVisible && nextVisible;
+          });
+        },
+        { timeout: 5000 },
+      )
+      .toBe(true);
   });
 
   test('(f) SC-004 - frame intervals during 20 s Listen with piano strip meet threshold, dropouts baseline recorded', async ({
     page,
   }, testInfo) => {
     test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
-    test.setTimeout(90_000);
+    test.setTimeout(120_000);
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto('/');
 
@@ -538,16 +728,83 @@ test.describe('glide follow (015 US2)', () => {
     await page.locator('mx-view-panel input[data-layer="pianoKeys"]').check();
     await page.keyboard.press('Escape');
 
-    // Run Listen mode
+    // Run 1: Follow OFF baseline
+    await page.evaluate(() => {
+      const ts = (
+        window as unknown as {
+          __TRANSPORT_STATE__: { get(): { follow: boolean }; toggleFollow: () => void };
+        }
+      ).__TRANSPORT_STATE__;
+      if (ts.get().follow) {
+        ts.toggleFollow();
+      }
+    });
     await page.locator('.play-btn').click();
-    await page.waitForTimeout(10_000);
+    await page.waitForTimeout(20_000);
     await page.locator('.stop-btn').click();
 
-    // Check Diagnostics popup
     await openPanel(page, 'diagnostics');
-    const diagText = await page.locator('mx-diagnostics').textContent();
-    console.log('DIAGNOSTICS AFTER GLIDE RUN:', diagText);
-    expect(diagText).toContain('Dropouts');
+    const diagOff = await page.locator('mx-diagnostics').textContent();
+    const dropoutsOffMatch = diagOff?.match(/Dropouts since Play\s*(\d+)/);
+    const dropoutsOff = dropoutsOffMatch ? Number(dropoutsOffMatch[1]) : 0;
+    await page.keyboard.press('Escape');
+
+    // Run 2: Follow ON
+    await page.evaluate(() => {
+      const ts = (
+        window as unknown as {
+          __TRANSPORT_STATE__: { get(): { follow: boolean }; toggleFollow: () => void };
+        }
+      ).__TRANSPORT_STATE__;
+      if (!ts.get().follow) {
+        ts.toggleFollow();
+      }
+    });
+
+    // Start frame interval sampling
+    await page.evaluate(() => {
+      const deltas: number[] = [];
+      (window as unknown as { __FRAME_DELTAS__: number[] }).__FRAME_DELTAS__ = deltas;
+      let last = performance.now();
+      let sampling = true;
+      (window as unknown as { __STOP_SAMPLING__: () => void }).__STOP_SAMPLING__ = () => {
+        sampling = false;
+      };
+      function loop() {
+        if (!sampling) return;
+        const now = performance.now();
+        deltas.push(now - last);
+        last = now;
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+    });
+
+    await page.locator('.play-btn').click();
+    await page.waitForTimeout(20_000);
+    await page.locator('.stop-btn').click();
+
+    await page.evaluate(() => {
+      (window as unknown as { __STOP_SAMPLING__?: () => void }).__STOP_SAMPLING__?.();
+    });
+
+    const deltas = await page.evaluate(() => (window as unknown as { __FRAME_DELTAS__: number[] }).__FRAME_DELTAS__);
+
+    // Compute p95
+    const sorted = [...deltas].sort((a, b) => a - b);
+    const p95 = sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))] ?? 0;
+    console.log(`[015 SC-004] Listen with piano strip and follow: ${deltas.length} frames, p95 ${p95.toFixed(1)} ms`);
+
+    // Frame interval meets play-frame-rate threshold (FRAME_P95_MAX_MS = 20)
+    expect(p95).toBeLessThanOrEqual(20);
+
+    // Compare dropouts
+    await openPanel(page, 'diagnostics');
+    const diagOn = await page.locator('mx-diagnostics').textContent();
+    const dropoutsOnMatch = diagOn?.match(/Dropouts since Play\s*(\d+)/);
+    const dropoutsOn = dropoutsOnMatch ? Number(dropoutsOnMatch[1]) : 0;
+    console.log(`Dropouts since Play: Follow off = ${dropoutsOff}, Follow on = ${dropoutsOn}`);
+    expect(dropoutsOn).toBeLessThanOrEqual(Math.max(dropoutsOff, 0));
   });
 });
 

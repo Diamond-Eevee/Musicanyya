@@ -300,7 +300,7 @@ research R-4
   voice + piano Score; the agent checks collisions and crowding against printed-edition norms; findings summarised in
   the log. A collision found is a stop-and-ask (value change needs the owner), not a silent tweak
 
-- [~] T031 [US3] Checkpoint: see below
+- [x] T031 [US3] Checkpoint: see below
 
 **Checkpoint**: US3 Independent Test verified (T026 output in the log), US1 and US2 still green, full gate, log entry,
 commit.
@@ -317,14 +317,14 @@ commit.
 - [x] T033 [P] [light] Fold any contract change made during implementation into `contracts/score-layout.md` /
   `contracts/follow-view.md` with a version bump (MINOR additive, MAJOR breaking); if none, note "contracts unchanged"
   in the log
-- [ ] T034 Run the manual verification of `quickstart.md` (US1-US3 sections that do not need the owner; same
+- [x] T034 Run the manual verification of `quickstart.md` (US1-US3 sections that do not need the owner; same
   `pnpm screenshot` precondition as T030): look at every screenshot, record what was seen in the log (AGENTS.md: never report a manual check without looking at the picture)
-- [ ] T035 Constitution review of the branch diff with the `constitution-auditor` agent; findings summarised in the log;
+- [x] T035 Constitution review of the branch diff with the `constitution-auditor` agent; findings summarised in the log;
   every finding fixed or raised with the owner
 - [ ] T036 Owner checks (block merge only): the hand test of `quickstart.md` "Owner hand test" (SC-006) and the
   owner's visual check of the compact spacing on the library's piano pieces (SC-008); record the owner's verdict in
   the log
-- [ ] T038 [P] Bring the e2e checks ticked in T012/T019 up to their task text (owner decision 2026-09-29; gaps listed
+- [x] T038 [P] Bring the e2e checks ticked in T012/T019 up to their task text (owner decision 2026-09-29; gaps listed
   in the implementation log, 09:30 entry), in `tests/e2e/lookahead.spec.ts`: T012 (b) plays the notes of system 1 with
   the fake MIDI keyboard (`e2e-midi`) instead of setting the session index, and checks with the page-aware next system;
   T012 (c) covers every piano piece of `public/library/repertoire/**`, not the first three files; T019 (c) adds "a
@@ -334,7 +334,7 @@ commit.
   frame intervals against `tests/e2e/play-frame-rate.spec.ts`'s threshold and compares "Dropouts since Play" with a
   Follow-off run; T019 (b) samples only while a run plays (it failed under load in this container, 09:30 entry). Each
   must pass at `--workers=2` and alone
-- [ ] T037 Final gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, each summary line in the log;
+- [x] T037 Final gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, each summary line in the log;
   confirm SC-005 by naming the unchanged golden suites (`tests/core/grade/golden.test.ts`,
   `tests/core/practice/replay.test.ts`, `tests/core/grade/marks.test.ts`) and that no snapshot file changed on the branch;
   every task ticked with evidence (AGENTS.md section 7: ready to merge only then, merged only when the owner asks)

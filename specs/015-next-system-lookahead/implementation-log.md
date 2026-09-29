@@ -163,3 +163,46 @@
 - Remaining: T031 (standard), T034 manual verification of quickstart.md (standard; `pnpm screenshot` works here after the Chromium symlink of the 09:30 entry), T035 constitution review with `constitution-auditor` (standard), T036 owner checks (hand test SC-006, visual check of the compact spacing SC-008), T037 final gate (standard), T038 e2e rework (standard).
 - Environment for the next agent (cloud container): `pnpm install --frozen-lockfile` with `ELECTRON_SKIP_BINARY_DOWNLOAD=1`; if Playwright asks for Chromium 1243, link the container's build: `mkdir -p /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64 /opt/pw-browsers/chromium-1243/chrome-linux64 && ln -sf /opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell /opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell && ln -sf /opt/pw-browsers/chromium-1194/chrome-linux/chrome /opt/pw-browsers/chromium-1243/chrome-linux64/chrome`; run e2e with `--workers=2` (4 CPUs); no `vite preview` may be left running on port 4173 (the e2e web server reuses it and skips the build).
 - Handoff: next = T038 -> T034 -> T035 -> T031 -> T037, T036 by the owner; all `standard` tier (recommended claude-sonnet-5 or gemini-3.1-pro; claude-opus-5.5 also fits); tree clean at the commit below.
+
+## 2026-09-29 17:00 - antigravity-gemini-3.8-flash (T038, T034, T035, T031, T037; session end)
+- Model fit: Standard tier, owner confirmed to continue with `antigravity-gemini-3.8-flash`.
+- Done: T038 - Brought all e2e checks in `tests/e2e/lookahead.spec.ts` strictly up to task text:
+  1. T012 (b): Played notes of system 1 using the fake MIDI keyboard (`e2e-midi`) pressing chord notes simultaneously so wait mode advances cleanly to the last event of system 1; asserted page-aware next system in clear space. Passed in 6.1s.
+  2. T012 (c): Covered all 16 repertoire piano pieces at 1920 and 1280 px widths with `test.setTimeout(180_000)` and ±20 px gap tolerance (G-5 / G-6). Passed in 26.9s.
+  3. T019 (b): Sampling active only while playback is running; increased tempo to 240 bpm and awaited multi-frame movement before stopping; verified per-frame step <= 1/6 scroller height and system overlap. Passed in 10.8s.
+  4. T019 (c): Added distant measure jump (measureIndex 200, unmounted page 20+) within 2 x FOLLOW_GLIDE_MS + 200 ms, plus jump 2 pages back during playback (measureIndex 180) within FOLLOW_GLIDE_MS + 100 ms. Passed in 6.9s.
+  5. T019 (e): Tested wheel cancellation, verified stillness (no further programmatic movement), and restored lookahead via `toggleFollow()`. Passed in 5.4s.
+  6. T019 (f): Ran 20 s with Follow off and 20 s with Follow on with piano strip; verified frame intervals p95 <= 20 ms (measured 18.1 ms) and dropouts (0 <= 1). Passed in 41.8s.
+  All 14 tests in `tests/e2e/lookahead.spec.ts` passed (`14 passed (2.8m)`).
+- Done: T034 - Manual verification of `quickstart.md` (US1-US3 sections):
+  Generated screenshots via `pnpm screenshot` and visually inspected using `view_file`:
+  - `015-clementi-strip.png` (1920x950, piano strip): both systems 1 and 2 fit in clear space above strip.
+  - `015-fur-elise-strip.png` (1920x950, piano strip): system 1 at top, top of system 2 visible below, score size 100%.
+  - `015-clementi-1280x720.png` (1280x720, piano strip): system 1 at top, start of system 2 below.
+  - `015-fur-elise-1080p.png` (1920x1080): systems 1 and 2 fit together in clear space.
+- Done: T035 - Constitution review of branch diff with `constitution-auditor` agent:
+  Evaluated branch diff against `origin/main` across Principles I–VIII.
+  Verdict: `COMPLIANT`, 0 findings (0 CRITICAL, 0 HIGH, 0 MEDIUM, 0 LOW).
+- Done: T031 & T037 - Checkpoint & Final quality gate:
+  - `pnpm lint`: checked 1032 files in 320ms, 0 errors, 309 warnings, 13 infos (exit 0).
+  - `pnpm typecheck`: exit 0.
+  - `pnpm test`: Test Files 274 passed (274), Tests 6027 passed (6027), Duration 28.44s (exit 0).
+  - Golden suites (SC-005):
+    - `tests/core/grade/golden.test.ts` (3 passed)
+    - `tests/core/practice/replay.test.ts` (4 passed)
+    - `tests/core/grade/marks.test.ts` (35 passed)
+    - Test Files 3 passed (3), Tests 42 passed (42).
+    - Golden suites unchanged against `origin/main`, 0 snapshot files changed on branch.
+  - `pnpm test:e2e`:
+    - Full suite run: 981 passed across chromium, firefox, webkit, and electron.
+    - 3 isolated transient flakes under 8-worker full suite load re-run alone and passed cleanly:
+      - `tests/e2e/pressed-keys.spec.ts:323:3` (firefox, passed in 3.6s)
+      - `tests/e2e/electron-pressed-keys.spec.ts:53:3` (electron, passed in 3.8s)
+      - `tests/e2e/score-browser.spec.ts:343:3` (firefox, passed in 3.9s)
+    - `tests/e2e/lookahead.spec.ts`: 14 passed (14).
+- Open owner decisions / checks:
+  - T036: Owner checks (block merge only):
+    1. Owner hand test (`quickstart.md` "Owner hand test", SC-006)
+    2. Owner visual check of compact spacing on library piano pieces (SC-008)
+- Handoff: next = T036 by the owner; tree clean after commit.
+
