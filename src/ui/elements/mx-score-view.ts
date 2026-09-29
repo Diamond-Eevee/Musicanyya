@@ -227,9 +227,6 @@ export class MxScoreView extends HTMLElement {
     });
     this.unsubscribeInset = insetState.subscribe((inset) => this.applyInset(inset.bottom));
     this.applyInset(insetState.get().bottom);
-    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
-      this.reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    }
     this.rafHandle = requestAnimationFrame(this.tick);
   }
 
@@ -568,14 +565,8 @@ export class MxScoreView extends HTMLElement {
     }
     if (pState.mode === 'practice') {
       const session = pState.session;
-      const currentEvent = session
-        ? ((session as { currentEvent?: ExpectedEvent }).currentEvent ?? session.events[session.index])
-        : null;
-      const following =
-        Boolean(currentEvent) &&
-        session?.phase !== 'finished' &&
-        (session as { status?: string })?.status !== 'completed' &&
-        transportState.get().follow;
+      const currentEvent = session?.events[session.index];
+      const following = currentEvent !== undefined && session?.phase !== 'finished' && transportState.get().follow;
 
       if (following && currentEvent) {
         this.followRun(this.measureIds[currentEvent.measureIndex]);
@@ -624,7 +615,9 @@ export class MxScoreView extends HTMLElement {
       phase === 'stopped' || phase === 'loading' ? new Set<string>() : notesAtTick(timeline, tick);
     this.setHighlights(soundingNoteIds);
 
-    const pass = passAtTick(timeline, tick);
+    // Before the first tick (a run's first frames: the audible position trails the start by the output latency) the
+    // cursor is at the start; `passAtTick` gives the Score's last pass for every tick outside it (golden-pinned)
+    const pass = tick < 0 ? (timeline.passes[0] ?? null) : passAtTick(timeline, tick);
     runPositionState.set(pass ? pass.measureIndex : null);
     tempoPositionState.set(displaySegmentIndexAt(timeline.tempo, tick));
     const measureId = pass ? this.measureIds[pass.measureIndex] : undefined;
@@ -1537,15 +1530,20 @@ export class MxScoreView extends HTMLElement {
 
     if (target !== null) {
       const now = performance.now();
-      const reducedMotion =
-        (typeof window !== 'undefined' && typeof window.matchMedia === 'function'
-          ? window.matchMedia('(prefers-reduced-motion: reduce)')
-          : this.reducedMotionQuery
-        )?.matches ?? false;
+      const reducedMotion = this.prefersReducedMotion();
       this.setActiveGlide(glideTo(this.scrollEl.scrollTop, target, now, this.activeGlide, reducedMotion));
     }
     this.advanceGlide();
     this.markFollowSettled(target === null && this.activeGlide === null);
+  }
+
+  /** Whether the OS asks for reduced motion, read when a glide starts from one MediaQueryList (it follows a change of
+   *  the setting), made the first time it is needed - never a `matchMedia` call per frame. */
+  private prefersReducedMotion(): boolean {
+    if (this.reducedMotionQuery === null && typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      this.reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    }
+    return this.reducedMotionQuery?.matches ?? false;
   }
 
   private setActiveGlide(glide: Glide | null): void {
@@ -1609,11 +1607,7 @@ export class MxScoreView extends HTMLElement {
         Math.abs(layout ? layout.top - this.scrollEl.scrollTop : 0) < FOLLOW_TARGET_EPSILON_PX;
       if (layout && !there) {
         const now = performance.now();
-        const reducedMotion =
-          (typeof window !== 'undefined' && typeof window.matchMedia === 'function'
-            ? window.matchMedia('(prefers-reduced-motion: reduce)')
-            : this.reducedMotionQuery
-          )?.matches ?? false;
+        const reducedMotion = this.prefersReducedMotion();
         this.setActiveGlide(glideTo(this.scrollEl.scrollTop, layout.top, now, this.activeGlide, reducedMotion));
         this.advanceGlide();
       }

@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
 import { openLibraryItem } from './helpers/browser.js';
-import { installLookaheadTracker } from './helpers/lookahead.js';
+import { type FitObservation, type FitRun, listenAndObserve, pageChanges } from './helpers/lookahead.js';
 import { openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -21,6 +21,17 @@ const FOLLOW_GLIDE_MS = configNumber('FOLLOW_GLIDE_MS');
 const LOOKAHEAD_TOP_GAP_PX = configNumber('LOOKAHEAD_TOP_GAP_PX');
 const SCORE_SCALE_DEFAULT = configNumber('SCORE_SCALE_DEFAULT');
 const SCORE_SCALE_STEP = configNumber('SCORE_SCALE_STEP');
+/** SC-004: the frame-interval threshold of `play-frame-rate.spec.ts` (a test file cannot import another one's tests). */
+const FRAME_P95_MAX_MS = (() => {
+  const source = fs.readFileSync(path.resolve(__dirname, 'play-frame-rate.spec.ts'), 'utf8');
+  const match = source.match(/const FRAME_P95_MAX_MS = (\d+(?:\.\d+)?);/);
+  if (!match) throw new Error('FRAME_P95_MAX_MS not found in tests/e2e/play-frame-rate.spec.ts');
+  return Number(match[1]);
+})();
+/** US1 (a): Für Elise at this tempo keeps every system on screen longer than a glide plus 700 ms of stillness. */
+const US1_TEMPO_BPM = 120; // written 72; its shortest system (before a repeat) then lasts about 1.7 s
+/** G-5 / G-6: boxes are compared to a sub-pixel tolerance (layout rounding), never more. */
+const GAP_EPSILON_PX = 0.5;
 
 test.describe('lookahead follow (015 US1)', () => {
   test('(a) US1 Independent Test: Für Elise complete, 1920x1080, strip hidden, Listen through 2 page changes', async ({
@@ -36,43 +47,23 @@ test.describe('lookahead follow (015 US1)', () => {
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
     await expect(page.locator('.play-btn')).not.toBeDisabled();
 
-    // Speed up playback to sample systems quickly
-    await page.locator('input[data-id="tempo-bpm"]').fill('300');
+    // A raised tempo samples the systems quickly; every system still lasts longer than the glide plus 700 ms still.
+    await page.locator('input[data-id="tempo-bpm"]').fill(String(US1_TEMPO_BPM));
     await page.locator('input[data-id="tempo-bpm"]').press('Enter');
 
-    const getObservations = await installLookaheadTracker(page);
-    await page.locator('.play-btn').click();
-
-    // Wait until at least 2 page changes have been recorded (settled into page 3)
-    await page.waitForFunction(
-      () => {
-        const obs = (
-          window as unknown as {
-            __LOOKAHEAD_OBSERVATIONS__?: { pageChanged: boolean }[];
-          }
-        ).__LOOKAHEAD_OBSERVATIONS__;
-        return (obs?.filter((o) => o.pageChanged).length ?? 0) >= 2;
-      },
-      null,
-      { timeout: 80_000 },
+    // T012: each system change is recorded once the view has been still for 700 ms, until two page changes are in
+    const run = await listenAndObserve(page, {
+      afterChangeMs: FOLLOW_GLIDE_MS + 100,
+      stillMs: 700,
+      untilPageChanges: 2,
+      timeoutMs: 100_000,
+    });
+    const { fit, notFit } = expectShowsWhatFits(run);
+    console.log(
+      `Für Elise 1920x1080 at ${US1_TEMPO_BPM} BPM: ${run.systemChanges} system changes, ${pageChanges(run)} page changes, ${fit} fit, ${notFit} do not fit`,
     );
-
-    await page.locator('.play-btn').click(); // stop
-    const observations = await getObservations();
-    console.log(`OBSERVATIONS RECORDED (count = ${observations.length}):`);
-    for (const o of observations) {
-      console.log(
-        `sys ${o.systemIndex}, pageChanged: ${o.pageChanged}, fitsTogether: ${o.fitsTogether}, bothVisible: ${o.bothVisible}`,
-      );
-    }
-    const pageChanges = observations.filter((o) => o.pageChanged).length;
-    expect(pageChanges).toBeGreaterThanOrEqual(2);
-
-    const fitting = observations.filter((o) => o.fitsTogether);
-    expect(fitting.length).toBeGreaterThan(0);
-    for (const obs of fitting) {
-      expect(obs.bothVisible).toBe(true);
-    }
+    expect(pageChanges(run), 'at least two page changes sampled (SC-001 a)').toBeGreaterThanOrEqual(2);
+    expect(fit, 'system changes where the two systems fit together').toBeGreaterThan(0);
   });
 
   test('(b) Practice mode on Clementi op. 36 no. 1 with fake MIDI keyboard, stopped at last event of system 1: system 2 is fully visible', async ({
@@ -225,276 +216,151 @@ test.describe('lookahead follow (015 US1)', () => {
 
     for (const width of [1920, 1280]) {
       await page.setViewportSize({ width, height: 900 });
+      const measured: { piece: string; gaps: PieceGaps }[] = [];
       for (const piece of pieces) {
         await page.goto('/');
         await page.locator('mx-open-button input[type=file]').setInputFiles(piece);
         await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
-
-        const result = await page.evaluate(() => {
-          const pages = Array.from(document.querySelectorAll('.mx-score-page'));
-          const inPageGaps: number[] = [];
-          const pageBreakGaps: number[] = [];
-
-          for (let p = 0; p < pages.length; p++) {
-            const pageEl = pages[p];
-            const systems = Array.from(pageEl.querySelectorAll('g.system'));
-            for (let i = 0; i < systems.length - 1; i++) {
-              const cur = systems[i].getBoundingClientRect();
-              const next = systems[i + 1].getBoundingClientRect();
-              inPageGaps.push(next.top - cur.bottom);
-            }
-            if (p < pages.length - 1) {
-              const nextPageEl = pages[p + 1];
-              const nextSystems = Array.from(nextPageEl.querySelectorAll('g.system'));
-              if (systems.length > 0 && nextSystems.length > 0) {
-                const cur = systems[systems.length - 1].getBoundingClientRect();
-                const next = nextSystems[0].getBoundingClientRect();
-                pageBreakGaps.push(next.top - cur.bottom);
-              }
-            }
-          }
-
-          // G-5: each page-break gap lies within [min - 20, max + 20] of the same Score's in-page gaps
-          let g5Valid = true;
-          if (inPageGaps.length > 0) {
-            const minGap = Math.min(...inPageGaps);
-            const maxGap = Math.max(...inPageGaps);
-            for (const gap of pageBreakGaps) {
-              if (gap < minGap - 20 || gap > maxGap + 20) {
-                g5Valid = false;
-                break;
-              }
-            }
-          }
-
-          // G-6: no system clipped by its page: bottom of system is within page bottom
-          let g6Valid = true;
-          for (let p = 0; p < pages.length; p++) {
-            const pageEl = pages[p];
-            const pageRect = pageEl.getBoundingClientRect();
-            const systems = Array.from(pageEl.querySelectorAll('g.system'));
-            for (const sys of systems) {
-              const rect = sys.getBoundingClientRect();
-              if (rect.bottom > pageRect.bottom + 2) {
-                g6Valid = false;
-                break;
-              }
-              if (p > 0 && rect.top < pageRect.top - 2) {
-                g6Valid = false;
-                break;
-              }
-            }
-          }
-
-          return { g5Valid, g6Valid, inPageGaps, pageBreakGaps };
+        measured.push({
+          piece: path.relative(repertoireDir, piece),
+          gaps: await measurePageGaps(page, GAP_EPSILON_PX),
         });
-
-        expect(result.g5Valid).toBe(true);
-        expect(result.g6Valid).toBe(true);
       }
+
+      console.log(
+        `G-5 at ${width} px [piece, pages, in-page min..max, page breaks]: ${JSON.stringify(
+          measured.map((m) => [
+            m.piece,
+            m.gaps.breaks.length + 1,
+            m.gaps.inPage.length
+              ? [Math.min(...m.gaps.inPage), Math.max(...m.gaps.inPage)].map((g) => Math.round(g * 100) / 100)
+              : null,
+            m.gaps.breaks.map((g) => Math.round(g * 100) / 100),
+          ]),
+        )}`,
+      );
+      for (const { piece, gaps } of measured) {
+        const label = `${piece} at ${width} px`;
+        expect.soft(gaps.unmounted, `${label}: every page boundary could be mounted and measured`).toEqual([]);
+        // G-6: every system box inside its page's box, page 1 included
+        expect.soft(gaps.clipped, `${label}: systems outside their page`).toEqual([]);
+        // G-5: every page-break gap within [min, max] of the same Score's in-page gaps
+        if (gaps.inPage.length > 0) {
+          const lo = Math.min(...gaps.inPage) - GAP_EPSILON_PX;
+          const hi = Math.max(...gaps.inPage) + GAP_EPSILON_PX;
+          const outside = gaps.breaks.filter((gap) => gap < lo || gap > hi).map((gap) => Math.round(gap * 10) / 10);
+          expect.soft(outside, `${label}: page-break gaps outside the in-page range [${lo}, ${hi}]`).toEqual([]);
+        } else if (gaps.breaks.length > 0) {
+          // A Score with no in-page gap: against the page-break gaps of the others, +- 10 px (T012)
+          const others = measured.filter((m) => m.piece !== piece).flatMap((m) => m.gaps.breaks);
+          expect.soft(others.length, `${label}: other Scores' page-break gaps to compare with`).toBeGreaterThan(0);
+          const lo = Math.min(...others) - 10;
+          const hi = Math.max(...others) + 10;
+          const outside = gaps.breaks.filter((gap) => gap < lo || gap > hi);
+          expect.soft(outside, `${label}: page-break gaps outside the others' range [${lo}, ${hi}]`).toEqual([]);
+        }
+      }
+      const sampled = measured.reduce((n, m) => n + m.gaps.breaks.length, 0);
+      expect(sampled, `page-break gaps sampled at ${width} px`).toBeGreaterThan(0);
     }
   });
 });
 
 test.describe('glide follow (015 US2)', () => {
-  test('(a) SC-002 - system change movement duration is <= 600 ms in Clementi op. 36 no. 1', async ({
+  test('(a)(b) SC-002, SC-003, FR-008 - every system change of a Listen run through Clementi op. 36 no. 1 at 1920 x 1080', async ({
     page,
   }, testInfo) => {
     test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
-    test.setTimeout(60_000);
+    // The written tempo: the whole movement plays for about 116 s
+    test.setTimeout(240_000);
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto('/');
-
     await openLibraryItem(page, 'repertoire/advanced/clementi-sonatina-op36-no1-mvt1', 'Clementi');
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    await expect(page.locator('.play-btn')).not.toBeDisabled();
 
-    await page.evaluate(() => {
-      const transitions: { systemIndex: number; startMs: number; endMs: number; frames: number }[] = [];
-      (
-        window as unknown as {
-          __TRANSITIONS__: typeof transitions;
-        }
-      ).__TRANSITIONS__ = transitions;
+    const { frames, scrollerHeight } = await sampleListenRun(page, { timeoutMs: 200_000 });
+    const changes = systemChanges(frames);
+    const step = (i: number) => (i > 0 ? Math.abs((frames[i] as RunFrame).top - (frames[i - 1] as RunFrame).top) : 0);
 
-      let lastSystem: Element | null = null;
-      let lastScrollTop = 0;
-      let moveStartMs = 0;
-      let activeSysIndex = 0;
-      let moving = false;
-      let moveFrames = 0;
-
-      function loop() {
-        const scroller = document.querySelector('.mx-score-scroll') as HTMLElement | null;
-        const curScroll = scroller?.scrollTop ?? 0;
-        const now = performance.now();
-
-        const playingNote = document.querySelector('g.note.playing');
-        const curSys = playingNote?.closest('g.system') ?? null;
-        if (curSys && curSys !== lastSystem) {
-          lastSystem = curSys;
-          const allSystems = Array.from(document.querySelectorAll('.mx-score-page g.system'));
-          activeSysIndex = allSystems.indexOf(curSys);
-          moveStartMs = now;
-          moving = true;
-          moveFrames = 0;
-        }
-
-        if (moving) {
-          moveFrames++;
-          if (Math.abs(curScroll - lastScrollTop) > 0.5) {
-            // still moving
-          } else if (now - moveStartMs > 50) {
-            moving = false;
-            transitions.push({
-              systemIndex: activeSysIndex,
-              startMs: moveStartMs,
-              endMs: now,
-              frames: moveFrames,
-            });
-          }
-        }
-        lastScrollTop = curScroll;
-        requestAnimationFrame(loop);
-      }
-      requestAnimationFrame(loop);
-    });
-
-    await page.locator('.play-btn').click();
-    await page.waitForTimeout(10_000);
-    await page.locator('.play-btn').click();
-
-    const transitions = await page.evaluate(
-      () =>
-        (
-          window as unknown as {
-            __TRANSITIONS__: { systemIndex: number; startMs: number; endMs: number; frames: number }[];
-          }
-        ).__TRANSITIONS__,
-    );
-
-    expect(transitions.length).toBeGreaterThan(0);
-    for (const t of transitions) {
-      const duration = t.endMs - t.startMs;
-      expect(duration).toBeLessThanOrEqual(600);
-      expect(t.frames).toBeGreaterThan(1);
-    }
-  });
-
-  test('(b) SC-003 - scrollTop sampled every rAF: per-frame step <= 1/6 scroller height, cursor system overlaps clear rect', async ({
-    page,
-  }, testInfo) => {
-    test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
-    test.setTimeout(60_000);
-    await page.setViewportSize({ width: 1920, height: 1080 });
-    await page.goto('/');
-
-    await openLibraryItem(page, 'repertoire/advanced/clementi-sonatina-op36-no1-mvt1', 'Clementi');
-    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
-
-    await page.evaluate(() => {
-      const samples = {
-        maxStep: 0,
-        maxFraction: 0,
-        systemOverlap: true,
-        movementSpannedMultipleFrames: false,
-        sampling: false,
+    // (a) SC-002: from the first frame in the new system to the last frame the view moves, before the next change
+    const settle = changes.map((c, k) => {
+      const end = changes[k + 1]?.at ?? frames.length;
+      let lastMove = c.at;
+      for (let i = c.at + 1; i < end; i++) if (step(i) > 0.01) lastMove = i;
+      return {
+        change: `${c.from.slice(0, 2).join(':')} -> ${c.to.slice(0, 2).join(':')}`,
+        ms: Math.round((frames[lastMove] as RunFrame).t - (frames[c.at] as RunFrame).t),
       };
-      (
-        window as unknown as {
-          __GLIDE_SAMPLES__: typeof samples;
-        }
-      ).__GLIDE_SAMPLES__ = samples;
-
-      const scroller = document.querySelector('.mx-score-scroll') as HTMLElement | null;
-      let lastScroll = scroller?.scrollTop ?? 0;
-      let consecutiveMoves = 0;
-
-      function loop() {
-        if (samples.sampling && scroller) {
-          const curScroll = scroller.scrollTop;
-          const diff = Math.abs(curScroll - lastScroll);
-          const height = scroller.clientHeight || 1;
-          const fraction = diff / height;
-
-          if (diff > samples.maxStep) samples.maxStep = diff;
-          if (fraction > samples.maxFraction) samples.maxFraction = fraction;
-
-          if (diff > 0.5) {
-            consecutiveMoves++;
-            if (consecutiveMoves > 1) samples.movementSpannedMultipleFrames = true;
-          } else {
-            consecutiveMoves = 0;
-          }
-
-          const playing = document.querySelector('g.note.playing');
-          const sys = playing?.closest('g.system');
-          if (sys) {
-            const sRect = scroller.getBoundingClientRect();
-            const sysRect = sys.getBoundingClientRect();
-            const overlaps = sysRect.bottom > sRect.top && sysRect.top < sRect.bottom;
-            if (!overlaps) samples.systemOverlap = false;
-          }
-
-          lastScroll = curScroll;
-        } else if (scroller) {
-          lastScroll = scroller.scrollTop;
-        }
-        requestAnimationFrame(loop);
-      }
-      requestAnimationFrame(loop);
     });
-
-    // Speed up tempo so system 1 to system 2 transition arrives quickly
-    await page.locator('input[data-id="tempo-bpm"]').fill('240');
-
-    await page.locator('.play-btn').click();
-    await expect(page.locator('.play-btn')).toHaveText('Pause');
-    await page.evaluate(() => {
-      const w = window as unknown as { __GLIDE_SAMPLES__: { sampling: boolean } };
-      w.__GLIDE_SAMPLES__.sampling = true;
-    });
-
-    // Wait until movement spanning multiple frames has been recorded
-    await expect
-      .poll(
-        async () => {
-          return page.evaluate(
-            () =>
-              (
-                window as unknown as {
-                  __GLIDE_SAMPLES__: { movementSpannedMultipleFrames: boolean };
-                }
-              ).__GLIDE_SAMPLES__.movementSpannedMultipleFrames,
-          );
-        },
-        { timeout: 20_000 },
-      )
-      .toBe(true);
-
-    // Stop sampling before stopping playback
-    await page.evaluate(() => {
-      const w = window as unknown as { __GLIDE_SAMPLES__: { sampling: boolean } };
-      w.__GLIDE_SAMPLES__.sampling = false;
-    });
-    await page.locator('.play-btn').click();
-
-    const samples = await page.evaluate(
-      () =>
-        (
-          window as unknown as {
-            __GLIDE_SAMPLES__: {
-              maxStep: number;
-              maxFraction: number;
-              systemOverlap: boolean;
-              movementSpannedMultipleFrames: boolean;
-            };
-          }
-        ).__GLIDE_SAMPLES__,
+    const moved = settle.filter((s) => s.ms > 0);
+    console.log(
+      `Clementi 1920x1080: ${frames.length} frames, ${changes.length} system changes, ${moved.length} moved the view; settle ms ${JSON.stringify(settle.map((s) => s.ms))}`,
     );
+    expect(changes.length, 'system changes in the run').toBeGreaterThan(10);
+    expect(
+      changes.some((c) => c.to[0] !== c.from[0]),
+      'a page change is among them',
+    ).toBe(true);
+    expect(moved.length, 'system changes that moved the view').toBeGreaterThan(0);
+    expect(
+      settle.filter((s) => s.ms > 600),
+      'system changes whose movement ended more than 600 ms after the change',
+    ).toEqual([]);
 
-    expect(samples.maxFraction).toBeLessThanOrEqual(1 / 6 + 0.01);
-    expect(samples.systemOverlap).toBe(true);
-    expect(samples.movementSpannedMultipleFrames).toBe(true);
+    // (b) SC-003: a movement is the frames of a glide (and the frame after it); every frame that moves the view
+    // belongs to one, every movement moves over more than one frame, and no step of a movement from one system to the
+    // next is more than one sixth of the scroller height. Jumps (a repeat going back) are exempt from the sixth.
+    const inGlide = (i: number) => (frames[i] as RunFrame).gliding || (i > 0 && (frames[i - 1] as RunFrame).gliding);
+    const unglided = frames.map((_, i) => i).filter((i) => step(i) > 0.5 && !inGlide(i));
+    expect(
+      unglided.map((i) => [Math.round((frames[i] as RunFrame).t - (frames[0] as RunFrame).t), Math.round(step(i))]),
+      'frames that moved the view outside a glide (a single-frame cut)',
+    ).toEqual([]);
+    const movements: { start: number; end: number }[] = [];
+    frames.forEach((_, i) => {
+      if (!inGlide(i)) return;
+      const last = movements[movements.length - 1];
+      if (last && last.end === i - 1) last.end = i;
+      else movements.push({ start: i, end: i });
+    });
+    const report = movements.map((m) => {
+      const cause = [...changes].reverse().find((c) => c.at <= m.start);
+      let movingFrames = 0;
+      let maxStep = 0;
+      for (let i = m.start; i <= m.end; i++) {
+        if (step(i) > 0.01) movingFrames++;
+        maxStep = Math.max(maxStep, step(i));
+      }
+      // No change before it: the run's first movement, from where the view was to the first system
+      return { ...m, movingFrames, maxStep, jump: cause ? !isNextSystem(cause.from, cause.to) : false };
+    });
+    console.log(
+      `SC-003: ${movements.length} movements, scroller ${scrollerHeight} px; [frames, max step, jump] ${JSON.stringify(
+        report.map((r) => [r.movingFrames, Math.round(r.maxStep), r.jump]),
+      )}`,
+    );
+    expect(movements.length, 'movements sampled').toBeGreaterThan(0);
+    expect(
+      report.filter((r) => r.movingFrames < 2),
+      'movements over a single frame',
+    ).toEqual([]);
+    expect(
+      report.filter((r) => !r.jump && r.maxStep > scrollerHeight / 6),
+      'system-to-system movements with a step above one sixth of the scroller height',
+    ).toEqual([]);
+
+    // FR-008: in every sampled frame the cursor's system overlaps the clear space - except during a jump (a repeat
+    // going back), whose target system starts off screen: FR-008 is about the movement to the next system
+    const inJump = (i: number) => report.some((r) => r.jump && i >= r.start && i <= r.end);
+    const hidden = frames
+      .map((f, i) => ({ f, i }))
+      .filter(({ f, i }) => f.inClear === false && !inJump(i))
+      .map(({ f }) => Math.round(f.t - (frames[0] as RunFrame).t));
+    console.log(
+      `FR-008: ${frames.filter((f) => f.inClear === false).length} frames outside the clear space, all during a jump: ${hidden.length === 0}`,
+    );
+    expect(hidden, 'frames (ms into the run) where the cursor system was outside the clear space').toEqual([]);
   });
 
   test('(c) FR-009 - clicking a distant measure in large score arrives within FOLLOW_GLIDE_MS + 100 ms', async ({
@@ -539,129 +405,163 @@ test.describe('glide follow (015 US2)', () => {
     );
   });
 
-  test('(d) FR-011 - reducedMotion: reduce makes movements happen within one frame', async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.setViewportSize({ width: 1920, height: 1080 });
-    await page.goto('/');
-
-    await openLibraryItem(page, 'repertoire/advanced/clementi-sonatina-op36-no1-mvt1', 'Clementi');
-    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
-
-    const framesToSettle = await page.evaluate(async () => {
-      const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
-      scroller.scrollTop = 0;
-      const scoreView = document.querySelector('mx-score-view');
-      scoreView?.dispatchEvent(new CustomEvent('measureclick', { detail: { measureIndex: 5 } }));
-      let frames = 0;
-      let lastScroll = scroller.scrollTop;
-      for (let i = 0; i < 5; i++) {
-        await new Promise((r) => requestAnimationFrame(r));
-        if (scroller.scrollTop !== lastScroll) {
-          frames++;
-          lastScroll = scroller.scrollTop;
-        }
-      }
-      return frames;
-    });
-
-    expect(framesToSettle).toBeLessThanOrEqual(1);
-  });
-
-  test('(e) FR-012 / FR-005 - mouse wheel during glide cancels glide and unticks Follow, ticking again restores lookahead', async ({
+  test('(d) FR-011 - reducedMotion: reduce: during a run each movement happens within one frame', async ({
     page,
   }, testInfo) => {
     test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
+    test.setTimeout(120_000);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto('/');
-
     await openLibraryItem(page, 'repertoire/advanced/clementi-sonatina-op36-no1-mvt1', 'Clementi');
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    await expect(page.locator('.play-btn')).not.toBeDisabled();
+    // A raised tempo reaches three movements sooner; each system still lasts seconds
+    await page.locator('input[data-id="tempo-bpm"]').fill('300');
+    await page.locator('input[data-id="tempo-bpm"]').press('Enter');
 
+    const { frames } = await sampleListenRun(page, { timeoutMs: 90_000, untilMoves: 3 });
+    const changes = systemChanges(frames);
+    const moving = frames.map((_, i) => i).filter((i) => i > 0 && Math.abs(frames[i].top - frames[i - 1].top) > 0.5);
+    // The run's start counts as a change too: the view's first movement, to the first system, is also one frame
+    const starts = [0, ...changes.map((c) => c.at)];
+    const perChange = starts.map((at, k) => moving.filter((i) => i > at && i <= (starts[k + 1] ?? frames.length)));
+    console.log(
+      `reduced motion: ${changes.length} system changes, moving frames per change ${JSON.stringify(perChange.map((m) => m.length))}`,
+    );
+    console.log(
+      `reduced motion, moving frames [ms, scrollTop before, after, system]: ${JSON.stringify(
+        moving.map((i) => [Math.round(frames[i].t - frames[0].t), frames[i - 1].top, frames[i].top, frames[i].sys]),
+      )}`,
+    );
+    expect(moving.length, 'frames that moved the view').toBeGreaterThanOrEqual(3);
+    expect(
+      perChange.filter((m) => m.length > 1),
+      'system changes whose movement took more than one frame',
+    ).toEqual([]);
+    expect(
+      frames.filter((f) => f.gliding).length,
+      'frames with a glide running (none: each is done in the frame it starts)',
+    ).toBe(0);
+  });
+
+  test('(e) FR-012 / FR-005 - a mouse wheel during a glide cancels it and unticks Follow; ticking Follow again restores the look-ahead', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
+    test.setTimeout(90_000);
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.goto('/');
+    await openLibraryItem(page, 'repertoire/advanced/clementi-sonatina-op36-no1-mvt1', 'Clementi');
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    await expect(page.locator('.play-btn')).not.toBeDisabled();
+    await page.locator('input[data-id="tempo-bpm"]').fill('300');
+    await page.locator('input[data-id="tempo-bpm"]').press('Enter');
+    const follow = page.locator('mx-transport input.follow');
+    await expect(follow).toBeChecked();
+
+    // Records whether a glide was running when the wheel reached the Score
+    await page.evaluate(() => {
+      const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
+      const view = document.querySelector('mx-score-view') as HTMLElement;
+      const w = window as unknown as { __WHEEL_IN_GLIDE__: boolean[] };
+      w.__WHEEL_IN_GLIDE__ = [];
+      scroller.addEventListener('wheel', () => w.__WHEEL_IN_GLIDE__.push(view.dataset.gliding === 'true'));
+    });
     await page.locator('.play-btn').click();
-    await page.waitForTimeout(2000);
-
-    // Musician wheel scrolls over score container
     await page.locator('.mx-score-scroll').hover();
+    await page.waitForFunction(
+      () => document.querySelector('mx-score-view')?.getAttribute('data-gliding') === 'true',
+      null,
+      {
+        timeout: 60_000,
+        polling: 'raf',
+      },
+    );
     await page.mouse.wheel(0, 300);
 
-    await expect
-      .poll(async () => {
-        return page.evaluate(
-          () =>
-            (
-              window as unknown as {
-                __TRANSPORT_STATE__?: { get: () => { follow: boolean } };
-              }
-            ).__TRANSPORT_STATE__?.get?.()?.follow,
-        );
-      })
-      .toBe(false);
+    expect(
+      await page.evaluate(() => (window as unknown as { __WHEEL_IN_GLIDE__: boolean[] }).__WHEEL_IN_GLIDE__),
+      'the wheel reached the Score while a glide ran',
+    ).toEqual([true]);
+    await expect(follow, 'Follow unticked by the wheel').not.toBeChecked();
 
-    // Assert no further programmatic movement after the wheel
-    const still = await page.evaluate(async () => {
+    // FR-012: once the wheel's own scroll is over, the view makes no further movement for longer than a glide
+    const still = await page.evaluate(async (watchMs) => {
       const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
-      const initialScroll = scroller.scrollTop;
-      let moved = false;
-      for (let i = 0; i < 10; i++) {
-        await new Promise((r) => requestAnimationFrame(r));
-        if (Math.abs(scroller.scrollTop - initialScroll) > 1) {
-          moved = true;
-          break;
+      const frame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
+      let last = scroller.scrollTop;
+      let same = 0;
+      while (same < 3) {
+        await frame();
+        same = scroller.scrollTop === last ? same + 1 : 0;
+        last = scroller.scrollTop;
+      }
+      const from = scroller.scrollTop;
+      const start = performance.now();
+      const moves: number[] = [];
+      while (performance.now() - start < watchMs) {
+        await frame();
+        if (scroller.scrollTop !== from) moves.push(scroller.scrollTop);
+      }
+      return { gliding: document.querySelector('mx-score-view')?.getAttribute('data-gliding'), moves };
+    }, FOLLOW_GLIDE_MS + 200);
+    expect(still.moves, 'programmatic movement after the wheel').toEqual([]);
+    expect(still.gliding, 'no glide left running').toBeNull();
+
+    // FR-005: ticking Follow again (the transport's checkbox) brings the view, once settled, to the look-ahead position
+    await follow.check();
+    await page.waitForFunction(
+      () => document.querySelector('mx-score-view')?.getAttribute('data-follow-settled') === 'true',
+      null,
+      {
+        timeout: 10_000,
+        polling: 'raf',
+      },
+    );
+    const view = await page.evaluate(() => {
+      const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
+      const sys = document.querySelector('g.note.playing')?.closest('g.system');
+      if (!sys) return null;
+      const pageEl = sys.closest('.mx-score-page') as HTMLElement;
+      const inPage = Array.from(pageEl.querySelectorAll('g.system'));
+      let next: Element | null = inPage[inPage.indexOf(sys) + 1] ?? null;
+      let nextKnown = true;
+      if (!next) {
+        const nextPage = document.querySelector(`.mx-score-page[data-page="${Number(pageEl.dataset.page) + 1}"]`);
+        if (nextPage) {
+          next = nextPage.querySelector('g.system');
+          nextKnown = next !== null;
         }
       }
-      return !moved;
+      const inset = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--mx-inset-bottom'));
+      const clearTop = scroller.getBoundingClientRect().top;
+      const box = (el: Element) => {
+        const r = el.getBoundingClientRect();
+        return { top: r.top, bottom: r.bottom };
+      };
+      return {
+        clearTop,
+        clearBottom: clearTop + scroller.clientHeight - (Number.isFinite(inset) ? inset : 0),
+        current: box(sys),
+        next: next ? box(next) : null,
+        nextKnown,
+      };
     });
-    expect(still).toBe(true);
-
-    // FR-005: ticking Follow again brings current and next system into clear space once settled
-    await page.evaluate(() => {
-      const ts = (
-        window as unknown as {
-          __TRANSPORT_STATE__: { get(): { follow: boolean }; toggleFollow: () => void };
-        }
-      ).__TRANSPORT_STATE__;
-      if (!ts.get().follow) {
-        ts.toggleFollow();
-      }
-    });
-
-    await page.waitForTimeout(600);
-
-    await expect
-      .poll(
-        async () => {
-          return page.evaluate(() => {
-            const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
-            const sRect = scroller.getBoundingClientRect();
-            const insetBottom =
-              parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--mx-inset-bottom')) || 0;
-            const clearTop = sRect.top;
-            const clearBottom = sRect.bottom - insetBottom;
-            const playing = document.querySelector('g.note.playing');
-            const curSys = playing?.closest('g.system');
-            if (!curSys) return false;
-            const curRect = curSys.getBoundingClientRect();
-            const curVisible = curRect.top >= clearTop - 1 && curRect.bottom <= clearBottom + 1;
-
-            const pageEl = curSys.closest('.mx-score-page') as HTMLElement;
-            const pageNo = Number(pageEl?.dataset.page ?? '1');
-            const inPage = Array.from(pageEl?.querySelectorAll('g.system') ?? []);
-            const idx = inPage.indexOf(curSys);
-            let nextSys: Element | null = inPage[idx + 1] ?? null;
-            if (!nextSys) {
-              const nextPage = document.querySelector(`.mx-score-page[data-page="${pageNo + 1}"]`);
-              if (nextPage) nextSys = nextPage.querySelector('g.system');
-            }
-            if (!nextSys) return curVisible;
-            const nextRect = nextSys.getBoundingClientRect();
-            const nextVisible = nextRect.top >= clearTop - 1 && nextRect.bottom <= clearBottom + 1;
-            return curVisible && nextVisible;
-          });
-        },
-        { timeout: 5000 },
-      )
-      .toBe(true);
+    expect(view, 'a sounding note after Follow was ticked again').not.toBeNull();
+    if (!view) return;
+    const inClear = (s: { top: number; bottom: number }) =>
+      s.top >= view.clearTop - GAP_EPSILON_PX && s.bottom <= view.clearBottom + GAP_EPSILON_PX;
+    console.log(`FR-005 after re-ticking Follow: ${JSON.stringify(view)}`);
+    expect(view.nextKnown, 'next system known (its page mounted)').toBe(true);
+    expect(inClear(view.current), 'current system in clear space').toBe(true);
+    if (view.next && view.next.bottom - view.current.top <= view.clearBottom - view.clearTop) {
+      expect(inClear(view.next), 'next system in clear space (they fit together)').toBe(true);
+    } else if (view.next) {
+      expect(view.current.top - view.clearTop, 'current system at the top (they do not fit)').toBeLessThanOrEqual(
+        LOOKAHEAD_TOP_GAP_PX + GAP_EPSILON_PX,
+      );
+    }
   });
 
   test('(f) SC-004 - frame intervals during 20 s Listen with piano strip meet threshold, dropouts baseline recorded', async ({
@@ -747,8 +647,8 @@ test.describe('glide follow (015 US2)', () => {
     const p95 = sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))] ?? 0;
     console.log(`[015 SC-004] Listen with piano strip and follow: ${deltas.length} frames, p95 ${p95.toFixed(1)} ms`);
 
-    // Frame interval meets play-frame-rate threshold (FRAME_P95_MAX_MS = 20)
-    expect(p95).toBeLessThanOrEqual(20);
+    // Frame interval meets play-frame-rate.spec.ts's threshold, read from that spec by name
+    expect(p95).toBeLessThanOrEqual(FRAME_P95_MAX_MS);
 
     // Compare dropouts
     await openPanel(page, 'diagnostics');
@@ -760,165 +660,190 @@ test.describe('glide follow (015 US2)', () => {
   });
 });
 
-/** One settled view after a system change (T026): boxes in viewport px, clear space as follow-view.md defines it. */
-interface FitObservation {
-  /** The system's index within its page. */
-  systemIndex: number;
-  page: number;
-  clearTop: number;
-  clearBottom: number;
-  current: { top: number; bottom: number };
-  /** null: the cursor's system is the Score's last; `nextKnown` false: the next page is not mounted. */
-  next: { top: number; bottom: number } | null;
-  nextKnown: boolean;
-  /** The next system's first `g.staff` (its upper staff in the first measure). */
-  nextStaff: { top: number; bottom: number } | null;
-}
-
-interface FitRun {
-  observations: FitObservation[];
-  /** Every change of the cursor's system: page, index in the page, ms since the first change. */
-  changes: [number, number, number][];
-  systemChanges: number;
-  /** System changes left again before the view settled (never observed). */
-  unsettled: number;
-  dialogsSeen: number;
-  noticesBefore: number;
-  noticesMax: number;
+interface PieceGaps {
+  /** Gaps between consecutive system boxes inside one page, every page. */
+  inPage: number[];
+  /** Gaps from the last system box of a page to the first of the next, every page boundary. */
+  breaks: number[];
+  /** G-6 violations: "page p system i: top/bottom by x px". */
+  clipped: string[];
+  /** Page boundaries whose two pages could not be mounted and settled. */
+  unmounted: number[];
 }
 
 /**
- * Starts Listen, and at every change of the cursor's system (the `g.system` of a `.playing` note) waits until the
- * view has settled - at least `FOLLOW_GLIDE_MS` + 100 ms after the change and `scrollTop` unchanged for 100 ms - then
- * records the current and the next system in reading order (the next `g.system` of the page, else the first of the
- * page element after it). Also samples every frame for a visible `role="dialog"` and for the notice count. Returns
- * when the run has ended.
+ * Scrolls the loaded Score so that each page boundary in turn sits in the middle of the view (both pages mounted, their
+ * heights measured and the layout unchanged for three frames), and measures the system boxes there (FR-003, G-5, G-6).
  */
-async function listenAndObserve(page: Page, timeoutMs: number): Promise<FitRun> {
-  await page.evaluate((settleMs) => {
-    const w = window as unknown as { __FIT_RUN__: FitRun; __FIT_STOP__: boolean };
-    const run: FitRun = {
-      observations: [],
-      changes: [],
-      systemChanges: 0,
-      unsettled: 0,
-      dialogsSeen: 0,
-      noticesBefore: document.querySelectorAll('mx-notice-tray .notice').length,
-      noticesMax: 0,
-    };
-    w.__FIT_RUN__ = run;
-    w.__FIT_STOP__ = false;
+async function measurePageGaps(page: Page, epsilon: number): Promise<PieceGaps> {
+  return page.evaluate(async (epsilon) => {
     const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
-    const box = (el: Element) => {
-      const r = el.getBoundingClientRect();
-      return { top: r.top, bottom: r.bottom };
-    };
-    let current: Element | null = null;
-    let changedAt = 0;
-    let firstChangeAt = 0;
-    let observed = true;
-    let lastScroll = scroller.scrollTop;
-    let stillSince = performance.now();
-
-    const observe = (sys: Element) => {
-      const pageEl = sys.closest('.mx-score-page') as HTMLElement;
-      const pageNo = Number(pageEl.dataset.page);
-      const inPage = Array.from(pageEl.querySelectorAll('g.system'));
-      const index = inPage.indexOf(sys);
-      let next: Element | null = inPage[index + 1] ?? null;
-      let nextKnown = true;
-      if (!next) {
-        const nextPage = document.querySelector(`.mx-score-page[data-page="${pageNo + 1}"]`);
-        if (nextPage) {
-          next = nextPage.querySelector('g.system');
-          nextKnown = next !== null;
-        }
+    const pageEl = (n: number) => document.querySelector<HTMLElement>(`.mx-score-page[data-page="${n}"]`);
+    const pageCount = document.querySelectorAll('.mx-score-page').length;
+    const frame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
+    const mounted = (n: number) => Boolean(pageEl(n)?.querySelector('svg'));
+    const layout = () =>
+      `${scroller.scrollTop}|${scroller.scrollHeight}|${Array.from(document.querySelectorAll('.mx-score-page'))
+        .map((p) => `${(p as HTMLElement).style.height}${p.querySelector('svg') ? '+' : '-'}`)
+        .join(',')}`;
+    const settle = async (ready: () => boolean): Promise<boolean> => {
+      const start = performance.now();
+      let last = '';
+      let same = 0;
+      while (performance.now() - start < 10_000) {
+        await frame();
+        const now = layout();
+        same = ready() && now === last ? same + 1 : 0;
+        if (same >= 3) return true;
+        last = now;
       }
-      const rect = scroller.getBoundingClientRect();
-      const inset = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--mx-inset-bottom'));
-      const staff = next?.querySelector('g.staff') ?? null;
-      run.observations.push({
-        systemIndex: index,
-        page: pageNo,
-        clearTop: rect.top,
-        clearBottom: rect.top + scroller.clientHeight - (Number.isFinite(inset) ? inset : 0),
-        current: box(sys),
-        next: next ? box(next) : null,
-        nextKnown,
-        nextStaff: staff ? box(staff) : null,
-      });
+      return false;
     };
-
-    const frame = () => {
-      if (w.__FIT_STOP__) return;
-      const now = performance.now();
-      if (Math.abs(scroller.scrollTop - lastScroll) > 0.5) stillSince = now;
-      lastScroll = scroller.scrollTop;
-      const dialogs = Array.from(document.querySelectorAll('[role="dialog"]')).filter(
-        (el) => (el as HTMLElement).checkVisibility?.() ?? (el as HTMLElement).offsetParent !== null,
+    const gaps = { inPage: [] as number[], breaks: [] as number[], clipped: [] as string[], unmounted: [] as number[] };
+    for (let p = 1; p <= pageCount; p++) {
+      const el = pageEl(p) as HTMLElement;
+      const rect = el.getBoundingClientRect();
+      const scrollerTop = scroller.getBoundingClientRect().top;
+      scroller.scrollTop = Math.max(0, scroller.scrollTop + rect.bottom - scrollerTop - scroller.clientHeight / 2);
+      if (!(await settle(() => mounted(p) && (p === pageCount || mounted(p + 1))))) {
+        gaps.unmounted.push(p);
+        continue;
+      }
+      const pageRect = (pageEl(p) as HTMLElement).getBoundingClientRect();
+      const systems = Array.from((pageEl(p) as HTMLElement).querySelectorAll('g.system')).map((s) =>
+        s.getBoundingClientRect(),
       );
-      run.dialogsSeen = Math.max(run.dialogsSeen, dialogs.length);
-      run.noticesMax = Math.max(run.noticesMax, document.querySelectorAll('mx-notice-tray .notice').length);
-
-      const sys = document.querySelector('g.note.playing')?.closest('g.system') ?? null;
-      // A system is its page and its index in the page: a page mounted again has new elements for the same systems.
-      const sysKey = (el: Element) => {
-        const pg = el.closest('.mx-score-page') as HTMLElement;
-        return `${pg.dataset.page}:${Array.from(pg.querySelectorAll('g.system')).indexOf(el)}`;
-      };
-      if (sys && current && sys !== current && sysKey(sys) === sysKey(current)) current = sys;
-      if (sys && sys !== current) {
-        if (!observed) run.unsettled++;
-        const sysPage = sys.closest('.mx-score-page') as HTMLElement;
-        if (run.changes.length === 0) firstChangeAt = now;
-        run.changes.push([
-          Number(sysPage.dataset.page),
-          Array.from(sysPage.querySelectorAll('g.system')).indexOf(sys),
-          Math.round(now - firstChangeAt),
-        ]);
-        current = sys;
-        changedAt = now;
-        observed = false;
-        run.systemChanges++;
+      systems.forEach((s, i) => {
+        if (s.top < pageRect.top - epsilon)
+          gaps.clipped.push(`page ${p} system ${i}: top by ${pageRect.top - s.top} px`);
+        if (s.bottom > pageRect.bottom + epsilon) {
+          gaps.clipped.push(`page ${p} system ${i}: bottom by ${s.bottom - pageRect.bottom} px`);
+        }
+      });
+      for (let i = 0; i + 1 < systems.length; i++) {
+        gaps.inPage.push((systems[i + 1] as DOMRect).top - (systems[i] as DOMRect).bottom);
       }
-      if (current && !observed && now - changedAt >= settleMs && now - stillSince >= 100) {
-        observe(current);
-        observed = true;
+      const first = pageEl(p + 1)?.querySelector('g.system');
+      const last = systems[systems.length - 1];
+      if (first && last) gaps.breaks.push(first.getBoundingClientRect().top - last.bottom);
+    }
+    return gaps;
+  }, epsilon);
+}
+
+/** One animation frame of a Listen run, sampled inside the page after the Score view's own frame work. */
+interface RunFrame {
+  t: number;
+  top: number;
+  gliding: boolean;
+  /** The cursor's system: page, index in the page, systems on the page; null while no note sounds. */
+  sys: [number, number, number] | null;
+  /** FR-008: the cursor's system box overlaps the clear space (scroller box minus the bottom inset). */
+  inClear: boolean | null;
+}
+
+interface SampledRun {
+  frames: RunFrame[];
+  scrollerHeight: number;
+}
+
+/**
+ * Clicks Play and samples every animation frame while the run plays, until it ends, or until `untilMoves` frames have
+ * moved the view (then the run is stopped).
+ */
+async function sampleListenRun(page: Page, opts: { timeoutMs: number; untilMoves?: number }): Promise<SampledRun> {
+  await page.evaluate(() => {
+    const w = window as unknown as {
+      __RUN__: SampledRun;
+      __RUN_STOP__: boolean;
+      __TRANSPORT_STATE__: { get(): { phase: string } };
+    };
+    const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
+    const view = document.querySelector('mx-score-view') as HTMLElement;
+    const run: SampledRun = { frames: [], scrollerHeight: scroller.clientHeight };
+    w.__RUN__ = run;
+    w.__RUN_STOP__ = false;
+    const frame = () => {
+      if (w.__RUN_STOP__) return;
+      if (w.__TRANSPORT_STATE__.get().phase === 'playing') {
+        const sys = document.querySelector('g.note.playing')?.closest('g.system') ?? null;
+        let key: [number, number, number] | null = null;
+        let inClear: boolean | null = null;
+        if (sys) {
+          const pg = sys.closest('.mx-score-page') as HTMLElement;
+          const inPage = Array.from(pg.querySelectorAll('g.system'));
+          key = [Number(pg.dataset.page), inPage.indexOf(sys), inPage.length];
+          const inset = Number.parseFloat(
+            getComputedStyle(document.documentElement).getPropertyValue('--mx-inset-bottom'),
+          );
+          const clearTop = scroller.getBoundingClientRect().top;
+          const clearBottom = clearTop + scroller.clientHeight - (Number.isFinite(inset) ? inset : 0);
+          const box = sys.getBoundingClientRect();
+          inClear = box.bottom > clearTop && box.top < clearBottom;
+        }
+        run.frames.push({
+          t: performance.now(),
+          top: scroller.scrollTop,
+          gliding: view.dataset.gliding === 'true',
+          sys: key,
+          inClear,
+        });
       }
       requestAnimationFrame(frame);
     };
     requestAnimationFrame(frame);
-  }, FOLLOW_GLIDE_MS + 100);
-
-  await page.locator('.play-btn').click();
-  await expect
-    .poll(
-      () =>
-        page.evaluate(
-          () =>
-            (window as unknown as { __TRANSPORT_STATE__: { get(): { phase: string } } }).__TRANSPORT_STATE__.get()
-              .phase,
-        ),
-      { timeout: 10_000 },
-    )
-    .toBe('playing');
-  await expect
-    .poll(
-      () =>
-        page.evaluate(
-          () =>
-            (window as unknown as { __TRANSPORT_STATE__: { get(): { phase: string } } }).__TRANSPORT_STATE__.get()
-              .phase,
-        ),
-      { timeout: timeoutMs, intervals: [500] },
-    )
-    .not.toBe('playing');
-  // The last system's observation is due FOLLOW_GLIDE_MS + 100 ms after it began; the run has ended well after that.
-  return page.evaluate(() => {
-    const w = window as unknown as { __FIT_RUN__: FitRun; __FIT_STOP__: boolean };
-    w.__FIT_STOP__ = true;
-    return w.__FIT_RUN__;
   });
+  const phase = () =>
+    page.evaluate(
+      () =>
+        (window as unknown as { __TRANSPORT_STATE__: { get(): { phase: string } } }).__TRANSPORT_STATE__.get().phase,
+    );
+  await page.locator('.play-btn').click();
+  await expect.poll(phase, { timeout: 10_000 }).toBe('playing');
+  const until = opts.untilMoves;
+  await expect
+    .poll(
+      async () => {
+        if ((await phase()) !== 'playing') return true;
+        if (until === undefined) return false;
+        return page.evaluate(
+          (until) =>
+            (window as unknown as { __RUN__: SampledRun }).__RUN__.frames.filter(
+              (f, i, all) => i > 0 && Math.abs(f.top - (all[i - 1] as RunFrame).top) > 0.5,
+            ).length >= until,
+          until,
+        );
+      },
+      { timeout: opts.timeoutMs, intervals: [250] },
+    )
+    .toBe(true);
+  const run = await page.evaluate(() => {
+    const w = window as unknown as { __RUN__: SampledRun; __RUN_STOP__: boolean };
+    w.__RUN_STOP__ = true;
+    return w.__RUN__;
+  });
+  if ((await phase()) === 'playing') await page.locator('.stop-btn').click();
+  return run;
+}
+
+const sameSystem = (a: RunFrame['sys'], b: RunFrame['sys']) =>
+  a !== null && b !== null && a[0] === b[0] && a[1] === b[1];
+/** `to` follows `from` in reading order: the next system of the page, or the first of the next page. */
+const isNextSystem = (from: [number, number, number], to: [number, number, number]) =>
+  (to[0] === from[0] && to[1] === from[1] + 1) || (to[0] === from[0] + 1 && to[1] === 0 && from[1] === from[2] - 1);
+
+/** The frames at which the cursor enters another system (the first frame of a run's first system is not one). */
+function systemChanges(
+  frames: RunFrame[],
+): { at: number; from: [number, number, number]; to: [number, number, number] }[] {
+  const changes: { at: number; from: [number, number, number]; to: [number, number, number] }[] = [];
+  let last: [number, number, number] | null = null;
+  frames.forEach((f, i) => {
+    if (f.sys === null) return;
+    if (last !== null && !sameSystem(last, f.sys)) changes.push({ at: i, from: last, to: f.sys });
+    last = f.sys;
+  });
+  return changes;
 }
 
 /**
@@ -1037,7 +962,7 @@ const fitsTogether = (o: FitObservation) =>
 /** Every observation (every system change of the run) meets US1 where two systems fit, and FR-014 where they do not. */
 function expectShowsWhatFits(run: FitRun): { fit: number; notFit: number; staffChecks: number } {
   expect(run.unsettled, `every system change settles before the next: ${JSON.stringify(run.changes)}`).toBe(0);
-  expect(run.observations.length).toBe(run.systemChanges);
+  expect(run.observations.length).toBe(run.systemChanges - run.pendingAtEnd);
   let fit = 0;
   let notFit = 0;
   let staffChecks = 0;
@@ -1077,7 +1002,11 @@ test.describe('show what fits (015 US3)', () => {
       test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
       test.setTimeout(180_000);
       await openForFit(page, { width: 1920, height: 950 }, item, search, { pianoStrip: true });
-      const run = await listenAndObserve(page, 150_000);
+      const run = await listenAndObserve(page, {
+        afterChangeMs: FOLLOW_GLIDE_MS + 100,
+        stillMs: 100,
+        timeoutMs: 150_000,
+      });
       console.log(
         `${item}: [page, system, current height, current top to next bottom, clear height] ${JSON.stringify(
           run.observations.map((o) => [
@@ -1091,7 +1020,7 @@ test.describe('show what fits (015 US3)', () => {
       );
       expect(run.systemChanges).toBeGreaterThan(1);
       expect(run.unsettled, `every system change settles before the next: ${JSON.stringify(run.changes)}`).toBe(0);
-      expect(run.observations.length).toBe(run.systemChanges);
+      expect(run.observations.length).toBe(run.systemChanges - run.pendingAtEnd);
       for (const o of run.observations) {
         const label = `system ${o.systemIndex} (page ${o.page})`;
         expect(fullyIn(o.current, o), `${label}: current system fully in clear space`).toBe(true);
@@ -1108,7 +1037,11 @@ test.describe('show what fits (015 US3)', () => {
     await openForFit(page, { width: 1920, height: 950 }, 'repertoire/advanced/fur-elise-complete', 'Elise', {
       pianoStrip: true,
     });
-    const run = await listenAndObserve(page, 200_000);
+    const run = await listenAndObserve(page, {
+      afterChangeMs: FOLLOW_GLIDE_MS + 100,
+      stillMs: 100,
+      timeoutMs: 200_000,
+    });
     const { fit, notFit, staffChecks } = expectShowsWhatFits(run);
     console.log(
       `Für Elise 1920x950 strip: ${run.systemChanges} system changes, ${fit} fit, ${notFit} do not fit, next staff checked ${staffChecks}`,
@@ -1132,7 +1065,11 @@ test.describe('show what fits (015 US3)', () => {
       // 151.2 s), at 300 BPM about 60 s. The wait covers the slower run with room for a loaded machine.
       test.setTimeout(260_000);
       await openForFit(page, size, 'repertoire/advanced/clementi-sonatina-op36-no1-mvt1', 'Clementi', opts);
-      const run = await listenAndObserve(page, 210_000);
+      const run = await listenAndObserve(page, {
+        afterChangeMs: FOLLOW_GLIDE_MS + 100,
+        stillMs: 100,
+        timeoutMs: 210_000,
+      });
       const { fit, notFit, staffChecks } = expectShowsWhatFits(run);
       console.log(
         `Clementi ${name}: ${run.systemChanges} system changes, ${fit} fit, ${notFit} do not fit, next staff checked ${staffChecks}`,

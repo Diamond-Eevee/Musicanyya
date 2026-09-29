@@ -1,7 +1,8 @@
 # Contract: Follow view (look-ahead target and glide)
 
 **Version**: `1.4.0` (1.4.0, 2026-09-29, T044 after FR-009 measured 897.7 ms: section 3 rule 2 keeps a glide on the
-frame it ends, section 4 renders only the pages a glide lands on; 1.3.0, 2026-09-29, T042: section 4 documents the e2e seam `data-follow-settled`, additive;
+frame it ends, section 4 renders only the pages a glide lands on and reads reduced motion from one MediaQueryList, F-4 names what a
+frame reads; 1.3.0, 2026-09-29, T042: section 4 documents the e2e seam `data-follow-settled`, additive;
 1.2.0, 2026-09-29, owner decision after T028 measured SC-007: the top gap of rule 3 yields when it
 alone keeps two systems from fitting, and section 4 documents `data-gliding`; 1.1.0, 2026-09-28 after analyze A1: a redirect keeps the running glide's end time, new
 constant `FOLLOW_GLIDE_MIN_REDIRECT_MS`; 1.0.0 was the first version). Replaces the follow rule "keep the cursor's measure in the middle 60 % and jump to centre
@@ -122,7 +123,8 @@ cancellation of a glide, and so does every frame that does not follow (it drops 
 or stopped, a Practice session finished). *(1.3.0: added for the e2e checks that measure
 the page during a run, `waitForStillScore` in `tests/e2e/helpers/pressed-keys.ts`; unit test
 `tests/ui/score-view-follow.test.ts` "data-follow-settled is set only while the view rests ...".)*
-Reduced motion is read from `matchMedia('(prefers-reduced-motion: reduce)')` when a glide starts.
+Reduced motion is read when a glide starts, from one `MediaQueryList` for `(prefers-reduced-motion: reduce)` made the
+first time it is needed (it follows a change of the setting); never a `matchMedia` call per frame (1.4.0, audit L1).
 
 ## 5. Constants (`src/engine/config.ts`)
 
@@ -142,4 +144,7 @@ Reduced motion is read from `matchMedia('(prefers-reduced-motion: reduce)')` whe
 - **F-2**: No follow movement is a single-frame cut unless reduced motion is on.
 - **F-3**: A fresh glide moves the music by at most 12.5 % of its distance per 60 Hz frame, a redirected one by at
   most 20 % of its (remaining) distance (SC-003).
-- **F-4**: The per-frame follow work is two element box reads and arithmetic; no DOM writes other than `scrollTop`.
+- **F-4**: The per-frame follow work reads three boxes (the scroller and the current and next `g.system`) and the
+  scroller's sizes, and does arithmetic; its only DOM write is `scrollTop` (and the `data-*` seams of section 4).
+  During a glide it may ask for a page render (section 4); the page is put in the stack when the render arrives, not
+  in the frame. *(1.4.0, audit L2: the text said "two element box reads" and left out the page renders.)*

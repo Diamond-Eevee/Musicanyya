@@ -54,9 +54,18 @@ async function startSampling(page: Page): Promise<void> {
       ];
       const scoreView = document.querySelector('mx-score-view') as HTMLElement | null;
       const isGliding = scoreView?.dataset.gliding === 'true';
-      const pianoEl = document.querySelector('mx-piano-keys');
-      const pianoRect = pianoEl ? pianoEl.getBoundingClientRect() : null;
-      const partlyVisible = pianoRect ? systemRect.top < pianoRect.top : true;
+      // 015 FR-008: the clear space is the Score scroller's box minus the bottom inset the piano strip reserves
+      // (follow-view.md, `clearHeight`); the system is partly visible when its box overlaps that rectangle.
+      const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
+      const scrollerRect = scroller.getBoundingClientRect();
+      const inset = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--mx-inset-bottom'));
+      const clearRect = new DOMRect(
+        scrollerRect.left,
+        scrollerRect.top,
+        scroller.clientWidth,
+        scroller.clientHeight - (Number.isFinite(inset) ? inset : 0),
+      );
+      const partlyVisible = overlaps(systemRect, clearRect);
 
       samples.push({
         gliding: isGliding,
@@ -116,8 +125,9 @@ test.describe('US4: overlays never hide the music (SC-005, FR-010)', () => {
       const samples = await stopSampling(page);
 
       expect(samples.length, 'enough frames were sampled to mean something').toBeGreaterThan(40);
-      // 015 FR-008: during an active 400ms follow glide, the cursor's system must remain at least partly visible.
-      // When settled (not gliding), floating chrome must never cover the cursor's system.
+      // When settled (not gliding), floating chrome must never cover the cursor's system. During a follow glide (015)
+      // the music moves under the chrome on its way, so there FR-008 applies: the cursor's system overlaps the clear
+      // space in every sampled frame.
       const coveredWhileSettled = samples.filter((sample) => !sample.gliding && sample.covered.length > 0);
       expect(
         coveredWhileSettled.map((sample) => sample.covered),
@@ -125,9 +135,11 @@ test.describe('US4: overlays never hide the music (SC-005, FR-010)', () => {
       ).toEqual([]);
 
       const hiddenDuringGlide = samples.filter((sample) => sample.gliding && !sample.partlyVisible);
-      expect(hiddenDuringGlide, 'frames during glide where the cursor system was completely hidden (FR-008)').toEqual(
-        [],
-      );
+      expect(
+        hiddenDuringGlide,
+        'frames during a glide where the cursor system was outside the clear space (FR-008)',
+      ).toEqual([]);
+      expect(samples.filter((sample) => sample.gliding).length, 'frames sampled during a glide').toBeGreaterThan(0);
     });
   }
 });

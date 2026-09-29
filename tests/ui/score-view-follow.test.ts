@@ -342,10 +342,19 @@ describe('score view follow (015 US1)', () => {
 
     // Finished Practice session
     practiceState.setMode('practice');
+    // Its event is still there (m-3, which would move the view): only the finished phase keeps the view still
+    const lastEvent = {
+      measureIndex: 2,
+      notes: [],
+      required: [],
+      accompaniment: [],
+      tieContinues: [],
+      tieCompletes: [],
+    };
     practiceState.setSession({
-      status: 'completed',
-      currentEvent: { measureIndex: 2, notes: [], required: [], accompaniment: [], tieContinues: [], tieCompletes: [] },
-      events: [],
+      phase: 'finished',
+      index: 0,
+      events: [lastEvent],
       score: null as never,
       tempoPercent: 100,
       metronomeMuted: false,
@@ -841,6 +850,33 @@ describe('score view follow glide (015 US2)', () => {
     transportState.pause(); // nothing follows: the view is not "settled on a target", it is not following at all
     await vi.advanceTimersByTimeAsync(32);
     expect(el.dataset.followSettled).toBeUndefined();
+  });
+
+  it('(k) a Listen run whose audible position is still before the start stays at the start, not at the last system (T047)', async () => {
+    scrollEl.scrollTop = 0;
+    // The first frames of a run: the audible position trails the start by the output latency (a negative tick)
+    listenPosition = { audibleTick: -120 };
+    await vi.advanceTimersByTimeAsync(48);
+    expect(el.dataset.gliding, 'no glide towards the end of the Score').toBeUndefined();
+    expect(scrollEl.scrollTop).toBe(0);
+    listenPosition = { audibleTick: 0 }; // m-1 in sys-1, which is in view with sys-2
+    await vi.advanceTimersByTimeAsync(48);
+    expect(scrollEl.scrollTop).toBe(0);
+  });
+
+  it('(j) reduced motion is read from one MediaQueryList, not a matchMedia call per frame (audit L1)', async () => {
+    const spy = vi.spyOn(window, 'matchMedia');
+    try {
+      listenPosition = { audibleTick: 2 * 480 }; // m-3: a glide to sys-2
+      await vi.advanceTimersByTimeAsync(FOLLOW_GLIDE_MS + 32);
+      expect(scrollEl.scrollTop).toBe(280 - LOOKAHEAD_TOP_GAP_PX);
+      listenPosition = { audibleTick: 4 * 480 }; // m-5: a second glide, to sys-3
+      await vi.advanceTimersByTimeAsync(FOLLOW_GLIDE_MS + 32);
+      expect(scrollEl.scrollTop).toBe(520 - LOOKAHEAD_TOP_GAP_PX);
+      expect(spy.mock.calls.length, 'matchMedia calls over two glides').toBeLessThanOrEqual(1);
+    } finally {
+      spy.mockRestore();
+    }
   });
 
   it('(i) a glide renders only the pages it lands on, each once, and unmounts nothing until it ends (FR-009, R-7)', async () => {
