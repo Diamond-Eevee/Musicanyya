@@ -324,11 +324,16 @@ the OS)
   pointing at research R-5), and `mainWindow.once('ready-to-show', () => mainWindow.show())`. `sandbox`,
   `contextIsolation` and the navigation policy are unchanged. Makes T034 (Electron colours) and T037 pass.
   `tests/electron/*` green
-- [ ] T041 [US5] Dark-theme sweep: open every popup, the empty state and a notice in Night, Walnut and Midnight.
+- [x] T041 [US5] Dark-theme sweep: open every popup, the empty state and a notice in Night, Walnut and Midnight.
   Fix any rule in `layout.css`, `panels.css`, `controls.css` or a shadow `<style>` that still shows a light island
   or dark-on-dark, including native scrollbars, `select` lists and number spinners (FR-026, via `color-scheme`).
   Pictures in `tests/.generated/016-us5-*`, each looked at. T034-T037 stay green, and nothing here may change the
   Score stack (T036 re-run)
+- [x] T058 [US5] (added 2026-09-29, found by the T041 sweep) `src/ui/styles/browser.css` used the feedback blue
+  `--color-blue` (the "early"/"played" colour) for chrome: the *Continue* link (dark blue on the dark themes'
+  surfaces), the drop outline and a document-wide `:focus-visible` ring that overrode the themed ring of
+  `controls.css` (FR-006). Link and drop outline -> `--mx-accent`, focus ring -> `--mx-focus`. Checked in the Night
+  sweep picture and by `tests/e2e/chrome-look.spec.ts` (b)
 
 **Checkpoint (US5)**: T034-T037 green. Quickstart US5 steps 2-6 done (Windows contrast theme and reduced motion by
 hand). The 12 review pictures are made (quickstart US5 step 1). Full gate, log, commit.

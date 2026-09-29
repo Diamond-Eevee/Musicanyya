@@ -317,7 +317,7 @@ mx-browser-continue h3 {
   margin-top: 4px;
   padding: 0;
   font: inherit;
-  color: var(--color-blue);
+  color: var(--mx-accent);
   background: none;
   border: none;
   text-decoration: underline;
@@ -473,7 +473,7 @@ mx-browser-detail {
 /* US3: a drop onto the dialog (the *Open file...* target, contracts/score-browser.md §3) - the same highlight
    mx-drop-zone's own .drag-active gives the empty-state invitation. */
 dialog.browser.browser-drag-active {
-  outline: 3px dashed var(--color-blue);
+  outline: 3px dashed var(--mx-accent);
   outline-offset: -6px;
 }
 
@@ -535,7 +535,7 @@ dialog.browser.browser-drag-active {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-blue);
+  outline: 2px solid var(--mx-focus);
   outline-offset: 1px;
 }
 

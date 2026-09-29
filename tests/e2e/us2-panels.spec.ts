@@ -28,6 +28,9 @@ async function openScore(page: Page): Promise<void> {
   await page.goto('/');
   await page.locator('mx-open-button input[type=file]').setInputFiles(fixture('eight-measure-melody.musicxml'));
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+  // The bar fits itself a frame or two after the Score loads (feature 016: with the brand slot it folds the menus at
+  // the default 1280 px); resolve menus only once it has, as openViaMenu does.
+  await barFitted(page);
 }
 
 async function openViaMenu(page: Page, id: ManualPanel): Promise<void> {

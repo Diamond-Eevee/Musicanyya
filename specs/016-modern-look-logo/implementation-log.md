@@ -181,3 +181,50 @@
   compact switch now happens at wider windows (brand width), as R-11 intends.
 - Handoff: next = Phase 5 US5, T034-T037 (tests first), then T038 [light] -> T039/T040 -> T041; tree clean at the
   commit below.
+
+## 2026-09-30 01:30 - claude-opus-5.5 (implement - US5 Checkpoint)
+- Done: T034-T041 and new T056-T058 (Phase 5 US5 complete, checkpoint passed). Model fit: standard/light tasks,
+  claude-opus-5.5 fits (higher tier); T038 [light] done by this model and re-verified here.
+  - Tests first (all failed for the expected reason before the code): T034 palette test over all six themes, the
+    dark no-attribute fallback and the Electron start colours (17 failed | 12 passed before T038; the CSS parser now
+    keys at-rule blocks separately and files a selector list under each selector); T035 `tests/e2e/theme.spec.ts`
+    (Theme fieldset missing; (c) body transparent under a stored Walnut); T036 six-theme SC-001 in Listen paused /
+    Practice after 3 events / graded Play (Ivory surface missing); T037 Electron start colours (window `#ffffff`, no
+    Midnight). T056 `tests/ui/run-guard.test.ts` View-during-Listen (2 failed as expected, 2 unchanged-rule passes).
+  - T038 five palettes + `@media (prefers-color-scheme: dark) :root:not([data-theme])` Night fallback, generated from
+    one table. T039 Theme fieldset (Automatic, Light/Dark groups with swatches) + `en.theme`; theme blocks also scope
+    `.mx-theme-swatch[data-theme]` (theme.md 1.0.1, PATCH). T040 Electron `show:false`, `backgroundColor` from
+    `nativeTheme` (START_BACKGROUND_LIGHT/DARK = Paper/Night desk), `ready-to-show`. T057 `listenOk` menu flag,
+    `isListenRunActive()`, run guard exception.
+  - T041 dark sweep (Night, Walnut, Midnight; pictures `tests/.generated/016-us5-<theme>-*.png` and
+    `016-us5-sweep-<theme>.png`, each looked at): no light island, native controls follow `color-scheme`. One
+    finding, fixed as new task T058: `browser.css` used the feedback blue for the Continue link (dark-on-dark), the
+    drop outline and a document-wide `:focus-visible` that overrode the themed ring -> accent / `--mx-focus`.
+- **Owner decision** (2026-09-29): the View entry and popup stay available during a Listen run (SC-010 could not be
+  met otherwise; 004 disabled every entry during any run). Practice and Play unchanged. ui-shell 1.2.0 -> 1.3.0,
+  contract-changes, research R-12, plan updated first; `us2-panels.spec.ts` "no popup during a run" now expects View
+  enabled in Listen (the only changed expectation, with that reason).
+- Test-harness fixes found while making them green (no assertion loosened): radio names `exact: true` ("Night" is in
+  "Midnight"); Chromium-only by project name (the electron project reports browserName chromium); the Score stack
+  is compared as seen inside the scroller's client area (an element screenshot took in the bar over a scrolled view);
+  Escape is not pressed before comparing (it means Stop), the Grade is closed with its button; every picture incl.
+  Paper's is taken after a restyle (the area under a closed popup was re-rasterised 1 grey level off, 42 px); (b)
+  measures scroll after the start-of-run glide (moves 0 -> 69 px even with Follow off); Electron (a) expects the desk
+  of what Automatic resolves to (this machine's OS is dark). `us2-panels.spec.ts` openScore waits for `barFitted()`
+  (same fit race as us1-layout; the owner's decision of the US2 checkpoint), WebKit failed 1/3 before, 96 passed
+  over 3 repeats after.
+- Quality gate evidence (US5 checkpoint):
+  - `pnpm test`: Test Files 283 passed (283) | Tests 6134 passed (6134)
+  - `pnpm lint`: 0 errors, 314 warnings, 13 infos; `pnpm typecheck`: exit 0
+  - `pnpm test:e2e`: 1057 passed, 639 skipped, 4 failed: lookahead.spec.ts:363 (chromium, glide timing) and
+    score-browser.spec.ts:343 (firefox) - both seen at the US2 checkpoint, 3/3 in isolation again; us1-play.spec.ts:46
+    (firefox, 3/3 in isolation); us2-panels.spec.ts:121 (webkit, fit race - fixed above). Targeted re-run of the US5
+    set after the fixes: theme, theme-score-identical, electron-smoke, chrome-look, score-browser, score-browser-a11y
+    176 passed, 60 skipped.
+  - Quickstart US5: step 1, the 12 OD-2 review pictures `tests/.generated/016-us5-review-<theme>-{score,browser}.png`
+    (+ `016-us5-review-sheet.png`), looked at: white pages with black ink in all six, chrome in each palette. Steps
+    2-4 automated by theme.spec (a)-(d). Steps 5-6 (Windows contrast theme, OS reduce motion) NOT done by hand;
+    covered only by chrome-look (f) forced-colors and (e) reduced-motion emulation.
+- Problems / open questions: needs owner: OD-2 (T052) - approve the look and the six palettes from the review sheet.
+- Handoff: next = Phase 6 US3 T042 (tests first) -> T043 -> T044, and Phase 7 US4 T045-T048; tree clean at the
+  commit below.
