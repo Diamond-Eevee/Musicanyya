@@ -95,9 +95,15 @@ test.describe('Play mode plays at the tempo it grades at (012 FR-018)', () => {
     expect(qpm).toBeLessThan(WRITTEN_QPM * 1.15);
   });
 
-  test('after a Play run at 200 BPM, Listen plays at its own tempo again (the written 100)', async ({ page }) => {
+  test('after a Play run at 200 BPM, Listen plays its own music at its own tempo again (the written 100)', async ({
+    page,
+  }) => {
     test.setTimeout(60_000);
     await openFixture(page);
+    // Listen first, so its schedule is already in the engine when the run replaces it (the order a musician uses).
+    await page.locator('mx-transport .play-btn').click();
+    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause');
+    await page.locator('mx-transport .stop-btn').click();
     await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
     await switchMode(page, 'play');
     await typeTransportTempo(page, 200);
@@ -124,8 +130,9 @@ test.describe('Play mode plays at the tempo it grades at (012 FR-018)', () => {
       const t = (window as unknown as Seams).__listenTimes;
       return ((t.end ?? 0) - (t.start ?? 0)) / 1000;
     });
-    const expectedSeconds = (LISTEN_BEATS * 60) / WRITTEN_QPM; // 4.8 s at 100; 2.4 s if the 200 of the run leaked in
+    // 4.8 s at 100. 2.4 s if the run's 200 leaked in; 7.2 s or more if the run's schedule (with its count-in) played.
+    const expectedSeconds = (LISTEN_BEATS * 60) / WRITTEN_QPM;
     expect(seconds).toBeGreaterThan(expectedSeconds * 0.85);
-    expect(seconds).toBeLessThan(expectedSeconds * 1.5);
+    expect(seconds).toBeLessThan(expectedSeconds * 1.25);
   });
 });

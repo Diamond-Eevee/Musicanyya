@@ -708,7 +708,8 @@ export class Session {
     }
 
     if (this.currentSchedule && !this.scheduleDelivered) {
-      this.audioEngine.load(this.currentSchedule);
+      // A copy: `load` transfers the arrays, and Listen reloads this schedule after every Play run or replay.
+      this.audioEngine.load(structuredClone(this.currentSchedule));
       this.scheduleDelivered = true;
       const seekTick = transportState.get().positionTick;
       if (seekTick > 0) this.audioEngine.seekTick(seekTick);
@@ -892,6 +893,7 @@ export class Session {
 
     playState.clear();
     mistakeStepper.setMarks(null);
+    this.scheduleDelivered = false; // the run's own schedule replaces Listen's in the engine
     this.playController.start({
       scoreId: this.playScoreId,
       score: this.currentScore,
@@ -1290,6 +1292,7 @@ export class Session {
         if (this.scoreView) this.scoreView.setPlaySession(this.playController);
       },
     });
+    this.scheduleDelivered = false; // as for a live run: Listen reloads its own schedule next time
     this.replayController.start(this.playScoreId, perf.settings, prepared.context.tickMap, schedule);
     this.scoreView?.setPlaySession(this.replayController);
   }
@@ -1595,8 +1598,8 @@ export class Session {
     if (this.engineUnlocked) {
       // Already unlocked from an earlier Score in this session: deliver immediately (contracts/worklet-protocol.md
       // "schedule" stops playback and resets position by itself). Not yet unlocked: handlePlay() delivers it on
-      // the first Play, since creating/loading the worklet needs a user gesture.
-      this.audioEngine.load(this.currentSchedule);
+      // the first Play, since creating/loading the worklet needs a user gesture. A copy, as in handlePlay().
+      this.audioEngine.load(structuredClone(this.currentSchedule));
       this.scheduleDelivered = true;
       if (this.scoreView) this.scoreView.setPlayback(this.audioEngine, this.currentTimeline);
     } else {
