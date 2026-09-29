@@ -201,19 +201,19 @@ Practice popups. No default-grey control, and the Score stack is identical to th
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T024 [P] [US2] Create `tests/ui/logo.test.ts` for `src/ui/brand/logo.ts` (brand.md section 1).
+- [x] T024 [P] [US2] Create `tests/ui/logo.test.ts` for `src/ui/brand/logo.ts` (brand.md section 1).
   (a) `logoMarkSvg({})` contains only `svg`/`path`/`g` elements (no `text`, `image`, `use` with an external href or
   `font`), has `viewBox="0 0 32 32"`, `fill="currentColor"` and `aria-hidden="true"`. (b) With a `title`, it has
   `role="img"` and that `<title>` and no `aria-hidden`. (c) `logoTileSvg(16)` uses the `small` variant and
   `logoTileSvg(32)` the `regular` one (the path data differs). (d) The tile's rect has `rx` 6/32 of the size and
   fill `#1f3a5f`, and the mark is `#ffffff`. Run: fails
-- [ ] T025 [P] [US2] Create `tests/tools/brand-icons.test.ts` for the ICO writer exported by
+- [x] T025 [P] [US2] Create `tests/tools/brand-icons.test.ts` for the ICO writer exported by
   `tools/brand/build-icons.ts`. (a) Given PNG buffers of 16..256 px, it writes the header (reserved 0, type 1, count
   7), directory entries with width/height (256 as 0), bytes-in-resource and offsets pointing at each PNG signature.
   (b) It rejects a non-PNG input. (c) The committed `build/icon.ico` parses with this reader into 7 entries of the
   sizes in brand.md section 3, each a valid PNG of the size it claims (IHDR). (d) `public/favicon.svg` equals
   `logoTileSvg(32)`. Run: fails
-- [ ] T026 [P] [US2] Create `tests/e2e/brand.spec.ts` (all three engines). (a) The first child of `.mx-bar` is
+- [x] T026 [P] [US2] Create `tests/e2e/brand.spec.ts` (all three engines). (a) The first child of `.mx-bar` is
   `#brand`, and it holds no focusable element (Tab from the address bar reaches the first control, not the logo).
   (b) Inside the toolbar (not counting its own `aria-label` "Musicanyya controls", `en.app.toolbar`), exactly one
   node exposes the name "Musicanyya": the word in `#brand`, via `getByText('Musicanyya', { exact: true })`
