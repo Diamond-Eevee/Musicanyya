@@ -9,10 +9,14 @@
   --color-vermilion: #d55e00;
   --color-reddish-purple: #cc79a7;
 
-  /* App Theme */
-  --bg-color: #ffffff;
-  --text-color: var(--color-black);
-  --border-color: #cccccc;
+  /* Fixed notation colors (theme.md 3.3) */
+  --score-paper: #ffffff;
+  --score-ink: #000000;
+
+  /* App Theme (legacy aliases pointing to theme tokens) */
+  --bg-color: var(--mx-surface);
+  --text-color: var(--mx-ink);
+  --border-color: var(--mx-border);
 
   --highlight-note-color: var(--color-sky-blue);
   --highlight-cursor-color: var(--color-orange);
@@ -44,10 +48,15 @@
   --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
+html {
+  background: var(--score-paper);
+}
+
 body {
   margin: 0;
   padding: 0;
-  font-family: var(--font-family);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   background: var(--bg-color);
   color: var(--text-color);
+  user-select: none;
 }

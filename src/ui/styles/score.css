@@ -14,7 +14,7 @@ mx-score-view {
   /* The gutter is reserved whether or not a scrollbar shows, so the page width the layout is fitted to (the
      scroll container's client width) never changes when the number of pages does (score-layout.md, G-1). */
   scrollbar-gutter: stable;
-  background: var(--bg-color);
+  background: var(--mx-desk);
 }
 
 /* Shared by the cursor, the practice marks and the Grade result marks (T041, `grade-marks.ts`): one canvas
@@ -37,6 +37,8 @@ mx-score-view {
      puts it behind the pages without going behind the score background (feature 008, R-02). */
   position: relative;
   isolation: isolate;
+  background: var(--score-paper);
+  color: var(--score-ink);
 }
 
 /* The Practice cursor: a translucent band behind the current event (feature 008, R-02). It sits under the page SVG,
@@ -94,7 +96,7 @@ mx-score-view {
   width: 100%;
   box-sizing: border-box;
   padding: 0.75rem 1.5rem 0.25rem;
-  color: var(--text-main);
+  color: var(--score-ink);
   font-family: serif;
   text-align: center;
 }

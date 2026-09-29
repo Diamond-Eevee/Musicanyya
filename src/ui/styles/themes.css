@@ -1,0 +1,52 @@
+:root {
+  /* Derived scales (theme.md 3.2) */
+  --mx-radius-s: 4px;
+  --mx-radius-m: 8px;
+  --mx-shadow-popup: 0 4px 16px rgba(0, 0, 0, 0.18);
+
+  --mx-text-xs: 0.75rem;
+  --mx-text-s: 0.875rem;
+  --mx-text-m: 1rem;
+  --mx-text-l: 1.125rem;
+
+  --mx-space-1: 2px;
+  --mx-space-2: 4px;
+  --mx-space-3: 8px;
+  --mx-space-4: 12px;
+  --mx-space-5: 16px;
+  --mx-space-6: 24px;
+}
+
+:root[data-theme="paper"] {
+  color-scheme: light;
+  --mx-desk: #e9e5dc;
+  --mx-surface: #f7f5f0;
+  --mx-raised: #ffffff;
+  --mx-border: #8a8578;
+  --mx-ink: #1c1b19;
+  --mx-ink-muted: #5b574f;
+  --mx-accent: #1f3a5f;
+  --mx-on-accent: #ffffff;
+  --mx-accent-soft: #dde3ec;
+  --mx-focus: var(--mx-accent);
+  --mx-warning: #a4400b;
+  --mx-start-text: #0072b2;
+  --mx-loop-text: #882255;
+}
+
+:root:not([data-theme]) {
+  color-scheme: light;
+  --mx-desk: #e9e5dc;
+  --mx-surface: #f7f5f0;
+  --mx-raised: #ffffff;
+  --mx-border: #8a8578;
+  --mx-ink: #1c1b19;
+  --mx-ink-muted: #5b574f;
+  --mx-accent: #1f3a5f;
+  --mx-on-accent: #ffffff;
+  --mx-accent-soft: #dde3ec;
+  --mx-focus: var(--mx-accent);
+  --mx-warning: #a4400b;
+  --mx-start-text: #0072b2;
+  --mx-loop-text: #882255;
+}

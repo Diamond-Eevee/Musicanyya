@@ -48,3 +48,30 @@
 - Decisions: None
 - Problems / open questions: OD-1 (T029) and OD-2 (T052) remain open owner gates as planned (neither blocks Foundation).
 - Handoff: next = Phase 2 Foundational (T006-T015) starting with T006 tests.
+
+## 2026-09-29 - antigravity-gemini-3.8-flash (implement - Foundation Checkpoint)
+- Done: T006-T015 (Phase 2 Foundational completed)
+  - T006: `tests/ui/themes.test.ts` (9 tests) covering THEMES order, parseThemeChoice matrix, resolveTheme
+  - T007: `tests/ui/theme-state.test.ts` (6 tests) covering themeState store init, system dark, setChoice, change listener, storage error resilience
+  - T008: `tests/ui/theme-boot.test.ts` (27 tests) anti-drift test in node:vm ensuring theme-boot.js matches themes.ts exactly with zero globals leaked
+  - T009: `tests/ui/theme-palette.test.ts` (12 tests) checking WCAG 2.x contrast and CIEDE2000 ΔE00 ≥ 15 across feedback colours
+  - T010: `tests/e2e/theme-score-identical.spec.ts` (1 test) confirming score does not take chrome's injected colors and .mx-title-block stays rgb(0, 0, 0)
+  - T011: `src/ui/theme/themes.ts` implementing ThemeId, ThemeChoice, ThemeKind, ThemeInfo, THEMES, parseThemeChoice, resolveTheme
+  - T012: `src/ui/theme/theme-state.ts` implementing themeState store and initializing in `src/app/main.ts`
+  - T013: `public/theme-boot.js` IIFE classic boot script loaded in `index.html` <head> before module entry
+  - T014: `src/ui/styles/themes.css` with Paper theme block, fallback block, and derived scales; `src/ui/styles/tokens.css` with --score-paper and --score-ink, aliasing --bg-color/--text-color/--border-color
+  - T015: `src/ui/styles/score.css` isolating `.mx-score-stack` to --score-paper and --score-ink, `.mx-title-block` to --score-ink, and `.mx-score-scroll` to --mx-desk
+- Quality gate evidence:
+  - `pnpm test`: Test Files 279 passed (279) | Tests 6096 passed (6096) | Duration 25.77s
+  - `pnpm lint`: Checked 1043 files in 340ms, 0 errors, 307 warnings, 13 infos
+  - `pnpm typecheck`: tsc --build tsconfig.json exited 0
+  - `pnpm test:e2e` (`tests/e2e/pressed-keys.spec.ts`): 23 passed (23.2s)
+  - `tests/e2e/theme-score-identical.spec.ts`: 1 passed (4.0s)
+  - Baseline score comparison (`tools/dev/screenshot.ts --compare`):
+    - `listen-1280x800.png`: identical
+    - `listen-390x844.png`: identical
+    - Score pages (`.mx-score-page`) verified 100% pixel-identical in Practice and Graded Play.
+- Decisions: Added `html { background: var(--score-paper); }` in `tokens.css` so off-viewport canvas clipping when capturing `.mx-score-stack` renders pure white score paper matching the baseline canvas clear color.
+- Problems / open questions: OD-1 (T029, logo) and OD-2 (T052, look + palettes) remain open owner gates.
+- Handoff: next = Phase 3 User Story 1 (T016-T024), starting with T016 `tests/ui/no-hardcoded-colours.test.ts`.
+

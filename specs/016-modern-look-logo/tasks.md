@@ -62,24 +62,24 @@ R-2, R-4
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T006 [P] Create `tests/ui/themes.test.ts` for `src/ui/theme/themes.ts` (theme.md sections 1-3.1). (a) `THEMES`
+- [x] T006 [P] Create `tests/ui/themes.test.ts` for `src/ui/theme/themes.ts` (theme.md sections 1-3.1). (a) `THEMES`
   lists paper, ivory, slate (light), then night, walnut, midnight (dark), in that order. (b) `parseThemeChoice` covers
   every row of theme.md section 2, one assertion each: missing -> `auto`, invalid JSON, a non-object, `version: 2`,
   an unknown `choice`, and each valid id plus `auto` read back. (c) `resolveTheme` gives the id itself for each theme
   id with either system setting, `night` for `auto` + dark and `paper` for `auto` + light. Run: fails (module missing)
-- [ ] T007 [P] Create `tests/ui/theme-state.test.ts` (happy-dom, theme.md section 4) with a fake `localStorage` and a
+- [x] T007 [P] Create `tests/ui/theme-state.test.ts` (happy-dom, theme.md section 4) with a fake `localStorage` and a
   fake `matchMedia` whose `change` can be fired. (a) `init()` with nothing stored sets `data-theme="paper"` and
   `data-theme-choice="auto"` (system light). (b) System dark gives `night`. (c) `setChoice('walnut')` writes both
   attributes, stores `{"version":1,"choice":"walnut"}` and notifies once. (d) `setChoice` with the same choice is a
   no-op (no notify). (e) While `auto`, firing the media `change` re-resolves at once. While `walnut`, it is ignored.
   (f) A storage whose `getItem`/`setItem` throw gives `auto` on init and still applies `setChoice`, with no notice
   raised (`noticeState` unchanged). Run: fails
-- [ ] T008 [P] Create `tests/ui/theme-boot.test.ts` (research R-2 anti-drift). Load `public/theme-boot.js` as text and
+- [x] T008 [P] Create `tests/ui/theme-boot.test.ts` (research R-2 anti-drift). Load `public/theme-boot.js` as text and
   run it in a `node:vm` context with a fake `localStorage`, `matchMedia` and `document.documentElement` (dataset). For
   every stored value of T006 (b) plus a throwing storage, and for both system settings, assert that the attributes
   written equal `resolveTheme(parseThemeChoice(raw), dark)` and the choice. Also assert that it never throws and adds
   no own property to the context's global. Run: fails (file missing)
-- [ ] T009 [P] Create `tests/ui/theme-palette.test.ts` (research R-6, theme.md 3.2/3.3). It parses
+- [x] T009 [P] Create `tests/ui/theme-palette.test.ts` (research R-6, theme.md 3.2/3.3). It parses
   `src/ui/styles/themes.css` and `src/ui/styles/tokens.css` as text (a small regex parser for `selector { --x: v; }`
   blocks is enough) and implements WCAG 2.x contrast and CIEDE2000 (same formulas as research R-5). For the theme
   **paper** it checks: (a) the `:root[data-theme="paper"]` block defines every token of theme.md 3.2 and
@@ -93,7 +93,7 @@ R-2, R-4
   check the R-5 table as data: for all six themes, from a table in the test copied from research R-5 (the design
   record, not the CSS), the contrast and ΔE rules hold. This guards the numbers the later palette task folds in.
   Run: (a)-(f) fail
-- [ ] T010 [P] Create `tests/e2e/theme-score-identical.spec.ts`, Chromium only, test (a) "the Score does not take
+- [x] T010 [P] Create `tests/e2e/theme-score-identical.spec.ts`, Chromium only, test (a) "the Score does not take
   the chrome's colours" (FR-010, R-4). Open `repertoire/intermediate/fur-elise-theme` at 1280x800 and screenshot
   `.mx-score-stack`. Inject a style `:root{--mx-desk:#000;--mx-surface:#000;--mx-raised:#000;--mx-ink:#fff;
   --bg-color:#000;--text-color:#fff;--border-color:#fff}` and screenshot again. The two buffers are equal, and the
@@ -102,22 +102,22 @@ R-2, R-4
 
 ### Implementation
 
-- [ ] T011 [P] Create `src/ui/theme/themes.ts`: `ThemeId`, `ThemeChoice`, `ThemeKind`, `ThemeInfo`, `THEMES`,
+- [x] T011 [P] Create `src/ui/theme/themes.ts`: `ThemeId`, `ThemeChoice`, `ThemeKind`, `ThemeInfo`, `THEMES`,
   `parseThemeChoice`, `resolveTheme` exactly as theme.md sections 1-3.1, using the T001 constants. Makes T006 pass
-- [ ] T012 Create `src/ui/theme/theme-state.ts` (theme.md section 4) on the existing `createStore`
+- [x] T012 Create `src/ui/theme/theme-state.ts` (theme.md section 4) on the existing `createStore`
   (`src/ui/state/store.ts`), and call `themeState.init()` in `src/app/main.ts` before the first element is defined.
   Makes T007 pass. Depends on T011
-- [ ] T013 [P] Create `public/theme-boot.js` (theme.md section 5: classic ES2017, `try` around everything, no
+- [x] T013 [P] Create `public/theme-boot.js` (theme.md section 5: classic ES2017, `try` around everything, no
   globals, an IIFE) and load it in `index.html` `<head>` with `<script src="./theme-boot.js"></script>` before the
   module entry. The CSP stays unchanged. Makes T008 pass. Depends on T011 (the rule it must match)
-- [ ] T014 Create `src/ui/styles/themes.css` with the **Paper** block from research R-5, `color-scheme: light`,
+- [x] T014 Create `src/ui/styles/themes.css` with the **Paper** block from research R-5, `color-scheme: light`,
   `--mx-focus: var(--mx-accent)`, the `:root:not([data-theme])` fallback (Paper values) and the derived scales of
   theme.md 3.2 (radii, shadow, type and spacing scales), including the mark-linked text tokens
   `--mx-start-text: #0072b2` and `--mx-loop-text: #882255` in the Paper block (theme.md 3.2 requires every token in
   every theme block). In `src/ui/styles/tokens.css` add `--score-paper` and `--score-ink`. Turn `--bg-color`/`--text-color`/
   `--border-color` into aliases of `--mx-surface`/`--mx-ink`/`--mx-border`. Import order in `src/ui/index.ts`:
   tokens, themes, then the rest. Makes T009 (a)-(f) pass
-- [ ] T015 In `src/ui/styles/score.css` / `layout.css`: `.mx-score-stack { background: var(--score-paper); color:
+- [x] T015 In `src/ui/styles/score.css` / `layout.css`: `.mx-score-stack { background: var(--score-paper); color:
   var(--score-ink) }`, `.mx-title-block` uses `--score-ink` instead of the undefined `--text-main`, and
   `.mx-score-scroll` uses `--mx-desk` (R-4). The Practice band stays visible (it paints over the stack's own
   background, F-4), and `tests/e2e/pressed-keys.spec.ts` stays green. Makes T010 pass

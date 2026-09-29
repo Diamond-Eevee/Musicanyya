@@ -1,4 +1,9 @@
+import { themeState } from '../ui/theme/theme-state.js';
+
+themeState.init();
+
 import '../ui/styles/tokens.css';
+import '../ui/styles/themes.css';
 import '../ui/styles/layout.css';
 import '../ui/styles/score.css';
 import '../ui/styles/panels.css';
