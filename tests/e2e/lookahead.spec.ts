@@ -502,7 +502,8 @@ test.describe('glide follow (015 US2)', () => {
   }, testInfo) => {
     test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
     test.setTimeout(90_000);
-    await page.setViewportSize({ width: 1920, height: 1080 });
+    // 1280 x 720: large-score.musicxml (500 measures) lays out on 39 pages here, 13 at 1920 x 1080
+    await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('/');
 
     await page.locator('mx-open-button input[type=file]').setInputFiles(largeScore);
@@ -512,79 +513,30 @@ test.describe('glide follow (015 US2)', () => {
     await page.locator('.play-btn').click();
     await page.waitForTimeout(1000);
 
-    // 1) Click a measure 20+ pages away (measureIndex 200) whose page is not mounted before the click
-    const distant = await page.evaluate(async () => {
-      const scoreView = document.querySelector('mx-score-view') as HTMLElement;
-      const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
+    // 1) A measure 20+ pages away (measureIndex 400, about page 31) whose page is not mounted before the click
+    const distant = await clickMeasureAndTimeArrival(page, 400);
+    console.log(`FR-009 distant: ${JSON.stringify({ ...distant, timeline: undefined })}`);
+    console.log(
+      `FR-009 distant timeline [ms, scrollTop, gliding, settled, mounted]: ${JSON.stringify(distant.timeline)}`,
+    );
+    expect(distant.pageAfter - distant.pageBefore, 'the measure is 20+ pages away').toBeGreaterThanOrEqual(20);
+    expect(distant.mountedBefore, 'its page is not mounted before the click').not.toContain(distant.pageAfter);
+    expect(distant.settled, 'the view comes to rest where the look-ahead rule wants it').toBe(true);
+    expect(distant.moves, 'animated, never a single-frame cut (F-2)').toBeGreaterThan(1);
+    expect(distant.arrivalMs, 'arrives within FOLLOW_GLIDE_MS + 100 ms of the click').toBeLessThanOrEqual(
+      FOLLOW_GLIDE_MS + 100,
+    );
 
-      const mountedBefore = Array.from(document.querySelectorAll('.mx-score-page')).filter((p) =>
-        p.querySelector('svg'),
-      ).length;
-
-      scoreView.dispatchEvent(new CustomEvent('measureclick', { detail: { measureIndex: 200 } }));
-
-      // Wait until glide begins moving
-      const t0 = performance.now();
-      const initialScroll = scroller.scrollTop;
-      while (scroller.scrollTop === initialScroll && performance.now() - t0 < 5000) {
-        await new Promise((r) => requestAnimationFrame(r));
-      }
-      const movementStart = performance.now();
-      let frames = 0;
-      let lastScroll = scroller.scrollTop;
-
-      // Wait until glide completes
-      while (performance.now() - movementStart < 5000) {
-        await new Promise((r) => requestAnimationFrame(r));
-        if (scroller.scrollTop !== lastScroll) frames++;
-        lastScroll = scroller.scrollTop;
-        if (!scoreView.hasAttribute('data-gliding') && frames > 1) break;
-      }
-      const movementEnd = performance.now();
-
-      return {
-        duration: movementEnd - movementStart,
-        frames,
-        mountedBefore,
-      };
-    });
-
-    expect(distant.mountedBefore).toBeLessThan(20);
-    expect(distant.frames).toBeGreaterThan(1);
-    expect(distant.duration).toBeLessThanOrEqual(2 * FOLLOW_GLIDE_MS + 200);
-
-    // 2) During playback, click a measure two pages back (e.g. measureIndex 180)
-    const back = await page.evaluate(async () => {
-      const scoreView = document.querySelector('mx-score-view') as HTMLElement;
-      const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
-
-      scoreView.dispatchEvent(new CustomEvent('measureclick', { detail: { measureIndex: 180 } }));
-
-      const t0 = performance.now();
-      const initialScroll = scroller.scrollTop;
-      while (scroller.scrollTop === initialScroll && performance.now() - t0 < 5000) {
-        await new Promise((r) => requestAnimationFrame(r));
-      }
-      const movementStart = performance.now();
-      let frames = 0;
-      let lastScroll = scroller.scrollTop;
-
-      while (performance.now() - movementStart < 5000) {
-        await new Promise((r) => requestAnimationFrame(r));
-        if (scroller.scrollTop !== lastScroll) frames++;
-        lastScroll = scroller.scrollTop;
-        if (!scoreView.hasAttribute('data-gliding') && frames > 1) break;
-      }
-      const movementEnd = performance.now();
-
-      return {
-        duration: movementEnd - movementStart,
-        frames,
-      };
-    });
-
-    expect(back.frames).toBeGreaterThan(1);
-    expect(back.duration).toBeLessThanOrEqual(FOLLOW_GLIDE_MS + 100);
+    // 2) During playback, a measure two pages back (measureIndex 374)
+    const back = await clickMeasureAndTimeArrival(page, 374);
+    console.log(`FR-009 back: ${JSON.stringify({ ...back, timeline: undefined })}`);
+    console.log(`FR-009 back timeline [ms, scrollTop, gliding, settled, mounted]: ${JSON.stringify(back.timeline)}`);
+    expect(back.pageBefore - back.pageAfter, 'the measure is two pages back').toBe(2);
+    expect(back.settled).toBe(true);
+    expect(back.moves).toBeGreaterThan(1);
+    expect(back.arrivalMs, 'arrives within FOLLOW_GLIDE_MS + 100 ms of the click').toBeLessThanOrEqual(
+      FOLLOW_GLIDE_MS + 100,
+    );
   });
 
   test('(d) FR-011 - reducedMotion: reduce makes movements happen within one frame', async ({ page }, testInfo) => {
@@ -969,6 +921,80 @@ async function listenAndObserve(page: Page, timeoutMs: number): Promise<FitRun> 
   });
 }
 
+/**
+ * Clicks a measure (the Score view's `measureclick`) and times the movement from the click (FR-009): `arrivalMs` is
+ * when the view last moved, once it has rested where the look-ahead rule wants it (`data-follow-settled`, no glide)
+ * for 300 ms. `pageBefore` / `pageAfter` are the pages at the top of the view; `timeline` is one row per frame.
+ */
+async function clickMeasureAndTimeArrival(page: Page, measureIndex: number) {
+  return page.evaluate(async (measureIndex) => {
+    const view = document.querySelector('mx-score-view') as HTMLElement;
+    const scroller = document.querySelector('.mx-score-scroll') as HTMLElement;
+    const pages = () => Array.from(document.querySelectorAll<HTMLElement>('.mx-score-page'));
+    const mounted = () =>
+      pages()
+        .filter((p) => p.querySelector('svg'))
+        .map((p) => Number(p.dataset.page));
+    const pageAtTop = () => {
+      const top = scroller.getBoundingClientRect().top + 1;
+      // the first page reaching below the view's top (above page 1 there is the title block)
+      const hit = pages().find((p) => p.getBoundingClientRect().bottom > top);
+      return hit ? Number(hit.dataset.page) : -1;
+    };
+    const frame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
+
+    await frame();
+    const pageBefore = pageAtTop();
+    const mountedBefore = mounted();
+    const clickAt = performance.now();
+    view.dispatchEvent(new CustomEvent('measureclick', { detail: { measureIndex } }));
+
+    let last = scroller.scrollTop;
+    let lastMoveAt = clickAt;
+    let moves = 0;
+    let restingSince: number | null = null;
+    let settled = false;
+    const timeline: (number | string)[][] = [];
+    while (performance.now() - clickAt < 5000) {
+      await frame();
+      const now = performance.now();
+      const top = scroller.scrollTop;
+      if (Math.abs(top - last) >= 0.5) {
+        moves++;
+        lastMoveAt = now;
+        restingSince = null;
+      }
+      last = top;
+      const resting = view.dataset.followSettled === 'true' && view.dataset.gliding !== 'true';
+      timeline.push([
+        Math.round(now - clickAt),
+        Math.round(top),
+        view.dataset.gliding ?? '-',
+        view.dataset.followSettled ?? '-',
+        mounted().join(','),
+      ]);
+      if (!resting) {
+        restingSince = null;
+        continue;
+      }
+      restingSince ??= now;
+      if (now - restingSince >= 300) {
+        settled = true;
+        break;
+      }
+    }
+    return {
+      arrivalMs: Math.round(lastMoveAt - clickAt),
+      moves,
+      settled,
+      pageBefore,
+      pageAfter: pageAtTop(),
+      mountedBefore,
+      timeline,
+    };
+  }, measureIndex);
+}
+
 /** Opens a library item at the given window size, at the default Score size unless `larger` steps are asked for. */
 async function openForFit(
   page: Page,
@@ -1102,9 +1128,11 @@ test.describe('show what fits (015 US3)', () => {
   ] as const) {
     test(`(d) FR-014 - Clementi op. 36 no. 1 at ${name}: show what fits`, async ({ page }, testInfo) => {
       test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
-      test.setTimeout(180_000);
+      // The typed tempo applies (main's fix #2): at 120 BPM the whole movement plays for about 151 s (measured
+      // 151.2 s), at 300 BPM about 60 s. The wait covers the slower run with room for a loaded machine.
+      test.setTimeout(260_000);
       await openForFit(page, size, 'repertoire/advanced/clementi-sonatina-op36-no1-mvt1', 'Clementi', opts);
-      const run = await listenAndObserve(page, 150_000);
+      const run = await listenAndObserve(page, 210_000);
       const { fit, notFit, staffChecks } = expectShowsWhatFits(run);
       console.log(
         `Clementi ${name}: ${run.systemChanges} system changes, ${fit} fit, ${notFit} do not fit, next staff checked ${staffChecks}`,

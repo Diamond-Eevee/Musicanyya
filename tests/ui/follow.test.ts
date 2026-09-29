@@ -325,6 +325,20 @@ describe('glide', () => {
     expect(g2).toBe(g1);
   });
 
+  it('(k) on the frame a long glide ends, a view still 2 px short of its to keeps it: it lands, no new 400 ms glide', () => {
+    // 8400 px in 400 ms: the frame before the end leaves the view about 2 px short, which is more than the epsilon
+    const g1 = glideTo(0, 8400, 1000, null, false);
+    const lastFrame = glidePosition(g1, 1000 + FOLLOW_GLIDE_MS - 16).top;
+    expect(8400 - lastFrame).toBeGreaterThan(FOLLOW_TARGET_EPSILON_PX);
+    const end = 1000 + FOLLOW_GLIDE_MS;
+    const g2 = glideTo(lastFrame, 8400, end, g1, false);
+    expect(g2).toBe(g1);
+    expect(glidePosition(g2, end)).toEqual({ top: 8400, done: true });
+    // A different target at that moment is a fresh glide from where the view is
+    const g3 = glideTo(lastFrame, 9000, end, g1, false);
+    expect(g3).toMatchObject({ from: lastFrame, to: 9000, startMs: end, durationMs: FOLLOW_GLIDE_MS, easing: 'inOut' });
+  });
+
   it('(g) reducedMotion gives durationMs: FOLLOW_GLIDE_REDUCED_MS and the first position is to', () => {
     const g = glideTo(100, 500, 1000, null, true);
     expect(g.durationMs).toBe(FOLLOW_GLIDE_REDUCED_MS);

@@ -3,6 +3,7 @@ import { FOLLOW_GLIDE_MS, LOOKAHEAD_TOP_GAP_PX } from '../../src/engine/config.j
 import type { AudioEngine } from '../../src/engine/ports.js';
 import '../../src/ui/elements/mx-score-view.js';
 import type { MxScoreView, PlayPositionReporter, TimelineDto } from '../../src/ui/elements/mx-score-view.js';
+import { mountedPageNumbers } from '../../src/ui/score/pages.js';
 import type { VerovioClient } from '../../src/ui/score/verovio-client.js';
 import { insetState } from '../../src/ui/state/insetState.js';
 import { playState } from '../../src/ui/state/playState.js';
@@ -840,5 +841,51 @@ describe('score view follow glide (015 US2)', () => {
     transportState.pause(); // nothing follows: the view is not "settled on a target", it is not following at all
     await vi.advanceTimersByTimeAsync(32);
     expect(el.dataset.followSettled).toBeUndefined();
+  });
+
+  it('(i) a glide renders only the pages it lands on, each once, and unmounts nothing until it ends (FR-009, R-7)', async () => {
+    client.pageCount = 8;
+    await el.load(
+      '<score-partwise/>',
+      Array.from({ length: 12 }, (_, i) => `m-${i + 1}`),
+    );
+    Object.defineProperty(scrollEl, 'scrollHeight', { value: 20000, configurable: true });
+    const view = el as unknown as { layouts: { page: number; top: number; height: number }[] };
+    const target = view.layouts.find((l) => l.page === 8)?.top ?? 0;
+    const landing = mountedPageNumbers(view.layouts, target, 600);
+    const flownOver = view.layouts.map((l) => l.page).filter((p) => p !== 1 && !landing.includes(p));
+    expect(flownOver.length).toBeGreaterThanOrEqual(3); // pages 2 .. 6 lie between the start and the landing
+    expect(el.querySelector('[data-page="1"] svg')).not.toBeNull();
+
+    // A worker that takes 1 s per page from page 4 on: every frame of the glide finds the landing pages in flight
+    const requests: number[] = [];
+    const render = client.page.bind(client);
+    client.page = (page: number) => {
+      requests.push(page);
+      if (page < 4) return render(page);
+      return new Promise((resolve) => setTimeout(() => resolve(render(page)), 1000));
+    };
+    (el as unknown as { measurePages: Map<string, number> }).measurePages.set('m-12', 8);
+    scrollEl.scrollTop = 0;
+    listenPosition = { audibleTick: 11 * 480 }; // m-12, on page 8 (not mounted)
+
+    await vi.advanceTimersByTimeAsync(FOLLOW_GLIDE_MS - 50);
+    expect(el.dataset.gliding).toBe('true');
+    expect(scrollEl.scrollTop).toBeGreaterThan(0);
+    expect(
+      requests.filter((p) => flownOver.includes(p)),
+      'no page it only flies over',
+    ).toEqual([]);
+    expect(
+      [...requests].sort((a, b) => a - b),
+      'the landing pages, each asked for once',
+    ).toEqual(landing);
+    expect(el.querySelector('[data-page="1"] svg'), 'the start page stays mounted during the glide').not.toBeNull();
+
+    await vi.advanceTimersByTimeAsync(100); // the glide has ended at the page's estimated top (the page renders at 1 s)
+    expect(scrollEl.scrollTop).toBe(target);
+    expect(el.dataset.gliding, 'no glide in place while the page is still being rendered').toBeUndefined();
+    expect(el.querySelector('[data-page="1"] svg'), 'unmounted once the glide has ended').toBeNull();
+    expect(requests.filter((p) => flownOver.includes(p))).toEqual([]);
   });
 });

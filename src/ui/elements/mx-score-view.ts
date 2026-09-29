@@ -8,6 +8,7 @@ import { displaySegmentIndexAt, type TempoDisplaySegment } from '../../core/temp
 import { cursorNotesAtTick, notesAtTick, passAtTick } from '../../core/timeline/position.js';
 import {
   FOLLOW_MARGIN,
+  FOLLOW_TARGET_EPSILON_PX,
   RELAYOUT_DEBOUNCE_MS,
   SCORE_SCALE_DEFAULT,
   SCORE_SCALE_MAX,
@@ -98,6 +99,10 @@ export class MxScoreView extends HTMLElement {
   private titleBlockHeight = 0;
   private pageMeasureIds = new Map<number, string[]>();
   private mountedPages = new Set<number>();
+  /** Pages whose render request is in flight, with the `pageEpoch` they were asked for in. */
+  private pendingPages = new Map<number, number>();
+  /** Bumped whenever the pages are laid out anew (load, relayout): a render asked for before belongs to the old ones. */
+  private pageEpoch = 0;
   private scale = SCORE_SCALE_DEFAULT;
   private relayoutTimer: ReturnType<typeof setTimeout> | null = null;
   /** A scale change (unlike a resize) relays out even when the viewport cannot be measured. */
@@ -340,6 +345,7 @@ export class MxScoreView extends HTMLElement {
     this.measurePages.clear();
     this.pageLookup = null;
     this.mountedPages.clear();
+    this.pageEpoch++;
     this.measuredHeights.clear();
     this.stack.innerHTML = '';
     this.stack.appendChild(this.band); // first, so it is drawn behind every page (R-02)
@@ -431,58 +437,78 @@ export class MxScoreView extends HTMLElement {
     await this.mountVisiblePages();
   }
 
+  /** While a glide runs only the pages it lands on are rendered, the one holding its end first, and nothing is
+   *  unmounted: the pages it flies over pass as placeholders for a few frames (research R-7). Rendering them too kept
+   *  the landing page waiting behind them in the worker and stalled frames, so a jump arrived late (FR-009). */
   private async mountVisiblePages(): Promise<void> {
     if (!this.client || this.layouts.length === 0) return;
     const viewportHeight = this.scrollEl.clientHeight || DEFAULT_PAGE_HEIGHT;
-    const visible = new Set(mountedPageNumbers(this.layouts, this.scrollEl.scrollTop, viewportHeight));
-    if (this.activeGlide) {
-      for (const p of mountedPageNumbers(this.layouts, this.activeGlide.to, viewportHeight)) {
-        visible.add(p);
+    const anchor = this.activeGlide ? this.activeGlide.to : this.scrollEl.scrollTop;
+    const wanted = mountedPageNumbers(this.layouts, anchor, viewportHeight);
+
+    if (!this.activeGlide) {
+      for (const page of Array.from(this.mountedPages)) {
+        if (!wanted.includes(page)) {
+          const pageEl = this.stack.querySelector(`[data-page="${page}"]`);
+          if (pageEl) pageEl.innerHTML = '';
+          this.domEpoch++;
+          this.mountedPages.delete(page);
+        }
       }
     }
+
+    const distance = (page: number): number => {
+      const layout = this.layouts[page - 1];
+      if (!layout) return Number.POSITIVE_INFINITY;
+      return Math.max(0, layout.top - anchor, anchor - (layout.top + layout.height));
+    };
+    const missing = wanted
+      .filter((page) => !this.mountedPages.has(page) && this.pendingPages.get(page) !== this.pageEpoch)
+      .sort((a, b) => distance(a) - distance(b));
+    await Promise.all(missing.map((page) => this.mountPage(page)));
+  }
+
+  /** Renders one page and puts it in the stack; a page already asked for in this layout is not asked for again. */
+  private async mountPage(page: number): Promise<void> {
+    if (!this.client) return;
     const token = this.loadToken;
-
-    for (const page of Array.from(this.mountedPages)) {
-      if (!visible.has(page)) {
-        const pageEl = this.stack.querySelector(`[data-page="${page}"]`);
-        if (pageEl) pageEl.innerHTML = '';
-        this.domEpoch++;
-        this.mountedPages.delete(page);
-      }
+    const epoch = this.pageEpoch;
+    this.pendingPages.set(page, epoch);
+    let svg: string;
+    try {
+      ({ svg } = await this.client.page(page));
+    } finally {
+      if (this.pendingPages.get(page) === epoch) this.pendingPages.delete(page);
     }
-
-    for (const page of visible) {
-      if (this.mountedPages.has(page)) continue;
-      const { svg } = await this.client.page(page);
-      if (token !== this.loadToken) return;
-      const sanitised = sanitiseAndExtractMeasures(svg);
-      if (sanitised.aspect !== null) {
-        const width = this.scrollEl.clientWidth;
-        const pageHeight = width > 0 ? Math.round(width * sanitised.aspect * 100) / 100 : DEFAULT_PAGE_HEIGHT;
-        if (this.measuredHeights.get(page) !== pageHeight) {
-          const beforeLayout = this.layouts.find((l) => l.page === page);
-          this.measuredHeights.set(page, pageHeight);
-          const fallback = this.fallbackPageHeightPx();
-          const heights = pageHeights(this.layouts.length, this.measuredHeights, fallback);
-          this.layouts = layoutPages(heights, this.titleBlockHeight);
-          for (const layout of this.layouts) {
-            const el = this.stack.querySelector<HTMLElement>(`[data-page="${layout.page}"]`);
-            if (el) el.style.height = `${layout.height}px`;
-          }
-          if (beforeLayout) {
-            const delta = scrollCompensation(beforeLayout, pageHeight, this.scrollEl.scrollTop);
-            if (delta !== 0) {
-              this.applyScrollCompensation(delta);
-            }
+    // A newer load or layout came in meanwhile: this page belongs to the old one
+    if (token !== this.loadToken || epoch !== this.pageEpoch || this.mountedPages.has(page)) return;
+    const sanitised = sanitiseAndExtractMeasures(svg);
+    if (sanitised.aspect !== null) {
+      const width = this.scrollEl.clientWidth;
+      const pageHeight = width > 0 ? Math.round(width * sanitised.aspect * 100) / 100 : DEFAULT_PAGE_HEIGHT;
+      if (this.measuredHeights.get(page) !== pageHeight) {
+        const beforeLayout = this.layouts.find((l) => l.page === page);
+        this.measuredHeights.set(page, pageHeight);
+        const fallback = this.fallbackPageHeightPx();
+        const heights = pageHeights(this.layouts.length, this.measuredHeights, fallback);
+        this.layouts = layoutPages(heights, this.titleBlockHeight);
+        for (const layout of this.layouts) {
+          const el = this.stack.querySelector<HTMLElement>(`[data-page="${layout.page}"]`);
+          if (el) el.style.height = `${layout.height}px`;
+        }
+        if (beforeLayout) {
+          const delta = scrollCompensation(beforeLayout, pageHeight, this.scrollEl.scrollTop);
+          if (delta !== 0) {
+            this.applyScrollCompensation(delta);
           }
         }
       }
-      this.pageMeasureIds.set(page, sanitised.measureIds);
-      const pageEl = this.stack.querySelector(`[data-page="${page}"]`);
-      if (pageEl) pageEl.innerHTML = sanitised.svg;
-      this.domEpoch++;
-      this.mountedPages.add(page);
     }
+    this.pageMeasureIds.set(page, sanitised.measureIds);
+    const pageEl = this.stack.querySelector(`[data-page="${page}"]`);
+    if (pageEl) pageEl.innerHTML = sanitised.svg;
+    this.domEpoch++;
+    this.mountedPages.add(page);
   }
 
   private onClick(event: Event): void {
@@ -1551,6 +1577,7 @@ export class MxScoreView extends HTMLElement {
     this.mountVisiblePages();
     if (pos.done) {
       this.setActiveGlide(null);
+      this.mountVisiblePages(); // landed: the pages around the view now, and the ones it left are unmounted
     }
   }
 
@@ -1576,7 +1603,11 @@ export class MxScoreView extends HTMLElement {
     }
     if (page !== undefined) {
       const layout = this.layouts.find((l) => l.page === page);
-      if (layout) {
+      // Already there, waiting for the page to render: no glide in place
+      const there =
+        this.activeGlide === null &&
+        Math.abs(layout ? layout.top - this.scrollEl.scrollTop : 0) < FOLLOW_TARGET_EPSILON_PX;
+      if (layout && !there) {
         const now = performance.now();
         const reducedMotion =
           (typeof window !== 'undefined' && typeof window.matchMedia === 'function'

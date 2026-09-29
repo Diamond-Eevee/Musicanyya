@@ -57,11 +57,13 @@ export function glideTo(
   }
 
   if (active !== null) {
+    // The same target keeps the glide, also on the frame it ends: the view may still be a few px short of a long
+    // glide's `to` then, and a fresh glide over those px would hold the arrival back by FOLLOW_GLIDE_MS (FR-009)
+    if (Math.abs(to - active.to) < FOLLOW_TARGET_EPSILON_PX) {
+      return active;
+    }
     const isRunning = nowMs < active.startMs + active.durationMs;
     if (isRunning) {
-      if (Math.abs(to - active.to) < FOLLOW_TARGET_EPSILON_PX) {
-        return active;
-      }
       const currentPos = glidePosition(active, nowMs).top;
       const remaining = active.startMs + active.durationMs - nowMs;
       const durationMs = Math.max(remaining, FOLLOW_GLIDE_MIN_REDIRECT_MS);

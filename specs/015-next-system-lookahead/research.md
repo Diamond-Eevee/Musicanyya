@@ -220,14 +220,27 @@ Playwright emulates it (`reducedMotion: 'reduce'`), so the e2e test can check FR
 
 ## R-7. Pages along a long glide
 
-**Decision**: while a glide runs, `mountVisiblePages()` mounts the pages around the glide's **target** position as
-well as around the current position, so the destination is ready when the glide arrives; pages only flown over are
+**Decision**: while a glide runs, `mountVisiblePages()` mounts the pages around the glide's **target** position and
+keeps the ones around its start, so the destination is ready when the glide arrives; pages only flown over are
 not mounted (they pass as blank placeholders for a few frames). When the cursor's measure has no mounted page, the
 target is the estimated top of its page (existing `scrollToPageOf`, now gliding), and the next frame after the page
 mounts redirects to the exact system (R-6).
 
 **Rationale**: a distant jump (repeat, D.C., Follow after scrolling away) crosses at most a few pages in 400 ms;
 rendering every page on the way would queue work in the single Verovio worker and delay the one that matters.
+
+*(Amended 2026-09-29, T044, follow-view 1.4.0.)* The first implementation did not hold to this: the pages around the
+**moving** view were mounted on every frame (the glide's frames and the `scroll` events it causes), with no guard
+against asking for a page already in flight. A probe on `large-score.musicxml` (Chromium, 1920 x 1080, jump from
+page 1 to page 13 during Listen) showed page 13 asked for 5 times, pages 4-10 rendered on the way, frames of 46-118 ms,
+the landing page mounted after the glide's planned end (so the exact-system redirect took the 250 ms minimum), and
+then a fresh 400 ms glide over the last 2 px (the done glide counted as none): 605 ms from the click; T019 (c) had
+measured 897.7 ms. **Decision**: while a glide runs, only the pages within one screen of `glide.to` are rendered,
+nearest first, and nothing is unmounted until it ends; a page is asked for once per layout (`pageEpoch`); no glide
+in place while the landing page renders; `glideTo` keeps a done glide whose `to` is the target. Measured after:
+332-373 ms from the click to arrival for a jump 24+ pages away at 1280 x 720 (5 runs), 382-383 ms two pages back.
+**Alternatives**: start the glide only once the page has rendered (the render time adds to every jump); a longer
+`FOLLOW_GLIDE_MS` for distant jumps (FR-009 wants the same bound however far).
 
 ---
 
