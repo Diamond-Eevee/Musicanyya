@@ -40,5 +40,8 @@ first: switch model, or continue with you? Switch: stop and say which model to u
      with only NEW technology from this plan; keep manual content intact.
 7. Re-evaluate the Constitution Check after design and update the table.
 8. Fill **Project Structure** with concrete paths this feature touches.
-9. Stop after Phase 1 (do NOT create tasks.md). Report: branch, plan path, generated artifacts, gate status, and next
-   step `/speckit.tasks`.
+9. Decisions that need the owner (new stack elements or runtime dependencies, licensing, scope) go into plan
+   "Decisions and open items" marked "needs owner", and the tasks step turns them into "Owner decision gate" tasks.
+10. Commit the plan artifacts (`docs(plan): plan <feature>`) and add a log entry.
+11. Stop after Phase 1 (do NOT create tasks.md). Report: branch, plan path, generated artifacts, gate status, open
+    owner decisions, and next step `/speckit.tasks`.

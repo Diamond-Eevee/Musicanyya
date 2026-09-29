@@ -37,8 +37,12 @@ first: switch model, or continue with you? Switch: stop and say which model to u
      Grading changes get golden/snapshot tests. MusicXML behaviours get fixture tasks.
    - Constitution I: any task touching AudioWorklets, the scheduler, MIDI input timing or plugin callbacks is followed by an
      "RT review with `rt-audio-reviewer`" task.
+   - Every open owner decision from the plan ("needs owner" in its Decisions and open items) becomes an
+     "Owner decision gate" task that names what it blocks.
    - Map each entity, contract and requirement to the story that needs it; nothing orphaned.
    - Each story phase ends with a checkpoint describing its independent test.
 4. Add a Dependencies section (phase order, story dependencies) and Parallel Opportunities.
-5. Report: path, total tasks, tasks per story, tasks per model tier, parallel opportunities, suggested MVP scope (usually US1 only), and
-   next step `/speckit.analyze` then `/speckit.implement`.
+5. Commit `tasks.md` (`docs(tasks): generate tasks for <feature>`) and add a log entry with a `Handoff` line.
+6. Report: path, total tasks, tasks per story, tasks per model tier with the recommended models for each (reference
+   R11), parallel opportunities, suggested MVP scope (usually US1 only), and next step `/speckit.analyze` then
+   `/speckit.implement`.
