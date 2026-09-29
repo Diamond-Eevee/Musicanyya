@@ -9,7 +9,8 @@ argument-hint: "[principle changes or amendment description]"
 $ARGUMENTS
 ```
 
-You MUST consider the user input before proceeding (if not empty).
+You MUST consider the user input before proceeding (if not empty). Only run this step when the user explicitly
+asks for a constitution change (or approved one through an owner decision gate).
 
 ## Goal
 
@@ -40,5 +41,5 @@ first: switch model, or continue with you? Switch: stop and say which model to u
    - `AGENTS.md` section 8 - summary of principles (keep AGENTS.md under 12,000 characters) and
      `docs/agents/reference.md` R1 / Active Technologies - stack summary (CLAUDE.md and GEMINI.md only import AGENTS.md).
 6. Validate: no leftover placeholders, dates ISO, version line matches report.
-7. Report: new version, bump rationale, files changed, any follow-ups, and a suggested commit message
-   (e.g. `docs: amend constitution to v1.1.0 (add principle VIII ...)`).
+7. Commit (`docs: amend constitution to vX.Y.Z (<summary>)`) and report: new version, bump rationale, files changed,
+   follow-ups.

@@ -95,3 +95,8 @@ MusicXML behaviour is uncertain.
 - `quickstart.md`: how to run and manually verify each user story.
 - Update the `Active Technologies` section in `docs/agents/reference.md` if new tech was added.
 - Re-run the Constitution Check above.
+
+## Decisions and open items
+
+- [Decided: ...]
+- [needs owner: ... -> becomes an "Owner decision gate" task]

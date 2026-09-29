@@ -394,7 +394,7 @@ the current system is never under the bar, a notice or an open popup.
 - [x] T107 Remove the deprecated `ZOOM_MIN` / `ZOOM_MAX` / `ZOOM_DEFAULT` / `ZOOM_STEP` aliases from
       `src/engine/config.ts` and every remaining reference, so one value never has two names
       (`score-layout.md` section 1; depends on T034, T045).
-- [ ] T108 Run the `quickstart.md` manual verification script for all four user stories plus the Score
+- [ ] T108 [standard] Run the `quickstart.md` manual verification script for all four user stories plus the Score
       size section, in a maximised window on the 1080p laptop screen.
 - [x] T109 Full quality gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` - all green.
 - [x] T110 Append the checkpoint entry to `specs/004-score-first-layout/implementation-log.md` and

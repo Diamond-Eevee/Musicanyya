@@ -764,3 +764,8 @@ Feature `005-practice-score-library`. Newest entry at the bottom.
   `pnpm test:e2e` 292 passed + the flaky Electron test passed on rerun.
 - Handoff: branch `fix/fur-elise-mutopia`, not merged, not pushed. Owner: accept the Mutopia edition,
   then merge.
+
+## 2026-09-29 - claude-opus-5.5 (model tier backfill)
+- Done: no task work. This feature's tasks predate model tiers (constitution 1.2.0), so its open tasks got a
+  tier tag (reference R11), at the owner's request: T057, T063, T064 `deep` (library music content and a tuplet probe on real music).
+- Handoff: unchanged; an agent picking up one of these tasks checks model fit against its tag first.

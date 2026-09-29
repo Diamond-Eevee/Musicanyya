@@ -346,3 +346,8 @@ Feature `004-score-first-layout`. Newest entry at the bottom.
   - T108 (manual quickstart on the physical 1080p screen) is still open and unchanged.
 - Handoff: next = T108 by the owner, then merge review of `004-score-first-layout`; tree clean at the
   commit after this entry.
+
+## 2026-09-29 - claude-opus-5.5 (model tier backfill)
+- Done: no task work. This feature's tasks predate model tiers (constitution 1.2.0), so its open tasks got a
+  tier tag (reference R11), at the owner's request: T108 `standard`.
+- Handoff: unchanged; an agent picking up one of these tasks checks model fit against its tag first.

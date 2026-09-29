@@ -934,3 +934,8 @@ Newest entry at the bottom. One entry per session or checkpoint (AGENTS.md secti
   pre-existing CPU-contention flake this feature's own log already documented - not caused by this change.
 - Handoff: feature 003 has only T082 left (manual, needs a person with a real MIDI keyboard - not agent-doable).
   Every other task in `tasks.md` is `[x]`. Tree clean at the commit after this entry, not pushed.
+
+## 2026-09-29 - claude-opus-5.5 (model tier backfill)
+- Done: no task work. This feature's tasks predate model tiers (constitution 1.2.0), so its open tasks got a
+  tier tag (reference R11), at the owner's request: T082 `standard`.
+- Handoff: unchanged; an agent picking up one of these tasks checks model fit against its tag first.

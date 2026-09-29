@@ -417,3 +417,8 @@
 - Owner said "merge" after being told T083 (SC-005 learner test) is still open: **merged with SC-005 accepted as open**. T083 stays `[ ]` in tasks.md; the
   wrong-note counts of a first play of the C major Introduction, hands together in Practice mode, are still to be recorded here by the owner or three people.
 - Merged into `main` locally with a merge commit; not pushed (not asked).
+
+## 2026-09-29 - claude-opus-5.5 (model tier backfill)
+- Done: no task work. This feature's tasks predate model tiers (constitution 1.2.0), so its open tasks got a
+  tier tag (reference R11), at the owner's request: T083 `standard`.
+- Handoff: unchanged; an agent picking up one of these tasks checks model fit against its tag first.

@@ -36,6 +36,9 @@ decision (e.g. `T011: approved`), apply that first.
    - Model fit: before the first task of a tier your model does not fit (phase `**Model**` line or the task's
      `[deep]`/`[standard]`/`[light]` tag, `docs/agents/reference.md` R11), stop and ask the user: switch model, or continue?
      Switch: hand off with `next = T###, needs tier <tier>`. Continue: log the answer and go on.
+   - An "Owner decision gate" task is done only when the decision is recorded on the task line ("owner approved
+     ..." / "owner rejected ...") AND every document it names (ADR, constitution via
+     `.claude/commands/speckit.constitution.md`, plan) has been updated.
    - Tests before implementation: write the test, run it, confirm it FAILS for the right reason, then implement
      until it passes (Constitution IV).
    - `[P]` tasks may run in parallel only when they touch different files.
