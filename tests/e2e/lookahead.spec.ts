@@ -652,6 +652,12 @@ async function listenAndObserve(page: Page, timeoutMs: number): Promise<FitRun> 
       run.noticesMax = Math.max(run.noticesMax, document.querySelectorAll('mx-notice-tray .notice').length);
 
       const sys = document.querySelector('g.note.playing')?.closest('g.system') ?? null;
+      // A system is its page and its index in the page: a page mounted again has new elements for the same systems.
+      const sysKey = (el: Element) => {
+        const pg = el.closest('.mx-score-page') as HTMLElement;
+        return `${pg.dataset.page}:${Array.from(pg.querySelectorAll('g.system')).indexOf(el)}`;
+      };
+      if (sys && current && sys !== current && sysKey(sys) === sysKey(current)) current = sys;
       if (sys && sys !== current) {
         if (!observed) run.unsettled++;
         const sysPage = sys.closest('.mx-score-page') as HTMLElement;
