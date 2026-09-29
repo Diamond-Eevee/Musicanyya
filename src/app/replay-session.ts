@@ -32,6 +32,8 @@ export class ReplaySessionController {
 
   start(scoreId: string | null, settings: RunSettings, tickMap: PlayTickMap, schedule: ScheduleMessage): void {
     this.audioEngine.load(schedule);
+    // Played at the attempt's own tempo, the factor `compileReplay` converted its times with (012 FR-018).
+    this.audioEngine.setTempoPercent(settings.tempoPercent);
     this.audioEngine.play();
     this.run = { ...createIdleRun(scoreId, settings, tickMap), phase: 'running' };
   }

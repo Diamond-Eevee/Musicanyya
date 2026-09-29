@@ -483,6 +483,41 @@ describe('PlaySessionController (T039/T097)', () => {
     expect(effects).toContainEqual({ type: 'notice', code: 'playAttemptNotStored' });
   });
 
+  // 012 FR-018: the run's tempo drives the sound, not only the grading windows. The worklet keeps its tempo factor
+  // across schedules (whatever Listen or Practice last set), and a run's schedule is compiled at the written tempo, so
+  // without this the run played at the Listen tempo while grading used the Play setup's tempo.
+  describe("the run's tempo at the start of a run (012 FR-018)", () => {
+    const tempoCommands = (commands: readonly string[]) => commands.filter((c) => c.startsWith('setTempoPercent:'));
+
+    it("a run at 200 % sets the engine's tempo to 200 %, after the schedule is loaded and before play", () => {
+      const { score, timeline, audioEngine, controller } = setup();
+      controller.start({
+        scoreId: null,
+        score,
+        timeline,
+        measures: score.measures,
+        range: null,
+        settings: settings({ tempoPercent: 200 }),
+      });
+      expect(tempoCommands(audioEngine.commands)).toEqual(['setTempoPercent:200']);
+      const tempoAt = audioEngine.commands.indexOf('setTempoPercent:200');
+      expect(tempoAt).toBeGreaterThan(audioEngine.commands.indexOf('load'));
+      expect(tempoAt).toBeLessThan(audioEngine.commands.indexOf('play'));
+    });
+
+    it('a run at the written tempo sets 100 % explicitly, so a faster Listen tempo (or an earlier run) cannot carry over', () => {
+      const { score, timeline, audioEngine, controller } = setup();
+      const options = { scoreId: null, score, timeline, measures: score.measures, range: null };
+      audioEngine.setTempoPercent(200); // what the Listen transport last gave the engine
+      controller.start({ ...options, settings: settings({ tempoPercent: 100 }) });
+
+      expect(tempoCommands(audioEngine.commands)).toEqual(['setTempoPercent:200', 'setTempoPercent:100']);
+      const tempoAt = audioEngine.commands.lastIndexOf('setTempoPercent:100');
+      expect(tempoAt).toBeGreaterThan(audioEngine.commands.lastIndexOf('load'));
+      expect(tempoAt).toBeLessThan(audioEngine.commands.lastIndexOf('play'));
+    });
+  });
+
   // 009 research R-02: a muted Metronome must not stay muted on the next run - the worklet keeps channel volumes across
   // schedules, so every start sets the Metronome channel volume explicitly, after the schedule is loaded.
   describe('the Metronome channel volume at the start of a run (009 R-02, FR-013)', () => {

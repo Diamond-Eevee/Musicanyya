@@ -128,6 +128,8 @@ export class WebAudioEngine implements AudioEngine {
       sampleRate: context.sampleRate,
       maxBlock: 128,
     });
+    // A tempo set before this node existed (typed before the first Play) was only recorded, never sent (012 FR-007).
+    node.port.postMessage({ type: 'tempo', percent: this.transport.tempoPercent });
     this.node = node;
   }
 

@@ -56,6 +56,18 @@ describe('ReplaySessionController', () => {
     expect(run?.positionRunTick).toBe(0);
   });
 
+  it("sets the engine to the attempt's own tempo after loading and before playing (012 FR-018), so the replay is not played at whatever Listen last set", () => {
+    const audioEngine = new FakeAudioEngine();
+    const controller = new ReplaySessionController(audioEngine, { onEnded: () => {} });
+    audioEngine.setTempoPercent(200); // what the Listen transport last gave the engine
+
+    controller.start('score-1', { ...SETTINGS, tempoPercent: 75 }, TICK_MAP, fakeSchedule());
+
+    const tempoAt = audioEngine.commands.lastIndexOf('setTempoPercent:75');
+    expect(tempoAt).toBeGreaterThan(audioEngine.commands.indexOf('load'));
+    expect(tempoAt).toBeLessThan(audioEngine.commands.indexOf('play'));
+  });
+
   it('reportPosition keeps the run position in sync with the engine, every frame', () => {
     const audioEngine = new FakeAudioEngine();
     const controller = new ReplaySessionController(audioEngine, { onEnded: () => {} });
