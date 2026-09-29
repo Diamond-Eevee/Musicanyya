@@ -11,3 +11,12 @@
 - Problems / open questions: needs owner: OD-1 logo artwork approval (SC-007); OD-2 look + six palettes approval
   (SC-008). Neither blocks the start of implementation.
 - Handoff: next = `/speckit.tasks`; no code changed; `pnpm test`/`pnpm lint` not run (docs only).
+
+## 2026-09-29 - claude-opus-5.5 (tasks)
+- Done: tasks.md, 55 tasks (Setup 5, Foundation 10, US1 8, US2 10, US5 8, US3 3, US4 4, Polish 7); tiers: light 8,
+  standard 46, deep 1 (T027 logo artwork). Model fit: standard step, claude-opus-5.5 fits ("also fits" in R11).
+- Decisions: US5 (themes) is ordered before US3/US4 so the Score browser and panels are styled and checked once in
+  all six themes; baseline captures (T005) must precede any styling change; the palette test also checks the R-5
+  design table so the light-tier fold (T038) has a guard.
+- Problems / open questions: needs owner: OD-1 (T029, logo) and OD-2 (T052, look) - neither blocks other work.
+- Handoff: next = `/speckit.analyze`, then implement from T001; no code changed yet.
