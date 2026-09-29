@@ -133,6 +133,7 @@ pnpm library:songs     # build the songs from content/library/songs/*.json + app
 pnpm library:engrave  # complete hand-written repertoire files in place (beams + accidentals)
 pnpm library:index    # regenerate public/library/index.json from the files on disk
 pnpm screenshot       # open the app headless and save a PNG (see "Running and seeing the app" below)
+pnpm brand:icons      # regenerate favicon + Electron/installer icons (commit them) and tests/.generated/brand-sheet.png from src/ui/brand/logo.ts (016)
 pnpm library:fidelity # re-run every audit record (feature 007) and rewrite docs/library-audit.md when all reproduce
 pnpm library:fidelity --check      # the same, but only confirm docs/library-audit.md is fresh (writes nothing)
 pnpm library:fidelity --item <id>  # one record, every difference in full (add --file <path> to test another file)

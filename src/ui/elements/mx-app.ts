@@ -1,3 +1,4 @@
+import { logoMarkSvg } from '../brand/logo.js';
 import { en } from '../i18n/en.js';
 import './mx-environment-panel.js';
 
@@ -14,6 +15,7 @@ export class MxApp extends HTMLElement {
   connectedCallback() {
     this.innerHTML = `
       <header id="mx-bar" class="mx-bar" role="toolbar" aria-label="${en.app.toolbar}">
+        <span id="brand" class="mx-bar-slot mx-brand">${logoMarkSvg({})}<span class="mx-brand-word">Musicanyya</span></span>
         <div id="mode-controls" class="mx-bar-slot"></div>
         <div id="transport-controls" class="mx-bar-slot"></div>
         <div id="size-controls" class="mx-bar-slot"></div>
@@ -50,11 +52,16 @@ export class MxApp extends HTMLElement {
     });
   }
 
-  /** Measures the bar in its roomy form and switches to the compact form only if that does not fit. */
+  /**
+   * Measures the bar in its roomy form and steps down only as far as needed (research R-11): first the brand word
+   * goes (it stays in the accessibility tree), then the compact form takes over.
+   */
   private fitBar(): void {
     const bar = this.querySelector('#mx-bar') as HTMLElement | null;
     if (!bar) return;
-    bar.classList.remove('mx-bar-compact');
+    bar.classList.remove('mx-bar-compact', 'mx-bar-no-word');
+    if (bar.scrollWidth <= bar.clientWidth) return;
+    bar.classList.add('mx-bar-no-word');
     if (bar.scrollWidth > bar.clientWidth) bar.classList.add('mx-bar-compact');
   }
 }

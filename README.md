@@ -47,6 +47,9 @@ and Web MIDI.
    on through the View menu; `--greyscale` puts the page in greyscale for the picture (feature 010)
    `--browser` takes the picture with the Score browser open (feature 013); with it, `--seed-progress <json>`
    (`tests/fixtures/progress/`) seeds results, and `--filter status=played --sort best:asc` choose filters and sort
+5. Regenerate the logo files after changing the artwork in `src/ui/brand/logo.ts`: `pnpm brand:icons` writes
+   `public/favicon.svg`, `public/favicon-32.png`, `build/icon.ico` and `build/icon.png` (commit them) and the review
+   sheet `tests/.generated/brand-sheet.png` (feature 016)
 
 ### Testing and Quality Gates
 

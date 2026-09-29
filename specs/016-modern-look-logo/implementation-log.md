@@ -125,5 +125,59 @@
   - OD-1 (T029, logo) and OD-2 (T052, look + palettes) remain open owner gates.
 - Handoff: next = T027, needs tier deep (recommended: claude-opus-5.5); tree clean at 96e5e96.
 
-
-
+## 2026-09-29 23:10 - claude-opus-5.5 (implement - US2 Checkpoint)
+- Session start: re-ran the previous hand-off's checks: `pnpm test` Test Files 2 failed | 281 passed, Tests 6105
+  passed (only logo.test.ts and brand-icons.test.ts red, as logged), typecheck exit 0, lint 0 errors. Model fit: T027
+  is deep, claude-opus-5.5 fits; the standard/light tasks T028-T033 fit too (higher tier).
+- Done: T027-T033 (Phase 4 US2 complete, checkpoint passed).
+  - T027: `src/ui/brand/logo.ts`: the mark is computed from named grid parameters (stems, beam weight, tilted
+    elliptical heads, valley) into three fixed paths; `small` variant with heavier strokes and larger heads, tuned
+    with the tile scale so that at 16 px both stems are exactly 1 px wide on whole pixels (crisp, not grey). The tile
+    carries `<title>Musicanyya</title>` (it is also the standalone favicon.svg, and Biome's noSvgWithoutTitle needs it).
+    `tests/ui/logo.test.ts`: 4 passed.
+  - T028: `tools/brand/build-icons.ts` + `pnpm brand:icons` (writeIco/readIco exported). Generated and committed
+    `public/favicon.svg`, `public/favicon-32.png`, `build/icon.ico` (7 entries), `build/icon.png`; review sheet
+    `tests/.generated/brand-sheet.png` (16-128 px on the six R-5 surfaces + white + black, bar and empty-state marks,
+    16/24/32 px enlarged, 256/512 once). `tsconfig.tools.json` now references `tsconfig.ui.json` (the tool imports
+    the artwork source). `tests/tools/brand-icons.test.ts`: 4 passed.
+  - T029: OD-1 **owner approved** 2026-09-29 (artwork of eca8304, tile unchanged; its low contrast on the Midnight
+    surface was pointed out and accepted). Recorded in spec.md Clarifications and quickstart US2.
+  - T030: `#brand` slot first in the bar (mark 24 px + word); fit = roomy, then `.mx-bar-no-word` (clip-pattern
+    visually hidden word), then compact. `tests/e2e/brand.spec.ts` (a), (b), (e): 24 passed over `--repeat-each=2`.
+  - T031: empty state mark 64 px, muted ink. `tests/ui/empty-state.test.ts` green (in the 6113).
+  - T032: favicon links in index.html, `win.icon: build/icon.ico`, dev-only `BrowserWindow` icon from
+    `app.getAppPath()/build/icon.png`. brand (c) green; `electron-smoke.spec.ts` green in the full run.
+  - T033: `pnpm brand:icons` in README (Quickstart 5), reference.md R7 command list, feature quickstart.
+- Test fixes in files written earlier (no assertion loosened; each would also fail on the old code where it applies):
+  - `brand.spec.ts` (d) expected the invented text "Drop a MusicXML score here"; the unchanged strings are
+    `en.app.emptyState` and `en.open.dropHint` ("Drop a MusicXML file here") - both are now asserted.
+  - `brand.spec.ts` (a) Tab step: after the Score browser closes, Chromium's first Tab leaves the document
+    (`document.hasFocus()` false), so a second Tab is the real "Tab from the address bar"; a focusable #brand would
+    still take the first Tab. Headless WebKit on Windows does not reliably give focus back to the document at all
+    (probed: `window.focus()`, selection collapse), so in WebKit only the structural checks of (a) run.
+  - `us1-layout.spec.ts` (feature 004): the brand makes the bar compact at 1280/1366 px (idle) and at 1600 px
+    (running) with the test Score. The bar fits itself one or two frames (~30 ms, traced) after its contents change,
+    and the "no clipped control" checks ran without waiting: WebKit failed 6/45 runs (0/45 without the brand), Firefox
+    the running check at 1600. A synchronous fit in the ResizeObserver callback removes the flash but raises
+    "ResizeObserver loop completed with undelivered notifications" in every engine, so it was reverted. **Owner
+    chose** (2026-09-29) to wait for the fit with the shared `barFitted()` helper (as us2-panels, us3-run-chrome,
+    chrome-look and brand do) before the idle and running checks; assertions unchanged. Result: 309 passed, 3 skipped
+    over `--repeat-each=3`.
+- Quality gate evidence (US2 checkpoint):
+  - `pnpm test`: Test Files 283 passed (283) | Tests 6113 passed (6113)
+  - `pnpm lint`: Checked 1053 files, 0 errors, 314 warnings, 13 infos
+  - `pnpm typecheck`: tsc --build exited 0
+  - `pnpm test:e2e`: 1031 passed, 623 skipped, 2 failed: lookahead.spec.ts:363 (chromium, glide arrived 699 ms > 500)
+    and score-browser.spec.ts:343 (firefox, message text timeout 5 s). Both re-run in isolation 3/3 passed; they are
+    timing checks under the full parallel load and touch neither the bar nor the brand. Not fixed here.
+  - Manual (quickstart US2): `tests/.generated/016-us2-bar-1600.png` (mark + word), `016-us2-bar-1280.png` (compact,
+    mark only, one row), `016-us2-empty.png` (mark above the unchanged invitation) - each looked at. `pnpm
+    electron:build` exit 0 (after repairing a corrupt local install: `node_modules/.pnpm/debug@4.4.3` was empty,
+    "Cannot find module 'debug'"; fixed with `pnpm install --frozen-lockfile --force`, no tracked file changed). Icons
+    extracted from `release/win-unpacked/Musicanyya.exe` and the installer (`016-us2-exe-icon-*.png`): both show the
+    tile. The dev window icon (`pnpm electron:dev`) was not looked at (interactive; analyze F-11).
+- Decisions: fit order and visually-hidden word per R-11; small-variant pixel alignment (above).
+- Problems / open questions: OD-2 (T052, look + palettes) remains open and blocks merge. SC-006 note for T051: the
+  compact switch now happens at wider windows (brand width), as R-11 intends.
+- Handoff: next = Phase 5 US5, T034-T037 (tests first), then T038 [light] -> T039/T040 -> T041; tree clean at the
+  commit below.

@@ -6,7 +6,7 @@
 pnpm install
 pnpm dev                 # browser app at http://localhost:5173
 pnpm electron:dev        # Electron app
-pnpm brand:icons         # regenerate favicon + Electron icons from src/ui/brand/logo.ts (new)
+pnpm brand:icons         # regenerate favicon + Electron icons from src/ui/brand/logo.ts; commit the files it writes
 pnpm screenshot -- --item repertoire/intermediate/fur-elise-theme --theme walnut   # --theme is new
 ```
 
@@ -43,7 +43,7 @@ Always look at the pictures (AGENTS.md "Seeing the app"). Put them in `tests/.ge
    nothing wraps.
 3. `pnpm electron:dev`. The window and taskbar show the logo. `pnpm electron:build`. The installer and the exe show it.
 4. Open `tests/.generated/brand-sheet.png` (written by `pnpm brand:icons`). At 16 px it reads as two joined notes, and
-   at 32 px and up as an M. **Owner approval (OD-1, SC-007).**
+   at 32 px and up as an M. **Owner approval (OD-1, SC-007)**: approved 2026-09-29.
 
 ### US3: Score browser (P2)
 

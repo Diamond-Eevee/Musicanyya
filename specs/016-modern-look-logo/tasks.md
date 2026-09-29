@@ -234,25 +234,25 @@ Practice popups. No default-grey control, and the Score stack is identical to th
   writer + reader for tests), `public/favicon.svg`, `public/favicon-32.png`, `build/icon.ico` and `build/icon.png`,
   and the review sheet `tests/.generated/brand-sheet.png` (every size on the six themes' `--mx-surface` colours from
   research R-5 plus white and black). Run it and commit the generated files. Makes T025 pass. Depends on T027
-- [ ] T029 [US2] **Owner decision gate OD-1** (spec SC-007, plan "Decisions and open items"). Show the owner
+- [x] T029 [US2] **Owner decision gate OD-1** (owner approved 2026-09-29, artwork of eca8304) (spec SC-007, plan "Decisions and open items"). Show the owner
   `tests/.generated/brand-sheet.png` and ask them to approve the mark (reads as two joined notes at 16 px, as an M
   at 32 px and up), or to say what to change. If they want changes: edit `logo.ts`, re-run T028 and ask again. Record
   the answer and date in `spec.md` Clarifications and the log. **Blocks**: the US2 checkpoint and merge. It does not
   block T030-T033, which work with the draft artwork
-- [ ] T030 [US2] Bar slot (ui-shell 1.2.0, R-11): in `src/ui/elements/mx-app.ts`, render `<span id="brand"
+- [x] T030 [US2] Bar slot (ui-shell 1.2.0, R-11): in `src/ui/elements/mx-app.ts`, render `<span id="brand"
   class="mx-bar-slot mx-brand">` first in the bar, containing `logoMarkSvg({})` at 24 px and `<span
   class="mx-brand-word">Musicanyya</span>`. The fit step tries roomy, then `.mx-bar-no-word`, then compact. In
   `layout.css`, `.mx-bar-no-word .mx-brand-word` is visually hidden (clip pattern), not `display:none`. Makes T026
   (a), (b), (e) pass
-- [ ] T031 [P] [US2] Empty state: in `src/ui/elements/mx-drop-zone.ts`, put the mark at 64 px (`aria-hidden`) above
+- [x] T031 [P] [US2] Empty state: in `src/ui/elements/mx-drop-zone.ts`, put the mark at 64 px (`aria-hidden`) above
   the existing text, in `--mx-ink-muted`. The text and the Open action are unchanged, and
   `tests/ui/empty-state.test.ts` stays green. Makes T026 (d) pass
-- [ ] T032 [P] [US2] Icons: in `index.html`, add `<link rel="icon" href="./favicon.svg" type="image/svg+xml">` and
+- [x] T032 [P] [US2] Icons: in `index.html`, add `<link rel="icon" href="./favicon.svg" type="image/svg+xml">` and
   `<link rel="icon" href="./favicon-32.png" sizes="32x32" type="image/png">`. In `electron-builder.yml`, set
   `win.icon: build/icon.ico`. In `electron/main.ts`, pass `icon: build/icon.png` to `BrowserWindow` in dev
   (`MUSICANYYA_DEV_URL`), resolved from the app path. In production the exe icon is used. Makes T026 (c) pass.
   `tests/electron` and `electron-smoke.spec.ts` green
-- [ ] T033 [US2] [light] Document `pnpm brand:icons` in `quickstart.md` (feature), `README.md` and the toolchain
+- [x] T033 [US2] [light] Document `pnpm brand:icons` in `quickstart.md` (feature), `README.md` and the toolchain
   section of `docs/agents/reference.md`
 
 **Checkpoint (US2)**: T024-T026 green. The quickstart US2 steps are done, including `pnpm electron:build` and a look

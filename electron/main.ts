@@ -68,9 +68,12 @@ if (!gotTheLock) {
 }
 
 function createWindow() {
+  const devUrl = process.env.MUSICANYYA_DEV_URL;
   const mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
+    // In dev the window and taskbar show the app icon from build/ (brand.md section 2); packaged, the exe's icon is used.
+    ...(devUrl ? { icon: path.join(app.getAppPath(), 'build', 'icon.png') } : {}),
     webPreferences: {
       contextIsolation: true,
       sandbox: true,
@@ -81,8 +84,8 @@ function createWindow() {
     },
   });
 
-  if (process.env.MUSICANYYA_DEV_URL) {
-    mainWindow.loadURL(process.env.MUSICANYYA_DEV_URL);
+  if (devUrl) {
+    mainWindow.loadURL(devUrl);
   } else {
     mainWindow.setMenu(null); // No menu in production
     mainWindow.loadURL('app://musicanyya/');

@@ -42,6 +42,33 @@ mx-app {
   padding: 3px 6px;
 }
 
+/* Brand (brand.md section 2): mark + word, decoration only - not focusable, not a toolbar item. */
+.mx-brand {
+  gap: var(--mx-space-2, 6px);
+  font-weight: 600;
+  color: var(--mx-ink);
+}
+
+.mx-brand .mx-logo-mark {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+/* First fit step (research R-11): the word is hidden visually but stays the bar's accessible name. */
+.mx-bar-no-word .mx-brand-word {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Compact mode (mx-app switches it on when the bar's contents would overflow): the four menus fold into "More" and
    the transport sliders shorten. Nothing is hidden, nothing wraps. */
 mx-menu[menu="more"] {
@@ -251,6 +278,14 @@ mx-drop-zone .mx-empty-state {
   margin: auto;
   text-align: center;
   color: var(--mx-ink-muted);
+}
+
+/* The logo above the unchanged invitation (brand.md section 2), in the muted ink of the text below it. */
+mx-drop-zone .mx-empty-state .mx-logo-mark {
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--mx-space-3, 8px);
 }
 
 mx-drop-zone .mx-empty-state[hidden] {

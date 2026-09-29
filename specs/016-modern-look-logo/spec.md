@@ -24,6 +24,9 @@ or something."
   mode. A theme picked by hand wins from then on; picking Automatic again restores following the system.
 - Q: Does the paper colour of the pages change with the theme? -> A: No. The pages are pure white with black
   notation in every theme, so the Score is pixel-identical across all six themes.
+- Q (OD-1, SC-007): Is the logo artwork approved? -> A: Yes, owner approved 2026-09-29 from
+  `tests/.generated/brand-sheet.png` (commit eca8304), as drawn: the M-shaped double-note mark, the ink-blue tile
+  unchanged (its low contrast on the Midnight surface was shown and accepted).
 
 ## Context
 
