@@ -288,9 +288,8 @@ research R-4
 - [x] T040 [US3] Implement T039: `SMUFL_TEXT_ASCENT_PCT = 75`, `SMUFL_TEXT_DESCENT_PCT = 25` in
   `src/engine/config.ts`; the gap rule in `lookaheadTarget` (`src/ui/score/follow.ts`); the descriptors in
   `sanitiseAndExtractMeasures` (`src/ui/score/pages.ts`); T039 (a)/(b) green
-- [~] T028 [US3] Run T012 (c), T015's specs and T026; fix what the new spacing breaks within this feature's files; an
+- [x] T028 [US3] Run T012 (c), T015's specs and T026; fix what the new spacing breaks within this feature's files; an
   expectation that changes because the engraving is more compact is updated with the reason in the log; T026 green
-  (claimed: claude-opus-5-5 2026-09-29)
 - [x] T029 [US3] [light] Run `pnpm library:fidelity --check` again with the compact spacing and record its summary
   line in the log (a failure is a stop-and-ask)
 - [x] T030 [US3] [deep] Notation review (SC-008) with the `music-domain-expert` agent (needs a working `pnpm
@@ -333,7 +332,8 @@ commit.
   mounted before the click, with the limit `FOLLOW_GLIDE_MS` + 100 ms; T019 (e) asserts no programmatic movement after
   the wheel and that ticking Follow again brings current and next system into clear space; T019 (f) runs 20 s, checks
   frame intervals against `tests/e2e/play-frame-rate.spec.ts`'s threshold and compares "Dropouts since Play" with a
-  Follow-off run. Each must pass at `--workers=2` and alone
+  Follow-off run; T019 (b) samples only while a run plays (it failed under load in this container, 09:30 entry). Each
+  must pass at `--workers=2` and alone
 - [ ] T037 Final gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, each summary line in the log;
   confirm SC-005 by naming the unchanged golden suites (`tests/core/grade/golden.test.ts`,
   `tests/core/practice/replay.test.ts`, `tests/core/grade/marks.test.ts`) and that no snapshot file changed on the branch;

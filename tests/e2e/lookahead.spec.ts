@@ -568,6 +568,8 @@ interface FitObservation {
 
 interface FitRun {
   observations: FitObservation[];
+  /** Every change of the cursor's system: page, index in the page, ms since the first change. */
+  changes: [number, number, number][];
   systemChanges: number;
   /** System changes left again before the view settled (never observed). */
   unsettled: number;
@@ -588,6 +590,7 @@ async function listenAndObserve(page: Page, timeoutMs: number): Promise<FitRun> 
     const w = window as unknown as { __FIT_RUN__: FitRun; __FIT_STOP__: boolean };
     const run: FitRun = {
       observations: [],
+      changes: [],
       systemChanges: 0,
       unsettled: 0,
       dialogsSeen: 0,
@@ -603,6 +606,7 @@ async function listenAndObserve(page: Page, timeoutMs: number): Promise<FitRun> 
     };
     let current: Element | null = null;
     let changedAt = 0;
+    let firstChangeAt = 0;
     let observed = true;
     let lastScroll = scroller.scrollTop;
     let stillSince = performance.now();
@@ -650,6 +654,13 @@ async function listenAndObserve(page: Page, timeoutMs: number): Promise<FitRun> 
       const sys = document.querySelector('g.note.playing')?.closest('g.system') ?? null;
       if (sys && sys !== current) {
         if (!observed) run.unsettled++;
+        const sysPage = sys.closest('.mx-score-page') as HTMLElement;
+        if (run.changes.length === 0) firstChangeAt = now;
+        run.changes.push([
+          Number(sysPage.dataset.page),
+          Array.from(sysPage.querySelectorAll('g.system')).indexOf(sys),
+          Math.round(now - firstChangeAt),
+        ]);
         current = sys;
         changedAt = now;
         observed = false;
@@ -701,7 +712,7 @@ async function openForFit(
   size: { width: number; height: number },
   item: string,
   search: string,
-  opts: { pianoStrip: boolean; larger?: number },
+  opts: { pianoStrip: boolean; larger?: number; tempo?: number },
 ): Promise<void> {
   await page.setViewportSize(size);
   await page.goto('/');
@@ -721,8 +732,10 @@ async function openForFit(
     `${SCORE_SCALE_DEFAULT + (opts.larger ?? 0) * SCORE_SCALE_STEP}%`,
   );
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
-  // Listen at a fast tempo: every system change still happens, the run just takes less time.
-  await page.locator('input[data-id="tempo-bpm"]').fill('300');
+  // Listen at a fast tempo: every system change still happens, the run just takes less time. A system must still
+  // last longer than the settle wait (FOLLOW_GLIDE_MS + 200 ms); at 200 % a system holds about one measure, so that
+  // case passes a slower tempo.
+  await page.locator('input[data-id="tempo-bpm"]').fill(String(opts.tempo ?? 300));
   await page.locator('input[data-id="tempo-bpm"]').press('Enter');
 }
 
@@ -734,7 +747,7 @@ const fitsTogether = (o: FitObservation) =>
 
 /** Every observation (every system change of the run) meets US1 where two systems fit, and FR-014 where they do not. */
 function expectShowsWhatFits(run: FitRun): { fit: number; notFit: number; staffChecks: number } {
-  expect(run.unsettled, 'every system change settles before the next').toBe(0);
+  expect(run.unsettled, `every system change settles before the next: ${JSON.stringify(run.changes)}`).toBe(0);
   expect(run.observations.length).toBe(run.systemChanges);
   let fit = 0;
   let notFit = 0;
@@ -788,7 +801,7 @@ test.describe('show what fits (015 US3)', () => {
         )}`,
       );
       expect(run.systemChanges).toBeGreaterThan(1);
-      expect(run.unsettled, 'every system change settles before the next').toBe(0);
+      expect(run.unsettled, `every system change settles before the next: ${JSON.stringify(run.changes)}`).toBe(0);
       expect(run.observations.length).toBe(run.systemChanges);
       for (const o of run.observations) {
         const label = `system ${o.systemIndex} (page ${o.page})`;
@@ -822,7 +835,7 @@ test.describe('show what fits (015 US3)', () => {
 
   for (const [name, size, opts] of [
     ['1280 x 720 with the piano strip', { width: 1280, height: 720 }, { pianoStrip: true }],
-    ['1920 x 1080 at 200 %', { width: 1920, height: 1080 }, { pianoStrip: false, larger: 10 }],
+    ['1920 x 1080 at 200 %', { width: 1920, height: 1080 }, { pianoStrip: false, larger: 10, tempo: 120 }],
   ] as const) {
     test(`(d) FR-014 - Clementi op. 36 no. 1 at ${name}: show what fits`, async ({ page }, testInfo) => {
       test.skip(testInfo.project.name !== 'chromium', 'Chromium only');
