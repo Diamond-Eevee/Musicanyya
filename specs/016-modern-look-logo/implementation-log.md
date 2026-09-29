@@ -20,3 +20,14 @@
   design table so the light-tier fold (T038) has a guard.
 - Problems / open questions: needs owner: OD-1 (T029, logo) and OD-2 (T052, look) - neither blocks other work.
 - Handoff: next = `/speckit.analyze`, then implement from T001; no code changed yet.
+
+## 2026-09-29 - claude-opus-5.5 (analyze)
+- Analyze: 12 findings (CRITICAL 0, HIGH 2, MEDIUM 6, LOW 4); tasks.md as of 8529a40. Owner said "resolve with
+  recommended": 9 fixed in tasks.md at 2df925e (F-01..F-09); F-10..F-12 need no change (see below).
+- Top fixes: T014 puts the mark-linked text tokens in the Paper block (T009 would otherwise stay red at the
+  Foundation checkpoint); SC-001 is proven by a pixel compare (`pnpm screenshot --compare`, T004) instead of by eye;
+  T049 runs axe on every panel of PANEL_IDS in all six themes.
+- Not changed: F-10 "View menu" (spec) = the View bar menu that opens the View popup (plan) - same thing; F-11 no
+  automated check of the dev window icon (manual at the US2 checkpoint); F-12 theme storage read directly in the UI
+  layer, as browserState.ts already does (Constitution V allows it; no port needed for a cosmetic setting).
+- Handoff: next = `/speckit.implement` from T001; no code changed yet.
