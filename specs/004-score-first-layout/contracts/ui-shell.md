@@ -1,10 +1,18 @@
 # Contract: UI shell (slim bar, panel host, overlays)
 
-**Version**: `1.3.0` (new with feature 004)
+**Version**: `1.4.0` (new with feature 004)
 **Owner**: `src/ui/elements/mx-app.ts`, `src/ui/layout/*`, `src/ui/state/viewState.ts`
 
 This contract fixes the shape of the application window so that every other element knows where it
 may live. It is a UI-layer contract only: no core type, no engine port and no real-time path changes.
+
+**1.4.0** (feature 017-leftover-sweep, MINOR): Section 2: two more measured fit steps after `compact` - the mode
+switch (`.mx-bar-no-mode`), then the size controls (`.mx-bar-no-size`) move to the View popup, which carries a copy of
+each (T038). They replace a fixed `max-width: 900px` media query (013 T096) the bar's contents had outgrown: with a
+Score open the bar overflowed at about 925-984 px, and during a Practice run at 1280 px. The mode switch goes first,
+since it cannot change during a run while zooming can (by the size controls or the keys; no popup opens during a run).
+Section 3: a popup whose own tools have nothing to show in the current state shows a one-line hint instead of
+opening empty (Setup in Listen, Recent attempts outside Play, Latency before a Play run; T041).
 
 **1.3.0** (feature 016-modern-look-logo, MINOR, owner decision 2026-09-29): Section 3: the **View** entry stays
 enabled during a Listen run (playing or paused), so the theme can be changed while listening (016 SC-010,
@@ -77,8 +85,10 @@ Fixed order, left to right:
 
 **One row, always.** The bar never wraps. When its contents would overflow its width, `mx-app` steps through fit
 states: `roomy` -> `roomy-no-word` (`.mx-bar-no-word`, hiding the brand word while keeping the mark) -> `compact` (the
-four menus are replaced by `more` and the transport sliders shorten). Nothing is hidden, and nothing is clipped at any
-window size from 1280x720 up (`SC-006`).
+four menus are replaced by `more` and the transport sliders shorten) -> `no-mode` (`.mx-bar-no-mode`: the mode switch
+moves to the View popup) -> `no-size` (`.mx-bar-no-size`: the size controls move there too). Each step is taken only
+when the one before still overflows (1.4.0). Nothing is lost - what leaves the bar is in the View popup - and nothing
+is clipped at any window size (`SC-006`).
 
 ---
 

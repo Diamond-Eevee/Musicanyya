@@ -245,7 +245,7 @@ contracts of the feature it came from, named on the task)
 
 **Model**: standard (gemini-3.8-flash or claude-sonnet-5.5)
 
-- [ ] T028 Documents of the original features kept current for what changed here (001 `data-model.md` constants and
+- [x] T028 Documents of the original features kept current for what changed here (001 `data-model.md` constants and
   any title field, 001 contracts for the diagnostics counter, `docs/musicxml-support.md` / `SUPPORT_MATRIX`,
   005 library notes, README if user-visible)
 - [ ] T029 Constitution audit of the branch diff with `.claude/agents/constitution-auditor.md`; findings summarised in
