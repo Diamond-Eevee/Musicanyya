@@ -84,28 +84,37 @@ contracts of the feature it came from, named on the task)
 
 ### US1 follow-ups - found by the RT review T015 (non-blocking; pre-existing except T031)
 
-- [ ] T031 [US1] (T015 N3) The worklet's live queue allocates on its port handler: `toLiveMessage` builds a fresh
+- [~] T031 [US1] (T015 N3) The worklet's live queue allocates on its port handler: `toLiveMessage` builds a fresh
   object per valid `live` message, and `liveQueue.length = 0` in the drain lets V8 free the backing store, so the
-  next `push` reallocates. Test first (the handler keeps the validated message or a ring slot, no copy); then a
-  validator that returns a boolean, or a pre-allocated ring of `LIVE_QUEUE_CAPACITY` slots (typed arrays for kind,
-  key, velocity, down) with read and write indices. RT change: RT review afterwards, findings in the log
-- [ ] T032 [US1] (T015 N5) `play.fromTick`, `stop.returnTick` and `seek.tick` are cast `as number` unchecked in
+  next `push` reallocates. Allocation is not measurable in a test (T006/T008), so, as there, the behaviour of an
+  extracted module is tested first (`tests/engine/worklets/live-queue.test.ts`: `LiveQueue`, a pre-allocated ring of
+  `LIVE_QUEUE_CAPACITY` typed-array slots with `push`/`consume(n)`, and `liveKindOf`, the check without building
+  an object); then the processor uses it, and the drain consumes exactly what it applied (T014's invariant becomes
+  structural). RT change: RT review afterwards, findings in the log (claimed: claude-opus-5.5 2026-09-30)
+- [~] T032 [US1] (T015 N5) `play.fromTick`, `stop.returnTick` and `seek.tick` are cast `as number` unchecked in
   `score-player.processor.ts`: a NaN tick makes the segment anchors NaN and playback silent without an error. Test
   first (NaN, Infinity, a string, a negative and a past-the-end tick for each message: ignored or clamped, playback
   unchanged); then the `tempo` check (`typeof === 'number' && Number.isFinite`), clamp to `[0, endTick]`.
-  Contract note in 001's `worklet-protocol.md` (PATCH). RT review afterwards
-- [ ] T033 [US1] (T015 N6) The `volume` message has no audible effect: the worklet ramps `currentGain` but never
+  Contract note in 001's `worklet-protocol.md` (PATCH). RT review afterwards (claimed: claude-opus-5.5 2026-09-30)
+- [~] T033 [US1] (T015 N6) The `volume` message has no audible effect: the worklet ramps `currentGain` but never
   multiplies it into `left`/`right`, and no `GainNode` exists. Test first (a rendered block at volume 0.5 has half
   the amplitude of one at 1.0; a change ramps, no click); then apply the gain per sub-block after `renderSegment` as
-  an in-place per-sample ramp (no allocation). RT review afterwards
+  an in-place per-sample ramp (no allocation). RT review afterwards (claimed: claude-opus-5.5 2026-09-30)
+- [~] T034 [US1] (new, found by the RT review of T031-T033) With T033 the volume is audible, but the saved volume
+  never reaches the worklet: `applySavedSettings` bypasses the driver and `setVolume` before the node exists is
+  dropped, so a saved 30 shows on the slider and plays at 80. Test first (`web-audio-engine.test.ts`: a volume set
+  before `unlock` is posted once the node exists); then the engine sends its volume after `init` (like the tempo)
+  and `Session.start` hands the saved volume to the engine. Also from that review: the processor's initial `volume`
+  option is validated like the message (test in `score-player.volume.test.ts`), and `LiveQueue` refuses a
+  capacity below 1 (test in `live-queue.test.ts`) (claimed: claude-opus-5.5 2026-09-30)
 
 ### US3 - Reliable end-to-end tests
 
-- [~] T016 [US3] (from 013 T112) firefox `tests/e2e/score-browser.spec.ts:343` (US3 #5, an invalid `.musicxml`
+- [x] T016 [US3] (from 013 T112) firefox `tests/e2e/score-browser.spec.ts:343` (US3 #5, an invalid `.musicxml`
   dropped: `.browser-message` stays empty within 5 s) fails in full 8-worker `pnpm test:e2e` runs (T051 and T074 of
   feature 014; again at 016's US2, US5 and merge runs) and passes alone. Find why the message is late under load (the
   drop's read/parse path, or the assertion's wait) and fix the cause, not the timeout; then 3 green full e2e runs for
-  firefox in the log (claimed: claude-opus-5.5 2026-09-30)
+  firefox in the log
 - [ ] T017 [US3] (new, found in 016's full runs) chromium `tests/e2e/lookahead.spec.ts:363` (015 US2 (c), FR-009:
   clicking a distant measure arrives within `FOLLOW_GLIDE_MS` + 100 ms) fails under full parallel load (699 ms,
   864 ms, 1266 ms against 500) and sometimes alone. Find whether the glide or the measurement is late (main-thread

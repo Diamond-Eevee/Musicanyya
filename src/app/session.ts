@@ -1545,7 +1545,7 @@ export class Session {
     if (file.size > MAX_FILE_BYTES) {
       const error: LoadError = { code: 'fileTooLarge', message: `File exceeds the ${MAX_FILE_BYTES} byte limit.` };
       scoreState.failed(file.name, error);
-      if (browserState.get().phase === 'ready') browserState.openFailed({ code: error.code, fileName: file.name });
+      browserState.fileFailed({ code: error.code, fileName: file.name }); // shown if the browser is open (017 T016)
       return;
     }
     this.browserController.clearOpenedItem();
@@ -1554,7 +1554,8 @@ export class Session {
     if (browserWasReady) browserState.startOpeningItem(fileRef(file.name));
     const outcome = await this.loadBytes(file.name, bytes, fileRef(file.name));
     if (outcome.ok) browserState.close();
-    else if (browserWasReady) browserState.openFailed({ code: outcome.errorCode ?? 'internal', fileName: file.name });
+    // Also when the browser was still loading its library at the drop (017 T016): it is open, so it shows the message.
+    else browserState.fileFailed({ code: outcome.errorCode ?? 'internal', fileName: file.name });
   }
 
   /** `openedAs` is the ref this load represents (R-18): a library ref from `BrowserSessionController.openItem`, or
