@@ -1,6 +1,14 @@
 # Contract: `score-player` AudioWorklet protocol
 
-**Version**: `1.5.0` (MINOR, feature 017-leftover-sweep T013, from 001 T167; additive): `position` gains `lateEvents`,
+**Version**: `1.5.1` (PATCH, feature 017-leftover-sweep T031-T033, from the RT review T015; no message shape change):
+the tick fields `play.fromTick`, `stop.returnTick` and `seek.tick` are **validated** like `tempo.percent` - one that
+is not a finite number counts as absent (`play` plays on from the held tick, `stop` returns to 0, `seek` is ignored),
+a finite one is clamped to [0, `endTick`] (a NaN tick used to silence the Score, a negative one threw in the handler).
+The `volume` gain is now **applied** to the rendered output, per sample (it was ramped but never multiplied in, so the
+volume control had no effect, 001 FR-016). `live` messages are queued in a pre-allocated ring of
+`LIVE_QUEUE_CAPACITY` slots (no object per message); the behaviour is unchanged.
+Tests: `score-player.tick-validation.test.ts`, `score-player.volume.test.ts`, `live-queue.test.ts`.
+`1.5.0` (MINOR, feature 017-leftover-sweep T013, from 001 T167; additive): `position` gains `lateEvents`,
 the running count of schedule events that sounded after their own frame, at the start of a later render block - late,
 never lost: events left over from a block whose dispatch state was full (1024 per block), or re-anchored before the block
 by a tempo change. Each late event is counted once, when it sounds (RT review T015 N1; named `dispatchDeferred` before
@@ -69,12 +77,12 @@ Constitution I rules for the processor (checked by `rt-audio-reviewer`):
 | `init` | `{ protocol: "1.0.0", sampleRate: number, maxBlock: 128 }` | Allocate buffers, reply `status: initialised` |
 | `soundBank` | `{ bytes: ArrayBuffer }` (transferred) | Build the SoundFont bank, reply `status: soundReady` or `status: error` |
 | `schedule` | `ScheduleMessage` (below, buffers transferred) | Stop, all notes off, replace schedule, position = start tick, apply the channel setup (1.4.0) |
-| `play` | `{ fromTick?: number }` | Start/resume at the held tick (after `pause`, `stop`, `seek`, a new schedule; the return tick after `ended`) or at `fromTick`, at the next block (1.4.2) |
+| `play` | `{ fromTick?: number }` | Start/resume at the held tick (after `pause`, `stop`, `seek`, a new schedule; the return tick after `ended`) or at `fromTick`, at the next block (1.4.2); `fromTick` clamped to [0, `endTick`], ignored unless finite (1.5.1) |
 | `pause` | `{}` | Stop advancing; release sounding scheduled notes (note-off with release) |
-| `stop` | `{ returnTick: number }` | Pause + position = `returnTick` |
-| `seek` | `{ tick: number }` | All scheduled notes off (release), jump; keeps playing state |
+| `stop` | `{ returnTick: number }` | Pause + position = `returnTick` (clamped to [0, `endTick`]; 0 unless finite, 1.5.1) |
+| `seek` | `{ tick: number }` | All scheduled notes off (release), jump; keeps playing state. `tick` clamped to [0, `endTick`]; a non-finite one is ignored (1.5.1) |
 | `tempo` | `{ percent: number }` | any finite number in [25, 200] (1.4.1), otherwise ignored / clamped (1.4.2); new ticks-per-frame from the next block, at the current position (1.4.2) |
-| `volume` | `{ gain: number }` | 0..1 linear target; ramped over `VOLUME_RAMP_FRAMES = 256` |
+| `volume` | `{ gain: number }` | 0..1 linear target; ramped over `VOLUME_RAMP_FRAMES = 256`, applied to the output per sample (1.5.1) |
 | `channelVolume` | `{ channel: number; gain: number }` | CC7 = `round(gain * 127)` on `channel`, applied in `port.onmessage`, effective at the next block (1.2.0) |
 | `live` | `{ kind: "on" | "off" | "sustain" | "allOff", key?: number, velocity?: number, down?: boolean }` | Applied at the start of the next block on `LIVE_CHANNEL = 15` (piano); a malformed one is dropped and counted in `liveDropped` (1.5.0) |
 

@@ -29,6 +29,7 @@ import {
   TEMPO_PERCENT_DEFAULT,
   TEMPO_PERCENT_MAX,
   TEMPO_PERCENT_MIN,
+  VOLUME_DEFAULT,
   VOLUME_RAMP_FRAMES,
 } from '../../core/defaults.js';
 import type { ScheduleMessage } from '../../core/schedule/compile.js';
@@ -41,6 +42,7 @@ import {
   recomputeSegmentFrames,
   type TempoSegmentFrame,
 } from './dispatch.js';
+import { LIVE_KIND, LiveQueue, liveKindOf } from './live-queue.js';
 
 export interface SynthInterface {
   noteOn(channel: number, key: number, velocity: number, frame?: number): void;
@@ -112,31 +114,6 @@ export function soundOffChannels(
   for (let c = first; c <= last; c++) {
     controllerChange(c, 120, 0);
     controllerChange(c, 123, 0);
-  }
-}
-
-const isMidiByte = (value: unknown): value is number =>
-  typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 127;
-
-/**
- * Checks a `live` message at the trust boundary, in the message handler (017 T005, from 001 T162): only a well-formed
- * one is queued for the render quantum, so the drain in `process()` never passes `undefined` or an out-of-range key
- * to the synth. Returns null for anything else; the caller drops and counts it.
- */
-function toLiveMessage(msg: InboundMessage): LiveMessage | null {
-  switch (msg.kind) {
-    case 'on':
-      return isMidiByte(msg.key) && isMidiByte(msg.velocity)
-        ? { type: 'live', kind: 'on', key: msg.key, velocity: msg.velocity }
-        : null;
-    case 'off':
-      return isMidiByte(msg.key) ? { type: 'live', kind: 'off', key: msg.key } : null;
-    case 'sustain':
-      return typeof msg.down === 'boolean' ? { type: 'live', kind: 'sustain', down: msg.down } : null;
-    case 'allOff':
-      return { type: 'live', kind: 'allOff' };
-    default:
-      return null;
   }
 }
 
@@ -232,7 +209,12 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   let atEnd = false; // the end tick was reached: the next `play` starts again from `returnTick`
 
   let tempoPercent = opts.tempoPercent ?? TEMPO_PERCENT_DEFAULT;
-  let targetGain = (opts.volume ?? 80) / 100;
+  // Checked like the `volume` message (017 T034, RT review): finite and within 0..100, else the default.
+  const initialVolume =
+    typeof opts.volume === 'number' && Number.isFinite(opts.volume)
+      ? Math.max(0, Math.min(100, opts.volume))
+      : VOLUME_DEFAULT;
+  let targetGain = initialVolume / 100;
   let currentGain = targetGain;
   let gainStep = 0;
   let gainRampRemaining = 0;
@@ -267,7 +249,7 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   let setupPending = false;
   let soundIsReady = false;
 
-  const liveQueue: LiveMessage[] = [];
+  const liveQueue = new LiveQueue(LIVE_QUEUE_CAPACITY); // pre-allocated slots, nothing per message (017 T031)
   let liveDropped = 0; // T057: counted and shown like the other dropouts (Constitution I)
 
   let onMessage: ((msg: ProcessorMessage) => void) | null = null;
@@ -291,6 +273,17 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
       }
     }
     return seg;
+  }
+
+  /**
+   * A tick field of `play`/`stop`/`seek`, checked at the trust boundary like `tempo.percent` (017 T032, from RT review
+   * T015 N5): null unless it is a finite number, which is clamped to [0, endTick] (without a schedule, to >= 0). A NaN
+   * tick made every segment anchor NaN and the Score silent without an error; a negative one threw.
+   */
+  function validTick(raw: unknown): number | null {
+    if (typeof raw !== 'number' || !Number.isFinite(raw)) return null;
+    const clamped = raw < 0 ? 0 : raw;
+    return schedule !== null && clamped > schedule.endTick ? schedule.endTick : clamped;
   }
 
   function computeCurrentTick(): number {
@@ -444,8 +437,8 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         break;
       }
       case 'play': {
-        const fromTick = msg.fromTick as number | undefined;
-        if (fromTick !== undefined) {
+        const fromTick = validTick(msg.fromTick); // not a finite number: as if absent - play on from where it is
+        if (fromTick !== null) {
           allNotesOff();
           returnTick = fromTick;
           holdTick = fromTick;
@@ -476,7 +469,7 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
       case 'stop': {
         playing = false;
         allNotesOff();
-        returnTick = (msg.returnTick as number | undefined) ?? 0;
+        returnTick = validTick(msg.returnTick) ?? 0; // not a finite number: as if absent
         holdTick = returnTick;
         atEnd = false;
         currentFrame = 0;
@@ -485,7 +478,8 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         break;
       }
       case 'seek': {
-        const tick = msg.tick as number;
+        const tick = validTick(msg.tick);
+        if (tick === null) break; // not a finite number: nothing to seek to
         allNotesOff();
         returnTick = tick;
         holdTick = tick;
@@ -526,10 +520,17 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         break;
       }
       case 'live': {
-        const live = toLiveMessage(msg);
-        if (live !== null && liveQueue.length < LIVE_QUEUE_CAPACITY) {
-          liveQueue.push(live);
-        } else {
+        // Checked here, off the render quantum, and written into a pre-allocated slot: no object per message (017 T031).
+        const kind = liveKindOf(msg);
+        const queued =
+          kind !== 0 &&
+          liveQueue.push(
+            kind,
+            typeof msg.key === 'number' ? msg.key : 0,
+            typeof msg.velocity === 'number' ? msg.velocity : 0,
+            msg.down === true,
+          );
+        if (!queued) {
           // Malformed (017 T005) or past the queue's capacity: dropped, not queued. A stuck note or a missed release
           // is worse than briefly not knowing about it, but it must still be counted and shown (Constitution I,
           // R-16). Posted here, not from process(): this handler already runs off the per-block hot path, same as
@@ -575,35 +576,47 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   function processBlockInner(left: Float32Array, right: Float32Array): void {
     const blockSize = left.length;
 
-    // Process live inputs immediately.
-    // Invariant (017 T014, from 001 T168): this loop applies EVERY queued message - no early `break`, no `return` -
-    // because `liveQueue.length = 0` below clears the whole queue. The handler cannot add to it in between: port
-    // messages are delivered between render quanta, never during one. A future change that stops early must drain
-    // with a read index and keep what it did not apply, or live notes (a release!) are lost silently.
-    const liveCount = liveQueue.length;
+    // Live input first, at the block start. Reads the queued slots by position and then consumes exactly the ones it
+    // applied (017 T031; T014's invariant): an early stop would leave the rest queued, never lose them. The handler cannot
+    // add entries meanwhile: port messages run between render quanta, never during one (run-to-completion).
+    const liveCount = liveQueue.size;
     for (let i = 0; i < liveCount; i++) {
-      const msg = liveQueue[i];
-      if (msg === undefined) continue;
-      if (msg.kind === 'on') {
-        synth.noteOn(LIVE_CHANNEL, msg.key, msg.velocity);
-      } else if (msg.kind === 'off') {
-        synth.noteOff(LIVE_CHANNEL, msg.key);
-      } else if (msg.kind === 'sustain') {
-        synth.controllerChange?.(LIVE_CHANNEL, 64, msg.down ? 127 : 0);
-      } else if (msg.kind === 'allOff') {
+      const kind = liveQueue.kindAt(i);
+      if (kind === LIVE_KIND.on) {
+        synth.noteOn(LIVE_CHANNEL, liveQueue.keyAt(i), liveQueue.velocityAt(i));
+      } else if (kind === LIVE_KIND.off) {
+        synth.noteOff(LIVE_CHANNEL, liveQueue.keyAt(i));
+      } else if (kind === LIVE_KIND.sustain) {
+        synth.controllerChange?.(LIVE_CHANNEL, 64, liveQueue.downAt(i) ? 127 : 0);
+      } else if (kind === LIVE_KIND.allOff) {
         synth.allNotesOff?.(LIVE_CHANNEL);
       }
     }
-    liveQueue.length = 0;
+    liveQueue.consume(liveCount);
 
-    // Volume ramp
-    if (gainRampRemaining > 0) {
-      const steps = Math.min(gainRampRemaining, blockSize);
-      currentGain += gainStep * steps;
-      gainRampRemaining -= steps;
-      if (gainRampRemaining <= 0) currentGain = targetGain;
+    renderBlock(left, right, blockSize);
+    applyGain(left, right, blockSize);
+  }
+
+  /**
+   * The playback volume (017 T033, from RT review T015 N6; 001 FR-016): the `volume` message set a ramped gain that was
+   * never applied, so the volume control had no effect. Scales the rendered block in place, sample by sample, ramping
+   * over `VOLUME_RAMP_FRAMES` from the moment the message arrived (no click). No allocation (Constitution I).
+   */
+  function applyGain(left: Float32Array, right: Float32Array, blockSize: number): void {
+    if (gainRampRemaining <= 0 && currentGain === 1) return;
+    for (let i = 0; i < blockSize; i++) {
+      if (gainRampRemaining > 0) {
+        gainRampRemaining--;
+        currentGain = gainRampRemaining === 0 ? targetGain : currentGain + gainStep;
+      }
+      left[i] = (left[i] as number) * currentGain;
+      right[i] = (right[i] as number) * currentGain;
     }
+  }
 
+  /** Renders one block of the Score (or silence-with-live-input while idle), splitting at each event's frame. */
+  function renderBlock(left: Float32Array, right: Float32Array, blockSize: number): void {
     if (!playing || !schedule) {
       renderSegment(left, right, 0, blockSize);
       currentFrame += blockSize;

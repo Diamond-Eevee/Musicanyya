@@ -35,6 +35,9 @@ export function listenFingerprint(libraryFile: string, seconds: number, windowMs
       process: (left, right, start, count) => synth.process(left, right, start, count),
     },
     sampleRate: SAMPLE_RATE,
+    // Unity gain: the golden was recorded while the playback volume had no effect (fixed in 017 T033), i.e. at 1.0;
+    // the default volume (80) now scales the output, which is not what this fingerprint is about.
+    volume: 100,
   });
   // The sound bank is loaded: tell the processor (a processor that predates `soundReady` has nothing to be told).
   (proc as { soundReady?: () => void }).soundReady?.();

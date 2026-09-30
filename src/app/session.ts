@@ -311,6 +311,8 @@ export class Session {
     viewState.setScale(settings.scale);
     for (const [layer, on] of Object.entries(settings.overlays)) viewState.setOverlay(layer as OverlayLayer, on);
     transportState.applySavedSettings(settings.volume, settings.follow);
+    // The store is set without the driver; the engine gets the saved volume too (017 T034), sent once its node exists.
+    this.audioEngine.setVolume(transportState.get().volume);
 
     this.scoreView = document.createElement('mx-score-view');
     this.scoreView.client = this.verovioClient;
