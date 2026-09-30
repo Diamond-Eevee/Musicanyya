@@ -222,3 +222,46 @@
 - Result: T020 done; 004's script fails in two places it names (US1 #4 at half width, Score size #4 on a quick
   reload) and shows three smaller defects - T038-T042 (standard tier). Handoff: next = T038-T042, then the deep tasks
   (T021-T024), owner checks (T025-T027), polish (T028-T030).
+
+## 2026-09-30 - claude-opus-5.5 (implement - T020 findings T038-T042; deep T021, T044, T045; T046)
+- Each fix test first, failing for the expected reason on the old code (numbers in the commits):
+  - T039 (0f1d958): settings writes were debounced 500 ms and never flushed on unload. `SettingsStore.flushPending()`
+    (ports 2.1.0), called on `pagehide` and when hidden. Unit tests (method missing) + e2e reload-at-once (100 % instead of
+    120 %, chromium + firefox).
+  - T040 (65264af): one disconnect = two notices (session's general one + Practice's / Play's own). General notice only
+    when neither runs. e2e: 2 -> 1 for Play and Practice; a Listen case guards the general notice (passes on old code).
+  - T042 (6cbb63e): document-level load entries used '0' as a measure label ("- measure 0"); now none. The buildScore
+    golden changed in exactly those entries (59 x `["0"]` -> `[]`, verified by the diff). **Notice lifetime across
+    Scores split off as owner decision T043** (no spec rule exists).
+  - T041 (6bcf234): Setup (Listen), Recent attempts (outside Play) and Latency (before a Play run) opened empty; a hint
+    line each (`mx-panel-hint`, latency empty text). e2e (no text on old code) + unit; pictures looked at
+    (`tests/.generated/017/t041`).
+  - T038 (063d3a3, corrected in a432826): bar overflow 925-984 px with a Score open. First fix moved mode switch and size
+    controls together as a measured `fitBar()` step - the next full e2e run failed pressed-keys' zoom tests (chromium,
+    firefox, electron): during a Practice run at 1280 px the size controls left the bar, and no popup can open during a
+    run. Measured: before T038 that bar already overflowed by 39 px at 1280 during a run. Correction: the mode switch
+    moves first, the size controls only last; at 1280 during a run the bar fits and keeps zoom; below ~1100 px during a
+    run zoom stays on the keys. e2e at 930/960/984 (7-69 px over on old code) and a run-at-1280 test (39 px over on old
+    code); `barFitted()` now waits for an exact fit. Bar looked at, 960 and 390 px.
+  - T021 (90b9fff, deep): the percussion "gap" = Cowbell's `<measure-repeat>`: Verovio drew the simile sign instead of
+    the 4 encoded (played) notes. Render copy leaves the sign out (`withoutMeasureRepeats`), notes engraved, every Note ID
+    drawn (Constitution III). Alternatives and reasoning in 001 research R-9; `<measure-repeat>` Partial. **Owner may want
+    to know**: a measure-repeat sign is now shown as its notes.
+  - T046 (68137af): the empty `it('assigns first-part measure ids only')` got its assertion (passes from the start; a
+    mutation turns it red).
+  - T044 (e533177, deep): a `<sound tempo>` directly in `<measure>` was ignored. Now read; one mark per position per part,
+    later wins as the tempo map always did, a `<metronome>` alone never overrides a sound. A first merge rule kept the
+    earlier of two sounds - caught by comparing played tempo: Dvořák m. 155 ("rit." 106 then printed 100) would have
+    changed 100 -> 106; fixed and tested. Compiled tempo of all 23 real/spec fixtures and 181 library pieces compared
+    before/after: identical except the four W3C examples that now play their written tempo. real-scores pins mark
+    counts (per part): eight updated with the reason on the field.
+  - T045 (70f6741, deep): the drum kit on an F clef is drawn below the staff by Verovio itself (original file, no render
+    copy: MEI loc -3/-7 = treble positions). Recorded (`<unpitched>` Partial) with a characterisation test; the
+    render-copy workaround is new task T047.
+- Found in passing: a measure-level `<sound>` is also ignored for jumps (dacapo, segno ...) and dynamics - not in any
+  task yet; noted here for the owner/next agent.
+- Full e2e after T038's correction and T021: `701 skipped | 1159 passed` (exit 0). Unit: Test Files 297 passed (297) |
+  Tests 6232 passed (6232); typecheck exit 0; lint 0 errors.
+- Needs owner: T043 (load notices across Scores, recommendation in the task); live input follows the playback volume
+  (earlier entry); T022-T024 need downloads of public-domain sources (asks permission); T025-T027 are the owner's checks.
+- Handoff: next = T047 (deep) or polish T028-T030; tree clean at the log commit.
