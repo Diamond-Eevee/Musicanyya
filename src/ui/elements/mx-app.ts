@@ -54,15 +54,21 @@ export class MxApp extends HTMLElement {
 
   /**
    * Measures the bar in its roomy form and steps down only as far as needed (research R-11): first the brand word
-   * goes (it stays in the accessibility tree), then the compact form takes over.
+   * goes (it stays in the accessibility tree), then the compact form takes over, and last the mode switch and the
+   * size controls move to the View popup (which always carries a copy of each). The last step used to start at a
+   * fixed 900 px; with a Score open the compact bar needed it up to about 985 px, so it is measured too (017 T038).
    */
   private fitBar(): void {
     const bar = this.querySelector('#mx-bar') as HTMLElement | null;
     if (!bar) return;
-    bar.classList.remove('mx-bar-compact', 'mx-bar-no-word');
-    if (bar.scrollWidth <= bar.clientWidth) return;
+    bar.classList.remove('mx-bar-compact', 'mx-bar-no-word', 'mx-bar-relocated');
+    const fits = () => bar.scrollWidth <= bar.clientWidth;
+    if (fits()) return;
     bar.classList.add('mx-bar-no-word');
-    if (bar.scrollWidth > bar.clientWidth) bar.classList.add('mx-bar-compact');
+    if (fits()) return;
+    bar.classList.add('mx-bar-compact');
+    if (fits()) return;
+    bar.classList.add('mx-bar-relocated');
   }
 }
 customElements.define('mx-app', MxApp);

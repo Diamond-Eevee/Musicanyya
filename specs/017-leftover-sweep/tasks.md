@@ -152,7 +152,7 @@ contracts of the feature it came from, named on the task)
 - [x] T020 [US5] (from 004 T108) Run 004's `quickstart.md` manual verification script for all four user stories plus
   the Score size section, in a maximised window on the 1080p laptop screen - with `pnpm screenshot --width 1920
   --height 1080` for each step, every picture looked at and named in the log
-- [ ] T038 [US5] (found in T020, US1 #4) With a Score open, the slim bar overflows between about 925 and 984 px window
+- [x] T038 [US5] (found in T020, US1 #4) With a Score open, the slim bar overflows between about 925 and 984 px window
   width (measured live: content 985 px, up to 55 px past the edge; the More menu cut off at 960 px = half of 1920; fits
   at 900 and from 990). 013 T096 moved the mode switch and size controls into the View popup below a fixed
   `max-width: 900px` (`layout.css`); the bar's content has grown since (016). Make that relocation a third step of

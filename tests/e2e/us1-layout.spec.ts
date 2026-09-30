@@ -81,6 +81,28 @@ test.describe('US1: the Score fills the window (SC-001, SC-006, G-1)', () => {
   }
 });
 
+// 017 T038 (found in T020, US1 #4 at half of 1920): with a Score open the bar overflowed between about 925 and 984 px -
+// the relocation of the mode switch and size controls to the View popup started at a fixed 900 px.
+test.describe('US1: the bar fits at every width with a Score open (017 T038)', () => {
+  for (const width of [930, 960, 984]) {
+    test(`at ${width} px the whole bar is inside the window`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/');
+      await page.locator('mx-open-button input[type=file]').setInputFiles(fixture('eight-measure-melody.musicxml'));
+      await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+      // settled: the bar fits itself on the frame after its contents change (mx-app, rAF)
+      await expect
+        .poll(() =>
+          page.evaluate(() => {
+            const bar = document.querySelector('#mx-bar') as HTMLElement;
+            return bar.scrollWidth - bar.clientWidth;
+          }),
+        )
+        .toBe(0);
+    });
+  }
+});
+
 test.describe('US1: enough music at once (SC-002)', () => {
   test('at 1920x1080 at least two systems of a two-staff score are fully inside the viewport', async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
