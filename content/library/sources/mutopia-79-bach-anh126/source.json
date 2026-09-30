@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "id": "mutopia-79-bach-anh126",
+  "work": "Musette in D major, BWV Anh. 126 (Notebook for Anna Magdalena Bach, 1725), composer unknown",
+  "edition": "Bach-Gesellschaft",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=79",
+  "identifier": "Mutopia-2013/01/06-79",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond by Allen Garvin for the Mutopia Project from the Bach-Gesellschaft edition, and placed in the public domain by the typesetter. The piece page states \"Copyright: Public Domain\" (checked 2026-09-30); the .ly header says the same.",
+  "obtained": "2026-09-30",
+  "approvedByOwner": "2026-09-30",
+  "files": [
+    {
+      "role": "notation",
+      "path": "anna-magdalena-22.ly",
+      "url": "https://www.mutopiaproject.org/ftp/BachJS/BWVAnh126/anna-magdalena-22/anna-magdalena-22.ly",
+      "sha256": "36c105c4c696aac3bbdc63f444cd05d6ca3e97f438eef21575e15669aa31b6aa",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "anna-magdalena-22.mid",
+      "url": "https://www.mutopiaproject.org/ftp/BachJS/BWVAnh126/anna-magdalena-22/anna-magdalena-22.mid",
+      "sha256": "3b03c3939b767a0d46b77eba058d6decc0f191bfb1aa81a1a3bafc9c49098275",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}

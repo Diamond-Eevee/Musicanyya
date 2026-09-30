@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-28T20:42:10.729Z",
+  "generated": "2026-09-30T21:01:16.705Z",
   "sections": [
     {
       "id": "learning",
@@ -15661,6 +15661,290 @@
         "ornamentCount": 0,
         "repeatKind": "none",
         "backwardRepeatCount": 0
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "repertoire/intermediate/musette-d-major-anh126",
+      "section": "repertoire/intermediate",
+      "file": "repertoire/intermediate/musette-d-major-anh126.musicxml",
+      "bytes": 33094,
+      "hash": "b423c119f39af6b6905fd8045712cbfdad1264d76c84c5b1ed78a3541048fb3e",
+      "meta": {
+        "version": 1,
+        "title": "Musette in D major, BWV Anh. 126",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "hands-together",
+          "repeats",
+          "steady-eighths",
+          "ties"
+        ],
+        "provenance": {
+          "origin": "downloaded",
+          "licence": "public-domain",
+          "source": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=79",
+          "obtained": "2026-09-30",
+          "sourcePath": "BachJS/BWVAnh126/anna-magdalena-22/anna-magdalena-22.ly",
+          "credit": "Typeset by Allen Garvin for the Mutopia Project (Mutopia-2013/01/06-79) from the Bach-Gesellschaft edition, and placed in the public domain by the typesetter.",
+          "unmodified": false,
+          "note": "Converted from Mutopia's LilyPond source to MusicXML by pnpm library:convert-ly (notes, rests, repeats and voltas, grace notes, clefs, slurs, dynamics); beams and accidentals then completed by pnpm library:engrave. Checked mechanically against the LilyPond source and Mutopia's own MIDI file (audit record). The Notebook copy is unsigned and its composer is unknown; it is listed in the appendix (Anhang) of doubtful works in the Bach-Werke-Verzeichnis."
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-09-30",
+        "subtitle": "from the Notebook for Anna Magdalena Bach (1725)",
+        "composer": null,
+        "arranger": null,
+        "trains": "A bagpipe dance in 2/4 over a drone: the left hand leaps in octaves (on D, then A and E) and doubles the right hand in bars 3–4 and 7–8; the right hand has sixteenth-note runs and eighth-note figures. The second half moves to A major over a long E pedal (G sharp, D sharp, D natural) and ends there; the fermata in bar 8 marks where a da capo would end (the edition prints no da capo, so none is played). Both halves repeated.",
+        "hands": "both",
+        "arrangement": false
+      },
+      "facts": {
+        "measures": 20,
+        "notes": 173,
+        "durationSeconds": 40,
+        "keys": [
+          "D major"
+        ],
+        "metres": [
+          "2/4"
+        ],
+        "tempoBpm": 120,
+        "tempoDefaulted": false,
+        "lowestMidi": 38,
+        "highestMidi": 81,
+        "maxSpanSemitones": 0,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0.2,
+        "chordChangesPerBar": 0,
+        "shortestDivision": 16,
+        "notesPerBeat": 2.1625,
+        "accidentals": 2,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": true,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 19,
+        "longestRunAtShortestValue": 8,
+        "attackCount": 173,
+        "peakNotesPerSecond": 11.5,
+        "accidentalMarkCount": 9,
+        "minorScaleAccidentalCount": 3,
+        "maxTieChainNotes": 2,
+        "maxTieBarlinesCrossed": 1,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 2
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "repertoire/intermediate/petzold-minuet-g-major-anh114",
+      "section": "repertoire/intermediate",
+      "file": "repertoire/intermediate/petzold-minuet-g-major-anh114.musicxml",
+      "bytes": 35033,
+      "hash": "9269a529a39134bea7c4d503aa9e1e6659ac6b79d0a6638ce1c84365c1bad5c7",
+      "meta": {
+        "version": 1,
+        "title": "Minuet in G major, BWV Anh. 114",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "hands-together",
+          "repeats",
+          "ornaments",
+          "steady-eighths"
+        ],
+        "provenance": {
+          "origin": "downloaded",
+          "licence": "public-domain",
+          "source": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=75",
+          "obtained": "2026-09-30",
+          "sourcePath": "BachJS/BWVAnh114/anna-magdalena-04/anna-magdalena-04.ly",
+          "credit": "Typeset by Allen Garvin for the Mutopia Project (Mutopia-2017/01/19-75) from the Bach-Gesellschaft edition, and placed in the public domain by the typesetter.",
+          "unmodified": false,
+          "note": "Converted from Mutopia's LilyPond source to MusicXML by pnpm library:convert-ly (notes, rests, repeats and voltas, grace notes, clefs, slurs, dynamics); beams and accidentals then completed by pnpm library:engrave. Checked mechanically against the LilyPond source and Mutopia's own MIDI file (audit record). Long known as \"Bach's Minuet in G\"; the Notebook copy is unsigned and it is now attributed to Christian Petzold (1677-1733), as the source itself notes."
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-09-30",
+        "subtitle": "from the Notebook for Anna Magdalena Bach (1725)",
+        "composer": "Christian Petzold",
+        "arranger": null,
+        "trains": "Two independent lines in 3/4: a right-hand melody of stepwise eighth-note runs and leaps against a left hand that moves in its own line of mostly dotted-half, half and quarter notes; mordents (bars 3, 5, 11, 13), a grace note in bar 8 and a short trill in bar 30, and a second half that turns to D major (C sharp) before coming home. Both halves repeated.",
+        "hands": "both",
+        "arrangement": false,
+        "expected": {
+          "notices": [
+            "unsupportedElement"
+          ]
+        },
+        "limitations": [
+          "The short trill in bar 30 (printed as a Pralltriller sign, MusicXML inverted-mordent; in Baroque practice started from the upper note, on the beat) is printed but not realised: it is neither played along nor excused in grading, and opening the piece shows an information notice about it."
+        ]
+      },
+      "facts": {
+        "measures": 32,
+        "notes": 204,
+        "durationSeconds": 82.28571428571429,
+        "keys": [
+          "G major"
+        ],
+        "metres": [
+          "3/4"
+        ],
+        "tempoBpm": 140,
+        "tempoDefaulted": false,
+        "lowestMidi": 43,
+        "highestMidi": 83,
+        "maxSpanSemitones": 8,
+        "staves": 2,
+        "voicesPerStaff": 2,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.0625,
+        "shortestDivision": 8,
+        "notesPerBeat": 1.0625,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": true,
+        "hasOctaveShift": false,
+        "hasRepeats": true,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": [
+          "unsupportedElement"
+        ],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 16,
+        "longestRunAtShortestValue": 6,
+        "attackCount": 199,
+        "peakNotesPerSecond": 7,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 1,
+        "ornamentCount": 4,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 2
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "repertoire/intermediate/petzold-minuet-g-minor-anh115",
+      "section": "repertoire/intermediate",
+      "file": "repertoire/intermediate/petzold-minuet-g-minor-anh115.musicxml",
+      "bytes": 34899,
+      "hash": "e504d11ac7f92b66c78b9aeef6ecbdab1161dd48087756ef4458421d036ea505",
+      "meta": {
+        "version": 1,
+        "title": "Minuet in G minor, BWV Anh. 115",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "hands-together",
+          "repeats",
+          "ornaments",
+          "steady-eighths"
+        ],
+        "provenance": {
+          "origin": "downloaded",
+          "licence": "public-domain",
+          "source": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=76",
+          "obtained": "2026-09-30",
+          "sourcePath": "BachJS/BWVAnh115/anna-magdalena-05/anna-magdalena-05.ly",
+          "credit": "Typeset by Allen Garvin for the Mutopia Project (Mutopia-2015/08/21-76) from the Bach-Gesellschaft edition, and placed in the public domain by the typesetter.",
+          "unmodified": false,
+          "note": "Converted from Mutopia's LilyPond source to MusicXML by pnpm library:convert-ly (notes, rests, repeats and voltas, grace notes, clefs, slurs, dynamics); beams and accidentals then completed by pnpm library:engrave. Checked mechanically against the LilyPond source and Mutopia's own MIDI file (audit record). The Notebook copy is unsigned; it is attributed to Christian Petzold (1677-1733), as the source itself notes."
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-09-30",
+        "subtitle": "from the Notebook for Anna Magdalena Bach (1725)",
+        "composer": "Christian Petzold",
+        "arranger": null,
+        "trains": "The G major minuet’s companion in the minor: the same two-line minuet texture in 3/4, reading B flat and E flat from the key, F sharp as the leading note, and E natural and B natural as the music passes through B flat major and F major before returning home; mordents (bars 13, 22) and short trills (bars 8, 9, 15, 31). Both halves repeated.",
+        "hands": "both",
+        "arrangement": false,
+        "expected": {
+          "notices": [
+            "unsupportedElement"
+          ]
+        },
+        "limitations": [
+          "The trill sign (Pralltriller sign, MusicXML inverted-mordent) in bars 8, 9, 15 and 31 is printed but not realised: it is neither played along nor excused in grading, and opening the piece shows an information notice about it."
+        ]
+      },
+      "facts": {
+        "measures": 32,
+        "notes": 199,
+        "durationSeconds": 82.28571428571429,
+        "keys": [
+          "G minor"
+        ],
+        "metres": [
+          "3/4"
+        ],
+        "tempoBpm": 140,
+        "tempoDefaulted": false,
+        "lowestMidi": 43,
+        "highestMidi": 82,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 2,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.1875,
+        "shortestDivision": 16,
+        "notesPerBeat": 1.0364583333333333,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": true,
+        "hasPedal": false,
+        "fingeringCoverage": 0,
+        "notices": [
+          "unsupportedElement"
+        ],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 16,
+        "longestRunAtShortestValue": 2,
+        "attackCount": 191,
+        "peakNotesPerSecond": 7,
+        "accidentalMarkCount": 12,
+        "minorScaleAccidentalCount": 9,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 2,
+        "repeatKind": "simple",
+        "backwardRepeatCount": 2
       },
       "levelCheck": {
         "level": "intermediate",

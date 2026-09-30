@@ -95,6 +95,33 @@ and their licence (FR-020); `tests/library/licence.test.ts` checks both (FR-017)
   against them.
   https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=804
 
+- **Petzold, Minuet in G major, BWV Anh. 114** -
+  `repertoire/intermediate/petzold-minuet-g-major-anh114.musicxml` (obtained 2026-09-30)
+  Licence: public domain. Typeset in LilyPond by Allen Garvin for the Mutopia Project (Mutopia-2017/01/19-75) from
+  the Bach-Gesellschaft edition, and placed in the public domain by the typesetter. Converted by Musicanyya from the
+  LilyPond source `anna-magdalena-04.ly` to MusicXML; the notes were checked against Mutopia's own MIDI file of the
+  same source. Both source files are kept unchanged in `content/library/sources/mutopia-75-bach-anh114/`, where
+  `pnpm library:fidelity` re-checks the item against them.
+  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=75
+
+- **Petzold, Minuet in G minor, BWV Anh. 115** -
+  `repertoire/intermediate/petzold-minuet-g-minor-anh115.musicxml` (obtained 2026-09-30)
+  Licence: public domain. Typeset in LilyPond by Allen Garvin for the Mutopia Project (Mutopia-2015/08/21-76) from
+  the Bach-Gesellschaft edition, and placed in the public domain by the typesetter. Converted by Musicanyya from the
+  LilyPond source `anna-magdalena-05.ly` to MusicXML; the notes were checked against Mutopia's own MIDI file of the
+  same source. Both source files are kept unchanged in `content/library/sources/mutopia-76-bach-anh115/`, where
+  `pnpm library:fidelity` re-checks the item against them.
+  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=76
+
+- **Musette in D major, BWV Anh. 126** (composer unknown) -
+  `repertoire/intermediate/musette-d-major-anh126.musicxml` (obtained 2026-09-30)
+  Licence: public domain. Typeset in LilyPond by Allen Garvin for the Mutopia Project (Mutopia-2013/01/06-79) from
+  the Bach-Gesellschaft edition, and placed in the public domain by the typesetter. Converted by Musicanyya from the
+  LilyPond source `anna-magdalena-22.ly` to MusicXML; the notes were checked against Mutopia's own MIDI file of the
+  same source. Both source files are kept unchanged in `content/library/sources/mutopia-79-bach-anh126/`, where
+  `pnpm library:fidelity` re-checks the item against them.
+  https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=79
+
 The library's `.musicxml` files were completed by the project's engraving tool (`pnpm library:engrave`), which adds
 missing `<beam>` and `<accidental>` elements for display. Nothing else in the files is changed, and each file keeps
 the licence recorded for it in `public/library/index.json`.

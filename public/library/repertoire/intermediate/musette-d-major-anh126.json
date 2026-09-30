@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "title": "Musette in D major, BWV Anh. 126",
+  "subtitle": "from the Notebook for Anna Magdalena Bach (1725)",
+  "composer": null,
+  "arranger": null,
+  "kind": "piece",
+  "level": "intermediate",
+  "tags": ["hands-together", "repeats", "steady-eighths", "ties"],
+  "trains": "A bagpipe dance in 2/4 over a drone: the left hand leaps in octaves (on D, then A and E) and doubles the right hand in bars 3–4 and 7–8; the right hand has sixteenth-note runs and eighth-note figures. The second half moves to A major over a long E pedal (G sharp, D sharp, D natural) and ends there; the fermata in bar 8 marks where a da capo would end (the edition prints no da capo, so none is played). Both halves repeated.",
+  "hands": "both",
+  "arrangement": false,
+  "provenance": {
+    "origin": "downloaded",
+    "licence": "public-domain",
+    "source": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=79",
+    "sourcePath": "BachJS/BWVAnh126/anna-magdalena-22/anna-magdalena-22.ly",
+    "obtained": "2026-09-30",
+    "credit": "Typeset by Allen Garvin for the Mutopia Project (Mutopia-2013/01/06-79) from the Bach-Gesellschaft edition, and placed in the public domain by the typesetter.",
+    "unmodified": false,
+    "note": "Converted from Mutopia's LilyPond source to MusicXML by pnpm library:convert-ly (notes, rests, repeats and voltas, grace notes, clefs, slurs, dynamics); beams and accidentals then completed by pnpm library:engrave. Checked mechanically against the LilyPond source and Mutopia's own MIDI file (audit record). The Notebook copy is unsigned and its composer is unknown; it is listed in the appendix (Anhang) of doubtful works in the Bach-Werke-Verzeichnis."
+  },
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-09-30"
+}

@@ -221,16 +221,17 @@ contracts of the feature it came from, named on the task)
 - [x] T046 (found in T021) `tests/core/musicxml/render-copy.test.ts` has an empty test, `it('assigns first-part
   measure ids only', () => {})` - a placeholder AGENTS.md forbids. Give it the assertion its name states (a
   two-part document: only the first part's `<measure>` tags get Measure IDs) or remove it with the reason in the log
-- [~] T022 [P] [US4] (from 005 T057) Intermediate: Petzold Minuets BWV Anh. 114 and 115, Musette BWV Anh. 126 +
+- [x] T022 [P] [US4] (from 005 T057) Intermediate: Petzold Minuets BWV Anh. 114 and 115, Musette BWV Anh. 126 +
   sidecars (FR-008's Intermediate target of >= 5 is already met by T058/T059 - Burgmüller nos. 2 and 5, Schumann
   Op. 68 no. 10 and Clementi, alongside the already-committed Für Elise theme). Public-domain source verified; audited
-  with `pnpm library:fidelity --item <id>` (claimed: claude-opus-5.5 2026-09-30)
-- [~] T023 [P] [US4] (from 005 T063) Advanced: Joplin *The Entertainer* + sidecar (FR-008's Advanced target of >= 4 is
+  with `pnpm library:fidelity --item <id>`
+- [ ] T023 [P] [US4] (from 005 T063) Advanced: Joplin *The Entertainer* + sidecar (FR-008's Advanced target of >= 4 is
   already met - Chopin no. 4, Für Elise complete, Chopin no. 20, Bach Prelude BWV 846, Satie). Public-domain source
-  verified; audited (claimed: claude-opus-5.5 2026-09-30)
-- [~] T024 [US4] (from 005 T064) Probe Chopin Nocturne Op. 9 no. 2 for the 11:8 / 22:12 tuplets: added if it engraves
-  and plays faithfully (audited), otherwise a recorded, reasoned "not added" in the log and in 005's library notes
-  (claimed: claude-opus-5.5 2026-09-30)
+  verified; audited. **Blocked by T053** (owner): converted with 0 differences, but fails level criterion 16 at
+  Advanced and needs a converter change for its ties into second endings; item and source removed again (log)
+- [x] T024 [US4] (from 005 T064) Probe Chopin Nocturne Op. 9 no. 2 for the 11:8 / 22:12 tuplets: added if it engraves
+  and plays faithfully (audited), otherwise a recorded, reasoned "not added" in the log and in 005's library notes.
+  **Not added**: the only machine-readable edition (Mutopia 1590) is CC BY-SA 3.0 (005 data-model §5.3, sources README)
 - [x] T049 [US4] (found in T022) The LilyPond reader (`tools/library/lilypond/parse.ts`) refuses `\repeat "volta" 2`
   (the mode as a quoted string, valid LilyPond; all three Mutopia Anna Magdalena sources 75, 76, 79 write it so):
   "expected word, found 'volta'". Test first in `tests/tools/lilypond/read.test.ts` (quoted `"volta"` and `"unfold"`
@@ -250,6 +251,19 @@ contracts of the feature it came from, named on the task)
   that length) that round-trips on every aspect, while a visible scaled note is still refused
   (`tests/tools/lilypond/to-musicxml.test.ts`). Then: the reader marks notes between `\hideNotes` and `\unHideNotes`
   as hidden, the converter writes them invisible; contract `fidelity-tools.md` §3.1/§3.3 and version (MINOR)
+- [ ] T052 [US4] **Owner decision gate** (found in T022): realise `<inverted-mordent>` (the Pralltriller / short trill)
+  like `<mordent>`, i.e. extend owner decision D-1 of 003 (`build.ts` realises only trill-mark, mordent, turn and
+  tremolo)? Today the two Petzold minuets load with an info notice and their short trills are neither played along
+  nor excused in grading, so a learner who plays them gets wrong-note marks. Recommendation: yes (upper-neighbour
+  realisation, played along, never graded, like the mordent). On yes: 003 spec/data-model D-1 first, then test-first
+  in `build.ts` and the ornament realisation, `SUPPORT_MATRIX` row, and the minuets' `expected`/`limitations` removed
+- [ ] T053 [US4] **Owner decision gate** (found in T023): *The Entertainer* (Mutopia 263) - (a) leave it out, or (b)
+  add it with a per-item exception to level criterion 16 (bars 58 and 66 hold B flat5-G5-D5 over a moving G4 in one
+  hand: 15 semitones, the Advanced cap is 14; the level check has no exception in that direction, so 005's
+  data-model §4 and `levels.ts` would need one). (b) also needs the converter to write the tie stop where a tie at the
+  end of a repeated section continues into a later ending, and to convert `epeatTie` (bars 38 and 92: today the app
+  re-attacks those notes on the second pass, where the source MIDI holds them); only Mutopia 263 has either (probe).
+  Recommendation: (a) - FR-008's Advanced target is met, and (b) loosens a level rule for one piece
  
 
 ---

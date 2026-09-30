@@ -356,6 +356,22 @@ that wants more Intermediate velocity studies: most would need per-piece facts c
 Intermediate caps rather than the Beginner ones, since preliminary reading suggests several (e.g.
 nos. 8, 11) may fit Intermediate on the numbers.
 
+**Done in feature 017 (2026-09-30; 017 T022-T024).**
+
+- *Added (Intermediate):* Petzold Minuets BWV Anh. 114 and 115 and the Musette BWV Anh. 126, converted from
+  Mutopia 75, 76 and 79 (public domain, Bach-Gesellschaft edition), 0 differences against the source and its MIDI.
+  Both minuets carry an expected `unsupportedElement` notice: their Pralltriller signs (`<inverted-mordent>`) are
+  not one of the ornaments owner decision D-1 of 003 realises (017 T052 asks the owner).
+- *The Entertainer - not added yet (017 T053, owner decision):* Mutopia 263 (public domain) converts with 0
+  differences, but it fails the Advanced cap of criterion 16 (one-hand simultaneous span 15 semitones, cap 14: bars
+  58 and 66, a held B flat5-G5-D5 over a moving G4), and its ties into the second endings (bars 38, 92) need a
+  converter change before the app plays them as the source does.
+- *Chopin Nocturne Op. 9 no. 2 - not added:* the only machine-readable edition, Mutopia 1590 (G. Schirmer, 1881), is
+  **CC BY-SA 3.0**, which the library's licence rule excludes (CC0 or public domain only; it may not be used even for
+  reference, `content/library/sources/README.md`). Hand-encoding it from a public-domain scan would be checked by eye
+  only, which the 007 audit rule does not accept for library music. The 11:8 / 22:12 tuplet probe therefore has no
+  admissible file to run on.
+
 ## 6. Library panel state
 
 ```text

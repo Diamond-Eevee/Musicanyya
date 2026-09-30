@@ -1,6 +1,8 @@
 // Feature 014: only the 59 in-scope items (54 key-change items, 5 chord-change drills) may change. Every other file
 // under public/library/ - the per-key steps, Songs, Repertoire, README.md - must stay byte-identical (FR-003,
-// SC-004). Hashes recorded at commit 7f8ab96, before any 014 authoring task touched the shelf.
+// SC-004). Hashes recorded at commit 7f8ab96, before any 014 authoring task touched the shelf; an item added to the shelf
+// later is recorded with its hash when it is added (017 T022: the two Petzold minuets and the Musette, BWV Anh. 114,
+// 115, 126), so it is held unchanged from then on.
 import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -35,7 +37,7 @@ describe('out-of-scope library files (feature 014)', () => {
     expect(inScope.length).toBe(118); // 54 key-change items + 5 drills, .json + .musicxml
   });
 
-  it.each(recordedFiles)('%s is byte-identical to commit 7f8ab96', (rel) => {
+  it.each(recordedFiles)('%s is byte-identical to its recorded hash (commit 7f8ab96, or when it was added)', (rel) => {
     expect(sha256(path.join(libRoot, rel))).toBe((hashes as Record<string, string>)[rel]);
   });
 });

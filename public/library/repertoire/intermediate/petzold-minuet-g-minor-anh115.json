@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "title": "Minuet in G minor, BWV Anh. 115",
+  "subtitle": "from the Notebook for Anna Magdalena Bach (1725)",
+  "composer": "Christian Petzold",
+  "arranger": null,
+  "kind": "piece",
+  "level": "intermediate",
+  "tags": ["hands-together", "repeats", "ornaments", "steady-eighths"],
+  "trains": "The G major minuet’s companion in the minor: the same two-line minuet texture in 3/4, reading B flat and E flat from the key, F sharp as the leading note, and E natural and B natural as the music passes through B flat major and F major before returning home; mordents (bars 13, 22) and short trills (bars 8, 9, 15, 31). Both halves repeated.",
+  "hands": "both",
+  "arrangement": false,
+  "provenance": {
+    "origin": "downloaded",
+    "licence": "public-domain",
+    "source": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=76",
+    "sourcePath": "BachJS/BWVAnh115/anna-magdalena-05/anna-magdalena-05.ly",
+    "obtained": "2026-09-30",
+    "credit": "Typeset by Allen Garvin for the Mutopia Project (Mutopia-2015/08/21-76) from the Bach-Gesellschaft edition, and placed in the public domain by the typesetter.",
+    "unmodified": false,
+    "note": "Converted from Mutopia's LilyPond source to MusicXML by pnpm library:convert-ly (notes, rests, repeats and voltas, grace notes, clefs, slurs, dynamics); beams and accidentals then completed by pnpm library:engrave. Checked mechanically against the LilyPond source and Mutopia's own MIDI file (audit record). The Notebook copy is unsigned; it is attributed to Christian Petzold (1677-1733), as the source itself notes."
+  },
+  "expected": {
+    "notices": ["unsupportedElement"]
+  },
+  "limitations": [
+    "The trill sign (Pralltriller sign, MusicXML inverted-mordent) in bars 8, 9, 15 and 31 is printed but not realised: it is neither played along nor excused in grading, and opening the piece shows an information notice about it."
+  ],
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-09-30"
+}

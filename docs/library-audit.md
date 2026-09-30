@@ -6,20 +6,20 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 | Outcome | Items |
 |---|---|
-| verified | 165 |
+| verified | 168 |
 | verified (visual) | 3 |
 | fixed | 7 |
 | replaced | 4 |
 | relabelled | 2 |
 | removed | 1 |
-| Total | 182 |
+| Total | 185 |
 
 ## Level counts after the audit
 
 | Level | Pieces | Minimum | Status |
 |---|---|---|---|
 | Beginner | 13 | 7 | meets the minimum |
-| Intermediate | 6 | 5 | meets the minimum |
+| Intermediate | 9 | 5 | meets the minimum |
 | Advanced | 7 | 5 | meets the minimum |
 
 ## Repertoire
@@ -42,6 +42,9 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 | Twinkle, Twinkle, Little Star (arranged for beginners)<br>`repertoire/beginner/twinkle-twinkle-little-star` | arrangement | https://archive.org/details/childsownmusicbo00wier (The child's own music book, ed. A. E. Wier, New York: Mumil, 1918, p. 116)<br>https://archive.org/details/b25645894 (Mozart, Ah! vous dirai-je Maman, Paris: Porro, c. 1801, theme) | visual (bars 1-12) | visual comparison | 3 | verified (visual) | 2026-09-24 |
 | Innocence (25 Etudes faciles, Op. 100, No. 5 - opening strain, arranged)<br>`repertoire/intermediate/burgmuller-op100-no5` | arrangement | [Collection Litolff, 19th Century](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=214) | mechanical (bars 1-11) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | relabelled | 2026-09-24 |
 | Für Elise (theme, arranged for this app)<br>`repertoire/intermediate/fur-elise-theme` | arrangement | [Breitkopf & Härtel, 1888](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931) | mechanical (bars 0-7)<br>mechanical (bars 8-8) | barCount, barLengths, repeats, pitch, onset, duration, spelling, graceNotes | 4 | verified | 2026-09-24 |
+| Musette in D major, BWV Anh. 126<br>`repertoire/intermediate/musette-d-major-anh126` | original | [Bach-Gesellschaft](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=79) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | verified | 2026-09-30 |
+| Minuet in G major, BWV Anh. 114<br>`repertoire/intermediate/petzold-minuet-g-major-anh114` | original | [Bach-Gesellschaft](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=75) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | verified | 2026-09-30 |
+| Minuet in G minor, BWV Anh. 115<br>`repertoire/intermediate/petzold-minuet-g-minor-anh115` | original | [Bach-Gesellschaft](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=76) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | verified | 2026-09-30 |
 
 ## Learning
 
