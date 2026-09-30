@@ -211,6 +211,13 @@ contracts of the feature it came from, named on the task)
   place; the file and the Score model stay unchanged. Test first on the W3C drum-kit example (noteheads inside the
   staff) and on a clef change mid-part; `<unpitched>` row back to Supported and `tests/verovio/unpitched-clef.test.ts`
   replaced if it holds (kept: it now documents the premise the workaround relies on)
+- [ ] T048 [US2] (found in T044, raised by the T029 audit) A `<sound>` standing directly in a `<measure>` is read for
+  its `tempo` only (`src/core/musicxml/build.ts`); its jump attributes (`dacapo`, `segno`, `dalsegno`, `coda`,
+  `tocoda`, `fine`) and `dynamics` are silently ignored, where the same attributes inside `<direction>` are played.
+  Test first (a measure-level `<sound dacapo="yes"/>` and `<sound dynamics="40"/>` against the same inside
+  `<direction>`), then read them the same way, or raise a load notice if one cannot be supported; the gap is recorded in
+  the `<direction>` row of `SUPPORT_MATRIX` / `docs/musicxml-support.md` until then. Check the real fixtures and the
+  library before and after (played schedule unchanged except where such a `<sound>` exists)
 - [x] T046 (found in T021) `tests/core/musicxml/render-copy.test.ts` has an empty test, `it('assigns first-part
   measure ids only', () => {})` - a placeholder AGENTS.md forbids. Give it the assertion its name states (a
   two-part document: only the first part's `<measure>` tags get Measure IDs) or remove it with the reason in the log
@@ -248,7 +255,7 @@ contracts of the feature it came from, named on the task)
 - [x] T028 Documents of the original features kept current for what changed here (001 `data-model.md` constants and
   any title field, 001 contracts for the diagnostics counter, `docs/musicxml-support.md` / `SUPPORT_MATRIX`,
   005 library notes, README if user-visible)
-- [ ] T029 Constitution audit of the branch diff with `.claude/agents/constitution-auditor.md`; findings summarised in
+- [x] T029 Constitution audit of the branch diff with `.claude/agents/constitution-auditor.md`; findings summarised in
   the log and fixed
 - [ ] T030 Full gate three times in a row (SC-003): `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, each
   summary line in the log; `status.ps1` shows no open task in 001-016 (SC-001). Ready to merge only when every task

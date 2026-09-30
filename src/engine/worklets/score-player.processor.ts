@@ -502,8 +502,11 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         break;
       }
       case 'volume': {
-        const raw = msg.gain as number;
-        targetGain = Number.isFinite(raw) ? Math.max(0, Math.min(1, raw)) : 0;
+        // Checked at the trust boundary: since 017 T033 the gain is applied, so a malformed message must not mute the
+        // output - it is ignored (017 T029 audit), like a malformed tempo
+        const raw = msg.gain;
+        if (typeof raw !== 'number' || !Number.isFinite(raw)) break;
+        targetGain = Math.max(0, Math.min(1, raw));
         gainStep = (targetGain - currentGain) / VOLUME_RAMP_FRAMES;
         gainRampRemaining = VOLUME_RAMP_FRAMES;
         break;

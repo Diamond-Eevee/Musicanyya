@@ -50,13 +50,14 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
     element: '<measure-repeat>',
     status: 'Partial',
     notes:
-      "The measure's encoded notes are played and engraved; the repeat sign itself is not drawn, so every played note has its own mark on the Score (017). A measure repeat without encoded notes is approximated with rests",
+      "The measure's encoded notes are played and engraved in place of the repeat sign, so every played note has its own mark on the Score (017). A measure repeat with no encoded notes keeps its sign and plays as rests",
   },
   {
     category: 'Time & Repeats',
     element: '<direction>',
     status: 'Supported',
-    notes: 'Jumps (D.C., D.S., To Coda, Fine). Note: mid-measure jumps not supported',
+    notes:
+      'Jumps (D.C., D.S., To Coda, Fine). Note: mid-measure jumps not supported; a <sound> standing directly in a <measure> is read for its tempo only - its jumps and dynamics are ignored (017 T048)',
   },
   {
     category: 'Time & Repeats',

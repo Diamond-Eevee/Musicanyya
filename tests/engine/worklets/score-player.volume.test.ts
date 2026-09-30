@@ -12,6 +12,7 @@ import { EVENT_KIND } from '../../../src/core/schedule/compile.js';
 import { VOLUME_DEFAULT, VOLUME_RAMP_FRAMES } from '../../../src/engine/config.js';
 import {
   createScorePlayerProcessor,
+  type InboundMessage,
   type ScorePlayerProcessor,
   type SynthInterface,
 } from '../../../src/engine/worklets/score-player.processor.js';
@@ -118,6 +119,32 @@ describe('the volume message scales the rendered output (017 T033, 001 FR-016)',
     }
     expect(left[0]).toBeLessThan(1); // the ramp starts at once, not at the next block
     expect(left[VOLUME_RAMP_FRAMES - 1]).toBeCloseTo(0.2, 6);
+    expect(left.at(-1)).toBeCloseTo(0.2, 6);
+  });
+
+  it('a malformed volume message is ignored - it does not mute the output (017 T029 audit)', () => {
+    for (const bad of [Number.NaN, Number.POSITIVE_INFINITY, '0.5', null, undefined]) {
+      const proc = setup(100);
+      proc.receiveMessage({ type: 'volume', gain: bad } as unknown as InboundMessage);
+      render(proc, RAMP_BLOCKS);
+      for (const sample of render(proc, 1).left) expect(sample, String(bad)).toBeCloseTo(1, 6);
+    }
+  });
+
+  it('a malformed volume message during a ramp leaves the ramp alone: it ends on its target without a jump (017 T029 RT review)', () => {
+    const proc = setup(100);
+    proc.receiveMessage({ type: 'volume', gain: 0.2 });
+    const first = render(proc, 1).left; // one block, fewer frames than the ramp
+    proc.receiveMessage({ type: 'volume', gain: Number.NaN } as unknown as InboundMessage);
+    const { left } = render(proc, RAMP_BLOCKS + 1);
+    const increment = (1 - 0.2) / VOLUME_RAMP_FRAMES;
+    let previous = first.at(-1) ?? 1;
+    for (const sample of left) {
+      expect(previous - sample).toBeGreaterThanOrEqual(-1e-6);
+      expect(previous - sample).toBeLessThanOrEqual(increment + 1e-6);
+      previous = sample;
+    }
+    expect(left[VOLUME_RAMP_FRAMES - BLOCK_SIZE - 1]).toBeCloseTo(0.2, 6);
     expect(left.at(-1)).toBeCloseTo(0.2, 6);
   });
 });

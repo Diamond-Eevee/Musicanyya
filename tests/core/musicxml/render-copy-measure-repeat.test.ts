@@ -30,6 +30,29 @@ describe('withoutMeasureRepeats (render copy only)', () => {
     expect(withoutMeasureRepeats(xml)).toBe('<measure-style><multiple-rest>4</multiple-rest></measure-style>');
   });
 
+  it('keeps the sign where the measure encodes no notes - there is nothing to engrave instead (017 T029 audit)', () => {
+    const rests = '<note><rest/><duration>4</duration></note>';
+    const xml = `<measure number="2"><attributes><measure-style><measure-repeat type="start">1</measure-repeat></measure-style></attributes>${rests}</measure>`;
+    expect(withoutMeasureRepeats(xml)).toBe(xml);
+    const empty =
+      '<measure number="3"><attributes><measure-style><measure-repeat type="start">1</measure-repeat></measure-style></attributes></measure>';
+    expect(withoutMeasureRepeats(empty)).toBe(empty);
+  });
+
+  it('counts an unpitched note as encoded, and finds the measure when a line break follows `<measure` (017 T029 audit)', () => {
+    const sign = '<measure-style><measure-repeat type="start">1</measure-repeat></measure-style>';
+    const drum =
+      '<note><unpitched><display-step>C</display-step><display-octave>5</display-octave></unpitched><duration>4</duration></note>';
+    const rests = '<note><rest/><duration>4</duration></note>';
+    expect(withoutMeasureRepeats(`<measure number="1"><attributes>${sign}</attributes>${drum}</measure>`)).toBe(
+      `<measure number="1"><attributes></attributes>${drum}</measure>`,
+    );
+    // A pitched measure 1, then a rests-only measure 2 opened with `<measure` and a line break: the sign in measure 2
+    // must be judged by measure 2's content, not measure 1's notes
+    const xml = `<measure number="1">${note}</measure><measure\n  number="2"><attributes>${sign}</attributes>${rests}</measure>`;
+    expect(withoutMeasureRepeats(xml)).toBe(xml);
+  });
+
   it('leaves a document without measure repeats unchanged, byte for byte', () => {
     const xml = `<score-partwise><part id="P1"><measure number="1"><attributes><measure-style><slash type="start"/></measure-style></attributes>${note}</measure></part></score-partwise>`;
     expect(withoutMeasureRepeats(xml)).toBe(xml);

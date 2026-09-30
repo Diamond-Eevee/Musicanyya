@@ -265,3 +265,30 @@
 - Needs owner: T043 (load notices across Scores, recommendation in the task); live input follows the playback volume
   (earlier entry); T022-T024 need downloads of public-domain sources (asks permission); T025-T027 are the owner's checks.
 - Handoff: next = T047 (deep) or polish T028-T030; tree clean at the log commit.
+
+## 2026-09-30 19:40 - claude-opus-5.5 (continue - T043, T029; T048 found)
+- Session start: 5 uncommitted files (measure-repeat sign kept where no notes are encoded; malformed `volume` gain
+  ignored), unexplained by the last hand-off; the owner said to adopt them as T029 work. Their tests passed (12).
+- Evidence for commits after the last entry: T047 (d3ba5f8) and T028 (5efb5c1), see their commit bodies.
+- Done: T043 (7c795b4). **Owner approved the recommendation**: when another Score opens, the previous Score's load
+  notices go; device, storage, audio and failed-open notices stay until dismissed (001 FR-005, 017 FR-013). Load
+  notices are tagged (`Notice.load`) and never merged with a same-code notice raised outside a load. Three tests in
+  `open-and-drop.test.ts`, all three failed on the old code.
+- Done: T029. `constitution-auditor` on `main...HEAD` plus the working tree: **no CRITICAL/HIGH**; findings and fixes:
+  1. MEDIUM (III, docs): the `<measure-repeat>` row said the sign is never drawn; now "notes engraved in place of the
+     sign; with no encoded notes the sign stays and plays as rests" (SUPPORT_MATRIX + docs).
+  2. MEDIUM (III, missing task): a measure-level `<sound>` ignores jumps and dynamics silently - new task **T048**,
+     and the gap is written in the `<direction>` row.
+  3. LOW (IV): `measureHasNotes` found the measure only by `<measure ` / `<measure>`; now `/<measure[\s>]/`. New test
+     (unpitched-only measure; a line break after `<measure`) failed on the old match.
+  4. LOW (I): the worklet `volume` change needed an RT check - `rt-audio-reviewer` ran: **PASS, nothing blocking**.
+     Its advisories: mid-ramp case untested -> new test (fails on the old handler, as does the malformed-gain test);
+     the 1.5.1 summary of `worklet-protocol.md` now states the rule (PATCH, no shape change). Not acted on (advisory,
+     pre-existing, off the render quantum): one `liveDropped` post per dropped live message.
+  5. LOW: the measure-repeat sign shown as its notes (T021) - owner information, see below.
+  6. LOW: log evidence for T047/T028/T043 - this entry.
+- Checks: unit `Test Files 298 passed (298) | Tests 6245 passed (6245)` (exit 0); typecheck exit 0; lint 0 errors; e2e (all projects, before the last `measureHasNotes` regex fix) `1159 passed | 701 skipped` (exit 0). A first unit run timed out once on the Grosse Fuge real-score test (5 s) while e2e loaded the CPU; alone it passed 109/109, and the full run above was clean.
+- Needs owner (information, no action unless you object): since T021 a measure-repeat sign whose measure also
+  encodes its notes is engraved as those notes, so every played note can be marked (Constitution III).
+  T022-T024 need downloads of public-domain sources (ask first); T025-T027 are the owner's own checks.
+- Handoff: next = T048 (deep, measure-level `<sound>` jumps/dynamics), then T030 (full gate x3); T022-T024 wait for download permission, T025-T027 for the owner; tree clean at the T029 commit.

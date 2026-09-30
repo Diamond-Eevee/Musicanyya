@@ -5,7 +5,8 @@ the tick fields `play.fromTick`, `stop.returnTick` and `seek.tick` are **validat
 is not a finite number counts as absent (`play` plays on from the held tick, `stop` returns to 0, `seek` is ignored),
 a finite one is clamped to [0, `endTick`] (a NaN tick used to silence the Score, a negative one threw in the handler).
 The `volume` gain is now **applied** to the rendered output, per sample (it was ramped but never multiplied in, so the
-volume control had no effect, 001 FR-016). `live` messages are queued in a pre-allocated ring of
+volume control had no effect, 001 FR-016); a `volume` message whose `gain` is not a finite number is ignored - it used
+to set the target to 0 and, now that the gain is applied, would have muted the output (T029). `live` messages are queued in a pre-allocated ring of
 `LIVE_QUEUE_CAPACITY` slots (no object per message); the behaviour is unchanged.
 Tests: `score-player.tick-validation.test.ts`, `score-player.volume.test.ts`, `live-queue.test.ts`.
 `1.5.0` (MINOR, feature 017-leftover-sweep T013, from 001 T167; additive): `position` gains `lateEvents`,
@@ -82,7 +83,7 @@ Constitution I rules for the processor (checked by `rt-audio-reviewer`):
 | `stop` | `{ returnTick: number }` | Pause + position = `returnTick` (clamped to [0, `endTick`]; 0 unless finite, 1.5.1) |
 | `seek` | `{ tick: number }` | All scheduled notes off (release), jump; keeps playing state. `tick` clamped to [0, `endTick`]; a non-finite one is ignored (1.5.1) |
 | `tempo` | `{ percent: number }` | any finite number in [25, 200] (1.4.1), otherwise ignored / clamped (1.4.2); new ticks-per-frame from the next block, at the current position (1.4.2) |
-| `volume` | `{ gain: number }` | 0..1 linear target; ramped over `VOLUME_RAMP_FRAMES = 256`, applied to the output per sample (1.5.1) |
+| `volume` | `{ gain: number }` | 0..1 linear target; ramped over `VOLUME_RAMP_FRAMES = 256`, applied to the output per sample; a non-finite or non-number `gain` is ignored (1.5.1) |
 | `channelVolume` | `{ channel: number; gain: number }` | CC7 = `round(gain * 127)` on `channel`, applied in `port.onmessage`, effective at the next block (1.2.0) |
 | `live` | `{ kind: "on" | "off" | "sustain" | "allOff", key?: number, velocity?: number, down?: boolean }` | Applied at the start of the next block on `LIVE_CHANNEL = 15` (piano); a malformed one is dropped and counted in `liveDropped` (1.5.0) |
 

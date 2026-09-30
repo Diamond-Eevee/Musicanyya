@@ -179,9 +179,28 @@ const EMPTY_MEASURE_STYLE = /<measure-style\b[^>]*>\s*<\/measure-style\s*>/g;
  * in place of the notes a file encodes for such a measure; those notes are played, so they are in the Score model, and
  * every playable note needs its own drawn element carrying its Note ID (Constitution III) - a Grade marks it there.
  * Without the sign Verovio engraves the encoded notes. The file itself is untouched; a `<measure-style>` emptied by
- * this goes too, any other of its children stay. A document without measure repeats is returned unchanged.
+ * this goes too, any other of its children stay. Where the measure encodes no notes the sign stays: nothing is
+ * played there to draw instead (017 T029 audit). A document without measure repeats is returned unchanged.
  */
 export function withoutMeasureRepeats(xml: string): string {
   if (!xml.includes('<measure-repeat')) return xml;
-  return xml.replace(MEASURE_REPEAT, '').replace(EMPTY_MEASURE_STYLE, '');
+  return xml
+    .replace(MEASURE_REPEAT, (sign, offset: number) => (measureHasNotes(xml, offset) ? '' : sign))
+    .replace(EMPTY_MEASURE_STYLE, '');
+}
+
+/** A `<measure>` start tag: any white space may follow the name. */
+const MEASURE_OPEN = /<measure[\s>]/g;
+
+/** Whether the `<measure>` around `offset` encodes a pitched or unpitched note; true when there is no enclosing one. */
+function measureHasNotes(xml: string, offset: number): boolean {
+  let open = -1;
+  MEASURE_OPEN.lastIndex = 0;
+  for (let match = MEASURE_OPEN.exec(xml); match !== null && match.index < offset; match = MEASURE_OPEN.exec(xml)) {
+    open = match.index;
+  }
+  const close = xml.indexOf('</measure>', offset);
+  if (open < 0 || close < 0) return true;
+  const measure = xml.slice(open, close);
+  return measure.includes('<pitch') || measure.includes('<unpitched');
 }
