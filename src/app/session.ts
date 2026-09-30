@@ -81,12 +81,14 @@ import { audioTimeAtTick } from '../core/tempo/rate.js';
 import { displaySegmentIndexAt, type TempoDisplaySegment } from '../core/tempo/tempo-display.js';
 import type { PlaybackTimeline, TempoSegment } from '../core/timeline/types.js';
 import type { MxOpenButton } from '../ui/elements/mx-open-button.js';
+import { MxPanelHint } from '../ui/elements/mx-panel-hint.js';
 import type { PlaySetupChange } from '../ui/elements/mx-play-panel.js';
 import type { PracticeSetupChange } from '../ui/elements/mx-practice-panel.js';
 import type { MxScoreView, TimelineDto } from '../ui/elements/mx-score-view.js';
 import type { TempoChangeDetail } from '../ui/elements/mx-tempo-field.js';
 import type { MxTransport } from '../ui/elements/mx-transport.js';
 import { midiNoteName } from '../ui/format/note-name.js';
+import { en } from '../ui/i18n/en.js';
 import { mountPanels, type PanelTools } from '../ui/layout/panel-host.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
 import { initShortcuts } from '../ui/shortcuts.js';
@@ -556,8 +558,13 @@ export class Session {
     const environmentPanel = document.querySelector('mx-environment-panel') as HTMLElement;
     const tools: PanelTools = {
       scores: [scoreSource],
-      attempts: [attemptsList],
-      setup: [practicePanel, playPanel],
+      // A one-line hint where the tools themselves show nothing in the current mode (017 T041)
+      attempts: [attemptsList, new MxPanelHint(en.panelHints.attempts, () => practiceState.get().mode !== 'play')],
+      setup: [
+        practicePanel,
+        playPanel,
+        new MxPanelHint(en.panelHints.setup, () => practiceState.get().mode === 'listen'),
+      ],
       midi: [midiPanel],
       latency: [latencyPanel],
       view: [document.createElement('mx-view-panel')],

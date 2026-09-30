@@ -168,7 +168,7 @@ contracts of the feature it came from, named on the task)
 - [x] T040 [US5] (found in T020, US3 #3) One MIDI keyboard disconnect shows the notice "The MIDI keyboard was
   disconnected." twice (confirmed in the pane and in Playwright: one `deviceLost` event, two notices). Find the
   second path that adds it; test first (one `deviceLost` -> exactly one such notice), then fix
-- [ ] T041 [US5] (found in T020, US2 #2) Three popups open empty: Setup in Listen mode (only the heading "Practice and
+- [x] T041 [US5] (found in T020, US2 #2) Three popups open empty: Setup in Listen mode (only the heading "Practice and
   Play setup"), Recent attempts when the Score has none, and Latency before the audio has started. Each should say in
   one line why it is empty and what fills it (wording in `src/ui/i18n/en.ts`, the style of the existing texts). Test
   first per popup (the line is shown in that state)

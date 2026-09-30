@@ -29,13 +29,14 @@ export class MxLatencyPanel extends HTMLElement {
       return;
     }
 
+    const p = en.latency.panel;
     const { grade } = playState.get();
     if (!grade) {
-      this.innerHTML = '';
+      // Nothing measured to show yet: say so rather than leave the popup empty (017 T041)
+      this.innerHTML = `<p class="latency-empty">${p.beforeRun}</p>`;
       return;
     }
 
-    const p = en.latency.panel;
     const profile = grade.latency;
     const statusText = profile.source === 'assumed' ? p.assumed : p.measured;
 

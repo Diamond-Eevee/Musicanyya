@@ -78,6 +78,11 @@ export const en = {
     environment: 'Environment',
     grade: 'Grade',
   },
+  /** 017 T041: what a popup says when its own tools have nothing to show yet. */
+  panelHints: {
+    setup: 'Practice and Play each have their own setup. Choose Practice or Play mode to set it.',
+    attempts: 'Your Play runs of this score are kept here. Choose Play mode to see and replay them.',
+  },
   environment: {
     notSupported: 'Not supported in this environment.',
     permissionDenied: 'Permission denied.',
@@ -561,6 +566,7 @@ export const en = {
       measured: 'Measured latency',
       inputLatency: 'Input offset',
       calibrate: 'Calibrate',
+      beforeRun: 'Your latency is shown here after a Play run, and can then be calibrated.',
       calibratingHeading: 'Calibrating...',
       calibratingInstructions: 'Tap the spacebar to the beat of the metronome.',
     },

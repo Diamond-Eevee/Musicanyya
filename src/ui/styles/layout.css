@@ -409,6 +409,19 @@ mx-practice-panel[hidden] {
   display: none;
 }
 
+/* 017 T041: the line a popup shows when its tools have nothing to show yet */
+.panel-hint,
+.latency-empty {
+  display: block;
+  margin: 0;
+  max-width: 36ch;
+  color: var(--mx-ink-muted);
+}
+
+.panel-hint[hidden] {
+  display: none;
+}
+
 .practice-heading {
   font-size: 1rem;
   margin: 0 0 8px;
