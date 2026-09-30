@@ -181,6 +181,8 @@ interface AudioDiagnostics {
   sampleRate: number | null; baseLatencyMs: number | null; outputLatencyMs: number | null;
   dropoutsSincePlay: number; dropoutsTotal: number; dropoutMethod: "browserStats" | "clockDrift" | "none";
   reportsPerSecond: number; lastReportAgeMs: number | null;
+  liveQueueDropped: number;  // live messages dropped: queue full (T057) or malformed (017 T005)
+  dispatchDeferred: number;  // schedule events played one block late because their block was full (017 T013)
 }
 ```
 

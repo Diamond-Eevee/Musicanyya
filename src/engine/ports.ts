@@ -60,6 +60,8 @@ export interface AudioDiagnostics {
   lastReportAgeMs: number | null;
   /** A `live` (MIDI-in / accompaniment) message dropped because the worklet's 64-entry queue was full (T057). */
   liveQueueDropped: number;
+  /** Schedule events that sounded one render block late because their block was full (017 T013). */
+  dispatchDeferred: number;
 }
 
 export type AudioEngineEvent =

@@ -67,13 +67,13 @@ contracts of the feature it came from, named on the task)
   and passed straight into `receiveMessage(msg: InboundMessage)`, and the `msg.type === 'init'` dispatch sits outside
   the surrounding `try`, so a `null` payload throws inside the message handler. Type `e.data` and guard
   `typeof msg?.type === 'string'`, or move the dispatch inside the `try`
-- [ ] T012 [P] [US1] Test for T013: a block with more events than `maxEvents` counts the overflow, and the count
+- [x] T012 [P] [US1] Test for T013: a block with more events than `maxEvents` counts the overflow, and the count
   reaches the diagnostics view like `liveDropped`. Must fail today (silently stops collecting)
-- [ ] T013 [US1] (from 001 T167) Count dispatch overflow like `liveDropped` (`src/engine/worklets/dispatch.ts:158`):
+- [x] T013 [US1] (from 001 T167) Count dispatch overflow like `liveDropped` (`src/engine/worklets/dispatch.ts:158`):
   `dispatchBlock` silently stops collecting at `maxEvents = 1024` with no counter, so a dense passage loses events
   with no diagnostic. Constitution I says dropouts are bugs, not noise - they must be counted and shown. Contract
   change (diagnostics message) in 001's contracts with a version bump
-- [ ] T014 [US1] (from 001 T168) Document the live-queue drain invariant (`score-player.processor.ts`): the drain
+- [x] T014 [US1] (from 001 T168) Document the live-queue drain invariant (`score-player.processor.ts`): the drain
   clears `liveQueue.length = 0` past the `liveCount` snapshot, which is correct only because the loop always drains
   everything. A future early `break` would silently drop live events. State the invariant, or drain with a read index
   and clear only what was consumed (with a test if the code changes)

@@ -47,6 +47,10 @@ export class DispatchState {
   endReached = false;
   endFrame = 0;
   nextEventCursor = 0;
+  /** Events due in the last block that did not fit in `events` and were left for the next block: late, not lost. */
+  deferredInBlock = 0;
+  /** Running total of `deferredInBlock` (017 T013, Constitution I: late events are counted and shown). */
+  deferredTotal = 0;
 
   constructor(maxEvents = 1024) {
     this.events = new Array(maxEvents);
@@ -152,6 +156,7 @@ export function dispatchBlock(
   const blockEnd = blockStart + blockSize;
   state.numEvents = 0;
   state.numSplits = 0;
+  state.deferredInBlock = 0;
 
   const n = schedule.eventTick.length;
   let cursor = eventCursor;
@@ -173,6 +178,17 @@ export function dispatchBlock(
     ev.eventIndex = cursor;
     state.numEvents++;
     cursor++;
+  }
+
+  // The block is full: the events still due in it stay at `cursor` and sound at the next block's start (late, not
+  // lost). Count them - read only, no allocation - so the lateness is reported (017 T013, from 001 T167).
+  if (state.numEvents >= maxEv) {
+    for (let probe = cursor; probe < n; probe++) {
+      const due = Math.max(frameOfTickInSegs(schedule.eventTick[probe]!, segs), blockStart);
+      if (due >= blockEnd) break;
+      state.deferredInBlock++;
+    }
+    state.deferredTotal += state.deferredInBlock;
   }
 
   // Sort events by frame, then by event order (already sorted by schedule)

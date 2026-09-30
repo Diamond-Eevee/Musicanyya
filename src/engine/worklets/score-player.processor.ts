@@ -67,7 +67,16 @@ export interface SimpleSynth {
 
 export type ProcessorMessage =
   | { type: 'status'; state: 'initialised' | 'soundReady' | 'error' | 'processorFaulted'; detail?: string }
-  | { type: 'position'; frame: number; contextTime: number; tick: number; ticksPerFrame: number; playing: boolean }
+  | {
+      type: 'position';
+      frame: number;
+      contextTime: number;
+      tick: number;
+      ticksPerFrame: number;
+      playing: boolean;
+      /** Events that sounded a block late because their block was full, since the processor started (1.5.0). */
+      dispatchDeferred: number;
+    }
   | { type: 'ended'; frame: number }
   | { type: 'liveDropped'; total: number };
 
@@ -240,6 +249,7 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     tick: 0,
     ticksPerFrame: 0,
     playing: false,
+    dispatchDeferred: 0,
   };
   const endedReport = { type: 'ended' as const, frame: 0 };
 
@@ -295,6 +305,7 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     positionReport.tick = computeCurrentTick();
     positionReport.ticksPerFrame = segs.length > 0 ? currentSegment().ticksPerFrame : 0;
     positionReport.playing = playing;
+    positionReport.dispatchDeferred = dispatchState.deferredTotal;
     post(positionReport);
     blocksSinceReport = 0;
     pendingReport = false;
@@ -564,7 +575,11 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   function processBlockInner(left: Float32Array, right: Float32Array): void {
     const blockSize = left.length;
 
-    // Process live inputs immediately
+    // Process live inputs immediately.
+    // Invariant (017 T014, from 001 T168): this loop applies EVERY queued message - no early `break`, no `return` -
+    // because `liveQueue.length = 0` below clears the whole queue. The handler cannot add to it in between: port
+    // messages are delivered between render quanta, never during one. A future change that stops early must drain
+    // with a read index and keep what it did not apply, or live notes (a release!) are lost silently.
     const liveCount = liveQueue.length;
     for (let i = 0; i < liveCount; i++) {
       const msg = liveQueue[i];

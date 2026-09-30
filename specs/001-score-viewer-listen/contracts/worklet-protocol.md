@@ -1,6 +1,12 @@
 # Contract: `score-player` AudioWorklet protocol
 
-**Version**: `1.4.2` (PATCH, feature 012-tempo-bpm-field, T054, found by the RT review T036; no message shape change):
+**Version**: `1.5.0` (MINOR, feature 017-leftover-sweep T013, from 001 T167; additive): `position` gains `dispatchDeferred`,
+the running count of schedule events that did not fit in their render block's dispatch state (1024 per block) and so
+sounded at the start of the next block - late, never lost. Carried in the existing report (no new message, nothing extra
+posted from `process()`); the main thread shows it in diagnostics (Constitution I: late events are counted and shown).
+The `position` and `ended` messages are one pre-allocated object each, filled in per report (017 T009): a consumer that
+keeps one must copy it. Tests: `tests/engine/worklets/dispatch-overflow.test.ts`, `score-player.no-alloc.test.ts`.
+`1.4.2` (PATCH, feature 012-tempo-bpm-field, T054, found by the RT review T036; no message shape change):
 a `tempo` message is **position-preserving** - the new rate starts at the tick the playhead is at (it used to re-anchor at the
 seek/stop tick, restarting the piece on every message while playing) - and **validated**: a non-number or non-finite `percent` is
 ignored, a finite one is clamped to [25, 200]. The playhead is held while nothing plays: `pause` keeps the tick it paused at, a bare
@@ -89,7 +95,7 @@ interface ScheduleMessage {
 | `type` | Payload | When |
 |---|---|---|
 | `status` | `{ state: "initialised" | "soundReady" | "error" | "processorFaulted", detail?: string }` | After `init` / `soundBank`, on handler failure, or once if `process()`'s own call into `processBlock` faults (T161) |
-| `position` | `{ frame: number, contextTime: number, tick: number, ticksPerFrame: number, playing: boolean }` | Every 4 blocks while playing; once after `play`/`pause`/`stop`/`seek`/`tempo`/`schedule` |
+| `position` | `{ frame: number, contextTime: number, tick: number, ticksPerFrame: number, playing: boolean, dispatchDeferred: number }` (`dispatchDeferred` 1.5.0) | Every 4 blocks while playing; once after `play`/`pause`/`stop`/`seek`/`tempo`/`schedule` |
 | `ended` | `{ frame: number }` | The end tick was reached; the processor paused itself |
 | `liveDropped` | `{ total: number }` | A `live` message arrived while the 64-entry queue was already full (1.1.0) |
 

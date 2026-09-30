@@ -91,6 +91,7 @@ export class FakeAudioEngine implements AudioEngine {
       reportsPerSecond: 0,
       lastReportAgeMs: null,
       liveQueueDropped: 0,
+      dispatchDeferred: 0,
     };
   }
   async dispose() {
