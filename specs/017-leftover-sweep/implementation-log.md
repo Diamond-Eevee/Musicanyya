@@ -292,3 +292,25 @@
   encodes its notes is engraved as those notes, so every played note can be marked (Constitution III).
   T022-T024 need downloads of public-domain sources (ask first); T025-T027 are the owner's own checks.
 - Handoff: next = T048 (deep, measure-level `<sound>` jumps/dynamics), then T030 (full gate x3); T022-T024 wait for download permission, T025-T027 for the owner; tree clean at the T029 commit.
+
+## 2026-09-30 20:55 - claude-opus-5.5 (implement - T048, T030 gate)
+- Session start: tree clean; `pnpm test` `Tests 6245 passed (6245)`, `pnpm lint` 0 errors - matches the last entry.
+  Model fit: T048 is deep, this model fits.
+- Done: T048 (af3de42). A `<sound>` directly in `<measure>` is now read for dynamics and jumps (dacapo, dalsegno,
+  tocoda with time-only; fine, segno, coda targets) by the same code as a `<sound>` in a `<direction>`
+  (`readSoundPlayback` in `build.ts`). `tests/core/musicxml/measure-sound.test.ts`: 3 tests build each document with
+  the `<sound>` in the measure and in a direction and compare navigation, sound dynamics and the played schedule;
+  all 3 failed on the old code (empty jumps/targets/soundDynamics). A 4th test (unusable dynamics value ignored) was
+  dropped before commit because it also passed on the old code. Real files: a probe fingerprinted the whole compiled
+  schedule of all 204 real fixtures, spec examples and library pieces before and after - identical; none contains
+  such a `<sound>`. `<direction>` row of `SUPPORT_MATRIX` / `docs/musicxml-support.md` updated (gap removed).
+  Not RT code: no RT review needed.
+- T030 [~]: full gate three times in a row at af3de42, each run: lint exit 0 (0 errors, 316 warnings), typecheck
+  exit 0, unit `Test Files 299 passed (299) | Tests 6248 passed (6248)` exit 0, e2e `701 skipped | 1159 passed`
+  exit 0 (12.9-13.0 min). `status.ps1` shows no open task in 001-016 (SC-001). Kept `[~]` (mine): T022-T024 would
+  change library files, so the gate must run again after them before the branch is ready to merge.
+- Needs owner: T022-T024 need permission to download public-domain sources (Petzold/Bach Anh. 114, 115, 126;
+  Joplin *The Entertainer*; Chopin Op. 9 no. 2); T025-T027 are the owner's own checks. Alternatively the owner may
+  agree to record T022-T027 as not done, which makes the branch mergeable (T030's rule).
+- Handoff: next = T022-T024 once downloads are allowed (then T030 gate x3 again), else owner agreement on
+  T022-T027; tree clean at the log commit.
