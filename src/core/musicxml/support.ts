@@ -14,6 +14,13 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
   { category: 'Notes', element: '<tie>', status: 'Supported', notes: '' },
   {
     category: 'Notes',
+    element: '<unpitched>',
+    status: 'Partial',
+    notes:
+      'Played on its instrument (MIDI percussion key) and engraved. With a percussion or G clef the display-step/-octave position is drawn as written; with another clef (F, C) Verovio 6.3 places it as if in a treble clef - e.g. the W3C drum-kit example on an F clef shows its notes below the staff (017 T045)',
+  },
+  {
+    category: 'Notes',
     element: '<beam>',
     status: 'Supported',
     notes: 'Shown as encoded; completed automatically when a voice has none (not for sung lines with lyrics)',
