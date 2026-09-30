@@ -57,3 +57,67 @@
     and minimal documents as a guard - it passes from the start, recorded openly (001 T155 described older code).
 - Checks: `pnpm test` Test Files 288 passed (288) | Tests 6172 passed (6172) before T019's test (+3 now); lint 0 errors;
   typecheck exit 0.
+
+## 2026-09-30 - claude-opus-5.5 (implement - RT review, US1 follow-ups, T016)
+- Session start: 8 uncommitted files from 11:27-11:29 (T016 fix + tests; T015's N1 rename in tests only), no claim
+  suffix, not logged. Owner (asked): "no one, adopt it" - adopted and checked, not redone blind.
+- T015 RT review (rt-audio-reviewer, ran 11:24-11:27 in the previous session; its report recovered from the
+  transcript): **PASS WITH ADVISORIES**, nothing blocking in T003-T014. N1 the full-block probe counted a backlog
+  again in every block it lasted (3000 events: 2928 counted, 1976 late) - fixed: lateness is counted in the dispatch
+  loop when an event sounds before-its-frame (also after a tempo re-anchor), field renamed `dispatchDeferred` ->
+  `lateEvents` (worklet-protocol 1.5.0, never released), row "Events played late"; new test: a backlog over 2 blocks
+  counts each late event once. N2 the probe's O(B^2) cost - gone with N1. N4 contract/ports did not say `liveDropped`
+  also counts malformed live messages - fixed. N3, N5, N6 -> new tasks T031-T033. Advisory: spessasynth's own
+  noteOn/process may allocate (library internals, residual risk, not measured). Commit 0dc0640.
+- T016 (from 013 T112) **cause found**: the browser is open from start-up and first loads its library index; a file
+  dropped in that window failed to the load-error view hidden behind the dialog (only `browserWasReady` drops sent
+  `openFailed`), so `.browser-message` stayed empty - load made that window longer. Fix `browserState.fileFailed()`
+  (any open phase; kept through `indexLoaded`; also for a too-large file). Tests: `file-failed.test.ts` 4 failed
+  (`fileFailed is not a function`) -> 4 passed; new e2e test holds `library/index.json` so the moment is certain:
+  failed on the old code in chromium and firefox (`Received string: ""`), passes now. Evidence: 4 full `pnpm test:e2e`
+  runs (8 workers, 12.8-13.4 min each; the first log file holds two runs): the score-browser tests passed in every
+  browser in all 4. Other failures in those runs: `lookahead.spec.ts:363` chromium 4/4 (T017); `piano-keyboard.spec.ts:531`
+  chromium 2/4 + firefox 1/4 (new T035); electron `lookahead.spec.ts:69` 1/4 (new T036); run 2 had 9 electron tests
+  fail at launch with "The process cannot access the file because it is being used by another process" /
+  "Electron failed to install correctly" while I ran vitest from a worktree sharing `node_modules` - environment.
+  Summaries: run 1 `2 failed | 694 skipped | 1108 passed` (x2), run 2 `10 failed | 694 skipped | 1100 passed`,
+  run 3 `3 failed | 694 skipped | 1107 passed`. Commit 9755166.
+- T031-T034 (commit 205b950), each test first, failing for the expected reason:
+  - T032: `score-player.tick-validation.test.ts` 21 failed (NaN/negative ticks threw "Cannot read properties of
+    undefined (reading 'startTick')" in the handler; others played from the wrong place) -> 21 passed. Rule: a
+    non-finite tick counts as absent (play plays on, stop -> 0, seek ignored), a finite one is clamped to
+    [0, endTick]. Each case compares with the run of the equivalent valid messages. `stop` with `null` left out (the
+    old `?? 0` already handled it).
+  - T033: `score-player.volume.test.ts` 5 failed (output stayed 1.0) -> passed: `applyGain` scales the block in place
+    per sample after `renderBlock`, ramp over `VOLUME_RAMP_FRAMES`. `listen-render-golden` then measured 0.83x: the
+    golden was recorded while the volume did nothing (unity), so its helper now passes `volume: 100` (reason in the
+    helper) - the level bound is unchanged.
+  - T031: allocation is not measurable (as T006/T008), so `live-queue.test.ts` tests the extracted `LiveQueue` ring
+    (typed-array slots, `push`/`consume(n)`, 1000 wrap cycles) and `liveKindOf`; failed (module missing) -> passed;
+    the processor drain now consumes exactly what it applied (T014's invariant is structural).
+  - RT review of T031-T033 (rt-audio-reviewer): **PASS WITH ADVISORIES**, nothing blocking; render path allocation-
+    free, ring and ramp correct, every renderBlock path gets the gain once, validTick safe with reloadSchedule/atEnd.
+    NON-BLOCKING: the saved volume never reached the worklet -> new task T034, done: `web-audio-engine.test.ts` new
+    test failed -> passed (volume sent after `init`, `Session.start` hands the saved volume to the engine). Advisories
+    done in T034: initial `volume` option validated (test failed without the guard), `LiveQueue` capacity >= 1 (test
+    failed without the guard). Advisory kept: `validTick` accepts fractional ticks (harmless for frame math; held
+    ticks are fractional already). Advisory kept: a throw mid-`renderBlock` sends one unscaled block before the
+    processor goes silent.
+  - worklet-protocol 1.5.1 (PATCH). The T031-T033 code was written in a detached worktree during the e2e runs (so
+    the runs' builds stayed T016-only) and copied back; worktree removed.
+- T017 finding so far (not fixed): in the failing run the glide itself takes ~400 ms, but it starts ~300 ms after
+  the click (timeline: `gliding` first at 305 ms, still at scrollTop 0 until 384 ms). Measured in Node on the same
+  fixture at 1280 px: `getPageWithElement` 1.7 ms, all 500 measures 76 ms, one page render 11 ms - so the Verovio
+  worker's answer is not the delay; next: instrument measureclick -> seek -> position -> follow on the main thread.
+- Checks: `pnpm test` Test Files 293 passed (293) | Tests 6215 passed (6215); `pnpm typecheck` exit 0; `pnpm lint`
+  0 errors (316 warnings, 13 infos).
+- **Checkpoint (US1)**: T003-T015 and follow-ups T031-T034 done, both RT reviews without blocking findings. Full gate
+  at 205b950: lint 0 errors, typecheck exit 0, unit as above, `pnpm test:e2e` `1 failed | 694 skipped | 1109 passed`
+  (12.9 min) - the one failure is `lookahead.spec.ts:363` chromium (T017, open; arrival 681 ms). US1's Independent
+  Test (spec: the audio-thread fixes proven by their unit tests, RT review clean) holds.
+- Problems / open questions: needs owner: with T033 the playback volume scales the whole worklet output, so the
+  sound of the user's own keys (live input, same synth) follows the volume slider too, and starts at the default 80
+  instead of unity. Recommendation: keep it (one volume, like a master volume); the alternative is a separate
+  "keyboard volume", which is a new setting (spec change). Not blocking any task.
+- Handoff: next = T017 (instrument measureclick -> seek -> audible cursor -> follow; suspect the follow waits for the
+  output-latency-delayed audible cursor), then T035, T036, T020; tree clean at the log commit.
