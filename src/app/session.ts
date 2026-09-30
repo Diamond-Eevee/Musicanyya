@@ -621,8 +621,11 @@ export class Session {
     setInterval(() => {
       if (this.engineUnlocked) {
         const lat = this.audioEngine.latency();
-        if (lat.outputLatencyMs !== midiState.latencyMs) {
-          midiState.latencyMs = lat.outputLatencyMs !== null ? Math.round(lat.outputLatencyMs) : null;
+        // Compared as shown (whole ms): the raw value is fractional, so comparing it with the stored rounded one said
+        // "changed" every second and re-rendered every MIDI-state view for nothing (017 T035)
+        const latencyMs = lat.outputLatencyMs !== null ? Math.round(lat.outputLatencyMs) : null;
+        if (latencyMs !== midiState.latencyMs) {
+          midiState.latencyMs = latencyMs;
           midiState.emit();
         }
       }

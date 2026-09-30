@@ -115,7 +115,7 @@ contracts of the feature it came from, named on the task)
   feature 014; again at 016's US2, US5 and merge runs) and passes alone. Find why the message is late under load (the
   drop's read/parse path, or the assertion's wait) and fix the cause, not the timeout; then 3 green full e2e runs for
   firefox in the log
-- [ ] T035 [US3] (new, found in 017's T016 runs) `tests/e2e/piano-keyboard.spec.ts:531` (010 T021, hint messages
+- [x] T035 [US3] (new, found in 017's T016 runs) `tests/e2e/piano-keyboard.spec.ts:531` (010 T021, hint messages
   above the keys) fails in full runs, chromium and firefox (2 of 4 runs): `hint 1 has a box` - the second hint has
   no bounding box when measured. Find whether the hint is gone (timed out) or not yet shown under load, and fix the
   cause, not the wait; then 3 green full e2e runs for it in the log

@@ -561,6 +561,49 @@ test.describe('US2: hints and help around the piano (feature 010, owner feedback
     }
   });
 
+  // 017 T035: T021's test measured a hint that had just been thrown away (`boundingBox()` null under load): the piano
+  // rebuilt its hint list on every MIDI or Practice notification, and the latency poll notified every second because
+  // it compared the fractional latency with the rounded one it had stored.
+  test('the hints are not rebuilt when the MIDI state changes but the hints do not (017 T035)', async ({ page }) => {
+    await practiceWithPiano(page, { width: 1280, height: 800 });
+    await page.evaluate(() => {
+      const practice = (window as unknown as { __PRACTICE_STATE__: PracticeSeam }).__PRACTICE_STATE__;
+      practice.setKeyFeedback(66, { state: 'wrongOctave', messageId: 'practice.octave.lower' });
+    });
+    await expect(page.locator('mx-piano-keys .key-message')).toHaveCount(1);
+    const changes = await page.evaluate(async () => {
+      const container = document.querySelector('mx-piano-keys')?.shadowRoot?.getElementById('key-messages');
+      let count = 0;
+      const observer = new MutationObserver((records) => {
+        count += records.length;
+      });
+      if (container) observer.observe(container, { childList: true, subtree: true, characterData: true });
+      const midi = (window as unknown as { __MIDI_STATE__: { emit(): void } }).__MIDI_STATE__;
+      for (let i = 0; i < 3; i++) midi.emit();
+      await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
+      observer.disconnect();
+      return count;
+    });
+    expect(changes, 'changes to the hint list after three MIDI-state notifications').toBe(0);
+  });
+
+  test('the latency poll notifies only when the shown latency changes (017 T035)', async ({ page }) => {
+    await practiceWithPiano(page, { width: 1280, height: 800 });
+    const seen = await page.evaluate(async () => {
+      const midi = (window as unknown as { __MIDI_STATE__: { latencyMs: number | null; emit(): void } }).__MIDI_STATE__;
+      const values: (number | null)[] = [midi.latencyMs];
+      const emit = midi.emit.bind(midi);
+      midi.emit = () => {
+        values.push(midi.latencyMs);
+        emit();
+      };
+      await new Promise((done) => setTimeout(done, 3500));
+      return values;
+    });
+    const repeats = seen.filter((value, i) => i > 0 && value === seen[i - 1]);
+    expect(repeats, `notifications with an unchanged latency (values ${JSON.stringify(seen)})`).toEqual([]);
+  });
+
   test('the help popup sits above the on-screen piano and covers no key (T020)', async ({ page }) => {
     await practiceWithPiano(page, { width: 1280, height: 800 });
     await setUpStates(page);
