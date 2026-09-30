@@ -27,6 +27,9 @@ or something."
 - Q (OD-1, SC-007): Is the logo artwork approved? -> A: Yes, owner approved 2026-09-29 from
   `tests/.generated/brand-sheet.png` (commit eca8304), as drawn: the M-shaped double-note mark, the ink-blue tile
   unchanged (its low contrast on the Midnight surface was shown and accepted).
+- Q (OD-2, SC-008): Are the overall look and the six palettes approved? -> A: Yes, owner approved 2026-09-30 from the
+  12 review pictures (`tests/.generated/016-us5-review-sheet.png`), the Score browser and Grade pictures (commit
+  e580f72), with the palettes as in research R-5. The "Open file..." wrap at 390 px was pointed out and not changed.
 
 ## Context
 

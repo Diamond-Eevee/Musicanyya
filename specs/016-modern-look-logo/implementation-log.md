@@ -314,3 +314,8 @@
   until it is back to normal the full e2e gate (T055) and the SC-009 timings (T050) cannot be measured fairly;
   (2) OD-2 (T052): approve the look and palettes.
 - Handoff: next = T050 (timings, after the audio fix), T052 (owner), T055 (full gate). Tree clean at the commit below.
+
+## 2026-09-30 - claude-opus-5.5 (owner decision)
+- T052 OD-2: **owner approved** the look and the six palettes (2026-09-30), recorded in spec.md Clarifications.
+- Handoff: next = T050 [light] (SC-009 timings) and T055 (full gate, standard). Both need the audio clock back at 1.0x
+  first (re-measure `AudioContext.currentTime` against `performance.now()`; it was 0.65x at 88.2 kHz). Tree clean.
