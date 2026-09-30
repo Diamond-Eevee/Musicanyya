@@ -42,28 +42,28 @@ contracts of the feature it came from, named on the task)
   `synth.noteOn(15, undefined, undefined)` on the RT path. Validation belongs in the message handler, which is off
   the render quantum. Range-check `key` and `velocity`, drop-and-count through the existing `liveDropped` path
   otherwise - then the `as LiveMessage` assertion T139 added becomes a real narrowing rather than a claim
-- [ ] T006 [P] [US1] Test for T007: the worklet wrapper's notes-off (All Sound Off + All Notes Off) moves into an
+- [x] T006 [P] [US1] Test for T007: the worklet wrapper's notes-off (All Sound Off + All Notes Off) moves into an
   exported helper that is tested for behaviour - one channel, or all 16 - so it can be checked outside the
   AudioWorklet class. (Changed 2026-09-30: an allocation probe is not reliable in V8 - measured, escape analysis and
   counter noise made an allocating loop report fewer bytes than a non-allocating one - so "no allocation" is checked
   by the RT review T015, not by a test.) The held-note `Set` part of 001 T163 is already done on `main` (a
   `Uint8Array(16 * 128)` bitmap with a held count). Must fail today (no such helper)
-- [ ] T007 [US1] (from 001 T163) Remove two more per-call allocations from the render quantum
+- [x] T007 [US1] (from 001 T163) Remove two more per-call allocations from the render quantum
   (`score-player.processor.ts`): `allNotesOff()` builds `[0..15]` as an array literal on every call (reached from the
   live drain and from `endReached`), and `heldNotes: Set<number>` is mutated from `process()` and iterated with
   `for...of` in `allNotesOff()`. Hoist the channel list to a module constant; replace the Set with a pre-allocated
   `Uint8Array(16 * 128)` bitmap plus a held count
-- [ ] T008 [P] [US1] Test for T009: every position report the processor posts is the same, pre-allocated object
+- [x] T008 [P] [US1] Test for T009: every position report the processor posts is the same, pre-allocated object
   (checked by identity), with the right values each time; likewise the `ended` message. Must fail today (a fresh
   object per report)
-- [ ] T009 [US1] (from 001 T164) Stop allocating the position report inside `process()` (`score-player.processor.ts`):
+- [x] T009 [US1] (from 001 T164) Stop allocating the position report inside `process()` (`score-player.processor.ts`):
   `postMessage({ ...msg, frame, contextTime })` spreads a fresh object per report. Keep one pre-allocated report
   object and mutate it (the structured clone happens synchronously inside `postMessage`, so reuse is safe), or move
   position reporting to a `SharedArrayBuffer` + `Atomics.store` with a main-thread poll
-- [ ] T010 [P] [US1] Test for T011: a `null`, `undefined`, non-object or typeless payload on the worklet port does not
+- [x] T010 [P] [US1] Test for T011: a `null`, `undefined`, non-object or typeless payload on the worklet port does not
   throw in the message handler and is ignored (counted if a counter exists). Must fail today (`init` dispatch is
   outside the `try`)
-- [ ] T011 [US1] (from 001 T166) Type the worklet's port boundary (`score-player.processor.ts`): `e.data` is untyped
+- [x] T011 [US1] (from 001 T166) Type the worklet's port boundary (`score-player.processor.ts`): `e.data` is untyped
   and passed straight into `receiveMessage(msg: InboundMessage)`, and the `msg.type === 'init'` dispatch sits outside
   the surrounding `try`, so a `null` payload throws inside the message handler. Type `e.data` and guard
   `typeof msg?.type === 'string'`, or move the dispatch inside the `try`

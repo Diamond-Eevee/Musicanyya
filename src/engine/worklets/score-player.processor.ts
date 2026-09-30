@@ -89,6 +89,23 @@ export type LiveMessage =
  */
 export type InboundMessage = { type: string; [field: string]: unknown };
 
+/**
+ * All Sound Off (CC 120) and All Notes Off (CC 123) on one channel, or on all 16 (017 T007, from 001 T163). A plain
+ * index loop: the wrapper used to build `[c]` or `[0..15]` on every call, and it is called from the live drain inside
+ * `process()` (Constitution I).
+ */
+export function soundOffChannels(
+  controllerChange: (channel: number, controller: number, value: number) => void,
+  channel?: number,
+): void {
+  const first = channel ?? 0;
+  const last = channel ?? 15;
+  for (let c = first; c <= last; c++) {
+    controllerChange(c, 120, 0);
+    controllerChange(c, 123, 0);
+  }
+}
+
 const isMidiByte = (value: unknown): value is number =>
   typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 127;
 
@@ -147,6 +164,45 @@ export interface ScorePlayerOptions {
   volume?: number;
 }
 
+export interface PortMessageDeps {
+  /** Hands a message to the processor (`ScorePlayerProcessor.receiveMessage`). */
+  receive(msg: InboundMessage): void;
+  /** Loads the SoundFont bytes into the synth and marks the sound ready; may throw on a bad file. */
+  loadSoundBank(bytes: unknown): void;
+  /** Posts to the main thread (`port.postMessage`). */
+  post(msg: unknown): void;
+}
+
+/**
+ * The worklet's `port.onmessage` (017 T011, from 001 T166): the data on the port is untyped, so the envelope is checked
+ * before anything reads it - a payload that is not an object with a string `type` is ignored - and every branch runs
+ * inside a `try`, so nothing thrown here escapes the handler. Runs off the render quantum.
+ */
+export function createPortMessageHandler(deps: PortMessageDeps): (data: unknown) => void {
+  return (data) => {
+    if (typeof data !== 'object' || data === null || Array.isArray(data)) return;
+    const msg = data as { type?: unknown; [field: string]: unknown };
+    if (typeof msg.type !== 'string') return;
+    const inbound = msg as InboundMessage;
+    try {
+      if (inbound.type === 'init') {
+        deps.post({ type: 'status', state: 'initialised' });
+      } else if (inbound.type === 'soundBank') {
+        deps.loadSoundBank(inbound.bytes);
+        deps.post({ type: 'status', state: 'soundReady' });
+      } else {
+        deps.receive(inbound);
+      }
+    } catch (err) {
+      try {
+        deps.post({ type: 'status', state: 'error', detail: safeErrorDetail(err) });
+      } catch {
+        // best-effort diagnostic only: nothing thrown here may leave the handler
+      }
+    }
+  };
+}
+
 /** Factory for offline testing (no AudioWorklet globals required). */
 export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlayerProcessor {
   const { synth, sampleRate } = opts;
@@ -174,6 +230,18 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
 
   let blocksSinceReport = 0;
   let pendingReport = false; // send one extra report after a command
+
+  // The two messages posted from inside the render quantum, allocated once and filled in each time (017 T009, from
+  // 001 T164): `postMessage` clones synchronously, so reusing them is safe; a consumer that keeps a report must copy it.
+  const positionReport = {
+    type: 'position' as const,
+    frame: 0,
+    contextTime: 0,
+    tick: 0,
+    ticksPerFrame: 0,
+    playing: false,
+  };
+  const endedReport = { type: 'ended' as const, frame: 0 };
 
   // Held note tracking for all-notes-off on pause/stop/seek
   // One flag per (channel, key), in storage allocated once: noteOn/noteOff run inside process() and the Metronome adds one per beat
@@ -222,15 +290,12 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   }
 
   function sendPositionReport(): void {
-    const tpf = segs.length > 0 ? currentSegment().ticksPerFrame : 0;
-    post({
-      type: 'position',
-      frame: currentFrame,
-      contextTime: currentFrame / sampleRate,
-      tick: computeCurrentTick(),
-      ticksPerFrame: tpf,
-      playing,
-    });
+    positionReport.frame = currentFrame;
+    positionReport.contextTime = currentFrame / sampleRate;
+    positionReport.tick = computeCurrentTick();
+    positionReport.ticksPerFrame = segs.length > 0 ? currentSegment().ticksPerFrame : 0;
+    positionReport.playing = playing;
+    post(positionReport);
     blocksSinceReport = 0;
     pendingReport = false;
   }
@@ -557,7 +622,8 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
       playing = false;
       atEnd = true;
       allNotesOff();
-      post({ type: 'ended', frame: dispatchState.endFrame! });
+      endedReport.frame = dispatchState.endFrame ?? currentFrame;
+      post(endedReport);
       sendPositionReport();
       return;
     }
@@ -598,21 +664,18 @@ if (typeof AudioWorkletProcessor !== 'undefined') {
       super();
       // sampleRate is a global in AudioWorkletGlobalScope
       this.synth = new SpessaSynthProcessor(sampleRate);
+      // One bound callback for every notes-off, made here, not per call (017 T007).
+      // Our port takes a plain CC number; spessasynth types its parameter as the MIDIController union of the
+      // controllers it knows. The cast is the narrow one, not `any` (tasks.md T139).
+      const controllerChange = (c: number, ctrl: number, v: number) =>
+        this.synth.controllerChange(c, ctrl as MIDIController, v);
 
       this.inner = createScorePlayerProcessor({
         synth: {
           noteOn: (c, k, v) => this.synth.noteOn(c, k, v),
           noteOff: (c, k) => this.synth.noteOff(c, k),
-          allNotesOff: (c?: number) => {
-            const channels = c !== undefined ? [c] : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-            for (const ch of channels) {
-              this.synth.controllerChange(ch, 120, 0); // All Sound Off
-              this.synth.controllerChange(ch, 123, 0); // All Notes Off
-            }
-          },
-          // Our port takes a plain CC number; spessasynth types its parameter as the MIDIController
-          // union of the controllers it knows. The cast is the narrow one, not `any` (tasks.md T139).
-          controllerChange: (c, ctrl, v) => this.synth.controllerChange(c, ctrl as MIDIController, v),
+          allNotesOff: (c?: number) => soundOffChannels(controllerChange, c),
+          controllerChange,
           programChange: (c, program) => this.synth.programChange(c, program),
           setDrums: (c, isDrum) => this.synth.midiChannels[c]?.setDrums(isDrum),
           process: (left, right, startIndex, sampleCount) => this.synth.process(left, right, startIndex, sampleCount),
@@ -627,41 +690,32 @@ if (typeof AudioWorkletProcessor !== 'undefined') {
         // mapping (position-sync.ts, R-10/R-11) stays on one clock (Constitution II). Rewrite at the point of
         // emission, which happens synchronously within this block's process() call, so these globals still hold
         // this block's start values.
+        // The factory's position/ended messages are its reused objects (017 T009): overwrite their clock fields in place
+        // rather than spread a new object per report.
         if (msg.type === 'position') {
-          this.port.postMessage({ ...msg, frame: currentFrame, contextTime: currentTime });
+          msg.frame = currentFrame;
+          msg.contextTime = currentTime;
+          this.port.postMessage(msg);
         } else if (msg.type === 'ended') {
-          this.port.postMessage({ ...msg, frame: currentFrame });
+          msg.frame = currentFrame;
+          this.port.postMessage(msg);
         } else {
           this.port.postMessage(msg);
         }
       };
 
-      this.port.onmessage = (e) => {
-        const msg = e.data;
-        if (msg.type === 'init') {
-          this.port.postMessage({ type: 'status', state: 'initialised' });
-          return;
-        }
-        if (msg.type === 'soundBank') {
-          try {
-            const bank = SoundBankLoader.fromArrayBuffer(msg.bytes);
-            this.synth.soundBankManager.addSoundBank(bank, 'default');
-            this.soundReady = true;
-            // A schedule that arrived before the SoundFont gets its programs now (009 R-01), in this handler, not in process().
-            this.inner.soundReady();
-            this.port.postMessage({ type: 'status', state: 'soundReady' });
-          } catch (err) {
-            this.port.postMessage({ type: 'status', state: 'error', detail: safeErrorDetail(err) });
-          }
-          return;
-        }
-
-        try {
-          this.inner.receiveMessage(msg);
-        } catch (err) {
-          this.port.postMessage({ type: 'status', state: 'error', detail: safeErrorDetail(err) });
-        }
-      };
+      const handle = createPortMessageHandler({
+        receive: (msg) => this.inner.receiveMessage(msg),
+        loadSoundBank: (bytes) => {
+          const bank = SoundBankLoader.fromArrayBuffer(bytes as ArrayBuffer);
+          this.synth.soundBankManager.addSoundBank(bank, 'default');
+          this.soundReady = true;
+          // A schedule that arrived before the SoundFont gets its programs now (009 R-01), in this handler, not in process().
+          this.inner.soundReady();
+        },
+        post: (msg) => this.port.postMessage(msg),
+      });
+      this.port.onmessage = (e: MessageEvent<unknown>) => handle(e.data);
     }
 
     process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>): boolean {
