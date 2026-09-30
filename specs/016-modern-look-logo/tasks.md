@@ -437,7 +437,7 @@ Midnight, looked at. Full gate, log, commit.
   review pictures (six themes x Score view and Score browser) and the US1/US3 pictures. Ask them to approve the look
   and each palette, or to name changes. Palette changes are value edits in `themes.css`, re-checked by T034 and T049.
   Record the answer in `spec.md` Clarifications and the log. **Blocks**: merge
-- [ ] T053 [P] [light] Docs: `README.md` (themes, logo), the toolchain section of `docs/agents/reference.md`
+- [x] T053 [P] [light] Docs: `README.md` (themes, logo), the toolchain section of `docs/agents/reference.md`
   (`pnpm screenshot --theme/--clip`), and the Active Technologies entry "planned" -> "implemented". Check that the
   constants in `src/engine/config.ts` match the data-model.md section 5 table
 - [ ] T054 Constitution audit of the branch diff with `.claude/agents/constitution-auditor.md`. Summarise its
