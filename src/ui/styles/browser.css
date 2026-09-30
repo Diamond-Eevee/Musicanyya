@@ -48,16 +48,17 @@ dialog.browser[open] {
   max-height: none;
   display: flex;
   flex-direction: column;
-  color: var(--text-color);
-  background: var(--bg-color);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  color: var(--mx-ink);
+  background: var(--mx-surface);
+  border: 1px solid var(--mx-border);
+  border-radius: var(--mx-radius-m);
+  box-shadow: var(--mx-shadow-popup);
   overflow: hidden;
 }
 
+/* Feature 016 R-13: the desk colour at 60%, so the backdrop belongs to the theme. */
 dialog.browser::backdrop {
-  background: rgba(0, 0, 0, 0.4);
+  background: color-mix(in srgb, var(--mx-desk) 60%, transparent);
 }
 
 .browser-header {
@@ -65,23 +66,18 @@ dialog.browser::backdrop {
   align-items: center;
   gap: 8px;
   padding: 10px 44px 10px 12px; /* right side: room for the close button, which sits top right (see below) */
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--mx-border);
 }
 
 .browser-header h2 {
   margin: 0;
-  font-size: 1.1em;
+  font-size: var(--mx-text-l);
 }
 
+/* Look from controls.css (feature 016 R-13); only the layout here. */
 .browser-search {
   flex: 1 1 auto;
   min-width: 0;
-  border: 1px solid var(--border-color);
-  background: var(--bg-color);
-  color: var(--text-color);
-  border-radius: 4px;
-  padding: 4px 8px;
-  font: inherit;
 }
 
 .browser-close {
@@ -91,13 +87,12 @@ dialog.browser::backdrop {
   top: 8px;
   right: 8px;
   z-index: 3;
-  border: none;
-  background: none;
-  color: var(--text-color);
-  font-size: 1.3em;
+  /* Icon-only and quiet (feature 016 R-13): the button base comes from controls.css. */
+  background: transparent;
+  border-color: transparent;
+  font-size: var(--mx-text-l);
   line-height: 1;
-  cursor: pointer;
-  padding: 2px 6px;
+  padding: 2px 8px;
 }
 
 .browser-toolbar {
@@ -106,7 +101,7 @@ dialog.browser::backdrop {
   align-items: center;
   gap: 8px;
   padding: 6px 12px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--mx-border);
   min-height: 1px; /* present even when empty, so the border always shows a toolbar row exists */
 }
 
@@ -124,12 +119,6 @@ dialog.browser::backdrop {
 .browser-folder-picker,
 .browser-back {
   display: none;
-  border: 1px solid var(--border-color);
-  background: var(--bg-color);
-  color: var(--text-color);
-  border-radius: 4px;
-  padding: 3px 10px;
-  cursor: pointer;
 }
 
 .browser-filters {
@@ -143,17 +132,12 @@ dialog.browser::backdrop {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.9em;
+  font-size: var(--mx-text-s);
+  color: var(--mx-ink-muted);
 }
 
 .browser-filter select {
   max-width: 11rem;
-  border: 1px solid var(--border-color);
-  background: var(--bg-color);
-  color: var(--text-color);
-  border-radius: 4px;
-  padding: 3px 6px;
-  font: inherit;
 }
 
 .browser-sort {
@@ -175,14 +159,9 @@ dialog.browser::backdrop {
 .browser-chip,
 .browser-clear-all,
 .browser-clear-filters {
-  border: 1px solid var(--border-color);
-  background: var(--bg-color);
-  color: var(--text-color);
   border-radius: 999px;
   padding: 2px 10px;
-  font: inherit;
-  font-size: 0.85em;
-  cursor: pointer;
+  font-size: var(--mx-text-xs);
 }
 
 .browser-clear-all,
@@ -193,7 +172,7 @@ dialog.browser::backdrop {
 
 .browser-empty {
   padding: 10px 12px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--mx-border);
 }
 
 .browser-empty[hidden] {
@@ -207,8 +186,8 @@ dialog.browser::backdrop {
 
 .browser-breadcrumb {
   display: none;
-  font-size: 0.9em;
-  opacity: 0.8;
+  font-size: var(--mx-text-s);
+  color: var(--mx-ink-muted);
 }
 
 .browser-body {
@@ -222,22 +201,37 @@ dialog.browser::backdrop {
 .browser-rail {
   overflow-y: auto;
   padding: 8px;
-  border-right: 1px solid var(--border-color);
+  border-right: 1px solid var(--mx-border);
 }
 
 .browser-rail-item {
   padding: 4px 6px;
   padding-left: calc(6px + var(--browser-rail-depth, 0) * 14px);
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: var(--mx-radius-s);
+  border-inline-start: 3px solid transparent;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.browser-rail-item:hover,
+/* Feature 016 R-13: the rail's sections (the top-level entries) are set apart by space and a 1 px rule. The rail
+   is one flat, patched tree, so the groups are drawn here rather than with wrapper elements. */
+.browser-rail-item[data-depth="0"]:not(:first-child) {
+  margin-top: var(--mx-space-3);
+  padding-top: calc(4px + var(--mx-space-3));
+  border-top: 1px solid var(--mx-border);
+  border-radius: 0 0 var(--mx-radius-s) var(--mx-radius-s);
+}
+
+.browser-rail-item:hover {
+  background: var(--mx-accent-soft);
+}
+
 .browser-rail-item[aria-selected="true"] {
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--mx-accent-soft);
+  border-inline-start-color: var(--mx-accent);
+  font-weight: 600;
 }
 
 mx-browser-list,
@@ -291,25 +285,25 @@ mx-browser-continue h3 {
   text-align: left;
   font: inherit;
   color: inherit;
-  background: var(--bg-color);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
+  background: var(--mx-raised);
+  border: 1px solid var(--mx-border);
+  border-radius: var(--mx-radius-m);
   cursor: pointer;
 }
 
 .continue-card:hover {
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--mx-accent-soft);
 }
 
 .continue-card-title {
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .continue-card-subtitle,
 .continue-card-note {
   grid-column: 2;
-  font-size: 0.85em;
-  opacity: 0.8;
+  font-size: var(--mx-text-s);
+  color: var(--mx-ink-muted);
 }
 
 .continue-link {
@@ -326,7 +320,7 @@ mx-browser-continue h3 {
 
 .continue-empty {
   margin: 0;
-  opacity: 0.75;
+  color: var(--mx-ink-muted);
 }
 
 .browser-error {
@@ -334,7 +328,7 @@ mx-browser-continue h3 {
   align-items: center;
   gap: 8px;
   padding: 6px 12px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--mx-border);
 }
 
 .browser-error[hidden] {
@@ -346,41 +340,52 @@ mx-browser-continue h3 {
 }
 
 .browser-retry {
-  border: 1px solid var(--border-color);
-  background: var(--bg-color);
-  color: var(--text-color);
-  border-radius: 4px;
   padding: 2px 10px;
-  cursor: pointer;
 }
 
+/* Feature 016 R-13: two lines - the status badge and the title, then the muted facts. The selected row has an accent
+   edge, a soft fill and a bold title (more than colour, R-9); a long title still wraps in full (spec Edge Cases). */
 .browser-row {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 8px;
+  column-gap: 8px;
+  row-gap: 2px;
   padding: 6px 8px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: var(--mx-radius-s);
+  border-inline-start: 3px solid transparent;
 }
 
-.browser-row:hover,
+.browser-row:hover {
+  background: var(--mx-accent-soft);
+}
+
 .browser-row[aria-selected="true"] {
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--mx-accent-soft);
+  border-inline-start-color: var(--mx-accent);
 }
 
 .browser-row-title {
-  font-weight: 500;
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: var(--mx-text-m);
+  font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
-.browser-row-subtitle,
-.browser-row-level,
-.browser-row-key,
-.browser-row-length,
-.browser-row-result,
-.browser-row-trend {
-  font-size: 0.85em;
-  opacity: 0.75;
+.browser-row[aria-selected="true"] .browser-row-title {
+  font-weight: 700;
+}
+
+.browser-row-meta {
+  flex-basis: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 8px;
+  row-gap: 2px;
+  font-size: var(--mx-text-s);
+  color: var(--mx-ink-muted);
 }
 
 mx-status-badge {
@@ -395,19 +400,18 @@ mx-status-badge {
 }
 
 .status-badge-label {
-  font-size: 0.85em;
+  font-size: var(--mx-text-xs);
 }
 
+/* Feature 016 R-9: the outline is drawn in ink (>= 8.8:1 on every surface), the status fills are unchanged (FR-011). */
 .status-badge-outline {
-  stroke: var(--status-new);
+  stroke: var(--mx-ink);
   stroke-width: 1.5;
 }
-.status-badge[data-status="practised"] .status-badge-outline,
 .status-badge[data-status="practised"] .status-badge-fill {
   stroke: var(--status-practised);
   fill: var(--status-practised);
 }
-.status-badge[data-status="played"] .status-badge-outline,
 .status-badge[data-status="played"] .status-badge-fill {
   stroke: var(--status-played);
   fill: var(--status-played);
@@ -417,19 +421,19 @@ mx-status-badge {
 }
 
 .browser-detail-progress {
-  margin: 10px 0;
-  font-size: 0.9em;
+  font-size: var(--mx-text-s);
 }
 
 .browser-detail-history {
   margin: 4px 0 0;
   padding-left: 18px;
-  font-size: 0.85em;
+  font-size: var(--mx-text-s);
 }
 
 .browser-rail-progress {
-  font-size: 0.75em;
-  opacity: 0.7;
+  font-size: var(--mx-text-xs);
+  font-weight: 400;
+  color: var(--mx-ink-muted);
   margin-left: 4px;
 }
 
@@ -437,28 +441,46 @@ mx-browser-detail {
   display: block;
   overflow-y: auto;
   padding: 8px 12px;
-  border-left: 1px solid var(--border-color);
+  border-left: 1px solid var(--mx-border);
+}
+
+/* Feature 016 R-13: facts, progress, History and the source, each a section with a rule between them. */
+.browser-detail-section {
+  padding: var(--mx-space-3) 0;
+}
+
+.browser-detail-section + .browser-detail-section {
+  border-top: 1px solid var(--mx-border);
+}
+
+.browser-detail-history-heading,
+.score-source-heading {
+  margin: 0 0 var(--mx-space-2);
+  font-size: var(--mx-text-s);
 }
 
 .browser-detail-title {
   margin: 0 0 4px;
 }
 
+.browser-detail-composer,
+.browser-detail-arranger,
+.browser-detail-level,
+.browser-detail-filename {
+  margin: 2px 0;
+  color: var(--mx-ink-muted);
+}
+
 .browser-detail-open {
   margin-top: 10px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-color);
-  color: var(--text-color);
-  border-radius: 4px;
   padding: 4px 14px;
-  cursor: pointer;
 }
 
 .browser-status {
   margin: 0;
   padding: 4px 12px;
-  font-size: 0.8em;
-  opacity: 0.75;
+  font-size: var(--mx-text-xs);
+  color: var(--mx-ink-muted);
 }
 
 .browser-message {
@@ -479,8 +501,8 @@ dialog.browser.browser-drag-active {
 
 .browser-row-not-stored,
 .browser-detail-not-stored {
-  font-size: 0.85em;
-  opacity: 0.75;
+  font-size: var(--mx-text-s);
+  color: var(--mx-ink-muted);
   font-style: italic;
 }
 
@@ -500,7 +522,7 @@ dialog.browser.browser-drag-active {
     position: absolute;
     inset: 0;
     z-index: 1;
-    background: var(--bg-color);
+    background: var(--mx-surface);
   }
 
   .browser-folder-picker,
@@ -526,7 +548,7 @@ dialog.browser.browser-drag-active {
     position: absolute;
     inset: 0;
     z-index: 2;
-    background: var(--bg-color);
+    background: var(--mx-surface);
   }
 
   .browser-back {
@@ -534,16 +556,10 @@ dialog.browser.browser-drag-active {
   }
 }
 
-:focus-visible {
-  outline: 2px solid var(--mx-focus);
-  outline-offset: 1px;
-}
-
 /* Carried over from the retired panel (T098-T101). */
-.browser-row-step,
 .browser-rail-relation {
-  font-size: 0.85em;
-  opacity: 0.75;
+  font-size: var(--mx-text-s);
+  color: var(--mx-ink-muted);
 }
 
 .browser-rail-relation {
@@ -553,14 +569,14 @@ dialog.browser.browser-drag-active {
 
 .browser-detail-facts {
   margin: 4px 0;
-  font-size: 0.9em;
+  font-size: var(--mx-text-s);
 }
 
 .browser-level-description {
   flex-basis: 100%;
   margin: 0;
-  font-size: 0.85em;
-  opacity: 0.85;
+  font-size: var(--mx-text-s);
+  color: var(--mx-ink-muted);
 }
 
 .browser-level-description:empty {

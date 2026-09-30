@@ -120,13 +120,15 @@ export class MxBrowserList extends HTMLElement {
       >
         <mx-status-badge status="${row.progress.status}"></mx-status-badge>
         <span class="browser-row-title">${escapeHtml(row.title)}</span>
-        ${row.subtitle ? `<span class="browser-row-subtitle">${escapeHtml(row.subtitle)}</span>` : ''}
-        ${row.step ? `<span class="browser-row-step">${escapeHtml(en.library.steps[row.step])}</span>` : ''}
-        ${row.level ? `<span class="browser-row-level">${escapeHtml(en.library.levels[row.level])}</span>` : ''}
-        ${row.keys.length > 0 ? `<span class="browser-row-key">${escapeHtml(row.keys.join(', '))}</span>` : ''}
-        ${length ? `<span class="browser-row-length">${escapeHtml(length)}</span>` : ''}
-        ${this.resultHtml(row)}
-        ${row.stored ? '' : `<span class="browser-row-not-stored">${escapeHtml(en.browser.fileNotStoredRow)}</span>`}
+        <span class="browser-row-meta">
+          ${row.subtitle ? `<span class="browser-row-subtitle">${escapeHtml(row.subtitle)}</span>` : ''}
+          ${row.step ? `<span class="browser-row-step">${escapeHtml(en.library.steps[row.step])}</span>` : ''}
+          ${row.level ? `<span class="browser-row-level">${escapeHtml(en.library.levels[row.level])}</span>` : ''}
+          ${row.keys.length > 0 ? `<span class="browser-row-key">${escapeHtml(row.keys.join(', '))}</span>` : ''}
+          ${length ? `<span class="browser-row-length">${escapeHtml(length)}</span>` : ''}
+          ${this.resultHtml(row)}
+          ${row.stored ? '' : `<span class="browser-row-not-stored">${escapeHtml(en.browser.fileNotStoredRow)}</span>`}
+        </span>
       </div>`;
   }
 

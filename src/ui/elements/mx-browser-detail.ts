@@ -191,17 +191,24 @@ export class MxBrowserDetail extends HTMLElement {
         }, ${escapeHtml(scopeText(r.scope))}${completenessText(r) ? ` (${escapeHtml(completenessText(r))})` : ''}${version}</li>`;
       })
       .join('');
+    // Feature 016 R-13: the progress block and its History each in their own section (no text changes).
     return `
-      <div class="browser-detail-progress">
-        <mx-status-badge status="${p.status}"></mx-status-badge>
-        ${p.attempts > 0 ? `<p class="browser-detail-attempts">${escapeHtml(b.attempts)}: ${p.attempts}</p>` : ''}
-        ${resultLine(b.best, p.best ?? undefined)}
-        ${resultLine(b.last, last)}
-        ${resultLine(b.previous, previous)}
-        ${trend ? `<p class="browser-detail-trend">${escapeHtml(trend)}</p>` : ''}
-        ${p.history.length > 0 ? `<h4 class="browser-detail-history-heading">${escapeHtml(b.history)}</h4><ul class="browser-detail-history">${historyRows}</ul>` : ''}
-        ${this.resetControlsHtml(ref, p.status !== 'new', shared, pendingHere)}
-      </div>`;
+      <section class="browser-detail-section">
+        <div class="browser-detail-progress">
+          <mx-status-badge status="${p.status}"></mx-status-badge>
+          ${p.attempts > 0 ? `<p class="browser-detail-attempts">${escapeHtml(b.attempts)}: ${p.attempts}</p>` : ''}
+          ${resultLine(b.best, p.best ?? undefined)}
+          ${resultLine(b.last, last)}
+          ${resultLine(b.previous, previous)}
+          ${trend ? `<p class="browser-detail-trend">${escapeHtml(trend)}</p>` : ''}
+          ${this.resetControlsHtml(ref, p.status !== 'new', shared, pendingHere)}
+        </div>
+      </section>
+      ${
+        p.history.length > 0
+          ? `<section class="browser-detail-section"><h4 class="browser-detail-history-heading">${escapeHtml(b.history)}</h4><ul class="browser-detail-history">${historyRows}</ul></section>`
+          : ''
+      }`;
   }
 
   /** 005 FR-010/012: every item's key, metre, tempo, measures, duration, hands and skills, labelled; a fact the item
@@ -235,15 +242,19 @@ export class MxBrowserDetail extends HTMLElement {
       .map((line) => `<p class="score-source-line">${escapeHtml(line)}</p>`)
       .join('');
     return `
-      <h3 class="browser-detail-title">${escapeHtml(item.meta.title)}</h3>
-      ${composer ? `<p class="browser-detail-composer">${composer}</p>` : ''}
-      ${arranger ? `<p class="browser-detail-arranger">${arranger}</p>` : ''}
-      <p class="browser-detail-level">${escapeHtml(s.levels[item.meta.level])}</p>
-      <p class="browser-detail-facts">${this.factsText(item)}</p>
+      <section class="browser-detail-section">
+        <h3 class="browser-detail-title">${escapeHtml(item.meta.title)}</h3>
+        ${composer ? `<p class="browser-detail-composer">${composer}</p>` : ''}
+        ${arranger ? `<p class="browser-detail-arranger">${arranger}</p>` : ''}
+        <p class="browser-detail-level">${escapeHtml(s.levels[item.meta.level])}</p>
+        <p class="browser-detail-facts">${this.factsText(item)}</p>
+      </section>
       ${this.progressHtml(row, ref, shared, pendingHere)}
-      <h4 class="score-source-heading">${escapeHtml(s.source.heading)}</h4>
-      ${sourceLines}
-      <button type="button" class="browser-detail-open">${escapeHtml(en.browser.open)}</button>`;
+      <section class="browser-detail-section">
+        <h4 class="score-source-heading">${escapeHtml(s.source.heading)}</h4>
+        ${sourceLines}
+      </section>
+      <button type="button" class="browser-detail-open mx-primary">${escapeHtml(en.browser.open)}</button>`;
   }
 
   private fileHtml(
@@ -259,11 +270,13 @@ export class MxBrowserDetail extends HTMLElement {
       ? ''
       : `<p class="browser-detail-not-stored">${escapeHtml(en.browser.fileNotStoredRow)}</p>`;
     return `
-      <h3 class="browser-detail-title">${title}</h3>
-      <p class="browser-detail-filename">${escapeHtml(entry.fileName)}</p>
-      ${stored}
+      <section class="browser-detail-section">
+        <h3 class="browser-detail-title">${title}</h3>
+        <p class="browser-detail-filename">${escapeHtml(entry.fileName)}</p>
+        ${stored}
+      </section>
       ${this.progressHtml(row, ref, shared, pendingHere)}
-      <button type="button" class="browser-detail-open">${escapeHtml(en.browser.open)}</button>
+      <button type="button" class="browser-detail-open mx-primary">${escapeHtml(en.browser.open)}</button>
       ${this.removeControlsHtml(ref, pendingRemoveHere)}`;
   }
 }

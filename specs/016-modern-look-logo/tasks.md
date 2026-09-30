@@ -349,7 +349,7 @@ hand). The 12 review pictures are made (quickstart US5 step 1). Full gate, log, 
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T042 [P] [US3] Create `tests/e2e/score-browser-look.spec.ts` (all three engines, seeded with
+- [x] T042 [P] [US3] Create `tests/e2e/score-browser-look.spec.ts` (all three engines, seeded with
   `played-ladder.json` as in `score-browser-a11y.spec.ts`). (a) In each row, `.browser-row-title` has
   `font-weight` ≥ 600 and a larger font size than `.browser-row-subtitle`, whose colour is `--mx-ink-muted`. (b) The
   selected row has an inline-start border ≥ 3 px in `--mx-accent`, which stays while the pointer hovers another row.
@@ -358,16 +358,18 @@ hand). The 12 review pictures are made (quickstart US5 step 1). Full gate, log, 
   row and the detail pane (title, composer, level, key, length, badge label, results, attempts, history lines, licence,
   credit, limitations) is present. The list is written out in the test from the current `en.ts` strings and seed
   data. (f) The `.status-badge-outline` stroke is `--mx-ink`. (g) A row with a long title (a My files entry named with 120
-  characters) stays one line per text line with `text-overflow: ellipsis`, as on `main` (spec Edge Cases). Run:
+  characters) wraps in full as on `main` (spec Edge Cases: "wrap exactly as they do now"; corrected 2026-09-30 -
+  the first wording asked for an ellipsis, but `main` wraps the title and the full text must stay reachable). Run:
   fails
 
 ### Implementation
 
-- [ ] T043 [US3] Markup (no text change): in `src/ui/elements/mx-browser-list.ts`, wrap each row's second-line facts
+- [x] T043 [US3] Markup (no text change): in `src/ui/elements/mx-browser-list.ts`, wrap each row's second-line facts
   in `<span class="browser-row-meta">`. In `mx-browser-detail.ts`, wrap the facts, progress, history and source blocks
   in `<section>` elements and give the Open button `mx-primary`. In `mx-browser-rail.ts`, add `browser-rail-group`
-  wrappers. Update any e2e selector this breaks in the same task, with the reason in the log
-- [ ] T044 [US3] Restyle `src/ui/styles/browser.css` (R-13): two-line rows, muted meta, selected row (accent edge +
+  wrappers (changed 2026-09-30: not done - the rail is a flat `role="tree"` list patched in place to keep focus
+  and in-flight clicks, so wrappers would break it; T044 draws the groups in CSS on the `data-depth="0"` items). Update any e2e selector this breaks in the same task, with the reason in the log
+- [x] T044 [US3] Restyle `src/ui/styles/browser.css` (R-13): two-line rows, muted meta, selected row (accent edge +
   accent-soft + bold), rail groups with separators and muted counts, sectioned detail pane, toolbar filters and
   search from `controls.css`, the close button as icon-only, the backdrop from `--mx-desk` at 60%. In
   `src/ui/elements/mx-status-badge.ts` / `browser.css`, the badge outline stroke is `--mx-ink` and the fills are
