@@ -369,3 +369,27 @@
   console line given there, say "Open *Greensleeves* from the beginner repertoire and tell me your best result on it",
   time from first click to the spoken number. Right answer: **78 % correct, 70 % on time**. Pass: 4 of 5 within 30 s,
   unprompted. Record per person: time, success, where they hesitated, under "SC-008 run".
+
+## 2026-10-01 00:45 - claude-opus-5.5 (continue - audit of the new diff, T054, T030 gate x3)
+- Constitution audit (`constitution-auditor`, `git diff 9d31d01..HEAD`): **no CRITICAL/HIGH**. Confirmed: unprinted notes
+  are excluded from expected notes and marks (`src/core/practice/expected.ts:79`, `src/core/grade/marks.ts:85`); no
+  new dependency; licensing and notices complete; the library pins only add entries. Findings and fixes (d36607a):
+  MEDIUM (IV) the unterminated-tie rule had no own test -> split out as **T054**, test `c'4 ~ d'4` / `c'4 ~ c'4` fails
+  with the rule switched off ("expected ... not to contain '<tie'") and passes with it; LOW `<note print-object="no">`
+  row added to SUPPORT_MATRIX/docs (checked: Verovio renders such a note `visibility="hidden"`); LOW the out-of-scope
+  `describe` names the later additions; LOW T051's text did not cover the tie rule -> T054. Not done (optional): a test
+  for `\hideNotes` with no `\unHideNotes`.
+- Gate incident: stopping the earlier gate task killed only its wrapper, so two gates ran at once on one preview port
+  (150/137 e2e failures, results discarded; the leftover `vite preview` was stopped). The one lone round of that mix
+  failed 2 e2e tests: webkit `lookahead.spec.ts:201` (sweep over every repertoire piece: `page.evaluate` timed out at
+  180 s) and electron `score-browser-timing.spec.ts:152` (SC-003 100 ms). Alone, the sweep passes on webkit and
+  chromium in 33 s with the new pieces; neither recurred below.
+- T030 [~]: full gate three times in a row at d36607a, alone - each run: lint exit 0 (0 errors, 316 warnings),
+  typecheck exit 0, unit `Test Files 299 passed (299) | Tests 6268 passed (6268)` exit 0, e2e `707 skipped | 1165
+  passed` exit 0 (13.0-13.2 min). No open task in 001-016 (SC-001). Kept `[~]` (mine): T052/T053 may change code, and
+  T025-T027 wait for the owner, so the branch is not ready to merge.
+- Needs owner: **T052** (realise the inverted mordent like the mordent? recommend yes), **T053** (The Entertainer: leave
+  out, or add with a criterion-16 exception + converter tie fix? recommend leave out), **T025-T027** (steps in the
+  previous entry).
+- Handoff: next = owner answers to T052/T053 (then T023 or its close-out, and T030 gate x3 again); T025-T027 results
+  from the owner; tree clean at the log commit.
