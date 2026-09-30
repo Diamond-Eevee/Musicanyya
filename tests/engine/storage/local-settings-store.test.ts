@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { OVERLAYS_DEFAULT } from '../../../src/engine/config.js';
-import { LocalSettingsStore, SETTINGS_STORAGE_KEY } from '../../../src/engine/storage/local-settings-store.js';
+import {
+  LocalSettingsStore,
+  PRACTICE_STORAGE_KEY,
+  SETTINGS_STORAGE_KEY,
+} from '../../../src/engine/storage/local-settings-store.js';
 
 class FakeStorage implements Storage {
   private map = new Map<string, string>();
@@ -107,5 +111,46 @@ describe('Settings store', () => {
     }).not.toThrow();
 
     expect(onError).toHaveBeenCalledTimes(1);
+  });
+
+  describe('flushPending: the page is going away (017 T039, 004 SC-008)', () => {
+    const settings = {
+      version: 2 as const,
+      volume: 30,
+      scale: 140,
+      follow: false,
+      overlays: { ...OVERLAYS_DEFAULT, pianoKeys: true },
+    };
+
+    it('writes a pending settings change at once, without waiting for the debounce', () => {
+      const store = new LocalSettingsStore();
+      store.save(settings);
+      expect(storage.getItem(SETTINGS_STORAGE_KEY)).toBeNull(); // still debounced
+      store.flushPending();
+      expect(JSON.parse(storage.getItem(SETTINGS_STORAGE_KEY) ?? 'null')).toMatchObject({ scale: 140, volume: 30 });
+    });
+
+    it('writes pending Practice and Play settings too', () => {
+      const store = new LocalSettingsStore();
+      const scoreId = 'a'.repeat(64);
+      store.savePractice(scoreId, { selection: null, loop: null, accompaniment: false, help: false });
+      store.savePlay(scoreId, store.loadPlay(scoreId));
+      store.flushPending();
+      expect(storage.getItem(PRACTICE_STORAGE_KEY)).not.toBeNull();
+      expect(storage.getItem('musicanyya.play.v1')).not.toBeNull();
+    });
+
+    it('with nothing pending writes nothing, and a flushed write is not written again when its timer would have run', () => {
+      const store = new LocalSettingsStore();
+      store.flushPending();
+      expect(storage.length).toBe(0);
+      store.save(settings);
+      store.flushPending();
+      const written = storage.getItem(SETTINGS_STORAGE_KEY);
+      storage.clear();
+      vi.advanceTimersByTime(10_000);
+      expect(storage.getItem(SETTINGS_STORAGE_KEY)).toBeNull();
+      expect(written).not.toBeNull();
+    });
   });
 });

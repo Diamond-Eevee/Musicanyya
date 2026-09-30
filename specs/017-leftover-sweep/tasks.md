@@ -159,7 +159,7 @@ contracts of the feature it came from, named on the task)
   `fitBar()` (`mx-app.ts`, applied only when the compact form still overflows) instead of a width threshold. Test
   first: e2e at 930, 960 and 984 px with a Score loaded - the bar's `scrollWidth` equals its `clientWidth` (fails
   today); `barFitted()` in `tests/e2e/helpers/panels.ts` then no longer needs its "folded is enough" escape
-- [ ] T039 [US5] (found in T020, Score size #4, 004 SC-008) A Score size or overlay change is lost when the page is
+- [x] T039 [US5] (found in T020, Score size #4, 004 SC-008) A Score size or overlay change is lost when the page is
   reloaded or closed within `SETTINGS_WRITE_DEBOUNCE_MS` (500 ms): `LocalSettingsStore.save` only arms a timer and
   nothing flushes it when the page goes away (measured: two size steps, piano keys on, reload at once -> 100 % and
   piano keys off; by hand with a pause it is kept). Test first (`tests/engine/storage`: save, then `pagehide` -> the

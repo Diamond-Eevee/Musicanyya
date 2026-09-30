@@ -1,6 +1,9 @@
 # Contract: ports (engine layer interfaces)
 
-**Version**: `2.0.0` (internal TypeScript contract between `src/engine` adapters and `src/ui`/`src/app`).
+**Version**: `2.1.0` (internal TypeScript contract between `src/engine` adapters and `src/ui`/`src/app`).
+2.1.0 (feature 017-leftover-sweep T039, MINOR): `SettingsStore` gains `flushPending()` - writes every debounced
+change now; the app calls it on `pagehide` and when the page becomes hidden, so a reload within the debounce keeps the
+last change (004 SC-008).
 1.1.0 (feature 002, T030): `SettingsStore` gains `loadPractice` and `savePractice`; nothing existing changed.
 1.2.0 (feature 003, T036): `AudioEngine` gains `setChannelVolume` (mutes the Play mode Metronome without
 recompiling the schedule, research R-02 in specs/003-play-mode-grading/research.md); `latencyProfile` (T038,
@@ -121,6 +124,7 @@ export type StoreResult<T> = { ok: true; value: T } | { ok: false; error: "unava
 export interface SettingsStore {
   load(): UserSettings;                 // defaults on missing/invalid data (contracts/storage.md)
   save(settings: UserSettings): void;   // never throws; storage errors are reported once as a notice
+  flushPending(): void;                 // 2.1.0: every debounced write now (page going away); never throws
 
   // 1.1.0, feature 002 (specs/002-practice-wait-mode/contracts/practice-settings.md)
   loadPractice(scoreId: string | null): PracticeSettings;              // Score's own, else last-used defaults, else built-in

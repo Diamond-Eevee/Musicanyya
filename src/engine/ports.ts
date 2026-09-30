@@ -230,6 +230,9 @@ export interface PracticeSettings {
 export interface SettingsStore {
   load(): UserSettings; // defaults on missing/invalid data (contracts/storage.md)
   save(settings: UserSettings): void; // never throws; storage errors are reported once as a notice
+  /** Writes every change still waiting for its debounced write, now: the page is going away (`pagehide`, hidden).
+   *  Never throws (ports 2.1.0, 017 T039). */
+  flushPending(): void;
 
   /** Practice settings for a Score id, falling back to the musician's last-used defaults, then to the built-in
    *  ones. A null id (Score not stored) returns the defaults and never persists (ports 1.1.0). */

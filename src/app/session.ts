@@ -307,6 +307,12 @@ export class Session {
 
   async start(): Promise<void> {
     this.userSettings = this.settingsStore.load();
+    // Settings writes are debounced; the page going away must not lose the last change (017 T039, 004 SC-008).
+    // `pagehide` covers reload and close; hidden also covers a tab that is later discarded without either.
+    window.addEventListener('pagehide', () => this.settingsStore.flushPending());
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') this.settingsStore.flushPending();
+    });
     const settings = this.userSettings;
     viewState.setScale(settings.scale);
     for (const [layer, on] of Object.entries(settings.overlays)) viewState.setOverlay(layer as OverlayLayer, on);

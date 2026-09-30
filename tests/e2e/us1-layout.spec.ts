@@ -158,6 +158,24 @@ test.describe('US1: preferences persist and the staves can be made much larger (
     await expect(page.locator('mx-view-panel input[data-layer="marks"]')).not.toBeChecked();
   });
 
+  // 017 T039: the write is debounced, and it was lost when the page went away within that time.
+  test('the chosen size and the overlay switches come back after a reload made at once (017 T039)', async ({
+    page,
+  }) => {
+    await openScore(page, 'eight-measure-melody.musicxml');
+    const larger = page.locator('#size-controls mx-size-controls button[data-action="larger"]');
+    for (let i = 0; i < 2; i++) await larger.click();
+    await expect(page.locator('#size-controls mx-size-controls button[data-action="reset"]')).toHaveText('120%');
+    await openPanel(page, 'view');
+    await page.locator('mx-view-panel input[data-layer="pianoKeys"]').check();
+
+    await page.reload(); // no wait: the page goes away while the write is still pending
+    await page.locator('mx-open-button input[type=file]').setInputFiles(fixture('eight-measure-melody.musicxml'));
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    await expect(page.locator('#size-controls mx-size-controls button[data-action="reset"]')).toHaveText('120%');
+    await expect(page.locator('mx-piano-keys')).toBeVisible();
+  });
+
   test('from the fitted size the staves can be made at least twice as tall with the bar controls alone, in at most 10 activations', async ({
     page,
   }) => {
