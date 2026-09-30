@@ -110,6 +110,48 @@ test.describe('US3: minimal chrome during a run (FR-008, SC-004)', () => {
     await expect(page.locator('dialog[open], [role="alertdialog"]')).toHaveCount(0);
     expect({ bar: await boxOf(page, '#mx-bar'), view: await boxOf(page, 'mx-score-view') }).toEqual(before);
   });
+
+  // 017 T040: the session added its own "disconnected" notice on top of the one the Practice session or the Play run
+  // reports, so one disconnect showed two notices.
+  const disconnect = (page: Page) =>
+    page.evaluate(() => {
+      const session = (globalThis as unknown as { mxSession: { midiInput: { emit(e: unknown): void } } }).mxSession;
+      session.midiInput.emit({ type: 'deviceLost', heldKeys: [] });
+    });
+  const disconnectNotices = (page: Page) =>
+    page.locator('.notice').filter({ hasText: 'MIDI keyboard was disconnected' });
+
+  test('one disconnect during a Play run is one notice (017 T040)', async ({ page }) => {
+    test.setTimeout(45_000);
+    await openInPlayMode(page);
+    await startRun(page);
+    await disconnect(page);
+    await expect(disconnectNotices(page).first()).toBeVisible();
+    await page.waitForTimeout(300); // a second notice would have been added in the same turn
+    await expect(disconnectNotices(page)).toHaveCount(1);
+  });
+
+  test('one disconnect during Practice is one notice (017 T040)', async ({ page }) => {
+    test.setTimeout(45_000);
+    await openInPlayMode(page);
+    await page.locator('#mode-controls mx-mode-switch input[value=practice]').check();
+    const start = page.locator('mx-transport .play-btn');
+    await start.click();
+    await expect(start).toHaveText('Stop', { timeout: 30_000 });
+    await disconnect(page);
+    await expect(disconnectNotices(page).first()).toBeVisible();
+    await page.waitForTimeout(300);
+    await expect(disconnectNotices(page)).toHaveCount(1);
+  });
+
+  test('one disconnect with no run is one notice (017 T040)', async ({ page }) => {
+    await openInPlayMode(page);
+    await page.locator('#mode-controls mx-mode-switch input[value=listen]').check();
+    await disconnect(page);
+    await expect(disconnectNotices(page).first()).toBeVisible();
+    await page.waitForTimeout(300);
+    await expect(disconnectNotices(page)).toHaveCount(1);
+  });
 });
 
 test.describe('US3: the Grade arrives over the Score (FR-009)', () => {

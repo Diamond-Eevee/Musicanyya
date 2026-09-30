@@ -591,8 +591,16 @@ export class Session {
           midiState.pressedKeys.delete(k);
         });
         midiState.emit();
-        this.applyPracticeInput({ type: 'deviceLost', timeStampMs: performance.now(), heldKeys: e.heldKeys });
-        noticeState.addNotice({ code: 'midiDeviceLost', severity: 'warning' });
+        const practiceReported = this.applyPracticeInput({
+          type: 'deviceLost',
+          timeStampMs: performance.now(),
+          heldKeys: e.heldKeys,
+        });
+        // A running Practice session or Play run reports the loss itself, in its own words (practiceDeviceLost,
+        // playMidiLost); the general notice is for when neither is running - one disconnect, one notice (017 T040).
+        const playPhase = this.playController.getRun()?.phase;
+        const playReports = playPhase === 'countIn' || playPhase === 'running';
+        if (!practiceReported && !playReports) noticeState.addNotice({ code: 'midiDeviceLost', severity: 'warning' });
       } else if (e.type === 'noteOn') {
         // The musician's own sound goes first: the re-renders that state changes trigger must never delay it.
         // In Play mode PlaySessionController's own `soundInput` effect already sounds it (FR-006) - sounding it
@@ -1462,10 +1470,12 @@ export class Session {
     }
   }
 
-  private applyPracticeInput(input: PracticeInput) {
-    if (practiceState.get().mode !== 'practice') return;
+  /** Applies an input to the running Practice session, if there is one. True when the session raised a notice of its
+   *  own for it (so the caller does not add a second one, 017 T040). */
+  private applyPracticeInput(input: PracticeInput): boolean {
+    if (practiceState.get().mode !== 'practice') return false;
     const session = practiceState.get().session;
-    if (!session) return;
+    if (!session) return false;
 
     const { session: nextSession, effects } = applyInput(session, input);
     practiceState.setSession(nextSession);
@@ -1479,6 +1489,7 @@ export class Session {
     if (input.type === 'noteOff' && input.key !== undefined) {
       practiceState.clearKeyFeedback(input.key);
     }
+    return effects.some((effect) => effect.type === 'notice');
   }
 
   private handlePracticeEffect(effect: PracticeEffect) {

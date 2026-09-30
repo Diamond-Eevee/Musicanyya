@@ -165,7 +165,7 @@ contracts of the feature it came from, named on the task)
   piano keys off; by hand with a pause it is kept). Test first (`tests/engine/storage`: save, then `pagehide` -> the
   value is in `localStorage` at once, no timer advanced); then flush pending writes (settings, practice, play) on
   `pagehide` / `visibilitychange` to hidden
-- [ ] T040 [US5] (found in T020, US3 #3) One MIDI keyboard disconnect shows the notice "The MIDI keyboard was
+- [x] T040 [US5] (found in T020, US3 #3) One MIDI keyboard disconnect shows the notice "The MIDI keyboard was
   disconnected." twice (confirmed in the pane and in Playwright: one `deviceLost` event, two notices). Find the
   second path that adds it; test first (one `deviceLost` -> exactly one such notice), then fix
 - [ ] T041 [US5] (found in T020, US2 #2) Three popups open empty: Setup in Listen mode (only the heading "Practice and
