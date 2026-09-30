@@ -100,7 +100,7 @@ contracts of the feature it came from, named on the task)
   `<work><work-title>` and `<movement-title>` (combine them, prefer one, or keep both as separate fields on `Score`,
   which changes 001's `data-model.md`). Recommendation to present: prefer `movement-title` when both exist and keep
   `work-title` as a second field only if the owner wants it shown. Record the answer on this line and in the log
-- [ ] T019 [US2] (from 001 T155) Read `<movement-title>` as the Score title (`src/core/musicxml/build.ts`): only
+- [x] T019 [US2] (from 001 T155) Read `<movement-title>` as the Score title (`src/core/musicxml/build.ts`): only
   `<work><work-title>` is read, so `schubert-erlkoenig-d328.mxl` and `schubert-im-gegenwaertigen-vergangenes-d710.mxl`
   (movement-title, no `<work>` at all) give `Score.title === null`, and `chopin-zyczenie.mxl` gives "Op.74" rather
   than "Zyczenie". `<movement-title>` and `<movement-number>` are dropped without even an `unsupportedElement` notice,
