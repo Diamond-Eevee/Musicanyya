@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
-import { openPanel } from './helpers/panels.js';
+import { barFitted, openPanel } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixture = (name: string) => path.join(__dirname, '../fixtures/musicxml', name);
@@ -21,6 +21,9 @@ async function openScore(page: Page, name: string): Promise<void> {
   await page.goto('/');
   await page.locator('mx-open-button input[type=file]').setInputFiles(fixture(name));
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+  // The bar fits itself one or two frames after its contents change (mx-app, rAF); check the settled bar, as the
+  // other bar specs do (feature 016: the brand slot makes the bar compact at 1280 and 1366 px).
+  await barFitted(page);
 }
 
 async function box(page: Page, selector: string) {
@@ -239,6 +242,7 @@ for (const deviceScaleFactor of [1, 1.5, 1.75]) {
           await page.locator('#mode-controls mx-mode-switch input[value=play]').check();
           await page.locator('mx-transport .play-btn').click();
           await expect(page.locator('mx-run-status')).toContainText('Measure', { timeout: 15_000 });
+          await barFitted(page); // the run status widens the bar; check it once it has fitted itself again
           await check('running');
         }
       });

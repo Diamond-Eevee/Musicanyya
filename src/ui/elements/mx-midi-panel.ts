@@ -1,4 +1,5 @@
 import { midiState } from '../state/midiState.js';
+import controlsCss from '../styles/controls.css?inline';
 
 class MxMidiPanel extends HTMLElement {
   private unsubscribe?: () => void;
@@ -45,11 +46,14 @@ class MxMidiPanel extends HTMLElement {
     }
 
     this.shadowRoot.innerHTML = `
+      <style>${controlsCss}</style>
       <style>
         :host {
           display: block;
           padding: 10px;
-          border: 1px solid #ccc;
+          border: 1px solid var(--mx-border);
+          color: var(--mx-ink);
+          background: var(--mx-raised);
         }
       </style>
       ${content}

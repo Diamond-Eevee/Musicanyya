@@ -14,11 +14,11 @@ mx-panel {
   width: min(28rem, calc(100vw - 16px));
   max-height: calc(100vh - var(--mx-bar-height, 48px) - 16px);
   overflow: hidden;
-  color: var(--text-color);
-  background: var(--bg-color);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  color: var(--mx-ink);
+  background: var(--mx-raised);
+  border: 1px solid var(--mx-border);
+  border-radius: var(--mx-radius-m, 8px);
+  box-shadow: var(--mx-shadow-popup);
 }
 
 mx-panel[hidden] {
@@ -35,15 +35,95 @@ mx-menu {
  */
 mx-score-source {
   display: block;
-  font-size: 0.85em;
-  opacity: 0.85;
+  font-size: var(--mx-text-s, 0.875rem);
+  color: var(--mx-ink-muted);
 }
 
 .score-source-heading {
   margin: 0 0 2px;
   font-weight: 600;
+  color: var(--mx-ink);
 }
 
 .score-source-line {
   margin: 0;
+}
+
+/* The Theme choice in the View popup (feature 016, R-12): Automatic, then a Light and a Dark group. The chosen one is
+   shown by its checked radio and a bold name (more than colour, FR-022). */
+.mx-view-theme {
+  display: grid;
+  gap: var(--mx-space-3);
+  margin: 0 0 var(--mx-space-4);
+  padding: var(--mx-space-3) var(--mx-space-4);
+  border: 1px solid var(--mx-border);
+  border-radius: var(--mx-radius-m);
+}
+
+.mx-view-theme legend {
+  padding: 0 var(--mx-space-2);
+  font-weight: 600;
+}
+
+.mx-view-theme-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mx-space-2) var(--mx-space-4);
+}
+
+.mx-view-theme-group-label {
+  flex-basis: 100%;
+  font-size: var(--mx-text-s);
+  color: var(--mx-ink-muted);
+}
+
+.mx-view-theme-option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mx-space-2);
+}
+
+.mx-view-theme-option:has(input:checked) {
+  font-weight: 600;
+}
+
+/* Three stripes in the theme's own colours (theme.md 1.0.1): desk, surface, accent. */
+.mx-theme-swatch {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--mx-border);
+  border-radius: var(--mx-radius-s);
+}
+
+.mx-theme-swatch > span {
+  width: 8px;
+  height: 16px;
+}
+
+.mx-theme-swatch > span:nth-child(1) {
+  background: var(--mx-desk);
+}
+
+.mx-theme-swatch > span:nth-child(2) {
+  background: var(--mx-surface);
+}
+
+.mx-theme-swatch > span:nth-child(3) {
+  background: var(--mx-accent);
+}
+
+/* The Grade's "New best" star (feature 013 FR-016): the Mastered badge's shape and fixed colour, text-sized beside its
+   words. It had no size at all and grew to the panel's width in black - dark on the dark themes (feature 016 T048). */
+.grade-new-best {
+  display: flex;
+  align-items: center;
+  gap: var(--mx-space-2);
+}
+
+.grade-new-best-star {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  fill: var(--status-mastered);
 }

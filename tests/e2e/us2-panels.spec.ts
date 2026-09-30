@@ -28,6 +28,9 @@ async function openScore(page: Page): Promise<void> {
   await page.goto('/');
   await page.locator('mx-open-button input[type=file]').setInputFiles(fixture('eight-measure-melody.musicxml'));
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+  // The bar fits itself a frame or two after the Score loads (feature 016: with the brand slot it folds the menus at
+  // the default 1280 px); resolve menus only once it has, as openViaMenu does.
+  await barFitted(page);
 }
 
 async function openViaMenu(page: Page, id: ManualPanel): Promise<void> {
@@ -209,11 +212,14 @@ test.describe('US2: starting a run closes any popup, and popups never disturb a 
     const longTasks = () => page.evaluate(() => (window as unknown as { __longTasks: number[] }).__longTasks.length);
     const before = await longTasks();
     // SC-004: nothing but the Score, the bar and notices is on screen during a run, so every entry is disabled -
-    // a popup would cover music (a short piece is one page, so nothing could scroll clear of it).
+    // a popup would cover music (a short piece is one page, so nothing could scroll clear of it). The one exception
+    // (ui-shell 1.3.0, feature 016 R-12, owner decision 2026-09-29): View stays enabled during a Listen run, so the
+    // theme can be changed while listening; it is not opened here.
     for (const id of ENTRIES) {
       await barFitted(page);
       await trigger(page, id).click();
-      await expect(entry(page, id), `${id} is disabled during a run`).toBeDisabled();
+      if (id === 'view') await expect(entry(page, id), 'view is enabled during a Listen run').toBeEnabled();
+      else await expect(entry(page, id), `${id} is disabled during a run`).toBeDisabled();
       await page.keyboard.press('Escape'); // closes the menu list, not the run
     }
     await expect(page.locator('mx-panel:visible')).toHaveCount(0);

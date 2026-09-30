@@ -1,3 +1,4 @@
+import { logoMarkSvg } from '../brand/logo.js';
 import { en } from '../i18n/en.js';
 import { scoreState } from '../state/scoreState.js';
 
@@ -14,6 +15,7 @@ export class MxDropZone extends HTMLElement {
   connectedCallback() {
     this.innerHTML = `
       <div class="mx-empty-state">
+        ${logoMarkSvg({})}
         <p>${en.app.emptyState}</p>
         <p class="mx-drop-hint">${en.open.dropHint}</p>
         <button type="button" class="mx-empty-open">${en.open.button}</button>

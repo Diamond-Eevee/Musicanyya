@@ -1,10 +1,21 @@
 # Contract: UI shell (slim bar, panel host, overlays)
 
-**Version**: `1.1.0` (new with feature 004)
+**Version**: `1.3.0` (new with feature 004)
 **Owner**: `src/ui/elements/mx-app.ts`, `src/ui/layout/*`, `src/ui/state/viewState.ts`
 
 This contract fixes the shape of the application window so that every other element knows where it
 may live. It is a UI-layer contract only: no core type, no engine port and no real-time path changes.
+
+**1.3.0** (feature 016-modern-look-logo, MINOR, owner decision 2026-09-29): Section 3: the **View** entry stays
+enabled during a Listen run (playing or paused), so the theme can be changed while listening (016 SC-010,
+US5). It is the only exception: during a Practice session or a Play run every entry stays disabled, and starting
+any run still closes any open popup. The View popup opened during Listen is not closed by the run guard.
+
+**1.2.0** (feature 016-modern-look-logo, MINOR): Section 2: new first bar slot `#brand` (logo,
+[brand.md](../../../specs/016-modern-look-logo/contracts/brand.md)), not focusable, not a toolbar item; the fit order
+gains a step between roomy and compact (`.mx-bar-no-word`, R-11). Section 3: the View popup gains the Theme choice
+([theme.md](../../../specs/016-modern-look-logo/contracts/theme.md), R-12). Section 6: notices carry an icon with an
+accessible name ("Information" / "Warning", R-9); every focusable control has a visible `:focus-visible` ring (FR-006).
 
 **1.1.0** (feature 013-score-browser-progress, MINOR, R-1/R-2/R-20): the bar's `#open-controls` slot
 (`mx-open-button`) opens the Score browser - a modal `<dialog>` outside sessions - instead of the file chooser
@@ -54,6 +65,7 @@ Fixed order, left to right:
 
 | Slot | Element | Visible when |
 |---|---|---|
+| `#brand` | `mx-brand` (logo mark + word; [brand.md](../../../specs/016-modern-look-logo/contracts/brand.md)) | always |
 | `#mode-controls` | `mx-mode-switch` | a Score is loaded |
 | `#transport-controls` | `mx-transport` | a Score is loaded |
 | `#size-controls` | `mx-size-controls` (new) | a Score is loaded |
@@ -61,11 +73,12 @@ Fixed order, left to right:
 | `#menu-controls` | `mx-menu` x4 (Score, Setup, View, Help), plus a fifth `more` menu holding all their entries | always (`more` only in compact mode) |
 | `#run-status` | `mx-run-status` (new) | always (empty when idle) |
 
-Nothing else may be added to the bar without amending this contract.
+`#brand` is not focusable and is not a toolbar item; Tab moves past it to the first control. Nothing else may be added to the bar without amending this contract.
 
-**One row, always.** The bar never wraps. When its contents would overflow its width, `mx-app` puts it in *compact
-mode* on the next animation frame: the four menus are replaced by `more` and the transport sliders shorten. Nothing
-is hidden, and nothing is clipped at any window size from 1280x720 up (`SC-006`).
+**One row, always.** The bar never wraps. When its contents would overflow its width, `mx-app` steps through fit
+states: `roomy` -> `roomy-no-word` (`.mx-bar-no-word`, hiding the brand word while keeping the mark) -> `compact` (the
+four menus are replaced by `more` and the transport sliders shorten). Nothing is hidden, and nothing is clipped at any
+window size from 1280x720 up (`SC-006`).
 
 ---
 
@@ -80,6 +93,8 @@ Every secondary tool is wrapped in `mx-panel`:
 </mx-panel>
 ```
 
+The View popup (`data-panel="view"`) hosts the Theme choice (`<fieldset class="mx-view-theme">`, [theme.md](../../../specs/016-modern-look-logo/contracts/theme.md), R-12).
+
 State machine (source of truth: `viewState.openPanel`, see `data-model.md` section 2):
 
 | Trigger | Result |
@@ -87,11 +102,13 @@ State machine (source of truth: `viewState.openPanel`, see `data-model.md` secti
 | menu entry activated | `openPanel(id)`; any other panel closes |
 | close button / Escape / click outside | `closePanel()`; focus returns to the invoker |
 | a run starts (Listen, Practice or Play) | `closeForRun()` -> `openPanel = null` |
+| View opened during a Listen run (1.3.0) | stays open; any other panel opened during a run is closed |
 | a notice arrives | nothing; notices never change `openPanel` and never take focus |
 | a Play run is graded | `openPanel('grade')` - the Grade arrives over the Score and takes no focus |
 
 **No popup during a run.** While a Listen, Practice or Play run can be stopped (count-in, running, paused) every
-menu entry is disabled. A popup would cover music - a short score is one page, so nothing could scroll clear of it -
+menu entry is disabled - except **View** during a Listen run (1.3.0: the listener chose to open it, and Listen
+grades nothing). A popup would cover music - a short score is one page, so nothing could scroll clear of it -
 and `SC-004` says nothing but the Score, the bar and notices is on screen during a run. Starting a run closes any
 open popup (`closeForRun`) and the entries come back when it ends.
 
@@ -144,6 +161,7 @@ names and payloads, except:
 
 - The bar is a `<header>` with `role="toolbar"`; each menu button has `aria-haspopup="menu"` and
   `aria-expanded`.
+- `#brand` is `aria-hidden="true"` for its SVG mark and exposes the accessible name via the brand word. It is not focusable.
 - Each `mx-panel` is `role="dialog"` **without** `aria-modal` (it is non-modal by design, Principle VI) and is
   named by its `heading` attribute, which it copies to `aria-label` on the host (an `aria-labelledby` cannot reach
   the `<h2>` inside its shadow root).
@@ -151,3 +169,6 @@ names and payloads, except:
   focus to that control (`src/ui/layout/invoker.ts`). A panel the app opens itself (the Grade) takes no focus.
 - The run status is an `aria-live="polite"` region so mode and device changes are announced without
   stealing focus.
+- Notices carry an icon with an accessible name ("Information" / "Warning", R-9; `src/ui/i18n/en.ts`).
+- Every focusable control in the bar and panels has a visible `:focus-visible` outline of ≥ 2 px (`CHROME_FOCUS_RING_PX`, FR-006).
+

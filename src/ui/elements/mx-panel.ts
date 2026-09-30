@@ -1,6 +1,7 @@
 import { en } from '../i18n/en.js';
 import { hasInvoker, restoreInvokerFocus } from '../layout/invoker.js';
 import { viewState } from '../state/viewState.js';
+import controlsCss from '../styles/controls.css?inline';
 
 type PopoverHost = HTMLElement & { showPopover?: () => void; hidePopover?: () => void };
 
@@ -15,9 +16,11 @@ export class MxPanel extends HTMLElement {
   static readonly observedAttributes = ['heading'];
 
   private unsubscribe?: () => void;
-  // Both are assigned in the constructor, right after the shadow root is built.
+  // All three are assigned in the constructor, right after the shadow root is built.
   private closeButton!: HTMLButtonElement;
   private headingEl!: HTMLElement;
+  private bodyEl!: HTMLElement;
+  private bodyObserver: ResizeObserver | null = null;
   /** Null until the first sync, so connecting an already-closed panel does not call `hidePopover()` needlessly. */
   private shown: boolean | null = null;
 
@@ -25,12 +28,13 @@ export class MxPanel extends HTMLElement {
     super();
     const root = this.attachShadow({ mode: 'open' });
     root.innerHTML = `
+      <style>${controlsCss}</style>
       <style>
-        :host { display: block; }
+        :host { display: block; color: var(--mx-ink); }
         :host([hidden]) { display: none; }
         header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px;
-          border-bottom: 1px solid var(--border-color, #ccc); }
-        h2 { font-size: 1rem; margin: 0; }
+          border-bottom: 1px solid var(--mx-border); }
+        h2 { font-size: 1rem; margin: 0; color: var(--mx-ink); }
         .body { padding: 12px; overflow: auto; max-height: calc(100vh - 120px); }
       </style>
       <header>
@@ -41,6 +45,7 @@ export class MxPanel extends HTMLElement {
     `;
     this.headingEl = root.querySelector('h2') as HTMLElement;
     this.closeButton = root.querySelector('button') as HTMLButtonElement;
+    this.bodyEl = root.querySelector('.body') as HTMLElement;
     this.closeButton.addEventListener('click', () => viewState.closePanel());
   }
 
@@ -49,12 +54,19 @@ export class MxPanel extends HTMLElement {
     this.setAttribute('popover', 'auto');
     this.applyHeading();
     this.addEventListener('toggle', this.onToggle);
+    if (typeof ResizeObserver !== 'undefined') {
+      this.bodyObserver = new ResizeObserver(() => this.updateBodyFocus());
+      this.bodyObserver.observe(this.bodyEl);
+      for (const child of Array.from(this.children)) this.bodyObserver.observe(child);
+    }
     this.unsubscribe = viewState.subscribe(() => this.sync());
     this.sync();
   }
 
   disconnectedCallback(): void {
     this.unsubscribe?.();
+    this.bodyObserver?.disconnect();
+    this.bodyObserver = null;
     this.removeEventListener('toggle', this.onToggle);
   }
 
@@ -67,6 +79,14 @@ export class MxPanel extends HTMLElement {
     this.headingEl.textContent = heading;
     // aria-labelledby cannot reach the heading inside the shadow root, so the host carries the name itself.
     this.setAttribute('aria-label', heading);
+  }
+
+  /** A body that scrolls is a tab stop, so a keyboard user can scroll it (WCAG 2.1.1; axe scrollable-region-focusable,
+   *  found by feature 016 T049 on Supported notation). A body that fits adds no stop to the popup's Tab order. */
+  private updateBodyFocus(): void {
+    const scrolls = this.bodyEl.scrollHeight > this.bodyEl.clientHeight + 1;
+    if (scrolls) this.bodyEl.setAttribute('tabindex', '0');
+    else this.bodyEl.removeAttribute('tabindex');
   }
 
   private isMyPanel(): boolean {

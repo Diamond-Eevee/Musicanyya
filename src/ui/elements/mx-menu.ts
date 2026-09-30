@@ -1,9 +1,10 @@
 import { anchorRect } from '../layout/anchor.js';
 import { rememberInvoker } from '../layout/invoker.js';
 import { MENU_GROUPS, type MenuGroup, OVERFLOW_MENU } from '../layout/menu-model.js';
-import { isRunActive, subscribeRunActive } from '../state/runActive.js';
+import { isListenRunActive, isRunActive, subscribeRunActive } from '../state/runActive.js';
 import { scoreState } from '../state/scoreState.js';
 import { viewState } from '../state/viewState.js';
+import controlsCss from '../styles/controls.css?inline';
 
 /**
  * One menu of the slim bar (`menu="score" | "setup" | "view" | "help"`). Activating an entry only calls
@@ -58,19 +59,21 @@ export class MxMenu extends HTMLElement {
     const entries = group.entries
       .map(
         (entry) =>
-          `<li role="none"><button type="button" role="menuitem" tabindex="-1" data-panel="${entry.panel}" data-needs-score="${entry.needsScore}" data-idle-only="${entry.idleOnly}">${entry.label}</button></li>`,
+          `<li role="none"><button type="button" role="menuitem" tabindex="-1" data-panel="${entry.panel}" data-needs-score="${entry.needsScore}" data-idle-only="${entry.idleOnly}" data-listen-ok="${entry.listenOk}">${entry.label}</button></li>`,
       )
       .join('');
     root.innerHTML = `
+      <style>${controlsCss}</style>
       <style>
         :host { position: relative; display: inline-block; }
         ul { position: fixed; z-index: 10; margin: 0; padding: 4px 0; list-style: none; min-width: 12em;
-          background: var(--bg-color, #fff); border: 1px solid var(--border-color, #ccc); }
+          background: var(--mx-raised); border: 1px solid var(--mx-border); border-radius: var(--mx-radius-s, 4px);
+          box-shadow: var(--mx-shadow-popup); }
         ul[hidden] { display: none; }
-        li button { display: block; width: 100%; text-align: left; padding: 6px 12px; border: 0; background: none;
-          font: inherit; color: inherit; cursor: pointer; }
-        li button:hover:not(:disabled), li button:focus-visible { background: rgba(0, 114, 178, 0.12); }
-        li button:disabled { color: #767676; cursor: default; }
+        li button { display: block; width: 100%; text-align: left; padding: 6px 12px; border: 0; background: transparent;
+          font: inherit; color: var(--mx-ink); cursor: pointer; border-radius: var(--mx-radius-s, 4px); }
+        li button:hover:not(:disabled), li button:focus-visible { background: var(--mx-accent-soft); }
+        li button:disabled { color: var(--mx-ink-muted); cursor: default; }
       </style>
       <button type="button" class="trigger" aria-haspopup="menu" aria-expanded="false">${group.label}</button>
       <ul role="menu" aria-label="${group.label}" hidden>${entries}</ul>
@@ -95,10 +98,13 @@ export class MxMenu extends HTMLElement {
   private updateDisabled(): void {
     const loaded = scoreState.getStatus().kind === 'loaded';
     const running = isRunActive();
+    const listening = running && isListenRunActive();
     // A list that is open when a run starts would sit over the music with every entry greyed out.
     if (running && this.open) this.close(false);
     for (const item of this.items()) {
-      const disabled = (item.dataset.needsScore === 'true' && !loaded) || (item.dataset.idleOnly === 'true' && running);
+      const blockedByRun =
+        item.dataset.idleOnly === 'true' && running && !(listening && item.dataset.listenOk === 'true');
+      const disabled = (item.dataset.needsScore === 'true' && !loaded) || blockedByRun;
       item.disabled = disabled;
       if (disabled) item.setAttribute('aria-disabled', 'true');
       else item.removeAttribute('aria-disabled');

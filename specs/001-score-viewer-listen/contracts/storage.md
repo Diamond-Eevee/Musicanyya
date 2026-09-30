@@ -88,10 +88,11 @@ This version-1 shape is superseded by
 | `musicanyya.latency.v1` | 003 | The device's one measured Latency profile | [003 performance-log.md](../../003-play-mode-grading/contracts/performance-log.md) |
 | `musicanyya.library.v1` | 005/011 | The old library panel's filter state | [005 library-port.md](../../005-practice-score-library/contracts/library-port.md) §3. Superseded by `musicanyya.browser.v1` (013): read once to seed the new key, then left alone, never written again. |
 | `musicanyya.browser.v1` | 013 | Score browser view state (folder, search, filters, sort, selection) | [013 score-browser.md](../../013-score-browser-progress/contracts/score-browser.md) |
+| `musicanyya.theme.v1` | 016 | User theme choice (`{version: 1, choice}`) | [016 theme.md](../../016-modern-look-logo/contracts/theme.md) §2 |
 
 All of the above follow this file's own rule for `musicanyya.settings.v1`: invalid or unparsable content falls back
 to built-in defaults and is overwritten on the next write; a storage failure is reported once
-(`storageUnavailable`) and never throws.
+(`storageUnavailable`) and never throws. Note: IndexedDB schema remains unchanged at version 3 for feature 016.
 
 ## Cache Storage `musicanyya-soundfont-v1`
 

@@ -46,45 +46,88 @@
  *                    `--filter status=playedNotMastered --filter key="G major"`
  *   --sort <by:dir>  with --browser: choose the sort, e.g. `best:asc` (Best result, lowest first), `title:desc`,
  *                    `lastPlayed:desc`, `library:asc`
+ *   --theme <auto|paper|ivory|slate|night|walnut|midnight>  apply a theme before navigation by writing to localStorage
+ *   --clip <css selector>   crops the picture to that element's bounding box
+ *   --compare <png>         compares the new picture pixel by pixel with a stored one and prints "identical" or "<n> pixels differ", exiting 1 when they differ or sizes differ
  *
  * Prints the PNG path, the load notices shown and any browser console errors, so the result can be checked as text
  * too. Exits 1 when the score does not appear.
  */
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { chromium, type Page } from '@playwright/test';
 import { createServer, type ViteDevServer } from 'vite';
 import { keyStepBytes, parseKeySteps } from './key-steps.js';
 
-// `pnpm screenshot -- --item x` (the documented form) passes the `--` through on newer pnpm versions: drop it.
-const args = process.argv.slice(2);
-if (args[0] === '--') args.shift();
+export const VALID_THEMES = ['auto', 'paper', 'ivory', 'slate', 'night', 'walnut', 'midnight'] as const;
+export type ValidTheme = (typeof VALID_THEMES)[number];
 
-const { values } = parseArgs({
-  args,
-  options: {
-    item: { type: 'string' },
-    file: { type: 'string' },
-    out: { type: 'string' },
-    width: { type: 'string', default: '1600' },
-    height: { type: 'string', default: '900' },
-    full: { type: 'boolean', default: false },
-    url: { type: 'string' },
-    browser: { type: 'boolean', default: false },
-    practice: { type: 'boolean', default: false },
-    run: { type: 'boolean', default: false },
-    grade: { type: 'boolean', default: false },
-    keys: { type: 'string' },
-    play: { type: 'string' },
-    piano: { type: 'boolean', default: false },
-    greyscale: { type: 'boolean', default: false },
-    'seed-progress': { type: 'string' },
-    filter: { type: 'string', multiple: true },
-    sort: { type: 'string' },
-  },
-  allowPositionals: false,
-});
+export interface ScreenshotOptions {
+  item?: string;
+  file?: string;
+  out?: string;
+  width: string;
+  height: string;
+  full: boolean;
+  url?: string;
+  browser: boolean;
+  practice: boolean;
+  run: boolean;
+  grade: boolean;
+  keys?: string;
+  play?: string;
+  piano: boolean;
+  greyscale: boolean;
+  'seed-progress'?: string;
+  filter?: string[];
+  sort?: string;
+  theme?: string;
+  clip?: string;
+  compare?: string;
+}
+
+export function parseScreenshotArgs(argv: string[]): ScreenshotOptions {
+  const args = [...argv];
+  if (args[0] === '--') args.shift();
+
+  const { values } = parseArgs({
+    args,
+    options: {
+      item: { type: 'string' },
+      file: { type: 'string' },
+      out: { type: 'string' },
+      width: { type: 'string', default: '1600' },
+      height: { type: 'string', default: '900' },
+      full: { type: 'boolean', default: false },
+      url: { type: 'string' },
+      browser: { type: 'boolean', default: false },
+      practice: { type: 'boolean', default: false },
+      run: { type: 'boolean', default: false },
+      grade: { type: 'boolean', default: false },
+      keys: { type: 'string' },
+      play: { type: 'string' },
+      piano: { type: 'boolean', default: false },
+      greyscale: { type: 'boolean', default: false },
+      'seed-progress': { type: 'string' },
+      filter: { type: 'string', multiple: true },
+      sort: { type: 'string' },
+      theme: { type: 'string' },
+      clip: { type: 'string' },
+      compare: { type: 'string' },
+    },
+    allowPositionals: false,
+  });
+
+  if (values.theme !== undefined) {
+    if (!VALID_THEMES.includes(values.theme as ValidTheme)) {
+      throw new Error(`Unknown theme "${values.theme}". Valid themes: ${VALID_THEMES.join(', ')}`);
+    }
+  }
+
+  return values as ScreenshotOptions;
+}
 
 const LOAD_TIMEOUT_MS = 60_000;
 
@@ -168,8 +211,13 @@ async function startRun(page: Page): Promise<void> {
   await page.locator('mx-transport .play-btn:not([disabled])').waitFor({ timeout: LOAD_TIMEOUT_MS });
   await page.evaluate("window.dispatchEvent(new CustomEvent('e2e-ready'))");
   // mx-view-panel.ts has a second mx-mode-switch for phone width (T049) - always in the DOM, so `.first()` picks
-  // the primary toolbar one regardless of viewport, the same as a person would use it at this tool's default size.
-  await page.locator('mx-mode-switch input[value=play]').first().check();
+  // the primary toolbar one when visible. At phone width, `#mode-controls` is hidden: fall back to `setMode('play')`.
+  const modeRadio = page.locator('mx-mode-switch input[value=play]:visible').first();
+  if ((await modeRadio.count()) > 0) {
+    await modeRadio.check();
+  } else {
+    await page.evaluate("window.__PRACTICE_STATE__.setMode('play')");
+  }
   await page.locator('mx-transport .play-btn').click();
   await pollUntil(page, 'window.__PLAY_STATE__.get().run !== null', LOAD_TIMEOUT_MS);
 }
@@ -246,7 +294,8 @@ async function pressKeys(page: Page, steps: string): Promise<void> {
   }
 }
 
-async function main(): Promise<void> {
+async function main(argv = process.argv.slice(2)): Promise<void> {
+  const values = parseScreenshotArgs(argv);
   if ((values.practice || values.run || values.keys) && !values.item && !values.file) {
     throw new Error('--practice, --run and --keys need a score: give --item <id> or --file <path>');
   }
@@ -279,6 +328,17 @@ async function main(): Promise<void> {
       if (msg.type() === 'error') errors.push(msg.text());
     });
     page.on('pageerror', (err) => errors.push(String(err)));
+
+    if (values.theme) {
+      const choice = values.theme;
+      await page.addInitScript((val) => {
+        try {
+          localStorage.setItem('musicanyya.theme.v1', JSON.stringify({ version: 1, choice: val }));
+        } catch {
+          // ignore
+        }
+      }, choice);
+    }
 
     await page.goto(baseUrl);
     if (values['seed-progress']) await seedProgress(page, values['seed-progress']);
@@ -345,7 +405,13 @@ async function main(): Promise<void> {
     const name = values.item ? path.basename(values.item) : values.file ? path.parse(values.file).name : 'app';
     const out = path.resolve(values.out ?? path.join('test-results', 'screenshots', `${name}.png`));
     fs.mkdirSync(path.dirname(out), { recursive: true });
-    await page.screenshot({ path: out, fullPage: values.full });
+    if (values.clip) {
+      const el = page.locator(values.clip).first();
+      await el.waitFor({ state: 'visible', timeout: LOAD_TIMEOUT_MS });
+      await el.screenshot({ path: out });
+    } else {
+      await page.screenshot({ path: out, fullPage: values.full });
+    }
 
     const notices = await page.locator('.notice').allInnerTexts();
     console.log(`screenshot: ${out}`);
@@ -353,13 +419,95 @@ async function main(): Promise<void> {
     for (const n of notices) console.log(`  - ${n.replace(/\s+/g, ' ').trim()}`);
     console.log(`console errors: ${errors.length === 0 ? 'none' : ''}`);
     for (const e of errors) console.log(`  - ${e}`);
+
+    if (values.compare) {
+      const comparePath = path.resolve(values.compare);
+      if (!fs.existsSync(comparePath)) {
+        throw new Error(`--compare file not found: ${comparePath}`);
+      }
+      const img1Base64 = `data:image/png;base64,${fs.readFileSync(out).toString('base64')}`;
+      const img2Base64 = `data:image/png;base64,${fs.readFileSync(comparePath).toString('base64')}`;
+
+      const diffResult = (await page.evaluate(
+        `new Promise(async (resolve, reject) => {
+          try {
+            const src1 = ${JSON.stringify(img1Base64)};
+            const src2 = ${JSON.stringify(img2Base64)};
+            const loadImg = (src) =>
+              new Promise((res, rej) => {
+                const img = new Image();
+                img.onload = () => res(img);
+                img.onerror = () => rej(new Error('Failed to load image for comparison'));
+                img.src = src;
+              });
+            const [img1, img2] = await Promise.all([loadImg(src1), loadImg(src2)]);
+            if (img1.width !== img2.width || img1.height !== img2.height) {
+              resolve({
+                sizesDiffer: true,
+                w1: img1.width,
+                h1: img1.height,
+                w2: img2.width,
+                h2: img2.height,
+                diffPixels: -1,
+              });
+              return;
+            }
+            const canvas1 = document.createElement('canvas');
+            canvas1.width = img1.width;
+            canvas1.height = img1.height;
+            const ctx1 = canvas1.getContext('2d');
+            if (!ctx1) throw new Error('Failed to get 2d context for canvas1');
+            ctx1.drawImage(img1, 0, 0);
+            const data1 = ctx1.getImageData(0, 0, img1.width, img1.height).data;
+
+            const canvas2 = document.createElement('canvas');
+            canvas2.width = img2.width;
+            canvas2.height = img2.height;
+            const ctx2 = canvas2.getContext('2d');
+            if (!ctx2) throw new Error('Failed to get 2d context for canvas2');
+            ctx2.drawImage(img2, 0, 0);
+            const data2 = ctx2.getImageData(0, 0, img2.width, img2.height).data;
+
+            let diffCount = 0;
+            for (let i = 0; i < data1.length; i += 4) {
+              if (
+                data1[i] !== data2[i] ||
+                data1[i + 1] !== data2[i + 1] ||
+                data1[i + 2] !== data2[i + 2] ||
+                data1[i + 3] !== data2[i + 3]
+              ) {
+                diffCount++;
+              }
+            }
+            resolve({
+              sizesDiffer: false,
+              diffPixels: diffCount,
+            });
+          } catch (err) {
+            reject(err);
+          }
+        })`,
+      )) as { sizesDiffer: boolean; w1?: number; h1?: number; w2?: number; h2?: number; diffPixels: number };
+
+      if (diffResult.sizesDiffer) {
+        console.log(`sizes differ (${diffResult.w1}x${diffResult.h1} vs ${diffResult.w2}x${diffResult.h2})`);
+        process.exit(1);
+      } else if (diffResult.diffPixels === 0) {
+        console.log('identical');
+      } else {
+        console.log(`${diffResult.diffPixels} pixels differ`);
+        process.exit(1);
+      }
+    }
   } finally {
     await browser.close();
     await server?.close();
   }
 }
 
-main().catch((err: unknown) => {
-  console.error(err instanceof Error ? err.message : String(err));
-  process.exit(1);
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+  main().catch((err: unknown) => {
+    console.error(err instanceof Error ? err.message : String(err));
+    process.exit(1);
+  });
+}

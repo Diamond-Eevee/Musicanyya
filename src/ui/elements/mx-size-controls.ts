@@ -1,6 +1,7 @@
 import { SCORE_SCALE_MAX, SCORE_SCALE_MIN, SCORE_SCALE_STEP } from '../../engine/config.js';
 import { en } from '../i18n/en.js';
 import { viewState } from '../state/viewState.js';
+import controlsCss from '../styles/controls.css?inline';
 
 /** Larger / smaller / reset for the Score size, always visible in the slim bar (FR-014a/b). The middle button shows
  *  the current size and returns to the fitted size, so the level is known without looking at the staves. */
@@ -11,6 +12,7 @@ export class MxSizeControls extends HTMLElement {
     super();
     const root = this.attachShadow({ mode: 'open' });
     root.innerHTML = `
+      <style>${controlsCss}</style>
       <style>
         :host { display: inline-flex; align-items: center; }
         span { display: inline-flex; gap: 2px; }

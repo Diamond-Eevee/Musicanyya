@@ -23,6 +23,21 @@ export const en = {
       notices: 'Notices',
     },
   },
+  /** The Theme choice in the View popup (feature 016, R-12). */
+  theme: {
+    heading: 'Theme',
+    auto: 'Automatic',
+    light: 'Light',
+    dark: 'Dark',
+    names: {
+      paper: 'Paper',
+      ivory: 'Ivory',
+      slate: 'Slate',
+      night: 'Night',
+      walnut: 'Walnut',
+      midnight: 'Midnight',
+    },
+  },
   /** The notice corner: how the notices waiting behind the visible ones are counted. */
   tray: {
     more: '+{n} more',
@@ -347,6 +362,9 @@ export const en = {
   /** Human-readable text for every notice `code` (LoadErrorCode, LoadNoticeCode, and the engine/session codes in
    * `addNotice()` calls). `mx-notice-tray` falls back to the raw code for anything missing here. */
   notices: {
+    /** The notice icons' accessible names (feature 016, R-9): the kind of notice is named, not only coloured. */
+    iconWarning: 'Warning',
+    iconInfo: 'Information',
     notMusicXml: 'This file is not a valid MusicXML score.',
     timewiseUnsupported: 'Timewise MusicXML is not supported. Save the file as partwise and try again.',
     unsupportedEncoding: "This file's text encoding is not supported.",

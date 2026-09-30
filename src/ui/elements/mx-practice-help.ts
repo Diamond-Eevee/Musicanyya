@@ -1,5 +1,6 @@
 import { en } from '../i18n/en.js';
 import { practiceState } from '../state/practiceState.js';
+import controlsCss from '../styles/controls.css?inline';
 
 /** Shows what Practice mode is waiting for (FR-023): the expected key(s), note name and written fingering, or -
  *  for a key already held over (FR-009a) - the release-then-repress instruction. A pure view of `practiceState`
@@ -55,20 +56,21 @@ class MxPracticeHelp extends HTMLElement {
         : '';
 
     this.shadowRoot.innerHTML = `
+      <style>${controlsCss}</style>
       <style>
         :host {
           display: block;
-          background: #fff;
-          border: 2px solid #333;
-          border-radius: 8px;
+          background: var(--mx-raised);
+          border: 1px solid var(--mx-border);
+          border-radius: var(--mx-radius-m, 8px);
           padding: 10px 14px;
-          font-family: sans-serif;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+          color: var(--mx-ink);
+          box-shadow: var(--mx-shadow-popup);
         }
-        h3 { margin: 0 0 6px; font-size: 14px; }
+        h3 { margin: 0 0 6px; font-size: 14px; color: var(--mx-ink); }
         ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 12px; }
         .help-note-name { font-weight: bold; }
-        .help-fingering { margin-left: 4px; color: #555; }
+        .help-fingering { margin-left: 4px; color: var(--mx-ink-muted); }
         .help-message { margin: 6px 0 0; }
       </style>
       <h3>${p.heading}</h3>

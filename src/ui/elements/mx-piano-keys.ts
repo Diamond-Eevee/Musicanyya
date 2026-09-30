@@ -255,20 +255,24 @@ class MxPianoKeys extends HTMLElement {
           width: fit-content;
           padding: 1px 8px;
           font-size: 12px;
-          background: var(--bg-color, #fff);
-          border-radius: 4px;
+          background: var(--mx-surface);
+          color: var(--mx-ink);
+          border: 1px solid var(--mx-border);
+          border-radius: var(--mx-radius-s, 4px);
         }
         .key-message.wrong-octave { color: ${WRONG_KEY_STYLE.wrongOctave.colour}; }
         .key-message.extra { color: ${WRONG_KEY_STYLE.extra.colour}; }
         .sustain-indicator {
           margin-top: 10px;
           padding: 5px;
-          background: #eee;
-          border: 1px solid #ccc;
+          background: var(--mx-raised);
+          color: var(--mx-ink);
+          border: 1px solid var(--mx-border);
+          border-radius: var(--mx-radius-s, 4px);
           display: inline-block;
         }
         .sustain-indicator.down {
-          background: #ccc;
+          background: var(--mx-accent-soft);
         }
       </style>
       <div class="keyboard" id="keys"></div>

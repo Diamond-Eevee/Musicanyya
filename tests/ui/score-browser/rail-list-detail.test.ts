@@ -280,8 +280,8 @@ describe('the old panel presentation, carried over (T098-T100)', () => {
     expect(row('a').querySelector('.browser-row-step')?.textContent).toBe('1 Introduction');
     expect(row('b').querySelector('.browser-row-step')?.textContent).toBe('Song');
     expect(row('c').querySelector('.browser-row-step')).toBeNull();
-    // before the level chip
-    const children = Array.from(row('a').children).map((c) => c.className);
+    // before the level chip (both on the row's second line, `.browser-row-meta` since feature 016 R-13)
+    const children = Array.from(row('a').querySelector('.browser-row-meta')?.children ?? []).map((c) => c.className);
     expect(children.indexOf('browser-row-step')).toBeLessThan(children.indexOf('browser-row-level'));
   });
 

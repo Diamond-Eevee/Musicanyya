@@ -29,6 +29,11 @@ and Web MIDI.
   lists what you opened last and suggests the next step. Reset progress from the detail pane, with Undo.
 - **My files**: files you open from your computer are kept (a copy, up to 100 MB in all) with their progress, and open
   again with one click; removing one can keep or drop its progress, with Undo.
+- **Themes**: *View > Theme* offers six themes - Paper, Ivory and Slate (light), Night, Walnut and Midnight (dark) -
+  and *Automatic* (the default), which follows the system's light or dark setting. The choice is kept on this device
+  and applies from the first frame of the next start. The Score pages stay black on pure white in every theme.
+- **Logo**: the Musicanyya mark (two beamed notes forming an M) in the bar, the empty window, the browser tab and the
+  desktop app's window, taskbar and installer.
 - **Cross-Platform**: Runs in the browser (Chrome, Edge) or as a local Electron desktop app.
 
 ## Development & Publishing
@@ -47,6 +52,9 @@ and Web MIDI.
    on through the View menu; `--greyscale` puts the page in greyscale for the picture (feature 010)
    `--browser` takes the picture with the Score browser open (feature 013); with it, `--seed-progress <json>`
    (`tests/fixtures/progress/`) seeds results, and `--filter status=played --sort best:asc` choose filters and sort
+5. Regenerate the logo files after changing the artwork in `src/ui/brand/logo.ts`: `pnpm brand:icons` writes
+   `public/favicon.svg`, `public/favicon-32.png`, `build/icon.ico` and `build/icon.png` (commit them) and the review
+   sheet `tests/.generated/brand-sheet.png` (feature 016)
 
 ### Testing and Quality Gates
 

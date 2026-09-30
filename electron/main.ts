@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { app, BrowserWindow, net, protocol, shell } from 'electron';
+import { app, BrowserWindow, nativeTheme, net, protocol, shell } from 'electron';
 import { decideNavigation, decidePermission, decideWindowOpen, resolveAppPath } from './policy.js';
 
 const _dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
@@ -67,10 +67,23 @@ if (!gotTheLock) {
   });
 }
 
+/**
+ * The window's colour until the renderer's first paint (research R-3): the desk colour of the theme Automatic
+ * resolves to - Paper while the OS is light, Night while it is dark (research R-5, src/ui/styles/themes.css; a unit
+ * test keeps them equal). The window shows only once the first frame, already in the stored theme, is ready.
+ */
+const START_BACKGROUND_LIGHT = '#e9e5dc';
+const START_BACKGROUND_DARK = '#111214';
+
 function createWindow() {
+  const devUrl = process.env.MUSICANYYA_DEV_URL;
   const mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
+    show: false,
+    backgroundColor: nativeTheme.shouldUseDarkColors ? START_BACKGROUND_DARK : START_BACKGROUND_LIGHT,
+    // In dev the window and taskbar show the app icon from build/ (brand.md section 2); packaged, the exe's icon is used.
+    ...(devUrl ? { icon: path.join(app.getAppPath(), 'build', 'icon.png') } : {}),
     webPreferences: {
       contextIsolation: true,
       sandbox: true,
@@ -81,8 +94,10 @@ function createWindow() {
     },
   });
 
-  if (process.env.MUSICANYYA_DEV_URL) {
-    mainWindow.loadURL(process.env.MUSICANYYA_DEV_URL);
+  mainWindow.once('ready-to-show', () => mainWindow.show());
+
+  if (devUrl) {
+    mainWindow.loadURL(devUrl);
   } else {
     mainWindow.setMenu(null); // No menu in production
     mainWindow.loadURL('app://musicanyya/');

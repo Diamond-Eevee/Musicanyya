@@ -24,6 +24,30 @@ const FAILURE_NOTICES: ReadonlySet<string> = new Set([
   'playGradeError',
 ]);
 
+/** Notice icons (feature 016 R-9, original drawings on a 16-unit grid): a warning triangle and an information circle,
+ *  named for assistive technology, so the kind of a notice is shown by shape as well as by its edge colour. */
+const NOTICE_ICONS: Record<Notice['severity'], { name: string; shapes: string }> = {
+  warning: {
+    name: en.notices.iconWarning ?? 'Warning',
+    shapes:
+      '<path d="M8 1.5 15 14.5H1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' +
+      '<path d="M8 6v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>' +
+      '<circle cx="8" cy="12.3" r="0.95" fill="currentColor"/>',
+  },
+  info: {
+    name: en.notices.iconInfo ?? 'Information',
+    shapes:
+      '<circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.5"/>' +
+      '<path d="M8 7.2v4.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>' +
+      '<circle cx="8" cy="4.7" r="0.95" fill="currentColor"/>',
+  },
+};
+
+const noticeIcon = (severity: Notice['severity']) => {
+  const icon = NOTICE_ICONS[severity];
+  return `<svg class="notice-icon" viewBox="0 0 16 16" role="img" aria-label="${escapeHtml(icon.name)}">${icon.shapes}</svg>`;
+};
+
 function formatNotice(notice: Notice): string {
   // US3 #4: the file's title is substituted into the sentence, not appended in parens like every other code.
   if (notice.code === 'fileRemovedPending' && notice.element) {
@@ -71,12 +95,14 @@ export class MxNoticeTray extends HTMLElement {
           n.code === 'progressResetPending' || n.code === 'fileRemovedPending'
             ? `
       <div class="notice ${n.severity}">
+        ${noticeIcon(n.severity)}
         ${escapeHtml(formatNotice(n))}
         <button class="undo-btn" data-id="${n.id}" data-undo-event="${n.code === 'progressResetPending' ? 'browserundoreset' : 'browserundoremovefile'}">${escapeHtml(en.browser.undo)}</button>
       </div>
     `
             : `
       <div class="notice ${n.severity}">
+        ${noticeIcon(n.severity)}
         ${escapeHtml(formatNotice(n))}
         <button class="dismiss-btn" data-id="${n.id}">Dismiss</button>
       </div>

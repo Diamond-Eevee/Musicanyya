@@ -17,7 +17,13 @@ export interface MenuEntry {
    *  Practice session, not Listen, R-2) and lives in `BrowserSessionController.open()`, which safely no-ops when
    *  refused - matching the bar's own Open button, which is never disabled either. */
   idleOnly: boolean;
+  /** An `idleOnly` entry that stays enabled during a Listen run (ui-shell 1.3.0, feature 016 R-12): only View, so the
+   *  theme can be changed while listening (SC-010). Listen grades nothing, and the listener chose to open it. */
+  listenOk: boolean;
 }
+
+/** The one panel a person may open during a Listen run (ui-shell 1.3.0); `runGuard.ts` leaves it open then. */
+export const LISTEN_OK_PANEL: PanelId = 'view';
 
 export interface MenuGroup {
   id: MenuId;
@@ -28,7 +34,8 @@ export interface MenuGroup {
 function entry(panel: 'browser', needsScore?: boolean, idleOnly?: boolean): MenuEntry;
 function entry(panel: PanelId, needsScore?: boolean, idleOnly?: boolean): MenuEntry;
 function entry(panel: PanelId | 'browser', needsScore = false, idleOnly = true): MenuEntry {
-  return { panel, label: panel === 'browser' ? en.panels.browser : en.panels[panel], needsScore, idleOnly };
+  const label = panel === 'browser' ? en.panels.browser : en.panels[panel];
+  return { panel, label, needsScore, idleOnly, listenOk: panel === LISTEN_OK_PANEL };
 }
 
 /** The static menu structure of `data-model.md` section 5. `grade` has no entry: a finished Play run opens it.
