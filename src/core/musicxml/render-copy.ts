@@ -6,6 +6,9 @@ export interface RenderCopyInserts {
   /** Engraving-completion inserts (accidentals, beams) spliced strictly inside note bodies - they never
    *  overlap a note/measure open tag, so no collision handling is needed against `notes`/`measures`. */
   elements?: ElementInsert[];
+  /** Text replaced inside note bodies (017 T047: an unpitched note's display pitch, placed for Verovio). They never
+   *  overlap a note/measure open tag or an element insert, and are applied in the same single pass. */
+  rewrites?: Array<{ start: number; end: number; text: string }>;
 }
 
 interface Replacement {
@@ -102,8 +105,12 @@ export function createRenderCopy(xml: string, inserts: RenderCopyInserts): strin
     end: e.offset,
     replacement: e.text,
   }));
-  const replacements =
+  const withElements =
     elementReplacements.length === 0 ? tagsAndCollisions : merge(tagsAndCollisions, elementReplacements);
+  const rewrites: Replacement[] = [...(inserts.rewrites ?? [])]
+    .sort((a, b) => a.start - b.start)
+    .map((r) => ({ start: r.start, end: r.end, replacement: r.text }));
+  const replacements = rewrites.length === 0 ? withElements : merge(withElements, rewrites);
 
   const pieces: string[] = [];
   let cursor = 0;

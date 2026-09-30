@@ -431,6 +431,12 @@ example had 4 of 36 notes with no element (the only fixture where model and engr
 **Alternatives**: keep the sign and point those notes at it (no per-note marks, an exception to III); drop the notes from
 the model (the measure would be silent although the file plays it); draw both (not how printed music shows a repeat).
 
+**Amendment (feature 017 T047) - unpitched notes under F and C clefs.** Verovio 6.3 reads an unpitched note's
+display-step/-octave as a treble-clef position whatever the clef (pinned by tests/verovio/unpitched-clef.test.ts). The render
+copy moves the display pitch by the diatonic distance between the clef in force and G2 (unpitched-placement.ts), so
+the note lands where its written clef puts it; the file, the model and the sound are unchanged. Alternative: leave it
+(drum kits on an F clef drawn below the staff) - rejected, it misrepresents the written score (Constitution III).
+
 ## R-10 Audio engine: our own AudioWorklet with the SpessaSynth core
 
 **Finding** (from reading `spessasynth_core` 4.3.22 and `spessasynth_lib` 4.3.14 sources): the lib's

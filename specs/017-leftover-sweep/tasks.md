@@ -204,13 +204,13 @@ contracts of the feature it came from, named on the task)
   staff (pictures `tests/.generated/017/t021/percussion*.png`, before and after T021 - not caused by it). Find
   whether the render copy or Verovio's unpitched import places them, fix it or record it as a Verovio limitation in
   `docs/musicxml-support.md`; test on that file
-- [ ] T047 [US2] (follow-up of T045) Work around Verovio 6.3's placement of unpitched notes on F and C clefs: it
+- [x] T047 [US2] (follow-up of T045) Work around Verovio 6.3's placement of unpitched notes on F and C clefs: it
   turns display-step/-octave into a staff position as if the clef were G2 (MEI `loc` -3 for B3 on an F4 clef, where
   it belongs at 9). In the render copy, move an unpitched note's display-step/-octave by the diatonic distance between
   the clef in force (per staff and position, `part.clefs`) and G2, so Verovio's treble reading lands on the written
   place; the file and the Score model stay unchanged. Test first on the W3C drum-kit example (noteheads inside the
   staff) and on a clef change mid-part; `<unpitched>` row back to Supported and `tests/verovio/unpitched-clef.test.ts`
-  replaced if it holds
+  replaced if it holds (kept: it now documents the premise the workaround relies on)
 - [x] T046 (found in T021) `tests/core/musicxml/render-copy.test.ts` has an empty test, `it('assigns first-part
   measure ids only', () => {})` - a placeholder AGENTS.md forbids. Give it the assertion its name states (a
   two-part document: only the first part's `<measure>` tags get Measure IDs) or remove it with the reason in the log

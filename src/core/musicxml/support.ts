@@ -15,9 +15,9 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
   {
     category: 'Notes',
     element: '<unpitched>',
-    status: 'Partial',
+    status: 'Supported',
     notes:
-      'Played on its instrument (MIDI percussion key) and engraved. With a percussion or G clef the display-step/-octave position is drawn as written; with another clef (F, C) Verovio 6.3 places it as if in a treble clef - e.g. the W3C drum-kit example on an F clef shows its notes below the staff (017 T045)',
+      'Played on its instrument (MIDI percussion key); drawn at its display-step/-octave under the clef in force. Verovio 6.3 reads that position as if in a treble clef, so under F and C clefs the render copy moves it to the matching treble position (017 T045, T047)',
   },
   {
     category: 'Notes',

@@ -4,6 +4,7 @@ import type { EngravingPlan } from '../core/musicxml/engraving/index.js';
 import { planEngraving } from '../core/musicxml/engraving/plan.js';
 import { readXml } from '../core/musicxml/read.js';
 import { createRenderCopy, withoutMeasureRepeats } from '../core/musicxml/render-copy.js';
+import { unpitchedDisplayRewrites } from '../core/musicxml/unpitched-placement.js';
 import { compileSchedule } from '../core/schedule/compile.js';
 import { buildTimelineDto } from '../core/timeline/dto.js';
 import { buildTimeline } from '../core/timeline/timeline.js';
@@ -80,6 +81,8 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
         notes: notesInserts,
         measures: measuresInserts,
         elements: engravingPlan.inserts,
+        // Unpitched notes under F or C clefs, placed for Verovio's treble reading (017 T047)
+        rewrites: unpitchedDisplayRewrites(xmlString, score),
       }),
     );
 

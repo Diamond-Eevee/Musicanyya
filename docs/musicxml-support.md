@@ -10,7 +10,7 @@ This document lists the supported MusicXML elements.
 | Notes | `<pitch>` | Supported | |
 | Notes | `<rest>` | Supported | |
 | Notes | `<tie>` | Supported | |
-| Notes | `<unpitched>` | Partial | Played on its instrument (MIDI percussion key) and engraved. With a percussion or G clef the display-step/-octave position is drawn as written; with another clef (F, C) Verovio 6.3 places it as if in a treble clef - e.g. the W3C drum-kit example on an F clef shows its notes below the staff (017 T045) |
+| Notes | `<unpitched>` | Supported | Played on its instrument (MIDI percussion key); drawn at its display-step/-octave under the clef in force. Verovio 6.3 reads that position as if in a treble clef, so under F and C clefs the render copy moves it to the matching treble position (017 T045, T047) |
 | Notes | `<beam>` | Supported | Shown as encoded; completed automatically when a voice has none (not for sung lines with lyrics) |
 | Notes | `<accidental>` | Supported | Shown as encoded; required and courtesy signs completed when missing |
 | Notes | `<grace>` | Supported | Acciaccatura and appoggiatura |
