@@ -189,7 +189,7 @@ mx-mode-switch label {
   cursor: pointer;
   font-size: var(--mx-text-s, 0.875rem);
   color: var(--mx-ink);
-  transition: background-color 120ms ease;
+  transition: background-color var(--mx-transition) ease;
 }
 
 mx-mode-switch label:has(input[type="radio"]:checked) {

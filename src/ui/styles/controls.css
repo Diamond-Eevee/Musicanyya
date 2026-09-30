@@ -20,9 +20,9 @@ button {
   cursor: pointer;
   user-select: none;
   transition:
-    background-color 120ms ease,
-    border-color 120ms ease,
-    color 120ms ease;
+    background-color var(--mx-transition) ease,
+    border-color var(--mx-transition) ease,
+    color var(--mx-transition) ease;
 }
 
 button:hover:not(:disabled) {
@@ -81,9 +81,9 @@ select {
   background-position: right 8px center;
   background-size: 10px;
   transition:
-    background-color 120ms ease,
-    border-color 120ms ease,
-    color 120ms ease;
+    background-color var(--mx-transition) ease,
+    border-color var(--mx-transition) ease,
+    color var(--mx-transition) ease;
 }
 
 select:hover:not(:disabled) {
@@ -105,9 +105,9 @@ input[type="search"] {
   padding: 4px 8px;
   line-height: 1.4;
   transition:
-    background-color 120ms ease,
-    border-color 120ms ease,
-    color 120ms ease;
+    background-color var(--mx-transition) ease,
+    border-color var(--mx-transition) ease,
+    color var(--mx-transition) ease;
 }
 
 input[type="checkbox"],
@@ -136,8 +136,8 @@ input[type="range"] {
   cursor: pointer;
   border-radius: var(--mx-radius-s, 4px);
   transition:
-    background-color 120ms ease,
-    color 120ms ease;
+    background-color var(--mx-transition) ease,
+    color var(--mx-transition) ease;
 }
 
 [role="menuitem"]:hover:not(:disabled),

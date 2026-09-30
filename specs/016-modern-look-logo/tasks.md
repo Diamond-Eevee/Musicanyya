@@ -427,7 +427,7 @@ Midnight, looked at. Full gate, log, commit.
 - [ ] T050 [light] SC-009 timings (quickstart "SC-009"): five runs each on `main` and on the branch of "Open in the
   browser -> first page visible" and "Play -> first note". Record both medians in the log and state whether the branch
   is within 5%
-- [ ] T051 Run the whole quickstart (US1-US5, both sizes, Paper plus at least one dark theme per story). Pictures go
+- [x] T051 Run the whole quickstart (US1-US5, both sizes, Paper plus at least one dark theme per story). Pictures go
   in `tests/.generated/016-*`, and each one is looked at. Re-take the six T005 stack crops in Paper and in Walnut
   with `--compare` against the baseline: all print `identical` (SC-001). Compare the compact switch width with T005
   (SC-006). Edge case "zoom 200%": in `pnpm dev` at 1280 px, zoom the browser to 200% and check that nothing is
@@ -440,7 +440,7 @@ Midnight, looked at. Full gate, log, commit.
 - [x] T053 [P] [light] Docs: `README.md` (themes, logo), the toolchain section of `docs/agents/reference.md`
   (`pnpm screenshot --theme/--clip`), and the Active Technologies entry "planned" -> "implemented". Check that the
   constants in `src/engine/config.ts` match the data-model.md section 5 table
-- [ ] T054 Constitution audit of the branch diff with `.claude/agents/constitution-auditor.md`. Summarise its
+- [x] T054 Constitution audit of the branch diff with `.claude/agents/constitution-auditor.md`. Summarise its
   findings in the log and fix any violation
 - [ ] T055 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, each with its summary line in the
   log. Final log entry with the hand-off. Ready to merge only when every task is ticked with evidence and OD-1 and

@@ -270,3 +270,47 @@
   the full e2e gate cannot pass until the audio clock runs at real time again. OD-2 (T052) still open.
 - Handoff: next = Phase 8 Polish T049 (per-theme axe) -> T050-T055; re-run `pnpm test:e2e` once the audio device is
   back to normal. Tree clean at the commit below.
+
+## 2026-09-30 05:00 - claude-opus-5.5 (implement - Polish T049, T051, T053, T054)
+- T049 `tests/e2e/theme-a11y.spec.ts` (Chromium, axe WCAG 2.0/2.1 A+AA, same tags as score-browser-a11y): per theme,
+  the bar (with and without a Score), the four menus, every manual popup of PANEL_IDS, the Practice panel (Setup in
+  Practice mode), the empty state, a warning notice, the Score browser (Continue; list + detail), and Grade and
+  Attempts after a graded run. One finding, the same in all six themes: `scrollable-region-focusable` (serious) on
+  the Supported notation popup - its body scrolls with nothing focusable (feature 004). Fix in `mx-panel.ts`: the
+  body is a tab stop only while it scrolls (ResizeObserver). After: 12 passed (6 themes x 2). Keyboard/a11y specs
+  us2-panels, chrome-look, score-browser-a11y, theme-a11y all engines: 85 passed, 59 skipped.
+- T051 quickstart / SC-001 / SC-006 / zoom:
+  - `pnpm screenshot --clip .mx-score-stack --compare` against the T005 baseline, Paper and Walnut, both sizes:
+    Listen `identical` (4/4). Practice and graded Play printed "<n> pixels differ" - located: the crop of the stack
+    takes in the chrome covering it (the restyled bar where the view has scrolled the stack under it, and the
+    Grade popup and its shadow). The Score region clear of that chrome compares **0 differing pixels** against
+    main's baseline for Paper and Walnut (practice 1280 y>=72; graded 1280 x<790 y>=115; 390 bands outside the
+    bar/popup rows), and Paper = Walnut over the same regions. SC-001 holds; T036 checks it per theme in CI.
+  - SC-006: compact switch at 1310 px with Fur Elise = T005's 1310 (+-10); the word goes first at 1400 px.
+  - Zoom 200% (1280 px window = 640x360 CSS px): bar compact, one 48 px row, no bar or page overflow; the View popup
+    (450x298) fits and switching to Night works (`tests/.generated/016-t051-zoom200.png`, looked at).
+  - Quickstart pictures per story: US1 (previous agent), US2 016-us2-*, US3 016-us3-*, US4 016-us4-*, US5 016-us5-*,
+    each looked at; Paper plus at least one dark theme per story.
+- T053 docs: README Themes + Logo, reference R7 `pnpm screenshot --theme/--clip/--compare`, Active Technologies
+  "implemented"; config constants match data-model 5.
+- T054 constitution audit (`constitution-auditor` sub-agent): COMPLIANT WITH NOTES, no CRITICAL/HIGH. I-VIII pass
+  (III: no score-view file touched, stack pinned and pixel-tested; V: core untouched, no framework, Electron keeps
+  sandbox/contextIsolation, no bridge channel; VI: View-during-Listen compliant - non-modal, user-opened, Listen only,
+  runs still close popups; VIII: no dependency added). Findings and what was done:
+  1. MEDIUM: `src/engine/worklets/dispatch.ts` (audio-thread path) was edited in 3c7622b (dead-code removal by the
+     previous agent), unrelated to 016 and never RT-reviewed -> **restored to main's version** (no RT change on this
+     branch; lint warnings 314 -> 317 are main's own unused-variable warnings coming back).
+  2. LOW: `120ms` written 13x in CSS -> one token `--mx-transition` (themes.css), `controls-in-shadow.test.ts` checks
+     its value = THEME_CONTROL_TRANSITION_MS and that every transition in controls.css and layout.css uses it.
+  3. LOW: stale "Both are assigned" comment in mx-panel.ts -> "All three".
+  4. LOW: boot-script parity cases now built from THEMES, plus a check that the script's VALID_THEMES equals THEMES.
+  5. LOW: review-sheet colours in build-icons.ts -> exported and checked against themes.css (brand-icons (e)).
+  6. LOW (outside the constitution): `body` had been given `user-select: none` and a hard-coded font stack by the
+     previous agent (not in the spec) -> main's rule restored (`var(--font-family)`, text selectable).
+  Merge gates the audit lists as open: full `pnpm test:e2e` (audio clock, see below), T050, T052, T055.
+- Checks: `pnpm test` Test Files 284 passed (284) | Tests 6137 passed (6137); lint 0 errors (317 warnings, 13 infos);
+  typecheck exit 0; theme-score-identical + chrome-look + brand + us1-layout all engines 153 passed, 15 skipped.
+- Problems / open questions: needs owner: (1) the audio output device runs the browser clock at 0.65x (88.2 kHz);
+  until it is back to normal the full e2e gate (T055) and the SC-009 timings (T050) cannot be measured fairly;
+  (2) OD-2 (T052): approve the look and palettes.
+- Handoff: next = T050 (timings, after the audio fix), T052 (owner), T055 (full gate). Tree clean at the commit below.

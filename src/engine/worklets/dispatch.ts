@@ -14,7 +14,7 @@
  */
 
 import type { ScheduleMessage } from '../../core/schedule/compile.js';
-import { ticksPerFrame } from '../../core/tempo/rate.js';
+import { frameOfTick, ticksPerFrame } from '../../core/tempo/rate.js';
 
 /** One tempo segment with its pre-computed frame anchor. */
 export interface TempoSegmentFrame {
@@ -85,6 +85,8 @@ export function recomputeSegmentFrames(
   }
 
   const segs: TempoSegmentFrame[] = [];
+  let curFrame = startFrame;
+  let curTick = startTick;
 
   for (let i = 0; i < nSegs; i++) {
     const segTick = tempoTick[i] as number;
@@ -97,6 +99,8 @@ export function recomputeSegmentFrames(
       // It is the first active segment (or an earlier one that sets the rate).
       segs.length = 0; // keep only the latest segment that starts <= startTick
       segs.push({ startTick: startTick, startFrame: startFrame, ticksPerFrame: tpf });
+      curFrame = startFrame;
+      curTick = startTick;
     } else {
       // This segment starts after our current position.
       // Compute the frame at which this tempo segment starts.

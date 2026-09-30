@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { CHROME_FOCUS_RING_PX, THEME_CONTROL_TRANSITION_MS } from '../../src/engine/config.js';
 import '../../src/ui/elements/mx-menu.js';
@@ -77,30 +77,24 @@ describe('Shared control styles inside shadow roots and CSS constants (T017)', (
     expect(hasExpectedWidth, `:focus-visible outline should use ${expectedWidthPx}, got: ${blockContent}`).toBe(true);
   });
 
-  it(`controls.css transitions use THEME_CONTROL_TRANSITION_MS (${THEME_CONTROL_TRANSITION_MS}ms) or 0s`, () => {
-    expect(existsSync(CONTROLS_CSS_PATH), 'controls.css must exist').toBe(true);
-    const css = readFileSync(CONTROLS_CSS_PATH, 'utf8');
+  it(`the chrome's transitions all use --mx-transition, which is THEME_CONTROL_TRANSITION_MS (${THEME_CONTROL_TRANSITION_MS}ms)`, () => {
+    const themes = readFileSync(join(process.cwd(), 'src/ui/styles/themes.css'), 'utf8');
+    const token = /--mx-transition\s*:\s*([^;]+);/.exec(themes)?.[1]?.trim();
+    expect(token, '--mx-transition in themes.css').toBe(`${THEME_CONTROL_TRANSITION_MS}ms`);
 
-    // Extract all transition and transition-duration values outside reduced-motion
-    const stripped = css.replace(/\/\*[\s\S]*?\*\//g, '');
-
-    // Split out prefers-reduced-motion block
-    const reducedMotionRegex = /@media[^{]*prefers-reduced-motion[^{]*\{([\s\S]*?\}\s*)\}/g;
-    const standardCss = stripped.replace(reducedMotionRegex, '');
-
-    const transitionMatches = [...standardCss.matchAll(/(?:transition|transition-duration)\s*:\s*([^;}]+)[;}]/g)];
-    expect(transitionMatches.length, 'controls.css must define transitions on controls').toBeGreaterThan(0);
-
-    const expectedDurationMs = `${THEME_CONTROL_TRANSITION_MS}ms`;
-
-    for (const match of transitionMatches) {
-      const val = match[1].trim();
-      if (val === 'none') continue;
-      // Extract duration (e.g. "120ms" or "0.12s")
-      expect(
-        val.includes(expectedDurationMs) || val.includes(`${THEME_CONTROL_TRANSITION_MS / 1000}s`),
-        `Transition duration should be ${expectedDurationMs}, got: "${val}"`,
-      ).toBe(true);
+    for (const file of ['src/ui/styles/controls.css', 'src/ui/styles/layout.css']) {
+      const css = readFileSync(join(process.cwd(), file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+      // Reduced motion switches every transition off (0s); that block is checked by chrome-look.spec.ts (e).
+      const standard = css.replace(/@media[^{]*prefers-reduced-motion[^{]*\{([\s\S]*?\}\s*)\}/g, '');
+      for (const match of standard.matchAll(/(?:transition|transition-duration)\s*:\s*([^;}]+)[;}]/g)) {
+        const value = (match[1] ?? '').trim();
+        if (value === 'none') continue;
+        for (const part of value.split(',')) {
+          expect(part, `${file}: "${part.trim()}" takes its duration from --mx-transition`).toContain(
+            'var(--mx-transition)',
+          );
+        }
+      }
     }
   });
 });

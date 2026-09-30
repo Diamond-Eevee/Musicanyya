@@ -29,7 +29,7 @@ const FAVICON_PNG_SIZE = 32;
  * Surface and ink of each theme, from the research R-5 design table, for the review sheet only. The themes
  * themselves live in src/ui/styles/themes.css.
  */
-const SHEET_BACKGROUNDS: readonly { name: string; surface: string; ink: string }[] = [
+export const SHEET_BACKGROUNDS: readonly { name: string; surface: string; ink: string }[] = [
   { name: 'Paper', surface: '#f7f5f0', ink: '#1c1b19' },
   { name: 'Ivory', surface: '#f6efe0', ink: '#2a2118' },
   { name: 'Slate', surface: '#f1f3f5', ink: '#1b2229' },

@@ -15,6 +15,10 @@
   --mx-space-4: 12px;
   --mx-space-5: 16px;
   --mx-space-6: 24px;
+
+  /* Control state changes (FR-008 <= 150 ms): THEME_CONTROL_TRANSITION_MS in src/engine/config.ts, checked by
+     tests/ui/controls-in-shadow.test.ts. */
+  --mx-transition: 120ms;
 }
 
 :root[data-theme="paper"],

@@ -16,7 +16,7 @@ export class MxPanel extends HTMLElement {
   static readonly observedAttributes = ['heading'];
 
   private unsubscribe?: () => void;
-  // Both are assigned in the constructor, right after the shadow root is built.
+  // All three are assigned in the constructor, right after the shadow root is built.
   private closeButton!: HTMLButtonElement;
   private headingEl!: HTMLElement;
   private bodyEl!: HTMLElement;

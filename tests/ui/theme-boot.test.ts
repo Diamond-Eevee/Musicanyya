@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import * as vm from 'node:vm';
 import { describe, expect, it } from 'vitest';
 import { THEME_STORAGE_KEY } from '../../src/engine/config';
-import { parseThemeChoice, resolveTheme } from '../../src/ui/theme/themes';
+import { parseThemeChoice, resolveTheme, THEMES } from '../../src/ui/theme/themes';
 
 const bootScriptPath = path.resolve(__dirname, '../../public/theme-boot.js');
 
@@ -77,14 +77,16 @@ describe('theme-boot.js anti-drift test (research R-2, theme.md section 5)', () 
     { label: 'version 2', raw: JSON.stringify({ version: 2, choice: 'paper' }) },
     { label: 'unknown choice', raw: JSON.stringify({ version: 1, choice: 'neon' }) },
     { label: 'choice auto', raw: JSON.stringify({ version: 1, choice: 'auto' }) },
-    { label: 'choice paper', raw: JSON.stringify({ version: 1, choice: 'paper' }) },
-    { label: 'choice ivory', raw: JSON.stringify({ version: 1, choice: 'ivory' }) },
-    { label: 'choice slate', raw: JSON.stringify({ version: 1, choice: 'slate' }) },
-    { label: 'choice night', raw: JSON.stringify({ version: 1, choice: 'night' }) },
-    { label: 'choice walnut', raw: JSON.stringify({ version: 1, choice: 'walnut' }) },
-    { label: 'choice midnight', raw: JSON.stringify({ version: 1, choice: 'midnight' }) },
+    ...THEMES.map((t) => ({ label: `choice ${t.id}`, raw: JSON.stringify({ version: 1, choice: t.id }) })),
     { label: 'throwing storage', raw: 'THROWS' },
   ];
+
+  it('knows exactly the theme ids of THEMES (a new theme cannot be forgotten in the boot script)', () => {
+    const code = fs.readFileSync(bootScriptPath, 'utf-8');
+    const listed = /VALID_THEMES\s*=\s*\[([^\]]*)\]/.exec(code)?.[1] ?? '';
+    const ids = Array.from(listed.matchAll(/'([a-z]+)'/g), (m) => m[1]);
+    expect(ids).toEqual(THEMES.map((t) => t.id));
+  });
 
   for (const tc of testCases) {
     for (const systemDark of [false, true]) {

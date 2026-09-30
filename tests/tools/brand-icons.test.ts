@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { logoTileSvg } from '../../src/ui/brand/logo.js';
-import { readIco, writeIco } from '../../tools/brand/build-icons.js';
+import { readIco, SHEET_BACKGROUNDS, writeIco } from '../../tools/brand/build-icons.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '../..');
@@ -108,5 +108,22 @@ describe('brand icons and ICO writer/reader (brand.md section 3, T025)', () => {
 
     const faviconSvg = fs.readFileSync(faviconPath, 'utf8').trim();
     expect(faviconSvg).toBe(logoTileSvg(32).trim());
+  });
+
+  it('(e) the review sheet shows each theme on its real surface, in its real ink (themes.css)', () => {
+    const css = fs.readFileSync(path.join(rootDir, 'src/ui/styles/themes.css'), 'utf8');
+    const token = (id: string, name: string) => {
+      const start = css.indexOf(`:root[data-theme="${id}"]`);
+      const block = start < 0 ? '' : css.slice(css.indexOf('{', start) + 1, css.indexOf('}', start));
+      const line = block.split(';').find((decl) => decl.trim().startsWith(`${name}:`));
+      return line?.split(':')[1]?.trim();
+    };
+    const themed = SHEET_BACKGROUNDS.filter((b) => b.name !== 'White' && b.name !== 'Black');
+    expect(themed.map((b) => b.name.toLowerCase())).toEqual(['paper', 'ivory', 'slate', 'night', 'walnut', 'midnight']);
+    for (const b of themed) {
+      const id = b.name.toLowerCase();
+      expect(b.surface, `${id} surface`).toBe(token(id, '--mx-surface'));
+      expect(b.ink, `${id} ink`).toBe(token(id, '--mx-ink'));
+    }
   });
 });
