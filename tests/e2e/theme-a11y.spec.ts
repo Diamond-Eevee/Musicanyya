@@ -93,13 +93,11 @@ for (const theme of THEMES) {
       report.push(...(await violations(page, 'Practice panel', 'mx-panel[data-panel="setup"]')));
       await page.keyboard.press('Escape');
 
-      await page
-        .locator('mx-open-button input[type=file]')
-        .setInputFiles({
-          name: 'broken.musicxml',
-          mimeType: 'application/xml',
-          buffer: Buffer.from('<score-partwise'),
-        });
+      await page.locator('mx-open-button input[type=file]').setInputFiles({
+        name: 'broken.musicxml',
+        mimeType: 'application/xml',
+        buffer: Buffer.from('<score-partwise'),
+      });
       await closeBrowser(page).catch(() => {});
       await expect(page.locator('mx-notice-tray .notice.warning')).toBeVisible();
       report.push(...(await violations(page, 'warning notice', 'mx-notice-tray')));
