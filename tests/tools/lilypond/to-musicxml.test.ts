@@ -190,6 +190,25 @@ describe('toMusicXml: what the printed page shows', () => {
     );
   });
 
+  it('a note under \\hideNotes scaled with *n/m is written invisible at its real length (017 T051, Joplin 263 bar 69)', () => {
+    // The source's kludge: an invisible sixteenth written as a scaled quarter carries a tie into the next note.
+    const src =
+      "\\relative c'' { \\time 2/4 << { a16 c8 <g bes,>16 ~ g c, d e } \\\\ { s8. \\hideNotes bes4*1/4 ~ \\unHideNotes bes8 bes } >> | }";
+    const score = readLilyPond(src);
+    const { xml } = toMusicXml(score);
+    const notes = xml.split('<note').slice(1);
+    const hidden = notes.filter((n) => n.startsWith(' print-object="no"'));
+    expect(hidden).toHaveLength(1);
+    expect(hidden[0]).toContain('<step>B</step><alter>-1</alter>');
+    expect(hidden[0]).toContain('<type>16th</type>');
+    expect(hidden[0]).toContain('<tie type="start"/>');
+    expect(compare(fromMusicXml(xml), fromLilyPond(score), ALL, { itemBars: 'all', sourceBars: 'all' })).toEqual([]);
+    const loaded = buildScore(readXml(xml).doc).score.parts[0]?.notes ?? [];
+    expect(loaded.filter((n) => n.printed === false)).toHaveLength(1);
+    // Only a hidden note may be scaled: a visible one would print a value it does not have.
+    expect(() => toMusicXml(readLilyPond(src.replace('\\hideNotes ', '')))).toThrow('a note value scaled with *n/m');
+  });
+
   it('rests.ly: a whole-bar rest and a spacer that takes time without printing a rest', () => {
     const [, bar2, bar3] = measures(convert('rests.ly').xml);
     expect(bar2).toContain('<rest measure="yes"/><duration>6</duration>');

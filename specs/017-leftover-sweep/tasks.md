@@ -221,15 +221,36 @@ contracts of the feature it came from, named on the task)
 - [x] T046 (found in T021) `tests/core/musicxml/render-copy.test.ts` has an empty test, `it('assigns first-part
   measure ids only', () => {})` - a placeholder AGENTS.md forbids. Give it the assertion its name states (a
   two-part document: only the first part's `<measure>` tags get Measure IDs) or remove it with the reason in the log
-- [ ] T022 [P] [US4] (from 005 T057) Intermediate: Petzold Minuets BWV Anh. 114 and 115, Musette BWV Anh. 126 +
+- [~] T022 [P] [US4] (from 005 T057) Intermediate: Petzold Minuets BWV Anh. 114 and 115, Musette BWV Anh. 126 +
   sidecars (FR-008's Intermediate target of >= 5 is already met by T058/T059 - Burgmüller nos. 2 and 5, Schumann
   Op. 68 no. 10 and Clementi, alongside the already-committed Für Elise theme). Public-domain source verified; audited
-  with `pnpm library:fidelity --item <id>`
-- [ ] T023 [P] [US4] (from 005 T063) Advanced: Joplin *The Entertainer* + sidecar (FR-008's Advanced target of >= 4 is
+  with `pnpm library:fidelity --item <id>` (claimed: claude-opus-5.5 2026-09-30)
+- [~] T023 [P] [US4] (from 005 T063) Advanced: Joplin *The Entertainer* + sidecar (FR-008's Advanced target of >= 4 is
   already met - Chopin no. 4, Für Elise complete, Chopin no. 20, Bach Prelude BWV 846, Satie). Public-domain source
-  verified; audited
-- [ ] T024 [US4] (from 005 T064) Probe Chopin Nocturne Op. 9 no. 2 for the 11:8 / 22:12 tuplets: added if it engraves
+  verified; audited (claimed: claude-opus-5.5 2026-09-30)
+- [~] T024 [US4] (from 005 T064) Probe Chopin Nocturne Op. 9 no. 2 for the 11:8 / 22:12 tuplets: added if it engraves
   and plays faithfully (audited), otherwise a recorded, reasoned "not added" in the log and in 005's library notes
+  (claimed: claude-opus-5.5 2026-09-30)
+- [x] T049 [US4] (found in T022) The LilyPond reader (`tools/library/lilypond/parse.ts`) refuses `\repeat "volta" 2`
+  (the mode as a quoted string, valid LilyPond; all three Mutopia Anna Magdalena sources 75, 76, 79 write it so):
+  "expected word, found 'volta'". Test first in `tests/tools/lilypond/read.test.ts` (quoted `"volta"` and `"unfold"`
+  read exactly as the unquoted forms), then accept a string token as the mode; contract `fidelity-tools.md` §3.1 row
+  and version (PATCH) if it lists the form
+- [x] T050 [US4] (found in T022) The LilyPond reader refuses a top-level `\markup` (a text block printed outside any
+  `\score`; Mutopia 76, BWV Anh. 115, ends with one naming Christian Petzold): "LilyPond 134:1: \markup". It carries
+  no notes. Test first in `tests/tools/lilypond/read.test.ts` (a file with top-level `\markup` before and after the
+  `\score` reads exactly as the file without it), then skip it like a markup argument; contract `fidelity-tools.md`
+  §3.1 row and version (PATCH)
+- [x] T051 [US4] (found in T023) The converter (`tools/library/lilypond/to-musicxml.ts`) refuses Mutopia 263 (*The
+  Entertainer*) bar 69: "a note value scaled with *n/m" - an invisible `\hideNotes bes4*1/4 ~ \unHideNotes bes8`
+  carrying a tie (the source's own "slight kludge"); the reader and the MIDI cross-check accept it (0 differences). The
+  reader treats `\hideNotes` as look-only. Test first: `WriteNote.printObject: false` writes `<note
+  print-object="no">` (`src/core/musicxml/write.ts`, `tests/core/musicxml/write.test.ts`, the app reads it as not
+  printed); a note under `\hideNotes` scaled with `*n/m` converts to an invisible note of its real length (type from
+  that length) that round-trips on every aspect, while a visible scaled note is still refused
+  (`tests/tools/lilypond/to-musicxml.test.ts`). Then: the reader marks notes between `\hideNotes` and `\unHideNotes`
+  as hidden, the converter writes them invisible; contract `fidelity-tools.md` §3.1/§3.3 and version (MINOR)
+ 
 
 ---
 

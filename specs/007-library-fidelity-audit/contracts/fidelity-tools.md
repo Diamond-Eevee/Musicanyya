@@ -1,6 +1,6 @@
 # Contract: fidelity tools (readers, comparator, theory check, converter, commands)
 
-**Version**: `1.12.0` (1.12.0, 2026-09-28, feature 014: rule set `exercise-theory-v3`, `checkMelodyRules` and
+**Version**: `1.13.0` (1.13.0, 2026-09-30, feature 017 T051: `\hideNotes` notes are written invisible, a hidden note may be scaled with `*n/m`, an unterminated tie is not written, `WriteNote.printObject` (§3.3); 1.12.1, 2026-09-30, feature 017 T049/T050: the repeat mode may be a string, `\repeat "volta" n` / `"unfold"`, read as the plain word; a top-level `\markup` is skipped (text only); 1.12.0, 2026-09-28, feature 014: rule set `exercise-theory-v3`, `checkMelodyRules` and
 `checkMelodyVariation`, `melodyDegrees` (`tools/library/fidelity/melody-rules.ts`, new), `SectionHand` gains `{ kind: 'melody'; level:
 Level }` (`theory.ts`), thresholds from `MELODY_LADDER` (`src/core/defaults.ts`); change request
 `specs/014-melody-over-chords/contracts/audit-record-1.3.md`; 1.11.0, 2026-09-26, feature 011 US3: the LilyPond reader skips the braced lyric block of `\lyricmode`, `\addlyrics` and `\lyrics` and the `\lyricsto <voice>` argument (words carry no note; a `Lyrics` context is accepted), and reads a `\bar ":|"` at the very end of the music as its final bar line (LilyPond's own MIDI does not repeat it; anywhere earlier it is still refused); `parseInterval` and `transposeSpelling` are exported from `compare.ts`; `checkSong` and `songKeyOfItemId` (rule set `song-chords-v1` runs from `runRecord`); 1.10.0, 2026-09-26, feature 011: rule sets `exercise-theory-v2` (key segments, scale claims, pattern and key-change claims) and `song-chords-v1`, `checkSongChords`, the report's "Replaced by feature 011" table; 1.9.0, 2026-09-24: `renderReport` takes the source manifests, `LEVEL_MINIMUMS`, the CLI's `--check`, T077-T080; 1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands; 1.2.0, 2026-09-24: written bars follow the printed page (§3.2), `measurePosition`, `\tupletSpan`; 1.3.0, 2026-09-24: the converter's marks, §3.3; 1.4.0, 2026-09-24: the constructs of the US1 sources, §3.1, `readLilyPond(source, { score })`; 1.5.0, 2026-09-24: markup text, named voices per staff, moved hairpin ends, the MIDI's playback tempo, T096; 1.6.0, 2026-09-24: `compareMelody` takes `MelodyOptions` and returns `MelodyResult`, `melodyRhythm` differences, `CheckResult.allowed`, T054; 1.7.0, 2026-09-24: `\partcombine` and `#(set-accidental-style ...)` in music, T098; 1.8.0, 2026-09-24: `claimForItem` and `ClaimError`, `TheoryDifference` joins the comparator's `Difference` union as `kind: 'theory'`, the theory check runs from `runRecord`, T073-T074). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
@@ -145,13 +145,14 @@ to stop.
 | Construct | Behaviour |
 |---|---|
 | `\version`, `\header { ... }`, `\paper`, `\layout`, `\midi` blocks | header fields read (title, composer, opus, source, copyright, `mutopia*`); other blocks skipped as a unit |
+| a top-level `\markup` (outside any `\score`, 017 T050) | text only: skipped |
 | variable definitions `name = { ... }` / `name = \relative ... { ... }` and references `\name` | expanded |
 | `\relative c' { ... }` and absolute mode | LilyPond's relative-octave rule, including "a chord's first note is relative to the previous chord's first note" |
 | notes, rests (`r`, `R` full-bar rests, `s` spacers), chords `< >`, durations with dots, durations carried over | as LilyPond defines them |
 | `~` ties | merged into one sounding note (spec edge case) |
 | `\tuplet n/m { }` and the older `\times m/n { }` | exact rational durations |
 | `\grace`, `\acciaccatura`, `\appoggiatura`, `\slashedGrace` | grace notes (no written time), kept apart |
-| `\repeat volta n { }` + `\alternative { { } { } }` | bar repeat marks and ending numbers |
+| `\repeat volta n { }` + `\alternative { { } { } }` (the mode may be a string: `\repeat "volta" n`, 017 T049) | bar repeat marks and ending numbers |
 | `\repeat unfold n { }` | expanded n times (it is written out in the printed score) |
 | `\partial d` | pickup bar of length d |
 | `\set Timing.measurePosition = #(ly:make-moment -n/d)` | re-anchors LilyPond's bar lines (a negative position ends the bar that far ahead), as 2.18 sources use it to end a second ending early |
@@ -209,6 +210,14 @@ Since 1.5.0 (T096):
   `playbackTempo`. When the notation has no metronome mark, the first bar gets `<sound tempo>` in a direction with
   empty `<words/>` (nothing printed), and the command prints "playback tempo N from the source MIDI"; later MIDI
   tempo changes are reported, not written.
+
+Since 1.13.0 (017 T051, Joplin 263 bar 69):
+
+- The reader marks notes between `\hideNotes` and `\unHideNotes` (per voice) as `hidden` (`LyEvent`); the converter
+  writes them as `<note print-object="no">` (`WriteNote.printObject: false`), which the app reads as not printed.
+- A note value scaled with `*n/m` is written only for a hidden note outside a tuplet, as the plain type of its real
+  length (`bes4*1/4` -> an invisible 16th); a visible scaled note still fails (it would print a value it lacks).
+- A tie that no later note of its own voice continues is not written: LilyPond prints none ("unterminated tie").
 
 Exercise output stays
 byte-identical (the existing exercise goldens are the guard). Titles, composer and credit come from the item's
