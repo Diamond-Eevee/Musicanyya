@@ -149,6 +149,8 @@ on a real MIDI keyboard (T082), 004's quickstart on the 1080p laptop (T108), 011
 - **FR-011**: Owner checks MUST be recorded with date, method and result [003, 004, 011 SC-005, 013 SC-008].
 - **FR-012**: Every original open task in 001-016 MUST end as either moved here (`[>]` with a pointer) or done, so
   the status script shows no feature with open tasks on `main`.
+- **FR-013**: When another Score opens, the load notices of the previous Score MUST be removed; device, storage, audio
+  and failed-open notices stay until dismissed (owner decision 2026-09-30, T043; recorded in 001 FR-005).
 
 ## Success Criteria *(mandatory)*
 

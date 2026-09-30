@@ -186,7 +186,9 @@ app on Windows; in both, open and play the same Score and compare the "About / e
 - **FR-004**: System MUST give every playable note a stable Note ID, so that the note highlighted is exactly the note
   being played (and, in later features, practised, graded and annotated with Advice).
 - **FR-005**: When a file contains unsupported notation, System MUST open it anyway, skip what it cannot handle, and
-  show a non-blocking notice listing the skipped elements with their measure numbers.
+  show a non-blocking notice listing the skipped elements with their measure numbers. These load notices belong to
+  their Score: when another Score opens, the previous Score's load notices are removed; every other notice (device,
+  storage, audio, a failed open) stays until dismissed (owner decision 2026-09-30, 017 T043).
 - **FR-006**: When a file cannot be read, is not MusicXML, or exceeds safe size limits, System MUST show a clear
   error and MUST NOT crash, hang, or lose the currently open Score.
 - **FR-007**: System MUST remember the 10 most recently opened Scores in the user's browser (or desktop app) and let

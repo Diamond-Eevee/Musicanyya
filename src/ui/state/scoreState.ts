@@ -67,10 +67,13 @@ class ScoreState {
   succeeded(loaded: LoadedScore) {
     this.lastLoaded = loaded;
     this.statusStore.set({ kind: 'loaded', score: loaded });
+    // The previous Score's load notices describe a file no longer shown (017 T043, 001 FR-005)
+    noticeState.clearLoadNotices();
     for (const entry of loaded.report.entries) {
       const base = {
         code: entry.code,
         severity: entry.severity,
+        load: true,
         ...(entry.element !== undefined ? { element: entry.element } : {}),
       };
       if (entry.measureLabels.length === 0) {
