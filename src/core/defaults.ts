@@ -51,6 +51,8 @@ export const PERCUSSION_CHANNEL = 9; // 0-based
 export const LIVE_CHANNEL = 15; // 0-based
 
 export const LIVE_VELOCITY_DEFAULT = 80; // or from key velocity
+/** Live MIDI messages the worklet queues between two render blocks; more are dropped and counted (001 T057). */
+export const LIVE_QUEUE_CAPACITY = 64;
 
 export const TEMPO_PERCENT_MIN = 25;
 export const TEMPO_PERCENT_MAX = 200;

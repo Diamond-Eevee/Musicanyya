@@ -22,7 +22,7 @@ contracts of the feature it came from, named on the task)
   `pnpm test`, `pnpm lint` and `pnpm typecheck` on the branch's first commit (AGENTS.md 2.6)
 - [x] T002 Mark every open task of 001, 003, 004, 005, 011 and 013 as moved: `- [>] T### ... (moved to 017 T0xx,
   2026-09-30)` in its own `tasks.md`, wording otherwise unchanged; `status.ps1` then shows no open task outside 017
-- [ ] T003 [US1] (from 001 T165) Move two real-time constants into `src/core/defaults.ts` per AGENTS.md section 6
+- [x] T003 [US1] (from 001 T165) Move two real-time constants into `src/core/defaults.ts` per AGENTS.md section 6
   (`score-player.processor.ts`): the live-queue capacity `64` is a bare literal on a drop path, and
   `const LIVE_CHANNEL = 15` shadows the existing `LIVE_CHANNEL` export in `defaults.ts` instead of importing it.
   `data-model.md` constants table of 001 updated. RT change: reviewed in T015
@@ -35,22 +35,27 @@ contracts of the feature it came from, named on the task)
 
 ### US1 - The audio thread (001 T162-T168), tests first
 
-- [ ] T004 [P] [US1] Test for T005: a live message with `key`/`velocity` out of range, missing, or not a number is
+- [x] T004 [P] [US1] Test for T005: a live message with `key`/`velocity` out of range, missing, or not a number is
   dropped and counted through `liveDropped` and never reaches `synth.noteOn`. Must fail today (it is queued unchecked)
-- [ ] T005 [US1] (from 001 T162) Validate a `live` message in `receiveMessage` before queuing it
+- [x] T005 [US1] (from 001 T162) Validate a `live` message in `receiveMessage` before queuing it
   (`score-player.processor.ts`, the `'live'` case): a malformed one is queued unchecked and reaches
   `synth.noteOn(15, undefined, undefined)` on the RT path. Validation belongs in the message handler, which is off
   the render quantum. Range-check `key` and `velocity`, drop-and-count through the existing `liveDropped` path
   otherwise - then the `as LiveMessage` assertion T139 added becomes a real narrowing rather than a claim
-- [ ] T006 [P] [US1] Test for T007: `allNotesOff()` and the held-note bookkeeping allocate nothing per call (an
-  allocation probe around repeated calls), and every held note is released. Must fail today
+- [ ] T006 [P] [US1] Test for T007: the worklet wrapper's notes-off (All Sound Off + All Notes Off) moves into an
+  exported helper that is tested for behaviour - one channel, or all 16 - so it can be checked outside the
+  AudioWorklet class. (Changed 2026-09-30: an allocation probe is not reliable in V8 - measured, escape analysis and
+  counter noise made an allocating loop report fewer bytes than a non-allocating one - so "no allocation" is checked
+  by the RT review T015, not by a test.) The held-note `Set` part of 001 T163 is already done on `main` (a
+  `Uint8Array(16 * 128)` bitmap with a held count). Must fail today (no such helper)
 - [ ] T007 [US1] (from 001 T163) Remove two more per-call allocations from the render quantum
   (`score-player.processor.ts`): `allNotesOff()` builds `[0..15]` as an array literal on every call (reached from the
   live drain and from `endReached`), and `heldNotes: Set<number>` is mutated from `process()` and iterated with
   `for...of` in `allNotesOff()`. Hoist the channel list to a module constant; replace the Set with a pre-allocated
   `Uint8Array(16 * 128)` bitmap plus a held count
-- [ ] T008 [P] [US1] Test for T009: sending position reports from the render path creates no new object per report
-  (the same report object is reused, or the report goes through the SharedArrayBuffer). Must fail today
+- [ ] T008 [P] [US1] Test for T009: every position report the processor posts is the same, pre-allocated object
+  (checked by identity), with the right values each time; likewise the `ended` message. Must fail today (a fresh
+  object per report)
 - [ ] T009 [US1] (from 001 T164) Stop allocating the position report inside `process()` (`score-player.processor.ts`):
   `postMessage({ ...msg, frame, contextTime })` spreads a fresh object per report. Keep one pre-allocated report
   object and mutate it (the structured clone happens synchronously inside `postMessage`, so reuse is safe), or move

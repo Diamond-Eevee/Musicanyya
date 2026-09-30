@@ -22,6 +22,8 @@ import { type MIDIController, SoundBankLoader, SpessaSynthProcessor } from 'spes
  */
 
 import {
+  LIVE_CHANNEL,
+  LIVE_QUEUE_CAPACITY,
   MAX_SETUP_CONTROLLERS,
   POSITION_REPORT_BLOCKS,
   TEMPO_PERCENT_DEFAULT,
@@ -86,6 +88,31 @@ export type LiveMessage =
  * matters here; each branch narrows to the concrete message it needs (`ScheduleMessage` and friends).
  */
 export type InboundMessage = { type: string; [field: string]: unknown };
+
+const isMidiByte = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 127;
+
+/**
+ * Checks a `live` message at the trust boundary, in the message handler (017 T005, from 001 T162): only a well-formed
+ * one is queued for the render quantum, so the drain in `process()` never passes `undefined` or an out-of-range key
+ * to the synth. Returns null for anything else; the caller drops and counts it.
+ */
+function toLiveMessage(msg: InboundMessage): LiveMessage | null {
+  switch (msg.kind) {
+    case 'on':
+      return isMidiByte(msg.key) && isMidiByte(msg.velocity)
+        ? { type: 'live', kind: 'on', key: msg.key, velocity: msg.velocity }
+        : null;
+    case 'off':
+      return isMidiByte(msg.key) ? { type: 'live', kind: 'off', key: msg.key } : null;
+    case 'sustain':
+      return typeof msg.down === 'boolean' ? { type: 'live', kind: 'sustain', down: msg.down } : null;
+    case 'allOff':
+      return { type: 'live', kind: 'allOff' };
+    default:
+      return null;
+  }
+}
 
 /**
  * Never throws (T161's own catch bodies use this): a hostile thrown value whose `.toString()` throws must not
@@ -423,12 +450,14 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         break;
       }
       case 'live': {
-        if (liveQueue.length < 64) {
-          liveQueue.push(msg as LiveMessage);
+        const live = toLiveMessage(msg);
+        if (live !== null && liveQueue.length < LIVE_QUEUE_CAPACITY) {
+          liveQueue.push(live);
         } else {
-          // Dropped, not queued: a stuck note or a missed release is worse than briefly not knowing about it, but
-          // it must still be counted and shown (Constitution I, R-16). Posted here, not from process(): this
-          // handler already runs off the per-block hot path, same as the 'status' and 'ended' messages.
+          // Malformed (017 T005) or past the queue's capacity: dropped, not queued. A stuck note or a missed release
+          // is worse than briefly not knowing about it, but it must still be counted and shown (Constitution I,
+          // R-16). Posted here, not from process(): this handler already runs off the per-block hot path, same as
+          // the 'status' and 'ended' messages.
           liveDropped++;
           post({ type: 'liveDropped', total: liveDropped });
         }
@@ -471,7 +500,6 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     const blockSize = left.length;
 
     // Process live inputs immediately
-    const LIVE_CHANNEL = 15;
     const liveCount = liveQueue.length;
     for (let i = 0; i < liveCount; i++) {
       const msg = liveQueue[i];
