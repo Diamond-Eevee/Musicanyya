@@ -121,3 +121,45 @@
   "keyboard volume", which is a new setting (spec change). Not blocking any task.
 - Handoff: next = T017 (instrument measureclick -> seek -> audible cursor -> follow; suspect the follow waits for the
   output-latency-delayed audible cursor), then T035, T036, T020; tree clean at the log commit.
+
+## 2026-09-30 - claude-opus-5.5 (implement - US3 e2e reliability: T017, T035, T037)
+- T017 (lookahead.spec.ts:363, FR-009) **cause: the measurement** - with temporary probes (tests/e2e/zz-probe-017,
+  deleted) run inside full `pnpm test:e2e` loads: the test pressed Play, waited a fixed 1 s and clicked, but under load
+  the sound was still loading then (transport `loading`, no engine on the score view for 100-450 ms); the view cannot
+  follow before playback starts (FR-014), so the loading time counted as arrival (681-864 ms). Fix: the test waits for
+  transport `playing` first (no product change). Measured during playback under full load (12 samples): the seek's
+  report back in 2-14 ms, glide start 32-35 ms after the click. Evidence: 3 full runs, `lookahead.spec.ts:363` green in
+  each - distant 432/432/433 ms, back 382/381/398 ms (bound 500); run 1 fully green (`694 skipped | 1110 passed`),
+  runs 2-3 `1 failed | 694 skipped | 1109 passed` (T037). Commit b6459c1.
+  - **Withdrawn on the way (recorded openly)**: my first reading of the probe blamed a slow audio-thread round trip
+    (229-446 ms) and I built a pending-seek display change (worklet-protocol 1.6.0, `seekSeq`, `PositionSync.beginSeek`,
+    RT-reviewed: pass with advisories, tests written test-first). The later probe showed those numbers were the
+    not-yet-started playback, not the round trip (2-14 ms while playing), so the change solved nothing: reverted before
+    any commit, together with its research.md entry and contract bump. Nothing of it is on the branch.
+- T035 (piano-keyboard.spec.ts:531, 010 T021) **cause: two small bugs**. (1) The latency poll (`session.ts`, every
+  1 s) compared the fractional output latency with the rounded value it had stored, so it emitted a MIDI-state change
+  every second forever. (2) The on-screen piano rebuilt its hint list on every MIDI or Practice notification; a hint
+  resolved by Playwright and measured across a rebuild was detached (`boundingBox()` null). A first theory (a late
+  Practice-session start clearing the feedback) was checked with a probe that delayed `AudioContext.resume` 500 ms and
+  a clear-tracer run 24 times under load - refuted: nothing cleared the feedback. Fix: compare whole ms; rebuild the
+  hints only when the feedback map changed (reset when the list is recreated). Tests (piano-keyboard.spec.ts): "three
+  MIDI-state notifications change no hint" failed on the old code in chromium and firefox (`Received: 6`); "the poll
+  never notifies an unchanged latency" failed on the old code (5-6 repeats in 3.5 s). A first version asserting "no
+  rebuild in 3.5 s" was dropped: a real latency change (the value settling once) is a legitimate rebuild. Evidence: 3
+  full runs, the piano tests green in all; runs 2-3 fully green (`696 skipped | 1116 passed`), run 1 `1 failed` (T037).
+  Commit 64da25b.
+- T037 (us3-run-chrome.spec.ts:116, FR-009 Grade popup) **cause: a product bug**. Probe under load (2 of 20
+  samples): the run was stopped in its count-in, and the Grade was published while `playState.run.phase` still said
+  `countIn` - `playState.run` is copied from the controller once per animation frame (score view loop), the grade
+  worker answered before the next frame, `isRunActive()` read the stale phase as a run in progress, and the Grade was
+  never opened. Fix: `onPlayGraded` publishes the controller's current run before deciding. Test (us3-run-chrome):
+  frames slowed to 1.5 s on demand, stop in the count-in - failed on the old code in chromium and firefox (`Received:
+  hidden`), passes now; the guard "never over a run that has started since" is unchanged (a new run is what
+  `getRun()` returns then). Evidence: 3 full runs in a row, **all fully green** (exit 0, `697 skipped | 1119 passed` each, 12.7 min) - no failure of any
+  kind, T036's test included. Commit: this one.
+- Checks: `pnpm test` Test Files 293 passed (293) | Tests 6215 passed (6215); `pnpm typecheck` exit 0; `pnpm lint` 0 errors
+  (316 warnings, 13 infos).
+- Handoff: next = T036 (electron `lookahead.spec.ts:69`, seen once in ~20 runs: Start stayed "Start" for 5 s - first
+  suspicion the first SoundFont load in electron under load; measure first), then T020 (manual verification with
+  `pnpm screenshot`), deep tasks, owner checks, polish T028-T030. Owner question still open: live input follows the
+  playback volume (log entry above).

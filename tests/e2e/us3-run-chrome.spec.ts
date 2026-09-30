@@ -142,4 +142,34 @@ test.describe('US3: the Grade arrives over the Score (FR-009)', () => {
     await expect.poll(async () => (await seam(page)).graded).toBe(true); // the Grade itself is kept
     await expect.poll(inkedPixels, { timeout: 5_000 }).toBeGreaterThan(0); // and so are its marks on the notes
   });
+
+  // 017 T037: the run's phase reaches `playState` once per animation frame; under load the Grade of a run stopped in
+  // its count-in came back before the next frame, still read "countIn", counted as a run in progress, and was never
+  // shown. Slowed frames make that order certain here.
+  test('a run stopped in its count-in shows its Grade even when the Grade arrives before the next frame (017 T037)', async ({
+    page,
+  }) => {
+    test.setTimeout(45_000);
+    await page.addInitScript(() => {
+      const w = window as unknown as { __slowFrames?: boolean };
+      const raf = window.requestAnimationFrame.bind(window);
+      window.requestAnimationFrame = (callback: FrameRequestCallback) =>
+        w.__slowFrames ? (setTimeout(() => raf(callback), 1500) as unknown as number) : raf(callback);
+    });
+    await openInPlayMode(page);
+    await page.locator('mx-transport .play-btn').click();
+    await expect.poll(async () => (await seam(page)).phase, { timeout: 15_000 }).toBe('countIn');
+    await page.evaluate(() => {
+      (window as unknown as { __slowFrames?: boolean }).__slowFrames = true;
+      const stop = Array.from(document.querySelectorAll<HTMLButtonElement>('mx-run-status button')).find(
+        (button) => button.textContent?.trim() === 'Stop',
+      );
+      stop?.click();
+    });
+    await expect.poll(async () => (await seam(page)).graded, { timeout: 15_000 }).toBe(true);
+    await page.evaluate(() => {
+      (window as unknown as { __slowFrames?: boolean }).__slowFrames = false;
+    });
+    await expect(panelLocator(page, 'grade')).toBeVisible();
+  });
 });

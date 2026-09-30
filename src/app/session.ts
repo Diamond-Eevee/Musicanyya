@@ -1057,6 +1057,10 @@ export class Session {
       this.playScoreId !== null &&
       this.browserController.computeNewBest(this.playScoreId, this.progressResultFromGrade(grade));
     this.showGrade(grade, newBest);
+    // `playState.run` follows the controller once per animation frame (the score view's loop); the Grade can come back
+    // before the next frame and would then read the phase the run had before it stopped - a stop in the count-in
+    // still said "countIn" and the Grade was never shown (017 T037). Publish the run as it is now, then decide.
+    playState.setRun(this.playController.getRun(), playState.get().expected);
     // The Grade arrives over the Score in a dismissible popup; dismissing it leaves the marks on the notes (FR-009). It
     // can arrive late (grading has its own timeout): never over a run that has started since.
     if (!isRunActive()) viewState.openPanel('grade');
