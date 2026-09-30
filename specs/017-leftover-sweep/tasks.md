@@ -187,13 +187,26 @@ contracts of the feature it came from, named on the task)
 
 **Model**: deep (claude-opus-5.5)
 
-- [ ] T021 [US2] (from 001 T169) Track the percussion note-count gap
+- [x] T021 [US2] (from 001 T169) Track the percussion note-count gap
   (`tests/fixtures/musicxml/spec-examples/tutorial-percussion.musicxml`): the Score model holds 36 notes but Verovio
   draws 32 `g.note` elements on its single page, the only fixture anywhere where the two disagree. Principle III wants
   Note ID = SVG id for every playable note, and unpitched percussion is listed as supported in `SUPPORT_MATRIX`, so
   either the four extra notes should be engraved or they should not be in the model. Currently documented in that
   folder's README and deliberately not asserted by `tests/e2e/real-scores.spec.ts`. Resolve it, then assert it there;
   update `docs/musicxml-support.md` / `SUPPORT_MATRIX` if coverage changes
+- [ ] T044 [US2] (found in T021) A `<sound tempo>` that is a direct child of `<measure>` (valid MusicXML; the W3C
+  percussion example has `<sound tempo="120"/>`) is ignored - `build.ts` reads `<sound>` only inside `<direction>` -
+  so the Score plays at the default tempo with the "No tempo was specified" notice. `SUPPORT_MATRIX` says
+  `<sound tempo>` Supported. Test first on that file and a minimal document, then read it (same rules as the
+  direction's `<sound>`: validity range, wins over a `<metronome>` at the same position); docs if the row changes
+- [ ] T045 [US2] (found in T021) The W3C percussion example's Drums part (F clef, unpitched notes with display-step
+  E3/B3 etc.) is engraved with its noteheads below the staff on ledger lines, where E3/B3 belong inside a bass-clef
+  staff (pictures `tests/.generated/017/t021/percussion*.png`, before and after T021 - not caused by it). Find
+  whether the render copy or Verovio's unpitched import places them, fix it or record it as a Verovio limitation in
+  `docs/musicxml-support.md`; test on that file
+- [ ] T046 (found in T021) `tests/core/musicxml/render-copy.test.ts` has an empty test, `it('assigns first-part
+  measure ids only', () => {})` - a placeholder AGENTS.md forbids. Give it the assertion its name states (a
+  two-part document: only the first part's `<measure>` tags get Measure IDs) or remove it with the reason in the log
 - [ ] T022 [P] [US4] (from 005 T057) Intermediate: Petzold Minuets BWV Anh. 114 and 115, Musette BWV Anh. 126 +
   sidecars (FR-008's Intermediate target of >= 5 is already met by T058/T059 - Burgmüller nos. 2 and 5, Schumann
   Op. 68 no. 10 and Clementi, alongside the already-committed Für Elise theme). Public-domain source verified; audited

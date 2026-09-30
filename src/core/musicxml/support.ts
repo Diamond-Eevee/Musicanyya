@@ -40,6 +40,13 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
   { category: 'Time & Repeats', element: '<ending>', status: 'Supported', notes: 'Voltas (1., 2. endings)' },
   {
     category: 'Time & Repeats',
+    element: '<measure-repeat>',
+    status: 'Partial',
+    notes:
+      "The measure's encoded notes are played and engraved; the repeat sign itself is not drawn, so every played note has its own mark on the Score (017). A measure repeat without encoded notes is approximated with rests",
+  },
+  {
+    category: 'Time & Repeats',
     element: '<direction>',
     status: 'Supported',
     notes: 'Jumps (D.C., D.S., To Coda, Fine). Note: mid-measure jumps not supported',

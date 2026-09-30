@@ -39,8 +39,7 @@ Two things worth knowing:
 - **`<harmony>` is skipped by the time model** but Verovio still engraves the chord symbols from the
   render copy, so the printed page is complete. The same holds for `<figured-bass>`. Neither is listed
   in `SUPPORT_MATRIX` yet.
-- **`tutorial-percussion` has 36 notes in the Score model but Verovio draws 32 `g.note` elements** on
-  its single page. The four unaccounted-for notes are in the percussion part; this is the one place in
-  any fixture folder where the model's note count and the engraved note count disagree, so the tests
-  do not assert a 1:1 match for this file. Worth running down if percussion notation becomes a
-  supported use case.
+- **`tutorial-percussion`'s Cowbell part repeats its measure 1 with a `<measure-repeat>`** (the simile
+  sign) while still encoding the four notes. Verovio drew the sign instead of them, so 4 of the 36 notes
+  in the Score model had no `g.note` (found by 001 T169). Since 017 T021 the render copy leaves the sign
+  out and the notes are engraved; `tests/e2e/real-scores.spec.ts` asserts every Note ID has its element.

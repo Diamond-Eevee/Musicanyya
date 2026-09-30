@@ -414,6 +414,16 @@ Extension `.musicxml` throughout. US3 and US4 need no MusicXML fixtures.
 **Alternatives**: `verovio` default export (`verovio-toolkit-wasm.js`, global-style, not a clean ES module);
 rendering on the main thread (freezes UI for seconds on large Scores); OSMD (ADR-0001 fallback, not needed).
 
+**Amendment (feature 017 T021, from 001 T169) - measure repeats are engraved as their notes.**
+**Decision**: the render copy leaves `<measure-repeat>` out (`withoutMeasureRepeats`, and a `<measure-style>` it
+empties), so Verovio engraves the notes a file encodes for a repeated measure instead of the simile sign; the file and
+the Score model are unchanged. `SUPPORT_MATRIX`: `<measure-repeat>` Partial.
+**Rationale**: those notes are played, so they are in the Score model, and Constitution III requires every playable
+note's Note ID to be the id of its drawn element - a Grade marks it there (VI). With the sign, the W3C percussion
+example had 4 of 36 notes with no element (the only fixture where model and engraving disagreed).
+**Alternatives**: keep the sign and point those notes at it (no per-note marks, an exception to III); drop the notes from
+the model (the measure would be silent although the file plays it); draw both (not how printed music shows a repeat).
+
 ## R-10 Audio engine: our own AudioWorklet with the SpessaSynth core
 
 **Finding** (from reading `spessasynth_core` 4.3.22 and `spessasynth_lib` 4.3.14 sources): the lib's

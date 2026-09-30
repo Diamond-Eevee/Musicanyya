@@ -161,3 +161,20 @@ function replaceIdInTag(tag: string, newId: string): string {
   }
   return tag.replace(/^<([^\s>]+)/, `<$1 id="${newId}"`);
 }
+
+/** A `<measure-repeat>` element, self-closing or with its content (the number of measures repeated). */
+const MEASURE_REPEAT = /<measure-repeat\b[^>]*?(?:\/>|>[^<]*<\/measure-repeat\s*>)/g;
+/** A `<measure-style>` left with nothing but white space. */
+const EMPTY_MEASURE_STYLE = /<measure-style\b[^>]*>\s*<\/measure-style\s*>/g;
+
+/**
+ * Leaves the measure-repeat simile sign out of the render copy (017 T021, from 001 T169). Verovio draws one repeat sign
+ * in place of the notes a file encodes for such a measure; those notes are played, so they are in the Score model, and
+ * every playable note needs its own drawn element carrying its Note ID (Constitution III) - a Grade marks it there.
+ * Without the sign Verovio engraves the encoded notes. The file itself is untouched; a `<measure-style>` emptied by
+ * this goes too, any other of its children stay. A document without measure repeats is returned unchanged.
+ */
+export function withoutMeasureRepeats(xml: string): string {
+  if (!xml.includes('<measure-repeat')) return xml;
+  return xml.replace(MEASURE_REPEAT, '').replace(EMPTY_MEASURE_STYLE, '');
+}
