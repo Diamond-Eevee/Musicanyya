@@ -51,20 +51,20 @@ describe('T057: live input queue drops shown in diagnostics (Constitution I, "co
   });
 });
 
-describe('017 T012: events played late because a block was full, shown in diagnostics (Constitution I)', () => {
+describe('017 T012: events played late, shown in diagnostics (Constitution I)', () => {
   afterEach(() => {
     document.body.innerHTML = '';
   });
 
   const value = (el: HTMLElement) =>
-    Array.from(el.querySelectorAll('dt')).find((dt) => dt.textContent === 'Events played late (block full)')
-      ?.nextElementSibling?.textContent;
+    Array.from(el.querySelectorAll('dt')).find((dt) => dt.textContent === 'Events played late')?.nextElementSibling
+      ?.textContent;
 
   it('shows zero by default and the count the engine reports', () => {
     expect(value(mount(new FakeAudioEngine()))).toBe('0');
     document.body.innerHTML = '';
     const engine = new ConfigurableFakeAudioEngine();
-    engine.set({ dispatchDeferred: 76 });
+    engine.set({ lateEvents: 76 });
     expect(value(mount(engine))).toBe('76');
   });
 });

@@ -357,7 +357,7 @@ export const en = {
     reportsPerSecond: 'Reports/second',
     lastReportAge: 'Last report age',
     liveQueueDropped: 'Live input queue drops',
-    dispatchDeferred: 'Events played late (block full)',
+    lateEvents: 'Events played late',
     notAvailable: 'n/a',
   },
   /** Human-readable text for every notice `code` (LoadErrorCode, LoadNoticeCode, and the engine/session codes in

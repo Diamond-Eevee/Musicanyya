@@ -77,18 +77,35 @@ contracts of the feature it came from, named on the task)
   clears `liveQueue.length = 0` past the `liveCount` snapshot, which is correct only because the loop always drains
   everything. A future early `break` would silently drop live events. State the invariant, or drain with a read index
   and clear only what was consumed (with a test if the code changes)
-- [ ] T015 [US1] RT review: invoke `.claude/agents/rt-audio-reviewer.md` on the diff of T003-T014; address every
+- [x] T015 [US1] RT review: invoke `.claude/agents/rt-audio-reviewer.md` on the diff of T003-T014; address every
   blocking finding; summarise the findings in the log (AGENTS.md: a review counts only with its findings logged)
 
 **Checkpoint (US1)**: T004-T015 done, RT review clean, full gate. Log and commit.
 
+### US1 follow-ups - found by the RT review T015 (non-blocking; pre-existing except T031)
+
+- [ ] T031 [US1] (T015 N3) The worklet's live queue allocates on its port handler: `toLiveMessage` builds a fresh
+  object per valid `live` message, and `liveQueue.length = 0` in the drain lets V8 free the backing store, so the
+  next `push` reallocates. Test first (the handler keeps the validated message or a ring slot, no copy); then a
+  validator that returns a boolean, or a pre-allocated ring of `LIVE_QUEUE_CAPACITY` slots (typed arrays for kind,
+  key, velocity, down) with read and write indices. RT change: RT review afterwards, findings in the log
+- [ ] T032 [US1] (T015 N5) `play.fromTick`, `stop.returnTick` and `seek.tick` are cast `as number` unchecked in
+  `score-player.processor.ts`: a NaN tick makes the segment anchors NaN and playback silent without an error. Test
+  first (NaN, Infinity, a string, a negative and a past-the-end tick for each message: ignored or clamped, playback
+  unchanged); then the `tempo` check (`typeof === 'number' && Number.isFinite`), clamp to `[0, endTick]`.
+  Contract note in 001's `worklet-protocol.md` (PATCH). RT review afterwards
+- [ ] T033 [US1] (T015 N6) The `volume` message has no audible effect: the worklet ramps `currentGain` but never
+  multiplies it into `left`/`right`, and no `GainNode` exists. Test first (a rendered block at volume 0.5 has half
+  the amplitude of one at 1.0; a change ramps, no click); then apply the gain per sub-block after `renderSegment` as
+  an in-place per-sample ramp (no allocation). RT review afterwards
+
 ### US3 - Reliable end-to-end tests
 
-- [ ] T016 [US3] (from 013 T112) firefox `tests/e2e/score-browser.spec.ts:343` (US3 #5, an invalid `.musicxml`
+- [~] T016 [US3] (from 013 T112) firefox `tests/e2e/score-browser.spec.ts:343` (US3 #5, an invalid `.musicxml`
   dropped: `.browser-message` stays empty within 5 s) fails in full 8-worker `pnpm test:e2e` runs (T051 and T074 of
   feature 014; again at 016's US2, US5 and merge runs) and passes alone. Find why the message is late under load (the
   drop's read/parse path, or the assertion's wait) and fix the cause, not the timeout; then 3 green full e2e runs for
-  firefox in the log
+  firefox in the log (claimed: claude-opus-5.5 2026-09-30)
 - [ ] T017 [US3] (new, found in 016's full runs) chromium `tests/e2e/lookahead.spec.ts:363` (015 US2 (c), FR-009:
   clicking a distant measure arrives within `FOLLOW_GLIDE_MS` + 100 ms) fails under full parallel load (699 ms,
   864 ms, 1266 ms against 500) and sometimes alone. Find whether the glide or the measurement is late (main-thread

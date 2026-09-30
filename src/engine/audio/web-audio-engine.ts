@@ -32,7 +32,7 @@ type ProcessorMessage =
       tick: number;
       ticksPerFrame: number;
       playing: boolean;
-      dispatchDeferred?: number; // 1.5.0
+      lateEvents?: number; // 1.5.0
     }
   | { type: 'ended'; frame: number }
   | { type: 'liveDropped'; total: number };
@@ -65,7 +65,7 @@ export class WebAudioEngine implements AudioEngine {
   private lastReportPerfTimeMs: number | null = null;
   private readonly reportTimestamps: number[] = [];
   private liveQueueDropped = 0;
-  private dispatchDeferred = 0;
+  private lateEvents = 0;
 
   private readonly listeners = new Set<(event: AudioEngineEvent) => void>();
 
@@ -157,7 +157,7 @@ export class WebAudioEngine implements AudioEngine {
         break;
       }
       case 'position': {
-        if (typeof msg.dispatchDeferred === 'number') this.dispatchDeferred = msg.dispatchDeferred;
+        if (typeof msg.lateEvents === 'number') this.lateEvents = msg.lateEvents;
         const perfNow = performance.now();
         this.recordReport(perfNow);
         this.positionSync.updateReport({
@@ -346,7 +346,7 @@ export class WebAudioEngine implements AudioEngine {
       reportsPerSecond: this.reportTimestamps.length,
       lastReportAgeMs,
       liveQueueDropped: this.liveQueueDropped,
-      dispatchDeferred: this.dispatchDeferred,
+      lateEvents: this.lateEvents,
     };
   }
 

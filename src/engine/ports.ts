@@ -58,10 +58,12 @@ export interface AudioDiagnostics {
   dropoutMethod: 'browserStats' | 'clockDrift' | 'none';
   reportsPerSecond: number;
   lastReportAgeMs: number | null;
-  /** A `live` (MIDI-in / accompaniment) message dropped because the worklet's 64-entry queue was full (T057). */
+  /** A `live` (MIDI-in / accompaniment) message dropped: the worklet's queue (`LIVE_QUEUE_CAPACITY`) was full (T057),
+   * or the message was malformed (017 T005). */
   liveQueueDropped: number;
-  /** Schedule events that sounded one render block late because their block was full (017 T013). */
-  dispatchDeferred: number;
+  /** Schedule events that sounded after their own frame, at a later block's start: left over from a full block, or
+   * re-anchored by a tempo change. Late, not lost; each counted once (017 T013). */
+  lateEvents: number;
 }
 
 export type AudioEngineEvent =

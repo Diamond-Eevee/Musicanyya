@@ -74,8 +74,8 @@ export type ProcessorMessage =
       tick: number;
       ticksPerFrame: number;
       playing: boolean;
-      /** Events that sounded a block late because their block was full, since the processor started (1.5.0). */
-      dispatchDeferred: number;
+      /** Events that sounded after their own frame (a full block, a tempo re-anchor), since the processor started (1.5.0). */
+      lateEvents: number;
     }
   | { type: 'ended'; frame: number }
   | { type: 'liveDropped'; total: number };
@@ -249,7 +249,7 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     tick: 0,
     ticksPerFrame: 0,
     playing: false,
-    dispatchDeferred: 0,
+    lateEvents: 0,
   };
   const endedReport = { type: 'ended' as const, frame: 0 };
 
@@ -305,7 +305,7 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     positionReport.tick = computeCurrentTick();
     positionReport.ticksPerFrame = segs.length > 0 ? currentSegment().ticksPerFrame : 0;
     positionReport.playing = playing;
-    positionReport.dispatchDeferred = dispatchState.deferredTotal;
+    positionReport.lateEvents = dispatchState.lateTotal;
     post(positionReport);
     blocksSinceReport = 0;
     pendingReport = false;

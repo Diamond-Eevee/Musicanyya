@@ -100,10 +100,10 @@ describe('WebAudioEngine', () => {
     expect(engine.diagnostics().liveQueueDropped).toBe(5);
   });
 
-  it('017 T012: keeps the worklet count of late (deferred) events in diagnostics', async () => {
+  it('017 T012: keeps the worklet count of late events in diagnostics', async () => {
     const engine = new WebAudioEngine();
     await engine.unlock();
-    expect(engine.diagnostics().dispatchDeferred).toBe(0);
+    expect(engine.diagnostics().lateEvents).toBe(0);
     mockPort.onmessage({
       data: {
         type: 'position',
@@ -112,10 +112,10 @@ describe('WebAudioEngine', () => {
         tick: 0,
         ticksPerFrame: 0.02,
         playing: true,
-        dispatchDeferred: 76,
+        lateEvents: 76,
       },
     });
-    expect(engine.diagnostics().dispatchDeferred).toBe(76);
+    expect(engine.diagnostics().lateEvents).toBe(76);
   });
 
   it('T038: reports an assumed Latency profile from the reported output latency, input latency 0 until measured', async () => {

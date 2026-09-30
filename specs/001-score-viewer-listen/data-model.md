@@ -182,7 +182,7 @@ interface AudioDiagnostics {
   dropoutsSincePlay: number; dropoutsTotal: number; dropoutMethod: "browserStats" | "clockDrift" | "none";
   reportsPerSecond: number; lastReportAgeMs: number | null;
   liveQueueDropped: number;  // live messages dropped: queue full (T057) or malformed (017 T005)
-  dispatchDeferred: number;  // schedule events played one block late because their block was full (017 T013)
+  lateEvents: number;        // schedule events that sounded after their frame, at a later block's start (017 T013)
 }
 ```
 
