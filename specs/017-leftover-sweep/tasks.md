@@ -119,11 +119,11 @@ contracts of the feature it came from, named on the task)
   above the keys) fails in full runs, chromium and firefox (2 of 4 runs): `hint 1 has a box` - the second hint has
   no bounding box when measured. Find whether the hint is gone (timed out) or not yet shown under load, and fix the
   cause, not the wait; then 3 green full e2e runs for it in the log
-- [ ] T036 [US3] (new, found in 017's T016 runs) electron `tests/e2e/lookahead.spec.ts:69` (015 US1 (b), Practice on
+- [x] T036 [US3] (new, found in 017's T016 runs) electron `tests/e2e/lookahead.spec.ts:69` (015 US1 (b), Practice on
   Clementi with a fake MIDI keyboard) failed once in 4 full runs: after clicking Start the button still says "Start"
   after 5 s. Find why the Practice start is late or lost under load and fix the cause; then 3 green full e2e runs.
   (Run 2's nine other electron failures were an environment fault - "the process cannot access the file" at
-  launch while other node processes used `node_modules` - not this test.)
+  launch while other node processes used `node_modules` - not this test.) Result: not reproduced, no defect found - see the log
 - [x] T037 [US3] (new, found in T017's runs) firefox `tests/e2e/us3-run-chrome.spec.ts:116` (003/012 US3 FR-009, the
   Grade arrives as a dismissible popup) failed in 2 of 3 full runs: the run is graded (`graded` true) but the
   `popover="auto"` Grade panel stays hidden. Find whether it never opens or is light-dismissed under load and fix the

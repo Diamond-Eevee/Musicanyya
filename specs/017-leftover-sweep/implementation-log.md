@@ -163,3 +163,15 @@
   suspicion the first SoundFont load in electron under load; measure first), then T020 (manual verification with
   `pnpm screenshot`), deep tasks, owner checks, polish T028-T030. Owner question still open: live input follows the
   playback volume (log entry above).
+
+## 2026-09-30 - claude-opus-5.5 (implement - T036)
+- T036 (electron-project `lookahead.spec.ts:69`, Practice Start still "Start" after 5 s; 1 failure in ~20 full runs):
+  **not reproduced, no defect found, no code changed.** The `electron` project runs this spec in Playwright's default
+  Chromium page (no `browserName`), not in the Electron app. Probe (tests/e2e/zz-probe-036, deleted), 10 samples each
+  in the `electron` and `chromium` projects inside a full `pnpm test:e2e` load: click received 30-66 ms after the
+  click, transport `loading` (the SoundFont) then `playing` after 1.32-1.63 s - far inside the 5 s the test allows.
+  That run: `1139 passed`, 0 failed. Since the one failure, the test passed in every full run (about 12). The failure
+  was in the run where I ran vitest and tsc from a side worktree at the same time, the run whose nine electron-app
+  tests could not even launch ("the process cannot access the file"): attributed to that extra load. Lesson (also for
+  the owner): no other heavy job (vitest, tsc, builds) on this machine during a full e2e run. Evidence of the 3 green
+  runs: the T037 runs (f7ba8b1), all three fully green with this test included.
