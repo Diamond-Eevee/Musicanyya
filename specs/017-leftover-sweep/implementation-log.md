@@ -16,3 +16,13 @@
 - Problems / open questions: needs owner: OD-1 (T018, title rule when both work-title and movement-title exist);
   needs owner: the checks of Phase 4 (T025 real MIDI keyboard, T026 learner test, T027 five-person SC-008).
 - Handoff: next = analyze (implement step 1), then T001 -> T003 -> US1 (T004-T015); tree clean at the commit.
+
+## 2026-09-30 - claude-opus-5.5 (analyze, OD-1, baseline)
+- Analyze (read-only, tasks.md as of 788f82e): 0 CRITICAL, 0 HIGH. Every FR-001..FR-012 maps to tasks, every
+  SC-001..SC-004 has a verifying task, constitution check pass. LOW: T020's "1080p laptop screen" is met with
+  `pnpm screenshot --width 1920 --height 1080` (stated on the task).
+- T018 OD-1: **owner approved** (2026-09-30) - the Score title is `<movement-title>` when present, else
+  `<work><work-title>`; no second field, so 001's data-model is unchanged. T019 implements it.
+- T001 baseline (branch = main ebd5e79 + docs only): `pnpm test` Test Files 284 passed (284) | Tests 6137 passed
+  (6137); `pnpm lint` 0 errors, 317 warnings, 13 infos; `pnpm typecheck` exit 0 (run on main before branching, same
+  sources).

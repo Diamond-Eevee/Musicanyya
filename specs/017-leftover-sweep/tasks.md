@@ -18,7 +18,7 @@ contracts of the feature it came from, named on the task)
 
 **Model**: light (gemini-3.7-flash or claude-haiku-4-5; every standard and deep model fits too)
 
-- [ ] T001 Append a baseline entry to `specs/017-leftover-sweep/implementation-log.md`: the summary lines of
+- [x] T001 Append a baseline entry to `specs/017-leftover-sweep/implementation-log.md`: the summary lines of
   `pnpm test`, `pnpm lint` and `pnpm typecheck` on the branch's first commit (AGENTS.md 2.6)
 - [x] T002 Mark every open task of 001, 003, 004, 005, 011 and 013 as moved: `- [>] T### ... (moved to 017 T0xx,
   2026-09-30)` in its own `tasks.md`, wording otherwise unchanged; `status.ps1` then shows no open task outside 017
@@ -91,7 +91,7 @@ contracts of the feature it came from, named on the task)
 
 ### US2 - Score title (owner decision first)
 
-- [ ] T018 [US2] **Owner decision gate OD-1** (from 001 T155): what the Score title is when a file has both
+- [x] T018 [US2] **Owner decision gate OD-1** (owner approved 2026-09-30: title = `movement-title` when present, else `work-title`; no data-model change) (from 001 T155): what the Score title is when a file has both
   `<work><work-title>` and `<movement-title>` (combine them, prefer one, or keep both as separate fields on `Score`,
   which changes 001's `data-model.md`). Recommendation to present: prefer `movement-title` when both exist and keep
   `work-title` as a second field only if the owner wants it shown. Record the answer on this line and in the log
