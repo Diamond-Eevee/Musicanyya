@@ -211,7 +211,7 @@ contracts of the feature it came from, named on the task)
   place; the file and the Score model stay unchanged. Test first on the W3C drum-kit example (noteheads inside the
   staff) and on a clef change mid-part; `<unpitched>` row back to Supported and `tests/verovio/unpitched-clef.test.ts`
   replaced if it holds (kept: it now documents the premise the workaround relies on)
-- [ ] T048 [US2] (found in T044, raised by the T029 audit) A `<sound>` standing directly in a `<measure>` is read for
+- [x] T048 [US2] (found in T044, raised by the T029 audit) A `<sound>` standing directly in a `<measure>` is read for
   its `tempo` only (`src/core/musicxml/build.ts`); its jump attributes (`dacapo`, `segno`, `dalsegno`, `coda`,
   `tocoda`, `fine`) and `dynamics` are silently ignored, where the same attributes inside `<direction>` are played.
   Test first (a measure-level `<sound dacapo="yes"/>` and `<sound dynamics="40"/>` against the same inside

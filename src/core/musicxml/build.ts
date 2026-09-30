@@ -526,6 +526,56 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
       tempoAt.set(key, { mark, fromSound });
       score.tempoMarks.push(mark);
     };
+    /**
+     * A <sound>'s dynamics and jumps (dacapo, dalsegno, tocoda with time-only; fine, segno, coda targets), read the same
+     * way whether the <sound> is inside a <direction> or stands directly in the measure (017 T048). Its tempo is read
+     * by each caller, since a direction's tempo is merged with the direction's own <metronome>.
+     */
+    const readSoundPlayback = (sound: XmlElement, measureIndex: number, onsetInMeasure: number) => {
+      const soundDynamicsAttr = getAttr(sound, 'dynamics');
+      if (soundDynamicsAttr) {
+        const percent = parseFloat(soundDynamicsAttr);
+        if (!Number.isNaN(percent)) {
+          part.soundDynamics.push({ measureIndex, onsetInMeasure, percent });
+        }
+      }
+      const timeOnlyAttr = getAttr(sound, 'time-only');
+      const timeOnly = timeOnlyAttr
+        ? timeOnlyAttr
+            .split(',')
+            .map((n) => parseInt(n.trim(), 10))
+            .filter((n) => !Number.isNaN(n))
+        : undefined;
+      const dacapo = getAttr(sound, 'dacapo');
+      if (dacapo)
+        score.navigation.jumps.push({
+          measureIndex,
+          type: 'da-capo',
+          ...(timeOnly ? { timeOnly } : {}),
+        });
+      const dalsegno = getAttr(sound, 'dalsegno');
+      if (dalsegno)
+        score.navigation.jumps.push({
+          measureIndex,
+          type: 'dal-segno',
+          name: dalsegno,
+          ...(timeOnly ? { timeOnly } : {}),
+        });
+      const tocoda = getAttr(sound, 'tocoda');
+      if (tocoda)
+        score.navigation.jumps.push({
+          measureIndex,
+          type: 'to-coda',
+          name: tocoda,
+          ...(timeOnly ? { timeOnly } : {}),
+        });
+      const fine = getAttr(sound, 'fine');
+      if (fine) score.navigation.targets.push({ measureIndex, type: 'fine' });
+      const segno = getAttr(sound, 'segno');
+      if (segno) score.navigation.targets.push({ measureIndex, type: 'segno', name: segno });
+      const coda = getAttr(sound, 'coda');
+      if (coda) score.navigation.targets.push({ measureIndex, type: 'coda', name: coda });
+    };
 
     let currentDivisions = 1;
     let cursor = 0;
@@ -982,62 +1032,20 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
               }
             }
           }
-          if (sound) {
-            const soundDynamicsAttr = getAttr(sound, 'dynamics');
-            if (soundDynamicsAttr) {
-              const percent = parseFloat(soundDynamicsAttr);
-              if (!Number.isNaN(percent)) {
-                part.soundDynamics.push({ measureIndex: currentMeasureIndex, onsetInMeasure, percent });
-              }
-            }
-            const timeOnlyAttr = getAttr(sound, 'time-only');
-            const timeOnly = timeOnlyAttr
-              ? timeOnlyAttr
-                  .split(',')
-                  .map((n) => parseInt(n.trim(), 10))
-                  .filter((n) => !Number.isNaN(n))
-              : undefined;
-            const dacapo = getAttr(sound, 'dacapo');
-            if (dacapo)
-              score.navigation.jumps.push({
-                measureIndex: currentMeasureIndex,
-                type: 'da-capo',
-                ...(timeOnly ? { timeOnly } : {}),
-              });
-            const dalsegno = getAttr(sound, 'dalsegno');
-            if (dalsegno)
-              score.navigation.jumps.push({
-                measureIndex: currentMeasureIndex,
-                type: 'dal-segno',
-                name: dalsegno,
-                ...(timeOnly ? { timeOnly } : {}),
-              });
-            const tocoda = getAttr(sound, 'tocoda');
-            if (tocoda)
-              score.navigation.jumps.push({
-                measureIndex: currentMeasureIndex,
-                type: 'to-coda',
-                name: tocoda,
-                ...(timeOnly ? { timeOnly } : {}),
-              });
-            const fine = getAttr(sound, 'fine');
-            if (fine) score.navigation.targets.push({ measureIndex: currentMeasureIndex, type: 'fine' });
-            const segno = getAttr(sound, 'segno');
-            if (segno) score.navigation.targets.push({ measureIndex: currentMeasureIndex, type: 'segno', name: segno });
-            const coda = getAttr(sound, 'coda');
-            if (coda) score.navigation.targets.push({ measureIndex: currentMeasureIndex, type: 'coda', name: coda });
-          }
+          if (sound) readSoundPlayback(sound, currentMeasureIndex, onsetInMeasure);
         } else if (el.name === 'sound') {
-          // A <sound> may stand directly in the measure (music-data), not only in a <direction> (017 T044): its tempo
-          // counts the same way, at the cursor position.
+          // A <sound> may stand directly in the measure (music-data), not only in a <direction>: its tempo (017 T044),
+          // dynamics and jumps (017 T048) count the same way, at the cursor position.
+          const onsetInMeasure = cursor - measureStartCursor;
           const tempoAttr = getAttr(el, 'tempo');
           if (tempoAttr) {
             const qpm = parseFloat(tempoAttr);
             if (Number.isFinite(qpm) && qpm >= TEMPO_MARK_QPM_MIN && qpm <= TEMPO_MARK_QPM_MAX) {
               hasTempo = true;
-              addTempo(currentMeasureIndex, cursor - measureStartCursor, qpm, null, true);
+              addTempo(currentMeasureIndex, onsetInMeasure, qpm, null, true);
             }
           }
+          readSoundPlayback(el, currentMeasureIndex, onsetInMeasure);
         } else if (el.name === 'barline') {
           const repeat = getChild(el, 'repeat');
           if (repeat) {

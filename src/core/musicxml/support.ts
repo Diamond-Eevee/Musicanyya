@@ -57,7 +57,7 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
     element: '<direction>',
     status: 'Supported',
     notes:
-      'Jumps (D.C., D.S., To Coda, Fine). Note: mid-measure jumps not supported; a <sound> standing directly in a <measure> is read for its tempo only - its jumps and dynamics are ignored (017 T048)',
+      'Jumps (D.C., D.S., To Coda, Fine). Note: mid-measure jumps not supported; a <sound> standing directly in a <measure> is read like one in a <direction> - tempo, dynamics and jumps (017 T044, T048)',
   },
   {
     category: 'Time & Repeats',
