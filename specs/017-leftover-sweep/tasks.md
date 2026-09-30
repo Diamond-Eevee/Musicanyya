@@ -149,9 +149,33 @@ contracts of the feature it came from, named on the task)
 
 ### US5 - Manual verification an agent can do
 
-- [ ] T020 [US5] (from 004 T108) Run 004's `quickstart.md` manual verification script for all four user stories plus
+- [x] T020 [US5] (from 004 T108) Run 004's `quickstart.md` manual verification script for all four user stories plus
   the Score size section, in a maximised window on the 1080p laptop screen - with `pnpm screenshot --width 1920
   --height 1080` for each step, every picture looked at and named in the log
+- [ ] T038 [US5] (found in T020, US1 #4) With a Score open, the slim bar overflows between about 925 and 984 px window
+  width (measured live: content 985 px, up to 55 px past the edge; the More menu cut off at 960 px = half of 1920; fits
+  at 900 and from 990). 013 T096 moved the mode switch and size controls into the View popup below a fixed
+  `max-width: 900px` (`layout.css`); the bar's content has grown since (016). Make that relocation a third step of
+  `fitBar()` (`mx-app.ts`, applied only when the compact form still overflows) instead of a width threshold. Test
+  first: e2e at 930, 960 and 984 px with a Score loaded - the bar's `scrollWidth` equals its `clientWidth` (fails
+  today); `barFitted()` in `tests/e2e/helpers/panels.ts` then no longer needs its "folded is enough" escape
+- [ ] T039 [US5] (found in T020, Score size #4, 004 SC-008) A Score size or overlay change is lost when the page is
+  reloaded or closed within `SETTINGS_WRITE_DEBOUNCE_MS` (500 ms): `LocalSettingsStore.save` only arms a timer and
+  nothing flushes it when the page goes away (measured: two size steps, piano keys on, reload at once -> 100 % and
+  piano keys off; by hand with a pause it is kept). Test first (`tests/engine/storage`: save, then `pagehide` -> the
+  value is in `localStorage` at once, no timer advanced); then flush pending writes (settings, practice, play) on
+  `pagehide` / `visibilitychange` to hidden
+- [ ] T040 [US5] (found in T020, US3 #3) One MIDI keyboard disconnect shows the notice "The MIDI keyboard was
+  disconnected." twice (confirmed in the pane and in Playwright: one `deviceLost` event, two notices). Find the
+  second path that adds it; test first (one `deviceLost` -> exactly one such notice), then fix
+- [ ] T041 [US5] (found in T020, US2 #2) Three popups open empty: Setup in Listen mode (only the heading "Practice and
+  Play setup"), Recent attempts when the Score has none, and Latency before the audio has started. Each should say in
+  one line why it is empty and what fills it (wording in `src/ui/i18n/en.ts`, the style of the existing texts). Test
+  first per popup (the line is shown in that state)
+- [ ] T042 [US5] (found in T020) The load notice "No tempo was specified, so a default tempo was used." ends in
+  "- measure 0" (measures are numbered from 1 in the UI), and the load notices of a Score stay on screen after another
+  Score is opened (seen: the dropped file's notice over the Bach Prelude). Check the notice rules (001/004 contracts):
+  fix the measure label; if load notices belong to their Score, clear them when another Score opens. Test first
 
 ---
 

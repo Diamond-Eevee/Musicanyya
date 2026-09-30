@@ -175,3 +175,50 @@
   tests could not even launch ("the process cannot access the file"): attributed to that extra load. Lesson (also for
   the owner): no other heavy job (vitest, tsc, builds) on this machine during a full e2e run. Evidence of the 3 green
   runs: the T037 runs (f7ba8b1), all three fully green with this test included.
+
+## 2026-09-30 - claude-opus-5.5 (implement - T020, 004 manual verification)
+- How: 004 `quickstart.md` "Manual verification", window 1920 x 1080 (the 1080p laptop screen, maximised). `pnpm screenshot
+  --width 1920 --height 1080` for the static steps; for steps it cannot drive (menus, Escape, Tab, resizing, size keys,
+  reload) a temporary Playwright walkthrough (tests/e2e/zz-t020-walkthrough, deleted) in chromium at 1920 x 1080 saving
+  one PNG per step, and the in-app browser pane at the same viewport for re-checks. 39 pictures in
+  `tests/.generated/017/t020/` (git-ignored), every one looked at. Two script results were my measurement, not the
+  app, and were re-checked: focus after Escape (checked once, too early - us2-panels.spec.ts asserts `toBeFocused()`
+  and is green) and "7 of 15 controls reached by Tab" (15 = 7 theme radios + 3 hidden mode radios + 5 checkboxes =
+  exactly 7 tab stops, all reached).
+- US1: `us1-1920.png` one slim bar, no side/bottom panel, full-width music, two complete systems readable - pass.
+  `us1-960.png` music re-flows, no horizontal scrollbar, **but the bar's More menu is cut off** - fail -> T038
+  (measured: 925-984 px overflow by up to 55 px with a Score open; 900 and >= 990 fit). `us1-empty.png`,
+  `us1-5-empty-before-drop.png` one invitation; `us1-5-after-drop.png` a file dropped on the area opens - pass.
+- US2: `us2-1-menu-{score,setup,view,help}.png`, `us2-2-panel-{browser,scores,attempts,setup,midi,latency,view,help,
+  diagnostics,environment}.png`: every entry opens over the music, 0 score DOM mutations, the music never moved -
+  pass; **Setup (in Listen), Recent attempts (none yet) and Latency (audio not started) open empty** -> T041.
+  `us2-3-second-popup.png` the first closes - pass. Escape closes, focus returns (see above) - pass. `us2-5-view-
+  tabbed.png` Tab reaches every control, Escape closes - pass. `us2-6-run-after-play.png` Play closes the popup, the
+  run starts, no dialog - pass. `us2-7-menu-during-run.png` / `-after-stop.png`: entries greyed during the run and back
+  after Stop, except "Open..." which stays enabled by 013's later decision (the browser may open during Listen and
+  pauses it) - pass as amended by 013.
+- US3: `us3-1-setup-popup.png`, `us3-1-setup-chosen.png` Practice setup (help, loop; parts/hands appear only for a
+  Score that has them - the fixture has one staff; the two-staff case is us1-practice.spec.ts, green).
+  `us3-2-practice-running.png` no setup controls; the bar shows mode, measure and Stop - pass. `us3-3-device-lost.png`
+  notice in the corner, nothing modal, layout unchanged, run continues - pass, **but the notice appears twice** ->
+  T040 (confirmed live: one `deviceLost`, two notices). The same picture shows the run status past the edge: measured,
+  that is the single frame before the bar's scheduled re-fit (75 px over at once, 1920/1920 and `mx-bar-no-word` 600 ms
+  later) - by design, not a defect. `us3-2b-after-stop.png` Stop ends the run in one press - pass. `us3-4-play-
+  grade.png` (`pnpm screenshot --run --grade`) the Grade over the music with per-note marks - pass (dismissing keeps
+  the marks: us3-run-chrome.spec.ts, green).
+- US4: #1-2 a full Listen pass at 1920 x 1080 with the cursor's system never covered is `us4-overlays.spec.ts` at
+  exactly this size, green in every full run today. `us4-3-piano-on.png` the music keeps clear of the strip (207 px
+  bottom inset) - pass. `us4-4-layer-{cursor,marks,advice,notices}-off.png`, `us4-4-layer-pianoKeys-on.png`: the
+  switches change at once and the piano strip appears at once; with nothing running the cursor/marks/advice layers
+  have nothing to draw, so those effects are the e2e tests' (marks: play-grade-marks, pressed-keys, us1-layout).
+- Score size: `size-1-larger-x3.png`, `size-2-largest.png` staves 153 -> 306 px (2.0x) at 200 %, re-flow, never a
+  horizontal scrollbar; Ctrl+0 / Ctrl+= / Ctrl+- / + / - step and reset - pass. `size-4-after-reload.png` **size and
+  piano keys lost after a reload** -> cause found: the settings write is debounced 500 ms and never flushed when the
+  page goes away (by hand, with a pause, both are kept) -> T039.
+- Also seen: the load notice "... default tempo was used. - measure 0", and a previous Score's load notice staying over
+  the next Score -> T042.
+- Behaviour neutrality: `pnpm test` green (Test Files 293 passed (293) | Tests 6215 passed (6215)); grading unchanged
+  (golden grading tests in that run).
+- Result: T020 done; 004's script fails in two places it names (US1 #4 at half width, Score size #4 on a quick
+  reload) and shows three smaller defects - T038-T042 (standard tier). Handoff: next = T038-T042, then the deep tasks
+  (T021-T024), owner checks (T025-T027), polish (T028-T030).
