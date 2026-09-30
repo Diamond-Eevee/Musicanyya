@@ -34,11 +34,6 @@ const ALLOWLIST: AllowRule[] = [
     reason: 'theme definitions file: declares --mx-shadow-popup with rgba(0,0,0,a)',
     matches: (line) => line.includes('--mx-shadow-popup'),
   },
-  {
-    file: 'src/ui/styles/browser.css',
-    reason: 'Phase 6 User Story 3 (T044) restyles browser.css with tokens',
-    matches: () => true,
-  },
 ];
 
 const CSS_NAMED_COLOURS = new Set([

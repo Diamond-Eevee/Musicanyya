@@ -389,11 +389,11 @@ in Paper and Walnut, looked at. Full gate, log, commit.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T045 [P] [US4] Create `tests/ui/notice-icons.test.ts` (happy-dom, `mx-notice-tray`). A warning notice contains
+- [x] T045 [P] [US4] Create `tests/ui/notice-icons.test.ts` (happy-dom, `mx-notice-tray`). A warning notice contains
   an SVG with `role="img"` and accessible name `en.notices.iconWarning` ("Warning"). An information notice has a
   different icon (different path data) named `en.notices.iconInfo` ("Information"). The notice text is unchanged.
   Run: fails
-- [ ] T046 [P] [US4] Create `tests/e2e/panels-look.spec.ts` (Chromium; Paper and Night). After a short graded Play
+- [x] T046 [P] [US4] Create `tests/e2e/panels-look.spec.ts` (Chromium; Paper and Night). After a short graded Play
   run, the Grade panel's computed background is `--mx-raised` and its text `--mx-ink`. The MIDI, latency and
   diagnostics panels and Practice help likewise. The `mx-piano-keys` host background is `--mx-surface`, while a white
   key's background is still `rgb(253, 253, 251)` (feature 010 unchanged). Run: fails for Night (hard-coded colours
@@ -401,10 +401,10 @@ in Paper and Walnut, looked at. Full gate, log, commit.
 
 ### Implementation
 
-- [ ] T047 [US4] Notice icons: in `src/ui/elements/mx-notice-tray.ts`, add an info circle and a warning triangle
+- [x] T047 [US4] Notice icons: in `src/ui/elements/mx-notice-tray.ts`, add an info circle and a warning triangle
   drawn as inline SVG paths (original, R-9) with the names from `src/ui/i18n/en.ts`. In `layout.css`, use a warning
   edge `--mx-warning`, raised background and radius-m. Makes T045 pass
-- [ ] T048 [US4] Restyle the Grade panel, Practice help, MIDI, latency, environment and diagnostics content with
+- [x] T048 [US4] Restyle the Grade panel, Practice help, MIDI, latency, environment and diagnostics content with
   tokens and control styles (`layout.css`, `panels.css`, and the elements `mx-grade-panel.ts`, `mx-latency-panel.ts`,
   `mx-diagnostics.ts`, `mx-environment-panel.ts` only where they carry colour). Result marks and their colours are
   unchanged. Makes T046 and the remaining T016 findings pass

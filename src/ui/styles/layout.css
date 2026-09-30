@@ -319,7 +319,8 @@ mx-notice-tray .notice {
   pointer-events: auto;
   padding: 8px 12px;
   border: 1px solid var(--mx-border);
-  border-radius: var(--mx-radius-s, 4px);
+  border-inline-start-width: 4px;
+  border-radius: var(--mx-radius-m, 8px);
   background: var(--mx-raised);
   color: var(--mx-ink);
   box-shadow: var(--mx-shadow-popup);
@@ -327,6 +328,19 @@ mx-notice-tray .notice {
 
 mx-notice-tray .notice.warning {
   border-color: var(--mx-warning);
+}
+
+/* Feature 016 R-9: the icon names the kind of notice (shape and accessible name, not colour alone). */
+mx-notice-tray .notice-icon {
+  width: 16px;
+  height: 16px;
+  margin-inline-end: 6px;
+  vertical-align: -3px;
+  color: var(--mx-ink-muted);
+}
+
+mx-notice-tray .notice.warning .notice-icon {
+  color: var(--mx-warning);
 }
 
 mx-piano-keys {

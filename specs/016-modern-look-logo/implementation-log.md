@@ -228,3 +228,45 @@
 - Problems / open questions: needs owner: OD-2 (T052) - approve the look and the six palettes from the review sheet.
 - Handoff: next = Phase 6 US3 T042 (tests first) -> T043 -> T044, and Phase 7 US4 T045-T048; tree clean at the
   commit below.
+
+## 2026-09-30 03:00 - claude-opus-5.5 (implement - US3 and US4 Checkpoints)
+- Done: T042-T044 (US3) and T045-T048 (US4). Model fit: standard tasks, claude-opus-5.5 fits (higher tier).
+  - T042 `tests/e2e/score-browser-look.spec.ts`: before T043/T044 (a) (b) (c) (d) (f) failed as expected; (e) every
+    former text (captured from the rendering before the change) and (g) passed, as guards must. (g) was corrected to
+    the spec's Edge Case "wrap exactly as they do now": the task's first wording asked for an ellipsis "as on main",
+    but main wraps a row title and the full text must stay reachable (task text updated).
+  - T043 markup only: `.browser-row-meta` wrapper; detail pane sections (facts, progress, History, source); Open is
+    `.mx-primary`. The rail's `browser-rail-group` wrappers were NOT added: the rail is a flat `role="tree"` list
+    patched in place (focus, in-flight clicks), so T044 draws the groups in CSS on `data-depth="0"` (task text
+    updated). `tests/ui/score-browser/rail-list-detail.test.ts` T098 reads the step/level order from the meta line
+    now (its selector broke with the wrapper; same assertion).
+  - T044 `browser.css`: tokens throughout, controls from `controls.css` (own control overrides and the duplicate
+    `:focus-visible` removed), R-13 rows/selected row/rail/sections, badge outline in ink with fills unchanged,
+    backdrop = desk at 60%. `score-browser*.spec.ts` all engines: 155 passed, 32 skipped (one WebKit harness race in
+    the new spec - the list re-renders when the seed lands - fixed by waiting for the seeded row; then 21/21 per engine
+    x3). Pictures `tests/.generated/016-us3-list-{paper,walnut}-{1280,390}.png`, `016-us3-detail-walnut-390.png`,
+    looked at. Note for OD-2: at 390 px "Open file..." wraps onto two lines in the browser header.
+  - T045 `tests/ui/notice-icons.test.ts` failed as expected (no icon), T047 notice icons (original triangle / circle
+    SVG, `role="img"`, `en.notices.iconWarning`/`iconInfo`), 4 px kind edge, radius-m: green.
+  - T046 `tests/e2e/panels-look.spec.ts` passed on its first run: US1 (T020/T021) had already moved these panels to
+    tokens, so there was nothing left for it to catch (recorded, not hidden). T048: no colour left to move in the
+    named elements; `no-hardcoded-colours` (T016) now passes with **no** temporary exemption (the blanket
+    `browser.css` allow rule, "until T044", removed). Found by the US4 pictures and fixed under T048: the Grade's
+    "New best" star (feature 013) had no size at all - a 424 px black star, dark-on-dark in the dark themes; now 16 px
+    in `--status-mastered`. Its T046 check failed without the fix (424 > 24) and passes with it.
+- Quality gate evidence:
+  - `pnpm test`: Test Files 284 passed (284) | Tests 6135 passed (6135)
+  - `pnpm lint`: 0 errors, 314 warnings, 13 infos; `pnpm typecheck`: exit 0
+  - `pnpm test:e2e` (US3 checkpoint run): 1072 passed, 639 skipped, 17 failed. Two causes found: (1) my own
+    parallel Playwright runs during it, and a stale `vite preview` left by a hung run of mine at 00:30, which
+    `reuseExistingServer` then reused (stopped); (2) **environment, not code**: the machine's audio output now runs
+    the browser's AudioContext at 88.2 kHz and its clock advances 1.96 s per 3.01 s of wall time (measured, 0.65x),
+    so every tempo/cursor-timing test fails (play-tempo 137 instead of >170 BPM, play-cursor, play-grade-marks,
+    lookahead glide). The same tests fail identically on the US5-checkpoint sources (b7fd5c4), which passed them at
+    that checkpoint. Timing-free sets re-run clean: panels-look, chrome-look, piano-keyboard 84 passed / 24 skipped;
+    panels-look 6 passed.
+  - Pictures: `016-us4-notice-{paper,midnight}.png`, `016-us4-grade-{paper,midnight}.png` - looked at.
+- Problems / open questions: **needs owner**: the default audio output device / format changed since the US5 run;
+  the full e2e gate cannot pass until the audio clock runs at real time again. OD-2 (T052) still open.
+- Handoff: next = Phase 8 Polish T049 (per-theme axe) -> T050-T055; re-run `pnpm test:e2e` once the audio device is
+  back to normal. Tree clean at the commit below.
