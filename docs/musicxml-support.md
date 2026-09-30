@@ -33,6 +33,7 @@ This document lists the supported MusicXML elements.
 | Notes | `<slide>` | Unsupported | Reported; ignored for playback |
 | Notes | `<wavy-line>` | Ignored | The trill extension line: engraved by Verovio, ignored by the time model. Common in real scores |
 | Notes | `<accidental-mark>` | Ignored | The accidental printed over an ornament: engraved by Verovio, ignored by the time model |
+| Notes | `<note print-object="no">` | Supported | An invisible note (017): it sounds, but is not shown, marked or graded |
 | Harmony | `<harmony>` | Ignored | Chord symbols above the staff: engraved by Verovio, not played and not graded |
 | Harmony | `<figured-bass>` | Ignored | Figured-bass numerals: engraved by Verovio, not played and not graded |
 | Credits | `<creator type="arranger">` | Supported | Not drawn by the engraver; shown in the UI title block instead |

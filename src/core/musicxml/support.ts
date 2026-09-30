@@ -129,6 +129,12 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
     notes: 'The accidental printed over an ornament: engraved by Verovio, ignored by the time model',
   },
   {
+    category: 'Notes',
+    element: '<note print-object="no">',
+    status: 'Supported',
+    notes: 'An invisible note (017): it sounds, but is not shown, marked or graded',
+  },
+  {
     category: 'Harmony',
     element: '<harmony>',
     status: 'Ignored',

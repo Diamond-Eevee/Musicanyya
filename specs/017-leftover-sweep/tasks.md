@@ -251,6 +251,11 @@ contracts of the feature it came from, named on the task)
   that length) that round-trips on every aspect, while a visible scaled note is still refused
   (`tests/tools/lilypond/to-musicxml.test.ts`). Then: the reader marks notes between `\hideNotes` and `\unHideNotes`
   as hidden, the converter writes them invisible; contract `fidelity-tools.md` §3.1/§3.3 and version (MINOR)
+- [x] T054 [US4] (split from T051 by the constitution audit) The converter writes a tie only when a later note of
+  its own voice continues it: LilyPond prints no "unterminated tie" (Mutopia 263 bar 69, the chord's `~` whose visible
+  tie is the hidden note's). Own test in `tests/tools/lilypond/to-musicxml.test.ts` (`c'4 ~ d'4` writes no tie,
+  `c'4 ~ c'4` still does), failing with the rule switched off; `<note print-object="no">` row added to
+  `SUPPORT_MATRIX` / `docs/musicxml-support.md` (Verovio draws such a note with `visibility="hidden"`)
 - [ ] T052 [US4] **Owner decision gate** (found in T022): realise `<inverted-mordent>` (the Pralltriller / short trill)
   like `<mordent>`, i.e. extend owner decision D-1 of 003 (`build.ts` realises only trill-mark, mordent, turn and
   tremolo)? Today the two Petzold minuets load with an info notice and their short trills are neither played along

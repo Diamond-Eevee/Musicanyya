@@ -209,6 +209,17 @@ describe('toMusicXml: what the printed page shows', () => {
     expect(() => toMusicXml(readLilyPond(src.replace('\\hideNotes ', '')))).toThrow('a note value scaled with *n/m');
   });
 
+  it('a tie that no later note of its voice continues is not written; a continued one is (017 T054)', () => {
+    // LilyPond prints no tie from the first C (an "unterminated tie": the next note is a D); the second C ties on.
+    const { xml } = toMusicXml(readLilyPond("{ \\time 4/4 c'4 ~ d'4 c'4 ~ c'4 | }"));
+    const notes = xml.split('<note').slice(1);
+    expect(notes).toHaveLength(4);
+    expect(notes[0]).not.toContain('<tie');
+    expect(notes[0]).not.toContain('<tied');
+    expect(notes[2]).toContain('<tie type="start"/>');
+    expect(notes[3]).toContain('<tie type="stop"/>');
+  });
+
   it('rests.ly: a whole-bar rest and a spacer that takes time without printing a rest', () => {
     const [, bar2, bar3] = measures(convert('rests.ly').xml);
     expect(bar2).toContain('<rest measure="yes"/><duration>6</duration>');

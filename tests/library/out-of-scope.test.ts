@@ -24,7 +24,7 @@ function sha256(file: string): string {
   return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 }
 
-describe('out-of-scope library files (feature 014)', () => {
+describe('library files held unchanged (014 scope guard, and items added later)', () => {
   const recordedFiles = Object.keys(hashes as Record<string, string>);
   const recordedSet = new Set(recordedFiles);
 
