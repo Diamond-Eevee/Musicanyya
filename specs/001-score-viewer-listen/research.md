@@ -308,6 +308,13 @@ continuations are "hold" notes.
 
 ### R-8.5 Tempo and meter
 
+**Amendment (feature 017 T044)**: a `<sound tempo>` also counts where it is a direct child of `<measure>` (MusicXML's
+music-data allows it; the W3C examples and many OpenScore parts write it that way), at the cursor position. Within a
+part there is one mark per position: the later instruction wins, as the tempo map always resolved it, except that a
+`<metronome>` alone never overrides a `<sound tempo>` (the beat of the mark is kept for display). Verified by
+comparing the compiled tempo of all 23 real/spec fixtures and all 181 library pieces before and after: identical, except
+the four W3C examples that give their tempo only that way (they no longer fall back to the default).
+
 **Decision**: per `<direction>`: `<sound tempo>` (quarter notes per minute) first; else `<metronome>`:
 `qpm = per-minute x quarters(beat-unit, beat-unit-dot)` (dotted quarter = 60 -> 90 qpm; for ranges like "c. 60" or
 "60-72" take the first number); text tempo words and metric modulations do not change tempo (info notice);

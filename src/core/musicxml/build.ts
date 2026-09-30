@@ -20,6 +20,7 @@ import type {
   Part,
   Score,
   TempoBeat,
+  TempoMark,
   Transposition,
   Wedge,
 } from '../score/model.js';
@@ -499,6 +500,32 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
       octaveShifts: [],
     };
     const openOctaveShifts = new Map<string, OctaveShiftSpan>();
+    /** This part's tempo marks by position, and whether a <sound tempo> gave the qpm (017 T044). */
+    const tempoAt = new Map<string, { mark: TempoMark; fromSound: boolean }>();
+    const addTempo = (
+      measureIndex: number,
+      onsetInMeasure: number,
+      qpm: number,
+      beat: TempoBeat | null,
+      fromSound: boolean,
+    ) => {
+      const key = `${measureIndex}:${onsetInMeasure}`;
+      const qpmNum = Math.round(qpm * 100);
+      const existing = tempoAt.get(key);
+      if (existing) {
+        // The later instruction at a position wins, as the tempo map always did - except that a <metronome> alone
+        // never overrides a <sound tempo> there, which gives the played qpm (001 R-8.5). A beat is kept for display.
+        if (fromSound || !existing.fromSound) {
+          existing.mark.qpmNum = qpmNum;
+          existing.fromSound = existing.fromSound || fromSound;
+        }
+        if (beat !== null) existing.mark.beat = beat;
+        return;
+      }
+      const mark: TempoMark = { measureIndex, onsetInMeasure, qpmNum, qpmDen: 100, beat, isDefault: false };
+      tempoAt.set(key, { mark, fromSound });
+      score.tempoMarks.push(mark);
+    };
 
     let currentDivisions = 1;
     let cursor = 0;
@@ -898,14 +925,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
             }
             if (markIsUsable) {
               hasTempo = true;
-              score.tempoMarks.push({
-                measureIndex: currentMeasureIndex,
-                onsetInMeasure: tempoOnsetInMeasure,
-                qpmNum: Math.round(qpm * 100),
-                qpmDen: 100,
-                beat,
-                isDefault: false,
-              });
+              addTempo(currentMeasureIndex, tempoOnsetInMeasure, qpm, beat, !!(sound && getAttr(sound, 'tempo')));
             }
 
             const words = getChild(dirType, 'words');
@@ -1006,6 +1026,17 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
             if (segno) score.navigation.targets.push({ measureIndex: currentMeasureIndex, type: 'segno', name: segno });
             const coda = getAttr(sound, 'coda');
             if (coda) score.navigation.targets.push({ measureIndex: currentMeasureIndex, type: 'coda', name: coda });
+          }
+        } else if (el.name === 'sound') {
+          // A <sound> may stand directly in the measure (music-data), not only in a <direction> (017 T044): its tempo
+          // counts the same way, at the cursor position.
+          const tempoAttr = getAttr(el, 'tempo');
+          if (tempoAttr) {
+            const qpm = parseFloat(tempoAttr);
+            if (Number.isFinite(qpm) && qpm >= TEMPO_MARK_QPM_MIN && qpm <= TEMPO_MARK_QPM_MAX) {
+              hasTempo = true;
+              addTempo(currentMeasureIndex, cursor - measureStartCursor, qpm, null, true);
+            }
           }
         } else if (el.name === 'barline') {
           const repeat = getChild(el, 'repeat');

@@ -18,7 +18,7 @@ This document lists the supported MusicXML elements.
 | Time & Repeats | `<ending>` | Supported | Voltas (1., 2. endings) |
 | Time & Repeats | `<measure-repeat>` | Partial | The measure's encoded notes are played and engraved; the repeat sign itself is not drawn, so every played note has its own mark on the Score (017). A measure repeat without encoded notes is approximated with rests |
 | Time & Repeats | `<direction>` | Supported | Jumps (D.C., D.S., To Coda, Fine). Note: mid-measure jumps not supported |
-| Time & Repeats | `<sound tempo>` | Supported | Wins over a <metronome> in the same direction (012). Note: continuous changes (rit./accel.) not supported; outside 10-1000 quarter notes per minute is treated as unusable, like a missing tempo |
+| Time & Repeats | `<sound tempo>` | Supported | In a <direction> or directly in the <measure> (017); wins over a <metronome> at the same position, and of two at one position the later wins (012, 017). Note: continuous changes (rit./accel.) not supported; outside 10-1000 quarter notes per minute is treated as unusable, like a missing tempo |
 | Time & Repeats | `<metronome>` | Supported | Every note value from 1024th to maxima, 0-3 dots, "c."/"ca."/"circa" and a range read as their first number, parenthesised marks (012). A metric modulation (two <beat-unit>s), <metronome-note> and <beat-unit-tied> give no tempo and no beat from the mark |
 | Time & Repeats | `<fermata>` | Unsupported | Ignored for playback |
 | Dynamics | `<dynamics>` | Supported | Marks and wedges |

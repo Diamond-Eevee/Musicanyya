@@ -56,7 +56,7 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
     element: '<sound tempo>',
     status: 'Supported',
     notes:
-      'Wins over a <metronome> in the same direction (012). Note: continuous changes (rit./accel.) not supported; ' +
+      'In a <direction> or directly in the <measure> (017); wins over a <metronome> at the same position, and of two at one position the later wins (012, 017). Note: continuous changes (rit./accel.) not supported; ' +
       'outside 10-1000 quarter notes per minute is treated as unusable, like a missing tempo',
   },
   {

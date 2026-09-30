@@ -29,10 +29,14 @@ Measured 2026-09-22. All five load and engrave to one page, with every Note ID r
 | File | Parts | Measures | Notes | Notices |
 |---|---:|---:|---:|---|
 | `tutorial-apres-un-reve` | 2 | 4 | 102 | - |
-| `tutorial-chopin-prelude` | 1 | 1 | 27 | `defaultTempo` |
-| `tutorial-chord-symbols` | 1 | 3 | 9 | `unsupportedElement` (harmony), `defaultTempo` |
-| `tutorial-percussion` | 2 | 2 | 36 | `defaultTempo` |
+| `tutorial-chopin-prelude` | 1 | 1 | 27 | - |
+| `tutorial-chord-symbols` | 1 | 3 | 9 | `unsupportedElement` (harmony) |
+| `tutorial-percussion` | 2 | 2 | 36 | - |
 | `tutorial-tablature` | 2 | 1 | 10 | - |
+
+Four of these give their tempo only as a `<sound tempo>` directly in a `<measure>` (Chopin 40, the others 120). Until
+017 T044 that was read only inside a `<direction>`, so they played at the default 100 with a `defaultTempo` notice
+(the tablature row said "-" then too, wrongly).
 
 Two things worth knowing:
 

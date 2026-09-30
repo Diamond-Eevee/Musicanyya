@@ -194,7 +194,7 @@ contracts of the feature it came from, named on the task)
   either the four extra notes should be engraved or they should not be in the model. Currently documented in that
   folder's README and deliberately not asserted by `tests/e2e/real-scores.spec.ts`. Resolve it, then assert it there;
   update `docs/musicxml-support.md` / `SUPPORT_MATRIX` if coverage changes
-- [ ] T044 [US2] (found in T021) A `<sound tempo>` that is a direct child of `<measure>` (valid MusicXML; the W3C
+- [x] T044 [US2] (found in T021) A `<sound tempo>` that is a direct child of `<measure>` (valid MusicXML; the W3C
   percussion example has `<sound tempo="120"/>`) is ignored - `build.ts` reads `<sound>` only inside `<direction>` -
   so the Score plays at the default tempo with the "No tempo was specified" notice. `SUPPORT_MATRIX` says
   `<sound tempo>` Supported. Test first on that file and a minimal document, then read it (same rules as the
