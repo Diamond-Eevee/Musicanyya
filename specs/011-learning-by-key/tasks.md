@@ -193,7 +193,7 @@ folder; recent scores keep opening their copy.
 - [x] T081 Music review of the step definitions, key-change definitions and song chord plans with the `music-domain-expert` agent (musical correctness, fingering, levels); findings summarised in the log and fixed or turned into tasks
 - [x] T088 Electron Shell (FR-023): `pnpm test:e2e` includes the Electron specs; add to `tests/e2e/electron-smoke.spec.ts` an assertion that the packaged shelf opens `learning/keys/c-major/introduction` from the library panel (analyze A7)
 - [x] T082 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` - summary lines in the log
-- [ ] T083 [standard] SC-005 learner test (open: needs the owner, see the log): the owner (or three people) plays the C major Introduction hands together in Practice mode once; wrong-note counts recorded in the log. Needs the owner; does not block merge readiness of the other tasks but SC-005 is unmet until done
+- [>] T083 [standard] SC-005 learner test (open: needs the owner, see the log): the owner (or three people) plays the C major Introduction hands together in Practice mode once; wrong-note counts recorded in the log. Needs the owner; does not block merge readiness of the other tasks but SC-005 is unmet until done (moved to 017 T026, 2026-09-30)
 
 ## Dependencies & Execution Order
 

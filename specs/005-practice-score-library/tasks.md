@@ -314,7 +314,7 @@ all pass; a mis-levelled item fails the check.
   approved (Amazing Grace approved with a noted caveat: pitch-verification could not be fully closed
   against an authoritative source in the review window, recommend a follow-up by-ear check, not a
   blocker).
-- [ ] T057 [P] [US3] [deep] Intermediate: Petzold Minuets BWV Anh. 114 and 115, Musette BWV Anh. 126 +
+- [>] T057 [P] [US3] [deep] Intermediate: Petzold Minuets BWV Anh. 114 and 115, Musette BWV Anh. 126 + (moved to 017 T022, 2026-09-30)
   sidecars - **not attempted this session** (FR-008's Intermediate target of >= 5 is already met by
   T058/T059 without it - Burgmüller nos. 2 and 5, Schumann Op. 68 no. 10 and Clementi, alongside the
   already-committed Für Elise theme). Left open as optional future work, not descoped.
@@ -364,10 +364,10 @@ all pass; a mis-levelled item fails the check.
   where the numbers genuinely place it, not an editorial judgement call, so the data-model.md §5.3
   guess that it would need `raisedBecause` did not hold up. Bach Invention no. 1 BWV 772 and Mozart K.
   545 mvt I **not attempted** - stretch goals, not needed (FR-008's Advanced target already met).
-- [ ] T063 [P] [US3] [deep] Advanced: Joplin *The Entertainer* + sidecar - **not attempted this session**
+- [>] T063 [P] [US3] [deep] Advanced: Joplin *The Entertainer* + sidecar - **not attempted this session** (moved to 017 T023, 2026-09-30)
   (FR-008's Advanced target of >= 4 is already met without it - Chopin no. 4, Für Elise complete,
   Chopin no. 20, Bach Prelude BWV 846, Satie). Left open as optional future work, not descoped.
-- [ ] T064 [US3] [deep] Probe Chopin Nocturne Op. 9 no. 2 for the 11:8 / 22:12 tuplets - **not attempted this
+- [>] T064 [US3] [deep] Probe Chopin Nocturne Op. 9 no. 2 for the 11:8 / 22:12 tuplets - **not attempted this (moved to 017 T024, 2026-09-30)
   session**, same reason as T063 (target already met). Left open as optional future work.
 - [x] T065 [US3] `music-domain-expert` review of T061-T062's delivered content (Für Elise complete,
   Chopin no. 20, Bach Prelude BWV 846) plus the reassigned Satie item - combined with T056/T060 into
