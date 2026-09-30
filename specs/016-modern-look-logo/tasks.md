@@ -433,7 +433,7 @@ Midnight, looked at. Full gate, log, commit.
   (SC-006). Edge case "zoom 200%": in `pnpm dev` at 1280 px, zoom the browser to 200% and check that nothing is
   clipped, the bar stays one row (compact mode takes over) and the View popup is usable. Log what was seen, with the
   compare result lines
-- [ ] T052 **Owner decision gate OD-2** (spec SC-008, plan "Decisions and open items"). Show the owner the 12 US5
+- [x] T052 **Owner decision gate OD-2** (owner approved 2026-09-30: the look and all six palettes, as in `016-us5-review-sheet.png` at e580f72) (spec SC-008, plan "Decisions and open items"). Show the owner the 12 US5
   review pictures (six themes x Score view and Score browser) and the US1/US3 pictures. Ask them to approve the look
   and each palette, or to name changes. Palette changes are value edits in `themes.css`, re-checked by T034 and T049.
   Record the answer in `spec.md` Clarifications and the log. **Blocks**: merge
