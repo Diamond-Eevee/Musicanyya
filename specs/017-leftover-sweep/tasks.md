@@ -172,10 +172,14 @@ contracts of the feature it came from, named on the task)
   Play setup"), Recent attempts when the Score has none, and Latency before the audio has started. Each should say in
   one line why it is empty and what fills it (wording in `src/ui/i18n/en.ts`, the style of the existing texts). Test
   first per popup (the line is shown in that state)
-- [ ] T042 [US5] (found in T020) The load notice "No tempo was specified, so a default tempo was used." ends in
-  "- measure 0" (measures are numbered from 1 in the UI), and the load notices of a Score stay on screen after another
-  Score is opened (seen: the dropped file's notice over the Bach Prelude). Check the notice rules (001/004 contracts):
-  fix the measure label; if load notices belong to their Score, clear them when another Score opens. Test first
+- [x] T042 [US5] (found in T020) The load notice "No tempo was specified, so a default tempo was used." ends in
+  "- measure 0": three document-level load entries (default tempo, PPQ over the limit, instrument fallback) used '0'
+  as a placeholder measure label. They now carry no label (a real measure numbered 0, e.g. a pickup, still shows)
+- [ ] T043 [US5] **Owner decision** (split from T042, found in T020): the load notices of a Score stay on screen after
+  another Score is opened (seen: a dropped file's "default tempo" notice over the Bach Prelude). No spec or contract
+  says how long notices live. Recommendation: when another Score opens, remove the previous Score's *load* notices
+  (they describe a file no longer shown); device, storage and audio notices stay until dismissed. Alternative: keep
+  today's behaviour (every notice stays until dismissed). Needs owner before any change (spec behaviour)
 
 ---
 

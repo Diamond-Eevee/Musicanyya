@@ -577,9 +577,7 @@ exports[`buildScore snapshots > builds time-model for backup-forward-two-voices.
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -743,9 +741,7 @@ exports[`buildScore snapshots > builds time-model for chord-basic.musicxml 1`] =
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -1138,9 +1134,7 @@ exports[`buildScore snapshots > builds time-model for cross-staff-beaming.musicx
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -1802,9 +1796,7 @@ exports[`buildScore snapshots > builds time-model for cue-notes-not-played.music
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -1934,9 +1926,7 @@ exports[`buildScore snapshots > builds time-model for dc-after-jump-repeats.musi
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -2232,9 +2222,7 @@ exports[`buildScore snapshots > builds time-model for dc-al-fine.musicxml 1`] = 
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -2468,9 +2456,7 @@ exports[`buildScore snapshots > builds time-model for divisions-change-mid-part.
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -2645,9 +2631,7 @@ exports[`buildScore snapshots > builds time-model for ds-al-coda.musicxml 1`] = 
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -2934,9 +2918,7 @@ exports[`buildScore snapshots > builds time-model for duplicate-notes-disambigua
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -3109,9 +3091,7 @@ exports[`buildScore snapshots > builds time-model for duration-unreadable.musicx
       },
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -3346,9 +3326,7 @@ exports[`buildScore snapshots > builds time-model for dynamics-marks.musicxml 1`
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -3565,9 +3543,7 @@ exports[`buildScore snapshots > builds time-model for dynamics-sound-override.mu
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -5026,9 +5002,7 @@ exports[`buildScore snapshots > builds time-model for fingering-substitution-alt
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -5447,9 +5421,7 @@ exports[`buildScore snapshots > builds time-model for fractional-duration.musicx
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -5613,9 +5585,7 @@ exports[`buildScore snapshots > builds time-model for grace-acciaccatura.musicxm
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -5785,9 +5755,7 @@ exports[`buildScore snapshots > builds time-model for grace-after-note-end-of-me
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -6002,9 +5970,7 @@ exports[`buildScore snapshots > builds time-model for grace-group-at-start.music
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -6214,9 +6180,7 @@ exports[`buildScore snapshots > builds time-model for grand-staff-right-hand-onl
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -6433,9 +6397,7 @@ exports[`buildScore snapshots > builds time-model for grand-staff-two-voices-per
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -6675,9 +6637,7 @@ exports[`buildScore snapshots > builds time-model for hands-accompaniment.musicx
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -6989,16 +6949,12 @@ exports[`buildScore snapshots > builds time-model for instrument-missing-fallbac
       {
         "code": "instrumentFallback",
         "element": "Piano",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "warning",
       },
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -7128,9 +7084,7 @@ exports[`buildScore snapshots > builds time-model for instruments-two-parts.musi
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -7332,9 +7286,7 @@ exports[`buildScore snapshots > builds time-model for jump-text-only.musicxml 1`
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -7559,9 +7511,7 @@ exports[`buildScore snapshots > builds time-model for jump-time-only.musicxml 1`
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -8183,9 +8133,7 @@ exports[`buildScore snapshots > builds time-model for measure-numbers-duplicate-
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -8412,9 +8360,7 @@ exports[`buildScore snapshots > builds time-model for measure-overfull.musicxml 
       },
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -8547,9 +8493,7 @@ exports[`buildScore snapshots > builds time-model for measure-repeat.musicxml 1`
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -8731,9 +8675,7 @@ exports[`buildScore snapshots > builds time-model for measure-underfull.musicxml
       },
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -8866,9 +8808,7 @@ exports[`buildScore snapshots > builds time-model for meter-change.musicxml 1`] 
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -9346,9 +9286,7 @@ exports[`buildScore snapshots > builds time-model for minimal-single-note.musicx
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -9481,9 +9419,7 @@ exports[`buildScore snapshots > builds time-model for multi-measure-rest.musicxm
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -9973,9 +9909,7 @@ exports[`buildScore snapshots > builds time-model for non-ascii-Łódź-日本.m
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -10105,9 +10039,7 @@ exports[`buildScore snapshots > builds time-model for octave-shift-8va.musicxml 
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -10318,9 +10250,7 @@ exports[`buildScore snapshots > builds time-model for percussion-unpitched.music
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -10450,9 +10380,7 @@ exports[`buildScore snapshots > builds time-model for pickup-implicit.musicxml 1
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -11390,9 +11318,7 @@ exports[`buildScore snapshots > builds time-model for repeat-implicit-start.musi
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -11573,9 +11499,7 @@ exports[`buildScore snapshots > builds time-model for repeat-simple.musicxml 1`]
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -11761,9 +11685,7 @@ exports[`buildScore snapshots > builds time-model for repeat-times-3.musicxml 1`
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -11949,9 +11871,7 @@ exports[`buildScore snapshots > builds time-model for repeat-unbalanced-backward
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -16679,9 +16599,7 @@ exports[`buildScore snapshots > builds time-model for tempo-none-default.musicxm
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -17167,9 +17085,7 @@ exports[`buildScore snapshots > builds time-model for tie-across-barline.musicxm
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -17344,9 +17260,7 @@ exports[`buildScore snapshots > builds time-model for tie-broken.musicxml 1`] = 
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -17521,9 +17435,7 @@ exports[`buildScore snapshots > builds time-model for tie-chain-three.musicxml 1
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -17724,9 +17636,7 @@ exports[`buildScore snapshots > builds time-model for tie-chord-partial.musicxml
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -17969,9 +17879,7 @@ exports[`buildScore snapshots > builds time-model for tie-into-volta.musicxml 1`
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -18260,9 +18168,7 @@ exports[`buildScore snapshots > builds time-model for tied-without-tie.musicxml 
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -18437,9 +18343,7 @@ exports[`buildScore snapshots > builds time-model for transpose-bb-clarinet.musi
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -19050,9 +18954,7 @@ exports[`buildScore snapshots > builds time-model for tuplet-triplet-eighths.mus
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -19250,9 +19152,7 @@ exports[`buildScore snapshots > builds time-model for tuplet-triplet-exact.music
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -19487,9 +19387,7 @@ exports[`buildScore snapshots > builds time-model for unison-across-hands.musicx
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -19893,9 +19791,7 @@ exports[`buildScore snapshots > builds time-model for unsupported-elements-notic
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -20025,9 +19921,7 @@ exports[`buildScore snapshots > builds time-model for verovio-id-roundtrip.music
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -20157,9 +20051,7 @@ exports[`buildScore snapshots > builds time-model for voice-and-piano.musicxml 1
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -20474,9 +20366,7 @@ exports[`buildScore snapshots > builds time-model for volta-1-2.musicxml 1`] = `
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -20781,9 +20671,7 @@ exports[`buildScore snapshots > builds time-model for volta-combined-numbers.mus
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -21031,9 +20919,7 @@ exports[`buildScore snapshots > builds time-model for volta-discontinue.musicxml
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -21338,9 +21224,7 @@ exports[`buildScore snapshots > builds time-model for wedge-crescendo.musicxml 1
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],
@@ -21596,9 +21480,7 @@ exports[`buildScore snapshots > builds time-model for whole-measure-rest.musicxm
     "entries": [
       {
         "code": "defaultTempo",
-        "measureLabels": [
-          "0",
-        ],
+        "measureLabels": [],
         "severity": "info",
       },
     ],

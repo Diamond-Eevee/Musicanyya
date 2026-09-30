@@ -32,19 +32,21 @@ class ReportBuilder {
   entries: LoadReportEntry[] = [];
   skippedElementCount = 0;
 
-  add(severity: Severity, code: LoadNoticeCode, measureLabel: string, element?: string, detail?: string) {
+  /** `measureLabel` is the Score's own measure number; null for a fact about the whole document, which names no
+   *  measure (017 T042: a '0' placeholder was shown as "measure 0"). */
+  add(severity: Severity, code: LoadNoticeCode, measureLabel: string | null, element?: string, detail?: string) {
     const existing = this.entries.find(
       (e) => e.code === code && e.severity === severity && e.element === element && e.detail === detail,
     );
     if (existing) {
-      if (!existing.measureLabels.includes(measureLabel)) {
+      if (measureLabel !== null && !existing.measureLabels.includes(measureLabel)) {
         existing.measureLabels.push(measureLabel);
       }
     } else {
       this.entries.push({
         code,
         severity,
-        measureLabels: [measureLabel],
+        measureLabels: measureLabel === null ? [] : [measureLabel],
         ...(element !== undefined ? { element } : {}),
         ...(detail !== undefined ? { detail } : {}),
       });
@@ -227,7 +229,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
       ppq = computePPQ(divisions);
     }
   } catch (_e) {
-    report.add('warning', 'timingRounded', '0', undefined, 'PPQ exceeded MAX_PPQ');
+    report.add('warning', 'timingRounded', null, undefined, 'PPQ exceeded MAX_PPQ');
   }
 
   const score: Score = {
@@ -347,7 +349,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
         });
       }
       if (instruments.some((i) => i.fallback)) {
-        report.add('warning', 'instrumentFallback', '0', name || id);
+        report.add('warning', 'instrumentFallback', null, name || id);
       }
       partInfos.set(id, { name, instruments });
     }
@@ -1150,7 +1152,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
       beat: metronomeBeatAt(0, score.measures),
       isDefault: true,
     });
-    report.add('info', 'defaultTempo', '0');
+    report.add('info', 'defaultTempo', null);
   }
 
   return { score, report: report.getReport() };
