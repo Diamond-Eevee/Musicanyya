@@ -418,7 +418,7 @@ Midnight, looked at. Full gate, log, commit.
 
 **Model**: standard (gemini-3.8-flash or claude-sonnet-5.5)
 
-- [ ] T049 Create `tests/e2e/theme-a11y.spec.ts` (Chromium, research R-6). Run axe with the tags of
+- [x] T049 Create `tests/e2e/theme-a11y.spec.ts` (Chromium, research R-6). Run axe with the tags of
   `score-browser-a11y.spec.ts` in **each of the six themes** on: the bar with a Score loaded, the empty state, each
   bar menu open, **every panel of `PANEL_IDS`** (`src/ui/state/viewState.ts`: scores, midi, environment, diagnostics,
   latency, help, view, setup, and grade and attempts after a short graded Play run), the Practice panel, a warning
