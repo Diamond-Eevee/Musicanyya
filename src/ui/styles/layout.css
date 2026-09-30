@@ -232,11 +232,11 @@ mx-open-button .open-label-short {
 }
 
 /* Relocated to the View popup (mx-view-panel.ts already carries a second mx-mode-switch and mx-size-controls for
-   exactly this, above) - not just shortened, gone from the row entirely. mx-app's fitBar() turns this on as its last
-   step, when the compact bar still overflows (017 T038). It was a media query - phone-only 480px, then 900px (013
-   T096) - and the bar's contents outgrew each width; measuring cannot fall behind them. */
-.mx-bar-relocated #mode-controls,
-.mx-bar-relocated #size-controls {
+   exactly this, above) - not just shortened, gone from the row entirely. mx-app's fitBar() turns these on one at a
+   time, the mode switch first, when the compact bar still overflows (017 T038). It was a media query - phone-only
+   480px, then 900px (013 T096) - and the bar's contents outgrew each width; measuring cannot fall behind them. */
+.mx-bar-no-mode #mode-controls,
+.mx-bar-no-size #size-controls {
   display: none;
 }
 

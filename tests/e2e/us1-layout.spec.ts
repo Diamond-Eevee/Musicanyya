@@ -2,6 +2,7 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
 import { barFitted, openPanel } from './helpers/panels.js';
+import { startPractice } from './helpers/practice.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixture = (name: string) => path.join(__dirname, '../fixtures/musicxml', name);
@@ -101,6 +102,27 @@ test.describe('US1: the bar fits at every width with a Score open (017 T038)', (
         .toBe(0);
     });
   }
+});
+
+// 017 T038: during a Practice run the run status widens the bar; at 1280 px it overflowed by 39 px. The mode switch
+// moves to the View popup first, so the size controls - the only way to zoom by mouse during a run, when no popup can
+// open - stay in the bar.
+test('during a Practice run at 1280 px the bar fits and keeps its size controls (017 T038)', async ({ page }) => {
+  test.skip(
+    test.info().project.name === 'webkit',
+    'Practice needs AudioContext, which Playwright WebKit does not provide',
+  );
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await startPractice(page, 'repertoire/intermediate/fur-elise-theme');
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const bar = document.querySelector('#mx-bar') as HTMLElement;
+        return bar.scrollWidth - bar.clientWidth;
+      }),
+    )
+    .toBe(0);
+  await expect(page.locator('#size-controls mx-size-controls button[data-action="larger"]')).toBeVisible();
 });
 
 test.describe('US1: enough music at once (SC-002)', () => {
