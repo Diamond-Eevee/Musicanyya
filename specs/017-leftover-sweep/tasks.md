@@ -204,7 +204,7 @@ contracts of the feature it came from, named on the task)
   staff (pictures `tests/.generated/017/t021/percussion*.png`, before and after T021 - not caused by it). Find
   whether the render copy or Verovio's unpitched import places them, fix it or record it as a Verovio limitation in
   `docs/musicxml-support.md`; test on that file
-- [ ] T046 (found in T021) `tests/core/musicxml/render-copy.test.ts` has an empty test, `it('assigns first-part
+- [x] T046 (found in T021) `tests/core/musicxml/render-copy.test.ts` has an empty test, `it('assigns first-part
   measure ids only', () => {})` - a placeholder AGENTS.md forbids. Give it the assertion its name states (a
   two-part document: only the first part's `<measure>` tags get Measure IDs) or remove it with the reason in the log
 - [ ] T022 [P] [US4] (from 005 T057) Intermediate: Petzold Minuets BWV Anh. 114 and 115, Musette BWV Anh. 126 +
