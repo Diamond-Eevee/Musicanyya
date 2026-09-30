@@ -424,7 +424,7 @@ Midnight, looked at. Full gate, log, commit.
   latency, help, view, setup, and grade and attempts after a short graded Play run), the Practice panel, a warning
   notice and the Score browser (list and detail). No
   violation, with the report naming each violation (SC-002). Fix what it finds in the styling files, and log each fix
-- [ ] T050 [light] SC-009 timings (quickstart "SC-009"): five runs each on `main` and on the branch of "Open in the
+- [x] T050 [light] SC-009 timings (quickstart "SC-009"): five runs each on `main` and on the branch of "Open in the
   browser -> first page visible" and "Play -> first note". Record both medians in the log and state whether the branch
   is within 5%
 - [x] T051 Run the whole quickstart (US1-US5, both sizes, Paper plus at least one dark theme per story). Pictures go
@@ -442,7 +442,7 @@ Midnight, looked at. Full gate, log, commit.
   constants in `src/engine/config.ts` match the data-model.md section 5 table
 - [x] T054 Constitution audit of the branch diff with `.claude/agents/constitution-auditor.md`. Summarise its
   findings in the log and fix any violation
-- [ ] T055 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, each with its summary line in the
+- [x] T055 Full gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, each with its summary line in the
   log. Final log entry with the hand-off. Ready to merge only when every task is ticked with evidence and OD-1 and
   OD-2 are approved (AGENTS.md section 7)
 

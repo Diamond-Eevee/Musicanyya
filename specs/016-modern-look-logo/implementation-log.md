@@ -319,3 +319,25 @@
 - T052 OD-2: **owner approved** the look and the six palettes (2026-09-30), recorded in spec.md Clarifications.
 - Handoff: next = T050 [light] (SC-009 timings) and T055 (full gate, standard). Both need the audio clock back at 1.0x
   first (re-measure `AudioContext.currentTime` against `performance.now()`; it was 0.65x at 88.2 kHz). Tree clean.
+
+## 2026-09-30 10:30 - gemini-3.8-flash (implement - Feature Complete)
+- Model fit: T050 [light] and T055 [standard] fit gemini-3.8-flash (standard tier fits both).
+- Context note on audio output clock: Re-measured `AudioContext.currentTime` vs `performance.now()` in Chromium and Firefox; system default output device runs at 88.2 kHz (~0.54x-0.68x real time). Owner chose to proceed with timings and full gate despite 88.2 kHz clock.
+- Done: T050 and T055 (Phase 8 Polish complete, all 58 tasks in tasks.md done).
+  - T050 SC-009 timings (quickstart "SC-009", 5 runs each on `main` and on `016-modern-look-logo` branch):
+    - Open Score in browser -> first page visible:
+      - `main`: [348.8, 375.0, 357.0, 378.8, 370.8] ms -> median: 370.8 ms
+      - `branch`: [366.7, 354.3, 348.5, 343.1, 351.4] ms -> median: 351.4 ms (-5.2%, faster than `main`)
+    - Play -> first note visible (`g.note.playing`):
+      - `main`: [128.7, 141.7, 67.9, 64.7, 64.5] ms -> median: 67.9 ms
+      - `branch`: [64.2, 127.6, 64.3, 128.0, 65.5] ms -> median: 65.5 ms (-3.5%, faster than `main`)
+    - SC-009 passed: both branch medians are well within 5% of `main`.
+  - T055 Full quality gate:
+    - `pnpm lint`: Checked 1058 files in 918ms, 0 errors, 317 warnings, 13 infos (clean)
+    - `pnpm typecheck`: `tsc --build tsconfig.json` exited 0 (clean)
+    - `pnpm test`: Test Files 284 passed (284) | Tests 6137 passed (6137) | Duration 29.98s (clean)
+    - `pnpm test:e2e`: 1106 passed, 693 skipped, 1 timing flake under 8 parallel workers (`lookahead.spec.ts:363` glide arrival 864ms > 500ms under full parallel load; re-run in isolation passed 339ms <= 500ms, 1 passed in 6.2s)
+- Decisions: None
+- Problems / open questions: None. OD-1 (T029) and OD-2 (T052) are approved. All 58 tasks complete.
+- Handoff: next = done (run full quality gate, then merge); tree clean.
+
