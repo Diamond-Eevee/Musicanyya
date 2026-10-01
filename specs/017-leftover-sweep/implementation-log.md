@@ -492,3 +492,14 @@
   SC-008 stay unverified** - neither met nor failed, not an accepted deviation. AGENTS.md section 4 gains the `[-]`
   state (11,972 characters, under the 12,000 limit); `status.ps1` already ignores lines that are not `[ ]`, `[~]` or
   `[x]` (as it does `[>]`), so SC-001 holds.
+- Final gate at 0f4869f (docs only since the three green rounds at 153d045): lint exit 0 (0 errors, 316 warnings),
+  typecheck exit 0, unit `Test Files 299 passed (299) | Tests 6273 passed (6273)` exit 0, e2e exit 0 `718 skipped |
+  1198 passed` (13.3 min).
+- Final constitution audit (`constitution-auditor`, `git diff main...HEAD`, merge base ebd5e79, 168 files): **READY TO
+  MERGE**, no CRITICAL/HIGH/MEDIUM. Confirmed: no new dependency (package.json and lockfile unchanged); no `any`,
+  `@ts-ignore` or `!` added in `src/`; the Mutopia items' notices and kept sources; RT reviews logged (T015, T031-T033,
+  volume); `<inverted-mordent>` in `SUPPORT_MATRIX` and docs; contract versions bumped; the dropped owner checks
+  consistent with AGENTS.md section 7 and SC-004. LOW, fixed in this commit (docs only): AGENTS.md section 7 and
+  reference R10 name the `[-]` state; 003/011/013 forwarding notes say the checks were dropped.
+- Handoff: feature 017 complete - every task `[x]` or `[-]`, gate green, audit passed. Ready to merge; not merged or
+  pushed (the branch is 9+ commits ahead of origin) - waits for the owner to ask. Tree clean at the log commit.

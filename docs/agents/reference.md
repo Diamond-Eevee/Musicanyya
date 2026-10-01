@@ -252,7 +252,8 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
 
 ## R10. Definition of done (feature)
 
-- All tasks `[x]`; every user story passes its Independent Test from `spec.md`.
+- All tasks `[x]` or `[-]` (dropped by the owner, logged with date and reason); every user story passes its
+  Independent Test from `spec.md`.
 - Full quality gate green; RT reviews passed; constitution audit without CRITICAL/HIGH findings.
 - `quickstart.md` verified; `docs/musicxml-support.md` and the commands in R7 up to date.
 - Final `implementation-log.md` entry; work committed on the feature branch. Merging is the user's call.

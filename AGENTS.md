@@ -132,7 +132,7 @@ reports CRITICAL; a gate fails and you cannot fix it in scope; unknown uncommitt
 wording (SoundFonts, fonts, Verovio, ASIO SDK, copied code); deleting files you did not create; rewriting history;
 pushing; merging. When you ask, state the facts exactly (what was measured, against what), give a recommendation and
 what each answer leads to. A green gate is not "done": a feature is ready to merge only when every task is ticked with
-evidence and the constitution review passed - and it is merged only when the user asks.
+evidence (or `[-]`) and the constitution review passed - and it is merged only when the user asks.
 
 ## 8. Non-negotiables (constitution summary) and gate
 

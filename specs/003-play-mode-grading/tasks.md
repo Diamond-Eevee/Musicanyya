@@ -470,7 +470,7 @@ replay the first one and confirm the notes heard are the ones that were played, 
   actually in force at that onset
 - [x] T081 [P] Update `docs/agents/reference.md` if anything in the toolchain or the commands changed, and
   `quickstart.md` if a command changed
-- [>] T082 [standard] Run the `quickstart.md` manual verification script for all four user stories on a real MIDI keyboard (moved to 017 T025, 2026-09-30)
+- [>] T082 [standard] Run the `quickstart.md` manual verification script for all four user stories on a real MIDI keyboard (moved to 017 T025, 2026-09-30; dropped by the owner 2026-10-01 - not run)
 - [x] T083 Constitution audit of the finished feature with `constitution-auditor`, in particular Principle I over
   T034 and T036, Principle II over the one-clock and latency-compensation path, and Principle III over the
   MusicXML subset the owner's D-1 and D-2 added. **Verdict: compliant with notes** - one MEDIUM finding (T110)
