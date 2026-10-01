@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "id": "own-grieg-op46-no1-transcription-a",
+  "work": "Grieg, Peer Gynt Suite No. 1, Op. 46 No. 1, \"Morgenstimmung\" (Morning Mood), the composer's piano arrangement, all 87 bars",
+  "edition": "G. Schirmer, New York, 1899, edited and fingered by Louis Oesterle (Internet Archive 31761045200615, PDF pages 7-10)",
+  "publisher": "Musicanyya (own transcription)",
+  "url": "https://archive.org/details/31761045200615",
+  "identifier": "transcription A (feature 019, T040)",
+  "licence": "CC0-1.0",
+  "credit": "Transcription A, read bar by bar from the scan by claude-opus-5.5 for Musicanyya on 2026-10-01 and dedicated to the public domain (CC0 1.0); readings of unclear print and subset departures are commented in the file.",
+  "obtained": "2026-10-01",
+  "approvedByOwner": "2026-10-01",
+  "origin": "transcription",
+  "files": [
+    {
+      "role": "notation",
+      "path": "morning-mood.ly",
+      "url": "https://archive.org/download/31761045200615/31761045200615.pdf",
+      "sha256": "979c2a83df7b0297cc680a971c2632dd50103bb372ce571386087ca5cbd75767",
+      "format": "lilypond"
+    }
+  ]
+}

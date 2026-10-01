@@ -286,7 +286,7 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   `https://archive.org/download/31761045200615/31761045200615.pdf`, SHA-256 of that file downloaded to
   `tests/.generated/` and not committed, `approvedByOwner` = the T038 date); the entry in `THIRD_PARTY_NOTICES.md`; the
   sources README unchanged except the new folder needs no rejected-sources row
-- [ ] T040 [US2] Transcription A: `content/library/sources/own-grieg-op46-no1-transcription-a/morning-mood.ly` (the
+- [x] T040 [US2] Transcription A: `content/library/sources/own-grieg-op46-no1-transcription-a/morning-mood.ly` (the
   LilyPond subset of `tools/library/lilypond/`) from leaves n6-n9 of the scan, all 87 bars: pitches, rhythm, ties,
   grace notes, trills, `\arpeggio`, clef changes, dynamics and hairpins, slurs, pedal marks, Oesterle's fingering,
   tempo "Allegretto pastorale" dotted quarter = 60; plus `source.json` (`origin: "transcription"`, licence `CC0-1.0`,
@@ -295,6 +295,28 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
 - [ ] T041 [US2] Transcription B in a **separate session that never opens transcription A or the item**:
   `content/library/sources/own-grieg-op46-no1-transcription-b/morning-mood.ly` + `source.json`, same scope and rules as
   T040 (the hand-off names this constraint; the session's log entry confirms it)
+- [ ] T081 [US2] [standard] (new, found by T040, 2026-10-01: the print's bars 85-86 have a two-note tremolo E1-E2,
+  three beams, and the LilyPond subset has no `\repeat tremolo`, so transcription A writes it out in 32nds and the
+  item would engrave 36 notes the print does not show) Tests first in `tests/tools/lilypond/read.test.ts` and
+  `to-musicxml.test.ts`: `\repeat tremolo n { a32 b }` reads as the alternation it means (pitch, onset, duration of
+  every stroke) and is written as two notes with `<tremolo type="start|stop">3</tremolo>`; reader, converter and the
+  writer in `src/core/musicxml/write.ts`, contract fidelity-tools §3.1 (MINOR); then bars 85-86 of
+  `content/library/sources/own-grieg-op46-no1-transcription-a/morning-mood.ly` rewritten with it (manifest hash
+  updated). Owner decision first if it should not be done (see the 2026-10-01 T040 log entry)
+- [ ] T082 [US2] [standard] (new, found by T040) Tests first, then `\afterGrace` in the reader and converter (a
+  Nachschlag: grace notes at the end of their main note, `<grace>` after it in the MusicXML) so the trill endings of
+  bars 67-75 engrave where the print has them; transcription A then uses it instead of `\grace` before the next note
+  (bar 75's Nachschlag currently sits before the rest of bar 76)
+- [ ] T083 [US2] [standard] (new, found by T040) Tests first, then the converter writes a metronome mark with a dotted
+  beat (`\tempo "..." 4. = 60`) as `<metronome>` and `<sound tempo="90"/>` (quarter notes per minute) instead of
+  dropping it; without it *Morning Mood* has no playback tempo (transcriptions have no MIDI to take it from)
+- [ ] T084 [US2] [standard] (new, found by T040) `pnpm library:convert-ly` refuses a source without a MIDI sound file
+  (contract §3.4 cross-check), and a transcription has none, so T044 cannot run as written: decide in `plan.md` /
+  fidelity-tools §1 and §3.4 how a transcription source is converted (proposed: the read-back check stays, the MIDI
+  cross-check is replaced by T045's mechanical check against transcription B), tests first, then `tools/library/lilypond/cli.ts`
+- [ ] T085 [US2] [standard] (new, found by T040) Converter bug: a spacer followed by a grace note in the same voice
+  (`b''4 s8 \grace { a''16 b'' } b''4 s8`) gives a measure the app reports as not adding up; test first in
+  `tests/tools/lilypond/to-musicxml.test.ts`, then the fix (transcription A avoids it with `r8`)
 - [x] T042 [US2] [standard] Test first in `tests/library/fidelity.test.ts`: a source manifest with
   `origin: "transcription"` and licence `CC0-1.0` validates, an unknown `origin` fails; a mechanical check with
   `sourceFiles: ["notation"]` against a LilyPond source without MIDI runs. Fails today if `origin` is rejected by the
@@ -478,6 +500,7 @@ its detail lists the instruments; other items show no marker.
   T040 and T041 can run in parallel sessions but T041 must never see T040's output; T042-T043 before T044; T044 needs
   T040 and T043; T045 needs T041 and T044; T046 (OD-3, conditional) blocks T053-T058 when raised; T047 -> T048;
   T049 -> T050 -> T051 -> T052; T053 needs T045, T048 and T052; T053 -> T054 -> T055; T056, T057 and T076 need T055.
+  T081-T085 (found by T040) come before T044; T081 and T082 also before T041 if B is to use the same constructs.
 - US3 needs Phase 4's channels and mask (T030) and the panel (T016); it can be checked on `piano-and-oboe` before
   US2b is done; its *Morning Mood* steps wait for T055.
 - US4 needs T035 (the fact) and T055 (an item with an Orchestra).
