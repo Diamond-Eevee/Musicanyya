@@ -254,7 +254,7 @@ reads or writes it.
 
 **Model**: standard (gemini-3.8-flash or claude-sonnet-5.5; claude-opus-5.5 and gemini-3.1-pro also fit)
 
-- [ ] T020 Run every check of `specs/018-browser-tree-collapse/quickstart.md` "Manual verification" (US1-US4) with
+- [x] T020 Run every check of `specs/018-browser-tree-collapse/quickstart.md` "Manual verification" (US1-US4) with
   `pnpm screenshot` and the dev build. Store the PNGs in `tests/.generated/018/`, look at each one, and log the result
   per step
 - [ ] T021 [deep] Constitution audit of the full diff `main..018-browser-tree-collapse` with the

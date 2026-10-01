@@ -122,3 +122,21 @@
 - Model fit: owner chose nothing yet for T021 (`deep`); I am claude-sonnet-5.5 and will ask before it.
 - Handoff: next = T020 (quickstart manual verification with `pnpm screenshot`, PNGs to `tests/.generated/018/`), then
   T021 (`deep`: ask the owner switch or continue), T022, T023; tree clean at the next commit.
+
+## 2026-10-01 - claude-sonnet-5.5 (implement: T020 manual verification)
+- T020 per quickstart "Manual verification" (PNGs in `tests/.generated/018/`, each one looked at; `pnpm screenshot` cannot
+  click, so a step that needs a click is covered by the named test and, where useful, by a seeded picture):
+  - US1 #1 Learning open shows Keys and Key changes, both closed: `marker-night.png` / `marker-paper.png`. #2 name click
+    chooses and opens, a second click keeps it open: `rail-tree.test.ts` cases 3-4, e2e "three name clicks". #3 the toggle
+    hides the key folders, list unchanged: `rail-tree.test.ts` case 1. #4 closed Keys with C major chosen shows the bar
+    and dot: `marker-night.png`, `marker-paper.png`. #5 keyboard: `rail-tree.test.ts` case 6 and the e2e keyboard walk
+    in `score-browser.spec.ts`. #6 no triangle on Continue, All, My files and key folders: `restore-paper.png`,
+    `rail-tree.test.ts` case 7.
+  - US2 #1 five closed entries, whole rail visible at 768 px tall: `fresh-night.png` and the e2e `scrollHeight <=
+    clientHeight` check. #2 reload keeps the open folders: e2e. #3 a stored `expanded` with `no/such/section`:
+    `stale-id-night.png` (Learning open, nothing else changed, no error). #4 `{not json`: `corrupt-night.png`
+    (collapsed rail, no message) and e2e.
+  - US3 #1-#2 `restore-paper.png` (Learning and Keys open, C major chosen, *Intermediate* selected with its detail,
+    empty score area) and e2e; #3 and #4 e2e (`score-browser-tree.spec.ts`).
+  - US4: reviewed in the entry above.
+- Handoff: next = T021 (`deep`, needs the owner's model-fit answer), then T022, T023; tree clean at the next commit.
