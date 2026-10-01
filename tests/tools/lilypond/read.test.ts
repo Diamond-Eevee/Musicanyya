@@ -362,7 +362,14 @@ describe('readLilyPond / fromLilyPond (contract fidelity-tools.md §3.1)', () =>
         95,
         /bar check/,
       ));
-    it('a repeat type other than volta and unfold', () => fails('{ \\repeat tremolo 4 { c16 d } }', 1, 11, /tremolo/));
+    it('a repeat type other than volta, unfold and tremolo', () =>
+      fails('{ \\repeat percent 4 { c16 d } }', 1, 11, /percent/));
+    it('a one-note tremolo (only the two-note form is read, 019 T081)', () =>
+      fails("{ \\repeat tremolo 8 c'32 }", 1, 3, /tremolo/));
+    it('a chord in a two-note tremolo', () => fails("{ \\repeat tremolo 4 { <c' e'>16 g' } }", 1, 3, /tremolo/));
+    it('a two-note tremolo whose notes have different values', () =>
+      fails("{ \\repeat tremolo 4 { c'16 g'8 } }", 1, 3, /tremolo/));
+    it('a tie out of a two-note tremolo', () => fails("{ \\repeat tremolo 4 { c'16 g'~ } g'4 }", 1, 3, /tremolo/));
     it('non-ASCII letters in the music (they are never note names)', () => fails("{ c'4 dé }", 1, 7, /dé/));
   });
 
@@ -556,6 +563,32 @@ describe('readLilyPond / fromLilyPond (contract fidelity-tools.md §3.1)', () =>
 
 // Feature 011 US3: two constructs of the approved song sources that carry no music. Lyrics are skipped (they are words, not
 // notes) and a repeat sign printed at the very end of a song is read as its final bar line (LilyPond's MIDI does not repeat it).
+describe('two-note tremolo (feature 019 T081, Grieg Op. 46 No. 1 bars 85-86)', () => {
+  const strokes = (text: string) => fromLilyPond(readLilyPond(text)).notes.map((x) => [x.midi, x.onset, x.duration]);
+
+  it('\\repeat tremolo n { a b } reads as the n-fold alternation it means: pitch, onset and duration of every stroke', () => {
+    // Bar 85: a dotted quarter's worth of 32nds E1-E2 after a dotted-quarter rest.
+    const expected = Array.from({ length: 12 }, (_, i) => [i % 2 === 0 ? 28 : 40, q(12 + i, 8), q(1, 8)]);
+    expect(strokes('{ \\time 6/8 r4 r8 \\repeat tremolo 6 { e,,32 e, } | }')).toEqual(expected);
+  });
+
+  it('two tremolos in one bar follow each other, and the bar adds up', () => {
+    const r = fromLilyPond(
+      readLilyPond('{ \\time 6/8 \\repeat tremolo 6 { e,,32 e, } \\repeat tremolo 6 { e,,32 e, } | }'),
+    );
+    expect(r.notes).toHaveLength(24);
+    expect(r.notes.at(-1)?.onset).toEqual(q(23, 8));
+    expect(r.bars).toHaveLength(1);
+    expect(r.bars[0]?.length).toEqual(q(3));
+  });
+
+  it('inside \\relative the second note is relative to the first, and the next note to the second', () => {
+    expect(strokes("\\relative c' { \\time 2/4 \\repeat tremolo 4 { c16 e } g4 | }").map(([m]) => m)).toEqual([
+      60, 64, 60, 64, 60, 64, 60, 64, 67,
+    ]);
+  });
+});
+
 describe('lyrics and a final repeat sign (feature 011, Mutopia 905 and 644)', () => {
   const notesOf = (text: string) => fromLilyPond(readLilyPond(text)).notes.map((x) => x.midi);
   const PLAIN = "\\relative c' { c4 d e f | g1 }";

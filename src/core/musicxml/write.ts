@@ -48,6 +48,9 @@ export interface WriteNote {
   slurs?: { type: 'start' | 'stop'; number: number }[];
   articulations?: WriteArticulation[];
   ornament?: WriteOrnament;
+  /** One note of a two-note tremolo (019 T081): `marks` tremolo beams between this note and its partner. Each note
+   *  prints the whole tremolo's value and sounds for half of it, so the caller also sets `timeModification` 2:1. */
+  tremolo?: { type: 'start' | 'stop'; marks: number };
   fermata?: boolean;
   /** A written arpeggio (rolled chord); set on every member of the chord. */
   arpeggiate?: boolean;
@@ -184,7 +187,10 @@ function writeNoteXml(note: WriteNote): string {
   if (note.fingering !== undefined) {
     notations.push(`<technical><fingering>${note.fingering}</fingering></technical>`);
   }
-  if (note.ornament) notations.push(`<ornaments><${note.ornament}/></ornaments>`);
+  const ornaments: string[] = [];
+  if (note.ornament) ornaments.push(`<${note.ornament}/>`);
+  if (note.tremolo) ornaments.push(`<tremolo type="${note.tremolo.type}">${note.tremolo.marks}</tremolo>`);
+  if (ornaments.length > 0) notations.push(`<ornaments>${ornaments.join('')}</ornaments>`);
   if (note.fermata) notations.push('<fermata/>');
   if (note.arpeggiate) notations.push('<arpeggiate/>');
   if (notations.length > 0) parts.push(`<notations>${notations.join('')}</notations>`);

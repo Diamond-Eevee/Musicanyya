@@ -209,6 +209,43 @@ describe('toMusicXml: what the printed page shows', () => {
     expect(() => toMusicXml(readLilyPond(src.replace('\\hideNotes ', '')))).toThrow('a note value scaled with *n/m');
   });
 
+  it('a two-note tremolo is written as its two printed notes with <tremolo> start/stop, and reads back stroke by stroke (019 T081)', () => {
+    // Grieg Op. 46 No. 1 bar 85: E1-E2 for a dotted quarter, three beams (32nds) between two dotted quarters.
+    const src = '{ \\time 6/8 r4 r8 \\repeat tremolo 6 { e,,32 e, } | }';
+    const score = readLilyPond(src);
+    const { xml } = toMusicXml(score);
+    const notes = xml
+      .split('<note')
+      .slice(1)
+      .filter((x) => x.includes('<pitch>'));
+    expect(notes).toHaveLength(2);
+    expect(notes[0]).toContain('<pitch><step>E</step><octave>1</octave></pitch>');
+    expect(notes[1]).toContain('<pitch><step>E</step><octave>2</octave></pitch>');
+    for (const note of notes) {
+      // each printed note shows the whole tremolo's value and sounds for half of it (2 in the time of 1)
+      expect(note).toContain('<type>quarter</type><dot/>');
+      expect(note).toContain('<time-modification><actual-notes>2</actual-notes><normal-notes>1</normal-notes>');
+    }
+    expect(notes[0]).toContain('<ornaments><tremolo type="start">3</tremolo></ornaments>');
+    expect(notes[1]).toContain('<ornaments><tremolo type="stop">3</tremolo></ornaments>');
+    expect(compare(fromMusicXml(xml), fromLilyPond(score), ALL, { itemBars: 'all', sourceBars: 'all' })).toEqual([]);
+    expect(fromMusicXml(xml).notes).toHaveLength(12);
+    const loaded = buildScore(readXml(xml).doc);
+    expect(loaded.report.entries.map((e) => e.code).filter((c) => c !== 'defaultTempo')).toEqual([]);
+    expect(loaded.score.parts[0]?.notes.map((n) => [n.soundingKey, n.ornament])).toEqual([
+      [28, 'tremolo'],
+      [40, 'tremolo'],
+    ]);
+  });
+
+  it('a tremolo of eighths counts the eighth beam: two marks for 32nd strokes (019 T081)', () => {
+    // two 32nd pairs last an eighth: two printed eighths, each sounding a 16th
+    const { xml } = toMusicXml(readLilyPond("{ \\time 2/4 \\repeat tremolo 2 { c'32 g' } r4. | }"));
+    expect(xml).toContain('<type>eighth</type>');
+    expect(xml).toContain('<tremolo type="start">2</tremolo>');
+    expect(xml).toContain('<tremolo type="stop">2</tremolo>');
+  });
+
   it('a tie that no later note of its voice continues is not written; a continued one is (017 T054)', () => {
     // LilyPond prints no tie from the first C (an "unterminated tie": the next note is a D); the second C ties on.
     const { xml } = toMusicXml(readLilyPond("{ \\time 4/4 c'4 ~ d'4 c'4 ~ c'4 | }"));

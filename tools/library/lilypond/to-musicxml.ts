@@ -366,6 +366,8 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
             : {}),
         ...(e.grace ? { grace: { slash: e.grace === '\\acciaccatura' || e.grace === '\\slashedGrace' } } : {}),
         ...(e.tuplet ? { timeModification: { actual: e.tuplet.actual, normal: e.tuplet.normal } } : {}),
+        // a tremolo note prints the whole tremolo's value and lasts half of it (019 T081)
+        ...(e.tremolo ? { timeModification: { actual: 2, normal: 1 }, tremolo: e.tremolo } : {}),
         ...(arpeggiate ? { arpeggiate: true } : {}),
         ...(e.hidden ? { printObject: false as const } : {}),
         ...(memberNotations[i] as typeof notations),

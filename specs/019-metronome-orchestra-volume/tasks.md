@@ -295,7 +295,7 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
 - [ ] T041 [US2] Transcription B in a **separate session that never opens transcription A or the item**:
   `content/library/sources/own-grieg-op46-no1-transcription-b/morning-mood.ly` + `source.json`, same scope and rules as
   T040 (the hand-off names this constraint; the session's log entry confirms it)
-- [ ] T081 [US2] [standard] (new, found by T040, 2026-10-01: the print's bars 85-86 have a two-note tremolo E1-E2,
+- [x] T081 [US2] [standard] (new, found by T040, 2026-10-01: the print's bars 85-86 have a two-note tremolo E1-E2,
   three beams, and the LilyPond subset has no `\repeat tremolo`, so transcription A writes it out in 32nds and the
   item would engrave 36 notes the print does not show) Tests first in `tests/tools/lilypond/read.test.ts` and
   `to-musicxml.test.ts`: `\repeat tremolo n { a32 b }` reads as the alternation it means (pitch, onset, duration of

@@ -522,6 +522,26 @@ describe('writeScoreXml (contracts/exercise-definition.md - the minimal writer)'
       ]);
     });
 
+    it('writes a two-note tremolo in <ornaments>, beside another ornament, as the reader takes it (019 T081)', () => {
+      const half = { timeModification: { actual: 2, normal: 1 } };
+      const { xml, notes, notices } = load([
+        first([
+          note('E', 2, 4, 'half', { ...half, tremolo: { type: 'start', marks: 3 } }),
+          note('E', 3, 4, 'half', { ...half, tremolo: { type: 'stop', marks: 3 }, ornament: 'trill-mark' }),
+          note('C', 4, 8, 'half'),
+        ]),
+      ]);
+      expect(notices).toEqual([]);
+      expect(xml).toContain('<notations><ornaments><tremolo type="start">3</tremolo></ornaments></notations>');
+      expect(xml).toContain('<ornaments><trill-mark/><tremolo type="stop">3</tremolo></ornaments>');
+      expect(notes.map((n) => [n.soundingKey, n.onsetInMeasure, n.ornament])).toEqual([
+        [40, 0, 'tremolo'],
+        [52, notes[1]?.onsetInMeasure, 'tremolo'], // the app keeps one ornament per note, the last one written
+        [60, notes[2]?.onsetInMeasure, null],
+      ]);
+      expect(notes[1]?.onsetInMeasure).toBe(notes[0]?.durationTicks);
+    });
+
     it('writes dynamics and hairpins that the reader records per part', () => {
       const { xml, score, notices } = load([
         first([

@@ -2,7 +2,7 @@
 // LilyPond itself resolves while parsing: durations carried over from the previous note, in source order. Octaves
 // under \relative are resolved later (read.ts), after variables are expanded, as LilyPond does. Every construct
 // outside the subset throws LyUnsupportedError with its line and column.
-import { type QuarterTime, q } from '../fidelity/time';
+import { cmp, type QuarterTime, q } from '../fidelity/time';
 import { LyUnsupportedError } from './errors';
 import { type LyToken, lexLilyPond } from './lex';
 
@@ -98,6 +98,8 @@ export type LyMusic =
   | { kind: 'grace'; command: string; body: LyMusic; pos: Pos }
   | { kind: 'repeat'; mode: 'volta' | 'unfold'; times: number; body: LyMusic; alternatives: LyMusic[]; pos: Pos }
   | { kind: 'unfoldRepeats'; body: LyMusic; pos: Pos }
+  /** \repeat tremolo n { a b } (019 T081): two notes of one value, alternating n times; `body` holds the two notes. */
+  | { kind: 'tremolo'; times: number; body: LyMusic; pos: Pos }
   | { kind: 'articulate'; body: LyMusic; pos: Pos }
   | { kind: 'context'; type: string; name?: string; body: LyMusic; pos: Pos }
   | { kind: 'changeStaff'; name: string; pos: Pos }
@@ -704,6 +706,22 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
     return parseDirectedPost(marks, placement);
   }
 
+  /** Only the two-note tremolo the print uses (019 T081): two single notes of one value, neither tied. A one-note
+   *  tremolo, a chord, a tie or two different values are refused, so nothing is read that the converter cannot write. */
+  function tremolo(t: LyToken, times: number, body: LyMusic): LyMusic {
+    const [a, b, ...more] = body.kind === 'seq' ? body.items : [];
+    if (a?.kind !== 'note' || b?.kind !== 'note' || more.length > 0)
+      return unsupported(t, '\\repeat tremolo other than two single notes');
+    const same =
+      a.duration.base === b.duration.base &&
+      a.duration.dots === b.duration.dots &&
+      cmp(a.duration.factor, b.duration.factor) === 0;
+    if (!same) return unsupported(t, '\\repeat tremolo with two different note values');
+    if (a.tie || b.tie) return unsupported(t, '\\repeat tremolo with a tie');
+    if (!(times >= 1)) return unsupported(t, `\\repeat tremolo ${times}`);
+    return { kind: 'tremolo', times, body, pos: at(t) };
+  }
+
   function parseCommand(): LyMusic {
     const t = next();
     const p = at(t);
@@ -745,9 +763,11 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
       case '\\repeat': {
         // The mode may also be written as a string, \repeat "volta" 2 (017 T049, Mutopia's Anna Magdalena sources).
         const mode = is('string') ? next() : expect('word');
-        if (mode.value !== 'volta' && mode.value !== 'unfold') unsupported(mode, `\\repeat ${mode.value}`);
+        if (mode.value !== 'volta' && mode.value !== 'unfold' && mode.value !== 'tremolo')
+          unsupported(mode, `\\repeat ${mode.value}`);
         const times = Number(expect('number').value);
         const body = parseMusic();
+        if (mode.value === 'tremolo') return tremolo(t, times, body);
         const alternatives: LyMusic[] = [];
         if (is('command', '\\alternative')) {
           next();

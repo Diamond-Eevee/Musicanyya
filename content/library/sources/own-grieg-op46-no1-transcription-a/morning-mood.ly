@@ -304,11 +304,10 @@ lhTwo = {
   <b,, b,>8 r8 r8 r4 r8 | <b,, b,>8 r8 r8 <b,, b,>8 r8 r8 |
   % 79-82
   e,2. | e,2. | s2. | s2. |
-  % 83-87; subset: the printed two-note tremolo E1-E2 (three beams) is written out in 32nds (\repeat tremolo is
-  % not in the subset)
+  % 83-87; bars 85-86: the printed two-note tremolo E1-E2, two dotted quarters joined by three beams (32nds)
   s2. | s2. |
-  r4 r8 e,,32[ e, e,, e, e,, e, e,, e, e,, e, e,, e,] |
-  e,,32[ e, e,, e, e,, e, e,, e, e,, e, e,, e,] e,,32[ e, e,, e, e,, e, e,, e, e,, e, e,, e,] |
+  r4 r8 \repeat tremolo 6 { e,,32 e, } |
+  \repeat tremolo 6 { e,,32 e, } \repeat tremolo 6 { e,,32 e, } |
   e,,4\sustainOff s2
 }
 
