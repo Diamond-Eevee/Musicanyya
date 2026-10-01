@@ -11,3 +11,11 @@
 - Problems / open questions: none; no owner decisions.
 - Model fit: steps are tier `deep`; claude-opus-5.5 fits.
 - Handoff: next = `/speckit:tasks`; no code changed yet, gate not run (docs only).
+
+## 2026-10-01 - claude-opus-5.5 (tasks)
+- Done: tasks.md, T001-T023 in 6 phases (Setup, Foundational, US1+US2 together because both are P1 and share the rail
+  change, US3, US4, Polish). Tiers: 6 light (T001-T003, T019, T022, T023), 16 standard, 1 deep (T021 audit).
+- Decisions: the persistence tests (T006) are in Phase 2 so they fail before the stored field exists (test-first);
+  no RT review (no real-time path) and no owner gate (no open decision).
+- Model fit: the tasks step is tier `standard`; claude-opus-5.5 fits.
+- Handoff: next = `/speckit:analyze`, then `/speckit:implement` from T001; no code changed yet.
