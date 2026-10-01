@@ -92,9 +92,13 @@ export interface AudioEngine extends Emitter<AudioEngineEvent> {
   setVolume(volume: number): void; // 0..100
   /** CC7 on one channel, applied at the next block. Used to mute the Metronome without touching the schedule. */
   setChannelVolume(channel: number, volume: number): void; // 0..100
+  /** The Orchestra level, 0..100 (feature 019, ports 2.2.0). Held by the engine, sent now and to every new worklet node; the
+   *  worklet applies it as CC11 on the Orchestra channels. */
+  setOrchestraLevel(level: number): void;
   /** Live input (US3), applied as soon as possible. */
-  liveNoteOn(key: number, velocity: number): void;
-  liveNoteOff(key: number): void;
+  /** `channel` (0..15, feature 019): the channel the note plays on, for Orchestra notes; the live channel when omitted. */
+  liveNoteOn(key: number, velocity: number, channel?: number): void;
+  liveNoteOff(key: number, channel?: number): void;
   liveSustain(down: boolean): void;
   liveAllOff(): void;
   /** Called every animation frame by the UI; returns the audible position (R-11). */

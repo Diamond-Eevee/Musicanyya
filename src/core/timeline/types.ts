@@ -44,6 +44,9 @@ export interface ChannelSetup {
   percussion: boolean;
   volume: number | null;
   pan: number | null;
+  /** The channel carries Orchestra instruments only (feature 019): never one that a printed part also uses, so the Orchestra
+   *  level, set per channel, can never change a printed part. */
+  orchestra: boolean;
 }
 
 export interface PlaybackTimeline {

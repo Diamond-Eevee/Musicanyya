@@ -10,7 +10,7 @@ import {
 } from './dynamics.js';
 import type { GraceInput, TimedNote } from './grace.js';
 import { computeGraceTiming } from './grace.js';
-import { assignChannels, channelForNote, instrumentForNote, soundingKeyForNote } from './instruments.js';
+import { assignChannels, channelForNote, channelOrNull, instrumentForNote, soundingKeyForNote } from './instruments.js';
 import type { TieOccurrence } from './ties.js';
 import { resolveTies } from './ties.js';
 import type { PlaybackTimeline, SoundingEvent, VisualSpan } from './types.js';
@@ -49,6 +49,9 @@ export function buildTimeline(score: Score): TimelineResult {
 
   const tempo = buildTempoMap(score.tempoMarks, passes);
   const assignment = assignChannels(score.parts);
+  if (assignment.orchestraChannelsShared) notices.push({ code: 'orchestraChannelsShared' });
+  // Orchestra notes sound but are not shown: the cursor's visual spans leave them out (feature 019, research R-3)
+  const orchestraParts = new Set(score.parts.filter((p) => p.orchestra).map((p) => p.index));
 
   const passesByMeasure = new Map<number, { passIndex: number; startTick: number }[]>();
   passes.forEach((p, passIndex) => {
@@ -120,7 +123,9 @@ export function buildTimeline(score: Score): TimelineResult {
     for (const member of chain.members) {
       const meta = metaByKey.get(member.noteId);
       if (!meta) continue;
-      spans.push({ noteId: meta.note.id, startTick: member.startTick, endTick: member.endTick });
+      if (!orchestraParts.has(meta.part)) {
+        spans.push({ noteId: meta.note.id, startTick: member.startTick, endTick: member.endTick });
+      }
     }
 
     const headOcc = chain.members[0];
@@ -137,6 +142,8 @@ export function buildTimeline(score: Score): TimelineResult {
       continue;
     }
     if (!instrument) continue;
+    // An Orchestra instrument with no program, or no channel left, is not played - never as a piano (019 FR-014)
+    if (part.orchestra && channelOrNull(assignment, part, instrument) === null) continue;
 
     const baseline = baselineByPart.get(part.index) ?? [];
     const wedges = wedgesByPart.get(part.index) ?? [];

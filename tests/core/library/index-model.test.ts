@@ -199,6 +199,17 @@ describe('library-index 1.2.0 fields', () => {
     expect(index.items[0]?.facts.minorScaleAccidentalCount).toBe(4);
   });
 
+  // Feature 019 (library-index 1.3.0): the Orchestra's instrument names reach the browser
+  it('copies the orchestra fact, a list of instrument names, and ignores one that is not', () => {
+    const copied = parseLibraryIndex(validIndex([stepItem({}, { orchestra: ['Flute', 'Oboe', 'Strings'] })]));
+    expect(copied.index.items[0]?.facts.orchestra).toEqual(['Flute', 'Oboe', 'Strings']);
+    for (const bad of ['Oboe', [1, 2], [], null, {}]) {
+      const { index } = parseLibraryIndex(validIndex([stepItem({}, { orchestra: bad })]));
+      expect(index.items[0]?.facts.orchestra, JSON.stringify(bad)).toBeUndefined();
+    }
+    expect('orchestra' in (parseLibraryIndex(validIndex([stepItem({})])).index.items[0]?.facts ?? {})).toBe(false);
+  });
+
   it('accepts a section with formerIds and keeps them', () => {
     const raw = validIndex();
     raw.sections.push({

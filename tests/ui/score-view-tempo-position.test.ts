@@ -99,6 +99,7 @@ describe('mx-score-view publishes tempoPositionState', () => {
             onsetTick: secondSegmentTick,
             required: [{ key: 60, noteIds: ['a'], staff: 1 }],
             accompaniment: [],
+            orchestra: [],
           },
         ],
         startEventIndex: 0,

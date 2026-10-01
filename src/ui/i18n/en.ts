@@ -171,6 +171,10 @@ export const en = {
     itemCount: '{n} item',
     itemCountPlural: '{n} items',
     folders: { continue: 'Continue', all: 'All', myFiles: 'My files' },
+    /** Feature 019 US4: an item with an Orchestra (instruments that sound but are not printed). */
+    withOrchestra: 'with orchestra',
+    withOrchestraName: 'With orchestra',
+    orchestraLine: 'Orchestra: {instruments}',
     /** 018 R-7: spoken after the name of a collapsed folder that holds the chosen folder (the marker is also drawn). */
     containsChosen: ', contains the chosen folder',
     status: {

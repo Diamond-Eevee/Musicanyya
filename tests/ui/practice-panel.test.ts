@@ -238,6 +238,7 @@ describe('mx-practice-panel', () => {
             onsetTick: 0,
             required: [{ key: 60, noteIds: ['a'], staff: 1 }],
             accompaniment: [],
+            orchestra: [],
           },
         ],
         startEventIndex: 0,

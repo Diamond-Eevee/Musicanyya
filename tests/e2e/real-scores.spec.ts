@@ -303,8 +303,9 @@ test.describe('real repertoire engraves like a printed music book (FR-002)', () 
       expect(counts.tabText).toBeGreaterThan(0);
     });
 
-    // 017 T021 (from 001 T169): a measure repeat's encoded notes are played, so they must be engraved too - one element
-    // per playable Note ID (Constitution III). The percussion example's second part repeats its measure 1 that way.
+    // 017 T021 (from 001 T169): a measure repeat's encoded notes are printed notes (not marked `print-object="no"`), so they
+    // must be engraved too - one element per playable (printed) Note ID (Constitution III as clarified 1.3.1). The percussion
+    // example's second part repeats its measure 1 that way.
     const everyNoteDrawn = (page: Page) =>
       page.evaluate(() => {
         const score = (

@@ -126,7 +126,10 @@ export function compilePlaySchedule(
     if (ev.startTick < rangeStartTick || ev.startTick >= rangeEndTick) continue;
     const isGraded = ev.members.some((id) => options.gradedNoteIds.has(id));
     if (isGraded) continue;
-    if (!options.accompaniment) continue;
+    // The Orchestra (feature 019) is not the accompaniment: it sounds whatever that setting says, behind the count-in like
+    // every other event, and is never graded (its notes are not printed, so never in `gradedNoteIds`)
+    const isOrchestra = timeline.channels[ev.channel]?.orchestra === true;
+    if (!options.accompaniment && !isOrchestra) continue;
     keptEvents.push({ ...ev, startTick: ev.startTick + shift, endTick: ev.endTick + shift });
   }
 

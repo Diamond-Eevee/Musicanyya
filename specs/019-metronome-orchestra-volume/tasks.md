@@ -164,7 +164,7 @@ plays piano and oboe; Practice and Play offer the piano only and never wait for 
   made with `/speckit:constitution`; or choose an alternative. Blocks T028-T037 and everything after them in Phases
   5-7 (the tests T019-T027 and T075 may be written first). Record the answer here - **owner approved 2026-10-01**
   ("Clarify"); constitution amended 1.3.0 -> 1.3.1 by claude-opus-5.5 the same day
-- [ ] T078 [US2] [light] (plan.md row III already set to `[x]` with the amendment, 2026-10-01) Reword the comments
+- [x] T078 [US2] [light] (plan.md row III already set to `[x]` with the amendment, 2026-10-01) Reword the comments
   "every played note has its element" in `src/workers/score.worker.ts` (line ~78) and "its encoded notes are played"
   in `tests/e2e/real-scores.spec.ts` (line ~306) to say "printed" (comments only; no logic change)
 
@@ -179,50 +179,50 @@ plays piano and oboe; Practice and Play offer the piano only and never wait for 
   test compares against it - a twin is made by cutting **exactly** the Orchestra `<score-part>` and `<part>` elements
   (the same byte ranges the render copy removes, nothing else, whitespace around them kept), so T021's byte-for-byte
   comparison is meaningful (analyze A7)
-- [ ] T020 [P] [US2] Parser tests `tests/core/musicxml/orchestra.test.ts`: `Part.orchestra` and `printed: false` on
+- [x] T020 [P] [US2] Parser tests `tests/core/musicxml/orchestra.test.ts`: `Part.orchestra` and `printed: false` on
   every Orchestra note for the first three fixtures; `hiddenStaffIgnored` (one entry per part, part printed) for
   `partly-hidden`, `hidden-later`, `shown-again` and `all-hidden`; `orchestraInstrumentMissing` and no sound for
   `orchestra-no-program`; a missing `number` means staff 1; printed Note IDs equal the twin's (for `orchestra-first`
   with the part index mapped). Fails today: no `orchestra` field, no warnings
-- [ ] T021 [P] [US2] Render-copy and worker tests: extend `tests/core/musicxml/render-copy.test.ts` (`removals` cut the
+- [x] T021 [P] [US2] Render-copy and worker tests: extend `tests/core/musicxml/render-copy.test.ts` (`removals` cut the
   byte ranges in the single pass; a note, measure, element insert or rewrite inside a removal is dropped; ranges
   untouched elsewhere) and `tests/engine/score-worker.test.ts` (for each Orchestra fixture: `renderXml` contains no
   Orchestra `<score-part>`/`<part>`; measure ids sit on the first printed part, also for `orchestra-first`;
   `summary.parts[].orchestra`; `timeline.spans` contain no Orchestra Note ID; the render copy equals the twin's render
   copy byte for byte, so the engraving is identical - SC-004 by construction; for `orchestra-first` equal after mapping
   the piano's part index 1 -> 0 in the Note IDs, orchestra-score §2). Fails today: no removals
-- [ ] T022 [P] [US2] Channel and schedule tests: extend `tests/core/timeline/instruments.test.ts` (Orchestra
+- [x] T022 [P] [US2] Channel and schedule tests: extend `tests/core/timeline/instruments.test.ts` (Orchestra
   instruments never share a printed part's channel, also with the same program; `ChannelSetup.orchestra`; when no
   channel is free they share the last Orchestra channel and `orchestraChannelsShared` is reported) and
   `tests/core/schedule/compile.test.ts` (`orchestraMask` bits; `mergeSchedules` keeps the mask). Fails today: no
   `orchestra` flag or mask
-- [ ] T023 [P] [US2] Extend `tests/core/play/play-schedule.test.ts`: with `accompaniment: false` every Orchestra-channel
+- [x] T023 [P] [US2] Extend `tests/core/play/play-schedule.test.ts`: with `accompaniment: false` every Orchestra-channel
   event is kept and every other non-graded event dropped; Orchestra events are shifted behind the count-in (none
   before `countInTicks`); a range keeps only the Orchestra events inside it; no Orchestra Note ID is in
   `gradedNoteIds`. Fails today: Orchestra events are dropped with the accompaniment
-- [ ] T024 [P] [US2] Practice tests `tests/core/practice/orchestra.test.ts` (practice-session 1.8.0): `ExpectedEvent.orchestra`
+- [x] T024 [P] [US2] Practice tests `tests/core/practice/orchestra.test.ts` (practice-session 1.8.0): `ExpectedEvent.orchestra`
   holds the Orchestra notes of [this onset, next onset) with their channel and never appears in `required` or
   `accompaniment`; arriving at an event emits `orchestraOn { channel, key, velocity }` with `accompaniment` on and
   off; the cursor passing a note's end emits `orchestraOff`; stop, a loop jump and the end (all keys up) release every
   sounding Orchestra note; `setAccompaniment(false)` releases none of them; no Orchestra Note ID is ever marked; a key
   pressed at an Orchestra pitch gets the same feedback as on the twin fixture; an Orchestra note on
   `PERCUSSION_CHANNEL` is never put into `orchestra` (orchestra-score §5, analyze A8). Fails today: no `orchestra` list
-- [ ] T025 [P] [US2] Grading tests `tests/core/grade/orchestra.test.ts`: for recorded performance logs on
+- [x] T025 [P] [US2] Grading tests `tests/core/grade/orchestra.test.ts`: for recorded performance logs on
   `piano-and-oboe` (all correct; one wrong key at the oboe's pitch; one missed note) the Grade equals the Grade of the
   same log on the twin (SC-005 by construction); `buildPlayedAlongSpans` contains no span from an Orchestra note; the
   existing golden snapshots in `tests/core/grade/__snapshots__/` are unchanged (run, do not update). Fails today:
   the oboe notes are accompaniment and excuse the wrong key
-- [ ] T026 [P] [US2] Worklet tests `tests/engine/worklets/score-player.live-channel.test.ts` and an extension of
+- [x] T026 [P] [US2] Worklet tests `tests/engine/worklets/score-player.live-channel.test.ts` and an extension of
   `score-player.no-alloc.test.ts` (worklet-protocol 1.6.0, `live`): a `live` on/off with `channel` 3 reaches the synth
   on channel 3; without `channel` on `LIVE_CHANNEL`; `channel` 16, -1, 2.5, `PERCUSSION_CHANNEL` and
   `METRONOME_CHANNEL` are dropped and counted in `liveDropped`; `allOff` also releases every channel of the schedule's
   `orchestraMask`; draining a full queue with channels allocates nothing. Extend `tests/engine/worklets/live-queue.test.ts`
   for the channel slot. Fails today: `channel` is ignored
-- [ ] T027 [P] [US2] Extend `tests/core/library/facts.test.ts`: on `piano-and-oboe` every fact equals the twin's except
+- [x] T027 [P] [US2] Extend `tests/core/library/facts.test.ts`: on `piano-and-oboe` every fact equals the twin's except
   `orchestra: ["Oboe"]`; `parts` counts printed parts only; an item without Orchestra has no `orchestra` field. Fails
   today: Orchestra notes are counted
 
-- [ ] T075 [P] [US2] Offline render test `tests/engine/orchestra-transport.test.ts` on `piano-and-oboe` through the
+- [x] T075 [P] [US2] Offline render test `tests/engine/orchestra-transport.test.ts` on `piano-and-oboe` through the
   shared harness (FR-017, analyze A2): the score worker's schedule marks the oboe channel in `orchestraMask` (fails
   today); a Listen `seek` into the middle of a held oboe note sounds no oboe note until the next oboe onset (a note that
   started before the start point is not struck); `pause` and `stop` release every sounding oboe note within one render
@@ -230,34 +230,39 @@ plays piano and oboe; Practice and Play offer the piano only and never wait for 
 
 ### Implementation
 
-- [ ] T028 [US2] Parser: detection of Orchestra parts, `Part.orchestra`, `printed: false`, the warnings
+- [x] T028 [US2] Parser: detection of Orchestra parts, `Part.orchestra`, `printed: false`, the warnings
   `hiddenStaffIgnored`, `orchestraInstrumentMissing` in `src/core/musicxml/build.ts` and `src/core/score/model.ts`;
   the `SUPPORT_MATRIX` row in `src/core/musicxml/support.ts` and the matching text in `docs/musicxml-support.md`
   (`tests/core/musicxml/support-doc-sync.test.ts` stays green) (T020 green)
-- [ ] T029 [US2] Render copy and worker: `removals` in `src/core/musicxml/render-copy.ts`; in
+- [x] T029 [US2] Render copy and worker: `removals` in `src/core/musicxml/render-copy.ts`; in
   `src/workers/score.worker.ts` the Orchestra ranges as removals, no note inserts for Orchestra notes, measure ids on
   the first printed part, `summary.parts[].orchestra` (T021 green)
-- [ ] T030 [US2] Timeline and schedule: Orchestra channels in `src/core/timeline/instruments.ts`, `ChannelSetup.orchestra`
+- [x] T030 [US2] Timeline and schedule: Orchestra channels in `src/core/timeline/instruments.ts`, `ChannelSetup.orchestra`
   in `src/core/timeline/types.ts`, spans without Orchestra notes in `src/core/timeline/timeline.ts`, `orchestraMask`
   in `src/core/schedule/compile.ts` and `mergeSchedules` (T022 green)
-- [ ] T031 [US2] Keep Orchestra events in `src/core/schedule/play-schedule.ts` regardless of `accompaniment` (T023 green)
-- [ ] T032 [US2] Practice: `OrchestraRef`, `ExpectedEvent.orchestra`, `soundingOrchestra`, effects `orchestraOn` /
+- [x] T031 [US2] Keep Orchestra events in `src/core/schedule/play-schedule.ts` regardless of `accompaniment` (T023 green)
+- [x] T032 [US2] Practice: `OrchestraRef`, `ExpectedEvent.orchestra`, `soundingOrchestra`, effects `orchestraOn` /
   `orchestraOff` in `src/core/practice/types.ts`, `expected.ts`, `matcher.ts` (T024 green; T025 green with the
   grading side following from `expected.ts`; change `src/core/grade/expected.ts` only if T025 still fails)
-- [ ] T033 [US2] Engine: `liveNoteOn(key, velocity, channel?)` / `liveNoteOff(key, channel?)` in `src/engine/ports.ts`,
+- [x] T033 [US2] Engine: `liveNoteOn(key, velocity, channel?)` / `liveNoteOff(key, channel?)` in `src/engine/ports.ts`,
   `src/engine/audio/web-audio-engine.ts`, `tests/fakes/fake-audio-engine.ts`; the channel slot in
   `src/engine/worklets/live-queue.ts`; validation, drain and `allOff` in
   `src/engine/worklets/score-player.processor.ts` (T026 green)
-- [ ] T034 [US2] Session: handle `orchestraOn` / `orchestraOff` in `src/app/session.ts` (`handlePracticeEffect`) and
+- [x] T034 [US2] Session: handle `orchestraOn` / `orchestraOff` in `src/app/session.ts` (`handlePracticeEffect`) and
   release sounding Orchestra notes wherever accompaniment notes are released today (stop, mode switch, Score change),
   keyed by channel and key
-- [ ] T035 [US2] Facts from printed parts only and the `orchestra` fact in `src/core/library/facts.ts` and
+- [x] T035 [US2] Facts from printed parts only and the `orchestra` fact in `src/core/library/facts.ts` and
   `src/core/library/types.ts` (T027 green); `pnpm library:index` leaves `public/library/index.json` unchanged
   (no item has an Orchestra yet)
-- [ ] T036 [US2] RT review with `rt-audio-reviewer` of T033 (live queue channel slot, `live.channel` validation in the
+- [x] T036 [US2] RT review with `rt-audio-reviewer` of T033 (live queue channel slot, `live.channel` validation in the
   handler, the drain in `process()`, `allOff` over the mask, at most 16 channels per setup) and T034 (no timer decides an Orchestra note); findings
   and resolution in the log
-- [ ] T037 [US2] Checkpoint US2a: the Independent Test above with `pnpm screenshot --file
+- [ ] T080 [US2] [standard] (new, RT review T036: the live queue holds `LIVE_QUEUE_CAPACITY` = 64 entries and one Practice event can
+  send an `orchestraOff` per ended note plus an `orchestraOn` per new note on top of the accompaniment; a dropped note-off is a
+  stuck note) Once *Morning Mood* exists (after T055): a test in `tests/core/practice/orchestra.test.ts` that builds its expected
+  events and fails when the most live messages one input produces (offs + ons + accompaniment) exceed half the capacity; raise
+  `LIVE_QUEUE_CAPACITY` (with the worklet-protocol note) if it does
+- [x] T037 [US2] Checkpoint US2a: the Independent Test above with `pnpm screenshot --file
   tests/fixtures/musicxml/orchestra/piano-and-oboe.musicxml` (two staves; `--practice` expects piano keys only; the
   on-screen piano with `--piano` lights no oboe key in Listen); full gate; log entry; commit
 
@@ -290,11 +295,11 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
 - [ ] T041 [US2] Transcription B in a **separate session that never opens transcription A or the item**:
   `content/library/sources/own-grieg-op46-no1-transcription-b/morning-mood.ly` + `source.json`, same scope and rules as
   T040 (the hand-off names this constraint; the session's log entry confirms it)
-- [ ] T042 [US2] [standard] Test first in `tests/library/fidelity.test.ts`: a source manifest with
+- [x] T042 [US2] [standard] Test first in `tests/library/fidelity.test.ts`: a source manifest with
   `origin: "transcription"` and licence `CC0-1.0` validates, an unknown `origin` fails; a mechanical check with
   `sourceFiles: ["notation"]` against a LilyPond source without MIDI runs. Fails today if `origin` is rejected by the
   manifest reader (`tools/library/fidelity/sources.ts`)
-- [ ] T043 [US2] [standard] Accept `origin` in `tools/library/fidelity/sources.ts` (and wherever manifests are
+- [x] T043 [US2] [standard] Accept `origin` in `tools/library/fidelity/sources.ts` (and wherever manifests are
   validated) (T042 green)
 - [ ] T044 [US2] [standard] The item: `pnpm library:convert-ly own-grieg-op46-no1-transcription-a
   repertoire/advanced/grieg-morning-mood`, then `pnpm library:engrave`; the sidecar
@@ -313,18 +318,18 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   that are not rolled (expected at bars 77-78 and 85), ask the owner with the measured spans: leave the item out (as
   *The Entertainer* in 017) or change the library's span rule. Blocks T053-T058 if raised; record the answer here, or
   "not needed: <facts>" when every wide chord is rolled
-- [ ] T047 [US2] [standard] Tests first in `tests/core/library/levels.test.ts` and `tests/core/library/facts.test.ts`
+- [x] T047 [US2] [standard] Tests first in `tests/core/library/levels.test.ts` and `tests/core/library/facts.test.ts`
   for the documented Advanced `<arpeggiate>` exception (R-17): a chord whose notes all carry `<arpeggiate>` is left
   out of `maxSpanSemitones` and counted in `maxArpeggiatedSpanSemitones`; criterion 16 at Advanced accepts any rolled
   span ("<= 14, wider only under `<arpeggiate>`", 005 data-model.md criterion 16 - no new limit); below Advanced a
   rolled chord wider than the level's limit still fails (its span is checked against `maxArpeggiatedSpanSemitones`
   there). A chord with only some notes arpeggiated counts as not rolled. Fails today: arpeggiated chords count in `maxSpanSemitones`
-- [ ] T048 [US2] [standard] Implement the exception in `src/core/library/facts.ts`, `src/core/library/levels.ts`,
+- [x] T048 [US2] [standard] Implement the exception in `src/core/library/facts.ts`, `src/core/library/levels.ts`,
   `src/core/library/types.ts`, replacing the "not modelled" comment at `LEVEL_MAX_INTERVAL_SEMITONES` in
   `src/core/defaults.ts`;
   `pnpm library:index` changes no other item's level (`tests/library/regeneration.test.ts` and `index.test.ts` green)
   (T047 green)
-- [ ] T049 [P] [US2] [standard] Tests first `tests/library/orchestra.test.ts` (orchestration-definition.md): definition
+- [x] T049 [P] [US2] [standard] Tests first `tests/library/orchestra.test.ts` (orchestration-definition.md): definition
   validation errors (unknown instrument, overlapping passages of one instrument, bars outside the piece, `octaves`
   empty or out of -2..2); generation on a small own-work piano fixture: `pick` top/bottom/all per onset, `minQuarters`,
   every entry of `octaves`, `fitRange` true moves into range and false errors, grace and trilled notes never doubled,
@@ -332,11 +337,11 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   print-spacing="no">` on every staff, `<sound dynamics>` at each passage start, idempotent on a second run;
   `checkOrchestra` rules O1-O5 each failing on a crafted bad file and passing on the generated one; `--check` exits 1
   on a differing file and writes nothing. Fails today: the tool does not exist
-- [ ] T050 [US2] [standard] Writer extension in `src/core/musicxml/write.ts` (staff-details print-object/print-spacing,
+- [x] T050 [US2] [standard] Writer extension in `src/core/musicxml/write.ts` (staff-details print-object/print-spacing,
   `<sound dynamics>`) with tests in `tests/core/musicxml/write.test.ts` first
-- [ ] T051 [US2] [standard] Generator `tools/library/orchestra/` (CLI `cli.ts`, `generate.ts`, `definition.ts`) and the
+- [x] T051 [US2] [standard] Generator `tools/library/orchestra/` (CLI `cli.ts`, `generate.ts`, `definition.ts`) and the
   `library:orchestra` script in `package.json` (T049 generator cases green)
-- [ ] T052 [US2] [standard] Checker `tools/library/fidelity/orchestra.ts` (`checkOrchestra`, O1-O5), rule set
+- [x] T052 [US2] [standard] Checker `tools/library/fidelity/orchestra.ts` (`checkOrchestra`, O1-O5), rule set
   `orchestra-v1` in `tools/library/fidelity/records.ts`, run by `pnpm library:fidelity` for every item with a
   definition (T049 checker cases green)
 - [ ] T053 [US2] Orchestration definition `content/library/orchestra/grieg-morning-mood.json` following research R-18:
@@ -386,22 +391,22 @@ keeps the level; on a Score without an Orchestra the slider says "This score has
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T059 [P] [US3] Worklet tests `tests/engine/worklets/score-player.orchestra-level.test.ts` (worklet-protocol
+- [x] T059 [P] [US3] Worklet tests `tests/engine/worklets/score-player.orchestra-level.test.ts` (worklet-protocol
   1.6.0): `orchestraLevel { gain }` sets CC11 = `round(gain * 127)` on every `orchestraMask` channel and on no other;
   a non-finite gain is ignored, others clamped to 0..1; applying a schedule's setup sets the held level on its mask
   channels and 127 on every other used channel (a channel that was Orchestra in the previous schedule and is piano now
   is back at 127); a missing or non-integer mask counts as 0; no allocation (extend `score-player.no-alloc.test.ts`).
   Fails today: unknown message
-- [ ] T060 [P] [US3] Extend `tests/engine/audio/web-audio-engine.test.ts`: `setOrchestraLevel(40)` posts
+- [x] T060 [P] [US3] Extend `tests/engine/audio/web-audio-engine.test.ts`: `setOrchestraLevel(40)` posts
   `orchestraLevel { gain: 0.4 }`; the held level is posted again to a newly created node (device change) together with
   the volume. Fails today: the method does not exist
-- [ ] T061 [P] [US3] Offline render tests `tests/engine/orchestra-level.test.ts` on `piano-and-oboe` (and *Morning
+- [x] T061 [P] [US3] Offline render tests `tests/engine/orchestra-level.test.ts` on `piano-and-oboe` (and *Morning
   Mood* once present): level 0 vs the twin without Orchestra differs by less than `ORCHESTRA_SILENT_TOLERANCE_DBFS`
   (SC-002); a sustained oboe note's RMS drops within one render block of a mid-note level change and no note-on is
   added (FR-005); every note-on frame is identical at levels 0, 50 and 100 (SC-001); sweeping the level every block for
   10 s of audio adds no late event and no dropout count (SC-009); with the main Volume at 50 the Orchestra at level 50 is
   quieter than at main Volume 100, i.e. the two multiply (FR-004). Fails today: the level cannot be set
-- [ ] T062 [P] [US3] Session and UI tests: extend `tests/engine/session-library.test.ts` (or the session test that loads
+- [x] T062 [P] [US3] Session and UI tests: extend `tests/engine/session-library.test.ts` (or the session test that loads
   Scores) - loading a Score calls `setOrchestraLevel` with the stored level, a level change calls it once; extend
   `tests/ui/levels-panel.test.ts` - the Orchestra slider is enabled when the open Score's summary has an Orchestra part
   and disabled with the explanation otherwise, the value unchanged across Score switches; extend
@@ -410,18 +415,18 @@ keeps the level; on a Score without an Orchestra the slider says "This score has
 
 ### Implementation
 
-- [ ] T063 [US3] `orchestraLevel` message, held level and CC11 in the setup in
+- [x] T063 [US3] `orchestraLevel` message, held level and CC11 in the setup in
   `src/engine/worklets/score-player.processor.ts` (with `EXPRESSION_CONTROLLER`); `setOrchestraLevel` in
   `src/engine/ports.ts`, `src/engine/audio/web-audio-engine.ts` (held, re-sent to a new node) and
   `tests/fakes/fake-audio-engine.ts` (T059-T061 green); also validate `channel` in the existing `channelVolume` handler
   (an integer 0..15, otherwise ignored like a bad `volume` gain; RT review T017 N3)
-- [ ] T064 [US3] Wiring in `src/app/session.ts` (level to the engine on start-up, on change and on Score load) and the
+- [x] T064 [US3] Wiring in `src/app/session.ts` (level to the engine on start-up, on change and on Score load) and the
   enabled state of the Orchestra slider in `src/ui/elements/mx-levels-panel.ts` from the loaded Score's
   `summary.parts[].orchestra` (T062 green)
-- [ ] T065 [US3] RT review with `rt-audio-reviewer` of T063 (handler-only controller changes, setup ordering, no
+- [x] T065 [US3] RT review with `rt-audio-reviewer` of T063 (handler-only controller changes, setup ordering, no
   allocation - including spessasynth_core's CC11 path, which recomputes the modulators of sounding voices - nothing new
   in `process()`); findings and resolution in the log
-- [ ] T066 [US3] Checkpoint US3: the Independent Test above (quickstart US3 steps with `pnpm screenshot`; the sound
+- [x] T066 [US3] Checkpoint US3: the Independent Test above (quickstart US3 steps with `pnpm screenshot`; the sound
   part noted for the owner); full gate; log entry; commit
 
 ---
@@ -433,11 +438,11 @@ keeps the level; on a Score without an Orchestra the slider says "This score has
 **Independent Test**: spec US4 - in the browser, *Morning Mood* shows a "with orchestra" marker (glyph and text) and
 its detail lists the instruments; other items show no marker.
 
-- [ ] T067 [P] [US4] Tests first in `tests/ui/score-browser/` (the list and detail element tests): a row whose item has
+- [x] T067 [P] [US4] Tests first in `tests/ui/score-browser/` (the list and detail element tests): a row whose item has
   `facts.orchestra` shows the marker with a glyph and the visible text "with orchestra" (Constitution VI, not colour
   alone) and an accessible name; a row without it shows none; the detail names the instruments in definition order.
   Fails today: no marker
-- [ ] T068 [US4] Marker and instrument list in `src/ui/elements/mx-browser-list.ts` and
+- [x] T068 [US4] Marker and instrument list in `src/ui/elements/mx-browser-list.ts` and
   `src/ui/elements/mx-browser-detail.ts`, strings in `src/ui/i18n/en.ts`, styles with theme tokens (T067 green;
   `tests/e2e/score-browser-a11y.spec.ts` green)
 - [ ] T069 [US4] Checkpoint US4: quickstart US4 with `pnpm screenshot --browser` (normal and `--greyscale`), which also

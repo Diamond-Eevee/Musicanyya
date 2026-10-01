@@ -19,10 +19,14 @@ Decisions: research R-1 to R-4, R-8 to R-10.
 ```
 
 Detection: `Part.orchestra = true` iff, in the part's **first measure**, every staff 1..`staves` has a
-`<staff-details>` with `print-object="no"`, and no later `<staff-details>` of that part sets `print-object="yes"`.
-Otherwise every `<staff-details print-object="no">` of the part is ignored with one `hiddenStaffIgnored` warning.
+`<staff-details>` with `print-object="no"` **and `print-spacing="no"`** (omitted: not drawn, no room), and no later
+`<staff-details>` of that part sets `print-object="yes"`. Otherwise every such omitted staff of the part is ignored with one
+`hiddenStaffIgnored` warning. `print-object="no"` **without** `print-spacing="no"` is not this feature: it is a cutaway band or
+MuseScore's "hide empty staves" (written for the measures where a staff is empty while it is printed elsewhere) - the part is
+printed and nothing is reported (found by the real-score e2e `stanford-sailing-at-dawn`, 2026-10-01, T037; a first reading that
+accepted `print-object="no"` alone cut a printed part out of that score).
 
-`print-spacing` is written by our tools and not required when reading. An Orchestra instrument whose
+An Orchestra instrument whose
 `<midi-program>` is missing or invalid is not played (`orchestraInstrumentMissing` warning; never piano).
 
 Library items put Orchestra parts **after** the printed parts. A file with an Orchestra part first is still read

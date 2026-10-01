@@ -2,6 +2,7 @@ import { errorCode, errorMessage } from '../core/errors.js';
 import { buildScore } from '../core/musicxml/build.js';
 import type { EngravingPlan } from '../core/musicxml/engraving/index.js';
 import { planEngraving } from '../core/musicxml/engraving/plan.js';
+import { firstPrintedMeasureOffsets, orchestraRemovals, withoutOrchestraParts } from '../core/musicxml/orchestra.js';
 import { readXml } from '../core/musicxml/read.js';
 import { createRenderCopy, withoutMeasureRepeats } from '../core/musicxml/render-copy.js';
 import { unpitchedDisplayRewrites } from '../core/musicxml/unpitched-placement.js';
@@ -34,6 +35,9 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
 
     const notesInserts = [];
     for (const part of score.parts) {
+      // An Orchestra part is cut out of the render copy: its notes keep their Note IDs in the Score but have no element
+      // (Constitution III as clarified 1.3.1: they are not playable notes), so nothing is written onto them
+      if (part.orchestra) continue;
       for (const note of part.notes) {
         if (note.source.start > 0) {
           const tagLength = xmlString.indexOf('>', note.source.start) - note.source.start + 1;
@@ -42,9 +46,14 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
       }
     }
 
+    // The Measure IDs go on the measures of the first printed part: with an Orchestra part first in the file, that is not
+    // the first part (019, render-copy 1.2.0)
+    const measureOffsets = score.parts.some((p) => p.orchestra)
+      ? firstPrintedMeasureOffsets(parsed.doc, score)
+      : parsed.offsets.measures;
     const measuresInserts = [];
     for (let i = 0; i < score.measures.length; i++) {
-      const startOffset = parsed.offsets.measures[i];
+      const startOffset = measureOffsets[i];
       const measure = score.measures[i];
       if (startOffset !== undefined && measure !== undefined) {
         const tagLength = xmlString.indexOf('>', startOffset) - startOffset + 1;
@@ -57,7 +66,7 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
     // fails the Score still opens, as encoded, with a warning (Constitution III: bad MusicXML never crashes).
     let engravingPlan: EngravingPlan;
     try {
-      engravingPlan = planEngraving(parsed.doc, 'opened');
+      engravingPlan = planEngraving(withoutOrchestraParts(parsed.doc, score), 'opened');
     } catch (err) {
       engravingPlan = {
         inserts: [],
@@ -75,7 +84,7 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
       });
     }
 
-    // Measure repeats are engraved as their encoded notes, so every played note has its element (017 T021)
+    // Measure repeats are engraved as their encoded notes, so every printed note has its element (017 T021)
     const renderXml = withoutMeasureRepeats(
       createRenderCopy(xmlString, {
         notes: notesInserts,
@@ -83,6 +92,8 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
         elements: engravingPlan.inserts,
         // Unpitched notes under F or C clefs, placed for Verovio's treble reading (017 T047)
         rewrites: unpitchedDisplayRewrites(xmlString, score),
+        // The Orchestra parts never reach Verovio: no staff, name, brace or space of theirs on the score sheet (019)
+        removals: orchestraRemovals(parsed.doc, score),
       }),
     );
 
@@ -154,6 +165,7 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
           instrument: instrument?.name ?? '',
           program: instrument?.program ?? 0,
           percussion: instrument?.percussion ?? false,
+          orchestra: p.orchestra,
         };
       }),
       measureCount: score.measures.length,

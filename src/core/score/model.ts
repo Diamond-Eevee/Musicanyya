@@ -30,6 +30,10 @@ export interface Part {
   index: number;
   xmlId: string;
   name: string;
+  /** True for an Orchestra part (feature 019, contracts/orchestra-score.md section 1): every staff is hidden with
+   *  `<staff-details print-object="no">` from the part's first measure. It sounds but is never printed, expected, graded,
+   *  marked or counted; every one of its notes has `printed: false`. */
+  orchestra: boolean;
   staves: number;
   instruments: Instrument[];
   notes: Note[];

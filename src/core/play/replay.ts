@@ -20,7 +20,7 @@ export interface ReplayOptions {
 }
 
 function emptyChannel(): ChannelSetup {
-  return { used: false, program: 0, bankMsb: 0, percussion: false, volume: null, pan: null };
+  return { used: false, program: 0, bankMsb: 0, percussion: false, volume: null, pan: null, orchestra: false };
 }
 
 /**

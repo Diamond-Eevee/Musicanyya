@@ -159,6 +159,37 @@ describe('WebAudioEngine', () => {
     expect(mockPort.postMessage).toHaveBeenCalledWith({ type: 'channelVolume', channel: 14, gain: 0 });
   });
 
+  // Feature 019 (mixer-levels.md section 3): the Orchestra level is held by the engine like the volume
+  it('setOrchestraLevel posts an orchestraLevel message with a 0..1 linear gain', async () => {
+    const engine = new WebAudioEngine();
+    await engine.unlock();
+    mockPort.postMessage.mockClear();
+
+    engine.setOrchestraLevel(40);
+    expect(mockPort.postMessage).toHaveBeenCalledWith({ type: 'orchestraLevel', gain: 0.4 });
+    engine.setOrchestraLevel(0);
+    expect(mockPort.postMessage).toHaveBeenLastCalledWith({ type: 'orchestraLevel', gain: 0 });
+    engine.setOrchestraLevel(100);
+    expect(mockPort.postMessage).toHaveBeenLastCalledWith({ type: 'orchestraLevel', gain: 1 });
+  });
+
+  it('a level set before the worklet exists, and the held level at a new node, reach it together with the volume', async () => {
+    const engine = new WebAudioEngine();
+    engine.setVolume(30);
+    engine.setOrchestraLevel(45); // typed before the first Play: only held
+    await engine.unlock();
+    const types = mockPort.postMessage.mock.calls.map(([msg]: [{ type: string }]) => msg.type);
+    expect(mockPort.postMessage).toHaveBeenCalledWith({ type: 'orchestraLevel', gain: 0.45 });
+    expect(types.indexOf('orchestraLevel')).toBeGreaterThan(types.indexOf('init'));
+    expect(mockPort.postMessage).toHaveBeenCalledWith({ type: 'volume', gain: 0.3 });
+  });
+
+  it('with no level ever set a new node gets the default Orchestra level, never full', async () => {
+    const engine = new WebAudioEngine();
+    await engine.unlock();
+    expect(mockPort.postMessage).toHaveBeenCalledWith({ type: 'orchestraLevel', gain: 0.6 });
+  });
+
   it('a tempo set before the worklet exists reaches it once unlock creates it (012 FR-007), after init', async () => {
     const engine = new WebAudioEngine();
     engine.setTempoPercent(150); // typed before the first Play: there is no worklet port yet

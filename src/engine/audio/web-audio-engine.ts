@@ -1,4 +1,9 @@
-import { DIAGNOSTICS_REPORT_WINDOW_MS, TEMPO_PERCENT_DEFAULT, VOLUME_DEFAULT } from '../../core/defaults.js';
+import {
+  DIAGNOSTICS_REPORT_WINDOW_MS,
+  ORCHESTRA_LEVEL_DEFAULT,
+  TEMPO_PERCENT_DEFAULT,
+  VOLUME_DEFAULT,
+} from '../../core/defaults.js';
 import type { LatencyProfile } from '../../core/grade/types.js';
 import type { ClockPair } from '../midi/clock-map.js';
 import type {
@@ -65,6 +70,7 @@ export class WebAudioEngine implements AudioEngine {
   private lastReportPerfTimeMs: number | null = null;
   private readonly reportTimestamps: number[] = [];
   private liveQueueDropped = 0;
+  private orchestraLevel: number = ORCHESTRA_LEVEL_DEFAULT;
   private lateEvents = 0;
 
   private readonly listeners = new Set<(event: AudioEngineEvent) => void>();
@@ -141,6 +147,8 @@ export class WebAudioEngine implements AudioEngine {
     node.port.postMessage({ type: 'tempo', percent: this.transport.tempoPercent });
     // The same for the volume (017 T034): the saved one is set at start-up, before any node exists.
     node.port.postMessage({ type: 'volume', gain: this.transport.volume / 100 });
+    // And the Orchestra level (019): held here, so a new node never plays an Orchestra at full level by mistake
+    node.port.postMessage({ type: 'orchestraLevel', gain: this.orchestraLevel / 100 });
     this.node = node;
   }
 
@@ -270,16 +278,27 @@ export class WebAudioEngine implements AudioEngine {
     this.setTransport({ volume });
   }
 
+  setOrchestraLevel(level: number): void {
+    this.orchestraLevel = level;
+    this.node?.port.postMessage({ type: 'orchestraLevel', gain: level / 100 });
+  }
+
   setChannelVolume(channel: number, volume: number): void {
     this.node?.port.postMessage({ type: 'channelVolume', channel, gain: volume / 100 });
   }
 
-  liveNoteOn(key: number, velocity: number): void {
-    this.node?.port.postMessage({ type: 'live', kind: 'on', key, velocity });
+  liveNoteOn(key: number, velocity: number, channel?: number): void {
+    this.node?.port.postMessage(
+      channel === undefined
+        ? { type: 'live', kind: 'on', key, velocity }
+        : { type: 'live', kind: 'on', key, velocity, channel },
+    );
   }
 
-  liveNoteOff(key: number): void {
-    this.node?.port.postMessage({ type: 'live', kind: 'off', key });
+  liveNoteOff(key: number, channel?: number): void {
+    this.node?.port.postMessage(
+      channel === undefined ? { type: 'live', kind: 'off', key } : { type: 'live', kind: 'off', key, channel },
+    );
   }
 
   liveSustain(down: boolean): void {

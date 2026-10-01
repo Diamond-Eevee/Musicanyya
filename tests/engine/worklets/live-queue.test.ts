@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { LIVE_QUEUE_CAPACITY } from '../../../src/core/defaults.js';
-import { LIVE_KIND, LiveQueue, liveKindOf } from '../../../src/engine/worklets/live-queue.js';
+import {
+  LIVE_CHANNEL,
+  LIVE_QUEUE_CAPACITY,
+  METRONOME_CHANNEL,
+  PERCUSSION_CHANNEL,
+} from '../../../src/core/defaults.js';
+import { LIVE_KIND, LiveQueue, liveChannelOf, liveKindOf } from '../../../src/engine/worklets/live-queue.js';
 import type { InboundMessage } from '../../../src/engine/worklets/score-player.processor.js';
 
 /**
@@ -108,6 +113,65 @@ describe('liveKindOf: the trust-boundary check, without building an object (017 
       {},
     ]) {
       expect(liveKindOf(live(fields)), JSON.stringify(fields)).toBe(0);
+    }
+  });
+});
+
+// Feature 019 (worklet-protocol 1.6.0): one more pre-allocated slot per entry, the channel.
+describe('LiveQueue channel slot (feature 019)', () => {
+  it('stores the channel of each entry, and defaults to the live channel when none is given', () => {
+    const queue = new LiveQueue(4);
+    queue.push(LIVE_KIND.on, 60, 90, false);
+    queue.push(LIVE_KIND.on, 61, 91, false, 3);
+    queue.push(LIVE_KIND.off, 61, 0, false, 12);
+    expect([0, 1, 2].map((i) => queue.channelAt(i))).toEqual([LIVE_CHANNEL, 3, 12]);
+  });
+
+  it('keeps every channel across wrap-around: 1000 fill-and-drain cycles', () => {
+    const queue = new LiveQueue(LIVE_QUEUE_CAPACITY);
+    for (let cycle = 0; cycle < 1000; cycle++) {
+      const count = 1 + (cycle % LIVE_QUEUE_CAPACITY);
+      for (let k = 0; k < count; k++) queue.push(LIVE_KIND.on, (cycle + k) % 128, 90, false, (cycle + k) % 16);
+      for (let k = 0; k < count; k++) {
+        expect(queue.channelAt(k)).toBe((cycle + k) % 16);
+        expect(queue.keyAt(k)).toBe((cycle + k) % 128);
+      }
+      queue.consume(count);
+    }
+  });
+
+  it('a refused push (full queue) leaves the queued channels as they were', () => {
+    const queue = new LiveQueue(2);
+    queue.push(LIVE_KIND.on, 60, 90, false, 4);
+    queue.push(LIVE_KIND.on, 61, 90, false, 5);
+    expect(queue.push(LIVE_KIND.on, 62, 90, false, 6)).toBe(false);
+    expect([queue.channelAt(0), queue.channelAt(1)]).toEqual([4, 5]);
+  });
+});
+
+describe('liveChannelOf: the channel check at the trust boundary (feature 019)', () => {
+  const live = (fields: Record<string, unknown>): InboundMessage => ({
+    type: 'live',
+    kind: 'on',
+    key: 60,
+    velocity: 80,
+    ...fields,
+  });
+
+  it('is the live channel when the message names none', () => {
+    expect(liveChannelOf(live({}))).toBe(LIVE_CHANNEL);
+  });
+
+  it('is the named channel for 0..15 except the percussion and Metronome channels', () => {
+    for (let channel = 0; channel < 16; channel++) {
+      const expected = channel === PERCUSSION_CHANNEL || channel === METRONOME_CHANNEL ? -1 : channel;
+      expect(liveChannelOf(live({ channel })), `channel ${channel}`).toBe(expected);
+    }
+  });
+
+  it('is -1 for anything that is not an integer channel', () => {
+    for (const channel of [16, -1, 2.5, Number.NaN, Number.POSITIVE_INFINITY, '3', null, true, {}, []]) {
+      expect(liveChannelOf(live({ channel })), String(channel)).toBe(-1);
     }
   });
 });

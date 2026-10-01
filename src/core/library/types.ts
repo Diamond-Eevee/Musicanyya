@@ -128,6 +128,9 @@ export interface ItemFacts {
   highestMidi: number;
   /** Largest simultaneous interval within one hand, in semitones. */
   maxSpanSemitones: number;
+  /** The widest one-hand chord whose notes all carry `<arpeggiate>` (rolled); such chords are left out of
+   *  `maxSpanSemitones`. Absent when there is none (feature 019, library-index 1.3.0). */
+  maxArpeggiatedSpanSemitones?: number;
   staves: number;
   handsWithNotes?: 'right' | 'left' | 'both';
   /** Max distinct voices in any one staff (data-model.md §4, criterion 4). Not part of the v1.0.0
@@ -145,6 +148,9 @@ export interface ItemFacts {
   notesPerBeat: number;
   /** Key-signature accidentals, max over the piece. */
   accidentals: number;
+  /** The instrument names of the item's Orchestra parts - parts that sound but are not printed - in Score order; absent
+   *  when there are none (feature 019, library-index 1.3.0). Every other fact is derived from the printed parts only. */
+  orchestra?: readonly string[];
   hasTies?: boolean;
   hasTuplets?: boolean;
   hasGraceNotes?: boolean;

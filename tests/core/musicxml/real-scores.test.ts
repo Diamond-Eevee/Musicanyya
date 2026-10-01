@@ -116,7 +116,7 @@ const SCORES: Expected[] = [
     notes: 3931,
     tempoMarks: 4,
     skipped: 0,
-    notices: ['measureLengthMismatch'],
+    notices: ['measureLengthMismatch'], // its `<staff-details print-object="no"/>` (hide empty staves) is not an Orchestra part (019)
   },
   {
     file: 'schumann-dichterliebe-15.mxl',

@@ -9,12 +9,31 @@ export interface RenderCopyInserts {
   /** Text replaced inside note bodies (017 T047: an unpitched note's display pitch, placed for Verovio). They never
    *  overlap a note/measure open tag or an element insert, and are applied in the same single pass. */
   rewrites?: Array<{ start: number; end: number; text: string }>;
+  /** Byte ranges cut out of the copy (feature 019, render-copy contract 1.2.0): an Orchestra part's `<score-part>` and
+   *  `<part>`, so Verovio never engraves it. They never overlap each other. A note, measure, element insert or rewrite
+   *  that starts inside one is dropped - not an error: it belongs to what is cut. Applied in the same single pass. */
+  removals?: Array<{ start: number; end: number }>;
 }
 
 interface Replacement {
   start: number;
   end: number;
   replacement: string;
+}
+
+/** Whether `offset` lies inside one of the `removals` (sorted by start, not overlapping). Binary search. */
+function insideRemoval(removals: readonly { start: number; end: number }[], offset: number): boolean {
+  let lo = 0;
+  let hi = removals.length - 1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    const removal = removals[mid];
+    if (removal === undefined) return false;
+    if (offset < removal.start) hi = mid - 1;
+    else if (offset >= removal.end) lo = mid + 1;
+    else return true;
+  }
+  return false;
 }
 
 /** Index of the last tag replacement starting at or before `offset`, or -1. Binary search. */
@@ -46,12 +65,16 @@ function lastTagAtOrBefore(tags: Replacement[], offset: number): number {
  * time to open a large score (tasks.md T150-T154).
  */
 export function createRenderCopy(xml: string, inserts: RenderCopyInserts): string {
+  const removals = [...(inserts.removals ?? [])].sort((a, b) => a.start - b.start);
+  const removed = (offset: number) => removals.length > 0 && insideRemoval(removals, offset);
+
   // The tags we rewrite. Note and measure tags never overlap - a `<measure ...>` start tag ends
   // before the first `<note>` inside it - so sorting by start is enough to walk them in order.
   const tags: Replacement[] = [];
   const usedIds = new Set<string>();
 
   for (const note of inserts.notes) {
+    if (removed(note.startOffset)) continue;
     usedIds.add(note.id);
     const end = note.startOffset + note.tagLength;
     tags.push({
@@ -62,6 +85,7 @@ export function createRenderCopy(xml: string, inserts: RenderCopyInserts): strin
   }
 
   for (const measure of inserts.measures) {
+    if (removed(measure.startOffset)) continue;
     usedIds.add(measure.id);
     const end = measure.startOffset + measure.tagLength;
     tags.push({
@@ -84,6 +108,7 @@ export function createRenderCopy(xml: string, inserts: RenderCopyInserts): strin
     if (idVal === undefined || !usedIds.has(idVal)) continue;
 
     const matchStart = match.index;
+    if (removed(matchStart)) continue; // inside what is cut out anyway
     const matchEnd = matchStart + match[0].length;
     const candidate = tags[lastTagAtOrBefore(tags, matchStart)];
     const inside = candidate !== undefined && matchEnd <= candidate.end;
@@ -97,9 +122,9 @@ export function createRenderCopy(xml: string, inserts: RenderCopyInserts): strin
   // Element inserts are zero-width (start === end): they never overlap a tag or a collision removal,
   // they only interleave with them. Sorted by (offset, order) first, so two inserts at the same offset
   // (accidental before beam, contract order 0 before 1) come out in that order after the merge below.
-  const elementInserts = [...(inserts.elements ?? [])].sort((a, b) =>
-    a.offset !== b.offset ? a.offset - b.offset : a.order - b.order,
-  );
+  const elementInserts = [...(inserts.elements ?? [])]
+    .filter((e) => !removed(e.offset))
+    .sort((a, b) => (a.offset !== b.offset ? a.offset - b.offset : a.order - b.order));
   const elementReplacements: Replacement[] = elementInserts.map((e) => ({
     start: e.offset,
     end: e.offset,
@@ -108,9 +133,17 @@ export function createRenderCopy(xml: string, inserts: RenderCopyInserts): strin
   const withElements =
     elementReplacements.length === 0 ? tagsAndCollisions : merge(tagsAndCollisions, elementReplacements);
   const rewrites: Replacement[] = [...(inserts.rewrites ?? [])]
+    .filter((r) => !removed(r.start))
     .sort((a, b) => a.start - b.start)
     .map((r) => ({ start: r.start, end: r.end, replacement: r.text }));
-  const replacements = rewrites.length === 0 ? withElements : merge(withElements, rewrites);
+  const withRewrites = rewrites.length === 0 ? withElements : merge(withElements, rewrites);
+  const replacements =
+    removals.length === 0
+      ? withRewrites
+      : merge(
+          withRewrites,
+          removals.map((r) => ({ start: r.start, end: r.end, replacement: '' })),
+        );
 
   const pieces: string[] = [];
   let cursor = 0;

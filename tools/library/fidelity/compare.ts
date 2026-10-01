@@ -4,6 +4,7 @@
 // then position, so a re-run gives identical output.
 
 import type { MelodyRule } from './melody-rules';
+import type { OrchestraRule } from './orchestra';
 import {
   type Alter,
   noteName,
@@ -40,6 +41,8 @@ export type Difference =
   | { kind: 'melodyRhythm'; bar: string; index: number; note: string; item: string; source: string }
   /** exercise-theory-v3: one finding of the melody rule check (feature 014). */
   | { kind: 'melodyRule'; bar: string; beat: number; rule: MelodyRule; message: string }
+  /** orchestra-v1: one finding of the Orchestra check (feature 019, rules O1-O5). */
+  | { kind: 'orchestraRule'; rule: OrchestraRule; detail: string }
   | TheoryDifference;
 
 export type Aspect =
@@ -668,6 +671,8 @@ export function describeDifference(d: Difference): string {
       return `${at(d.bar)}: melody note ${d.index + 1} (${d.note}): ${d.item}, source ${d.source}`;
     case 'melodyRule':
       return `bar ${d.bar}, beat ${d.beat}: ${d.message} (${d.rule})`;
+    case 'orchestraRule':
+      return `${d.detail} (${d.rule})`;
     case 'theory': {
       const where =
         d.chordIndex >= 0

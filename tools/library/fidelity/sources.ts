@@ -28,6 +28,8 @@ export interface SourceManifest {
   url: string;
   identifier?: string;
   licence: 'public-domain' | 'CC0-1.0';
+  /** `"transcription"`: our own CC0 reading of the public-domain print at `url` (contract 1.2.0, feature 019); absent = downloaded. */
+  origin?: 'downloaded' | 'transcription';
   credit?: string;
   obtained: string;
   files: SourceFile[];
@@ -50,6 +52,7 @@ const MANIFEST_FIELDS = [
   'url',
   'identifier',
   'licence',
+  'origin',
   'credit',
   'obtained',
   'files',
@@ -106,6 +109,10 @@ export function validateManifest(json: unknown, folder: string): SourceManifest 
   if (m.credit !== undefined) text(m.credit, 'credit', fail, 300);
   if (typeof m.licence !== 'string' || !LICENCES.includes(m.licence))
     fail(`licence "${String(m.licence)}" is not allowed: only public-domain or CC0-1.0 (FR-006)`);
+  if (m.origin !== undefined && m.origin !== 'downloaded' && m.origin !== 'transcription')
+    fail(`origin "${String(m.origin)}" must be "downloaded" or "transcription"`);
+  if (m.origin === 'transcription' && m.licence !== 'CC0-1.0')
+    fail('a transcription is our own work: its licence must be CC0-1.0');
   date(m.obtained, 'obtained', fail);
   if (m.approvedByOwner === undefined) fail('approvedByOwner is missing: the owner has not approved this source');
   date(m.approvedByOwner, 'approvedByOwner', fail);

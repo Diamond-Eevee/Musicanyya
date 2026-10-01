@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { TICK_LIMIT } from '../../../src/core/defaults.js';
 import { MusicXmlLoadError } from '../../../src/core/musicxml/load-error.js';
-import { compileSchedule, EVENT_KIND } from '../../../src/core/schedule/compile.js';
+import { compileSchedule, EVENT_KIND, mergeSchedules } from '../../../src/core/schedule/compile.js';
 import type { ChannelSetup, PlaybackTimeline, SoundingEvent } from '../../../src/core/timeline/types.js';
 
 function emptyChannels(): ChannelSetup[] {
@@ -12,6 +12,7 @@ function emptyChannels(): ChannelSetup[] {
     percussion: false,
     volume: null,
     pan: null,
+    orchestra: false,
   }));
 }
 
@@ -140,5 +141,41 @@ describe('compileSchedule', () => {
     }
     expect(caught).toBeInstanceOf(MusicXmlLoadError);
     expect((caught as MusicXmlLoadError).code).toBe('fileTooComplex');
+  });
+});
+
+// Feature 019 (worklet-protocol 1.6.0, data-model section 2): the schedule says which channels are Orchestra channels.
+describe('orchestraMask', () => {
+  const withOrchestra = (...orchestra: number[]) => {
+    const channels = emptyChannels();
+    channels.forEach((ch, c) => {
+      if (c === 0 || orchestra.includes(c)) channels[c] = { ...ch, used: true, orchestra: orchestra.includes(c) };
+    });
+    return timeline({ channels });
+  };
+
+  it('has bit c set for exactly the channels that carry an Orchestra', () => {
+    expect(compileSchedule(withOrchestra(1, 3, 12)).orchestraMask).toBe((1 << 1) | (1 << 3) | (1 << 12));
+    expect(compileSchedule(withOrchestra(15)).orchestraMask).toBe(1 << 15);
+  });
+
+  it('is 0 when no channel is an Orchestra channel', () => {
+    expect(compileSchedule(withOrchestra()).orchestraMask).toBe(0);
+    expect(compileSchedule(timeline()).orchestraMask).toBe(0);
+  });
+
+  it('does not set a bit for a channel that is not used, even if it is marked', () => {
+    const channels = emptyChannels();
+    channels[4] = { ...(channels[4] as ChannelSetup), orchestra: true }; // marked but not used
+    expect(compileSchedule(timeline({ channels })).orchestraMask).toBe(0);
+  });
+
+  it('mergeSchedules keeps the mask of both schedules (the replay path)', () => {
+    const a = compileSchedule(withOrchestra(2));
+    const b = compileSchedule(timeline());
+    expect(mergeSchedules(a, b).orchestraMask).toBe(1 << 2);
+    expect(mergeSchedules(b, a).orchestraMask).toBe(1 << 2);
+    expect(mergeSchedules(a, compileSchedule(withOrchestra(5))).orchestraMask).toBe((1 << 2) | (1 << 5));
+    expect(mergeSchedules(b, b).orchestraMask).toBe(0);
   });
 });

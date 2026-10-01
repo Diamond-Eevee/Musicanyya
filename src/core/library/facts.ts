@@ -68,7 +68,7 @@ interface DocScan {
 /** Walks the whole document once for the handful of facts the Score model does not carry - key
  *  signatures, tuplet/octave-shift/pedal markup - none of which affect playback timing (Principle II),
  *  so `build.ts` never records them. This is the one place `src/core/library` reads XML directly. */
-function scanDoc(doc: XmlDocument): DocScan {
+function scanDoc(doc: XmlDocument, skipPartIds: ReadonlySet<string> = new Set()): DocScan {
   const scan: DocScan = {
     keys: [],
     hasTuplets: false,
@@ -83,6 +83,8 @@ function scanDoc(doc: XmlDocument): DocScan {
   if (!root) return scan;
 
   function walk(el: XmlElementType): void {
+    // An Orchestra part is not printed (feature 019): none of what it says is a fact about the piece as the musician sees it
+    if (el.name === 'part' && skipPartIds.has(el.attributes.id ?? '')) return;
     if (el.name === 'key') {
       const fifthsText = textOf(elementChild(el, 'fifths'));
       const fifths = fifthsText === '' ? 0 : Number.parseInt(fifthsText, 10);
@@ -224,9 +226,13 @@ export interface FactsInput {
  *  display and filtering data only, never a second source of musical truth (data-model.md §3). */
 export function deriveFacts(input: FactsInput): ItemFacts {
   const { doc, score, timeline, report } = input;
-  const scan = scanDoc(doc);
+  // Facts describe the printed parts only (feature 019, library-index 1.3.0): an Orchestra part sounds but is not part of
+  // what the musician reads or plays, so it changes no level criterion
+  const printedParts = score.parts.filter((part) => !part.orchestra);
+  const orchestraParts = score.parts.filter((part) => part.orchestra);
+  const scan = scanDoc(doc, new Set(orchestraParts.map((part) => part.xmlId)));
 
-  const allNotes = score.parts.flatMap((part) => part.notes);
+  const allNotes = printedParts.flatMap((part) => part.notes);
   const pitchedNotes = allNotes.filter((note) => !note.unpitched);
 
   const measures = score.measures.length;
@@ -255,14 +261,16 @@ export function deriveFacts(input: FactsInput): ItemFacts {
 
   // Chords are notes that share a staff and an onset; the widest such group is the largest simultaneous
   // interval "in one hand" the criteria ask for (data-model.md §4, criterion 16).
-  const byStaffOnset = new Map<string, number[]>();
+  const byStaffOnset = new Map<string, { keys: number[]; allRolled: boolean }>();
   // Distinct voice ids seen per staff, and per-staff onset-tick sets per measure (hand independence).
   const voicesByStaff = new Map<number, Set<string>>();
   const onsetsByStaffMeasure = new Map<string, Set<number>>();
   for (const note of pitchedNotes) {
     const staffKey = `${note.measureIndex}:${note.onsetInMeasure}:${note.staff}`;
-    const group = byStaffOnset.get(staffKey) ?? [];
-    group.push(note.soundingKey);
+    const group = byStaffOnset.get(staffKey) ?? { keys: [], allRolled: true };
+    group.keys.push(note.soundingKey);
+    // A chord is rolled only when every one of its notes is written <arpeggiate> (feature 019, research R-17)
+    if (!note.arpeggiate) group.allRolled = false;
     byStaffOnset.set(staffKey, group);
 
     const voices = voicesByStaff.get(note.staff) ?? new Set<string>();
@@ -275,14 +283,21 @@ export function deriveFacts(input: FactsInput): ItemFacts {
     onsetsByStaffMeasure.set(onsetKey, onsets);
   }
   let maxSpanSemitones = 0;
+  let maxArpeggiatedSpanSemitones: number | null = null;
   for (const group of byStaffOnset.values()) {
-    const span = Math.max(...group) - Math.min(...group);
-    if (span > maxSpanSemitones) maxSpanSemitones = span;
+    const span = Math.max(...group.keys) - Math.min(...group.keys);
+    if (group.allRolled && group.keys.length >= 2) {
+      // Rolled chords are not a hand span: reported on their own, so Advanced can accept any (criterion 16)
+      if (maxArpeggiatedSpanSemitones === null || span > maxArpeggiatedSpanSemitones)
+        maxArpeggiatedSpanSemitones = span;
+    } else if (span > maxSpanSemitones) {
+      maxSpanSemitones = span;
+    }
   }
   const voicesPerStaff =
     voicesByStaff.size > 0 ? Math.max(...Array.from(voicesByStaff.values()).map((v) => v.size)) : 1;
 
-  const staves = Math.max(1, ...score.parts.map((p) => p.staves));
+  const staves = Math.max(1, ...printedParts.map((p) => p.staves));
   let handIndependenceFraction = 0;
   if (staves >= 2) {
     let independentMeasures = 0;
@@ -329,7 +344,8 @@ export function deriveFacts(input: FactsInput): ItemFacts {
   const measureStart = new Map<number, number>();
   for (const m of score.measures) measureStart.set(m.index, m.startTick);
 
-  const parts = score.parts.length;
+  const parts = printedParts.length;
+  const orchestra = orchestraParts.map((part) => part.name || part.instruments[0]?.name || part.xmlId);
 
   let tempoChanges = 0;
   let prevQpm: number | null = null;
@@ -466,5 +482,7 @@ export function deriveFacts(input: FactsInput): ItemFacts {
     ornamentCount,
     repeatKind,
     backwardRepeatCount,
+    ...(orchestra.length > 0 ? { orchestra } : {}),
+    ...(maxArpeggiatedSpanSemitones !== null ? { maxArpeggiatedSpanSemitones } : {}),
   };
 }

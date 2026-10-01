@@ -330,6 +330,7 @@ export class Session {
     // The store is set without the driver; the engine gets the saved volume too (017 T034), sent once its node exists.
     this.audioEngine.setVolume(transportState.get().volume);
     this.playController.setMetronomeLevel(transportState.get().metronomeLevel);
+    this.audioEngine.setOrchestraLevel(transportState.get().orchestraLevel); // held; sent once its node exists (019)
 
     this.scoreView = document.createElement('mx-score-view');
     this.scoreView.client = this.verovioClient;
@@ -405,7 +406,13 @@ export class Session {
       setTempoPercent: (percent) => this.audioEngine.setTempoPercent(percent),
       setVolume: (volume) => this.audioEngine.setVolume(volume),
     });
+    let lastOrchestraLevel = transportState.get().orchestraLevel;
     transportState.subscribe((state) => {
+      // The Orchestra level goes to the engine once per change (feature 019, FR-005); the worklet applies it as CC11
+      if (state.orchestraLevel !== lastOrchestraLevel) {
+        lastOrchestraLevel = state.orchestraLevel;
+        this.audioEngine.setOrchestraLevel(state.orchestraLevel);
+      }
       // The Metronome level reaches the click channel at once during a run (feature 019, FR-005); the controller ignores
       // a state change that did not change it.
       this.playController.setMetronomeLevel(state.metronomeLevel);
@@ -770,20 +777,28 @@ export class Session {
     this.audioEngine.setTempoPercent(transportState.get().tempoPercent);
 
     if (practiceState.get().mode === 'practice') {
+      // Practice never plays the schedule, but the worklet needs its channel setup - programs and the Orchestra mask - for
+      // the live notes Practice sends (feature 019, RT review T036): a fresh app would otherwise play an Orchestra note as a piano
+      this.deliverScheduleIfNeeded(false);
       this.startPractice();
       return;
     }
 
-    if (this.currentSchedule && !this.scheduleDelivered) {
-      // A copy: `load` transfers the arrays, and Listen reloads this schedule after every Play run or replay.
-      this.audioEngine.load(structuredClone(this.currentSchedule));
-      this.scheduleDelivered = true;
+    this.deliverScheduleIfNeeded(true);
+    this.audioEngine.play();
+  }
+
+  /** Gives the engine the current Score's schedule when it does not hold it. A copy: `load` transfers the arrays, and Listen
+   *  reloads this schedule after every Play run or replay. `seek` carries Listen's position over; Practice does not play it. */
+  private deliverScheduleIfNeeded(seek: boolean): void {
+    if (!this.currentSchedule || this.scheduleDelivered) return;
+    this.audioEngine.load(structuredClone(this.currentSchedule));
+    this.scheduleDelivered = true;
+    if (seek) {
       const seekTick = transportState.get().positionTick;
       if (seekTick > 0) this.audioEngine.seekTick(seekTick);
-      if (this.scoreView && this.currentTimeline) this.scoreView.setPlayback(this.audioEngine, this.currentTimeline);
     }
-
-    this.audioEngine.play();
+    if (this.scoreView && this.currentTimeline) this.scoreView.setPlayback(this.audioEngine, this.currentTimeline);
   }
 
   private onAudioEngineEvent(event: AudioEngineEvent): void {
@@ -886,10 +901,14 @@ export class Session {
     );
   }
 
-  /** Silences the accompaniment notes a session left ringing; the musician's own keys are not touched. */
+  /** Silences the accompaniment and Orchestra notes a session left ringing; the musician's own keys are not touched. */
   private releasePracticeSound(session: PracticeSession | null): void {
     if (!session) return;
     for (const key of session.soundingAccompaniment.keys()) this.audioEngine.liveNoteOff(key);
+    for (const id of session.soundingOrchestra.keys()) {
+      const [channel, key] = id.split(':').map(Number);
+      if (channel !== undefined && key !== undefined) this.audioEngine.liveNoteOff(key, channel);
+    }
   }
 
   /** The Stop button (or anything else that stops the transport) ends the session and leaves its marks on screen
@@ -900,12 +919,17 @@ export class Session {
     practiceState.clearHelpOverlay();
     practiceState.clearAllKeyFeedback();
     const session = practiceState.get().session;
-    if (!session || (session.phase === 'finished' && session.soundingAccompaniment.size === 0)) return;
+    if (
+      !session ||
+      (session.phase === 'finished' && session.soundingAccompaniment.size === 0 && session.soundingOrchestra.size === 0)
+    )
+      return;
     this.releasePracticeSound(session);
     practiceState.setSession({
       ...session,
       phase: 'finished',
       soundingAccompaniment: new Map(),
+      soundingOrchestra: new Map(),
       heldWrongKeys: new Map(), // the session is over: no red disc stays on the Score
     });
   }
@@ -1573,6 +1597,12 @@ export class Session {
       this.audioEngine.liveNoteOn(effect.key, effect.velocity);
     } else if (effect.type === 'soundOff') {
       this.audioEngine.liveNoteOff(effect.key);
+    } else if (effect.type === 'orchestraOn') {
+      // An Orchestra note (feature 019) on its own channel, by the same rule as the accompaniment: the musician's progress
+      // starts it, the worklet applies it on the audio clock at its next block
+      this.audioEngine.liveNoteOn(effect.key, effect.velocity, effect.channel);
+    } else if (effect.type === 'orchestraOff') {
+      this.audioEngine.liveNoteOff(effect.key, effect.channel);
     } else if (effect.type === 'keyFeedback') {
       // No notehead to mark a wrong / wrong-octave / extra press on: shown on the on-screen keyboard instead
       // (T056, owner decision 2026-09-20).

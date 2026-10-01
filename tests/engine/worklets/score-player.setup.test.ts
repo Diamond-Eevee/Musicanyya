@@ -159,17 +159,19 @@ describe('channel setup is applied in the message handler (009 R-01, contract wo
       'program:0:40',
       'cc:0:7:100',
       'cc:0:10:64',
+      'cc:0:11:127', // feature 019: expression is set on every used channel; full unless it carries an Orchestra
       'drums:14:true',
       'program:14:0', // a drum channel picks its kit by program: no bank select is sent
 
       'cc:14:7:127',
+      'cc:14:11:127',
     ]);
     // nothing has been rendered or played yet, and once it plays the notes come after the setup
     expect(synth.calls.some((c) => c.startsWith('noteOn'))).toBe(false);
     proc.receiveMessage({ type: 'play' });
     render(proc, 4);
     const firstNote = synth.calls.findIndex((c) => c.startsWith('noteOn'));
-    expect(firstNote).toBe(8); // all eight setup calls come first
+    expect(firstNote).toBe(10); // all ten setup calls come first
     expect(synth.calls.slice(0, firstNote)).toEqual(synth.setupCalls());
   });
 
@@ -195,7 +197,7 @@ describe('channel setup is applied in the message handler (009 R-01, contract wo
     synth.calls.length = 0;
 
     proc.receiveMessage(schedule({ 0: { program: 5 } }, [program(0, 0, 5), cc(0, 0, 7, 90), noteOn(0, 0, 60)]));
-    expect(synth.setupCalls()).toEqual(['drums:0:false', 'cc:0:0:0', 'program:0:5', 'cc:0:7:90']);
+    expect(synth.setupCalls()).toEqual(['drums:0:false', 'cc:0:0:0', 'program:0:5', 'cc:0:7:90', 'cc:0:11:127']);
   });
 
   it('(d) channels the schedule does not use are not touched', () => {

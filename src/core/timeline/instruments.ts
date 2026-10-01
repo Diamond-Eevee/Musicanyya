@@ -5,6 +5,9 @@ import type { ChannelSetup } from './types.js';
 export interface InstrumentAssignment {
   channelByKey: Map<string, number>;
   channelSetup: ChannelSetup[];
+  /** More Orchestra instruments than free melodic channels: the extra ones share the last Orchestra channel, or - when not
+   *  even one channel is free - are not played (feature 019, research R-4). */
+  orchestraChannelsShared: boolean;
 }
 
 function instrumentKey(partIndex: number, instrument: Instrument): string {
@@ -12,7 +15,7 @@ function instrumentKey(partIndex: number, instrument: Instrument): string {
 }
 
 function emptyChannelSetup(): ChannelSetup {
-  return { used: false, program: 0, bankMsb: 0, percussion: false, volume: null, pan: null };
+  return { used: false, program: 0, bankMsb: 0, percussion: false, volume: null, pan: null, orchestra: false };
 }
 
 /**
@@ -20,7 +23,8 @@ function emptyChannelSetup(): ChannelSetup {
  * PERCUSSION_CHANNEL; melodic instruments honour an explicit, non-colliding channel hint, else
  * share a channel already carrying the same program, else take the next free channel (never the
  * percussion, live-input or Metronome channels - research R-19). Parts beyond 13 distinct melodic
- * programs share the last one assigned.
+ * programs share the last one assigned. Orchestra parts (feature 019) come last and only ever take channels no printed
+ * part uses, sharing one only with another Orchestra instrument of the same program (research R-4).
  */
 export function assignChannels(parts: Part[]): InstrumentAssignment {
   const channelSetup: ChannelSetup[] = Array.from({ length: 16 }, emptyChannelSetup);
@@ -39,11 +43,13 @@ export function assignChannels(parts: Part[]): InstrumentAssignment {
         percussion: true,
         volume: instrument.volume,
         pan: instrument.pan,
+        orchestra: false,
       };
     }
   }
 
   for (const part of parts) {
+    if (part.orchestra) continue;
     for (const instrument of part.instruments) {
       if (instrument.percussion) continue;
       const hint = instrument.channelHint;
@@ -85,11 +91,61 @@ export function assignChannels(parts: Part[]): InstrumentAssignment {
         percussion: false,
         volume: instrument.volume,
         pan: instrument.pan,
+        orchestra: false,
       };
     }
   }
 
-  return { channelByKey, channelSetup };
+  // Orchestra instruments last, on channels no printed instrument uses
+  const orchestraProgramToChannel = new Map<number, number>();
+  let lastOrchestraChannel: number | undefined;
+  let orchestraChannelsShared = false;
+  for (const part of parts) {
+    if (!part.orchestra) continue;
+    for (const instrument of part.instruments) {
+      if (instrument.percussion || instrument.fallback) continue; // percussion has its own channel; no program, no sound
+      let channel = orchestraProgramToChannel.get(instrument.program);
+      if (channel === undefined) {
+        const hint = instrument.channelHint;
+        const hintable =
+          hint !== null &&
+          hint >= 0 &&
+          hint <= 15 &&
+          hint !== PERCUSSION_CHANNEL &&
+          hint !== LIVE_CHANNEL &&
+          hint !== METRONOME_CHANNEL;
+        if (hintable && !channelSetup[hint]?.used) channel = hint;
+      }
+      if (channel === undefined) {
+        for (let c = 0; c < 16; c++) {
+          if (c === PERCUSSION_CHANNEL || c === LIVE_CHANNEL || c === METRONOME_CHANNEL) continue;
+          if (!channelSetup[c]?.used) {
+            channel = c;
+            break;
+          }
+        }
+      }
+      if (channel === undefined) {
+        orchestraChannelsShared = true;
+        channel = lastOrchestraChannel; // none free: share the last Orchestra channel (never a printed part's)
+        if (channel === undefined) continue; // not even one is free: this instrument is not played
+      }
+      lastOrchestraChannel = channel;
+      channelByKey.set(instrumentKey(part.index, instrument), channel);
+      orchestraProgramToChannel.set(instrument.program, channel);
+      channelSetup[channel] = {
+        used: true,
+        program: instrument.program,
+        bankMsb: instrument.bank ?? 0,
+        percussion: false,
+        volume: instrument.volume,
+        pan: instrument.pan,
+        orchestra: true,
+      };
+    }
+  }
+
+  return { channelByKey, channelSetup, orchestraChannelsShared };
 }
 
 export function instrumentForNote(part: Part, note: Note): Instrument | undefined {
@@ -98,6 +154,11 @@ export function instrumentForNote(part: Part, note: Note): Instrument | undefine
     if (found) return found;
   }
   return part.instruments[0];
+}
+
+/** The channel of an instrument, or null when it has none: an Orchestra instrument that cannot be played (feature 019). */
+export function channelOrNull(assignment: InstrumentAssignment, part: Part, instrument: Instrument): number | null {
+  return assignment.channelByKey.get(instrumentKey(part.index, instrument)) ?? null;
 }
 
 export function channelForNote(assignment: InstrumentAssignment, part: Part, instrument: Instrument): number {

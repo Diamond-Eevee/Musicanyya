@@ -13,6 +13,7 @@ function ev(index: number, passIndex: number, measureIndex: number): ExpectedEve
     onsetTick: index * 100,
     required: [{ key: 60, noteIds: [], staff: 1 }],
     accompaniment: [],
+    orchestra: [],
   };
 }
 

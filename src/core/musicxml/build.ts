@@ -205,6 +205,45 @@ function durationToTicks(
   return ticks;
 }
 
+/**
+ * Which staves of a part are omitted with `<staff-details print-object="no" print-spacing="no">` (feature 019,
+ * orchestra-score.md section 1): not drawn and taking no room. `print-object="no"` alone is something else - a cutaway band,
+ * or the way MuseScore and others write "hide empty staves", emitted for the measures where a staff is empty while the
+ * staff is printed elsewhere - and is left alone: such a part is printed (found by the real-score e2e, T037).
+ * `orchestra` is the supported case: every staff 1..`<staves>` is omitted from the first measure and never shown again
+ * (a missing `number` means staff 1). `hiddenElsewhere` is any other use of the pair - some staves only, a staff omitted
+ * from a later measure, omitted and shown again - which the app does not support: the part is printed and reported.
+ */
+function scanHiddenStaves(partNode: XmlElement): { orchestra: boolean; hiddenElsewhere: boolean } {
+  let staves = 1;
+  let hiddenAnywhere = false;
+  let shownAgain = false;
+  const state = new Map<number, boolean>(); // staff -> hidden now
+  let hiddenAtStart: number[] = [];
+  const measures = getChildren(partNode, 'measure');
+  measures.forEach((measure, index) => {
+    for (const attributes of getChildren(measure, 'attributes')) {
+      if (index === 0) staves = parseInt(getText(getChild(attributes, 'staves')), 10) || staves;
+      for (const details of getChildren(attributes, 'staff-details')) {
+        const printObject = getAttr(details, 'print-object');
+        const staff = parseInt(getAttr(details, 'number') ?? '1', 10) || 1;
+        if (printObject === 'no' && getAttr(details, 'print-spacing') === 'no') {
+          hiddenAnywhere = true;
+          state.set(staff, true);
+        } else if (printObject === 'yes') {
+          if (state.get(staff) === true && index > 0) shownAgain = true;
+          state.set(staff, false);
+        }
+      }
+    }
+    if (index === 0) hiddenAtStart = [...state].filter(([, hidden]) => hidden).map(([staff]) => staff);
+  });
+  let everyStaffHidden = hiddenAnywhere && measures.length > 0;
+  for (let staff = 1; staff <= staves; staff++) if (!hiddenAtStart.includes(staff)) everyStaffHidden = false;
+  const orchestra = everyStaffHidden && !shownAgain;
+  return { orchestra, hiddenElsewhere: hiddenAnywhere && !orchestra };
+}
+
 export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport } {
   const report = new ReportBuilder();
   const root = doc.children.find((c): c is XmlElement => c instanceof XmlElement);
@@ -262,6 +301,16 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
     if (arranger) score.arranger = getText(arranger) || null;
   }
 
+  // Orchestra parts (019): known before anything about the parts is reported, so their own warnings replace the generic ones.
+  // A Score whose parts are all hidden is never an empty score sheet: they are all treated as printed.
+  const hiddenScan = getChildren(root, 'part').map(scanHiddenStaves);
+  const allHidden = hiddenScan.length > 0 && hiddenScan.every((scan) => scan.orchestra);
+  const orchestraFlags = hiddenScan.map((scan) => scan.orchestra && !allHidden);
+  const orchestraByXmlId = new Map<string, boolean>();
+  getChildren(root, 'part').forEach((node, i) => {
+    orchestraByXmlId.set(getAttr(node, 'id') || '', orchestraFlags[i] === true);
+  });
+
   const partList = getChild(root, 'part-list');
   const partInfos = new Map<string, { name: string; instruments: Instrument[] }>();
   if (partList) {
@@ -271,6 +320,8 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
       const instruments: Instrument[] = [];
       const scoreInstruments = getChildren(scorePart, 'score-instrument');
       const midiInstruments = getChildren(scorePart, 'midi-instrument');
+      const isOrchestra = orchestraByXmlId.get(id) === true;
+      let bareDefault = false; // no instrument elements at all: an ordinary piano default, but an Orchestra needs a program
 
       if (scoreInstruments.length > 0) {
         for (const si of scoreInstruments) {
@@ -336,6 +387,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
         });
       } else {
         // No <score-instrument>/<midi-instrument> at all: an ordinary default, not an error worth a notice.
+        bareDefault = true;
         instruments.push({
           xmlId: '',
           name: '',
@@ -349,7 +401,11 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
           fallback: false,
         });
       }
-      if (instruments.some((i) => i.fallback)) {
+      if (isOrchestra) {
+        // An Orchestra instrument without a usable <midi-program> is not played - never as a piano (019 FR-014)
+        if (bareDefault) for (const instrument of instruments) instrument.fallback = true;
+        if (instruments.some((i) => i.fallback)) report.add('warning', 'orchestraInstrumentMissing', null, name || id);
+      } else if (instruments.some((i) => i.fallback)) {
         report.add('warning', 'instrumentFallback', null, name || id);
       }
       partInfos.set(id, { name, instruments });
@@ -466,6 +522,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
 
   for (const partNode of partNodes) {
     const xmlId = getAttr(partNode, 'id') || '';
+    const orchestra = orchestraFlags[partIndex] === true;
     const info = partInfos.get(xmlId) || {
       name: '',
       instruments: [
@@ -484,10 +541,18 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
       ],
     };
 
+    // Hidden in a way that is not an Orchestra part (some staves, from a later measure, shown again, or every part of the
+    // file): printed like any part, and said so once (019 FR-014, Constitution III)
+    const scan = hiddenScan[partIndex];
+    if (scan && !orchestra && (scan.hiddenElsewhere || allHidden)) {
+      report.add('warning', 'hiddenStaffIgnored', null, info.name || xmlId);
+    }
+
     const part: Part = {
       index: partIndex,
       xmlId,
       name: info.name,
+      orchestra,
       staves: 1,
       instruments: info.instruments,
       notes: [],
@@ -867,7 +932,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
                 velocityOverride,
                 accent,
                 fingerings,
-                printed: getAttr(el, 'print-object') !== 'no',
+                printed: !orchestra && getAttr(el, 'print-object') !== 'no',
                 source: { start: el.start || 0, end: el.end || 0 },
                 ornament,
                 arpeggiate,

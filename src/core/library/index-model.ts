@@ -210,6 +210,8 @@ function validFacts(raw: unknown): ItemFacts | null {
     if (typeof raw[flag] === 'boolean') facts[flag] = raw[flag] as boolean;
   }
   if (isFiniteNumber(raw.fingeringCoverage)) facts.fingeringCoverage = raw.fingeringCoverage;
+  // The Orchestra's instrument names (feature 019, library-index 1.3.0): a non-empty list of strings, else no fact
+  if (isStringArray(raw.orchestra) && raw.orchestra.length > 0) facts.orchestra = raw.orchestra;
 
   // The `checkLevel` inputs (data-model.md §4) - a MINOR addition, same reasoning as the flags above.
   for (const numeric of [
@@ -226,6 +228,7 @@ function validFacts(raw: unknown): ItemFacts | null {
     'graceNoteCount',
     'ornamentCount',
     'backwardRepeatCount',
+    'maxArpeggiatedSpanSemitones',
   ] as const) {
     if (isFiniteNumber(raw[numeric])) facts[numeric] = raw[numeric] as number;
   }

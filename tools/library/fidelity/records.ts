@@ -4,11 +4,13 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fromLilyPond, readLilyPond } from '../lilypond/read';
+import { parseDefinition } from '../orchestra/definition';
 import { type Alignment, type Aspect, compare, compareMelody, compareSound, type Difference } from './compare';
 import { ClaimError, claimForItem } from './exercise-claims';
 import { fromMusicXml } from './from-musicxml';
 import { checkMelodyRules } from './melody-rules';
 import { fromMidi, readMidi } from './midi';
+import { checkOrchestra } from './orchestra';
 import type { ReferenceScore } from './reference';
 import { checkSong } from './song-chords';
 import { date, type SourceManifest, sourceFile } from './sources';
@@ -36,6 +38,7 @@ export const THEORY_RULE_SETS = [
   'exercise-theory-v2',
   'song-chords-v1',
   'exercise-theory-v3',
+  'orchestra-v1',
 ] as const;
 export type TheoryRuleSet = (typeof THEORY_RULE_SETS)[number];
 
@@ -270,6 +273,7 @@ export function runRecord(record: AuditRecord, ctx: RunContext): CheckResult[] {
 function runTheory(record: AuditRecord, check: TheoryCheck, ctx: RunContext): CheckResult {
   const sidecar = JSON.parse(readFileSync(join(ctx.libraryRoot, `${record.itemId}.json`), 'utf8')) as Sidecar;
   if (check.ruleSet === 'song-chords-v1') return runSongChords(record, check, sidecar, ctx);
+  if (check.ruleSet === 'orchestra-v1') return runOrchestra(record, check, ctx);
   let claim: ReturnType<typeof claimForItem>;
   try {
     claim = claimForItem({ itemId: record.itemId, title: sidecar.title ?? '', trains: sidecar.trains ?? '' });
@@ -300,7 +304,7 @@ function runTheory(record: AuditRecord, check: TheoryCheck, ctx: RunContext): Ch
 export function theoryDifferences(
   xml: string,
   claim: ExerciseClaim,
-  ruleSet: Exclude<TheoryRuleSet, 'song-chords-v1'>,
+  ruleSet: Exclude<TheoryRuleSet, 'song-chords-v1' | 'orchestra-v1'>,
 ): Difference[] {
   const melody = claim.sections
     ?.flatMap((s) => [s.right, s.left])
@@ -315,6 +319,35 @@ export function theoryDifferences(
   for (const f of checkMelodyRules({ itemId: claim.itemId, xml, level: melody.level, keys }))
     differences.push({ kind: 'melodyRule', bar: String(f.bar), beat: f.beat, rule: f.rule, message: f.message });
   return differences;
+}
+
+/** orchestra-v1 (feature 019, audit-record 1.4.0): rules O1-O5 of the item's Orchestra against its orchestration definition. */
+function runOrchestra(record: AuditRecord, check: TheoryCheck, ctx: RunContext): CheckResult {
+  const slug = record.itemId.split('/').pop() ?? record.itemId;
+  const definitionFile = join(ctx.libraryRoot, '../..', 'content/library/orchestra', `${slug}.json`);
+  if (!existsSync(definitionFile)) {
+    return {
+      check,
+      differences: [],
+      allowed: [],
+      reproduced: false,
+      detail: `no orchestration definition for ${record.itemId}`,
+    };
+  }
+  const definition = parseDefinition(JSON.parse(readFileSync(definitionFile, 'utf8')));
+  const xml = readFileSync(ctx.itemFile ?? join(ctx.libraryRoot, `${record.itemId}.musicxml`), 'utf8');
+  const differences: Difference[] = checkOrchestra(xml, definition).map((f) => ({
+    kind: 'orchestraRule',
+    rule: f.rule,
+    detail: f.detail,
+  }));
+  return {
+    check,
+    differences,
+    allowed: [],
+    reproduced: differences.length === check.expectedDifferences,
+    detail: `${definition.instruments.length} Orchestra instruments checked (O1-O5): ${differences.length} differences`,
+  };
 }
 
 /** song-chords-v1: the left-hand chords of a song against their printed names and the chords its level promises. */

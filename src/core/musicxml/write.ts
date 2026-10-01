@@ -64,6 +64,9 @@ export interface WriteDirection {
   metronome?: { beatUnit: WriteDuration; perMinute: number };
   /** `<sound tempo="...">`, in quarter notes per minute regardless of `metronome.beatUnit`. */
   tempo?: number;
+  /** `<sound dynamics="...">`: the playback loudness, in percent of forte (feature 019: an Orchestra part's, which has no
+   *  dynamic marks to read). */
+  soundDynamics?: number;
   /** A dynamic mark such as `pp` or `sf`. */
   dynamics?: string;
   wedge?: 'crescendo' | 'diminuendo' | 'stop';
@@ -106,6 +109,9 @@ export interface WriteMeasureAttributes {
   time?: { beats: string; beatType: number };
   staves?: number;
   clefs?: WriteClef[];
+  /** `<staff-details>` after the clefs (feature 019): `printObject: false, printSpacing: false` on every staff of a part
+   *  makes it an Orchestra part - not drawn, no room. Only the attributes given are written. */
+  staffDetails?: { number?: number; printObject?: boolean; printSpacing?: boolean }[];
 }
 
 export interface WriteMeasure {
@@ -204,7 +210,11 @@ function writeDirectionXml(d: WriteDirection): string {
   if (d.octaveShift) typeParts.push(`<octave-shift type="${d.octaveShift.type}" size="${d.octaveShift.size}"/>`);
   // A playback tempo with no printed mark: <direction-type> needs a child, and empty words print nothing.
   if (typeParts.length === 0) typeParts.push('<words/>');
-  const sound = d.tempo !== undefined ? `<sound tempo="${d.tempo}"/>` : '';
+  const soundAttrs = [
+    d.tempo !== undefined ? `tempo="${d.tempo}"` : '',
+    d.soundDynamics !== undefined ? `dynamics="${d.soundDynamics}"` : '',
+  ].filter(Boolean);
+  const sound = soundAttrs.length > 0 ? `<sound ${soundAttrs.join(' ')}/>` : '';
   const staff = d.staff !== undefined ? `<staff>${d.staff}</staff>` : '';
   return `<direction${attrs}><direction-type>${typeParts.join('')}</direction-type>${sound}${staff}</direction>`;
 }
@@ -237,6 +247,14 @@ function writeAttributesXml(a: WriteMeasureAttributes): string {
   for (const clef of a.clefs ?? []) {
     parts.push(`<clef number="${clef.number}"><sign>${clef.sign}</sign><line>${clef.line}</line></clef>`);
   }
+  for (const details of a.staffDetails ?? []) {
+    const attrs = [
+      details.number !== undefined ? `number="${details.number}"` : '',
+      details.printObject !== undefined ? `print-object="${details.printObject ? 'yes' : 'no'}"` : '',
+      details.printSpacing !== undefined ? `print-spacing="${details.printSpacing ? 'yes' : 'no'}"` : '',
+    ].filter(Boolean);
+    parts.push(`<staff-details${attrs.length > 0 ? ` ${attrs.join(' ')}` : ''}/>`);
+  }
   parts.push('</attributes>');
   return parts.join('');
 }
@@ -258,9 +276,20 @@ function writeMeasureXml(m: WriteMeasure): string {
   return parts.join('');
 }
 
-function writePartXml(p: WritePart): string {
+export function writePartXml(p: WritePart): string {
   const measures = p.measures.map(writeMeasureXml).join('');
   return `<part id="${esc(p.id)}">${measures}</part>`;
+}
+
+/** A `<score-part>` with its own GM program (1-based, as in `<midi-program>`) and 1-based MIDI channel (feature 019: an Orchestra
+ *  instrument; `writeScoreXml` still writes every part as a piano). */
+export function writeScorePartXml(part: { id: string; name: string; program: number; channel?: number }): string {
+  return (
+    `<score-part id="${esc(part.id)}"><part-name>${esc(part.name)}</part-name>` +
+    `<score-instrument id="${esc(part.id)}-I1"><instrument-name>${esc(part.name)}</instrument-name></score-instrument>` +
+    `<midi-instrument id="${esc(part.id)}-I1">${part.channel === undefined ? '' : `<midi-channel>${part.channel}</midi-channel>`}<midi-program>${part.program}</midi-program></midi-instrument>` +
+    '</score-part>'
+  );
 }
 
 /** Writes a complete `score-partwise` MusicXML document. Deterministic: the same `WriteScore` always

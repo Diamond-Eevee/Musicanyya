@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { LIVE_QUEUE_CAPACITY } from '../../../src/core/defaults.js';
 import { EVENT_KIND, type ScheduleMessage } from '../../../src/core/schedule/compile.js';
 import {
   createScorePlayerProcessor,
@@ -101,5 +102,40 @@ describe('reports posted from the render quantum are one object each (T008)', ()
     const ended = seen.filter((m) => m.type === 'ended');
     expect(ended).toHaveLength(2);
     expect(ended[1]).toBe(ended[0]);
+  });
+});
+
+// Feature 019 (worklet-protocol 1.6.0): the live queue gained a channel slot. Allocation itself is checked by the RT review
+// (T036); what is pinned here is the structure that makes it free - a full queue of entries on many channels drains in one
+// block through the same fixed slots, in order, with nothing posted from the render quantum.
+describe('a full live queue with channels drains in one block (feature 019)', () => {
+  it('applies every entry on its own channel, in order, and posts nothing', () => {
+    const calls: string[] = [];
+    const proc = createScorePlayerProcessor({
+      synth: {
+        noteOn: (channel: number, key: number) => calls.push(`on ${channel} ${key}`),
+        noteOff: (channel: number, key: number) => calls.push(`off ${channel} ${key}`),
+      },
+      sampleRate: 48000,
+    });
+    const posted: ProcessorMessage[] = [];
+    proc.onMessage = (msg) => posted.push(msg);
+    const expected: string[] = [];
+    for (let i = 0; i < LIVE_QUEUE_CAPACITY; i++) {
+      const channel = i % 9; // 0..8: never the percussion, Metronome or live channel
+      const kind = i % 2 === 0 ? 'on' : 'off';
+      proc.receiveMessage({ type: 'live', kind, key: 40 + (i % 60), velocity: 80, channel });
+      expected.push(`${kind} ${channel} ${40 + (i % 60)}`);
+    }
+    expect(posted).toEqual([]); // the queue held them all
+    proc.processBlock(new Float32Array(128), new Float32Array(128));
+    expect(calls).toEqual(expected);
+    expect(posted).toEqual([]); // and the drain posted nothing
+
+    // one more than the queue holds is dropped and counted, as before
+    for (let i = 0; i <= LIVE_QUEUE_CAPACITY; i++) {
+      proc.receiveMessage({ type: 'live', kind: 'on', key: 60, velocity: 80, channel: 3 });
+    }
+    expect(posted).toEqual([{ type: 'liveDropped', total: 1 }]);
   });
 });

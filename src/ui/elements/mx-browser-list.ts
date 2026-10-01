@@ -118,6 +118,11 @@ export class MxBrowserList extends HTMLElement {
       ${trend ? `<span class="browser-row-trend">${escapeHtml(trend)}</span>` : ''}`;
   }
 
+  /** A glyph (three notes' worth of bars, a shape) and the words, so it never rests on colour alone (Constitution VI). */
+  private orchestraMarkerHtml(): string {
+    return `<span class="browser-row-orchestra" aria-label="${escapeHtml(en.browser.withOrchestraName)}"><svg class="browser-row-orchestra-glyph" viewBox="0 0 16 12" width="14" height="10" aria-hidden="true" focusable="false"><rect x="0" y="5" width="3" height="7" fill="currentColor"/><rect x="5" y="1" width="3" height="11" fill="currentColor"/><rect x="10" y="3" width="3" height="9" fill="currentColor"/></svg>${escapeHtml(en.browser.withOrchestra)}</span>`;
+  }
+
   private rowHtml(row: BrowserItem, index: number, selected: ItemRef | null, active: ItemRef | null): string {
     const isSelected = selected !== null && refEquals(row.ref, selected);
     const isActive = active !== null && refEquals(row.ref, active);
@@ -140,6 +145,7 @@ export class MxBrowserList extends HTMLElement {
           ${row.step ? `<span class="browser-row-step">${escapeHtml(en.library.steps[row.step])}</span>` : ''}
           ${row.level ? `<span class="browser-row-level">${escapeHtml(en.library.levels[row.level])}</span>` : ''}
           ${row.keys.length > 0 ? `<span class="browser-row-key">${escapeHtml(row.keys.join(', '))}</span>` : ''}
+          ${row.orchestra.length > 0 ? this.orchestraMarkerHtml() : ''}
           ${length ? `<span class="browser-row-length">${escapeHtml(length)}</span>` : ''}
           ${this.resultHtml(row)}
           ${row.stored ? '' : `<span class="browser-row-not-stored">${escapeHtml(en.browser.fileNotStoredRow)}</span>`}

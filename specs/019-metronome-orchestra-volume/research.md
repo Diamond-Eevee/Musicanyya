@@ -9,7 +9,7 @@ the library item, against the public-domain print named in R-14. No new runtime 
 
 **Decision**: An **Orchestra part** is a `<part>` in which **every staff** carries
 `<staff-details number="N" print-object="no"/>` (a missing `number` means staff 1) in force at time 0 of its
-**first measure**, and nothing later sets it back to `"yes"`. Files we write add `print-spacing="no"` (its default
+**first measure**, and nothing later sets it back to `"yes"`. **Correction 2026-10-01 (T037):** `print-spacing="no"` is required when reading too (it was only written by our tools): the real score `stanford-sailing-at-dawn` carries MuseScore's hide-empty-staves `print-object="no"` on a printed part, which the looser rule cut out of the score sheet. Files we write add `print-spacing="no"` (its default
 `yes` formally asks for an empty "cutaway" band); the reader does not require it. The parser marks such a part `orchestra: true` and every note in it
 `printed: false`. An Orchestra instrument without a usable `<midi-program>` is not played
 (one `orchestraInstrumentMissing` warning) - it never falls back to piano (FR-014). Anything else that hides a staff -

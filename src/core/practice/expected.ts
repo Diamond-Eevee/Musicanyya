@@ -1,8 +1,8 @@
-import { PRACTICE_HAND_ATTRIBUTION } from '../defaults.js';
+import { PERCUSSION_CHANNEL, PRACTICE_HAND_ATTRIBUTION } from '../defaults.js';
 import type { Note, Part, Score } from '../score/model.js';
 import type { PlaybackTimeline } from '../timeline/types.js';
 import { homeStavesByVoice } from './hands.js';
-import type { ExpectedEvent, HandSelection, SoundingRef } from './types.js';
+import type { ExpectedEvent, HandSelection, OrchestraRef, SoundingRef } from './types.js';
 
 export type HandAttribution = 'voice-home-staff' | 'printed-staff';
 
@@ -18,6 +18,7 @@ interface EventGroup {
   onsetTick: number;
   required: Map<number, RequiredAccumulator>;
   accompaniment: SoundingRef[];
+  orchestra: OrchestraRef[];
 }
 
 /**
@@ -68,8 +69,24 @@ export function buildExpectedEvents(
         onsetTick: pass.startTick + note.onsetInMeasure,
         required: new Map(),
         accompaniment: [],
+        orchestra: [],
       };
       groups.set(groupKey, group);
+    }
+
+    // An Orchestra note (feature 019) is neither required nor accompaniment: it sounds on its own channel with the musician's
+    // progress. One on the percussion channel is left out altogether: Practice never sends live input there (it would be refused).
+    if (part.orchestra) {
+      if (ev.channel !== PERCUSSION_CHANNEL) {
+        group.orchestra.push({
+          noteId: headId,
+          key: ev.key,
+          endTick: ev.endTick,
+          velocity: ev.velocity,
+          channel: ev.channel,
+        });
+      }
+      continue;
     }
 
     const hand =
@@ -95,28 +112,35 @@ export function buildExpectedEvents(
 
   const ordered = Array.from(groups.values()).sort((a, b) => a.onsetTick - b.onsetTick);
 
-  const built: { group: EventGroup; accompaniment: SoundingRef[] }[] = [];
+  const built: { group: EventGroup; accompaniment: SoundingRef[]; orchestra: OrchestraRef[] }[] = [];
   const leading: SoundingRef[] = [];
+  const leadingOrchestra: OrchestraRef[] = [];
   for (const group of ordered) {
     const last = built[built.length - 1];
     if (group.required.size > 0) {
-      built.push({ group, accompaniment: [...group.accompaniment] });
+      built.push({ group, accompaniment: [...group.accompaniment], orchestra: [...group.orchestra] });
     } else if (last) {
       last.accompaniment.push(...group.accompaniment);
+      last.orchestra.push(...group.orchestra);
     } else {
       leading.push(...group.accompaniment);
+      leadingOrchestra.push(...group.orchestra);
     }
   }
   const first = built[0];
-  if (first) first.accompaniment.unshift(...leading);
+  if (first) {
+    first.accompaniment.unshift(...leading);
+    first.orchestra.unshift(...leadingOrchestra);
+  }
 
-  return built.map(({ group, accompaniment }, index) => ({
+  return built.map(({ group, accompaniment, orchestra }, index) => ({
     index,
     passIndex: group.passIndex,
     measureIndex: group.measureIndex,
     onsetTick: group.onsetTick,
     required: Array.from(group.required.values()).sort((a, b) => a.key - b.key),
     accompaniment,
+    orchestra,
   }));
 }
 

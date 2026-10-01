@@ -472,6 +472,16 @@ mx-browser-continue h3 {
   font-weight: 700;
 }
 
+.browser-row-orchestra {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.browser-row-orchestra-glyph {
+  flex-shrink: 0;
+}
+
 .browser-row-meta {
   flex-basis: 100%;
   display: flex;
