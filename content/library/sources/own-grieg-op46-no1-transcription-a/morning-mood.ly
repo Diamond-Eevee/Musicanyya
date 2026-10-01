@@ -3,7 +3,8 @@
 % Transcription A (Musicanyya, feature 019 task T040): our own reading of G. Schirmer, New York, copyright 1899,
 % edited and fingered by Louis Oesterle; Internet Archive 31761045200615, PDF pages 7-10 (leaves n6-n9).
 % Licence: CC0-1.0. Absolute pitches, Dutch note names. Bar numbers are the print's (87 bars, no repeats).
-% Departures forced by the reader's LilyPond subset are marked "% subset:"; readings of unclear print "% unclear:".
+% Departures forced by the reader's LilyPond subset are marked "% subset:"; readings of unclear print "% unclear:";
+% departures from the print made for the library item (staff placement only) "% item:".
 
 \header {
   title = "Morgenstimmung"
@@ -259,9 +260,11 @@ lhOne = {
   <e, b, gis>8\sustainOn \clef treble <b fis'>8( <e' gis'>-.) \clef bass <fis, b, a!>4\arpeggio\sustainOn r8 |
   <e, b, gis>8\sustainOn \clef treble <b fis'>8( <e' gis'>-.) \clef bass <fis, b, a!>4\arpeggio\sustainOn r8 |
   R2. |
-  % 77-78: these chords are printed in the lower staff
-  <fis a b dis'>2.-> |
-  <fis a b dis'>4.-> <fis a b e'>4.-> |
+  % 77-78; item: the print has these right-hand chords in the lower staff (the upper staff is empty); the item prints
+  % them on the upper staff, so the level check does not count them with the left hand's octave (owner decision OD-3,
+  % 019 T097, as Chopin Op. 28 No. 4 bars 24-25)
+  \change Staff = "upper" <fis a b dis'>2.-> |
+  <fis a b dis'>4.-> <fis a b e'>4.-> \change Staff = "lower" |
   % 79-82
   <b, gis~>4.\sustainOn <cis gis>4. |
   <b, gis~>4. <cis gis>4. |

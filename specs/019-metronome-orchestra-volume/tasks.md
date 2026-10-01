@@ -353,12 +353,12 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   `specs/005-practice-score-library/contracts/library-index.md`; `pnpm library:index` changes no item's level
   (`tests/library/regeneration.test.ts` green). *The Entertainer* (15 semitones, left out in 017) is not brought back
   by this task - that is the owner's call
-- [ ] T097 [US2] [standard] (new, OD-3 answer 2026-10-01) The right-hand chords of bars 77-78 and 86-87, which the
+- [x] T097 [US2] [standard] (new, OD-3 answer 2026-10-01) The right-hand chords of bars 77-78 and 86-87, which the
   print puts on the lower staff, are printed on the upper staff in the item so the level check does not count them
   with the left hand (precedent: `public/library/repertoire/advanced/chopin-prelude-op28-no4.json` note). Decide
   first how, so `pnpm library:convert-ly` stays the only writer of the item (e.g. in transcription A with a
   `% item:` comment naming the departure from the print - never in transcription B, which reads the print as it is);
-  the sidecar note names the change (T044). Comes before T044
+  the sidecar note names the change (T044). Comes before T044. Done in transcription A (`% item:` comment, `ange Staff`): only bars 86-87 remain, see T098 and the log
 - [x] T047 [US2] [standard] Tests first in `tests/core/library/levels.test.ts` and `tests/core/library/facts.test.ts`
   for the documented Advanced `<arpeggiate>` exception (R-17): a chord whose notes all carry `<arpeggiate>` is left
   out of `maxSpanSemitones` and counted in `maxArpeggiatedSpanSemitones`; criterion 16 at Advanced accepts any rolled
