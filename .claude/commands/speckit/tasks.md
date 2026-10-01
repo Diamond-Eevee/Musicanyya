@@ -44,5 +44,5 @@ first: switch model, or continue with you? Switch: stop and say which model to u
 4. Add a Dependencies section (phase order, story dependencies) and Parallel Opportunities.
 5. Commit `tasks.md` (`docs(tasks): generate tasks for <feature>`) and add a log entry with a `Handoff` line.
 6. Report: path, total tasks, tasks per story, tasks per model tier with the recommended models for each (reference
-   R11), parallel opportunities, suggested MVP scope (usually US1 only), and next step `/speckit.analyze` then
-   `/speckit.implement`.
+   R11), parallel opportunities, suggested MVP scope (usually US1 only), and next step `/speckit:analyze` then
+   `/speckit:implement`.

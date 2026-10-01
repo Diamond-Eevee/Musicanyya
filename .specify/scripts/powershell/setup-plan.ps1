@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 $paths = Get-FeaturePaths
 if (-not (Test-FeatureBranch -Branch $paths.CURRENT_BRANCH)) { exit 1 }
 if (-not (Test-Path $paths.FEATURE_SPEC)) {
-    Write-Error "spec.md not found in $($paths.FEATURE_DIR). Run /speckit.specify first."
+    Write-Error "spec.md not found in $($paths.FEATURE_DIR). Run /speckit:specify first."
     exit 1
 }
 

@@ -5,18 +5,18 @@ overrides your defaults. Kept under 12,000 characters so every tool loads all of
 `docs/agents/reference.md` (project, repo map, review roles, toolchain, conventions, parallel mode, stack).
 
 **Nothing to install.** "speckit" is not a program. The workflow is Markdown instruction files in
-`.claude/commands/speckit.<step>.md` (usable by any agent; ignore their YAML front matter). `/speckit.<step>` or
-`/speckit:<step>` - as a command or as plain text - means: **open that file, read it completely, follow it
+`.claude/commands/speckit/<step>.md` (usable by any agent; ignore their YAML front matter). `/speckit:<step>` or
+`/speckit.<step>` - as a command or as plain text - means: **open that file, read it completely, follow it
 exactly**, with the rest of the message as `$ARGUMENTS`. Never guess what a step means.
 
 ## 1. What the user can say
 
 | User says | You do |
 |---|---|
-| "continue", "Read AGENTS.md and continue", `/speckit.continue` | Session start (2), the next chunk (NEXT STEP; for implement up to the next Checkpoint), session end (5) |
-| `/speckit.implement` or "implement" (optional scope: `US1`, `T030-T068`) | Session start, implement all remaining tasks in scope checkpoint by checkpoint, session end |
-| `/speckit.<step>` (specify, clarify, plan, tasks, analyze, checklist, constitution) | That step's instruction file |
-| "status", `/speckit.status` | Session start steps 1-6 only; summarise; change nothing |
+| "continue", "Read AGENTS.md and continue", `/speckit:continue` | Session start (2), the next chunk (NEXT STEP; for implement up to the next Checkpoint), session end (5) |
+| `/speckit:implement` or "implement" (optional scope: `US1`, `T030-T068`) | Session start, implement all remaining tasks in scope checkpoint by checkpoint, session end |
+| `/speckit:<step>` (specify, clarify, plan, tasks, analyze, checklist, constitution) | That step's instruction file |
+| "status", `/speckit:status` | Session start steps 1-6 only; summarise; change nothing |
 
 Commands exist natively in Claude Code (`.claude/commands/`), Gemini CLI (`.gemini/commands/`, dot or colon form)
 and Antigravity (`.agents/workflows/`). Elsewhere, treat them as plain text as described above.
@@ -49,14 +49,14 @@ steps in order; each output feeds the next.
 
 | Step | Instruction file (`.claude/commands/`) | Produces |
 |---|---|---|
-| specify | `speckit.specify.md` | branch, `spec.md` (WHAT/WHY: stories P1.., FR-###, SC-###), `checklists/requirements.md` |
-| clarify | `speckit.clarify.md` | answers in `spec.md` |
-| plan | `speckit.plan.md` | `plan.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md` |
-| tasks | `speckit.tasks.md` | `tasks.md` (test-first tasks per story, checkpoints) |
-| analyze | `speckit.analyze.md` | read-only consistency report; CRITICAL blocks implement |
-| implement | `speckit.implement.md` | code + tests; progress in `tasks.md` + `implementation-log.md` |
-| continue | `speckit.continue.md` | next chunk of whatever is next, plus hand-off |
-| checklist / constitution | `speckit.checklist.md` / `speckit.constitution.md` | optional checklists / amendments (only when asked) |
+| specify | `speckit/specify.md` | branch, `spec.md` (WHAT/WHY: stories P1.., FR-###, SC-###), `checklists/requirements.md` |
+| clarify | `speckit/clarify.md` | answers in `spec.md` |
+| plan | `speckit/plan.md` | `plan.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md` |
+| tasks | `speckit/tasks.md` | `tasks.md` (test-first tasks per story, checkpoints) |
+| analyze | `speckit/analyze.md` | read-only consistency report; CRITICAL blocks implement |
+| implement | `speckit/implement.md` | code + tests; progress in `tasks.md` + `implementation-log.md` |
+| continue | `speckit/continue.md` | next chunk of whatever is next, plus hand-off |
+| checklist / constitution | `speckit/checklist.md` / `speckit/constitution.md` | optional checklists / amendments (only when asked) |
 
 A missing earlier step is done first (e.g. "implement" with no `tasks.md` -> tasks first). If a later step shows an
 earlier document is wrong, fix that document first and say so in the log.

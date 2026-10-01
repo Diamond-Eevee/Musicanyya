@@ -9,7 +9,7 @@ argument-hint: "<feature description>"
 $ARGUMENTS
 ```
 
-The text after `/speckit.specify` IS the feature description. If it is empty, stop and ask for one.
+The text after `/speckit:specify` IS the feature description. If it is empty, stop and ask for one.
 
 ## Steps
 
@@ -38,4 +38,4 @@ first: switch model, or continue with you? Switch: stop and say which model to u
    assumptions listed. Validate the spec against it, fix issues (max 3 iterations), and mark results.
 6. If `[NEEDS CLARIFICATION]` markers remain, present each as a question with 2-4 options (table: option, answer,
    implications) and a recommendation, wait for answers, update the spec, re-validate.
-7. Report: branch name, spec path, checklist result, and the next step (`/speckit.clarify` or `/speckit.plan`).
+7. Report: branch name, spec path, checklist result, and the next step (`/speckit:clarify` or `/speckit:plan`).

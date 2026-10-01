@@ -9,7 +9,7 @@ you must not guess what this step means: follow the files below.
 
 1. Read `AGENTS.md` completely (it is short) and do its "2. Session start" steps, including the announcement
    (your agent id, the instruction file you follow, the resume point, open decisions).
-2. Open `.claude/commands/speckit.tasks.md`, read it completely, and follow it exactly. Ignore its YAML front
+2. Open `.claude/commands/speckit/tasks.md`, read it completely, and follow it exactly. Ignore its YAML front
    matter. Treat any text the user wrote after `/speckit.tasks` as `$ARGUMENTS` (scope such as `US1` or
    `T030-T068`, or answers to open owner decisions such as `T011: approved`).
 3. Keep the documents current as listed in `AGENTS.md` "6. Documents every agent keeps current" (task claims and

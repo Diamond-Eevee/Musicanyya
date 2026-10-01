@@ -23,7 +23,7 @@ first: switch model, or continue with you? Switch: stop and say which model to u
    ```
 2. Load context: the spec, `.specify/memory/constitution.md`, `docs/adr/*.md`, `AGENTS.md`, `docs/agents/reference.md`, and the plan template
    already copied to `IMPL_PLAN`. If the spec still has `[NEEDS CLARIFICATION]` markers that affect design,
-   stop and recommend `/speckit.clarify`.
+   stop and recommend `/speckit:clarify`.
 3. Fill **Technical Context** (use the constitution's stack; mark genuine unknowns `NEEDS CLARIFICATION`).
 4. Fill the **Constitution Check** table: for each principle, state how the design complies. Any violation must be
    justified in **Complexity Tracking** or the design changed. ERROR (stop) on unjustified violations.
@@ -44,4 +44,4 @@ first: switch model, or continue with you? Switch: stop and say which model to u
    "Decisions and open items" marked "needs owner", and the tasks step turns them into "Owner decision gate" tasks.
 10. Commit the plan artifacts (`docs(plan): plan <feature>`) and add a log entry.
 11. Stop after Phase 1 (do NOT create tasks.md). Report: branch, plan path, generated artifacts, gate status, open
-    owner decisions, and next step `/speckit.tasks`.
+    owner decisions, and next step `/speckit:tasks`.

@@ -37,7 +37,7 @@ first: switch model, or continue with you? Switch: stop and say which model to u
    - `.specify/templates/plan-template.md` - Constitution Check table rows mirror the principles exactly.
    - `.specify/templates/spec-template.md` - vocabulary and success-criteria prompts.
    - `.specify/templates/tasks-template.md` - required task types (e.g. RT review, test-first).
-   - `.claude/commands/speckit.*.md` and `.claude/agents/*.md` - no stale principle names/numbers.
+   - `.claude/commands/speckit/*.md` and `.claude/agents/*.md` - no stale principle names/numbers.
    - `AGENTS.md` section 8 - summary of principles (keep AGENTS.md under 12,000 characters) and
      `docs/agents/reference.md` R1 / Active Technologies - stack summary (CLAUDE.md and GEMINI.md only import AGENTS.md).
 6. Validate: no leftover placeholders, dates ISO, version line matches report.
