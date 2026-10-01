@@ -19,3 +19,12 @@
   no RT review (no real-time path) and no owner gate (no open decision).
 - Model fit: the tasks step is tier `standard`; claude-opus-5.5 fits.
 - Handoff: next = `/speckit:analyze`, then `/speckit:implement` from T001; no code changed yet.
+
+## 2026-10-01 - claude-opus-5.5 (analyze)
+- Analyze: 11 findings (CRITICAL 0, HIGH 1, MEDIUM 4, LOW 6); tasks.md as of 09b2efd.
+- Top: H1 direct file opens (Open file..., drop) end in `browserState.close()` in `src/app/session.ts` `openFile`, not
+  `openSucceeded`, so FR-012 / US3 #5 / T016(c) have no implementing task; M1 reveal on every index load (also
+  `startRefresh` after a reset) re-expands a path collapsed in the session; M2 a stale `selected` ref is not defined
+  as cleared; M3 SC-003 timing not measured; M4 narrow-layout rail overlay not verified.
+- Model fit: analyze is tier `deep`; claude-opus-5.5 fits.
+- Handoff: next = fix H1 (plan/data-model + new task) and decide M1-M4, then `/speckit:implement` from T001.
