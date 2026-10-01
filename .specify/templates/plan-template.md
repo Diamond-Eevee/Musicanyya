@@ -44,13 +44,13 @@
 
 ```text
 specs/[###-feature]/
-|-- spec.md              # /speckit.specify
-|-- plan.md              # this file (/speckit.plan)
-|-- research.md          # Phase 0 (/speckit.plan)
-|-- data-model.md        # Phase 1 (/speckit.plan)
-|-- quickstart.md        # Phase 1 (/speckit.plan)
-|-- contracts/           # Phase 1 (/speckit.plan) - IPC commands/events, file formats
-`-- tasks.md             # /speckit.tasks (NOT created by /speckit.plan)
+|-- spec.md              # /speckit:specify
+|-- plan.md              # this file (/speckit:plan)
+|-- research.md          # Phase 0 (/speckit:plan)
+|-- data-model.md        # Phase 1 (/speckit:plan)
+|-- quickstart.md        # Phase 1 (/speckit:plan)
+|-- contracts/           # Phase 1 (/speckit:plan) - IPC commands/events, file formats
+`-- tasks.md             # /speckit:tasks (NOT created by /speckit:plan)
 ```
 
 ### Source Code (repository root)

@@ -24,6 +24,9 @@ export class MemorySettingsStore implements SettingsStore {
     this.user = { ...settings };
   }
 
+  /** Writes are immediate here, so there is never anything pending (ports 2.1.0). */
+  flushPending(): void {}
+
   loadPractice(scoreId: string | null): PracticeSettings {
     const own = scoreId === null ? undefined : this.byScore.get(scoreId);
     return own ? { ...own } : { ...this.defaults, loop: null };

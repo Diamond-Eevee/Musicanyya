@@ -79,14 +79,17 @@ import type { LoadReport } from '../core/score/load-report.js';
 import type { Score } from '../core/score/model.js';
 import { audioTimeAtTick } from '../core/tempo/rate.js';
 import { displaySegmentIndexAt, type TempoDisplaySegment } from '../core/tempo/tempo-display.js';
+import { passAtTick } from '../core/timeline/position.js';
 import type { PlaybackTimeline, TempoSegment } from '../core/timeline/types.js';
 import type { MxOpenButton } from '../ui/elements/mx-open-button.js';
+import { MxPanelHint } from '../ui/elements/mx-panel-hint.js';
 import type { PlaySetupChange } from '../ui/elements/mx-play-panel.js';
 import type { PracticeSetupChange } from '../ui/elements/mx-practice-panel.js';
 import type { MxScoreView, TimelineDto } from '../ui/elements/mx-score-view.js';
 import type { TempoChangeDetail } from '../ui/elements/mx-tempo-field.js';
 import type { MxTransport } from '../ui/elements/mx-transport.js';
 import { midiNoteName } from '../ui/format/note-name.js';
+import { en } from '../ui/i18n/en.js';
 import { mountPanels, type PanelTools } from '../ui/layout/panel-host.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
 import { initShortcuts } from '../ui/shortcuts.js';
@@ -183,6 +186,9 @@ export class Session {
   private practiceScoreId: string | null = null;
   private practiceSettings: PracticeSettings = { selection: null, loop: null, accompaniment: true, help: true };
   private endingPracticeNaturally = false;
+  /** The Listen position a Practice start measure was carried over from (017 T059), so that the start lands in the
+   *  same occurrence of a repeated measure; null when the musician picked the measure. */
+  private practiceStartTick: number | null = null;
 
   // Play mode settings (US3, T065-T068): stored and loaded per Score.
   private playScoreId: string | null = null;
@@ -307,10 +313,18 @@ export class Session {
 
   async start(): Promise<void> {
     this.userSettings = this.settingsStore.load();
+    // Settings writes are debounced; the page going away must not lose the last change (017 T039, 004 SC-008).
+    // `pagehide` covers reload and close; hidden also covers a tab that is later discarded without either.
+    window.addEventListener('pagehide', () => this.settingsStore.flushPending());
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') this.settingsStore.flushPending();
+    });
     const settings = this.userSettings;
     viewState.setScale(settings.scale);
     for (const [layer, on] of Object.entries(settings.overlays)) viewState.setOverlay(layer as OverlayLayer, on);
     transportState.applySavedSettings(settings.volume, settings.follow);
+    // The store is set without the driver; the engine gets the saved volume too (017 T034), sent once its node exists.
+    this.audioEngine.setVolume(transportState.get().volume);
 
     this.scoreView = document.createElement('mx-score-view');
     this.scoreView.client = this.verovioClient;
@@ -395,8 +409,30 @@ export class Session {
       if (state.mode === lastMode) return;
       const previousMode = lastMode;
       lastMode = state.mode;
-      if (state.mode === 'listen') this.leavePractice();
-      if (previousMode === 'play' && state.mode !== 'play') this.leavePlay();
+      // The other mode starts from the same place (002 AS-1.11, 017 T059): read it before the run is stopped.
+      const listenTick = previousMode === 'listen' ? this.listenPlaceTick() : null;
+      const practiceTick = previousMode === 'practice' ? this.practicePlaceTick() : null;
+      // Switching mode ends the run of the mode being left, whatever comes next (002 AS-1.11, 017 T056). The
+      // transport's stop is routed by the mode now in force (a Play stop only stops a Play run), so the engine is
+      // stopped here directly: Practice -> Play used to leave the session running and the button on Stop. The
+      // transport's own stop that follows may stop the engine a second time (Listen, Practice) or call
+      // `playController.stop()` with no live run (Play); both are idempotent, and the store still needs it.
+      this.audioEngine.stop();
+      transportState.stop();
+      // Leaving Practice drops its session and marks (FR-019); so does arriving in Listen, as before. Leaving Play
+      // clears its run and Grade only now, after the stop: the engine's stop otherwise writes the run back.
+      if (previousMode === 'practice' || state.mode === 'listen') this.resetPractice();
+      if (previousMode === 'play') this.leavePlay();
+      // Each mode keeps its own kind of place: Practice starts at a measure (as a measure click picks one), in the
+      // occurrence Listen was in; Listen at a tick. At the very beginning or past the end nothing is picked.
+      if (state.mode === 'practice' && listenTick !== null && listenTick > 0 && this.currentTimeline) {
+        const pass = passAtTick(this.currentTimeline, listenTick);
+        if (pass && listenTick < pass.endTick) {
+          practiceState.setStartMeasure(pass.measureIndex);
+          this.practiceStartTick = listenTick;
+        }
+      }
+      if (state.mode === 'listen' && practiceTick !== null) transportState.seekMeasure(practiceTick);
       this.updateTempoModel(); // Play shows the Play setup's tempo, Listen and Practice the transport's (012 FR-017)
     });
     initShortcuts();
@@ -548,8 +584,13 @@ export class Session {
     const environmentPanel = document.querySelector('mx-environment-panel') as HTMLElement;
     const tools: PanelTools = {
       scores: [scoreSource],
-      attempts: [attemptsList],
-      setup: [practicePanel, playPanel],
+      // A one-line hint where the tools themselves show nothing in the current mode (017 T041)
+      attempts: [attemptsList, new MxPanelHint(en.panelHints.attempts, () => practiceState.get().mode !== 'play')],
+      setup: [
+        practicePanel,
+        playPanel,
+        new MxPanelHint(en.panelHints.setup, () => practiceState.get().mode === 'listen'),
+      ],
       midi: [midiPanel],
       latency: [latencyPanel],
       view: [document.createElement('mx-view-panel')],
@@ -583,8 +624,16 @@ export class Session {
           midiState.pressedKeys.delete(k);
         });
         midiState.emit();
-        this.applyPracticeInput({ type: 'deviceLost', timeStampMs: performance.now(), heldKeys: e.heldKeys });
-        noticeState.addNotice({ code: 'midiDeviceLost', severity: 'warning' });
+        const practiceReported = this.applyPracticeInput({
+          type: 'deviceLost',
+          timeStampMs: performance.now(),
+          heldKeys: e.heldKeys,
+        });
+        // A running Practice session or Play run reports the loss itself, in its own words (practiceDeviceLost,
+        // playMidiLost); the general notice is for when neither is running - one disconnect, one notice (017 T040).
+        const playPhase = this.playController.getRun()?.phase;
+        const playReports = playPhase === 'countIn' || playPhase === 'running';
+        if (!practiceReported && !playReports) noticeState.addNotice({ code: 'midiDeviceLost', severity: 'warning' });
       } else if (e.type === 'noteOn') {
         // The musician's own sound goes first: the re-renders that state changes trigger must never delay it.
         // In Play mode PlaySessionController's own `soundInput` effect already sounds it (FR-006) - sounding it
@@ -619,8 +668,11 @@ export class Session {
     setInterval(() => {
       if (this.engineUnlocked) {
         const lat = this.audioEngine.latency();
-        if (lat.outputLatencyMs !== midiState.latencyMs) {
-          midiState.latencyMs = lat.outputLatencyMs !== null ? Math.round(lat.outputLatencyMs) : null;
+        // Compared as shown (whole ms): the raw value is fractional, so comparing it with the stored rounded one said
+        // "changed" every second and re-rendered every MIDI-state view for nothing (017 T035)
+        const latencyMs = lat.outputLatencyMs !== null ? Math.round(lat.outputLatencyMs) : null;
+        if (latencyMs !== midiState.latencyMs) {
+          midiState.latencyMs = latencyMs;
           midiState.emit();
         }
       }
@@ -756,7 +808,9 @@ export class Session {
       return;
     }
     if (startMeasureIndex !== null) {
-      const start = resolveStartMeasure(events, startMeasureIndex, 0) ?? 0;
+      // A start carried over from Listen picks the occurrence Listen was in, not the first one (017 T059).
+      const cursor = this.practiceStartTick !== null ? firstEventAtOrAfterTick(events, this.practiceStartTick) : 0;
+      const start = resolveStartMeasure(events, startMeasureIndex, cursor) ?? 0;
       this.beginPractice(events, setup.selection, start, this.resolveLoopFor(events, start));
       return;
     }
@@ -841,10 +895,21 @@ export class Session {
     });
   }
 
-  /** Switching to Listen ends the session and clears its marks (FR-019). */
-  private leavePractice(): void {
-    this.resetPractice();
-    transportState.stop();
+  /** Where Listen stands, for Practice to take over (017 T059): playing or paused, where it is heard (the engine's
+   *  audible position - the transport store keeps only where it started); stopped, where it was put. */
+  private listenPlaceTick(): number {
+    const { phase, positionTick } = transportState.get();
+    if (phase !== 'playing' && phase !== 'paused') return positionTick;
+    return this.audioEngine.audiblePosition(performance.now())?.audibleTick ?? positionTick;
+  }
+
+  /** Where Practice stands, for Listen to take over (002 AS-1.11, 017 T059): the note a running session waits for,
+   *  else the first pass of a picked start measure; null at the beginning and after a finished session. */
+  private practicePlaceTick(): number | null {
+    const { session, startMeasureIndex } = practiceState.get();
+    if (session && session.phase !== 'finished') return session.events[session.index]?.onsetTick ?? null;
+    if (startMeasureIndex === null) return null;
+    return this.currentTimeline?.passes.find((p) => p.measureIndex === startMeasureIndex)?.startTick ?? null;
   }
 
   /** Drops the session and the picked start measure, releasing whatever the session left ringing. */
@@ -852,6 +917,7 @@ export class Session {
     this.releasePracticeSound(practiceState.get().session);
     practiceState.setSession(null);
     practiceState.setStartMeasure(null);
+    this.practiceStartTick = null;
     practiceState.clearAllKeyFeedback();
     practiceState.clearHelpOverlay();
   }
@@ -1048,10 +1114,17 @@ export class Session {
   }
 
   private onPlayGraded(grade: Grade): void {
+    // Grading is asynchronous: a run stopped by leaving Play is graded after the mode changed, and FR-035 clears the
+    // result layer on a mode change - so its Grade is not shown (017 T058). The attempt is still stored (onStored).
+    if (practiceState.get().mode !== 'play') return;
     const newBest =
       this.playScoreId !== null &&
       this.browserController.computeNewBest(this.playScoreId, this.progressResultFromGrade(grade));
     this.showGrade(grade, newBest);
+    // `playState.run` follows the controller once per animation frame (the score view's loop); the Grade can come back
+    // before the next frame and would then read the phase the run had before it stopped - a stop in the count-in
+    // still said "countIn" and the Grade was never shown (017 T037). Publish the run as it is now, then decide.
+    playState.setRun(this.playController.getRun(), playState.get().expected);
     // The Grade arrives over the Score in a dismissible popup; dismissing it leaves the marks on the notes (FR-009). It
     // can arrive late (grading has its own timeout): never over a run that has started since.
     if (!isRunActive()) viewState.openPanel('grade');
@@ -1439,6 +1512,7 @@ export class Session {
   /** Clicking a measure in Practice mode chooses where the session starts; a running session restarts there. */
   private onPracticeMeasureClick(measureIndex: number): void {
     practiceState.setStartMeasure(measureIndex);
+    this.practiceStartTick = null; // a measure the musician picks starts at its first occurrence, as before
     const session = practiceState.get().session;
     if (!this.isPracticeRunning(session)) return;
     const start = resolveStartMeasure(session.events, measureIndex, session.index);
@@ -1447,10 +1521,12 @@ export class Session {
     }
   }
 
-  private applyPracticeInput(input: PracticeInput) {
-    if (practiceState.get().mode !== 'practice') return;
+  /** Applies an input to the running Practice session, if there is one. True when the session raised a notice of its
+   *  own for it (so the caller does not add a second one, 017 T040). */
+  private applyPracticeInput(input: PracticeInput): boolean {
+    if (practiceState.get().mode !== 'practice') return false;
     const session = practiceState.get().session;
-    if (!session) return;
+    if (!session) return false;
 
     const { session: nextSession, effects } = applyInput(session, input);
     practiceState.setSession(nextSession);
@@ -1464,6 +1540,7 @@ export class Session {
     if (input.type === 'noteOff' && input.key !== undefined) {
       practiceState.clearKeyFeedback(input.key);
     }
+    return effects.some((effect) => effect.type === 'notice');
   }
 
   private handlePracticeEffect(effect: PracticeEffect) {
@@ -1545,7 +1622,7 @@ export class Session {
     if (file.size > MAX_FILE_BYTES) {
       const error: LoadError = { code: 'fileTooLarge', message: `File exceeds the ${MAX_FILE_BYTES} byte limit.` };
       scoreState.failed(file.name, error);
-      if (browserState.get().phase === 'ready') browserState.openFailed({ code: error.code, fileName: file.name });
+      browserState.fileFailed({ code: error.code, fileName: file.name }); // shown if the browser is open (017 T016)
       return;
     }
     this.browserController.clearOpenedItem();
@@ -1554,7 +1631,8 @@ export class Session {
     if (browserWasReady) browserState.startOpeningItem(fileRef(file.name));
     const outcome = await this.loadBytes(file.name, bytes, fileRef(file.name));
     if (outcome.ok) browserState.close();
-    else if (browserWasReady) browserState.openFailed({ code: outcome.errorCode ?? 'internal', fileName: file.name });
+    // Also when the browser was still loading its library at the drop (017 T016): it is open, so it shows the message.
+    else browserState.fileFailed({ code: outcome.errorCode ?? 'internal', fileName: file.name });
   }
 
   /** `openedAs` is the ref this load represents (R-18): a library ref from `BrowserSessionController.openItem`, or

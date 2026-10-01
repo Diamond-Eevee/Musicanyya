@@ -5,7 +5,7 @@
   </part-list>
   <part id="P1">
   <!-- One note each with <trill-mark>, <mordent>, <turn> and <tremolo> (owner decision D-1), plus a fifth
-       note with <inverted-mordent> - a real MusicXML ornament outside our supported four - to exercise the
+       note with <schleifer> - a real MusicXML ornament outside the supported set - to exercise the
        "unknown ornament child is skipped and reported, never fatal" rule (Constitution III). -->
   <measure number="1">
     <attributes><divisions>1</divisions><time><beats>5</beats><beat-type>4</beat-type></time></attributes>
@@ -23,7 +23,7 @@
       <notations><ornaments><tremolo type="single">3</tremolo></ornaments></notations>
     </note>
     <note><pitch><step>G</step><octave>4</octave></pitch><duration>1</duration><type>quarter</type>
-      <notations><ornaments><inverted-mordent/></ornaments></notations>
+      <notations><ornaments><schleifer/></ornaments></notations>
     </note>
   </measure>
   </part>

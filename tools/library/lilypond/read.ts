@@ -45,6 +45,8 @@ interface WrittenBase {
   length: QuarterTime;
   /** The `*n/m` factor written after the value (R1*3, s2*3/4). */
   factor: QuarterTime;
+  /** Under \hideNotes: the note sounds but is not printed (017 T051). */
+  hidden?: true;
   /** The enclosing \tuplet, if any: its number in source order, and its time modification. */
   tuplet?: { group: number; actual: number; normal: number; nested: boolean };
   marks: LyMark[];
@@ -336,6 +338,7 @@ function layOut(root: LyMusic, staves: Staves): Layout {
   let graceCommand = '';
   let tuplet: WrittenBase['tuplet'];
   let tupletGroups = 0;
+  let hidden = false;
   const written = (value: LyDuration, length: QuarterTime, marks: LyMark[], pos: Pos) => ({
     t: cursor,
     staff,
@@ -345,6 +348,7 @@ function layOut(root: LyMusic, staves: Staves): Layout {
     length,
     factor: value.factor,
     ...(tuplet ? { tuplet } : {}),
+    ...(hidden ? { hidden: true as const } : {}),
     marks,
     pos,
   });
@@ -386,13 +390,13 @@ function layOut(root: LyMusic, staves: Staves): Layout {
       case 'sim': {
         const start = cursor;
         let end = cursor;
-        const saved = { staff, voice };
+        const saved = { staff, voice, hidden };
         m.branches.forEach((branch, i) => {
           cursor = start;
           if (m.voices) voice = `${saved.voice}.${i + 1}`;
           walk(branch);
           if (cmp(cursor, end) > 0) end = cursor;
-          ({ staff, voice } = saved);
+          ({ staff, voice, hidden } = saved);
         });
         cursor = end;
         return;
@@ -561,6 +565,9 @@ function layOut(root: LyMusic, staves: Staves): Layout {
       }
       case 'mark':
         out.events.push({ kind: 'mark', t: cursor, staff, voice, name: m.name, inDynamics, pos: m.pos });
+        return;
+      case 'hide':
+        hidden = m.on;
         return;
     }
   };

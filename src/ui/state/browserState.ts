@@ -193,6 +193,23 @@ export class BrowserStateStore {
     this.store.update((state) => ({ ...state, phase: 'ready', openingRef: null, message }));
   }
 
+  /**
+   * A file open failed while the browser is open (017 T016, from 013 T112; contracts §3: it stays open with the
+   * message). Unlike `openFailed` it does not need an `opening` phase: a drop can land while the browser is still
+   * `loading` its library (it is visible from start-up), and a too-large file is rejected before any opening starts.
+   * While loading, the phase is left alone (the index still arrives) and the message is kept through `indexLoaded`.
+   */
+  fileFailed(message: BrowserMessage): void {
+    const { phase } = this.store.get();
+    if (phase === 'closed') return;
+    this.store.update((state) => ({
+      ...state,
+      phase: phase === 'opening' ? 'ready' : phase,
+      openingRef: null,
+      message,
+    }));
+  }
+
   /** `browserclose` / Escape / backdrop / a run starting (contracts §5). Never touches the loaded Score. */
   close(): void {
     if (this.store.get().phase === 'closed') return;

@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "title": "Minuet in G major, BWV Anh. 114",
+  "subtitle": "from the Notebook for Anna Magdalena Bach (1725)",
+  "composer": "Christian Petzold",
+  "arranger": null,
+  "kind": "piece",
+  "level": "intermediate",
+  "tags": ["hands-together", "repeats", "ornaments", "steady-eighths"],
+  "trains": "Two independent lines in 3/4: a right-hand melody of stepwise eighth-note runs and leaps against a left hand that moves in its own line of mostly dotted-half, half and quarter notes; mordents (bars 3, 5, 11, 13), a grace note in bar 8 and a short trill in bar 30, and a second half that turns to D major (C sharp) before coming home. Both halves repeated.",
+  "hands": "both",
+  "arrangement": false,
+  "provenance": {
+    "origin": "downloaded",
+    "licence": "public-domain",
+    "source": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=75",
+    "sourcePath": "BachJS/BWVAnh114/anna-magdalena-04/anna-magdalena-04.ly",
+    "obtained": "2026-09-30",
+    "credit": "Typeset by Allen Garvin for the Mutopia Project (Mutopia-2017/01/19-75) from the Bach-Gesellschaft edition, and placed in the public domain by the typesetter.",
+    "unmodified": false,
+    "note": "Converted from Mutopia's LilyPond source to MusicXML by pnpm library:convert-ly (notes, rests, repeats and voltas, grace notes, clefs, slurs, dynamics); beams and accidentals then completed by pnpm library:engrave. Checked mechanically against the LilyPond source and Mutopia's own MIDI file (audit record). Long known as \"Bach's Minuet in G\"; the Notebook copy is unsigned and it is now attributed to Christian Petzold (1677-1733), as the source itself notes."
+  },
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-09-30"
+}

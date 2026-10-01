@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { buildScore } from '../../../src/core/musicxml/build.js';
 import { readXml } from '../../../src/core/musicxml/read.js';
 import { createRenderCopy } from '../../../src/core/musicxml/render-copy.js';
+import { handleMessage } from '../../../src/workers/score.worker.js';
 
 describe('createRenderCopy', () => {
   it('assigns every Note ID exactly once and replaces existing ids', () => {
@@ -24,8 +25,23 @@ describe('createRenderCopy', () => {
     expect(copyWithId).not.toContain('old-ms');
   });
 
-  it('assigns first-part measure ids only', () => {
-    // Handled by the fact that the caller only provides measure ids for the first part
+  // 017 T046: this was an empty test. Measure IDs name the measures of the Score (one set, from the first part); the
+  // score worker writes them onto the first part's <measure> tags only, so no two SVG groups share an id.
+  it('assigns first-part measure ids only', async () => {
+    const measure = (n: number) =>
+      `<measure number="${n}"><attributes><divisions>1</divisions></attributes><note><pitch><step>C</step><octave>4</octave></pitch><duration>4</duration><type>whole</type></note></measure>`;
+    const xml = `<?xml version="1.0"?><score-partwise><part-list><score-part id="P1"><part-name>A</part-name></score-part><score-part id="P2"><part-name>B</part-name></score-part></part-list><part id="P1">${measure(1)}${measure(2)}</part><part id="P2">${measure(1)}${measure(2)}</part></score-partwise>`;
+    const bytes = new TextEncoder().encode(xml);
+    const messages: Array<{ type: string; renderXml?: string }> = [];
+    await handleMessage(
+      { data: { type: 'load', requestId: 1, fileName: 'two-parts.musicxml', bytes: bytes.buffer } } as MessageEvent,
+      ((msg: { type: string; renderXml?: string }) => messages.push(msg)) as typeof postMessage,
+    );
+    const renderXml = messages.find((m) => m.type === 'loaded')?.renderXml ?? '';
+    const [partOne, partTwo] = renderXml.split('<part id="P2">');
+    expect(partOne?.match(/<measure [^>]*id="ms-\d+"/g)).toHaveLength(2);
+    expect(partTwo?.match(/<measure [^>]*id="ms-\d+"/g) ?? []).toHaveLength(0);
+    expect(partTwo).toContain('<measure number="1">');
   });
 
   it('removes colliding source ids', () => {

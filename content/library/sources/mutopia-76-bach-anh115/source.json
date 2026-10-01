@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "id": "mutopia-76-bach-anh115",
+  "work": "Menuet in G minor, BWV Anh. 115 (Notebook for Anna Magdalena Bach, 1725), attributed to Christian Petzold",
+  "edition": "Bach-Gesellschaft",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=76",
+  "identifier": "Mutopia-2015/08/21-76",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond by Allen Garvin for the Mutopia Project from the Bach-Gesellschaft edition, and placed in the public domain by the typesetter. The piece page states \"Copyright: Public Domain\" (checked 2026-09-30); the .ly header says the same.",
+  "obtained": "2026-09-30",
+  "approvedByOwner": "2026-09-30",
+  "files": [
+    {
+      "role": "notation",
+      "path": "anna-magdalena-05.ly",
+      "url": "https://www.mutopiaproject.org/ftp/BachJS/BWVAnh115/anna-magdalena-05/anna-magdalena-05.ly",
+      "sha256": "711410e4af706979ca0b344b0ae4a23cb1592c1e4d799f4fad29ab06032adc5f",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "anna-magdalena-05.mid",
+      "url": "https://www.mutopiaproject.org/ftp/BachJS/BWVAnh115/anna-magdalena-05/anna-magdalena-05.mid",
+      "sha256": "6584a133df31cc3635af7c616b14e8c67f8d99df96a91371c54daf3745d4f444",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}

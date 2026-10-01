@@ -14,6 +14,13 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
   { category: 'Notes', element: '<tie>', status: 'Supported', notes: '' },
   {
     category: 'Notes',
+    element: '<unpitched>',
+    status: 'Supported',
+    notes:
+      'Played on its instrument (MIDI percussion key); drawn at its display-step/-octave under the clef in force. Verovio 6.3 reads that position as if in a treble clef, so under F and C clefs the render copy moves it to the matching treble position (017 T045, T047)',
+  },
+  {
+    category: 'Notes',
     element: '<beam>',
     status: 'Supported',
     notes: 'Shown as encoded; completed automatically when a voice has none (not for sung lines with lyrics)',
@@ -40,16 +47,24 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
   { category: 'Time & Repeats', element: '<ending>', status: 'Supported', notes: 'Voltas (1., 2. endings)' },
   {
     category: 'Time & Repeats',
+    element: '<measure-repeat>',
+    status: 'Partial',
+    notes:
+      "The measure's encoded notes are played and engraved in place of the repeat sign, so every played note has its own mark on the Score (017). A measure repeat with no encoded notes keeps its sign and plays as rests",
+  },
+  {
+    category: 'Time & Repeats',
     element: '<direction>',
     status: 'Supported',
-    notes: 'Jumps (D.C., D.S., To Coda, Fine). Note: mid-measure jumps not supported',
+    notes:
+      'Jumps (D.C., D.S., To Coda, Fine). Note: mid-measure jumps not supported; a <sound> standing directly in a <measure> is read like one in a <direction> - tempo, dynamics and jumps (017 T044, T048)',
   },
   {
     category: 'Time & Repeats',
     element: '<sound tempo>',
     status: 'Supported',
     notes:
-      'Wins over a <metronome> in the same direction (012). Note: continuous changes (rit./accel.) not supported; ' +
+      'In a <direction> or directly in the <measure> (017); wins over a <metronome> at the same position, and of two at one position the later wins (012, 017). Note: continuous changes (rit./accel.) not supported; ' +
       'outside 10-1000 quarter notes per minute is treated as unusable, like a missing tempo',
   },
   {
@@ -83,6 +98,12 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
   },
   {
     category: 'Notes',
+    element: '<inverted-mordent>',
+    status: 'Supported',
+    notes: 'The Pralltriller / short trill, treated like <mordent>: played-along, never graded (017 T052)',
+  },
+  {
+    category: 'Notes',
     element: '<turn>',
     status: 'Supported',
     notes: 'Play mode: the realisation is played-along, never graded (feature 003)',
@@ -112,6 +133,12 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
     element: '<accidental-mark>',
     status: 'Ignored',
     notes: 'The accidental printed over an ornament: engraved by Verovio, ignored by the time model',
+  },
+  {
+    category: 'Notes',
+    element: '<note print-object="no">',
+    status: 'Supported',
+    notes: 'An invisible note (017): it sounds, but is not shown, marked or graded',
   },
   {
     category: 'Harmony',

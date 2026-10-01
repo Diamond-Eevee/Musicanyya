@@ -181,6 +181,8 @@ interface AudioDiagnostics {
   sampleRate: number | null; baseLatencyMs: number | null; outputLatencyMs: number | null;
   dropoutsSincePlay: number; dropoutsTotal: number; dropoutMethod: "browserStats" | "clockDrift" | "none";
   reportsPerSecond: number; lastReportAgeMs: number | null;
+  liveQueueDropped: number;  // live messages dropped: queue full (T057) or malformed (017 T005)
+  lateEvents: number;        // schedule events that sounded after their frame, at a later block's start (017 T013)
 }
 ```
 
@@ -248,6 +250,7 @@ interface UserSettings { version: 1; volume: Volume; tempoPercent: TempoPercent;
 | `VELOCITY_MIN` / `VELOCITY_MAX` | 1 / 127 | R-8.6 |
 | `PERCUSSION_CHANNEL` / `LIVE_CHANNEL` | 9 / 15 | R-8.7, R-10 |
 | `LIVE_VELOCITY_DEFAULT` | from key velocity | R-12 |
+| `LIVE_QUEUE_CAPACITY` | 64 (live messages queued per render block; more are dropped and counted) | T057, 017 T003 |
 | `TEMPO_PERCENT_MIN` / `MAX` / `DEFAULT` | 25 / 200 / 100 | FR-011; `TEMPO_PERCENT_STEP` removed (012-tempo-bpm-field FR-009: no longer stepped) |
 | `TEMPO_BPM_STEP` | 1 | 012-tempo-bpm-field FR-010: one press of a tempo-field step control |
 | `TEMPO_MARK_QPM_MIN` / `MAX` | 10 / 1000 | 012-tempo-bpm-field R-2: a mark's quarter-notes-per-minute outside this is unusable |

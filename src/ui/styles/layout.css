@@ -232,14 +232,12 @@ mx-open-button .open-label-short {
 }
 
 /* Relocated to the View popup (mx-view-panel.ts already carries a second mx-mode-switch and mx-size-controls for
-   exactly this, above) - not just shortened, gone from the row entirely. Widened from a phone-only 480px (feature
-   013 T032/T096, found live): with a Score loaded, compact mode alone still overflows around 800px, and no test
-   had ever opened a bar menu after loading a Score at a narrow width before FR-001 made that the only order. */
-@media (max-width: 900px) {
-  .mx-bar-compact #mode-controls,
-  .mx-bar-compact #size-controls {
-    display: none;
-  }
+   exactly this, above) - not just shortened, gone from the row entirely. mx-app's fitBar() turns these on one at a
+   time, the mode switch first, when the compact bar still overflows (017 T038). It was a media query - phone-only
+   480px, then 900px (013 T096) - and the bar's contents outgrew each width; measuring cannot fall behind them. */
+.mx-bar-no-mode #mode-controls,
+.mx-bar-no-size #size-controls {
+  display: none;
 }
 
 #run-status {
@@ -406,6 +404,19 @@ mx-practice-panel {
 }
 
 mx-practice-panel[hidden] {
+  display: none;
+}
+
+/* 017 T041: the line a popup shows when its tools have nothing to show yet */
+.panel-hint,
+.latency-empty {
+  display: block;
+  margin: 0;
+  max-width: 36ch;
+  color: var(--mx-ink-muted);
+}
+
+.panel-hint[hidden] {
   display: none;
 }
 

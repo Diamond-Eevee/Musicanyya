@@ -1,6 +1,26 @@
 # Contract: `score-player` AudioWorklet protocol
 
-**Version**: `1.4.2` (PATCH, feature 012-tempo-bpm-field, T054, found by the RT review T036; no message shape change):
+**Version**: `1.5.1` (PATCH, feature 017-leftover-sweep T031-T033, from the RT review T015; no message shape change):
+the tick fields `play.fromTick`, `stop.returnTick` and `seek.tick` are **validated** like `tempo.percent` - one that
+is not a finite number counts as absent (`play` plays on from the held tick, `stop` returns to 0, `seek` is ignored),
+a finite one is clamped to [0, `endTick`] (a NaN tick used to silence the Score, a negative one threw in the handler).
+The `volume` gain is now **applied** to the rendered output, per sample (it was ramped but never multiplied in, so the
+volume control had no effect, 001 FR-016); a `volume` message whose `gain` is not a finite number is ignored - it used
+to set the target to 0 and, now that the gain is applied, would have muted the output (T029). `live` messages are queued in a pre-allocated ring of
+`LIVE_QUEUE_CAPACITY` slots (no object per message); the behaviour is unchanged.
+Tests: `score-player.tick-validation.test.ts`, `score-player.volume.test.ts`, `live-queue.test.ts`.
+`1.5.0` (MINOR, feature 017-leftover-sweep T013, from 001 T167; additive): `position` gains `lateEvents`,
+the running count of schedule events that sounded after their own frame, at the start of a later render block - late,
+never lost: events left over from a block whose dispatch state was full (1024 per block), or re-anchored before the block
+by a tempo change. Each late event is counted once, when it sounds (RT review T015 N1; named `dispatchDeferred` before
+that review, never released). Carried in the existing report (no new message, nothing extra
+posted from `process()`); the main thread shows it in diagnostics (Constitution I: late events are counted and shown).
+The `position` and `ended` messages are one pre-allocated object each, filled in per report (017 T009): a consumer that
+keeps one must copy it. A `live` message is validated in the port handler (017 T005): one that is malformed (unknown
+`kind`, `key`/`velocity` not an integer in 0..127) is dropped and counted in `liveDropped`, like a full queue.
+Tests: `tests/engine/worklets/dispatch-overflow.test.ts`, `score-player.no-alloc.test.ts`,
+`score-player.live-validation.test.ts`.
+`1.4.2` (PATCH, feature 012-tempo-bpm-field, T054, found by the RT review T036; no message shape change):
 a `tempo` message is **position-preserving** - the new rate starts at the tick the playhead is at (it used to re-anchor at the
 seek/stop tick, restarting the piece on every message while playing) - and **validated**: a non-number or non-finite `percent` is
 ignored, a finite one is clamped to [25, 200]. The playhead is held while nothing plays: `pause` keeps the tick it paused at, a bare
@@ -58,14 +78,14 @@ Constitution I rules for the processor (checked by `rt-audio-reviewer`):
 | `init` | `{ protocol: "1.0.0", sampleRate: number, maxBlock: 128 }` | Allocate buffers, reply `status: initialised` |
 | `soundBank` | `{ bytes: ArrayBuffer }` (transferred) | Build the SoundFont bank, reply `status: soundReady` or `status: error` |
 | `schedule` | `ScheduleMessage` (below, buffers transferred) | Stop, all notes off, replace schedule, position = start tick, apply the channel setup (1.4.0) |
-| `play` | `{ fromTick?: number }` | Start/resume at the held tick (after `pause`, `stop`, `seek`, a new schedule; the return tick after `ended`) or at `fromTick`, at the next block (1.4.2) |
+| `play` | `{ fromTick?: number }` | Start/resume at the held tick (after `pause`, `stop`, `seek`, a new schedule; the return tick after `ended`) or at `fromTick`, at the next block (1.4.2); `fromTick` clamped to [0, `endTick`], ignored unless finite (1.5.1) |
 | `pause` | `{}` | Stop advancing; release sounding scheduled notes (note-off with release) |
-| `stop` | `{ returnTick: number }` | Pause + position = `returnTick` |
-| `seek` | `{ tick: number }` | All scheduled notes off (release), jump; keeps playing state |
+| `stop` | `{ returnTick: number }` | Pause + position = `returnTick` (clamped to [0, `endTick`]; 0 unless finite, 1.5.1) |
+| `seek` | `{ tick: number }` | All scheduled notes off (release), jump; keeps playing state. `tick` clamped to [0, `endTick`]; a non-finite one is ignored (1.5.1) |
 | `tempo` | `{ percent: number }` | any finite number in [25, 200] (1.4.1), otherwise ignored / clamped (1.4.2); new ticks-per-frame from the next block, at the current position (1.4.2) |
-| `volume` | `{ gain: number }` | 0..1 linear target; ramped over `VOLUME_RAMP_FRAMES = 256` |
+| `volume` | `{ gain: number }` | 0..1 linear target; ramped over `VOLUME_RAMP_FRAMES = 256`, applied to the output per sample; a non-finite or non-number `gain` is ignored (1.5.1) |
 | `channelVolume` | `{ channel: number; gain: number }` | CC7 = `round(gain * 127)` on `channel`, applied in `port.onmessage`, effective at the next block (1.2.0) |
-| `live` | `{ kind: "on" | "off" | "sustain" | "allOff", key?: number, velocity?: number, down?: boolean }` | Applied at the start of the next block on `LIVE_CHANNEL = 15` (piano) |
+| `live` | `{ kind: "on" | "off" | "sustain" | "allOff", key?: number, velocity?: number, down?: boolean }` | Applied at the start of the next block on `LIVE_CHANNEL = 15` (piano); a malformed one is dropped and counted in `liveDropped` (1.5.0) |
 
 ```ts
 interface ScheduleMessage {
@@ -89,9 +109,9 @@ interface ScheduleMessage {
 | `type` | Payload | When |
 |---|---|---|
 | `status` | `{ state: "initialised" | "soundReady" | "error" | "processorFaulted", detail?: string }` | After `init` / `soundBank`, on handler failure, or once if `process()`'s own call into `processBlock` faults (T161) |
-| `position` | `{ frame: number, contextTime: number, tick: number, ticksPerFrame: number, playing: boolean }` | Every 4 blocks while playing; once after `play`/`pause`/`stop`/`seek`/`tempo`/`schedule` |
+| `position` | `{ frame: number, contextTime: number, tick: number, ticksPerFrame: number, playing: boolean, lateEvents: number }` (`lateEvents` 1.5.0) | Every 4 blocks while playing; once after `play`/`pause`/`stop`/`seek`/`tempo`/`schedule` |
 | `ended` | `{ frame: number }` | The end tick was reached; the processor paused itself |
-| `liveDropped` | `{ total: number }` | A `live` message arrived while the 64-entry queue was already full (1.1.0) |
+| `liveDropped` | `{ total: number }` | A `live` message arrived while the queue (`LIVE_QUEUE_CAPACITY` = 64 entries) was already full (1.1.0), or was malformed (1.5.0) |
 
 `frame` is the processor's block-start frame counter (`currentFrame` of the AudioWorkletGlobalScope), `contextTime`
 the matching `currentTime`; the main thread maps them to audible time with `getOutputTimestamp()` (R-11).

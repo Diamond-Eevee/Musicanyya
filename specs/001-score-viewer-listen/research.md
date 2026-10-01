@@ -308,6 +308,13 @@ continuations are "hold" notes.
 
 ### R-8.5 Tempo and meter
 
+**Amendment (feature 017 T044)**: a `<sound tempo>` also counts where it is a direct child of `<measure>` (MusicXML's
+music-data allows it; the W3C examples and many OpenScore parts write it that way), at the cursor position. Within a
+part there is one mark per position: the later instruction wins, as the tempo map always resolved it, except that a
+`<metronome>` alone never overrides a `<sound tempo>` (the beat of the mark is kept for display). Verified by
+comparing the compiled tempo of all 23 real/spec fixtures and all 181 library pieces before and after: identical, except
+the four W3C examples that give their tempo only that way (they no longer fall back to the default).
+
 **Decision**: per `<direction>`: `<sound tempo>` (quarter notes per minute) first; else `<metronome>`:
 `qpm = per-minute x quarters(beat-unit, beat-unit-dot)` (dotted quarter = 60 -> 90 qpm; for ranges like "c. 60" or
 "60-72" take the first number); text tempo words and metric modulations do not change tempo (info notice);
@@ -413,6 +420,22 @@ Extension `.musicxml` throughout. US3 and US4 need no MusicXML fixtures.
 
 **Alternatives**: `verovio` default export (`verovio-toolkit-wasm.js`, global-style, not a clean ES module);
 rendering on the main thread (freezes UI for seconds on large Scores); OSMD (ADR-0001 fallback, not needed).
+
+**Amendment (feature 017 T021, from 001 T169) - measure repeats are engraved as their notes.**
+**Decision**: the render copy leaves `<measure-repeat>` out (`withoutMeasureRepeats`, and a `<measure-style>` it
+empties), so Verovio engraves the notes a file encodes for a repeated measure instead of the simile sign; the file and
+the Score model are unchanged. `SUPPORT_MATRIX`: `<measure-repeat>` Partial.
+**Rationale**: those notes are played, so they are in the Score model, and Constitution III requires every playable
+note's Note ID to be the id of its drawn element - a Grade marks it there (VI). With the sign, the W3C percussion
+example had 4 of 36 notes with no element (the only fixture where model and engraving disagreed).
+**Alternatives**: keep the sign and point those notes at it (no per-note marks, an exception to III); drop the notes from
+the model (the measure would be silent although the file plays it); draw both (not how printed music shows a repeat).
+
+**Amendment (feature 017 T047) - unpitched notes under F and C clefs.** Verovio 6.3 reads an unpitched note's
+display-step/-octave as a treble-clef position whatever the clef (pinned by tests/verovio/unpitched-clef.test.ts). The render
+copy moves the display pitch by the diatonic distance between the clef in force and G2 (unpitched-placement.ts), so
+the note lands where its written clef puts it; the file, the model and the sound are unchanged. Alternative: leave it
+(drum kits on an F clef drawn below the staff) - rejected, it misrepresents the written score (Constitution III).
 
 ## R-10 Audio engine: our own AudioWorklet with the SpessaSynth core
 

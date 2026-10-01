@@ -19,7 +19,7 @@ first: switch model, or continue with you? Switch: stop and say which model to u
    ```
    powershell -NoProfile -ExecutionPolicy Bypass -File .specify/scripts/powershell/check-prerequisites.ps1 -Json -PathsOnly
    ```
-   If `spec.md` is missing, tell the user to run `/speckit.specify`.
+   If `spec.md` is missing, tell the user to run `/speckit:specify`.
 2. Read the spec and `.specify/memory/constitution.md`. Scan for ambiguity using this taxonomy, marking each Clear / Partial / Missing:
    - Scope & out-of-scope; user roles and skill levels.
    - Mode behaviour (Listen / Practice / Play / Grade) and transitions between them.
@@ -38,4 +38,4 @@ first: switch model, or continue with you? Switch: stop and say which model to u
      contradicted or now-obsolete text. Save after each integration.
 6. Stop when critical ambiguities are resolved, the user says stop/done, or 5 questions are asked.
 7. Report: questions asked, sections touched, coverage table (Resolved / Deferred / Clear / Outstanding), and the
-   recommended next step (`/speckit.plan`, or run `/speckit.clarify` again).
+   recommended next step (`/speckit:plan`, or run `/speckit:clarify` again).

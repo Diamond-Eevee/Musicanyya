@@ -19,13 +19,21 @@ import { loadSoundFont } from './soundfont-cache.js';
 
 const SOUNDFONT_URL = 'soundfonts/GeneralUser-GS-2.0.3.sf2';
 const WORKLET_NAME = 'musicanyya-score-player';
-const WORKLET_PROTOCOL_VERSION = '1.3.0';
+const WORKLET_PROTOCOL_VERSION = '1.5.1'; // contracts/worklet-protocol.md (informational, sent with init)
 
 // The score-player worklet's outbound messages (contracts/worklet-protocol.md); defined locally because the
 // worklet module lives outside this file's TS project (tsconfig.worklet.json, AudioWorkletGlobalScope types).
 type ProcessorMessage =
   | { type: 'status'; state: 'initialised' | 'soundReady' | 'error' | 'processorFaulted'; detail?: string }
-  | { type: 'position'; frame: number; contextTime: number; tick: number; ticksPerFrame: number; playing: boolean }
+  | {
+      type: 'position';
+      frame: number;
+      contextTime: number;
+      tick: number;
+      ticksPerFrame: number;
+      playing: boolean;
+      lateEvents?: number; // 1.5.0
+    }
   | { type: 'ended'; frame: number }
   | { type: 'liveDropped'; total: number };
 
@@ -57,6 +65,7 @@ export class WebAudioEngine implements AudioEngine {
   private lastReportPerfTimeMs: number | null = null;
   private readonly reportTimestamps: number[] = [];
   private liveQueueDropped = 0;
+  private lateEvents = 0;
 
   private readonly listeners = new Set<(event: AudioEngineEvent) => void>();
 
@@ -130,6 +139,8 @@ export class WebAudioEngine implements AudioEngine {
     });
     // A tempo set before this node existed (typed before the first Play) was only recorded, never sent (012 FR-007).
     node.port.postMessage({ type: 'tempo', percent: this.transport.tempoPercent });
+    // The same for the volume (017 T034): the saved one is set at start-up, before any node exists.
+    node.port.postMessage({ type: 'volume', gain: this.transport.volume / 100 });
     this.node = node;
   }
 
@@ -148,6 +159,7 @@ export class WebAudioEngine implements AudioEngine {
         break;
       }
       case 'position': {
+        if (typeof msg.lateEvents === 'number') this.lateEvents = msg.lateEvents;
         const perfNow = performance.now();
         this.recordReport(perfNow);
         this.positionSync.updateReport({
@@ -336,6 +348,7 @@ export class WebAudioEngine implements AudioEngine {
       reportsPerSecond: this.reportTimestamps.length,
       lastReportAgeMs,
       liveQueueDropped: this.liveQueueDropped,
+      lateEvents: this.lateEvents,
     };
   }
 

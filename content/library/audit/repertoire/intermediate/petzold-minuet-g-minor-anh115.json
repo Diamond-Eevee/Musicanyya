@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "itemId": "repertoire/intermediate/petzold-minuet-g-minor-anh115",
+  "claim": "original",
+  "claimText": "Minuet in G minor, BWV Anh. 115 (Petzold) - from the Bach-Gesellschaft edition via the Mutopia Project",
+  "checks": [
+    {
+      "method": "mechanical",
+      "source": "mutopia-76-bach-anh115",
+      "sourceFiles": ["notation", "sound"],
+      "aspects": [
+        "barCount",
+        "barLengths",
+        "repeats",
+        "playedOrder",
+        "pitch",
+        "onset",
+        "duration",
+        "spelling",
+        "graceNotes"
+      ],
+      "alignment": {
+        "itemBars": "all",
+        "sourceBars": "all"
+      },
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "verified",
+  "outcomeNote": "Converted from Mutopia on 2026-09-30 with pnpm library:convert-ly: 0 differences between the LilyPond source and Mutopia’s own MIDI, and 0 between the written MusicXML and the source on every aspect (32 bars, 199 notes, repeats and played order, spelling).",
+  "checkedBy": "claude-opus-5.5",
+  "date": "2026-09-30"
+}

@@ -374,6 +374,20 @@ test.describe('glide follow (015 US2)', () => {
     await expect(page.locator('mx-transport .play-btn')).not.toBeDisabled({ timeout: 60_000 });
 
     await page.locator('.play-btn').click();
+    // 017 T017: the clicks below are made during playback. A fixed wait after Play did not ensure that: under a full
+    // parallel run the sound was still loading 1 s after Play (transport `loading`, no engine on the view), the view
+    // cannot follow before playback starts (FR-014), and the rest of the loading counted as arrival time.
+    await expect
+      .poll(
+        () =>
+          page.evaluate(
+            () =>
+              (window as unknown as { __TRANSPORT_STATE__: { get(): { phase: string } } }).__TRANSPORT_STATE__.get()
+                .phase,
+          ),
+        { timeout: 30_000 },
+      )
+      .toBe('playing');
     await page.waitForTimeout(1000);
 
     // 1) A measure 20+ pages away (measureIndex 400, about page 31) whose page is not mounted before the click

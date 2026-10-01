@@ -417,6 +417,29 @@ describe('readLilyPond / fromLilyPond (contract fidelity-tools.md §3.1)', () =>
       expect(r.notes.map((x) => x.spelling)).toEqual([sp('G#4'), sp('C5'), sp('D5'), sp('F#5'), sp('F#5')]);
     });
 
+    it('the repeat mode written as a string, \\repeat "volta" / "unfold", reads as the plain word (017 T049, Mutopia 75)', () => {
+      for (const mode of ['volta', 'unfold']) {
+        const body = `2 { c'2 | d'2 | } \\alternative { { e'2 | } { f'2 | } } g'2 |`;
+        const quoted = fromLilyPond(readLilyPond(`{ \\time 2/4 \\repeat "${mode}" ${body} }`));
+        const plain = fromLilyPond(readLilyPond(`{ \\time 2/4 \\repeat ${mode} ${body} }`));
+        expect(quoted.bars, mode).toEqual(plain.bars);
+        expect(quoted.notes, mode).toEqual(plain.notes);
+        expect(quoted.playedOrder, mode).toEqual(plain.playedOrder);
+      }
+    });
+
+    it('a top-level \\markup before or after the \\score carries no notes and is skipped (017 T050, Mutopia 76)', () => {
+      const score = "\\score { \\relative c'' { \\time 2/4 c2 | d4 e | } \\layout { } }";
+      const plain = fromLilyPond(readLilyPond(score));
+      const withMarkup = fromLilyPond(
+        readLilyPond(
+          `\\markup { \\bold "Menuet" } ${score} \\markup {\\italic \\smaller "This piece has been attributed to Christian Petzold (1677 – 1733)"}`,
+        ),
+      );
+      expect(withMarkup.bars).toEqual(plain.bars);
+      expect(withMarkup.notes).toEqual(plain.notes);
+    });
+
     it('a printed start-repeat bar where a \\repeat volta starts, even at the beginning (Satie 37: \\bar ".|:")', () => {
       const r = fromLilyPond(readLilyPond("{ \\time 2/4 \\bar \".|:\" \\repeat volta 2 { c'2 | d'2 | } e'2 | }"));
       expect(r.bars).toEqual([

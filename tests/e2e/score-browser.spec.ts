@@ -359,6 +359,43 @@ test.describe('Score browser (feature 013, US3 - My files)', () => {
     await expect(page.locator('.browser-row[data-ref^="file:"]')).toHaveCount(before);
   });
 
+  // 017 T016 (from 013 T112): the drop above could land while the browser was still loading its library index (it
+  // is visible from the start), and a failure then went to the load-error view hidden behind the dialog - no message.
+  // Holding the index request makes that moment certain instead of a matter of machine load.
+  test('an invalid file dropped while the browser is still loading its library gives the message too (017 T016)', async ({
+    page,
+  }) => {
+    let releaseIndex: () => void = () => {};
+    const indexHeld = new Promise<void>((resolve) => {
+      releaseIndex = resolve;
+    });
+    await page.route('**/library/index.json', async (route) => {
+      await indexHeld;
+      await route.continue();
+    });
+    await page.goto('/');
+    await expect(browserDialog(page)).toBeVisible();
+    expect(
+      await page.evaluate(() => document.querySelector('.browser-row') === null),
+      'the library is not loaded yet',
+    ).toBe(true);
+
+    await browserDialog(page).evaluate((dialog) => {
+      const file = new File(['not xml'], 'broken.musicxml', { type: 'application/xml' });
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      dialog.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer }));
+    });
+
+    await expect(browserDialog(page)).toBeVisible();
+    await expect(page.locator('.browser-message')).toContainText('broken.musicxml');
+    releaseIndex();
+    // The library still arrives afterwards, and the message stays until the next action.
+    // Continue (the start view) links to the library's first piece once the index is in.
+    await expect(page.locator('.continue-link').first()).toBeVisible();
+    await expect(page.locator('.browser-message')).toContainText('broken.musicxml');
+  });
+
   test('remove with undo (US3 #4, OD-3)', async ({ page }) => {
     await page.goto('/');
     await closeBrowser(page);

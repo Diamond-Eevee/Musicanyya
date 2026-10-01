@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import '../../src/ui/elements/mx-drop-zone.js';
 import '../../src/ui/elements/mx-open-button.js';
+import type { LoadReport } from '../../src/core/score/load-report.js';
 import { SCORE_FILE_ACCEPT } from '../../src/ui/elements/mx-open-button.js';
 import { noticeState } from '../../src/ui/state/noticeState.js';
 import { scoreState } from '../../src/ui/state/scoreState.js';
@@ -120,5 +121,50 @@ describe('Open button, drop zone and load results', () => {
     expect(unsupported?.count).toBe(2);
     expect(unsupported?.measureLabels).toEqual(['1', '2']);
     expect(noticeState.getNotices().some((n) => n.code === 'defaultTempo')).toBe(true);
+  });
+
+  // 017 T043 (owner decision, 001 FR-005): load notices belong to their Score
+  const loaded = (fileName: string, entries: LoadReport['entries']) => ({
+    fileName,
+    summary: {
+      title: null,
+      composer: null,
+      arranger: null,
+      parts: [],
+      measureCount: 1,
+      measureIds: ['m1'],
+      defaultTempoUsed: false,
+    },
+    report: { entries, skippedElementCount: 0 },
+    renderXml: '<x/>',
+    contentHash: fileName,
+  });
+
+  it("removes the previous Score's load notices when another Score opens (017 T043)", () => {
+    scoreState.succeeded(loaded('dropped.musicxml', [{ code: 'defaultTempo', severity: 'info', measureLabels: [] }]));
+    expect(noticeState.getNotices().map((n) => n.code)).toEqual(['defaultTempo']);
+
+    scoreState.succeeded(
+      loaded('bach.musicxml', [{ code: 'tempoTextIgnored', severity: 'warning', measureLabels: ['3'] }]),
+    );
+    expect(noticeState.getNotices().map((n) => n.code)).toEqual(['tempoTextIgnored']);
+
+    scoreState.succeeded(loaded('clean.musicxml', []));
+    expect(noticeState.getNotices()).toEqual([]);
+  });
+
+  it('keeps every other notice - device, storage, a failed open - when another Score opens (017 T043)', () => {
+    noticeState.addNotice({ code: 'midiDeviceLost', severity: 'warning' });
+    scoreState.failed('bad.musicxml', { code: 'malformedXml', message: 'boom' });
+    scoreState.succeeded(loaded('a.musicxml', [{ code: 'defaultTempo', severity: 'info', measureLabels: [] }]));
+    scoreState.succeeded(loaded('b.musicxml', []));
+    expect(noticeState.getNotices().map((n) => n.code)).toEqual(['midiDeviceLost', 'malformedXml']);
+  });
+
+  it('a load notice whose code is also raised outside a load is not merged into it, so it goes with its Score (017 T043)', () => {
+    noticeState.addNotice({ code: 'defaultTempo', severity: 'info' });
+    scoreState.succeeded(loaded('a.musicxml', [{ code: 'defaultTempo', severity: 'info', measureLabels: [] }]));
+    scoreState.succeeded(loaded('b.musicxml', []));
+    expect(noticeState.getNotices()).toMatchObject([{ code: 'defaultTempo', count: 1 }]);
   });
 });

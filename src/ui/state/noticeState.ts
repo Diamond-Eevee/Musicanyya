@@ -5,6 +5,8 @@ export interface NoticeInput {
   severity: 'info' | 'warning';
   element?: string;
   measureLabel?: string;
+  /** A load notice describes the open Score's file and goes when another Score opens (017 T043, 001 FR-005). */
+  load?: boolean;
 }
 
 export interface Notice {
@@ -14,6 +16,7 @@ export interface Notice {
   count: number;
   measureLabels: string[];
   element?: string;
+  load?: boolean;
 }
 
 class NoticeState {
@@ -31,7 +34,10 @@ class NoticeState {
   addNotice(input: NoticeInput) {
     const notices = this.store.get();
     // find recent matching notice
-    const existing = notices.find((n) => n.code === input.code && n.severity === input.severity);
+    const load = input.load === true;
+    const existing = notices.find(
+      (n) => n.code === input.code && n.severity === input.severity && (n.load === true) === load,
+    );
     if (existing) {
       const updated = notices.map((n) => {
         if (n !== existing) return n;
@@ -53,10 +59,17 @@ class NoticeState {
         count: 1,
         measureLabels: input.measureLabel ? [input.measureLabel] : [],
         ...(input.element !== undefined ? { element: input.element } : {}),
+        ...(load ? { load } : {}),
       };
       this.store.set([...notices, notice]);
       return id;
     }
+  }
+
+  /** Removes the load notices of the previous Score; every other notice stays until dismissed. */
+  clearLoadNotices() {
+    const notices = this.store.get();
+    if (notices.some((n) => n.load)) this.store.set(notices.filter((n) => !n.load));
   }
 
   dismiss(id: string) {

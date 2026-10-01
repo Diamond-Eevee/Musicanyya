@@ -47,6 +47,13 @@ export class DispatchState {
   endReached = false;
   endFrame = 0;
   nextEventCursor = 0;
+  /**
+   * Events of the last block that sounded after their own frame, at the block start: left over from a full block, or
+   * re-anchored before `blockStart` by a tempo change. Late, not lost. Each is counted once, when it sounds.
+   */
+  lateInBlock = 0;
+  /** Running total of `lateInBlock` (017 T013, RT review N1; Constitution I: late events are counted and shown). */
+  lateTotal = 0;
 
   constructor(maxEvents = 1024) {
     this.events = new Array(maxEvents);
@@ -152,6 +159,7 @@ export function dispatchBlock(
   const blockEnd = blockStart + blockSize;
   state.numEvents = 0;
   state.numSplits = 0;
+  state.lateInBlock = 0;
 
   const n = schedule.eventTick.length;
   let cursor = eventCursor;
@@ -162,8 +170,11 @@ export function dispatchBlock(
     // An event that is already due (its frame is before this block) is late, not gone: after a tempo change that slows
     // playback the re-anchored frame of an event not yet dispatched can land just before `blockStart`. It sounds at the
     // block start; dropping it would lose a note-on, or leave a note-off out and the note stuck (feature 012, RT review).
-    const frame = Math.max(frameOfTickInSegs(tick, segs), blockStart);
-    if (frame >= blockEnd) break; // future event
+    // A block that was full leaves its remaining events at `cursor`; they are due here too and sound late (017 T013).
+    const due = frameOfTickInSegs(tick, segs);
+    if (due >= blockEnd) break; // future event
+    const frame = due < blockStart ? blockStart : due;
+    if (due < blockStart) state.lateInBlock++; // counted once, when it sounds (017 T013, RT review N1)
     const ev = state.events[state.numEvents]!;
     ev.frame = frame;
     ev.kind = schedule.eventKind[cursor]!;
@@ -174,6 +185,7 @@ export function dispatchBlock(
     state.numEvents++;
     cursor++;
   }
+  state.lateTotal += state.lateInBlock;
 
   // Sort events by frame, then by event order (already sorted by schedule)
   // We can't use Array.prototype.sort on the slice because it allocates a new array.

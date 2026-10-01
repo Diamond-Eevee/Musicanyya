@@ -250,6 +250,37 @@ describe('writeScoreXml (contracts/exercise-definition.md - the minimal writer)'
     expect(notes[1]?.tie).toEqual({ start: false, stop: true });
   });
 
+  it('writes printObject: false as <note print-object="no">, which the reader takes as not printed (017 T051)', () => {
+    const note = (printObject?: false) => ({
+      kind: 'note' as const,
+      note: {
+        pitch: { step: 'C' as const, octave: 4 },
+        duration: 8,
+        voice: '1',
+        type: 'half' as const,
+        ...(printObject === false ? { printObject } : {}),
+      },
+    });
+    const xml = writeScoreXml({
+      parts: [
+        {
+          id: 'P1',
+          name: 'Piano',
+          measures: [
+            {
+              number: '1',
+              attributes: { divisions: 4, time: { beats: '4', beatType: 4 } },
+              events: [note(false), note()],
+            },
+          ],
+        },
+      ],
+    });
+    expect(xml.match(/<note print-object="no">/g)).toHaveLength(1);
+    const notes = buildScore(readXml(xml).doc).score.parts[0]?.notes ?? [];
+    expect(notes.map((n) => n.printed)).toEqual([false, true]);
+  });
+
   it('writes a backward repeat barline that the reader turns into a RepeatMark', () => {
     const xml = writeScoreXml({
       parts: [

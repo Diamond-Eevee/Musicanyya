@@ -53,6 +53,7 @@ export class MxDiagnostics extends HTMLElement {
       [en.diagnostics.reportsPerSecond, String(d?.reportsPerSecond ?? 0)],
       [en.diagnostics.lastReportAge, ms(d?.lastReportAgeMs ?? null)],
       [en.diagnostics.liveQueueDropped, String(d?.liveQueueDropped ?? 0)],
+      [en.diagnostics.lateEvents, String(d?.lateEvents ?? 0)],
     ];
 
     this.innerHTML = `

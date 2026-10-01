@@ -110,6 +110,8 @@ export type LyMusic =
   | { kind: 'tempo'; text?: string; beat?: LyDuration; bpm?: number; pos: Pos }
   | { kind: 'mark'; post: LyPost; name: string; pos: Pos }
   | { kind: 'variable'; name: string; pos: Pos }
+  /** \hideNotes (on) / \unHideNotes (off): the notes that follow in this voice sound but are not printed. */
+  | { kind: 'hide'; on: boolean; pos: Pos }
   /** \barNumberCheck #n: LilyPond's own measure number must be n here (read.ts checks it). */
   | { kind: 'barNumberCheck'; n: number; pos: Pos }
   /** A construct that fails only where the music uses it, not where a variable merely defines it. */
@@ -183,7 +185,7 @@ const LAYOUT_COMMANDS = new Set(
   phrasingSlurUp phrasingSlurDown phrasingSlurNeutral tupletUp tupletDown tupletNeutral autoBeamOn autoBeamOff shiftOn
   shiftOnn shiftOnnn shiftOff mergeDifferentlyHeadedOn mergeDifferentlyHeadedOff mergeDifferentlyDottedOn
   mergeDifferentlyDottedOff break noBreak pageBreak noPageBreak pageTurn numericTimeSignature defaultTimeSignature
-  hideNotes unHideNotes small normalsize tiny teeny large huge breathe arpeggioArrowUp arpeggioArrowDown
+  small normalsize tiny teeny large huge breathe arpeggioArrowUp arpeggioArrowDown
   arpeggioNormal arpeggioBracket textLengthOn textLengthOff hideStaffSwitch showStaffSwitch compressFullBarRests
   expandFullBarRests compressEmptyMeasures expandEmptyMeasures newSpacingSection easyHeadsOn easyHeadsOff
   showStaffSwitch pointAndClickOff pointAndClickOn crescHairpin crescTextCresc dimHairpin dimTextDecr dimTextDecresc
@@ -332,6 +334,11 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
         case '\\pointAndClickOff':
         case '\\pointAndClickOn':
           next();
+          continue;
+        case '\\markup':
+          // A text block printed outside any \score (Mutopia 76 names the composer this way): no notes (017 T050).
+          next();
+          skipMarkup();
           continue;
       }
     }
@@ -703,6 +710,8 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
     const name = t.value;
     if (name in POST_COMMANDS) return { kind: 'mark', post: POST_COMMANDS[name] as LyPost, name, pos: p };
     if (LAYOUT_COMMANDS.has(name)) return { kind: 'seq', items: [], pos: p };
+    // Notes between \hideNotes and \unHideNotes sound but are not printed (017 T051).
+    if (name === '\\hideNotes' || name === '\\unHideNotes') return { kind: 'hide', on: name === '\\hideNotes', pos: p };
     switch (name) {
       case '\\transpose': {
         const from = peek();
@@ -734,7 +743,8 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
       case '\\slashedGrace':
         return { kind: 'grace', command: name, body: parseMusic(), pos: p };
       case '\\repeat': {
-        const mode = expect('word');
+        // The mode may also be written as a string, \repeat "volta" 2 (017 T049, Mutopia's Anna Magdalena sources).
+        const mode = is('string') ? next() : expect('word');
         if (mode.value !== 'volta' && mode.value !== 'unfold') unsupported(mode, `\\repeat ${mode.value}`);
         const times = Number(expect('number').value);
         const body = parseMusic();

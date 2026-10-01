@@ -43,8 +43,8 @@ first: switch model, or continue with you? Switch: stop and say which model to u
 6. Output a Markdown report: findings table (ID, Category, Severity, Location, Summary, Recommendation), coverage
    table (requirement -> task IDs), constitution alignment issues, unmapped tasks, and metrics (requirements, tasks,
    coverage %, counts per severity).
-7. Next actions: if CRITICAL issues exist, recommend resolving them before `/speckit.implement`, naming the command
-   to use (`/speckit.specify`, `/speckit.plan` or manual edit of tasks.md). Ask whether the user wants concrete edits.
+7. Next actions: if CRITICAL issues exist, recommend resolving them before `/speckit:implement`, naming the command
+   to use (`/speckit:specify`, `/speckit:plan` or manual edit of tasks.md). Ask whether the user wants concrete edits.
 8. Append to `FEATURE_DIR/implementation-log.md` (AGENTS.md section 5 format, short): `- Analyze: <n> findings
    (CRITICAL <c>, HIGH <h>, MEDIUM <m>, LOW <l>); tasks.md as of <commit>` and the top recommendations. Commit only
    that file (`docs(log): analyze <feature>`).

@@ -25,15 +25,15 @@ if ($PathsOnly) {
 }
 
 if (-not (Test-Path $paths.FEATURE_DIR)) {
-    Write-Error "Feature directory not found: $($paths.FEATURE_DIR). Run /speckit.specify first."
+    Write-Error "Feature directory not found: $($paths.FEATURE_DIR). Run /speckit:specify first."
     exit 1
 }
 if (-not (Test-Path $paths.IMPL_PLAN)) {
-    Write-Error "plan.md not found in $($paths.FEATURE_DIR). Run /speckit.plan first."
+    Write-Error "plan.md not found in $($paths.FEATURE_DIR). Run /speckit:plan first."
     exit 1
 }
 if ($RequireTasks -and -not (Test-Path $paths.TASKS)) {
-    Write-Error "tasks.md not found in $($paths.FEATURE_DIR). Run /speckit.tasks first."
+    Write-Error "tasks.md not found in $($paths.FEATURE_DIR). Run /speckit:tasks first."
     exit 1
 }
 

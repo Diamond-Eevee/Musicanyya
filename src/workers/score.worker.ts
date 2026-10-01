@@ -3,7 +3,8 @@ import { buildScore } from '../core/musicxml/build.js';
 import type { EngravingPlan } from '../core/musicxml/engraving/index.js';
 import { planEngraving } from '../core/musicxml/engraving/plan.js';
 import { readXml } from '../core/musicxml/read.js';
-import { createRenderCopy } from '../core/musicxml/render-copy.js';
+import { createRenderCopy, withoutMeasureRepeats } from '../core/musicxml/render-copy.js';
+import { unpitchedDisplayRewrites } from '../core/musicxml/unpitched-placement.js';
 import { compileSchedule } from '../core/schedule/compile.js';
 import { buildTimelineDto } from '../core/timeline/dto.js';
 import { buildTimeline } from '../core/timeline/timeline.js';
@@ -74,11 +75,16 @@ export async function handleMessage(event: MessageEvent, postMessageFn: typeof p
       });
     }
 
-    const renderXml = createRenderCopy(xmlString, {
-      notes: notesInserts,
-      measures: measuresInserts,
-      elements: engravingPlan.inserts,
-    });
+    // Measure repeats are engraved as their encoded notes, so every played note has its element (017 T021)
+    const renderXml = withoutMeasureRepeats(
+      createRenderCopy(xmlString, {
+        notes: notesInserts,
+        measures: measuresInserts,
+        elements: engravingPlan.inserts,
+        // Unpitched notes under F or C clefs, placed for Verovio's treble reading (017 T047)
+        rewrites: unpitchedDisplayRewrites(xmlString, score),
+      }),
+    );
 
     // Build the playback timeline and compile the engine schedule (T089)
     const { timeline, notices: timelineNotices } = buildTimeline(score);

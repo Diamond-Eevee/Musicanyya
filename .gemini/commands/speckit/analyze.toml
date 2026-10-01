@@ -2,7 +2,7 @@ description = "Spec Kit step: read-only consistency and constitution check of sp
 prompt = """
 This repo's Spec Kit workflow is plain Markdown; nothing needs to be installed.
 1. Read AGENTS.md completely (it is short) and follow its "Session start" section.
-2. Open .claude/commands/speckit.analyze.md, read it completely and follow it exactly,
+2. Open .claude/commands/speckit/analyze.md, read it completely and follow it exactly,
    ignoring its YAML front matter and treating the text below as $ARGUMENTS.
 3. Finish with AGENTS.md "Session end and hand-off" (log entry with Handoff, commit).
 

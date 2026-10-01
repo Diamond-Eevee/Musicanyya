@@ -5,18 +5,18 @@ overrides your defaults. Kept under 12,000 characters so every tool loads all of
 `docs/agents/reference.md` (project, repo map, review roles, toolchain, conventions, parallel mode, stack).
 
 **Nothing to install.** "speckit" is not a program. The workflow is Markdown instruction files in
-`.claude/commands/speckit.<step>.md` (usable by any agent; ignore their YAML front matter). `/speckit.<step>` or
-`/speckit:<step>` - as a command or as plain text - means: **open that file, read it completely, follow it
+`.claude/commands/speckit/<step>.md` (usable by any agent; ignore their YAML front matter). `/speckit:<step>` or
+`/speckit.<step>` - as a command or as plain text - means: **open that file, read it completely, follow it
 exactly**, with the rest of the message as `$ARGUMENTS`. Never guess what a step means.
 
 ## 1. What the user can say
 
 | User says | You do |
 |---|---|
-| "continue", "Read AGENTS.md and continue", `/speckit.continue` | Session start (2), the next chunk (NEXT STEP; for implement up to the next Checkpoint), session end (5) |
-| `/speckit.implement` or "implement" (optional scope: `US1`, `T030-T068`) | Session start, implement all remaining tasks in scope checkpoint by checkpoint, session end |
-| `/speckit.<step>` (specify, clarify, plan, tasks, analyze, checklist, constitution) | That step's instruction file |
-| "status", `/speckit.status` | Session start steps 1-6 only; summarise; change nothing |
+| "continue", "Read AGENTS.md and continue", `/speckit:continue` | Session start (2), the next chunk (NEXT STEP; for implement up to the next Checkpoint), session end (5) |
+| `/speckit:implement` or "implement" (optional scope: `US1`, `T030-T068`) | Session start, implement all remaining tasks in scope checkpoint by checkpoint, session end |
+| `/speckit:<step>` (specify, clarify, plan, tasks, analyze, checklist, constitution) | That step's instruction file |
+| "status", `/speckit:status` | Session start steps 1-6 only; summarise; change nothing |
 
 Commands exist natively in Claude Code (`.claude/commands/`), Gemini CLI (`.gemini/commands/`, dot or colon form)
 and Antigravity (`.agents/workflows/`). Elsewhere, treat them as plain text as described above.
@@ -49,14 +49,14 @@ steps in order; each output feeds the next.
 
 | Step | Instruction file (`.claude/commands/`) | Produces |
 |---|---|---|
-| specify | `speckit.specify.md` | branch, `spec.md` (WHAT/WHY: stories P1.., FR-###, SC-###), `checklists/requirements.md` |
-| clarify | `speckit.clarify.md` | answers in `spec.md` |
-| plan | `speckit.plan.md` | `plan.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md` |
-| tasks | `speckit.tasks.md` | `tasks.md` (test-first tasks per story, checkpoints) |
-| analyze | `speckit.analyze.md` | read-only consistency report; CRITICAL blocks implement |
-| implement | `speckit.implement.md` | code + tests; progress in `tasks.md` + `implementation-log.md` |
-| continue | `speckit.continue.md` | next chunk of whatever is next, plus hand-off |
-| checklist / constitution | `speckit.checklist.md` / `speckit.constitution.md` | optional checklists / amendments (only when asked) |
+| specify | `speckit/specify.md` | branch, `spec.md` (WHAT/WHY: stories P1.., FR-###, SC-###), `checklists/requirements.md` |
+| clarify | `speckit/clarify.md` | answers in `spec.md` |
+| plan | `speckit/plan.md` | `plan.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md` |
+| tasks | `speckit/tasks.md` | `tasks.md` (test-first tasks per story, checkpoints) |
+| analyze | `speckit/analyze.md` | read-only consistency report; CRITICAL blocks implement |
+| implement | `speckit/implement.md` | code + tests; progress in `tasks.md` + `implementation-log.md` |
+| continue | `speckit/continue.md` | next chunk of whatever is next, plus hand-off |
+| checklist / constitution | `speckit/checklist.md` / `speckit/constitution.md` | optional checklists / amendments (only when asked) |
 
 A missing earlier step is done first (e.g. "implement" with no `tasks.md` -> tasks first). If a later step shows an
 earlier document is wrong, fix that document first and say so in the log.
@@ -64,7 +64,7 @@ earlier document is wrong, fix that document first and say so in the log.
 ## 4. Task loop (implement)
 
 `tasks.md` is the source of truth. States: `- [ ] T012 ...` open, `- [~] T012 ... (claimed: <agent-id> <YYYY-MM-DD>)`
-in progress, `- [x] T012 ...` done. Start at the resume point; follow file order and "Dependencies".
+in progress, `- [x] T012 ...` done, `[-]` dropped by the owner (date, reason). Start at the resume point; follow file order and "Dependencies".
 
 1. **Claim** the task (at most the current task group), with the exact claim suffix. New tier your model does not
    fit: model-fit question first (2.8).
@@ -132,7 +132,7 @@ reports CRITICAL; a gate fails and you cannot fix it in scope; unknown uncommitt
 wording (SoundFonts, fonts, Verovio, ASIO SDK, copied code); deleting files you did not create; rewriting history;
 pushing; merging. When you ask, state the facts exactly (what was measured, against what), give a recommendation and
 what each answer leads to. A green gate is not "done": a feature is ready to merge only when every task is ticked with
-evidence and the constitution review passed - and it is merged only when the user asks.
+evidence (or `[-]`) and the constitution review passed - and it is merged only when the user asks.
 
 ## 8. Non-negotiables (constitution summary) and gate
 

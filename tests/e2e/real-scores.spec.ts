@@ -303,6 +303,38 @@ test.describe('real repertoire engraves like a printed music book (FR-002)', () 
       expect(counts.tabText).toBeGreaterThan(0);
     });
 
+    // 017 T021 (from 001 T169): a measure repeat's encoded notes are played, so they must be engraved too - one element
+    // per playable Note ID (Constitution III). The percussion example's second part repeats its measure 1 that way.
+    const everyNoteDrawn = (page: Page) =>
+      page.evaluate(() => {
+        const score = (
+          globalThis as unknown as { mxSession: { currentScore: { parts: { notes: { id: string }[] }[] } } }
+        ).mxSession.currentScore;
+        const ids = score.parts.flatMap((part) => part.notes.map((note) => note.id));
+        const drawn = new Set(Array.from(document.querySelectorAll('.mx-score-page svg g.note')).map((g) => g.id));
+        return { notes: ids.length, notDrawn: ids.filter((id) => !drawn.has(id)) };
+      });
+
+    test('every played note of the percussion example is engraved, the measure repeat included (017 T021)', async ({
+      page,
+    }) => {
+      await openExample(page, 'tutorial-percussion.musicxml');
+      const result = await everyNoteDrawn(page);
+      expect(result.notes).toBe(36);
+      expect(result.notDrawn).toEqual([]);
+    });
+
+    test('a measure repeat fixture: its encoded notes are engraved (017 T021)', async ({ page }) => {
+      await page.goto('/');
+      await page
+        .locator('mx-open-button input[type=file]')
+        .setInputFiles(path.resolve(__dirname, '../fixtures/musicxml/measure-repeat.musicxml'));
+      await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+      const result = await everyNoteDrawn(page);
+      expect(result.notes).toBe(2);
+      expect(result.notDrawn).toEqual([]);
+    });
+
     test('drum-kit percussion engraves on a percussion staff', async ({ page }) => {
       await openExample(page, 'tutorial-percussion.musicxml');
       const counts = await page.evaluate(() => {

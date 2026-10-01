@@ -15,7 +15,6 @@ exports[`MusicXML Test Suite (community corpus) > reports what it skips instead 
   "unsupportedElement:grouping": 1,
   "unsupportedElement:harmony": 8,
   "unsupportedElement:haydn": 1,
-  "unsupportedElement:inverted-mordent": 1,
   "unsupportedElement:inverted-turn": 1,
   "unsupportedElement:inverted-vertical-turn": 1,
   "unsupportedElement:schleifer": 1,

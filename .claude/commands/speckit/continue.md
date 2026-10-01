@@ -18,14 +18,14 @@ Treat the input as extra scope or answers to open owner decisions (it must still
    read the feature documents and the last two log entries, ask about open owner decisions once, check model fit
    for the next task or step (reference R11: switch or continue?), announce).
 2. If the user input answers an owner decision (e.g. `T011: approved`), apply it first: record the answer on the
-   gate task line, do the gate task (update the ADR/plan/constitution it names, via `speckit.constitution.md` for
+   gate task line, do the gate task (update the ADR/plan/constitution it names, via `speckit/constitution.md` for
    constitution changes), tick it, and log it.
 3. Do the **next chunk** based on the status NEXT STEP:
    - `specify` / `clarify` / `plan` / `tasks`: perform that one step by following its instruction file.
-   - `implement`: follow `.claude/commands/speckit.implement.md`, starting at the **resume point** and stopping
+   - `implement`: follow `.claude/commands/speckit/implement.md`, starting at the **resume point** and stopping
      at the **next Checkpoint** in `tasks.md` (or earlier at a stop condition, AGENTS.md section 7).
    - `done`: run the full quality gate and the constitution audit, and report that the feature is ready to merge.
 4. **Session end**: follow AGENTS.md section 5 (consistent state, checks, ticks, log entry with `Handoff`, commit;
    no push unless asked).
 5. Report in a few lines: what was done, tests/gate status, the new resume point, and any decision the user must
-   make. Suggest the next command (`continue` again, or `/speckit.implement` to run to the end).
+   make. Suggest the next command (`continue` again, or `/speckit:implement` to run to the end).

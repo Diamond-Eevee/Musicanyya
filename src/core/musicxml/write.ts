@@ -51,6 +51,8 @@ export interface WriteNote {
   fermata?: boolean;
   /** A written arpeggio (rolled chord); set on every member of the chord. */
   arpeggiate?: boolean;
+  /** `false`: the note sounds but is not printed (`<note print-object="no">`, 017 T051). */
+  printObject?: false;
 }
 
 export interface WriteDirection {
@@ -134,7 +136,7 @@ function esc(text: string): string {
 }
 
 function writeNoteXml(note: WriteNote): string {
-  const parts: string[] = ['<note>'];
+  const parts: string[] = [note.printObject === false ? '<note print-object="no">' : '<note>'];
   // MusicXML's order: grace, chord, pitch/rest, duration, tie, voice, type, dot, time-modification, staff, notations.
   if (note.grace) parts.push(note.grace.slash ? '<grace slash="yes"/>' : '<grace/>');
   if (note.chord) parts.push('<chord/>');

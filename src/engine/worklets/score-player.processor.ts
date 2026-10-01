@@ -22,11 +22,14 @@ import { type MIDIController, SoundBankLoader, SpessaSynthProcessor } from 'spes
  */
 
 import {
+  LIVE_CHANNEL,
+  LIVE_QUEUE_CAPACITY,
   MAX_SETUP_CONTROLLERS,
   POSITION_REPORT_BLOCKS,
   TEMPO_PERCENT_DEFAULT,
   TEMPO_PERCENT_MAX,
   TEMPO_PERCENT_MIN,
+  VOLUME_DEFAULT,
   VOLUME_RAMP_FRAMES,
 } from '../../core/defaults.js';
 import type { ScheduleMessage } from '../../core/schedule/compile.js';
@@ -39,6 +42,7 @@ import {
   recomputeSegmentFrames,
   type TempoSegmentFrame,
 } from './dispatch.js';
+import { LIVE_KIND, LiveQueue, liveKindOf } from './live-queue.js';
 
 export interface SynthInterface {
   noteOn(channel: number, key: number, velocity: number, frame?: number): void;
@@ -65,7 +69,16 @@ export interface SimpleSynth {
 
 export type ProcessorMessage =
   | { type: 'status'; state: 'initialised' | 'soundReady' | 'error' | 'processorFaulted'; detail?: string }
-  | { type: 'position'; frame: number; contextTime: number; tick: number; ticksPerFrame: number; playing: boolean }
+  | {
+      type: 'position';
+      frame: number;
+      contextTime: number;
+      tick: number;
+      ticksPerFrame: number;
+      playing: boolean;
+      /** Events that sounded after their own frame (a full block, a tempo re-anchor), since the processor started (1.5.0). */
+      lateEvents: number;
+    }
   | { type: 'ended'; frame: number }
   | { type: 'liveDropped'; total: number };
 
@@ -86,6 +99,23 @@ export type LiveMessage =
  * matters here; each branch narrows to the concrete message it needs (`ScheduleMessage` and friends).
  */
 export type InboundMessage = { type: string; [field: string]: unknown };
+
+/**
+ * All Sound Off (CC 120) and All Notes Off (CC 123) on one channel, or on all 16 (017 T007, from 001 T163). A plain
+ * index loop: the wrapper used to build `[c]` or `[0..15]` on every call, and it is called from the live drain inside
+ * `process()` (Constitution I).
+ */
+export function soundOffChannels(
+  controllerChange: (channel: number, controller: number, value: number) => void,
+  channel?: number,
+): void {
+  const first = channel ?? 0;
+  const last = channel ?? 15;
+  for (let c = first; c <= last; c++) {
+    controllerChange(c, 120, 0);
+    controllerChange(c, 123, 0);
+  }
+}
 
 /**
  * Never throws (T161's own catch bodies use this): a hostile thrown value whose `.toString()` throws must not
@@ -120,6 +150,45 @@ export interface ScorePlayerOptions {
   volume?: number;
 }
 
+export interface PortMessageDeps {
+  /** Hands a message to the processor (`ScorePlayerProcessor.receiveMessage`). */
+  receive(msg: InboundMessage): void;
+  /** Loads the SoundFont bytes into the synth and marks the sound ready; may throw on a bad file. */
+  loadSoundBank(bytes: unknown): void;
+  /** Posts to the main thread (`port.postMessage`). */
+  post(msg: unknown): void;
+}
+
+/**
+ * The worklet's `port.onmessage` (017 T011, from 001 T166): the data on the port is untyped, so the envelope is checked
+ * before anything reads it - a payload that is not an object with a string `type` is ignored - and every branch runs
+ * inside a `try`, so nothing thrown here escapes the handler. Runs off the render quantum.
+ */
+export function createPortMessageHandler(deps: PortMessageDeps): (data: unknown) => void {
+  return (data) => {
+    if (typeof data !== 'object' || data === null || Array.isArray(data)) return;
+    const msg = data as { type?: unknown; [field: string]: unknown };
+    if (typeof msg.type !== 'string') return;
+    const inbound = msg as InboundMessage;
+    try {
+      if (inbound.type === 'init') {
+        deps.post({ type: 'status', state: 'initialised' });
+      } else if (inbound.type === 'soundBank') {
+        deps.loadSoundBank(inbound.bytes);
+        deps.post({ type: 'status', state: 'soundReady' });
+      } else {
+        deps.receive(inbound);
+      }
+    } catch (err) {
+      try {
+        deps.post({ type: 'status', state: 'error', detail: safeErrorDetail(err) });
+      } catch {
+        // best-effort diagnostic only: nothing thrown here may leave the handler
+      }
+    }
+  };
+}
+
 /** Factory for offline testing (no AudioWorklet globals required). */
 export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlayerProcessor {
   const { synth, sampleRate } = opts;
@@ -140,13 +209,31 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   let atEnd = false; // the end tick was reached: the next `play` starts again from `returnTick`
 
   let tempoPercent = opts.tempoPercent ?? TEMPO_PERCENT_DEFAULT;
-  let targetGain = (opts.volume ?? 80) / 100;
+  // Checked like the `volume` message (017 T034, RT review): finite and within 0..100, else the default.
+  const initialVolume =
+    typeof opts.volume === 'number' && Number.isFinite(opts.volume)
+      ? Math.max(0, Math.min(100, opts.volume))
+      : VOLUME_DEFAULT;
+  let targetGain = initialVolume / 100;
   let currentGain = targetGain;
   let gainStep = 0;
   let gainRampRemaining = 0;
 
   let blocksSinceReport = 0;
   let pendingReport = false; // send one extra report after a command
+
+  // The two messages posted from inside the render quantum, allocated once and filled in each time (017 T009, from
+  // 001 T164): `postMessage` clones synchronously, so reusing them is safe; a consumer that keeps a report must copy it.
+  const positionReport = {
+    type: 'position' as const,
+    frame: 0,
+    contextTime: 0,
+    tick: 0,
+    ticksPerFrame: 0,
+    playing: false,
+    lateEvents: 0,
+  };
+  const endedReport = { type: 'ended' as const, frame: 0 };
 
   // Held note tracking for all-notes-off on pause/stop/seek
   // One flag per (channel, key), in storage allocated once: noteOn/noteOff run inside process() and the Metronome adds one per beat
@@ -162,7 +249,7 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   let setupPending = false;
   let soundIsReady = false;
 
-  const liveQueue: LiveMessage[] = [];
+  const liveQueue = new LiveQueue(LIVE_QUEUE_CAPACITY); // pre-allocated slots, nothing per message (017 T031)
   let liveDropped = 0; // T057: counted and shown like the other dropouts (Constitution I)
 
   let onMessage: ((msg: ProcessorMessage) => void) | null = null;
@@ -188,6 +275,17 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     return seg;
   }
 
+  /**
+   * A tick field of `play`/`stop`/`seek`, checked at the trust boundary like `tempo.percent` (017 T032, from RT review
+   * T015 N5): null unless it is a finite number, which is clamped to [0, endTick] (without a schedule, to >= 0). A NaN
+   * tick made every segment anchor NaN and the Score silent without an error; a negative one threw.
+   */
+  function validTick(raw: unknown): number | null {
+    if (typeof raw !== 'number' || !Number.isFinite(raw)) return null;
+    const clamped = raw < 0 ? 0 : raw;
+    return schedule !== null && clamped > schedule.endTick ? schedule.endTick : clamped;
+  }
+
   function computeCurrentTick(): number {
     if (!schedule || segs.length === 0 || !playing) return schedule ? holdTick : returnTick;
     const seg = currentSegment();
@@ -195,15 +293,13 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   }
 
   function sendPositionReport(): void {
-    const tpf = segs.length > 0 ? currentSegment().ticksPerFrame : 0;
-    post({
-      type: 'position',
-      frame: currentFrame,
-      contextTime: currentFrame / sampleRate,
-      tick: computeCurrentTick(),
-      ticksPerFrame: tpf,
-      playing,
-    });
+    positionReport.frame = currentFrame;
+    positionReport.contextTime = currentFrame / sampleRate;
+    positionReport.tick = computeCurrentTick();
+    positionReport.ticksPerFrame = segs.length > 0 ? currentSegment().ticksPerFrame : 0;
+    positionReport.playing = playing;
+    positionReport.lateEvents = dispatchState.lateTotal;
+    post(positionReport);
     blocksSinceReport = 0;
     pendingReport = false;
   }
@@ -341,8 +437,8 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         break;
       }
       case 'play': {
-        const fromTick = msg.fromTick as number | undefined;
-        if (fromTick !== undefined) {
+        const fromTick = validTick(msg.fromTick); // not a finite number: as if absent - play on from where it is
+        if (fromTick !== null) {
           allNotesOff();
           returnTick = fromTick;
           holdTick = fromTick;
@@ -373,7 +469,7 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
       case 'stop': {
         playing = false;
         allNotesOff();
-        returnTick = (msg.returnTick as number | undefined) ?? 0;
+        returnTick = validTick(msg.returnTick) ?? 0; // not a finite number: as if absent
         holdTick = returnTick;
         atEnd = false;
         currentFrame = 0;
@@ -382,7 +478,8 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         break;
       }
       case 'seek': {
-        const tick = msg.tick as number;
+        const tick = validTick(msg.tick);
+        if (tick === null) break; // not a finite number: nothing to seek to
         allNotesOff();
         returnTick = tick;
         holdTick = tick;
@@ -405,8 +502,11 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         break;
       }
       case 'volume': {
-        const raw = msg.gain as number;
-        targetGain = Number.isFinite(raw) ? Math.max(0, Math.min(1, raw)) : 0;
+        // Checked at the trust boundary: since 017 T033 the gain is applied, so a malformed message must not mute the
+        // output - it is ignored (017 T029 audit), like a malformed tempo
+        const raw = msg.gain;
+        if (typeof raw !== 'number' || !Number.isFinite(raw)) break;
+        targetGain = Math.max(0, Math.min(1, raw));
         gainStep = (targetGain - currentGain) / VOLUME_RAMP_FRAMES;
         gainRampRemaining = VOLUME_RAMP_FRAMES;
         break;
@@ -423,12 +523,21 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         break;
       }
       case 'live': {
-        if (liveQueue.length < 64) {
-          liveQueue.push(msg as LiveMessage);
-        } else {
-          // Dropped, not queued: a stuck note or a missed release is worse than briefly not knowing about it, but
-          // it must still be counted and shown (Constitution I, R-16). Posted here, not from process(): this
-          // handler already runs off the per-block hot path, same as the 'status' and 'ended' messages.
+        // Checked here, off the render quantum, and written into a pre-allocated slot: no object per message (017 T031).
+        const kind = liveKindOf(msg);
+        const queued =
+          kind !== 0 &&
+          liveQueue.push(
+            kind,
+            typeof msg.key === 'number' ? msg.key : 0,
+            typeof msg.velocity === 'number' ? msg.velocity : 0,
+            msg.down === true,
+          );
+        if (!queued) {
+          // Malformed (017 T005) or past the queue's capacity: dropped, not queued. A stuck note or a missed release
+          // is worse than briefly not knowing about it, but it must still be counted and shown (Constitution I,
+          // R-16). Posted here, not from process(): this handler already runs off the per-block hot path, same as
+          // the 'status' and 'ended' messages.
           liveDropped++;
           post({ type: 'liveDropped', total: liveDropped });
         }
@@ -470,32 +579,47 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   function processBlockInner(left: Float32Array, right: Float32Array): void {
     const blockSize = left.length;
 
-    // Process live inputs immediately
-    const LIVE_CHANNEL = 15;
-    const liveCount = liveQueue.length;
+    // Live input first, at the block start. Reads the queued slots by position and then consumes exactly the ones it
+    // applied (017 T031; T014's invariant): an early stop would leave the rest queued, never lose them. The handler cannot
+    // add entries meanwhile: port messages run between render quanta, never during one (run-to-completion).
+    const liveCount = liveQueue.size;
     for (let i = 0; i < liveCount; i++) {
-      const msg = liveQueue[i];
-      if (msg === undefined) continue;
-      if (msg.kind === 'on') {
-        synth.noteOn(LIVE_CHANNEL, msg.key, msg.velocity);
-      } else if (msg.kind === 'off') {
-        synth.noteOff(LIVE_CHANNEL, msg.key);
-      } else if (msg.kind === 'sustain') {
-        synth.controllerChange?.(LIVE_CHANNEL, 64, msg.down ? 127 : 0);
-      } else if (msg.kind === 'allOff') {
+      const kind = liveQueue.kindAt(i);
+      if (kind === LIVE_KIND.on) {
+        synth.noteOn(LIVE_CHANNEL, liveQueue.keyAt(i), liveQueue.velocityAt(i));
+      } else if (kind === LIVE_KIND.off) {
+        synth.noteOff(LIVE_CHANNEL, liveQueue.keyAt(i));
+      } else if (kind === LIVE_KIND.sustain) {
+        synth.controllerChange?.(LIVE_CHANNEL, 64, liveQueue.downAt(i) ? 127 : 0);
+      } else if (kind === LIVE_KIND.allOff) {
         synth.allNotesOff?.(LIVE_CHANNEL);
       }
     }
-    liveQueue.length = 0;
+    liveQueue.consume(liveCount);
 
-    // Volume ramp
-    if (gainRampRemaining > 0) {
-      const steps = Math.min(gainRampRemaining, blockSize);
-      currentGain += gainStep * steps;
-      gainRampRemaining -= steps;
-      if (gainRampRemaining <= 0) currentGain = targetGain;
+    renderBlock(left, right, blockSize);
+    applyGain(left, right, blockSize);
+  }
+
+  /**
+   * The playback volume (017 T033, from RT review T015 N6; 001 FR-016): the `volume` message set a ramped gain that was
+   * never applied, so the volume control had no effect. Scales the rendered block in place, sample by sample, ramping
+   * over `VOLUME_RAMP_FRAMES` from the moment the message arrived (no click). No allocation (Constitution I).
+   */
+  function applyGain(left: Float32Array, right: Float32Array, blockSize: number): void {
+    if (gainRampRemaining <= 0 && currentGain === 1) return;
+    for (let i = 0; i < blockSize; i++) {
+      if (gainRampRemaining > 0) {
+        gainRampRemaining--;
+        currentGain = gainRampRemaining === 0 ? targetGain : currentGain + gainStep;
+      }
+      left[i] = (left[i] as number) * currentGain;
+      right[i] = (right[i] as number) * currentGain;
     }
+  }
 
+  /** Renders one block of the Score (or silence-with-live-input while idle), splitting at each event's frame. */
+  function renderBlock(left: Float32Array, right: Float32Array, blockSize: number): void {
     if (!playing || !schedule) {
       renderSegment(left, right, 0, blockSize);
       currentFrame += blockSize;
@@ -529,7 +653,8 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
       playing = false;
       atEnd = true;
       allNotesOff();
-      post({ type: 'ended', frame: dispatchState.endFrame! });
+      endedReport.frame = dispatchState.endFrame ?? currentFrame;
+      post(endedReport);
       sendPositionReport();
       return;
     }
@@ -570,21 +695,18 @@ if (typeof AudioWorkletProcessor !== 'undefined') {
       super();
       // sampleRate is a global in AudioWorkletGlobalScope
       this.synth = new SpessaSynthProcessor(sampleRate);
+      // One bound callback for every notes-off, made here, not per call (017 T007).
+      // Our port takes a plain CC number; spessasynth types its parameter as the MIDIController union of the
+      // controllers it knows. The cast is the narrow one, not `any` (tasks.md T139).
+      const controllerChange = (c: number, ctrl: number, v: number) =>
+        this.synth.controllerChange(c, ctrl as MIDIController, v);
 
       this.inner = createScorePlayerProcessor({
         synth: {
           noteOn: (c, k, v) => this.synth.noteOn(c, k, v),
           noteOff: (c, k) => this.synth.noteOff(c, k),
-          allNotesOff: (c?: number) => {
-            const channels = c !== undefined ? [c] : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-            for (const ch of channels) {
-              this.synth.controllerChange(ch, 120, 0); // All Sound Off
-              this.synth.controllerChange(ch, 123, 0); // All Notes Off
-            }
-          },
-          // Our port takes a plain CC number; spessasynth types its parameter as the MIDIController
-          // union of the controllers it knows. The cast is the narrow one, not `any` (tasks.md T139).
-          controllerChange: (c, ctrl, v) => this.synth.controllerChange(c, ctrl as MIDIController, v),
+          allNotesOff: (c?: number) => soundOffChannels(controllerChange, c),
+          controllerChange,
           programChange: (c, program) => this.synth.programChange(c, program),
           setDrums: (c, isDrum) => this.synth.midiChannels[c]?.setDrums(isDrum),
           process: (left, right, startIndex, sampleCount) => this.synth.process(left, right, startIndex, sampleCount),
@@ -599,41 +721,32 @@ if (typeof AudioWorkletProcessor !== 'undefined') {
         // mapping (position-sync.ts, R-10/R-11) stays on one clock (Constitution II). Rewrite at the point of
         // emission, which happens synchronously within this block's process() call, so these globals still hold
         // this block's start values.
+        // The factory's position/ended messages are its reused objects (017 T009): overwrite their clock fields in place
+        // rather than spread a new object per report.
         if (msg.type === 'position') {
-          this.port.postMessage({ ...msg, frame: currentFrame, contextTime: currentTime });
+          msg.frame = currentFrame;
+          msg.contextTime = currentTime;
+          this.port.postMessage(msg);
         } else if (msg.type === 'ended') {
-          this.port.postMessage({ ...msg, frame: currentFrame });
+          msg.frame = currentFrame;
+          this.port.postMessage(msg);
         } else {
           this.port.postMessage(msg);
         }
       };
 
-      this.port.onmessage = (e) => {
-        const msg = e.data;
-        if (msg.type === 'init') {
-          this.port.postMessage({ type: 'status', state: 'initialised' });
-          return;
-        }
-        if (msg.type === 'soundBank') {
-          try {
-            const bank = SoundBankLoader.fromArrayBuffer(msg.bytes);
-            this.synth.soundBankManager.addSoundBank(bank, 'default');
-            this.soundReady = true;
-            // A schedule that arrived before the SoundFont gets its programs now (009 R-01), in this handler, not in process().
-            this.inner.soundReady();
-            this.port.postMessage({ type: 'status', state: 'soundReady' });
-          } catch (err) {
-            this.port.postMessage({ type: 'status', state: 'error', detail: safeErrorDetail(err) });
-          }
-          return;
-        }
-
-        try {
-          this.inner.receiveMessage(msg);
-        } catch (err) {
-          this.port.postMessage({ type: 'status', state: 'error', detail: safeErrorDetail(err) });
-        }
-      };
+      const handle = createPortMessageHandler({
+        receive: (msg) => this.inner.receiveMessage(msg),
+        loadSoundBank: (bytes) => {
+          const bank = SoundBankLoader.fromArrayBuffer(bytes as ArrayBuffer);
+          this.synth.soundBankManager.addSoundBank(bank, 'default');
+          this.soundReady = true;
+          // A schedule that arrived before the SoundFont gets its programs now (009 R-01), in this handler, not in process().
+          this.inner.soundReady();
+        },
+        post: (msg) => this.port.postMessage(msg),
+      });
+      this.port.onmessage = (e: MessageEvent<unknown>) => handle(e.data);
     }
 
     process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>): boolean {

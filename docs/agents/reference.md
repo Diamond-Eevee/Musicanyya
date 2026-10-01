@@ -34,9 +34,9 @@ CLAUDE.md / GEMINI.md             thin tool wrappers that import AGENTS.md
 .specify/memory/constitution.md   principles + stack constraints (read first)
 .specify/templates/               spec / plan / tasks / checklist templates
 .specify/scripts/powershell/      status, create-new-feature, setup-plan, check-prerequisites
-.claude/commands/speckit.*.md     THE workflow step instructions (tool-neutral Markdown)
+.claude/commands/speckit/*.md     THE workflow step instructions (tool-neutral Markdown)
 .claude/agents/*.md               review roles (R3)
-.gemini/commands/                 Gemini CLI commands: /speckit.<step> and /speckit:<step> -> the files above
+.gemini/commands/                 Gemini CLI commands: /speckit:<step> and /speckit.<step> -> the files above
 .agents/workflows/                Antigravity workflows: /speckit.<step> -> the files above
 docs/adr/                         architecture decision records
 specs/NNN-feature-name/           spec, plan, research, data-model, contracts, quickstart, tasks, implementation-log
@@ -44,7 +44,7 @@ specs/NNN-feature-name/           spec, plan, research, data-model, contracts, q
 
 **The IT workspace.** On the owner's machine this repository is the `Musicanyya/` folder in the `IT` workspace
 (`niralynx-workspace`, its own git repository; it lists the projects in `projects.txt` and ignores their folders).
-The workspace has its own `/speckit.<step>` commands, workflows and review roles. They are thin pointers to the
+The workspace has its own `/speckit:<step>` commands, workflows and review roles. They are thin pointers to the
 files above, so a session opened on `IT` can run this workflow: read and write paths relative to `Musicanyya/`,
 and run git and pnpm there. The files in this repository stay the single source of truth. Workspace notes
 (`IT/agents/project_status.md`) record only a snapshot and a link, not this workflow's state.
@@ -252,7 +252,8 @@ log, Metronome, Advice, Audio engine, Audio backend, Latency profile, Shell) in 
 
 ## R10. Definition of done (feature)
 
-- All tasks `[x]`; every user story passes its Independent Test from `spec.md`.
+- All tasks `[x]` or `[-]` (dropped by the owner, logged with date and reason); every user story passes its
+  Independent Test from `spec.md`.
 - Full quality gate green; RT reviews passed; constitution audit without CRITICAL/HIGH findings.
 - `quickstart.md` verified; `docs/musicxml-support.md` and the commands in R7 up to date.
 - Final `implementation-log.md` entry; work committed on the feature branch. Merging is the user's call.

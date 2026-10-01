@@ -39,4 +39,18 @@ describe('load-report', () => {
     expect(defaultTempo).toBeDefined();
     expect(defaultTempo.severity).toBe('info');
   });
+
+  it('document-level entries carry no measure label (017 T042: the notice read "- measure 0")', () => {
+    // Measure 1 is numbered 1 here, so a '0' can only be the old placeholder, not a real measure number.
+    const xml = `<score-partwise><part id="P1"><measure number="1">
+      <attributes><divisions>10000000000000</divisions></attributes>
+    </measure></part></score-partwise>`;
+    const { report } = buildScore(parseXml(xml, { preserveDocumentNode: true }));
+    const defaultTempo = report.entries.find((e: LoadReportEntry) => e.code === 'defaultTempo');
+    expect(defaultTempo?.measureLabels).toEqual([]);
+    const ppq = report.entries.find(
+      (e: LoadReportEntry) => e.code === 'timingRounded' && e.detail === 'PPQ exceeded MAX_PPQ',
+    );
+    expect(ppq?.measureLabels).toEqual([]);
+  });
 });

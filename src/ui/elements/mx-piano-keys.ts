@@ -41,6 +41,8 @@ class MxPianoKeys extends HTMLElement {
   private unsubscribeMidi?: () => void;
   private unsubscribePractice?: () => void;
   private unsubscribeView?: () => void;
+  /** The key feedback the hint list was last built from; the store replaces the map on every change (017 T035). */
+  private renderedFeedback: ReadonlyMap<number, unknown> | null = null;
   private resizeObserver: ResizeObserver | null = null;
   private keysContainer: HTMLElement | null = null;
   private sustainIndicator: HTMLElement | null = null;
@@ -283,6 +285,7 @@ class MxPianoKeys extends HTMLElement {
     this.keysContainer = this.shadowRoot.getElementById('keys');
     this.sustainIndicator = this.shadowRoot.getElementById('sustain');
     this.messagesContainer = this.shadowRoot.getElementById('key-messages');
+    this.renderedFeedback = null; // a new, empty hint list: the next update builds it
 
     if (this.keysContainer) {
       // The white keys first, then the black ones, so the black keys are drawn on top of the whites
@@ -353,15 +356,20 @@ class MxPianoKeys extends HTMLElement {
       }
     }
 
-    this.messagesContainer.innerHTML = '';
-    for (const [key, feedback] of keyFeedback) {
-      if (!feedback.messageId) continue;
-      const text = (en.practice.messages as Record<string, string>)[feedback.messageId] ?? feedback.messageId;
-      const line = document.createElement('div');
-      line.className = `key-message ${WRONG_KEY_STYLE[feedback.state].className}`;
-      line.dataset.key = String(key);
-      line.textContent = text;
-      this.messagesContainer.appendChild(line);
+    // Rebuilt only when the feedback changed (017 T035): MIDI-state notifications (held keys, the latency poll) used to
+    // replace every hint with an identical one, so a hint could be measured just after it was thrown away.
+    if (keyFeedback !== this.renderedFeedback) {
+      this.renderedFeedback = keyFeedback;
+      this.messagesContainer.innerHTML = '';
+      for (const [key, feedback] of keyFeedback) {
+        if (!feedback.messageId) continue;
+        const text = (en.practice.messages as Record<string, string>)[feedback.messageId] ?? feedback.messageId;
+        const line = document.createElement('div');
+        line.className = `key-message ${WRONG_KEY_STYLE[feedback.state].className}`;
+        line.dataset.key = String(key);
+        line.textContent = text;
+        this.messagesContainer.appendChild(line);
+      }
     }
 
     if (sustainDown) {

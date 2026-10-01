@@ -182,7 +182,7 @@ export interface ItemFacts {
   hasNonSimpleTuplet?: boolean;
   /** Grace note count (criterion 22). */
   graceNoteCount?: number;
-  /** Ornament count: trill/mordent/turn/tremolo (criterion 23). */
+  /** Ornament count: trill/mordent/inverted mordent/turn/tremolo (criterion 23). */
   ornamentCount?: number;
   /** The repeat structure actually used (criterion 24). */
   repeatKind?: 'none' | 'simple' | 'voltas' | 'jumps';

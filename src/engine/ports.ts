@@ -58,8 +58,12 @@ export interface AudioDiagnostics {
   dropoutMethod: 'browserStats' | 'clockDrift' | 'none';
   reportsPerSecond: number;
   lastReportAgeMs: number | null;
-  /** A `live` (MIDI-in / accompaniment) message dropped because the worklet's 64-entry queue was full (T057). */
+  /** A `live` (MIDI-in / accompaniment) message dropped: the worklet's queue (`LIVE_QUEUE_CAPACITY`) was full (T057),
+   * or the message was malformed (017 T005). */
   liveQueueDropped: number;
+  /** Schedule events that sounded after their own frame, at a later block's start: left over from a full block, or
+   * re-anchored by a tempo change. Late, not lost; each counted once (017 T013). */
+  lateEvents: number;
 }
 
 export type AudioEngineEvent =
@@ -226,6 +230,9 @@ export interface PracticeSettings {
 export interface SettingsStore {
   load(): UserSettings; // defaults on missing/invalid data (contracts/storage.md)
   save(settings: UserSettings): void; // never throws; storage errors are reported once as a notice
+  /** Writes every change still waiting for its debounced write, now: the page is going away (`pagehide`, hidden).
+   *  Never throws (ports 2.1.0, 017 T039). */
+  flushPending(): void;
 
   /** Practice settings for a Score id, falling back to the musician's last-used defaults, then to the built-in
    *  ones. A null id (Score not stored) returns the defaults and never persists (ports 1.1.0). */

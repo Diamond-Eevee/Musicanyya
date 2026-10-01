@@ -27,6 +27,9 @@ interface Expected {
   parts: number;
   measures: number;
   notes: number;
+  /** Tempo mark objects, one per part and position (the tempo map merges parts: first part wins), so a change every
+   *  part repeats counts once per part. 017 T044 read measure-level <sound tempo> and merged same-position marks within
+   *  a part; the played tempo of every file here and in the library was compared before and after and is unchanged. */
   tempoMarks: number;
   /** Elements inside a measure the build step does not model; all of them are engraving-only here. */
   skipped: number;
@@ -51,7 +54,7 @@ const SCORES: Expected[] = [
     parts: 2,
     measures: 131,
     notes: 1949,
-    tempoMarks: 4,
+    tempoMarks: 5, // 017 T044: marks counted per part (played tempo unchanged)
     skipped: 0,
     notices: [],
   },
@@ -71,7 +74,7 @@ const SCORES: Expected[] = [
     parts: 2,
     measures: 81,
     notes: 1021,
-    tempoMarks: 3,
+    tempoMarks: 4, // 017 T044: marks counted per part (played tempo unchanged)
     skipped: 0,
     notices: [],
   },
@@ -101,7 +104,7 @@ const SCORES: Expected[] = [
     parts: 2,
     measures: 148,
     notes: 2893,
-    tempoMarks: 3,
+    tempoMarks: 6, // 017 T044: marks counted per part (played tempo unchanged)
     skipped: 0,
     notices: [],
   },
@@ -131,7 +134,7 @@ const SCORES: Expected[] = [
     parts: 2,
     measures: 77,
     notes: 1618,
-    tempoMarks: 12,
+    tempoMarks: 24, // 017 T044: marks counted per part (played tempo unchanged)
     skipped: 0,
     notices: [],
   },
@@ -151,8 +154,8 @@ const SCORES: Expected[] = [
     parts: 4,
     measures: 853,
     notes: 13610,
-    tempoMarks: 32,
-    skipped: 33,
+    tempoMarks: 28, // 017 T044: marks counted per part (played tempo unchanged)
+    skipped: 12, // 017 T055: its 21 <inverted-mordent> are realised now, no longer skipped
     notices: ['unsupportedElement'],
   },
   {
@@ -171,8 +174,8 @@ const SCORES: Expected[] = [
     parts: 4,
     measures: 993,
     notes: 10396,
-    tempoMarks: 140,
-    skipped: 352,
+    tempoMarks: 139, // 017 T044: marks counted per part (played tempo unchanged)
+    skipped: 285, // 017 T055: its 67 <inverted-mordent> are realised now, no longer skipped
     notices: ['measureLengthMismatch', 'unsupportedElement'],
   },
   {
@@ -201,7 +204,7 @@ const SCORES: Expected[] = [
     parts: 6,
     measures: 70,
     notes: 2341,
-    tempoMarks: 2,
+    tempoMarks: 4, // 017 T044: marks counted per part (played tempo unchanged)
     skipped: 0,
     notices: [],
   },
@@ -211,7 +214,7 @@ const SCORES: Expected[] = [
     parts: 2,
     measures: 108,
     notes: 2090,
-    tempoMarks: 17,
+    tempoMarks: 22, // 017 T044: marks counted per part (played tempo unchanged)
     skipped: 2,
     notices: ['measureLengthMismatch', 'unsupportedElement'],
   },

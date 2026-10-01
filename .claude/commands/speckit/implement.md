@@ -18,7 +18,7 @@ decision (e.g. `T011: approved`), apply that first.
    check, `git pull --ff-only` if there is an upstream, last two log entries, open owner decisions, announcement). Work continues
    from the **resume point** the status script prints; tasks already `[x]` are never redone.
 1. If `implementation-log.md` has no analyze result since `tasks.md` was generated, run the analyze step first
-   (`.claude/commands/speckit.analyze.md`, read-only) and stop on CRITICAL findings.
+   (`.claude/commands/speckit/analyze.md`, read-only) and stop on CRITICAL findings.
 2. Run and parse JSON (`FEATURE_DIR`, `AVAILABLE_DOCS`):
    ```
    powershell -NoProfile -ExecutionPolicy Bypass -File .specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
@@ -38,7 +38,7 @@ decision (e.g. `T011: approved`), apply that first.
      Switch: hand off with `next = T###, needs tier <tier>`. Continue: log the answer and go on.
    - An "Owner decision gate" task is done only when the decision is recorded on the task line ("owner approved
      ..." / "owner rejected ...") AND every document it names (ADR, constitution via
-     `.claude/commands/speckit.constitution.md`, plan) has been updated.
+     `.claude/commands/speckit/constitution.md`, plan) has been updated.
    - Tests before implementation: write the test, run it, confirm it FAILS for the right reason, then implement
      until it passes (Constitution IV).
    - `[P]` tasks may run in parallel only when they touch different files.

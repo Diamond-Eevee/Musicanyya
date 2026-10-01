@@ -60,7 +60,8 @@ function setup(schedule: ScheduleMessage = makeSchedule({})) {
   const proc = createScorePlayerProcessor({ synth, sampleRate: SAMPLE_RATE });
   const reports: Report[] = [];
   proc.onMessage = (msg) => {
-    if (msg.type === 'position') reports.push(msg as unknown as Report);
+    // The processor reuses one report object (017 T009): keep a copy of what each report said.
+    if (msg.type === 'position') reports.push({ ...msg } as unknown as Report);
   };
   proc.receiveMessage({ ...schedule });
   return { synth, proc, reports };

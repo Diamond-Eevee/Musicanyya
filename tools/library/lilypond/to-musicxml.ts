@@ -208,6 +208,22 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
   // ---- marks attached to notes: directions and notations -------------------------------------------------------
   const openWedge = new Map<string, boolean>(); // mark owner (voice, or the Dynamics line of a staff) -> hairpin open
   const openTies = new Map<string, QuarterTime>(); // voice|midi -> where the tied note ends
+  // A tie that no later note of its voice continues is not printed by LilyPond ("unterminated tie"), so it is not
+  // written (017 T051: in Joplin 263 bar 69 the visible tie is the hidden note's, and the chord's own ~ goes nowhere).
+  const continuedTies = new Set<object>();
+  {
+    const pending = new Map<string, { end: QuarterTime; pitch: object }>();
+    for (const e of events) {
+      if (e.kind !== 'note' || e.grace) continue;
+      for (const p of e.pitches) {
+        const key = `${e.voice}|${spellingMidi(p.spelling)}`;
+        const open = pending.get(key);
+        if (open && cmp(open.end, e.t) === 0) continuedTies.add(open.pitch);
+        pending.delete(key);
+        if (p.tie) pending.set(key, { end: add(e.t, e.length), pitch: p });
+      }
+    }
+  }
   // ottava n: an 8va (n = 1) prints the notes an octave lower than they sound, so its <octave-shift> is "down".
   const ottavas: { t: QuarterTime; staff: number; type: 'up' | 'down' | 'stop'; size: number; pos: Pos }[] = [];
   const openOttava = new Map<number, number>(); // staff -> size
@@ -278,9 +294,17 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
   };
 
   const writeNote = (e: NoteEvent, voice: string, directions: WriteDirection[]): WriteNote[] => {
-    const type = TYPES.get(e.base);
+    let type = TYPES.get(e.base);
+    let dots = e.dots;
     if (!type) fail(e.pos, `note value ${e.base}`);
-    if (cmp(e.factor, q(1)) !== 0) fail(e.pos, 'a note value scaled with *n/m');
+    if (cmp(e.factor, q(1)) !== 0) {
+      // A scaled value prints a note value it does not have, so only a hidden note may carry one (017 T051, Joplin 263
+      // bar 69: \hideNotes bes4*1/4 carries a tie). It is written as the plain value of its real length.
+      if (!e.hidden || e.tuplet) fail(e.pos, 'a note value scaled with *n/m');
+      type = TYPES.get((4 * e.length.den) / e.length.num);
+      if (!type) fail(e.pos, 'a hidden note scaled with *n/m to no plain note value');
+      dots = 0;
+    }
     const number = String(voiceNumber.get(e.voice));
     const notations: Pick<WriteNote, 'slurs' | 'articulations' | 'ornament' | 'fermata' | 'fingering'> = {};
     let arpeggiate = false;
@@ -333,9 +357,9 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
         voice: number,
         type: type as WriteDuration,
         staff: e.staff,
-        ...(e.dots ? { dots: e.dots } : {}),
+        ...(dots ? { dots } : {}),
         ...(i > 0 ? { chord: true } : {}),
-        ...(p.tie && !e.grace
+        ...(p.tie && !e.grace && continuedTies.has(p)
           ? { tie: { start: true, ...(tieStop ? { stop: true } : {}) } }
           : tieStop
             ? { tie: { stop: true } }
@@ -343,6 +367,7 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
         ...(e.grace ? { grace: { slash: e.grace === '\\acciaccatura' || e.grace === '\\slashedGrace' } } : {}),
         ...(e.tuplet ? { timeModification: { actual: e.tuplet.actual, normal: e.tuplet.normal } } : {}),
         ...(arpeggiate ? { arpeggiate: true } : {}),
+        ...(e.hidden ? { printObject: false as const } : {}),
         ...(memberNotations[i] as typeof notations),
       };
       if (i === 0) {

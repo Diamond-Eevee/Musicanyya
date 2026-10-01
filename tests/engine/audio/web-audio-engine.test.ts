@@ -100,6 +100,32 @@ describe('WebAudioEngine', () => {
     expect(engine.diagnostics().liveQueueDropped).toBe(5);
   });
 
+  it('017 T034: a volume set before the worklet exists (the saved one, at start-up) reaches it once it is created', async () => {
+    const engine = new WebAudioEngine();
+    engine.setVolume(30);
+    expect(mockPort.postMessage).not.toHaveBeenCalled(); // no node yet: only recorded
+    await engine.unlock();
+    expect(mockPort.postMessage).toHaveBeenCalledWith({ type: 'volume', gain: 0.3 });
+  });
+
+  it('017 T012: keeps the worklet count of late events in diagnostics', async () => {
+    const engine = new WebAudioEngine();
+    await engine.unlock();
+    expect(engine.diagnostics().lateEvents).toBe(0);
+    mockPort.onmessage({
+      data: {
+        type: 'position',
+        frame: 128,
+        contextTime: 0.1,
+        tick: 0,
+        ticksPerFrame: 0.02,
+        playing: true,
+        lateEvents: 76,
+      },
+    });
+    expect(engine.diagnostics().lateEvents).toBe(76);
+  });
+
   it('T038: reports an assumed Latency profile from the reported output latency, input latency 0 until measured', async () => {
     const engine = new WebAudioEngine();
     await engine.unlock();

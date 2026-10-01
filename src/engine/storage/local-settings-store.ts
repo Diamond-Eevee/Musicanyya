@@ -194,6 +194,23 @@ export class LocalSettingsStore implements SettingsStore {
     this.writeTimer = setTimeout(() => this.flush(), SETTINGS_WRITE_DEBOUNCE_MS);
   }
 
+  /** Every debounced write that has not run yet, now (017 T039): a reload or a closed tab within
+   *  `SETTINGS_WRITE_DEBOUNCE_MS` of a change used to lose it. */
+  flushPending(): void {
+    if (this.writeTimer !== null) {
+      clearTimeout(this.writeTimer);
+      this.flush();
+    }
+    if (this.practiceTimer !== null) {
+      clearTimeout(this.practiceTimer);
+      this.flushPractice();
+    }
+    if (this.playTimer !== null) {
+      clearTimeout(this.playTimer);
+      this.flushPlay();
+    }
+  }
+
   private flush(): void {
     this.writeTimer = null;
     if (!this.pending) return;

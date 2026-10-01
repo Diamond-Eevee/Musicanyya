@@ -110,6 +110,48 @@ test.describe('US3: minimal chrome during a run (FR-008, SC-004)', () => {
     await expect(page.locator('dialog[open], [role="alertdialog"]')).toHaveCount(0);
     expect({ bar: await boxOf(page, '#mx-bar'), view: await boxOf(page, 'mx-score-view') }).toEqual(before);
   });
+
+  // 017 T040: the session added its own "disconnected" notice on top of the one the Practice session or the Play run
+  // reports, so one disconnect showed two notices.
+  const disconnect = (page: Page) =>
+    page.evaluate(() => {
+      const session = (globalThis as unknown as { mxSession: { midiInput: { emit(e: unknown): void } } }).mxSession;
+      session.midiInput.emit({ type: 'deviceLost', heldKeys: [] });
+    });
+  const disconnectNotices = (page: Page) =>
+    page.locator('.notice').filter({ hasText: 'MIDI keyboard was disconnected' });
+
+  test('one disconnect during a Play run is one notice (017 T040)', async ({ page }) => {
+    test.setTimeout(45_000);
+    await openInPlayMode(page);
+    await startRun(page);
+    await disconnect(page);
+    await expect(disconnectNotices(page).first()).toBeVisible();
+    await page.waitForTimeout(300); // a second notice would have been added in the same turn
+    await expect(disconnectNotices(page)).toHaveCount(1);
+  });
+
+  test('one disconnect during Practice is one notice (017 T040)', async ({ page }) => {
+    test.setTimeout(45_000);
+    await openInPlayMode(page);
+    await page.locator('#mode-controls mx-mode-switch input[value=practice]').check();
+    const start = page.locator('mx-transport .play-btn');
+    await start.click();
+    await expect(start).toHaveText('Stop', { timeout: 30_000 });
+    await disconnect(page);
+    await expect(disconnectNotices(page).first()).toBeVisible();
+    await page.waitForTimeout(300);
+    await expect(disconnectNotices(page)).toHaveCount(1);
+  });
+
+  test('one disconnect with no run is one notice (017 T040)', async ({ page }) => {
+    await openInPlayMode(page);
+    await page.locator('#mode-controls mx-mode-switch input[value=listen]').check();
+    await disconnect(page);
+    await expect(disconnectNotices(page).first()).toBeVisible();
+    await page.waitForTimeout(300);
+    await expect(disconnectNotices(page)).toHaveCount(1);
+  });
 });
 
 test.describe('US3: the Grade arrives over the Score (FR-009)', () => {
@@ -141,5 +183,35 @@ test.describe('US3: the Grade arrives over the Score (FR-009)', () => {
     await expect(grade).toBeHidden();
     await expect.poll(async () => (await seam(page)).graded).toBe(true); // the Grade itself is kept
     await expect.poll(inkedPixels, { timeout: 5_000 }).toBeGreaterThan(0); // and so are its marks on the notes
+  });
+
+  // 017 T037: the run's phase reaches `playState` once per animation frame; under load the Grade of a run stopped in
+  // its count-in came back before the next frame, still read "countIn", counted as a run in progress, and was never
+  // shown. Slowed frames make that order certain here.
+  test('a run stopped in its count-in shows its Grade even when the Grade arrives before the next frame (017 T037)', async ({
+    page,
+  }) => {
+    test.setTimeout(45_000);
+    await page.addInitScript(() => {
+      const w = window as unknown as { __slowFrames?: boolean };
+      const raf = window.requestAnimationFrame.bind(window);
+      window.requestAnimationFrame = (callback: FrameRequestCallback) =>
+        w.__slowFrames ? (setTimeout(() => raf(callback), 1500) as unknown as number) : raf(callback);
+    });
+    await openInPlayMode(page);
+    await page.locator('mx-transport .play-btn').click();
+    await expect.poll(async () => (await seam(page)).phase, { timeout: 15_000 }).toBe('countIn');
+    await page.evaluate(() => {
+      (window as unknown as { __slowFrames?: boolean }).__slowFrames = true;
+      const stop = Array.from(document.querySelectorAll<HTMLButtonElement>('mx-run-status button')).find(
+        (button) => button.textContent?.trim() === 'Stop',
+      );
+      stop?.click();
+    });
+    await expect.poll(async () => (await seam(page)).graded, { timeout: 15_000 }).toBe(true);
+    await page.evaluate(() => {
+      (window as unknown as { __slowFrames?: boolean }).__slowFrames = false;
+    });
+    await expect(panelLocator(page, 'grade')).toBeVisible();
   });
 });
