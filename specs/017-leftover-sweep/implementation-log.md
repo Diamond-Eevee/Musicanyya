@@ -484,3 +484,11 @@
   attempt with its wrong-note count).
 - Handoff: next = owner results for T025-T027 (or the owner's decision to drop any), then the merge when asked; no code
   work left. Before any later gate: no `vite preview` on :4173. Tree clean at the log commit.
+
+## 2026-10-01 13:20 - claude-opus-5.5 (continue - owner drops T025-T027; final gate and audit)
+- Owner answer (2026-10-01): **drop T025, T026 and T027**. Recorded as `[-]` "not done - dropped by the owner" (SC-004
+  allows "not done, with reason"; T027 forbids `[x]` without the five-person result, so no task is ticked). Results:
+  003's manual keyboard check not run (the e2e suite covers its four stories with faked MIDI); **011 SC-005 and 013
+  SC-008 stay unverified** - neither met nor failed, not an accepted deviation. AGENTS.md section 4 gains the `[-]`
+  state (11,972 characters, under the 12,000 limit); `status.ps1` already ignores lines that are not `[ ]`, `[~]` or
+  `[x]` (as it does `[>]`), so SC-001 holds.

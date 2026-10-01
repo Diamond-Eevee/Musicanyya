@@ -305,14 +305,18 @@ contracts of the feature it came from, named on the task)
 
 **Model**: standard for the preparation (steps, seed, recording the result); the check itself is done by the owner
 
-- [ ] T025 [US5] (from 003 T082) Run 003's `quickstart.md` manual verification script for all four user stories on a
+- [-] T025 [US5] (from 003 T082) Run 003's `quickstart.md` manual verification script for all four user stories on a
   real MIDI keyboard. The agent writes the exact steps into the log under "needs owner"; the owner runs them; the
-  result is recorded with the date
-- [ ] T026 [US5] (from 011 T083) SC-005 learner test: the owner (or three people) plays the C major Introduction hands
-  together in Practice mode once; wrong-note counts recorded in the log. SC-005 of 011 is unmet until done
-- [ ] T027 [US5] (from 013 T090; its screenshot part was done 2026-09-28) SC-008 five-person check of the Score
+  result is recorded with the date. **Not done - dropped by the owner 2026-10-01** (owner's decision): 003's manual
+  check on a real keyboard stays unrun; the e2e suite covers the four stories with faked MIDI
+- [-] T026 [US5] (from 011 T083) SC-005 learner test: the owner (or three people) plays the C major Introduction hands
+  together in Practice mode once; wrong-note counts recorded in the log. SC-005 of 011 is unmet until done.
+  **Not done - dropped by the owner 2026-10-01** (owner's decision): SC-005 of 011 stays unverified - neither met nor
+  failed. The owner's own run (wrong notes played on purpose, all marked correctly) checked the feedback only
+- [-] T027 [US5] (from 013 T090; its screenshot part was done 2026-09-28) SC-008 five-person check of the Score
   browser: the owner's own check with five people; the exact steps and the seed to use are written in the log under
-  "needs owner: SC-008 run"; never mark this task `[x]` until the real five-person result is logged
+  "needs owner: SC-008 run"; never mark this task `[x]` until the real five-person result is logged.
+  **Not done - dropped by the owner 2026-10-01** (owner's decision): SC-008 of 013 stays unverified
 
 ---
 

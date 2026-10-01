@@ -64,7 +64,7 @@ earlier document is wrong, fix that document first and say so in the log.
 ## 4. Task loop (implement)
 
 `tasks.md` is the source of truth. States: `- [ ] T012 ...` open, `- [~] T012 ... (claimed: <agent-id> <YYYY-MM-DD>)`
-in progress, `- [x] T012 ...` done. Start at the resume point; follow file order and "Dependencies".
+in progress, `- [x] T012 ...` done, `[-]` dropped by the owner (date, reason). Start at the resume point; follow file order and "Dependencies".
 
 1. **Claim** the task (at most the current task group), with the exact claim suffix. New tier your model does not
    fit: model-fit question first (2.8).
