@@ -1,6 +1,7 @@
 # Contract: Score browser element, events and state
 
-**Version**: `1.0.0` (new with feature 013)
+**Version**: `1.1.0` (1.0.0 new with feature 013; 1.1.0 with feature 018, MINOR: the rail starts collapsed and its open
+folders are persisted, see [018 browser-view.md](../../018-browser-tree-collapse/contracts/browser-view.md))
 **Owner**: `src/ui/elements/mx-score-browser.ts` (+ `mx-browser-rail`, `mx-browser-list`, `mx-browser-detail`,
 `mx-browser-continue`, `mx-status-badge`), `src/ui/state/browserState.ts`, `src/app/browser-session.ts`.
 **Requirements**: FR-001 to FR-007, FR-012 to FR-014, FR-016, FR-018, FR-019, FR-022, FR-025 to FR-028, SC-001,
@@ -24,8 +25,30 @@ The UI renders what the core computes (Principle V): rows, folder summaries, sta
     <p class="browser-message" role="alert">        load failure of a chosen or dropped file (US3 #5)
 ```
 
-Rail default state: every folder is expanded, so every leaf folder (each key, each key change, each Repertoire level)
-is visible without extra clicks (SC-001: Open, folder, item). Collapsing is allowed and kept for the session only.
+Rail default state (1.1.0, 018): every folder with sub-folders is **collapsed**, except the ancestors of the chosen
+folder, which are expanded when the index first loads in an app run. The open/closed state is part of the persisted
+view (`view.expanded`) and survives reloads and restarts. The top-level entries *Continue*, *All*, *Learning*,
+*Repertoire* and *My files* are always visible. (1.0.0 text, superseded: every folder expanded, collapsing kept for the
+session only.)
+
+Each `treeitem` (018):
+
+```html
+<div role="treeitem" class="browser-rail-item" data-key="section:learning/keys" aria-level="2"
+     aria-selected="false" aria-expanded="false" tabindex="-1" style="--browser-rail-depth:1"
+     data-contains-selected>                                   <!-- only when a hidden descendant is chosen -->
+  <span class="browser-rail-toggle" aria-hidden="true"></span> <!-- only with sub-folders; else .browser-rail-toggle-space -->
+  <span class="browser-rail-label">Keys<span class="visually-hidden">, contains the chosen folder</span></span>
+  <span class="browser-rail-progress">2 of 109 played, 0 mastered</span>
+</div>
+```
+
+- `aria-expanded` is present only on folders with sub-folders.
+- `.browser-rail-toggle`: a CSS chevron (right = collapsed, down = expanded), hit area at least 24 x 24 px, colour from
+  theme tokens. It is never focusable.
+- `data-contains-selected`: a thinner, dimmer accent bar plus a filled dot after the label (shape and colour). "Chosen"
+  is the folder the rail shows as selected, i.e. `effectiveFolder(view)`: *All* while a search is active (US1 #4), so
+  no marker appears during a search.
 
 Layout: CSS grid `rail 16rem | list 1fr | detail 22rem` at >= 1024 px. From 768 to 1023 px, the rail becomes a folder
 picker button with a breadcrumb in the toolbar. Below 768 px, the detail pane becomes a panel over the list with a
@@ -62,7 +85,7 @@ first step and a link to *Repertoire > Beginner* when there is no history (US4 #
 | `browserresetprogress` | `{ ref: ItemRef }` | confirmed inline; starts the undo window |
 | `browserundo` | `{}` | cancel the pending removal or reset |
 | `browserretrylibrary` | `{}` | the "Library unavailable" retry |
-| `browserviewchange` | `{ view: Partial<BrowserViewState> }` | folder, search, filter, sort or selection changed (persisted) |
+| `browserviewchange` | `{ view: Partial<BrowserViewState> }` | folder, search, filter, sort, selection or rail open folders (`expanded: string[]`, 018) changed (persisted) |
 
 The controller answers through `browserState`, which the elements subscribe to. `browseropenitem` for a file with
 `stored === false` puts the message "file not stored - open it again from disk to play" in the message line and opens
@@ -75,9 +98,12 @@ the file chooser. It never fails silently.
 | `/` | anywhere in the browser, not typing | focus search |
 | Escape | search non-empty | clear search (focus stays) |
 | Escape | otherwise | close; focus returns to the invoker |
-| Up / Down | rail | previous / next visible folder |
-| Right / Left | rail | open / close folder, or move to first child / parent |
-| Enter / Space | rail | select folder (list updates, focus stays) |
+| Click / tap on `.browser-rail-toggle` | rail, folder with sub-folders | toggle that folder only: no folder change, list and selection unchanged (018) |
+| Click / tap elsewhere on the item | rail | choose the folder (list updates); if it has sub-folders and is collapsed, also expand it; never collapses (018) |
+| Up / Down / Home / End | rail | move focus between visible folders |
+| Right | rail | collapsed -> expand; expanded -> focus its first child (persisted, 018) |
+| Left | rail | expanded -> collapse; else focus parent (persisted, 018) |
+| Enter / Space | rail | choose the folder and expand it if collapsed, same as a name click (list updates, focus stays) (018) |
 | Up / Down / Home / End / PageUp / PageDown | list | move the active row (selection follows, detail updates) |
 | Enter | list | open the active item |
 | Tab / Shift+Tab | everywhere | search -> filters -> sort -> rail -> list -> detail -> close, cyclic inside the dialog |
@@ -92,6 +118,16 @@ The app shortcuts (`src/ui/shortcuts.ts`: Space, Escape, size keys) are ignored 
 - The app starts with the browser open when no Score is loaded (FR-001).
 - It closes on: successful open of an item or file, `browserclose`, a Play run or Practice session starting
   (`guardPanelsDuringRuns`). Closing never changes the loaded Score, its position or its settings (FR-004).
+- (018) On the first successful index load of an app run, the ancestors of a chosen section folder are expanded and
+  saved. Later loads (reopening the browser, the refresh after a reset or seed, a retry) leave the tree as it is.
+- (018) On every index load, a restored selection that no longer exists (library item not in the index, file not in
+  *My files*) is cleared silently; an existing one is scrolled into view in the list (and the chosen folder in the
+  rail) without moving focus.
+- (018) On a successful open, the item becomes the selected item (library and *My files*), whether it was opened
+  through the browser (`openSucceeded`) or directly with *Open file...* or a drop (`fileOpened`, also while the browser
+  is closed). If the chosen folder cannot list it, the folder becomes the item's own folder (its section, or *My
+  files*). For a library item, the ancestors of its section are expanded and saved.
+- (018) Restoring never loads a Score or starts audio; the app still starts with the browser open and no Score loaded.
 - A pending undo action survives closing. Its toast ("File removed - Undo") is shown in the notice tray while the
   browser is closed.
 
@@ -109,7 +145,8 @@ It never shows it for a stopped run or a partial scope.
 ## 8. Test hooks
 
 `data-testid` values: `browser`, `browser-search`, `browser-rail`, `browser-list`, `browser-detail`,
-`browser-open-file`, `browser-continue`, `browser-suggested`. Row element: `data-ref="library:<id>"` or
+`browser-open-file`, `browser-continue`, `browser-suggested`. 018 adds the selectors `.browser-rail-toggle` and
+`[data-contains-selected]`. Row element: `data-ref="library:<id>"` or
 `data-ref="file:<fileKey>"`, plus `data-status`. The e2e seam `window` event `e2e-progress-seed` seeds records and files for SC-002/SC-003 measurements. Its detail is a
 list of `{ ref, event }` seeds, or `{ files, events }` where each file is `{ fileName, text, title, composer }` (stored
 through `putFile`, T086). Like `e2e-midi`, `e2e-ready` and `e2e-synthetic-grade` it is present in every build, the

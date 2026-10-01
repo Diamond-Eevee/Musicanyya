@@ -18,9 +18,9 @@
 
 **Model**: light (gemini-3.7-flash or claude-haiku-4-5; every standard and deep model fits too)
 
-- [ ] T001 Append a baseline entry to `specs/018-browser-tree-collapse/implementation-log.md` with the summary lines of
+- [x] T001 Append a baseline entry to `specs/018-browser-tree-collapse/implementation-log.md` with the summary lines of
   `pnpm test`, `pnpm lint` and `pnpm typecheck` on the branch as it is before any code change (AGENTS.md 2.6)
-- [ ] T002 [P] Fold the contract changes into the earlier features' documents, contract first (AGENTS.md section 6),
+- [x] T002 [P] Fold the contract changes into the earlier features' documents, contract first (AGENTS.md section 6),
   exactly as listed in `specs/018-browser-tree-collapse/contracts/contract-changes.md`:
   `specs/013-score-browser-progress/contracts/score-browser.md` version `1.0.0` -> `1.1.0`, where §1 "Rail default
   state" is replaced by browser-view.md §1, the §4 rail rows by browser-view.md §2, a §3 note about `expanded` is
@@ -29,7 +29,7 @@
   first-load-only reveal and the clearing of a missing selection (each with a "(018)" note); `specs/001-score-viewer-listen/contracts/storage.md` gets the `musicanyya.browser.v1` row text
   "Score browser view state (folder, search, filters, sort, selection, rail open folders)" and a link to 018
   browser-view.md §5
-- [ ] T003 [P] Add `export const BROWSER_EXPANDED_MAX = 512; // Most open-folder ids kept from a stored browser view
+- [x] T003 [P] Add `export const BROWSER_EXPANDED_MAX = 512; // Most open-folder ids kept from a stored browser view
   (018 R-3)` beside `BROWSER_SEARCH_MAX_CHARS` in `src/core/defaults.ts`, and check that it matches the row in
   `specs/018-browser-tree-collapse/data-model.md` §5
 

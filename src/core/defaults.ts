@@ -351,6 +351,7 @@ export const USER_FILE_VERSIONS_MAX = 10; // Earlier content hashes kept per *My
 // Shared with src/engine/config.ts (re-exported there): src/core/browser/query.ts (pure) cuts an overlong search
 // itself, so this cannot live only in the engine layer (data-model.md section 11 corrected while implementing T014).
 export const BROWSER_SEARCH_MAX_CHARS = 200; // Browser search text is cut to this length (FR-026)
+export const BROWSER_EXPANDED_MAX = 512; // Most open-folder ids kept from a stored browser view (018 R-3)
 
 // Melody over chords (feature 014, data-model.md §4): the Difficulty ladder the melody rule check verifies a
 // rewritten Learning item's right-hand melody against, on top of the existing LEVEL_* criteria above.

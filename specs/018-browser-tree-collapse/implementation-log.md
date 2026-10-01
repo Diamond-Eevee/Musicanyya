@@ -40,3 +40,11 @@
 - Spec behaviour changed: none beyond the owner-approved recommendations (M1 narrows the reveal to app start, as US3
   already says).
 - Handoff: next = `/speckit:implement` from T001; 24 tasks (T024 belongs to Phase 4); no code changed yet.
+
+## 2026-10-01 - claude-sonnet-5.5 (implement: Phase 1 Setup)
+- Baseline (T001), branch 018-browser-tree-collapse at a59876e, before any code change, 2026-10-01:
+  - `pnpm test`: `Test Files  299 passed (299)`, `Tests  6273 passed (6273)`, exit 0
+  - `pnpm lint`: `Checked 1086 files ... No fixes applied. Found 316 warnings. Found 13 infos.`, exit 0 (the warnings and
+    infos exist before this feature; no errors)
+  - `pnpm typecheck`: `tsc --build tsconfig.json`, exit 0
+- Model fit: Phase 1 is tier `light`; claude-sonnet-5.5 fits (a higher tier never asks). T021 is `deep`: will ask.

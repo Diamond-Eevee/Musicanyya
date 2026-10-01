@@ -223,10 +223,12 @@ interface BrowserViewState {
   };
   sort: { by: 'library' | 'title' | 'lastPlayed' | 'best'; dir: 'asc' | 'desc' };
   selected: ItemRef | null;
+  expanded: readonly string[];   // (018) section ids of the open rail folders, sorted, unique; absent in 013 payloads = []
 }
 ```
 
-Defaults: folder `continue`, empty search, no filters, sort `library asc`, nothing selected. A non-empty search shows
+Defaults: folder `continue`, empty search, no filters, sort `library asc`, nothing selected, `expanded: []` (018: every
+rail folder collapsed). A non-empty search shows
 the folder selection as "All" (US1 #4) without changing `folder`, which comes back when the search is cleared.
 `localStorage` `musicanyya.browser.v1` = `{ version: 1, view }`, each field validated alone (R-15).
 
@@ -246,6 +248,19 @@ closed --open()--> loading --data ready--> ready --openItem()--> opening --succe
 Fields: `phase`, `data: { index | indexError, files, records }`, `view: BrowserViewState`,
 `pending: PendingAction | null` (R-12 deferred removal/reset with its deadline), `message: { code, fileName? } | null`,
 `openingRef: ItemRef | null`.
+
+(018) Additions, full text in [018 data-model.md](../018-browser-tree-collapse/data-model.md) section 3:
+
+- `revealSelection: boolean` and `selectionRevealed()`: a one-shot request for the list and rail to scroll the restored
+  selection and chosen folder into view (018).
+- `fileOpened(ref)`: a direct file open (*Open file...*, drop) selects the file in any phase, phase unchanged (018).
+- The open rule (018): `openSucceeded` and `fileOpened` set `selected = ref` (library and file refs); when the chosen
+  folder cannot list the item, `folder` becomes the item's section (library) or *My files* (file); for a library item
+  its section's ancestors are added to `expanded`.
+- First-load-only reveal (018): on the first successful `indexLoaded` of an app run, the ancestors of a chosen section
+  folder are added to `expanded`; later loads leave `expanded` alone.
+- A restored `selected` that names a library item not in the index, or a file not in *My files*, is cleared to `null`
+  on `indexLoaded` (018).
 
 `PendingAction` = `{ kind: 'removeFile'; fileKey; keepProgress: boolean } | { kind: 'reset'; ref: ItemRef }` plus
 `deadline` (ms). Only one at a time: starting a second commits the first immediately.
