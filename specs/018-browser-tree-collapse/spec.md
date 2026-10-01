@@ -7,6 +7,19 @@
 the previous selected track should be selected (not loaded), and tree view remember the last collapsed state. It should
 be saved in local storage for now, later with possibility to push to store in the server via user."
 
+## Clarifications
+
+### Session 2026-10-01
+
+- Q: What does clicking the name of a collapsed folder do? -> A: It chooses the folder (shows its items) and expands
+  it; clicking the name of an expanded folder only chooses it and never collapses it. Only the disclosure control (and
+  Left) collapses.
+- Q: During a session, does selecting an item hidden inside a collapsed folder reveal it in the rail? -> A: Only when
+  the item is opened (loaded): opening reveals its folder by expanding the ancestors; selecting from search results or
+  *Continue* leaves the rail unchanged.
+- Q: Is the ancestor expansion done on app start (and on opening) saved as the remembered tree state? -> A: Yes - it
+  is saved like any other expansion; there is no separate temporary state.
+
 ## Context
 
 The score browser (feature 013) has a folder rail: *Continue*, *All*, the library's section tree (*Learning > Keys >
@@ -26,7 +39,8 @@ selected, shown selected but **not** opened. "Track" in the request means a brow
 
 A folder that has sub-folders shows a disclosure control (e.g. a triangle) that shows whether it is open or closed.
 Clicking or tapping the control opens or closes that folder; its sub-folders appear or disappear underneath it.
-Choosing a folder (clicking its name) still shows its items, as today. The keyboard keeps working as it does now
+Choosing a folder (clicking its name) still shows its items, as today, and also opens it if it was closed, so drilling
+down is one click per level; it never closes an open folder. The keyboard keeps working as it does now
 (Right opens, Left closes, Enter / Space choose).
 
 **Why this priority**: Without a pointer control there is no way for a mouse or touch user to shorten the rail; every
@@ -42,12 +56,14 @@ control shows "closed"; click it again - they reappear. The item list does not c
 2. **Given** *Keys* is collapsed, **When** the musician clicks its disclosure control, **Then** its key folders are
    shown again with the same open/closed state each of them had before.
 3. **Given** *Keys* is collapsed, **When** the musician clicks the name *Keys*, **Then** *Keys* becomes the chosen
-   folder and its items are listed (choosing does not toggle the folder).
-4. **Given** the selected folder is *C major* inside *Keys*, **When** the musician collapses *Keys*, **Then** the item
+   folder, its items are listed, and it expands to show its key folders.
+4. **Given** *Keys* is expanded, **When** the musician clicks the name *Keys*, **Then** *Keys* becomes the chosen
+   folder and stays expanded (a name click never collapses).
+5. **Given** the selected folder is *C major* inside *Keys*, **When** the musician collapses *Keys*, **Then** the item
    list still shows *C major*'s items and *Keys* is marked as containing the selected folder.
-5. **Given** keyboard focus is on a collapsed folder, **When** the musician presses Right, **Then** it expands; Left
+6. **Given** keyboard focus is on a collapsed folder, **When** the musician presses Right, **Then** it expands; Left
    on an expanded folder collapses it (existing behaviour, unchanged).
-6. **Given** a folder without sub-folders (*Continue*, *All*, *My files*, a key folder), **Then** it shows no
+7. **Given** a folder without sub-folders (*Continue*, *All*, *My files*, a key folder), **Then** it shows no
    disclosure control.
 
 ---
@@ -101,7 +117,8 @@ in the detail pane, and the score area shows no loaded Score from that item.
    usual *Open* action.
 3. **Given** the musician last selected an item and then collapsed one of its ancestor folders, **When** the app
    starts, **Then** that ancestor is expanded again so the selected folder is visible (the selection wins over the
-   remembered collapsed state for its own path only; other folders keep their remembered state).
+   remembered collapsed state for its own path only; other folders keep their remembered state). The expanded
+   ancestors are saved as the new remembered state.
 4. **Given** the last selected item no longer exists (library item removed, *My files* entry removed), **When** the app
    starts, **Then** the browser shows the remembered folder (or *Continue* if that is gone too) with no item selected
    and no error.
@@ -141,8 +158,8 @@ any acceptance scenario above.
 - **Narrow window** (013 US1 #6, breadcrumb rail): the remembered state applies when the full rail is shown again.
 - **Several tabs/windows** of the browser version: the last change written wins; a tab does not have to pick up another
   tab's changes live.
-- **Selection inside a collapsed folder during the session** (e.g. via search results): choosing an item from the list
-  does not by itself expand the rail; the ancestor expansion of User Story 3 happens on app start.
+- **Selection inside a collapsed folder during the session** (e.g. via search results or *Continue*): selecting an item
+  does not change the rail; **opening** it expands its ancestors (FR-016), and app start does the same (User Story 3).
 - **Fast repeated clicks** on a disclosure control: each click toggles once; the rail never ends in a state different
   from the last visible one.
 - **Accessibility**: the open/closed state is announced by assistive technology for every folder that has sub-folders,
@@ -157,7 +174,8 @@ any acceptance scenario above.
   folders without sub-folders MUST NOT show one.
 - **FR-002**: Activating the disclosure control by pointer (click/tap) MUST toggle that folder only, without changing
   the chosen folder, the item list, the selected item or the scroll position of the item list.
-- **FR-003**: Choosing a folder by its name MUST keep its 013 behaviour (show its items) and MUST NOT toggle it.
+- **FR-003**: Choosing a folder by its name (pointer, Enter or Space) MUST keep its 013 behaviour (show its items) and
+  MUST expand it if it is collapsed; it MUST NOT collapse an expanded folder.
 - **FR-004**: The existing keyboard behaviour (Right/Left expand/collapse, Up/Down/Home/End move, Enter/Space choose)
   MUST keep working and MUST change the same remembered state as the pointer.
 - **FR-005**: Collapsing a folder MUST hide all its descendants; expanding it MUST restore each descendant's own
@@ -171,7 +189,8 @@ any acceptance scenario above.
 - **FR-009**: Remembered entries for folders that no longer exist MUST be ignored; folders whose identity moved (the
   library's recorded former ids) MUST keep their state; folders the record does not mention MUST start collapsed.
 - **FR-010**: On app start the browser MUST restore the last chosen folder and the last selected item (013 FR-006),
-  expand every ancestor of that folder, scroll the selected item into view and show its details.
+  expand every ancestor of that folder, scroll the selected item into view and show its details. The expansion MUST be
+  saved as the remembered tree state (no separate temporary state).
 - **FR-011**: Restoring the selection on app start MUST NOT load a Score, change the loaded Score, or start any audio.
 - **FR-012**: Opening an item MUST also make it the selected item, for library items and *My files* files alike, so the
   last opened item is restored as selected (FR-010).
@@ -182,7 +201,9 @@ any acceptance scenario above.
 - **FR-015**: Tree state, chosen folder and selected item MUST be kept as one versioned preferences record with a
   documented format, upgraded in place from the 013 record without losing any of its fields, so that a later feature
   can store it under a user account on a server.
-- **FR-016**: The open/closed state of each folder that has sub-folders MUST be exposed to assistive technology.
+- **FR-016**: Opening (loading) a library item MUST expand every ancestor of its folder and save that state; merely
+  selecting an item (list, search results, *Continue*) MUST NOT change the open/closed state of any folder.
+- **FR-017**: The open/closed state of each folder that has sub-folders MUST be exposed to assistive technology.
 
 ### Key Entities *(include if the feature involves data)*
 
@@ -204,8 +225,9 @@ any acceptance scenario above.
 - **SC-003**: After an app restart, the last selected item is selected, visible and its details shown within the time
   the browser already takes to appear (013 SC-002), and in 0 of the test cases is a Score loaded or audio started by
   the restore.
-- **SC-004**: A musician can reach any library folder from the collapsed default in at most one disclosure action per
-  tree level (at most 3 for *Learning > Keys > C major*), and an item they last selected in 0 actions after restart.
+- **SC-004**: A musician can reach and choose any library folder from the collapsed default in at most one click per
+  tree level (3 name clicks for *Learning > Keys > C major*), and an item they last selected in 0 actions after
+  restart.
 - **SC-005**: A disclosure click never changes the item list or the selection (0 failures in automated tests).
 - **SC-006**: Corrupt or unavailable stored state never shows an error and always yields the default collapsed rail
   (automated tests for corrupt, missing and failing storage).
