@@ -362,7 +362,7 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   comment, `\change Staff`; 12 notes changed staff, nothing else in the reading). Bars 86-87 were wrongly described
   as two hands: their lower-staff chord is the left hand's rolled bar-85 chord, tied on and held by the pedal while
   the left hand plays the tremolo, so it is not moved (T099)
-- [ ] T098 [US2] [deep] (new, found by T097, 2026-10-01) Transcription A reading fix: in bar 52 the print's arpeggio
+- [x] T098 [US2] [deep] (new, found by T097, 2026-10-01) Transcription A reading fix: in bar 52 the print's arpeggio
   line runs from the rolled left-hand chord up through the left-hand melody note struck with it (voice 5), so the
   whole group is one rolled chord; A marks only the chord. Check bars 52, 58 and 60-62 against the print (PDF pages
   9-10) and add `\arpeggio` to the melody note where the line covers it (`% unclear:` where it cannot be told); then

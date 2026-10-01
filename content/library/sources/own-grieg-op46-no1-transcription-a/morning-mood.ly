@@ -226,10 +226,11 @@ lhOne = {
   % 48-49
   \clef treble <d'-4 fis' a'>2.->( |
   <des' f' a'>2.) |
-  % 50-53
+  % 50-53; bars 52, 58, 60-62: the print's arpeggio line runs from the lower voice's chord up through this melody
+  % note struck with it, so the note is rolled with the chord (019 T098)
   \clef bass c'8( a-2 g f g a |
   c'8 a g f g16 a g a) |
-  c'8( a c') d'( a d') |
+  c'8( a c') d'\arpeggio( a d') |
   <c f a c'>4.~ <c f a c'>8 r8 r8 |
   % 54-55
   \clef treble <c'-4 f' a'>2.->( |
@@ -237,12 +238,12 @@ lhOne = {
   % 56-59
   \clef bass b8( gis fis e-1 fis-3 gis |
   b8 gis fis e fis16 gis fis gis) |
-  b8( gis b) cis'( gis cis') |
+  b8( gis b) cis'\arpeggio( gis cis') |
   <b, e gis b>4.~ <b, e gis b>8 r8 r8 |
   % 60-63
-  cis'8->( gis cis') <b, e gis b>4 r8 |
-  cis'8->( gis cis') <b, e gis b>4 r8 |
-  cis'2.->( |
+  cis'8->\arpeggio( gis cis') <b, e gis b>4 r8 |
+  cis'8->\arpeggio( gis cis') <b, e gis b>4 r8 |
+  cis'2.->\arpeggio( |
   gis4. cis'4.) |
   % 64-67
   <b, gis b>4.( <cis-3 a>4. |
