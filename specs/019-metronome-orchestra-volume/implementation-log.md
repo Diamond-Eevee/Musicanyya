@@ -28,3 +28,17 @@
   the transcription confirms them (bars 77-78, 85).
 - Model fit: specify, clarify and plan are tier `deep`; claude-opus-5.5 fits.
 - Handoff: next = `/speckit:tasks`; no code changed yet, gate not run (docs only).
+
+## 2026-10-01 - claude-opus-5.5 (tasks)
+- Done: tasks.md, T001-T074 in 8 phases: Setup 4, Foundational 4 (stored levels), US1 10, US2 40 (Phase 4 the
+  Orchestra mechanism on own-work fixtures, 19; Phase 5 Morning Mood, 21), US3 8, US4 3, Polish 5.
+  Tiers: 6 light (T001-T004, T039, T070), 6 deep (T040, T041, T045, T053, T054, T073), 3 owner gates (T038 OD-1,
+  T046 OD-3 conditional, T072 OD-2), the other 59 standard.
+- Decisions: US2 split in two phases so the mechanism is built and tested on fixtures while OD-1 is open; OD-1 blocks
+  only the source-dependent tasks (T039-T041, T044-T046, T053-T058), the tooling can start at once; transcription B
+  (T041) must be written in a separate session that never sees A; the Advanced `<arpeggiate>` exception follows the
+  005 wording ("wider only under `<arpeggiate>`") with no new limit; SC-004 checked by construction (the render copy
+  equals the twin file's without the Orchestra, T021); three RT reviews (T017, T036, T065).
+- Model fit: the tasks step is tier `standard`; claude-opus-5.5 fits.
+- Handoff: next = `/speckit:analyze`, then `/speckit:implement` from T001; owner decision OD-1 (T038) is open; no code
+  changed yet, gate not run (docs only).
