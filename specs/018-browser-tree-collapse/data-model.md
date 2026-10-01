@@ -38,7 +38,7 @@ interface BrowserViewState {
 | `setExpanded(expanded, sectionId, open: boolean): string[]` | new sorted, unique array; the same array when unchanged |
 | `ancestorsOf(sectionId, sections): string[]` | parent chain, root first, without `sectionId`; stops at an unknown parent or a cycle (as `buildSectionTree` does) |
 | `revealPath(expanded, sectionId, sections): string[]` | `expanded` plus `ancestorsOf(sectionId)`; the same array when nothing was added (R-4) |
-| `containsChosen(sectionId, chosen: FolderSel, sections): boolean` | true when `chosen` is a section strictly below `sectionId` (R-7 marker) |
+| `containsChosen(sectionId, chosen: FolderSel, sections): boolean` | true when `chosen` is a section strictly below `sectionId` (R-7 marker); the rail passes `effectiveFolder(view)`, so there is no marker during a search |
 
 `inFolder(item, folder)` in `src/core/browser/query.ts` is exported (unchanged logic) for R-5.
 
@@ -51,15 +51,18 @@ selection and chosen folder into view (R-8).
 
 | Transition | Change (new in 018) |
 |---|---|
-| `indexLoaded` (loading -> ready) | view validated with real sections (incl. `expanded`); if `folder` is a section: `expanded = revealPath(expanded, folder.id)`; if this changed `expanded`, persist; `revealSelection = (selected !== null)` |
-| `indexFailed` | `expanded` kept as stored (no sections, R-3); `revealSelection = (selected !== null)` |
-| `openSucceeded` (opening -> closed) | `selected = openingRef` for library **and** file refs; when the chosen folder does not list the item (`inFolder` false), `folder` = the item's section (library) or `myFiles` (file); for a library item `expanded = revealPath(expanded, item.sectionId)`; persisted (R-4, R-5) |
+| `indexLoaded` (loading -> ready) | view validated with real sections (incl. `expanded`); `selected` cleared when it names a library item not in `index.items` or a file not in `files` (R-8); **only on the first successful load of the app run** (private `startRevealDone`, then set true): if `folder` is a section, `expanded = revealPath(expanded, folder.id)` (R-4); persist when `selected` or `expanded` changed; `revealSelection = (selected !== null)` |
+| `indexFailed` | `expanded` kept as stored (no sections, R-3); a file `selected` not in `files` is cleared, a library one is kept; `startRevealDone` unchanged; `revealSelection = (selected !== null)` |
+| `openSucceeded` (opening -> closed) | the open rule below, for `openingRef` (library **and** file refs) (R-4, R-5) |
+| `fileOpened(ref)` (NEW, any phase, phase unchanged) | the open rule below, for a direct file open (*Open file...*, drop; called by `Session.openFile` on a successful load, before `close()`) (R-5) |
 | `setView({ expanded })` | validated against known sections and persisted (rail toggle, name click, keyboard) |
 | `selectionRevealed()` | `revealSelection = false` |
 | `reset()` | `revealSelection = false`, view back to defaults |
 
-The item for `openSucceeded` is looked up in `data.index.items` by `openingRef.id`. If it is not found (the index was
-not loaded), only `selected` is set.
+**The open rule** (one private method used by both transitions): `selected = ref`. When the chosen folder does not
+list the item (`inFolder` false), `folder` becomes the item's section (library) or `myFiles` (file). For a library
+item, `expanded = revealPath(expanded, item.section)`. The result is persisted. A library item is looked up in
+`data.index.items` by `ref.id`; if it is not found (the index was not loaded), only `selected` is set.
 
 ## 4. Rail entry (render model, `mx-browser-rail`)
 

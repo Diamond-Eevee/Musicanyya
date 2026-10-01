@@ -59,8 +59,8 @@ control shows "closed"; click it again - they reappear. The item list does not c
    folder, its items are listed, and it expands to show its key folders.
 4. **Given** *Keys* is expanded, **When** the musician clicks the name *Keys*, **Then** *Keys* becomes the chosen
    folder and stays expanded (a name click never collapses).
-5. **Given** the selected folder is *C major* inside *Keys*, **When** the musician collapses *Keys*, **Then** the item
-   list still shows *C major*'s items and *Keys* is marked as containing the selected folder.
+5. **Given** the chosen folder is *C major* inside *Keys*, **When** the musician collapses *Keys*, **Then** the item
+   list still shows *C major*'s items and *Keys* is marked as containing the chosen folder.
 6. **Given** keyboard focus is on a collapsed folder, **When** the musician presses Right, **Then** it expands; Left
    on an expanded folder collapses it (existing behaviour, unchanged).
 7. **Given** a folder without sub-folders (*Continue*, *All*, *My files*, a key folder), **Then** it shows no
@@ -116,7 +116,7 @@ in the detail pane, and the score area shows no loaded Score from that item.
 2. **Given** the same start, **Then** no Score is loaded from X and no audio starts; the musician opens X with the
    usual *Open* action.
 3. **Given** the musician last selected an item and then collapsed one of its ancestor folders, **When** the app
-   starts, **Then** that ancestor is expanded again so the selected folder is visible (the selection wins over the
+   starts, **Then** that ancestor is expanded again so the chosen folder is visible (the selection wins over the
    remembered collapsed state for its own path only; other folders keep their remembered state). The expanded
    ancestors are saved as the new remembered state.
 4. **Given** the last selected item no longer exists (library item removed, *My files* entry removed), **When** the app

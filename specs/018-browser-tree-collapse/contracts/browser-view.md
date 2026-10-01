@@ -7,7 +7,7 @@ implementation tasks (AGENTS.md section 6); this file is the source until then.
 ## 1. Rail structure and default state (replaces the 013 §1 paragraph "Rail default state")
 
 Rail default state: every folder with sub-folders is **collapsed**, except the ancestors of the chosen folder, which are
-expanded when the index loads. The open/closed state is part of the persisted view (`view.expanded`) and survives
+expanded when the index first loads in an app run. The open/closed state is part of the persisted view (`view.expanded`) and survives
 reloads and restarts. The top-level entries *Continue*, *All*, *Learning*, *Repertoire* and *My files* are always
 visible.
 
@@ -27,6 +27,8 @@ Each `treeitem`:
 - `.browser-rail-toggle`: a CSS chevron (right = collapsed, down = expanded), hit area at least 24 x 24 px, colour
   from theme tokens. It is never focusable (R-6).
 - `data-contains-selected`: a thinner, dimmer accent bar plus a filled dot after the label (shape and colour, R-7).
+  "Chosen" here is the folder the rail shows as selected, i.e. `effectiveFolder(view)`: *All* while a search is
+  active (013 US1 #4), so no marker appears during a search.
 
 ## 2. Pointer and keyboard (replaces the 013 §4 rail rows)
 
@@ -48,12 +50,15 @@ Every expand or collapse calls `browserState.setView({ expanded })` and dispatch
 
 ## 4. Opening and closing (additions to 013 §5)
 
-- When the index loads (app start, each opening of the browser), the ancestors of a chosen section folder are expanded
-  and saved, and a restored selection is scrolled into view in the list (and the chosen folder in the rail) without
-  moving focus (R-4, R-8).
-- On a successful open, the item becomes the selected item (library and *My files*). If the chosen folder cannot list
-  it, the folder becomes the item's own folder (its section, or *My files*). For a library item, the ancestors of its
-  section are expanded and saved (R-4, R-5).
+- On the first successful index load of an app run, the ancestors of a chosen section folder are expanded and saved.
+  Later loads (reopening the browser, the refresh after a reset or seed, a retry) leave the tree as it is (R-4).
+- On every index load, a restored selection that no longer exists (library item not in the index, file not in
+  *My files*) is cleared silently; an existing one is scrolled into view in the list (and the chosen folder in the
+  rail) without moving focus (R-8).
+- On a successful open, the item becomes the selected item (library and *My files*), whether it was opened through
+  the browser (`openSucceeded`) or directly with *Open file...* or a drop (`fileOpened`, also while the browser is
+  closed). If the chosen folder cannot list it, the folder becomes the item's own folder (its section, or *My
+  files*). For a library item, the ancestors of its section are expanded and saved (R-4, R-5).
 - Restoring never loads a Score or starts audio (FR-011); the app still starts with the browser open and no Score
   loaded.
 

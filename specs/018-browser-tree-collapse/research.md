@@ -55,28 +55,39 @@ wipe the remembered tree.
 
 **Decision**: `revealPath(expanded, sectionId, sections)` adds every ancestor of `sectionId` (not the section itself)
 to `expanded`. It is applied in two places:
-1. In `browserState.indexLoaded`, for the restored chosen folder when it is a section (FR-010, US3 #1 and #3). This runs
-   every time the index loads, which means app start and each time the browser is opened. Only the path to the chosen
-   folder is affected, and that path is visible anyway unless the musician collapsed it after choosing it.
-2. In `browserState.openSucceeded`, for the opened library item's own section (FR-016).
+1. In `browserState.indexLoaded`, for the restored chosen folder when it is a section (FR-010, US3 #1 and #3), **only
+   on the first successful index load of the app run** (a private `startRevealDone` flag in the store, set by that
+   first load). Later loads (reopening the browser, the reload after a progress reset or a seed via `startRefresh`,
+   a retry) leave `expanded` alone, so a path the musician collapsed during the session stays collapsed (US2 #2).
+2. When an item is opened successfully, for the opened library item's own section (FR-016): in `openSucceeded`
+   (browser opens) and in `fileOpened` (direct file opens, R-5; files have no section, so nothing is revealed).
 
 The result is persisted like any other change (clarification 3). Selecting an item (in the list, search results or
 *Continue*) does not call it (clarification 2).
 
-**Rationale**: With one rule in one store, start-up and opening behave the same, and the rule is testable without a
-DOM.
+**Rationale**: The spec asks for the reveal "on app start" (US3) and for the rail to stay "the way the musician left
+it" (US2). Revealing on every load would reopen a path the musician just collapsed whenever the browser reloads its
+data (analyze M1). The rule stays in one store and is testable without a DOM.
 
-**Alternatives considered**: Revealing only on the first load per session. Rejected: it needs a session flag and makes
-a reopen behave differently from a reload for no benefit to the musician.
-
+**Alternatives considered**: Revealing on every index load. Rejected (analyze M1): `startRefresh` after a reset and
+every reopen would undo the musician's collapse during the session.
 ## R-5. The chosen folder after opening an item (US3 #5, FR-012)
 
-**Decision**: `openSucceeded` sets `selected` for **both** library and *My files* refs. Before, it set it for library
-refs only. If the chosen folder does not list the opened item, the folder changes to the item's own folder: its
-section for a library item, *My files* for a file. *Continue* and *All* count as listing every item; a section counts
-as listing it when the item is in that section or anywhere below it. That is exactly the existing private
-`inFolder(item, folder)` in `src/core/browser/query.ts`, which is exported and reused rather than duplicated.
+**Decision**: Every successful open makes the item the selected item, for library items and *My files* files alike,
+on both open paths:
+- **Through the browser** (`BrowserSessionController.openItem`): `openSucceeded` sets `selected` for **both** library
+  and file refs. Before, it set it for library refs only.
+- **Directly** (*Open file...*, a drop, `Session.openFile` in `src/app/session.ts`): this path ends in
+  `browserState.close()`, never in `openSucceeded`, and runs while the browser is closed too (analyze H1). On a
+  successful load it now calls a new `browserState.fileOpened(ref)` (with `ref = fileRef(file.name)`, whose `fileKey`
+  is the same `fileKey(fileName)` the *My files* entry uses) before `close()`. `fileOpened` applies the same rule in
+  any phase and does not change the phase.
 
+The rule: if the chosen folder does not list the opened item, the folder changes to the item's own folder (its
+section for a library item, *My files* for a file). *Continue* and *All* count as listing every item; *My files*
+lists files only; a section counts as listing an item when the item is in that section or anywhere below it. That is
+exactly the existing private `inFolder(item, folder)` in `src/core/browser/query.ts`, which is exported and reused
+rather than duplicated.
 **Rationale**: US3 #5 requires that a restored *My files* selection lands in *My files* with the file selected, and
 US3 #1 assumes the restored folder contains the restored item. Without this rule, opening a dropped file while a key
 folder is chosen would restore a selection that is invisible. The rule only changes anything when the old folder could
@@ -115,7 +126,7 @@ hidden text "contains the chosen folder" is added to the label. `aria-selected` 
 **Alternatives considered**: Auto-expanding the path whenever the chosen folder would be hidden. Rejected: it would
 undo the musician's collapse straight away (US1 #5 says the collapse sticks).
 
-## R-8. Scrolling the restored selection into view
+## R-8. Scrolling the restored selection into view (and a selection that no longer exists)
 
 **Decision**: When `indexLoaded` restores a selection, `browserState` sets a one-shot flag,
 `revealSelection: true`, in the session-only snapshot. On their next render, `mx-browser-list` scrolls the selected
@@ -123,8 +134,15 @@ row into view and `mx-browser-rail` scrolls the chosen folder into view (`scroll
 list then clears the flag with `browserState.selectionRevealed()`. Neither element moves focus: search keeps the focus
 as in 013 §5.
 
+Before that, `indexLoaded` checks the restored `selected` against the loaded data. A library ref whose id is not in
+`index.items`, or a file ref whose `fileKey` is not in `files`, is cleared to `null` and persisted. The detail pane
+then shows its usual "nothing selected" state, and `revealSelection` stays false (FR-013, US3 #4; analyze M2). When
+the index failed, library refs are kept, because nothing proves they are gone; file refs are still checked against
+`files`.
+
 **Rationale**: FR-010 asks for the item to be scrolled into view. A flag in the store keeps the elements as pure views
-and makes the behaviour testable without layout.
+and makes the behaviour testable without layout. Clearing a selection that no longer exists keeps the detail pane from
+showing a stale or empty item, and keeps the record from carrying a dead reference forever.
 
 **Alternatives considered**: Scrolling on every render. Rejected: it would fight the musician's own scrolling.
 

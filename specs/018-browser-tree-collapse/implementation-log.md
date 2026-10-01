@@ -28,3 +28,15 @@
   as cleared; M3 SC-003 timing not measured; M4 narrow-layout rail overlay not verified.
 - Model fit: analyze is tier `deep`; claude-opus-5.5 fits.
 - Handoff: next = fix H1 (plan/data-model + new task) and decide M1-M4, then `/speckit:implement` from T001.
+
+## 2026-10-01 - claude-opus-5.5 (analyze remediation, owner: "make the recommended edits")
+- Done: all 11 analyze findings resolved in the documents. H1: new `browserState.fileOpened(ref)` called from
+  `Session.openFile` (research R-5, data-model §3, contract §4, plan, new task T024, T014 case 8). M1: reveal on the
+  first successful index load of an app run only (R-4, T014 case 1b). M2: a missing restored selection is cleared
+  (R-8, T014 case 6, T016 (d)). M3: timing case in `score-browser-timing.spec.ts` (T016). M4: 900 px overlay check
+  (T010 (d)). L1: three-click path (T010 (e)). L2: fast double toggle (T009 case 10). L3: marker follows
+  `effectiveFolder` (contract §1, data-model §2). L4: "chosen folder" wording in spec US1 #4/#5 and US3 #3. L5: `git grep`
+  fallback (T019). L6: noted in T014 case 6.
+- Spec behaviour changed: none beyond the owner-approved recommendations (M1 narrows the reveal to app start, as US3
+  already says).
+- Handoff: next = `/speckit:implement` from T001; 24 tasks (T024 belongs to Phase 4); no code changed yet.

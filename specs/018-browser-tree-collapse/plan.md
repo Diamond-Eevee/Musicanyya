@@ -71,6 +71,7 @@ src/core/browser/query.ts                # export inFolder (logic unchanged)
 src/ui/state/browserState.ts             # indexLoaded/indexFailed reveal + revealSelection; openSucceeded rule; selectionRevealed()
 src/ui/elements/mx-browser-rail.ts       # toggle span, click split, view.expanded instead of private set, marker, scroll chosen
 src/ui/elements/mx-browser-list.ts       # scroll restored selection into view once
+src/app/session.ts                       # openFile: browserState.fileOpened(ref) on a successful direct file open
 src/ui/styles/browser.css               # chevron, toggle hit area, contains-selected marker, reduced motion
 tests/core/browser/tree-state.test.ts    # NEW
 tests/core/browser/view-state.test.ts    # expanded validation, 013 payload upgrade
@@ -80,9 +81,8 @@ tests/e2e/score-browser-tree.spec.ts     # NEW: start collapsed, reload persiste
 specs/013-score-browser-progress/contracts/score-browser.md, data-model.md; specs/001-*/contracts/storage.md
 ```
 
-**Structure Decision**: Single web project layers as in reference R2. Only core/browser, ui/state and two ui elements
-(plus their CSS) change. The exact CSS file holding the rail rules is located in the tasks step
-(`rg browser-rail-item src`).
+**Structure Decision**: Single web project layers as in reference R2. Only core/browser, ui/state, two ui elements,
+`src/ui/styles/browser.css` and one call in `src/app/session.ts` change.
 
 ## Complexity Tracking
 
@@ -103,8 +103,12 @@ marker, R-8 scroll into view, R-9 nothing loads, R-10 no port yet, R-11 tabs.
 ## Decisions and open items
 
 - Decided (R-1): an additive `expanded` field in the existing record; the version stays 1, so rollback is safe.
-- Decided (R-4): the path to the chosen folder is revealed every time the index loads (app start and each browser
-  open), not only on the first start.
+- Decided (R-4, analyze M1): the path to the chosen folder is revealed only on the first successful index load of an
+  app run; later loads (reopen, refresh after a reset, retry) keep the musician's collapse.
+- Decided (R-5, analyze H1): direct file opens (*Open file...*, drop) select the file through a new
+  `browserState.fileOpened(ref)` called from `Session.openFile` (`src/app/session.ts`), also while the browser
+  is closed.
+- Decided (R-8, analyze M2): a restored selection that no longer exists is cleared silently on index load.
 - Decided (R-5, from spec US3 #5): after a successful open, the chosen folder switches to the item's own folder only
   when the current folder cannot list the item.
 - Decided (R-10): no `PreferencesStore` port until accounts exist; the record format is the stable unit.

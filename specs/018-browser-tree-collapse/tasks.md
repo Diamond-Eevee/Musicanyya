@@ -25,8 +25,8 @@
   `specs/013-score-browser-progress/contracts/score-browser.md` version `1.0.0` -> `1.1.0`, where §1 "Rail default
   state" is replaced by browser-view.md §1, the §4 rail rows by browser-view.md §2, a §3 note about `expanded` is
   added, and §5 gets the browser-view.md §4 bullets; `specs/013-score-browser-progress/data-model.md` §7 gets the
-  `expanded` field and §8 gets `revealSelection`/`selectionRevealed()` and the `openSucceeded` rule (each with a
-  "(018)" note); `specs/001-score-viewer-listen/contracts/storage.md` gets the `musicanyya.browser.v1` row text
+  `expanded` field and §8 gets `revealSelection`/`selectionRevealed()`, `fileOpened(ref)`, the open rule, the
+  first-load-only reveal and the clearing of a missing selection (each with a "(018)" note); `specs/001-score-viewer-listen/contracts/storage.md` gets the `musicanyya.browser.v1` row text
   "Score browser view state (folder, search, filters, sort, selection, rail open folders)" and a link to 018
   browser-view.md §5
 - [ ] T003 [P] Add `export const BROWSER_EXPANDED_MAX = 512; // Most open-folder ids kept from a stored browser view
@@ -113,13 +113,19 @@ the five top-level entries show; expand *Learning* and *Keys*, reload: the same 
   7. *Continue*, *All*, *My files* and a key folder have neither `.browser-rail-toggle` nor `aria-expanded`, and
      every folder with sub-folders has `aria-expanded` (US1 #7, FR-001, FR-017);
   8. each toggle dispatches `browserviewchange` with `{ view: { expanded } }`;
-  9. with `view.expanded: []` the rail shows only the top-level entries (US2 #1, FR-007).
+  9. with `view.expanded: []` the rail shows only the top-level entries (US2 #1, FR-007);
+  10. two quick clicks on the same `.browser-rail-toggle` leave the folder in its original state, and the rendered
+      rail matches `view.expanded` after each click (edge case "Fast repeated clicks", analyze L2).
   Fails today: there is no `.browser-rail-toggle`, a label click never expands, and the rail ignores `view.expanded`
 - [ ] T010 [P] [US2] e2e `tests/e2e/score-browser-tree.spec.ts` (new): (a) clear storage and load: the rail shows
   exactly *Continue*, *All*, *Learning*, *Repertoire*, *My files*, with `aria-expanded="false"` on *Learning* and
   *Repertoire*; at a 1280 x 768 viewport the rail's `scrollHeight <= clientHeight` (SC-001); (b) expand *Learning*
   and *Keys* with the triangle, collapse *Repertoire*, reload: the same `aria-expanded` values (US2 #2, SC-002);
-  (c) seed a corrupt record, reload: collapsed rail, no `role="alert"` message, toggling works (US2 #4, SC-006).
+  (c) seed a corrupt record, reload: collapsed rail, no `role="alert"` message, toggling works (US2 #4, SC-006);
+  (d) at a 900 x 768 viewport, open the folder-picker overlay (`.browser-folder-picker`): the rail inside it shows
+  the same remembered open/closed state as at 1280 px, and toggling there is saved (edge case "Narrow window",
+  analyze M4); (e) from a fresh profile, *Learning > Keys > C major* is chosen and listed after exactly three label
+  clicks (SC-004, analyze L1).
   Fails today: the rail starts expanded and has no triangle
 
 ### Implementation
@@ -162,8 +168,11 @@ start.
 ### Tests (write first, confirm they fail)
 
 - [ ] T014 [P] [US3] Store tests in `tests/ui/score-browser/open-rules.test.ts` (extend):
-  1. stored folder `section:learning/keys/c-major` with `expanded: []` -> after `indexLoaded`, `expanded` is
-     `['learning', 'learning/keys']` and is persisted (US3 #1, #3, FR-010, clarification 3);
+  1. stored folder `section:learning/keys/c-major` with `expanded: []` -> after the first `indexLoaded`,
+     `expanded` is `['learning', 'learning/keys']` and is persisted (US3 #1, #3, FR-010, clarification 3);
+  1b. then collapse *Learning* with `setView`, call `startRefresh()` and `indexLoaded` again (as after a reset), and
+     also `close()`, `open()`, `indexLoaded`: *Learning* stays collapsed each time (R-4 first load only, US2 #2,
+     analyze M1);
   2. `revealSelection` is true after `indexLoaded` with a stored selection, false without one, and false after
      `selectionRevealed()` (R-8);
   3. `openSucceeded` for a library item opened from folder *All* sets `selected`, keeps the folder `all`, and adds its
@@ -172,10 +181,16 @@ start.
      (R-5);
   5. `openSucceeded` for a *My files* ref while a section is chosen sets `selected` to the file ref and the folder to
      `myFiles` (US3 #5, FR-012);
-  6. a stored selection whose item no longer exists -> after `indexLoaded` nothing is shown as selected in the list,
-     the folder is kept, and there is no message (US3 #4, FR-013);
-  7. `setView({ selected })` (list click, search, *Continue*) never changes `expanded` (FR-016, clarification 2).
-  Fails today: no reveal, no `revealSelection`, and file refs are not selected on open
+  6. a stored selection whose item no longer exists (a library id not in the index; a `fileKey` not in `files`) ->
+     after `indexLoaded` `view.selected` is `null` and persisted, `revealSelection` is false, the folder is kept,
+     and `message` is null (US3 #4, FR-013, R-8, analyze M2); with `indexFailed` a library selection is kept and a
+     missing file selection is cleared. The "remembered folder gone" half of FR-013 is already covered by 013's
+     `tests/core/browser/view-state.test.ts`; say so in the log (analyze L6);
+  7. `setView({ selected })` (list click, search, *Continue*) never changes `expanded` (FR-016, clarification 2);
+  8. `fileOpened(ref)` with the store `closed` and with it `ready`: sets `selected` to the file ref, moves a section
+     folder to `myFiles`, keeps *All*/*Continue*, persists, and leaves `phase` unchanged (FR-012, US3 #5, R-5,
+     analyze H1).
+  Fails today: no reveal, no `revealSelection`, no `fileOpened`, and file refs are not selected on open
 - [ ] T015 [P] [US3] Scroll tests in the new file `tests/ui/score-browser/reveal-selection.test.ts`: with
   `revealSelection` true, `mx-browser-list` calls `scrollIntoView({ block: 'nearest' })` once on the selected row and
   calls `browserState.selectionRevealed()`, and `mx-browser-rail` scrolls the chosen folder into view; focus does not
@@ -187,15 +202,24 @@ start.
   not playing (US3 #1, #2, FR-011, SC-003); (b) open *Au clair de la lune* from a search under *All*, reload: *All*
   is chosen, the item is selected, and *Learning > Keys* is expanded (FR-016); (c) open a MusicXML fixture file via
   *Open file...* while a key folder is chosen, reload: *My files* is chosen and that file is selected, not loaded
-  (US3 #5). Fails today: no reveal, and the file is not selected
+  (US3 #5); (d) seed a record whose selected library id does not exist, then load: the detail pane shows its
+  nothing-selected state and there is no `role="alert"` message (US3 #4, analyze M2). Also add one case to
+  `tests/e2e/score-browser-timing.spec.ts`: with a seeded selection inside a collapsed path, the browser with the
+  revealed path and selected row appears within the same 300 ms budget its existing cases use (013 SC-002; SC-003,
+  analyze M3). Fails today: no reveal, and the file is not selected
 
 ### Implementation
 
 - [ ] T017 [US3] `src/ui/state/browserState.ts` per data-model.md §3: in `indexLoaded`, call `revealPath` for a
-  section folder and persist when it changed; add `revealSelection` to `BrowserSnapshot` (initial value, `reset`)
-  and `selectionRevealed()`; implement the `openSucceeded` rule with `inFolder`, the item's `sectionId` from
+  section folder **on the first successful load only** (private `startRevealDone`), clear a `selected` that no longer
+  exists (R-8), and persist when either changed; add `revealSelection` to `BrowserSnapshot` (initial value, `reset`)
+  and `selectionRevealed()`; implement the open rule as one private method used by `openSucceeded` and the new
+  `fileOpened(ref)` (data-model.md §3), with `inFolder`, the item's `sectionId` from
   `data.index.items`, and `revealPath`, for library and file refs; update the method comments (the old "A *My files*
   ref ... is left as the view had it" no longer holds). T014 passes
+- [ ] T024 [US3] In `Session.openFile` (`src/app/session.ts`), call `browserState.fileOpened(fileRef(file.name))`
+  after a successful `loadBytes` and before `browserState.close()`, whether the browser was open or closed; no other
+  change (R-5, analyze H1). The direct-open part of T016 (c) passes
 - [ ] T018 [US3] Scroll into view in `src/ui/elements/mx-browser-list.ts` and `src/ui/elements/mx-browser-rail.ts`
   (R-8). T015 and T016 pass
 
@@ -212,7 +236,8 @@ PNG: path open, item selected, empty score area); full gate green; log entry; co
 reads or writes it.
 
 - [ ] T019 [US4] Run `rg -n "BROWSER_VIEW_STORAGE_KEY|musicanyya.browser.v1" src` and record the output in the log. It
-  must list only `src/ui/state/browserState.ts`; otherwise stop and ask. Then add one assertion to
+  must list only `src/ui/state/browserState.ts`; otherwise stop and ask. If `rg` is not installed, use
+  `git grep -n -E "BROWSER_VIEW_STORAGE_KEY|musicanyya.browser.v1" -- src` (analyze L5). Then add one assertion to
   `tests/e2e/score-browser-tree.spec.ts` case (b) of T010: the stored record has `version` 1 and exactly the six
   `view` fields of contracts/browser-view.md §5, and record the run in the log (US4 #1). US4 #2 is covered by T005
 
@@ -242,11 +267,12 @@ reads or writes it.
   constant).
 - T007 before T008 (types first). T013 runs after T011 (it adapts tests to the new rail).
 - US3 needs the rail reading `view.expanded` (T011) and persistence (T008). US4 (T019) needs T010.
-- T018 needs T017 (`revealSelection`). T016 extends the file T010 creates.
+- T018 and T024 need T017 (`revealSelection`, `fileOpened`). T016 extends the file T010 creates. T024 has the next
+  free number (after T023) but belongs to Phase 4 and runs before its checkpoint.
 
 ## Parallel Opportunities
 
 - Phase 1: T002 and T003.
 - Phase 2: T004, T005 and T006 (three test files).
 - Phase 3: T009 and T010; T012 (CSS) alongside T011.
-- Phase 4: T014, T015 and T016 (three files).
+- Phase 4: T014, T015 and T016 (three files); then T018 and T024 in parallel after T017 (different files).
