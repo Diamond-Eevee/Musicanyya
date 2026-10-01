@@ -407,6 +407,46 @@ describe('library:convert-ly', () => {
     expect(readFileSync(itemPath(), 'utf8')).toBe('old');
   });
 
+  // 019 T084 (research R-15): a transcription has no MIDI; its second, independent reading is the audit record's
+  // mechanical check against another transcription, so the conversion keeps only the read-back check.
+  const writeNotationOnly = (patch: Record<string, unknown>) => {
+    writeFile(root, 'content/library/sources/test-1/scale.ly', LY);
+    const files = SOURCE.files.filter((f) => f.role === 'notation');
+    writeFile(root, 'content/library/sources/test-1/source.json', JSON.stringify({ ...SOURCE, files, ...patch }));
+  };
+
+  it('converts a transcription source, which has no MIDI, with the read-back check only, and says so (019 T084)', () => {
+    writeNotationOnly({ origin: 'transcription' });
+    writeSidecar('downloaded');
+    expect(run('test-1', 'repertoire/test/scale')).toBe(0);
+    const out = lines.join('\n');
+    expect(out).toContain('notation vs sound: not run (a transcription has no MIDI');
+    expect(out).toContain('mechanical check against another transcription');
+    expect(out).toContain('conversion vs notation: 0 differences');
+    expect(
+      compare(fromMusicXml(readFileSync(itemPath(), 'utf8')), fromLilyPond(readLilyPond(LY)), ALL, {
+        itemBars: 'all',
+        sourceBars: 'all',
+      }),
+    ).toEqual([]);
+  });
+
+  it('still refuses any other source without a sound file, and writes nothing (019 T084)', () => {
+    writeNotationOnly({ origin: 'downloaded' });
+    writeSidecar('downloaded');
+    expect(run('test-1', 'repertoire/test/scale')).toBe(1);
+    expect(lines.join('\n')).toContain('has no sound file: the conversion cannot be cross-checked');
+    expect(readFileSync(itemPath(), 'utf8')).toBe('old');
+  });
+
+  it('still cross-checks a transcription that does have a MIDI file (019 T084)', () => {
+    writeSource(midiOf([60, 62, 63, 65]), { origin: 'transcription' }); // E4 planted as E-flat 4 in the MIDI
+    writeSidecar('downloaded');
+    expect(run('test-1', 'repertoire/test/scale')).toBe(1);
+    expect(lines.join('\n')).toMatch(/bar 1, beat 2: pitch E4, source D#4/);
+    expect(readFileSync(itemPath(), 'utf8')).toBe('old');
+  });
+
   it("plays the conversion at the MIDI's tempo when the notation has no metronome mark (T096)", () => {
     writeSource(midiOf([60, 62, 64, 65], 600000)); // 100 quarters per minute
     writeSidecar('downloaded');

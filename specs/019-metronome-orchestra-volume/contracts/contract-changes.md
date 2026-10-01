@@ -25,5 +25,6 @@ New contracts of this feature: [orchestra-score.md](orchestra-score.md), [mixer-
 | `007/contracts/fidelity-tools.md` | 1.14.0 -> **1.15.0** (MINOR, T081) | Two-note `\repeat tremolo` in the LilyPond reader (read as strokes) and converter (two notes with `<tremolo>` start/stop, 2:1); `WriteNote.tremolo`; `fromMusicXml` reads a written two-note tremolo as strokes. |
 | `007/contracts/fidelity-tools.md` | 1.15.0 -> **1.16.0** (MINOR, T082) | `\afterGrace main { graces }` (Nachschlag): graces at the end of the main note, in its bar; written as `<grace/>` notes after it in that measure. |
 | `007/contracts/fidelity-tools.md` | 1.16.0 -> **1.17.0** (MINOR, T083) | A dotted-beat `\tempo` is written as `<metronome>` with `<beat-unit-dot/>`; `WriteDirection.metronome.dots`. |
+| `007/contracts/fidelity-tools.md` | 1.17.0 -> **1.18.0** (MINOR, T084) | `library:convert-ly` converts a transcription source without MIDI with the read-back check only (research R-15 addendum). |
 | `013/contracts/score-browser.md` | 1.1.0 -> **1.2.0** (MINOR) | List rows of items with `facts.orchestra` show the "with orchestra" marker (glyph + text); the detail lists the instruments. |
 | `docs/musicxml-support.md` + `SUPPORT_MATRIX` | additive | `<staff-details print-object="no">` on every staff of a part: supported (Orchestra part); other hidden-staff uses: warning, printed. |

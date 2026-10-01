@@ -195,5 +195,8 @@ R-18 domain-expert answers. No `NEEDS CLARIFICATION` left in the Technical Conte
   criterion 16 at every level. Raised with the measured facts after transcription A; options then: leave the item out
   (as *The Entertainer* in 017), or change the library's span rule for a note held in a second voice (a library rule
   change is the owner's).
+- Decided (T084, found by T040): `library:convert-ly` converts a transcription source without MIDI with the read-back
+  check only; its independent second reading is the audit record's mechanical check against transcription B (T045),
+  research R-15 addendum, fidelity-tools 1.18.0.
 - Inherited limitation (not fixed): in Practice, Orchestra notes between two expected events start together at the
   earlier one, as the accompaniment does today (R-8).

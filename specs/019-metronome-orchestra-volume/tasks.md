@@ -311,7 +311,7 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
 - [x] T083 [US2] [standard] (new, found by T040) Tests first, then the converter writes a metronome mark with a dotted
   beat (`\tempo "..." 4. = 60`) as `<metronome>` and `<sound tempo="90"/>` (quarter notes per minute) instead of
   dropping it; without it *Morning Mood* has no playback tempo (transcriptions have no MIDI to take it from)
-- [ ] T084 [US2] [standard] (new, found by T040) `pnpm library:convert-ly` refuses a source without a MIDI sound file
+- [x] T084 [US2] [standard] (new, found by T040) `pnpm library:convert-ly` refuses a source without a MIDI sound file
   (contract §3.4 cross-check), and a transcription has none, so T044 cannot run as written: decide in `plan.md` /
   fidelity-tools §1 and §3.4 how a transcription source is converted (proposed: the read-back check stays, the MIDI
   cross-check is replaced by T045's mechanical check against transcription B), tests first, then `tools/library/lilypond/cli.ts`

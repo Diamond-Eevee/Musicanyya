@@ -250,6 +250,18 @@ two independent readings compared mechanically are the strongest check available
 reading slips, and the visual pass catches what both could miss. Source-manifest 1.1.0 -> 1.2.0 adds the optional
 `origin: "transcription"` (the `CC0-1.0` licence and a `url` - here the scan it was read from - already exist).
 
+**Addendum (T084, 2026-10-01, found by T040)** - converting a transcription.
+- **Decision**: `pnpm library:convert-ly` converts a source with `origin: "transcription"` and no sound file with its
+  read-back check only (the MusicXML written must read back as the reading of the `.ly`), and prints that the item is
+  not checked until its audit record has the mechanical check against another transcription (step 3 above). Every
+  other source without a sound file is still refused, and a transcription that has one is still cross-checked.
+- **Rationale**: the MIDI cross-check exists to compare two independent readings of the same source; a transcription
+  of a print has no MIDI, and its independent second reading is transcription B, compared in the audit record and
+  re-run by `pnpm library:fidelity`. Refusing the conversion would make step 1 impossible as written.
+- **Alternatives**: render a MIDI of transcription A with LilyPond (not a second reading: same text, same reader
+  errors; and LilyPond is not in the toolchain); convert B as well and cross-check A against B inside the command
+  (duplicates the audit record's check and needs B before the item exists, while B must not see A or the item).
+
 ## R-16 Writing the Orchestra
 
 **Decision**: the Orchestra is **generated** from the piano part by a dev-time tool, `pnpm library:orchestra <item-id>`
