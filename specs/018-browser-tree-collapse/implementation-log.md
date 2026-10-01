@@ -166,3 +166,9 @@
 - Done: all 26 tasks (T001-T026) ticked with evidence above; spec Status `Implemented`; constitution audit summarised.
 - Needs owner: confirm the 013 SC-001 annotation (013 `spec.md`); merging into `main` and pushing are the owner's call (not done).
 - Handoff: nothing open on 018; branch `018-browser-tree-collapse` is ready to merge when you ask; tree clean at the next commit.
+
+## 2026-10-01 - claude-sonnet-5.5 (merge)
+- Owner: "resolve with recommended, and continue": the 013 SC-001 annotation is confirmed as written; merge into `main`
+  approved. Fast-forwarded local `main` to `44d26e1` (tree identical to the gated commit, so no new gate run). Not
+  pushed (owner did not ask); branch `018-browser-tree-collapse` kept.
+- Handoff: nothing open on 018; push with `git push origin main` when wanted.
