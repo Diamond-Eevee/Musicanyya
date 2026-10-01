@@ -20,6 +20,7 @@ New contracts of this feature: [orchestra-score.md](orchestra-score.md), [mixer-
 | `007/contracts/source-manifest.md` | 1.1.0 -> **1.2.0** (MINOR) | Optional `origin: "downloaded" \| "transcription"`. |
 | `007/contracts/source-manifest.md` | 1.2.0 -> **1.3.0** (MINOR, R-19) | `licence` also CC BY / CC BY-SA 2.0-4.0 (SPDX); `credit` required for them. |
 | `005/contracts/library-index.md` | 1.3.0 -> **1.4.0** (MINOR, R-19) | `downloaded` items may be CC BY / CC BY-SA; then `credit`, `unmodified` required and `sourcePath`'s manifest has the same licence; authored items stay CC0. Data-model §6.3a. |
+| `005/contracts/library-index.md` + `005/data-model.md` criterion 16 | 1.4.0 -> **1.4.1** (PATCH, OD-3, T096) | Advanced allows an unrolled chord up to 16 semitones (a tenth), was 14; still any span under `<arpeggiate>`. |
 | `007/contracts/audit-record.md` | 1.3.0 -> **1.4.0** (MINOR) | Theory rule set `orchestra-v1` (rules O1-O5 of [orchestration-definition.md](orchestration-definition.md) §3). |
 | `007/contracts/fidelity-tools.md` | 1.13.0 -> **1.14.0** (MINOR) | `checkOrchestra`; command `pnpm library:orchestra <item-id> [--check]`; the writer can write `<staff-details print-object="no">` and `<sound dynamics>`. |
 | `007/contracts/fidelity-tools.md` | 1.14.0 -> **1.15.0** (MINOR, T081) | Two-note `\repeat tremolo` in the LilyPond reader (read as strokes) and converter (two notes with `<tremolo>` start/stop, 2:1); `WriteNote.tremolo`; `fromMusicXml` reads a written two-note tremolo as strokes. |

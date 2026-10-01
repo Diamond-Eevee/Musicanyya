@@ -244,11 +244,12 @@ export const LEVEL_DURATION_SECONDS_MAX: Record<Level, number> = {
 // Largest simultaneous interval in one hand (criterion 16). Advanced's "wider only under <arpeggiate>" exception is the
 // rolled chord: `maxSpanSemitones` leaves out a chord whose notes all carry <arpeggiate> (`maxArpeggiatedSpanSemitones`
 // reports it), and Advanced accepts any such span, lower levels hold it to these limits (feature 019, research R-17).
+// Advanced allows an unrolled tenth (16): owner decision OD-3 of feature 019, 2026-10-01 (research R-17 addendum).
 export const LEVEL_MAX_INTERVAL_SEMITONES: Record<Level, number> = {
   introduction: 7,
   beginner: 9,
   intermediate: 12,
-  advanced: 14,
+  advanced: 16,
 };
 export const LEVEL_MAX_LEAP_SEMITONES: Record<Level, number> = {
   introduction: 12,

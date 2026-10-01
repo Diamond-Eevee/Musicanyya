@@ -1,6 +1,6 @@
 # Contract: library content formats (`item.json` + generated `index.json`)
 
-**Version**: `1.4.0` (1.4.0, 2026-10-01, feature 019 (owner decision, research R-19), MINOR: `downloaded` items may be
+**Version**: `1.4.1` (1.4.1, 2026-10-01, feature 019 OD-3 (owner decision), PATCH: the quoted criterion 16 limit at Advanced is 16 semitones (a tenth) for an unrolled chord, as data-model.md now says; no format change; 1.4.0, 2026-10-01, feature 019 (owner decision, research R-19), MINOR: `downloaded` items may be
 under CC BY or CC BY-SA 2.0/2.5/3.0/4.0 (SPDX ids); for those `credit` and `unmodified` are required and `sourcePath`
 names a source with the same licence; authored items stay CC0. Full text: [019 data-model.md](../../019-metronome-orchestra-volume/data-model.md)
 section 6.3a; 1.3.0, 2026-10-01, feature 019-metronome-orchestra-volume, MINOR: optional fact `orchestra`, the
@@ -8,7 +8,7 @@ instrument names of the item's Orchestra parts (parts whose every staff is not p
 every other fact is derived from the **printed** parts only, so `parts` counts printed parts and an Orchestra part
 changes no level criterion; and, for the item that needs it (019 research R-17), the optional fact
 `maxArpeggiatedSpanSemitones` - the widest one-hand chord whose notes **all** carry `<arpeggiate>` - with such chords
-left out of `maxSpanSemitones`, so criterion 16 at Advanced ("<= 14, wider only under `<arpeggiate>`", data-model.md)
+left out of `maxSpanSemitones`, so criterion 16 at Advanced ("<= 16, wider only under `<arpeggiate>`" since 019 OD-3 - it was 14 -, data-model.md)
 accepts a rolled chord of any span while below Advanced a rolled chord still has to fit the level's limit. A chord
 with only some notes arpeggiated counts as not rolled; no limit is added or loosened. Full text:
 [019 data-model.md](../../019-metronome-orchestra-volume/data-model.md) section 6.1; 1.0.0 new; 1.1.0, 2026-09-23, feature 007: `departures`, `reviewedBy`/`reviewedOn` meaning, change request

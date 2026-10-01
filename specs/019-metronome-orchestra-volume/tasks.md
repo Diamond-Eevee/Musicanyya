@@ -345,7 +345,7 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   65, 68, 72, 74-75, 79-80; two hands in the lower staff at bars 77-78 (28-29) and 86-87 (36)): the Advanced
   unrolled limit of criterion 16 becomes 16 semitones (T096), and the right-hand chords of bars 77-78 and 86-87 are
   printed on the upper staff as in Chopin Op. 28 No. 4 (T097); plan.md and research R-17 updated
-- [ ] T096 [US2] [standard] (new, OD-3 answer 2026-10-01) Advanced span limit 16: tests first in
+- [x] T096 [US2] [standard] (new, OD-3 answer 2026-10-01) Advanced span limit 16: tests first in
   `tests/core/library/levels.test.ts` (an unrolled 16-semitone chord passes criterion 16 at Advanced, 17 fails, and 16
   still fails Intermediate; a rolled chord as before), then `LEVEL_MAX_INTERVAL_SEMITONES.advanced` = 16 in
   `src/core/defaults.ts` (comment naming OD-3), the criterion 16 row of `specs/005-practice-score-library/data-model.md`

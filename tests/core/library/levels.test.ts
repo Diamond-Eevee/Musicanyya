@@ -188,9 +188,26 @@ describe('computeLevel: one criterion at a time (data-model.md §4)', () => {
       expect(computeLevel(facts({ maxSpanSemitones: 4, maxArpeggiatedSpanSemitones: 11 }))).toBe('intermediate');
     });
 
-    it('a hand span over 14 (not rolled) still fails Advanced, and no rolled chord means nothing changes', () => {
-      expect(checkLevel(facts({ maxSpanSemitones: 15 }), 'advanced').failed).toContain('16');
+    it('a hand span over 16 (not rolled) still fails Advanced, and no rolled chord means nothing changes', () => {
+      expect(checkLevel(facts({ maxSpanSemitones: 17 }), 'advanced').failed).toContain('16');
       expect(checkLevel(BASE, 'beginner').failed).not.toContain('16');
+    });
+  });
+
+  // Feature 019 OD-3 (owner decision 2026-10-01, "Allow tenths"; research R-17 addendum): Advanced allows an unrolled
+  // chord up to a tenth (16 semitones); the levels below keep their limits.
+  describe('criterion 16 - an unrolled tenth at Advanced (OD-3)', () => {
+    it('an unrolled 15- or 16-semitone chord passes Advanced, 17 fails', () => {
+      expect(checkLevel(facts({ maxSpanSemitones: 15 }), 'advanced').failed).not.toContain('16');
+      expect(checkLevel(facts({ maxSpanSemitones: 16 }), 'advanced').failed).not.toContain('16');
+      expect(computeLevel(facts({ maxSpanSemitones: 16 }))).toBe('advanced');
+      expect(checkLevel(facts({ maxSpanSemitones: 17 }), 'advanced').failed).toContain('16');
+    });
+
+    it('below Advanced the limits are unchanged: 16 still fails Intermediate', () => {
+      expect(checkLevel(facts({ maxSpanSemitones: 16 }), 'intermediate').failed).toContain('16');
+      expect(checkLevel(facts({ maxSpanSemitones: 13 }), 'intermediate').failed).toContain('16');
+      expect(checkLevel(facts({ maxSpanSemitones: 12 }), 'intermediate').failed).not.toContain('16');
     });
   });
 
