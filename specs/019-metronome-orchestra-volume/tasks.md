@@ -302,11 +302,12 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   every stroke) and is written as two notes with `<tremolo type="start|stop">3</tremolo>`; reader, converter and the
   writer in `src/core/musicxml/write.ts`, contract fidelity-tools §3.1 (MINOR); then bars 85-86 of
   `content/library/sources/own-grieg-op46-no1-transcription-a/morning-mood.ly` rewritten with it (manifest hash
-  updated). Owner decision first if it should not be done (see the 2026-10-01 T040 log entry)
+  updated). Owner decision first if it should not be done (see the 2026-10-01 T040 log entry) - **owner approved
+  2026-10-01** ("Yes, add both", T081 and T082, before T041; asked by claude-opus-5.5)
 - [ ] T082 [US2] [standard] (new, found by T040) Tests first, then `\afterGrace` in the reader and converter (a
   Nachschlag: grace notes at the end of their main note, `<grace>` after it in the MusicXML) so the trill endings of
   bars 67-75 engrave where the print has them; transcription A then uses it instead of `\grace` before the next note
-  (bar 75's Nachschlag currently sits before the rest of bar 76)
+  (bar 75's Nachschlag currently sits before the rest of bar 76) - **owner approved 2026-10-01** (with T081)
 - [ ] T083 [US2] [standard] (new, found by T040) Tests first, then the converter writes a metronome mark with a dotted
   beat (`\tempo "..." 4. = 60`) as `<metronome>` and `<sound tempo="90"/>` (quarter notes per minute) instead of
   dropping it; without it *Morning Mood* has no playback tempo (transcriptions have no MIDI to take it from)
@@ -517,7 +518,7 @@ source details; the same item without credit, with a CC0 source, or under `CC-BY
 - [x] T093 [US2] `src/ui/format/score-source-text.ts`, its callers' link rendering and `src/ui/i18n/en.ts` (T089 green)
 - [x] T094 [US2] `rights()` in `tools/library/lilypond/cli.ts` (T090 green); the toolchain/reference docs if a command
   changed (none expected)
-- [ ] T095 [US2] Checkpoint licences: the Independent Test above; `pnpm library:index` and `pnpm library:fidelity
+- [x] T095 [US2] Checkpoint licences: the Independent Test above; `pnpm library:index` and `pnpm library:fidelity
   --check` leave every existing item unchanged; full gate; log entry; commit
 
 ---
