@@ -325,7 +325,7 @@ contracts of the feature it came from, named on the task)
   005 library notes, README if user-visible)
 - [x] T029 Constitution audit of the branch diff with `.claude/agents/constitution-auditor.md`; findings summarised in
   the log and fixed
-- [~] T030 Full gate three times in a row (SC-003): `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, each
+- [x] T030 Full gate three times in a row (SC-003): `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, each
   summary line in the log; `status.ps1` shows no open task in 001-016 (SC-001). Ready to merge only when every task
   is `[x]` with evidence or, for owner checks, recorded as not done with the owner's agreement
 

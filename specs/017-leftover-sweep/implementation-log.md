@@ -472,3 +472,15 @@
   driver crashed closing a context (`Protocol error (Browser.removeBrowserContext)`), no app assertion; rounds 2 and 3
   all green (lint exit 0, 316 warnings; typecheck exit 0; unit `Test Files 299 passed (299) | Tests 6273 passed
   (6273)`; e2e exit 0 `716 skipped | 1192 passed`, 13.5 min). The audit fixes changed code, so T030 runs again below.
+- T030 done: full gate at 153d045, alone, heavy apps closed (owner answer (a)). Round 1: lint exit 0, typecheck exit 0,
+  unit `Test Files 299 passed (299) | Tests 6273 passed (6273)`, e2e exit 1 `9 failed | 718 skipped | 1189 passed`
+  (14.4 min) - 7 the Practice Start->Stop 5 s timeout (`pressed-keys` 6, `tempo-field` 1, chromium; a Practice start
+  with nothing carried over runs the same code as before), 1 frame p95 26 ms vs 20 (`play-frame-rate`), 1 Firefox
+  driver crash closing a context (`brand`). Rounds 2, 3, 4 - three in a row: each lint exit 0 (0 errors, 316
+  warnings), typecheck exit 0, unit `Test Files 299 passed (299) | Tests 6273 passed (6273)` exit 0, e2e exit 0 `718
+  skipped | 1198 passed` (13.4-13.6 min). No open task in 001-016 (SC-001). The start timeout came back once in four
+  rounds: if it recurs, owner option (b) (the helper's wait 15 s, like `startPlay`) is the next step.
+- Not ready to merge: T025, T026, T027 wait for the owner (steps in the 2026-09-30 23:55 entry; T026 needs a real first
+  attempt with its wrong-note count).
+- Handoff: next = owner results for T025-T027 (or the owner's decision to drop any), then the merge when asked; no code
+  work left. Before any later gate: no `vite preview` on :4173. Tree clean at the log commit.
