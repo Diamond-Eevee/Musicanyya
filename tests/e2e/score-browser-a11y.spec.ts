@@ -6,7 +6,7 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page, test } from '@playwright/test';
-import { browserDialog, rowByRef, seedProgress } from './helpers/browser.js';
+import { browserDialog, revealFolder, rowByRef, seedProgress } from './helpers/browser.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FILE_TEXT = fs.readFileSync(
@@ -55,6 +55,7 @@ test.describe('Score browser accessibility (feature 013, T089, SC-007)', () => {
   });
 
   test('a folder of the library, with rows and progress', async ({ page }) => {
+    await revealFolder(page, 'learning/keys/c-major'); // 018: the rail starts collapsed
     await page.locator('.browser-rail-item[data-key="section:learning/keys/c-major"]').click();
     await expect(rowByRef(page, PLAYED)).toBeVisible();
     await expectAccessible(page, 'folder');
@@ -84,6 +85,7 @@ test.describe('Score browser accessibility (feature 013, T089, SC-007)', () => {
   });
 
   test('the detail pane with a played item and its history', async ({ page }) => {
+    await revealFolder(page, 'learning/keys/c-major'); // 018: the rail starts collapsed
     await page.locator('.browser-rail-item[data-key="section:learning/keys/c-major"]').click();
     await rowByRef(page, PLAYED).click();
     await expect(rowByRef(page, PLAYED)).toHaveAttribute('aria-selected', 'true');

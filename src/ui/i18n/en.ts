@@ -161,6 +161,8 @@ export const en = {
     itemCount: '{n} item',
     itemCountPlural: '{n} items',
     folders: { continue: 'Continue', all: 'All', myFiles: 'My files' },
+    /** 018 R-7: spoken after the name of a collapsed folder that holds the chosen folder (the marker is also drawn). */
+    containsChosen: ', contains the chosen folder',
     status: {
       new: 'New',
       practised: 'Practised',

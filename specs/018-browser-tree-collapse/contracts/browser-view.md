@@ -42,7 +42,12 @@ Each `treeitem`:
 | Enter / Space | rail | choose the folder and expand it if collapsed (same as a name click) |
 
 Every expand or collapse calls `browserState.setView({ expanded })` and dispatches
-`browserviewchange` with `{ view: { expanded } }` (013 §3, persisted).
+`browserviewchange` with `{ view: { expanded } }` (013 §3, persisted). A name click, Enter or Space dispatches one
+event with `{ folder }` and, when the folder was also opened, `expanded` too.
+
+Folder-picker overlay (768-1023 px, 013 §1): a change that carries only `expanded` (a toggle, Left, Right) leaves the
+overlay open, so a folder can be opened and closed inside it; any change that carries another field (a folder
+choice) closes it as before.
 
 ## 3. Events (013 §3)
 
@@ -54,7 +59,8 @@ Every expand or collapse calls `browserState.setView({ expanded })` and dispatch
   Later loads (reopening the browser, the refresh after a reset or seed, a retry) leave the tree as it is (R-4).
 - On every index load, a restored selection that no longer exists (library item not in the index, file not in
   *My files*) is cleared silently; an existing one is scrolled into view in the list (and the chosen folder in the
-  rail) without moving focus (R-8).
+  rail) without moving focus (R-8). The list lowers the one-shot request (`selectionRevealed()`) in a microtask, after
+  the rail has drawn, so the order in which the two elements subscribed does not matter.
 - On a successful open, the item becomes the selected item (library and *My files*), whether it was opened through
   the browser (`openSucceeded`) or directly with *Open file...* or a drop (`fileOpened`, also while the browser is
   closed). If the chosen folder cannot list it, the folder becomes the item's own folder (its section, or *My

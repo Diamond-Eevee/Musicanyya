@@ -5,7 +5,7 @@
 // One recorded result (T095's second half): a Play result is recorded even though the Performance store fails too
 // with no IndexedDB (owner decision A, 2026-09-28) - the attempt is not kept, the result is.
 import { expect, type Page, test } from '@playwright/test';
-import { browserDialog, openBrowser, rowByRef } from './helpers/browser.js';
+import { browserDialog, KEYS_OPEN, openBrowser, rowByRef, seedOpenFolders } from './helpers/browser.js';
 import { expectedNoteCount, pressFirstExpectedNotes, startPlay, waitForGrade } from './helpers/play.js';
 
 const C_MAJOR_FOLDER = 'section:learning/keys/c-major';
@@ -25,6 +25,7 @@ test.describe('Score browser on the in-memory progress store (feature 013, T095)
   test('the US1 Independent Test passes with no IndexedDB, and the musician is told once that progress is not kept', async ({
     page,
   }) => {
+    await seedOpenFolders(page, KEYS_OPEN); // 018: the rail starts collapsed; a returning musician's Keys folder is open
     await page.goto('/');
     expect(await page.evaluate(() => window.indexedDB)).toBeUndefined();
     await expect(browserDialog(page)).toBeVisible();

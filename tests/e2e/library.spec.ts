@@ -3,7 +3,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type ElectronApplication, _electron as electron, expect, test } from '@playwright/test';
-import { browserDialog, openBrowser } from './helpers/browser.js';
+import { browserDialog, KEYS_OPEN, openBrowser, seedOpenFolders } from './helpers/browser.js';
 import { revealLibraryItem } from './helpers/library.js';
 import { openPanel } from './helpers/panels.js';
 
@@ -108,15 +108,15 @@ test.describe('Practice score library: browse, open, Listen', () => {
   }, testInfo) => {
     test.skip(testInfo.project.name === 'electron', 'Electron is covered by its own test below');
 
+    await seedOpenFolders(page, KEYS_OPEN); // 018: the rail starts collapsed; a returning musician's Keys folder is open
     await page.goto('/');
     await openBrowser(page);
     // The index loads asynchronously after the dialog opens (contracts/score-browser.md §5) - wait for the real
     // section tree, not just the fixed Continue/All/My files rows.
     await expect(page.locator('[role="treeitem"]', { hasText: 'Keys' })).toBeVisible();
 
-    // Every folder is expanded by default (contracts/score-browser.md §1) - C major's key folder is a treeitem
-    // already visible under Learning > Keys, with no need to open anything (unlike the old panel's <details>
-    // tree, whose "closed until opened" behaviour tests/ui/score-browser/rail-list-detail.test.ts covers now).
+    // Learning and Keys are open in the seeded record (018; 013 showed every folder expanded) - C major's key
+    // folder is a treeitem visible under Learning > Keys, with no need to open anything.
     // Circle order: C major, then its relative minor A minor, then G major - the three treeitems right after
     // "Keys" (children immediately follow their parent in the rail's depth-first order). Reads `.browser-rail-label`
     // specifically (013, T053/T056): every row now also carries a `.browser-rail-progress` suffix straight after it

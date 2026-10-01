@@ -298,6 +298,7 @@ describe('mx-browser-rail shows folder progress (FR-014)', () => {
     const item = libraryItem();
     browserState.open();
     browserState.indexLoaded(index([item]), [], [record({ scoreKey: HASH, attempts: 1 })]);
+    browserState.setView({ expanded: ['repertoire'] }); // 018: the rail starts collapsed; Beginner sits under Repertoire
     const el = document.createElement('mx-browser-rail');
     document.body.appendChild(el);
 
@@ -311,6 +312,7 @@ describe('mx-browser-rail shows folder progress (FR-014)', () => {
     const item = libraryItem();
     browserState.open();
     browserState.indexLoaded(index([item]), [], []);
+    browserState.setView({ expanded: ['repertoire'] }); // 018: the rail starts collapsed; Beginner sits under Repertoire
     const el = document.createElement('mx-browser-rail');
     document.body.appendChild(el);
 

@@ -264,8 +264,10 @@ export class MxScoreBrowser extends HTMLElement {
       this.querySelector('mx-browser-detail')?.classList.remove('browser-detail-overlay-open');
     });
     this.addEventListener('browserviewchange', (event) => {
-      this.querySelector('mx-browser-rail')?.classList.remove('browser-rail-overlay-open');
       const view = (event as CustomEvent<{ view?: Partial<{ selected: unknown }> }>).detail?.view;
+      // 018: a disclosure toggle in the overlay changes only `expanded` and must not close it (a folder change does).
+      const toggleOnly = view !== undefined && Object.keys(view).every((k) => k === 'expanded');
+      if (!toggleOnly) this.querySelector('mx-browser-rail')?.classList.remove('browser-rail-overlay-open');
       if (view && 'selected' in view && view.selected) {
         this.querySelector('mx-browser-detail')?.classList.add('browser-detail-overlay-open');
       }

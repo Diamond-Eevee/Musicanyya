@@ -1630,7 +1630,10 @@ export class Session {
     const browserWasReady = browserState.get().phase === 'ready';
     if (browserWasReady) browserState.startOpeningItem(fileRef(file.name));
     const outcome = await this.loadBytes(file.name, bytes, fileRef(file.name));
-    if (outcome.ok) browserState.close();
+    if (outcome.ok) {
+      browserState.fileOpened(fileRef(file.name)); // 018 R-5: it becomes the selected item, also with the browser closed
+      browserState.close();
+    }
     // Also when the browser was still loading its library at the drop (017 T016): it is open, so it shows the message.
     else browserState.fileFailed({ code: outcome.errorCode ?? 'internal', fileName: file.name });
   }

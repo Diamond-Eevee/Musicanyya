@@ -186,6 +186,7 @@ e2e tests cover it. Use the first option that works for you:
    pnpm screenshot --item <id> --piano --practice --keys "+60,+61" --greyscale   # on-screen piano, in greyscale (feature 010)
    pnpm screenshot --browser --width 900 --height 700   # the Score browser itself (feature 013), open at start-up
    pnpm screenshot --browser --seed-progress tests/fixtures/progress/played-ladder.json --filter status=playedNotMastered --sort best:asc   # filters and sort (013 US5)
+   pnpm screenshot --browser --storage 'musicanyya.browser.v1={"version":1,"view":{"expanded":["learning"]}}'   # start from a stored localStorage value, e.g. the rail with Learning open (feature 018)
    pnpm screenshot --item <id> --theme walnut     # in a theme: auto|paper|ivory|slate|night|walnut|midnight (feature 016)
    pnpm screenshot --item <id> --clip .mx-score-stack --compare tests/.generated/016-baseline/listen-1280x800.png   # crop to an element; pixel-compare with a stored PNG (prints "identical" or "<n> pixels differ", exit 1 when they differ)
    ```

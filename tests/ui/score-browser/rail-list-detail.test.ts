@@ -60,6 +60,7 @@ function index(items: LibraryItem[]): LibraryIndex {
 function loadIndex(items: LibraryItem[]): void {
   browserState.open();
   browserState.indexLoaded(index(items), [], []);
+  browserState.setView({ expanded: ['repertoire'] }); // 018: the rail starts collapsed; Beginner sits under Repertoire
 }
 
 describe('mx-browser-rail (US1 #2, contracts/score-browser.md §1)', () => {
@@ -68,7 +69,7 @@ describe('mx-browser-rail (US1 #2, contracts/score-browser.md §1)', () => {
     browserState.reset();
   });
 
-  it('renders Continue, All, the section tree and My files as role="tree" items, every folder expanded', () => {
+  it('renders Continue, All, the section tree and My files as role="tree" items, with the folders open', () => {
     loadIndex([libraryItem('repertoire/beginner/ode-to-joy')]);
     const el = document.createElement('mx-browser-rail');
     document.body.appendChild(el);
@@ -77,7 +78,7 @@ describe('mx-browser-rail (US1 #2, contracts/score-browser.md §1)', () => {
     const items = Array.from(el.querySelectorAll('[role="treeitem"]'));
     const labels = items.map((i) => i.querySelector('.browser-rail-label')?.textContent?.trim());
     expect(labels).toEqual(['Continue', 'All', 'Repertoire', 'Beginner', 'My files']);
-    // Every folder with children is expanded by default (contracts/score-browser.md §1).
+    // A folder listed in view.expanded is shown expanded (018 contract §1; 013 showed every folder expanded).
     const repertoire = items.find((i) => i.querySelector('.browser-rail-label')?.textContent?.trim() === 'Repertoire');
     expect(repertoire?.getAttribute('aria-expanded')).toBe('true');
   });
@@ -303,6 +304,7 @@ describe('the old panel presentation, carried over (T098-T100)', () => {
     });
     browserState.open();
     browserState.indexLoaded({ version: 1, generated: '2026-09-22T00:00:00.000Z', sections, items: [item] }, [], []);
+    browserState.setView({ expanded: ['learning', 'learning/key-changes'] }); // 018: the rail starts collapsed
     const el = document.createElement('mx-browser-rail');
     document.body.appendChild(el);
 

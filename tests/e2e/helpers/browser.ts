@@ -81,3 +81,44 @@ export async function seedProgress(page: Page, fixtureName: string): Promise<voi
     window.dispatchEvent(new CustomEvent('e2e-progress-seed', { detail: events }));
   }, seed.events);
 }
+
+/** 018: the rail starts collapsed, so a test that needs a nested folder opens its ancestors first, with the
+ *  disclosure control a person would use. Section ids are path-like (`learning/keys/c-major`), so the ancestors are
+ *  the id's own prefixes. A folder that is open already is left alone. */
+export async function revealFolder(page: Page, sectionId: string): Promise<void> {
+  const parts = sectionId.split('/');
+  for (let i = 1; i < parts.length; i++) {
+    const ancestor = page.locator(`.browser-rail-item[data-key="section:${parts.slice(0, i).join('/')}"]`);
+    await expect(ancestor).toBeVisible();
+    if ((await ancestor.getAttribute('aria-expanded')) === 'false') {
+      await ancestor.locator('.browser-rail-toggle').click();
+    }
+  }
+}
+
+/** The folders a returning musician has open when they use the C major key folder (018: the rail starts collapsed). */
+export const KEYS_OPEN = ['learning', 'learning/keys'] as const;
+
+/** 018: before the first `goto`, stores a browser view record the way a previous visit would have left it (the
+ *  `musicanyya.browser.v1` record, contracts/browser-view.md section 5). It only writes when there is no record yet, so
+ *  a reload within the test keeps what the app saved itself. `view` may be partial; `corrupt` stores unparsable text. */
+export async function seedBrowserView(page: Page, view: Record<string, unknown> | 'corrupt'): Promise<void> {
+  await page.addInitScript(
+    ({ key, value }) => {
+      try {
+        if (localStorage.getItem(key) === null) localStorage.setItem(key, value);
+      } catch {
+        // storage unavailable: the test then runs with the default view
+      }
+    },
+    {
+      key: 'musicanyya.browser.v1',
+      value: view === 'corrupt' ? '{not json' : JSON.stringify({ version: 1, view }),
+    },
+  );
+}
+
+/** The same for the rail's open folders alone (018: the rail starts collapsed). */
+export async function seedOpenFolders(page: Page, expanded: readonly string[]): Promise<void> {
+  await seedBrowserView(page, { expanded: [...expanded] });
+}

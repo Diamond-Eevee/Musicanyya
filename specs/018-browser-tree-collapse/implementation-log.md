@@ -63,3 +63,62 @@
   typecheck` exit 0; `pnpm lint` exit 0 with the same 316 warnings / 13 infos as the baseline (no new ones).
   (`pnpm test -- <path>` runs the whole suite here; the path filter is ignored.)
 - Handoff: next = T009 (rail tests, then T010 e2e, then T011/T012/T013); tree clean at the next commit.
+
+## 2026-10-01 - claude-sonnet-5.5 (implement: Phase 3 US1+US2, Phase 4 US3, T019 US4 - checkpoint)
+- Done: T009-T019, T024, T025, T026. T020-T023 (Polish) open.
+- Tests first: T009 (`rail-tree.test.ts`) 8 of 10 cases failed for the expected reasons (no `.browser-rail-toggle`, the
+  rail ignored `view.expanded`); cases 4 and 7 first passed on the old rail (`toBeDefined()` accepts `null`; case 4 never
+  touched the toggle) and were tightened until they failed. T010 e2e: 4 failed on the old rail and the SC-004 case was
+  anchored to the collapsed start. T014: 8 of 10 failed (`fileOpened is not a function`, no reveal, no clearing); cases
+  1b and 7 are negative guards that pass on the old code and only get their teeth from the reveal. T015: 2 failed (list
+  and rail never scroll); "no second scroll" and "focus stays" are guards. T016: written after the store change
+  (the gate's e2e run held the build), then checked against the old `browserState.ts`/`session.ts` with
+  `git stash`: the four US3 cases failed (`toHaveAttribute` on `aria-expanded`/`aria-selected`), the five Phase 3 cases
+  passed; the stash was restored.
+- Implemented: T011 rail rework (view.expanded, `.browser-rail-toggle`, name click opens, marker + hidden text),
+  T012 CSS (chevron, 24 px hit area, marker bar + dot, `.visually-hidden`, reduced motion), T017 store (first-load-only
+  reveal, missing selection cleared, open rule, `fileOpened`, `revealSelection`/`selectionRevealed`), T024
+  `Session.openFile`, T018 scroll in list (lowers the request in a microtask) and rail, T025, T026.
+- Decisions: (1) **New tasks T025 and T026** (next free numbers; files the tasks did not name): T025 - the
+  folder-picker overlay closed on every `browserviewchange`, so a toggle inside it would have closed it
+  (`mx-score-browser.ts`; contract browser-view.md §2 and 013 §4 updated); T026 - `pnpm screenshot --storage <key>=<json>`
+  to seed `musicanyya.browser.v1` for the checkpoint pictures (`tools/dev/screenshot.ts`, reference.md). (2) The list
+  lowers `revealSelection` in a microtask, so the rail acts on the same request whatever the subscription order (a
+  synchronous clear inside the list's render would hide the flag from a rail subscribed after it). (3) `inFolder`'s
+  parameter widened to `Pick<BrowserItem, 'ref' | 'sectionId'>` (logic unchanged) so the open rule can ask it about a
+  file ref without building a row. (4) A name click, Enter or Space sends one `browserviewchange` with `folder` and,
+  when it also opened the folder, `expanded`.
+- Tests changed for 018 (reason "018: rail starts collapsed", assertions unchanged): unit - `keyboard.test.ts`
+  (mountRail opens Learning and Keys first), `progress-display.test.ts` (2 cases open Repertoire),
+  `rail-list-detail.test.ts` (3 cases open Repertoire, T099 opens Learning and Key changes; one title now says "with the
+  folders open"), `view-state.test.ts` (the full-payload case includes `expanded`); e2e - `score-browser.spec.ts`
+  (7 tests seed Learning and Keys open before `goto`; the Continue-link test now checks the marker on the closed
+  Repertoire and opens it with its toggle before asserting Beginner is selected; the "every library folder" test opens
+  each folder's ancestors with `revealFolder`; the keyboard test runs on the seeded open Learning), `library.spec.ts`,
+  `score-browser-memory-store.spec.ts`, `score-browser-timing.spec.ts` (SC-003 test) seed the same, and
+  `score-browser-a11y.spec.ts` (2 tests) call `revealFolder`. New helpers `seedBrowserView`, `seedOpenFolders`,
+  `KEYS_OPEN`, `revealFolder` in `tests/e2e/helpers/browser.ts`. 013 SC-001 ("3 actions") now holds for a returning
+  musician whose Keys folder is open (that is what the test seeds); a fresh profile needs the three name clicks of 018
+  SC-004 (own e2e case).
+- US4 review (T019): `git grep -n -E "BROWSER_VIEW_STORAGE_KEY|musicanyya.browser.v1" -- src` (`rg` is not installed
+  here) lists the constant and its two uses (`loadInitialRawView` read, `persistView` write) only in
+  `src/ui/state/browserState.ts`; the other hits are comments. e2e `score-browser-tree.spec.ts` "same after a reload"
+  asserts the record is `{ version: 1, view }` with exactly `expanded, filters, folder, search, selected, sort`.
+  US4 #2 (a 013 record upgrades in place) is covered by `view-state.test.ts` (T005).
+- FR-013 half "remembered folder gone" is covered by 013's `view-state.test.ts` ("a stored section id gone ... becomes
+  continue") (analyze L6); T014 case 6 covers the selection half.
+- Looked at (PNGs in `tests/.generated/018/`): `fresh-night.png` (five entries, chevrons, nothing open),
+  `marker-night.png` and `marker-paper.png` (Learning open, Keys closed with the dot and the thin bar, C major chosen),
+  `restore-paper.png` (path open, C major chosen, *Intermediate* selected with its detail, score area empty).
+  Note: the progress text beside a name is cut ("0 of 165 played, 0 mas...") a little earlier than before because the
+  toggle takes 26 px of the 16 rem rail; it was already cut for deep folders.
+- Gate (T013 + checkpoint), exit codes 0: `pnpm lint` 316 warnings 13 infos (same as the baseline); `pnpm typecheck`;
+  `pnpm test` `Test Files  303 passed (303)`, `Tests  6330 passed (6330)`; `pnpm test:e2e` `1236 passed`, `720 skipped`,
+  0 failed (13.4 min). An earlier full run had one failure, `panels-look.spec.ts` "Practice help ..." in the Paper
+  theme (the Start button stayed "Start"; the spec does not touch the browser rail); alone it passed 6 of 6 and the
+  next full run passed, so it was load-related, not caused by this change.
+- Timing: new e2e case, open with a restored selection in a once-collapsed path: median 16.3 ms (budget 300 ms);
+  SC-002 23.0 ms; SC-003 folder 11.7 ms, search 19.3 ms, filter 19.4 ms (budget 100 ms).
+- Model fit: owner chose nothing yet for T021 (`deep`); I am claude-sonnet-5.5 and will ask before it.
+- Handoff: next = T020 (quickstart manual verification with `pnpm screenshot`, PNGs to `tests/.generated/018/`), then
+  T021 (`deep`: ask the owner switch or continue), T022, T023; tree clean at the next commit.

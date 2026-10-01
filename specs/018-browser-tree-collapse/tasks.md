@@ -98,7 +98,7 @@ the five top-level entries show; expand *Learning* and *Keys*, reload: the same 
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T009 [US1] Rail tests in the new file `tests/ui/score-browser/rail-tree.test.ts` (same DOM setup and index
+- [x] T009 [US1] Rail tests in the new file `tests/ui/score-browser/rail-tree.test.ts` (same DOM setup and index
   fixture as `tests/ui/score-browser/rail-list-detail.test.ts`), one assertion per acceptance scenario of spec US1:
   1. a click on `.browser-rail-toggle` of an expanded folder removes its descendants from the rail, sets
      `aria-expanded="false"` and leaves `view.folder`, `view.selected` and the list rows unchanged (US1 #1, FR-002,
@@ -117,7 +117,7 @@ the five top-level entries show; expand *Learning* and *Keys*, reload: the same 
   10. two quick clicks on the same `.browser-rail-toggle` leave the folder in its original state, and the rendered
       rail matches `view.expanded` after each click (edge case "Fast repeated clicks", analyze L2).
   Fails today: there is no `.browser-rail-toggle`, a label click never expands, and the rail ignores `view.expanded`
-- [ ] T010 [P] [US2] e2e `tests/e2e/score-browser-tree.spec.ts` (new): (a) clear storage and load: the rail shows
+- [x] T010 [P] [US2] e2e `tests/e2e/score-browser-tree.spec.ts` (new): (a) clear storage and load: the rail shows
   exactly *Continue*, *All*, *Learning*, *Repertoire*, *My files*, with `aria-expanded="false"` on *Learning* and
   *Repertoire*; at a 1280 x 768 viewport the rail's `scrollHeight <= clientHeight` (SC-001); (b) expand *Learning*
   and *Keys* with the triangle, collapse *Repertoire*, reload: the same `aria-expanded` values (US2 #2, SC-002);
@@ -130,24 +130,29 @@ the five top-level entries show; expand *Learning* and *Keys*, reload: the same 
 
 ### Implementation
 
-- [ ] T011 [US1] Rework `src/ui/elements/mx-browser-rail.ts` per contracts/browser-view.md §1-§2 and R-6/R-7: remove
+- [x] T011 [US1] Rework `src/ui/elements/mx-browser-rail.ts` per contracts/browser-view.md §1-§2 and R-6/R-7: remove
   the private `collapsed` set; derive `expanded` from `browserState.get().view.expanded` with `isExpanded`; render
   `.browser-rail-toggle` (or `.browser-rail-toggle-space`), `data-contains-selected` and the visually hidden text via
   `containsChosen`; in the single `click` listener a toggle click calls `setExpanded`, and any other click chooses
   the folder and also expands it if it is collapsed; Enter/Space do the same as a name click; every change goes
   through `browserState.setView({ expanded })` plus `browserviewchange`; rewrite the class comment (the 013 text
   "Every folder starts expanded ... for the session only" is superseded). T009 passes
-- [ ] T012 [P] [US1] Styles in `src/ui/styles/browser.css`: a chevron drawn in CSS for `.browser-rail-toggle` (right
+- [x] T012 [P] [US1] Styles in `src/ui/styles/browser.css`: a chevron drawn in CSS for `.browser-rail-toggle` (right
   when collapsed, down when `[aria-expanded="true"]`), a hit area of at least 24 x 24 px, a
   `.browser-rail-toggle-space` of equal width, the `[data-contains-selected]` bar (thinner and dimmer than the
   selected bar) plus a dot, and no rotation transition under `prefers-reduced-motion`; theme tokens only (no literal
   colours)
-- [ ] T013 [US1] Adapt the existing tests that assume the 013 all-expanded rail, without weakening them: run
+- [x] T013 [US1] Adapt the existing tests that assume the 013 all-expanded rail, without weakening them: run
   `pnpm test -- tests/ui/score-browser` and `pnpm test:e2e -- tests/e2e/score-browser`, and for each test that fails
   because a nested folder is no longer visible (e.g. in `rail-list-detail.test.ts`, `keyboard.test.ts`,
   `score-browser*.spec.ts`), seed `view.expanded` (unit) or `musicanyya.browser.v1` (e2e), or click its way there.
   What each test asserts stays the same. Log every changed test with the reason ("018: rail starts collapsed",
   AGENTS.md section 4). T010 passes, and both commands end green
+- [x] T025 [US1] Keep the folder-picker overlay open on a toggle-only change (found while writing T010 (d)): in
+  `src/ui/elements/mx-score-browser.ts` the `browserviewchange` listener (line 266) removes
+  `browser-rail-overlay-open` on every change, so a disclosure toggle inside the 768-1023 px overlay would close it.
+  Close it only when the change has a key other than `expanded`. Test first in `tests/ui/score-browser/dialog.test.ts`:
+  an `expanded`-only event leaves the overlay open, a `folder` event closes it. T010 (d) passes
 
 **Checkpoint**: Verify the US1 and US2 Independent Tests with `pnpm screenshot`: a fresh profile (five entries,
 nothing open), and the rail with *Learning* open and *Keys* closed while *C major* is chosen (the marker), in the
@@ -167,7 +172,7 @@ start.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T014 [P] [US3] Store tests in `tests/ui/score-browser/open-rules.test.ts` (extend):
+- [x] T014 [P] [US3] Store tests in `tests/ui/score-browser/open-rules.test.ts` (extend):
   1. stored folder `section:learning/keys/c-major` with `expanded: []` -> after the first `indexLoaded`,
      `expanded` is `['learning', 'learning/keys']` and is persisted (US3 #1, #3, FR-010, clarification 3);
   1b. then collapse *Learning* with `setView`, call `startRefresh()` and `indexLoaded` again (as after a reset), and
@@ -191,11 +196,11 @@ start.
      folder to `myFiles`, keeps *All*/*Continue*, persists, and leaves `phase` unchanged (FR-012, US3 #5, R-5,
      analyze H1).
   Fails today: no reveal, no `revealSelection`, no `fileOpened`, and file refs are not selected on open
-- [ ] T015 [P] [US3] Scroll tests in the new file `tests/ui/score-browser/reveal-selection.test.ts`: with
+- [x] T015 [P] [US3] Scroll tests in the new file `tests/ui/score-browser/reveal-selection.test.ts`: with
   `revealSelection` true, `mx-browser-list` calls `scrollIntoView({ block: 'nearest' })` once on the selected row and
   calls `browserState.selectionRevealed()`, and `mx-browser-rail` scrolls the chosen folder into view; focus does not
   move (R-8). Fails today: no such behaviour
-- [ ] T016 [P] [US3] e2e in `tests/e2e/score-browser-tree.spec.ts` (extend, after T010): (a) seed a record with folder
+- [x] T016 [P] [US3] e2e in `tests/e2e/score-browser-tree.spec.ts` (extend, after T010): (a) seed a record with folder
   `learning/keys/c-major`, selected `learning/keys/c-major/introduction` and `expanded: []`, then load: *Learning* and
   *Keys* are expanded, *C major* has `aria-selected="true"`, the *Introduction* row is selected and inside the list's
   visible box, the detail pane shows its title, no Score is rendered in the score area, and the Listen transport is
@@ -210,17 +215,17 @@ start.
 
 ### Implementation
 
-- [ ] T017 [US3] `src/ui/state/browserState.ts` per data-model.md §3: in `indexLoaded`, call `revealPath` for a
+- [x] T017 [US3] `src/ui/state/browserState.ts` per data-model.md §3: in `indexLoaded`, call `revealPath` for a
   section folder **on the first successful load only** (private `startRevealDone`), clear a `selected` that no longer
   exists (R-8), and persist when either changed; add `revealSelection` to `BrowserSnapshot` (initial value, `reset`)
   and `selectionRevealed()`; implement the open rule as one private method used by `openSucceeded` and the new
   `fileOpened(ref)` (data-model.md §3), with `inFolder`, the item's `sectionId` from
   `data.index.items`, and `revealPath`, for library and file refs; update the method comments (the old "A *My files*
   ref ... is left as the view had it" no longer holds). T014 passes
-- [ ] T024 [US3] In `Session.openFile` (`src/app/session.ts`), call `browserState.fileOpened(fileRef(file.name))`
+- [x] T024 [US3] In `Session.openFile` (`src/app/session.ts`), call `browserState.fileOpened(fileRef(file.name))`
   after a successful `loadBytes` and before `browserState.close()`, whether the browser was open or closed; no other
   change (R-5, analyze H1). The direct-open part of T016 (c) passes
-- [ ] T018 [US3] Scroll into view in `src/ui/elements/mx-browser-list.ts` and `src/ui/elements/mx-browser-rail.ts`
+- [x] T018 [US3] Scroll into view in `src/ui/elements/mx-browser-list.ts` and `src/ui/elements/mx-browser-rail.ts`
   (R-8). T015 and T016 pass
 
 **Checkpoint**: Verify the US3 Independent Test via T016 and `pnpm screenshot` after seeding the record (look at the
@@ -235,7 +240,7 @@ PNG: path open, item selected, empty score area); full gate green; log entry; co
 **Independent Test**: spec US4 (review). The record matches contracts/browser-view.md §5, and only `browserState.ts`
 reads or writes it.
 
-- [ ] T019 [US4] Run `rg -n "BROWSER_VIEW_STORAGE_KEY|musicanyya.browser.v1" src` and record the output in the log. It
+- [x] T019 [US4] Run `rg -n "BROWSER_VIEW_STORAGE_KEY|musicanyya.browser.v1" src` and record the output in the log. It
   must list only `src/ui/state/browserState.ts`; otherwise stop and ask. If `rg` is not installed, use
   `git grep -n -E "BROWSER_VIEW_STORAGE_KEY|musicanyya.browser.v1" -- src` (analyze L5). Then add one assertion to
   `tests/e2e/score-browser-tree.spec.ts` case (b) of T010: the stored record has `version` 1 and exactly the six
@@ -259,6 +264,15 @@ reads or writes it.
 - [ ] T023 [light] Update `docs/agents/reference.md` only if a command or setup changed (none expected; record "no
   change" in the log), and set **Status** in `specs/018-browser-tree-collapse/spec.md` to `Implemented`
 
+## Additions found while implementing
+
+- [x] T026 [light] Add a `--storage <key>=<json>` option to `tools/dev/screenshot.ts` (repeatable): before the first
+  navigation it stores that `localStorage` value only when the key has no value yet (same `addInitScript` shape as
+  `--theme`), and list it in the option comment at the top of the file and in `docs/agents/reference.md` ("Running and
+  seeing the app", the `pnpm screenshot` examples). Needed by the Phase 3 and 4 checkpoints and by T020, which must
+  look at a rail with a seeded `musicanyya.browser.v1` record (a chosen folder under a closed parent). Check by running
+  it with `--storage 'musicanyya.browser.v1={...}'` and reading the PNG
+
 ## Dependencies & Execution Order
 
 - Setup (T001-T003) -> Foundational (T004-T008) -> US1+US2 (T009-T013) -> US3 (T014-T018) -> US4 (T019) -> Polish
@@ -267,6 +281,8 @@ reads or writes it.
   constant).
 - T007 before T008 (types first). T013 runs after T011 (it adapts tests to the new rail).
 - US3 needs the rail reading `view.expanded` (T011) and persistence (T008). US4 (T019) needs T010.
+- T025 needs T011 (the rail dispatches the toggle events) and has the next free number after T024; it runs in Phase 3
+  before the checkpoint.
 - T018 and T024 need T017 (`revealSelection`, `fileOpened`). T016 extends the file T010 creates. T024 has the next
   free number (after T023) but belongs to Phase 4 and runs before its checkpoint.
 

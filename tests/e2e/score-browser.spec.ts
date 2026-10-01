@@ -7,11 +7,14 @@ import { expect, type Page, test } from '@playwright/test';
 import {
   browserDialog,
   closeBrowser,
+  KEYS_OPEN,
   openBrowser,
   openBrowserFile,
   openLibraryItem,
   openScoreFile,
+  revealFolder,
   rowByRef,
+  seedOpenFolders,
   seedProgress,
 } from './helpers/browser.js';
 import { expectedNoteCount, playPhase, pressFirstExpectedNotes, startPlay, waitForGrade } from './helpers/play.js';
@@ -55,10 +58,12 @@ test.describe('Score browser (feature 013, US1)', () => {
   test('Independent Test: browse Learning > Keys > C major, open the first exercise, reopen to the same folder and selection', async ({
     page,
   }) => {
+    await seedOpenFolders(page, KEYS_OPEN); // 018: the rail starts collapsed; a returning musician's Keys folder is open
     await page.goto('/');
     await expect(browserDialog(page)).toBeVisible();
 
-    // The key folder is visible without expanding anything (every folder starts expanded, contracts §1).
+    // The key folder is visible: the seeded record has Learning and Keys open (018; a fresh profile needs the three
+    // name clicks of 018 SC-004, tested in score-browser-tree.spec.ts).
     const folder = page.locator(`[role="treeitem"][data-key="${C_MAJOR_FOLDER}"]`);
     await expect(folder).toBeVisible();
     await folder.click();
@@ -80,6 +85,7 @@ test.describe('Score browser (feature 013, US1)', () => {
   });
 
   test('reload keeps the folder, search and selection last used (FR-006, US1 #5)', async ({ page }) => {
+    await seedOpenFolders(page, KEYS_OPEN); // 018: the rail starts collapsed; a returning musician's Keys folder is open
     await page.goto('/');
     const folder = page.locator(`[role="treeitem"][data-key="${C_MAJOR_FOLDER}"]`);
     await folder.click();
@@ -106,6 +112,7 @@ test.describe('Score browser (feature 013, US1)', () => {
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
+    await seedOpenFolders(page, KEYS_OPEN); // 018: the rail starts collapsed; a returning musician's Keys folder is open
     await page.goto('/');
     const dialog = browserDialog(page);
     await expect(dialog).toBeVisible();
@@ -129,6 +136,7 @@ test.describe('Score browser (feature 013, US1)', () => {
     page,
   }) => {
     await page.setViewportSize({ width: 900, height: 700 });
+    await seedOpenFolders(page, KEYS_OPEN); // 018: the rail starts collapsed; a returning musician's Keys folder is open
     await page.goto('/');
     await expect(browserDialog(page)).toBeVisible();
     await expect(page.locator('.browser-folder-picker')).toBeVisible();
@@ -149,6 +157,7 @@ test.describe('Score browser (feature 013, US1)', () => {
     page,
   }) => {
     await page.setViewportSize({ width: 600, height: 800 });
+    await seedOpenFolders(page, KEYS_OPEN); // 018: the rail starts collapsed; a returning musician's Keys folder is open
     await page.goto('/');
     await expect(browserDialog(page)).toBeVisible();
     await expect(page.locator('mx-browser-detail')).toBeHidden(); // no selection yet: no panel to show
@@ -179,6 +188,7 @@ test.describe('Score browser (feature 013, US1)', () => {
   test('SC-001: from a loaded Score, a C major item opens in 3 actions (Open, the folder, double click)', async ({
     page,
   }) => {
+    await seedOpenFolders(page, KEYS_OPEN); // 018: the rail starts collapsed; a returning musician's Keys folder is open
     await page.goto('/');
     // Start from a loaded Score (SC-001's own precondition), closing the start-up browser first.
     await closeBrowser(page);
@@ -187,7 +197,7 @@ test.describe('Score browser (feature 013, US1)', () => {
 
     // Action 1: Open.
     await openBrowser(page);
-    // The C major folder is visible without expanding anything (contracts §1).
+    // The C major folder is visible: Learning and Keys are open in the seeded record (018).
     const folder = page.locator(`[role="treeitem"][data-key="${C_MAJOR_FOLDER}"]`);
     await expect(folder).toBeVisible();
     // Action 2: the folder.
@@ -214,6 +224,7 @@ test.describe('Score browser (feature 013, US2 - progress)', () => {
   }) => {
     test.setTimeout(150_000);
     const ITEM = 'learning/keys/c-major/introduction';
+    await seedOpenFolders(page, KEYS_OPEN); // 018: the folder-progress check below needs C major's folder listed
 
     // Both hands, whole Score, is already the default (R-3/R-7 "whole" scope) - no Play-panel change needed.
     await startPlay(page, ITEM);
@@ -496,6 +507,10 @@ test.describe('Score browser (feature 013, US4 - Continue)', () => {
     await expect(page.locator('.continue-recent .continue-card')).toHaveCount(0);
 
     await page.locator('.continue-link').click();
+    // 018: the rail starts collapsed, so the chosen folder sits under a closed Repertoire, which carries the marker.
+    const parent = page.locator('[role="treeitem"][data-key="section:repertoire"]');
+    await expect(parent).toHaveAttribute('data-contains-selected', '');
+    await parent.locator('.browser-rail-toggle').click();
     const repertoire = page.locator('[role="treeitem"][data-key="section:repertoire/beginner"]');
     await expect(repertoire).toHaveAttribute('aria-selected', 'true');
     await expect(continueView(page)).toBeHidden();
@@ -704,6 +719,7 @@ test.describe('Score browser (feature 013, US5 - Find fast)', () => {
   test('/ jumps to search from the list, and the rail is a tree walked with the arrow keys (FR-028)', async ({
     page,
   }) => {
+    await seedOpenFolders(page, KEYS_OPEN); // 018: the rail starts collapsed; a returning musician's Keys folder is open
     await page.goto('/');
     await expect(browserDialog(page)).toBeVisible();
     await allFolder(page).click();
@@ -814,6 +830,7 @@ test.describe('Score browser on real files and the whole library (feature 013, T
       // The oracle for a folder is the set of items whose section is this folder or below it.
       const expected = index.items.filter((i) => i.section === id || i.section.startsWith(`${id}/`));
       if (expected.length === 0) continue;
+      await revealFolder(page, id); // 018: the rail starts collapsed
       await page.locator(`.browser-rail-item[data-key="section:${id}"]`).click();
       const listed = await page
         .locator('.browser-row')

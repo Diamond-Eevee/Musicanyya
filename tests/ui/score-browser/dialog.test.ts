@@ -124,6 +124,25 @@ describe('mx-score-browser dialog shell (US1 #1, US1 #3, FR-004)', () => {
     expect(rail.classList.contains('browser-rail-overlay-open')).toBe(false);
   });
 
+  it('018 T025: a rail toggle (an expanded-only change) leaves the folder-picker overlay open; a folder change closes it', () => {
+    const el = mount();
+    const rail = document.createElement('mx-browser-rail');
+    el.querySelector('.browser-body')?.appendChild(rail);
+    browserState.open();
+    (el.querySelector('.browser-folder-picker') as HTMLButtonElement).click();
+    expect(rail.classList.contains('browser-rail-overlay-open')).toBe(true);
+
+    el.dispatchEvent(new CustomEvent('browserviewchange', { detail: { view: { expanded: ['learning'] } } }));
+    expect(rail.classList.contains('browser-rail-overlay-open')).toBe(true);
+
+    el.dispatchEvent(
+      new CustomEvent('browserviewchange', {
+        detail: { view: { folder: { kind: 'section', id: 'learning' }, expanded: ['learning'] } },
+      }),
+    );
+    expect(rail.classList.contains('browser-rail-overlay-open')).toBe(false);
+  });
+
   it('a row selection opens the detail overlay; Back closes it without changing the selection', () => {
     const el = mount();
     const detail = document.createElement('mx-browser-detail');

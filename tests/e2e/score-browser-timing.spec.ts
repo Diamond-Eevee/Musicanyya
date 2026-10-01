@@ -6,7 +6,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
-import { browserDialog, closeBrowser } from './helpers/browser.js';
+import { browserDialog, closeBrowser, KEYS_OPEN, seedBrowserView, seedOpenFolders } from './helpers/browser.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SEED_FILE_TEXT = fs.readFileSync(
@@ -149,6 +149,44 @@ test.describe('Score browser timing (feature 013, T086)', () => {
     expect(measured).toBeLessThanOrEqual(OPEN_BUDGET_MS);
   });
 
+  test('SC-003 (018): with a stored selection inside a path that was collapsed, the browser shows the open path and the selected row within the SC-002 budget', async ({
+    page,
+  }, testInfo) => {
+    test.setTimeout(120_000);
+    await seedBrowserView(page, {
+      folder: { kind: 'section', id: 'learning/keys/c-major' },
+      selected: { kind: 'library', id: 'learning/keys/c-major/introduction' },
+      expanded: [],
+    });
+    await page.goto('/');
+    await expect(browserDialog(page)).toBeVisible();
+    // The start-up load opened the path (018 R-4); a reopen must show it, with the selected row, as fast as ever.
+    const shown =
+      '!!document.querySelector(\'dialog.browser[open] .browser-row[aria-selected="true"]\') && ' +
+      "document.querySelector('.browser-rail-item[data-key=\"section:learning/keys/c-major\"]')?.getAttribute('aria-selected') === 'true'";
+    await expect(page.locator('.browser-rail-item[data-key="section:learning/keys"]')).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+
+    const times: number[] = [];
+    for (let i = 0; i < RUNS; i++) {
+      await closeBrowser(page);
+      await expect(browserDialog(page)).toBeHidden();
+      const { ms } = await measureIn(page, "document.querySelector('mx-open-button .mx-open-button').click()", shown);
+      times.push(ms);
+    }
+    const measured = median(times);
+    testInfo.annotations.push({
+      type: 'SC-003 (018)',
+      description: `median ${measured.toFixed(1)} ms of ${times.map((t) => t.toFixed(0)).join(', ')} (budget ${OPEN_BUDGET_MS})`,
+    });
+    console.log(
+      `018 SC-003 open with a restored selection: median ${measured.toFixed(1)} ms (${times.map((t) => t.toFixed(0)).join(', ')})`,
+    );
+    expect(measured).toBeLessThanOrEqual(OPEN_BUDGET_MS);
+  });
+
   test('SC-003: with 500 items and 10,000 stored attempts a folder, search or filter change takes at most 100 ms', async ({
     page,
   }, testInfo) => {
@@ -157,6 +195,7 @@ test.describe('Score browser timing (feature 013, T086)', () => {
     const fileCount = ITEMS_TOTAL - libraryItems;
     expect(fileCount, 'the library is smaller than 500 items').toBeGreaterThan(0);
 
+    await seedOpenFolders(page, KEYS_OPEN); // 018: the rail starts collapsed; a returning musician's Keys folder is open
     await page.goto('/');
     await expect(browserDialog(page)).toBeVisible();
     const events = [

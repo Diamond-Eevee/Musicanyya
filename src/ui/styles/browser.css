@@ -234,6 +234,100 @@ dialog.browser::backdrop {
   font-weight: 600;
 }
 
+/* Feature 018: the disclosure control of a folder with sub-folders. A chevron drawn with two borders (right = closed,
+   down = open), a hit area of 24 x 24 px (WCAG 2.2, 2.5.8) that overlaps the item's padding so the row keeps its
+   height, and a blank twin on every other entry so the names line up. It is not focusable: the tree's own keys
+   (Left, Right) do that job for the keyboard. */
+.browser-rail-toggle,
+.browser-rail-toggle-space {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  margin-block: -4px;
+  margin-inline-end: 2px;
+  vertical-align: middle;
+}
+
+.browser-rail-toggle {
+  position: relative;
+  border-radius: var(--mx-radius-s);
+  color: var(--mx-ink-muted);
+}
+
+.browser-rail-toggle::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateX(-1px) rotate(-45deg);
+  transition: transform 120ms ease-out;
+}
+
+.browser-rail-item[aria-expanded="true"] > .browser-rail-toggle::before {
+  transform: translateY(-1px) rotate(45deg);
+}
+
+.browser-rail-toggle:hover {
+  color: var(--mx-ink);
+  background: var(--mx-accent-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .browser-rail-toggle::before {
+    transition: none;
+  }
+}
+
+/* A closed folder that holds the chosen folder: a short, thin, dimmer bar at the start (the chosen folder's own bar is
+   the full-height 3 px border) and a dot after the name - shape as well as colour (Principle VI). */
+.browser-rail-item {
+  position: relative;
+}
+
+.browser-rail-item[data-contains-selected]::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--mx-accent);
+  opacity: 0.55;
+}
+
+.browser-rail-item[data-depth="0"]:not(:first-child)[data-contains-selected]::before {
+  top: calc(var(--mx-space-3) + 6px);
+}
+
+.browser-rail-item[data-contains-selected] .browser-rail-label::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-inline-start: 6px;
+  border-radius: 50%;
+  background: var(--mx-accent);
+  vertical-align: middle;
+}
+
+/* Text for assistive technology only. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 mx-browser-list,
 mx-browser-continue {
   display: block;

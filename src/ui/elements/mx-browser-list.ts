@@ -43,6 +43,8 @@ export class MxBrowserList extends HTMLElement {
   private currentRows: BrowserItem[] = [];
   /** A pending single-click selection, deferred so a following dblclick can cancel it (see `wire()`). */
   private selectTimer: ReturnType<typeof setTimeout> | null = null;
+  /** 018 R-8: the restore request was acted on and is waiting to be lowered. */
+  private revealQueued = false;
 
   connectedCallback() {
     this.setAttribute('role', 'listbox');
@@ -85,6 +87,19 @@ export class MxBrowserList extends HTMLElement {
     const activeIndex = this.activeRef ? rows.findIndex((r) => refEquals(r.ref, this.activeRef as ItemRef)) : -1;
     if (activeIndex >= 0) this.setAttribute('aria-activedescendant', `browser-row-${activeIndex}`);
     else this.removeAttribute('aria-activedescendant');
+    this.revealRestoredSelection();
+  }
+
+  /** 018 R-8: after a restore, scrolls the selected row into view once, without moving focus. The request is lowered
+   *  in a microtask so the rail, which acts on the same request, has drawn first whatever the subscription order. */
+  private revealRestoredSelection(): void {
+    if (!browserState.get().revealSelection || this.revealQueued) return;
+    this.revealQueued = true;
+    this.querySelector<HTMLElement>('.browser-row[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' });
+    queueMicrotask(() => {
+      this.revealQueued = false;
+      browserState.selectionRevealed();
+    });
   }
 
   /** FR-012: for a played item, the best result, the last result and the trend between the last two. */

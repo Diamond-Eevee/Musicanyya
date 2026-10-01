@@ -47,6 +47,9 @@
  *   --sort <by:dir>  with --browser: choose the sort, e.g. `best:asc` (Best result, lowest first), `title:desc`,
  *                    `lastPlayed:desc`, `library:asc`
  *   --theme <auto|paper|ivory|slate|night|walnut|midnight>  apply a theme before navigation by writing to localStorage
+ *   --storage <key>=<json>  stores a `localStorage` value before navigation, only when that key has no value yet; repeat
+ *                    it for several keys (018), e.g. `--storage 'musicanyya.browser.v1={"version":1,"view":{"expanded":["learning"]}}'`
+ *                    to see the score browser's rail with Learning open
  *   --clip <css selector>   crops the picture to that element's bounding box
  *   --compare <png>         compares the new picture pixel by pixel with a stored one and prints "identical" or "<n> pixels differ", exiting 1 when they differ or sizes differ
  *
@@ -84,6 +87,7 @@ export interface ScreenshotOptions {
   filter?: string[];
   sort?: string;
   theme?: string;
+  storage?: string[];
   clip?: string;
   compare?: string;
 }
@@ -114,6 +118,7 @@ export function parseScreenshotArgs(argv: string[]): ScreenshotOptions {
       filter: { type: 'string', multiple: true },
       sort: { type: 'string' },
       theme: { type: 'string' },
+      storage: { type: 'string', multiple: true },
       clip: { type: 'string' },
       compare: { type: 'string' },
     },
@@ -338,6 +343,21 @@ async function main(argv = process.argv.slice(2)): Promise<void> {
           // ignore
         }
       }, choice);
+    }
+
+    for (const entry of values.storage ?? []) {
+      const split = entry.indexOf('=');
+      if (split <= 0) throw new Error(`--storage expects <key>=<json>, got "${entry}"`);
+      await page.addInitScript(
+        ({ key, value }) => {
+          try {
+            if (localStorage.getItem(key) === null) localStorage.setItem(key, value);
+          } catch {
+            // ignore
+          }
+        },
+        { key: entry.slice(0, split), value: entry.slice(split + 1) },
+      );
     }
 
     await page.goto(baseUrl);

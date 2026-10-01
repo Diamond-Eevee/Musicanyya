@@ -104,6 +104,7 @@ the file chooser. It never fails silently.
 | Right | rail | collapsed -> expand; expanded -> focus its first child (persisted, 018) |
 | Left | rail | expanded -> collapse; else focus parent (persisted, 018) |
 | Enter / Space | rail | choose the folder and expand it if collapsed, same as a name click (list updates, focus stays) (018) |
+| (change with only `expanded`) | folder-picker overlay | a toggle inside the 768-1023 px overlay leaves it open; a folder choice closes it (018) |
 | Up / Down / Home / End / PageUp / PageDown | list | move the active row (selection follows, detail updates) |
 | Enter | list | open the active item |
 | Tab / Shift+Tab | everywhere | search -> filters -> sort -> rail -> list -> detail -> close, cyclic inside the dialog |

@@ -1,3 +1,5 @@
+import { inFolder } from '../../core/browser/query.js';
+import { revealPath } from '../../core/browser/tree-state.js';
 import type { BrowserViewState } from '../../core/browser/types.js';
 import { DEFAULT_BROWSER_VIEW, seedFromLibraryFilter, validateViewState } from '../../core/browser/view-state.js';
 import type { LibraryIndex, LibrarySection } from '../../core/library/types.js';
@@ -42,6 +44,9 @@ export interface BrowserSnapshot {
   /** T097: the content hash of an item whose latest stored run was a new best, until the browser has announced it
    *  (contracts/score-browser.md §6: said once, when the browser next opens). */
   newBestScoreKey: string | null;
+  /** 018 R-8: a one-shot request for the list and the rail to scroll the restored selection and its folder into view;
+   *  raised when the index loads with a selection, lowered by `selectionRevealed()`. */
+  revealSelection: boolean;
 }
 
 const EMPTY_DATA: BrowserData = { index: null, indexError: null, files: [], records: [] };
@@ -103,10 +108,14 @@ export class BrowserStateStore {
     message: null,
     openingRef: null,
     newBestScoreKey: null,
+    revealSelection: false,
   });
   /** The last raw view (parsed storage, or a library-filter seed) re-validated whenever real sections arrive. */
   private rawView: unknown = null;
   private knownSections: readonly LibrarySection[] = [];
+  /** 018 R-4: the path to the chosen folder is opened on the first successful index load of the app run only, so a
+   *  path the musician collapsed later stays collapsed through a reopen, a refresh or a retry. */
+  private startRevealDone = false;
 
   constructor() {
     this.rawView = loadInitialRawView();
@@ -129,29 +138,66 @@ export class BrowserStateStore {
   }
 
   /** The index loaded: resolves the persisted/seeded view against the real sections (a `section` folder that no
-   *  longer exists follows `formerIds` or becomes `continue`, data-model.md §7) and moves to `ready`. */
+   *  longer exists follows `formerIds` or becomes `continue`, data-model.md §7) and moves to `ready`. 018: a restored
+   *  selection that is gone is cleared (R-8); on the first load of the app run the ancestors of a chosen section
+   *  folder are opened (R-4); what changed is saved. */
   indexLoaded(index: LibraryIndex, files: readonly UserFileEntry[], records: readonly ProgressRecord[]): void {
     if (this.store.get().phase !== 'loading') return;
     this.knownSections = index.sections;
-    const view = validateViewState(this.rawView, this.knownSections);
+    const validated = validateViewState(this.rawView, this.knownSections);
+    let view = this.withoutMissingSelection(validated, index, files);
+    if (!this.startRevealDone) {
+      this.startRevealDone = true;
+      if (view.folder.kind === 'section') {
+        view = { ...view, expanded: revealPath(view.expanded, view.folder.id, index.sections) };
+      }
+    }
+    if (view.selected !== validated.selected || view.expanded !== validated.expanded) this.adopt(view);
     this.store.update((state) => ({
       ...state,
       phase: 'ready',
       data: { index, indexError: null, files, records },
       view,
+      revealSelection: view.selected !== null,
     }));
   }
 
-  /** The index failed to load: *My files* and *Continue* still work (Edge Cases: library unavailable). */
+  /** The index failed to load: *My files* and *Continue* still work (Edge Cases: library unavailable). A library
+   *  selection is kept (nothing shows it is gone); a file that is not in *My files* is cleared (018 R-8). */
   indexFailed(error: CatalogError, files: readonly UserFileEntry[], records: readonly ProgressRecord[]): void {
     if (this.store.get().phase !== 'loading') return;
-    const view = validateViewState(this.rawView, this.knownSections);
+    const validated = validateViewState(this.rawView, this.knownSections);
+    const view = this.withoutMissingSelection(validated, null, files);
+    if (view.selected !== validated.selected) this.adopt(view);
     this.store.update((state) => ({
       ...state,
       phase: 'ready',
       data: { index: null, indexError: error, files, records },
       view,
+      revealSelection: view.selected !== null,
     }));
+  }
+
+  /** 018 R-8: `view` without a selection that names a library item not in `index` (when there is one) or a file not
+   *  in `files`. Returns the same object when nothing is cleared. */
+  private withoutMissingSelection(
+    view: BrowserViewState,
+    index: LibraryIndex | null,
+    files: readonly UserFileEntry[],
+  ): BrowserViewState {
+    const { selected } = view;
+    if (selected === null) return view;
+    const exists =
+      selected.kind === 'file'
+        ? files.some((f) => f.fileKey === selected.fileKey)
+        : index === null || index.items.some((i) => i.id === selected.id);
+    return exists ? view : { ...view, selected: null };
+  }
+
+  /** Makes `view` the stored one: what a later load re-validates, and what `localStorage` holds. */
+  private adopt(view: BrowserViewState): void {
+    this.rawView = view;
+    persistView(view);
   }
 
   /** `browserretrylibrary` (contracts §3): back to `loading`; the controller re-fetches and calls `indexLoaded`/
@@ -178,13 +224,44 @@ export class BrowserStateStore {
    *  the view's `selected` one (FR-006, US1 Independent Test: "reopen - it returns to ... with that item selected")
    *  - a real double click never went through `mx-browser-list`'s own single-click `select()` (cancelled by the
    *    dblclick that follows it, R-2's own dblclick-race fix), so without this, reopening after opening anything
-   *  but the first row of its folder showed the wrong row active. A *My files* ref (no library entry) is left as
-   *  the view had it: nothing in the list to select. */
+   *  but the first row of its folder showed the wrong row active. 018: the same for a *My files* ref, and the open rule
+   *  of `applyOpened` also keeps the item visible in the rail. */
   openSucceeded(): void {
     const { phase, openingRef } = this.store.get();
     if (phase !== 'opening') return;
-    if (openingRef && openingRef.kind === 'library') this.setView({ selected: openingRef });
+    if (openingRef) this.applyOpened(openingRef);
     this.store.update((state) => ({ ...state, phase: 'closed', openingRef: null, message: null }));
+  }
+
+  /** 018 R-5: a file was opened directly (*Open file...*, a drop), through `Session.openFile` and not through the
+   *  browser's own `openItem`, in any phase (the browser may be closed). Applies the open rule; the phase is not
+   *  changed (the caller closes the browser). */
+  fileOpened(ref: ItemRef): void {
+    this.applyOpened(ref);
+  }
+
+  /** The open rule (018 R-4, R-5; data-model.md §3): the opened item becomes the selected one; when the chosen folder
+   *  cannot list it, the folder becomes the item's own (its section, or *My files*); for a library item the ancestors
+   *  of its section are opened. A library item that is not in the loaded index only becomes the selection. */
+  private applyOpened(ref: ItemRef): void {
+    const { view, data } = this.store.get();
+    let { folder, expanded } = view;
+    if (ref.kind === 'file') {
+      if (!inFolder({ ref, sectionId: null }, folder)) folder = { kind: 'myFiles' };
+    } else {
+      const item = data.index?.items.find((i) => i.id === ref.id);
+      if (data.index && item) {
+        if (!inFolder({ ref, sectionId: item.section }, folder)) folder = { kind: 'section', id: item.section };
+        expanded = revealPath(expanded, item.section, data.index.sections);
+      }
+    }
+    this.setView({ selected: ref, folder, expanded });
+  }
+
+  /** 018 R-8: the list and the rail have scrolled the restored selection into view; the request is done. */
+  selectionRevealed(): void {
+    if (!this.store.get().revealSelection) return;
+    this.store.update((state) => ({ ...state, revealSelection: false }));
   }
 
   /** Failure: stays open, ready, with the catalog's notice (contracts §3). */
@@ -251,6 +328,7 @@ export class BrowserStateStore {
   reset(): void {
     this.rawView = null;
     this.knownSections = [];
+    this.startRevealDone = false;
     this.store.set({
       phase: 'closed',
       data: EMPTY_DATA,
@@ -259,6 +337,7 @@ export class BrowserStateStore {
       message: null,
       openingRef: null,
       newBestScoreKey: null,
+      revealSelection: false,
     });
   }
 }

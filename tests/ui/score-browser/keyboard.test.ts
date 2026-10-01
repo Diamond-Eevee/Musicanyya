@@ -43,6 +43,8 @@ describe('mx-browser-rail keyboard model (T080, FR-028, WAI-ARIA tree pattern)',
 
   function mountRail(): HTMLElement {
     loadIndex(8); // Learning > Keys > Key 0, Key 1
+    // 018: the rail starts collapsed; these tests walk the whole tree, so every folder is opened first.
+    browserState.setView({ expanded: ['learning', 'learning/keys'] });
     const rail = document.createElement('mx-browser-rail');
     document.body.appendChild(rail);
     return rail;
@@ -112,7 +114,7 @@ describe('mx-browser-rail keyboard model (T080, FR-028, WAI-ARIA tree pattern)',
   it('Left closes an open folder, then moves to its parent; Right opens a closed one, then moves to its first child', () => {
     const rail = mountRail();
     const learning = treeitem(rail, 'Learning');
-    expect(learning.getAttribute('aria-expanded')).toBe('true'); // every folder starts expanded
+    expect(learning.getAttribute('aria-expanded')).toBe('true'); // opened by mountRail
     learning.focus();
 
     key(document.activeElement as Element, 'ArrowRight'); // open: to the first child

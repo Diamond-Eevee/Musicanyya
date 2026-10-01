@@ -19,7 +19,7 @@ export function showsContinue(view: Pick<BrowserViewState, 'folder' | 'search'>)
   return effectiveFolder(view).kind === 'continue';
 }
 
-export function inFolder(item: BrowserItem, folder: FolderSel): boolean {
+export function inFolder(item: Pick<BrowserItem, 'ref' | 'sectionId'>, folder: FolderSel): boolean {
   switch (folder.kind) {
     case 'continue':
     case 'all':
