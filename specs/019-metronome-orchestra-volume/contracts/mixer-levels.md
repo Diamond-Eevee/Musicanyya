@@ -63,7 +63,8 @@ called when a run's schedule is loaded, when the mute changes and when the level
 |---|---|---|
 | `orchestraLevel` | `{ gain: number }` | New. 0..1; a non-finite gain is ignored, others clamped. Held in pre-allocated state; CC11 = `round(gain * 127)` on every channel of the current `orchestraMask`, in `port.onmessage`, effective at the next block. |
 | `schedule` | `ScheduleMessage` + optional `orchestraMask: number` | When the channel setup is applied, also CC11: held Orchestra level on mask channels, 127 on every other used channel. A missing or non-integer mask = 0. |
-| `live` | adds optional `channel: number` | 0..15, default `LIVE_CHANNEL`; the `LiveQueue` stores it in a pre-allocated `Uint8Array`. A channel outside 0..15, `PERCUSSION_CHANNEL` or `METRONOME_CHANNEL` -> dropped and counted in `liveDropped`. `allOff` also releases every channel in `orchestraMask`. |
+| `live` | adds optional `channel: number` | 0..15, default `LIVE_CHANNEL`; the `LiveQueue` stores it in a pre-allocated `Uint8Array`. A channel outside 0..15, `PERCUSSION_CHANNEL` or `METRONOME_CHANNEL` -> dropped and counted in `liveDropped` (Practice never sends Orchestra notes on the percussion
+channel, orchestra-score §5, so a drop here is always a fault). `allOff` also releases every channel in `orchestraMask`. |
 
 Real-time rules (Constitution I): nothing new runs in `process()` except reading the channel slot of a queued live
 event; no allocation per message or per block. Reviewed by `rt-audio-reviewer`.

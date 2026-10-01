@@ -54,3 +54,26 @@
   re-applied after a new worklet node; A6 Metronome sweep for SC-009.
 - Model fit: the analyze step is tier `deep`; claude-opus-5.5 fits.
 - Handoff: next = fix A1-A6 in tasks.md (manual edit, on request) or `/speckit:implement` from T001; OD-1 (T038) open.
+
+## 2026-10-01 - claude-opus-5.5 (analyze remediation)
+- Done (owner: "do recommended edits"): A2 new T075 (Orchestra on seek/start bar/pause/stop); A3 new T076 (Morning
+  Mood grading golden); A4 render-copy identity of the item in T055; A5 Metronome level re-applied on a new audio node
+  (T010, T015); A6 Metronome sweep in T011; A7 twin fixtures cut exactly (T019); A8 Orchestra percussion never sent in
+  Practice (data-model §1, orchestra-score §5, mixer-levels §4, T024); A9 provenance names cello and horns (T044); A10
+  US4 checkpoint covers US2 AS-1 (T069); A11 one test file in T006; A14 spec status in T001.
+- A1: `constitution-auditor` (sub-agent) audited the plan: **CRITICAL** - research R-3 cited a wrong precedent (017
+  `print-object="no"` notes DO have SVG elements, drawn `visibility="hidden"`; 017 T021 read "playable" as "played"),
+  so Orchestra notes would be the first sounding notes with no SVG element, conflicting with Constitution III as
+  recorded. Verified in `src/workers/score.worker.ts` (Note ID inserts for every note, comment at line ~78) and
+  `tests/e2e/real-scores.spec.ts` (~306). Recommended remedy: an owner-approved PATCH clarification of "playable note"
+  via `/speckit:constitution`, not a design change. Proposed wording for plan row III once approved: "[x] One model
+  (`Part.orchestra`). Printed Note IDs unchanged. Orchestra notes are sounding-only, not playable (constitution
+  clarification, owner-approved <date>): they keep a Note ID as their schedule key, have no SVG element, and are never
+  expected, graded, marked, counted, offered or Advice anchors (orchestra-score §6, enforced by T020-T025)."
+  Other audit findings applied: MEDIUM `orchestra-first` fixture's piano Note IDs carry part index 1 (twin equality
+  only with the index mapped; orchestra-score §2/§7, T020, T021); LOW RT reviews check spessasynth's CC11 path and the
+  16-channel setup bound (T036, T065); LOW e2e: Practice input still works with the Levels popover open (T013).
+- R-3 corrected; plan Constitution Check III set to pending; Complexity Tracking row added; new owner gate T077 (OD-4,
+  blocks T028-T037 and later phases) and T078 (follow-up after the amendment). tasks.md now T001-T078.
+- Handoff: next = owner answer on OD-4 (T077), then `/speckit:constitution` if approved; implementation can start at
+  T001-T027 meanwhile.

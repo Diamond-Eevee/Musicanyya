@@ -34,7 +34,10 @@ never become an empty score sheet.
 ## 2. Score model
 
 - `Part.orchestra: boolean`; every `Note` of an Orchestra part has `printed: false`.
-- Note IDs are built as for any part (`n-p<part>-s<staff>-...`); nothing renumbers printed parts.
+- Note IDs are built as for any part (`n-p<part>-s<staff>-...`); nothing renumbers printed parts. Consequence: in a
+  file whose Orchestra part comes **first**, the piano's Note IDs carry part index 1, not 0 as in the same file
+  without the Orchestra - such a file's Note IDs equal its twin's only with the part index mapped.
+- Orchestra notes have no SVG element (Constitution III as clarified by OD-4).
 
 ## 3. Render copy
 
@@ -61,7 +64,9 @@ range of its `<score-part>` element and of its `<part>` element. Rules:
 - Play (`compilePlaySchedule`, play-run 2.2.0): Orchestra events kept regardless of `accompaniment`; shifted behind
   the count-in; never graded. `mergeSchedules` keeps `orchestraMask` (replay).
 - Practice (practice-session 1.8.0): `ExpectedEvent.orchestra`, effects `orchestraOn` / `orchestraOff`, started and
-  released by the accompaniment's timing rules, independent of the Accompaniment setting.
+  released by the accompaniment's timing rules, independent of the Accompaniment setting. Orchestra notes on
+  `PERCUSSION_CHANNEL` (an Orchestra part with percussion instruments) are left out of `orchestra`: they sound in Listen
+  and Play only (live input on the percussion channel is refused by the worklet).
 
 ## 6. Exclusions (normative)
 
@@ -74,4 +79,6 @@ play, or an Advice anchor.
 Fixture `tests/fixtures/musicxml/orchestra/` (own work, CC0): piano + one-staff Orchestra part; piano + two-staff
 Orchestra part; Orchestra part first; partly hidden part (warning); later-hidden staff (warning); all parts hidden
 (warning, printed). Each asserts the model flags, the render copy (no Orchestra element), spans, channels and
-`orchestraMask`, expected events, and that every printed Note ID equals the same file without the Orchestra part.
+`orchestraMask`, expected events, and that every printed Note ID equals the same file without the Orchestra part -
+for Orchestra-after-piano files exactly, for `orchestra-first` with the part index mapped (its render copy differs from
+the twin's only in those ids).

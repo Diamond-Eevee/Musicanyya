@@ -17,7 +17,8 @@ maps or Grades of existing Scores.
 
 Validation: an Orchestra part may have any number of staves and instruments; percussion instruments in an Orchestra
 part play on `PERCUSSION_CHANNEL` and are not affected by the Orchestra level (the percussion channel is shared with
-printed percussion; documented limitation, no library item uses it).
+printed percussion; documented limitation, no library item uses it). They sound in Listen and Play only: Practice
+leaves them out of `ExpectedEvent.orchestra` (orchestra-score §5).
 
 ## 2. Timeline and schedule (`src/core/timeline/types.ts`, `src/core/schedule/compile.ts`)
 

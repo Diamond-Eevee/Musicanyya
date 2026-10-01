@@ -64,8 +64,15 @@ for, never graded on and never shown them, and Advice (a later feature) must not
 via `TimelineDto`) leave Orchestra notes out, so the cursor follows the piano notes only (spec US2 #3).
 
 **Rationale**: Constitution III ties Note ID = SVG id = schedule/Grade key = Advice anchor for "every playable note".
-The 017 precedent (`<note print-object="no">`) already has notes that sound with no SVG element. Without the span
-filter, `cursorNotesAtTick` would pick an oboe note that starts after the piano's held chord, and the cursor would have
+**Correction (constitution audit, 2026-10-01)**: an earlier version of this section said the 017 `<note
+print-object="no">` notes already sound with no SVG element. That is wrong: the score worker writes a Note ID onto
+every note, and Verovio draws such a note with `visibility="hidden"` (017 implementation log); 017 T021 even engraved
+measure-repeat notes so that "every played note has its element". Orchestra notes are therefore the **first** notes
+that sound with no SVG element at all, and under the reading 017 put on record ("playable" = played) that conflicts
+with Constitution III. The constitution does not define "playable note"; the plan's reading (sounding-only notes that
+the musician is never asked to play, shown, graded or advised on are not playable) fits the principle's rationale, but
+adopting it is a constitution clarification and therefore an **owner decision (OD-4)**. Keeping hidden elements inside
+Verovio instead is not reliable (R-2, R-18). Without the span filter, `cursorNotesAtTick` would pick an oboe note that starts after the piano's held chord, and the cursor would have
 no element to stand at.
 
 ## R-4 MIDI channels for Orchestra instruments
