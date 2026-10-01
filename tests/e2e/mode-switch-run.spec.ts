@@ -135,3 +135,78 @@ for (const next of ['listen', 'practice'] as const) {
     await expect(page.locator('mx-transport .play-btn')).toHaveText(next === 'listen' ? 'Play' : 'Start');
   });
 }
+
+// 017 T059, 002 AS-1.11: "the other mode starts from the same place in the Score". Each mode keeps its own kind of
+// place: Practice starts at a measure (as a measure click picks one), Listen at a tick - so Listen -> Practice starts
+// the session in the measure Listen is in, and Practice -> Listen puts Listen on the note Practice was waiting for.
+const LATER_MEASURE = 4;
+
+type EventSeam = { index: number; events: { measureIndex: number; onsetTick: number }[] };
+
+const currentEvent = (page: Page) =>
+  page.evaluate(() => {
+    const s = (
+      window as unknown as { __PRACTICE_STATE__: { get(): { session: EventSeam | null } } }
+    ).__PRACTICE_STATE__.get().session;
+    const e = s?.events[s.index];
+    return e ? { measureIndex: e.measureIndex, onsetTick: e.onsetTick } : null;
+  });
+
+const transportTicks = (page: Page) =>
+  page.evaluate(() => {
+    const t = (
+      window as unknown as { __TRANSPORT_STATE__: { get(): { startTick: number; positionTick: number } } }
+    ).__TRANSPORT_STATE__.get();
+    return { startTick: t.startTick, positionTick: t.positionTick };
+  });
+
+const clickMeasure = (page: Page, measureIndex: number) =>
+  page.evaluate((measureIndex) => {
+    const view = document.querySelector('mx-score-view') as HTMLElement;
+    view.dispatchEvent(new CustomEvent('measureclick', { detail: { measureIndex } }));
+  }, measureIndex);
+
+test('Listen placed at a later measure -> Practice: the session starts in that measure', async ({ page }) => {
+  await openItem(page);
+  await clickMeasure(page, LATER_MEASURE);
+  await expect.poll(async () => (await transportTicks(page)).startTick).toBeGreaterThan(0);
+
+  await modeRadio(page, 'practice').check();
+  const button = page.locator('mx-transport .play-btn');
+  await button.click();
+  await expect(button).toHaveText('Stop', { timeout: RUN_START_TIMEOUT_MS });
+
+  expect((await currentEvent(page))?.measureIndex).toBe(LATER_MEASURE);
+});
+
+test('Listen playing in a later measure -> Practice: the session starts in that measure', async ({ page }) => {
+  await openItem(page);
+  await clickMeasure(page, LATER_MEASURE);
+  await expect.poll(async () => (await transportTicks(page)).startTick).toBeGreaterThan(0);
+  const button = page.locator('mx-transport .play-btn');
+  await button.click();
+  await expect(button).toHaveText('Pause', { timeout: RUN_START_TIMEOUT_MS });
+
+  await modeRadio(page, 'practice').check(); // at once: well inside the measure Listen started in
+  await button.click();
+  await expect(button).toHaveText('Stop', { timeout: RUN_START_TIMEOUT_MS });
+
+  expect((await currentEvent(page))?.measureIndex).toBe(LATER_MEASURE);
+});
+
+test('Practice waiting at a later note -> Listen: Listen stands on that note', async ({ page }) => {
+  await startPractice(page);
+  const skip = page.locator('mx-transport .skip-forward-btn');
+  for (let i = 0; i < 6; i++) await skip.click();
+  const waitingFor = await currentEvent(page);
+  expect(waitingFor?.onsetTick).toBeGreaterThan(0);
+
+  await modeRadio(page, 'listen').check();
+
+  await expect
+    .poll(() => transportTicks(page))
+    .toEqual({
+      startTick: waitingFor?.onsetTick,
+      positionTick: waitingFor?.onsetTick,
+    });
+});

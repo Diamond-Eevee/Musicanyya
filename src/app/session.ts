@@ -405,6 +405,11 @@ export class Session {
       if (state.mode === lastMode) return;
       const previousMode = lastMode;
       lastMode = state.mode;
+      // The other mode starts from the same place (002 AS-1.11, 017 T059): read it before the run is stopped.
+      const listenTick = previousMode === 'listen' ? transportState.get().positionTick : null;
+      const session = practiceState.get().session;
+      const practiceTick =
+        previousMode === 'practice' && session ? (session.events[session.index]?.onsetTick ?? null) : null;
       // Switching mode ends the run of the mode being left, whatever comes next (002 AS-1.11, 017 T056). The
       // transport's stop is routed by the mode now in force (a Play stop only stops a Play run), so the engine is
       // stopped here directly: Practice -> Play used to leave the session running and the button on Stop. The
@@ -416,6 +421,13 @@ export class Session {
       // clears its run and Grade only now, after the stop: the engine's stop otherwise writes the run back.
       if (previousMode === 'practice' || state.mode === 'listen') this.resetPractice();
       if (previousMode === 'play') this.leavePlay();
+      // Each mode keeps its own kind of place: Practice starts at a measure (as a measure click picks one), Listen at
+      // a tick - here the note Practice was waiting for. At the very beginning nothing is picked.
+      if (state.mode === 'practice' && listenTick !== null && listenTick > 0) {
+        const measureIndex = this.measureAtTick(listenTick);
+        if (measureIndex !== null) practiceState.setStartMeasure(measureIndex);
+      }
+      if (state.mode === 'listen' && practiceTick !== null) transportState.seekMeasure(practiceTick);
       this.updateTempoModel(); // Play shows the Play setup's tempo, Listen and Practice the transport's (012 FR-017)
     });
     initShortcuts();
@@ -874,6 +886,12 @@ export class Session {
       soundingAccompaniment: new Map(),
       heldWrongKeys: new Map(), // the session is over: no red disc stays on the Score
     });
+  }
+
+  /** The written measure a timeline tick falls in, or null past the end (017 T059). */
+  private measureAtTick(tick: number): number | null {
+    const pass = this.currentTimeline?.passes.find((p) => tick >= p.startTick && tick < p.endTick);
+    return pass ? pass.measureIndex : null;
   }
 
   /** Drops the session and the picked start measure, releasing whatever the session left ringing. */

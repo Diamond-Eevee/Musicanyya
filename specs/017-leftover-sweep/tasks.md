@@ -291,7 +291,7 @@ contracts of the feature it came from, named on the task)
   the code before T057. Test: the `Play running -> listen/practice` cases in `tests/e2e/mode-switch-run.spec.ts`
   (fail on the old code: run phase `stopped`, not null); fix in `src/app/session.ts` `onPlayGraded`; the attempt is
   still stored
-- [ ] T059 [US5] (constitution audit of T056) 002 AS-1.11 also says that after a switch between Listen and Practice
+- [x] T059 [US5] (constitution audit of T056) 002 AS-1.11 also says that after a switch between Listen and Practice
   "the other mode starts from the same place in the Score"; no test covers it, and the code looks unmet: a mode
   switch returns the transport to its start tick (`web-audio-engine.ts` `stop()`) and `resetPractice` drops the
   picked start measure, older than 017. Test first in `tests/e2e/mode-switch-run.spec.ts` (Listen paused or playing
