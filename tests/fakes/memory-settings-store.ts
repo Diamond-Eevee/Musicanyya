@@ -1,12 +1,15 @@
+import { METRONOME_LEVEL_DEFAULT, ORCHESTRA_LEVEL_DEFAULT } from '../../src/core/defaults.js';
 import { OVERLAYS_DEFAULT, SCORE_SCALE_DEFAULT, VOLUME_DEFAULT } from '../../src/engine/config.js';
 import type { PracticeSettings, SettingsStore, UserSettings } from '../../src/engine/ports.js';
 
 const BUILT_IN_USER: UserSettings = {
-  version: 2,
+  version: 3,
   volume: VOLUME_DEFAULT,
   scale: SCORE_SCALE_DEFAULT,
   follow: true,
   overlays: { ...OVERLAYS_DEFAULT },
+  metronomeLevel: METRONOME_LEVEL_DEFAULT,
+  orchestraLevel: ORCHESTRA_LEVEL_DEFAULT,
 };
 const BUILT_IN_PRACTICE: PracticeSettings = { selection: null, loop: null, accompaniment: true, help: true };
 

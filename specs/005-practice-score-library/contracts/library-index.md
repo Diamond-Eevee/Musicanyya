@@ -1,6 +1,14 @@
 # Contract: library content formats (`item.json` + generated `index.json`)
 
-**Version**: `1.2.0` (1.0.0 new; 1.1.0, 2026-09-23, feature 007: `departures`, `reviewedBy`/`reviewedOn` meaning, change request
+**Version**: `1.3.0` (1.3.0, 2026-10-01, feature 019-metronome-orchestra-volume, MINOR: optional fact `orchestra`, the
+instrument names of the item's Orchestra parts (parts whose every staff is not printed), absent when there are none;
+every other fact is derived from the **printed** parts only, so `parts` counts printed parts and an Orchestra part
+changes no level criterion; and, for the item that needs it (019 research R-17), the optional fact
+`maxArpeggiatedSpanSemitones` - the widest one-hand chord whose notes **all** carry `<arpeggiate>` - with such chords
+left out of `maxSpanSemitones`, so criterion 16 at Advanced ("<= 14, wider only under `<arpeggiate>`", data-model.md)
+accepts a rolled chord of any span while below Advanced a rolled chord still has to fit the level's limit. A chord
+with only some notes arpeggiated counts as not rolled; no limit is added or loosened. Full text:
+[019 data-model.md](../../019-metronome-orchestra-volume/data-model.md) section 6.1; 1.0.0 new; 1.1.0, 2026-09-23, feature 007: `departures`, `reviewedBy`/`reviewedOn` meaning, change request
 `specs/007-library-fidelity-audit/contracts/library-index-1.1.md`; 1.2.0, 2026-09-26, feature 011: level `introduction`,
 `step`, `stepOrder`, `supersedes`, section `formerIds`, fact `chordChangesPerBar`, skill tag `key-changes`, sibling `order`,
 change request `specs/011-learning-by-key/contracts/library-index-1.2.md`). Two related formats: the **authored item metadata** written beside every
@@ -219,7 +227,9 @@ Everything a human decides. Never generated, never rewritten by a tool.
         "tempoDefaulted":  { "type": "boolean" },
         "lowestMidi":      { "type": "integer" },
         "highestMidi":     { "type": "integer" },
-        "maxSpanSemitones":{ "type": "integer", "description": "largest simultaneous interval within one hand" },
+        "maxSpanSemitones":{ "type": "integer", "description": "largest simultaneous interval within one hand; chords whose notes all carry <arpeggiate> are left out (1.3.0)" },
+        "maxArpeggiatedSpanSemitones": { "type": "integer", "description": "largest one-hand chord whose notes all carry <arpeggiate>; absent when there is none (1.3.0, feature 019)" },
+        "orchestra":       { "type": "array", "items": { "type": "string" }, "description": "instrument names of the Orchestra parts (not printed), in Score order; absent when none (1.3.0, feature 019)" },
         "staves":          { "type": "integer" },
         "handsWithNotes":  { "enum": ["right", "left", "both"] },
         "shortestDivision":{ "type": "integer", "description": "1 = whole, 4 = quarter, 16 = sixteenth ..." },

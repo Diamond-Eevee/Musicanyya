@@ -1,7 +1,12 @@
 # Contract: grading (core API and worker)
 
-**Version**: `1.2.1` (internal TypeScript contract between `src/core/grade`, `src/workers/grade.worker.ts` and
+**Version**: `1.2.2` (internal TypeScript contract between `src/core/grade`, `src/workers/grade.worker.ts` and
 `src/app/play-session.ts`). Signatures are normative in shape; every change is reflected here with a version bump.
+
+**1.2.1 -> 1.2.2** (feature 019-metronome-orchestra-volume, PATCH, wording; no behaviour change for existing Scores):
+notes with `printed: false` - including every note of an Orchestra part - are never expected, never excuse a key and
+are never in the played-along spans, whatever their channel; the Orchestra level is not an input of grading (no level
+in `RunSettings` or the Performance log).
 
 **1.2.0 -> 1.2.1** (feature 012-tempo-bpm-field, PATCH, wording): `settings.tempoPercent` may be a fractional
 number (R-1); the grading formulas and golden results are unchanged.

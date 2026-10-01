@@ -322,7 +322,12 @@ export class Session {
     const settings = this.userSettings;
     viewState.setScale(settings.scale);
     for (const [layer, on] of Object.entries(settings.overlays)) viewState.setOverlay(layer as OverlayLayer, on);
-    transportState.applySavedSettings(settings.volume, settings.follow);
+    transportState.applySavedSettings(
+      settings.volume,
+      settings.follow,
+      settings.metronomeLevel,
+      settings.orchestraLevel,
+    );
     // The store is set without the driver; the engine gets the saved volume too (017 T034), sent once its node exists.
     this.audioEngine.setVolume(transportState.get().volume);
 
@@ -401,7 +406,12 @@ export class Session {
       setVolume: (volume) => this.audioEngine.setVolume(volume),
     });
     transportState.subscribe((state) => {
-      this.persistUserSettings({ volume: state.volume, follow: state.follow });
+      this.persistUserSettings({
+        volume: state.volume,
+        follow: state.follow,
+        metronomeLevel: state.metronomeLevel,
+        orchestraLevel: state.orchestraLevel,
+      });
     });
     this.audioEngine.on((event) => this.onAudioEngineEvent(event));
     let lastMode = practiceState.get().mode;

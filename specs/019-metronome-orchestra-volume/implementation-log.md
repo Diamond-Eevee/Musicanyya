@@ -88,3 +88,8 @@
 - Plan Constitution Check III set to `[x]` with the audit's wording; T077 ticked; T078 keeps the comment rewording.
 - Handoff: next = `/speckit:implement` from T001; open owner decisions: OD-1 (T038), OD-3 (T046, conditional),
   OD-2 (T072, before merge).
+
+## 2026-10-01 - claude-sonnet-5.5 (baseline, T001)
+- Baseline before any code change (branch 019-metronome-orchestra-volume at 0e23ce3, tree clean): `pnpm test`: `Test Files  303 passed (303)`, `Tests  6331 passed (6331)`, exit 0; `pnpm lint`: `Found 316 warnings.` `Found 13 infos.`, no errors, exit 0; `pnpm typecheck`: `tsc --build tsconfig.json`, no output, exit 0. `pnpm test:e2e` not run for the baseline (docs-only history since the last feature).
+- Owner decision OD-1 (T038): approved 2026-10-01 ("Approve", asked at session start).
+- Model fit: owner chose to continue `light`/`standard` tasks with claude-sonnet-5.5 and to hand off with `needs tier deep` at the first deep task (T040, T041, T045, T053, T054, T073) (2026-10-01).

@@ -1,6 +1,6 @@
 # Contract: render copy and element ids
 
-**Version**: `1.1.0`. The render copy is the MusicXML text given to Verovio. Research R-7, R-8.2, R-9; feature 006
+**Version**: `1.2.0`. The render copy is the MusicXML text given to Verovio. Research R-7, R-8.2, R-9; feature 006
 research R-8 (element inserts).
 
 ## Render copy
@@ -17,6 +17,12 @@ research R-8 (element inserts).
   inserts. Id inserts touch start tags only; element inserts never overlap them. Two element inserts at the same
   offset are applied in `(offset, order)` order (feature 006 contract `engraving-completion.md` §2: accidental
   order 0 before beam order 1).
+- **1.2.0 (additive, feature 019-metronome-orchestra-volume)**: `createRenderCopy` also takes `inserts.removals?:
+  Array<{ start: number; end: number }>` - byte ranges cut out of the copy in the same single pass (the worker passes,
+  per Orchestra part, the range of its `<score-part>` and of its `<part>` element). Removals never overlap each other;
+  a note, measure, element insert or rewrite whose range lies inside a removal is dropped (not an error). The worker
+  writes no note inserts for Orchestra notes and puts the measure ids on the **first printed part**. Full text:
+  [019 orchestra-score.md](../../019-metronome-orchestra-volume/contracts/orchestra-score.md) section 3.
 - Everything else is unchanged: no reformatting, no removal of unsupported elements (Verovio shows what it can).
 - The XML declaration's `encoding` is rewritten to `UTF-8` (the string is passed to Verovio as text).
 

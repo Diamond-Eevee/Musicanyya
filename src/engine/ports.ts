@@ -207,7 +207,8 @@ export interface OverlayFlags {
 }
 
 export interface UserSettings {
-  version: 2;
+  /** 3 since feature 019 (ports 2.2.0, view-settings 2.2.0): adds the two levels; versions 1 and 2 still read. */
+  version: 3;
   volume: number;
   // `tempoPercent` removed in feature 012-tempo-bpm-field (FR-015, view-settings.md 2.1.0): the transport factor
   // is never carried over between Scores, so it is not persisted.
@@ -215,6 +216,10 @@ export interface UserSettings {
   scale: number;
   follow: boolean;
   overlays: OverlayFlags;
+  /** Metronome click level, integer 0..100, one value for all Scores (019 FR-007). */
+  metronomeLevel: number;
+  /** Orchestra level, integer 0..100, one value for all Scores (019 FR-007). */
+  orchestraLevel: number;
 }
 
 // ---- SettingsStore (tiny UI preferences, localStorage) ----

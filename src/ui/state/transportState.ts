@@ -1,4 +1,5 @@
 import {
+  clampLevel,
   clampVolume,
   initialTransport,
   type TransportSnapshot,
@@ -74,12 +75,15 @@ class TransportStateStore {
   }
 
   /** Applies persisted settings at startup, bypassing the driver (there is nothing to notify yet). Tempo is not
-   *  among them (feature 012 FR-015): the transport always opens a Score at its written tempo. */
-  applySavedSettings(volume: number, follow: boolean): void {
+   *  among them (feature 012 FR-015): the transport always opens a Score at its written tempo. The two levels
+   *  (feature 019) are optional so a caller that has none leaves them as they are. */
+  applySavedSettings(volume: number, follow: boolean, metronomeLevel?: number, orchestraLevel?: number): void {
     this.store.update((s) => ({
       ...s,
       volume: clampVolume(volume),
       follow,
+      metronomeLevel: metronomeLevel === undefined ? s.metronomeLevel : clampLevel(metronomeLevel),
+      orchestraLevel: orchestraLevel === undefined ? s.orchestraLevel : clampLevel(orchestraLevel),
     }));
   }
 
@@ -120,6 +124,17 @@ class TransportStateStore {
   setVolume(volume: number): void {
     this.store.update((s) => transportReducer(s, { type: 'volume', value: volume }));
     this.driver?.setVolume(this.store.get().volume);
+  }
+
+  /** The Metronome click level, 0..100 (feature 019). Changes the state only: the session applies it to the click
+   *  channel (`metronomeChannelVolume`), so the Levels panel and the audio path stay apart. */
+  setMetronomeLevel(level: number): void {
+    this.store.update((s) => transportReducer(s, { type: 'metronomeLevel', value: level }));
+  }
+
+  /** The Orchestra level, 0..100 (feature 019); the session sends it to the engine. */
+  setOrchestraLevel(level: number): void {
+    this.store.update((s) => transportReducer(s, { type: 'orchestraLevel', value: level }));
   }
 
   toggleFollow(): void {

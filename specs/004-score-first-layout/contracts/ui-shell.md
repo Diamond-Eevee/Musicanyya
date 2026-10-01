@@ -1,10 +1,17 @@
 # Contract: UI shell (slim bar, panel host, overlays)
 
-**Version**: `1.4.0` (new with feature 004)
+**Version**: `1.5.0` (new with feature 004)
 **Owner**: `src/ui/elements/mx-app.ts`, `src/ui/layout/*`, `src/ui/state/viewState.ts`
 
 This contract fixes the shape of the application window so that every other element knows where it
 may live. It is a UI-layer contract only: no core type, no engine port and no real-time path changes.
+
+**1.5.0** (feature 019-metronome-orchestra-volume, MINOR): new panel id `'sound'`, the **Levels** popover
+([019 mixer-levels.md](../../019-metronome-orchestra-volume/contracts/mixer-levels.md) section 1), opened by a
+**Levels** button placed right after the Volume slider. Like the Volume slider the button is a toolbar control, not a
+menu entry, so it stays enabled in every mode and during every run; the panel is non-modal and small, and - like View
+during Listen (1.3.0) - is not closed by starting a run (`closeForRun` leaves `'sound'` open) and never pauses or stops
+playback or a session. Opening any other panel closes it (the popover pattern above).
 
 **1.4.0** (feature 017-leftover-sweep, MINOR): Section 2: two more measured fit steps after `compact` - the mode
 switch (`.mx-bar-no-mode`), then the size controls (`.mx-bar-no-size`) move to the View popup, which carries a copy of

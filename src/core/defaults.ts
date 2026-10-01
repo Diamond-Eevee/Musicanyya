@@ -63,6 +63,12 @@ export const TEMPO_MARK_QPM_MAX = 1000;
 export const TEMPO_BEAT_DOTS_MAX = 3; // more dots on a <beat-unit> make its mark unusable (012 R-2)
 export const TEMPO_BPM_DIGITS_MAX = 4; // longest number the tempo field accepts (012)
 export const VOLUME_DEFAULT = 80;
+export const METRONOME_LEVEL_DEFAULT = 100; // Metronome level, 0..100; 100 is today's loudness so nothing changes for existing users (019 R-7)
+export const ORCHESTRA_LEVEL_DEFAULT = 60; // Orchestra level, 0..100; low on purpose, tuned at the owner's listening check (019 R-7)
+export const MIXER_LEVEL_STEP = 5; // One step of a Levels slider (019 R-7)
+export const EXPRESSION_CONTROLLER = 11; // MIDI CC11 (expression): the Orchestra level, on top of the Score's own CC7 part volume (019 R-5)
+export const ORCHESTRA_SILENT_TOLERANCE_DBFS = -90; // Level 0 counts as silent below this: CC11 = 0 attenuates by 96 dB (019 R-7, SC-002)
+export const VOICE_HEADROOM_FRACTION = 0.5; // Peak active voices an Orchestra score may use, as a fraction of the synth's voice cap (019 R-11)
 
 // Audio worklet scheduling (R-10, shared with worklet which cannot import engine/config)
 export const POSITION_REPORT_BLOCKS = 4;

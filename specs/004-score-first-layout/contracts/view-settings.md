@@ -1,6 +1,11 @@
 # Contract: view settings (`musicanyya.settings.v1`, format version 2)
 
-**Version**: `2.1.0` - MINOR, feature 012-tempo-bpm-field: `tempoPercent` is deprecated (FR-015, R-9). It is no
+**Version**: `2.2.0` - MINOR, feature 019-metronome-orchestra-volume: the settings object version is **3**, adding
+`metronomeLevel` and `orchestraLevel` (integers 0..100, defaults `METRONOME_LEVEL_DEFAULT` = 100 and
+`ORCHESTRA_LEVEL_DEFAULT` = 60). Versions 1 and 2 still read (the two levels take their defaults); the writer always
+writes version 3; a level that is not an integer in 0..100 loads as its own default without touching the other.
+Full text: [019 mixer-levels.md](../../019-metronome-orchestra-volume/contracts/mixer-levels.md) section 2.
+`2.1.0` - MINOR, feature 012-tempo-bpm-field: `tempoPercent` is deprecated (FR-015, R-9). It is no
 longer written by `save()`, and is ignored (not read into `UserSettings`) when present in a stored file. A file with
 or without the field still validates; the format version stays 2 because both old and new files read correctly (no
 migration needed). `2.0.0` - MAJOR, because the `zoomPercent` field is renamed to `scale` and a required
@@ -26,6 +31,8 @@ is unchanged, so no user loses their settings.
     "tempoPercent": { "deprecated": true, "description": "2.1.0: ignored when read; never written (feature 012 FR-015)" },
     "scale":        { "type": "integer", "minimum": 50, "maximum": 200, "multipleOf": 10, "default": 100 },
     "follow":       { "type": "boolean", "default": true },
+    "metronomeLevel": { "type": "integer", "minimum": 0, "maximum": 100, "default": 100, "description": "2.2.0, version 3" },
+    "orchestraLevel": { "type": "integer", "minimum": 0, "maximum": 100, "default": 60,  "description": "2.2.0, version 3" },
     "overlays": {
       "type": "object",
       "properties": {
@@ -50,7 +57,10 @@ is unchanged, so no user loses their settings.
   property, `src/engine/ports.ts`) and actively dropped on every save, even when an older file already had one -
   unlike other unrecognised fields, it does not survive a save.
 
-## 3. Migration from version 1
+## 3. Migration from version 1 (and 2 -> 3, 2.2.0)
+
+A stored version 2 (or 1) object loads with `metronomeLevel = 100` and `orchestraLevel = 60` and every other field
+unchanged; the next `save()` writes `version: 3`.
 
 | Stored | Loaded as |
 |---|---|

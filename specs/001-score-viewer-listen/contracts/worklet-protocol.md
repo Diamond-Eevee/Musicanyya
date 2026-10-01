@@ -1,6 +1,15 @@
 # Contract: `score-player` AudioWorklet protocol
 
-**Version**: `1.5.1` (PATCH, feature 017-leftover-sweep T031-T033, from the RT review T015; no message shape change):
+**Version**: `1.6.0` (MINOR, feature 019-metronome-orchestra-volume, additive; full text:
+[019 mixer-levels.md](../../019-metronome-orchestra-volume/contracts/mixer-levels.md) section 4): new message
+`orchestraLevel { gain }` (CC11 = `round(gain * 127)` on every channel of the schedule's `orchestraMask`, applied in
+`port.onmessage`); `ScheduleMessage.orchestraMask?` (bit *c* = channel *c* is an Orchestra channel; a missing or
+non-integer mask is 0) and, when the channel setup is applied, CC11 = the held Orchestra level on the mask channels and
+127 on every other used channel; `live` gains optional `channel` (0..15, default `LIVE_CHANNEL`, stored in the
+pre-allocated queue; a channel outside 0..15, `PERCUSSION_CHANNEL` or `METRONOME_CHANNEL` is dropped and counted in
+`liveDropped`); `allOff` also releases every channel of `orchestraMask`. Nothing new runs in `process()` except reading
+the channel slot of a queued live event.
+`1.5.1` (PATCH, feature 017-leftover-sweep T031-T033, from the RT review T015; no message shape change):
 the tick fields `play.fromTick`, `stop.returnTick` and `seek.tick` are **validated** like `tempo.percent` - one that
 is not a finite number counts as absent (`play` plays on from the held tick, `stop` returns to 0, `seek` is ignored),
 a finite one is clamped to [0, `endTick`] (a NaN tick used to silence the Score, a negative one threw in the handler).
@@ -77,15 +86,16 @@ Constitution I rules for the processor (checked by `rt-audio-reviewer`):
 |---|---|---|
 | `init` | `{ protocol: "1.0.0", sampleRate: number, maxBlock: 128 }` | Allocate buffers, reply `status: initialised` |
 | `soundBank` | `{ bytes: ArrayBuffer }` (transferred) | Build the SoundFont bank, reply `status: soundReady` or `status: error` |
-| `schedule` | `ScheduleMessage` (below, buffers transferred) | Stop, all notes off, replace schedule, position = start tick, apply the channel setup (1.4.0) |
+| `schedule` | `ScheduleMessage` (below, buffers transferred) | Stop, all notes off, replace schedule, position = start tick, apply the channel setup (1.4.0), then CC11: the held Orchestra level on `orchestraMask` channels and 127 on every other used channel (1.6.0) |
 | `play` | `{ fromTick?: number }` | Start/resume at the held tick (after `pause`, `stop`, `seek`, a new schedule; the return tick after `ended`) or at `fromTick`, at the next block (1.4.2); `fromTick` clamped to [0, `endTick`], ignored unless finite (1.5.1) |
 | `pause` | `{}` | Stop advancing; release sounding scheduled notes (note-off with release) |
 | `stop` | `{ returnTick: number }` | Pause + position = `returnTick` (clamped to [0, `endTick`]; 0 unless finite, 1.5.1) |
 | `seek` | `{ tick: number }` | All scheduled notes off (release), jump; keeps playing state. `tick` clamped to [0, `endTick`]; a non-finite one is ignored (1.5.1) |
 | `tempo` | `{ percent: number }` | any finite number in [25, 200] (1.4.1), otherwise ignored / clamped (1.4.2); new ticks-per-frame from the next block, at the current position (1.4.2) |
+| `orchestraLevel` | `{ gain: number }` | 0..1; a non-finite gain is ignored, others clamped; held in pre-allocated state; CC11 = `round(gain * 127)` on every channel of the current `orchestraMask`, in `port.onmessage`, effective at the next block (1.6.0, feature 019) |
 | `volume` | `{ gain: number }` | 0..1 linear target; ramped over `VOLUME_RAMP_FRAMES = 256`, applied to the output per sample; a non-finite or non-number `gain` is ignored (1.5.1) |
 | `channelVolume` | `{ channel: number; gain: number }` | CC7 = `round(gain * 127)` on `channel`, applied in `port.onmessage`, effective at the next block (1.2.0) |
-| `live` | `{ kind: "on" | "off" | "sustain" | "allOff", key?: number, velocity?: number, down?: boolean }` | Applied at the start of the next block on `LIVE_CHANNEL = 15` (piano); a malformed one is dropped and counted in `liveDropped` (1.5.0) |
+| `live` | `{ kind: "on" | "off" | "sustain" | "allOff", key?: number, velocity?: number, down?: boolean, channel?: number }` | Applied at the start of the next block on `channel` (0..15, default `LIVE_CHANNEL = 15`, piano; 1.6.0); a malformed one, or one whose `channel` is outside 0..15, `PERCUSSION_CHANNEL` or `METRONOME_CHANNEL`, is dropped and counted in `liveDropped` (1.5.0, 1.6.0); `allOff` also releases every channel of `orchestraMask` (1.6.0) |
 
 ```ts
 interface ScheduleMessage {
@@ -101,6 +111,7 @@ interface ScheduleMessage {
   // tempo segments sorted by tick, first at tick 0; exact tempo = qpmNum / qpmDen quarter notes per minute
   tempoTick: Int32Array; tempoQpmNum: Int32Array; tempoQpmDen: Int32Array;
   channelSetup: Uint8Array;                 // 16 x [used, program, bankMsb, isPercussion]
+  orchestraMask?: number;                   // 0..0xFFFF, bit c = channel c is an Orchestra channel; missing = 0 (1.6.0)
 }
 ```
 

@@ -1,6 +1,11 @@
 # Contract: ports (engine layer interfaces)
 
-**Version**: `2.1.0` (internal TypeScript contract between `src/engine` adapters and `src/ui`/`src/app`).
+**Version**: `2.2.0` (internal TypeScript contract between `src/engine` adapters and `src/ui`/`src/app`).
+2.2.0 (feature 019-metronome-orchestra-volume, MINOR; full text:
+[019 mixer-levels.md](../../019-metronome-orchestra-volume/contracts/mixer-levels.md) sections 2 and 3): `AudioEngine`
+gains `setOrchestraLevel(level)` (0..100, held by the engine, sent now and to every new worklet node); `liveNoteOn` and
+`liveNoteOff` gain an optional `channel` (default `LIVE_CHANNEL`); `UserSettings` is version 3 with `metronomeLevel` and
+`orchestraLevel` (integers 0..100).
 2.1.0 (feature 017-leftover-sweep T039, MINOR): `SettingsStore` gains `flushPending()` - writes every debounced
 change now; the app calls it on `pagehide` and when the page becomes hidden, so a reload within the debounce keeps the
 last change (004 SC-008).
@@ -80,9 +85,11 @@ export interface AudioEngine extends Emitter<AudioEngineEvent> {
   setVolume(volume: Volume): void;                   // 0..100
   /** CC7 on one channel, applied at the next block. Used to mute the Metronome without touching the schedule. (1.2.0) */
   setChannelVolume(channel: number, volume: number): void;  // 0..100
+  /** 0..100. Held by the engine; sent now and to every new worklet node; CC11 on Orchestra channels. (2.2.0) */
+  setOrchestraLevel(level: number): void;
   /** Live input (US3), applied as soon as possible. */
-  liveNoteOn(key: number, velocity: number): void;
-  liveNoteOff(key: number): void;
+  liveNoteOn(key: number, velocity: number, channel?: number): void;   // 2.2.0: channel defaults to LIVE_CHANNEL
+  liveNoteOff(key: number, channel?: number): void;
   liveSustain(down: boolean): void;
   liveAllOff(): void;
   /** Called every animation frame by the UI; returns the audible position (R-11). */

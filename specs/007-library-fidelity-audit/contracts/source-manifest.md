@@ -1,6 +1,9 @@
 # Contract: authoritative source manifest (`content/library/sources/<source-id>/source.json`)
 
-**Version**: `1.1.0` (1.0.0 new; 1.1.0, 2026-09-24: optional `score` and `archive` on a file, task T095).
+**Version**: `1.2.0` (1.0.0 new; 1.1.0, 2026-09-24: optional `score` and `archive` on a file, task T095; 1.2.0, 2026-10-01,
+feature 019-metronome-orchestra-volume, MINOR: optional manifest field `origin`, `"downloaded"` (default) or
+`"transcription"` - our own CC0 reading of a public-domain print, whose `url` is that print; used for the second,
+independent transcription of a piece, [019 data-model.md](../../019-metronome-orchestra-volume/data-model.md) section 6.3).
 
 **Owner**: `tools/library/fidelity/sources.ts` (reads and validates). **Written by**: a person or agent when a
 source is added, after the owner approved it. **Read by**: the fidelity tool and `tests/library/fidelity.test.ts`.
@@ -41,6 +44,7 @@ Files are committed **unchanged** (hash-checked). A scan (PDF) is **not** commit
     "credit":    { "type": "string", "maxLength": 300 },
     "obtained":  { "type": "string", "format": "date" },
     "approvedByOwner": { "type": "string", "format": "date" },
+    "origin":    { "enum": ["downloaded", "transcription"], "default": "downloaded", "description": "1.2.0: transcription = our own CC0 reading of the print at url" },
     "files": {
       "type": "array", "minItems": 1,
       "items": {

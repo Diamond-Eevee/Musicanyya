@@ -20,10 +20,10 @@ contracts/mixer-levels.md, contracts/orchestration-definition.md, contracts/cont
 
 **Model**: light (gemini-3.7-flash or claude-haiku-4-5; every standard and deep model fits too)
 
-- [ ] T001 Append a baseline entry to `specs/019-metronome-orchestra-volume/implementation-log.md` with the summary lines
+- [x] T001 Append a baseline entry to `specs/019-metronome-orchestra-volume/implementation-log.md` with the summary lines
   of `pnpm test`, `pnpm lint` and `pnpm typecheck` on the branch before any code change (AGENTS.md 2.6), and set the
   `**Status**` line of `specs/019-metronome-orchestra-volume/spec.md` from "Draft" to "In progress" (analyze A14)
-- [ ] T002 [P] Fold the engine and UI contract changes into the earlier features' documents, contract first (AGENTS.md
+- [x] T002 [P] Fold the engine and UI contract changes into the earlier features' documents, contract first (AGENTS.md
   section 6), exactly as listed in `specs/019-metronome-orchestra-volume/contracts/contract-changes.md`:
   `specs/001-score-viewer-listen/contracts/worklet-protocol.md` 1.5.1 -> 1.6.0 (table rows `orchestraLevel`, `schedule`
   + `orchestraMask`, `live` + `channel`, from mixer-levels.md §4; `orchestraMask` added to the `ScheduleMessage` block),
@@ -33,11 +33,11 @@ contracts/mixer-levels.md, contracts/orchestration-definition.md, contracts/cont
   `specs/002-practice-wait-mode/contracts/practice-session.md` 1.7.0 -> 1.8.0;
   `specs/003-play-mode-grading/contracts/play-run.md` 2.1.0 -> 2.2.0 and `grading.md` 1.2.1 -> 1.2.2 - each version
   line names "feature 019" and links the 019 contract that holds the full text
-- [ ] T003 [P] Fold the library contract changes the same way: `specs/005-practice-score-library/contracts/library-index.md`
+- [x] T003 [P] Fold the library contract changes the same way: `specs/005-practice-score-library/contracts/library-index.md`
   1.2.0 -> 1.3.0; `specs/007-library-fidelity-audit/contracts/source-manifest.md` 1.1.0 -> 1.2.0 (optional `origin`
   in the JSON schema), `audit-record.md` 1.3.0 -> 1.4.0 (rule set `orchestra-v1`), `fidelity-tools.md` 1.13.0 -> 1.14.0;
   `specs/013-score-browser-progress/contracts/score-browser.md` 1.1.0 -> 1.2.0
-- [ ] T004 [P] Add the named constants of `specs/019-metronome-orchestra-volume/data-model.md` §7 to
+- [x] T004 [P] Add the named constants of `specs/019-metronome-orchestra-volume/data-model.md` §7 to
   `src/core/defaults.ts` beside `VOLUME_DEFAULT` (`METRONOME_LEVEL_DEFAULT = 100`, `ORCHESTRA_LEVEL_DEFAULT = 60`,
   `MIXER_LEVEL_STEP = 5`, `EXPRESSION_CONTROLLER = 11`, `ORCHESTRA_SILENT_TOLERANCE_DBFS = -90`,
   `VOICE_HEADROOM_FRACTION = 0.5`), each with a one-line comment naming its research section, and check every value
@@ -51,22 +51,22 @@ contracts/mixer-levels.md, contracts/orchestration-definition.md, contracts/cont
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T005 [P] Extend `tests/engine/storage/local-settings-store.test.ts` (mixer-levels.md §2): a stored version 2
+- [x] T005 [P] Extend `tests/engine/storage/local-settings-store.test.ts` (mixer-levels.md §2): a stored version 2
   object loads with `metronomeLevel = 100` and `orchestraLevel = 60` and every other field unchanged; a version 1
   object the same; version 3 round-trips both levels; a level that is not an integer in 0..100 (`-5`, `101`, `"50"`,
   `12.5`, `null`) loads as its default without touching the other; `save` always writes `version: 3`. Fails today:
   `UserSettings` has no levels and the writer writes version 2
-- [ ] T006 [P] New `tests/ui/transport-levels.test.ts` for `transportState`: `setMetronomeLevel` /
+- [x] T006 [P] New `tests/ui/transport-levels.test.ts` for `transportState`: `setMetronomeLevel` /
   `setOrchestraLevel` store integers clamped to 0..100,
   notify subscribers once per change and not at all for the same value; `applySavedSettings` takes both levels. Fails
   today: the methods do not exist
 
 ### Implementation
 
-- [ ] T007 `UserSettings` version 3 in `src/engine/ports.ts` and reading/writing in
+- [x] T007 `UserSettings` version 3 in `src/engine/ports.ts` and reading/writing in
   `src/engine/storage/local-settings-store.ts` (versions 1-3, defaults from `src/core/defaults.ts`); update
   `tests/fakes/memory-settings-store.ts` to the new shape (T005 green)
-- [ ] T008 Levels in `src/ui/state/transportState.ts` (`metronomeLevel`, `orchestraLevel`, setters, `applySavedSettings`)
+- [x] T008 Levels in `src/ui/state/transportState.ts` (`metronomeLevel`, `orchestraLevel`, setters, `applySavedSettings`)
   and their persistence in `src/app/session.ts` (`persistUserSettings` and the start-up load, debounced like `volume`)
   (T006 green)
 
@@ -270,7 +270,7 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   the Music to Peer Gynt*, arranged for pianoforte by the composer, *Morgenstimmung* ed. and fingered by Louis
   Oesterle, copyright 1899, Internet Archive `31761045200615` (plan "Decisions and open items"), including Oesterle's
   fingering. Blocks T039-T041, T044-T046 and T053-T058 (the source, the transcriptions, the item and
-  everything built on it; the tooling T042-T043 and T047-T052 does not need the source). Record "owner approved <date>" or "owner rejected <date>" on this line
+  everything built on it; the tooling T042-T043 and T047-T052 does not need the source). Record "owner approved <date>" or "owner rejected <date>" on this line - **owner approved 2026-10-01** (asked by claude-sonnet-5.5; the gate also needs T039's manifest `approvedByOwner` date, which is not a document update of its own)
 - [ ] T039 [US2] [light] Source manifest `content/library/sources/ia-31761045200615-grieg-op46-schirmer/source.json`
   (source-manifest 1.2.0: `role: "scan"`, `format: "pdf"`, URL
   `https://archive.org/download/31761045200615/31761045200615.pdf`, SHA-256 of that file downloaded to

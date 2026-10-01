@@ -1,6 +1,6 @@
 # Contract: audit records and the audit report
 
-**Version**: `1.3.0` (1.0.0 new; 1.1.0, 2026-09-24: `melodyRhythm`, and a melody check may add only `spelling`, T054; 1.2.0, 2026-09-26, feature 011: theory rule sets `exercise-theory-v2` and `song-chords-v1`, `previous.level` `introduction`, optional `supersedes`, moved records, the "Replaced by feature 011" table; change request `specs/011-learning-by-key/contracts/audit-record-1.2.md`; 1.3.0, 2026-09-28, feature 014: theory rule set `exercise-theory-v3`, rule 9; change request `specs/014-melody-over-chords/contracts/audit-record-1.3.md`).
+**Version**: `1.4.0` (1.4.0, 2026-10-01, feature 019-metronome-orchestra-volume: theory rule set `orchestra-v1`, rule 10 below; 1.0.0 new; 1.1.0, 2026-09-24: `melodyRhythm`, and a melody check may add only `spelling`, T054; 1.2.0, 2026-09-26, feature 011: theory rule sets `exercise-theory-v2` and `song-chords-v1`, `previous.level` `introduction`, optional `supersedes`, moved records, the "Replaced by feature 011" table; change request `specs/011-learning-by-key/contracts/audit-record-1.2.md`; 1.3.0, 2026-09-28, feature 014: theory rule set `exercise-theory-v3`, rule 9; change request `specs/014-melody-over-chords/contracts/audit-record-1.3.md`).
 
 **Owner**: `tools/library/fidelity/records.ts` (reads, validates, re-runs), `tools/library/fidelity/report.ts`
 (writes the report). **Location**: records at `content/library/audit/<item-id>.json` (the item id's slashes are
@@ -74,7 +74,7 @@ folders, e.g. `content/library/audit/repertoire/advanced/chopin-prelude-op28-no4
           "required": ["method", "ruleSet", "expectedDifferences"],
           "properties": {
             "method": { "const": "theory" },
-            "ruleSet": { "enum": ["exercise-theory-v1", "exercise-theory-v2", "exercise-theory-v3", "song-chords-v1"] },
+            "ruleSet": { "enum": ["exercise-theory-v1", "exercise-theory-v2", "exercise-theory-v3", "song-chords-v1", "orchestra-v1"] },
             "expectedDifferences": { "const": 0 }
           }
         },
@@ -131,6 +131,11 @@ folders, e.g. `content/library/audit/repertoire/advanced/chopin-prelude-op28-no4
    hand claimed as `{ "kind": "melody", "level": <level> }` is checked by `checkMelodyRules` (contract fidelity-tools
    1.12 §3) instead of note by note; `expectedDifferences` counts findings of both. Used by the 59 records of the
    rewritten key-change items and chord-change drills (feature 014); no other record changes.
+10. **Rule set `orchestra-v1`** (feature 019, 1.4.0): for an item that has an orchestration definition
+    (`content/library/orchestra/<item-slug>.json`), `checkOrchestra` runs rules O1-O5 of
+    [019 orchestration-definition.md](../../019-metronome-orchestra-volume/contracts/orchestration-definition.md)
+    section 3 (structure, doubling, range, regeneration, hidden); the check has `method: "theory"` and
+    `expectedDifferences: 0`. No other record changes.
 
 ## 3. The report (`docs/library-audit.md`)
 

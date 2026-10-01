@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { METRONOME_LEVEL_DEFAULT, ORCHESTRA_LEVEL_DEFAULT } from '../../../src/core/defaults.js';
 import {
   OVERLAYS_DEFAULT,
   SCORE_SCALE_DEFAULT,
@@ -29,15 +30,19 @@ class FakeStorage implements Storage {
   }
 }
 
+// Feature 019 (view-settings 2.2.0): a settings object always loads as version 3, with both levels at their defaults
+// when the file has none; everything these tests check about versions 1 and 2 is unchanged.
 const DEFAULTS = {
-  version: 2,
+  version: 3,
   volume: VOLUME_DEFAULT,
   scale: SCORE_SCALE_DEFAULT,
   follow: true,
   overlays: OVERLAYS_DEFAULT,
+  metronomeLevel: METRONOME_LEVEL_DEFAULT,
+  orchestraLevel: ORCHESTRA_LEVEL_DEFAULT,
 };
 
-/** `contracts/view-settings.md` sections 1-3: format version 2 and the silent v1 -> v2 migration. */
+/** `contracts/view-settings.md` sections 1-3: format version 2 and the silent v1 -> v2 migration (read as version 3 since 2.2.0). */
 describe('Settings v2', () => {
   let storage: FakeStorage;
 
@@ -65,21 +70,23 @@ describe('Settings v2', () => {
       expect(settings.overlays.pianoKeys).toBe(false);
     });
 
-    it('version 1 with a valid zoomPercent gives that value as scale, version 2 and default overlays', () => {
+    it('version 1 with a valid zoomPercent gives that value as scale, version 3 and default overlays', () => {
       const settings = store({ version: 1, volume: 60, tempoPercent: 90, zoomPercent: 130, follow: false }).load();
       expect(settings).toEqual({
-        version: 2,
+        version: 3,
         volume: 60,
         scale: 130,
         follow: false,
         overlays: OVERLAYS_DEFAULT,
+        metronomeLevel: METRONOME_LEVEL_DEFAULT,
+        orchestraLevel: ORCHESTRA_LEVEL_DEFAULT,
       });
       expect('zoomPercent' in settings).toBe(false);
       expect('tempoPercent' in settings).toBe(false); // 2.1.0: deprecated, ignored on read (feature 012 FR-015)
     });
 
     it('version 1 without a zoomPercent gives the default scale', () => {
-      expect(store({ version: 1, volume: 60 }).load()).toMatchObject({ version: 2, volume: 60, scale: 100 });
+      expect(store({ version: 1, volume: 60 }).load()).toMatchObject({ version: 3, volume: 60, scale: 100 });
     });
 
     it.each([['huge'], [999], [10], [105], [null], [125.5]])(
@@ -97,7 +104,7 @@ describe('Settings v2', () => {
     });
 
     it('a file with no version at all is read like a version 1 file', () => {
-      expect(store({ zoomPercent: 70 }).load()).toMatchObject({ version: 2, scale: 70 });
+      expect(store({ zoomPercent: 70 }).load()).toMatchObject({ version: 3, scale: 70 });
     });
   });
 
@@ -110,7 +117,12 @@ describe('Settings v2', () => {
         follow: false,
         overlays: { cursor: false, marks: false, advice: false, pianoKeys: true, notices: false },
       };
-      expect(store(raw).load()).toEqual(raw);
+      expect(store(raw).load()).toEqual({
+        ...raw,
+        version: 3,
+        metronomeLevel: METRONOME_LEVEL_DEFAULT,
+        orchestraLevel: ORCHESTRA_LEVEL_DEFAULT,
+      });
     });
 
     it('ignores a stored tempoPercent (2.1.0, feature 012 FR-015): the file still validates, tempoPercent is dropped', () => {
@@ -188,14 +200,14 @@ describe('Settings v2', () => {
   });
 
   describe('writing (section 4)', () => {
-    it('the next save writes version 2 and drops zoomPercent', () => {
+    it('the next save writes version 3 and drops zoomPercent', () => {
       const instance = store({ version: 1, volume: 55, zoomPercent: 130 });
       const settings = instance.load();
       instance.save({ ...settings, volume: 65 });
       vi.advanceTimersByTime(SETTINGS_WRITE_DEBOUNCE_MS);
 
       const raw = stored();
-      expect(raw.version).toBe(2);
+      expect(raw.version).toBe(3);
       expect(raw.scale).toBe(130);
       expect(raw.volume).toBe(65);
       expect('zoomPercent' in raw).toBe(false);

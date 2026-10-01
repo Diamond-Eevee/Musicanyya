@@ -2,7 +2,7 @@
 
 **Feature Branch**: `019-metronome-orchestra-volume`
 **Created**: 2026-10-01
-**Status**: Draft
+**Status**: In progress
 **Input**: User description: "add volume for metronome and orchestra (the acompanianent other instruments for some
 tracks, that might make playing easier, or make it funnier). Add morning mood piano two hands track to library, and add
 some orchestra into it (other tracks that won't be visible on score sheets), like for example strings and oboe (up to

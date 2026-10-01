@@ -77,7 +77,10 @@ invalid; unknown fields are preserved on write; writes are debounced (`SETTINGS_
 
 This version-1 shape is superseded by
 [004/contracts/view-settings.md](../../004-score-first-layout/contracts/view-settings.md) (format version 2), whose
-2.1.0 (feature 012-tempo-bpm-field) deprecates `tempoPercent`: no longer written, ignored when read.
+2.1.0 (feature 012-tempo-bpm-field) deprecates `tempoPercent`: no longer written, ignored when read. Its 2.2.0
+(feature 019-metronome-orchestra-volume) is object version 3: `metronomeLevel` and `orchestraLevel` (integers 0..100,
+defaults 100 and 60); versions 1 and 2 still read, the writer always writes 3
+([019 mixer-levels.md](../../019-metronome-orchestra-volume/contracts/mixer-levels.md) section 2).
 
 ## Other `localStorage` keys (added by later features, documented in their own contracts)
 

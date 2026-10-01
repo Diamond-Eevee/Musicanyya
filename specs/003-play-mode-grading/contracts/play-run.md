@@ -1,8 +1,17 @@
 # Contract: play run (core API)
 
-**Version**: `2.1.0` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
+**Version**: `2.2.0` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
 `src/app/play-session.ts` and `src/ui`). Signatures are normative in shape; every change is reflected here with a
 version bump (MINOR for additions, MAJOR for breaking changes).
+
+**2.1.0 -> 2.2.0** (feature 019-metronome-orchestra-volume, MINOR; full text:
+[019 orchestra-score.md](../../019-metronome-orchestra-volume/contracts/orchestra-score.md) section 5 and
+[019 mixer-levels.md](../../019-metronome-orchestra-volume/contracts/mixer-levels.md) section 3):
+`compilePlaySchedule` keeps the events of Orchestra channels (`ChannelSetup.orchestra`) whatever `accompaniment` is,
+shifts them behind the count-in like every other event, and never puts them in `gradedNoteIds`; `mergeSchedules` keeps
+`orchestraMask`. The Metronome channel volume is `metronomeChannelVolume(muted, level)` = `muted ? 0 : level`
+(`level` = the user's Metronome level, 0..100, default 100), set when a run's schedule is loaded, when the mute changes,
+when the level changes and when the engine gets a new audio node during a run; it replaces the fixed 100 above.
 
 **2.0.0 -> 2.1.0** (feature 012-tempo-bpm-field, MINOR): `RunSettings.tempoPercent` is any finite number in
 [25, 200] (was an integer, multiple of 5) - the tempo field converts a typed BPM with `percentForBpm` (R-1). Shape
@@ -146,7 +155,7 @@ implementing T032; corrected here rather than worked around, per AGENTS.md secti
 Normative rules:
 
 1. Every `SoundingEvent` whose head or members intersect `gradedNoteIds` is **omitted** (FR-005).
-2. With `accompaniment: false`, every non-Metronome event is omitted; the Metronome and the tempo map stay.
+2. With `accompaniment: false`, every non-Metronome event is omitted - except the events of Orchestra channels (2.2.0) - the Metronome and the tempo map stay.
 3. Events are sliced to `[rangeStartTick, rangeEndTick)` and shifted by `countInTicks - rangeStartTick`.
 4. The tempo map is shifted the same way, and the segment covering the count-in is the tempo in force at
    `rangeStartTick`.
