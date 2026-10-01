@@ -1,7 +1,29 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.2.0 -> 1.3.0 (MINOR)
+Version change: 1.3.0 -> 1.3.1 (PATCH)
+  Principle III clarifies "playable note" (owner decision OD-4 of feature
+  019-metronome-orchestra-volume, 2026-10-01, after a constitution audit): a
+  playable note is a printed note the musician can be asked to play. Notes the
+  Score marks as not printed (<note print-object="no">, parts whose every staff
+  is <staff-details print-object="no">) keep a Note ID as their schedule key but
+  need no visible element, and MUST NOT be expected, graded, marked, counted in
+  progress or used as Advice anchors. Feature 017 had read "playable" as
+  "played" (T021); nothing that 017 built changes (hidden notes may still be
+  drawn hidden). The Domain Vocabulary entry "Note ID" matches.
+Templates requiring updates:
+  OK .specify/templates/plan-template.md    (row III question names printed notes)
+  OK .specify/templates/spec-template.md    (no change needed)
+  OK .specify/templates/tasks-template.md   (no change needed)
+  OK .claude/commands/speckit/*.md          (no stale wording)
+  OK .claude/agents/*.md                    (no stale wording)
+  OK AGENTS.md section 8                    (row III: printed Note ID)
+  OK docs/agents/reference.md               (no change needed)
+Deferred TODOs: none new. Follow-up in feature 019 (T078): reword the comments
+in src/workers/score.worker.ts and tests/e2e/real-scores.spec.ts that say
+"played" for this rule.
+
+Previous: 1.2.0 -> 1.3.0 (MINOR)
   Model fit gains a third tier, `light` (mechanical, fully specified work, e.g.
   Gemini Flash), and a tier may recommend two models (e.g. claude-sonnet-5 or
   gemini-3.1-pro). Light work never decides and is re-verified at the next
@@ -146,6 +168,12 @@ was due" are measured on the same clock with latency removed.
   staff, measure, voice, onset and pitch) that is also the id of its rendered
   SVG element, the key in the playback schedule, the key in the Grade and the
   anchor for Advice. Colouring a note MUST refer to exactly that note.
+- A **playable note** is a printed note the musician can be asked to play.
+  Notes the Score marks as not printed (`<note print-object="no">`, parts whose
+  every staff is `<staff-details print-object="no">`, e.g. an accompaniment
+  Orchestra) keep a Note ID as their key in the playback schedule but need no
+  visible element; they MUST NOT be expected, graded, marked, counted in
+  progress or used as Advice anchors.
 - The supported MusicXML subset MUST be written down
   (`docs/musicxml-support.md`) and grown deliberately. Unsupported elements
   degrade gracefully (warn, skip, keep playing). A malformed or hostile file
@@ -294,7 +322,8 @@ their licence recorded in `THIRD_PARTY_NOTICES.md` before a release.
 Specs, plans, code and UI MUST use these terms consistently.
 
 - **Score**: a parsed MusicXML document (canonical model).
-- **Note ID**: the stable identity of a playable note (Principle III).
+- **Note ID**: the stable identity of a note; for a playable (printed) note
+  also its SVG element id, Grade key and Advice anchor (Principle III).
 - **Listen mode**: the app plays the Score with a moving cursor; no input is
   judged.
 - **Practice mode**: the user plays along; the app waits at each expected note
@@ -379,4 +408,4 @@ Merge gates (every change):
 - Runtime guidance for agents lives in `AGENTS.md` (tool-neutral; `CLAUDE.md`
   and `GEMINI.md` only import it) and MUST stay consistent with this document.
 
-**Version**: 1.3.0 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-09-28
+**Version**: 1.3.1 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-10-01

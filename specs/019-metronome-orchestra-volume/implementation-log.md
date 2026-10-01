@@ -77,3 +77,14 @@
   blocks T028-T037 and later phases) and T078 (follow-up after the amendment). tasks.md now T001-T078.
 - Handoff: next = owner answer on OD-4 (T077), then `/speckit:constitution` if approved; implementation can start at
   T001-T027 meanwhile.
+
+## 2026-10-01 - claude-opus-5.5 (OD-4, constitution 1.3.1)
+- Owner decision OD-4 (T077): "Clarify" (recommended option). Constitution amended 1.3.0 -> 1.3.1 (PATCH,
+  clarification only): Principle III defines a playable note as a printed note the musician can be asked to play;
+  notes the Score marks as not printed keep a Note ID as their schedule key, need no visible element, and are never
+  expected, graded, marked, counted in progress or Advice anchors. Domain Vocabulary "Note ID" matches; propagated to
+  `.specify/templates/plan-template.md` (row III) and AGENTS.md section 8 (row III, now 11,991 characters); commands,
+  agents, spec/tasks templates and the reference needed no change. Nothing built by 017 changes.
+- Plan Constitution Check III set to `[x]` with the audit's wording; T077 ticked; T078 keeps the comment rewording.
+- Handoff: next = `/speckit:implement` from T001; open owner decisions: OD-1 (T038), OD-3 (T046, conditional),
+  OD-2 (T072, before merge).

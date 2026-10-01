@@ -71,7 +71,8 @@ measure-repeat notes so that "every played note has its element". Orchestra note
 that sound with no SVG element at all, and under the reading 017 put on record ("playable" = played) that conflicts
 with Constitution III. The constitution does not define "playable note"; the plan's reading (sounding-only notes that
 the musician is never asked to play, shown, graded or advised on are not playable) fits the principle's rationale, but
-adopting it is a constitution clarification and therefore an **owner decision (OD-4)**. Keeping hidden elements inside
+adopting it is a constitution clarification and therefore an **owner decision (OD-4)** - approved 2026-10-01;
+constitution 1.3.1 now defines a playable note as a printed note the musician can be asked to play. Keeping hidden elements inside
 Verovio instead is not reliable (R-2, R-18). Without the span filter, `cursorNotesAtTick` would pick an oboe note that starts after the piano's held chord, and the cursor would have
 no element to stand at.
 

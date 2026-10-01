@@ -54,15 +54,16 @@ unchanged (golden tests); core runs in Node; library content CC0 / public domain
 |---|---|---|---|
 | I | Real-Time Safety (Web and Native) | New code in AudioWorklet/plugin callbacks allocation-, await- and log-free? Sounds scheduled ahead on the audio clock (no timers)? Heavy work off the main thread? | [x] Levels are controller changes applied in `port.onmessage` into pre-allocated state; the live queue gets a pre-allocated channel array; Orchestra notes are schedule events (Listen/Play) or live messages applied at the next block (Practice, as today's accompaniment). No timer decides a sound. RT review task required. |
 | II | One Clock, Measured Latency | All events on the audio-clock timeline, MIDI timestamps mapped onto it? Integer ticks in core? Latency compensated? Tolerances named & configurable? | [x] Orchestra events are ordinary timeline events (integer ticks, same tempo map, same count-in shift); levels never touch timing. New constants named in `defaults.ts` (data-model §7). |
-| III | Score Fidelity, Engraving & Note Identity | Canonical score model + Note IDs (= SVG ids)? Verovio engraving? Unsupported MusicXML degrades gracefully? | [ ] **Pending owner decision OD-4.** One model (`Part.orchestra`); printed Note IDs unchanged; Verovio engraves the piano only; other hidden-staff uses: warning + printed; library piano part checked mechanically (double entry) and visually. But Orchestra notes sound and keep a Note ID with **no SVG element** - the first such notes (the 017 `print-object="no"` notes are drawn hidden, so they are no precedent; constitution audit 2026-10-01, R-3). Compliant only after an owner-approved PATCH clarification of "playable note" (see Decisions). |
+| III | Score Fidelity, Engraving & Note Identity | Canonical score model + Note IDs (= SVG ids)? Verovio engraving? Unsupported MusicXML degrades gracefully? | [x] One model (`Part.orchestra`). Printed Note IDs unchanged. Orchestra notes are sounding-only, not playable (constitution 1.3.1 clarification of Principle III, owner-approved 2026-10-01, OD-4): they keep a Note ID as their schedule key, have no SVG element, and are never expected, graded, marked, counted, offered or Advice anchors (orchestra-score §6, enforced by T020-T025). The 017 `print-object="no"` notes still render hidden elements; this is a new case, not a precedent. Verovio engraves the piano only; other hidden-staff uses: warning + printed; library piano part checked mechanically (double entry) and visually. |
 | IV | Test-First Core, Deterministic Grading | Tests first? Core testable in Node with fakes? Golden tests for grading? | [x] Parser, render copy, channels, schedules, practice effects, facts and tools all pure and Node-tested first; offline render tests for levels; existing grading goldens must not change; new golden for a Morning Mood run with and without Orchestra (SC-005, task T076). |
 | V | Layered, Framework-Free, Platform-Agnostic | No UI frameworks? core has no DOM/Web APIs? Platform features behind ports? Browser works without Electron/plugin? Electron secure defaults? Device loss recoverable? | [x] Core decides what is Orchestra and what plays; engine maps levels to controllers behind `AudioEngine`; UI only renders and reports slider values. Plain custom element + popover. A new worklet node gets the held levels again (device change). |
 | VI | Musician-First Feedback | Colour + shape, nothing modal during a session, explainable results, overlays never hide notes? | [x] Non-modal popover usable during a session; disabled slider explains why; browser marker = glyph + text; nothing changes the score overlays. |
 | VII | Pedagogy as Data | Advice as schema-validated JSON anchored to Note IDs/measures? Invalid entries skipped, not fatal? | [x] Not affected; the orchestration is data (JSON definition, schema in the contract), and Advice must never anchor to Orchestra notes (orchestra-score §6). |
 | VIII | Simplicity, Web-First Delivery | P1 is a usable MVP? Web APIs before libraries? New runtime deps justified below? | [x] US1 (Metronome level) alone is useful on every Score; no new dependency; CC11 reuses the synth's standard controller rather than a mixer graph. |
 
-**Post-design re-check (after Phase 1)**: I, II, IV-VIII pass. III is open until OD-4 (constitution audit
-2026-10-01, CRITICAL, resolved by an owner decision rather than a design change - see Complexity Tracking).
+**Post-design re-check (after Phase 1)**: all eight pass. III passed after the constitution audit's CRITICAL finding
+(2026-10-01) was resolved by owner decision OD-4: constitution 1.3.0 -> 1.3.1 clarifies "playable note" (see
+Complexity Tracking).
 
 ## Project Structure
 
@@ -143,7 +144,7 @@ No constitution violation and no new runtime dependency. Additions worth naming:
 | `live.channel` in the worklet queue | Orchestra instruments keep their own sound in Practice (FR-014, FR-015) | Playing Orchestra notes on the live (piano) channel would make the oboe a piano |
 | Dev tool `pnpm library:orchestra` + checker | Orchestra notes checked by machine, regenerable, reusable for later items (R-16) | Hand-written parts would be unchecked choices, against the library rule |
 | Two transcriptions of the piano part | The only mechanical check possible without a machine-readable PD source (R-15) | A single transcription checked by eye repeats the 2026-09-23 Für Elise failure |
-| Orchestra notes have Note IDs but no SVG element (Constitution III, pending OD-4) | FR-012 / SC-004: no Orchestra staff, label or space may be engraved | Hidden staves inside Verovio are unreliable (R-2, R-18); a separate playback-only id namespace would split the one Score model |
+| Orchestra notes have Note IDs but no SVG element (Constitution III as clarified in 1.3.1, OD-4) | FR-012 / SC-004: no Orchestra staff, label or space may be engraved | Hidden staves inside Verovio are unreliable (R-2, R-18); a separate playback-only id namespace would split the one Score model |
 
 ## Phase 0: Research (`research.md`)
 
@@ -173,7 +174,8 @@ R-18 domain-expert answers. No `NEEDS CLARIFICATION` left in the Technical Conte
 - Decided (spec corrected): the latency calibration plays no click today, so FR-006 covers the Play count-in and run
   only; Practice AS-6 / FR-015 say "no new note while waiting; sounding notes ring on" (the spec contradicted its own
   Assumptions).
-- **needs owner (OD-4, blocks Phase 4 implementation)**: Constitution III says every *playable* note's Note ID is
+- **Decided by the owner (OD-4, 2026-10-01): "Clarify"** - constitution amended to 1.3.1 with the wording below.
+  Was: Constitution III says every *playable* note's Note ID is
   also its SVG element's id; 017 read "playable" as "played". Orchestra notes sound but are never engraved. Proposed
   PATCH clarification (via `/speckit:constitution`): "A playable note is a printed note the musician can be asked to
   play. Notes the Score marks as not printed (`<note print-object="no">`, parts whose every staff is

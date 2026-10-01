@@ -153,13 +153,13 @@ marks or counts them (FR-012 to FR-019, FR-023).
 **Independent Test**: open `tests/fixtures/musicxml/orchestra/piano-and-oboe.musicxml`: two piano staves only; Listen
 plays piano and oboe; Practice and Play offer the piano only and never wait for or grade an oboe note.
 
-- [ ] T077 [US2] **Owner decision gate OD-4** (constitution audit 2026-10-01, CRITICAL): approve the PATCH
+- [x] T077 [US2] **Owner decision gate OD-4** (constitution audit 2026-10-01, CRITICAL): approve the PATCH
   clarification of Constitution III proposed in plan.md "Decisions and open items" (sounding-only notes of unprinted
   parts keep a Note ID but need no SVG element and are never expected, graded, marked, counted or anchored), to be
   made with `/speckit:constitution`; or choose an alternative. Blocks T028-T037 and everything after them in Phases
-  5-7 (the tests T019-T027 and T075 may be written first). Record the answer here
-- [ ] T078 [US2] [light] After OD-4 is approved and the constitution amended: set plan.md Constitution Check row III
-  to `[x]` with the wording recorded in the 2026-10-01 audit entry of the log, and reword the comments
+  5-7 (the tests T019-T027 and T075 may be written first). Record the answer here - **owner approved 2026-10-01**
+  ("Clarify"); constitution amended 1.3.0 -> 1.3.1 by claude-opus-5.5 the same day
+- [ ] T078 [US2] [light] (plan.md row III already set to `[x]` with the amendment, 2026-10-01) Reword the comments
   "every played note has its element" in `src/workers/score.worker.ts` (line ~78) and "its encoded notes are played"
   in `tests/e2e/real-scores.spec.ts` (line ~306) to say "printed" (comments only; no logic change)
 

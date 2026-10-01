@@ -140,7 +140,7 @@ evidence (or `[-]`) and the constitution review passed - and it is merged only w
 |---|---|
 | I | Real-time safety: nothing in `AudioWorklet.process()` or plugin callbacks allocates, awaits, logs or throws; sound is scheduled on the audio clock, never by timers; heavy work in Web Workers |
 | II | One clock: everything on the audio clock; integer ticks in the core; latency compensated; tolerances are named config |
-| III | Score fidelity: one Score model; Note ID = SVG id = schedule/Grade key = Advice anchor; Verovio engraving; bad MusicXML never crashes |
+| III | Score fidelity: one Score model; printed Note ID = SVG id = schedule/Grade key = Advice anchor; Verovio engraving; bad MusicXML never crashes |
 | IV | Test-first; core runs in Node; hardware faked; deterministic, golden-tested grading |
 | V | Layers core <- engine <- ui <- shells; pure TypeScript/HTML/CSS, **no UI frameworks**; browser works alone; Electron locked down |
 | VI | Colour **and** shape feedback; nothing modal during a session; explainable grades |
