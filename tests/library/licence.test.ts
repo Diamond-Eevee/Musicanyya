@@ -4,6 +4,7 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import { LIBRARY_BUDGET_BYTES } from '../../src/core/defaults.js';
+import { LIBRARY_LICENCES } from '../../src/core/library/licences.js';
 import { buildLibraryIndex } from '../../tools/library/build-index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -84,7 +85,7 @@ describe('the real shelf (FR-017, FR-018, FR-025, US4)', () => {
     const { index, problems } = await buildLibraryIndex(libraryRoot);
     expect(problems).toEqual([]);
     for (const item of index.items) {
-      expect(['CC0-1.0', 'public-domain']).toContain(item.meta.provenance.licence);
+      expect(LIBRARY_LICENCES).toContain(item.meta.provenance.licence);
       expect(item.meta.reviewedBy.length).toBeGreaterThan(0);
       expect(item.meta.reviewedOn.length).toBeGreaterThan(0);
     }
@@ -105,12 +106,15 @@ describe('the real shelf (FR-017, FR-018, FR-025, US4)', () => {
 });
 
 describe('licence and provenance validation (FR-017, FR-018, FR-020, FR-025)', () => {
-  it('fails the whole build when a licence is not CC0-1.0 or public-domain', async () => {
+  // 019 FR-025 admitted CC BY / CC BY-SA (library-index 1.4.0); a licence outside the list still fails the build.
+  it('fails the whole build when a licence is not one the library lists (NonCommercial)', async () => {
     const tempRoot = makeFixture({
       ...baseSidecar(),
       provenance: {
         origin: 'downloaded',
-        licence: 'CC-BY-4.0',
+        licence: 'CC-BY-NC-4.0',
+        credit: 'A. Person',
+        unmodified: true,
         source: 'https://example.com/x',
         obtained: '2026-09-22',
       },
@@ -212,5 +216,69 @@ describe('the sources of the songs (feature 011 FR-017)', () => {
       expect(id, `${song.id}: basedOn "${basedOn}" starts with the source id`).toBeDefined();
       expect(notices, `${id} in THIRD_PARTY_NOTICES.md`).toContain(id as string);
     }
+  });
+});
+
+// Feature 019 FR-025 / FR-026 / SC-010 (research R-19): attribution items are credited and keep their source's licence.
+describe('attribution licences on the shelf (019 FR-025, FR-026)', () => {
+  const SOURCE = 'https://example.com/a-by-sa-work';
+  const CREDIT = 'Typeset by A. Person';
+  const attributed = (patch: Record<string, unknown> = {}) => ({
+    ...baseSidecar(),
+    provenance: {
+      origin: 'downloaded',
+      licence: 'CC-BY-SA-4.0',
+      source: SOURCE,
+      sourcePath: 'by-sa-1/piece.mxl',
+      obtained: '2026-10-01',
+      credit: CREDIT,
+      unmodified: false,
+      ...patch,
+    },
+  });
+  const notices = `# Third Party Notices
+
+- A Work - ${CREDIT}, CC BY-SA 4.0
+  ${SOURCE}
+`;
+  const licences: Record<string, string> = { 'by-sa-1': 'CC-BY-SA-4.0', 'cc0-1': 'CC0-1.0' };
+  const build = (sidecar: Record<string, unknown>, notes = notices) =>
+    buildLibraryIndex(makeFixture(sidecar), notes, undefined, (id) => licences[id]);
+
+  it('accepts a CC BY-SA item credited in the notices whose source has the same licence', async () => {
+    const { problems } = await build(attributed());
+    expect(problems).toEqual([]);
+  });
+
+  it('fails when the source it names has another licence (share-alike, FR-026)', async () => {
+    const { problems } = await build(attributed({ sourcePath: 'cc0-1/piece.mxl' }));
+    expect(problems.some((p) => p.includes('licence') && p.includes('cc0-1'))).toBe(true);
+  });
+
+  it('fails when it names no source at all', async () => {
+    const { problems } = await build(attributed({ sourcePath: undefined }));
+    expect(problems.some((p) => p.includes('sourcePath'))).toBe(true);
+  });
+
+  it('fails when THIRD_PARTY_NOTICES.md lists the source but not the credit', async () => {
+    const { problems } = await build(
+      attributed(),
+      `# Third Party Notices
+
+- A Work
+  ${SOURCE}
+`,
+    );
+    expect(problems.some((p) => p.includes('credit') && p.includes('THIRD_PARTY_NOTICES'))).toBe(true);
+  });
+
+  it('fails an authored item based on an attribution-licensed source; one based on a CC0 source passes', async () => {
+    const authored = (basedOn: string) => ({
+      ...baseSidecar(),
+      provenance: { origin: 'authored', licence: 'CC0-1.0', author: 'Test', created: '2026-10-01', basedOn },
+    });
+    expect((await build(authored('cc0-1: A CC0 tune'))).problems).toEqual([]);
+    const { problems } = await build(authored('by-sa-1: A BY-SA tune'));
+    expect(problems.some((p) => p.includes('basedOn') && p.includes('by-sa-1'))).toBe(true);
   });
 });

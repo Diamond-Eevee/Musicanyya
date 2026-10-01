@@ -342,6 +342,7 @@ export const en = {
       arrangement: 'Arrangement for this app (CC0)',
       licence: 'Licence',
       credit: 'Credit',
+      changed: 'Changed for Musicanyya',
       limitations: 'Limitations',
     },
   },

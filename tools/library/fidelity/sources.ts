@@ -3,6 +3,12 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { isAbsolute, join, normalize, sep } from 'node:path';
+import {
+  isAttributionLicence,
+  isLibraryLicence,
+  LIBRARY_LICENCES,
+  type LibraryLicence,
+} from '../../../src/core/library/licences';
 
 export interface SourceFile {
   role: 'notation' | 'sound' | 'scan';
@@ -27,7 +33,8 @@ export interface SourceManifest {
   publisher: string;
   url: string;
   identifier?: string;
-  licence: 'public-domain' | 'CC0-1.0';
+  /** CC BY / CC BY-SA since 1.3.0 (019 FR-025): then `credit` is required. */
+  licence: LibraryLicence;
   /** `"transcription"`: our own CC0 reading of the public-domain print at `url` (contract 1.2.0, feature 019); absent = downloaded. */
   origin?: 'downloaded' | 'transcription';
   credit?: string;
@@ -70,7 +77,6 @@ const FILE_FIELDS = [
   'score',
   'archive',
 ];
-const LICENCES = ['public-domain', 'CC0-1.0'];
 
 export function loadSources(root: string): Map<string, SourceManifest> {
   const sources = new Map<string, SourceManifest>();
@@ -107,8 +113,10 @@ export function validateManifest(json: unknown, folder: string): SourceManifest 
   url(m.url, 'url', fail);
   if (m.identifier !== undefined) text(m.identifier, 'identifier', fail, 100);
   if (m.credit !== undefined) text(m.credit, 'credit', fail, 300);
-  if (typeof m.licence !== 'string' || !LICENCES.includes(m.licence))
-    fail(`licence "${String(m.licence)}" is not allowed: only public-domain or CC0-1.0 (FR-006)`);
+  if (!isLibraryLicence(m.licence))
+    fail(`licence "${String(m.licence)}" is not allowed: only ${LIBRARY_LICENCES.join(', ')} (FR-006, 019 FR-025)`);
+  if (isAttributionLicence(m.licence) && (typeof m.credit !== 'string' || m.credit.trim() === ''))
+    fail(`a ${String(m.licence)} source needs a credit naming its author (019 FR-025)`);
   if (m.origin !== undefined && m.origin !== 'downloaded' && m.origin !== 'transcription')
     fail(`origin "${String(m.origin)}" must be "downloaded" or "transcription"`);
   if (m.origin === 'transcription' && m.licence !== 'CC0-1.0')

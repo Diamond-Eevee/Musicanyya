@@ -1,5 +1,5 @@
 import type { LibraryItem } from '../../core/library/types.js';
-import { scoreSourceLines } from '../format/score-source-text.js';
+import { scoreSourceLineHtml, scoreSourceLines } from '../format/score-source-text.js';
 import { en } from '../i18n/en.js';
 import { libraryState } from '../state/libraryState.js';
 import { escapeHtml } from '../util/escape-html.js';
@@ -37,7 +37,7 @@ export class MxScoreSource extends HTMLElement {
 
   private linesHtml(item: LibraryItem): string {
     return scoreSourceLines(item)
-      .map((line) => `<p class="score-source-line">${escapeHtml(line)}</p>`)
+      .map((line) => scoreSourceLineHtml(line, escapeHtml))
       .join('');
   }
 }

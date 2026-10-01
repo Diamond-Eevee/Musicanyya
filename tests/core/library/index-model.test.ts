@@ -247,3 +247,60 @@ describe('library-index 1.2.0 fields', () => {
     expect(notices).toEqual([{ code: 'invalidItem', id: 'learning/keys/c-major/introduction' }]);
   });
 });
+
+// Feature 019 FR-025 / FR-026, contract library-index 1.4.0 (research R-19).
+describe('library-index 1.4.0: attribution licences', () => {
+  const attributed = (provenance: Record<string, unknown>) => {
+    const base = validItem('repertoire/advanced/grieg-morning-mood');
+    return validItem('repertoire/advanced/grieg-morning-mood', { meta: { ...base.meta, provenance } });
+  };
+  const DOWNLOADED = {
+    origin: 'downloaded',
+    licence: 'CC-BY-SA-4.0',
+    source: 'https://example.org/piece',
+    sourcePath: 'example-1/piece.mxl',
+    obtained: '2026-10-01',
+    credit: 'A. Typesetter',
+    unmodified: false,
+  };
+
+  it('accepts a downloaded item under CC BY-SA with its credit and unmodified, and keeps both', () => {
+    const { index, notices } = parseLibraryIndex(validIndex([attributed(DOWNLOADED)]));
+    expect(notices).toEqual([]);
+    const provenance = index.items[0]?.meta.provenance;
+    expect(provenance).toMatchObject({ licence: 'CC-BY-SA-4.0', credit: 'A. Typesetter', unmodified: false });
+  });
+
+  it('accepts every CC BY version the library lists', () => {
+    for (const licence of ['CC-BY-2.0', 'CC-BY-2.5', 'CC-BY-3.0', 'CC-BY-4.0']) {
+      const { notices } = parseLibraryIndex(validIndex([attributed({ ...DOWNLOADED, licence })]));
+      expect(notices, licence).toEqual([]);
+    }
+  });
+
+  // Each rejection is paired with the same item accepted, so the test fails on code that refuses the licence itself.
+  const accepted = (provenance: Record<string, unknown>) =>
+    parseLibraryIndex(validIndex([attributed(provenance)])).index.items.length === 1;
+
+  it('rejects an attribution item without its credit; the same item with it is accepted', () => {
+    const { credit: _credit, ...noCredit } = DOWNLOADED;
+    expect(accepted(DOWNLOADED)).toBe(true);
+    expect(accepted(noCredit)).toBe(false);
+  });
+
+  it('rejects an attribution item that does not say whether it was changed', () => {
+    const { unmodified: _unmodified, ...noFlag } = DOWNLOADED;
+    expect(accepted({ ...DOWNLOADED, unmodified: true })).toBe(true);
+    expect(accepted(noFlag)).toBe(false);
+  });
+
+  it('rejects a NonCommercial licence while the same item under CC BY 4.0 is accepted', () => {
+    expect(accepted({ ...DOWNLOADED, licence: 'CC-BY-4.0' })).toBe(true);
+    expect(accepted({ ...DOWNLOADED, licence: 'CC-BY-NC-4.0' })).toBe(false);
+  });
+
+  it('rejects an authored item under an attribution licence (authored items stay CC0), unlike a downloaded one', () => {
+    expect(accepted({ ...DOWNLOADED, licence: 'CC-BY-4.0' })).toBe(true);
+    expect(accepted({ origin: 'authored', licence: 'CC-BY-4.0', author: 'X', created: '2026-10-01' })).toBe(false);
+  });
+});

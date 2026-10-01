@@ -1,6 +1,8 @@
 /** contracts/library-index.md, contracts/library-port.md - the shapes the library content formats
  *  and the app's in-memory model share. Pure data: no DOM, no `fetch` (Principle V). */
 
+import type { LibraryLicence } from './licences.js';
+
 /** Feature 011 adds `introduction` below `beginner` (specs/011-learning-by-key/data-model.md §4). */
 export type Level = 'introduction' | 'beginner' | 'intermediate' | 'advanced';
 
@@ -53,7 +55,8 @@ export interface ProvenanceAuthored {
 
 export interface ProvenanceDownloaded {
   origin: 'downloaded';
-  licence: 'CC0-1.0' | 'public-domain';
+  /** CC BY / CC BY-SA since library-index 1.4.0 (019 FR-025): then `credit` and `unmodified` are always present. */
+  licence: LibraryLicence;
   source: string;
   sourcePath?: string;
   obtained: string;

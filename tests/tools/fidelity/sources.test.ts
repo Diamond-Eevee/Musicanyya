@@ -80,9 +80,10 @@ describe('loadSources (contract source-manifest.md)', () => {
     expect([...load().keys()]).toEqual(['test-1', 'test-2']);
   });
 
-  it('fails a Creative Commons BY-SA licence (Mutopia 659)', () => {
+  // 1.3.0 (019 FR-025): CC BY-SA is admitted as an SPDX id; a licence written any other way is still refused.
+  it('fails a licence that is not one of the listed SPDX ids (Mutopia 659 as its page writes it)', () => {
     source('test-1', manifest('test-1', { licence: 'CC BY-SA 2.5' }));
-    failsWith(/test-1.*licence "CC BY-SA 2\.5".*public-domain or CC0-1\.0/);
+    failsWith(/test-1.*licence "CC BY-SA 2\.5" is not allowed/);
   });
 
   it('fails a file whose content changed since its hash was recorded', () => {
@@ -211,5 +212,27 @@ describe('loadSources: origin "transcription" (feature 019)', () => {
   it('a transcription is our own CC0 work: another licence fails', () => {
     write('own-1', transcription('own-1', { licence: 'public-domain' }));
     failsWith(/transcription.*CC0/);
+  });
+});
+
+// Feature 019 FR-025, source-manifest 1.3.0 (research R-19).
+describe('loadSources: attribution licences (source-manifest 1.3.0)', () => {
+  it('accepts CC BY-SA 3.0 with a credit, and keeps the credit', () => {
+    source('test-1', manifest('test-1', { licence: 'CC-BY-SA-3.0', credit: 'Typeset by A. Person' }));
+    expect(load().get('test-1')?.licence).toBe('CC-BY-SA-3.0');
+  });
+
+  it('fails CC BY 4.0 without a credit, naming the field; the same manifest with one loads', () => {
+    source('test-1', manifest('test-1', { licence: 'CC-BY-4.0', credit: 'A. Person' }));
+    expect(() => load()).not.toThrow();
+    source('test-1', manifest('test-1', { licence: 'CC-BY-4.0' }));
+    failsWith(/test-1.*credit/);
+  });
+
+  it('fails a NonCommercial licence even with a credit, where CC BY 4.0 loads', () => {
+    source('test-1', manifest('test-1', { licence: 'CC-BY-4.0', credit: 'A. Person' }));
+    expect(() => load()).not.toThrow();
+    source('test-1', manifest('test-1', { licence: 'CC-BY-NC-4.0', credit: 'A. Person' }));
+    failsWith(/test-1.*licence "CC-BY-NC-4\.0" is not allowed/);
   });
 });

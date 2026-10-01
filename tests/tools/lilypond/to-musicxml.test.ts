@@ -337,6 +337,16 @@ describe('library:convert-ly', () => {
     expect(lines.join('\n')).toContain('playback tempo 100 from the source MIDI');
   });
 
+  // 019 FR-025 (research R-19): an attribution-licensed source is credited in the item's rights line.
+  it('writes licence name, deed link and credit into <rights> for a CC BY-SA source', () => {
+    writeSource(MID, { licence: 'CC-BY-SA-4.0', credit: 'Typeset by A. Person' });
+    writeSidecar('downloaded');
+    expect(run('test-1', 'repertoire/test/scale')).toBe(0);
+    expect(readFileSync(itemPath(), 'utf8')).toContain(
+      '<rights>CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/). Converted from Typeset by A. Person.</rights>',
+    );
+  });
+
   it('refuses an unknown source or item', () => {
     writeSource(MID);
     writeSidecar('downloaded');

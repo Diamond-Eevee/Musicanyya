@@ -119,6 +119,41 @@ describe('mx-score-source (FR-019)', () => {
     expect(el.textContent).toContain('written pedal is not played');
   });
 
+  // 019 FR-025 / SC-010 (research R-19): an attribution-licensed item names its licence with a link, its author and
+  // whether it was changed.
+  it('shows licence name with its deed link, credit and "Changed for Musicanyya" for a CC BY-SA item', () => {
+    const item = downloadedItem();
+    libraryState.setOpenedItem({
+      ...item,
+      meta: {
+        ...item.meta,
+        limitations: undefined,
+        provenance: {
+          origin: 'downloaded',
+          licence: 'CC-BY-SA-4.0',
+          source: 'https://example.org/piece',
+          obtained: '2026-10-01',
+          credit: 'Typeset by A. Person',
+          unmodified: false,
+        } as typeof item.meta.provenance,
+      },
+    });
+    const el = document.createElement('mx-score-source');
+    document.body.appendChild(el);
+    const lines = Array.from(el.querySelectorAll('.score-source-line')).map((l) => l.textContent);
+    expect(lines).toEqual([
+      'Licence: CC BY-SA 4.0',
+      'https://example.org/piece',
+      'Credit: Typeset by A. Person',
+      'Changed for Musicanyya',
+    ]);
+    const link = el.querySelector<HTMLAnchorElement>('.score-source-line a');
+    expect(link?.getAttribute('href')).toBe('https://creativecommons.org/licenses/by-sa/4.0/');
+    expect(link?.textContent).toBe('CC BY-SA 4.0');
+    expect(link?.getAttribute('target')).toBe('_blank');
+    expect(link?.getAttribute('rel')).toBe('noopener noreferrer');
+  });
+
   it('clears when the opened item is set back to null (a user file was opened)', () => {
     libraryState.setOpenedItem(authoredItem());
     const el = document.createElement('mx-score-source');

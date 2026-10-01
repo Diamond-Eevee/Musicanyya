@@ -1,4 +1,5 @@
 import { MAX_FILE_BYTES } from '../defaults.js';
+import { isAttributionLicence, isLibraryLicence } from './licences.js';
 import type {
   ItemFacts,
   ItemMetadata,
@@ -71,8 +72,11 @@ function validProvenance(raw: unknown): Provenance | null {
     return provenance;
   }
   if (raw.origin === 'downloaded') {
-    if (raw.licence !== 'CC0-1.0' && raw.licence !== 'public-domain') return null;
+    if (!isLibraryLicence(raw.licence)) return null;
     if (!isNonEmptyString(raw.source) || !isNonEmptyString(raw.obtained)) return null;
+    // An attribution licence (019 FR-025) needs the author's credit and an explicit "was it changed".
+    if (isAttributionLicence(raw.licence) && (!isNonEmptyString(raw.credit) || typeof raw.unmodified !== 'boolean'))
+      return null;
     const provenance: Provenance = {
       origin: 'downloaded',
       licence: raw.licence,

@@ -6,6 +6,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { isAttributionLicence, licenceName, licenceUrl } from '../../../src/core/library/licences';
 import { buildScore } from '../../../src/core/musicxml/build';
 import { readXml } from '../../../src/core/musicxml/read';
 import { type Aspect, compare, compareSound, describeDifference } from '../fidelity/compare';
@@ -143,7 +144,13 @@ function convert(sourceId: string, itemId: string, replace: boolean, io: CliIo):
 
 /** The `<rights>` line: the licence and, when the manifest has one, the typesetter's credit. */
 function rights(manifest: SourceManifest): string {
-  const licence = manifest.licence === 'public-domain' ? 'Public domain' : 'CC0 1.0';
+  // 019 FR-025: an attribution licence is named with its deed link.
+  const url = isAttributionLicence(manifest.licence) ? licenceUrl(manifest.licence) : undefined;
+  const licence = url
+    ? `${licenceName(manifest.licence)} (${url})`
+    : manifest.licence === 'public-domain'
+      ? 'Public domain'
+      : 'CC0 1.0';
   const from = manifest.credit ?? `${manifest.work}, ${manifest.edition} (${manifest.publisher})`;
   return `${licence}. Converted from ${from}.`;
 }

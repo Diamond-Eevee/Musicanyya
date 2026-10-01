@@ -236,7 +236,7 @@ describe('mx-browser-detail (FR-013)', () => {
     expect(el.textContent).toContain('Ode to Joy');
     expect(el.textContent).toContain('Beethoven');
     const lines = Array.from(el.querySelectorAll('.score-source-line')).map((l) => l.textContent);
-    expect(lines).toEqual(scoreSourceLines(item));
+    expect(lines).toEqual(scoreSourceLines(item).map((line) => line.text));
   });
 
   it('the Open button emits browseropenitem with the selected ItemRef', () => {
