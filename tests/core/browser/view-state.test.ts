@@ -27,6 +27,7 @@ describe('validateViewState (T015)', () => {
       filters: { level: 'beginner', key: 'C major', tag: 'chords', status: 'played' },
       sort: { by: 'title', dir: 'desc' },
       selected: { kind: 'library', id: 'learning/keys/c-major-v2/introduction' },
+      expanded: ['learning', 'learning/keys'],
     };
     expect(validateViewState(raw, sections)).toEqual(raw);
   });
@@ -66,6 +67,50 @@ describe('validateViewState (T015)', () => {
     expect(validateViewState({}, sections)).toEqual(DEFAULT_BROWSER_VIEW);
     expect(validateViewState(null, sections)).toEqual(DEFAULT_BROWSER_VIEW);
     expect(validateViewState('garbage', sections)).toEqual(DEFAULT_BROWSER_VIEW);
+  });
+});
+
+describe('validateViewState: expanded (018 T005)', () => {
+  const stored013 = {
+    folder: { kind: 'section', id: 'learning/keys/c-major-v2' },
+    search: 'elise',
+    filters: { level: 'beginner', key: 'C major', tag: 'chords', status: 'played' },
+    sort: { by: 'title', dir: 'desc' },
+    selected: { kind: 'library', id: 'learning/keys/c-major-v2/introduction' },
+  };
+
+  it('the default view has every rail folder collapsed', () => {
+    expect(DEFAULT_BROWSER_VIEW.expanded).toEqual([]);
+  });
+
+  it('a stored 013 view without expanded reads as [] and keeps every other field (US4 #2, FR-015)', () => {
+    const result = validateViewState(stored013, sections);
+    expect(result.expanded).toEqual([]);
+    expect(result.folder).toEqual(stored013.folder);
+    expect(result.search).toBe('elise');
+    expect(result.filters).toEqual(stored013.filters);
+    expect(result.sort).toEqual(stored013.sort);
+    expect(result.selected).toEqual(stored013.selected);
+  });
+
+  it('an invalid expanded becomes [] without touching the other fields', () => {
+    for (const bad of ['learning', { learning: true }, 7, null]) {
+      const result = validateViewState({ ...stored013, expanded: bad }, sections);
+      expect(result.expanded).toEqual([]);
+      expect(result.folder).toEqual(stored013.folder);
+      expect(result.search).toBe('elise');
+      expect(result.filters).toEqual(stored013.filters);
+      expect(result.sort).toEqual(stored013.sort);
+      expect(result.selected).toEqual(stored013.selected);
+    }
+  });
+
+  it('a valid expanded goes through validateExpanded: a former id is replaced, an unknown one dropped', () => {
+    const result = validateViewState(
+      { ...stored013, expanded: ['learning/keys', 'learning/keys/c-major', 'no-such-section'] },
+      sections,
+    );
+    expect(result.expanded).toEqual(['learning/keys', 'learning/keys/c-major-v2']);
   });
 });
 

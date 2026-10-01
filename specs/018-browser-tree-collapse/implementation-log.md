@@ -48,3 +48,18 @@
     infos exist before this feature; no errors)
   - `pnpm typecheck`: `tsc --build tsconfig.json`, exit 0
 - Model fit: Phase 1 is tier `light`; claude-sonnet-5.5 fits (a higher tier never asks). T021 is `deep`: will ask.
+
+## 2026-10-01 - claude-sonnet-5.5 (implement: Phase 2 Foundational checkpoint)
+- Done: T001-T008. T002 folded the 018 contract changes into 013 `score-browser.md` (1.0.0 -> 1.1.0), 013
+  `data-model.md` §7/§8 and 001 `storage.md`; T003 `BROWSER_EXPANDED_MAX = 512` matches data-model §5.
+- Tests first: T004 (`tree-state.test.ts`) failed with `Cannot find module .../tree-state.js`; T005 (4 new cases in
+  `view-state.test.ts`) failed with `expected undefined to deeply equal []`; T006 (`tree-persistence.test.ts`, 6
+  cases) all failed with `expected undefined to deeply equal ...` (no `view.expanded` yet). Implemented T007 (types,
+  `tree-state.ts`) and T008 (default, `validateViewState`, `inFolder` exported); `browserState.ts` needed no change
+  (`indexFailed` revalidates with the known sections, `persistView` writes the whole view).
+- Test changed: `view-state.test.ts` "keeps every valid field of a full, well-formed payload" now includes
+  `expanded` in its payload (018: the view has the new field; the assertion is the same `toEqual(raw)`).
+- Gate at this point: `pnpm test` `Test Files  301 passed (301)`, `Tests  6305 passed (6305)`, exit 0; `pnpm
+  typecheck` exit 0; `pnpm lint` exit 0 with the same 316 warnings / 13 infos as the baseline (no new ones).
+  (`pnpm test -- <path>` runs the whole suite here; the path filter is ignored.)
+- Handoff: next = T009 (rail tests, then T010 e2e, then T011/T012/T013); tree clean at the next commit.

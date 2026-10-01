@@ -41,7 +41,7 @@
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T004 [P] Unit tests for the pure tree-state helpers in `tests/core/browser/tree-state.test.ts` (data-model.md
+- [x] T004 [P] Unit tests for the pure tree-state helpers in `tests/core/browser/tree-state.test.ts` (data-model.md
   §2), one assertion per bullet, using a small section fixture with `formerIds`:
   - `validateExpanded`: non-array -> `[]`; non-strings dropped; more than `BROWSER_EXPANDED_MAX` -> the first 512;
     with sections: a former id becomes its replacement, an unknown id is dropped, the result is sorted and unique;
@@ -53,12 +53,12 @@
   - `containsChosen` is true only for a strict ancestor of a chosen section; false for the section itself, for
     `continue`/`all`/`myFiles` and for unrelated sections
   Fails today: the module `src/core/browser/tree-state.ts` does not exist
-- [ ] T005 [P] Extend `tests/core/browser/view-state.test.ts`: `DEFAULT_BROWSER_VIEW.expanded` is `[]`; a stored 013
+- [x] T005 [P] Extend `tests/core/browser/view-state.test.ts`: `DEFAULT_BROWSER_VIEW.expanded` is `[]`; a stored 013
   view without `expanded` validates to `expanded: []` with folder, search, filters, sort and selected unchanged
   (US4 #2, FR-015); an invalid `expanded` (a string, an object) becomes `[]` without touching the other fields; a
   valid one goes through `validateExpanded` (a former id is replaced). Fails today: `BrowserViewState` has no
   `expanded`
-- [ ] T006 [P] [US2] Store persistence tests in the new file `tests/ui/score-browser/tree-persistence.test.ts`, with a
+- [x] T006 [P] [US2] Store persistence tests in the new file `tests/ui/score-browser/tree-persistence.test.ts`, with a
   fresh `createBrowserStateStore()` per case and a stubbed `localStorage`:
   1. no stored record -> `view.expanded` is `[]` after `indexLoaded` with folder `continue` (US2 #1, FR-007);
   2. `setView({ expanded: ['learning'] })` writes `{ version: 1, view }` whose `view.expanded` is `['learning']`, and a
@@ -73,10 +73,10 @@
 
 ### Implementation
 
-- [ ] T007 Add `expanded: readonly string[]` to `BrowserViewState` in `src/core/browser/types.ts` (comment: 018
+- [x] T007 Add `expanded: readonly string[]` to `BrowserViewState` in `src/core/browser/types.ts` (comment: 018
   data-model §1), then implement `src/core/browser/tree-state.ts` (data-model.md §2, R-3, R-4; pure, no DOM) so T004
   passes
-- [ ] T008 Set `expanded: []` in `DEFAULT_BROWSER_VIEW` and have `validateViewState` call `validateExpanded(r.expanded,
+- [x] T008 Set `expanded: []` in `DEFAULT_BROWSER_VIEW` and have `validateViewState` call `validateExpanded(r.expanded,
   sections)` in `src/core/browser/view-state.ts`; export the existing `inFolder` from `src/core/browser/query.ts`
   without changing its logic (R-5); fix every `BrowserViewState` literal that `pnpm typecheck` reports; and check in
   `src/ui/state/browserState.ts` that `indexFailed` and `persistView` keep and write `expanded` (change them only if

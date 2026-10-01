@@ -60,6 +60,8 @@ export interface BrowserViewState {
   };
   sort: { by: 'library' | 'title' | 'lastPlayed' | 'best'; dir: 'asc' | 'desc' };
   selected: ItemRef | null;
+  /** 018 data-model §1: section ids of the open rail folders, sorted and unique; absent in a 013 record = []. */
+  expanded: readonly string[];
 }
 
 /** data-model.md §9 - *Suggested next* (FR-025). */

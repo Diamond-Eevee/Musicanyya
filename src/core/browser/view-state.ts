@@ -4,6 +4,7 @@
 
 import type { Level, LibrarySection, SkillTag } from '../library/types.js';
 import { SKILL_TAGS } from '../library/types.js';
+import { validateExpanded } from './tree-state.js';
 import type { BrowserViewState, FolderSel, StatusFilter } from './types.js';
 
 export const DEFAULT_BROWSER_VIEW: BrowserViewState = {
@@ -12,6 +13,7 @@ export const DEFAULT_BROWSER_VIEW: BrowserViewState = {
   filters: { level: null, key: null, tag: null, status: null },
   sort: { by: 'library', dir: 'asc' },
   selected: null,
+  expanded: [], // 018 FR-007: every rail folder collapsed
 };
 
 const LEVELS: readonly Level[] = ['introduction', 'beginner', 'intermediate', 'advanced'];
@@ -85,6 +87,7 @@ export function validateViewState(raw: unknown, sections: readonly LibrarySectio
     filters: { level, key, tag, status },
     sort: { by: sortBy, dir: sortDir },
     selected: validateSelected(r.selected),
+    expanded: validateExpanded(r.expanded, sections),
   };
 }
 
