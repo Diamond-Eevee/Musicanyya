@@ -472,6 +472,56 @@ its detail lists the instruments; other items show no marker.
 
 ---
 
+## Phase 7b: Library licences - CC BY and CC BY-SA (owner decision 2026-10-01, FR-025, FR-026, SC-010)
+
+**Model**: standard (gemini-3.8-flash or claude-sonnet-5.5; claude-opus-5.5 and gemini-3.1-pro also fit)
+**Goal**: the library may take items and reference sources under CC BY / CC BY-SA, always credited (research R-19).
+**Independent Test**: a fixture item under `CC-BY-SA-4.0` with credit, `unmodified: false` and a matching source passes
+the licence test and shows "Licence: CC BY-SA 4.0", the licence link, "Credit: ..." and "Changed for Musicanyya" in its
+source details; the same item without credit, with a CC0 source, or under `CC-BY-NC-4.0` fails.
+
+- [x] T086 [US2] Owner decision recorded and documents first (2026-10-01, claude-opus-5.5): spec Clarification,
+  FR-021 wording, FR-025, FR-026, SC-010; research R-19; data-model §6.3a; contract-changes rows; folded into
+  `specs/005-practice-score-library/contracts/library-index.md` 1.4.0 and
+  `specs/007-library-fidelity-audit/contracts/source-manifest.md` 1.3.0
+
+### Tests (write first, confirm they fail)
+
+- [ ] T087 [P] [US2] New `tests/core/library/licences.test.ts`: `LIBRARY_LICENCES` lists exactly the ten ids;
+  `isAttributionLicence`; `licenceName` ("Public domain", "CC0 1.0", "CC BY 4.0", "CC BY-SA 3.0") and `licenceUrl`
+  (`https://creativecommons.org/licenses/by-sa/3.0/`, CC0 `https://creativecommons.org/publicdomain/zero/1.0/`,
+  public domain none). Extend `tests/core/library/index-model.test.ts`: a `downloaded` sidecar with `CC-BY-SA-4.0`,
+  credit and `unmodified` is accepted; without credit, without `unmodified`, or with `CC-BY-NC-4.0` it is rejected; an
+  `authored` sidecar with `CC-BY-4.0` is rejected. Fails today: no module, licence refused
+- [ ] T088 [P] [US2] Extend `tests/tools/fidelity/sources.test.ts`: a manifest with `CC-BY-SA-3.0` and `credit`
+  validates; without `credit` it fails naming the field; `CC-BY-NC-4.0` fails. Extend `tests/library/licence.test.ts`
+  with fixture libraries: an attribution item whose `sourcePath` source has another licence fails (FR-026); one whose
+  credit is missing from `THIRD_PARTY_NOTICES.md` fails; an authored item `basedOn` an attribution-licensed source
+  fails. Fails today: the licence is refused earlier
+- [ ] T089 [P] [US2] Extend `tests/ui/mx-score-source.test.ts` (and the browser detail test that shares
+  `scoreSourceLines`): an attribution item shows the licence name, its link (an `<a>` to `licenceUrl`, opening outside
+  the app), the credit and "Changed for Musicanyya" when `unmodified` is false; a CC0 item's lines are unchanged.
+  Fails today: the raw id is shown
+- [ ] T090 [P] [US2] Extend `tests/tools/lilypond/` (the `library:convert-ly` CLI test): the `<rights>` of an item converted
+  from a CC BY-SA source reads "CC BY-SA 4.0 (<deed url>). <credit>."; PD and CC0 unchanged. Fails today
+
+### Implementation
+
+- [ ] T091 [US2] `src/core/library/licences.ts` (ids, names, deed URLs); `src/core/library/types.ts` and
+  `src/core/library/index-model.ts` (attribution rules) (T087 green)
+- [ ] T092 [US2] `tools/library/fidelity/sources.ts` (manifest licences, `credit` rule) and the checks in
+  `tests/library/licence.test.ts`' helpers / `tools/library/build-index.ts` as needed (T088 green);
+  `content/library/sources/README.md`: the rule names the accepted licences and the attribution duty; the
+  "Rejected sources" rows refused only for CC BY / CC BY-SA say they were refused under the rule before 2026-10-01 and
+  may be proposed again (each still needs the owner's approval)
+- [ ] T093 [US2] `src/ui/format/score-source-text.ts`, its callers' link rendering and `src/ui/i18n/en.ts` (T089 green)
+- [ ] T094 [US2] `rights()` in `tools/library/lilypond/cli.ts` (T090 green); the toolchain/reference docs if a command
+  changed (none expected)
+- [ ] T095 [US2] Checkpoint licences: the Independent Test above; `pnpm library:index` and `pnpm library:fidelity
+  --check` leave every existing item unchanged; full gate; log entry; commit
+
+---
+
 ## Phase 8: Polish & Cross-Cutting
 
 **Model**: standard (gemini-3.8-flash or claude-sonnet-5.5; claude-opus-5.5 and gemini-3.1-pro also fit)

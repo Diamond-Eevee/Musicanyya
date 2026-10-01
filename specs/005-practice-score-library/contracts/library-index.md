@@ -1,6 +1,9 @@
 # Contract: library content formats (`item.json` + generated `index.json`)
 
-**Version**: `1.3.0` (1.3.0, 2026-10-01, feature 019-metronome-orchestra-volume, MINOR: optional fact `orchestra`, the
+**Version**: `1.4.0` (1.4.0, 2026-10-01, feature 019 (owner decision, research R-19), MINOR: `downloaded` items may be
+under CC BY or CC BY-SA 2.0/2.5/3.0/4.0 (SPDX ids); for those `credit` and `unmodified` are required and `sourcePath`
+names a source with the same licence; authored items stay CC0. Full text: [019 data-model.md](../../019-metronome-orchestra-volume/data-model.md)
+section 6.3a; 1.3.0, 2026-10-01, feature 019-metronome-orchestra-volume, MINOR: optional fact `orchestra`, the
 instrument names of the item's Orchestra parts (parts whose every staff is not printed), absent when there are none;
 every other fact is derived from the **printed** parts only, so `parts` counts printed parts and an Orchestra part
 changes no level criterion; and, for the item that needs it (019 research R-17), the optional fact
@@ -107,7 +110,8 @@ Everything a human decides. Never generated, never rewritten by a tool.
           "additionalProperties": false,
           "properties": {
             "origin":   { "const": "downloaded" },
-            "licence":  { "enum": ["CC0-1.0", "public-domain"] },
+            "licence":  { "enum": ["CC0-1.0", "public-domain", "CC-BY-2.0", "CC-BY-2.5", "CC-BY-3.0", "CC-BY-4.0",
+                                     "CC-BY-SA-2.0", "CC-BY-SA-2.5", "CC-BY-SA-3.0", "CC-BY-SA-4.0"] },
             "source":   { "type": "string", "format": "uri" },
             "sourcePath": { "type": "string" },
             "obtained": { "type": "string", "format": "date" },
@@ -132,8 +136,12 @@ Everything a human decides. Never generated, never rewritten by a tool.
 
 **Rules**
 
-- `licence` accepts only `CC0-1.0` and `public-domain` (FR-017). Any other value fails the licence
-  check - it is not a warning.
+- `licence` accepts only `CC0-1.0` and `public-domain` (FR-017) and, since 1.4.0, for `downloaded` items the
+  attribution licences CC BY / CC BY-SA 2.0-4.0 (019 FR-025). Any other value fails the licence check - it is not a
+  warning.
+- With an attribution licence, `credit` (the author as the source names them) and `unmodified` are required,
+  `sourcePath` must name a source whose manifest has the same licence (019 FR-026), and the item is shown with its
+  licence name, licence link, credit and, when `unmodified` is false, "Changed for Musicanyya" (019 FR-025).
 - `origin: "downloaded"` **requires** `source` and `obtained`, and the file must also appear in
   `THIRD_PARTY_NOTICES.md` (FR-020); the licence test asserts both.
 - `credit` is shown wherever the item is shown when present, even though CC0 requires no attribution

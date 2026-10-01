@@ -114,6 +114,16 @@ note outside `range` are errors (the tool writes nothing).
 |---|---|---|
 | `origin` | `"downloaded" \| "transcription"`, optional, default `"downloaded"` | `"transcription"`: our own CC0 reading of a public-domain print (`url` = that print); used for transcription B (R-15). |
 
+### 6.3a Licences (owner decision 2026-10-01, research R-19; library-index 1.4.0, source-manifest 1.3.0)
+
+| Item | Rule |
+|---|---|
+| `LIBRARY_LICENCES` (`src/core/library/licences.ts`) | `public-domain`, `CC0-1.0`, and the attribution licences `CC-BY-{2.0,2.5,3.0,4.0}`, `CC-BY-SA-{2.0,2.5,3.0,4.0}` |
+| `licenceName(id)` / `licenceUrl(id)` | "CC BY-SA 4.0" / `https://creativecommons.org/licenses/by-sa/4.0/`; public domain and CC0 have a name, CC0 a URL |
+| sidecar `provenance` (`downloaded`) with an attribution licence | `credit` required; `unmodified` required (boolean); `sourcePath` names a source whose manifest has the same licence |
+| sidecar `provenance` (`authored`) | unchanged: `CC0-1.0` only; `basedOn` names only public-domain or CC0 sources |
+| source manifest with an attribution licence | `credit` required |
+
 ### 6.4 Library item `grieg-morning-mood`
 
 | Field | Value |

@@ -18,6 +18,8 @@ New contracts of this feature: [orchestra-score.md](orchestra-score.md), [mixer-
 | `003/contracts/grading.md` | 1.2.1 -> **1.2.2** (PATCH, wording) | States that notes with `printed: false` (including every Orchestra note) are never expected and never in played-along spans; no behaviour change for existing Scores. |
 | `005/contracts/library-index.md` | 1.2.0 -> **1.3.0** (MINOR) | `ItemFacts.orchestra?: string[]`; facts from printed parts only; (conditional, R-17) `maxArpeggiatedSpanSemitones` and the Advanced `<arpeggiate>` span exception. |
 | `007/contracts/source-manifest.md` | 1.1.0 -> **1.2.0** (MINOR) | Optional `origin: "downloaded" \| "transcription"`. |
+| `007/contracts/source-manifest.md` | 1.2.0 -> **1.3.0** (MINOR, R-19) | `licence` also CC BY / CC BY-SA 2.0-4.0 (SPDX); `credit` required for them. |
+| `005/contracts/library-index.md` | 1.3.0 -> **1.4.0** (MINOR, R-19) | `downloaded` items may be CC BY / CC BY-SA; then `credit`, `unmodified` required and `sourcePath`'s manifest has the same licence; authored items stay CC0. Data-model §6.3a. |
 | `007/contracts/audit-record.md` | 1.3.0 -> **1.4.0** (MINOR) | Theory rule set `orchestra-v1` (rules O1-O5 of [orchestration-definition.md](orchestration-definition.md) §3). |
 | `007/contracts/fidelity-tools.md` | 1.13.0 -> **1.14.0** (MINOR) | `checkOrchestra`; command `pnpm library:orchestra <item-id> [--check]`; the writer can write `<staff-details print-object="no">` and `<sound dynamics>`. |
 | `013/contracts/score-browser.md` | 1.1.0 -> **1.2.0** (MINOR) | List rows of items with `facts.orchestra` show the "with orchestra" marker (glyph + text); the detail lists the instruments. |

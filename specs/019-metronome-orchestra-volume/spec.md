@@ -18,6 +18,9 @@ you what fits there)."
 - Q: Should Listen and Practice mode also get an optional Metronome click now? -> A: No. The Metronome stays a Play mode
   feature; the Metronome level applies to the Play count-in and run (the latency calibration panel plays no click
   today, so it is not affected - corrected by the plan step, 2026-10-01).
+- Q: May the library take music under attribution licences, not only public domain and CC0 (asked while looking for a
+  machine-readable *Morning Mood*)? -> A: Yes: CC BY and CC BY-SA, always with the author named wherever the item is
+  shown; built inside this feature (owner, 2026-10-01). FR-025, FR-026.
 
 ## Context
 
@@ -226,8 +229,8 @@ instruments (piano; flute, oboe, strings); items without an Orchestra show no ma
   hands (treble and bass staff), in Repertoire, in the level that matches its difficulty under the library's existing
   level criteria. The piano part is Grieg's own piano arrangement of Op. 46 No. 1 (published 1888), encoded from a
   public-domain print and checked bar by bar against that print (Clarifications 2026-10-01).
-- **FR-021**: The piano part MUST meet the library's standing rules: public domain, CC0 or written for this project
-  only; recorded with its source and licence in the library sources and the third-party notices; every note checked against a
+- **FR-021**: The piano part MUST meet the library's standing rules: public domain, CC0, an attribution licence
+  (FR-025) or written for this project; recorded with its source and licence in the library sources and the third-party notices; every note checked against a
   named public-domain source, never accepted on review alone.
 - **FR-022**: *Morning Mood* MUST have an Orchestra of flute and oboe (answering and doubling the melody, as in Grieg's
   orchestration), a string section (sustained harmony and bass) and optionally horns at the climax, arranged for this
@@ -237,6 +240,17 @@ instruments (piano; flute, oboe, strings); items without an Orchestra show no ma
   progress, cursor, Grade) - the Orchestra adds sound only.
 - **FR-024**: Library items with an Orchestra MUST be marked in the library browser by shape and text, and their details
   MUST name the orchestral instruments (US4).
+
+#### Library licences (Clarifications 2026-10-01)
+
+- **FR-025**: Library items and their reference sources MAY be under CC BY or CC BY-SA (versions 2.0, 2.5, 3.0, 4.0)
+  besides public domain and CC0. Such an item MUST name its author (as the source names them), its licence with a link
+  to the licence text, its source, and whether it was changed for this app - in the item's source details and in the
+  browser's detail pane, in `THIRD_PARTY_NOTICES.md` and in the item's MusicXML rights line. Any other licence
+  (NonCommercial, NoDerivatives, "all rights reserved", none stated) is still refused.
+- **FR-026**: A library item made from a CC BY-SA source MUST carry the source's licence itself (share-alike), also when
+  this project adds to the same file (e.g. an Orchestra); items written for this project only (exercises, songs) stay
+  CC0 and MUST NOT be based on a CC BY or CC BY-SA source.
 
 ### Key Entities
 
@@ -270,6 +284,9 @@ instruments (piano; flute, oboe, strings); items without an Orchestra show no ma
   piano.
 - **SC-008**: Both levels survive an app restart in the browser and in the desktop app in 100 % of test runs.
 - **SC-009**: No audio dropout is counted while either level is moved continuously for 10 seconds during playback.
+- **SC-010**: The library licence check refuses every item or source under CC BY / CC BY-SA that lacks its author, its
+  entry in the third-party notices, or (CC BY-SA) the source's own licence; and for every such item the source details
+  show the author, the licence name with its link, and whether it was changed (FR-025, FR-026).
 
 ## Assumptions
 

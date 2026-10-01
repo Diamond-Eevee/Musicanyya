@@ -334,3 +334,27 @@ Summary of the review (it read the spec and all four pages of the print, IA leav
 Sources named by the review: W3C MusicXML 4.0 reference (`staff-details`), MusicXML 3.1 `attributes.mod`, MuseScore
 issue #17398, Verovio `iomusxml.cpp`, Wikipedia "Morning Mood", B. Engeset, *Grieg's orchestral style* (Grieg Society,
 2011), Internet Archive `31761045200615`.
+
+## R-19 Attribution licences in the library (owner decision 2026-10-01)
+
+**Decision**: the library accepts CC BY and CC BY-SA, versions 2.0, 2.5, 3.0 and 4.0, written as SPDX identifiers
+(`CC-BY-4.0`, `CC-BY-SA-3.0`, ...), for library items (`origin: "downloaded"`) and for reference sources. For these
+licences the sidecar and the source manifest MUST have `credit` (the author or typesetter as the source names them), and
+the sidecar MUST state `unmodified` explicitly; the item's licence MUST equal its source manifest's licence (share-alike
+for BY-SA; kept equal for BY too, so one rule covers both). Wherever the item is shown (source details, browser detail
+pane) the app shows the licence name, a link to the licence deed (derived from the identifier, never typed by hand), the
+source, the credit, and "Changed for Musicanyya" when `unmodified` is false; `THIRD_PARTY_NOTICES.md` names the
+credit and licence; `library:convert-ly` writes the same into `<rights>`. Authored items (exercises, songs) stay CC0 and
+may be based only on public-domain or CC0 sources. Orchestration definitions in `content/library/orchestra/` stay CC0
+(our own work); the generated parts inside a CC BY-SA item's file are then distributed under the item's licence.
+
+**Rationale**: CC BY and CC BY-SA allow use, also commercial, and changes, under conditions the app can meet by data:
+attribution, a link to the licence, saying what changed, and (SA) keeping the licence on changed versions. Share-alike
+binds the score file, not the app's code, which only reads it. NonCommercial and NoDerivatives are still refused: the
+app changes every item (engraving tool, Orchestra) and may be sold. The rule that every note is checked against a named
+source (feature 007) is unchanged, so an attribution-licensed file is audited like any other.
+
+**Alternatives considered**: CC BY-SA only (owner's first wording) - rejected because CC BY asks less, so refusing it
+while accepting BY-SA would be arbitrary; free-text licence strings - rejected, the deed link must be derived reliably;
+allowing authored items based on BY-SA sources - out of scope (share-alike would make them BY-SA, which breaks the
+"authored = CC0" rule of features 005 and 011).
