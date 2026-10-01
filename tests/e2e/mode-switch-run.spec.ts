@@ -1,3 +1,5 @@
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
 import { browserDialog } from './helpers/browser.js';
 import { revealLibraryItem } from './helpers/library.js';
@@ -14,6 +16,7 @@ test.beforeEach(async ({ browserName, page }) => {
 });
 
 const ITEM = 'repertoire/intermediate/fur-elise-theme';
+const FIXTURES = path.join(path.dirname(fileURLToPath(import.meta.url)), '../fixtures/musicxml');
 
 const transportPhase = (page: Page) =>
   page.evaluate(
@@ -179,19 +182,35 @@ test('Listen placed at a later measure -> Practice: the session starts in that m
   expect((await currentEvent(page))?.measureIndex).toBe(LATER_MEASURE);
 });
 
-test('Listen playing in a later measure -> Practice: the session starts in that measure', async ({ page }) => {
+test('Listen paused after playing on into a later measure -> Practice: the session starts in that measure', async ({
+  page,
+}) => {
+  // Listen starts a measure earlier and plays on into a later one: the place is where Listen is heard (the notes it
+  // highlights, whose Note IDs carry their measure), not where it was started.
+  const soundingMeasures = () =>
+    page.evaluate(() =>
+      Array.from(document.querySelectorAll('.mx-score-page .playing[id]')).map((el) =>
+        Number(/-m(\d+)-/.exec(el.id)?.[1] ?? -1),
+      ),
+    );
   await openItem(page);
-  await clickMeasure(page, LATER_MEASURE);
+  await clickMeasure(page, LATER_MEASURE - 1);
   await expect.poll(async () => (await transportTicks(page)).startTick).toBeGreaterThan(0);
   const button = page.locator('mx-transport .play-btn');
   await button.click();
   await expect(button).toHaveText('Pause', { timeout: RUN_START_TIMEOUT_MS });
+  await expect
+    .poll(async () => Math.max(...(await soundingMeasures())), { timeout: RUN_START_TIMEOUT_MS })
+    .toBeGreaterThanOrEqual(LATER_MEASURE);
+  await button.click(); // pause: the highlight stays frozen where Listen paused
+  await expect(button).toHaveText('Play');
+  const pausedIn = Math.max(...(await soundingMeasures()));
 
-  await modeRadio(page, 'practice').check(); // at once: well inside the measure Listen started in
+  await modeRadio(page, 'practice').check();
   await button.click();
   await expect(button).toHaveText('Stop', { timeout: RUN_START_TIMEOUT_MS });
 
-  expect((await currentEvent(page))?.measureIndex).toBe(LATER_MEASURE);
+  expect((await currentEvent(page))?.measureIndex).toBe(pausedIn);
 });
 
 test('Practice waiting at a later note -> Listen: Listen stands on that note', async ({ page }) => {
@@ -209,4 +228,45 @@ test('Practice waiting at a later note -> Listen: Listen stands on that note', a
       startTick: waitingFor?.onsetTick,
       positionTick: waitingFor?.onsetTick,
     });
+});
+
+test('Listen in the second pass of a repeat -> Practice: the session starts in that pass, not the first', async ({
+  page,
+}) => {
+  // repeat-simple: measures 1-2 played twice, a whole note each at ppq 960 - the second pass of measure 1 is at 7680.
+  const SECOND_PASS_TICK = 7680;
+  await page.goto('/');
+  await page.locator('mx-open-button input[type=file]').setInputFiles(path.join(FIXTURES, 'repeat-simple.musicxml'));
+  await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+  await expect(page.locator('mx-transport .play-btn')).not.toBeDisabled();
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
+  await page.evaluate(
+    (tick) =>
+      (window as unknown as { __TRANSPORT_STATE__: { seekMeasure(t: number): void } }).__TRANSPORT_STATE__.seekMeasure(
+        tick,
+      ),
+    SECOND_PASS_TICK,
+  );
+  await expect.poll(async () => (await transportTicks(page)).positionTick).toBe(SECOND_PASS_TICK);
+
+  await modeRadio(page, 'practice').check();
+  const button = page.locator('mx-transport .play-btn');
+  await button.click();
+  await expect(button).toHaveText('Stop', { timeout: RUN_START_TIMEOUT_MS });
+
+  expect(await currentEvent(page)).toEqual({ measureIndex: 0, onsetTick: SECOND_PASS_TICK });
+});
+
+test('a Practice start measure picked without a session -> Listen: Listen starts at that measure', async ({ page }) => {
+  await openItem(page);
+  await modeRadio(page, 'practice').check();
+  await clickMeasure(page, LATER_MEASURE); // picks the start measure; no session runs
+  expect(await practiceSession(page)).toBeNull();
+
+  await modeRadio(page, 'listen').check();
+
+  await expect.poll(async () => (await transportTicks(page)).startTick).toBeGreaterThan(0);
+  const carried = await transportTicks(page);
+  await clickMeasure(page, LATER_MEASURE); // Listen's own way to the same measure lands on the same tick
+  await expect.poll(() => transportTicks(page)).toEqual(carried);
 });

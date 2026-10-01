@@ -145,6 +145,11 @@ waiting|blocked --stop / mode switch--> finished
 finished --start--> waiting        (marks cleared, FR-019)
 ```
 
+A mode switch carries the place over (AS-1.11, added in 017 T059): Listen -> Practice picks the start measure Listen
+is heard in, in the same occurrence of a repeated measure; Practice -> Listen puts Listen on the note the session was
+waiting for (or on a picked start measure's first pass). From the beginning or after a finished session nothing
+carries over.
+
 Advancing (`matcher.ts`, one pure step per input event):
 
 1. `noteOn` for a key in `required` that is **not** already down: mark it

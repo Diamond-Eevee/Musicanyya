@@ -79,6 +79,7 @@ import type { LoadReport } from '../core/score/load-report.js';
 import type { Score } from '../core/score/model.js';
 import { audioTimeAtTick } from '../core/tempo/rate.js';
 import { displaySegmentIndexAt, type TempoDisplaySegment } from '../core/tempo/tempo-display.js';
+import { passAtTick } from '../core/timeline/position.js';
 import type { PlaybackTimeline, TempoSegment } from '../core/timeline/types.js';
 import type { MxOpenButton } from '../ui/elements/mx-open-button.js';
 import { MxPanelHint } from '../ui/elements/mx-panel-hint.js';
@@ -185,6 +186,9 @@ export class Session {
   private practiceScoreId: string | null = null;
   private practiceSettings: PracticeSettings = { selection: null, loop: null, accompaniment: true, help: true };
   private endingPracticeNaturally = false;
+  /** The Listen position a Practice start measure was carried over from (017 T059), so that the start lands in the
+   *  same occurrence of a repeated measure; null when the musician picked the measure. */
+  private practiceStartTick: number | null = null;
 
   // Play mode settings (US3, T065-T068): stored and loaded per Score.
   private playScoreId: string | null = null;
@@ -406,10 +410,8 @@ export class Session {
       const previousMode = lastMode;
       lastMode = state.mode;
       // The other mode starts from the same place (002 AS-1.11, 017 T059): read it before the run is stopped.
-      const listenTick = previousMode === 'listen' ? transportState.get().positionTick : null;
-      const session = practiceState.get().session;
-      const practiceTick =
-        previousMode === 'practice' && session ? (session.events[session.index]?.onsetTick ?? null) : null;
+      const listenTick = previousMode === 'listen' ? this.listenPlaceTick() : null;
+      const practiceTick = previousMode === 'practice' ? this.practicePlaceTick() : null;
       // Switching mode ends the run of the mode being left, whatever comes next (002 AS-1.11, 017 T056). The
       // transport's stop is routed by the mode now in force (a Play stop only stops a Play run), so the engine is
       // stopped here directly: Practice -> Play used to leave the session running and the button on Stop. The
@@ -421,11 +423,14 @@ export class Session {
       // clears its run and Grade only now, after the stop: the engine's stop otherwise writes the run back.
       if (previousMode === 'practice' || state.mode === 'listen') this.resetPractice();
       if (previousMode === 'play') this.leavePlay();
-      // Each mode keeps its own kind of place: Practice starts at a measure (as a measure click picks one), Listen at
-      // a tick - here the note Practice was waiting for. At the very beginning nothing is picked.
-      if (state.mode === 'practice' && listenTick !== null && listenTick > 0) {
-        const measureIndex = this.measureAtTick(listenTick);
-        if (measureIndex !== null) practiceState.setStartMeasure(measureIndex);
+      // Each mode keeps its own kind of place: Practice starts at a measure (as a measure click picks one), in the
+      // occurrence Listen was in; Listen at a tick. At the very beginning or past the end nothing is picked.
+      if (state.mode === 'practice' && listenTick !== null && listenTick > 0 && this.currentTimeline) {
+        const pass = passAtTick(this.currentTimeline, listenTick);
+        if (pass && listenTick < pass.endTick) {
+          practiceState.setStartMeasure(pass.measureIndex);
+          this.practiceStartTick = listenTick;
+        }
       }
       if (state.mode === 'listen' && practiceTick !== null) transportState.seekMeasure(practiceTick);
       this.updateTempoModel(); // Play shows the Play setup's tempo, Listen and Practice the transport's (012 FR-017)
@@ -803,7 +808,9 @@ export class Session {
       return;
     }
     if (startMeasureIndex !== null) {
-      const start = resolveStartMeasure(events, startMeasureIndex, 0) ?? 0;
+      // A start carried over from Listen picks the occurrence Listen was in, not the first one (017 T059).
+      const cursor = this.practiceStartTick !== null ? firstEventAtOrAfterTick(events, this.practiceStartTick) : 0;
+      const start = resolveStartMeasure(events, startMeasureIndex, cursor) ?? 0;
       this.beginPractice(events, setup.selection, start, this.resolveLoopFor(events, start));
       return;
     }
@@ -888,10 +895,21 @@ export class Session {
     });
   }
 
-  /** The written measure a timeline tick falls in, or null past the end (017 T059). */
-  private measureAtTick(tick: number): number | null {
-    const pass = this.currentTimeline?.passes.find((p) => tick >= p.startTick && tick < p.endTick);
-    return pass ? pass.measureIndex : null;
+  /** Where Listen stands, for Practice to take over (017 T059): playing or paused, where it is heard (the engine's
+   *  audible position - the transport store keeps only where it started); stopped, where it was put. */
+  private listenPlaceTick(): number {
+    const { phase, positionTick } = transportState.get();
+    if (phase !== 'playing' && phase !== 'paused') return positionTick;
+    return this.audioEngine.audiblePosition(performance.now())?.audibleTick ?? positionTick;
+  }
+
+  /** Where Practice stands, for Listen to take over (002 AS-1.11, 017 T059): the note a running session waits for,
+   *  else the first pass of a picked start measure; null at the beginning and after a finished session. */
+  private practicePlaceTick(): number | null {
+    const { session, startMeasureIndex } = practiceState.get();
+    if (session && session.phase !== 'finished') return session.events[session.index]?.onsetTick ?? null;
+    if (startMeasureIndex === null) return null;
+    return this.currentTimeline?.passes.find((p) => p.measureIndex === startMeasureIndex)?.startTick ?? null;
   }
 
   /** Drops the session and the picked start measure, releasing whatever the session left ringing. */
@@ -899,6 +917,7 @@ export class Session {
     this.releasePracticeSound(practiceState.get().session);
     practiceState.setSession(null);
     practiceState.setStartMeasure(null);
+    this.practiceStartTick = null;
     practiceState.clearAllKeyFeedback();
     practiceState.clearHelpOverlay();
   }
@@ -1493,6 +1512,7 @@ export class Session {
   /** Clicking a measure in Practice mode chooses where the session starts; a running session restarts there. */
   private onPracticeMeasureClick(measureIndex: number): void {
     practiceState.setStartMeasure(measureIndex);
+    this.practiceStartTick = null; // a measure the musician picks starts at its first occurrence, as before
     const session = practiceState.get().session;
     if (!this.isPracticeRunning(session)) return;
     const start = resolveStartMeasure(session.events, measureIndex, session.index);

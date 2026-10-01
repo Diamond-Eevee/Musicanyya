@@ -445,3 +445,30 @@
   steps in the 2026-09-30 23:55 entry.
 - Handoff: next = owner answer on the gate flake, then T030 gate x3; T059 (test first); T025-T027 owner results. Before
   any gate: no `vite preview` on :4173. Tree clean at the log commit.
+
+## 2026-10-01 12:40 - claude-opus-5.5 (continue - owner answers; T059; gate x3)
+- Owner answers (2026-10-01): **gate flake (a)** - heavy apps closed, gate rerun unchanged. **T026**: the owner's run had
+  more than 3 wrong notes, but they were played on purpose to test the feedback, which marked them correctly - not a
+  first learner attempt, so it is not an SC-005 result; T026 stays open (needs a real first attempt, or the owner
+  decides to drop it). SC-005 is not recorded as failed or as a deviation.
+- Done: T059 (5471ed0, then this commit). 002 AS-1.11 "the other mode starts from the same place". Tests first in
+  `tests/e2e/mode-switch-run.spec.ts`, each failing on the code before for the expected reason: Listen at measure 4
+  -> Practice started at measure `0` (expected 4, both stopped and paused cases); Practice waiting at tick 1440 ->
+  Listen at `startTick 0, positionTick 0`. Fix in `src/app/session.ts` -> chromium/firefox/electron `27 passed`.
+- Constitution audit of `003c545..5471ed0` (`constitution-auditor`): no CRITICAL; HIGH = this log evidence (now here).
+  MEDIUM repeats: only the measure was kept, so Listen in a repeat's second pass started Practice in the first ->
+  fixed (`practiceStartTick` + `firstEventAtOrAfterTick` as `resolveStartMeasure`'s cursor; a measure the musician
+  clicks still starts at its first occurrence). MEDIUM "a finished session moves Listen to the last note": **not
+  real** - the matcher moves `index` past the last event on finishing (`matcher.ts` `next.index++` before
+  `phase = 'finished'`), so there is no current note; the test written for it passed on the old code and was removed
+  (no test that passes on the old code). LOW, fixed: the core `passAtTick` replaces my own lookup; a start measure
+  picked without a session now moves Listen there; the "Listen playing" case paused first - and that exposed a real
+  gap: the transport store keeps only where Listen *started*, so a Listen that had played on into the next measure
+  handed over the old one -> Listen's place is now the engine's audible position when playing or paused. 002
+  data-model gains the carry-over line. New tests, failing first on 5471ed0: paused-after-playing (`Expected 4,
+  Received 3`), repeat second pass (onset 0 instead of 7680), picked measure (`startTick` 0). After: `33 passed` on
+  chromium/firefox/electron, twice.
+- Gate: rounds at 5471ed0 (before the audit fixes): round 1 e2e `1 failed | 716 skipped | 1191 passed` - Firefox's
+  driver crashed closing a context (`Protocol error (Browser.removeBrowserContext)`), no app assertion; rounds 2 and 3
+  all green (lint exit 0, 316 warnings; typecheck exit 0; unit `Test Files 299 passed (299) | Tests 6273 passed
+  (6273)`; e2e exit 0 `716 skipped | 1192 passed`, 13.5 min). The audit fixes changed code, so T030 runs again below.
