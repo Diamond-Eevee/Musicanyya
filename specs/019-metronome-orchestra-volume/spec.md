@@ -16,7 +16,8 @@ you what fits there)."
   own 1888 piano arrangement of Op. 46 No. 1, encoded from a public-domain print (Internet Archive; download approved
   by the owner first) and checked bar by bar against it; its level follows the library's criteria.
 - Q: Should Listen and Practice mode also get an optional Metronome click now? -> A: No. The Metronome stays a Play mode
-  feature; the Metronome level applies to the Play count-in and run and to latency calibration.
+  feature; the Metronome level applies to the Play count-in and run (the latency calibration panel plays no click
+  today, so it is not affected - corrected by the plan step, 2026-10-01).
 
 ## Context
 
@@ -99,8 +100,8 @@ piece. In Practice and Play mode the musician is asked to play only piano notes.
    marked missed, and the musician pressing a key at the same pitch as an Orchestra note is judged exactly as if the
    Orchestra were silent.
 6. **Given** Practice mode (wait mode), **When** the musician reaches each piano note or chord, **Then** the Orchestra
-   moves on with the musician's progress the same way the existing accompaniment does, and stays silent while the app
-   waits for input.
+   moves on with the musician's progress the same way the existing accompaniment does: it starts no new note while the
+   app waits for input, and notes already sounding ring on as accompaniment notes do today.
 7. **Given** the on-screen piano is shown, **When** the Orchestra plays, **Then** its notes are not lit on the on-screen
    piano; only piano notes are.
 
@@ -186,8 +187,7 @@ instruments (piano; flute, oboe, strings); items without an Orchestra show no ma
   meaning as the level of everything.
 - **FR-005**: A level change MUST take effect on the very next sound of that kind (and on sustained Orchestra notes
   at once), without clicks, gaps, timing shifts or retriggered notes, and MUST change no other sound's level.
-- **FR-006**: The Metronome level MUST apply wherever the Metronome sounds (Play mode count-in and run, latency
-  calibration). Muting the Metronome keeps working as today and is independent of the Metronome level: muted is silent
+- **FR-006**: The Metronome level MUST apply wherever the Metronome sounds (today: the Play mode count-in and run). Muting the Metronome keeps working as today and is independent of the Metronome level: muted is silent
   at any level; un-muted plays at the level.
 - **FR-007**: Both levels MUST be remembered per user across app restarts, in the browser and in the desktop app, like
   the main Volume, and MUST be the same for every Score.
@@ -209,8 +209,8 @@ instruments (piano; flute, oboe, strings); items without an Orchestra show no ma
   built-in sound, not with the piano sound.
 - **FR-015**: The Orchestra MUST be scheduled on the same clock and tempo map as the piano part and the Metronome
   (Constitution II): in Listen and Play mode it plays in time with the Score; in Practice mode it follows the
-  musician's progress with the same rules as the existing accompaniment (sounds when the musician reaches each onset,
-  silent while the app waits).
+  musician's progress with the same rules as the existing accompaniment (its notes start when the musician reaches
+  their onset; no new note starts while the app waits; sounding notes ring on as accompaniment notes do).
 - **FR-016**: The Orchestra MUST play independently of the existing Accompaniment setting and of the hand selection;
   only the Orchestra level silences it.
 - **FR-017**: The Orchestra MUST follow start-from-measure, loops, play ranges, count-in, tempo changes, the tempo
