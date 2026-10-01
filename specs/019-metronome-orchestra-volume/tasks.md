@@ -308,7 +308,7 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   Nachschlag: grace notes at the end of their main note, `<grace>` after it in the MusicXML) so the trill endings of
   bars 67-75 engrave where the print has them; transcription A then uses it instead of `\grace` before the next note
   (bar 75's Nachschlag currently sits before the rest of bar 76) - **owner approved 2026-10-01** (with T081)
-- [ ] T083 [US2] [standard] (new, found by T040) Tests first, then the converter writes a metronome mark with a dotted
+- [x] T083 [US2] [standard] (new, found by T040) Tests first, then the converter writes a metronome mark with a dotted
   beat (`\tempo "..." 4. = 60`) as `<metronome>` and `<sound tempo="90"/>` (quarter notes per minute) instead of
   dropping it; without it *Morning Mood* has no playback tempo (transcriptions have no MIDI to take it from)
 - [ ] T084 [US2] [standard] (new, found by T040) `pnpm library:convert-ly` refuses a source without a MIDI sound file

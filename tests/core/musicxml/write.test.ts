@@ -602,6 +602,41 @@ describe('writeScoreXml (contracts/exercise-definition.md - the minimal writer)'
       ]);
     });
 
+    it('writes a metronome mark with a dotted beat, which the reader takes with its dot (019 T083)', () => {
+      const { xml, score, notices } = load([
+        first(
+          [
+            {
+              kind: 'direction',
+              words: 'Allegretto pastorale.',
+              bold: true,
+              metronome: { beatUnit: 'quarter', dots: 1, perMinute: 60 },
+              tempo: 90,
+              placement: 'above',
+              staff: 1,
+            },
+            note('C', 4, 12, 'half', { dot: true }),
+          ],
+          { divisions: 4, time: { beats: '6', beatType: 8 } },
+        ),
+      ]);
+      expect(notices).toEqual([]);
+      expect(xml).toContain(
+        '<metronome><beat-unit>quarter</beat-unit><beat-unit-dot/><per-minute>60</per-minute></metronome>',
+      );
+      expect(xml).toContain('<sound tempo="90"/>');
+      expect(score.tempoMarks).toEqual([
+        {
+          measureIndex: 0,
+          onsetInMeasure: 0,
+          qpmNum: 9000,
+          qpmDen: 100,
+          beat: { type: 'quarter', dots: 1, quartersNum: 3, quartersDen: 2 },
+          isDefault: false,
+        },
+      ]);
+    });
+
     it('writes an expression word in italics and a written arpeggio on every chord member', () => {
       const { xml, notes, notices } = load([
         first([

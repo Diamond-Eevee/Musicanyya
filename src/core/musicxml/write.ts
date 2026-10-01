@@ -64,7 +64,8 @@ export interface WriteDirection {
   bold?: boolean;
   /** The words are printed in italics (an expression such as "dolce"). */
   italic?: boolean;
-  metronome?: { beatUnit: WriteDuration; perMinute: number };
+  /** `dots`: a dotted beat (`<beat-unit-dot/>` each, 019 T083), e.g. a dotted quarter in 6/8. */
+  metronome?: { beatUnit: WriteDuration; dots?: number; perMinute: number };
   /** `<sound tempo="...">`, in quarter notes per minute regardless of `metronome.beatUnit`. */
   tempo?: number;
   /** `<sound dynamics="...">`: the playback loudness, in percent of forte (feature 019: an Orchestra part's, which has no
@@ -203,7 +204,7 @@ function writeDirectionXml(d: WriteDirection): string {
   const typeParts: string[] = [];
   if (d.metronome) {
     typeParts.push(
-      `<metronome><beat-unit>${d.metronome.beatUnit}</beat-unit><per-minute>${d.metronome.perMinute}</per-minute></metronome>`,
+      `<metronome><beat-unit>${d.metronome.beatUnit}</beat-unit>${'<beat-unit-dot/>'.repeat(d.metronome.dots ?? 0)}<per-minute>${d.metronome.perMinute}</per-minute></metronome>`,
     );
   }
   if (d.words !== undefined) {

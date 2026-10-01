@@ -109,6 +109,17 @@ describe('toMusicXml: what the printed page shows', () => {
     expect(dropped).toEqual([]);
   });
 
+  it('a metronome mark with a dotted beat is written with its dot, and plays in quarter notes per minute (019 T083)', () => {
+    // Grieg Op. 46 No. 1: "Allegretto pastorale." dotted quarter = 60, i.e. 90 quarter notes per minute.
+    const { xml, dropped } = toMusicXml(readLilyPond('{ \\time 6/8 \\tempo "Allegretto pastorale." 4. = 60 c\'2. | }'));
+    expect(xml).toContain(
+      '<direction-type><metronome><beat-unit>quarter</beat-unit><beat-unit-dot/><per-minute>60</per-minute></metronome><words font-weight="bold">Allegretto pastorale.</words></direction-type><sound tempo="90"/>',
+    );
+    expect(dropped).toEqual([]);
+    const { score } = buildScore(readXml(xml).doc);
+    expect(score.tempoMarks[0]?.beat).toEqual({ type: 'quarter', dots: 1, quartersNum: 3, quartersDen: 2 });
+  });
+
   it('a hairpin end that no note starts or ends at moves to the next note, and is listed (T096, Chopin 468 bar 9)', () => {
     const { xml, dropped } = toMusicXml(readLilyPond("{ << { c'2 d'2 } \\\\ { s4\\< s8 s8\\! s2 } >> | }"));
     expect(xml).toMatch(

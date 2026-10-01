@@ -544,8 +544,9 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
         if (e.bpm !== undefined && e.beat) {
           const unit = TYPES.get(e.beat.base);
           const beat = e.beat.length;
-          if (unit && e.beat.dots === 0) d.metronome = { beatUnit: unit, perMinute: e.bpm };
-          else drop(t, `metronome mark with a dotted beat (${e.bpm} per minute)`);
+          if (unit)
+            d.metronome = { beatUnit: unit, ...(e.beat.dots > 0 ? { dots: e.beat.dots } : {}), perMinute: e.bpm };
+          else drop(t, `metronome mark with the beat 1/${e.beat.base} (${e.bpm} per minute)`);
           d.tempo = (e.bpm * beat.num) / beat.den;
         }
         if (d.words !== undefined || d.metronome || d.tempo !== undefined) place(t, e.staff, [direction(d)], e.pos);
