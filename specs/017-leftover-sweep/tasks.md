@@ -268,8 +268,7 @@ contracts of the feature it came from, named on the task)
   add it with a per-item exception to level criterion 16 (bars 58 and 66 hold B flat5-G5-D5 over a moving G4 in one
   hand: 15 semitones, the Advanced cap is 14; the level check has no exception in that direction, so 005's
   data-model §4 and `levels.ts` would need one). (b) also needs the converter to write the tie stop where a tie at the
-  end of a repeated section continues into a later ending, and to convert `
-epeatTie` (bars 38 and 92: today the app
+  end of a repeated section continues into a later ending, and to convert `\repeatTie` (bars 38 and 92: today the app
   re-attacks those notes on the second pass, where the source MIDI holds them); only Mutopia 263 has either (probe).
   Recommendation: (a) - FR-008's Advanced target is met, and (b) loosens a level rule for one piece.
   **Owner answer 2026-10-01: (a) leave it out** -> T023 closed as not added
@@ -286,6 +285,12 @@ epeatTie` (bars 38 and 92: today the app
   and the button on *Stop*
 - [x] T057 [US5] Fix for T056 in `src/app/session.ts` (the mode subscriber leaves the previous mode, whatever the
   next one is), T056 green
+- [x] T058 [US5] (found by the constitution audit's extra T056 cases) Leaving Play during a run must leave no run or
+  Grade behind (003 FR-035: the result layer is cleared when the mode changes). Today the stopped run is graded
+  asynchronously after the switch and `onPlayGraded` shows the Grade (and its popup) in Listen or Practice - also on
+  the code before T057. Test: the `Play running -> listen/practice` cases in `tests/e2e/mode-switch-run.spec.ts`
+  (fail on the old code: run phase `stopped`, not null); fix in `src/app/session.ts` `onPlayGraded`; the attempt is
+  still stored
  
 
 ---

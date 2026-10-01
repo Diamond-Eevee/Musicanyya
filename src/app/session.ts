@@ -405,14 +405,17 @@ export class Session {
       if (state.mode === lastMode) return;
       const previousMode = lastMode;
       lastMode = state.mode;
-      if (previousMode === 'play') this.leavePlay();
       // Switching mode ends the run of the mode being left, whatever comes next (002 AS-1.11, 017 T056). The
       // transport's stop is routed by the mode now in force (a Play stop only stops a Play run), so the engine is
-      // stopped here directly: Practice -> Play used to leave the session running and the button on Stop.
+      // stopped here directly: Practice -> Play used to leave the session running and the button on Stop. The
+      // transport's own stop that follows may stop the engine a second time (Listen, Practice) or call
+      // `playController.stop()` with no live run (Play); both are idempotent, and the store still needs it.
       this.audioEngine.stop();
       transportState.stop();
-      // Leaving Practice drops its session and marks (FR-019); so does arriving in Listen, as before.
+      // Leaving Practice drops its session and marks (FR-019); so does arriving in Listen, as before. Leaving Play
+      // clears its run and Grade only now, after the stop: the engine's stop otherwise writes the run back.
       if (previousMode === 'practice' || state.mode === 'listen') this.resetPractice();
+      if (previousMode === 'play') this.leavePlay();
       this.updateTempoModel(); // Play shows the Play setup's tempo, Listen and Practice the transport's (012 FR-017)
     });
     initShortcuts();
@@ -1074,6 +1077,9 @@ export class Session {
   }
 
   private onPlayGraded(grade: Grade): void {
+    // Grading is asynchronous: a run stopped by leaving Play is graded after the mode changed, and FR-035 clears the
+    // result layer on a mode change - so its Grade is not shown (017 T058). The attempt is still stored (onStored).
+    if (practiceState.get().mode !== 'play') return;
     const newBest =
       this.playScoreId !== null &&
       this.browserController.computeNewBest(this.playScoreId, this.progressResultFromGrade(grade));
