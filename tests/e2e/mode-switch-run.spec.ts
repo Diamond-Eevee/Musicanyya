@@ -17,8 +17,7 @@ const ITEM = 'repertoire/intermediate/fur-elise-theme';
 
 const transportPhase = (page: Page) =>
   page.evaluate(
-    () =>
-      (window as unknown as { __TRANSPORT_STATE__: { get(): { phase: string } } }).__TRANSPORT_STATE__.get().phase,
+    () => (window as unknown as { __TRANSPORT_STATE__: { get(): { phase: string } } }).__TRANSPORT_STATE__.get().phase,
   );
 
 const practiceSession = (page: Page) =>
