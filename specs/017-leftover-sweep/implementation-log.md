@@ -393,3 +393,55 @@
   previous entry).
 - Handoff: next = owner answers to T052/T053 (then T023 or its close-out, and T030 gate x3 again); T025-T027 results
   from the owner; tree clean at the log commit.
+
+## 2026-10-01 11:10 - claude-opus-5.5 (continue - owner answers T052/T053; T055-T058; gate blocked by a start timeout)
+- Session start: hand-off verified - lint exit 0 (0 errors, 316 warnings), unit `Tests 6268 passed (6268)` exit 0.
+- Owner answers (2026-10-01): **T052 yes** (realise the inverted mordent like the mordent); **T053 (a) leave The
+  Entertainer out** -> T023 closed as not added (005 data-model and sources README say so); **T025-T027**: the owner
+  reports the C major Introduction "working ok" in Practice (T026), but gave no wrong-note count, which T026 needs ->
+  T026 stays open; T025/T027 not run yet. The owner also found a bug while doing it (T056).
+- Done: T055 (f92b1e3). 003 spec D-1/FR-024 and data-model first, then test first: new fixture
+  `inverted-mordent.musicxml` (G4 in C major); `build.test.ts` "parses <inverted-mordent> ... without a notice" failed
+  with `expected [ null, null, null ] to deeply equal [ 'inverted-mordent', null, null ]`, `played-along.test.ts` "an
+  inverted mordent is realised like a mordent" failed with `expected [] to deeply equal [ 65, 69 ]`; both pass after
+  `Note.ornament` gains `'inverted-mordent'` and `build.ts` parses it. `SUPPORT_MATRIX` + `docs/musicxml-support.md`
+  row. Expected values changed, with reason: `trill-realisation`'s "unknown ornament" is now `<schleifer/>` (it was
+  the inverted mordent); snapshots (that fixture: element name and source offsets only; the new fixture);
+  community-suite snapshot loses `unsupportedElement:inverted-mordent: 1`; real-scores `skipped` Dvorak 33 -> 12 and
+  Janacek 352 -> 285, exactly their inverted-mordent counts (21, 67 - counted in the unzipped files). The two Petzold
+  minuets lose their `expected` notice and `limitations` (out-of-scope hashes re-recorded, test comment says why);
+  index rebuilt (ornamentCount 114: 4 -> 5, 115: 2 -> 6; Intermediate cap 1 per 4 bars still met: 0.625, 0.75).
+  `pnpm library:fidelity --check`: `185 records, 0 failed`. Screenshot of 115 looked at: Pralltriller signs engraved,
+  `notices: none`. Unit `Test Files 299 passed (299) | Tests 6273 passed (6273)`.
+- Done: T056/T057 (2aed39b). Owner: Practice running -> Play left the session running and the button on Stop. Cause:
+  the transport's stop is routed by the mode now in force, and the mode subscriber only left Practice for Listen.
+  Test `tests/e2e/mode-switch-run.spec.ts` failed first on chromium (3 failed: transport `"playing"`, expected
+  `"stopped"`, for Practice->Play, Listen->Practice, Listen->Play); fix: every switch stops the engine directly, and
+  leaving Practice drops its session; `9 passed` on chromium, firefox, electron.
+- Constitution audit (`constitution-auditor`, `git diff b1073ab..0316d58`): **no CRITICAL/HIGH**; no weakened test
+  (each new assertion fails on the old code), expected-value changes justified, layering kept. MEDIUM: log entry
+  missing (this one); no e2e for the switches into Listen and out of Play -> added; that exposed **T058**: a run
+  stopped by leaving Play is graded asynchronously and `onPlayGraded` then showed its Grade (and popup) in Listen or
+  Practice, against 003 FR-035 ("cleared when ... the mode changes") - fails on the code before T057 too (run phase
+  `"stopped"`, expected null; checked on a fresh build). Fixed (c6a9bfd): a Grade arriving after the mode changed is
+  not shown; the attempt is still stored. LOW, fixed: README "Waits for the owner", `types.ts` comment, a `\repeatTie`
+  line broken by my own edit script, the double stop documented (idempotent: same message, same state). Not covered,
+  new task **T059**: AS-1.11's "the other mode starts from the same place" (looks unmet since 002).
+- Test-run incident: stopping a gate left its `vite preview` on :4173 again, and `reuseExistingServer` then served a
+  stale build to my e2e runs (results discarded; the server was killed and every result above re-run on a fresh build).
+- T030 [~] **gate not green**. Round 1 at c6a9bfd: lint exit 0 (316 warnings), typecheck exit 0, unit `Test Files 299
+  passed (299) | Tests 6273 passed (6273)`, e2e exit 1 (18.6 min, usual 13): `20 failed | 713 skipped | 1163 passed`.
+  17 of 20 are a run that did not start in time: a Practice Start never turned into Stop within 5 s (`piano-keyboard`
+  12, `pressed-keys` 4), and `theme-a11y`'s Play run had no phase after 15 s (at `startPlay`, before any Grade). 3 are
+  timing budgets: `lookahead` glide arrival 567 ms vs 500 and frame interval 39.7 ms vs 20, `score-browser-timing`
+  search 107.5 ms vs 100.
+  Not caused by today's changes: `piano-keyboard.spec.ts` on chromium with `session.ts` from before T057 gives `18
+  passed`, then `7 failed | 11 passed` twice, the same "Start" vs "Stop" failure (current code: 18 passed, then 5
+  failed). The spec runs on 8 workers at once and each first Start loads the SoundFont; `startPlay` already waits 15
+  s for that, `startPracticeOnOpenScore` 5 s. My new spec waits 15 s for its own starts (18 passed x2).
+- Needs owner: **gate flake** - (a) close other heavy apps and I rerun the gate x3 as is, or (b) raise
+  `startPracticeOnOpenScore`'s Start->Stop wait to 15 s like `startPlay` (a wait, not a measured threshold; touches a
+  shared helper). Recommend (a) first, (b) if it recurs. **T026**: the wrong-note count of your run. **T025, T027**:
+  steps in the 2026-09-30 23:55 entry.
+- Handoff: next = owner answer on the gate flake, then T030 gate x3; T059 (test first); T025-T027 owner results. Before
+  any gate: no `vite preview` on :4173. Tree clean at the log commit.
