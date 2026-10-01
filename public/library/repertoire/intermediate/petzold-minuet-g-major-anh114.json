@@ -20,12 +20,6 @@
     "unmodified": false,
     "note": "Converted from Mutopia's LilyPond source to MusicXML by pnpm library:convert-ly (notes, rests, repeats and voltas, grace notes, clefs, slurs, dynamics); beams and accidentals then completed by pnpm library:engrave. Checked mechanically against the LilyPond source and Mutopia's own MIDI file (audit record). Long known as \"Bach's Minuet in G\"; the Notebook copy is unsigned and it is now attributed to Christian Petzold (1677-1733), as the source itself notes."
   },
-  "expected": {
-    "notices": ["unsupportedElement"]
-  },
-  "limitations": [
-    "The short trill in bar 30 (printed as a Pralltriller sign, MusicXML inverted-mordent; in Baroque practice started from the upper note, on the beat) is printed but not realised: it is neither played along nor excused in grading, and opening the piece shows an information notice about it."
-  ],
   "reviewedBy": "claude-opus-5.5",
   "reviewedOn": "2026-09-30"
 }

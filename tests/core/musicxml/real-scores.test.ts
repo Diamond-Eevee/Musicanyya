@@ -155,7 +155,7 @@ const SCORES: Expected[] = [
     measures: 853,
     notes: 13610,
     tempoMarks: 28, // 017 T044: marks counted per part (played tempo unchanged)
-    skipped: 33,
+    skipped: 12, // 017 T055: its 21 <inverted-mordent> are realised now, no longer skipped
     notices: ['unsupportedElement'],
   },
   {
@@ -175,7 +175,7 @@ const SCORES: Expected[] = [
     measures: 993,
     notes: 10396,
     tempoMarks: 139, // 017 T044: marks counted per part (played tempo unchanged)
-    skipped: 352,
+    skipped: 285, // 017 T055: its 67 <inverted-mordent> are realised now, no longer skipped
     notices: ['measureLengthMismatch', 'unsupportedElement'],
   },
   {

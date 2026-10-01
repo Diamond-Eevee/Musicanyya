@@ -231,7 +231,8 @@ recommendation:
   (D-1, accepted). Ornaments stay ungraded, and the presses that realise them are **played-along**: the
   ornamented note's own pitch and its diatonic neighbours, within its written duration, are never extra. This
   adds `<ornaments>`, `<trill-mark>`, `<mordent>`, `<turn>` and `<tremolo>` to the supported MusicXML subset
-  (FR-024, SC-016).
+  (FR-024, SC-016). Extended 2026-10-01 (owner, 017 T052): `<inverted-mordent>` (the Pralltriller / short trill)
+  is treated exactly like `<mordent>`.
 - Q: How is a **written arpeggio** (`<arpeggiate>`) judged, when the Score itself asks for the chord to be
   rolled? -> A: With a named, wider spread allowance in place of the ordinary chord spread (D-2, accepted). This
   adds `<arpeggiate>` to the supported MusicXML subset (FR-022, SC-016).
@@ -331,7 +332,7 @@ recommendation:
   report them as information.
 - **FR-024**: Keys the Score writes at a position without grading them - the unselected hand, another part, a grace
   note - MUST be marked played-along and MUST NEVER count as wrong or extra, exactly as in Practice mode. The
-  presses that realise an **ornament** (trill, mordent, turn, tremolo) MUST be treated the same way: the
+  presses that realise an **ornament** (trill, mordent, inverted mordent, turn, tremolo) MUST be treated the same way: the
   ornamented note's own pitch and its diatonic neighbours, within its written duration, are played-along, so that
   playing the ornament well costs nothing and leaving it out costs nothing.
 - **FR-025**: Grading MUST be deterministic: the same Score, Performance log and settings MUST always produce an

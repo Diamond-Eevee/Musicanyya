@@ -98,6 +98,12 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
   },
   {
     category: 'Notes',
+    element: '<inverted-mordent>',
+    status: 'Supported',
+    notes: 'The Pralltriller / short trill, treated like <mordent>: played-along, never graded (017 T052)',
+  },
+  {
+    category: 'Notes',
     element: '<turn>',
     status: 'Supported',
     notes: 'Play mode: the realisation is played-along, never graded (feature 003)',

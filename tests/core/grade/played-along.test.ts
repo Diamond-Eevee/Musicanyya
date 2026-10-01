@@ -56,7 +56,7 @@ describe('played-along spans and match pass 3 (T093, research R-18, FR-024)', ()
     const spans = buildPlayedAlongSpans(score, timeline, BOTH, null);
     const ornamentSpans = spans.filter((s) => s.source === 'ornament');
     // trill-mark, mordent and turn each get an upper and lower diatonic neighbour; tremolo and the unknown
-    // ornament (T085's inverted-mordent) do not realise extra pitches here.
+    // ornament (a schleifer) do not realise extra pitches here.
     expect(ornamentSpans.length).toBeGreaterThanOrEqual(2);
 
     const firstNoteSpans = ornamentSpans.filter((s) => s.fromTick === expected[0]!.onsetTick);
@@ -76,6 +76,30 @@ describe('played-along spans and match pass 3 (T093, research R-18, FR-024)', ()
     expect(claims).toEqual([]);
     expect(extraMessageIndices).toEqual([]);
     expect(playedAlong).toEqual([{ messageIndex: 0, source: 'ornament' }]);
+  });
+
+  it('an inverted mordent is realised like a mordent: G4 with F4 and A4 played-along (017 T052/T055)', () => {
+    const { score, timeline } = loadFixture('inverted-mordent.musicxml', BOTH);
+    const expected = buildExpectedNotes(score, timeline, BOTH, null);
+    const spans = buildPlayedAlongSpans(score, timeline, BOTH, null);
+    const ornamentSpans = spans.filter((s) => s.source === 'ornament');
+    expect(ornamentSpans.map((s) => s.key).sort((a, b) => a - b)).toEqual([65, 69]); // F4, A4
+    const [ornamented, next] = expected;
+    if (!ornamented || !next) throw new Error('inverted-mordent.musicxml expects three notes');
+    expect(ornamentSpans.every((s) => s.fromTick === ornamented.onsetTick)).toBe(true);
+    expect(ornamentSpans.every((s) => s.toTick === next.onsetTick)).toBe(true); // the written quarter
+
+    // The Pralltriller's upper note: the A is played-along, never extra, and the G still claims its note.
+    const pressTick = ornamented.onsetTick;
+    const { claims, playedAlong, extraMessageIndices } = matchPerformance(
+      expected,
+      expected.map(() => wide()),
+      [on(67, pressTick), on(69, pressTick + 60)],
+      spans,
+    );
+    expect(claims.map((c) => c.messageIndex)).toEqual([0]);
+    expect(extraMessageIndices).toEqual([]);
+    expect(playedAlong).toEqual([{ messageIndex: 1, source: 'ornament' }]);
   });
 
   it('a press that could claim a graded note still claims it, because pass 3 runs last', () => {

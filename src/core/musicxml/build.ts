@@ -778,7 +778,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
                 }
               }
 
-              // Owner decision D-1: only these four ornaments are realised as played-along spans; anything
+              // Owner decisions D-1 and 017 T052: only these ornaments are realised as played-along spans; anything
               // else is skipped and reported, never fatal (Constitution III).
               const orn = getChild(not, 'ornaments');
               if (orn) {
@@ -786,6 +786,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
                   if (!(child instanceof XmlElement)) continue;
                   if (child.name === 'trill-mark') ornament = 'trill';
                   else if (child.name === 'mordent') ornament = 'mordent';
+                  else if (child.name === 'inverted-mordent') ornament = 'inverted-mordent';
                   else if (child.name === 'turn') ornament = 'turn';
                   else if (child.name === 'tremolo') ornament = 'tremolo';
                   else {

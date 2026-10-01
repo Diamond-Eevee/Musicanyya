@@ -124,8 +124,9 @@ export interface Note {
   fingerings: Fingering[];
   printed: boolean;
   source: { start: number; end: number };
-  /** A written <trill-mark>, <mordent>, <turn> or <tremolo> (owner decision D-1); its realisation is played-along. */
-  ornament: 'trill' | 'mordent' | 'turn' | 'tremolo' | null;
+  /** A written <trill-mark>, <mordent>, <inverted-mordent> (017 T052), <turn> or <tremolo> (owner decision D-1); its
+   *  realisation is played-along. */
+  ornament: 'trill' | 'mordent' | 'inverted-mordent' | 'turn' | 'tremolo' | null;
   /** The Score writes this chord member <arpeggiate> (owner decision D-2): the wider arpeggio spread applies. */
   arpeggiate: boolean;
 }

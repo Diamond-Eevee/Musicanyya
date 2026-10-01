@@ -20,12 +20,6 @@
     "unmodified": false,
     "note": "Converted from Mutopia's LilyPond source to MusicXML by pnpm library:convert-ly (notes, rests, repeats and voltas, grace notes, clefs, slurs, dynamics); beams and accidentals then completed by pnpm library:engrave. Checked mechanically against the LilyPond source and Mutopia's own MIDI file (audit record). The Notebook copy is unsigned; it is attributed to Christian Petzold (1677-1733), as the source itself notes."
   },
-  "expected": {
-    "notices": ["unsupportedElement"]
-  },
-  "limitations": [
-    "The trill sign (Pralltriller sign, MusicXML inverted-mordent) in bars 8, 9, 15 and 31 is printed but not realised: it is neither played along nor excused in grading, and opening the piece shows an information notice about it."
-  ],
   "reviewedBy": "claude-opus-5.5",
   "reviewedOn": "2026-09-30"
 }

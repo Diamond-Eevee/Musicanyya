@@ -26,6 +26,7 @@ This document lists the supported MusicXML elements.
 | Instruments | `<midi-instrument>` | Supported | MIDI programs and unpitched percussion |
 | Notes | `<trill-mark>` | Supported | Play mode: the realisation is played-along, never graded (feature 003) |
 | Notes | `<mordent>` | Supported | Play mode: the realisation is played-along, never graded (feature 003) |
+| Notes | `<inverted-mordent>` | Supported | The Pralltriller / short trill, treated like <mordent>: played-along, never graded (017 T052) |
 | Notes | `<turn>` | Supported | Play mode: the realisation is played-along, never graded (feature 003) |
 | Notes | `<tremolo>` | Supported | Play mode: the realisation is played-along, never graded (feature 003) |
 | Notes | `<arpeggiate>` | Supported | Play mode: the wider arpeggio spread applies instead of the chord spread (feature 003) |

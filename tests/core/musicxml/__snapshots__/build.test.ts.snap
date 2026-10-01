@@ -7280,6 +7280,209 @@ exports[`buildScore snapshots > builds time-model for instruments-two-parts.musi
 }
 `;
 
+exports[`buildScore snapshots > builds time-model for inverted-mordent.musicxml 1`] = `
+{
+  "report": {
+    "entries": [],
+    "skippedElementCount": 0,
+  },
+  "score": {
+    "arranger": null,
+    "composer": null,
+    "defaultTempoUsed": false,
+    "measures": [
+      {
+        "beatOffsetTicks": 0,
+        "id": "ms-0",
+        "implicit": false,
+        "index": 0,
+        "label": "1",
+        "lengthTicks": 3840,
+        "nominalTicks": 3840,
+        "startTick": 0,
+        "time": {
+          "beatType": 4,
+          "beats": "4",
+        },
+      },
+    ],
+    "navigation": {
+      "endings": [],
+      "jumps": [],
+      "repeats": [],
+      "targets": [],
+    },
+    "parts": [
+      {
+        "clefs": [
+          {
+            "line": 2,
+            "measureIndex": 0,
+            "octaveChange": 0,
+            "onsetInMeasure": 0,
+            "sign": "G",
+            "staff": 1,
+          },
+        ],
+        "dynamics": [],
+        "index": 0,
+        "instruments": [
+          {
+            "bank": null,
+            "channelHint": null,
+            "fallback": false,
+            "name": "",
+            "pan": null,
+            "percussion": false,
+            "program": 0,
+            "unpitchedKey": null,
+            "volume": null,
+            "xmlId": "",
+          },
+        ],
+        "keys": [
+          {
+            "fifths": 0,
+            "measureIndex": 0,
+            "mode": null,
+            "onsetInMeasure": 0,
+            "staff": null,
+          },
+        ],
+        "name": "Piano",
+        "notes": [
+          {
+            "accent": false,
+            "arpeggiate": false,
+            "chord": false,
+            "durationTicks": 960,
+            "fingerings": [],
+            "grace": null,
+            "id": "n-p0-s1-m0-v1-o0-k67",
+            "instrument": null,
+            "measureIndex": 0,
+            "onsetInMeasure": 0,
+            "onsetQuarters": {
+              "den": 1,
+              "num": 0,
+            },
+            "ornament": "inverted-mordent",
+            "part": 0,
+            "printed": true,
+            "soundingKey": 67,
+            "source": {
+              "end": 954,
+              "start": 775,
+            },
+            "staff": 1,
+            "step": "G",
+            "tie": {
+              "start": false,
+              "stop": false,
+            },
+            "unpitched": false,
+            "velocityOverride": null,
+            "voice": "1",
+            "writtenKey": 67,
+          },
+          {
+            "accent": false,
+            "arpeggiate": false,
+            "chord": false,
+            "durationTicks": 960,
+            "fingerings": [],
+            "grace": null,
+            "id": "n-p0-s1-m0-v1-o1-k64",
+            "instrument": null,
+            "measureIndex": 0,
+            "onsetInMeasure": 960,
+            "onsetQuarters": {
+              "den": 1,
+              "num": 1,
+            },
+            "ornament": null,
+            "part": 0,
+            "printed": true,
+            "soundingKey": 64,
+            "source": {
+              "end": 1061,
+              "start": 959,
+            },
+            "staff": 1,
+            "step": "E",
+            "tie": {
+              "start": false,
+              "stop": false,
+            },
+            "unpitched": false,
+            "velocityOverride": null,
+            "voice": "1",
+            "writtenKey": 64,
+          },
+          {
+            "accent": false,
+            "arpeggiate": false,
+            "chord": false,
+            "durationTicks": 1920,
+            "fingerings": [],
+            "grace": null,
+            "id": "n-p0-s1-m0-v1-o2-k60",
+            "instrument": null,
+            "measureIndex": 0,
+            "onsetInMeasure": 1920,
+            "onsetQuarters": {
+              "den": 1,
+              "num": 2,
+            },
+            "ornament": null,
+            "part": 0,
+            "printed": true,
+            "soundingKey": 60,
+            "source": {
+              "end": 1165,
+              "start": 1066,
+            },
+            "staff": 1,
+            "step": "C",
+            "tie": {
+              "start": false,
+              "stop": false,
+            },
+            "unpitched": false,
+            "velocityOverride": null,
+            "voice": "1",
+            "writtenKey": 60,
+          },
+        ],
+        "octaveShifts": [],
+        "soundDynamics": [],
+        "staves": 1,
+        "transpositions": [],
+        "wedges": [],
+        "xmlId": "P1",
+      },
+    ],
+    "ppq": 960,
+    "tempoMarks": [
+      {
+        "beat": {
+          "dots": 0,
+          "quartersDen": 1,
+          "quartersNum": 1,
+          "type": "quarter",
+        },
+        "isDefault": false,
+        "measureIndex": 0,
+        "onsetInMeasure": 0,
+        "qpmDen": 100,
+        "qpmNum": 10000,
+      },
+    ],
+    "title": null,
+  },
+}
+`;
+
 exports[`buildScore snapshots > builds time-model for jump-text-only.musicxml 1`] = `
 {
   "report": {
@@ -18682,7 +18885,7 @@ exports[`buildScore snapshots > builds time-model for trill-realisation.musicxml
     "entries": [
       {
         "code": "unsupportedElement",
-        "element": "inverted-mordent",
+        "element": "schleifer",
         "measureLabels": [
           "1",
         ],
@@ -18768,8 +18971,8 @@ exports[`buildScore snapshots > builds time-model for trill-realisation.musicxml
             "printed": true,
             "soundingKey": 60,
             "source": {
-              "end": 964,
-              "start": 791,
+              "end": 956,
+              "start": 783,
             },
             "staff": 1,
             "step": "C",
@@ -18802,8 +19005,8 @@ exports[`buildScore snapshots > builds time-model for trill-realisation.musicxml
             "printed": true,
             "soundingKey": 62,
             "source": {
-              "end": 1139,
-              "start": 969,
+              "end": 1131,
+              "start": 961,
             },
             "staff": 1,
             "step": "D",
@@ -18836,8 +19039,8 @@ exports[`buildScore snapshots > builds time-model for trill-realisation.musicxml
             "printed": true,
             "soundingKey": 64,
             "source": {
-              "end": 1311,
-              "start": 1144,
+              "end": 1303,
+              "start": 1136,
             },
             "staff": 1,
             "step": "E",
@@ -18870,8 +19073,8 @@ exports[`buildScore snapshots > builds time-model for trill-realisation.musicxml
             "printed": true,
             "soundingKey": 65,
             "source": {
-              "end": 1510,
-              "start": 1316,
+              "end": 1502,
+              "start": 1308,
             },
             "staff": 1,
             "step": "F",
@@ -18904,8 +19107,8 @@ exports[`buildScore snapshots > builds time-model for trill-realisation.musicxml
             "printed": true,
             "soundingKey": 67,
             "source": {
-              "end": 1694,
-              "start": 1515,
+              "end": 1679,
+              "start": 1507,
             },
             "staff": 1,
             "step": "G",

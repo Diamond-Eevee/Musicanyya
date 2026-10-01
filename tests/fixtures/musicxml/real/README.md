@@ -63,9 +63,9 @@ Read off the fixtures on 2026-09-22 and asserted in `tests/core/musicxml/real-sc
 | `debussy-le-balcon` | 2 | 131 | 3 135 | 13 | - |
 | `holmes-lor` | 2 | 154 | 4 255 | 17 | - |
 | `satie-mort-de-socrate` | 2 | 294 | 6 212 | 20 | - |
-| `dvorak-quartet-12-american` | 4 | 853 | 13 610 | 51 | `unsupportedElement` (inverted-mordent, wavy-line) |
+| `dvorak-quartet-12-american` | 4 | 853 | 13 610 | 51 | `unsupportedElement` (wavy-line; inverted-mordent realised since 017 T055) |
 | `mayer-quartet-d-minor` | 4 | 914 | 13 220 | 58 | `unsupportedElement` (accidental-mark, wavy-line) |
-| `janacek-quartet-2-intimate-letters` | 4 | 993 | 10 396 | 55 | `measureLengthMismatch`, `unsupportedElement` (accidental-mark, inverted-mordent, wavy-line) |
+| `janacek-quartet-2-intimate-letters` | 4 | 993 | 10 396 | 55 | `measureLengthMismatch`, `unsupportedElement` (accidental-mark, wavy-line; inverted-mordent realised since 017 T055) |
 
 Every `measureLengthMismatch` here is the file's own doing, not a parser error: an anacrusis the
 encoder left unmarked (Wolf measure 1 is half a 6/8 bar; Mozart measure 55 is an eighth-note pickup

@@ -47,8 +47,15 @@ describe('ornaments and arpeggios (owner decisions D-1, D-2)', () => {
   it('skips and reports an unknown ornament child, never fatal (Constitution III)', () => {
     const { score, report } = load('trill-realisation.musicxml');
     expect(score.parts[0]?.notes).toHaveLength(5); // the load never aborts
-    const unknown = report.entries.find((e) => e.code === 'unsupportedElement' && e.element === 'inverted-mordent');
+    const unknown = report.entries.find((e) => e.code === 'unsupportedElement' && e.element === 'schleifer');
     expect(unknown).toBeDefined();
+  });
+
+  it('parses <inverted-mordent> onto Note.ornament like <mordent>, without a notice (017 T052/T055)', () => {
+    const { score, report } = load('inverted-mordent.musicxml');
+    const notes = score.parts[0]?.notes ?? [];
+    expect(notes.map((n) => n.ornament)).toEqual(['inverted-mordent', null, null]);
+    expect(report.entries.filter((e) => e.code === 'unsupportedElement')).toEqual([]);
   });
 
   it('marks every member of a <arpeggiate> chord (arpeggiate-chord)', () => {

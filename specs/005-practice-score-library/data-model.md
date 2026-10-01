@@ -360,9 +360,9 @@ nos. 8, 11) may fit Intermediate on the numbers.
 
 - *Added (Intermediate):* Petzold Minuets BWV Anh. 114 and 115 and the Musette BWV Anh. 126, converted from
   Mutopia 75, 76 and 79 (public domain, Bach-Gesellschaft edition), 0 differences against the source and its MIDI.
-  Both minuets carry an expected `unsupportedElement` notice: their Pralltriller signs (`<inverted-mordent>`) are
-  not one of the ornaments owner decision D-1 of 003 realises (017 T052 asks the owner).
-- *The Entertainer - not added yet (017 T053, owner decision):* Mutopia 263 (public domain) converts with 0
+  Their Pralltriller signs (`<inverted-mordent>`) are realised like mordents since 017 T052/T055 (owner, 2026-10-01:
+  played-along, never graded), so neither minuet carries a notice or a limitation.
+- *The Entertainer - not added (017 T053, owner answer 2026-10-01: leave it out):* Mutopia 263 (public domain) converts with 0
   differences, but it fails the Advanced cap of criterion 16 (one-hand simultaneous span 15 semitones, cap 14: bars
   58 and 66, a held B flat5-G5-D5 over a moving G4), and its ties into the second endings (bars 38, 92) need a
   converter change before the app plays them as the source does.

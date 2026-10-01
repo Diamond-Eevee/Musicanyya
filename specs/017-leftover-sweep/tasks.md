@@ -225,10 +225,11 @@ contracts of the feature it came from, named on the task)
   sidecars (FR-008's Intermediate target of >= 5 is already met by T058/T059 - Burgmüller nos. 2 and 5, Schumann
   Op. 68 no. 10 and Clementi, alongside the already-committed Für Elise theme). Public-domain source verified; audited
   with `pnpm library:fidelity --item <id>`
-- [ ] T023 [P] [US4] (from 005 T063) Advanced: Joplin *The Entertainer* + sidecar (FR-008's Advanced target of >= 4 is
+- [x] T023 [P] [US4] (from 005 T063) Advanced: Joplin *The Entertainer* + sidecar (FR-008's Advanced target of >= 4 is
   already met - Chopin no. 4, Für Elise complete, Chopin no. 20, Bach Prelude BWV 846, Satie). Public-domain source
   verified; audited. **Blocked by T053** (owner): converted with 0 differences, but fails level criterion 16 at
-  Advanced and needs a converter change for its ties into second endings; item and source removed again (log)
+  Advanced and needs a converter change for its ties into second endings; item and source removed again (log).
+  **Not added** (T053 answer (a), 2026-10-01): reason in `content/library/sources/README.md` and the log
 - [x] T024 [US4] (from 005 T064) Probe Chopin Nocturne Op. 9 no. 2 for the 11:8 / 22:12 tuplets: added if it engraves
   and plays faithfully (audited), otherwise a recorded, reasoned "not added" in the log and in 005's library notes.
   **Not added**: the only machine-readable edition (Mutopia 1590) is CC BY-SA 3.0 (005 data-model §5.3, sources README)
@@ -256,19 +257,35 @@ contracts of the feature it came from, named on the task)
   tie is the hidden note's). Own test in `tests/tools/lilypond/to-musicxml.test.ts` (`c'4 ~ d'4` writes no tie,
   `c'4 ~ c'4` still does), failing with the rule switched off; `<note print-object="no">` row added to
   `SUPPORT_MATRIX` / `docs/musicxml-support.md` (Verovio draws such a note with `visibility="hidden"`)
-- [ ] T052 [US4] **Owner decision gate** (found in T022): realise `<inverted-mordent>` (the Pralltriller / short trill)
+- [x] T052 [US4] **Owner decision gate** (found in T022): realise `<inverted-mordent>` (the Pralltriller / short trill)
   like `<mordent>`, i.e. extend owner decision D-1 of 003 (`build.ts` realises only trill-mark, mordent, turn and
   tremolo)? Today the two Petzold minuets load with an info notice and their short trills are neither played along
   nor excused in grading, so a learner who plays them gets wrong-note marks. Recommendation: yes (upper-neighbour
   realisation, played along, never graded, like the mordent). On yes: 003 spec/data-model D-1 first, then test-first
-  in `build.ts` and the ornament realisation, `SUPPORT_MATRIX` row, and the minuets' `expected`/`limitations` removed
-- [ ] T053 [US4] **Owner decision gate** (found in T023): *The Entertainer* (Mutopia 263) - (a) leave it out, or (b)
+  in `build.ts` and the ornament realisation, `SUPPORT_MATRIX` row, and the minuets' `expected`/`limitations` removed.
+  **Owner answer 2026-10-01: yes** -> T055
+- [x] T053 [US4] **Owner decision gate** (found in T023): *The Entertainer* (Mutopia 263) - (a) leave it out, or (b)
   add it with a per-item exception to level criterion 16 (bars 58 and 66 hold B flat5-G5-D5 over a moving G4 in one
   hand: 15 semitones, the Advanced cap is 14; the level check has no exception in that direction, so 005's
   data-model §4 and `levels.ts` would need one). (b) also needs the converter to write the tie stop where a tie at the
-  end of a repeated section continues into a later ending, and to convert `epeatTie` (bars 38 and 92: today the app
+  end of a repeated section continues into a later ending, and to convert `
+epeatTie` (bars 38 and 92: today the app
   re-attacks those notes on the second pass, where the source MIDI holds them); only Mutopia 263 has either (probe).
-  Recommendation: (a) - FR-008's Advanced target is met, and (b) loosens a level rule for one piece
+  Recommendation: (a) - FR-008's Advanced target is met, and (b) loosens a level rule for one piece.
+  **Owner answer 2026-10-01: (a) leave it out** -> T023 closed as not added
+- [x] T055 [US4] (from T052, owner yes) Realise `<inverted-mordent>` like `<mordent>` (003 D-1, FR-024): 003
+  `spec.md` / `data-model.md` first; test first in `tests/core/musicxml/build.test.ts` (parsed onto `Note.ornament`)
+  and `tests/core/grade/played-along.test.ts` (its neighbours are played-along, source `ornament`); the
+  `trill-realisation` fixture's "unknown ornament" becomes `<schleifer/>`; `Note.ornament`, `build.ts`,
+  `SUPPORT_MATRIX` + `docs/musicxml-support.md` row; the two Petzold minuets' `expected` / `limitations` removed,
+  index rebuilt
+- [~] T056 [US5] (found by the owner in T026, 2026-10-01) Test first, `tests/e2e/mode-switch-run.spec.ts`: switching
+  mode during a run ends that run (002 AS-1.11, 002/003 FR-001 "switchable at any time"). Practice running ->
+  Play: the Practice session ends, the transport is stopped, Start reads *Start* and a Play run can be started at
+  once; Listen playing -> Practice and -> Play: playback stops. Today Practice -> Play leaves the session running
+  and the button on *Stop* (claimed: claude-opus-5.5 2026-10-01)
+- [ ] T057 [US5] Fix for T056 in `src/app/session.ts` (the mode subscriber leaves the previous mode, whatever the
+  next one is), T056 green
  
 
 ---

@@ -159,8 +159,8 @@ interface PlayedAlongSpan {
 
 - `ungraded`: every accompaniment key of 002's `ExpectedEvent.accompaniment`, over the span it sounds - the
   unselected hand, another part, a grace note (FR-024).
-- `ornament`: for a note carrying `<trill-mark>`, `<mordent>`, `<turn>` or `<tremolo>`, its own key and its
-  diatonic neighbours (`ORNAMENT_NEIGHBOUR_STEPS` scale steps each way in the key in force), over the note's
+- `ornament`: for a note carrying `<trill-mark>`, `<mordent>`, `<inverted-mordent>` (017 T052), `<turn>` or
+  `<tremolo>`, its own key and its diatonic neighbours (`ORNAMENT_NEIGHBOUR_STEPS` scale steps each way in the key in force), over the note's
   written duration (D-1). The ornamented note itself is still expected once, at its onset.
 
 Built by `buildExpectedNotes(score, timeline, selection, range)`, which flattens 002's `buildExpectedEvents`

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-09-30T21:01:16.705Z",
+  "generated": "2026-10-01T07:45:53.844Z",
   "sections": [
     {
       "id": "learning",
@@ -15790,15 +15790,7 @@
         "arranger": null,
         "trains": "Two independent lines in 3/4: a right-hand melody of stepwise eighth-note runs and leaps against a left hand that moves in its own line of mostly dotted-half, half and quarter notes; mordents (bars 3, 5, 11, 13), a grace note in bar 8 and a short trill in bar 30, and a second half that turns to D major (C sharp) before coming home. Both halves repeated.",
         "hands": "both",
-        "arrangement": false,
-        "expected": {
-          "notices": [
-            "unsupportedElement"
-          ]
-        },
-        "limitations": [
-          "The short trill in bar 30 (printed as a Pralltriller sign, MusicXML inverted-mordent; in Baroque practice started from the upper note, on the beat) is printed but not realised: it is neither played along nor excused in grading, and opening the piece shows an information notice about it."
-        ]
+        "arrangement": false
       },
       "facts": {
         "measures": 32,
@@ -15829,9 +15821,7 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 0,
-        "notices": [
-          "unsupportedElement"
-        ],
+        "notices": [],
         "parts": 1,
         "tempoChanges": 0,
         "maxLeapSemitones": 16,
@@ -15844,7 +15834,7 @@
         "maxTieBarlinesCrossed": 0,
         "hasNonSimpleTuplet": false,
         "graceNoteCount": 1,
-        "ornamentCount": 4,
+        "ornamentCount": 5,
         "repeatKind": "simple",
         "backwardRepeatCount": 2
       },
@@ -15888,15 +15878,7 @@
         "arranger": null,
         "trains": "The G major minuet’s companion in the minor: the same two-line minuet texture in 3/4, reading B flat and E flat from the key, F sharp as the leading note, and E natural and B natural as the music passes through B flat major and F major before returning home; mordents (bars 13, 22) and short trills (bars 8, 9, 15, 31). Both halves repeated.",
         "hands": "both",
-        "arrangement": false,
-        "expected": {
-          "notices": [
-            "unsupportedElement"
-          ]
-        },
-        "limitations": [
-          "The trill sign (Pralltriller sign, MusicXML inverted-mordent) in bars 8, 9, 15 and 31 is printed but not realised: it is neither played along nor excused in grading, and opening the piece shows an information notice about it."
-        ]
+        "arrangement": false
       },
       "facts": {
         "measures": 32,
@@ -15927,9 +15909,7 @@
         "hasRepeats": true,
         "hasPedal": false,
         "fingeringCoverage": 0,
-        "notices": [
-          "unsupportedElement"
-        ],
+        "notices": [],
         "parts": 1,
         "tempoChanges": 0,
         "maxLeapSemitones": 16,
@@ -15942,7 +15922,7 @@
         "maxTieBarlinesCrossed": 0,
         "hasNonSimpleTuplet": false,
         "graceNoteCount": 0,
-        "ornamentCount": 2,
+        "ornamentCount": 6,
         "repeatKind": "simple",
         "backwardRepeatCount": 2
       },
