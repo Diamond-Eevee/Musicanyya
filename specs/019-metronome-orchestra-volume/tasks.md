@@ -276,7 +276,7 @@ machine-checked Orchestra (FR-020 to FR-024, SC-003, SC-004, SC-006).
 **Independent Test**: spec US2 - open *Morning Mood* from the library: two piano staves only; Listen plays piano,
 flute/oboe and strings in time with the cursor through the whole piece; Practice and Play ask for piano notes only.
 
-- [ ] T038 [US2] **Owner decision gate OD-1**: approve the source G. Schirmer, *First and Second Orchestra Suites from
+- [x] T038 [US2] **Owner decision gate OD-1**: approve the source G. Schirmer, *First and Second Orchestra Suites from
   the Music to Peer Gynt*, arranged for pianoforte by the composer, *Morgenstimmung* ed. and fingered by Louis
   Oesterle, copyright 1899, Internet Archive `31761045200615` (plan "Decisions and open items"), including Oesterle's
   fingering. Blocks T039-T041, T044-T046 and T053-T058 (the source, the transcriptions, the item and

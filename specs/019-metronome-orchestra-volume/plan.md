@@ -182,7 +182,7 @@ R-18 domain-expert answers. No `NEEDS CLARIFICATION` left in the Technical Conte
   `print-object="no"`) keep a Note ID as their schedule key but need no visible element, and MUST NOT be expected,
   graded, marked, counted in progress or used as Advice anchors." Alternative: engrave Orchestra parts (contradicts
   FR-012/SC-004) or drop the Orchestra.
-- **needs owner (OD-1)**: approve the public-domain source - G. Schirmer, *First and Second Orchestra Suites from the
+- **Decided by the owner (OD-1, 2026-10-01): approved** (asked at the start of the implement session, with Oesterle's fingering included): approve the public-domain source - G. Schirmer, *First and Second Orchestra Suites from the
   Music to Peer Gynt*, arranged for pianoforte by the composer, *Morgenstimmung* ed. and fingered by Louis Oesterle,
   copyright 1899 (Internet Archive `31761045200615`) - for the piano part, including Oesterle's fingering. Blocks the
   library tasks (transcription, item, audit), not the levels or the Orchestra mechanism.
