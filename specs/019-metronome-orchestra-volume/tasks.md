@@ -454,7 +454,7 @@ its detail lists the instruments; other items show no marker.
 
 **Model**: standard (gemini-3.8-flash or claude-sonnet-5.5; claude-opus-5.5 and gemini-3.1-pro also fit)
 
-- [ ] T070 [P] [light] Docs: `pnpm library:orchestra` in the R7 command list of `docs/agents/reference.md` and in
+- [x] T070 [P] [light] Docs: `pnpm library:orchestra` in the R7 command list of `docs/agents/reference.md` and in
   `README.md` if it lists the library commands; Active Technologies entry from "planned" to "implemented"; check
   `quickstart.md` commands against `package.json`
 - [ ] T071 Run every `quickstart.md` manual verification step (US1-US4) with `pnpm screenshot`, look at each picture,
