@@ -250,6 +250,16 @@ describe('the rail reveals the chosen folder and the opened item (018 US3)', () 
     expect(cleared.get().view.selected).toBeNull();
   });
 
+  it('6c. a failed file listing means "unknown": a restored My files selection is kept and stays stored (audit)', () => {
+    const gone = { kind: 'file', fileKey: 'etude.musicxml' } as const;
+    seed({ selected: gone });
+    const s = createBrowserStateStore();
+    s.open();
+    s.indexLoaded(index, [], [], false);
+    expect(s.get().view.selected).toEqual(gone);
+    expect(storedView().selected).toEqual(gone);
+  });
+
   it('7. setView({ selected }) never changes expanded (FR-016, clarification 2)', () => {
     const s = loaded();
     s.setView({ expanded: ['learning'] });

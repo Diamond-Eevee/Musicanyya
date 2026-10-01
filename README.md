@@ -50,6 +50,7 @@ and Web MIDI.
    cursor, Metronome) and plays the `--keys` steps in time with it (`sleep:<ms>` waits); add `--grade` to wait for the
    Grade before the picture, e.g. `--run --grade --keys "sleep:1300,+76,-76"`. `--piano` switches the on-screen piano
    on through the View menu; `--greyscale` puts the page in greyscale for the picture (feature 010)
+   `--storage <key>=<json>` stores a `localStorage` value before the page loads (feature 018);
    `--browser` takes the picture with the Score browser open (feature 013); with it, `--seed-progress <json>`
    (`tests/fixtures/progress/`) seeds results, and `--filter status=played --sort best:asc` choose filters and sort
 5. Regenerate the logo files after changing the artwork in `src/ui/brand/logo.ts`: `pnpm brand:icons` writes

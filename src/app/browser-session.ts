@@ -417,8 +417,9 @@ export class BrowserSessionController {
     if (listed.ok && listed.value.skipped > 0) {
       noticeState.addNotice({ code: 'progressPartiallyUnreadable', severity: 'warning' });
     }
-    if (libraryResult.ok) browserState.indexLoaded(libraryResult.value, files, records);
-    else browserState.indexFailed(libraryResult.error, files, records);
+    // 018 R-8: a failed file listing means "unknown", so a restored *My files* selection is not cleared by it.
+    if (libraryResult.ok) browserState.indexLoaded(libraryResult.value, files, records, filesListed.ok);
+    else browserState.indexFailed(libraryResult.error, files, records, filesListed.ok);
   }
 
   /** `browseropenitem` (contracts §3). A library ref goes through the shared `LibrarySessionController` - the

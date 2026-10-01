@@ -140,3 +140,29 @@
     empty score area) and e2e; #3 and #4 e2e (`score-browser-tree.spec.ts`).
   - US4: reviewed in the entry above.
 - Handoff: next = T021 (`deep`, needs the owner's model-fit answer), then T022, T023; tree clean at the next commit.
+
+## 2026-10-01 - claude-sonnet-5.5 (implement: T021 audit, T023)
+- Model fit: owner chose to continue `deep` tasks with claude-sonnet-5.5 (2026-10-01). The audit was run by the
+  `constitution-auditor` agent (a subagent, not myself); I summarise and act on its report.
+- T021 constitution audit of `main..018-browser-tree-collapse`: COMPLIANT WITH NOTES, 0 CRITICAL, 0 HIGH, 2 MEDIUM, 6 LOW.
+  It ran the browser unit tests (220 passed) and biome; it did not run e2e. No principle violated (I/II untouched,
+  V layering clean, VI shape + colour marker, VIII no dependency, IV no weakened test: every adapted test changes setup only).
+  - MEDIUM T016 written after the store change: disclosed above (checked with `git stash`); no change.
+  - MEDIUM 013 SC-001 "3 actions" holds for a visible folder only: added a note to 013 `spec.md` SC-001 pointing at 018
+    SC-004. This is an annotation, not a change of the criterion; **owner: please confirm** the wording.
+  - LOW defect: a failed `store.listFiles()` made `loadIndex` pass `files = []`, so a restored *My files* selection looked
+    gone and was cleared and saved. Fixed: `indexLoaded`/`indexFailed` take `filesKnown` (default true); `loadIndex`
+    passes `filesListed.ok`; unknown clears nothing. New test `open-rules.test.ts` case 6c.
+  - LOW rail scrolls on every render while the flag is up and only the list lowers it: comment added naming the
+    dependency (the list is always mounted with the rail). LOW inline `'section:'` slicing: `sectionIdOf(key)` added.
+    LOW README lacked `--storage`: added. LOW uncommitted edits and log wording: committed with this entry.
+- T023: `docs/agents/reference.md` did change (the `--storage` option, the Recent Changes entry); spec.md Status set to
+  `Implemented`.
+
+## 2026-10-01 - claude-sonnet-5.5 (implement: final gate T022, session end)
+- Final gate on the final commit (after the audit fixes), all exit 0: `pnpm lint` 316 warnings, 13 infos (unchanged from the
+  baseline, no errors); `pnpm typecheck` clean; `pnpm test` `Test Files  303 passed (303)`, `Tests  6331 passed (6331)`;
+  `pnpm test:e2e` `1236 passed`, `720 skipped`, 0 failed (13.4 min).
+- Done: all 26 tasks (T001-T026) ticked with evidence above; spec Status `Implemented`; constitution audit summarised.
+- Needs owner: confirm the 013 SC-001 annotation (013 `spec.md`); merging into `main` and pushing are the owner's call (not done).
+- Handoff: nothing open on 018; branch `018-browser-tree-collapse` is ready to merge when you ask; tree clean at the next commit.

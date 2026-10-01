@@ -346,6 +346,9 @@ Score without touching the pointer.
 
 - **SC-001**: From a loaded Score, a musician can open any library item they can see in the browser in at most
   3 actions (open browser, choose folder, open item), and any recently opened item in at most 2.
+  (018 note: this holds while the item's folder is visible in the rail. The rail now starts collapsed, so a fresh
+  profile first opens the path with name clicks, [018 SC-004](../018-browser-tree-collapse/spec.md); the browser
+  then remembers the open folders, so a returning musician keeps the 3 actions.)
 - **SC-002**: The browser appears within 300 ms of pressing *Open* with the full library and 200 *My files*
   entries, measured in the end-to-end test browser on the development machine.
 - **SC-003**: With 500 items and 10,000 stored attempts, changing folder, search or filter updates the list within

@@ -257,11 +257,11 @@ reads or writes it.
 - [x] T020 Run every check of `specs/018-browser-tree-collapse/quickstart.md` "Manual verification" (US1-US4) with
   `pnpm screenshot` and the dev build. Store the PNGs in `tests/.generated/018/`, look at each one, and log the result
   per step
-- [ ] T021 [deep] Constitution audit of the full diff `main..018-browser-tree-collapse` with the
+- [x] T021 [deep] Constitution audit of the full diff `main..018-browser-tree-collapse` with the
   `constitution-auditor` agent; summarise its findings in the log and fix every finding or turn it into a task
-- [ ] T022 [light] Full gate `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` on the final commit; record
+- [x] T022 [light] Full gate `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` on the final commit; record
   each summary line and exit code in the log
-- [ ] T023 [light] Update `docs/agents/reference.md` only if a command or setup changed (none expected; record "no
+- [x] T023 [light] Update `docs/agents/reference.md` only if a command or setup changed (none expected; record "no
   change" in the log), and set **Status** in `specs/018-browser-tree-collapse/spec.md` to `Implemented`
 
 ## Additions found while implementing

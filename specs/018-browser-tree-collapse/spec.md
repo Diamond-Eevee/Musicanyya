@@ -2,7 +2,7 @@
 
 **Feature Branch**: `018-browser-tree-collapse`
 **Created**: 2026-10-01
-**Status**: Draft
+**Status**: Implemented
 **Input**: User description: "add tree view collapsing for improved UX, the view should start collapsed. But on app run,
 the previous selected track should be selected (not loaded), and tree view remember the last collapsed state. It should
 be saved in local storage for now, later with possibility to push to store in the server via user."

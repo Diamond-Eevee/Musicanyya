@@ -141,11 +141,16 @@ export class BrowserStateStore {
    *  longer exists follows `formerIds` or becomes `continue`, data-model.md §7) and moves to `ready`. 018: a restored
    *  selection that is gone is cleared (R-8); on the first load of the app run the ancestors of a chosen section
    *  folder are opened (R-4); what changed is saved. */
-  indexLoaded(index: LibraryIndex, files: readonly UserFileEntry[], records: readonly ProgressRecord[]): void {
+  indexLoaded(
+    index: LibraryIndex,
+    files: readonly UserFileEntry[],
+    records: readonly ProgressRecord[],
+    filesKnown = true,
+  ): void {
     if (this.store.get().phase !== 'loading') return;
     this.knownSections = index.sections;
     const validated = validateViewState(this.rawView, this.knownSections);
-    let view = this.withoutMissingSelection(validated, index, files);
+    let view = this.withoutMissingSelection(validated, index, filesKnown ? files : null);
     if (!this.startRevealDone) {
       this.startRevealDone = true;
       if (view.folder.kind === 'section') {
@@ -164,10 +169,15 @@ export class BrowserStateStore {
 
   /** The index failed to load: *My files* and *Continue* still work (Edge Cases: library unavailable). A library
    *  selection is kept (nothing shows it is gone); a file that is not in *My files* is cleared (018 R-8). */
-  indexFailed(error: CatalogError, files: readonly UserFileEntry[], records: readonly ProgressRecord[]): void {
+  indexFailed(
+    error: CatalogError,
+    files: readonly UserFileEntry[],
+    records: readonly ProgressRecord[],
+    filesKnown = true,
+  ): void {
     if (this.store.get().phase !== 'loading') return;
     const validated = validateViewState(this.rawView, this.knownSections);
-    const view = this.withoutMissingSelection(validated, null, files);
+    const view = this.withoutMissingSelection(validated, null, filesKnown ? files : null);
     if (view.selected !== validated.selected) this.adopt(view);
     this.store.update((state) => ({
       ...state,
@@ -179,17 +189,18 @@ export class BrowserStateStore {
   }
 
   /** 018 R-8: `view` without a selection that names a library item not in `index` (when there is one) or a file not
-   *  in `files`. Returns the same object when nothing is cleared. */
+   *  in `files` (when the file list could be read: `null` = unknown, as after a failed storage read, so nothing is
+   *  cleared). Returns the same object when nothing is cleared. */
   private withoutMissingSelection(
     view: BrowserViewState,
     index: LibraryIndex | null,
-    files: readonly UserFileEntry[],
+    files: readonly UserFileEntry[] | null,
   ): BrowserViewState {
     const { selected } = view;
     if (selected === null) return view;
     const exists =
       selected.kind === 'file'
-        ? files.some((f) => f.fileKey === selected.fileKey)
+        ? files === null || files.some((f) => f.fileKey === selected.fileKey)
         : index === null || index.items.some((i) => i.id === selected.id);
     return exists ? view : { ...view, selected: null };
   }

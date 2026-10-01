@@ -24,9 +24,14 @@ function folderKey(folder: FolderSel): string {
   return folder.kind === 'section' ? `section:${folder.id}` : folder.kind;
 }
 
+/** The section id of a rail key (`section:<id>`). */
+function sectionIdOf(key: string): string {
+  return key.slice('section:'.length);
+}
+
 function folderOf(key: string): FolderSel {
   if (key === 'all' || key === 'myFiles' || key === 'continue') return { kind: key };
-  return { kind: 'section', id: key.slice('section:'.length) };
+  return { kind: 'section', id: sectionIdOf(key) };
 }
 
 interface RailEntry {
@@ -161,7 +166,8 @@ export class MxBrowserRail extends HTMLElement {
         .join(''),
     );
     if (hadFocus) this.itemFor(stop)?.focus();
-    // 018 R-8: after a restore the chosen folder is brought into view (the list lowers the request afterwards).
+    // 018 R-8: after a restore the chosen folder is brought into view. The request is lowered by `mx-browser-list`
+    // (it is always mounted with the rail in the browser); a rail on its own would scroll on every render.
     if (browserState.get().revealSelection) this.itemFor(selectedKey)?.scrollIntoView({ block: 'nearest' });
   }
 
@@ -185,7 +191,7 @@ export class MxBrowserRail extends HTMLElement {
   private select(key: string, openIt: boolean): void {
     this.focusKey = key;
     const change: Partial<BrowserViewState> = { folder: folderOf(key) };
-    if (openIt) change.expanded = setExpanded(browserState.get().view.expanded, key.slice('section:'.length), true);
+    if (openIt) change.expanded = setExpanded(browserState.get().view.expanded, sectionIdOf(key), true);
     this.commit(change);
   }
 
@@ -202,7 +208,7 @@ export class MxBrowserRail extends HTMLElement {
   private setOpen(key: string, open: boolean): void {
     this.focusKey = key;
     const { expanded } = browserState.get().view;
-    const next = setExpanded(expanded, key.slice('section:'.length), open);
+    const next = setExpanded(expanded, sectionIdOf(key), open);
     if (next !== expanded) this.commit({ expanded: next });
   }
 
