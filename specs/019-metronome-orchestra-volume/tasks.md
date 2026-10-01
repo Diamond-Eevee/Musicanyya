@@ -281,7 +281,7 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   Oesterle, copyright 1899, Internet Archive `31761045200615` (plan "Decisions and open items"), including Oesterle's
   fingering. Blocks T039-T041, T044-T046 and T053-T058 (the source, the transcriptions, the item and
   everything built on it; the tooling T042-T043 and T047-T052 does not need the source). Record "owner approved <date>" or "owner rejected <date>" on this line - **owner approved 2026-10-01** (asked by claude-sonnet-5.5; the gate also needs T039's manifest `approvedByOwner` date, which is not a document update of its own)
-- [ ] T039 [US2] [light] Source manifest `content/library/sources/ia-31761045200615-grieg-op46-schirmer/source.json`
+- [x] T039 [US2] [light] Source manifest `content/library/sources/ia-31761045200615-grieg-op46-schirmer/source.json`
   (source-manifest 1.2.0: `role: "scan"`, `format: "pdf"`, URL
   `https://archive.org/download/31761045200615/31761045200615.pdf`, SHA-256 of that file downloaded to
   `tests/.generated/` and not committed, `approvedByOwner` = the T038 date); the entry in `THIRD_PARTY_NOTICES.md`; the
