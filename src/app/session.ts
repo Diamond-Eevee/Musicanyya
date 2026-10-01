@@ -405,8 +405,14 @@ export class Session {
       if (state.mode === lastMode) return;
       const previousMode = lastMode;
       lastMode = state.mode;
-      if (state.mode === 'listen') this.leavePractice();
-      if (previousMode === 'play' && state.mode !== 'play') this.leavePlay();
+      if (previousMode === 'play') this.leavePlay();
+      // Switching mode ends the run of the mode being left, whatever comes next (002 AS-1.11, 017 T056). The
+      // transport's stop is routed by the mode now in force (a Play stop only stops a Play run), so the engine is
+      // stopped here directly: Practice -> Play used to leave the session running and the button on Stop.
+      this.audioEngine.stop();
+      transportState.stop();
+      // Leaving Practice drops its session and marks (FR-019); so does arriving in Listen, as before.
+      if (previousMode === 'practice' || state.mode === 'listen') this.resetPractice();
       this.updateTempoModel(); // Play shows the Play setup's tempo, Listen and Practice the transport's (012 FR-017)
     });
     initShortcuts();
@@ -865,12 +871,6 @@ export class Session {
       soundingAccompaniment: new Map(),
       heldWrongKeys: new Map(), // the session is over: no red disc stays on the Score
     });
-  }
-
-  /** Switching to Listen ends the session and clears its marks (FR-019). */
-  private leavePractice(): void {
-    this.resetPractice();
-    transportState.stop();
   }
 
   /** Drops the session and the picked start measure, releasing whatever the session left ringing. */

@@ -279,12 +279,12 @@ epeatTie` (bars 38 and 92: today the app
   `trill-realisation` fixture's "unknown ornament" becomes `<schleifer/>`; `Note.ornament`, `build.ts`,
   `SUPPORT_MATRIX` + `docs/musicxml-support.md` row; the two Petzold minuets' `expected` / `limitations` removed,
   index rebuilt
-- [~] T056 [US5] (found by the owner in T026, 2026-10-01) Test first, `tests/e2e/mode-switch-run.spec.ts`: switching
+- [x] T056 [US5] (found by the owner in T026, 2026-10-01) Test first, `tests/e2e/mode-switch-run.spec.ts`: switching
   mode during a run ends that run (002 AS-1.11, 002/003 FR-001 "switchable at any time"). Practice running ->
   Play: the Practice session ends, the transport is stopped, Start reads *Start* and a Play run can be started at
   once; Listen playing -> Practice and -> Play: playback stops. Today Practice -> Play leaves the session running
-  and the button on *Stop* (claimed: claude-opus-5.5 2026-10-01)
-- [ ] T057 [US5] Fix for T056 in `src/app/session.ts` (the mode subscriber leaves the previous mode, whatever the
+  and the button on *Stop*
+- [x] T057 [US5] Fix for T056 in `src/app/session.ts` (the mode subscriber leaves the previous mode, whatever the
   next one is), T056 green
  
 
