@@ -20,9 +20,14 @@ export const PANEL_IDS = [
   'setup',
   'grade',
   'attempts',
+  'sound',
 ] as const;
 
 export type PanelId = (typeof PANEL_IDS)[number];
+
+/** The Levels popover (ui-shell 1.5.0, feature 019): opened by a toolbar button, not a menu, and the one panel that is
+ *  never closed because a run starts or one is going - moving a level during a run is what it is for. */
+export const RUN_OK_PANEL: PanelId = 'sound';
 
 export type OverlayLayer = keyof OverlayFlags;
 
@@ -79,6 +84,7 @@ export class ViewStateStore {
 
   /** The one place a run start closes any popup (FR-006: nothing modal during a session). */
   closeForRun(): void {
+    if (this.store.get().openPanel === RUN_OK_PANEL) return;
     this.closePanel();
   }
 

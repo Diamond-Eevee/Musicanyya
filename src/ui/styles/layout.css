@@ -221,8 +221,11 @@ mx-open-button .open-label-short {
 }
 
 @media (max-width: 480px) {
+  /* The Levels button (feature 019) joins Volume and Follow here: there is no room for it beside the tempo field, and the
+     levels keep the values last set. */
   .mx-bar-compact mx-transport .volume-label,
-  .mx-bar-compact mx-transport .follow-label {
+  .mx-bar-compact mx-transport .follow-label,
+  .mx-bar-compact mx-transport .levels-btn {
     display: none;
   }
 

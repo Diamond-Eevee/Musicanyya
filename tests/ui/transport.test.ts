@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '../../src/ui/elements/mx-transport.js';
 import { initShortcuts } from '../../src/ui/shortcuts.js';
 import { transportState } from '../../src/ui/state/transportState.js';
+import { viewState } from '../../src/ui/state/viewState.js';
 
 describe('mx-transport & shortcuts', () => {
   let el: HTMLElement;
@@ -78,6 +79,42 @@ describe('mx-transport & shortcuts', () => {
     expect(transportState.get().volume).toBe(42);
     expect(transportState.get().follow).toBe(false);
     expect(transportState.get().tempoPercent).toBe(before); // unaffected: no tempo argument exists any more
+  });
+
+  // Feature 019, mixer-levels.md section 1 and ui-shell 1.5.0: a toolbar button after the Volume slider opens the Levels popover.
+  describe('the Levels button', () => {
+    const levelsButton = () => el.querySelector('button.levels-btn') as HTMLButtonElement;
+
+    afterEach(() => viewState.closePanel());
+
+    it('is a popup button right after the Volume slider, collapsed at first', () => {
+      const button = levelsButton();
+      expect(button).not.toBeNull();
+      expect(button.textContent?.trim()).toBe('Levels');
+      expect(button.getAttribute('aria-haspopup')).toBe('dialog');
+      expect(button.getAttribute('aria-expanded')).toBe('false');
+      expect(el.querySelector('.volume-label')?.nextElementSibling).toBe(button);
+    });
+
+    it("opens panel 'sound' when pressed, and says so with aria-expanded", () => {
+      levelsButton().click();
+      expect(viewState.get().openPanel).toBe('sound');
+      expect(levelsButton().getAttribute('aria-expanded')).toBe('true');
+    });
+
+    it('closes the panel when pressed again, and follows a panel that is closed or replaced elsewhere', () => {
+      levelsButton().click();
+      levelsButton().click();
+      expect(viewState.get().openPanel).toBeNull();
+      expect(levelsButton().getAttribute('aria-expanded')).toBe('false');
+
+      levelsButton().click();
+      viewState.closePanel(); // Escape or a click outside closes it through the store
+      expect(levelsButton().getAttribute('aria-expanded')).toBe('false');
+      levelsButton().click();
+      viewState.openPanel('view');
+      expect(levelsButton().getAttribute('aria-expanded')).toBe('false');
+    });
   });
 
   describe('shortcuts', () => {

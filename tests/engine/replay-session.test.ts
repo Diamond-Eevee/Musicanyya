@@ -6,7 +6,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { ReplaySessionController } from '../../src/app/replay-session.js';
-import { PLAY_STRICTNESS_DEFAULT } from '../../src/core/defaults.js';
+import { METRONOME_CHANNEL, METRONOME_VOLUME_MUTED, PLAY_STRICTNESS_DEFAULT } from '../../src/core/defaults.js';
 import type { RunSettings } from '../../src/core/play/types.js';
 import type { ScheduleMessage } from '../../src/core/schedule/compile.js';
 import { FakeAudioEngine } from '../fakes/fake-audio-engine.js';
@@ -66,6 +66,51 @@ describe('ReplaySessionController', () => {
     const tempoAt = audioEngine.commands.lastIndexOf('setTempoPercent:75');
     expect(tempoAt).toBeGreaterThan(audioEngine.commands.indexOf('load'));
     expect(tempoAt).toBeLessThan(audioEngine.commands.indexOf('play'));
+  });
+
+  // Feature 019 (mixer-levels.md section 3, T079): the replay plays the run's own clicks, so the click channel is set
+  // like a run's - the attempt's own mute, the Metronome level in force now - never left at whatever the worklet held.
+  describe('the click channel level (feature 019)', () => {
+    const channelVolumes = (commands: readonly string[]) => commands.filter((c) => c.startsWith('setChannelVolume:'));
+    const click = (level: number) => `setChannelVolume:${METRONOME_CHANNEL},${level}`;
+
+    it('is set to the current Metronome level after the schedule is loaded and before it plays', () => {
+      const audioEngine = new FakeAudioEngine();
+      const controller = new ReplaySessionController(audioEngine, { onEnded: () => {} });
+
+      controller.start('score-1', SETTINGS, TICK_MAP, fakeSchedule(), 40);
+
+      expect(channelVolumes(audioEngine.commands)).toEqual([click(40)]);
+      const at = audioEngine.commands.indexOf(click(40));
+      expect(at).toBeGreaterThan(audioEngine.commands.indexOf('load'));
+      expect(at).toBeLessThan(audioEngine.commands.indexOf('play'));
+    });
+
+    it('is silent when the attempt was played with the Metronome muted, whatever the level', () => {
+      const audioEngine = new FakeAudioEngine();
+      const controller = new ReplaySessionController(audioEngine, { onEnded: () => {} });
+
+      controller.start('score-1', { ...SETTINGS, metronomeMuted: true }, TICK_MAP, fakeSchedule(), 40);
+
+      expect(channelVolumes(audioEngine.commands)).toEqual([click(METRONOME_VOLUME_MUTED)]);
+    });
+
+    it('follows a level change while the replay plays, once, and sends nothing for the same level or after it ended', () => {
+      const audioEngine = new FakeAudioEngine();
+      const controller = new ReplaySessionController(audioEngine, { onEnded: () => {} });
+      controller.start('score-1', SETTINGS, TICK_MAP, fakeSchedule(), 40);
+      audioEngine.commands.length = 0;
+
+      controller.setMetronomeLevel(40);
+      expect(audioEngine.commands).toEqual([]);
+      controller.setMetronomeLevel(75);
+      expect(audioEngine.commands).toEqual([click(75)]);
+
+      audioEngine.fireEvent({ type: 'ended' });
+      audioEngine.commands.length = 0;
+      controller.setMetronomeLevel(20);
+      expect(audioEngine.commands).toEqual([]);
+    });
   });
 
   it('reportPosition keeps the run position in sync with the engine, every frame', () => {

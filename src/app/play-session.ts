@@ -2,6 +2,7 @@ import {
   METRONOME_CHANNEL,
   METRONOME_KEY_BEAT,
   METRONOME_KEY_DOWNBEAT,
+  METRONOME_LEVEL_DEFAULT,
   METRONOME_VELOCITY_BEAT,
   METRONOME_VELOCITY_DOWNBEAT,
 } from '../core/defaults.js';
@@ -97,6 +98,11 @@ export class PlaySessionController {
   private audioEndedAtMs = 0;
   private initialSampleRate: number | null = null;
   private lastLiveQueueDropped = 0;
+  /** What the click channel is set to is the mute and the musician's Metronome level together (feature 019,
+   *  contracts/mixer-levels.md section 3). Both are held here, so a change during a run, a new run and a sound that
+   *  comes back all send the same value. */
+  private metronomeMuted = false;
+  private metronomeLevel = METRONOME_LEVEL_DEFAULT;
 
   private nextGradeRequestId = 1;
   private pendingGrade: Promise<void> | null = null;
@@ -168,7 +174,8 @@ export class PlaySessionController {
     this.audioEngine.setTempoPercent(settings.tempoPercent);
     // Always set, never only when muted: the worklet keeps channel volumes across schedules, so a muted run would leave the
     // next one silent (009 R-02, FR-013). Sent after the schedule so the tick-0 setup cannot override it.
-    this.audioEngine.setChannelVolume(METRONOME_CHANNEL, metronomeChannelVolume(settings.metronomeMuted));
+    this.metronomeMuted = settings.metronomeMuted;
+    this.applyMetronomeVolume();
     this.audioEngine.play();
 
     this.syncClock();
@@ -180,6 +187,32 @@ export class PlaySessionController {
 
     this.run = createIdleRun(scoreId, settings, tickMap);
     this.dispatch({ type: 'start', runId: this.randomUUID(), startAudioTimeSec, startedAt: this.nowISO() });
+  }
+
+  /** The Metronome level the musician set, 0..100 (feature 019, FR-003, FR-005). Held for the next run; during a run it
+   *  reaches the click channel at once and touches nothing else - the schedule, the clock and the position stay as they are. */
+  setMetronomeLevel(level: number): void {
+    if (level === this.metronomeLevel) return;
+    this.metronomeLevel = level;
+    if (this.isLive()) this.applyMetronomeVolume();
+  }
+
+  /** The Play setup's mute, changed during a run (never by recompiling the schedule, 009 R-02, T067). */
+  setMetronomeMuted(muted: boolean): void {
+    if (muted === this.metronomeMuted) return;
+    this.metronomeMuted = muted;
+    if (this.isLive()) this.applyMetronomeVolume();
+  }
+
+  private isLive(): boolean {
+    return this.run?.phase === 'countIn' || this.run?.phase === 'running';
+  }
+
+  private applyMetronomeVolume(): void {
+    this.audioEngine.setChannelVolume(
+      METRONOME_CHANNEL,
+      metronomeChannelVolume(this.metronomeMuted, this.metronomeLevel),
+    );
   }
 
   /** How long past the worklet's own `ended` event to keep recording, so the last expected note's late claim
@@ -266,6 +299,10 @@ export class PlaySessionController {
   }
 
   private handleEngineEvent(event: AudioEngineEvent): void {
+    // Sound is back: the click channel is never left at full level by mistake (feature 019, spec edge case "audio device
+    // changes"). Today the worklet node outlives a device change, so this is idempotent; it is what keeps the level if the
+    // node is ever created again. Before any run there is nothing to restore.
+    if (this.run && event.type === 'state' && event.state.kind === 'ready') this.applyMetronomeVolume();
     if (!this.run || (this.run.phase !== 'countIn' && this.run.phase !== 'running')) return;
 
     if (event.type === 'state' && event.state.kind === 'suspended' && event.state.reason === 'deviceChanged') {

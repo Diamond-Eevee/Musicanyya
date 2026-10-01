@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { METRONOME_LEVEL_DEFAULT } from '../../../src/core/defaults.js';
 import { metronomeChannelVolume } from '../../../src/core/play/metronome.js';
 import { WebAudioEngine } from '../../../src/engine/audio/web-audio-engine.js';
 
@@ -152,8 +153,8 @@ describe('WebAudioEngine', () => {
     await engine.unlock();
     await engine.ensureSoundLoaded();
 
-    engine.setChannelVolume(14, metronomeChannelVolume(false));
-    engine.setChannelVolume(14, metronomeChannelVolume(true));
+    engine.setChannelVolume(14, metronomeChannelVolume(false, METRONOME_LEVEL_DEFAULT));
+    engine.setChannelVolume(14, metronomeChannelVolume(true, METRONOME_LEVEL_DEFAULT));
     expect(mockPort.postMessage).toHaveBeenCalledWith({ type: 'channelVolume', channel: 14, gain: 1 });
     expect(mockPort.postMessage).toHaveBeenCalledWith({ type: 'channelVolume', channel: 14, gain: 0 });
   });

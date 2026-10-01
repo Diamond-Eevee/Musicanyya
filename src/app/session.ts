@@ -33,6 +33,7 @@ import '../ui/elements/mx-score-source.js';
 import '../ui/elements/mx-score-view.js';
 import '../ui/elements/mx-size-controls.js';
 import '../ui/elements/mx-status-badge.js';
+import '../ui/elements/mx-levels-panel.js';
 import '../ui/elements/mx-transport.js';
 import '../ui/elements/mx-view-panel.js';
 import '../ui/elements/mx-midi-panel.js';
@@ -42,7 +43,6 @@ import '../ui/elements/mx-practice-help.js';
 import '../ui/elements/mx-practice-panel.js';
 import '../ui/elements/mx-run-status.js';
 import {
-  METRONOME_CHANNEL,
   METRONOME_KEY_BEAT,
   METRONOME_KEY_DOWNBEAT,
   METRONOME_VELOCITY_BEAT,
@@ -52,7 +52,6 @@ import { buildExpectedNotes, buildPlayedAlongSpans } from '../core/grade/expecte
 import { type GradeMarkSet, gradeMarks } from '../core/grade/marks.js';
 import { type SyntheticKind, syntheticLog } from '../core/grade/synthetic.js';
 import type { Grade, GradeInput, StoredPerformance } from '../core/grade/types.js';
-import { metronomeChannelVolume } from '../core/play/metronome.js';
 import { compileReplay } from '../core/play/replay.js';
 import type { PlayEffect, RunSettings } from '../core/play/types.js';
 import { buildExpectedEvents, firstEventAtOrAfterTick, resolveStartMeasure } from '../core/practice/expected.js';
@@ -330,6 +329,7 @@ export class Session {
     );
     // The store is set without the driver; the engine gets the saved volume too (017 T034), sent once its node exists.
     this.audioEngine.setVolume(transportState.get().volume);
+    this.playController.setMetronomeLevel(transportState.get().metronomeLevel);
 
     this.scoreView = document.createElement('mx-score-view');
     this.scoreView.client = this.verovioClient;
@@ -406,6 +406,10 @@ export class Session {
       setVolume: (volume) => this.audioEngine.setVolume(volume),
     });
     transportState.subscribe((state) => {
+      // The Metronome level reaches the click channel at once during a run (feature 019, FR-005); the controller ignores
+      // a state change that did not change it.
+      this.playController.setMetronomeLevel(state.metronomeLevel);
+      this.replayController?.setMetronomeLevel(state.metronomeLevel);
       this.persistUserSettings({
         volume: state.volume,
         follow: state.follow,
@@ -608,6 +612,7 @@ export class Session {
       diagnostics: [diagnosticsPanel],
       environment: [environmentPanel],
       grade: [gradePanel],
+      sound: [document.createElement('mx-levels-panel')],
     };
     mountPanels(document.getElementById('panel-host') as HTMLElement, tools);
 
@@ -1033,10 +1038,8 @@ export class Session {
     this.settingsStore.savePlay(this.playScoreId, settings);
 
     // Metronome mute can be applied live (T067): never by recompiling the schedule (R-02).
-    const run = this.playController.getRun();
-    if (change.metronomeMuted !== undefined && run && (run.phase === 'countIn' || run.phase === 'running')) {
-      this.audioEngine.setChannelVolume(METRONOME_CHANNEL, metronomeChannelVolume(change.metronomeMuted));
-    }
+    // The controller sends it to the click channel only while a run is going, together with the Metronome level.
+    if (change.metronomeMuted !== undefined) this.playController.setMetronomeMuted(change.metronomeMuted);
   }
 
   /**
@@ -1376,7 +1379,13 @@ export class Session {
       },
     });
     this.scheduleDelivered = false; // as for a live run: Listen reloads its own schedule next time
-    this.replayController.start(this.playScoreId, perf.settings, prepared.context.tickMap, schedule);
+    this.replayController.start(
+      this.playScoreId,
+      perf.settings,
+      prepared.context.tickMap,
+      schedule,
+      transportState.get().metronomeLevel,
+    );
     this.scoreView?.setPlaySession(this.replayController);
   }
 

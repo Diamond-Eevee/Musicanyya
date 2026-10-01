@@ -558,4 +558,115 @@ describe('PlaySessionController (T039/T097)', () => {
       expect(second).toBeLessThan(secondPlay);
     });
   });
+
+  // Feature 019 (mixer-levels.md sections 3 and 5, play-run 2.2.0): the click channel's level is the musician's
+  // Metronome level, set when the schedule loads, again on every change during the run, and again when sound comes back.
+  describe('the Metronome level (feature 019, FR-003 to FR-005, FR-008)', () => {
+    const channelVolumes = (commands: readonly string[]) => commands.filter((c) => c.startsWith('setChannelVolume:'));
+    const click = (level: number) => `setChannelVolume:${METRONOME_CHANNEL},${level}`;
+    const startRun = (level: number, overrides: Partial<RunSettings> = {}) => {
+      const fixture = setup();
+      const { score, timeline, controller } = fixture;
+      controller.setMetronomeLevel(level);
+      controller.start({
+        scoreId: null,
+        score,
+        timeline,
+        measures: score.measures,
+        range: null,
+        settings: settings(overrides),
+      });
+      return fixture;
+    };
+
+    it('loading the run schedule sets the click channel to the stored level, after load and before play', () => {
+      const { audioEngine } = startRun(40);
+      expect(channelVolumes(audioEngine.commands)).toEqual([click(40)]);
+      const at = audioEngine.commands.indexOf(click(40));
+      expect(at).toBeGreaterThan(audioEngine.commands.indexOf('load'));
+      expect(at).toBeLessThan(audioEngine.commands.indexOf('play'));
+    });
+
+    it('a level never set is the default, 100', () => {
+      const fixture = setup();
+      const { score, timeline, audioEngine, controller } = fixture;
+      controller.start({ scoreId: null, score, timeline, measures: score.measures, range: null, settings: settings() });
+      expect(channelVolumes(audioEngine.commands)).toEqual([click(METRONOME_VOLUME_ON)]);
+    });
+
+    it('a change during the count-in sets only the click channel, once, and the run goes on', () => {
+      const { audioEngine, controller } = startRun(100);
+      expect(controller.getRun()?.phase).toBe('countIn');
+      audioEngine.commands.length = 0;
+
+      controller.setMetronomeLevel(30);
+
+      expect(audioEngine.commands).toEqual([click(30)]); // no stop, no load, no other channel
+      const countInTicks = controller.getRun()?.tickMap.countInTicks ?? 0;
+      audioEngine.currentPosition = { audibleTick: countInTicks, playing: true };
+      controller.reportPosition(2500);
+      expect(controller.getRun()?.phase).toBe('running'); // the count-in ended and the run advanced across the change
+      expect(audioEngine.commands).toEqual([click(30)]); // still nothing else was sent
+    });
+
+    it('a change during the run sets only the click channel, once, and the run keeps advancing', () => {
+      const { audioEngine, controller } = startRun(100);
+      const countInTicks = controller.getRun()?.tickMap.countInTicks ?? 0;
+      audioEngine.currentPosition = { audibleTick: countInTicks + 10, playing: true };
+      controller.reportPosition(2500);
+      expect(controller.getRun()?.phase).toBe('running');
+      audioEngine.commands.length = 0;
+
+      controller.setMetronomeLevel(70);
+      controller.setMetronomeLevel(70); // the same value again is not a change
+      controller.setMetronomeLevel(55);
+
+      expect(audioEngine.commands).toEqual([click(70), click(55)]);
+      audioEngine.currentPosition = { audibleTick: countInTicks + 400, playing: true };
+      controller.reportPosition(3000);
+      expect(controller.getRun()?.phase).toBe('running');
+      expect(controller.getRun()?.positionRunTick).toBeGreaterThan(countInTicks + 10);
+      expect(audioEngine.commands).toEqual([click(70), click(55)]);
+    });
+
+    it('a muted click stays silent at any level, and un-muting after a level change uses the new level', () => {
+      const { audioEngine, controller } = startRun(100, { metronomeMuted: true });
+      expect(channelVolumes(audioEngine.commands)).toEqual([click(METRONOME_VOLUME_MUTED)]);
+      audioEngine.commands.length = 0;
+
+      controller.setMetronomeLevel(30);
+      expect(audioEngine.commands).toEqual([click(METRONOME_VOLUME_MUTED)]);
+
+      controller.setMetronomeMuted(false);
+      expect(audioEngine.commands.at(-1)).toBe(click(30));
+      controller.setMetronomeMuted(true);
+      expect(audioEngine.commands.at(-1)).toBe(click(METRONOME_VOLUME_MUTED));
+    });
+
+    it('with no run in progress a change is only held: nothing is sent, and the next run uses it', () => {
+      const fixture = setup();
+      const { score, timeline, audioEngine, controller } = fixture;
+      controller.setMetronomeLevel(20);
+      expect(channelVolumes(audioEngine.commands)).toEqual([]);
+      controller.start({ scoreId: null, score, timeline, measures: score.measures, range: null, settings: settings() });
+      expect(channelVolumes(audioEngine.commands)).toEqual([click(20)]);
+    });
+
+    it('when sound comes back after a device change the click level is set again - never left at full level', () => {
+      const { audioEngine, controller } = startRun(35);
+      audioEngine.commands.length = 0;
+
+      audioEngine.fireEvent({ type: 'state', state: { kind: 'suspended', reason: 'deviceChanged' } });
+      audioEngine.fireEvent({ type: 'state', state: { kind: 'ready' } });
+
+      expect(channelVolumes(audioEngine.commands)).toEqual([click(35)]);
+      expect(controller.getRun()?.phase).toBe('aborted'); // the existing rule (FR-046) is unchanged
+    });
+
+    it('a ready report with no run at all sends nothing', () => {
+      const { audioEngine } = setup();
+      audioEngine.fireEvent({ type: 'state', state: { kind: 'ready' } });
+      expect(channelVolumes(audioEngine.commands)).toEqual([]);
+    });
+  });
 });

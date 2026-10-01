@@ -86,17 +86,17 @@ reload the level is still 30 %.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T009 [P] [US1] Extend `tests/core/play/metronome-mute.test.ts`: `metronomeChannelVolume(muted, level)` returns
+- [x] T009 [P] [US1] Extend `tests/core/play/metronome-mute.test.ts`: `metronomeChannelVolume(muted, level)` returns
   `METRONOME_VOLUME_MUTED` when muted at levels 0, 50 and 100, and `level` when not muted (0, 30, 100). Fails today: the
   function takes one argument
-- [ ] T010 [P] [US1] Extend `tests/engine/play-session.test.ts` with the fake audio engine: loading a run schedule calls
+- [x] T010 [P] [US1] Extend `tests/engine/play-session.test.ts` with the fake audio engine: loading a run schedule calls
   `setChannelVolume(METRONOME_CHANNEL, <level>)` with the stored Metronome level; a level change during the count-in
   and during the run calls it again with the new level and calls no other `setChannelVolume`; un-muting after a level
   change uses the new level; the run's position keeps advancing across the change (no stop, no reload of the
   schedule); when the fake engine reports a new audio node during a run (`state` `suspended`/`deviceChanged` then
   `ready`), the click channel volume is set again to the stored level - never left at full level (spec edge case
   "audio device changes", analyze A5). Fails today: the level is not read
-- [ ] T011 [P] [US1] Offline render test `tests/engine/metronome-level.test.ts` on the shared harness
+- [x] T011 [P] [US1] Offline render test `tests/engine/metronome-level.test.ts` on the shared harness
   (`tests/engine/helpers/listen-render.ts`, extended with a Play-schedule render that can inject `channelVolume`
   messages at a frame): for `repertoire/beginner/ode-to-joy` render the first 8 s of a Play run at Metronome level 100,
   50 and 0: every click onset frame is identical (SC-001); the click RMS falls from 100 to 50 to 0; the output at 0
@@ -104,7 +104,7 @@ reload the level is still 30 %.
   non-click part of the output is identical at all three levels; moving the level every render block for 10 s of
   audio adds no late event and leaves the dropout count unchanged (SC-009, Metronome half, analyze A6). Fails today:
   the level cannot be set
-- [ ] T012 [P] [US1] UI test `tests/ui/levels-panel.test.ts` for the new `mx-levels-panel` (mixer-levels.md §1): it
+- [x] T012 [P] [US1] UI test `tests/ui/levels-panel.test.ts` for the new `mx-levels-panel` (mixer-levels.md §1): it
   renders two labelled range inputs (`data-id="metronome-level"`, `data-id="orchestra-level"`, min 0, max 100, step
   `MIXER_LEVEL_STEP`) with an `<output>` showing "<n> %", the Metronome hint "Heard in Play mode", accessible names
   from the labels (FR-011); an `input` event calls `transportState.setMetronomeLevel` with the value; with no Score
@@ -112,7 +112,7 @@ reload the level is still 30 %.
   no orchestra" and its stored value is untouched (FR-010). Also extend `tests/ui/transport.test.ts`: a "Levels"
   button follows the Volume slider, with `aria-haspopup` and `aria-expanded`, and opens panel `'sound'`. Fails today:
   neither exists
-- [ ] T013 [P] [US1] Playwright `tests/e2e/levels.spec.ts` (projects chromium, firefox, electron): the Levels button
+- [x] T013 [P] [US1] Playwright `tests/e2e/levels.spec.ts` (projects chromium, firefox, electron): the Levels button
   opens a popover; while Listen plays, opening it and moving the Metronome slider never pauses playback (the audible
   position keeps advancing); in a Play run the Metronome slider moved during the count-in leaves the run going (cursor
   moves on after the count-in); Escape closes the popover and returns focus to the button; after a reload (browser) and
@@ -122,22 +122,27 @@ reload the level is still 30 %.
 
 ### Implementation
 
-- [ ] T014 [US1] `metronomeChannelVolume(muted, level)` in `src/core/play/metronome.ts` and its callers in
+- [x] T014 [US1] `metronomeChannelVolume(muted, level)` in `src/core/play/metronome.ts` and its callers in
   `src/app/play-session.ts` (run schedule load) and `src/app/session.ts` (mute change), reading
   `transportState.get().metronomeLevel` (T009 green)
-- [ ] T015 [US1] Live Metronome level in `src/app/session.ts` / `src/app/play-session.ts`: a `transportState` change of
+- [x] T015 [US1] Live Metronome level in `src/app/session.ts` / `src/app/play-session.ts`: a `transportState` change of
   `metronomeLevel` during a run calls `setChannelVolume(METRONOME_CHANNEL, metronomeChannelVolume(muted, level))`
   once, and the same call is repeated when the engine becomes `ready` again with a new audio node during a run
   (T010 and T011 green)
-- [ ] T016 [US1] The Levels popover: `PanelId` `'sound'` in `src/ui/state/viewState.ts`; new
+- [x] T016 [US1] The Levels popover: `PanelId` `'sound'` in `src/ui/state/viewState.ts`; new
   `src/ui/elements/mx-levels-panel.ts` (both sliders; the Orchestra one always disabled until US3 supplies the open
   Score's Orchestra state); the "Levels" button after the Volume slider in `src/ui/elements/mx-transport.ts`; its
   registration in the panel host; strings in `src/ui/i18n/en.ts` (`transport.levels`, `levels.*`); styles beside the
   transport's in `src/ui/styles/` using theme tokens only (T012 and T013 green)
-- [ ] T017 [US1] RT review with `rt-audio-reviewer` of the Metronome level path (T014, T015: the click channel's CC7
+- [x] T079 [US1] (new, found by the RT review T017, 2026-10-01: a replay of a stored attempt plays the run's own clicks
+  but never set the click channel, so it used whatever the worklet last held) A replay sets the click channel to
+  `metronomeChannelVolume(<the attempt's metronomeMuted>, <the current Metronome level>)` after its schedule is loaded
+  and before it plays, and follows a level change during the replay: tests first in `tests/engine/replay-session.test.ts`,
+  then `src/app/replay-session.ts` (`start` takes the level, `setMetronomeLevel`) and `src/app/session.ts`
+- [x] T017 [US1] RT review with `rt-audio-reviewer` of the Metronome level path (T014, T015: the click channel's CC7
   set from the main thread between blocks, no schedule change); findings and their resolution in
   `specs/019-metronome-orchestra-volume/implementation-log.md`
-- [ ] T018 [US1] Checkpoint US1: run the Independent Test above (quickstart US1 steps 1, 3 and 4 with `pnpm screenshot`,
+- [x] T018 [US1] Checkpoint US1: run the Independent Test above (quickstart US1 steps 1, 3 and 4 with `pnpm screenshot`,
   the sound in step 2 noted for the owner's listening check); full gate (`pnpm lint`, `pnpm typecheck`, `pnpm test`,
   `pnpm test:e2e`, flaky tests per reference R7 re-run alone and both results logged); log entry; commit
 
@@ -165,7 +170,7 @@ plays piano and oboe; Practice and Play offer the piano only and never wait for 
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T019 [P] [US2] Own-work fixtures (CC0, origin noted in `tests/fixtures/musicxml/README.md` or the folder's own
+- [x] T019 [P] [US2] Own-work fixtures (CC0, origin noted in `tests/fixtures/musicxml/README.md` or the folder's own
   README) in `tests/fixtures/musicxml/orchestra/`, one behaviour each (orchestra-score.md §7): `piano-and-oboe` (piano
   P1 + one-staff Orchestra P2, `staff-details` without `number`), `piano-and-two-staff-orchestra`,
   `orchestra-first` (Orchestra P1, piano P2), `partly-hidden` (one of two staves hidden), `hidden-later` (hidden from
@@ -408,7 +413,8 @@ keeps the level; on a Score without an Orchestra the slider says "This score has
 - [ ] T063 [US3] `orchestraLevel` message, held level and CC11 in the setup in
   `src/engine/worklets/score-player.processor.ts` (with `EXPRESSION_CONTROLLER`); `setOrchestraLevel` in
   `src/engine/ports.ts`, `src/engine/audio/web-audio-engine.ts` (held, re-sent to a new node) and
-  `tests/fakes/fake-audio-engine.ts` (T059-T061 green)
+  `tests/fakes/fake-audio-engine.ts` (T059-T061 green); also validate `channel` in the existing `channelVolume` handler
+  (an integer 0..15, otherwise ignored like a bad `volume` gain; RT review T017 N3)
 - [ ] T064 [US3] Wiring in `src/app/session.ts` (level to the engine on start-up, on change and on Score load) and the
   enabled state of the Orchestra slider in `src/ui/elements/mx-levels-panel.ts` from the loaded Score's
   `summary.parts[].orchestra` (T062 green)

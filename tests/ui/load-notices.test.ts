@@ -38,6 +38,10 @@ const ALL_LOAD_NOTICE_CODES: LoadNoticeCode[] = [
   'engravingCompleted',
   'beamDataInvalid',
   'accidentalContradicts',
+  // 019: Orchestra parts
+  'hiddenStaffIgnored',
+  'orchestraChannelsShared',
+  'orchestraInstrumentMissing',
 ];
 
 describe('T030: every LoadNoticeCode has English text in en.notices', () => {
