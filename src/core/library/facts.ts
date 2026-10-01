@@ -259,19 +259,23 @@ export function deriveFacts(input: FactsInput): ItemFacts {
   const lowestMidi = pitchedNotes.length > 0 ? Math.min(...pitchedNotes.map((n) => n.soundingKey)) : 0;
   const highestMidi = pitchedNotes.length > 0 ? Math.max(...pitchedNotes.map((n) => n.soundingKey)) : 0;
 
-  // Chords are notes that share a staff and an onset; the widest such group is the largest simultaneous
+  // Chords are struck notes that share a staff and an onset; the widest such group is the largest simultaneous
   // interval "in one hand" the criteria ask for (data-model.md §4, criterion 16).
   const byStaffOnset = new Map<string, { keys: number[]; allRolled: boolean }>();
   // Distinct voice ids seen per staff, and per-staff onset-tick sets per measure (hand independence).
   const voicesByStaff = new Map<number, Set<string>>();
   const onsetsByStaffMeasure = new Map<string, Set<number>>();
   for (const note of pitchedNotes) {
-    const staffKey = `${note.measureIndex}:${note.onsetInMeasure}:${note.staff}`;
-    const group = byStaffOnset.get(staffKey) ?? { keys: [], allRolled: true };
-    group.keys.push(note.soundingKey);
-    // A chord is rolled only when every one of its notes is written <arpeggiate> (feature 019, research R-17)
-    if (!note.arpeggiate) group.allRolled = false;
-    byStaffOnset.set(staffKey, group);
+    // Only notes struck together make a hand span: a note held on by a tie and a grace note (played before its main
+    // note) are left out (feature 019 T100, owner decision 2026-10-01, research R-17).
+    if (!note.tie.stop && note.grace === null) {
+      const staffKey = `${note.measureIndex}:${note.onsetInMeasure}:${note.staff}`;
+      const group = byStaffOnset.get(staffKey) ?? { keys: [], allRolled: true };
+      group.keys.push(note.soundingKey);
+      // A chord is rolled only when every one of its notes is written <arpeggiate> (feature 019, research R-17)
+      if (!note.arpeggiate) group.allRolled = false;
+      byStaffOnset.set(staffKey, group);
+    }
 
     const voices = voicesByStaff.get(note.staff) ?? new Set<string>();
     voices.add(note.voice);

@@ -376,7 +376,7 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   leave the item out; record the answer here. Blocks T053-T058 - **owner approved 2026-10-01: "Count struck
   notes"** (asked by claude-opus-5.5 with the corrected facts; the first OD-3 question had called bars 86-87 two
   hands); implementation T100; plan.md and research R-17 updated
-- [ ] T100 [US2] [standard] (new, T099 answer 2026-10-01) Criterion 16 counts only notes struck together: tests first
+- [x] T100 [US2] [standard] (new, T099 answer 2026-10-01) Criterion 16 counts only notes struck together: tests first
   in `tests/core/library/facts.test.ts` (a note continued by a tie from earlier, and a grace note, are left out of
   `maxSpanSemitones` and `maxArpeggiatedSpanSemitones`; a struck chord is measured as before; the struck notes of a
   group that also holds a tied note are still measured), then `src/core/library/facts.ts`; the criterion 16 row of

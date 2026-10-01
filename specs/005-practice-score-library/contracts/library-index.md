@@ -1,6 +1,6 @@
 # Contract: library content formats (`item.json` + generated `index.json`)
 
-**Version**: `1.4.1` (1.4.1, 2026-10-01, feature 019 OD-3 (owner decision), PATCH: the quoted criterion 16 limit at Advanced is 16 semitones (a tenth) for an unrolled chord, as data-model.md now says; no format change; 1.4.0, 2026-10-01, feature 019 (owner decision, research R-19), MINOR: `downloaded` items may be
+**Version**: `1.4.2` (1.4.2, 2026-10-01, feature 019 T099/T100 (owner decision), PATCH: `maxSpanSemitones` and `maxArpeggiatedSpanSemitones` measure only notes struck together - a note continued by a tie and a grace note are left out; no item's facts or level change; 1.4.1, 2026-10-01, feature 019 OD-3 (owner decision), PATCH: the quoted criterion 16 limit at Advanced is 16 semitones (a tenth) for an unrolled chord, as data-model.md now says; no format change; 1.4.0, 2026-10-01, feature 019 (owner decision, research R-19), MINOR: `downloaded` items may be
 under CC BY or CC BY-SA 2.0/2.5/3.0/4.0 (SPDX ids); for those `credit` and `unmodified` are required and `sourcePath`
 names a source with the same licence; authored items stay CC0. Full text: [019 data-model.md](../../019-metronome-orchestra-volume/data-model.md)
 section 6.3a; 1.3.0, 2026-10-01, feature 019-metronome-orchestra-volume, MINOR: optional fact `orchestra`, the

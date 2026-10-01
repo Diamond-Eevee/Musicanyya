@@ -483,3 +483,77 @@ describe('deriveFacts: rolled chords (feature 019)', () => {
     expect(facts.maxSpanSemitones).toBe(7);
   });
 });
+
+// Feature 019 T100 (owner decision T099, 2026-10-01: "Count struck notes"; research R-17): criterion 16 measures only
+// notes struck together. A note continued by a tie from earlier is held, not struck; a grace note is played before its
+// main note. Neither is part of the hand span at that onset (Grieg Op. 46 No. 1 bars 50, 56, 86-87).
+describe('deriveFacts: hand spans count struck notes only (feature 019 T100)', () => {
+  type N = { step: string; octave: number; chord?: boolean; tie?: 'start' | 'stop'; grace?: boolean; arp?: boolean };
+  const note = (n: N) =>
+    `<note>${n.grace ? '<grace slash="yes"/>' : ''}${n.chord ? '<chord/>' : ''}<pitch><step>${n.step}</step><octave>${n.octave}</octave></pitch>` +
+    `${n.grace ? '' : '<duration>4</duration>'}${n.tie ? `<tie type="${n.tie}"/>` : ''}<voice>1</voice>` +
+    `<type>${n.grace ? 'eighth' : 'whole'}</type><staff>1</staff>` +
+    `${n.tie || n.arp ? `<notations>${n.tie ? `<tied type="${n.tie}"/>` : ''}${n.arp ? '<arpeggiate/>' : ''}</notations>` : ''}</note>`;
+  const facts = (...measures: N[][]) =>
+    factsFromMeasures(
+      measures
+        .map(
+          (notes, i) =>
+            `<measure number="${i + 1}">${i === 0 ? '<attributes><divisions>1</divisions></attributes>' : ''}${notes.map(note).join('')}</measure>`,
+        )
+        .join(''),
+    );
+
+  it('a note tied on from the bar before is left out of the span of the notes struck with it', () => {
+    // C3 held over the bar line while G4 is struck: 19 semitones apart, but only G4 is struck
+    const f = facts(
+      [{ step: 'C', octave: 3, tie: 'start' }],
+      [
+        { step: 'C', octave: 3, tie: 'stop' },
+        { step: 'G', octave: 4, chord: true },
+      ],
+    );
+    expect(f.maxSpanSemitones).toBe(0);
+  });
+
+  it('the struck notes of a group that also holds a tied note are still measured', () => {
+    const f = facts(
+      [{ step: 'C', octave: 3, tie: 'start' }],
+      [
+        { step: 'C', octave: 3, tie: 'stop' },
+        { step: 'E', octave: 4, chord: true },
+        { step: 'G', octave: 4, chord: true },
+      ],
+    );
+    expect(f.maxSpanSemitones).toBe(3);
+  });
+
+  it('a grace note is left out of the span of the chord it leads into', () => {
+    // an acciaccatura C2 before the octave C3-C4 (bar 50): the hand span is the octave, 12, not 24
+    const f = facts([
+      { step: 'C', octave: 2, grace: true },
+      { step: 'C', octave: 3 },
+      { step: 'C', octave: 4, chord: true },
+    ]);
+    expect(f.maxSpanSemitones).toBe(12);
+  });
+
+  it('a grace note before a rolled chord leaves the chord rolled', () => {
+    const f = facts([
+      { step: 'C', octave: 2, grace: true },
+      { step: 'C', octave: 3, arp: true },
+      { step: 'E', octave: 4, chord: true, arp: true },
+    ]);
+    expect(f.maxSpanSemitones).toBe(0);
+    expect(f.maxArpeggiatedSpanSemitones).toBe(16);
+  });
+
+  it('a struck chord is measured as before', () => {
+    expect(
+      facts([
+        { step: 'C', octave: 3 },
+        { step: 'E', octave: 4, chord: true },
+      ]).maxSpanSemitones,
+    ).toBe(16);
+  });
+});

@@ -104,7 +104,7 @@ assigned level:
 | 13 | Metre changes | 0 | 0 | ≤ 1 | unlimited |
 | 14 | Measures (written) | 8–16 | 8–32 | 16–96 | ≤ 250 |
 | 15 | Duration after repeat expansion | ≤ 60 s | ≤ 90 s | ≤ 240 s | ≤ 480 s |
-| 16 | Largest simultaneous interval in one hand (semitones) | ≤ 7 | ≤ 9 | ≤ 12 | ≤ 16 (a tenth; 14 before feature 019 OD-3, 2026-10-01), wider only under `<arpeggiate>` |
+| 16 | Largest interval in one hand between notes struck together - not a note held on by a tie, not a grace note (019 T100) (semitones) | ≤ 7 | ≤ 9 | ≤ 12 | ≤ 16 (a tenth; 14 before feature 019 OD-3, 2026-10-01), wider only under `<arpeggiate>` |
 | 17 | Largest leap in one hand between consecutive onsets | ≤ 12 (exercises 19, B8) | ≤ 12 (exercises 19) | ≤ 24 | unlimited |
 | 18 | Mean note density (notes/s) | ≤ 1.5 | ≤ 2.5 | ≤ 6 | ≤ 12 |
 | 19 | Peak note density (max notes/s in any 2 s window) | ≤ 3 | ≤ 5 | ≤ 12 | ≤ 24 |
