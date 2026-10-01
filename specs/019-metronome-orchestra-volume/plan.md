@@ -192,7 +192,9 @@ R-18 domain-expert answers. No `NEEDS CLARIFICATION` left in the Technical Conte
   (R-17, R-18); the regeneration test proves no other item changes level.
 - **Decided by the owner (OD-3, 2026-10-01): "Allow tenths"** - criterion 16's Advanced limit for unrolled chords
   becomes 16 semitones (T096), and the right-hand chords of bars 77-78 and 86-87 are printed on the upper staff (T097),
-  research R-17 addendum. Was:
+  research R-17 addendum. Follow-up (T099, 2026-10-01, "Count struck notes"): criterion 16 measures only notes struck
+  together - tie-continued and grace notes are left out (T100); bars 86-87 were not two hands but a pedal-held chord.
+  Was:
   if the transcription confirms one-hand spans over 14 semitones that are not
   rolled (read from the print: bars 77-78, about two octaves over a low E in a second voice; bar 85), the item fails
   criterion 16 at every level. Raised with the measured facts after transcription A; options then: leave the item out

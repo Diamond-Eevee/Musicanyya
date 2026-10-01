@@ -324,6 +324,15 @@ in bars 77-78 (28-29 semitones) and 86-87 (36).
   owner decision.
 - **Alternatives** (offered with the facts): leave *Morning Mood* out, as *The Entertainer* in 017; wait for
   transcription B and T045 before deciding.
+- **Correction and follow-up (T099, owner decision 2026-10-01: "Count struck notes")**: bars 86-87 are not two hands.
+  Their lower-staff chord is the left hand's rolled bar-85 chord, tied on and held by the pedal while the left hand
+  plays the E1-E2 tremolo; the 36 semitones came from criterion 16 counting those tied notes with the tremolo's E1.
+  Criterion 16 also counted grace notes with their main note (bars 50 and 56: an acciaccatura C2 / B1 before an
+  octave, 24). **Decision**: criterion 16 measures only notes struck together; a note continued by a tie and a grace
+  note are left out (T100). **Rationale**: neither is a stretch of the hand at that moment; measured on all 184
+  library items, the change moves no item's span or level. **Alternative**: keep the rule and leave the item out.
+  The remaining 17-semitone groups (bars 52, 58, 60-62) are rolled chords whose arpeggio line in the print also covers
+  the left-hand melody note struck with them - a reading fix of transcription A (T098), not a rule change.
 
 ## R-18 Answers from the music-domain-expert (2026-10-01)
 

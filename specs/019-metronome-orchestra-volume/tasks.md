@@ -358,7 +358,30 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   with the left hand (precedent: `public/library/repertoire/advanced/chopin-prelude-op28-no4.json` note). Decide
   first how, so `pnpm library:convert-ly` stays the only writer of the item (e.g. in transcription A with a
   `% item:` comment naming the departure from the print - never in transcription B, which reads the print as it is);
-  the sidecar note names the change (T044). Comes before T044. Done in transcription A (`% item:` comment, `ange Staff`): only bars 86-87 remain, see T098 and the log
+  the sidecar note names the change (T044). Comes before T044. Done for bars 77-78 in transcription A (`% item:`
+  comment, `\change Staff`; 12 notes changed staff, nothing else in the reading). Bars 86-87 were wrongly described
+  as two hands: their lower-staff chord is the left hand's rolled bar-85 chord, tied on and held by the pedal while
+  the left hand plays the tremolo, so it is not moved (T099)
+- [ ] T098 [US2] [deep] (new, found by T097, 2026-10-01) Transcription A reading fix: in bar 52 the print's arpeggio
+  line runs from the rolled left-hand chord up through the left-hand melody note struck with it (voice 5), so the
+  whole group is one rolled chord; A marks only the chord. Check bars 52, 58 and 60-62 against the print (PDF pages
+  9-10) and add `\arpeggio` to the melody note where the line covers it (`% unclear:` where it cannot be told); then
+  these groups (17 semitones) count as rolled for criterion 16. Not in transcription B's session (B reads the print
+  itself)
+- [x] T099 [US2] **Owner decision gate (OD-3 follow-up)**: bars 86-87 - criterion 16 counts the notes of the rolled
+  bar-85 chord that are tied into bars 86-87 (held by the pedal) together with the left hand's tremolo E1 struck
+  there: 36 semitones; and grace notes with their main note (bars 50 and 56: an acciaccatura C2 / B1 before an
+  octave, 24). Measured on the whole library: leaving tie-continued and grace notes out of a hand span changes no
+  item's span or level (0 of 184). Ask: count only notes struck together (a library rule change, recommended), or
+  leave the item out; record the answer here. Blocks T053-T058 - **owner approved 2026-10-01: "Count struck
+  notes"** (asked by claude-opus-5.5 with the corrected facts; the first OD-3 question had called bars 86-87 two
+  hands); implementation T100; plan.md and research R-17 updated
+- [ ] T100 [US2] [standard] (new, T099 answer 2026-10-01) Criterion 16 counts only notes struck together: tests first
+  in `tests/core/library/facts.test.ts` (a note continued by a tie from earlier, and a grace note, are left out of
+  `maxSpanSemitones` and `maxArpeggiatedSpanSemitones`; a struck chord is measured as before; the struck notes of a
+  group that also holds a tied note are still measured), then `src/core/library/facts.ts`; the criterion 16 row of
+  `specs/005-practice-score-library/data-model.md` and `library-index.md` 1.4.2 say "notes struck together";
+  `pnpm library:index` changes no item (regeneration test green)
 - [x] T047 [US2] [standard] Tests first in `tests/core/library/levels.test.ts` and `tests/core/library/facts.test.ts`
   for the documented Advanced `<arpeggiate>` exception (R-17): a chord whose notes all carry `<arpeggiate>` is left
   out of `maxSpanSemitones` and counted in `maxArpeggiatedSpanSemitones`; criterion 16 at Advanced accepts any rolled
