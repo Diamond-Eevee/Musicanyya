@@ -372,6 +372,10 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-10-01: Feature 018 planned (collapsible browser folder tree): the score browser's rail gets a clickable
+  disclosure control, starts collapsed and remembers the open folders in the existing `musicanyya.browser.v1` record
+  (additive `expanded` field); on start the last selected item is selected and revealed but not loaded. No new
+  dependency.
 - 2026-09-29: Feature 016 planned (a modern look, themes and a logo): one set of control styles for the chrome, six
   themes (Paper, Ivory, Slate light; Night, Walnut, Midnight dark) plus Automatic following the OS, with the Score
   pages pure white in every theme; palettes measured for WCAG contrast and ΔE00 >= 15 from the feedback colours; an
@@ -381,8 +385,4 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
   systems do not fit it shows the current one at the top and the start of the next. Pages are cropped to their
   content so page breaks look like system breaks, and piano grand staves are engraved more compactly (4 instead of
   6 staff spaces minimum). No new dependency.
-- 2026-09-28: Feature 014 planned (melody over chords): the 54 key-change items and 5 chord-change drills stop playing
-  the same block chord in both hands; the right hand gets authored scale-step melodies (variants rotated across keys)
-  over the unchanged left-hand chords, limited per level by a Difficulty ladder and verified by an independent melody
-  rule check in the build and the audit. Rewritten items start with fresh progress. No new dependency.
 <!-- RECENT-CHANGES:END -->
