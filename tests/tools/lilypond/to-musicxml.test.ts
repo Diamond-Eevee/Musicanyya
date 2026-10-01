@@ -287,6 +287,21 @@ describe('toMusicXml: what the printed page shows', () => {
     expect(loaded.report.entries.map((e) => e.code).filter((c) => c !== 'defaultTempo')).toEqual([]);
   });
 
+  it('a spacer followed by grace notes in the same voice is one <forward>, and the bar adds up (019 T085)', () => {
+    // Found in transcription A's trill bars: b''4 s8 \grace { a''16 b'' } b''4 s8 wrote a <forward> before every
+    // element after the spacer, so the app reported the bar as too long.
+    const score = readLilyPond("{ \\time 3/4 b''4 s8 \\grace { a''16 b'' } b''4 s8 | }");
+    const { xml } = toMusicXml(score);
+    const [bar1] = measures(xml);
+    expect(bar1?.match(/<forward>/g)).toHaveLength(2); // the s8 before the grace notes and the s8 at the end
+    expect(bar1).toMatch(
+      /<\/note><forward><duration>1<\/duration><\/forward><note><grace\/>.*<grace\/>.*<\/note><note><pitch>/,
+    );
+    expect(compare(fromMusicXml(xml), fromLilyPond(score), ALL, { itemBars: 'all', sourceBars: 'all' })).toEqual([]);
+    const loaded = buildScore(readXml(xml).doc);
+    expect(loaded.report.entries.map((e) => e.code).filter((c) => c !== 'defaultTempo')).toEqual([]);
+  });
+
   it('a tie that no later note of its voice continues is not written; a continued one is (017 T054)', () => {
     // LilyPond prints no tie from the first C (an "unterminated tie": the next note is a D); the second C ties on.
     const { xml } = toMusicXml(readLilyPond("{ \\time 4/4 c'4 ~ d'4 c'4 ~ c'4 | }"));

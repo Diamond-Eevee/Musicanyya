@@ -315,7 +315,7 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   (contract §3.4 cross-check), and a transcription has none, so T044 cannot run as written: decide in `plan.md` /
   fidelity-tools §1 and §3.4 how a transcription source is converted (proposed: the read-back check stays, the MIDI
   cross-check is replaced by T045's mechanical check against transcription B), tests first, then `tools/library/lilypond/cli.ts`
-- [ ] T085 [US2] [standard] (new, found by T040) Converter bug: a spacer followed by a grace note in the same voice
+- [x] T085 [US2] [standard] (new, found by T040) Converter bug: a spacer followed by a grace note in the same voice
   (`b''4 s8 \grace { a''16 b'' } b''4 s8`) gives a measure the app reports as not adding up; test first in
   `tests/tools/lilypond/to-musicxml.test.ts`, then the fix (transcription A avoids it with `r8`)
 - [x] T042 [US2] [standard] Test first in `tests/library/fidelity.test.ts`: a source manifest with

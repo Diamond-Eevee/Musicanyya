@@ -608,7 +608,11 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
       wroteVoice = true;
       for (const e of here) {
         const start = e.kind === 'rest' && e.rest === 'R' && cmp(e.t, bar.start) < 0 ? bar.start : e.t;
-        if (cmp(start, cursor) > 0) events.push({ kind: 'forward', duration: div(sub(start, cursor)) });
+        if (cmp(start, cursor) > 0) {
+          events.push({ kind: 'forward', duration: div(sub(start, cursor)) });
+          // a grace note does not move the cursor on, so the forward must (019 T085: s8 \grace { ... } b4)
+          cursor = start;
+        }
         const stop = add(e.t, e.length);
         const isMeasureRest = e.kind === 'rest' && e.rest === 'R' && cmp(stop, barEnd) >= 0 && cmp(e.t, bar.start) <= 0;
         if (cmp(stop, barEnd) > 0 && !isMeasureRest)
