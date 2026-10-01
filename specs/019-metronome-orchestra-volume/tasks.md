@@ -304,7 +304,7 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   `content/library/sources/own-grieg-op46-no1-transcription-a/morning-mood.ly` rewritten with it (manifest hash
   updated). Owner decision first if it should not be done (see the 2026-10-01 T040 log entry) - **owner approved
   2026-10-01** ("Yes, add both", T081 and T082, before T041; asked by claude-opus-5.5)
-- [ ] T082 [US2] [standard] (new, found by T040) Tests first, then `\afterGrace` in the reader and converter (a
+- [x] T082 [US2] [standard] (new, found by T040) Tests first, then `\afterGrace` in the reader and converter (a
   Nachschlag: grace notes at the end of their main note, `<grace>` after it in the MusicXML) so the trill endings of
   bars 67-75 engrave where the print has them; transcription A then uses it instead of `\grace` before the next note
   (bar 75's Nachschlag currently sits before the rest of bar 76) - **owner approved 2026-10-01** (with T081)

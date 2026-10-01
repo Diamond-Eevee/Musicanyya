@@ -100,20 +100,19 @@ rhOne = {
   b'8\pp^\markup { \italic "tranquillo" }( gis' fis' e' fis' gis' |
   b'8 gis' fis' e' fis'16 gis' fis' gis') |
   b'8-2( gis' b'-4 cis''-2 ais' cis''-3 |
-  dis''2.-4\trill) |
-  % 68-71; subset: each trill's printed Nachschlag (two small 16ths at its end) is written as \grace before the
-  % next note of this voice (\afterGrace is not in the subset): same sounding order, engraved after the bar line
-  \grace { cis''16[ dis''] } b''4-3\trill r8 \grace { ais''16[ b''] } b''4\trill r8 |
-  \grace { ais''16[ b''] } b''4\trill r8 \grace { ais''16[ b''] } b''4\trill r8 |
-  \grace { ais''16[ b''] } b'8-4( gis' b' cis''-2 ais' cis'' |
-  dis''2.\trill) |
+  % 67-75: each trill's printed Nachschlag (two small 16ths) at the end of its trill note, before the rest
+  \afterGrace dis''2.-4\trill) { cis''16[ dis''] } |
+  % 68-71
+  \afterGrace b''4-3\trill { ais''16[ b''] } r8 \afterGrace b''4\trill { ais''16[ b''] } r8 |
+  \afterGrace b''4\trill { ais''16[ b''] } r8 \afterGrace b''4\trill { ais''16[ b''] } r8 |
+  b'8-4( gis' b' cis''-2 ais' cis'' |
+  \afterGrace dis''2.\trill) { cis''16[ dis''] } |
   % 72-76
-  \grace { cis''16[ dis''] } b''4\trill r8 \grace { ais''16[ b''] } b''4\trill r8 |
-  \grace { ais''16[ b''] } dis''2.\trill_\markup { \italic "dim." } |
-  \grace { cis''16[ dis''] } b''4\trill r8 \grace { ais''16[ b''] } dis''4.\trill |
-  \grace { cis''16[ dis''] } b''4\>\trill r8 \grace { ais''16[ b''] } dis''4.\trill\! |
-  % subset: bar 75's Nachschlag (cis'' dis'') is written before the whole-bar rest of bar 76
-  \grace { cis''16[ dis''] } R2. |
+  \afterGrace b''4\trill { ais''16[ b''] } r8 \afterGrace b''4\trill { ais''16[ b''] } r8 |
+  \afterGrace dis''2.\trill_\markup { \italic "dim." } { cis''16[ dis''] } |
+  \afterGrace b''4\trill { ais''16[ b''] } r8 \afterGrace dis''4.\trill { cis''16[ dis''] } |
+  \afterGrace b''4\>\trill { ais''16[ b''] } r8 \afterGrace dis''4.\trill\! { cis''16[ dis''] } |
+  R2. |
   % 77-82: bars 77-78 print nothing in the upper staff
   s2. |
   s2. |

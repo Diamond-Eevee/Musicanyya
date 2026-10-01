@@ -104,10 +104,16 @@ function analyse(score: LyScore): { reading: ReferenceScore; layout: Layout; sta
     for (let i = bars.length - 1; i >= 0; i--) if (cmp((bars[i] as ReferenceBar).start, t) <= 0) return i;
     return fail(pos, `time ${show(t)} is before the first bar`);
   };
+  /** The bar that a time ends: the last one starting before it (at a bar line, the bar before that line). */
+  const barBefore = (t: QuarterTime, pos: Pos): number => {
+    for (let i = bars.length - 1; i >= 0; i--) if (cmp((bars[i] as ReferenceBar).start, t) < 0) return i;
+    return fail(pos, `time ${show(t)} is not after the start of the first bar`);
+  };
   for (const n of layout.notes) n.note.bar = barAt(n.note.onset, n.pos);
   for (const g of layout.graces) {
     if (cmp(g.grace.before, layout.end) >= 0) fail(g.pos, 'grace note after the last note');
-    g.grace.bar = barAt(g.grace.before, g.pos);
+    // A Nachschlag (\afterGrace) belongs to the bar its main note is in, even when that note ends the bar (019 T082).
+    g.grace.bar = g.after ? barBefore(g.grace.before, g.pos) : barAt(g.grace.before, g.pos);
   }
   const notes = layout.notes.map((n) => n.note).sort(compareNotes);
   const graceNotes = layout.graces.map((g) => g.grace).sort(compareGraceNotes);
@@ -296,7 +302,8 @@ interface Repeat {
 
 interface Layout {
   notes: { note: ReferenceNote; pos: Pos }[];
-  graces: { grace: ReferenceGraceNote; pos: Pos }[];
+  /** `after`: a Nachschlag (\afterGrace), at the end of its main note rather than before the next one. */
+  graces: { grace: ReferenceGraceNote; pos: Pos; after?: true }[];
   barChecks: { t: QuarterTime; pos: Pos }[];
   barNumberChecks: { t: QuarterTime; n: number; pos: Pos }[];
   times: { t: QuarterTime; num: number; den: number; pos: Pos }[];
@@ -366,7 +373,11 @@ function layOut(root: LyMusic, staves: Staves): Layout {
     const spelling = spell(pitch);
     const midi = spellingMidi(spelling);
     if (grace) {
-      out.graces.push({ grace: { bar: -1, before: cursor, midi, spelling }, pos });
+      out.graces.push({
+        grace: { bar: -1, before: cursor, midi, spelling },
+        pos,
+        ...(graceCommand === '\\afterGrace' ? { after: true as const } : {}),
+      });
       return;
     }
     const key = `${voice}|${midi}`;

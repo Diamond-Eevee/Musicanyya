@@ -246,6 +246,36 @@ describe('toMusicXml: what the printed page shows', () => {
     expect(xml).toContain('<tremolo type="stop">2</tremolo>');
   });
 
+  it('an \\afterGrace Nachschlag is written after its main note, before the rest that follows (019 T082)', () => {
+    const score = readLilyPond("{ \\time 3/4 \\afterGrace b''4\\trill { ais''16 b'' } r8 b''4 r8 | }");
+    const { xml } = toMusicXml(score);
+    const notes = xml.split('<note>').slice(1);
+    expect(notes.map((x) => (x.startsWith('<grace') ? 'grace' : x.startsWith('<rest') ? 'rest' : 'note'))).toEqual([
+      'note',
+      'grace',
+      'grace',
+      'rest',
+      'note',
+      'rest',
+    ]);
+    expect(notes[1]).toMatch(/^<grace\/><pitch><step>A<\/step><alter>1<\/alter><octave>5<\/octave>/);
+    expect(compare(fromMusicXml(xml), fromLilyPond(score), ALL, { itemBars: 'all', sourceBars: 'all' })).toEqual([]);
+    const loaded = buildScore(readXml(xml).doc);
+    expect(loaded.report.entries.map((e) => e.code).filter((c) => c !== 'defaultTempo')).toEqual([]);
+  });
+
+  it('a Nachschlag of a note that ends the bar is written at the end of that bar, not in the next (019 T082)', () => {
+    const score = readLilyPond("{ \\time 3/4 \\afterGrace dis''2.\\trill { cis''16 dis'' } | b''2. | }");
+    const { xml } = toMusicXml(score);
+    const [bar1, bar2] = measures(xml);
+    expect(bar1?.match(/<grace\/>/g)).toHaveLength(2);
+    expect(bar1).toMatch(/<step>D<\/step><alter>1<\/alter>.*<grace\/>.*<grace\/>/);
+    expect(bar2).not.toContain('<grace');
+    expect(compare(fromMusicXml(xml), fromLilyPond(score), ALL, { itemBars: 'all', sourceBars: 'all' })).toEqual([]);
+    const loaded = buildScore(readXml(xml).doc);
+    expect(loaded.report.entries.map((e) => e.code).filter((c) => c !== 'defaultTempo')).toEqual([]);
+  });
+
   it('a tie that no later note of its voice continues is not written; a continued one is (017 T054)', () => {
     // LilyPond prints no tie from the first C (an "unterminated tie": the next note is a D); the second C ties on.
     const { xml } = toMusicXml(readLilyPond("{ \\time 4/4 c'4 ~ d'4 c'4 ~ c'4 | }"));

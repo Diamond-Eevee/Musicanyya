@@ -471,12 +471,13 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
       const stop = pick(ending);
       if (preferEnd && stop) after.set(stop, [...(after.get(stop) ?? []), ...what]);
       else if (start) {
-        // Grace notes come before their principal note, so a direction at this time goes before the first of them.
+        // Grace notes come before their principal note, so a direction at this time goes before the first of them
+        // (not before a Nachschlag, which ends the note before).
         const stream = voices.find(([, s]) => s.includes(start))?.[1] as Written[];
         let first = start;
         for (let i = stream.indexOf(start) - 1; i >= 0; i--) {
           const g = stream[i] as Written;
-          if (g.kind === 'note' && g.grace && cmp(g.t, t) === 0) first = g;
+          if (g.kind === 'note' && g.grace && g.grace !== '\\afterGrace' && cmp(g.t, t) === 0) first = g;
           else break;
         }
         before.set(first, [...(before.get(first) ?? []), ...what]);
@@ -594,7 +595,10 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
       const here = stream.filter((e) =>
         e.kind === 'rest' && e.rest === 'R'
           ? cmp(e.t, barEnd) < 0 && cmp(add(e.t, e.length), bar.start) > 0
-          : cmp(e.t, bar.start) >= 0 && cmp(e.t, barEnd) < 0,
+          : e.kind === 'note' && e.grace === '\\afterGrace'
+            ? // a Nachschlag ends its main note's bar, also at the bar line (019 T082)
+              cmp(e.t, bar.start) > 0 && cmp(e.t, barEnd) <= 0
+            : cmp(e.t, bar.start) >= 0 && cmp(e.t, barEnd) < 0,
       );
       if (here.length === 0) continue;
       if (wroteVoice && cmp(cursor, bar.start) > 0)

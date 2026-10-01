@@ -760,6 +760,13 @@ export function parseLilyPond(source: string, options: LyReadOptions = {}): LySc
       case '\\appoggiatura':
       case '\\slashedGrace':
         return { kind: 'grace', command: name, body: parseMusic(), pos: p };
+      case '\\afterGrace': {
+        // A Nachschlag (019 T082): the main note, then grace notes at its end (read.ts places them there). The form
+        // with a fraction only changes where LilyPond's MIDI sounds them; it is refused rather than half read.
+        if (is('number')) return unsupported(t, '\\afterGrace with a fraction');
+        const main = parseMusic();
+        return { kind: 'seq', items: [main, { kind: 'grace', command: name, body: parseMusic(), pos: p }], pos: p };
+      }
       case '\\repeat': {
         // The mode may also be written as a string, \repeat "volta" 2 (017 T049, Mutopia's Anna Magdalena sources).
         const mode = is('string') ? next() : expect('word');

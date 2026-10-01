@@ -561,8 +561,6 @@ describe('readLilyPond / fromLilyPond (contract fidelity-tools.md §3.1)', () =>
   });
 });
 
-// Feature 011 US3: two constructs of the approved song sources that carry no music. Lyrics are skipped (they are words, not
-// notes) and a repeat sign printed at the very end of a song is read as its final bar line (LilyPond's MIDI does not repeat it).
 describe('two-note tremolo (feature 019 T081, Grieg Op. 46 No. 1 bars 85-86)', () => {
   const strokes = (text: string) => fromLilyPond(readLilyPond(text)).notes.map((x) => [x.midi, x.onset, x.duration]);
 
@@ -589,6 +587,41 @@ describe('two-note tremolo (feature 019 T081, Grieg Op. 46 No. 1 bars 85-86)', (
   });
 });
 
+describe('\\afterGrace: a Nachschlag (feature 019 T082, Grieg Op. 46 No. 1 bars 67-75)', () => {
+  const graces = (text: string) => fromLilyPond(readLilyPond(text)).graceNotes.map((g) => [g.bar, g.before, g.midi]);
+
+  it('its grace notes come at the end of the main note, before the rest that follows it', () => {
+    const text = "{ \\time 3/4 \\afterGrace b''4\\trill { ais''16 b'' } r8 b''4 r8 | }";
+    expect(graces(text)).toEqual([
+      [0, q(1), 82],
+      [0, q(1), 83],
+    ]);
+    expect(fromLilyPond(readLilyPond(text)).notes.map((x) => [x.midi, x.onset, x.duration])).toEqual([
+      [83, q(0), q(1)],
+      [83, q(3, 2), q(1)],
+    ]);
+  });
+
+  it('a main note that ends the bar keeps its Nachschlag in its own bar, at the bar line', () => {
+    expect(graces("{ \\time 3/4 \\afterGrace dis''2.\\trill { cis''16 dis'' } | b''2. | }")).toEqual([
+      [0, q(3), 73],
+      [0, q(3), 75],
+    ]);
+  });
+
+  it('inside \\relative the grace notes follow the main note, and the next note follows the grace notes', () => {
+    const r = fromLilyPond(readLilyPond("\\relative c'' { \\time 2/4 \\afterGrace c4 { d16 e } f4 | }"));
+    expect(r.graceNotes.map((g) => g.midi)).toEqual([74, 76]);
+    expect(r.notes.map((x) => x.midi)).toEqual([72, 77]);
+  });
+
+  it('the form with a fraction, \\afterGrace 3/4 main { ... }, is refused (it only moves the grace notes in MIDI)', () => {
+    expect(() => readLilyPond("{ \\afterGrace 3/4 c''4 { d''16 } r4 }")).toThrow(/afterGrace with a fraction/);
+  });
+});
+
+// Feature 011 US3: two constructs of the approved song sources that carry no music. Lyrics are skipped (they are words, not
+// notes) and a repeat sign printed at the very end of a song is read as its final bar line (LilyPond's MIDI does not repeat it).
 describe('lyrics and a final repeat sign (feature 011, Mutopia 905 and 644)', () => {
   const notesOf = (text: string) => fromLilyPond(readLilyPond(text)).notes.map((x) => x.midi);
   const PLAIN = "\\relative c' { c4 d e f | g1 }";
