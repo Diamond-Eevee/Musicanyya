@@ -337,10 +337,28 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   the engraved item against the print, page by page (`pnpm screenshot --item ... --full` against leaves n6-n9),
   recording slurs, dynamics, fingering and pedal; `pnpm library:fidelity --item repertoire/advanced/grieg-morning-mood`
   reproduces it (SC-006)
-- [ ] T046 [US2] **Owner decision gate OD-3 (conditional)**: if T040/T045 confirm one-hand spans over 14 semitones
+- [x] T046 [US2] **Owner decision gate OD-3 (conditional)**: if T040/T045 confirm one-hand spans over 14 semitones
   that are not rolled (expected at bars 77-78 and 85), ask the owner with the measured spans: leave the item out (as
   *The Entertainer* in 017) or change the library's span rule. Blocks T053-T058 if raised; record the answer here, or
-  "not needed: <facts>" when every wide chord is rolled
+  "not needed: <facts>" when every wide chord is rolled - **owner approved 2026-10-01: "Allow tenths"** (asked by
+  claude-opus-5.5 with transcription A's spans: unrolled left-hand tenths of 15-16 semitones in bars 1-20, 37, 42-46,
+  65, 68, 72, 74-75, 79-80; two hands in the lower staff at bars 77-78 (28-29) and 86-87 (36)): the Advanced
+  unrolled limit of criterion 16 becomes 16 semitones (T096), and the right-hand chords of bars 77-78 and 86-87 are
+  printed on the upper staff as in Chopin Op. 28 No. 4 (T097); plan.md and research R-17 updated
+- [ ] T096 [US2] [standard] (new, OD-3 answer 2026-10-01) Advanced span limit 16: tests first in
+  `tests/core/library/levels.test.ts` (an unrolled 16-semitone chord passes criterion 16 at Advanced, 17 fails, and 16
+  still fails Intermediate; a rolled chord as before), then `LEVEL_MAX_INTERVAL_SEMITONES.advanced` = 16 in
+  `src/core/defaults.ts` (comment naming OD-3), the criterion 16 row of `specs/005-practice-score-library/data-model.md`
+  ("<= 16 (a tenth), wider only under `<arpeggiate>`", with a version note) and its quote in
+  `specs/005-practice-score-library/contracts/library-index.md`; `pnpm library:index` changes no item's level
+  (`tests/library/regeneration.test.ts` green). *The Entertainer* (15 semitones, left out in 017) is not brought back
+  by this task - that is the owner's call
+- [ ] T097 [US2] [standard] (new, OD-3 answer 2026-10-01) The right-hand chords of bars 77-78 and 86-87, which the
+  print puts on the lower staff, are printed on the upper staff in the item so the level check does not count them
+  with the left hand (precedent: `public/library/repertoire/advanced/chopin-prelude-op28-no4.json` note). Decide
+  first how, so `pnpm library:convert-ly` stays the only writer of the item (e.g. in transcription A with a
+  `% item:` comment naming the departure from the print - never in transcription B, which reads the print as it is);
+  the sidecar note names the change (T044). Comes before T044
 - [x] T047 [US2] [standard] Tests first in `tests/core/library/levels.test.ts` and `tests/core/library/facts.test.ts`
   for the documented Advanced `<arpeggiate>` exception (R-17): a chord whose notes all carry `<arpeggiate>` is left
   out of `maxSpanSemitones` and counted in `maxArpeggiatedSpanSemitones`; criterion 16 at Advanced accepts any rolled
@@ -552,6 +570,7 @@ source details; the same item without credit, with a CC0 source, or under `CC-BY
   T040 and T043; T045 needs T041 and T044; T046 (OD-3, conditional) blocks T053-T058 when raised; T047 -> T048;
   T049 -> T050 -> T051 -> T052; T053 needs T045, T048 and T052; T053 -> T054 -> T055; T056, T057 and T076 need T055.
   T081-T085 (found by T040) come before T044; T081 and T082 also before T041 if B is to use the same constructs.
+  T096 and T097 (OD-3 answer) come before T044; T096 also before T055 (the item's level).
 - US3 needs Phase 4's channels and mask (T030) and the panel (T016); it can be checked on `piano-and-oboe` before
   US2b is done; its *Morning Mood* steps wait for T055.
 - US4 needs T035 (the fact) and T055 (an item with an Orchestra).

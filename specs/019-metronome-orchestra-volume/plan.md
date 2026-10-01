@@ -190,7 +190,10 @@ R-18 domain-expert answers. No `NEEDS CLARIFICATION` left in the Technical Conte
   Orchestra level); may change `ORCHESTRA_LEVEL_DEFAULT` or the definition's dynamics.
 - Decided: implement the documented Advanced `<arpeggiate>` span exception - Morning Mood's rolled tenths need it
   (R-17, R-18); the regeneration test proves no other item changes level.
-- **needs owner (OD-3, conditional)**: if the transcription confirms one-hand spans over 14 semitones that are not
+- **Decided by the owner (OD-3, 2026-10-01): "Allow tenths"** - criterion 16's Advanced limit for unrolled chords
+  becomes 16 semitones (T096), and the right-hand chords of bars 77-78 and 86-87 are printed on the upper staff (T097),
+  research R-17 addendum. Was:
+  if the transcription confirms one-hand spans over 14 semitones that are not
   rolled (read from the print: bars 77-78, about two octaves over a low E in a second voice; bar 85), the item fails
   criterion 16 at every level. Raised with the measured facts after transcription A; options then: leave the item out
   (as *The Entertainer* in 017), or change the library's span rule for a note held in a second voice (a library rule

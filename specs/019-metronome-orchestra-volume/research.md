@@ -311,6 +311,20 @@ and the owner asked for "strings and oboe, up to you", not Grieg's full orchestr
 - The browser list shows items with an Orchestra with a marker made of a glyph **and** the text "with orchestra"
   (Constitution VI); the detail view names the instruments.
 
+**Addendum (OD-3, owner decision 2026-10-01: "Allow tenths")** - transcription A (T040) measured unrolled left-hand
+tenths of 15-16 semitones in bars 1-20, 37, 42-46, 65, 68, 72, 74-75 and 79-80, and two hands sharing the lower staff
+in bars 77-78 (28-29 semitones) and 86-87 (36).
+- **Decision**: criterion 16 at Advanced allows unrolled chords up to 16 semitones (a tenth), still any width under
+  `<arpeggiate>` (T096); the right-hand chords of bars 77-78 and 86-87 are printed on the upper staff in the item, as
+  Chopin Op. 28 No. 4 bars 24-25 already are (T097), and the sidecar says so.
+- **Rationale**: a tenth is an ordinary stretch in Advanced repertoire, and Grieg's own arrangement writes it
+  throughout; the two-hand chords are a staff-placement matter, not a hand span. Intermediate and below keep their
+  limits, so only an item that failed every level before can gain a level; the regeneration test proves no item in
+  the library changes. *The Entertainer* (15 semitones, removed in 017) would now pass; bringing it back is a separate
+  owner decision.
+- **Alternatives** (offered with the facts): leave *Morning Mood* out, as *The Entertainer* in 017; wait for
+  transcription B and T045 before deciding.
+
 ## R-18 Answers from the music-domain-expert (2026-10-01)
 
 Summary of the review (it read the spec and all four pages of the print, IA leaves n6-n9 = printed pages 3-6):
