@@ -102,10 +102,18 @@ Score with no `<volume>` / `<pan>` on that channel: it sounds exactly as when pl
   naming each changed expectation and the reason (FR-015, R-10) in the log; confirm that the rendered Listen goldens
   (`tests/engine/listen-render-golden.test.ts`) and the Grade goldens did **not** change. Evidence: full `pnpm test`
   summary line
-- [~] T011 RT review with `rt-audio-reviewer` (Constitution I): the setup controllers are applied in the message handler
+- [x] T011 RT review with `rt-audio-reviewer` (Constitution I): the setup controllers are applied in the message handler
   only, the count stays under `MAX_SETUP_CONTROLLERS`, and the Metronome channel's `channelVolume` can never be
-  overridden by a deferred setup (`setupPending` / `soundReady()`); summarise findings in the log (claimed: claude-sonnet-5.5 2026-10-02)
-- [ ] T012 Checkpoint: the phase's Independent Test (T008) plus a listen in the dev app (quickstart "FR-015"), full gate
+  overridden by a deferred setup (`setupPending` / `soundReady()`); summarise findings in the log
+- [x] T035 [P] Added after the T011 RT review (advisory 1): in `tests/core/play/replay.test.ts` pin that a merged replay
+  schedule over a run schedule that uses every melodic channel and percussion keeps its tick-0 controllers within
+  `MAX_SETUP_CONTROLLERS` (14 channels x 3 + the live channel's CC7 / CC10 = 44), and that the live channel
+  (`LIVE_CHANNEL`) gets CC7 = `DEFAULT_CHANNEL_VOLUME` and CC10 = `DEFAULT_CHANNEL_PAN`
+- [x] T036 [P] Added after the T011 RT review (advisory 2): in `tests/engine/worklets/score-player.setup.test.ts` pin that a
+  `channelVolume` on `METRONOME_CHANNEL` sent before the sound is ready is not overridden when the deferred setup of a
+  compiled run-style schedule is applied by `soundReady()` (no CC7 reaches the Metronome channel from the setup), while
+  another channel's default CC7 does arrive
+- [x] T012 Checkpoint: the phase's Independent Test (T008) plus a listen in the dev app (quickstart "FR-015"), full gate
   (`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`), log entry with each command's summary line, commit
 
 **Checkpoint**: no channel carries volume or pan from one schedule to the next.

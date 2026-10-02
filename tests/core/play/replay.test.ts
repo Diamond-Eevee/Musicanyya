@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { LIVE_CHANNEL, METRONOME_CHANNEL } from '../../../src/core/defaults.js';
+import {
+  DEFAULT_CHANNEL_PAN,
+  DEFAULT_CHANNEL_VOLUME,
+  LIVE_CHANNEL,
+  MAX_SETUP_CONTROLLERS,
+  METRONOME_CHANNEL,
+  PERCUSSION_CHANNEL,
+} from '../../../src/core/defaults.js';
 import type { PerformanceLog } from '../../../src/core/grade/types.js';
 import { compileReplay } from '../../../src/core/play/replay.js';
+import { EVENT_KIND } from '../../../src/core/schedule/compile.js';
 import { compilePlaySchedule } from '../../../src/core/schedule/play-schedule.js';
 import { audioTimeAtTick } from '../../../src/core/tempo/rate.js';
 import type { TempoSegment } from '../../../src/core/timeline/types.js';
@@ -225,5 +233,76 @@ describe('Replay (FR-042, research R-10) - a stored log compiles to a schedule, 
     });
 
     expect(eventsOnChannel(replay, LIVE_CHANNEL)).toEqual([]);
+  });
+});
+
+// 020 R-10 (RT review of T011): every used channel now carries a tick-0 CC7 and CC10, so the merged replay schedule - the run's
+// own setup plus the live channel's - must still fit the worklet's MAX_SETUP_CONTROLLERS, and the live channel starts at the defaults.
+describe('Replay setup controllers (020 R-10)', () => {
+  it('a run that uses every melodic channel and percussion, merged with the live channel, stays within MAX_SETUP_CONTROLLERS', () => {
+    const { score, timeline } = loadFixture('eight-measure-melody.musicxml');
+    const channels = timeline.channels.map((c, i) =>
+      i === METRONOME_CHANNEL || i === LIVE_CHANNEL
+        ? c
+        : { ...c, used: true, bankMsb: 1, program: i, percussion: i === PERCUSSION_CHANNEL },
+    );
+    const { schedule } = compilePlaySchedule({ ...timeline, channels }, score.measures, {
+      range: null,
+      gradedNoteIds: new Set(),
+      accompaniment: true,
+      countInMeasures: 1,
+      tempoPercent: 100,
+      metronome: METRONOME,
+      guide: false,
+    });
+    const runTempo = runTempoOf(schedule);
+    const toSeconds = (tick: number) => audioTimeAtTick(tick, runTempo, timeline.ppq, 100);
+    const note = (kind: 'noteOn' | 'noteOff', tick: number) => ({
+      kind,
+      key: 60,
+      velocity: kind === 'noteOn' ? 90 : 0,
+      down: false,
+      audioTimeSec: toSeconds(tick),
+      timeStampMs: 0,
+      deviceId: 'd',
+    });
+    const log: PerformanceLog = {
+      version: 1,
+      messages: [note('noteOn', 500), note('noteOff', 700)],
+      droppedMessages: 0,
+    };
+
+    const replay = compileReplay({
+      log,
+      tempo: runTempo,
+      ppq: timeline.ppq,
+      tempoPercent: 100,
+      startAudioTimeSec: 0,
+      accompaniment: schedule,
+    });
+
+    const controllerAtZero = (channel: number, controller: number): number | undefined => {
+      for (let i = 0; i < replay.eventTick.length; i++) {
+        if (
+          replay.eventKind[i] === EVENT_KIND.controlChange &&
+          replay.eventTick[i] === 0 &&
+          replay.eventChannel[i] === channel &&
+          replay.eventData1[i] === controller
+        ) {
+          return replay.eventData2[i];
+        }
+      }
+      return undefined;
+    };
+    let controllers = 0;
+    for (let i = 0; i < replay.eventKind.length; i++) {
+      if (replay.eventKind[i] === EVENT_KIND.controlChange && replay.eventTick[i] === 0) controllers++;
+    }
+
+    expect(controllers).toBe(14 * 3 + 2); // a bank, CC7 and CC10 on 14 channels, CC7 and CC10 on the live channel
+    expect(controllers).toBeLessThanOrEqual(MAX_SETUP_CONTROLLERS);
+    expect(controllerAtZero(LIVE_CHANNEL, 7)).toBe(DEFAULT_CHANNEL_VOLUME);
+    expect(controllerAtZero(LIVE_CHANNEL, 10)).toBe(DEFAULT_CHANNEL_PAN);
+    expect(controllerAtZero(METRONOME_CHANNEL, 7)).toBeUndefined(); // the click level stays the session's `channelVolume`
   });
 });

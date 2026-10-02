@@ -109,4 +109,22 @@
   `tests/core/schedule/setup-events.test.ts` (still holds: all setup events are at tick 0), the worklet harness tests.
   Evidence: `pnpm typecheck` exit 0; `pnpm test` -> `Test Files  318 passed (318)`, `Tests  6695 passed (6695)`;
   `pnpm lint` exit 0 (318 warnings, 13 infos, unchanged).
+- T011 RT review (`rt-audio-reviewer`, claude subagent, commit 302bdaa): PASS WITH ADVISORIES, no blocking finding. Confirmed:
+  setup controllers are applied only in `applyChannelSetup` from the message handler / `soundReady()` (`process()` untouched);
+  worst case 42 controllers for a Score (46 / 48 theoretical), 44 for a merged replay, under `MAX_SETUP_CONTROLLERS` = 64;
+  the Metronome channel never gets a CC7 from a (deferred) setup; the live channel (idempotent: it already sat at 100 / 64) and
+  percussion (now defaulted, intended) are not regressions; the worklet does not depend on the program change coming first.
+  Advisories taken as new tasks: T035 (replay merge controller count, `tests/core/play/replay.test.ts`) and T036 (deferred
+  setup vs `channelVolume` on the Metronome channel, `tests/engine/worklets/score-player.setup.test.ts`) - both pass, and a
+  mutation (Metronome exclusion removed) makes 5 tests fail. Not taken: a dev-time overlap assertion in `mergeSchedules`
+  (advisory 3, unchanged callers always partition channels), and the Practice start order (advisory 5, behaviour unchanged for
+  parts that already set volume and pan).
+- T012 checkpoint (Phase 3, FR-015): Independent Test = `tests/engine/channel-carryover.test.ts` green (SC-009).
+  Listen in the dev app (quickstart "FR-015") could not be a listening check; instead, in the in-app browser on `pnpm dev`, the
+  app was given `turned-down-left` then `plain` through `mxSession.openFile` and the schedules the engine received were read:
+  `ch0 CC7=51, CC10=1` then `ch0 CC7=100, CC10=64` - nothing carried over. **For the owner (sound):** quickstart FR-015 steps
+  1-2 by ear. Full gate on the Phase 3 tree: `pnpm typecheck` exit 0; `pnpm lint` exit 0 (`Found 318 warnings.`
+  `Found 13 infos.`, unchanged); `pnpm test` -> `Test Files  318 passed (318)`, `Tests  6697 passed (6697)`;
+  `pnpm test:e2e` -> `752 skipped`, `1272 passed (14.0m)`, exit 0 (all four projects; run on the build made before T035 / T036,
+  which are Vitest-only).
 

@@ -7,11 +7,12 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { MAX_SETUP_CONTROLLERS } from '../../../src/core/defaults.js';
+import { DEFAULT_CHANNEL_VOLUME, MAX_SETUP_CONTROLLERS, METRONOME_CHANNEL } from '../../../src/core/defaults.js';
 import { buildScore } from '../../../src/core/musicxml/build.js';
 import { readXml } from '../../../src/core/musicxml/read.js';
 import { compileSchedule, EVENT_KIND, type ScheduleMessage } from '../../../src/core/schedule/compile.js';
 import { buildTimeline } from '../../../src/core/timeline/timeline.js';
+import type { ChannelSetup, SoundingEvent } from '../../../src/core/timeline/types.js';
 import { decodeXml } from '../../../src/engine/files/decode.js';
 import { readMxl } from '../../../src/engine/files/mxl.js';
 import {
@@ -301,5 +302,48 @@ describe('channel setup is applied in the message handler (009 R-01, contract wo
     proc.receiveMessage({ type: 'play' }); // and the old schedule still plays
     render(proc, 4);
     expect(synth.calls.some((c) => c.startsWith('noteOn'))).toBe(true);
+  });
+
+  it('(j) a Metronome channel volume set before a deferred setup is not overridden by it (020 R-10)', () => {
+    // A run-style schedule: a piano on 0 without <volume>, and the Metronome's drum channel, which the compiler gives no CC7 of its own.
+    const channels: ChannelSetup[] = Array.from({ length: 16 }, (_, i) => ({
+      used: i === 0 || i === METRONOME_CHANNEL,
+      program: 0,
+      bankMsb: 0,
+      percussion: i === METRONOME_CHANNEL,
+      volume: null,
+      pan: null,
+      orchestra: false,
+    }));
+    const note = (channel: number): SoundingEvent => ({
+      head: { noteId: '', passIndex: -1 },
+      members: [],
+      part: -1,
+      channel,
+      key: 60,
+      velocity: 90,
+      startTick: 0,
+      endTick: 240,
+    });
+    const compiled = compileSchedule({
+      ppq: 480,
+      endTick: 480,
+      passes: [],
+      events: [note(0), note(METRONOME_CHANNEL)],
+      spans: [],
+      tempo: [{ startTick: 0, qpmNum: 120, qpmDen: 1 }],
+      channels,
+      leadInTicks: 0,
+    });
+
+    const { synth, proc } = make();
+    proc.receiveMessage(compiled); // arrives before the sound bank: the setup is deferred
+    proc.receiveMessage({ type: 'channelVolume', channel: METRONOME_CHANNEL, gain: 0 }); // the session mutes the click
+    proc.soundReady(); // the deferred setup is applied now
+
+    expect(synth.calls.filter((c) => c.startsWith(`cc:${METRONOME_CHANNEL}:7:`))).toEqual([
+      `cc:${METRONOME_CHANNEL}:7:0`,
+    ]);
+    expect(synth.setupCalls()).toContain(`cc:0:7:${DEFAULT_CHANNEL_VOLUME}`); // the piano's default does arrive from the setup
   });
 });
