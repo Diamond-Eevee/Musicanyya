@@ -304,23 +304,23 @@ a second; click -> popover; Setup has no MIDI entry; popover usable during a Pla
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T048 [US4] Measure, before any US4 change, the captioned "Stop" button's height and the bar's content width at
+- [x] T048 [US4] Measure, before any US4 change, the captioned "Stop" button's height and the bar's content width at
   1280 x 800 with a Score open on the current build (a short Playwright script writing to `tests/.generated/`), and
   record both numbers in the log, the height as `TRANSPORT_BUTTON_MIN_PX` (new constant, UI config next to the other
   bar values, and its row in the data-model constants table) and the bar width as the baseline T049 compares with
-- [ ] T049 [US4] e2e `tests/e2e/transport-icons.spec.ts` (chromium): in Listen, Practice and Play mode every transport
+- [x] T049 [US4] e2e `tests/e2e/transport-icons.spec.ts` (chromium): in Listen, Practice and Play mode every transport
   button contains an `svg`, has empty visible text, its accessible name as before and a `title` with the shortcut where
   it has one; play icon swaps to pause / stop while running; disabled skip buttons have a dashed border; each button is
   at least `TRANSPORT_BUTTON_MIN_PX` square; the bar content width is below the T048 baseline (SC-009). Fails today
 
 ### Implementation
 
-- [ ] T050 [P] [US4] `src/ui/icons/transport-icons.ts` (new): play, pause, stop, skip back, skip forward as inline SVG
+- [x] T050 [P] [US4] `src/ui/icons/transport-icons.ts` (new): play, pause, stop, skip back, skip forward as inline SVG
   strings (`currentColor`, `aria-hidden="true"`, `focusable="false"`)
-- [ ] T051 [US4] `src/ui/elements/mx-transport.ts`: icons instead of `textContent`, unchanged `aria-label`, `title`
+- [x] T051 [US4] `src/ui/elements/mx-transport.ts`: icons instead of `textContent`, unchanged `aria-label`, `title`
   with shortcut (contracts/top-bar.md section 5); disabled style (opacity + dashed border) and the minimum size in the
   transport CSS (`src/ui/styles/`). T049 green; T007's specs still green
-- [ ] T052 [US4] Picture check: `pnpm screenshot` in light and dark theme for Listen, Practice (running) and Play; look
+- [x] T052 [US4] Picture check: `pnpm screenshot` in light and dark theme for Listen, Practice (running) and Play; look
   at each PNG and describe icons, disabled state and spacing in the log
 
 **Checkpoint**: US4 Independent Test passes (T049 and quickstart US4). Checkpoint gate + `transport-icons.spec.ts` and the

@@ -206,7 +206,7 @@ async function startPractice(page: Page): Promise<void> {
   await page.evaluate("window.dispatchEvent(new CustomEvent('e2e-ready'))");
   await page.evaluate("window.__PRACTICE_STATE__.setMode('practice')");
   await page.locator('mx-transport .play-btn').click();
-  await page.locator('mx-transport .play-btn', { hasText: 'Stop' }).waitFor({ timeout: LOAD_TIMEOUT_MS });
+  await page.locator('mx-transport .play-btn[aria-label="Stop"]').waitFor({ timeout: LOAD_TIMEOUT_MS });
 }
 
 const GRADE_TIMEOUT_MS = 180_000;

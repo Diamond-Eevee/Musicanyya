@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '../../src/ui/elements/mx-transport.js';
 import { initShortcuts } from '../../src/ui/shortcuts.js';
+import { practiceState } from '../../src/ui/state/practiceState.js';
 import { transportState } from '../../src/ui/state/transportState.js';
 import { viewState } from '../../src/ui/state/viewState.js';
 
@@ -28,6 +29,41 @@ describe('mx-transport & shortcuts', () => {
     expect(el.querySelector('mx-tempo-field')).not.toBeNull();
     expect(el.querySelector('input.volume')).not.toBeNull();
     expect(el.querySelector('input.follow')).not.toBeNull();
+  });
+
+  it('shows its buttons as icons: one SVG each, no caption, the old name and a tooltip (feature 021 US4)', () => {
+    const want: Array<[string, string, string, string]> = [
+      ['.play-btn', 'Play', 'Play (Space)', 'play'],
+      ['.stop-btn', 'Stop', 'Stop (Esc)', 'stop'],
+      ['.skip-back-btn', 'Skip Back', 'Skip Back', 'skip-back'],
+      ['.skip-forward-btn', 'Skip Forward', 'Skip Forward', 'skip-forward'],
+    ];
+    for (const [selector, name, title, icon] of want) {
+      const button = el.querySelector(selector) as HTMLButtonElement;
+      expect(button.querySelectorAll('svg'), selector).toHaveLength(1);
+      expect(button.querySelector('svg')?.getAttribute('data-icon'), selector).toBe(icon);
+      expect(button.querySelector('svg')?.getAttribute('aria-hidden'), selector).toBe('true');
+      expect(button.textContent?.trim(), `${selector} has no caption`).toBe('');
+      expect(button.getAttribute('aria-label'), selector).toBe(name);
+      expect(button.title, selector).toBe(title);
+    }
+  });
+
+  it('the play button is a triangle, becomes two bars while Listen or Play plays, and a square in Practice', () => {
+    const playBtn = el.querySelector('.play-btn') as HTMLButtonElement;
+    const icon = () => playBtn.querySelector('svg')?.getAttribute('data-icon');
+    expect(icon()).toBe('play');
+    vi.spyOn(transportState, 'get').mockReturnValue({ ...transportState.get(), phase: 'playing' });
+    transportState.setPositionTick(960);
+    expect(icon()).toBe('pause');
+    expect(playBtn.getAttribute('aria-label')).toBe('Pause');
+    expect(playBtn.title).toBe('Pause (Space)');
+
+    practiceState.setMode('practice');
+    expect(icon()).toBe('stop');
+    expect(playBtn.getAttribute('aria-label')).toBe('Stop');
+    expect(playBtn.title).toBe('Stop (Space)');
+    practiceState.setMode('listen');
   });
 
   it('there is one mx-tempo-field and no input.tempo range (feature 012 US1: the slider is gone)', () => {

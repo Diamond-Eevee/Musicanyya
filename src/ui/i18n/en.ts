@@ -144,6 +144,10 @@ export const en = {
     loadingSound: 'Loading sound…',
     skipBack: 'Skip Back',
     skipForward: 'Skip Forward',
+    /** The tooltip of an icon button: its name, then its shortcut when it has one (feature 021 US4). */
+    titleWithKey: '{name} ({key})',
+    keySpace: 'Space',
+    keyEscape: 'Esc',
     // mx-tempo-field (feature 012, contracts/tempo-field.md)
     bpm: 'BPM',
     writtenTempo: 'written',

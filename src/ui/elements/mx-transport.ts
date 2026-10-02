@@ -1,4 +1,5 @@
 import { en } from '../i18n/en.js';
+import { type TransportIcon, transportIconSvg } from '../icons/transport-icons.js';
 import { rememberInvoker } from '../layout/invoker.js';
 import { practiceState } from '../state/practiceState.js';
 import type { LoadingProgress } from '../state/transportState.js';
@@ -6,6 +7,10 @@ import { transportState } from '../state/transportState.js';
 import { viewState } from '../state/viewState.js';
 import type { TempoFieldModel } from './mx-tempo-field.js';
 import './mx-tempo-field.js';
+
+/** The tooltip of an icon button: its name and its shortcut. */
+const withKey = (name: string, key: string): string =>
+  en.transport.titleWithKey.replace('{name}', name).replace('{key}', key);
 
 export class MxTransport extends HTMLElement {
   // A persistent instance (research R-8): built once and never removed from the DOM by a re-render, so a focused
@@ -43,10 +48,10 @@ export class MxTransport extends HTMLElement {
   private build(): void {
     this.built = true;
     this.innerHTML = `
-      <button type="button" class="play-btn"></button>
-      <button type="button" class="stop-btn" aria-label="${en.transport.stop}">${en.transport.stop}</button>
-      <button type="button" class="skip-back-btn" aria-label="${en.transport.skipBack}">${en.transport.skipBack}</button>
-      <button type="button" class="skip-forward-btn" aria-label="${en.transport.skipForward}">${en.transport.skipForward}</button>
+      <button type="button" class="play-btn mx-transport-btn"></button>
+      <button type="button" class="stop-btn mx-transport-btn" aria-label="${en.transport.stop}" title="${withKey(en.transport.stop, en.transport.keyEscape)}">${transportIconSvg('stop')}</button>
+      <button type="button" class="skip-back-btn mx-transport-btn" aria-label="${en.transport.skipBack}" title="${en.transport.skipBack}">${transportIconSvg('skip-back')}</button>
+      <button type="button" class="skip-forward-btn mx-transport-btn" aria-label="${en.transport.skipForward}" title="${en.transport.skipForward}">${transportIconSvg('skip-forward')}</button>
       <span class="tempo-field-slot"></span>
       <label class="volume-label">${en.transport.volume}
         <input type="range" class="volume" min="0" max="100" step="1" />
@@ -111,8 +116,15 @@ export class MxTransport extends HTMLElement {
         ? en.transport.pause
         : en.transport.play;
     const playBtn = this.querySelector('.play-btn') as HTMLButtonElement;
-    playBtn.textContent = playBtnLabel;
+    // An icon, not a caption: the button keeps the word as its name and shows it, with the key, as its tooltip. The drawing
+    // is replaced only when it changes (a render happens on every transport change, e.g. each volume step).
+    const playIcon: TransportIcon = playing ? (isPractice ? 'stop' : 'pause') : 'play';
+    if (playBtn.dataset.icon !== playIcon) {
+      playBtn.dataset.icon = playIcon;
+      playBtn.innerHTML = transportIconSvg(playIcon);
+    }
     playBtn.setAttribute('aria-label', playBtnLabel);
+    playBtn.title = withKey(playBtnLabel, en.transport.keySpace);
 
     (this.querySelector('.stop-btn') as HTMLButtonElement).hidden = isPractice;
     const skipBack = this.querySelector('.skip-back-btn') as HTMLButtonElement;

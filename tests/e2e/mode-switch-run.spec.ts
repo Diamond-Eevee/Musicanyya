@@ -135,7 +135,7 @@ for (const next of ['listen', 'practice'] as const) {
     await expect.poll(() => playPhase(page)).toBeNull();
     expect(await playGrade(page)).toBeNull();
     await expect.poll(() => transportPhase(page)).toBe('stopped');
-    await expect(page.locator('mx-transport .play-btn')).toHaveText(next === 'listen' ? 'Play' : 'Start');
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName(next === 'listen' ? 'Play' : 'Start');
   });
 }
 

@@ -65,14 +65,23 @@ Setup menu: `setup`, `latency`. The `more` overflow menu follows (`MENU_GROUPS` 
 | `.skip-back-btn` | bar + left triangle | "Skip Back" | "Skip Back" |
 | `.skip-forward-btn` | right triangle + bar | "Skip Forward" | "Skip Forward" |
 
-- The button's text content is the inline SVG only (`aria-hidden="true"`, `focusable="false"`, `fill="currentColor"`),
-  so `getByRole('button', { name: 'Play' })` keeps working and no caption is visible (SC-009).
+- The button's text content is the inline SVG only (`aria-hidden="true"`, `focusable="false"`, `fill="currentColor"`,
+  `data-icon` = `play` | `pause` | `stop` | `skip-back` | `skip-forward`), so `getByRole('button', { name: 'Play' })` keeps
+  working and no caption is visible (SC-009). The four buttons carry the class `mx-transport-btn` (the size and disabled
+  rules in `layout.css` select it); the play button's drawing is replaced only when it changes.
 - Size: each button's border box is at least as large as the 020 build's captioned "Stop" button height and at least
   that height in width (square), measured once and stored as `TRANSPORT_BUTTON_MIN_PX` (new constant in the UI layer
-  config, value fixed from that measurement by the task).
+  config, value fixed from that measurement by the task): `TRANSPORT_BUTTON_MIN_PX` = 28 in `src/engine/config.ts`
+  (measured 27.59 px, T048); `layout.css` repeats the number and `tests/ui/transport-css.test.ts` pins the two together.
 - Disabled: `opacity` reduced **and** a dashed border (not colour alone, FR-023).
 - The loading-sound label (`transport.loadingSound`) keeps its text: it is a status, not a caption.
 - Other bar buttons (Levels, Follow, size, Open score, menus) keep their words (spec assumption).
+
+## 5a. Bar width
+
+Both new controls cost width that the bar did not have: the compact form of the bar (labels hidden) therefore uses a 4 px
+gap between its slots (was 6 px) and the MIDI control only a 3 px padding, so that a phone-wide bar (375 px) still fits and
+a Play run's status does not push the mode switch off the bar at 1280 px (`tempo-field.spec.ts`, `play-tempo.spec.ts`).
 
 ## 6. Tests that pin this contract
 

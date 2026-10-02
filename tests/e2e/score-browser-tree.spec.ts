@@ -124,7 +124,7 @@ test.describe('Score browser folder tree (feature 018, US1 and US2)', () => {
 test.describe('Score browser: back to the last selected item without loading it (feature 018, US3)', () => {
   const noScoreShown = async (page: Page) => {
     await expect(page.locator('.mx-score-page svg')).toHaveCount(0);
-    await expect(page.locator('mx-transport .play-btn', { hasText: 'Pause' })).toHaveCount(0);
+    await expect(page.locator('mx-transport .play-btn[aria-label="Pause"]')).toHaveCount(0);
   };
 
   test('a stored selection opens its path, scrolls into view, and loads nothing (US3 #1, #2, FR-011, SC-003)', async ({

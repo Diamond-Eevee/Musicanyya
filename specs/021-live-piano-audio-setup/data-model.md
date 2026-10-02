@@ -162,7 +162,7 @@ macOS desktop -> "macOS audio"; Linux desktop -> "System audio"; browser -> "Bro
 | `AUDIO_OUTPUT_FALLBACK_MAX_MS` | 2000 | **new** (`src/engine/config.ts`): FR-025 bound, used by the e2e check |
 | `MIDI_STATUS_UPDATE_MAX_MS` | 1000 | **new** (`src/engine/config.ts`): FR-019 bound, used by the e2e check |
 | `LOCKED_HINT_MS` | 8000 | **new** (`src/engine/config.ts`): how long the "click to turn the sound on" hint stays (FR-003) |
-| `TRANSPORT_BUTTON_MIN_PX` | measured | **new** (UI layer): smallest transport button side, fixed from the 020 build by the task (FR-023) |
+| `TRANSPORT_BUTTON_MIN_PX` | 28 | **new** (`src/engine/config.ts`, next to the other bar values): smallest transport button side; the 020 build's captioned Stop button was 27.59 px high (measured by T048, 1280 x 800), rounded up (FR-023) |
 
 ## 7. Menu and panel model (`src/ui/layout/menu-model.ts`, `src/ui/state/viewState.ts`)
 

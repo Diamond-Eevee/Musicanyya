@@ -223,3 +223,34 @@
 - Problems / open questions: none for the owner.
 - Handoff: next = US4 (T048 first: measure the captioned Stop button and the bar width on the current build, before any US4 change; then T049
   -> T050-T052; tier standard, sonnet fits). Tree clean at the commit after this entry.
+
+## 2026-10-02 - claude-sonnet-5.5 (implement, US4 checkpoint)
+- Done: T048-T052 (US4 complete). T048 (measured on the US3 head, before any US4 change; 1280 x 800, Score `eight-measure-melody` open,
+  scratch script, JSON in `tests/.generated/021-t048-baseline.json`): the captioned Stop button is 42.17 x **27.59** px, Play 39.14 x 27.59,
+  Practice's Start 42.47 x 27.59, Skip Back 72.44 x 27.59, Skip Forward 94.13 x 27.59; the bar settles in `mx-bar-no-word,mx-bar-compact`;
+  its content width (span of the visible slots without the run status, forced into that compact form) is **1081.1 px** in Listen and
+  **1213.8 px** in Practice. `TRANSPORT_BUTTON_MIN_PX` = 28 (27.59 rounded up; `src/engine/config.ts`, data-model constants table).
+  T049 `transport-icons.spec.ts` red as named (no `svg`, widths equal to the baseline), then T050 `src/ui/icons/transport-icons.ts` and T051
+  `mx-transport` (icons, `aria-label` unchanged, `title` with the shortcut, class `mx-transport-btn`, CSS in `layout.css`), T052 pictures.
+- Regressions found at this checkpoint and fixed (they were US3's, not US4's; the US3 gate did not run these specs): `tempo-field.spec.ts`
+  (3 phone-width tests) and `play-tempo.spec.ts` ("after a Play run at 200 BPM ...") failed on the US3 commit and passed before it - the MIDI
+  control's 34 px overflowed the 375 px bar by 4 px, and a Play run's status then pushed the mode switch off a 1280 px bar. Fix: the compact
+  MIDI button has a 3 px padding (28 px wide) and the compact bar's slot gap is 4 px (was 6) - `layout.css`, contract section 5a. Both
+  specs and the 375 px fit are green again. Lesson for the next checkpoint: run every spec that touches the bar (`tempo-field`,
+  `play-tempo`, `mode-switch-run`, `us1-layout`), not only the story's own.
+- Expected-value changes: T007 had changed 55 caption assertions; three more were missed by its grep and are changed the same way (same
+  state, by name): `mode-switch-run.spec.ts` line 138 (`toHaveText(next === 'listen' ? 'Play' : 'Start')` -> `toHaveAccessibleName`),
+  `score-browser-tree.spec.ts` (`hasText: 'Pause'` count 0 would pass trivially without a caption -> `[aria-label="Pause"]`),
+  `tools/dev/screenshot.ts` (waited for `hasText: 'Stop'` -> `[aria-label="Stop"]`).
+- Picture check (T052): `pnpm screenshot` of the bar, Paper and Night, 1280 x 800: Listen (play triangle, stop square, no captions), Practice
+  running (stop square, skip back = bar + left triangle, skip forward = right triangle + bar), Play counting in (pause bars + stop square).
+  Idle Practice at 2x zoom (scratch script): the two skip buttons are drawn with a dashed border and a lighter icon in both themes, the
+  enabled Start button keeps its solid border. Spacing is even, icons are centred and readable, the MIDI control follows the menus.
+  The bar content width is now smaller than the baseline in both modes (the spec prints it as an annotation).
+- Evidence: `pnpm test` `Test Files  330 passed (330)`, `Tests  7266 passed (7266)`; `pnpm typecheck` exit 0; `pnpm lint` exit 0
+  `Found 314 warnings. Found 14 infos.`; `pnpm test:e2e:smoke` `9 passed`; chromium, the story's spec `transport-icons.spec.ts` plus all T007
+  specs and the other bar/panel specs (22 files) `235 passed, 2 skipped`; electron `electron-playback` + `electron-live-piano` `5 passed`.
+  Not run: the full e2e suite (full gate, once at the end); firefox/webkit for the new specs (they skip them; the markup is shared).
+- Model fit: Phase 6 is tier `standard`; claude-sonnet-5.5 fits.
+- Problems / open questions: none for the owner.
+- Handoff: next = US5 (T053 spike first; tier standard, sonnet fits). Tree clean at the commit after this entry.

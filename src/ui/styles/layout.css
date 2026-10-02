@@ -76,7 +76,9 @@ mx-menu[menu="more"] {
 }
 
 .mx-bar.mx-bar-compact {
-  gap: var(--mx-space-2, 6px);
+  /* 4 px, was 6: the MIDI keyboard control of feature 021 took the room a Play run's status needed to keep the mode
+     switch on the bar at 1280 px (tests/e2e/play-tempo.spec.ts) */
+  gap: var(--mx-space-1, 4px);
   padding: 0 var(--mx-space-2, 6px);
 }
 
@@ -102,6 +104,32 @@ mx-menu[menu="more"] {
 
 .mx-bar-compact mx-transport input[type="range"] {
   width: 64px;
+}
+
+/* The transport buttons are icons (feature 021 US4, top-bar.md section 5): square, at least TRANSPORT_BUTTON_MIN_PX on a
+   side (src/engine/config.ts, pinned by tests/ui/transport-css.test.ts), the drawing in the text colour. Disabled means
+   lighter AND dashed, so it is not told by colour alone (FR-023). */
+mx-transport button.mx-transport-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 3px;
+}
+
+mx-transport button.mx-transport-btn[hidden] {
+  display: none;
+}
+
+mx-transport button.mx-transport-btn .transport-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+mx-transport button.mx-transport-btn:disabled {
+  border-style: dashed;
 }
 
 /* mx-tempo-field (feature 012, contracts/tempo-field.md): a custom element defaults to display: inline, which would
@@ -275,6 +303,10 @@ mx-midi-status .midi-label {
 
 .mx-bar-compact mx-midi-status .midi-label {
   display: none; /* the shape stays; the name is its title and accessible name */
+}
+
+.mx-bar-compact mx-midi-status .midi-button {
+  padding: 3px; /* the shape alone: a phone-wide bar (375 px) has no room for more (tests/e2e/tempo-field.spec.ts) */
 }
 
 mx-midi-status .midi-sound {
