@@ -88,7 +88,7 @@ no looser threshold or either-or assertion, no test that would also pass on the 
 an expected value, say why in the log. Check behaviour changes on real files too (`tests/fixtures/musicxml/real`, the
 library), not only on hand-made fixtures. Reviews: a role review counts only with its findings summarised in the log;
 without sub-agents, say you performed the role yourself - never claim a review that did not run. Write files as UTF-8
-without BOM (Windows PowerShell 5.1 does not by default) and leave no scratch files in the repository (tool output
+without BOM (not PowerShell 5.1's default) and leave no scratch files in the repository (tool output
 such as probe SVGs goes to `tests/.generated/`, never `public/` or the root).
 
 ## 5. Session end and hand-off (always; also when context/time runs low)
@@ -144,13 +144,13 @@ evidence (or `[-]`) and the constitution review passed - and it is merged only w
 | IV | Test-first; core runs in Node; hardware faked; deterministic, golden-tested grading |
 | V | Layers core <- engine <- ui <- shells; pure TypeScript/HTML/CSS, **no UI frameworks**; browser works alone; Electron locked down |
 | VI | Colour **and** shape feedback; nothing modal during a session; explainable grades |
-| VII | Advice is schema-validated JSON anchored to Note IDs |
+| VII | Advice is schema-validated JSON anchored to Note IDs; exercises/arrangements fit one hand |
 | VIII | Web first; Web APIs before libraries; every runtime dependency justified |
 
 **Full quality gate** (every checkpoint, before merge): `pnpm lint`, `pnpm typecheck`, `pnpm test`, and
 `pnpm test:e2e`. Tests never need a MIDI keyboard or audio hardware.
 
-**Seeing the app** (quickstart "Manual verification"): run `pnpm screenshot --item <library id>` or
+**Seeing the app** (quickstart): run `pnpm screenshot --item <library id>` or
 `--file <path>`, then open the PNG it prints. It starts its own server and uses Playwright's Chromium, so it
 works when your own browser tool does not. Never report a manual check as done without looking at the picture. See
 reference R7. Library audit: `pnpm library:fidelity` (`--check`, `--item <id>`); replace an item only with

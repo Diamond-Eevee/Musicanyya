@@ -36,7 +36,8 @@ first: switch model, or continue with you? Switch: stop and say which model to u
      hard-coded tolerances (II); rendering/grading not keyed by Note ID (III); implementation before tests, no
      fakes, no golden tests for grading (IV); UI frameworks, UI computing grades or timing, inward dependency
      violations, features without a browser fallback (V); colour-only feedback, modal interruptions (VI); Advice
-     hard-coded instead of JSON (VII); unjustified new runtime deps (VIII).
+     hard-coded instead of JSON, or an exercise/arrangement one hand cannot play (VII); unjustified new runtime deps
+     (VIII).
    - **Coverage gaps**: requirements with no task; tasks with no requirement/story.
    - **Inconsistency**: terminology drift vs Domain Vocabulary, conflicting requirements, task ordering contradictions.
 5. Severity: CRITICAL (constitution MUST violated, P1 requirement uncovered), HIGH, MEDIUM, LOW.

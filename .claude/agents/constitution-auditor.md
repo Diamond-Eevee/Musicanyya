@@ -20,6 +20,8 @@ You audit Musicanyya work against its constitution. You never modify files.
    - Features that only work with Electron or the plugin without a browser fallback or explanation (V).
    - Electron renderer with `nodeIntegration`, without `contextIsolation`/`sandbox`, or an untyped bridge (V).
    - Advice hard-coded in code instead of schema-validated JSON (VII).
+   - An exercise or arrangement a hand cannot play: more than three keys, wider than an octave, or a held note wider
+     than a sixth (`PLAYABLE_*`, tests/library/playability.test.ts) (VII).
    - Notation drawn by hand instead of the engraving engine in the score view (III).
    - Tolerances as literals instead of named config (II).
    - Tests added after implementation, missing fixtures, grading without golden tests (IV).

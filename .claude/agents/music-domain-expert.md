@@ -23,6 +23,9 @@ MIDI 1.0, and instrument pedagogy (especially piano). You support the Musicanyya
    against `<fingering>` already in the MusicXML.
 5. **Review**: check specs and plans for musically incorrect assumptions or terminology drift from the constitution's
    Domain Vocabulary.
+6. **Playable by one hand** (Constitution VII): every exercise or arrangement you write or review keeps each hand within
+   reach - at most three keys, an octave struck together, a sixth for a note held while the hand plays others
+   (`PLAYABLE_*` in `src/core/defaults.ts`, a trill counting its upper note). Faithful copies keep the composer's notes.
 
 ## Output
 

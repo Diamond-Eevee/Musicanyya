@@ -1,7 +1,32 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.3.1 -> 1.3.2 (PATCH)
+Version change: 1.3.2 -> 1.4.0 (MINOR)
+  Principle VII (Pedagogy as Data) gains "playable by one hand" (owner request
+  2026-10-02, branch fix-morning-mood-chords, after the owner found Grieg's
+  Morning Mood unplayable): every score the project writes or arranges keeps
+  each hand within reach - at most three keys at once, an octave struck
+  together, a sixth for a note held while the hand plays others - as named
+  values in src/core/defaults.ts (PLAYABLE_*) checked by
+  tests/library/playability.test.ts. Faithful copies of a composer's work are
+  exempt; one that breaks the rule is offered "For listening" with a playable
+  arrangement beside it where one exists. MINOR: a principle materially
+  expanded.
+Templates requiring updates:
+  OK .specify/templates/plan-template.md    (row VII asks about playability)
+  OK .specify/templates/spec-template.md    (no change needed)
+  OK .specify/templates/tasks-template.md   (no change needed)
+  OK .claude/commands/speckit/analyze.md    (VII finding: unplayable authored score)
+  OK .claude/agents/constitution-auditor.md (VII check listed)
+  OK .claude/agents/music-domain-expert.md  (reviews against the rule)
+  OK AGENTS.md section 8                    (row VII)
+  OK docs/agents/reference.md               (no change needed)
+Deferred TODOs: none new. Open owner question: the faithful items Bach BWV 846,
+Chopin Op. 28 Nos. 4 and 20, Fur Elise (complete) and Satie's Gymnopedie No. 1
+also break the limits (held bass notes, wide chords); they stay where they are
+until the owner decides.
+
+Previous: 1.3.1 -> 1.3.2 (PATCH)
   Domain Vocabulary gains **Orchestra**, **Orchestra level** and **Guide voice**
   (owner decision of feature 020-play-guide-voice, 2026-10-02, after the
   constitution audit T033, finding 3). The terms were already used by features
@@ -281,9 +306,21 @@ punishing feedback defeats that purpose.
 - An invalid or outdated Advice file MUST NOT break the Score: invalid entries
   are skipped and reported, the rest is shown.
 - Advice text is structured for localisation (language-keyed strings).
+- **Playable by one hand**: every score the project writes or arranges
+  (exercises, songs, arrangements) MUST be playable by an ordinary pair of
+  hands, one hand per printed staff: at no moment more than three keys, notes
+  struck together no wider than an octave, and while a hand holds a note and
+  starts another, everything it holds no wider than a major sixth (a trill
+  counts its upper note). The limits are named values (`PLAYABLE_*` in
+  `src/core/defaults.ts`) and a library test checks every such item. A
+  faithful copy of a composer's work keeps the composer's notes; one that
+  breaks these limits SHOULD be offered "For listening", with an arrangement
+  that keeps them beside it.
 
 **Rationale**: teachers and authors must be able to add and improve guidance
 without a developer, and advice must stay attached to exactly the right notes.
+A practice app that asks for stretches no ordinary hand can make teaches
+nothing but frustration.
 
 ### VIII. Simplicity, Web-First Incremental Delivery
 
@@ -428,4 +465,4 @@ Merge gates (every change):
 - Runtime guidance for agents lives in `AGENTS.md` (tool-neutral; `CLAUDE.md`
   and `GEMINI.md` only import it) and MUST stay consistent with this document.
 
-**Version**: 1.3.2 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-10-02
+**Version**: 1.4.0 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-10-02
