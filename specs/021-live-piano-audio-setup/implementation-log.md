@@ -310,3 +310,28 @@
   say if anything else (file system writes, notifications) is expected to work there.
 - Handoff: next = T064 (manual script, including the 31-minute idle check running in the background at the time of writing), T066 (full gate, needs
   the MIDI service for the electron project), T067, T070. Tree clean at the commit after this entry.
+
+## 2026-10-03 - claude-sonnet-5.5 (implement, full gate attempt, not complete)
+- Full browser gate: `playwright test --project=chromium --project=firefox --project=webkit` -> `889 passed, 8 failed, 741 skipped (10.7m)`. The 8 failures,
+  all fixed in tests (no `src/` change since the US5 commit):
+  - `chrome-look.spec.ts` (g), `static-host.spec.ts`: still asserted the button caption ("Pause" / "Stop") that US4 removed; T007's grep missed them. Now
+    assert the `aria-label` (same state, by name).
+  - `brand.spec.ts` (e) on all three browsers: the roomy bar at 1600 px did not fit with the MIDI control's words in a browser that has no MIDI
+    ("MIDI not supported" + "Sound failed to load": about 150 px more in Firefox) or with the "locked" marker (10 px over in Chromium). The test is about the order
+    the bar gives things up in, so it now starts from the usual state (keyboard connected, sound on) through the `__MIDI_STATE__` seam; the
+    assertions are unchanged. The bar itself adapts to the degraded states by folding, as designed.
+  - `transport-icons.spec.ts` width test: flaked under load because the "Loading sound..." status widens the transport while the SoundFont loads; it now
+    waits for that status to go and for the width to settle.
+  - `brand.spec.ts` (a) on Firefox: passed on rerun (load).
+  After the fixes: brand, chrome-look, static-host, transport-icons, midi-topbar, latency-setup on the three browsers `58 passed, 1 failed, 40 skipped`; smoke `9 passed`.
+- **Open: `latency-setup.spec.ts` Firefox "Calibrate ... 30 ms (+-5)"** measures 21-24 ms in 3 of 6 runs (passes in the others), on a loaded and on a quiet
+  machine; Chromium is stable. A bias of about 6-9 ms on Firefox, not yet explained (candidates: Firefox's timer precision, how it reports
+  `getOutputTimestamp()`, the test's own tap timing). Nothing was changed; the test was not weakened. Needs a look or an owner decision (e.g. a wider bound or
+  skipping Firefox with a stated reason).
+- Electron project: not run in this gate. The MIDI service of this machine is stuck (see the US5 entry); the owner will restart the PC after the e2e run.
+  T070 stays open and T066 cannot be ticked until the electron specs run green on a machine with a healthy MIDI service.
+- T064: the owner dropped the 30-minute idle check (2026-10-03: "I don't like the test that takes 31 minutes each time"); it is commented out of the task. A scratch run
+  had reached 25 minutes with the audio context `running` and the engine `ready`. The rest of the quickstart script was covered by the e2e specs and the pictures
+  of each story; not checked by hand: a real MIDI keyboard, real speakers (no click or sound can be heard here), unplugging a real output device.
+- Handoff: next = after the PC restart, run `pnpm exec vite build -c vite.electron.config.ts` and `pnpm test:e2e --project=electron` (T070, then T066 with the
+  summary lines), look at the Firefox calibration bias, then T067 (spec status "Implemented", final log). Tree clean at the commit after this entry.

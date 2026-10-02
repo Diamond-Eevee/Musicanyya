@@ -36,6 +36,8 @@ async function openScore(page: Page): Promise<void> {
   await page.locator('mx-open-button input[type=file]').setInputFiles(SCORE_FILE);
   await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
   await expect(page.locator('mx-transport .play-btn')).not.toBeDisabled();
+  // The "Loading sound..." status widens the transport while the SoundFont loads (slow on a busy machine); the baseline was taken without it
+  await expect(page.locator('mx-transport .loading-progress')).toBeHidden({ timeout: 60_000 });
   await page.waitForTimeout(800); // the bar settles its fit a frame or two after the Score loads
 }
 
@@ -85,6 +87,18 @@ const barContentWidth = (page: Page): Promise<number> =>
     bar.className = before.join(' ');
     return Math.round((right - left) * 10) / 10;
   });
+
+/** The width once it stops changing (fonts and the bar's fit settle a moment after the Score loads, longer on a busy machine). */
+async function settledBarWidth(page: Page): Promise<number> {
+  let previous = await barContentWidth(page);
+  for (let i = 0; i < 20; i++) {
+    await page.waitForTimeout(150);
+    const now = await barContentWidth(page);
+    if (now === previous) return now;
+    previous = now;
+  }
+  return previous;
+}
 
 test.describe('icon transport buttons (feature 021 US4)', () => {
   test('Listen mode: Play and Stop are icons with their names, tooltips and size (SC-009)', async ({ page }) => {
@@ -165,10 +179,10 @@ test.describe('icon transport buttons (feature 021 US4)', () => {
     page,
   }) => {
     await openScore(page);
-    const listen = await barContentWidth(page);
+    const listen = await settledBarWidth(page);
     expect(listen, 'Listen mode').toBeLessThan(BAR_CONTENT_WIDTH_BASELINE.listen);
     await setMode(page, 'practice');
-    const practice = await barContentWidth(page);
+    const practice = await settledBarWidth(page);
     expect(practice, 'Practice mode (the skip buttons)').toBeLessThan(BAR_CONTENT_WIDTH_BASELINE.practice);
     test.info().annotations.push({ type: 'bar-content-width', description: `listen ${listen}, practice ${practice}` });
   });

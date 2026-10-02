@@ -398,11 +398,15 @@ default within 2 s with a notice; browser: "System default output" and the ASIO 
   `docs/agents/reference.md` only if a command changed (none planned)
 - [x] T063 [P] [light] Update `docs/agents/reference.md` Active Technologies / Recent Changes from "planned" to
   "implemented" with the T053 outcome
-- [ ] T064 Run the quickstart's manual script for US1-US5 (`pnpm dev`, `pnpm electron:dev`, a real MIDI keyboard where
-  available, `pnpm screenshot` pictures) and record each step's result in the log, plus the spec's "very long session"
-  edge case: leave the desktop app idle at least 30 minutes, then a key must sound without a click (analyze A9);
-  anything not checkable on this machine is named as such
-- [ ] T065 Constitution audit with `.claude/agents/constitution-auditor.md` over the feature diff; findings summarised in
+- [x] T064 Run the quickstart's manual script for US1-US5 (`pnpm dev`, `pnpm electron:dev`, a real MIDI keyboard where
+  available, `pnpm screenshot` pictures) and record each step's result in the log;
+  anything not checkable on this machine is named as such.
+  <!-- Dropped by the owner 2026-10-03 ("comment it, I don't like the test that takes 31 minutes each time"): the spec's
+  "very long session" edge case (analyze A9) - leave the desktop app idle at least 30 minutes, then a key must sound
+  without a click. A scratch run reached 25 minutes with the context `running` and the engine `ready` and was stopped;
+  the edge case stays in spec.md, unchecked by a test. -->
+
+- [x] T065 Constitution audit with `.claude/agents/constitution-auditor.md` over the feature diff; findings summarised in
   the log, blocking ones fixed or turned into tasks
 - [ ] T066 Full gate, once: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e:smoke` and `pnpm test:e2e` (all
   browsers) green; summary lines in the log (constitution "Test tiers")
