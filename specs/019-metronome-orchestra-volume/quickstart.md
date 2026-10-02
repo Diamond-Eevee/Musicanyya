@@ -22,6 +22,10 @@ pnpm library:index                                                     # facts (
 
 (The level folder, `advanced`, is the expected result of `computeLevel`; use the id `pnpm library:index` prints.)
 
+Since 2026-10-02 (branch `fix-morning-mood-chords`) `repertoire/advanced/grieg-morning-mood-easier` is a playable
+arrangement beside it (chords that fit one hand), converted from `own-grieg-op46-no1-easier` with the same commands and its
+own definition `content/library/orchestra/grieg-morning-mood-easier.json`.
+
 ## Gate
 
 ```text

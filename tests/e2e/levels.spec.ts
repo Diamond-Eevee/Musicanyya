@@ -64,9 +64,9 @@ test.describe('Levels popover in the browser (feature 019 US1)', () => {
     test.skip(testInfo.project.name === 'electron', 'the browser half; the desktop half launches the shell below');
   });
 
-  test('the Levels button opens a popover with the Metronome slider; Escape closes it and returns focus to the button', async ({
-    page,
-  }) => {
+  test('the Levels button opens a popover with the Metronome slider; Escape closes it and returns focus to the button', {
+    tag: '@smoke',
+  }, async ({ page }) => {
     await openItem(page);
     const button = levelsButton(page);
     await expect(button).toHaveAttribute('aria-haspopup', 'dialog');

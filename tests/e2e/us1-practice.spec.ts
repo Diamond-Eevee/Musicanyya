@@ -16,7 +16,9 @@ test.beforeEach(({ browserName }) => {
   test.skip(browserName === 'webkit', 'Practice needs AudioContext, which Playwright WebKit does not provide');
 });
 
-test('US1 end-to-end: Practice Mode - wait, wrong note, chord, moving notes, skip, end', async ({ page }) => {
+test('US1 end-to-end: Practice Mode - wait, wrong note, chord, moving notes, skip, end', { tag: '@smoke' }, async ({
+  page,
+}) => {
   page.on('console', (msg) => console.log('BROWSER:', msg.text()));
   page.on('pageerror', (err) => console.log('BROWSER ERROR:', err.message));
 

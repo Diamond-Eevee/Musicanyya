@@ -319,7 +319,7 @@ exports[`Morning Mood golden: the Orchestra changes no Grade (019 T076) > both r
         "passIndex": 3,
       },
       {
-        "arpeggiated": false,
+        "arpeggiated": true,
         "chordSize": 3,
         "index": 26,
         "key": 56,
@@ -331,7 +331,7 @@ exports[`Morning Mood golden: the Orchestra changes no Grade (019 T076) > both r
         "passIndex": 4,
       },
       {
-        "arpeggiated": false,
+        "arpeggiated": true,
         "chordSize": 3,
         "index": 27,
         "key": 64,
@@ -343,7 +343,7 @@ exports[`Morning Mood golden: the Orchestra changes no Grade (019 T076) > both r
         "passIndex": 4,
       },
       {
-        "arpeggiated": false,
+        "arpeggiated": true,
         "chordSize": 3,
         "index": 28,
         "key": 71,
@@ -415,7 +415,7 @@ exports[`Morning Mood golden: the Orchestra changes no Grade (019 T076) > both r
         "passIndex": 4,
       },
       {
-        "arpeggiated": false,
+        "arpeggiated": true,
         "chordSize": 3,
         "index": 34,
         "key": 56,
@@ -427,7 +427,7 @@ exports[`Morning Mood golden: the Orchestra changes no Grade (019 T076) > both r
         "passIndex": 5,
       },
       {
-        "arpeggiated": false,
+        "arpeggiated": true,
         "chordSize": 3,
         "index": 35,
         "key": 64,
@@ -439,7 +439,7 @@ exports[`Morning Mood golden: the Orchestra changes no Grade (019 T076) > both r
         "passIndex": 5,
       },
       {
-        "arpeggiated": false,
+        "arpeggiated": true,
         "chordSize": 3,
         "index": 36,
         "key": 71,
@@ -2026,7 +2026,7 @@ exports[`Morning Mood golden: the Orchestra changes no Grade (019 T076) > both r
         "passIndex": 3,
       },
       {
-        "arpeggiated": false,
+        "arpeggiated": true,
         "chordSize": 3,
         "index": 26,
         "key": 56,
@@ -2038,7 +2038,7 @@ exports[`Morning Mood golden: the Orchestra changes no Grade (019 T076) > both r
         "passIndex": 4,
       },
       {
-        "arpeggiated": false,
+        "arpeggiated": true,
         "chordSize": 3,
         "index": 27,
         "key": 64,
@@ -2050,7 +2050,7 @@ exports[`Morning Mood golden: the Orchestra changes no Grade (019 T076) > both r
         "passIndex": 4,
       },
       {
-        "arpeggiated": false,
+        "arpeggiated": true,
         "chordSize": 3,
         "index": 28,
         "key": 71,
@@ -2122,7 +2122,7 @@ exports[`Morning Mood golden: the Orchestra changes no Grade (019 T076) > both r
         "passIndex": 4,
       },
       {
-        "arpeggiated": false,
+        "arpeggiated": true,
         "chordSize": 3,
         "index": 34,
         "key": 56,
@@ -2134,7 +2134,7 @@ exports[`Morning Mood golden: the Orchestra changes no Grade (019 T076) > both r
         "passIndex": 5,
       },
       {
-        "arpeggiated": false,
+        "arpeggiated": true,
         "chordSize": 3,
         "index": 35,
         "key": 64,
@@ -2146,7 +2146,7 @@ exports[`Morning Mood golden: the Orchestra changes no Grade (019 T076) > both r
         "passIndex": 5,
       },
       {
-        "arpeggiated": false,
+        "arpeggiated": true,
         "chordSize": 3,
         "index": 36,
         "key": 71,

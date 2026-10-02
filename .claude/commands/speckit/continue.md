@@ -24,7 +24,8 @@ Treat the input as extra scope or answers to open owner decisions (it must still
    - `specify` / `clarify` / `plan` / `tasks`: perform that one step by following its instruction file.
    - `implement`: follow `.claude/commands/speckit/implement.md`, starting at the **resume point** and stopping
      at the **next Checkpoint** in `tasks.md` (or earlier at a stop condition, AGENTS.md section 7).
-   - `done`: run the full quality gate and the constitution audit, and report that the feature is ready to merge.
+   - `done`: run the full gate (once; constitution "Test tiers") and the constitution audit, and report that the
+     feature is ready to merge.
 4. **Session end**: follow AGENTS.md section 5 (consistent state, checks, ticks, log entry with `Handoff`, commit;
    no push unless asked).
 5. Report in a few lines: what was done, tests/gate status, the new resume point, and any decision the user must

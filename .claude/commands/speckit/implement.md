@@ -46,15 +46,18 @@ decision (e.g. `T011: approved`), apply that first.
    - No placeholders: never create empty, dummy or fake files, assets or data to finish a task; if something cannot
      be obtained (e.g. a download fails), stop that task and ask.
    - For RT review tasks, invoke the `rt-audio-reviewer` agent on the changed files and address every blocking finding.
-   - After each task: run the relevant checks (`pnpm test -- <path>`, `pnpm typecheck`, `pnpm lint`) and tick it
+   - After each task: run the task checks (`pnpm test -- <path>`, `pnpm typecheck`, `pnpm lint`, and only the e2e
+     specs that cover the change with `--project=chromium`; never the full e2e suite here) and tick it
      `- [x]` (claim suffix removed) in tasks.md immediately. Commit after each completed task group at the latest.
-   - At each Checkpoint: verify the story's Independent Test, run the full gate, append an entry to
+   - At each Checkpoint: verify the story's Independent Test, run the checkpoint gate (`pnpm lint`, `pnpm typecheck`,
+     `pnpm test`, `pnpm test:e2e:smoke`, the story's e2e specs on chromium; constitution "Test tiers"), append an entry to
      `FEATURE_DIR/implementation-log.md` (format in AGENTS.md section 5), and commit on the feature branch with a
      Conventional Commit referencing the task IDs (AGENTS.md section 5). Never push or merge unless asked.
 7. On failure or any stop condition (AGENTS.md section 7): stop the affected sequence, report the error with
    context, suggest a fix; continue only with independent tasks. Log the blocker in `implementation-log.md`.
 8. When stopping for any reason (done, stop condition, context/time running low): follow the **session end
-   protocol** (AGENTS.md section 5). When everything in scope is done: run the full gate (`pnpm lint`,
-   `pnpm typecheck`, `pnpm test`, and `pnpm test:e2e` if present), confirm each completed story meets its
+   protocol** (AGENTS.md section 5). When every task of the feature is done: run the full gate once (the checkpoint
+   gate plus `pnpm test:e2e` on every browser project; rerun it only if `src/` changes afterwards, otherwise the
+   affected specs and the smoke set), confirm each completed story meets its
    independent test from the spec, write the final log entry, commit, and report completed/remaining tasks and the
    resume point.

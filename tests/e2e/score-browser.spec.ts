@@ -55,9 +55,9 @@ test.describe('Score browser (feature 013, US1)', () => {
     await expect(dialog.locator('.browser-search')).toBeFocused();
   });
 
-  test('Independent Test: browse Learning > Keys > C major, open the first exercise, reopen to the same folder and selection', async ({
-    page,
-  }) => {
+  test('Independent Test: browse Learning > Keys > C major, open the first exercise, reopen to the same folder and selection', {
+    tag: '@smoke',
+  }, async ({ page }) => {
     await seedOpenFolders(page, KEYS_OPEN); // 018: the rail starts collapsed; a returning musician's Keys folder is open
     await page.goto('/');
     await expect(browserDialog(page)).toBeVisible();

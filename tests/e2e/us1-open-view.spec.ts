@@ -12,7 +12,7 @@ function fixturePath(name: string): string {
   return path.join(fixturesDir, name);
 }
 
-test('US1 end-to-end: open fixtures, zoom, errors, My files (feature 013 R-20), help page', async ({
+test('US1 end-to-end: open fixtures, zoom, errors, My files (feature 013 R-20), help page', { tag: '@smoke' }, async ({
   page,
   baseURL,
 }) => {

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-02T08:02:44.764Z",
+  "generated": "2026-10-02T16:45:10.780Z",
   "sections": [
     {
       "id": "learning",
@@ -14772,8 +14772,8 @@
       "id": "repertoire/advanced/grieg-morning-mood",
       "section": "repertoire/advanced",
       "file": "repertoire/advanced/grieg-morning-mood.musicxml",
-      "bytes": 458565,
-      "hash": "129d87bdc69c30aca36f20d107a71b41b9872ece6fc679c78c4bcda3c379f44f",
+      "bytes": 460996,
+      "hash": "462acba65e7d24b2bef9b408386ebd5f05e3aa17fd81c2b966bf3616a131da95",
       "meta": {
         "version": 1,
         "title": "Morning Mood",
@@ -14863,6 +14863,115 @@
           "Cellos"
         ],
         "maxArpeggiatedSpanSemitones": 24
+      },
+      "levelCheck": {
+        "level": "advanced",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "repertoire/advanced/grieg-morning-mood-easier",
+      "section": "repertoire/advanced",
+      "file": "repertoire/advanced/grieg-morning-mood-easier.musicxml",
+      "bytes": 430202,
+      "hash": "bb28e0c4bdf6f8e6a8844e19f5536b9a203a8ca368d8d95a69d3e5f7527f074a",
+      "meta": {
+        "version": 1,
+        "title": "Morning Mood (easier chords)",
+        "kind": "piece",
+        "level": "advanced",
+        "tags": [
+          "chords",
+          "hands-together",
+          "ties",
+          "pedal",
+          "ornaments",
+          "dynamics",
+          "phrasing"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "Musicanyya practice material",
+          "created": "2026-10-02",
+          "basedOn": "Grieg's own piano arrangement (G. Schirmer, New York, 1899, ed. Louis Oesterle; Internet Archive 31761045200615), public domain, as read in our transcription A (content/library/sources/own-grieg-op46-no1-transcription-a); the faithful item is repertoire/advanced/grieg-morning-mood.",
+          "note": "Converted from content/library/sources/own-grieg-op46-no1-easier/morning-mood-easier.ly, which is transcription A with every chord rewritten to fit one hand (each change marked \"arr:\" there). The Orchestra is the faithful item's, generated from this piano part: every Orchestra note doubles a piano note."
+        },
+        "reviewedBy": "claude-opus-5-5",
+        "reviewedOn": "2026-10-02",
+        "subtitle": "Peer Gynt Suite No. 1, Op. 46 No. 1 - the composer's piano arrangement, arranged with chords that fit one hand, with orchestra",
+        "composer": "Edvard Grieg",
+        "arranger": "Musicanyya practice material",
+        "trains": "Grieg's own piano version of the sunrise from Peer Gynt with every chord inside one hand's reach: the pastoral 6/8 melody over held triads, the forte climax, the left-hand melody under right-hand figuration, trills with their endings, and the quiet return.",
+        "hands": "both",
+        "arrangement": true,
+        "limitations": [
+          "written pedal is not played"
+        ],
+        "departures": [
+          "Every chord fits one hand: at most three keys, an octave struck together, a sixth for a note held while the hand plays on; every change is marked \"arr:\" in the source.",
+          "Left hand, bars 1-3, 9-11, 17-20: Grieg's tenths become close triads over the same bass (E3 B3 G#4 -> E3 G#3 B3); bars 4 and 12 drop the tied top voice.",
+          "Left hand, bars 7-8, 15-47, 67-75: low chords become bass, fifth and octave (E2 B2 G#3 -> E2 B2 E3), keeping a seventh in bars 20, 25-28, 37 and 45; none rolled.",
+          "Bars 32-35, 40-43: the inner voice the print gives the left hand by a bracket is written on the lower staff.",
+          "Right hand, bars 3, 5-6, 11, 13-15, 23, 27-29, 37, 45, 65, 67-75: a held inner note is shortened, moves to a closer chord tone or goes.",
+          "Left hand, bars 50-53, 56-62, 65, 79-80: four-note chords and wide holds keep three notes within reach; the bass is struck again, not held; no key is held while struck again.",
+          "Bars 77-78, 81-87: four-note chords keep three notes (B7 without its fifth); the left hand strikes E2 B2 E3 before the tremolo and ends on E1."
+        ]
+      },
+      "facts": {
+        "measures": 87,
+        "notes": 1253,
+        "durationSeconds": 174,
+        "keys": [
+          "E major"
+        ],
+        "metres": [
+          "6/8"
+        ],
+        "tempoBpm": 90,
+        "tempoDefaulted": false,
+        "lowestMidi": 28,
+        "highestMidi": 92,
+        "maxSpanSemitones": 12,
+        "staves": 2,
+        "voicesPerStaff": 3,
+        "handIndependenceFraction": 0.19540229885057472,
+        "chordChangesPerBar": 2.5977011494252875,
+        "shortestDivision": 16,
+        "notesPerBeat": 4.800766283524904,
+        "accidentals": 4,
+        "hasTies": true,
+        "hasTuplets": true,
+        "hasGraceNotes": true,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": true,
+        "fingeringCoverage": 0.10694333599361533,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 24,
+        "longestRunAtShortestValue": 228,
+        "attackCount": 802,
+        "peakNotesPerSecond": 11,
+        "accidentalMarkCount": 158,
+        "minorScaleAccidentalCount": 40,
+        "maxTieChainNotes": 3,
+        "maxTieBarlinesCrossed": 2,
+        "hasNonSimpleTuplet": true,
+        "graceNoteCount": 56,
+        "ornamentCount": 19,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "orchestra": [
+          "Flute",
+          "Oboe",
+          "Horns",
+          "Strings",
+          "Cellos"
+        ],
+        "maxArpeggiatedSpanSemitones": 9
       },
       "levelCheck": {
         "level": "advanced",

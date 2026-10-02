@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "itemId": "repertoire/advanced/grieg-morning-mood-easier",
+  "claim": "arrangement",
+  "claimText": "Morning Mood (easier chords): Grieg's own piano arrangement (G. Schirmer, 1899) as read in transcription A, the right hand's melody unchanged, every chord rewritten to fit one hand",
+  "checks": [
+    {
+      "method": "mechanical",
+      "source": "own-grieg-op46-no1-transcription-a",
+      "sourceFiles": ["notation"],
+      "aspects": ["barCount", "barLengths", "repeats", "playedOrder"],
+      "alignment": {
+        "itemBars": "all",
+        "sourceBars": "all"
+      },
+      "expectedDifferences": 0
+    },
+    {
+      "method": "mechanical",
+      "source": "own-grieg-op46-no1-transcription-a",
+      "sourceFiles": ["notation"],
+      "aspects": ["melody", "spelling"],
+      "alignment": {
+        "itemBars": "all",
+        "sourceBars": "all",
+        "staff": 1,
+        "voice": "1",
+        "sourceStaff": 1,
+        "sourceVoice": "staff1:voice:rhOne"
+      },
+      "melodyRhythm": "compared",
+      "expectedDifferences": 0
+    },
+    {
+      "method": "theory",
+      "ruleSet": "orchestra-v1",
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "verified",
+  "outcomeNote": "Arranged 2026-10-02 at the owner's request from transcription A so that every moment fits one hand per staff (the comfortable tier of Constitution 1.6.0, Principle VII: at most three keys, an octave struck together, a sixth for a held note; tests/library/playability.test.ts). The faithful item has over 150 moments beyond those limits, this one none. Reviewed by the music-domain-expert role (bass kept in bars 4 and 12, the trill bars' held D#4, the sevenths of bars 45 and 77-78 fixed). Every change is commented \"arr:\" in the source; the right hand's melody is transcription A's, note for note.",
+  "checkedBy": "claude-opus-5-5",
+  "date": "2026-10-02"
+}

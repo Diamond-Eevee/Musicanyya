@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "id": "own-grieg-op46-no1-easier",
+  "work": "Grieg, Peer Gynt Suite No. 1, Op. 46 No. 1, \"Morgenstimmung\" (Morning Mood), the composer's piano arrangement with chords that fit one hand, all 87 bars",
+  "edition": "Our arrangement of transcription A (own-grieg-op46-no1-transcription-a) of G. Schirmer, New York, 1899, edited and fingered by Louis Oesterle (Internet Archive 31761045200615, PDF pages 7-10)",
+  "publisher": "Musicanyya (own arrangement)",
+  "url": "https://archive.org/details/31761045200615",
+  "identifier": "easier chords (fix branch fix-morning-mood-chords)",
+  "licence": "CC0-1.0",
+  "credit": "Arranged from transcription A by claude-opus-5-5 for Musicanyya on 2026-10-02 at the owner's request and dedicated to the public domain (CC0 1.0); every change from transcription A is commented \"arr:\" in the file.",
+  "obtained": "2026-10-02",
+  "approvedByOwner": "2026-10-02",
+  "origin": "transcription",
+  "files": [
+    {
+      "role": "notation",
+      "path": "morning-mood-easier.ly",
+      "url": "https://archive.org/download/31761045200615/31761045200615.pdf",
+      "sha256": "d8aa1664c73b7f8f25a61ddfd95328c696efbb4fe06d6cd8a0a75aef06c648dd",
+      "format": "lilypond"
+    }
+  ]
+}

@@ -26,8 +26,8 @@ rhOne = {
   \grace { gis''16-2[ a''] } b''8\<( gis'' b'' cis'''\> gis'' cis''' |
   b''8-5 gis''-4 fis'' e''4)\! r8 |
   % 5-8
-  b'8( gis' fis' e' fis' gis') |
-  b'8( \grace { gis'16[ a'] } gis'8 fis' e'-1 fis'16 gis' fis' gis') |
+  b'8\arpeggio( gis' fis' e' fis' gis') |
+  b'8\arpeggio( \grace { gis'16[ a'] } gis'8 fis' e'-1 fis'16 gis' fis' gis') |
   \grace { gis'16-2[ a'] } b'8\<( gis' b'-4 cis'' gis' cis''-4\! |
   dis''8\> bis'-4 ais' gis'4)\! r8 |
   % 9-12
@@ -36,8 +36,8 @@ rhOne = {
   \grace { bis''16-2[ cis'''] } dis'''8\<( bis'' dis''' e'''\> bis'' e''' |
   dis'''8-5 bis'' ais'' gis''4-2)\! r8 |
   % 13-16
-  dis''8( bis'-4 ais' gis'-2 ais' bis') |
-  dis''8( \grace { bis'16-3[ cis''] } bis'8 ais' gis'-1 ais'16 bis' ais' bis') |
+  dis''8\arpeggio( bis'-4 ais' gis'-2 ais' bis') |
+  dis''8\arpeggio( \grace { bis'16-3[ cis''] } bis'8 ais' gis'-1 ais'16 bis' ais' bis') |
   \grace { bis'16-2[ cis''] } dis''8\<( bis' dis'' e'' cis'' e''\! |
   fis''8 dis'' cis'' b'4-2) r8 |
   % 17-20
@@ -135,12 +135,12 @@ rhTwo = {
   \global
   % 1-4
   s2. | s2. | s4. cis''4.( | b'4.)~ b'4 s8 |
-  % 5-8 (unclear: a curved bracket joins this voice to the melody; read as a layout mark, not encoded)
-  <gis e'>2. | <gis e'>2. | e'4. e'4. | dis'4.~ dis'4 s8 |
+  % 5-8: the curved bracket before this voice's chord and the melody's B4 is the print's gentle roll sign (see lhOne bar 1)
+  <gis e'>2.\arpeggio | <gis e'>2.\arpeggio | e'4. e'4. | dis'4.~ dis'4 s8 |
   % 9-12
   s2. | s2. | s4. e''4.( | dis''4.)~ dis''4-1 s8 |
   % 13-16
-  <bis gis'>2. | <bis gis'>2. | gis'4. <e' gis'>4. | <fis'~ b'!>4. fis'4-1 s8 |
+  <bis gis'>2.\arpeggio | <bis gis'>2.\arpeggio | gis'4. <e' gis'>4. | <fis'~ b'!>4. fis'4-1 s8 |
   % 17-20
   fis''2. | <fis' b'>2. | fis''4. <fis' b'>4. | fis''4. <fis' b'>4. |
   % 21-29
@@ -172,27 +172,28 @@ rhTwo = {
 
 lhOne = {
   \clef bass \global
-  % 1-4 (unclear: the left-hand chords of bars 1-20 carry a curved bracket, not the wavy arpeggio sign of bars
-  % 21-29; its meaning is not certain, so it is not encoded)
-  <e b gis'>2.\sustainOn |
-  <e b gis'>2. |
-  <e b gis'>4. <cis gis e'>4. |
-  gis'4.~ gis'4 r8 |
+  % 1-4; reading: every wide chord of bars 1-20 (and the right hand's lower chord with its melody note in bars 5-6 and
+  % 13-14) carries a thin curved bracket, not the wavy line of bars 21-29: the older sign for a gentle roll (Dorico's
+  % "curved arpeggio"; music-domain-expert, 2026-10-02), encoded as a roll. The octave chords carry none.
+  <e b gis'>2.\arpeggio\sustainOn |
+  <e b gis'>2.\arpeggio |
+  <e b gis'>4.\arpeggio <cis gis e'>4.\arpeggio |
+  gis'4.\arpeggio~ gis'4 r8 |
   % 5-8
-  <e, b, e>2.\sustainOn | <e, b, e>2. | <e, b, gis>4. <cis gis cis'>4. | <gis, dis bis>4. dis'8-2( bis-3 ais) |
+  <e, b, e>2.\sustainOn | <e, b, e>2. | <e, b, gis>4.\arpeggio <cis gis cis'>4. | <gis, dis bis>4.\arpeggio dis'8-2( bis-3 ais) |
   % 9-12
-  <gis dis' bis'>2.\sustainOn |
-  <gis dis' bis'>2. |
-  <gis dis' bis'>4. <e bis gis'>4. |
-  bis'4.~ bis'4 r8 |
+  <gis dis' bis'>2.\arpeggio\sustainOn |
+  <gis dis' bis'>2.\arpeggio |
+  <gis dis' bis'>4.\arpeggio <e bis gis'>4.\arpeggio |
+  bis'4.\arpeggio~ bis'4 r8 |
   % 13-16
-  <gis, dis gis>2.\sustainOn | <gis, dis gis>2. | <gis, dis bis>4. <cis gis cis'>4. |
-  <b, fis dis'>4. fis'8-2( dis'-3 cis') |
+  <gis, dis gis>2.\sustainOn | <gis, dis gis>2. | <gis, dis bis>4.\arpeggio <cis gis cis'>4. |
+  <b, fis dis'>4.\arpeggio fis'8-2( dis'-3 cis') |
   % 17-20
-  \clef treble <b fis' dis''>2.\sustainOn |
-  \clef bass <b, fis dis'>2.\sustainOn |
-  \clef treble <b fis' dis''>4. \clef bass <b, fis dis'>4. |
-  \clef treble <b a' dis''>4.\sustainOn \clef bass <b, a dis'>4. |
+  \clef treble <b fis' dis''>2.\arpeggio\sustainOn |
+  \clef bass <b, fis dis'>2.\arpeggio\sustainOn |
+  \clef treble <b fis' dis''>4.\arpeggio \clef bass <b, fis dis'>4.\arpeggio |
+  \clef treble <b a' dis''>4.\arpeggio\sustainOn \clef bass <b, a dis'>4.\arpeggio |
   % 21-24
   <e, b, gis>2.\arpeggio\sustainOn |
   <e, b, gis>2.\arpeggio\sustainOn |
@@ -287,9 +288,9 @@ lhOne = {
 lhTwo = {
   \global
   % 1-49
-  s2. | s2. | s2. | <e b>4. b8-2[ gis-3 fis-4] |
+  s2. | s2. | s2. | <e b>4.\arpeggio b8-2[ gis-3 fis-4] |
   s2. | s2. | s2. | s2. |
-  s2. | s2. | s2. | <gis dis'-3>4. dis'8-2[( bis-3 ais)] |
+  s2. | s2. | s2. | <gis dis'-3>4.\arpeggio dis'8-2[( bis-3 ais)] |
   s2. | s2. | s2. | s2. |
   s2. | s2. | s2. | s2. |
   s2. | s2. | s2. | s2. | s2. | s2. | s2. | s2. | s2. | s2. | s2. |

@@ -23,6 +23,10 @@ MIDI 1.0, and instrument pedagogy (especially piano). You support the Musicanyya
    against `<fingering>` already in the MusicXML.
 5. **Review**: check specs and plans for musically incorrect assumptions or terminology drift from the constitution's
    Domain Vocabulary.
+6. **Playable by hand** (Constitution VII, `PLAYABLE_LIMITS` in `src/core/defaults.ts`): every Score must be possible
+   (a hand strikes at most five keys within a tenth unless rolled; the pedal may hold earlier notes); exercises, songs and
+   Beginner/Intermediate arrangements must be comfortable (three keys, an octave struck, a sixth held, a trill counting
+   its upper note). Faithful copies keep the composer's notes.
 
 ## Output
 

@@ -1,4 +1,4 @@
-import { PERCUSSION_CHANNEL, PRACTICE_HAND_ATTRIBUTION } from '../defaults.js';
+import { PRACTICE_HAND_ATTRIBUTION } from '../defaults.js';
 import type { Note, Part, Score } from '../score/model.js';
 import type { PlaybackTimeline } from '../timeline/types.js';
 import { homeStavesByVoice } from './hands.js';
@@ -74,20 +74,10 @@ export function buildExpectedEvents(
       groups.set(groupKey, group);
     }
 
-    // An Orchestra note (feature 019) is neither required nor accompaniment: it sounds on its own channel with the musician's
-    // progress. One on the percussion channel is left out altogether: Practice never sends live input there (it would be refused).
-    if (part.orchestra) {
-      if (ev.channel !== PERCUSSION_CHANNEL) {
-        group.orchestra.push({
-          noteId: headId,
-          key: ev.key,
-          endTick: ev.endTick,
-          velocity: ev.velocity,
-          channel: ev.channel,
-        });
-      }
-      continue;
-    }
+    // An Orchestra note (feature 019) is neither required nor accompaniment, and Practice does not play it either: the
+    // Orchestra is silent in Practice mode (owner decision 2026-10-02, after feature 019 played it with the musician's
+    // progress). `orchestra` stays empty on every event; the matcher still plays any Orchestra notes an event carries.
+    if (part.orchestra) continue;
 
     const hand =
       attribution === 'printed-staff' ? note.staff : (homeStaves.get(part.index)?.get(note.voice) ?? note.staff);

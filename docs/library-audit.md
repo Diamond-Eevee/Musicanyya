@@ -6,13 +6,13 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 | Outcome | Items |
 |---|---|
-| verified | 169 |
+| verified | 170 |
 | verified (visual) | 3 |
 | fixed | 7 |
 | replaced | 4 |
 | relabelled | 2 |
 | removed | 1 |
-| Total | 186 |
+| Total | 187 |
 
 ## Level counts after the audit
 
@@ -20,7 +20,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 |---|---|---|---|
 | Beginner | 13 | 7 | meets the minimum |
 | Intermediate | 9 | 5 | meets the minimum |
-| Advanced | 8 | 5 | meets the minimum |
+| Advanced | 9 | 5 | meets the minimum |
 
 ## Repertoire
 
@@ -33,6 +33,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 | Sonatina in C major, Op. 36 No. 1 (1st movement)<br>`repertoire/advanced/clementi-sonatina-op36-no1-mvt1` | original | [Sonatina Album, G. Schirmer, 1893](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=804) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | replaced | 2026-09-24 |
 | Für Elise, WoO 59<br>`repertoire/advanced/fur-elise-complete` | original | [Breitkopf & Härtel, 1888](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | verified | 2026-09-24 |
 | Morning Mood<br>`repertoire/advanced/grieg-morning-mood` | original | [G. Schirmer, New York, 1899; Morgenstimmung edited and fingered by Louis Oesterle (PDF pages 7-10 of Internet Archive 31761045200615)](https://archive.org/details/31761045200615)<br>ia-31761045200615-grieg-op46-schirmer (PDF pages 7-10, print pages 3-6)<br>none (theory check) | mechanical (bars all)<br>visual (bars all)<br>theory | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes<br>visual comparison<br>orchestra-v1 | 5 | verified | 2026-10-02 |
+| Morning Mood (easier chords)<br>`repertoire/advanced/grieg-morning-mood-easier` | arrangement | [G. Schirmer, New York, 1899, edited and fingered by Louis Oesterle (Internet Archive 31761045200615, PDF pages 7-10)](https://archive.org/details/31761045200615)<br>none (theory check) | mechanical (bars all)<br>theory | barCount, barLengths, repeats, playedOrder<br>melody, spelling<br>orchestra-v1 | 0 | verified | 2026-10-02 |
 | Gymnopedie No. 1<br>`repertoire/advanced/satie-gymnopedie-no1` | original | [Dover Edition](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=37) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | replaced | 2026-09-24 |
 | Amazing Grace (arranged for beginners)<br>`repertoire/beginner/amazing-grace` | arrangement | [www.cyberhymnal.org (tune: Virginia Harmony, 1831; harmonization: E. O. Excell, 1900)](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1283) | mechanical (bars all) | melody, spelling | 0 | fixed | 2026-09-24 |
 | Fur Elise (opening motif, arranged for absolute beginners)<br>`repertoire/beginner/fur-elise-theme-16-bar` | arrangement | [Breitkopf & Härtel, 1888](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931) | mechanical (bars 0-1)<br>mechanical (bars 2-4)<br>mechanical (bars 5-5)<br>mechanical (bars 6-8) | melody, spelling | 8 (27 allowed by departures) | relabelled | 2026-09-24 |
@@ -357,13 +358,24 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 ### Morning Mood (`repertoire/advanced/grieg-morning-mood`)
 
-- Outcome (verified): Converted 2026-10-02 from transcription A (read-back 0 differences) and compared with transcription B, read from the print by a separate session: 15 differences in 7 places (bars 48-49, 54-55, 64-65, 66, 70, 79-80, 84), each settled against the print in favour of B and fixed in A; now 0. The visual pass then corrected A's slurs, fingering, dynamics, hairpins, arpeggios and words in about 30 bars (019 log, T045).
+- Outcome (verified): Converted 2026-10-02 from transcription A (read-back 0 differences) and compared with transcription B, read from the print by a separate session: 15 differences in 7 places (bars 48-49, 54-55, 64-65, 66, 70, 79-80, 84), each settled against the print in favour of B and fixed in A; now 0. The visual pass then corrected A's slurs, fingering, dynamics, hairpins, arpeggios and words in about 30 bars (019 log, T045). 2026-10-02: the curved brackets of bars 1-20 are read as the print's gentle roll sign and encoded as rolls.
 - Visual check, bars all, against ia-31761045200615-grieg-op46-schirmer (PDF pages 7-10, print pages 3-6): 87 bars compared page by page with the engraved item (pnpm screenshot), and every mark on which transcriptions A and B disagree looked up in the print: slurs, ties, dynamics, hairpins, fingering, pedal, arpeggios and words. Everything matches the print except the differences listed.
   - Bars 77-78: the right hand's chords are printed on the upper staff; the print has them on the lower staff (owner decision OD-3, as Chopin Op. 28 No. 4).
   - Bars 64-65: the E4 the melody shares with the lower voice (one head, two stems in the print) is one note in the lower voice, so the melody's beam starts after a gap.
-  - Bars 1-20: the curved brackets before the left-hand chords are not encoded (not the wavy arpeggio sign; meaning uncertain).
+  - Bars 1-20: the print's thin curved roll bracket is drawn by Verovio as the ordinary wavy arpeggio line.
   - Grace-note slurs (bars 2, 6, 10, 14, 22, 26) are not drawn; the phrase slur over the bar is.
   - Fingering numbers and some hairpin ends are placed by Verovio, not where the print has them (e.g. the left hand's 2-4 under the 16th pairs of bars 30-31, 38-39, 46-47 is printed above).
+
+### Morning Mood (easier chords) (`repertoire/advanced/grieg-morning-mood-easier`)
+
+- Outcome (verified): Arranged 2026-10-02 at the owner's request from transcription A so that every moment fits one hand per staff (the comfortable tier of Constitution 1.6.0, Principle VII: at most three keys, an octave struck together, a sixth for a held note; tests/library/playability.test.ts). The faithful item has over 150 moments beyond those limits, this one none. Reviewed by the music-domain-expert role (bass kept in bars 4 and 12, the trill bars' held D#4, the sevenths of bars 45 and 77-78 fixed). Every change is commented "arr:" in the source; the right hand's melody is transcription A's, note for note.
+- Departure: Every chord fits one hand: at most three keys, an octave struck together, a sixth for a note held while the hand plays on; every change is marked "arr:" in the source.
+- Departure: Left hand, bars 1-3, 9-11, 17-20: Grieg's tenths become close triads over the same bass (E3 B3 G#4 -> E3 G#3 B3); bars 4 and 12 drop the tied top voice.
+- Departure: Left hand, bars 7-8, 15-47, 67-75: low chords become bass, fifth and octave (E2 B2 G#3 -> E2 B2 E3), keeping a seventh in bars 20, 25-28, 37 and 45; none rolled.
+- Departure: Bars 32-35, 40-43: the inner voice the print gives the left hand by a bracket is written on the lower staff.
+- Departure: Right hand, bars 3, 5-6, 11, 13-15, 23, 27-29, 37, 45, 65, 67-75: a held inner note is shortened, moves to a closer chord tone or goes.
+- Departure: Left hand, bars 50-53, 56-62, 65, 79-80: four-note chords and wide holds keep three notes within reach; the bass is struck again, not held; no key is held while struck again.
+- Departure: Bars 77-78, 81-87: four-note chords keep three notes (B7 without its fifth); the left hand strikes E2 B2 E3 before the tremolo and ends on E1.
 
 ### Gymnopedie No. 1 (`repertoire/advanced/satie-gymnopedie-no1`)
 

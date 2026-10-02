@@ -54,9 +54,9 @@ async function openInPlayMode(page: Page, fixture: string): Promise<void> {
   await page.locator('#mode-controls mx-mode-switch input[value=play]').check();
 }
 
-test('US2 end-to-end: step through mistakes, see the worst measures, and send one to Practice (AS-2.1 to AS-2.3)', async ({
-  page,
-}) => {
+test('US2 end-to-end: step through mistakes, see the worst measures, and send one to Practice (AS-2.1 to AS-2.3)', {
+  tag: '@smoke',
+}, async ({ page }) => {
   test.setTimeout(30_000);
   const errors: string[] = [];
   page.on('pageerror', (err) => errors.push(err.message));

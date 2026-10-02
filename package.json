@@ -11,6 +11,7 @@
     "typecheck": "tsc --build tsconfig.json",
     "test": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:smoke": "playwright test --grep @smoke --project=chromium",
     "electron:dev": "vite build && vite build -c vite.electron.config.ts && electron .",
     "electron:build": "vite build && vite build -c vite.electron.config.ts && electron-builder",
     "gen:large-score": "tsx tests/tools/gen-large-score.ts",
