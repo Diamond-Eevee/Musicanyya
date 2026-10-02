@@ -25,6 +25,43 @@ mx-panel[hidden] {
   display: none;
 }
 
+/* The Levels popover (feature 019, ui-shell 1.5.0): two sliders, so narrower than the other panels. It stays open
+   during a run, so it keeps out of the Score's way as much as it can. */
+mx-panel[data-panel="sound"] {
+  width: min(20rem, calc(100vw - 16px));
+}
+
+.mx-levels {
+  display: grid;
+  gap: var(--mx-space-2, 4px);
+}
+
+.mx-level-row {
+  display: grid;
+  grid-template-columns: 6rem 1fr 3.5rem;
+  align-items: center;
+  gap: var(--mx-space-3, 8px);
+}
+
+.mx-level-name {
+  font-weight: 600;
+}
+
+.mx-level-value {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.mx-level-hint {
+  margin: 0 0 var(--mx-space-3, 8px);
+  font-size: var(--mx-text-s, 0.875rem);
+  color: var(--mx-ink-muted);
+}
+
+.mx-level-hint[hidden] {
+  display: none;
+}
+
 mx-menu {
   display: inline-block;
 }

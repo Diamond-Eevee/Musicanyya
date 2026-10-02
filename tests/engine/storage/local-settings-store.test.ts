@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { METRONOME_LEVEL_DEFAULT, ORCHESTRA_LEVEL_DEFAULT } from '../../../src/core/defaults.js';
 import { OVERLAYS_DEFAULT } from '../../../src/engine/config.js';
 import {
   LocalSettingsStore,
@@ -46,11 +47,95 @@ describe('Settings store', () => {
     const store = new LocalSettingsStore();
     const settings = store.load();
     expect(settings).toEqual({
-      version: 2,
+      version: 3,
       volume: 80,
       scale: 100,
       follow: true,
       overlays: OVERLAYS_DEFAULT,
+      metronomeLevel: 100,
+      orchestraLevel: 60,
+    });
+  });
+
+  describe('Metronome and Orchestra levels, settings version 3 (feature 019, mixer-levels.md section 2)', () => {
+    const levelsOf = (stored: unknown) => {
+      storage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(stored));
+      const { metronomeLevel, orchestraLevel } = new LocalSettingsStore().load();
+      return { metronomeLevel, orchestraLevel };
+    };
+
+    it('the defaults are the named constants', () => {
+      expect(METRONOME_LEVEL_DEFAULT).toBe(100);
+      expect(ORCHESTRA_LEVEL_DEFAULT).toBe(60);
+    });
+
+    it('a stored version 2 object loads with both defaults and every other field unchanged', () => {
+      storage.setItem(
+        SETTINGS_STORAGE_KEY,
+        JSON.stringify({ version: 2, volume: 35, scale: 130, follow: false, overlays: { pianoKeys: true } }),
+      );
+      const settings = new LocalSettingsStore().load();
+      expect(settings).toEqual({
+        version: 3,
+        volume: 35,
+        scale: 130,
+        follow: false,
+        overlays: { ...OVERLAYS_DEFAULT, pianoKeys: true },
+        metronomeLevel: 100,
+        orchestraLevel: 60,
+      });
+    });
+
+    it('a stored version 1 object loads with both defaults', () => {
+      expect(levelsOf({ version: 1, volume: 60, zoomPercent: 70 })).toEqual({
+        metronomeLevel: 100,
+        orchestraLevel: 60,
+      });
+    });
+
+    it('version 3 round-trips both levels', () => {
+      const store = new LocalSettingsStore();
+      store.save({ ...store.load(), metronomeLevel: 30, orchestraLevel: 85 });
+      vi.advanceTimersByTime(1000);
+      expect(levelsOf(JSON.parse(storage.getItem(SETTINGS_STORAGE_KEY) as string))).toEqual({
+        metronomeLevel: 30,
+        orchestraLevel: 85,
+      });
+    });
+
+    it('0 and 100 are valid levels', () => {
+      expect(levelsOf({ version: 3, metronomeLevel: 0, orchestraLevel: 100 })).toEqual({
+        metronomeLevel: 0,
+        orchestraLevel: 100,
+      });
+    });
+
+    it.each([
+      ['below 0', -5],
+      ['above 100', 101],
+      ['a string', '50'],
+      ['a fraction', 12.5],
+      ['null', null],
+    ])('a level that is %s loads as its own default and leaves the other alone', (_name, bad) => {
+      expect(levelsOf({ version: 3, metronomeLevel: bad, orchestraLevel: 40 })).toEqual({
+        metronomeLevel: 100,
+        orchestraLevel: 40,
+      });
+      expect(levelsOf({ version: 3, metronomeLevel: 20, orchestraLevel: bad })).toEqual({
+        metronomeLevel: 20,
+        orchestraLevel: 60,
+      });
+    });
+
+    it('save always writes version 3, also over an older stored version', () => {
+      storage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify({ version: 2, volume: 10 }));
+      const store = new LocalSettingsStore();
+      store.save(store.load());
+      vi.advanceTimersByTime(1000);
+      const raw = JSON.parse(storage.getItem(SETTINGS_STORAGE_KEY) as string);
+      expect(raw.version).toBe(3);
+      expect(raw.metronomeLevel).toBe(100);
+      expect(raw.orchestraLevel).toBe(60);
     });
   });
 
@@ -115,7 +200,9 @@ describe('Settings store', () => {
 
   describe('flushPending: the page is going away (017 T039, 004 SC-008)', () => {
     const settings = {
-      version: 2 as const,
+      version: 3 as const,
+      metronomeLevel: 30,
+      orchestraLevel: 70,
       volume: 30,
       scale: 140,
       follow: false,

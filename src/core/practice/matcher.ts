@@ -22,6 +22,7 @@ export function startSession(options: StartOptions): PracticeSession {
     heldKeys: new Set(),
     heldWrongKeys: new Map(),
     soundingAccompaniment: new Map(),
+    soundingOrchestra: new Map(),
     wrongAttemptsOnCurrent: 0,
     loop: options.loop,
     accompaniment: options.accompaniment,
@@ -37,6 +38,7 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
   const heldWrongKeys = new Map(session.heldWrongKeys);
   const log = [...session.log];
   const sounding = new Map(session.soundingAccompaniment);
+  const soundingOrchestra = new Map(session.soundingOrchestra);
 
   const next: PracticeSession = {
     ...session,
@@ -44,26 +46,41 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
     heldKeys,
     heldWrongKeys,
     soundingAccompaniment: sounding,
+    soundingOrchestra,
     log,
   };
   const effects: PracticeEffect[] = [];
 
   /** Silences every accompaniment note that rings (R-03). */
-  const releaseAll = () => {
+  const releaseAccompaniment = () => {
     for (const key of sounding.keys()) effects.push({ type: 'soundOff', key });
     sounding.clear();
+  };
+  /** Silences every Orchestra note that rings (feature 019): on the same occasions as the accompaniment - except the
+   *  Accompaniment setting, which is not about the Orchestra. */
+  const releaseOrchestra = () => {
+    for (const id of soundingOrchestra.keys()) {
+      const [channel, key] = id.split(':').map(Number);
+      if (channel !== undefined && key !== undefined) effects.push({ type: 'orchestraOff', channel, key });
+    }
+    soundingOrchestra.clear();
+  };
+  /** Everything that rings goes: the cursor is leaving, or the device or the session is. */
+  const releaseAll = () => {
+    releaseAccompaniment();
+    releaseOrchestra();
   };
 
   if (input.type === 'setAccompaniment') {
     next.accompaniment = input.enabled === true;
-    if (!next.accompaniment) releaseAll();
+    if (!next.accompaniment) releaseAccompaniment(); // the Orchestra is not the accompaniment: it plays on (FR-016)
     return { session: next, effects };
   }
 
   if (session.phase === 'finished' || session.phase === 'idle') {
     // The last accompaniment notes ring until the musician lets go of every key: there is no cursor left to pass
     // them, and a timer must not decide when a sound stops (Constitution I).
-    if (sounding.size === 0) return { session, effects: [] };
+    if (sounding.size === 0 && soundingOrchestra.size === 0) return { session, effects: [] };
     if (input.type === 'noteOn' && input.key !== undefined) heldKeys.add(input.key);
     if (input.type === 'noteOff' && input.key !== undefined) heldKeys.delete(input.key);
     if (input.type === 'deviceLost') {
@@ -73,8 +90,33 @@ export function applyInput(session: PracticeSession, input: PracticeInput): Sess
     return { session: next, effects };
   }
 
+  /** The Orchestra notes written under an event start, and what has ended is released first - the accompaniment's rules,
+   *  regardless of the Accompaniment setting (feature 019). The musician never holds an Orchestra key, so there is no
+   *  held-key exception. */
+  const soundOrchestraOf = (event: ExpectedEvent) => {
+    for (const [id, endTick] of soundingOrchestra) {
+      if (endTick > event.onsetTick) continue;
+      const [channel, key] = id.split(':').map(Number);
+      if (channel !== undefined && key !== undefined) effects.push({ type: 'orchestraOff', channel, key });
+      soundingOrchestra.delete(id);
+    }
+    for (const ref of event.orchestra) {
+      const id = `${ref.channel}:${ref.key}`;
+      if (soundingOrchestra.has(id)) effects.push({ type: 'orchestraOff', channel: ref.channel, key: ref.key });
+      effects.push({
+        type: 'orchestraOn',
+        channel: ref.channel,
+        key: ref.key,
+        noteId: ref.noteId,
+        velocity: ref.velocity,
+      });
+      soundingOrchestra.set(id, ref.endTick);
+    }
+  };
+
   /** The cursor passes an event: what has ended is released, then the notes written under it start (FR-031). */
   const soundAccompanimentOf = (event: ExpectedEvent) => {
+    soundOrchestraOf(event);
     if (!next.accompaniment) return;
     for (const [key, endTick] of sounding) {
       if (endTick <= event.onsetTick) {

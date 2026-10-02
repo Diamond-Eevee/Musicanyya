@@ -75,6 +75,8 @@ Check that every item still matches what it claims to be (the library audit, `co
 reproduce; `pnpm library:fidelity --check` only confirms the report is up to date; `pnpm library:fidelity --item <id>`
 shows one item's differences in full. A piece is replaced by converting an approved public-domain LilyPond source,
 never by hand: `pnpm library:convert-ly <source-id> <item-id> [--replace]`.
+A piece's Orchestra (instruments that sound but are never printed) is written from a reviewed definition in
+`content/library/orchestra/`: `pnpm library:orchestra <item-id> [--check]`.
 
 ### Building & Publishing
 

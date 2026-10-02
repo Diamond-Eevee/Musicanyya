@@ -4,7 +4,8 @@ This folder contains public-domain reference sources (LilyPond, MIDI, PDFs) agai
 
 ## What may be committed here
 
-- **Public domain or CC0 only**: A source whose page shows any licence other than public domain or CC0 is never used, not even for reference.
+- **Accepted licences**: public domain, CC0, and (since 2026-10-01, feature 019 FR-025) CC BY and CC BY-SA 2.0, 2.5, 3.0 or 4.0, written as SPDX ids (`CC-BY-4.0`, `CC-BY-SA-3.0`, ...). Any other licence (NonCommercial, NoDerivatives, none stated) is never used, not even for reference.
+- **Attribution**: a CC BY or CC BY-SA source names its author in `credit`, as the source page names them; the credit and the licence also go into `THIRD_PARTY_NOTICES.md`. An item made from a CC BY-SA source carries the same licence (share-alike); songs and exercises written for this project stay CC0 and are never based on such a source.
 - **Files unchanged**: Downloaded files must be committed byte-for-byte unchanged.
 - **Source manifest**: Each folder must have a `source.json` adhering to `specs/007-library-fidelity-audit/contracts/source-manifest.md`.
 
@@ -17,7 +18,7 @@ This folder contains public-domain reference sources (LilyPond, MIDI, PDFs) agai
 
 ## Rejected sources
 
-The following sources were considered but rejected and must not be used:
+The following sources were considered but rejected and must not be used. Rows refused only for a CC BY or CC BY-SA licence were refused under the rule before 2026-10-01; such a source may be proposed again, and needs the owner's approval like any new source.
 
 | Source | Reason for Rejection |
 |---|---|

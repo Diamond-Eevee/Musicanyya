@@ -171,6 +171,15 @@ source, cross-checks it against its MIDI and `pnpm library:fidelity` re-checks e
   (The songs Greensleeves, Ode to Joy and Amazing Grace take their melodies from the Mutopia 1247, 528 and 1283 sources
   listed above.)
 
+A printed edition recorded by URL and hash only (the scan is not committed; feature 019): Musicanyya's own CC0
+transcriptions of *Morning Mood* are read from it.
+
+- **Grieg, Peer Gynt Suite No. 1, Op. 46, arranged for pianoforte by the composer** - G. Schirmer, New York
+  (Schirmer's Library of Musical Classics Vols. 205 and 1420); *Morgenstimmung* edited and fingered by Louis Oesterle,
+  "Copyright, 1899, by G. Schirmer". Scan digitized by the Internet Archive from the University of Toronto, Faculty of
+  Music Library, item 31761045200615, obtained 2026-10-01. `ia-31761045200615-grieg-op46-schirmer/`.
+  https://archive.org/details/31761045200615
+
 ## Test fixtures (not shipped with the application)
 
 - **OpenScore Lieder Corpus** and **OpenScore String Quartets** (downloaded 2026-09-22)

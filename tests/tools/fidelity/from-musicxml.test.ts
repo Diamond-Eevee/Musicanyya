@@ -78,6 +78,12 @@ describe('fromMusicXml', () => {
     ]);
   });
 
+  it('reads printed parts only: a score with Orchestra parts reads exactly as its twin without them (019 T106)', () => {
+    for (const name of ['piano-and-oboe', 'piano-and-two-staff-orchestra', 'orchestra-first']) {
+      expect(read(`orchestra/${name}`), name).toEqual(read(`orchestra/${name}-twin`));
+    }
+  });
+
   it("takes the played order from the app's own buildTimeline", () => {
     expect(read('volta-1-2').playedOrder).toEqual([0, 1, 0, 2, 3]);
     expect(read('repeat-times-3').playedOrder).toEqual([0, 1, 0, 1, 0, 1]);

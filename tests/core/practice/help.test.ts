@@ -19,6 +19,7 @@ function ev(index: number, key: number, noteId = `n${index}`): ExpectedEvent {
     onsetTick: index * 100,
     required: [{ key, noteIds: [noteId], staff: 1 }],
     accompaniment: [],
+    orchestra: [],
   };
 }
 

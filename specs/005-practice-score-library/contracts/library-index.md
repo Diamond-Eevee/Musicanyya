@@ -1,6 +1,17 @@
 # Contract: library content formats (`item.json` + generated `index.json`)
 
-**Version**: `1.2.0` (1.0.0 new; 1.1.0, 2026-09-23, feature 007: `departures`, `reviewedBy`/`reviewedOn` meaning, change request
+**Version**: `1.4.2` (1.4.2, 2026-10-01, feature 019 T099/T100 (owner decision), PATCH: `maxSpanSemitones` and `maxArpeggiatedSpanSemitones` measure only notes struck together - a note continued by a tie and a grace note are left out; no item's facts or level change; 1.4.1, 2026-10-01, feature 019 OD-3 (owner decision), PATCH: the quoted criterion 16 limit at Advanced is 16 semitones (a tenth) for an unrolled chord, as data-model.md now says; no format change; 1.4.0, 2026-10-01, feature 019 (owner decision, research R-19), MINOR: `downloaded` items may be
+under CC BY or CC BY-SA 2.0/2.5/3.0/4.0 (SPDX ids); for those `credit` and `unmodified` are required and `sourcePath`
+names a source with the same licence; authored items stay CC0. Full text: [019 data-model.md](../../019-metronome-orchestra-volume/data-model.md)
+section 6.3a; 1.3.0, 2026-10-01, feature 019-metronome-orchestra-volume, MINOR: optional fact `orchestra`, the
+instrument names of the item's Orchestra parts (parts whose every staff is not printed), absent when there are none;
+every other fact is derived from the **printed** parts only, so `parts` counts printed parts and an Orchestra part
+changes no level criterion; and, for the item that needs it (019 research R-17), the optional fact
+`maxArpeggiatedSpanSemitones` - the widest one-hand chord whose notes **all** carry `<arpeggiate>` - with such chords
+left out of `maxSpanSemitones`, so criterion 16 at Advanced ("<= 16, wider only under `<arpeggiate>`" since 019 OD-3 - it was 14 -, data-model.md)
+accepts a rolled chord of any span while below Advanced a rolled chord still has to fit the level's limit. A chord
+with only some notes arpeggiated counts as not rolled; no limit is added or loosened. Full text:
+[019 data-model.md](../../019-metronome-orchestra-volume/data-model.md) section 6.1; 1.0.0 new; 1.1.0, 2026-09-23, feature 007: `departures`, `reviewedBy`/`reviewedOn` meaning, change request
 `specs/007-library-fidelity-audit/contracts/library-index-1.1.md`; 1.2.0, 2026-09-26, feature 011: level `introduction`,
 `step`, `stepOrder`, `supersedes`, section `formerIds`, fact `chordChangesPerBar`, skill tag `key-changes`, sibling `order`,
 change request `specs/011-learning-by-key/contracts/library-index-1.2.md`). Two related formats: the **authored item metadata** written beside every
@@ -99,7 +110,8 @@ Everything a human decides. Never generated, never rewritten by a tool.
           "additionalProperties": false,
           "properties": {
             "origin":   { "const": "downloaded" },
-            "licence":  { "enum": ["CC0-1.0", "public-domain"] },
+            "licence":  { "enum": ["CC0-1.0", "public-domain", "CC-BY-2.0", "CC-BY-2.5", "CC-BY-3.0", "CC-BY-4.0",
+                                     "CC-BY-SA-2.0", "CC-BY-SA-2.5", "CC-BY-SA-3.0", "CC-BY-SA-4.0"] },
             "source":   { "type": "string", "format": "uri" },
             "sourcePath": { "type": "string" },
             "obtained": { "type": "string", "format": "date" },
@@ -124,8 +136,12 @@ Everything a human decides. Never generated, never rewritten by a tool.
 
 **Rules**
 
-- `licence` accepts only `CC0-1.0` and `public-domain` (FR-017). Any other value fails the licence
-  check - it is not a warning.
+- `licence` accepts only `CC0-1.0` and `public-domain` (FR-017) and, since 1.4.0, for `downloaded` items the
+  attribution licences CC BY / CC BY-SA 2.0-4.0 (019 FR-025). Any other value fails the licence check - it is not a
+  warning.
+- With an attribution licence, `credit` (the author as the source names them) and `unmodified` are required,
+  `sourcePath` must name a source whose manifest has the same licence (019 FR-026), and the item is shown with its
+  licence name, licence link, credit and, when `unmodified` is false, "Changed for Musicanyya" (019 FR-025).
 - `origin: "downloaded"` **requires** `source` and `obtained`, and the file must also appear in
   `THIRD_PARTY_NOTICES.md` (FR-020); the licence test asserts both.
 - `credit` is shown wherever the item is shown when present, even though CC0 requires no attribution
@@ -219,7 +235,9 @@ Everything a human decides. Never generated, never rewritten by a tool.
         "tempoDefaulted":  { "type": "boolean" },
         "lowestMidi":      { "type": "integer" },
         "highestMidi":     { "type": "integer" },
-        "maxSpanSemitones":{ "type": "integer", "description": "largest simultaneous interval within one hand" },
+        "maxSpanSemitones":{ "type": "integer", "description": "largest simultaneous interval within one hand; chords whose notes all carry <arpeggiate> are left out (1.3.0)" },
+        "maxArpeggiatedSpanSemitones": { "type": "integer", "description": "largest one-hand chord whose notes all carry <arpeggiate>; absent when there is none (1.3.0, feature 019)" },
+        "orchestra":       { "type": "array", "items": { "type": "string" }, "description": "instrument names of the Orchestra parts (not printed), in Score order; absent when none (1.3.0, feature 019)" },
         "staves":          { "type": "integer" },
         "handsWithNotes":  { "enum": ["right", "left", "both"] },
         "shortestDivision":{ "type": "integer", "description": "1 = whole, 4 = quarter, 16 = sixteenth ..." },

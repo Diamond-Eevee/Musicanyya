@@ -1,7 +1,11 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import type { XmlDocument } from '@rgrove/parse-xml';
+import { buildScore } from '../../src/core/musicxml/build.js';
+import type { EngravingPlan } from '../../src/core/musicxml/engraving/index.js';
 import { applyInserts, planEngraving } from '../../src/core/musicxml/engraving/plan.js';
+import { withoutOrchestraParts } from '../../src/core/musicxml/orchestra.js';
 import { readXml } from '../../src/core/musicxml/read.js';
 import { decodeXml } from '../../src/engine/files/decode.js';
 
@@ -10,12 +14,19 @@ export interface EngraveFileResult {
   accidentalsAdded: { required: number; courtesy: number };
 }
 
+/** The library's engraving plan over the printed parts only: an Orchestra part (019 orchestra-score contract section 1) is
+ *  never drawn, so its beams and signs are neither completed nor checked - as in the app's score worker (019 T107). The
+ *  inserts carry offsets of the original text. */
+export function planLibraryEngraving(doc: XmlDocument): EngravingPlan {
+  return planEngraving(withoutOrchestraParts(doc, buildScore(doc).score), 'library');
+}
+
 /** Completes one MusicXML file in place: read -> plan('library') -> apply -> write back. A no-op
  *  (file unchanged) when the plan is already empty. */
 export function engraveFile(filePath: string): EngraveFileResult {
   const xml = decodeXml(fs.readFileSync(filePath));
   const { doc } = readXml(xml);
-  const plan = planEngraving(doc, 'library');
+  const plan = planLibraryEngraving(doc);
 
   if (plan.inserts.length > 0) {
     fs.writeFileSync(filePath, applyInserts(xml, plan.inserts));

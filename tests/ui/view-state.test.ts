@@ -103,8 +103,8 @@ describe('viewState: panels (FR-004, FR-006)', () => {
     expect(view.get().openPanel).toBeNull();
   });
 
-  it('parsePanelId accepts exactly the ten known ids and nothing else', () => {
-    expect(PANEL_IDS).toHaveLength(10);
+  it('parsePanelId accepts exactly the eleven known ids and nothing else', () => {
+    expect(PANEL_IDS).toHaveLength(11);
     for (const id of PANEL_IDS) expect(parsePanelId(id)).toBe(id);
     for (const bad of ['', 'Midi', 'midi ', 'x', null, undefined, 3, {}, []]) expect(parsePanelId(bad)).toBeNull();
   });

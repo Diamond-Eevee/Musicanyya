@@ -249,8 +249,21 @@ test.describe('lookahead follow (015 US1)', () => {
           const hi = Math.max(...gaps.inPage, 93) + GAP_EPSILON_PX;
           const outside = gaps.breaks.filter((gap) => gap > hi).map((gap) => Math.round(gap * 10) / 10);
           expect.soft(outside, `${label}: page-break gaps larger than in-page max ${hi}`).toEqual([]);
+        } else if (gaps.breaks.length >= 2) {
+          // A Score with no in-page gap (one system a page) is judged against its own page-break gaps (owner decision
+          // 2026-10-02, 019): each gap at most the largest of its other gaps - at least 93 px, the floor of the in-page
+          // rule above - plus 10 px. The earlier rule (+10 px over the other Scores' largest gap) leaned on whichever Score
+          // had the largest gap: it passed while that was a slur drawn across the staves (Burgmuller No. 5: 113.7 px
+          // against its other gaps' 80.3, caught here) and failed a legitimate 101.4 px gap of Burgmuller No. 2 once that
+          // bug was fixed.
+          for (const [i, gap] of gaps.breaks.entries()) {
+            const hi = Math.max(93, ...gaps.breaks.filter((_, j) => j !== i)) + 10;
+            expect
+              .soft(gap, `${label}: page break ${i + 1} against the Score's other page breaks (max ${hi})`)
+              .toBeLessThanOrEqual(hi);
+          }
         } else if (gaps.breaks.length > 0) {
-          // A Score with no in-page gap: against the page-break gaps of the others, + 10 px (T012)
+          // One page break, nothing of its own to judge it by: against the page-break gaps of the others, + 10 px (T012)
           const others = measured.filter((m) => m.piece !== piece).flatMap((m) => m.gaps.breaks);
           const hi = Math.max(...others) + 10;
           const outside = gaps.breaks.filter((gap) => gap > hi);

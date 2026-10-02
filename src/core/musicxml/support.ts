@@ -141,6 +141,13 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
     notes: 'An invisible note (017): it sounds, but is not shown, marked or graded',
   },
   {
+    category: 'Notes',
+    element: '<staff-details print-object="no">',
+    status: 'Partial',
+    notes:
+      'Supported with print-spacing="no" on every staff of a part from its first measure: an Orchestra part (019), which sounds in Listen, Practice and Play but is never printed, expected, graded or marked. Any other use of the pair (some staves, from a later measure, shown again, every part of the file) is reported and the part is printed; print-object="no" alone (a cutaway, hide empty staves) is left alone',
+  },
+  {
     category: 'Harmony',
     element: '<harmony>',
     status: 'Ignored',

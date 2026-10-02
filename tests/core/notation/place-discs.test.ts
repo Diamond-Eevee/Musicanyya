@@ -88,7 +88,7 @@ describe('placeDiscs: where each held wrong key is drawn (feature 008, research 
 
     it('(4) no notes at the cursor: the staff with fewer ledger lines, a tie going to the upper staff for C4 and above', () => {
       const { event, place } = setup('notation/grand-staff-accidentals.musicxml', BOTH);
-      const bare = { ...event, required: [], accompaniment: [] };
+      const bare = { ...event, required: [], accompaniment: [], orchestra: [] };
       expect(place([59], [], { event: bare })[0]?.staff).toBe(2); // B3: 1 line under the treble, none over the bass
       expect(place([60], [], { event: bare })[0]?.staff).toBe(1); // C4: one line either way -> upper
       expect(place([61], [], { event: bare })[0]?.staff).toBe(1);

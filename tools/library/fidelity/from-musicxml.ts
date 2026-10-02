@@ -1,6 +1,7 @@
 // Reads a library item through the app's own pipeline (readXml + buildScore + buildTimeline), so the check proves
 // what the app actually shows and plays (data-model.md §2, research R6). The Score model keeps the pitch letter
 // but not the alteration or octave, so the written spelling is read from the parse tree by the note's offset.
+// A written two-note tremolo is read as the alternation of strokes it means (019 T081), as LilyPond's MIDI plays it.
 import { XmlElement, type XmlNode } from '@rgrove/parse-xml';
 import { buildScore } from '../../../src/core/musicxml/build';
 import { readXml } from '../../../src/core/musicxml/read';
@@ -18,18 +19,21 @@ import {
   type Step,
   validateReference,
 } from './reference';
-import { add, cmp, q } from './time';
+import { add, cmp, mul, q } from './time';
 
 export function fromMusicXml(xml: string): ReferenceScore {
   const { doc } = readXml(xml);
   const { score } = buildScore(doc);
   const spellings = readSpellings(doc.children);
+  const tremolos = readTremolos(doc.children);
 
   const notes: ReferenceNote[] = [];
   const graceNotes: ReferenceGraceNote[] = [];
   let staffBase = 0;
-  for (const part of score.parts) {
+  // Orchestra parts are never printed and are generated from the printed part (019 T106): only printed music is read.
+  for (const part of score.parts.filter((p) => !p.orchestra)) {
     const openTies = new Map<number, ReferenceNote[]>(); // sounding key -> notes whose tie continues
+    const openTremolos = new Map<string, ReferenceNote>(); // staff|voice -> the first note of a two-note tremolo
     for (const n of part.notes) {
       if (n.unpitched) throw new Error(`fromMusicXml: unpitched note ${n.id} cannot be compared`);
       const measure = score.measures[n.measureIndex];
@@ -58,9 +62,25 @@ export function fromMusicXml(xml: string): ReferenceScore {
         staff: staffBase + n.staff,
         voice: n.voice,
       };
+      const tremolo = tremolos.get(n.source.start);
+      if (tremolo) {
+        const where = `${note.staff}|${note.voice}`;
+        if (tremolo.type === 'start') {
+          if (n.tie.start || n.tie.stop) throw new Error(`fromMusicXml: tied tremolo note ${n.id}`);
+          openTremolos.set(where, note);
+          continue;
+        }
+        const first = openTremolos.get(where);
+        openTremolos.delete(where);
+        if (!first || cmp(add(first.onset, first.duration), onset) !== 0 || cmp(first.duration, duration) !== 0)
+          throw new Error(`fromMusicXml: tremolo stop ${n.id} without its start note`);
+        notes.push(...tremoloStrokes(first, note, tremolo.strokeBeams));
+        continue;
+      }
       notes.push(note);
       if (n.tie.start) openTies.set(n.soundingKey, [...pending, note]);
     }
+    if (openTremolos.size > 0) throw new Error('fromMusicXml: a tremolo start note without its stop note');
     staffBase += part.staves;
   }
   notes.sort(compareNotes);
@@ -98,6 +118,48 @@ function readBars(score: Score): ReferenceBar[] {
       endings: endingNumbers.get(m.index) ?? [],
     };
   });
+}
+
+/** The strokes of a two-note tremolo: `first` and `second` alternate in strokes of `strokeBeams` beams over the
+ *  time both notes take together (each sounds for half of it). */
+function tremoloStrokes(first: ReferenceNote, second: ReferenceNote, strokeBeams: number): ReferenceNote[] {
+  const stroke = q(1, 2 ** strokeBeams);
+  const total = add(first.duration, second.duration);
+  const count = mul(total, stroke.den, stroke.num);
+  if (count.den !== 1) throw new Error(`fromMusicXml: a tremolo of ${strokeBeams} beams does not fill its notes`);
+  return Array.from({ length: count.num }, (_, i) => ({
+    ...(i % 2 === 0 ? first : second),
+    onset: add(first.onset, mul(stroke, i)),
+    duration: stroke,
+  }));
+}
+
+const BEAMS: Record<string, number> = { eighth: 1, '16th': 2, '32nd': 3, '64th': 4, '128th': 5 };
+
+/** Every two-note tremolo note (`<tremolo type="start|stop">`), keyed by the element's offset, with the beams of its
+ *  strokes: the note value's own beams plus the tremolo marks. A one-note tremolo (`single`) is not a stroke pattern
+ *  the readings compare, so it is left as the written note. */
+function readTremolos(
+  nodes: readonly XmlNode[],
+  out = new Map<number, { type: 'start' | 'stop'; strokeBeams: number }>(),
+): Map<number, { type: 'start' | 'stop'; strokeBeams: number }> {
+  for (const node of nodes) {
+    if (!(node instanceof XmlElement)) continue;
+    if (node.name === 'note') {
+      const ornaments = child(child(node, 'notations') ?? node, 'ornaments');
+      const tremolo = ornaments ? child(ornaments, 'tremolo') : undefined;
+      const type = tremolo?.attributes.type;
+      if (tremolo && (type === 'start' || type === 'stop')) {
+        const marks = Number(text(tremolo));
+        if (!Number.isInteger(marks) || marks < 1)
+          throw new Error(`fromMusicXml: unreadable <tremolo> at offset ${node.start}`);
+        out.set(node.start, { type, strokeBeams: (BEAMS[text(child(node, 'type'))] ?? 0) + marks });
+      }
+      continue;
+    }
+    readTremolos(node.children, out);
+  }
+  return out;
 }
 
 /** Written spelling of every pitched <note>, keyed by the element's offset (Note.source.start). */

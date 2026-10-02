@@ -109,6 +109,17 @@ describe('toMusicXml: what the printed page shows', () => {
     expect(dropped).toEqual([]);
   });
 
+  it('a metronome mark with a dotted beat is written with its dot, and plays in quarter notes per minute (019 T083)', () => {
+    // Grieg Op. 46 No. 1: "Allegretto pastorale." dotted quarter = 60, i.e. 90 quarter notes per minute.
+    const { xml, dropped } = toMusicXml(readLilyPond('{ \\time 6/8 \\tempo "Allegretto pastorale." 4. = 60 c\'2. | }'));
+    expect(xml).toContain(
+      '<direction-type><metronome><beat-unit>quarter</beat-unit><beat-unit-dot/><per-minute>60</per-minute></metronome><words font-weight="bold">Allegretto pastorale.</words></direction-type><sound tempo="90"/>',
+    );
+    expect(dropped).toEqual([]);
+    const { score } = buildScore(readXml(xml).doc);
+    expect(score.tempoMarks[0]?.beat).toEqual({ type: 'quarter', dots: 1, quartersNum: 3, quartersDen: 2 });
+  });
+
   it('a hairpin end that no note starts or ends at moves to the next note, and is listed (T096, Chopin 468 bar 9)', () => {
     const { xml, dropped } = toMusicXml(readLilyPond("{ << { c'2 d'2 } \\\\ { s4\\< s8 s8\\! s2 } >> | }"));
     expect(xml).toMatch(
@@ -207,6 +218,109 @@ describe('toMusicXml: what the printed page shows', () => {
     expect(loaded.filter((n) => n.printed === false)).toHaveLength(1);
     // Only a hidden note may be scaled: a visible one would print a value it does not have.
     expect(() => toMusicXml(readLilyPond(src.replace('\\hideNotes ', '')))).toThrow('a note value scaled with *n/m');
+  });
+
+  it('a two-note tremolo is written as its two printed notes with <tremolo> start/stop, and reads back stroke by stroke (019 T081)', () => {
+    // Grieg Op. 46 No. 1 bar 85: E1-E2 for a dotted quarter, three beams (32nds) between two dotted quarters.
+    const src = '{ \\time 6/8 r4 r8 \\repeat tremolo 6 { e,,32 e, } | }';
+    const score = readLilyPond(src);
+    const { xml } = toMusicXml(score);
+    const notes = xml
+      .split('<note')
+      .slice(1)
+      .filter((x) => x.includes('<pitch>'));
+    expect(notes).toHaveLength(2);
+    expect(notes[0]).toContain('<pitch><step>E</step><octave>1</octave></pitch>');
+    expect(notes[1]).toContain('<pitch><step>E</step><octave>2</octave></pitch>');
+    for (const note of notes) {
+      // each printed note shows the whole tremolo's value and sounds for half of it (2 in the time of 1)
+      expect(note).toContain('<type>quarter</type><dot/>');
+      expect(note).toContain('<time-modification><actual-notes>2</actual-notes><normal-notes>1</normal-notes>');
+    }
+    expect(notes[0]).toContain('<ornaments><tremolo type="start">3</tremolo></ornaments>');
+    expect(notes[1]).toContain('<ornaments><tremolo type="stop">3</tremolo></ornaments>');
+    expect(compare(fromMusicXml(xml), fromLilyPond(score), ALL, { itemBars: 'all', sourceBars: 'all' })).toEqual([]);
+    expect(fromMusicXml(xml).notes).toHaveLength(12);
+    const loaded = buildScore(readXml(xml).doc);
+    expect(loaded.report.entries.map((e) => e.code).filter((c) => c !== 'defaultTempo')).toEqual([]);
+    expect(loaded.score.parts[0]?.notes.map((n) => [n.soundingKey, n.ornament])).toEqual([
+      [28, 'tremolo'],
+      [40, 'tremolo'],
+    ]);
+  });
+
+  it('a tremolo of eighths counts the eighth beam: two marks for 32nd strokes (019 T081)', () => {
+    // two 32nd pairs last an eighth: two printed eighths, each sounding a 16th
+    const { xml } = toMusicXml(readLilyPond("{ \\time 2/4 \\repeat tremolo 2 { c'32 g' } r4. | }"));
+    expect(xml).toContain('<type>eighth</type>');
+    expect(xml).toContain('<tremolo type="start">2</tremolo>');
+    expect(xml).toContain('<tremolo type="stop">2</tremolo>');
+  });
+
+  it('an \\afterGrace Nachschlag is written after its main note, before the rest that follows (019 T082)', () => {
+    const score = readLilyPond("{ \\time 3/4 \\afterGrace b''4\\trill { ais''16 b'' } r8 b''4 r8 | }");
+    const { xml } = toMusicXml(score);
+    const notes = xml.split('<note>').slice(1);
+    expect(notes.map((x) => (x.startsWith('<grace') ? 'grace' : x.startsWith('<rest') ? 'rest' : 'note'))).toEqual([
+      'note',
+      'grace',
+      'grace',
+      'rest',
+      'note',
+      'rest',
+    ]);
+    expect(notes[1]).toMatch(/^<grace\/><pitch><step>A<\/step><alter>1<\/alter><octave>5<\/octave>/);
+    expect(compare(fromMusicXml(xml), fromLilyPond(score), ALL, { itemBars: 'all', sourceBars: 'all' })).toEqual([]);
+    const loaded = buildScore(readXml(xml).doc);
+    expect(loaded.report.entries.map((e) => e.code).filter((c) => c !== 'defaultTempo')).toEqual([]);
+  });
+
+  it('a Nachschlag of a note that ends the bar is written at the end of that bar, not in the next (019 T082)', () => {
+    const score = readLilyPond("{ \\time 3/4 \\afterGrace dis''2.\\trill { cis''16 dis'' } | b''2. | }");
+    const { xml } = toMusicXml(score);
+    const [bar1, bar2] = measures(xml);
+    expect(bar1?.match(/<grace\/>/g)).toHaveLength(2);
+    expect(bar1).toMatch(/<step>D<\/step><alter>1<\/alter>.*<grace\/>.*<grace\/>/);
+    expect(bar2).not.toContain('<grace');
+    expect(compare(fromMusicXml(xml), fromLilyPond(score), ALL, { itemBars: 'all', sourceBars: 'all' })).toEqual([]);
+    const loaded = buildScore(readXml(xml).doc);
+    expect(loaded.report.entries.map((e) => e.code).filter((c) => c !== 'defaultTempo')).toEqual([]);
+  });
+
+  it('overlapping slurs in two voices get different numbers; slurs in one voice keep number 1 (019 T103)', () => {
+    // Found in Morning Mood bars 64-65: both hands slurred across the bar line, both written as number 1, so Verovio
+    // joined the right hand's slur start to the left hand's slur stop.
+    const two = readLilyPond(
+      "\\new PianoStaff << \\new Staff { \\time 3/4 c''4( d'' e'' | f''2.) } \\new Staff { \\clef bass c4( d e | f2.) } >>",
+    );
+    const { xml } = toMusicXml(two);
+    const numbers = (type: string) =>
+      [...xml.matchAll(new RegExp(`<slur type="${type}" number="(\\d+)"/>`, 'g'))].map((m) => m[1]);
+    expect(numbers('start')).toHaveLength(2);
+    expect(new Set(numbers('start')).size).toBe(2);
+    expect(numbers('stop')).toEqual(numbers('start'));
+
+    const one = toMusicXml(readLilyPond("{ \\time 3/4 c''4( d'' e'') | f''4( g'' a'') | }")).xml;
+    expect([...one.matchAll(/<slur type="\w+" number="(\d+)"\/>/g)].map((m) => m[1])).toEqual(['1', '1', '1', '1']);
+    const leftOnly = toMusicXml(
+      readLilyPond("\\new PianoStaff << \\new Staff { \\time 3/4 c''2. } \\new Staff { \\clef bass c4( d e) } >>"),
+    ).xml;
+    expect([...leftOnly.matchAll(/<slur type="\w+" number="(\d+)"\/>/g)].map((m) => m[1])).toEqual(['1', '1']);
+  });
+
+  it('a spacer followed by grace notes in the same voice is one <forward>, and the bar adds up (019 T085)', () => {
+    // Found in transcription A's trill bars: b''4 s8 \grace { a''16 b'' } b''4 s8 wrote a <forward> before every
+    // element after the spacer, so the app reported the bar as too long.
+    const score = readLilyPond("{ \\time 3/4 b''4 s8 \\grace { a''16 b'' } b''4 s8 | }");
+    const { xml } = toMusicXml(score);
+    const [bar1] = measures(xml);
+    expect(bar1?.match(/<forward>/g)).toHaveLength(2); // the s8 before the grace notes and the s8 at the end
+    expect(bar1).toMatch(
+      /<\/note><forward><duration>1<\/duration><\/forward><note><grace\/>.*<grace\/>.*<\/note><note><pitch>/,
+    );
+    expect(compare(fromMusicXml(xml), fromLilyPond(score), ALL, { itemBars: 'all', sourceBars: 'all' })).toEqual([]);
+    const loaded = buildScore(readXml(xml).doc);
+    expect(loaded.report.entries.map((e) => e.code).filter((c) => c !== 'defaultTempo')).toEqual([]);
   });
 
   it('a tie that no later note of its voice continues is not written; a continued one is (017 T054)', () => {
@@ -329,12 +443,62 @@ describe('library:convert-ly', () => {
     expect(readFileSync(itemPath(), 'utf8')).toBe('old');
   });
 
+  // 019 T084 (research R-15): a transcription has no MIDI; its second, independent reading is the audit record's
+  // mechanical check against another transcription, so the conversion keeps only the read-back check.
+  const writeNotationOnly = (patch: Record<string, unknown>) => {
+    writeFile(root, 'content/library/sources/test-1/scale.ly', LY);
+    const files = SOURCE.files.filter((f) => f.role === 'notation');
+    writeFile(root, 'content/library/sources/test-1/source.json', JSON.stringify({ ...SOURCE, files, ...patch }));
+  };
+
+  it('converts a transcription source, which has no MIDI, with the read-back check only, and says so (019 T084)', () => {
+    writeNotationOnly({ origin: 'transcription' });
+    writeSidecar('downloaded');
+    expect(run('test-1', 'repertoire/test/scale')).toBe(0);
+    const out = lines.join('\n');
+    expect(out).toContain('notation vs sound: not run (a transcription has no MIDI');
+    expect(out).toContain('mechanical check against another transcription');
+    expect(out).toContain('conversion vs notation: 0 differences');
+    expect(
+      compare(fromMusicXml(readFileSync(itemPath(), 'utf8')), fromLilyPond(readLilyPond(LY)), ALL, {
+        itemBars: 'all',
+        sourceBars: 'all',
+      }),
+    ).toEqual([]);
+  });
+
+  it('still refuses any other source without a sound file, and writes nothing (019 T084)', () => {
+    writeNotationOnly({ origin: 'downloaded' });
+    writeSidecar('downloaded');
+    expect(run('test-1', 'repertoire/test/scale')).toBe(1);
+    expect(lines.join('\n')).toContain('has no sound file: the conversion cannot be cross-checked');
+    expect(readFileSync(itemPath(), 'utf8')).toBe('old');
+  });
+
+  it('still cross-checks a transcription that does have a MIDI file (019 T084)', () => {
+    writeSource(midiOf([60, 62, 63, 65]), { origin: 'transcription' }); // E4 planted as E-flat 4 in the MIDI
+    writeSidecar('downloaded');
+    expect(run('test-1', 'repertoire/test/scale')).toBe(1);
+    expect(lines.join('\n')).toMatch(/bar 1, beat 2: pitch E4, source D#4/);
+    expect(readFileSync(itemPath(), 'utf8')).toBe('old');
+  });
+
   it("plays the conversion at the MIDI's tempo when the notation has no metronome mark (T096)", () => {
     writeSource(midiOf([60, 62, 64, 65], 600000)); // 100 quarters per minute
     writeSidecar('downloaded');
     expect(run('test-1', 'repertoire/test/scale')).toBe(0);
     expect(readFileSync(itemPath(), 'utf8')).toContain('<sound tempo="100"/>');
     expect(lines.join('\n')).toContain('playback tempo 100 from the source MIDI');
+  });
+
+  // 019 FR-025 (research R-19): an attribution-licensed source is credited in the item's rights line.
+  it('writes licence name, deed link and credit into <rights> for a CC BY-SA source', () => {
+    writeSource(MID, { licence: 'CC-BY-SA-4.0', credit: 'Typeset by A. Person' });
+    writeSidecar('downloaded');
+    expect(run('test-1', 'repertoire/test/scale')).toBe(0);
+    expect(readFileSync(itemPath(), 'utf8')).toContain(
+      '<rights>CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/). Converted from Typeset by A. Person.</rights>',
+    );
   });
 
   it('refuses an unknown source or item', () => {

@@ -17,7 +17,7 @@ import {
   strictnessText,
   trendText,
 } from '../format/result-text.js';
-import { scoreSourceLines } from '../format/score-source-text.js';
+import { scoreSourceLineHtml, scoreSourceLines } from '../format/score-source-text.js';
 import { en } from '../i18n/en.js';
 import { browserState } from '../state/browserState.js';
 import { escapeHtml } from '../util/escape-html.js';
@@ -239,7 +239,7 @@ export class MxBrowserDetail extends HTMLElement {
     const composer = item.meta.composer ? escapeHtml(item.meta.composer) : '';
     const arranger = item.meta.arranger ? escapeHtml(item.meta.arranger) : '';
     const sourceLines = scoreSourceLines(item)
-      .map((line) => `<p class="score-source-line">${escapeHtml(line)}</p>`)
+      .map((line) => scoreSourceLineHtml(line, escapeHtml))
       .join('');
     return `
       <section class="browser-detail-section">
@@ -248,6 +248,11 @@ export class MxBrowserDetail extends HTMLElement {
         ${arranger ? `<p class="browser-detail-arranger">${arranger}</p>` : ''}
         <p class="browser-detail-level">${escapeHtml(s.levels[item.meta.level])}</p>
         <p class="browser-detail-facts">${this.factsText(item)}</p>
+        ${
+          row.orchestra.length > 0
+            ? `<p class="browser-detail-orchestra">${escapeHtml(en.browser.orchestraLine.replace('{instruments}', row.orchestra.join(', ')))}</p>`
+            : ''
+        }
       </section>
       ${this.progressHtml(row, ref, shared, pendingHere)}
       <section class="browser-detail-section">

@@ -5,15 +5,16 @@ import { MAX_FILE_BYTES } from '../../src/core/defaults.js';
 import { deriveFacts } from '../../src/core/library/facts.js';
 import { validMetadata } from '../../src/core/library/index-model.js';
 import { checkLevel } from '../../src/core/library/levels.js';
+import { isAttributionLicence, licenceName } from '../../src/core/library/licences.js';
 import { checkStepOrder } from '../../src/core/library/step-order.js';
-import type { LibraryIndex, LibraryItem, LibrarySection } from '../../src/core/library/types.js';
+import type { LibraryIndex, LibraryItem, LibrarySection, Provenance } from '../../src/core/library/types.js';
 import { buildScore } from '../../src/core/musicxml/build.js';
-import { planEngraving } from '../../src/core/musicxml/engraving/plan.js';
 import { readXml } from '../../src/core/musicxml/read.js';
 import { buildTimeline } from '../../src/core/timeline/timeline.js';
 import { decodeXml } from '../../src/engine/files/decode.js';
 import { hashFile } from '../../src/engine/files/hash.js';
 import { readMxl } from '../../src/engine/files/mxl.js';
+import { planLibraryEngraving } from './engrave.js';
 import { LIBRARY_SECTIONS, type LibrarySectionDefinition } from './sections.js';
 
 export interface BuildLibraryIndexResult {
@@ -40,6 +41,55 @@ function walkScoreFiles(dir: string, base: string = dir): string[] {
     }
   }
   return out.sort();
+}
+
+/** The licence a reference source's manifest states (`content/library/sources/<id>/source.json`), or undefined
+ *  when there is no such source. Read here only to compare licences (019 FR-026); `pnpm library:fidelity` validates
+ *  the manifests themselves. */
+export type SourceLicenceLookup = (sourceId: string) => string | undefined;
+
+function readSourceLicence(sourceId: string): string | undefined {
+  if (!/^[a-z0-9-]+$/.test(sourceId)) return undefined;
+  const file = fileURLToPath(new URL(`../../content/library/sources/${sourceId}/source.json`, import.meta.url));
+  if (!fs.existsSync(file)) return undefined;
+  try {
+    const licence = (JSON.parse(fs.readFileSync(file, 'utf-8')) as { licence?: unknown }).licence;
+    return typeof licence === 'string' ? licence : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** The attribution rules of library-index 1.4.0 (019 FR-025, FR-026); one problem line per broken rule. */
+function licenceProblems(
+  relFile: string,
+  provenance: Provenance,
+  thirdPartyNotices: string,
+  sourceLicence: SourceLicenceLookup,
+): string[] {
+  const problems: string[] = [];
+  if (provenance.origin === 'downloaded' && isAttributionLicence(provenance.licence)) {
+    const name = licenceName(provenance.licence);
+    if (!provenance.credit || !thirdPartyNotices.includes(provenance.credit))
+      problems.push(`${relFile}: the credit of this ${name} item is not in THIRD_PARTY_NOTICES.md (019 FR-025)`);
+    const sourceId = provenance.sourcePath?.split('/')[0];
+    if (!sourceId) {
+      problems.push(`${relFile}: a ${name} item needs a sourcePath naming the source it was made from (019 FR-026)`);
+    } else if (sourceLicence(sourceId) !== provenance.licence) {
+      problems.push(
+        `${relFile}: its licence ${provenance.licence} differs from source ${sourceId}'s licence ` +
+          `${sourceLicence(sourceId) ?? '(no such source)'} (share-alike, 019 FR-026)`,
+      );
+    }
+  }
+  if (provenance.origin === 'authored' && provenance.basedOn) {
+    const sourceId = /^([a-z0-9-]+):/.exec(provenance.basedOn)?.[1];
+    if (sourceId && isAttributionLicence(sourceLicence(sourceId)))
+      problems.push(
+        `${relFile}: an authored (CC0) item's basedOn source ${sourceId} is attribution-licensed (019 FR-026)`,
+      );
+  }
+  return problems;
 }
 
 /** The repository's own THIRD_PARTY_NOTICES.md: where every `downloaded` item's source must be recorded (FR-020). */
@@ -117,6 +167,7 @@ export async function buildLibraryIndex(
   libraryRoot: string,
   thirdPartyNotices = readThirdPartyNotices(),
   sectionDefinitions: readonly LibrarySectionDefinition[] = LIBRARY_SECTIONS,
+  sourceLicence: SourceLicenceLookup = readSourceLicence,
 ): Promise<BuildLibraryIndexResult> {
   const problems: string[] = [];
   const items: LibraryItem[] = [];
@@ -144,6 +195,11 @@ export async function buildLibraryIndex(
 
     if (meta.provenance.origin === 'downloaded' && !thirdPartyNotices.includes(meta.provenance.source)) {
       problems.push(`${relFile}: downloaded item's source is not recorded in THIRD_PARTY_NOTICES.md (FR-020)`);
+      continue;
+    }
+    const licenceIssues = licenceProblems(relFile, meta.provenance, thirdPartyNotices, sourceLicence);
+    if (licenceIssues.length > 0) {
+      problems.push(...licenceIssues);
       continue;
     }
 
@@ -181,7 +237,7 @@ export async function buildLibraryIndex(
       const { timeline, notices: timelineNotices } = buildTimeline(score);
       facts = deriveFacts({ doc, score, timeline, report, timelineNotices });
 
-      const plan = planEngraving(doc, 'library');
+      const plan = planLibraryEngraving(doc); // printed parts only (019 T107)
       if (plan.findings.length > 0 || plan.invalidBeams.length > 0) {
         for (const finding of plan.findings) {
           if (finding.kind === 'missingAccidental' || finding.kind === 'missingCourtesy') {

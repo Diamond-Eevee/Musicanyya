@@ -1,7 +1,9 @@
 import { en } from '../i18n/en.js';
+import { rememberInvoker } from '../layout/invoker.js';
 import { practiceState } from '../state/practiceState.js';
 import type { LoadingProgress } from '../state/transportState.js';
 import { transportState } from '../state/transportState.js';
+import { viewState } from '../state/viewState.js';
 import type { TempoFieldModel } from './mx-tempo-field.js';
 import './mx-tempo-field.js';
 
@@ -15,6 +17,7 @@ export class MxTransport extends HTMLElement {
   private unsubscribe?: () => void;
   private unsubscribeProgress?: () => void;
   private unsubscribePractice?: () => void;
+  private unsubscribeView?: () => void;
 
   /** Pushed by session.ts (T023) whenever the segment, the factor, the lock or the glyphs change. */
   setTempoModel(model: TempoFieldModel): void {
@@ -26,6 +29,7 @@ export class MxTransport extends HTMLElement {
     this.unsubscribe = transportState.subscribe(() => this.render());
     this.unsubscribeProgress = transportState.subscribeLoadingProgress(() => this.render());
     this.unsubscribePractice = practiceState.subscribe(() => this.render());
+    this.unsubscribeView = viewState.subscribe(() => this.render());
     this.render();
   }
 
@@ -33,6 +37,7 @@ export class MxTransport extends HTMLElement {
     this.unsubscribe?.();
     this.unsubscribeProgress?.();
     this.unsubscribePractice?.();
+    this.unsubscribeView?.();
   }
 
   private build(): void {
@@ -46,6 +51,7 @@ export class MxTransport extends HTMLElement {
       <label class="volume-label">${en.transport.volume}
         <input type="range" class="volume" min="0" max="100" step="1" />
       </label>
+      <button type="button" class="levels-btn" aria-haspopup="dialog" aria-expanded="false">${en.transport.levels}</button>
       <label class="follow-label" title="${en.transport.followHint}">
         <input type="checkbox" class="follow" />${en.transport.follow}
       </label>
@@ -72,6 +78,16 @@ export class MxTransport extends HTMLElement {
     );
     (this.querySelector('input.volume') as HTMLInputElement).addEventListener('input', (event) => {
       transportState.setVolume(Number((event.target as HTMLInputElement).value));
+    });
+    // The Levels popover (feature 019): a toolbar control like Volume, so it works during every run (ui-shell 1.5.0).
+    const levels = this.querySelector('.levels-btn') as HTMLButtonElement;
+    levels.addEventListener('click', () => {
+      if (viewState.get().openPanel === 'sound') {
+        viewState.closePanel();
+      } else {
+        rememberInvoker(levels);
+        viewState.openPanel('sound');
+      }
     });
     (this.querySelector('input.follow') as HTMLInputElement).addEventListener('change', () =>
       transportState.toggleFollow(),
@@ -111,6 +127,10 @@ export class MxTransport extends HTMLElement {
     const volumeInput = this.querySelector('input.volume') as HTMLInputElement;
     if (this.ownerDocument.activeElement !== volumeInput) volumeInput.value = String(state.volume);
     (this.querySelector('input.follow') as HTMLInputElement).checked = state.follow;
+    (this.querySelector('.levels-btn') as HTMLButtonElement).setAttribute(
+      'aria-expanded',
+      String(viewState.get().openPanel === 'sound'),
+    );
 
     const progressEl = this.querySelector('.loading-progress') as HTMLElement;
     progressEl.hidden = !progress;

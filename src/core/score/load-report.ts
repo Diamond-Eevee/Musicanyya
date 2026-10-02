@@ -24,7 +24,11 @@ export type LoadNoticeCode =
   | 'engravingCompleted'
   | 'beamDataInvalid'
   | 'accidentalContradicts'
-  | 'engravingSkipped';
+  | 'engravingSkipped'
+  // 019 (metronome-orchestra-volume): Orchestra parts and staves hidden in other ways
+  | 'hiddenStaffIgnored'
+  | 'orchestraChannelsShared'
+  | 'orchestraInstrumentMissing';
 
 export interface LoadReportEntry {
   code: LoadNoticeCode;

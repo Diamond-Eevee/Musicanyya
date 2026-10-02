@@ -1,8 +1,17 @@
-import { TEMPO_PERCENT_DEFAULT, TEMPO_PERCENT_MAX, TEMPO_PERCENT_MIN, VOLUME_DEFAULT } from '../defaults.js';
+import {
+  METRONOME_LEVEL_DEFAULT,
+  ORCHESTRA_LEVEL_DEFAULT,
+  TEMPO_PERCENT_DEFAULT,
+  TEMPO_PERCENT_MAX,
+  TEMPO_PERCENT_MIN,
+  VOLUME_DEFAULT,
+} from '../defaults.js';
 
 export type TransportPhase = 'stopped' | 'loading' | 'playing' | 'paused';
 export type TempoPercent = number;
 export type Volume = number;
+/** The Metronome and Orchestra levels: integers 0..100 (feature 019, mixer-levels.md). */
+export type MixerLevel = number;
 
 export interface TransportSnapshot {
   phase: TransportPhase;
@@ -10,6 +19,8 @@ export interface TransportSnapshot {
   positionTick: number;
   tempoPercent: TempoPercent;
   volume: Volume;
+  metronomeLevel: MixerLevel;
+  orchestraLevel: MixerLevel;
   follow: boolean;
 }
 
@@ -24,6 +35,8 @@ export type TransportAction =
   | { type: 'newScore' }
   | { type: 'tempoPercent'; value: TempoPercent }
   | { type: 'volume'; value: Volume }
+  | { type: 'metronomeLevel'; value: MixerLevel }
+  | { type: 'orchestraLevel'; value: MixerLevel }
   | { type: 'follow'; value: boolean }
   | { type: 'manualScroll' }
   | { type: 'positionTick'; value: number };
@@ -35,6 +48,8 @@ export function initialTransport(): TransportSnapshot {
     positionTick: 0,
     tempoPercent: TEMPO_PERCENT_DEFAULT,
     volume: VOLUME_DEFAULT,
+    metronomeLevel: METRONOME_LEVEL_DEFAULT,
+    orchestraLevel: ORCHESTRA_LEVEL_DEFAULT,
     follow: true,
   };
 }
@@ -47,6 +62,12 @@ export function clampTempoPercent(value: TempoPercent): TempoPercent {
 }
 
 export function clampVolume(value: Volume): Volume {
+  return Math.min(100, Math.max(0, Math.round(value)));
+}
+
+/** A level is a whole number in 0..100. A value that is not finite is not a level: the caller keeps what it had
+ *  (`transportReducer` ignores the action), so a stray NaN can never silence the click or the Orchestra. */
+export function clampLevel(value: MixerLevel): MixerLevel {
   return Math.min(100, Math.max(0, Math.round(value)));
 }
 
@@ -91,13 +112,27 @@ export function transportReducer(state: TransportSnapshot, action: TransportActi
     }
     case 'newScore': {
       // feature 012 FR-015: the tempo factor is not carried over; every Score opens at its written tempo.
-      return { ...initialTransport(), volume: state.volume, follow: state.follow };
+      return {
+        ...initialTransport(),
+        volume: state.volume,
+        metronomeLevel: state.metronomeLevel,
+        orchestraLevel: state.orchestraLevel,
+        follow: state.follow,
+      };
     }
     case 'tempoPercent': {
       return { ...state, tempoPercent: clampTempoPercent(action.value) };
     }
     case 'volume': {
       return { ...state, volume: clampVolume(action.value) };
+    }
+    case 'metronomeLevel': {
+      if (!Number.isFinite(action.value)) return state;
+      return { ...state, metronomeLevel: clampLevel(action.value) };
+    }
+    case 'orchestraLevel': {
+      if (!Number.isFinite(action.value)) return state;
+      return { ...state, orchestraLevel: clampLevel(action.value) };
     }
     case 'follow': {
       return { ...state, follow: action.value };

@@ -80,9 +80,10 @@ describe('loadSources (contract source-manifest.md)', () => {
     expect([...load().keys()]).toEqual(['test-1', 'test-2']);
   });
 
-  it('fails a Creative Commons BY-SA licence (Mutopia 659)', () => {
+  // 1.3.0 (019 FR-025): CC BY-SA is admitted as an SPDX id; a licence written any other way is still refused.
+  it('fails a licence that is not one of the listed SPDX ids (Mutopia 659 as its page writes it)', () => {
     source('test-1', manifest('test-1', { licence: 'CC BY-SA 2.5' }));
-    failsWith(/test-1.*licence "CC BY-SA 2\.5".*public-domain or CC0-1\.0/);
+    failsWith(/test-1.*licence "CC BY-SA 2\.5" is not allowed/);
   });
 
   it('fails a file whose content changed since its hash was recorded', () => {
@@ -153,5 +154,85 @@ describe('loadSources (contract source-manifest.md)', () => {
   it('fails a folder without source.json', () => {
     mkdirSync(join(root, 'test-1'));
     failsWith(/test-1.*source\.json/);
+  });
+});
+
+// Feature 019 (source-manifest 1.2.0): our own CC0 reading of a public-domain print is a source too
+describe('loadSources: origin "transcription" (feature 019)', () => {
+  /** A transcription: the LilyPond we wrote, and the print it reads recorded by URL only. */
+  function transcription(id: string, patch: Record<string, unknown> = {}) {
+    return {
+      version: 1,
+      id,
+      work: 'Own transcription of a printed piece',
+      edition: 'G. Schirmer, 1899',
+      publisher: 'G. Schirmer',
+      url: 'https://archive.org/download/example/example.pdf',
+      licence: 'CC0-1.0',
+      origin: 'transcription',
+      obtained: '2026-10-01',
+      approvedByOwner: '2026-10-01',
+      files: [
+        {
+          role: 'notation',
+          path: 'piece.ly',
+          url: 'https://archive.org/download/example/example.pdf',
+          sha256: sha(LY),
+          format: 'lilypond',
+        },
+        { role: 'scan', url: 'https://archive.org/download/example/example.pdf', format: 'pdf' },
+      ],
+      ...patch,
+    };
+  }
+  const write = (folder: string, json: unknown) => {
+    mkdirSync(join(root, folder), { recursive: true });
+    writeFileSync(join(root, folder, 'piece.ly'), LY);
+    writeFileSync(join(root, folder, 'source.json'), JSON.stringify(json));
+  };
+
+  it('a transcription under CC0-1.0 with a notation file and the print by URL validates, and keeps its origin', () => {
+    write('own-1', transcription('own-1'));
+    expect(load().get('own-1')?.origin).toBe('transcription');
+  });
+
+  it('origin "downloaded", or none at all, is a manifest as before', () => {
+    write('own-1', transcription('own-1', { origin: 'downloaded', licence: 'public-domain' }));
+    write('own-2', transcription('own-2', { origin: undefined, licence: 'public-domain' }));
+    const sources = load();
+    expect(sources.get('own-1')?.origin).toBe('downloaded');
+    expect(sources.get('own-2')?.origin).toBeUndefined();
+  });
+
+  it('an unknown origin fails', () => {
+    write('own-1', transcription('own-1', { origin: 'scribbled' }));
+    failsWith(/origin/);
+  });
+
+  it('a transcription is our own CC0 work: another licence fails', () => {
+    write('own-1', transcription('own-1', { licence: 'public-domain' }));
+    failsWith(/transcription.*CC0/);
+  });
+});
+
+// Feature 019 FR-025, source-manifest 1.3.0 (research R-19).
+describe('loadSources: attribution licences (source-manifest 1.3.0)', () => {
+  it('accepts CC BY-SA 3.0 with a credit, and keeps the credit', () => {
+    source('test-1', manifest('test-1', { licence: 'CC-BY-SA-3.0', credit: 'Typeset by A. Person' }));
+    expect(load().get('test-1')?.licence).toBe('CC-BY-SA-3.0');
+  });
+
+  it('fails CC BY 4.0 without a credit, naming the field; the same manifest with one loads', () => {
+    source('test-1', manifest('test-1', { licence: 'CC-BY-4.0', credit: 'A. Person' }));
+    expect(() => load()).not.toThrow();
+    source('test-1', manifest('test-1', { licence: 'CC-BY-4.0' }));
+    failsWith(/test-1.*credit/);
+  });
+
+  it('fails a NonCommercial licence even with a credit, where CC BY 4.0 loads', () => {
+    source('test-1', manifest('test-1', { licence: 'CC-BY-4.0', credit: 'A. Person' }));
+    expect(() => load()).not.toThrow();
+    source('test-1', manifest('test-1', { licence: 'CC-BY-NC-4.0', credit: 'A. Person' }));
+    failsWith(/test-1.*licence "CC-BY-NC-4\.0" is not allowed/);
   });
 });

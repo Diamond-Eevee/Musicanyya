@@ -399,3 +399,161 @@ describe('deriveFacts: key changes of the generated key-change items', () => {
     for (const item of generated('parallel')) expect(keysOf(item.xml), item.section).toHaveLength(2);
   });
 });
+
+// Feature 019 (library-index 1.3.0, data-model section 6.1): facts come from the printed parts only, and an item with an
+// Orchestra says so. A fixture and its twin (the same file with the Orchestra part cut out) differ in nothing else.
+describe('deriveFacts with an Orchestra part (feature 019)', () => {
+  const CASES: [string, string[]][] = [
+    ['piano-and-oboe', ['Oboe']],
+    ['piano-and-two-staff-orchestra', ['Harp']],
+    ['orchestra-first', ['Oboe']],
+    ['orchestra-same-program', ['Piano (orchestra)']],
+  ];
+
+  it.each(CASES)(
+    "%s: every fact equals the twin's except `orchestra`, which names the instruments",
+    (name, instruments) => {
+      const { orchestra, ...rest } = load(`orchestra/${name}.musicxml`);
+      expect(orchestra).toEqual(instruments);
+      expect(rest).toEqual(load(`orchestra/${name}-twin.musicxml`));
+    },
+  );
+
+  it("counts printed parts only: one part, the piano's range and note count, whatever the Orchestra plays", () => {
+    const facts = load('orchestra/piano-and-two-staff-orchestra.musicxml');
+    expect(facts.parts).toBe(1);
+    expect(facts.notes).toBe(load('orchestra/piano-and-two-staff-orchestra-twin.musicxml').notes);
+    // the harp plays down to G1 (31) and the piano's lowest is F2 (41): the Orchestra does not widen the range
+    expect(facts.lowestMidi).toBe(41);
+    const oboe = load('orchestra/piano-and-oboe.musicxml');
+    expect(oboe.highestMidi).toBe(79); // G5 in the right hand, not the oboe's B5
+    expect(oboe.notes).toBe(load('orchestra/piano-and-oboe-twin.musicxml').notes);
+  });
+
+  it('an item without an Orchestra has no `orchestra` fact at all', () => {
+    expect('orchestra' in load('orchestra/piano-and-oboe-twin.musicxml')).toBe(false);
+    expect('orchestra' in load('scale-c-major-q100.musicxml')).toBe(false);
+  });
+
+  it('hidden staves that are not an Orchestra are counted like any other part, and name no Orchestra', () => {
+    const facts = load('orchestra/partly-hidden.musicxml');
+    expect(facts.parts).toBe(2);
+    expect('orchestra' in facts).toBe(false);
+  });
+});
+
+// Feature 019 (library-index 1.3.0, research R-17): a chord whose notes all carry <arpeggiate> is rolled - its span is not a
+// hand span - and is reported as `maxArpeggiatedSpanSemitones`; a chord with only some notes marked counts as not rolled.
+describe('deriveFacts: rolled chords (feature 019)', () => {
+  const fixture = fs.readFileSync(path.join(fixturesDir, 'arpeggiate-chord.musicxml'), 'utf-8');
+  function factsOf(xml: string) {
+    const { doc } = readXml(xml);
+    const { score, report } = buildScore(doc);
+    const { timeline, notices } = buildTimeline(score);
+    return deriveFacts({ doc, score, timeline, report, timelineNotices: notices });
+  }
+
+  it('a rolled C-E-G (7 semitones) is left out of maxSpanSemitones and reported on its own; the unmarked F-A (4) stays', () => {
+    const facts = factsOf(fixture);
+    expect(facts.maxSpanSemitones).toBe(4);
+    expect(facts.maxArpeggiatedSpanSemitones).toBe(7);
+  });
+
+  it('a rolled tenth (16 semitones) is a rolled span, not a hand span', () => {
+    const tenth = fixture.replace('<step>G</step><octave>4</octave>', '<step>E</step><octave>5</octave>');
+    const facts = factsOf(tenth);
+    expect(facts.maxSpanSemitones).toBe(4);
+    expect(facts.maxArpeggiatedSpanSemitones).toBe(16);
+  });
+
+  it('a chord with only some notes arpeggiated counts as not rolled', () => {
+    const partial = fixture.replace(
+      '<note><chord/><pitch><step>G</step><octave>4</octave></pitch><duration>2</duration><type>half</type>\n      <notations><arpeggiate/></notations>',
+      '<note><chord/><pitch><step>G</step><octave>4</octave></pitch><duration>2</duration><type>half</type>\n      <notations/>',
+    );
+    expect(partial).not.toBe(fixture);
+    const facts = factsOf(partial);
+    expect(facts.maxSpanSemitones).toBe(7);
+    expect('maxArpeggiatedSpanSemitones' in facts).toBe(false);
+  });
+
+  it('a Score with no rolled chord has no maxArpeggiatedSpanSemitones, and its maxSpanSemitones is as before', () => {
+    const facts = load('chord-basic.musicxml');
+    expect('maxArpeggiatedSpanSemitones' in facts).toBe(false);
+    expect(facts.maxSpanSemitones).toBe(7);
+  });
+});
+
+// Feature 019 T100 (owner decision T099, 2026-10-01: "Count struck notes"; research R-17): criterion 16 measures only
+// notes struck together. A note continued by a tie from earlier is held, not struck; a grace note is played before its
+// main note. Neither is part of the hand span at that onset (Grieg Op. 46 No. 1 bars 50, 56, 86-87).
+describe('deriveFacts: hand spans count struck notes only (feature 019 T100)', () => {
+  type N = { step: string; octave: number; chord?: boolean; tie?: 'start' | 'stop'; grace?: boolean; arp?: boolean };
+  const note = (n: N) =>
+    `<note>${n.grace ? '<grace slash="yes"/>' : ''}${n.chord ? '<chord/>' : ''}<pitch><step>${n.step}</step><octave>${n.octave}</octave></pitch>` +
+    `${n.grace ? '' : '<duration>4</duration>'}${n.tie ? `<tie type="${n.tie}"/>` : ''}<voice>1</voice>` +
+    `<type>${n.grace ? 'eighth' : 'whole'}</type><staff>1</staff>` +
+    `${n.tie || n.arp ? `<notations>${n.tie ? `<tied type="${n.tie}"/>` : ''}${n.arp ? '<arpeggiate/>' : ''}</notations>` : ''}</note>`;
+  const facts = (...measures: N[][]) =>
+    factsFromMeasures(
+      measures
+        .map(
+          (notes, i) =>
+            `<measure number="${i + 1}">${i === 0 ? '<attributes><divisions>1</divisions></attributes>' : ''}${notes.map(note).join('')}</measure>`,
+        )
+        .join(''),
+    );
+
+  it('a note tied on from the bar before is left out of the span of the notes struck with it', () => {
+    // C3 held over the bar line while G4 is struck: 19 semitones apart, but only G4 is struck
+    const f = facts(
+      [{ step: 'C', octave: 3, tie: 'start' }],
+      [
+        { step: 'C', octave: 3, tie: 'stop' },
+        { step: 'G', octave: 4, chord: true },
+      ],
+    );
+    expect(f.maxSpanSemitones).toBe(0);
+  });
+
+  it('the struck notes of a group that also holds a tied note are still measured', () => {
+    const f = facts(
+      [{ step: 'C', octave: 3, tie: 'start' }],
+      [
+        { step: 'C', octave: 3, tie: 'stop' },
+        { step: 'E', octave: 4, chord: true },
+        { step: 'G', octave: 4, chord: true },
+      ],
+    );
+    expect(f.maxSpanSemitones).toBe(3);
+  });
+
+  it('a grace note is left out of the span of the chord it leads into', () => {
+    // an acciaccatura C2 before the octave C3-C4 (bar 50): the hand span is the octave, 12, not 24
+    const f = facts([
+      { step: 'C', octave: 2, grace: true },
+      { step: 'C', octave: 3 },
+      { step: 'C', octave: 4, chord: true },
+    ]);
+    expect(f.maxSpanSemitones).toBe(12);
+  });
+
+  it('a grace note before a rolled chord leaves the chord rolled', () => {
+    const f = facts([
+      { step: 'C', octave: 2, grace: true },
+      { step: 'C', octave: 3, arp: true },
+      { step: 'E', octave: 4, chord: true, arp: true },
+    ]);
+    expect(f.maxSpanSemitones).toBe(0);
+    expect(f.maxArpeggiatedSpanSemitones).toBe(16);
+  });
+
+  it('a struck chord is measured as before', () => {
+    expect(
+      facts([
+        { step: 'C', octave: 3 },
+        { step: 'E', octave: 4, chord: true },
+      ]).maxSpanSemitones,
+    ).toBe(16);
+  });
+});

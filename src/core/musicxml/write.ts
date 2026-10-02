@@ -48,6 +48,9 @@ export interface WriteNote {
   slurs?: { type: 'start' | 'stop'; number: number }[];
   articulations?: WriteArticulation[];
   ornament?: WriteOrnament;
+  /** One note of a two-note tremolo (019 T081): `marks` tremolo beams between this note and its partner. Each note
+   *  prints the whole tremolo's value and sounds for half of it, so the caller also sets `timeModification` 2:1. */
+  tremolo?: { type: 'start' | 'stop'; marks: number };
   fermata?: boolean;
   /** A written arpeggio (rolled chord); set on every member of the chord. */
   arpeggiate?: boolean;
@@ -61,9 +64,13 @@ export interface WriteDirection {
   bold?: boolean;
   /** The words are printed in italics (an expression such as "dolce"). */
   italic?: boolean;
-  metronome?: { beatUnit: WriteDuration; perMinute: number };
+  /** `dots`: a dotted beat (`<beat-unit-dot/>` each, 019 T083), e.g. a dotted quarter in 6/8. */
+  metronome?: { beatUnit: WriteDuration; dots?: number; perMinute: number };
   /** `<sound tempo="...">`, in quarter notes per minute regardless of `metronome.beatUnit`. */
   tempo?: number;
+  /** `<sound dynamics="...">`: the playback loudness, in percent of forte (feature 019: an Orchestra part's, which has no
+   *  dynamic marks to read). */
+  soundDynamics?: number;
   /** A dynamic mark such as `pp` or `sf`. */
   dynamics?: string;
   wedge?: 'crescendo' | 'diminuendo' | 'stop';
@@ -106,6 +113,9 @@ export interface WriteMeasureAttributes {
   time?: { beats: string; beatType: number };
   staves?: number;
   clefs?: WriteClef[];
+  /** `<staff-details>` after the clefs (feature 019): `printObject: false, printSpacing: false` on every staff of a part
+   *  makes it an Orchestra part - not drawn, no room. Only the attributes given are written. */
+  staffDetails?: { number?: number; printObject?: boolean; printSpacing?: boolean }[];
 }
 
 export interface WriteMeasure {
@@ -149,8 +159,10 @@ function writeNoteXml(note: WriteNote): string {
     parts.push(`<octave>${octave}</octave>`, '</pitch>');
   }
   if (!note.grace) parts.push(`<duration>${note.duration}</duration>`);
-  if (note.tie?.start) parts.push('<tie type="start"/>');
+  // Stop before start: Verovio pairs a note's tie start with the stop that follows it, so the other order ties a
+  // continued note to itself and draws nothing (019 T101).
   if (note.tie?.stop) parts.push('<tie type="stop"/>');
+  if (note.tie?.start) parts.push('<tie type="start"/>');
   parts.push(`<voice>${esc(note.voice)}</voice>`, `<type>${note.type}</type>`);
   const dots = note.dots ?? (note.dot ? 1 : 0);
   for (let i = 0; i < dots; i++) parts.push('<dot/>');
@@ -162,8 +174,8 @@ function writeNoteXml(note: WriteNote): string {
   }
   if (note.staff !== undefined) parts.push(`<staff>${note.staff}</staff>`);
   const notations: string[] = [];
-  if (note.tie?.start) notations.push('<tied type="start"/>');
   if (note.tie?.stop) notations.push('<tied type="stop"/>');
+  if (note.tie?.start) notations.push('<tied type="start"/>');
   for (const slur of note.slurs ?? []) notations.push(`<slur type="${slur.type}" number="${slur.number}"/>`);
   if (note.tuplet) {
     const { type, bracket, showNumber } = note.tuplet;
@@ -178,7 +190,10 @@ function writeNoteXml(note: WriteNote): string {
   if (note.fingering !== undefined) {
     notations.push(`<technical><fingering>${note.fingering}</fingering></technical>`);
   }
-  if (note.ornament) notations.push(`<ornaments><${note.ornament}/></ornaments>`);
+  const ornaments: string[] = [];
+  if (note.ornament) ornaments.push(`<${note.ornament}/>`);
+  if (note.tremolo) ornaments.push(`<tremolo type="${note.tremolo.type}">${note.tremolo.marks}</tremolo>`);
+  if (ornaments.length > 0) notations.push(`<ornaments>${ornaments.join('')}</ornaments>`);
   if (note.fermata) notations.push('<fermata/>');
   if (note.arpeggiate) notations.push('<arpeggiate/>');
   if (notations.length > 0) parts.push(`<notations>${notations.join('')}</notations>`);
@@ -191,7 +206,7 @@ function writeDirectionXml(d: WriteDirection): string {
   const typeParts: string[] = [];
   if (d.metronome) {
     typeParts.push(
-      `<metronome><beat-unit>${d.metronome.beatUnit}</beat-unit><per-minute>${d.metronome.perMinute}</per-minute></metronome>`,
+      `<metronome><beat-unit>${d.metronome.beatUnit}</beat-unit>${'<beat-unit-dot/>'.repeat(d.metronome.dots ?? 0)}<per-minute>${d.metronome.perMinute}</per-minute></metronome>`,
     );
   }
   if (d.words !== undefined) {
@@ -204,7 +219,11 @@ function writeDirectionXml(d: WriteDirection): string {
   if (d.octaveShift) typeParts.push(`<octave-shift type="${d.octaveShift.type}" size="${d.octaveShift.size}"/>`);
   // A playback tempo with no printed mark: <direction-type> needs a child, and empty words print nothing.
   if (typeParts.length === 0) typeParts.push('<words/>');
-  const sound = d.tempo !== undefined ? `<sound tempo="${d.tempo}"/>` : '';
+  const soundAttrs = [
+    d.tempo !== undefined ? `tempo="${d.tempo}"` : '',
+    d.soundDynamics !== undefined ? `dynamics="${d.soundDynamics}"` : '',
+  ].filter(Boolean);
+  const sound = soundAttrs.length > 0 ? `<sound ${soundAttrs.join(' ')}/>` : '';
   const staff = d.staff !== undefined ? `<staff>${d.staff}</staff>` : '';
   return `<direction${attrs}><direction-type>${typeParts.join('')}</direction-type>${sound}${staff}</direction>`;
 }
@@ -237,6 +256,14 @@ function writeAttributesXml(a: WriteMeasureAttributes): string {
   for (const clef of a.clefs ?? []) {
     parts.push(`<clef number="${clef.number}"><sign>${clef.sign}</sign><line>${clef.line}</line></clef>`);
   }
+  for (const details of a.staffDetails ?? []) {
+    const attrs = [
+      details.number !== undefined ? `number="${details.number}"` : '',
+      details.printObject !== undefined ? `print-object="${details.printObject ? 'yes' : 'no'}"` : '',
+      details.printSpacing !== undefined ? `print-spacing="${details.printSpacing ? 'yes' : 'no'}"` : '',
+    ].filter(Boolean);
+    parts.push(`<staff-details${attrs.length > 0 ? ` ${attrs.join(' ')}` : ''}/>`);
+  }
   parts.push('</attributes>');
   return parts.join('');
 }
@@ -258,9 +285,20 @@ function writeMeasureXml(m: WriteMeasure): string {
   return parts.join('');
 }
 
-function writePartXml(p: WritePart): string {
+export function writePartXml(p: WritePart): string {
   const measures = p.measures.map(writeMeasureXml).join('');
   return `<part id="${esc(p.id)}">${measures}</part>`;
+}
+
+/** A `<score-part>` with its own GM program (1-based, as in `<midi-program>`) and 1-based MIDI channel (feature 019: an Orchestra
+ *  instrument; `writeScoreXml` still writes every part as a piano). */
+export function writeScorePartXml(part: { id: string; name: string; program: number; channel?: number }): string {
+  return (
+    `<score-part id="${esc(part.id)}"><part-name>${esc(part.name)}</part-name>` +
+    `<score-instrument id="${esc(part.id)}-I1"><instrument-name>${esc(part.name)}</instrument-name></score-instrument>` +
+    `<midi-instrument id="${esc(part.id)}-I1">${part.channel === undefined ? '' : `<midi-channel>${part.channel}</midi-channel>`}<midi-program>${part.program}</midi-program></midi-instrument>` +
+    '</score-part>'
+  );
 }
 
 /** Writes a complete `score-partwise` MusicXML document. Deterministic: the same `WriteScore` always

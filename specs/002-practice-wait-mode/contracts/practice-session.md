@@ -1,6 +1,6 @@
 # Contract: practice session (core API)
 
-**Version**: `1.7.0` (internal TypeScript contract between `src/core/practice`, `src/app/session.ts` and
+**Version**: `1.8.0` (internal TypeScript contract between `src/core/practice`, `src/app/session.ts` and
 `src/ui`). Signatures are normative in shape; every change is reflected here with a version bump (MINOR for
 additions, MAJOR for breaking changes). `1.0.0` was amended on 2026-09-20 by the clarification session (played-along
 and skipped marks, the wrong-versus-extra rule, part selection, skip inputs) before anything was implemented.
@@ -24,6 +24,16 @@ an extra or wrong key that the new event does not require stays. `startSession()
 `noteOff` of a key the current event requires now withdraws the `correctSoFar` or `heldOver` mark of its notes
 (`markNotes` `waiting`) - a chord key let go before the chord is complete is no longer "played so far" (008 FR-003).
 No input or effect is added.
+`1.8.0` (feature 019-metronome-orchestra-volume, MINOR; full text:
+[019 orchestra-score.md](../../019-metronome-orchestra-volume/contracts/orchestra-score.md) sections 5 and 6):
+`OrchestraRef = SoundingRef & { channel: number }`; `ExpectedEvent.orchestra: readonly OrchestraRef[]` holds the notes
+of Orchestra parts (a part whose every staff is not printed) whose onset lies in [this event's onset, the next event's
+onset) - never in `required` or `accompaniment`, and never an Orchestra note on `PERCUSSION_CHANNEL`;
+`PracticeSession.soundingOrchestra: Map<string, Ticks>` (key `"<channel>:<key>"` -> end tick); new effects
+`{ type: "orchestraOn"; channel; key; velocity; noteId }` and `{ type: "orchestraOff"; channel; key }`. They start and
+are released by the same rules as the accompaniment ("When accompaniment sounds" below), but independently of the
+`accompaniment` input: `setAccompaniment(false)` releases no Orchestra note. An Orchestra note is never marked and
+never required. No existing input, effect or mark changes.
 `1.7.0` (feature 013-score-browser-progress, R-9): a new effect `{ type: "loopCompleted" }` is added, emitted when
 the loop wraps after its last event was **played** (not reached by `skipNext`). It feeds the Score browser's
 *Practised* progress (013 data-model.md section 4); it changes no existing effect, mark or input.
@@ -124,6 +134,8 @@ export type PracticeEffect =
   | { type: "moveCursor"; eventIndex: number; onsetTick: Ticks }
   | { type: "soundOn"; key: number; noteIds: readonly NoteId[]; velocity: number }   // accompaniment (R-03)
   | { type: "soundOff"; key: number }
+  | { type: "orchestraOn"; channel: number; key: number; noteId: NoteId; velocity: number }   // 1.8.0, feature 019
+  | { type: "orchestraOff"; channel: number; key: number }                                      // 1.8.0, feature 019
   | { type: "showHelp"; eventIndex: number; reason: "stuck" | "requested" | "heldOver" }
   | { type: "hideHelp" }
   | { type: "notice"; code: PracticeNoticeCode }
@@ -147,6 +159,11 @@ key is let go, then they are released; no timer ever decides. A key struck while
 A note is never struck on a key the musician is holding at that moment (two instances of one key would swap which
 one a later note-off releases). Skipping past the last event does not start that event's accompaniment, and releases
 what rings unless a key is down (RT review, 2026-09-20).
+
+**Orchestra notes (1.8.0)** follow the same rules - released with `orchestraOff` when they have ended, started with
+`orchestraOn` before `moveCursor`, all released on `skipPrevious`, a loop jump, device loss, stop and the end - but on
+their own channel (`liveNoteOn(key, velocity, channel)`), with no held-key exception (the musician never holds an
+Orchestra key) and **regardless of the `accompaniment` input**, which governs the printed accompaniment only.
 
 `soundOn` / `soundOff` carry a key, not a note, so the app maps them straight onto the existing
 `AudioEngine.liveNoteOn` / `liveNoteOff`. No new port method is needed (ports.md unchanged by this contract; the

@@ -2,7 +2,8 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { engraveFile, engraveLibrary } from '../../tools/library/engrave.js';
+import { readXml } from '../../src/core/musicxml/read.js';
+import { engraveFile, engraveLibrary, planLibraryEngraving } from '../../tools/library/engrave.js';
 
 const tempDirs: string[] = [];
 
@@ -49,6 +50,42 @@ describe('engraveFile', () => {
     expect(afterSecond).toBe(afterFirst);
     expect(secondResult.beamGroupsAdded).toBe(0);
     expect(secondResult.accidentalsAdded).toEqual({ required: 0, courtesy: 0 });
+  });
+});
+
+// BARE_EIGHTHS with a never-printed Orchestra part (019 orchestra-score contract section 1) holding the same bare
+// eighths plus an F-sharp that would need its accidental if it were printed.
+const ORCHESTRA_PART = `<part id="orch-oboe"><measure number="1"><attributes><divisions>4</divisions><time><beats>2</beats><beat-type>4</beat-type></time><clef><sign>G</sign><line>2</line></clef><staff-details print-object="no" print-spacing="no"/></attributes><note><pitch><step>C</step><octave>5</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type></note><note><pitch><step>D</step><octave>5</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type></note><note><pitch><step>E</step><octave>5</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type></note><note><pitch><step>F</step><alter>1</alter><octave>5</octave></pitch><duration>2</duration><voice>1</voice><type>eighth</type></note></measure></part>`;
+const WITH_ORCHESTRA = BARE_EIGHTHS.replace(
+  '</part-list>',
+  '<score-part id="orch-oboe"><part-name>Oboe</part-name><score-instrument id="orch-oboe-I1"><instrument-name>Oboe</instrument-name></score-instrument><midi-instrument id="orch-oboe-I1"><midi-program>69</midi-program></midi-instrument></score-part></part-list>',
+).replace('</score-partwise>', `${ORCHESTRA_PART}</score-partwise>`);
+
+describe('engraveFile with an Orchestra part (019 T107)', () => {
+  it('completes the printed part only: the Orchestra part is never printed, so it is left exactly as written', () => {
+    const dir = makeTempDir();
+    const file = path.join(dir, 'piece.musicxml');
+    fs.writeFileSync(file, WITH_ORCHESTRA);
+
+    engraveFile(file);
+    const written = fs.readFileSync(file, 'utf-8');
+    const printed = written.slice(0, written.indexOf('<part id="orch-oboe">'));
+    expect(printed).toContain('<beam number="1">begin</beam>');
+    expect(written.slice(written.indexOf('<part id="orch-oboe">'))).toBe(`${ORCHESTRA_PART}</score-partwise>`);
+
+    const second = engraveFile(file);
+    expect(second.beamGroupsAdded).toBe(0);
+    expect(second.accidentalsAdded).toEqual({ required: 0, courtesy: 0 });
+  });
+
+  it('planLibraryEngraving finds nothing to add in a file whose only gaps are in the Orchestra part', () => {
+    const dir = makeTempDir();
+    const file = path.join(dir, 'piece.musicxml');
+    fs.writeFileSync(file, WITH_ORCHESTRA);
+    engraveFile(file);
+    const plan = planLibraryEngraving(readXml(fs.readFileSync(file, 'utf-8')).doc);
+    expect(plan.findings).toEqual([]);
+    expect(plan.inserts).toEqual([]);
   });
 });
 

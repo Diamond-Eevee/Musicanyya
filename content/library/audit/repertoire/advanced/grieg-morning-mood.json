@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "itemId": "repertoire/advanced/grieg-morning-mood",
+  "claim": "original",
+  "claimText": "Morning Mood, Peer Gynt Suite No. 1, Op. 46 No. 1 - the composer's piano arrangement (G. Schirmer, 1899)",
+  "checks": [
+    {
+      "method": "mechanical",
+      "source": "own-grieg-op46-no1-transcription-b",
+      "sourceFiles": ["notation"],
+      "aspects": [
+        "barCount",
+        "barLengths",
+        "repeats",
+        "playedOrder",
+        "pitch",
+        "onset",
+        "duration",
+        "spelling",
+        "graceNotes"
+      ],
+      "alignment": {
+        "itemBars": "all",
+        "sourceBars": "all"
+      },
+      "expectedDifferences": 0
+    },
+    {
+      "method": "visual",
+      "source": "ia-31761045200615-grieg-op46-schirmer (PDF pages 7-10, print pages 3-6)",
+      "bars": "all",
+      "result": "87 bars compared page by page with the engraved item (pnpm screenshot), and every mark on which transcriptions A and B disagree looked up in the print: slurs, ties, dynamics, hairpins, fingering, pedal, arpeggios and words. Everything matches the print except the differences listed.",
+      "differences": [
+        "Bars 77-78: the right hand's chords are printed on the upper staff; the print has them on the lower staff (owner decision OD-3, as Chopin Op. 28 No. 4).",
+        "Bars 64-65: the E4 the melody shares with the lower voice (one head, two stems in the print) is one note in the lower voice, so the melody's beam starts after a gap.",
+        "Bars 1-20: the curved brackets before the left-hand chords are not encoded (not the wavy arpeggio sign; meaning uncertain).",
+        "Grace-note slurs (bars 2, 6, 10, 14, 22, 26) are not drawn; the phrase slur over the bar is.",
+        "Fingering numbers and some hairpin ends are placed by Verovio, not where the print has them (e.g. the left hand's 2-4 under the 16th pairs of bars 30-31, 38-39, 46-47 is printed above)."
+      ]
+    },
+    {
+      "method": "theory",
+      "ruleSet": "orchestra-v1",
+      "expectedDifferences": 0
+    }
+  ],
+  "outcome": "verified",
+  "outcomeNote": "Converted 2026-10-02 from transcription A (read-back 0 differences) and compared with transcription B, read from the print by a separate session: 15 differences in 7 places (bars 48-49, 54-55, 64-65, 66, 70, 79-80, 84), each settled against the print in favour of B and fixed in A; now 0. The visual pass then corrected A's slurs, fingering, dynamics, hairpins, arpeggios and words in about 30 bars (019 log, T045).",
+  "checkedBy": "claude-opus-5.5",
+  "date": "2026-10-02"
+}

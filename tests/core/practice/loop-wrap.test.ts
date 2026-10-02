@@ -22,6 +22,7 @@ function ev(
     onsetTick: index * 100,
     required: [{ key, noteIds: [over.noteId ?? `n${index}`], staff: 1 }],
     accompaniment: over.accompaniment ?? [],
+    orchestra: [],
   };
 }
 

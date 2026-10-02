@@ -32,6 +32,7 @@ export interface BrowserItem {
   sectionId: string | null; // null for My files
   level: Level | null;
   keys: readonly string[]; // facts.keys (library) / [] for files until opened
+  orchestra: readonly string[]; // facts.orchestra (feature 019): the Orchestra's instrument names; [] when none and for files
   tags: readonly SkillTag[];
   durationSeconds: number | null;
   measures: number | null;

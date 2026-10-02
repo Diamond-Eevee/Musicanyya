@@ -116,4 +116,84 @@ describe('createRenderCopy', () => {
     expect(copyNote?.durationTicks).toBe(originalNote?.durationTicks);
     expect(copyNote?.soundingKey).toBe(originalNote?.soundingKey);
   });
+
+  // Feature 019, render-copy contract 1.2.0 / orchestra-score.md section 3: byte ranges cut out in the same single pass.
+  describe('removals (an Orchestra part is cut out of the copy)', () => {
+    const NOTE = '<note><pitch><step>C</step><octave>4</octave></pitch><duration>1</duration></note>';
+    const range = (xml: string, from: string, to: string) => ({
+      start: xml.indexOf(from),
+      end: xml.indexOf(to, xml.indexOf(from)) + to.length,
+    });
+
+    it('cuts each range out, keeps everything around it, and leaves other text untouched', () => {
+      const xml = '<a>\n  <b>drop one</b>\n  <c>keep</c>\n  <d>drop two</d>\n  <e>keep</e>\n</a>';
+      const copy = createRenderCopy(xml, {
+        notes: [],
+        measures: [],
+        removals: [range(xml, '<b>', '</b>'), range(xml, '<d>', '</d>')],
+      });
+      expect(copy).toBe('<a>\n  \n  <c>keep</c>\n  \n  <e>keep</e>\n</a>');
+    });
+
+    it('with no removals (or an empty list) the copy is as it was', () => {
+      const xml = `<score-partwise><part id="P1"><measure>${NOTE}</measure></part></score-partwise>`;
+      const inserts = {
+        notes: [{ startOffset: xml.indexOf('<note>'), tagLength: 6, id: 'n-p0-s1-m0-v1-o0-k60' }],
+        measures: [],
+      };
+      expect(createRenderCopy(xml, { ...inserts, removals: [] })).toBe(createRenderCopy(xml, inserts));
+    });
+
+    it('drops a note, a measure, an element insert and a rewrite inside a removal; the same inserts outside it still apply', () => {
+      const part = (id: string) => `<part id="${id}"><measure number="1">${NOTE}</measure></part>`;
+      const xml = `<score-partwise>${part('P1')}${part('P2')}</score-partwise>`;
+      const second = xml.indexOf('<part id="P2">');
+      const secondNote = xml.indexOf('<note>', second);
+      const secondMeasure = xml.indexOf('<measure ', second);
+      const firstNote = xml.indexOf('<note>');
+      const openTag = '<measure number="1">'.length;
+      const step = '<step>C</step>';
+      const copy = createRenderCopy(xml, {
+        notes: [
+          { startOffset: firstNote, tagLength: 6, id: 'n-keep' },
+          { startOffset: secondNote, tagLength: 6, id: 'n-gone' },
+        ],
+        measures: [
+          { startOffset: xml.indexOf('<measure '), tagLength: openTag, id: 'ms-keep' },
+          { startOffset: secondMeasure, tagLength: openTag, id: 'ms-gone' },
+        ],
+        elements: [
+          { offset: firstNote + 6, text: '<x-keep/>', order: 0 },
+          { offset: secondNote + 6, text: '<x-gone/>', order: 0 },
+        ],
+        rewrites: [
+          { start: xml.indexOf(step), end: xml.indexOf(step) + step.length, text: '<step>D</step>' },
+          {
+            start: xml.indexOf(step, second),
+            end: xml.indexOf(step, second) + step.length,
+            text: '<step>E</step>',
+          },
+        ],
+        removals: [range(xml, '<part id="P2">', '</part>')],
+      });
+      expect(copy).toContain('n-keep');
+      expect(copy).toContain('ms-keep');
+      expect(copy).toContain('<x-keep/>');
+      expect(copy).toContain('<step>D</step>');
+      for (const gone of ['n-gone', 'ms-gone', '<x-gone/>', '<step>E</step>', 'P2']) expect(copy).not.toContain(gone);
+      expect(copy.endsWith('</part></score-partwise>')).toBe(true);
+    });
+
+    it('cuts a score-part and a part in one pass, and still rewrites the XML declaration', () => {
+      const xml = `<?xml version="1.0" encoding="ISO-8859-1"?><score-partwise><part-list><score-part id="P1"/><score-part id="P2"><part-name>B</part-name></score-part></part-list><part id="P1">${NOTE}</part><part id="P2">${NOTE}</part></score-partwise>`;
+      const copy = createRenderCopy(xml, {
+        notes: [],
+        measures: [],
+        removals: [range(xml, '<score-part id="P2">', '</score-part>'), range(xml, '<part id="P2">', '</part>')],
+      });
+      expect(copy).toBe(
+        `<?xml version="1.0" encoding="UTF-8"?><score-partwise><part-list><score-part id="P1"/></part-list><part id="P1">${NOTE}</part></score-partwise>`,
+      );
+    });
+  });
 });

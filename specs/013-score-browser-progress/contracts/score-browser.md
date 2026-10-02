@@ -1,6 +1,6 @@
 # Contract: Score browser element, events and state
 
-**Version**: `1.1.0` (1.0.0 new with feature 013; 1.1.0 with feature 018, MINOR: the rail starts collapsed and its open
+**Version**: `1.2.0` (1.2.0 with feature 019-metronome-orchestra-volume, MINOR: a list row of an item whose `facts.orchestra` is present shows a "with orchestra" marker - a glyph **and** the text, not colour alone - with an accessible name, and the detail lists the Orchestra's instruments in definition order; rows of other items show nothing; 1.0.0 new with feature 013; 1.1.0 with feature 018, MINOR: the rail starts collapsed and its open
 folders are persisted, see [018 browser-view.md](../../018-browser-tree-collapse/contracts/browser-view.md))
 **Owner**: `src/ui/elements/mx-score-browser.ts` (+ `mx-browser-rail`, `mx-browser-list`, `mx-browser-detail`,
 `mx-browser-continue`, `mx-status-badge`), `src/ui/state/browserState.ts`, `src/app/browser-session.ts`.
@@ -62,6 +62,9 @@ Row: status badge (shape + text, R-16) | title (bold) and subtitle (composer, or
 path (only in search results, "All", or status filters across folders) | level chip | key | length ("1:20") | best
 ("92 % correct · 85 % on time", tempo when not 100 %) | last result plus trend arrow. A *My files* row with
 `stored === false` shows "file not stored - open it again from disk to play".
+
+Marker (1.2.0): a row whose item has `facts.orchestra` shows "with orchestra" (glyph plus visible text, accessible name
+"With orchestra"); the detail adds a line "Orchestra: <instrument names in definition order>". Items without the fact show neither.
 
 Detail: title, composer/arranger, level, keys, measures, length, skills; for library items the source and licence
 (the same text as `mx-score-source`, from one shared formatter). Then progress: status with its tooltip, attempt count,

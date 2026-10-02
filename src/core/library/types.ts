@@ -1,6 +1,8 @@
 /** contracts/library-index.md, contracts/library-port.md - the shapes the library content formats
  *  and the app's in-memory model share. Pure data: no DOM, no `fetch` (Principle V). */
 
+import type { LibraryLicence } from './licences.js';
+
 /** Feature 011 adds `introduction` below `beginner` (specs/011-learning-by-key/data-model.md §4). */
 export type Level = 'introduction' | 'beginner' | 'intermediate' | 'advanced';
 
@@ -53,7 +55,8 @@ export interface ProvenanceAuthored {
 
 export interface ProvenanceDownloaded {
   origin: 'downloaded';
-  licence: 'CC0-1.0' | 'public-domain';
+  /** CC BY / CC BY-SA since library-index 1.4.0 (019 FR-025): then `credit` and `unmodified` are always present. */
+  licence: LibraryLicence;
   source: string;
   sourcePath?: string;
   obtained: string;
@@ -128,6 +131,9 @@ export interface ItemFacts {
   highestMidi: number;
   /** Largest simultaneous interval within one hand, in semitones. */
   maxSpanSemitones: number;
+  /** The widest one-hand chord whose notes all carry `<arpeggiate>` (rolled); such chords are left out of
+   *  `maxSpanSemitones`. Absent when there is none (feature 019, library-index 1.3.0). */
+  maxArpeggiatedSpanSemitones?: number;
   staves: number;
   handsWithNotes?: 'right' | 'left' | 'both';
   /** Max distinct voices in any one staff (data-model.md §4, criterion 4). Not part of the v1.0.0
@@ -145,6 +151,9 @@ export interface ItemFacts {
   notesPerBeat: number;
   /** Key-signature accidentals, max over the piece. */
   accidentals: number;
+  /** The instrument names of the item's Orchestra parts - parts that sound but are not printed - in Score order; absent
+   *  when there are none (feature 019, library-index 1.3.0). Every other fact is derived from the printed parts only. */
+  orchestra?: readonly string[];
   hasTies?: boolean;
   hasTuplets?: boolean;
   hasGraceNotes?: boolean;

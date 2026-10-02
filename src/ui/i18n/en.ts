@@ -77,6 +77,15 @@ export const en = {
     diagnostics: 'Audio diagnostics',
     environment: 'Environment',
     grade: 'Grade',
+    sound: 'Levels',
+  },
+  /** The Levels popover (feature 019, contracts/mixer-levels.md section 1). */
+  levels: {
+    metronome: 'Metronome',
+    orchestra: 'Orchestra',
+    metronomeHint: 'Heard in Play mode',
+    noOrchestra: 'This score has no orchestra',
+    valuePercent: '{n} %',
   },
   /** 017 T041: what a popup says when its own tools have nothing to show yet. */
   panelHints: {
@@ -103,6 +112,7 @@ export const en = {
     stop: 'Stop',
     tempo: 'Tempo',
     volume: 'Volume',
+    levels: 'Levels',
     follow: 'Follow',
     followHint: 'Keep the playing position in view. Scrolling during playback turns this off.',
     loadingSound: 'Loading sound…',
@@ -161,6 +171,10 @@ export const en = {
     itemCount: '{n} item',
     itemCountPlural: '{n} items',
     folders: { continue: 'Continue', all: 'All', myFiles: 'My files' },
+    /** Feature 019 US4: an item with an Orchestra (instruments that sound but are not printed). */
+    withOrchestra: 'with orchestra',
+    withOrchestraName: 'With orchestra',
+    orchestraLine: 'Orchestra: {instruments}',
     /** 018 R-7: spoken after the name of a collapsed folder that holds the chosen folder (the marker is also drawn). */
     containsChosen: ', contains the chosen folder',
     status: {
@@ -328,6 +342,7 @@ export const en = {
       arrangement: 'Arrangement for this app (CC0)',
       licence: 'Licence',
       credit: 'Credit',
+      changed: 'Changed for Musicanyya',
       limitations: 'Limitations',
     },
   },
@@ -405,6 +420,10 @@ export const en = {
     tempoTextIgnored: 'A tempo marking given as text only (no sound value) was ignored.',
     instrumentFallback: 'An unknown instrument was played with the default piano sound.',
     unpitchedWithoutSound: 'An unpitched note had no sound mapping and stayed silent.',
+    hiddenStaffIgnored:
+      'A staff hidden in this file is shown, because only a whole hidden orchestra part is supported.',
+    orchestraChannelsShared: 'There are more orchestra instruments than free channels; some share one.',
+    orchestraInstrumentMissing: 'An orchestra part has no usable instrument and stays silent.',
     defaultTempo: 'No tempo was specified, so a default tempo was used.',
     middleBarlineRepeat: 'A repeat starting mid-measure was approximated.',
     unsupportedClef:

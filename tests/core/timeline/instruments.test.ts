@@ -24,11 +24,12 @@ function instrument(overrides: Partial<Instrument> = {}): Instrument {
   };
 }
 
-function part(index: number, instruments: Instrument[]): Part {
+function part(index: number, instruments: Instrument[], orchestra = false): Part {
   return {
     index,
     xmlId: `P${index + 1}`,
     name: '',
+    orchestra,
     staves: 1,
     instruments,
     notes: [],
@@ -108,6 +109,95 @@ describe('assignChannels', () => {
       expect(value).not.toBe(LIVE_CHANNEL);
     }
     expect(channelSetup[METRONOME_CHANNEL]?.used).toBe(false);
+  });
+});
+
+// Feature 019 (data-model section 2, research R-4): Orchestra instruments get channels of their own, so the Orchestra
+// level can never change a printed part.
+describe('assignChannels with Orchestra parts', () => {
+  const printedChannel = (a: ReturnType<typeof assignChannels>, key: string) => a.channelByKey.get(key) as number;
+
+  it('an Orchestra instrument never shares a printed part channel, also when it has the same program', () => {
+    const piano = instrument({ xmlId: 'A', program: 0, channelHint: 0 });
+    const orchestraPiano = instrument({ xmlId: 'B', program: 0, channelHint: null });
+    const assignment = assignChannels([part(0, [piano]), part(1, [orchestraPiano], true)]);
+    const printed = printedChannel(assignment, '0#A');
+    const orchestra = printedChannel(assignment, '1#B');
+    expect(orchestra).not.toBe(printed);
+    expect(assignment.channelSetup[printed]).toMatchObject({ used: true, orchestra: false });
+    expect(assignment.channelSetup[orchestra]).toMatchObject({ used: true, program: 0, orchestra: true });
+    expect(assignment.orchestraChannelsShared).toBe(false);
+  });
+
+  it('printed parts are assigned first even when the Orchestra part comes first in the file', () => {
+    const oboe = instrument({ xmlId: 'O', program: 68, channelHint: 0 });
+    const piano = instrument({ xmlId: 'P', program: 0, channelHint: 0 });
+    const assignment = assignChannels([part(0, [oboe], true), part(1, [piano])]);
+    expect(printedChannel(assignment, '1#P')).toBe(0); // the piano gets the channel its hint names
+    expect(printedChannel(assignment, '0#O')).not.toBe(0);
+    expect(assignment.channelSetup[0]?.orchestra).toBe(false);
+  });
+
+  it('an Orchestra instrument takes a free channel its hint names, never a used one', () => {
+    const free = instrument({ xmlId: 'F', program: 68, channelHint: 5 });
+    const taken = instrument({ xmlId: 'T', program: 70, channelHint: 0 }); // channel 0 is the piano's
+    const piano = instrument({ xmlId: 'P', program: 0, channelHint: 0 });
+    const assignment = assignChannels([part(0, [piano]), part(1, [free, taken], true)]);
+    expect(printedChannel(assignment, '1#F')).toBe(5);
+    expect(printedChannel(assignment, '1#T')).not.toBe(0);
+  });
+
+  it('Orchestra instruments of one program share one Orchestra channel; different programs get channels of their own', () => {
+    const piano = instrument({ xmlId: 'P', program: 0 });
+    const strings1 = instrument({ xmlId: 'S1', program: 48 });
+    const strings2 = instrument({ xmlId: 'S2', program: 48 });
+    const flute = instrument({ xmlId: 'F', program: 73 });
+    const assignment = assignChannels([part(0, [piano]), part(1, [strings1], true), part(2, [strings2, flute], true)]);
+    expect(printedChannel(assignment, '1#S1')).toBe(printedChannel(assignment, '2#S2'));
+    expect(printedChannel(assignment, '2#F')).not.toBe(printedChannel(assignment, '2#S2'));
+    for (const key of ['1#S1', '2#S2', '2#F']) {
+      expect(assignment.channelSetup[printedChannel(assignment, key)]?.orchestra, key).toBe(true);
+    }
+    expect(assignment.channelSetup.filter((c) => c.orchestra)).toHaveLength(2);
+  });
+
+  it('never takes the percussion, live-input or Metronome channel', () => {
+    const piano = instrument({ xmlId: 'P', program: 0 });
+    const many = Array.from({ length: 10 }, (_, i) => instrument({ xmlId: `O${i}`, program: 40 + i }));
+    const assignment = assignChannels([part(0, [piano]), part(1, many, true)]);
+    for (const channel of assignment.channelByKey.values()) {
+      expect([PERCUSSION_CHANNEL, LIVE_CHANNEL, METRONOME_CHANNEL]).not.toContain(channel);
+    }
+    for (const reserved of [PERCUSSION_CHANNEL, LIVE_CHANNEL, METRONOME_CHANNEL]) {
+      expect(assignment.channelSetup[reserved]?.orchestra).toBe(false);
+    }
+  });
+
+  it('when no channel is free the extra Orchestra instruments share the last Orchestra channel and say so', () => {
+    // 13 melodic channels are free (16 minus percussion, live and Metronome): one printed piano and 13 Orchestra programs
+    const piano = instrument({ xmlId: 'P', program: 0 });
+    const many = Array.from({ length: 13 }, (_, i) => instrument({ xmlId: `O${i}`, program: 40 + i }));
+    const assignment = assignChannels([part(0, [piano]), part(1, many, true)]);
+    expect(assignment.orchestraChannelsShared).toBe(true);
+    const printed = printedChannel(assignment, '0#P');
+    const channels = many.map((_, i) => printedChannel(assignment, `1#O${i}`));
+    expect(channels).not.toContain(printed); // never the printed part's channel
+    expect(new Set(channels).size).toBe(12); // the last one shares with the one before it
+    expect(channels[12]).toBe(channels[11]);
+    for (const channel of channels) expect(assignment.channelSetup[channel]?.orchestra).toBe(true);
+    expect(assignment.channelSetup[printed]?.orchestra).toBe(false);
+  });
+
+  it('a Score without an Orchestra part assigns exactly as before and marks no channel', () => {
+    const a = instrument({ xmlId: 'A', program: 0, channelHint: 0 });
+    const b = instrument({ xmlId: 'B', program: 40, channelHint: 1 });
+    const assignment = assignChannels([part(0, [a]), part(1, [b])]);
+    expect([...assignment.channelByKey.entries()]).toEqual([
+      ['0#A', 0],
+      ['1#B', 1],
+    ]);
+    expect(assignment.channelSetup.every((c) => c.orchestra === false)).toBe(true);
+    expect(assignment.orchestraChannelsShared).toBe(false);
   });
 });
 

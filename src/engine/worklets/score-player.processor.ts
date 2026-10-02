@@ -22,6 +22,7 @@ import { type MIDIController, SoundBankLoader, SpessaSynthProcessor } from 'spes
  */
 
 import {
+  EXPRESSION_CONTROLLER,
   LIVE_CHANNEL,
   LIVE_QUEUE_CAPACITY,
   MAX_SETUP_CONTROLLERS,
@@ -42,7 +43,7 @@ import {
   recomputeSegmentFrames,
   type TempoSegmentFrame,
 } from './dispatch.js';
-import { LIVE_KIND, LiveQueue, liveKindOf } from './live-queue.js';
+import { LIVE_KIND, LiveQueue, liveChannelOf, liveKindOf } from './live-queue.js';
 
 export interface SynthInterface {
   noteOn(channel: number, key: number, velocity: number, frame?: number): void;
@@ -89,8 +90,8 @@ export type ProcessorMessage =
  * never sent - the drain is on the real-time path, where a wrong read is a stuck note (tasks.md T139).
  */
 export type LiveMessage =
-  | { type: 'live'; kind: 'on'; key: number; velocity: number }
-  | { type: 'live'; kind: 'off'; key: number }
+  | { type: 'live'; kind: 'on'; key: number; velocity: number; channel?: number }
+  | { type: 'live'; kind: 'off'; key: number; channel?: number }
   | { type: 'live'; kind: 'sustain'; down: boolean }
   | { type: 'live'; kind: 'allOff' };
 
@@ -250,6 +251,8 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
   let soundIsReady = false;
 
   const liveQueue = new LiveQueue(LIVE_QUEUE_CAPACITY); // pre-allocated slots, nothing per message (017 T031)
+  let orchestraMask = 0; // bit c = channel c carries an Orchestra (the schedule's, worklet-protocol 1.6.0)
+  let orchestraExpression = 127; // the held Orchestra level as CC11 (0..127); the engine sends the user's at start-up
   let liveDropped = 0; // T057: counted and shown like the other dropouts (Constitution I)
 
   let onMessage: ((msg: ProcessorMessage) => void) | null = null;
@@ -365,6 +368,10 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     if (overflow) {
       post({ type: 'status', state: 'error', detail: `more than ${MAX_SETUP_CONTROLLERS} setup controllers` });
     }
+    // The channels that carry an Orchestra (worklet-protocol 1.6.0): a missing or invalid mask is 0. Last, so a malformed
+    // schedule that throws above leaves the previous mask with the previous schedule (RT review T036).
+    const mask = sched.orchestraMask;
+    orchestraMask = typeof mask === 'number' && Number.isInteger(mask) && mask >= 0 && mask <= 0xffff ? mask : 0;
   }
 
   /**
@@ -388,6 +395,13 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
           if (setupControllers[c] !== channel || setupControllers[c + 1] === 0) continue; // bank select is above
           synth.controllerChange?.(channel, setupControllers[c + 1] ?? 0, setupControllers[c + 2] ?? 0);
         }
+        // Expression (019): the held Orchestra level on an Orchestra channel, full on every other, so a channel that carried
+        // an Orchestra in the previous Score never keeps the piano quiet in this one
+        synth.controllerChange?.(
+          channel,
+          EXPRESSION_CONTROLLER,
+          (orchestraMask >> channel) & 1 ? orchestraExpression : 127,
+        );
       } catch (err) {
         // One channel's bad program or bank must not leave the others unconfigured or the sound never announced: go on
         // with the next channel and report once (never a throw out of the handler).
@@ -516,22 +530,37 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
         // effect at the very next block per contracts/worklet-protocol.md 1.2.0 - used to mute the
         // Metronome without touching the schedule (research R-02). `gain` is 0..1 linear, the same
         // convention as the `volume` message above.
-        const channel = msg.channel as number;
+        const channel = msg.channel;
+        if (typeof channel !== 'number' || !Number.isInteger(channel) || channel < 0 || channel > 15) break; // RT review T017 N3
         const rawGain = msg.gain as number;
         const gain = Number.isFinite(rawGain) ? Math.max(0, Math.min(1, rawGain)) : 0;
         synth.controllerChange?.(channel, 7, Math.round(gain * 127));
         break;
       }
+      case 'orchestraLevel': {
+        // The Orchestra level (feature 019, worklet-protocol 1.6.0): CC11 on every Orchestra channel of the schedule, applied
+        // here between render blocks. A gain that is not a finite number is ignored like a bad volume; others are clamped.
+        const raw = msg.gain;
+        if (typeof raw !== 'number' || !Number.isFinite(raw)) break;
+        orchestraExpression = Math.round(Math.max(0, Math.min(1, raw)) * 127);
+        for (let c = 0; c < 16; c++) {
+          if ((orchestraMask >> c) & 1) synth.controllerChange?.(c, EXPRESSION_CONTROLLER, orchestraExpression);
+        }
+        break;
+      }
       case 'live': {
         // Checked here, off the render quantum, and written into a pre-allocated slot: no object per message (017 T031).
         const kind = liveKindOf(msg);
+        const channel = liveChannelOf(msg); // -1: not a channel a live note may use (019)
         const queued =
           kind !== 0 &&
+          channel >= 0 &&
           liveQueue.push(
             kind,
             typeof msg.key === 'number' ? msg.key : 0,
             typeof msg.velocity === 'number' ? msg.velocity : 0,
             msg.down === true,
+            channel,
           );
         if (!queued) {
           // Malformed (017 T005) or past the queue's capacity: dropped, not queued. A stuck note or a missed release
@@ -586,13 +615,17 @@ export function createScorePlayerProcessor(opts: ScorePlayerOptions): ScorePlaye
     for (let i = 0; i < liveCount; i++) {
       const kind = liveQueue.kindAt(i);
       if (kind === LIVE_KIND.on) {
-        synth.noteOn(LIVE_CHANNEL, liveQueue.keyAt(i), liveQueue.velocityAt(i));
+        synth.noteOn(liveQueue.channelAt(i), liveQueue.keyAt(i), liveQueue.velocityAt(i));
       } else if (kind === LIVE_KIND.off) {
-        synth.noteOff(LIVE_CHANNEL, liveQueue.keyAt(i));
+        synth.noteOff(liveQueue.channelAt(i), liveQueue.keyAt(i));
       } else if (kind === LIVE_KIND.sustain) {
         synth.controllerChange?.(LIVE_CHANNEL, 64, liveQueue.downAt(i) ? 127 : 0);
       } else if (kind === LIVE_KIND.allOff) {
         synth.allNotesOff?.(LIVE_CHANNEL);
+        // and every Orchestra channel of the schedule: Practice starts Orchestra notes on live input (019)
+        if (orchestraMask !== 0) {
+          for (let c = 0; c < 16; c++) if ((orchestraMask >> c) & 1) synth.allNotesOff?.(c);
+        }
       }
     }
     liveQueue.consume(liveCount);

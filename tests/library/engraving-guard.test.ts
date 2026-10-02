@@ -7,6 +7,7 @@ import type { ExerciseDefinition } from '../../src/core/library/exercise/types.j
 import { planEngraving } from '../../src/core/musicxml/engraving/plan.js';
 import { readXml } from '../../src/core/musicxml/read.js';
 import { decodeXml } from '../../src/engine/files/decode.js';
+import { planLibraryEngraving } from '../../tools/library/engrave.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const libraryRoot = path.resolve(__dirname, '../../public/library');
@@ -26,13 +27,14 @@ function findMusicXmlFiles(dir: string, base: string = dir): string[] {
 }
 
 describe('library engraving guard (FR-012, beam half)', () => {
-  it('every library item is fully beamed: planEngraving(doc, "library") yields no beam inserts', () => {
+  // Printed parts only: an Orchestra part (019) is never drawn, so its beams and signs are not checked (T107).
+  it('every library item is fully beamed: planLibraryEngraving(doc) yields no beam inserts', () => {
     const messages: string[] = [];
 
     for (const relFile of findMusicXmlFiles(libraryRoot)) {
       const xml = decodeXml(fs.readFileSync(path.join(libraryRoot, relFile)));
       const { doc } = readXml(xml);
-      const plan = planEngraving(doc, 'library');
+      const plan = planLibraryEngraving(doc);
 
       for (const finding of plan.findings) {
         if (finding.kind !== 'missingBeam') continue;
@@ -50,13 +52,13 @@ describe('library engraving guard (FR-012, beam half)', () => {
 });
 
 describe('library engraving guard (FR-012, accidental half)', () => {
-  it('every library item reads correctly as written: planEngraving(doc, "library") yields no accidental inserts', () => {
+  it('every library item reads correctly as written: planLibraryEngraving(doc) yields no accidental inserts', () => {
     const messages: string[] = [];
 
     for (const relFile of findMusicXmlFiles(libraryRoot)) {
       const xml = decodeXml(fs.readFileSync(path.join(libraryRoot, relFile)));
       const { doc } = readXml(xml);
-      const plan = planEngraving(doc, 'library');
+      const plan = planLibraryEngraving(doc);
 
       for (const finding of plan.findings) {
         if (finding.kind !== 'missingAccidental' && finding.kind !== 'missingCourtesy') continue;

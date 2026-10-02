@@ -1,6 +1,10 @@
 # Contract: authoritative source manifest (`content/library/sources/<source-id>/source.json`)
 
-**Version**: `1.1.0` (1.0.0 new; 1.1.0, 2026-09-24: optional `score` and `archive` on a file, task T095).
+**Version**: `1.3.0` (1.3.0, 2026-10-01, feature 019 (owner decision, research R-19), MINOR: `licence` also accepts
+CC BY and CC BY-SA 2.0/2.5/3.0/4.0 as SPDX ids; `credit` is required for them; 1.0.0 new; 1.1.0, 2026-09-24: optional `score` and `archive` on a file, task T095; 1.2.0, 2026-10-01,
+feature 019-metronome-orchestra-volume, MINOR: optional manifest field `origin`, `"downloaded"` (default) or
+`"transcription"` - our own CC0 reading of a public-domain print, whose `url` is that print; used for the second,
+independent transcription of a piece, [019 data-model.md](../../019-metronome-orchestra-volume/data-model.md) section 6.3).
 
 **Owner**: `tools/library/fidelity/sources.ts` (reads and validates). **Written by**: a person or agent when a
 source is added, after the owner approved it. **Read by**: the fidelity tool and `tests/library/fidelity.test.ts`.
@@ -37,10 +41,12 @@ Files are committed **unchanged** (hash-checked). A scan (PDF) is **not** commit
     "publisher": { "type": "string", "maxLength": 200 },
     "url":       { "type": "string", "format": "uri" },
     "identifier":{ "type": "string", "maxLength": 100 },
-    "licence":   { "enum": ["public-domain", "CC0-1.0"] },
+    "licence":   { "enum": ["public-domain", "CC0-1.0", "CC-BY-2.0", "CC-BY-2.5", "CC-BY-3.0", "CC-BY-4.0",
+                             "CC-BY-SA-2.0", "CC-BY-SA-2.5", "CC-BY-SA-3.0", "CC-BY-SA-4.0"] },
     "credit":    { "type": "string", "maxLength": 300 },
     "obtained":  { "type": "string", "format": "date" },
     "approvedByOwner": { "type": "string", "format": "date" },
+    "origin":    { "enum": ["downloaded", "transcription"], "default": "downloaded", "description": "1.2.0: transcription = our own CC0 reading of the print at url" },
     "files": {
       "type": "array", "minItems": 1,
       "items": {
@@ -71,9 +77,10 @@ Files are committed **unchanged** (hash-checked). A scan (PDF) is **not** commit
 
 ## 3. Rules
 
-- `licence` is `public-domain` or `CC0-1.0` only (FR-006). A source whose page shows any other licence (for example
-  Mutopia's `Creative Commons Attribution-ShareAlike`) is never added, not even for reference; it is recorded in
-  `content/library/sources/README.md` under "Rejected sources" with the reason.
+- `licence` is `public-domain` or `CC0-1.0` (FR-006) or, since 1.3.0, CC BY / CC BY-SA 2.0-4.0 (019 FR-025), with
+  `credit` required for those. A source whose page shows any other licence (NonCommercial, NoDerivatives, none) is
+  never added, not even for reference; it is recorded in `content/library/sources/README.md` under "Rejected
+  sources" with the reason.
 - A file with `path` must have `sha256`; the fidelity test re-hashes it and fails on any change (FR-016).
 - `role: "sound"` requires `midiOrder`, `midiNoteTracks` and `midiArticulate`, all established by inspecting the file once and
   recorded, not guessed at every run.

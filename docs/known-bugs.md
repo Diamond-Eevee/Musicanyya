@@ -29,3 +29,34 @@ One entry per bug: what fails, how to reproduce it, what has already been ruled 
 - **Tracking**: spun off as background task `task_c4d89f4f` (2026-09-27); not yet started. Remove this entry once
   fixed (or update it if the root cause turns out to be something worth remembering, e.g. a schedule bug pattern
   that could recur elsewhere).
+- **Seen again 2026-10-02** (feature 019): both tests failed in a full e2e run and on re-runs alone (chromium, firefox,
+  electron; chromium also on the session-start commit `e20516a`, so not 019's code), together with the three
+  `play-tempo.spec.ts` tests - then all passed in the next full run (`1272 passed`, exit 0) with no code change in
+  between. So it does **not** fail every time: it comes and goes with something on the machine (audio-clock timing),
+  which fits the timing hypothesis above.
+
+## Satie *Gymnopedie No. 1* no longer converts to the committed item
+
+- **Found**: 2026-10-02, feature 019 (task T102, moved here by the owner).
+- **What**: `pnpm library:convert-ly mutopia-37-satie-gymnopedie1 repertoire/advanced/satie-gymnopedie-no1` writes a
+  file that differs from the committed one beyond the expected tie-order change (019 T101): the lower-staff notes of
+  bar 1 (and maybe more) move from voice 5 / staff 2 to voice 2 / staff 1. Visible effect today: Verovio does not draw
+  3 continued ties ("identical values in @startid and @endid"), because the committed file still writes tie start
+  before stop.
+- **Not yet investigated**: which converter change since `de2d579` (the commit that made the item) causes the drift,
+  and whether the new or the committed reading matches the Mutopia source and the print's staff layout.
+- **Reproduce**: run the command above, then `git diff --stat public/library/repertoire/advanced/satie-gymnopedie-no1.musicxml`;
+  revert with `git checkout -- public/library/repertoire/advanced/satie-gymnopedie-no1.musicxml`.
+- **Fix when found**: regenerate with `pnpm library:convert-ly` + `pnpm library:engrave`; `pnpm library:fidelity --item
+  repertoire/advanced/satie-gymnopedie-no1` 0 differences; Note IDs per the identity golden or the change explained.
+
+## Chopin Op. 28 No. 4: three slurs drawn from one hand's staff to the other
+
+- **Found**: 2026-10-02, feature 019 (task T108, moved here by the owner).
+- **What**: the item was converted before the converter numbered slurs per voice (019 T103), so 3 overlapping slurs in
+  two voices share a number and Verovio pairs them across the staves. Reconverting fixes the numbers but also puts the
+  right hand's closing chords of bars 24-25 back on the lower staff, undoing the owner-approved move to the upper staff
+  (2026-09-24, so the level check does not count them with the left hand) - the conversion does not reproduce it.
+- **Fix**: make the bars 24-25 move reproducible by the converter (e.g. a source-side `% item:` change as in Morning
+  Mood's transcription A, 019 T097), then reconvert; check with a scan for slur numbers paired across voices (019 T104
+  log entry) and `pnpm library:fidelity --item repertoire/advanced/chopin-prelude-op28-no4`.

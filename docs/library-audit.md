@@ -6,13 +6,13 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 | Outcome | Items |
 |---|---|
-| verified | 168 |
+| verified | 169 |
 | verified (visual) | 3 |
 | fixed | 7 |
 | replaced | 4 |
 | relabelled | 2 |
 | removed | 1 |
-| Total | 185 |
+| Total | 186 |
 
 ## Level counts after the audit
 
@@ -20,7 +20,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 |---|---|---|---|
 | Beginner | 13 | 7 | meets the minimum |
 | Intermediate | 9 | 5 | meets the minimum |
-| Advanced | 7 | 5 | meets the minimum |
+| Advanced | 8 | 5 | meets the minimum |
 
 ## Repertoire
 
@@ -32,6 +32,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 | Prelude in E minor, Op. 28 No. 4 ("Largo")<br>`repertoire/advanced/chopin-prelude-op28-no4` | original | [Peters, 1879](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=468) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | replaced | 2026-09-24 |
 | Sonatina in C major, Op. 36 No. 1 (1st movement)<br>`repertoire/advanced/clementi-sonatina-op36-no1-mvt1` | original | [Sonatina Album, G. Schirmer, 1893](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=804) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | replaced | 2026-09-24 |
 | Für Elise, WoO 59<br>`repertoire/advanced/fur-elise-complete` | original | [Breitkopf & Härtel, 1888](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | verified | 2026-09-24 |
+| Morning Mood<br>`repertoire/advanced/grieg-morning-mood` | original | [G. Schirmer, New York, 1899; Morgenstimmung edited and fingered by Louis Oesterle (PDF pages 7-10 of Internet Archive 31761045200615)](https://archive.org/details/31761045200615)<br>ia-31761045200615-grieg-op46-schirmer (PDF pages 7-10, print pages 3-6)<br>none (theory check) | mechanical (bars all)<br>visual (bars all)<br>theory | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes<br>visual comparison<br>orchestra-v1 | 5 | verified | 2026-10-02 |
 | Gymnopedie No. 1<br>`repertoire/advanced/satie-gymnopedie-no1` | original | [Dover Edition](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=37) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | replaced | 2026-09-24 |
 | Amazing Grace (arranged for beginners)<br>`repertoire/beginner/amazing-grace` | arrangement | [www.cyberhymnal.org (tune: Virginia Harmony, 1831; harmonization: E. O. Excell, 1900)](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1283) | mechanical (bars all) | melody, spelling | 0 | fixed | 2026-09-24 |
 | Fur Elise (opening motif, arranged for absolute beginners)<br>`repertoire/beginner/fur-elise-theme-16-bar` | arrangement | [Breitkopf & Härtel, 1888](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931) | mechanical (bars 0-1)<br>mechanical (bars 2-4)<br>mechanical (bars 5-5)<br>mechanical (bars 6-8) | melody, spelling | 8 (27 allowed by departures) | relabelled | 2026-09-24 |
@@ -353,6 +354,16 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 - Outcome (replaced): Replaced by the conversion of the whole first movement from mutopia-804 (38 bars, both repeats; 0 differences on every aspect). Until 2026-09-24 the shelf called it the exposition only (bars 1-15) and a hand edit had lowered the tempo to 144; it is now exactly the converter and engraving tool output, tempo 156 from the source MIDI (owner decision, T104).
 - Recent scores that opened the old version keep that copy; progress saved against it does not carry over.
+
+### Morning Mood (`repertoire/advanced/grieg-morning-mood`)
+
+- Outcome (verified): Converted 2026-10-02 from transcription A (read-back 0 differences) and compared with transcription B, read from the print by a separate session: 15 differences in 7 places (bars 48-49, 54-55, 64-65, 66, 70, 79-80, 84), each settled against the print in favour of B and fixed in A; now 0. The visual pass then corrected A's slurs, fingering, dynamics, hairpins, arpeggios and words in about 30 bars (019 log, T045).
+- Visual check, bars all, against ia-31761045200615-grieg-op46-schirmer (PDF pages 7-10, print pages 3-6): 87 bars compared page by page with the engraved item (pnpm screenshot), and every mark on which transcriptions A and B disagree looked up in the print: slurs, ties, dynamics, hairpins, fingering, pedal, arpeggios and words. Everything matches the print except the differences listed.
+  - Bars 77-78: the right hand's chords are printed on the upper staff; the print has them on the lower staff (owner decision OD-3, as Chopin Op. 28 No. 4).
+  - Bars 64-65: the E4 the melody shares with the lower voice (one head, two stems in the print) is one note in the lower voice, so the melody's beam starts after a gap.
+  - Bars 1-20: the curved brackets before the left-hand chords are not encoded (not the wavy arpeggio sign; meaning uncertain).
+  - Grace-note slurs (bars 2, 6, 10, 14, 22, 26) are not drawn; the phrase slur over the bar is.
+  - Fingering numbers and some hairpin ends are placed by Verovio, not where the print has them (e.g. the left hand's 2-4 under the 16th pairs of bars 30-31, 38-39, 46-47 is printed above).
 
 ### Gymnopedie No. 1 (`repertoire/advanced/satie-gymnopedie-no1`)
 

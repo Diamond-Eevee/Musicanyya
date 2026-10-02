@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { buildScore } from '../../../src/core/musicxml/build.js';
 import { readXml } from '../../../src/core/musicxml/read.js';
-import { type WriteEvent, type WriteMeasure, type WriteNote, writeScoreXml } from '../../../src/core/musicxml/write.js';
+import {
+  type WriteEvent,
+  type WriteMeasure,
+  type WriteNote,
+  writePartXml,
+  writeScorePartXml,
+  writeScoreXml,
+} from '../../../src/core/musicxml/write.js';
 
 describe('writeScoreXml (contracts/exercise-definition.md - the minimal writer)', () => {
   it('round-trips a two-staff, two-measure score with a backup and fingering on every note', () => {
@@ -248,6 +255,34 @@ describe('writeScoreXml (contracts/exercise-definition.md - the minimal writer)'
     expect(notes).toHaveLength(2); // the rest is not a Note
     expect(notes[0]?.tie).toEqual({ start: true, stop: false });
     expect(notes[1]?.tie).toEqual({ start: false, stop: true });
+  });
+
+  it('writes a tie that both ends and starts as stop before start, so Verovio does not tie the note to itself (019 T101)', () => {
+    const tied = (tie: WriteNote['tie']): WriteEvent => ({
+      kind: 'note',
+      note: { pitch: { step: 'E', octave: 4 }, duration: 4, voice: '1', type: 'quarter', ...(tie ? { tie } : {}) },
+    });
+    const xml = writeScoreXml({
+      parts: [
+        {
+          id: 'P1',
+          name: 'Piano',
+          measures: [
+            {
+              number: '1',
+              attributes: { divisions: 4, time: { beats: '3', beatType: 4 } },
+              events: [tied({ start: true }), tied({ start: true, stop: true }), tied({ stop: true })],
+            },
+          ],
+        },
+      ],
+    });
+
+    const middle = xml.match(/<note>.*?<\/note>/g)?.[1] ?? '';
+    expect(middle).toContain('<tie type="stop"/><tie type="start"/>');
+    expect(middle).toContain('<tied type="stop"/><tied type="start"/>');
+    const notes = buildScore(readXml(xml).doc).score.parts[0]?.notes ?? [];
+    expect(notes[1]?.tie).toEqual({ start: true, stop: true });
   });
 
   it('writes printObject: false as <note print-object="no">, which the reader takes as not printed (017 T051)', () => {
@@ -515,6 +550,26 @@ describe('writeScoreXml (contracts/exercise-definition.md - the minimal writer)'
       ]);
     });
 
+    it('writes a two-note tremolo in <ornaments>, beside another ornament, as the reader takes it (019 T081)', () => {
+      const half = { timeModification: { actual: 2, normal: 1 } };
+      const { xml, notes, notices } = load([
+        first([
+          note('E', 2, 4, 'half', { ...half, tremolo: { type: 'start', marks: 3 } }),
+          note('E', 3, 4, 'half', { ...half, tremolo: { type: 'stop', marks: 3 }, ornament: 'trill-mark' }),
+          note('C', 4, 8, 'half'),
+        ]),
+      ]);
+      expect(notices).toEqual([]);
+      expect(xml).toContain('<notations><ornaments><tremolo type="start">3</tremolo></ornaments></notations>');
+      expect(xml).toContain('<ornaments><trill-mark/><tremolo type="stop">3</tremolo></ornaments>');
+      expect(notes.map((n) => [n.soundingKey, n.onsetInMeasure, n.ornament])).toEqual([
+        [40, 0, 'tremolo'],
+        [52, notes[1]?.onsetInMeasure, 'tremolo'], // the app keeps one ornament per note, the last one written
+        [60, notes[2]?.onsetInMeasure, null],
+      ]);
+      expect(notes[1]?.onsetInMeasure).toBe(notes[0]?.durationTicks);
+    });
+
     it('writes dynamics and hairpins that the reader records per part', () => {
       const { xml, score, notices } = load([
         first([
@@ -575,6 +630,41 @@ describe('writeScoreXml (contracts/exercise-definition.md - the minimal writer)'
       ]);
     });
 
+    it('writes a metronome mark with a dotted beat, which the reader takes with its dot (019 T083)', () => {
+      const { xml, score, notices } = load([
+        first(
+          [
+            {
+              kind: 'direction',
+              words: 'Allegretto pastorale.',
+              bold: true,
+              metronome: { beatUnit: 'quarter', dots: 1, perMinute: 60 },
+              tempo: 90,
+              placement: 'above',
+              staff: 1,
+            },
+            note('C', 4, 12, 'half', { dot: true }),
+          ],
+          { divisions: 4, time: { beats: '6', beatType: 8 } },
+        ),
+      ]);
+      expect(notices).toEqual([]);
+      expect(xml).toContain(
+        '<metronome><beat-unit>quarter</beat-unit><beat-unit-dot/><per-minute>60</per-minute></metronome>',
+      );
+      expect(xml).toContain('<sound tempo="90"/>');
+      expect(score.tempoMarks).toEqual([
+        {
+          measureIndex: 0,
+          onsetInMeasure: 0,
+          qpmNum: 9000,
+          qpmDen: 100,
+          beat: { type: 'quarter', dots: 1, quartersNum: 3, quartersDen: 2 },
+          isDefault: false,
+        },
+      ]);
+    });
+
     it('writes an expression word in italics and a written arpeggio on every chord member', () => {
       const { xml, notes, notices } = load([
         first([
@@ -627,5 +717,93 @@ describe('writeScoreXml (contracts/exercise-definition.md - the minimal writer)'
     expect(xml).toContain('I &lt;-&gt; V &amp; back');
     const { doc } = readXml(xml);
     expect(() => buildScore(doc)).not.toThrow();
+  });
+});
+
+// Feature 019 (fidelity-tools 1.14.0): what an Orchestra part needs - a staff that is not printed and takes no room, a playback
+// loudness (`<sound dynamics>`), and a score-part with its own GM program
+describe('writer: Orchestra parts (feature 019)', () => {
+  const measure = (over: Partial<WriteMeasure> = {}): WriteMeasure => ({
+    number: '1',
+    events: [{ kind: 'note', note: { pitch: { step: 'C', octave: 5 }, duration: 4, voice: '1', type: 'whole' } }],
+    ...over,
+  });
+  const partXml = (m: WriteMeasure) => writePartXml({ id: 'orch-oboe', name: 'Oboe', measures: [m] });
+
+  it('writes <staff-details> after the clefs, per staff, with print-object and print-spacing', () => {
+    const xml = partXml(
+      measure({
+        attributes: {
+          divisions: 4,
+          staves: 2,
+          clefs: [{ number: 1, sign: 'G', line: 2 }],
+          staffDetails: [
+            { number: 1, printObject: false, printSpacing: false },
+            { number: 2, printObject: false, printSpacing: false },
+          ],
+        },
+      }),
+    );
+    expect(xml).toContain(
+      '<staff-details number="1" print-object="no" print-spacing="no"/><staff-details number="2" print-object="no" print-spacing="no"/>',
+    );
+    expect(xml.indexOf('</clef>')).toBeLessThan(xml.indexOf('<staff-details'));
+  });
+
+  it('a staff-details without a number, or with only one of the attributes, writes only what it has', () => {
+    const only = (details: object) => partXml(measure({ attributes: { divisions: 4, staffDetails: [details] } }));
+    expect(only({ printObject: false })).toContain('<staff-details print-object="no"/>');
+    expect(only({ number: 2, printSpacing: false })).toContain('<staff-details number="2" print-spacing="no"/>');
+    expect(only({ printObject: true })).toContain('<staff-details print-object="yes"/>');
+  });
+
+  it('writes <sound dynamics> in a direction, with or without a tempo', () => {
+    const xml = partXml(measure({ events: [{ kind: 'direction', soundDynamics: 50 }] }));
+    expect(xml).toContain('<sound dynamics="50"/>');
+    const both = partXml(measure({ events: [{ kind: 'direction', tempo: 90, soundDynamics: 70 }] }));
+    expect(both).toContain('<sound tempo="90" dynamics="70"/>');
+  });
+
+  it('a direction with no soundDynamics, and a measure with no staffDetails, write exactly what they did before', () => {
+    expect(partXml(measure({ events: [{ kind: 'direction', tempo: 90 }] }))).toContain('<sound tempo="90"/>');
+    expect(partXml(measure({ attributes: { divisions: 4 } }))).not.toContain('staff-details');
+  });
+
+  it('writes a score-part with its own GM program (1-based), name and channel', () => {
+    const xml = writeScorePartXml({ id: 'orch-oboe', name: 'Oboe', program: 69, channel: 2 });
+    expect(xml).toBe(
+      '<score-part id="orch-oboe"><part-name>Oboe</part-name><score-instrument id="orch-oboe-I1"><instrument-name>Oboe</instrument-name></score-instrument><midi-instrument id="orch-oboe-I1"><midi-channel>2</midi-channel><midi-program>69</midi-program></midi-instrument></score-part>',
+    );
+  });
+
+  it('what it writes reads back as an Orchestra part with its program and loudness', () => {
+    const doc = `<?xml version="1.0"?><score-partwise version="4.0"><part-list>${writeScorePartXml({ id: 'P1', name: 'Piano', program: 1, channel: 1 })}${writeScorePartXml({ id: 'orch-oboe', name: 'Oboe', program: 69, channel: 2 })}</part-list>${writePartXml(
+      {
+        id: 'P1',
+        name: 'Piano',
+        measures: [measure({ attributes: { divisions: 4, time: { beats: '4', beatType: 4 } } })],
+      },
+    )}${writePartXml({
+      id: 'orch-oboe',
+      name: 'Oboe',
+      measures: [
+        measure({
+          attributes: {
+            divisions: 4,
+            time: { beats: '4', beatType: 4 },
+            staffDetails: [{ number: 1, printObject: false, printSpacing: false }],
+          },
+          events: [
+            { kind: 'direction', soundDynamics: 50 },
+            { kind: 'note', note: { pitch: { step: 'E', octave: 5 }, duration: 4, voice: '1', type: 'whole' } },
+          ],
+        }),
+      ],
+    })}</score-partwise>`;
+    const { score } = buildScore(readXml(doc).doc);
+    const oboe = score.parts.find((p) => p.xmlId === 'orch-oboe');
+    expect(oboe?.orchestra).toBe(true);
+    expect(oboe?.instruments[0]?.program).toBe(68);
+    expect(oboe?.soundDynamics.map((d) => d.percent)).toEqual([50]);
   });
 });

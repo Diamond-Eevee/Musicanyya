@@ -20,6 +20,7 @@
     "library:index": "tsx tools/library/build-index.ts",
     "library:fidelity": "tsx tools/library/fidelity/cli.ts",
     "library:convert-ly": "tsx tools/library/lilypond/cli.ts",
+    "library:orchestra": "tsx tools/library/orchestra/cli.ts",
     "screenshot": "tsx tools/dev/screenshot.ts",
     "brand:icons": "tsx tools/brand/build-icons.ts"
   },

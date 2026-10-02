@@ -34,7 +34,8 @@ describe('menu model', () => {
   it('reaches every panel that a person opens by hand from exactly one entry (grade is opened by a run; browser is not a panel)', () => {
     const reachable = MENU_GROUPS.flatMap((group) => group.entries.map((entry) => entry.panel));
     const panelEntries = reachable.filter((panel) => panel !== 'browser').sort();
-    expect(panelEntries).toEqual(PANEL_IDS.filter((id) => id !== 'grade').sort());
+    // 'sound' (the Levels popover, feature 019) is opened by the toolbar's Levels button, not a menu (ui-shell 1.5.0)
+    expect(panelEntries).toEqual(PANEL_IDS.filter((id) => id !== 'grade' && id !== 'sound').sort());
     expect(new Set(reachable).size).toBe(reachable.length);
     expect(reachable).toContain('browser');
   });

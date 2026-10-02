@@ -51,8 +51,10 @@ export const PERCUSSION_CHANNEL = 9; // 0-based
 export const LIVE_CHANNEL = 15; // 0-based
 
 export const LIVE_VELOCITY_DEFAULT = 80; // or from key velocity
-/** Live MIDI messages the worklet queues between two render blocks; more are dropped and counted (001 T057). */
-export const LIVE_QUEUE_CAPACITY = 64;
+/** Live MIDI messages the worklet queues between two render blocks; more are dropped and counted (001 T057). 256 since
+ *  019 T080: on Morning Mood one Practice input sends up to 94 (left hand only, a forte bar: the Orchestra's offs and ons
+ *  and the right-hand accompaniment), which must fit twice over. */
+export const LIVE_QUEUE_CAPACITY = 256;
 
 export const TEMPO_PERCENT_MIN = 25;
 export const TEMPO_PERCENT_MAX = 200;
@@ -63,6 +65,12 @@ export const TEMPO_MARK_QPM_MAX = 1000;
 export const TEMPO_BEAT_DOTS_MAX = 3; // more dots on a <beat-unit> make its mark unusable (012 R-2)
 export const TEMPO_BPM_DIGITS_MAX = 4; // longest number the tempo field accepts (012)
 export const VOLUME_DEFAULT = 80;
+export const METRONOME_LEVEL_DEFAULT = 100; // Metronome level, 0..100; 100 is today's loudness so nothing changes for existing users (019 R-7)
+export const ORCHESTRA_LEVEL_DEFAULT = 60; // Orchestra level, 0..100; low on purpose, tuned at the owner's listening check (019 R-7)
+export const MIXER_LEVEL_STEP = 5; // One step of a Levels slider (019 R-7)
+export const EXPRESSION_CONTROLLER = 11; // MIDI CC11 (expression): the Orchestra level, on top of the Score's own CC7 part volume (019 R-5)
+export const ORCHESTRA_SILENT_TOLERANCE_DBFS = -90; // Level 0 counts as silent below this: CC11 = 0 attenuates by 96 dB (019 R-7, SC-002)
+export const VOICE_HEADROOM_FRACTION = 0.5; // Peak active voices an Orchestra score may use, as a fraction of the synth's voice cap (019 R-11)
 
 // Audio worklet scheduling (R-10, shared with worklet which cannot import engine/config)
 export const POSITION_REPORT_BLOCKS = 4;
@@ -235,13 +243,15 @@ export const LEVEL_DURATION_SECONDS_MAX: Record<Level, number> = {
   intermediate: 240,
   advanced: 480,
 };
-// Largest simultaneous interval in one hand (criterion 16). Advanced's "wider only under <arpeggiate>"
-// exception is not modelled - `maxSpanSemitones` does not distinguish arpeggiated chords.
+// Largest simultaneous interval in one hand (criterion 16). Advanced's "wider only under <arpeggiate>" exception is the
+// rolled chord: `maxSpanSemitones` leaves out a chord whose notes all carry <arpeggiate> (`maxArpeggiatedSpanSemitones`
+// reports it), and Advanced accepts any such span, lower levels hold it to these limits (feature 019, research R-17).
+// Advanced allows an unrolled tenth (16): owner decision OD-3 of feature 019, 2026-10-01 (research R-17 addendum).
 export const LEVEL_MAX_INTERVAL_SEMITONES: Record<Level, number> = {
   introduction: 7,
   beginner: 9,
   intermediate: 12,
-  advanced: 14,
+  advanced: 16,
 };
 export const LEVEL_MAX_LEAP_SEMITONES: Record<Level, number> = {
   introduction: 12,

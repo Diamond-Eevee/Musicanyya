@@ -62,6 +62,9 @@ export type LyEvent =
       chord: boolean;
       /** The grace command (\grace, \acciaccatura, ...) for a grace note. */
       grace?: string;
+      /** One of the two printed notes of a \repeat tremolo (019 T081): it shows the whole tremolo's value (`base`,
+       *  `dots`) and lasts half of it (`length`); `marks` = tremolo beams between the two notes. */
+      tremolo?: { type: 'start' | 'stop'; marks: number };
     })
   | (WrittenBase & { kind: 'rest'; rest: 'r' | 'R' | 's'; inDynamics: boolean })
   | { kind: 'clef'; t: QuarterTime; staff: number; name: string; pos: Pos }
@@ -101,10 +104,16 @@ function analyse(score: LyScore): { reading: ReferenceScore; layout: Layout; sta
     for (let i = bars.length - 1; i >= 0; i--) if (cmp((bars[i] as ReferenceBar).start, t) <= 0) return i;
     return fail(pos, `time ${show(t)} is before the first bar`);
   };
+  /** The bar that a time ends: the last one starting before it (at a bar line, the bar before that line). */
+  const barBefore = (t: QuarterTime, pos: Pos): number => {
+    for (let i = bars.length - 1; i >= 0; i--) if (cmp((bars[i] as ReferenceBar).start, t) < 0) return i;
+    return fail(pos, `time ${show(t)} is not after the start of the first bar`);
+  };
   for (const n of layout.notes) n.note.bar = barAt(n.note.onset, n.pos);
   for (const g of layout.graces) {
     if (cmp(g.grace.before, layout.end) >= 0) fail(g.pos, 'grace note after the last note');
-    g.grace.bar = barAt(g.grace.before, g.pos);
+    // A Nachschlag (\afterGrace) belongs to the bar its main note is in, even when that note ends the bar (019 T082).
+    g.grace.bar = g.after ? barBefore(g.grace.before, g.pos) : barAt(g.grace.before, g.pos);
   }
   const notes = layout.notes.map((n) => n.note).sort(compareNotes);
   const graceNotes = layout.graces.map((g) => g.grace).sort(compareGraceNotes);
@@ -293,7 +302,8 @@ interface Repeat {
 
 interface Layout {
   notes: { note: ReferenceNote; pos: Pos }[];
-  graces: { grace: ReferenceGraceNote; pos: Pos }[];
+  /** `after`: a Nachschlag (\afterGrace), at the end of its main note rather than before the next one. */
+  graces: { grace: ReferenceGraceNote; pos: Pos; after?: true }[];
   barChecks: { t: QuarterTime; pos: Pos }[];
   barNumberChecks: { t: QuarterTime; n: number; pos: Pos }[];
   times: { t: QuarterTime; num: number; den: number; pos: Pos }[];
@@ -363,7 +373,11 @@ function layOut(root: LyMusic, staves: Staves): Layout {
     const spelling = spell(pitch);
     const midi = spellingMidi(spelling);
     if (grace) {
-      out.graces.push({ grace: { bar: -1, before: cursor, midi, spelling }, pos });
+      out.graces.push({
+        grace: { bar: -1, before: cursor, midi, spelling },
+        pos,
+        ...(graceCommand === '\\afterGrace' ? { after: true as const } : {}),
+      });
       return;
     }
     const key = `${voice}|${midi}`;
@@ -464,6 +478,41 @@ function layOut(root: LyMusic, staves: Staves): Layout {
         graceCommand = m.command;
         walk(m.body);
         ({ grace, graceCommand } = saved);
+        return;
+      }
+      case 'tremolo': {
+        // The page prints two notes, each with the whole tremolo's value; what sounds is the alternation of
+        // strokes (LilyPond's MIDI plays it so), which is the reading.
+        if (grace) fail(m.pos, '\\repeat tremolo in grace notes');
+        if (tuplet) fail(m.pos, '\\repeat tremolo inside a \\tuplet');
+        // parse.ts admits only two single notes of one value here
+        type Note = Extract<LyMusic, { kind: 'note' }>;
+        const pair = (m.body as Extract<LyMusic, { kind: 'seq' }>).items as [Note, Note];
+        const stroke = mul(pair[0].duration.length, factor.num, factor.den);
+        const total = mul(stroke, 2 * m.times, 1);
+        const value = plainValue(total);
+        if (!value) fail(m.pos, `\\repeat tremolo lasting ${show(total)} quarters (no printable note value)`);
+        const marks = beams(pair[0].duration.base) - beams(value.base);
+        if (marks < 1) fail(m.pos, '\\repeat tremolo with no tremolo beam to print');
+        const half = mul(total, 1, 2);
+        const start = cursor;
+        pair.forEach((n, i) => {
+          cursor = add(start, mul(half, i, 1));
+          const shown: LyDuration = { base: value.base, dots: value.dots, factor: q(1), length: total };
+          out.events.push({
+            kind: 'note',
+            ...written(shown, half, n.marks, n.pos),
+            pitches: [{ spelling: spell(n.pitch), tie: false, marks: [] }],
+            chord: false,
+            tremolo: { type: i === 0 ? 'start' : 'stop', marks },
+          });
+        });
+        cursor = start;
+        for (let k = 0; k < m.times; k++)
+          for (const n of pair) {
+            sound(n.pitch, stroke, false, n.post.includes('articulation'), n.pos);
+            advance(stroke);
+          }
         return;
       }
       case 'unfoldRepeats': {
@@ -703,4 +752,17 @@ function markRepeats(bars: ReferenceBar[], repeats: Repeat[], repeatBars: { t: Q
 
 function range(from: number, to: number): number[] {
   return Array.from({ length: to - from + 1 }, (_, i) => from + i);
+}
+
+/** The plain note value (1 = whole ... 128, up to two dots) that lasts `length` quarter notes, if there is one. */
+function plainValue(length: QuarterTime): { base: number; dots: number } | undefined {
+  for (const base of [1, 2, 4, 8, 16, 32, 64, 128])
+    for (let dots = 0; dots <= 2; dots++)
+      if (cmp(q(4 * (2 ** (dots + 1) - 1), base * 2 ** dots), length) === 0) return { base, dots };
+  return undefined;
+}
+
+/** Beams a note value carries: none down to a quarter, one for an eighth, two for a 16th ... */
+function beams(base: number): number {
+  return base >= 8 ? Math.log2(base) - 2 : 0;
 }

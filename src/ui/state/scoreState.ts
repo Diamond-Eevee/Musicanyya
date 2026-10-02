@@ -27,7 +27,7 @@ export interface ScoreSummary {
   title: string | null;
   composer: string | null;
   arranger: string | null;
-  parts: { id: string; name: string; instrument: string; program: number; percussion: boolean }[];
+  parts: { id: string; name: string; instrument: string; program: number; percussion: boolean; orchestra?: boolean }[];
   measureCount: number;
   measureIds: string[];
   defaultTempoUsed: boolean;

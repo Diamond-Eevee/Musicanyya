@@ -1,3 +1,4 @@
+import { LIVE_CHANNEL, METRONOME_CHANNEL, PERCUSSION_CHANNEL } from '../../core/defaults.js';
 import type { InboundMessage } from './score-player.processor.js';
 
 /**
@@ -31,6 +32,19 @@ export function liveKindOf(msg: InboundMessage): LiveKind | 0 {
 }
 
 /**
+ * The channel a `live` message plays on (feature 019, worklet-protocol 1.6.0): the live channel when it names none, else
+ * 0..15 except the percussion and Metronome channels, which Practice never sends and a drum or click must never be played
+ * as; -1 for anything else (a non-integer, out of range, or not a number), which the caller drops and counts. Checked in
+ * the message handler, off the render quantum, without building anything.
+ */
+export function liveChannelOf(msg: InboundMessage): number {
+  const channel = msg.channel;
+  if (channel === undefined) return LIVE_CHANNEL;
+  if (typeof channel !== 'number' || !Number.isInteger(channel) || channel < 0 || channel > 15) return -1;
+  return channel === PERCUSSION_CHANNEL || channel === METRONOME_CHANNEL ? -1 : channel;
+}
+
+/**
  * The worklet's queue of live input (MIDI in, accompaniment) between the port handler and `process()` (017 T031, from
  * RT review T015 N3; Constitution I). A ring of `capacity` slots in typed arrays allocated once: `push` (handler) writes
  * the fields into the next free slot, the drain (render quantum) reads them by position from the head and then
@@ -43,6 +57,7 @@ export class LiveQueue {
   private readonly keys: Uint8Array;
   private readonly velocities: Uint8Array;
   private readonly downs: Uint8Array;
+  private readonly channels: Uint8Array;
   private head = 0;
   private count = 0;
 
@@ -54,6 +69,7 @@ export class LiveQueue {
     this.keys = new Uint8Array(capacity);
     this.velocities = new Uint8Array(capacity);
     this.downs = new Uint8Array(capacity);
+    this.channels = new Uint8Array(capacity);
   }
 
   /** Entries queued and not yet consumed. */
@@ -61,14 +77,16 @@ export class LiveQueue {
     return this.count;
   }
 
-  /** Queues one entry; false when the queue is full (the entry is dropped and the caller counts it). */
-  push(kind: LiveKind, key: number, velocity: number, down: boolean): boolean {
+  /** Queues one entry; false when the queue is full (the entry is dropped and the caller counts it). `channel` is the
+   *  channel a note plays on (feature 019); the live channel when none is given. */
+  push(kind: LiveKind, key: number, velocity: number, down: boolean, channel: number = LIVE_CHANNEL): boolean {
     if (this.count >= this.capacity) return false;
     const slot = (this.head + this.count) % this.capacity;
     this.kinds[slot] = kind;
     this.keys[slot] = key;
     this.velocities[slot] = velocity;
     this.downs[slot] = down ? 1 : 0;
+    this.channels[slot] = channel;
     this.count++;
     return true;
   }
@@ -88,6 +106,10 @@ export class LiveQueue {
 
   downAt(index: number): boolean {
     return this.downs[this.slotOf(index)] === 1;
+  }
+
+  channelAt(index: number): number {
+    return this.channels[this.slotOf(index)] as number;
   }
 
   /** Frees the first `n` entries (all of them if `n` is larger). */

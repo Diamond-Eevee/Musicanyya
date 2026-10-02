@@ -197,6 +197,7 @@ describe('a note struck again while it still rings is released first', () => {
       onsetTick,
       required: [{ key, noteIds: [`r${index}`], staff: 1 }],
       accompaniment: acc,
+      orchestra: [],
     });
     const events = [mk(0, 0, 76, [ref]), mk(1, 100, 77, [{ ...ref, noteId: 'n2' }])];
 

@@ -1,6 +1,9 @@
 # Contract: Web Worker messages
 
-**Version**: `1.3.0` (MINOR, feature 012-tempo-bpm-field: `TimelineDto` gains `tempo: TempoDisplaySegment[]`
+**Version**: `1.4.0` (MINOR, feature 019-metronome-orchestra-volume, additive; full text:
+[019 orchestra-score.md](../../019-metronome-orchestra-volume/contracts/orchestra-score.md) section 4:
+`ScoreSummary.parts[].orchestra`; `TimelineDto.spans` contains no Orchestra note; `schedule.orchestraMask`).
+`1.3.0` (MINOR, feature 012-tempo-bpm-field: `TimelineDto` gains `tempo: TempoDisplaySegment[]`
 (tempo-display.md 1.1.0, built next to the tempo map); the Verovio worker's `ready` response `glyphs` gains
 `noteheadHalf`, `noteheadWhole`, `flag8thUp` path data, harvested alongside `notehead`). `1.2.0` (MINOR, feature 008-pressed-keys-on-score: the Verovio worker's `ready` response gains `glyphs`,
 the sharp, flat, natural and black-notehead glyph path data read from Verovio's own SVG at start-up, for the accidentals
@@ -28,7 +31,8 @@ interface LoadError { code: LoadErrorCode; message: string; line?: number; colum
 interface ScoreSummary {                       // what the UI needs; the full Score stays in the worker
   title: string | null; composer: string | null;
     arranger: string | null; // 1.1.0 (feature 006): <creator type="arranger">
-  parts: { id: string; name: string; instrument: string; program: number; percussion: boolean }[];
+  parts: { id: string; name: string; instrument: string; program: number; percussion: boolean;
+           orchestra: boolean /* 1.4.0 */ }[];
   measureCount: number;                        // measures in notation order
   measureIds: string[];                        // MeasureId per notation-order index (render-copy.md)
   defaultTempoUsed: boolean;                   // true -> "no tempo marking, 100 BPM" notice
@@ -36,7 +40,7 @@ interface ScoreSummary {                       // what the UI needs; the full Sc
 interface TimelineDto {                        // compact form of data-model §3 for highlighting and seeking
   ppq: number; endTick: number;
   passes: { measureIndex: number; startTick: number; endTick: number }[];   // playback order
-  spans: { noteId: string; startTick: number; endTick: number }[];          // visual spans, sorted by startTick
+  spans: { noteId: string; startTick: number; endTick: number }[];          // visual spans, sorted by startTick; no Orchestra notes (1.4.0)
   tempo: TempoDisplaySegment[];   // 1.3.0: buildTempoDisplayMap output (feature 012 contracts/tempo-display.md 1.1.0)
 }
 ```

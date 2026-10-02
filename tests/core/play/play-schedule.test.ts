@@ -6,7 +6,9 @@ import {
   METRONOME_VELOCITY_BEAT,
   METRONOME_VELOCITY_DOWNBEAT,
 } from '../../../src/core/defaults.js';
+import { buildExpectedNotes } from '../../../src/core/grade/expected.js';
 import type { PlayScheduleOptions } from '../../../src/core/play/types.js';
+import type { HandSelection } from '../../../src/core/practice/types.js';
 import { EVENT_KIND } from '../../../src/core/schedule/compile.js';
 import { compilePlaySchedule } from '../../../src/core/schedule/play-schedule.js';
 import type { MeasureInfo } from '../../../src/core/score/model.js';
@@ -63,6 +65,7 @@ function emptyChannels(): ChannelSetup[] {
     percussion: false,
     volume: null,
     pan: null,
+    orchestra: false,
   }));
 }
 
@@ -402,5 +405,105 @@ describe('compilePlaySchedule on a hostile time signature (009 audit)', () => {
   it('a measure of absurd length has a bounded number of clicks', () => {
     const clicks = clickTicks(compile({ beats: '4', beatType: 4 }, 960 * 100_000, 3840));
     expect(clicks.length).toBeLessThan(2000);
+  });
+});
+
+// Feature 019 (play-run 2.2.0, research R-9): the Orchestra sounds in a Play run whatever the Accompaniment setting says,
+// behind the count-in, and is never graded.
+describe('compilePlaySchedule with an Orchestra part (feature 019)', () => {
+  const RIGHT: HandSelection = { preset: 'right', partIndex: 0, staves: [1] };
+  const BOTH: HandSelection = { preset: 'both', partIndex: 0, staves: [1, 2] };
+
+  function open() {
+    const { score, timeline } = loadFixture('orchestra/piano-and-oboe.musicxml');
+    const channel = timeline.channels.findIndex((c) => c.orchestra);
+    const oboe = score.parts[1]?.notes ?? [];
+    return { score, timeline, channel, oboe };
+  }
+
+  const noteOnsOn = (schedule: ReturnType<typeof compilePlaySchedule>['schedule'], channel: number) => {
+    const ticks: number[] = [];
+    for (let i = 0; i < schedule.eventKind.length; i++) {
+      if (schedule.eventKind[i] === EVENT_KIND.noteOn && schedule.eventChannel[i] === channel) {
+        ticks.push(schedule.eventTick[i] as number);
+      }
+    }
+    return ticks.sort((a, b) => a - b);
+  };
+
+  it('the fixture has an Orchestra channel and eleven oboe notes', () => {
+    const { channel, oboe } = open();
+    expect(channel).toBeGreaterThanOrEqual(0);
+    expect(oboe).toHaveLength(11);
+  });
+
+  it('with accompaniment off every Orchestra-channel event is kept and every other non-graded Score event is dropped', () => {
+    const { score, timeline, channel, oboe } = open();
+    const graded = new Set(buildExpectedNotes(score, timeline, RIGHT, null).flatMap((n) => n.noteIds));
+    const { schedule } = compilePlaySchedule(
+      timeline,
+      score.measures,
+      baseOptions({ accompaniment: false, gradedNoteIds: graded }),
+    );
+
+    expect(noteOnsOn(schedule, channel)).toHaveLength(oboe.length);
+    const pianoChannel = timeline.channels.findIndex((c) => c.used && !c.orchestra);
+    expect(noteOnsOn(schedule, pianoChannel)).toEqual([]); // the graded right hand and the left-hand accompaniment
+    expect(metronomeTicks(schedule).length).toBeGreaterThan(0);
+  });
+
+  it('with accompaniment on the Orchestra plays beside the left hand, and never twice', () => {
+    const { score, timeline, channel, oboe } = open();
+    const graded = new Set(buildExpectedNotes(score, timeline, RIGHT, null).flatMap((n) => n.noteIds));
+    const { schedule } = compilePlaySchedule(
+      timeline,
+      score.measures,
+      baseOptions({ accompaniment: true, gradedNoteIds: graded }),
+    );
+    expect(noteOnsOn(schedule, channel)).toHaveLength(oboe.length);
+    const pianoChannel = timeline.channels.findIndex((c) => c.used && !c.orchestra);
+    expect(noteOnsOn(schedule, pianoChannel)).toHaveLength(4); // the four left-hand whole notes
+  });
+
+  it('shifts the Orchestra behind the count-in like every other event: none sounds before countInTicks', () => {
+    const { score, timeline, channel } = open();
+    const { schedule, tickMap } = compilePlaySchedule(timeline, score.measures, baseOptions({ accompaniment: false }));
+    const ticks = noteOnsOn(schedule, channel);
+    expect(ticks.length).toBeGreaterThan(0);
+    expect(tickMap.countInTicks).toBeGreaterThan(0);
+    expect(ticks[0]).toBe(tickMap.countInTicks); // the oboe's first note is on the first beat of the run
+    expect(ticks.every((t) => t >= tickMap.countInTicks)).toBe(true);
+  });
+
+  it('a range keeps only the Orchestra events inside it', () => {
+    const { score, timeline, channel } = open();
+    const passIndex = timeline.passes.findIndex((p) => p.measureIndex === 1);
+    const { schedule, tickMap } = compilePlaySchedule(
+      timeline,
+      score.measures,
+      baseOptions({ accompaniment: false, range: { fromPassIndex: passIndex, toPassIndex: passIndex + 1 } }),
+    );
+    const ticks = noteOnsOn(schedule, channel);
+    expect(ticks).toHaveLength(2); // the two half notes of bar 2
+    expect(ticks[0]).toBe(tickMap.countInTicks);
+    expect(ticks[1]).toBe(tickMap.countInTicks + 2 * timeline.ppq);
+  });
+
+  it('marks the Orchestra channel in the schedule mask', () => {
+    const { score, timeline, channel } = open();
+    const { schedule } = compilePlaySchedule(timeline, score.measures, baseOptions());
+    expect(schedule.orchestraMask).toBe(1 << channel);
+  });
+
+  it('no Orchestra Note ID is ever a graded note, whichever hands or part are chosen', () => {
+    const { score, timeline } = open();
+    const orchestraIds = new Set((score.parts[1]?.notes ?? []).map((n) => n.id));
+    for (const selection of [RIGHT, BOTH]) {
+      const graded = buildExpectedNotes(score, timeline, selection, null).flatMap((n) => n.noteIds);
+      expect(graded.length).toBeGreaterThan(0);
+      expect(graded.filter((id) => orchestraIds.has(id))).toEqual([]);
+    }
+    // asking for the Orchestra part itself gives nothing to play
+    expect(buildExpectedNotes(score, timeline, { preset: 'both', partIndex: 1, staves: [1] }, null)).toEqual([]);
   });
 });

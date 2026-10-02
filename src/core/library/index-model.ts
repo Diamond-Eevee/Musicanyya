@@ -1,4 +1,5 @@
 import { MAX_FILE_BYTES } from '../defaults.js';
+import { isAttributionLicence, isLibraryLicence } from './licences.js';
 import type {
   ItemFacts,
   ItemMetadata,
@@ -71,8 +72,11 @@ function validProvenance(raw: unknown): Provenance | null {
     return provenance;
   }
   if (raw.origin === 'downloaded') {
-    if (raw.licence !== 'CC0-1.0' && raw.licence !== 'public-domain') return null;
+    if (!isLibraryLicence(raw.licence)) return null;
     if (!isNonEmptyString(raw.source) || !isNonEmptyString(raw.obtained)) return null;
+    // An attribution licence (019 FR-025) needs the author's credit and an explicit "was it changed".
+    if (isAttributionLicence(raw.licence) && (!isNonEmptyString(raw.credit) || typeof raw.unmodified !== 'boolean'))
+      return null;
     const provenance: Provenance = {
       origin: 'downloaded',
       licence: raw.licence,
@@ -210,6 +214,8 @@ function validFacts(raw: unknown): ItemFacts | null {
     if (typeof raw[flag] === 'boolean') facts[flag] = raw[flag] as boolean;
   }
   if (isFiniteNumber(raw.fingeringCoverage)) facts.fingeringCoverage = raw.fingeringCoverage;
+  // The Orchestra's instrument names (feature 019, library-index 1.3.0): a non-empty list of strings, else no fact
+  if (isStringArray(raw.orchestra) && raw.orchestra.length > 0) facts.orchestra = raw.orchestra;
 
   // The `checkLevel` inputs (data-model.md §4) - a MINOR addition, same reasoning as the flags above.
   for (const numeric of [
@@ -226,6 +232,7 @@ function validFacts(raw: unknown): ItemFacts | null {
     'graceNoteCount',
     'ornamentCount',
     'backwardRepeatCount',
+    'maxArpeggiatedSpanSemitones',
   ] as const) {
     if (isFiniteNumber(raw[numeric])) facts[numeric] = raw[numeric] as number;
   }

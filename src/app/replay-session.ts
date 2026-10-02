@@ -1,3 +1,5 @@
+import { METRONOME_CHANNEL, METRONOME_LEVEL_DEFAULT } from '../core/defaults.js';
+import { metronomeChannelVolume } from '../core/play/metronome.js';
 import { createIdleRun } from '../core/play/run.js';
 import type { PlayRun, PlayTickMap, RunSettings } from '../core/play/types.js';
 import type { ScheduleMessage } from '../core/schedule/compile.js';
@@ -17,6 +19,9 @@ export interface ReplaySessionCallbacks {
 export class ReplaySessionController {
   private run: PlayRun | null = null;
   private readonly unsubscribe: Unsubscribe;
+  /** The run's own mute and the musician's Metronome level, which together set the click channel (feature 019). */
+  private metronomeMuted = false;
+  private metronomeLevel = METRONOME_LEVEL_DEFAULT;
 
   constructor(
     private readonly audioEngine: AudioEngine,
@@ -30,12 +35,37 @@ export class ReplaySessionController {
     });
   }
 
-  start(scoreId: string | null, settings: RunSettings, tickMap: PlayTickMap, schedule: ScheduleMessage): void {
+  start(
+    scoreId: string | null,
+    settings: RunSettings,
+    tickMap: PlayTickMap,
+    schedule: ScheduleMessage,
+    metronomeLevel: number = METRONOME_LEVEL_DEFAULT,
+  ): void {
     this.audioEngine.load(schedule);
     // Played at the attempt's own tempo, the factor `compileReplay` converted its times with (012 FR-018).
     this.audioEngine.setTempoPercent(settings.tempoPercent);
+    // The replay plays the run's own clicks: its mute is the attempt's, its level the one in force now. Set after the
+    // schedule like a run does, so the worklet never plays them at whatever it last held (019 T079).
+    this.metronomeMuted = settings.metronomeMuted;
+    this.metronomeLevel = metronomeLevel;
+    this.applyMetronomeVolume();
     this.audioEngine.play();
     this.run = { ...createIdleRun(scoreId, settings, tickMap), phase: 'running' };
+  }
+
+  /** The Metronome level changed while a replay plays: the click follows at once, nothing else moves. */
+  setMetronomeLevel(level: number): void {
+    if (level === this.metronomeLevel) return;
+    this.metronomeLevel = level;
+    if (this.run) this.applyMetronomeVolume();
+  }
+
+  private applyMetronomeVolume(): void {
+    this.audioEngine.setChannelVolume(
+      METRONOME_CHANNEL,
+      metronomeChannelVolume(this.metronomeMuted, this.metronomeLevel),
+    );
   }
 
   stop(): void {

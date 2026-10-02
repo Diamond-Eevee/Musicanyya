@@ -16,6 +16,7 @@ function ev(index: number, passIndex: number, measureIndex: number, onsetTick = 
     onsetTick,
     required: [{ key: 60, noteIds: [], staff: 1 }],
     accompaniment: [],
+    orchestra: [],
   };
 }
 

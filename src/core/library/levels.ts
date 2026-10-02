@@ -137,7 +137,10 @@ function failingCriteria(
 
   if (facts.durationSeconds > LEVEL_DURATION_SECONDS_MAX[level]) failed.push('15');
 
-  if (facts.maxSpanSemitones > LEVEL_MAX_INTERVAL_SEMITONES[level]) failed.push('16');
+  // Criterion 16: a hand span is at most the level's limit; a rolled chord (<arpeggiate> on every note) is accepted at any width
+  // at Advanced and held to the level's limit below it (feature 019, research R-17)
+  const rolledSpan = level === 'advanced' ? 0 : (facts.maxArpeggiatedSpanSemitones ?? 0);
+  if (Math.max(facts.maxSpanSemitones, rolledSpan) > LEVEL_MAX_INTERVAL_SEMITONES[level]) failed.push('16');
 
   const leapMax =
     (kind === 'exercise' ? LEVEL_EXERCISE_MAX_LEAP_SEMITONES[level] : undefined) ?? LEVEL_MAX_LEAP_SEMITONES[level];

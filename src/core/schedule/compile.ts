@@ -17,6 +17,8 @@ export interface ScheduleMessage {
   tempoQpmNum: Int32Array;
   tempoQpmDen: Int32Array;
   channelSetup: Uint8Array; // 16 x [used, program, bankMsb, isPercussion]
+  /** Bit c set iff channel c carries Orchestra instruments only (worklet-protocol 1.6.0, feature 019); missing = 0. */
+  orchestraMask?: number;
 }
 
 interface RawEvent {
@@ -108,6 +110,11 @@ export function compileSchedule(timeline: PlaybackTimeline): ScheduleMessage {
     channelSetup[i * 4 + 3] = ch.percussion ? 1 : 0;
   });
 
+  let orchestraMask = 0;
+  timeline.channels.forEach((ch, i) => {
+    if (ch.used && ch.orchestra) orchestraMask |= 1 << i;
+  });
+
   return {
     type: 'schedule',
     ppq: timeline.ppq,
@@ -121,6 +128,7 @@ export function compileSchedule(timeline: PlaybackTimeline): ScheduleMessage {
     tempoQpmNum,
     tempoQpmDen,
     channelSetup,
+    orchestraMask,
   };
 }
 
@@ -188,5 +196,6 @@ export function mergeSchedules(a: ScheduleMessage, b: ScheduleMessage): Schedule
     tempoQpmNum: a.tempoQpmNum,
     tempoQpmDen: a.tempoQpmDen,
     channelSetup,
+    orchestraMask: (a.orchestraMask ?? 0) | (b.orchestraMask ?? 0),
   };
 }

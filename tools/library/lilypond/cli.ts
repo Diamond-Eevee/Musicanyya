@@ -1,11 +1,14 @@
 // pnpm library:convert-ly <source-id> <item-id> [--replace] (contract fidelity-tools.md §1, §3.3-3.4): converts an
 // approved source's LilyPond file into a library item's MusicXML. Before anything is written, two checks must pass:
-//   1. the source's own MIDI agrees with our reading of the .ly (two independent readings of the same source);
+//   1. the source's own MIDI agrees with our reading of the .ly (two independent readings of the same source) - for
+//      our own transcription of a print, which has no MIDI, that second reading is the audit record's mechanical check
+//      against another transcription instead (019 T084);
 //   2. the MusicXML written reads back as exactly that reading, on every aspect.
 // Titles, composer and credit come from the item's sidecar and the source manifest, never from the .ly header.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { isAttributionLicence, licenceName, licenceUrl } from '../../../src/core/library/licences';
 import { buildScore } from '../../../src/core/musicxml/build';
 import { readXml } from '../../../src/core/musicxml/read';
 import { type Aspect, compare, compareSound, describeDifference } from '../fidelity/compare';
@@ -85,28 +88,37 @@ function convert(sourceId: string, itemId: string, replace: boolean, io: CliIo):
   const score = readLilyPond(new TextDecoder().decode(notation.bytes), number !== undefined ? { score: number } : {});
   const reading = fromLilyPond(score);
 
-  // Check 1: the source's MIDI, made by LilyPond from the same .ly, against our reading of the .ly.
+  // Check 1: the source's MIDI, made by LilyPond from the same .ly, against our reading of the .ly. Our own
+  // transcription of a printed score has no MIDI: its second, independent reading is the item's audit record, a
+  // mechanical check against another transcription of the same print (019 research R-15, T084).
   const sound = sourceFile(sourcesRoot, manifest, 'sound');
-  if (!sound) {
+  let midi: ReturnType<typeof readMidi> | undefined;
+  if (sound) {
+    midi = readMidi(sound.bytes);
+    const cross = compareSound(reading, fromMidi(midi, sound.file.midiNoteTracks ?? []), {
+      order: sound.file.midiOrder ?? 'written',
+      articulate: sound.file.midiArticulate ?? false,
+    });
+    const durations = cross.durations === 'notation only' ? ' (durations checked against the notation only)' : '';
+    io.out(`notation vs sound: ${cross.differences.length} differences${durations}`);
+    for (const d of cross.differences) io.out(`  ${describeDifference(d)}`);
+    if (cross.differences.length > 0) {
+      io.out('conversion refused: the MIDI does not agree with the reading of the .ly; nothing was written');
+      return 1;
+    }
+  } else if (manifest.origin === 'transcription') {
+    io.out(
+      'notation vs sound: not run (a transcription has no MIDI); the item is not checked until its audit record has ' +
+        'a mechanical check against another transcription of the same print (contract §3.4)',
+    );
+  } else {
     io.out(`source ${sourceId} has no sound file: the conversion cannot be cross-checked (contract §3.4)`);
-    return 1;
-  }
-  const midi = readMidi(sound.bytes);
-  const cross = compareSound(reading, fromMidi(midi, sound.file.midiNoteTracks ?? []), {
-    order: sound.file.midiOrder ?? 'written',
-    articulate: sound.file.midiArticulate ?? false,
-  });
-  const durations = cross.durations === 'notation only' ? ' (durations checked against the notation only)' : '';
-  io.out(`notation vs sound: ${cross.differences.length} differences${durations}`);
-  for (const d of cross.differences) io.out(`  ${describeDifference(d)}`);
-  if (cross.differences.length > 0) {
-    io.out('conversion refused: the MIDI does not agree with the reading of the .ly; nothing was written');
     return 1;
   }
 
   // Check 2: what we write reads back as the same music.
   // The source's own playback tempo, used only when the notation has no metronome mark (T096).
-  const midiTempo = midi.tempos.filter((t) => t.tick === 0).at(-1)?.qpm;
+  const midiTempo = midi?.tempos.filter((t) => t.tick === 0).at(-1)?.qpm;
   const { xml, dropped, playbackTempoUsed } = toMusicXml(score, {
     ...(sidecar.title !== undefined ? { title: sidecar.title } : {}),
     ...(sidecar.composer !== undefined ? { composer: sidecar.composer } : {}),
@@ -130,7 +142,7 @@ function convert(sourceId: string, itemId: string, replace: boolean, io: CliIo):
   for (const d of dropped) io.out(`  dropped: ${d}`);
   if (playbackTempoUsed) {
     io.out(`  playback tempo ${midiTempo} from the source MIDI (no metronome mark in the notation; none printed)`);
-    const later = midi.tempos.filter((t) => t.tick > 0 && t.qpm !== midiTempo);
+    const later = midi?.tempos.filter((t) => t.tick > 0 && t.qpm !== midiTempo) ?? [];
     if (later.length > 0) io.out(`  the MIDI changes tempo ${later.length} times later; those changes are not written`);
   }
   const { score: loaded, report } = buildScore(readXml(xml).doc);
@@ -143,7 +155,13 @@ function convert(sourceId: string, itemId: string, replace: boolean, io: CliIo):
 
 /** The `<rights>` line: the licence and, when the manifest has one, the typesetter's credit. */
 function rights(manifest: SourceManifest): string {
-  const licence = manifest.licence === 'public-domain' ? 'Public domain' : 'CC0 1.0';
+  // 019 FR-025: an attribution licence is named with its deed link.
+  const url = isAttributionLicence(manifest.licence) ? licenceUrl(manifest.licence) : undefined;
+  const licence = url
+    ? `${licenceName(manifest.licence)} (${url})`
+    : manifest.licence === 'public-domain'
+      ? 'Public domain'
+      : 'CC0 1.0';
   const from = manifest.credit ?? `${manifest.work}, ${manifest.edition} (${manifest.publisher})`;
   return `${licence}. Converted from ${from}.`;
 }

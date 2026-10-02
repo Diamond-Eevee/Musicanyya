@@ -1,3 +1,4 @@
+import { METRONOME_LEVEL_DEFAULT, ORCHESTRA_LEVEL_DEFAULT } from '../../core/defaults.js';
 import type { HandSelection } from '../../core/practice/types.js';
 import {
   OVERLAYS_DEFAULT,
@@ -61,18 +62,21 @@ function validOverlays(raw: unknown): OverlayFlags {
 }
 
 /**
- * Reads format version 2, and version 1 silently (contracts/view-settings.md section 3): a v1 file has no `scale`,
- * but its `zoomPercent` means the same thing, so a returning user keeps their size.
+ * Reads format versions 3 and 2, and version 1 silently (contracts/view-settings.md section 3): a v1 file has no
+ * `scale`, but its `zoomPercent` means the same thing, so a returning user keeps their size; a file before version 3
+ * has no levels, so both take their defaults (019 mixer-levels.md section 2). It always yields version 3.
  */
 function validate(raw: Record<string, unknown>): UserSettings {
   const storedScale = 'scale' in raw ? raw.scale : raw.zoomPercent;
   return {
-    version: 2,
+    version: 3,
     volume: isInt(raw.volume, 0, 100) ? raw.volume : VOLUME_DEFAULT,
     // tempoPercent (2.1.0, feature 012 FR-015): deprecated, ignored when present.
     scale: isInt(storedScale, SCORE_SCALE_MIN, SCORE_SCALE_MAX, SCORE_SCALE_STEP) ? storedScale : SCORE_SCALE_DEFAULT,
     follow: typeof raw.follow === 'boolean' ? raw.follow : true,
     overlays: validOverlays(raw.overlays),
+    metronomeLevel: isInt(raw.metronomeLevel, 0, 100) ? raw.metronomeLevel : METRONOME_LEVEL_DEFAULT,
+    orchestraLevel: isInt(raw.orchestraLevel, 0, 100) ? raw.orchestraLevel : ORCHESTRA_LEVEL_DEFAULT,
   };
 }
 

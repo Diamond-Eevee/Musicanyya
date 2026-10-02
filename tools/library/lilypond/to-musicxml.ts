@@ -293,6 +293,7 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
     return out;
   };
 
+  const slurVoices = new Map<string, number>();
   const writeNote = (e: NoteEvent, voice: string, directions: WriteDirection[]): WriteNote[] => {
     let type = TYPES.get(e.base);
     let dots = e.dots;
@@ -306,12 +307,26 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
       dots = 0;
     }
     const number = String(voiceNumber.get(e.voice));
+    // Slur numbers are per part in MusicXML, so each voice has its own pair (slur, phrasing slur): overlapping slurs
+    // in two voices must not share a number (019 T103). The first voice with a slur keeps 1 and 2.
+    const slurNumber = (): number => {
+      let index = slurVoices.get(e.voice);
+      if (index === undefined) {
+        index = slurVoices.size;
+        if (index >= 8) fail(e.pos, 'slurs in a ninth voice (MusicXML numbers slurs 1-16)');
+        slurVoices.set(e.voice, index);
+      }
+      return 2 * index + 1;
+    };
     const notations: Pick<WriteNote, 'slurs' | 'articulations' | 'ornament' | 'fermata' | 'fingering'> = {};
     let arpeggiate = false;
     const noteMarks = (marks: LyMark[], target: typeof notations) => {
       for (const m of marks) {
         if (m.type === 'slur') {
-          target.slurs = [...(target.slurs ?? []), { type: m.start ? 'start' : 'stop', number: m.phrasing ? 2 : 1 }];
+          target.slurs = [
+            ...(target.slurs ?? []),
+            { type: m.start ? 'start' : 'stop', number: slurNumber() + (m.phrasing ? 1 : 0) },
+          ];
         } else if (m.type === 'articulation') {
           const a = ARTICULATIONS[m.name];
           if (a) target.articulations = [...(target.articulations ?? []), a];
@@ -366,6 +381,8 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
             : {}),
         ...(e.grace ? { grace: { slash: e.grace === '\\acciaccatura' || e.grace === '\\slashedGrace' } } : {}),
         ...(e.tuplet ? { timeModification: { actual: e.tuplet.actual, normal: e.tuplet.normal } } : {}),
+        // a tremolo note prints the whole tremolo's value and lasts half of it (019 T081)
+        ...(e.tremolo ? { timeModification: { actual: 2, normal: 1 }, tremolo: e.tremolo } : {}),
         ...(arpeggiate ? { arpeggiate: true } : {}),
         ...(e.hidden ? { printObject: false as const } : {}),
         ...(memberNotations[i] as typeof notations),
@@ -469,12 +486,13 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
       const stop = pick(ending);
       if (preferEnd && stop) after.set(stop, [...(after.get(stop) ?? []), ...what]);
       else if (start) {
-        // Grace notes come before their principal note, so a direction at this time goes before the first of them.
+        // Grace notes come before their principal note, so a direction at this time goes before the first of them
+        // (not before a Nachschlag, which ends the note before).
         const stream = voices.find(([, s]) => s.includes(start))?.[1] as Written[];
         let first = start;
         for (let i = stream.indexOf(start) - 1; i >= 0; i--) {
           const g = stream[i] as Written;
-          if (g.kind === 'note' && g.grace && cmp(g.t, t) === 0) first = g;
+          if (g.kind === 'note' && g.grace && g.grace !== '\\afterGrace' && cmp(g.t, t) === 0) first = g;
           else break;
         }
         before.set(first, [...(before.get(first) ?? []), ...what]);
@@ -541,8 +559,9 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
         if (e.bpm !== undefined && e.beat) {
           const unit = TYPES.get(e.beat.base);
           const beat = e.beat.length;
-          if (unit && e.beat.dots === 0) d.metronome = { beatUnit: unit, perMinute: e.bpm };
-          else drop(t, `metronome mark with a dotted beat (${e.bpm} per minute)`);
+          if (unit)
+            d.metronome = { beatUnit: unit, ...(e.beat.dots > 0 ? { dots: e.beat.dots } : {}), perMinute: e.bpm };
+          else drop(t, `metronome mark with the beat 1/${e.beat.base} (${e.bpm} per minute)`);
           d.tempo = (e.bpm * beat.num) / beat.den;
         }
         if (d.words !== undefined || d.metronome || d.tempo !== undefined) place(t, e.staff, [direction(d)], e.pos);
@@ -592,7 +611,10 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
       const here = stream.filter((e) =>
         e.kind === 'rest' && e.rest === 'R'
           ? cmp(e.t, barEnd) < 0 && cmp(add(e.t, e.length), bar.start) > 0
-          : cmp(e.t, bar.start) >= 0 && cmp(e.t, barEnd) < 0,
+          : e.kind === 'note' && e.grace === '\\afterGrace'
+            ? // a Nachschlag ends its main note's bar, also at the bar line (019 T082)
+              cmp(e.t, bar.start) > 0 && cmp(e.t, barEnd) <= 0
+            : cmp(e.t, bar.start) >= 0 && cmp(e.t, barEnd) < 0,
       );
       if (here.length === 0) continue;
       if (wroteVoice && cmp(cursor, bar.start) > 0)
@@ -601,7 +623,11 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
       wroteVoice = true;
       for (const e of here) {
         const start = e.kind === 'rest' && e.rest === 'R' && cmp(e.t, bar.start) < 0 ? bar.start : e.t;
-        if (cmp(start, cursor) > 0) events.push({ kind: 'forward', duration: div(sub(start, cursor)) });
+        if (cmp(start, cursor) > 0) {
+          events.push({ kind: 'forward', duration: div(sub(start, cursor)) });
+          // a grace note does not move the cursor on, so the forward must (019 T085: s8 \grace { ... } b4)
+          cursor = start;
+        }
         const stop = add(e.t, e.length);
         const isMeasureRest = e.kind === 'rest' && e.rest === 'R' && cmp(stop, barEnd) >= 0 && cmp(e.t, bar.start) <= 0;
         if (cmp(stop, barEnd) > 0 && !isMeasureRest)

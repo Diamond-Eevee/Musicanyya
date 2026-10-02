@@ -1,6 +1,6 @@
 # Contract: fidelity tools (readers, comparator, theory check, converter, commands)
 
-**Version**: `1.13.0` (1.13.0, 2026-09-30, feature 017 T051: `\hideNotes` notes are written invisible, a hidden note may be scaled with `*n/m`, an unterminated tie is not written, `WriteNote.printObject` (§3.3); 1.12.1, 2026-09-30, feature 017 T049/T050: the repeat mode may be a string, `\repeat "volta" n` / `"unfold"`, read as the plain word; a top-level `\markup` is skipped (text only); 1.12.0, 2026-09-28, feature 014: rule set `exercise-theory-v3`, `checkMelodyRules` and
+**Version**: `1.18.2` (1.18.2, 2026-10-02, feature 019-metronome-orchestra-volume T106, PATCH: `fromMusicXml` reads printed parts only - Orchestra parts (orchestra-score contract section 1) are generated from the printed part and are left out of every mechanical comparison; 1.18.1, 2026-10-02, feature 019-metronome-orchestra-volume T103, PATCH: slur numbers are per voice - each voice that has a slur takes its own pair of numbers (slur, phrasing slur), the first such voice 1 and 2 - so overlapping slurs in two voices no longer share a number (§3.3); 1.18.0, 2026-10-01, feature 019-metronome-orchestra-volume T084, MINOR: `library:convert-ly` converts a source with `origin: "transcription"` and no sound file with the read-back check only, and says that its independent check is the audit record's mechanical check against another transcription (§1, §3.4; 019 research R-15 addendum); 1.17.0, 2026-10-01, feature 019-metronome-orchestra-volume T083, MINOR: a `\tempo` with a dotted beat (`4. = 60`) is written as `<metronome>` with `<beat-unit-dot/>` instead of being dropped (its `<sound tempo>` in quarter notes per minute was already written); `WriteDirection.metronome.dots` (§3.3); 1.16.0, 2026-10-01, feature 019-metronome-orchestra-volume T082, MINOR: `\afterGrace main { graces }` (a Nachschlag) - the grace notes belong to the end of the main note, in its bar, and the converter writes them after it in that bar (§3.1, §3.3); 1.15.0, 2026-10-01, feature 019-metronome-orchestra-volume T081, MINOR: the reader reads the two-note `\repeat tremolo n { a b }` as the alternation of strokes it means, the converter writes it as its two printed notes with `<tremolo type="start|stop">` (time modification 2:1), the writer writes `WriteNote.tremolo`, and `fromMusicXml` reads a written two-note tremolo stroke by stroke (§3.1, §3.3); 1.14.0, 2026-10-01, feature 019-metronome-orchestra-volume, MINOR: `checkOrchestra(score, definition)` (rules O1-O5, rule set `orchestra-v1`, `tools/library/fidelity/orchestra.ts`), the command `pnpm library:orchestra <item-id> [--check]` (generator `tools/library/orchestra/`), the MusicXML writer can write `<staff-details print-object="no" print-spacing="no">` and `<sound dynamics>`, and the manifest reader accepts `origin` (source-manifest 1.2.0); full text [019 orchestration-definition.md](../../019-metronome-orchestra-volume/contracts/orchestration-definition.md); 1.13.0, 2026-09-30, feature 017 T051: `\hideNotes` notes are written invisible, a hidden note may be scaled with `*n/m`, an unterminated tie is not written, `WriteNote.printObject` (§3.3); 1.12.1, 2026-09-30, feature 017 T049/T050: the repeat mode may be a string, `\repeat "volta" n` / `"unfold"`, read as the plain word; a top-level `\markup` is skipped (text only); 1.12.0, 2026-09-28, feature 014: rule set `exercise-theory-v3`, `checkMelodyRules` and
 `checkMelodyVariation`, `melodyDegrees` (`tools/library/fidelity/melody-rules.ts`, new), `SectionHand` gains `{ kind: 'melody'; level:
 Level }` (`theory.ts`), thresholds from `MELODY_LADDER` (`src/core/defaults.ts`); change request
 `specs/014-melody-over-chords/contracts/audit-record-1.3.md`; 1.11.0, 2026-09-26, feature 011 US3: the LilyPond reader skips the braced lyric block of `\lyricmode`, `\addlyrics` and `\lyrics` and the `\lyricsto <voice>` argument (words carry no note; a `Lyrics` context is accepted), and reads a `\bar ":|"` at the very end of the music as its final bar line (LilyPond's own MIDI does not repeat it; anywhere earlier it is still refused); `parseInterval` and `transposeSpelling` are exported from `compare.ts`; `checkSong` and `songKeyOfItemId` (rule set `song-chords-v1` runs from `runRecord`); 1.10.0, 2026-09-26, feature 011: rule sets `exercise-theory-v2` (key segments, scale claims, pattern and key-change claims) and `song-chords-v1`, `checkSongChords`, the report's "Replaced by feature 011" table; 1.9.0, 2026-09-24: `renderReport` takes the source manifests, `LEVEL_MINIMUMS`, the CLI's `--check`, T077-T080; 1.0.0 new; 1.0.1 corrected the `\ottava` row; 1.1.0, 2026-09-24: `compareSound`, `describeDifference`, `checkRecord`, `outcomeLabel`, `CheckResult.detail`, the CLI's `main`, Scheme values of layout commands; 1.2.0, 2026-09-24: written bars follow the printed page (§3.2), `measurePosition`, `\tupletSpan`; 1.3.0, 2026-09-24: the converter's marks, §3.3; 1.4.0, 2026-09-24: the constructs of the US1 sources, §3.1, `readLilyPond(source, { score })`; 1.5.0, 2026-09-24: markup text, named voices per staff, moved hairpin ends, the MIDI's playback tempo, T096; 1.6.0, 2026-09-24: `compareMelody` takes `MelodyOptions` and returns `MelodyResult`, `melodyRhythm` differences, `CheckResult.allowed`, T054; 1.7.0, 2026-09-24: `\partcombine` and `#(set-accidental-style ...)` in music, T098; 1.8.0, 2026-09-24: `claimForItem` and `ClaimError`, `TheoryDifference` joins the comparator's `Difference` union as `kind: 'theory'`, the theory check runs from `runRecord`, T073-T074). Dev-time only: nothing here is imported by `src/app`, `src/ui`, `src/engine` or a
@@ -18,7 +18,9 @@ worker, and `tests/architecture/layers.test.ts` asserts it (as it already does f
 | `pnpm library:fidelity --item <id> --file <path>` | Runs that item's checks against another MusicXML file (a mutated copy in scratch space) instead of the shelf file. Used for manual planted-error checks. Writes nothing. | 0 / 1 |
 | `pnpm library:fidelity --inspect-midi <path>` | Prints a MIDI file's tracks (note counts, channels, first/last tick) and whether repeats look unfolded, to fill `midiOrder`/`midiNoteTracks` once. | 0 |
 | `pnpm library:fidelity --check` | As the first row, but only compares the report with a fresh render (CI mode, writes nothing). | 1 when stale |
-| `pnpm library:convert-ly <source-id> <item-id>` | Converts the source's `.ly` into the item's `.musicxml` (overwrites it), then prints the MIDI cross-check (§3.4). Refuses when the source is not approved, when the target sidecar says `origin: "authored"` and `--replace` is not given, or when the cross-check finds differences. | 0 / 1 |
+| `pnpm library:convert-ly <source-id> <item-id>` | Converts the source's `.ly` into the item's `.musicxml` (overwrites it), then prints the MIDI cross-check (§3.4). Refuses when the source is not approved, when the target sidecar says `origin: "authored"` and `--replace` is not given, when the cross-check finds differences, or when the source has no sound file - unless it is our own transcription (`origin: "transcription"`, 1.18.0), which is converted with the read-back check only. | 0 / 1 |
+
+| `pnpm library:orchestra <item-id> [--check]` | Generates the item's Orchestra parts from `content/library/orchestra/<slug>.json` into its MusicXML (idempotent), after checks O1-O5; `--check` writes nothing and exits 1 when the committed file differs (feature 019, 1.14.0). | 0 / 1 |
 
 `pnpm library:engrave`, `pnpm library:index` and the existing library tests run after a conversion exactly as
 for any edited file.
@@ -39,7 +41,7 @@ export interface MidiFile { format: 0 | 1; ppq: number; notes: MidiNote[]; timeS
 export function readMidi(bytes: Uint8Array): MidiFile;                        // throws MidiFormatError with byte offset
 export function fromMidi(file: MidiFile, tracks: number[]): ReferenceScore;
 
-// tools/library/fidelity/from-musicxml.ts - via the app's own readXml + buildScore
+// tools/library/fidelity/from-musicxml.ts - via the app's own readXml + buildScore; printed parts only (1.18.2)
 export function fromMusicXml(xml: string): ReferenceScore;
 
 // tools/library/lilypond/read.ts - the LilyPond subset (section 3)
@@ -152,8 +154,10 @@ to stop.
 | `~` ties | merged into one sounding note (spec edge case) |
 | `\tuplet n/m { }` and the older `\times m/n { }` | exact rational durations |
 | `\grace`, `\acciaccatura`, `\appoggiatura`, `\slashedGrace` | grace notes (no written time), kept apart |
+| *Added in 1.16.0 (019 T082):* `\afterGrace main { graces }` | a Nachschlag: the main note, then grace notes at its end (`before` = the main note's end, `bar` = the main note's bar, also when it ends the bar). The form with a fraction (`\afterGrace 3/4 ...`) is an error |
 | `\repeat volta n { }` + `\alternative { { } { } }` (the mode may be a string: `\repeat "volta" n`, 017 T049) | bar repeat marks and ending numbers |
 | `\repeat unfold n { }` | expanded n times (it is written out in the printed score) |
+| *Added in 1.15.0 (019 T081):* `\repeat tremolo n { a b }`, two single notes of one value, neither tied | the reading is the alternation a, b, a, b ... n times, each stroke at its written value (LilyPond's MIDI plays it so); the page prints two notes, each with the whole tremolo's value, joined by tremolo beams (the strokes' beams minus the printed value's own). A one-note tremolo, a chord, a tie, two different values, or a tremolo in grace notes or a `\tuplet` is an error |
 | `\partial d` | pickup bar of length d |
 | `\set Timing.measurePosition = #(ly:make-moment -n/d)` | re-anchors LilyPond's bar lines (a negative position ends the bar that far ahead), as 2.18 sources use it to end a second ending early |
 | `\tupletSpan d` | tuplet bracket grouping only; no timing effect |
@@ -177,7 +181,7 @@ to stop.
 | `e4\rest` (a rest at a pitch) | a rest; its pitch counts for `\relative` |
 | *Added in 1.7.0 (T098):* `\partcombine A B` | two voices on the staff, exactly as `<< A \\ B >>` (LilyPond only decides how the parts are printed); Mutopia 1283 and 1247 read this way agree with their own MIDI (0 differences) |
 | *Added in 1.7.0 (T098):* `#(set-accidental-style ...)` in music | layout only (which accidentals are printed) |
-| `\include` of anything other than `"english.ly"`/`"nederlands.ly"`, any other Scheme expression (in music other than `set-accidental-style`, or at top level other than `set-global-staff-size`/`set-default-paper-size`), `\relative` without a start pitch, `\afterGrace`, chord repetition `q`, tremolo `:`, `\repeat percent`/`tremolo`, `\repeat volta` with more than two passes and alternatives, any other `Timing` property, an end-repeat `\bar` | **unsupported** -> error |
+| `\include` of anything other than `"english.ly"`/`"nederlands.ly"`, any other Scheme expression (in music other than `set-accidental-style`, or at top level other than `set-global-staff-size`/`set-default-paper-size`), `\relative` without a start pitch, `\afterGrace` with a fraction, chord repetition `q`, tremolo `:`, `\repeat percent`, any other `\repeat tremolo` (see 1.15.0 above), `\repeat volta` with more than two passes and alternatives, any other `Timing` property, an end-repeat `\bar` | **unsupported** -> error |
 
 ### 3.2 Bars
 
@@ -198,7 +202,9 @@ Writes MusicXML through `src/core/musicxml/write.ts`, extended additively (resea
 `16th`/`32nd` types, slurs, dynamics, `<pedal>`, tempo `<words>` + `<sound tempo>`; since 1.3.0 also
 articulations, ornaments, fermatas, arpeggios, hairpins, whole-bar rests, italic words, `<rights>`/`<source>`
 (research R13 addendum). A mark that changes playback or grading and cannot be written fails the conversion;
-display-only marks that cannot be written are dropped and listed.
+display-only marks that cannot be written are dropped and listed. Slurs are numbered per voice: each voice with a
+slur takes its own pair of numbers (slur, phrasing slur) in order of its first slur, the first 1 and 2, so slurs
+that overlap in two voices never share a number (1.18.1).
 
 Since 1.5.0 (T096):
 
@@ -219,6 +225,24 @@ Since 1.13.0 (017 T051, Joplin 263 bar 69):
   length (`bes4*1/4` -> an invisible 16th); a visible scaled note still fails (it would print a value it lacks).
 - A tie that no later note of its own voice continues is not written: LilyPond prints none ("unterminated tie").
 
+Since 1.15.0 (019 T081, Grieg Op. 46 No. 1 bars 85-86):
+
+- A `\repeat tremolo` is written as its two printed notes: each shows the whole tremolo's value, lasts half of it
+  (`<time-modification>` 2:1, the common MusicXML convention) and carries `<tremolo type="start">` /
+  `<tremolo type="stop">` with the number of tremolo beams. The app plays the two notes (an ornament whose
+  realisation is played-along, `docs/musicxml-support.md`).
+- `fromMusicXml` reads such a pair as the alternation of strokes (stroke beams = the printed value's beams plus the
+  tremolo marks), so the read-back check of §3.4 compares like with like; a one-note tremolo is read as written.
+
+Since 1.16.0 (019 T082, Grieg Op. 46 No. 1 bars 67-75): the grace notes of an `\afterGrace` are written as plain
+`<grace/>` notes right after their main note, in its measure - at the end of the measure when the main note ends it -
+and a direction at the time of the next note is written after them, not before them. The app places such a group at
+the end of the note before it (`src/core/timeline/grace.ts`: a group with no principal steals from the previous note).
+
+Since 1.17.0 (019 T083): a metronome mark with a dotted beat is written with one `<beat-unit-dot/>` per dot, next to
+`<sound tempo>` in quarter notes per minute (dotted quarter = 60 -> 90); only a beat with no MusicXML note type is
+dropped and listed.
+
 Exercise output stays
 byte-identical (the existing exercise goldens are the guard). Titles, composer and credit come from the item's
 sidecar, not from the `.ly` header.
@@ -234,6 +258,12 @@ per-source exceptions.
 A second check runs before the file is written: the MusicXML written, read back with `fromMusicXml`, must equal
 `fromLilyPond` on every aspect. A difference is a converter bug; it stops the conversion and prints it.
 
+Since 1.18.0 (019 T084): our own transcription of a printed score (`origin: "transcription"`) has no MIDI. Without a
+sound file it is converted with the read-back check only, and the command says so; its independent second reading is
+the item's audit record, a mechanical check against another transcription of the same print made without seeing the
+first (019 research R-15), re-run by `pnpm library:fidelity`. A transcription that does have a sound file is
+cross-checked as above; any other source without one is refused.
+
 ## 4. Theory check (`tools/library/fidelity/theory.ts`)
 
 - Imports only `tools/library/fidelity/*`, the app's `readXml` (to read the file) and Node built-ins. It must not
@@ -241,6 +271,8 @@ A second check runs before the file is written: the MusicXML written, read back 
   (FR-013).
 - Rules: `data-model.md` §5. Output: one `TheoryDifference` per wrong or wrongly spelled chord tone, naming the chord
   index, bar, hand, expected and found (FR-014).
+- `checkOrchestra` (feature 019, 1.14.0, `tools/library/fidelity/orchestra.ts`, rule set `orchestra-v1`): rules O1-O5 of
+  [019 orchestration-definition.md](../../019-metronome-orchestra-volume/contracts/orchestration-definition.md) section 3.
 - Rule set `exercise-theory-v3` (feature 014): a section hand claimed `{ kind: 'melody', level }` is checked by
   `checkMelodyRules` instead; its findings are counted alongside any `TheoryDifference` from the rest of the item.
 

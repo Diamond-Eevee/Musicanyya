@@ -19,6 +19,10 @@ export interface ExpectedEvent {
   onsetTick: Ticks;
   required: readonly RequiredKey[];
   accompaniment: readonly SoundingRef[];
+  /** The notes of Orchestra parts (not printed) whose onset lies in [this event's onset, the next event's), like
+   *  `accompaniment` but kept apart from it: never required, never marked, never used to judge a key, and sounding whether
+   *  or not the Accompaniment setting is on (feature 019, practice-session 1.8.0). */
+  orchestra: readonly OrchestraRef[];
 }
 
 export interface SoundingRef {
@@ -26,6 +30,11 @@ export interface SoundingRef {
   key: number;
   endTick: Ticks;
   velocity: number;
+}
+
+/** One Orchestra note occurrence and the channel its instrument plays on. */
+export interface OrchestraRef extends SoundingRef {
+  channel: number;
 }
 
 export type MarkState =
@@ -84,6 +93,8 @@ export interface PracticeSession {
   heldWrongKeys: ReadonlyMap<number, WrongKeyState>;
   /** Accompaniment notes currently sounding, by key, with the tick at which the cursor releases them (R-03). */
   soundingAccompaniment: ReadonlyMap<number, Ticks>;
+  /** Orchestra notes currently sounding, by `"<channel>:<key>"`, with the tick at which the cursor releases them (019). */
+  soundingOrchestra: ReadonlyMap<string, Ticks>;
   wrongAttemptsOnCurrent: number;
   loop: ResolvedLoop | null;
   accompaniment: boolean;
@@ -130,6 +141,9 @@ export type PracticeEffect =
   | { type: 'moveCursor'; eventIndex: number; onsetTick: Ticks }
   | { type: 'soundOn'; key: number; noteIds: readonly NoteId[]; velocity: number }
   | { type: 'soundOff'; key: number }
+  /** Start / stop one Orchestra note on its own channel (feature 019): the accompaniment's timing, whatever `accompaniment` is. */
+  | { type: 'orchestraOn'; channel: number; key: number; noteId: NoteId; velocity: number }
+  | { type: 'orchestraOff'; channel: number; key: number }
   | { type: 'showHelp'; eventIndex: number; reason: 'stuck' | 'requested' | 'heldOver' }
   | { type: 'hideHelp' }
   | { type: 'notice'; code: PracticeNoticeCode }

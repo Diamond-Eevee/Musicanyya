@@ -42,14 +42,18 @@ export class FakeAudioEngine implements AudioEngine {
   setVolume(volume: number) {
     this.commands.push(`setVolume:${volume}`);
   }
+  setOrchestraLevel(level: number) {
+    this.commands.push(`setOrchestraLevel:${level}`);
+  }
   setChannelVolume(channel: number, volume: number) {
     this.commands.push(`setChannelVolume:${channel},${volume}`);
   }
-  liveNoteOn(key: number, velocity: number) {
-    this.commands.push(`liveNoteOn:${key},${velocity}`);
+  /** A note on a named channel (an Orchestra note, feature 019) is recorded as `liveNoteOn:<key>,<velocity>@<channel>`. */
+  liveNoteOn(key: number, velocity: number, channel?: number) {
+    this.commands.push(`liveNoteOn:${key},${velocity}${channel === undefined ? '' : `@${channel}`}`);
   }
-  liveNoteOff(key: number) {
-    this.commands.push(`liveNoteOff:${key}`);
+  liveNoteOff(key: number, channel?: number) {
+    this.commands.push(`liveNoteOff:${key}${channel === undefined ? '' : `@${channel}`}`);
   }
   liveSustain(down: boolean) {
     this.commands.push(`liveSustain:${down}`);
