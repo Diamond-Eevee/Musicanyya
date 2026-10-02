@@ -335,3 +335,19 @@
   of each story; not checked by hand: a real MIDI keyboard, real speakers (no click or sound can be heard here), unplugging a real output device.
 - Handoff: next = after the PC restart, run `pnpm exec vite build -c vite.electron.config.ts` and `pnpm test:e2e --project=electron` (T070, then T066 with the
   summary lines), look at the Firefox calibration bias, then T067 (spec status "Implemented", final log). Tree clean at the commit after this entry.
+
+## 2026-10-03 - claude-sonnet-5.5 (implement, Electron project run)
+- After the owner restarted the PC the MIDI service answered again (the app closed in 0.1 s with MIDI granted). Electron project, one worker:
+  `playwright test --project=electron --workers=1` -> `431 passed, 3 failed, 112 skipped (26.8m)`. The 3 failures: `electron-smoke` "packaged shelf" and
+  `piano-keyboard` "latency poll notifies only when ..." passed on rerun (load, not related); `levels.spec` "Orchestra level survives a restart" failed because
+  its two tests shared one user-data directory (`beforeAll`) and, with a single worker, the first test's second app was still open when the second test
+  launched (single-instance lock): now one directory per test (`beforeEach` / `afterEach`).
+- Finding: running the Electron project with the default 8 workers (8 desktop apps at once) wedged the Windows MIDI service again within minutes: every
+  app opens the machine's real MIDI ports at start-up (T017) and the apps hung asking for and closing MIDI (14 failures, `midi-hyp` check TIMEOUT). The
+  hardware (a MOTU interface) makes it visible; a machine without MIDI devices would not show it. The product is not affected (a single-instance
+  lock allows one app per user). Fix: `pnpm test:e2e` now runs the browser projects and then `pnpm test:e2e:electron` (`--project=electron --workers=1`);
+  reference.md says why. Changing a script is a toolchain change - say if you want it done differently (e.g. an environment switch that keeps the
+  desktop app away from real MIDI ports during tests).
+- The MIDI service is wedged again by that run; another restart is needed before the Electron project can be run once more with the final test files
+  (levels per-test directory, electron-audio-output). The 4 `electron-audio-output` tests were green (3) / blocked (1: the MIDI one) before the first restart and are
+  expected green on a healthy service; not confirmed yet. T070 and T066 stay open.

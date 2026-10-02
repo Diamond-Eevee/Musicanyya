@@ -124,7 +124,9 @@ pnpm dev              # Vite dev server (open in Chrome/Edge)
 pnpm lint             # Biome
 pnpm typecheck        # tsc --noEmit over all layer projects
 pnpm test             # Vitest (unit, golden snapshots, fakes)
-pnpm test:e2e         # Playwright, every browser project (~2,000 tests, 15-30 min): the full gate only
+pnpm test:e2e         # Playwright, every browser project, then the Electron project (~2,000 tests, 15-40 min): the full gate only
+pnpm test:e2e:electron # the Electron project alone, one desktop app at a time (each app opens the machine's real MIDI ports at
+                      # start-up; several at once can wedge the Windows MIDI service)
 pnpm test:e2e:smoke   # the @smoke tests on chromium (~15 s): every checkpoint
 pnpm exec playwright test tests/e2e/<spec>.ts --project=chromium   # task checks: only the specs you touched
 pnpm build            # static site in dist/

@@ -252,17 +252,19 @@ test.describe('Levels popover in the desktop app (feature 019 US1, SC-008)', () 
   let app: ElectronApplication | null = null;
 
   // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
-  test.beforeAll(async ({}, testInfo) => {
+  test.beforeEach(async ({}, testInfo) => {
     if (testInfo.project.name !== 'electron') return;
-    // A user-data directory of our own: the shell takes a single-instance lock keyed on it (see electron-playback.spec.ts)
+    // A user-data directory of our own for each test: the shell takes a single-instance lock keyed on it (see
+    // electron-playback.spec.ts), and a test's second app must not meet the first test's app that is still open.
     userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'musicanyya-e2e-levels-'));
   });
 
   // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
-  test.afterAll(async ({}, testInfo) => {
+  test.afterEach(async ({}, testInfo) => {
     if (testInfo.project.name !== 'electron') return;
     await app?.close();
-    fs.rmSync(userDataDir, { recursive: true, force: true });
+    app = null;
+    fs.rmSync(userDataDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
   });
 
   // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
