@@ -64,6 +64,16 @@ export class WebAudioEngine implements AudioEngine {
   private workletReady: Promise<void> | null = null;
   private soundReady: Promise<void> | null = null;
 
+  private prepared: Promise<void> | null = null;
+  // prepare() found the context not running (browser autoplay policy): until it runs, only 'suspended' is reported
+  // and the loading / ready states are held (contracts/live-sound.md section 1, data-model.md section 1).
+  private locked = false;
+  private soundLoaded = false; // the worklet's synth has its SoundFont: only then can a live note be heard
+  private soundState: AudioEngineState | null = null; // the latest loadingSound / ready state, held while locked
+  // Live notes and the pedal posted to the worklet, so their releases follow even if the context suspends mid-note.
+  private readonly liveHeld = new Set<number>();
+  private liveSustainHeld = false;
+
   private state: AudioEngineState = { kind: 'idle' };
   private transport: TransportSnapshot = initialTransport();
 
@@ -87,8 +97,18 @@ export class WebAudioEngine implements AudioEngine {
   }
 
   private setState(state: AudioEngineState): void {
+    if (state.kind === 'error') {
+      this.soundState = null;
+      this.soundLoaded = false;
+    }
     this.state = state;
     this.emit({ type: 'state', state });
+  }
+
+  /** A sound-loading state (loadingSound, ready): reported at once, or held while the context is locked. */
+  private reportSound(state: AudioEngineState): void {
+    this.soundState = state;
+    if (!this.locked) this.setState(state);
   }
 
   private setTransport(patch: Partial<TransportSnapshot>): void {
@@ -96,40 +116,68 @@ export class WebAudioEngine implements AudioEngine {
     this.emit({ type: 'transport', transport: this.transport });
   }
 
-  async prepare(): Promise<void> {
-    // Stub until feature 021 T015: the context is still created by unlock().
+  prepare(): Promise<void> {
+    // A failed attempt is not remembered: a later call (the first click) tries again
+    this.prepared ??= this.doPrepare().catch((err) => {
+      this.prepared = null;
+      throw err;
+    });
+    return this.prepared;
+  }
+
+  private async doPrepare(): Promise<void> {
+    const context = this.ensureContext();
+    await this.ensureWorklet();
+    if (context.state !== 'running') {
+      this.locked = true;
+      this.setState({ kind: 'suspended', reason: 'browserPolicy' });
+    }
   }
 
   async unlock(): Promise<void> {
-    if (!this.context) {
-      try {
-        this.context = new AudioContext({ latencyHint: 'interactive' });
-      } catch (err) {
-        this.setState({ kind: 'error', code: 'contextFailed', detail: String(err) });
-        throw err;
-      }
-      // A running context turning 'suspended' on its own (never something we do - pause() only messages the
-      // worklet) is the browser reacting to a device change or the tab going background (data-model.md §6).
-      this.context.onstatechange = () => {
-        if (this.context?.state === 'suspended') {
-          this.setState({ kind: 'suspended', reason: document.hidden ? 'hidden' : 'deviceChanged' });
-        }
-      };
-    }
-    if (this.context.state === 'suspended') {
-      await this.context.resume();
+    const context = this.ensureContext();
+    if (context.state === 'suspended') {
+      await context.resume();
     }
     await this.ensureWorklet();
   }
 
+  /** The one AudioContext of this engine, created by whichever of prepare() and unlock() comes first. */
+  private ensureContext(): AudioContext {
+    if (this.context) return this.context;
+    let context: AudioContext;
+    try {
+      context = new AudioContext({ latencyHint: 'interactive' });
+    } catch (err) {
+      this.setState({ kind: 'error', code: 'contextFailed', detail: String(err) });
+      throw err;
+    }
+    this.context = context;
+    // A running context turning 'suspended' on its own (never something we do - pause() only messages the
+    // worklet) is the browser reacting to a device change or the tab going background (data-model.md §6).
+    // Turning 'running' again (the first click, or the tab back) reports the sound state it held or replaced.
+    context.onstatechange = () => {
+      if (context.state === 'suspended') {
+        this.setState({ kind: 'suspended', reason: document.hidden ? 'hidden' : 'deviceChanged' });
+      } else if (context.state === 'running') {
+        this.locked = false;
+        if (this.state.kind === 'suspended' && this.soundState) this.setState(this.soundState);
+      }
+    };
+    return context;
+  }
+
   private async ensureWorklet(): Promise<void> {
     if (this.node) return;
-    this.workletReady ??= this.createWorklet();
+    this.workletReady ??= this.createWorklet().catch((err) => {
+      this.workletReady = null;
+      throw err;
+    });
     return this.workletReady;
   }
 
   private async createWorklet(): Promise<void> {
-    const context = this.context!;
+    const context = this.ensureContext();
     try {
       await context.audioWorklet.addModule(scorePlayerWorkletUrl);
     } catch (err) {
@@ -162,7 +210,8 @@ export class WebAudioEngine implements AudioEngine {
     switch (msg.type) {
       case 'status': {
         if (msg.state === 'soundReady') {
-          this.setState({ kind: 'ready' });
+          this.soundLoaded = true;
+          this.reportSound({ kind: 'ready' });
         } else if (msg.state === 'error') {
           this.setState({ kind: 'error', code: 'soundFontLoadFailed', detail: msg.detail ?? 'unknown' });
         } else if (msg.state === 'processorFaulted') {
@@ -217,11 +266,11 @@ export class WebAudioEngine implements AudioEngine {
   }
 
   private async loadSound(): Promise<void> {
-    this.setState({ kind: 'loadingSound', loadedBytes: 0, totalBytes: null });
+    this.reportSound({ kind: 'loadingSound', loadedBytes: 0, totalBytes: null });
     let bytes: ArrayBuffer;
     try {
       bytes = await loadSoundFont(SOUNDFONT_URL, (loadedBytes, totalBytes) => {
-        this.setState({ kind: 'loadingSound', loadedBytes, totalBytes: totalBytes > 0 ? totalBytes : null });
+        this.reportSound({ kind: 'loadingSound', loadedBytes, totalBytes: totalBytes > 0 ? totalBytes : null });
       });
     } catch (err) {
       this.setState({ kind: 'error', code: 'soundFontLoadFailed', detail: String(err) });
@@ -293,8 +342,22 @@ export class WebAudioEngine implements AudioEngine {
     this.node?.port.postMessage({ type: 'channelVolume', channel, gain: volume / 100 });
   }
 
+  // Live messages (contracts/live-sound.md section 1): a note-on and a pedal-down reach the worklet only while the
+  // context runs and the SoundFont is loaded (until then the worklet queues and later plays them in one burst), so a key
+  // pressed before the sound is on is silent and never replayed as late notes; a release is posted whenever its press
+  // was, so a context that suspends mid-note leaves nothing stuck.
+  private liveRunning(): boolean {
+    return this.node !== null && this.soundLoaded && this.context?.state === 'running';
+  }
+
+  private static liveKeyId(key: number, channel: number | undefined): number {
+    return (channel ?? 16) * 128 + key; // 16: the default live channel, apart from MIDI channels 0-15
+  }
+
   liveNoteOn(key: number, velocity: number, channel?: number): void {
-    this.node?.port.postMessage(
+    if (!this.node || !this.liveRunning()) return;
+    this.liveHeld.add(WebAudioEngine.liveKeyId(key, channel));
+    this.node.port.postMessage(
       channel === undefined
         ? { type: 'live', kind: 'on', key, velocity }
         : { type: 'live', kind: 'on', key, velocity, channel },
@@ -302,16 +365,29 @@ export class WebAudioEngine implements AudioEngine {
   }
 
   liveNoteOff(key: number, channel?: number): void {
-    this.node?.port.postMessage(
+    if (!this.node) return;
+    const id = WebAudioEngine.liveKeyId(key, channel);
+    if (!this.liveHeld.delete(id) && !this.liveRunning()) return;
+    this.node.port.postMessage(
       channel === undefined ? { type: 'live', kind: 'off', key } : { type: 'live', kind: 'off', key, channel },
     );
   }
 
   liveSustain(down: boolean): void {
-    this.node?.port.postMessage({ type: 'live', kind: 'sustain', down });
+    if (!this.node) return;
+    if (down) {
+      if (!this.liveRunning()) return;
+      this.liveSustainHeld = true;
+    } else {
+      if (!this.liveSustainHeld && !this.liveRunning()) return;
+      this.liveSustainHeld = false;
+    }
+    this.node.port.postMessage({ type: 'live', kind: 'sustain', down });
   }
 
   liveAllOff(): void {
+    this.liveHeld.clear();
+    this.liveSustainHeld = false;
     this.node?.port.postMessage({ type: 'live', kind: 'allOff' });
   }
 
@@ -402,6 +478,12 @@ export class WebAudioEngine implements AudioEngine {
     this.node = null;
     this.workletReady = null;
     this.soundReady = null;
+    this.prepared = null;
+    this.locked = false;
+    this.soundLoaded = false;
+    this.soundState = null;
+    this.liveHeld.clear();
+    this.liveSustainHeld = false;
     if (this.context) {
       await this.context.close();
       this.context = null;

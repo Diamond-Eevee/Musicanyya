@@ -104,3 +104,42 @@
 - Handoff: next = T015 (engine `prepare()` per the revised live rule, `statechange` re-report) -> T016, T017, T069, T018-T021,
   then the US1 checkpoint (T013, T014, T068 green; `pnpm test` fully green again; smoke). Tier standard (sonnet fits). Work tree
   clean at the wip commit after this entry.
+
+## 2026-10-02 - claude-sonnet-5.5 (implement, US1 checkpoint)
+- Done: T015-T021 and T069 (US1 complete). T015 `WebAudioEngine.prepare()` / `ensureContext()`; the engine holds its `loadingSound` /
+  `ready` reports while the browser keeps the context locked and releases them when it runs. T016 `autoplayPolicy` in
+  `electron/main.ts` (window options are not exported to unit tests, so T014 is the evidence). T017 `startLiveSound()` in
+  `session.ts`: prepare, SoundFont, first-activation unlock listener, MIDI request at start-up; flags `soundReady` /
+  `engineUnlocked` now also set from the engine's `ready` event; a `browserPolicy` suspension no longer calls the transport's
+  `pause()` (it would have paused the engine). T069 `releasePracticeSound` spares keys in `session.heldKeys`. T018 `routeLiveInput`
+  unconditional; `PlaySessionController` no longer sounds `soundInput`. T019 `midiState.liveSound` / `lockedHintShown`, derived in
+  `deriveLiveSound`. T020 `#midi-controls` slot, `mx-midi-status` (marker + hint), `src/ui/icons/midi-icons.ts`, `en.midi.*`.
+- RT review (T021, rt-audio-reviewer, 2 blocking, 4 non-blocking): BLOCKING 1 - the Play controller subscribed to the MIDI input
+  before the session's listener, so in a run the key sounded after the controller's clock mapping, reducer and UI callbacks
+  (latency regression, and a throw there would silence the key): fixed, the router is now a field initializer that subscribes
+  first (`session.ts`), the live-router test harness registers it first and a new test pins "key sounded before the controller
+  handles it" (verified red with the old order). BLOCKING 2 - the engine posted live notes whenever the context ran, though the
+  worklet queues them without draining until its SoundFont is ready (Electron runs from start-up): burst of late notes, possible
+  dropped note-off: fixed, the gate is "running AND sound loaded" (`soundLoaded`, set by the worklet's `soundReady`), new unit test.
+  Non-blocking: cached rejected `prepare()` / worklet promise stopped the retry on the first click: fixed (not cached, new test).
+  Accepted and documented (live-sound.md): a pedal held down across the unlock is not re-sent. Observed, left: `WebMidiInput.emit`
+  has no per-listener try/catch (with the router first a throw elsewhere cannot silence a key); `locked` can flash for a few ms in
+  Electron if the context is not yet `running` when the worklet module has loaded (self-corrects on `statechange`).
+- Expected-value changes: `tests/engine/audio/web-audio-engine.test.ts` live-message tests now first report the sound loaded (stronger
+  contract after RT finding 2; the suspended-context tests are unchanged). `live-router.test.ts` harness registers the router before the
+  Play controller (as the app now does).
+- Decision: a key pressed while `liveSound` is still `loading` (locked is known about 50 ms after page load) gives its hint the moment
+  it turns `locked` (`keyPressedWhileLoading`; data-model section 1, research R-4 addendum) - T013 (a) pressed a key inside that window.
+  The hint is a top-layer popover (`popover="manual"`), because the Score browser is a modal dialog open at start-up and covered it
+  (seen in a screenshot, not caught by Playwright's visibility check).
+- Evidence: `pnpm test` `Test Files  324 passed (324)`, `Tests  7169 passed (7169)`; `pnpm typecheck` exit 0; `pnpm lint` exit 0
+  `Found 320 warnings. Found 13 infos.` (baseline 318; +2 from the US1 tests' casts / non-null assertions, not cleaned up);
+  `pnpm test:e2e:smoke` `9 passed`; `live-piano.spec.ts` + `live-latency.spec.ts` chromium `8 passed` (T013 a-f, T068 median key-to-worklet
+  0.000 ms in Listen stopped and Play idle, baseline 0, bound +2 ms); `electron-live-piano.spec.ts` electron `1 passed`;
+  `electron-playback.spec.ts` electron `4 passed`; `pressed-keys`, `guide-voice`, `piano-keyboard`, `us4-overlays` chromium `47 passed`.
+  Not run: the quickstart US1 steps with a real MIDI keyboard (none attached); the full e2e suite (full gate, once at the end).
+- Model fit: Phase 3 is tier `standard`; claude-sonnet-5.5 fits. No question needed.
+- Open observation (not changed): the Practice core's own `soundOff` effect for a unison key the musician holds also cuts it; it is
+  outside FR-006's list (mode switch, run start or stop, Score change).
+- Problems / open questions: none for the owner.
+- Handoff: next = US2 (T022 onward; tier standard, sonnet fits). Tree clean at the commit after this entry.

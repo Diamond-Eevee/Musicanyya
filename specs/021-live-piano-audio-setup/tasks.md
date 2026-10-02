@@ -134,36 +134,36 @@ a run: keys sound once. Browser: after one click anywhere, keys sound (spec US1)
 
 ### Implementation
 
-- [ ] T015 [US1] Implement `prepare()` in `src/engine/audio/web-audio-engine.ts` (contracts/live-sound.md section 1):
+- [x] T015 [US1] Implement `prepare()` in `src/engine/audio/web-audio-engine.ts` (contracts/live-sound.md section 1):
   create the context and the worklet without resuming; emit `suspended` / `browserPolicy` when the context is not
   running; `unlock()` reuses it; `ensureSoundLoaded()` no longer requires `unlock()`. T010 green
-- [ ] T016 [P] [US1] Set `webPreferences.autoplayPolicy: 'no-user-gesture-required'` explicitly in `electron/main.ts`
+- [x] T016 [P] [US1] Set `webPreferences.autoplayPolicy: 'no-user-gesture-required'` explicitly in `electron/main.ts`
   with a comment linking electron-bridge 1.1.0; extend `tests/electron/policy.test.ts` only if the window options are
   exported there (otherwise T014 is the evidence)
-- [ ] T017 [US1] Start-up sequence in `src/app/session.ts` (live-sound.md section 2): call `prepare()` and
+- [x] T017 [US1] Start-up sequence in `src/app/session.ts` (live-sound.md section 2): call `prepare()` and
   `ensureSoundLoaded()` after mounting, install the one-shot first-activation `unlock()` listener (`pointerdown`,
   `keydown`, capture, on `window`, removed once running); request MIDI access at start-up where the Shell has Web MIDI
   (`midiInput.request()`, no gesture; research R-5, live-sound.md section 2 step 1 - without it the desktop app hears no
   keyboard until "Connect" is clicked, analyze A1); keep `handlePlay()`'s own `unlock()` and the `soundReady` /
   `engineUnlocked` flags consistent (set from engine state events, not only from `handlePlay`); a SoundFont that fails
   to load at start-up raises the existing `soundFontMissing` notice once (analyze A4). T014 green
-- [ ] T069 [US1] Fix found by T012: `releasePracticeSound` in `src/app/practice-sound.ts` (extracted from `session.ts` by T012,
+- [x] T069 [US1] Fix found by T012: `releasePracticeSound` in `src/app/practice-sound.ts` (extracted from `session.ts` by T012,
   unchanged) skips an accompaniment key that is in `session.heldKeys`, the musician still holds it (FR-006); the Orchestra
   release stays as it is (own channel). `tests/engine/practice-held-key.test.ts` green. The Practice core's own `soundOff`
   effect for a unison key the musician holds is not in FR-006's list (mode switch, run start or stop, Score change): logged
   as an open observation, not changed
-- [ ] T018 [US1] Live router in `src/app/session.ts` (live-sound.md section 3): sound every note-on / note-off / pedal
+- [x] T018 [US1] Live router in `src/app/session.ts` (live-sound.md section 3): sound every note-on / note-off / pedal
   first, with no mode or run condition; in `src/app/play-session.ts` stop applying the `soundInput` effect to the engine
   (still passed to `callbacks.onEffect`). T008 and T009 green; T011, T012 still green
-- [ ] T019 [US1] Live-sound state in `src/ui/state/midiState.ts` (`liveSound`, `lockedHintShown`, data-model section 1)
+- [x] T019 [US1] Live-sound state in `src/ui/state/midiState.ts` (`liveSound`, `lockedHintShown`, data-model section 1)
   derived in `src/app/session.ts` from engine `state` events only; the first note-on while `locked` sets
   `lockedHintShown`
-- [ ] T020 [US1] Add the slot `#midi-controls` after `#menu-controls` in `src/ui/elements/mx-app.ts` and a first
+- [x] T020 [US1] Add the slot `#midi-controls` after `#menu-controls` in `src/ui/elements/mx-app.ts` and a first
   `src/ui/elements/mx-midi-status.ts` showing only the live-sound marker (speaker + lock / speaker + dots / speaker +
   cross, `src/ui/icons/midi-icons.ts` new) and the locked hint bubble for `LOCKED_HINT_MS` (contracts/top-bar.md
   section 2, its live-sound parts); strings in `src/ui/i18n/en.ts` (`midi.soundLocked`, `midi.soundLoading`,
   `midi.soundFailed`, `midi.lockedHint`). T013 green
-- [ ] T021 [US1] RT review with `.claude/agents/rt-audio-reviewer.md` of the live router (`src/app/session.ts` MIDI
+- [x] T021 [US1] RT review with `.claude/agents/rt-audio-reviewer.md` of the live router (`src/app/session.ts` MIDI
   listener), `src/app/play-session.ts` input path and `WebAudioEngine.prepare()` / live posting: no added work before
   the engine call, no timers deciding sound, exactly-once routing; findings summarised in the log, blocking ones fixed
 

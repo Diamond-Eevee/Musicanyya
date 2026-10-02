@@ -54,6 +54,11 @@ dropped) - while the spec only promises "the next key press sounds" after the fi
 posted whenever its note-on or pedal-down was posted, so a suspension in mid-note leaves no stuck note. Alternatives: always
 queue (the burst above); drop everything and send `allOff` on resume (cuts keys the musician holds).
 
+Addendum (RT review T021): the gate also needs the SoundFont loaded, not only a running context - the desktop app runs
+from start-up while the sound still loads, and the worklet queues live messages without draining them until its synth is
+ready, so they would play as one burst (and a full queue would drop a note-off, leaving a stuck note). A failed
+`prepare()` or worklet load is not cached, so the first click retries it.
+
 ## R-3 One owner of the live sound
 
 **Decision**: `session.ts`'s MIDI listener is the **single live-sound router**: it sounds every note-on, note-off and
@@ -81,6 +86,13 @@ session-level test asserts the router sends exactly one.
 `session.ts` from engine `state` events (`suspended/browserPolicy` -> locked; `loadingSound` -> loading; `ready` ->
 ready; `error` -> failed). The top-bar MIDI control shows it (FR-003, FR-007). The locked hint appears once per page
 load, on the first MIDI key while locked, and disappears on unlock.
+
+**Addendum (implementation, T015/T019)**: (1) the engine itself keeps "locked wins": once `prepare()` found the context
+not running it reports only `suspended/browserPolicy` and holds its `loadingSound` / `ready` states until the context
+runs, then reports the held one (also after a `hidden` or `deviceChanged` suspension), so `session.ts` derives
+`liveSound` with a plain mapping. (2) `locked` is known only after the worklet module has loaded (about 50 ms after
+page load); a key pressed in that window (state still `loading`) is remembered and gives its hint the moment the state
+turns `locked`.
 
 **Rationale**: the MIDI control is where a musician looks when a key makes no sound; one store, no new element.
 

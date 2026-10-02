@@ -35,6 +35,10 @@ loading --(sound loaded, context running)--> ready
 any     --(engine error)--> failed      (terminal until reload; keys still drawn)
 ```
 
+The engine holds its `loadingSound` / `ready` reports while the context is locked and releases them when it runs, so
+"locked wins" needs no rule in `session.ts`. A first note-on while still `loading` (before `locked` is known) counts for
+the hint: it is shown as soon as the state turns `locked`.
+
 Rules: every MIDI message is sent to the engine in every state (the engine ignores it while nothing can sound);
 `lockedHintShown` becomes true on the first note-on while `locked` and never goes back during the page load.
 

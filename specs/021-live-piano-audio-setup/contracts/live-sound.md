@@ -27,9 +27,11 @@ Rules:
 
 - `ensureSoundLoaded()` may be called right after `prepare()`, before any gesture.
 - `liveNoteOn/Off/Sustain/AllOff` before `prepare()` resolves are dropped (no node). After it, a note-on and a pedal-down
-  are posted to the worklet **only while the context is running**: a key pressed before the sound is on is silent and is
-  never replayed as a burst of late notes on unlock (revised during implementation, research R-2 addendum; the worklet's
-  live queue is bounded and a suspended context renders nothing, so queuing would only delay and then crowd the sound).
+  are posted to the worklet **only while the context is running and the SoundFont is loaded** (the worklet's `soundReady`
+  report): a key pressed before the sound is on is silent and is never replayed as a burst of late notes (revised during
+  implementation, research R-2 addendum and RT review T021; the worklet's live queue is bounded, a suspended context
+  renders nothing and a worklet without its sound queues without draining, so posting earlier would only delay and then
+  crowd the sound). A pedal held down across that moment is not re-sent: the next pedal press takes effect (accepted).
   A note-off or pedal-up is posted whenever its note-on or pedal-down was, so a context that suspends mid-note never
   leaves a stuck note; `liveAllOff` is always posted. The pending live messages are therefore never more than the keys
   the musician actually holds.
@@ -49,7 +51,10 @@ Rules:
 
 ## 3. Live router (single owner of the musician's sound)
 
-`session.ts`'s `midiInput.on` listener is the only code that sounds the musician's input:
+`routeLiveInput` (`src/app/live-router.ts`) is the only code that sounds the musician's input. `session.ts` subscribes it
+as the **first** listener of `midiInput` (a field initializer ahead of the Play controller, whose constructor subscribes
+too; listeners run in the order added), so nothing - the Play controller's clock mapping, the reducer, UI state - runs
+before a key is sounded (RT review T021):
 
 | Message | Engine call, always, first | Then |
 |---|---|---|

@@ -50,8 +50,8 @@ export interface StartPlayOptions {
 }
 
 export interface PlaySessionCallbacks {
-  /** Every effect the run reducer returns, in order, after the controller has already acted on the ones that
-   *  touch the engine (`soundInput`) - the UI never needs to re-derive that part. */
+  /** Every effect the run reducer returns, in order, after the controller has already acted on the ones it owns
+   *  (`runEnded`). `soundInput` is passed on unchanged and sounds nothing: the live router sounds the musician's input. */
   onEffect(effect: PlayEffect): void;
   onGraded(grade: Grade): void;
   onGradeFailed(reason: 'timeout' | 'error', message?: string): void;
@@ -373,10 +373,9 @@ export class PlaySessionController {
 
   private applyEffects(effects: readonly PlayEffect[]): void {
     for (const effect of effects) {
-      if (effect.type === 'soundInput') {
-        if (effect.on) this.audioEngine.liveNoteOn(effect.key, effect.velocity);
-        else this.audioEngine.liveNoteOff(effect.key);
-      } else if (effect.type === 'runEnded') {
+      // `soundInput` is informational only: the live router in session.ts sounds every key first, in every mode and
+      // state, so the controller never sounds input itself (play-run 2.4.0, live-sound.md section 3).
+      if (effect.type === 'runEnded') {
         this.pendingGrade = this.finishRun(effect.reason === 'reachedEnd');
       }
       this.callbacks.onEffect(effect);

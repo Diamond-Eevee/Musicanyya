@@ -1,11 +1,18 @@
 import type { MidiAvailability, MidiDevice } from '../../engine/ports.js';
 
+/** Whether the keyboard can sound (feature 021, data-model.md section 1): `locked` while the browser holds the audio
+ *  back until a click, `loading` while the SoundFont loads, `ready`, or `failed` (terminal until reload). */
+export type LiveSound = 'locked' | 'loading' | 'ready' | 'failed';
+
 class MidiState {
   availability: MidiAvailability = 'notRequested';
   devices: MidiDevice[] = [];
   latencyMs: number | null = null;
   pressedKeys = new Set<number>();
   sustainDown = false;
+  liveSound: LiveSound = 'loading';
+  /** True once the "click anywhere to turn the sound on" hint was triggered this page load; never goes back. */
+  lockedHintShown = false;
   private listeners = new Set<() => void>();
 
   subscribe(listener: () => void) {

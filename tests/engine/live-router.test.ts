@@ -37,20 +37,31 @@ function harness() {
   const midi = new FakeMidiInput();
   engine.currentClockPair = { contextTime: 1, performanceTime: 1000 };
   const worker = { postMessage() {}, addEventListener() {}, removeEventListener() {} };
+  // session.ts: the router is the FIRST subscriber of the MIDI input, added before the Play controller's constructor
+  // subscribes (MIDI listeners run in the order added), so no work of the controller can come before a key sounds
+  midi.on((event) => routeLiveInput(engine, event));
+  /** How many live note-ons had been sounded when the controller reported each `soundInput` effect. */
+  const soundedAtEffect: number[] = [];
   const controller = new PlaySessionController(
     engine,
     midi,
     worker,
     new FakePerformanceStore(),
-    { onEffect() {}, onGraded() {}, onGradeFailed() {}, onStored() {} },
+    {
+      onEffect(effect) {
+        if (effect.type === 'soundInput') {
+          soundedAtEffect.push(engine.commands.filter((c) => c.startsWith('liveNoteOn:')).length);
+        }
+      },
+      onGraded() {},
+      onGradeFailed() {},
+      onStored() {},
+    },
     5000,
     () => 1000,
     () => 'run',
     () => '2026-01-01T00:00:00.000Z',
   );
-  // session.ts: the router is the first thing its MIDI listener does
-  midi.on((event) => routeLiveInput(engine, event));
-
   const startRun = () =>
     controller.start({
       scoreId: null,
@@ -65,7 +76,7 @@ function harness() {
     engine.currentPosition = { audibleTick: controller.getRun()!.tickMap.countInTicks, playing: true };
     controller.reportPosition(1500);
   };
-  return { engine, midi, controller, startRun, toRunning };
+  return { engine, midi, controller, startRun, toRunning, soundedAtEffect };
 }
 type Harness = ReturnType<typeof harness>;
 
@@ -150,6 +161,22 @@ describe('live router: every message sounds exactly once, in every state (SC-003
       expect(h.engine.commands.filter((c) => c === 'liveSustain:false')).toHaveLength(1);
     });
   }
+});
+
+describe('live router: nothing comes before the sound (Constitution I, RT review T021)', () => {
+  beforeEach(() => practiceState.setMode('play'));
+  afterEach(() => practiceState.setMode('listen'));
+
+  it('during a Play run the key is already sounded when the Play controller handles it', () => {
+    const h = harness();
+    h.toRunning();
+    h.engine.commands.length = 0;
+
+    h.midi.fire({ type: 'noteOn', deviceId: 'kb', key: 60, velocity: 80, timeStampMs: 1100 });
+
+    // the controller reported the effect after the router had sounded the key, never before
+    expect(h.soundedAtEffect).toEqual([1]);
+  });
 });
 
 describe('live router: nothing cuts a key the musician holds (FR-006)', () => {

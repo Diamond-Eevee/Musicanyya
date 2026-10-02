@@ -247,6 +247,47 @@ mx-open-button .open-label-short {
   margin-inline-start: auto;
 }
 
+/* The MIDI control (feature 021): the live-sound marker and its hint bubble, which hangs under the bar over the Score
+   without taking space and without taking focus. */
+mx-midi-status {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+mx-midi-status .midi-sound {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mx-space-2, 4px);
+  color: var(--mx-ink-muted);
+}
+
+mx-midi-status .midi-icon {
+  flex-shrink: 0;
+}
+
+.mx-bar-compact mx-midi-status .midi-sound span {
+  display: none; /* the name stays in its title */
+}
+
+mx-midi-status .midi-locked-hint {
+  /* a top-layer popover (mx-midi-status.ts sets top and right from the control's position) */
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  overflow: visible;
+  padding: 8px 12px;
+  border: 1px solid var(--mx-border);
+  border-radius: var(--mx-radius-m, 8px);
+  background: var(--mx-raised);
+  color: var(--mx-ink);
+  box-shadow: var(--mx-shadow-popup);
+  white-space: normal;
+  width: max-content;
+  max-width: 18rem;
+  pointer-events: none;
+}
+
 .mx-main {
   position: relative;
   display: flex;

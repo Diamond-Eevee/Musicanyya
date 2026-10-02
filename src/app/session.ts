@@ -5,6 +5,7 @@ import { HttpLibraryCatalog } from '../engine/library/http-catalog.js';
 import { WebMidiInput } from '../engine/midi/web-midi-input.js';
 import type {
   AudioEngineEvent,
+  AudioEngineState,
   EngineSchedule,
   LibraryCatalog,
   MidiAvailability,
@@ -41,6 +42,7 @@ import '../ui/elements/mx-mode-switch.js';
 import '../ui/elements/mx-piano-keys.js';
 import '../ui/elements/mx-practice-help.js';
 import '../ui/elements/mx-practice-panel.js';
+import '../ui/elements/mx-midi-status.js';
 import '../ui/elements/mx-run-status.js';
 import {
   METRONOME_KEY_BEAT,
@@ -93,7 +95,7 @@ import { mountPanels, type PanelTools } from '../ui/layout/panel-host.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
 import { initShortcuts } from '../ui/shortcuts.js';
 import { browserState } from '../ui/state/browserState.js';
-import { midiState } from '../ui/state/midiState.js';
+import { type LiveSound, midiState } from '../ui/state/midiState.js';
 import { mistakeStepper } from '../ui/state/mistake-stepper.js';
 import { noticeState } from '../ui/state/noticeState.js';
 import { playState } from '../ui/state/playState.js';
@@ -109,6 +111,7 @@ import { transportState } from '../ui/state/transportState.js';
 import { type OverlayLayer, viewState } from '../ui/state/viewState.js';
 import { requestGrade } from '../workers/grade.worker.js';
 import { BrowserSessionController, type LoadBytesOutcome } from './browser-session.js';
+import { routeLiveInput } from './live-router.js';
 import { PlaySessionController } from './play-session.js';
 import { releasePracticeSound } from './practice-sound.js';
 import { ReplaySessionController } from './replay-session.js';
@@ -174,6 +177,7 @@ export class Session {
   // Listen mode (US2, T108)
   private readonly audioEngine = new WebAudioEngine();
   private engineUnlocked = false;
+  private keyPressedWhileLoading = false;
   private soundReady = false;
   private currentSchedule: EngineSchedule | null = null;
   private currentTimeline: TimelineDto | null = null;
@@ -181,6 +185,11 @@ export class Session {
   private currentScore: Score | null = null;
   private scheduleDelivered = false;
   private readonly midiInput = new WebMidiInput();
+  // The musician's own sound (feature 021, live-sound.md section 3): the FIRST subscriber of the MIDI input, in every
+  // mode and state. MIDI listeners run in the order they were added, so it is added here, before the Play controller
+  // below (which subscribes in its constructor) and before the session's own listener in start(); nothing may run
+  // before the key is sounded.
+  readonly liveRouterSubscription = this.midiInput.on((event) => routeLiveInput(this.audioEngine, event));
 
   // Practice mode (feature 002): what the musician chose for the open Score, remembered per Score id (R-07).
   private practiceScoreId: string | null = null;
@@ -400,6 +409,7 @@ export class Session {
     document.getElementById('mode-controls')?.appendChild(modeSwitch);
     const sizeControls = document.createElement('mx-size-controls');
     document.getElementById('size-controls')?.appendChild(sizeControls);
+    document.getElementById('midi-controls')?.appendChild(document.createElement('mx-midi-status'));
     document.getElementById('run-status')?.appendChild(document.createElement('mx-run-status'));
     const updateTransportVisibility = () => {
       const loaded = scoreState.getStatus().kind === 'loaded';
@@ -652,6 +662,15 @@ export class Session {
     });
 
     this.midiInput.on((e) => {
+      // The first key pressed while the sound is locked asks for the hint, once per page load (data-model.md section 1)
+      if (e.type === 'noteOn' && !midiState.lockedHintShown) {
+        if (midiState.liveSound === 'locked') {
+          midiState.lockedHintShown = true;
+          midiState.emit();
+        } else if (midiState.liveSound === 'loading') {
+          this.keyPressedWhileLoading = true; // the browser may turn out to hold the sound back a moment later
+        }
+      }
       if (e.type === 'availability') {
         midiState.availability = e.availability;
         midiState.emit();
@@ -659,7 +678,6 @@ export class Session {
         midiState.devices = [...e.devices];
         midiState.emit();
       } else if (e.type === 'deviceLost') {
-        this.audioEngine.liveAllOff();
         e.heldKeys.forEach((k) => {
           midiState.pressedKeys.delete(k);
         });
@@ -675,20 +693,14 @@ export class Session {
         const playReports = playPhase === 'countIn' || playPhase === 'running';
         if (!practiceReported && !playReports) noticeState.addNotice({ code: 'midiDeviceLost', severity: 'warning' });
       } else if (e.type === 'noteOn') {
-        // The musician's own sound goes first: the re-renders that state changes trigger must never delay it.
-        // In Play mode PlaySessionController's own `soundInput` effect already sounds it (FR-006) - sounding it
-        // here too would trigger the same key twice.
-        if (practiceState.get().mode !== 'play') this.audioEngine.liveNoteOn(e.key, e.velocity);
         midiState.pressedKeys.add(e.key);
         midiState.emit();
         this.applyPracticeInput({ type: 'noteOn', key: e.key, velocity: e.velocity, timeStampMs: e.timeStampMs });
       } else if (e.type === 'noteOff') {
-        if (practiceState.get().mode !== 'play') this.audioEngine.liveNoteOff(e.key);
         midiState.pressedKeys.delete(e.key);
         midiState.emit();
         this.applyPracticeInput({ type: 'noteOff', key: e.key, timeStampMs: e.timeStampMs });
       } else if (e.type === 'sustain') {
-        if (practiceState.get().mode !== 'play') this.audioEngine.liveSustain(e.down);
         midiState.sustainDown = e.down;
         midiState.emit();
         this.applyPracticeInput({ type: 'sustain', down: e.down, timeStampMs: e.timeStampMs });
@@ -721,6 +733,44 @@ export class Session {
     // FR-001: the browser is where a Score is found now - with none loaded, it opens once at start-up. The
     // drop-zone invitation stays behind it for when the browser is closed.
     if (scoreState.getStatus().kind === 'empty') this.browserController.open();
+
+    this.startLiveSound();
+  }
+
+  /** The piano plays from the moment the app is up (feature 021, live-sound.md section 2): the Audio engine is prepared and
+   *  its SoundFont loaded with no click, MIDI access is requested with no click (research R-5), and where the browser keeps the
+   *  context locked the first click or key anywhere turns the sound on. */
+  private startLiveSound(): void {
+    const engine = this.audioEngine;
+    const events = ['pointerdown', 'keydown'] as const;
+    const unlockOnFirstActivation = (): void => {
+      // `unlock()` resolves once the context runs; until then every activation tries again (a modifier key alone is
+      // no activation for the browser).
+      engine.unlock().then(
+        () => {
+          for (const name of events) window.removeEventListener(name, unlockOnFirstActivation, { capture: true });
+        },
+        () => {
+          // The engine has reported its own error state; a later activation tries again.
+        },
+      );
+    };
+    for (const name of events) window.addEventListener(name, unlockOnFirstActivation, { capture: true, passive: true });
+
+    void (async () => {
+      try {
+        await engine.prepare();
+      } catch {
+        return; // contextFailed / workletLoadFailed: reported through the engine's state
+      }
+      try {
+        await engine.ensureSoundLoaded();
+      } catch {
+        transportState.setSoundFailed();
+        noticeState.addNotice({ code: 'soundFontMissing', severity: 'warning' });
+      }
+    })();
+    void this.midiInput.request();
   }
 
   /** The user's settings live in memory here, so two changes inside the store's write debounce cannot overwrite each
@@ -819,14 +869,38 @@ export class Session {
     if (this.scoreView && this.currentTimeline) this.scoreView.setPlayback(this.audioEngine, this.currentTimeline);
   }
 
+  /** `midiState.liveSound` from the engine's state events and nowhere else (data-model.md section 1). The engine holds its
+   *  loading and ready states while the browser keeps the context locked, so `locked` wins without a rule here; a tab
+   *  hidden or a device change leaves it as it was. */
+  private deriveLiveSound(state: AudioEngineState): void {
+    let next: LiveSound | null = null;
+    if (state.kind === 'idle' || state.kind === 'loadingSound') next = 'loading';
+    else if (state.kind === 'ready') next = 'ready';
+    else if (state.kind === 'error') next = 'failed';
+    else if (state.reason === 'browserPolicy') next = 'locked';
+    if (next === null || next === midiState.liveSound) return;
+    midiState.liveSound = next;
+    // A key pressed in the moments before the browser's hold was known gets its hint now
+    if (next === 'locked' && this.keyPressedWhileLoading) midiState.lockedHintShown = true;
+    midiState.emit();
+  }
+
   private onAudioEngineEvent(event: AudioEngineEvent): void {
     if (event.type === 'ended') {
       transportState.ended();
     } else if (event.type === 'state') {
+      this.deriveLiveSound(event.state);
       if (event.state.kind === 'loadingSound') {
         transportState.setLoadingProgress(event.state.loadedBytes, event.state.totalBytes);
+      } else if (event.state.kind === 'ready') {
+        // The sound is loaded and the context runs, whether Play or the first click turned it on (feature 021 T017).
+        this.soundReady = true;
+        this.engineUnlocked = true;
+        transportState.setSoundReady(true);
       } else if (event.state.kind === 'suspended') {
-        transportState.pause();
+        // A context held back by the browser at start-up has nothing playing to pause (the transport's pause also
+        // reaches the engine).
+        if (event.state.reason !== 'browserPolicy') transportState.pause();
         if (event.state.reason === 'deviceChanged') {
           noticeState.addNotice({ code: 'audioDeviceChanged', severity: 'warning' });
         }

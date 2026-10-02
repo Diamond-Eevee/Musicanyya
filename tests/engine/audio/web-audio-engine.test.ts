@@ -208,6 +208,8 @@ describe('WebAudioEngine', () => {
       engine.on((event) => seen.push(event));
       return seen;
     };
+    /** The worklet reports its SoundFont decoded: from here on a live note can be heard. */
+    const soundLoaded = () => mockPort.onmessage({ data: { type: 'status', state: 'soundReady' } });
     const liveMessages = () =>
       mockPort.postMessage.mock.calls
         .map(([msg]: [{ type: string }]) => msg)
@@ -266,10 +268,11 @@ describe('WebAudioEngine', () => {
       expect(liveMessages()).toEqual([]);
     });
 
-    it('once prepared and running, live messages reach the node port in order', async () => {
+    it('once prepared, running and loaded, live messages reach the node port in order', async () => {
       mockContext.state = 'running';
       const engine = new WebAudioEngine();
       await engine.prepare();
+      soundLoaded();
       engine.liveNoteOn(60, 80);
       engine.liveNoteOff(60);
       engine.liveSustain(true);
@@ -281,6 +284,21 @@ describe('WebAudioEngine', () => {
         { type: 'live', kind: 'sustain', down: true },
         { type: 'live', kind: 'sustain', down: false },
       ]);
+    });
+
+    it('a running context whose SoundFont is still loading posts no note-on or pedal-down (the worklet would queue them and play a burst when it is ready)', async () => {
+      mockContext.state = 'running'; // the desktop app: running from start-up, the sound still loading
+      const engine = new WebAudioEngine();
+      await engine.prepare();
+      engine.liveNoteOn(60, 80);
+      engine.liveNoteOff(60);
+      engine.liveSustain(true);
+      engine.liveSustain(false);
+      expect(liveMessages()).toEqual([]);
+
+      soundLoaded();
+      engine.liveNoteOn(62, 80);
+      expect(liveMessages()).toEqual([{ type: 'live', kind: 'on', key: 62, velocity: 80 }]);
     });
 
     it('while the context is suspended a note-on and a pedal-down are not posted (no burst of late notes on unlock); allOff always is', async () => {
@@ -301,6 +319,7 @@ describe('WebAudioEngine', () => {
       mockContext.state = 'running';
       const engine = new WebAudioEngine();
       await engine.prepare();
+      soundLoaded();
       engine.liveNoteOn(60, 80);
       engine.liveSustain(true);
       mockContext.state = 'suspended'; // a device change, say
@@ -314,6 +333,17 @@ describe('WebAudioEngine', () => {
         { type: 'live', kind: 'off', key: 60 },
         { type: 'live', kind: 'sustain', down: false },
       ]);
+    });
+
+    it('a failed prepare() is not remembered: the next call tries again (the first click after a worklet failure)', async () => {
+      mockContext.audioWorklet.addModule.mockRejectedValueOnce(new Error('network'));
+      const engine = new WebAudioEngine();
+      await expect(engine.prepare()).rejects.toThrow('network');
+      await engine.prepare();
+
+      expect(AudioContext).toHaveBeenCalledTimes(1); // the context is reused
+      expect(AudioWorkletNode).toHaveBeenCalledTimes(1);
+      expect(mockContext.audioWorklet.addModule).toHaveBeenCalledTimes(2);
     });
 
     it('ensureSoundLoaded() works before unlock(): the SoundFont reaches the worklet with no resume', async () => {

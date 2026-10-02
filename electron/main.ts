@@ -90,6 +90,8 @@ function createWindow() {
       nodeIntegration: false,
       webSecurity: true,
       spellcheck: false,
+      // The Audio engine starts with no click, so the keyboard sounds from start-up (electron-bridge 1.1.0, feature 021)
+      autoplayPolicy: 'no-user-gesture-required',
       preload: path.join(_dirname, 'preload.cjs'),
     },
   });

@@ -55,6 +55,13 @@ export const en = {
       audioLost: 'Audio device lost',
     },
   },
+  /** The MIDI control of the slim bar (feature 021, contracts/top-bar.md section 2). */
+  midi: {
+    soundLocked: 'Sound off - click the page to turn it on',
+    soundLoading: 'Sound loading',
+    soundFailed: 'Sound failed to load',
+    lockedHint: 'Click anywhere on the page to turn the sound on.',
+  },
   /** The four menus of the slim bar (feature 004, data-model.md section 5). */
   menus: {
     score: 'Score',
