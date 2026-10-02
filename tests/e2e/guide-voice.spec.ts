@@ -64,7 +64,7 @@ test.describe('the Guide voice in the browser (feature 020 US1)', () => {
     await expect(page.locator('mx-transport .play-btn')).not.toBeDisabled();
     await spyOnLoadedSchedules(page);
     await page.locator('mx-transport .play-btn').click();
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause');
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Pause');
     const loaded = await loadedSchedules(page);
     expect(loaded.length).toBeGreaterThan(0);
     for (const schedule of loaded) {

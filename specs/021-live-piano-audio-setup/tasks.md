@@ -48,7 +48,7 @@ contracts/top-bar.md, contracts/contract-changes.md, quickstart.md
 
 **Model**: standard (gemini-3.8-flash or claude-sonnet-5.5; claude-opus-5.5 and gemini-3.1-pro also fit)
 
-- [ ] T004 Add the ports 2.3.0 members to `src/engine/ports.ts` (contracts/live-sound.md section 1, audio-setup.md
+- [x] T004 Add the ports 2.3.0 members to `src/engine/ports.ts` (contracts/live-sound.md section 1, audio-setup.md
   sections 3-4: `prepare`, `setLatencyCalibration`, `outputCapability`, `listOutputs`, `setOutput`, `activeOutputId`,
   event `outputFallback`, types `OutputChoice` / `OutputCapability`; `SettingsStore`: `saveLatencyProfile(profile,
   outputDeviceId?)`, `loadLatencyOutputDeviceId`, `clearLatencyProfile`, `loadAudioOutput`, `saveAudioOutput`), with
@@ -57,17 +57,17 @@ contracts/top-bar.md, contracts/contract-changes.md, quickstart.md
   `tests/fakes/fake-audio-engine.ts` (records `prepare`, `setLatencyCalibration:<total|null>`, `setOutput:<id>` in
   `commands`; settable `outputs`, `capability`, `fireOutputFallback()`) and `tests/fakes/memory-settings-store.ts`.
   Evidence: `pnpm typecheck` exit 0, `pnpm test` summary equal to the T001 baseline
-- [ ] T005 [P] Extend the e2e MIDI seam in `src/app/session.ts` (the `e2e-ready` / `e2e-midi` block): a new
+- [x] T005 [P] Extend the e2e MIDI seam in `src/app/session.ts` (the `e2e-ready` / `e2e-midi` block): a new
   `e2e-midi-device` window event with detail `{ connected: boolean }` that emits `devices` (and `deviceLost` with the
   held keys on disconnect) for `fake-midi-1`, and a `e2e-ready` detail option `{ midi: 'none' | 'denied' |
   'notSupported' }` to start in those states; add helpers `connectFakeMidi(page)` / `disconnectFakeMidi(page)` in
   `tests/e2e/helpers/midi.ts` (new). Evidence: an existing MIDI e2e spec (`tests/e2e/pressed-keys.spec.ts`) still green
   on chromium
-- [ ] T006 [P] Add `spyOnLiveMessages(page)` to `tests/e2e/helpers/live-spy.ts` (new), modelled on
+- [x] T006 [P] Add `spyOnLiveMessages(page)` to `tests/e2e/helpers/live-spy.ts` (new), modelled on
   `tests/e2e/helpers/schedule-spy.ts`: wraps the engine's worklet node `port.postMessage` and records `{ kind, key }`
   of every `type: 'live'` message, plus `audioContextState(page)` returning `mxSession.audioEngine`'s context state
   (or `null` when no context exists)
-- [ ] T007 [P] [light] Replace every caption assertion on a transport button
+- [x] T007 [P] [light] Replace every caption assertion on a transport button
   (`toHaveText('Play' | 'Pause' | 'Stop' | 'Start')` on `.play-btn` / `.stop-btn` / the Start button) with
   `toHaveAccessibleName(...)` of the same word in `tests/e2e/electron-playback.spec.ts`, `guide-voice.spec.ts`,
   `helpers/practice.ts`, `levels.spec.ts`, `lookahead.spec.ts`, `mode-switch-run.spec.ts`, `piano-keyboard.spec.ts`,

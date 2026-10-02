@@ -66,7 +66,7 @@ test.describe('Electron: Listen mode plays under the app:// origin (T140, T141)'
 
     // Play: the button flips to Pause, a note lights up, and the audio clock is actually running.
     await window.locator('.play-btn').click();
-    await expect(window.locator('.play-btn')).toHaveText('Pause');
+    await expect(window.locator('.play-btn')).toHaveAccessibleName('Pause');
     await expect(window.locator('g.note.playing').first()).toBeVisible({ timeout: 30_000 });
 
     const audio = await window.evaluate(async () => {
@@ -93,7 +93,7 @@ test.describe('Electron: Listen mode plays under the app:// origin (T140, T141)'
 
     // Stop returns to the start and leaves nothing highlighted.
     await window.keyboard.press('Escape');
-    await expect(window.locator('.play-btn')).toHaveText('Play');
+    await expect(window.locator('.play-btn')).toHaveAccessibleName('Play');
     await expect(window.locator('g.note.playing')).toBeHidden();
 
     expect(consoleErrors, 'no uncaught page error during playback').toEqual([]);

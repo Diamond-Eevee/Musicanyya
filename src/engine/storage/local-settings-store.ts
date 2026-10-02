@@ -247,8 +247,24 @@ export class LocalSettingsStore implements SettingsStore {
     return { outputLatencyMs: 0, inputLatencyMs: 0, source: 'assumed', measuredAt: null };
   }
 
-  saveLatencyProfile(profile: import('../../core/grade/types.js').LatencyProfile): void {
-    this.write(LATENCY_STORAGE_KEY, profile);
+  saveLatencyProfile(profile: import('../../core/grade/types.js').LatencyProfile, _outputDeviceId?: string): void {
+    this.write(LATENCY_STORAGE_KEY, profile); // wrapper and output device id: feature 021 T032
+  }
+
+  loadLatencyOutputDeviceId(): string | null {
+    return null; // feature 021 T032
+  }
+
+  clearLatencyProfile(): void {
+    // feature 021 T032
+  }
+
+  loadAudioOutput(): string | null {
+    return null; // feature 021 T058
+  }
+
+  saveAudioOutput(_deviceId: string | null): void {
+    // feature 021 T058
   }
 
   loadPractice(scoreId: string | null): PracticeSettings {

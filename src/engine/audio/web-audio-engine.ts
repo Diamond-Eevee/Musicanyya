@@ -13,6 +13,8 @@ import type {
   AudioEngineState,
   EngineSchedule,
   LatencyInfo,
+  OutputCapability,
+  OutputChoice,
   PositionUpdate,
   TransportSnapshot,
 } from '../ports.js';
@@ -92,6 +94,10 @@ export class WebAudioEngine implements AudioEngine {
   private setTransport(patch: Partial<TransportSnapshot>): void {
     this.transport = { ...this.transport, ...patch };
     this.emit({ type: 'transport', transport: this.transport });
+  }
+
+  async prepare(): Promise<void> {
+    // Stub until feature 021 T015: the context is still created by unlock().
   }
 
   async unlock(): Promise<void> {
@@ -353,6 +359,26 @@ export class WebAudioEngine implements AudioEngine {
       source: 'assumed',
       measuredAt: null,
     };
+  }
+
+  setLatencyCalibration(_profile: LatencyProfile | null): void {
+    // Stub until feature 021 T033: latencyProfile() always reports the assumed profile.
+  }
+
+  outputCapability(): OutputCapability {
+    return { kind: 'systemDefaultOnly', reason: 'browser' };
+  }
+
+  async listOutputs(): Promise<readonly OutputChoice[]> {
+    return [];
+  }
+
+  async setOutput(_deviceId: string | null): Promise<void> {
+    // Stub until feature 021 T058: only the system default exists.
+  }
+
+  activeOutputId(): string {
+    return '';
   }
 
   diagnostics(): AudioDiagnostics {

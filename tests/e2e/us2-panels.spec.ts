@@ -182,7 +182,7 @@ test.describe('US2: starting a run closes any popup, and popups never disturb a 
     await page.locator('mx-transport .play-btn').click();
     await expect(panel(page, 'help')).toBeHidden();
     await expect(page.locator('dialog[open], [role="alertdialog"]')).toHaveCount(0);
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause');
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Pause');
   });
 
   test('starting Practice closes the open popup', async ({ page }) => {
@@ -224,7 +224,7 @@ test.describe('US2: starting a run closes any popup, and popups never disturb a 
     await openScore(page);
     await expect(page.locator('mx-transport .play-btn')).not.toBeDisabled();
     await page.locator('mx-transport .play-btn').click();
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause');
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Pause');
 
     const longTasks = () => page.evaluate(() => (window as unknown as { __longTasks: number[] }).__longTasks.length);
     const before = await longTasks();
@@ -242,6 +242,6 @@ test.describe('US2: starting a run closes any popup, and popups never disturb a 
     await expect(page.locator('mx-panel:visible')).toHaveCount(0);
 
     expect(await longTasks(), 'no main-thread task over 50 ms').toBe(before);
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause');
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Pause');
   });
 });

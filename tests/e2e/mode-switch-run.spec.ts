@@ -51,7 +51,7 @@ async function startListen(page: Page): Promise<void> {
   await openItem(page);
   const button = page.locator('mx-transport .play-btn');
   await button.click();
-  await expect(button).toHaveText('Pause', { timeout: RUN_START_TIMEOUT_MS });
+  await expect(button).toHaveAccessibleName('Pause', { timeout: RUN_START_TIMEOUT_MS });
   expect(await transportPhase(page)).toBe('playing');
 }
 
@@ -60,9 +60,9 @@ async function startPractice(page: Page): Promise<void> {
   await openItem(page);
   await modeRadio(page, 'practice').check();
   const button = page.locator('mx-transport .play-btn');
-  await expect(button).toHaveText('Start');
+  await expect(button).toHaveAccessibleName('Start');
   await button.click();
-  await expect(button).toHaveText('Stop', { timeout: RUN_START_TIMEOUT_MS });
+  await expect(button).toHaveAccessibleName('Stop', { timeout: RUN_START_TIMEOUT_MS });
 }
 
 test('Practice running -> Play: the session ends, the transport stops, and a Play run starts at once', async ({
@@ -77,7 +77,7 @@ test('Practice running -> Play: the session ends, the transport stops, and a Pla
   await expect.poll(() => transportPhase(page)).toBe('stopped');
   expect(await practiceSession(page)).toBeNull();
   const button = page.locator('mx-transport .play-btn');
-  await expect(button).toHaveText('Play');
+  await expect(button).toHaveAccessibleName('Play');
 
   await button.click(); // one press starts the Play run - no Stop first
   await expect.poll(() => playPhase(page), { timeout: 15_000 }).toMatch(/^(countIn|running)$/);
@@ -90,9 +90,9 @@ test('Listen playing -> Practice: playback stops and Start begins a session', as
 
   await expect.poll(() => transportPhase(page)).toBe('stopped');
   const button = page.locator('mx-transport .play-btn');
-  await expect(button).toHaveText('Start');
+  await expect(button).toHaveAccessibleName('Start');
   await button.click();
-  await expect(button).toHaveText('Stop');
+  await expect(button).toHaveAccessibleName('Stop');
   expect(await practiceSession(page)).not.toBeNull();
 });
 
@@ -103,7 +103,7 @@ test('Listen playing -> Play: playback stops and one press starts a Play run', a
 
   await expect.poll(() => transportPhase(page)).toBe('stopped');
   const button = page.locator('mx-transport .play-btn');
-  await expect(button).toHaveText('Play');
+  await expect(button).toHaveAccessibleName('Play');
   await button.click();
   await expect.poll(() => playPhase(page), { timeout: 15_000 }).toMatch(/^(countIn|running)$/);
 });
@@ -118,7 +118,7 @@ test('Practice running -> Listen: the session and its marks are gone, the transp
 
   await expect.poll(() => transportPhase(page)).toBe('stopped');
   expect(await practiceSession(page)).toBeNull();
-  await expect(page.locator('mx-transport .play-btn')).toHaveText('Play');
+  await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Play');
 });
 
 const playGrade = (page: Page) =>
@@ -177,7 +177,7 @@ test('Listen placed at a later measure -> Practice: the session starts in that m
   await modeRadio(page, 'practice').check();
   const button = page.locator('mx-transport .play-btn');
   await button.click();
-  await expect(button).toHaveText('Stop', { timeout: RUN_START_TIMEOUT_MS });
+  await expect(button).toHaveAccessibleName('Stop', { timeout: RUN_START_TIMEOUT_MS });
 
   expect((await currentEvent(page))?.measureIndex).toBe(LATER_MEASURE);
 });
@@ -198,17 +198,17 @@ test('Listen paused after playing on into a later measure -> Practice: the sessi
   await expect.poll(async () => (await transportTicks(page)).startTick).toBeGreaterThan(0);
   const button = page.locator('mx-transport .play-btn');
   await button.click();
-  await expect(button).toHaveText('Pause', { timeout: RUN_START_TIMEOUT_MS });
+  await expect(button).toHaveAccessibleName('Pause', { timeout: RUN_START_TIMEOUT_MS });
   await expect
     .poll(async () => Math.max(...(await soundingMeasures())), { timeout: RUN_START_TIMEOUT_MS })
     .toBeGreaterThanOrEqual(LATER_MEASURE);
   await button.click(); // pause: the highlight stays frozen where Listen paused
-  await expect(button).toHaveText('Play');
+  await expect(button).toHaveAccessibleName('Play');
   const pausedIn = Math.max(...(await soundingMeasures()));
 
   await modeRadio(page, 'practice').check();
   await button.click();
-  await expect(button).toHaveText('Stop', { timeout: RUN_START_TIMEOUT_MS });
+  await expect(button).toHaveAccessibleName('Stop', { timeout: RUN_START_TIMEOUT_MS });
 
   expect((await currentEvent(page))?.measureIndex).toBe(pausedIn);
 });
@@ -252,7 +252,7 @@ test('Listen in the second pass of a repeat -> Practice: the session starts in t
   await modeRadio(page, 'practice').check();
   const button = page.locator('mx-transport .play-btn');
   await button.click();
-  await expect(button).toHaveText('Stop', { timeout: RUN_START_TIMEOUT_MS });
+  await expect(button).toHaveAccessibleName('Stop', { timeout: RUN_START_TIMEOUT_MS });
 
   expect(await currentEvent(page)).toEqual({ measureIndex: 0, onsetTick: SECOND_PASS_TICK });
 });

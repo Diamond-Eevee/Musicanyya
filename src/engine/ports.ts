@@ -66,19 +66,38 @@ export interface AudioDiagnostics {
   lateEvents: number;
 }
 
+/** One entry of the sound output list (feature 021, ports 2.3.0, audio-setup.md section 3). `id` '' = system default. */
+export interface OutputChoice {
+  id: string;
+  label: string;
+  available: boolean;
+}
+
+/** What the engine can offer for the sound output: a choice (desktop app with `setSinkId` and labelled devices) or only
+ *  the system default, with the reason (data-model.md section 5). */
+export type OutputCapability =
+  | { kind: 'choosable' }
+  | { kind: 'systemDefaultOnly'; reason: 'browser' | 'notSupported' };
+
 export type AudioEngineEvent =
   | { type: 'state'; state: AudioEngineState }
   | { type: 'transport'; transport: TransportSnapshot } // data-model §5
   | { type: 'ended' }
   | { type: 'latency'; latency: LatencyInfo }
-  | { type: 'dropout'; total: number };
+  | { type: 'dropout'; total: number }
+  /** The chosen output device vanished; sound moved to the system default (feature 021, FR-024/FR-025). */
+  | { type: 'outputFallback'; lostDeviceId: string };
 
 // The worklet's schedule message (contracts/worklet-protocol.md, src/core/schedule/compile.ts).
 export type EngineSchedule = ScheduleMessage;
 
 export interface AudioEngine extends Emitter<AudioEngineEvent> {
   readonly kind: 'webAudio' | 'nativePlugin';
-  /** Must be called from a user gesture handler; creates/resumes the AudioContext. Idempotent. */
+  /** Creates the audio context (suspended where the Shell requires a user gesture), the worklet node and its channel
+   *  defaults, with no gesture (feature 021, ports 2.3.0, live-sound.md section 1). Idempotent; emits state 'suspended'
+   *  with reason 'browserPolicy' when the context could not start; rejects only when Web Audio is unusable. */
+  prepare(): Promise<void>;
+  /** Must be called from a user gesture handler; resumes the AudioContext (creating it when `prepare()` did not). Idempotent. */
   unlock(): Promise<void>;
   /** Loads (or reuses) the built-in instrument sound; progress arrives as "state" events. */
   ensureSoundLoaded(): Promise<void>;
@@ -108,8 +127,18 @@ export interface AudioEngine extends Emitter<AudioEngineEvent> {
    *  `timeStampMs` can be mapped onto the audio clock (play-run.md 1.1.1 -> 1.2.0). */
   clockPair(): ClockPair | null;
   latency(): LatencyInfo;
-  /** The profile grading compensates with; `assumed` until a calibration is stored (data-model §8). */
+  /** The profile grading compensates with: the calibration when one is set, else an `assumed` one (data-model §8). */
   latencyProfile(): LatencyProfile;
+  /** The calibrated Latency profile, or null for the assumed one (feature 021, audio-setup.md section 2). */
+  setLatencyCalibration(profile: LatencyProfile | null): void;
+  /** What this engine can offer for the sound output (feature 021, audio-setup.md section 3). */
+  outputCapability(): OutputCapability;
+  /** The output devices, the system default first; empty when only the system default is possible. */
+  listOutputs(): Promise<readonly OutputChoice[]>;
+  /** Moves the sound to a device (null = system default). Rejects and stays where it was when the device cannot be used. */
+  setOutput(deviceId: string | null): Promise<void>;
+  /** The output device in use; '' = system default. */
+  activeOutputId(): string;
   diagnostics(): AudioDiagnostics; // data-model §6
   dispose(): Promise<void>;
 }
@@ -261,7 +290,15 @@ export interface SettingsStore {
   adoptScoreSettings(fromHashes: readonly string[], toHash: string): boolean;
 
   loadLatencyProfile(): LatencyProfile;
-  saveLatencyProfile(profile: LatencyProfile): void;
+  /** `outputDeviceId` (feature 021, ports 2.3.0): the output the calibration was made with; '' = system default. */
+  saveLatencyProfile(profile: LatencyProfile, outputDeviceId?: string): void;
+  /** The output device stored with the calibration; null when none is stored or it has none. */
+  loadLatencyOutputDeviceId(): string | null;
+  /** Removes the stored calibration ("Use assumed latency"). */
+  clearLatencyProfile(): void;
+  /** The chosen sound output device; null = system default (`musicanyya.audio.v1`, audio-setup.md section 4). */
+  loadAudioOutput(): string | null;
+  saveAudioOutput(deviceId: string | null): void;
 }
 
 // ---- EnvironmentProbe ----

@@ -44,3 +44,29 @@
   `Test Files  321 passed (321)`, `Tests  7119 passed (7119)`, exit 0.
 - Model fit: Phase 1 is tier `light`, Phases 2-8 `standard`; claude-sonnet-5.5 fits both. No question needed.
 - Owner decisions open: none. Checklist `requirements.md` 24/24 done.
+
+## 2026-10-02 - claude-sonnet-5.5 (implement, Phase 1-2 checkpoint)
+- Done: T001-T007. T002 folded the contract changes into ports 2.3.0, play-run 2.4.0, performance-log, storage,
+  electron-bridge 1.1.0 and ui-shell 1.6.0 (the bridge object is unchanged, so `bridgeVersion` stays "1.0.0"; only the
+  contract's own version line moves). T003 named constants in `src/core/defaults.ts` and `src/engine/config.ts`, values as
+  in data-model section 6 (no table change). T004 ports 2.3.0 members with no-op stubs (engine, `LocalSettingsStore`) and
+  working fakes (`FakeAudioEngine` records `prepare`, `setLatencyCalibration:<total|null>`, `setOutput:<id>`;
+  `MemorySettingsStore` keeps the latency profile, its output id and the audio output). T005 e2e seam: `e2e-midi-device`
+  event and `e2e-ready` detail `{ midi: 'none' | 'denied' | 'notSupported' }` in `src/app/session.ts`, helpers
+  `connectFakeMidi` / `disconnectFakeMidi` / `startFakeMidiAs` in `tests/e2e/helpers/midi.ts` (the new events are first
+  exercised by T040). T006 `tests/e2e/helpers/live-spy.ts`: hooks the engine's `node` field, so it wraps the worklet port
+  whether the node exists yet or not; records `{ kind, key, at }`. T007: 53 caption assertions in 18 e2e specs became
+  `toHaveAccessibleName(...)` of the same word (reason: US4 removes the captions; same state checked); the grep from the
+  task returns nothing.
+- Evidence: T004 `pnpm typecheck` exit 0, `pnpm test` `Test Files  321 passed (321)`, `Tests  7119 passed (7119)` (equal to
+  the T001 baseline), `pnpm lint` exit 0 `Found 318 warnings. Found 13 infos.` (equal). T005 `pressed-keys.spec.ts` chromium
+  `23 passed`. T007 the 16 non-electron specs (plus every spec whose name matches, 120+ tests) on chromium: `214 passed, 4
+  skipped, 1 failed` - the failure was `lookahead.spec.ts:591` (frame p95 21.3 ms against 20 ms) while a vitest run shared
+  the CPU; alone it passed (`p95 17.8 ms`, `1 passed`). `electron-playback.spec.ts` on the electron project `4 passed`.
+- Checkpoint gate (Foundational): `pnpm lint` exit 0 (318 warnings, 13 infos, as baseline), `pnpm typecheck` exit 0,
+  `pnpm test` `Tests  7119 passed (7119)`, `pnpm test:e2e:smoke` `9 passed`.
+- Decisions: the live router is extracted into `src/app/live-router.ts` (`routeLiveInput`) so Node tests can drive the
+  real routing; `session.ts` will call it first in its MIDI listener (T018). Today's behaviour moves there unchanged first
+  (T008) so the test is red for the right reasons.
+- Handoff: next = T008-T014, T068 (US1 tests, written but T008-T010 not yet committed: they are red on purpose), then
+  T015-T021; tree clean at the commit after this entry.

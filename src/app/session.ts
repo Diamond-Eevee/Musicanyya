@@ -231,16 +231,33 @@ export class Session {
       // narrow local type documents exactly what is being poked, nothing more).
       const midiTestSeam = this.midiInput as unknown as {
         grantState: MidiAvailability;
+        heldKeys: Map<string, Set<number>>;
         emit: (event: { type: string; [key: string]: unknown }) => void;
         handleMidiMessage: (deviceId: string, e: { data: number[]; timeStamp: number }) => void;
       };
-      window.addEventListener('e2e-ready', () => {
-        midiTestSeam.grantState = 'available';
-        midiTestSeam.emit({ type: 'availability', availability: 'available' });
-        midiTestSeam.emit({
-          type: 'devices',
-          devices: [{ id: 'fake-midi-1', name: 'Fake', manufacturer: 'Musicanyya', connected: true }],
-        });
+      const fakeMidiDevice = (connected: boolean) => ({
+        id: 'fake-midi-1',
+        name: 'Fake',
+        manufacturer: 'Musicanyya',
+        connected,
+      });
+      // `e2e-ready` grants MIDI with the fake keyboard connected. Feature 021: its detail `{ midi }` starts a different
+      // state instead - 'none' (granted, no keyboard), 'denied' or 'notSupported' (tests/e2e/midi-topbar.spec.ts).
+      window.addEventListener('e2e-ready', (e) => {
+        const midi = (e as CustomEvent<{ midi?: 'none' | 'denied' | 'notSupported' } | null>).detail?.midi;
+        midiTestSeam.grantState = midi === 'denied' || midi === 'notSupported' ? midi : 'available';
+        midiTestSeam.emit({ type: 'availability', availability: midiTestSeam.grantState });
+        midiTestSeam.emit({ type: 'devices', devices: midi === undefined ? [fakeMidiDevice(true)] : [] });
+      });
+      // Feature 021: the fake keyboard is plugged in or pulled out. A disconnect reports the keys it still held, like
+      // WebMidiInput's own `statechange` handling (the port stays listed as not connected).
+      window.addEventListener('e2e-midi-device', (e) => {
+        const { connected } = (e as CustomEvent<{ connected: boolean }>).detail;
+        midiTestSeam.emit({ type: 'devices', devices: [fakeMidiDevice(connected)] });
+        if (connected) return;
+        const held = midiTestSeam.heldKeys.get('fake-midi-1') ?? new Set<number>();
+        midiTestSeam.heldKeys.delete('fake-midi-1');
+        midiTestSeam.emit({ type: 'deviceLost', deviceId: 'fake-midi-1', heldKeys: Array.from(held) });
       });
       window.addEventListener('e2e-midi', (e) => {
         const detail = (e as CustomEvent<number[]>).detail;

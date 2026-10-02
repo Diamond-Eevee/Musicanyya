@@ -137,7 +137,7 @@ test.describe('US3: minimal chrome during a run (FR-008, SC-004)', () => {
     await page.locator('#mode-controls mx-mode-switch input[value=practice]').check();
     const start = page.locator('mx-transport .play-btn');
     await start.click();
-    await expect(start).toHaveText('Stop', { timeout: 30_000 });
+    await expect(start).toHaveAccessibleName('Stop', { timeout: 30_000 });
     await disconnect(page);
     await expect(disconnectNotices(page).first()).toBeVisible();
     await page.waitForTimeout(300);

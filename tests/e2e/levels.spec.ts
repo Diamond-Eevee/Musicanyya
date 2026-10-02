@@ -91,7 +91,7 @@ test.describe('Levels popover in the browser (feature 019 US1)', () => {
     test.setTimeout(90_000);
     await openItem(page);
     await page.locator('mx-transport .play-btn').click();
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause');
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Pause');
     await expect(page.locator('.mx-score-page g.note.playing').first()).toBeVisible({ timeout: 30_000 });
 
     await openLevels(page);
@@ -104,7 +104,7 @@ test.describe('Levels popover in the browser (feature 019 US1)', () => {
     await slider.fill('0');
     const seen = await watching;
 
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause'); // still playing, never paused
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Pause'); // still playing, never paused
     expect(seen.length, 'the cursor kept moving from note to note while the slider moved').toBeGreaterThanOrEqual(3);
   });
 
@@ -198,7 +198,7 @@ test.describe('Orchestra slider in the browser (feature 019 US3)', () => {
     await openOrchestraFixture(page);
     await spyOnOrchestraLevel(page);
     await page.locator('mx-transport .play-btn').click();
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause');
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Pause');
     await expect(page.locator('.mx-score-page g.note.playing').first()).toBeVisible({ timeout: 30_000 });
 
     await openLevels(page);
@@ -209,7 +209,7 @@ test.describe('Orchestra slider in the browser (feature 019 US3)', () => {
     await expect(page.locator('mx-levels-panel output').nth(1)).toHaveText('0 %');
     await orchestraSlider(page).fill('60');
     expect((await orchestraLevelsSeen(page)).slice(before)).toEqual([0, 60]);
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause'); // playback never paused
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Pause'); // playback never paused
   });
 
   test('the Orchestra slider is on for a Score without an Orchestra and keeps its value across Scores (feature 020 FR-010)', async ({

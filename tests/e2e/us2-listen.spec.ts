@@ -32,7 +32,7 @@ test(
     // Warm-up Play: the first-ever Play fetches and builds the SoundFont (SC-005's separate "first-ever load"
     // budget, not timed here) and is not itself timed; Stop returns to the start for a clean measurement below.
     await page.locator('.play-btn').click();
-    await expect(page.locator('.play-btn')).toHaveText('Pause');
+    await expect(page.locator('.play-btn')).toHaveAccessibleName('Pause');
     await page.keyboard.press('Escape');
     await expect(page.locator('g.note.playing')).toBeHidden();
 
