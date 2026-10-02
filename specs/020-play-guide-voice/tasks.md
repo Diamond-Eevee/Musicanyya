@@ -197,7 +197,7 @@ count-in; the right notes blend, a wrong one clashes; the Grade equals one witho
 - [x] T020 [US1] RT review with `rt-audio-reviewer` (Constitution I): confirm no worklet, scheduler or MIDI-timing code
   changed, the guided schedule keeps the worklet-protocol ordering rules, CC7 / CC10 / CC11 on the guide channel are
   applied in the existing setup path, and the T015 voice peak; summarise findings in the log
-- [~] T021 [US1] Checkpoint: run the US1 Independent Test (quickstart US1 steps 1, 4, 5, 6 without a keyboard; 2 and 3
+- [x] T021 [US1] Checkpoint: run the US1 Independent Test (quickstart US1 steps 1, 4, 5, 6 without a keyboard; 2 and 3
   only if a MIDI keyboard is available - say which were run), full gate, log entry with each command's summary line,
   commit
 
@@ -232,7 +232,7 @@ applies and the hint is gone.
   `src/ui/elements/mx-levels-panel.ts` never disable the Orchestra slider; show the guide hint (and set
   `aria-describedby`) when the open Score has no Orchestra or none is open (guide-voice.md §3); update the element's doc
   comment. Evidence: T022 and T023 green; `pnpm lint` and `pnpm typecheck` exit 0
-- [ ] T025 [US2] Checkpoint: run the US2 Independent Test (quickstart US2; picture of the Levels panel opened in the dev
+- [x] T025 [US2] Checkpoint: run the US2 Independent Test (quickstart US2; picture of the Levels panel opened in the dev
   app on an item without an Orchestra, looked at before reporting), full gate, log entry, commit
 
 **Checkpoint**: US1 and US2 both work independently.
@@ -259,7 +259,7 @@ with the recorded ones; at 0 % the replay sounds as before.
 
 - [x] T027 [US3] Pass `guide: true` in `SessionController.prepareStoredRun` (`src/app/session.ts`), which serves replay
   and regrade. Evidence: T026 green; `pnpm test -- tests/core/grade tests/engine` unchanged otherwise
-- [ ] T028 [US3] Checkpoint: run the US3 Independent Test (quickstart US3; needs a MIDI keyboard or the e2e MIDI path -
+- [x] T028 [US3] Checkpoint: run the US3 Independent Test (quickstart US3; needs a MIDI keyboard or the e2e MIDI path -
   say which), full gate, log entry, commit
 
 **Checkpoint**: all three stories and FR-015 work independently.
@@ -276,11 +276,11 @@ with the recorded ones; at 0 % the replay sounds as before.
   T030 and the merge; a change re-runs T015 and T016
 - [ ] T030 [light] Apply the OD-1 answer to `src/core/defaults.ts` and `specs/020-play-guide-voice/data-model.md` §4 (or
   log "accepted unchanged"), then `pnpm test -- tests/engine/guide-render.test.ts tests/core/play` green
-- [ ] T031 [P] [light] Update user-facing docs: the Play mode / Levels description in `README.md` (if it describes the
+- [x] T031 [P] [light] Update user-facing docs: the Play mode / Levels description in `README.md` (if it describes the
   Orchestra slider) and `specs/020-play-guide-voice/quickstart.md` if any command changed during implementation;
   `docs/musicxml-support.md` gets one line that a part without `<volume>` / `<pan>` plays at the General MIDI defaults
   (100, centre) - FR-015
-- [ ] T032 Run the whole `specs/020-play-guide-voice/quickstart.md` manual verification and record which steps were run
+- [~] T032 Run the whole `specs/020-play-guide-voice/quickstart.md` manual verification and record which steps were run
   and how (picture, e2e MIDI path, real keyboard)
 - [ ] T033 Constitution audit with `constitution-auditor` over the branch diff; summarise findings in the log and fix or
   task every finding

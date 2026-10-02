@@ -183,4 +183,27 @@
 - T027: `SessionController.prepareStoredRun` passes `guide: true` (replay and regrade). Evidence: `guide-voice.spec.ts` +
   `us4-attempts.spec.ts` on chromium, firefox, electron `4 skipped`, `11 passed`; `pnpm test` -> `Test Files  320 passed (320)`,
   `Tests  6738 passed (6738)`.
+- Checkpoints T021 (US1), T025 (US2), T028 (US3), taken together at commit after 63f5f0f..: no keyboard was available and
+  nothing here can be heard, so the sound is proved offline and the app's behaviour in the browser and Electron. Independent
+  Tests:
+  - US1 (quickstart steps 1, 4, 5, 6, no keyboard): count-in silent and notes from the first beat on the run's clock - SC-001 at 50 / 100 / 150 %
+    (`guide-render.test.ts`) and the loaded schedule in browser and Electron (`guide-voice.spec.ts`, `electron-playback.spec.ts`);
+    right hand only with accompaniment off - `guide-voice.test.ts` (right-hand keys on the guide channel, left hand absent);
+    Morning Mood and Listen get no guide - e2e. Steps 2 and 3 (play along, wrong note by ear) need a keyboard and ears: **not run; for the
+    owner (with OD-1)**. The Grade is identical with the guide at level 0 / 60 / 100 and against an unguided schedule (`play-session.test.ts`).
+  - US2 (quickstart steps 1-3): a picture of the Levels panel on Greensleeves (library item, no Orchestra) in the dev app: Orchestra slider
+    enabled at 60 %, hint "No orchestra in this score: sets the guide voice in Play mode" beneath it (DOM: `disabled` false,
+    `aria-describedby` = the hint); 0 % fades the guide out - `guide-render.test.ts` (level 0 equals the unguided run within
+    -90 dBFS, a mid-note change is much quieter within 3 blocks); level kept on reload and across Scores and the hint gone on Morning
+    Mood - `levels.spec.ts` and `levels-panel.test.ts`.
+  - US3 (quickstart step 1): replay of an attempt loads a schedule with the guide channel and shows the live run's Grade - e2e through
+    the e2e MIDI path (`guide-voice.spec.ts`, replay test); at level 0 the replay equals the unguided one by the same CC11 path.
+  - Full gate: `pnpm typecheck` exit 0; `pnpm lint` exit 0 (`Found 318 warnings.` `Found 13 infos.`); `pnpm test` -> `Test Files  320
+    passed (320)`, `Tests  6738 passed (6738)`; `pnpm test:e2e` -> `763 skipped`, `1280 passed (14.3m)`, **exit 1**: one failure,
+    `score-browser-timing.spec.ts:190` (SC-003) on Electron, `filter change` 114.6 ms against the 100 ms budget, while I was running other jobs
+    on the machine; rerun alone on chromium and electron: `6 passed (27.2s)` (filter 41.1 / 24.0 ms). That file and the code it
+    exercises are not touched by this feature; the full suite is rerun with nothing else running at T034.
+  - `src/core/musicxml/support.ts` and `docs/musicxml-support.md`: the `<midi-instrument>` row says a part with no `<volume>` / `<pan>`
+    plays at the defaults (T031); `tests/core/musicxml/support-doc-sync.test.ts` green (`Tests  463 passed (463)` over `tests/core/musicxml`).
+    The README does not describe the Orchestra slider, so it is unchanged.
 

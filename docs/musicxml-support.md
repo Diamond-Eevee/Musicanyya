@@ -23,7 +23,7 @@ This document lists the supported MusicXML elements.
 | Time & Repeats | `<metronome>` | Supported | Every note value from 1024th to maxima, 0-3 dots, "c."/"ca."/"circa" and a range read as their first number, parenthesised marks (012). A metric modulation (two <beat-unit>s), <metronome-note> and <beat-unit-tied> give no tempo and no beat from the mark |
 | Time & Repeats | `<fermata>` | Unsupported | Ignored for playback |
 | Dynamics | `<dynamics>` | Supported | Marks and wedges |
-| Instruments | `<midi-instrument>` | Supported | MIDI programs and unpitched percussion |
+| Instruments | `<midi-instrument>` | Supported | MIDI programs and unpitched percussion; `<volume>` and `<pan>` set the part's loudness and stereo position, and a part that gives none plays at the General MIDI defaults (volume 100, centre) whatever was played before it (feature 020 FR-015) |
 | Notes | `<trill-mark>` | Supported | Play mode: the realisation is played-along, never graded (feature 003) |
 | Notes | `<mordent>` | Supported | Play mode: the realisation is played-along, never graded (feature 003) |
 | Notes | `<inverted-mordent>` | Supported | The Pralltriller / short trill, treated like <mordent>: played-along, never graded (017 T052) |
