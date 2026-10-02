@@ -324,13 +324,42 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   manifest reader (`tools/library/fidelity/sources.ts`)
 - [x] T043 [US2] [standard] Accept `origin` in `tools/library/fidelity/sources.ts` (and wherever manifests are
   validated) (T042 green)
-- [ ] T044 [US2] [standard] The item: `pnpm library:convert-ly own-grieg-op46-no1-transcription-a
+- [x] T044 [US2] [standard] The item: `pnpm library:convert-ly own-grieg-op46-no1-transcription-a
   repertoire/advanced/grieg-morning-mood`, then `pnpm library:engrave`; the sidecar
   `public/library/repertoire/advanced/grieg-morning-mood.json` per data-model §6.4 (provenance credit and note naming
   the transcription method, R-15, and saying that the Orchestra - flute, oboe, strings with a separate cello line, and
   horns - is our own CC0 orchestration in the style of Grieg's, analyze A9); folder per `computeLevel` (expected
   `advanced`)
-- [ ] T045 [US2] Audit record `content/library/audit/repertoire/advanced/grieg-morning-mood.json`: a mechanical check
+- [x] T101 [US2] [standard] (new, found by T044, 2026-10-02: Verovio does not draw a tie on a note that both ends
+  and starts one - "tie ... will not get rendered as it has identical values in @startid and @endid" - because
+  `src/core/musicxml/write.ts` writes `<tie type="start"/>` before `<tie type="stop"/>` (and `<tied>` likewise);
+  *Morning Mood* bars 86-87 lose 9 ties, and the same order is in the committed Satie *Gymnopedie No. 1* (3) and the
+  key-change items `a-minor-to-a-major/minor-and-major` and `c-major-to-c-minor/major-and-minor` (4 each)) Test first
+  in `tests/core/musicxml/write.test.ts` (a continued tie writes stop before start, in `<tie>` and in `<tied>`), then
+  the writer; regenerate the two key-change items with `pnpm library:exercises` (the only change being the tie
+  order) and *Morning Mood* with `pnpm library:convert-ly` + `pnpm library:engrave`. Satie moves to T102
+- [ ] T102 [standard] (new, found by T101, 2026-10-02) `pnpm library:convert-ly mutopia-37-satie-gymnopedie1
+  repertoire/advanced/satie-gymnopedie-no1` no longer reproduces the committed item: besides T101's tie order it
+  moves the lower-staff notes of bar 1 (and maybe more) from voice 5 / staff 2 to voice 2 / staff 1. Find which
+  converter change since `de2d579` causes it and whether the new or the committed reading matches the Mutopia source
+  (and the print's staff layout), then regenerate the item so its 3 continued ties print (Verovio warning
+  "identical values in @startid and @endid"); `pnpm library:fidelity --item repertoire/advanced/satie-gymnopedie-no1`
+  0 differences, Note IDs per the identity golden or the change explained in the log
+- [x] T103 [US2] [standard] (new, found by T045, 2026-10-02: in *Morning Mood* bars 64-65 a right-hand and a
+  left-hand slur overlap; `tools/library/lilypond/to-musicxml.ts` numbers every slur 1 (phrasing slurs 2) whatever
+  its voice, so Verovio pairs the right hand's start with the left hand's stop and draws one slur across both staves)
+  Test first in `tests/tools/lilypond/to-musicxml.test.ts` (overlapping slurs in two voices get different numbers;
+  a piece whose slurs are all in one voice keeps number 1), then the converter (one slur number and one phrasing
+  number per voice); contract fidelity-tools §3.3 (PATCH); *Morning Mood* reconverted. Other committed items are not
+  reconverted by this task (T104)
+- [ ] T104 [standard] (new, found by T103, 2026-10-02) Four committed items converted before T103 have overlapping
+  slurs in two voices under one number, which Verovio pairs across voices (a scan of `<slur>` start/stop pairs by
+  number in document order: `repertoire/advanced/burgmuller-op100-no2` 1, `chopin-prelude-op28-no20` 2,
+  `chopin-prelude-op28-no4` 3, `repertoire/intermediate/burgmuller-op100-no5` 1). Look at each in `pnpm screenshot`,
+  reconvert with `pnpm library:convert-ly` + `pnpm library:engrave` (check first that the conversion changes nothing
+  but slur numbers, and T101's tie order; otherwise stop and find why, as T102), update the out-of-scope hashes and
+  the index; `pnpm library:fidelity --check` clean
+- [x] T045 [US2] Audit record `content/library/audit/repertoire/advanced/grieg-morning-mood.json`: a mechanical check
   against `own-grieg-op46-no1-transcription-b` (aspects barCount, barLengths, pitch, onset, duration, spelling,
   graceNotes; expected 0 differences) - every difference first settled by looking at the print and fixing the
   transcription that is wrong (A and the item regenerated, or B), each one listed in the log; and a visual check of

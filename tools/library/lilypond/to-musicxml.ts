@@ -293,6 +293,7 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
     return out;
   };
 
+  const slurVoices = new Map<string, number>();
   const writeNote = (e: NoteEvent, voice: string, directions: WriteDirection[]): WriteNote[] => {
     let type = TYPES.get(e.base);
     let dots = e.dots;
@@ -306,12 +307,26 @@ export function toMusicXml(score: LyScore, meta: ConvertMeta = {}): Conversion {
       dots = 0;
     }
     const number = String(voiceNumber.get(e.voice));
+    // Slur numbers are per part in MusicXML, so each voice has its own pair (slur, phrasing slur): overlapping slurs
+    // in two voices must not share a number (019 T103). The first voice with a slur keeps 1 and 2.
+    const slurNumber = (): number => {
+      let index = slurVoices.get(e.voice);
+      if (index === undefined) {
+        index = slurVoices.size;
+        if (index >= 8) fail(e.pos, 'slurs in a ninth voice (MusicXML numbers slurs 1-16)');
+        slurVoices.set(e.voice, index);
+      }
+      return 2 * index + 1;
+    };
     const notations: Pick<WriteNote, 'slurs' | 'articulations' | 'ornament' | 'fermata' | 'fingering'> = {};
     let arpeggiate = false;
     const noteMarks = (marks: LyMark[], target: typeof notations) => {
       for (const m of marks) {
         if (m.type === 'slur') {
-          target.slurs = [...(target.slurs ?? []), { type: m.start ? 'start' : 'stop', number: m.phrasing ? 2 : 1 }];
+          target.slurs = [
+            ...(target.slurs ?? []),
+            { type: m.start ? 'start' : 'stop', number: slurNumber() + (m.phrasing ? 1 : 0) },
+          ];
         } else if (m.type === 'articulation') {
           const a = ARTICULATIONS[m.name];
           if (a) target.articulations = [...(target.articulations ?? []), a];

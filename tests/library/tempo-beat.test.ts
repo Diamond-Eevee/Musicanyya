@@ -3,7 +3,9 @@
 // (`writtenBpm x beat.quartersNum/Den`), in whatever beat that segment uses. Before T048's review, three real
 // pieces (cut-time or 3/8 with only a `<sound tempo>` and no printed metronome mark) fell back to the meter's own
 // counting beat (half, eighth) instead of quarters; T048 refined R-4 so a Score with no metronome mark anywhere yet
-// counts quarter notes, and every library item is quarter-based again (below).
+// counts quarter notes, and every library item is quarter-based again (below). Feature 019 T044 adds the first item
+// whose print gives a non-quarter beat (*Morning Mood*, "dotted quarter = 60", 019 T083): it counts that printed beat,
+// and every item without a printed non-quarter mark still counts quarters.
 
 import { readFileSync } from 'node:fs';
 import * as path from 'node:path';
@@ -39,7 +41,7 @@ describe('library tempoBpm counts quarter notes (research R-10)', () => {
     });
   }
 
-  it('every item counts quarters (T048: no metronome mark yet falls back to quarters, not the meter)', () => {
+  it('every item counts quarters unless its first metronome mark prints another beat (T048; 019 T044)', () => {
     const nonQuarter: string[] = [];
     for (const item of index.items) {
       const bytes = readFileSync(path.join(libraryRoot, item.file));
@@ -49,8 +51,13 @@ describe('library tempoBpm counts quarter notes (research R-10)', () => {
       const { passes } = unroll(score.measures, score.navigation);
       const map = buildTempoDisplayMap(score.tempoMarks, passes, score.measures, timeline.leadInTicks);
       const first = map[0];
-      if (first && (first.beat.type !== 'quarter' || first.beat.dots !== 0)) nonQuarter.push(item.id);
+      if (first && (first.beat.type !== 'quarter' || first.beat.dots !== 0)) {
+        nonQuarter.push(item.id);
+        // Only a printed mark may set another beat, and the display counts exactly that beat.
+        const printed = score.tempoMarks.find((m) => m.measureIndex === 0 && m.onsetInMeasure === 0)?.beat;
+        expect(printed, item.id).toEqual(first.beat);
+      }
     }
-    expect(nonQuarter).toEqual([]);
+    expect(nonQuarter).toEqual(['repertoire/advanced/grieg-morning-mood']);
   });
 });

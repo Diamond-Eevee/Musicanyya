@@ -257,6 +257,34 @@ describe('writeScoreXml (contracts/exercise-definition.md - the minimal writer)'
     expect(notes[1]?.tie).toEqual({ start: false, stop: true });
   });
 
+  it('writes a tie that both ends and starts as stop before start, so Verovio does not tie the note to itself (019 T101)', () => {
+    const tied = (tie: WriteNote['tie']): WriteEvent => ({
+      kind: 'note',
+      note: { pitch: { step: 'E', octave: 4 }, duration: 4, voice: '1', type: 'quarter', ...(tie ? { tie } : {}) },
+    });
+    const xml = writeScoreXml({
+      parts: [
+        {
+          id: 'P1',
+          name: 'Piano',
+          measures: [
+            {
+              number: '1',
+              attributes: { divisions: 4, time: { beats: '3', beatType: 4 } },
+              events: [tied({ start: true }), tied({ start: true, stop: true }), tied({ stop: true })],
+            },
+          ],
+        },
+      ],
+    });
+
+    const middle = xml.match(/<note>.*?<\/note>/g)?.[1] ?? '';
+    expect(middle).toContain('<tie type="stop"/><tie type="start"/>');
+    expect(middle).toContain('<tied type="stop"/><tied type="start"/>');
+    const notes = buildScore(readXml(xml).doc).score.parts[0]?.notes ?? [];
+    expect(notes[1]?.tie).toEqual({ start: true, stop: true });
+  });
+
   it('writes printObject: false as <note print-object="no">, which the reader takes as not printed (017 T051)', () => {
     const note = (printObject?: false) => ({
       kind: 'note' as const,

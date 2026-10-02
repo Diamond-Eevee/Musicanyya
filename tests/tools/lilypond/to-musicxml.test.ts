@@ -287,6 +287,27 @@ describe('toMusicXml: what the printed page shows', () => {
     expect(loaded.report.entries.map((e) => e.code).filter((c) => c !== 'defaultTempo')).toEqual([]);
   });
 
+  it('overlapping slurs in two voices get different numbers; slurs in one voice keep number 1 (019 T103)', () => {
+    // Found in Morning Mood bars 64-65: both hands slurred across the bar line, both written as number 1, so Verovio
+    // joined the right hand's slur start to the left hand's slur stop.
+    const two = readLilyPond(
+      "\\new PianoStaff << \\new Staff { \\time 3/4 c''4( d'' e'' | f''2.) } \\new Staff { \\clef bass c4( d e | f2.) } >>",
+    );
+    const { xml } = toMusicXml(two);
+    const numbers = (type: string) =>
+      [...xml.matchAll(new RegExp(`<slur type="${type}" number="(\\d+)"/>`, 'g'))].map((m) => m[1]);
+    expect(numbers('start')).toHaveLength(2);
+    expect(new Set(numbers('start')).size).toBe(2);
+    expect(numbers('stop')).toEqual(numbers('start'));
+
+    const one = toMusicXml(readLilyPond("{ \\time 3/4 c''4( d'' e'') | f''4( g'' a'') | }")).xml;
+    expect([...one.matchAll(/<slur type="\w+" number="(\d+)"\/>/g)].map((m) => m[1])).toEqual(['1', '1', '1', '1']);
+    const leftOnly = toMusicXml(
+      readLilyPond("\\new PianoStaff << \\new Staff { \\time 3/4 c''2. } \\new Staff { \\clef bass c4( d e) } >>"),
+    ).xml;
+    expect([...leftOnly.matchAll(/<slur type="\w+" number="(\d+)"\/>/g)].map((m) => m[1])).toEqual(['1', '1']);
+  });
+
   it('a spacer followed by grace notes in the same voice is one <forward>, and the bar adds up (019 T085)', () => {
     // Found in transcription A's trill bars: b''4 s8 \grace { a''16 b'' } b''4 s8 wrote a <forward> before every
     // element after the spacer, so the app reported the bar as too long.

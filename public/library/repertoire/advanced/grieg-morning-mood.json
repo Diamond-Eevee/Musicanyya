@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "title": "Morning Mood",
+  "subtitle": "Peer Gynt Suite No. 1, Op. 46 No. 1 - the composer's piano arrangement, with orchestra",
+  "composer": "Edvard Grieg",
+  "arranger": "Edvard Grieg (piano arrangement)",
+  "kind": "piece",
+  "level": "advanced",
+  "tags": ["chords", "hands-together", "ties", "pedal", "ornaments", "dynamics", "phrasing"],
+  "trains": "Grieg's own piano version of the sunrise from Peer Gynt: a pastoral 6/8 melody passed between the hands over held chords and wide left-hand tenths, the forte climax in full chords, the left-hand melody under right-hand figuration, trills with their endings, and the quiet return over a pedal note.",
+  "hands": "both",
+  "arrangement": false,
+  "provenance": {
+    "origin": "downloaded",
+    "licence": "public-domain",
+    "source": "https://archive.org/details/31761045200615",
+    "sourcePath": "own-grieg-op46-no1-transcription-a/morning-mood.ly",
+    "obtained": "2026-10-01",
+    "credit": "G. Schirmer, New York, 1899: First and Second Orchestra Suites from the Music to Peer Gynt, arranged for pianoforte by the composer; Morgenstimmung edited and fingered by Louis Oesterle (Internet Archive 31761045200615).",
+    "unmodified": false,
+    "note": "There is no public-domain machine-readable copy, so the piano part was transcribed twice from the 1899 print, bar by bar, by two separate sessions that never saw each other's work (transcriptions A and B, our own readings, CC0). This item is converted from transcription A with pnpm library:convert-ly and completed by pnpm library:engrave; its audit record compares it note by note with transcription B, every difference settled against the print, and with the print page by page. Two changes from the print: in bars 77-78 the right hand's chords, which the print writes on the lower staff, are printed on the upper staff, so the level check (which measures chord spans per printed staff) does not count them with the left hand; and in bars 64-65 the E4 that the melody shares with the lower voice (one head with two stems) is written once, in the lower voice, so it is one key to play. The Orchestra - flute, oboe, strings with a separate cello line, and horns - is our own orchestration in the style of Grieg's (CC0), generated from the piano part: every Orchestra note doubles a piano note, so nothing in it is new music, and it is not Grieg's orchestral score."
+  },
+  "limitations": ["written pedal is not played"],
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-02"
+}

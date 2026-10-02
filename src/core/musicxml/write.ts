@@ -159,8 +159,10 @@ function writeNoteXml(note: WriteNote): string {
     parts.push(`<octave>${octave}</octave>`, '</pitch>');
   }
   if (!note.grace) parts.push(`<duration>${note.duration}</duration>`);
-  if (note.tie?.start) parts.push('<tie type="start"/>');
+  // Stop before start: Verovio pairs a note's tie start with the stop that follows it, so the other order ties a
+  // continued note to itself and draws nothing (019 T101).
   if (note.tie?.stop) parts.push('<tie type="stop"/>');
+  if (note.tie?.start) parts.push('<tie type="start"/>');
   parts.push(`<voice>${esc(note.voice)}</voice>`, `<type>${note.type}</type>`);
   const dots = note.dots ?? (note.dot ? 1 : 0);
   for (let i = 0; i < dots; i++) parts.push('<dot/>');
@@ -172,8 +174,8 @@ function writeNoteXml(note: WriteNote): string {
   }
   if (note.staff !== undefined) parts.push(`<staff>${note.staff}</staff>`);
   const notations: string[] = [];
-  if (note.tie?.start) notations.push('<tied type="start"/>');
   if (note.tie?.stop) notations.push('<tied type="stop"/>');
+  if (note.tie?.start) notations.push('<tied type="start"/>');
   for (const slur of note.slurs ?? []) notations.push(`<slur type="${slur.type}" number="${slur.number}"/>`);
   if (note.tuplet) {
     const { type, bracket, showNumber } = note.tuplet;
