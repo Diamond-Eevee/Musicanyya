@@ -271,3 +271,13 @@
   listening answer: T029 -> T030; (3) full gate on a quiet machine (`pnpm test:e2e`), decide the timing test; (4) T034 and set the spec Status to "Implemented". Tree clean at the commit that
   follows this entry; branch `020-play-guide-voice`, local only, nothing pushed.
 
+## 2026-10-02 - claude-sonnet-5.5 (gate on the clavinet; supersedes the "tests not run" note above)
+- The owner meant "run the tests" (they only did not want temporary audition code while choosing the instrument). Run on the committed clavinet build (b5fed1c):
+  `pnpm test -- tests/engine/guide-render.test.ts tests/core/play tests/engine/play-session.test.ts` -> `Test Files  12 passed (12)`, `Tests  141 passed (141)` (SC-002 holds);
+  throwaway render (deleted), clavinet dB below the piano at Orchestra level 60 / 100: melody 10.4 / 1.5, dynamics-marks 10.3 / 1.4 - level with the piano at 100 %, about 10 dB under at the
+  default, no change to `GUIDE_VELOCITY_SCALE` needed.
+- Full gate: `pnpm lint` exit 0 (`Found 318 warnings.` `Found 13 infos.`); `pnpm typecheck` exit 0; `pnpm test` exit 0 (`Test Files  320 passed (320)`, `Tests  6738 passed (6738)`);
+  `pnpm test:e2e` exit 0 (`763 skipped`, `1281 passed (14.0m)`, nothing else running). The SC-003 timing test passed this time (Electron filter change 74.2 ms, chromium 67.4 ms; budget 100):
+  it is a load-sensitive budget, flaky in earlier runs (101-115 ms); no change in this feature touches the Score browser. Open decision (d) above is therefore downgraded to "known flaky".
+- Still open: T029 (owner listening with the clavinet), T030, T034 (set the spec Status to "Implemented"); FR-008 wording and the Domain Vocabulary entry (owner); per-hand guide sounds (next specify).
+
