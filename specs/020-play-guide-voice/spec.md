@@ -2,7 +2,7 @@
 
 **Feature Branch**: `020-play-guide-voice`
 **Created**: 2026-10-02
-**Status**: In progress
+**Status**: Implemented
 **Input**: User description: "if music xml etc doesn't have orchestra specified (Morning Mood track has orchestra
 specified for example), in play mode the app should autoplay using some subtile rhodes instrument (or other sound that
 will help user distinguish that is playing correctly, and won't cover piano sound too mucch). It should go to
@@ -148,8 +148,9 @@ notes, and the wrong notes are heard clashing with it; at Orchestra level 0 % th
 - **MIDI keyboard unplugged mid-run**: the Guide voice carries on with the clock, like the accompaniment.
 - **Audio device changes or disappears**: when sound comes back the Guide voice is at the current Orchestra level, never
   at full level by mistake.
-- **Too many simultaneous voices**: the musician's own notes and the accompaniment are never dropped in favour of Guide
-  voice notes; Guide voice notes give way first.
+- **Too many simultaneous voices**: the Guide voice leaves room for the musician's own notes and the accompaniment by
+  voice headroom: on every library item the voices in use at once stay below `VOICE_HEADROOM_FRACTION` of the synth's
+  voice cap (verified offline, T015); the synth has no priority between voices.
 - **Malformed or unusual MusicXML** (no tempo, missing instrument data, odd parts): the Guide voice uses the same expected
   notes the Grade uses; if a Score can be graded it can be guided, and a problem never stops the run.
 - **Very fast passages**: the Guide voice plays every expected note; no note is skipped or merged.
@@ -183,8 +184,9 @@ notes, and the wrong notes are heard clashing with it; at Orchestra level 0 % th
   settings MUST give the same Grade with the Guide voice at any level or absent.
 - **FR-007**: The Guide voice MUST NOT play on a Score that has an Orchestra, and MUST NOT play in Listen or Practice
   mode.
-- **FR-008**: The Guide voice MUST NOT take sound voices from the musician's own notes or the accompaniment: when the
-  built-in sound runs out of voices, Guide voice notes give way first.
+- **FR-008**: The Guide voice MUST NOT take sound voices from the musician's own notes or the accompaniment: it is met by
+  voice headroom, not by priority - the voices in use at once on every library item without an Orchestra MUST stay below
+  `VOICE_HEADROOM_FRACTION` x the synth's voice cap (verified by the T015 offline render peak).
 - **FR-009**: The replay of a graded run on a Score without an Orchestra MUST include the Guide voice for that run's
   choice, at the current Orchestra level (US3).
 

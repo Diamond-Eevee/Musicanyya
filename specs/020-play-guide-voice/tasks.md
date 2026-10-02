@@ -270,11 +270,12 @@ with the recorded ones; at 0 % the replay sounds as before.
 
 **Model**: standard (gemini-3.8-flash or claude-sonnet-5.5; claude-opus-5.5 and gemini-3.1-pro also fit)
 
-- [ ] T029 Owner decision gate OD-1 (plan, Decisions; SC-007): the owner listens to two items without an Orchestra (one
+- [x] T029 Owner decision gate OD-1 (plan, Decisions; SC-007): the owner listens to two items without an Orchestra (one
   hands-together piece, one single-hand exercise) at the default level and accepts the guide, or names a change to
   `GUIDE_VELOCITY_SCALE` or `GUIDE_PROGRAM` (alternatives: 5 FM electric piano, 11 vibraphone, 89 warm pad). Blocks
   T030 and the merge; a change re-runs T015 and T016
-- [ ] T030 [light] Apply the OD-1 answer to `src/core/defaults.ts` and `specs/020-play-guide-voice/data-model.md` §4 (or
+  (2026-10-02, owner: accepted unchanged - clavinet, `GUIDE_PROGRAM` 7, `GUIDE_VELOCITY_SCALE` 1)
+- [x] T030 [light] Apply the OD-1 answer to `src/core/defaults.ts` and `specs/020-play-guide-voice/data-model.md` §4 (or
   log "accepted unchanged"), then `pnpm test -- tests/engine/guide-render.test.ts tests/core/play` green
 - [x] T031 [P] [light] Update user-facing docs: the Play mode / Levels description in `README.md` (if it describes the
   Orchestra slider) and `specs/020-play-guide-voice/quickstart.md` if any command changed during implementation;
@@ -284,7 +285,7 @@ with the recorded ones; at 0 % the replay sounds as before.
   and how (picture, e2e MIDI path, real keyboard)
 - [x] T033 Constitution audit with `constitution-auditor` over the branch diff; summarise findings in the log and fix or
   task every finding
-- [ ] T034 Final gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` (exit codes and summary lines in the
+- [x] T034 Final gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` (exit codes and summary lines in the
   log); every task ticked with evidence or `[-]`; set the spec `**Status**` to "Implemented"; hand-off entry
 
 ## Dependencies & Execution Order

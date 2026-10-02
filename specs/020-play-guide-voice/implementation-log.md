@@ -281,3 +281,16 @@
   it is a load-sensitive budget, flaky in earlier runs (101-115 ms); no change in this feature touches the Score browser. Open decision (d) above is therefore downgraded to "known flaky".
 - Still open: T029 (owner listening with the clavinet), T030, T034 (set the spec Status to "Implemented"); FR-008 wording and the Domain Vocabulary entry (owner); per-hand guide sounds (next specify).
 
+
+## 2026-10-02 - claude-sonnet-5.5 (continue: owner decisions, final gate, hand-off)
+- Owner answers: **T029 / OD-1: accepted unchanged** (clavinet, `GUIDE_PROGRAM` 7, `GUIDE_VELOCITY_SCALE` 1). T030 ticked as "accepted unchanged"; no code changed.
+  FR-008: **reword approved** - `spec.md` FR-008 and the "too many voices" edge case now say it is met by voice headroom (T015 peak below
+  `VOICE_HEADROOM_FRACTION` x cap), not by priority (audit finding 1 closed). Domain Vocabulary: **amend approved** - constitution 1.3.1 -> 1.3.2 (PATCH, commit ca013c5):
+  entries Orchestra, Orchestra level, Guide voice (audit finding 3 closed); no template or AGENTS.md change needed.
+- Model fit: the constitution step is tier `deep`; I asked (switch or continue). The owner first said switch, then said the patch is small and I may do it; I did it (claude-sonnet-5.5).
+  A `deep` model may recheck the vocabulary wording if desired.
+- Final gate on this tree (T034): `pnpm lint` exit 0 (`Found 318 warnings.` `Found 13 infos.`); `pnpm typecheck` exit 0; `pnpm test` exit 0
+  (`Test Files  320 passed (320)`, `Tests  6738 passed (6738)`; also what the T030 filter command ran); `pnpm test:e2e` exit 0 (`763 skipped`, `1281 passed (14.1m)`).
+  The SC-003 timing test passed again (known flaky under load, not touched by this feature).
+- Every task ticked with evidence; the spec Status is "Implemented". Not done, by design: per-hand guide sounds (next specify). Unlike earlier notes, the listening check is done.
+- Handoff: next = merge when the owner asks (nothing pushed, branch `020-play-guide-voice` local only); run `/speckit:specify` for per-hand guide sounds when wanted; tree clean at the commit that follows this entry.
