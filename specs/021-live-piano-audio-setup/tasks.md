@@ -184,37 +184,37 @@ and its result is used by every new Play run.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T022 [P] [US2] Core test `tests/core/play/calibration-schedule.test.ts`: `compileCalibrationSchedule(ppq)`
+- [x] T022 [P] [US2] Core test `tests/core/play/calibration-schedule.test.ts`: `compileCalibrationSchedule(ppq)`
   gives `CALIBRATION_COUNT_IN_BEATS` downbeat-key clicks then `CALIBRATION_BEATS` beat-key clicks on
   `METRONOME_CHANNEL`, one per beat at `CALIBRATION_TEMPO_QPM`; `clickTimesSec` are the counted clicks' run-relative
   seconds (0.75 s apart at 80 QPM, first at 3.0 s); `endSec` = last click + half a beat; the schedule passes the
   worklet-protocol ordering checks used by `tests/core/schedule` tests. Fails today (no module)
-- [ ] T023 [P] [US2] Extend `tests/core/play/calibration.test.ts` for the new signature
+- [x] T023 [P] [US2] Extend `tests/core/play/calibration.test.ts` for the new signature
   `calibrateLatency(taps, msPerBeat, outputLatencyMs, measuredAt)`: 16 taps exactly 30 ms late with output 12 ms ->
   `inputLatencyMs` 18, total 30 within 5 ms (SC-006); 7 valid taps -> `notEnoughTaps`; spread > 60 ms ->
   `spreadTooLarge`; taps beyond half a beat ignored; `measuredAt` returned as given (deterministic). Fails today
   (signature, min taps)
-- [ ] T024 [P] [US2] Storage tests in `tests/engine/storage/latency-profile.test.ts`: the writer writes
+- [x] T024 [P] [US2] Storage tests in `tests/engine/storage/latency-profile.test.ts`: the writer writes
   `{ version: 1, profile, outputDeviceId }`; the reader accepts that and the bare profile of builds 003-020, rejects
   invalid content (-> `assumed` placeholder); `clearLatencyProfile()` removes the key; `loadLatencyOutputDeviceId()`.
   Fails today on the wrapper and clear
-- [ ] T025 [P] [US2] Engine test in `tests/engine/audio/web-audio-engine.test.ts`: `latencyProfile()` returns the
+- [x] T025 [P] [US2] Engine test in `tests/engine/audio/web-audio-engine.test.ts`: `latencyProfile()` returns the
   calibration after `setLatencyCalibration(p)` and the assumed profile (reported output, input 0) after
   `setLatencyCalibration(null)`. Fails today (stub)
-- [ ] T026 [P] [US2] Controller test `tests/engine/calibration-session.test.ts` (fake engine, fake MIDI, fake clock):
+- [x] T026 [P] [US2] Controller test `tests/engine/calibration-session.test.ts` (fake engine, fake MIDI, fake clock):
   `start()` refused while a run is active or sound is not ready; loads the calibration schedule, sets the Metronome
   channel to `max(level, CALIBRATION_MIN_CLICK_LEVEL)` ignoring a mute, plays, anchors with `anchorRunStart()`; MIDI taps
   mapped with the clock map; Space taps only when no MIDI device is connected; ends from position reports at `endSec`
   (no timer); `done` saves the profile with the active output id and calls `setLatencyCalibration`; `failed` keeps the
   previous profile; `cancel()` and any run start -> `cancelled`, nothing saved; afterwards the Score schedule is marked
   for re-delivery. Fails today (no controller)
-- [ ] T027 [P] [US2] Grading regression in `tests/engine/play-session.test.ts` (or a new
+- [x] T027 [P] [US2] Grading regression in `tests/engine/play-session.test.ts` (or a new
   `tests/engine/latency-in-log.test.ts`): a Play run started after `setLatencyCalibration(p)` stores `p` in its
   Performance log; with a calibrated profile of total 30 ms, a recorded performance whose every note is played exactly
   30 ms after its onset grades every note correct and on time (SC-006, through the grade worker path, not
   `gradePerformance` inline); regrading a stored log recorded with an assumed profile gives a Grade identical to the
   existing golden (FR-014). The first two parts fail today (`latencyProfile()` always assumed)
-- [ ] T028 [P] [US2] e2e `tests/e2e/latency-setup.spec.ts` (chromium): fresh storage, no Play run: Setup > Latency
+- [x] T028 [P] [US2] e2e `tests/e2e/latency-setup.spec.ts` (chromium): fresh storage, no Play run: Setup > Latency
   shows a ms value within 1 s after the first click (SC-005) and "Assumed (not calibrated)"; Calibrate with the fake
   MIDI keyboard tapping 30 ms after each click (`pressInTime` timing from `tests/e2e/helpers/play.ts`) -> "Calibrated:"
   30 +-5 ms; reload -> still calibrated; random taps -> the failure text, previous profile kept; "Use assumed latency"

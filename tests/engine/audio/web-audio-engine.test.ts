@@ -373,6 +373,58 @@ describe('WebAudioEngine', () => {
     });
   });
 
+  // Feature 021 US2 (audio-setup.md section 2): the profile in use is the calibration when one is set
+  describe('latency calibration (feature 021, T025)', () => {
+    const calibrated = {
+      outputLatencyMs: 12,
+      inputLatencyMs: 18,
+      source: 'measured' as const,
+      measuredAt: '2026-10-02T12:00:00.000Z',
+    };
+
+    it('latencyProfile() returns the calibration after setLatencyCalibration(p)', async () => {
+      const engine = new WebAudioEngine();
+      await engine.unlock();
+      engine.setLatencyCalibration(calibrated);
+      expect(engine.latencyProfile()).toEqual(calibrated);
+    });
+
+    it('after setLatencyCalibration(null) it is the assumed profile again: the reported output latency, input 0', async () => {
+      const engine = new WebAudioEngine();
+      await engine.unlock();
+      engine.setLatencyCalibration(calibrated);
+      engine.setLatencyCalibration(null);
+
+      const profile = engine.latencyProfile();
+      expect(profile.source).toBe('assumed');
+      expect(profile.inputLatencyMs).toBe(0);
+      expect(profile.measuredAt).toBeNull();
+      expect(profile.outputLatencyMs).toBeCloseTo(50, 5); // baseLatency 0.01 + outputLatency 0.04 (mockContext)
+    });
+
+    it('a calibration set before the context exists (the stored one at start-up) is already in use', () => {
+      const engine = new WebAudioEngine();
+      engine.setLatencyCalibration(calibrated);
+      expect(engine.latencyProfile()).toEqual(calibrated);
+    });
+
+    it('the calibration is the profile in use even where the output latency is not reported', async () => {
+      mockContext.outputLatency = undefined;
+      const engine = new WebAudioEngine();
+      await engine.unlock();
+      engine.setLatencyCalibration(calibrated);
+      expect(engine.latencyProfile()).toEqual(calibrated);
+    });
+
+    it('the calibration is a copy: changing the object that was given does not change the profile in use', () => {
+      const engine = new WebAudioEngine();
+      const given = { ...calibrated };
+      engine.setLatencyCalibration(given);
+      given.inputLatencyMs = 999;
+      expect(engine.latencyProfile().inputLatencyMs).toBe(18);
+    });
+  });
+
   it('disposes the context', async () => {
     const engine = new WebAudioEngine();
     await engine.unlock();
