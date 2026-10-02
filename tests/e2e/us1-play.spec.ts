@@ -43,9 +43,9 @@ async function openInPlayMode(page: Page, fixture: string): Promise<void> {
   await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
 }
 
-test('US1 end-to-end: Play Mode - two actions to start, count-in, a graded run with marks and a readable reason, own notes sound', async ({
-  page,
-}) => {
+test('US1 end-to-end: Play Mode - two actions to start, count-in, a graded run with marks and a readable reason, own notes sound', {
+  tag: '@smoke',
+}, async ({ page }) => {
   test.setTimeout(60_000);
   const errors: string[] = [];
   page.on('pageerror', (err) => errors.push(err.message));

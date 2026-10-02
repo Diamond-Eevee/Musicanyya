@@ -128,9 +128,9 @@ test.describe('Morning Mood (019 T057)', () => {
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
   }
 
-  test('opens from the browser: every measure has two staves and no SVG element is an Orchestra note', async ({
-    page,
-  }) => {
+  test('opens from the browser: every measure has two staves and no SVG element is an Orchestra note', {
+    tag: '@smoke',
+  }, async ({ page }) => {
     await openItem(page);
     const ids = await noteIds(page);
     expect(ids.orchestra.length).toBeGreaterThan(400);

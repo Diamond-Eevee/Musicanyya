@@ -1,7 +1,25 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.3.2 -> 1.4.0 (MINOR)
+Version change: 1.4.0 -> 1.5.0 (MINOR)
+  Development Workflow & Quality Gates gains "Test tiers" (owner request
+  2026-10-02: the full end-to-end suite, about 2,000 tests over four browser
+  projects and 15-30 minutes, was run after every few lines). Three tiers:
+  task checks (the touched unit tests and e2e specs, chromium), the
+  checkpoint gate (lint, typecheck, unit tests, the `@smoke` e2e set via
+  `pnpm test:e2e:smoke`, the story's e2e specs) and the full gate (plus
+  `pnpm test:e2e`, all browsers) - once when every task is done, again only
+  if `src/` changed since. The merge gate (end-to-end tests green) is
+  unchanged. MINOR: a section materially expanded.
+Templates requiring updates:
+  OK .specify/templates/tasks-template.md   (checkpoint vs final gate tasks)
+  OK .claude/commands/speckit/implement.md  (tiers per task / checkpoint / end)
+  OK .claude/commands/speckit/continue.md   (full gate at done)
+  OK AGENTS.md sections 4, 5 and 8          (gates)
+  OK docs/agents/reference.md, README.md    (pnpm test:e2e:smoke)
+Deferred TODOs: none new.
+
+Previous: 1.3.2 -> 1.4.0 (MINOR)
   Principle VII (Pedagogy as Data) gains "playable by one hand" (owner request
   2026-10-02, branch fix-morning-mood-chords, after the owner found Grieg's
   Morning Mood unplayable): every score the project writes or arranges keeps
@@ -438,10 +456,31 @@ Model fit:
   go to a fast, cheap model; the owner decides
   the trade-off between cost and quality, and the log shows who did what.
 
+Test tiers (how often each suite runs):
+
+- **Task checks**, after each task: the unit tests of what changed, `pnpm
+  typecheck`, `pnpm lint`, and only the end-to-end specs that cover the change,
+  on one browser (`--project=chromium`). The full end-to-end suite MUST NOT
+  be run per task.
+- **Checkpoint gate**, at the end of each story or phase: `pnpm lint`,
+  `pnpm typecheck`, `pnpm test`, the smoke set (`pnpm test:e2e:smoke`: the
+  tests tagged `@smoke`, one per main flow, on chromium) and the story's own
+  end-to-end specs.
+- **Full gate**, once when every task of a feature is done and before merge:
+  the checkpoint gate plus `pnpm test:e2e` on every browser project. It is
+  run again only if product code (`src/`) changed after it; a later change to
+  content, tests or documents reruns the affected specs and the smoke set.
+- A run cut short by the environment (e.g. its server dying) is reported as
+  such and rerun at the next tier that needs it, not counted as a pass.
+- **Rationale**: a full run takes 15-30 minutes; spending it after every
+  edit slows the owner down without catching more, while the tiers still
+  run every test before a merge.
+
 Merge gates (every change):
 
 - `pnpm lint` (Biome), `pnpm typecheck` (`tsc --noEmit`), `pnpm test`
-  (Vitest) - all green; end-to-end tests green once they exist.
+  (Vitest) - all green; end-to-end tests green once they exist (the full
+  gate above).
 - No `any`, `@ts-ignore` or non-null assertion (`!`) without a comment that
   justifies it.
 - RT-path changes reviewed per Principle I.
@@ -465,4 +504,4 @@ Merge gates (every change):
 - Runtime guidance for agents lives in `AGENTS.md` (tool-neutral; `CLAUDE.md`
   and `GEMINI.md` only import it) and MUST stay consistent with this document.
 
-**Version**: 1.4.0 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-10-02
+**Version**: 1.5.0 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-10-02
