@@ -255,6 +255,28 @@ mx-midi-status {
   align-items: center;
 }
 
+mx-midi-status .midi-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mx-space-2, 4px);
+}
+
+mx-midi-status .midi-state-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+mx-midi-status .midi-label {
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mx-bar-compact mx-midi-status .midi-label {
+  display: none; /* the shape stays; the name is its title and accessible name */
+}
+
 mx-midi-status .midi-sound {
   display: inline-flex;
   align-items: center;

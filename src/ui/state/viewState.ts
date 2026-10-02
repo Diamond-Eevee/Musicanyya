@@ -25,9 +25,10 @@ export const PANEL_IDS = [
 
 export type PanelId = (typeof PANEL_IDS)[number];
 
-/** The Levels popover (ui-shell 1.5.0, feature 019): opened by a toolbar button, not a menu, and the one panel that is
- *  never closed because a run starts or one is going - moving a level during a run is what it is for. */
-export const RUN_OK_PANEL: PanelId = 'sound';
+/** The popovers that are never closed because a run starts or one is going: the Levels popover (ui-shell 1.5.0, feature
+ *  019 - moving a level during a run is what it is for) and the MIDI keyboard popover (1.6.0, feature 021 - checking or
+ *  reconnecting the keyboard mid-run is what it is for). Both are opened by a bar control, not a menu. */
+export const RUN_OK_PANELS: ReadonlySet<PanelId> = new Set<PanelId>(['sound', 'midi']);
 
 export type OverlayLayer = keyof OverlayFlags;
 
@@ -84,7 +85,8 @@ export class ViewStateStore {
 
   /** The one place a run start closes any popup (FR-006: nothing modal during a session). */
   closeForRun(): void {
-    if (this.store.get().openPanel === RUN_OK_PANEL) return;
+    const open = this.store.get().openPanel;
+    if (open !== null && RUN_OK_PANELS.has(open)) return;
     this.closePanel();
   }
 

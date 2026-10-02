@@ -275,20 +275,20 @@ a second; click -> popover; Setup has no MIDI entry; popover usable during a Pla
 
 ### Implementation
 
-- [ ] T042 [P] [US3] `src/ui/state/midiStatus.ts` (new) and the remaining state icons in `src/ui/icons/midi-icons.ts`.
+- [x] T042 [P] [US3] `src/ui/state/midiStatus.ts` (new) and the remaining state icons in `src/ui/icons/midi-icons.ts`.
   T038 green
-- [ ] T043 [US3] Complete `src/ui/elements/mx-midi-status.ts` (contracts/top-bar.md section 2: states, label,
+- [x] T043 [US3] Complete `src/ui/elements/mx-midi-status.ts` (contracts/top-bar.md section 2: states, label,
   `aria-*`, toggles panel `'midi'`, Escape returns focus) and its compact fit (icon only) in `src/ui/elements/mx-app.ts`
   and the bar CSS (`src/ui/styles/`)
-- [ ] T044 [US3] Rework `src/ui/elements/mx-midi-panel.ts` as the popover (contracts/top-bar.md section 3), all
+- [x] T044 [US3] Rework `src/ui/elements/mx-midi-panel.ts` as the popover (contracts/top-bar.md section 3), all
   strings to `src/ui/i18n/en.ts` `midi.*`. T039 (panel part) green
-- [ ] T045 [US3] Menu and run rules: remove `entry('midi')` from Setup in `src/ui/layout/menu-model.ts`;
+- [x] T045 [US3] Menu and run rules: remove `entry('midi')` from Setup in `src/ui/layout/menu-model.ts`;
   `RUN_OK_PANELS` in `src/ui/state/viewState.ts` and its use in `src/ui/state/runGuard.ts` and `closeForRun()`.
   T039 (menu part) green
-- [ ] T046 [US3] In `src/app/session.ts` (the start-up request itself is T017): "Connect" / "Try again" in the popover
+- [x] T046 [US3] In `src/app/session.ts` (the start-up request itself is T017): "Connect" / "Try again" in the popover
   call `request()` from the click; the e2e seam's start states (`none`, `denied`, `notSupported`) reach `midiState`.
   T040, T041 green
-- [ ] T047 [US3] Picture check: `pnpm screenshot --item <a beginner library id>` in light and dark theme, bar with the
+- [x] T047 [US3] Picture check: `pnpm screenshot --item <a beginner library id>` in light and dark theme, bar with the
   control in roomy and compact width, popover open; look at each PNG and describe it in the log (AGENTS.md section 8)
 
 **Checkpoint**: US3 Independent Test passes (T040 and quickstart US3 steps 1-4). Checkpoint gate + `midi-topbar.spec.ts`,

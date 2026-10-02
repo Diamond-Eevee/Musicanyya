@@ -28,6 +28,9 @@ stays its accessible name). It never moves to the View popup.
   page to turn the sound on." It disappears on unlock or after `LOCKED_HINT_MS` (new constant, 8000) and is never
   shown twice in one page load (FR-003). It is not a notice and takes no focus.
 - Click toggles panel `'midi'` (like Levels toggles `'sound'`). Escape closes it and returns focus to the button.
+  The control is `button.midi-button` (icon `.midi-state-icon`, words `.midi-label`) followed by the marker `.midi-sound`.
+  Opening the popover also ends a `lost` display (`midiState.lostRecently`, data-model section 2). A press on the button
+  while the popover is open closes it (the popover's light dismiss must not make the click reopen it).
 - Updates from `midiState` only; re-renders only when the display state, label or live-sound value changes.
 
 ## 3. MIDI popover (panel `'midi'`, `mx-midi-panel` reworked)
@@ -42,7 +45,8 @@ Content, in order (strings in `en.midi.*`, new section; the hard-coded English i
    to scores works here.") and `denied` ("MIDI access was blocked. Allow MIDI for this site in the browser's site
    settings, then press Try again.").
 
-Panel rules: non-modal popover anchored under `mx-midi-status`; allowed during any run (`RUN_OK_PANELS`, data-model
+Panel rules: non-modal popover anchored under `mx-midi-status` (it sets `--mx-midi-anchor-left` from its position when
+it opens; `panels.css` clamps the popover, at most 22 rem wide, inside the window); allowed during any run (`RUN_OK_PANELS`, data-model
 section 7); its height never exceeds the bar inset area so the current system stays visible (FR-027; checked in e2e by
 the cursor's bounding box not intersecting the popover).
 

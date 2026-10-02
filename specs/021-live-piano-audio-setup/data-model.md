@@ -54,10 +54,13 @@ Unchanged fields (`availability`, `devices`); new **display state** computed by 
 | `lost` | the last connected device was lost and none connected | keyboard + cross | "MIDI keyboard disconnected" |
 | `notRequested` | not asked yet (request pending or failed silently) | keyboard + question mark | "Connect MIDI keyboard" |
 | `denied` | permission denied | keyboard + slash | "MIDI not allowed" |
-| `notSupported` | no Web MIDI | keyboard + slash | "MIDI not supported" |
+| `notSupported` | no Web MIDI | keyboard with a dashed outline + slash | "MIDI not supported" |
 
 `lost` turns into `connected` on reconnect and into `none` only when the user opens the popover (so a loss is never
-missed).
+missed). `lostRecently` is a `midiState` field set by `session.ts` when a `deviceLost` leaves no connected keyboard,
+cleared when a keyboard connects (a `devices` event with one connected) and by `mx-midi-status` when it opens the popover.
+`midiStatus` returns `{ state, label, icon }` with one icon id per state (`keyboard-check`, `keyboard`, `keyboard-cross`,
+`keyboard-question`, `keyboard-slash`, `keyboard-slash-dashed`).
 
 ## 3. Latency profile (existing entity, constitution vocabulary)
 

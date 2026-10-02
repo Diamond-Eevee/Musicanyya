@@ -60,7 +60,26 @@ export const en = {
     soundLocked: 'Sound off - click the page to turn it on',
     soundLoading: 'Sound loading',
     soundFailed: 'Sound failed to load',
+    /** The control's accessible name while the sound is not on yet: the keyboard state, then the sound state. */
+    nameSoundLocked: '{label}, sound off - click the page to turn it on',
+    nameSoundLoading: '{label}, sound loading',
     lockedHint: 'Click anywhere on the page to turn the sound on.',
+    /** The keyboard states of the control and the popover (US3, data-model.md section 2). */
+    connect: 'Connect MIDI keyboard',
+    tryAgain: 'Try again',
+    noKeyboard: 'No MIDI keyboard',
+    keyboardLost: 'MIDI keyboard disconnected',
+    denied: 'MIDI not allowed',
+    notSupported: 'MIDI not supported',
+    keyboards: '{n} keyboards',
+    deviceConnected: 'Connected',
+    deviceDisconnected: 'Disconnected',
+    devicesHeading: 'Keyboards',
+    latency: 'Latency: {n} ms',
+    helpNotSupported:
+      'This browser cannot use MIDI keyboards. Use Chrome or Edge, or the desktop app. Listening to scores works here.',
+    helpDenied:
+      "MIDI access was blocked. Allow MIDI for this site in the browser's site settings, then press Try again.",
   },
   /** The four menus of the slim bar (feature 004, data-model.md section 5). */
   menus: {

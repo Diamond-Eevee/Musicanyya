@@ -708,11 +708,15 @@ export class Session {
         midiState.emit();
       } else if (e.type === 'devices') {
         midiState.devices = [...e.devices];
+        // A keyboard connected again ends the "disconnected" the top bar shows (feature 021 US3, data-model.md section 2)
+        if (e.devices.some((device) => device.connected)) midiState.lostRecently = false;
         midiState.emit();
       } else if (e.type === 'deviceLost') {
         e.heldKeys.forEach((k) => {
           midiState.pressedKeys.delete(k);
         });
+        // The input reports the changed device list just before the loss: no keyboard left connected = the bar says so
+        if (!midiState.devices.some((device) => device.connected)) midiState.lostRecently = true;
         midiState.emit();
         const practiceReported = this.applyPracticeInput({
           type: 'deviceLost',

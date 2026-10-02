@@ -181,3 +181,45 @@
 - Model fit: Phase 4 is tier `standard`; claude-sonnet-5.5 fits.
 - Problems / open questions: none for the owner.
 - Handoff: next = US3 (T038 onward; tier standard, sonnet fits). Tree clean at the commit after this entry.
+
+## 2026-10-02 - claude-sonnet-5.5 (implement, US3 checkpoint)
+- Done: T038-T047 (US3 complete). Tests first (wip commit b586d86, red as named: no `midiStatus` module, no `lostRecently`, no bar control
+  `button.midi-button`, `midi` still in Setup and not run-safe, old popover strings). Then: `midiStatus()` + the six keyboard icons (T042),
+  `mx-midi-status` with the keyboard button before the live-sound marker (T043), `mx-midi-panel` reworked as the popover - status line,
+  device list with "Connected" / "Disconnected" as text, Connect / Try again, help, latency; built with DOM nodes (device names are no
+  longer put through `innerHTML`) and redrawn only when what it shows changes (T044), `entry('midi')` removed and `RUN_OK_PANELS`
+  (`sound`, `midi`) in `viewState.ts` / `runGuard.ts` (T045), `lostRecently` kept by `session.ts` from the `devices` / `deviceLost`
+  events (T046; "Connect" / "Try again" use the existing `request-midi` -> `midiInput.request()` from the click, the e2e seam's start states
+  already reach `midiState`), picture check (T047).
+- Decisions: (1) `denied` and `notSupported` share "keyboard + slash" in data-model section 2 but T038 requires a distinct icon per state;
+  `notSupported` is drawn with a dashed outline (data-model table amended). (2) The popover hangs under the control: `mx-midi-status` sets
+  `--mx-midi-anchor-left` when it opens and `panels.css` clamps it inside the window (22 rem wide at most) - the other popups keep their
+  top-right place (contract amended). (3) A press on the control while the popover is open records "was open" on `pointerdown`, because the
+  popover's light dismiss closes it before the `click` and the click would reopen it. (4) The Score browser is a modal dialog at start-up
+  (feature 013), so the bar - the MIDI control included - is inert until it is closed; the e2e spec closes it first. Not changed (013 owns it).
+  (5) FR-027 e2e check: the `.playing` notes of the Play cursor, at the first beats of the run, do not intersect the popover.
+- Observations (not changed): at 1280 px a Score open already puts the bar in its compact form (before this feature too), so the keyboard
+  name is hidden there and only the shape shows; US4's icon buttons should free room (SC-009). The bar needs about 38 px more width in
+  compact form: measured with the control hidden and shown, the narrowest width at which the bar fits (a Score open) went from about
+  683 px to about 721 px. Below that the bar was already not fitting (640 px and less before, now 700 px and less).
+- Picture check (T047), scratch script on the built app (not `pnpm screenshot`, which cannot open the popover or fake the keyboard states),
+  eight-measure-melody open, Paper and Night themes, 1600 and 760 px wide, the popover open: the control sits after the menus with the
+  keyboard shape and the name ("Fake"); at 760 px only the shape shows, the popover (title "MIDI keyboard", Close button, status line with
+  the shape, "Fake (Musicanyya) - Connected", "Latency: 60 ms") hangs under the right part of the bar and covers the top of the Score's
+  right end without hiding the first measures. Lost: tick -> cross, the words "MIDI keyboard disconnected"; denied: keyboard struck through,
+  "MIDI not allowed", a "Try again" button and the help sentence; not supported: dashed keyboard struck through, "MIDI not supported" and its
+  help. Text and shapes are readable in both themes; the six shapes are told apart at 4x zoom (tick, plain, cross, question mark, slash,
+  dashed + slash).
+- Expected-value changes: `tests/ui/menu.test.ts` (Setup = `setup`, `latency`; the "reaches every panel" test also leaves out `midi`; the
+  overflow-menu test opens `latency`); `tests/ui/midi-panel.test.ts` popover tests rewritten for the contract (the old ones asserted the
+  old English strings and a button while available); `tests/e2e/us2-panels.spec.ts`, `theme-a11y.spec.ts`, `panels-look.spec.ts` open the
+  MIDI popover through the bar control instead of Setup (same checks: look, contrast, axe in all six themes).
+- Evidence: `pnpm test` `Test Files  329 passed (329)`, `Tests  7262 passed (7262)`; `pnpm typecheck` exit 0; `pnpm lint` exit 0
+  `Found 314 warnings. Found 14 infos.` (baseline 315); `pnpm test:e2e:smoke` `9 passed`; `midi-topbar.spec.ts` + `us2-panels.spec.ts` +
+  `theme-a11y.spec.ts` + `panels-look.spec.ts` + `live-piano.spec.ts` chromium `45 passed`. Earlier run of those plus `live-latency` and
+  `latency-setup`: `51 passed`. Not run: the quickstart US3 steps with a real MIDI keyboard (none attached); the full e2e suite (full gate,
+  once at the end). No RT review: US3 changes no input routing or timing (the live router and the clock mapping are untouched).
+- Model fit: Phase 5 is tier `standard`; claude-sonnet-5.5 fits.
+- Problems / open questions: none for the owner.
+- Handoff: next = US4 (T048 first: measure the captioned Stop button and the bar width on the current build, before any US4 change; then T049
+  -> T050-T052; tier standard, sonnet fits). Tree clean at the commit after this entry.

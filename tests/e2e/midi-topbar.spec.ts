@@ -1,7 +1,10 @@
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
+import { closeBrowser } from './helpers/browser.js';
 import { configNumber } from './helpers/config.js';
 import { connectFakeMidi, disconnectFakeMidi, midiControl, openMidiPopover, startFakeMidiAs } from './helpers/midi.js';
-import { panelLocator } from './helpers/panels.js';
+import { barFitted, panelLocator } from './helpers/panels.js';
 import { playPhase, startPlay } from './helpers/play.js';
 
 /**
@@ -11,6 +14,10 @@ import { playPhase, startPlay } from './helpers/play.js';
  */
 
 const MIDI_STATUS_UPDATE_MAX_MS = configNumber('MIDI_STATUS_UPDATE_MAX_MS');
+const SCORE_FILE = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../fixtures/musicxml/eight-measure-melody.musicxml',
+);
 const ITEM = 'repertoire/beginner/fur-elise-theme-16-bar';
 
 test.beforeEach(({ browserName }, testInfo) => {
@@ -24,6 +31,8 @@ const start = async (page: Page, midi?: 'none' | 'denied' | 'notSupported') => {
   await page.goto('/');
   if (midi) await startFakeMidiAs(page, midi);
   else await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
+  // The Score browser is a modal dialog at start-up (feature 013); it makes the bar inert until it is closed
+  await closeBrowser(page);
 };
 
 test.describe('the MIDI keyboard in the top bar (feature 021 US3)', () => {
@@ -125,8 +134,13 @@ test.describe('the MIDI keyboard in the top bar (feature 021 US3)', () => {
   test('on a narrow bar only the icon shows; the name stays its title and accessible name (contracts/top-bar.md 1)', async ({
     page,
   }) => {
-    await page.setViewportSize({ width: 560, height: 800 });
+    await page.setViewportSize({ width: 760, height: 800 });
     await start(page);
+    // The bar only folds when its content outgrows it, which takes a Score (the transport and the mode switch appear)
+    await page.locator('mx-open-button input[type=file]').setInputFiles(SCORE_FILE);
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    await barFitted(page);
+    await expect(page.locator('#mx-bar')).toHaveClass(/mx-bar-compact/);
     const control = midiControl(page);
     await expect(control).toBeVisible();
     await expect(control).toHaveAttribute('title', 'Fake');
