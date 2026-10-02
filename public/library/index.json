@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-02T08:01:24.812Z",
+  "generated": "2026-10-02T08:02:44.764Z",
   "sections": [
     {
       "id": "learning",
@@ -14802,7 +14802,7 @@
         "reviewedOn": "2026-10-02",
         "subtitle": "Peer Gynt Suite No. 1, Op. 46 No. 1 - the composer's piano arrangement, with orchestra",
         "composer": "Edvard Grieg",
-        "arranger": "Edvard Grieg (piano arrangement)",
+        "arranger": "Edvard Grieg",
         "trains": "Grieg's own piano version of the sunrise from Peer Gynt: a pastoral 6/8 melody passed between the hands over held chords and wide left-hand tenths, the forte climax in full chords, the left-hand melody under right-hand figuration, trills with their endings, and the quiet return over a pedal note.",
         "hands": "both",
         "arrangement": false,

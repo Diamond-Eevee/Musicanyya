@@ -130,7 +130,7 @@ note outside `range` are errors (the tool writes nothing).
 |---|---|
 | id | `repertoire/<level>/grieg-morning-mood` (level from `computeLevel`; expected Advanced) |
 | title / subtitle | "Morning Mood" / "Peer Gynt Suite No. 1, Op. 46 No. 1 - the composer's piano arrangement, with orchestra" |
-| composer / arranger | "Edvard Grieg" / "Edvard Grieg (piano arrangement)" |
+| composer / arranger | "Edvard Grieg" / "Edvard Grieg" (the app shows "arr. Edvard Grieg"; the subtitle says it is his piano arrangement) |
 | arrangement | `false` (the piano part is Grieg's own published arrangement, transcribed unchanged) |
 | provenance | `origin: "downloaded"`, `licence: "public-domain"`, `source`: the IA item URL, `credit`: Schirmer 1899, fingering by Louis Oesterle; `note`: transcription method (R-15) and that the Orchestra is our own CC0 orchestration after the piano part (R-16) |
 | parts | P1 Piano (2 staves, printed); then one Orchestra part per definition instrument |
