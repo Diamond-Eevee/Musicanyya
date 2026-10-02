@@ -152,3 +152,35 @@
   - T022 `tests/ui/levels-panel.test.ts`: `Tests  4 failed | 6 passed (10)`. T023 `tests/e2e/levels.spec.ts`: 2 failed (the slider is
     still disabled). These two expectations changed with spec FR-010 (replaces 019 FR-010), not to go green.
 
+## 2026-10-02 - claude-sonnet-5.5 (implement: US1, US2, US3 code)
+- T018: `compilePlaySchedule` (`src/core/schedule/play-schedule.ts`): has-an-Orchestra check, `freeMelodicChannel`, graded events
+  moved to the guide channel with velocity `min(127, max(1, round(v * GUIDE_VELOCITY_SCALE)))` and the run shift, guide channel
+  setup in the run's channel copy only (`orchestra: true`, program `GUIDE_PROGRAM`, volume / pan from the defaults), `guideChannel`
+  returned (null when nothing is graded in range or no channel is free). Evidence: T013 `tests/core/play/guide-voice.test.ts`
+  `Tests  21 passed (21)`; T015 / T016 `tests/engine/guide-render.test.ts` `Tests  11 passed (11)`; `pnpm test -- tests/core`
+  unchanged otherwise. Measured by a throwaway render (deleted): at Orchestra level 0 / 60 / 100 the guide is 99.3 / 15.8 / 6.9 dB
+  below the piano playing the same notes (SC-002 asks 6 dB at the default level, 60); peak voices on `fur-elise-complete`
+  12 guided vs 4 unguided, cap 350.
+- T019: `PlaySessionController.start` passes `guide: true`. Evidence: `tests/engine/play-session.test.ts` `Tests  36 passed (36)`;
+  e2e `guide-voice.spec.ts` + `electron-playback.spec.ts` on chromium, firefox and electron: `11 skipped`, `10 passed`.
+- T020 RT review (`rt-audio-reviewer`, commit fe5608a): PASS WITH ADVISORIES, no blocking finding. Confirmed: no worklet / scheduler /
+  MIDI code changed (two src files in the diff); one tick-to-time path (same shift, tempo map, `compileSchedule` ordering); the
+  count-in is silent for the guide by construction; the guide is applied through the existing setup path (CC7 / CC10 defaults,
+  CC11 = held Orchestra level, `orchestraLevel` re-send) and its notes are in `heldNotes`, so schedule load / pause / stop / seek release them;
+  at most 44 setup controllers (limit 64); `channelSetup` bytes `[1, 4, 0, 0]`. **Advisory A1 (needs owner, FR-008):** the guide gives
+  way "first" only by headroom, not by priority - spessasynth_core steals the lowest-priority voice (velocity, envelope, attenuation;
+  no channel / CC term), so past the cap a quiet live note could go before a guide note. The measured peak is about 3.4 % of the cap, so the cap is
+  not reached in the library. research R-6 corrected. Recommendation: accept FR-008 as "met by headroom" (no engine change); the
+  alternative is a design change. Other advisories not acted on: A2 (guide voices still sound silently at level 0 - FR-012 is met),
+  A3 (a NaN velocity guard; timeline velocities are integers), A4 (unison between hands on one channel: the same as before), A6
+  (no signal when no channel is free; contract rule 2), A7 (one density case only).
+- T024: `src/ui/i18n/en.ts` `levels.guideVoice` replaces `levels.noOrchestra`; `mx-levels-panel` never disables the Orchestra slider and
+  shows / hides the hint (id kept as `mx-levels-no-orchestra`). Evidence: `tests/ui` `Tests  913 passed (913)`; `levels.spec.ts` on
+  chromium, firefox and electron `12 skipped`, `18 passed`; `pnpm lint` exit 0.
+- T026 (test, ticked because its e2e half failed as expected, `Expected length: 1 / Received length: 0`): core half in
+  `tests/core/play/replay.test.ts` passes once T018 exists (analyze A10: `mergeSchedules` carries the mask), e2e half in
+  `tests/e2e/guide-voice.spec.ts` (replay through the Attempts list; the Grade on screen after the replay equals the live run's).
+- T027: `SessionController.prepareStoredRun` passes `guide: true` (replay and regrade). Evidence: `guide-voice.spec.ts` +
+  `us4-attempts.spec.ts` on chromium, firefox, electron `4 skipped`, `11 passed`; `pnpm test` -> `Test Files  320 passed (320)`,
+  `Tests  6738 passed (6738)`.
+

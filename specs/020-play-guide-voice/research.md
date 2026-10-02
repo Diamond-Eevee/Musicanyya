@@ -104,11 +104,19 @@ hard tine attack; velocity also changes colour); a separate guide level setting 
 
 ## R-6 Voices
 
-**Decision**: no voice-priority code (as 019 R-11). The Guide voice at most doubles the musician's part; the synth's
-stealing favours louder voices, and guide voices are quieter, so they give way first (FR-008). An offline render of a
-Play run with the Guide voice on the densest hands-together library item records the peak active voice count, which
-must stay below `VOICE_HEADROOM_FRACTION` (0.5) of the voice cap - the same bound as 019. The item is chosen by the task
-from `public/library/index.json` facts (most notes per second).
+**Decision**: no voice-priority code (as 019 R-11). The Guide voice at most doubles the musician's part, and FR-008 is met by
+**headroom**: an offline render of a Play run with the Guide voice on the densest hands-together library item without an
+Orchestra records the peak active voice count, which must stay below `VOICE_HEADROOM_FRACTION` (0.5) of the voice cap - the same
+bound as 019. The item is chosen by the task from `public/library/index.json` facts (most notes per second). Measured at T015:
+`repertoire/advanced/fur-elise-complete`, 12 voices guided against 4 unguided, cap 350.
+
+**Correction (RT review T020, 2026-10-02)**: the first draft said "the synth's stealing favours louder voices, so guide voices
+give way first". That is not guaranteed. spessasynth_core steals the voice with the lowest `priority` (`assignVoice`,
+`assignVoicePriorities` in `dist/index.js`): drum +5, release -5, velocity / 25, envelope state, attenuation; there is no channel
+or CC7 / CC11 term. A guide note (velocity x 0.6) usually ranks below a forte piano note, but a quiet live note or a pianissimo
+accompaniment note can rank below a guide note. So past the cap nothing makes the guide give way first; with the measured peak at
+about 3.4 % of the cap, the cap is not reached. **Needs owner** (logged): accept FR-008 as "met by headroom" (recommended; no
+engine change), or reword it, or add a real priority (would need an engine / synth change, a new design).
 
 ## R-7 The Levels panel
 

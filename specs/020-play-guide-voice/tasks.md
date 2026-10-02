@@ -194,10 +194,10 @@ count-in; the right notes blend, a wrong one clashes; the Grade equals one witho
   of `pnpm test -- tests/core` unchanged
 - [x] T019 [US1] Pass `guide: true` in `PlaySessionController.start` (`src/app/play-session.ts`) only (the stored-run
   path is US3). Evidence: T014 and T017 (browser and Electron) green; `pnpm typecheck` and `pnpm lint` exit 0
-- [~] T020 [US1] RT review with `rt-audio-reviewer` (Constitution I): confirm no worklet, scheduler or MIDI-timing code
+- [x] T020 [US1] RT review with `rt-audio-reviewer` (Constitution I): confirm no worklet, scheduler or MIDI-timing code
   changed, the guided schedule keeps the worklet-protocol ordering rules, CC7 / CC10 / CC11 on the guide channel are
   applied in the existing setup path, and the T015 voice peak; summarise findings in the log
-- [ ] T021 [US1] Checkpoint: run the US1 Independent Test (quickstart US1 steps 1, 4, 5, 6 without a keyboard; 2 and 3
+- [~] T021 [US1] Checkpoint: run the US1 Independent Test (quickstart US1 steps 1, 4, 5, 6 without a keyboard; 2 and 3
   only if a MIDI keyboard is available - say which were run), full gate, log entry with each command's summary line,
   commit
 
@@ -228,7 +228,7 @@ applies and the hint is gone.
 
 ### Implementation
 
-- [ ] T024 [US2] In `src/ui/i18n/en.ts` replace `levels.noOrchestra` with `levels.guideVoice` (data-model.md §6) and in
+- [x] T024 [US2] In `src/ui/i18n/en.ts` replace `levels.noOrchestra` with `levels.guideVoice` (data-model.md §6) and in
   `src/ui/elements/mx-levels-panel.ts` never disable the Orchestra slider; show the guide hint (and set
   `aria-describedby`) when the open Score has no Orchestra or none is open (guide-voice.md §3); update the element's doc
   comment. Evidence: T022 and T023 green; `pnpm lint` and `pnpm typecheck` exit 0
@@ -248,7 +248,7 @@ with the recorded ones; at 0 % the replay sounds as before.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T026 [P] [US3] Extend `tests/core/play/replay.test.ts`: `compileReplay` over a guided run schedule keeps every guide
+- [x] T026 [P] [US3] Extend `tests/core/play/replay.test.ts`: `compileReplay` over a guided run schedule keeps every guide
   event and the guide channel's bit in `orchestraMask` next to the live-channel events (`mergeSchedules` carries the
   mask - this half passes once T018 is done; say so in the log, analyze A10). And in
   `tests/engine/replay-session.test.ts` (or the session-level test that drives `attemptreplay`): replaying a stored
@@ -257,7 +257,7 @@ with the recorded ones; at 0 % the replay sounds as before.
 
 ### Implementation
 
-- [ ] T027 [US3] Pass `guide: true` in `SessionController.prepareStoredRun` (`src/app/session.ts`), which serves replay
+- [x] T027 [US3] Pass `guide: true` in `SessionController.prepareStoredRun` (`src/app/session.ts`), which serves replay
   and regrade. Evidence: T026 green; `pnpm test -- tests/core/grade tests/engine` unchanged otherwise
 - [ ] T028 [US3] Checkpoint: run the US3 Independent Test (quickstart US3; needs a MIDI keyboard or the e2e MIDI path -
   say which), full gate, log entry, commit

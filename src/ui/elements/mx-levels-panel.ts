@@ -4,7 +4,7 @@ import { type ScoreStatus, scoreState } from '../state/scoreState.js';
 import { transportState } from '../state/transportState.js';
 
 const METRONOME_HINT_ID = 'mx-levels-metronome-hint';
-const NO_ORCHESTRA_ID = 'mx-levels-no-orchestra';
+const GUIDE_HINT_ID = 'mx-levels-no-orchestra'; // shown when the Score has no Orchestra: the slider then sets the Guide voice
 
 /** Does the open Score have an Orchestra part (the worker's `summary.parts[].orchestra`, worker-messages 1.4.0)? */
 function hasOrchestra(status: ScoreStatus): boolean {
@@ -14,11 +14,11 @@ function hasOrchestra(status: ScoreStatus): boolean {
 const percent = (level: number): string => en.levels.valuePercent.replace('{n}', String(level));
 
 /**
- * The Levels popover (feature 019, contracts/mixer-levels.md section 1): a Metronome slider and an Orchestra slider, each
+ * The Levels popover (feature 019, contracts/mixer-levels.md section 1, 1.1.0): a Metronome slider and an Orchestra slider, each
  * with its value beside it. A slider only writes `transportState`; the session carries the level to the click channel and
- * the engine, and persists it. The Orchestra slider is off, with its reason, while the open Score has no Orchestra - its
- * stored value is never touched by that (FR-010). Built once and only patched afterwards, so a slider being dragged is
- * never replaced under the pointer.
+ * the engine, and persists it. The Orchestra slider is never disabled (feature 020 FR-010): on a Score without an Orchestra
+ * (or with none open) it sets the Guide voice of a Play run, and a hint under it says so. Built once and only patched
+ * afterwards, so a slider being dragged is never replaced under the pointer.
  */
 export class MxLevelsPanel extends HTMLElement {
   private built = false;
@@ -53,8 +53,8 @@ export class MxLevelsPanel extends HTMLElement {
       <div class="mx-levels">
         ${row('metronome', en.levels.metronome, METRONOME_HINT_ID)}
         <p class="mx-level-hint" id="${METRONOME_HINT_ID}">${en.levels.metronomeHint}</p>
-        ${row('orchestra', en.levels.orchestra, NO_ORCHESTRA_ID)}
-        <p class="mx-level-hint" id="${NO_ORCHESTRA_ID}">${en.levels.noOrchestra}</p>
+        ${row('orchestra', en.levels.orchestra, GUIDE_HINT_ID)}
+        <p class="mx-level-hint" id="${GUIDE_HINT_ID}">${en.levels.guideVoice}</p>
       </div>
     `;
     this.slider('metronome').addEventListener('input', (event) =>
@@ -74,13 +74,13 @@ export class MxLevelsPanel extends HTMLElement {
     (metronome.parentElement?.querySelector('output') as HTMLOutputElement).textContent = percent(state.metronomeLevel);
     (orchestra.parentElement?.querySelector('output') as HTMLOutputElement).textContent = percent(state.orchestraLevel);
 
-    // Disabling never changes the stored level; it says why and stops being offered (FR-010).
-    const available = hasOrchestra(scoreState.getStatus());
-    orchestra.disabled = !available;
-    const reason = this.querySelector(`#${NO_ORCHESTRA_ID}`) as HTMLElement;
-    reason.hidden = available;
-    if (available) orchestra.removeAttribute('aria-describedby');
-    else orchestra.setAttribute('aria-describedby', NO_ORCHESTRA_ID);
+    // Never disabled (020 FR-010): without an Orchestra the level governs the Guide voice, and the hint says so. The stored level is
+    // never touched by the hint.
+    const hasOrch = hasOrchestra(scoreState.getStatus());
+    const hint = this.querySelector(`#${GUIDE_HINT_ID}`) as HTMLElement;
+    hint.hidden = hasOrch;
+    if (hasOrch) orchestra.removeAttribute('aria-describedby');
+    else orchestra.setAttribute('aria-describedby', GUIDE_HINT_ID);
   }
 }
 

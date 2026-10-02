@@ -7,6 +7,7 @@ import {
   METRONOME_CHANNEL,
   PERCUSSION_CHANNEL,
 } from '../../../src/core/defaults.js';
+import { buildExpectedNotes } from '../../../src/core/grade/expected.js';
 import type { PerformanceLog } from '../../../src/core/grade/types.js';
 import { compileReplay } from '../../../src/core/play/replay.js';
 import { EVENT_KIND } from '../../../src/core/schedule/compile.js';
@@ -304,5 +305,61 @@ describe('Replay setup controllers (020 R-10)', () => {
     expect(controllerAtZero(LIVE_CHANNEL, 7)).toBe(DEFAULT_CHANNEL_VOLUME);
     expect(controllerAtZero(LIVE_CHANNEL, 10)).toBe(DEFAULT_CHANNEL_PAN);
     expect(controllerAtZero(METRONOME_CHANNEL, 7)).toBeUndefined(); // the click level stays the session's `channelVolume`
+  });
+});
+
+// 020 US3 (FR-009): the replay of a run that had a Guide voice keeps it, next to the notes the musician played.
+describe('Replay of a guided run (feature 020 US3)', () => {
+  it('keeps every guide note and the guide channel in the Orchestra mask, beside the live-channel notes', () => {
+    const { score, timeline } = loadFixture('eight-measure-melody.musicxml');
+    const gradedNoteIds = new Set(
+      buildExpectedNotes(score, timeline, { preset: 'both', partIndex: 0, staves: [1] }, null).flatMap(
+        (n) => n.noteIds,
+      ),
+    );
+    const run = compilePlaySchedule(timeline, score.measures, {
+      range: null,
+      gradedNoteIds,
+      accompaniment: true,
+      countInMeasures: 1,
+      tempoPercent: 100,
+      metronome: METRONOME,
+      guide: true,
+    });
+    const guide = run.guideChannel;
+    expect(guide).not.toBeNull(); // this half passes once the guide exists (T018): mergeSchedules carries the mask (analyze A10)
+    const runTempo = runTempoOf(run.schedule);
+    const toSeconds = (tick: number) => audioTimeAtTick(tick, runTempo, timeline.ppq, 100);
+    const key = (kind: 'noteOn' | 'noteOff', tick: number) => ({
+      kind,
+      key: 62,
+      velocity: kind === 'noteOn' ? 80 : 0,
+      down: false,
+      audioTimeSec: toSeconds(tick),
+      timeStampMs: 0,
+      deviceId: 'd',
+    });
+    const log: PerformanceLog = {
+      version: 1,
+      messages: [key('noteOn', run.expectedFirstRunTick + 100), key('noteOff', run.expectedFirstRunTick + 400)],
+      droppedMessages: 0,
+    };
+
+    const replay = compileReplay({
+      log,
+      tempo: runTempo,
+      ppq: timeline.ppq,
+      tempoPercent: 100,
+      startAudioTimeSec: 0,
+      accompaniment: run.schedule,
+    });
+
+    const noteOns = (schedule: typeof replay, channel: number) =>
+      eventsOnChannel(schedule, channel).filter((e) => e.kind === 1);
+    expect(noteOns(replay, guide as number)).toEqual(noteOns(run.schedule, guide as number));
+    expect(noteOns(replay, guide as number)).toHaveLength(gradedNoteIds.size);
+    expect(noteOns(replay, LIVE_CHANNEL)).toHaveLength(1); // what the musician played
+    expect((replay.orchestraMask ?? 0) & (1 << (guide as number))).not.toBe(0);
+    expect((replay.orchestraMask ?? 0) & (1 << LIVE_CHANNEL)).toBe(0); // the live piano is not governed by the Orchestra level
   });
 });

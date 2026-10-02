@@ -1,7 +1,10 @@
-import { expect, test } from '@playwright/test';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { expect, type Page, test } from '@playwright/test';
 import { GUIDE_PROGRAM } from '../../src/core/defaults.js';
 import { browserDialog } from './helpers/browser.js';
 import { revealLibraryItem } from './helpers/library.js';
+import { openPanel } from './helpers/panels.js';
 import { startPlay } from './helpers/play.js';
 import {
   channelsWithProgram,
@@ -68,5 +71,68 @@ test.describe('the Guide voice in the browser (feature 020 US1)', () => {
       expect(channelsWithProgram(schedule, GUIDE_PROGRAM)).toEqual([]);
       expect(schedule.mask).toBe(0);
     }
+  });
+});
+
+// US3 (FR-009, SC-004): the replay of a stored attempt on a Score without an Orchestra asks the engine for the guide too, and the
+// Grade it shows is the one the live run got.
+const REPLAY_FIXTURE = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../fixtures/musicxml/chords/c-major-scale-and-chords.musicxml',
+);
+const playSnapshot = (page: Page) =>
+  page.evaluate(() => {
+    const s = (window as unknown as { __PLAY_STATE__: { get(): Record<string, any> } }).__PLAY_STATE__.get();
+    return {
+      runPhase: s.run?.phase as string | undefined,
+      notesCorrect: s.grade?.summary.notesCorrect as { count: number; total: number } | undefined,
+      attemptsCount: s.attempts.length as number,
+    };
+  });
+
+test.describe('the Guide voice in the replay of an attempt (feature 020 US3)', () => {
+  test.beforeEach(({ browserName }, testInfo) => {
+    test.skip(
+      browserName === 'webkit',
+      'Play needs AudioContext and Web MIDI, which Playwright WebKit does not provide',
+    );
+    test.skip(testInfo.project.name === 'electron', 'the browser half');
+  });
+
+  test('replaying an attempt loads a schedule with the guide, and shows the Grade the run got', async ({ page }) => {
+    test.setTimeout(90_000);
+    await page.goto('/');
+    await page.locator('mx-open-button input[type=file]').setInputFiles(REPLAY_FIXTURE);
+    await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
+    await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
+    await page.locator('#mode-controls mx-mode-switch input[value=play]').check();
+    await spyOnLoadedSchedules(page);
+
+    await page.locator('mx-transport .play-btn').click();
+    await expect.poll(async () => (await playSnapshot(page)).runPhase, { timeout: 15_000 }).toBe('running');
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x90, 60, 100] }));
+      window.dispatchEvent(new CustomEvent('e2e-midi', { detail: [0x80, 60, 0] }));
+    });
+    await expect
+      .poll(async () => (await playSnapshot(page)).notesCorrect !== undefined, { timeout: 30_000 })
+      .toBe(true);
+    await expect.poll(async () => (await playSnapshot(page)).attemptsCount, { timeout: 10_000 }).toBe(1);
+    const liveGrade = (await playSnapshot(page)).notesCorrect;
+    const beforeReplay = (await loadedSchedules(page)).length;
+
+    await openPanel(page, 'attempts');
+    await page.locator('mx-attempts-list .attempts-replay').first().click();
+    await expect
+      .poll(async () => (await loadedSchedules(page)).length, { timeout: 15_000 })
+      .toBeGreaterThan(beforeReplay);
+    const loaded = await loadedSchedules(page);
+    const replay = loaded[loaded.length - 1] as (typeof loaded)[number];
+    const guide = maskChannelsWithNotes(replay);
+    expect(guide).toHaveLength(1);
+    expect(guide[0]?.program).toBe(GUIDE_PROGRAM);
+    expect(guide[0]?.noteOns).toBeGreaterThan(0);
+    // the Grade on screen after the replay is the live run's (a regrade of the same performance, SC-004)
+    await expect.poll(async () => (await playSnapshot(page)).notesCorrect, { timeout: 15_000 }).toEqual(liveGrade);
   });
 });
