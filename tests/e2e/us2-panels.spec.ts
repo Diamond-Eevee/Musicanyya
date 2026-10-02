@@ -72,18 +72,17 @@ test.describe('US2: secondary tools live in menus and popups', () => {
     }
   });
 
-  // 017 T041 (found in T020): these three opened as an empty box in Listen mode, before any Play run.
+  // 017 T041 (found in T020): these opened as an empty box in Listen mode, before any Play run (the Latency popup no longer does: feature 021 FR-009 shows its latency at any time).
   test('a popup with nothing to show yet says why, in Listen mode before any run (017 T041)', async ({ page }) => {
     await openScore(page);
     const expectations: Array<[ManualPanel, RegExp]> = [
       ['setup', /Practice or Play/],
       ['attempts', /Play mode/],
-      ['latency', /after a Play run/],
     ];
     for (const [id, text] of expectations) {
       await openViaMenu(page, id);
       await expect(panel(page, id)).toBeVisible();
-      await expect(panel(page, id).locator('.panel-hint:visible, .latency-empty')).toContainText(text);
+      await expect(panel(page, id).locator('.panel-hint:visible')).toContainText(text);
       await page.keyboard.press('Escape');
       await expect(panel(page, id)).toBeHidden();
     }

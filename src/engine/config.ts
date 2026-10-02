@@ -116,4 +116,5 @@ export const BRAND_SMALL_BELOW_PX = 24; // brand.md 1
 // Live piano and audio setup (feature 021-live-piano-audio-setup, data-model.md section 6)
 export const AUDIO_OUTPUT_FALLBACK_MAX_MS = 2000; // A vanished chosen output falls back to the system default within this (FR-025, R-6)
 export const MIDI_STATUS_UPDATE_MAX_MS = 1000; // The top bar shows a MIDI keyboard change within this (FR-019, R-10)
+export const AUDIO_TIME_EPSILON_SEC = 0.000001; // Two audio-clock times closer than this are the same instant (a comparison against a click time, not a rounding accident)
 export const LOCKED_HINT_MS = 8000; // How long the "click to turn the sound on" hint stays (FR-003, R-4)

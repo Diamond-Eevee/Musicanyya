@@ -93,8 +93,9 @@ import { midiNoteName } from '../ui/format/note-name.js';
 import { en } from '../ui/i18n/en.js';
 import { mountPanels, type PanelTools } from '../ui/layout/panel-host.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
-import { initShortcuts } from '../ui/shortcuts.js';
+import { initShortcuts, isTextEntry } from '../ui/shortcuts.js';
 import { browserState } from '../ui/state/browserState.js';
+import { latencyState } from '../ui/state/latencyState.js';
 import { type LiveSound, midiState } from '../ui/state/midiState.js';
 import { mistakeStepper } from '../ui/state/mistake-stepper.js';
 import { noticeState } from '../ui/state/noticeState.js';
@@ -111,6 +112,7 @@ import { transportState } from '../ui/state/transportState.js';
 import { type OverlayLayer, viewState } from '../ui/state/viewState.js';
 import { requestGrade } from '../workers/grade.worker.js';
 import { BrowserSessionController, type LoadBytesOutcome } from './browser-session.js';
+import { CalibrationController, type CalibrationState } from './calibration-session.js';
 import { routeLiveInput } from './live-router.js';
 import { PlaySessionController } from './play-session.js';
 import { releasePracticeSound } from './practice-sound.js';
@@ -189,6 +191,8 @@ export class Session {
   // mode and state. MIDI listeners run in the order they were added, so it is added here, before the Play controller
   // below (which subscribes in its constructor) and before the session's own listener in start(); nothing may run
   // before the key is sounded.
+  /** The Latency calibration (feature 021 US2): built in the constructor, after the live router above has subscribed. */
+  private readonly calibration: CalibrationController;
   readonly liveRouterSubscription = this.midiInput.on((event) => routeLiveInput(this.audioEngine, event));
 
   // Practice mode (feature 002): what the musician chose for the open Score, remembered per Score id (R-07).
@@ -322,6 +326,23 @@ export class Session {
       });
     }
     this.settingsStore = settingsStore;
+    this.calibration = new CalibrationController(this.audioEngine, this.midiInput, this.settingsStore, {
+      // A replay of a stored attempt is a run too: it owns the engine while it plays (RT review T037)
+      isRunActive: () => {
+        const replay = this.replayController?.getRun()?.phase;
+        return isRunActive() || replay === 'countIn' || replay === 'running';
+      },
+      isSoundReady: () => midiState.liveSound === 'ready',
+      metronomeLevel: () => transportState.get().metronomeLevel,
+      onChange: (state) => this.onCalibrationChange(state),
+      // The click schedule replaced the Score's in the engine: the next Listen or Practice start delivers the Score's again
+      // The click schedule replaced the Score's in the engine: deliver the Score's again at once, so the cursor shows the
+      // musician's start and not the first measure (a Play run or Listen start delivers it itself if this is too early)
+      onScheduleInvalidated: () => {
+        this.scheduleDelivered = false;
+        if (this.engineUnlocked) this.deliverScheduleIfNeeded(true);
+      },
+    });
     this.libraryCatalog = libraryCatalog;
     this.browserController = new BrowserSessionController(
       this.libraryCatalog,
@@ -430,8 +451,14 @@ export class Session {
         this.audioEngine.stop();
         this.onTransportStopped();
       },
-      seekTick: (tick) => this.audioEngine.seekTick(tick),
-      setTempoPercent: (percent) => this.audioEngine.setTempoPercent(percent),
+      seekTick: (tick) => {
+        this.calibration.cancel(); // the click schedule is not the Score's: a seek would silence the beat
+        this.audioEngine.seekTick(tick);
+      },
+      setTempoPercent: (percent) => {
+        this.calibration.cancel(); // a tempo change would move the click and bias the measurement
+        this.audioEngine.setTempoPercent(percent);
+      },
       setVolume: (volume) => this.audioEngine.setVolume(volume),
     });
     let lastOrchestraLevel = transportState.get().orchestraLevel;
@@ -624,9 +651,14 @@ export class Session {
     );
 
     const latencyPanel = document.createElement('mx-latency-panel');
-    latencyPanel.addEventListener('latencycalibrated', (event) => {
-      const profile = (event as CustomEvent).detail.profile;
-      this.settingsStore.saveLatencyProfile(profile);
+    latencyPanel.addEventListener('calibrate-start', () => {
+      this.calibration.start();
+    });
+    latencyPanel.addEventListener('calibrate-stop', () => this.calibration.cancel());
+    latencyPanel.addEventListener('latency-reset', () => this.resetLatencyCalibration());
+    // Closing the popup, or opening another tool over it, ends a calibration without a result (audio-setup.md section 2)
+    viewState.subscribe((state) => {
+      if (state.openPanel !== 'latency') this.calibration.cancel();
     });
 
     // Every secondary tool is a popup over the Score, opened from a menu (contracts/ui-shell.md section 3).
@@ -718,6 +750,7 @@ export class Session {
     }
 
     setInterval(() => {
+      this.refreshOutputLatency();
       if (this.engineUnlocked) {
         const lat = this.audioEngine.latency();
         // Compared as shown (whole ms): the raw value is fractional, so comparing it with the stored rounded one said
@@ -735,6 +768,56 @@ export class Session {
     if (scoreState.getStatus().kind === 'empty') this.browserController.open();
 
     this.startLiveSound();
+    this.applyStoredLatencyCalibration();
+  }
+
+  /** The stored calibration is the profile in use from start-up (live-sound.md section 2 step 3): given to the engine, so
+   *  every new Play run's log carries it, and shown by the Latency popup. Nothing stored means the assumed profile. */
+  private applyStoredLatencyCalibration(): void {
+    const stored = this.settingsStore.loadLatencyProfile();
+    this.audioEngine.setLatencyCalibration(stored.source === 'measured' ? stored : null);
+    this.refreshLatencyProfile();
+    this.refreshOutputLatency();
+  }
+
+  /** The Latency profile in use, from the engine, into the popup's store. */
+  private refreshLatencyProfile(): void {
+    const profile = this.audioEngine.latencyProfile();
+    const storedOutput = this.settingsStore.loadLatencyOutputDeviceId();
+    const otherOutput =
+      profile.source === 'measured' && storedOutput !== null && storedOutput !== this.audioEngine.activeOutputId();
+    latencyState.setProfile(profile, otherOutput);
+  }
+
+  /** The reported output latency in whole ms (as shown), into the popup's store; null where it is not reported. */
+  private refreshOutputLatency(): void {
+    const reported = this.audioEngine.latency().outputLatencyMs;
+    latencyState.setOutputLatency(reported !== null ? Math.round(reported) : null);
+  }
+
+  /** "Use assumed latency" (FR-013): the stored calibration is removed and the engine goes back to the assumed profile. */
+  private resetLatencyCalibration(): void {
+    this.settingsStore.clearLatencyProfile();
+    this.audioEngine.setLatencyCalibration(null);
+    this.refreshLatencyProfile();
+  }
+
+  private calibrationFrame: number | null = null;
+
+  /** A calibration's state changed: the popup renders it, a finished one changes the profile in use, and a running one is
+   *  reported its position every frame (the same way a Play run is) so that it can move on and end on the audio clock. */
+  private onCalibrationChange(state: CalibrationState): void {
+    latencyState.setCalibration(state);
+    if (state.phase === 'done') this.refreshLatencyProfile();
+    const running = state.phase === 'countIn' || state.phase === 'tapping';
+    if (running && this.calibrationFrame === null) {
+      const frame = () => {
+        this.calibration.reportPosition(performance.now());
+        const phase = this.calibration.getState().phase;
+        this.calibrationFrame = phase === 'countIn' || phase === 'tapping' ? requestAnimationFrame(frame) : null;
+      };
+      this.calibrationFrame = requestAnimationFrame(frame);
+    }
   }
 
   /** The piano plays from the moment the app is up (feature 021, live-sound.md section 2): the Audio engine is prepared and
@@ -743,6 +826,17 @@ export class Session {
   private startLiveSound(): void {
     const engine = this.audioEngine;
     const events = ['pointerdown', 'keydown'] as const;
+    // The space bar is a calibration tap when no MIDI keyboard is connected (FR-012); `shortcuts.ts` does not treat it as
+    // play/pause meanwhile. `KeyboardEvent.timeStamp` is in the same `performance.now()` domain as a MIDI timestamp.
+    window.addEventListener(
+      'keydown',
+      (event) => {
+        if (event.code !== 'Space' || event.repeat || isTextEntry(event.composedPath()[0] ?? event.target)) return;
+        const phase = this.calibration.getState().phase;
+        if (phase === 'countIn' || phase === 'tapping') this.calibration.tapSpace(event.timeStamp);
+      },
+      { capture: true },
+    );
     const unlockOnFirstActivation = (): void => {
       // `unlock()` resolves once the context runs; until then every activation tries again (a modifier key alone is
       // no activation for the browser).
@@ -820,6 +914,7 @@ export class Session {
   private async handlePlay(): Promise<void> {
     // The one place a Listen, Practice or Play run starts: nothing may be open over the Score during one (FR-006).
     viewState.closeForRun();
+    this.calibration.cancel(); // a run and a calibration share the engine (FR-015)
     await this.audioEngine.unlock();
     this.engineUnlocked = true;
 
@@ -890,6 +985,7 @@ export class Session {
       transportState.ended();
     } else if (event.type === 'state') {
       this.deriveLiveSound(event.state);
+      this.refreshOutputLatency();
       if (event.state.kind === 'loadingSound') {
         transportState.setLoadingProgress(event.state.loadedBytes, event.state.totalBytes);
       } else if (event.state.kind === 'ready') {
@@ -1448,6 +1544,7 @@ export class Session {
   private async onAttemptReplay(runId: string): Promise<void> {
     // A replay is a run too (FR-006): the Attempts popup it was started from must not stay open over the music.
     viewState.closeForRun();
+    this.calibration.cancel();
     const stored = await this.performanceStore.get(runId);
     if (!stored.ok) {
       noticeState.addNotice({
@@ -1812,6 +1909,7 @@ export class Session {
     // bank, which is independent of which Score's schedule is currently loaded (contracts/worklet-protocol.md -
     // "soundBank" and "schedule" are separate messages).
     transportState.newScore();
+    this.calibration.cancel(); // the new Score's schedule replaces the click schedule in the engine
     if (this.engineUnlocked) {
       // Already unlocked from an earlier Score in this session: deliver immediately (contracts/worklet-protocol.md
       // "schedule" stops playback and resets position by itself). Not yet unlocked: handlePlay() delivers it on

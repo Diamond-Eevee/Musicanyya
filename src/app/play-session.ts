@@ -37,6 +37,7 @@ import type {
   Unsubscribe,
 } from '../engine/ports.js';
 import { type GradeWorkerLike, requestGrade } from '../workers/grade.worker.js';
+import { anchorRunStart } from './run-anchor.js';
 
 export interface StartPlayOptions {
   scoreId: string | null;
@@ -179,10 +180,9 @@ export class PlaySessionController {
     this.applyMetronomeVolume();
     this.audioEngine.play();
 
-    this.syncClock();
     const nowMs = this.now();
     this.lastNowMs = nowMs;
-    const startAudioTimeSec = this.clockMap.toAudioTime(nowMs) ?? 0;
+    const startAudioTimeSec = anchorRunStart(this.clockMap, this.audioEngine, nowMs);
     this.initialSampleRate = this.audioEngine.diagnostics().sampleRate;
     this.lastLiveQueueDropped = this.audioEngine.diagnostics().liveQueueDropped;
 

@@ -103,6 +103,7 @@ interface CalibrationState {
   beat: number;                    // beats heard so far (0 during the count-in)
   result: LatencyProfile | null;   // 'done' only
   failure: 'notEnoughTaps' | 'spreadTooLarge' | null;   // 'failed' only
+  startedAtMs: number | null;      // performance.now() when the beat was anchored, while running; the e2e helper times taps from it
 }
 ```
 
@@ -152,6 +153,8 @@ macOS desktop -> "macOS audio"; Linux desktop -> "System audio"; browser -> "Bro
 | `CALIBRATION_MAX_SPREAD_MS` | 60 | existing |
 | `CALIBRATION_COUNT_IN_BEATS` | 4 | **new**: accented clicks before taps count |
 | `CALIBRATION_MIN_TAPS` | 8 | **new**: fewer valid taps -> `notEnoughTaps` (half of `CALIBRATION_BEATS`) |
+| `CALIBRATION_WINDOW_BEATS` | 0.5 | **new**: a tap belongs to a click within this many beats; the calibration ends this long after the last click |
+| `AUDIO_TIME_EPSILON_SEC` | 0.000001 | **new** (`src/engine/config.ts`): audio-clock times closer than this are the same instant |
 | `CALIBRATION_MIN_CLICK_LEVEL` | 50 | **new**: the calibration click is never softer than this % of the Metronome channel, and a Play-setup mute is ignored |
 | `AUDIO_OUTPUT_FALLBACK_MAX_MS` | 2000 | **new** (`src/engine/config.ts`): FR-025 bound, used by the e2e check |
 | `MIDI_STATUS_UPDATE_MAX_MS` | 1000 | **new** (`src/engine/config.ts`): FR-019 bound, used by the e2e check |

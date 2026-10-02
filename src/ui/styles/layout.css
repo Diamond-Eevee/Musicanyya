@@ -452,8 +452,7 @@ mx-practice-panel[hidden] {
 }
 
 /* 017 T041: the line a popup shows when its tools have nothing to show yet */
-.panel-hint,
-.latency-empty {
+.panel-hint {
   display: block;
   margin: 0;
   max-width: 36ch;
@@ -508,4 +507,26 @@ mx-practice-panel[hidden] {
 
 mx-run-status .run-stop {
   margin-inline-start: 8px;
+}
+
+/* The Latency popup (feature 021 US2): lines of text, then the buttons */
+.latency-panel p {
+  margin: 0 0 6px;
+  max-width: 40ch;
+}
+
+.latency-panel h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.latency-panel .latency-actions {
+  display: flex;
+  gap: var(--mx-space-3, 8px);
+  margin-top: 10px;
+}
+
+.latency-panel .calibration-progress {
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 6px;
 }

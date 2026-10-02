@@ -142,6 +142,34 @@ describe('start() (FR-009, FR-015)', () => {
   );
 });
 
+describe('what the beat is anchored to (RT review T037)', () => {
+  it('start() is refused while the engine has no clock pair: there is nothing to anchor the beat to', () => {
+    const h = setup();
+    h.engine.currentClockPair = null;
+    expect(h.controller.start()).toBe(false);
+    expect(h.engine.commands).toEqual([]);
+    expect(h.controller.getState().phase).toBe('idle');
+  });
+
+  it('the engine reaching the end of the click schedule ends the calibration even if no position report came', () => {
+    const h = setup();
+    h.controller.start();
+    h.tapAllLate(30);
+    h.engine.fireEvent({ type: 'ended' });
+    expect(h.controller.getState().phase).toBe('done');
+    expect(h.engine.commands).toContain('setLatencyCalibration:30');
+    h.engine.fireEvent({ type: 'ended' }); // a second one changes nothing
+    expect(h.invalidated()).toBe(1);
+  });
+
+  it('an ended event with no calibration running does nothing', () => {
+    const h = setup();
+    h.engine.fireEvent({ type: 'ended' });
+    expect(h.controller.getState().phase).toBe('idle');
+    expect(h.invalidated()).toBe(0);
+  });
+});
+
 describe('taps (R-9 items 2 and 4)', () => {
   it('a MIDI note-on is mapped onto the audio clock with the clock map and measured against the nearest click', () => {
     const h = setup();

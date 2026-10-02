@@ -91,6 +91,7 @@ test.describe('the Latency popup and calibration (feature 021 US2)', () => {
   test('Calibrate with the fake keyboard tapping 30 ms after each click gives "Calibrated: 30 ms" (+-5), kept after a reload; random taps fail with the reason and keep it; "Use assumed latency" goes back', async ({
     page,
   }) => {
+    test.setTimeout(120_000); // two calibrations of 15 s each, and a reload between
     await page.goto('/');
     await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
     await soundOn(page);

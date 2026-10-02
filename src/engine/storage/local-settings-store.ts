@@ -1,4 +1,5 @@
 import { METRONOME_LEVEL_DEFAULT, ORCHESTRA_LEVEL_DEFAULT } from '../../core/defaults.js';
+import type { LatencyProfile } from '../../core/grade/types.js';
 import type { HandSelection } from '../../core/practice/types.js';
 import {
   OVERLAYS_DEFAULT,
@@ -227,36 +228,62 @@ export class LocalSettingsStore implements SettingsStore {
     this.write(SETTINGS_STORAGE_KEY, this.raw);
   }
 
-  loadLatencyProfile(): import('../../core/grade/types.js').LatencyProfile {
+  /** The stored calibration file (audio-setup.md section 4): the `{ version: 1, profile, outputDeviceId? }` wrapper this
+   *  build writes, or the bare profile builds 003-020 wrote. Anything else is no calibration. */
+  private readLatencyFile(): { profile: LatencyProfile; outputDeviceId: string | null } | null {
     try {
       const item = localStorage.getItem(LATENCY_STORAGE_KEY);
-      if (item) {
-        const parsed = JSON.parse(item);
-        if (isObject(parsed) && typeof parsed.inputLatencyMs === 'number') {
-          return {
-            outputLatencyMs: typeof parsed.outputLatencyMs === 'number' ? parsed.outputLatencyMs : 0,
-            inputLatencyMs: parsed.inputLatencyMs,
-            source: 'measured',
-            measuredAt: typeof parsed.measuredAt === 'string' ? parsed.measuredAt : null,
-          };
-        }
+      if (!item) return null;
+      const parsed: unknown = JSON.parse(item);
+      if (!isObject(parsed)) return null;
+      const wrapped = 'profile' in parsed;
+      if (wrapped && parsed.version !== 1) return null;
+      const profile: unknown = wrapped ? parsed.profile : parsed;
+      if (
+        !isObject(profile) ||
+        typeof profile.inputLatencyMs !== 'number' ||
+        !Number.isFinite(profile.inputLatencyMs)
+      ) {
+        return null;
       }
+      return {
+        profile: {
+          outputLatencyMs: typeof profile.outputLatencyMs === 'number' ? profile.outputLatencyMs : 0,
+          inputLatencyMs: profile.inputLatencyMs,
+          source: 'measured',
+          measuredAt: typeof profile.measuredAt === 'string' ? profile.measuredAt : null,
+        },
+        outputDeviceId: wrapped && typeof parsed.outputDeviceId === 'string' ? parsed.outputDeviceId : null,
+      };
     } catch {
-      // fallback below
+      return null;
     }
-    return { outputLatencyMs: 0, inputLatencyMs: 0, source: 'assumed', measuredAt: null };
   }
 
-  saveLatencyProfile(profile: import('../../core/grade/types.js').LatencyProfile, _outputDeviceId?: string): void {
-    this.write(LATENCY_STORAGE_KEY, profile); // wrapper and output device id: feature 021 T032
+  loadLatencyProfile(): LatencyProfile {
+    return (
+      this.readLatencyFile()?.profile ?? { outputLatencyMs: 0, inputLatencyMs: 0, source: 'assumed', measuredAt: null }
+    );
+  }
+
+  saveLatencyProfile(profile: LatencyProfile, outputDeviceId?: string): void {
+    this.write(LATENCY_STORAGE_KEY, {
+      version: 1,
+      profile,
+      ...(outputDeviceId === undefined ? {} : { outputDeviceId }),
+    });
   }
 
   loadLatencyOutputDeviceId(): string | null {
-    return null; // feature 021 T032
+    return this.readLatencyFile()?.outputDeviceId ?? null;
   }
 
   clearLatencyProfile(): void {
-    // feature 021 T032
+    try {
+      localStorage.removeItem(LATENCY_STORAGE_KEY);
+    } catch {
+      // storage blocked: nothing was stored that could be cleared
+    }
   }
 
   loadAudioOutput(): string | null {

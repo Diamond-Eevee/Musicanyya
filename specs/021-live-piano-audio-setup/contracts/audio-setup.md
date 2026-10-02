@@ -11,7 +11,7 @@ to R-9. Spec: US2, US5, FR-009 to FR-015, FR-024 to FR-026.
 Content, in order (all strings in `src/ui/i18n/en.ts` under `latency.panel`):
 
 1. **Output latency**: "{n} ms" from `AudioEngine.latency().outputLatencyMs`, rounded; "Turns on with the sound" while
-   `liveSound` is `locked` or `loading`; "Not reported by this browser" when null.
+   `liveSound` is `locked` (a context that runs reports its latency even while the SoundFont still loads: SC-005); "Not reported by this browser" when null.
 2. **Latency profile in use**: "Assumed (not calibrated)" or "Calibrated {date}: {total} ms" (total =
    output + input). When the current output device differs from the calibration's: "Calibrated with another output -
    calibrate again for the best timing".
@@ -64,8 +64,9 @@ App (`CalibrationController`):
 - `cancel()`: on Stop, popup close, or any run start (FR-015); stops the engine, saves nothing.
 
 Note on the Metronome level: calibration needs an audible click. It uses the musician's Metronome level, but never
-less than `CALIBRATION_MIN_CLICK_LEVEL` (new constant, 50 %), and ignores a Play-setup mute. Restores the level the
-Play setup expects afterwards (the next run sets it anyway, play-run R-02).
+less than `CALIBRATION_MIN_CLICK_LEVEL` (new constant, 50 %), and ignores a Play-setup mute. Nothing is restored
+afterwards: every run that uses the click channel (Play, a replay) sets its own level at its start (play-run R-02), and
+Listen and Practice have no clicks.
 
 ## 3. Sound output
 

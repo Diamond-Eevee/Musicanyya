@@ -84,6 +84,7 @@ export class WebAudioEngine implements AudioEngine {
   private liveQueueDropped = 0;
   private orchestraLevel: number = ORCHESTRA_LEVEL_DEFAULT;
   private lateEvents = 0;
+  private calibration: LatencyProfile | null = null;
 
   private readonly listeners = new Set<(event: AudioEngineEvent) => void>();
 
@@ -426,6 +427,7 @@ export class WebAudioEngine implements AudioEngine {
   }
 
   latencyProfile(): LatencyProfile {
+    if (this.calibration) return { ...this.calibration };
     const l = this.latency();
     return {
       outputLatencyMs: l.outputLatencyMs ?? 0,
@@ -437,8 +439,9 @@ export class WebAudioEngine implements AudioEngine {
     };
   }
 
-  setLatencyCalibration(_profile: LatencyProfile | null): void {
-    // Stub until feature 021 T033: latencyProfile() always reports the assumed profile.
+  /** The calibrated profile (feature 021, audio-setup.md section 2): in use until set to null. A copy is kept. */
+  setLatencyCalibration(profile: LatencyProfile | null): void {
+    this.calibration = profile ? { ...profile } : null;
   }
 
   outputCapability(): OutputCapability {

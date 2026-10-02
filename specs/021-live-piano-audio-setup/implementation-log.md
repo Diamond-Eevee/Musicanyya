@@ -143,3 +143,41 @@
   outside FR-006's list (mode switch, run start or stop, Score change).
 - Problems / open questions: none for the owner.
 - Handoff: next = US2 (T022 onward; tier standard, sonnet fits). Tree clean at the commit after this entry.
+
+## 2026-10-02 - claude-sonnet-5.5 (implement, US2 checkpoint)
+- Done: T022-T037 (US2 complete). Tests first (wip commit 7e51eeb, 16 red as named: no `calibration-schedule` / `calibration-session` module,
+  old `calibrateLatency` signature and 7-tap acceptance, no storage wrapper / clear, stub `setLatencyCalibration`, real engine's
+  `latencyProfile()` always assumed, no Latency popup elements). Then: `compileCalibrationSchedule` (T029), `calibrateLatency(taps,
+  msPerBeat, outputLatencyMs, measuredAt)` with `CALIBRATION_MIN_TAPS`, `CalibrationState` / `IDLE_CALIBRATION` in core (T030),
+  `anchorRunStart()` in `src/app/run-anchor.ts` used by `PlaySessionController.start()` (T031, `play-session.test.ts` unchanged),
+  storage wrapper + both-form reader + `clearLatencyProfile` (T032), engine `setLatencyCalibration` / `latencyProfile()` (T033),
+  `CalibrationController` + `latencyState` with the `__LATENCY_STATE__` seam (T034), session wiring (T035: stored calibration at
+  start-up, `calibrate-start|stop` / `latency-reset` events, rAF position reports while calibrating, cancel before any run start /
+  replay / popup close, Space tap, schedule re-delivery), reworked `mx-latency-panel` (T036) and Space no longer play/pause while
+  calibrating (`shortcuts.ts`).
+- RT review (T037, rt-audio-reviewer; 1 blocking, 8 non-blocking). BLOCKING: an attempt replay was not a run for `isRunActive()`, so
+  a calibration could start during one (its `engine.load()` kills the replay audio, and the replay's Metronome-level write could mute the
+  click): fixed, the controller's `isRunActive` also counts a replay in count-in or running. Fixed too: tempo change / seek during a
+  calibration cancel it (they moved the click or silenced it); a Score load cancels it; a missing clock pair refuses `start()` (a Play
+  run falls back to 0, a calibration would measure against nothing); the engine's `ended` event is a second finish trigger (hidden tab,
+  no frames); `onScheduleInvalidated` re-delivers the Score at once so the cursor does not sit on the click schedule's first measures;
+  the Space tap ignores text-entry focus; the tolerances are named (`CALIBRATION_WINDOW_BEATS` 0.5, `AUDIO_TIME_EPSILON_SEC` 1e-6,
+  data-model constants table); the contract no longer promises a Metronome-level restore (nothing restores it: every run sets its own).
+  Accepted, not changed: no plausibility bound on the measured round trip T (a tap pairing across a 375 ms+ path would be saved - needs
+  an owner-visible limit, open observation) and "first tap wins" pairing per click; Space handling under Firefox/WebKit to be seen at the
+  full gate (all browsers).
+- Decisions: the output latency shows once the context runs, also while the SoundFont still loads (SC-005 on a fresh page); "Turns on with
+  the sound" only while `locked` (contract amended). The Latency popup now has content before any run, so the 017 T041 empty-state hint
+  for it is gone: `us2-panels.spec.ts` no longer lists `latency` there (FR-009 supersedes it). T027 parts 1-2: part 1 fails today on the real
+  engine as the task said; part 2 (SC-006 through the real grade-worker handler) passed from the start because grading already
+  compensates with `output + input` and `FakeAudioEngine.latencyProfile()` already returns the calibration (T004) - kept as the guard
+  the task asks for. FR-014 part: the existing goldens are untouched and green; the new test regrades a stored log with a different profile
+  in use.
+- Evidence: `pnpm test` `Test Files  327 passed (327)`, `Tests  7236 passed (7236)`; `pnpm typecheck` exit 0; `pnpm lint` exit 0
+  `Found 315 warnings. Found 14 infos.` (baseline 318 warnings); `pnpm test:e2e:smoke` `9 passed`; `latency-setup.spec.ts` +
+  `live-piano.spec.ts` + `live-latency.spec.ts` + `us2-panels.spec.ts` chromium `22 passed`; `electron-live-piano.spec.ts` +
+  `electron-playback.spec.ts` electron `5 passed`. The popup was looked at in a screenshot (idle and calibrating). Not run: quickstart US2
+  steps by hand with a real keyboard and speakers (cannot hear the click here); full e2e suite (full gate, once at the end).
+- Model fit: Phase 4 is tier `standard`; claude-sonnet-5.5 fits.
+- Problems / open questions: none for the owner.
+- Handoff: next = US3 (T038 onward; tier standard, sonnet fits). Tree clean at the commit after this entry.

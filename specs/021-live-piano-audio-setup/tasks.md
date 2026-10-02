@@ -222,25 +222,25 @@ and its result is used by every new Play run.
 
 ### Implementation
 
-- [ ] T029 [P] [US2] `src/core/play/calibration-schedule.ts` (new) per contracts/audio-setup.md section 2, encoded with
+- [x] T029 [P] [US2] `src/core/play/calibration-schedule.ts` (new) per contracts/audio-setup.md section 2, encoded with
   `compileSchedule`. T022 green
-- [ ] T030 [P] [US2] Extend `src/core/play/calibration.ts` (min taps, output/input split, injected `measuredAt`) and its
+- [x] T030 [P] [US2] Extend `src/core/play/calibration.ts` (min taps, output/input split, injected `measuredAt`) and its
   callers. T023 green
-- [ ] T031 [US2] Extract the run-start anchor of `PlaySessionController.start()` into `anchorRunStart()` in
+- [x] T031 [US2] Extract the run-start anchor of `PlaySessionController.start()` into `anchorRunStart()` in
   `src/app/run-anchor.ts` (new) and use it there (no behaviour change: `tests/engine/play-session.test.ts` unchanged
   apart from T009)
-- [ ] T032 [P] [US2] Storage in `src/engine/storage/local-settings-store.ts` and `tests/fakes/memory-settings-store.ts`:
+- [x] T032 [P] [US2] Storage in `src/engine/storage/local-settings-store.ts` and `tests/fakes/memory-settings-store.ts`:
   wrapper writer, both-form reader, `clearLatencyProfile`, `loadLatencyOutputDeviceId`. T024 green
-- [ ] T033 [P] [US2] `setLatencyCalibration` / `latencyProfile()` in `src/engine/audio/web-audio-engine.ts`. T025 green
-- [ ] T034 [US2] `CalibrationController` in `src/app/calibration-session.ts` (new) and the store
+- [x] T033 [P] [US2] `setLatencyCalibration` / `latencyProfile()` in `src/engine/audio/web-audio-engine.ts`. T025 green
+- [x] T034 [US2] `CalibrationController` in `src/app/calibration-session.ts` (new) and the store
   `src/ui/state/latencyState.ts` (new, data-model section 4). T026 green
-- [ ] T035 [US2] Wire in `src/app/session.ts`: load the stored calibration at start-up into the engine; panel events
+- [x] T035 [US2] Wire in `src/app/session.ts`: load the stored calibration at start-up into the engine; panel events
   `calibrate-start`, `calibrate-stop`, `latency-reset`; cancel on any run start (FR-015); schedule re-delivery after a
   calibration; remove the old `latencycalibrated` listener. T027 green
-- [ ] T036 [US2] Rework `src/ui/elements/mx-latency-panel.ts` to render `latencyState` only (contracts/audio-setup.md
+- [x] T036 [US2] Rework `src/ui/elements/mx-latency-panel.ts` to render `latencyState` only (contracts/audio-setup.md
   section 1 items 1-5, no timing code, no `playState.grade`), strings in `src/ui/i18n/en.ts` `latency.panel.*`; suppress
   the Space play/pause shortcut while calibrating in `src/ui/shortcuts.ts`. T028 green
-- [ ] T037 [US2] RT review with `.claude/agents/rt-audio-reviewer.md` of `src/app/calibration-session.ts`,
+- [x] T037 [US2] RT review with `.claude/agents/rt-audio-reviewer.md` of `src/app/calibration-session.ts`,
   `src/app/run-anchor.ts` and the calibration schedule: clicks on the audio clock, taps mapped like grading, end not
   timer-driven; findings summarised in the log, blocking ones fixed
 
