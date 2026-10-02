@@ -635,7 +635,7 @@ source details; the same item without credit, with a CC0 source, or under `CC-BY
   recognisable piece, flute/oboe and strings heard as separate instruments in time, default Orchestra level supports
   and does not drown the piano; a requested change goes to `ORCHESTRA_LEVEL_DEFAULT` or the definition's dynamics
   (T053, regenerate). Blocks the merge only; record the answer here - **owner approved 2026-10-02**: listened to Morning Mood (Listen; Levels panel found), "it's good", no change to `ORCHESTRA_LEVEL_DEFAULT` or the definition's dynamics
-- [ ] T073 [deep] Constitution audit with `constitution-auditor` (sub-agent) over the feature diff; findings
+- [x] T073 [deep] Constitution audit with `constitution-auditor` (sub-agent) over the feature diff; findings
   summarised in the log; no CRITICAL/HIGH left
 - [ ] T074 Final gate (`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, flaky tests per R7 re-run alone and
   logged), `pnpm library:fidelity --check`, final log entry with the hand-off, commit
