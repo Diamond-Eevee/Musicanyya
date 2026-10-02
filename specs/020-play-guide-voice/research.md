@@ -1,0 +1,140 @@
+# Research: Guide Voice in Play Mode
+
+**Feature**: `020-play-guide-voice` | **Date**: 2026-10-02 | **Spec**: [spec.md](spec.md)
+
+Everything below was checked against the code on `main` at `687ba2d` (feature 019 merged). No new dependency, no
+`NEEDS CLARIFICATION` left.
+
+## R-1 Where the Guide voice is made
+
+**Decision**: in the core, inside `compilePlaySchedule` (`src/core/schedule/play-schedule.ts`). Today rule 1 of the
+play-run contract drops every `SoundingEvent` whose members intersect `gradedNoteIds`. With the new required option
+`guide: true`, and when the Score has no Orchestra (R-2), those events are **kept and moved onto the guide channel**
+(R-3), with their velocity scaled (R-5); everything else in the function (range slice, count-in shift, tempo map,
+Metronome) applies to them unchanged. `PlaySchedule` reports `guideChannel: number | null`.
+
+**Rationale**:
+- `gradedNoteIds` is exactly "the notes the musician is expected to play" for the chosen part, hand and range
+  (`buildExpectedNotes`, the same set the Grade uses), so the clarified FR-002 ("only my part") holds by construction,
+  and so do ties (one sounding event per tied note), unison members, grace notes (played as in Listen), repeats and
+  voltas (the timeline is already unrolled into passes) and the range.
+- The count-in shift, tempo map and tempo percentage are the ones the Metronome and the accompaniment already use, so
+  the Guide voice is on the same clock by construction (FR-005, SC-001, Constitution II).
+- Both callers of `compilePlaySchedule` - `PlaySessionController.start` (`src/app/play-session.ts`) and
+  `prepareStoredRun` (`src/app/session.ts`, used by regrade and replay) - pass `guide: true`, so the replay of a graded
+  run gets the Guide voice with no replay code change (`compileReplay` merges the run schedule, FR-009, US3).
+- Listen and Practice mode never call `compilePlaySchedule`, so FR-007's "not in Listen or Practice" needs no code.
+
+**Alternatives considered**:
+- A separate `compileGuideSchedule` merged with `mergeSchedules`: it would duplicate the range/count-in/tempo logic, a
+  second place where ticks become time (against Constitution II, "one place").
+- Doing it in the worklet (play the dropped notes on another channel): the worklet does not know which notes are graded,
+  and RT code should not grow decisions.
+- Making `guide` optional (default off): a forgotten caller would silently lose the feature; required makes every
+  caller decide. Existing tests set `guide: false` and keep their meaning.
+
+## R-2 "Has an Orchestra"
+
+**Decision**: a Score has an Orchestra for this feature when its playback timeline has at least one channel with
+`used && orchestra` (feature 019 `ChannelSetup.orchestra`). Decided in `compilePlaySchedule` from the timeline it is
+given.
+
+**Rationale**: it is the same fact the Orchestra level already acts on (`orchestraMask`). An Orchestra part whose every
+instrument could not be played (019: no program, or no free channel) has no used Orchestra channel, so the Score counts
+as having none and gets the Guide voice - the spec's "Orchestra that cannot be loaded" edge case falls out for free. The UI
+uses its own existing check (`summary.parts[].orchestra`, R-7) only for the hint text; a mismatch there can only show the
+wrong hint, never play both.
+
+## R-3 The guide channel
+
+**Decision**: the guide channel is the **first unused melodic channel** of the timeline (`!used`, never
+`PERCUSSION_CHANNEL`, `LIVE_CHANNEL` or `METRONOME_CHANNEL`), searched from 0. Its setup in the run timeline:
+`{ used: true, program: GUIDE_PROGRAM, bankMsb: 0, percussion: false, volume: GUIDE_CHANNEL_VOLUME, pan: null,
+orchestra: true }`. If no channel is free, there is no Guide voice for that run (`guideChannel: null`) and nothing else
+changes; no notice (13 distinct melodic programs in one piano score is not a real case; a test pins the fallback).
+
+**Rationale**:
+- A channel of its own means the Orchestra level (CC11 per channel, R-4) can never change the piano or the
+  accompaniment (FR-011: "no other sound changes level"), and the electric-piano program never replaces the piano.
+- `orchestra: true` in the **run** timeline puts the channel into `orchestraMask` (`compileSchedule`), which is all the
+  worklet needs. The flag is set only on the run's own copy of the channels, never on the Score's timeline, so the
+  Score's "has an Orchestra" fact, the Practice Orchestra effects and the library facts are untouched.
+- `volume: GUIDE_CHANNEL_VOLUME` (100, the General MIDI default CC7) is sent explicitly at tick 0 because the worklet
+  keeps a channel's CC7 across schedules: a channel that a previous Score's part had turned down (`<volume>`) would
+  otherwise make the Guide voice quieter than designed.
+
+**Alternatives considered**: `LIVE_CHANNEL` (the musician's own piano channel: wrong sound, and the level would not reach
+it); a fixed reserved channel (would take one of the 13 melodic channels from every Score, and every Score's channel
+allocation would change, touching goldens).
+
+## R-4 Level: the Orchestra level, unchanged
+
+**Decision**: no engine or worklet change. The guide channel is in the run schedule's `orchestraMask`, so the existing
+path applies (019 R-5): when the schedule is set up, CC11 = held Orchestra level; on every `orchestraLevel` message,
+CC11 on every mask channel at the next block; `allOff` releases mask channels. Main Volume multiplies on top. The
+worklet-protocol text gets a wording PATCH only: `orchestraMask` = "the channels the Orchestra level governs (Orchestra
+instruments, or the Guide voice in a Play run)".
+
+**Rationale**: CC11 re-evaluates sounding voices, so a sustained guide note follows the slider at once (FR-011), and the
+engine already re-sends the level to a new worklet node after a device change (spec edge case). Level 0 = CC11 0 =
+96 dB attenuation, already proved silent by 019's offline test tolerance `ORCHESTRA_SILENT_TOLERANCE_DBFS` (SC-003).
+
+## R-5 Sound and loudness
+
+**Decision**:
+- `GUIDE_PROGRAM = 4` (0-based General MIDI program 5, "Electric Piano 1"; in the bundled GeneralUser GS 2.0.3 bank
+  the preset at bank 0 / program 4 is named "Tine Electric Piano" - the Rhodes sound; read from the SF2 `phdr` chunk on
+  2026-10-02). Alternatives in the same bank if the listening check prefers: 5 "FM Electric Piano", 11 "Vibraphone",
+  89 "Warm Pad".
+- Guide velocity = `max(1, round(velocity * GUIDE_VELOCITY_SCALE))`, `GUIDE_VELOCITY_SCALE = 0.6`. The Score's
+  dynamics still shape the line (FR spec assumption), and a softer strike also makes a tine piano mellower, which keeps it
+  "subtle".
+- Loudness target (SC-002): at `ORCHESTRA_LEVEL_DEFAULT` (60) the Guide voice is at least `GUIDE_QUIETER_MIN_DB = 6` dB
+  below the piano playing the same notes at the same written velocity, measured by an offline render (RMS over the
+  notes) - an engine test, like 019's level tests.
+
+**Rationale**: the SoundFont 2.04 default modulators turn velocity, CC7 and CC11 into attenuation, so velocity 0.6x
+(about -4 to -8 dB with the concave curve) plus CC11 at 60 % (about -8 dB) puts the guide roughly 12-16 dB under the
+piano at the default level - clearly audible as a reference, not covering the piano. The exact numbers come from the
+offline-render test; the owner's listening check (OD-1) may change `GUIDE_VELOCITY_SCALE` or `GUIDE_PROGRAM`, not the
+design.
+
+**Alternatives considered**: lowering CC7 on the guide channel instead of velocity (does the same job but keeps the
+hard tine attack; velocity also changes colour); a separate guide level setting (out of scope, spec: one shared level).
+
+## R-6 Voices
+
+**Decision**: no voice-priority code (as 019 R-11). The Guide voice at most doubles the musician's part; the synth's
+stealing favours louder voices, and guide voices are quieter, so they give way first (FR-008). An offline render of a
+Play run with the Guide voice on the densest hands-together library item records the peak active voice count, which
+must stay below `VOICE_HEADROOM_FRACTION` (0.5) of the voice cap - the same bound as 019. The item is chosen by the task
+from `public/library/index.json` facts (most notes per second).
+
+## R-7 The Levels panel
+
+**Decision**: `mx-levels-panel` no longer disables the Orchestra slider. It is always enabled; when the open Score has no
+Orchestra (or no Score is open) the hint below it reads "No orchestra in this score: sets the guide voice in Play mode"
+(`en.levels.guideVoice`, replacing `en.levels.noOrchestra`) and stays the slider's `aria-describedby`; with an Orchestra,
+no hint (as today). The stored level is never touched by the hint.
+
+**Rationale**: spec FR-010 (replaces 019 FR-010). Showing the hint also with no Score open is simpler and true (the next
+Score without an Orchestra will use the level that way). The two e2e assertions in `tests/e2e/levels.spec.ts` that expect
+a disabled slider and "This score has no orchestra" change with the spec, not to go green; the log names them.
+
+## R-8 Grading, input and display are untouched
+
+**Decision**: nothing in grading, the Performance log, the on-screen piano or the score colouring changes.
+
+**Rationale** (checked): `buildExpectedNotes` / `buildPlayedAlongSpans` read the Score and the selection, not the
+schedule; the Performance log records MIDI input only; the on-screen piano lights `midiState.pressedKeys` (MIDI input)
+in Play mode; score marks come from the Grade. Guide events exist only in the schedule sent to the worklet. A golden test
+grades one recorded log with `guide: true` vs `false` schedules and Orchestra levels 0/60/100 and asserts identical
+Grades (SC-004).
+
+## R-9 Shells
+
+**Decision**: browser and Electron share the code; the Native audio plugin is not shipped. Its future implementation
+must honour `orchestraMask` and per-channel programs, which it already must for 019 (FR-014). SC-008: a Play-mode e2e
+test in the browser and one in Electron capture the run's schedule (wrapping `mxSession.audioEngine.load` in the page, as
+`tests/e2e/levels.spec.ts` already wraps `setOrchestraLevel`) and assert guide note-ons on a channel in
+`orchestraMask` with `GUIDE_PROGRAM`.
