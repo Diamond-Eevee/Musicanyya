@@ -1,4 +1,4 @@
-import { TICK_LIMIT } from '../defaults.js';
+import { DEFAULT_CHANNEL_PAN, DEFAULT_CHANNEL_VOLUME, METRONOME_CHANNEL, TICK_LIMIT } from '../defaults.js';
 import { MusicXmlLoadError } from '../musicxml/load-error.js';
 import type { PlaybackTimeline } from '../timeline/types.js';
 
@@ -47,7 +47,8 @@ function sortRank(kind: number): number {
 
 /**
  * Compiles a PlaybackTimeline into the worklet's ScheduleMessage (contracts/worklet-protocol.md):
- * program/bank/volume/pan control changes for every used channel at tick 0, then each
+ * program/bank/volume/pan control changes for every used channel at tick 0 (volume and pan always, the General MIDI
+ * defaults when the part gives none, except on the Metronome channel - 020 R-10), then each
  * SoundingEvent as a noteOn/noteOff pair, sorted by tick (control changes, then noteOff, then
  * noteOn at equal ticks). Ticks are already lead-in-shifted by timeline.ts (all >= 0).
  */
@@ -62,8 +63,14 @@ export function compileSchedule(timeline: PlaybackTimeline): ScheduleMessage {
     if (!ch.used) return;
     if (ch.bankMsb > 0) raw.push({ tick: 0, kind: EVENT_KIND.controlChange, channel, data1: 0, data2: ch.bankMsb });
     raw.push({ tick: 0, kind: EVENT_KIND.programChange, channel, data1: ch.program, data2: 0 });
-    if (ch.volume !== null) raw.push({ tick: 0, kind: EVENT_KIND.controlChange, channel, data1: 7, data2: ch.volume });
-    if (ch.pan !== null) raw.push({ tick: 0, kind: EVENT_KIND.controlChange, channel, data1: 10, data2: ch.pan });
+    // Volume and pan are always set (020 R-10, FR-015): a part that gives none sounds at the General MIDI defaults, not at what
+    // the previous schedule left on the channel (the synth keeps CC7 / CC10 across schedules). The Metronome's CC7 is the
+    // session's `channelVolume`, sent after the schedule, so a default here could override its level or mute.
+    const own = channel !== METRONOME_CHANNEL;
+    const volume = ch.volume ?? (own ? DEFAULT_CHANNEL_VOLUME : null);
+    const pan = ch.pan ?? (own ? DEFAULT_CHANNEL_PAN : null);
+    if (volume !== null) raw.push({ tick: 0, kind: EVENT_KIND.controlChange, channel, data1: 7, data2: volume });
+    if (pan !== null) raw.push({ tick: 0, kind: EVENT_KIND.controlChange, channel, data1: 10, data2: pan });
   });
 
   for (const event of timeline.events) {

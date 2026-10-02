@@ -77,17 +77,17 @@ Score with no `<volume>` / `<pan>` on that channel: it sounds exactly as when pl
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T006 [P] Own-work fixtures `tests/fixtures/musicxml/channels/turned-down-left.musicxml` (one piano part, eight
+- [x] T006 [P] Own-work fixtures `tests/fixtures/musicxml/channels/turned-down-left.musicxml` (one piano part, eight
   quarter notes, `<volume>40</volume>`, `<pan>-90</pan>`) and `tests/fixtures/musicxml/channels/plain.musicxml` (the
   same notes, no `<volume>` or `<pan>`), each with an origin and licence line (own work, CC0) in
   `tests/fixtures/musicxml/README.md`; check both load without warnings (`buildScore`)
-- [ ] T007 [P] Extend `tests/core/schedule/compile.test.ts` (data-model §5): every used channel except
+- [x] T007 [P] Extend `tests/core/schedule/compile.test.ts` (data-model §5): every used channel except
   `METRONOME_CHANNEL` has tick-0 CC7 = `volume ?? DEFAULT_CHANNEL_VOLUME` and CC10 = `pan ?? DEFAULT_CHANNEL_PAN`;
   a part with `<volume>` / `<pan>` keeps its own values; unused channels get no controller; a Play schedule's Metronome
   channel gets no CC7 / CC10 (guard for R-10's exclusion - passes today, named as such in the log); setup events still
   sort before note events at tick 0; a timeline with all 16 channels used yields at most 48 tick-0 controllers
   (`<= MAX_SETUP_CONTROLLERS`). Fails today: parts without `<volume>` / `<pan>` get no CC7 / CC10
-- [ ] T008 [P] New `tests/engine/channel-carryover.test.ts` (SC-009): render `turned-down-left.musicxml` then
+- [x] T008 [P] New `tests/engine/channel-carryover.test.ts` (SC-009): render `turned-down-left.musicxml` then
   `plain.musicxml` on the same synth and worklet (the helper's sequential rendering, or two schedules through one
   processor); the second render equals `plain.musicxml` rendered on a fresh synth within
   `ORCHESTRA_SILENT_TOLERANCE_DBFS` of difference, in both stereo channels. Fails today: the plain part plays at CC7 40,
@@ -95,16 +95,16 @@ Score with no `<volume>` / `<pan>` on that channel: it sounds exactly as when pl
 
 ### Implementation
 
-- [ ] T009 Implement the CC7 / CC10 defaults in `compileSchedule` (`src/core/schedule/compile.ts`) per data-model §5,
+- [x] T009 Implement the CC7 / CC10 defaults in `compileSchedule` (`src/core/schedule/compile.ts`) per data-model §5,
   skipping `METRONOME_CHANNEL`; update the function's doc comment. Evidence: T007 and T008 green
-- [ ] T010 Update every schedule snapshot or exact-event assertion that lists tick-0 setup events and now gains the CC7 /
+- [x] T010 Update every schedule snapshot or exact-event assertion that lists tick-0 setup events and now gains the CC7 /
   CC10 events (e.g. `tests/core/schedule/setup-events.test.ts`, worklet-harness tests under `tests/engine/worklets/`),
   naming each changed expectation and the reason (FR-015, R-10) in the log; confirm that the rendered Listen goldens
   (`tests/engine/listen-render-golden.test.ts`) and the Grade goldens did **not** change. Evidence: full `pnpm test`
   summary line
-- [ ] T011 RT review with `rt-audio-reviewer` (Constitution I): the setup controllers are applied in the message handler
+- [~] T011 RT review with `rt-audio-reviewer` (Constitution I): the setup controllers are applied in the message handler
   only, the count stays under `MAX_SETUP_CONTROLLERS`, and the Metronome channel's `channelVolume` can never be
-  overridden by a deferred setup (`setupPending` / `soundReady()`); summarise findings in the log
+  overridden by a deferred setup (`setupPending` / `soundReady()`); summarise findings in the log (claimed: claude-sonnet-5.5 2026-10-02)
 - [ ] T012 Checkpoint: the phase's Independent Test (T008) plus a listen in the dev app (quickstart "FR-015"), full gate
   (`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`), log entry with each command's summary line, commit
 

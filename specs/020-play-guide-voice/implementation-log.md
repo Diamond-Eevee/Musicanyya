@@ -68,4 +68,45 @@
   `graded: 'all'` leaves no piano note-on on the piano channel and `source: 'fixture'` reads `tests/fixtures/musicxml`.
   Evidence: `pnpm typecheck` exit 0; `pnpm test` -> `Test Files  317 passed (317)`, `Tests  6684 passed (6684)`;
   `pnpm lint` exit 0 (318 warnings, 13 infos, unchanged).
+- T006: fixtures `tests/fixtures/musicxml/channels/turned-down-left.musicxml` (volume 40 -> CC7 51, pan -90 -> CC10 1) and
+  `channels/plain.musicxml` (no volume, no pan), origin and licence rows in `tests/fixtures/musicxml/README.md` (own work,
+  CC0). Both load with an empty report (`report.entries` = `[]`) - asserted in `tests/engine/channel-carryover.test.ts`.
+- T007 (test, ticked because it fails as expected): `tests/core/schedule/compile.test.ts` gained "tick-0 volume and pan on every
+  used channel (020 FR-015)", 7 tests. Run: `Tests  3 failed | 16 passed` in that file - fails for the expected reason:
+  "a used channel whose part gives no volume or pan gets the General MIDI defaults" (`expected undefined to be 100`),
+  "a part that gives a volume or a pan keeps its own value, the other one defaults" (`expected undefined to be 64`) and
+  "all 16 channels used ... under MAX_SETUP_CONTROLLERS" (`expected 16 to be 46`). The two Metronome-exclusion tests (the
+  compileSchedule one and the compilePlaySchedule one) PASS today: they are guards for R-10's exclusion, as the task says.
+  The unused-channel and tick-0-ordering tests also pass today (guards).
+- T008 (test, ticked because it fails as expected): `tests/engine/channel-carryover.test.ts`; needed one helper addition,
+  `renderListen`'s optional `before` (a fixture's Listen schedule played first on the same synth and processor; the
+  task allowed "two schedules through one processor"). Run: `Tests  1 failed | 3 passed`; the failure is the SC-009
+  comparison - `expected 0.04019591026008129 to be less than or equal to 0.000031622776601683795`
+  (`ORCHESTRA_SILENT_TOLERANCE_DBFS` = -90 dBFS) - the plain part plays at CC7 51 and panned left. The "really sound
+  different" guard (turned-down vs plain, so the comparison can fail) passes.
+- T009: `compileSchedule` (`src/core/schedule/compile.ts`) now sets CC7 = `volume ?? DEFAULT_CHANNEL_VOLUME` and
+  CC10 = `pan ?? DEFAULT_CHANNEL_PAN` at tick 0 on every used channel except `METRONOME_CHANNEL` (an explicit value on the
+  Metronome channel would still be written, as before); doc comment updated. T007 green: `Tests  19 passed (19)` in
+  `compile.test.ts`.
+- T008 follow-up (test design, found while making it pass): the first fix run left a difference of 9.4e-3 against the
+  3e-5 tolerance. A control run (plain after plain, no volume/pan carry-over possible) differed from a fresh synth by about
+  the same, so the residue was not CC7 / CC10. Two causes, both of the synth and not of the part: (1) voices of the earlier
+  Score still ringing out their release when the next schedule loads (the first render is cut at 3 s with a note held),
+  (2) the synth's reverb / chorus tail and LFO phase (-76 dBFS after 12 s, about the same with the same Score twice).
+  The test therefore plays the first Score to its end and 7 s beyond (`before.seconds` 12, the Score lasts 4.8 s) and renders
+  `dry` (`renderListen` option, `synth.setSystemParameter('effectsEnabled', false)`). The tolerance is unchanged
+  (`ORCHESTRA_SILENT_TOLERANCE_DBFS`). With the fix stashed, the test fails with `expected 0.04023909568786621 to be less
+  than or equal to 0.000031622776601683795`; with the fix it passes - it detects the bug.
+- T010, every expectation that changed and why (FR-015, R-10): (1) `tests/core/schedule/compile.test.ts` "puts
+  control/program changes before notes at the same tick" - the channel now also gets CC7 and CC10, which sort before the
+  program change, so the exact sequence is `[controlChange, controlChange, programChange, noteOn, noteOff]` (the rule under test,
+  setup before notes, is unchanged). (2) `tests/fixtures/library-identity.json`, regenerated with `tools/library/identity.ts`:
+  exactly one `scheduleDigest` changed - `repertoire/advanced/grieg-morning-mood.musicxml` (its generated Orchestra parts give
+  no `<volume>` / `<pan>`); verified programmatically: the 185 files and every note identity are unchanged, the
+  `furEliseThemeGrade` is identical, and the 184 other digests are identical (the generator also rewrote
+  `tests/fixtures/performance-logs/fur-elise-theme.json` with only a JSON array reformatted; that file was restored).
+  Not changed: the rendered Listen goldens (`tests/engine/listen-render-golden.test.ts`), the Grade goldens,
+  `tests/core/schedule/setup-events.test.ts` (still holds: all setup events are at tick 0), the worklet harness tests.
+  Evidence: `pnpm typecheck` exit 0; `pnpm test` -> `Test Files  318 passed (318)`, `Tests  6695 passed (6695)`;
+  `pnpm lint` exit 0 (318 warnings, 13 infos, unchanged).
 

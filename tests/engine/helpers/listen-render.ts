@@ -271,6 +271,12 @@ export interface ListenRenderOptions {
   /** Called before each render block with the block's first frame; `send` is `receiveMessage` of the processor, so a test can
    *  issue `play`, `seek`, `pause` or `stop` at the frame it wants, the way the engine would between blocks. */
   beforeBlock?: (frame: number, send: (msg: InboundMessage) => void) => void;
+  /** A fixture's Listen schedule played first, for `seconds`, on the same synth and processor, before `fixture` is loaded
+   *  (020 SC-009: what a previous Score left on a channel must not reach this one). Its audio and notes are not returned. */
+  before?: { fixture: string; seconds: number };
+  /** Render without the synth's reverb and chorus (020). Their tails and LFO phase depend on all earlier audio, which a test of
+   *  one part's own volume and pan against an earlier Score must not pick up. */
+  dry?: boolean;
 }
 
 export interface ListenRender {
@@ -296,9 +302,12 @@ export interface ListenRender {
 export function renderListen(fixture: string, options: ListenRenderOptions): ListenRender {
   const synth = new SpessaSynthProcessor(SAMPLE_RATE);
   synth.soundBankManager.addSoundBank(shippedSoundBank(), 'default');
-  const xml = decodeXml(fs.readFileSync(path.join(__dirname, '../../fixtures/musicxml', fixture)));
-  const { score } = buildScore(readXml(xml).doc);
-  const { timeline } = buildTimeline(score);
+  if (options.dry) synth.setSystemParameter('effectsEnabled', false);
+  const fixtureTimeline = (name: string) => {
+    const xml = decodeXml(fs.readFileSync(path.join(__dirname, '../../fixtures/musicxml', name)));
+    return buildTimeline(buildScore(readXml(xml).doc).score).timeline;
+  };
+  const timeline = fixtureTimeline(fixture);
   const schedule = compileSchedule(timeline);
   const tempoPercent = options.tempoPercent ?? 100;
 
@@ -329,6 +338,16 @@ export function renderListen(fixture: string, options: ListenRenderOptions): Lis
   proc.onMessage = (message) => messages.push(message);
   proc.soundReady();
   proc.receiveMessage({ type: 'tempo', percent: tempoPercent });
+  if (options.before) {
+    proc.receiveMessage(compileSchedule(fixtureTimeline(options.before.fixture)));
+    proc.receiveMessage({ type: 'play' });
+    const scratchLeft = new Float32Array(BLOCK);
+    const scratchRight = new Float32Array(BLOCK);
+    const beforeTotal = Math.floor((options.before.seconds * SAMPLE_RATE) / BLOCK) * BLOCK;
+    for (let i = 0; i < beforeTotal; i += BLOCK) proc.processBlock(scratchLeft, scratchRight);
+    notes.length = 0;
+    framesRendered = 0;
+  }
   proc.receiveMessage(schedule);
 
   const total = Math.floor((options.seconds * SAMPLE_RATE) / BLOCK) * BLOCK;
