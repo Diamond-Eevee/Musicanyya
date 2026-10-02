@@ -15,6 +15,9 @@ contracts/top-bar.md, contracts/contract-changes.md, quickstart.md
   FR-007 belong to US1); US3 adds the MIDI states and the popover to the same element.
   No owner decision blocks any task (plan, "Decisions and open items"). T053 is a spike whose failure changes US5's
   outcome, not its tasks: it is reported to the owner.
+  Revised 2026-10-02 after analyze (A1-A9, owner: "go with recommended"): the start-up MIDI request moved from US3 (T046)
+  into US1 (T017); new T068 (SC-004 key-to-sound check); T013, T017, T027, T055, T064 extended; T012, T048 reworded.
+  No task was started before the revision.
 -->
 
 ## Phase 1: Setup
@@ -109,16 +112,25 @@ a run: keys sound once. Browser: after one click anywhere, keys sound (spec US1)
   Expected to pass today (pins FR-006 before the router change); if it fails, record it and add a fix task
 - [ ] T012 [P] [US1] Practice reset test in `tests/engine/` (new file `practice-held-key.test.ts`): a musician holding
   key K while Practice's accompaniment also used K, then switching mode, keeps K sounding until released (research
-  R-12); record whether it fails today and, if it does, add a fix task (next free number) before T019
+  R-12); record whether it fails today and, if it does, add a fix task (next free number) before T018 (analyze A7)
 - [ ] T013 [P] [US1] e2e `tests/e2e/live-piano.spec.ts` (chromium): (a) fresh page, no click, `e2e-midi` note-on ->
   no live message reaches the worklet, the context is suspended, the hint "Click anywhere on the page to turn the sound
   on" is visible once (a second note does not show it again); (b) one click on an empty part of the page, then a note
   -> exactly one live note-on reaches the worklet with the context running, no Score open (SC-002); (c) Play mode, no
-  run: note -> one live note-on; (d) during a Play run and after stopping it: one live note-on per key (no double).
-  Uses T005/T006 helpers. Must fail today on (a) hint, (b) and (c)
+  run: note -> one live note-on; (d) during a Play run and after stopping it: one live note-on per key (no double);
+  (e) the page hidden and shown again (visibility emulation) -> the next note still reaches a running context without a
+  new click (research R-12, analyze A5); (f) the SoundFont request routed to a 404 at start-up -> the `soundFontMissing`
+  notice once, the top-bar marker shows "Sound failed to load", keys still drawn on the on-screen keyboard (spec edge
+  case, analyze A4). Uses T005/T006 helpers. Must fail today on (a) hint, (b), (c) and (f)
 - [ ] T014 [P] [US1] e2e `tests/e2e/electron-live-piano.spec.ts` (electron project): window shown, no click at all,
   wait until the sound is loaded, `e2e-midi` note-on -> one live note-on reaches the worklet and the context is
   running (SC-001). Must fail today (no context before Play)
+
+- [ ] T068 [P] [US1] SC-004 check, `tests/e2e/live-latency.spec.ts` (chromium): the time from dispatching an `e2e-midi`
+  note-on to its live message being posted to the worklet port (T006 spy, `performance.now()` both ends), median of 50
+  presses in Listen mode while stopped (a state that sounds today). Run it on the T001 commit first and record the
+  baseline median in the log; after T018 the median must be within 2 ms of it (SC-004, FR-008). The same spec repeated
+  in Play mode idle must meet the same bound (fails today: no message at all)
 
 ### Implementation
 
@@ -130,8 +142,11 @@ a run: keys sound once. Browser: after one click anywhere, keys sound (spec US1)
   exported there (otherwise T014 is the evidence)
 - [ ] T017 [US1] Start-up sequence in `src/app/session.ts` (live-sound.md section 2): call `prepare()` and
   `ensureSoundLoaded()` after mounting, install the one-shot first-activation `unlock()` listener (`pointerdown`,
-  `keydown`, capture, on `window`, removed once running); keep `handlePlay()`'s own `unlock()` and the `soundReady` /
-  `engineUnlocked` flags consistent (set from engine state events, not only from `handlePlay`). T014 green
+  `keydown`, capture, on `window`, removed once running); request MIDI access at start-up where the Shell has Web MIDI
+  (`midiInput.request()`, no gesture; research R-5, live-sound.md section 2 step 1 - without it the desktop app hears no
+  keyboard until "Connect" is clicked, analyze A1); keep `handlePlay()`'s own `unlock()` and the `soundReady` /
+  `engineUnlocked` flags consistent (set from engine state events, not only from `handlePlay`); a SoundFont that fails
+  to load at start-up raises the existing `soundFontMissing` notice once (analyze A4). T014 green
 - [ ] T018 [US1] Live router in `src/app/session.ts` (live-sound.md section 3): sound every note-on / note-off / pedal
   first, with no mode or run condition; in `src/app/play-session.ts` stop applying the `soundInput` effect to the engine
   (still passed to `callbacks.onEffect`). T008 and T009 green; T011, T012 still green
@@ -147,9 +162,10 @@ a run: keys sound once. Browser: after one click anywhere, keys sound (spec US1)
   listener), `src/app/play-session.ts` input path and `WebAudioEngine.prepare()` / live posting: no added work before
   the engine call, no timers deciding sound, exactly-once routing; findings summarised in the log, blocking ones fixed
 
-**Checkpoint**: US1 Independent Test passes (T013, T014 and the quickstart US1 steps 1-6 with a real keyboard where
-available). Checkpoint gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e:smoke`, and
-`tests/e2e/live-piano.spec.ts` (chromium) + `tests/e2e/electron-live-piano.spec.ts` (electron). Log, commit.
+**Checkpoint**: US1 Independent Test passes (T013, T014, T068 and the quickstart US1 steps 1-6 with a real keyboard
+where available). Checkpoint gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e:smoke`, and
+`tests/e2e/live-piano.spec.ts` + `tests/e2e/live-latency.spec.ts` (chromium) + `tests/e2e/electron-live-piano.spec.ts`
+(electron). Log, commit.
 
 ---
 
@@ -189,8 +205,10 @@ and its result is used by every new Play run.
   for re-delivery. Fails today (no controller)
 - [ ] T027 [P] [US2] Grading regression in `tests/engine/play-session.test.ts` (or a new
   `tests/engine/latency-in-log.test.ts`): a Play run started after `setLatencyCalibration(p)` stores `p` in its
-  Performance log; regrading a stored log recorded with an assumed profile gives a Grade identical to the existing
-  golden (FR-014). The first part fails today (`latencyProfile()` always assumed)
+  Performance log; with a calibrated profile of total 30 ms, a recorded performance whose every note is played exactly
+  30 ms after its onset grades every note correct and on time (SC-006, through the grade worker path, not
+  `gradePerformance` inline); regrading a stored log recorded with an assumed profile gives a Grade identical to the
+  existing golden (FR-014). The first two parts fail today (`latencyProfile()` always assumed)
 - [ ] T028 [P] [US2] e2e `tests/e2e/latency-setup.spec.ts` (chromium): fresh storage, no Play run: Setup > Latency
   shows a ms value within 1 s after the first click (SC-005) and "Assumed (not calibrated)"; Calibrate with the fake
   MIDI keyboard tapping 30 ms after each click (`pressInTime` timing from `tests/e2e/helpers/play.ts`) -> "Calibrated:"
@@ -262,8 +280,9 @@ a second; click -> popover; Setup has no MIDI entry; popover usable during a Pla
 - [ ] T045 [US3] Menu and run rules: remove `entry('midi')` from Setup in `src/ui/layout/menu-model.ts`;
   `RUN_OK_PANELS` in `src/ui/state/viewState.ts` and its use in `src/ui/state/runGuard.ts` and `closeForRun()`.
   T039 (menu part) green
-- [ ] T046 [US3] Request MIDI access at start-up in `src/app/session.ts` (research R-5), keep "Connect" / "Try again"
-  calling `request()` from the click; the e2e seam honours the start state. T040, T041 green
+- [ ] T046 [US3] In `src/app/session.ts` (the start-up request itself is T017): "Connect" / "Try again" in the popover
+  call `request()` from the click; the e2e seam's start states (`none`, `denied`, `notSupported`) reach `midiState`.
+  T040, T041 green
 - [ ] T047 [US3] Picture check: `pnpm screenshot --item <a beginner library id>` in light and dark theme, bar with the
   control in roomy and compact width, popover open; look at each PNG and describe it in the log (AGENTS.md section 8)
 
@@ -282,8 +301,8 @@ a second; click -> popover; Setup has no MIDI entry; popover usable during a Pla
 
 - [ ] T048 [US4] Measure, before any US4 change, the captioned "Stop" button's height and the bar's content width at
   1280 x 800 with a Score open on the current build (a short Playwright script writing to `tests/.generated/`), and
-  record both numbers in the log and as `TRANSPORT_BUTTON_MIN_PX` (new constant, UI config next to the other bar
-  values) and the SC-009 baseline in the spec below
+  record both numbers in the log, the height as `TRANSPORT_BUTTON_MIN_PX` (new constant, UI config next to the other
+  bar values, and its row in the data-model constants table) and the bar width as the baseline T049 compares with
 - [ ] T049 [US4] e2e `tests/e2e/transport-icons.spec.ts` (chromium): in Listen, Practice and Play mode every transport
   button contains an `svg`, has empty visible text, its accessible name as before and a `title` with the shortcut where
   it has one; play icon swaps to pause / stop while running; disabled skip buttons have a dashed border; each button is
@@ -329,7 +348,8 @@ default within 2 s with a notice; browser: "System default output" and the ASIO 
   false. Fails today (no function)
 - [ ] T055 [P] [US5] Unit `tests/engine/audio/output-device.test.ts` (fake `mediaDevices`, fake context with
   `setSinkId`): capability rules (desktop + setSinkId + labels -> choosable, else `systemDefaultOnly` with reason);
-  the saved-or-default rule at start and on `devicechange`; `outputFallback` emitted once per loss; return of the device
+  the saved-or-default rule at start and on `devicechange`; a saved device missing at start-up -> default and
+  `outputFallback` once (FR-024, analyze A6); `outputFallback` emitted once per loss; return of the device
   switches back silently; `setOutput` rejection keeps the previous device; storage round trip of `musicanyya.audio.v1`
   (in `tests/engine/storage/local-settings-store.test.ts`). Fails today
 - [ ] T056 [P] [US5] e2e `tests/e2e/electron-audio-output.spec.ts` (electron project; with the T053 outcome): the
@@ -371,8 +391,9 @@ default within 2 s with a notice; browser: "System default output" and the ASIO 
 - [ ] T063 [P] [light] Update `docs/agents/reference.md` Active Technologies / Recent Changes from "planned" to
   "implemented" with the T053 outcome
 - [ ] T064 Run the quickstart's manual script for US1-US5 (`pnpm dev`, `pnpm electron:dev`, a real MIDI keyboard where
-  available, `pnpm screenshot` pictures) and record each step's result in the log; anything not checkable on this
-  machine is named as such
+  available, `pnpm screenshot` pictures) and record each step's result in the log, plus the spec's "very long session"
+  edge case: leave the desktop app idle at least 30 minutes, then a key must sound without a click (analyze A9);
+  anything not checkable on this machine is named as such
 - [ ] T065 Constitution audit with `.claude/agents/constitution-auditor.md` over the feature diff; findings summarised in
   the log, blocking ones fixed or turned into tasks
 - [ ] T066 Full gate, once: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e:smoke` and `pnpm test:e2e` (all
@@ -388,6 +409,7 @@ default within 2 s with a notice; browser: "System default output" and the ASIO 
 - US2 depends on US1 only through the router (T018). US4 depends only on Foundational (T007) and can run in parallel
   with US2/US3 if staffed. US5 depends on US2's Latency popup rework (T036) for its section (T060), and on T053.
 - Within a story: tests -> core -> engine -> app -> UI -> RT review / picture check -> checkpoint.
+- T068's baseline is measured on the T001 commit before T015-T018 change anything.
 - Notable cross-task dependencies: T009 before T018 (expected-value change seen failing first); T012's outcome may add a
   fix task before T019; T031 before T034 (shared anchor); T048 before T049-T051 (baseline measured on the old build);
   T053 before T056-T060.
@@ -396,7 +418,7 @@ default within 2 s with a notice; browser: "System default output" and the ASIO 
 
 - Setup: T002 and T003.
 - Foundational: T005, T006, T007 after T004.
-- US1 tests: T008-T014 all `[P]` (different files); then T016 alongside T015.
+- US1 tests: T008-T014 and T068 all `[P]` (different files); then T016 alongside T015.
 - US2 tests: T022-T028; implementation T029, T030, T032, T033 together.
 - US3 tests: T038-T041; T042 alongside T044.
 - US4: T050 alongside T049 once T048 is recorded.
