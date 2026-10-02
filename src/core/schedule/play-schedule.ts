@@ -7,6 +7,8 @@ import {
   METRONOME_CHANNEL,
   PERCUSSION_CHANNEL,
   RUN_CLICKS_PER_PASS_MAX,
+  VELOCITY_MAX,
+  VELOCITY_MIN,
 } from '../defaults.js';
 import type { PlayScheduleOptions, PlayTickMap } from '../play/types.js';
 import type { MeasureInfo } from '../score/model.js';
@@ -151,7 +153,7 @@ export function compilePlaySchedule(
         guideEvents.push({
           ...ev,
           channel: guideCandidate,
-          velocity: Math.min(127, Math.max(1, Math.round(ev.velocity * GUIDE_VELOCITY_SCALE))),
+          velocity: Math.min(VELOCITY_MAX, Math.max(VELOCITY_MIN, Math.round(ev.velocity * GUIDE_VELOCITY_SCALE))),
           startTick: ev.startTick + shift,
           endTick: ev.endTick + shift,
         });
