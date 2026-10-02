@@ -155,7 +155,7 @@ export class PlaySessionController {
         beatVelocity: METRONOME_VELOCITY_BEAT,
         downbeatVelocity: METRONOME_VELOCITY_DOWNBEAT,
       },
-      guide: false,
+      guide: true, // the musician's own notes sound softly as the Guide voice on a Score without an Orchestra (feature 020)
     });
 
     // The run's own tempo map, in run-tick space (0 = count-in start) - what gradePerformance's audio-time ->

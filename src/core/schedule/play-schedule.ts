@@ -1,7 +1,11 @@
 import {
   COUNT_IN_INCLUDES_ANACRUSIS,
   COUNT_IN_MIN_SECONDS,
+  GUIDE_PROGRAM,
+  GUIDE_VELOCITY_SCALE,
+  LIVE_CHANNEL,
   METRONOME_CHANNEL,
+  PERCUSSION_CHANNEL,
   RUN_CLICKS_PER_PASS_MAX,
 } from '../defaults.js';
 import type { PlayScheduleOptions, PlayTickMap } from '../play/types.js';
@@ -9,7 +13,7 @@ import type { MeasureInfo } from '../score/model.js';
 import { audioTimeAtTick } from '../tempo/rate.js';
 import { tempoAtTick } from '../tempo/tempo-map.js';
 import { beatsPerMeasure, beatTicksAt } from '../timeline/beat.js';
-import type { PlaybackTimeline, SoundingEvent, TempoSegment } from '../timeline/types.js';
+import type { ChannelSetup, PlaybackTimeline, SoundingEvent, TempoSegment } from '../timeline/types.js';
 import { compileSchedule, type ScheduleMessage } from './compile.js';
 
 export interface PlaySchedule {
@@ -38,8 +42,16 @@ function endOfPass(timeline: PlaybackTimeline, passIndex: number): number {
   return pass ? pass.startTick + pass.lengthTicks : timeline.endTick;
 }
 
+/** The lowest channel no part uses that is neither percussion, the live input's nor the Metronome's, or -1 (020 R-3). */
+function freeMelodicChannel(channels: readonly ChannelSetup[]): number {
+  return channels.findIndex(
+    (ch, i) => !ch.used && i !== PERCUSSION_CHANNEL && i !== LIVE_CHANNEL && i !== METRONOME_CHANNEL,
+  );
+}
+
 /**
- * Compiles a run's own schedule (contracts/play-run.md, research R-03): the graded notes dropped, the range
+ * Compiles a run's own schedule (contracts/play-run.md, research R-03): the graded notes dropped - or, with `options.guide` on a
+ * Score without an Orchestra, played softly on a channel of their own as the Guide voice (feature 020) - the range
  * sliced out, the count-in in front and the Metronome as ordinary events on `METRONOME_CHANNEL`. Reuses
  * `compileSchedule` for the actual `ScheduleMessage` encoding, so the output satisfies the worklet-protocol
  * ordering rules for free (rule 6).
@@ -123,11 +135,29 @@ export function compilePlaySchedule(
     }
   }
 
+  // The Guide voice (feature 020, guide-voice.md section 2): on a Score without an Orchestra the graded notes are moved to a free
+  // melodic channel instead of being dropped. They go through the same range slice, count-in shift and tempo map as every other
+  // event, so they are on the run's clock by construction (Constitution II).
+  const hasOrchestra = timeline.channels.some((ch) => ch.used && ch.orchestra);
+  const guideCandidate = options.guide && !hasOrchestra ? freeMelodicChannel(timeline.channels) : -1;
+  const guideEvents: SoundingEvent[] = [];
+
   const keptEvents: SoundingEvent[] = [];
   for (const ev of timeline.events) {
     if (ev.startTick < rangeStartTick || ev.startTick >= rangeEndTick) continue;
     const isGraded = ev.members.some((id) => options.gradedNoteIds.has(id));
-    if (isGraded) continue;
+    if (isGraded) {
+      if (guideCandidate >= 0) {
+        guideEvents.push({
+          ...ev,
+          channel: guideCandidate,
+          velocity: Math.min(127, Math.max(1, Math.round(ev.velocity * GUIDE_VELOCITY_SCALE))),
+          startTick: ev.startTick + shift,
+          endTick: ev.endTick + shift,
+        });
+      }
+      continue;
+    }
     // The Orchestra (feature 019) is not the accompaniment: it sounds whatever that setting says, behind the count-in like
     // every other event, and is never graded (its notes are not printed, so never in `gradedNoteIds`)
     const isOrchestra = timeline.channels[ev.channel]?.orchestra === true;
@@ -157,15 +187,31 @@ export function compilePlaySchedule(
     }
   }
 
-  const channels = timeline.channels.map((ch, i) =>
-    i === METRONOME_CHANNEL ? { ...ch, used: true, percussion: true } : ch,
-  );
+  // Nothing graded in range: nothing to guide, so no channel is taken. `orchestra: true` here (the run's own copy of the channels,
+  // never the Score's) puts the guide channel in `orchestraMask`, which is all the Orchestra level needs (020 R-3, R-4); its volume
+  // and pan come from the defaults `compileSchedule` sets (R-10).
+  const guideChannel = guideEvents.length > 0 ? guideCandidate : null;
+  const channels = timeline.channels.map((ch, i) => {
+    if (i === METRONOME_CHANNEL) return { ...ch, used: true, percussion: true };
+    if (i === guideChannel) {
+      return {
+        used: true,
+        program: GUIDE_PROGRAM,
+        bankMsb: 0,
+        percussion: false,
+        volume: null,
+        pan: null,
+        orchestra: true,
+      };
+    }
+    return ch;
+  });
 
   const runTimeline: PlaybackTimeline = {
     ppq: timeline.ppq,
     endTick: countInTicks + (rangeEndTick - rangeStartTick),
     passes: [],
-    events: [...keptEvents, ...metronomeEvents],
+    events: [...keptEvents, ...guideEvents, ...metronomeEvents],
     spans: [],
     tempo: shiftedTempo,
     channels,
@@ -175,5 +221,5 @@ export function compilePlaySchedule(
   const schedule = compileSchedule(runTimeline);
   const tickMap: PlayTickMap = { countInTicks, rangeStartTick, rangeEndTick, ppq: timeline.ppq };
 
-  return { schedule, tickMap, expectedFirstRunTick: countInTicks, guideChannel: null };
+  return { schedule, tickMap, expectedFirstRunTick: countInTicks, guideChannel };
 }

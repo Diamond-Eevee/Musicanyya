@@ -188,13 +188,13 @@ count-in; the right notes blend, a wrong one clashes; the Grade equals one witho
 
 ### Implementation
 
-- [ ] T018 [US1] Implement the guide in `compilePlaySchedule` (`src/core/schedule/play-schedule.ts`) per guide-voice.md
+- [x] T018 [US1] Implement the guide in `compilePlaySchedule` (`src/core/schedule/play-schedule.ts`) per guide-voice.md
   §2 and data-model.md §3: has-an-Orchestra check, guide channel choice, graded events moved with scaled velocity,
   guide channel setup in the run timeline only, `guideChannel` returned. Evidence: T013, T015 and T016 green, the rest
   of `pnpm test -- tests/core` unchanged
-- [ ] T019 [US1] Pass `guide: true` in `PlaySessionController.start` (`src/app/play-session.ts`) only (the stored-run
+- [x] T019 [US1] Pass `guide: true` in `PlaySessionController.start` (`src/app/play-session.ts`) only (the stored-run
   path is US3). Evidence: T014 and T017 (browser and Electron) green; `pnpm typecheck` and `pnpm lint` exit 0
-- [ ] T020 [US1] RT review with `rt-audio-reviewer` (Constitution I): confirm no worklet, scheduler or MIDI-timing code
+- [~] T020 [US1] RT review with `rt-audio-reviewer` (Constitution I): confirm no worklet, scheduler or MIDI-timing code
   changed, the guided schedule keeps the worklet-protocol ordering rules, CC7 / CC10 / CC11 on the guide channel are
   applied in the existing setup path, and the T015 voice peak; summarise findings in the log
 - [ ] T021 [US1] Checkpoint: run the US1 Independent Test (quickstart US1 steps 1, 4, 5, 6 without a keyboard; 2 and 3
