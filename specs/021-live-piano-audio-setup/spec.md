@@ -35,7 +35,7 @@ What the owner sees today, and why (checked in the current app before writing th
 - **The transport buttons are words** ("Play", "Pause", "Start", "Stop", "Skip Back", "Skip Forward").
 - **Latency does not work.** Setup > Latency shows only "Your latency is shown here after a Play run" until a Play run
   has been graded. Its calibration plays no beat to tap along to, and a calibrated value, although stored, is never used
-  by Practice, Play or the Grade.
+  by a Play run or its Grade.
 - **There is no driver selection.** The app offers no choice of audio output device or of a low-latency Audio backend
   (ASIO, WASAPI, DirectSound and the like). Browsers and the desktop app's built-in sound cannot reach those drivers;
   only the planned **Native audio plugin** (ADR-0003: a separate low-latency program for ASIO, WASAPI, CoreAudio, ALSA,
@@ -91,7 +91,7 @@ keys sound.
 ### User Story 2 - Latency that works (Priority: P2)
 
 A musician opens Setup > Latency at any time. They see the latency of their setup straight away, can calibrate it by
-playing along to a beat they hear, and from then on Practice, Play and the Grade use the calibrated value. They can go
+playing along to a beat they hear, and from then on every Play run and its Grade use the calibrated value. They can go
 back to the assumed value.
 
 **Why this priority**: the owner reported it as broken. Fair grading depends on it (constitution II): with a wrong
@@ -111,7 +111,7 @@ names the calibrated profile; replaying an older Performance log still gives its
    play on the audio clock, the musician plays along on any MIDI key (or taps the space bar without a keyboard), and
    progress is shown beat by beat.
 3. **Given** calibration has collected enough consistent taps, **When** it ends, **Then** the measured value is shown,
-   saved, survives a restart, and is used from then on by Practice, Play, the cursor and every new Grade.
+   saved, survives a restart, and is used from then on by every new Play run and its Grade.
 4. **Given** the taps were too uneven or too few, **When** calibration ends, **Then** the popup says why in plain words
    and the previous Latency profile stays in use.
 5. **Given** a calibrated profile is in use, **When** the musician chooses "Use assumed latency", **Then** the assumed
@@ -254,8 +254,9 @@ that ASIO and other low-latency drivers need the Native audio plugin, not yet av
   sound is on) and the Latency profile in use, labelled "assumed" or "calibrated" with its date.
 - **FR-010**: Calibration MUST play an audible count-in and beat on the audio clock and accept taps from any MIDI key,
   or from the space bar when no MIDI keyboard is connected; it MUST show progress per beat.
-- **FR-011**: A successful calibration MUST be saved, kept across restarts, and used from then on by Practice, Play, the
-  cursor and every new Grade; its value MUST be stored in each new Performance log (constitution IV).
+- **FR-011**: A successful calibration MUST be saved, kept across restarts, and used from then on by every new Play
+  run and its Grade (Practice judges no timing; the cursor follows the reported output latency); its value MUST be
+  stored in each new Performance log (constitution IV).
 - **FR-012**: A failed calibration MUST say why (too few taps, too uneven) and keep the previous profile in use.
 - **FR-013**: The musician MUST be able to go back to the assumed Latency profile.
 - **FR-014**: Replaying or regrading a stored Performance log MUST use the Latency profile stored in that log.
