@@ -110,6 +110,7 @@ import { type OverlayLayer, viewState } from '../ui/state/viewState.js';
 import { requestGrade } from '../workers/grade.worker.js';
 import { BrowserSessionController, type LoadBytesOutcome } from './browser-session.js';
 import { PlaySessionController } from './play-session.js';
+import { releasePracticeSound } from './practice-sound.js';
 import { ReplaySessionController } from './replay-session.js';
 
 interface ScoreWorkerLoaded {
@@ -918,14 +919,8 @@ export class Session {
     );
   }
 
-  /** Silences the accompaniment and Orchestra notes a session left ringing; the musician's own keys are not touched. */
   private releasePracticeSound(session: PracticeSession | null): void {
-    if (!session) return;
-    for (const key of session.soundingAccompaniment.keys()) this.audioEngine.liveNoteOff(key);
-    for (const id of session.soundingOrchestra.keys()) {
-      const [channel, key] = id.split(':').map(Number);
-      if (channel !== undefined && key !== undefined) this.audioEngine.liveNoteOff(key, channel);
-    }
+    releasePracticeSound(this.audioEngine, session);
   }
 
   /** The Stop button (or anything else that stops the transport) ends the session and leaves its marks on screen

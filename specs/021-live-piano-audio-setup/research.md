@@ -46,6 +46,14 @@ Chromium, `resume()` would stay pending; (b) a "Turn on sound" button - rejected
 the spec asks for no click in the desktop app; (c) load the sound lazily on first key - rejected: the first notes would
 be silent for seconds.
 
+**Addendum (implementation, T013 and T015, 2026-10-02)**: while the context is not running the engine does not post
+live note-ons or pedal-downs to the worklet (the first design queued them whatever the context state, contracts/live-sound.md
+section 1). Rationale: a suspended context renders nothing, and what was queued would be applied at once on unlock - a
+burst of notes the musician pressed seconds earlier, filling the bounded live queue (`LIVE_QUEUE_CAPACITY`, counted as
+dropped) - while the spec only promises "the next key press sounds" after the first click. A note-off or pedal-up is
+posted whenever its note-on or pedal-down was posted, so a suspension in mid-note leaves no stuck note. Alternatives: always
+queue (the burst above); drop everything and send `allOff` on resume (cuts keys the musician holds).
+
 ## R-3 One owner of the live sound
 
 **Decision**: `session.ts`'s MIDI listener is the **single live-sound router**: it sounds every note-on, note-off and

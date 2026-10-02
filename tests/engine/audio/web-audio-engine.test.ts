@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { METRONOME_LEVEL_DEFAULT } from '../../../src/core/defaults.js';
 import { metronomeChannelVolume } from '../../../src/core/play/metronome.js';
 import { WebAudioEngine } from '../../../src/engine/audio/web-audio-engine.js';
+import type { AudioEngineEvent } from '../../../src/engine/ports.js';
 
 describe('WebAudioEngine', () => {
   let mockContext: any;
@@ -198,6 +199,148 @@ describe('WebAudioEngine', () => {
     const types = mockPort.postMessage.mock.calls.map(([msg]: [{ type: string }]) => msg.type);
     expect(mockPort.postMessage).toHaveBeenCalledWith({ type: 'tempo', percent: 150 });
     expect(types.indexOf('tempo')).toBeGreaterThan(types.indexOf('init'));
+  });
+
+  // Feature 021 US1 (live-sound.md section 1): the engine starts without a user gesture
+  describe('prepare() (feature 021, T010)', () => {
+    const states = (engine: WebAudioEngine) => {
+      const seen: AudioEngineEvent[] = [];
+      engine.on((event) => seen.push(event));
+      return seen;
+    };
+    const liveMessages = () =>
+      mockPort.postMessage.mock.calls
+        .map(([msg]: [{ type: string }]) => msg)
+        .filter((msg: { type: string }) => msg.type === 'live');
+
+    it('with no gesture creates one context and one worklet node, and says so when the context stays suspended (browserPolicy)', async () => {
+      const engine = new WebAudioEngine();
+      const seen = states(engine);
+      await engine.prepare();
+
+      expect(AudioContext).toHaveBeenCalledTimes(1);
+      expect(AudioWorkletNode).toHaveBeenCalledTimes(1);
+      expect(mockContext.audioWorklet.addModule).toHaveBeenCalledTimes(1);
+      expect(seen).toContainEqual({ type: 'state', state: { kind: 'suspended', reason: 'browserPolicy' } });
+    });
+
+    it('does not say browserPolicy when the context is already running (the desktop app)', async () => {
+      mockContext.state = 'running';
+      const engine = new WebAudioEngine();
+      const seen = states(engine);
+      await engine.prepare();
+
+      expect(seen.filter((e) => e.type === 'state' && e.state.kind === 'suspended')).toEqual([]);
+    });
+
+    it('unlock() after it resumes the same context and creates no second context or node', async () => {
+      const engine = new WebAudioEngine();
+      await engine.prepare();
+      await engine.unlock();
+
+      expect(AudioContext).toHaveBeenCalledTimes(1);
+      expect(AudioWorkletNode).toHaveBeenCalledTimes(1);
+      expect(mockContext.resume).toHaveBeenCalled();
+    });
+
+    it('is idempotent: twice makes one context, one node, one module load and one browserPolicy report', async () => {
+      const engine = new WebAudioEngine();
+      const seen = states(engine);
+      await engine.prepare();
+      await engine.prepare();
+
+      expect(AudioContext).toHaveBeenCalledTimes(1);
+      expect(AudioWorkletNode).toHaveBeenCalledTimes(1);
+      expect(mockContext.audioWorklet.addModule).toHaveBeenCalledTimes(1);
+      expect(seen.filter((e) => e.type === 'state' && e.state.kind === 'suspended')).toHaveLength(1);
+    });
+
+    it('live messages before prepare() resolves are dropped without throwing', () => {
+      const engine = new WebAudioEngine();
+      expect(() => {
+        engine.liveNoteOn(60, 80);
+        engine.liveNoteOff(60);
+        engine.liveSustain(true);
+        engine.liveAllOff();
+      }).not.toThrow();
+      expect(liveMessages()).toEqual([]);
+    });
+
+    it('once prepared and running, live messages reach the node port in order', async () => {
+      mockContext.state = 'running';
+      const engine = new WebAudioEngine();
+      await engine.prepare();
+      engine.liveNoteOn(60, 80);
+      engine.liveNoteOff(60);
+      engine.liveSustain(true);
+      engine.liveSustain(false);
+
+      expect(liveMessages()).toEqual([
+        { type: 'live', kind: 'on', key: 60, velocity: 80 },
+        { type: 'live', kind: 'off', key: 60 },
+        { type: 'live', kind: 'sustain', down: true },
+        { type: 'live', kind: 'sustain', down: false },
+      ]);
+    });
+
+    it('while the context is suspended a note-on and a pedal-down are not posted (no burst of late notes on unlock); allOff always is', async () => {
+      const engine = new WebAudioEngine();
+      await engine.prepare(); // the stubbed context stays suspended
+      expect(mockContext.state).toBe('suspended');
+      engine.liveNoteOn(60, 80);
+      engine.liveNoteOff(60);
+      engine.liveSustain(true);
+      engine.liveSustain(false);
+      expect(liveMessages()).toEqual([]);
+
+      engine.liveAllOff();
+      expect(liveMessages()).toEqual([{ type: 'live', kind: 'allOff' }]);
+    });
+
+    it('a context that suspends in mid-note still gets the note-off and the pedal-up of what it was given (no stuck note)', async () => {
+      mockContext.state = 'running';
+      const engine = new WebAudioEngine();
+      await engine.prepare();
+      engine.liveNoteOn(60, 80);
+      engine.liveSustain(true);
+      mockContext.state = 'suspended'; // a device change, say
+      engine.liveNoteOff(60);
+      engine.liveNoteOff(62); // a key never posted: nothing to release
+      engine.liveSustain(false);
+
+      expect(liveMessages()).toEqual([
+        { type: 'live', kind: 'on', key: 60, velocity: 80 },
+        { type: 'live', kind: 'sustain', down: true },
+        { type: 'live', kind: 'off', key: 60 },
+        { type: 'live', kind: 'sustain', down: false },
+      ]);
+    });
+
+    it('ensureSoundLoaded() works before unlock(): the SoundFont reaches the worklet with no resume', async () => {
+      const engine = new WebAudioEngine();
+      await engine.prepare();
+      await engine.ensureSoundLoaded();
+
+      expect(mockPort.postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'soundBank' }),
+        expect.anything(),
+      );
+      expect(mockContext.resume).not.toHaveBeenCalled();
+    });
+
+    it('unlock() after a suspended start reports the engine ready again once the sound is loaded (data-model section 1: locked -> ready)', async () => {
+      const engine = new WebAudioEngine();
+      const seen = states(engine);
+      await engine.prepare();
+      await engine.ensureSoundLoaded();
+      mockPort.onmessage({ data: { type: 'status', state: 'soundReady' } });
+      mockContext.state = 'running'; // the first click resumed it
+      await engine.unlock();
+      mockContext.onstatechange();
+
+      const last = [...seen].reverse().find((e) => e.type === 'state');
+      expect(last).toEqual({ type: 'state', state: { kind: 'ready' } });
+    });
   });
 
   it('disposes the context', async () => {

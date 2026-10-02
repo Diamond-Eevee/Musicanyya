@@ -66,3 +66,11 @@ export const clearLiveMessages = (page: Page): Promise<void> =>
 /** The state of the engine's `AudioContext` ('suspended' | 'running' | 'closed'), or null when none exists yet. */
 export const audioContextState = (page: Page): Promise<AudioContextState | null> =>
   page.evaluate(() => (window as SpyWindow).mxSession?.audioEngine.context?.state ?? null);
+
+/** The engine's own state kind ('idle' | 'loadingSound' | 'ready' | 'suspended' | 'error'), read from the page. */
+export const engineStateKind = (page: Page): Promise<string | null> =>
+  page.evaluate(
+    () =>
+      (window as unknown as { mxSession?: { audioEngine: { state: { kind: string } } } }).mxSession?.audioEngine.state
+        .kind ?? null,
+  );

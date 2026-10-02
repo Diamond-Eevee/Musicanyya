@@ -70,3 +70,37 @@
   (T008) so the test is red for the right reasons.
 - Handoff: next = T008-T014, T068 (US1 tests, written but T008-T010 not yet committed: they are red on purpose), then
   T015-T021; tree clean at the commit after this entry.
+
+## 2026-10-02 - claude-sonnet-5.5 (implement, US1 tests written, session end)
+- Done: T008-T014 and T068 (US1 tests, written first). New task T069 (fix for T012, below). Extracted for testability, no
+  behaviour change: `src/app/live-router.ts` (`routeLiveInput`, today's mode condition moved in unchanged; T018 removes it and
+  makes `session.ts` call it first) and `src/app/practice-sound.ts` (`releasePracticeSound`, moved out of `session.ts`).
+- Red on purpose (`pnpm test`: `Test Files  4 failed | 320 passed (324)`, `Tests  17 failed | 7149 passed (7166)`, each for the
+  reason the task names): T008 `live-router.test.ts` 8 failed - Play-mode states silent (expected 1 got 0), pedal silent in a run,
+  and one state sounding twice (mode Listen with a live Play run: 2); T009 `play-session.test.ts` 1 failed (the controller sounds
+  `liveNoteOn:60,70`, expected-value change per research R-3: the controller must send no live command; the "no clock pair yet"
+  case I added passes today, as intended); T010 `web-audio-engine.test.ts` 7 failed (`prepare` is a stub); T012
+  `practice-held-key.test.ts` 1 failed (`releasePracticeSound` cuts key 60 the musician holds). T011
+  `live-across-schedule.test.ts` passes today (8 passed), as the task expected: it pins FR-006 before the router change.
+- e2e, all red today for the right reason: T013 `live-piano.spec.ts` 6 failed on chromium (no context before Play; (d) pedal
+  silent in a run); T014 `electron-live-piano.spec.ts` 1 failed (`audioContextState` null: no context before Play). T068
+  `live-latency.spec.ts`: Listen stopped passes, median key-to-worklet `0.000 ms` over 50 presses (below `performance.now()`
+  resolution; the post is synchronous in the same call) - this is the baseline (`BASELINE_MEDIAN_MS = 0`, bound +2 ms); Play
+  mode idle fails (`Received length: 0`, no message). Measured on the working tree, not a checkout of the T001 commit: the
+  tree's live path for Listen is unchanged since then (only stubs, fakes, seams and two extractions).
+- Decision (contract first, `contracts/live-sound.md` section 1 and `research.md` R-2 addendum): while the context is not
+  running the engine posts no live note-on or pedal-down to the worklet (silent, no burst of late notes on unlock, bounded live
+  queue); a note-off or pedal-up is posted whenever its note-on or pedal-down was, `liveAllOff` always. The first design queued
+  everything and conflicted with T013 (a) ("no live message reaches the worklet" before the first click). T010's tests follow it.
+- Decision: the engine, once the context turns `running` after a suspended start, reports its state again (`ready` when the
+  sound is loaded) from its `statechange` handler, so `liveSound` goes `locked` -> `ready` (T010's last test).
+- New task T069 (open): `releasePracticeSound` must spare accompaniment keys in `session.heldKeys` (T012 red). Observation not
+  changed: the Practice core's own `soundOff` effect for a unison key the musician holds also cuts it; it is outside FR-006's list.
+- Notes for the next agent: Playwright cannot import `src/engine/config.ts` (package.json import): use
+  `tests/e2e/helpers/config.ts` `configNumber(name)`. Electron e2e needs `pnpm exec vite build -c vite.electron.config.ts` first.
+  Shell quirk here: backslashes in bash heredocs are dropped - write regexes with the Edit tool. `pnpm lint` now shows 321
+  warnings (baseline 318): the new tests' non-null assertions / casts; clean up at the US1 checkpoint if cheap.
+- Problems / open questions: none for the owner.
+- Handoff: next = T015 (engine `prepare()` per the revised live rule, `statechange` re-report) -> T016, T017, T069, T018-T021,
+  then the US1 checkpoint (T013, T014, T068 green; `pnpm test` fully green again; smoke). Tier standard (sonnet fits). Work tree
+  clean at the wip commit after this entry.

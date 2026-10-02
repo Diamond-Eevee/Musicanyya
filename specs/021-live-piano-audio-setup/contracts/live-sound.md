@@ -26,10 +26,13 @@ interface AudioEngine {
 Rules:
 
 - `ensureSoundLoaded()` may be called right after `prepare()`, before any gesture.
-- `liveNoteOn/Off/Sustain/AllOff` before `prepare()` resolves are dropped (no node). After it, they are queued to the
-  worklet whatever the context state; a suspended context renders nothing, so nothing sounds late on unlock (the
-  worklet applies live messages at the next rendered block; messages that piled up while suspended are applied at once
-  and the voices of released keys end in their release).
+- `liveNoteOn/Off/Sustain/AllOff` before `prepare()` resolves are dropped (no node). After it, a note-on and a pedal-down
+  are posted to the worklet **only while the context is running**: a key pressed before the sound is on is silent and is
+  never replayed as a burst of late notes on unlock (revised during implementation, research R-2 addendum; the worklet's
+  live queue is bounded and a suspended context renders nothing, so queuing would only delay and then crowd the sound).
+  A note-off or pedal-up is posted whenever its note-on or pedal-down was, so a context that suspends mid-note never
+  leaves a stuck note; `liveAllOff` is always posted. The pending live messages are therefore never more than the keys
+  the musician actually holds.
 - `prepare()` and `unlock()` together create exactly one `AudioContext` per engine.
 
 ## 2. Start-up sequence (`session.ts`)

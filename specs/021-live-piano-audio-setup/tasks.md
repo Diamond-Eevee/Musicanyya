@@ -90,30 +90,30 @@ a run: keys sound once. Browser: after one click anywhere, keys sound (spec US1)
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T008 [P] [US1] Live router unit test `tests/engine/live-router.test.ts` (fake engine, fake MIDI input, the
+- [x] T008 [P] [US1] Live router unit test `tests/engine/live-router.test.ts` (fake engine, fake MIDI input, the
   session's MIDI listener): for each of at least 20 states of FR-004 (no Score; Score loading; Listen stopped / playing /
   paused; Practice idle / waiting / looping; Play mode idle / counting in / running / finished; replay; Grade, browser,
   Setup and Levels popups open; calibration placeholder state; after a mode switch; after a Score change) one
   note-on/note-off pair yields exactly one `liveNoteOn` and one `liveNoteOff`, one pedal down/up exactly one
   `liveSustain` each (SC-003); and no `liveAllOff` on a mode switch, run start, run stop or Score change (FR-006).
   Must fail today on the Play-mode states (silent) and the pedal during a run
-- [ ] T009 [P] [US1] Change the expected value in `tests/engine/play-session.test.ts` (the test asserting
+- [x] T009 [P] [US1] Change the expected value in `tests/engine/play-session.test.ts` (the test asserting
   `liveNoteOn:60,70`, research R-3): the controller records the message and sends **no** live command; add the pedal
   and the "no clock pair yet" message to the same test (recorded when a clock pair exists, never sounded by the
   controller). Must fail today (the controller sounds the note). Log the expected-value change and its reason
-- [ ] T010 [P] [US1] Engine unit tests in `tests/engine/audio/web-audio-engine.test.ts`: `prepare()` with no gesture
+- [x] T010 [P] [US1] Engine unit tests in `tests/engine/audio/web-audio-engine.test.ts`: `prepare()` with no gesture
   creates one context and one worklet node and emits `suspended` / `browserPolicy` when the (stubbed) context stays
   suspended; `unlock()` after it creates no second context; `prepare()` twice is idempotent; live messages before
   `prepare()` resolves are dropped without throwing and after it reach the node port; `ensureSoundLoaded()` works
   before `unlock()`. Must fail today (`prepare` is a stub)
-- [ ] T011 [P] [US1] Worklet regression tests in `tests/engine/worklets/` (new file `live-across-schedule.test.ts`,
+- [x] T011 [P] [US1] Worklet regression tests in `tests/engine/worklets/` (new file `live-across-schedule.test.ts`,
   with the existing worklet shim): a live note held across a `schedule`, `play`, `stop`, `pause` and `seek` message keeps
   sounding until its note-off; the live channel's sustain (CC64) and program survive a new `schedule` (research R-12).
   Expected to pass today (pins FR-006 before the router change); if it fails, record it and add a fix task
-- [ ] T012 [P] [US1] Practice reset test in `tests/engine/` (new file `practice-held-key.test.ts`): a musician holding
+- [x] T012 [P] [US1] Practice reset test in `tests/engine/` (new file `practice-held-key.test.ts`): a musician holding
   key K while Practice's accompaniment also used K, then switching mode, keeps K sounding until released (research
   R-12); record whether it fails today and, if it does, add a fix task (next free number) before T018 (analyze A7)
-- [ ] T013 [P] [US1] e2e `tests/e2e/live-piano.spec.ts` (chromium): (a) fresh page, no click, `e2e-midi` note-on ->
+- [x] T013 [P] [US1] e2e `tests/e2e/live-piano.spec.ts` (chromium): (a) fresh page, no click, `e2e-midi` note-on ->
   no live message reaches the worklet, the context is suspended, the hint "Click anywhere on the page to turn the sound
   on" is visible once (a second note does not show it again); (b) one click on an empty part of the page, then a note
   -> exactly one live note-on reaches the worklet with the context running, no Score open (SC-002); (c) Play mode, no
@@ -122,11 +122,11 @@ a run: keys sound once. Browser: after one click anywhere, keys sound (spec US1)
   new click (research R-12, analyze A5); (f) the SoundFont request routed to a 404 at start-up -> the `soundFontMissing`
   notice once, the top-bar marker shows "Sound failed to load", keys still drawn on the on-screen keyboard (spec edge
   case, analyze A4). Uses T005/T006 helpers. Must fail today on (a) hint, (b), (c) and (f)
-- [ ] T014 [P] [US1] e2e `tests/e2e/electron-live-piano.spec.ts` (electron project): window shown, no click at all,
+- [x] T014 [P] [US1] e2e `tests/e2e/electron-live-piano.spec.ts` (electron project): window shown, no click at all,
   wait until the sound is loaded, `e2e-midi` note-on -> one live note-on reaches the worklet and the context is
   running (SC-001). Must fail today (no context before Play)
 
-- [ ] T068 [P] [US1] SC-004 check, `tests/e2e/live-latency.spec.ts` (chromium): the time from dispatching an `e2e-midi`
+- [x] T068 [P] [US1] SC-004 check, `tests/e2e/live-latency.spec.ts` (chromium): the time from dispatching an `e2e-midi`
   note-on to its live message being posted to the worklet port (T006 spy, `performance.now()` both ends), median of 50
   presses in Listen mode while stopped (a state that sounds today). Run it on the T001 commit first and record the
   baseline median in the log; after T018 the median must be within 2 ms of it (SC-004, FR-008). The same spec repeated
@@ -147,6 +147,11 @@ a run: keys sound once. Browser: after one click anywhere, keys sound (spec US1)
   keyboard until "Connect" is clicked, analyze A1); keep `handlePlay()`'s own `unlock()` and the `soundReady` /
   `engineUnlocked` flags consistent (set from engine state events, not only from `handlePlay`); a SoundFont that fails
   to load at start-up raises the existing `soundFontMissing` notice once (analyze A4). T014 green
+- [ ] T069 [US1] Fix found by T012: `releasePracticeSound` in `src/app/practice-sound.ts` (extracted from `session.ts` by T012,
+  unchanged) skips an accompaniment key that is in `session.heldKeys`, the musician still holds it (FR-006); the Orchestra
+  release stays as it is (own channel). `tests/engine/practice-held-key.test.ts` green. The Practice core's own `soundOff`
+  effect for a unison key the musician holds is not in FR-006's list (mode switch, run start or stop, Score change): logged
+  as an open observation, not changed
 - [ ] T018 [US1] Live router in `src/app/session.ts` (live-sound.md section 3): sound every note-on / note-off / pedal
   first, with no mode or run condition; in `src/app/play-session.ts` stop applying the `soundInput` effect to the engine
   (still passed to `callbacks.onEffect`). T008 and T009 green; T011, T012 still green
