@@ -57,8 +57,8 @@ guide option true
 
 | Name | Value | Meaning |
 |---|---|---|
-| `GUIDE_PROGRAM` | `4` | 0-based GM program of the Guide voice: Electric Piano 1 ("Tine Electric Piano" in GeneralUser GS 2.0.3) (R-5) |
-| `GUIDE_VELOCITY_SCALE` | `0.9` | Guide velocity = written velocity x this, at least 1 (R-5); was 0.6, raised so the guide is level with the piano at Orchestra level 100 (owner request 2026-10-02, OD-1) |
+| `GUIDE_PROGRAM` | `7` | 0-based GM program of the Guide voice: Clavinet (GeneralUser GS 2.0.3); was 4, the mellow "Tine Electric Piano", then 5, "FM Electric Piano", both too mellow next to the piano (R-5, owner 2026-10-02) |
+| `GUIDE_VELOCITY_SCALE` | `1` | Guide velocity = written velocity x this, at least 1 (R-5); was 0.6, then 0.9; 1 keeps the Score's own dynamics; the level against the piano was measured only for the tine and FM presets (about 1.5 dB under at 100 % for FM), not yet for the clavinet - by ear first (owner, 2026-10-02, OD-1) |
 | `DEFAULT_CHANNEL_VOLUME` | `100` | CC7 sent at tick 0 on every used channel whose setup has no `volume` (GM / synth reset value) (R-10) |
 | `DEFAULT_CHANNEL_PAN` | `64` | CC10 sent at tick 0 on every used channel whose setup has no `pan` (centre) (R-10) |
 | `GUIDE_QUIETER_MIN_DB` | `6` | Test tolerance for SC-002: at `ORCHESTRA_LEVEL_DEFAULT` the guide is at least this much below the piano |

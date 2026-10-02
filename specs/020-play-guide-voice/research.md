@@ -82,11 +82,11 @@ engine already re-sends the level to a new worklet node after a device change (s
 ## R-5 Sound and loudness
 
 **Decision**:
-- `GUIDE_PROGRAM = 4` (0-based General MIDI program 5, "Electric Piano 1"; in the bundled GeneralUser GS 2.0.3 bank
+- `GUIDE_PROGRAM = 5` since 2026-10-02 (the first draft had 4: 0-based General MIDI program 5, "Electric Piano 1"; in the bundled GeneralUser GS 2.0.3 bank
   the preset at bank 0 / program 4 is named "Tine Electric Piano" - the Rhodes sound; read from the SF2 `phdr` chunk on
   2026-10-02). Alternatives in the same bank if the listening check prefers: 5 "FM Electric Piano", 11 "Vibraphone",
   89 "Warm Pad".
-- Guide velocity = `max(1, round(velocity * GUIDE_VELOCITY_SCALE))`, `GUIDE_VELOCITY_SCALE = 0.9` (first draft 0.6; changed 2026-10-02, see below). The Score's
+- Guide velocity = `max(1, round(velocity * GUIDE_VELOCITY_SCALE))`, `GUIDE_VELOCITY_SCALE = 1` (first draft 0.6, then 0.9; changed 2026-10-02, see below). The Score's
   dynamics still shape the line (FR spec assumption), and a softer strike also makes a tine piano mellower, which keeps it
   "subtle".
 - Loudness target (SC-002): at `ORCHESTRA_LEVEL_DEFAULT` (60) the Guide voice is at least `GUIDE_QUIETER_MIN_DB = 6` dB
@@ -99,6 +99,17 @@ Offline measurement of the guide against the same notes on the piano, in dB belo
 0.8: 11.7 / 2.8; 0.85: 9.9 / 1.0 (melody), 9.6 / 0.7 (dynamics-marks); **0.9: 9.1 / 0.2 and 8.5 / -0.4**; 0.95: 8.3 / -0.6 and 7.6 / -1.3;
 1.0: 7.6 / -1.3 and 6.9 / -2.0. 0.9 is parity at 100 % and still about 9 dB under the piano at the default 60 %, so SC-002 (at least 6 dB)
 and FR-004 hold. Program 5 (FM electric piano) at 1.0 was 10.4 / 1.5 on the melody and 11 (vibraphone) 5.2 / -3.7: not chosen, the sound is unchanged.
+
+**Change 2 (owner, 2026-10-02, after hearing 0.9 on the tine preset)**: "volume is better, but the low expressiveness makes it sink into the piano; this sound is too mellow".
+Auditioned in the browser, the owner picked program 5 (FM Electric Piano). Measured with it (dB below the piano, level 60 / level 100, melody and
+dynamics-marks): 0.7: 13.8 / 4.9 and 13.1 / 4.2; 0.8: 11.9 / 3.0; 0.9: 11.2 / 2.3 and 10.7 / 1.8; 1.0 (from the first table): 10.4 / 1.5 (melody). Set to
+`GUIDE_PROGRAM = 5`, `GUIDE_VELOCITY_SCALE = 1`: the Score's dynamics unchanged, about 1.5 dB under the piano at 100 % (the owner asked for "as expressive and
+loud as the piano"), 10 dB under at the default 60 %.
+
+**Change 3 (owner, 2026-10-02)**: the FM electric piano (program 5) was "still too mellow". Decision for now: **clavinet, `GUIDE_PROGRAM = 7`**, scale 1; its loudness
+against the piano has not been measured yet (by ear first). The owner also tried oboe on the right hand with strings on the left ("almost loved it") through a
+temporary audition split by key (not kept) and wants a per-hand guide sound choice (Clavinet, FM Electric Piano, Vibraphone, Flute, Oboe, Strings for each hand)
+as a setting in the Play setup - **deferred to the owner's next specify**, not part of 020.
 
 **Rationale**: the SoundFont 2.04 default modulators turn velocity, CC7 and CC11 into attenuation, so velocity 0.6x
 (about -4 to -8 dB with the concave curve) plus CC11 at 60 % (about -8 dB) puts the guide roughly 12-16 dB under the

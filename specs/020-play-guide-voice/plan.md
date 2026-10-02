@@ -138,7 +138,7 @@ request). No `NEEDS CLARIFICATION` left.
 
 - Decided (owner, spec Clarifications 2026-10-02): the Guide voice plays only the musician's expected notes.
 - Decided: Guide voice = graded events moved to a free channel in `compilePlaySchedule`, behind a required `guide`
-  option (R-1); level = Orchestra level via `orchestraMask` (R-4); electric piano program 4, velocity x 0.9 (R-5; was 0.6 until the owner asked for parity with the piano at level 100).
+  option (R-1); level = Orchestra level via `orchestraMask` (R-4); clavinet, program 7, velocity x 1 (R-5; first 4 and 0.6, then 5, changed by the owner after listening).
 - Decided: the Levels panel's Orchestra slider is always enabled; the hint explains the Guide voice (R-7). Two e2e
   assertions in `tests/e2e/levels.spec.ts` change with the spec (FR-010 replaces 019 FR-010).
 - **needs owner (OD-1, at the end)**: listening check SC-007 on two items without an Orchestra; may change

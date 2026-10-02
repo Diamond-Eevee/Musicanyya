@@ -382,8 +382,8 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
 ## Recent Changes
 
 - 2026-10-02: Feature 020 implemented (Guide voice in Play mode; owner listening check OD-1 pending): on a Score without an
-  Orchestra, a Play run and its replay play the musician's own expected notes softly with an electric piano (`GUIDE_PROGRAM` 4,
-  0-based; GM program 5) on a free channel, governed by the
+  Orchestra, a Play run and its replay play the musician's own expected notes softly with an electric piano (`GUIDE_PROGRAM` 7,
+  0-based; Clavinet) on a free channel, governed by the
   Orchestra level (the Levels slider is no longer disabled there). One core change in `compilePlaySchedule`; no engine,
   worklet, setting or dependency change.
 - 2026-10-01: Feature 019 planned (Metronome and Orchestra levels, Morning Mood with an Orchestra): a Levels popover

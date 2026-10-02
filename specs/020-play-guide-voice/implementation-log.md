@@ -249,3 +249,25 @@
   were discussed and are not part of this change (the spec rules out reacting to input).
 - T029 stays open: the owner should listen again at 60 % and 100 % on two items without an Orchestra and confirm, or ask for another value.
 
+## 2026-10-02 - claude-sonnet-5.5 (sound changes after owner listening; session end)
+- Owner feedback on the sound, in order: (1) "volume better, but the Rhodes is too mellow and sinks into the piano" -> program 5 (FM Electric Piano),
+  scale 1 (offline: 10.4 / 1.5 dB under the piano at level 60 / 100 on the melody); (2) "still too mellow" -> **Clavinet, `GUIDE_PROGRAM = 7`, scale 1**
+  (current, `src/core/defaults.ts`, data-model section 4, plan, research R-5 "Change 3", reference Recent Changes). The owner also tried oboe on the right hand
+  with strings on the left through a temporary audition split by key ("almost loved it"); that code was removed (not committed).
+- Not verified for the clavinet: the guide's loudness against the piano (only the tine and FM presets were measured) and the tests. **The owner asked not to run
+  tests while checking by ear, and the session ended before they were run**: `tests/engine/guide-render.test.ts` asserts the guide is at least
+  `GUIDE_QUIETER_MIN_DB` (6 dB) under the piano at the default level (SC-002) and may need a different `GUIDE_VELOCITY_SCALE` with the clavinet. Only
+  `pnpm typecheck` was run on this change (exit 0). The last full unit run (320 files, 6738 tests) was with program 5 / scale 1 before the clavinet.
+- Deferred to the owner's next specify (not part of 020): a per-hand guide sound setting in the Play setup - Clavinet, FM Electric Piano, Vibraphone, Flute,
+  Oboe, Strings for each hand (oboe right / strings left was liked); the open questions were the default, two dropdowns vs radio buttons (recommended: two dropdowns
+  under "Guide sound", not "accompaniment"), and remembered vs per-run (recommended: remembered with the user settings). The spec's "one sound, no choice in the UI" (FR-003,
+  Out of Scope) and a split of the guide by hand (staff) in `compilePlaySchedule` would change with it.
+- Open owner decisions (status script lists T029): (a) T029 listening check with the clavinet on two items without an Orchestra, at 60 % and 100 %; the owner
+  wanted the guide "as expressive and loud as the piano" at 100 %; (b) FR-008 wording (met by headroom, not priority; recommended: reword); (c) a "Guide voice" entry in the
+  constitution's Domain Vocabulary (PATCH amendment); (d) the Electron-only e2e timing failure `score-browser-timing.spec.ts:190` (SC-003): filter change 79-115 ms on this branch
+  vs 59 / 73 ms on ce880a3 in whole-Electron-project runs, 24 ms alone; unresolved, not caused by anything in this feature that I could find.
+- Handoff: next = `/speckit:continue` -> (1) run `pnpm test -- tests/engine/guide-render.test.ts tests/core/play tests/engine/play-session.test.ts` and fix SC-002 if the clavinet fails it
+  (measure with the throwaway render used in this session: dB below the piano at level 60 / 100; tune `GUIDE_VELOCITY_SCALE`, keep 6 dB at 60 %); (2) after the owner's
+  listening answer: T029 -> T030; (3) full gate on a quiet machine (`pnpm test:e2e`), decide the timing test; (4) T034 and set the spec Status to "Implemented". Tree clean at the commit that
+  follows this entry; branch `020-play-guide-voice`, local only, nothing pushed.
+
