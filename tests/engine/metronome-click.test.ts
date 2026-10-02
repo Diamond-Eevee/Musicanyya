@@ -120,6 +120,7 @@ async function playScheduleOf(name: string, tempoPercent: number) {
       beatVelocity: METRONOME_VELOCITY_BEAT,
       downbeatVelocity: METRONOME_VELOCITY_DOWNBEAT,
     },
+    guide: false,
   });
   return { schedule, tickMap, runBeats: runBeatsOf(score, timeline) };
 }

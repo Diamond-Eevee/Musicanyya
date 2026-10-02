@@ -1,6 +1,13 @@
 # Contract: `score-player` AudioWorklet protocol
 
-**Version**: `1.6.1` (PATCH, feature 019 T080: `LIVE_QUEUE_CAPACITY` 64 -> 256 - one Practice input on *Morning Mood* sends up to 94 `live` messages (the Orchestra's offs and ons plus the accompaniment), and the queue must hold that twice over; no message changes). `1.6.0` (MINOR, feature 019-metronome-orchestra-volume, additive; full text:
+**Version**: `1.7.0` (MINOR, feature 020-play-guide-voice, no message shape and no worklet change; research
+[020 R-10](../../020-play-guide-voice/research.md), contract [020 guide-voice.md](../../020-play-guide-voice/contracts/guide-voice.md)):
+(a) the tick-0 setup of every used channel except `METRONOME_CHANNEL` always contains CC7 (`volume ?? DEFAULT_CHANNEL_VOLUME`
+= 100) and CC10 (`pan ?? DEFAULT_CHANNEL_PAN` = 64), so no channel keeps the volume or pan a previous schedule left on it
+(spec 020 FR-015); the Metronome channel's CC7 stays the session's `channelVolume` (a deferred setup, `setupPending`,
+must never override it); at most 16 x 3 = 48 setup controllers, under `MAX_SETUP_CONTROLLERS`; (b) wording:
+`orchestraMask` = the channels the Orchestra level governs - Orchestra instruments, or the Guide voice's channel in a Play
+run. `1.6.1` (PATCH, feature 019 T080: `LIVE_QUEUE_CAPACITY` 64 -> 256 - one Practice input on *Morning Mood* sends up to 94 `live` messages (the Orchestra's offs and ons plus the accompaniment), and the queue must hold that twice over; no message changes). `1.6.0` (MINOR, feature 019-metronome-orchestra-volume, additive; full text:
 [019 mixer-levels.md](../../019-metronome-orchestra-volume/contracts/mixer-levels.md) section 4): new message
 `orchestraLevel { gain }` (CC11 = `round(gain * 127)` on every channel of the schedule's `orchestraMask`, applied in
 `port.onmessage`); `ScheduleMessage.orchestraMask?` (bit *c* = channel *c* is an Orchestra channel; a missing or
@@ -111,7 +118,8 @@ interface ScheduleMessage {
   // tempo segments sorted by tick, first at tick 0; exact tempo = qpmNum / qpmDen quarter notes per minute
   tempoTick: Int32Array; tempoQpmNum: Int32Array; tempoQpmDen: Int32Array;
   channelSetup: Uint8Array;                 // 16 x [used, program, bankMsb, isPercussion]
-  orchestraMask?: number;                   // 0..0xFFFF, bit c = channel c is an Orchestra channel; missing = 0 (1.6.0)
+  orchestraMask?: number;                   // 0..0xFFFF, bit c = channel c is governed by the Orchestra level (an Orchestra
+                                            // instrument, or the Guide voice in a Play run, 1.7.0); missing = 0 (1.6.0)
 }
 ```
 

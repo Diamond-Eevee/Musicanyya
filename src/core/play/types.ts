@@ -30,11 +30,12 @@ export interface PlayTickMap {
 
 export interface PlayScheduleOptions {
   range: { fromPassIndex: number; toPassIndex: number } | null; // null = whole Score
-  gradedNoteIds: ReadonlySet<NoteId>; // dropped from the schedule (FR-005)
+  gradedNoteIds: ReadonlySet<NoteId>; // dropped from their own channel (FR-005); played as the Guide voice when `guide` is on
   accompaniment: boolean; // false = everything but the Metronome is silent
   countInMeasures: number; // >= 1 (FR-003)
   tempoPercent: number; // any finite number in 25..200 (FR-037; 012: not stepped); sizes the count-in so it lasts COUNT_IN_MIN_SECONDS as actually played
   metronome: { beatKey: number; downbeatKey: number; beatVelocity: number; downbeatVelocity: number };
+  guide: boolean; // play the graded notes as the Guide voice when the Score has no Orchestra (020 R-1); false = today's dropping
 }
 
 // contracts/play-run.md - The run reducer

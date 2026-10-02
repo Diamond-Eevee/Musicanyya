@@ -2,7 +2,7 @@
 
 **Feature Branch**: `020-play-guide-voice`
 **Created**: 2026-10-02
-**Status**: Draft
+**Status**: In progress
 **Input**: User description: "if music xml etc doesn't have orchestra specified (Morning Mood track has orchestra
 specified for example), in play mode the app should autoplay using some subtile rhodes instrument (or other sound that
 will help user distinguish that is playing correctly, and won't cover piano sound too mucch). It should go to

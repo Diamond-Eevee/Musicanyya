@@ -1294,6 +1294,7 @@ export class Session {
         beatVelocity: METRONOME_VELOCITY_BEAT,
         downbeatVelocity: METRONOME_VELOCITY_DOWNBEAT,
       },
+      guide: false,
     });
     // The run's own tempo map, in run-tick space (0 = count-in start) - contracts/grading.md step 1, the same
     // reconstruction `PlaySessionController.start` does for a live run.

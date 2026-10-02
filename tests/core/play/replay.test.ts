@@ -57,6 +57,7 @@ describe('Replay (FR-042, research R-10) - a stored log compiles to a schedule, 
       countInMeasures: 1,
       tempoPercent: 100,
       metronome: METRONOME,
+      guide: false,
     });
     const runTempo = runTempoOf(schedule);
 
@@ -182,6 +183,7 @@ describe('Replay (FR-042, research R-10) - a stored log compiles to a schedule, 
       countInMeasures: 1,
       tempoPercent: 100,
       metronome: METRONOME,
+      guide: false,
     });
     const runTempo = runTempoOf(schedule);
     const toSeconds = (tick: number) => audioTimeAtTick(tick, runTempo, timeline.ppq, 100);

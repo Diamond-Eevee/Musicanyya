@@ -16,6 +16,8 @@ export interface PlaySchedule {
   schedule: ScheduleMessage;
   tickMap: PlayTickMap;
   expectedFirstRunTick: number;
+  /** The Guide voice's channel, or null when the run has none (020 data-model section 3). */
+  guideChannel: number | null;
 }
 
 /**
@@ -173,5 +175,5 @@ export function compilePlaySchedule(
   const schedule = compileSchedule(runTimeline);
   const tickMap: PlayTickMap = { countInTicks, rangeStartTick, rangeEndTick, ppq: timeline.ppq };
 
-  return { schedule, tickMap, expectedFirstRunTick: countInTicks };
+  return { schedule, tickMap, expectedFirstRunTick: countInTicks, guideChannel: null };
 }

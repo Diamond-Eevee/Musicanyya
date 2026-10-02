@@ -42,3 +42,30 @@
 - tasks.md rewritten and renumbered before any task started: 34 tasks (Setup 3, Foundational 2, FR-015 7, US1 9,
   US2 4, US3 3, Polish 6).
 - Handoff: next = `/speckit:implement` from T001 (or `/speckit:analyze` again to confirm); gate not run (documents only).
+
+## 2026-10-02 - claude-sonnet-5.5 (implement: baseline, contracts)
+- Baseline on `020-play-guide-voice` at ce880a3, before any code change (T001): `pnpm test` -> `Test Files  317 passed (317)`,
+  `Tests  6684 passed (6684)`, exit 0; `pnpm lint` -> `Found 318 warnings.` `Found 13 infos.`, exit 0 (no errors; the
+  warnings and infos are the ones already on the branch); `pnpm typecheck` -> `tsc --build tsconfig.json`, exit 0.
+  Spec `**Status**`: Draft -> In progress.
+- Model fit: `light` and `standard` tasks on claude-sonnet-5.5 (fits both, no question needed).
+- Contracts folded, contract first (T002): `003/contracts/play-run.md` 2.2.0 -> 2.3.0 (`guide`, `guideChannel`, rule 1
+  amended, new rules 7-9), `019/contracts/mixer-levels.md` 1.0.0 -> 1.1.0 (section 1 item 2, strings, section 5 row,
+  section 6 wording), `001/contracts/worklet-protocol.md` 1.6.1 -> 1.7.0 (CC7 / CC10 setup rule, `orchestraMask` wording).
+- T003: `GUIDE_PROGRAM = 4`, `GUIDE_VELOCITY_SCALE = 0.6`, `GUIDE_QUIETER_MIN_DB = 6`, `DEFAULT_CHANNEL_VOLUME = 100`,
+  `DEFAULT_CHANNEL_PAN = 64` added to `src/core/defaults.ts`, each value checked against data-model section 4.
+- T004: required `PlayScheduleOptions.guide` and `PlaySchedule.guideChannel` (always `null` for now). `guide: false` passed
+  in `PlaySessionController.start`, `SessionController.prepareStoredRun`, `renderPlayRun` and the test option builders in
+  `tests/core/play/{play-schedule,range,replay}.test.ts`, `tests/core/grade/tempo-percent.test.ts`,
+  `tests/core/schedule/setup-events.test.ts`, `tests/engine/metronome-click.test.ts` (not on the task's list; it calls
+  `compilePlaySchedule`). `metronome-mute.test.ts` builds no options, so it is unchanged. `tsc --build` does not cover
+  `tests/`, so the callers were found with a search, not from the typecheck. Evidence: `pnpm typecheck` exit 0;
+  `pnpm test` -> `Test Files  317 passed (317)`, `Tests  6684 passed (6684)` (same as the baseline).
+- T005: `renderPlayRun` gained optional `source` ('library' | 'fixture'), `graded` ('all' | HandSelection | set; built with
+  `buildExpectedNotes` as the session does), `guide`, `orchestraLevel` (sent as the engine does, before the schedule), and
+  returns `noteOnFrames(channel)`, `countInEndFrame`, `schedule` and `guideChannel`. `beforeBlock` (stop, pause, level
+  messages mid-run) and `peakVoices` already existed and are reused. A throwaway test (deleted) confirmed that
+  `graded: 'all'` leaves no piano note-on on the piano channel and `source: 'fixture'` reads `tests/fixtures/musicxml`.
+  Evidence: `pnpm typecheck` exit 0; `pnpm test` -> `Test Files  317 passed (317)`, `Tests  6684 passed (6684)`;
+  `pnpm lint` exit 0 (318 warnings, 13 infos, unchanged).
+

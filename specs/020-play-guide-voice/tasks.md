@@ -24,10 +24,10 @@ quickstart.md
 
 **Model**: light (gemini-3.7-flash or claude-haiku-4-5; every standard and deep model fits too)
 
-- [ ] T001 Append a baseline entry to `specs/020-play-guide-voice/implementation-log.md` with the summary lines of
+- [x] T001 Append a baseline entry to `specs/020-play-guide-voice/implementation-log.md` with the summary lines of
   `pnpm test`, `pnpm lint` and `pnpm typecheck` on the branch before any code change (AGENTS.md 2.6), and set the
   `**Status**` line of `specs/020-play-guide-voice/spec.md` from "Draft" to "In progress"
-- [ ] T002 [P] Fold the contract changes into the earlier features' documents, contract first (AGENTS.md section 6),
+- [x] T002 [P] Fold the contract changes into the earlier features' documents, contract first (AGENTS.md section 6),
   exactly as listed in `specs/020-play-guide-voice/contracts/contract-changes.md`:
   `specs/003-play-mode-grading/contracts/play-run.md` 2.2.0 -> 2.3.0 (the `guide` option and `guideChannel` field in the
   "The run schedule" block; rule 1 amended and the new rules from guide-voice.md §2),
@@ -35,7 +35,7 @@ quickstart.md
   §3), `specs/001-score-viewer-listen/contracts/worklet-protocol.md` 1.6.1 -> 1.7.0 (the CC7 / CC10 setup rule and the
   `orchestraMask` wording) - each version line names "feature 020" and links
   `specs/020-play-guide-voice/contracts/guide-voice.md` or `research.md` R-10
-- [ ] T003 [P] Add the named constants of `specs/020-play-guide-voice/data-model.md` §4 to `src/core/defaults.ts`
+- [x] T003 [P] Add the named constants of `specs/020-play-guide-voice/data-model.md` §4 to `src/core/defaults.ts`
   (`GUIDE_PROGRAM = 4`, `GUIDE_VELOCITY_SCALE = 0.6`, `GUIDE_QUIETER_MIN_DB = 6` next to `ORCHESTRA_LEVEL_DEFAULT`;
   `DEFAULT_CHANNEL_VOLUME = 100`, `DEFAULT_CHANNEL_PAN = 64` next to `MAX_SETUP_CONTROLLERS`), each with a one-line
   comment naming its research section (020 R-5 / R-10), and check every value against the table
@@ -46,7 +46,7 @@ quickstart.md
 
 **Model**: standard (gemini-3.8-flash or claude-sonnet-5.5; claude-opus-5.5 and gemini-3.1-pro also fit)
 
-- [ ] T004 Add the required `guide: boolean` to `PlayScheduleOptions` in `src/core/play/types.ts` and
+- [x] T004 Add the required `guide: boolean` to `PlayScheduleOptions` in `src/core/play/types.ts` and
   `guideChannel: number | null` to `PlaySchedule` in `src/core/schedule/play-schedule.ts`, returning
   `guideChannel: null` and changing nothing else yet (guide-voice.md §1). Pass `guide: false` in both production callers
   (`src/app/play-session.ts` `start`, `src/app/session.ts` `prepareStoredRun`), in `renderPlayRun`
@@ -55,7 +55,7 @@ quickstart.md
   `tests/core/grade/tempo-percent.test.ts`, `tests/core/schedule/setup-events.test.ts`, and any other the typecheck
   names). Evidence: `pnpm typecheck` exit 0 and `pnpm test -- tests/core tests/engine` with the same summary line as the
   T001 baseline (no behaviour change)
-- [ ] T005 Extend the offline render helper `renderPlayRun` in `tests/engine/helpers/listen-render.ts` (analyze A2) with
+- [x] T005 Extend the offline render helper `renderPlayRun` in `tests/engine/helpers/listen-render.ts` (analyze A2) with
   optional, backward-compatible options: a fixture path outside `public/library` (as `renderListen` takes), a graded
   note set or hand/part selection (built with `buildExpectedNotes` as the session does), `guide`, the Orchestra level
   (sent as the session does, through the `orchestraLevel` message), a per-frame callback to send `orchestraLevel`,

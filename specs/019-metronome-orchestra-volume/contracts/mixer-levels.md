@@ -1,6 +1,10 @@
 # Contract: Metronome and Orchestra levels (UI, settings, engine, worklet)
 
-**Version**: `1.0.0` (new, feature 019). Owners: `src/ui/elements/mx-transport.ts`, new
+**Version**: `1.1.0` (MINOR, feature 020-play-guide-voice; full text:
+[020 guide-voice.md](../../020-play-guide-voice/contracts/guide-voice.md) section 3): section 1 item 2 - the Orchestra
+slider is never disabled; on a Score without an Orchestra it shows the guide hint `levels.guideVoice` (replaces
+`levels.noOrchestra`); section 5 gains "Play run without an Orchestra: the level governs the Guide voice". `1.0.0` (new,
+feature 019). Owners: `src/ui/elements/mx-transport.ts`, new
 `src/ui/elements/mx-levels-panel.ts`, `src/ui/state/transportState.ts`, `src/app/session.ts`,
 `src/app/play-session.ts`, `src/engine/audio/web-audio-engine.ts`, `src/engine/worklets/score-player.processor.ts`,
 `src/engine/storage/local-settings-store.ts`. Decisions: research R-5 to R-7, R-11 to R-13.
@@ -13,15 +17,17 @@
 - Panel content, in order:
   1. `<label>Metronome <input type="range" data-id="metronome-level" min="0" max="100" step="5"> <output>100 %</output></label>`
      with the hint "Heard in Play mode".
-  2. `<label>Orchestra <input type="range" data-id="orchestra-level" ...> <output>60 %</output></label>`; when the open
-     Score has no Orchestra (or no Score is open): `disabled`, `aria-describedby` -> "This score has no orchestra".
-     Disabling never changes the stored value.
+  2. `<label>Orchestra <input type="range" data-id="orchestra-level" ...> <output>60 %</output></label>`; **never
+     disabled** (1.1.0). When the open Score has no Orchestra part (`summary.parts[].orchestra`), or no Score is open,
+     the hint `levels.guideVoice` ("No orchestra in this score: sets the guide voice in Play mode") is shown below it and
+     is its `aria-describedby`; with an Orchestra, no hint and no `aria-describedby`. The hint never changes the stored
+     value. (1.0.0 disabled the slider with "This score has no orchestra"; replaced by spec 020 FR-010.)
 - `input` events apply the level at once; values are persisted debounced with the other user settings
   (`SettingsStore.save`, flushed on `pagehide`).
 - Keyboard: Tab reaches both sliders; arrows step by `MIXER_LEVEL_STEP`; Escape closes the panel and returns focus to
   the Levels button.
 - User-visible strings live in `src/ui/i18n/en.ts` (`transport.levels`, `levels.metronome`, `levels.orchestra`,
-  `levels.metronomeHint`, `levels.noOrchestra`, `levels.valuePercent`).
+  `levels.metronomeHint`, `levels.guideVoice` (1.1.0; was `levels.noOrchestra`), `levels.valuePercent`).
 
 ## 2. Settings (view-settings 2.2.0, storage table)
 
@@ -78,6 +84,7 @@ event; no allocation per message or per block. Reviewed by `rt-audio-reviewer`.
 | Metronome muted | Silent at any level; un-muting plays at the current level. |
 | Audio device change / new worklet node | Engine re-sends `volume` and `orchestraLevel`; the session re-sends the Metronome channel volume with the run schedule. |
 | Level 0 | Silent (CC 0); everything else unchanged. |
+| Play run on a Score without an Orchestra (1.1.0) | The level governs the Guide voice: its channel is in the run schedule's `orchestraMask`, so CC11 = held level on it and on every `orchestraLevel` message; main Volume on top; no other sound changes level. |
 
 ## 6. Tests (minimum)
 
@@ -85,5 +92,5 @@ Settings round trip and migration (v1, v2, invalid values); worklet: `orchestraL
 schedule setup resets other channels to 127, live channel field validated and applied, no allocation (existing
 no-alloc harness); offline render: Orchestra level 0 vs piano-only within `ORCHESTRA_SILENT_TOLERANCE_DBFS`, a
 sustained note's level follows a mid-note change, onsets identical at 0 / 50 / 100 (SC-001, SC-002); Metronome level
-50 halves the click channel's CC7 and leaves other channels; e2e: panel opens without pausing, sliders work, disabled
-state on a Score without Orchestra, values survive a reload (browser and Electron).
+50 halves the click channel's CC7 and leaves other channels; e2e: panel opens without pausing, sliders work, guide hint
+(slider enabled, 1.1.0) on a Score without Orchestra, values survive a reload (browser and Electron).

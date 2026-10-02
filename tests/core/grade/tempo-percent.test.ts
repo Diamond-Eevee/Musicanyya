@@ -16,6 +16,7 @@ describe('Tempo percentage (FR-037, SC-014)', () => {
       countInMeasures: 1,
       tempoPercent: 100,
       metronome: { beatKey: 1, downbeatKey: 2, beatVelocity: 1, downbeatVelocity: 2 },
+      guide: false,
     });
 
     const at70 = compilePlaySchedule(timeline, score.measures, {
@@ -25,6 +26,7 @@ describe('Tempo percentage (FR-037, SC-014)', () => {
       countInMeasures: 1,
       tempoPercent: 70,
       metronome: { beatKey: 1, downbeatKey: 2, beatVelocity: 1, downbeatVelocity: 2 },
+      guide: false,
     });
 
     const at140 = compilePlaySchedule(timeline, score.measures, {
@@ -34,6 +36,7 @@ describe('Tempo percentage (FR-037, SC-014)', () => {
       countInMeasures: 1,
       tempoPercent: 140,
       metronome: { beatKey: 1, downbeatKey: 2, beatVelocity: 1, downbeatVelocity: 2 },
+      guide: false,
     });
 
     // countInTicks should be longer at 70% if floor applies, but since 100% might not be at the floor...

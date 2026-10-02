@@ -155,6 +155,7 @@ export class PlaySessionController {
         beatVelocity: METRONOME_VELOCITY_BEAT,
         downbeatVelocity: METRONOME_VELOCITY_DOWNBEAT,
       },
+      guide: false,
     });
 
     // The run's own tempo map, in run-tick space (0 = count-in start) - what gradePerformance's audio-time ->

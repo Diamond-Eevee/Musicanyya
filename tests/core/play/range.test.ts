@@ -39,6 +39,7 @@ describe('Play mode range (FR-036, AS-3.1)', () => {
       countInMeasures: 1,
       tempoPercent: 100,
       metronome: { beatKey: 0, downbeatKey: 0, beatVelocity: 0, downbeatVelocity: 0 },
+      guide: false,
     });
 
     const expectedStartTick = timeline.passes.find((p) => p.measureIndex === 4)?.startTick;
