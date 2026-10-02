@@ -280,9 +280,9 @@ with the recorded ones; at 0 % the replay sounds as before.
   Orchestra slider) and `specs/020-play-guide-voice/quickstart.md` if any command changed during implementation;
   `docs/musicxml-support.md` gets one line that a part without `<volume>` / `<pan>` plays at the General MIDI defaults
   (100, centre) - FR-015
-- [~] T032 Run the whole `specs/020-play-guide-voice/quickstart.md` manual verification and record which steps were run
+- [x] T032 Run the whole `specs/020-play-guide-voice/quickstart.md` manual verification and record which steps were run
   and how (picture, e2e MIDI path, real keyboard)
-- [ ] T033 Constitution audit with `constitution-auditor` over the branch diff; summarise findings in the log and fix or
+- [x] T033 Constitution audit with `constitution-auditor` over the branch diff; summarise findings in the log and fix or
   task every finding
 - [ ] T034 Final gate: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` (exit codes and summary lines in the
   log); every task ticked with evidence or `[-]`; set the spec `**Status**` to "Implemented"; hand-off entry

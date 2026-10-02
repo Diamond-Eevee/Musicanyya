@@ -207,3 +207,34 @@
     plays at the defaults (T031); `tests/core/musicxml/support-doc-sync.test.ts` green (`Tests  463 passed (463)` over `tests/core/musicxml`).
     The README does not describe the Orchestra slider, so it is unchanged.
 
+## 2026-10-02 - claude-sonnet-5.5 (implement: polish, audit, hand-off)
+- T032 (quickstart manual verification), what was run and how: FR-015 steps 1-2 - the schedules the app sent were read in the in-app
+  browser (CC7 51 / CC10 1, then 100 / 64), not heard. US1 steps 1, 4, 5, 6 - by offline render and e2e schedule capture (see the
+  checkpoint entry), not heard; steps 2 and 3 (play along, wrong note) **not run** (no MIDI keyboard, no ears). US2 steps 1 and 3 - a picture of the Levels panel
+  looked at (enabled slider, hint) and `levels.spec.ts`; step 2 (fade at 0 % by ear) - offline render. US3 - e2e replay through the e2e MIDI path.
+  Owner listening check (OD-1, SC-007) **not run**: T029 is open.
+- T033 constitution audit (`constitution-auditor`, branch diff): PASS WITH FINDINGS, no violation of principles I-VIII. Findings and what was done:
+  1 MAJOR (FR-008 "give way first" is met by headroom only; the same as RT advisory A1) - **needs owner**, unchanged: recommended is to reword
+  FR-008 and the edge case to "met by voice headroom, verified by the T015 peak below VOICE_HEADROOM_FRACTION x cap"; I did not change the spec
+  (AGENTS.md section 7). 2 MAJOR (merge gate: T029, T030, T034 open, listening check not done) - open. 3 MINOR (the Domain Vocabulary has no
+  "Guide voice" or "Orchestra" entry; a PATCH amendment is advisable, owner's call) - **needs owner**, not done. 4, 5, 8, 9 fixed (named
+  `VELOCITY_MIN` / `VELOCITY_MAX`; `ChannelSetup.orchestra` comment; the `prepareStoredRun` comment; `docs/agents/reference.md` Recent
+  Changes). 6, 7 notes, no action.
+- Final gate, commit 'refactor(core): named velocity bounds...': `pnpm lint` exit 0 (`Found 318 warnings.` `Found 13 infos.`); `pnpm typecheck` exit 0;
+  `pnpm test` exit 0 (`Test Files  320 passed (320)`, `Tests  6738 passed (6738)`); `pnpm test:e2e` **exit 1**: `763 skipped`, `1280 passed (14.3m)`,
+  one failure, `score-browser-timing.spec.ts:190` (SC-003, feature 013) on Electron, `filter change` 110.6 ms against the 100 ms budget. It passes alone
+  (filter 24.0 ms Electron, 41.1 ms chromium). Not resolved: filter-change medians on Electron in whole-project runs - this branch 79.4 (Phase 3
+  code, passed), 114.6, 110.6, 101.0 (failed) and 92.5 (a run in which Electron tests were failing for an unrelated reason, see below);
+  base commit ce880a3 (code of main) 58.9 and 72.9 (both passed). That looks like a real shift of some 30 ms, or machine noise: I could not tell which in
+  the time I had, and the code the test exercises (the Score browser) is not touched by this feature. **Needs a decision**: rerun
+  on a quiet machine, or investigate (first suspect: nothing in `src/` that the browser uses changed; the e2e suite has 19 more tests, which changes which specs
+  run beside it). Side effect to know about: to compare I made a git worktree of ce880a3 with `node_modules` as a junction; one of the base runs
+  damaged the shared Electron install (`Electron failed to install correctly` in the next HEAD run). The worktree and junction are removed (the
+  `node_modules` folder is intact) and `electron-smoke` + `electron-playback` pass again (`10 passed`), but `node_modules/electron/dist` was re-extracted.
+- T034 not ticked (the e2e gate is not green and T029 / T030 are open). Spec `**Status**` stays "In progress".
+- Decisions: the guide goes in `compilePlaySchedule` as designed (R-1); `renderListen` / `renderPlayRun` gained test-only options (`before`, `dry`, `graded`, ...).
+- Problems / open questions - needs owner: (a) OD-1 / T029 listening check on two items without an Orchestra (hands-together piece, single-hand
+  exercise; try the default level 60 %; alternatives `GUIDE_PROGRAM` 5 / 11 / 89, `GUIDE_VELOCITY_SCALE`); (b) FR-008 wording (headroom, not priority);
+  (c) Domain Vocabulary entry for "Guide voice" (PATCH amendment); (d) the e2e timing failure above.
+- Handoff: next = T029 (owner listening), then T030 -> T034; run `pnpm test:e2e` again on a quiet machine first; tree clean at the next commit.
+
