@@ -292,7 +292,7 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   tempo "Allegretto pastorale" dotted quarter = 60; plus `source.json` (`origin: "transcription"`, licence `CC0-1.0`,
   `url` = the scan). Record in the log every place the print is unclear and how it was read, and the measured widest
   one-hand spans per bar that exceed 14 semitones with whether each chord is rolled (input for T046)
-- [ ] T041 [US2] Transcription B in a **separate session that never opens transcription A or the item**:
+- [x] T041 [US2] Transcription B in a **separate session that never opens transcription A or the item**:
   `content/library/sources/own-grieg-op46-no1-transcription-b/morning-mood.ly` + `source.json`, same scope and rules as
   T040 (the hand-off names this constraint; the session's log entry confirms it)
 - [x] T081 [US2] [standard] (new, found by T040, 2026-10-01: the print's bars 85-86 have a two-note tremolo E1-E2,

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "id": "own-grieg-op46-no1-transcription-b",
+  "work": "Grieg, Peer Gynt Suite No. 1, Op. 46, arranged for pianoforte by the composer; No. 1 \"Morgenstimmung\" (Morning Mood), E major - transcription B (019 T041)",
+  "edition": "G. Schirmer, New York, 1899; Morgenstimmung edited and fingered by Louis Oesterle (PDF pages 7-10 of Internet Archive 31761045200615)",
+  "publisher": "G. Schirmer",
+  "url": "https://archive.org/details/31761045200615",
+  "identifier": "Internet Archive 31761045200615",
+  "licence": "CC0-1.0",
+  "origin": "transcription",
+  "obtained": "2026-10-02",
+  "approvedByOwner": "2026-10-01",
+  "files": [
+    {
+      "role": "notation",
+      "path": "morning-mood.ly",
+      "url": "https://archive.org/download/31761045200615/31761045200615.pdf",
+      "sha256": "12a0beb6416b5d3ca04cf8f2a33d187e0694d4b2613f2ca12de1b48e2cdacd16",
+      "format": "lilypond"
+    },
+    { "role": "scan", "url": "https://archive.org/download/31761045200615/31761045200615.pdf", "format": "pdf" }
+  ]
+}
