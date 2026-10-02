@@ -166,4 +166,21 @@ test.describe('the Latency popup and calibration (feature 021 US2)', () => {
     await expect(el(page, 'profile-status')).toHaveText('Assumed (not calibrated)');
     await expect(el(page, 'calibration-progress')).toHaveCount(0);
   });
+  // Feature 021 US5, FR-024 / FR-026: a browser cannot choose the output (that takes the microphone permission), and says so
+  test('the browser offers no output choice: the system default, the path and the ASIO line (no select)', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
+    await soundOn(page);
+    await openLatency(page);
+    await expect(panel(page).locator('select')).toHaveCount(0);
+    await expect(el(page, 'output-default-only')).toHaveText(
+      "System default output - change it in your system's sound settings.",
+    );
+    await expect(el(page, 'output-path')).toHaveText('Browser audio');
+    await expect(el(page, 'asio-note')).toHaveText(
+      'ASIO and other low-latency drivers need the Native audio plugin, which is not available yet.',
+    );
+  });
 });

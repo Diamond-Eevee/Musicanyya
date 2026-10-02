@@ -67,6 +67,14 @@ export const clearLiveMessages = (page: Page): Promise<void> =>
 export const audioContextState = (page: Page): Promise<AudioContextState | null> =>
   page.evaluate(() => (window as SpyWindow).mxSession?.audioEngine.context?.state ?? null);
 
+/** The `sinkId` of the engine's `AudioContext` ('' = the system default), or null when none exists or it is not a string. */
+export const audioSinkId = (page: Page): Promise<string | null> =>
+  page.evaluate(() => {
+    const sink = (window as unknown as { mxSession?: { audioEngine: { context: { sinkId?: unknown } | null } } })
+      .mxSession?.audioEngine.context?.sinkId;
+    return typeof sink === 'string' ? sink : null;
+  });
+
 /** The engine's own state kind ('idle' | 'loadingSound' | 'ready' | 'suspended' | 'error'), read from the page. */
 export const engineStateKind = (page: Page): Promise<string | null> =>
   page.evaluate(

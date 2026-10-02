@@ -338,26 +338,29 @@ default within 2 s with a notice; browser: "System default output" and the ASIO 
 
 ### Spike (decides what the desktop app can offer)
 
-- [ ] T053 [US5] Spike (research R-6): in a throwaway branch-local script under `tests/.generated/` or an e2e spec on
+- [x] T053 [US5] Spike (research R-6): in a throwaway branch-local script under `tests/.generated/` or an e2e spec on
   the electron project, add `session.setPermissionCheckHandler` allowing `media` (audio) for the app origin and check
   (a) `enumerateDevices()` returns labelled `audiooutput` entries, (b) `AudioContext.setSinkId(<non-default id>)`
   resolves, (c) `getUserMedia({ audio: true })` still rejects with the request handler unchanged. Record the result in
   `research.md` R-6 and the log. If (a) or (b) fails: T057-T060 implement `systemDefaultOnly` for the desktop app too,
   T056 asserts that, and the owner is told at the next hand-off (spec US5 outcome changes, not scope). Remove the
   throwaway script
+  Outcome 2026-10-02: (a) and (b) pass; (c) was false for the shipped app (its permission handler never ran). Owner approved
+  ("Fix it: install handlers, allow midi + midiSysex"): T054 and T057 cover the fix; research R-6 "Spike result". No throwaway
+  file was left in the repository.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T054 [P] [US5] `tests/electron/policy.test.ts`: `decidePermissionCheck('media', appOrigin, { mediaType: 'audio' })`
+- [x] T054 [P] [US5] `tests/electron/policy.test.ts`: `decidePermissionCheck('media', appOrigin, { mediaType: 'audio' })`
   true; video, other origins and every other permission false; `decidePermission` (requests) unchanged - `media` still
   false. Fails today (no function)
-- [ ] T055 [P] [US5] Unit `tests/engine/audio/output-device.test.ts` (fake `mediaDevices`, fake context with
+- [x] T055 [P] [US5] Unit `tests/engine/audio/output-device.test.ts` (fake `mediaDevices`, fake context with
   `setSinkId`): capability rules (desktop + setSinkId + labels -> choosable, else `systemDefaultOnly` with reason);
   the saved-or-default rule at start and on `devicechange`; a saved device missing at start-up -> default and
   `outputFallback` once (FR-024, analyze A6); `outputFallback` emitted once per loss; return of the device
   switches back silently; `setOutput` rejection keeps the previous device; storage round trip of `musicanyya.audio.v1`
   (in `tests/engine/storage/local-settings-store.test.ts`). Fails today
-- [ ] T056 [P] [US5] e2e `tests/e2e/electron-audio-output.spec.ts` (electron project; with the T053 outcome): the
+- [x] T056 [P] [US5] e2e `tests/e2e/electron-audio-output.spec.ts` (electron project; with the T053 outcome): the
   Latency popup lists the system default plus labelled devices; choosing another sets `AudioContext.sinkId`; restart
   -> still chosen; a simulated `devicechange` without the device -> default within `AUDIO_OUTPUT_FALLBACK_MAX_MS` and
   the `audioOutputLost` notice once; the path line and the ASIO line are shown. And in `tests/e2e/latency-setup.spec.ts`

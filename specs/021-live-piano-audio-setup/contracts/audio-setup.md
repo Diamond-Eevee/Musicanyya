@@ -93,11 +93,16 @@ type AudioEngineEvent = /* existing */ | { type: 'outputFallback'; lostDeviceId:
 
 ### Desktop permission (electron/policy.ts)
 
+- Both handlers are installed on `session.defaultSession` once `app` is ready (they used to be registered on
+  `session-created`, which does not fire for the default session: the app then granted every permission - spike T053).
 - Permission **check** handler (new, `session.setPermissionCheckHandler`): returns true only for `media` with
   `mediaType` `audio` (or unspecified) from the app origin - this exposes output-device labels and allows `setSinkId`.
-- Permission **request** handler: unchanged (`midi` only) - `getUserMedia` stays denied (no microphone capture).
-- Proven by the spike task before the UI task; if the spike fails, `outputCapability()` returns `systemDefaultOnly`
-  in the desktop app too and the owner is told (research R-6).
+- Permission **request** handler (`decidePermission`): `midi` **and `midiSysex`** from the app origin (the web page asks
+  for `midiSysex` when it calls `requestMIDIAccess()` in this Electron; owner approved, 2026-10-02), everything else
+  denied - `getUserMedia` is rejected (no microphone capture).
+- Proven by the spike task before the UI task (research R-6, "Spike result"): labels present, `setSinkId` resolves, MIDI
+  still opens, `getUserMedia` rejected; had it failed, `outputCapability()` would return `systemDefaultOnly` in the
+  desktop app too and the owner would be told.
 
 ## 4. Persisted data
 

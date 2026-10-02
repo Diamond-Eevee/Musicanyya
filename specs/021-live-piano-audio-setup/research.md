@@ -141,6 +141,26 @@ Behaviour:
 - Changing the device is allowed only while no run is active (the Latency popup closes for runs anyway).
 - After a change the shown output latency is re-read (it may differ per device).
 
+**Spike result (T053, 2026-10-02, Electron of this repository, Windows 11, 9 output devices)**: a throwaway script drove
+the built desktop app (`dist-electron/main.js`) through Playwright's Electron launcher and set handlers on
+`session.defaultSession` from the main process.
+
+| Handlers set | labelled `audiooutput` entries | `AudioContext.setSinkId(<other>)` | `getUserMedia({audio:true})` | `requestMIDIAccess()` |
+|---|---|---|---|---|
+| none (what the app really did) | 9 | resolves | **resolves (capture allowed)** | resolves, 3 inputs |
+| request: `midi` only | 9 | resolves | rejects `NotAllowedError` | **rejects `NotAllowedError`** |
+| request: `midi` + `midiSysex` | 9 | resolves | rejects `NotAllowedError` | resolves, 3 inputs |
+| request `midi` only + check `media` audio | 9 | resolves | rejects | rejects |
+
+Findings: (a) and (b) hold - labels and `setSinkId` work, with or without the check handler (the check handler only makes
+the behaviour explicit once handlers are installed). (c) as stated here was **false for the shipped app**: its handler
+was registered on `session-created`, which does not fire for the default session, so Electron's default (allow) applied
+and the microphone was grantable. Installing the old policy as it stood (`midi` only, `midiSysex` denied) would have
+broken Web MIDI, because Chromium requests `midiSysex` for `requestMIDIAccess()` here (logged: `midiSysex`, `midiSysex`,
+`media` with `mediaTypes: ['audio']`). Owner decision (2026-10-02): install the handlers on the default session, allow
+`midi` and `midiSysex` for the app origin, deny the rest. The desktop app therefore offers the output choice
+(`outputCapability()` = `choosable`).
+
 **Alternatives considered**: (a) `MediaDevices.selectAudioOutput()` - Firefox only, and Firefox lacks
 `AudioContext.setSinkId`; (b) an `<audio>` element fed by a `MediaStreamAudioDestinationNode` with
 `HTMLMediaElement.setSinkId` - adds a buffer (latency) on the live path, rejected; (c) native device enumeration in the
