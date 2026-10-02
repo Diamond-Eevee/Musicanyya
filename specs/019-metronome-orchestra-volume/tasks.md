@@ -630,10 +630,10 @@ source details; the same item without credit, with a CC0 source, or under `CC-BY
   `quickstart.md` commands against `package.json`
 - [ ] T071 Run every `quickstart.md` manual verification step (US1-US4) with `pnpm screenshot`, look at each picture,
   and record what was seen in the log; list the sound checks for the owner
-- [ ] T072 **Owner decision gate OD-2**: the owner's listening check SC-007 (quickstart US2 step 7 and US3 step 1):
+- [x] T072 **Owner decision gate OD-2**: the owner's listening check SC-007 (quickstart US2 step 7 and US3 step 1):
   recognisable piece, flute/oboe and strings heard as separate instruments in time, default Orchestra level supports
   and does not drown the piano; a requested change goes to `ORCHESTRA_LEVEL_DEFAULT` or the definition's dynamics
-  (T053, regenerate). Blocks the merge only; record the answer here
+  (T053, regenerate). Blocks the merge only; record the answer here - **owner approved 2026-10-02**: listened to Morning Mood (Listen; Levels panel found), "it's good", no change to `ORCHESTRA_LEVEL_DEFAULT` or the definition's dynamics
 - [ ] T073 [deep] Constitution audit with `constitution-auditor` (sub-agent) over the feature diff; findings
   summarised in the log; no CRITICAL/HIGH left
 - [ ] T074 Final gate (`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, flaky tests per R7 re-run alone and
