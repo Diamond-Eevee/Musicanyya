@@ -1,7 +1,20 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.3.0 -> 1.3.1 (PATCH)
+Version change: 1.3.1 -> 1.3.2 (PATCH)
+  Domain Vocabulary gains **Orchestra**, **Orchestra level** and **Guide voice**
+  (owner decision of feature 020-play-guide-voice, 2026-10-02, after the
+  constitution audit T033, finding 3). The terms were already used by features
+  019 and 020 and by the code; this only makes them shared vocabulary. No
+  principle changes.
+Templates requiring updates:
+  OK .specify/templates/*.md                (point at the Domain Vocabulary; no change needed)
+  OK .claude/commands/speckit/*.md          (no stale wording)
+  OK .claude/agents/*.md                    (no stale wording)
+  OK AGENTS.md section 8, docs/agents/reference.md (no change needed)
+Deferred TODOs: none new.
+
+Previous: 1.3.0 -> 1.3.1 (PATCH)
   Principle III clarifies "playable note" (owner decision OD-4 of feature
   019-metronome-orchestra-volume, 2026-10-01, after a constitution audit): a
   playable note is a printed note the musician can be asked to play. Notes the
@@ -343,6 +356,13 @@ Specs, plans, code and UI MUST use these terms consistently.
   (browser/Electron) or the **Native audio plugin** (low latency).
 - **Audio backend**: the output API used by the Native audio plugin (ASIO,
   WASAPI shared/exclusive, CoreAudio, ALSA, JACK, PipeWire).
+- **Orchestra**: the non-printed instrument tracks of a Score (e.g. strings,
+  oboe), played by the app only; never printed, expected or graded
+  (Principle III). **Orchestra level**: how loud the Orchestra sounds, 0-100 %.
+- **Guide voice**: in Play mode, on a Score without an Orchestra, the soft
+  non-piano sound that plays the musician's expected notes with the
+  Metronome; not part of the Score, not printed, not graded, and set by the
+  Orchestra level.
 - **Latency profile**: measured or calibrated input, output and MIDI offsets
   for a given device configuration.
 - **Shell**: the environment the app runs in: browser or Electron.
@@ -408,4 +428,4 @@ Merge gates (every change):
 - Runtime guidance for agents lives in `AGENTS.md` (tool-neutral; `CLAUDE.md`
   and `GEMINI.md` only import it) and MUST stay consistent with this document.
 
-**Version**: 1.3.1 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-10-01
+**Version**: 1.3.2 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-10-02
