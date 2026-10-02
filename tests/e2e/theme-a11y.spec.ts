@@ -4,6 +4,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page, test } from '@playwright/test';
 import { browserDialog, closeBrowser, openLibraryItem, rowByRef, seedProgress } from './helpers/browser.js';
+import { openMidiPopover } from './helpers/midi.js';
 import { barFitted, type ManualPanel, openPanel, panelLocator } from './helpers/panels.js';
 import { pressFirstExpectedNotes, startPlay, waitForGrade } from './helpers/play.js';
 
@@ -11,16 +12,7 @@ const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']; // as score-browser-a
 const THEMES = ['paper', 'ivory', 'slate', 'night', 'walnut', 'midnight'] as const;
 const ELISE = 'repertoire/intermediate/fur-elise-theme';
 /** Every panel a person opens from a menu (PANEL_IDS without grade, which a run opens; attempts needs a run). */
-const MANUAL: readonly ManualPanel[] = [
-  'scores',
-  'midi',
-  'environment',
-  'diagnostics',
-  'latency',
-  'help',
-  'view',
-  'setup',
-];
+const MANUAL: readonly ManualPanel[] = ['scores', 'environment', 'diagnostics', 'latency', 'help', 'view', 'setup'];
 const MENUS = ['score', 'setup', 'view', 'help'] as const;
 
 const useTheme = (page: Page, id: string) =>
@@ -83,6 +75,12 @@ for (const theme of THEMES) {
         await page.keyboard.press('Escape');
         await expect(panelLocator(page, id)).toBeHidden();
       }
+
+      // The MIDI popover (feature 021): opened by the bar's control, not a menu.
+      await openMidiPopover(page);
+      report.push(...(await violations(page, 'midi popover', 'mx-panel[data-panel="midi"]')));
+      await page.keyboard.press('Escape');
+      await expect(panelLocator(page, 'midi')).toBeHidden();
 
       // The Practice panel: the Setup popup in Practice mode, before a session starts.
       // Practice needs a MIDI keyboard: fake a granted one the way helpers/practice.ts does.

@@ -1,19 +1,12 @@
 import { expect, type Page } from '@playwright/test';
 
 /** The tools a person opens by hand from a menu of the slim bar (`data-model.md` section 5). `grade` has no entry: a
- *  finished Play run opens it, so wait for it with `expect(panelLocator(page, 'grade')).toBeVisible()`. */
-export type ManualPanel =
-  | 'scores'
-  | 'attempts'
-  | 'setup'
-  | 'midi'
-  | 'latency'
-  | 'view'
-  | 'help'
-  | 'diagnostics'
-  | 'environment';
+ *  finished Play run opens it, so wait for it with `expect(panelLocator(page, 'grade')).toBeVisible()`. `midi` has none
+ *  either since feature 021: the bar's MIDI keyboard control opens it (`openMidiPopover`, helpers/midi.ts). */
+export type ManualPanel = 'scores' | 'attempts' | 'setup' | 'latency' | 'view' | 'help' | 'diagnostics' | 'environment';
 
-export const panelLocator = (page: Page, id: ManualPanel | 'grade') => page.locator(`mx-panel[data-panel="${id}"]`);
+export const panelLocator = (page: Page, id: ManualPanel | 'midi' | 'grade') =>
+  page.locator(`mx-panel[data-panel="${id}"]`);
 
 /** Waits until the slim bar has settled its fold decision: after content changes it folds the four menus into
  *  "More" on the next animation frame, so a menu resolved a moment too early can vanish under the click. Settled means

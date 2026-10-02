@@ -1,23 +1,14 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page, test } from '@playwright/test';
+import { openMidiPopover } from './helpers/midi.js';
 import { barFitted, type ManualPanel, menuButton, menuEntry } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixture = (name: string) => path.join(__dirname, '../fixtures/musicxml', name);
 
 /** Every tool a person opens by hand, as (menu, panel) - `grade` is opened by a finished run. */
-const ENTRIES = [
-  'scores',
-  'attempts',
-  'setup',
-  'midi',
-  'latency',
-  'view',
-  'help',
-  'diagnostics',
-  'environment',
-] as const;
+const ENTRIES = ['scores', 'attempts', 'setup', 'latency', 'view', 'help', 'diagnostics', 'environment'] as const;
 
 // The menu that holds a tool: its own, or "More" when the bar has folded the four into one (compact mode).
 const trigger = menuButton;
@@ -70,6 +61,29 @@ test.describe('US2: secondary tools live in menus and popups', () => {
       await page.keyboard.press('Escape'); // closing takes 1 activation
       await expect(panel(page, id)).toBeHidden();
     }
+  });
+
+  test('the MIDI popover opens in one click on the bar control, over the Score, which it leaves alone (feature 021, SC-008)', async ({
+    page,
+  }) => {
+    await openScore(page);
+    const before = await page.evaluate(() =>
+      JSON.stringify(document.querySelector('mx-score-view')?.getBoundingClientRect()),
+    );
+    await openMidiPopover(page); // one activation
+    await expect(panel(page, 'midi')).toBeVisible();
+    await expect(page.locator('mx-panel:visible'), 'at most one popup is open').toHaveCount(1);
+    const shown = await panel(page, 'midi').boundingBox();
+    const main = await page.locator('#mx-main').boundingBox();
+    expect(shown && main && shown.y >= main.y - 1 && shown.x + shown.width <= main.x + main.width + 1).toBe(true);
+    expect(
+      await page.evaluate(() => JSON.stringify(document.querySelector('mx-score-view')?.getBoundingClientRect())),
+    ).toBe(before);
+    await page.keyboard.press('Escape');
+    await expect(panel(page, 'midi')).toBeHidden();
+    // ... and no menu has an entry for it any more
+    await barFitted(page);
+    await expect(page.locator('#menu-controls [role="menuitem"][data-panel="midi"]')).toHaveCount(0);
   });
 
   // 017 T041 (found in T020): these opened as an empty box in Listen mode, before any Play run (the Latency popup no longer does: feature 021 FR-009 shows its latency at any time).

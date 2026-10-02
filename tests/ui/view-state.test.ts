@@ -96,6 +96,18 @@ describe('viewState: panels (FR-004, FR-006)', () => {
     expect(listener).not.toHaveBeenCalled();
   });
 
+  it('closeForRun leaves the Levels and MIDI popovers open: both work during any run (feature 021, data-model 7)', () => {
+    const view = createViewStateStore();
+    for (const id of ['sound', 'midi'] as const) {
+      view.openPanel(id);
+      view.closeForRun();
+      expect(view.get().openPanel, id).toBe(id);
+    }
+    view.openPanel('latency');
+    view.closeForRun();
+    expect(view.get().openPanel).toBeNull();
+  });
+
   it('reads an unknown panel id as no panel', () => {
     const view = createViewStateStore();
     view.openPanel('midi');

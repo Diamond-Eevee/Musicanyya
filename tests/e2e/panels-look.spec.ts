@@ -1,6 +1,7 @@
 // Feature 016 US4 (FR-020, research R-9): the Grade, MIDI, latency and diagnostics panels, Practice help and the piano
 // frame follow the theme, while the piano's keys keep feature 010's own colours. Chromium; Paper and Night.
 import { expect, type Locator, type Page, test } from '@playwright/test';
+import { openMidiPopover } from './helpers/midi.js';
 import { openPanel, panelLocator } from './helpers/panels.js';
 import { pressFirstExpectedNotes, startPlay, waitForGrade } from './helpers/play.js';
 import { startPractice } from './helpers/practice.js';
@@ -65,7 +66,9 @@ for (const theme of ['paper', 'night']) {
         ['latency', 'mx-latency-panel'],
         ['diagnostics', 'mx-diagnostics'],
       ] as const) {
-        await openPanel(page, id);
+        // The MIDI popover is opened by the bar's control since feature 021, the others from a menu
+        if (id === 'midi') await openMidiPopover(page);
+        else await openPanel(page, id);
         const panel = panelLocator(page, id);
         await expect(panel).toBeVisible();
         expect(await look(panel.locator(element)), `${id} panel`).toEqual({ background: raised, colour: ink });

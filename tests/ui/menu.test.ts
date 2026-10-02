@@ -26,7 +26,7 @@ describe('menu model', () => {
   it('matches the four menus of data-model.md section 5', () => {
     expect(MENU_GROUPS.map((group) => group.id)).toEqual(['score', 'setup', 'view', 'help']);
     expect(menuGroup('score').entries.map((entry) => entry.panel)).toEqual(['browser', 'scores', 'attempts']);
-    expect(menuGroup('setup').entries.map((entry) => entry.panel)).toEqual(['setup', 'midi', 'latency']);
+    expect(menuGroup('setup').entries.map((entry) => entry.panel)).toEqual(['setup', 'latency']);
     expect(menuGroup('view').entries.map((entry) => entry.panel)).toEqual(['view']);
     expect(menuGroup('help').entries.map((entry) => entry.panel)).toEqual(['help', 'diagnostics', 'environment']);
   });
@@ -34,8 +34,10 @@ describe('menu model', () => {
   it('reaches every panel that a person opens by hand from exactly one entry (grade is opened by a run; browser is not a panel)', () => {
     const reachable = MENU_GROUPS.flatMap((group) => group.entries.map((entry) => entry.panel));
     const panelEntries = reachable.filter((panel) => panel !== 'browser').sort();
-    // 'sound' (the Levels popover, feature 019) is opened by the toolbar's Levels button, not a menu (ui-shell 1.5.0)
-    expect(panelEntries).toEqual(PANEL_IDS.filter((id) => id !== 'grade' && id !== 'sound').sort());
+    // 'sound' (the Levels popover, feature 019) is opened by the toolbar's Levels button, not a menu (ui-shell 1.5.0);
+    // 'midi' (feature 021 US3) by the bar's MIDI keyboard control (top-bar.md section 4)
+    expect(panelEntries).toEqual(PANEL_IDS.filter((id) => id !== 'grade' && id !== 'sound' && id !== 'midi').sort());
+    expect(reachable).not.toContain('midi');
     expect(new Set(reachable).size).toBe(reachable.length);
     expect(reachable).toContain('browser');
   });
@@ -218,12 +220,12 @@ describe('mx-menu', () => {
       expect(viewState.get().openPanel).toBeNull();
     });
 
-    it('the setup menu still offers MIDI and latency without a Score', () => {
+    it('the setup menu still offers latency without a Score (MIDI moved to the bar, feature 021)', () => {
       const menu = makeMenu('setup');
       const enabled = items(menu)
         .filter((item) => !item.disabled)
         .map((item) => item.dataset.panel);
-      expect(enabled).toEqual(['midi', 'latency']);
+      expect(enabled).toEqual(['latency']);
     });
 
     // Last on purpose: scoreState has no way back to "empty" once a Score has loaded.
@@ -267,8 +269,13 @@ describe('the overflow menu (the bar folds the four menus into one when it runs 
     expect(items(menu)).toHaveLength(menuGroup('more').entries.length);
     trigger(menu).click();
     items(menu)
-      .find((item) => item.dataset.panel === 'midi')
+      .find((item) => item.dataset.panel === 'latency')
       ?.click();
-    expect(viewState.get().openPanel).toBe('midi');
+    expect(viewState.get().openPanel).toBe('latency');
+  });
+
+  it('has no MIDI entry (the MIDI keyboard control of the bar opens that popover)', () => {
+    expect(menuGroup('more').entries.map((entry) => entry.panel)).not.toContain('midi');
+    expect(items(makeMenu('more')).map((item) => item.dataset.panel)).not.toContain('midi');
   });
 });

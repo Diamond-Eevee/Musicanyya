@@ -258,17 +258,17 @@ a second; click -> popover; Setup has no MIDI entry; popover usable during a Pla
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T038 [P] [US3] Unit `tests/ui/midi-status.test.ts`: `midiStatus()` (data-model section 2) for every availability
+- [x] T038 [P] [US3] Unit `tests/ui/midi-status.test.ts`: `midiStatus()` (data-model section 2) for every availability
   x devices x lost combination, labels, the "{n} keyboards" label, and a distinct icon id per display state. Fails today
-- [ ] T039 [P] [US3] Update `tests/ui/menu.test.ts`: Setup = `setup`, `latency`; the `more` menu has no `midi`; and
+- [x] T039 [P] [US3] Update `tests/ui/menu.test.ts`: Setup = `setup`, `latency`; the `more` menu has no `midi`; and
   `tests/ui/midi-panel.test.ts` for the new popover content (contracts/top-bar.md section 3: device text states, connect
   / try again, help texts, latency line). Fail today
-- [ ] T040 [P] [US3] e2e `tests/e2e/midi-topbar.spec.ts` (chromium): fake keyboard at start -> bar shows "Fake" with
+- [x] T040 [P] [US3] e2e `tests/e2e/midi-topbar.spec.ts` (chromium): fake keyboard at start -> bar shows "Fake" with
   no click; `disconnectFakeMidi` -> "MIDI keyboard disconnected" within `MIDI_STATUS_UPDATE_MAX_MS`; reconnect -> "Fake";
   click the control -> popover lists the device; `e2e-ready` with `midi: 'denied'` / `'notSupported'` -> the right label
   and help; during a Play run the popover opens, the run keeps running and the cursor's box does not intersect it
   (SC-007, SC-008, FR-027). Fails today
-- [ ] T041 [P] [US3] Move the `'midi'` panel out of the menu-driven lists in `tests/e2e/helpers/panels.ts`,
+- [x] T041 [P] [US3] Move the `'midi'` panel out of the menu-driven lists in `tests/e2e/helpers/panels.ts`,
   `tests/e2e/us2-panels.spec.ts`, `tests/e2e/theme-a11y.spec.ts` and `tests/e2e/panels-look.spec.ts`: the same checks
   (look, contrast, accessibility) opened through the bar control instead of Setup (helper `openMidiPopover(page)` in
   `tests/e2e/helpers/midi.ts`). Fails today (no bar control)
