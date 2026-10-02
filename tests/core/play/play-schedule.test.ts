@@ -30,6 +30,7 @@ function baseOptions(overrides: Partial<PlayScheduleOptions> = {}): PlaySchedule
     countInMeasures: 1,
     tempoPercent: 100,
     metronome: METRONOME,
+    guide: false,
     ...overrides,
   };
 }

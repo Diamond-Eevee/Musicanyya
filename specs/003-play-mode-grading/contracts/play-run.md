@@ -1,8 +1,17 @@
 # Contract: play run (core API)
 
-**Version**: `2.2.0` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
+**Version**: `2.3.0` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
 `src/app/play-session.ts` and `src/ui`). Signatures are normative in shape; every change is reflected here with a
 version bump (MINOR for additions, MAJOR for breaking changes).
+
+**2.2.0 -> 2.3.0** (feature 020-play-guide-voice, MINOR; full text:
+[020 guide-voice.md](../../020-play-guide-voice/contracts/guide-voice.md) sections 1-2): `PlayScheduleOptions.guide`
+(required `boolean`) and `PlaySchedule.guideChannel` (`number | null`). With `guide: true`, on a Score with no used
+Orchestra channel, the graded events are no longer omitted but moved onto a free melodic channel (program
+`GUIDE_PROGRAM`, velocity x `GUIDE_VELOCITY_SCALE`) that the Orchestra level governs (`orchestraMask`): rule 1 is
+amended, and rules 7-9 are new (see "Normative rules" below). Grading, the Performance log and `gradedNoteIds` are
+unchanged. With `guide: false` the schedule differs from 2.2.0 only by the tick-0 CC7 / CC10 defaults of
+[worklet-protocol 1.7.0](../../001-score-viewer-listen/contracts/worklet-protocol.md).
 
 **2.1.0 -> 2.2.0** (feature 019-metronome-orchestra-volume, MINOR; full text:
 [019 orchestra-score.md](../../019-metronome-orchestra-volume/contracts/orchestra-score.md) section 5 and
@@ -130,12 +139,16 @@ interface PlayScheduleOptions {
                                             // applies tempoPercent uniformly, so a count-in sized at nominal
                                             // tempo would not reliably last COUNT_IN_MIN_SECONDS as heard
   metronome: { beatKey: number; downbeatKey: number; beatVelocity: number; downbeatVelocity: number };
+  /** Play the graded notes as the Guide voice when the Score has no Orchestra (2.3.0, feature 020). */
+  guide: boolean;
 }
 
 interface PlaySchedule {
   schedule: ScheduleMessage;               // ticks start at 0 = the first count-in beat
   tickMap: PlayTickMap;
   expectedFirstRunTick: number;            // = tickMap.countInTicks
+  /** The Guide voice's channel, or null when the run has none (2.3.0; guide-voice.md data-model section 3). */
+  guideChannel: number | null;
 }
 
 export function compilePlaySchedule(
@@ -154,7 +167,9 @@ implementing T032; corrected here rather than worked around, per AGENTS.md secti
 
 Normative rules:
 
-1. Every `SoundingEvent` whose head or members intersect `gradedNoteIds` is **omitted** (FR-005).
+1. Every `SoundingEvent` whose head or members intersect `gradedNoteIds` is **omitted** from its own channel (FR-005).
+   With `guide: true` and a guide channel (rule 7), it is instead written once on the guide channel with the velocity
+   `max(1, round(velocity * GUIDE_VELOCITY_SCALE))`, sliced and shifted like every other event (rule 3) (2.3.0).
 2. With `accompaniment: false`, every non-Metronome event is omitted - except the events of Orchestra channels (2.2.0) - the Metronome and the tempo map stay.
 3. Events are sliced to `[rangeStartTick, rangeEndTick)` and shifted by `countInTicks - rangeStartTick`.
 4. The tempo map is shifted the same way, and the segment covering the count-in is the tempo in force at
@@ -168,6 +183,17 @@ Normative rules:
    would be a worse failure than a loud one.
 6. The output satisfies the `worklet-protocol` ordering rules (ticks ascending, control changes before note-offs
    before note-ons at equal tick).
+7. **Guide channel** (2.3.0): only when `guide` is true, the timeline has no used Orchestra channel, and at least one
+   event is graded in range: the lowest unused channel that is not `PERCUSSION_CHANNEL`, `LIVE_CHANNEL` or
+   `METRONOME_CHANNEL`; none free -> `guideChannel: null` and no guide events. Its setup (run timeline only): program
+   `GUIDE_PROGRAM`, bank 0, no `volume` / `pan` of its own (so CC7 / CC10 are the defaults, worklet-protocol 1.7.0),
+   `orchestra: true` (so it is in `orchestraMask`).
+8. **Accompaniment independence** (2.3.0): guide events are kept whatever `accompaniment` says (they are the
+   musician's part, not the accompaniment); accompaniment events are never copied to the guide channel. No guide event
+   starts before `countInTicks`.
+9. **Determinism and no other change** (2.3.0): the same timeline, measures and options give the same schedule, byte
+   for byte. With `guide: false`, or when rule 7 gives no channel, the schedule is identical to the `guide: false`
+   output for the same options.
 
 ## Engine additions this feature needs
 

@@ -82,7 +82,8 @@ export const SUPPORT_MATRIX: SupportEntry[] = [
     category: 'Instruments',
     element: '<midi-instrument>',
     status: 'Supported',
-    notes: 'MIDI programs and unpitched percussion',
+    notes:
+      "MIDI programs and unpitched percussion; `<volume>` and `<pan>` set the part's loudness and stereo position, and a part that gives none plays at the General MIDI defaults (volume 100, centre) whatever was played before it (feature 020 FR-015)",
   },
   {
     category: 'Notes',

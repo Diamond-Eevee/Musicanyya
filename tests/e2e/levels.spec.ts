@@ -12,6 +12,7 @@ import { eventKeys, sessionIndex } from './helpers/pressed-keys.js';
 // Feature 019, US1 and US3 (mixer-levels.md section 1, FR-003, FR-005, FR-007, FR-011, SC-008 Metronome half): the Levels button
 // beside the Volume slider opens a popover with the Metronome level; moving it never stops or pauses anything.
 const ITEM = 'repertoire/beginner/fur-elise-theme-16-bar';
+const GUIDE_HINT = 'No orchestra in this score: sets the guide voice in Play mode';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const mainPath = path.join(__dirname, '../../dist-electron/main.js');
 
@@ -76,9 +77,9 @@ test.describe('Levels popover in the browser (feature 019 US1)', () => {
     await expect(button).toHaveAttribute('aria-expanded', 'true');
     await expect(metronomeSlider(page)).toHaveValue('100');
     await expect(page.locator('mx-levels-panel')).toContainText('Heard in Play mode');
-    // no Orchestra in this Score: the slider is there but off, and says why (FR-010)
-    await expect(orchestraSlider(page)).toBeDisabled();
-    await expect(page.locator('mx-levels-panel')).toContainText('This score has no orchestra');
+    // no Orchestra in this Score: the slider is on and says it sets the Guide voice (feature 020 FR-010, which replaces 019 FR-010)
+    await expect(orchestraSlider(page)).toBeEnabled();
+    await expect(page.locator('mx-levels-panel')).toContainText(GUIDE_HINT);
 
     await page.keyboard.press('Escape');
     await expect(levelsPanel(page)).toBeHidden();
@@ -211,7 +212,7 @@ test.describe('Orchestra slider in the browser (feature 019 US3)', () => {
     await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause'); // playback never paused
   });
 
-  test('the Orchestra slider is off on a Score without one, keeps its value, and the next Orchestra Score has it again (FR-010)', async ({
+  test('the Orchestra slider is on for a Score without an Orchestra and keeps its value across Scores (feature 020 FR-010)', async ({
     page,
   }) => {
     test.setTimeout(90_000);
@@ -227,8 +228,8 @@ test.describe('Orchestra slider in the browser (feature 019 US3)', () => {
     await expect(browserDialog(page)).toBeHidden();
     await expect(page.locator('.mx-score-page svg').first()).toBeVisible();
     await openLevels(page);
-    await expect(orchestraSlider(page)).toBeDisabled();
-    await expect(page.locator('mx-levels-panel')).toContainText('This score has no orchestra');
+    await expect(orchestraSlider(page)).toBeEnabled(); // 020 FR-010: it sets the Guide voice on this Score
+    await expect(page.locator('mx-levels-panel')).toContainText(GUIDE_HINT);
     await expect(orchestraSlider(page)).toHaveValue('25');
   });
 

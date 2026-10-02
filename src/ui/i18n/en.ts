@@ -79,12 +79,12 @@ export const en = {
     grade: 'Grade',
     sound: 'Levels',
   },
-  /** The Levels popover (feature 019, contracts/mixer-levels.md section 1). */
+  /** The Levels popover (feature 019, contracts/mixer-levels.md section 1; `guideVoice` replaces `noOrchestra`, 1.1.0, feature 020). */
   levels: {
     metronome: 'Metronome',
     orchestra: 'Orchestra',
     metronomeHint: 'Heard in Play mode',
-    noOrchestra: 'This score has no orchestra',
+    guideVoice: 'No orchestra in this score: sets the guide voice in Play mode',
     valuePercent: '{n} %',
   },
   /** 017 T041: what a popup says when its own tools have nothing to show yet. */

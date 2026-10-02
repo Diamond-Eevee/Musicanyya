@@ -1,10 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MIXER_LEVEL_STEP } from '../../src/core/defaults.js';
 import '../../src/ui/elements/mx-levels-panel.js';
+import { en } from '../../src/ui/i18n/en.js';
 import { scoreState } from '../../src/ui/state/scoreState.js';
 import { transportState } from '../../src/ui/state/transportState.js';
 
-// Feature 019, mixer-levels.md section 1: the Levels panel holds the Metronome and Orchestra sliders.
+// Feature 019, mixer-levels.md section 1 (1.1.0, feature 020): the Levels panel holds the Metronome and Orchestra sliders.
 
 type SummaryPart = {
   id: string;
@@ -115,32 +116,47 @@ describe('mx-levels-panel (feature 019)', () => {
     expect(outputOf(orchestra())).toBe('80 %');
   });
 
-  it('with no Score the Orchestra slider is disabled and says "This score has no orchestra"; the stored value is untouched', () => {
+  // Feature 020 FR-010 (replaces 019 FR-010): the Orchestra slider is never disabled; on a Score without an Orchestra it sets the Guide
+  // voice in Play mode, and its hint says so.
+  const GUIDE_HINT = 'No orchestra in this score: sets the guide voice in Play mode';
+  const hint = () => panel.querySelector('#mx-levels-no-orchestra') as HTMLElement;
+
+  it('has the guide hint text in the strings (feature 020)', () => {
+    expect((en.levels as Record<string, string>).guideVoice).toBe(GUIDE_HINT);
+    expect((en.levels as Record<string, string>).noOrchestra).toBeUndefined(); // replaced, not kept beside it
+  });
+
+  it('with no Score the Orchestra slider is enabled and explains that it sets the guide voice; the stored value is untouched', () => {
     expect(scoreState.getStatus().kind).toBe('empty');
-    expect(orchestra().disabled).toBe(true);
-    expect(describedBy(orchestra())).toContain('This score has no orchestra');
+    expect(orchestra().disabled).toBe(false);
+    expect(hint().hidden).toBe(false);
+    expect(describedBy(orchestra())).toContain(GUIDE_HINT);
     expect(orchestra().value).toBe('60');
     expect(transportState.get().orchestraLevel).toBe(60);
-    expect(metronome().disabled).toBe(false); // the Metronome has nothing to do with the Score's parts (FR-010)
+    expect(metronome().disabled).toBe(false);
   });
 
   // scoreState has no way back to "empty" once a Score has loaded, so the Score cases stay at the end, in order.
-  it('a Score without an Orchestra keeps the Orchestra slider disabled with the explanation', () => {
+  it('a Score without an Orchestra keeps the Orchestra slider enabled, with the guide hint as its description', () => {
     loadScore([piano]);
-    expect(orchestra().disabled).toBe(true);
-    expect(describedBy(orchestra())).toContain('This score has no orchestra');
+    expect(orchestra().disabled).toBe(false);
+    expect(hint().hidden).toBe(false);
+    expect(describedBy(orchestra())).toContain(GUIDE_HINT);
     expect(transportState.get().orchestraLevel).toBe(60);
   });
 
-  it('a Score with an Orchestra part enables it and drops the explanation; the next Score without one disables it again, value unchanged', () => {
+  it('a Score with an Orchestra part has no hint and no description; switching Scores never changes the stored level', () => {
     transportState.setOrchestraLevel(25);
     loadScore([piano, oboe]);
     expect(orchestra().disabled).toBe(false);
-    expect(describedBy(orchestra())).not.toContain('This score has no orchestra');
+    expect(hint().hidden).toBe(true);
+    expect(orchestra().hasAttribute('aria-describedby')).toBe(false);
     expect(orchestra().value).toBe('25');
 
     loadScore([piano]);
-    expect(orchestra().disabled).toBe(true);
+    expect(orchestra().disabled).toBe(false);
+    expect(hint().hidden).toBe(false);
+    expect(describedBy(orchestra())).toContain(GUIDE_HINT);
     expect(orchestra().value).toBe('25');
     expect(transportState.get().orchestraLevel).toBe(25);
   });

@@ -71,12 +71,17 @@ export const MIXER_LEVEL_STEP = 5; // One step of a Levels slider (019 R-7)
 export const EXPRESSION_CONTROLLER = 11; // MIDI CC11 (expression): the Orchestra level, on top of the Score's own CC7 part volume (019 R-5)
 export const ORCHESTRA_SILENT_TOLERANCE_DBFS = -90; // Level 0 counts as silent below this: CC11 = 0 attenuates by 96 dB (019 R-7, SC-002)
 export const VOICE_HEADROOM_FRACTION = 0.5; // Peak active voices an Orchestra score may use, as a fraction of the synth's voice cap (019 R-11)
+export const GUIDE_PROGRAM = 7; // 0-based GM program of the Guide voice: Clavinet in GeneralUser GS; chosen by the owner after hearing the tine and FM electric pianos (020 R-5, OD-1)
+export const GUIDE_VELOCITY_SCALE = 1; // Guide voice velocity = written velocity x this, at least 1; 1 = the Score's own dynamics, about level with the piano at Orchestra level 100 (owner request 2026-10-02, 020 R-5, OD-1)
+export const GUIDE_QUIETER_MIN_DB = 6; // Test bound: at ORCHESTRA_LEVEL_DEFAULT the Guide voice is at least this far below the piano playing the same notes (020 R-5, SC-002)
 
 // Audio worklet scheduling (R-10, shared with worklet which cannot import engine/config)
 export const POSITION_REPORT_BLOCKS = 4;
 export const VOLUME_RAMP_FRAMES = 256;
 /** Tick-0 controller events (bank, volume, pan, ...) the worklet keeps to apply a schedule's channel setup (009 R-01). */
 export const MAX_SETUP_CONTROLLERS = 64;
+export const DEFAULT_CHANNEL_VOLUME = 100; // CC7 at tick 0 on every used channel whose part gives no <volume>: the GM / synth reset value (020 R-10)
+export const DEFAULT_CHANNEL_PAN = 64; // CC10 at tick 0 on every used channel whose part gives no <pan>: centre (020 R-10)
 
 // Dropout detection and diagnostics (R-10 "Dropouts")
 export const DROPOUT_DRIFT_THRESHOLD_SECONDS = 0.05;

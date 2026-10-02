@@ -12,6 +12,8 @@ export interface PlayOptions {
   tempoPercent?: number;
   /** Measures to play, 1-based and inclusive (the panel's "From measure" and "To measure"). */
   range?: { from: number; to: number };
+  /** Called with the page right before the transport's Play button is pressed (feature 020: install a spy on the engine first). */
+  beforeStart?: (page: Page) => Promise<void>;
 }
 
 interface PlayStateSeam {
@@ -80,6 +82,7 @@ export async function startPlay(page: Page, itemId: string, options: PlayOptions
     }
   }
 
+  await options.beforeStart?.(page);
   await page.locator('mx-transport .play-btn').click();
   await expect.poll(() => playPhase(page), { timeout: 15_000 }).toMatch(/^(countIn|running)$/);
 }

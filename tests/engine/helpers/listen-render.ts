@@ -9,10 +9,14 @@ import {
   METRONOME_VELOCITY_BEAT,
   METRONOME_VELOCITY_DOWNBEAT,
 } from '../../../src/core/defaults.js';
+import { buildExpectedNotes } from '../../../src/core/grade/expected.js';
 import { buildScore } from '../../../src/core/musicxml/build.js';
 import { readXml } from '../../../src/core/musicxml/read.js';
+import { handOptions, partOptions } from '../../../src/core/practice/hands.js';
+import type { HandSelection } from '../../../src/core/practice/types.js';
 import { compileSchedule, EVENT_KIND } from '../../../src/core/schedule/compile.js';
 import { compilePlaySchedule } from '../../../src/core/schedule/play-schedule.js';
+import type { NoteId, Score } from '../../../src/core/score/model.js';
 import { buildTimeline } from '../../../src/core/timeline/timeline.js';
 import { decodeXml } from '../../../src/engine/files/decode.js';
 import { frameOfTickInSegs, recomputeSegmentFrames } from '../../../src/engine/worklets/dispatch.js';
@@ -95,8 +99,22 @@ export interface PlayRenderOptions {
   metronomeVolume: number;
   tempoPercent?: number;
   /** Called before each render block with the block's first frame; `send` is `receiveMessage` of the processor, so a test
-   *  can inject a `channelVolume` (or any other) message at the frame it wants, the way the engine would between blocks. */
+   *  can inject a `channelVolume`, `orchestraLevel`, `pause`, `stop` (or any other) message at the frame it wants, the way
+   *  the engine would between blocks. */
   beforeBlock?: (frame: number, send: (msg: InboundMessage) => void) => void;
+  /** Where the file is read from: `public/library` (the default) or `tests/fixtures/musicxml`, as `renderListen` takes it. */
+  source?: 'library' | 'fixture';
+  /** The notes the musician is asked to play (020 T005). A `HandSelection` becomes the graded set the way the session does
+   *  (`buildExpectedNotes` over the whole Score); `'all'` is the session's default choice (the preselected part, both hands);
+   *  a set is used as is. Default: nothing graded, as before 020. */
+  graded?: 'all' | HandSelection | ReadonlySet<NoteId>;
+  /** `PlayScheduleOptions.guide` (020): play the graded notes as the Guide voice when the Score has no Orchestra. */
+  guide?: boolean;
+  /** The Orchestra level, 0..100, sent as the engine does (`orchestraLevel` with `level / 100`) before the schedule loads.
+   *  Default: not sent, so the processor keeps its start-up level (CC11 127 on a mask channel). */
+  orchestraLevel?: number;
+  /** Render without the synth's reverb and chorus, whose tails depend on all earlier audio (as `renderListen`'s `dry`). */
+  dry?: boolean;
 }
 
 export interface PlayRender {
@@ -104,6 +122,13 @@ export interface PlayRender {
   right: Float32Array;
   /** The frame of every scheduled Metronome click (note-on on `METRONOME_CHANNEL`) inside the rendered span. */
   clickFrames: number[];
+  /** The frame of every scheduled note-on on `channel` inside the rendered span, from the compiled schedule (020 T005). */
+  noteOnFrames: (channel: number) => number[];
+  /** The frame at which the count-in ends, i.e. where the run's first note is due (020 T005). */
+  countInEndFrame: number;
+  /** The compiled run schedule and the Guide voice's channel (`PlaySchedule.guideChannel`, 020). */
+  schedule: ReturnType<typeof compilePlaySchedule>['schedule'];
+  guideChannel: number | null;
   /** Everything the processor reported while rendering (position, ended, status, liveDropped). */
   messages: ProcessorMessage[];
   /** The processor's running count of events that sounded after their own frame (worklet-protocol 1.5.0). */
@@ -114,6 +139,8 @@ export interface PlayRender {
   orchestraChannels: number[];
   /** The most voices the synth had sounding at the end of any render block (feature 019 R-11, T056). */
   peakVoices: number;
+  /** The voices the synth still had sounding after the last render block (020: none must ring on after a stop or a pause). */
+  finalVoices: number;
 }
 
 /**
@@ -125,13 +152,16 @@ export interface PlayRender {
 export function renderPlayRun(libraryFile: string, options: PlayRenderOptions): PlayRender {
   const synth = new SpessaSynthProcessor(SAMPLE_RATE);
   synth.soundBankManager.addSoundBank(shippedSoundBank(), 'default');
-  const xml = decodeXml(fs.readFileSync(path.join(__dirname, '../../../public/library', libraryFile)));
+  if (options.dry) synth.setSystemParameter('effectsEnabled', false);
+  const dir = options.source === 'fixture' ? '../../fixtures/musicxml' : '../../../public/library';
+  const xml = decodeXml(fs.readFileSync(path.join(__dirname, dir, libraryFile)));
   const { score } = buildScore(readXml(xml).doc);
   const tempoPercent = options.tempoPercent ?? 100;
   const { timeline } = buildTimeline(score);
-  const { schedule } = compilePlaySchedule(timeline, score.measures, {
+  const gradedNoteIds = gradedSetOf(score, timeline, options.graded);
+  const { schedule, tickMap, guideChannel } = compilePlaySchedule(timeline, score.measures, {
     range: null,
-    gradedNoteIds: new Set(),
+    gradedNoteIds,
     accompaniment: options.accompaniment,
     countInMeasures: 1,
     tempoPercent,
@@ -141,6 +171,7 @@ export function renderPlayRun(libraryFile: string, options: PlayRenderOptions): 
       beatVelocity: METRONOME_VELOCITY_BEAT,
       downbeatVelocity: METRONOME_VELOCITY_DOWNBEAT,
     },
+    guide: options.guide ?? false,
   });
 
   const messages: ProcessorMessage[] = [];
@@ -170,6 +201,9 @@ export function renderPlayRun(libraryFile: string, options: PlayRenderOptions): 
   proc.onMessage = (message) => messages.push(message);
   proc.soundReady();
   proc.receiveMessage({ type: 'tempo', percent: tempoPercent });
+  if (options.orchestraLevel !== undefined) {
+    proc.receiveMessage({ type: 'orchestraLevel', gain: options.orchestraLevel / 100 });
+  }
   proc.receiveMessage(schedule);
   proc.receiveMessage({ type: 'channelVolume', channel: METRONOME_CHANNEL, gain: options.metronomeVolume / 100 });
   proc.receiveMessage({ type: 'play' });
@@ -185,16 +219,47 @@ export function renderPlayRun(libraryFile: string, options: PlayRenderOptions): 
     peakVoices = Math.max(peakVoices, synth.voiceCount);
   }
 
-  const clickFrames: number[] = [];
-  for (let i = 0; i < schedule.eventKind.length; i++) {
-    if (schedule.eventKind[i] !== EVENT_KIND.noteOn || schedule.eventChannel[i] !== METRONOME_CHANNEL) continue;
-    const frame = frameOfTickInSegs(schedule.eventTick[i] as number, segments);
-    if (frame < total) clickFrames.push(frame);
-  }
+  const noteOnFrames = (channel: number): number[] => {
+    const frames: number[] = [];
+    for (let i = 0; i < schedule.eventKind.length; i++) {
+      if (schedule.eventKind[i] !== EVENT_KIND.noteOn || schedule.eventChannel[i] !== channel) continue;
+      const frame = frameOfTickInSegs(schedule.eventTick[i] as number, segments);
+      if (frame < total) frames.push(frame);
+    }
+    return frames;
+  };
   let lateEvents = 0;
   for (const message of messages) if (message.type === 'position') lateEvents = message.lateEvents;
   const orchestraChannels = timeline.channels.flatMap((c, i) => (c.orchestra ? [i] : []));
-  return { left, right, clickFrames, messages, lateEvents, notes, orchestraChannels, peakVoices };
+  return {
+    left,
+    right,
+    clickFrames: noteOnFrames(METRONOME_CHANNEL),
+    noteOnFrames,
+    countInEndFrame: frameOfTickInSegs(tickMap.countInTicks, segments),
+    schedule,
+    guideChannel,
+    messages,
+    lateEvents,
+    notes,
+    orchestraChannels,
+    peakVoices,
+    finalVoices: synth.voiceCount,
+  };
+}
+
+/** The graded set a Play run is compiled with, built the way `PlaySessionController.start` builds it (020 T005). */
+function gradedSetOf(
+  score: Score,
+  timeline: ReturnType<typeof buildTimeline>['timeline'],
+  graded: PlayRenderOptions['graded'],
+): ReadonlySet<NoteId> {
+  if (graded === undefined) return new Set();
+  if (graded instanceof Set) return graded;
+  const selection =
+    graded === 'all' ? handOptions(score, partOptions(score).preselected)[0] : (graded as HandSelection);
+  if (!selection) return new Set();
+  return new Set(buildExpectedNotes(score, timeline, selection, null).flatMap((note) => note.noteIds));
 }
 
 /** One note-on or note-off the synth was given, with the frame (counted from the start of the render) it was given at. */
@@ -212,6 +277,12 @@ export interface ListenRenderOptions {
   /** Called before each render block with the block's first frame; `send` is `receiveMessage` of the processor, so a test can
    *  issue `play`, `seek`, `pause` or `stop` at the frame it wants, the way the engine would between blocks. */
   beforeBlock?: (frame: number, send: (msg: InboundMessage) => void) => void;
+  /** A fixture's Listen schedule played first, for `seconds`, on the same synth and processor, before `fixture` is loaded
+   *  (020 SC-009: what a previous Score left on a channel must not reach this one). Its audio and notes are not returned. */
+  before?: { fixture: string; seconds: number };
+  /** Render without the synth's reverb and chorus (020). Their tails and LFO phase depend on all earlier audio, which a test of
+   *  one part's own volume and pan against an earlier Score must not pick up. */
+  dry?: boolean;
 }
 
 export interface ListenRender {
@@ -237,9 +308,12 @@ export interface ListenRender {
 export function renderListen(fixture: string, options: ListenRenderOptions): ListenRender {
   const synth = new SpessaSynthProcessor(SAMPLE_RATE);
   synth.soundBankManager.addSoundBank(shippedSoundBank(), 'default');
-  const xml = decodeXml(fs.readFileSync(path.join(__dirname, '../../fixtures/musicxml', fixture)));
-  const { score } = buildScore(readXml(xml).doc);
-  const { timeline } = buildTimeline(score);
+  if (options.dry) synth.setSystemParameter('effectsEnabled', false);
+  const fixtureTimeline = (name: string) => {
+    const xml = decodeXml(fs.readFileSync(path.join(__dirname, '../../fixtures/musicxml', name)));
+    return buildTimeline(buildScore(readXml(xml).doc).score).timeline;
+  };
+  const timeline = fixtureTimeline(fixture);
   const schedule = compileSchedule(timeline);
   const tempoPercent = options.tempoPercent ?? 100;
 
@@ -270,6 +344,16 @@ export function renderListen(fixture: string, options: ListenRenderOptions): Lis
   proc.onMessage = (message) => messages.push(message);
   proc.soundReady();
   proc.receiveMessage({ type: 'tempo', percent: tempoPercent });
+  if (options.before) {
+    proc.receiveMessage(compileSchedule(fixtureTimeline(options.before.fixture)));
+    proc.receiveMessage({ type: 'play' });
+    const scratchLeft = new Float32Array(BLOCK);
+    const scratchRight = new Float32Array(BLOCK);
+    const beforeTotal = Math.floor((options.before.seconds * SAMPLE_RATE) / BLOCK) * BLOCK;
+    for (let i = 0; i < beforeTotal; i += BLOCK) proc.processBlock(scratchLeft, scratchRight);
+    notes.length = 0;
+    framesRendered = 0;
+  }
   proc.receiveMessage(schedule);
 
   const total = Math.floor((options.seconds * SAMPLE_RATE) / BLOCK) * BLOCK;

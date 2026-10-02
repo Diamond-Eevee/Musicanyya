@@ -29,6 +29,7 @@ const PLAY_OPTIONS: PlayScheduleOptions = {
   countInMeasures: 1,
   tempoPercent: 100,
   metronome: METRONOME,
+  guide: false,
 };
 
 function collect(dir: string, into: string[]): void {

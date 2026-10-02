@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { LIVE_CHANNEL, METRONOME_CHANNEL } from '../../../src/core/defaults.js';
+import {
+  DEFAULT_CHANNEL_PAN,
+  DEFAULT_CHANNEL_VOLUME,
+  LIVE_CHANNEL,
+  MAX_SETUP_CONTROLLERS,
+  METRONOME_CHANNEL,
+  PERCUSSION_CHANNEL,
+} from '../../../src/core/defaults.js';
+import { buildExpectedNotes } from '../../../src/core/grade/expected.js';
 import type { PerformanceLog } from '../../../src/core/grade/types.js';
 import { compileReplay } from '../../../src/core/play/replay.js';
+import { EVENT_KIND } from '../../../src/core/schedule/compile.js';
 import { compilePlaySchedule } from '../../../src/core/schedule/play-schedule.js';
 import { audioTimeAtTick } from '../../../src/core/tempo/rate.js';
 import type { TempoSegment } from '../../../src/core/timeline/types.js';
@@ -57,6 +66,7 @@ describe('Replay (FR-042, research R-10) - a stored log compiles to a schedule, 
       countInMeasures: 1,
       tempoPercent: 100,
       metronome: METRONOME,
+      guide: false,
     });
     const runTempo = runTempoOf(schedule);
 
@@ -182,6 +192,7 @@ describe('Replay (FR-042, research R-10) - a stored log compiles to a schedule, 
       countInMeasures: 1,
       tempoPercent: 100,
       metronome: METRONOME,
+      guide: false,
     });
     const runTempo = runTempoOf(schedule);
     const toSeconds = (tick: number) => audioTimeAtTick(tick, runTempo, timeline.ppq, 100);
@@ -223,5 +234,132 @@ describe('Replay (FR-042, research R-10) - a stored log compiles to a schedule, 
     });
 
     expect(eventsOnChannel(replay, LIVE_CHANNEL)).toEqual([]);
+  });
+});
+
+// 020 R-10 (RT review of T011): every used channel now carries a tick-0 CC7 and CC10, so the merged replay schedule - the run's
+// own setup plus the live channel's - must still fit the worklet's MAX_SETUP_CONTROLLERS, and the live channel starts at the defaults.
+describe('Replay setup controllers (020 R-10)', () => {
+  it('a run that uses every melodic channel and percussion, merged with the live channel, stays within MAX_SETUP_CONTROLLERS', () => {
+    const { score, timeline } = loadFixture('eight-measure-melody.musicxml');
+    const channels = timeline.channels.map((c, i) =>
+      i === METRONOME_CHANNEL || i === LIVE_CHANNEL
+        ? c
+        : { ...c, used: true, bankMsb: 1, program: i, percussion: i === PERCUSSION_CHANNEL },
+    );
+    const { schedule } = compilePlaySchedule({ ...timeline, channels }, score.measures, {
+      range: null,
+      gradedNoteIds: new Set(),
+      accompaniment: true,
+      countInMeasures: 1,
+      tempoPercent: 100,
+      metronome: METRONOME,
+      guide: false,
+    });
+    const runTempo = runTempoOf(schedule);
+    const toSeconds = (tick: number) => audioTimeAtTick(tick, runTempo, timeline.ppq, 100);
+    const note = (kind: 'noteOn' | 'noteOff', tick: number) => ({
+      kind,
+      key: 60,
+      velocity: kind === 'noteOn' ? 90 : 0,
+      down: false,
+      audioTimeSec: toSeconds(tick),
+      timeStampMs: 0,
+      deviceId: 'd',
+    });
+    const log: PerformanceLog = {
+      version: 1,
+      messages: [note('noteOn', 500), note('noteOff', 700)],
+      droppedMessages: 0,
+    };
+
+    const replay = compileReplay({
+      log,
+      tempo: runTempo,
+      ppq: timeline.ppq,
+      tempoPercent: 100,
+      startAudioTimeSec: 0,
+      accompaniment: schedule,
+    });
+
+    const controllerAtZero = (channel: number, controller: number): number | undefined => {
+      for (let i = 0; i < replay.eventTick.length; i++) {
+        if (
+          replay.eventKind[i] === EVENT_KIND.controlChange &&
+          replay.eventTick[i] === 0 &&
+          replay.eventChannel[i] === channel &&
+          replay.eventData1[i] === controller
+        ) {
+          return replay.eventData2[i];
+        }
+      }
+      return undefined;
+    };
+    let controllers = 0;
+    for (let i = 0; i < replay.eventKind.length; i++) {
+      if (replay.eventKind[i] === EVENT_KIND.controlChange && replay.eventTick[i] === 0) controllers++;
+    }
+
+    expect(controllers).toBe(14 * 3 + 2); // a bank, CC7 and CC10 on 14 channels, CC7 and CC10 on the live channel
+    expect(controllers).toBeLessThanOrEqual(MAX_SETUP_CONTROLLERS);
+    expect(controllerAtZero(LIVE_CHANNEL, 7)).toBe(DEFAULT_CHANNEL_VOLUME);
+    expect(controllerAtZero(LIVE_CHANNEL, 10)).toBe(DEFAULT_CHANNEL_PAN);
+    expect(controllerAtZero(METRONOME_CHANNEL, 7)).toBeUndefined(); // the click level stays the session's `channelVolume`
+  });
+});
+
+// 020 US3 (FR-009): the replay of a run that had a Guide voice keeps it, next to the notes the musician played.
+describe('Replay of a guided run (feature 020 US3)', () => {
+  it('keeps every guide note and the guide channel in the Orchestra mask, beside the live-channel notes', () => {
+    const { score, timeline } = loadFixture('eight-measure-melody.musicxml');
+    const gradedNoteIds = new Set(
+      buildExpectedNotes(score, timeline, { preset: 'both', partIndex: 0, staves: [1] }, null).flatMap(
+        (n) => n.noteIds,
+      ),
+    );
+    const run = compilePlaySchedule(timeline, score.measures, {
+      range: null,
+      gradedNoteIds,
+      accompaniment: true,
+      countInMeasures: 1,
+      tempoPercent: 100,
+      metronome: METRONOME,
+      guide: true,
+    });
+    const guide = run.guideChannel;
+    expect(guide).not.toBeNull(); // this half passes once the guide exists (T018): mergeSchedules carries the mask (analyze A10)
+    const runTempo = runTempoOf(run.schedule);
+    const toSeconds = (tick: number) => audioTimeAtTick(tick, runTempo, timeline.ppq, 100);
+    const key = (kind: 'noteOn' | 'noteOff', tick: number) => ({
+      kind,
+      key: 62,
+      velocity: kind === 'noteOn' ? 80 : 0,
+      down: false,
+      audioTimeSec: toSeconds(tick),
+      timeStampMs: 0,
+      deviceId: 'd',
+    });
+    const log: PerformanceLog = {
+      version: 1,
+      messages: [key('noteOn', run.expectedFirstRunTick + 100), key('noteOff', run.expectedFirstRunTick + 400)],
+      droppedMessages: 0,
+    };
+
+    const replay = compileReplay({
+      log,
+      tempo: runTempo,
+      ppq: timeline.ppq,
+      tempoPercent: 100,
+      startAudioTimeSec: 0,
+      accompaniment: run.schedule,
+    });
+
+    const noteOns = (schedule: typeof replay, channel: number) =>
+      eventsOnChannel(schedule, channel).filter((e) => e.kind === 1);
+    expect(noteOns(replay, guide as number)).toEqual(noteOns(run.schedule, guide as number));
+    expect(noteOns(replay, guide as number)).toHaveLength(gradedNoteIds.size);
+    expect(noteOns(replay, LIVE_CHANNEL)).toHaveLength(1); // what the musician played
+    expect((replay.orchestraMask ?? 0) & (1 << (guide as number))).not.toBe(0);
+    expect((replay.orchestraMask ?? 0) & (1 << LIVE_CHANNEL)).toBe(0); // the live piano is not governed by the Orchestra level
   });
 });

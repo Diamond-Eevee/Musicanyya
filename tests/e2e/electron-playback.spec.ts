@@ -15,6 +15,8 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type ElectronApplication, _electron as electron, expect, test } from '@playwright/test';
+import { GUIDE_PROGRAM } from '../../src/core/defaults.js';
+import { loadedSchedules, maskChannelsWithNotes, spyOnLoadedSchedules } from './helpers/schedule-spy.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixture = (name: string) => path.join(__dirname, '../fixtures/musicxml', name);
@@ -177,5 +179,32 @@ test.describe('Electron: Listen mode plays under the app:// origin (T140, T141)'
     expect((await seam())?.discs ?? []).toHaveLength(0);
 
     expect(consoleErrors, 'no uncaught page error').toEqual([]);
+  });
+
+  // Feature 020 SC-008: the Guide voice is the same core code in the desktop app - a Play run on a Score without an Orchestra asks the
+  // engine for notes on a channel the Orchestra level governs, set up with the Guide voice's program.
+  // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
+  test('a Play run on a Score without an Orchestra loads a guide channel (feature 020 SC-008)', async ({}, testInfo) => {
+    test.skip(testInfo.project.name !== 'electron', 'launches the desktop shell; electron project only');
+    test.setTimeout(120_000);
+
+    const window = await electronApp.firstWindow();
+    await window.reload();
+    await window.locator('mx-open-button input[type=file]').setInputFiles(fixture('scale-c-major-q100.musicxml'));
+    await expect(window.locator('.mx-score-page svg').first()).toBeVisible({ timeout: 30_000 });
+    await expect(window.locator('.play-btn')).not.toBeDisabled({ timeout: 90_000 });
+    await window.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
+    await window.locator('#mode-controls mx-mode-switch input[value=play]').check();
+
+    await spyOnLoadedSchedules(window);
+    await window.locator('.play-btn').click();
+    await expect.poll(async () => (await loadedSchedules(window)).length, { timeout: 30_000 }).toBeGreaterThan(0);
+    const loaded = await loadedSchedules(window);
+    const guide = maskChannelsWithNotes(loaded[0] as (typeof loaded)[number]);
+    expect(guide).toHaveLength(1);
+    expect(guide[0]?.program).toBe(GUIDE_PROGRAM);
+    expect(guide[0]?.noteOns).toBeGreaterThan(0);
+
+    await window.keyboard.press('Escape'); // end the run
   });
 });

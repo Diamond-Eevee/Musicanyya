@@ -1,8 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { TICK_LIMIT } from '../../../src/core/defaults.js';
+import {
+  DEFAULT_CHANNEL_PAN,
+  DEFAULT_CHANNEL_VOLUME,
+  MAX_SETUP_CONTROLLERS,
+  METRONOME_CHANNEL,
+  METRONOME_KEY_BEAT,
+  METRONOME_KEY_DOWNBEAT,
+  METRONOME_VELOCITY_BEAT,
+  METRONOME_VELOCITY_DOWNBEAT,
+  TICK_LIMIT,
+} from '../../../src/core/defaults.js';
 import { MusicXmlLoadError } from '../../../src/core/musicxml/load-error.js';
 import { compileSchedule, EVENT_KIND, mergeSchedules } from '../../../src/core/schedule/compile.js';
+import { compilePlaySchedule } from '../../../src/core/schedule/play-schedule.js';
 import type { ChannelSetup, PlaybackTimeline, SoundingEvent } from '../../../src/core/timeline/types.js';
+import { loadFixture } from '../practice/helpers.js';
 
 function emptyChannels(): ChannelSetup[] {
   return Array.from({ length: 16 }, () => ({
@@ -102,8 +114,15 @@ describe('compileSchedule', () => {
     channels[0] = { ...ch0, used: true, program: 0 };
     const noteAtZero = event({ startTick: 0, endTick: 100 });
     const { eventKind } = compileSchedule(timeline({ channels, events: [noteAtZero] }));
-    expect(eventKind[0]).toBe(EVENT_KIND.programChange);
-    expect(eventKind[1]).toBe(EVENT_KIND.noteOn);
+    // 020 FR-015 / R-10: the channel's volume and pan are now always set, so two control changes (which sort before the program
+    // change, `sortRank`) join the program change in front of the note; the rule under test, setup before notes, is unchanged.
+    expect([...eventKind]).toEqual([
+      EVENT_KIND.controlChange,
+      EVENT_KIND.controlChange,
+      EVENT_KIND.programChange,
+      EVENT_KIND.noteOn,
+      EVENT_KIND.noteOff,
+    ]);
   });
 
   it('carries the tempo map into parallel tempoTick/tempoQpmNum/tempoQpmDen arrays', () => {
@@ -177,5 +196,105 @@ describe('orchestraMask', () => {
     expect(mergeSchedules(b, a).orchestraMask).toBe(1 << 2);
     expect(mergeSchedules(a, compileSchedule(withOrchestra(5))).orchestraMask).toBe((1 << 2) | (1 << 5));
     expect(mergeSchedules(b, b).orchestraMask).toBe(0);
+  });
+});
+
+// Feature 020 (worklet-protocol 1.7.0, research R-10, spec FR-015): a part without <volume> / <pan> must not keep the volume and
+// pan the previous schedule left on its channel, so every used channel but the Metronome's sets both at tick 0.
+describe('tick-0 volume and pan on every used channel (020 FR-015)', () => {
+  /** The tick-0 value of controller `controller` on `channel`, or undefined when the schedule sets none. */
+  const controllerAtZero = (s: ReturnType<typeof compileSchedule>, channel: number, controller: number) => {
+    const found: number[] = [];
+    for (let i = 0; i < s.eventKind.length; i++) {
+      if (
+        s.eventKind[i] === EVENT_KIND.controlChange &&
+        s.eventTick[i] === 0 &&
+        s.eventChannel[i] === channel &&
+        s.eventData1[i] === controller
+      ) {
+        found.push(s.eventData2[i] as number);
+      }
+    }
+    expect(found.length).toBeLessThanOrEqual(1); // never two values for one controller
+    return found[0];
+  };
+
+  const withUsed = (setups: Record<number, Partial<ChannelSetup>>) => {
+    const channels = emptyChannels();
+    for (const [c, setup] of Object.entries(setups)) {
+      channels[Number(c)] = { ...(channels[Number(c)] as ChannelSetup), used: true, ...setup };
+    }
+    return timeline({ channels });
+  };
+
+  it('a used channel whose part gives no volume or pan gets the General MIDI defaults', () => {
+    const s = compileSchedule(withUsed({ 0: {}, 3: { program: 40 } }));
+    for (const channel of [0, 3]) {
+      expect(controllerAtZero(s, channel, 7)).toBe(DEFAULT_CHANNEL_VOLUME);
+      expect(controllerAtZero(s, channel, 10)).toBe(DEFAULT_CHANNEL_PAN);
+    }
+  });
+
+  it('a part that gives a volume or a pan keeps its own value, the other one defaults', () => {
+    const s = compileSchedule(withUsed({ 0: { volume: 51, pan: 1 }, 1: { volume: 20 }, 2: { pan: 120 } }));
+    expect(controllerAtZero(s, 0, 7)).toBe(51);
+    expect(controllerAtZero(s, 0, 10)).toBe(1);
+    expect(controllerAtZero(s, 1, 7)).toBe(20);
+    expect(controllerAtZero(s, 1, 10)).toBe(DEFAULT_CHANNEL_PAN);
+    expect(controllerAtZero(s, 2, 7)).toBe(DEFAULT_CHANNEL_VOLUME);
+    expect(controllerAtZero(s, 2, 10)).toBe(120);
+  });
+
+  it('an unused channel gets no controller, even beside used ones', () => {
+    const s = compileSchedule(withUsed({ 0: {}, 5: {} }));
+    for (let i = 0; i < s.eventKind.length; i++) expect([0, 5]).toContain(s.eventChannel[i]);
+    expect(controllerAtZero(s, 1, 7)).toBeUndefined();
+    expect(controllerAtZero(s, 1, 10)).toBeUndefined();
+  });
+
+  it('the Metronome channel gets no volume or pan of its own: its CC7 is the session channelVolume (R-10)', () => {
+    const s = compileSchedule(withUsed({ 0: {}, [METRONOME_CHANNEL]: { percussion: true } }));
+    expect(controllerAtZero(s, METRONOME_CHANNEL, 7)).toBeUndefined();
+    expect(controllerAtZero(s, METRONOME_CHANNEL, 10)).toBeUndefined();
+  });
+
+  it('a compiled Play schedule never sets volume or pan on the Metronome channel (guard: holds today and must keep holding)', () => {
+    const { score, timeline: scoreTimeline } = loadFixture('eight-measure-melody.musicxml');
+    const { schedule } = compilePlaySchedule(scoreTimeline, score.measures, {
+      range: null,
+      gradedNoteIds: new Set(),
+      accompaniment: true,
+      countInMeasures: 1,
+      tempoPercent: 100,
+      metronome: {
+        beatKey: METRONOME_KEY_BEAT,
+        downbeatKey: METRONOME_KEY_DOWNBEAT,
+        beatVelocity: METRONOME_VELOCITY_BEAT,
+        downbeatVelocity: METRONOME_VELOCITY_DOWNBEAT,
+      },
+      guide: false,
+    });
+    expect(schedule.channelSetup[METRONOME_CHANNEL * 4]).toBe(1); // the click channel is used ...
+    expect(controllerAtZero(schedule, METRONOME_CHANNEL, 7)).toBeUndefined(); // ... without a CC7 or CC10 of its own
+    expect(controllerAtZero(schedule, METRONOME_CHANNEL, 10)).toBeUndefined();
+  });
+
+  it('setup events still sort before note events at tick 0', () => {
+    const s = compileSchedule({ ...withUsed({ 0: {} }), events: [event({ startTick: 0, endTick: 100 })] });
+    const firstNoteOn = [...s.eventKind].indexOf(EVENT_KIND.noteOn);
+    expect(firstNoteOn).toBeGreaterThan(0);
+    for (let i = 0; i < firstNoteOn; i++) {
+      expect([EVENT_KIND.programChange, EVENT_KIND.controlChange]).toContain(s.eventKind[i]);
+    }
+  });
+
+  it('all 16 channels used with a bank each stay within 3 controllers per channel, under MAX_SETUP_CONTROLLERS', () => {
+    const everyChannel = Object.fromEntries(Array.from({ length: 16 }, (_, c) => [c, { bankMsb: 1 }]));
+    const s = compileSchedule(withUsed(everyChannel));
+    let controllers = 0;
+    for (let i = 0; i < s.eventKind.length; i++) if (s.eventKind[i] === EVENT_KIND.controlChange) controllers++;
+    expect(controllers).toBe(16 + 2 * 15); // a bank each, plus CC7 and CC10 on every channel but the Metronome's
+    expect(controllers).toBeLessThanOrEqual(16 * 3);
+    expect(controllers).toBeLessThanOrEqual(MAX_SETUP_CONTROLLERS);
   });
 });

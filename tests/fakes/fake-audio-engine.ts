@@ -21,8 +21,11 @@ export class FakeAudioEngine implements AudioEngine {
   async ensureSoundLoaded() {
     this.commands.push('ensureSoundLoaded');
   }
+  /** Every schedule handed to `load`, in order (feature 020: a test reads which channels a run plays on). */
+  public loaded: EngineSchedule[] = [];
   load(schedule: EngineSchedule) {
     this.commands.push('load');
+    this.loaded.push(schedule);
   }
   play() {
     this.commands.push('play');

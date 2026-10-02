@@ -381,6 +381,11 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-10-02: Feature 020 implemented (Guide voice in Play mode; owner listening check OD-1 pending): on a Score without an
+  Orchestra, a Play run and its replay play the musician's own expected notes softly with an electric piano (`GUIDE_PROGRAM` 7,
+  0-based; Clavinet) on a free channel, governed by the
+  Orchestra level (the Levels slider is no longer disabled there). One core change in `compilePlaySchedule`; no engine,
+  worklet, setting or dependency change.
 - 2026-10-01: Feature 019 planned (Metronome and Orchestra levels, Morning Mood with an Orchestra): a Levels popover
   next to the Volume slider sets the Metronome click (0-100 %) and the Orchestra (hidden accompaniment instruments,
   0-100 %), remembered across restarts; Orchestra parts sound in every mode but are never printed, expected or graded;
@@ -391,8 +396,4 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
   (additive `expanded` field); on start the last selected item is selected and revealed but not loaded, and opening an
   item (also a file opened directly) selects it and opens its path. `pnpm screenshot --storage <key>=<json>` seeds
   `localStorage` for a picture. No new dependency.
-- 2026-09-29: Feature 016 planned (a modern look, themes and a logo): one set of control styles for the chrome, six
-  themes (Paper, Ivory, Slate light; Night, Walnut, Midnight dark) plus Automatic following the OS, with the Score
-  pages pure white in every theme; palettes measured for WCAG contrast and ΔE00 >= 15 from the feedback colours; an
-  original logo (two beamed notes forming an M) in the bar, empty state, favicon and Electron icons. No new dependency.
 <!-- RECENT-CHANGES:END -->
