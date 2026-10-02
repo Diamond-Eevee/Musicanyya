@@ -138867,13 +138867,6 @@
           "soundingKey": 88
         },
         {
-          "id": "n-p3-s1-m20-v1-o0-k47",
-          "measureIndex": 20,
-          "onsetInMeasure": 0,
-          "durationTicks": 2880,
-          "soundingKey": 47
-        },
-        {
           "id": "n-p3-s1-m20-v1-o0-k52",
           "measureIndex": 20,
           "onsetInMeasure": 0,
@@ -138888,11 +138881,11 @@
           "soundingKey": 56
         },
         {
-          "id": "n-p3-s1-m21-v1-o0-k47",
-          "measureIndex": 21,
+          "id": "n-p3-s1-m20-v1-o0-k59",
+          "measureIndex": 20,
           "onsetInMeasure": 0,
           "durationTicks": 2880,
-          "soundingKey": 47
+          "soundingKey": 59
         },
         {
           "id": "n-p3-s1-m21-v1-o0-k52",
@@ -138909,11 +138902,11 @@
           "soundingKey": 56
         },
         {
-          "id": "n-p3-s1-m22-v1-o0-k47",
-          "measureIndex": 22,
+          "id": "n-p3-s1-m21-v1-o0-k59",
+          "measureIndex": 21,
           "onsetInMeasure": 0,
-          "durationTicks": 1440,
-          "soundingKey": 47
+          "durationTicks": 2880,
+          "soundingKey": 59
         },
         {
           "id": "n-p3-s1-m22-v1-o0-k52",
@@ -138930,11 +138923,11 @@
           "soundingKey": 56
         },
         {
-          "id": "n-p3-s1-m22-v1-o3_2-k49",
+          "id": "n-p3-s1-m22-v1-o0-k59",
           "measureIndex": 22,
-          "onsetInMeasure": 1440,
+          "onsetInMeasure": 0,
           "durationTicks": 1440,
-          "soundingKey": 49
+          "soundingKey": 59
         },
         {
           "id": "n-p3-s1-m22-v1-o3_2-k52",
@@ -138951,18 +138944,18 @@
           "soundingKey": 56
         },
         {
-          "id": "n-p3-s1-m23-v1-o0-k42",
-          "measureIndex": 23,
-          "onsetInMeasure": 0,
+          "id": "n-p3-s1-m22-v1-o3_2-k61",
+          "measureIndex": 22,
+          "onsetInMeasure": 1440,
           "durationTicks": 1440,
-          "soundingKey": 42
+          "soundingKey": 61
         },
         {
-          "id": "n-p3-s1-m23-v1-o0-k49",
+          "id": "n-p3-s1-m23-v1-o0-k54",
           "measureIndex": 23,
           "onsetInMeasure": 0,
           "durationTicks": 1440,
-          "soundingKey": 49
+          "soundingKey": 54
         },
         {
           "id": "n-p3-s1-m23-v1-o0-k57",
@@ -138972,18 +138965,11 @@
           "soundingKey": 57
         },
         {
-          "id": "n-p3-s1-m24-v1-o0-k42",
-          "measureIndex": 24,
+          "id": "n-p3-s1-m23-v1-o0-k61",
+          "measureIndex": 23,
           "onsetInMeasure": 0,
-          "durationTicks": 2880,
-          "soundingKey": 42
-        },
-        {
-          "id": "n-p3-s1-m24-v1-o0-k49",
-          "measureIndex": 24,
-          "onsetInMeasure": 0,
-          "durationTicks": 2880,
-          "soundingKey": 49
+          "durationTicks": 1440,
+          "soundingKey": 61
         },
         {
           "id": "n-p3-s1-m24-v1-o0-k52",
@@ -138993,6 +138979,13 @@
           "soundingKey": 52
         },
         {
+          "id": "n-p3-s1-m24-v1-o0-k54",
+          "measureIndex": 24,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 54
+        },
+        {
           "id": "n-p3-s1-m24-v1-o0-k57",
           "measureIndex": 24,
           "onsetInMeasure": 0,
@@ -139000,18 +138993,11 @@
           "soundingKey": 57
         },
         {
-          "id": "n-p3-s1-m25-v1-o0-k42",
-          "measureIndex": 25,
+          "id": "n-p3-s1-m24-v1-o0-k61",
+          "measureIndex": 24,
           "onsetInMeasure": 0,
           "durationTicks": 2880,
-          "soundingKey": 42
-        },
-        {
-          "id": "n-p3-s1-m25-v1-o0-k49",
-          "measureIndex": 25,
-          "onsetInMeasure": 0,
-          "durationTicks": 2880,
-          "soundingKey": 49
+          "soundingKey": 61
         },
         {
           "id": "n-p3-s1-m25-v1-o0-k52",
@@ -139021,6 +139007,13 @@
           "soundingKey": 52
         },
         {
+          "id": "n-p3-s1-m25-v1-o0-k54",
+          "measureIndex": 25,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 54
+        },
+        {
           "id": "n-p3-s1-m25-v1-o0-k57",
           "measureIndex": 25,
           "onsetInMeasure": 0,
@@ -139028,18 +139021,11 @@
           "soundingKey": 57
         },
         {
-          "id": "n-p3-s1-m26-v1-o0-k42",
-          "measureIndex": 26,
+          "id": "n-p3-s1-m25-v1-o0-k61",
+          "measureIndex": 25,
           "onsetInMeasure": 0,
-          "durationTicks": 1440,
-          "soundingKey": 42
-        },
-        {
-          "id": "n-p3-s1-m26-v1-o0-k49",
-          "measureIndex": 26,
-          "onsetInMeasure": 0,
-          "durationTicks": 1440,
-          "soundingKey": 49
+          "durationTicks": 2880,
+          "soundingKey": 61
         },
         {
           "id": "n-p3-s1-m26-v1-o0-k52",
@@ -139049,6 +139035,13 @@
           "soundingKey": 52
         },
         {
+          "id": "n-p3-s1-m26-v1-o0-k54",
+          "measureIndex": 26,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 54
+        },
+        {
           "id": "n-p3-s1-m26-v1-o0-k57",
           "measureIndex": 26,
           "onsetInMeasure": 0,
@@ -139056,18 +139049,18 @@
           "soundingKey": 57
         },
         {
-          "id": "n-p3-s1-m26-v1-o3_2-k42",
+          "id": "n-p3-s1-m26-v1-o0-k61",
           "measureIndex": 26,
-          "onsetInMeasure": 1440,
+          "onsetInMeasure": 0,
           "durationTicks": 1440,
-          "soundingKey": 42
+          "soundingKey": 61
         },
         {
-          "id": "n-p3-s1-m26-v1-o3_2-k51",
+          "id": "n-p3-s1-m26-v1-o3_2-k54",
           "measureIndex": 26,
           "onsetInMeasure": 1440,
           "durationTicks": 1440,
-          "soundingKey": 51
+          "soundingKey": 54
         },
         {
           "id": "n-p3-s1-m26-v1-o3_2-k57",
@@ -139077,18 +139070,11 @@
           "soundingKey": 57
         },
         {
-          "id": "n-p3-s1-m27-v1-o0-k44",
-          "measureIndex": 27,
-          "onsetInMeasure": 0,
+          "id": "n-p3-s1-m26-v1-o3_2-k63",
+          "measureIndex": 26,
+          "onsetInMeasure": 1440,
           "durationTicks": 1440,
-          "soundingKey": 44
-        },
-        {
-          "id": "n-p3-s1-m27-v1-o0-k51",
-          "measureIndex": 27,
-          "onsetInMeasure": 0,
-          "durationTicks": 1440,
-          "soundingKey": 51
+          "soundingKey": 63
         },
         {
           "id": "n-p3-s1-m27-v1-o0-k54",
@@ -139098,6 +139084,13 @@
           "soundingKey": 54
         },
         {
+          "id": "n-p3-s1-m27-v1-o0-k56",
+          "measureIndex": 27,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 56
+        },
+        {
           "id": "n-p3-s1-m27-v1-o0-k59",
           "measureIndex": 27,
           "onsetInMeasure": 0,
@@ -139105,11 +139098,11 @@
           "soundingKey": 59
         },
         {
-          "id": "n-p3-s1-m27-v1-o3_2-k44",
+          "id": "n-p3-s1-m27-v1-o0-k63",
           "measureIndex": 27,
-          "onsetInMeasure": 1440,
+          "onsetInMeasure": 0,
           "durationTicks": 1440,
-          "soundingKey": 44
+          "soundingKey": 63
         },
         {
           "id": "n-p3-s1-m27-v1-o3_2-k52",
@@ -139119,18 +139112,18 @@
           "soundingKey": 52
         },
         {
+          "id": "n-p3-s1-m27-v1-o3_2-k56",
+          "measureIndex": 27,
+          "onsetInMeasure": 1440,
+          "durationTicks": 1440,
+          "soundingKey": 56
+        },
+        {
           "id": "n-p3-s1-m27-v1-o3_2-k59",
           "measureIndex": 27,
           "onsetInMeasure": 1440,
           "durationTicks": 1440,
           "soundingKey": 59
-        },
-        {
-          "id": "n-p3-s1-m28-v1-o0-k45",
-          "measureIndex": 28,
-          "onsetInMeasure": 0,
-          "durationTicks": 1440,
-          "soundingKey": 45
         },
         {
           "id": "n-p3-s1-m28-v1-o0-k52",
@@ -139147,18 +139140,18 @@
           "soundingKey": 56
         },
         {
+          "id": "n-p3-s1-m28-v1-o0-k57",
+          "measureIndex": 28,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 57
+        },
+        {
           "id": "n-p3-s1-m28-v1-o0-k61",
           "measureIndex": 28,
           "onsetInMeasure": 0,
           "durationTicks": 1440,
           "soundingKey": 61
-        },
-        {
-          "id": "n-p3-s1-m28-v1-o3_2-k45",
-          "measureIndex": 28,
-          "onsetInMeasure": 1440,
-          "durationTicks": 1440,
-          "soundingKey": 45
         },
         {
           "id": "n-p3-s1-m28-v1-o3_2-k54",
@@ -139168,6 +139161,13 @@
           "soundingKey": 54
         },
         {
+          "id": "n-p3-s1-m28-v1-o3_2-k57",
+          "measureIndex": 28,
+          "onsetInMeasure": 1440,
+          "durationTicks": 1440,
+          "soundingKey": 57
+        },
+        {
           "id": "n-p3-s1-m28-v1-o3_2-k61",
           "measureIndex": 28,
           "onsetInMeasure": 1440,
@@ -139175,18 +139175,11 @@
           "soundingKey": 61
         },
         {
-          "id": "n-p3-s1-m29-v1-o0-k44",
+          "id": "n-p3-s1-m29-v1-o0-k56",
           "measureIndex": 29,
           "onsetInMeasure": 0,
           "durationTicks": 1440,
-          "soundingKey": 44
-        },
-        {
-          "id": "n-p3-s1-m29-v1-o0-k51",
-          "measureIndex": 29,
-          "onsetInMeasure": 0,
-          "durationTicks": 1440,
-          "soundingKey": 51
+          "soundingKey": 56
         },
         {
           "id": "n-p3-s1-m29-v1-o0-k60",
@@ -139196,53 +139189,18 @@
           "soundingKey": 60
         },
         {
-          "id": "n-p3-s1-m33-v1-o0-k44",
-          "measureIndex": 33,
+          "id": "n-p3-s1-m29-v1-o0-k63",
+          "measureIndex": 29,
           "onsetInMeasure": 0,
           "durationTicks": 1440,
-          "soundingKey": 44
+          "soundingKey": 63
         },
         {
-          "id": "n-p3-s1-m33-v1-o0-k51",
-          "measureIndex": 33,
-          "onsetInMeasure": 0,
-          "durationTicks": 1440,
-          "soundingKey": 51
-        },
-        {
-          "id": "n-p3-s1-m33-v1-o0-k60",
-          "measureIndex": 33,
-          "onsetInMeasure": 0,
-          "durationTicks": 1440,
-          "soundingKey": 60
-        },
-        {
-          "id": "n-p3-s1-m33-v1-o3_2-k57",
-          "measureIndex": 33,
-          "onsetInMeasure": 1440,
-          "durationTicks": 1440,
-          "soundingKey": 57
-        },
-        {
-          "id": "n-p3-s1-m33-v1-o3_2-k61",
-          "measureIndex": 33,
-          "onsetInMeasure": 1440,
-          "durationTicks": 1440,
-          "soundingKey": 61
-        },
-        {
-          "id": "n-p3-s1-m37-v1-o0-k41",
+          "id": "n-p3-s1-m37-v1-o0-k53",
           "measureIndex": 37,
           "onsetInMeasure": 0,
           "durationTicks": 1440,
-          "soundingKey": 41
-        },
-        {
-          "id": "n-p3-s1-m37-v1-o0-k48",
-          "measureIndex": 37,
-          "onsetInMeasure": 0,
-          "durationTicks": 1440,
-          "soundingKey": 48
+          "soundingKey": 53
         },
         {
           "id": "n-p3-s1-m37-v1-o0-k57",
@@ -139250,6 +139208,34 @@
           "onsetInMeasure": 0,
           "durationTicks": 1440,
           "soundingKey": 57
+        },
+        {
+          "id": "n-p3-s1-m37-v1-o0-k60",
+          "measureIndex": 37,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p3-s1-m45-v1-o0-k54",
+          "measureIndex": 45,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 54
+        },
+        {
+          "id": "n-p3-s1-m45-v1-o0-k57",
+          "measureIndex": 45,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 57
+        },
+        {
+          "id": "n-p3-s1-m45-v1-o0-k62",
+          "measureIndex": 45,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 62
         },
         {
           "id": "n-p3-s1-m63-v1-o0-k71",
@@ -141779,6 +141765,90 @@
           "soundingKey": 57
         },
         {
+          "id": "n-p4-s1-m76-v1-o0-k54",
+          "measureIndex": 76,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 54
+        },
+        {
+          "id": "n-p4-s1-m76-v1-o0-k57",
+          "measureIndex": 76,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 57
+        },
+        {
+          "id": "n-p4-s1-m76-v1-o0-k59",
+          "measureIndex": 76,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 59
+        },
+        {
+          "id": "n-p4-s1-m76-v1-o0-k63",
+          "measureIndex": 76,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 63
+        },
+        {
+          "id": "n-p4-s1-m77-v1-o0-k54",
+          "measureIndex": 77,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 54
+        },
+        {
+          "id": "n-p4-s1-m77-v1-o0-k57",
+          "measureIndex": 77,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 57
+        },
+        {
+          "id": "n-p4-s1-m77-v1-o0-k59",
+          "measureIndex": 77,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 59
+        },
+        {
+          "id": "n-p4-s1-m77-v1-o0-k63",
+          "measureIndex": 77,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 63
+        },
+        {
+          "id": "n-p4-s1-m77-v1-o3_2-k54",
+          "measureIndex": 77,
+          "onsetInMeasure": 1440,
+          "durationTicks": 1440,
+          "soundingKey": 54
+        },
+        {
+          "id": "n-p4-s1-m77-v1-o3_2-k57",
+          "measureIndex": 77,
+          "onsetInMeasure": 1440,
+          "durationTicks": 1440,
+          "soundingKey": 57
+        },
+        {
+          "id": "n-p4-s1-m77-v1-o3_2-k59",
+          "measureIndex": 77,
+          "onsetInMeasure": 1440,
+          "durationTicks": 1440,
+          "soundingKey": 59
+        },
+        {
+          "id": "n-p4-s1-m77-v1-o3_2-k64",
+          "measureIndex": 77,
+          "onsetInMeasure": 1440,
+          "durationTicks": 1440,
+          "soundingKey": 64
+        },
+        {
           "id": "n-p4-s1-m78-v1-o0-k47",
           "measureIndex": 78,
           "onsetInMeasure": 0,
@@ -142479,14 +142549,175 @@
           "soundingKey": 56
         },
         {
+          "id": "n-p5-s1-m82-v1-o0-k47",
+          "measureIndex": 82,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 47
+        },
+        {
+          "id": "n-p5-s1-m82-v1-o0-k56",
+          "measureIndex": 82,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 56
+        },
+        {
+          "id": "n-p5-s1-m82-v1-o0-k59",
+          "measureIndex": 82,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 59
+        },
+        {
+          "id": "n-p5-s1-m82-v1-o0-k64",
+          "measureIndex": 82,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p5-s1-m83-v1-o0-k44",
+          "measureIndex": 83,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 44
+        },
+        {
+          "id": "n-p5-s1-m83-v1-o0-k52",
+          "measureIndex": 83,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 52
+        },
+        {
+          "id": "n-p5-s1-m83-v1-o0-k56",
+          "measureIndex": 83,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 56
+        },
+        {
+          "id": "n-p5-s1-m83-v1-o0-k61",
+          "measureIndex": 83,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 61
+        },
+        {
           "id": "n-p5-s1-m84-v1-o0-k40",
           "measureIndex": 84,
           "onsetInMeasure": 0,
           "durationTicks": 2880,
           "soundingKey": 40
+        },
+        {
+          "id": "n-p5-s1-m84-v1-o0-k47",
+          "measureIndex": 84,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 47
+        },
+        {
+          "id": "n-p5-s1-m84-v1-o0-k52",
+          "measureIndex": 84,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 52
+        },
+        {
+          "id": "n-p5-s1-m84-v1-o0-k56",
+          "measureIndex": 84,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 56
+        },
+        {
+          "id": "n-p5-s1-m84-v1-o0-k59",
+          "measureIndex": 84,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 59
+        },
+        {
+          "id": "n-p5-s1-m84-v1-o0-k64",
+          "measureIndex": 84,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p5-s1-m85-v1-o0-k47",
+          "measureIndex": 85,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 47
+        },
+        {
+          "id": "n-p5-s1-m85-v1-o0-k52",
+          "measureIndex": 85,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 52
+        },
+        {
+          "id": "n-p5-s1-m85-v1-o0-k56",
+          "measureIndex": 85,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 56
+        },
+        {
+          "id": "n-p5-s1-m85-v1-o0-k59",
+          "measureIndex": 85,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 59
+        },
+        {
+          "id": "n-p5-s1-m85-v1-o0-k64",
+          "measureIndex": 85,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p5-s1-m86-v1-o0-k47",
+          "measureIndex": 86,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 47
+        },
+        {
+          "id": "n-p5-s1-m86-v1-o0-k52",
+          "measureIndex": 86,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 52
+        },
+        {
+          "id": "n-p5-s1-m86-v1-o0-k56",
+          "measureIndex": 86,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 56
+        },
+        {
+          "id": "n-p5-s1-m86-v1-o0-k59",
+          "measureIndex": 86,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 59
+        },
+        {
+          "id": "n-p5-s1-m86-v1-o0-k64",
+          "measureIndex": 86,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
         }
       ],
-      "scheduleDigest": "2f1ecbe08f820077c328010f5a6aa6415eb0429ec7d4c9a4ff46ec3907c5d34e"
+      "scheduleDigest": "cb376298c971bffb1a41e5794df67565a9be6103606a144a8cc8b4b98c9773a3"
     },
     {
       "file": "repertoire/advanced/satie-gymnopedie-no1.musicxml",

@@ -37,6 +37,11 @@
         "Grace-note slurs (bars 2, 6, 10, 14, 22, 26) are not drawn; the phrase slur over the bar is.",
         "Fingering numbers and some hairpin ends are placed by Verovio, not where the print has them (e.g. the left hand's 2-4 under the 16th pairs of bars 30-31, 38-39, 46-47 is printed above)."
       ]
+    },
+    {
+      "method": "theory",
+      "ruleSet": "orchestra-v1",
+      "expectedDifferences": 0
     }
   ],
   "outcome": "verified",

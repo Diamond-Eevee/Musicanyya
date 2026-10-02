@@ -461,10 +461,10 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   `tests/tools/engrave.test.ts`, then one helper `planLibraryEngraving(doc)` in `tools/library/engrave.ts` that plans
   on the printed parts only (`withoutOrchestraParts`, as the app's score worker does), used by `engrave.ts`,
   `tools/library/build-index.ts` and `tests/library/engraving-guard.test.ts`
-- [ ] T054 [US2] `music-domain-expert` review (sub-agent) of T053's definition and the generated parts (listening by
+- [x] T054 [US2] `music-domain-expert` review (sub-agent) of T053's definition and the generated parts (listening by
   reading: doublings, octave choices, passages, dynamics); every finding fixed or answered, summarised in the log; set
   `reviewedBy` / `reviewedOn` in the definition
-- [ ] T055 [US2] [standard] Wire it up: `pnpm library:index` (facts with `orchestra`, level Advanced);
+- [x] T055 [US2] [standard] Wire it up: `pnpm library:index` (facts with `orchestra`, level Advanced);
   the audit record gains the theory check `orchestra-v1`; `pnpm library:fidelity` rewrites `docs/library-audit.md`;
   `tests/library/regeneration.test.ts` also runs `pnpm library:orchestra --check` for every definition;
   `tests/library/licence.test.ts` and `item-metadata.test.ts` green for the new item; a test in

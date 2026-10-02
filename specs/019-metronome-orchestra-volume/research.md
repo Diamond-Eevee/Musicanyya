@@ -366,6 +366,14 @@ Summary of the review (it read the spec and all four pages of the print, IA leav
 - **Level and spans**: Advanced (criteria 22, 23, 11); rolled tenths need the `<arpeggiate>` exception; bars 77-78 and
   85 may need an owner decision -> R-17, OD-3. Spans are estimates from page images; the transcription measures them.
 
+**Addendum (T054, 2026-10-02, music-domain-expert review of the generated Orchestra)**: horns on chord tones in bars
+21-31, 38 and 46, **not 34** (its second half is p, and a passage covers whole bars, so ff horns would drown the p
+echo - the "34" above was a slip); sustaining horns at about 0.6 of the piano (like the strings) and voiced from E3
+up, the 0.8 share kept for melody doublings; strings at p level in the ff/p bars 34-35 and 42-43; strings also on the
+right-hand chords of bars 77-78 and cellos on the left hand's held chords in bars 83-87 (not the bar-85 tremolo).
+Signed off with these changes; the overall level (default Orchestra level 60 %) is for the owner's listening check
+SC-007 (T072).
+
 Sources named by the review: W3C MusicXML 4.0 reference (`staff-details`), MusicXML 3.1 `attributes.mod`, MuseScore
 issue #17398, Verovio `iomusxml.cpp`, Wikipedia "Morning Mood", B. Engeset, *Grieg's orchestral style* (Grieg Society,
 2011), Internet Archive `31761045200615`.

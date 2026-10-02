@@ -1,8 +1,8 @@
 {
   "version": 1,
   "itemId": "repertoire/advanced/grieg-morning-mood",
-  "reviewedBy": "not yet reviewed (T054: music-domain-expert)",
-  "reviewedOn": "not yet reviewed",
+  "reviewedBy": "music-domain-expert",
+  "reviewedOn": "2026-10-02",
   "instruments": [
     {
       "id": "orch-flute",
@@ -28,9 +28,9 @@
       "id": "orch-horns",
       "name": "Horns",
       "program": 61,
-      "dynamics": 78,
+      "dynamics": 59,
       "range": {
-        "low": 41,
+        "low": 52,
         "high": 77
       }
     },
@@ -216,7 +216,7 @@
       "minQuarters": 1.5,
       "octaves": [0],
       "fitRange": true,
-      "dynamics": 78
+      "dynamics": 59
     },
     {
       "instrument": "orch-horns",
@@ -231,22 +231,7 @@
       "minQuarters": 1.5,
       "octaves": [0],
       "fitRange": true,
-      "dynamics": 92
-    },
-    {
-      "instrument": "orch-horns",
-      "bars": {
-        "from": 34,
-        "to": 34
-      },
-      "doubles": {
-        "staff": 2,
-        "pick": "all"
-      },
-      "minQuarters": 1.5,
-      "octaves": [0],
-      "fitRange": true,
-      "dynamics": 92
+      "dynamics": 69
     },
     {
       "instrument": "orch-horns",
@@ -261,7 +246,22 @@
       "minQuarters": 1.5,
       "octaves": [0],
       "fitRange": true,
-      "dynamics": 92
+      "dynamics": 69
+    },
+    {
+      "instrument": "orch-horns",
+      "bars": {
+        "from": 46,
+        "to": 46
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 69
     },
     {
       "instrument": "orch-horns",
@@ -363,7 +363,7 @@
       "minQuarters": 1.5,
       "octaves": [0],
       "fitRange": true,
-      "dynamics": 51
+      "dynamics": 33
     },
     {
       "instrument": "orch-strings",
@@ -423,7 +423,7 @@
       "minQuarters": 1.5,
       "octaves": [0],
       "fitRange": true,
-      "dynamics": 51
+      "dynamics": 33
     },
     {
       "instrument": "orch-strings",
@@ -493,6 +493,21 @@
       },
       "doubles": {
         "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 33
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 77,
+        "to": 78
+      },
+      "doubles": {
+        "staff": 1,
         "pick": "all"
       },
       "minQuarters": 1.5,
@@ -588,12 +603,12 @@
     {
       "instrument": "orch-cellos",
       "bars": {
-        "from": 85,
-        "to": 85
+        "from": 83,
+        "to": 87
       },
       "doubles": {
         "staff": 2,
-        "pick": "bottom"
+        "pick": "all"
       },
       "minQuarters": 3,
       "octaves": [0],

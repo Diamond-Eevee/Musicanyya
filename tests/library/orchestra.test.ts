@@ -11,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { buildScore } from '../../src/core/musicxml/build.js';
 import { readXml } from '../../src/core/musicxml/read.js';
 import type { Part, Score } from '../../src/core/score/model.js';
+import { handleMessage as handleScoreMessage } from '../../src/workers/score.worker.js';
 import { checkOrchestra } from '../../tools/library/fidelity/orchestra';
 import { main } from '../../tools/library/orchestra/cli';
 import {
@@ -522,5 +523,35 @@ describe('pnpm library:orchestra <item-id> [--check] (contract section 2)', () =
     expect(main([], io())).toBe(2);
     expect(main(['a', 'b'], io())).toBe(2);
     expect(main(['test/piece', '--bogus'], io())).toBe(2);
+  });
+});
+
+describe('Morning Mood: the Orchestra changes nothing that is printed (SC-004 on the item, analyze A4, 019 T055)', () => {
+  async function renderCopy(xml: string): Promise<string> {
+    const messages: { type: string; renderXml?: string }[] = [];
+    await handleScoreMessage(
+      {
+        data: {
+          type: 'load',
+          requestId: 1,
+          fileName: 'grieg-morning-mood.musicxml',
+          bytes: new TextEncoder().encode(xml).buffer,
+        },
+      } as MessageEvent,
+      ((msg: { type: string; renderXml?: string }) => messages.push(msg)) as unknown as typeof postMessage,
+    );
+    const loaded = messages.find((m) => m.type === 'loaded');
+    if (!loaded?.renderXml) throw new Error(`no render copy: ${JSON.stringify(messages.map((m) => m.type))}`);
+    return loaded.renderXml;
+  }
+
+  it('the render copy of the item equals the render copy of the item without its Orchestra parts', async () => {
+    const item = readFileSync(
+      join(process.cwd(), 'public/library/repertoire/advanced/grieg-morning-mood.musicxml'),
+      'utf8',
+    );
+    const pianoOnly = withoutOrchestra(item);
+    expect(pianoOnly.length).toBeLessThan(item.length); // the item does have an Orchestra
+    expect(await renderCopy(item)).toBe(await renderCopy(pianoOnly));
   });
 });
