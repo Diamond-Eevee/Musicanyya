@@ -9,12 +9,12 @@ import { isAttributionLicence, licenceName } from '../../src/core/library/licenc
 import { checkStepOrder } from '../../src/core/library/step-order.js';
 import type { LibraryIndex, LibraryItem, LibrarySection, Provenance } from '../../src/core/library/types.js';
 import { buildScore } from '../../src/core/musicxml/build.js';
-import { planEngraving } from '../../src/core/musicxml/engraving/plan.js';
 import { readXml } from '../../src/core/musicxml/read.js';
 import { buildTimeline } from '../../src/core/timeline/timeline.js';
 import { decodeXml } from '../../src/engine/files/decode.js';
 import { hashFile } from '../../src/engine/files/hash.js';
 import { readMxl } from '../../src/engine/files/mxl.js';
+import { planLibraryEngraving } from './engrave.js';
 import { LIBRARY_SECTIONS, type LibrarySectionDefinition } from './sections.js';
 
 export interface BuildLibraryIndexResult {
@@ -237,7 +237,7 @@ export async function buildLibraryIndex(
       const { timeline, notices: timelineNotices } = buildTimeline(score);
       facts = deriveFacts({ doc, score, timeline, report, timelineNotices });
 
-      const plan = planEngraving(doc, 'library');
+      const plan = planLibraryEngraving(doc); // printed parts only (019 T107)
       if (plan.findings.length > 0 || plan.invalidBeams.length > 0) {
         for (const finding of plan.findings) {
           if (finding.kind === 'missingAccidental' || finding.kind === 'missingCourtesy') {

@@ -29,5 +29,6 @@ New contracts of this feature: [orchestra-score.md](orchestra-score.md), [mixer-
 | `007/contracts/fidelity-tools.md` | 1.16.0 -> **1.17.0** (MINOR, T083) | A dotted-beat `\tempo` is written as `<metronome>` with `<beat-unit-dot/>`; `WriteDirection.metronome.dots`. |
 | `007/contracts/fidelity-tools.md` | 1.17.0 -> **1.18.0** (MINOR, T084) | `library:convert-ly` converts a transcription source without MIDI with the read-back check only (research R-15 addendum). |
 | `007/contracts/fidelity-tools.md` | 1.18.0 -> **1.18.1** (PATCH, T103) | The converter numbers slurs per voice (each slurred voice its own pair, the first 1 and 2), so overlapping slurs in two voices no longer share a number. |
+| `007/contracts/fidelity-tools.md` | 1.18.1 -> **1.18.2** (PATCH, T106) | `fromMusicXml` reads printed parts only: Orchestra parts are left out of the mechanical comparison. |
 | `013/contracts/score-browser.md` | 1.1.0 -> **1.2.0** (MINOR) | List rows of items with `facts.orchestra` show the "with orchestra" marker (glyph + text); the detail lists the instruments. |
 | `docs/musicxml-support.md` + `SUPPORT_MATRIX` | additive | `<staff-details print-object="no">` on every staff of a part: supported (Orchestra part); other hidden-staff uses: warning, printed. |

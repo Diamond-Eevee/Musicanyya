@@ -30,7 +30,8 @@ export function fromMusicXml(xml: string): ReferenceScore {
   const notes: ReferenceNote[] = [];
   const graceNotes: ReferenceGraceNote[] = [];
   let staffBase = 0;
-  for (const part of score.parts) {
+  // Orchestra parts are never printed and are generated from the printed part (019 T106): only printed music is read.
+  for (const part of score.parts.filter((p) => !p.orchestra)) {
     const openTies = new Map<number, ReferenceNote[]>(); // sounding key -> notes whose tie continues
     const openTremolos = new Map<string, ReferenceNote>(); // staff|voice -> the first note of a two-note tremolo
     for (const n of part.notes) {

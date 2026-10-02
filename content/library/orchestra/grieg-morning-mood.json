@@ -1,0 +1,604 @@
+{
+  "version": 1,
+  "itemId": "repertoire/advanced/grieg-morning-mood",
+  "reviewedBy": "not yet reviewed (T054: music-domain-expert)",
+  "reviewedOn": "not yet reviewed",
+  "instruments": [
+    {
+      "id": "orch-flute",
+      "name": "Flute",
+      "program": 74,
+      "dynamics": 44,
+      "range": {
+        "low": 60,
+        "high": 96
+      }
+    },
+    {
+      "id": "orch-oboe",
+      "name": "Oboe",
+      "program": 69,
+      "dynamics": 44,
+      "range": {
+        "low": 58,
+        "high": 89
+      }
+    },
+    {
+      "id": "orch-horns",
+      "name": "Horns",
+      "program": 61,
+      "dynamics": 78,
+      "range": {
+        "low": 41,
+        "high": 77
+      }
+    },
+    {
+      "id": "orch-strings",
+      "name": "Strings",
+      "program": 49,
+      "dynamics": 33,
+      "range": {
+        "low": 40,
+        "high": 91
+      }
+    },
+    {
+      "id": "orch-cellos",
+      "name": "Cellos",
+      "program": 43,
+      "dynamics": 32,
+      "range": {
+        "low": 36,
+        "high": 76
+      }
+    }
+  ],
+  "passages": [
+    {
+      "instrument": "orch-flute",
+      "bars": {
+        "from": 1,
+        "to": 4
+      },
+      "doubles": {
+        "staff": 1,
+        "pick": "top"
+      },
+      "octaves": [0],
+      "fitRange": true
+    },
+    {
+      "instrument": "orch-flute",
+      "bars": {
+        "from": 9,
+        "to": 12
+      },
+      "doubles": {
+        "staff": 1,
+        "pick": "top"
+      },
+      "octaves": [0],
+      "fitRange": true
+    },
+    {
+      "instrument": "orch-flute",
+      "bars": {
+        "from": 17,
+        "to": 17
+      },
+      "doubles": {
+        "staff": 1,
+        "pick": "top"
+      },
+      "octaves": [0],
+      "fitRange": true
+    },
+    {
+      "instrument": "orch-flute",
+      "bars": {
+        "from": 19,
+        "to": 20
+      },
+      "doubles": {
+        "staff": 1,
+        "pick": "top"
+      },
+      "octaves": [0],
+      "fitRange": true
+    },
+    {
+      "instrument": "orch-flute",
+      "bars": {
+        "from": 21,
+        "to": 24
+      },
+      "doubles": {
+        "staff": 1,
+        "pick": "top"
+      },
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 78
+    },
+    {
+      "instrument": "orch-flute",
+      "bars": {
+        "from": 29,
+        "to": 29
+      },
+      "doubles": {
+        "staff": 1,
+        "pick": "top"
+      },
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 78
+    },
+    {
+      "instrument": "orch-flute",
+      "bars": {
+        "from": 79,
+        "to": 80
+      },
+      "doubles": {
+        "staff": 1,
+        "pick": "top"
+      },
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 44
+    },
+    {
+      "instrument": "orch-oboe",
+      "bars": {
+        "from": 5,
+        "to": 8
+      },
+      "doubles": {
+        "staff": 1,
+        "pick": "top"
+      },
+      "octaves": [0],
+      "fitRange": true
+    },
+    {
+      "instrument": "orch-oboe",
+      "bars": {
+        "from": 13,
+        "to": 16
+      },
+      "doubles": {
+        "staff": 1,
+        "pick": "top"
+      },
+      "octaves": [0],
+      "fitRange": true
+    },
+    {
+      "instrument": "orch-oboe",
+      "bars": {
+        "from": 18,
+        "to": 18
+      },
+      "doubles": {
+        "staff": 1,
+        "pick": "top"
+      },
+      "octaves": [0],
+      "fitRange": true
+    },
+    {
+      "instrument": "orch-oboe",
+      "bars": {
+        "from": 25,
+        "to": 28
+      },
+      "doubles": {
+        "staff": 1,
+        "pick": "top"
+      },
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 78
+    },
+    {
+      "instrument": "orch-horns",
+      "bars": {
+        "from": 21,
+        "to": 29
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 78
+    },
+    {
+      "instrument": "orch-horns",
+      "bars": {
+        "from": 30,
+        "to": 31
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 92
+    },
+    {
+      "instrument": "orch-horns",
+      "bars": {
+        "from": 34,
+        "to": 34
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 92
+    },
+    {
+      "instrument": "orch-horns",
+      "bars": {
+        "from": 38,
+        "to": 38
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 92
+    },
+    {
+      "instrument": "orch-horns",
+      "bars": {
+        "from": 64,
+        "to": 66
+      },
+      "doubles": {
+        "staff": 1,
+        "pick": "top"
+      },
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 32
+    },
+    {
+      "instrument": "orch-horns",
+      "bars": {
+        "from": 70,
+        "to": 70
+      },
+      "doubles": {
+        "staff": 1,
+        "pick": "top"
+      },
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 44
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 1,
+        "to": 20
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 33
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 21,
+        "to": 29
+      },
+      "doubles": {
+        "staff": 1,
+        "pick": "top"
+      },
+      "octaves": [0, -1],
+      "fitRange": true,
+      "dynamics": 59
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 30,
+        "to": 31
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 69
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 32,
+        "to": 33
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 33
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 34,
+        "to": 35
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 51
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 36,
+        "to": 37
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 33
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 38,
+        "to": 39
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 69
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 40,
+        "to": 41
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 33
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 42,
+        "to": 43
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 51
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 44,
+        "to": 45
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 33
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 46,
+        "to": 47
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 69
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 48,
+        "to": 49
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 33
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 50,
+        "to": 67
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 24
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 68,
+        "to": 75
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 33
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 79,
+        "to": 80
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 33
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 81,
+        "to": 82
+      },
+      "doubles": {
+        "staff": 1,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 33
+    },
+    {
+      "instrument": "orch-strings",
+      "bars": {
+        "from": 83,
+        "to": 87
+      },
+      "doubles": {
+        "staff": 1,
+        "pick": "all"
+      },
+      "minQuarters": 1.5,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 24
+    },
+    {
+      "instrument": "orch-cellos",
+      "bars": {
+        "from": 50,
+        "to": 53
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "top"
+      },
+      "octaves": [0],
+      "fitRange": true
+    },
+    {
+      "instrument": "orch-cellos",
+      "bars": {
+        "from": 56,
+        "to": 59
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "top"
+      },
+      "octaves": [0],
+      "fitRange": true
+    },
+    {
+      "instrument": "orch-cellos",
+      "bars": {
+        "from": 81,
+        "to": 82
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "top"
+      },
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 44
+    },
+    {
+      "instrument": "orch-cellos",
+      "bars": {
+        "from": 85,
+        "to": 85
+      },
+      "doubles": {
+        "staff": 2,
+        "pick": "bottom"
+      },
+      "minQuarters": 3,
+      "octaves": [0],
+      "fitRange": true,
+      "dynamics": 24
+    }
+  ]
+}

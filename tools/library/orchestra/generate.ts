@@ -61,60 +61,87 @@ interface Doubled {
   pitches: { step: string; key: number; tie: Note['tie'] }[];
 }
 
-/** Which of the piano's notes a passage doubles, grouped by onset (and length, so a chord stays a chord). */
+/** Which of the piano's notes a passage doubles, grouped by onset (and length, so a chord stays a chord). A tie chain
+ *  counts as one note (019 T105): `minQuarters` is measured on the whole chain inside the passage, and a doubled note keeps
+ *  a tie only to a neighbour of its chain that is doubled too, so a tie never leaves the passage or points at nothing. */
 function doubledNotes(
   piano: readonly Note[],
   instrument: OrchestraInstrument,
   passage: Passage,
   ppq: number,
+  measureStart: (measureIndex: number) => number,
 ): Doubled[] {
-  const eligible = piano.filter(
-    (n) =>
-      n.printed &&
-      !n.unpitched &&
-      n.grace === null &&
-      n.ornament === null && // ornamented (trilled) notes are never doubled
-      n.staff === passage.doubles.staff &&
-      n.measureIndex >= passage.bars.from - 1 &&
-      n.measureIndex <= passage.bars.to - 1 &&
-      n.durationTicks / ppq >= (passage.minQuarters ?? 0) - 1e-9,
-  );
+  const at = (n: Note) => measureStart(n.measureIndex) + n.onsetInMeasure;
+  const playable = piano
+    .filter(
+      (n) =>
+        n.printed &&
+        !n.unpitched &&
+        n.grace === null &&
+        n.ornament === null && // ornamented (trilled) notes are never doubled
+        n.staff === passage.doubles.staff &&
+        n.measureIndex >= passage.bars.from - 1 &&
+        n.measureIndex <= passage.bars.to - 1,
+    )
+    .sort((a, b) => at(a) - at(b));
+  // Tie chains inside the passage: a note that stops a tie joins the open chain of its key that ends where it starts.
+  const chainOf = new Map<Note, Note[]>();
+  const open = new Map<number, Note[]>();
+  for (const note of playable) {
+    const previous = open.get(note.soundingKey);
+    const last = previous?.at(-1);
+    const chain = note.tie.stop && previous && last && at(last) + last.durationTicks === at(note) ? previous : [];
+    chain.push(note);
+    chainOf.set(note, chain);
+    if (note.tie.start) open.set(note.soundingKey, chain);
+    else open.delete(note.soundingKey);
+  }
+  const length = (chain: readonly Note[]) => chain.reduce((sum, n) => sum + n.durationTicks, 0);
+  const eligible = playable.filter((n) => length(chainOf.get(n) as Note[]) / ppq >= (passage.minQuarters ?? 0) - 1e-9);
   const byOnset = new Map<string, Note[]>();
   for (const note of eligible) {
     const key = `${note.measureIndex}:${note.onsetInMeasure}`;
     byOnset.set(key, [...(byOnset.get(key) ?? []), note]);
   }
-  const groups = new Map<string, Doubled>();
+  const chosen = new Set<Note>();
   for (const notes of byOnset.values()) {
     const sorted = [...notes].sort((a, b) => a.soundingKey - b.soundingKey);
-    const chosen =
+    const picked =
       passage.doubles.pick === 'top'
         ? sorted.slice(-1)
         : passage.doubles.pick === 'bottom'
           ? sorted.slice(0, 1)
           : sorted;
-    for (const note of chosen) {
-      for (const shift of passage.octaves) {
-        let key = note.soundingKey + 12 * shift;
-        if (passage.fitRange) {
-          while (key > instrument.range.high) key -= 12;
-          while (key < instrument.range.low) key += 12;
-        }
-        if (key < instrument.range.low || key > instrument.range.high) {
-          throw new GenerateError(
-            `bar ${note.measureIndex + 1}: ${keyName(key)} (${keyName(note.soundingKey)} shifted by ${shift} octaves) is outside the range of ${instrument.name} (${keyName(instrument.range.low)}-${keyName(instrument.range.high)})`,
-          );
-        }
-        const groupKey = `${note.measureIndex}:${note.onsetInMeasure}:${note.durationTicks}`;
-        const group = groups.get(groupKey) ?? {
-          measure: note.measureIndex,
-          onset: note.onsetInMeasure,
-          duration: note.durationTicks,
-          pitches: [],
-        };
-        if (!group.pitches.some((p) => p.key === key)) group.pitches.push({ step: note.step, key, tie: note.tie });
-        groups.set(groupKey, group);
+    for (const note of picked) chosen.add(note);
+  }
+  const groups = new Map<string, Doubled>();
+  for (const note of eligible.filter((n) => chosen.has(n))) {
+    const chain = chainOf.get(note) as Note[];
+    const index = chain.indexOf(note);
+    const tie = {
+      start: note.tie.start && index < chain.length - 1 && chosen.has(chain[index + 1] as Note),
+      stop: note.tie.stop && index > 0 && chosen.has(chain[index - 1] as Note),
+    };
+    for (const shift of passage.octaves) {
+      let key = note.soundingKey + 12 * shift;
+      if (passage.fitRange) {
+        while (key > instrument.range.high) key -= 12;
+        while (key < instrument.range.low) key += 12;
       }
+      if (key < instrument.range.low || key > instrument.range.high) {
+        throw new GenerateError(
+          `bar ${note.measureIndex + 1}: ${keyName(key)} (${keyName(note.soundingKey)} shifted by ${shift} octaves) is outside the range of ${instrument.name} (${keyName(instrument.range.low)}-${keyName(instrument.range.high)})`,
+        );
+      }
+      const groupKey = `${note.measureIndex}:${note.onsetInMeasure}:${note.durationTicks}`;
+      const group = groups.get(groupKey) ?? {
+        measure: note.measureIndex,
+        onset: note.onsetInMeasure,
+        duration: note.durationTicks,
+        pitches: [],
+      };
+      if (!group.pitches.some((p) => p.key === key)) group.pitches.push({ step: note.step, key, tie });
+      groups.set(groupKey, group);
     }
   }
   return [...groups.values()].sort((a, b) => a.measure - b.measure || a.onset - b.onset || a.duration - b.duration);
@@ -165,13 +192,19 @@ function measureEvents(groups: readonly Doubled[], length: number, ppq: number):
   return events;
 }
 
+/** Where a bar starts, in ticks from the start of the piece (written order). */
+const measureStart =
+  (score: Score) =>
+  (measureIndex: number): number =>
+    score.measures[measureIndex]?.startTick ?? 0;
+
 function orchestraPart(
   score: Score,
   piano: readonly Note[],
   instrument: OrchestraInstrument,
   passages: readonly Passage[],
 ): string {
-  const doubled = passages.flatMap((p) => doubledNotes(piano, instrument, p, score.ppq));
+  const doubled = passages.flatMap((p) => doubledNotes(piano, instrument, p, score.ppq, measureStart(score)));
   const measures: WriteMeasure[] = score.measures.map((m, i) => {
     const events: WriteEvent[] = [];
     const starting = passages.find((p) => p.bars.from - 1 === i);
@@ -227,7 +260,10 @@ export function generateOrchestra(xml: string, definition: OrchestrationDefiniti
   let notes = 0;
   for (const instrument of definition.instruments) {
     const own = definition.passages.filter((p) => p.instrument === instrument.id);
-    notes += own.reduce((sum, p) => sum + doubledNotes(piano.notes, instrument, p, score.ppq).length, 0);
+    notes += own.reduce(
+      (sum, p) => sum + doubledNotes(piano.notes, instrument, p, score.ppq, measureStart(score)).length,
+      0,
+    );
     scoreParts.push(writeScorePartXml({ id: instrument.id, name: instrument.name, program: instrument.program }));
     parts.push(orchestraPart(score, piano.notes, instrument, own));
   }

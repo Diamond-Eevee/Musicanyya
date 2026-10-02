@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-02T07:07:59.628Z",
+  "generated": "2026-10-02T07:19:43.014Z",
   "sections": [
     {
       "id": "learning",
@@ -14772,8 +14772,8 @@
       "id": "repertoire/advanced/grieg-morning-mood",
       "section": "repertoire/advanced",
       "file": "repertoire/advanced/grieg-morning-mood.musicxml",
-      "bytes": 305416,
-      "hash": "e46585a61e43414eee33f0858bd5593234da09ab017c4027b837eb215f8c32a0",
+      "bytes": 453491,
+      "hash": "a3a71cad82fcacef8bc8e39cf686668d109baa11106fdee73300bbf5a2aaedc6",
       "meta": {
         "version": 1,
         "title": "Morning Mood",
@@ -14855,6 +14855,13 @@
         "ornamentCount": 19,
         "repeatKind": "none",
         "backwardRepeatCount": 0,
+        "orchestra": [
+          "Flute",
+          "Oboe",
+          "Horns",
+          "Strings",
+          "Cellos"
+        ],
         "maxArpeggiatedSpanSemitones": 24
       },
       "levelCheck": {

@@ -437,13 +437,30 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
 - [x] T052 [US2] [standard] Checker `tools/library/fidelity/orchestra.ts` (`checkOrchestra`, O1-O5), rule set
   `orchestra-v1` in `tools/library/fidelity/records.ts`, run by `pnpm library:fidelity` for every item with a
   definition (T049 checker cases green)
-- [ ] T053 [US2] Orchestration definition `content/library/orchestra/grieg-morning-mood.json` following research R-18:
+- [x] T053 [US2] Orchestration definition `content/library/orchestra/grieg-morning-mood.json` following research R-18:
   flute and oboe alternating on the right hand's top voice (flute up an octave only up to C7, oboe down above F6),
   strings in octaves on the melody bars 21-29 and otherwise sustaining left-hand notes of at least a dotted quarter
   (lowest E2, no quaver broken chords, nothing doubled in the figuration of bars 42-62), cellos (GM 43) on the
   left-hand melody bars 50-59, horns (GM 61) on chord tones bars 21-31, 34, 38 and the pp theme from bar 64; nothing in
   bars 67-75 trills, bar 76 or the bar-85 low figure; dynamics winds about 0.8 and strings about 0.6 of the piano's
   level. Generate with `pnpm library:orchestra repertoire/advanced/grieg-morning-mood`; `checkOrchestra` clean
+- [x] T105 [US2] [standard] (new, found by T053, 2026-10-02: the generated *Morning Mood* Strings part has 13 ties the
+  app reports as broken - `minQuarters` is applied to each tied note on its own, so a dotted quarter tied to a shorter
+  note is doubled without its continuation, and a tie leaving the passage keeps its start) Tests first in
+  `tests/library/orchestra.test.ts` (a tie chain is measured whole and doubled whole with its tie; a tie is cut at the
+  passage edge), then `tools/library/orchestra/generate.ts`
+- [x] T106 [US2] [standard] (new, found by T053, 2026-10-02: with the Orchestra written into the item, the audit
+  record's mechanical check against transcription B finds 672 differences - the fidelity reader `fromMusicXml`
+  reads the Orchestra parts as if they were printed music) Tests first in `tests/library/fidelity.test.ts` or the
+  `from-musicxml` tests (an item with Orchestra parts reads exactly as the same item without them), then
+  `tools/library/fidelity/from-musicxml.ts` reads printed parts only (the app's own Orchestra detection,
+  orchestra-score contract section 1); fidelity-tools PATCH; the Morning Mood record's mechanical check 0 again
+- [x] T107 [US2] [standard] (new, found by T053, 2026-10-02: `pnpm library:engrave` adds beams and accidentals to the
+  generated Orchestra parts, so `pnpm library:orchestra --check` fails after any library-wide engrave run, and
+  `pnpm library:index` and the engraving guard would report the never-printed parts' signs as missing) Tests first in
+  `tests/tools/engrave.test.ts`, then one helper `planLibraryEngraving(doc)` in `tools/library/engrave.ts` that plans
+  on the printed parts only (`withoutOrchestraParts`, as the app's score worker does), used by `engrave.ts`,
+  `tools/library/build-index.ts` and `tests/library/engraving-guard.test.ts`
 - [ ] T054 [US2] `music-domain-expert` review (sub-agent) of T053's definition and the generated parts (listening by
   reading: doublings, octave choices, passages, dynamics); every finding fixed or answered, summarised in the log; set
   `reviewedBy` / `reviewedOn` in the definition

@@ -312,6 +312,45 @@ describe('generateOrchestra: what is written (research R-16)', () => {
     expect(flute.notes.map((x) => x.measureIndex)).toEqual([2, 2, 3]);
   });
 
+  it('measures minQuarters on a whole tie chain and doubles all of it, tie included (019 T105)', () => {
+    // Bars 3-4: E5 half tied to E5 half = 4 quarters. Found in Morning Mood: a dotted quarter tied to a shorter note
+    // was doubled without its continuation, leaving a tie start the app reports as broken.
+    const { score } = parse(
+      generate(
+        definition(
+          [flutePassage({ bars: { from: 3, to: 4 }, doubles: { staff: 1, pick: 'all' }, minQuarters: 3 })],
+          [FLUTE],
+        ),
+      ),
+    );
+    const flute = part(score, 'orch-flute');
+    expect(keys(flute)).toEqual([76, 76]); // not the C5 half note (2 quarters)
+    expect(flute.notes.map((x) => [x.tie.start, x.tie.stop])).toEqual([
+      [true, false],
+      [false, true],
+    ]);
+  });
+
+  it('cuts a tie at the passage edge, so no doubled note ties to a note the passage does not double (019 T105)', () => {
+    const end = part(
+      parse(
+        generate(definition([flutePassage({ bars: { from: 3, to: 3 }, doubles: { staff: 1, pick: 'top' } })], [FLUTE])),
+      ).score,
+      'orch-flute',
+    );
+    expect(end.notes.map((x) => [x.soundingKey, x.tie.start, x.tie.stop])).toEqual([
+      [72, false, false],
+      [76, false, false],
+    ]);
+    const start = part(
+      parse(
+        generate(definition([flutePassage({ bars: { from: 4, to: 4 }, doubles: { staff: 1, pick: 'top' } })], [FLUTE])),
+      ).score,
+      'orch-flute',
+    );
+    expect(start.notes.map((x) => [x.soundingKey, x.tie.start, x.tie.stop])).toEqual([[76, false, false]]);
+  });
+
   it('completes every bar of every Orchestra part with rests, so no bar is short or long', () => {
     const { score, notices } = parse(generate(BASE));
     for (const id of ['orch-flute', 'orch-strings']) {
