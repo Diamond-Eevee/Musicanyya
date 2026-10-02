@@ -339,7 +339,8 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   in `tests/core/musicxml/write.test.ts` (a continued tie writes stop before start, in `<tie>` and in `<tied>`), then
   the writer; regenerate the two key-change items with `pnpm library:exercises` (the only change being the tie
   order) and *Morning Mood* with `pnpm library:convert-ly` + `pnpm library:engrave`. Satie moves to T102
-- [ ] T102 [standard] (new, found by T101, 2026-10-02) `pnpm library:convert-ly mutopia-37-satie-gymnopedie1
+- [-] T102 [standard] (dropped by the owner 2026-10-02: moved to a follow-up, recorded in `docs/known-bugs.md`; an older library flaw
+  found by this feature, not a regression) (new, found by T101, 2026-10-02) `pnpm library:convert-ly mutopia-37-satie-gymnopedie1
   repertoire/advanced/satie-gymnopedie-no1` no longer reproduces the committed item: besides T101's tie order it
   moves the lower-staff notes of bar 1 (and maybe more) from voice 5 / staff 2 to voice 2 / staff 1. Find which
   converter change since `de2d579` causes it and whether the new or the committed reading matches the Mutopia source
@@ -361,7 +362,8 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   but slur numbers, and T101's tie order; otherwise stop and find why, as T102), update the out-of-scope hashes and
   the index; `pnpm library:fidelity --check` clean - done for `burgmuller-op100-no2` and `chopin-prelude-op28-no20`
   (each conversion differs from the committed file only in slur numbers and tie order); the other two are T108
-- [ ] T108 [standard] (new, split from T104, 2026-10-02) The two remaining items with slurs Verovio pairs across voices
+- [-] T108 [standard] (dropped by the owner 2026-10-02 for Chopin Op. 28 No. 4: moved to a follow-up, recorded in
+  `docs/known-bugs.md`; the Burgmuller No. 5 edit below is owner-approved the same day) (new, split from T104, 2026-10-02) The two remaining items with slurs Verovio pairs across voices
   cannot be fixed by reconverting: `repertoire/advanced/chopin-prelude-op28-no4` (3 pairs) carries the owner-approved
   move of bars 24-25 to the upper staff, which `pnpm library:convert-ly` does not reproduce (the conversion puts them
   back on the lower staff), and `repertoire/intermediate/burgmuller-op100-no5` (1 pair) is an authored item, not a
@@ -637,7 +639,7 @@ source details; the same item without credit, with a CC0 source, or under `CC-BY
   (T053, regenerate). Blocks the merge only; record the answer here - **owner approved 2026-10-02**: listened to Morning Mood (Listen; Levels panel found), "it's good", no change to `ORCHESTRA_LEVEL_DEFAULT` or the definition's dynamics
 - [x] T073 [deep] Constitution audit with `constitution-auditor` (sub-agent) over the feature diff; findings
   summarised in the log; no CRITICAL/HIGH left
-- [ ] T074 Final gate (`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, flaky tests per R7 re-run alone and
+- [x] T074 Final gate (`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, flaky tests per R7 re-run alone and
   logged), `pnpm library:fidelity --check`, final log entry with the hand-off, commit
 
 ## Dependencies & Execution Order
