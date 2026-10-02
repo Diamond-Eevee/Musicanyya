@@ -566,8 +566,9 @@ its detail lists the instruments; other items show no marker.
 - [x] T068 [US4] Marker and instrument list in `src/ui/elements/mx-browser-list.ts` and
   `src/ui/elements/mx-browser-detail.ts`, strings in `src/ui/i18n/en.ts`, styles with theme tokens (T067 green;
   `tests/e2e/score-browser-a11y.spec.ts` green)
-- [ ] T069 [US4] Checkpoint US4: quickstart US4 with `pnpm screenshot --browser` (normal and `--greyscale`), which also
-  verifies spec US2 acceptance #1 (the marker on *Morning Mood*, analyze A10); full gate; log entry; commit
+- [x] T069 [US4] Checkpoint US4: quickstart US4 with `pnpm screenshot --browser` (normal and `--greyscale`), which also
+  verifies spec US2 acceptance #1 (the marker on *Morning Mood*, analyze A10); full gate; log entry; commit - done
+  2026-10-02 (claude-opus-5.5), see the log
 
 ---
 
@@ -628,7 +629,7 @@ source details; the same item without credit, with a CC0 source, or under `CC-BY
 - [x] T070 [P] [light] Docs: `pnpm library:orchestra` in the R7 command list of `docs/agents/reference.md` and in
   `README.md` if it lists the library commands; Active Technologies entry from "planned" to "implemented"; check
   `quickstart.md` commands against `package.json`
-- [ ] T071 Run every `quickstart.md` manual verification step (US1-US4) with `pnpm screenshot`, look at each picture,
+- [x] T071 Run every `quickstart.md` manual verification step (US1-US4) with `pnpm screenshot`, look at each picture,
   and record what was seen in the log; list the sound checks for the owner
 - [x] T072 **Owner decision gate OD-2**: the owner's listening check SC-007 (quickstart US2 step 7 and US3 step 1):
   recognisable piece, flute/oboe and strings heard as separate instruments in time, default Orchestra level supports
