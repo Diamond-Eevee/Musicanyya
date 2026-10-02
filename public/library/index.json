@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-02T07:27:25.093Z",
+  "generated": "2026-10-02T08:01:24.812Z",
   "sections": [
     {
       "id": "learning",
@@ -14312,7 +14312,7 @@
       "section": "repertoire/advanced",
       "file": "repertoire/advanced/burgmuller-op100-no2.musicxml",
       "bytes": 60218,
-      "hash": "81355aa910733792dabd1710dd5f5b5ed97d0c0e3fb1313b6fa7c29d84f17b79",
+      "hash": "650250018d5fc73a9391e4fb1cdb1b12680afb2071d8c4861913ba0973304660",
       "meta": {
         "version": 1,
         "title": "l'Arabesque (25 Etudes faciles, Op. 100, No. 2)",
@@ -14399,7 +14399,7 @@
       "section": "repertoire/advanced",
       "file": "repertoire/advanced/chopin-prelude-op28-no20.musicxml",
       "bytes": 52381,
-      "hash": "de327d895593642781f473b71db467ed4db73d6453d717749cb569796095a34a",
+      "hash": "a00277f1c98d74ecb8941b44bc16e140b3d1349014795fc47239609b69df3c63",
       "meta": {
         "version": 1,
         "title": "Prelude in C minor, Op. 28 No. 20",
@@ -15598,7 +15598,7 @@
       "section": "repertoire/intermediate",
       "file": "repertoire/intermediate/burgmuller-op100-no5.musicxml",
       "bytes": 40179,
-      "hash": "17afe5356867658641463dbf298ca6206772481ac85ba39ef2f6ddaa8f093680",
+      "hash": "b7cec52b7ee0985dea4fda5ef1c1d371b67675f64f34c5ddd31cae719f548032",
       "meta": {
         "version": 1,
         "title": "Innocence (25 Etudes faciles, Op. 100, No. 5 - opening strain, arranged)",

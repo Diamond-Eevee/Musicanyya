@@ -391,7 +391,7 @@ to show the plain chromatic name and say so here than to guess).
 
 ## R-16 - Counting the worklet's silently-dropped live messages (T057, Polish, 2026-09-20)
 
-**Decision**: `score-player.processor.ts`'s `liveQueue` (64 entries, holding the musician's own MIDI input and, since
+**Decision**: `score-player.processor.ts`'s `liveQueue` (64 entries - 256 since 019 T080 -, holding the musician's own MIDI input and, since
 this feature, the accompaniment's `soundOn`/`soundOff` too - roughly doubling the message rate) already dropped a
 message outright when full; it now also increments a `liveDropped` counter and posts a new
 `{ type: "liveDropped", total }` message, exactly where the existing `status`/`ended` messages are posted: from
@@ -409,7 +409,7 @@ the scenario (live input + accompaniment) this counter is meant to catch.
 **RT review (rt-audio-reviewer, 2026-09-20)**: PASS, no findings. Confirmed the new `post()` call and the
 `liveDropped++` counter are both inside `receiveMessage()`, never `process()`/`processBlock()`; confirmed every
 caller of the `'live'` message (the musician's own MIDI input and the matcher's accompaniment effects) is one
-message per discrete note event, not per audio block, so the 64-entry cap is not a hot path and is not, on this
+message per discrete note event, not per audio block, so the 64-entry cap (256 since 019 T080) is not a hot path and is not, on this
 evidence, in need of revisiting.
 
 **Alternatives considered**: raising the queue size instead of counting drops - rejected, it hides the same failure

@@ -1,6 +1,6 @@
 # Contract: `score-player` AudioWorklet protocol
 
-**Version**: `1.6.0` (MINOR, feature 019-metronome-orchestra-volume, additive; full text:
+**Version**: `1.6.1` (PATCH, feature 019 T080: `LIVE_QUEUE_CAPACITY` 64 -> 256 - one Practice input on *Morning Mood* sends up to 94 `live` messages (the Orchestra's offs and ons plus the accompaniment), and the queue must hold that twice over; no message changes). `1.6.0` (MINOR, feature 019-metronome-orchestra-volume, additive; full text:
 [019 mixer-levels.md](../../019-metronome-orchestra-volume/contracts/mixer-levels.md) section 4): new message
 `orchestraLevel { gain }` (CC11 = `round(gain * 127)` on every channel of the schedule's `orchestraMask`, applied in
 `port.onmessage`); `ScheduleMessage.orchestraMask?` (bit *c* = channel *c* is an Orchestra channel; a missing or
@@ -40,7 +40,7 @@ segment the reported tick is in (it was the last segment's). Tests: `tests/engin
 no longer an integer multiple of 5 - the message shape and the processor's handling are unchanged, R-11). `1.4.0`. Messages between `WebAudioEngine` (main thread) and the `ScorePlayerProcessor`
 (`src/engine/worklets/score-player.processor.ts`, registered as `"musicanyya-score-player"`). Research R-10.
 `1.1.0` (feature 002, T057, 2026-09-20): adds the `liveDropped` message, posted from `port.onmessage`'s `'live'`
-case (not from `process()`) whenever the 64-entry live queue is full - a dropped `noteOn`/`noteOff` would otherwise
+case (not from `process()`) whenever the live queue (`LIVE_QUEUE_CAPACITY` entries, 64 until 1.6.1, now 256) is full - a dropped `noteOn`/`noteOff` would otherwise
 leave the matcher believing a key was released that never actually reached the synth, and Practice mode's
 accompaniment roughly doubles the live message rate (specs/002-practice-wait-mode/research.md R-16).
 `1.2.0` (feature 003, T034/T036, 2026-09-21): `process()` now renders each block in the sub-blocks `dispatch.ts`'s
@@ -75,7 +75,7 @@ Constitution I rules for the processor (checked by `rt-audio-reviewer`):
 - Messages *from* the processor are bounded: `position` at most every `POSITION_REPORT_BLOCKS = 4` blocks while
   playing (and once after each command), `ended`, `status`. `postMessage` clones the payload (a small allocation in
   the worklet's GC heap); this bounded rate is the constitution's "bounded, batched messages" allowance. `liveDropped`
-  (1.1.0) is unbounded in principle but fires only when the 64-entry live queue overflows - an exceptional condition,
+  (1.1.0) is unbounded in principle but fires only when the live queue (`LIVE_QUEUE_CAPACITY` entries) overflows - an exceptional condition,
   not a per-block event - and is posted from `port.onmessage`, the same off-hot-path handler as `status`/`ended`.
 - A throw inside `process()` is prevented by construction (bounds checks); a caught failure in a message handler
   sends `status: error` and keeps the processor alive, returning `true` from `process()`.
@@ -122,7 +122,7 @@ interface ScheduleMessage {
 | `status` | `{ state: "initialised" | "soundReady" | "error" | "processorFaulted", detail?: string }` | After `init` / `soundBank`, on handler failure, or once if `process()`'s own call into `processBlock` faults (T161) |
 | `position` | `{ frame: number, contextTime: number, tick: number, ticksPerFrame: number, playing: boolean, lateEvents: number }` (`lateEvents` 1.5.0) | Every 4 blocks while playing; once after `play`/`pause`/`stop`/`seek`/`tempo`/`schedule` |
 | `ended` | `{ frame: number }` | The end tick was reached; the processor paused itself |
-| `liveDropped` | `{ total: number }` | A `live` message arrived while the queue (`LIVE_QUEUE_CAPACITY` = 64 entries) was already full (1.1.0), or was malformed (1.5.0) |
+| `liveDropped` | `{ total: number }` | A `live` message arrived while the queue (`LIVE_QUEUE_CAPACITY` = 256 entries since 1.6.1) was already full (1.1.0), or was malformed (1.5.0) |
 
 `frame` is the processor's block-start frame counter (`currentFrame` of the AudioWorkletGlobalScope), `contextTime`
 the matching `currentTime`; the main thread maps them to audible time with `getOutputTimestamp()` (R-11).

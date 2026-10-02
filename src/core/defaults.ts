@@ -51,8 +51,10 @@ export const PERCUSSION_CHANNEL = 9; // 0-based
 export const LIVE_CHANNEL = 15; // 0-based
 
 export const LIVE_VELOCITY_DEFAULT = 80; // or from key velocity
-/** Live MIDI messages the worklet queues between two render blocks; more are dropped and counted (001 T057). */
-export const LIVE_QUEUE_CAPACITY = 64;
+/** Live MIDI messages the worklet queues between two render blocks; more are dropped and counted (001 T057). 256 since
+ *  019 T080: on Morning Mood one Practice input sends up to 94 (left hand only, a forte bar: the Orchestra's offs and ons
+ *  and the right-hand accompaniment), which must fit twice over. */
+export const LIVE_QUEUE_CAPACITY = 256;
 
 export const TEMPO_PERCENT_MIN = 25;
 export const TEMPO_PERCENT_MAX = 200;

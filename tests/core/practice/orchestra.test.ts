@@ -1,5 +1,8 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { PERCUSSION_CHANNEL } from '../../../src/core/defaults.js';
+import { LIVE_QUEUE_CAPACITY, PERCUSSION_CHANNEL } from '../../../src/core/defaults.js';
 import { buildExpectedEvents } from '../../../src/core/practice/expected.js';
 import { handOptions, partOptions } from '../../../src/core/practice/hands.js';
 import { applyInput, startSession } from '../../../src/core/practice/matcher.js';
@@ -12,6 +15,8 @@ import type {
 } from '../../../src/core/practice/types.js';
 import { buildSequence } from '../../fakes/midi-sequence.js';
 import { loadFixture } from './helpers.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Feature 019 (practice-session 1.8.0, orchestra-score.md sections 5 and 6): Orchestra notes follow the musician through
 // the accompaniment's timing rules on their own channel, and are never expected, marked or used to judge a key.
@@ -253,3 +258,81 @@ describe('orchestraOn / orchestraOff effects', () => {
 function oboe(score: ReturnType<typeof open>['score'], index: number) {
   return score.parts[1]?.notes[index];
 }
+
+// Feature 019 T080 (RT review T036, and its own RT review): one Practice input may put the key's own note plus an `orchestraOff` per ended
+// Orchestra note, an `orchestraOn` per new one and the accompaniment's notes into the worklet's live queue at once; a
+// dropped note-off is a stuck note. On the densest real Orchestra score the most one input ever produces must stay within
+// half of `LIVE_QUEUE_CAPACITY`, so a burst of keys on top cannot overflow it.
+describe('live queue headroom on every Orchestra item (T080)', () => {
+  // Every library item with an orchestration definition (Morning Mood first); a denser Orchestra added later is held to
+  // the same margin.
+  const root = path.resolve(__dirname, '../../..');
+  const ITEMS = fs
+    .readdirSync(path.join(root, 'content/library/orchestra'))
+    .filter((f) => f.endsWith('.json'))
+    .map(
+      (f) =>
+        (JSON.parse(fs.readFileSync(path.join(root, 'content/library/orchestra', f), 'utf8')) as { itemId: string })
+          .itemId,
+    );
+  const LIVE = new Set(['soundOn', 'soundOff', 'orchestraOn', 'orchestraOff']);
+  const SELECTIONS: HandSelection[] = [RIGHT, LEFT, { preset: 'both', partIndex: 0, staves: [1, 2] }];
+
+  /** The most live messages any single input produces while every event of the piece is played: its keys pressed one by
+   *  one (the last press satisfies the event), then released. At every event the input of a lost device is tried too (it
+   *  releases everything that sounds at once), without going on from it. */
+  function mostPerInput(itemId: string, selection: HandSelection) {
+    const { score, timeline } = loadFixture(`../../../public/library/${itemId}.musicxml`);
+    const events = buildExpectedEvents(score, timeline, selection);
+    let session = startSession({
+      scoreId: itemId,
+      selection,
+      events,
+      startEventIndex: 0,
+      loop: null,
+      accompaniment: true,
+      help: false,
+    });
+    let most = 0;
+    let mostOnDeviceLost = 0;
+    let ended = false;
+    let t = 0;
+    const live = (effects: readonly PracticeEffect[]) => effects.filter((e) => LIVE.has(e.type)).length;
+    const apply = (input: PracticeInput) => {
+      const result = applyInput(session, input);
+      session = result.session;
+      most = Math.max(most, 1 + live(result.effects)); // the key's own note goes through the queue too
+      if (result.effects.some((e) => e.type === 'sessionEnded')) ended = true;
+    };
+    for (const event of events) {
+      const keys = [...new Set(event.required.map((r) => r.key))];
+      for (const key of keys) {
+        t += 10;
+        apply(buildSequence([`on:${key}@${t}`])[0] as PracticeInput);
+      }
+      const lost = applyInput(session, buildSequence([`lost:${keys.join(',')}@${t + 5}`])[0] as PracticeInput);
+      mostOnDeviceLost = Math.max(mostOnDeviceLost, live(lost.effects));
+      for (const key of keys) {
+        t += 10;
+        apply(buildSequence([`off:${key}@${t}`])[0] as PracticeInput);
+      }
+    }
+    return { most, mostOnDeviceLost, events: events.length, ended };
+  }
+
+  it('there is at least one Orchestra item (Morning Mood)', () => {
+    expect(ITEMS).toContain('repertoire/advanced/grieg-morning-mood');
+  });
+
+  it.each(ITEMS.flatMap((itemId) => SELECTIONS.map((s) => [itemId, s.preset, s] as const)))(
+    '%s, %s: no input, and no lost device, produces more than half the live queue',
+    (itemId, _name, selection) => {
+      const { most, mostOnDeviceLost, events, ended } = mostPerInput(itemId, selection);
+      expect(events).toBeGreaterThan(10);
+      expect(ended).toBe(true); // the whole piece was played through
+      expect(most).toBeGreaterThan(1);
+      expect(most).toBeLessThanOrEqual(LIVE_QUEUE_CAPACITY / 2);
+      expect(mostOnDeviceLost).toBeLessThanOrEqual(LIVE_QUEUE_CAPACITY / 2);
+    },
+  );
+});

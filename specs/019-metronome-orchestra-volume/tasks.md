@@ -257,11 +257,12 @@ plays piano and oboe; Practice and Play offer the piano only and never wait for 
 - [x] T036 [US2] RT review with `rt-audio-reviewer` of T033 (live queue channel slot, `live.channel` validation in the
   handler, the drain in `process()`, `allOff` over the mask, at most 16 channels per setup) and T034 (no timer decides an Orchestra note); findings
   and resolution in the log
-- [ ] T080 [US2] [standard] (new, RT review T036: the live queue holds `LIVE_QUEUE_CAPACITY` = 64 entries and one Practice event can
+- [x] T080 [US2] [standard] (new, RT review T036: the live queue holds `LIVE_QUEUE_CAPACITY` = 64 entries and one Practice event can
   send an `orchestraOff` per ended note plus an `orchestraOn` per new note on top of the accompaniment; a dropped note-off is a
   stuck note) Once *Morning Mood* exists (after T055): a test in `tests/core/practice/orchestra.test.ts` that builds its expected
   events and fails when the most live messages one input produces (offs + ons + accompaniment) exceed half the capacity; raise
-  `LIVE_QUEUE_CAPACITY` (with the worklet-protocol note) if it does
+  `LIVE_QUEUE_CAPACITY` (with the worklet-protocol note) if it does - done: the most was 94 (left hand only, bars 22 and
+  26), so `LIVE_QUEUE_CAPACITY` 64 -> 256, worklet-protocol 1.6.1; the test covers every Orchestra item and a lost device
 - [x] T037 [US2] Checkpoint US2a: the Independent Test above with `pnpm screenshot --file
   tests/fixtures/musicxml/orchestra/piano-and-oboe.musicxml` (two staves; `--practice` expects piano keys only; the
   on-screen piano with `--piano` lights no oboe key in Listen); full gate; log entry; commit
@@ -352,13 +353,23 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   a piece whose slurs are all in one voice keeps number 1), then the converter (one slur number and one phrasing
   number per voice); contract fidelity-tools §3.3 (PATCH); *Morning Mood* reconverted. Other committed items are not
   reconverted by this task (T104)
-- [ ] T104 [standard] (new, found by T103, 2026-10-02) Four committed items converted before T103 have overlapping
+- [x] T104 [standard] (new, found by T103, 2026-10-02) Four committed items converted before T103 have overlapping
   slurs in two voices under one number, which Verovio pairs across voices (a scan of `<slur>` start/stop pairs by
   number in document order: `repertoire/advanced/burgmuller-op100-no2` 1, `chopin-prelude-op28-no20` 2,
   `chopin-prelude-op28-no4` 3, `repertoire/intermediate/burgmuller-op100-no5` 1). Look at each in `pnpm screenshot`,
   reconvert with `pnpm library:convert-ly` + `pnpm library:engrave` (check first that the conversion changes nothing
   but slur numbers, and T101's tie order; otherwise stop and find why, as T102), update the out-of-scope hashes and
-  the index; `pnpm library:fidelity --check` clean
+  the index; `pnpm library:fidelity --check` clean - done for `burgmuller-op100-no2` and `chopin-prelude-op28-no20`
+  (each conversion differs from the committed file only in slur numbers and tie order); the other two are T108
+- [ ] T108 [standard] (new, split from T104, 2026-10-02) The two remaining items with slurs Verovio pairs across voices
+  cannot be fixed by reconverting: `repertoire/advanced/chopin-prelude-op28-no4` (3 pairs) carries the owner-approved
+  move of bars 24-25 to the upper staff, which `pnpm library:convert-ly` does not reproduce (the conversion puts them
+  back on the lower staff), and `repertoire/intermediate/burgmuller-op100-no5` (1 pair) is an authored item, not a
+  conversion. Decide first how each is to be regenerated (e.g. the bars 24-25 change made in a converter-supported way,
+  as `% item:` in transcription A of Morning Mood) - an item may be replaced only with `pnpm library:convert-ly`, never
+  by hand; ask the owner if it needs the Burgmuller item replaced by its Mutopia conversion. Burgmuller No. 5 done 2026-10-02 (claude-opus-5.5): an authored
+  item is maintained by editing, so its left-hand slur of bars 10-11 was renumbered 1 -> 2 (2 attributes, no note
+  changed); its 113.7 px page-break gap at 1280 px (the slur drawn from the left hand to the right) is now 82.8
 - [x] T045 [US2] Audit record `content/library/audit/repertoire/advanced/grieg-morning-mood.json`: a mechanical check
   against `own-grieg-op46-no1-transcription-b` (aspects barCount, barLengths, pitch, onset, duration, spelling,
   graceNotes; expected 0 differences) - every difference first settled by looking at the print and fixing the
@@ -485,8 +496,8 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   opens from the browser; every system has exactly two staves and the SVG has no element for an Orchestra Note ID; the
   Practice/Play part selector offers only the piano; a Play run with a few keys ends in a Grade that lists piano notes
   only and is stored in progress (FR-023); in Listen the cursor's note ids are always piano note ids
-- [ ] T058 [US2] [standard] Checkpoint US2: the Independent Test above (quickstart US2 steps 1-5 with
-  `pnpm screenshot`, pages compared with the print, greyscale step); full gate; log entry; commit
+- [~] T058 [US2] [standard] Checkpoint US2: the Independent Test above (quickstart US2 steps 1-5 with
+  `pnpm screenshot`, pages compared with the print, greyscale step); full gate; log entry; commit (claimed: claude-opus-5.5 2026-10-02)
 
 ---
 

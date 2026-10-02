@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { LIVE_QUEUE_CAPACITY } from '../../../src/core/defaults.js';
 import { EVENT_KIND } from '../../../src/core/schedule/compile.js';
 import {
   createScorePlayerProcessor,
@@ -46,14 +47,14 @@ describe('ScorePlayerAudioWorklet - Live Input', () => {
     ]);
   });
 
-  it('T057: drops a live message past the 64-entry queue and reports it, counted and shown (Constitution I)', () => {
+  it('T057: drops a live message past the full queue (LIVE_QUEUE_CAPACITY) and reports it, counted and shown (Constitution I)', () => {
     const synth = createLocalSynth();
     const processor = createScorePlayerProcessor({ synth, sampleRate: 48000 });
     const messages: ProcessorMessage[] = [];
     processor.onMessage = (msg) => messages.push(msg);
 
     // Fill the queue without draining it (no processBlock call in between).
-    for (let i = 0; i < 64; i++) {
+    for (let i = 0; i < LIVE_QUEUE_CAPACITY; i++) {
       processor.receiveMessage({ type: 'live', kind: 'on', key: 60 + (i % 20), velocity: 100 });
     }
     expect(messages).toEqual([]); // no drop yet
@@ -67,9 +68,9 @@ describe('ScorePlayerAudioWorklet - Live Input', () => {
       { type: 'liveDropped', total: 2 },
     ]);
 
-    // The 64 that fit are still applied; the two dropped ones never reach the synth.
+    // The ones that fit are still applied; the two dropped ones never reach the synth.
     processor.processBlock(new Float32Array(128), new Float32Array(128));
-    expect(synth.events.length).toBe(64);
+    expect(synth.events.length).toBe(LIVE_QUEUE_CAPACITY);
     expect(synth.events.some((e) => e.key === 90 || e.key === 91)).toBe(false);
   });
 
