@@ -3,6 +3,7 @@
 // restart, a vanished device falls back to the system default with one notice, and the desktop app still refuses to capture
 // audio while Web MIDI keeps working (research R-6, "Spike result"). Launches the real shell, like electron-live-piano.spec.ts.
 // The device list is the machine's own: a machine with fewer than two audio outputs cannot show a choice and skips.
+import { spawnSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -24,21 +25,46 @@ const PATH_LINE: Record<string, string> = {
 };
 
 test.describe('Electron: choosing the sound output (feature 021 US5)', () => {
+  // One desktop app at a time: they share the machine's audio devices
+  test.describe.configure({ mode: 'default' });
   let userDataDir = '';
   let app: ElectronApplication | null = null;
 
-  const launch = async (): Promise<Page> => {
+  /**
+   * Starts the desktop app. The app asks for MIDI access at start-up, which opens the machine's real MIDI ports, and a MIDI
+   * driver that hangs then keeps the process from quitting. Only the test that is about Web MIDI wants that; the others turn
+   * the MIDI request down before the page makes it (the output list, the sink and the notices do not depend on it).
+   */
+  const launch = async (options: { midi?: boolean } = {}): Promise<Page> => {
     app = await electron.launch({
       args: [path.join(__dirname, '../../dist-electron/main.js'), `--user-data-dir=${userDataDir}`],
     });
+    if (!options.midi) {
+      await app.evaluate(({ session }) => {
+        session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) =>
+          callback(!permission.startsWith('midi')),
+        );
+      });
+    }
     const window = await app.firstWindow();
     await window.waitForFunction(() => 'mxSession' in globalThis);
     await closeBrowser(window);
     return window;
   };
   const quit = async (): Promise<void> => {
-    await app?.close();
+    const running = app;
     app = null;
+    if (!running) return;
+    const pid = running.process().pid;
+    const closed = await Promise.race([
+      running.close().then(() => true),
+      new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 15_000)),
+    ]);
+    // A MIDI or audio driver that hangs at exit must not hang the run (or leave the app behind)
+    if (!closed && pid !== undefined) {
+      if (process.platform === 'win32') spawnSync('taskkill', ['/PID', String(pid), '/T', '/F']);
+      else running.process().kill('SIGKILL');
+    }
   };
 
   // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
@@ -49,7 +75,8 @@ test.describe('Electron: choosing the sound output (feature 021 US5)', () => {
 
   test.afterEach(async () => {
     await quit();
-    if (userDataDir) fs.rmSync(userDataDir, { recursive: true, force: true });
+    // best effort: a killed app can still hold a file for a moment
+    if (userDataDir) fs.rmSync(userDataDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
   });
 
   const select = (window: Page) => panelLocator(window, 'latency').getByLabel('Sound output');
@@ -83,27 +110,33 @@ test.describe('Electron: choosing the sound output (feature 021 US5)', () => {
     await expect(panelLocator(window, 'latency').locator('[data-id="asio-note"]')).toHaveText(ASIO_LINE);
   });
 
-  test('capture stays refused, Web MIDI still opens (the permission handlers are really installed)', async () => {
+  test('capture stays refused: getUserMedia is rejected through the real permission handler', async () => {
     test.setTimeout(120_000);
-    const window = await launch();
-    const result = await window.evaluate(async () => {
-      const out = { mic: '', midi: '' };
+    const window = await launch({ midi: true });
+    const mic = await window.evaluate(async () => {
       try {
         await navigator.mediaDevices.getUserMedia({ audio: true });
-        out.mic = 'granted';
+        return 'granted';
       } catch (err) {
-        out.mic = (err as Error).name;
+        return (err as Error).name;
       }
-      try {
-        await navigator.requestMIDIAccess();
-        out.midi = 'granted';
-      } catch (err) {
-        out.midi = (err as Error).name;
-      }
-      return out;
     });
-    expect(result.mic).toBe('NotAllowedError');
-    expect(result.midi).toBe('granted');
+    expect(mic).toBe('NotAllowedError');
+  });
+
+  test('Web MIDI still opens: the app is granted MIDI access at start-up through the real handler', async () => {
+    test.setTimeout(120_000);
+    const window = await launch({ midi: true });
+    // The app asks by itself (feature 021 T017); the handler answers midi and midiSysex for the app origin
+    await expect
+      .poll(
+        () =>
+          window.evaluate(
+            () => (window as unknown as { __MIDI_STATE__: { availability: string } }).__MIDI_STATE__.availability,
+          ),
+        { timeout: 60_000 },
+      )
+      .toBe('available');
   });
 
   test('choosing a device moves the sound, survives a restart, and a vanished device falls back once', async () => {

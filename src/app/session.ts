@@ -1,5 +1,7 @@
+import { outputPath } from '../engine/audio/output-device.js';
 import { WebAudioEngine } from '../engine/audio/web-audio-engine.js';
 import { GRADE_WORKER_TIMEOUT_MS, MAX_FILE_BYTES } from '../engine/config.js';
+import { probeEnvironment } from '../engine/environment/probe.js';
 import { hashFile } from '../engine/files/hash.js';
 import { HttpLibraryCatalog } from '../engine/library/http-catalog.js';
 import { WebMidiInput } from '../engine/midi/web-midi-input.js';
@@ -326,12 +328,12 @@ export class Session {
       });
     }
     this.settingsStore = settingsStore;
+    // The saved sound output is read and written through the same store; the sound is not moved to another device under a
+    // run or a calibration (feature 021 US5, RT review)
+    this.audioEngine.configureOutputSettings(settingsStore, () => !this.isAudioBusy());
     this.calibration = new CalibrationController(this.audioEngine, this.midiInput, this.settingsStore, {
       // A replay of a stored attempt is a run too: it owns the engine while it plays (RT review T037)
-      isRunActive: () => {
-        const replay = this.replayController?.getRun()?.phase;
-        return isRunActive() || replay === 'countIn' || replay === 'running';
-      },
+      isRunActive: () => this.isRunOrReplayActive(),
       isSoundReady: () => midiState.liveSound === 'ready',
       metronomeLevel: () => transportState.get().metronomeLevel,
       onChange: (state) => this.onCalibrationChange(state),
@@ -656,9 +658,17 @@ export class Session {
     });
     latencyPanel.addEventListener('calibrate-stop', () => this.calibration.cancel());
     latencyPanel.addEventListener('latency-reset', () => this.resetLatencyCalibration());
+    latencyPanel.addEventListener(
+      'output-change',
+      (event) => void this.changeOutput((event as CustomEvent<{ deviceId: string | null }>).detail.deviceId),
+    );
     // Closing the popup, or opening another tool over it, ends a calibration without a result (audio-setup.md section 2)
+    let latencyOpen = false;
     viewState.subscribe((state) => {
       if (state.openPanel !== 'latency') this.calibration.cancel();
+      // Opening the popup shows the devices as they are now (a device may have come or gone since the last look)
+      else if (!latencyOpen) void this.refreshOutputs();
+      latencyOpen = state.openPanel === 'latency';
     });
 
     // Every secondary tool is a popup over the Score, opened from a menu (contracts/ui-shell.md section 3).
@@ -755,6 +765,7 @@ export class Session {
 
     setInterval(() => {
       this.refreshOutputLatency();
+      void this.audioEngine.resumeOutput(); // a move to the saved output that waited for a run or a calibration
       if (this.engineUnlocked) {
         const lat = this.audioEngine.latency();
         // Compared as shown (whole ms): the raw value is fractional, so comparing it with the stored rounded one said
@@ -773,6 +784,18 @@ export class Session {
 
     this.startLiveSound();
     this.applyStoredLatencyCalibration();
+  }
+
+  /** A Listen / Practice / Play run, or the replay of a stored attempt, is going. */
+  private isRunOrReplayActive(): boolean {
+    const replay = this.replayController?.getRun()?.phase;
+    return isRunActive() || replay === 'countIn' || replay === 'running';
+  }
+
+  /** Something is being timed on the audio clock: a run, a replay or a calibration. */
+  private isAudioBusy(): boolean {
+    const calibration = this.calibration.getState().phase;
+    return this.isRunOrReplayActive() || calibration === 'countIn' || calibration === 'tapping';
   }
 
   /** The stored calibration is the profile in use from start-up (live-sound.md section 2 step 3): given to the engine, so
@@ -797,6 +820,30 @@ export class Session {
   private refreshOutputLatency(): void {
     const reported = this.audioEngine.latency().outputLatencyMs;
     latencyState.setOutputLatency(reported !== null ? Math.round(reported) : null);
+  }
+
+  /** The Sound output section of the popup, from the engine: what can be chosen, what is in use, the path for the Shell. */
+  private async refreshOutputs(): Promise<void> {
+    const choices = await this.audioEngine.listOutputs();
+    latencyState.setOutput({
+      capability: this.audioEngine.outputCapability(),
+      choices,
+      activeId: this.audioEngine.activeOutputId(),
+      path: outputPath(probeEnvironment().shell),
+    });
+    this.refreshLatencyProfile(); // "calibrated with another output" follows the output in use
+    this.refreshOutputLatency(); // the reported latency may differ per device
+  }
+
+  /** The musician chose an output in the popup. A device that cannot be used leaves the sound where it was, and the popup
+   *  shows the one in use again. */
+  private async changeOutput(deviceId: string | null): Promise<void> {
+    try {
+      await this.audioEngine.setOutput(deviceId);
+    } catch {
+      // stays on the previous output: refreshOutputs below puts the select back on it
+    }
+    await this.refreshOutputs();
   }
 
   /** "Use assumed latency" (FR-013): the stored calibration is removed and the engine goes back to the assumed profile. */
@@ -861,6 +908,7 @@ export class Session {
       } catch {
         return; // contextFailed / workletLoadFailed: reported through the engine's state
       }
+      void this.refreshOutputs(); // prepare() has put the saved output in use, if it is there
       try {
         await engine.ensureSoundLoaded();
       } catch {
@@ -987,6 +1035,12 @@ export class Session {
   private onAudioEngineEvent(event: AudioEngineEvent): void {
     if (event.type === 'ended') {
       transportState.ended();
+    } else if (event.type === 'outputFallback') {
+      // The chosen sound output vanished and the sound is on the system default (FR-024, FR-025). A calibration that was
+      // timing the click on that device measures nothing useful any more.
+      this.calibration.cancel();
+      noticeState.addNotice({ code: 'audioOutputLost', severity: 'warning' });
+      void this.refreshOutputs();
     } else if (event.type === 'state') {
       this.deriveLiveSound(event.state);
       this.refreshOutputLatency();

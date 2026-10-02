@@ -3,6 +3,7 @@ import type { LatencyProfile } from '../../core/grade/types.js';
 import { en } from '../i18n/en.js';
 import { type LatencyViewState, latencyState } from '../state/latencyState.js';
 import { midiState } from '../state/midiState.js';
+import { escapeHtml } from '../util/escape-html.js';
 
 const total = (profile: LatencyProfile) => Math.round(profile.outputLatencyMs + profile.inputLatencyMs);
 
@@ -44,6 +45,31 @@ export class MxLatencyPanel extends HTMLElement {
     return p.profileCalibrated.replace('{date}', date).replace('{ms}', String(total(profile)));
   }
 
+  /** The Sound output section (audio-setup.md section 3): a choice where the Shell allows it, else the system default said
+   *  plainly; always the output path named for the Shell and the one line about low-latency drivers. */
+  private outputSection(view: LatencyViewState): string {
+    const p = en.latency.panel;
+    const { capability, choices, activeId, path } = view.output;
+    let choice: string;
+    if (capability.kind === 'choosable') {
+      const options = choices
+        .map((c) => {
+          const label = c.id === '' ? p.systemDefault : c.label;
+          return `<option value="${escapeHtml(c.id)}"${c.id === activeId ? ' selected' : ''}>${escapeHtml(label)}</option>`;
+        })
+        .join('');
+      choice = `<label class="latency-output-choice">${p.soundOutput} <select data-id="output-select">${options}</select></label>`;
+    } else {
+      choice = `<p data-id="output-default-only">${escapeHtml(p.outputDefaultOnly)}</p>`;
+    }
+    return `
+        <section class="latency-output" data-id="sound-output">
+          ${choice}
+          <p data-id="output-path">${p.outputPath[path]}</p>
+          <p data-id="asio-note">${p.asioNote}</p>
+        </section>`;
+  }
+
   private render() {
     const p = en.latency.panel;
     const view = latencyState.get();
@@ -81,6 +107,7 @@ export class MxLatencyPanel extends HTMLElement {
                  ${calibrated ? `<button type="button" data-id="reset-btn">${p.useAssumed}</button>` : ''}
                </div>`
         }
+        ${running ? '' : this.outputSection(view)}
       </div>
     `;
     // Only a real change touches the DOM: a button the keyboard user tabbed to keeps its focus
@@ -91,6 +118,12 @@ export class MxLatencyPanel extends HTMLElement {
     this.querySelector('[data-id="calibrate-btn"]')?.addEventListener('click', () => this.announce('calibrate-start'));
     this.querySelector('[data-id="stop-btn"]')?.addEventListener('click', () => this.announce('calibrate-stop'));
     this.querySelector('[data-id="reset-btn"]')?.addEventListener('click', () => this.announce('latency-reset'));
+    this.querySelector('[data-id="output-select"]')?.addEventListener('change', (event) => {
+      const id = (event.target as HTMLSelectElement).value;
+      this.dispatchEvent(
+        new CustomEvent('output-change', { bubbles: true, detail: { deviceId: id === '' ? null : id } }),
+      );
+    });
   }
 
   private announce(name: 'calibrate-start' | 'calibrate-stop' | 'latency-reset') {

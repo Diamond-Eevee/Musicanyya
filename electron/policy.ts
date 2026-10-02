@@ -35,8 +35,39 @@ export function resolveAppPath(requestUrl: string, distPath: string): string | n
   }
 }
 
-export function decidePermission(permission: string, origin: string, _url: string): boolean {
-  return permission === 'midi' && isAppOrigin(origin);
+/** The app's own origin, or - in development only - the Vite dev server's (`devOrigin`, `MUSICANYYA_DEV_URL`). */
+function isTrustedOrigin(url: string, devOrigin?: string): boolean {
+  if (isAppOrigin(url)) return true;
+  if (devOrigin === undefined) return false;
+  try {
+    return new URL(url).origin === devOrigin;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The permission *requests* the desktop app grants (electron-bridge 1.1.0): Web MIDI for the app's own page, and nothing
+ * else - `media` (the microphone) stays refused, so `getUserMedia` rejects. Chromium asks for `midiSysex` when the page calls
+ * `requestMIDIAccess()` in this Electron (feature 021 spike T053, owner decision 2026-10-02); the app sends no SysEx.
+ */
+export function decidePermission(permission: string, origin: string, _url: string, devOrigin?: string): boolean {
+  return (permission === 'midi' || permission === 'midiSysex') && isTrustedOrigin(origin, devOrigin);
+}
+
+/**
+ * The permission *check*, which decides whether the page may see output-device labels and move its audio context to a
+ * device (feature 021 US5, audio-setup.md section 3): audio `media` for the app's own page. It grants no capture: that is
+ * a request, and `decidePermission` refuses it.
+ */
+export function decidePermissionCheck(
+  permission: string,
+  origin: string,
+  details: { mediaType?: string | undefined },
+  devOrigin?: string,
+): boolean {
+  if (permission !== 'media' || !isTrustedOrigin(origin, devOrigin)) return false;
+  return details.mediaType === undefined || details.mediaType === 'audio' || details.mediaType === 'unknown';
 }
 
 export function decideNavigation(url: string): 'allow' | 'deny' | 'external' {

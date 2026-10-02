@@ -16,11 +16,13 @@ import type {
   OutputCapability,
   OutputChoice,
   PositionUpdate,
+  SettingsStore,
   TransportSnapshot,
 } from '../ports.js';
 // eslint-disable-next-line import/no-unresolved -- Vite-only query suffix (contracts/worklet-protocol.md)
 import scorePlayerWorkletUrl from '../worklets/score-player.processor.ts?worker&url';
 import { DropoutDetector } from './dropouts.js';
+import { isDesktopShell, OutputDevices, type SinkContext } from './output-device.js';
 import { PositionSync } from './position-sync.js';
 import { loadSoundFont } from './soundfont-cache.js';
 
@@ -86,6 +88,21 @@ export class WebAudioEngine implements AudioEngine {
   private lateEvents = 0;
   private calibration: LatencyProfile | null = null;
 
+  // The sound output (feature 021 US5): the saved choice comes from the settings store the app hands over
+  // (`configureOutputSettings`); until then nothing is saved. The device rules live in output-device.ts.
+  private outputSettings: Pick<SettingsStore, 'loadAudioOutput' | 'saveAudioOutput'> | null = null;
+  private outputCanSwitch: () => boolean = () => true;
+  private readonly outputs = new OutputDevices({
+    desktop: isDesktopShell(),
+    devices: typeof navigator !== 'undefined' ? navigator.mediaDevices : undefined,
+    store: {
+      loadAudioOutput: () => this.outputSettings?.loadAudioOutput() ?? null,
+      saveAudioOutput: (deviceId) => this.outputSettings?.saveAudioOutput(deviceId),
+    },
+    onFallback: (lostDeviceId) => this.emit({ type: 'outputFallback', lostDeviceId }),
+    canSwitch: () => this.outputCanSwitch(),
+  });
+
   private readonly listeners = new Set<(event: AudioEngineEvent) => void>();
 
   on(listener: (event: AudioEngineEvent) => void): () => void {
@@ -128,6 +145,8 @@ export class WebAudioEngine implements AudioEngine {
 
   private async doPrepare(): Promise<void> {
     const context = this.ensureContext();
+    // The saved output device is applied in the background (`ensureContext` started it): the keyboard must never wait for a
+    // device list, so a stalled one costs only the switch of device, not the first note.
     await this.ensureWorklet();
     if (context.state !== 'running') {
       this.locked = true;
@@ -154,6 +173,8 @@ export class WebAudioEngine implements AudioEngine {
       throw err;
     }
     this.context = context;
+    // The context's `setSinkId` is not in TypeScript's DOM types; OutputDevices names the one method it uses
+    void this.outputs.attach(context as unknown as SinkContext); // never rejects; follows device changes from here on
     // A running context turning 'suspended' on its own (never something we do - pause() only messages the
     // worklet) is the browser reacting to a device change or the tab going background (data-model.md §6).
     // Turning 'running' again (the first click, or the tab back) reports the sound state it held or replaced.
@@ -409,6 +430,8 @@ export class WebAudioEngine implements AudioEngine {
     if (!this.context) return null;
     const ts = this.context.getOutputTimestamp?.();
     if (!ts || ts.contextTime === undefined || ts.performanceTime === undefined) return null;
+    // Right after the output device changes the pair can be all zeros until the new device reports: that is no pair
+    if (ts.performanceTime <= 0) return null;
     return { contextTime: ts.contextTime, performanceTime: ts.performanceTime };
   }
 
@@ -444,20 +467,37 @@ export class WebAudioEngine implements AudioEngine {
     this.calibration = profile ? { ...profile } : null;
   }
 
+  /** Where the saved sound output is read and written (the app's settings store), and when the sound may be moved to another
+   *  device (`canSwitch`: false while a run or a calibration is going - a lost device still falls back at once). Call
+   *  before the context exists. */
+  configureOutputSettings(
+    store: Pick<SettingsStore, 'loadAudioOutput' | 'saveAudioOutput'>,
+    canSwitch: () => boolean = () => true,
+  ): void {
+    this.outputSettings = store;
+    this.outputCanSwitch = canSwitch;
+  }
+
+  /** Moves the sound to the saved device if that move was waiting for a run or a calibration to end. Cheap when nothing waits. */
+  resumeOutput(): Promise<void> {
+    return this.outputs.resume();
+  }
+
   outputCapability(): OutputCapability {
-    return { kind: 'systemDefaultOnly', reason: 'browser' };
+    return this.outputs.capability();
   }
 
   async listOutputs(): Promise<readonly OutputChoice[]> {
-    return [];
+    await this.outputs.refresh();
+    return this.outputs.list();
   }
 
-  async setOutput(_deviceId: string | null): Promise<void> {
-    // Stub until feature 021 T058: only the system default exists.
+  setOutput(deviceId: string | null): Promise<void> {
+    return this.outputs.setOutput(deviceId);
   }
 
   activeOutputId(): string {
-    return '';
+    return this.outputs.active();
   }
 
   diagnostics(): AudioDiagnostics {
@@ -477,6 +517,7 @@ export class WebAudioEngine implements AudioEngine {
   }
 
   async dispose(): Promise<void> {
+    this.outputs.dispose();
     this.node?.disconnect();
     this.node = null;
     this.workletReady = null;

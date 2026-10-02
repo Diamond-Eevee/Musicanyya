@@ -580,6 +580,23 @@ mx-run-status .run-stop {
   margin-top: 10px;
 }
 
+/* The Sound output section (feature 021 US5): set apart from the latency lines above it */
+.latency-panel .latency-output {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--mx-border);
+}
+
+.latency-panel .latency-output-choice {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.latency-panel .latency-output-choice select {
+  max-width: 100%;
+}
+
 .latency-panel .calibration-progress {
   font-variant-numeric: tabular-nums;
   margin-bottom: 6px;

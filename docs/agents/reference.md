@@ -377,20 +377,26 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
   level reuses the click channel's CC7. Settings object version 3 (`metronomeLevel`, `orchestraLevel`). Dev-only:
   `pnpm library:orchestra` generates Orchestra parts from `content/library/orchestra/*.json` and `checkOrchestra`
   verifies them (rule set `orchestra-v1`).
-- Feature 021 (planned): no new technology and no new dependency. Newly used Web APIs: `AudioContext.setSinkId()` and
-  `navigator.mediaDevices.enumerateDevices()` (output device, desktop app only), Electron `session.setPermissionCheckHandler`
-  (audio `media` check for the app origin; requests still denied) and an explicit `autoplayPolicy`. The Audio engine is
-  prepared at start-up (`AudioEngine.prepare()`); `localStorage` key `musicanyya.audio.v1`.
+- Feature 021 (implemented): no new technology and no new dependency. Newly used Web APIs: `AudioContext.setSinkId()` and
+  `navigator.mediaDevices.enumerateDevices()` (output device, desktop app only; `src/engine/audio/output-device.ts`),
+  Electron `session.setPermissionCheckHandler` (audio `media` check for the app origin) and an explicit `autoplayPolicy`.
+  Spike T053 (research R-6): labels and `setSinkId` work in the desktop app, but its permission handlers were never
+  installed (registered on `session-created`, which does not fire for the default session) - they are now installed on
+  `session.defaultSession`, and `decidePermission` allows `midi` and `midiSysex` (this Electron asks for `midiSysex` on
+  `requestMIDIAccess()`) while `getUserMedia` is rejected. The Audio engine is prepared at start-up
+  (`AudioEngine.prepare()`); `localStorage` key `musicanyya.audio.v1`. Electron e2e specs open real MIDI ports at
+  start-up: on Windows a stuck Windows MIDI service (`midisrv`) makes the app hang when asking for or closing MIDI.
 
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
-- 2026-10-02: Feature 021 planned (live piano and audio setup): keys sound from start-up in every mode (one live router;
+- 2026-10-02: Feature 021 implemented (live piano and audio setup): keys sound from start-up in every mode (one live router;
   desktop without a click, browser after the first click), a working Latency popup and calibration on the audio clock,
-  the MIDI keyboard in the top bar, icon transport buttons, and output-device choice in the desktop app. No driver
-  selector (ASIO/WASAPI need the Native audio plugin, later). No new dependency, no worklet or grading change.
+  the MIDI keyboard in the top bar, icon transport buttons, and output-device choice in the desktop app (the desktop
+  app's permission handlers now really apply: microphone refused, Web MIDI allowed). No driver selector (ASIO/WASAPI need
+  the Native audio plugin, later). No new dependency, no worklet or grading change.
 - 2026-10-02: Feature 020 implemented (Guide voice in Play mode; owner listening check OD-1 pending): on a Score without an
   Orchestra, a Play run and its replay play the musician's own expected notes softly with an electric piano (`GUIDE_PROGRAM` 7,
   0-based; Clavinet) on a free channel, governed by the

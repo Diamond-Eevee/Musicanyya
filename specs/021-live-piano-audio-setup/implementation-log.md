@@ -254,3 +254,59 @@
 - Model fit: Phase 6 is tier `standard`; claude-sonnet-5.5 fits.
 - Problems / open questions: none for the owner.
 - Handoff: next = US5 (T053 spike first; tier standard, sonnet fits). Tree clean at the commit after this entry.
+
+## 2026-10-02 - claude-sonnet-5.5 (implement, US5 checkpoint)
+- Done: T053-T061 (US5), plus T062 and T063 (documents). Tests first (wip commit 193193d, red as named). T053 spike (scratch scripts driving the built
+  desktop app; nothing left in the repository): labels and `AudioContext.setSinkId` work, **but the desktop app's permission handler never ran**
+  (it was registered on `session-created`, which does not fire for the default session), so the shipped app granted every permission and
+  `getUserMedia({audio:true})` resolved; and Chromium asks for `midiSysex` on `requestMIDIAccess()`, so installing the old midi-only policy would have
+  broken Web MIDI. Owner decision (asked in this session, answer "Fix it: install handlers, allow midi + midiSysex (Recommended)"): handlers
+  installed on `session.defaultSession`, `midi` + `midiSysex` for the app origin only, audio-only `media` check, `media` request refused (research R-6 "Spike
+  result", electron-bridge 1.1.0, audio-setup section 3, policy tests). T057 `decidePermissionCheck` / `decidePermission` / `installPermissionHandlers`
+  (the dev server origin is trusted only when the app is not packaged). T058 `src/engine/audio/output-device.ts` (`OutputDevices`: capability,
+  list, saved-or-default rule, one notice per loss, `outputPath`) + engine members + `LocalSettingsStore` `loadAudioOutput` / `saveAudioOutput`
+  (`musicanyya.audio.v1`). T059 session wiring (`refreshOutputs`, `changeOutput`, `outputFallback` -> notice `audioOutputLost`, restore at start-up).
+  T060 "Sound output" section of the Latency popup (select or the system-default line, output path, ASIO line) and `latencyState.output`.
+- RT review (rt-audio-reviewer on the engine / session / Electron changes; the plan had listed no RT path for US5, a sink move is one): 1 BLOCKING,
+  5 non-blocking, 2 advisory. BLOCKING B1 - moves the musician did not ask for (start-up apply, a device's return) were not gated against a run or a
+  calibration: a calibration would have been anchored on device A and measured with device B's latency, a Play run's compensation snapshot would
+  go stale. Fixed: `canSwitch` (supplied by the session: run, replay, calibration) defers those moves, `WebAudioEngine.resumeOutput()` applies them (called each
+  second), a lost device still falls back at once and now cancels a running calibration. Also fixed: N1 every `setSinkId` bounded by
+  `AUDIO_OUTPUT_FALLBACK_MAX_MS` (timeout = failure); N2 `setOutput` queued with the refreshes; N3 `dispose()` lets go of the context so work in flight
+  ends quietly; N4 a failed device list keeps what was learnt, `activeId` set only after a successful move, the musician's choice kept in memory too;
+  N5 the popup refreshes the list on opening, not on every state change; A1 `clockPair()` ignores an all-zero pair; `prepare()` never waits for the device
+  list. 11 new unit tests (mutation-checked: no gate -> the two gating tests fail, no bound -> the stall test times out); they were written after
+  the fix, not before. Not done: a session-level test of the cancel-on-fallback wiring (covered by `CalibrationController.cancel()` tests and the Electron
+  spec's fallback), and the review's A1 behaviour right after a real `sinkchange` (no hardware check possible here).
+- Constitution audit (T065, constitution-auditor): COMPLIANT WITH NOTES, no blocking finding. Medium: no RT review for US5 (done above), switch-back during
+  a run (fixed above), transient list failure (fixed). Low, fixed: `desktop` now comes from `probeEnvironment()`, the dev origin only when not packaged,
+  the `localStorage` key noted in research. Low, accepted: calibration beat arithmetic written in core and in the app (fixed tempo, pinned by a core test),
+  bare 16 / 128 literals for channel / key counts (counts, not tolerances), "Live piano" is spec vocabulary the constitution's Domain Vocabulary does not
+  list (an owner call: a PATCH amendment if wanted), `mx-latency-panel` sums output + input for display.
+- Decisions: the output list shows the system default as "System default" (the engine's label, the UI string is `en.latency.panel.systemDefault`); the
+  select returns to the output in use after a device that cannot be used (no message - open observation); a Play run that meets a forced fallback keeps the
+  profile it started with and its log is not rewritten.
+- Environment problem (not a product defect, found at this checkpoint): the first Electron e2e run was parallel (3 desktop apps at once). Afterwards the
+  Windows MIDI service (`midisrv`) on this machine stopped answering: `requestMIDIAccess()` never resolves in the desktop app and quitting the app never
+  finishes ("Waiting for the debugger to disconnect"); the same app quits in 0.1 s with MIDI turned down, a trivial Electron app is fine, and the old
+  commit behaves the same. The owner was asked to restart the service (answer: "You restart it"); a restart needs an elevated shell, my attempt raised a
+  UAC prompt that was not answered, so the service is unchanged. Consequences: the Electron spec runs its device-choice test with the MIDI
+  request turned down before the page makes it (`launch({ midi: false })`) and kills a stuck app after 15 s; **`electron-audio-output.spec.ts` "Web MIDI
+  still opens" fails on this machine (availability stays `notRequested`)** and `electron-live-piano` / `electron-playback` were not re-run after the
+  hang began - new task T070 keeps this open. The desktop-idle check of T064 uses the same MIDI-off launch.
+- Picture check (T061), scratch script, Paper and Night, browser and desktop app (window screenshot of the popup): "Latency" popup with the output latency,
+  the profile, Calibrate, then a rule and the Sound output section - desktop: a labelled "Sound output" select (System default first), "Windows audio
+  (shared mode)" and the ASIO sentence; browser: "System default output - change it in your system's sound settings.", "Browser audio" and the ASIO
+  sentence. Text is readable in both themes; the section is set apart by a rule (spacing was tightened after the first look).
+- Evidence: `pnpm test` `Test Files  331 passed (331)`, `Tests  7318 passed (7318)`; `pnpm typecheck` exit 0; `pnpm lint` exit 0 `Found 314 warnings. Found 14 infos.`;
+  `pnpm test:e2e:smoke` `9 passed`; chromium `latency-setup` + `live-piano` + `lookahead` `24 passed` (an earlier `lookahead` SC-004 frame-interval failure
+  happened while a desktop app and two review agents were running and passed on rerun); chromium regression run of the bar / panel / latency specs (24 files)
+  `241 passed, 1 failed (that lookahead flake), 2 skipped`; electron `electron-audio-output.spec.ts` `3 passed, 1 failed` (the MIDI test, above).
+- Docs: README (live piano, Latency and output, transport), `docs/agents/reference.md` (implemented, the permission finding, the MIDI-service warning),
+  quickstart (the electron command, the notice wording).
+- Model fit: Phases 7 and 8 are tier `standard`; claude-sonnet-5.5 fits (T062, T063 are `light`, done by a standard model).
+- Problems / open questions: **needs owner:** (1) restart the Windows MIDI service (elevated PowerShell: `Restart-Service midisrv`) or reboot, so T070 and the
+  full gate can run the Electron project; (2) the desktop app now refuses the microphone and every permission except MIDI (and the audio device check):
+  say if anything else (file system writes, notifications) is expected to work there.
+- Handoff: next = T064 (manual script, including the 31-minute idle check running in the background at the time of writing), T066 (full gate, needs
+  the MIDI service for the electron project), T067, T070. Tree clean at the commit after this entry.

@@ -20,6 +20,13 @@ pnpm test -- tests/engine/live-router.test.ts tests/engine/play-session.test.ts 
 npx playwright test tests/e2e/live-piano.spec.ts tests/e2e/latency-setup.spec.ts tests/e2e/midi-topbar.spec.ts tests/e2e/transport-icons.spec.ts --project=chromium
 ```
 
+The desktop half (needs `pnpm exec vite build -c vite.electron.config.ts` first, and a working MIDI service on Windows - the
+app opens the machine's MIDI ports at start-up):
+
+```bash
+npx playwright test tests/e2e/electron-live-piano.spec.ts tests/e2e/electron-audio-output.spec.ts --project=electron
+```
+
 Pictures for the visual checks: `pnpm screenshot --item <library id>` (light and dark theme), then open the PNG.
 
 ## Manual verification per user story
@@ -66,6 +73,7 @@ Use a real MIDI keyboard where possible; the e2e specs cover the same steps with
 
 1. Desktop app: Setup > Latency > Sound output lists the system default and your devices by name. Choose another one:
    piano and Listen sound there. Restart: still chosen.
-2. Unplug that device (e.g. USB headphones): within two seconds sound continues on the default, one notice. Plug it back:
-   sound returns to it.
+2. Unplug that device (e.g. USB headphones): within two seconds sound continues on the default, one notice ("The chosen
+   sound output was disconnected; playing through the system default."). Plug it back: sound returns to it, silently.
+   (The automated test simulates the unplugging; a real unplug is a manual check.)
 3. Browser: "System default output - change it in your system's sound settings." and the ASIO line; no driver choices.

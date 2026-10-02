@@ -161,6 +161,9 @@ broken Web MIDI, because Chromium requests `midiSysex` for `requestMIDIAccess()`
 `midi` and `midiSysex` for the app origin, deny the rest. The desktop app therefore offers the output choice
 (`outputCapability()` = `choosable`).
 
+**Storage note (constitution audit T065)**: the chosen output id is one short string in `localStorage` (`musicanyya.audio.v1`),
+like the latency profile and the theme: a tiny preference, within the Storage row's "tiny UI preferences" allowance.
+
 **Alternatives considered**: (a) `MediaDevices.selectAudioOutput()` - Firefox only, and Firefox lacks
 `AudioContext.setSinkId`; (b) an `<audio>` element fed by a `MediaStreamAudioDestinationNode` with
 `HTMLMediaElement.setSinkId` - adds a buffer (latency) on the live path, rejected; (c) native device enumeration in the

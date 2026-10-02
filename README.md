@@ -18,7 +18,16 @@ and Web MIDI.
 
 - **Score Viewer**: Open and render `.musicxml`, `.xml`, or `.mxl` files with Verovio.
 - **Playback (Listen Mode)**: Built-in `spessasynth` rendering via AudioWorklet. Supports tempo, volume, dynamics, repeats (forward/backward, voltas), jumps (D.C., D.S., To Coda), and instrument program changes.
-- **MIDI Input**: Plug in a MIDI keyboard to play along with the built-in sound (supports sustain).
+- **MIDI Input**: Plug in a MIDI keyboard to play along with the built-in sound (supports sustain). The piano sounds
+  from start-up in every mode and state - in the desktop app with no click, in a browser after the first click anywhere
+  (a hint says so). The top bar always shows the keyboard (its name, "No MIDI keyboard", "MIDI keyboard disconnected" or
+  why MIDI is not available) and one click opens its popover, also during a Play run.
+- **Latency**: *Setup > Latency* shows the output latency at any time. *Calibrate* plays a beat on the audio clock; play any
+  key (or the space bar) on every click, and the measured round trip is used by Play and grading from then on and kept
+  between sessions. The desktop app also lets you choose the sound output device (restored at start-up; a device that
+  disappears falls back to the system default with a notice); a browser uses the system default. ASIO and other
+  low-latency drivers need the Native audio plugin, which is not available yet.
+- **Transport**: play, pause, stop and skip are icon buttons with tooltips (the names for screen readers are unchanged).
 - **Score browser**: *Open* shows a large window with every library piece, your own files and your progress. Folders
   on the left (*Learning > Keys*, *Key changes*, *Repertoire*, *My files*), the list in the middle, details on the
   right. Search by title, composer, folder or file name; filter by level, key, skill and status (New, Practised,

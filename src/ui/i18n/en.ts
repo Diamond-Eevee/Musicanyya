@@ -430,6 +430,7 @@ export const en = {
     noPlayableContent: 'This score has no playable notes.',
     internal: 'Something went wrong while opening this file.',
     midiDeviceLost: 'The MIDI keyboard was disconnected.',
+    audioOutputLost: 'The chosen sound output was disconnected; playing through the system default.',
     soundFontMissing: 'The built-in sound could not be loaded.',
     audioDeviceChanged: 'Playback paused because the audio device changed.',
     workletLoadFailed: 'The audio engine failed to start.',
@@ -631,6 +632,17 @@ export const en = {
       done: 'Calibrated: {ms} ms',
       notEnoughTaps: 'Too few taps on the beat - try again and play with every click.',
       spreadTooLarge: 'The taps were too uneven to measure - try again, steady with the clicks.',
+      // The Sound output section (feature 021 US5, audio-setup.md section 3)
+      soundOutput: 'Sound output',
+      systemDefault: 'System default',
+      outputDefaultOnly: "System default output - change it in your system's sound settings.",
+      outputPath: {
+        windowsShared: 'Windows audio (shared mode)',
+        macos: 'macOS audio',
+        linux: 'System audio',
+        browser: 'Browser audio',
+      },
+      asioNote: 'ASIO and other low-latency drivers need the Native audio plugin, which is not available yet.',
     },
   },
 };

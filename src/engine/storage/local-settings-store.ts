@@ -16,6 +16,7 @@ import type { OverlayFlags, PracticeSettings, SettingsStore, UserSettings } from
 export const SETTINGS_STORAGE_KEY = 'musicanyya.settings.v1';
 export const PRACTICE_STORAGE_KEY = 'musicanyya.practice.v1';
 export const LATENCY_STORAGE_KEY = 'musicanyya.latency.v1';
+export const AUDIO_OUTPUT_STORAGE_KEY = 'musicanyya.audio.v1';
 
 const SCORE_ID_PATTERN = /^[0-9a-f]{64}$/;
 const HAND_PRESETS: readonly string[] = ['both', 'right', 'left', 'custom'];
@@ -286,12 +287,23 @@ export class LocalSettingsStore implements SettingsStore {
     }
   }
 
+  /** The chosen sound output (audio-setup.md section 4): a non-empty device id, or null for the system default. Anything
+   *  else stored reads as the system default. */
   loadAudioOutput(): string | null {
-    return null; // feature 021 T058
+    try {
+      const item = localStorage.getItem(AUDIO_OUTPUT_STORAGE_KEY);
+      if (!item) return null;
+      const parsed: unknown = JSON.parse(item);
+      if (!isObject(parsed) || parsed.version !== 1) return null;
+      const id = parsed.outputDeviceId;
+      return typeof id === 'string' && id !== '' ? id : null;
+    } catch {
+      return null;
+    }
   }
 
-  saveAudioOutput(_deviceId: string | null): void {
-    // feature 021 T058
+  saveAudioOutput(deviceId: string | null): void {
+    this.write(AUDIO_OUTPUT_STORAGE_KEY, { version: 1, outputDeviceId: deviceId });
   }
 
   loadPractice(scoreId: string | null): PracticeSettings {

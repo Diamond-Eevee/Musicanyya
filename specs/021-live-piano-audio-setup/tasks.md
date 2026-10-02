@@ -369,19 +369,19 @@ default within 2 s with a notice; browser: "System default output" and the ASIO 
 
 ### Implementation
 
-- [ ] T057 [P] [US5] `decidePermissionCheck` in `electron/policy.ts` and `session.setPermissionCheckHandler` in
+- [x] T057 [P] [US5] `decidePermissionCheck` in `electron/policy.ts` and `session.setPermissionCheckHandler` in
   `electron/main.ts` (contracts/audio-setup.md section 3, "Desktop permission"). T054 green
-- [ ] T058 [US5] `src/engine/audio/output-device.ts` (new) and the output members of
+- [x] T058 [US5] `src/engine/audio/output-device.ts` (new) and the output members of
   `src/engine/audio/web-audio-engine.ts` (`outputCapability`, `listOutputs`, `setOutput`, `activeOutputId`,
   `outputFallback`), storage `loadAudioOutput` / `saveAudioOutput` in `src/engine/storage/local-settings-store.ts`.
   T055 green
-- [ ] T059 [US5] Wire in `src/app/session.ts`: restore the saved output at start-up, `output-change` from the panel, the
+- [x] T059 [US5] Wire in `src/app/session.ts`: restore the saved output at start-up, `output-change` from the panel, the
   `audioOutputLost` notice (string in `src/ui/i18n/en.ts` `notices.audioOutputLost`), re-read the shown latency after a
   change; the calibration's output id (data-model section 3) compared for the "calibrated with another output" line
-- [ ] T060 [US5] "Sound output" section of `src/ui/elements/mx-latency-panel.ts` (contracts/audio-setup.md sections 1
+- [x] T060 [US5] "Sound output" section of `src/ui/elements/mx-latency-panel.ts` (contracts/audio-setup.md sections 1
   item 6 and 3: select or system-default line, output path line by Shell, ASIO line), strings in
   `src/ui/i18n/en.ts`. T056 green
-- [ ] T061 [US5] Picture check: `pnpm screenshot` of the Latency popup in the browser (and a manual desktop-app look via
+- [x] T061 [US5] Picture check: `pnpm screenshot` of the Latency popup in the browser (and a manual desktop-app look via
   `pnpm electron:dev` with the device list) in light and dark theme; describe in the log
 
 **Checkpoint**: US5 Independent Test passes (T056 and quickstart US5 steps 1-3). Checkpoint gate +
@@ -393,10 +393,10 @@ default within 2 s with a notice; browser: "System default output" and the ASIO 
 
 **Model**: standard (gemini-3.8-flash or claude-sonnet-5.5; claude-opus-5.5 and gemini-3.1-pro also fit)
 
-- [ ] T062 [P] [light] Update `specs/021-live-piano-audio-setup/quickstart.md` and `README.md` where behaviour is
+- [x] T062 [P] [light] Update `specs/021-live-piano-audio-setup/quickstart.md` and `README.md` where behaviour is
   described (sound from start-up, MIDI in the top bar, output choice in the desktop app); the toolchain section of
   `docs/agents/reference.md` only if a command changed (none planned)
-- [ ] T063 [P] [light] Update `docs/agents/reference.md` Active Technologies / Recent Changes from "planned" to
+- [x] T063 [P] [light] Update `docs/agents/reference.md` Active Technologies / Recent Changes from "planned" to
   "implemented" with the T053 outcome
 - [ ] T064 Run the quickstart's manual script for US1-US5 (`pnpm dev`, `pnpm electron:dev`, a real MIDI keyboard where
   available, `pnpm screenshot` pictures) and record each step's result in the log, plus the spec's "very long session"
@@ -406,6 +406,10 @@ default within 2 s with a notice; browser: "System default output" and the ASIO 
   the log, blocking ones fixed or turned into tasks
 - [ ] T066 Full gate, once: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e:smoke` and `pnpm test:e2e` (all
   browsers) green; summary lines in the log (constitution "Test tiers")
+- [ ] T070 Electron specs on a machine with a healthy MIDI service: `electron-audio-output.spec.ts` ("Web MIDI still opens"),
+  `electron-live-piano.spec.ts`, `electron-playback.spec.ts` and the rest of the electron project (T066 includes them). Added
+  2026-10-02: on the development machine the Windows MIDI service (`midisrv`) was stuck after parallel Electron runs, so the app
+  hung asking for and closing MIDI; the owner was asked to restart it. Not ticked until those specs are green
 - [ ] T067 [light] Set `specs/021-live-piano-audio-setup/spec.md` `**Status**` to "Implemented", tick the requirements
   checklist's last notes line, final log entry with the hand-off
 

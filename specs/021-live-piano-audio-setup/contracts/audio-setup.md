@@ -86,6 +86,15 @@ type AudioEngineEvent = /* existing */ | { type: 'outputFallback'; lostDeviceId:
 - Rule (data-model section 5) applied by the engine at `prepare()` and on every `navigator.mediaDevices` `devicechange`;
   the fallback emits `outputFallback` once per loss within `AUDIO_OUTPUT_FALLBACK_MAX_MS`; the session turns it into the
   notice `audioOutputLost` ("The chosen sound output was disconnected; playing through the system default.").
+- Timing rules (RT review of US5, 2026-10-02): moving the audio context to another device changes the output latency and can
+  glitch, so (a) the moves the musician did not ask for - the start-up apply of the saved device and the silent return of
+  a device - wait while a Listen / Practice / Play run, a replay or a calibration is going (`canSwitch`, supplied by the
+  session; `WebAudioEngine.resumeOutput()` applies the waiting move, called once a second by the session) while (b) a lost
+  device falls back at once, ends a calibration that was timing the click (`CalibrationController.cancel()`), and a Play
+  run keeps the profile it started with (its log is not rewritten); (c) every call into the platform (`enumerateDevices`,
+  `setSinkId`) is bounded by `AUDIO_OUTPUT_FALLBACK_MAX_MS` and a timeout counts as a failure; (d) a choice and a device
+  change are handled one after the other; (e) a failed device list leaves what was learnt before; (f) the musician's last
+  choice is also held in memory, so blocked storage cannot undo it; (g) `prepare()` and the first note never wait for any of it.
 - UI: a `<select>` "Sound output" listing the choices (disabled during a run - the popup is idle-only anyway), the path
   line ("Windows audio (shared mode)" / "Browser audio" ...), and the fixed line
   "ASIO and other low-latency drivers need the Native audio plugin, which is not available yet." No other driver UI.
