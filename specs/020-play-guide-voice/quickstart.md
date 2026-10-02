@@ -5,7 +5,8 @@
 ## Automated checks
 
 ```bash
-pnpm test -- tests/core/play/guide-voice.test.ts
+pnpm test -- tests/core/play/guide-voice.test.ts tests/core/schedule
+pnpm test -- tests/engine/channel-carryover.test.ts tests/engine/guide-render.test.ts
 pnpm test -- tests/core/play tests/core/grade tests/engine
 pnpm test:e2e -- tests/e2e/levels.spec.ts tests/e2e/guide-voice.spec.ts
 ```
@@ -15,6 +16,13 @@ Full gate at every checkpoint: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm
 ## Manual verification
 
 You need a MIDI keyboard for the "play along" steps; the "play nothing" steps need none.
+
+### FR-015 - Volume and pan never carry over
+
+1. `pnpm dev`, open `tests/fixtures/musicxml/channels/turned-down-left.musicxml` (Open file) and press Play in Listen
+   mode: quiet, from the left.
+2. Open `tests/fixtures/musicxml/channels/plain.musicxml` and press Play: full loudness, centred - the same as when it is
+   the first file opened after a reload.
 
 ### US1 - Hear my part softly during a Play run
 

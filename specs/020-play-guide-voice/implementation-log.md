@@ -28,3 +28,17 @@
   render-helper extension T007/T013 need (`renderPlayRun` reads `public/library` only, has no graded set, guide option
   or Orchestra level); add a stop/pause "guide notes released" assertion; reuse 019's level-sweep test for SC-006.
 - Handoff: next = fix the MEDIUM findings in tasks.md (owner's call), then `/speckit:implement` from T001.
+
+## 2026-10-02 - claude-opus-5.5 (analyze follow-up, owner: "take care of the CC7 carry-over here; resolve with recommended")
+- Done: R-10 confirmed by code reading: `compileSchedule` sends CC7 / CC10 only for parts with `<volume>` / `<pan>`;
+  neither the worklet (`applyChannelSetup`, `schedule`/`stop`/`pause` send only CC120/123) nor spessasynth_core
+  (`programChange` keeps controllers; CC121 = RP-15, which excludes volume and pan) resets them. Spec FR-015 / SC-009,
+  research R-10, data-model §4-§5, worklet-protocol 1.6.1 -> 1.7.0 in contract-changes, plan, quickstart, checklist
+  (iteration 3). Guide-only `GUIDE_CHANNEL_VOLUME` dropped (the general fix covers it). Metronome channel excluded
+  from the defaults: its CC7 is the session's `channelVolume`, and a deferred setup (`setupPending`) would override it.
+- Analyze fixes applied: A1 (level test T016 in US1's tests), A2 (helper task T005), A3 (stop/pause in T015), A4 (sweep
+  in T016), A5 (plan test location), A6 (Listen schedule check in T017), A9 (FR-003 "mellow"), A10 noted in T026.
+  A7, A8 accepted as in 019; A11 (vocabulary) needs a constitution amendment - not done.
+- tasks.md rewritten and renumbered before any task started: 34 tasks (Setup 3, Foundational 2, FR-015 7, US1 9,
+  US2 4, US3 3, Polish 6).
+- Handoff: next = `/speckit:implement` from T001 (or `/speckit:analyze` again to confirm); gate not run (documents only).

@@ -30,14 +30,14 @@ interface PlaySchedule {
 2. **Guide channel**: only when `guide` is true, the timeline has no used Orchestra channel, and at least one event is
    graded in range: the lowest unused channel that is not `PERCUSSION_CHANNEL`, `LIVE_CHANNEL` or
    `METRONOME_CHANNEL`; none free -> `guideChannel: null` and no guide events. Its setup (run timeline only):
-   program `GUIDE_PROGRAM`, bank 0, CC7 `GUIDE_CHANNEL_VOLUME`, no pan, `orchestra: true` (so it is in
-   `orchestraMask`).
+   program `GUIDE_PROGRAM`, bank 0, no `volume` / `pan` of its own (so CC7 / CC10 are the defaults, worklet-protocol
+   1.7.0 and research R-10), `orchestra: true` (so it is in `orchestraMask`).
 3. **Accompaniment independence**: guide events are kept whatever `accompaniment` says (they are the musician's part,
    not the accompaniment); accompaniment events are never copied to the guide channel.
 4. **Count-in**: no guide event starts before `countInTicks` (follows from the shift; asserted by tests).
 5. **Determinism**: the same timeline, measures and options give the same schedule, byte for byte.
-6. **No other change**: with `guide: false`, or when rule 2 gives no channel, the schedule is identical to play-run
-   2.2.0's output for the same options.
+6. **No other change**: with `guide: false`, or when rule 2 gives no channel, the schedule is identical to the
+   `guide: false` output for the same options (play-run 2.2.0 plus only the worklet-protocol 1.7.0 CC7 / CC10 defaults).
 
 ## 3. Level (mixer-levels 1.0.0 -> 1.1.0)
 
@@ -62,9 +62,11 @@ event before the count-in ends; tied note once; chord as simultaneous note-ons; 
 `tests/fixtures/musicxml/orchestra/piano-and-oboe.musicxml`) gets `guideChannel: null` and the 2.2.0 schedule; an
 Orchestra part with no playable instrument counts as none; no free channel -> null; `guide: false` equals today's
 output; `orchestraMask` contains the guide channel; replay (`compileReplay` over a guided run) contains the guide events.
-Grading golden: one recorded log graded against guided and unguided run contexts and levels 0 / 60 / 100 -> identical
-Grades (SC-004). Engine offline render: guide onsets at the scheduled frames at 50/100/150 % tempo (SC-001); level 0
-equals the unguided render within `ORCHESTRA_SILENT_TOLERANCE_DBFS` (SC-003); at level 60 guide RMS at least
-`GUIDE_QUIETER_MIN_DB` below the piano (SC-002); peak voices under `VOICE_HEADROOM_FRACTION` of the cap (R-6). E2e
+Grade equality: one recorded log graded against guided and unguided run contexts and levels 0 / 60 / 100 -> identical
+Grades (SC-004, `tests/engine/play-session.test.ts`). Engine offline render: guide onsets at the scheduled frames at 50/100/150 % tempo (SC-001); level 0
+equals the unguided render within `ORCHESTRA_SILENT_TOLERANCE_DBFS` and level 100 does not (SC-003); a mid-note level
+change follows within a block, and a level moved every block for the whole run adds no late event or dropped message
+(SC-006); at level 60 guide RMS at least `GUIDE_QUIETER_MIN_DB` below the piano (SC-002); after `stop` and `pause`
+mid-run no guide voice sounds past the next block; peak voices under `VOICE_HEADROOM_FRACTION` of the cap (R-6). E2e
 (browser + Electron): Play run schedule has guide note-ons on a mask channel with `GUIDE_PROGRAM` (SC-008); the Levels
 panel slider is enabled with the guide hint on a Score without an Orchestra and without the hint on one with it.

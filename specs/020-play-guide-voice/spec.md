@@ -14,6 +14,8 @@ will help user distinguish that is playing correctly, and won't cover piano soun
 
 - Q: Which notes does the Guide voice play? -> A: Only the musician's own expected notes (the chosen part, hand and
   range), never the accompaniment, whether "Hear other parts" is on or off. FR-002.
+- Owner request (after analyze): fix in this feature that a part's loudness and stereo position can carry over from the
+  previously opened Score (found while planning the Guide voice, plan research R-10). FR-015, SC-009.
 
 ## Context
 
@@ -151,6 +153,9 @@ notes, and the wrong notes are heard clashing with it; at Orchestra level 0 % th
 - **Malformed or unusual MusicXML** (no tempo, missing instrument data, odd parts): the Guide voice uses the same expected
   notes the Grade uses; if a Score can be graded it can be guided, and a problem never stops the run.
 - **Very fast passages**: the Guide voice plays every expected note; no note is skipped or merged.
+- **A Score opened after another one**: each part sounds at the loudness and stereo position its own Score gives it (or
+  the standard ones when the Score gives none), never at what the previous Score set for the same sound channel
+  (FR-015).
 - **Score with an Orchestra whose Orchestra cannot be loaded** (all orchestral tracks skipped with a warning): the Score
   counts as having no Orchestra and gets the Guide voice.
 
@@ -165,7 +170,7 @@ notes, and the wrong notes are heard clashing with it; at Orchestra level 0 % th
 - **FR-002**: The Guide voice MUST play the notes the musician is expected to play in the run, as chosen in the Play
   setup (part, hand, range), and only those - never the accompaniment, whether "Hear other parts" is on or off
   (Clarifications 2026-10-02) - with the Score's pitches, onsets and durations.
-- **FR-003**: The Guide voice MUST use one soft, sustained, non-piano sound from the built-in sound, chosen so that it is
+- **FR-003**: The Guide voice MUST use one soft, mellow, non-piano sound from the built-in sound, chosen so that it is
   clearly distinguishable from the piano and does not cover it (default: an electric piano of the "Rhodes" kind). The
   sound is a named, configurable setting of the app, not a user choice in this feature.
 - **FR-004**: At the default Orchestra level, the Guide voice MUST sound clearly quieter than the piano playing the same
@@ -196,6 +201,12 @@ notes, and the wrong notes are heard clashing with it; at Orchestra level 0 % th
 - **FR-014**: The Guide voice MUST behave identically in the browser and in the desktop app, and MUST be honoured by
   every Audio engine the app offers.
 
+#### Part loudness never carries over (owner request 2026-10-02)
+
+- **FR-015**: Whenever a Score is played (Listen, Practice accompaniment, Play run, replay), every part MUST sound at the
+  loudness and stereo position its own Score specifies, or at the standard defaults when the Score specifies none -
+  never at a value left over from a previously played Score, run or Guide voice.
+
 ### Key Entities
 
 - **Guide voice**: derived per Play run from the run's expected notes; has one sound (instrument) and a relative
@@ -224,6 +235,8 @@ notes, and the wrong notes are heard clashing with it; at Orchestra level 0 % th
   wrong ones without covering the piano, and accepts the default level.
 - **SC-008**: The Guide voice works in the browser and the desktop app in 100 % of the Play-mode end-to-end runs that
   cover it.
+- **SC-009**: In an offline rendering, a Score whose parts specify no loudness or stereo position, played right after a
+  Score that turned the same channels down and to one side, equals (to rounding) the same Score played first.
 
 ## Assumptions
 

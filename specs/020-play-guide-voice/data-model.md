@@ -34,8 +34,8 @@ Derived, never stored. For each `SoundingEvent` `ev` of the Score timeline insid
 | `head`, `members`, `part` | copied from `ev` (never read for grading; the schedule encoding ignores them) |
 
 The guide channel's `ChannelSetup` in the run timeline only:
-`{ used: true, program: GUIDE_PROGRAM, bankMsb: 0, percussion: false, volume: GUIDE_CHANNEL_VOLUME, pan: null,
-orchestra: true }` - `orchestra: true` here means "governed by the Orchestra level" (it lands in `orchestraMask`).
+`{ used: true, program: GUIDE_PROGRAM, bankMsb: 0, percussion: false, volume: null, pan: null, orchestra: true }`
+(CC7 / CC10 then come from the defaults, §4 and research R-10) - `orchestra: true` here means "governed by the Orchestra level" (it lands in `orchestraMask`).
 
 **Guide channel choice**: the lowest channel `c` in 0..15 with `!timeline.channels[c].used` and `c` not
 `PERCUSSION_CHANNEL`, `LIVE_CHANNEL`, `METRONOME_CHANNEL`.
@@ -59,13 +59,21 @@ guide option true
 |---|---|---|
 | `GUIDE_PROGRAM` | `4` | 0-based GM program of the Guide voice: Electric Piano 1 ("Tine Electric Piano" in GeneralUser GS 2.0.3) (R-5) |
 | `GUIDE_VELOCITY_SCALE` | `0.6` | Guide velocity = written velocity x this, at least 1 (R-5); tuned at the listening check (OD-1) |
-| `GUIDE_CHANNEL_VOLUME` | `100` | CC7 sent on the guide channel at tick 0 (GM default), so a previous Score's part volume never carries over (R-3) |
+| `DEFAULT_CHANNEL_VOLUME` | `100` | CC7 sent at tick 0 on every used channel whose setup has no `volume` (GM / synth reset value) (R-10) |
+| `DEFAULT_CHANNEL_PAN` | `64` | CC10 sent at tick 0 on every used channel whose setup has no `pan` (centre) (R-10) |
 | `GUIDE_QUIETER_MIN_DB` | `6` | Test tolerance for SC-002: at `ORCHESTRA_LEVEL_DEFAULT` the guide is at least this much below the piano |
 
 Unchanged and reused: `ORCHESTRA_LEVEL_DEFAULT` (60), `EXPRESSION_CONTROLLER` (11), `ORCHESTRA_SILENT_TOLERANCE_DBFS`,
 `VOICE_HEADROOM_FRACTION`.
 
-## 5. UI strings (`src/ui/i18n/en.ts`)
+## 5. Schedule channel setup (`compileSchedule`, R-10)
+
+For every channel with `used: true` except `METRONOME_CHANNEL` (its CC7 is the session's `channelVolume`, R-10), the
+tick-0 control changes are: CC0 = `bankMsb` (only when > 0, unchanged),
+program, **CC7 = `volume ?? DEFAULT_CHANNEL_VOLUME`**, **CC10 = `pan ?? DEFAULT_CHANNEL_PAN`** (both now always
+present). Unused channels get nothing. No other field changes.
+
+## 6. UI strings (`src/ui/i18n/en.ts`)
 
 | Key | Change | Text |
 |---|---|---|

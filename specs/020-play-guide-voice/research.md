@@ -49,8 +49,7 @@ wrong hint, never play both.
 
 **Decision**: the guide channel is the **first unused melodic channel** of the timeline (`!used`, never
 `PERCUSSION_CHANNEL`, `LIVE_CHANNEL` or `METRONOME_CHANNEL`), searched from 0. Its setup in the run timeline:
-`{ used: true, program: GUIDE_PROGRAM, bankMsb: 0, percussion: false, volume: GUIDE_CHANNEL_VOLUME, pan: null,
-orchestra: true }`. If no channel is free, there is no Guide voice for that run (`guideChannel: null`) and nothing else
+`{ used: true, program: GUIDE_PROGRAM, bankMsb: 0, percussion: false, volume: null, pan: null, orchestra: true }`. If no channel is free, there is no Guide voice for that run (`guideChannel: null`) and nothing else
 changes; no notice (13 distinct melodic programs in one piano score is not a real case; a test pins the fallback).
 
 **Rationale**:
@@ -59,9 +58,10 @@ changes; no notice (13 distinct melodic programs in one piano score is not a rea
 - `orchestra: true` in the **run** timeline puts the channel into `orchestraMask` (`compileSchedule`), which is all the
   worklet needs. The flag is set only on the run's own copy of the channels, never on the Score's timeline, so the
   Score's "has an Orchestra" fact, the Practice Orchestra effects and the library facts are untouched.
-- `volume: GUIDE_CHANNEL_VOLUME` (100, the General MIDI default CC7) is sent explicitly at tick 0 because the worklet
-  keeps a channel's CC7 across schedules: a channel that a previous Score's part had turned down (`<volume>`) would
-  otherwise make the Guide voice quieter than designed.
+- `volume: null` and `pan: null` are safe because of R-10: every used channel now gets CC7 and CC10 at tick 0, the
+  defaults when the setup gives none, so a channel a previous Score had turned down can never make the Guide voice
+  quieter than designed. (The first draft of this plan sent a guide-only `GUIDE_CHANNEL_VOLUME`; R-10 fixes the cause
+  for every channel instead, so that constant was dropped on 2026-10-02.)
 
 **Alternatives considered**: `LIVE_CHANNEL` (the musician's own piano channel: wrong sound, and the level would not reach
 it); a fixed reserved channel (would take one of the 13 melodic channels from every Score, and every Score's channel
@@ -138,3 +138,39 @@ must honour `orchestraMask` and per-channel programs, which it already must for 
 test in the browser and one in Electron capture the run's schedule (wrapping `mxSession.audioEngine.load` in the page, as
 `tests/e2e/levels.spec.ts` already wraps `setOrchestraLevel`) and assert guide note-ons on a channel in
 `orchestraMask` with `GUIDE_PROGRAM`.
+
+## R-10 Part loudness and pan carry over between schedules (owner request 2026-10-02)
+
+**Finding** (code reading on 2026-10-02, to be pinned by a failing test first):
+- `compileSchedule` (`src/core/schedule/compile.ts`) emits tick-0 CC7 only when `ChannelSetup.volume !== null` and CC10
+  only when `pan !== null`, i.e. only for parts with a MusicXML `<volume>` / `<pan>`.
+- The worklet's `applyChannelSetup` (`src/engine/worklets/score-player.processor.ts`) sends drum flag, bank, program, the
+  schedule's tick-0 controllers and CC11; it never resets CC7 or CC10. The `schedule`, `stop` and `pause` handlers send
+  only All Sound Off / All Notes Off (CC120 / CC123).
+- spessasynth_core 4.3.22: `programChange` (`dist/index.js` ~line 7905) changes the preset and drum flag only; CC121
+  (`resetRP15`, ~line 5245) resets the RP-15 list (modulation, expression, pedals, RPN), which by design excludes volume
+  and pan. The reset defaults are CC7 = 100, CC10 = 64 (`DEFAULT_MIDI_CONTROLLERS`, ~line 5155).
+- So a part without `<volume>` / `<pan>` plays at the CC7 / CC10 the previous schedule left on its channel. All 185
+  library files write `<volume>`, so the musician hears it mainly with their own files opened after a library item, and
+  after the session's `channelVolume` writes (Metronome channel; only that channel, re-sent per run, so not affected).
+
+**Decision**: `compileSchedule` emits, for **every used channel except `METRONOME_CHANNEL`**, tick-0 CC7 =
+`volume ?? DEFAULT_CHANNEL_VOLUME` (100) and CC10 = `pan ?? DEFAULT_CHANNEL_PAN` (64) - the General MIDI / synth reset
+values, named in `src/core/defaults.ts`. The Metronome channel is excluded because its CC7 belongs to the session's
+`channelVolume` message (009 R-02, 019 R-6: mute x Metronome level), sent after the schedule; when the sound bank is
+still loading, the worklet applies the schedule's setup later (`setupPending`, applied by `soundReady()`), so a tick-0
+CC7 there would override the Metronome level or mute.
+No worklet change: the worklet already applies every tick-0 controller in the setup path. Worst case 16 channels x
+(bank, CC7, CC10) = 48 setup controllers, under `MAX_SETUP_CONTROLLERS` (64).
+
+**Rationale**: fixes the cause for every compiler at once (Listen, Practice, Play run, replay and the Guide voice all go
+through `compileSchedule` / `mergeSchedules`); the first schedule on a fresh synth sounds exactly as before (it was at
+the defaults already), so rendered Listen goldens do not change - only schedule-message snapshots that list the
+setup events gain the new CC7 / CC10 events, which those tests must update with this reason.
+
+**Alternatives considered**: CC121 per channel in the worklet (does not reset CC7 / CC10 under RP-15); resetting in the
+worklet with explicit CC7 / CC10 writes (puts a musical default into RT code and duplicates the compiler's job); a
+guide-only CC7 (the first draft, R-3) - fixes one channel and leaves the bug for everyone else.
+
+**Contract**: worklet-protocol 1.6.1 -> **1.7.0** (MINOR): "every used channel's tick-0 setup contains CC7 and CC10"
+(contract-changes.md).

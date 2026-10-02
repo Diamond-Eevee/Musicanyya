@@ -18,6 +18,11 @@ reused from features 003 and 019. The worklet, engine, settings, grading and Per
 panel stops disabling the Orchestra slider and explains that it sets the Guide voice on Scores without an Orchestra
 (R-7).
 
+Owner request (2026-10-02, after analyze): a part's volume and pan can carry over from the previously played Score,
+because `compileSchedule` sends CC7 / CC10 only for parts with `<volume>` / `<pan>` and nothing resets them (R-10).
+Fixed here in the core: every used channel except the Metronome's gets CC7 and CC10 at tick 0, the General MIDI
+defaults when the Score gives none (spec FR-015, SC-009).
+
 ## Technical Context
 
 **Language/Version**: TypeScript 7 (strict), HTML5, CSS3; no UI frameworks
@@ -34,10 +39,15 @@ no Guide voice there)
 the scheduled frames (SC-001); peak synth voices with the guide < 50 % of the cap (R-6); compiling the run schedule
 stays one linear pass over the timeline events
 **Real-time Paths Touched**: none in code (no worklet, scheduler or MIDI change). The run schedule gets more note events
-on one more channel; the RT review confirms the voice headroom and that no RT code changed.
-**Constraints**: Grades, Performance logs and the schedules of Listen and Practice unchanged; with `guide: false` the
-play schedule is byte-identical to 2.2.0; core runs in Node
-**Scale/Scope**: one core function, one UI element, one string, four constants; 0-1 extra channel per run
+on one more channel, and every schedule more tick-0 controllers (applied in the existing message-handler setup path,
+never in `process()`); the RT review confirms the voice headroom, the setup-controller bound and the Metronome channel
+ordering (R-10).
+**Constraints**: Grades and Performance logs unchanged; Listen and Practice schedules change only by the tick-0 CC7 /
+CC10 defaults (R-10), so a Score played first on a fresh synth sounds exactly as before; with `guide: false` the play
+schedule differs from 2.2.0 only by those defaults; core runs in Node
+**Scale/Scope**: two core functions (`compilePlaySchedule`, `compileSchedule`), one UI element, one string, five
+constants; 0-1 extra channel per run; up to 32 more tick-0 controller events per schedule (48 max, under
+`MAX_SETUP_CONTROLLERS` = 64)
 
 ## Constitution Check
 
@@ -69,7 +79,7 @@ specs/020-play-guide-voice/
 |-- quickstart.md
 |-- contracts/
 |   |-- guide-voice.md         # new 1.0.0
-|   `-- contract-changes.md    # play-run 2.3.0, mixer-levels 1.1.0, worklet-protocol 1.6.2
+|   `-- contract-changes.md    # play-run 2.3.0, mixer-levels 1.1.0, worklet-protocol 1.7.0
 |-- checklists/requirements.md
 `-- tasks.md                   # /speckit:tasks
 ```
@@ -78,9 +88,10 @@ specs/020-play-guide-voice/
 
 ```text
 src/core/
-|-- defaults.ts                       # GUIDE_PROGRAM, GUIDE_VELOCITY_SCALE, GUIDE_CHANNEL_VOLUME, GUIDE_QUIETER_MIN_DB
+|-- defaults.ts                       # GUIDE_PROGRAM, GUIDE_VELOCITY_SCALE, GUIDE_QUIETER_MIN_DB, DEFAULT_CHANNEL_VOLUME, DEFAULT_CHANNEL_PAN
 |-- play/types.ts                     # PlayScheduleOptions.guide
-`-- schedule/play-schedule.ts         # guide channel, moved graded events, PlaySchedule.guideChannel
+|-- schedule/play-schedule.ts         # guide channel, moved graded events, PlaySchedule.guideChannel
+`-- schedule/compile.ts               # CC7 / CC10 defaults for every used channel but the Metronome's (R-10)
 src/app/
 |-- play-session.ts                   # start(): guide: true
 `-- session.ts                        # prepareStoredRun(): guide: true (regrade + replay)
@@ -90,16 +101,19 @@ src/ui/
 tests/core/play/guide-voice.test.ts   # new
 tests/core/play/play-schedule.test.ts, range.test.ts, metronome-mute.test.ts, replay.test.ts,
 tests/core/grade/tempo-percent.test.ts, tests/core/schedule/setup-events.test.ts   # add guide: false to options
-tests/core/grade/...                  # guided/unguided golden (SC-004)
-tests/engine/guide-render.test.ts     # new: offline render SC-001/002/003, voices
+tests/core/schedule/compile.test.ts, setup-events.test.ts   # CC7 / CC10 defaults (R-10)
+tests/engine/play-session.test.ts     # guided/unguided Grade equality (SC-004)
+tests/engine/helpers/listen-render.ts # renderPlayRun: fixture paths, graded set, guide, Orchestra level, stop/pause, voice peak
+tests/engine/guide-render.test.ts     # new: offline render SC-001/002/003/006, stop/pause, voices
+tests/engine/channel-carryover.test.ts # new: SC-009
 tests/e2e/levels.spec.ts              # disabled-slider assertions -> guide hint (spec FR-010)
 tests/e2e/guide-voice.spec.ts         # new: schedule capture browser; Electron assertion in the Play spec
 specs/003-play-mode-grading/contracts/play-run.md, specs/019-metronome-orchestra-volume/contracts/mixer-levels.md,
 specs/001-score-viewer-listen/contracts/worklet-protocol.md   # version bumps (contract-changes.md)
 ```
 
-**Structure Decision**: core owns the decision and the events; app passes one flag; UI changes one hint. No engine,
-worklet, worker, storage or tool change.
+**Structure Decision**: core owns the decision, the events and the channel defaults; app passes one flag; UI changes
+one hint. No engine, worklet, worker, storage or tool change.
 
 ## Complexity Tracking
 
@@ -108,13 +122,14 @@ No constitution violation, no new dependency, layer or setting.
 ## Phase 0: Research (`research.md`)
 
 R-1 where the guide is made, R-2 "has an Orchestra", R-3 guide channel, R-4 level path, R-5 sound and loudness,
-R-6 voices, R-7 Levels panel, R-8 grading/input/display untouched, R-9 shells. No `NEEDS CLARIFICATION` left.
+R-6 voices, R-7 Levels panel, R-8 grading/input/display untouched, R-9 shells, R-10 volume/pan carry-over (owner
+request). No `NEEDS CLARIFICATION` left.
 
 ## Phase 1: Design
 
 - [data-model.md](data-model.md): option, result field, derived guide events and channel, decision states, constants,
   strings.
-- [contracts/](contracts/): guide-voice 1.0.0; play-run 2.3.0, mixer-levels 1.1.0, worklet-protocol 1.6.2 (wording).
+- [contracts/](contracts/): guide-voice 1.0.0; play-run 2.3.0, mixer-levels 1.1.0, worklet-protocol 1.7.0.
 - [quickstart.md](quickstart.md): commands and manual checks per story, the listening check.
 - `docs/agents/reference.md`: Recent Changes updated; no new technology.
 - Constitution Check re-run: passes.
@@ -128,6 +143,9 @@ R-6 voices, R-7 Levels panel, R-8 grading/input/display untouched, R-9 shells. N
   assertions in `tests/e2e/levels.spec.ts` change with the spec (FR-010 replaces 019 FR-010).
 - **needs owner (OD-1, at the end)**: listening check SC-007 on two items without an Orchestra; may change
   `GUIDE_VELOCITY_SCALE` or `GUIDE_PROGRAM` (alternatives in the bank: FM electric piano, vibraphone, warm pad).
-- Observation (not in scope): the worklet keeps a channel's CC7 across schedules and `compileSchedule` sends CC7 only
-  for parts with a `<volume>`, so a later Score's part on a channel that a previous Score turned down could inherit that
-  volume. The guide channel avoids it by sending CC7 explicitly (R-3); the general case is left for a separate check.
+- Decided by the owner (2026-10-02): fix the volume/pan carry-over in this feature (R-10, FR-015, SC-009): CC7 / CC10
+  defaults for every used channel except the Metronome's, in `compileSchedule`; the guide-only `GUIDE_CHANNEL_VOLUME`
+  of the first draft is dropped.
+- Decided (analyze 2026-10-02, owner: "resolve with recommended"): A1 T013-equivalent level test moved into US1's tests;
+  A2 render-helper extension is its own foundational task; A3 stop/pause release asserted; A4 level sweep (SC-006)
+  asserted; A5 SC-004 test location fixed above; A6 Listen schedule has no guide channel (e2e); A9 FR-003 "mellow".

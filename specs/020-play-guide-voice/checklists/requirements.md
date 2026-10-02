@@ -44,3 +44,5 @@
 
 - Iteration 1: removed a SoundFont / General MIDI reference from Assumptions (implementation detail).
 - Iteration 2: FR-002 answered by the owner (only the musician's own expected notes); all items pass.
+- Iteration 3 (2026-10-02, after analyze): FR-015 / SC-009 added at the owner's request (volume/pan carry-over); FR-003
+  "sustained" -> "mellow" (analyze A9). Re-validated: all items pass.
