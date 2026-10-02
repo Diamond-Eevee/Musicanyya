@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "itemId": "repertoire/advanced/grieg-morning-mood",
+  "itemId": "repertoire/listening/grieg-morning-mood",
   "claim": "original",
   "claimText": "Morning Mood, Peer Gynt Suite No. 1, Op. 46 No. 1 - the composer's piano arrangement (G. Schirmer, 1899)",
   "checks": [
@@ -47,5 +47,6 @@
   "outcome": "verified",
   "outcomeNote": "Converted 2026-10-02 from transcription A (read-back 0 differences) and compared with transcription B, read from the print by a separate session: 15 differences in 7 places (bars 48-49, 54-55, 64-65, 66, 70, 79-80, 84), each settled against the print in favour of B and fixed in A; now 0. The visual pass then corrected A's slurs, fingering, dynamics, hairpins, arpeggios and words in about 30 bars (019 log, T045).",
   "checkedBy": "claude-opus-5.5",
-  "date": "2026-10-02"
+  "date": "2026-10-02",
+  "supersedes": ["repertoire/advanced/grieg-morning-mood"]
 }

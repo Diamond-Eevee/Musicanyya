@@ -58,6 +58,9 @@ describe('library tempoBpm counts quarter notes (research R-10)', () => {
         expect(printed, item.id).toEqual(first.beat);
       }
     }
-    expect(nonQuarter).toEqual(['repertoire/advanced/grieg-morning-mood']);
+    expect(nonQuarter).toEqual([
+      'repertoire/advanced/grieg-morning-mood-easier',
+      'repertoire/listening/grieg-morning-mood',
+    ]);
   });
 });

@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { LIVE_QUEUE_CAPACITY, PERCUSSION_CHANNEL } from '../../../src/core/defaults.js';
+import { LIVE_QUEUE_CAPACITY } from '../../../src/core/defaults.js';
 import { buildExpectedEvents } from '../../../src/core/practice/expected.js';
 import { handOptions, partOptions } from '../../../src/core/practice/hands.js';
 import { applyInput, startSession } from '../../../src/core/practice/matcher.js';
@@ -86,18 +86,17 @@ describe('ExpectedEvent.orchestra', () => {
     expect(events).toHaveLength(11);
     expect(events.map((e) => e.required[0]?.key)).toEqual(RH_KEYS);
     expect(oboe).toHaveLength(11);
+    expect(withOboe(events, score, timeline).map((e) => e.orchestra[0]?.key)).toEqual(OBOE_KEYS);
   });
 
-  it('holds the Orchestra notes of [this onset, next onset) with their channel, key, velocity and end', () => {
-    expect(events.map((e) => e.orchestra.map((o) => o.key))).toEqual(OBOE_KEYS.map((key) => [key]));
-    for (const event of events) {
-      const [ref] = event.orchestra;
-      expect(ref?.channel).toBe(channel);
-      expect(ref?.velocity).toBeGreaterThan(0);
-      const sounding = timeline.events.find((e) => e.head.noteId === ref?.noteId);
-      expect(ref?.endTick).toBe(sounding?.endTick);
+  // Owner decision 2026-10-02 (branch fix-morning-mood-chords): the Orchestra is not heard in Practice mode. Feature 019
+  // played each Orchestra note with the musician's progress; now no event carries one, whatever hands are chosen.
+  it('carries no Orchestra note on any event, for either hand or both (the Orchestra is silent in Practice)', () => {
+    for (const selection of [RIGHT, LEFT, { preset: 'both', partIndex: 0, staves: [1, 2] } as HandSelection]) {
+      const built = buildExpectedEvents(score, timeline, selection);
+      expect(built.length).toBeGreaterThan(0);
+      for (const event of built) expect(event.orchestra).toEqual([]);
     }
-    expect(events.map((e) => e.orchestra[0]?.noteId)).toEqual(oboe.map((n) => n.id));
   });
 
   it('never puts an Orchestra note in required or accompaniment', () => {
@@ -110,23 +109,17 @@ describe('ExpectedEvent.orchestra', () => {
     expect(events.map((e) => e.accompaniment.length)).toEqual([1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1]);
   });
 
-  it('attaches Orchestra notes to the event they pass under, like the accompaniment (left hand only: four events)', () => {
-    const leftEvents = buildExpectedEvents(score, timeline, LEFT);
-    expect(leftEvents).toHaveLength(4);
-    expect(leftEvents.map((e) => e.orchestra.length)).toEqual([4, 2, 4, 1]); // every oboe note of the bar
-  });
-
-  it('leaves an Orchestra note on the percussion channel out of every list', () => {
-    const first = oboe[0]?.id;
-    const mutated = {
-      ...timeline,
-      events: timeline.events.map((e) => (e.head.noteId === first ? { ...e, channel: PERCUSSION_CHANNEL } : e)),
-    };
-    const built = buildExpectedEvents(score, mutated, RIGHT);
-    expect(built[0]?.orchestra).toEqual([]);
-    expect(built[0]?.accompaniment.map((a) => a.noteId)).not.toContain(first);
-    expect(built[1]?.orchestra).toHaveLength(1); // the others are unchanged
-  });
+  it.each(['repertoire/listening/grieg-morning-mood', 'repertoire/advanced/grieg-morning-mood-easier'])(
+    '%s: no Practice event carries an Orchestra note',
+    (itemId) => {
+      const item = loadFixture(`../../../public/library/${itemId}.musicxml`);
+      expect(item.score.parts.some((p) => p.orchestra)).toBe(true);
+      for (const selection of [RIGHT, LEFT, { preset: 'both', partIndex: 0, staves: [1, 2] } as HandSelection]) {
+        for (const event of buildExpectedEvents(item.score, item.timeline, selection))
+          expect(event.orchestra).toEqual([]);
+      }
+    },
+  );
 
   it('a Score without an Orchestra has an empty list on every event', () => {
     const { score: plain, timeline: plainTimeline } = open('orchestra/piano-and-oboe-twin.musicxml');
@@ -151,9 +144,12 @@ describe('what Practice and Play offer (FR-013)', () => {
   });
 });
 
+// The matcher still plays the Orchestra notes an event carries (practice-session 1.8.0). Since buildExpectedEvents attaches
+// none any more (owner decision 2026-10-02), these tests attach the oboe's notes by hand, one per right-hand event as feature
+// 019 did, to keep that mechanism covered.
 describe('orchestraOn / orchestraOff effects', () => {
   const { score, timeline, channel } = open();
-  const events = buildExpectedEvents(score, timeline, RIGHT);
+  const events = withOboe(buildExpectedEvents(score, timeline, RIGHT), score, timeline);
 
   it('satisfying an event starts its Orchestra note on its own channel, before the cursor moves, with the accompaniment on', () => {
     const { perStep } = steps(begin(events), buildSequence(['on:72@10']));
@@ -259,6 +255,28 @@ function oboe(score: ReturnType<typeof open>['score'], index: number) {
   return score.parts[1]?.notes[index];
 }
 
+/** The events with the oboe's note at the same index attached as their Orchestra note (on its channel, key, velocity and end
+ *  from the timeline), as feature 019's buildExpectedEvents attached them on this fixture. */
+function withOboe(
+  events: readonly ExpectedEvent[],
+  score: ReturnType<typeof open>['score'],
+  timeline: ReturnType<typeof open>['timeline'],
+): ExpectedEvent[] {
+  return events.map((event, index) => {
+    const note = oboe(score, index);
+    const sounding = timeline.events.find((e) => e.head.noteId === note?.id);
+    if (!note || !sounding) throw new Error(`no oboe note ${index}`);
+    const ref = {
+      noteId: note.id,
+      key: sounding.key,
+      endTick: sounding.endTick,
+      velocity: sounding.velocity,
+      channel: sounding.channel,
+    };
+    return { ...event, orchestra: [ref] };
+  });
+}
+
 // Feature 019 T080 (RT review T036, and its own RT review): one Practice input may put the key's own note plus an `orchestraOff` per ended
 // Orchestra note, an `orchestraOn` per new one and the accompaniment's notes into the worklet's live queue at once; a
 // dropped note-off is a stuck note. On the densest real Orchestra score the most one input ever produces must stay within
@@ -321,7 +339,7 @@ describe('live queue headroom on every Orchestra item (T080)', () => {
   }
 
   it('there is at least one Orchestra item (Morning Mood)', () => {
-    expect(ITEMS).toContain('repertoire/advanced/grieg-morning-mood');
+    expect(ITEMS).toContain('repertoire/listening/grieg-morning-mood');
   });
 
   it.each(ITEMS.flatMap((itemId) => SELECTIONS.map((s) => [itemId, s.preset, s] as const)))(

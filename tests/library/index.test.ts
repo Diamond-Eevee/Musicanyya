@@ -594,7 +594,10 @@ describe('the successors of the old Learning shelf (feature 011 US4, SC-006)', (
     const { index } = await buildLibraryIndex(libraryRoot);
     expect(SUCCESSORS).toHaveLength(41);
     expect(new Set(SUCCESSORS.map((s) => s.oldId)).size).toBe(41);
-    const claims = index.items.flatMap((i) => (i.meta.supersedes ?? []).map((s) => ({ ...s, by: i.id })));
+    // The old Learning shelf's ids only: Morning Mood's move to "For listening" (2026-10-02) claims its own old id, below.
+    const claims = index.items
+      .flatMap((i) => (i.meta.supersedes ?? []).map((s) => ({ ...s, by: i.id })))
+      .filter((c) => c.id.startsWith('learning/chords/'));
     expect(claims).toHaveLength(36);
     const reset = SUCCESSORS.filter((s) => s.resetBy === '014');
     expect(reset).toHaveLength(5);
@@ -612,6 +615,18 @@ describe('the successors of the old Learning shelf (feature 011 US4, SC-006)', (
       expect(found[0]?.hash, successor.oldId).toBe(successor.hash);
       expect(successor.hash, successor.oldId).toMatch(/^[0-9a-f]{64}$/);
     }
+  });
+
+  it('the faithful Morning Mood, moved to "For listening" (2026-10-02), supersedes its old id with the SHA-256 from main', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    const claims = index.items.flatMap((i) => (i.meta.supersedes ?? []).map((s) => ({ ...s, by: i.id })));
+    expect(claims.filter((c) => !c.id.startsWith('learning/chords/'))).toEqual([
+      {
+        id: 'repertoire/advanced/grieg-morning-mood',
+        hash: '129d87bdc69c30aca36f20d107a71b41b9872ece6fc679c78c4bcda3c379f44f',
+        by: 'repertoire/listening/grieg-morning-mood',
+      },
+    ]);
   });
 
   it('every successor item is on the shelf', async () => {

@@ -13,14 +13,19 @@ pnpm electron:dev           # desktop shell against the dev server
 New and changed commands (dev-time, see `docs/agents/reference.md` R7):
 
 ```text
-pnpm library:orchestra repertoire/advanced/grieg-morning-mood          # (re)generate the Orchestra parts from the definition
-pnpm library:orchestra repertoire/advanced/grieg-morning-mood --check  # verify the committed file, write nothing
-pnpm library:convert-ly own-grieg-op46-no1-transcription-a repertoire/advanced/grieg-morning-mood
-pnpm library:fidelity --item repertoire/advanced/grieg-morning-mood    # double-entry + orchestra checks, every difference
+pnpm library:orchestra repertoire/listening/grieg-morning-mood          # (re)generate the Orchestra parts from the definition
+pnpm library:orchestra repertoire/listening/grieg-morning-mood --check  # verify the committed file, write nothing
+pnpm library:convert-ly own-grieg-op46-no1-transcription-a repertoire/listening/grieg-morning-mood
+pnpm library:fidelity --item repertoire/listening/grieg-morning-mood    # double-entry + orchestra checks, every difference
 pnpm library:index                                                     # facts (incl. orchestra) and level
 ```
 
 (The level folder, `advanced`, is the expected result of `computeLevel`; use the id `pnpm library:index` prints.)
+
+Since 2026-10-02 (branch `fix-morning-mood-chords`) the faithful item lives in `repertoire/listening` ("For listening":
+its chords are wider than one hand), and `repertoire/advanced/grieg-morning-mood-easier` is the playable arrangement,
+converted from `own-grieg-op46-no1-easier` with the same commands and its own definition
+`content/library/orchestra/grieg-morning-mood-easier.json`.
 
 ## Gate
 
@@ -49,11 +54,11 @@ Use `pnpm screenshot` for what a picture shows (reference R7); ask the owner onl
 
 1. `pnpm screenshot --browser --width 1280 --height 800`, then search "Morning": the item shows the "with orchestra"
    marker (glyph + text).
-2. `pnpm screenshot --item repertoire/advanced/grieg-morning-mood --full`: two staves per system (treble + bass),
+2. `pnpm screenshot --item repertoire/listening/grieg-morning-mood --full`: two staves per system (treble + bass),
    title "Morning Mood", composer Grieg; no third staff, no instrument names. Compare page by page with the print
    (`https://archive.org/download/31761045200615/page/n6_w1000.jpg` and following).
 3. `--greyscale` version of step 2: nothing on the score sheet depends on colour.
-4. `pnpm screenshot --item repertoire/advanced/grieg-morning-mood --run --keys "sleep:6000"`: the cursor stands at a
+4. `pnpm screenshot --item repertoire/listening/grieg-morning-mood --run --keys "sleep:6000"`: the cursor stands at a
    piano note (never between piano notes because of an Orchestra onset).
 5. Practice: `--practice --keys "+80,-80"` with the item: only piano notes are expected (help shows piano keys only).
 6. Note for the check: in Play mode the flute/oboe doubling can cover a missed melody note to the ear; the default

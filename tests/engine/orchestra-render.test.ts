@@ -14,7 +14,7 @@ import { buildScore } from '../../src/core/musicxml/build.js';
 import { readXml } from '../../src/core/musicxml/read.js';
 import { renderListen, renderPlayRun, type SynthNote } from './helpers/listen-render.js';
 
-const LIBRARY_FILE = 'repertoire/advanced/grieg-morning-mood.musicxml';
+const LIBRARY_FILE = 'repertoire/listening/grieg-morning-mood.musicxml';
 const FIXTURE = `../../../public/library/${LIBRARY_FILE}`; // renderListen reads below tests/fixtures/musicxml
 const PIECE_SECONDS = 174; // 87 bars of 6/8 at a dotted quarter = 60 (the library index's durationSeconds)
 const TEMPOS = [50, 100, 150];

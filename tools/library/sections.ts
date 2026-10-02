@@ -101,4 +101,13 @@ export const LIBRARY_SECTIONS: readonly LibrarySectionDefinition[] = [
     parent: 'repertoire',
     order: 3,
   },
+  {
+    id: 'repertoire/listening',
+    title: 'For listening',
+    description:
+      'Faithful scores with chords wider than one hand can reach. Listen to them; to play, open their easier versions.',
+    path: 'repertoire/listening',
+    parent: 'repertoire',
+    order: 4,
+  },
 ];

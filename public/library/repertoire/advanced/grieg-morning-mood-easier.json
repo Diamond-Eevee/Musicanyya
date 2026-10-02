@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "title": "Morning Mood (easier chords)",
+  "subtitle": "Peer Gynt Suite No. 1, Op. 46 No. 1 - the composer's piano arrangement, arranged with chords that fit one hand, with orchestra",
+  "composer": "Edvard Grieg",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "advanced",
+  "tags": ["chords", "hands-together", "ties", "pedal", "ornaments", "dynamics", "phrasing"],
+  "trains": "Grieg's own piano version of the sunrise from Peer Gynt with every chord inside one hand's reach: the pastoral 6/8 melody over held triads, the forte climax, the left-hand melody under right-hand figuration, trills with their endings, and the quiet return.",
+  "hands": "both",
+  "arrangement": true,
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "Musicanyya practice material",
+    "created": "2026-10-02",
+    "basedOn": "Grieg's own piano arrangement (G. Schirmer, New York, 1899, ed. Louis Oesterle; Internet Archive 31761045200615), public domain, as read in our transcription A (content/library/sources/own-grieg-op46-no1-transcription-a); the faithful item is repertoire/listening/grieg-morning-mood.",
+    "note": "Converted from content/library/sources/own-grieg-op46-no1-easier/morning-mood-easier.ly, which is transcription A with every chord rewritten to fit one hand (each change marked \"arr:\" there). The Orchestra is the faithful item's, generated from this piano part: every Orchestra note doubles a piano note."
+  },
+  "departures": [
+    "Every chord fits one hand: at most three keys, an octave struck together, a sixth for a note held while the hand plays on; every change is marked \"arr:\" in the source.",
+    "Left hand, bars 1-3, 9-11, 17-20: Grieg's tenths become close triads over the same bass (E3 B3 G#4 -> E3 G#3 B3); bars 4 and 12 drop the tied top voice.",
+    "Left hand, bars 7-8, 15-47, 67-75: low chords become bass, fifth and octave (E2 B2 G#3 -> E2 B2 E3), keeping a seventh in bars 20, 25-28, 37 and 45; none rolled.",
+    "Bars 32-35, 40-43: the inner voice the print gives the left hand by a bracket is written on the lower staff.",
+    "Right hand, bars 3, 5-6, 11, 13-15, 23, 27-29, 37, 45, 65, 67-75: a held inner note is shortened, moves to a closer chord tone or goes.",
+    "Left hand, bars 50-53, 56-62, 65, 79-80: four-note chords and wide holds keep three notes within reach; the bass is struck again, not held; no key is held while struck again.",
+    "Bars 77-78, 81-87: four-note chords keep three notes (B7 without its fifth); the left hand strikes E2 B2 E3 before the tremolo and ends on E1."
+  ],
+  "limitations": ["written pedal is not played"],
+  "reviewedBy": "claude-opus-5-5",
+  "reviewedOn": "2026-10-02"
+}

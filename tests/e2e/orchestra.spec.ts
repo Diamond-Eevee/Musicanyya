@@ -51,7 +51,8 @@ test.describe('piano-and-oboe (US2a)', () => {
     expect(result.staves % 2).toBe(0); // grand staff systems only: treble and bass, never a third staff
   });
 
-  test('Practice gives the worklet the schedule before the first live Orchestra note, which plays on the Orchestra channel', async ({
+  // Owner decision 2026-10-02: the Orchestra is silent in Practice mode (feature 019 played it with the musician's progress).
+  test('Practice plays no Orchestra note: the keys of the first event send piano notes only, none on an Orchestra channel', async ({
     page,
   }) => {
     await openFixture(page);
@@ -75,17 +76,20 @@ test.describe('piano-and-oboe (US2a)', () => {
       } as never;
     });
     await startPracticeOnOpenScore(page);
-    await pressKeys(page, '+72,+48,wait,-72,-48,wait'); // C5 and C3, the first event of both hands: the oboe's E5 starts with it
+    await pressKeys(page, '+72,+48,wait,-72,-48,wait'); // C5 and C3, the first event of both hands: the oboe's E5 is written there
 
     const seen = await page.evaluate(
       () => (window as unknown as { __orchestraSpy: { loads: number[]; notes: unknown[][] } }).__orchestraSpy,
     );
     expect(seen.loads.length).toBeGreaterThan(0);
     const mask = seen.loads[0] ?? 0;
-    expect(mask).not.toBe(0);
-    const oboeNote = seen.notes.find((args) => args[0] === 76 && typeof args[2] === 'number');
-    expect(oboeNote, `the oboe E5 was sent with a channel: ${JSON.stringify(seen)}`).toBeDefined();
-    expect(mask & (1 << (oboeNote?.[2] as number))).not.toBe(0); // on a channel of the schedule's Orchestra mask
+    expect(mask).not.toBe(0); // the Score has an Orchestra (Listen plays it) ...
+    const onOrchestra = seen.notes.filter(
+      (args) => typeof args[2] === 'number' && (mask & (1 << (args[2] as number))) !== 0,
+    );
+    expect(onOrchestra, `live notes: ${JSON.stringify(seen.notes)}`).toEqual([]); // ... Practice does not
+    expect(seen.notes.some((args) => args[0] === 76)).toBe(false); // the oboe's E5 is not played
+    expect(seen.notes.some((args) => args[0] === 72)).toBe(true); // the musician's own C5 is
   });
 });
 
@@ -93,7 +97,7 @@ test.describe('piano-and-oboe (US2a)', () => {
 // strings, cellos), behaves like a piano piece everywhere the musician can see or be graded. Chromium, Firefox and the
 // electron project (the same bundle).
 test.describe('Morning Mood (019 T057)', () => {
-  const ITEM = 'repertoire/advanced/grieg-morning-mood';
+  const ITEM = 'repertoire/listening/grieg-morning-mood';
 
   test.beforeEach(({ browserName }) => {
     test.skip(

@@ -252,6 +252,16 @@ export const LEVEL_DURATION_SECONDS_MAX: Record<Level, number> = {
 // rolled chord: `maxSpanSemitones` leaves out a chord whose notes all carry <arpeggiate> (`maxArpeggiatedSpanSemitones`
 // reports it), and Advanced accepts any such span, lower levels hold it to these limits (feature 019, research R-17).
 // Advanced allows an unrolled tenth (16): owner decision OD-3 of feature 019, 2026-10-01 (research R-17 addendum).
+// Playable by one hand (Constitution 1.4.0, Principle VII; owner request 2026-10-02): what every score the project writes or
+// arranges keeps to, per printed staff, checked by `handStretches` (src/core/library/playability.ts) and
+// tests/library/playability.test.ts. At no moment more than three keys; notes struck together reach at most an octave; a note
+// held while the same hand starts others lies within a major sixth of them. A trill counts its upper note, taken a whole tone
+// up (the wider of the two neighbours). Faithful copies of a composer's work are exempt ("For listening" holds those that
+// break it).
+export const PLAYABLE_HAND_KEYS_MAX = 3;
+export const PLAYABLE_HAND_SPAN_SEMITONES_MAX = 12;
+export const PLAYABLE_HELD_SPAN_SEMITONES_MAX = 9;
+export const PLAYABLE_TRILL_UPPER_SEMITONES = 2;
 export const LEVEL_MAX_INTERVAL_SEMITONES: Record<Level, number> = {
   introduction: 7,
   beginner: 9,

@@ -39,7 +39,7 @@ describe('gradePerformance golden snapshots (FR-025, SC-001)', () => {
 // clean, one with a missed note, a wrong key at a pitch the flute plays and a late note. The Orchestra level is not an
 // input of grading: neither RunSettings nor the log has a level.
 describe('Morning Mood golden: the Orchestra changes no Grade (019 T076)', () => {
-  const ITEM = '../../../public/library/repertoire/advanced/grieg-morning-mood.musicxml';
+  const ITEM = '../../../public/library/repertoire/listening/grieg-morning-mood.musicxml';
   const RIGHT: HandSelection = { preset: 'right', partIndex: 0, staves: [1] };
   const NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
   const name = (key: number) => `${NAMES[key % 12]}${Math.floor(key / 12) - 1}`;

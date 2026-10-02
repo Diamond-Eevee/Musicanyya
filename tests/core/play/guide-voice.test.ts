@@ -310,7 +310,7 @@ describe('when a run gets no Guide voice (rule 6)', () => {
   });
 
   it('the real Morning Mood (SC-005): guideChannel is null and the schedule equals the guide: false one', () => {
-    const loaded = loadLibrary('repertoire/advanced/grieg-morning-mood.musicxml');
+    const loaded = loadLibrary('repertoire/listening/grieg-morning-mood.musicxml');
     expect(loaded.timeline.channels.some((c) => c.used && c.orchestra)).toBe(true);
     const graded = gradedOf(loaded, bothHands(loaded));
     expect(graded.size).toBeGreaterThan(0);

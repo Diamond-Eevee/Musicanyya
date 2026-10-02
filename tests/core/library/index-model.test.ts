@@ -251,8 +251,8 @@ describe('library-index 1.2.0 fields', () => {
 // Feature 019 FR-025 / FR-026, contract library-index 1.4.0 (research R-19).
 describe('library-index 1.4.0: attribution licences', () => {
   const attributed = (provenance: Record<string, unknown>) => {
-    const base = validItem('repertoire/advanced/grieg-morning-mood');
-    return validItem('repertoire/advanced/grieg-morning-mood', { meta: { ...base.meta, provenance } });
+    const base = validItem('repertoire/listening/grieg-morning-mood');
+    return validItem('repertoire/listening/grieg-morning-mood', { meta: { ...base.meta, provenance } });
   };
   const DOWNLOADED = {
     origin: 'downloaded',
