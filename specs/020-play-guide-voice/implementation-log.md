@@ -128,3 +128,27 @@
   `pnpm test:e2e` -> `752 skipped`, `1272 passed (14.0m)`, exit 0 (all four projects; run on the build made before T035 / T036,
   which are Vitest-only).
 
+## 2026-10-02 - claude-sonnet-5.5 (implement: US1 and US2 tests)
+- Test tasks, each ticked because it fails as expected (AGENTS.md section 4). Evidence:
+  - T013 `tests/core/play/guide-voice.test.ts`: `Tests  11 failed | 10 passed (21)`; the 11 fail on `guideChannel` null / no guide
+    events (`expected null to be 1`, `expected [] to deeply equal [ Array(29) ]`, ...). Passing today, as guards: the 29-note
+    precondition, left hand unchanged with accompaniment on, accompaniment never copied, both Orchestra cases (fixture and the
+    real Morning Mood, SC-005), every channel in use, nothing graded, `guide: false` digest, determinism. The `guide: false`
+    digest `95af4556...d4eea` was captured on commit 302bdaa (after FR-015, before the guide). `eight-measure-melody` has 29
+    notes, not 32 as the task's first draft assumed.
+  - T014 `tests/engine/play-session.test.ts` (+ `FakeAudioEngine.loaded`): `Tests  3 failed | 33 passed (36)`; the 3 fail because
+    `start()` loads no mask channel. The SC-004 Grade tests (levels 0 / 60 / 100, guided vs unguided) pass today (nothing
+    reaches the grader); they guard the implementation.
+  - T015 + T016 `tests/engine/guide-render.test.ts` (+ `renderPlayRun` options `source`, `graded`, `guide`, `orchestraLevel`,
+    `dry`, results `noteOnFrames`, `countInEndFrame`, `schedule`, `guideChannel`, `finalVoices`): `Tests  11 failed (11)`, all on
+    the missing guide (`expected null not to be null`, `expected 1.3e-7 to be greater than 3.16e-5`, `expected 0 to be greater
+    than 0.001`). The onset and sweep tests also assert that 29 guide notes exist, so they cannot pass vacuously. The densest
+    hands-together item without an Orchestra is picked from `public/library/index.json` by `peakNotesPerSecond`:
+    `repertoire/advanced/fur-elise-complete` (13.5 notes/s, 156 s). Stop and pause are asserted as: every sounding guide note is
+    given its note-off in the next block, no note-on after, no voice left after 40 s, silence after 20 s (dry).
+  - T017 `tests/e2e/guide-voice.spec.ts` (+ `helpers/schedule-spy.ts`, `PlayOptions.beforeStart`) and the Electron test in
+    `electron-playback.spec.ts`: chromium run: the Play-without-Orchestra test fails (`Expected length: 1, Received length: 0`);
+    the Morning Mood and Listen tests pass today (guards, analyze A6). The Electron one is run at the checkpoint.
+  - T022 `tests/ui/levels-panel.test.ts`: `Tests  4 failed | 6 passed (10)`. T023 `tests/e2e/levels.spec.ts`: 2 failed (the slider is
+    still disabled). These two expectations changed with spec FR-010 (replaces 019 FR-010), not to go green.
+

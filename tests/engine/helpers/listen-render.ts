@@ -113,6 +113,8 @@ export interface PlayRenderOptions {
   /** The Orchestra level, 0..100, sent as the engine does (`orchestraLevel` with `level / 100`) before the schedule loads.
    *  Default: not sent, so the processor keeps its start-up level (CC11 127 on a mask channel). */
   orchestraLevel?: number;
+  /** Render without the synth's reverb and chorus, whose tails depend on all earlier audio (as `renderListen`'s `dry`). */
+  dry?: boolean;
 }
 
 export interface PlayRender {
@@ -137,6 +139,8 @@ export interface PlayRender {
   orchestraChannels: number[];
   /** The most voices the synth had sounding at the end of any render block (feature 019 R-11, T056). */
   peakVoices: number;
+  /** The voices the synth still had sounding after the last render block (020: none must ring on after a stop or a pause). */
+  finalVoices: number;
 }
 
 /**
@@ -148,6 +152,7 @@ export interface PlayRender {
 export function renderPlayRun(libraryFile: string, options: PlayRenderOptions): PlayRender {
   const synth = new SpessaSynthProcessor(SAMPLE_RATE);
   synth.soundBankManager.addSoundBank(shippedSoundBank(), 'default');
+  if (options.dry) synth.setSystemParameter('effectsEnabled', false);
   const dir = options.source === 'fixture' ? '../../fixtures/musicxml' : '../../../public/library';
   const xml = decodeXml(fs.readFileSync(path.join(__dirname, dir, libraryFile)));
   const { score } = buildScore(readXml(xml).doc);
@@ -239,6 +244,7 @@ export function renderPlayRun(libraryFile: string, options: PlayRenderOptions): 
     notes,
     orchestraChannels,
     peakVoices,
+    finalVoices: synth.voiceCount,
   };
 }
 

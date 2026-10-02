@@ -131,7 +131,7 @@ count-in; the right notes blend, a wrong one clashes; the Grade equals one witho
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T013 [P] [US1] New `tests/core/play/guide-voice.test.ts` (guide-voice.md §2 and §5), one assertion per bullet,
+- [x] T013 [P] [US1] New `tests/core/play/guide-voice.test.ts` (guide-voice.md §2 and §5), one assertion per bullet,
   all with `guide: true` unless named:
   - on `eight-measure-melody.musicxml` with every note graded: `guideChannel` is the lowest unused melodic channel, its
     setup has program `GUIDE_PROGRAM` and the default CC7 / CC10, and its bit is set in `schedule.orchestraMask`;
@@ -154,12 +154,12 @@ count-in; the right notes blend, a wrong one clashes; the Grade equals one witho
   - on a real library item without an Orchestra (`public/library/repertoire/beginner/greensleeves.musicxml`), both hands
     graded: the guide note count equals the number of graded sounding events (AGENTS.md: check real files too).
   Fails today: `guideChannel` is always null and graded events are dropped
-- [ ] T014 [P] [US1] Extend `tests/engine/play-session.test.ts` (fake engine, fake clock): `start()` loads a schedule whose
+- [x] T014 [P] [US1] Extend `tests/engine/play-session.test.ts` (fake engine, fake clock): `start()` loads a schedule whose
   `orchestraMask` includes a channel carrying the graded notes on a Score without an Orchestra; a recorded
   Performance log fed to the run gives the same Grade as the same log against an unguided schedule, and the Grade at
   Orchestra levels 0, 60 and 100 is identical (SC-004; levels set through the session, never read by the grader); the
   run's `expected` and the Performance log contain no guide event. Fails today: `start()` passes `guide: false`
-- [ ] T015 [P] [US1] New `tests/engine/guide-render.test.ts` using the T005 helper, on `eight-measure-melody.musicxml`
+- [x] T015 [P] [US1] New `tests/engine/guide-render.test.ts` using the T005 helper, on `eight-measure-melody.musicxml`
   with every note graded and no input:
   - every guide note onset is at its scheduled frame (within 1 sample) at tempo 50, 100 and 150 %, and no guide onset
     falls inside the count-in (SC-001);
@@ -171,14 +171,14 @@ count-in; the right notes blend, a wrong one clashes; the Grade equals one witho
     `public/library/index.json` facts; name it in the log), the peak active voice count of a guided run stays below
     `VOICE_HEADROOM_FRACTION * VOICE_CAP` (R-6).
   Fails today: no guide events are scheduled
-- [ ] T016 [P] [US2] Level tests in the same `tests/engine/guide-render.test.ts` (written here, before T018, because US2
+- [x] T016 [P] [US2] Level tests in the same `tests/engine/guide-render.test.ts` (written here, before T018, because US2
   has no code of its own - research R-4, analyze A1): a guided run rendered at Orchestra level 100 differs from the
   unguided render by more than `ORCHESTRA_SILENT_TOLERANCE_DBFS` while at level 0 it equals it within that tolerance
   (SC-003); a sustained guide note's level follows a level change sent mid-note within the next render block, with no
   retriggered onset (FR-011); onsets identical at levels 0, 50 and 100; the level moved every render block for the
   whole run adds no late event and no dropped message, as 019's `orchestra-level.test.ts` sweep (SC-006, analyze A4).
   Fails today: no guide note exists to differ, follow or sweep
-- [ ] T017 [P] [US1] New `tests/e2e/guide-voice.spec.ts` (browser) and one added test in
+- [x] T017 [P] [US1] New `tests/e2e/guide-voice.spec.ts` (browser) and one added test in
   `tests/e2e/electron-playback.spec.ts` (Electron), SC-008: open a fixture without an Orchestra, start a Play run
   through `tests/e2e/helpers/play.ts` (the `e2e-midi` seam), capture the loaded schedule by wrapping
   `mxSession.audioEngine.load` in the page (as `tests/e2e/levels.spec.ts` wraps `setOrchestraLevel`), and assert
@@ -216,12 +216,12 @@ applies and the hint is gone.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T022 [P] [US2] Update `tests/ui/levels-panel.test.ts`: with no Score open and with a loaded Score whose
+- [x] T022 [P] [US2] Update `tests/ui/levels-panel.test.ts`: with no Score open and with a loaded Score whose
   `summary.parts` has no `orchestra: true`, the Orchestra slider is enabled, the hint `en.levels.guideVoice` is visible
   and is the slider's `aria-describedby`; with an Orchestra part, enabled, no hint, no `aria-describedby`; switching
   Scores never changes `transportState.orchestraLevel`. Fails today: the slider is disabled with "This score has no
   orchestra"
-- [ ] T023 [P] [US2] Update `tests/e2e/levels.spec.ts` (the disabled-slider assertions, today at lines 80-81 and
+- [x] T023 [P] [US2] Update `tests/e2e/levels.spec.ts` (the disabled-slider assertions, today at lines 80-81 and
   230-231): on a Score without an Orchestra the slider is enabled and the panel says "No orchestra in this score: sets
   the guide voice in Play mode"; the value set on the Orchestra fixture (25) is still shown. Log that these
   expectations changed with spec FR-010 (replaces 019 FR-010), not to go green. Fails today: the slider is disabled

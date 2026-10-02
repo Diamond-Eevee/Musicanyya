@@ -11,15 +11,25 @@
 import { describe, expect, it } from 'vitest';
 import { type PlaySessionCallbacks, PlaySessionController } from '../../src/app/play-session.js';
 import {
+  GUIDE_PROGRAM,
+  GUIDE_VELOCITY_SCALE,
   METRONOME_CHANNEL,
+  METRONOME_KEY_BEAT,
+  METRONOME_KEY_DOWNBEAT,
+  METRONOME_VELOCITY_BEAT,
+  METRONOME_VELOCITY_DOWNBEAT,
   METRONOME_VOLUME_MUTED,
   METRONOME_VOLUME_ON,
+  ORCHESTRA_LEVEL_DEFAULT,
   PLAY_STRICTNESS_DEFAULT,
 } from '../../src/core/defaults.js';
+import { buildExpectedNotes } from '../../src/core/grade/expected.js';
 import { gradePerformance } from '../../src/core/grade/grade.js';
 import type { Grade, StoredPerformance } from '../../src/core/grade/types.js';
 import type { PlayEffect, RunSettings } from '../../src/core/play/types.js';
 import type { HandSelection } from '../../src/core/practice/types.js';
+import { EVENT_KIND, type ScheduleMessage } from '../../src/core/schedule/compile.js';
+import { compilePlaySchedule } from '../../src/core/schedule/play-schedule.js';
 import { loadFixture } from '../core/practice/helpers.js';
 import { FakeAudioEngine } from '../fakes/fake-audio-engine.js';
 import { FakeMidiInput } from '../fakes/fake-midi-input.js';
@@ -668,5 +678,122 @@ describe('PlaySessionController (T039/T097)', () => {
       audioEngine.fireEvent({ type: 'state', state: { kind: 'ready' } });
       expect(channelVolumes(audioEngine.commands)).toEqual([]);
     });
+  });
+});
+
+// Feature 020, US1 (guide-voice.md sections 2 and 4): a live run on a Score without an Orchestra plays the musician's own notes as
+// the Guide voice, and the Grade, the expected notes and the Performance log do not know about it.
+describe('the Guide voice in a live run (feature 020 US1, FR-001, FR-006, SC-004)', () => {
+  const noteOnsOn = (schedule: ScheduleMessage, channel: number): number[] => {
+    const keys: number[] = [];
+    for (let i = 0; i < schedule.eventKind.length; i++) {
+      if (schedule.eventKind[i] === EVENT_KIND.noteOn && schedule.eventChannel[i] === channel) {
+        keys.push(schedule.eventData1[i] as number);
+      }
+    }
+    return keys;
+  };
+  const maskChannels = (schedule: ScheduleMessage): number[] =>
+    Array.from({ length: 16 }, (_, c) => c).filter((c) => ((schedule.orchestraMask ?? 0) >> c) & 1);
+
+  /** One whole run, the Orchestra level set the way the app does it (on the engine), a right and a wrong key played, to its Grade input. */
+  function playRun(orchestraLevel: number) {
+    const fixture = setup();
+    const { score, timeline, audioEngine, midiInput, gradeWorker, controller } = fixture;
+    audioEngine.setOrchestraLevel(orchestraLevel);
+    controller.start({ scoreId: null, score, timeline, measures: score.measures, range: null, settings: settings() });
+    const countInTicks = controller.getRun()?.tickMap.countInTicks ?? 0;
+    audioEngine.currentPosition = { audibleTick: countInTicks, playing: true };
+    controller.reportPosition(2000);
+    midiInput.fire({ type: 'noteOn', deviceId: 'kb-1', key: 60, velocity: 70, timeStampMs: 2500 }); // C4, written
+    midiInput.fire({ type: 'noteOff', deviceId: 'kb-1', key: 60, timeStampMs: 2600 });
+    midiInput.fire({ type: 'noteOn', deviceId: 'kb-1', key: 61, velocity: 70, timeStampMs: 3000 }); // C#4, not written
+    midiInput.fire({ type: 'noteOff', deviceId: 'kb-1', key: 61, timeStampMs: 3100 });
+    audioEngine.fireEvent({ type: 'ended' });
+    controller.reportPosition(2010);
+    controller.reportPosition(60000);
+    const input = gradeWorker.posted[0]?.input;
+    return { ...fixture, input, schedule: audioEngine.loaded[0] as ScheduleMessage };
+  }
+
+  it('start() loads a schedule whose Orchestra mask holds a channel that carries the graded notes, in the Guide voice program', () => {
+    const { score, audioEngine, schedule } = playRun(ORCHESTRA_LEVEL_DEFAULT);
+    expect(audioEngine.loaded).toHaveLength(1);
+    const channels = maskChannels(schedule);
+    expect(channels).toHaveLength(1); // the Score has no Orchestra, so the only mask channel is the guide
+    const guide = channels[0] as number;
+    expect(noteOnsOn(schedule, guide)).toHaveLength(score.parts[0]?.notes.length ?? -1); // every note of the melody is graded
+    expect(noteOnsOn(schedule, 0)).toEqual([]); // and none of them is on the piano channel any more
+    expect(schedule.channelSetup[guide * 4 + 1]).toBe(GUIDE_PROGRAM);
+  });
+
+  it('the guide note velocities are the written ones scaled by GUIDE_VELOCITY_SCALE', () => {
+    const { timeline, schedule } = playRun(ORCHESTRA_LEVEL_DEFAULT);
+    const guide = maskChannels(schedule)[0] as number;
+    const scaled = new Set(timeline.events.map((ev) => Math.max(1, Math.round(ev.velocity * GUIDE_VELOCITY_SCALE))));
+    let guideNotes = 0;
+    for (let i = 0; i < schedule.eventKind.length; i++) {
+      if (schedule.eventKind[i] === EVENT_KIND.noteOn && schedule.eventChannel[i] === guide) {
+        guideNotes++;
+        expect(scaled.has(schedule.eventData2[i] as number)).toBe(true);
+      }
+    }
+    expect(guideNotes).toBeGreaterThan(0);
+  });
+
+  it.each([0, ORCHESTRA_LEVEL_DEFAULT, 100])(
+    'a recorded log gives the same Grade input and Grade against the guided schedule as against an unguided one, at Orchestra level %i',
+    (level) => {
+      const { score, timeline, audioEngine, gradeWorker, input } = playRun(level);
+      expect(audioEngine.commands).toContain(`setOrchestraLevel:${level}`); // the level reached the engine, not the grader
+      expect(gradeWorker.posted).toHaveLength(1);
+
+      // the same run compiled without the guide: only the schedule differs, and the grader reads the tempo map and tick map of it
+      const gradedNoteIds = new Set(buildExpectedNotes(score, timeline, BOTH, null).flatMap((n) => n.noteIds));
+      const unguided = compilePlaySchedule(timeline, score.measures, {
+        range: null,
+        gradedNoteIds,
+        accompaniment: true,
+        countInMeasures: 1,
+        tempoPercent: 100,
+        metronome: {
+          beatKey: METRONOME_KEY_BEAT,
+          downbeatKey: METRONOME_KEY_DOWNBEAT,
+          beatVelocity: METRONOME_VELOCITY_BEAT,
+          downbeatVelocity: METRONOME_VELOCITY_DOWNBEAT,
+        },
+        guide: false,
+      });
+      const unguidedTempo = Array.from(unguided.schedule.tempoTick, (_, i) => ({
+        startTick: unguided.schedule.tempoTick[i] as number,
+        qpmNum: unguided.schedule.tempoQpmNum[i] as number,
+        qpmDen: unguided.schedule.tempoQpmDen[i] as number,
+      }));
+      const unguidedInput = { ...input, tempo: unguidedTempo, tickMap: unguided.tickMap };
+
+      expect(input).toEqual(unguidedInput);
+      expect(gradePerformance(input)).toEqual(gradePerformance(unguidedInput));
+    },
+  );
+
+  it('the Grade is the same at Orchestra levels 0, 60 and 100', () => {
+    const grades = [0, ORCHESTRA_LEVEL_DEFAULT, 100].map((level) => gradePerformance(playRun(level).input));
+    expect(grades[1]).toEqual(grades[0]);
+    expect(grades[2]).toEqual(grades[0]);
+  });
+
+  it("the run's expected notes and Performance log hold only the Score's notes and the musician's own keys - no guide event", () => {
+    const { score, input, schedule } = playRun(ORCHESTRA_LEVEL_DEFAULT);
+    const scoreNoteIds = new Set((score.parts[0]?.notes ?? []).map((n) => n.id));
+    expect(input.expected).toHaveLength(score.parts[0]?.notes.length ?? -1);
+    for (const note of input.expected) for (const id of note.noteIds) expect(scoreNoteIds.has(id)).toBe(true);
+    // the log is the four key events the musician played and nothing from the schedule
+    expect(input.log.messages.map((m: { kind: string; key: number }) => `${m.kind}:${m.key}`)).toEqual([
+      'noteOn:60',
+      'noteOff:60',
+      'noteOn:61',
+      'noteOff:61',
+    ]);
+    expect(maskChannels(schedule)).toHaveLength(1); // ... while the schedule did carry a guide
   });
 });
