@@ -127,6 +127,9 @@ export const PLAY_RETRIGGER_DEBOUNCE_MS = 15; // A note-off/note-on of one pitch
 export const CALIBRATION_BEATS = 16; // Taps taken by the Latency calibration (R-05)
 export const CALIBRATION_TEMPO_QPM = 80; // Tempo the calibration clicks at
 export const CALIBRATION_MAX_SPREAD_MS = 60; // Wider than this and the calibration is rejected (R-05)
+export const CALIBRATION_COUNT_IN_BEATS = 4; // Accented clicks before the counted ones; taps there are not measured (021 R-9)
+export const CALIBRATION_MIN_TAPS = 8; // Fewer valid taps than this and the calibration fails, half of CALIBRATION_BEATS (021 R-9)
+export const CALIBRATION_MIN_CLICK_LEVEL = 50; // The calibration click is never softer than this % and ignores a mute (021 R-9)
 
 // data-model.md §6 - the three window sets (FR-020, FR-039). Clamp-inertness invariant (SC-014) is asserted in
 // tests/core/grade/windows.test.ts: floorMs <= beats*375 and capMs >= beats*1000 for every window here.

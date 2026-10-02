@@ -37,3 +37,10 @@
   T013/T017, T013, T055.
 - Model fit: analyze is tier `deep`; claude-opus-5.5 fits.
 - Handoff: next = /speckit:implement from T001 (68 tasks); tree clean.
+
+## 2026-10-02 - claude-sonnet-5.5 (implement, baseline)
+- Baseline on commit 067fe83, before any code change (T001): `pnpm typecheck` exit 0 (`tsc --build tsconfig.json`);
+  `pnpm lint` exit 0 (`Found 318 warnings. Found 13 infos.`, no errors); `pnpm test`
+  `Test Files  321 passed (321)`, `Tests  7119 passed (7119)`, exit 0.
+- Model fit: Phase 1 is tier `light`, Phases 2-8 `standard`; claude-sonnet-5.5 fits both. No question needed.
+- Owner decisions open: none. Checklist `requirements.md` 24/24 done.

@@ -24,10 +24,10 @@ contracts/top-bar.md, contracts/contract-changes.md, quickstart.md
 
 **Model**: light (gemini-3.7-flash or claude-haiku-4-5; every standard and deep model fits too)
 
-- [ ] T001 Append a baseline entry to `specs/021-live-piano-audio-setup/implementation-log.md` with the summary lines of
+- [x] T001 Append a baseline entry to `specs/021-live-piano-audio-setup/implementation-log.md` with the summary lines of
   `pnpm test`, `pnpm lint` and `pnpm typecheck` on the branch before any code change (AGENTS.md 2.6), and set the
   `**Status**` line of `specs/021-live-piano-audio-setup/spec.md` from "Draft" to "In progress"
-- [ ] T002 [P] Fold the contract changes into the earlier features' documents, contract first (AGENTS.md section 6),
+- [x] T002 [P] Fold the contract changes into the earlier features' documents, contract first (AGENTS.md section 6),
   exactly as listed in `specs/021-live-piano-audio-setup/contracts/contract-changes.md`:
   `specs/001-score-viewer-listen/contracts/ports.md` 2.2.0 -> 2.3.0, `specs/003-play-mode-grading/contracts/play-run.md`
   2.3.0 -> 2.4.0, `specs/003-play-mode-grading/contracts/performance-log.md` ("Latency profile": optional
@@ -35,7 +35,7 @@ contracts/top-bar.md, contracts/contract-changes.md, quickstart.md
   `musicanyya.audio.v1`), `specs/001-score-viewer-listen/contracts/electron-bridge.md` 1.0.0 -> 1.1.0,
   `specs/004-score-first-layout/contracts/ui-shell.md` 1.5.0 -> 1.6.0 - each version line names "feature 021" and links
   the 021 contract that holds the full text
-- [ ] T003 [P] Add the named constants of `specs/021-live-piano-audio-setup/data-model.md` section 6, each with a
+- [x] T003 [P] Add the named constants of `specs/021-live-piano-audio-setup/data-model.md` section 6, each with a
   one-line comment naming its research section: `CALIBRATION_COUNT_IN_BEATS = 4`, `CALIBRATION_MIN_TAPS = 8`,
   `CALIBRATION_MIN_CLICK_LEVEL = 50` next to `CALIBRATION_BEATS` in `src/core/defaults.ts`;
   `AUDIO_OUTPUT_FALLBACK_MAX_MS = 2000`, `MIDI_STATUS_UPDATE_MAX_MS = 1000`, `LOCKED_HINT_MS = 8000` in

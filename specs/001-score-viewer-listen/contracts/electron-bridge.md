@@ -1,7 +1,13 @@
 # Contract: Electron preload bridge and desktop Shell rules
 
-**Version**: `1.0.0` (`bridgeVersion`). The only way the web app learns it runs in the desktop Shell (R-3). The web
-app must work identically when the bridge is absent (browser).
+**Version**: `1.1.0` (the `bridgeVersion` value stays `"1.0.0"`: the bridge object is unchanged). The only way the web
+app learns it runs in the desktop Shell (R-3). The web app must work identically when the bridge is absent (browser).
+
+**1.0.0 -> 1.1.0** (feature 021-live-piano-audio-setup, MINOR; full text:
+[021 live-sound.md](../../021-live-piano-audio-setup/contracts/live-sound.md) section 2 and
+[021 audio-setup.md](../../021-live-piano-audio-setup/contracts/audio-setup.md) section 3): main process rules only
+(see the table below): `autoplayPolicy` set explicitly, and the permission *check* for audio `media` allowed for the
+app origin; the permission *request* for `media` stays denied.
 
 ## `window.musicanyyaShell` (exposed by `electron/preload.ts` via `contextBridge.exposeInMainWorld`)
 
@@ -27,10 +33,10 @@ declare global { interface Window { musicanyyaShell?: MusicanyyaShellBridge } }
 
 | Topic | Rule |
 |---|---|
-| Web preferences | `contextIsolation: true`, `sandbox: true`, `nodeIntegration: false`, `webSecurity: true`, `spellcheck: false` |
+| Web preferences | `contextIsolation: true`, `sandbox: true`, `nodeIntegration: false`, `webSecurity: true`, `spellcheck: false`, `autoplayPolicy: 'no-user-gesture-required'` (1.1.0, explicit: the Audio engine starts with no click) |
 | Content | Production: privileged scheme `app://musicanyya/` served from the packaged `dist/` via `protocol.handle` (path traversal rejected, only files inside `dist/`). Development: the Vite dev server URL from `MUSICANYYA_DEV_URL`. |
 | Navigation | `will-navigate` and `will-redirect` blocked for any other origin; `setWindowOpenHandler` denies all, opening `https:` links in the system browser via `shell.openExternal` |
-| Permissions | Allowed for the app origin only: `midi`. Denied: `midiSysex` and every other permission |
+| Permissions | Allowed for the app origin only: `midi` (request), and, since 1.1.0, the permission **check** `media` with audio (or unspecified) media type, so output devices can be listed and chosen. Denied: `midiSysex`, the permission **request** for `media` (`getUserMedia` stays denied, no capture) and every other permission |
 | CSP | Same CSP as the web build (R-16), delivered via meta tag; `app://` responses add it as a header |
 | Menus / devtools | Default menu hidden in production; devtools only in development |
 | Single instance | `requestSingleInstanceLock`; a second start focuses the existing window |

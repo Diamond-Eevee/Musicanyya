@@ -1,10 +1,17 @@
 # Contract: UI shell (slim bar, panel host, overlays)
 
-**Version**: `1.5.0` (new with feature 004)
+**Version**: `1.6.0` (new with feature 004)
 **Owner**: `src/ui/elements/mx-app.ts`, `src/ui/layout/*`, `src/ui/state/viewState.ts`
 
 This contract fixes the shape of the application window so that every other element knows where it
 may live. It is a UI-layer contract only: no core type, no engine port and no real-time path changes.
+
+**1.6.0** (feature 021-live-piano-audio-setup, MINOR; full text:
+[021 top-bar.md](../../021-live-piano-audio-setup/contracts/top-bar.md) sections 1-4): new bar slot `#midi-controls`
+(`mx-midi-status`, always shown) right after `#menu-controls`; in the compact fit state it shows its icon only. The
+panel `'midi'` is opened from that control, not from a menu, and - like `'sound'` - is allowed during runs
+(`RUN_OK_PANELS`, replacing the single `RUN_OK_PANEL`; `closeForRun` leaves it open). The Setup menu loses its `midi`
+entry (it keeps `setup` and `latency`).
 
 **1.5.0** (feature 019-metronome-orchestra-volume, MINOR): new panel id `'sound'`, the **Levels** popover
 ([019 mixer-levels.md](../../019-metronome-orchestra-volume/contracts/mixer-levels.md) section 1), opened by a
@@ -86,6 +93,7 @@ Fixed order, left to right:
 | `#size-controls` | `mx-size-controls` (new) | a Score is loaded |
 | `#open-controls` | `mx-open-button` | always |
 | `#menu-controls` | `mx-menu` x4 (Score, Setup, View, Help), plus a fifth `more` menu holding all their entries | always (`more` only in compact mode) |
+| `#midi-controls` | `mx-midi-status` (new, 1.6.0): MIDI keyboard state and the live-sound marker; opens panel `'midi'` | always (icon only in compact mode) |
 | `#run-status` | `mx-run-status` (new) | always (empty when idle) |
 
 `#brand` is not focusable and is not a toolbar item; Tab moves past it to the first control. Nothing else may be added to the bar without amending this contract.
