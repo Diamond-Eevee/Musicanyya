@@ -294,3 +294,7 @@
   The SC-003 timing test passed again (known flaky under load, not touched by this feature).
 - Every task ticked with evidence; the spec Status is "Implemented". Not done, by design: per-hand guide sounds (next specify). Unlike earlier notes, the listening check is done.
 - Handoff: next = merge when the owner asks (nothing pushed, branch `020-play-guide-voice` local only); run `/speckit:specify` for per-hand guide sounds when wanted; tree clean at the commit that follows this entry.
+
+## 2026-10-02 - claude-sonnet-5.5 (merged)
+- Merged into `main` at the owner's request (`e9cbb9a`, no fast-forward, as for 019). Nothing pushed. The gate in the previous entry was run on the merged tree (main had no new commits).
+- Handoff: next = push when asked; per-hand guide sounds start with `/speckit:specify`.
