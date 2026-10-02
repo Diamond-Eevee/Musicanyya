@@ -471,17 +471,17 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   `tests/library/orchestra.test.ts` builds the render copy of the item and of the item with its Orchestra parts removed
   by the generator's own removal step, and asserts they are identical, so the score sheet has the piano part's systems
   at every zoom (SC-004 on the item itself, analyze A4)
-- [ ] T076 [P] [US2] [standard] Grading golden for *Morning Mood* in `tests/core/grade/golden.test.ts` (Constitution IV,
+- [x] T076 [P] [US2] [standard] Grading golden for *Morning Mood* in `tests/core/grade/golden.test.ts` (Constitution IV,
   SC-005, plan Constitution Check IV, analyze A3): two recorded Performance logs (`tests/fakes/performance-log.ts`
   builders: a clean right-hand run of bars 1-8, and one with a missed note, a wrong key at a flute pitch and a late
   note) graded on the item and on the item with its Orchestra parts removed give identical Grades, stored as one new
   snapshot; the Orchestra level is not an input of grading (no level field in `RunSettings` or the log). Fails until
   T055 adds the item
-- [ ] T056 [P] [US2] [standard] Offline render tests `tests/engine/orchestra-render.test.ts` on the shared harness:
+- [x] T056 [P] [US2] [standard] Offline render tests `tests/engine/orchestra-render.test.ts` on the shared harness:
   for *Morning Mood* in Listen and in a Play run at 50 %, 100 % and 150 % tempo every Orchestra note-on frame equals
   the frame of the piano note-on it doubles (SC-003); the peak active voice count over the whole piece stays below
   `VOICE_HEADROOM_FRACTION` of the synth's cap (FR-018, R-11)
-- [ ] T057 [P] [US2] [standard] Playwright `tests/e2e/orchestra.spec.ts` (chromium, firefox, electron): *Morning Mood*
+- [x] T057 [P] [US2] [standard] Playwright `tests/e2e/orchestra.spec.ts` (chromium, firefox, electron): *Morning Mood*
   opens from the browser; every system has exactly two staves and the SVG has no element for an Orchestra Note ID; the
   Practice/Play part selector offers only the piano; a Play run with a few keys ends in a Grade that lists piano notes
   only and is stored in progress (FR-023); in Listen the cursor's note ids are always piano note ids

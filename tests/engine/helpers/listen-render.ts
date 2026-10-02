@@ -108,6 +108,12 @@ export interface PlayRender {
   messages: ProcessorMessage[];
   /** The processor's running count of events that sounded after their own frame (worklet-protocol 1.5.0). */
   lateEvents: number;
+  /** Every note-on and note-off the synth received, in order, with its frame (feature 019 T056). */
+  notes: SynthNote[];
+  /** The channels that carry an Orchestra instrument, per the compiled timeline's channel setup (feature 019 T056). */
+  orchestraChannels: number[];
+  /** The most voices the synth had sounding at the end of any render block (feature 019 R-11, T056). */
+  peakVoices: number;
 }
 
 /**
@@ -122,7 +128,8 @@ export function renderPlayRun(libraryFile: string, options: PlayRenderOptions): 
   const xml = decodeXml(fs.readFileSync(path.join(__dirname, '../../../public/library', libraryFile)));
   const { score } = buildScore(readXml(xml).doc);
   const tempoPercent = options.tempoPercent ?? 100;
-  const { schedule } = compilePlaySchedule(buildTimeline(score).timeline, score.measures, {
+  const { timeline } = buildTimeline(score);
+  const { schedule } = compilePlaySchedule(timeline, score.measures, {
     range: null,
     gradedNoteIds: new Set(),
     accompaniment: options.accompaniment,
@@ -137,14 +144,25 @@ export function renderPlayRun(libraryFile: string, options: PlayRenderOptions): 
   });
 
   const messages: ProcessorMessage[] = [];
+  const notes: SynthNote[] = [];
+  let framesRendered = 0;
   const proc = createScorePlayerProcessor({
     synth: {
-      noteOn: (c, k, v) => synth.noteOn(c, k, v),
-      noteOff: (c, k) => synth.noteOff(c, k),
+      noteOn: (c, k, v) => {
+        notes.push({ frame: framesRendered, kind: 'on', channel: c, key: k });
+        synth.noteOn(c, k, v);
+      },
+      noteOff: (c, k) => {
+        notes.push({ frame: framesRendered, kind: 'off', channel: c, key: k });
+        synth.noteOff(c, k);
+      },
       controllerChange: (c, ctrl, v) => synth.controllerChange(c, ctrl as MIDIController, v),
       programChange: (c, program) => synth.programChange(c, program),
       setDrums: (c, isDrum) => synth.midiChannels[c]?.setDrums(isDrum),
-      process: (left, right, start, count) => synth.process(left, right, start, count),
+      process: (left, right, start, count) => {
+        synth.process(left, right, start, count);
+        framesRendered += count;
+      },
     },
     sampleRate: SAMPLE_RATE,
     volume: 100, // unity: the main Volume is not what these renders are about
@@ -160,9 +178,11 @@ export function renderPlayRun(libraryFile: string, options: PlayRenderOptions): 
   const total = Math.floor((options.seconds * SAMPLE_RATE) / BLOCK) * BLOCK;
   const left = new Float32Array(total);
   const right = new Float32Array(total);
+  let peakVoices = 0;
   for (let i = 0; i < total; i += BLOCK) {
     options.beforeBlock?.(i, (message) => proc.receiveMessage(message));
     proc.processBlock(left.subarray(i, i + BLOCK), right.subarray(i, i + BLOCK));
+    peakVoices = Math.max(peakVoices, synth.voiceCount);
   }
 
   const clickFrames: number[] = [];
@@ -173,7 +193,8 @@ export function renderPlayRun(libraryFile: string, options: PlayRenderOptions): 
   }
   let lateEvents = 0;
   for (const message of messages) if (message.type === 'position') lateEvents = message.lateEvents;
-  return { left, right, clickFrames, messages, lateEvents };
+  const orchestraChannels = timeline.channels.flatMap((c, i) => (c.orchestra ? [i] : []));
+  return { left, right, clickFrames, messages, lateEvents, notes, orchestraChannels, peakVoices };
 }
 
 /** One note-on or note-off the synth was given, with the frame (counted from the start of the render) it was given at. */
@@ -201,7 +222,11 @@ export interface ListenRender {
   schedule: ReturnType<typeof compileSchedule>;
   /** The channel that carries an Orchestra instrument, per the compiled timeline's channel setup, or -1. */
   orchestraChannel: number;
+  /** Every channel that carries an Orchestra instrument (feature 019 T056). */
+  orchestraChannels: number[];
   messages: ProcessorMessage[];
+  /** The most voices the synth had sounding at the end of any render block (feature 019 R-11, T056). */
+  peakVoices: number;
 }
 
 /**
@@ -250,9 +275,21 @@ export function renderListen(fixture: string, options: ListenRenderOptions): Lis
   const total = Math.floor((options.seconds * SAMPLE_RATE) / BLOCK) * BLOCK;
   const left = new Float32Array(total);
   const right = new Float32Array(total);
+  let peakVoices = 0;
   for (let i = 0; i < total; i += BLOCK) {
     options.beforeBlock?.(i, (message) => proc.receiveMessage(message));
     proc.processBlock(left.subarray(i, i + BLOCK), right.subarray(i, i + BLOCK));
+    peakVoices = Math.max(peakVoices, synth.voiceCount);
   }
-  return { left, right, notes, schedule, orchestraChannel: timeline.channels.findIndex((c) => c.orchestra), messages };
+  const orchestraChannels = timeline.channels.flatMap((c, i) => (c.orchestra ? [i] : []));
+  return {
+    left,
+    right,
+    notes,
+    schedule,
+    orchestraChannel: orchestraChannels[0] ?? -1,
+    orchestraChannels,
+    messages,
+    peakVoices,
+  };
 }
