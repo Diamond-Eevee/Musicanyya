@@ -11,3 +11,12 @@
 - Problems / open questions: needs owner: OD-1 listening check (SC-007) at the end - may tune `GUIDE_VELOCITY_SCALE` /
   `GUIDE_PROGRAM`. Observation outside scope: channel CC7 persists across schedules (plan, Decisions).
 - Handoff: next = `/speckit:tasks`; gate not run (documents only); tree clean after the plan commit.
+
+## 2026-10-02 - claude-opus-5.5 (tasks)
+- Done: `tasks.md` generated: 26 tasks (Setup 3, Foundational 1, US1 8, US2 5, US3 3, Polish 6). Model fit: `standard`
+  step on claude-opus-5.5 (listed under "also fits").
+- Decisions: `guide` option added as a no-op first (T004) so every caller and test passes `guide: false` before any
+  behaviour changes; US1 wires the live run, US3 the stored-run path (replay, regrade), so each story's test fails first;
+  US2's render test (T013) has no code of its own (research R-4) and is therefore written before T009.
+- Problems / open questions: needs owner: OD-1 listening check (T021), blocks T022 and the merge.
+- Handoff: next = `/speckit:analyze`, then `/speckit:implement` from T001; gate not run (documents only).
