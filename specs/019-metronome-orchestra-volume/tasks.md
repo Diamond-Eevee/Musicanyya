@@ -496,8 +496,8 @@ flute/oboe and strings in time with the cursor through the whole piece; Practice
   opens from the browser; every system has exactly two staves and the SVG has no element for an Orchestra Note ID; the
   Practice/Play part selector offers only the piano; a Play run with a few keys ends in a Grade that lists piano notes
   only and is stored in progress (FR-023); in Listen the cursor's note ids are always piano note ids
-- [~] T058 [US2] [standard] Checkpoint US2: the Independent Test above (quickstart US2 steps 1-5 with
-  `pnpm screenshot`, pages compared with the print, greyscale step); full gate; log entry; commit (claimed: claude-opus-5.5 2026-10-02)
+- [x] T058 [US2] [standard] Checkpoint US2: the Independent Test above (quickstart US2 steps 1-5 with
+  `pnpm screenshot`, pages compared with the print, greyscale step); full gate; log entry; commit
 
 ---
 
