@@ -142,7 +142,8 @@ a run: keys sound once. Browser: after one click anywhere, keys sound (spec US1)
   exported there (otherwise T014 is the evidence)
 - [x] T017 [US1] Start-up sequence in `src/app/session.ts` (live-sound.md section 2): call `prepare()` and
   `ensureSoundLoaded()` after mounting, install the one-shot first-activation `unlock()` listener (`pointerdown`,
-  `keydown`, capture, on `window`, removed once running); request MIDI access at start-up where the Shell has Web MIDI
+  `keydown`, capture, on `window`, removed once running); [the start-up MIDI request was removed by the owner on 2026-10-03:
+  MIDI is connected by hand only] request MIDI access at start-up where the Shell has Web MIDI
   (`midiInput.request()`, no gesture; research R-5, live-sound.md section 2 step 1 - without it the desktop app hears no
   keyboard until "Connect" is clicked, analyze A1); keep `handlePlay()`'s own `unlock()` and the `soundReady` /
   `engineUnlocked` flags consistent (set from engine state events, not only from `handlePlay`); a SoundFont that fails

@@ -137,9 +137,9 @@ popover lists the keyboards and offers to connect; Setup no longer has a MIDI ke
 
 **Acceptance Scenarios**:
 
-1. **Given** the app starts, **When** MIDI is available in this Shell, **Then** the app asks for MIDI access by itself
-   (the browser may show its permission prompt once) and the top bar shows the connected keyboard's name, or
-   "No MIDI keyboard".
+1. **Given** the app starts, **When** the keyboard has not been connected yet, **Then** the top bar offers "Connect MIDI
+   keyboard"; after the musician connects (one click in the popover), it shows the connected keyboard's name, or
+   "No MIDI keyboard". (Owner decision 2026-10-03: MIDI access is requested by hand only, never at start-up.)
 2. **Given** a keyboard is connected, **When** it is unplugged or plugged back in, **Then** the top-bar control shows
    the new state within a second, without reloading, and held notes are released on loss.
 3. **Given** any state, **When** the musician clicks the top-bar MIDI control, **Then** a non-modal popover shows the
@@ -267,8 +267,8 @@ that ASIO and other low-latency drivers need the Native audio plugin, not yet av
 - **FR-016**: The top bar MUST always show the MIDI keyboard state: connected (with the keyboard's name; a count when
   several), no keyboard, disconnected, not supported, or permission denied - each distinguished by icon shape as well
   as colour (constitution VI).
-- **FR-017**: The app MUST ask for MIDI access by itself at start-up where the Shell supports it; where the browser
-  needs a permission the user has not given, the top-bar control MUST offer to connect.
+- **FR-017**: The app MUST NOT ask for MIDI access by itself (owner decision 2026-10-03; it had been "at start-up"): the
+  top-bar control offers "Connect MIDI keyboard" until the musician connects, and again after a refusal.
 - **FR-018**: Clicking the top-bar MIDI control MUST open a non-modal popover with the keyboards found and their state,
   a connect / retry action, the live input latency where known, and plain-word help for "not supported" and "denied".
 - **FR-019**: The top-bar MIDI state MUST update within one second of a keyboard being connected or disconnected,
@@ -337,8 +337,8 @@ that ASIO and other low-latency drivers need the Native audio plugin, not yet av
 
 - The desktop app may start sound without a click; browsers require one interaction first, which this feature cannot
   remove, only reduce to "any click anywhere".
-- Asking for MIDI access at start-up is welcome in a piano app; the browser's permission prompt then appears once, at
-  start, instead of after a menu click.
+- MIDI access is requested only when the musician asks for it (the top-bar control); a start-up request was tried and
+  dropped on 2026-10-03 because it froze the Windows MIDI service on the owner's machine.
 - All connected MIDI keyboards are listened to, as today; choosing one keyboard among several is not requested.
 - Icons replace captions only on the transport buttons; other top-bar buttons (Levels, Follow, size, Open score, menus)
   keep their words.

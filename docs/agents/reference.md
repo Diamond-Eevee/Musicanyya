@@ -125,8 +125,8 @@ pnpm lint             # Biome
 pnpm typecheck        # tsc --noEmit over all layer projects
 pnpm test             # Vitest (unit, golden snapshots, fakes)
 pnpm test:e2e         # Playwright, every browser project, then the Electron project (~2,000 tests, 15-40 min): the full gate only
-pnpm test:e2e:electron # the Electron project alone, one desktop app at a time (each app opens the machine's real MIDI ports at
-                      # start-up; several at once can wedge the Windows MIDI service)
+pnpm test:e2e:electron # the Electron project alone, one desktop app at a time (a test that connects MIDI opens the machine's real
+                      # MIDI ports; several apps at once wedged the Windows MIDI service on the owner's machine)
 pnpm test:e2e:smoke   # the @smoke tests on chromium (~15 s): every checkpoint
 pnpm exec playwright test tests/e2e/<spec>.ts --project=chromium   # task checks: only the specs you touched
 pnpm build            # static site in dist/
@@ -387,7 +387,8 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
   `session.defaultSession`, and `decidePermission` allows `midi` and `midiSysex` (this Electron asks for `midiSysex` on
   `requestMIDIAccess()`) while `getUserMedia` is rejected. The Audio engine is prepared at start-up
   (`AudioEngine.prepare()`); `localStorage` key `musicanyya.audio.v1`. Electron e2e specs open real MIDI ports at
-  start-up: on Windows a stuck Windows MIDI service (`midisrv`) makes the app hang when asking for or closing MIDI.
+  start-up. MIDI access is requested only from the top-bar popover's Connect button, never at start-up (owner decision
+  2026-10-03: the start-up request froze the Windows MIDI service, which then made desktop apps hang asking for or closing MIDI).
 
 <!-- ACTIVE-TECHNOLOGIES:END -->
 

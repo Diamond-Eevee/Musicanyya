@@ -20,8 +20,8 @@ and Web MIDI.
 - **Playback (Listen Mode)**: Built-in `spessasynth` rendering via AudioWorklet. Supports tempo, volume, dynamics, repeats (forward/backward, voltas), jumps (D.C., D.S., To Coda), and instrument program changes.
 - **MIDI Input**: Plug in a MIDI keyboard to play along with the built-in sound (supports sustain). The piano sounds
   from start-up in every mode and state - in the desktop app with no click, in a browser after the first click anywhere
-  (a hint says so). The top bar always shows the keyboard (its name, "No MIDI keyboard", "MIDI keyboard disconnected" or
-  why MIDI is not available) and one click opens its popover, also during a Play run.
+  (a hint says so). The top bar always shows the keyboard state ("Connect MIDI keyboard" until you connect one - nothing is connected by itself -,
+  then its name, "No MIDI keyboard", "MIDI keyboard disconnected" or why MIDI is not available) and one click opens its popover, also during a Play run.
 - **Latency**: *Setup > Latency* shows the output latency at any time. *Calibrate* plays a beat on the audio clock; play any
   key (or the space bar) on every click, and the measured round trip is used by Play and grading from then on and kept
   between sessions. The desktop app also lets you choose the sound output device (restored at start-up; a device that

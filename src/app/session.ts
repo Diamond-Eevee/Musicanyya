@@ -916,7 +916,8 @@ export class Session {
         noticeState.addNotice({ code: 'soundFontMissing', severity: 'warning' });
       }
     })();
-    void this.midiInput.request();
+    // MIDI access is NOT requested here: the musician connects a keyboard from the top bar (owner decision 2026-10-03,
+    // after the start-up request froze the Windows MIDI service; research R-5). The sound does not depend on it.
   }
 
   /** The user's settings live in memory here, so two changes inside the store's write debounce cannot overwrite each

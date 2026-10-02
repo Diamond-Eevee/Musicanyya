@@ -12,6 +12,7 @@ import { type ElectronApplication, _electron as electron, expect, type Page, tes
 import { closeBrowser } from './helpers/browser.js';
 import { configNumber } from './helpers/config.js';
 import { audioSinkId } from './helpers/live-spy.js';
+import { midiControl, openMidiPopover } from './helpers/midi.js';
 import { openPanel, panelLocator } from './helpers/panels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -30,22 +31,11 @@ test.describe('Electron: choosing the sound output (feature 021 US5)', () => {
   let userDataDir = '';
   let app: ElectronApplication | null = null;
 
-  /**
-   * Starts the desktop app. The app asks for MIDI access at start-up, which opens the machine's real MIDI ports, and a MIDI
-   * driver that hangs then keeps the process from quitting. Only the test that is about Web MIDI wants that; the others turn
-   * the MIDI request down before the page makes it (the output list, the sink and the notices do not depend on it).
-   */
-  const launch = async (options: { midi?: boolean } = {}): Promise<Page> => {
+  /** Starts the desktop app. It does not touch MIDI by itself (owner decision 2026-10-03): only the test that connects does. */
+  const launch = async (): Promise<Page> => {
     app = await electron.launch({
       args: [path.join(__dirname, '../../dist-electron/main.js'), `--user-data-dir=${userDataDir}`],
     });
-    if (!options.midi) {
-      await app.evaluate(({ session }) => {
-        session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) =>
-          callback(!permission.startsWith('midi')),
-        );
-      });
-    }
     const window = await app.firstWindow();
     await window.waitForFunction(() => 'mxSession' in globalThis);
     await closeBrowser(window);
@@ -112,7 +102,7 @@ test.describe('Electron: choosing the sound output (feature 021 US5)', () => {
 
   test('capture stays refused: getUserMedia is rejected through the real permission handler', async () => {
     test.setTimeout(120_000);
-    const window = await launch({ midi: true });
+    const window = await launch();
     const mic = await window.evaluate(async () => {
       try {
         await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -124,19 +114,22 @@ test.describe('Electron: choosing the sound output (feature 021 US5)', () => {
     expect(mic).toBe('NotAllowedError');
   });
 
-  test('Web MIDI still opens: the app is granted MIDI access at start-up through the real handler', async () => {
+  const midiAvailability = (window: Page) =>
+    window.evaluate(
+      () => (window as unknown as { __MIDI_STATE__: { availability: string } }).__MIDI_STATE__.availability,
+    );
+
+  test('MIDI is connected by hand only: nothing asks at start-up; Connect then opens Web MIDI through the real handler', async () => {
     test.setTimeout(120_000);
-    const window = await launch({ midi: true });
-    // The app asks by itself (feature 021 T017); the handler answers midi and midiSysex for the app origin
-    await expect
-      .poll(
-        () =>
-          window.evaluate(
-            () => (window as unknown as { __MIDI_STATE__: { availability: string } }).__MIDI_STATE__.availability,
-          ),
-        { timeout: 60_000 },
-      )
-      .toBe('available');
+    const window = await launch();
+    await expect(midiControl(window)).toContainText('Connect MIDI keyboard');
+    await window.waitForTimeout(3000); // time enough for a start-up request to have been made
+    expect(await midiAvailability(window)).toBe('notRequested');
+
+    await openMidiPopover(window);
+    await panelLocator(window, 'midi').getByRole('button', { name: 'Connect MIDI keyboard' }).click();
+    // The handler answers midi and midiSysex for the app origin (research R-6)
+    await expect.poll(() => midiAvailability(window), { timeout: 60_000 }).toBe('available');
   });
 
   test('choosing a device moves the sound, survives a restart, and a vanished device falls back once', async () => {

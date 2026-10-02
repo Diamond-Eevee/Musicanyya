@@ -21,7 +21,7 @@ npx playwright test tests/e2e/live-piano.spec.ts tests/e2e/latency-setup.spec.ts
 ```
 
 The desktop half (needs `pnpm exec vite build -c vite.electron.config.ts` first, and a working MIDI service on Windows - the
-app opens the machine's MIDI ports at start-up):
+app opens the machine's MIDI ports only when the Connect button is used):
 
 ```bash
 npx playwright test tests/e2e/electron-live-piano.spec.ts tests/e2e/electron-audio-output.spec.ts --project=electron
@@ -57,8 +57,8 @@ Use a real MIDI keyboard where possible; the e2e specs cover the same steps with
 
 ### US3 - MIDI keyboard in the top bar
 
-1. Start with a keyboard connected: its name is in the top bar without any click (the browser may ask for MIDI
-   permission once at start).
+1. Start with a keyboard connected: the top bar offers "Connect MIDI keyboard"; click it (the browser may ask for MIDI
+   permission once): the keyboard's name is then in the top bar. MIDI is never requested by itself at start-up.
 2. Unplug it: "MIDI keyboard disconnected" within a second; plug in: its name again.
 3. Click the control: popover with the device list; Setup menu has no "MIDI keyboard" entry.
 4. During a Play run, open the popover: the run goes on and the cursor's system stays visible.

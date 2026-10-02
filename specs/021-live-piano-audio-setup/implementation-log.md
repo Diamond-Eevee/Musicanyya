@@ -351,3 +351,18 @@
 - The MIDI service is wedged again by that run; another restart is needed before the Electron project can be run once more with the final test files
   (levels per-test directory, electron-audio-output). The 4 `electron-audio-output` tests were green (3) / blocked (1: the MIDI one) before the first restart and are
   expected green on a healthy service; not confirmed yet. T070 and T066 stay open.
+
+## 2026-10-03 - claude-sonnet-5.5 (owner decision: no MIDI at start-up)
+- Owner decision: "These midi connect freezes again, it didn't happen before. Let's not autoconnect midi devices for now, only manual connection." The
+  start-up `midiInput.request()` of T017 is removed (`session.ts` `startLiveSound`); MIDI access is requested only by the "Connect MIDI keyboard" button of the
+  top-bar popover (`request-midi`), as before feature 021. The sound does not depend on it. Documents changed first: spec.md (US3 scenario 1, FR-017 now
+  "MUST NOT ask by itself", assumption), research R-5 (superseded note), live-sound.md section 2, quickstart US3, README, reference.md, T017's text. The top
+  bar shows "Connect MIDI keyboard" until the musician connects (already the `notRequested` state), so no UI change.
+- Tests: `electron-audio-output.spec.ts` lost its "turn MIDI down before the page asks" workaround (nothing asks any more) and its MIDI test is now "MIDI is
+  connected by hand only": the bar offers Connect, nothing is requested for 3 s, then Connect makes `availability` `available` (this one touches the real MIDI
+  ports and needs a healthy MIDI service, so it was NOT run here: the service is wedged again by the 8-app parallel run). The other tests that do not touch MIDI:
+  `electron-audio-output` (3) + `electron-live-piano` (1) `4 passed`, run serially.
+- Evidence: `pnpm test` `Test Files  331 passed (331)`, `Tests  7318 passed (7318)`; `pnpm typecheck` exit 0; `pnpm lint` exit 0; smoke `9 passed`; chromium + firefox
+  `live-piano`, `midi-topbar`, `us2-panels`, `latency-setup`, `theme-a11y`, `pressed-keys` `111 passed, 1 failed` (a Firefox `pressed-keys` Play test that passed twice
+  on rerun).
+- Still open: T070 / T066 (Electron project on a healthy MIDI service; now only the one Connect test touches real MIDI), the Firefox calibration bias, T067.

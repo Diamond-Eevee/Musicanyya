@@ -40,7 +40,8 @@ Rules:
 ## 2. Start-up sequence (`session.ts`)
 
 1. After the shell is mounted: `audioEngine.prepare()`, then `audioEngine.ensureSoundLoaded()` (not awaited by the UI;
-   progress through `state` events), then `midiInput.request()` where MIDI exists (research R-5).
+   progress through `state` events). MIDI access is not requested here (owner decision 2026-10-03, research R-5): the top-bar
+   control's Connect button asks, from a click.
 2. Install a one-shot first-activation listener on `window` (`pointerdown`, `keydown`; capture; passive) that calls
    `audioEngine.unlock()`; removed after the context reports running. `handlePlay()` still calls `unlock()` too.
 3. At start-up, too: `audioEngine.setLatencyCalibration(stored.source === 'measured' ? stored : null)` with

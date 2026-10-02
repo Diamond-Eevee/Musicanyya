@@ -100,6 +100,11 @@ turns `locked`.
 
 ## R-5 MIDI access at start-up
 
+> **Superseded 2026-10-03 (owner):** the start-up request froze the Windows MIDI service on the owner's machine (the apps hung
+> asking for and closing MIDI). MIDI access is now requested **only from the "Connect MIDI keyboard" button** of the top-bar
+> popover (`request-midi` -> `midiInput.request()`); nothing asks at start-up, and the sound does not depend on it. The text
+> below is the decision as first taken.
+
 **Decision**: the session calls `midiInput.request()` at start-up (no gesture) where Web MIDI exists. Chrome 124+
 gates **all** Web MIDI behind a permission prompt; the prompt therefore appears at start-up once and is remembered by
 the browser. Electron grants `midi` for the app origin (unchanged policy), so no prompt there. If the request is
