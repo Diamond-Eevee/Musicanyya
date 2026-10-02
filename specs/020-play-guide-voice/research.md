@@ -86,12 +86,19 @@ engine already re-sends the level to a new worklet node after a device change (s
   the preset at bank 0 / program 4 is named "Tine Electric Piano" - the Rhodes sound; read from the SF2 `phdr` chunk on
   2026-10-02). Alternatives in the same bank if the listening check prefers: 5 "FM Electric Piano", 11 "Vibraphone",
   89 "Warm Pad".
-- Guide velocity = `max(1, round(velocity * GUIDE_VELOCITY_SCALE))`, `GUIDE_VELOCITY_SCALE = 0.6`. The Score's
+- Guide velocity = `max(1, round(velocity * GUIDE_VELOCITY_SCALE))`, `GUIDE_VELOCITY_SCALE = 0.9` (first draft 0.6; changed 2026-10-02, see below). The Score's
   dynamics still shape the line (FR spec assumption), and a softer strike also makes a tine piano mellower, which keeps it
   "subtle".
 - Loudness target (SC-002): at `ORCHESTRA_LEVEL_DEFAULT` (60) the Guide voice is at least `GUIDE_QUIETER_MIN_DB = 6` dB
   below the piano playing the same notes at the same written velocity, measured by an offline render (RMS over the
   notes) - an engine test, like 019's level tests.
+
+**Change (owner, 2026-10-02, after hearing 0.6)**: "at 100 % the guide should be as expressive and loud as the piano, so the musician hears both".
+At 0.6 the guide was 6.9 dB below the piano at level 100 and its dynamics were squashed (a Rhodes also changes tone with velocity).
+Offline measurement of the guide against the same notes on the piano, in dB below the piano (level 60 / level 100): scale 0.6: 15.8 / 6.9;
+0.8: 11.7 / 2.8; 0.85: 9.9 / 1.0 (melody), 9.6 / 0.7 (dynamics-marks); **0.9: 9.1 / 0.2 and 8.5 / -0.4**; 0.95: 8.3 / -0.6 and 7.6 / -1.3;
+1.0: 7.6 / -1.3 and 6.9 / -2.0. 0.9 is parity at 100 % and still about 9 dB under the piano at the default 60 %, so SC-002 (at least 6 dB)
+and FR-004 hold. Program 5 (FM electric piano) at 1.0 was 10.4 / 1.5 on the melody and 11 (vibraphone) 5.2 / -3.7: not chosen, the sound is unchanged.
 
 **Rationale**: the SoundFont 2.04 default modulators turn velocity, CC7 and CC11 into attenuation, so velocity 0.6x
 (about -4 to -8 dB with the concave curve) plus CC11 at 60 % (about -8 dB) puts the guide roughly 12-16 dB under the
@@ -113,7 +120,7 @@ bound as 019. The item is chosen by the task from `public/library/index.json` fa
 **Correction (RT review T020, 2026-10-02)**: the first draft said "the synth's stealing favours louder voices, so guide voices
 give way first". That is not guaranteed. spessasynth_core steals the voice with the lowest `priority` (`assignVoice`,
 `assignVoicePriorities` in `dist/index.js`): drum +5, release -5, velocity / 25, envelope state, attenuation; there is no channel
-or CC7 / CC11 term. A guide note (velocity x 0.6) usually ranks below a forte piano note, but a quiet live note or a pianissimo
+or CC7 / CC11 term. A guide note (velocity x 0.9) usually ranks below a forte piano note, but a quiet live note or a pianissimo
 accompaniment note can rank below a guide note. So past the cap nothing makes the guide give way first; with the measured peak at
 about 3.4 % of the cap, the cap is not reached. **Needs owner** (logged): accept FR-008 as "met by headroom" (recommended; no
 engine change), or reword it, or add a real priority (would need an engine / synth change, a new design).

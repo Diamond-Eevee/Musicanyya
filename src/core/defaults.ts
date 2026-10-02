@@ -72,7 +72,7 @@ export const EXPRESSION_CONTROLLER = 11; // MIDI CC11 (expression): the Orchestr
 export const ORCHESTRA_SILENT_TOLERANCE_DBFS = -90; // Level 0 counts as silent below this: CC11 = 0 attenuates by 96 dB (019 R-7, SC-002)
 export const VOICE_HEADROOM_FRACTION = 0.5; // Peak active voices an Orchestra score may use, as a fraction of the synth's voice cap (019 R-11)
 export const GUIDE_PROGRAM = 4; // 0-based GM program of the Guide voice: Electric Piano 1, "Tine Electric Piano" in GeneralUser GS; tuned at the owner's listening check (020 R-5, OD-1)
-export const GUIDE_VELOCITY_SCALE = 0.6; // Guide voice velocity = written velocity x this, at least 1; tuned at the owner's listening check (020 R-5, OD-1)
+export const GUIDE_VELOCITY_SCALE = 0.9; // Guide voice velocity = written velocity x this, at least 1; 0.9 puts it level with the piano at Orchestra level 100 (owner request 2026-10-02, 020 R-5, OD-1)
 export const GUIDE_QUIETER_MIN_DB = 6; // Test bound: at ORCHESTRA_LEVEL_DEFAULT the Guide voice is at least this far below the piano playing the same notes (020 R-5, SC-002)
 
 // Audio worklet scheduling (R-10, shared with worklet which cannot import engine/config)

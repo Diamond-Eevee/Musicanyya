@@ -238,3 +238,14 @@
   (c) Domain Vocabulary entry for "Guide voice" (PATCH amendment); (d) the e2e timing failure above.
 - Handoff: next = T029 (owner listening), then T030 -> T034; run `pnpm test:e2e` again on a quiet machine first; tree clean at the next commit.
 
+## 2026-10-02 - claude-sonnet-5.5 (owner feedback on the sound, OD-1 partial)
+- Owner, after trying the guide: too quiet even at Orchestra level 100; "at 100 % it should be as expressive and loud as the piano, so the
+  user hears both". Cause: `GUIDE_VELOCITY_SCALE` 0.6 left the guide 6.9 dB below the piano at level 100 and squashed its dynamics.
+- Decision (owner's requirement, my pick of the value): `GUIDE_VELOCITY_SCALE` 0.6 -> **0.9** (`src/core/defaults.ts`, data-model section 4, plan,
+  research R-5 with the measurements). Offline, dB below the piano playing the same notes at level 60 / 100: melody 9.1 / 0.2,
+  dynamics-marks 8.5 / -0.4 (0.6 was 15.8 / 6.9). The default level (60) stays about 9 dB under the piano, so SC-002 (6 dB) and FR-004 hold;
+  the sound (program 4) is unchanged. Evidence: `tests/core/play`, `guide-render.test.ts`, `play-session.test.ts` `Tests  141 passed (141)`; `pnpm test` below.
+- Not changed: the spec (FR-004 "clearly quieter at the default level" still true). Following the player's touch or widening the Score's dynamics
+  were discussed and are not part of this change (the spec rules out reacting to input).
+- T029 stays open: the owner should listen again at 60 % and 100 % on two items without an Orchestra and confirm, or ask for another value.
+

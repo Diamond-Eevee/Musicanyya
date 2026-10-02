@@ -36,7 +36,7 @@ quickstart.md
   `orchestraMask` wording) - each version line names "feature 020" and links
   `specs/020-play-guide-voice/contracts/guide-voice.md` or `research.md` R-10
 - [x] T003 [P] Add the named constants of `specs/020-play-guide-voice/data-model.md` §4 to `src/core/defaults.ts`
-  (`GUIDE_PROGRAM = 4`, `GUIDE_VELOCITY_SCALE = 0.6`, `GUIDE_QUIETER_MIN_DB = 6` next to `ORCHESTRA_LEVEL_DEFAULT`;
+  (`GUIDE_PROGRAM = 4`, `GUIDE_VELOCITY_SCALE = 0.6` (now 0.9, see the log), `GUIDE_QUIETER_MIN_DB = 6` next to `ORCHESTRA_LEVEL_DEFAULT`;
   `DEFAULT_CHANNEL_VOLUME = 100`, `DEFAULT_CHANNEL_PAN = 64` next to `MAX_SETUP_CONTROLLERS`), each with a one-line
   comment naming its research section (020 R-5 / R-10), and check every value against the table
 
