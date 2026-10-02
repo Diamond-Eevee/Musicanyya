@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "itemId": "repertoire/listening/grieg-morning-mood",
+  "itemId": "repertoire/advanced/grieg-morning-mood",
   "claim": "original",
   "claimText": "Morning Mood, Peer Gynt Suite No. 1, Op. 46 No. 1 - the composer's piano arrangement (G. Schirmer, 1899)",
   "checks": [
@@ -33,7 +33,7 @@
       "differences": [
         "Bars 77-78: the right hand's chords are printed on the upper staff; the print has them on the lower staff (owner decision OD-3, as Chopin Op. 28 No. 4).",
         "Bars 64-65: the E4 the melody shares with the lower voice (one head, two stems in the print) is one note in the lower voice, so the melody's beam starts after a gap.",
-        "Bars 1-20: the curved brackets before the left-hand chords are not encoded (not the wavy arpeggio sign; meaning uncertain).",
+        "Bars 1-20: the print's thin curved roll bracket is drawn by Verovio as the ordinary wavy arpeggio line.",
         "Grace-note slurs (bars 2, 6, 10, 14, 22, 26) are not drawn; the phrase slur over the bar is.",
         "Fingering numbers and some hairpin ends are placed by Verovio, not where the print has them (e.g. the left hand's 2-4 under the 16th pairs of bars 30-31, 38-39, 46-47 is printed above)."
       ]
@@ -45,8 +45,7 @@
     }
   ],
   "outcome": "verified",
-  "outcomeNote": "Converted 2026-10-02 from transcription A (read-back 0 differences) and compared with transcription B, read from the print by a separate session: 15 differences in 7 places (bars 48-49, 54-55, 64-65, 66, 70, 79-80, 84), each settled against the print in favour of B and fixed in A; now 0. The visual pass then corrected A's slurs, fingering, dynamics, hairpins, arpeggios and words in about 30 bars (019 log, T045).",
+  "outcomeNote": "Converted 2026-10-02 from transcription A (read-back 0 differences) and compared with transcription B, read from the print by a separate session: 15 differences in 7 places (bars 48-49, 54-55, 64-65, 66, 70, 79-80, 84), each settled against the print in favour of B and fixed in A; now 0. The visual pass then corrected A's slurs, fingering, dynamics, hairpins, arpeggios and words in about 30 bars (019 log, T045). 2026-10-02: the curved brackets of bars 1-20 are read as the print's gentle roll sign and encoded as rolls.",
   "checkedBy": "claude-opus-5.5",
-  "date": "2026-10-02",
-  "supersedes": ["repertoire/advanced/grieg-morning-mood"]
+  "date": "2026-10-02"
 }

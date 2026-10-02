@@ -1,99 +1,123 @@
-// Constitution 1.4.0, Principle VII (owner request 2026-10-02): every score the project writes or arranges is playable by one
-// human hand per staff - at no moment more than PLAYABLE_HAND_KEYS_MAX keys or a reach wider than
-// PLAYABLE_HAND_SPAN_SEMITONES_MAX, and a note held while the same hand plays others within PLAYABLE_HELD_SPAN_SEMITONES_MAX of
-// them. A faithful copy of a composer's work keeps the composer's notes; the "For listening" folder holds the ones that break
-// the rule, so every item there must actually break it.
+// Constitution 1.6.0, Principle VII (owner decisions 2026-10-02): every score in the library is possible for human hands -
+// difficult is fine - and what the project writes for learners is comfortable. Two tiers of PLAYABLE_LIMITS, per printed
+// staff: `possible` (what a hand strikes at once; the pedal may hold the rest) for every item, faithful copies included; `comfortable` for exercises, songs, Beginner and Intermediate
+// arrangements, and Morning Mood (easier chords), which the owner keeps at that tier.
 
 import { readFileSync } from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import {
-  PLAYABLE_HAND_KEYS_MAX,
-  PLAYABLE_HAND_SPAN_SEMITONES_MAX,
-  PLAYABLE_HELD_SPAN_SEMITONES_MAX,
-} from '../../src/core/defaults.js';
-import { describeStretch, handStretches } from '../../src/core/library/playability.js';
-import type { LibraryIndex } from '../../src/core/library/types.js';
+import { PLAYABLE_LIMITS } from '../../src/core/defaults.js';
+import { describeStretch, handStretches, type PlayableTier } from '../../src/core/library/playability.js';
+import type { LibraryIndex, LibraryItem } from '../../src/core/library/types.js';
 import { buildScore } from '../../src/core/musicxml/build.js';
 import { readXml } from '../../src/core/musicxml/read.js';
-import type { Score } from '../../src/core/score/model.js';
 import { buildTimeline } from '../../src/core/timeline/timeline.js';
 import { decodeXml } from '../../src/engine/files/decode.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const libraryRoot = path.join(root, 'public/library');
-const fixtures = path.join(root, 'tests/fixtures/musicxml');
 const index = JSON.parse(readFileSync(path.join(libraryRoot, 'index.json'), 'utf8')) as LibraryIndex;
 
-function load(file: string): { score: Score; timeline: ReturnType<typeof buildTimeline>['timeline'] } {
-  const { score } = buildScore(readXml(decodeXml(readFileSync(file))).doc);
-  return { score, timeline: buildTimeline(score).timeline };
+function stretchesOf(file: string, tier: PlayableTier) {
+  const { score } = buildScore(readXml(decodeXml(readFileSync(path.join(libraryRoot, file)))).doc);
+  return handStretches(score, buildTimeline(score).timeline, tier);
 }
+const itemStretches = (item: LibraryItem, tier: PlayableTier) => stretchesOf(item.file, tier).map(describeStretch);
 
-const stretchesOf = (file: string) => {
-  const { score, timeline } = load(file);
-  return handStretches(score, timeline);
-};
+const GRIEG = 'repertoire/advanced/grieg-morning-mood.musicxml';
+const EASIER = 'repertoire/advanced/grieg-morning-mood-easier';
 
-describe('handStretches (the rule itself)', () => {
-  it('names the limits: three keys, an octave struck together, a sixth for a held note', () => {
-    expect(PLAYABLE_HAND_KEYS_MAX).toBe(3);
-    expect(PLAYABLE_HAND_SPAN_SEMITONES_MAX).toBe(12);
-    expect(PLAYABLE_HELD_SPAN_SEMITONES_MAX).toBe(9);
+describe('the two tiers (PLAYABLE_LIMITS)', () => {
+  it('possible: five keys struck at once, a tenth (wider only rolled); what was struck earlier the pedal may hold', () => {
+    expect(PLAYABLE_LIMITS.possible).toEqual({
+      keysMax: 5,
+      struckSpanSemitonesMax: 16,
+      heldSpanSemitonesMax: null,
+      rolledExempt: true,
+    });
   });
 
-  it('accepts a melody over a held chord within the limits (piano and oboe fixture, piano part)', () => {
-    expect(stretchesOf(path.join(fixtures, 'orchestra/piano-and-oboe-twin.musicxml'))).toEqual([]);
+  it('comfortable: three keys, an octave struck, a sixth held, no exception for rolls or pedal', () => {
+    expect(PLAYABLE_LIMITS.comfortable).toEqual({
+      keysMax: 3,
+      struckSpanSemitonesMax: 12,
+      heldSpanSemitonesMax: 9,
+      rolledExempt: false,
+    });
   });
+});
 
-  it("reports Grieg's left-hand tenth in bar 1 of the faithful Morning Mood, by staff and bar", () => {
-    const stretches = stretchesOf(path.join(libraryRoot, 'repertoire/listening/grieg-morning-mood.musicxml'));
-    const first = stretches.find((s) => s.staff === 2 && s.measureIndex === 0);
+describe('handStretches', () => {
+  it("comfortable: Grieg's left-hand tenth in bar 1 is too wide, though the print rolls it", () => {
+    const first = stretchesOf(GRIEG, 'comfortable').find((s) => s.staff === 2 && s.measureIndex === 0);
     if (!first) throw new Error('no stretch in bar 1, staff 2');
-    expect(first).toMatchObject({ staff: 2, measureIndex: 0, keys: [52, 59, 68], span: 16, held: false });
+    expect(first).toMatchObject({ keys: [52, 59, 68], span: 16, held: false });
     expect(describeStretch(first)).toBe('staff 2, bar 1: E3 B3 G#4 struck together span 16 semitones');
   });
 
-  it('reports a note held an octave under a melody note the same hand starts later (faithful Morning Mood, bar 3)', () => {
-    const stretches = stretchesOf(path.join(libraryRoot, 'repertoire/listening/grieg-morning-mood.musicxml'));
-    expect(stretches).toContainEqual(expect.objectContaining({ staff: 1, measureIndex: 2, held: true, span: 12 }));
+  it('comfortable: a note held an octave under a melody note the same hand starts later (Grieg, bar 3)', () => {
+    expect(stretchesOf(GRIEG, 'comfortable')).toContainEqual(
+      expect.objectContaining({ staff: 1, measureIndex: 2, held: true, span: 12 }),
+    );
   });
 
-  it("counts a trill's upper note: D#4 A4 held under a D#5 trill reaches its E5 (faithful Morning Mood, bar 67)", () => {
-    const stretches = stretchesOf(path.join(libraryRoot, 'repertoire/listening/grieg-morning-mood.musicxml'));
-    expect(stretches).toContainEqual(expect.objectContaining({ staff: 1, measureIndex: 66 }));
+  it("comfortable: a trill's upper note counts (Grieg bar 67: D#4 A4 held under the D#5 trill reach its E5)", () => {
+    expect(stretchesOf(GRIEG, 'comfortable')).toContainEqual(expect.objectContaining({ staff: 1, measureIndex: 66 }));
+  });
+
+  it("possible: Bach's held octave in BWV 846 is fine, though not comfortable", () => {
+    expect(stretchesOf('repertoire/advanced/bach-prelude-bwv846.musicxml', 'possible')).toEqual([]);
+    expect(stretchesOf('repertoire/advanced/bach-prelude-bwv846.musicxml', 'comfortable').length).toBeGreaterThan(0);
+  });
+
+  it("possible: Satie's long bass notes under the left hand's chords are held by the pedal; comfortable counts them", () => {
+    const file = 'repertoire/advanced/satie-gymnopedie-no1.musicxml';
+    expect(stretchesOf(file, 'possible')).toEqual([]);
+    expect(stretchesOf(file, 'comfortable').some((s) => s.held && s.span > 12)).toBe(true);
+  });
+
+  it("possible: Chopin's ninths with five keys in Op. 28 No. 20 fit a hand", () => {
+    const file = 'repertoire/advanced/chopin-prelude-op28-no20.musicxml';
+    expect(stretchesOf(file, 'possible')).toEqual([]);
   });
 });
 
-describe('every score the project writes or arranges is playable by one hand per staff (Constitution VII)', () => {
-  // Written or arranged here: every exercise and every arrangement. A piece that is not an arrangement is a faithful copy
-  // of the composer's notes (e.g. our own engraving of Bach's BWV 846), which keeps the composer's stretches.
-  const authored = index.items.filter((item) => item.meta.kind === 'exercise' || item.meta.arrangement === true);
-
-  it('covers the exercises, songs and arrangements, Morning Mood (easier chords) among them', () => {
-    expect(authored.length).toBeGreaterThan(150);
-    expect(authored.map((i) => i.id)).toContain('repertoire/advanced/grieg-morning-mood-easier');
+describe('every library item is possible for human hands (Constitution VII)', () => {
+  it('covers the whole shelf', () => {
+    expect(index.items.length).toBeGreaterThan(180);
   });
 
-  it.each(authored.map((item) => [item.id, item.file] as const))('%s', (_id, file) => {
-    expect(stretchesOf(path.join(libraryRoot, file)).map(describeStretch)).toEqual([]);
+  it.each(index.items.map((item) => [item.id, item] as const))('%s', (_id, item) => {
+    expect(itemStretches(item, 'possible')).toEqual([]);
   });
 });
 
-describe('"For listening" holds only faithful scores that break the rule', () => {
-  const listening = index.items.filter((item) => item.section === 'repertoire/listening');
-
-  it('holds the faithful Morning Mood', () => {
-    expect(listening.map((i) => i.id)).toContain('repertoire/listening/grieg-morning-mood');
-  });
-
-  it.each(listening.map((item) => [item.id, item] as const))(
-    '%s: a faithful piece, and wider than a hand',
-    (_id, item) => {
-      expect(item.meta.kind).toBe('piece');
-      expect(item.meta.arrangement ?? false).toBe(false);
-      expect(stretchesOf(path.join(libraryRoot, item.file)).length).toBeGreaterThan(0);
-    },
+describe('what the project writes for learners is comfortable (Constitution VII)', () => {
+  const learnerItems = index.items.filter(
+    (item) =>
+      item.meta.kind === 'exercise' ||
+      item.id.startsWith('learning/') ||
+      (item.meta.arrangement === true && (item.meta.level === 'beginner' || item.meta.level === 'intermediate')) ||
+      item.id === EASIER,
   );
+
+  it('covers the exercises, songs and easier arrangements, Morning Mood (easier chords) among them', () => {
+    expect(learnerItems.length).toBeGreaterThan(170);
+    expect(learnerItems.map((i) => i.id)).toContain(EASIER);
+  });
+
+  it.each(learnerItems.map((item) => [item.id, item] as const))('%s', (_id, item) => {
+    expect(itemStretches(item, 'comfortable')).toEqual([]);
+  });
+});
+
+describe('"For listening" holds only faithful pieces that are not possible for human hands (empty today)', () => {
+  it('every item there is a faithful piece that breaks the possible tier', () => {
+    for (const item of index.items.filter((i) => i.section === 'repertoire/listening')) {
+      expect(item.meta.kind, item.id).toBe('piece');
+      expect(item.meta.arrangement ?? false, item.id).toBe(false);
+      expect(itemStretches(item, 'possible').length, item.id).toBeGreaterThan(0);
+    }
+  });
 });

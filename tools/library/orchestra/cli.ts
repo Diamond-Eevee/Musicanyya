@@ -17,7 +17,7 @@ export interface CliIo {
 
 const USAGE = 'usage: pnpm library:orchestra <item-id> [--check]';
 
-/** Where an item's definition lives: its last path segment is the slug (`repertoire/listening/grieg-morning-mood`). */
+/** Where an item's definition lives: its last path segment is the slug (`repertoire/advanced/grieg-morning-mood`). */
 export const definitionPath = (root: string, itemId: string): string =>
   join(root, 'content/library/orchestra', `${basename(itemId)}.json`);
 

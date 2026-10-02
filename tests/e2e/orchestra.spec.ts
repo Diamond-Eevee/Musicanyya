@@ -97,7 +97,7 @@ test.describe('piano-and-oboe (US2a)', () => {
 // strings, cellos), behaves like a piano piece everywhere the musician can see or be graded. Chromium, Firefox and the
 // electron project (the same bundle).
 test.describe('Morning Mood (019 T057)', () => {
-  const ITEM = 'repertoire/listening/grieg-morning-mood';
+  const ITEM = 'repertoire/advanced/grieg-morning-mood';
 
   test.beforeEach(({ browserName }) => {
     test.skip(

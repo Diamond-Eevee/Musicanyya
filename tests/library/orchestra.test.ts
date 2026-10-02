@@ -547,7 +547,7 @@ describe('Morning Mood: the Orchestra changes nothing that is printed (SC-004 on
 
   it('the render copy of the item equals the render copy of the item without its Orchestra parts', async () => {
     const item = readFileSync(
-      join(process.cwd(), 'public/library/repertoire/listening/grieg-morning-mood.musicxml'),
+      join(process.cwd(), 'public/library/repertoire/advanced/grieg-morning-mood.musicxml'),
       'utf8',
     );
     const pianoOnly = withoutOrchestra(item);

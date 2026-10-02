@@ -252,15 +252,26 @@ export const LEVEL_DURATION_SECONDS_MAX: Record<Level, number> = {
 // rolled chord: `maxSpanSemitones` leaves out a chord whose notes all carry <arpeggiate> (`maxArpeggiatedSpanSemitones`
 // reports it), and Advanced accepts any such span, lower levels hold it to these limits (feature 019, research R-17).
 // Advanced allows an unrolled tenth (16): owner decision OD-3 of feature 019, 2026-10-01 (research R-17 addendum).
-// Playable by one hand (Constitution 1.4.0, Principle VII; owner request 2026-10-02): what every score the project writes or
-// arranges keeps to, per printed staff, checked by `handStretches` (src/core/library/playability.ts) and
-// tests/library/playability.test.ts. At no moment more than three keys; notes struck together reach at most an octave; a note
-// held while the same hand starts others lies within a major sixth of them. A trill counts its upper note, taken a whole tone
-// up (the wider of the two neighbours). Faithful copies of a composer's work are exempt ("For listening" holds those that
-// break it).
-export const PLAYABLE_HAND_KEYS_MAX = 3;
-export const PLAYABLE_HAND_SPAN_SEMITONES_MAX = 12;
-export const PLAYABLE_HELD_SPAN_SEMITONES_MAX = 9;
+// Playable by hand (Constitution 1.6.0, Principle VII; owner decisions 2026-10-02), per printed staff, checked by
+// `handStretches` (src/core/library/playability.ts) and tests/library/playability.test.ts. Two tiers:
+// - `possible`, every library item, faithful copies included: the keys a hand strikes at once - at most five, no wider than
+//   a tenth (Advanced's limit, owner decision OD-3 of feature 019) unless the chord is rolled (every note <arpeggiate>, played key after key). Notes struck earlier do not count:
+//   the pedal can hold them, as pianists do where the composer writes long notes under moving ones (Satie, Grieg).
+// - `comfortable`, exercises, songs and Beginner/Intermediate arrangements: everything the hand holds counts - at most
+//   three keys, an octave struck together, a major sixth while it holds a note and starts another; no exception for rolls.
+// A trill counts its upper note, taken a whole tone up (the wider of the two neighbours).
+export interface HandLimits {
+  keysMax: number;
+  struckSpanSemitonesMax: number;
+  /** While the hand holds a note and starts another; `null`: notes struck earlier do not count (the pedal may hold them). */
+  heldSpanSemitonesMax: number | null;
+  /** A chord whose new notes are all rolled is played key after key: no span or key limit. */
+  rolledExempt: boolean;
+}
+export const PLAYABLE_LIMITS: Record<'possible' | 'comfortable', HandLimits> = {
+  possible: { keysMax: 5, struckSpanSemitonesMax: 16, heldSpanSemitonesMax: null, rolledExempt: true },
+  comfortable: { keysMax: 3, struckSpanSemitonesMax: 12, heldSpanSemitonesMax: 9, rolledExempt: false },
+};
 export const PLAYABLE_TRILL_UPPER_SEMITONES = 2;
 export const LEVEL_MAX_INTERVAL_SEMITONES: Record<Level, number> = {
   introduction: 7,

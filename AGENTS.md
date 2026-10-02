@@ -141,7 +141,7 @@ evidence (or `[-]`) and the constitution review passed - and it is merged only w
 | IV | Test-first; core runs in Node; hardware faked; deterministic, golden-tested grading |
 | V | Layers core <- engine <- ui <- shells; pure TypeScript/HTML/CSS, **no UI frameworks**; browser works alone; Electron locked down |
 | VI | Colour **and** shape feedback; nothing modal during a session; explainable grades |
-| VII | Advice is schema-validated JSON anchored to Note IDs; exercises/arrangements fit one hand |
+| VII | Advice is schema-validated JSON anchored to Note IDs; every Score possible for hands, learner ones comfortable |
 | VIII | Web first; Web APIs before libraries; every runtime dependency justified |
 
 **Gates** (constitution, Test tiers): **checkpoint** = `pnpm lint`, `pnpm typecheck`, `pnpm test`,

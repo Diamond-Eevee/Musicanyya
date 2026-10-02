@@ -1,7 +1,27 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.4.0 -> 1.5.0 (MINOR)
+Version change: 1.5.0 -> 1.6.0 (MINOR)
+  Principle VII's "playable by one hand" (1.4.0) becomes two tiers (owner
+  decisions 2026-10-02, after measuring the library: the 1.4.0 limits called
+  Bach's C major prelude impossible). "Possible" applies to every Score in
+  the library, faithful copies included: the keys a hand strikes at once -
+  at most five, no wider than a tenth unless rolled; notes struck earlier
+  may be held by the pedal. "Comfortable" (the 1.4.0 limits: three keys, an
+  octave, a sixth held) applies to exercises, songs and Beginner and
+  Intermediate arrangements. Values: PLAYABLE_LIMITS in src/core/defaults.ts.
+  The faithful Morning Mood, its print's roll signs now encoded, passes
+  "possible" and is back in Advanced; "For listening" stays defined for
+  faithful Scores that do not.
+Templates requiring updates:
+  OK .specify/templates/plan-template.md    (row VII wording)
+  OK .claude/commands/speckit/analyze.md    (VII finding wording)
+  OK .claude/agents/constitution-auditor.md (VII check wording)
+  OK .claude/agents/music-domain-expert.md  (tiers)
+  OK AGENTS.md section 8                    (row VII)
+Deferred TODOs: none.
+
+Previous: 1.4.0 -> 1.5.0 (MINOR)
   Development Workflow & Quality Gates gains "Test tiers" (owner request
   2026-10-02: the full end-to-end suite, about 2,000 tests over four browser
   projects and 15-30 minutes, was run after every few lines). Three tiers:
@@ -324,16 +344,20 @@ punishing feedback defeats that purpose.
 - An invalid or outdated Advice file MUST NOT break the Score: invalid entries
   are skipped and reported, the rest is shown.
 - Advice text is structured for localisation (language-keyed strings).
-- **Playable by one hand**: every score the project writes or arranges
-  (exercises, songs, arrangements) MUST be playable by an ordinary pair of
-  hands, one hand per printed staff: at no moment more than three keys, notes
-  struck together no wider than an octave, and while a hand holds a note and
-  starts another, everything it holds no wider than a major sixth (a trill
-  counts its upper note). The limits are named values (`PLAYABLE_*` in
-  `src/core/defaults.ts`) and a library test checks every such item. A
-  faithful copy of a composer's work keeps the composer's notes; one that
-  breaks these limits SHOULD be offered "For listening", with an arrangement
-  that keeps them beside it.
+- **Playable by hand**, per printed staff (one hand each), in two tiers whose
+  limits are named values (`PLAYABLE_LIMITS` in `src/core/defaults.ts`),
+  checked for every library item by a library test:
+  - **Possible** - every Score in the library, faithful copies included,
+    MUST be possible for human hands, however difficult: the keys a hand
+    strikes at once are at most five and no wider than a tenth, unless the
+    chord is rolled; notes struck earlier may be held by the pedal.
+  - **Comfortable** - exercises, songs and Beginner and Intermediate
+    arrangements the project writes MUST also fit an ordinary hand without
+    pedal or rolls: at most three keys, notes struck together no wider than
+    an octave, and while a hand holds a note and starts another, everything
+    it holds no wider than a major sixth (a trill counts its upper note).
+  A faithful copy keeps the composer's notes; one that is not possible
+  SHOULD be offered "For listening", with an arrangement that is beside it.
 
 **Rationale**: teachers and authors must be able to add and improve guidance
 without a developer, and advice must stay attached to exactly the right notes.
@@ -504,4 +528,4 @@ Merge gates (every change):
 - Runtime guidance for agents lives in `AGENTS.md` (tool-neutral; `CLAUDE.md`
   and `GEMINI.md` only import it) and MUST stay consistent with this document.
 
-**Version**: 1.5.0 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-10-02
+**Version**: 1.6.0 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-10-02

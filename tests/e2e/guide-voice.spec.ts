@@ -17,7 +17,7 @@ import {
 // musician's notes on a channel the Orchestra level governs, set up with the Guide voice's program; a Score with an Orchestra, and
 // Listen mode, never get one. The sound itself is proved offline (tests/engine/guide-render.test.ts); this proves the app asks for it.
 const WITHOUT_ORCHESTRA = 'repertoire/beginner/fur-elise-theme-16-bar';
-const WITH_ORCHESTRA = 'repertoire/listening/grieg-morning-mood';
+const WITH_ORCHESTRA = 'repertoire/advanced/grieg-morning-mood';
 
 test.describe('the Guide voice in the browser (feature 020 US1)', () => {
   test.beforeEach(({ browserName }, testInfo) => {

@@ -15,7 +15,7 @@
     "licence": "CC0-1.0",
     "author": "Musicanyya practice material",
     "created": "2026-10-02",
-    "basedOn": "Grieg's own piano arrangement (G. Schirmer, New York, 1899, ed. Louis Oesterle; Internet Archive 31761045200615), public domain, as read in our transcription A (content/library/sources/own-grieg-op46-no1-transcription-a); the faithful item is repertoire/listening/grieg-morning-mood.",
+    "basedOn": "Grieg's own piano arrangement (G. Schirmer, New York, 1899, ed. Louis Oesterle; Internet Archive 31761045200615), public domain, as read in our transcription A (content/library/sources/own-grieg-op46-no1-transcription-a); the faithful item is repertoire/advanced/grieg-morning-mood.",
     "note": "Converted from content/library/sources/own-grieg-op46-no1-easier/morning-mood-easier.ly, which is transcription A with every chord rewritten to fit one hand (each change marked \"arr:\" there). The Orchestra is the faithful item's, generated from this piano part: every Orchestra note doubles a piano note."
   },
   "departures": [

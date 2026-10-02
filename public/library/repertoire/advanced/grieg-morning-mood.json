@@ -6,12 +6,6 @@
   "arranger": "Edvard Grieg",
   "kind": "piece",
   "level": "advanced",
-  "supersedes": [
-    {
-      "id": "repertoire/advanced/grieg-morning-mood",
-      "hash": "129d87bdc69c30aca36f20d107a71b41b9872ece6fc679c78c4bcda3c379f44f"
-    }
-  ],
   "tags": ["chords", "hands-together", "ties", "pedal", "ornaments", "dynamics", "phrasing"],
   "trains": "Grieg's own piano version of the sunrise from Peer Gynt: a pastoral 6/8 melody passed between the hands over held chords and wide left-hand tenths, the forte climax in full chords, the left-hand melody under right-hand figuration, trills with their endings, and the quiet return over a pedal note.",
   "hands": "both",

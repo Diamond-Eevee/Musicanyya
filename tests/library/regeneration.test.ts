@@ -61,7 +61,7 @@ describe('regenerating every Orchestra (019 T055, rule O4)', () => {
     );
 
   it('has at least one definition (Morning Mood)', () => {
-    expect(definitions.map((d) => d.itemId)).toContain('repertoire/listening/grieg-morning-mood');
+    expect(definitions.map((d) => d.itemId)).toContain('repertoire/advanced/grieg-morning-mood');
   });
 
   it.each(definitions.map((d) => d.itemId))(

@@ -109,7 +109,7 @@ describe('ExpectedEvent.orchestra', () => {
     expect(events.map((e) => e.accompaniment.length)).toEqual([1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1]);
   });
 
-  it.each(['repertoire/listening/grieg-morning-mood', 'repertoire/advanced/grieg-morning-mood-easier'])(
+  it.each(['repertoire/advanced/grieg-morning-mood', 'repertoire/advanced/grieg-morning-mood-easier'])(
     '%s: no Practice event carries an Orchestra note',
     (itemId) => {
       const item = loadFixture(`../../../public/library/${itemId}.musicxml`);
@@ -339,7 +339,7 @@ describe('live queue headroom on every Orchestra item (T080)', () => {
   }
 
   it('there is at least one Orchestra item (Morning Mood)', () => {
-    expect(ITEMS).toContain('repertoire/listening/grieg-morning-mood');
+    expect(ITEMS).toContain('repertoire/advanced/grieg-morning-mood');
   });
 
   it.each(ITEMS.flatMap((itemId) => SELECTIONS.map((s) => [itemId, s.preset, s] as const)))(
