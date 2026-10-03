@@ -78,6 +78,7 @@ merge, the full gate: the same plus `pnpm test:e2e` (every browser project, 15-3
 Regenerate the bundled library after editing its content:
 `pnpm library:exercises` (the steps of every key, the key changes and the chord drills from `content/library/exercises/*.json`), then
 `pnpm library:songs` (the songs from `content/library/songs/*.json` and the approved public-domain sources), then
+`pnpm library:lessons` (the Basics and chord lessons from `content/library/lessons/*.json`), then
 `pnpm library:engrave` (completes hand-written repertoire files with beams and accidentals in place), then
 `pnpm library:index` (rebuilds `public/library/index.json` from the files on disk).
 

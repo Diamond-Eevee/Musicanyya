@@ -134,6 +134,7 @@ pnpm electron:dev     # desktop shell against the dev server
 pnpm electron:build   # desktop build (electron-builder)
 pnpm library:exercises # regenerate the exercise families from content/library/exercises/*.json
 pnpm library:songs     # build the songs from content/library/songs/*.json + approved sources (--song <id> for one)
+pnpm library:lessons   # build the Basics and chord lessons from content/library/lessons/*.json (--lesson <id> for one; 022)
 pnpm library:engrave  # complete hand-written repertoire files in place (beams + accidentals)
 pnpm library:index    # regenerate public/library/index.json from the files on disk
 pnpm screenshot       # open the app headless and save a PNG (see "Running and seeing the app" below)
