@@ -30,7 +30,7 @@
     },
     {
       "bar": 2,
-      "degree": "VII"
+      "degree": "iv"
     },
     {
       "bar": 2,
@@ -61,7 +61,7 @@
     },
     {
       "bar": 6,
-      "degree": "VII"
+      "degree": "iv"
     },
     {
       "bar": 6,
@@ -134,7 +134,7 @@
   },
   "meta": {
     "level": "intermediate",
-    "trains": "The Passion Chorale in D minor, with its one-beat pickup, over the left-hand chord struck on every beat, up to two chords a bar (Dm, B♭, F, C, A, Gm).",
+    "trains": "The Passion Chorale in D minor, with its one-beat pickup, over the left-hand chord struck on every beat, up to two chords a bar (Dm, B♭, F, Gm, A, C).",
     "composer": "H. L. Hassler (tune \"Passion Chorale\", as J. S. Bach set it)",
     "departures": ["The fermatas at the ends of the phrases are left out: the music goes on in time."],
     "raisedBecause": "A chord struck on every beat under a melody that changes chord up to twice a bar, in D minor with the chords of its relative major (F, C) at the cadences; the notes alone measure Beginner.",

@@ -330,9 +330,9 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
   check passing.
 - [x] T062 [US3] [standard] Write the 20 audit records under `content/library/audit/learning/keys/<key>/` (`mechanical`
   melody vs source, `expectedDifferences: 0`; `theory` / `song-chords-v2`); run `pnpm library:fidelity`; 0 differences.
-- [ ] T063 [US3] Music review with the `music-domain-expert` sub-agent: tune correct and recognisable, chords fit the
+- [x] T063 [US3] Music review with the `music-domain-expert` sub-agent: tune correct and recognisable, chords fit the
   melody, simplified versions really simpler, left-hand patterns idiomatic and comfortable; fix, regenerate, summarise.
-- [ ] T064 [US3] [standard] Screenshot both versions of every new song and look at each (20 files); fix where needed;
+- [x] T064 [US3] [standard] Screenshot both versions of every new song and look at each (20 files); fix where needed;
   list in the log.
 
 **Checkpoint (US3)**: T052-T054 green; T029 green for songs; quickstart US3 verified; checkpoint gate plus

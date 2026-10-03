@@ -9,7 +9,7 @@
   "raisedBecause": "A chord struck on every beat under a melody that changes chord up to twice a bar, in D minor with the chords of its relative major (F, C) at the cadences; the notes alone measure Beginner.",
   "arrangement": true,
   "tags": ["chords", "hands-together"],
-  "trains": "The Passion Chorale in D minor, with its one-beat pickup, over the left-hand chord struck on every beat, up to two chords a bar (Dm, B♭, F, C, A, Gm).",
+  "trains": "The Passion Chorale in D minor, with its one-beat pickup, over the left-hand chord struck on every beat, up to two chords a bar (Dm, B♭, F, Gm, A, C).",
   "hands": "both",
   "provenance": {
     "origin": "authored",

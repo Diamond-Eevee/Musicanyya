@@ -37,7 +37,7 @@
     },
     {
       "bar": 6,
-      "degree": "ii"
+      "degree": "I"
     },
     {
       "bar": 7,
@@ -69,7 +69,7 @@
     },
     {
       "bar": 14,
-      "degree": "ii"
+      "degree": "I"
     },
     {
       "bar": 15,
@@ -97,11 +97,11 @@
     },
     {
       "bar": 21,
-      "degree": "V"
+      "degree": "vi"
     },
     {
       "bar": 22,
-      "degree": "ii"
+      "degree": "I"
     },
     {
       "bar": 23,
@@ -117,7 +117,7 @@
   },
   "meta": {
     "level": "intermediate",
-    "trains": "The First Noel in D major and 3/4, over a waltz left hand (the bass on beat 1, the chord on beats 2 and 3), one chord a bar (D, G, Em, A).",
+    "trains": "The First Noel in D major and 3/4, over a waltz left hand (the bass on beat 1, the chord on beats 2 and 3), one chord a bar (D, G, A, Bm).",
     "composer": "Traditional (English)",
     "reviewedBy": "claude-opus-5.5",
     "reviewedOn": "2026-10-03"

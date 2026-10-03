@@ -400,13 +400,15 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 - Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
 - Departure: The left-hand repeated chords on every beat is our own (CC0).
+- Departure: Barred with a one-beat pickup, as hymnals print the tune (the source starts it on the first beat of a bar): every note keeps its place in time, only the bar lines move.
 
 ### Song - O God, Our Help in Ages Past (simplified) (`learning/keys/c-major/song-o-god-our-help-in-ages-past-simplified`)
 
 - Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
 - Departure: Left-hand block chords are our own (CC0).
-- Departure: Simplified: one block chord a bar, held, with the three primary chords only (C, F, G), instead of the full version's moving left hand.
+- Departure: Simplified: one block chord a bar, held, with the three primary chords only (C, G, F), instead of the full version's moving left hand.
 - Departure: Slower: 72 instead of 88 quarter notes a minute.
+- Departure: Barred with a one-beat pickup, as hymnals print the tune (the source starts it on the first beat of a bar): every note keeps its place in time, only the bar lines move.
 
 ### C major - I-vi-ii-V (`learning/keys/c-major/turnaround`)
 
@@ -451,7 +453,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 - Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
 - Departure: Left-hand block chords are our own (CC0).
-- Departure: Simplified: one block chord a bar, held, with the chords of a beginner minor song only (Dm, C, Gm), instead of the full version's moving left hand.
+- Departure: Simplified: one block chord a bar, held, with the chords of a beginner minor song only (Dm, Gm, C), instead of the full version's moving left hand.
 - Departure: Slower: 60 instead of 72 quarter notes a minute.
 - Departure: The fermatas at the ends of the phrases are left out: the music goes on in time.
 

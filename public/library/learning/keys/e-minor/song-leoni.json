@@ -1,14 +1,14 @@
 {
   "version": 1,
   "title": "Song - The God of Abraham Praise",
-  "composer": "Traditional (synagogue melody for the Yigdal, tune \"Leoni\", adapted by M. Lyon)",
+  "composer": "Traditional (Hebrew melody for the Yigdal, transcribed by Meyer Lyon; tune \"Leoni\")",
   "subtitle": "Arrangement: the tune with left-hand broken chords (root, fifth, third, fifth)",
   "arranger": "Musicanyya practice material",
   "kind": "piece",
   "level": "intermediate",
   "arrangement": true,
   "tags": ["chords", "hands-together"],
-  "trains": "The God of Abraham Praise (tune \"Leoni\") in E minor, with a one-beat pickup, over a broken-chord left hand in eighths, up to two chords a bar (Em, B, G, Am, D, C).",
+  "trains": "The God of Abraham Praise (tune \"Leoni\") in E minor, with a one-beat pickup, over a broken-chord left hand in eighths, up to two chords a bar (Em, C, B, G, Am, D).",
   "hands": "both",
   "provenance": {
     "origin": "authored",

@@ -8,7 +8,7 @@
   "level": "beginner",
   "arrangement": true,
   "tags": ["chords", "hands-together"],
-  "trains": "The Passion Chorale in D minor, with its one-beat pickup, over one held block chord a bar in the left (Dm, C, Gm).",
+  "trains": "The Passion Chorale in D minor, with its one-beat pickup, over one held block chord a bar in the left (Dm, Gm, C).",
   "hands": "both",
   "provenance": {
     "origin": "authored",
@@ -20,7 +20,7 @@
   },
   "departures": [
     "Left-hand block chords are our own (CC0).",
-    "Simplified: one block chord a bar, held, with the chords of a beginner minor song only (Dm, C, Gm), instead of the full version's moving left hand.",
+    "Simplified: one block chord a bar, held, with the chords of a beginner minor song only (Dm, Gm, C), instead of the full version's moving left hand.",
     "Slower: 60 instead of 72 quarter notes a minute.",
     "The fermatas at the ends of the phrases are left out: the music goes on in time."
   ],

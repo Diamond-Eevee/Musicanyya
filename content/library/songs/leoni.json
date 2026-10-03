@@ -21,6 +21,11 @@
       "degree": "i"
     },
     {
+      "bar": 1,
+      "beat": 3,
+      "degree": "VI"
+    },
+    {
       "bar": 2,
       "degree": "V"
     },
@@ -99,6 +104,11 @@
       "degree": "i"
     },
     {
+      "bar": 13,
+      "beat": 3,
+      "degree": "VI"
+    },
+    {
       "bar": 14,
       "degree": "i"
     },
@@ -126,8 +136,8 @@
   },
   "meta": {
     "level": "intermediate",
-    "trains": "The God of Abraham Praise (tune \"Leoni\") in E minor, with a one-beat pickup, over a broken-chord left hand in eighths, up to two chords a bar (Em, B, G, Am, D, C).",
-    "composer": "Traditional (synagogue melody for the Yigdal, tune \"Leoni\", adapted by M. Lyon)",
+    "trains": "The God of Abraham Praise (tune \"Leoni\") in E minor, with a one-beat pickup, over a broken-chord left hand in eighths, up to two chords a bar (Em, C, B, G, Am, D).",
+    "composer": "Traditional (Hebrew melody for the Yigdal, transcribed by Meyer Lyon; tune \"Leoni\")",
     "departures": [
       "The double bar lines the source prints inside the bars at the ends of phrases are left out: the music is written in whole 4/4 bars.",
       "Written in E minor, the key the source sounds in (the source writes it in F minor and transposes it down a semitone)."

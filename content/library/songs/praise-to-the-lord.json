@@ -48,7 +48,7 @@
     },
     {
       "bar": 4,
-      "beat": 3,
+      "beat": 2,
       "degree": "vi"
     },
     {
@@ -97,7 +97,7 @@
     },
     {
       "bar": 10,
-      "beat": 3,
+      "beat": 2,
       "degree": "vi"
     },
     {
@@ -176,7 +176,7 @@
   "meta": {
     "level": "intermediate",
     "trains": "Praise to the Lord in F major and 3/4, over the left-hand chord struck on every beat, up to two chords a bar (F, C, Dm, B♭, Gm).",
-    "composer": "Traditional (German, tune \"Lobe den Herren\")",
+    "composer": "Traditional (German, tune \"Lobe den Herren\", Stralsund Gesangbuch 1665)",
     "reviewedBy": "claude-opus-5.5",
     "reviewedOn": "2026-10-03"
   }

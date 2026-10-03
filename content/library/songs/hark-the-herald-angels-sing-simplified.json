@@ -53,7 +53,7 @@
     },
     {
       "bar": 10,
-      "degree": "I"
+      "degree": "V"
     },
     {
       "bar": 11,
@@ -61,7 +61,7 @@
     },
     {
       "bar": 12,
-      "degree": "I"
+      "degree": "V"
     },
     {
       "bar": 13,
@@ -100,7 +100,7 @@
   "meta": {
     "level": "beginner",
     "trains": "Hark! the Herald Angels Sing in F major, over one held block chord a bar in the left (F, C, B♭).",
-    "composer": "F. Mendelssohn (tune \"Mendelssohn\")",
+    "composer": "F. Mendelssohn, adapted by W. H. Cummings (tune \"Mendelssohn\")",
     "departures": [
       "Simplified: one block chord a bar, held, with the three primary chords only (F, C, B♭), instead of the full version's moving left hand.",
       "Slower: 84 instead of 100 quarter notes a minute."

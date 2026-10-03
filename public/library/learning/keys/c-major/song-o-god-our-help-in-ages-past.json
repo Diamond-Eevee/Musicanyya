@@ -8,7 +8,7 @@
   "level": "intermediate",
   "arrangement": true,
   "tags": ["chords", "hands-together"],
-  "trains": "O God, Our Help in Ages Past in C major, over the left-hand chord struck on every beat, up to two chords a bar (C, Am, G, Dm, F).",
+  "trains": "O God, Our Help in Ages Past in C major, with a one-beat pickup, over the left-hand chord struck on every beat, up to two chords a bar (C, Am, Dm, G, F).",
   "hands": "both",
   "provenance": {
     "origin": "authored",
@@ -18,7 +18,10 @@
     "basedOn": "mutopia-1290-st-anne: St. Anne (hymntune, W. Croft: O God, Our Help in Ages Past), SATB; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1290)",
     "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1290), public domain; left-hand chords our own (CC0)"
   },
-  "departures": ["The left-hand repeated chords on every beat is our own (CC0)."],
+  "departures": [
+    "The left-hand repeated chords on every beat is our own (CC0).",
+    "Barred with a one-beat pickup, as hymnals print the tune (the source starts it on the first beat of a bar): every note keeps its place in time, only the bar lines move."
+  ],
   "reviewedBy": "claude-opus-5.5",
   "reviewedOn": "2026-10-03",
   "step": "song",
