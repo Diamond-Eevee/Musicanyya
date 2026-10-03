@@ -339,3 +339,21 @@
 - Handoff: next = T073 (owner's full `pnpm test:e2e` run, or a decision on the environment), then the feature is ready
   for merge review (every other task ticked, constitution audit done). No `src/` change since f061d39. Tree clean at
   the commit below.
+
+## 2026-10-03 20:30 - claude-opus-5.5 (implement: T073 full gate on the owner's machine)
+- Owner chose option (a): the full gate on the owner's Windows machine (pulled c9b6f9e, tree clean). No `src/` change
+  since f061d39.
+- `pnpm lint` exit 0 (314 warnings, 14 infos); `pnpm typecheck` exit 0; `pnpm test` `Test Files 342 passed (342)`,
+  `Tests 8696 passed (8696)`, exit 0 - the container's windows-1252 decode failure does not occur here;
+  `pnpm test:e2e:smoke` `9 passed`.
+- `pnpm test:e2e` first run: browsers `2 failed, 921 skipped, 991 passed (11.0m)`, so the Electron part did not start.
+  The 2, both Firefox, both under load: `play-cursor.spec.ts:93` (the 5 s wait for the green head timed out) and
+  `pressed-keys.spec.ts:487` (max frame 26 ms, bound < 25; already on the known-flaky list). Alone,
+  `--repeat-each=3`: `6 passed`. Logged in reference "Known flaky".
+- `pnpm test:e2e` second run (started before the 1.7.0 amendment): browsers `921 skipped, 993 passed (11.1m)`;
+  Electron `115 skipped, 523 passed (30.5m)`; exit 0. The container-only bar-width failures do not occur here.
+- Constitution amended to 1.7.0 (owner request, ce78f49): full gate exactly once as the last step, targeted reruns
+  after it, checkpoints smoke + changed features' specs on chromium, task checks e2e only for a spec the task edits.
+- Done: T073. Every task of feature 022 is ticked; the constitution audit (T072) ran.
+- Handoff: next = merge review; merge only when the owner asks. Not pushed. Open elsewhere (suggested as a separate
+  task, feature 003 area): played-along spans are empty in all but the last pass of a repeat.
