@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "basics/dotted-half-notes",
+  "title": "Dotted half notes",
+  "section": "basics",
+  "stepOrder": 80,
+  "level": "introduction",
+  "hands": "right",
+  "tags": ["note-values"],
+  "trains": "A dot after a note makes it half as long again. A half note lasts two beats, so a dotted half note lasts three: a whole bar of 3/4. Play on 1 and hold through 2 and 3. The app listens for when each note starts, not for how long you hold it.",
+  "scoreText": "A dot adds half: dotted half note = 3 beats.",
+  "metre": "3/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "introduces": ["dotted-half"],
+    "singlePitch": true
+  },
+  "bars": [
+    {
+      "rh": "C4:q@1 C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h.",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h.",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h.",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h.",
+      "lh": "R:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

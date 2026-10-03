@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "id": "basics/staccato",
+  "title": "Staccato: short notes",
+  "section": "basics",
+  "stepOrder": 200,
+  "level": "introduction",
+  "hands": "right",
+  "tags": ["articulation"],
+  "trains": "A dot above or below a note head means staccato: play the note short and spring off the key, leaving a little silence before the next note. Listen first: the notes sound short. The app checks when each note starts, not how short you play it.",
+  "scoreText": "Staccato dot: play short and let go at once.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "introduces": ["staccato"]
+  },
+  "bars": [
+    {
+      "rh": "C4:q!@1 D4:q!@2 E4:q!@3 F4:q!@4",
+      "lh": "R:w"
+    },
+    {
+      "rh": "G4:q!@5 r:q G4:q! r:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "G4:q! F4:q! E4:q! D4:q!",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q! r:q r:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "E4:q! E4:q! D4:q! D4:q!",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q! E4:q! G4:q! r:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "F4:q! E4:q! D4:q! E4:q!",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q! r:q r:h",
+      "lh": "R:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

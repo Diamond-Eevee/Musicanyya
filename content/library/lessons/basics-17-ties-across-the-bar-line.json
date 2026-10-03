@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "basics/ties-across-the-bar-line",
+  "title": "Ties across the bar line",
+  "section": "basics",
+  "stepOrder": 170,
+  "level": "introduction",
+  "hands": "right",
+  "tags": ["ties"],
+  "trains": "A bar cannot hold more than its beats, so a long note is often tied across the bar line. Play the first note, hold it into the next bar and keep counting. The app checks when a note starts, not how long you hold it.",
+  "scoreText": "A tie can cross the bar line: hold into the next bar.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "introduces": ["tie-across-barline"],
+    "singlePitch": true
+  },
+  "bars": [
+    {
+      "rh": "C4:q@1 C4:q C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:q C4:h~",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:q C4:q C4:q~",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:q C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h C4:h~",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:w",
+      "lh": "R:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

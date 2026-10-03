@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "basics/half-and-whole-rests",
+  "title": "Half and whole rests",
+  "section": "basics",
+  "stepOrder": 60,
+  "level": "introduction",
+  "hands": "right",
+  "tags": ["rests"],
+  "trains": "A half rest sits on the middle line, like a hat, and lasts two beats. A whole rest hangs below the fourth line and fills a whole bar. Keep counting through the silence so the next note comes in on time.",
+  "scoreText": "Half rest sits on a line: 2 beats. Whole rest hangs: a bar.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "introduces": ["half-rest", "whole-rest"],
+    "singlePitch": true
+  },
+  "bars": [
+    {
+      "rh": "C4:q@1 C4:q C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h r:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "r:h C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:q r:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "R:w",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "r:h C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:w",
+      "lh": "R:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

@@ -185,20 +185,20 @@ plays with the cursor, Practice waits for each note, Play grades it; the ties le
 
 ### Implementation
 
-- [ ] T032 [US1] Author lessons 1-8 (data-model §4) in `content/library/lessons/basics-*.json`: middle C, half, whole,
+- [x] T032 [US1] Author lessons 1-8 (data-model §4) in `content/library/lessons/basics-*.json`: middle C, half, whole,
   mixing, quarter rests, half and whole rests, 3/4, dotted half - 8-12 bars each, tempo 50-72, explanation in
   `trains`, one line in `scoreText`, fingering, `claims.introduces`/`singlePitch`, `reviewedBy`.
-- [ ] T033 [US1] Author lessons 9-13 (steps, five-finger position, bass clef and left hand, hands take turns, hands
+- [x] T033 [US1] Author lessons 9-13 (steps, five-finger position, bass clef and left hand, hands take turns, hands
   together) - hand independence 0 (slower hand's onsets inside the faster's).
-- [ ] T034 [US1] Author lessons 14-17 (eighth notes, dotted quarter + eighth, ties in a bar, ties across the bar line);
+- [x] T034 [US1] Author lessons 14-17 (eighth notes, dotted quarter + eighth, ties in a bar, ties across the bar line);
   the tie lessons' text says the app checks when a note starts, not how long it is held (spec Edge Cases). Eighth
   notes at Introduction pace: mean density <= 1.5 attacks per second (criterion 18), so mix eighth pairs with longer
   notes or use tempo 50.
-- [ ] T035 [US1] Author lessons 18-24 (tie or slur, legato, staccato, legato and staccato, pickup, repeat signs, 6/8 with
+- [x] T035 [US1] Author lessons 18-24 (tie or slur, legato, staccato, legato and staccato, pickup, repeat signs, 6/8 with
   a dotted-quarter metronome mark).
-- [ ] T036 [US1] [light] Run `pnpm library:lessons` and `pnpm library:index`; record the written count (24) and that
+- [x] T036 [US1] [light] Run `pnpm library:lessons` and `pnpm library:index`; record the written count (24) and that
   every Basics item's `levelCheck.pass` is true.
-- [ ] T037 [US1] [standard] Write the 24 audit records `content/library/audit/basics/<id>.json` (claim `exercise`,
+- [x] T037 [US1] [standard] Write the 24 audit records `content/library/audit/basics/<id>.json` (claim `exercise`,
   check `theory` / `lesson-claims-v1`, claims copied from each definition, `expectedDifferences: 0`); run
   `pnpm library:fidelity` (rewrites `docs/library-audit.md`); 0 differences.
 - [ ] T038 [US1] Music review of the 24 lessons with the `music-domain-expert` sub-agent (one idea each, correct

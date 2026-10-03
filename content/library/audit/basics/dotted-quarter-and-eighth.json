@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "itemId": "basics/dotted-quarter-and-eighth",
+  "claim": "exercise",
+  "claimText": "Dotted quarter and eighth",
+  "checks": [
+    {
+      "method": "theory",
+      "ruleSet": "lesson-claims-v1",
+      "expectedDifferences": 0,
+      "claims": {
+        "introduces": ["dotted-quarter"],
+        "singlePitch": true
+      },
+      "teachingOrder": 150
+    }
+  ],
+  "outcome": "verified",
+  "outcomeNote": "The independent lesson check (lesson-claims-v1) reads only the file and these claims: the explanation is printed above bar 1, every notation sign it uses is introduced by this or an earlier Basics lesson, ties join equal pitches and slurs different ones, and it sounds one pitch only; 0 differences.",
+  "checkedBy": "claude-opus-5.5",
+  "date": "2026-10-03"
+}

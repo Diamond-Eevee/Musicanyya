@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "id": "basics/bass-clef-left-hand",
+  "title": "Bass clef and the left hand",
+  "section": "basics",
+  "stepOrder": 110,
+  "level": "introduction",
+  "hands": "left",
+  "tags": ["reading"],
+  "trains": "The lower staff has the bass clef, for the left hand. Its two dots sit either side of the F line. Put your left little finger (5) on the C below middle C and your thumb on G: the same five-finger position, mirrored.",
+  "scoreText": "Bass clef: the left hand plays the notes below middle C.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "introduces": ["bass-clef", "left-hand"]
+  },
+  "bars": [
+    {
+      "rh": "R:w",
+      "lh": "C3:q@5 D3:q@4 E3:q@3 F3:q@2"
+    },
+    {
+      "rh": "R:w",
+      "lh": "G3:w@1"
+    },
+    {
+      "rh": "R:w",
+      "lh": "G3:q F3:q E3:q D3:q"
+    },
+    {
+      "rh": "R:w",
+      "lh": "C3:w"
+    },
+    {
+      "rh": "R:w",
+      "lh": "C3:q E3:q G3:h"
+    },
+    {
+      "rh": "R:w",
+      "lh": "F3:q E3:q D3:h"
+    },
+    {
+      "rh": "R:w",
+      "lh": "E3:q F3:q G3:q E3:q"
+    },
+    {
+      "rh": "R:w",
+      "lh": "C3:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

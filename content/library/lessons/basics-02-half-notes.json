@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "basics/half-notes",
+  "title": "Half notes",
+  "section": "basics",
+  "stepOrder": 20,
+  "level": "introduction",
+  "hands": "right",
+  "tags": ["note-values"],
+  "trains": "A half note has a hollow head and a stem. It lasts two beats: play it on one beat and keep the key down through the next. Count out loud. The app listens for when each note starts, not for how long you hold it.",
+  "scoreText": "Half note = 2 beats: play on 1, hold through 2.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "introduces": ["half"],
+    "singlePitch": true
+  },
+  "bars": [
+    {
+      "rh": "C4:q@1 C4:q C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:q C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:q C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h C4:h",
+      "lh": "R:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

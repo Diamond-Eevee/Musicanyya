@@ -1,6 +1,3853 @@
 {
   "items": [
     {
+      "file": "basics/bass-clef-left-hand.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s2-m0-v5-o0-k48",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 48
+        },
+        {
+          "id": "n-p0-s2-m0-v5-o1-k50",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 50
+        },
+        {
+          "id": "n-p0-s2-m0-v5-o2-k52",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 52
+        },
+        {
+          "id": "n-p0-s2-m0-v5-o3-k53",
+          "measureIndex": 0,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 53
+        },
+        {
+          "id": "n-p0-s2-m1-v5-o0-k55",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 55
+        },
+        {
+          "id": "n-p0-s2-m2-v5-o0-k55",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 55
+        },
+        {
+          "id": "n-p0-s2-m2-v5-o1-k53",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 53
+        },
+        {
+          "id": "n-p0-s2-m2-v5-o2-k52",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 52
+        },
+        {
+          "id": "n-p0-s2-m2-v5-o3-k50",
+          "measureIndex": 2,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 50
+        },
+        {
+          "id": "n-p0-s2-m3-v5-o0-k48",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 48
+        },
+        {
+          "id": "n-p0-s2-m4-v5-o0-k48",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 48
+        },
+        {
+          "id": "n-p0-s2-m4-v5-o1-k52",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 52
+        },
+        {
+          "id": "n-p0-s2-m4-v5-o2-k55",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 55
+        },
+        {
+          "id": "n-p0-s2-m5-v5-o0-k53",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 53
+        },
+        {
+          "id": "n-p0-s2-m5-v5-o1-k52",
+          "measureIndex": 5,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 52
+        },
+        {
+          "id": "n-p0-s2-m5-v5-o2-k50",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 50
+        },
+        {
+          "id": "n-p0-s2-m6-v5-o0-k52",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 52
+        },
+        {
+          "id": "n-p0-s2-m6-v5-o1-k53",
+          "measureIndex": 6,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 53
+        },
+        {
+          "id": "n-p0-s2-m6-v5-o2-k55",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 55
+        },
+        {
+          "id": "n-p0-s2-m6-v5-o3-k52",
+          "measureIndex": 6,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 52
+        },
+        {
+          "id": "n-p0-s2-m7-v5-o0-k48",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 48
+        }
+      ],
+      "scheduleDigest": "27595cbb318395bd3deffcca8e8bd0b742069e5205dc3f73f55f87b013ec7419"
+    },
+    {
+      "file": "basics/dotted-half-notes.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o1-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 960,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "469943b8aeaf8db1a7241ae8adb3acd98bead132c8c56edcd06f427557d50098"
+    },
+    {
+      "file": "basics/dotted-quarter-and-eighth.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o3-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o3_2-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o3-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o3_2-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o2-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o3_2-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1440,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o7_2-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 3360,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o1-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o3_2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1440,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o7_2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 3360,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "f0a0ab5b880ef5f6ea2767f372388d3b7e1182c8ce31ca841bb1d4107d200129"
+    },
+    {
+      "file": "basics/eighth-notes.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o3-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o1_2-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 480,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o1-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o5_2-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 2400,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o3-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o1_2-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 480,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o1-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 960,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o3_2-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o2-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o3_2-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o3-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o1_2-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 480,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o1-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o1_2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 480,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o1-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 960,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o3_2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 1440,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o3-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "638e4a44503da0fdd642100fe15c9e5053440f8b4915922db252fa958ad7d6eb"
+    },
+    {
+      "file": "basics/five-finger-position.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k62",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k64",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o3-k65",
+          "measureIndex": 0,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k67",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k67",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k65",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k64",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o3-k62",
+          "measureIndex": 2,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1-k64",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k67",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k65",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o1-k64",
+          "measureIndex": 5,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k62",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k64",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o1-k65",
+          "measureIndex": 6,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k67",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o3-k64",
+          "measureIndex": 6,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "9768e0beb6031d4e0cead1bc1c31a54e2a10a4d8f6ade4e187321150caa5ed7e"
+    },
+    {
+      "file": "basics/half-and-whole-rests.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o3-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o1-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o3-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "3a151c8b2a2de711cbc88faed24b69ca00ee4a4902fb175e3b66c189cb019d53"
+    },
+    {
+      "file": "basics/half-notes.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o3-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o2-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o3-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o1-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o2-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "c195c601850d487c160925136ca0bccd12b8b79573bec39123c8ad1bfd7ae9eb"
+    },
+    {
+      "file": "basics/hands-take-turns.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k62",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k64",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o3-k65",
+          "measureIndex": 0,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s2-m1-v5-o0-k48",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 48
+        },
+        {
+          "id": "n-p0-s2-m1-v5-o1-k50",
+          "measureIndex": 1,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 50
+        },
+        {
+          "id": "n-p0-s2-m1-v5-o2-k52",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 52
+        },
+        {
+          "id": "n-p0-s2-m1-v5-o3-k53",
+          "measureIndex": 1,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 53
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k67",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s2-m3-v5-o0-k55",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 55
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k67",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1-k65",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k64",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o3-k62",
+          "measureIndex": 4,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s2-m5-v5-o0-k55",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 55
+        },
+        {
+          "id": "n-p0-s2-m5-v5-o1-k53",
+          "measureIndex": 5,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 53
+        },
+        {
+          "id": "n-p0-s2-m5-v5-o2-k52",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 52
+        },
+        {
+          "id": "n-p0-s2-m5-v5-o3-k50",
+          "measureIndex": 5,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 50
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s2-m7-v5-o0-k48",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 48
+        }
+      ],
+      "scheduleDigest": "ffad01ffbcffbf5f3b62ff54e84832ac90278a51c0ce9912b2486c6bc2ee364b"
+    },
+    {
+      "file": "basics/hands-together.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s2-m0-v5-o0-k48",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 48
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k62",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k64",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o3-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k64",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s2-m1-v5-o0-k48",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 48
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o1-k65",
+          "measureIndex": 1,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k67",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k67",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s2-m2-v5-o0-k55",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 55
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k65",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k64",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o3-k62",
+          "measureIndex": 2,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s2-m3-v5-o0-k48",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 48
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k64",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s2-m4-v5-o0-k48",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 48
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1-k64",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k62",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s2-m4-v5-o2-k55",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 55
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o3-k62",
+          "measureIndex": 4,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s2-m5-v5-o0-k48",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 48
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o1-k62",
+          "measureIndex": 5,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k64",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s2-m5-v5-o2-k48",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 48
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k62",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s2-m6-v5-o0-k55",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 55
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o1-k62",
+          "measureIndex": 6,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k64",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o3-k62",
+          "measureIndex": 6,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s2-m7-v5-o0-k48",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 48
+        }
+      ],
+      "scheduleDigest": "da5d7d2eeccf34932e3399ddadc5fbdbd635fb1a6f35cd7c31f9fcfab78e260f"
+    },
+    {
+      "file": "basics/legato-and-staccato.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k62",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k64",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o3-k65",
+          "measureIndex": 0,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k67",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o1-k67",
+          "measureIndex": 1,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k67",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k67",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k65",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k64",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o3-k62",
+          "measureIndex": 2,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o1-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o2-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k64",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1-k65",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k67",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k65",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o1-k64",
+          "measureIndex": 5,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k62",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k64",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o1-k62",
+          "measureIndex": 6,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o3-k62",
+          "measureIndex": 6,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "05663b853c61500ae1c483eb42dd78228fdcc68417a923143aa77bca09a31b74"
+    },
+    {
+      "file": "basics/legato.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k62",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k64",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o3-k65",
+          "measureIndex": 0,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k67",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k65",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k64",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k65",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k67",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o3-k64",
+          "measureIndex": 2,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k62",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1-k64",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k62",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o3-k65",
+          "measureIndex": 4,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k64",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k62",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k64",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o1-k62",
+          "measureIndex": 6,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o3-k62",
+          "measureIndex": 6,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "e734a09fb864101eacf3e2c6cba15145bb4b2a12b3871a56b79c250715030d4d"
+    },
+    {
+      "file": "basics/middle-c-quarter-notes.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o3-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o1-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o3-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o3-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o1-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o2-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o3-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o3-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o1-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o3-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o1-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o3-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o1-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o2-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o3-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "216cf4747bda21d254c2be3d619d507c1635ae159628562561bcf36e33eb043a"
+    },
+    {
+      "file": "basics/mixing-note-lengths.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o3-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o3-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o1-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 960,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o3-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "9445d2f0fc37b4622a917cfc60c94d7dd32f1afa12ee083c2bef1d06bc8f2d40"
+    },
+    {
+      "file": "basics/pickup.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k67",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k64",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o1-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k62",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o3-k64",
+          "measureIndex": 1,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k65",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k64",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k62",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o1-k64",
+          "measureIndex": 3,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o2-k65",
+          "measureIndex": 3,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o3-k62",
+          "measureIndex": 3,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k64",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k67",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k64",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o1-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k62",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o3-k64",
+          "measureIndex": 5,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k65",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k62",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k64",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o1-k62",
+          "measureIndex": 7,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o2-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o3-k62",
+          "measureIndex": 7,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m8-v1-o0-k60",
+          "measureIndex": 8,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "4ecd2536deef9dbc9f24f423398b58bdeac7959117fb86878b4c0edc4d252451"
+    },
+    {
+      "file": "basics/quarter-rests.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o3-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o2-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o3-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o1-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o3-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o1-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o2-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "63867d6e3cf50ccf619b03de94b40a8a4d225e1508dc4a454ad8fcd277260811"
+    },
+    {
+      "file": "basics/repeat-signs.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k62",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k64",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o3-k65",
+          "measureIndex": 0,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k67",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k64",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k65",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k62",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k64",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o3-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k62",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k64",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1-k65",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k67",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o3-k64",
+          "measureIndex": 4,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k65",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k62",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k64",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o1-k62",
+          "measureIndex": 6,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o3-k62",
+          "measureIndex": 6,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "be7776cc69c5501b678fcc1f2a436619685bb5ad4f45de5c0091da70c9a05caa"
+    },
+    {
+      "file": "basics/six-eight-time.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o3_2-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 1440,
+          "durationTicks": 1440,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o3_2-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 1440,
+          "durationTicks": 1440,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o3_2-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 1440,
+          "durationTicks": 1440,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1_2-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 480,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o3_2-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 1440,
+          "durationTicks": 1440,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o1-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 960,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o3_2-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 1440,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o5_2-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 2400,
+          "durationTicks": 480,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 1440,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o3_2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 1440,
+          "durationTicks": 1440,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 2880,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "9f3b3c03f6d842ebb7880274e85f375df573caa37efdd68432d3f763eaff1bbd"
+    },
+    {
+      "file": "basics/staccato.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k62",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k64",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o3-k65",
+          "measureIndex": 0,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k67",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k67",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k67",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k65",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k64",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o3-k62",
+          "measureIndex": 2,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k64",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1-k64",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k62",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o3-k62",
+          "measureIndex": 4,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o1-k64",
+          "measureIndex": 5,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k67",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k65",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o1-k64",
+          "measureIndex": 6,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k62",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o3-k64",
+          "measureIndex": 6,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "c26e3b99f52f3691b451c7df6b90103a06b10229122125d424480577ec0e869e"
+    },
+    {
+      "file": "basics/steps-c-d-e.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k62",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k64",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o3-k62",
+          "measureIndex": 0,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k64",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k62",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o3-k62",
+          "measureIndex": 2,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k64",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o2-k64",
+          "measureIndex": 3,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k62",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1-k62",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k64",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o3-k62",
+          "measureIndex": 4,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k64",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k64",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o1-k62",
+          "measureIndex": 6,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o3-k62",
+          "measureIndex": 6,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "49c7e4169b0000e43c7626e2c63d57cc600c84adefa003d05c8f59b03fe78d2a"
+    },
+    {
+      "file": "basics/three-four-time.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o1-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 960,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o1-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o1-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 960,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "2a5e2934de017b7478a865777d50e38781ed4be54271ad6e4ef05e455d6f6c32"
+    },
+    {
+      "file": "basics/ties-across-the-bar-line.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o3-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o1-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o3-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o1-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o2-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o3-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "be6ad3e870514d4fb9319e1334d2f187d1e3e98600e6d14fb32d1cfd8b295931"
+    },
+    {
+      "file": "basics/ties-and-slurs.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k62",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k64",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k64",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k64",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k64",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k62",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o2-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o1-k64",
+          "measureIndex": 4,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k67",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k67",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k67",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 67
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o3-k65",
+          "measureIndex": 5,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 65
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k64",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 64
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o1-k62",
+          "measureIndex": 6,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o3-k62",
+          "measureIndex": 6,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 62
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "e7b5e3d74c7ab855f7785ff583623730a6901a6b302dbd895acb10c9f089e3ba"
+    },
+    {
+      "file": "basics/ties-in-a-bar.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o1-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o3-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o2-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o3-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o3-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o1-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o2-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o3-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "df90d5a47c7e4998c6a4e6469d35b6b652e2cec6da29e603799fefa679679acf"
+    },
+    {
+      "file": "basics/whole-notes.musicxml",
+      "notes": [
+        {
+          "id": "n-p0-s1-m0-v1-o0-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m0-v1-o2-k60",
+          "measureIndex": 0,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m1-v1-o0-k60",
+          "measureIndex": 1,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o0-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o1-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m2-v1-o2-k60",
+          "measureIndex": 2,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m3-v1-o0-k60",
+          "measureIndex": 3,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o0-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 0,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m4-v1-o2-k60",
+          "measureIndex": 4,
+          "onsetInMeasure": 1920,
+          "durationTicks": 1920,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m5-v1-o0-k60",
+          "measureIndex": 5,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o0-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 0,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o1-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 960,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o2-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 1920,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m6-v1-o3-k60",
+          "measureIndex": 6,
+          "onsetInMeasure": 2880,
+          "durationTicks": 960,
+          "soundingKey": 60
+        },
+        {
+          "id": "n-p0-s1-m7-v1-o0-k60",
+          "measureIndex": 7,
+          "onsetInMeasure": 0,
+          "durationTicks": 3840,
+          "soundingKey": 60
+        }
+      ],
+      "scheduleDigest": "b4c1c17ec66a743c60a754e3860055700ef4b7f0a8f3a7a2098f7684bdd9a8a3"
+    },
+    {
       "file": "learning/key-changes/a-major-to-a-minor/beginner.musicxml",
       "notes": [
         {

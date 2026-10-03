@@ -6,13 +6,13 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 | Outcome | Items |
 |---|---|
-| verified | 170 |
+| verified | 194 |
 | verified (visual) | 3 |
 | fixed | 7 |
 | replaced | 4 |
 | relabelled | 2 |
 | removed | 1 |
-| Total | 187 |
+| Total | 211 |
 
 ## Level counts after the audit
 
@@ -26,6 +26,30 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 
 | Item | Claim | Source | Method | Checked | Differences | Outcome | Date |
 |---|---|---|---|---|---|---|---|
+| Bass clef and the left hand<br>`basics/bass-clef-left-hand` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Dotted half notes<br>`basics/dotted-half-notes` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Dotted quarter and eighth<br>`basics/dotted-quarter-and-eighth` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Eighth notes<br>`basics/eighth-notes` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Five fingers, five notes<br>`basics/five-finger-position` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Half and whole rests<br>`basics/half-and-whole-rests` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Half notes<br>`basics/half-notes` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Hands take turns<br>`basics/hands-take-turns` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Hands together<br>`basics/hands-together` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Legato: connected notes<br>`basics/legato` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Legato and staccato<br>`basics/legato-and-staccato` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Middle C and the beat<br>`basics/middle-c-quarter-notes` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Whole, half and quarter<br>`basics/mixing-note-lengths` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Starting before the bar: the pickup<br>`basics/pickup` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Quarter rests<br>`basics/quarter-rests` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Repeat signs<br>`basics/repeat-signs` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Six-eight time<br>`basics/six-eight-time` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Staccato: short notes<br>`basics/staccato` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Steps: C, D, E<br>`basics/steps-c-d-e` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Three beats in a bar<br>`basics/three-four-time` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Ties across the bar line<br>`basics/ties-across-the-bar-line` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Tie or slur?<br>`basics/ties-and-slurs` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Ties: hold, don't play again<br>`basics/ties-in-a-bar` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
+| Whole notes<br>`basics/whole-notes` | exercise | none (theory check) | theory | lesson-claims-v1 | 0 | verified | 2026-10-03 |
 | Prelude No. 1 in C major, BWV 846<br>`repertoire/advanced/bach-prelude-bwv846` | original | Bach-Gesellschaft Ausgabe vol. 14 scan (IMSLP) and Open Well-Tempered Clavier CC0<br>[Unknown](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=5) | visual (bars all)<br>mechanical (bars all) | visual comparison<br>barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | verified | 2026-09-24 |
 | l'Arabesque (25 Etudes faciles, Op. 100, No. 2)<br>`repertoire/advanced/burgmuller-op100-no2` | original | [Collection Litolff, 19th Century](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=203) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | replaced | 2026-09-24 |
 | Prelude in C minor, Op. 28 No. 20<br>`repertoire/advanced/chopin-prelude-op28-no20` | original | [Edition Peters](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=472) | mechanical (bars all) | barCount, barLengths, repeats, playedOrder, pitch, onset, duration, spelling, graceNotes | 0 | verified | 2026-09-24 |

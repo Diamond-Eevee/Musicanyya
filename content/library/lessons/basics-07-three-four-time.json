@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "basics/three-four-time",
+  "title": "Three beats in a bar",
+  "section": "basics",
+  "stepOrder": 70,
+  "level": "introduction",
+  "hands": "right",
+  "tags": ["time-signatures"],
+  "trains": "The time signature at the start says how many beats each bar holds. 3/4 means three quarter-note beats in a bar, the swing of a waltz. Count 1 2 3 and lean a little on beat 1.",
+  "scoreText": "3/4: three beats in a bar. Count 1 2 3.",
+  "metre": "3/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "introduces": ["metre-3-4"],
+    "singlePitch": true
+  },
+  "bars": [
+    {
+      "rh": "C4:q@1 C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:q C4:q",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h r:q",
+      "lh": "R:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

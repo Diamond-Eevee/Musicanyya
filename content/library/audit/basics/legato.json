@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "itemId": "basics/legato",
+  "claim": "exercise",
+  "claimText": "Legato: connected notes",
+  "checks": [
+    {
+      "method": "theory",
+      "ruleSet": "lesson-claims-v1",
+      "expectedDifferences": 0,
+      "claims": {
+        "introduces": ["slur"]
+      },
+      "teachingOrder": 190
+    }
+  ],
+  "outcome": "verified",
+  "outcomeNote": "The independent lesson check (lesson-claims-v1) reads only the file and these claims: the explanation is printed above bar 1, every notation sign it uses is introduced by this or an earlier Basics lesson, ties join equal pitches and slurs different ones; 0 differences.",
+  "checkedBy": "claude-opus-5.5",
+  "date": "2026-10-03"
+}

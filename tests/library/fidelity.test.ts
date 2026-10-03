@@ -21,12 +21,14 @@ import { loadSources } from '../../tools/library/fidelity/sources.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const sourcesRoot = path.join(root, 'content/library/sources');
+const records = loadRecords(path.join(root, 'content/library/audit'));
+// every record, as the cli gives it: lesson-claims-v1 reads the earlier Basics lessons from them (feature 022)
 const ctx: RunContext = {
   sources: loadSources(sourcesRoot),
   sourcesRoot,
   libraryRoot: path.join(root, 'public/library'),
+  records,
 };
-const records = loadRecords(path.join(root, 'content/library/audit'));
 const index = JSON.parse(readFileSync(path.join(root, 'public/library/index.json'), 'utf8')) as LibraryIndex;
 const reportPath = path.join(root, 'docs/library-audit.md');
 

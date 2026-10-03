@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "id": "basics/ties-and-slurs",
+  "title": "Tie or slur?",
+  "section": "basics",
+  "stepOrder": 180,
+  "level": "introduction",
+  "hands": "right",
+  "tags": ["ties", "articulation"],
+  "trains": "Ties and slurs are both curves. A tie joins two notes of the same pitch: play once and hold. A slur joins different notes: play every one of them, smoothly connected. The app expects every note under a slur, but only the first of a tie.",
+  "scoreText": "Tie: same note, play once. Slur: different notes, all.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "claims": {
+    "introduces": ["slur"]
+  },
+  "bars": [
+    {
+      "rh": "C4:q(@1 D4:q@2 E4:h)@3",
+      "lh": "R:w"
+    },
+    {
+      "rh": "E4:h~ E4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "E4:q( D4:q C4:h)",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:h~ C4:h",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:q( E4:q) G4:h@5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "G4:h~ G4:q F4:q@4",
+      "lh": "R:w"
+    },
+    {
+      "rh": "E4:q( D4:q C4:q D4:q)",
+      "lh": "R:w"
+    },
+    {
+      "rh": "C4:w",
+      "lh": "R:w"
+    }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}
