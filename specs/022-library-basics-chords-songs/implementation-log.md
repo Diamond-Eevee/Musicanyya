@@ -15,3 +15,11 @@
 - Problems / open questions: needs owner: OD-2 approve the 10 song sources (research R13) - blocks US3 only; OD-3
   staccato heard at half length for every Score, incl. Burgmüller Nos. 2 and 5 and both Morning Moods (recommended yes).
 - Handoff: next = /speckit:tasks; tree clean after the plan commit.
+
+## 2026-10-03 17:00 - claude-opus-5.5 (tasks)
+- Done: tasks.md - 73 tasks (Setup 2, Foundation 25, US1 12, US2 11, US3 14, US4 2, Polish 7); tiers: deep 22,
+  standard 37, light 14. Owner decision gates: T003 (OD-3 staccato, blocks T018-T021), T051 (OD-2 song sources, blocks
+  T057-T066). No RT review task: no real-time path is touched (plan).
+- Model fit: tasks is tier standard; claude-opus-5.5 fits (higher tier).
+- Problems / open questions: needs owner: OD-2, OD-3 (unchanged from the plan entry).
+- Handoff: next = /speckit:analyze, then /speckit:implement from T001; ask OD-3 at T003. Tree clean after the tasks commit.
