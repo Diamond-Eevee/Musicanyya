@@ -7,7 +7,7 @@
   "level": "beginner",
   "hands": "both",
   "tags": ["chords", "chord-changes"],
-  "trains": "The ii-V-I as three-note chords, one a bar: Dm, G, C. D stays from Dm to G and G stays from G to C; the left hand plays each root. A simpler version of the next lesson, which adds the sevenths.",
+  "trains": "The ii-V-I as three-note chords, one a bar (in C: Dm, G, C; D stays from Dm to G, G stays from G to C). The left hand plays each root. A simpler version of the next lesson, which adds the sevenths.",
   "metre": "4/4",
   "tempoBpm": 60,
   "key": {
@@ -40,7 +40,7 @@
     ]
   },
   "simplifies": "learning/chord-lessons/progressions/two-five-one-in-{key}",
-  "departures": ["Three-note chords (Dm, G, C) instead of seventh chords.", "One chord a bar, held."],
+  "departures": ["Three-note chords (ii, V, I) instead of seventh chords (ii7, V7, Imaj7).", "One chord a bar, held."],
   "transpositions": [
     {
       "slug": "c-major",

@@ -8,7 +8,7 @@
   "raisedBecause": "Seventh chords shared by both hands in the twelve-bar form: both hands change shape on every chord; the notes alone measure Beginner.",
   "hands": "both",
   "tags": ["chords", "chord-changes", "seventh-chords"],
-  "trains": "The twelve-bar blues with seventh chords, struck twice a bar: the left hand plays root and fifth, the right hand only the third and seventh. From C7 to F7 both right-hand notes fall a half step; to G7 they rise.",
+  "trains": "The twelve-bar blues with seventh chords, struck twice a bar: the left hand plays root and fifth, the right hand only the third and seventh. From I7 to IV7 both right-hand notes fall a half step; from I7 to V7 they rise one (in C: C7, F7, G7).",
   "metre": "4/4",
   "tempoBpm": 72,
   "key": {
@@ -30,7 +30,7 @@
       "tonic": "G",
       "mode": "major",
       "fifths": 1,
-      "interval": "-P4"
+      "interval": "+P5"
     }
   ],
   "bars": [

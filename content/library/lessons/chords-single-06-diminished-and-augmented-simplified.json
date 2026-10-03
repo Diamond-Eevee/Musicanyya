@@ -7,7 +7,7 @@
   "level": "beginner",
   "hands": "right",
   "tags": ["chords"],
-  "trains": "The diminished chord B° (B D F) and the augmented chord C+ (C E G♯), held two bars each in the right hand so there is time to hear their tense sound and how each settles on C. A simpler version of the next lesson.",
+  "trains": "The diminished chord B° (B D F) and the augmented chord C+ (C E G♯), held two bars each in the right hand so there is time to hear their tense sound: B° settles on C, and C+ lets its G♯ rise to A in F. A simpler version of the next lesson.",
   "metre": "4/4",
   "tempoBpm": 60,
   "key": {
@@ -18,8 +18,8 @@
   "claims": {},
   "simplifies": "learning/chord-lessons/single-chords/diminished-and-augmented",
   "departures": [
-    "Right hand only: the left-hand bass notes are left out.",
-    "Each chord is held for two bars; the F major chord is left out."
+    "Right hand only: the left-hand bass notes are left out; F major is played as F/C.",
+    "Each chord is held for two bars."
   ],
   "bars": [
     {
@@ -52,6 +52,14 @@
     },
     {
       "rh": "<C4 E4 G#4>:w",
+      "lh": "R:w"
+    },
+    {
+      "rh": "{F/C}<C4 F4 A4>:w~@1-4-5",
+      "lh": "R:w"
+    },
+    {
+      "rh": "<C4 F4 A4>:w",
       "lh": "R:w"
     },
     {

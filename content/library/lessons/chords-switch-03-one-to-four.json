@@ -7,7 +7,7 @@
   "level": "beginner",
   "hands": "both",
   "tags": ["chords", "chord-changes", "inversions"],
-  "trains": "From the home chord (I) to the chord on the fourth note (IV) with the least movement: the thumb keeps C, E moves up to F and G up to A, so IV is played as F/C. The left hand holds C under both.",
+  "trains": "From the home chord (I) to the chord on the fourth note (IV) with the least movement: the thumb keeps the keynote and the other two notes move up a step (fingers 4 and 5), so IV stands on its fifth (in C: C stays, E to F, G to A: F/C). The left hand holds the keynote.",
   "metre": "4/4",
   "tempoBpm": 60,
   "key": {

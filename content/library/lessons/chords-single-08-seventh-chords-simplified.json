@@ -7,7 +7,7 @@
   "level": "beginner",
   "hands": "both",
   "tags": ["chords", "seventh-chords"],
-  "trains": "A seventh chord has four notes, so it is shared between the hands: the left hand plays the root, the right hand the third and the seventh. The fifth is left out here, and each chord is held two bars. A simpler version of the next lesson.",
+  "trains": "A seventh chord has four notes, so it is shared between the hands: the left hand plays the root, the right hand the third and the seventh. The fifth is left out, except in Bø7, whose lowered fifth (F) the left hand adds. Each chord is held two bars. A simpler version of the next lesson.",
   "metre": "4/4",
   "tempoBpm": 60,
   "key": {
@@ -33,11 +33,6 @@
         "tones": ["5"]
       },
       {
-        "bar": 7,
-        "beat": 1,
-        "tones": ["5"]
-      },
-      {
         "bar": 9,
         "beat": 1,
         "tones": ["5"]
@@ -46,7 +41,7 @@
   },
   "simplifies": "learning/chord-lessons/single-chords/seventh-chords",
   "departures": [
-    "The fifth of every chord is left out: the right hand plays only the third and the seventh.",
+    "The fifth of every chord except Bø7 is left out: the right hand plays only the third and the seventh; for Bø7 the left hand adds the lowered fifth (F).",
     "Each chord is held for two bars."
   ],
   "bars": [
@@ -76,11 +71,11 @@
     },
     {
       "rh": "{Bø7}<D4 A4>:w~@1-5",
-      "lh": "B2:w~@5"
+      "lh": "<B2 F3>:w~@5-1"
     },
     {
       "rh": "<D4 A4>:w",
-      "lh": "B2:w"
+      "lh": "<B2 F3>:w"
     },
     {
       "rh": "{Cmaj7}<E4 B4>:w~@1-5",

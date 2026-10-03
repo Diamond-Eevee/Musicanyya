@@ -2,7 +2,7 @@
   "version": 1,
   "itemId": "learning/chord-lessons/switches/minor-to-major-step-down-in-c-major",
   "claim": "exercise",
-  "claimText": "Minor to major, a step down in C major",
+  "claimText": "ii to I in C major",
   "checks": [
     {
       "method": "theory",

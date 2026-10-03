@@ -1,13 +1,13 @@
 {
   "version": 1,
   "id": "learning/chord-lessons/switches/minor-one-to-five-in-{key}",
-  "title": "i to V in minor, {keyName}",
+  "title": "i to V in {keyName}",
   "section": "learning/chord-lessons/switches",
   "stepOrder": 50,
   "level": "beginner",
   "hands": "both",
   "tags": ["chords", "chord-changes", "inversions"],
-  "trains": "In a minor key the chord on the fifth note is major: in A minor, E major with the raised G♯. From Am the top note E stays, A falls a half step to G♯ and C to B, so V is played as E/G♯. The left hand steps from A to G♯.",
+  "trains": "In a minor key the chord on the fifth note (V) is major, with the raised seventh note of the key. From i the top note stays and the other two fall a step (fingers 1 and 2), so V stands on its third (in A minor: Am to E/G♯, E stays). The left hand falls a half step too.",
   "metre": "4/4",
   "tempoBpm": 60,
   "key": {
@@ -94,7 +94,7 @@
       "tonic": "D",
       "mode": "minor",
       "fifths": -1,
-      "interval": "-P5"
+      "interval": "+P4"
     }
   ],
   "bars": [

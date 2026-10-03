@@ -48,10 +48,12 @@ sentences and then lets the musician hear it (Listen), try it with the app waiti
 (Play).
 
 The lessons cover, in this order (one lesson or more each): the staff, middle C and the right hand; whole, half and
-quarter notes; rests of the same lengths; eighth notes; dotted notes; ties (a note held across a beat and across a
-bar line - played once, held longer); slurs and legato versus staccato (connected versus short notes); time
-signatures (4/4, 3/4, then 6/8); a pickup (upbeat); repeat signs; moving from one note to its neighbours (steps) and
-a first five-note hand position; the left hand and the bass clef; finally both hands together on single notes.
+quarter notes; rests of the same lengths; 3/4 time and the dotted half note; moving from one note to its neighbours
+(steps) and a first five-note hand position; the left hand and the bass clef; both hands, first taking turns, then
+together on single notes; eighth notes; dotted notes; ties (a note held across a beat and across a bar line - played
+once, held longer); slurs and legato versus staccato (connected versus short notes); a pickup (upbeat); repeat signs;
+finally 6/8 time. (Owner decision 2026-10-03, after the T038 music review: the hand positions come before the rhythm
+lessons, as data-model §4 orders them.)
 
 **Why this priority**: it is the missing entry point for the target user (a beginner) and needs no new source
 approval, because every lesson is written for this project. It delivers value alone.
@@ -213,7 +215,8 @@ available: yes (where) / no".
 - **FR-011**: Each note-value and rest lesson MUST use a single repeated pitch.
 - **FR-012**: Each Basics lesson MUST introduce at most one new notation idea and use no notation that no earlier
   lesson introduced.
-- **FR-013**: Each Basics lesson MUST explain its idea in plain words (one or two sentences, no unexplained jargon)
+- **FR-013**: Each Basics lesson MUST explain its idea in plain words (one or two sentences, plus how to play it and
+  what the app checks - owner decision 2026-10-03; no unexplained jargon)
   in its description, and MUST print one short line of that explanation on the score above the first bar.
 - **FR-014**: Basics lessons MUST be at the Introduction level and pass the level check for it (FR-005), which their
   tempo and pace are chosen to fit.

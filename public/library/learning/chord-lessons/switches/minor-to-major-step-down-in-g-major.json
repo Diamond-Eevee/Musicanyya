@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "title": "Minor to major, a step down in G major",
+  "title": "ii to I in G major",
   "kind": "exercise",
   "level": "beginner",
   "tags": ["chords", "chord-changes"],
-  "trains": "The minor chord on the second note of the key (Dm in C) and the home chord share no note, so the whole shape slides down one key: every finger moves a step, nothing jumps. The left hand steps from D to C.",
+  "trains": "The minor chord on the second note of the key (ii) and the home chord (I) share no note, so the whole shape moves down one step of the scale: every finger moves a step, nothing jumps (in C: Dm to C). The left hand steps down from the second note to the keynote.",
   "hands": "both",
   "provenance": {
     "origin": "authored",

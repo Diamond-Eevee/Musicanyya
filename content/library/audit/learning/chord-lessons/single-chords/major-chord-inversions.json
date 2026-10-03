@@ -2,7 +2,7 @@
   "version": 1,
   "itemId": "learning/chord-lessons/single-chords/major-chord-inversions",
   "claim": "exercise",
-  "claimText": "Major chords upside down",
+  "claimText": "Major chord inversions",
   "checks": [
     {
       "method": "theory",

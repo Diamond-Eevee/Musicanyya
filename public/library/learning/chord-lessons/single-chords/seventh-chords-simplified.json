@@ -4,7 +4,7 @@
   "kind": "exercise",
   "level": "beginner",
   "tags": ["chords", "seventh-chords"],
-  "trains": "A seventh chord has four notes, so it is shared between the hands: the left hand plays the root, the right hand the third and the seventh. The fifth is left out here, and each chord is held two bars. A simpler version of the next lesson.",
+  "trains": "A seventh chord has four notes, so it is shared between the hands: the left hand plays the root, the right hand the third and the seventh. The fifth is left out, except in Bø7, whose lowered fifth (F) the left hand adds. Each chord is held two bars. A simpler version of the next lesson.",
   "hands": "both",
   "provenance": {
     "origin": "authored",

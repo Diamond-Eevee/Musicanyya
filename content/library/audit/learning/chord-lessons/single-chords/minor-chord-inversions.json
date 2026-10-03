@@ -2,7 +2,7 @@
   "version": 1,
   "itemId": "learning/chord-lessons/single-chords/minor-chord-inversions",
   "claim": "exercise",
-  "claimText": "Minor chords upside down",
+  "claimText": "Minor chord inversions",
   "checks": [
     {
       "method": "theory",

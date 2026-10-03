@@ -7,7 +7,7 @@
   "level": "beginner",
   "hands": "both",
   "tags": ["chords", "chord-changes", "inversions"],
-  "trains": "From the home chord (I) to the chord on the fifth note (V) with the least movement: finger 5 keeps G, the thumb moves down to B and finger 3 to D, so V is played as G/B. The left hand steps from C down to B.",
+  "trains": "From the home chord (I) to the chord on the fifth note (V) with the least movement: finger 5 keeps the top note and the other two move down a step (fingers 1 and 2), so V stands on its third (in C: G stays, C to B, E to D: G/B). The left hand steps down a half step too.",
   "metre": "4/4",
   "tempoBpm": 60,
   "key": {
@@ -87,7 +87,7 @@
       "tonic": "G",
       "mode": "major",
       "fifths": 1,
-      "interval": "-P4"
+      "interval": "+P5"
     },
     {
       "slug": "f-major",

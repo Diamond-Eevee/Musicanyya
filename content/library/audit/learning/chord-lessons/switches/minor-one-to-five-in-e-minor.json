@@ -2,7 +2,7 @@
   "version": 1,
   "itemId": "learning/chord-lessons/switches/minor-one-to-five-in-e-minor",
   "claim": "exercise",
-  "claimText": "i to V in minor, E minor",
+  "claimText": "i to V in E minor",
   "checks": [
     {
       "method": "theory",

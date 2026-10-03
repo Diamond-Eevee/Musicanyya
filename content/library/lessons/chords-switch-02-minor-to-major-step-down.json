@@ -1,13 +1,13 @@
 {
   "version": 1,
   "id": "learning/chord-lessons/switches/minor-to-major-step-down-in-{key}",
-  "title": "Minor to major, a step down in {keyName}",
+  "title": "ii to I in {keyName}",
   "section": "learning/chord-lessons/switches",
   "stepOrder": 20,
   "level": "beginner",
   "hands": "both",
   "tags": ["chords", "chord-changes"],
-  "trains": "The minor chord on the second note of the key (Dm in C) and the home chord share no note, so the whole shape slides down one key: every finger moves a step, nothing jumps. The left hand steps from D to C.",
+  "trains": "The minor chord on the second note of the key (ii) and the home chord (I) share no note, so the whole shape moves down one step of the scale: every finger moves a step, nothing jumps (in C: Dm to C). The left hand steps down from the second note to the keynote.",
   "metre": "4/4",
   "tempoBpm": 60,
   "key": {
@@ -36,7 +36,7 @@
       "tonic": "G",
       "mode": "major",
       "fifths": 1,
-      "interval": "-P4"
+      "interval": "+P5"
     }
   ],
   "bars": [

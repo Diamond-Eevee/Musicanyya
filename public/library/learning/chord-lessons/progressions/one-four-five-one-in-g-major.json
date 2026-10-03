@@ -4,7 +4,7 @@
   "kind": "exercise",
   "level": "beginner",
   "tags": ["chords", "chord-changes", "inversions"],
-  "trains": "The three main chords of a key in the order many songs use: I, IV, V, I. The thumb keeps C from I to IV, finger 5 keeps G from V back to I; from IV to V every finger moves a step. The left hand plays C, C, B, C.",
+  "trains": "The three main chords of a key, in the order many songs use: I, IV, V, I. The thumb keeps the keynote from I to IV and finger 5 keeps the fifth from V to I; from IV to V the outer notes step down and the middle one drops a third (in C: F to D). The left hand dips a half step for V.",
   "hands": "both",
   "provenance": {
     "origin": "authored",

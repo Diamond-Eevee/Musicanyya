@@ -2,7 +2,7 @@
   "version": 1,
   "itemId": "learning/chord-lessons/switches/minor-to-major-step-down-in-g-major",
   "claim": "exercise",
-  "claimText": "Minor to major, a step down in G major",
+  "claimText": "ii to I in G major",
   "checks": [
     {
       "method": "theory",

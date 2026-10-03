@@ -133,23 +133,23 @@ Beginner; split sevenths: Beginner if the right-hand span <= 9, else Intermediat
 |---|---|---|---|
 | `major-triads` | Major chords | C, F, G (right hand, then left) | beginner |
 | `minor-triads` | Minor chords | Am, Dm, Em | beginner |
-| `major-chord-inversions` | Major chords upside down | C, C/E, C/G; F, F/A, F/C | beginner |
-| `minor-chord-inversions` | Minor chords upside down | Am, Am/C, Am/E | beginner |
+| `major-chord-inversions` | Major chord inversions | C, C/E, C/G; F, F/A, F/C | beginner |
+| `minor-chord-inversions` | Minor chord inversions | Am, Am/C, Am/E | beginner |
 | `diminished-and-augmented` | Diminished and augmented | B°, C+, then back to C | intermediate |
 | `diminished-and-augmented-simplified` | Diminished and augmented (simplified) | B°, C+ held two bars each, right hand only | beginner |
 | `suspended-chords` | Suspended chords | Csus2 -> C, Csus4 -> C | beginner |
 | `seventh-chords` | Seventh chords | Cmaj7, C7, Cm7, Bø7 (split, R5) | intermediate |
-| `seventh-chords-simplified` | Seventh chords (simplified) | same, held two bars, fifth left out | beginner |
+| `seventh-chords-simplified` | Seventh chords (simplified) | same, held two bars, fifth left out (Bø7 keeps its lowered fifth, in the left hand) | beginner |
 
 **Chord switches** (`learning/chord-lessons/switches/`)
 
 | id | Title | Switch | Keys | Level |
 |---|---|---|---|---|
 | `major-to-minor-in-{key}` [T] | Major to minor | C -> Cm (one finger moves) | C, G, D | beginner |
-| `minor-to-major-step-down-in-{key}` [T] | Minor to major, a step down | Dm -> C | C, F, G | beginner |
+| `minor-to-major-step-down-in-{key}` [T] | ii to I | Dm -> C | C, F, G | beginner |
 | `one-to-four-in-{key}` [T] | I to IV | C -> F/C (common tone C) | C, G, F | beginner |
 | `one-to-five-in-{key}` [T] | I to V | C -> G/B (common tone G) | C, G, F | beginner |
-| `minor-one-to-five-in-{key}` [T] | i to V in minor | Am -> E/G♯ | A minor, E minor, D minor | beginner |
+| `minor-one-to-five-in-{key}` [T] | i to V | Am -> E/G♯ | A minor, E minor, D minor | beginner |
 
 **Progressions** (`learning/chord-lessons/progressions/`)
 
@@ -163,7 +163,9 @@ Beginner; split sevenths: Beginner if the right-hand span <= 9, else Intermediat
 | `twelve-bar-blues-in-{key}` [T] | Twelve-bar blues | I7-IV7-V7, left hand root-fifth, right hand shells, two strikes per bar | C, G | intermediate |
 | `twelve-bar-blues-simplified-in-{key}` [T] | Twelve-bar blues (simplified) | I-IV-V triads held a whole bar | C, G | beginner |
 
-That is 9 + 5 families + 7 families = 21 definitions, 44 items (9 + 15 + 20). A simplified lesson sets `simplifies` to the full
+Titles of transposed items add the key ("I to IV in G major"; a simplified one ends " (simplified)"). G major items are
+written a fifth up and D minor a fourth up from the C/A minor written key, to keep both staves near the staff (T049
+music review). That is 9 + 5 families + 7 families = 21 definitions, 44 items (9 + 15 + 20). A simplified lesson sets `simplifies` to the full
 lesson of the same key.
 
 ## 6. Songs (spec FR-030 - FR-035)

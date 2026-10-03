@@ -4,7 +4,7 @@
   "kind": "exercise",
   "level": "beginner",
   "tags": ["chords", "chord-changes"],
-  "trains": "The twelve-bar blues with three-note chords held a whole bar: four bars of I, two of IV, two of I, then V, IV, I, I. Count the bars: the form is what to learn. A simpler version of the next lesson, which uses sevenths.",
+  "trains": "The twelve-bar blues with three-note chords held a whole bar: four bars of I, two of IV, two of I, then V, IV, I, I. The thumb keeps the keynote from I to IV and back; finger 5 keeps the fifth from I to V. Count the bars. A simpler version of the next lesson.",
   "hands": "both",
   "provenance": {
     "origin": "authored",

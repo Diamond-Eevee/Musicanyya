@@ -13,42 +13,42 @@
           {
             "bar": 1,
             "beat": 3,
-            "pitch": "D4"
+            "pitch": "D5"
           },
           {
             "bar": 2,
             "beat": 1,
-            "pitch": "D4"
+            "pitch": "D5"
           },
           {
             "bar": 3,
             "beat": 3,
-            "pitch": "D4"
+            "pitch": "D5"
           },
           {
             "bar": 4,
             "beat": 1,
-            "pitch": "D4"
+            "pitch": "D5"
           },
           {
             "bar": 5,
             "beat": 1,
-            "pitch": "D4"
+            "pitch": "D5"
           },
           {
             "bar": 6,
             "beat": 1,
-            "pitch": "D4"
+            "pitch": "D5"
           },
           {
             "bar": 7,
             "beat": 3,
-            "pitch": "D4"
+            "pitch": "D5"
           },
           {
             "bar": 8,
             "beat": 1,
-            "pitch": "D4"
+            "pitch": "D5"
           }
         ]
       }

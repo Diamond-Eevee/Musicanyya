@@ -254,9 +254,9 @@ waits for each whole chord; a wrong note in a chord is marked wrong pitch.
   check passing.
 - [x] T048 [US2] [standard] Write the 44 audit records under `content/library/audit/learning/chord-lessons/`
   (`theory` / `chord-lessons-v1`, `expectedDifferences: 0`); run `pnpm library:fidelity`; 0 differences.
-- [ ] T049 [US2] Music review of all chord lessons with the `music-domain-expert` sub-agent (spelling, voice leading,
+- [x] T049 [US2] Music review of all chord lessons with the `music-domain-expert` sub-agent (spelling, voice leading,
   common tones, comfortable reach, symbol style, simplified versions really simpler); fix, regenerate, summarise in log.
-- [ ] T050 [US2] [standard] Screenshot one item per definition (21) and look at each: symbols above staff 1, readable,
+- [x] T050 [US2] [standard] Screenshot one item per definition (21) and look at each: symbols above staff 1, readable,
   not colliding; fix where needed; list in the log.
 
 **Checkpoint (US2)**: T040-T042 green; T029 green for chord items; quickstart US2 verified; checkpoint gate plus

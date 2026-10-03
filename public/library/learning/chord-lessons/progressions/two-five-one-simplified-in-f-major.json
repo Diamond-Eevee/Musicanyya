@@ -4,7 +4,7 @@
   "kind": "exercise",
   "level": "beginner",
   "tags": ["chords", "chord-changes"],
-  "trains": "The ii-V-I as three-note chords, one a bar: Dm, G, C. D stays from Dm to G and G stays from G to C; the left hand plays each root. A simpler version of the next lesson, which adds the sevenths.",
+  "trains": "The ii-V-I as three-note chords, one a bar (in C: Dm, G, C; D stays from Dm to G, G stays from G to C). The left hand plays each root. A simpler version of the next lesson, which adds the sevenths.",
   "hands": "both",
   "provenance": {
     "origin": "authored",

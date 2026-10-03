@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-03T11:23:05.414Z",
+  "generated": "2026-10-03T11:44:33.588Z",
   "sections": [
     {
       "id": "basics",
@@ -2434,7 +2434,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "Home, tension and home: I, V, I. Finger 5 keeps G while the thumb drops to B and finger 3 to D, then both come back. The left hand steps C, B, C.",
+        "trains": "Home, tension and home: I, V, I. Finger 5 keeps the fifth note of the key while the other two drop a step (fingers 1 and 2) and come back (in C: G stays, C to B, E to D). The left hand steps down a half step and back.",
         "hands": "both",
         "stepOrder": 20
       },
@@ -2518,7 +2518,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "Home, tension and home: I, V, I. Finger 5 keeps G while the thumb drops to B and finger 3 to D, then both come back. The left hand steps C, B, C.",
+        "trains": "Home, tension and home: I, V, I. Finger 5 keeps the fifth note of the key while the other two drop a step (fingers 1 and 2) and come back (in C: G stays, C to B, E to D). The left hand steps down a half step and back.",
         "hands": "both",
         "stepOrder": 22
       },
@@ -2582,7 +2582,7 @@
       "section": "learning/chord-lessons/progressions",
       "file": "learning/chord-lessons/progressions/one-five-one-in-g-major.musicxml",
       "bytes": 12067,
-      "hash": "665ae3e4d62dfa92ff291f9c2782625c0446bd5dadb34d171f84a7458c2ef9ff",
+      "hash": "b6993f037e31e9ab3a7c678ccc8105d9fb2857591ac20b909f6971fa709b66c9",
       "meta": {
         "version": 1,
         "title": "I-V-I in G major",
@@ -2602,7 +2602,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "Home, tension and home: I, V, I. Finger 5 keeps G while the thumb drops to B and finger 3 to D, then both come back. The left hand steps C, B, C.",
+        "trains": "Home, tension and home: I, V, I. Finger 5 keeps the fifth note of the key while the other two drop a step (fingers 1 and 2) and come back (in C: G stays, C to B, E to D). The left hand steps down a half step and back.",
         "hands": "both",
         "stepOrder": 21
       },
@@ -2618,8 +2618,8 @@
         ],
         "tempoBpm": 60,
         "tempoDefaulted": false,
-        "lowestMidi": 42,
-        "highestMidi": 62,
+        "lowestMidi": 54,
+        "highestMidi": 74,
         "maxSpanSemitones": 8,
         "staves": 2,
         "voicesPerStaff": 1,
@@ -2686,7 +2686,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The three main chords of a key in the order many songs use: I, IV, V, I. The thumb keeps C from I to IV, finger 5 keeps G from V back to I; from IV to V every finger moves a step. The left hand plays C, C, B, C.",
+        "trains": "The three main chords of a key, in the order many songs use: I, IV, V, I. The thumb keeps the keynote from I to IV and finger 5 keeps the fifth from V to I; from IV to V the outer notes step down and the middle one drops a third (in C: F to D). The left hand dips a half step for V.",
         "hands": "both",
         "stepOrder": 30
       },
@@ -2770,7 +2770,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The three main chords of a key in the order many songs use: I, IV, V, I. The thumb keeps C from I to IV, finger 5 keeps G from V back to I; from IV to V every finger moves a step. The left hand plays C, C, B, C.",
+        "trains": "The three main chords of a key, in the order many songs use: I, IV, V, I. The thumb keeps the keynote from I to IV and finger 5 keeps the fifth from V to I; from IV to V the outer notes step down and the middle one drops a third (in C: F to D). The left hand dips a half step for V.",
         "hands": "both",
         "stepOrder": 33
       },
@@ -2854,7 +2854,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The three main chords of a key in the order many songs use: I, IV, V, I. The thumb keeps C from I to IV, finger 5 keeps G from V back to I; from IV to V every finger moves a step. The left hand plays C, C, B, C.",
+        "trains": "The three main chords of a key, in the order many songs use: I, IV, V, I. The thumb keeps the keynote from I to IV and finger 5 keeps the fifth from V to I; from IV to V the outer notes step down and the middle one drops a third (in C: F to D). The left hand dips a half step for V.",
         "hands": "both",
         "stepOrder": 32
       },
@@ -2918,7 +2918,7 @@
       "section": "learning/chord-lessons/progressions",
       "file": "learning/chord-lessons/progressions/one-four-five-one-in-g-major.musicxml",
       "bytes": 13489,
-      "hash": "1160aedf754ebd7ac9e1e404ec5b3d9ad2bdf3eea74eddee04feb906107cc462",
+      "hash": "9ce99acc062ec0526cc48709c02ffd772bcb2bbf2b7c8e58a63bc757649b3e0c",
       "meta": {
         "version": 1,
         "title": "I-IV-V-I in G major",
@@ -2938,7 +2938,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The three main chords of a key in the order many songs use: I, IV, V, I. The thumb keeps C from I to IV, finger 5 keeps G from V back to I; from IV to V every finger moves a step. The left hand plays C, C, B, C.",
+        "trains": "The three main chords of a key, in the order many songs use: I, IV, V, I. The thumb keeps the keynote from I to IV and finger 5 keeps the fifth from V to I; from IV to V the outer notes step down and the middle one drops a third (in C: F to D). The left hand dips a half step for V.",
         "hands": "both",
         "stepOrder": 31
       },
@@ -2954,8 +2954,8 @@
         ],
         "tempoBpm": 60,
         "tempoDefaulted": false,
-        "lowestMidi": 42,
-        "highestMidi": 64,
+        "lowestMidi": 54,
+        "highestMidi": 76,
         "maxSpanSemitones": 9,
         "staves": 2,
         "voicesPerStaff": 1,
@@ -3022,7 +3022,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "Home, away and home: I, IV, I. The thumb keeps C all the way while fingers move up a step to F and A and back. The left hand holds the root of the key under every chord.",
+        "trains": "Home, away and home: I, IV, I. The thumb keeps the keynote all the way while the other two notes move up a step and back (in C: C stays, E to F, G to A). The left hand holds the keynote under every chord.",
         "hands": "both",
         "stepOrder": 10
       },
@@ -3106,7 +3106,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "Home, away and home: I, IV, I. The thumb keeps C all the way while fingers move up a step to F and A and back. The left hand holds the root of the key under every chord.",
+        "trains": "Home, away and home: I, IV, I. The thumb keeps the keynote all the way while the other two notes move up a step and back (in C: C stays, E to F, G to A). The left hand holds the keynote under every chord.",
         "hands": "both",
         "stepOrder": 12
       },
@@ -3190,7 +3190,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "Home, away and home: I, IV, I. The thumb keeps C all the way while fingers move up a step to F and A and back. The left hand holds the root of the key under every chord.",
+        "trains": "Home, away and home: I, IV, I. The thumb keeps the keynote all the way while the other two notes move up a step and back (in C: C stays, E to F, G to A). The left hand holds the keynote under every chord.",
         "hands": "both",
         "stepOrder": 11
       },
@@ -3274,7 +3274,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The twelve-bar blues with seventh chords, struck twice a bar: the left hand plays root and fifth, the right hand only the third and seventh. From C7 to F7 both right-hand notes fall a half step; to G7 they rise.",
+        "trains": "The twelve-bar blues with seventh chords, struck twice a bar: the left hand plays root and fifth, the right hand only the third and seventh. From I7 to IV7 both right-hand notes fall a half step; from I7 to V7 they rise one (in C: C7, F7, G7).",
         "hands": "both",
         "raisedBecause": "Seventh chords shared by both hands in the twelve-bar form: both hands change shape on every chord; the notes alone measure Beginner.",
         "stepOrder": 70
@@ -3339,7 +3339,7 @@
       "section": "learning/chord-lessons/progressions",
       "file": "learning/chord-lessons/progressions/twelve-bar-blues-in-g-major.musicxml",
       "bytes": 23594,
-      "hash": "6b2bd147c208931a91185d4e296b403a05b17743563f1dfe41b9aaa55937f6fc",
+      "hash": "bea16b48f4a1b21146b30a535a28b80d7f6435d78c8bf35cf61dec721a764eec",
       "meta": {
         "version": 1,
         "title": "Twelve-bar blues in G major",
@@ -3359,7 +3359,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The twelve-bar blues with seventh chords, struck twice a bar: the left hand plays root and fifth, the right hand only the third and seventh. From C7 to F7 both right-hand notes fall a half step; to G7 they rise.",
+        "trains": "The twelve-bar blues with seventh chords, struck twice a bar: the left hand plays root and fifth, the right hand only the third and seventh. From I7 to IV7 both right-hand notes fall a half step; from I7 to V7 they rise one (in C: C7, F7, G7).",
         "hands": "both",
         "raisedBecause": "Seventh chords shared by both hands in the twelve-bar form: both hands change shape on every chord; the notes alone measure Beginner.",
         "stepOrder": 71
@@ -3376,8 +3376,8 @@
         ],
         "tempoBpm": 72,
         "tempoDefaulted": false,
-        "lowestMidi": 36,
-        "highestMidi": 66,
+        "lowestMidi": 48,
+        "highestMidi": 78,
         "maxSpanSemitones": 7,
         "staves": 2,
         "voicesPerStaff": 1,
@@ -3443,7 +3443,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The twelve-bar blues with three-note chords held a whole bar: four bars of I, two of IV, two of I, then V, IV, I, I. Count the bars: the form is what to learn. A simpler version of the next lesson, which uses sevenths.",
+        "trains": "The twelve-bar blues with three-note chords held a whole bar: four bars of I, two of IV, two of I, then V, IV, I, I. The thumb keeps the keynote from I to IV and back; finger 5 keeps the fifth from I to V. Count the bars. A simpler version of the next lesson.",
         "hands": "both",
         "stepOrder": 60
       },
@@ -3507,7 +3507,7 @@
       "section": "learning/chord-lessons/progressions",
       "file": "learning/chord-lessons/progressions/twelve-bar-blues-simplified-in-g-major.musicxml",
       "bytes": 13200,
-      "hash": "24107a449988fba6139a4f89e97455b9d48979f2bf438fce12dbaba414e89bde",
+      "hash": "b2a0963a8d419689dd53c7faeffd8958ebf683c051808cd6c5e0a08bd2d525fe",
       "meta": {
         "version": 1,
         "title": "Twelve-bar blues in G major (simplified)",
@@ -3526,7 +3526,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The twelve-bar blues with three-note chords held a whole bar: four bars of I, two of IV, two of I, then V, IV, I, I. Count the bars: the form is what to learn. A simpler version of the next lesson, which uses sevenths.",
+        "trains": "The twelve-bar blues with three-note chords held a whole bar: four bars of I, two of IV, two of I, then V, IV, I, I. The thumb keeps the keynote from I to IV and back; finger 5 keeps the fifth from I to V. Count the bars. A simpler version of the next lesson.",
         "hands": "both",
         "stepOrder": 61
       },
@@ -3542,8 +3542,8 @@
         ],
         "tempoBpm": 60,
         "tempoDefaulted": false,
-        "lowestMidi": 36,
-        "highestMidi": 64,
+        "lowestMidi": 48,
+        "highestMidi": 76,
         "maxSpanSemitones": 9,
         "staves": 2,
         "voicesPerStaff": 1,
@@ -3610,9 +3610,9 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The jazz cadence ii7-V7-Imaj7, split between the hands: the left hand plays the roots D, G, C, the right hand F A C, then F G B (F stays), then E G B (G and B stay). The fifth of G7 is left out.",
+        "trains": "The jazz cadence ii7-V7-Imaj7, split between the hands: the left hand plays the roots, the right hand three notes that move one or two at a time (in C: F A C, F G B, E G B; F stays, then G and B stay). The fifth of V7 is left out.",
         "hands": "both",
-        "raisedBecause": "Seventh chords split between the hands, a left-hand root that leaps a fifth on every change, and the G7 voiced without its fifth; the notes alone measure Beginner.",
+        "raisedBecause": "Seventh chords split between the hands, a left-hand root that leaps a fifth down, then a fourth up, and the G7 voiced without its fifth; the notes alone measure Beginner.",
         "stepOrder": 52
       },
       "facts": {
@@ -3695,9 +3695,9 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The jazz cadence ii7-V7-Imaj7, split between the hands: the left hand plays the roots D, G, C, the right hand F A C, then F G B (F stays), then E G B (G and B stay). The fifth of G7 is left out.",
+        "trains": "The jazz cadence ii7-V7-Imaj7, split between the hands: the left hand plays the roots, the right hand three notes that move one or two at a time (in C: F A C, F G B, E G B; F stays, then G and B stay). The fifth of V7 is left out.",
         "hands": "both",
-        "raisedBecause": "Seventh chords split between the hands, a left-hand root that leaps a fifth on every change, and the G7 voiced without its fifth; the notes alone measure Beginner.",
+        "raisedBecause": "Seventh chords split between the hands, a left-hand root that leaps a fifth down, then a fourth up, and the G7 voiced without its fifth; the notes alone measure Beginner.",
         "stepOrder": 50
       },
       "facts": {
@@ -3780,9 +3780,9 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The jazz cadence ii7-V7-Imaj7, split between the hands: the left hand plays the roots D, G, C, the right hand F A C, then F G B (F stays), then E G B (G and B stay). The fifth of G7 is left out.",
+        "trains": "The jazz cadence ii7-V7-Imaj7, split between the hands: the left hand plays the roots, the right hand three notes that move one or two at a time (in C: F A C, F G B, E G B; F stays, then G and B stay). The fifth of V7 is left out.",
         "hands": "both",
-        "raisedBecause": "Seventh chords split between the hands, a left-hand root that leaps a fifth on every change, and the G7 voiced without its fifth; the notes alone measure Beginner.",
+        "raisedBecause": "Seventh chords split between the hands, a left-hand root that leaps a fifth down, then a fourth up, and the G7 voiced without its fifth; the notes alone measure Beginner.",
         "stepOrder": 51
       },
       "facts": {
@@ -3864,7 +3864,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The ii-V-I as three-note chords, one a bar: Dm, G, C. D stays from Dm to G and G stays from G to C; the left hand plays each root. A simpler version of the next lesson, which adds the sevenths.",
+        "trains": "The ii-V-I as three-note chords, one a bar (in C: Dm, G, C; D stays from Dm to G, G stays from G to C). The left hand plays each root. A simpler version of the next lesson, which adds the sevenths.",
         "hands": "both",
         "stepOrder": 42
       },
@@ -3947,7 +3947,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The ii-V-I as three-note chords, one a bar: Dm, G, C. D stays from Dm to G and G stays from G to C; the left hand plays each root. A simpler version of the next lesson, which adds the sevenths.",
+        "trains": "The ii-V-I as three-note chords, one a bar (in C: Dm, G, C; D stays from Dm to G, G stays from G to C). The left hand plays each root. A simpler version of the next lesson, which adds the sevenths.",
         "hands": "both",
         "stepOrder": 40
       },
@@ -4030,7 +4030,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The ii-V-I as three-note chords, one a bar: Dm, G, C. D stays from Dm to G and G stays from G to C; the left hand plays each root. A simpler version of the next lesson, which adds the sevenths.",
+        "trains": "The ii-V-I as three-note chords, one a bar (in C: Dm, G, C; D stays from Dm to G, G stays from G to C). The left hand plays each root. A simpler version of the next lesson, which adds the sevenths.",
         "hands": "both",
         "stepOrder": 41
       },
@@ -4094,7 +4094,7 @@
       "section": "learning/chord-lessons/single-chords",
       "file": "learning/chord-lessons/single-chords/diminished-and-augmented.musicxml",
       "bytes": 9279,
-      "hash": "39a799cebbdbff74bf9e71eaa35034c969b36ca6bc966af51d463782a63a5f21",
+      "hash": "9cf07788ce4e689e6bfcac99f33894a4f08e35592b35940d8aef75c54d10f926",
       "meta": {
         "version": 1,
         "title": "Diminished and augmented",
@@ -4114,7 +4114,7 @@
         "reviewedOn": "2026-10-03",
         "trains": "B° (diminished: two minor thirds, B D F) leans into C; C+ (augmented: two major thirds, C E G♯) pushes its G♯ up to A in F. Every finger moves a step at most; the left hand plays the bass.",
         "hands": "both",
-        "raisedBecause": "Diminished and augmented chords sound tense, need a sharp outside the key and new hand shapes, and come after major and minor chords are secure; the notes alone measure Beginner.",
+        "raisedBecause": "Diminished and augmented chords bring tense sounds and new hand shapes, and come after major and minor chords are secure; the notes alone measure Beginner.",
         "stepOrder": 70
       },
       "facts": {
@@ -4130,7 +4130,7 @@
         "tempoBpm": 60,
         "tempoDefaulted": false,
         "lowestMidi": 41,
-        "highestMidi": 69,
+        "highestMidi": 72,
         "maxSpanSemitones": 9,
         "staves": 2,
         "voicesPerStaff": 1,
@@ -4176,8 +4176,8 @@
       "id": "learning/chord-lessons/single-chords/diminished-and-augmented-simplified",
       "section": "learning/chord-lessons/single-chords",
       "file": "learning/chord-lessons/single-chords/diminished-and-augmented-simplified.musicxml",
-      "bytes": 10918,
-      "hash": "eda5e7c03f1c596b07c52c0beba9914c0c0417976aec82042a3e4fb173375572",
+      "bytes": 12828,
+      "hash": "3f720aa397e78da90f5ec5894588bfe0a1d682b18113bb6b4c3112e19d1ac9ba",
       "meta": {
         "version": 1,
         "title": "Diminished and augmented (simplified)",
@@ -4195,14 +4195,14 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The diminished chord B° (B D F) and the augmented chord C+ (C E G♯), held two bars each in the right hand so there is time to hear their tense sound and how each settles on C. A simpler version of the next lesson.",
+        "trains": "The diminished chord B° (B D F) and the augmented chord C+ (C E G♯), held two bars each in the right hand so there is time to hear their tense sound: B° settles on C, and C+ lets its G♯ rise to A in F. A simpler version of the next lesson.",
         "hands": "right",
         "stepOrder": 60
       },
       "facts": {
-        "measures": 10,
-        "notes": 30,
-        "durationSeconds": 40,
+        "measures": 12,
+        "notes": 36,
+        "durationSeconds": 48,
         "keys": [
           "C major"
         ],
@@ -4212,8 +4212,8 @@
         "tempoBpm": 60,
         "tempoDefaulted": false,
         "lowestMidi": 59,
-        "highestMidi": 68,
-        "maxSpanSemitones": 8,
+        "highestMidi": 69,
+        "maxSpanSemitones": 9,
         "staves": 2,
         "voicesPerStaff": 1,
         "handIndependenceFraction": 0,
@@ -4233,10 +4233,10 @@
         "tempoChanges": 0,
         "maxLeapSemitones": 2,
         "longestRunAtShortestValue": 0,
-        "attackCount": 10,
+        "attackCount": 12,
         "peakNotesPerSecond": 0.5,
-        "accidentalMarkCount": 2,
-        "minorScaleAccidentalCount": 2,
+        "accidentalMarkCount": 1,
+        "minorScaleAccidentalCount": 1,
         "maxTieChainNotes": 2,
         "maxTieBarlinesCrossed": 1,
         "hasNonSimpleTuplet": false,
@@ -4258,11 +4258,11 @@
       "id": "learning/chord-lessons/single-chords/major-chord-inversions",
       "section": "learning/chord-lessons/single-chords",
       "file": "learning/chord-lessons/single-chords/major-chord-inversions.musicxml",
-      "bytes": 13657,
-      "hash": "1ea9bd813cb8a21f7f23528772b4398bb86c21db0410b05e8f416c34fa2e819e",
+      "bytes": 13655,
+      "hash": "64115b41660f1a448cabf761bc6ffda8ee639323a7383f62d912a95cd19efee7",
       "meta": {
         "version": 1,
-        "title": "Major chords upside down",
+        "title": "Major chord inversions",
         "kind": "exercise",
         "level": "beginner",
         "tags": [
@@ -4423,11 +4423,11 @@
       "id": "learning/chord-lessons/single-chords/minor-chord-inversions",
       "section": "learning/chord-lessons/single-chords",
       "file": "learning/chord-lessons/single-chords/minor-chord-inversions.musicxml",
-      "bytes": 12037,
-      "hash": "5368dd327aa9a94e1e382faadb6ae1145730922e6dceac588adf8f71389a19fa",
+      "bytes": 12035,
+      "hash": "101a85e1cac645ef9df632d20fb499e6eb101b0f08e0cbcaaaf9ab12a90ca868",
       "meta": {
         "version": 1,
-        "title": "Minor chords upside down",
+        "title": "Minor chord inversions",
         "kind": "exercise",
         "level": "beginner",
         "tags": [
@@ -4525,7 +4525,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "A minor chord has its middle note one half step lower than the major chord: A C E, D F A, E G B. It sounds darker. Play the three keys together, 1-3-5 in the right hand, then 5-3-1 in the left. \"m\" after a letter means minor.",
+        "trains": "A minor chord has its middle note one half step lower than in the major chord on the same root: A C E, D F A, E G B. It sounds darker. Play the three keys together, 1-3-5 in the right hand, then 5-3-1 in the left. \"m\" after a letter means minor.",
         "hands": "both",
         "stepOrder": 20
       },
@@ -4672,8 +4672,8 @@
       "id": "learning/chord-lessons/single-chords/seventh-chords-simplified",
       "section": "learning/chord-lessons/single-chords",
       "file": "learning/chord-lessons/single-chords/seventh-chords-simplified.musicxml",
-      "bytes": 9864,
-      "hash": "e947dbb32fcee2fb2d11892d5afbc816faafdedc071a451855c84918707be308",
+      "bytes": 10362,
+      "hash": "75c684dd984840ee57819a1cd4cb64c101bdb83b717fe33c52d96aed03885dc2",
       "meta": {
         "version": 1,
         "title": "Seventh chords (simplified)",
@@ -4692,13 +4692,13 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "A seventh chord has four notes, so it is shared between the hands: the left hand plays the root, the right hand the third and the seventh. The fifth is left out here, and each chord is held two bars. A simpler version of the next lesson.",
+        "trains": "A seventh chord has four notes, so it is shared between the hands: the left hand plays the root, the right hand the third and the seventh. The fifth is left out, except in Bø7, whose lowered fifth (F) the left hand adds. Each chord is held two bars. A simpler version of the next lesson.",
         "hands": "both",
         "stepOrder": 80
       },
       "facts": {
         "measures": 10,
-        "notes": 30,
+        "notes": 32,
         "durationSeconds": 40,
         "keys": [
           "C major"
@@ -4714,9 +4714,9 @@
         "staves": 2,
         "voicesPerStaff": 1,
         "handIndependenceFraction": 0,
-        "chordChangesPerBar": 0.5,
+        "chordChangesPerBar": 0.6,
         "shortestDivision": 1,
-        "notesPerBeat": 0.75,
+        "notesPerBeat": 0.8,
         "accidentals": 0,
         "hasTies": true,
         "hasTuplets": false,
@@ -4728,7 +4728,7 @@
         "notices": [],
         "parts": 1,
         "tempoChanges": 0,
-        "maxLeapSemitones": 2,
+        "maxLeapSemitones": 5,
         "longestRunAtShortestValue": 0,
         "attackCount": 20,
         "peakNotesPerSecond": 1,
@@ -4774,7 +4774,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "In a suspended chord the middle note moves to a neighbour: Csus4 has F instead of E, Csus2 has D. It sounds open and wants to return; play it and let it fall or rise back to the major chord while the bass holds C.",
+        "trains": "In a suspended chord the middle note moves to a neighbour: Csus4 has F instead of E, Csus2 has D. It sounds open and wants to return; play it and let it fall or rise back to the major chord while the bass holds the root.",
         "hands": "both",
         "stepOrder": 50
       },
@@ -4857,7 +4857,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "From a major chord to the minor chord on the same root only the middle note moves, down a half step: finger 3 moves, the root and the fifth stay down. The left hand holds the root.",
+        "trains": "From a major chord to the minor chord on the same root only the middle note moves, down a half step, with finger 3; the root and the fifth stay on their keys and are struck again. The left hand holds the root.",
         "hands": "both",
         "stepOrder": 10
       },
@@ -4940,7 +4940,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "From a major chord to the minor chord on the same root only the middle note moves, down a half step: finger 3 moves, the root and the fifth stay down. The left hand holds the root.",
+        "trains": "From a major chord to the minor chord on the same root only the middle note moves, down a half step, with finger 3; the root and the fifth stay on their keys and are struck again. The left hand holds the root.",
         "hands": "both",
         "stepOrder": 12
       },
@@ -5023,7 +5023,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "From a major chord to the minor chord on the same root only the middle note moves, down a half step: finger 3 moves, the root and the fifth stay down. The left hand holds the root.",
+        "trains": "From a major chord to the minor chord on the same root only the middle note moves, down a half step, with finger 3; the root and the fifth stay on their keys and are struck again. The left hand holds the root.",
         "hands": "both",
         "stepOrder": 11
       },
@@ -5086,11 +5086,11 @@
       "id": "learning/chord-lessons/switches/minor-one-to-five-in-a-minor",
       "section": "learning/chord-lessons/switches",
       "file": "learning/chord-lessons/switches/minor-one-to-five-in-a-minor.musicxml",
-      "bytes": 13441,
-      "hash": "b87633dd0fab2aa3526061d522baf54b917cff5581561517e7055c5f6482e2ac",
+      "bytes": 13434,
+      "hash": "9fe6eab740956b6ec1839e3bf9a0f79c4708d6289034bd7ff1236865df5da78a",
       "meta": {
         "version": 1,
-        "title": "i to V in minor, A minor",
+        "title": "i to V in A minor",
         "kind": "exercise",
         "level": "beginner",
         "tags": [
@@ -5107,7 +5107,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "In a minor key the chord on the fifth note is major: in A minor, E major with the raised G♯. From Am the top note E stays, A falls a half step to G♯ and C to B, so V is played as E/G♯. The left hand steps from A to G♯.",
+        "trains": "In a minor key the chord on the fifth note (V) is major, with the raised seventh note of the key. From i the top note stays and the other two fall a step (fingers 1 and 2), so V stands on its third (in A minor: Am to E/G♯, E stays). The left hand falls a half step too.",
         "hands": "both",
         "stepOrder": 50
       },
@@ -5170,11 +5170,11 @@
       "id": "learning/chord-lessons/switches/minor-one-to-five-in-d-minor",
       "section": "learning/chord-lessons/switches",
       "file": "learning/chord-lessons/switches/minor-one-to-five-in-d-minor.musicxml",
-      "bytes": 13442,
-      "hash": "73c26e294e3265945d7155e33e560f6117e4266f8b808a966d1614e1d216ad6b",
+      "bytes": 13435,
+      "hash": "814f1ddacaeaaa91b63d734c4afe1cc9423368473e2c9aef90a9a7ba2c20b7f2",
       "meta": {
         "version": 1,
-        "title": "i to V in minor, D minor",
+        "title": "i to V in D minor",
         "kind": "exercise",
         "level": "beginner",
         "tags": [
@@ -5191,7 +5191,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "In a minor key the chord on the fifth note is major: in A minor, E major with the raised G♯. From Am the top note E stays, A falls a half step to G♯ and C to B, so V is played as E/G♯. The left hand steps from A to G♯.",
+        "trains": "In a minor key the chord on the fifth note (V) is major, with the raised seventh note of the key. From i the top note stays and the other two fall a step (fingers 1 and 2), so V stands on its third (in A minor: Am to E/G♯, E stays). The left hand falls a half step too.",
         "hands": "both",
         "stepOrder": 52
       },
@@ -5207,8 +5207,8 @@
         ],
         "tempoBpm": 60,
         "tempoDefaulted": false,
-        "lowestMidi": 37,
-        "highestMidi": 69,
+        "lowestMidi": 49,
+        "highestMidi": 81,
         "maxSpanSemitones": 8,
         "staves": 2,
         "voicesPerStaff": 1,
@@ -5254,11 +5254,11 @@
       "id": "learning/chord-lessons/switches/minor-one-to-five-in-e-minor",
       "section": "learning/chord-lessons/switches",
       "file": "learning/chord-lessons/switches/minor-one-to-five-in-e-minor.musicxml",
-      "bytes": 13537,
-      "hash": "4f62b60739b12cfeef6ca6b09f136ae6a76cd57d72bdcec30e391cc32882a786",
+      "bytes": 13530,
+      "hash": "661347b86ee63dd2b274a4c756210fc9372564ff83953cb4d9aefd21a435fa20",
       "meta": {
         "version": 1,
-        "title": "i to V in minor, E minor",
+        "title": "i to V in E minor",
         "kind": "exercise",
         "level": "beginner",
         "tags": [
@@ -5275,7 +5275,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "In a minor key the chord on the fifth note is major: in A minor, E major with the raised G♯. From Am the top note E stays, A falls a half step to G♯ and C to B, so V is played as E/G♯. The left hand steps from A to G♯.",
+        "trains": "In a minor key the chord on the fifth note (V) is major, with the raised seventh note of the key. From i the top note stays and the other two fall a step (fingers 1 and 2), so V stands on its third (in A minor: Am to E/G♯, E stays). The left hand falls a half step too.",
         "hands": "both",
         "stepOrder": 51
       },
@@ -5338,11 +5338,11 @@
       "id": "learning/chord-lessons/switches/minor-to-major-step-down-in-c-major",
       "section": "learning/chord-lessons/switches",
       "file": "learning/chord-lessons/switches/minor-to-major-step-down-in-c-major.musicxml",
-      "bytes": 12873,
-      "hash": "7fcc9d1e333da7e237a9e15a9b7ff33ef712bec7fc7ff8a229fb500ba2a3a873",
+      "bytes": 12853,
+      "hash": "424ff9b93679204b35d8bfa02fae5c1afcb146a117bffddf1ef559acee9cd868",
       "meta": {
         "version": 1,
-        "title": "Minor to major, a step down in C major",
+        "title": "ii to I in C major",
         "kind": "exercise",
         "level": "beginner",
         "tags": [
@@ -5358,7 +5358,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The minor chord on the second note of the key (Dm in C) and the home chord share no note, so the whole shape slides down one key: every finger moves a step, nothing jumps. The left hand steps from D to C.",
+        "trains": "The minor chord on the second note of the key (ii) and the home chord (I) share no note, so the whole shape moves down one step of the scale: every finger moves a step, nothing jumps (in C: Dm to C). The left hand steps down from the second note to the keynote.",
         "hands": "both",
         "stepOrder": 20
       },
@@ -5421,11 +5421,11 @@
       "id": "learning/chord-lessons/switches/minor-to-major-step-down-in-f-major",
       "section": "learning/chord-lessons/switches",
       "file": "learning/chord-lessons/switches/minor-to-major-step-down-in-f-major.musicxml",
-      "bytes": 12976,
-      "hash": "114559ec13b6aef62f97dc85302f50b0ea8570d19c565d9694ef3179d28c2ff4",
+      "bytes": 12956,
+      "hash": "46f44b9c692f130074b2b08f1f94bc0d4b86282a85e477cb64e96ee6dd78ba60",
       "meta": {
         "version": 1,
-        "title": "Minor to major, a step down in F major",
+        "title": "ii to I in F major",
         "kind": "exercise",
         "level": "beginner",
         "tags": [
@@ -5441,7 +5441,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The minor chord on the second note of the key (Dm in C) and the home chord share no note, so the whole shape slides down one key: every finger moves a step, nothing jumps. The left hand steps from D to C.",
+        "trains": "The minor chord on the second note of the key (ii) and the home chord (I) share no note, so the whole shape moves down one step of the scale: every finger moves a step, nothing jumps (in C: Dm to C). The left hand steps down from the second note to the keynote.",
         "hands": "both",
         "stepOrder": 21
       },
@@ -5504,11 +5504,11 @@
       "id": "learning/chord-lessons/switches/minor-to-major-step-down-in-g-major",
       "section": "learning/chord-lessons/switches",
       "file": "learning/chord-lessons/switches/minor-to-major-step-down-in-g-major.musicxml",
-      "bytes": 12873,
-      "hash": "ccd715552319eb021961fe519ec4b86c9845340be6b7a7d529fb8b43ff17c0dd",
+      "bytes": 12853,
+      "hash": "9ec82678d43f28a1f4c43317adca619de41eb16fdf274767f38e700b1123c35b",
       "meta": {
         "version": 1,
-        "title": "Minor to major, a step down in G major",
+        "title": "ii to I in G major",
         "kind": "exercise",
         "level": "beginner",
         "tags": [
@@ -5524,7 +5524,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "The minor chord on the second note of the key (Dm in C) and the home chord share no note, so the whole shape slides down one key: every finger moves a step, nothing jumps. The left hand steps from D to C.",
+        "trains": "The minor chord on the second note of the key (ii) and the home chord (I) share no note, so the whole shape moves down one step of the scale: every finger moves a step, nothing jumps (in C: Dm to C). The left hand steps down from the second note to the keynote.",
         "hands": "both",
         "stepOrder": 22
       },
@@ -5540,8 +5540,8 @@
         ],
         "tempoBpm": 60,
         "tempoDefaulted": false,
-        "lowestMidi": 43,
-        "highestMidi": 64,
+        "lowestMidi": 55,
+        "highestMidi": 76,
         "maxSpanSemitones": 7,
         "staves": 2,
         "voicesPerStaff": 1,
@@ -5608,7 +5608,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "From the home chord (I) to the chord on the fifth note (V) with the least movement: finger 5 keeps G, the thumb moves down to B and finger 3 to D, so V is played as G/B. The left hand steps from C down to B.",
+        "trains": "From the home chord (I) to the chord on the fifth note (V) with the least movement: finger 5 keeps the top note and the other two move down a step (fingers 1 and 2), so V stands on its third (in C: G stays, C to B, E to D: G/B). The left hand steps down a half step too.",
         "hands": "both",
         "stepOrder": 40
       },
@@ -5692,7 +5692,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "From the home chord (I) to the chord on the fifth note (V) with the least movement: finger 5 keeps G, the thumb moves down to B and finger 3 to D, so V is played as G/B. The left hand steps from C down to B.",
+        "trains": "From the home chord (I) to the chord on the fifth note (V) with the least movement: finger 5 keeps the top note and the other two move down a step (fingers 1 and 2), so V stands on its third (in C: G stays, C to B, E to D: G/B). The left hand steps down a half step too.",
         "hands": "both",
         "stepOrder": 42
       },
@@ -5756,7 +5756,7 @@
       "section": "learning/chord-lessons/switches",
       "file": "learning/chord-lessons/switches/one-to-five-in-g-major.musicxml",
       "bytes": 13068,
-      "hash": "77a5c5190c40cf72f01204d78113319bceb76b2350b09e6652104a521c355bb7",
+      "hash": "ee80b44e6f012a248baaf51fefae70b3c58997376a2aa6d898190ddf9af03c94",
       "meta": {
         "version": 1,
         "title": "I to V in G major",
@@ -5776,7 +5776,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "From the home chord (I) to the chord on the fifth note (V) with the least movement: finger 5 keeps G, the thumb moves down to B and finger 3 to D, so V is played as G/B. The left hand steps from C down to B.",
+        "trains": "From the home chord (I) to the chord on the fifth note (V) with the least movement: finger 5 keeps the top note and the other two move down a step (fingers 1 and 2), so V stands on its third (in C: G stays, C to B, E to D: G/B). The left hand steps down a half step too.",
         "hands": "both",
         "stepOrder": 41
       },
@@ -5792,8 +5792,8 @@
         ],
         "tempoBpm": 60,
         "tempoDefaulted": false,
-        "lowestMidi": 42,
-        "highestMidi": 62,
+        "lowestMidi": 54,
+        "highestMidi": 74,
         "maxSpanSemitones": 8,
         "staves": 2,
         "voicesPerStaff": 1,
@@ -5860,7 +5860,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "From the home chord (I) to the chord on the fourth note (IV) with the least movement: the thumb keeps C, E moves up to F and G up to A, so IV is played as F/C. The left hand holds C under both.",
+        "trains": "From the home chord (I) to the chord on the fourth note (IV) with the least movement: the thumb keeps the keynote and the other two notes move up a step (fingers 4 and 5), so IV stands on its fifth (in C: C stays, E to F, G to A: F/C). The left hand holds the keynote.",
         "hands": "both",
         "stepOrder": 30
       },
@@ -5944,7 +5944,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "From the home chord (I) to the chord on the fourth note (IV) with the least movement: the thumb keeps C, E moves up to F and G up to A, so IV is played as F/C. The left hand holds C under both.",
+        "trains": "From the home chord (I) to the chord on the fourth note (IV) with the least movement: the thumb keeps the keynote and the other two notes move up a step (fingers 4 and 5), so IV stands on its fifth (in C: C stays, E to F, G to A: F/C). The left hand holds the keynote.",
         "hands": "both",
         "stepOrder": 32
       },
@@ -6028,7 +6028,7 @@
         },
         "reviewedBy": "claude-opus-5.5",
         "reviewedOn": "2026-10-03",
-        "trains": "From the home chord (I) to the chord on the fourth note (IV) with the least movement: the thumb keeps C, E moves up to F and G up to A, so IV is played as F/C. The left hand holds C under both.",
+        "trains": "From the home chord (I) to the chord on the fourth note (IV) with the least movement: the thumb keeps the keynote and the other two notes move up a step (fingers 4 and 5), so IV stands on its fifth (in C: C stays, E to F, G to A: F/C). The left hand holds the keynote.",
         "hands": "both",
         "stepOrder": 31
       },

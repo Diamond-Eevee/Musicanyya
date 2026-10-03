@@ -3,9 +3,9 @@
   "title": "ii-V-I in C major",
   "kind": "exercise",
   "level": "intermediate",
-  "raisedBecause": "Seventh chords split between the hands, a left-hand root that leaps a fifth on every change, and the G7 voiced without its fifth; the notes alone measure Beginner.",
+  "raisedBecause": "Seventh chords split between the hands, a left-hand root that leaps a fifth down, then a fourth up, and the G7 voiced without its fifth; the notes alone measure Beginner.",
   "tags": ["chords", "chord-changes", "seventh-chords"],
-  "trains": "The jazz cadence ii7-V7-Imaj7, split between the hands: the left hand plays the roots D, G, C, the right hand F A C, then F G B (F stays), then E G B (G and B stay). The fifth of G7 is left out.",
+  "trains": "The jazz cadence ii7-V7-Imaj7, split between the hands: the left hand plays the roots, the right hand three notes that move one or two at a time (in C: F A C, F G B, E G B; F stays, then G and B stay). The fifth of V7 is left out.",
   "hands": "both",
   "provenance": {
     "origin": "authored",
