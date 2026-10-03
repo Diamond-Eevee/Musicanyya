@@ -376,8 +376,8 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
 - [x] T071 [standard] Run `quickstart.md` end to end (all stories and the level-rule checks); fix what fails.
 - [x] T072 [deep] Constitution audit of the branch diff with the `constitution-auditor` sub-agent; fix findings;
   summarise them in the log.
-- [ ] T073 [standard] Full gate, once: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e:smoke` and
-  `pnpm test:e2e` (all browsers) green (constitution "Test tiers"); again only if `src/` changed since.
+- [~] T073 [standard] Full gate, once: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e:smoke` and
+  `pnpm test:e2e` (all browsers) green (constitution "Test tiers"); again only if `src/` changed since. (claimed: claude-opus-5.5 2026-10-03)
 
 ## Dependencies & Execution Order
 
