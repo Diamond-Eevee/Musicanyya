@@ -288,3 +288,98 @@ describe('checkSong: the key comes from the shelf folder', () => {
     ).toEqual(['key', '1', '0']);
   });
 });
+
+// Feature 022 T053 (contract audit-record 1.5.0, song-chords-v2): a moving left hand (waltz, repeated, broken) is read by
+// the chord name above it, not attack by attack; the limit counts chord changes; Beginner minor allows v and VII.
+describe('song-chords-v2: left-hand patterns grouped by their chord name', () => {
+  const v2 = (level: 'beginner' | 'intermediate', key: KeyClaim) => ({
+    level,
+    key,
+    ruleSet: 'song-chords-v2' as const,
+  });
+  const unnamed = (beat: number, quarters: number, tones: Tone[]): Entry => ({ beat, quarters, tones });
+
+  it('a waltz-like pattern (bass, then the other two notes) under one name has no difference', () => {
+    const xml = file(0, 'major', [
+      [
+        chord(1, 1, 'C', [['C', 3]]),
+        unnamed(2, 1, [
+          ['E', 3],
+          ['G', 3],
+        ]),
+        unnamed(3, 2, [
+          ['E', 3],
+          ['G', 3],
+        ]),
+      ],
+      [
+        chord(1, 1, 'G', [['G', 2]]),
+        unnamed(2, 1, [
+          ['B', 2],
+          ['D', 3],
+        ]),
+        unnamed(3, 2, [
+          ['B', 2],
+          ['D', 3],
+        ]),
+      ],
+    ]);
+    expect(checkSongChords(xml, v2('beginner', C_MAJOR))).toEqual([]);
+    // v1 reads attack by attack: the unnamed strikes have no name, and the bass alone is no triad
+    expect(checkSongChords(xml, beginner).length).toBeGreaterThan(0);
+  });
+
+  it('a stray note in the pattern is reported, naming it', () => {
+    const xml = file(0, 'major', [
+      [
+        chord(1, 1, 'C', [['C', 3]]),
+        unnamed(2, 1, [
+          ['E', 3],
+          ['A', 3],
+        ]),
+        unnamed(3, 2, [
+          ['E', 3],
+          ['G', 3],
+        ]),
+      ],
+    ]);
+    const differences = checkSongChords(xml, v2('beginner', C_MAJOR));
+    expect(differences.map((d) => [d.rule, d.found])).toContainEqual(['completeness', 'A3']);
+  });
+
+  it('a broken chord (root, fifth, third, fifth) under one name has no difference', () => {
+    const xml = file(0, 'major', [
+      [chord(1, 1, 'C', [['C', 3]]), unnamed(2, 1, [['G', 3]]), unnamed(3, 1, [['E', 3]]), unnamed(4, 1, [['G', 3]])],
+    ]);
+    expect(checkSongChords(xml, v2('beginner', C_MAJOR))).toEqual([]);
+  });
+
+  it('a chord struck on every beat is one change, not four', () => {
+    const xml = file(0, 'major', [
+      [chord(1, 1, 'C', C), unnamed(2, 1, C), unnamed(3, 1, C), unnamed(4, 1, C)],
+      [chord(1, 2, 'F', F), chord(3, 2, 'G', G)],
+    ]);
+    expect(checkSongChords(xml, v2('intermediate', C_MAJOR))).toEqual([]);
+    // two changes in bar 2 are still too many at beginner
+    expect(checkSongChords(xml, v2('beginner', C_MAJOR)).map((d) => d.rule)).toEqual(['changeRate']);
+  });
+
+  it('Beginner minor allows v and VII (A minor: Em and G); v1 still refuses them', () => {
+    const EM: Tone[] = [
+      ['E', 3],
+      ['G', 3],
+      ['B', 3],
+    ];
+    const xml = file(0, 'minor', [[chord(1, 4, 'Am', AM)], [chord(1, 4, 'Em', EM)], [chord(1, 4, 'G', G)]]);
+    expect(checkSongChords(xml, v2('beginner', A_MINOR))).toEqual([]);
+    expect(checkSongChords(xml, { level: 'beginner', key: A_MINOR }).map((d) => d.found)).toEqual([
+      'Em (v)',
+      'G (VII)',
+    ]);
+  });
+
+  it('a left-hand note before the first chord name is reported', () => {
+    const xml = file(0, 'major', [[unnamed(1, 2, C), chord(3, 2, 'C', C)]]);
+    expect(checkSongChords(xml, v2('beginner', C_MAJOR)).map((d) => d.rule)).toEqual(['label']);
+  });
+});

@@ -44,6 +44,8 @@ export const THEORY_RULE_SETS = [
   // feature 022 (audit-record 1.5.0): a Basics lesson's claims; a chord lesson's named chords
   'lesson-claims-v1',
   'chord-lessons-v1',
+  // feature 022: a song whose left hand moves (waltz, repeated, broken) is read by the chord names (song-chords-v2)
+  'song-chords-v2',
 ] as const;
 export type TheoryRuleSet = (typeof THEORY_RULE_SETS)[number];
 
@@ -323,7 +325,8 @@ export function runRecord(record: AuditRecord, ctx: RunContext): CheckResult[] {
 /** The independent exercise check (research R8): the claim comes from the item's title and description on the shelf. */
 function runTheory(record: AuditRecord, check: TheoryCheck, ctx: RunContext): CheckResult {
   const sidecar = JSON.parse(readFileSync(join(ctx.libraryRoot, `${record.itemId}.json`), 'utf8')) as Sidecar;
-  if (check.ruleSet === 'song-chords-v1') return runSongChords(record, check, sidecar, ctx);
+  if (check.ruleSet === 'song-chords-v1' || check.ruleSet === 'song-chords-v2')
+    return runSongChords(record, check, sidecar, ctx);
   if (check.ruleSet === 'orchestra-v1') return runOrchestra(record, check, ctx);
   if (check.ruleSet === 'lesson-claims-v1') return runLessonClaims(record, check, ctx);
   if (check.ruleSet === 'chord-lessons-v1') return runChordLessons(record, check, ctx);
@@ -357,7 +360,10 @@ function runTheory(record: AuditRecord, check: TheoryCheck, ctx: RunContext): Ch
 export function theoryDifferences(
   xml: string,
   claim: ExerciseClaim,
-  ruleSet: Exclude<TheoryRuleSet, 'song-chords-v1' | 'orchestra-v1' | 'lesson-claims-v1' | 'chord-lessons-v1'>,
+  ruleSet: Exclude<
+    TheoryRuleSet,
+    'song-chords-v1' | 'song-chords-v2' | 'orchestra-v1' | 'lesson-claims-v1' | 'chord-lessons-v1'
+  >,
 ): Difference[] {
   const melody = claim.sections
     ?.flatMap((s) => [s.right, s.left])
@@ -457,7 +463,12 @@ function runSongChords(record: AuditRecord, check: TheoryCheck, sidecar: Sidecar
       detail: `a song is beginner or intermediate, not ${sidecar.level}`,
     };
   const xml = readFileSync(ctx.itemFile ?? join(ctx.libraryRoot, `${record.itemId}.musicxml`), 'utf8');
-  const differences = checkSong(xml, record.itemId, sidecar.level);
+  const differences = checkSong(
+    xml,
+    record.itemId,
+    sidecar.level,
+    check.ruleSet === 'song-chords-v2' ? 'song-chords-v2' : 'song-chords-v1',
+  );
   return {
     check,
     differences,

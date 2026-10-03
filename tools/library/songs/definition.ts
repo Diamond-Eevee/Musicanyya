@@ -25,6 +25,9 @@ export interface SongChordEntry {
   until?: string;
 }
 
+export type LeftHandPattern = 'block' | 'waltz' | 'repeated' | 'broken';
+export const LEFT_HAND_PATTERNS: readonly LeftHandPattern[] = ['block', 'waltz', 'repeated', 'broken'];
+
 export interface SongDefinition {
   version: 1;
   /** The item id to write: `learning/keys/<key>/song-<slug>`. */
@@ -44,6 +47,10 @@ export interface SongDefinition {
   key: { tonic: string; mode: 'major' | 'minor'; fifths: number };
   tempoBpm: number;
   chords: SongChordEntry[];
+  /** song-definition 1.2.0 (feature 022): how the left hand plays each chord; `block` (default) holds it. */
+  leftHand?: { pattern?: LeftHandPattern };
+  /** song-definition 1.2.0: the id of the song this one is a simplified version of (same folder, higher level). */
+  simplifies?: string;
   meta: {
     level: 'beginner' | 'intermediate';
     trains: string;
@@ -56,7 +63,19 @@ export interface SongDefinition {
   };
 }
 
-const TOP_FIELDS = ['version', 'id', 'title', 'source', 'melody', 'key', 'tempoBpm', 'chords', 'meta'];
+const TOP_FIELDS = [
+  'version',
+  'id',
+  'title',
+  'source',
+  'melody',
+  'key',
+  'tempoBpm',
+  'chords',
+  'leftHand',
+  'simplifies',
+  'meta',
+];
 const MELODY_FIELDS = ['staff', 'voice', 'topVoice', 'bars', 'transpose'];
 const KEY_FIELDS = ['tonic', 'mode', 'fifths'];
 const CHORD_FIELDS = ['bar', 'beat', 'degree', 'quality', 'inversion', 'until'];
@@ -133,6 +152,19 @@ export function validateSongDefinition(json: unknown, sources: ReadonlySet<strin
     if (position <= previous) fail(`${at} does not come after the chord before it`);
     previous = position;
   });
+
+  if (top.leftHand !== undefined) {
+    const leftHand = object(top.leftHand, 'leftHand', fail);
+    known(leftHand, ['pattern'], 'leftHand', fail);
+    if (leftHand.pattern !== undefined && !LEFT_HAND_PATTERNS.includes(leftHand.pattern as LeftHandPattern))
+      fail(`leftHand.pattern must be one of ${LEFT_HAND_PATTERNS.join(', ')}`);
+  }
+  if (top.simplifies !== undefined) {
+    const target = string(top.simplifies, 'simplifies', fail, 120);
+    const targetMatch = ID.exec(target);
+    if (!targetMatch || targetMatch[1] !== idMatch?.[1])
+      fail(`simplifies "${target}" must be a song id in the same folder as ${id}`);
+  }
 
   const meta = object(top.meta, 'meta', fail);
   known(meta, META_FIELDS, 'meta', fail);

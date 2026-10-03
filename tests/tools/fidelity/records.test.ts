@@ -269,7 +269,8 @@ describe('feature 011: rule sets, supersedes and the Introduction level (contrac
   const theoryCheck = (ruleSet: string) => ({ method: 'theory', ruleSet, expectedDifferences: 0 });
   const withChecks = (checks: unknown[]) => JSON.parse(JSON.stringify({ ...record(), claim: 'exercise', checks }));
 
-  it.each(['exercise-theory-v1', 'exercise-theory-v2', 'exercise-theory-v3', 'song-chords-v1'])(
+  // song-chords-v2: feature 022, audit-record 1.5.0
+  it.each(['exercise-theory-v1', 'exercise-theory-v2', 'exercise-theory-v3', 'song-chords-v1', 'song-chords-v2'])(
     'accepts the theory rule set %s',
     (ruleSet) => {
       expect(() => validateRecord(withChecks([theoryCheck(ruleSet)]), 'x.json')).not.toThrow();

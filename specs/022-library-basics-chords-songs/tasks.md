@@ -279,16 +279,16 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T052 [P] [US3] [standard] Write failing tests in `tests/tools/songs/build-songs.test.ts` for song-definition 1.2.0:
+- [x] T052 [P] [US3] [standard] Write failing tests in `tests/tools/songs/build-songs.test.ts` for song-definition 1.2.0:
   `leftHand.pattern` `waltz` (3/4: root alone on beat 1, triad without root on 2 and 3), `repeated` (one strike per beat;
   6/8 per dotted beat), `broken` (root-fifth-third-fifth eighths) - each keeps the register/melody-avoidance rules and
   "comfortable"; `simplifies` lands in the sidecar; a pair gets consecutive `stepOrder` values, simplified first,
   after the folder's unpaired songs (analyze H3); the 10 existing songs keep their `stepOrder` (values pinned in the
   test); omitting `leftHand` leaves every existing song byte-identical (the existing goldens).
-- [ ] T053 [P] [US3] Write failing tests in `tests/tools/fidelity/song-chords.test.ts` for `song-chords-v2`: pattern notes
+- [x] T053 [P] [US3] Write failing tests in `tests/tools/fidelity/song-chords.test.ts` for `song-chords-v2`: pattern notes
   grouped by the chord name above them; a stray non-chord note in a waltz is reported; changes (not strikes) counted per
   bar; Beginner minor allows `v` and `VII`; v1 behaviour unchanged for v1 records (existing tests stay green).
-- [ ] T054 [P] [US3] [standard] Write `tests/library/songs-022.test.ts`: for each approved tune a pair
+- [x] T054 [P] [US3] [standard] Write `tests/library/songs-022.test.ts`: for each approved tune a pair
   `song-<slug>` (intermediate) / `song-<slug>-simplified` (beginner, `simplifies`, title " (simplified)", departures
   saying what was simplified); `stepOrder` puts the simplified directly before the full one; composer, source and licence
   present; the full version's level is strictly higher than the simplified one's; each new song is found by
@@ -297,9 +297,9 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
 
 ### Implementation
 
-- [ ] T055 [US3] [standard] Implement song-definition 1.2.0 in `tools/library/songs/definition.ts` and
+- [x] T055 [US3] [standard] Implement song-definition 1.2.0 in `tools/library/songs/definition.ts` and
   `tools/library/build-songs.ts` (patterns, `simplifies`, pair ordering). T052 green.
-- [ ] T056 [US3] Implement `song-chords-v2` in `tools/library/fidelity/song-chords.ts` (option `ruleSet`) and register it
+- [x] T056 [US3] Implement `song-chords-v2` in `tools/library/fidelity/song-chords.ts` (option `ruleSet`) and register it
   in `records.ts`. T053 green.
 - [ ] T057 [US3] [standard] Download the approved sources 1-5 (research R13) unchanged into
   `content/library/sources/mutopia-<id>-<slug>/`, write `source.json` (source-manifest 1.4.0 with `multiPart`:

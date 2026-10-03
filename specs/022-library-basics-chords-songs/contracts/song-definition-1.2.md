@@ -15,11 +15,13 @@
    }
    ```
    - `block` - today's held block chord (default; existing songs stay byte-identical).
-   - `waltz` - 3/4 (or 6/8 per dotted beat group): the chord's root alone on the first beat, the triad without the
-     root on the other beats.
+   - `waltz` - 3/4 (or 6/8 per dotted beat group): the lowest note of the chord's voicing alone on the first beat of the
+     bar (and where the chord starts), the other two notes on the other beats. In root position that is the root; where
+     the voicing is inverted to keep off the melody it is the inversion's bass (found in implement, T055).
    - `repeated` - the block triad struck on every beat (dotted beat in 6/8), each a beat long.
-   - `broken` - root, fifth, third, fifth in eighths (6/8: root, fifth, third per dotted beat), the root an octave
-     below the triad's register rule.
+   - `broken` - root, fifth, third, fifth in eighths (6/8: root, fifth, third per dotted beat) from the root-position
+     triad of the register rule, an octave lower where it would share a key with the melody (an Alberti bass in close
+     position; T055 - the octave-lower root of the draft made a 19-semitone stretch for no musical gain).
    Every pattern keeps the 1.1.0 register and melody-avoidance rules per strike and stays within "comfortable".
 2. Optional `simplifies: string` - written into the sidecar (library-index 1.5.0).
 3. `meta.raisedBecause` optional (FR-006, data-model §1).
