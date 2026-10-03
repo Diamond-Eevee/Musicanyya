@@ -88,6 +88,19 @@ describe('Architecture Rules', () => {
     }
   });
 
+  // Feature 022 (contract lesson-definition 1.0.0): the lesson builder is dev-only, like the song builder
+  it('no file under src/ imports the lesson builder (tools/library/lessons, build-lessons)', () => {
+    const srcDir = path.resolve(__dirname, '../../src');
+    const forbiddenPatterns = [/tools\/library\/lessons\//, /tools\/library\/build-lessons/];
+    for (const file of getFiles(srcDir)) {
+      if (!file.endsWith('.ts')) continue;
+      const content = fs.readFileSync(file, 'utf-8');
+      for (const pattern of forbiddenPatterns) {
+        expect(pattern.test(content), `${file} imports the dev-only lesson builder`).toBe(false);
+      }
+    }
+  });
+
   it('tools/library/fidelity/theory.ts must be independent of the exercise generator', () => {
     const theoryPath = path.resolve(__dirname, '../../tools/library/fidelity/theory.ts');
     expect(fs.existsSync(theoryPath), 'theory.ts does not exist').toBe(true);

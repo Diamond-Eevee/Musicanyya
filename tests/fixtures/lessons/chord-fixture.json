@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "id": "learning/chord-lessons/switches/fixture-switch-in-{key}",
+  "title": "Fixture switch in {keyName}",
+  "section": "learning/chord-lessons/switches",
+  "stepOrder": 10,
+  "level": "beginner",
+  "hands": "both",
+  "tags": ["chords", "seventh-chords"],
+  "trains": "A test lesson: a triad, a seventh split between the hands, a slash chord, in two keys.",
+  "metre": "4/4",
+  "tempoBpm": 60,
+  "key": { "tonic": "C", "mode": "major", "fifths": 0 },
+  "claims": { "commonTones": [{ "bar": 2, "beat": 1, "pitch": "G4" }] },
+  "transpositions": [
+    { "slug": "c-major", "tonic": "C", "mode": "major", "fifths": 0, "interval": "+P1" },
+    { "slug": "g-major", "tonic": "G", "mode": "major", "fifths": 1, "interval": "-P4" }
+  ],
+  "bars": [
+    { "rh": "{C}<E4 G4 C5>:w@1-2-5", "lh": "C3:w@5" },
+    { "rh": "{Cmaj7}<E4 G4 B4>:w@1-2-4", "lh": "C3:w" },
+    { "rh": "<D4 G4>:w@1-4", "lh": "{G/B}B2:w@5" },
+    { "rh": "{C}<E4 G4 C5>:w", "lh": "C3:w", "barline": "final" }
+  ],
+  "author": "claude-opus-5.5",
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03"
+}

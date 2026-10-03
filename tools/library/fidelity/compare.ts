@@ -3,6 +3,7 @@
 // reported once. Differences name the bar and the position in it (quarter notes after the bar line), sorted by bar,
 // then position, so a re-run gives identical output.
 
+import type { LessonClaimDifference } from './lesson-claims';
 import type { MelodyRule } from './melody-rules';
 import type { OrchestraRule } from './orchestra';
 import {
@@ -43,6 +44,8 @@ export type Difference =
   | { kind: 'melodyRule'; bar: string; beat: number; rule: MelodyRule; message: string }
   /** orchestra-v1: one finding of the Orchestra check (feature 019, rules O1-O5). */
   | { kind: 'orchestraRule'; rule: OrchestraRule; detail: string }
+  /** lesson-claims-v1: one broken claim of a Basics lesson (feature 022). */
+  | LessonClaimDifference
   | TheoryDifference;
 
 export type Aspect =
@@ -673,6 +676,8 @@ export function describeDifference(d: Difference): string {
       return `bar ${d.bar}, beat ${d.beat}: ${d.message} (${d.rule})`;
     case 'orchestraRule':
       return `${d.detail} (${d.rule})`;
+    case 'lessonClaim':
+      return `${at(d.bar)}: ${d.detail} (${d.code})`;
     case 'theory': {
       const where =
         d.chordIndex >= 0

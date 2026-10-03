@@ -16,7 +16,7 @@ A lesson item = authored notes (CC0) for one Basics lesson or one chord lesson, 
   "type": "object",
   "additionalProperties": false,
   "required": ["version", "id", "title", "section", "stepOrder", "level", "hands", "tags", "trains", "metre",
-               "tempoBpm", "key", "claims", "bars", "reviewedBy", "reviewedOn"],
+               "tempoBpm", "key", "claims", "bars", "author", "reviewedBy", "reviewedOn"],
   "properties": {
     "version":   { "const": 1 },
     "id":        { "type": "string", "pattern": "^(basics|learning/chord-lessons/(single-chords|switches|progressions))/[a-z0-9{}-]+$",
@@ -31,7 +31,7 @@ A lesson item = authored notes (CC0) for one Basics lesson or one chord lesson, 
     "trains":    { "type": "string", "maxLength": 300, "description": "the plain-words explanation (Basics) or what the lesson trains" },
     "scoreText": { "type": "string", "maxLength": 60, "description": "printed in italics above staff 1 at bar 1; required in basics" },
     "metre":     { "type": "string", "pattern": "^\\d+/(2|4|8)$" },
-    "tempoBpm":  { "type": "number", "minimum": 30, "maximum": 160, "description": "quarter notes per minute (a 6/8 lesson also writes a dotted-quarter mark)" },
+    "tempoBpm":  { "type": "number", "minimum": 30, "maximum": 160, "description": "quarter notes per minute; a 6/8 lesson prints a dotted-quarter mark of tempoBpm / 1.5, which must be a whole number" },
     "key":       { "type": "object", "required": ["tonic", "mode", "fifths"], "description": "the exercise-definition key object" },
     "pickup":    { "type": "boolean", "default": false },
     "claims": {
@@ -60,6 +60,7 @@ A lesson item = authored notes (CC0) for one Basics lesson or one chord lesson, 
         }
       }
     },
+    "author":     { "type": "string", "description": "who wrote the notes (agent id or name); the sidecar's provenance.author (FR-043)" },
     "reviewedBy": { "type": "string" },
     "reviewedOn": { "type": "string", "format": "date" }
   }
@@ -84,7 +85,13 @@ Example (lesson 16, ties in a bar): `"rh": "C4:h~@1 C4:q C4:q"`, `"lh": "R:w"`.
 
 Rules: durations of a staff add up to the metre (pickup: the first bar is shorter and the last bar completes it);
 eighths are beamed by beat by `planEngraving`; a chord's fingering lists one digit per note; a symbol may appear on
-either staff's token but is always printed above staff 1.
+either staff's token but is always printed above staff 1. `R` fills its staff's whole bar (its value is not read) and
+stands alone in that staff of that bar.
+
+**Fingering** (the library requires a finger on every note of an exercise): a note written without `@` takes the finger
+last written for the same pitch on its staff, and the note a tie continues always takes its start's finger; a pitch
+whose first note on a staff has no `@` is an error. So an author writes `@` at the first note of each hand position
+and at every position change (FR-044), and the builder prints the carried fingers.
 
 ## 3. Notation feature ids (`claims.introduces`)
 

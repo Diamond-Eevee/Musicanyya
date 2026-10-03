@@ -91,6 +91,7 @@ function runAudit(itemId: string | undefined, file: string | undefined, report: 
     ...(file !== undefined ? { itemFile: resolve(io.root, file) } : {}),
   };
   const all = loadRecords(join(io.root, 'content/library/audit'));
+  ctx.records = all;
   const records = itemId === undefined ? all : all.filter((r) => r.itemId === itemId);
   if (itemId !== undefined && records.length === 0) {
     io.out(`no audit record for ${itemId}`);

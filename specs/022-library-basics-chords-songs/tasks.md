@@ -112,11 +112,11 @@
 
 ### Lesson builder (contract lesson-definition 1.0.0)
 
-- [ ] T022 [P] Write failing tests `tests/tools/lessons/parse.test.ts` for the token grammar (contract §2): pitches
+- [x] T022 [P] Write failing tests `tests/tools/lessons/parse.test.ts` for the token grammar (contract §2): pitches
   with `#`/`b`, every value and dot, `~`, `(`, `)`, `!`, `>`, `_`, `@3`, `@1-3-5` on a chord, `{Cm7}` symbol, `r`, `R`;
   errors name bar and token for an unknown value, a fingering count that does not match a chord, a bar whose sum is
   wrong, a tie between different pitches.
-- [ ] T023 [P] Write failing tests `tests/tools/lessons/build-lessons.test.ts` with fixture definitions under
+- [x] T023 [P] Write failing tests `tests/tools/lessons/build-lessons.test.ts` with fixture definitions under
   `tests/fixtures/lessons/` (a `README.md` there states origin and licence: authored for these tests, CC0): one Basics fixture (ties, slur, staccato, pickup + implicit last bar, repeat barlines,
   `scoreText`) and one chord fixture (symbols, split seventh, two `transpositions`): the output loads with
   `readXml` + `buildScore` with zero notices; the words direction is in bar 1 above staff 1; ids, `stepOrder` per
@@ -124,23 +124,23 @@
   `scoreText` in basics, empty `introduces` in basics without `practice`, `section` not the id prefix, bad
   `simplifies`) write nothing and exit 1; a `practice` lesson with empty `introduces` is accepted; output is
   byte-identical on a second run (golden snapshot).
-- [ ] T024 Implement `tools/library/lessons/definition.ts` (types from the contract schema), `tools/library/lessons/parse.ts`
+- [x] T024 Implement `tools/library/lessons/definition.ts` (types from the contract schema), `tools/library/lessons/parse.ts`
   (tokens), `tools/library/lessons/write.ts` (to `WriteScore`, through `src/core/musicxml/write.ts` and
   `planEngraving(doc, 'library')`) and `tools/library/build-lessons.ts` (`--lesson <id>`, `keepStamps`, never touching a
   `downloaded` sidecar). T022, T023 green.
-- [ ] T025 Include lessons in `tests/library/regeneration.test.ts` (regenerating every lesson reproduces
+- [x] T025 Include lessons in `tests/library/regeneration.test.ts` (regenerating every lesson reproduces
   `public/library` byte for byte) and in `tests/architecture/layers.test.ts` (tools/library/lessons is dev-only), test
   first.
 
 ### Independent check `lesson-claims-v1` (audit-record 1.5.0)
 
-- [ ] T026 [P] [deep] Write failing tests `tests/tools/fidelity/lesson-claims.test.ts` with planted MusicXML fixtures,
+- [x] T026 [P] [deep] Write failing tests `tests/tools/fidelity/lesson-claims.test.ts` with planted MusicXML fixtures,
   one per difference of the contract (`explanation-missing`, `not-single-pitch`, `not-introduced` - using an earlier
   lesson's claims -, `tie-pitch`, `slur-same-pitch`), one clean lesson with 0 differences, a lesson whose unused
   staff holds only whole-bar rests under a bass clef before `bass-clef` is introduced (0 differences, analyze M1),
   and a `practice` lesson with empty `introduces` (0 differences). The fixtures' file header names their origin
   (authored for the test, CC0).
-- [ ] T027 [deep] Implement `tools/library/fidelity/lesson-claims.ts` (reads only the MusicXML and the record's claims;
+- [x] T027 [deep] Implement `tools/library/fidelity/lesson-claims.ts` (reads only the MusicXML and the record's claims;
   feature detection for every lesson-definition §3 id) and register `lesson-claims-v1` in
   `tools/library/fidelity/records.ts` and `cli.ts` (record field `claims`, `teachingOrder`), with
   `tests/tools/fidelity/records.test.ts` extended first. T026 green.
