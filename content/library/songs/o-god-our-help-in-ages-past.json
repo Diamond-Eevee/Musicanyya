@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "id": "learning/keys/c-major/song-o-god-our-help-in-ages-past",
+  "title": "Song - O God, Our Help in Ages Past",
+  "source": "mutopia-1290-st-anne",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1.1",
+    "bars": "all"
+  },
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "tempoBpm": 88,
+  "chords": [
+    {
+      "bar": 1,
+      "degree": "I"
+    },
+    {
+      "bar": 2,
+      "degree": "vi"
+    },
+    {
+      "bar": 2,
+      "beat": 4,
+      "degree": "I"
+    },
+    {
+      "bar": 3,
+      "degree": "I"
+    },
+    {
+      "bar": 3,
+      "beat": 4,
+      "degree": "vi"
+    },
+    {
+      "bar": 4,
+      "degree": "V"
+    },
+    {
+      "bar": 5,
+      "degree": "V"
+    },
+    {
+      "bar": 5,
+      "beat": 3,
+      "degree": "ii"
+    },
+    {
+      "bar": 6,
+      "degree": "V"
+    },
+    {
+      "bar": 6,
+      "beat": 2,
+      "degree": "vi"
+    },
+    {
+      "bar": 7,
+      "degree": "I"
+    },
+    {
+      "bar": 7,
+      "beat": 2,
+      "degree": "IV"
+    },
+    {
+      "bar": 8,
+      "degree": "V"
+    },
+    {
+      "bar": 8,
+      "beat": 2,
+      "degree": "I"
+    }
+  ],
+  "leftHand": {
+    "pattern": "repeated"
+  },
+  "meta": {
+    "level": "intermediate",
+    "trains": "O God, Our Help in Ages Past in C major, over the left-hand chord struck on every beat, up to two chords a bar (C, Am, G, Dm, F).",
+    "composer": "W. Croft (tune \"St. Anne\")",
+    "reviewedBy": "claude-opus-5.5",
+    "reviewedOn": "2026-10-03"
+  }
+}

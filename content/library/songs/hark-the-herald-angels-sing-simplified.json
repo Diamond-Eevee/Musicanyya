@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "id": "learning/keys/f-major/song-hark-the-herald-angels-sing-simplified",
+  "title": "Song - Hark! the Herald Angels Sing (simplified)",
+  "source": "mutopia-1261-mendelssohn",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1.1",
+    "bars": "all"
+  },
+  "key": {
+    "tonic": "F",
+    "mode": "major",
+    "fifths": -1
+  },
+  "tempoBpm": 84,
+  "chords": [
+    {
+      "bar": 1,
+      "degree": "I"
+    },
+    {
+      "bar": 2,
+      "degree": "I"
+    },
+    {
+      "bar": 3,
+      "degree": "I"
+    },
+    {
+      "bar": 4,
+      "degree": "I"
+    },
+    {
+      "bar": 5,
+      "degree": "I"
+    },
+    {
+      "bar": 6,
+      "degree": "I"
+    },
+    {
+      "bar": 7,
+      "degree": "V"
+    },
+    {
+      "bar": 8,
+      "degree": "V"
+    },
+    {
+      "bar": 9,
+      "degree": "I"
+    },
+    {
+      "bar": 10,
+      "degree": "I"
+    },
+    {
+      "bar": 11,
+      "degree": "I"
+    },
+    {
+      "bar": 12,
+      "degree": "I"
+    },
+    {
+      "bar": 13,
+      "degree": "IV"
+    },
+    {
+      "bar": 14,
+      "degree": "IV"
+    },
+    {
+      "bar": 15,
+      "degree": "V"
+    },
+    {
+      "bar": 16,
+      "degree": "I"
+    },
+    {
+      "bar": 17,
+      "degree": "IV"
+    },
+    {
+      "bar": 18,
+      "degree": "IV"
+    },
+    {
+      "bar": 19,
+      "degree": "V"
+    },
+    {
+      "bar": 20,
+      "degree": "I"
+    }
+  ],
+  "simplifies": "learning/keys/f-major/song-hark-the-herald-angels-sing",
+  "meta": {
+    "level": "beginner",
+    "trains": "Hark! the Herald Angels Sing in F major, over one held block chord a bar in the left (F, C, B♭).",
+    "composer": "F. Mendelssohn (tune \"Mendelssohn\")",
+    "departures": [
+      "Simplified: one block chord a bar, held, with the three primary chords only (F, C, B♭), instead of the full version's moving left hand.",
+      "Slower: 84 instead of 100 quarter notes a minute."
+    ],
+    "reviewedBy": "claude-opus-5.5",
+    "reviewedOn": "2026-10-03"
+  }
+}

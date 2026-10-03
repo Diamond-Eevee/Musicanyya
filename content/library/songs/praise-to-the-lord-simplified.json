@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "id": "learning/keys/f-major/song-praise-to-the-lord-simplified",
+  "title": "Song - Praise to the Lord (simplified)",
+  "source": "mutopia-1256-lobe-den-herren",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1.1",
+    "bars": "all"
+  },
+  "key": {
+    "tonic": "F",
+    "mode": "major",
+    "fifths": -1
+  },
+  "tempoBpm": 88,
+  "chords": [
+    {
+      "bar": 1,
+      "degree": "I"
+    },
+    {
+      "bar": 2,
+      "degree": "I"
+    },
+    {
+      "bar": 3,
+      "degree": "V"
+    },
+    {
+      "bar": 4,
+      "degree": "IV"
+    },
+    {
+      "bar": 5,
+      "degree": "V"
+    },
+    {
+      "bar": 6,
+      "degree": "I"
+    },
+    {
+      "bar": 7,
+      "degree": "I"
+    },
+    {
+      "bar": 8,
+      "degree": "I"
+    },
+    {
+      "bar": 9,
+      "degree": "V"
+    },
+    {
+      "bar": 10,
+      "degree": "IV"
+    },
+    {
+      "bar": 11,
+      "degree": "V"
+    },
+    {
+      "bar": 12,
+      "degree": "I"
+    },
+    {
+      "bar": 13,
+      "degree": "I"
+    },
+    {
+      "bar": 14,
+      "degree": "IV"
+    },
+    {
+      "bar": 15,
+      "degree": "I"
+    },
+    {
+      "bar": 16,
+      "degree": "I"
+    },
+    {
+      "bar": 17,
+      "degree": "V"
+    },
+    {
+      "bar": 18,
+      "degree": "V"
+    },
+    {
+      "bar": 19,
+      "degree": "I"
+    },
+    {
+      "bar": 20,
+      "degree": "V"
+    },
+    {
+      "bar": 21,
+      "degree": "I"
+    }
+  ],
+  "simplifies": "learning/keys/f-major/song-praise-to-the-lord",
+  "meta": {
+    "level": "beginner",
+    "trains": "Praise to the Lord in F major and 3/4, over one held block chord a bar in the left (F, C, B♭).",
+    "composer": "Traditional (German, tune \"Lobe den Herren\")",
+    "departures": [
+      "Simplified: one block chord a bar, held, with the three primary chords only (F, C, B♭), instead of the full version's moving left hand.",
+      "Slower: 88 instead of 104 quarter notes a minute."
+    ],
+    "reviewedBy": "claude-opus-5.5",
+    "reviewedOn": "2026-10-03"
+  }
+}

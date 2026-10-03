@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "title": "Song - It Came Upon the Midnight Clear (simplified)",
+  "composer": "R. S. Willis (tune \"Carol\")",
+  "subtitle": "Arrangement: the tune with left-hand block chords",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "It Came Upon the Midnight Clear in B♭ major and 6/8, with an eighth-note pickup, over one held block chord a bar in the left (B♭, E♭, F).",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-opus-5.5",
+    "created": "2026-10-03",
+    "basedOn": "mutopia-1231-carol: Carol (hymntune, R. S. Willis: It Came Upon the Midnight Clear), SATB, B-flat major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1231)",
+    "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1231), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": [
+    "Left-hand block chords are our own (CC0).",
+    "Simplified: one block chord a bar, held, with the three primary chords only (B♭, E♭, F), instead of the full version's moving left hand.",
+    "Slower: 72 instead of 84 quarter notes a minute."
+  ],
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03",
+  "step": "song",
+  "stepOrder": 20,
+  "simplifies": "learning/keys/b-flat-major/song-it-came-upon-the-midnight-clear"
+}

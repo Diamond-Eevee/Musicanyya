@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "id": "learning/keys/g-major/song-immortal-invisible-simplified",
+  "title": "Song - Immortal, Invisible (simplified)",
+  "source": "mutopia-1291-st-denio",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1.1",
+    "bars": "all"
+  },
+  "key": {
+    "tonic": "G",
+    "mode": "major",
+    "fifths": 1
+  },
+  "tempoBpm": 88,
+  "chords": [
+    {
+      "bar": 0,
+      "degree": "I"
+    },
+    {
+      "bar": 1,
+      "degree": "IV"
+    },
+    {
+      "bar": 2,
+      "degree": "V"
+    },
+    {
+      "bar": 3,
+      "degree": "I"
+    },
+    {
+      "bar": 4,
+      "degree": "I"
+    },
+    {
+      "bar": 5,
+      "degree": "IV"
+    },
+    {
+      "bar": 6,
+      "degree": "V"
+    },
+    {
+      "bar": 7,
+      "degree": "I"
+    },
+    {
+      "bar": 8,
+      "degree": "I"
+    },
+    {
+      "bar": 9,
+      "degree": "I"
+    },
+    {
+      "bar": 10,
+      "degree": "I"
+    },
+    {
+      "bar": 11,
+      "degree": "I"
+    },
+    {
+      "bar": 12,
+      "degree": "V"
+    },
+    {
+      "bar": 13,
+      "degree": "IV"
+    },
+    {
+      "bar": 14,
+      "degree": "V"
+    },
+    {
+      "bar": 15,
+      "degree": "I"
+    },
+    {
+      "bar": 16,
+      "degree": "I"
+    }
+  ],
+  "simplifies": "learning/keys/g-major/song-immortal-invisible",
+  "meta": {
+    "level": "beginner",
+    "trains": "Immortal, Invisible in G major and 3/4, with a one-beat pickup, over one held block chord a bar in the left (G, C, D).",
+    "composer": "Traditional (Welsh, tune \"St. Denio\")",
+    "departures": [
+      "Simplified: one block chord a bar, held, with the three primary chords only (G, C, D), instead of the full version's moving left hand.",
+      "Slower: 88 instead of 104 quarter notes a minute."
+    ],
+    "reviewedBy": "claude-opus-5.5",
+    "reviewedOn": "2026-10-03"
+  }
+}

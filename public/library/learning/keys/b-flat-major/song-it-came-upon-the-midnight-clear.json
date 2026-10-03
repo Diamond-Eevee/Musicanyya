@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "title": "Song - It Came Upon the Midnight Clear",
+  "composer": "R. S. Willis (tune \"Carol\")",
+  "subtitle": "Arrangement: the tune with left-hand broken chords (root, fifth, third, fifth)",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "intermediate",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "It Came Upon the Midnight Clear in B♭ major and 6/8, with an eighth-note pickup, over a broken-chord left hand in eighths, up to two chords a bar (B♭, Cm, E♭, Gm, F).",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-opus-5.5",
+    "created": "2026-10-03",
+    "basedOn": "mutopia-1231-carol: Carol (hymntune, R. S. Willis: It Came Upon the Midnight Clear), SATB, B-flat major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1231)",
+    "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1231), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": ["The left-hand broken chords (root, fifth, third, fifth) is our own (CC0)."],
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03",
+  "step": "song",
+  "stepOrder": 30
+}

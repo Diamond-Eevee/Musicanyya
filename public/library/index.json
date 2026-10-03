@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-03T11:44:33.588Z",
+  "generated": "2026-10-03T12:49:05.359Z",
   "sections": [
     {
       "id": "basics",
@@ -12289,6 +12289,192 @@
       }
     },
     {
+      "id": "learning/keys/b-flat-major/song-it-came-upon-the-midnight-clear",
+      "section": "learning/keys/b-flat-major",
+      "file": "learning/keys/b-flat-major/song-it-came-upon-the-midnight-clear.musicxml",
+      "bytes": 39074,
+      "hash": "c5d03622a507edfdd668b50d41736be633a4c1f0afb6de15a75d49fad73c99de",
+      "meta": {
+        "version": 1,
+        "title": "Song - It Came Upon the Midnight Clear",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-1231-carol: Carol (hymntune, R. S. Willis: It Came Upon the Midnight Clear), SATB, B-flat major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1231)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1231), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand broken chords (root, fifth, third, fifth)",
+        "composer": "R. S. Willis (tune \"Carol\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "It Came Upon the Midnight Clear in B♭ major and 6/8, with an eighth-note pickup, over a broken-chord left hand in eighths, up to two chords a bar (B♭, Cm, E♭, Gm, F).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "The left-hand broken chords (root, fifth, third, fifth) is our own (CC0)."
+        ],
+        "step": "song",
+        "stepOrder": 30
+      },
+      "facts": {
+        "measures": 17,
+        "notes": 168,
+        "durationSeconds": 34.642857142857146,
+        "keys": [
+          "B♭ major"
+        ],
+        "metres": [
+          "6/8"
+        ],
+        "tempoBpm": 84,
+        "tempoDefaulted": false,
+        "lowestMidi": 43,
+        "highestMidi": 74,
+        "maxSpanSemitones": 0,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0,
+        "shortestDivision": 8,
+        "notesPerBeat": 3.463917525773196,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.5773809523809523,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 12,
+        "longestRunAtShortestValue": 97,
+        "attackCount": 168,
+        "peakNotesPerSecond": 6,
+        "accidentalMarkCount": 2,
+        "minorScaleAccidentalCount": 2,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/b-flat-major/song-it-came-upon-the-midnight-clear-simplified",
+      "section": "learning/keys/b-flat-major",
+      "file": "learning/keys/b-flat-major/song-it-came-upon-the-midnight-clear-simplified.musicxml",
+      "bytes": 26504,
+      "hash": "2d107db4ad4b7657952fbcad13145df9b9d754c22efaf145974cc86f35029886",
+      "meta": {
+        "version": 1,
+        "title": "Song - It Came Upon the Midnight Clear (simplified)",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-1231-carol: Carol (hymntune, R. S. Willis: It Came Upon the Midnight Clear), SATB, B-flat major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1231)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1231), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "R. S. Willis (tune \"Carol\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "It Came Upon the Midnight Clear in B♭ major and 6/8, with an eighth-note pickup, over one held block chord a bar in the left (B♭, E♭, F).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0).",
+          "Simplified: one block chord a bar, held, with the three primary chords only (B♭, E♭, F), instead of the full version's moving left hand.",
+          "Slower: 72 instead of 84 quarter notes a minute."
+        ],
+        "step": "song",
+        "stepOrder": 20
+      },
+      "facts": {
+        "measures": 17,
+        "notes": 122,
+        "durationSeconds": 40.416666666666664,
+        "keys": [
+          "B♭ major"
+        ],
+        "metres": [
+          "6/8"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 46,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.6470588235294118,
+        "shortestDivision": 8,
+        "notesPerBeat": 2.515463917525773,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.4180327868852459,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 12,
+        "longestRunAtShortestValue": 7,
+        "attackCount": 88,
+        "peakNotesPerSecond": 3,
+        "accidentalMarkCount": 2,
+        "minorScaleAccidentalCount": 2,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
       "id": "learning/keys/b-flat-major/song-silent-night",
       "section": "learning/keys/b-flat-major",
       "file": "learning/keys/b-flat-major/song-silent-night.musicxml",
@@ -14081,6 +14267,192 @@
       }
     },
     {
+      "id": "learning/keys/c-major/song-o-god-our-help-in-ages-past",
+      "section": "learning/keys/c-major",
+      "file": "learning/keys/c-major/song-o-god-our-help-in-ages-past.musicxml",
+      "bytes": 27395,
+      "hash": "b93c3557bc1a3ad7dd23cd1729363f2feda8197bb15f26148333c0038c3469bd",
+      "meta": {
+        "version": 1,
+        "title": "Song - O God, Our Help in Ages Past",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-1290-st-anne: St. Anne (hymntune, W. Croft: O God, Our Help in Ages Past), SATB; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1290)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1290), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand repeated chords on every beat",
+        "composer": "W. Croft (tune \"St. Anne\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "O God, Our Help in Ages Past in C major, over the left-hand chord struck on every beat, up to two chords a bar (C, Am, G, Dm, F).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "The left-hand repeated chords on every beat is our own (CC0)."
+        ],
+        "step": "song",
+        "stepOrder": 30
+      },
+      "facts": {
+        "measures": 8,
+        "notes": 124,
+        "durationSeconds": 21.818181818181817,
+        "keys": [
+          "C major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 88,
+        "tempoDefaulted": false,
+        "lowestMidi": 48,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.5,
+        "shortestDivision": 4,
+        "notesPerBeat": 3.875,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.7741935483870968,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 9,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 60,
+        "peakNotesPerSecond": 3,
+        "accidentalMarkCount": 1,
+        "minorScaleAccidentalCount": 1,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/c-major/song-o-god-our-help-in-ages-past-simplified",
+      "section": "learning/keys/c-major",
+      "file": "learning/keys/c-major/song-o-god-our-help-in-ages-past-simplified.musicxml",
+      "bytes": 11648,
+      "hash": "dc5494d34ca99958281cb7770909cf27f22bd653cc7543a746b04747839b7e3e",
+      "meta": {
+        "version": 1,
+        "title": "Song - O God, Our Help in Ages Past (simplified)",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-1290-st-anne: St. Anne (hymntune, W. Croft: O God, Our Help in Ages Past), SATB; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1290)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1290), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "W. Croft (tune \"St. Anne\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "O God, Our Help in Ages Past in C major, over one held block chord a bar in the left (C, F, G).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0).",
+          "Simplified: one block chord a bar, held, with the three primary chords only (C, F, G), instead of the full version's moving left hand.",
+          "Slower: 72 instead of 88 quarter notes a minute."
+        ],
+        "step": "song",
+        "stepOrder": 20
+      },
+      "facts": {
+        "measures": 8,
+        "notes": 52,
+        "durationSeconds": 26.666666666666668,
+        "keys": [
+          "C major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 48,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1,
+        "shortestDivision": 4,
+        "notesPerBeat": 1.625,
+        "accidentals": 0,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.46153846153846156,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 36,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 1,
+        "minorScaleAccidentalCount": 1,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
       "id": "learning/keys/c-major/turnaround",
       "section": "learning/keys/c-major",
       "file": "learning/keys/c-major/turnaround.musicxml",
@@ -15657,6 +16029,378 @@
       }
     },
     {
+      "id": "learning/keys/d-major/song-the-first-noel",
+      "section": "learning/keys/d-major",
+      "file": "learning/keys/d-major/song-the-first-noel.musicxml",
+      "bytes": 39659,
+      "hash": "9698919695320063301b473c1f557d3d69ad2b0627aa2fc35b54b991ef043726",
+      "meta": {
+        "version": 1,
+        "title": "Song - The First Noel",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-1243-first-noel: The First Noel (hymntune), SATB, D major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1243)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1243), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand waltz accompaniment (bass, then chord, chord)",
+        "composer": "Traditional (English)",
+        "arranger": "Musicanyya practice material",
+        "trains": "The First Noel in D major and 3/4, over a waltz left hand (the bass on beat 1, the chord on beats 2 and 3), up to two chords a bar (D, Bm, A, Em, G).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "The left-hand waltz accompaniment (bass, then chord, chord) is our own (CC0)."
+        ],
+        "step": "song",
+        "stepOrder": 30
+      },
+      "facts": {
+        "measures": 24,
+        "notes": 175,
+        "durationSeconds": 45,
+        "keys": [
+          "D major"
+        ],
+        "metres": [
+          "3/4"
+        ],
+        "tempoBpm": 96,
+        "tempoDefaulted": false,
+        "lowestMidi": 47,
+        "highestMidi": 74,
+        "maxSpanSemitones": 4,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0.2916666666666667,
+        "chordChangesPerBar": 0.625,
+        "shortestDivision": 8,
+        "notesPerBeat": 2.4305555555555554,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.5828571428571429,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 14,
+        "longestRunAtShortestValue": 3,
+        "attackCount": 145,
+        "peakNotesPerSecond": 4.5,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/d-major/song-the-first-noel-simplified",
+      "section": "learning/keys/d-major",
+      "file": "learning/keys/d-major/song-the-first-noel-simplified.musicxml",
+      "bytes": 31886,
+      "hash": "d5f3737be662cfa45fd56a29c4c0126e0f67c7a52292ca1285c839673b54cce0",
+      "meta": {
+        "version": 1,
+        "title": "Song - The First Noel (simplified)",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-1243-first-noel: The First Noel (hymntune), SATB, D major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1243)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1243), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "Traditional (English)",
+        "arranger": "Musicanyya practice material",
+        "trains": "The First Noel in D major and 3/4, over one held block chord a bar in the left (D, G, A).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0).",
+          "Simplified: one block chord a bar, held, with the three primary chords only (D, G, A), instead of the full version's moving left hand.",
+          "Slower: 80 instead of 96 quarter notes a minute."
+        ],
+        "step": "song",
+        "stepOrder": 20
+      },
+      "facts": {
+        "measures": 24,
+        "notes": 145,
+        "durationSeconds": 54,
+        "keys": [
+          "D major"
+        ],
+        "metres": [
+          "3/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 50,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.7083333333333334,
+        "shortestDivision": 8,
+        "notesPerBeat": 2.013888888888889,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.496551724137931,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 3,
+        "attackCount": 97,
+        "peakNotesPerSecond": 2.5,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/d-major/song-tryggare-kan-ingen-vara",
+      "section": "learning/keys/d-major",
+      "file": "learning/keys/d-major/song-tryggare-kan-ingen-vara.musicxml",
+      "bytes": 15952,
+      "hash": "bbaa2217d624996a0913888e6cede43573a4e88c4dd919012ee677b8771e9949",
+      "meta": {
+        "version": 1,
+        "title": "Song - Tryggare kan ingen vara",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-1299-tryggare-kan-ingen-vara: Tryggare kan ingen vara (hymntune), SATB, D major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1299)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1299), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand waltz accompaniment (bass, then chord, chord)",
+        "composer": "Traditional (Swedish)",
+        "arranger": "Musicanyya practice material",
+        "trains": "Tryggare kan ingen vara in D major and 3/4, with an eighth-note pickup, over a waltz left hand (the bass on beat 1, the chord on beats 2 and 3), up to two chords a bar (D, A, Em, G).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "The left-hand waltz accompaniment (bass, then chord, chord) is our own (CC0)."
+        ],
+        "step": "song",
+        "stepOrder": 50
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 68,
+        "durationSeconds": 15.625,
+        "keys": [
+          "D major"
+        ],
+        "metres": [
+          "3/4"
+        ],
+        "tempoBpm": 96,
+        "tempoDefaulted": false,
+        "lowestMidi": 49,
+        "highestMidi": 74,
+        "maxSpanSemitones": 5,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.8888888888888888,
+        "shortestDivision": 8,
+        "notesPerBeat": 2.72,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.5294117647058824,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 9,
+        "longestRunAtShortestValue": 2,
+        "attackCount": 57,
+        "peakNotesPerSecond": 4.5,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/d-major/song-tryggare-kan-ingen-vara-simplified",
+      "section": "learning/keys/d-major",
+      "file": "learning/keys/d-major/song-tryggare-kan-ingen-vara-simplified.musicxml",
+      "bytes": 13800,
+      "hash": "82d44bbb9cdce260e96f8707f397215dfd0b86e1102051b79fe9217ffd4e1983",
+      "meta": {
+        "version": 1,
+        "title": "Song - Tryggare kan ingen vara (simplified)",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-1299-tryggare-kan-ingen-vara: Tryggare kan ingen vara (hymntune), SATB, D major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1299)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1299), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "Traditional (Swedish)",
+        "arranger": "Musicanyya practice material",
+        "trains": "Tryggare kan ingen vara in D major and 3/4, with an eighth-note pickup, over one held block chord a bar in the left (D, G, A).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0).",
+          "Simplified: one block chord a bar, held, with the three primary chords only (D, G, A), instead of the full version's moving left hand.",
+          "Slower: 80 instead of 96 quarter notes a minute."
+        ],
+        "step": "song",
+        "stepOrder": 40
+      },
+      "facts": {
+        "measures": 9,
+        "notes": 59,
+        "durationSeconds": 18.75,
+        "keys": [
+          "D major"
+        ],
+        "metres": [
+          "3/4"
+        ],
+        "tempoBpm": 80,
+        "tempoDefaulted": false,
+        "lowestMidi": 49,
+        "highestMidi": 74,
+        "maxSpanSemitones": 8,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.7777777777777778,
+        "shortestDivision": 8,
+        "notesPerBeat": 2.36,
+        "accidentals": 2,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.4576271186440678,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 9,
+        "longestRunAtShortestValue": 2,
+        "attackCount": 41,
+        "peakNotesPerSecond": 3,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
       "id": "learning/keys/d-minor/advanced",
       "section": "learning/keys/d-minor",
       "file": "learning/keys/d-minor/advanced.musicxml",
@@ -16008,6 +16752,195 @@
       },
       "levelCheck": {
         "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/d-minor/song-passion-chorale",
+      "section": "learning/keys/d-minor",
+      "file": "learning/keys/d-minor/song-passion-chorale.musicxml",
+      "bytes": 54180,
+      "hash": "496a5f1e07863802b9e4ea0a9a7fea4e93967129e1a16ad38524e4f95f5cec9c",
+      "meta": {
+        "version": 1,
+        "title": "Song - Passion Chorale",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-107-passion-chorale: Choral \"O Haupt voll Blut und Wunden\" from the St Matthew Passion (J. S. Bach), SATB with piano, D minor; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=107)",
+          "note": "Melody from Edition Peters (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=107), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand repeated chords on every beat",
+        "composer": "H. L. Hassler (tune \"Passion Chorale\", as J. S. Bach set it)",
+        "arranger": "Musicanyya practice material",
+        "trains": "The Passion Chorale in D minor, with its one-beat pickup, over the left-hand chord struck on every beat, up to two chords a bar (Dm, B♭, F, C, A, Gm).",
+        "hands": "both",
+        "arrangement": true,
+        "raisedBecause": "A chord struck on every beat under a melody that changes chord up to twice a bar, in D minor with the chords of its relative major (F, C) at the cadences; the notes alone measure Beginner.",
+        "departures": [
+          "The left-hand repeated chords on every beat is our own (CC0).",
+          "The fermatas at the ends of the phrases are left out: the music goes on in time."
+        ],
+        "step": "song",
+        "stepOrder": 20
+      },
+      "facts": {
+        "measures": 17,
+        "notes": 249,
+        "durationSeconds": 53.333333333333336,
+        "keys": [
+          "D minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 46,
+        "highestMidi": 79,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 1.5294117647058822,
+        "shortestDivision": 8,
+        "notesPerBeat": 3.890625,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.7710843373493976,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 9,
+        "longestRunAtShortestValue": 2,
+        "attackCount": 121,
+        "peakNotesPerSecond": 3.5,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/d-minor/song-passion-chorale-simplified",
+      "section": "learning/keys/d-minor",
+      "file": "learning/keys/d-minor/song-passion-chorale-simplified.musicxml",
+      "bytes": 23185,
+      "hash": "7cd4c6e0a2bc055b8dacec6509a69361a7913bc1066fb4ac3d6e72ce22206ebf",
+      "meta": {
+        "version": 1,
+        "title": "Song - Passion Chorale (simplified)",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-107-passion-chorale: Choral \"O Haupt voll Blut und Wunden\" from the St Matthew Passion (J. S. Bach), SATB with piano, D minor; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=107)",
+          "note": "Melody from Edition Peters (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=107), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "H. L. Hassler (tune \"Passion Chorale\", as J. S. Bach set it)",
+        "arranger": "Musicanyya practice material",
+        "trains": "The Passion Chorale in D minor, with its one-beat pickup, over one held block chord a bar in the left (Dm, C, Gm).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0).",
+          "Simplified: one block chord a bar, held, with the chords of a beginner minor song only (Dm, C, Gm), instead of the full version's moving left hand.",
+          "Slower: 60 instead of 72 quarter notes a minute.",
+          "The fermatas at the ends of the phrases are left out: the music goes on in time."
+        ],
+        "step": "song",
+        "stepOrder": 10
+      },
+      "facts": {
+        "measures": 17,
+        "notes": 108,
+        "durationSeconds": 64,
+        "keys": [
+          "D minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 48,
+        "highestMidi": 79,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.7647058823529411,
+        "shortestDivision": 8,
+        "notesPerBeat": 1.6875,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.4722222222222222,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 8,
+        "longestRunAtShortestValue": 2,
+        "attackCount": 74,
+        "peakNotesPerSecond": 2.5,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
+      },
+      "levelCheck": {
+        "level": "beginner",
         "pass": true,
         "failed": []
       }
@@ -17413,6 +18346,196 @@
       }
     },
     {
+      "id": "learning/keys/e-minor/song-leoni",
+      "section": "learning/keys/e-minor",
+      "file": "learning/keys/e-minor/song-leoni.musicxml",
+      "bytes": 43830,
+      "hash": "c61ecaa500e752d81716a064b8f673e0b0cf532a153541547b1912343ee1930a",
+      "meta": {
+        "version": 1,
+        "title": "Song - The God of Abraham Praise",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-525-leoni: Leoni (hymntune from a synagogue melody for the Yigdal, transcribed by M. Lyon and adapted by T. Olivers: The God of Abraham Praise), SATB, sounding E minor; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=525)",
+          "note": "Melody from Australian Hymn Book, number 53 (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=525), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand broken chords (root, fifth, third, fifth)",
+        "composer": "Traditional (synagogue melody for the Yigdal, tune \"Leoni\", adapted by M. Lyon)",
+        "arranger": "Musicanyya practice material",
+        "trains": "The God of Abraham Praise (tune \"Leoni\") in E minor, with a one-beat pickup, over a broken-chord left hand in eighths, up to two chords a bar (B, Em, Am, G, D, C).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "The left-hand broken chords (root, fifth, third, fifth) is our own (CC0).",
+          "The double bar lines the source prints inside the bars at the ends of phrases are left out: the music is written in whole 4/4 bars.",
+          "Written in E minor, the key the source sounds in (the source writes it in F minor and transposes it down a semitone)."
+        ],
+        "step": "song",
+        "stepOrder": 30
+      },
+      "facts": {
+        "measures": 17,
+        "notes": 183,
+        "durationSeconds": 43.63636363636363,
+        "keys": [
+          "E minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 88,
+        "tempoDefaulted": false,
+        "lowestMidi": 45,
+        "highestMidi": 74,
+        "maxSpanSemitones": 0,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0,
+        "shortestDivision": 8,
+        "notesPerBeat": 2.859375,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.6994535519125683,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 17,
+        "longestRunAtShortestValue": 128,
+        "attackCount": 183,
+        "peakNotesPerSecond": 6,
+        "accidentalMarkCount": 4,
+        "minorScaleAccidentalCount": 4,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/e-minor/song-leoni-simplified",
+      "section": "learning/keys/e-minor",
+      "file": "learning/keys/e-minor/song-leoni-simplified.musicxml",
+      "bytes": 23306,
+      "hash": "20a20967d13b83fb607c2d2bde0ae4ab1466b115db5ad026e941f992325cfe94",
+      "meta": {
+        "version": 1,
+        "title": "Song - The God of Abraham Praise (simplified)",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-525-leoni: Leoni (hymntune from a synagogue melody for the Yigdal, transcribed by M. Lyon and adapted by T. Olivers: The God of Abraham Praise), SATB, sounding E minor; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=525)",
+          "note": "Melody from Australian Hymn Book, number 53 (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=525), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "Traditional (synagogue melody for the Yigdal, tune \"Leoni\", adapted by M. Lyon)",
+        "arranger": "Musicanyya practice material",
+        "trains": "The God of Abraham Praise (tune \"Leoni\") in E minor, with a one-beat pickup, over one held block chord a bar in the left (Em, D, Bm, B, Am).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0).",
+          "Simplified: one block chord a bar, held, with the chords of a beginner minor song only (Em, D, Bm, B, Am), instead of the full version's moving left hand.",
+          "Slower: 72 instead of 88 quarter notes a minute.",
+          "The double bar lines the source prints inside the bars at the ends of phrases are left out: the music is written in whole 4/4 bars.",
+          "Written in E minor, the key the source sounds in (the source writes it in F minor and transposes it down a semitone)."
+        ],
+        "step": "song",
+        "stepOrder": 20
+      },
+      "facts": {
+        "measures": 17,
+        "notes": 106,
+        "durationSeconds": 53.333333333333336,
+        "keys": [
+          "E minor"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 40,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.8823529411764706,
+        "shortestDivision": 8,
+        "notesPerBeat": 1.65625,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.4811320754716981,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 12,
+        "longestRunAtShortestValue": 6,
+        "attackCount": 72,
+        "peakNotesPerSecond": 3,
+        "accidentalMarkCount": 3,
+        "minorScaleAccidentalCount": 3,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": false,
+        "hasShortNotes": true
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
       "id": "learning/keys/e-minor/song-o-come-o-come-emmanuel",
       "section": "learning/keys/e-minor",
       "file": "learning/keys/e-minor/song-o-come-o-come-emmanuel.musicxml",
@@ -17857,6 +18980,564 @@
       },
       "levelCheck": {
         "level": "introduction",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/f-major/song-hark-the-herald-angels-sing",
+      "section": "learning/keys/f-major",
+      "file": "learning/keys/f-major/song-hark-the-herald-angels-sing.musicxml",
+      "bytes": 67233,
+      "hash": "b96f9900d40f815a3fa4a820406ba15759c72a5f5ad425485e2bd1e4f4a4ea55",
+      "meta": {
+        "version": 1,
+        "title": "Song - Hark! the Herald Angels Sing",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-1261-mendelssohn: Mendelssohn (hymntune, F. Mendelssohn: Hark! the Herald Angels Sing), SATB, F major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1261)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1261), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand repeated chords on every beat",
+        "composer": "F. Mendelssohn (tune \"Mendelssohn\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "Hark! the Herald Angels Sing in F major, over the left-hand chord struck on every beat, up to two chords a bar (F, C, Dm, Gm, B♭).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "The left-hand repeated chords on every beat is our own (CC0)."
+        ],
+        "step": "song",
+        "stepOrder": 30
+      },
+      "facts": {
+        "measures": 20,
+        "notes": 316,
+        "durationSeconds": 48,
+        "keys": [
+          "F major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 100,
+        "tempoDefaulted": false,
+        "lowestMidi": 41,
+        "highestMidi": 74,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0.35,
+        "chordChangesPerBar": 1.35,
+        "shortestDivision": 8,
+        "notesPerBeat": 3.95,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.759493670886076,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 12,
+        "longestRunAtShortestValue": 2,
+        "attackCount": 156,
+        "peakNotesPerSecond": 4.5,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/f-major/song-hark-the-herald-angels-sing-simplified",
+      "section": "learning/keys/f-major",
+      "file": "learning/keys/f-major/song-hark-the-herald-angels-sing-simplified.musicxml",
+      "bytes": 27989,
+      "hash": "429f959dfcb6f0c077916a3cbfa79227a6a1eef0c23b16e9b1dfcd1b6ff59da2",
+      "meta": {
+        "version": 1,
+        "title": "Song - Hark! the Herald Angels Sing (simplified)",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-1261-mendelssohn: Mendelssohn (hymntune, F. Mendelssohn: Hark! the Herald Angels Sing), SATB, F major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1261)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1261), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "F. Mendelssohn (tune \"Mendelssohn\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "Hark! the Herald Angels Sing in F major, over one held block chord a bar in the left (F, C, B♭).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0).",
+          "Simplified: one block chord a bar, held, with the three primary chords only (F, C, B♭), instead of the full version's moving left hand.",
+          "Slower: 84 instead of 100 quarter notes a minute."
+        ],
+        "step": "song",
+        "stepOrder": 20
+      },
+      "facts": {
+        "measures": 20,
+        "notes": 136,
+        "durationSeconds": 57.142857142857146,
+        "keys": [
+          "F major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 84,
+        "tempoDefaulted": false,
+        "lowestMidi": 41,
+        "highestMidi": 74,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.6,
+        "shortestDivision": 8,
+        "notesPerBeat": 1.7,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.4411764705882353,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 12,
+        "longestRunAtShortestValue": 2,
+        "attackCount": 96,
+        "peakNotesPerSecond": 2.5,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/f-major/song-in-the-bleak-midwinter",
+      "section": "learning/keys/f-major",
+      "file": "learning/keys/f-major/song-in-the-bleak-midwinter.musicxml",
+      "bytes": 42477,
+      "hash": "2e938f2b8f65d1417e18ca8f227931a9842edb2e36412200c678385babe61a8e",
+      "meta": {
+        "version": 1,
+        "title": "Song - In the Bleak Midwinter",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-1233-cranham: Cranham (hymntune, G. Holst: In the Bleak Midwinter), SATB, F major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1233)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1233), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand broken chords (root, fifth, third, fifth)",
+        "composer": "G. Holst (tune \"Cranham\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "In the Bleak Midwinter in F major, with its dotted rhythms, over a broken-chord left hand in eighths, up to two chords a bar (F, Gm, Dm, C, B♭).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "The left-hand broken chords (root, fifth, third, fifth) is our own (CC0)."
+        ],
+        "step": "song",
+        "stepOrder": 50
+      },
+      "facts": {
+        "measures": 17,
+        "notes": 177,
+        "durationSeconds": 54.166666666666664,
+        "keys": [
+          "F major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 72,
+        "tempoDefaulted": false,
+        "lowestMidi": 43,
+        "highestMidi": 74,
+        "maxSpanSemitones": 0,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0,
+        "shortestDivision": 8,
+        "notesPerBeat": 2.723076923076923,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.7344632768361582,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 14,
+        "longestRunAtShortestValue": 130,
+        "attackCount": 177,
+        "peakNotesPerSecond": 4,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": true,
+        "hasShortNotes": true
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/f-major/song-in-the-bleak-midwinter-simplified",
+      "section": "learning/keys/f-major",
+      "file": "learning/keys/f-major/song-in-the-bleak-midwinter-simplified.musicxml",
+      "bytes": 21812,
+      "hash": "a05e6c54453c2f99fbca371c60dbfb0aa12cca0e1be6ff74ed5fa35c84bad15c",
+      "meta": {
+        "version": 1,
+        "title": "Song - In the Bleak Midwinter (simplified)",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-1233-cranham: Cranham (hymntune, G. Holst: In the Bleak Midwinter), SATB, F major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1233)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1233), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "G. Holst (tune \"Cranham\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "In the Bleak Midwinter in F major, with its dotted rhythms, over one held block chord a bar in the left (F, B♭, C).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0).",
+          "Simplified: one block chord a bar, held, with the three primary chords only (F, B♭, C), instead of the full version's moving left hand.",
+          "Slower: 60 instead of 72 quarter notes a minute."
+        ],
+        "step": "song",
+        "stepOrder": 40
+      },
+      "facts": {
+        "measures": 17,
+        "notes": 98,
+        "durationSeconds": 65,
+        "keys": [
+          "F major"
+        ],
+        "metres": [
+          "4/4"
+        ],
+        "tempoBpm": 60,
+        "tempoDefaulted": false,
+        "lowestMidi": 46,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.8235294117647058,
+        "shortestDivision": 8,
+        "notesPerBeat": 1.5076923076923077,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.5204081632653061,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 1,
+        "attackCount": 64,
+        "peakNotesPerSecond": 2,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": true,
+        "hasShortNotes": false
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/f-major/song-praise-to-the-lord",
+      "section": "learning/keys/f-major",
+      "file": "learning/keys/f-major/song-praise-to-the-lord.musicxml",
+      "bytes": 53494,
+      "hash": "1b5e068534c57dc7085a7910d2ba786285bf79e66c818c005bbfa2df0039e9d5",
+      "meta": {
+        "version": 1,
+        "title": "Song - Praise to the Lord",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-1256-lobe-den-herren: Lobe den Herren (hymntune), SATB, sounding F major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1256)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1256), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand repeated chords on every beat",
+        "composer": "Traditional (German, tune \"Lobe den Herren\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "Praise to the Lord in F major and 3/4, over the left-hand chord struck on every beat, up to two chords a bar (F, C, Dm, B♭, Gm).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "The left-hand repeated chords on every beat is our own (CC0)."
+        ],
+        "step": "song",
+        "stepOrder": 70
+      },
+      "facts": {
+        "measures": 21,
+        "notes": 239,
+        "durationSeconds": 36.34615384615385,
+        "keys": [
+          "F major"
+        ],
+        "metres": [
+          "3/4"
+        ],
+        "tempoBpm": 104,
+        "tempoDefaulted": false,
+        "lowestMidi": 46,
+        "highestMidi": 74,
+        "maxSpanSemitones": 9,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0.14285714285714285,
+        "chordChangesPerBar": 1.5714285714285714,
+        "shortestDivision": 8,
+        "notesPerBeat": 3.7936507936507935,
+        "accidentals": 1,
+        "hasTies": true,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.7907949790794979,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 1,
+        "attackCount": 113,
+        "peakNotesPerSecond": 4,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 2,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": true,
+        "hasShortNotes": false
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/f-major/song-praise-to-the-lord-simplified",
+      "section": "learning/keys/f-major",
+      "file": "learning/keys/f-major/song-praise-to-the-lord-simplified.musicxml",
+      "bytes": 24957,
+      "hash": "b8ce09f35d6e8af98d03d42612e9be7eb218ef040f45bef5c70c5c4d5017b500",
+      "meta": {
+        "version": 1,
+        "title": "Song - Praise to the Lord (simplified)",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-1256-lobe-den-herren: Lobe den Herren (hymntune), SATB, sounding F major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1256)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1256), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "Traditional (German, tune \"Lobe den Herren\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "Praise to the Lord in F major and 3/4, over one held block chord a bar in the left (F, C, B♭).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0).",
+          "Simplified: one block chord a bar, held, with the three primary chords only (F, C, B♭), instead of the full version's moving left hand.",
+          "Slower: 88 instead of 104 quarter notes a minute."
+        ],
+        "step": "song",
+        "stepOrder": 60
+      },
+      "facts": {
+        "measures": 21,
+        "notes": 110,
+        "durationSeconds": 42.95454545454545,
+        "keys": [
+          "F major"
+        ],
+        "metres": [
+          "3/4"
+        ],
+        "tempoBpm": 88,
+        "tempoDefaulted": false,
+        "lowestMidi": 46,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.7142857142857143,
+        "shortestDivision": 8,
+        "notesPerBeat": 1.746031746031746,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.5727272727272728,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 7,
+        "longestRunAtShortestValue": 1,
+        "attackCount": 68,
+        "peakNotesPerSecond": 2.5,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": false,
+        "hasDottedRhythm": true,
+        "hasShortNotes": false
+      },
+      "levelCheck": {
+        "level": "beginner",
         "pass": true,
         "failed": []
       }
@@ -19535,6 +21216,192 @@
         "repeatKind": "none",
         "backwardRepeatCount": 0,
         "hasPickup": false,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
+      },
+      "levelCheck": {
+        "level": "beginner",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/g-major/song-immortal-invisible",
+      "section": "learning/keys/g-major",
+      "file": "learning/keys/g-major/song-immortal-invisible.musicxml",
+      "bytes": 26167,
+      "hash": "8f929fca8d4bc3c238eb9abeae36ba8e100fa443420d3afb2a7ca46da74ff154",
+      "meta": {
+        "version": 1,
+        "title": "Song - Immortal, Invisible",
+        "kind": "piece",
+        "level": "intermediate",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-1291-st-denio: St. Denio (hymntune: Immortal, Invisible), SATB, sounding G major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1291)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1291), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand waltz accompaniment (bass, then chord, chord)",
+        "composer": "Traditional (Welsh, tune \"St. Denio\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "Immortal, Invisible in G major and 3/4, with a one-beat pickup, over a waltz left hand (the bass on beat 1, the chord on beats 2 and 3), up to two chords a bar (G, C, Am, D, Em).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "The left-hand waltz accompaniment (bass, then chord, chord) is our own (CC0)."
+        ],
+        "step": "song",
+        "stepOrder": 60
+      },
+      "facts": {
+        "measures": 17,
+        "notes": 114,
+        "durationSeconds": 28.26923076923077,
+        "keys": [
+          "G major"
+        ],
+        "metres": [
+          "3/4"
+        ],
+        "tempoBpm": 104,
+        "tempoDefaulted": false,
+        "lowestMidi": 48,
+        "highestMidi": 74,
+        "maxSpanSemitones": 4,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.7058823529411765,
+        "shortestDivision": 4,
+        "notesPerBeat": 2.326530612244898,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.6140350877192983,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 14,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 93,
+        "peakNotesPerSecond": 4,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
+        "hasDottedRhythm": false,
+        "hasShortNotes": false
+      },
+      "levelCheck": {
+        "level": "intermediate",
+        "pass": true,
+        "failed": []
+      }
+    },
+    {
+      "id": "learning/keys/g-major/song-immortal-invisible-simplified",
+      "section": "learning/keys/g-major",
+      "file": "learning/keys/g-major/song-immortal-invisible-simplified.musicxml",
+      "bytes": 21377,
+      "hash": "21a91ab6ec999b5559b41a7017f88ff77b340f463e7262b0903941b88332e0c9",
+      "meta": {
+        "version": 1,
+        "title": "Song - Immortal, Invisible (simplified)",
+        "kind": "piece",
+        "level": "beginner",
+        "tags": [
+          "chords",
+          "hands-together"
+        ],
+        "provenance": {
+          "origin": "authored",
+          "licence": "CC0-1.0",
+          "author": "claude-opus-5.5",
+          "created": "2026-10-03",
+          "basedOn": "mutopia-1291-st-denio: St. Denio (hymntune: Immortal, Invisible), SATB, sounding G major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1291)",
+          "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1291), public domain; left-hand chords our own (CC0)"
+        },
+        "reviewedBy": "claude-opus-5.5",
+        "reviewedOn": "2026-10-03",
+        "subtitle": "Arrangement: the tune with left-hand block chords",
+        "composer": "Traditional (Welsh, tune \"St. Denio\")",
+        "arranger": "Musicanyya practice material",
+        "trains": "Immortal, Invisible in G major and 3/4, with a one-beat pickup, over one held block chord a bar in the left (G, C, D).",
+        "hands": "both",
+        "arrangement": true,
+        "departures": [
+          "Left-hand block chords are our own (CC0).",
+          "Simplified: one block chord a bar, held, with the three primary chords only (G, C, D), instead of the full version's moving left hand.",
+          "Slower: 88 instead of 104 quarter notes a minute."
+        ],
+        "step": "song",
+        "stepOrder": 50
+      },
+      "facts": {
+        "measures": 17,
+        "notes": 95,
+        "durationSeconds": 33.40909090909091,
+        "keys": [
+          "G major"
+        ],
+        "metres": [
+          "3/4"
+        ],
+        "tempoBpm": 88,
+        "tempoDefaulted": false,
+        "lowestMidi": 48,
+        "highestMidi": 74,
+        "maxSpanSemitones": 7,
+        "staves": 2,
+        "voicesPerStaff": 1,
+        "handIndependenceFraction": 0,
+        "chordChangesPerBar": 0.6470588235294118,
+        "shortestDivision": 4,
+        "notesPerBeat": 1.9387755102040816,
+        "accidentals": 1,
+        "hasTies": false,
+        "hasTuplets": false,
+        "hasGraceNotes": false,
+        "hasOctaveShift": false,
+        "hasRepeats": false,
+        "hasPedal": false,
+        "fingeringCoverage": 0.5368421052631579,
+        "notices": [],
+        "parts": 1,
+        "tempoChanges": 0,
+        "maxLeapSemitones": 9,
+        "longestRunAtShortestValue": 0,
+        "attackCount": 61,
+        "peakNotesPerSecond": 2.5,
+        "accidentalMarkCount": 0,
+        "minorScaleAccidentalCount": 0,
+        "maxTieChainNotes": 0,
+        "maxTieBarlinesCrossed": 0,
+        "hasNonSimpleTuplet": false,
+        "graceNoteCount": 0,
+        "ornamentCount": 0,
+        "repeatKind": "none",
+        "backwardRepeatCount": 0,
+        "hasPickup": true,
         "hasDottedRhythm": false,
         "hasShortNotes": false
       },

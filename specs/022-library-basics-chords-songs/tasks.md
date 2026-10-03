@@ -316,12 +316,12 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
   refuses): `tools/library/songs/definition.ts` validates it; `tools/library/build-songs.ts` joins a short bar inside
   the piece with the next when together they make at most one bar of the metre (never across a repeat or ending); tests
   first in `tests/tools/songs/build-songs.test.ts` and `definition.test.ts`; contract `song-definition-1.2.md` updated.
-- [ ] T059 [US3] Author the full and simplified song definitions for tunes 1-5 in `content/library/songs/` (melody
+- [x] T059 [US3] Author the full and simplified song definitions for tunes 1-5 in `content/library/songs/` (melody
   staff/voice/bars, transposition onto a key shelf where it helps - listed as a departure -, intermediate chords with a
   `leftHand.pattern`, beginner block chords, `trains`, `composer`, `departures`, `reviewedBy`, and
   `meta.raisedBecause` on a full version whose measured level is below Intermediate).
-- [ ] T060 [US3] Same as T059 for tunes 6-10.
-- [ ] T061 [US3] [light] Run `pnpm library:songs` and `pnpm library:index`; record 20 items written and every level
+- [x] T060 [US3] Same as T059 for tunes 6-10.
+- [x] T061 [US3] [light] Run `pnpm library:songs` and `pnpm library:index`; record 20 items written and every level
   check passing.
 - [ ] T062 [US3] [standard] Write the 20 audit records under `content/library/audit/learning/keys/<key>/` (`mechanical`
   melody vs source, `expectedDifferences: 0`; `theory` / `song-chords-v2`); run `pnpm library:fidelity`; 0 differences.
@@ -344,8 +344,8 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
 - [x] T065 [P] [US4] Write a failing test in `tests/library/fidelity.test.ts`: every source named by a song definition
   created in feature 022 (the ids listed in `tests/library/songs-022.test.ts`) has `multiPart` with `available`; a
   manifest with a malformed `multiPart` is rejected by `tools/library/fidelity/sources.ts`.
-- [~] T066 [US4] Implement the optional `multiPart` field in `tools/library/fidelity/sources.ts` (source-manifest
-  1.4.0). T065 green with the manifests written in T057/T058. (claimed: claude-opus-5.5 2026-10-04)
+- [x] T066 [US4] Implement the optional `multiPart` field in `tools/library/fidelity/sources.ts` (source-manifest
+  1.4.0). T065 green with the manifests written in T057/T058.
 
 **Checkpoint (US4)**: T065 green; quickstart US4 verified (Play on a new song uses the Guide voice). Log + commit.
 

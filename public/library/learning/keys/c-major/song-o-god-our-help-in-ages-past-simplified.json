@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "title": "Song - O God, Our Help in Ages Past (simplified)",
+  "composer": "W. Croft (tune \"St. Anne\")",
+  "subtitle": "Arrangement: the tune with left-hand block chords",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "O God, Our Help in Ages Past in C major, over one held block chord a bar in the left (C, F, G).",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-opus-5.5",
+    "created": "2026-10-03",
+    "basedOn": "mutopia-1290-st-anne: St. Anne (hymntune, W. Croft: O God, Our Help in Ages Past), SATB; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1290)",
+    "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1290), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": [
+    "Left-hand block chords are our own (CC0).",
+    "Simplified: one block chord a bar, held, with the three primary chords only (C, F, G), instead of the full version's moving left hand.",
+    "Slower: 72 instead of 88 quarter notes a minute."
+  ],
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03",
+  "step": "song",
+  "stepOrder": 20,
+  "simplifies": "learning/keys/c-major/song-o-god-our-help-in-ages-past"
+}

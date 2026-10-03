@@ -1,0 +1,166 @@
+{
+  "version": 1,
+  "id": "learning/keys/f-major/song-hark-the-herald-angels-sing",
+  "title": "Song - Hark! the Herald Angels Sing",
+  "source": "mutopia-1261-mendelssohn",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1.1",
+    "bars": "all"
+  },
+  "key": {
+    "tonic": "F",
+    "mode": "major",
+    "fifths": -1
+  },
+  "tempoBpm": 100,
+  "chords": [
+    {
+      "bar": 1,
+      "degree": "I"
+    },
+    {
+      "bar": 2,
+      "degree": "I"
+    },
+    {
+      "bar": 2,
+      "beat": 4,
+      "degree": "V"
+    },
+    {
+      "bar": 3,
+      "degree": "I"
+    },
+    {
+      "bar": 3,
+      "beat": 3,
+      "degree": "V"
+    },
+    {
+      "bar": 4,
+      "degree": "I"
+    },
+    {
+      "bar": 5,
+      "degree": "I"
+    },
+    {
+      "bar": 6,
+      "degree": "vi"
+    },
+    {
+      "bar": 6,
+      "beat": 4,
+      "degree": "ii"
+    },
+    {
+      "bar": 7,
+      "degree": "V"
+    },
+    {
+      "bar": 8,
+      "degree": "V"
+    },
+    {
+      "bar": 9,
+      "degree": "V"
+    },
+    {
+      "bar": 9,
+      "beat": 4,
+      "degree": "I"
+    },
+    {
+      "bar": 10,
+      "degree": "V"
+    },
+    {
+      "bar": 10,
+      "beat": 2,
+      "degree": "I"
+    },
+    {
+      "bar": 11,
+      "degree": "V"
+    },
+    {
+      "bar": 11,
+      "beat": 4,
+      "degree": "I"
+    },
+    {
+      "bar": 12,
+      "degree": "V"
+    },
+    {
+      "bar": 12,
+      "beat": 2,
+      "degree": "I"
+    },
+    {
+      "bar": 13,
+      "degree": "IV"
+    },
+    {
+      "bar": 14,
+      "degree": "ii"
+    },
+    {
+      "bar": 15,
+      "degree": "ii"
+    },
+    {
+      "bar": 15,
+      "beat": 3,
+      "degree": "I"
+    },
+    {
+      "bar": 16,
+      "beat": 2,
+      "degree": "V"
+    },
+    {
+      "bar": 16,
+      "beat": 3,
+      "degree": "I"
+    },
+    {
+      "bar": 17,
+      "degree": "IV"
+    },
+    {
+      "bar": 18,
+      "degree": "ii"
+    },
+    {
+      "bar": 19,
+      "degree": "ii"
+    },
+    {
+      "bar": 19,
+      "beat": 3,
+      "degree": "I"
+    },
+    {
+      "bar": 20,
+      "beat": 2,
+      "degree": "V"
+    },
+    {
+      "bar": 20,
+      "beat": 3,
+      "degree": "I"
+    }
+  ],
+  "leftHand": {
+    "pattern": "repeated"
+  },
+  "meta": {
+    "level": "intermediate",
+    "trains": "Hark! the Herald Angels Sing in F major, over the left-hand chord struck on every beat, up to two chords a bar (F, C, Dm, Gm, B♭).",
+    "composer": "F. Mendelssohn (tune \"Mendelssohn\")",
+    "reviewedBy": "claude-opus-5.5",
+    "reviewedOn": "2026-10-03"
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "version": 1,
+  "id": "learning/keys/d-minor/song-passion-chorale",
+  "title": "Song - Passion Chorale",
+  "source": "mutopia-107-passion-chorale",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1:voice:one",
+    "bars": "all"
+  },
+  "key": {
+    "tonic": "D",
+    "mode": "minor",
+    "fifths": -1
+  },
+  "tempoBpm": 72,
+  "chords": [
+    {
+      "bar": 0,
+      "degree": "i"
+    },
+    {
+      "bar": 1,
+      "degree": "VI"
+    },
+    {
+      "bar": 1,
+      "beat": 4,
+      "degree": "III"
+    },
+    {
+      "bar": 2,
+      "degree": "VII"
+    },
+    {
+      "bar": 2,
+      "beat": 3,
+      "degree": "V"
+    },
+    {
+      "bar": 3,
+      "degree": "i"
+    },
+    {
+      "bar": 3,
+      "beat": 3,
+      "degree": "V"
+    },
+    {
+      "bar": 4,
+      "degree": "i"
+    },
+    {
+      "bar": 5,
+      "degree": "VI"
+    },
+    {
+      "bar": 5,
+      "beat": 4,
+      "degree": "III"
+    },
+    {
+      "bar": 6,
+      "degree": "VII"
+    },
+    {
+      "bar": 6,
+      "beat": 3,
+      "degree": "V"
+    },
+    {
+      "bar": 7,
+      "degree": "i"
+    },
+    {
+      "bar": 7,
+      "beat": 3,
+      "degree": "V"
+    },
+    {
+      "bar": 8,
+      "degree": "i"
+    },
+    {
+      "bar": 9,
+      "degree": "VII"
+    },
+    {
+      "bar": 10,
+      "degree": "III"
+    },
+    {
+      "bar": 11,
+      "degree": "VI"
+    },
+    {
+      "bar": 11,
+      "beat": 3,
+      "degree": "iv"
+    },
+    {
+      "bar": 12,
+      "degree": "i"
+    },
+    {
+      "bar": 13,
+      "degree": "VII"
+    },
+    {
+      "bar": 14,
+      "degree": "iv"
+    },
+    {
+      "bar": 14,
+      "beat": 3,
+      "degree": "VII"
+    },
+    {
+      "bar": 15,
+      "degree": "iv"
+    },
+    {
+      "bar": 15,
+      "beat": 3,
+      "degree": "VII"
+    },
+    {
+      "bar": 16,
+      "degree": "III"
+    }
+  ],
+  "leftHand": {
+    "pattern": "repeated"
+  },
+  "meta": {
+    "level": "intermediate",
+    "trains": "The Passion Chorale in D minor, with its one-beat pickup, over the left-hand chord struck on every beat, up to two chords a bar (Dm, B♭, F, C, A, Gm).",
+    "composer": "H. L. Hassler (tune \"Passion Chorale\", as J. S. Bach set it)",
+    "departures": ["The fermatas at the ends of the phrases are left out: the music goes on in time."],
+    "raisedBecause": "A chord struck on every beat under a melody that changes chord up to twice a bar, in D minor with the chords of its relative major (F, C) at the cadences; the notes alone measure Beginner.",
+    "reviewedBy": "claude-opus-5.5",
+    "reviewedOn": "2026-10-03"
+  }
+}

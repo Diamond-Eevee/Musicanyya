@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "title": "Song - The First Noel",
+  "composer": "Traditional (English)",
+  "subtitle": "Arrangement: the tune with left-hand waltz accompaniment (bass, then chord, chord)",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "intermediate",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "The First Noel in D major and 3/4, over a waltz left hand (the bass on beat 1, the chord on beats 2 and 3), up to two chords a bar (D, Bm, A, Em, G).",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-opus-5.5",
+    "created": "2026-10-03",
+    "basedOn": "mutopia-1243-first-noel: The First Noel (hymntune), SATB, D major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1243)",
+    "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1243), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": ["The left-hand waltz accompaniment (bass, then chord, chord) is our own (CC0)."],
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03",
+  "step": "song",
+  "stepOrder": 30
+}

@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "title": "Song - Praise to the Lord (simplified)",
+  "composer": "Traditional (German, tune \"Lobe den Herren\")",
+  "subtitle": "Arrangement: the tune with left-hand block chords",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "beginner",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "Praise to the Lord in F major and 3/4, over one held block chord a bar in the left (F, C, B♭).",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-opus-5.5",
+    "created": "2026-10-03",
+    "basedOn": "mutopia-1256-lobe-den-herren: Lobe den Herren (hymntune), SATB, sounding F major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1256)",
+    "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1256), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": [
+    "Left-hand block chords are our own (CC0).",
+    "Simplified: one block chord a bar, held, with the three primary chords only (F, C, B♭), instead of the full version's moving left hand.",
+    "Slower: 88 instead of 104 quarter notes a minute."
+  ],
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03",
+  "step": "song",
+  "stepOrder": 60,
+  "simplifies": "learning/keys/f-major/song-praise-to-the-lord"
+}

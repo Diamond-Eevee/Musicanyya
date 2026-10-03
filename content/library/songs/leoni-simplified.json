@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "id": "learning/keys/e-minor/song-leoni-simplified",
+  "title": "Song - The God of Abraham Praise (simplified)",
+  "source": "mutopia-525-leoni",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1:voice:sop",
+    "bars": "all",
+    "joinShortBars": true
+  },
+  "key": {
+    "tonic": "E",
+    "mode": "minor",
+    "fifths": 1
+  },
+  "tempoBpm": 72,
+  "chords": [
+    {
+      "bar": 0,
+      "degree": "i"
+    },
+    {
+      "bar": 1,
+      "degree": "i"
+    },
+    {
+      "bar": 2,
+      "degree": "i"
+    },
+    {
+      "bar": 3,
+      "degree": "VII"
+    },
+    {
+      "bar": 4,
+      "degree": "v"
+    },
+    {
+      "bar": 5,
+      "degree": "i"
+    },
+    {
+      "bar": 6,
+      "degree": "VII"
+    },
+    {
+      "bar": 7,
+      "degree": "VII"
+    },
+    {
+      "bar": 8,
+      "degree": "i"
+    },
+    {
+      "bar": 9,
+      "degree": "v"
+    },
+    {
+      "bar": 10,
+      "degree": "VII"
+    },
+    {
+      "bar": 11,
+      "degree": "i"
+    },
+    {
+      "bar": 12,
+      "degree": "V"
+    },
+    {
+      "bar": 13,
+      "degree": "i"
+    },
+    {
+      "bar": 14,
+      "degree": "iv"
+    },
+    {
+      "bar": 15,
+      "degree": "V"
+    },
+    {
+      "bar": 16,
+      "degree": "i"
+    }
+  ],
+  "simplifies": "learning/keys/e-minor/song-leoni",
+  "meta": {
+    "level": "beginner",
+    "trains": "The God of Abraham Praise (tune \"Leoni\") in E minor, with a one-beat pickup, over one held block chord a bar in the left (Em, D, Bm, B, Am).",
+    "composer": "Traditional (synagogue melody for the Yigdal, tune \"Leoni\", adapted by M. Lyon)",
+    "departures": [
+      "Simplified: one block chord a bar, held, with the chords of a beginner minor song only (Em, D, Bm, B, Am), instead of the full version's moving left hand.",
+      "Slower: 72 instead of 88 quarter notes a minute.",
+      "The double bar lines the source prints inside the bars at the ends of phrases are left out: the music is written in whole 4/4 bars.",
+      "Written in E minor, the key the source sounds in (the source writes it in F minor and transposes it down a semitone)."
+    ],
+    "reviewedBy": "claude-opus-5.5",
+    "reviewedOn": "2026-10-03"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "id": "learning/keys/c-major/song-o-god-our-help-in-ages-past-simplified",
+  "title": "Song - O God, Our Help in Ages Past (simplified)",
+  "source": "mutopia-1290-st-anne",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1.1",
+    "bars": "all"
+  },
+  "key": {
+    "tonic": "C",
+    "mode": "major",
+    "fifths": 0
+  },
+  "tempoBpm": 72,
+  "chords": [
+    {
+      "bar": 1,
+      "degree": "I"
+    },
+    {
+      "bar": 2,
+      "degree": "IV"
+    },
+    {
+      "bar": 3,
+      "degree": "I"
+    },
+    {
+      "bar": 4,
+      "degree": "V"
+    },
+    {
+      "bar": 5,
+      "degree": "IV"
+    },
+    {
+      "bar": 6,
+      "degree": "V"
+    },
+    {
+      "bar": 7,
+      "degree": "IV"
+    },
+    {
+      "bar": 8,
+      "degree": "I"
+    }
+  ],
+  "simplifies": "learning/keys/c-major/song-o-god-our-help-in-ages-past",
+  "meta": {
+    "level": "beginner",
+    "trains": "O God, Our Help in Ages Past in C major, over one held block chord a bar in the left (C, F, G).",
+    "composer": "W. Croft (tune \"St. Anne\")",
+    "departures": [
+      "Simplified: one block chord a bar, held, with the three primary chords only (C, F, G), instead of the full version's moving left hand.",
+      "Slower: 72 instead of 88 quarter notes a minute."
+    ],
+    "reviewedBy": "claude-opus-5.5",
+    "reviewedOn": "2026-10-03"
+  }
+}

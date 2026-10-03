@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "title": "Song - Praise to the Lord",
+  "composer": "Traditional (German, tune \"Lobe den Herren\")",
+  "subtitle": "Arrangement: the tune with left-hand repeated chords on every beat",
+  "arranger": "Musicanyya practice material",
+  "kind": "piece",
+  "level": "intermediate",
+  "arrangement": true,
+  "tags": ["chords", "hands-together"],
+  "trains": "Praise to the Lord in F major and 3/4, over the left-hand chord struck on every beat, up to two chords a bar (F, C, Dm, B♭, Gm).",
+  "hands": "both",
+  "provenance": {
+    "origin": "authored",
+    "licence": "CC0-1.0",
+    "author": "claude-opus-5.5",
+    "created": "2026-10-03",
+    "basedOn": "mutopia-1256-lobe-den-herren: Lobe den Herren (hymntune), SATB, sounding F major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1256)",
+    "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1256), public domain; left-hand chords our own (CC0)"
+  },
+  "departures": ["The left-hand repeated chords on every beat is our own (CC0)."],
+  "reviewedBy": "claude-opus-5.5",
+  "reviewedOn": "2026-10-03",
+  "step": "song",
+  "stepOrder": 70
+}

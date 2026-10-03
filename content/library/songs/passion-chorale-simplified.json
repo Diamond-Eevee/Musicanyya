@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "id": "learning/keys/d-minor/song-passion-chorale-simplified",
+  "title": "Song - Passion Chorale (simplified)",
+  "source": "mutopia-107-passion-chorale",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1:voice:one",
+    "bars": "all"
+  },
+  "key": {
+    "tonic": "D",
+    "mode": "minor",
+    "fifths": -1
+  },
+  "tempoBpm": 60,
+  "chords": [
+    {
+      "bar": 0,
+      "degree": "i"
+    },
+    {
+      "bar": 1,
+      "degree": "i"
+    },
+    {
+      "bar": 2,
+      "degree": "VII"
+    },
+    {
+      "bar": 3,
+      "degree": "i"
+    },
+    {
+      "bar": 4,
+      "degree": "i"
+    },
+    {
+      "bar": 5,
+      "degree": "i"
+    },
+    {
+      "bar": 6,
+      "degree": "VII"
+    },
+    {
+      "bar": 7,
+      "degree": "i"
+    },
+    {
+      "bar": 8,
+      "degree": "i"
+    },
+    {
+      "bar": 9,
+      "degree": "VII"
+    },
+    {
+      "bar": 10,
+      "degree": "i"
+    },
+    {
+      "bar": 11,
+      "degree": "iv"
+    },
+    {
+      "bar": 12,
+      "degree": "i"
+    },
+    {
+      "bar": 13,
+      "degree": "VII"
+    },
+    {
+      "bar": 14,
+      "degree": "i"
+    },
+    {
+      "bar": 15,
+      "degree": "iv"
+    },
+    {
+      "bar": 16,
+      "degree": "i"
+    }
+  ],
+  "simplifies": "learning/keys/d-minor/song-passion-chorale",
+  "meta": {
+    "level": "beginner",
+    "trains": "The Passion Chorale in D minor, with its one-beat pickup, over one held block chord a bar in the left (Dm, C, Gm).",
+    "composer": "H. L. Hassler (tune \"Passion Chorale\", as J. S. Bach set it)",
+    "departures": [
+      "Simplified: one block chord a bar, held, with the chords of a beginner minor song only (Dm, C, Gm), instead of the full version's moving left hand.",
+      "Slower: 60 instead of 72 quarter notes a minute.",
+      "The fermatas at the ends of the phrases are left out: the music goes on in time."
+    ],
+    "reviewedBy": "claude-opus-5.5",
+    "reviewedOn": "2026-10-03"
+  }
+}

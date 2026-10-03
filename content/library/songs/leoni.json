@@ -1,0 +1,157 @@
+{
+  "version": 1,
+  "id": "learning/keys/e-minor/song-leoni",
+  "title": "Song - The God of Abraham Praise",
+  "source": "mutopia-525-leoni",
+  "melody": {
+    "staff": 1,
+    "voice": "staff1:voice:sop",
+    "bars": "all",
+    "joinShortBars": true
+  },
+  "key": {
+    "tonic": "E",
+    "mode": "minor",
+    "fifths": 1
+  },
+  "tempoBpm": 88,
+  "chords": [
+    {
+      "bar": 0,
+      "degree": "V"
+    },
+    {
+      "bar": 1,
+      "degree": "i"
+    },
+    {
+      "bar": 1,
+      "beat": 4,
+      "degree": "iv"
+    },
+    {
+      "bar": 2,
+      "degree": "V"
+    },
+    {
+      "bar": 2,
+      "beat": 4,
+      "degree": "III"
+    },
+    {
+      "bar": 3,
+      "degree": "iv"
+    },
+    {
+      "bar": 3,
+      "beat": 4,
+      "degree": "VII"
+    },
+    {
+      "bar": 4,
+      "degree": "III"
+    },
+    {
+      "bar": 4,
+      "beat": 4,
+      "degree": "VII"
+    },
+    {
+      "bar": 5,
+      "degree": "III"
+    },
+    {
+      "bar": 5,
+      "beat": 4,
+      "degree": "VI"
+    },
+    {
+      "bar": 6,
+      "degree": "VII"
+    },
+    {
+      "bar": 6,
+      "beat": 3,
+      "degree": "VI"
+    },
+    {
+      "bar": 7,
+      "degree": "III"
+    },
+    {
+      "bar": 7,
+      "beat": 3,
+      "degree": "VII"
+    },
+    {
+      "bar": 8,
+      "degree": "III"
+    },
+    {
+      "bar": 9,
+      "degree": "III"
+    },
+    {
+      "bar": 10,
+      "degree": "VII"
+    },
+    {
+      "bar": 11,
+      "degree": "i"
+    },
+    {
+      "bar": 11,
+      "beat": 4,
+      "degree": "iv"
+    },
+    {
+      "bar": 12,
+      "degree": "V"
+    },
+    {
+      "bar": 13,
+      "degree": "i"
+    },
+    {
+      "bar": 13,
+      "beat": 4,
+      "degree": "iv"
+    },
+    {
+      "bar": 14,
+      "degree": "i"
+    },
+    {
+      "bar": 14,
+      "beat": 3,
+      "degree": "iv"
+    },
+    {
+      "bar": 15,
+      "degree": "i"
+    },
+    {
+      "bar": 15,
+      "beat": 3,
+      "degree": "V"
+    },
+    {
+      "bar": 16,
+      "degree": "i"
+    }
+  ],
+  "leftHand": {
+    "pattern": "broken"
+  },
+  "meta": {
+    "level": "intermediate",
+    "trains": "The God of Abraham Praise (tune \"Leoni\") in E minor, with a one-beat pickup, over a broken-chord left hand in eighths, up to two chords a bar (B, Em, Am, G, D, C).",
+    "composer": "Traditional (synagogue melody for the Yigdal, tune \"Leoni\", adapted by M. Lyon)",
+    "departures": [
+      "The double bar lines the source prints inside the bars at the ends of phrases are left out: the music is written in whole 4/4 bars.",
+      "Written in E minor, the key the source sounds in (the source writes it in F minor and transposes it down a semitone)."
+    ],
+    "reviewedBy": "claude-opus-5.5",
+    "reviewedOn": "2026-10-03"
+  }
+}
