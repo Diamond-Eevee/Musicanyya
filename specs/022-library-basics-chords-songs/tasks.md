@@ -374,8 +374,8 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
 - [x] T070 [P] Update `content/library/sources/README.md` (multiPart in step 3 "Manifest"), `content/library/audit/README.md`
   (new rule sets) and `docs/agents/reference.md` toolchain (`pnpm library:lessons`).
 - [x] T071 [standard] Run `quickstart.md` end to end (all stories and the level-rule checks); fix what fails.
-- [ ] T072 [deep] Constitution audit of the branch diff with the `constitution-auditor` sub-agent; fix findings;
-  summarise them in the log.
+- [~] T072 [deep] Constitution audit of the branch diff with the `constitution-auditor` sub-agent; fix findings;
+  summarise them in the log. (claimed: claude-opus-5.5 2026-10-03)
 - [ ] T073 [standard] Full gate, once: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e:smoke` and
   `pnpm test:e2e` (all browsers) green (constitution "Test tiers"); again only if `src/` changed since.
 
