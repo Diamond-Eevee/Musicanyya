@@ -192,3 +192,49 @@
   definitions with keys chosen per source, `leftHand.pattern` for the full versions, build, records song-chords-v2,
   music review, screenshots), T066, US4 checkpoint, Polish T067-T073 (contract folds prepared in scratch, not
   applied). Owner spec questions from the T038 review are answered and applied. Tree clean at the commit below.
+
+## 2026-10-03 16:30 - claude-opus-5.5 (continue: US3 Songs to its checkpoint)
+- Owner (chat, 2026-10-03): (1) Leoni's slot - "extend reader" (keep Leoni); (2) after the music review, St. Anne -
+  "re-bar with pickup". Both recorded in research R13.
+- Done: T057, T058, T076, T077, T059-T064, T066, T078, T079. US3 checkpoint passed; US4's tasks are all ticked.
+- T076 (new): the LilyPond reader skips `\chordmode` / `\chords` blocks, reads no note from a `ChordNames` context, and
+  lets a `\header` field name an earlier one. Tests first (`Tests 4 failed | 71 passed`, then 147 passed); contract
+  fidelity-tools 1.19.0. Leoni (525) downloaded again unchanged: it sounds E minor (`\transpose f e`), MIDI track 1
+  is the chord names (`midiNoteTracks [2, 3]`). All 10 sources' MIDI agree with their notation (0 differences each).
+  THIRD_PARTY_NOTICES lists the 10 sources (T057/T058 complete).
+- T077 (new): `melody.joinShortBars` - Leoni's `\bar "||"` inside 4/4 bars made 3- and 1-beat written bars, which the
+  builder refuses. Tests first (`Tests 4 failed | 40 passed`; the "without it, refused" test guards the default and
+  passes on the old code too), then 44 passed; all 30 songs rebuilt byte-identical.
+- T059-T061: 20 definitions in the sources' own keys (D, Dm, B-flat, F, F, C, Em, G, D, F); harmony from each source's
+  SATB setting. `pnpm library:songs` "Wrote 30 song(s)"; `pnpm library:index` 274 items, every level check passing
+  (the full Passion Chorale carries `raisedBecause`). songs-022.test.ts 41 passed; T065 green, so T066 ticked.
+- T062: 20 records (mechanical melody + `song-chords-v2`). The first run failed 6 full versions on "completeness": a
+  waltz or broken chord lasting one beat cannot sound three notes. Plans fixed (research R13, data-model §6).
+  `pnpm library:fidelity` 275 records, 0 failed. Identity golden regenerated: 20 items added, the 254 others compared
+  item by item and unchanged; out-of-scope hashes record the 40 new files. Changed expectation: the 011 test "beginner
+  songs first" now follows song-definition 1.2.0 item 5 (unpaired songs first, beginner first; then each pair,
+  simplified first, pairs by title) - stricter than before.
+- T063 music review (music-domain-expert): 1 BLOCKING (St. Anne barred a beat late), 11 SHOULD, 10 NIT. Applied:
+  St. Anne re-barred via T078 (`melody.pickupBeats`, tests first `Tests 4 failed | 45 passed`, then 49 passed) with the
+  reviewer's chords; First Noel bars 6/14/22 -> I, bar 21 vi/IV; Passion Chorale full bars 2/6 iv-V, simplified bars
+  1/5 iv; Midnight Clear simplified 7/11/15 V; Praise to the Lord bars 4/10 vi on beat 2; Hark simplified 10/12 V;
+  Leoni full bars 1/13 VI on beat 3; composer texts (Stralsund 1665, W. H. Cummings, Meyer Lyon), pickups named in
+  `trains`, Tryggare's English title. Accepted as NIT: Passion bar 13 beat 3, Midnight Clear simplified bar 9 F#,
+  Leoni simplified bar 15. Verdict after fixes: music sound (re-audit 0 differences).
+- T064: all 20 versions screenshot (`test-results/screenshots/song-*.png`) and looked at: no notices, no console
+  errors; chord names readable (Praise to the Lord bar 5 "Gm C" close but clear); St. Anne starts with its pickup.
+- T079 (new, found at the checkpoint): spec US3 scenario 2 wants the departures in the details; the pane never showed
+  them. `scoreSourceLines` now ends with "Changes from the source: ..." (library-index 1.5 change request item 7).
+  Test first (1 failed for the expected reason), then `tests/ui` 945 passed; library.spec + score-browser-look on
+  chromium 19 passed, 1 skipped.
+- Checkpoint gate (US3, after T079): `pnpm lint` 0 errors (314 warnings, as before); `pnpm typecheck` exit 0;
+  `pnpm test` `Tests 8692 passed (8692)`; `pnpm test:e2e:smoke` 9 passed; `tests/e2e/library.spec.ts
+  --project=chromium` 12 passed, 1 skipped. Quickstart US3: pair side by side, simplified first (screenshot + test);
+  details list composer, source, licence, departures (screenshot); `pnpm library:fidelity` 0 differences. Listen
+  was not played by ear - Listen of library items is covered by library.spec.ts, the patterns seen in the scores.
+  Quickstart US4: every new source has `multiPart` (fidelity.test.ts); new songs have one part, no Orchestra
+  (songs-022.test.ts), so Play uses the Guide voice.
+- Problems / open questions: none for the owner.
+- Handoff: next = Polish T067-T073 (contract folds T067-T069 now also carry song-definition items 7-8,
+  library-index item 7 and fidelity-tools 1.19.0 already folded; T070 docs; T071 quickstart; T072 constitution audit;
+  T073 full gate - `src/` changed in T079). Tree clean at the commit below.

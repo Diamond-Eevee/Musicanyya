@@ -235,6 +235,22 @@ download: the file is written in F minor but wrapped in `\transpose f e`, so it 
 the written key); its MIDI plays the chord names as track 1, so `midiNoteTracks` is `[2, 3]`. All 10 sources'
 MIDI agree with the reading of their notation (0 differences each, 2026-10-03).
 
+**Leoni's phrase lines (T077)** - Decision: `melody.joinShortBars` joins the 3- and 1-beat written bars that Leoni's
+mid-bar `\bar "||"` makes back into its 4/4 bars. Rationale: the app reads a short bar inside a piece as a pickup
+(beat offset) and raises a measure-length notice otherwise; LilyPond's own measures are 4/4. Alternatives: writing the
+split bars with `implicit` (wrong beats in the second half), reading the page bars differently in the reader (would
+change every audited reading).
+
+**St. Anne's barring (T078; owner 2026-10-03, "re-bar with pickup", after the T063 music review)** - Decision:
+`melody.pickupBeats` re-bars the source (which starts the tune on beat 1) with a one-beat pickup, as hymnals print it;
+listed as a departure. Rationale: in the source's barring every stressed syllable falls on beat 2 or 4. Alternatives:
+keep the source barring (stresses wrong), drop the tune.
+
+**Chord length under a moving left hand (T062)** - found by `song-chords-v2`: a `waltz` or `broken` chord that lasts one
+beat (a pickup, a change on the last beat) cannot sound its three notes, so those plans change chord at most once a
+bar (waltz) or every two beats (broken) and leave short pickups without a chord; `repeated` strikes the whole triad
+every beat and keeps the two-changes-a-bar plans.
+
 Reserves: St. Louis / O Little Town of Bethlehem (1292), Aamulla varhain (1020, minor, voice and piano - no multi-part),
 Old Hundredth (194), St. Anne (1290). Variety (FR-030): keys D, F, G, B-flat major and D, G, F minor; three minor;
 five in 3/4 or 6/8. A song may be transposed onto a key shelf with fewer accidentals (listed as a departure), as

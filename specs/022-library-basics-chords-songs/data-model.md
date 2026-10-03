@@ -181,6 +181,11 @@ Each tune = two song definitions (song-definition 1.2.0) from one approved sourc
 version sort together, simplified first; unpaired songs keep the 1.1.0 order and come first, then the pairs by the full
 song's title. The 10 existing songs keep their `stepOrder` (song-definition 1.2.0, analyze H3). Sidecar title "Song - <name>" / "Song - <name> (simplified)", `simplifies` on the simplified one.
 
+As built (T059-T064): with `waltz` or `broken` every chord lasts at least two beats (one dotted beat in 6/8), so all
+three notes sound (`song-chords-v2` completeness); short pickups then have no chord. A source barred unlike the
+familiar print is re-barred with `melody.joinShortBars` (Leoni) or `melody.pickupBeats` (St. Anne), listed as
+departures. The detail pane lists every departure (T079).
+
 ## 7. Library index additions (contract [library-index-1.5.md](contracts/library-index-1.5.md))
 
 - Sidecar `simplifies?: string` - the item id this one simplifies; the item must exist, have a higher level, and the

@@ -380,6 +380,7 @@ export const en = {
       licence: 'Licence',
       credit: 'Credit',
       changed: 'Changed for Musicanyya',
+      departures: 'Changes from the source',
       limitations: 'Limitations',
     },
   },

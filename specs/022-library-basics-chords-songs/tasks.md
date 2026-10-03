@@ -321,6 +321,10 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
   `definition.ts` validates it; `build-songs.ts` re-cuts a source that starts on a full bar into a pickup of that many
   beats, full bars and a short last bar (refused with repeats or endings); every note keeps its onset and length;
   tests first in `build-songs.test.ts` and `definition.test.ts`; contract updated.
+- [x] T079 [US3] [standard] Show an item's `departures` with its source lines (spec US3 scenario 2, FR-032; found at the
+  US3 checkpoint: the detail pane listed composer, source and licence but no departure): `src/ui/format/score-source-text.ts`
+  adds "Changes from the source: ..." before the limitations, label in `src/ui/i18n/en.ts`; test first in
+  `tests/ui/score-browser/rail-list-detail.test.ts`; library-index-1.5 change request item 7.
 - [x] T059 [US3] Author the full and simplified song definitions for tunes 1-5 in `content/library/songs/` (melody
   staff/voice/bars, transposition onto a key shelf where it helps - listed as a departure -, intermediate chords with a
   `leftHand.pattern`, beginner block chords, `trains`, `composer`, `departures`, `reviewedBy`, and

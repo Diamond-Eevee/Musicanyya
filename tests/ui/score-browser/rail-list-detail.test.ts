@@ -370,4 +370,26 @@ describe('the old panel presentation, carried over (T098-T100)', () => {
     expect(el.querySelector('.browser-detail-title')?.textContent).toBe('Ode to Joy');
     expect(el.querySelector('.browser-detail-trains')).toBeNull();
   });
+
+  // Feature 022 T079 (spec US3 scenario 2, FR-032): an arrangement's details list every departure from its source
+  it("T079: the source lines list an item's departures, labelled, and none when it has none", () => {
+    const base = libraryItem('repertoire/beginner/ode-to-joy');
+    const changed = libraryItem('repertoire/beginner/ode-to-joy', {
+      meta: { ...base.meta, departures: ['Left-hand block chords are our own (CC0).', 'Slower: 72 instead of 88.'] },
+    });
+    const plain = libraryItem('repertoire/beginner/au-clair', {
+      meta: { ...libraryItem('repertoire/beginner/au-clair').meta, departures: undefined },
+    });
+    loadIndex([changed, plain]);
+    browserState.setView({ selected: { kind: 'library', id: changed.id } });
+    const el = document.createElement('mx-browser-detail');
+    document.body.appendChild(el);
+    const lines = () => [...el.querySelectorAll('.score-source-line')].map((p) => p.textContent ?? '');
+    expect(lines()).toContain(
+      'Changes from the source: Left-hand block chords are our own (CC0). Slower: 72 instead of 88.',
+    );
+
+    browserState.setView({ selected: { kind: 'library', id: plain.id } });
+    expect(lines().some((l) => l.startsWith('Changes from the source'))).toBe(false);
+  });
 });

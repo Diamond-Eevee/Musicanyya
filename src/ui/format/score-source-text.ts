@@ -36,6 +36,11 @@ export function scoreSourceLines(item: LibraryItem): ScoreSourceLine[] {
     if (provenance.credit) lines.push({ text: `${s.credit}: ${provenance.credit}` });
   }
 
+  // feature 022 T079 (US3 scenario 2): an arrangement lists every departure from its source
+  if (item.meta.departures && item.meta.departures.length > 0) {
+    lines.push({ text: `${s.departures}: ${item.meta.departures.join(' ')}` });
+  }
+
   if (item.meta.limitations && item.meta.limitations.length > 0) {
     lines.push({ text: `${s.limitations}: ${item.meta.limitations.join('; ')}` });
   }

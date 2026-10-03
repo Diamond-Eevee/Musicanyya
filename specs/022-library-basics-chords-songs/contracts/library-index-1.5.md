@@ -22,6 +22,10 @@
 6. **`stepOrder` maximum 999** (was 99; found in implement, task T074): the Basics lessons are ordered 10, 20, ... 240
    (022 data-model §4), and transposed chord lessons add their index. Readers accept `0..999`; a value outside still
    skips the item.
+7. **`departures` is shown with the item** (found in implement, task T079; spec US3 scenario 2): the lines that say
+   where a Score came from (the browser's detail pane and *About this score*, `src/ui/format/score-source-text.ts`)
+   end with "Changes from the source:" and the item's departures (sentences, joined by a space), before its
+   `limitations`. Nothing in the file changes.
 
 ## Compatibility
 
