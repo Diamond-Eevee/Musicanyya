@@ -35,7 +35,8 @@ const DEPARTURES_MAX_ENTRIES = 8;
 const DEPARTURE_MAX_CHARS = 200;
 /** contracts/library-index.md 1.2.0 `supersedes`: 1 to 8 entries of a former item id and the SHA-256 of its file. */
 const SUPERSEDES_MAX_ENTRIES = 8;
-const STEP_ORDER_MAX = 99;
+// library-index 1.5.0 (feature 022): Basics lessons are ordered 10-240, so the limit grew from 99
+const STEP_ORDER_MAX = 999;
 const ITEM_ID_PATTERN = /^[a-z0-9-]+(\/[a-z0-9-]+)*$/;
 const SHA256_PATTERN = /^[0-9a-f]{64}$/;
 

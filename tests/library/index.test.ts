@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { KEY_CHANGE_PAIRS, KEYS } from '../../src/core/library/exercise/keys.js';
 import { buildLibraryIndex } from '../../tools/library/build-index.js';
-import type { LibrarySectionDefinition } from '../../tools/library/sections.js';
+import { LIBRARY_SECTIONS, type LibrarySectionDefinition } from '../../tools/library/sections.js';
 import { SUCCESSORS } from '../../tools/library/successors.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -618,5 +618,160 @@ describe('the successors of the old Learning shelf (feature 011 US4, SC-006)', (
     const { index } = await buildLibraryIndex(libraryRoot);
     const ids = new Set(index.items.map((i) => i.id));
     for (const successor of SUCCESSORS) expect(ids.has(successor.newId), successor.newId).toBe(true);
+  });
+});
+
+// Feature 022 (data-model §2, library-index 1.5.0): Basics comes first, so Learning and Repertoire move down one; the
+// new section ids never reuse an id a section already replaced (learning/chords is a former id of Keys).
+describe('022 section order (library-index 1.5.0 item 5)', () => {
+  it('learning has order 2 and repertoire order 3', async () => {
+    const { index } = await buildLibraryIndex(libraryRoot);
+    expect(index.sections.find((s) => s.id === 'learning')?.order).toBe(2);
+    expect(index.sections.find((s) => s.id === 'repertoire')?.order).toBe(3);
+  });
+
+  it('no section id equals a formerIds entry of any section', () => {
+    const former = new Set(LIBRARY_SECTIONS.flatMap((s) => s.formerIds ?? []));
+    expect(LIBRARY_SECTIONS.filter((s) => former.has(s.id)).map((s) => s.id)).toEqual([]);
+  });
+
+  it('declares basics and the three chord-lesson folders with the titles of data-model §2', () => {
+    const pick = (id: string) => {
+      const s = LIBRARY_SECTIONS.find((x) => x.id === id);
+      return s && { title: s.title, description: s.description, parent: s.parent, order: s.order, path: s.path };
+    };
+    expect(pick('basics')).toEqual({
+      title: 'Basics',
+      description: 'Reading music from the first note: note lengths, rests, ties, slurs, time.',
+      parent: null,
+      order: 1,
+      path: 'basics',
+    });
+    expect(pick('learning/chord-lessons')).toEqual({
+      title: 'Chords',
+      description: 'Chords one at a time, switching between two, then progressions.',
+      parent: 'learning',
+      order: 3,
+      path: 'learning/chord-lessons',
+    });
+    expect(pick('learning/chord-lessons/single-chords')).toEqual({
+      title: 'One chord',
+      description: 'One chord type and its inversions.',
+      parent: 'learning/chord-lessons',
+      order: 1,
+      path: 'learning/chord-lessons/single-chords',
+    });
+    expect(pick('learning/chord-lessons/switches')).toEqual({
+      title: 'Chord switches',
+      description: 'From one chord to another with the least movement.',
+      parent: 'learning/chord-lessons',
+      order: 2,
+      path: 'learning/chord-lessons/switches',
+    });
+    expect(pick('learning/chord-lessons/progressions')).toEqual({
+      title: 'Progressions',
+      description: 'Common chord sequences, in several keys.',
+      parent: 'learning/chord-lessons',
+      order: 3,
+      path: 'learning/chord-lessons/progressions',
+    });
+  });
+
+  it('sibling order values stay unique', () => {
+    const seen = new Map<string, string>();
+    for (const s of LIBRARY_SECTIONS) {
+      const key = `${s.parent}|${s.order}`;
+      expect(seen.get(key), `${s.id} shares order ${s.order} with ${seen.get(key)}`).toBeUndefined();
+      seen.set(key, s.id);
+    }
+  });
+});
+
+// Feature 022 (library-index 1.5.0 item 1): `simplifies` names the item a simplified version simplifies; the build
+// fails unless that item exists, sits in the same section and has a higher level.
+describe('022 simplifies (library-index 1.5.0 item 1)', () => {
+  const SECTIONS: readonly LibrarySectionDefinition[] = [
+    { id: 'repertoire', title: 'Repertoire', path: 'repertoire', parent: null, order: 1 },
+    { id: 'repertoire/beginner', title: 'Beginner', path: 'repertoire/beginner', parent: 'repertoire', order: 1 },
+    { id: 'repertoire/other', title: 'Other', path: 'repertoire/other', parent: 'repertoire', order: 2 },
+  ];
+  const ATTRIBUTES =
+    '<attributes><divisions>1</divisions><time><beats>4</beats><beat-type>4</beat-type></time><staves>2</staves></attributes>' +
+    '<direction><direction-type><metronome><beat-unit>quarter</beat-unit><per-minute>60</per-minute></metronome></direction-type><sound tempo="60"/></direction>';
+  const BAR =
+    '<note><pitch><step>C</step><octave>4</octave></pitch><duration>4</duration><voice>1</voice><type>whole</type><staff>1</staff></note>' +
+    '<backup><duration>4</duration></backup>' +
+    '<note><pitch><step>C</step><octave>3</octave></pitch><duration>4</duration><voice>5</voice><type>whole</type><staff>2</staff></note>';
+  /** 16 bars (inside both the Beginner and the Intermediate bar ranges) of whole notes at 60 qpm, one per hand. */
+  const XML = `<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="3.1"><part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list><part id="P1">${Array.from(
+    { length: 16 },
+    (_, i) => `<measure number="${i + 1}">${i === 0 ? ATTRIBUTES : ''}${BAR}</measure>`,
+  ).join('')}</part></score-partwise>`;
+
+  async function build(items: { id: string; level: string; simplifies?: string }[]) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'musicanyya-simplifies-'));
+    try {
+      for (const item of items) {
+        const file = path.join(root, item.id);
+        fs.mkdirSync(path.dirname(file), { recursive: true });
+        fs.writeFileSync(`${file}.musicxml`, XML);
+        fs.writeFileSync(
+          `${file}.json`,
+          JSON.stringify({
+            version: 1,
+            title: item.id,
+            kind: 'piece',
+            level: item.level,
+            tags: ['chords'],
+            provenance: { origin: 'authored', licence: 'CC0-1.0', author: 'Test', created: '2026-10-03' },
+            reviewedBy: 'test',
+            reviewedOn: '2026-10-03',
+            raisedBecause: 'test data: the same music at a higher level',
+            ...(item.simplifies !== undefined ? { simplifies: item.simplifies } : {}),
+          }),
+        );
+      }
+      return await buildLibraryIndex(root, '', SECTIONS);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  it('accepts a simplified item whose target exists in the same section at a higher level', async () => {
+    const { problems } = await build([
+      { id: 'repertoire/beginner/tune', level: 'intermediate' },
+      { id: 'repertoire/beginner/tune-simplified', level: 'beginner', simplifies: 'repertoire/beginner/tune' },
+    ]);
+    expect(problems).toEqual([]);
+  });
+
+  it('refuses a missing target, naming both ids', async () => {
+    const { problems } = await build([
+      { id: 'repertoire/beginner/tune-simplified', level: 'beginner', simplifies: 'repertoire/beginner/tune' },
+    ]);
+    expect(problems).toContain(
+      'repertoire/beginner/tune-simplified: simplifies repertoire/beginner/tune, which does not exist',
+    );
+  });
+
+  it('refuses a target in another section, naming both ids', async () => {
+    const { problems } = await build([
+      { id: 'repertoire/other/tune', level: 'intermediate' },
+      { id: 'repertoire/beginner/tune-simplified', level: 'beginner', simplifies: 'repertoire/other/tune' },
+    ]);
+    expect(problems).toContain(
+      'repertoire/beginner/tune-simplified: simplifies repertoire/other/tune, which is in another section (repertoire/other)',
+    );
+  });
+
+  it('refuses a target that is not of a higher level, naming both ids', async () => {
+    const { problems } = await build([
+      { id: 'repertoire/beginner/tune', level: 'beginner' },
+      { id: 'repertoire/beginner/tune-simplified', level: 'beginner', simplifies: 'repertoire/beginner/tune' },
+    ]);
+    expect(problems).toContain(
+      'repertoire/beginner/tune-simplified: simplifies repertoire/beginner/tune, which is beginner - it needs a higher level than beginner',
+    );
   });
 });

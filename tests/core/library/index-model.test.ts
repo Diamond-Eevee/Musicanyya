@@ -194,6 +194,12 @@ describe('library-index 1.2.0 fields', () => {
     },
   );
 
+  it('keeps a stepOrder of 240, the last Basics lesson (library-index 1.5.0)', () => {
+    const { index, notices } = parseLibraryIndex(validIndex([stepItem({ step: 'beginner', stepOrder: 240 })]));
+    expect(notices).toEqual([]);
+    expect(index.items[0]?.meta.stepOrder).toBe(240);
+  });
+
   it('copies the 022 rhythm facts hasPickup, hasDottedRhythm and hasShortNotes', () => {
     const { index } = parseLibraryIndex(
       validIndex([stepItem({}, { hasPickup: true, hasDottedRhythm: false, hasShortNotes: true })]),
@@ -251,7 +257,8 @@ describe('library-index 1.2.0 fields', () => {
     ['an unknown step', { step: 'warmup' }],
     ['a step that is not text', { step: 3 }],
     ['a negative stepOrder', { step: 'beginner', stepOrder: -1 }],
-    ['a stepOrder over 99', { step: 'beginner', stepOrder: 100 }],
+    // library-index 1.5.0 (feature 022): the limit was 99; Basics lessons are ordered 10-240
+    ['a stepOrder over 999', { step: 'beginner', stepOrder: 1000 }],
     ['a fractional stepOrder', { step: 'beginner', stepOrder: 1.5 }],
     ['supersedes that is not a list', { supersedes: 'x' }],
     ['supersedes with a short hash', { supersedes: [{ id: 'a/b', hash: 'abc' }] }],

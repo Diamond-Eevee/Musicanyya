@@ -19,6 +19,9 @@
    and no longer lists retired ids.
 5. **Sections**: `basics` (order 1) top-level; `learning` order 2, `repertoire` order 3; `learning/chord-lessons` with
    three children (022 data-model §2). Sibling `order` values stay unique.
+6. **`stepOrder` maximum 999** (was 99; found in implement, task T074): the Basics lessons are ordered 10, 20, ... 240
+   (022 data-model §4), and transposed chord lessons add their index. Readers accept `0..999`; a value outside still
+   skips the item.
 
 ## Compatibility
 

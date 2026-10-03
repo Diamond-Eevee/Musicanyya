@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-03T10:32:47.916Z",
+  "generated": "2026-10-03T10:38:04.986Z",
   "sections": [
     {
       "id": "learning",
@@ -8,7 +8,7 @@
       "description": "Exercises written for this app.",
       "path": "learning",
       "parent": null,
-      "order": 1
+      "order": 2
     },
     {
       "id": "learning/keys",
@@ -374,7 +374,7 @@
       "description": "Pieces.",
       "path": "repertoire",
       "parent": null,
-      "order": 2
+      "order": 3
     },
     {
       "id": "repertoire/beginner",

@@ -83,14 +83,18 @@
   `pnpm library:songs`, `pnpm library:index`; T009 green.
 - [x] T014 [light] Add the seven tags to `SKILL_TAGS` (`src/core/library/types.ts`) and labels in `src/ui/i18n/en.ts`
   ("Note values", "Rests", "Articulation", "Time signatures", "Reading", "Inversions", "Seventh chords"). T012 green.
-- [ ] T015 Write failing tests in `tests/library/index.test.ts`: `learning` has `order` 2 and `repertoire` `order` 3;
+- [x] T015 Write failing tests in `tests/library/index.test.ts`: `learning` has `order` 2 and `repertoire` `order` 3;
   no section id equals any `formerIds` entry. (The new sections only appear in the index once they hold items, so
   their assertions live in T028 and T041 - analyze M5.)
-- [ ] T016 Add the sections of data-model §2 to `tools/library/sections.ts` (titles and descriptions verbatim);
+- [x] T016 Add the sections of data-model §2 to `tools/library/sections.ts` (titles and descriptions verbatim);
   run `pnpm library:index`. T015 green.
-- [ ] T017 Write failing tests in `tests/library/index.test.ts` for
+- [x] T017 Write failing tests in `tests/library/index.test.ts` for
   `simplifies`: a target that is missing, in another section, or not of a higher level fails the build with a message
   naming both ids; a valid one passes. Implement in `tools/library/build-index.ts`.
+
+- [x] T074 Widen `stepOrder` to `0..999` (library-index 1.5.0 item 6, found in implement: Basics needs 10-240):
+  `STEP_ORDER_MAX` in `src/core/library/index-model.ts`, test first in `tests/core/library/index-model.test.ts`
+  (240 kept, 1000 skipped).
 
 ### Staccato playback (research R9, data-model §8) - after T003
 
