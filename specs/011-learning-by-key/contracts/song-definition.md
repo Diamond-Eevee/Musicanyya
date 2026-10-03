@@ -126,7 +126,8 @@ A song item = the melody of an approved public-domain source (right hand) + our 
 
   Every pattern keeps the 1.1.0 register and melody-avoidance rules per strike and stays within "comfortable"
   (constitution VII). A pattern other than `block` names itself in the sidecar: the subtitle reads "Arrangement: the
-  tune with left-hand <pattern words>" and the first departure "The left-hand <pattern words> is our own (CC0)."
+  tune with left-hand <pattern words>" and the first departure "The left-hand <pattern words> is our own (CC0)." for
+  `waltz` (one accompaniment), "... are our own (CC0)." for `repeated` and `broken` (several chords).
 - **Simplified versions**: `simplifies` names a song of the same folder; the builder refuses unless that definition
   exists, is `intermediate` and this one is `beginner` (`meta.level` stays `beginner | intermediate`). A simplified
   song's id ends in `-simplified`, its title in " (simplified)", and its `departures` list what was simplified

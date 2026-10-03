@@ -12,6 +12,7 @@ import { describeStretch, handStretches, type PlayableTier } from '../../src/cor
 import type { LibraryIndex, LibraryItem } from '../../src/core/library/types.js';
 import { buildScore } from '../../src/core/musicxml/build.js';
 import { readXml } from '../../src/core/musicxml/read.js';
+import { type WriteNote, writeScoreXml } from '../../src/core/musicxml/write.js';
 import { buildTimeline } from '../../src/core/timeline/timeline.js';
 import { decodeXml } from '../../src/engine/files/decode.js';
 
@@ -80,6 +81,62 @@ describe('handStretches', () => {
   it("possible: Chopin's ninths with five keys in Op. 28 No. 20 fit a hand", () => {
     const file = 'repertoire/advanced/chopin-prelude-op28-no20.musicxml';
     expect(stretchesOf(file, 'possible')).toEqual([]);
+  });
+});
+
+// Feature 022 (research R9, constitution audit T072 F2): the hand lets go of a staccato note when its short sound ends,
+// so it is not held while the hand starts the next note. A C4 quarter under a C5 the same hand starts an eighth later is an
+// octave held (comfortable allows a sixth) - unless the C4 is staccato.
+describe('handStretches: a staccato note is released when its sound ends', () => {
+  const heldOctave = (staccato: boolean) => {
+    const note = (extra: Partial<WriteNote>): WriteNote => ({
+      duration: 1,
+      voice: '1',
+      type: 'eighth',
+      staff: 1,
+      ...extra,
+    });
+    const xml = writeScoreXml({
+      parts: [
+        {
+          id: 'P1',
+          name: 'Piano',
+          measures: [
+            {
+              number: '1',
+              attributes: { divisions: 2, time: { beats: '2', beatType: 4 }, staves: 1 },
+              events: [
+                { kind: 'direction', metronome: { beatUnit: 'quarter', perMinute: 60 }, tempo: 60, placement: 'above' },
+                {
+                  kind: 'note',
+                  note: note({
+                    pitch: { step: 'C', octave: 4 },
+                    duration: 2,
+                    type: 'quarter',
+                    ...(staccato ? { articulations: ['staccato' as const] } : {}),
+                  }),
+                },
+                { kind: 'note', note: note({ rest: true, duration: 2, type: 'quarter' }) },
+                { kind: 'backup', duration: 4 },
+                { kind: 'note', note: note({ rest: true, voice: '2' }) },
+                { kind: 'note', note: note({ pitch: { step: 'C', octave: 5 }, voice: '2' }) },
+                { kind: 'note', note: note({ rest: true, voice: '2', duration: 2, type: 'quarter' }) },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    const { score } = buildScore(readXml(xml).doc);
+    return handStretches(score, buildTimeline(score).timeline, 'comfortable').map(describeStretch);
+  };
+
+  it('legato: the C4 is still held when the C5 starts - an octave held, too wide', () => {
+    expect(heldOctave(false)).toEqual(['staff 1, bar 1: C4 C5 held span 12 semitones']);
+  });
+
+  it('staccato: the C4 has been let go when the C5 starts - nothing held', () => {
+    expect(heldOctave(true)).toEqual([]);
   });
 });
 

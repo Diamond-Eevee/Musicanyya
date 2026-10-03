@@ -295,6 +295,12 @@ export const INTRODUCTION_FOCUS_FEATURES = [
 export type IntroductionFocusFeature = (typeof INTRODUCTION_FOCUS_FEATURES)[number];
 // A metre outside these is the `metre` feature of criterion 29 (022 data-model §1).
 export const INTRODUCTION_SIMPLE_METRES: readonly string[] = ['2/4', '3/4', '4/4'];
+// The `short-notes` feature of criterion 29 (fact `hasShortNotes`, 022 data-model §1): a value shorter than this many
+// quarter notes - shorter than a quarter.
+export const INTRODUCTION_SHORT_NOTE_BELOW_QUARTERS = 1;
+// The `dotted-rhythm` feature of criterion 29 (fact `hasDottedRhythm`, 022 data-model §1): a dotted value shorter than
+// this many quarter notes - shorter than a dotted half.
+export const INTRODUCTION_DOTTED_RHYTHM_BELOW_QUARTERS = 3;
 
 // Step order (FR-010, SC-002): the facts `checkStepOrder` compares between consecutive main steps of one folder.
 export const STEP_ORDER_FACTS = ['tempoBpm', 'notesPerBeat', 'handIndependenceFraction', 'chordChangesPerBar'] as const;

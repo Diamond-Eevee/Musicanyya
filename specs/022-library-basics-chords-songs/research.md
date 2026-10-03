@@ -174,6 +174,18 @@ chains ignore staccato. Real-time code is not touched (the scheduler already sen
 sound shorter where marked - closer to the print. **Owner OD-3 (2026-10-03, "go with recommended")**: yes, for every
 Score.
 
+**Where the shorter sound reaches (constitution audit T072)**: the timeline's `SoundingEvent.endTick` is read by
+playback and also by two consumers that are not about sound:
+- **Grading** (F1, fixed): Play mode's played-along spans (003 R-18, `buildPlayedAlongSpans`) took their end from the
+  sounding end, so an ungraded staccato note pressed in the second half of its written length counted as extra. They
+  now end at the head note's written end (its visual span), so every Grade is what it was before staccato sounded -
+  checked on the four repertoire Scores (their played-along spans equal those of main) and pinned by
+  `tests/core/grade/played-along.test.ts`.
+- **Playability** (F2, kept): `handStretches` counts a note as held while it sounds. The hand lets go of a staccato
+  note when its short sound ends, so it is not held while the hand starts the next note - the musically right reading.
+  No library item's stretches change (audit check of all six Scores with staccato); pinned by
+  `tests/library/playability.test.ts`.
+
 **Alternatives considered**: write staccato quarters as eighth + rest in the lesson (rejected: the score would lie);
 a shorter fraction per level (rejected: one documented constant is enough).
 
@@ -220,7 +232,7 @@ Soprano - so every one already **is** a multi-part source for a later Orchestra 
 | 9 | Tryggare kan ingen vara (Swedish folk) | [1299](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1299) | D major, 3/4 | 8 bars + pickup |
 | 10 | Hark the Herald Angels Sing (Mendelssohn) | [1261](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1261) | F major, 4/4 | no pickup |
 
-**Swap (owner, 2026-10-04, after download in T057)**: 856 (German note names, bars re-measured as 4/2) and 525
+**Swap (owner, 2026-10-03, after download in T057; first recorded as 2026-10-04, a misdating corrected in T072)**: 856 (German note names, bars re-measured as 4/2) and 525
 (a `\chordmode` line with `/+` bass notes) cannot be read by our LilyPond reader; the owner chose "swap for reserves".
 St. Anne (1290) reads and replaces 856 (slug `o-god-our-help-in-ages-past`). Aamulla varhain (1020) does not read
 either (`\new ChordNames`, a start-repeat bar outside `\repeat`), so Leoni's place is **open**: with Passion Chorale

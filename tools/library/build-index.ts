@@ -308,7 +308,6 @@ export async function buildLibraryIndex(
       ...(meta.raisedBecause !== undefined ? { raisedBecause: meta.raisedBecause } : {}),
       expectedNotices: meta.expected?.notices ?? [],
       kind: meta.kind,
-      tags: meta.tags,
       ...(meta.arrangement !== undefined ? { arrangement: meta.arrangement } : {}),
     });
     if (!levelCheck.pass) {

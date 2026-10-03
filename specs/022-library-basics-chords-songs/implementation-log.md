@@ -238,3 +238,71 @@
 - Handoff: next = Polish T067-T073 (contract folds T067-T069 now also carry song-definition items 7-8,
   library-index item 7 and fidelity-tools 1.19.0 already folded; T070 docs; T071 quickstart; T072 constitution audit;
   T073 full gate - `src/` changed in T079). Tree clean at the commit below.
+
+## 2026-10-03 14:45 - claude-opus-5.5 (implement: Polish T067-T073)
+- Session start: `pwsh` is not installed in this cloud container, so status.ps1 could not run; the same counts were
+  read from tasks.md by hand (72 of 79 ticked, resume T067, Polish tier light/standard/deep - opus fits all). Tree clean
+  at bb9a0c5, up to date with origin. `pnpm lint` 0 errors (314 warnings); `pnpm typecheck` exit 0; `pnpm test`
+  `Tests 1 failed | 8691 passed (8692)`: `tests/files/decode.test.ts > decodes declared windows-1252` - the container's
+  Node 22.22.0 (and 20.20.0) TextDecoder decodes windows-1252 0x80 as U+0080 (Latin-1), Node 21.7.3 gives U+20AC; a
+  Node runtime bug of this environment, not of the branch (browsers decode correctly). Not fixed here (out of scope).
+- Done: T067-T070 (contract folds; T070's toolchain line `pnpm library:lessons` was already in reference.md since
+  T001), T071, T072.
+- T067-T069: library-index 1.5.0 folded into 005 (schema: `simplifies`, 7 tags, 3 facts, `stepOrder` 999, `failed`
+  may list 29; rules; departures shown) and the criteria change into 005 data-model §4 (retired rows marked, row 29,
+  "Feature 022 changes" with the feature table); song-definition 1.2.0 into 011 (§2.2); audit-record 1.5.0 (rules
+  11-13, `claims`/`teachingOrder`) and source-manifest 1.4.0 (`multiPart`) into 007. T070: sources README step 3 names
+  `multiPart`; audit README lists the theory rule sets.
+- T071 quickstart: `pnpm library:lessons` 68, `library:songs` 30, `library:exercises` 155, `library:index` 274 items -
+  byte-identical except `generated`; `pnpm library:fidelity --check` 275 records, 0 failed, report up to date;
+  `pnpm test -- tests/library` `Tests 2848 passed (2848)`; `src/core/library src/core/timeline` + their tests
+  `Tests 717 passed (717)` (criterion 29 cases in tests/core/library/levels.test.ts). Level rules: index vs main
+  (merge base 38867c7) - 186 existing items, no level, hash, file or section changed; only the 3 new facts (186) and
+  `raisedBecause` (23). Screenshots looked at: basics/middle-c-quarter-notes (explanation under the tempo mark, no
+  overlap), the Score browser (Basics first, 24 lessons, above Learning and Repertoire), I-IV-V-I in C (chord names
+  readable), ties-in-a-bar in Practice after 6 key presses (cursor in bar 3, the tied quarter green without a press),
+  The First Noel full (waltz left hand). D major songs by stepOrder: Joy to the World (unpaired) 10, First Noel
+  simplified 20 / full 30, Tryggare simplified 40 / full 50. Found: `simplifies` lives only in the sidecar (index-model
+  drops it), so 005's contract now says so.
+- Environment for e2e: Playwright 1.63 expects Chromium 1243 (153); the container has 1194 (141), linked under the
+  expected path outside the repo. `pnpm test:e2e:smoke` with the config's 8 workers on this 4-CPU container: 6-8 of 9
+  time out (5 s waits on the cold dev server); `--workers=2`: `9 passed`. `library.spec.ts` + `score-browser-look.spec.ts`
+  chromium `19 passed, 1 skipped`. Firefox and WebKit are not installed and cannot be: the network policy denies
+  cdn.playwright.dev / playwright.azureedge.net.
+- T072 constitution audit (constitution-auditor sub-agent, diff 38867c7..HEAD): verdict fail, 1 HIGH, 1 MEDIUM, 7 LOW.
+  - F1 HIGH (IV): the shorter staccato sound leaked into grading - `buildPlayedAlongSpans` ended an ungraded note's
+    played-along span at the sounding end, so a press in the second half of a staccato note's written length was
+    extra (contradicting R9 "grading unchanged"). Fixed: the span ends at the head note's written end (its visual
+    span), `src/core/grade/expected.ts`. Test first: `played-along.test.ts` `Tests 1 failed | 5 passed (6)` (toTick
+    480, expected 960), then 6 passed; `tests/core/grade` 422 passed (one golden timed out once under the parallel e2e
+    load, 4 passed alone). Played-along spans of the four repertoire Scores with staccato, right and left hand: 73
+    differed from main before the fix, all identical to main after it.
+  - F2 LOW (VII): `handStretches` reads the sounding end, so a staccato note stops being held early. Kept as the
+    musically right reading (the hand lets go), documented in R9 and the docstring, pinned by two tests in
+    `tests/library/playability.test.ts` (legato C4 under C5: one held-octave stretch; staccato: none) - they pass on
+    arrival (they record the chosen reading; the legato case shows the setup bites).
+  - F3 MEDIUM (IV): test-first evidence recovered by running each task's tests against its parent commit (scratch
+    worktree): T018 at 4cd5196^ `Tests 2 failed | 10 passed (12)` (staccato undefined; endTick 960 not 480 - the tie,
+    1-tick and no-staccato cases are guards that pass on old code); T074 at ed6df6e^ `Tests 1 failed | 48 passed (49)`
+    (stepOrder 240 reported invalidItem); T075 at 902ad49^ `Tests 1 failed | 14 passed (15)` (no Trains line). Not
+    recovered: counts for T022/T023/T026/T028-T031/T040, whose log lines name only the failure reason.
+  - F4 LOW (II): criterion 29's rhythm boundaries were bare numbers - now `INTRODUCTION_SHORT_NOTE_BELOW_QUARTERS` (1)
+    and `INTRODUCTION_DOTTED_RHYTHM_BELOW_QUARTERS` (3) in defaults.ts, used by facts.ts and levels.ts; data-model §11.
+    The dot ratios 1.5/1.75 stay (they define a dot, not a threshold).
+  - F5 LOW (VIII): the unused `CheckLevelOptions.tags` removed with its 4 callers.
+  - F6 LOW: plan row V and Project Structure name the UI changes (T075, T079) and grade/expected.ts.
+  - F7 LOW: correction - the entries headed "2026-10-04 01:30" and "2026-10-04 03:00" above, and their "chat
+    2026-10-04", were written on 2026-10-03 (every commit of the branch is dated 2026-10-03); research R13's swap
+    date corrected. Entries are left as written.
+  - F8 LOW: commit 902ad49 is typed `test(library)` but also carries T075's product code (mx-browser-detail.ts);
+    history not rewritten.
+  - F9 LOW: 7 song sidecars read "The left-hand repeated chords ... is our own" - `PATTERN_VERB` gives "are" for
+    repeated/broken. Test first (`build-songs.test.ts` `1 failed`, received "... is our own"), then 36 passed;
+    `pnpm library:songs` changed exactly those 7 sidecars; index and docs/library-audit.md (departure lines only)
+    regenerated; out-of-scope hashes of the 7 re-recorded (header comment says why); `pnpm library:fidelity` 275
+    records, 0 failed. The 011 contract fold's quote of the text corrected.
+  - Found, not this feature's: played-along spans are empty for every pass but the last of a repeat (pre-existing on
+    main: Burgmüller No. 5 72 of 153, No. 2 123 of 300 ungraded spans empty, so such a press is extra) -
+    `fromTick` comes from a map the last pass overwrites. Suggested to the owner as a separate task (feature 003 area).
+  - After the fixes: `pnpm lint` 0 errors (314 warnings); `pnpm typecheck` exit 0; `tests/core/library tests/core/grade
+    tests/core/timeline tests/library` `Tests 3989 passed (3989)`; `tests/library tests/tools` `Tests 4188 passed (4188)`.

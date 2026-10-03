@@ -432,6 +432,15 @@ describe('022: left-hand patterns (song-definition 1.2.0)', () => {
     expect(clearOfMelody(xml)).toBe(true);
     expect(comfortable(xml)).toEqual([]);
   });
+
+  // Constitution audit T072 F9: the departure is shown under "Changes from the source", so it must read as a sentence.
+  it('the departure names the pattern in a sentence: one accompaniment "is", several chords "are"', () => {
+    const departure = (pattern: 'waltz' | 'repeated' | 'broken') =>
+      (buildSong(amazing(pattern), options).sidecar.departures as string[])[0];
+    expect(departure('waltz')).toBe('The left-hand waltz accompaniment (bass, then chord, chord) is our own (CC0).');
+    expect(departure('repeated')).toBe('The left-hand repeated chords on every beat are our own (CC0).');
+    expect(departure('broken')).toBe('The left-hand broken chords (root, fifth, third, fifth) are our own (CC0).');
+  });
 });
 
 describe('022: simplified songs and their order (song-definition 1.2.0)', () => {

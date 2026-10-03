@@ -372,7 +372,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 ### Song - It Came Upon the Midnight Clear (`learning/keys/b-flat-major/song-it-came-upon-the-midnight-clear`)
 
 - Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
-- Departure: The left-hand broken chords (root, fifth, third, fifth) is our own (CC0).
+- Departure: The left-hand broken chords (root, fifth, third, fifth) are our own (CC0).
 
 ### Song - It Came Upon the Midnight Clear (simplified) (`learning/keys/b-flat-major/song-it-came-upon-the-midnight-clear-simplified`)
 
@@ -399,7 +399,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 ### Song - O God, Our Help in Ages Past (`learning/keys/c-major/song-o-god-our-help-in-ages-past`)
 
 - Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
-- Departure: The left-hand repeated chords on every beat is our own (CC0).
+- Departure: The left-hand repeated chords on every beat are our own (CC0).
 - Departure: Barred with a one-beat pickup, as hymnals print the tune (the source starts it on the first beat of a bar): every note keeps its place in time, only the bar lines move.
 
 ### Song - O God, Our Help in Ages Past (simplified) (`learning/keys/c-major/song-o-god-our-help-in-ages-past-simplified`)
@@ -446,7 +446,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 ### Song - Passion Chorale (`learning/keys/d-minor/song-passion-chorale`)
 
 - Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
-- Departure: The left-hand repeated chords on every beat is our own (CC0).
+- Departure: The left-hand repeated chords on every beat are our own (CC0).
 - Departure: The fermatas at the ends of the phrases are left out: the music goes on in time.
 
 ### Song - Passion Chorale (simplified) (`learning/keys/d-minor/song-passion-chorale-simplified`)
@@ -460,7 +460,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 ### Song - The God of Abraham Praise (`learning/keys/e-minor/song-leoni`)
 
 - Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
-- Departure: The left-hand broken chords (root, fifth, third, fifth) is our own (CC0).
+- Departure: The left-hand broken chords (root, fifth, third, fifth) are our own (CC0).
 - Departure: The double bar lines the source prints inside the bars at the ends of phrases are left out: the music is written in whole 4/4 bars.
 - Departure: Written in E minor, the key the source sounds in (the source writes it in F minor and transposes it down a semitone).
 
@@ -481,7 +481,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 ### Song - Hark! the Herald Angels Sing (`learning/keys/f-major/song-hark-the-herald-angels-sing`)
 
 - Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
-- Departure: The left-hand repeated chords on every beat is our own (CC0).
+- Departure: The left-hand repeated chords on every beat are our own (CC0).
 
 ### Song - Hark! the Herald Angels Sing (simplified) (`learning/keys/f-major/song-hark-the-herald-angels-sing-simplified`)
 
@@ -493,7 +493,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 ### Song - In the Bleak Midwinter (`learning/keys/f-major/song-in-the-bleak-midwinter`)
 
 - Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
-- Departure: The left-hand broken chords (root, fifth, third, fifth) is our own (CC0).
+- Departure: The left-hand broken chords (root, fifth, third, fifth) are our own (CC0).
 
 ### Song - In the Bleak Midwinter (simplified) (`learning/keys/f-major/song-in-the-bleak-midwinter-simplified`)
 
@@ -505,7 +505,7 @@ Generated from `content/library/audit/`. Do not edit; run `pnpm library:fidelity
 ### Song - Praise to the Lord (`learning/keys/f-major/song-praise-to-the-lord`)
 
 - Outcome (verified): The melody of the item equals the source line note by note (pitch, spelling, order, onset and duration: 0 differences), the source agrees with its own MIDI, and the independent song check (song-chords-v2) finds every left-hand note inside the chord its printed name spells, every name inside the chords its level promises and no more chord changes a bar than the level allows (0 differences).
-- Departure: The left-hand repeated chords on every beat is our own (CC0).
+- Departure: The left-hand repeated chords on every beat are our own (CC0).
 
 ### Song - Praise to the Lord (simplified) (`learning/keys/f-major/song-praise-to-the-lord-simplified`)
 

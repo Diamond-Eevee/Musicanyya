@@ -5,7 +5,9 @@
 // 115, 126), so it is held unchanged from then on. The two minuet sidecars were re-recorded in 017 T055, when the
 // realised inverted mordent made their `expected` notice and `limitations` obsolete. The Bach prelude BWV 846 sidecar
 // and the Silent Night and O Come O Come Emmanuel song sidecars were re-recorded in 022 T010 and T013, when the retired
-// level criteria made them need a `raisedBecause` to keep their level (FR-006).
+// level criteria made them need a `raisedBecause` to keep their level (FR-006). The seven song sidecars whose left hand
+// plays repeated or broken chords were re-recorded in 022 T072 (constitution audit F9), when their first departure was
+// corrected from "... chords ... is our own" to "... are our own".
 import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';

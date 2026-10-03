@@ -1,5 +1,6 @@
 import type { XmlDocument, XmlElement as XmlElementType } from '@rgrove/parse-xml';
 import { XmlElement, XmlText } from '@rgrove/parse-xml';
+import { INTRODUCTION_DOTTED_RHYTHM_BELOW_QUARTERS, INTRODUCTION_SHORT_NOTE_BELOW_QUARTERS } from '../defaults.js';
 import type { LoadReport } from '../score/load-report.js';
 import type { Score } from '../score/model.js';
 import { audioTimeAtTick } from '../tempo/rate.js';
@@ -270,8 +271,13 @@ function rhythmFacts(
       const unit = 4 / time.beatType; // the metre's written unit, in quarters
       const dotted = isPlainValue(entry.quarters / 1.5) || isPlainValue(entry.quarters / 1.75);
       // A dotted value below a dotted half; in a compound metre the dotted beat itself is the metre
-      if (dotted && entry.quarters < 3 && !(compound && entry.quarters === 3 * unit)) hasDottedRhythm = true;
-      if (entry.quarters < 1) {
+      if (
+        dotted &&
+        entry.quarters < INTRODUCTION_DOTTED_RHYTHM_BELOW_QUARTERS &&
+        !(compound && entry.quarters === 3 * unit)
+      )
+        hasDottedRhythm = true;
+      if (entry.quarters < INTRODUCTION_SHORT_NOTE_BELOW_QUARTERS) {
         const eighthOfMetre = compound && entry.quarters === unit;
         const completesDottedQuarter =
           !compound &&

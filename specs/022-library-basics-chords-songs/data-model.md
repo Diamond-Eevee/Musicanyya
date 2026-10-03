@@ -221,5 +221,7 @@ test) for every source a 022 song is based on.
 | `INTRODUCTION_FOCUS_FEATURES_MAX` | 1 | criterion 29 |
 | `INTRODUCTION_FOCUS_FEATURES` | the 11 ids of §1 | criterion 29 feature list |
 | `INTRODUCTION_SIMPLE_METRES` | `['2/4','3/4','4/4']` | criterion 29 `metre` feature |
+| `INTRODUCTION_SHORT_NOTE_BELOW_QUARTERS` | 1 | criterion 29 `short-notes`: a value shorter than a quarter (constitution audit T072 F4) |
+| `INTRODUCTION_DOTTED_RHYTHM_BELOW_QUARTERS` | 3 | criterion 29 `dotted-rhythm`: a dotted value shorter than a dotted half (T072 F4) |
 | `STACCATO_SOUNDING_FRACTION` | 0.5 | staccato playback length (R9) |
 | removed | see §1 | retired criteria |

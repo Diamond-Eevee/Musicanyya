@@ -46,7 +46,6 @@ export function levelCheckOf(facts: ItemFacts, meta: ItemMetadata, withRaisedBec
     ...(withRaisedBecause && meta.raisedBecause !== undefined ? { raisedBecause: meta.raisedBecause } : {}),
     expectedNotices: meta.expected?.notices ?? [],
     kind: meta.kind,
-    tags: meta.tags,
     ...(meta.arrangement !== undefined ? { arrangement: meta.arrangement } : {}),
   });
 }

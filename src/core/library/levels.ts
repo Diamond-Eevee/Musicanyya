@@ -1,6 +1,7 @@
 import {
   INTRODUCTION_FOCUS_FEATURES,
   INTRODUCTION_FOCUS_FEATURES_MAX,
+  INTRODUCTION_SHORT_NOTE_BELOW_QUARTERS,
   INTRODUCTION_SIMPLE_METRES,
   type IntroductionFocusFeature,
   LEVEL_DURATION_SECONDS_MAX,
@@ -20,7 +21,7 @@ import {
   LEVEL_TEMPO_QPM_RANGE,
   LEVEL_VOICES_PER_STAFF_MAX,
 } from '../defaults.js';
-import type { ItemFacts, Level, LevelCheck, SkillTag } from './types.js';
+import type { ItemFacts, Level, LevelCheck } from './types.js';
 
 /** Nested-cap order (data-model.md §4: Introduction ⊂ Beginner ⊂ Intermediate ⊂ Advanced). */
 const LEVELS_ORDER: readonly Level[] = ['introduction', 'beginner', 'intermediate', 'advanced'];
@@ -33,7 +34,8 @@ export function introductionFocusFeatures(facts: ItemFacts): IntroductionFocusFe
   const hasMinorKey = facts.keys.some((k) => k.endsWith(' minor'));
   const minorScale = hasMinorKey ? (facts.minorScaleAccidentalCount ?? 0) : 0;
   const present: Record<IntroductionFocusFeature, boolean> = {
-    'short-notes': facts.hasShortNotes ?? facts.shortestDivision > 4,
+    // shortestDivision counts per whole note (4 = a quarter), so a value shorter than the limit divides it more finely
+    'short-notes': facts.hasShortNotes ?? facts.shortestDivision > 4 / INTRODUCTION_SHORT_NOTE_BELOW_QUARTERS,
     'dotted-rhythm': facts.hasDottedRhythm ?? false,
     ties: facts.hasTies ?? false,
     repeats: (facts.repeatKind ?? 'none') !== 'none',
@@ -148,9 +150,6 @@ export interface CheckLevelOptions {
   kind?: 'exercise' | 'piece';
   /** A deliberately short excerpt (data-model.md §5.3): exempts criterion 14's minimum only. */
   arrangement?: boolean;
-  /** The item's skill tags. No criterion reads them since feature 022 retired criterion 10 (and with it D-2 B6); kept
-   *  so callers need not change. */
-  tags?: readonly SkillTag[];
 }
 
 /** Compares `assignedLevel` against the level `facts` actually computes to (data-model.md §4):

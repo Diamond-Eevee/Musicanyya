@@ -254,7 +254,6 @@ describe('chord-change drill melody sweep (US3, FR-001, FR-005)', () => {
       const result = checkLevel(facts, meta.level, {
         expectedNotices: meta.expected?.notices ?? [],
         kind: meta.kind,
-        tags: meta.tags,
         ...(meta.raisedBecause !== undefined ? { raisedBecause: meta.raisedBecause } : {}),
       });
       expect(result.pass).toBe(true);
@@ -435,7 +434,6 @@ describe('key-change melody sweep (FR-001, FR-002, US1)', () => {
       const result = checkLevel(facts, meta.level, {
         expectedNotices: meta.expected?.notices ?? [],
         kind: meta.kind,
-        tags: meta.tags,
         ...(meta.arrangement !== undefined ? { arrangement: meta.arrangement } : {}),
         ...(meta.raisedBecause !== undefined ? { raisedBecause: meta.raisedBecause } : {}),
       });

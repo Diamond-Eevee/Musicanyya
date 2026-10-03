@@ -82,10 +82,25 @@ export function buildExpectedNotes(
 /**
  * Keys that may sound without being graded (data-model.md §4, FR-024, research R-18): every accompaniment key
  * of 002's `ExpectedEvent.accompaniment` (`source: "ungraded"` - the unselected hand, another part, a grace
- * note), over the span it actually sounds; and, for every required note carrying a written ornament, its
+ * note), over the span it is written to sound - a staccato note sounds shorter (feature 022 research R9) but may be
+ * played along for its written length, as before; and, for every required note carrying a written ornament, its
  * diatonic neighbours (`source: "ornament"`) over the note's own written duration. The ornamented note itself
  * is still expected once, at its onset, via `buildExpectedNotes` - this only covers its decorative realisation.
  */
+/** The written end of every sounding event's head note, keyed by `<head note id>@<sounding end tick>` - the two values a
+ *  `SoundingRef` carries, which name one occurrence (one pass) of the note. The head's visual span keeps the written
+ *  length (022 research R9); a tie chain sounds at least that long, so callers take the later of the two ends. */
+function writtenEndTicks(timeline: PlaybackTimeline): Map<string, number> {
+  const spanEnd = new Map<string, number>();
+  for (const span of timeline.spans) spanEnd.set(`${span.noteId}@${span.startTick}`, span.endTick);
+  const writtenEnd = new Map<string, number>();
+  for (const ev of timeline.events) {
+    const end = spanEnd.get(`${ev.head.noteId}@${ev.startTick}`);
+    if (end !== undefined) writtenEnd.set(`${ev.head.noteId}@${ev.endTick}`, end);
+  }
+  return writtenEnd;
+}
+
 export function buildPlayedAlongSpans(
   score: Score,
   timeline: PlaybackTimeline,
@@ -99,6 +114,7 @@ export function buildPlayedAlongSpans(
 
   const startTickByHeadId = new Map<string, number>();
   for (const ev of timeline.events) startTickByHeadId.set(ev.head.noteId, ev.startTick);
+  const writtenEndByOccurrence = writtenEndTicks(timeline);
 
   const noteById = new Map<string, Note>();
   for (const part of score.parts) {
@@ -109,7 +125,8 @@ export function buildPlayedAlongSpans(
   for (const event of filtered) {
     for (const acc of event.accompaniment) {
       const fromTick = startTickByHeadId.get(acc.noteId) ?? event.onsetTick;
-      spans.push({ key: acc.key, fromTick, toTick: acc.endTick, source: 'ungraded' });
+      const toTick = Math.max(acc.endTick, writtenEndByOccurrence.get(`${acc.noteId}@${acc.endTick}`) ?? acc.endTick);
+      spans.push({ key: acc.key, fromTick, toTick, source: 'ungraded' });
     }
     for (const required of event.required) {
       const ornamented = required.noteIds.map((id) => noteById.get(id)).find((n) => n?.ornament);

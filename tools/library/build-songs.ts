@@ -55,6 +55,12 @@ const PATTERN_WORDS: Record<Exclude<LeftHandPattern, 'block'>, string> = {
   repeated: 'repeated chords on every beat',
   broken: 'broken chords (root, fifth, third, fifth)',
 };
+/** The verb the departure "The left-hand <pattern words> ... our own" takes: one accompaniment, or several chords. */
+const PATTERN_VERB: Record<Exclude<LeftHandPattern, 'block'>, 'is' | 'are'> = {
+  waltz: 'is',
+  repeated: 'are',
+  broken: 'are',
+};
 const ARRANGER = 'Musicanyya practice material';
 /** The library guard (FR-007) wants the word "arrangement" in the title or subtitle of an arrangement. */
 const SUBTITLE = 'Arrangement: the tune with left-hand block chords';
@@ -628,7 +634,9 @@ export function buildSong(definition: SongDefinition, options: BuildSongOptions)
   const xml = plan.inserts.length > 0 ? applyInserts(raw, plan.inserts) : raw;
 
   const leftHandDeparture =
-    pattern === 'block' ? LEFT_HAND_DEPARTURE : `The left-hand ${PATTERN_WORDS[pattern]} is our own (CC0).`;
+    pattern === 'block'
+      ? LEFT_HAND_DEPARTURE
+      : `The left-hand ${PATTERN_WORDS[pattern]} ${PATTERN_VERB[pattern]} our own (CC0).`;
   const departures = [leftHandDeparture, ...(definition.meta.departures ?? [])];
   const sidecar: Record<string, unknown> = {
     version: 1,

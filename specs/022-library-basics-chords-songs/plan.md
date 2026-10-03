@@ -41,7 +41,7 @@ definition; existing ids, levels and progress unchanged
 | II | One Clock, Measured Latency | Integer ticks: `round(durationTicks x STACCATO_SOUNDING_FRACTION)`, min 1 tick; the fraction and every level threshold are named constants in `src/core/defaults.ts`. | [x] pass |
 | III | Score Fidelity, Engraving & Note Identity | Items are MusicXML loaded by our parser, engraved by Verovio; chord symbols as `<words>` (no notice); Note IDs unchanged; visual spans keep written length; new songs audited note for note against their source. | [x] pass |
 | IV | Test-First Core | Level criteria, criterion 29, new facts and staccato timeline are unit-tested first in Node; builders golden-tested; independent checks (lesson-claims-v1, chord-lessons-v1, song-chords-v2) test-first; grading untouched, its goldens must stay identical. | [x] pass |
-| V | Layered, Framework-Free | Core changes in `src/core` only (levels, facts, model, timeline, tags); tools stay dev-only (layers test); UI change limited to tag labels; no framework. | [x] pass |
+| V | Layered, Framework-Free | Core changes in `src/core` only (levels, facts, model, timeline, tags); tools stay dev-only (layers test); UI changes: tag labels, the item's Trains text in the browser's detail pane (T075) and its departures in the source lines (T079), rendered from meta only; no framework. | [x] pass |
 | VI | Musician-First Feedback | No feedback change; explanations as text above bar 1 do not cover notes (screenshot check). | [x] pass |
 | VII | Pedagogy as Data | Lessons and songs are versioned JSON definitions; every item passes "comfortable"; seventh chords split between hands (R5); no Advice files added. | [x] pass |
 | VIII | Simplicity, Web-First | P1 (Basics) needs no owner source approval and is usable alone; no dependency; one new format instead of stretching the exercise generator. | [x] pass |
@@ -75,6 +75,9 @@ src/core/score/model.ts                 # Note.staccato
 src/core/musicxml/build.ts              # read <staccato>
 src/core/timeline/timeline.ts           # staccato sounding end
 src/ui/i18n/en.ts                       # tag labels
+src/ui/elements/mx-browser-detail.ts    # Trains text in the detail pane (T075)
+src/ui/format/score-source-text.ts      # departures in the source lines (T079)
+src/core/grade/expected.ts              # played-along spans keep the written length under staccato (T072 F1)
 tools/library/sections.ts               # basics, learning/chord-lessons (+3), orders
 tools/library/build-lessons.ts          # new: pnpm library:lessons
 tools/library/lessons/                  # new: definition types, token parser, writer

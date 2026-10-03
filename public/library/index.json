@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-03T13:22:52.290Z",
+  "generated": "2026-10-03T14:37:06.726Z",
   "sections": [
     {
       "id": "basics",
@@ -12320,7 +12320,7 @@
         "hands": "both",
         "arrangement": true,
         "departures": [
-          "The left-hand broken chords (root, fifth, third, fifth) is our own (CC0)."
+          "The left-hand broken chords (root, fifth, third, fifth) are our own (CC0)."
         ],
         "step": "song",
         "stepOrder": 30
@@ -14298,7 +14298,7 @@
         "hands": "both",
         "arrangement": true,
         "departures": [
-          "The left-hand repeated chords on every beat is our own (CC0).",
+          "The left-hand repeated chords on every beat are our own (CC0).",
           "Barred with a one-beat pickup, as hymnals print the tune (the source starts it on the first beat of a bar): every note keeps its place in time, only the bar lines move."
         ],
         "step": "song",
@@ -16791,7 +16791,7 @@
         "arrangement": true,
         "raisedBecause": "A chord struck on every beat under a melody that changes chord up to twice a bar, in D minor with the chords of its relative major (F, C) at the cadences; the notes alone measure Beginner.",
         "departures": [
-          "The left-hand repeated chords on every beat is our own (CC0).",
+          "The left-hand repeated chords on every beat are our own (CC0).",
           "The fermatas at the ends of the phrases are left out: the music goes on in time."
         ],
         "step": "song",
@@ -18379,7 +18379,7 @@
         "hands": "both",
         "arrangement": true,
         "departures": [
-          "The left-hand broken chords (root, fifth, third, fifth) is our own (CC0).",
+          "The left-hand broken chords (root, fifth, third, fifth) are our own (CC0).",
           "The double bar lines the source prints inside the bars at the ends of phrases are left out: the music is written in whole 4/4 bars.",
           "Written in E minor, the key the source sounds in (the source writes it in F minor and transposes it down a semitone)."
         ],
@@ -19018,7 +19018,7 @@
         "hands": "both",
         "arrangement": true,
         "departures": [
-          "The left-hand repeated chords on every beat is our own (CC0)."
+          "The left-hand repeated chords on every beat are our own (CC0)."
         ],
         "step": "song",
         "stepOrder": 30
@@ -19204,7 +19204,7 @@
         "hands": "both",
         "arrangement": true,
         "departures": [
-          "The left-hand broken chords (root, fifth, third, fifth) is our own (CC0)."
+          "The left-hand broken chords (root, fifth, third, fifth) are our own (CC0)."
         ],
         "step": "song",
         "stepOrder": 50
@@ -19390,7 +19390,7 @@
         "hands": "both",
         "arrangement": true,
         "departures": [
-          "The left-hand repeated chords on every beat is our own (CC0)."
+          "The left-hand repeated chords on every beat are our own (CC0)."
         ],
         "step": "song",
         "stepOrder": 70

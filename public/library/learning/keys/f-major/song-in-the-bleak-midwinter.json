@@ -18,7 +18,7 @@
     "basedOn": "mutopia-1233-cranham: Cranham (hymntune, G. Holst: In the Bleak Midwinter), SATB, F major; the tune is in the Soprano (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1233)",
     "note": "Melody from www.cyberhymnal.org (https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1233), public domain; left-hand chords our own (CC0)"
   },
-  "departures": ["The left-hand broken chords (root, fifth, third, fifth) is our own (CC0)."],
+  "departures": ["The left-hand broken chords (root, fifth, third, fifth) are our own (CC0)."],
   "reviewedBy": "claude-opus-5.5",
   "reviewedOn": "2026-10-03",
   "step": "song",
