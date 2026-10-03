@@ -43,3 +43,5 @@
   two-chord switches, FR-035 (simplified versions) added; all items pass.
 - Iteration 4 (plan step, 2026-10-03): owner decision OD-1 added FR-005 - FR-007 (no notation bans; Introduction one
   focus) and reworded FR-014 and SC-006; re-validated - all items pass, no markers.
+- Iteration 5 (after analyze, 2026-10-03): FR-021, FR-033, FR-035, FR-044, SC-002 and US3 scenario 3 reworded
+  (analyze H1, M3, M4, L1); re-validated - all items pass.

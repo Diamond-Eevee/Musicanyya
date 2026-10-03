@@ -8,12 +8,13 @@ never the definition or the builder (independence, like `theory.ts` and `song-ch
 
 ## `lesson-claims-v1` (Basics; `tools/library/fidelity/lesson-claims.ts`)
 
-The record's check carries `claims: { introduces: string[], singlePitch?: boolean }` and `teachingOrder: number`
+The record's check carries `claims: { introduces: string[], singlePitch?: boolean, practice?: boolean }` and `teachingOrder: number`
 (the lesson's `stepOrder`). Differences reported:
 
 1. `explanation-missing` - no `<words>` direction above staff 1 in bar 1 (pickup bar or bar 1).
 2. `not-single-pitch` - `singlePitch` claimed and more than one sounding pitch.
-3. `not-introduced` - a notation feature (lesson-definition §3 ids, detected from the MusicXML) that neither this
+3. `not-introduced` - a notation feature (a staff holding only whole-bar rests, with its clef, is not counted;
+   neither are tempo marks, key signatures or the explanation) (lesson-definition §3 ids, detected from the MusicXML) that neither this
    lesson nor an earlier Basics lesson introduces; the check reads the other Basics records for the earlier ones.
 4. `tie-pitch` - a tie between different pitches; `slur-same-pitch` - a slur between two equal adjacent pitches only.
 

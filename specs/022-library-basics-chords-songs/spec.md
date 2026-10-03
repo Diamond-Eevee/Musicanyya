@@ -129,7 +129,7 @@ source, the licence and any departure; the library audit for that song reports n
    ones, each with its level, key and what it trains.
 2. **Given** a new song, **When** its details are opened, **Then** its composer (or "Traditional"), source, licence
    and every departure from the source are listed.
-3. **Given** a new song at Beginner level or harder, **When** the musician looks one level lower, **Then** a
+3. **Given** a new song at Intermediate level or harder, **When** the musician looks one level lower, **Then** a
    simplified version of it is there, titled "<song> (simplified)", with a simpler chord progression, fewer notes,
    or slower left-hand chords instead of a busy left hand, and its description says what was simplified.
 4. **Given** a new song, **When** the library audit runs, **Then** its melody matches the approved source note for
@@ -222,7 +222,7 @@ available: yes (where) / no".
 
 - **FR-020**: Single-chord lessons MUST cover major, minor, diminished and augmented triads; suspended (sus2, sus4) chords;
   seventh chords (major 7, dominant 7, minor 7, half-diminished); and the inversions of triads.
-- **FR-021**: Chord-switch lessons MUST cover at least I-IV-I, I-V-I, I-IV-V-I, ii-V-I and a twelve-bar blues, each
+- **FR-021**: Progression lessons MUST cover at least I-IV-I, I-V-I, I-IV-V-I, ii-V-I and a twelve-bar blues, each
   in more than one key, with smooth voice leading (common tones kept) stated in the description.
 - **FR-022**: Two-chord switch lessons MUST cover at least: major -> minor on the same root (e.g. C -> Cm), a minor
   chord to the major chord a step below (e.g. Dm -> C), and the switches to IV and V and back (e.g. C -> F, C -> G),
@@ -238,11 +238,12 @@ available: yes (where) / no".
   without such a source MUST be rejected and recorded.
 - **FR-032**: Every new song MUST list its composer (or "Traditional"), source, licence and every departure from the
   source (transposition, shortened, simplified rhythm).
-- **FR-033**: Every new song's chords MUST pass the existing chord check against its melody.
+- **FR-033**: Every new song's chords MUST pass the song chord check against its melody (the existing check, extended
+  for moving left-hand patterns and the natural-minor chords v and VII at Beginner).
 - **FR-034**: For each new song the project MUST record whether a multi-part public-domain or permitted-licence
   version exists (where, which licence), for a later Orchestra feature.
 
-- **FR-035**: Every new song and chord lesson at Beginner level or harder MUST have a simplified version at a lower
+- **FR-035**: Every new song and chord lesson at Intermediate level or harder MUST have a simplified version at a lower
   level, titled "<title> (simplified)", made by a simpler chord progression, fewer notes per chord, or slower
   left-hand chords instead of a busy left hand; its description MUST say what was simplified. The simplified version
   keeps the original's melody recognisable and lists every change from the source as a departure.
@@ -256,8 +257,9 @@ available: yes (where) / no".
   check for that level.
 - **FR-043**: Every item written for this project MUST be marked as authored, CC0, with author and reviewer, and be
   reproducible from its definition (never hand-edited output), like the existing exercises and songs.
-- **FR-044**: Every new item MUST have fingering where a beginner needs it (at least the first note of each hand
-  position and every position change).
+- **FR-044**: Every new lesson MUST have fingering where a beginner needs it (at least the first note of each hand
+  position and every position change). Songs keep the existing rule: left-hand chord fingering, no right-hand melody
+  fingering (as for the 10 existing songs).
 - **FR-045**: New items MUST NOT contain Orchestra parts.
 - **FR-046**: New items MUST work the same in the browser and in Electron; the Native audio plugin is not involved.
 
@@ -281,7 +283,7 @@ available: yes (where) / no".
 
 - **SC-001**: A new user can find and open the first Basics lesson in under 30 seconds from opening the library.
 - **SC-002**: Basics contains at least 15 lessons covering every topic of FR-010; chord lessons contain at least 15
-  lessons covering every chord type and switch of FR-020 to FR-022; at least 8 new songs are added (FR-030), and every new item at Beginner level or harder has a simplified version
+  lessons covering every chord type and switch of FR-020 to FR-022; at least 8 new songs are added (FR-030), and every new item at Intermediate level or harder has a simplified version
   (FR-035).
 - **SC-003**: 100 % of new items open with zero parser notices, pass their level check and the "comfortable"
   playability check.
@@ -294,6 +296,10 @@ available: yes (where) / no".
 - **SC-007**: Every new song has a recorded answer to "multi-part source available?" (FR-034).
 
 ## Assumptions
+
+- **Analyze follow-up (2026-10-03, owner "go with recommended")**: FR-035 applies from Intermediate up (Beginner chord
+  lessons are already the simple form); FR-044 keeps the songs' existing fingering rule; FR-033 names the extended
+  song chord check.
 
 - **Basics is a new top-level shelf**, listed before Learning and Repertoire, because it is where a beginner starts.
 - **Explanations are text only** (description plus one printed line); no video, animation or audio narration.

@@ -37,8 +37,9 @@ A lesson item = authored notes (CC0) for one Basics lesson or one chord lesson, 
     "claims": {
       "type": "object", "additionalProperties": false,
       "properties": {
-        "introduces":  { "type": "array", "items": { "type": "string" }, "description": "notation feature ids (section 3); required in basics" },
+        "introduces":  { "type": "array", "items": { "type": "string" }, "description": "notation feature ids (section 3); non-empty in basics unless practice" },
         "singlePitch": { "type": "boolean" },
+        "practice":    { "type": "boolean", "description": "basics: the lesson only combines earlier ideas; introduces may be empty" },
         "commonTones": { "type": "array", "items": { "type": "object", "required": ["bar", "beat", "pitch"],
                          "properties": { "bar": { "type": "integer" }, "beat": { "type": "number" }, "pitch": { "type": "string" } } },
                          "description": "a switch keeps this key down (or strikes it again) from the previous chord" }
@@ -92,12 +93,15 @@ either staff's token but is always printed above staff 1.
 `staccato`, `accent`, `tenuto`, `metre-4-4`, `metre-3-4`, `metre-2-4`, `metre-6-8`, `pickup`, `repeat`, `steps`,
 `five-finger-position`, `left-hand`, `hands-alternate`, `hands-together`, `chord`, `chord-symbol`.
 
+A staff holding only whole-bar rests, and its clef, is not counted as used notation (every item has a grand staff).
+Tempo marks, key signatures, bar numbers and the printed explanation are never counted.
+
 ## 4. What the tool writes
 
 `pnpm library:lessons` (all) / `--lesson <id>`:
 
 1. Validates every definition (schema, token grammar, bar sums, unique `stepOrder`, `section` = id prefix,
-   `scoreText` in basics, `simplifies` target exists and has a higher level); on any error writes nothing, exits 1,
+   `scoreText` in basics, `introduces` non-empty in basics unless `practice`, `simplifies` target exists and has a higher level); on any error writes nothing, exits 1,
    listing file, bar and token.
 2. Per item (per transposition): one part "Piano", two staves (treble, bass), key, metre, tempo mark
    (`<metronome>` + `<sound tempo>`), the `scoreText` as italic `<words>` above staff 1 at bar 1, chord symbols as

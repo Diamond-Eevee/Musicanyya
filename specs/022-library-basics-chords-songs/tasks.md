@@ -32,7 +32,7 @@
 
 ### Owner decision gate
 
-- [ ] T003 **Owner decision gate OD-3** (plan "Decisions and open items"): ask the owner whether staccato sounds at
+- [x] T003 **Owner decision gate OD-3** (plan "Decisions and open items"): ask the owner whether staccato sounds at
   `STACCATO_SOUNDING_FRACTION` (0.5) for every Score, which also changes Burgmüller Op. 100 Nos. 2 and 5 and both
   Morning Moods where staccato is printed (recommended: yes). Record the answer in `research.md` R9 and the log.
   **Blocks**: T019-T021 and the audible part of US1 lessons 20-21. If "no": mark T019-T021 `[-]`, change spec US1
@@ -46,14 +46,19 @@
   `accidentals` feature; (d) accidentals in an item with a key change are not a second feature; (e) Beginner with
   sixteenths, triplets, pedal, voltas passes when pace and reach fit; (f) every kept criterion (1, 2, 3, 4, 7, 14, 15,
   16, 17, 18, 19, 27, 28) still fails at its old threshold (one assertion each); (g) `computeLevel` for a reach-only
-  Advanced item is Advanced. Run; record the failures.
+  Advanced item is Advanced; (h) an Introduction item with dotted quarter + eighth only passes (one feature,
+  `dotted-rhythm`), and a 6/8 Introduction item with dotted quarters and eighths only passes (one feature, `metre`) -
+  analyze H2. Run; record the failures.
 - [ ] T005 [P] Write failing tests in `tests/core/library/facts.test.ts` for `hasPickup` (implicit short first
-  measure: true; full first measure or implicit full measure: false) and `hasDottedRhythm` (dotted quarter + eighth:
-  true; dotted half only: false; dotted grace note ignored), using fixtures built with `src/core/musicxml/write.ts`.
+  measure: true; full first measure or implicit full measure: false), `hasDottedRhythm` (dotted quarter + eighth in
+  4/4: true; dotted half only: false; dotted quarter in 6/8: false; dotted grace note ignored) and `hasShortNotes`
+  (eighth pairs: true; eighths only after dotted quarters in 4/4: false; eighths in 6/8: false; a sixteenth in 6/8:
+  true), using fixtures built in the test with `src/core/musicxml/write.ts` (a comment states they are authored for
+  the test, CC0 - constitution IV).
 - [ ] T006 [light] In `src/core/defaults.ts` add `INTRODUCTION_FOCUS_FEATURES_MAX = 1`, `INTRODUCTION_FOCUS_FEATURES`
   (the 11 ids of data-model §1, in order) and `INTRODUCTION_SIMPLE_METRES = ['2/4', '3/4', '4/4']`, each with a comment
   citing 022 data-model §1.
-- [ ] T007 Add `hasPickup` and `hasDottedRhythm` to `ItemFacts` (`src/core/library/types.ts`, optional) and compute
+- [ ] T007 Add `hasPickup`, `hasDottedRhythm` and `hasShortNotes` to `ItemFacts` (`src/core/library/types.ts`, optional) and compute
   them in `src/core/library/facts.ts`; read them as optional booleans in `src/core/library/index-model.ts`. T005 green.
 - [ ] T008 [deep] Rewrite `failingCriteria` in `src/core/library/levels.ts`: drop criteria 5, 6, 8-13, 20-25 and the
   B5/B6 variants, add criterion 29 from the T006 constants; remove the now-unread constants from `src/core/defaults.ts`
@@ -78,13 +83,12 @@
   `pnpm library:songs`, `pnpm library:index`; T009 green.
 - [ ] T014 [light] Add the seven tags to `SKILL_TAGS` (`src/core/library/types.ts`) and labels in `src/ui/i18n/en.ts`
   ("Note values", "Rests", "Articulation", "Time signatures", "Reading", "Inversions", "Seventh chords"). T012 green.
-- [ ] T015 Write failing tests in `tests/library/index.test.ts`: section `basics` has `parent: null`, `order` 1;
-  `learning` 2; `repertoire` 3; `learning/chord-lessons` (title "Chords", order 3) with children `single-chords`,
-  `switches`, `progressions` in that order; no section id equals any `formerIds` entry.
-- [ ] T016 Add the sections of data-model §2 to `tools/library/sections.ts` (titles and descriptions verbatim). Note
-  that the index builder leaves out folders without items, so T015's assertions on the new sections turn green only
-  once US1/US2 items exist - the order assertions for `learning`/`repertoire` turn green now.
-- [ ] T017 Write failing tests in `tests/tools/build-index.test.ts` (or the existing index builder test) for
+- [ ] T015 Write failing tests in `tests/library/index.test.ts`: `learning` has `order` 2 and `repertoire` `order` 3;
+  no section id equals any `formerIds` entry. (The new sections only appear in the index once they hold items, so
+  their assertions live in T028 and T041 - analyze M5.)
+- [ ] T016 Add the sections of data-model §2 to `tools/library/sections.ts` (titles and descriptions verbatim);
+  run `pnpm library:index`. T015 green.
+- [ ] T017 Write failing tests in `tests/library/index.test.ts` for
   `simplifies`: a target that is missing, in another section, or not of a higher level fails the build with a message
   naming both ids; a valid one passes. Implement in `tools/library/build-index.ts`.
 
@@ -109,11 +113,12 @@
   errors name bar and token for an unknown value, a fingering count that does not match a chord, a bar whose sum is
   wrong, a tie between different pitches.
 - [ ] T023 [P] Write failing tests `tests/tools/lessons/build-lessons.test.ts` with fixture definitions under
-  `tests/fixtures/lessons/`: one Basics fixture (ties, slur, staccato, pickup + implicit last bar, repeat barlines,
+  `tests/fixtures/lessons/` (a `README.md` there states origin and licence: authored for these tests, CC0): one Basics fixture (ties, slur, staccato, pickup + implicit last bar, repeat barlines,
   `scoreText`) and one chord fixture (symbols, split seventh, two `transpositions`): the output loads with
   `readXml` + `buildScore` with zero notices; the words direction is in bar 1 above staff 1; ids, `stepOrder` per
   transposition and the sidecar (data-model §3) are as specified; validation failures (duplicate `stepOrder`, missing
-  `scoreText` in basics, `section` not the id prefix, bad `simplifies`) write nothing and exit 1; output is
+  `scoreText` in basics, empty `introduces` in basics without `practice`, `section` not the id prefix, bad
+  `simplifies`) write nothing and exit 1; a `practice` lesson with empty `introduces` is accepted; output is
   byte-identical on a second run (golden snapshot).
 - [ ] T024 Implement `tools/library/lessons/definition.ts` (types from the contract schema), `tools/library/lessons/parse.ts`
   (tokens), `tools/library/lessons/write.ts` (to `WriteScore`, through `src/core/musicxml/write.ts` and
@@ -127,7 +132,10 @@
 
 - [ ] T026 [P] [deep] Write failing tests `tests/tools/fidelity/lesson-claims.test.ts` with planted MusicXML fixtures,
   one per difference of the contract (`explanation-missing`, `not-single-pitch`, `not-introduced` - using an earlier
-  lesson's claims -, `tie-pitch`, `slur-same-pitch`) and one clean lesson with 0 differences.
+  lesson's claims -, `tie-pitch`, `slur-same-pitch`), one clean lesson with 0 differences, a lesson whose unused
+  staff holds only whole-bar rests under a bass clef before `bass-clef` is introduced (0 differences, analyze M1),
+  and a `practice` lesson with empty `introduces` (0 differences). The fixtures' file header names their origin
+  (authored for the test, CC0).
 - [ ] T027 [deep] Implement `tools/library/fidelity/lesson-claims.ts` (reads only the MusicXML and the record's claims;
   feature detection for every lesson-definition §3 id) and register `lesson-claims-v1` in
   `tools/library/fidelity/records.ts` and `cli.ts` (record field `claims`, `teachingOrder`), with
@@ -147,7 +155,8 @@ plays with the cursor, Practice waits for each note, Play grades it; the ties le
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T028 [P] [US1] [standard] Write `tests/library/basics.test.ts`: 24 items in `basics`, `stepOrder` 10-240 in the
+- [ ] T028 [P] [US1] [standard] Write `tests/library/basics.test.ts`: section `basics` exists with `parent: null`,
+  `order` 1, title and description of data-model §2; 24 items in `basics`, `stepOrder` 10-240 in the
   order and with the titles of data-model §4; every item Introduction with `levelCheck.pass`, `kind: "exercise"`,
   `trains` and a printed explanation; the claimed single-pitch lessons (1-8, 14-17, 24) use one pitch; tags drawn from
   the lesson's ideas (`note-values`, `rests`, `ties`, `articulation`, `time-signatures`, `repeats`, `reading`,
@@ -162,7 +171,8 @@ plays with the cursor, Practice waits for each note, Play grades it; the ties le
   `basics/ties-across-the-bar-line` files: the expected steps contain the head of each tie chain only. Fails now.
 - [ ] T031 [P] [US1] [standard] Extend `tests/e2e/library.spec.ts` (chromium): Basics is the first shelf; its first
   three lessons appear in teaching order; opening "Middle C and the beat" shows its "Trains" text and loads the score;
-  Listen starts and the cursor moves. Fails now.
+  Listen starts and the cursor moves; a remembered library filter and a collapsed shelf from before survive a reload
+  with the new shelf order (FR-004). Fails now.
 
 ### Implementation
 
@@ -172,7 +182,9 @@ plays with the cursor, Practice waits for each note, Play grades it; the ties le
 - [ ] T033 [US1] Author lessons 9-13 (steps, five-finger position, bass clef and left hand, hands take turns, hands
   together) - hand independence 0 (slower hand's onsets inside the faster's).
 - [ ] T034 [US1] Author lessons 14-17 (eighth notes, dotted quarter + eighth, ties in a bar, ties across the bar line);
-  the tie lessons' text says the app checks when a note starts, not how long it is held (spec Edge Cases).
+  the tie lessons' text says the app checks when a note starts, not how long it is held (spec Edge Cases). Eighth
+  notes at Introduction pace: mean density <= 1.5 attacks per second (criterion 18), so mix eighth pairs with longer
+  notes or use tempo 50.
 - [ ] T035 [US1] Author lessons 18-24 (tie or slur, legato, staccato, legato and staccato, pickup, repeat signs, 6/8 with
   a dotted-quarter metronome mark).
 - [ ] T036 [US1] [light] Run `pnpm library:lessons` and `pnpm library:index`; record the written count (24) and that
@@ -204,10 +216,14 @@ waits for each whole chord; a wrong note in a chord is marked wrong pitch.
 - [ ] T040 [P] [US2] Write failing tests `tests/tools/fidelity/chord-lessons.test.ts` with planted fixtures for every
   difference of `chord-lessons-v1` (`chord-tones` incl. a split seventh read across both staves and a declared
   `omit`, `bass` for a slash chord, `common-tone`, `stray-note`) and every name form of research R4 (`m`, `°`, `+`,
-  `sus2`, `sus4`, `maj7`, `7`, `m7`, `ø7`, `/bass`, sharps and flats); one clean lesson gives 0 differences.
-- [ ] T041 [P] [US2] [standard] Write `tests/library/chord-lessons.test.ts`: the three folders hold 9, 15 and 20 items
+  `sus2`, `sus4`, `maj7`, `7`, `m7`, `ø7`, `/bass`, sharps and flats); one clean lesson gives 0 differences. The
+  fixtures' file header names their origin (authored for the test, CC0).
+- [ ] T041 [P] [US2] [standard] Write `tests/library/chord-lessons.test.ts`: section `learning/chord-lessons` (title
+  "Chords", order 3 under `learning`) with children `single-chords`, `switches`, `progressions` in that order
+  (data-model §2); the three folders hold 9, 15 and 20 items
   with the ids and levels of data-model §5; every chord onset has a symbol above staff 1 (FR-023); each simplified item
-  has `simplifies` pointing at the full item of the same key with a higher level and " (simplified)" in its title;
+  has `simplifies` pointing at the full item of the same key with a strictly higher level (and that full item's
+  level check passes, with `raisedBecause` where its measured level is lower) and " (simplified)" in its title;
   no hand ever strikes more than three keys (FR-041, via the playability facts). Fails now.
 - [ ] T042 [P] [US2] [standard] Extend `tests/e2e/library.spec.ts` (chromium): Learning lists Keys, Key changes, Chords
   in that order; Chords lists One chord, Chord switches, Progressions; opening "Major to minor" in C shows the chord
@@ -223,7 +239,8 @@ waits for each whole chord; a wrong note in a chord is marked wrong pitch.
 - [ ] T045 [US2] Author the 5 Chord-switch families (`content/library/lessons/chords-switch-*.json`, 3 transpositions
   each), with `claims.commonTones` for every kept tone.
 - [ ] T046 [US2] Author the 7 Progression families (`content/library/lessons/chords-progression-*.json`; ii-V-I and the
-  twelve-bar blues with their simplified families).
+  twelve-bar blues with their simplified families). In T044-T046, a lesson assigned above its measured level (reach
+  and pace only, research R1) gets a `raisedBecause` naming why (e.g. "seventh chords split between the hands").
 - [ ] T047 [US2] [light] Run `pnpm library:lessons`, `pnpm library:index`; record 44 items written and every level
   check passing.
 - [ ] T048 [US2] [standard] Write the 44 audit records under `content/library/audit/learning/chord-lessons/`
@@ -247,7 +264,7 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
 
 ### Owner decision gate
 
-- [ ] T051 [US3] [standard] **Owner decision gate OD-2** (plan "Decisions and open items"): ask the owner to approve the
+- [x] T051 [US3] [standard] **Owner decision gate OD-2** (plan "Decisions and open items"): ask the owner to approve the
   10 sources of research R13 (or swap reserves). Record each answer with its date in research R13 and the log.
   **Blocks**: T057-T066. Rejected tunes go into the "Rejected sources" table of `content/library/sources/README.md`.
 
@@ -256,21 +273,23 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
 - [ ] T052 [P] [US3] [standard] Write failing tests in `tests/tools/songs/build-songs.test.ts` for song-definition 1.2.0:
   `leftHand.pattern` `waltz` (3/4: root alone on beat 1, triad without root on 2 and 3), `repeated` (one strike per beat;
   6/8 per dotted beat), `broken` (root-fifth-third-fifth eighths) - each keeps the register/melody-avoidance rules and
-  "comfortable"; `simplifies` lands in the sidecar; omitting `leftHand` leaves every existing song byte-identical (the
-  existing goldens).
+  "comfortable"; `simplifies` lands in the sidecar; a pair gets consecutive `stepOrder` values, simplified first,
+  after the folder's unpaired songs (analyze H3); the 10 existing songs keep their `stepOrder` (values pinned in the
+  test); omitting `leftHand` leaves every existing song byte-identical (the existing goldens).
 - [ ] T053 [P] [US3] Write failing tests in `tests/tools/fidelity/song-chords.test.ts` for `song-chords-v2`: pattern notes
   grouped by the chord name above them; a stray non-chord note in a waltz is reported; changes (not strikes) counted per
   bar; Beginner minor allows `v` and `VII`; v1 behaviour unchanged for v1 records (existing tests stay green).
 - [ ] T054 [P] [US3] [standard] Write `tests/library/songs-022.test.ts`: for each approved tune a pair
   `song-<slug>` (intermediate) / `song-<slug>-simplified` (beginner, `simplifies`, title " (simplified)", departures
   saying what was simplified); `stepOrder` puts the simplified directly before the full one; composer, source and licence
-  present; at least 3 keys, 2 minor, 2 in 3/4 or 6/8 among the approved set (FR-030); no Orchestra part (`facts.parts`
-  1, FR-045). Fails now.
+  present; the full version's level is strictly higher than the simplified one's; each new song is found by
+  `filterItems` with its level, its key and the tag `chords` (FR-003); at least 3 keys, 2 minor, 2 in 3/4 or 6/8
+  among the approved set (FR-030); no Orchestra part (`facts.parts` 1, FR-045). Fails now.
 
 ### Implementation
 
 - [ ] T055 [US3] [standard] Implement song-definition 1.2.0 in `tools/library/songs/definition.ts` and
-  `tools/library/build-songs.ts` (patterns, `simplifies`). T052 green.
+  `tools/library/build-songs.ts` (patterns, `simplifies`, pair ordering). T052 green.
 - [ ] T056 [US3] Implement `song-chords-v2` in `tools/library/fidelity/song-chords.ts` (option `ruleSet`) and register it
   in `records.ts`. T053 green.
 - [ ] T057 [US3] [standard] Download the approved sources 1-5 (research R13) unchanged into
@@ -281,7 +300,8 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
 - [ ] T058 [P] [US3] [standard] Same as T057 for approved sources 6-10.
 - [ ] T059 [US3] Author the full and simplified song definitions for tunes 1-5 in `content/library/songs/` (melody
   staff/voice/bars, transposition onto a key shelf where it helps - listed as a departure -, intermediate chords with a
-  `leftHand.pattern`, beginner block chords, `trains`, `composer`, `departures`, `reviewedBy`).
+  `leftHand.pattern`, beginner block chords, `trains`, `composer`, `departures`, `reviewedBy`, and
+  `meta.raisedBecause` on a full version whose measured level is below Intermediate).
 - [ ] T060 [US3] Same as T059 for tunes 6-10.
 - [ ] T061 [US3] [light] Run `pnpm library:songs` and `pnpm library:index`; record 20 items written and every level
   check passing.

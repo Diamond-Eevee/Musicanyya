@@ -146,7 +146,8 @@ audit record), never the definition or the builder:
 - **Simplified**, Beginner: one held block chord per bar from the primary chords, sidecar `simplifies: <full id>`,
   title "Song - <name> (simplified)", departures say what was simplified.
 
-Song-definition 1.2.0 (MINOR): optional `leftHand.pattern`, optional `simplifies`. Default `block` keeps every
+Song-definition 1.2.0 (MINOR): optional `leftHand.pattern`, optional `simplifies`, pair ordering (each simplified
+song directly before its full version, analyze H3). Default `block` keeps every
 existing song byte-identical. After R1, a 6/8 tune no longer forces Intermediate, so a 6/8 song can have a Beginner
 simplified version if its pace fits.
 
@@ -170,7 +171,8 @@ staccato note at `STACCATO_SOUNDING_FRACTION` (0.5, new named constant in `src/c
 duration. Visual spans, expected notes, Practice and grading are unchanged (they use onsets and written spans). Tie
 chains ignore staccato. Real-time code is not touched (the scheduler already sends note-offs at the event end tick).
 **Side effect**: the four existing scores with staccato dots (Burgmüller Op. 100 Nos. 2 and 5, both Morning Moods)
-sound shorter where marked - closer to the print. Needs owner: OD-3.
+sound shorter where marked - closer to the print. **Owner OD-3 (2026-10-03, "go with recommended")**: yes, for every
+Score.
 
 **Alternatives considered**: write staccato quarters as eighth + rest in the lesson (rejected: the score would lie);
 a shorter fraction per level (rejected: one documented constant is enough).
@@ -203,7 +205,7 @@ bar counts and ranges approximate until each file is downloaded and inspected wi
 Soprano - so every one already **is** a multi-part source for a later Orchestra (FR-034: `multiPart.available: true`,
 `where` = its own page).
 
-**Proposed shortlist (OD-2, the owner approves each before download)**
+**Shortlist - approved by the owner (OD-2, 2026-10-03, "go with recommended": all 10 as listed; none rejected)**
 
 | # | Tune | Mutopia | Key / metre | Notes |
 |---|---|---|---|---|

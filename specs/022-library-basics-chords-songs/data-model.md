@@ -17,8 +17,8 @@ add:
 
 | Feature id | Present when (facts) |
 |---|---|
-| `short-notes` | `shortestDivision > 4` (a value shorter than a quarter) |
-| `dotted-rhythm` | `hasDottedRhythm` (new fact: a dotted value shorter than a dotted half) |
+| `short-notes` | `hasShortNotes` (new fact: a value shorter than a quarter, **not** counting the eighth that completes a dotted-quarter beat in a simple metre - part of `dotted-rhythm` - nor eighths in a compound metre 6/8, 9/8, 12/8 - part of `metre`) |
+| `dotted-rhythm` | `hasDottedRhythm` (new fact: a dotted value shorter than a dotted half in a simple metre; a dotted quarter in a compound metre is its beat and belongs to `metre`) |
 | `ties` | `hasTies` |
 | `repeats` | `repeatKind !== 'none'` |
 | `pickup` | `hasPickup` (new fact: the first measure is `implicit` and shorter than the metre) |
@@ -29,7 +29,8 @@ add:
 | `pedal` | `hasPedal` |
 | `changes` | `keys.length > 1` or `metres.length > 1` or `tempoChanges > 0` |
 
-The list is `INTRODUCTION_FOCUS_FEATURES` (ordered ids) in `src/core/defaults.ts`; the level-check failure lists
+So a dotted quarter + eighth is one feature (`dotted-rhythm`), and 6/8 with dotted quarters and eighths is one
+feature (`metre`) - analyze H2. The list is `INTRODUCTION_FOCUS_FEATURES` (ordered ids) in `src/core/defaults.ts`; the level-check failure lists
 criterion `29`. The facts of the retired criteria are still computed and written (display, filters, step order).
 
 **Constants**: removed (no longer read) - `LEVEL_SHORTEST_VALUE_BEATS_MIN`, `LEVEL_LONGEST_RUN_MAX`,
@@ -70,7 +71,8 @@ strings), optional `transpositions` (keys).
 
 **Validation**: every bar's token durations add up to the metre (the pickup bar and the matching last bar may be
 shorter, both written `implicit`); every token parses; `stepOrder` unique per section; a `basics` lesson has
-`scoreText`; `claims.introduces` non-empty in `basics`; ids match `^(basics|learning/chord-lessons/[a-z-]+)/[a-z0-9-]+$`.
+`scoreText`; in `basics`, `claims.introduces` is non-empty unless `claims.practice` is true (a lesson that only
+combines earlier ideas, e.g. lessons 4 and 21); ids match `^(basics|learning/chord-lessons/[a-z-]+)/[a-z0-9-]+$`.
 
 **Generated item**: `.musicxml` + sidecar `.json` beside it (library-index 1.5.0): `kind: "exercise"`, no `step`,
 `stepOrder` from the definition, `provenance: { origin: "authored", licence: "CC0-1.0", author, created, note:
@@ -111,6 +113,9 @@ position change.
 | 23 | `repeat-signs` | Repeat signs | repeat barlines | no | right |
 | 24 | `six-eight-time` | Six-eight time | 6/8 (dotted-quarter beat), tempo = dotted quarter 50 | yes | right |
 
+Lessons 4 and 21 set `claims.practice: true` (no new idea). A staff that holds only whole-bar rests (with its
+clef) is not counted as notation the lesson uses - every lesson has a grand staff (criterion 27), so lessons 1-10
+show a bass clef and whole rests in the unused staff before lessons 5, 6 and 11 introduce them (analyze M1).
 Lessons 18 and 21 combine ideas already introduced; criterion 29 still counts features, so lesson 21 (slurs and
 staccato are not focus features) passes, and 18 contains ties only. Lesson 4 is not "one new idea" but practice, as
 FR-012 allows (at most one new idea). The tie lessons' `trains` and score text say the app checks when a note starts,
@@ -170,15 +175,16 @@ Each tune = two song definitions (song-definition 1.2.0) from one approved sourc
 | Full | `learning/keys/<key>/song-<slug>` | intermediate | `leftHand.pattern` `waltz` / `repeated` / `broken` | intermediate set, <= 2 changes per bar |
 | Simplified | `learning/keys/<key>/song-<slug>-simplified` | beginner | `block` (held) | beginner set (minor: i, iv, v, V, VII), <= 1 change per bar |
 
-`stepOrder` (folder-unique, existing rule: 10 x position) puts the simplified version directly before its full
-version. Sidecar title "Song - <name>" / "Song - <name> (simplified)", `simplifies` on the simplified one.
+`stepOrder` (folder-unique, 10 x position): the builder orders songs by pair - a simplified song and its full
+version sort together, simplified first; unpaired songs keep the 1.1.0 order and come first, then the pairs by the full
+song's title. The 10 existing songs keep their `stepOrder` (song-definition 1.2.0, analyze H3). Sidecar title "Song - <name>" / "Song - <name> (simplified)", `simplifies` on the simplified one.
 
 ## 7. Library index additions (contract [library-index-1.5.md](contracts/library-index-1.5.md))
 
 - Sidecar `simplifies?: string` - the item id this one simplifies; the item must exist, have a higher level, and the
   same section. Read by library tests only; the app ignores it.
 - Skill tags `note-values`, `rests`, `articulation`, `time-signatures`, `reading`, `inversions`, `seventh-chords`.
-- Facts `hasPickup: boolean`, `hasDottedRhythm: boolean`.
+- Facts `hasPickup: boolean`, `hasDottedRhythm: boolean`, `hasShortNotes: boolean` (§1).
 - Section order: `basics` 1, `learning` 2, `repertoire` 3.
 
 ## 8. Score model: staccato (research R9)

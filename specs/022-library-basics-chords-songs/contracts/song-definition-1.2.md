@@ -25,7 +25,11 @@
 3. `meta.raisedBecause` optional (FR-006, data-model §1).
 4. `meta.level` stays `beginner | intermediate`; a definition with `simplifies` must have a lower level than the
    target.
-5. Id pattern unchanged; a simplified song's id ends in `-simplified`, its title in " (simplified)"; the
+5. **Ordering** (replaces 1.1.0 §2 step 6 for paired songs): a simplified song and the song it `simplifies` get
+   consecutive `stepOrder` values in their folder, simplified first. Unpaired songs are ordered as in 1.1.0 (Beginner
+   first, then Intermediate, each by title) and come first; the pairs follow them, ordered by the full song's title.
+   So the 10 existing (unpaired) songs keep their `stepOrder`; the builder test pins those 10 values.
+6. Id pattern unchanged; a simplified song's id ends in `-simplified`, its title in " (simplified)"; the
    `departures` of a simplified song list what was simplified (FR-035).
 
 ## Audit

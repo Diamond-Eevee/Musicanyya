@@ -132,9 +132,9 @@ multiPart records -> polish (contract folds, docs, full gate).
   former id of Keys.
 - Decided: one lesson-definition format for Basics and chord lessons; songs as full/simplified pairs; 6/8 allowed.
 - Decided: Beginner minor songs may use `v` and `VII` (song-chords-v2); music review in tasks.
-- **needs owner (OD-2)**: approve the 10 song sources of research R13 (or swap in reserves) before download. Blocks
+- **Answered 2026-10-03 (OD-2: all 10 approved)** - was: approve the 10 song sources of research R13 (or swap in reserves) before download. Blocks
   US3 only.
-- **needs owner (OD-3)**: staccato sounds at half length in Listen/Play for every Score, which also changes how the
+- **Answered 2026-10-03 (OD-3: yes)** - was: staccato sounds at half length in Listen/Play for every Score, which also changes how the
   existing Burgmüller Nos. 2 and 5 and both Morning Moods sound where staccato is printed. Recommended: yes (closer to
   the print). If no: Basics lesson 20/21 keeps the dots but Listen sounds the same (spec US1 scenario 5 would then
   need changing).

@@ -34,3 +34,17 @@
 - Owner (2026-10-03, "go with recommended" with /speckit:analyze): OD-2 approve the 10 song sources of research R13;
   OD-3 staccato at half length for every Score - yes. T003 and T051 record these in research.md when implement starts.
 - Handoff: next = fix H1-H3 (spec/plan/tasks edits), then /speckit:implement from T001.
+
+## 2026-10-03 18:00 - claude-opus-5.5 (pre-implement fixes)
+- Done: analyze findings applied (owner: "yes, do pre implement stuff"). Spec: FR-035 from Intermediate up (H1),
+  FR-033 names the extended chord check (M3), FR-044 keeps the songs' fingering rule (M4), FR-021 "progression
+  lessons" (L1). Data-model/contracts: criterion 29 counts dotted quarter + eighth as one feature and 6/8 values as
+  the metre (new fact `hasShortNotes`, H2); an unused whole-rest staff is not counted by lesson-claims-v1 (M1);
+  `claims.practice` for lessons 4 and 21 (M2); song pairs ordered together after unpaired songs, existing stepOrders
+  pinned (H3). Tasks: T004/T005/T007 (H2), T015/T016/T028/T041 (M5), T041/T046/T054/T059 raisedBecause and strict
+  level order (M6), fixture origin notes (L2), FR-004 reload check in T031 (L3), FR-003 in T054 (L4), T017 file (L7),
+  T034 density note (L8), T052/T055 pair ordering (H3).
+- Done: T003 (OD-3 answered: staccato at half length for every Score - recorded in research R9), T051 (OD-2
+  answered: all 10 sources approved - recorded in research R13). Evidence: owner message "go with recommended"
+  with /speckit:analyze, 2026-10-03.
+- Handoff: next = /speckit:implement from T001 (Setup), then Foundation T002-T027.

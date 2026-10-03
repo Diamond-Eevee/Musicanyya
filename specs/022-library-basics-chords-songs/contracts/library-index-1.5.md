@@ -11,7 +11,9 @@
 2. **Skill tags** (`SKILL_TAGS`, `src/core/library/types.ts`): add `note-values`, `rests`, `articulation`,
    `time-signatures`, `reading`, `inversions`, `seventh-chords`; English labels in `src/ui/i18n/en.ts`.
 3. **Facts**: `hasPickup: boolean` (first measure implicit and shorter than the metre), `hasDottedRhythm: boolean`
-   (a dotted value shorter than a dotted half, grace notes excluded). Optional for readers (older index).
+   (a dotted value shorter than a dotted half in a simple metre, grace notes excluded), `hasShortNotes: boolean` (a
+   value shorter than a quarter, not counting the eighth completing a dotted-quarter beat in a simple metre, nor
+   eighths in a compound metre) - 022 data-model §1. Optional for readers (older index).
 4. **Level check** (data-model §4 of 005, criteria): criteria 5, 6, 8-13, 20-25 retired; criterion 29 "one focus"
    (Introduction only) added - text in [022 data-model.md](../data-model.md) §1. `levelCheck.failed` may now list `29`
    and no longer lists retired ids.
