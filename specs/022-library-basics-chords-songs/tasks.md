@@ -316,6 +316,11 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
   refuses): `tools/library/songs/definition.ts` validates it; `tools/library/build-songs.ts` joins a short bar inside
   the piece with the next when together they make at most one bar of the metre (never across a repeat or ending); tests
   first in `tests/tools/songs/build-songs.test.ts` and `definition.test.ts`; contract `song-definition-1.2.md` updated.
+- [x] T078 [US3] [standard] Optional `melody.pickupBeats` (song-definition 1.2.0; owner 2026-10-03 after the T063 review:
+  "re-bar with pickup" - the St. Anne source bars the tune from beat 1, hymnals with a one-beat pickup):
+  `definition.ts` validates it; `build-songs.ts` re-cuts a source that starts on a full bar into a pickup of that many
+  beats, full bars and a short last bar (refused with repeats or endings); every note keeps its onset and length;
+  tests first in `build-songs.test.ts` and `definition.test.ts`; contract updated.
 - [x] T059 [US3] Author the full and simplified song definitions for tunes 1-5 in `content/library/songs/` (melody
   staff/voice/bars, transposition onto a key shelf where it helps - listed as a departure -, intermediate chords with a
   `leftHand.pattern`, beginner block chords, `trains`, `composer`, `departures`, `reviewedBy`, and

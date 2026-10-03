@@ -546,3 +546,48 @@ describe('022: joining a bar split by a phrase line (melody.joinShortBars)', () 
     expect(report.entries).toEqual([]);
   });
 });
+
+// Feature 022 T078 (contract song-definition 1.2.0, melody.pickupBeats; owner 2026-10-03): St. Anne (Mutopia 1290) bars
+// the tune from beat 1; hymnals print it with a one-beat pickup, so the stresses fall on beats 1 and 3.
+describe('022: re-barring a tune with a pickup (melody.pickupBeats)', () => {
+  const stAnne = (pickupBeats?: number): SongDefinition => ({
+    version: 1,
+    id: 'learning/keys/c-major/song-o-god-our-help-in-ages-past',
+    title: 'Song - O God, Our Help in Ages Past',
+    source: 'mutopia-1290-st-anne',
+    melody: { staff: 1, voice: 'staff1.1', bars: 'all', ...(pickupBeats === undefined ? {} : { pickupBeats }) },
+    key: { tonic: 'C', mode: 'major', fifths: 0 },
+    tempoBpm: 88,
+    chords: Array.from({ length: 9 }, (_, bar) => ({ bar, degree: 'I' })),
+    meta: { ...META, level: 'intermediate' },
+  });
+
+  it('without it, the source barring stands: eight full bars from bar 1', () => {
+    const bars = fromMusicXml(buildSong({ ...stAnne(), chords: stAnne().chords.slice(1) }, options).xml).bars;
+    expect(bars.map((b) => b.number)).toEqual(['1', '2', '3', '4', '5', '6', '7', '8']);
+  });
+
+  it('with pickupBeats 1: a one-beat pickup, seven full bars and a three-beat last bar', () => {
+    const bars = fromMusicXml(buildSong(stAnne(1), options).xml).bars;
+    expect(bars.map((b) => b.number)).toEqual(['0', '1', '2', '3', '4', '5', '6', '7', '8']);
+    expect(bars.map((b) => b.length)).toEqual([q(1), ...Array.from({ length: 7 }, () => q(4)), q(3)]);
+  });
+
+  it('every note keeps its onset and length: 0 differences against the source soprano, and no notices', () => {
+    const { xml } = buildSong(stAnne(1), options);
+    const result = compareMelody(
+      fromMusicXml(xml),
+      notationOf('mutopia-1290-st-anne'),
+      { itemBars: 'all', sourceBars: 'all', staff: 1, sourceStaff: 1, sourceVoice: 'staff1.1' },
+      { allowRhythm: false, spelling: true },
+    );
+    expect(result.differences).toEqual([]);
+    expect(buildScore(readXml(xml).doc).report.entries).toEqual([]);
+  });
+
+  it('is refused for a source that already starts with a pickup (Greensleeves)', () => {
+    expect(() =>
+      buildSong({ ...greensleeves(), melody: { ...greensleeves().melody, pickupBeats: 1 } }, options),
+    ).toThrow(/pickupBeats/);
+  });
+});

@@ -64,6 +64,14 @@ describe('validateSongDefinition', () => {
     expect(problem((x) => (x.melody.joinShortBars = 'yes'))).toMatch(/melody\.joinShortBars/);
   });
 
+  it('accepts melody.pickupBeats above 0 and rejects anything else (song-definition 1.2.0, 022 T078)', () => {
+    const d = valid() as Doc;
+    d.melody.pickupBeats = 1;
+    expect(validateSongDefinition(d, SOURCES).melody.pickupBeats).toBe(1);
+    expect(problem((x) => (x.melody.pickupBeats = 0))).toMatch(/melody\.pickupBeats/);
+    expect(problem((x) => (x.melody.pickupBeats = 'one'))).toMatch(/melody\.pickupBeats/);
+  });
+
   it('rejects an id outside learning/keys/<key>/song-*', () => {
     expect(problem((d) => (d.id = 'learning/keys/g-major/ode-to-joy'))).toMatch(/id/);
     expect(problem((d) => (d.id = 'repertoire/beginner/song-ode-to-joy'))).toMatch(/id/);

@@ -40,6 +40,11 @@
    across a repeat sign or into an ending; the joined bar keeps the first bar's start, and the item's bars are numbered
    in order (0 for a pickup). The melody is unchanged note for note, so the audit's melody check is unchanged; the
    definition's `departures` say the phrase lines are left out.
+8. Optional `melody.pickupBeats: number` (> 0, less than one bar; added in implement, T078, owner 2026-10-03). A source
+   may bar a tune differently from the familiar print (St. Anne, Mutopia 1290, starts on beat 1; hymnals give it a
+   one-beat pickup). With `pickupBeats`, the selected bars - which must start with a full bar and hold no repeat sign or
+   ending - are cut again: a pickup of that many beats (bar 0), full bars, and a last bar that completes the pickup.
+   Every note keeps its onset and length (the audit's melody check is unchanged); the definition's `departures` say so.
 
 ## Audit
 

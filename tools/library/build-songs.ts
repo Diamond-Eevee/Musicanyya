@@ -320,7 +320,7 @@ export function buildSong(definition: SongDefinition, options: BuildSongOptions)
       open.push(source);
     else groups.push([source]);
   }
-  const joined = groups.map((group): ReferenceBar => {
+  let joined = groups.map((group): ReferenceBar => {
     const head = group[0] as ReferenceBar;
     const tail = group[group.length - 1] as ReferenceBar;
     if (group.length === 1) return head;
@@ -332,6 +332,35 @@ export function buildSong(definition: SongDefinition, options: BuildSongOptions)
       ...(tail.repeatTimes !== undefined ? { repeatTimes: tail.repeatTimes } : {}),
     };
   });
+  // song-definition 1.2.0 pickupBeats (022 T078): a source barred from beat 1 is cut again with a pickup, as the
+  // familiar print bars the tune; the notes keep their onsets, only the bar lines move
+  const pickupBeats = definition.melody.pickupBeats;
+  if (pickupBeats !== undefined) {
+    const pickup = timesBeat(pickupBeats + 1, beat);
+    const total = lengthOf(joined);
+    const fullBars = (total.num * fullBar.den) / (total.den * fullBar.num);
+    if (cmp(joined[0]?.length ?? q(0), fullBar) !== 0)
+      throw new Error(`${id}: melody.pickupBeats needs a source that starts on a full bar`);
+    if (joined.some((b) => b.repeatStart || b.repeatEnd || b.endings.length > 0))
+      throw new Error(`${id}: melody.pickupBeats cannot re-bar a source with repeats or endings`);
+    if (cmp(pickup, fullBar) >= 0 || !Number.isInteger(fullBars))
+      throw new Error(`${id}: melody.pickupBeats must be shorter than a bar of a source made of whole bars`);
+    const head = joined[0] as ReferenceBar;
+    const cuts = [q(0), pickup];
+    while (cmp(add(cuts[cuts.length - 1] as QuarterTime, fullBar), total) < 0)
+      cuts.push(add(cuts[cuts.length - 1] as QuarterTime, fullBar));
+    cuts.push(total);
+    joined = cuts.slice(0, -1).map((cut, i) => ({
+      index: head.index + i,
+      number: String(i),
+      start: add(head.start, cut),
+      length: sub(cuts[i + 1] as QuarterTime, cut),
+      repeatStart: false,
+      repeatEnd: false,
+      endings: [],
+    }));
+  }
+  const fromZero = firstNumber === 0 || pickupBeats !== undefined;
   const bars: ItemBar[] = [];
   let cursor = q(0);
   joined.forEach((source, i) => {
@@ -340,7 +369,7 @@ export function buildSong(definition: SongDefinition, options: BuildSongOptions)
     if (cmp(source.length, fullBar) > 0 || (irregular && i > 0 && i < joined.length - 1))
       throw new Error(`${id}: source bar ${source.number} is not a full bar`);
     // the item's bars in order from 1, or from 0 after a pickup
-    const number = firstNumber === 0 ? i : i + 1;
+    const number = fromZero ? i : i + 1;
     bars.push({ number: String(number), start: cursor, length: source.length, source });
     cursor = add(cursor, source.length);
   });
@@ -375,13 +404,21 @@ export function buildSong(definition: SongDefinition, options: BuildSongOptions)
 
   // the melody: the named voice, one note per onset (with topVoice the highest note of each chord in that voice)
   const interval = intervalOf(definition);
-  const inSelection = new Map(groups.flatMap((group, i) => group.map((b) => [b.index, bars[i] as ItemBar] as const)));
+  // a note keeps its offset from the start of the selection; its item bar is the one it starts in
+  const inSelection = new Set(selected.map((b) => b.index));
+  const origin = firstBar.start;
+  const barAt = (at: QuarterTime) =>
+    bars.find((b) => cmp(b.start, at) <= 0 && cmp(at, add(b.start, b.length)) < 0) as ItemBar;
   const byOnset = new Map<string, { note: ReferenceNote; bar: ItemBar }[]>();
   for (const note of reading.notes) {
-    const bar = inSelection.get(note.bar);
-    if (!bar || (note.staff ?? 1) !== definition.melody.staff || note.voice !== definition.melody.voice) continue;
+    if (
+      !inSelection.has(note.bar) ||
+      (note.staff ?? 1) !== definition.melody.staff ||
+      note.voice !== definition.melody.voice
+    )
+      continue;
     const key = show(note.onset);
-    byOnset.set(key, [...(byOnset.get(key) ?? []), { note, bar }]);
+    byOnset.set(key, [...(byOnset.get(key) ?? []), { note, bar: barAt(sub(note.onset, origin)) }]);
   }
   const melody = [...byOnset.values()]
     .map((group) => {
@@ -389,10 +426,10 @@ export function buildSong(definition: SongDefinition, options: BuildSongOptions)
         throw new Error(`${id}: the melody voice has a chord at bar ${group[0]?.bar.number}; use topVoice`);
       return group.reduce((a, b) => (b.note.midi > a.note.midi ? b : a));
     })
-    .map(({ note, bar }) => {
+    .map(({ note }) => {
       if (!note.spelling) throw new Error(`${id}: a melody note has no spelling`);
       const spelling = interval ? transposeSpelling(note.spelling, interval) : note.spelling;
-      return { start: add(bar.start, sub(note.onset, bar.source.start)), length: note.duration, spelling };
+      return { start: sub(note.onset, origin), length: note.duration, spelling };
     })
     .sort((a, b) => cmp(a.start, b.start));
   melody.forEach((m, i) => {
