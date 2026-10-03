@@ -97,6 +97,28 @@ test.describe('Musicanyya logo and brand (US2, FR-013 - FR-017, SC-007, R-10, R-
     page,
   }) => {
     await loadScore(page);
+    // The MIDI control (feature 021) shows what the browser can do: "Connect MIDI keyboard", "MIDI not supported" and the
+    // sound-failed words are wider than a keyboard's name, and Firefox / WebKit in Playwright have neither MIDI nor a
+    // working sound. This test is about the order the bar gives things up in, so it starts from the usual state of a
+    // Chrome or Edge with a keyboard connected and the sound on (the bar adapts to the others on its own).
+    await page.evaluate(() => {
+      const state = (
+        window as unknown as {
+          __MIDI_STATE__: {
+            availability: string;
+            devices: unknown[];
+            liveSound: string;
+            lockedHintShown: boolean;
+            emit(): void;
+          };
+        }
+      ).__MIDI_STATE__;
+      state.availability = 'available';
+      state.devices = [{ id: 'k', name: 'Keyboard', manufacturer: 'Maker', connected: true }];
+      state.liveSound = 'ready';
+      state.emit();
+    });
+    await barFitted(page);
 
     // At 1600px, bar is roomy with word
     const bar = page.locator('.mx-bar');

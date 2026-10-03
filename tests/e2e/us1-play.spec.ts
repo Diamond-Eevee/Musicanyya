@@ -55,12 +55,12 @@ test('US1 end-to-end: Play Mode - two actions to start, count-in, a graded run w
   // SC-009: starting a run from an open Score takes at most two actions - switch to Play mode, then press Play.
   await page.locator('#mode-controls mx-mode-switch input[value=play]').check();
   const playBtn = page.locator('mx-transport .play-btn');
-  await expect(playBtn).toHaveText('Play');
+  await expect(playBtn).toHaveAccessibleName('Play');
   await playBtn.click();
 
   // FR-003: the count-in runs on the audio clock, not a timer - it starts as soon as the run does.
   await expect.poll(async () => (await playSnapshot(page)).phase, { timeout: 15_000 }).toBe('countIn');
-  await expect(playBtn).toHaveText('Pause');
+  await expect(playBtn).toHaveAccessibleName('Pause');
 
   // The Score moves on without waiting: the run reaches 'running' on its own, with no input at all (FR-002).
   //
@@ -90,7 +90,7 @@ test('US1 end-to-end: Play Mode - two actions to start, count-in, a graded run w
   expect(graded.resultsCount).toBeGreaterThan(0);
   // ... and only now is the Score marked: the key played in time is a green head (009 FR-027)
   await expect.poll(() => page.locator('.mx-score-page g.note.mx-mark-correct').count()).toBeGreaterThan(0);
-  await expect(playBtn).toHaveText('Play');
+  await expect(playBtn).toHaveAccessibleName('Play');
 
   // FR-030: clicking a marked notehead explains it in plain words.
   const firstNoteId = await page.evaluate(() => (window as any).__PLAY_STATE__.get().grade.results[0].noteIds[0]);

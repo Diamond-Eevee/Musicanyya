@@ -1,4 +1,5 @@
 import { METRONOME_LEVEL_DEFAULT, ORCHESTRA_LEVEL_DEFAULT } from '../../core/defaults.js';
+import type { LatencyProfile } from '../../core/grade/types.js';
 import type { HandSelection } from '../../core/practice/types.js';
 import {
   OVERLAYS_DEFAULT,
@@ -15,6 +16,7 @@ import type { OverlayFlags, PracticeSettings, SettingsStore, UserSettings } from
 export const SETTINGS_STORAGE_KEY = 'musicanyya.settings.v1';
 export const PRACTICE_STORAGE_KEY = 'musicanyya.practice.v1';
 export const LATENCY_STORAGE_KEY = 'musicanyya.latency.v1';
+export const AUDIO_OUTPUT_STORAGE_KEY = 'musicanyya.audio.v1';
 
 const SCORE_ID_PATTERN = /^[0-9a-f]{64}$/;
 const HAND_PRESETS: readonly string[] = ['both', 'right', 'left', 'custom'];
@@ -227,28 +229,81 @@ export class LocalSettingsStore implements SettingsStore {
     this.write(SETTINGS_STORAGE_KEY, this.raw);
   }
 
-  loadLatencyProfile(): import('../../core/grade/types.js').LatencyProfile {
+  /** The stored calibration file (audio-setup.md section 4): the `{ version: 1, profile, outputDeviceId? }` wrapper this
+   *  build writes, or the bare profile builds 003-020 wrote. Anything else is no calibration. */
+  private readLatencyFile(): { profile: LatencyProfile; outputDeviceId: string | null } | null {
     try {
       const item = localStorage.getItem(LATENCY_STORAGE_KEY);
-      if (item) {
-        const parsed = JSON.parse(item);
-        if (isObject(parsed) && typeof parsed.inputLatencyMs === 'number') {
-          return {
-            outputLatencyMs: typeof parsed.outputLatencyMs === 'number' ? parsed.outputLatencyMs : 0,
-            inputLatencyMs: parsed.inputLatencyMs,
-            source: 'measured',
-            measuredAt: typeof parsed.measuredAt === 'string' ? parsed.measuredAt : null,
-          };
-        }
+      if (!item) return null;
+      const parsed: unknown = JSON.parse(item);
+      if (!isObject(parsed)) return null;
+      const wrapped = 'profile' in parsed;
+      if (wrapped && parsed.version !== 1) return null;
+      const profile: unknown = wrapped ? parsed.profile : parsed;
+      if (
+        !isObject(profile) ||
+        typeof profile.inputLatencyMs !== 'number' ||
+        !Number.isFinite(profile.inputLatencyMs)
+      ) {
+        return null;
       }
+      return {
+        profile: {
+          outputLatencyMs: typeof profile.outputLatencyMs === 'number' ? profile.outputLatencyMs : 0,
+          inputLatencyMs: profile.inputLatencyMs,
+          source: 'measured',
+          measuredAt: typeof profile.measuredAt === 'string' ? profile.measuredAt : null,
+        },
+        outputDeviceId: wrapped && typeof parsed.outputDeviceId === 'string' ? parsed.outputDeviceId : null,
+      };
     } catch {
-      // fallback below
+      return null;
     }
-    return { outputLatencyMs: 0, inputLatencyMs: 0, source: 'assumed', measuredAt: null };
   }
 
-  saveLatencyProfile(profile: import('../../core/grade/types.js').LatencyProfile): void {
-    this.write(LATENCY_STORAGE_KEY, profile);
+  loadLatencyProfile(): LatencyProfile {
+    return (
+      this.readLatencyFile()?.profile ?? { outputLatencyMs: 0, inputLatencyMs: 0, source: 'assumed', measuredAt: null }
+    );
+  }
+
+  saveLatencyProfile(profile: LatencyProfile, outputDeviceId?: string): void {
+    this.write(LATENCY_STORAGE_KEY, {
+      version: 1,
+      profile,
+      ...(outputDeviceId === undefined ? {} : { outputDeviceId }),
+    });
+  }
+
+  loadLatencyOutputDeviceId(): string | null {
+    return this.readLatencyFile()?.outputDeviceId ?? null;
+  }
+
+  clearLatencyProfile(): void {
+    try {
+      localStorage.removeItem(LATENCY_STORAGE_KEY);
+    } catch {
+      // storage blocked: nothing was stored that could be cleared
+    }
+  }
+
+  /** The chosen sound output (audio-setup.md section 4): a non-empty device id, or null for the system default. Anything
+   *  else stored reads as the system default. */
+  loadAudioOutput(): string | null {
+    try {
+      const item = localStorage.getItem(AUDIO_OUTPUT_STORAGE_KEY);
+      if (!item) return null;
+      const parsed: unknown = JSON.parse(item);
+      if (!isObject(parsed) || parsed.version !== 1) return null;
+      const id = parsed.outputDeviceId;
+      return typeof id === 'string' && id !== '' ? id : null;
+    } catch {
+      return null;
+    }
+  }
+
+  saveAudioOutput(deviceId: string | null): void {
+    this.write(AUDIO_OUTPUT_STORAGE_KEY, { version: 1, outputDeviceId: deviceId });
   }
 
   loadPractice(scoreId: string | null): PracticeSettings {

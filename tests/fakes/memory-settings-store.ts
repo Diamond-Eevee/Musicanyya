@@ -1,4 +1,5 @@
 import { METRONOME_LEVEL_DEFAULT, ORCHESTRA_LEVEL_DEFAULT } from '../../src/core/defaults.js';
+import type { LatencyProfile } from '../../src/core/grade/types.js';
 import { OVERLAYS_DEFAULT, SCORE_SCALE_DEFAULT, VOLUME_DEFAULT } from '../../src/engine/config.js';
 import type { PracticeSettings, SettingsStore, UserSettings } from '../../src/engine/ports.js';
 
@@ -48,5 +49,33 @@ export class MemorySettingsStore implements SettingsStore {
     if (scoreId === null) return;
     this.byScore.set(scoreId, { ...settings });
     this.defaults = { ...settings, loop: null };
+  }
+
+  // Latency profile and audio output (feature 021, ports 2.3.0); the store keeps what the writer was given.
+  private latency: { profile: LatencyProfile; outputDeviceId: string | null } | null = null;
+  private audioOutput: string | null = null;
+
+  loadLatencyProfile(): LatencyProfile {
+    return this.latency?.profile ?? { outputLatencyMs: 0, inputLatencyMs: 0, source: 'assumed', measuredAt: null };
+  }
+
+  saveLatencyProfile(profile: LatencyProfile, outputDeviceId?: string): void {
+    this.latency = { profile: { ...profile }, outputDeviceId: outputDeviceId ?? null };
+  }
+
+  loadLatencyOutputDeviceId(): string | null {
+    return this.latency?.outputDeviceId ?? null;
+  }
+
+  clearLatencyProfile(): void {
+    this.latency = null;
+  }
+
+  loadAudioOutput(): string | null {
+    return this.audioOutput;
+  }
+
+  saveAudioOutput(deviceId: string | null): void {
+    this.audioOutput = deviceId;
   }
 }

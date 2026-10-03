@@ -76,7 +76,9 @@ mx-menu[menu="more"] {
 }
 
 .mx-bar.mx-bar-compact {
-  gap: var(--mx-space-2, 6px);
+  /* 4 px, was 6: the MIDI keyboard control of feature 021 took the room a Play run's status needed to keep the mode
+     switch on the bar at 1280 px (tests/e2e/play-tempo.spec.ts) */
+  gap: var(--mx-space-1, 4px);
   padding: 0 var(--mx-space-2, 6px);
 }
 
@@ -102,6 +104,32 @@ mx-menu[menu="more"] {
 
 .mx-bar-compact mx-transport input[type="range"] {
   width: 64px;
+}
+
+/* The transport buttons are icons (feature 021 US4, top-bar.md section 5): square, at least TRANSPORT_BUTTON_MIN_PX on a
+   side (src/engine/config.ts, pinned by tests/ui/transport-css.test.ts), the drawing in the text colour. Disabled means
+   lighter AND dashed, so it is not told by colour alone (FR-023). */
+mx-transport button.mx-transport-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 3px;
+}
+
+mx-transport button.mx-transport-btn[hidden] {
+  display: none;
+}
+
+mx-transport button.mx-transport-btn .transport-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+mx-transport button.mx-transport-btn:disabled {
+  border-style: dashed;
 }
 
 /* mx-tempo-field (feature 012, contracts/tempo-field.md): a custom element defaults to display: inline, which would
@@ -245,6 +273,73 @@ mx-open-button .open-label-short {
 
 #run-status {
   margin-inline-start: auto;
+}
+
+/* The MIDI control (feature 021): the live-sound marker and its hint bubble, which hangs under the bar over the Score
+   without taking space and without taking focus. */
+mx-midi-status {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+mx-midi-status .midi-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mx-space-2, 4px);
+}
+
+mx-midi-status .midi-state-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+mx-midi-status .midi-label {
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mx-bar-compact mx-midi-status .midi-label {
+  display: none; /* the shape stays; the name is its title and accessible name */
+}
+
+.mx-bar-compact mx-midi-status .midi-button {
+  padding: 3px; /* the shape alone: a phone-wide bar (375 px) has no room for more (tests/e2e/tempo-field.spec.ts) */
+}
+
+mx-midi-status .midi-sound {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mx-space-2, 4px);
+  color: var(--mx-ink-muted);
+}
+
+mx-midi-status .midi-icon {
+  flex-shrink: 0;
+}
+
+.mx-bar-compact mx-midi-status .midi-sound span {
+  display: none; /* the name stays in its title */
+}
+
+mx-midi-status .midi-locked-hint {
+  /* a top-layer popover (mx-midi-status.ts sets top and right from the control's position) */
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  overflow: visible;
+  padding: 8px 12px;
+  border: 1px solid var(--mx-border);
+  border-radius: var(--mx-radius-m, 8px);
+  background: var(--mx-raised);
+  color: var(--mx-ink);
+  box-shadow: var(--mx-shadow-popup);
+  white-space: normal;
+  width: max-content;
+  max-width: 18rem;
+  pointer-events: none;
 }
 
 .mx-main {
@@ -411,8 +506,7 @@ mx-practice-panel[hidden] {
 }
 
 /* 017 T041: the line a popup shows when its tools have nothing to show yet */
-.panel-hint,
-.latency-empty {
+.panel-hint {
   display: block;
   margin: 0;
   max-width: 36ch;
@@ -467,4 +561,43 @@ mx-practice-panel[hidden] {
 
 mx-run-status .run-stop {
   margin-inline-start: 8px;
+}
+
+/* The Latency popup (feature 021 US2): lines of text, then the buttons */
+.latency-panel p {
+  margin: 0 0 6px;
+  max-width: 40ch;
+}
+
+.latency-panel h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.latency-panel .latency-actions {
+  display: flex;
+  gap: var(--mx-space-3, 8px);
+  margin-top: 10px;
+}
+
+/* The Sound output section (feature 021 US5): set apart from the latency lines above it */
+.latency-panel .latency-output {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--mx-border);
+}
+
+.latency-panel .latency-output-choice {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.latency-panel .latency-output-choice select {
+  max-width: 100%;
+}
+
+.latency-panel .calibration-progress {
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 6px;
 }

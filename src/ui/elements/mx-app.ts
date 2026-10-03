@@ -21,6 +21,7 @@ export class MxApp extends HTMLElement {
         <div id="size-controls" class="mx-bar-slot"></div>
         <div id="open-controls" class="mx-bar-slot"></div>
         <div id="menu-controls" class="mx-bar-slot"></div>
+        <div id="midi-controls" class="mx-bar-slot"></div>
         <div id="run-status" class="mx-bar-slot"></div>
       </header>
       <main id="mx-main" class="mx-main">

@@ -69,7 +69,7 @@ test.describe('US1: see the Score written tempo as a number', () => {
 
     // Play from the start (4 measures of 4/4 at 90 BPM = 16 beats, ~10.7s, before the cursor reaches m5).
     await page.locator('.play-btn').click();
-    await expect(page.locator('.play-btn')).toHaveText('Pause');
+    await expect(page.locator('.play-btn')).toHaveAccessibleName('Pause');
     await expect(bpmInput(page)).toHaveValue('60', { timeout: 20_000 });
     await page.keyboard.press('Escape'); // stop
 
@@ -146,14 +146,14 @@ test.describe('US2: type the tempo to practise at', () => {
     await openFixture(page, 'tempo-change-90-60.musicxml');
     await typeTempo(page, '72');
     await page.locator('.play-btn').click();
-    await expect(page.locator('.play-btn')).toHaveText('Pause');
+    await expect(page.locator('.play-btn')).toHaveAccessibleName('Pause');
 
     await bpmInput(page).fill('abc');
     await bpmInput(page).press('Escape');
     await expect(bpmInput(page)).toHaveValue('72');
     expect((await transportSnapshot(page)).tempoPercent).toBeCloseTo(80, 10);
     // Escape belongs to the field here: the global "stop" must not fire
-    await expect(page.locator('.play-btn')).toHaveText('Pause');
+    await expect(page.locator('.play-btn')).toHaveAccessibleName('Pause');
     expect((await transportSnapshot(page)).phase).toBe('playing');
   });
 
@@ -219,7 +219,7 @@ test.describe('US2: type the tempo to practise at', () => {
     }
     expect(samples.at(-1) as number).toBeGreaterThan(samples[0] as number);
     expect(await page.evaluate(() => (window as unknown as { __phases: string[] }).__phases)).toEqual(['playing']);
-    await expect(page.locator('.play-btn')).toHaveText('Pause');
+    await expect(page.locator('.play-btn')).toHaveAccessibleName('Pause');
   });
 
   test('with the cursor in the 60 section, typing 45 makes the repeated 90 section show 68 (US2 scenario 9)', async ({
@@ -252,7 +252,7 @@ test.describe('US2: type the tempo to practise at', () => {
     await expect(bpmInput(page)).toHaveValue('92');
 
     expect(await sessionIndex(page)).toBe(before);
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Stop'); // the session is still running
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Stop'); // the session is still running
     expect((await transportSnapshot(page)).tempoPercent).toBeCloseTo((100 * 92) / 90, 10);
   });
 });

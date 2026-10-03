@@ -92,6 +92,7 @@ test.describe('Static host with sub-path', () => {
     await playBtn.click();
 
     // Let it load the soundfont and play
-    await expect(playBtn).toContainText('Pause', { timeout: 15000 });
+    // (an icon button since feature 021 US4: its name is the aria-label)
+    await expect(playBtn).toHaveAttribute('aria-label', 'Pause', { timeout: 15000 });
   });
 });

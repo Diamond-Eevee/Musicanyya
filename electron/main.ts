@@ -1,7 +1,13 @@
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { app, BrowserWindow, nativeTheme, net, protocol, shell } from 'electron';
-import { decideNavigation, decidePermission, decideWindowOpen, resolveAppPath } from './policy.js';
+import { app, BrowserWindow, nativeTheme, net, protocol, type Session, session, shell } from 'electron';
+import {
+  decideNavigation,
+  decidePermission,
+  decidePermissionCheck,
+  decideWindowOpen,
+  resolveAppPath,
+} from './policy.js';
 
 const _dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 const distPath = path.join(_dirname, '../dist');
@@ -46,14 +52,10 @@ if (!gotTheLock) {
       });
     });
 
-    // Permissions
-    app.on('session-created', (session) => {
-      session.setPermissionRequestHandler((webContents, permission, callback, details) => {
-        const origin = new URL(webContents.getURL()).origin;
-        const allowed = decidePermission(permission, origin, details.requestingUrl);
-        callback(allowed);
-      });
-    });
+    // Permissions (electron-bridge 1.1.0). Installed on the default session now: 'session-created' does not fire for it
+    // (it exists before 'ready'), so until feature 021 the handler never ran and the app granted every permission.
+    installPermissionHandlers(session.defaultSession);
+    app.on('session-created', installPermissionHandlers);
 
     createWindow();
 
@@ -65,6 +67,28 @@ if (!gotTheLock) {
   app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit();
   });
+}
+
+/** The Vite dev server's origin when the shell runs against it (MUSICANYYA_DEV_URL); trusted like the app's own. */
+function devOrigin(): string | undefined {
+  const devUrl = process.env.MUSICANYYA_DEV_URL;
+  if (!devUrl || app.isPackaged) return undefined;
+  try {
+    return new URL(devUrl).origin;
+  } catch {
+    return undefined;
+  }
+}
+
+function installPermissionHandlers(ses: Session): void {
+  const dev = devOrigin();
+  // `requestingUrl` is the page's address: a custom scheme has no usable `origin` string (it reads "null")
+  ses.setPermissionRequestHandler((_webContents, permission, callback, details) => {
+    callback(decidePermission(permission, details.requestingUrl, details.requestingUrl, dev));
+  });
+  ses.setPermissionCheckHandler((_webContents, permission, requestingOrigin, details) =>
+    decidePermissionCheck(permission, requestingOrigin, { mediaType: details.mediaType }, dev),
+  );
 }
 
 /**
@@ -90,6 +114,8 @@ function createWindow() {
       nodeIntegration: false,
       webSecurity: true,
       spellcheck: false,
+      // The Audio engine starts with no click, so the keyboard sounds from start-up (electron-bridge 1.1.0, feature 021)
+      autoplayPolicy: 'no-user-gesture-required',
       preload: path.join(_dirname, 'preload.cjs'),
     },
   });

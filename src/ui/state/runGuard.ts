@@ -7,7 +7,7 @@ import {
   subscribePlayOrPracticeActive,
   subscribeRunActive,
 } from './runActive.js';
-import { RUN_OK_PANEL, viewState } from './viewState.js';
+import { RUN_OK_PANELS, viewState } from './viewState.js';
 
 /**
  * "Starting a run closes any popup" (FR-006) has to hold from the moment Play is pressed, and the sound may still be
@@ -27,7 +27,7 @@ export function guardPanelsDuringRuns(): () => void {
   // closes it like every other popup.
   const stopWatchingPanels = viewState.subscribe((state) => {
     if (state.openPanel === null || !isRunActive()) return;
-    if (state.openPanel === RUN_OK_PANEL) return; // the Levels popover works during any run (ui-shell 1.5.0)
+    if (RUN_OK_PANELS.has(state.openPanel)) return; // the Levels and MIDI popovers work during any run (ui-shell 1.6.0)
     if (state.openPanel === LISTEN_OK_PANEL && isListenRunActive()) return;
     viewState.closeForRun();
   });

@@ -6,6 +6,8 @@ import type {
   AudioEngineEvent,
   EngineSchedule,
   LatencyInfo,
+  OutputCapability,
+  OutputChoice,
   PositionUpdate,
   Unsubscribe,
 } from '../../src/engine/ports.js';
@@ -15,6 +17,9 @@ export class FakeAudioEngine implements AudioEngine {
   public commands: string[] = [];
   private listeners = new Set<(ev: AudioEngineEvent) => void>();
 
+  async prepare() {
+    this.commands.push('prepare');
+  }
   async unlock() {
     this.commands.push('unlock');
   }
@@ -85,8 +90,39 @@ export class FakeAudioEngine implements AudioEngine {
     measuredAt: null,
   };
   latencyProfile(): LatencyProfile {
-    return this.currentLatencyProfile;
+    return this.calibration ?? this.currentLatencyProfile;
   }
+  /** Feature 021: recorded as `setLatencyCalibration:<total ms | null>`; the profile in use follows it like the real engine. */
+  setLatencyCalibration(profile: LatencyProfile | null) {
+    const total = profile === null ? 'null' : String(profile.outputLatencyMs + profile.inputLatencyMs);
+    this.commands.push(`setLatencyCalibration:${total}`);
+    this.calibration = profile;
+  }
+  private calibration: LatencyProfile | null = null;
+
+  /** Settable by a test: what the output list and capability say, and the device in use. */
+  public outputs: readonly OutputChoice[] = [];
+  public capability: OutputCapability = { kind: 'systemDefaultOnly', reason: 'browser' };
+  private activeOutput = '';
+  outputCapability(): OutputCapability {
+    return this.capability;
+  }
+  async listOutputs(): Promise<readonly OutputChoice[]> {
+    return this.outputs;
+  }
+  async setOutput(deviceId: string | null) {
+    this.commands.push(`setOutput:${deviceId ?? ''}`);
+    this.activeOutput = deviceId ?? '';
+  }
+  activeOutputId(): string {
+    return this.activeOutput;
+  }
+  /** Test-only: the chosen output vanished and the sound fell back to the system default. */
+  fireOutputFallback(lostDeviceId = ''): void {
+    this.activeOutput = '';
+    this.fireEvent({ type: 'outputFallback', lostDeviceId });
+  }
+
   diagnostics(): AudioDiagnostics {
     return {
       sampleRate: null,

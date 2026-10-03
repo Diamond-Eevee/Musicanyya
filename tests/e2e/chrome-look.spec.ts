@@ -184,7 +184,8 @@ test.describe('Chrome modern look and feel (US1, FR-002 - FR-009, SC-003, SC-004
     const playBtn = page.locator('mx-transport button.play-btn');
     await expect(playBtn).not.toBeDisabled();
     await playBtn.click();
-    await expect(playBtn).toHaveText(/Pause|Stop/, { timeout: 15_000 });
+    // The button is an icon since feature 021 US4: its name says what it does
+    await expect(playBtn).toHaveAttribute('aria-label', /Pause|Stop/, { timeout: 15_000 });
 
     // Run status shows text
     const runStatus = page.locator('mx-run-status');

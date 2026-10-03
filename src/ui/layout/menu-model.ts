@@ -48,7 +48,7 @@ export const MENU_GROUPS: readonly MenuGroup[] = [
     label: en.menus.score,
     entries: [entry('browser', false, false), entry('scores'), entry('attempts', true)],
   },
-  { id: 'setup', label: en.menus.setup, entries: [entry('setup', true), entry('midi'), entry('latency')] },
+  { id: 'setup', label: en.menus.setup, entries: [entry('setup', true), entry('latency')] },
   { id: 'view', label: en.menus.view, entries: [entry('view')] },
   { id: 'help', label: en.menus.help, entries: [entry('help'), entry('diagnostics'), entry('environment')] },
 ];

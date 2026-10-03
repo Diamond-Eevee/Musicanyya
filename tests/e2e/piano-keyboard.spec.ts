@@ -641,7 +641,7 @@ test.describe('US2: hints and help around the piano (feature 010, owner feedback
     await expect(page.locator('mx-piano-keys .key-message')).toHaveCount(1);
 
     await page.locator('mx-transport .play-btn').click(); // Stop
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Start');
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Start');
 
     await expect(page.locator('mx-practice-help'), 'the "what to play" popup is gone').toBeHidden();
     await expect(page.locator('mx-piano-keys .key.expected-help'), 'no key is marked as expected').toHaveCount(0);

@@ -124,7 +124,9 @@ pnpm dev              # Vite dev server (open in Chrome/Edge)
 pnpm lint             # Biome
 pnpm typecheck        # tsc --noEmit over all layer projects
 pnpm test             # Vitest (unit, golden snapshots, fakes)
-pnpm test:e2e         # Playwright, every browser project (~2,000 tests, 15-30 min): the full gate only
+pnpm test:e2e         # Playwright, every browser project, then the Electron project (~2,000 tests, 15-40 min): the full gate only
+pnpm test:e2e:electron # the Electron project alone, one desktop app at a time (a test that connects MIDI opens the machine's real
+                      # MIDI ports; several apps at once wedged the Windows MIDI service on the owner's machine)
 pnpm test:e2e:smoke   # the @smoke tests on chromium (~15 s): every checkpoint
 pnpm exec playwright test tests/e2e/<spec>.ts --project=chromium   # task checks: only the specs you touched
 pnpm build            # static site in dist/
@@ -377,12 +379,27 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
   level reuses the click channel's CC7. Settings object version 3 (`metronomeLevel`, `orchestraLevel`). Dev-only:
   `pnpm library:orchestra` generates Orchestra parts from `content/library/orchestra/*.json` and `checkOrchestra`
   verifies them (rule set `orchestra-v1`).
+- Feature 021 (implemented): no new technology and no new dependency. Newly used Web APIs: `AudioContext.setSinkId()` and
+  `navigator.mediaDevices.enumerateDevices()` (output device, desktop app only; `src/engine/audio/output-device.ts`),
+  Electron `session.setPermissionCheckHandler` (audio `media` check for the app origin) and an explicit `autoplayPolicy`.
+  Spike T053 (research R-6): labels and `setSinkId` work in the desktop app, but its permission handlers were never
+  installed (registered on `session-created`, which does not fire for the default session) - they are now installed on
+  `session.defaultSession`, and `decidePermission` allows `midi` and `midiSysex` (this Electron asks for `midiSysex` on
+  `requestMIDIAccess()`) while `getUserMedia` is rejected. The Audio engine is prepared at start-up
+  (`AudioEngine.prepare()`); `localStorage` key `musicanyya.audio.v1`. Electron e2e specs open real MIDI ports at
+  start-up. MIDI access is requested only from the top-bar popover's Connect button, never at start-up (owner decision
+  2026-10-03: the start-up request froze the Windows MIDI service, which then made desktop apps hang asking for or closing MIDI).
 
 <!-- ACTIVE-TECHNOLOGIES:END -->
 
 <!-- RECENT-CHANGES:START (updated by the plan step; keep last 3) -->
 ## Recent Changes
 
+- 2026-10-02: Feature 021 implemented (live piano and audio setup): keys sound from start-up in every mode (one live router;
+  desktop without a click, browser after the first click), a working Latency popup and calibration on the audio clock,
+  the MIDI keyboard in the top bar, icon transport buttons, and output-device choice in the desktop app (the desktop
+  app's permission handlers now really apply: microphone refused, Web MIDI allowed). No driver selector (ASIO/WASAPI need
+  the Native audio plugin, later). No new dependency, no worklet or grading change.
 - 2026-10-02: Feature 020 implemented (Guide voice in Play mode; owner listening check OD-1 pending): on a Score without an
   Orchestra, a Play run and its replay play the musician's own expected notes softly with an electric piano (`GUIDE_PROGRAM` 7,
   0-based; Clavinet) on a free channel, governed by the
@@ -393,9 +410,4 @@ checkpoint, on top of AGENTS.md 2.6 "trust nothing unchecked".
   0-100 %), remembered across restarts; Orchestra parts sound in every mode but are never printed, expected or graded;
   the library gains Grieg's own piano arrangement of Morning Mood (Schirmer 1899, owner approval pending), transcribed
   twice and compared, with a generated flute/oboe/strings/cello/horn Orchestra. No new dependency.
-- 2026-10-01: Feature 018 implemented (collapsible browser folder tree): the score browser's rail has a clickable
-  disclosure control, starts collapsed and remembers the open folders in the existing `musicanyya.browser.v1` record
-  (additive `expanded` field); on start the last selected item is selected and revealed but not loaded, and opening an
-  item (also a file opened directly) selects it and opens its path. `pnpm screenshot --storage <key>=<json>` seeds
-  `localStorage` for a picture. No new dependency.
 <!-- RECENT-CHANGES:END -->

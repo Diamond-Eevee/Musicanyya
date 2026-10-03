@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { METRONOME_LEVEL_DEFAULT, ORCHESTRA_LEVEL_DEFAULT } from '../../../src/core/defaults.js';
 import { OVERLAYS_DEFAULT } from '../../../src/engine/config.js';
 import {
+  AUDIO_OUTPUT_STORAGE_KEY,
   LocalSettingsStore,
   PRACTICE_STORAGE_KEY,
   SETTINGS_STORAGE_KEY,
@@ -239,5 +240,73 @@ describe('Settings store', () => {
       expect(storage.getItem(SETTINGS_STORAGE_KEY)).toBeNull();
       expect(written).not.toBeNull();
     });
+  });
+});
+
+describe('Audio output setting (feature 021 US5, audio-setup.md section 4)', () => {
+  let storage: FakeStorage;
+
+  beforeEach(() => {
+    storage = new FakeStorage();
+    vi.stubGlobal('localStorage', storage);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('is musicanyya.audio.v1', () => {
+    expect(AUDIO_OUTPUT_STORAGE_KEY).toBe('musicanyya.audio.v1');
+  });
+
+  it('has no choice when nothing is stored: the system default', () => {
+    expect(new LocalSettingsStore().loadAudioOutput()).toBeNull();
+  });
+
+  it('round trips a device id, written as { version: 1, outputDeviceId }', () => {
+    const store = new LocalSettingsStore();
+    store.saveAudioOutput('device-42');
+    expect(JSON.parse(storage.getItem(AUDIO_OUTPUT_STORAGE_KEY) ?? 'null')).toEqual({
+      version: 1,
+      outputDeviceId: 'device-42',
+    });
+    expect(new LocalSettingsStore().loadAudioOutput()).toBe('device-42');
+  });
+
+  it('saving null (the system default) is read back as no choice', () => {
+    const store = new LocalSettingsStore();
+    store.saveAudioOutput('device-42');
+    store.saveAudioOutput(null);
+    expect(JSON.parse(storage.getItem(AUDIO_OUTPUT_STORAGE_KEY) ?? 'null')).toEqual({
+      version: 1,
+      outputDeviceId: null,
+    });
+    expect(store.loadAudioOutput()).toBeNull();
+  });
+
+  it.each([
+    ['not JSON', '{nope'],
+    ['not an object', '"device-42"'],
+    ['a future version', JSON.stringify({ version: 2, outputDeviceId: 'device-42' })],
+    ['no version', JSON.stringify({ outputDeviceId: 'device-42' })],
+    ['a number for the id', JSON.stringify({ version: 1, outputDeviceId: 42 })],
+    ['an empty id', JSON.stringify({ version: 1, outputDeviceId: '' })],
+  ])('reads %s as the system default', (_name, raw) => {
+    storage.setItem(AUDIO_OUTPUT_STORAGE_KEY, raw);
+    expect(new LocalSettingsStore().loadAudioOutput()).toBeNull();
+  });
+
+  it('does not throw when storage is blocked', () => {
+    vi.stubGlobal('localStorage', {
+      getItem: () => {
+        throw new Error('blocked');
+      },
+      setItem: () => {
+        throw new Error('blocked');
+      },
+    });
+    const store = new LocalSettingsStore();
+    expect(() => store.saveAudioOutput('device-42')).not.toThrow();
+    expect(store.loadAudioOutput()).toBeNull();
   });
 });

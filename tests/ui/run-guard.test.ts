@@ -76,6 +76,17 @@ describe('popups and a run that is still starting', () => {
     expect(viewState.get().openPanel).toBeNull();
   });
 
+  it('keeps the MIDI popover open when a run starts, and when it is opened during one (feature 021, FR-027)', () => {
+    stopGuarding = guardPanelsDuringRuns();
+    viewState.openPanel('midi');
+    press();
+    expect(isRunActive()).toBe(true);
+    expect(viewState.get().openPanel).toBe('midi');
+    viewState.closePanel();
+    viewState.openPanel('midi'); // opened while the run is going
+    expect(viewState.get().openPanel).toBe('midi');
+  });
+
   it('leaves a popup alone while no run is active', () => {
     stopGuarding = guardPanelsDuringRuns();
     viewState.openPanel('help');

@@ -13,12 +13,16 @@ import type {
   AudioEngineState,
   EngineSchedule,
   LatencyInfo,
+  OutputCapability,
+  OutputChoice,
   PositionUpdate,
+  SettingsStore,
   TransportSnapshot,
 } from '../ports.js';
 // eslint-disable-next-line import/no-unresolved -- Vite-only query suffix (contracts/worklet-protocol.md)
 import scorePlayerWorkletUrl from '../worklets/score-player.processor.ts?worker&url';
 import { DropoutDetector } from './dropouts.js';
+import { isDesktopShell, OutputDevices, type SinkContext } from './output-device.js';
 import { PositionSync } from './position-sync.js';
 import { loadSoundFont } from './soundfont-cache.js';
 
@@ -62,6 +66,16 @@ export class WebAudioEngine implements AudioEngine {
   private workletReady: Promise<void> | null = null;
   private soundReady: Promise<void> | null = null;
 
+  private prepared: Promise<void> | null = null;
+  // prepare() found the context not running (browser autoplay policy): until it runs, only 'suspended' is reported
+  // and the loading / ready states are held (contracts/live-sound.md section 1, data-model.md section 1).
+  private locked = false;
+  private soundLoaded = false; // the worklet's synth has its SoundFont: only then can a live note be heard
+  private soundState: AudioEngineState | null = null; // the latest loadingSound / ready state, held while locked
+  // Live notes and the pedal posted to the worklet, so their releases follow even if the context suspends mid-note.
+  private readonly liveHeld = new Set<number>();
+  private liveSustainHeld = false;
+
   private state: AudioEngineState = { kind: 'idle' };
   private transport: TransportSnapshot = initialTransport();
 
@@ -72,6 +86,22 @@ export class WebAudioEngine implements AudioEngine {
   private liveQueueDropped = 0;
   private orchestraLevel: number = ORCHESTRA_LEVEL_DEFAULT;
   private lateEvents = 0;
+  private calibration: LatencyProfile | null = null;
+
+  // The sound output (feature 021 US5): the saved choice comes from the settings store the app hands over
+  // (`configureOutputSettings`); until then nothing is saved. The device rules live in output-device.ts.
+  private outputSettings: Pick<SettingsStore, 'loadAudioOutput' | 'saveAudioOutput'> | null = null;
+  private outputCanSwitch: () => boolean = () => true;
+  private readonly outputs = new OutputDevices({
+    desktop: isDesktopShell(),
+    devices: typeof navigator !== 'undefined' ? navigator.mediaDevices : undefined,
+    store: {
+      loadAudioOutput: () => this.outputSettings?.loadAudioOutput() ?? null,
+      saveAudioOutput: (deviceId) => this.outputSettings?.saveAudioOutput(deviceId),
+    },
+    onFallback: (lostDeviceId) => this.emit({ type: 'outputFallback', lostDeviceId }),
+    canSwitch: () => this.outputCanSwitch(),
+  });
 
   private readonly listeners = new Set<(event: AudioEngineEvent) => void>();
 
@@ -85,8 +115,18 @@ export class WebAudioEngine implements AudioEngine {
   }
 
   private setState(state: AudioEngineState): void {
+    if (state.kind === 'error') {
+      this.soundState = null;
+      this.soundLoaded = false;
+    }
     this.state = state;
     this.emit({ type: 'state', state });
+  }
+
+  /** A sound-loading state (loadingSound, ready): reported at once, or held while the context is locked. */
+  private reportSound(state: AudioEngineState): void {
+    this.soundState = state;
+    if (!this.locked) this.setState(state);
   }
 
   private setTransport(patch: Partial<TransportSnapshot>): void {
@@ -94,36 +134,72 @@ export class WebAudioEngine implements AudioEngine {
     this.emit({ type: 'transport', transport: this.transport });
   }
 
-  async unlock(): Promise<void> {
-    if (!this.context) {
-      try {
-        this.context = new AudioContext({ latencyHint: 'interactive' });
-      } catch (err) {
-        this.setState({ kind: 'error', code: 'contextFailed', detail: String(err) });
-        throw err;
-      }
-      // A running context turning 'suspended' on its own (never something we do - pause() only messages the
-      // worklet) is the browser reacting to a device change or the tab going background (data-model.md §6).
-      this.context.onstatechange = () => {
-        if (this.context?.state === 'suspended') {
-          this.setState({ kind: 'suspended', reason: document.hidden ? 'hidden' : 'deviceChanged' });
-        }
-      };
+  prepare(): Promise<void> {
+    // A failed attempt is not remembered: a later call (the first click) tries again
+    this.prepared ??= this.doPrepare().catch((err) => {
+      this.prepared = null;
+      throw err;
+    });
+    return this.prepared;
+  }
+
+  private async doPrepare(): Promise<void> {
+    const context = this.ensureContext();
+    // The saved output device is applied in the background (`ensureContext` started it): the keyboard must never wait for a
+    // device list, so a stalled one costs only the switch of device, not the first note.
+    await this.ensureWorklet();
+    if (context.state !== 'running') {
+      this.locked = true;
+      this.setState({ kind: 'suspended', reason: 'browserPolicy' });
     }
-    if (this.context.state === 'suspended') {
-      await this.context.resume();
+  }
+
+  async unlock(): Promise<void> {
+    const context = this.ensureContext();
+    if (context.state === 'suspended') {
+      await context.resume();
     }
     await this.ensureWorklet();
   }
 
+  /** The one AudioContext of this engine, created by whichever of prepare() and unlock() comes first. */
+  private ensureContext(): AudioContext {
+    if (this.context) return this.context;
+    let context: AudioContext;
+    try {
+      context = new AudioContext({ latencyHint: 'interactive' });
+    } catch (err) {
+      this.setState({ kind: 'error', code: 'contextFailed', detail: String(err) });
+      throw err;
+    }
+    this.context = context;
+    // The context's `setSinkId` is not in TypeScript's DOM types; OutputDevices names the one method it uses
+    void this.outputs.attach(context as unknown as SinkContext); // never rejects; follows device changes from here on
+    // A running context turning 'suspended' on its own (never something we do - pause() only messages the
+    // worklet) is the browser reacting to a device change or the tab going background (data-model.md §6).
+    // Turning 'running' again (the first click, or the tab back) reports the sound state it held or replaced.
+    context.onstatechange = () => {
+      if (context.state === 'suspended') {
+        this.setState({ kind: 'suspended', reason: document.hidden ? 'hidden' : 'deviceChanged' });
+      } else if (context.state === 'running') {
+        this.locked = false;
+        if (this.state.kind === 'suspended' && this.soundState) this.setState(this.soundState);
+      }
+    };
+    return context;
+  }
+
   private async ensureWorklet(): Promise<void> {
     if (this.node) return;
-    this.workletReady ??= this.createWorklet();
+    this.workletReady ??= this.createWorklet().catch((err) => {
+      this.workletReady = null;
+      throw err;
+    });
     return this.workletReady;
   }
 
   private async createWorklet(): Promise<void> {
-    const context = this.context!;
+    const context = this.ensureContext();
     try {
       await context.audioWorklet.addModule(scorePlayerWorkletUrl);
     } catch (err) {
@@ -156,7 +232,8 @@ export class WebAudioEngine implements AudioEngine {
     switch (msg.type) {
       case 'status': {
         if (msg.state === 'soundReady') {
-          this.setState({ kind: 'ready' });
+          this.soundLoaded = true;
+          this.reportSound({ kind: 'ready' });
         } else if (msg.state === 'error') {
           this.setState({ kind: 'error', code: 'soundFontLoadFailed', detail: msg.detail ?? 'unknown' });
         } else if (msg.state === 'processorFaulted') {
@@ -211,11 +288,11 @@ export class WebAudioEngine implements AudioEngine {
   }
 
   private async loadSound(): Promise<void> {
-    this.setState({ kind: 'loadingSound', loadedBytes: 0, totalBytes: null });
+    this.reportSound({ kind: 'loadingSound', loadedBytes: 0, totalBytes: null });
     let bytes: ArrayBuffer;
     try {
       bytes = await loadSoundFont(SOUNDFONT_URL, (loadedBytes, totalBytes) => {
-        this.setState({ kind: 'loadingSound', loadedBytes, totalBytes: totalBytes > 0 ? totalBytes : null });
+        this.reportSound({ kind: 'loadingSound', loadedBytes, totalBytes: totalBytes > 0 ? totalBytes : null });
       });
     } catch (err) {
       this.setState({ kind: 'error', code: 'soundFontLoadFailed', detail: String(err) });
@@ -287,8 +364,22 @@ export class WebAudioEngine implements AudioEngine {
     this.node?.port.postMessage({ type: 'channelVolume', channel, gain: volume / 100 });
   }
 
+  // Live messages (contracts/live-sound.md section 1): a note-on and a pedal-down reach the worklet only while the
+  // context runs and the SoundFont is loaded (until then the worklet queues and later plays them in one burst), so a key
+  // pressed before the sound is on is silent and never replayed as late notes; a release is posted whenever its press
+  // was, so a context that suspends mid-note leaves nothing stuck.
+  private liveRunning(): boolean {
+    return this.node !== null && this.soundLoaded && this.context?.state === 'running';
+  }
+
+  private static liveKeyId(key: number, channel: number | undefined): number {
+    return (channel ?? 16) * 128 + key; // 16: the default live channel, apart from MIDI channels 0-15
+  }
+
   liveNoteOn(key: number, velocity: number, channel?: number): void {
-    this.node?.port.postMessage(
+    if (!this.node || !this.liveRunning()) return;
+    this.liveHeld.add(WebAudioEngine.liveKeyId(key, channel));
+    this.node.port.postMessage(
       channel === undefined
         ? { type: 'live', kind: 'on', key, velocity }
         : { type: 'live', kind: 'on', key, velocity, channel },
@@ -296,16 +387,29 @@ export class WebAudioEngine implements AudioEngine {
   }
 
   liveNoteOff(key: number, channel?: number): void {
-    this.node?.port.postMessage(
+    if (!this.node) return;
+    const id = WebAudioEngine.liveKeyId(key, channel);
+    if (!this.liveHeld.delete(id) && !this.liveRunning()) return;
+    this.node.port.postMessage(
       channel === undefined ? { type: 'live', kind: 'off', key } : { type: 'live', kind: 'off', key, channel },
     );
   }
 
   liveSustain(down: boolean): void {
-    this.node?.port.postMessage({ type: 'live', kind: 'sustain', down });
+    if (!this.node) return;
+    if (down) {
+      if (!this.liveRunning()) return;
+      this.liveSustainHeld = true;
+    } else {
+      if (!this.liveSustainHeld && !this.liveRunning()) return;
+      this.liveSustainHeld = false;
+    }
+    this.node.port.postMessage({ type: 'live', kind: 'sustain', down });
   }
 
   liveAllOff(): void {
+    this.liveHeld.clear();
+    this.liveSustainHeld = false;
     this.node?.port.postMessage({ type: 'live', kind: 'allOff' });
   }
 
@@ -326,6 +430,8 @@ export class WebAudioEngine implements AudioEngine {
     if (!this.context) return null;
     const ts = this.context.getOutputTimestamp?.();
     if (!ts || ts.contextTime === undefined || ts.performanceTime === undefined) return null;
+    // Right after the output device changes the pair can be all zeros until the new device reports: that is no pair
+    if (ts.performanceTime <= 0) return null;
     return { contextTime: ts.contextTime, performanceTime: ts.performanceTime };
   }
 
@@ -344,6 +450,7 @@ export class WebAudioEngine implements AudioEngine {
   }
 
   latencyProfile(): LatencyProfile {
+    if (this.calibration) return { ...this.calibration };
     const l = this.latency();
     return {
       outputLatencyMs: l.outputLatencyMs ?? 0,
@@ -353,6 +460,44 @@ export class WebAudioEngine implements AudioEngine {
       source: 'assumed',
       measuredAt: null,
     };
+  }
+
+  /** The calibrated profile (feature 021, audio-setup.md section 2): in use until set to null. A copy is kept. */
+  setLatencyCalibration(profile: LatencyProfile | null): void {
+    this.calibration = profile ? { ...profile } : null;
+  }
+
+  /** Where the saved sound output is read and written (the app's settings store), and when the sound may be moved to another
+   *  device (`canSwitch`: false while a run or a calibration is going - a lost device still falls back at once). Call
+   *  before the context exists. */
+  configureOutputSettings(
+    store: Pick<SettingsStore, 'loadAudioOutput' | 'saveAudioOutput'>,
+    canSwitch: () => boolean = () => true,
+  ): void {
+    this.outputSettings = store;
+    this.outputCanSwitch = canSwitch;
+  }
+
+  /** Moves the sound to the saved device if that move was waiting for a run or a calibration to end. Cheap when nothing waits. */
+  resumeOutput(): Promise<void> {
+    return this.outputs.resume();
+  }
+
+  outputCapability(): OutputCapability {
+    return this.outputs.capability();
+  }
+
+  async listOutputs(): Promise<readonly OutputChoice[]> {
+    await this.outputs.refresh();
+    return this.outputs.list();
+  }
+
+  setOutput(deviceId: string | null): Promise<void> {
+    return this.outputs.setOutput(deviceId);
+  }
+
+  activeOutputId(): string {
+    return this.outputs.active();
   }
 
   diagnostics(): AudioDiagnostics {
@@ -372,10 +517,17 @@ export class WebAudioEngine implements AudioEngine {
   }
 
   async dispose(): Promise<void> {
+    this.outputs.dispose();
     this.node?.disconnect();
     this.node = null;
     this.workletReady = null;
     this.soundReady = null;
+    this.prepared = null;
+    this.locked = false;
+    this.soundLoaded = false;
+    this.soundState = null;
+    this.liveHeld.clear();
+    this.liveSustainHeld = false;
     if (this.context) {
       await this.context.close();
       this.context = null;

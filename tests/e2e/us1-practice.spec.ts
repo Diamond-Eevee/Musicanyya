@@ -43,9 +43,9 @@ test('US1 end-to-end: Practice Mode - wait, wrong note, chord, moving notes, ski
 
   // Click Start
   const startBtn = page.locator('mx-transport .play-btn');
-  await expect(startBtn).toHaveText('Start');
+  await expect(startBtn).toHaveAccessibleName('Start');
   await startBtn.click();
-  await expect(startBtn).toHaveText('Stop');
+  await expect(startBtn).toHaveAccessibleName('Stop');
 
   // Verify practice session is active
   let state = await page.evaluate(() => (window as any).__PRACTICE_STATE__.get());
@@ -85,7 +85,7 @@ test('US1 end-to-end: Practice Mode - wait, wrong note, chord, moving notes, ski
   }
 
   // Session should end automatically and transport stop
-  await expect(startBtn).toHaveText('Start');
+  await expect(startBtn).toHaveAccessibleName('Start');
 });
 
 async function openScoreInPractice(page: Page, fixture: string) {
@@ -137,7 +137,7 @@ test('US2 end-to-end: right hand only from measure 2, the left hand heard, then 
   await expect(panel).toContainText('Starts at measure 2');
 
   await page.locator('mx-transport .play-btn').click();
-  await expect(page.locator('mx-transport .play-btn')).toHaveText('Stop');
+  await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Stop');
   let s = await sessionOf(page);
   expect(s?.preset).toBe('right');
   expect(s?.index).toBe(4); // the first expected note of measure 2
@@ -197,7 +197,7 @@ test('US2 end-to-end: right hand only from measure 2, the left hand heard, then 
 test('US1 in the built app: a chord played key by key is kept while it is partly held (T053)', async ({ page }) => {
   await openScoreInPractice(page, 'chords/c-major-scale-and-chords.musicxml');
   await page.locator('mx-transport .play-btn').click();
-  await expect(page.locator('mx-transport .play-btn')).toHaveText('Stop');
+  await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Stop');
 
   for (const key of [60, 62, 64, 65]) await press(page, key); // measure 1, four single notes
   expect((await sessionOf(page))?.index).toBe(4); // the C-E-G chord
@@ -243,7 +243,7 @@ test('US3 end-to-end: a reversed range is corrected, the loop wraps without endi
   await expect(panel).toContainText('Looping measures 1-1');
 
   await page.locator('mx-transport .play-btn').click();
-  await expect(page.locator('mx-transport .play-btn')).toHaveText('Stop');
+  await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Stop');
   expect((await sessionOf(page))?.index).toBe(0);
 
   // Through the loop twice: the cursor comes back to its first note each time, the session keeps going
@@ -253,7 +253,7 @@ test('US3 end-to-end: a reversed range is corrected, the loop wraps without endi
     await press(page, 65);
     const s = await sessionOf(page);
     expect([s?.phase, s?.index]).toEqual(['waiting', 0]);
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Stop');
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Stop');
   }
 
   // A wrong key inside the loop still does not advance it
@@ -291,7 +291,7 @@ test('US3: the loop is remembered for the Score and a session starts at it', asy
   await expect(panel).toContainText('Looping measures 2-2');
 
   await page.locator('mx-transport .play-btn').click();
-  await expect(page.locator('mx-transport .play-btn')).toHaveText('Stop');
+  await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Stop');
   const s = await sessionOf(page);
   expect(s?.index).toBe(4); // the first expected event of measure 2, not the start of the Score
 });

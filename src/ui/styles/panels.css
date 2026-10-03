@@ -31,6 +31,15 @@ mx-panel[data-panel="sound"] {
   width: min(20rem, calc(100vw - 16px));
 }
 
+/* The MIDI keyboard popover (feature 021 US3, top-bar.md section 3): small, hanging under the bar's MIDI control
+   (mx-midi-status sets --mx-midi-anchor-left), so that it keeps out of the Score's way during a run. */
+mx-panel[data-panel="midi"] {
+  --mx-midi-width: min(22rem, calc(100vw - 16px));
+  width: var(--mx-midi-width);
+  right: auto;
+  left: clamp(8px, var(--mx-midi-anchor-left, 8px), calc(100vw - var(--mx-midi-width) - 8px));
+}
+
 .mx-levels {
   display: grid;
   gap: var(--mx-space-2, 4px);

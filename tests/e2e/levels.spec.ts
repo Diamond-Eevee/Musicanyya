@@ -91,7 +91,7 @@ test.describe('Levels popover in the browser (feature 019 US1)', () => {
     test.setTimeout(90_000);
     await openItem(page);
     await page.locator('mx-transport .play-btn').click();
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause');
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Pause');
     await expect(page.locator('.mx-score-page g.note.playing').first()).toBeVisible({ timeout: 30_000 });
 
     await openLevels(page);
@@ -104,7 +104,7 @@ test.describe('Levels popover in the browser (feature 019 US1)', () => {
     await slider.fill('0');
     const seen = await watching;
 
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause'); // still playing, never paused
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Pause'); // still playing, never paused
     expect(seen.length, 'the cursor kept moving from note to note while the slider moved').toBeGreaterThanOrEqual(3);
   });
 
@@ -198,7 +198,7 @@ test.describe('Orchestra slider in the browser (feature 019 US3)', () => {
     await openOrchestraFixture(page);
     await spyOnOrchestraLevel(page);
     await page.locator('mx-transport .play-btn').click();
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause');
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Pause');
     await expect(page.locator('.mx-score-page g.note.playing').first()).toBeVisible({ timeout: 30_000 });
 
     await openLevels(page);
@@ -209,7 +209,7 @@ test.describe('Orchestra slider in the browser (feature 019 US3)', () => {
     await expect(page.locator('mx-levels-panel output').nth(1)).toHaveText('0 %');
     await orchestraSlider(page).fill('60');
     expect((await orchestraLevelsSeen(page)).slice(before)).toEqual([0, 60]);
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause'); // playback never paused
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Pause'); // playback never paused
   });
 
   test('the Orchestra slider is on for a Score without an Orchestra and keeps its value across Scores (feature 020 FR-010)', async ({
@@ -252,17 +252,19 @@ test.describe('Levels popover in the desktop app (feature 019 US1, SC-008)', () 
   let app: ElectronApplication | null = null;
 
   // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
-  test.beforeAll(async ({}, testInfo) => {
+  test.beforeEach(async ({}, testInfo) => {
     if (testInfo.project.name !== 'electron') return;
-    // A user-data directory of our own: the shell takes a single-instance lock keyed on it (see electron-playback.spec.ts)
+    // A user-data directory of our own for each test: the shell takes a single-instance lock keyed on it (see
+    // electron-playback.spec.ts), and a test's second app must not meet the first test's app that is still open.
     userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'musicanyya-e2e-levels-'));
   });
 
   // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
-  test.afterAll(async ({}, testInfo) => {
+  test.afterEach(async ({}, testInfo) => {
     if (testInfo.project.name !== 'electron') return;
     await app?.close();
-    fs.rmSync(userDataDir, { recursive: true, force: true });
+    app = null;
+    fs.rmSync(userDataDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
   });
 
   // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.

@@ -175,13 +175,33 @@ describe('PlaySessionController (T039/T097)', () => {
       timeStampMs: 2500,
       deviceId: 'kb-1',
     });
-    // The musician's own note sounds immediately, through the live channel (FR-006).
-    expect(audioEngine.commands).toContain('liveNoteOn:60,70');
+    // Feature 021 (play-run 2.4.0, research R-3): the controller only records. The musician's own sound is the app's live
+    // router's alone (tests/engine/live-router.test.ts), so a run sends no live command for input: one owner, one sound.
+    expect(audioEngine.commands.filter((c) => c.startsWith('live'))).toEqual([]);
 
     midiInput.fire({ type: 'noteOff', deviceId: 'kb-1', key: 60, timeStampMs: 2600 });
     const messages2 = controller.getRun()!.log.messages;
     expect(messages2).toHaveLength(2);
     expect(messages2[1]).toMatchObject({ kind: 'noteOff', key: 60, audioTimeSec: 5.6, timeStampMs: 2600 });
+
+    // The pedal is recorded too, and not sounded by the controller either (it was silent during runs before 021).
+    midiInput.fire({ type: 'sustain', deviceId: 'kb-1', down: true, timeStampMs: 2700 });
+    const messages3 = controller.getRun()!.log.messages;
+    expect(messages3).toHaveLength(3);
+    expect(messages3[2]).toMatchObject({ kind: 'sustain', down: true, audioTimeSec: 5.7, timeStampMs: 2700 });
+    expect(audioEngine.commands.filter((c) => c.startsWith('live'))).toEqual([]);
+  });
+
+  it('a message before the first clock pair is neither recorded nor sounded by the controller (the live router sounds it)', () => {
+    const { score, timeline, audioEngine, midiInput, controller } = setup();
+    audioEngine.currentClockPair = null; // extremely early in a run: no pairing yet
+    controller.start({ scoreId: null, score, timeline, measures: score.measures, range: null, settings: settings() });
+
+    midiInput.fire({ type: 'noteOn', deviceId: 'kb-1', key: 60, velocity: 70, timeStampMs: 1200 });
+    midiInput.fire({ type: 'noteOff', deviceId: 'kb-1', key: 60, timeStampMs: 1300 });
+
+    expect(controller.getRun()!.log.messages).toHaveLength(0);
+    expect(audioEngine.commands.filter((c) => c.startsWith('live'))).toEqual([]);
   });
 
   it('grades through the worker (never inline) and a finished run produces exactly one Grade', async () => {

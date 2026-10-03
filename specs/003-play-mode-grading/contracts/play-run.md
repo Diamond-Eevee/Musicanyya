@@ -1,8 +1,15 @@
 # Contract: play run (core API)
 
-**Version**: `2.3.0` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
+**Version**: `2.4.0` (internal TypeScript contract between `src/core/play`, `src/core/schedule`,
 `src/app/play-session.ts` and `src/ui`). Signatures are normative in shape; every change is reflected here with a
 version bump (MINOR for additions, MAJOR for breaking changes).
+
+**2.3.0 -> 2.4.0** (feature 021-live-piano-audio-setup, MINOR; full text:
+[021 live-sound.md](../../021-live-piano-audio-setup/contracts/live-sound.md) section 3): `PlaySessionController` no
+longer sounds the musician's input; its `soundInput` effect is informational only (still passed to
+`callbacks.onEffect`). The app's live router in `src/app/session.ts` sounds every note and pedal message in every mode
+and state, including the pedal during a run. The run-start anchoring moves to the shared helper `anchorRunStart()`
+(`src/app/run-anchor.ts`), which the calibration controller uses too; no behaviour change.
 
 **2.2.0 -> 2.3.0** (feature 020-play-guide-voice, MINOR; full text:
 [020 guide-voice.md](../../020-play-guide-voice/contracts/guide-voice.md) sections 1-2): `PlayScheduleOptions.guide`

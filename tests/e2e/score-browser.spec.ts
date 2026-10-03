@@ -240,7 +240,7 @@ test.describe('Score browser (feature 013, US2 - progress)', () => {
     await page.keyboard.press('Escape'); // dismiss the Grade popup, same as us1-play.spec.ts
 
     // A second run over the same whole Score, better than the first (FR-016's own "New best" line confirms it live).
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Play');
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Play');
     await page.locator('mx-transport .play-btn').click();
     await expect.poll(() => playPhase(page), { timeout: 15_000 }).toMatch(/^(countIn|running)$/);
     await pressFirstExpectedNotes(page, k2);

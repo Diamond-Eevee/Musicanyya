@@ -88,7 +88,7 @@ test.describe('lookahead follow (015 US1)', () => {
 
     const startBtn = page.locator('mx-transport .play-btn');
     await startBtn.click();
-    await expect(startBtn).toHaveText('Stop');
+    await expect(startBtn).toHaveAccessibleName('Stop');
 
     // Step through practice events until we reach the last event of system 1
     const lastEventIndex = await page.evaluate(() => {

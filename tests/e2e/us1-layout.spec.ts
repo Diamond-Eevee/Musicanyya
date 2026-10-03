@@ -359,7 +359,7 @@ test.describe('US1: relayout during a run (G-4, Principle I)', () => {
     const after = await counters();
     expect(after.posts, 'no message reached the audio worklet during the relayouts').toBe(before.posts);
     expect(after.longTasks, 'no main-thread task over 50 ms').toBe(before.longTasks);
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause'); // still running
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Pause'); // still running
     await expect(page.locator('mx-run-status').getByRole('button', { name: 'Stop' })).toBeVisible();
 
     // The counter works: pausing does talk to the worklet, so the zero above is a real zero, not a dead probe.

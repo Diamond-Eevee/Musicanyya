@@ -1,10 +1,11 @@
 import { SCORE_SCALE_STEP } from '../engine/config.js';
 import { browserState } from './state/browserState.js';
+import { latencyState } from './state/latencyState.js';
 import { transportState } from './state/transportState.js';
 import { viewState } from './state/viewState.js';
 
 /** A control whose own typing must not be taken for a shortcut (a `-` in a number field, say). */
-function isTextEntry(target: EventTarget | null): boolean {
+export function isTextEntry(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   if (target.isContentEditable || target instanceof HTMLTextAreaElement) return true;
   if (!(target instanceof HTMLInputElement)) return false;
@@ -42,6 +43,9 @@ export function initShortcuts(): void {
       // A space typed into a text field (the tempo field, say) is text, not "play/pause"; the field takes it.
       if (isTextEntry(event.composedPath()[0] ?? event.target)) return;
       event.preventDefault();
+      // While the Latency calibration runs the space bar is a tap (session.ts), not play/pause (feature 021, FR-012)
+      const calibration = latencyState.get().calibration.phase;
+      if (calibration === 'countIn' || calibration === 'tapping') return;
       transportState.togglePlay();
     } else if (event.key === 'Escape') {
       // Close the thing on top first: pressing Escape to dismiss a popup must not also stop a run.

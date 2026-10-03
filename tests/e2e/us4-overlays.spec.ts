@@ -121,7 +121,7 @@ test.describe('US4: overlays never hide the music (SC-005, FR-010)', () => {
       });
 
       // The run ends on its own; sampling stops with it.
-      await expect(page.locator('mx-transport .play-btn')).toHaveText('Play', { timeout: 40_000 });
+      await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Play', { timeout: 40_000 });
       const samples = await stopSampling(page);
 
       expect(samples.length, 'enough frames were sampled to mean something').toBeGreaterThan(40);

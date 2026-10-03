@@ -55,6 +55,32 @@ export const en = {
       audioLost: 'Audio device lost',
     },
   },
+  /** The MIDI control of the slim bar (feature 021, contracts/top-bar.md section 2). */
+  midi: {
+    soundLocked: 'Sound off - click the page to turn it on',
+    soundLoading: 'Sound loading',
+    soundFailed: 'Sound failed to load',
+    /** The control's accessible name while the sound is not on yet: the keyboard state, then the sound state. */
+    nameSoundLocked: '{label}, sound off - click the page to turn it on',
+    nameSoundLoading: '{label}, sound loading',
+    lockedHint: 'Click anywhere on the page to turn the sound on.',
+    /** The keyboard states of the control and the popover (US3, data-model.md section 2). */
+    connect: 'Connect MIDI keyboard',
+    tryAgain: 'Try again',
+    noKeyboard: 'No MIDI keyboard',
+    keyboardLost: 'MIDI keyboard disconnected',
+    denied: 'MIDI not allowed',
+    notSupported: 'MIDI not supported',
+    keyboards: '{n} keyboards',
+    deviceConnected: 'Connected',
+    deviceDisconnected: 'Disconnected',
+    devicesHeading: 'Keyboards',
+    latency: 'Latency: {n} ms',
+    helpNotSupported:
+      'This browser cannot use MIDI keyboards. Use Chrome or Edge, or the desktop app. Listening to scores works here.',
+    helpDenied:
+      "MIDI access was blocked. Allow MIDI for this site in the browser's site settings, then press Try again.",
+  },
   /** The four menus of the slim bar (feature 004, data-model.md section 5). */
   menus: {
     score: 'Score',
@@ -118,6 +144,10 @@ export const en = {
     loadingSound: 'Loading sound…',
     skipBack: 'Skip Back',
     skipForward: 'Skip Forward',
+    /** The tooltip of an icon button: its name, then its shortcut when it has one (feature 021 US4). */
+    titleWithKey: '{name} ({key})',
+    keySpace: 'Space',
+    keyEscape: 'Esc',
     // mx-tempo-field (feature 012, contracts/tempo-field.md)
     bpm: 'BPM',
     writtenTempo: 'written',
@@ -400,6 +430,7 @@ export const en = {
     noPlayableContent: 'This score has no playable notes.',
     internal: 'Something went wrong while opening this file.',
     midiDeviceLost: 'The MIDI keyboard was disconnected.',
+    audioOutputLost: 'The chosen sound output was disconnected; playing through the system default.',
     soundFontMissing: 'The built-in sound could not be loaded.',
     audioDeviceChanged: 'Playback paused because the audio device changed.',
     workletLoadFailed: 'The audio engine failed to start.',
@@ -583,13 +614,35 @@ export const en = {
   latency: {
     panel: {
       heading: 'Latency',
-      assumed: 'Assumed latency (not measured)',
-      measured: 'Measured latency',
-      inputLatency: 'Input offset',
+      outputLatency: 'Output latency',
+      outputLatencyValue: '{n} ms',
+      outputLatencyLocked: 'Turns on with the sound',
+      outputLatencyUnknown: 'Not reported by this browser',
+      profileAssumed: 'Assumed (not calibrated)',
+      profileCalibrated: 'Calibrated{date}: {ms} ms', // {date} is empty or a space and the day
+      otherOutput: 'Calibrated with another output - calibrate again for the best timing',
       calibrate: 'Calibrate',
-      beforeRun: 'Your latency is shown here after a Play run, and can then be calibrated.',
+      calibrateUnavailable: 'Available once the sound is on',
+      useAssumed: 'Use assumed latency',
       calibratingHeading: 'Calibrating...',
-      calibratingInstructions: 'Tap the spacebar to the beat of the metronome.',
+      calibratingInstructions: 'Play any key on the beat. No MIDI keyboard? Tap the space bar.',
+      countIn: 'Count-in...',
+      progress: '{n} / {total}',
+      stop: 'Stop',
+      done: 'Calibrated: {ms} ms',
+      notEnoughTaps: 'Too few taps on the beat - try again and play with every click.',
+      spreadTooLarge: 'The taps were too uneven to measure - try again, steady with the clicks.',
+      // The Sound output section (feature 021 US5, audio-setup.md section 3)
+      soundOutput: 'Sound output',
+      systemDefault: 'System default',
+      outputDefaultOnly: "System default output - change it in your system's sound settings.",
+      outputPath: {
+        windowsShared: 'Windows audio (shared mode)',
+        macos: 'macOS audio',
+        linux: 'System audio',
+        browser: 'Browser audio',
+      },
+      asioNote: 'ASIO and other low-latency drivers need the Native audio plugin, which is not available yet.',
     },
   },
 };

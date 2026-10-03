@@ -12,8 +12,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 test.describe('Electron smoke test', () => {
   let electronApp: ElectronApplication;
 
+  // One app and one user-data directory per test: the tests share no state (recent items, seeded progress) and none can
+  // be left waiting on what an earlier one did to the window (a denied navigation leaves Playwright's view of it "still
+  // navigating"; the shelf test failed every time when it ran after that check).
   // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
-  test.beforeAll(async ({}, testInfo) => {
+  test.beforeEach(async ({}, testInfo) => {
     if (testInfo.project.name !== 'electron') return;
 
     // Launch electron app using the built dist-electron
@@ -27,7 +30,7 @@ test.describe('Electron smoke test', () => {
   });
 
   // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
-  test.afterAll(async ({}, testInfo) => {
+  test.afterEach(async ({}, testInfo) => {
     if (testInfo.project.name !== 'electron') return;
     await electronApp.close();
   });
@@ -87,14 +90,6 @@ test.describe('Electron smoke test', () => {
     expect((layout.view?.height ?? 0) + layout.bar).toBeCloseTo(layout.windowHeight, 0);
     expect(layout.reservers).toEqual([]);
     expect(layout.asides).toBe(0);
-
-    // Check that navigation to another origin is blocked by trying to change window.location
-    await window.evaluate(() => {
-      window.location.href = 'https://example.com';
-    });
-    // It shouldn't navigate. Wait a bit and check URL.
-    await window.waitForTimeout(1000);
-    expect(window.url()).toBe('app://musicanyya/');
   });
   // Feature 011 FR-023 (T088): the packaged shelf is the same tree, and its first exercise opens from the library panel.
   // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
@@ -153,6 +148,19 @@ test.describe('Electron smoke test', () => {
     await expect(window.locator('.mx-title-block')).toContainText('C major to A minor - introduction');
     await expect(window.locator('.notice')).toHaveCount(0);
     await expect.poll(() => window.locator('.mx-score-page g.measure').first().locator('g.staff').count()).toBe(2);
+  });
+  // Navigation to another origin is blocked (`will-navigate` prevented).
+  // biome-ignore lint/correctness/noEmptyPattern: Playwright requires an object pattern for unused fixtures.
+  test('navigation to another origin is blocked', async ({}, testInfo) => {
+    test.skip(testInfo.project.name !== 'electron', 'Run electron smoke test on electron project only');
+
+    const window = await electronApp.firstWindow();
+    await window.evaluate(() => {
+      window.location.href = 'https://example.com';
+    });
+    // It shouldn't navigate. Wait a bit and check URL.
+    await window.waitForTimeout(1000);
+    expect(window.url()).toBe('app://musicanyya/');
   });
 });
 

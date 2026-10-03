@@ -44,7 +44,7 @@ export async function startPracticeOnOpenScore(page: Page): Promise<void> {
     (window as unknown as { __PRACTICE_STATE__: { setMode(m: string): void } }).__PRACTICE_STATE__.setMode('practice'),
   );
   const start = page.locator('mx-transport .play-btn');
-  await expect(start).toHaveText('Start');
+  await expect(start).toHaveAccessibleName('Start');
   await start.click();
-  await expect(start).toHaveText('Stop');
+  await expect(start).toHaveAccessibleName('Stop');
 }

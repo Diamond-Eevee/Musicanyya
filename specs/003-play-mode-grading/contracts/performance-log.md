@@ -113,8 +113,14 @@ Key `musicanyya.latency.v1`, one profile for the device:
 interface LatencyProfileFile {
   version: 1;
   profile: LatencyProfile;   // data-model section 8
+  outputDeviceId?: string;   // feature 021: the output the calibration was made with ('' = system default)
 }
 ```
+
+Feature 021 (additive; full text: [021 audio-setup.md](../../021-live-piano-audio-setup/contracts/audio-setup.md)
+section 4): `outputDeviceId` is optional. The writer always writes this wrapper (builds 003-020 wrote the bare
+`LatencyProfile`); the reader accepts both forms and ignores anything else. The `LatencyProfile` shape and the
+Performance log format are unchanged.
 
 A stored profile is `source: "measured"`. When the key is missing, the engine reports an `assumed` profile built
 from `AudioEngine.latency()`, and every Grade computed with it says so and offers to measure (FR-034).

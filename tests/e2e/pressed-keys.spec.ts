@@ -124,21 +124,21 @@ test.describe('US1: correct notes turn green (feature 008)', () => {
     // (f) Stop, then Start again: a new session, every note back in its printed colour
     const start = page.locator('mx-transport .play-btn');
     await start.click();
-    await expect(start).toHaveText('Start');
+    await expect(start).toHaveAccessibleName('Start');
     await start.click();
-    await expect(start).toHaveText('Stop');
+    await expect(start).toHaveAccessibleName('Stop');
     await pressKeys(page, 'wait');
     await expect.poll(() => markClasses(page)).toEqual({});
     expect(await fillOf(page, first, 'notehead')).not.toBe(GREEN);
 
     // (e) with the layer off (set while no run is active: popups close during a run), nothing turns green
     await start.click();
-    await expect(start).toHaveText('Start');
+    await expect(start).toHaveAccessibleName('Start');
     await openPanel(page, 'view');
     await page.locator('mx-view-panel input[data-layer="marks"]').uncheck();
     await page.keyboard.press('Escape');
     await start.click();
-    await expect(start).toHaveText('Stop');
+    await expect(start).toHaveAccessibleName('Stop');
     await pressKeys(page, '+76,-76,+75,-75,wait,wait');
     expect(await sessionIndex(page)).toBe(2); // the session itself is unaffected
     expect(await markClasses(page)).toEqual({});

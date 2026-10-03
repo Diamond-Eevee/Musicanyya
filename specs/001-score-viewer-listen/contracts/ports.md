@@ -1,6 +1,13 @@
 # Contract: ports (engine layer interfaces)
 
-**Version**: `2.2.0` (internal TypeScript contract between `src/engine` adapters and `src/ui`/`src/app`).
+**Version**: `2.3.0` (internal TypeScript contract between `src/engine` adapters and `src/ui`/`src/app`).
+2.3.0 (feature 021-live-piano-audio-setup, MINOR; full text:
+[021 live-sound.md](../../021-live-piano-audio-setup/contracts/live-sound.md) section 1 and
+[021 audio-setup.md](../../021-live-piano-audio-setup/contracts/audio-setup.md) sections 3-4): `AudioEngine` gains
+`prepare()`, `setLatencyCalibration(profile | null)`, `outputCapability()`, `listOutputs()`, `setOutput(deviceId)`,
+`activeOutputId()` and the event `outputFallback`; `latencyProfile()` returns the calibration when one is set.
+`SettingsStore` gains `saveLatencyProfile(profile, outputDeviceId?)`, `loadLatencyOutputDeviceId()`,
+`clearLatencyProfile()`, `loadAudioOutput()` and `saveAudioOutput()`.
 2.2.0 (feature 019-metronome-orchestra-volume, MINOR; full text:
 [019 mixer-levels.md](../../019-metronome-orchestra-volume/contracts/mixer-levels.md) sections 2 and 3): `AudioEngine`
 gains `setOrchestraLevel(level)` (0..100, held by the engine, sent now and to every new worklet node); `liveNoteOn` and

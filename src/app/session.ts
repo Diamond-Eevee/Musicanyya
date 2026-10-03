@@ -1,10 +1,13 @@
+import { outputPath } from '../engine/audio/output-device.js';
 import { WebAudioEngine } from '../engine/audio/web-audio-engine.js';
 import { GRADE_WORKER_TIMEOUT_MS, MAX_FILE_BYTES } from '../engine/config.js';
+import { probeEnvironment } from '../engine/environment/probe.js';
 import { hashFile } from '../engine/files/hash.js';
 import { HttpLibraryCatalog } from '../engine/library/http-catalog.js';
 import { WebMidiInput } from '../engine/midi/web-midi-input.js';
 import type {
   AudioEngineEvent,
+  AudioEngineState,
   EngineSchedule,
   LibraryCatalog,
   MidiAvailability,
@@ -41,6 +44,7 @@ import '../ui/elements/mx-mode-switch.js';
 import '../ui/elements/mx-piano-keys.js';
 import '../ui/elements/mx-practice-help.js';
 import '../ui/elements/mx-practice-panel.js';
+import '../ui/elements/mx-midi-status.js';
 import '../ui/elements/mx-run-status.js';
 import {
   METRONOME_KEY_BEAT,
@@ -91,9 +95,10 @@ import { midiNoteName } from '../ui/format/note-name.js';
 import { en } from '../ui/i18n/en.js';
 import { mountPanels, type PanelTools } from '../ui/layout/panel-host.js';
 import { createVerovioClient } from '../ui/score/verovio-client.js';
-import { initShortcuts } from '../ui/shortcuts.js';
+import { initShortcuts, isTextEntry } from '../ui/shortcuts.js';
 import { browserState } from '../ui/state/browserState.js';
-import { midiState } from '../ui/state/midiState.js';
+import { latencyState } from '../ui/state/latencyState.js';
+import { type LiveSound, midiState } from '../ui/state/midiState.js';
 import { mistakeStepper } from '../ui/state/mistake-stepper.js';
 import { noticeState } from '../ui/state/noticeState.js';
 import { playState } from '../ui/state/playState.js';
@@ -109,7 +114,10 @@ import { transportState } from '../ui/state/transportState.js';
 import { type OverlayLayer, viewState } from '../ui/state/viewState.js';
 import { requestGrade } from '../workers/grade.worker.js';
 import { BrowserSessionController, type LoadBytesOutcome } from './browser-session.js';
+import { CalibrationController, type CalibrationState } from './calibration-session.js';
+import { routeLiveInput } from './live-router.js';
 import { PlaySessionController } from './play-session.js';
+import { releasePracticeSound } from './practice-sound.js';
 import { ReplaySessionController } from './replay-session.js';
 
 interface ScoreWorkerLoaded {
@@ -173,6 +181,7 @@ export class Session {
   // Listen mode (US2, T108)
   private readonly audioEngine = new WebAudioEngine();
   private engineUnlocked = false;
+  private keyPressedWhileLoading = false;
   private soundReady = false;
   private currentSchedule: EngineSchedule | null = null;
   private currentTimeline: TimelineDto | null = null;
@@ -180,6 +189,13 @@ export class Session {
   private currentScore: Score | null = null;
   private scheduleDelivered = false;
   private readonly midiInput = new WebMidiInput();
+  // The musician's own sound (feature 021, live-sound.md section 3): the FIRST subscriber of the MIDI input, in every
+  // mode and state. MIDI listeners run in the order they were added, so it is added here, before the Play controller
+  // below (which subscribes in its constructor) and before the session's own listener in start(); nothing may run
+  // before the key is sounded.
+  /** The Latency calibration (feature 021 US2): built in the constructor, after the live router above has subscribed. */
+  private readonly calibration: CalibrationController;
+  readonly liveRouterSubscription = this.midiInput.on((event) => routeLiveInput(this.audioEngine, event));
 
   // Practice mode (feature 002): what the musician chose for the open Score, remembered per Score id (R-07).
   private practiceScoreId: string | null = null;
@@ -231,16 +247,33 @@ export class Session {
       // narrow local type documents exactly what is being poked, nothing more).
       const midiTestSeam = this.midiInput as unknown as {
         grantState: MidiAvailability;
+        heldKeys: Map<string, Set<number>>;
         emit: (event: { type: string; [key: string]: unknown }) => void;
         handleMidiMessage: (deviceId: string, e: { data: number[]; timeStamp: number }) => void;
       };
-      window.addEventListener('e2e-ready', () => {
-        midiTestSeam.grantState = 'available';
-        midiTestSeam.emit({ type: 'availability', availability: 'available' });
-        midiTestSeam.emit({
-          type: 'devices',
-          devices: [{ id: 'fake-midi-1', name: 'Fake', manufacturer: 'Musicanyya', connected: true }],
-        });
+      const fakeMidiDevice = (connected: boolean) => ({
+        id: 'fake-midi-1',
+        name: 'Fake',
+        manufacturer: 'Musicanyya',
+        connected,
+      });
+      // `e2e-ready` grants MIDI with the fake keyboard connected. Feature 021: its detail `{ midi }` starts a different
+      // state instead - 'none' (granted, no keyboard), 'denied' or 'notSupported' (tests/e2e/midi-topbar.spec.ts).
+      window.addEventListener('e2e-ready', (e) => {
+        const midi = (e as CustomEvent<{ midi?: 'none' | 'denied' | 'notSupported' } | null>).detail?.midi;
+        midiTestSeam.grantState = midi === 'denied' || midi === 'notSupported' ? midi : 'available';
+        midiTestSeam.emit({ type: 'availability', availability: midiTestSeam.grantState });
+        midiTestSeam.emit({ type: 'devices', devices: midi === undefined ? [fakeMidiDevice(true)] : [] });
+      });
+      // Feature 021: the fake keyboard is plugged in or pulled out. A disconnect reports the keys it still held, like
+      // WebMidiInput's own `statechange` handling (the port stays listed as not connected).
+      window.addEventListener('e2e-midi-device', (e) => {
+        const { connected } = (e as CustomEvent<{ connected: boolean }>).detail;
+        midiTestSeam.emit({ type: 'devices', devices: [fakeMidiDevice(connected)] });
+        if (connected) return;
+        const held = midiTestSeam.heldKeys.get('fake-midi-1') ?? new Set<number>();
+        midiTestSeam.heldKeys.delete('fake-midi-1');
+        midiTestSeam.emit({ type: 'deviceLost', deviceId: 'fake-midi-1', heldKeys: Array.from(held) });
       });
       window.addEventListener('e2e-midi', (e) => {
         const detail = (e as CustomEvent<number[]>).detail;
@@ -295,6 +328,23 @@ export class Session {
       });
     }
     this.settingsStore = settingsStore;
+    // The saved sound output is read and written through the same store; the sound is not moved to another device under a
+    // run or a calibration (feature 021 US5, RT review)
+    this.audioEngine.configureOutputSettings(settingsStore, () => !this.isAudioBusy());
+    this.calibration = new CalibrationController(this.audioEngine, this.midiInput, this.settingsStore, {
+      // A replay of a stored attempt is a run too: it owns the engine while it plays (RT review T037)
+      isRunActive: () => this.isRunOrReplayActive(),
+      isSoundReady: () => midiState.liveSound === 'ready',
+      metronomeLevel: () => transportState.get().metronomeLevel,
+      onChange: (state) => this.onCalibrationChange(state),
+      // The click schedule replaced the Score's in the engine: the next Listen or Practice start delivers the Score's again
+      // The click schedule replaced the Score's in the engine: deliver the Score's again at once, so the cursor shows the
+      // musician's start and not the first measure (a Play run or Listen start delivers it itself if this is too early)
+      onScheduleInvalidated: () => {
+        this.scheduleDelivered = false;
+        if (this.engineUnlocked) this.deliverScheduleIfNeeded(true);
+      },
+    });
     this.libraryCatalog = libraryCatalog;
     this.browserController = new BrowserSessionController(
       this.libraryCatalog,
@@ -382,6 +432,7 @@ export class Session {
     document.getElementById('mode-controls')?.appendChild(modeSwitch);
     const sizeControls = document.createElement('mx-size-controls');
     document.getElementById('size-controls')?.appendChild(sizeControls);
+    document.getElementById('midi-controls')?.appendChild(document.createElement('mx-midi-status'));
     document.getElementById('run-status')?.appendChild(document.createElement('mx-run-status'));
     const updateTransportVisibility = () => {
       const loaded = scoreState.getStatus().kind === 'loaded';
@@ -402,8 +453,14 @@ export class Session {
         this.audioEngine.stop();
         this.onTransportStopped();
       },
-      seekTick: (tick) => this.audioEngine.seekTick(tick),
-      setTempoPercent: (percent) => this.audioEngine.setTempoPercent(percent),
+      seekTick: (tick) => {
+        this.calibration.cancel(); // the click schedule is not the Score's: a seek would silence the beat
+        this.audioEngine.seekTick(tick);
+      },
+      setTempoPercent: (percent) => {
+        this.calibration.cancel(); // a tempo change would move the click and bias the measurement
+        this.audioEngine.setTempoPercent(percent);
+      },
       setVolume: (volume) => this.audioEngine.setVolume(volume),
     });
     let lastOrchestraLevel = transportState.get().orchestraLevel;
@@ -596,9 +653,22 @@ export class Session {
     );
 
     const latencyPanel = document.createElement('mx-latency-panel');
-    latencyPanel.addEventListener('latencycalibrated', (event) => {
-      const profile = (event as CustomEvent).detail.profile;
-      this.settingsStore.saveLatencyProfile(profile);
+    latencyPanel.addEventListener('calibrate-start', () => {
+      this.calibration.start();
+    });
+    latencyPanel.addEventListener('calibrate-stop', () => this.calibration.cancel());
+    latencyPanel.addEventListener('latency-reset', () => this.resetLatencyCalibration());
+    latencyPanel.addEventListener(
+      'output-change',
+      (event) => void this.changeOutput((event as CustomEvent<{ deviceId: string | null }>).detail.deviceId),
+    );
+    // Closing the popup, or opening another tool over it, ends a calibration without a result (audio-setup.md section 2)
+    let latencyOpen = false;
+    viewState.subscribe((state) => {
+      if (state.openPanel !== 'latency') this.calibration.cancel();
+      // Opening the popup shows the devices as they are now (a device may have come or gone since the last look)
+      else if (!latencyOpen) void this.refreshOutputs();
+      latencyOpen = state.openPanel === 'latency';
     });
 
     // Every secondary tool is a popup over the Score, opened from a menu (contracts/ui-shell.md section 3).
@@ -634,17 +704,29 @@ export class Session {
     });
 
     this.midiInput.on((e) => {
+      // The first key pressed while the sound is locked asks for the hint, once per page load (data-model.md section 1)
+      if (e.type === 'noteOn' && !midiState.lockedHintShown) {
+        if (midiState.liveSound === 'locked') {
+          midiState.lockedHintShown = true;
+          midiState.emit();
+        } else if (midiState.liveSound === 'loading') {
+          this.keyPressedWhileLoading = true; // the browser may turn out to hold the sound back a moment later
+        }
+      }
       if (e.type === 'availability') {
         midiState.availability = e.availability;
         midiState.emit();
       } else if (e.type === 'devices') {
         midiState.devices = [...e.devices];
+        // A keyboard connected again ends the "disconnected" the top bar shows (feature 021 US3, data-model.md section 2)
+        if (e.devices.some((device) => device.connected)) midiState.lostRecently = false;
         midiState.emit();
       } else if (e.type === 'deviceLost') {
-        this.audioEngine.liveAllOff();
         e.heldKeys.forEach((k) => {
           midiState.pressedKeys.delete(k);
         });
+        // The input reports the changed device list just before the loss: no keyboard left connected = the bar says so
+        if (!midiState.devices.some((device) => device.connected)) midiState.lostRecently = true;
         midiState.emit();
         const practiceReported = this.applyPracticeInput({
           type: 'deviceLost',
@@ -657,20 +739,14 @@ export class Session {
         const playReports = playPhase === 'countIn' || playPhase === 'running';
         if (!practiceReported && !playReports) noticeState.addNotice({ code: 'midiDeviceLost', severity: 'warning' });
       } else if (e.type === 'noteOn') {
-        // The musician's own sound goes first: the re-renders that state changes trigger must never delay it.
-        // In Play mode PlaySessionController's own `soundInput` effect already sounds it (FR-006) - sounding it
-        // here too would trigger the same key twice.
-        if (practiceState.get().mode !== 'play') this.audioEngine.liveNoteOn(e.key, e.velocity);
         midiState.pressedKeys.add(e.key);
         midiState.emit();
         this.applyPracticeInput({ type: 'noteOn', key: e.key, velocity: e.velocity, timeStampMs: e.timeStampMs });
       } else if (e.type === 'noteOff') {
-        if (practiceState.get().mode !== 'play') this.audioEngine.liveNoteOff(e.key);
         midiState.pressedKeys.delete(e.key);
         midiState.emit();
         this.applyPracticeInput({ type: 'noteOff', key: e.key, timeStampMs: e.timeStampMs });
       } else if (e.type === 'sustain') {
-        if (practiceState.get().mode !== 'play') this.audioEngine.liveSustain(e.down);
         midiState.sustainDown = e.down;
         midiState.emit();
         this.applyPracticeInput({ type: 'sustain', down: e.down, timeStampMs: e.timeStampMs });
@@ -688,6 +764,8 @@ export class Session {
     }
 
     setInterval(() => {
+      this.refreshOutputLatency();
+      void this.audioEngine.resumeOutput(); // a move to the saved output that waited for a run or a calibration
       if (this.engineUnlocked) {
         const lat = this.audioEngine.latency();
         // Compared as shown (whole ms): the raw value is fractional, so comparing it with the stored rounded one said
@@ -703,6 +781,143 @@ export class Session {
     // FR-001: the browser is where a Score is found now - with none loaded, it opens once at start-up. The
     // drop-zone invitation stays behind it for when the browser is closed.
     if (scoreState.getStatus().kind === 'empty') this.browserController.open();
+
+    this.startLiveSound();
+    this.applyStoredLatencyCalibration();
+  }
+
+  /** A Listen / Practice / Play run, or the replay of a stored attempt, is going. */
+  private isRunOrReplayActive(): boolean {
+    const replay = this.replayController?.getRun()?.phase;
+    return isRunActive() || replay === 'countIn' || replay === 'running';
+  }
+
+  /** Something is being timed on the audio clock: a run, a replay or a calibration. */
+  private isAudioBusy(): boolean {
+    const calibration = this.calibration.getState().phase;
+    return this.isRunOrReplayActive() || calibration === 'countIn' || calibration === 'tapping';
+  }
+
+  /** The stored calibration is the profile in use from start-up (live-sound.md section 2 step 3): given to the engine, so
+   *  every new Play run's log carries it, and shown by the Latency popup. Nothing stored means the assumed profile. */
+  private applyStoredLatencyCalibration(): void {
+    const stored = this.settingsStore.loadLatencyProfile();
+    this.audioEngine.setLatencyCalibration(stored.source === 'measured' ? stored : null);
+    this.refreshLatencyProfile();
+    this.refreshOutputLatency();
+  }
+
+  /** The Latency profile in use, from the engine, into the popup's store. */
+  private refreshLatencyProfile(): void {
+    const profile = this.audioEngine.latencyProfile();
+    const storedOutput = this.settingsStore.loadLatencyOutputDeviceId();
+    const otherOutput =
+      profile.source === 'measured' && storedOutput !== null && storedOutput !== this.audioEngine.activeOutputId();
+    latencyState.setProfile(profile, otherOutput);
+  }
+
+  /** The reported output latency in whole ms (as shown), into the popup's store; null where it is not reported. */
+  private refreshOutputLatency(): void {
+    const reported = this.audioEngine.latency().outputLatencyMs;
+    latencyState.setOutputLatency(reported !== null ? Math.round(reported) : null);
+  }
+
+  /** The Sound output section of the popup, from the engine: what can be chosen, what is in use, the path for the Shell. */
+  private async refreshOutputs(): Promise<void> {
+    const choices = await this.audioEngine.listOutputs();
+    latencyState.setOutput({
+      capability: this.audioEngine.outputCapability(),
+      choices,
+      activeId: this.audioEngine.activeOutputId(),
+      path: outputPath(probeEnvironment().shell),
+    });
+    this.refreshLatencyProfile(); // "calibrated with another output" follows the output in use
+    this.refreshOutputLatency(); // the reported latency may differ per device
+  }
+
+  /** The musician chose an output in the popup. A device that cannot be used leaves the sound where it was, and the popup
+   *  shows the one in use again. */
+  private async changeOutput(deviceId: string | null): Promise<void> {
+    try {
+      await this.audioEngine.setOutput(deviceId);
+    } catch {
+      // stays on the previous output: refreshOutputs below puts the select back on it
+    }
+    await this.refreshOutputs();
+  }
+
+  /** "Use assumed latency" (FR-013): the stored calibration is removed and the engine goes back to the assumed profile. */
+  private resetLatencyCalibration(): void {
+    this.settingsStore.clearLatencyProfile();
+    this.audioEngine.setLatencyCalibration(null);
+    this.refreshLatencyProfile();
+  }
+
+  private calibrationFrame: number | null = null;
+
+  /** A calibration's state changed: the popup renders it, a finished one changes the profile in use, and a running one is
+   *  reported its position every frame (the same way a Play run is) so that it can move on and end on the audio clock. */
+  private onCalibrationChange(state: CalibrationState): void {
+    latencyState.setCalibration(state);
+    if (state.phase === 'done') this.refreshLatencyProfile();
+    const running = state.phase === 'countIn' || state.phase === 'tapping';
+    if (running && this.calibrationFrame === null) {
+      const frame = () => {
+        this.calibration.reportPosition(performance.now());
+        const phase = this.calibration.getState().phase;
+        this.calibrationFrame = phase === 'countIn' || phase === 'tapping' ? requestAnimationFrame(frame) : null;
+      };
+      this.calibrationFrame = requestAnimationFrame(frame);
+    }
+  }
+
+  /** The piano plays from the moment the app is up (feature 021, live-sound.md section 2): the Audio engine is prepared and
+   *  its SoundFont loaded with no click, MIDI access is requested with no click (research R-5), and where the browser keeps the
+   *  context locked the first click or key anywhere turns the sound on. */
+  private startLiveSound(): void {
+    const engine = this.audioEngine;
+    const events = ['pointerdown', 'keydown'] as const;
+    // The space bar is a calibration tap when no MIDI keyboard is connected (FR-012); `shortcuts.ts` does not treat it as
+    // play/pause meanwhile. `KeyboardEvent.timeStamp` is in the same `performance.now()` domain as a MIDI timestamp.
+    window.addEventListener(
+      'keydown',
+      (event) => {
+        if (event.code !== 'Space' || event.repeat || isTextEntry(event.composedPath()[0] ?? event.target)) return;
+        const phase = this.calibration.getState().phase;
+        if (phase === 'countIn' || phase === 'tapping') this.calibration.tapSpace(event.timeStamp);
+      },
+      { capture: true },
+    );
+    const unlockOnFirstActivation = (): void => {
+      // `unlock()` resolves once the context runs; until then every activation tries again (a modifier key alone is
+      // no activation for the browser).
+      engine.unlock().then(
+        () => {
+          for (const name of events) window.removeEventListener(name, unlockOnFirstActivation, { capture: true });
+        },
+        () => {
+          // The engine has reported its own error state; a later activation tries again.
+        },
+      );
+    };
+    for (const name of events) window.addEventListener(name, unlockOnFirstActivation, { capture: true, passive: true });
+
+    void (async () => {
+      try {
+        await engine.prepare();
+      } catch {
+        return; // contextFailed / workletLoadFailed: reported through the engine's state
+      }
+      void this.refreshOutputs(); // prepare() has put the saved output in use, if it is there
+      try {
+        await engine.ensureSoundLoaded();
+      } catch {
+        transportState.setSoundFailed();
+        noticeState.addNotice({ code: 'soundFontMissing', severity: 'warning' });
+      }
+    })();
+    // MIDI access is NOT requested here: the musician connects a keyboard from the top bar (owner decision 2026-10-03,
+    // after the start-up request froze the Windows MIDI service; research R-5). The sound does not depend on it.
   }
 
   /** The user's settings live in memory here, so two changes inside the store's write debounce cannot overwrite each
@@ -752,6 +967,7 @@ export class Session {
   private async handlePlay(): Promise<void> {
     // The one place a Listen, Practice or Play run starts: nothing may be open over the Score during one (FR-006).
     viewState.closeForRun();
+    this.calibration.cancel(); // a run and a calibration share the engine (FR-015)
     await this.audioEngine.unlock();
     this.engineUnlocked = true;
 
@@ -801,14 +1017,45 @@ export class Session {
     if (this.scoreView && this.currentTimeline) this.scoreView.setPlayback(this.audioEngine, this.currentTimeline);
   }
 
+  /** `midiState.liveSound` from the engine's state events and nowhere else (data-model.md section 1). The engine holds its
+   *  loading and ready states while the browser keeps the context locked, so `locked` wins without a rule here; a tab
+   *  hidden or a device change leaves it as it was. */
+  private deriveLiveSound(state: AudioEngineState): void {
+    let next: LiveSound | null = null;
+    if (state.kind === 'idle' || state.kind === 'loadingSound') next = 'loading';
+    else if (state.kind === 'ready') next = 'ready';
+    else if (state.kind === 'error') next = 'failed';
+    else if (state.reason === 'browserPolicy') next = 'locked';
+    if (next === null || next === midiState.liveSound) return;
+    midiState.liveSound = next;
+    // A key pressed in the moments before the browser's hold was known gets its hint now
+    if (next === 'locked' && this.keyPressedWhileLoading) midiState.lockedHintShown = true;
+    midiState.emit();
+  }
+
   private onAudioEngineEvent(event: AudioEngineEvent): void {
     if (event.type === 'ended') {
       transportState.ended();
+    } else if (event.type === 'outputFallback') {
+      // The chosen sound output vanished and the sound is on the system default (FR-024, FR-025). A calibration that was
+      // timing the click on that device measures nothing useful any more.
+      this.calibration.cancel();
+      noticeState.addNotice({ code: 'audioOutputLost', severity: 'warning' });
+      void this.refreshOutputs();
     } else if (event.type === 'state') {
+      this.deriveLiveSound(event.state);
+      this.refreshOutputLatency();
       if (event.state.kind === 'loadingSound') {
         transportState.setLoadingProgress(event.state.loadedBytes, event.state.totalBytes);
+      } else if (event.state.kind === 'ready') {
+        // The sound is loaded and the context runs, whether Play or the first click turned it on (feature 021 T017).
+        this.soundReady = true;
+        this.engineUnlocked = true;
+        transportState.setSoundReady(true);
       } else if (event.state.kind === 'suspended') {
-        transportState.pause();
+        // A context held back by the browser at start-up has nothing playing to pause (the transport's pause also
+        // reaches the engine).
+        if (event.state.reason !== 'browserPolicy') transportState.pause();
         if (event.state.reason === 'deviceChanged') {
           noticeState.addNotice({ code: 'audioDeviceChanged', severity: 'warning' });
         }
@@ -901,14 +1148,8 @@ export class Session {
     );
   }
 
-  /** Silences the accompaniment and Orchestra notes a session left ringing; the musician's own keys are not touched. */
   private releasePracticeSound(session: PracticeSession | null): void {
-    if (!session) return;
-    for (const key of session.soundingAccompaniment.keys()) this.audioEngine.liveNoteOff(key);
-    for (const id of session.soundingOrchestra.keys()) {
-      const [channel, key] = id.split(':').map(Number);
-      if (channel !== undefined && key !== undefined) this.audioEngine.liveNoteOff(key, channel);
-    }
+    releasePracticeSound(this.audioEngine, session);
   }
 
   /** The Stop button (or anything else that stops the transport) ends the session and leaves its marks on screen
@@ -1362,6 +1603,7 @@ export class Session {
   private async onAttemptReplay(runId: string): Promise<void> {
     // A replay is a run too (FR-006): the Attempts popup it was started from must not stay open over the music.
     viewState.closeForRun();
+    this.calibration.cancel();
     const stored = await this.performanceStore.get(runId);
     if (!stored.ok) {
       noticeState.addNotice({
@@ -1726,6 +1968,7 @@ export class Session {
     // bank, which is independent of which Score's schedule is currently loaded (contracts/worklet-protocol.md -
     // "soundBank" and "schedule" are separate messages).
     transportState.newScore();
+    this.calibration.cancel(); // the new Score's schedule replaces the click schedule in the engine
     if (this.engineUnlocked) {
       // Already unlocked from an earlier Score in this session: deliver immediately (contracts/worklet-protocol.md
       // "schedule" stops playback and resets position by itself). Not yet unlocked: handlePlay() delivers it on

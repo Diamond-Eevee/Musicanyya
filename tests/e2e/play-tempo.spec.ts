@@ -102,7 +102,7 @@ test.describe('Play mode plays at the tempo it grades at (012 FR-018)', () => {
     await openFixture(page);
     // Listen first, so its schedule is already in the engine when the run replaces it (the order a musician uses).
     await page.locator('mx-transport .play-btn').click();
-    await expect(page.locator('mx-transport .play-btn')).toHaveText('Pause');
+    await expect(page.locator('mx-transport .play-btn')).toHaveAccessibleName('Pause');
     await page.locator('mx-transport .stop-btn').click();
     await page.evaluate(() => window.dispatchEvent(new CustomEvent('e2e-ready')));
     await switchMode(page, 'play');
