@@ -80,8 +80,10 @@
 - [ ] TXXX [P] Update docs/musicxml-support.md if parsing behaviour changed
 - [ ] TXXX Run quickstart.md validation
 - [ ] TXXX Constitution audit with `.claude/agents/constitution-auditor.md`
-- [ ] TXXX Full gate, once: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e:smoke` and `pnpm test:e2e` (all
-  browsers) green (constitution "Test tiers"; checkpoints run only the checkpoint gate)
+- [ ] TXXX Full gate, once, the last task (after every other task, the audit's fixes included): `pnpm lint`,
+  `pnpm typecheck`, `pnpm test`, `pnpm test:e2e:smoke` and `pnpm test:e2e` (all projects) green (constitution "Test
+  tiers"; after a failure only targeted reruns of failed/affected specs plus smoke; checkpoints run only the
+  checkpoint gate)
 
 ## Dependencies & Execution Order
 

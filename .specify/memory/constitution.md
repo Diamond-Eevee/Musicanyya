@@ -1,7 +1,30 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.5.0 -> 1.6.0 (MINOR)
+Version change: 1.6.0 -> 1.7.0 (MINOR)
+  Development Workflow & Quality Gates, "Test tiers", tightened (owner request
+  2026-10-03: end-to-end runs still took about 80% of development time - the
+  full suite ran at checkpoints and again after every later fix or flaky
+  failure, and tasks ran e2e specs they did not touch). Task checks: unit
+  tests, typecheck, lint; an e2e spec only when the task writes or edits it.
+  Checkpoint gate: smoke set plus the e2e specs of the features changed since
+  the last checkpoint, chromium only, never `pnpm test:e2e`. Full gate:
+  exactly once per feature, as the last step before merge (after the
+  constitution audit and its fixes); after a failure or a later change only
+  targeted reruns (failed and affected specs, their projects, smoke set); a
+  test that fails only under load and passes 3 of 3 alone is logged as flaky.
+  The whole suite reruns only when the owner asks. MINOR: a section
+  materially changed.
+Templates requiring updates:
+  OK .specify/templates/tasks-template.md   (checkpoint and final gate tasks)
+  OK .claude/commands/speckit/tasks.md      (checkpoint tasks never run test:e2e)
+  OK .claude/commands/speckit/implement.md  (tiers per task / checkpoint / end)
+  OK .claude/commands/speckit/continue.md   (full gate at done, targeted reruns)
+  OK AGENTS.md sections 4 and 8             (gates)
+  OK docs/agents/reference.md R6, R7, R11; README.md (test tiers)
+Deferred TODOs: none.
+
+Previous: 1.5.0 -> 1.6.0 (MINOR)
   Principle VII's "playable by one hand" (1.4.0) becomes two tiers (owner
   decisions 2026-10-02, after measuring the library: the 1.4.0 limits called
   Bach's C major prelude impossible). "Possible" applies to every Score in
@@ -483,28 +506,40 @@ Model fit:
 Test tiers (how often each suite runs):
 
 - **Task checks**, after each task: the unit tests of what changed, `pnpm
-  typecheck`, `pnpm lint`, and only the end-to-end specs that cover the change,
-  on one browser (`--project=chromium`). The full end-to-end suite MUST NOT
-  be run per task.
+  typecheck` and `pnpm lint`. An end-to-end spec runs per task only when the
+  task writes or edits that spec (to see it fail, then pass): that spec
+  alone, on chromium. Other end-to-end coverage of a change waits for the
+  checkpoint.
 - **Checkpoint gate**, at the end of each story or phase: `pnpm lint`,
   `pnpm typecheck`, `pnpm test`, the smoke set (`pnpm test:e2e:smoke`: the
-  tests tagged `@smoke`, one per main flow, on chromium) and the story's own
-  end-to-end specs.
-- **Full gate**, once when every task of a feature is done and before merge:
-  the checkpoint gate plus `pnpm test:e2e` on every browser project. It is
-  run again only if product code (`src/`) changed after it; a later change to
-  content, tests or documents reruns the affected specs and the smoke set.
+  tests tagged `@smoke`, one per main flow, on chromium) and the end-to-end
+  specs of the features changed since the last checkpoint, on chromium only.
+  A checkpoint MUST NOT run `pnpm test:e2e`, the whole chromium suite or any
+  other browser project.
+- **Full gate**, exactly once per feature, as the last step before merge:
+  after every other task, the constitution audit and its fixes included. It
+  is the checkpoint gate plus `pnpm test:e2e` (every browser project, then
+  Electron; if the browser part fails, `pnpm test:e2e:electron` is still run
+  so one gate shows every failure). It MUST NOT run before the feature's last
+  step, and the whole suite MUST NOT be rerun unless the owner asks.
+- After a failure in the full gate, or any change made after it: rerun only
+  the failed specs and the specs that cover the change, on the projects where
+  they failed or that the change affects, plus the smoke set. A test that
+  fails only under the full run's load and passes three runs of three alone
+  is logged as flaky (`docs/agents/reference.md` "Known flaky") with both
+  results; that settles it.
 - A run cut short by the environment (e.g. its server dying) is reported as
   such and rerun at the next tier that needs it, not counted as a pass.
-- **Rationale**: a full run takes 15-30 minutes; spending it after every
-  edit slows the owner down without catching more, while the tiers still
-  run every test before a merge.
+- **Rationale**: a full run takes 15-40 minutes (Electron alone up to 45);
+  running it at checkpoints and again after every later fix took most of the
+  development time (owner, 2026-10-03). Targeted reruns still prove what
+  changed, and every test runs once before a merge.
 
 Merge gates (every change):
 
 - `pnpm lint` (Biome), `pnpm typecheck` (`tsc --noEmit`), `pnpm test`
   (Vitest) - all green; end-to-end tests green once they exist (the full
-  gate above).
+  gate above, its failures settled by the targeted reruns it allows).
 - No `any`, `@ts-ignore` or non-null assertion (`!`) without a comment that
   justifies it.
 - RT-path changes reviewed per Principle I.
@@ -528,4 +563,4 @@ Merge gates (every change):
 - Runtime guidance for agents lives in `AGENTS.md` (tool-neutral; `CLAUDE.md`
   and `GEMINI.md` only import it) and MUST stay consistent with this document.
 
-**Version**: 1.6.0 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-10-02
+**Version**: 1.7.0 | **Ratified**: 2026-09-19 | **Last Amended**: 2026-10-03

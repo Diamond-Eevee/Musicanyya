@@ -68,8 +68,8 @@ in progress, `- [x] T012 ...` done, `[-]` dropped by the owner (date, reason). S
 2. Read the task and the design documents it relies on.
 3. **Test tasks**: write the test, run it, see it **fail for the expected reason**. Do not implement yet.
 4. **Implementation tasks**: minimum code to pass the related tests, then refactor.
-5. Run checks for what you touched (`pnpm test -- <path>`, `pnpm typecheck`, `pnpm lint`, its e2e specs with
-   `--project=chromium`). All green. No full e2e run (8).
+5. Run checks for what you touched (`pnpm test -- <path>`, `pnpm typecheck`, `pnpm lint`; an e2e spec only if the
+   task edits it, chromium). All green (8).
 6. **Tick**: `[~]` -> `[x]`, remove the suffix. Never tick failing work (a test task is done when its test fails as
    expected; log it). A tick needs **evidence**: every part the task names exists, and the log names the test or
    command that proves it with its summary line (e.g. `Tests 3 failed | 1811 passed`, each failure named);
@@ -145,8 +145,8 @@ evidence (or `[-]`) and the constitution review passed - and it is merged only w
 | VIII | Web first; Web APIs before libraries; every runtime dependency justified |
 
 **Gates** (constitution, Test tiers): **checkpoint** = `pnpm lint`, `pnpm typecheck`, `pnpm test`,
-`pnpm test:e2e:smoke` and the story's e2e specs on chromium; **full** = that plus `pnpm test:e2e` (all browsers),
-once when every task is done, again only if `src/` changed since. No MIDI keyboard or audio hardware needed.
+`pnpm test:e2e:smoke`, the changed features' e2e specs on chromium; **full** = that plus `pnpm test:e2e`, once, the
+last step before merge; after it only failed/affected specs + smoke. No MIDI keyboard or audio hardware needed.
 
 **Seeing the app** (quickstart): run `pnpm screenshot --item <library id>` or
 `--file <path>`, then open the PNG it prints. It starts its own server and uses Playwright's Chromium, so it

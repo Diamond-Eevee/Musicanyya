@@ -40,7 +40,10 @@ first: switch model, or continue with you? Switch: stop and say which model to u
    - Every open owner decision from the plan ("needs owner" in its Decisions and open items) becomes an
      "Owner decision gate" task that names what it blocks.
    - Map each entity, contract and requirement to the story that needs it; nothing orphaned.
-   - Each story phase ends with a checkpoint describing its independent test.
+   - Each story phase ends with a checkpoint describing its independent test. Checkpoint tasks name the checkpoint
+     gate only (smoke set plus the changed features' e2e specs on chromium), never `pnpm test:e2e` or another browser
+     project; no task but the last runs e2e specs it does not write or edit (constitution "Test tiers").
+   - The last task of the feature is the full gate, once, after the constitution audit task (tasks-template Polish).
 4. Add a Dependencies section (phase order, story dependencies) and Parallel Opportunities.
 5. Commit `tasks.md` (`docs(tasks): generate tasks for <feature>`) and add a log entry with a `Handoff` line.
 6. Report: path, total tasks, tasks per story, tasks per model tier with the recommended models for each (reference
