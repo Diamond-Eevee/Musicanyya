@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "id": "mutopia-107-passion-chorale",
+  "work": "Choral \"O Haupt voll Blut und Wunden\" from the St Matthew Passion (J. S. Bach), SATB with piano, D minor; the tune is in the Soprano",
+  "edition": "Edition Peters",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=107",
+  "identifier": "Mutopia-2013/03/22-107",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond by dwb for the Mutopia Project from Edition Peters, and placed in the public domain by the typesetter. The piece page states \"Public Domain\" (checked 2026-10-04).",
+  "obtained": "2026-10-04",
+  "approvedByOwner": "2026-10-03",
+  "multiPart": {
+    "available": true,
+    "where": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=107",
+    "licence": "public-domain",
+    "note": "SATB, the tune in the Soprano: the other voices are a ready multi-part version for a later Orchestra."
+  },
+  "files": [
+    {
+      "role": "notation",
+      "path": "O_Haupt_voll_Blut.ly",
+      "url": "https://www.mutopiaproject.org/ftp/BachJS/O_Haupt_voll_Blut/O_Haupt_voll_Blut.ly",
+      "sha256": "ff681aa79e0e09bdfcfbc01980bbfb778b5567ec3612d9c155548ba018856b58",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "O_Haupt_voll_Blut.mid",
+      "url": "https://www.mutopiaproject.org/ftp/BachJS/O_Haupt_voll_Blut/O_Haupt_voll_Blut.mid",
+      "sha256": "c0e9db0299b1001a8842edf3cc5400ae388ed3b3094e9ed79b76951d21f7916a",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}

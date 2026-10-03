@@ -3,7 +3,7 @@
 // recorded result and keeps the rules - including the sidecar's reviewedBy/reviewedOn. Second part (T078): coverage
 // (rule 2.1), the outcome/claim rules against the library index, the reviewer rule from the shelf's side (SC-006),
 // and the freshness of docs/library-audit.md.
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -108,4 +108,39 @@ describe('library fidelity audit (contracts audit-record.md, source-manifest.md)
     const fresh = renderReport(records, results, index, ctx.sources);
     expect(readFileSync(reportPath, 'utf8').replace(/\r\n/g, '\n')).toBe(fresh);
   }, 600_000);
+});
+
+// Feature 022 US4 (FR-034, SC-007): every source a 022 song is built from says whether a multi-part version exists.
+describe('022: song sources record a multi-part version (source-manifest 1.4.0)', () => {
+  const SONG_SLUGS_022 = [
+    'the-first-noel',
+    'passion-chorale',
+    'it-came-upon-the-midnight-clear',
+    'in-the-bleak-midwinter',
+    'praise-to-the-lord',
+    'o-god-our-help-in-ages-past',
+    'leoni',
+    'immortal-invisible',
+    'tryggare-kan-ingen-vara',
+    'hark-the-herald-angels-sing',
+  ];
+  const songDefinitions = readdirSync(path.join(root, 'content/library/songs'))
+    .filter((f) => f.endsWith('.json'))
+    .map(
+      (f) =>
+        JSON.parse(readFileSync(path.join(root, 'content/library/songs', f), 'utf8')) as { id: string; source: string },
+    )
+    .filter((d) =>
+      SONG_SLUGS_022.some((slug) => d.id.endsWith(`/song-${slug}`) || d.id.endsWith(`/song-${slug}-simplified`)),
+    );
+
+  it('covers the 20 song definitions of the ten tunes', () => {
+    expect(songDefinitions).toHaveLength(20);
+  });
+
+  it.each(songDefinitions.map((d) => [d.id, d.source] as const))('%s: its source %s has multiPart', (_id, source) => {
+    const manifest = ctx.sources.get(source);
+    expect(manifest, source).toBeDefined();
+    expect(typeof manifest?.multiPart?.available).toBe('boolean');
+  });
 });

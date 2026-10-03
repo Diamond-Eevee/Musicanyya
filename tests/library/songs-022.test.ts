@@ -18,7 +18,7 @@ const SONG_SLUGS_022 = [
   'it-came-upon-the-midnight-clear',
   'in-the-bleak-midwinter',
   'praise-to-the-lord',
-  'nuz-my-dzis-krzescijani',
+  'o-god-our-help-in-ages-past',
   'leoni',
   'immortal-invisible',
   'tryggare-kan-ingen-vara',

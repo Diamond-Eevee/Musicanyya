@@ -236,3 +236,31 @@ describe('loadSources: attribution licences (source-manifest 1.3.0)', () => {
     failsWith(/test-1.*licence "CC-BY-NC-4\.0" is not allowed/);
   });
 });
+
+// Feature 022 (source-manifest 1.4.0, FR-034): whether a multi-part version exists, for a later Orchestra.
+describe('loadSources: multiPart (source-manifest 1.4.0)', () => {
+  const multiPart = {
+    available: true,
+    where: 'https://example.org/piece/1',
+    licence: 'public-domain',
+    note: 'SATB, tune in the Soprano',
+  };
+
+  it('accepts a multiPart record, and one that says no version exists', () => {
+    source('test-1', manifest('test-1', { multiPart }));
+    expect(load().get('test-1')?.multiPart).toEqual(multiPart);
+    source('test-2', manifest('test-2', { multiPart: { available: false } }));
+    expect(load().get('test-2')?.multiPart).toEqual({ available: false });
+  });
+
+  it('fails a malformed multiPart: no available, an unknown field, a bad url', () => {
+    source('test-1', manifest('test-1', { multiPart: { where: 'https://example.org' } }));
+    failsWith(/multiPart\.available/);
+    rmSync(join(root, 'test-1'), { recursive: true });
+    source('test-1', manifest('test-1', { multiPart: { available: true, parts: 4 } }));
+    failsWith(/multiPart.*parts/);
+    rmSync(join(root, 'test-1'), { recursive: true });
+    source('test-1', manifest('test-1', { multiPart: { available: true, where: 'not a url' } }));
+    failsWith(/multiPart\.where/);
+  });
+});

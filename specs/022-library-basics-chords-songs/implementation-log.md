@@ -161,3 +161,34 @@
   changes with its three folders (e2e), C and Cm names on the score (e2e), Practice waits for whole chords and a wrong
   note is wrong pitch (unchanged grading; perfect-run.test.ts covers the chord items).
 - Handoff: next = T057/T058 (download the 10 sources), then T059-T066.
+
+## 2026-10-04 03:00 - claude-opus-5.5 (implement: session end, US3 sources in progress)
+- Owner asked to wrap up the session (next session starts `/speckit:implement` fresh).
+- Done: T065 (tests first: sources.test.ts `Tests 2 failed | 22 passed` before the loader change; fidelity.test.ts
+  022 block fails until the 20 song definitions exist - expected).
+- In progress:
+  - T057/T058 [~]: downloaded and committed unchanged (owner OK in chat 2026-10-04), each piece page checked "Public
+    Domain": Mutopia 1243 First Noel, 107 Passion Chorale, 1231 Carol, 1233 Cranham, 1256 Lobe den Herren, 1291
+    St. Denio, 1299 Tryggare kan ingen vara, 1261 Mendelssohn, and reserve 1290 St. Anne. `source.json` written with
+    hashes, credit, identifier and `multiPart` (available, the piece page, public-domain, SATB). MIDI inspected
+    (`--inspect-midi`): two tracks each, `midiNoteTracks [1, 2]`, `midiOrder written` - NOT yet confirmed by a song
+    build (the builder cross-checks MIDI against the notation; note counts differ because MIDI merges ties). Still
+    to do: THIRD_PARTY_NOTICES.md entries; confirm/adjust the MIDI fields when T059 builds.
+  - T066 [~]: `multiPart` implemented in tools/library/fidelity/sources.ts (sources.test.ts 24 passed); stays [~]
+    until fidelity.test.ts's 022 block is green with the song definitions.
+- Owner decision (chat 2026-10-04): 856 (German note names + measureLength 4/2) and 525 Leoni (`\chordmode` with
+  `/+`) are unreadable by our LilyPond reader -> "swap for reserves". St. Anne (1290) reads: replaces 856 (slug
+  `o-god-our-help-in-ages-past`, test lists updated). Aamulla varhain (1020) is unreadable too (`\new ChordNames`,
+  start-repeat bar) and was deleted again. research R13 records the swap.
+- Problems / open questions: **needs owner**: Leoni's slot. Only one minor tune is left (Passion Chorale) and
+  FR-030 needs two. Options: (a) extend the LilyPond reader to skip chord-name lines (`\new ChordNames`,
+  `\chordmode`) - a small tested change in tools/library/lilypond/parse.ts - and keep Leoni (re-download 525; a
+  scratch test was interrupted before it ran); (b) find another public-domain minor SATB source (needs approval);
+  (c) amend FR-030. Recommendation: (a). songs-022.test.ts / fidelity.test.ts still list `leoni`.
+- Checks: `pnpm lint` 0 errors; `pnpm typecheck` exit 0; `pnpm test` `Tests 42 failed | 8434 passed` - 41 in
+  songs-022.test.ts and 1 in fidelity.test.ts ("covers the 20 song definitions"), all US3 tests written first; no
+  other failure. No e2e run this step (no src/ change since the US2 checkpoint).
+- Handoff: next = owner answer on Leoni's slot, then finish T057/T058 (notices), T059-T064 (author the 18-20 song
+  definitions with keys chosen per source, `leftHand.pattern` for the full versions, build, records song-chords-v2,
+  music review, screenshots), T066, US4 checkpoint, Polish T067-T073 (contract folds prepared in scratch, not
+  applied). Owner spec questions from the T038 review are answered and applied. Tree clean at the commit below.

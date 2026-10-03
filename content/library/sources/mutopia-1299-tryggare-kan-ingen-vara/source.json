@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "id": "mutopia-1299-tryggare-kan-ingen-vara",
+  "work": "Tryggare kan ingen vara (hymntune), SATB, D major; the tune is in the Soprano",
+  "edition": "www.cyberhymnal.org",
+  "publisher": "The Mutopia Project",
+  "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1299",
+  "identifier": "Mutopia-2008/02/19-1299",
+  "licence": "public-domain",
+  "credit": "Typeset in LilyPond by Steve Dunlop for the Mutopia Project from www.cyberhymnal.org, and placed in the public domain by the typesetter. The piece page states \"Public Domain\" (checked 2026-10-04).",
+  "obtained": "2026-10-04",
+  "approvedByOwner": "2026-10-03",
+  "multiPart": {
+    "available": true,
+    "where": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1299",
+    "licence": "public-domain",
+    "note": "SATB, the tune in the Soprano: the other voices are a ready multi-part version for a later Orchestra."
+  },
+  "files": [
+    {
+      "role": "notation",
+      "path": "tryggare_kan_ingen_vara.ly",
+      "url": "https://www.mutopiaproject.org/ftp/Traditional/tryggare_kan_ingen_vara/tryggare_kan_ingen_vara.ly",
+      "sha256": "2926cb291b33e5a92390f1becbb123682209f84db06c64451295daa8fd326b33",
+      "format": "lilypond"
+    },
+    {
+      "role": "sound",
+      "path": "tryggare_kan_ingen_vara.mid",
+      "url": "https://www.mutopiaproject.org/ftp/Traditional/tryggare_kan_ingen_vara/tryggare_kan_ingen_vara.mid",
+      "sha256": "3e208d6f330cec9a9f1d88ff933aee0ee6131bcd688910f2f1383cac48ded332",
+      "format": "midi",
+      "midiOrder": "written",
+      "midiNoteTracks": [1, 2],
+      "midiArticulate": false
+    }
+  ]
+}

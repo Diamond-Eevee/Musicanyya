@@ -220,6 +220,12 @@ Soprano - so every one already **is** a multi-part source for a later Orchestra 
 | 9 | Tryggare kan ingen vara (Swedish folk) | [1299](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1299) | D major, 3/4 | 8 bars + pickup |
 | 10 | Hark the Herald Angels Sing (Mendelssohn) | [1261](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1261) | F major, 4/4 | no pickup |
 
+**Swap (owner, 2026-10-04, after download in T057)**: 856 (German note names, bars re-measured as 4/2) and 525
+(a `\chordmode` line with `/+` bass notes) cannot be read by our LilyPond reader; the owner chose "swap for reserves".
+St. Anne (1290) reads and replaces 856 (slug `o-god-our-help-in-ages-past`). Aamulla varhain (1020) does not read
+either (`\new ChordNames`, a start-repeat bar outside `\repeat`), so Leoni's place is **open**: with Passion Chorale
+the only minor tune left, FR-030's "two minor songs" needs one more minor source - needs owner (see the log).
+
 Reserves: St. Louis / O Little Town of Bethlehem (1292), Aamulla varhain (1020, minor, voice and piano - no multi-part),
 Old Hundredth (194), St. Anne (1290). Variety (FR-030): keys D, F, G, B-flat major and D, G, F minor; three minor;
 five in 3/4 or 6/8. A song may be transposed onto a key shelf with fewer accidentals (listed as a departure), as

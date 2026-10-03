@@ -301,12 +301,12 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
   `tools/library/build-songs.ts` (patterns, `simplifies`, pair ordering). T052 green.
 - [x] T056 [US3] Implement `song-chords-v2` in `tools/library/fidelity/song-chords.ts` (option `ruleSet`) and register it
   in `records.ts`. T053 green.
-- [ ] T057 [US3] [standard] Download the approved sources 1-5 (research R13) unchanged into
+- [~] T057 [US3] [standard] Download the approved sources 1-5 (research R13) unchanged into
   `content/library/sources/mutopia-<id>-<slug>/`, write `source.json` (source-manifest 1.4.0 with `multiPart`:
   available, `where` = its own page, licence, "SATB, tune in the Soprano"), hashes, `approvedByOwner` date; inspect each
   MIDI with `pnpm library:fidelity --inspect-midi <path>` and record `midiOrder`, `midiNoteTracks`, `midiArticulate`;
-  add each to `THIRD_PARTY_NOTICES.md`.
-- [ ] T058 [P] [US3] [standard] Same as T057 for approved sources 6-10.
+  add each to `THIRD_PARTY_NOTICES.md`. (claimed: claude-opus-5.5 2026-10-04)
+- [~] T058 [P] [US3] [standard] Same as T057 for approved sources 6-10. (claimed: claude-opus-5.5 2026-10-04)
 - [ ] T059 [US3] Author the full and simplified song definitions for tunes 1-5 in `content/library/songs/` (melody
   staff/voice/bars, transposition onto a key shelf where it helps - listed as a departure -, intermediate chords with a
   `leftHand.pattern`, beginner block chords, `trains`, `composer`, `departures`, `reviewedBy`, and
@@ -332,11 +332,11 @@ departures; `pnpm library:fidelity --item <id>` reports 0 differences.
 **Goal**: every new song's source says whether a multi-part version exists (FR-034, SC-007).
 **Independent Test**: read the new songs' `source.json` files: each has `multiPart`.
 
-- [ ] T065 [P] [US4] Write a failing test in `tests/library/fidelity.test.ts`: every source named by a song definition
+- [x] T065 [P] [US4] Write a failing test in `tests/library/fidelity.test.ts`: every source named by a song definition
   created in feature 022 (the ids listed in `tests/library/songs-022.test.ts`) has `multiPart` with `available`; a
   manifest with a malformed `multiPart` is rejected by `tools/library/fidelity/sources.ts`.
-- [ ] T066 [US4] Implement the optional `multiPart` field in `tools/library/fidelity/sources.ts` (source-manifest
-  1.4.0). T065 green with the manifests written in T057/T058.
+- [~] T066 [US4] Implement the optional `multiPart` field in `tools/library/fidelity/sources.ts` (source-manifest
+  1.4.0). T065 green with the manifests written in T057/T058. (claimed: claude-opus-5.5 2026-10-04)
 
 **Checkpoint (US4)**: T065 green; quickstart US4 verified (Play on a new song uses the Guide voice). Log + commit.
 
