@@ -808,6 +808,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
 
             let velocityOverride = null;
             let accent = false;
+            let staccato = false;
             let ornament: Note['ornament'] = null;
             let arpeggiate = false;
             const notations = getChildren(el, 'notations');
@@ -823,6 +824,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
               }
               const artic = getChild(not, 'articulations');
               if (artic && getChild(artic, 'accent')) accent = true;
+              if (artic && getChild(artic, 'staccato')) staccato = true;
 
               const tech = getChild(not, 'technical');
               if (tech) {
@@ -936,6 +938,7 @@ export function buildScore(doc: XmlDocument): { score: Score; report: LoadReport
                 source: { start: el.start || 0, end: el.end || 0 },
                 ornament,
                 arpeggiate,
+                staccato,
               },
             });
           }

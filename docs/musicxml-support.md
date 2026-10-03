@@ -30,6 +30,7 @@ This document lists the supported MusicXML elements.
 | Notes | `<turn>` | Supported | Play mode: the realisation is played-along, never graded (feature 003) |
 | Notes | `<tremolo>` | Supported | Play mode: the realisation is played-along, never graded (feature 003) |
 | Notes | `<arpeggiate>` | Supported | Play mode: the wider arpeggio spread applies instead of the chord spread (feature 003) |
+| Notes | `<staccato>` | Supported | Engraved; playback sounds it at half its written length (an untied note; STACCATO_SOUNDING_FRACTION); not graded (feature 022) |
 | Notes | `<glissando>` | Unsupported | Reported; ignored for playback |
 | Notes | `<slide>` | Unsupported | Reported; ignored for playback |
 | Notes | `<wavy-line>` | Ignored | The trill extension line: engraved by Verovio, ignored by the time model. Common in real scores |

@@ -59,6 +59,7 @@ function note(overrides: Partial<Note> = {}): Note {
     source: { start: 0, end: 0 },
     ornament: null,
     arpeggiate: false,
+    staccato: false,
     ...overrides,
   };
 }
@@ -179,5 +180,44 @@ describe('buildTimeline', () => {
     expect(timeline.events.every((e) => e.startTick >= 0)).toBe(true);
     expect(timeline.tempo[0]?.startTick).toBe(timeline.leadInTicks);
     expect(timeline.passes[0]?.startTick).toBe(timeline.leadInTicks);
+  });
+});
+
+// Feature 022 (research R9, data-model §8, owner decision OD-3): an untied staccato note sounds for
+// STACCATO_SOUNDING_FRACTION of its written length; its visual span, and so the cursor, Practice and grading, keep the
+// written length. A tie chain ignores staccato.
+describe('buildTimeline: staccato', () => {
+  it('an untied staccato quarter sounds for half its length; its visual span keeps the written end', () => {
+    const { timeline } = buildTimeline(score({ parts: [part([note({ staccato: true })])] }));
+    expect(timeline.events[0]).toMatchObject({ startTick: 0, endTick: 480 });
+    expect(timeline.spans[0]).toMatchObject({ startTick: 0, endTick: 960 });
+  });
+
+  it('a note without staccato is unchanged', () => {
+    const { timeline } = buildTimeline(score());
+    expect(timeline.events[0]).toMatchObject({ startTick: 0, endTick: 960 });
+  });
+
+  it('a tied chain ignores staccato on its members and sounds its full tied length', () => {
+    const n1 = note({ id: 'a', durationTicks: 960, tie: { start: true, stop: false }, staccato: true });
+    const n2 = note({
+      id: 'b',
+      measureIndex: 1,
+      durationTicks: 960,
+      tie: { start: false, stop: true },
+      staccato: true,
+    });
+    const { timeline } = buildTimeline(score({ parts: [part([n1, n2])], measures: [measure(0), measure(1)] }));
+    expect(timeline.events[0]).toMatchObject({ startTick: 0, endTick: 1920, members: ['a', 'b'] });
+  });
+
+  it('a one-tick staccato note keeps its one tick', () => {
+    const { timeline } = buildTimeline(score({ parts: [part([note({ durationTicks: 1, staccato: true })])] }));
+    expect(timeline.events[0]).toMatchObject({ startTick: 0, endTick: 1 });
+  });
+
+  it('the timeline still ends where the written music ends', () => {
+    const { timeline } = buildTimeline(score({ parts: [part([note({ staccato: true })])] }));
+    expect(timeline.endTick).toBe(960);
   });
 });

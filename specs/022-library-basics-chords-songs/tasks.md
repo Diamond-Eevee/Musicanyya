@@ -98,16 +98,16 @@
 
 ### Staccato playback (research R9, data-model §8) - after T003
 
-- [ ] T018 [P] Write failing tests: `tests/core/musicxml/` - a note with `<articulations><staccato/>` has
+- [x] T018 [P] Write failing tests: `tests/core/musicxml/` - a note with `<articulations><staccato/>` has
   `staccato: true`, others `false`; `tests/core/timeline/timeline.test.ts` - an untied staccato quarter (480 ticks)
   ends at start + 240, its visual span still ends at start + 480, a tied chain ignores staccato, a 1-tick note keeps
   1 tick.
-- [ ] T019 [light] Add `STACCATO_SOUNDING_FRACTION = 0.5` to `src/core/defaults.ts` (comment: 022 research R9).
-- [ ] T020 Add `Note.staccato` (`src/core/score/model.ts`), set it in `src/core/musicxml/build.ts`, apply it in
+- [x] T019 [light] Add `STACCATO_SOUNDING_FRACTION = 0.5` to `src/core/defaults.ts` (comment: 022 research R9).
+- [x] T020 Add `Note.staccato` (`src/core/score/model.ts`), set it in `src/core/musicxml/build.ts`, apply it in
   `src/core/timeline/timeline.ts` (events only, never spans). T018 green; `pnpm test -- tests/core/grade` unchanged
   (grading goldens identical - name the summary line in the log); update any timeline golden that changes, saying why
   in the log.
-- [ ] T021 [light] Update the `<staccato>` row of `docs/musicxml-support.md` and `SUPPORT_MATRIX`
+- [x] T021 [light] Update the `<staccato>` row of `docs/musicxml-support.md` and `SUPPORT_MATRIX`
   (`src/core/musicxml/support.ts`): "Engraved; playback sounds it at half its written length; not graded".
 
 ### Lesson builder (contract lesson-definition 1.0.0)

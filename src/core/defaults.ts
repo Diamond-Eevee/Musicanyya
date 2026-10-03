@@ -39,6 +39,9 @@ export const DYNAMIC_VELOCITY: Record<string, number> = {
 export const DEFAULT_VELOCITY = 80;
 export const SFORZANDO_BOOST = 24;
 export const ACCENT_BOOST = 12;
+// A written staccato note (untied) sounds for this fraction of its written length; its visual span keeps the written
+// length, so the cursor, Practice and grading do not change (feature 022 research R9, owner decision OD-3)
+export const STACCATO_SOUNDING_FRACTION = 0.5;
 
 export const WEDGE_TARGET_WINDOW_TICKS = (ppq: number) => ppq;
 export const WEDGE_DEFAULT_DELTA = 16;

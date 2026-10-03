@@ -14,6 +14,9 @@ const libraryRoot = path.resolve(__dirname, '../../public/library');
 const goldenPath = path.resolve(__dirname, '../fixtures/library-identity.json');
 const performanceLogPath = path.resolve(__dirname, '../fixtures/performance-logs/fur-elise-theme.json');
 
+// Feature 022 T020 (research R9, owner decision OD-3) re-recorded the schedule digests of the four Scores with printed
+// staccato (Burgmüller Op. 100 Nos. 2 and 5, both Morning Moods): their staccato notes now sound for half their length.
+// Their Note IDs, onsets, durations and keys are unchanged.
 describe('library identity golden (SC-003, FR-005)', () => {
   it('every library file rebuilds the same Note IDs, onsets, durations and keys as the golden captured before completion', async () => {
     const golden = JSON.parse(fs.readFileSync(goldenPath, 'utf-8')) as LibraryIdentityGolden;
